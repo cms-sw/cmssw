@@ -59,6 +59,7 @@ namespace pat {
             edm::EDGetTokenT<reco::PFCandidateFwdPtrVector>  CandsFromPVTight_;
             edm::EDGetTokenT<reco::VertexCollection>         PVs_;
             edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
+            edm::EDGetTokenT<reco::TrackCollection>          TKOrigs_;
             double minPtForTrackProperties_;
             // for debugging
             float calcDxy(float dx, float dy, float phi) {
@@ -76,6 +77,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   CandsFromPVTight_(consumes<reco::PFCandidateFwdPtrVector>(iConfig.getParameter<edm::InputTag>("inputCollectionFromPVTight"))),
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
   PVOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
+  TKOrigs_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("originalTracks"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {
   produces< std::vector<pat::PackedCandidate> > ();
@@ -134,8 +136,12 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         PVpos = PV->position();
     }
 
+    edm::Handle<reco::TrackCollection> TKOrigs;
+    iEvent.getByToken( TKOrigs_, TKOrigs );
+
     std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrP( new std::vector<pat::PackedCandidate> );
     std::vector<int> mapping(cands->size());
+    std::vector<int> mappingTk(TKOrigs->size(), -1);
 #ifdef CRAZYSORT
     std::vector<int> jetOrder;
     std::vector<int> jetOrderReverse;
@@ -186,166 +192,111 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         const reco::PFCandidate &cand=(*cands)[ic];
 #endif
         float phiAtVtx = cand.phi();
-        /*bool flags = false;
-        if (cand.flag(reco::PFCandidate::T_TO_DISP)   || 
-            cand.flag(reco::PFCandidate::T_FROM_DISP) ||
-            cand.flag(reco::PFCandidate::T_FROM_V0)   ||
-            cand.flag(reco::PFCandidate::T_FROM_GAMMACONV)) {
-            flags = true;
-            std::cout << "Candidate has flags!" ;
-            if( cand.flag( reco::PFCandidate::T_FROM_DISP ) ) std::cout << " T_FROM_DISP";
-            if( cand.flag( reco::PFCandidate::T_TO_DISP ) ) std::cout << " T_TO_DISP";
-            if( cand.flag( reco::PFCandidate::T_FROM_GAMMACONV ) ) std::cout << " T_FROM_GAMMACONV";
-            if( cand.flag( reco::PFCandidate::GAMMA_TO_GAMMACONV ) ) std::cout << " GAMMA_TO_GAMMACONV";
-            std::cout << std::endl;
-        }*/
-        if (cand.charge()) {
+        const reco::Track *ctrack = 0;
+        if ((abs(cand.pdgId()) == 11 || cand.pdgId() == 22) && cand.gsfTrackRef().isNonnull()) {
+            ctrack = &*cand.gsfTrackRef();
+        } else if (cand.trackRef().isNonnull()) {
+            ctrack = &*cand.trackRef();
+        }
+        if (ctrack) {
             math::XYZPoint vtx = cand.vertex();
-            //float dxyBefore = 0, dyBefore = 0;
             pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
-            if (abs(cand.pdgId()) == 11 && cand.gsfTrackRef().isNonnull()) {
-                /*if (cand.vertexType() != reco::PFCandidate::kGSFVertex) {
-                     std::cout << "Candidate electron vertex type is " << cand.vertexType() << std::endl; 
-                     flags = true;
-                }*/
-                vtx = cand.gsfTrackRef()->referencePoint();
-                phiAtVtx = cand.gsfTrackRef()->phi();
-                int nlost = cand.gsfTrackRef()->trackerExpectedHitsInner().numberOfLostHits();
-                if (nlost == 0) { 
-                    if ( cand.gsfTrackRef()->hitPattern().hasValidHitInFirstPixelBarrel()) {
-                        lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
-                    }
-                } else {
-                    lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
-                }
-	        
-                //dxyBefore = cand.gsfTrackRef()->dxy(PVpos);
-                //dzBefore = cand.gsfTrackRef()->dz(PVpos);
-            } else if (cand.trackRef().isNonnull()) {
-                /*if (cand.vertexType() != reco::PFCandidate::kTrkVertex) {
-                     std::cout << "Candidate track vertex type is " << cand.vertexType() << std::endl; 
-                     flags = true;
-                }*/
-                vtx = cand.trackRef()->referencePoint();
-                phiAtVtx = cand.trackRef()->phi();
-                //dxyBefore = cand.trackRef()->dxy(PVpos);
-                //dzBefore = cand.trackRef()->dz(PVpos);
-                int nlost = cand.trackRef()->trackerExpectedHitsInner().numberOfLostHits();
-                if (nlost == 0) { 
-                    if ( cand.trackRef()->hitPattern().hasValidHitInFirstPixelBarrel()) {
-                        lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
-                    }
-                } else {
-                    lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
+            vtx = ctrack->referencePoint();
+            phiAtVtx = ctrack->phi();
+            int nlost = ctrack->trackerExpectedHitsInner().numberOfLostHits();
+            if (nlost == 0) { 
+                if ( ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) {
+                    lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
                 }
             } else {
-                //dxyBefore = calcDxy(vtx.X()-PVpos.X(),vtx.Y()-PVpos.Y(),cand.phi());
-                //dzBefore = calcDz(vtx,PVpos,cand);
+                if (cand.pt() > 1 && ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) std::cout << "HELP: " << nlost << " and " << ctrack->hitPattern().hasValidHitInFirstPixelBarrel() << " AND  " << cand.pt() << " and " << cand.pdgId() << std::endl;
+                lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
             }
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV));
+          
+            // properties of the best track 
+            outPtrP->back().setLostInnerHits( lostHits );
+	    if(outPtrP->back().pt() > minPtForTrackProperties_) {
+                outPtrP->back().setTrackProperties(*ctrack);
+            }
+
+            // these things are always for the CKF track
 	    if(cand.trackRef().isNonnull() && PVOrig.trackWeight(cand.trackRef()) > 0.5) {
                 outPtrP->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
 	    } else {
                 outPtrP->back().setFromPV( fromPV[ic] );
             }
             outPtrP->back().setTrackHighPurity( cand.trackRef().isNonnull() && cand.trackRef()->quality(reco::Track::highPurity) );
-            outPtrP->back().setLostInnerHits( lostHits );
-            
-	    if(cand.trackRef().isNonnull() && cand.pt() > minPtForTrackProperties_)
-	    {
-		if(abs(cand.pdgId()) == 11 && cand.gsfTrackRef().isNonnull())
-			outPtrP->back().setTrackProperties(*cand.gsfTrackRef());
-		else	
-			outPtrP->back().setTrackProperties(*cand.trackRef());
 ///// DEBUG
 #if DEBUGIP
-		if( fabs(cand.trackRef()->dz()-PV->position().z()) < 0.3 && cand.trackRef()->numberOfValidHits() > 7 ){
-		reco::Track tr = outPtrP->back().pseudoTrack();
-		edm::ESHandle<TransientTrackBuilder> builder;
-		iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);		
+            if(outPtrP->back().pt() > minPtForTrackProperties_) {
+                if( fabs(ctrack->dz()-PV->position().z()) < 0.3 && ctrack->numberOfValidHits() > 7 ){
+                    reco::Track tr = outPtrP->back().pseudoTrack();
+                    edm::ESHandle<TransientTrackBuilder> builder;
+                    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);		
 
-		reco::TransientTrack newTT = builder->build(tr);
-		reco::TransientTrack oldTT = builder->build(*cand.trackRef());
-		Measurement1D ip3Dnew = (IPTools::absoluteImpactParameter3D(newTT,*PV)).second;
-		Measurement1D ip3Dold = (IPTools::absoluteImpactParameter3D(oldTT,*PV)).second;
-		if(tr.hitPattern().numberOfValidHits() != cand.trackRef()->hitPattern().numberOfValidHits() || tr.hitPattern().numberOfValidPixelHits() != cand.trackRef()->hitPattern().numberOfValidPixelHits() )
-		{
-			std::cout << tr.hitPattern().numberOfValidHits() << " "<<  cand.trackRef()->hitPattern().numberOfValidHits() << " " << tr.hitPattern().numberOfValidPixelHits() << " " << cand.trackRef()->hitPattern().numberOfValidPixelHits()<< std::endl;
-		}
-		if( 		  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.02 && ip3Dold.significance() < 10 )
-		||  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.10 && ip3Dold.significance() > 10 )
-		) {
-		std::cout <<" NEW vs OLD  : " <<  ip3Dnew.value() << " / " << ip3Dnew.error() << " = " << ip3Dnew.significance() << " vs " << ip3Dold.value() << " / " << ip3Dold.error() << " = " << ip3Dold.significance() <<  " pt: " << cand.pt() <<  " eta: " << cand.eta() << " pdg: " << cand.pdgId() <<   std::endl;
+                    reco::TransientTrack newTT = builder->build(tr);
+                    reco::TransientTrack oldTT = builder->build(*tk);
+                    Measurement1D ip3Dnew = (IPTools::absoluteImpactParameter3D(newTT,*PV)).second;
+                    Measurement1D ip3Dold = (IPTools::absoluteImpactParameter3D(oldTT,*PV)).second;
+                    if(tr.hitPattern().numberOfValidHits() != ctrack->hitPattern().numberOfValidHits() || tr.hitPattern().numberOfValidPixelHits() != ctrack->hitPattern().numberOfValidPixelHits() )
+                    {
+                        std::cout << tr.hitPattern().numberOfValidHits() << " "<<  ctrack->hitPattern().numberOfValidHits() << " " << tr.hitPattern().numberOfValidPixelHits() << " " << ctrack->hitPattern().numberOfValidPixelHits()<< std::endl;
+                    }
+                    if( 		  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.02 && ip3Dold.significance() < 10 )
+                            ||  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.10 && ip3Dold.significance() > 10 )
+                      ) {
+                        std::cout <<" NEW vs OLD  : " <<  ip3Dnew.value() << " / " << ip3Dnew.error() << " = " << ip3Dnew.significance() << " vs " << ip3Dold.value() << " / " << ip3Dold.error() << " = " << ip3Dold.significance() <<  " pt: " << cand.pt() <<  " eta: " << cand.eta() << " pdg: " << cand.pdgId() <<   std::endl;
 
-		std::cout << "new covariance" <<  std::endl << tr.covariance() << std::endl;
-		std::cout <<  "old covariance" <<  std::endl  << cand.trackRef()->covariance() << std::endl;
-		const reco::Vertex & vertex = *PV;
+                        std::cout << "new covariance" <<  std::endl << tr.covariance() << std::endl;
+                        std::cout <<  "old covariance" <<  std::endl  << ctrack->covariance() << std::endl;
+                        const reco::Vertex & vertex = *PV;
 
-		{
-		using namespace reco;
-		std::cout<< "new math" << std::endl;
-		const reco::TransientTrack & transientTrack = newTT;
-		AnalyticalImpactPointExtrapolator extrapolator(transientTrack.field());
-		TrajectoryStateOnSurface tsos = extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position()));
-	
-	        GlobalPoint refPoint          = tsos.globalPosition();
-  //      	GlobalError refPointErr       = tsos.cartesianError().position();
-	        GlobalPoint vertexPosition    = RecoVertex::convertPos(vertex.position());
-		std::cout << GlobalVector(refPoint-vertexPosition).eta() << std::endl;
-  //      	GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
-		std::cout << tsos  << std::endl;
-		}
+                        {
+                            using namespace reco;
+                            std::cout<< "new math" << std::endl;
+                            const reco::TransientTrack & transientTrack = newTT;
+                            AnalyticalImpactPointExtrapolator extrapolator(transientTrack.field());
+                            TrajectoryStateOnSurface tsos = extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position()));
 
-                {
-		using namespace reco;
-                std::cout<< "old math" << std::endl;
-                const reco::TransientTrack & transientTrack = oldTT;
-                AnalyticalImpactPointExtrapolator extrapolator(transientTrack.field());
-		TrajectoryStateOnSurface tsos = extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position()));
-		std::cout << tsos  << std::endl;
-//                GlobalPoint refPoint          = tsos.globalPosition();
-  ///              GlobalError refPointErr       = tsos.cartesianError().position();
-     //           GlobalPoint vertexPosition    = RecoVertex::convertPos(vertex.position());
-       //         GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
-//                std::cout << refPoint << std::endl << refPointErr << std::endl;
+                            GlobalPoint refPoint          = tsos.globalPosition();
+                            //      	GlobalError refPointErr       = tsos.cartesianError().position();
+                            GlobalPoint vertexPosition    = RecoVertex::convertPos(vertex.position());
+                            std::cout << GlobalVector(refPoint-vertexPosition).eta() << std::endl;
+                            //      	GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
+                            std::cout << tsos  << std::endl;
+                        }
+
+                        {
+                            using namespace reco;
+                            std::cout<< "old math" << std::endl;
+                            const reco::TransientTrack & transientTrack = oldTT;
+                            AnalyticalImpactPointExtrapolator extrapolator(transientTrack.field());
+                            TrajectoryStateOnSurface tsos = extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position()));
+                            std::cout << tsos  << std::endl;
+                            //                GlobalPoint refPoint          = tsos.globalPosition();
+                            ///              GlobalError refPointErr       = tsos.cartesianError().position();
+                            //           GlobalPoint vertexPosition    = RecoVertex::convertPos(vertex.position());
+                            //         GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
+                            //                std::cout << refPoint << std::endl << refPointErr << std::endl;
+                        }
+
+
+                    } else {std::cout << " OK " << std::endl;}
                 }
-
-
-		} else {std::cout << " OK " << std::endl;}
-		}
+            }
 #endif
 //// ENDDEBUG
-	    }	
-            /*if (flags) {
-            const pat::PackedCandidate &pc = outPtrP->back();
-            //float dxyAfter = pc.dz(); // .dxy(); //calcDxy(pc.vx()-PVpos.X(),pc.vy()-PVpos.Y(),pc.phi());
-            //if (std::abs(dxyBefore-dxyAfter)/(std::abs(dxyBefore)+std::abs(dxyAfter)+0.0001) > 1e-3) {
-                if (abs(cand.pdgId()) == 11 && cand.gsfTrackRef().isNonnull()) {
-                    printf("XYZ of cand before:   %+18.10f   %+18.10f   %+18.10f      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f  [ pdgId %+4d ]\n", cand.vertex().X(), cand.vertex().Y(), cand.vertex().Z(), cand.phi(), calcDxy(cand.vertex().X()-PVpos.X(),cand.vertex().Y()-PVpos.Y(),cand.phi()), calcDz(vtx,PVpos,cand), cand.pdgId());
-                    printf("XYZ of gsft before:   %+18.10f   %+18.10f   %+18.10f      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f  [ pdgId %+4d ]\n", vtx.X(), vtx.Y(), vtx.Z(), cand.gsfTrackRef()->phi(), cand.gsfTrackRef()->dxy(PVpos), cand.gsfTrackRef()->dz(PVpos), cand.pdgId());
-                } else if (cand.trackRef().isNonnull()) {
-                    printf("XYZ of cand before:   %+18.10f   %+18.10f   %+18.10f      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f  [ pdgId %+4d ]\n", cand.vertex().X(), cand.vertex().Y(), cand.vertex().Z(), cand.phi(), calcDxy(cand.vertex().X()-PVpos.X(),cand.vertex().Y()-PVpos.Y(),cand.phi()), calcDz(vtx,PVpos,cand), cand.pdgId());
-                    printf("XYZ of trk  before:   %+18.10f   %+18.10f   %+18.10f      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f  [ pdgId %+4d ]\n", vtx.X(), vtx.Y(), vtx.Z(), cand.trackRef()->phi(), cand.trackRef()->dxy(PVpos), cand.trackRef()->dz(PVpos), cand.pdgId());
-                } else {
-                    printf("XYZ of cand before:   %+18.10f   %+18.10f   %+18.10f      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f  [ pdgId %+4d ]\n", vtx.X(), vtx.Y(), vtx.Z(), cand.phi(), calcDxy(vtx.X()-PVpos.X(),vtx.Y()-PVpos.Y(),cand.phi()), calcDz(vtx,PVpos,cand), cand.pdgId());
-                }
-                    printf("XYZ of cand after:    %+18.10f   %+18.10f   %+18.10f      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f  \n",  pc.vx(), pc.vy(), pc.vz(), pc.phi(), calcDxy(pc.vx()-PVpos.X(),pc.vy()-PVpos.Y(),pc.phi()), calcDz(vtx,PVpos,pc));
-                    printf("corrected dxy, dz:                                                                      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f\n",                             pc.phiAtVtx(), pc.dxy(), pc.dz());
-            }*/
         } else {
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV));
             outPtrP->back().setFromPV( fromPV[ic] );
-            /*if (cand.vertexType() != reco::PFCandidate::kCandVertex) {
-                math::XYZPoint vtx = cand.vertex();
-                const pat::PackedCandidate &pc = outPtrP->back();
-                std::cout << "Candidate neutral vertex type is " << cand.vertexType() << std::endl; 
-                printf("XYZ of cand before:   %+18.10f   %+18.10f   %+18.10f      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f  [ pdgId %+4d ]\n", cand.vertex().X(), cand.vertex().Y(), cand.vertex().Z(), cand.phi(), calcDxy(cand.vertex().X()-PVpos.X(),cand.vertex().Y()-PVpos.Y(),cand.phi()), calcDz(vtx,PVpos,cand), cand.pdgId());
-                printf("XYZ of cand after:    %+18.10f   %+18.10f   %+18.10f      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f  \n",  pc.vx(), pc.vy(), pc.vz(), pc.phi(), calcDxy(pc.vx()-PVpos.X(),pc.vy()-PVpos.Y(),pc.phi()), calcDz(vtx,PVpos,pc));
-                printf("corrected dxy, dz:                                                                      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f\n",                             pc.phiAtVtx(), pc.dxy(), pc.dz());
-            }*/
         }
 
         mapping[ic] = ic; // trivial at the moment!
+        if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
+            mappingTk[cand.trackRef().key()] = ic;
+        }
+
     }
 
 
@@ -363,6 +314,9 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     pf2pcFiller.insert(cands, mapping.begin(), mapping.end());
     pc2pfFiller.insert(oh   , mapping.begin(), mapping.end());
 #endif
+    // include also the mapping track -> packed PFCand
+    pf2pcFiller.insert(TKOrigs, mappingTk.begin(), mappingTk.end());
+
     pf2pcFiller.fill();
     pc2pfFiller.fill();
     iEvent.put(pf2pc);

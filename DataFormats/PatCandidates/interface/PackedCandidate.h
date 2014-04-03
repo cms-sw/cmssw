@@ -168,23 +168,22 @@ namespace pat {
     }
     /// set impact parameters covariance
     virtual void setTrackProperties( const reco::Track & tk ) {
-      dxydxy_=tk.covariance(3,3);
-      dxydz_=tk.covariance(3,4);
-      dzdz_=tk.covariance(4,4);
-      dphidxy_=tk.covariance(2,3);
-      dlambdadz_=tk.covariance(1,4);
-//    d23_=pow(2,int(log(fabs(tk.covariance(2,3)))/log(2)))*((tk.covariance(2,3)>0)?1.:-1.);
-//    d14_=pow(2,int(log(fabs(tk.covariance(1,4)))/log(2)))*((tk.covariance(1,4)>0)?1.:-1.);
+      dxydxy_ = tk.covariance(3,3);
+      dxydz_ = tk.covariance(3,4);
+      dzdz_ = tk.covariance(4,4);
+      dphidxy_ = tk.covariance(2,3);
+      dlambdadz_ = tk.covariance(1,4);
 
-
-      normalizedChi2_=tk.normalizedChi2();
-      int numberOfPixelHits_=tk.hitPattern().numberOfValidPixelHits();
-      int numberOfHits_=tk.hitPattern().numberOfValidHits();
-      if(numberOfHits_>31)numberOfHits_ = 31;
-      if(numberOfPixelHits_>7)numberOfHits_ = 7;
-      packedHits_ = (numberOfPixelHits_&0x7) | (numberOfHits_ << 3);
+      normalizedChi2_ = tk.normalizedChi2();
+      int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits();
+      if (numberOfPixelHits_ > 7) numberOfPixelHits_ = 7;
+      int numberOfStripHits_ = tk.hitPattern().numberOfValidHits() - numberOfPixelHits_;
+      if (numberOfStripHits_ > 31) numberOfStripHits_ = 31;
+      packedHits_ = (numberOfPixelHits_&0x7) | (numberOfStripHits_ << 3);
       packBoth();
     }	 
+    int numberOfPixelHits() const { return packedHits_ & 0x7; }
+    int numberOfHits() const { return (packedHits_ >> 3) + numberOfPixelHits(); }
 	
     /// vertex position
     virtual const Point & vertex() const { maybeUnpackBoth(); return vertex_; }//{ if (fromPV_) return Point(0,0,0); else return Point(0,0,100); }

@@ -1,32 +1,9 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/PatCandidates/interface/libminifloat.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-class FakeTrackingRecHit : public TrackingRecHit
-{
-public:
-  FakeTrackingRecHit(int detid): TrackingRecHit(detid,0){}
-  virtual TrackingRecHit * clone() const {return 0;}
-  virtual AlgebraicVector parameters() const {return AlgebraicVector();}
-
-  virtual AlgebraicSymMatrix parametersError() const {return AlgebraicSymMatrix();}
-
-  virtual AlgebraicMatrix projectionMatrix() const {return AlgebraicMatrix();}
-
-
-  virtual int dimension() const {return 0;}
-
-  virtual std::vector<const TrackingRecHit*> recHits() const {return std::vector<const TrackingRecHit*>() ; }
-
-  virtual std::vector<TrackingRecHit*> recHits() {return std::vector<TrackingRecHit*>();}
-
-  virtual LocalPoint localPosition() const { return LocalPoint();}
-
-  virtual LocalError localPositionError() const {return LocalError();}
-
-
- 
-};
 
 int8_t pack8log(double x,double lmin, double lmax)
 {
@@ -49,8 +26,8 @@ double unpack8log(int8_t i,double lmin, double lmax)
 
 void pat::PackedCandidate::pack(bool unpackAfterwards) {
     packedPt_  =  MiniFloatConverter::float32to16(p4_.Pt());
-    packedEta_ =  int16_t(p4_.Eta()/6.0f*std::numeric_limits<int16_t>::max());
-    packedPhi_ =  int16_t(p4_.Phi()/3.2f*std::numeric_limits<int16_t>::max());
+    packedEta_ =  int16_t(std::round(p4_.Eta()/6.0f*std::numeric_limits<int16_t>::max()));
+    packedPhi_ =  int16_t(std::round(p4_.Phi()/3.2f*std::numeric_limits<int16_t>::max()));
     packedM_   =  MiniFloatConverter::float32to16(p4_.M());
     if (unpackAfterwards) unpack(); // force the values to match with the packed ones
 }
@@ -66,8 +43,8 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
     float pzpt = p4_.Pz()/p4_.Pt();
     dz_ = vertex_.Z() - pv.Z() - (dxPV*c + dyPV*s) * pzpt;
     packedDxy_ = MiniFloatConverter::float32to16(dxy_*100);
-    packedDz_   = pvRef_.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(dz_/40.f*std::numeric_limits<int16_t>::max());
-    packedDPhi_ =  int16_t(dphi_/3.2f*std::numeric_limits<int16_t>::max());
+    packedDz_   = pvRef_.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(std::round(dz_/40.f*std::numeric_limits<int16_t>::max()));
+    packedDPhi_ =  int16_t(std::round(dphi_/3.2f*std::numeric_limits<int16_t>::max()));
     packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
     packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
     packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
@@ -139,20 +116,38 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
     m(4,3)=dxydz_;
     m(4,4)=dzdz_;
     math::RhoEtaPhiVector p3(p4_.pt(),p4_.eta(),phiAtVtx());
-    int numberOfHits_= (packedHits_>>3) ;
-    int numberOfPixelHits_= packedHits_ & 0x7 ;
+    int numberOfPixelHits_ = packedHits_ & 0x7 ;
+    int numberOfHits_ = (packedHits_>>3) + numberOfPixelHits_;
 
     int ndof = numberOfHits_+numberOfPixelHits_-5;
-    reco::HitPattern hp;
+    reco::HitPattern hp, hpExpIn;
     int i=0;
-    for(i=0;i<numberOfPixelHits_;i++) {
-	   hp.set(FakeTrackingRecHit(302057232),i ); // a random pixel id
-     }
+    LostInnerHits innerLost = lostInnerHits();
+    switch (innerLost) {
+        case validHitInFirstPixelBarrelLayer:
+            hp.set(PXBDetId(1,0,0), TrackingRecHit::valid, i); 
+            i++; 
+            break;
+        case noLostInnerHits:
+            break;
+        case oneLostInnerHit:
+            hpExpIn.set(PXBDetId(1,0,0), TrackingRecHit::missing, 0);
+            break;
+        case moreLostInnerHits:
+            hpExpIn.set(PXBDetId(1,0,0), TrackingRecHit::missing, 0);
+            hpExpIn.set(PXBDetId(2,0,0), TrackingRecHit::missing, 1);
+            break;
+    };
+    for(;i<numberOfPixelHits_; i++) {
+       hp.set( PXBDetId(i>1?3:2,0,0), TrackingRecHit::valid, i); 
+    }
     for(;i<numberOfHits_;i++) {
-	   hp.set(FakeTrackingRecHit(369171304),i); // a random TIB L4 id
+	   hp.set( TIBDetId(1,0,0,1,1,0), TrackingRecHit::valid, i); 
      }
-    reco::Track tk(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::highPurity);
+    reco::Track tk(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
     tk.setHitPattern(hp);
+    tk.setTrackerExpectedHitsInner(hpExpIn);
+    if (trackHighPurity()) tk.setQuality(reco::TrackBase::highPurity);
     return tk;
 }
 
