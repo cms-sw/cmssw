@@ -80,25 +80,9 @@ MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
 
 
 
-# # ------------------------------------------------------------------------------
-# # Here we define additional services needed by the module
-
-# # FIXME: find a better place or remove (PoolDBOutputService is not required in the final config since the DB will be written in the following step
-# PoolDBOutputService = cms.Service("PoolDBOutputService",
-#                                   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-#                                   DBParameters = cms.PSet(
-#                                       messageLevel = cms.untracked.int32(2),
-#                                       authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-#                                       ),
-#                                   timetype = cms.untracked.string('runnumber'),
-#                                   connect = cms.string('sqlite_file:Gains_Sqlite.db'),
-#                                   toPut = cms.VPSet(cms.PSet(
-#                                       record = cms.string('SiStripApvGainRcd'),
-#                                       tag = cms.string('IdealGainTag')
-#                                       ))
-#                                   )
 
 
+# the actual sequence
 seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(ALCARECOCalMinBiasFilterForSiStripGains *
                                                       ALCARECOTrackFilterRefit *
                                                       ALCARECOSiStripCalib *

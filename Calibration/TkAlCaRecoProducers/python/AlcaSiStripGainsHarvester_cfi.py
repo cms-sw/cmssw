@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# FIXME: the safest option would be to import the basic cfi from a place mantained by the developer
 
 from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib as alcaSiStripGainsHarvester
 alcaSiStripGainsHarvester.AlgoMode = cms.untracked.string('PCL')
