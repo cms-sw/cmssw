@@ -30,16 +30,17 @@ class JetCorrectorOnTheFly : public edm::EDAnalyzer {
 public:
   explicit JetCorrectorOnTheFly(const edm::ParameterSet&);
   ~JetCorrectorOnTheFly();
-  
+
 private:
   typedef std::vector<Jet> JetCollection;
   virtual void beginJob() override ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
+
   edm::Service<TFileService> fs;
   std::string mJetCorService;
-  std::string mJetName;
+  edm::EDGetTokenT<JetCollection> mJetToken;
+  edm::EDGetTokenT<reco::VertexCollection> mVertexToken;
   double mMinRawJetPt;
   bool mDebug;
   TH1F *mRawPt,*mCorPt;
@@ -52,7 +53,8 @@ template<class Jet>
 JetCorrectorOnTheFly<Jet>::JetCorrectorOnTheFly(const edm::ParameterSet& iConfig)
 {
   mJetCorService = iConfig.getParameter<std::string> ("JetCorrectionService");
-  mJetName       = iConfig.getParameter<std::string> ("JetCollectionName");
+  mJetToken       = consumes<JetCollection>(edm::InputTag(iConfig.getParameter<std::string> ("JetCollectionName")));
+  mVertexToken       = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   mMinRawJetPt   = iConfig.getParameter<double> ("MinRawJetPt");
   mDebug         = iConfig.getParameter<bool> ("Debug");
 }
@@ -60,7 +62,7 @@ JetCorrectorOnTheFly<Jet>::JetCorrectorOnTheFly(const edm::ParameterSet& iConfig
 template<class Jet>
 JetCorrectorOnTheFly<Jet>::~JetCorrectorOnTheFly()
 {
-  
+
 }
 //---------------------------------------------------------------------------
 template<class Jet>
@@ -68,21 +70,21 @@ void JetCorrectorOnTheFly<Jet>::analyze(const edm::Event& iEvent, const edm::Eve
 {
   const JetCorrector* corrector = JetCorrector::getJetCorrector(mJetCorService,iSetup);
   Handle<JetCollection> jets;
-  iEvent.getByLabel(mJetName,jets);
+  iEvent.getByToken(mJetToken,jets);
 
   edm::Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
+  iEvent.getByToken(mVertexToken,recVtxs);
   int NPV(0);
   for(unsigned int ind=0;ind<recVtxs->size();ind++) {
     if (!((*recVtxs)[ind].isFake())) {
       NPV++;
     }
-  } 
+  }
   typename JetCollection::const_iterator i_jet;
   /////////// Loop over all jets and apply correction /////
   for(i_jet = jets->begin(); i_jet != jets->end(); i_jet++) {
     if (i_jet->pt() < mMinRawJetPt) continue;
-    //double scale = corrector->correction(i_jet->p4()); 
+    //double scale = corrector->correction(i_jet->p4());
     double scale = corrector->correction(*i_jet,iEvent,iSetup);
     if (mDebug) {
       std::cout<<"energy = "<<i_jet->energy()<<", "
@@ -90,7 +92,7 @@ void JetCorrectorOnTheFly<Jet>::analyze(const edm::Event& iEvent, const edm::Eve
                <<"raw pt = "<<i_jet->pt()<<", "
                <<"NPV = "<<NPV<<", "
                <<"correction = "<<scale<<", "
-               <<"cor pt = "<<scale*i_jet->pt()<<endl; 
+               <<"cor pt = "<<scale*i_jet->pt()<<endl;
     }
     mRawPt->Fill(i_jet->pt());
     mCorPt->Fill(scale*i_jet->pt());
@@ -107,9 +109,9 @@ void JetCorrectorOnTheFly<Jet>::beginJob()
 }
 //---------------------------------------------------------------------------
 template<class Jet>
-void JetCorrectorOnTheFly<Jet>::endJob() 
+void JetCorrectorOnTheFly<Jet>::endJob()
 {
-  
+
 }
 //---------------------------------------------------------------------------
 typedef JetCorrectorOnTheFly<CaloJet> CaloJetCorrectorOnTheFly;
