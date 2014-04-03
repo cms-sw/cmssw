@@ -34,10 +34,14 @@ TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder( const Tracki
   stripCPE(sCPE),
   theMatcher(matcher),
   theComputeCoarseLocalPosition(computeCoarseLocalPositionFromDisk){}
-  
+
 TransientTrackingRecHit::RecHitPointer 
 TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const 
 {
+  //assert("TkTransientTrackingRecHitBuilder::build"==nullptr);
+
+  return (*p).cloneSH();
+
   std::type_info const & tp = typeid(*p);
  
   if (tp == typeid(SiPixelRecHit))
@@ -87,6 +91,7 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
     } 
   return oldbuild(p);
 }
+
 
 TransientTrackingRecHit::RecHitPointer 
 TkTransientTrackingRecHitBuilder::oldbuild (const TrackingRecHit * p) const 

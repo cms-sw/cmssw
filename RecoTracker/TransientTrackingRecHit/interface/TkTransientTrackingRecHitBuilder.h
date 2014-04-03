@@ -20,6 +20,7 @@ class TkTransientTrackingRecHitBuilder GCC11_FINAL : public TransientTrackingRec
 				    const StripClusterParameterEstimator * ,
                                     const SiStripRecHitMatcher           *,
 				    bool computeCoarseLocalPositionFromDisk);
+
   TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const ;
 
 //  TransientTrackingRecHit::RecHitPointer build ( const TrackingRecHit * p, const TrajectoryStateOnSurface & state)  const ;

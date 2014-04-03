@@ -103,7 +103,7 @@ public:
   virtual void recHitsV(std::vector<TrackingRecHit*> & );
 
 #ifdef NO_DICT
-  ConstRecHitContainer transientHits() const {
+  virtual ConstRecHitContainer transientHits() const {
     ConstRecHitContainer result;
     std::vector<const TrackingRecHit*> hits;
     recHitsV(hits);
