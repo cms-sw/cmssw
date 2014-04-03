@@ -35,8 +35,6 @@ SiStripRecHit2D * TkClonerImpl::operator()(SiStripRecHit2D const & hit, Trajecto
  return new SiStripRecHit2D(lv.first, lv.second, *hit.det(), hit.omniCluster());
 }
 
-
-
 SiStripRecHit1D * TkClonerImpl::operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
   /// FIXME: this only uses the first cluster and ignores the others
   const SiStripCluster&  clust = hit.stripCluster();  
@@ -44,6 +42,30 @@ SiStripRecHit1D * TkClonerImpl::operator()(SiStripRecHit1D const & hit, Trajecto
     stripCPE->localParameters( clust, *hit.detUnit(), tsos);
   LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
   return new SiStripRecHit1D(lv.first, le, *hit.det(), hit.omniCluster());
+}
+
+TrackingRecHit::RecHitPointer TkClonerImpl::makeShared(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
+  const SiPixelCluster& clust = *hit.cluster();  
+  PixelClusterParameterEstimator::LocalValues lv = 
+    pixelCPE->localParameters( clust, *hit.detUnit(), tsos);
+  return std::make_shared<SiPixelRecHit>(lv.first, lv.second, pixelCPE->rawQualityWord(), *hit.det(), hit.cluster());
+}
+
+TrackingRecHit::RecHitPointer TkClonerImpl::makeShared(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+    /// FIXME: this only uses the first cluster and ignores the others
+    const SiStripCluster&  clust = hit.stripCluster();  
+    StripClusterParameterEstimator::LocalValues lv = 
+      stripCPE->localParameters( clust, *hit.detUnit(), tsos);
+    return std::make_shared<SiStripRecHit2D>(lv.first, lv.second, *hit.det(), hit.omniCluster());
+}
+
+TrackingRecHit::RecHitPointer TkClonerImpl::makeShared(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  /// FIXME: this only uses the first cluster and ignores the others
+  const SiStripCluster&  clust = hit.stripCluster();  
+  StripClusterParameterEstimator::LocalValues lv = 
+    stripCPE->localParameters( clust, *hit.detUnit(), tsos);
+  LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
+  return  std::make_shared<SiStripRecHit1D>(lv.first, le, *hit.det(), hit.omniCluster());
 }
 
 
@@ -103,6 +125,13 @@ SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const &
 
 }
 
+TrackingRecHit::RecHitPointer TkClonerImpl::makeShared(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  return TrackingRecHit::RecHitPointer((*this)(hit,tsos));
+}
+
+TrackingRecHit::RecHitPointer TkClonerImpl::makeShared(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+   return TrackingRecHit::RecHitPointer((*this)(hit,tsos));
+}
 
 ProjectedSiStripRecHit2D * TkClonerImpl::operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
   const SiStripCluster& clust = hit.stripCluster();
