@@ -26,7 +26,7 @@
 // class decleration
 //
 
-class DataCertificationJetMET : public DQMEDAnalyzer {
+class DataCertificationJetMET : public edm::EDAnalyzer {
    public:
       explicit DataCertificationJetMET(const edm::ParameterSet&);
       ~DataCertificationJetMET();
@@ -36,7 +36,7 @@ class DataCertificationJetMET : public DQMEDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
       virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
 
       virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);

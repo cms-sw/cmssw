@@ -49,10 +49,6 @@ void JetMETDQMOfflineClient::endJob()
 // {
 // }
 
-void JetMETDQMOfflineClient::bookHistograms(DQMStore::IBooker & ibooker,
-			      edm::Run const & iRun,
-			      edm::EventSetup const & ) {
-}
 
 
 void JetMETDQMOfflineClient::endRun(const edm::Run& run, const edm::EventSetup& c)
