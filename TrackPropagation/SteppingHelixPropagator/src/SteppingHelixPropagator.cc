@@ -36,6 +36,22 @@
 #include <sstream>
 #include <typeinfo>
 
+void SteppingHelixPropagator::initStateArraySHPSpecific(StateArray& svBuf, bool flagsOnly) const{
+  for (int i = 0; i <= MAX_POINTS; i++){
+    svBuf[i].isComplete = true;
+    svBuf[i].isValid_ = true;
+    svBuf[i].hasErrorPropagated_ = !noErrorPropagation_;
+    if (!flagsOnly){
+      svBuf[i].p3 = Vector(0,0,0);
+      svBuf[i].r3 = Point(0,0,0);
+      svBuf[i].bf = Vector(0,0,0);
+      svBuf[i].bfGradLoc =  Vector(0,0,0);
+      svBuf[i].covCurv = AlgebraicSymMatrix55();
+      svBuf[i].matDCovCurv = AlgebraicSymMatrix55();
+    }
+  }
+}
+
 SteppingHelixPropagator::SteppingHelixPropagator() :
   Propagator(anyDirection)
 {
@@ -103,7 +119,7 @@ std::pair<TrajectoryStateOnSurface, double>
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const Plane& pDest) const {
 
-  StateArray svBuf;
+  StateArray svBuf; initStateArraySHPSpecific(svBuf, true);
   int nPoints = 0;
   setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
 
@@ -117,7 +133,7 @@ std::pair<TrajectoryStateOnSurface, double>
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const Cylinder& cDest) const {
 
-  StateArray svBuf;
+  StateArray svBuf; initStateArraySHPSpecific(svBuf, true);
   int nPoints = 0;
   setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
 
@@ -131,7 +147,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 std::pair<FreeTrajectoryState, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const GlobalPoint& pDest) const {
-  StateArray svBuf;
+  StateArray svBuf; initStateArraySHPSpecific(svBuf, true);
   int nPoints = 0;
   setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
 
@@ -155,7 +171,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
     }
     return FtsPP();
   }
-  StateArray svBuf;
+  StateArray svBuf; initStateArraySHPSpecific(svBuf, true);
   int nPoints = 0;
   setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
   
@@ -222,7 +238,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
     out = invalidState_; 
     return ;
   }
-  StateArray svBuf;
+  StateArray svBuf; initStateArraySHPSpecific(svBuf, true);
   int nPoints = 0;
   setIState(sStart,svBuf,nPoints);
   
@@ -258,7 +274,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
     out = invalidState_;
     return;
   }
-  StateArray svBuf;
+  StateArray svBuf; initStateArraySHPSpecific(svBuf, true);
   int nPoints = 0;
   setIState(sStart,svBuf,nPoints);
   
@@ -291,7 +307,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
     out = invalidState_;
     return;
   }
-  StateArray svBuf;
+  StateArray svBuf; initStateArraySHPSpecific(svBuf, true);
   int nPoints = 0;
   setIState(sStart,svBuf,nPoints);
   
@@ -321,7 +337,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
     out = invalidState_;
     return;
   }
-  StateArray svBuf;
+  StateArray svBuf; initStateArraySHPSpecific(svBuf, true);
   int nPoints = 0;
   setIState(sStart,svBuf,nPoints);
   

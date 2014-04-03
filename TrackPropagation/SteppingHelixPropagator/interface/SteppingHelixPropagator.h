@@ -197,6 +197,10 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
   typedef SteppingHelixStateInfo::VolumeBounds MatBounds;
   static const int MAX_POINTS = 7;
   typedef StateInfo StateArray[MAX_POINTS+1];
+
+  //! (Internals) set defaults needed for states used inside propagate methods
+  void initStateArraySHPSpecific(StateArray& svBuf, bool flagsOnly) const;
+
   //! (Internals) Init starting point
   void setIState(const SteppingHelixStateInfo& sStart,
 		 StateArray& svBuff, int& nPoints) const;
