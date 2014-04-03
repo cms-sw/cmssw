@@ -377,10 +377,10 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & mcparticles,
     }
     const Candidate* candidate = itMcParticle->get();
     if (candidate->hasMasterClone()) candidate = candidate->masterClone().get();
-    const GenParticle* genParticle = GenJet::genParticle(candidate);
-    if (genParticle) {
-      double e = genParticle->energy();
-      switch (abs (genParticle->pdgId ())) {
+    //const GenParticle* genParticle = GenJet::genParticle(candidate);
+    if (candidate) {
+      double e = candidate->energy();
+      switch (abs (candidate->pdgId ())) {
       case 22: // photon
       case 11: // e
 	genJetSpecific->m_EmEnergy += e;
