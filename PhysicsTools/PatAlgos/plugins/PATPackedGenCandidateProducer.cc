@@ -46,6 +46,7 @@ namespace pat {
 
         private:
             edm::EDGetTokenT<reco::GenParticleCollection>    Cands_;
+            edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    Asso_;
             edm::EDGetTokenT<reco::VertexCollection>         PVs_;
             double maxEta_;
     };
@@ -53,6 +54,7 @@ namespace pat {
 
 pat::PATPackedGenCandidateProducer::PATPackedGenCandidateProducer(const edm::ParameterSet& iConfig) :
   Cands_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("inputCollection"))),
+  Asso_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("map"))),
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
   maxEta_(iConfig.getParameter<double>("maxEta"))
 {
@@ -67,6 +69,10 @@ void pat::PATPackedGenCandidateProducer::produce(edm::Event& iEvent, const edm::
     edm::Handle<reco::GenParticleCollection> cands;
     iEvent.getByToken( Cands_, cands );
     std::vector<reco::Candidate>::const_iterator cand;
+
+    edm::Handle<edm::Association<reco::GenParticleCollection> > asso;
+    iEvent.getByToken( Asso_, asso );
+
 
     edm::Handle<reco::VertexCollection> PVs;
     iEvent.getByToken( PVs_, PVs );
@@ -84,7 +90,14 @@ void pat::PATPackedGenCandidateProducer::produce(edm::Event& iEvent, const edm::
         const reco::GenParticle &cand=(*cands)[ic];
 	if(cand.status() ==1 && std::abs(cand.eta() < maxEta_))
         {
-	        outPtrP->push_back( pat::PackedGenParticle(cand));
+		if(cand.numberOfMothers() > 0) {
+			edm::Ref<reco::GenParticleCollection> newRef=(*asso)[cand.motherRef(0)];
+	        	outPtrP->push_back( pat::PackedGenParticle(cand,newRef));
+		} else {
+	        	outPtrP->push_back( pat::PackedGenParticle(cand,edm::Ref<reco::GenParticleCollection>()));
+			
+		}
+
 	}	
     }
 

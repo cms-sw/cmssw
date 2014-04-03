@@ -34,6 +34,8 @@ namespace pat {
     : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0),  pdgId_(0), charge_(0), unpacked_(false) { }
   explicit PackedGenParticle( const reco::GenParticle & c)
     : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(c.motherRef(0)), unpacked_(true)  { pack(); }
+  explicit PackedGenParticle( const reco::GenParticle & c, const edm::Ref<reco::GenParticleCollection> &  mother)
+    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(mother), unpacked_(true)  { pack(); }
 
     
     /// destructor

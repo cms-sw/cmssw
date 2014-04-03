@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.slimming.packedPFCandidates_cfi import *
-from PhysicsTools.PatAlgos.slimming.packedGenCandidates_cfi import *
 from PhysicsTools.PatAlgos.slimming.lostTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import *
-from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import *
+#from PhysicsTools.PatAlgos.slimming.packedGenCandidates_cfi import *
+#from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import *
+from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *

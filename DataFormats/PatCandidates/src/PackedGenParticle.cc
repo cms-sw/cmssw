@@ -92,7 +92,7 @@ const reco::Candidate * pat::PackedGenParticle::daughter( size_type ) const {
 }
 
 const reco::Candidate * pat::PackedGenParticle::mother( size_type ) const {
-  return 0;
+  return mother_.get();
 }
 
 const reco::Candidate * pat::PackedGenParticle::daughter(const std::string&) const {
