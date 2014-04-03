@@ -95,6 +95,11 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
   edm::ParameterSet serviceParameters =
      iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
+
+  // consumes
+  simMuonToken  = consumes<std::vector<SimTrack> >(simMuonLabel);
+  simVertexToken = consumes<std::vector<SimVertex> >(simVertexLabel);
+
 }
 
 // ---- method called once each job just before starting event loop ----
@@ -160,8 +165,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   std::vector<PSimHit> theRPCHits;
 
   DirectMuonNavigation navigation(theService->detLayerGeometry());
-  iEvent.getByLabel(theSimModuleLabel_,theSimModuleProcess_,simMuons);
-  iEvent.getByLabel(theSimModuleLabel_,simVertices);
+  iEvent.getByToken(simMuonToken,simMuons);
+  iEvent.getByToken(simVertexToken,simVertices);
 
   for ( unsigned int itrk=0; itrk<simMuons->size(); itrk++ ) {
     const SimTrack &mySimTrack = (*simMuons)[itrk];
@@ -526,9 +531,11 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
 				   const edm::ParameterSet& fastTracks,
 				   const edm::ParameterSet& matEff) {
   // Muons
-  theSimModuleLabel_   = fastMuons.getParameter<std::string>("simModuleLabel");
-  theSimModuleProcess_ = fastMuons.getParameter<std::string>("simModuleProcess");
-  theTrkModuleLabel_   = fastMuons.getParameter<std::string>("trackModuleLabel");
+  std::string _simModuleLabel = fastMuons.getParameter<std::string>("simModuleLabel");
+  std::string _simModuleProcess = fastMuons.getParameter<std::string>("simModuleProcess");
+  simMuonLabel = edm::InputTag(_simModuleLabel,_simModuleProcess);
+  simVertexLabel = edm::InputTag(_simModuleLabel);
+ 
   std::vector<double> simHitIneffDT  = fastMuons.getParameter<std::vector<double> >("simHitDTIneffParameters");
   std::vector<double> simHitIneffCSC = fastMuons.getParameter<std::vector<double> >("simHitCSCIneffParameters");
   kDT = simHitIneffDT[0];
