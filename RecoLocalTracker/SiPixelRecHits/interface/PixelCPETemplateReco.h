@@ -62,15 +62,15 @@ class PixelCPETemplateReco : public PixelCPEBase
   ~PixelCPETemplateReco();
 
  private:
-  ClusterParam* createClusterParam(const SiPixelCluster & cl) const;
+  ClusterParam * createClusterParam(const SiPixelCluster & cl) const;
 
   // We only need to implement measurementPosition, since localPosition() from
   // PixelCPEBase will call it and do the transformation
   // Gavril : put it back
-  LocalPoint localPosition (DetParam const * theDetParam, ClusterParam * theClusterParam) const; 
+  LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const; 
   
   // However, we do need to implement localError().
-  LocalError localError   (DetParam const * theDetParam, ClusterParam * theClusterParam) const;
+  LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
 
   // Template storage
   mutable SiPixelTemplate templ_ ;

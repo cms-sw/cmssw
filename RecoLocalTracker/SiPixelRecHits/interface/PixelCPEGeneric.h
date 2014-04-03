@@ -98,10 +98,10 @@ class PixelCPEGeneric : public PixelCPEBase
 
  
 private:
-  ClusterParam* createClusterParam(const SiPixelCluster & cl) const;
+  ClusterParam * createClusterParam(const SiPixelCluster & cl) const;
 
-  LocalPoint localPosition (DetParam const * theDetParam, ClusterParam * theClusterParam) const; 
-  LocalError localError   (DetParam const * theDetParam, ClusterParam * theClusterParam) const;
+  LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const; 
+  LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
 
   //--------------------------------------------------------------------
   //  Methods.
@@ -124,7 +124,7 @@ private:
 			    ) const;
   
   void
-    collect_edge_charges(ClusterParam * theClusterParam,  //!< input, the cluster
+    collect_edge_charges(ClusterParam & theClusterParam,  //!< input, the cluster
 			 float & Q_f_X,              //!< output, Q first  in X 
 			 float & Q_l_X,              //!< output, Q last   in X
 			 float & Q_f_Y,              //!< output, Q first  in Y 

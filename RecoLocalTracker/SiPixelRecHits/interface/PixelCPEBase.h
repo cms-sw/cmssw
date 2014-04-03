@@ -148,15 +148,15 @@ public:
       nRecHitsTotal_++ ;
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
 
-      DetParam const * theDetParam = &detParam(det);
-      ClusterParam* theClusterParam = createClusterParam(cl);
-      setTheDet( theDetParam, theClusterParam );
-      computeAnglesFromDetPosition(theDetParam, theClusterParam);
+      DetParam const & theDetParam = detParam(det);
+      ClusterParam * theClusterParam = createClusterParam(cl);
+      setTheDet( theDetParam, *theClusterParam );
+      computeAnglesFromDetPosition(theDetParam, *theClusterParam);
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-      LocalPoint lp = localPosition(theDetParam, theClusterParam);
-      LocalError le = localError(theDetParam, theClusterParam);        
-      auto tuple = std::make_tuple(lp, le ,rawQualityWord(theClusterParam));
+      LocalPoint lp = localPosition(theDetParam, *theClusterParam);
+      LocalError le = localError(theDetParam, *theClusterParam);        
+      auto tuple = std::make_tuple(lp, le ,rawQualityWord(*theClusterParam));
       delete theClusterParam;
       
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
@@ -174,15 +174,15 @@ public:
 
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
 
-    DetParam const * theDetParam = &detParam(det);
-    ClusterParam* theClusterParam = createClusterParam(cl);
-    setTheDet( theDetParam, theClusterParam );
-    computeAnglesFromTrajectory(theDetParam, theClusterParam, ltp);
+    DetParam const & theDetParam = detParam(det);
+    ClusterParam *  theClusterParam = createClusterParam(cl);
+    setTheDet( theDetParam, *theClusterParam );
+    computeAnglesFromTrajectory(theDetParam, *theClusterParam, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition(theDetParam, theClusterParam); 
-    LocalError le = localError(theDetParam, theClusterParam);        
-    auto tuple = std::make_tuple(lp, le ,rawQualityWord(theClusterParam));
+    LocalPoint lp = localPosition(theDetParam, *theClusterParam); 
+    LocalError le = localError(theDetParam, *theClusterParam);        
+    auto tuple = std::make_tuple(lp, le ,rawQualityWord(*theClusterParam));
     delete theClusterParam;
 
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
@@ -192,13 +192,13 @@ public:
   
   
 private:
-  virtual ClusterParam* createClusterParam(const SiPixelCluster & cl) const = 0;
+  virtual ClusterParam * createClusterParam(const SiPixelCluster & cl) const = 0;
 
   //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
-  virtual LocalPoint localPosition(DetParam const * theDetParam, ClusterParam * theClusterParam) const = 0;
-  virtual LocalError localError   (DetParam const * theDetParam, ClusterParam * theClusterParam) const = 0;
+  virtual LocalPoint localPosition(DetParam const & theDetParam, ClusterParam & theClusterParam) const = 0;
+  virtual LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const = 0;
   
   void fillDetParams();
   
@@ -208,7 +208,7 @@ private:
   //! code and not expose the Transient SiPixelRecHit to it as well.  The name
   //! of this function is chosen to match the one in SiPixelRecHit.
   //-----------------------------------------------------------------------------
-  SiPixelRecHitQuality::QualWordType rawQualityWord(ClusterParam * theClusterParam) const;
+  SiPixelRecHitQuality::QualWordType rawQualityWord(ClusterParam & theClusterParam) const;
 
  protected:
   //--- All methods and data members are protected to facilitate (for now)
@@ -258,18 +258,18 @@ private:
   //  Geometrical services to subclasses.
   //---------------------------------------------------------------------------
 private:
-  void computeAnglesFromDetPosition( DetParam const * theDetParam, ClusterParam * theClusterParam ) const;
+  void computeAnglesFromDetPosition( DetParam const & theDetParam, ClusterParam & theClusterParam ) const;
   
-  void computeAnglesFromTrajectory ( DetParam const * theDetParam, ClusterParam * theClusterParam,
+  void computeAnglesFromTrajectory ( DetParam const & theDetParam, ClusterParam & theClusterParam,
 				    const LocalTrajectoryParameters & ltp) const;
 
-  void  setTheDet( DetParam const *, ClusterParam * theClusterParam ) const ;
+  void  setTheDet( DetParam const &, ClusterParam & theClusterParam ) const ;
 
-  LocalVector driftDirection       (DetParam * theDetParam, GlobalVector bfield ) const ; 
-  LocalVector driftDirection       (DetParam * theDetParam, LocalVector bfield ) const ; 
-  void computeLorentzShifts(DetParam *) const ;
+  LocalVector driftDirection       (DetParam & theDetParam, GlobalVector bfield ) const ; 
+  LocalVector driftDirection       (DetParam & theDetParam, LocalVector bfield ) const ; 
+  void computeLorentzShifts(DetParam &) const ;
 
-  bool isFlipped(DetParam const * theDetParam) const;              // is the det flipped or not?
+  bool isFlipped(DetParam const & theDetParam) const;              // is the det flipped or not?
 
   //---------------------------------------------------------------------------
   //  Cluster-level services.

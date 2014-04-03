@@ -210,8 +210,8 @@ void PixelCPEBase::fillDetParams()
 
     // Compute the Lorentz shifts for this detector element for the Alignment Group, and always for CPEgeneric
     if ( DoLorentz_ ) {
-      p.driftDirection = driftDirection(&p, Bfield );
-      computeLorentzShifts(&p);
+      p.driftDirection = driftDirection(p, Bfield );
+      computeLorentzShifts(p);
     }
 
     LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
@@ -229,28 +229,28 @@ void PixelCPEBase::fillDetParams()
 //  One function to cache the variables common for one DetUnit.
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::setTheDet( DetParam const * theDetParam, ClusterParam * theClusterParam ) const 
+PixelCPEBase::setTheDet( DetParam const & theDetParam, ClusterParam & theClusterParam ) const 
 {
 
   //--- Geometric Quality Information
   int minInX,minInY,maxInX,maxInY=0;
-  minInX = theClusterParam->theCluster->minPixelRow();
-  minInY = theClusterParam->theCluster->minPixelCol();
-  maxInX = theClusterParam->theCluster->maxPixelRow();
-  maxInY = theClusterParam->theCluster->maxPixelCol();
+  minInX = theClusterParam.theCluster->minPixelRow();
+  minInY = theClusterParam.theCluster->minPixelCol();
+  maxInX = theClusterParam.theCluster->maxPixelRow();
+  maxInY = theClusterParam.theCluster->maxPixelCol();
   
-  theClusterParam->isOnEdge_ = theDetParam->theRecTopol->isItEdgePixelInX(minInX) | theDetParam->theRecTopol->isItEdgePixelInX(maxInX) |
-    theDetParam->theRecTopol->isItEdgePixelInY(minInY) | theDetParam->theRecTopol->isItEdgePixelInY(maxInY) ;
+  theClusterParam.isOnEdge_ = theDetParam.theRecTopol->isItEdgePixelInX(minInX) | theDetParam.theRecTopol->isItEdgePixelInX(maxInX) |
+    theDetParam.theRecTopol->isItEdgePixelInY(minInY) | theDetParam.theRecTopol->isItEdgePixelInY(maxInY) ;
   
   // FOR NOW UNUSED. KEEP IT IN CASE WE WANT TO USE IT IN THE FUTURE  
   // Bad Pixels have their charge set to 0 in the clusterizer 
   //hasBadPixels_ = false;
-  //for(unsigned int i=0; i<theClusterParam->theCluster->pixelADC().size(); ++i) {
-  //if(theClusterParam->theCluster->pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
+  //for(unsigned int i=0; i<theClusterParam.theCluster->pixelADC().size(); ++i) {
+  //if(theClusterParam.theCluster->pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
   //}
   
-  theClusterParam->spansTwoROCs_ = theDetParam->theRecTopol->containsBigPixelInX(minInX,maxInX) |
-    theDetParam->theRecTopol->containsBigPixelInY(minInY,maxInY);
+  theClusterParam.spansTwoROCs_ = theDetParam.theRecTopol->containsBigPixelInX(minInX,maxInX) |
+    theDetParam.theRecTopol->containsBigPixelInY(minInY,maxInY);
 
 }
 
@@ -260,12 +260,12 @@ PixelCPEBase::setTheDet( DetParam const * theDetParam, ClusterParam * theCluster
 //  Note: should become const after both localParameters() become const.
 //-----------------------------------------------------------------------------
 void PixelCPEBase::
-computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam * theClusterParam,
+computeAnglesFromTrajectory( DetParam const & theDetParam, ClusterParam & theClusterParam,
 			     const LocalTrajectoryParameters & ltp) const
 {
   //cout<<" in PixelCPEBase:computeAnglesFromTrajectory - "<<endl; //dk
 
-  //theClusterParam->loc_traj_param = ltp;
+  //theClusterParam.loc_traj_param = ltp;
 
   LocalVector localDir = ltp.momentum();
   
@@ -283,21 +283,21 @@ computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam * theClu
   */
   
   
-  theClusterParam->cotalpha = locx/locz;
-  theClusterParam->cotbeta  = locy/locz;
-  //theClusterParam->zneg = (locz < 0); // Not used, AH
+  theClusterParam.cotalpha = locx/locz;
+  theClusterParam.cotbeta  = locy/locz;
+  //theClusterParam.zneg = (locz < 0); // Not used, AH
   
   
   LocalPoint trk_lp = ltp.position();
-  theClusterParam->trk_lp_x = trk_lp.x();
-  theClusterParam->trk_lp_y = trk_lp.y();
+  theClusterParam.trk_lp_x = trk_lp.x();
+  theClusterParam.trk_lp_y = trk_lp.y();
   
-  theClusterParam->with_track_angle = true;
+  theClusterParam.with_track_angle = true;
 
 
   // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
   AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
-  theClusterParam->loc_trk_pred = Topology::LocalTrackPred( vec_trk_parameters );
+  theClusterParam.loc_trk_pred = Topology::LocalTrackPred( vec_trk_parameters );
   
 }
 
@@ -322,7 +322,7 @@ computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam * theClu
 //-----------------------------------------------------------------------------
 // G. Giurgiu, 12/01/06 : implement the function
 void PixelCPEBase::
-computeAnglesFromDetPosition(DetParam const * theDetParam, ClusterParam * theClusterParam ) const
+computeAnglesFromDetPosition(DetParam const & theDetParam, ClusterParam & theClusterParam ) const
 {
  
   
@@ -378,20 +378,20 @@ computeAnglesFromDetPosition(DetParam const * theDetParam, ClusterParam * theClu
   */
   
   // all the above is equivalent to 
-  LocalPoint lp = theDetParam->theTopol->localPosition( MeasurementPoint(theClusterParam->theCluster->x(), theClusterParam->theCluster->y()) );
-  auto gvx = lp.x()-theDetParam->theOrigin.x();
-  auto gvy = lp.y()-theDetParam->theOrigin.y();
-  auto gvz = -1.f/theDetParam->theOrigin.z();
+  LocalPoint lp = theDetParam.theTopol->localPosition( MeasurementPoint(theClusterParam.theCluster->x(), theClusterParam.theCluster->y()) );
+  auto gvx = lp.x()-theDetParam.theOrigin.x();
+  auto gvy = lp.y()-theDetParam.theOrigin.y();
+  auto gvz = -1.f/theDetParam.theOrigin.z();
   //  normalization not required as only ratio used... 
   
 
-  //theClusterParam->zneg = (gvz < 0); // Not used, AH
+  //theClusterParam.zneg = (gvz < 0); // Not used, AH
 
   // calculate angles
-  theClusterParam->cotalpha = gvx*gvz;
-  theClusterParam->cotbeta  = gvy*gvz;
+  theClusterParam.cotalpha = gvx*gvz;
+  theClusterParam.cotbeta  = gvy*gvz;
 
-  theClusterParam->with_track_angle = false;
+  theClusterParam.with_track_angle = false;
 
 
   /*
@@ -424,11 +424,11 @@ computeAnglesFromDetPosition(DetParam const * theDetParam, ClusterParam * theClu
 // in the E direction) to global coordinates. There is probably a much 
 // better way.
 //-----------------------------------------------------------------------------
-bool PixelCPEBase::isFlipped(DetParam const * theDetParam) const 
+bool PixelCPEBase::isFlipped(DetParam const & theDetParam) const 
 {
   // Check the relative position of the local +/- z in global coordinates.
-  float tmp1 = theDetParam->theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp2();
-  float tmp2 = theDetParam->theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp2();
+  float tmp1 = theDetParam.theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp2();
+  float tmp2 = theDetParam.theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp2();
   //cout << " 1: " << tmp1 << " 2: " << tmp2 << endl;
   if ( tmp2<tmp1 ) return true;
   else return false;    
@@ -452,16 +452,16 @@ PixelCPEBase::DetParam const & PixelCPEBase::detParam(const GeomDetUnit & det) c
 //
 //-----------------------------------------------------------------------------
 LocalVector 
-PixelCPEBase::driftDirection(DetParam * theDetParam, GlobalVector bfield ) const {
+PixelCPEBase::driftDirection(DetParam & theDetParam, GlobalVector bfield ) const {
 
-  Frame detFrame(theDetParam->theDet->surface().position(), theDetParam->theDet->surface().rotation());
+  Frame detFrame(theDetParam.theDet->surface().position(), theDetParam.theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
   return driftDirection(theDetParam,Bfield);
   
 }
 
 LocalVector 
-PixelCPEBase::driftDirection(DetParam * theDetParam, LocalVector Bfield ) const {
+PixelCPEBase::driftDirection(DetParam & theDetParam, LocalVector Bfield ) const {
   const bool LocalPrint = false;
   const bool useLAWidthFromGenError = false;
 
@@ -470,7 +470,7 @@ PixelCPEBase::driftDirection(DetParam * theDetParam, LocalVector Bfield ) const 
   float langle = 0.;
   if( !useLAOffsetFromConfig_ ) {  // get it from DB
     if(lorentzAngle_ != NULL) {  // a real LA object 
-      langle = lorentzAngle_->getLorentzAngle(theDetParam->theDet->geographicalId().rawId());
+      langle = lorentzAngle_->getLorentzAngle(theDetParam.theDet->geographicalId().rawId());
     } else { // no LA, unused 
       //cout<<" LA object is NULL, assume LA = 0"<<endl; //dk
       langle = 0; // set to a fake value
@@ -489,25 +489,25 @@ PixelCPEBase::driftDirection(DetParam * theDetParam, LocalVector Bfield ) const 
     if(useLAWidthFromGenError) {
       // or from the new error object
       // for the moment this does not compile, gtemp_ is defined only in generic
-      //auto gtemplid = genErrorDBObject_->getGenErrorID(theDetParam->theDet->geographicalId().rawId());
+      //auto gtemplid = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
       //cout<<gtemplid<<endl;
       //auto qbin = gtempl_.qbin( gtemplid);  // inputs
       //langleWidth = -micronsToCm*gtempl_.lorxwidth();
       ////chargeWidthY = -micronsToCm*gtempl_.lorywidth();
     } else {
       // take it from LA object label=from-width
-      langleWidth = lorentzAngleWidth_->getLorentzAngle(theDetParam->theDet->geographicalId().rawId());
+      langleWidth = lorentzAngleWidth_->getLorentzAngle(theDetParam.theDet->geographicalId().rawId());
     }
 
-    if(langleWidth!=0.0) theDetParam->widthLAFraction = std::abs(langleWidth/langle);
-    else theDetParam->widthLAFraction = 1.0;
-    if(LocalPrint)  cout<<" Will use LA Width from DB "<<langleWidth<<" "<<theDetParam->widthLAFraction<<endl;
+    if(langleWidth!=0.0) theDetParam.widthLAFraction = std::abs(langleWidth/langle);
+    else theDetParam.widthLAFraction = 1.0;
+    if(LocalPrint)  cout<<" Will use LA Width from DB "<<langleWidth<<" "<<theDetParam.widthLAFraction<<endl;
   } else if(useLAWidthFromConfig_) { // get from config 
-    if(langle!=0.0) theDetParam->widthLAFraction = std::abs(theDetParam->lAWidth/langle);
-    if(LocalPrint)  cout<<" Will use LA Width from config "<<theDetParam->lAWidth<<endl;
+    if(langle!=0.0) theDetParam.widthLAFraction = std::abs(theDetParam.lAWidth/langle);
+    if(LocalPrint)  cout<<" Will use LA Width from config "<<theDetParam.lAWidth<<endl;
   } else { // get if from the offset LA (old method used until 2013)
-    theDetParam->widthLAFraction = 1.0; // use the same angle
-    if(LocalPrint)  cout<<" Will use LA Width from LA Offset "<<theDetParam->widthLAFraction<<endl;
+    theDetParam.widthLAFraction = 1.0; // use the same angle
+    if(LocalPrint)  cout<<" Will use LA Width from LA Offset "<<theDetParam.widthLAFraction<<endl;
   }
     
   float alpha2 = alpha2Order ?  langle*langle : 0;
@@ -536,13 +536,13 @@ PixelCPEBase::driftDirection(DetParam * theDetParam, LocalVector Bfield ) const 
 //  One-shot computation of the driftDirection and both lorentz shifts
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::computeLorentzShifts(DetParam * theDetParam) const {
+PixelCPEBase::computeLorentzShifts(DetParam & theDetParam) const {
 
   //cout<<" in PixelCPEBase:computeLorentzShifts - "<<driftDirection_<<endl; //dk
 
   // Max shift (at the other side of the sensor) in cm 
-  theDetParam->lorentzShiftInCmX = theDetParam->driftDirection.x()/theDetParam->driftDirection.z() * theDetParam->theThickness;  // 
-  theDetParam->lorentzShiftInCmY = theDetParam->driftDirection.y()/theDetParam->driftDirection.z() * theDetParam->theThickness;  //
+  theDetParam.lorentzShiftInCmX = theDetParam.driftDirection.x()/theDetParam.driftDirection.z() * theDetParam.theThickness;  // 
+  theDetParam.lorentzShiftInCmY = theDetParam.driftDirection.y()/theDetParam.driftDirection.z() * theDetParam.theThickness;  //
   
   //cout<<" in PixelCPEBase:computeLorentzShifts - "
   //<<lorentzShiftInCmX_<<" "
@@ -550,7 +550,7 @@ PixelCPEBase::computeLorentzShifts(DetParam * theDetParam) const {
   //<<endl; //dk
   
   LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
-			   << theDetParam->driftDirection    ;
+			   << theDetParam.driftDirection    ;
 }
 
 //-----------------------------------------------------------------------------
@@ -560,33 +560,33 @@ PixelCPEBase::computeLorentzShifts(DetParam * theDetParam) const {
 //! of this function is chosen to match the one in SiPixelRecHit.
 //-----------------------------------------------------------------------------
 SiPixelRecHitQuality::QualWordType 
-PixelCPEBase::rawQualityWord(ClusterParam * theClusterParam) const
+PixelCPEBase::rawQualityWord(ClusterParam & theClusterParam) const
 {
   SiPixelRecHitQuality::QualWordType qualWord(0);
   float probabilityXY;
-  if ( theClusterParam->probabilityX_ !=0 && theClusterParam->probabilityY_ !=0 ) 
-     probabilityXY = theClusterParam->probabilityX_ * theClusterParam->probabilityY_ * (1.f - std::log(theClusterParam->probabilityX_ * theClusterParam->probabilityY_) ) ;
+  if ( theClusterParam.probabilityX_ !=0 && theClusterParam.probabilityY_ !=0 ) 
+     probabilityXY = theClusterParam.probabilityX_ * theClusterParam.probabilityY_ * (1.f - std::log(theClusterParam.probabilityX_ * theClusterParam.probabilityY_) ) ;
   else 
      probabilityXY = 0;
   SiPixelRecHitQuality::thePacking.setProbabilityXY ( probabilityXY ,
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setProbabilityQ  ( theClusterParam->probabilityQ_ , 
+  SiPixelRecHitQuality::thePacking.setProbabilityQ  ( theClusterParam.probabilityQ_ , 
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setQBin          ( (int)theClusterParam->qBin_, 
+  SiPixelRecHitQuality::thePacking.setQBin          ( (int)theClusterParam.qBin_, 
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setIsOnEdge      ( theClusterParam->isOnEdge_,
+  SiPixelRecHitQuality::thePacking.setIsOnEdge      ( theClusterParam.isOnEdge_,
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setHasBadPixels  ( theClusterParam->hasBadPixels_,
+  SiPixelRecHitQuality::thePacking.setHasBadPixels  ( theClusterParam.hasBadPixels_,
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setSpansTwoROCs  ( theClusterParam->spansTwoROCs_,
+  SiPixelRecHitQuality::thePacking.setSpansTwoROCs  ( theClusterParam.spansTwoROCs_,
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setHasFilledProb ( theClusterParam->hasFilledProb_,
+  SiPixelRecHitQuality::thePacking.setHasFilledProb ( theClusterParam.hasFilledProb_,
                                                       qualWord );
   
   return qualWord;
