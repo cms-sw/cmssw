@@ -32,6 +32,11 @@
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="tibtidservicesb:TIBTIDServicesB"/>
+			<rChild name="tibtidservices:TIBTIDPxlFlange2"/>
+			<Translation x="[zero]" y="[zero]" z="[tibtidservices:PixelSupportFlange2Z]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibtidservicesb:TIBTIDServicesB"/>
 			<rChild name="tibtidservices:TIBTIDOpticalPanel"/>
 		</PosPart>
 		<PosPart copyNumber="1">
@@ -40,7 +45,12 @@
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="tibtidservicesb:TIBTIDServicesB"/>
-			<rChild name="tibtidservices:TIBTIDServiceDisk"/>
+                        <rChild name="tibtidservices:TIBTIDServiceDisk1"/>
+                </PosPart>
+                <PosPart copyNumber="1">
+                        <rParent name="tibtidservicesb:TIBTIDServicesB"/>
+                        <rChild name="tibtidservices:TIBTIDServiceDisk2"/>
+                        <Translation x="[zero]" y="[zero]" z="[tibtidservices:ServiceDisk2Z]"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="tibtidservicesb:TIBTIDServicesB"/>
