@@ -10,5 +10,6 @@ trackingParticles.select = cms.PSet(
     minHitTP = cms.int32(3),
     ptMinTP = cms.double(0.1),
     maxRapidityTP = cms.double(5.0),
-    tipTP = cms.double(1000)
+    tipTP = cms.double(1000),
+    stableOnlyTP = cms.bool(False)
 )
