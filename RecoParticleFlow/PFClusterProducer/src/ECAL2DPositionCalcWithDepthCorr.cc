@@ -1,6 +1,7 @@
 #include "ECAL2DPositionCalcWithDepthCorr.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include <cmath>
 #include <unordered_map>
@@ -71,9 +72,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const double rh_rawenergy = refhit->energy();
     const double rh_energy = rh_rawenergy * rh_fraction;    
     const double rh_energyf = ((float)rh_rawenergy) * ((float) rh_fraction);
-    if( std::isnan(rh_energy) ) {
+    if( !edm::isFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
-	<<"rechit " << refhit->detId() << " has a NaN energy... " 
+	<<"rechit " << refhit->detId() << " has non-finite energy... " 
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
     cl_energy += rh_energy;
