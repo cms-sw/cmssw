@@ -104,7 +104,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //
   // parameters
   //  std::vector<edm::InputTag> trackerContainers;
-  edm::InputTag inputSimHits;
+  edm::InputTag simHitLabel;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitToken; 
   edm::ParameterSet pset_;
   double deltaRaysPCut; // GeV/c
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
@@ -251,6 +252,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   typedef SiTrackerGSRecHit2D::ClusterRefProd ClusterRefProd;
   // Added for cluster reference
   ClusterRefProd FastTrackerClusterRefProd;
+
   
 };
 
