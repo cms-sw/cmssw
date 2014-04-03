@@ -11,10 +11,14 @@
 		<Constant name="Zv1" value="1.160*m"/>
 		<Constant name="Zv2" value="1.180*m"/>
 		<Constant name="Zv3" value="2.820*m"/>
+		<Constant name="StiffenerL" value="720*mm"/>
+		<Constant name="StiffenerR" value="0.400*cm"/>
+		<Constant name="RailTopDy" value="8.5*mm"/>
+		<Constant name="RailBottomDy" value="15*mm"/>
+		<Constant name="RailDx" value="4.3*mm"/>
 		<Constant name="RailL" value="1.100*m"/>
-		<Constant name="RailInR" value="0.300*cm"/>
 		<Constant name="RailInX" value="54.433*cm"/>
-		<Constant name="RailInY" value="2.700*cm"/>
+		<Constant name="StiffenerY" value="2.700*cm"/>
 		<Constant name="AlPieceR0" value="1.161*m"/>
 		<Constant name="AlPieceR1" value="1.164*m"/>
 		<Constant name="AlPieceR2" value="1.169*m"/>
@@ -78,14 +82,18 @@
 		<Constant name="ConnectDphi1" value="4.95*deg"/>
 		<Constant name="ConnectRin2" value="1.141*m"/>
 		<Constant name="ConnectRout2" value="1.142*m"/>
-		<Constant name="ConnectL2" value="2.000*cm"/>
-		<Constant name="ConnectZ21" value="1.058*m"/>
-		<Constant name="ConnectZ22" value="32.20*cm"/>
-		<Constant name="ConnectZ23" value="25.80*cm"/>
+		<Constant name="ExtraConnectL" value="1.360*cm"/>
+		<Constant name="ConnectStartPhi" value="11.25*deg"/>
+		<Constant name="ConnectL2" value="2.000*cm+[ExtraConnectL]"/>
+		<Constant name="ConnectZ21" value="1.058*m-[ExtraConnectL]"/>
+		<Constant name="ConnectZ22" value="32.20*cm+[ExtraConnectL]"/>
+		<Constant name="ConnectZ23" value="25.80*cm-[ExtraConnectL]"/>
 		<Constant name="ConnectDphi2" value="3.51*deg"/>
 		<Constant name="ConnectRin3" value="1.160*m"/>
 		<Constant name="ConnectRout3" value="1.161*m"/>
-		<Constant name="ConnectL3" value="2.000*cm"/>
+		<Constant name="ConnectL3" value="2.000*cm+[ExtraConnectL]"/>
+		<Constant name="ConnectL23" value="1.000*mm"/>
+		<Constant name="Connect23ZOffset" value="([ConnectL3]-[ConnectL23])"/>
 		<Constant name="ConnectDphi3" value="3.46*deg"/>
 		<Constant name="ConnectRin4" value="57.80*cm"/>
 		<Constant name="ConnectRout4" value="58.10*cm"/>
@@ -93,11 +101,13 @@
 		<Constant name="ConnectDphi4" value="9.89*deg"/>
 		<Constant name="ConnectRin5" value="54.90*cm"/>
 		<Constant name="ConnectRout5" value="55.00*cm"/>
-		<Constant name="ConnectL5" value="2.000*cm"/>
+		<Constant name="ConnectL5" value="2.000*cm+[ExtraConnectL]"/>
 		<Constant name="ConnectDphi5" value="7.30*deg"/>
 		<Constant name="ConnectRin6" value="57.80*cm"/>
 		<Constant name="ConnectRout6" value="57.90*cm"/>
-		<Constant name="ConnectL6" value="2.000*cm"/>
+		<Constant name="ConnectL6" value="2.000*cm+[ExtraConnectL]"/>
+		<Constant name="ConnectL56" value="[ConnectL23]"/>
+		<Constant name="Connect56ZOffset" value="([ConnectL6]-[ConnectL56])"/>
 		<Constant name="ConnectDphi6" value="6.93*deg"/>
 		<Constant name="Layer0Rin" value="58.20*cm"/>
 		<Constant name="Layer0Rout" value="64.24*cm"/>
@@ -221,7 +231,9 @@
 			<ZSection z="[Zv2]" rMin="[Rin3]" rMax="[Rout1]"/>
 			<ZSection z="[Zv3]" rMin="[Rin3]" rMax="[Rout1]"/>
 		</Polycone>
-		<Tubs name="TOBRailIn" rMin="[zero]" rMax="[RailInR]" dz="[RailL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TIBStiffener" rMin="[zero]" rMax="[StiffenerR]" dz="[StiffenerL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Box name="TIBRailTop" dx="[RailDx]" dy="[RailTopDy]" dz="[RailL]"/>
+		<Box name="TIBRailBottom" dx="[RailDx]" dy="[RailBottomDy]" dz="[RailL]"/>
 		<Tubs name="TOBAlPiece1" rMin="[AlPieceR0]" rMax="[AlPieceR1]" dz="[AlPieceDz1]" startPhi="[AlPiecePhi1]" deltaPhi="[AlPieceDPhi1]"/>
 		<Tubs name="TOBAlPiece2" rMin="[AlPieceR0]" rMax="[AlPieceR1]" dz="[AlPieceDz1]" startPhi="[AlPiecePhi2]" deltaPhi="[AlPieceDPhi2]"/>
 		<Tubs name="TOBAlPiece3" rMin="[AlPieceR1]" rMax="[AlPieceR2]" dz="[AlPieceDz2]" startPhi="[AlPiecePhi3]" deltaPhi="[AlPieceDPhi3]"/>
@@ -255,13 +267,17 @@
 		<Tubs name="TOBAlConnect2" rMin="[ConnectRin2]" rMax="[ConnectRout2]" dz="[ConnectL2]" startPhi="-[ConnectDphi2]/2" deltaPhi="[ConnectDphi2]"/>
 		<Tubs name="TOBConnect3" rMin="[ConnectRin3]" rMax="[ConnectRout3]" dz="[ConnectL3]" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="TOBAlConnect3" rMin="[ConnectRin3]" rMax="[ConnectRout3]" dz="[ConnectL3]" startPhi="-[ConnectDphi3]/2" deltaPhi="[ConnectDphi3]"/>
+		<Tubs name="TOBConnect23" rMin="[ConnectRout2]" rMax="[ConnectRin3]" dz="[ConnectL23]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAlConnect23" rMin="[ConnectRout2]" rMax="[ConnectRin3]" dz="[ConnectL23]" startPhi="-[ConnectDphi3]/2" deltaPhi="[ConnectDphi3]"/>
 		<Tubs name="TOBConnect4" rMin="[ConnectRin4]" rMax="[ConnectRout4]" dz="[ConnectL4]" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="TOBAlConnect4" rMin="[ConnectRin4]" rMax="[ConnectRout4]" dz="[ConnectL4]" startPhi="-[ConnectDphi4]/2" deltaPhi="[ConnectDphi4]"/>
 		<Tubs name="TOBConnect5" rMin="[ConnectRin5]" rMax="[ConnectRout5]" dz="[ConnectL5]" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="TOBAlConnect5" rMin="[ConnectRin5]" rMax="[ConnectRout5]" dz="[ConnectL5]" startPhi="-[ConnectDphi5]/2" deltaPhi="[ConnectDphi5]"/>
 		<Tubs name="TOBConnect6" rMin="[ConnectRin6]" rMax="[ConnectRout6]" dz="[ConnectL6]" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="TOBAlConnect6" rMin="[ConnectRin6]" rMax="[ConnectRout6]" dz="[ConnectL6]" startPhi="-[ConnectDphi6]/2" deltaPhi="[ConnectDphi6]"/>
-		<Tubs name="TOBMidRib0" rMin="[RibRin]" rMax="[Layer0Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBConnect56" rMin="[ConnectRout5]" rMax="[ConnectRin6]" dz="[ConnectL56]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBAlConnect56" rMin="[ConnectRout5]" rMax="[ConnectRin6]" dz="[ConnectL56]" startPhi="-[ConnectDphi6]/2" deltaPhi="[ConnectDphi6]"/>
+		<Tubs name="TOBMidRib0" rMin="[ConnectRin5]" rMax="[Layer0Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="TOBMidRib1" rMin="[Layer0Rout]" rMax="[Layer1Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="TOBMidRib2" rMin="[Layer1Rout]" rMax="[Layer2Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="TOBMidRib3" rMin="[Layer2Rout]" rMax="[Layer3Rin]" dz="[RibDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -284,9 +300,17 @@
 			<rSolid name="TOB"/>
 			<rMaterial name="materials:Air"/>
 		</LogicalPart>
-		<LogicalPart name="TOBRailIn" category="unspecified">
-			<rSolid name="TOBRailIn"/>
-			<rMaterial name="tobmaterial:TIB_rail"/>
+		<LogicalPart name="TIBStiffener" category="unspecified">
+			<rSolid name="TIBStiffener"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TIBRailTop" category="unspecified">
+			<rSolid name="TIBRailTop"/>
+			<rMaterial name="tobmaterial:TIB_RailTop"/>
+		</LogicalPart>
+		<LogicalPart name="TIBRailBottom" category="unspecified">
+			<rSolid name="TIBRailBottom"/>
+			<rMaterial name="tobmaterial:TIB_RailBottom"/>
 		</LogicalPart>
 		<LogicalPart name="TOBAlPiece1" category="unspecified">
 			<rSolid name="TOBAlPiece1"/>
@@ -402,7 +426,7 @@
 		</LogicalPart>
 		<LogicalPart name="TOBAlConnect1" category="unspecified">
 			<rSolid name="TOBAlConnect1"/>
-			<rMaterial name="trackermaterial:T_Aluminium"/>
+			<rMaterial name="tobmaterial:TOB_AlCentralConnect"/>
 		</LogicalPart>
 		<LogicalPart name="TOBConnect2" category="unspecified">
 			<rSolid name="TOBConnect2"/>
@@ -410,7 +434,7 @@
 		</LogicalPart>
 		<LogicalPart name="TOBAlConnect2" category="unspecified">
 			<rSolid name="TOBAlConnect2"/>
-			<rMaterial name="trackermaterial:T_Aluminium"/>
+			<rMaterial name="tobmaterial:TOB_AlSideConnect"/>
 		</LogicalPart>
 		<LogicalPart name="TOBConnect3" category="unspecified">
 			<rSolid name="TOBConnect3"/>
@@ -418,6 +442,14 @@
 		</LogicalPart>
 		<LogicalPart name="TOBAlConnect3" category="unspecified">
 			<rSolid name="TOBAlConnect3"/>
+			<rMaterial name="tobmaterial:TOB_AlSideConnect"/>
+		</LogicalPart>
+		<LogicalPart name="TOBConnect23" category="unspecified">
+			<rSolid name="TOBConnect23"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlConnect23" category="unspecified">
+			<rSolid name="TOBAlConnect23"/>
 			<rMaterial name="trackermaterial:T_Aluminium"/>
 		</LogicalPart>
 		<LogicalPart name="TOBConnect4" category="unspecified">
@@ -426,7 +458,7 @@
 		</LogicalPart>
 		<LogicalPart name="TOBAlConnect4" category="unspecified">
 			<rSolid name="TOBAlConnect4"/>
-			<rMaterial name="trackermaterial:T_Aluminium"/>
+			<rMaterial name="tobmaterial:TOB_AlCentralConnect"/>
 		</LogicalPart>
 		<LogicalPart name="TOBConnect5" category="unspecified">
 			<rSolid name="TOBConnect5"/>
@@ -434,7 +466,7 @@
 		</LogicalPart>
 		<LogicalPart name="TOBAlConnect5" category="unspecified">
 			<rSolid name="TOBAlConnect5"/>
-			<rMaterial name="trackermaterial:T_Aluminium"/>
+			<rMaterial name="tobmaterial:TOB_AlSideConnect"/>
 		</LogicalPart>
 		<LogicalPart name="TOBConnect6" category="unspecified">
 			<rSolid name="TOBConnect6"/>
@@ -442,6 +474,14 @@
 		</LogicalPart>
 		<LogicalPart name="TOBAlConnect6" category="unspecified">
 			<rSolid name="TOBAlConnect6"/>
+			<rMaterial name="tobmaterial:TOB_AlSideConnect"/>
+		</LogicalPart>
+		<LogicalPart name="TOBConnect56" category="unspecified">
+			<rSolid name="TOBConnect56"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBAlConnect56" category="unspecified">
+			<rSolid name="TOBAlConnect56"/>
 			<rMaterial name="trackermaterial:T_Aluminium"/>
 		</LogicalPart>
 		<LogicalPart name="TOBMidRib0" category="unspecified">
@@ -516,13 +556,33 @@
 	<PosPartSection label="tob.xml">
 		<PosPart copyNumber="1">
 			<rParent name="tob:TOB"/>
-			<rChild name="tob:TOBRailIn"/>
-			<Translation x="[RailInX]" y="[RailInY]" z="[zero]"/>
+			<rChild name="tob:TIBStiffener"/>
+			<Translation x="[RailInX]" y="[StiffenerY]" z="[zero]"/>
 		</PosPart>
 		<PosPart copyNumber="2">
 			<rParent name="tob:TOB"/>
-			<rChild name="tob:TOBRailIn"/>
-			<Translation x="-[RailInX]" y="[RailInY]" z="[zero]"/>
+			<rChild name="tob:TIBStiffener"/>
+			<Translation x="-[RailInX]" y="[StiffenerY]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:TIBRailTop"/>
+			<Translation x="[RailInX]" y="-[RailTopDy]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:TIBRailTop"/>
+			<Translation x="-[RailInX]" y="-[RailTopDy]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:TIBRailBottom"/>
+			<Translation x="[RailInX]" y="-2*[RailTopDy]-[RailBottomDy]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tob:TOB"/>
+			<rChild name="tob:TIBRailBottom"/>
+			<Translation x="-[RailInX]" y="-2*[RailTopDy]-[RailBottomDy]" z="[zero]"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="tob:TOB"/>
@@ -698,27 +758,6 @@
 	</Algorithm>
 	<Algorithm name="track:DDTrackerZPosAlgo">
 		<rParent name="tob:TOB"/>
-		<String name="ChildName" value="tob:TOBConnect1"/>
-		<Numeric name="StartCopyNo" value="1"/>
-		<Numeric name="IncrCopyNo" value="1"/>
-		<Vector name="ZPositions" type="numeric" nEntries="4">
-			-[ConnectZ11],-[ConnectZ12], [ConnectZ12], [ConnectZ11] </Vector>
-		<Vector name="Rotations" type="string" nEntries="4">
-			tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL</Vector>
-	</Algorithm>
-	<Algorithm name="track:DDTrackerAngular">
-		<rParent name="tob:TOBConnect1"/>
-		<String name="ChildName" value="tob:TOBAlConnect1"/>
-		<Numeric name="N" value="16"/>
-		<Numeric name="StartCopyNo" value="1"/>
-		<Numeric name="IncrCopyNo" value="1"/>
-		<Numeric name="RangeAngle" value="360*deg"/>
-		<Numeric name="StartAngle" value="0*deg"/>
-		<Numeric name="Radius" value="0"/>
-		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
-	</Algorithm>
-	<Algorithm name="track:DDTrackerZPosAlgo">
-		<rParent name="tob:TOB"/>
 		<String name="ChildName" value="tob:TOBConnect2"/>
 		<Numeric name="StartCopyNo" value="1"/>
 		<Numeric name="IncrCopyNo" value="1"/>
@@ -734,6 +773,17 @@
 		<String name="ChildName" value="tob:TOBAlConnect2"/>
 		<Numeric name="N" value="16"/>
 		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[ConnectStartPhi]"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tob:TOBConnect2"/>
+		<String name="ChildName" value="tob:TOBAlConnect2"/>
+		<Numeric name="N" value="2"/>
+		<Numeric name="StartCopyNo" value="17"/>
 		<Numeric name="IncrCopyNo" value="1"/>
 		<Numeric name="RangeAngle" value="360*deg"/>
 		<Numeric name="StartAngle" value="0*deg"/>
@@ -752,6 +802,18 @@
 			tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL, 
 			tobrodpar:NULL,  tobrodpar:NULL</Vector>
 	</Algorithm>
+	<Algorithm name="track:DDTrackerZPosAlgo">
+		<rParent name="tob:TOB"/>
+		<String name="ChildName" value="tob:TOBConnect23"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Vector name="ZPositions" type="numeric" nEntries="6">
+			-[ConnectZ21]-[Connect23ZOffset],-[ConnectZ22]+[Connect23ZOffset],-[ConnectZ23]-[Connect23ZOffset], [ConnectZ23]+[Connect23ZOffset], 
+			[ConnectZ22]-[Connect23ZOffset], [ConnectZ21]+[Connect23ZOffset] </Vector>
+		<Vector name="Rotations" type="string" nEntries="6">
+			tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL, 
+			tobrodpar:NULL,  tobrodpar:NULL</Vector>
+	</Algorithm>
 	<Algorithm name="track:DDTrackerAngular">
 		<rParent name="tob:TOBConnect3"/>
 		<String name="ChildName" value="tob:TOBAlConnect3"/>
@@ -759,25 +821,48 @@
 		<Numeric name="StartCopyNo" value="1"/>
 		<Numeric name="IncrCopyNo" value="1"/>
 		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[ConnectStartPhi]"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tob:TOBConnect3"/>
+		<String name="ChildName" value="tob:TOBAlConnect3"/>
+		<Numeric name="N" value="2"/>
+		<Numeric name="StartCopyNo" value="17"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
 		<Numeric name="StartAngle" value="0*deg"/>
 		<Numeric name="Radius" value="0"/>
 		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
 	</Algorithm>
-	<Algorithm name="track:DDTrackerZPosAlgo">
-		<rParent name="tob:TOB"/>
-		<String name="ChildName" value="tob:TOBConnect4"/>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tob:TOBConnect23"/>
+		<String name="ChildName" value="tob:TOBAlConnect23"/>
+		<Numeric name="N" value="16"/>
 		<Numeric name="StartCopyNo" value="1"/>
 		<Numeric name="IncrCopyNo" value="1"/>
-		<Vector name="ZPositions" type="numeric" nEntries="4">
-			-[ConnectZ11],-[ConnectZ12], [ConnectZ12], [ConnectZ11] </Vector>
-		<Vector name="Rotations" type="string" nEntries="4">
-			tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL</Vector>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[ConnectStartPhi]"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tob:TOBConnect23"/>
+		<String name="ChildName" value="tob:TOBAlConnect23"/>
+		<Numeric name="N" value="2"/>
+		<Numeric name="StartCopyNo" value="17"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="0*deg"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
 	</Algorithm>
 	<Algorithm name="track:DDTrackerAngular">
 		<rParent name="tob:TOBConnect4"/>
 		<String name="ChildName" value="tob:TOBAlConnect4"/>
-		<Numeric name="N" value="16"/>
-		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="N" value="2"/>
+		<Numeric name="StartCopyNo" value="17"/>
 		<Numeric name="IncrCopyNo" value="1"/>
 		<Numeric name="RangeAngle" value="360*deg"/>
 		<Numeric name="StartAngle" value="0*deg"/>
@@ -803,6 +888,17 @@
 		<Numeric name="StartCopyNo" value="1"/>
 		<Numeric name="IncrCopyNo" value="1"/>
 		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[ConnectStartPhi]"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tob:TOBConnect5"/>
+		<String name="ChildName" value="tob:TOBAlConnect5"/>
+		<Numeric name="N" value="2"/>
+		<Numeric name="StartCopyNo" value="17"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
 		<Numeric name="StartAngle" value="0*deg"/>
 		<Numeric name="Radius" value="0"/>
 		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
@@ -819,11 +915,56 @@
 			tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL, 
 			tobrodpar:NULL,  tobrodpar:NULL</Vector>
 	</Algorithm>
+	<Algorithm name="track:DDTrackerZPosAlgo">
+		<rParent name="tob:TOB"/>
+		<String name="ChildName" value="tob:TOBConnect56"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Vector name="ZPositions" type="numeric" nEntries="6">
+			-[ConnectZ21]-[Connect56ZOffset],-[ConnectZ22]+[Connect56ZOffset],-[ConnectZ23]-[Connect56ZOffset], [ConnectZ23]+[Connect56ZOffset], 
+			[ConnectZ22]-[Connect56ZOffset], [ConnectZ21]+[Connect56ZOffset] </Vector>
+		<Vector name="Rotations" type="string" nEntries="6">
+			tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL, 
+			tobrodpar:NULL,  tobrodpar:NULL</Vector>
+	</Algorithm>
 	<Algorithm name="track:DDTrackerAngular">
 		<rParent name="tob:TOBConnect6"/>
 		<String name="ChildName" value="tob:TOBAlConnect6"/>
 		<Numeric name="N" value="16"/>
 		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[ConnectStartPhi]"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tob:TOBConnect6"/>
+		<String name="ChildName" value="tob:TOBAlConnect6"/>
+		<Numeric name="N" value="2"/>
+		<Numeric name="StartCopyNo" value="17"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="0*deg"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tob:TOBConnect56"/>
+		<String name="ChildName" value="tob:TOBAlConnect56"/>
+		<Numeric name="N" value="16"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[ConnectStartPhi]"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tob:TOBConnect56"/>
+		<String name="ChildName" value="tob:TOBAlConnect56"/>
+		<Numeric name="N" value="2"/>
+		<Numeric name="StartCopyNo" value="17"/>
 		<Numeric name="IncrCopyNo" value="1"/>
 		<Numeric name="RangeAngle" value="360*deg"/>
 		<Numeric name="StartAngle" value="0*deg"/>

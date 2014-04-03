@@ -20,13 +20,21 @@
   <!-- inside of the inner pixel region-->
   <Constant name="PatchpanelThick" value="[BulkheadThick]"/>
   <Constant name="TECPatchpanelWidth" value="35*deg"/>
-  <Constant name="PIXPatchpanelWidth1" value="20*deg"/>
+  <!-- <Constant name="PIXPatchpanelWidth1" value="20*deg"/> -->
+  <Constant name="PIXPatchpanelWidth1" value="10*deg"/>
   <Constant name="PIXPatchpanelWidth2" value="160*deg"/>
   <Constant name="PIXPatchpanelPhi" value="-100*deg"/>
   <Constant name="TECPatchpanelPhi" value="10*deg"/>
   <Constant name="PpBoxWidth" value="175*mm"/>
-  <Constant name="PpBoxLengthL" value="298.19*mm"/>
-  <Constant name="PpBoxLengthS" value="143.23*mm"/>
+  <!-- <Constant name="PpBoxLengthL" value="298.19*mm"/> -->
+  <Constant name="PpConnectorsLength" value="50.*mm"/>
+  <Constant name="PpConnectorsThick"  value="15.*mm"/>
+  <!-- <Constant name="PpBoxLengthL" value="154.96*mm"/> -->
+  <!-- <Constant name="PpBoxLengthL" value="129.96*mm"/> -->
+  <Constant name="PpBoxLengthL" value="104.96*mm"/>
+  <!-- <Constant name="PpBoxLengthS" value="143.23*mm"/> -->
+  <!-- <Constant name="PpBoxLengthS" value="118.23*mm"/> -->
+  <Constant name="PpBoxLengthS" value="93.23*mm"/>
   <Constant name="PpBoxThick" value="0.5*43.43*mm"/>
   <Constant name="PpBoxSideX" value="20.2*mm"/>
   <Constant name="PpBoxSideY" value="12.5*mm"/>
@@ -57,12 +65,15 @@
   <Tubs name="BHCovers" rMin="[BHCoversRin]" rMax="[BHCoversRout]" dz="0.5*[BHCoversThick]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="OuterCables" rMin="[PatchpanelR4]" rMax="[Rout]" dz="0.5*[Thick]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="TECPatchpanel" rMin="[PatchpanelR2]" rMax="[PatchpanelR3]" dz="0.5*[PatchpanelThick]" startPhi="-[TECPatchpanelWidth]" deltaPhi="[TECPatchpanelWidth]"/>
-  <Tubs name="PIXPatchpanel1" rMin="[PatchpanelR1]" rMax="[PatchpanelR3]" dz="0.5*[PatchpanelThick]" startPhi="-[PIXPatchpanelWidth1]" deltaPhi="[PIXPatchpanelWidth1]"/>
+  <Tubs name="PIXPatchpanel1" rMin="[PatchpanelR1]" rMax="[PatchpanelR3]" dz="0.5*[PatchpanelThick]" startPhi="-2*[PIXPatchpanelWidth1]" deltaPhi="[PIXPatchpanelWidth1]"/>
+  <Tubs name="PIXPatchpanel1b" rMin="[PatchpanelR1]" rMax="[PatchpanelR3]" dz="0.5*[PatchpanelThick]" startPhi="-2*[PIXPatchpanelWidth1]" deltaPhi="[PIXPatchpanelWidth1]"/>
   <Tubs name="PIXPatchpanel2" rMin="[PatchpanelR1]" rMax="[PatchpanelR2]" dz="0.5*[PatchpanelThick]" startPhi="-[PIXPatchpanelWidth2]" deltaPhi="[PIXPatchpanelWidth2]"/>
   <Tubs name="TECAlignRing" rMin="[AlignRingRin]" rMax="[AlignRingRout]" dz="0.5*[AlignRingThick]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="PixelCables" rMin="[PixelCablesRin]" rMax="[PixelCablesRout]" dz="0.5*[PixelCablesThick]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Box name="TECPpConnectors" dx="0.5*[PpConnectorsLength]" dy="0.5*[PpBoxWidth]" dz="0.5*[PpConnectorsThick]"/>
+  <Box name="TECPpBoxC" dx="0.5*[PpConnectorsLength]" dy="0.5*[PpBoxWidth]" dz="0.5*[PpBoxThick]"/>
   <Box name="TECPpBoxL" dx="0.5*[PpBoxLengthL]" dy="0.5*[PpBoxWidth]" dz="0.5*[PpBoxThick]"/>
-  <Box name="TECPpBoxS" dx="0.5*[PpBoxLengthS]" dy="0.5*[PpBoxWidth]" dz="0.5*[PpBoxThick]"/>
+  <Box name="TECPpBoxS" dx="0.5*[PpBoxLengthS]" dy="0.5*[PpBoxWidth]" dz="[PpBoxThick]"/>
   <Box name="TECCtrlBox" dx="0.5*[CtrlBoxLength]" dy="0.5*[CtrlBoxWidth]" dz="0.5*[CtrlBoxThick]"/>
  </SolidSection>
  <LogicalPartSection label="trackerbulkhead.xml">
@@ -90,6 +101,10 @@
    <rSolid name="trackerbulkhead:PIXPatchpanel1"/>
    <rMaterial name="trackermaterial:Tk_panels_mid1"/>
   </LogicalPart>
+  <LogicalPart name="PIXPatchpanel1b" category="unspecified">
+   <rSolid name="trackerbulkhead:PIXPatchpanel1b"/>
+   <rMaterial name="trackermaterial:Tk_panels_mid1b"/>
+  </LogicalPart>
   <LogicalPart name="PIXPatchpanel2" category="unspecified">
    <rSolid name="trackerbulkhead:PIXPatchpanel2"/>
    <rMaterial name="trackermaterial:Tk_panels_mid2"/>
@@ -101,6 +116,14 @@
   <LogicalPart name="PixelCables" category="unspecified">
    <rSolid name="trackerbulkhead:PixelCables"/>
    <rMaterial name="pixbarmaterial:PixelBarrelSupTubCables"/>
+  </LogicalPart>
+  <LogicalPart name="TECPpConnectors" category="unspecified">
+   <rSolid name="trackerbulkhead:TECPpConnectors"/>
+   <rMaterial name="tecmaterial:TEC_Connectors"/>
+  </LogicalPart>
+  <LogicalPart name="TECPpBoxC" category="unspecified">
+   <rSolid name="trackerbulkhead:TECPpBoxC"/>
+   <rMaterial name="tecmaterial:TEC_PatchpanelBox"/>
   </LogicalPart>
   <LogicalPart name="TECPpBoxL" category="unspecified">
    <rSolid name="trackerbulkhead:TECPpBoxL"/>
@@ -153,23 +176,53 @@
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="trackerbulkhead:TECPatchpanel"/>
+   <rChild name="trackerbulkhead:TECPpConnectors"/>
+   <Translation x="[PatchpanelR2]+0.5*[PpConnectorsLength]+[PpBoxSideX]" y="-0.5*[PpBoxWidth]-[PpBoxSideY]" z="-0.5*[PatchpanelThick]+0.5*[PpBoxThick]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="trackerbulkhead:TECPatchpanel"/>
+   <rChild name="trackerbulkhead:TECPpConnectors"/>
+   <Translation x="[PatchpanelR2]+[PpConnectorsLength]+[PpBoxLengthL]+0.5*[PpConnectorsLength]+[PpBoxSideX]" y="-0.5*[PpBoxWidth]-[PpBoxSideY]" z="-0.5*[PatchpanelThick]+0.5*[PpBoxThick]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="trackerbulkhead:TECPatchpanel"/>
+   <rChild name="trackerbulkhead:TECPpConnectors"/>
+   <Translation x="[PatchpanelR2]+0.5*[PpConnectorsLength]+[PpBoxSideX]-[PpBoxDistX]" y="-1.5*[PpBoxWidth]-[PpBoxSideY]-[PpBoxDistY]" z="-0.5*[PatchpanelThick]+0.5*[PpBoxThick]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="trackerbulkhead:TECPatchpanel"/>
+   <rChild name="trackerbulkhead:TECPpConnectors"/>
+   <Translation x="[PatchpanelR2]+[PpConnectorsLength]+[PpBoxLengthL]+0.5*[PpConnectorsLength]+[PpBoxSideX]-[PpBoxDistX]" y="-1.5*[PpBoxWidth]-[PpBoxSideY]-[PpBoxDistY]" z="-0.5*[PatchpanelThick]+0.5*[PpBoxThick]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="trackerbulkhead:TECPatchpanel"/>
+   <rChild name="trackerbulkhead:TECPpBoxC"/>
+    <Translation x="[PatchpanelR2]+[PpConnectorsLength]+[PpBoxLengthL]+0.5*[PpConnectorsLength]+[PpBoxSideX]" y="-0.5*[PpBoxWidth]-[PpBoxSideY]" z="-0.5*[PatchpanelThick]+[PpConnectorsThick]+0.5*[PpBoxThick]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="trackerbulkhead:TECPatchpanel"/>
+   <rChild name="trackerbulkhead:TECPpBoxC"/>
+   <Translation x="[PatchpanelR2]+[PpConnectorsLength]+[PpBoxLengthL]+0.5*[PpConnectorsLength]+[PpBoxSideX]-[PpBoxDistX]" y="-1.5*[PpBoxWidth]-[PpBoxSideY]-[PpBoxDistY]" z="-0.5*[PatchpanelThick]+[PpConnectorsThick]+0.5*[PpBoxThick]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="trackerbulkhead:TECPatchpanel"/>
    <rChild name="trackerbulkhead:TECPpBoxL"/>
-   <Translation x="[PatchpanelR2]+0.5*[PpBoxLengthL]+[PpBoxSideX]" y="-0.5*[PpBoxWidth]-[PpBoxSideY]" z="-0.5*[PatchpanelThick]+0.5*[PpBoxThick]"/>
+   <Translation x="[PatchpanelR2]+[PpConnectorsLength]+0.5*[PpBoxLengthL]+[PpBoxSideX]" y="-0.5*[PpBoxWidth]-[PpBoxSideY]" z="-0.5*[PatchpanelThick]+0.5*[PpBoxThick]"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="trackerbulkhead:TECPatchpanel"/>
    <rChild name="trackerbulkhead:TECPpBoxL"/>
-   <Translation x="[PatchpanelR2]+0.5*[PpBoxLengthL]+[PpBoxSideX]-[PpBoxDistX]" y="-1.5*[PpBoxWidth]-[PpBoxSideY]-[PpBoxDistY]" z="-0.5*[PatchpanelThick]+0.5*[PpBoxThick]"/>
+   <Translation x="[PatchpanelR2]+[PpConnectorsLength]+0.5*[PpBoxLengthL]+[PpBoxSideX]-[PpBoxDistX]" y="-1.5*[PpBoxWidth]-[PpBoxSideY]-[PpBoxDistY]" z="-0.5*[PatchpanelThick]+0.5*[PpBoxThick]"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="trackerbulkhead:TECPatchpanel"/>
    <rChild name="trackerbulkhead:TECPpBoxS"/>
-   <Translation x="[PatchpanelR2]+[PpBoxLengthL]-[PpBoxLengthS]+0.5*[PpBoxLengthS]+[PpBoxSideX]" y="-0.5*[PpBoxWidth]-[PpBoxSideY]" z="-0.5*[PatchpanelThick]+1.5*[PpBoxThick]"/>
+   <Translation x="[PatchpanelR2]+[PpConnectorsLength]+[PpBoxLengthL]+[PpConnectorsLength]+0.5*[PpBoxLengthS]+[PpBoxSideX]" y="-0.5*[PpBoxWidth]-[PpBoxSideY]" z="-0.5*[PatchpanelThick]+[PpBoxThick]"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="trackerbulkhead:TECPatchpanel"/>
    <rChild name="trackerbulkhead:TECPpBoxS"/>
-   <Translation x="[PatchpanelR2]+[PpBoxLengthL]-[PpBoxLengthS]+0.5*[PpBoxLengthS]+[PpBoxSideX]-[PpBoxDistX]" y="-1.5*[PpBoxWidth]-[PpBoxSideY]-[PpBoxDistY]" z="-0.5*[PatchpanelThick]+1.5*[PpBoxThick]"/>
+   <Translation x="[PatchpanelR2]+[PpConnectorsLength]+[PpBoxLengthL]+[PpConnectorsLength]+0.5*[PpBoxLengthS]+[PpBoxSideX]-[PpBoxDistX]" y="-1.5*[PpBoxWidth]-[PpBoxSideY]-[PpBoxDistY]" z="-0.5*[PatchpanelThick]+[PpBoxThick]"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="trackerbulkhead:TECPatchpanel"/>
@@ -212,6 +265,18 @@
   <Numeric name="Radius" value="[zero]"/>
   <Vector name="Center" type="numeric" nEntries="3">
    0, 0,0.5*([BHDiskThick] - [BHCoversThick])   </Vector>
+</Algorithm>
+ <Algorithm name="track:DDTrackerAngular">
+  <rParent name="trackerbulkhead:TrackerBulkhead"/>
+  <String name="ChildName" value="trackerbulkhead:PIXPatchpanel1b"/>
+  <Numeric name="N" value="2"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="StartAngle" value="-[PIXPatchpanelPhi]+10*deg"/>
+  <Numeric name="Radius" value="[zero]"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+   0, 0,0.5*([BHDiskThick] - [BHCoversThick])   </Vector>
  </Algorithm>
  <Algorithm name="track:DDTrackerAngular">
   <rParent name="trackerbulkhead:TrackerBulkhead"/>
@@ -220,7 +285,7 @@
   <Numeric name="StartCopyNo" value="1"/>
   <Numeric name="IncrCopyNo" value="1"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="StartAngle" value="-[TECPatchpanelPhi]-2*[TECPatchpanelWidth]-[PIXPatchpanelWidth1]"/>
+  <Numeric name="StartAngle" value="-[TECPatchpanelPhi]-2*[TECPatchpanelWidth]-2*[PIXPatchpanelWidth1]"/>
   <Numeric name="Radius" value="[zero]"/>
   <Vector name="Center" type="numeric" nEntries="3">
    0, 0, 0.5*([BHDiskThick] - [BHCoversThick]) </Vector>
