@@ -44,7 +44,11 @@ private:
   virtual SiStripRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
     return cloner(*this,tsos);
   }
- 
+#ifdef NO_DICT
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner.makeShared(*this,tsos);
+  }
+#endif 
 
  
 };

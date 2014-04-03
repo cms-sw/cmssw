@@ -66,6 +66,18 @@ public:
   }
   
 private:
+private:
+  // double dispatch
+  virtual ProjectedSiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
+#ifdef NO_DICT
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner.makeShared(*this,tsos);
+  }
+#endif
+
+private:
   const GeomDet* theOriginalDet;
 
 };

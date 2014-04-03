@@ -14,6 +14,9 @@
 #define NO_DICT
 #endif
 
+#include<vector>
+#include<memory>
+
 class GeomDet;
 class GeomDetUnit;
 class TkCloner;
@@ -21,6 +24,19 @@ class TrajectoryStateOnSurface;
 
 class TrackingRecHit {
 public:
+
+#ifdef NO_DICT
+   using RecHitPointer = std::shared_ptr<TrackingRecHit>;
+   using ConstRecHitPointer = std::shared_ptr<TrackingRecHit const>;   
+#else
+   typedef TrackingRecHit *           RecHitPointer;
+   typedef TrackingRecHit const *     ConstRecHitPointer;
+#endif
+
+  typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
+  typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
+
+
 
   friend class MuonTransientTrackingRecHit;
 
@@ -60,6 +76,9 @@ public:
 
   
   virtual TrackingRecHit * clone() const = 0;
+#ifdef NO_DICT
+  virtual RecHitPointer cloneSH() const { return RecHitPointer(clone());}
+#endif
   
   virtual AlgebraicVector parameters() const = 0;
   
@@ -136,6 +155,11 @@ private:
   virtual TrackingRecHit * clone(TkCloner const&, TrajectoryStateOnSurface const&) const {
     return clone(); // default
   }
+#ifdef NO_DICT
+  virtual  RecHitPointer cloneSH(TkCloner const&, TrajectoryStateOnSurface const&) const {
+    return cloneSH(); // default
+  }
+#endif
 
 protected:
   // used by muon...
