@@ -1,6 +1,9 @@
 #ifndef PhysicsTools_PatUtils_interface_PFElectronSelector_h
 #define PhysicsTools_PatUtils_interface_PFElectronSelector_h
 
+#ifndef __GCCXML__
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#endif
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,6 +22,12 @@ class PFElectronSelector : public Selector<pat::Electron> {
   enum Version_t { SPRING11, N_VERSIONS };
 
   PFElectronSelector() {}
+
+#ifndef __GCCXML__
+  PFElectronSelector( edm::ParameterSet const & parameters, edm::ConsumesCollector&& iC ) :
+    PFElectronSelector( parameters )
+  {}
+#endif
 
   PFElectronSelector( edm::ParameterSet const & parameters ) {
 
