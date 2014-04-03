@@ -59,10 +59,10 @@
 #include <map>
 #include <string>
 
-namespace jetAnalysis {
-  class TrackPropagatorToCalo;
+//namespace jetAnalysis {
+//class TrackPropagatorToCalo;
   //class StripSignalOverNoiseCalculator;
-}
+//}
 
 class JetAnalyzer : public DQMEDAnalyzer {
  public:
@@ -95,7 +95,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
 
 
  /// Helper object to propagate tracks to the calo surface
-  std::auto_ptr<jetAnalysis::TrackPropagatorToCalo> trackPropagator_;
+  //std::auto_ptr<jetAnalysis::TrackPropagatorToCalo> trackPropagator_;
   /// Helper object to calculate strip SoN for tracks
   //std::auto_ptr<jetAnalysis::StripSignalOverNoiseCalculator> sOverNCalculator_;
 

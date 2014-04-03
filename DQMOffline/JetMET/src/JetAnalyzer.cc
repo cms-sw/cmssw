@@ -56,21 +56,21 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-namespace jetAnalysis {
+//namespace jetAnalysis {
   
   // Helper class to propagate tracks to the calo surface using the same implementation as the JetTrackAssociator
-  class TrackPropagatorToCalo
-  {
-   public:
-    TrackPropagatorToCalo();
-    void update(const edm::EventSetup& eventSetup);
-    math::XYZPoint impactPoint(const reco::Track& track) const;
-   private:
-    const MagneticField* magneticField_;
-    const Propagator* propagator_;
-    uint32_t magneticFieldCacheId_;
-    uint32_t propagatorCacheId_;
-  };
+  //class TrackPropagatorToCalo
+  //{
+  //public:
+  //TrackPropagatorToCalo();
+  // void update(const edm::EventSetup& eventSetup);
+  //math::XYZPoint impactPoint(const reco::Track& track) const;
+  //private:
+  //const MagneticField* magneticField_;
+  //const Propagator* propagator_;
+  //uint32_t magneticFieldCacheId_;
+  //uint32_t propagatorCacheId_;
+  //};
   /*
   // Helper class to calculate strip signal to noise and manage the necessary ES objects
   class StripSignalOverNoiseCalculator
@@ -93,11 +93,11 @@ namespace jetAnalysis {
     uint32_t gainCacheId_;
   };
   */
-}
+//}
 
 // ***********************************************************
 JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
-  : trackPropagator_(new jetAnalysis::TrackPropagatorToCalo)//,
+//: trackPropagator_(new jetAnalysis::TrackPropagatorToCalo)//,
     //sOverNCalculator_(new jetAnalysis::StripSignalOverNoiseCalculator)
 {
   parameters_ = pSet.getParameter<edm::ParameterSet>("jetAnalysis");
@@ -2325,41 +2325,41 @@ void JetAnalyzer::endJob(void) {
 }
 
 
-namespace jetAnalysis {
-  
-  TrackPropagatorToCalo::TrackPropagatorToCalo()
-    : magneticField_(NULL),
-      propagator_(NULL),
-      magneticFieldCacheId_(0),
-      propagatorCacheId_(0)
-    {}
-  
-  void TrackPropagatorToCalo::update(const edm::EventSetup& eventSetup)
-  {
-    //update magnetic filed if necessary
-    const IdealMagneticFieldRecord& magneticFieldRecord = eventSetup.get<IdealMagneticFieldRecord>();
-    const uint32_t newMagneticFieldCacheId = magneticFieldRecord.cacheIdentifier();
-    if ((newMagneticFieldCacheId != magneticFieldCacheId_) || !magneticField_) {
-      edm::ESHandle<MagneticField> magneticFieldHandle;
-      magneticFieldRecord.get(magneticFieldHandle);
-      magneticField_ = magneticFieldHandle.product();
-      magneticFieldCacheId_ = newMagneticFieldCacheId;
-    }
+//namespace jetAnalysis {
+//  
+//  TrackPropagatorToCalo::TrackPropagatorToCalo()
+//    : magneticField_(NULL),
+//      propagator_(NULL),
+//      magneticFieldCacheId_(0),
+//      propagatorCacheId_(0)
+//    {}
+//  
+//  void TrackPropagatorToCalo::update(const edm::EventSetup& eventSetup)
+//  {
+//    //update magnetic filed if necessary
+//    const IdealMagneticFieldRecord& magneticFieldRecord = eventSetup.get<IdealMagneticFieldRecord>();
+//    const uint32_t newMagneticFieldCacheId = magneticFieldRecord.cacheIdentifier();
+//    if ((newMagneticFieldCacheId != magneticFieldCacheId_) || !magneticField_) {
+//      edm::ESHandle<MagneticField> magneticFieldHandle;
+//      magneticFieldRecord.get(magneticFieldHandle);
+//      magneticField_ = magneticFieldHandle.product();
+//      magneticFieldCacheId_ = newMagneticFieldCacheId;
+//    }
     //update propagator if necessary
-    const TrackingComponentsRecord& trackingComponentsRecord = eventSetup.get<TrackingComponentsRecord>();
-    const uint32_t newPropagatorCacheId = trackingComponentsRecord.cacheIdentifier();
-    if ((propagatorCacheId_ != newPropagatorCacheId) || !propagator_) {
-      edm::ESHandle<Propagator> propagatorHandle;
-      trackingComponentsRecord.get("SteppingHelixPropagatorAlong",propagatorHandle);
-      propagator_ = propagatorHandle.product();
-      propagatorCacheId_ = newPropagatorCacheId;
-    }
-  }
+//  const TrackingComponentsRecord& trackingComponentsRecord = eventSetup.get<TrackingComponentsRecord>();
+//   const uint32_t newPropagatorCacheId = trackingComponentsRecord.cacheIdentifier();
+//   if ((propagatorCacheId_ != newPropagatorCacheId) || !propagator_) {
+//   edm::ESHandle<Propagator> propagatorHandle;
+//    trackingComponentsRecord.get("SteppingHelixPropagatorAlong",propagatorHandle);
+//    propagator_ = propagatorHandle.product();
+//    propagatorCacheId_ = newPropagatorCacheId;
+//  }
+//}
   
-  inline math::XYZPoint TrackPropagatorToCalo::impactPoint(const reco::Track& track) const
-  {
-    return JetTracksAssociationDRCalo::propagateTrackToCalorimeter(track,*magneticField_,*propagator_);
-  }
+//inline math::XYZPoint TrackPropagatorToCalo::impactPoint(const reco::Track& track) const
+//{
+//  return JetTracksAssociationDRCalo::propagateTrackToCalorimeter(track,*magneticField_,*propagator_);
+//}
   /*
   StripSignalOverNoiseCalculator::StripSignalOverNoiseCalculator(const std::string& theQualityLabel)
     : qualityLabel_(theQualityLabel),
@@ -2433,5 +2433,5 @@ namespace jetAnalysis {
     else return 0;
   }
   */ 
-}
+//}
 
