@@ -32,6 +32,10 @@ SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
     UseCalibration     = cms.untracked.bool(False),
     calibrationPath    = cms.untracked.string(""),
 
+    GoodFracForTagProd  = cms.untracked.double(0.95),
+    NClustersForTagProd = cms.untracked.double(2E8),
+    
+
     SinceAppendMode     = cms.bool(True),
     IOVMode             = cms.string('Job'),
     Record              = cms.string('SiStripApvGainRcd'),

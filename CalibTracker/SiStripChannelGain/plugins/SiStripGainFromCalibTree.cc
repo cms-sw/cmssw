@@ -158,6 +158,9 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       bool         useCalibration;
       string       m_calibrationPath;
 
+      double tagCondition_NClusters;
+      double tagCondition_GoodFrac;
+
       edm::InputTag theTracksLabel;
       std::string  AlgoMode;
       std::string  OutputGains;
@@ -223,6 +226,9 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
    useCalibration      = iConfig.getUntrackedParameter<bool>    ("UseCalibration"     , false);
    m_calibrationPath   = iConfig.getUntrackedParameter<string>  ("calibrationPath");
    harvestingMode      = iConfig.getUntrackedParameter<bool>    ("harvestingMode"     , false);
+
+   tagCondition_NClusters  = iConfig.getUntrackedParameter<double>    ("NClustersForTagProd"     , 2E8);
+   tagCondition_GoodFrac   = iConfig.getUntrackedParameter<double>    ("GoodFracForTagProd"     , 0.95);
 
    dbe = edm::Service<DQMStore>().operator->();
    dbe->setVerbose(10);
@@ -703,14 +709,12 @@ void SiStripGainFromCalibTree::storeOnTree()
 
 bool SiStripGainFromCalibTree::produceTagFilter(){
    // The goal of this function is to check wether or not there is enough statistics to produce a meaningful tag for the DB or not 
-  if(Charge_Vs_Index->getTH2F()->Integral() < 2E8) {
-    cout << "[SiStripGainFromCalibTree]produceTagFilter -> will not produce a paylaod because integral of statistics is: " << Charge_Vs_Index->getTH2F()->Integral() << endl;
-    setDoStore(false);
+  if(Charge_Vs_Index->getTH2F()->Integral() < tagCondition_NClusters) {
+    cout << "[SiStripGainFromCalibTree] produceTagFilter -> Return false: Statistics is too low : " << Charge_Vs_Index->getTH2F()->Integral() << endl;
     return false;
   }
-  if((1.0 * GOOD) / (GOOD+BAD) < 0.95) {
-    setDoStore(false);
-    cout << "[SiStripGainFromCalibTree]produceTagFilter -> will not produce a paylaod because ration of GOOD/TOTAL: " << (1.0 * GOOD) / (GOOD+BAD) << endl;
+  if((1.0 * GOOD) / (GOOD+BAD) < tagCondition_GoodFrac) {
+    cout << "[SiStripGainFromCalibTree] produceTagFilter ->  Return false: ratio of GOOD/TOTAL is too low: " << (1.0 * GOOD) / (GOOD+BAD) << endl;
     return false;
   }
    return true; 
@@ -719,7 +723,11 @@ bool SiStripGainFromCalibTree::produceTagFilter(){
 SiStripApvGain* SiStripGainFromCalibTree::getNewObject() 
 {
    SiStripApvGain* obj = new SiStripApvGain();
-   if(!produceTagFilter()) return obj;
+   if(!produceTagFilter()){
+       cout << "[SiStripGainFromCalibTree] getNewObject -> will not produce a paylaod because produceTagFilter returned false " << endl;       
+       setDoStore(false); 
+       return obj;
+   }
 
 
    std::vector<float>* theSiStripVector = NULL;
