@@ -1,6 +1,9 @@
 #ifndef Analysis_AnalysisFilters_interface_RunLumiSelector_h
 #define Analysis_AnalysisFilters_interface_RunLumiSelector_h
 
+#ifndef __GCCXML__
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#endif
 #include "FWCore/Common/interface/EventBase.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -15,10 +18,16 @@ class RunLumiSelector : public EventSelector {
 public:
   RunLumiSelector() {}
 
+#ifndef __GCCXML__
+  RunLumiSelector( edm::ParameterSet const & params, edm::ConsumesCollector&& iC ) :
+    RunLumiSelector( params )
+  {}
+#endif
+
   RunLumiSelector( edm::ParameterSet const & params ) {
 
     push_back("RunLumi");
-    
+
     if ( params.exists("lumisToProcess") ) {
       lumis_ = params.getUntrackedParameter<std::vector<edm::LuminosityBlockRange> > ("lumisToProcess");
       set("RunLumi" );
@@ -30,7 +39,7 @@ public:
 
     retInternal_ = getBitTemplate();
   }
-  
+
   bool operator() ( edm::EventBase const & ev,  pat::strbitset & ret ) {
 
     if ( !ignoreCut("RunLumi") ) {

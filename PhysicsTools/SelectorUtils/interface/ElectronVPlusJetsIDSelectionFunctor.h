@@ -1,6 +1,9 @@
 #ifndef PhysicsTools_PatUtils_interface_ElectronVPlusJetsIDSelectionFunctor_h
 #define PhysicsTools_PatUtils_interface_ElectronVPlusJetsIDSelectionFunctor_h
 
+#ifndef __GCCXML__
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#endif
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,6 +18,12 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
 
   ElectronVPlusJetsIDSelectionFunctor() {}
 
+#ifndef __GCCXML__
+  ElectronVPlusJetsIDSelectionFunctor( edm::ParameterSet const & parameters, edm::ConsumesCollector& iC ) :
+    ElectronVPlusJetsIDSelectionFunctor(parameters)
+  {}
+#endif
+
   ElectronVPlusJetsIDSelectionFunctor( edm::ParameterSet const & parameters ){
 
     std::string versionStr = parameters.getParameter<std::string>("version");
@@ -23,7 +32,7 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     }
 
     if (versionStr == "FIRSTDATA") {
-      initialize( FIRSTDATA, 
+      initialize( FIRSTDATA,
 		  parameters.getParameter<double>("D0"),
 		  parameters.getParameter<double>("ED0"),
 		  parameters.getParameter<double>("SD0"),
@@ -35,7 +44,7 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     }
 
     retInternal_ = getBitTemplate();
-		
+
   }
 
 
@@ -60,7 +69,7 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     push_back("ED0",       ed0);
     push_back("SD0",       sd0);
     push_back("RelIso",    reliso);
-    
+
     // all on by default
     set("D0");
     set("ED0");
@@ -72,12 +81,12 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     indexED0_           = index_type(&bits_, "ED0"          );
     indexSD0_           = index_type(&bits_, "SD0"          );
     indexRelIso_        = index_type(&bits_, "RelIso"       );
-    
+
   }
 
-  // Allow for multiple definitions of the cuts. 
-  bool operator()( const pat::Electron & electron, pat::strbitset & ret )  
-  { 
+  // Allow for multiple definitions of the cuts.
+  bool operator()( const pat::Electron & electron, pat::strbitset & ret )
+  {
     if ( version_ == FIRSTDATA ) return firstDataCuts( electron, ret );
     else {
       return false;
@@ -86,20 +95,20 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
 
   using Selector<pat::Electron>::operator();
 
-  // cuts based on craft 08 analysis. 
-  bool firstDataCuts( const pat::Electron & electron, pat::strbitset & ret) 
+  // cuts based on craft 08 analysis.
+  bool firstDataCuts( const pat::Electron & electron, pat::strbitset & ret)
   {
 
     ret.set(false);
     double corr_d0 = electron.dB();
     double corr_ed0 = electron.edB();
     double corr_sd0 = ( corr_ed0 > 0.000000001 ) ? corr_d0 / corr_ed0 : 999.0;
-	
+
     double hcalIso = electron.dr03HcalTowerSumEt();
     double ecalIso = electron.dr03EcalRecHitSumEt();
     double trkIso  = electron.dr03TkSumPt();
     double et      = electron.et() ;
-    
+
     double relIso = (ecalIso + hcalIso + trkIso) / et;
 
     if ( fabs(corr_d0) <  cut(indexD0_,     double()) || ignoreCut(indexD0_)      ) passCut(ret, indexD0_     );
@@ -111,16 +120,16 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     return (bool)ret;
   }
 
-  
+
  private: // member variables
-  
+
   Version_t version_;
 
-  index_type indexD0_;            
-  index_type indexED0_;           
-  index_type indexSD0_;           
-  index_type indexRelIso_;        
-  
+  index_type indexD0_;
+  index_type indexED0_;
+  index_type indexSD0_;
+  index_type indexRelIso_;
+
 };
 
 #endif
