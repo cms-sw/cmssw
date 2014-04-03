@@ -4,12 +4,13 @@
 		<Constant name="zero" value="0.0*fm"/>
 		<!-- Mother Volume (Polycone) -->
 		<Constant name="Rin1" value="22.20*cm"/>
+		<Constant name="Rin1bis" value="21.80*cm"/>
 		<Constant name="Rin2" value="[tid:Rout]"/>
 		<!-- 52.0 cm -->
 		<Constant name="Rin3" value="24.60*cm"/>
 		<!-- "dente" PXL flange -->
 		<Constant name="Rin4" value="113.51*cm"/>
-		<!-- inner R (vs beam) corrected to 113.51 cm as in reallity-->
+		<!-- inner R (vs beam) corrected to 113.51 cm as in reality-->
 		<Constant name="Rout1" value="[tib:Rout]"/>
 		<!-- 54.0 cm -->
 		<Constant name="Rout2" value="58.00*cm"/>
@@ -23,6 +24,7 @@
 		<!-- "dente" Margherita flange -->
 		<Constant name="Zv4" value="111.3*cm"/>
 		<Constant name="Zv5" value="112.1*cm"/>
+		<Constant name="Zv5bis" value="113.1*cm"/>
 		<!-- "dente" PXL flange -->
 		<Constant name="Zv6" value="118.0*cm"/>
 		<Constant name="Zv7" value="123.0*cm"/>
@@ -31,9 +33,12 @@
 		<!-- TIB flange -->
 		<Constant name="TIBFlangeL" value="[Zv2]-[Zv1]"/>
 		<Constant name="TIBFlangeZ" value="[Zv1]+[TIBFlangeL]/2"/>
-		<!-- PixelSupport flange -->
+		<!-- PixelSupport flanges -->
 		<Constant name="PixelSupportFlangeL" value="[Zv5]-[Zv4]"/>
+		<Constant name="PixelSupportFlange2L" value="[Zv5bis]-[Zv5]"/>
 		<Constant name="PixelSupportFlangeZ" value="[Zv4]+[PixelSupportFlangeL]/2"/>
+		<Constant name="PixelSupportFlange2Z" value="[Zv4]+[PixelSupportFlangeL]+[PixelSupportFlange2L]/2"/>
+		<Constant name="Rin3bis" value="24.0*cm"/>
 		<!-- final section of TID support tube -->
 		<Constant name="TIDSupportL" value="4.9*cm"/>
 		<Constant name="TIDSupportZ" value="[Zv4]+[TIDSupportL]/2"/>
@@ -62,6 +67,8 @@
 		<Constant name="ServiceDiskRin" value="[tid:SupportRin]"/>
 		<Constant name="ServiceDiskRm" value="58.0*cm"/>
 		<Constant name="ServiceDiskRout" value="[MargheritaRf]"/>
+                <Constant name="ServiceDisk2Dz" value="[ServiceDiskZb]/2-[ServiceDiskZf]/2"/>
+                <Constant name="ServiceDisk2Z" value="[ServiceDiskZb]/2+[ServiceDiskZf]/2"/>
 		<!-- Optical Panel -->
 		<Constant name="OpticalPanelZf" value="[Zv4]"/>
 		<Constant name="OpticalPanelZ1" value="[MargheritaZm]"/>
@@ -110,7 +117,9 @@
 			<ZSection z="[Zv4]" rMin="[Rin2]" rMax="[Rout2]"/>
 			<ZSection z="[Zv4]" rMin="[Rin1]" rMax="[Rout2]"/>
 			<ZSection z="[Zv5]" rMin="[Rin1]" rMax="[Rout2]"/>
-			<ZSection z="[Zv5]" rMin="[Rin3]" rMax="[Rout2]"/>
+			<ZSection z="[Zv5]" rMin="[Rin1bis]" rMax="[Rout2]"/>
+			<ZSection z="[Zv5bis]" rMin="[Rin1bis]" rMax="[Rout2]"/>
+			<ZSection z="[Zv5bis]" rMin="[Rin3]" rMax="[Rout2]"/>
 			<ZSection z="[Zv6]" rMin="[Rin3]" rMax="[Rout2]"/>
 			<ZSection z="[Zv6]" rMin="[Rin3]" rMax="[Rout3]"/>
 			<ZSection z="[Zv7]" rMin="[Rin3]" rMax="[Rout3]"/>
@@ -124,8 +133,9 @@
 		<Tubs name="TIBFlange" rMin="[tib:Rin]" rMax="[tib:Rout]" dz="[TIBFlangeL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
 		<!-- "Service Cylinder  -->
 		<Tubs name="ServiceCylinder" rMin="[Rin2]" rMax="[Rout1]" dz="[ServiceCylinderL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
-		<!-- "Flangia" PixelSupport -->
+		<!-- Flanges PixelSupport -->
 		<Tubs name="PixelSupportFlange" rMin="[Rin1]" rMax="[Rin3]" dz="[PixelSupportFlangeL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PixelSupportFlange2" rMin="[Rin1bis]" rMax="[Rin3bis]" dz="[PixelSupportFlange2L]/2" startPhi="0*deg" deltaPhi="360*deg"/>
 		<!-- Optical Panel  -->
 		<Polycone name="OpticalPanel" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="[OpticalPanelZf]" rMin="[Rin3]" rMax="[tid:SupportRin]"/>
@@ -157,12 +167,13 @@
 			<ZSection z="[MargheritaZb]" rMin="[MargheritaRb]" rMax="[TSTCabContRin]"/>
 		</Polycone>
 		<!-- Service Disk  -->
-		<Polycone name="ServiceDisk" startPhi="0*deg" deltaPhi="360*deg">
-			<ZSection z="[ServiceDiskZf]" rMin="[ServiceDiskRin]" rMax="[ServiceDiskRm]"/>
-			<ZSection z="[ServiceDiskZm]" rMin="[ServiceDiskRin]" rMax="[ServiceDiskRm]"/>
-			<ZSection z="[ServiceDiskZm]" rMin="[ServiceDiskRin]" rMax="[ServiceDiskRout]"/>
-			<ZSection z="[ServiceDiskZb]" rMin="[ServiceDiskRin]" rMax="[ServiceDiskRout]"/>
+                <Polycone name="ServiceDisk1" startPhi="0*deg" deltaPhi="360*deg">
+                        <ZSection z="[ServiceDiskZf]" rMin="[MargheritaRb]" rMax="[ServiceDiskRm]"/>
+                        <ZSection z="[ServiceDiskZm]" rMin="[MargheritaRb]" rMax="[ServiceDiskRm]"/>
+                        <ZSection z="[ServiceDiskZm]" rMin="[MargheritaRb]" rMax="[ServiceDiskRout]"/>
+                        <ZSection z="[ServiceDiskZb]" rMin="[MargheritaRb]" rMax="[ServiceDiskRout]"/>
 		</Polycone>
+                <Tubs name="ServiceDisk2" rMin="[ServiceDiskRin]" rMax="[MargheritaRb]" dz="[ServiceDisk2Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
 		<!-- Power/Control connectors  -->
 		<Tubs name="PowerConnectors" rMin="[PowerConnectorsRin]" rMax="[PowerConnectorsRout]" dz="[PowerConnectorsL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
 		<!-- TST  -->
@@ -205,6 +216,10 @@
 			<rSolid name="PixelSupportFlange"/>
 			<rMaterial name="trackermaterial:T_FR4"/>
 		</LogicalPart>
+		<LogicalPart name="TIBTIDPxlFlange2" category="unspecified">
+			<rSolid name="PixelSupportFlange2"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
 		<LogicalPart name="TIBTIDOpticalPanel" category="unspecified">
 			<rSolid name="OpticalPanel"/>
 			<rMaterial name="materials:Air"/>
@@ -229,9 +244,13 @@
 			<rSolid name="Margherita"/>
 			<rMaterial name="tibtidcommonmaterial:TIBTID_Margherita"/>
 		</LogicalPart>
-		<LogicalPart name="TIBTIDServiceDisk" category="unspecified">
-			<rSolid name="ServiceDisk"/>
-			<rMaterial name="tibtidcommonmaterial:TIBTID_ServiceDisk"/>
+                <LogicalPart name="TIBTIDServiceDisk1" category="unspecified">
+                        <rSolid name="ServiceDisk1"/>
+                        <rMaterial name="tibtidcommonmaterial:TIBTID_ServiceDisk1"/>
+                </LogicalPart>
+                <LogicalPart name="TIBTIDServiceDisk2" category="unspecified">
+                        <rSolid name="ServiceDisk2"/>
+                        <rMaterial name="tibtidcommonmaterial:TIBTID_ServiceDisk2"/>
 		</LogicalPart>
 		<LogicalPart name="TIBTIDPowerConnectors" category="unspecified">
 			<rSolid name="PowerConnectors"/>
