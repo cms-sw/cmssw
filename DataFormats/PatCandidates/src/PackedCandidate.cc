@@ -251,23 +251,6 @@ void pat::PackedCandidate::fillVertexCovariance(CovarianceMatrix & err) const {
     << "reco::ConcreteCandidate does not implement vertex covariant matrix.\n";
 }
 
-bool pat::PackedCandidate::isElectron() const { return false; }
-
-bool pat::PackedCandidate::isMuon() const { return false; }
-
-bool pat::PackedCandidate::isGlobalMuon() const { return false; }
-
-bool pat::PackedCandidate::isStandAloneMuon() const { return false; }
-
-bool pat::PackedCandidate::isTrackerMuon() const { return false; }
-
-bool pat::PackedCandidate::isCaloMuon() const { return false; }
-
-bool pat::PackedCandidate::isPhoton() const { return false; }
-
-bool pat::PackedCandidate::isConvertedPhoton() const { return false; }
-
-bool pat::PackedCandidate::isJet() const { return false; }
 
 bool pat::PackedCandidate::longLived() const {return false;}
 
