@@ -6,9 +6,10 @@ trackingParticles.select = cms.PSet(
     chargedOnlyTP = cms.bool(True),
     pdgIdTP = cms.vint32(),
     signalOnlyTP = cms.bool(True),
-    minRapidityTP = cms.double(-2.6),
+    minRapidityTP = cms.double(-5.0),
     minHitTP = cms.int32(3),
-    ptMinTP = cms.double(0.2),
-    maxRapidityTP = cms.double(2.6),
-    tipTP = cms.double(1000)
+    ptMinTP = cms.double(0.1),
+    maxRapidityTP = cms.double(5.0),
+    tipTP = cms.double(1000),
+    stableOnlyTP = cms.bool(False)
 )
