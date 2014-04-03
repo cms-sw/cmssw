@@ -1280,7 +1280,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
       CaloTowerDetId towerId28(towerId.ieta()-towerId.zside(),towerId.iphi());
       std::vector<DetId> items28 = theTowerConstituentsMap->constituentsOf(towerId28);
       for(unsigned i = 0; i < items28.size(); i++){
-        if(items[i].det()!=DetId::Hcal) continue;
+        if(items28[i].det()!=DetId::Hcal) continue;
         HcalDetId hid(items28[i]);
 		if(hid.subdet() == HcalOuter) continue;
 		
