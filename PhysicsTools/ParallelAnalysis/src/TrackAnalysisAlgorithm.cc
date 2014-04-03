@@ -15,7 +15,7 @@ using namespace reco;
 const char * TrackAnalysisAlgorithm::kPt = "pt";
 const char * TrackAnalysisAlgorithm::kEta = "eta";
 
-TrackAnalysisAlgorithm::TrackAnalysisAlgorithm( const TList *, TList& out ) {
+TrackAnalysisAlgorithm::TrackAnalysisAlgorithm( const TList *, TList& out )  {
   cout << ">> booking histograms" << endl;
   out.Add( h_pt  = new TH1F( kPt , "pt"  , 100,  0, 20 ) );
   out.Add( h_eta = new TH1F( kEta, "#eta", 100, -3,    3 ) );
@@ -25,7 +25,7 @@ void TrackAnalysisAlgorithm::process( const Event & event ) {
   cout << ">> processing event " << endl;
   Handle<TrackCollection> tracks;
   event.getByLabel( "ctfWithMaterialTracks", tracks );
-  
+
   cout << ">> tracks found:" << tracks->size() << endl;
   for ( size_t i = 0; i < tracks->size(); ++i ) {
     const Track & track = ( * tracks )[ i ];
