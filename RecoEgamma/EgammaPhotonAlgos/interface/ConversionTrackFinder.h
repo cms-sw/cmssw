@@ -41,7 +41,7 @@ class ConversionTrackFinder {
 
   /// Initialize EventSetup objects at each event
   void setEventSetup( const edm::EventSetup& es ) ; 
-  void setTrajectoryBuilder(const BaseCkfTrajectoryBuilder & builder) ; 
+  void setTrajectoryBuilder(const edm::EventSetup& es, const BaseCkfTrajectoryBuilder & builder) ; 
 
 
  private:
@@ -59,7 +59,7 @@ class ConversionTrackFinder {
   const MeasurementTracker*     theMeasurementTracker_;
   const BaseCkfTrajectoryBuilder*  theCkfTrajectoryBuilder_;
 
-  TransientInitialStateEstimator* theInitialState_;  
+  std::unique_ptr<TransientInitialStateEstimator> theInitialState_;  
   const TrackerGeometry* theTrackerGeom_;
   KFUpdator*                          theUpdator_;
 

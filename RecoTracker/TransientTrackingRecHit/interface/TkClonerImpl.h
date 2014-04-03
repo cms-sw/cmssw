@@ -17,7 +17,7 @@ public:
 	       const SiStripRecHitMatcher           * iMatcher
 	       ): pixelCPE(ipixelCPE), stripCPE(istripCPE), theMatcher(iMatcher){}
 
-  using TkCloner::operator();;
+  using TkCloner::operator();
   virtual SiPixelRecHit * operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const;
   virtual SiStripRecHit2D * operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
   virtual SiStripRecHit1D * operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const;

@@ -31,11 +31,6 @@ TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::Event
   es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
 }
 
-void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) {
-  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
-  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
-}
-
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
 TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackFit) const
 {

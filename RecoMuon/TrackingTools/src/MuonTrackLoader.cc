@@ -37,10 +37,13 @@
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+
+
 using namespace edm;
 using namespace std;
 
-// constructor
+// constructor (obsolete, should use eventSetUp not service..)
 MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, edm::ConsumesCollector& iC, const MuonServiceProxy *service): 
   theService(service){
 
@@ -152,9 +155,19 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
   std::map<unsigned int, unsigned int> tjTkMap;
   
-  if(doSmoothing)
-    theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,theSmoother);
-  
+  if(doSmoothing) {
+    edm::ESHandle<TrajectorySmoother> aSmoother;
+    theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,aSmoother);
+    theSmoother.reset(aSmoother->clone());
+
+    std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // FIXME FIXME
+    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
+    theSmoother->setHitCloner(&hitCloner);
+  }  
+
+
   unsigned int tjCnt = 0;
   for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();
       rawTrajectory != trajectories.end(); ++rawTrajectory, ++tjCnt){
@@ -466,9 +479,17 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
   std::map<unsigned int, unsigned int> tjTkMap;
   
-  if(doSmoothing)
-    theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,theSmoother);
-  
+  if(doSmoothing) {
+    edm::ESHandle<TrajectorySmoother> aSmoother;
+    theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,aSmoother);
+    theSmoother.reset(aSmoother->clone());
+
+    std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // FIXME FIXME
+    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
+    theSmoother->setHitCloner(&hitCloner);
+  }
   
   for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();
       rawTrajectory != trajectories.end(); ++rawTrajectory){

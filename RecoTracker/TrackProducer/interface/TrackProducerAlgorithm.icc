@@ -10,11 +10,8 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
@@ -76,8 +73,9 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       }      
       
       //build Track
-      LogDebug("TrackProducer") << "going to buildTrack"<< "\n";      
-      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof, bs,
+      LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
+      FitterCloner fc(theFitter,builder);   
+      bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theTSOS, seed, ndof, bs,
       	      		    theTC->seedRef(),0,theTC->nLoops());
       LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
       if(ok) cont++;
@@ -180,8 +178,9 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	//set the algo_ member in order to propagate the old alog name
 	algo_=theT->algo();	
 
-	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, 
+	//=====  the hits are in the same order as they were in the track::extra.
+        FitterCloner fc(theFitter,builder);        
+	bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theInitialStateForRefitting, 
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
       }catch ( cms::Exception & e){
@@ -244,8 +243,9 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 	// =========================
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 	
-	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
+	//=====  the hits are in the same order as they were in the track::extra.
+        FitterCloner fc(theFitter,builder);     
+	bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theInitialStateForRefitting,
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
       }catch ( cms::Exception & e){
@@ -299,7 +299,8 @@ TrackProducerAlgorithm<T>::runWithTrackParameters(const TrackingGeometry * theG,
 						   TrajectorySeed::recHitContainer(), seedDir);
 
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
+        FitterCloner fc(theFitter,builder);
+	bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theInitialStateForRefitting,
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
       } catch ( cms::Exception & e){
@@ -399,7 +400,8 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
+        FitterCloner fc(theFitter,builder);
+	bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theInitialStateForRefitting,
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
       } catch ( cms::Exception & e){

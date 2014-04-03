@@ -3,6 +3,7 @@
 //
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 //
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -16,27 +17,17 @@ ConversionTrackFinder::ConversionTrackFinder(const edm::EventSetup& es,
 					     const edm::ParameterSet& conf ) :  
   conf_(conf), 
   theCkfTrajectoryBuilder_(0), 
-  theInitialState_(0),
   theTrackerGeom_(0),
   theUpdator_(0),
   thePropagator_(0) 
 {
   //  std::cout << " ConversionTrackFinder base CTOR " << std::endl;
-
-  edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
-  theInitialState_       = new TransientInitialStateEstimator( es,  tise_params);
   useSplitHits_ =  conf_.getParameter<bool>("useHitsSplitting");
-
   theMeasurementTrackerName_ = conf.getParameter<std::string>("MeasurementTrackerName");
-
 }
 
 
 ConversionTrackFinder::~ConversionTrackFinder() {
-
-
-  delete theInitialState_;
-
 }
 
 
@@ -52,10 +43,10 @@ void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
 
   es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",
 					thePropagator_);
-
-  theInitialState_->setEventSetup( es );
 }
 
-void ConversionTrackFinder::setTrajectoryBuilder(const BaseCkfTrajectoryBuilder & builder)   {
+void ConversionTrackFinder::setTrajectoryBuilder(const edm::EventSetup& es, const BaseCkfTrajectoryBuilder & builder)   {
   theCkfTrajectoryBuilder_ = & builder;
+  edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
+  theInitialState_.reset(new TransientInitialStateEstimator( es,  tise_params,static_cast<TkTransientTrackingRecHitBuilder const *>(builder.hitBuilder())->cloner()));
 }

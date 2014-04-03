@@ -61,7 +61,7 @@ namespace cms
     std::string theTrajectoryCleanerName;
     const TrajectoryCleaner*               theTrajectoryCleaner;
 
-    TransientInitialStateEstimator*  theInitialState;
+    std::unique_ptr<TransientInitialStateEstimator>  theInitialState;
     
     edm::ESHandle<MagneticField>                theMagField;
     edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
