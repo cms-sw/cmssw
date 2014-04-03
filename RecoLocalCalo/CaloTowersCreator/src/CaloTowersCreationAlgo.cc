@@ -419,10 +419,10 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
     rescaledTower.setEcalTime( int(ctcItr->ecalTime()*100.0 + 0.5) );
     rescaledTower.setHcalTime( int(ctcItr->hcalTime()*100.0 + 0.5) );
     //add topology info
-    rescaledTower.setHcalLimits(theTowerTopology->firstHBRing(), theTowerTopology->firstHBRing(),
-                            theTowerTopology->firstHERing(), theTowerTopology->firstHERing(),
-                            theTowerTopology->firstHFRing(), theTowerTopology->firstHFRing(),
-                            theTowerTopology->firstHORing(), theTowerTopology->firstHORing() );
+    rescaledTower.setHcalLimits(theTowerTopology->firstHBRing(), theTowerTopology->lastHBRing(),
+                            theTowerTopology->firstHERing(), theTowerTopology->lastHERing(),
+                            theTowerTopology->firstHFRing(), theTowerTopology->lastHFRing(),
+                            theTowerTopology->firstHORing(), theTowerTopology->lastHORing() );
 
     std::vector<DetId> contains;
     for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
@@ -935,10 +935,10 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     caloTower.setEcalTime(compactTime(ecalTime));
     caloTower.setHcalTime(compactTime(hcalTime));
     //add topology info
-    caloTower.setHcalLimits(theTowerTopology->firstHBRing(), theTowerTopology->firstHBRing(),
-                            theTowerTopology->firstHERing(), theTowerTopology->firstHERing(),
-                            theTowerTopology->firstHFRing(), theTowerTopology->firstHFRing(),
-                            theTowerTopology->firstHORing(), theTowerTopology->firstHORing() );
+    caloTower.setHcalLimits(theTowerTopology->firstHBRing(), theTowerTopology->lastHBRing(),
+                            theTowerTopology->firstHERing(), theTowerTopology->lastHERing(),
+                            theTowerTopology->firstHFRing(), theTowerTopology->lastHFRing(),
+                            theTowerTopology->firstHORing(), theTowerTopology->lastHORing() );
 
     // set the CaloTower status word =====================================
     // Channels must be counter exclusively in the defined cathegories
