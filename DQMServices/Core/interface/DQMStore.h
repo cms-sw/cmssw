@@ -243,12 +243,13 @@ class DQMStore
     }
     f(*ibooker_);
   }
-  //Signature needed in the harvesting where the booking is done
-  //in the endJob. No handles to the run there. Two arguments ensure
-  //the capability of booking and getting
+  // Signature needed in the harvesting where the booking is done
+  // in the endJob. No handles to the run there. Two arguments ensure
+  // the capability of booking and getting. The method relies on the
+  // initialization of run, stream and module ID to 0. The mutex
+  // is not needed here.
   template <typename iFunc>
   void bookTransaction(iFunc f) {
-    std::lock_guard<std::mutex> guard(book_mutex_);
     f(*ibooker_, *igetter_);
   }
 
