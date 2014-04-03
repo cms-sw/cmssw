@@ -163,7 +163,7 @@ PluginCapabilities::category() const
 //
 PluginCapabilities*
 PluginCapabilities::get() {
-  static PluginCapabilities s_instance;
+  [[cms::thread_safe]] static PluginCapabilities s_instance;
   return &s_instance;
 }
 

@@ -160,7 +160,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
       "' because the category '"<<iCategory<<"' has no known plugins";
     } else {
       ioThrowIfFailElseSucceedStatus = false;
-      static boost::filesystem::path s_path;
+      static const boost::filesystem::path s_path;
       return s_path;
     }
   }
@@ -179,7 +179,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
       <<"' in category '"<<iCategory<<"'. Please check spelling of name.";
     } else {
       ioThrowIfFailElseSucceedStatus = false;
-      static boost::filesystem::path s_path;
+      static const boost::filesystem::path s_path;
       return s_path;
     }
   }
@@ -326,7 +326,7 @@ PluginManager::loadingLibraryNamed_()
 {
   //NOTE: pluginLoadMutex() indirectly guards this since this value
   // is only accessible via the Sentry call which us guarded by the mutex
-  static std::string s_name(staticallyLinkedLoadingFileName());
+  [[cms::thread_safe]] static std::string s_name(staticallyLinkedLoadingFileName());
   return s_name;
 }
 
