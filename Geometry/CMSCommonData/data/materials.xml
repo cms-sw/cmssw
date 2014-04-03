@@ -2,6 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
  <MaterialSection label="materials.xml">
   <ElementaryMaterial name="Aluminium" density="2.7*g/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13"/>
+  <ElementaryMaterial name="TD_Aluminium" density="8.1*g/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13"/>
   <ElementaryMaterial name="Antimony" density="6.679*g/cm3" symbol=" " atomicWeight="121.75*g/mole" atomicNumber="51"/>
   <ElementaryMaterial name="Argon" density="1.639*mg/cm3" symbol=" " atomicWeight="39.948*g/mole" atomicNumber="18"/>
   <ElementaryMaterial name="Arsenic" density="5.72*g/cm3" symbol=" " atomicWeight="74.922*g/mole" atomicNumber="33"/>
@@ -1474,6 +1475,20 @@
    </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="E_Cables" density="2.68*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.586">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.259">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.138">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.017">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="DD_E_Cables" density="5.36*g/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.586">
     <rMaterial name="materials:Copper"/>
    </MaterialFraction>
@@ -3212,6 +3227,14 @@
    </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="Polyethylene" density="950*mg/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.85628451">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.14371549">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="DD_Polyethylene" density="2*950*mg/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.85628451">
     <rMaterial name="materials:Carbon"/>
    </MaterialFraction>
