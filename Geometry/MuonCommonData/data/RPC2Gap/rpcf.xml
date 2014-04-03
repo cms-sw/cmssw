@@ -3,8 +3,9 @@
 
  <SolidSection label="rpcf.xml">
   <Constant name="RPCGasWidth" value="1*mm"/>
-  <Constant name="RPCBakeliteWidth" value="5*mm"/>
-  <Constant name="RPCAluminiumWidth" value="5.5*mm"/>
+  <Constant name="RPCBakeliteWidth" value="6*mm"/>     <!-- Double Gap RPC :: 2*mm Bakelite - 2*mm Gas - 4*mm Bakelite - 2*mm Gas - 2*mm Bakelite = 12*mm total thickness --> 
+  <Constant name="RPCGasLocation" value="3*mm"/>       <!-- Double Gap RPC :: 2*mm Gas should be inside Bakelite volume, centered at +/- 3*mm -->
+  <Constant name="RPCAluminiumWidth" value="6.5*mm"/>  <!-- Double Gap RPC :: half a mm of aluminium around the Bak-Gas-Bak sandwich --> 
 
   <Tubs name="RR12"  rMin="2.745*m" rMax="4.644*m" dz="5.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
   <Trd1 name="RFBX"  dz="92*cm"     dy1="[rpcf:RPCAluminiumWidth]" dy2="[rpcf:RPCAluminiumWidth]" dx1="24.368*cm" dx2="40.453*cm"/>
@@ -258,17 +259,32 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHBX"/>
    <rChild name="rpcf:REB1"/>
-   <Translation x="0*fm" y="0*fm" z="65.2*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="65.2*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="rpcf:RHBX"/>
+   <rChild name="rpcf:REB1"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="65.2*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHBX"/>
    <rChild name="rpcf:REB2"/>
-   <Translation x="0*fm" y="0*fm" z="12.95*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="12.95*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="rpcf:RHBX"/>
+   <rChild name="rpcf:REB2"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="12.95*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHBX"/>
    <rChild name="rpcf:REB3"/>
-   <Translation x="0*fm" y="0*fm" z="-52.25*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="-52.25*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="rpcf:RHBX"/>
+   <rChild name="rpcf:REB3"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="-52.25*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME13RingP"/>
@@ -295,17 +311,32 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHCX"/>
    <rChild name="rpcf:REC1"/>
-   <Translation x="0*fm" y="0*fm" z="66.95*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="66.95*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="rpcf:RHCX"/>
+   <rChild name="rpcf:REC1"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="66.95*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHCX"/>
    <rChild name="rpcf:REC2"/>
-   <Translation x="0*fm" y="0*fm" z="7.85*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="7.85*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="rpcf:RHCX"/>
+   <rChild name="rpcf:REC2"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="7.85*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHCX"/>
    <rChild name="rpcf:REC3"/>
-   <Translation x="0*fm" y="0*fm" z="-59.1*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="-59.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="rpcf:RHCX"/>
+   <rChild name="rpcf:REC3"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="-59.1*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RTXU"/>
@@ -326,32 +357,32 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHEX"/>
    <rChild name="rpcf:REE1"/>
-   <Translation x="0*fm" y="5*mm" z="51.9*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="51.9*cm"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="rpcf:RHEX"/>
    <rChild name="rpcf:REE1"/>
-   <Translation x="0*fm" y="-5*mm" z="51.9*cm"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="51.9*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHEX"/>
    <rChild name="rpcf:REE2"/>
-   <Translation x="0*fm" y="5*mm" z="-6.9*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="-6.9*cm"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="rpcf:RHEX"/>
    <rChild name="rpcf:REE2"/>
-   <Translation x="0*fm" y="-5*mm" z="-6.9*cm"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="-6.9*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHEX"/>
    <rChild name="rpcf:REE3"/>
-   <Translation x="0*fm" y="5*mm" z="-58.8*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="-58.8*cm"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="rpcf:RHEX"/>
    <rChild name="rpcf:REE3"/>
-   <Translation x="0*fm" y="-5*mm" z="-58.8*cm"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="-58.8*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RTXUR"/>
@@ -372,32 +403,32 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHFX"/>
    <rChild name="rpcf:REF1"/>
-   <Translation x="0*fm" y="5*mm" z="69.15*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="69.15*cm"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="rpcf:RHFX"/>
    <rChild name="rpcf:REF1"/>
-   <Translation x="0*fm" y="-5*mm" z="69.15*cm"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="69.15*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHFX"/>
    <rChild name="rpcf:REF2"/>
-   <Translation x="0*fm" y="5*mm" z="4.25*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="4.25*cm"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="rpcf:RHFX"/>
    <rChild name="rpcf:REF2"/>
-   <Translation x="0*fm" y="-5*mm" z="4.25*cm"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="4.25*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHFX"/>
    <rChild name="rpcf:REF3"/>
-   <Translation x="0*fm" y="5*mm" z="-64.9*cm"/>
+   <Translation x="0*fm" y="+[rpcf:RPCGasLocation]" z="-64.9*cm"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="rpcf:RHFX"/>
    <rChild name="rpcf:REF3"/>
-   <Translation x="0*fm" y="-5*mm" z="-64.9*cm"/>
+   <Translation x="0*fm" y="-[rpcf:RPCGasLocation]" z="-64.9*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME3RingP"/>
