@@ -4,6 +4,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 
 #ifdef EDM_ML_DEBUG
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -165,7 +167,8 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 	//update
 	LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
         assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
-	TransientTrackingRecHit::RecHitPointer preciseHit = (*ihit)->clone(predTsos);
+        assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
+	auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
 
 	if unlikely(!preciseHit->isValid()){
 	    LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";

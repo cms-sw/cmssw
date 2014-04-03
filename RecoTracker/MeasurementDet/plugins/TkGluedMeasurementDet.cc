@@ -42,7 +42,7 @@ void TkGluedMeasurementDet::init(const MeasurementDet* monoDet,
 TkGluedMeasurementDet::RecHitContainer 
 TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data) const
 {
-
+  
   RecHitContainer result;
   HitCollectorForRecHits collector( &fastGeomDet(), theMatcher, theCPE, result );
   collectRecHits(ts, data, collector);
@@ -56,28 +56,27 @@ bool TkGluedMeasurementDet::recHits(SimpleHitContainer & result,
 				    const MeasurementEstimator& est, const MeasurementTrackerEvent & data) const {
   if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) return false;
   auto oldSize = result.size();
-
   HitCollectorForSimpleHits collector( &fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
   collectRecHits(stateOnThisDet, data, collector);
-   
+  
   return result.size()>oldSize;
-
+  
 }
 
- 
+
 
 
 bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 					  const MeasurementEstimator& est,
                                           const MeasurementTrackerEvent & data,
 					  TempMeasurements & result) const {
-
-   if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
+  
+  if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
        //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
-       result.add (InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive),0.F);
+       result.add(std::make_shared<InvalidTrackingRecHit>(&fastGeomDet(),TrackingRecHit::missing), 0.F);
        return true;
-     }
-
+    }
+  
    auto oldSize = result.size();
 
    HitCollectorForFastMeasurements collector( &fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
@@ -85,7 +84,7 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
    
    
    if (result.size()>oldSize) return true;
-
+   
    //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
    const BoundPlane &gluedPlane = geomDet().surface();
    if (  // sorry for the big IF, but I want to exploit short-circuiting of logic
@@ -103,12 +102,12 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 				      ) /*Stereo OK*/ 
 				      ) /* State has errors */
 	 ) {
-     result.add(InvalidTransientRecHit::build(&fastGeomDet(),TrackingRecHit::missing), 0.F);
+     result.add(std::make_shared<InvalidTrackingRecHit>(&fastGeomDet(),TrackingRecHit::missing), 0.F);
      return false;
    } 
-   result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F);
+   result.add(std::make_shared<InvalidTrackingRecHit>(&fastGeomDet(), TrackingRecHit::inactive), 0.F);
    return true;
-
+   
 }
 
 
@@ -131,45 +130,45 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, const
   //-----           To limit the problem, the SimpleCPE should be used
   RecHitContainer monoHits = theMonoDet->recHits( ts, data );
   GlobalVector glbDir = (ts.isValid() ? ts.globalParameters().momentum() : position()-GlobalPoint(0,0,0));
-
+  
   //edm::LogWarning("TkGluedMeasurementDet::recHits") << "Query-for-detid-" << theGeomDet->geographicalId().rawId();
-
+  
   //checkProjection(ts, monoHits, stereoHits);
-
+  
   if (monoHits.empty()) {
       // make stereo TTRHs and project them
       projectOnGluedDet( collector, theStereoDet->recHits(ts, data), glbDir);
   } else {
-      // collect simple stereo hits
-      static std::vector<SiStripRecHit2D> simpleSteroHitsByValue;
-      simpleSteroHitsByValue.clear();
-      theStereoDet->simpleRecHits(ts, data, simpleSteroHitsByValue);
-
-      if (simpleSteroHitsByValue.empty()) {
-          projectOnGluedDet( collector, monoHits, glbDir);
-      } else {
-
-          LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
-          static SiStripRecHitMatcher::SimpleHitCollection vsStereoHits;
-          vsStereoHits.resize(simpleSteroHitsByValue.size());
-          std::transform(simpleSteroHitsByValue.begin(), simpleSteroHitsByValue.end(), vsStereoHits.begin(), take_address()); 
-
-          // convert mono hits to type expected by matcher
-          for (RecHitContainer::const_iterator monoHit = monoHits.begin();
-                  monoHit != monoHits.end(); ++monoHit) {
-              const TrackingRecHit* tkhit = (**monoHit).hit();
-              const SiStripRecHit2D* verySpecificMonoHit = reinterpret_cast<const SiStripRecHit2D*>(tkhit);
-              theMatcher->match( verySpecificMonoHit, vsStereoHits.begin(), vsStereoHits.end(), 
-                      collector.collector(), &specificGeomDet(), tkDir);
-
-              if (collector.hasNewMatchedHits()) {
-                  collector.clearNewMatchedHitsFlag();
-              } else {
-                  collector.addProjected( **monoHit, glbDir );
-              }
-          } // loop on mono hit
-      }
-      //GIO// std::cerr << "TkGluedMeasurementDet hits " << monoHits.size() << "/" << stereoHits.size() << " => " << result.size() << std::endl;
+    // collect simple stereo hits
+    static std::vector<SiStripRecHit2D> simpleSteroHitsByValue;
+    simpleSteroHitsByValue.clear();
+    theStereoDet->simpleRecHits(ts, data, simpleSteroHitsByValue);
+    
+    if (simpleSteroHitsByValue.empty()) {
+      projectOnGluedDet( collector, monoHits, glbDir);
+    } else {
+      
+      LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
+      static SiStripRecHitMatcher::SimpleHitCollection vsStereoHits;
+      vsStereoHits.resize(simpleSteroHitsByValue.size());
+      std::transform(simpleSteroHitsByValue.begin(), simpleSteroHitsByValue.end(), vsStereoHits.begin(), take_address()); 
+      
+      // convert mono hits to type expected by matcher
+      for (RecHitContainer::const_iterator monoHit = monoHits.begin();
+	   monoHit != monoHits.end(); ++monoHit) {
+	const TrackingRecHit* tkhit = (**monoHit).hit();
+	const SiStripRecHit2D* verySpecificMonoHit = reinterpret_cast<const SiStripRecHit2D*>(tkhit);
+	theMatcher->match( verySpecificMonoHit, vsStereoHits.begin(), vsStereoHits.end(), 
+			   collector.collector(), &specificGeomDet(), tkDir);
+	
+	if (collector.hasNewMatchedHits()) {
+	  collector.clearNewMatchedHitsFlag();
+	} else {
+	  collector.addProjected( **monoHit, glbDir );
+	}
+      } // loop on mono hit
+    }
+    //GIO// std::cerr << "TkGluedMeasurementDet hits " << monoHits.size() << "/" << stereoHits.size() << " => " << result.size() << std::endl;
   }
 }
 #endif
@@ -228,10 +227,11 @@ TkGluedMeasurementDet::RecHitContainer
 TkGluedMeasurementDet::projectOnGluedDet( const RecHitContainer& hits,
 					  const TrajectoryStateOnSurface& ts) const
 {
-  TrackingRecHitProjector<ProjectedRecHit2D> proj;
   RecHitContainer result;
-  for ( RecHitContainer::const_iterator ihit = hits.begin(); ihit!=hits.end(); ihit++) {
-    result.push_back( proj.project( **ihit, fastGeomDet(), ts));
+  for ( auto const & hit : hits) {
+    auto && vl = projectedPos(*hit, fastGeomDet(), ts.globalParameters().momentum(),  theCPE);
+    auto && phit = std::make_shared<ProjectedSiStripRecHit2D> (vl.first,vl.second, fastGeomDet(), static_cast<SiStripRecHit2D const &>(*hit));
+    result.push_back(std::move(phit));
   }
   return result;
 }
@@ -251,10 +251,12 @@ TkGluedMeasurementDet::RecHitContainer
 TkGluedMeasurementDet::projectOnGluedDet( std::vector<SiStripRecHit2D> const & hits,
 					  const TrajectoryStateOnSurface& ts) const
 {
-  TrackingRecHitProjector<ProjectedRecHit2D> proj;
   RecHitContainer result;
-  for ( auto const & hit : hits)
-    result.push_back( proj.project(hit, fastGeomDet(), ts, theCPE));
+  for ( auto const & hit : hits) {
+    auto && vl = projectedPos(hit, fastGeomDet(), ts.globalParameters().momentum(),  theCPE);
+    auto && phit = std::make_shared<ProjectedSiStripRecHit2D> (vl.first,vl.second,fastGeomDet(), static_cast<SiStripRecHit2D const &>(hit));
+    result.push_back(std::move(phit));
+  }
   return result;
 }
 
@@ -288,18 +290,18 @@ void TkGluedMeasurementDet::checkHitProjection(const TrackingRecHit& hit,
 					       const TrajectoryStateOnSurface& ts, 
 					       const GeomDet& det) const
 {
-  TrackingRecHitProjector<ProjectedRecHit2D> proj;
-  TransientTrackingRecHit::RecHitPointer projectedHit = proj.project( hit, det, ts, theCPE);
-
+  auto && vl = projectedPos(hit, det, ts.globalParameters().momentum(),  theCPE);
+  ProjectedSiStripRecHit2D projectedHit(vl.first,vl.second, det, static_cast<SiStripRecHit2D const &>(hit));
+  
   RecHitPropagator prop;
   TrajectoryStateOnSurface propState = prop.propagate( hit, det.surface(), ts);
-
-  if ((projectedHit->localPosition()-propState.localPosition()).mag() > 0.0001) {
-    cout << "PROBLEM: projected and propagated hit positions differ by " 
-	 << (projectedHit->localPosition()-propState.localPosition()).mag() << endl;
+  
+  if ((projectedHit.localPosition()-propState.localPosition()).mag() > 0.0001f) {
+    std::cout << "PROBLEM: projected and propagated hit positions differ by " 
+	      << (projectedHit.localPosition()-propState.localPosition()).mag() << std::endl;
   }
-
-  LocalError le1 = projectedHit->localPositionError();
+  
+  LocalError le1 = projectedHit.localPositionError();
   LocalError le2 = propState.localError().positionError();
   double eps = 1.e-5;
   double cutoff = 1.e-4; // if element below cutoff, use absolute instead of relative accuracy
@@ -307,8 +309,8 @@ void TkGluedMeasurementDet::checkHitProjection(const TrackingRecHit& hit,
 				       fabs(le1.xy() - le2.xy())/(cutoff+fabs(le1.xy()))),
 			     fabs(le1.yy() - le2.yy())/(cutoff+le1.xx()));  
   if (maxdiff > eps) { 
-    cout << "PROBLEM: projected and propagated hit errors differ by " 
-	 << maxdiff << endl;
+    std::cout << "PROBLEM: projected and propagated hit errors differ by " 
+	      << maxdiff << std::endl;
   }
   
 }
@@ -317,46 +319,46 @@ bool
 TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
                                   const BoundPlane &gluedPlane,
                                   const TkStripMeasurementDet &mdet) const {
-   // from TrackingRecHitProjector
-   const GeomDet &det = mdet.fastGeomDet();
-   const BoundPlane &stripPlane = det.surface();
+  // from TrackingRecHitProjector
+  const GeomDet &det = mdet.fastGeomDet();
+  const BoundPlane &stripPlane = det.surface();
 
    //LocalPoint glp = tsos.localPosition();
-   LocalError  err = tsos.localError().positionError();
-   /*LogDebug("TkStripMeasurementDet") << 
-      "Testing local pos glued: " << glp << 
-      " local err glued: " << tsos.localError().positionError() << 
+  LocalError  err = tsos.localError().positionError();
+  /*LogDebug("TkStripMeasurementDet") << 
+    "Testing local pos glued: " << glp << 
+    " local err glued: " << tsos.localError().positionError() << 
       " in? " << gluedPlane.bounds().inside(glp) <<
       " in(3s)? " << gluedPlane.bounds().inside(glp, err, 3.0f);*/
-
-   GlobalVector gdir = tsos.globalParameters().momentum();
-
-   LocalPoint  slp = stripPlane.toLocal(tsos.globalPosition()); 
-   LocalVector sld = stripPlane.toLocal(gdir);
-
-   double delta = stripPlane.localZ( tsos.globalPosition());
-   LocalPoint pos = slp - sld * delta/sld.z();
-
-
+  
+  GlobalVector gdir = tsos.globalParameters().momentum();
+  
+  LocalPoint  slp = stripPlane.toLocal(tsos.globalPosition()); 
+  LocalVector sld = stripPlane.toLocal(gdir);
+  
+  double delta = stripPlane.localZ( tsos.globalPosition());
+  LocalPoint pos = slp - sld * delta/sld.z();
+  
+  
    // now the error
    LocalVector hitXAxis = stripPlane.toLocal( gluedPlane.toGlobal( LocalVector(1,0,0)));
    if (stripPlane.normalVector().dot( gluedPlane.normalVector()) < 0) {
-       // the two planes are inverted, and the correlation element must change sign
-       err = LocalError( err.xx(), -err.xy(), err.yy());
+     // the two planes are inverted, and the correlation element must change sign
+     err = LocalError( err.xx(), -err.xy(), err.yy());
    }
    LocalError rotatedError = err.rotate( hitXAxis.x(), hitXAxis.y());
-
+   
    /* // This is probably meaningless 
-   LogDebug("TkStripMeasurementDet") << 
+      LogDebug("TkStripMeasurementDet") << 
       "Testing local pos on strip (SLP): " << slp << 
       " in? :" << stripPlane.bounds().inside(slp) <<
       " in(3s)? :" << stripPlane.bounds().inside(slp, rotatedError, 3.0f);
-   // but it helps to test bugs in the formula for POS */
+      // but it helps to test bugs in the formula for POS */
    /*LogDebug("TkStripMeasurementDet") << 
-      "Testing local pos strip: " << pos << 
-      " in? " << stripPlane.bounds().inside(pos) <<
-      " in(3s)? " << stripPlane.bounds().inside(pos, rotatedError, 3.0f);*/
-
+     "Testing local pos strip: " << pos << 
+     " in? " << stripPlane.bounds().inside(pos) <<
+     " in(3s)? " << stripPlane.bounds().inside(pos, rotatedError, 3.0f);*/
+   
    // now we need to convert to MeasurementFrame
    const StripTopology &topo = mdet.specificGeomDet().specificTopology();
    float utraj = topo.measurementPosition(pos).x();
@@ -366,20 +368,21 @@ TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
 
 #include<boost/bind.hpp>
 TkGluedMeasurementDet::HitCollectorForRecHits::HitCollectorForRecHits(const GeomDet * geomDet, 
-        const SiStripRecHitMatcher * matcher, const StripClusterParameterEstimator* cpe,
-        RecHitContainer & target) :
+								      const SiStripRecHitMatcher * matcher, const StripClusterParameterEstimator* cpe,
+								      RecHitContainer & target) :
   geomDet_(geomDet), matcher_(matcher), cpe_(cpe),target_(target),
-    collector_(boost::bind(&HitCollectorForRecHits::add,boost::ref(*this),_1)),
-    hasNewHits_(false)
+  collector_(boost::bind(&HitCollectorForRecHits::add,boost::ref(*this),_1)),
+  hasNewHits_(false)
 {
 }
 
 TkGluedMeasurementDet::HitCollectorForSimpleHits::HitCollectorForSimpleHits(
-const GeomDet * geomDet, 
- const SiStripRecHitMatcher * matcher, const StripClusterParameterEstimator* cpe,
- const TrajectoryStateOnSurface& stateOnThisDet,
- const MeasurementEstimator& est,
- SimpleHitContainer & target) :
+									    const GeomDet * geomDet, 
+									    const SiStripRecHitMatcher * matcher, 
+									    const StripClusterParameterEstimator* cpe,
+									    const TrajectoryStateOnSurface& stateOnThisDet,
+									    const MeasurementEstimator& est,
+									    SimpleHitContainer & target) :
   geomDet_(geomDet), matcher_(matcher), cpe_(cpe),stateOnThisDet_(stateOnThisDet), est_(est), target_(target),
   collector_(boost::bind(&HitCollectorForSimpleHits::add,boost::ref(*this),_1)),
   hasNewHits_(false)
@@ -391,8 +394,9 @@ void
 TkGluedMeasurementDet::HitCollectorForRecHits::addProjected(const TrackingRecHit& hit,
                                                             const GlobalVector & gdir)
 {
-    TrackingRecHitProjector<ProjectedRecHit2D> proj;
-    target_.push_back( proj.project( hit, *geomDet_, gdir, cpe_));
+  auto && vl = projectedPos(hit,*geomDet_, gdir,  cpe_);
+  auto && phit = std::make_shared<ProjectedSiStripRecHit2D> (vl.first,vl.second,*geomDet_, static_cast<SiStripRecHit2D const &>(hit));
+  target_.push_back(std::move(phit));
 }
 
 
@@ -409,7 +413,7 @@ TkGluedMeasurementDet::HitCollectorForSimpleHits::add(SiStripMatchedRecHit2D con
 
 void
 TkGluedMeasurementDet::HitCollectorForSimpleHits::addProjected(const TrackingRecHit& hit,
-								  const GlobalVector & gdir)
+							       const GlobalVector & gdir)
 {
   // here we're ok with some extra casual new's and delete's
   auto && vl = projectedPos(hit,*geomDet_, gdir,  cpe_);
@@ -442,40 +446,39 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit
   hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, hit2d);
   if (!diffEst.first) return;
-  target_.add(std::move(TSiStripMatchedRecHit::build(geomDet_, &hit2d, matcher_, cpe_ )),diffEst.second);
+  target_.add(std::move(hit2d.cloneSH()),diffEst.second);
 }
 
 /*
-void
-TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d)
-{
+  void
+  TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d)
+  {
   static thread_local std::auto_ptr<TSiStripMatchedRecHit> lcache;
   std::auto_ptr<TSiStripMatchedRecHit> & cache = lcache;
   TSiStripMatchedRecHit::buildInPlace( cache, geomDet_, &hit2d, matcher_, cpe_ );
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *cache);
   if ( diffEst.first) {
-    cache->clonePersistentHit(); // clone and take ownership of the persistent 2D hit
-    target_.add(RecHitPointer(cache.release()), 
-		diffEst.second);
+  cache->clonePersistentHit(); // clone and take ownership of the persistent 2D hit
+  target_.add(RecHitPointer(cache.release()), 
+  diffEst.second);
   } else {
-    cache->clearPersistentHit(); // drop ownership
+  cache->clearPersistentHit(); // drop ownership
   } 
   hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
-}
+  }
 */
 
 void
 TkGluedMeasurementDet::HitCollectorForFastMeasurements::addProjected(const TrackingRecHit& hit,
-                                                            const GlobalVector & gdir)
+								     const GlobalVector & gdir)
 {
   // here we're ok with some extra casual new's and delete's
-  TrackingRecHitProjector<ProjectedRecHit2D> proj;
-  RecHitPointer && phit = proj.project( hit, *geomDet_, gdir,  cpe_ );
+  auto && vl = projectedPos(hit,*geomDet_, gdir,  cpe_);
+  auto && phit = std::make_shared<ProjectedSiStripRecHit2D> (vl.first,vl.second,*geomDet_, static_cast<SiStripRecHit2D const &>(hit));
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *phit);
-  if ( diffEst.first) {
-    target_.add(phit, diffEst.second);
-  }
-
+if ( diffEst.first) {
+  target_.add(phit, diffEst.second);
+ }
 }
 
 

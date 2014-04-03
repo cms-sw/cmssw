@@ -4,7 +4,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
 class TrajectoryStateOnSurface;
-class TransientTrackingRecHit;
+class TrackingRecHit;
 
 /** Class which updates a Gaussian mixture trajectory state 
  *  with the information from a

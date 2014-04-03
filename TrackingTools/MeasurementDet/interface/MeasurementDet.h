@@ -18,7 +18,7 @@ class MeasurementTrackerEvent;
 class MeasurementDet {
 public:
   typedef tracking::TempMeasurements TempMeasurements;
-  typedef TransientTrackingRecHit::ConstRecHitContainer        RecHitContainer;
+  typedef TrackingRecHit::ConstRecHitContainer        RecHitContainer;
 
   using SimpleHitContainer=std::vector<BaseTrackerRecHit *>;
 

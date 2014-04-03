@@ -16,25 +16,12 @@ void countTTRH( TrackingRecHit::Type);
 inline void countTTRH( TrackingRecHit::Type){}
 #endif
 
-
+typedef TrackingRecHit TransientTrackingRecHit;
+/*
 class TransientTrackingRecHit : public TrackingRecHit 
 //				, public ReferenceCountedInEvent 
 {
 public:
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-   using RecHitPointer = std::shared_ptr<TransientTrackingRecHit>;
-   using ConstRecHitPointer = std::shared_ptr<TransientTrackingRecHit const>;
-   
-#else
-   typedef TransientTrackingRecHit *           RecHitPointer;
-   typedef TransientTrackingRecHit const *     ConstRecHitPointer;
-#endif
-
-//  typedef ReferenceCountingPointer< TransientTrackingRecHit>        RecHitPointer;
-//  typedef ConstReferenceCountingPointer< TransientTrackingRecHit>   ConstRecHitPointer;
-  typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
-  typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
-
 
   TransientTrackingRecHit(){}
 
@@ -106,6 +93,7 @@ private:
   virtual TransientTrackingRecHit * clone() const = 0;
 
 };
+*/
 
 #endif
 

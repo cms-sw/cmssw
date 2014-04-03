@@ -410,8 +410,11 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
   //             That is an analytical extrapolation and not the best guess of the real 
   //             track state on the module, but the latter should be better to get the best
   //             hit uncertainty estimate!
-  TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ?
-							hitPtr->clone(updatedTsos) : hitPtr);
+
+   // FIXME FIXME  CLONE
+  auto newHitPtr =  hitPtr;
+//  TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ?
+//							hitPtr->clone(updatedTsos) : hitPtr);
 
   const LocalPoint localMeasurement    = newHitPtr->localPosition();
   const LocalError localMeasurementCov = newHitPtr->localPositionError();

@@ -7,6 +7,9 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+
 
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
@@ -73,6 +76,7 @@ public:
 
   // fake TTRH interface
   virtual TrackingRecHit const * hit() const { return this;}  
+  virtual TrackingRecHit * cloneHit() const { return clone();}
 
   
   virtual TrackingRecHit * clone() const = 0;
@@ -97,12 +101,23 @@ public:
   /// Non-const access to component RecHits (if any)
   virtual std::vector<TrackingRecHit*> recHits() = 0;
   virtual void recHitsV(std::vector<TrackingRecHit*> & );
-  
+
+#ifdef NO_DICT
+  ConstRecHitContainer transientHits() const {
+    ConstRecHitContainer result;
+    std::vector<const TrackingRecHit*> hits;
+    recHitsV(hits);
+    for (auto h : hits) result.push_back(h->cloneSH());
+    return result;
+  }
+#endif
 
   id_type rawId() const { return m_id;}
   DetId geographicalId() const {return m_id;}
 
   const GeomDet * det() const { return m_det;}
+  virtual const Surface * surface() const {return &(det()->surface());}
+
 
   /// CAUTION: the GeomDetUnit* is zero for composite hits 
   /// (matched hits in the tracker, segments in the muon).

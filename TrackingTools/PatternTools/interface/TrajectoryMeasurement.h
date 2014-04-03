@@ -3,7 +3,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "boost/intrusive_ptr.hpp" 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include<algorithm>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
@@ -27,11 +27,11 @@ class TrajectoryMeasurement {
 public:
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
-  using RecHitPointer = TransientTrackingRecHit::RecHitPointer;
-  using ConstRecHitPointer = TransientTrackingRecHit::ConstRecHitPointer;
+  using RecHitPointer = TrackingRecHit::RecHitPointer;
+  using ConstRecHitPointer = TrackingRecHit::ConstRecHitPointer;
 #else
-  typedef TransientTrackingRecHit::RecHitPointer         RecHitPointer;
-  typedef TransientTrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
+  typedef TrackingRecHit::RecHitPointer         RecHitPointer;
+  typedef TrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
 #endif
 
   TrajectoryMeasurement() {}
@@ -195,7 +195,7 @@ public:
     return *theRecHit;
   }
 #else
-  TransientTrackingRecHit const & recHitR() const {   
+  TrackingRecHit const & recHitR() const {   
     return *theRecHit;
   }  
 

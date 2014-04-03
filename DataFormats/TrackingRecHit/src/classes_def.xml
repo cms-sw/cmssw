@@ -10,6 +10,7 @@
   </class>
   <class name="InvalidTrackingRecHit" ClassVersion="10">
    <version ClassVersion="10" checksum="3356557851"/>
+   <field name="surface_" transient="true" />
   </class>
   <class name="RecHit2DLocalPos" ClassVersion="10">
    <version ClassVersion="10" checksum="1168669560"/>

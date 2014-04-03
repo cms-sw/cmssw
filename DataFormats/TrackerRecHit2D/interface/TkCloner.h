@@ -16,7 +16,7 @@ public:
   }
 
 #ifdef NO_DICT
-  TrackingRecHit::RecHitPointer makeShared(TrackingRecHit::RecHitPointer const & hit, TrajectoryStateOnSurface const& tsos) const {
+  TrackingRecHit::RecHitPointer makeShared(TrackingRecHit::ConstRecHitPointer const & hit, TrajectoryStateOnSurface const& tsos) const {
     return hit->cloneSH(*this, tsos);
   }
 #endif

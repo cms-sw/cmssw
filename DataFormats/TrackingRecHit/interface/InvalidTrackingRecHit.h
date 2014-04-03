@@ -11,9 +11,22 @@ public:
 
   InvalidTrackingRecHit(DetId id, Type type ) : TrackingRecHit(id, type) {}
   InvalidTrackingRecHit(DetId id, GeomDet const * idet, Type type ) : TrackingRecHit(id, idet, type) {}
+  InvalidTrackingRecHit(GeomDet const * idet, Type type ) : TrackingRecHit(idet == nullptr ? DetId(0) : idet->geographicalId(), idet, type) {}
+  InvalidTrackingRecHit(GeomDet const & idet, Type type ) : TrackingRecHit(idet.geographicalId(), &idet, type) {}
+
   InvalidTrackingRecHit() : TrackingRecHit(0, TrackingRecHit::missing) {}
 
+#ifdef NO_DICT
+  template<typename ADetLayer>
+  InvalidTrackingRecHit(const GeomDet* geom, const ADetLayer * layer, Type type) :
+    TrackingRecHit(geom == nullptr ? DetId(0) : geom->geographicalId(), geom, type), 
+    surface_(geom ? &(det()->surface()) : ( layer ?  &(layer->surface()) : nullptr))
+      {}
+#endif
+
   virtual ~InvalidTrackingRecHit() {}
+
+  const Surface* surface() const {  return  surface_; }
   
   virtual InvalidTrackingRecHit * clone() const {return new InvalidTrackingRecHit(*this);}
   
@@ -38,6 +51,9 @@ public:
 private:
 
   void throwError() const;
+
+ private:
+  Surface const * surface_;
 
 };
 

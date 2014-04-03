@@ -515,6 +515,7 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
 }
 
 
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 //
 // get transient RecHits
 //
@@ -527,12 +528,12 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 
   TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
 
+  auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner(); 
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
       if ( recoid.det() == DetId::Tracker ) {
-	TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
-	if (!ttrhit->hit()->hasPositionAndError()){
+	if (!(*hit)->hasPositionAndError()){
 	  TrajectoryStateOnSurface predTsos =  theService->propagator(theTrackerPropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
 	  
 	  if ( !predTsos.isValid() ) {
@@ -541,10 +542,9 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 	    continue; 
 	  }
 	  currTsos = predTsos;
-	  TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(predTsos);
-	  result.push_back(preciseHit);
+	  result.emplace_back(hitCloner(**hit,predTsos));
 	}else{
-	  result.push_back(ttrhit);
+	  result.push_back((*hit)->cloneSH());
 	}
       } else if ( recoid.det() == DetId::Muon ) {
 	if ( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {

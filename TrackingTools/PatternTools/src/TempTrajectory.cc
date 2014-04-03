@@ -97,7 +97,7 @@ void TempTrajectory::check() const {
     throw cms::Exception("TrackingTools/PatternTools","Trajectory::check() - information requested from empty Trajectory");
 }
 
-bool TempTrajectory::lost( const TransientTrackingRecHit& hit)
+bool TempTrajectory::lost( const TrackingRecHit& hit)
 {
   if  likely(hit.isValid()) return false;
 

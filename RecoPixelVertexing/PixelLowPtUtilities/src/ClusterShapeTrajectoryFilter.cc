@@ -45,7 +45,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
   for(vector<TrajectoryMeasurement>::const_iterator
        tm = tms.begin(); tm!= tms.end(); tm++)
   {
-    const TransientTrackingRecHit* ttRecHit = &(*((*tm).recHit()));
+    const TrackingRecHit* ttRecHit = &(*((*tm).recHit()));
 
     if(ttRecHit->isValid())
     {
@@ -111,7 +111,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
   for(TempTrajectory::DataContainer::const_iterator
        tm = tms.rbegin(); tm!= tms.rend(); --tm)
   {
-    const TransientTrackingRecHit* ttRecHit = &(*((*tm).recHit()));
+    const TrackingRecHit* ttRecHit = &(*((*tm).recHit()));
 
     if(ttRecHit->isValid())
     {

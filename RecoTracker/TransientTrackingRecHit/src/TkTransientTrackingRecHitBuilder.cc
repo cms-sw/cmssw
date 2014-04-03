@@ -120,7 +120,7 @@ TkTransientTrackingRecHitBuilder::oldbuild (const TrackingRecHit * p) const
   throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type. hit type is: "<< className(*p);
 }
 
-
+/*
 TransientTrackingRecHit::RecHitPointer
 TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p,
 					 const TrajectoryStateOnSurface & tsos) const
@@ -128,3 +128,4 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p,
   TransientTrackingRecHit::RecHitPointer noRefit = build(p);
   return noRefit->clone(tsos);
 }
+*/

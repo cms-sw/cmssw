@@ -42,6 +42,10 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
 
 
   virtual SiStripMatchedRecHit2D * clone() const {return new SiStripMatchedRecHit2D( * this);}
+#ifdef NO_DICT
+  virtual RecHitPointer cloneSH() const { return std::make_shared<SiStripMatchedRecHit2D>(*this);}
+#endif
+
  
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }

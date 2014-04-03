@@ -11,7 +11,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/MeasurementDet/src/TkMeasurementDetSet.h"
 
-class TransientTrackingRecHit;
+class TrackingRecHit;
 class LocalTrajectoryParameters;
 
 class TkPixelMeasurementDet : public MeasurementDet {
@@ -53,7 +53,7 @@ public:
 
   const PixelGeomDetUnit& specificGeomDet() const {return static_cast<PixelGeomDetUnit const &>(fastGeomDet());}
 
-  TransientTrackingRecHit::RecHitPointer 
+  TrackingRecHit::RecHitPointer 
   buildRecHit( const SiPixelClusterRef & cluster,
 	       const LocalTrajectoryParameters & ltp) const;
 
