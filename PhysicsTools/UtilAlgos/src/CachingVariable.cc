@@ -32,17 +32,17 @@ CachingVariable::evalType VariablePower::eval( const edm::Event & iEvent) const 
   return std::make_pair(true,p);
 }
 
-VariableComputer::VariableComputer(const CachingVariable::CachingVariableFactoryArg& arg) : arg_(arg) {
+VariableComputer::VariableComputer(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) : arg_(arg) {
   if (arg_.iConfig.exists("separator")) separator_ = arg_.iConfig.getParameter<std::string>("separator");
   else separator_ ="_";
-  
+
   name_=arg_.n;
   method_ = arg_.iConfig.getParameter<std::string>("computer");
 }
 
-void VariableComputer::declare(std::string var){
+void VariableComputer::declare(std::string var, edm::ConsumesCollector& iC){
   std::string aName = name_+separator_+var;
-  ComputedVariable * newVar = new ComputedVariable(method_,aName,arg_.iConfig,this);
+  ComputedVariable * newVar = new ComputedVariable(method_,aName,arg_.iConfig,this,iC);
   if (iCompute_.find(var) != iCompute_.end()){
     edm::LogError("VariableComputer")<<"redeclaring: "<<var<<" skipping.";
     delete newVar;
@@ -82,18 +82,18 @@ void VariableComputer::doesNotCompute(std::string var) const{
 }
 
 
-ComputedVariable::ComputedVariable(const CachingVariableFactoryArg& arg ) : 
-  CachingVariable("ComputedVariable",arg.n,arg.iConfig){
+ComputedVariable::ComputedVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC ) :
+  CachingVariable("ComputedVariable",arg.n,arg.iConfig,iC){
   // instanciate the computer
     std::string computerType = arg.iConfig.getParameter<std::string>("computer");
-    myComputer = VariableComputerFactory::get()->create(computerType,arg);
+    myComputer = VariableComputerFactory::get()->create(computerType,arg,iC);
     //there is a memory leak here, because the object we are in is not register anywhere. since it happens once per job, this is not a big deal.
 }
 
-VariableComputerTest::VariableComputerTest(const CachingVariable::CachingVariableFactoryArg& arg) : VariableComputer(arg){
-  declare("toto");
-  declare("tutu");
-  declare("much");
+VariableComputerTest::VariableComputerTest(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) : VariableComputer(arg, iC){
+  declare("toto", iC);
+  declare("tutu", iC);
+  declare("much", iC);
 }
 
 void VariableComputerTest::compute(const edm::Event & iEvent) const{
@@ -101,7 +101,7 @@ void VariableComputerTest::compute(const edm::Event & iEvent) const{
   // computes a bunch of doubles
   double toto = 3;
   double tutu = 4;
-  
+
   //set the  variables  value (which do as if they had been cached)
   assign("toto",toto);
   assign("tutu",tutu);
