@@ -16,7 +16,7 @@ namespace edm {
 
 
   PresenceFactory* PresenceFactory::get() {
-    static PresenceFactory singleInstance_;
+    [[cms::thread_safe]] static PresenceFactory singleInstance_;
     return &singleInstance_;
   }
 
