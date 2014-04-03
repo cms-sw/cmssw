@@ -40,6 +40,11 @@ namespace edm
   {  
                                                        // what's "label_"?
 
+    // prepare for data access in DataMixingEcalDigiWorkerProd
+    tok_eb_ = consumes<EBDigitizerTraits::DigiCollection>(EBPileInputTag_);
+    tok_ee_ = consumes<EEDigitizerTraits::DigiCollection>(EEPileInputTag_);
+    tok_es_ = consumes<ESDigitizerTraits::DigiCollection>(ESPileInputTag_);
+
     // prepare for data access in DataMixingHcalDigiWorkerProd
     tok_hbhe_ = consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
     tok_ho_ = consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
@@ -140,7 +145,15 @@ namespace edm
       produces< EEDigiCollection >(EEDigiCollectionDM_);
       produces< ESDigiCollection >(ESDigiCollectionDM_);
 
-      EMDigiWorker_ = new DataMixingEMDigiWorker(ps);
+
+      if(addMCDigiNoise_ ) {
+	edm::ConsumesCollector iC(consumesCollector());
+        EcalDigiWorkerProd_ = new DataMixingEcalDigiWorkerProd(ps, iC);
+        EcalDigiWorkerProd_->setEBAccess(tok_eb_);
+        EcalDigiWorkerProd_->setEEAccess(tok_ee_);
+        EcalDigiWorkerProd_->setESAccess(tok_es_);
+      }
+      else { EMDigiWorker_ = new DataMixingEMDigiWorker(ps); }
     }
     else { // merge RecHits 
       EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
@@ -306,6 +319,7 @@ namespace edm
 
     if( addMCDigiNoise_ ) {
       SiStripMCDigiWorker_->initializeEvent( e, ES );
+      EcalDigiWorkerProd_->initializeEvent( e, ES );
     }
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
@@ -315,14 +329,18 @@ namespace edm
   void DataMixingModule::beginRun(edm::Run const& run, const edm::EventSetup& ES) { 
     std::cout << " DM calling begin run " << std::endl;
     BMixingModule::beginRun( run, ES);
-    if( addMCDigiNoise_ && MergeHcalDigisProd_) {
+    if( addMCDigiNoise_ ) {
+      EcalDigiWorkerProd_->beginRun( ES );
       HcalDigiWorkerProd_->beginRun( ES );
     }
   }
 
   // Virtual destructor needed.
   DataMixingModule::~DataMixingModule() { 
-    if(MergeEMDigis_){ delete EMDigiWorker_;}
+    if(MergeEMDigis_){ 
+      if(addMCDigiNoise_ ) {delete EcalDigiWorkerProd_;}
+      else {delete EMDigiWorker_;}
+    }    
     else {delete EMWorker_;}
     if(MergeHcalDigis_) { 
       if(MergeHcalDigisProd_) { delete HcalDigiWorkerProd_;}
@@ -348,7 +366,10 @@ namespace edm
     LogDebug("DataMixingModule")<<"===============> adding MC signals for "<<e.id();
 
     // Ecal
-    if(MergeEMDigis_) { EMDigiWorker_->addEMSignals(e, ES); }
+    if(MergeEMDigis_) { 
+      if(addMCDigiNoise_ ){ EcalDigiWorkerProd_->addEcalSignals(e, ES);}
+      else {EMDigiWorker_->addEMSignals(e, ES); }
+    }
     else{ EMWorker_->addEMSignals(e);}
 
     // Hcal
@@ -398,7 +419,10 @@ namespace edm
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // Ecal
-    if(MergeEMDigis_) {    EMDigiWorker_->addEMPileups(bcr, &ep, eventNr, ES, &moduleCallingContext);}
+    if(MergeEMDigis_) {  
+      if(addMCDigiNoise_ ) { EcalDigiWorkerProd_->addEcalPileups(bcr, &ep, eventNr, ES, &moduleCallingContext);}
+      else { EMDigiWorker_->addEMPileups(bcr, &ep, eventNr, ES, &moduleCallingContext);}
+    }
     else {EMWorker_->addEMPileups(bcr, &ep, eventNr, &moduleCallingContext); }
 
     // Hcal
@@ -486,7 +510,10 @@ namespace edm
     // individual workers...
 
     // Ecal
-    if(MergeEMDigis_) {EMDigiWorker_->putEM(e,ES);}
+    if(MergeEMDigis_) {
+      if(addMCDigiNoise_ ) {EcalDigiWorkerProd_->putEcal(e,ES);}
+      else { EMDigiWorker_->putEM(e,ES);}
+    }
     else {EMWorker_->putEM(e);}
 
     // Hcal

@@ -109,6 +109,9 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::one::E
    m_ESOldResponse ( new CaloHitResponse( m_ParameterMap, &m_ESShape ) ) ,
 
    m_addESNoise           ( params.getParameter<bool> ("doESNoise") ) ,
+   m_PreMix1              ( params.getParameter<bool> ("EcalPreMixStage1") ) ,
+   m_PreMix2              ( params.getParameter<bool> ("EcalPreMixStage2") ) ,
+
    m_doFastES             ( params.getParameter<bool> ("doFast"   ) ) ,
 
    m_ESElectronicsSim     ( m_doFastES ? 0 :
@@ -214,6 +217,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::one::E
    m_EECorrNoise[2] = new CorrelatedNoisifier<EcalCorrMatrix>( eeMatrix[2] ) ;
 
    m_Coder = new EcalCoder( addNoise         , 
+			    m_PreMix1        ,
 			    m_EBCorrNoise[0] ,
 			    m_EECorrNoise[0] ,
 			    m_EBCorrNoise[1] ,
@@ -574,3 +578,19 @@ EcalDigiProducer::updateGeometry()
 	 m_ESDigitizer->setDetIds( *theESDets ) ; 
    }
 }
+
+void EcalDigitizer::setEBNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator) {
+  noiseGenerator->setParameterMap(theParameterMap);
+  if(m_BarrelDigitizer) m_BarrelDigitizer->setNoiseSignalGenerator(noiseGenerator);
+}
+
+void EcalDigitizer::setEENoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator) {
+  noiseGenerator->setParameterMap(theParameterMap);
+  if(m_EndcapDigitizer) m_EndcapDigitizer->setNoiseSignalGenerator(noiseGenerator);
+}
+
+void EcalDigitizer::setESNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator) {
+  noiseGenerator->setParameterMap(theParameterMap);
+  if(m_ESElectronicsSimFast) m_ESElectronicsSimFast->setNoiseSignalGenerator(noiseGenerator);  
+}
+

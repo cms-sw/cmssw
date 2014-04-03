@@ -1,17 +1,17 @@
-#ifndef HcalSimAlgos_HcalSignalGenerator_h
-#define HcalSimAlgos_HcalSignalGenerator_h
+#ifndef EcalSimAlgos_EcalSignalGenerator_h
+#define EcalSimAlgos_EcalSignalGenerator_h
 
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalBaseSignalGenerator.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalBaseSignalGenerator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
+#include "CalibFormats/EcalObjects/interface/EcalCoderDb.h"
+#include "CalibFormats/EcalObjects/interface/EcalCalibrations.h"
+#include "CalibFormats/EcalObjects/interface/EcalDbService.h"
+#include "CalibFormats/EcalObjects/interface/EcalDbRecord.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 /** Converts digis back into analog signals, to be used
@@ -24,26 +24,26 @@ namespace edm {
   class ModuleCallingContext;
 }
 
-template<class HCALDIGITIZERTRAITS>
-class HcalSignalGenerator : public HcalBaseSignalGenerator
+template<class ECALDIGITIZERTRAITS>
+class EcalSignalGenerator : public EcalBaseSignalGenerator
 {
 public:
-  typedef typename HCALDIGITIZERTRAITS::Digi DIGI;
-  typedef typename HCALDIGITIZERTRAITS::DigiCollection COLLECTION;
+  typedef typename ECALDIGITIZERTRAITS::Digi DIGI;
+  typedef typename ECALDIGITIZERTRAITS::DigiCollection COLLECTION;
 
-  HcalSignalGenerator():HcalBaseSignalGenerator() { }
+  EcalSignalGenerator():EcalBaseSignalGenerator() { }
 
-  HcalSignalGenerator(const edm::InputTag & inputTag, const edm::EDGetTokenT<COLLECTION> &t)
-  : HcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theInputTag(inputTag), tok_(t) 
+  EcalSignalGenerator(const edm::InputTag & inputTag, const edm::EDGetTokenT<COLLECTION> &t)
+  : EcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theInputTag(inputTag), tok_(t) 
   { }
 
-  virtual ~HcalSignalGenerator() {}
+  virtual ~EcalSignalGenerator() {}
 
 
   void initializeEvent(const edm::Event * event, const edm::EventSetup * eventSetup)
   {
     theEvent = event;
-    eventSetup->get<HcalDbRecord>().get(theConditions);
+    eventSetup->get<EcalDbRecord>().get(theConditions);
     theParameterMap->setDbService(theConditions.product());
   }
 
@@ -51,7 +51,7 @@ public:
   void initializeEvent(const edm::EventPrincipal * eventPrincipal, const edm::EventSetup * eventSetup)
   {
     theEventPrincipal = eventPrincipal;
-    eventSetup->get<HcalDbRecord>().get(theConditions);
+    eventSetup->get<EcalDbRecord>().get(theConditions);
     theParameterMap->setDbService(theConditions.product());
   }
 
@@ -68,11 +68,11 @@ public:
      {
       if( theEvent->getByToken(tok_, pDigis) ) {
         digis = pDigis.product(); // get a ptr to the product
-        LogTrace("HcalSignalGenerator") << "total # digis  for "  << theInputTag << " " <<  digis->size();
+        LogTrace("EcalSignalGenerator") << "total # digis  for "  << theInputTag << " " <<  digis->size();
       }
       else
       {
-        throw cms::Exception("HcalSignalGenerator") << "Cannot find input data " << theInputTag;
+        throw cms::Exception("EcalSignalGenerator") << "Cannot find input data " << theInputTag;
       }
     }
     else if(theEventPrincipal)
@@ -85,7 +85,7 @@ public:
     }
     else
     {
-      throw cms::Exception("HcalSignalGenerator") << "No Event or EventPrincipal was set";
+      throw cms::Exception("EcalSignalGenerator") << "No Event or EventPrincipal was set";
     }
 
     if (digis)
@@ -102,6 +102,7 @@ public:
           theElectronicsSim->setStartingCapId(startingCapId);
           theParameterMap->setFrameSize(it->id(), it->size());
         }
+	// need to convert to something useful
         theNoiseSignals.push_back(samplesInPE(*it));
       }
     }
@@ -111,17 +112,17 @@ private:
 
   CaloSamples samplesInPE(const DIGI & digi)
   {
-    // calibration, for future reference:  (same block for all Hcal types)
-    HcalDetId cell = digi.id();
-    //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
-    const HcalQIECoder* channelCoder = theConditions->getHcalCoder (cell);
-    const HcalQIEShape* channelShape = theConditions->getHcalShape (cell);
-    HcalCoderDb coder (*channelCoder, *channelShape);
-    CaloSamples result;
-    coder.adc2fC(digi, result);
-    fC2pe(result);
+    // calibration, for future reference:  (same block for all Ecal types)
+    //EcalDetId cell = digi.id();
+    //         const EcalCalibrations& calibrations=conditions->getEcalCalibrations(cell);
+    //const EcalQIECoder* channelCoder = theConditions->getEcalCoder (cell);
+    //const EcalQIEShape* channelShape = theConditions->getEcalShape (cell);
+    //EcalCoderDb coder (*channelCoder, *channelShape);
+    //CaloSamples result;
+    //coder.adc2fC(digi, result);
+    //fC2pe(result);
 
-    std::cout << " HcalSignalGenerator: noise result " << result << std::endl;
+    std::cout << " EcalSignalGenerator: noise result " << result << std::endl;
 
 
 
@@ -132,16 +133,15 @@ private:
   /// these fields are set in initializeEvent()
   const edm::Event * theEvent;
   const edm::EventPrincipal * theEventPrincipal;
-  edm::ESHandle<HcalDbService> theConditions;
+  edm::ESHandle<EcalDbService> theConditions;
   /// these come from the ParameterSet
   edm::InputTag theInputTag;
   edm::EDGetTokenT<COLLECTION> tok_;
 };
 
-typedef HcalSignalGenerator<HBHEDigitizerTraits> HBHESignalGenerator;
-typedef HcalSignalGenerator<HODigitizerTraits>   HOSignalGenerator;
-typedef HcalSignalGenerator<HFDigitizerTraits>   HFSignalGenerator;
-typedef HcalSignalGenerator<ZDCDigitizerTraits>  ZDCSignalGenerator;
+typedef EcalSignalGenerator<EBDigitizerTraits>   EBSignalGenerator;
+typedef EcalSignalGenerator<EEDigitizerTraits>   EESignalGenerator;
+typedef EcalSignalGenerator<ESDigitizerTraits>   ESSignalGenerator;
 
 #endif
 
