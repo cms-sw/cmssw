@@ -7,7 +7,7 @@
   <Constant name="RPCGasLocation" value="3*mm"/>       <!-- Double Gap RPC :: 2*mm Gas should be inside Bakelite volume, centered at +/- 3*mm -->
   <Constant name="RPCAluminiumWidth" value="6.5*mm"/>  <!-- Double Gap RPC :: half a mm of aluminium around the Bak-Gas-Bak sandwich --> 
 
-  <Tubs name="RR12"  rMin="2.745*m" rMax="4.644*m" dz="5.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RR12"  rMin="2.745*m" rMax="4.644*m" dz="6.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
   <Trd1 name="RFBX"  dz="92*cm"     dy1="[rpcf:RPCAluminiumWidth]" dy2="[rpcf:RPCAluminiumWidth]" dx1="24.368*cm" dx2="40.453*cm"/>
   <Trd1 name="RHBX"  dz="91.95*cm"  dy1="[rpcf:RPCBakeliteWidth]"  dy2="[rpcf:RPCBakeliteWidth]"  dx1="24.318*cm" dx2="40.403*cm"/>
   <Trd1 name="REB1"  dz="26.75*cm"  dy1="[rpcf:RPCGasWidth]"       dy2="[rpcf:RPCGasWidth]"       dx1="35.721*cm" dx2="40.40*cm"/>
@@ -218,25 +218,25 @@
    <rParent name="mf:ME12RingP"/>
    <rChild name="rpcf:RR12"/>
    <rRotation name="rotations:R020"/>
-   <Translation x="0*fm" y="0*fm" z="306.3875*mm"/>
+   <Translation x="0*fm" y="0*fm" z="305.3875*mm"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="mf:ME12RingP"/>
    <rChild name="rpcf:RR12N"/>
    <rRotation name="rotations:R010"/>
-   <Translation x="0*fm" y="0*fm" z="-3.7665*mm"/>
+   <Translation x="0*fm" y="0*fm" z="-2.7665*mm"/>
   </PosPart>
   <PosPart copyNumber="3">
    <rParent name="mf:ME12RingN"/>
    <rChild name="rpcf:RR12"/>
    <rRotation name="rotations:R020"/>
-   <Translation x="0*fm" y="0*fm" z="306.3875*mm"/>
+   <Translation x="0*fm" y="0*fm" z="305.3875*mm"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="mf:ME12RingN"/>
    <rChild name="rpcf:RR12N"/>
    <rRotation name="rotations:R010"/>
-   <Translation x="0*fm" y="0*fm" z="-3.7665*mm"/>
+   <Translation x="0*fm" y="0*fm" z="-2.7665*mm"/>
   </PosPart>
   <Division name="RT1B" parent="RR12" axis="phi" offset="-10*deg" width="20*deg"/>
   <Division name="RT1BN" parent="RR12N" axis="phi" offset="-10*deg" width="20*deg"/>
