@@ -53,6 +53,7 @@ private:
   std::map<DetId, std::vector<double> > mapId;
   std::map<DetId, TH1F*> EstPlots;
   edm::EDGetTokenT<DYTestimators> dytInfoToken;
+  edm::EDGetTokenT<reco::MuonCollection> muonsToken;
 };
 
 
@@ -69,6 +70,7 @@ DYTTuner::DYTTuner(const edm::ParameterSet& iConfig)
 
   edm::ConsumesCollector iC  = consumesCollector();
   dytInfoToken=iC.consumes<DYTestimators>(edm::InputTag("tevMuons", "dytInfo"));
+  muonsToken=iC.consumes<reco::MuonCollection>(edm::InputTag("muons"));
 
   if (MaxEstVal == -1) MaxEstVal = MAX_THR;
 
@@ -92,13 +94,14 @@ void DYTTuner::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(dytInfoToken, dytInfoH);
   const DYTestimators &dytInfoC = *dytInfoH;
   Handle<MuonCollection> muons;
-  iEvent.getByLabel("muons", muons);
+  iEvent.getByToken(muonsToken, muons);
   for(size_t i = 0; i != muons->size(); ++i) {
     
     // Energy range cut
     if (muons->at(i).pt() < MinEnVal || muons->at(i).pt() > MaxEnVal) continue;
 
-    try {
+    const TrackRef& tkRef = muons->at(i).globalTrack();
+    if(dytInfoC.contains(tkRef.id())){
       DYTInfo dytInfo = dytInfoC[muons->at(i).globalTrack()];
       vector<double> estimators = dytInfo.DYTEstimators();
       vector<DetId> ids         = dytInfo.IdChambers();
@@ -110,7 +113,7 @@ void DYTTuner::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (estValue >= 0 && estValue <= MaxEstVal)
 	  mapId[chamberId].push_back(estValue);
       }
-    } catch (...) {;}
+    } else {continue;}
   }
 }
 
