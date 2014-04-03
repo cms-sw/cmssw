@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="bhmsens.xml" eval="true">
+  <SpecPar name="bsc1">
+    <PartSelector path="//BHMCathode"/>
+    <PartSelector path="//BHMTarget"/>
+    <Parameter name="SensitiveDetector" value="BHMSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="BHMHits" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>

@@ -9,6 +9,7 @@
 #include "JetMETCorrections/Modules/interface/JetCorrectionESSource.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionESChain.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionProducer.h"
+#include "JetMETCorrections/Modules/interface/QGLikelihoodESProducer.h"
 #include "JetMETCorrections/Algorithms/interface/LXXXCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/L1OffsetCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/L1JPTOffsetCorrector.h"
@@ -20,8 +21,11 @@
 #include "DataFormats/JetReco/interface/TrackJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
+
 
 REGISTER_PLUGIN(JetCorrectionsRecord,JetCorrectorParametersCollection);
+
 using namespace cms;
 using namespace reco;
 
@@ -41,6 +45,10 @@ typedef JetCorrectionProducer<GenJet> GenJetCorrectionProducer;
 DEFINE_FWK_MODULE(GenJetCorrectionProducer);
 
 DEFINE_FWK_EVENTSETUP_MODULE(JetCorrectionESChain);
+
+
+DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodESProducer);
+
 
 //--------------- Generic LX corrections --------------------
 DEFINE_JET_CORRECTION_ESSOURCE (LXXXCorrector, LXXXCorrectionESSource);
