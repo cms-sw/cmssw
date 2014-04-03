@@ -402,46 +402,46 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
           sigmaIetaIphi = vCov[1];
           anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
 
-	  // get list of EcalDetId within 5x5 around the seed
-	  bool barrel = itElectron->isEB();
-	  DetId seed = lazyTools.getMaximum(*(itElectron->superCluster()->seed())).first;
-	  std::vector<DetId> selectedCells = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
-	    ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
+	  std::vector<DetId> selectedCells;
+          bool barrel = itElectron->isEB();
+          //loop over sub clusters
+          if (embedBasicClusters_) {
+            for (reco::CaloCluster_iterator clusIt = itElectron->superCluster()->clustersBegin(); clusIt!=itElectron->superCluster()->clustersEnd(); ++clusIt) {
+              //get seed (max energy xtal)
+              DetId seed = lazyTools.getMaximum(**clusIt).first;
+              //get all xtals in 5x5 window around the seed
+              std::vector<DetId> dets5x5 = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
+            ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
+              selectedCells.insert(selectedCells.end(), dets5x5.begin(), dets5x5.end());
+              
+              //get all xtals belonging to cluster
+              for (const std::pair<DetId, float> &hit : (*clusIt)->hitsAndFractions()) {
+                selectedCells.push_back(hit.first);
+              }
+            }
+          }
+          
+          if (embedPflowBasicClusters_ && itElectron->parentSuperCluster().isNonnull()) {
+            for (reco::CaloCluster_iterator clusIt = itElectron->parentSuperCluster()->clustersBegin(); clusIt!=itElectron->parentSuperCluster()->clustersEnd(); ++clusIt) {
+              //get seed (max energy xtal)
+              DetId seed = lazyTools.getMaximum(**clusIt).first;
+              //get all xtals in 5x5 window around the seed
+              std::vector<DetId> dets5x5 = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
+            ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
+              selectedCells.insert(selectedCells.end(), dets5x5.begin(), dets5x5.end());
+              
+              //get all xtals belonging to cluster
+              for (const std::pair<DetId, float> &hit : (*clusIt)->hitsAndFractions()) {
+                selectedCells.push_back(hit.first);
+              }
+            }
+          }
+          
+          //remove duplicates
+          std::sort(selectedCells.begin(),selectedCells.end());
+          std::unique(selectedCells.begin(),selectedCells.end());
+          
 
-	  // Do it for all basic clusters in 5x5
-	  reco::CaloCluster_iterator itscl = itElectron->superCluster()->clustersBegin();
-	  reco::CaloCluster_iterator itsclE = itElectron->superCluster()->clustersEnd();
-	  std::vector<DetId> cellsIn5x5;
-	  for ( ; itscl!= itsclE ; ++ itscl) {
-	    DetId seed=lazyTools.getMaximum(*(*itscl)).first;
-	    bool bcbarrel = seed.subdetId()==EcalBarrel;
-	    std::vector<DetId> cellsToAdd = (bcbarrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
-	      ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
-	    cellsIn5x5.insert(cellsIn5x5.end(),cellsToAdd.begin(), cellsToAdd.end());
-
-	  }
-
-	  // Add to the list of selectedCells checking that there is no duplicate
-	  unsigned nCellsIn5x5 = cellsIn5x5.size() ;
-
-	  for(unsigned i=0; i< nCellsIn5x5 ; ++i ) {
-	    std::vector<DetId>::const_iterator itcheck = find(selectedCells.begin(), selectedCells.end(),cellsIn5x5[i]);
-	    if (itcheck == selectedCells.end())
-	      selectedCells.push_back(cellsIn5x5[i]);
-	  }
-
-
-	  // add the DetId of the SC
-	  std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->hitsAndFractions().begin();
-	  std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->hitsAndFractions().end();
-	  for( ; it!=itend ; ++it) {
-	    DetId id=it->first;
-	    // check if already saved
-	    std::vector<DetId>::const_iterator itcheck = find(selectedCells.begin(),selectedCells.end(),id);
-	    if ( itcheck == selectedCells.end()) {
-	      selectedCells.push_back(id);
-	    }
-	  }
 	  // Retrieve the corresponding RecHits
 
 	  edm::Handle< EcalRecHitCollection > rechitsH ;
@@ -621,46 +621,45 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       sigmaIetaIphi = vCov[1];
       anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
 
-      // get list of EcalDetId within 5x5 around the seed
-      bool barrel= itElectron->isEB();
-
-      DetId seed=lazyTools.getMaximum(*(itElectron->superCluster()->seed())).first;
-      std::vector<DetId> selectedCells = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
-	ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
-
-
-      // Do it for all basic clusters in 5x5
-      reco::CaloCluster_iterator itscl = itElectron->superCluster()->clustersBegin();
-      reco::CaloCluster_iterator itsclE = itElectron->superCluster()->clustersEnd();
-      std::vector<DetId> cellsIn5x5;
-      for ( ; itscl!= itsclE ; ++ itscl) {
-	DetId seed=lazyTools.getMaximum(*(*itscl)).first;
-	bool bcbarrel = seed.subdetId()==EcalBarrel;
-	std::vector<DetId> cellsToAdd = (bcbarrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
-	  ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
-	cellsIn5x5.insert(cellsIn5x5.end(),cellsToAdd.begin(), cellsToAdd.end());
-
+      std::vector<DetId> selectedCells;
+      bool barrel = itElectron->isEB();
+      //loop over sub clusters
+      if (embedBasicClusters_) {
+        for (reco::CaloCluster_iterator clusIt = itElectron->superCluster()->clustersBegin(); clusIt!=itElectron->superCluster()->clustersEnd(); ++clusIt) {
+          //get seed (max energy xtal)
+          DetId seed = lazyTools.getMaximum(**clusIt).first;
+          //get all xtals in 5x5 window around the seed
+          std::vector<DetId> dets5x5 = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
+        ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
+          selectedCells.insert(selectedCells.end(), dets5x5.begin(), dets5x5.end());
+          
+          //get all xtals belonging to cluster
+          for (const std::pair<DetId, float> &hit : (*clusIt)->hitsAndFractions()) {
+            selectedCells.push_back(hit.first);
+          }
+        }
       }
-      // Add to the list of selectedCells checking that there is no duplicate
-      unsigned nCellsIn5x5 = cellsIn5x5.size() ;
-
-      for(unsigned i=0; i< nCellsIn5x5 ; ++i ) {
-	std::vector<DetId>::const_iterator itcheck = find(selectedCells.begin(), selectedCells.end(),cellsIn5x5[i]);
-	if (itcheck == selectedCells.end())
-	  selectedCells.push_back(cellsIn5x5[i]);
+      
+      if (embedPflowBasicClusters_ && itElectron->parentSuperCluster().isNonnull()) {
+        for (reco::CaloCluster_iterator clusIt = itElectron->parentSuperCluster()->clustersBegin(); clusIt!=itElectron->parentSuperCluster()->clustersEnd(); ++clusIt) {
+          //get seed (max energy xtal)
+          DetId seed = lazyTools.getMaximum(**clusIt).first;
+          //get all xtals in 5x5 window around the seed
+          std::vector<DetId> dets5x5 = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
+        ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
+          selectedCells.insert(selectedCells.end(), dets5x5.begin(), dets5x5.end());
+          
+          //get all xtals belonging to cluster
+          for (const std::pair<DetId, float> &hit : (*clusIt)->hitsAndFractions()) {
+            selectedCells.push_back(hit.first);
+          }
+        }
       }
-
-      // Add all RecHits of the SC if not already present
-      std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->hitsAndFractions().begin();
-      std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->hitsAndFractions().end();
-      for( ; it!=itend ; ++it) {
-	DetId id=it->first;
-	// check if already saved
-	std::vector<DetId>::const_iterator itcheck = find(selectedCells.begin(),selectedCells.end(),id);
-	if ( itcheck == selectedCells.end()) {
-	  selectedCells.push_back(id);
-	}
-      }
+      
+      //remove duplicates
+      std::sort(selectedCells.begin(),selectedCells.end());
+      std::unique(selectedCells.begin(),selectedCells.end());
+      
       // Retrieve the corresponding RecHits
 
       edm::Handle< EcalRecHitCollection > rechitsH ;

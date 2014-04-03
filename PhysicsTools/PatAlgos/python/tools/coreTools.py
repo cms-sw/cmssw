@@ -120,7 +120,7 @@ class RemoveMCMatching(ConfigToolBase):
                 print "removing MC dependencies for jets"
                 jetPostfixes = []
                 for mod in process.producerNames().split():
-                    if mod.startswith('patJets'):
+                    if mod.startswith('patJets') and getattr(process,mod).type_() == "PATJetProducer":
                         jetPostfixes.append(getattr(process, mod).label_().replace("patJets",""))
                 for pfix in jetPostfixes:
                     ## remove mc extra configs for jets
@@ -141,10 +141,12 @@ class RemoveMCMatching(ConfigToolBase):
                         raise KeyError, "process has no OutModule named", outMod
 
             if( names[obj] == 'METs'      or names[obj] == 'All' ):
-                ## remove mc extra configs for jets
-                metProducer = getattr(process, 'patMETs'+postfix)
-                metProducer.addGenMET           = False
-                metProducer.genMETSource        = ''
+                for mod in process.producerNames().split():
+                    if mod.startswith('pat') and getattr(process,mod).type_() == "PATMETProducer":
+                        ## remove mc extra configs for MET
+                        metProducer = getattr(process, mod)
+                        metProducer.addGenMET           = False
+                        metProducer.genMETSource        = ''
 
 removeMCMatching=RemoveMCMatching()
 

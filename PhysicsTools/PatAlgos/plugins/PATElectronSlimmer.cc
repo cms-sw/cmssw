@@ -1,0 +1,123 @@
+//
+// $Id: PATElectronSlimmer.cc,v 1.1 2011/03/24 18:45:45 mwlebour Exp $
+//
+
+/**
+  \class    pat::PATElectronSlimmer PATElectronSlimmer.h "PhysicsTools/PatAlgos/interface/PATElectronSlimmer.h"
+  \brief    Matcher of reconstructed objects to L1 Muons 
+            
+  \author   Giovanni Petrucciani
+  \version  $Id: PATElectronSlimmer.cc,v 1.1 2011/03/24 18:45:45 mwlebour Exp $
+*/
+
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
+#define protected public
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#undef protected
+
+namespace pat {
+
+  class PATElectronSlimmer : public edm::EDProducer {
+    public:
+      explicit PATElectronSlimmer(const edm::ParameterSet & iConfig);
+      virtual ~PATElectronSlimmer() { }
+
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+
+    private:
+      edm::InputTag src_;
+
+      bool dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropRecHits_;
+
+      edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf_;
+      edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
+      edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
+      bool linkToPackedPF_;
+  };
+
+} // namespace
+
+pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
+    src_(iConfig.getParameter<edm::InputTag>("src")),
+    dropSuperClusters_(iConfig.getParameter<bool>("dropSuperCluster")),
+    dropBasicClusters_(iConfig.getParameter<bool>("dropBasicClusters")),
+    dropPFlowClusters_(iConfig.getParameter<bool>("dropPFlowClusters")),
+    dropPreshowerClusters_(iConfig.getParameter<bool>("dropPreshowerClusters")),
+    dropRecHits_(iConfig.getParameter<bool>("dropRecHits")),
+    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates"))
+{
+    produces<std::vector<pat::Electron> >();
+    if (linkToPackedPF_) {
+        reco2pf_ = consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>("recoToPFMap"));
+        pf2pc_   = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
+        pc_   = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
+    }
+}
+
+void 
+pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+    using namespace edm;
+    using namespace std;
+
+    Handle<View<pat::Electron> >      src;
+    iEvent.getByLabel(src_, src);
+
+    Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf;
+    Handle<edm::Association<pat::PackedCandidateCollection>> pf2pc;
+    Handle<pat::PackedCandidateCollection> pc;
+    if (linkToPackedPF_) {
+        iEvent.getByToken(reco2pf_, reco2pf);
+        iEvent.getByToken(pf2pc_, pf2pc);
+        iEvent.getByToken(pc_, pc);
+    }
+
+    auto_ptr<vector<pat::Electron> >  out(new vector<pat::Electron>());
+    out->reserve(src->size());
+
+    for (View<pat::Electron>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
+        out->push_back(*it);
+        pat::Electron & electron = out->back();
+        if (dropSuperClusters_) electron.superCluster_.clear();
+	if (dropBasicClusters_) electron.basicClusters_.clear();
+	if (dropSuperClusters_ || dropPFlowClusters_) electron.pflowSuperCluster_.clear();
+	if (dropBasicClusters_ || dropPFlowClusters_) electron.pflowBasicClusters_.clear();
+	if (dropPreshowerClusters_) electron.preshowerClusters_.clear();
+	if (dropPreshowerClusters_ || dropPFlowClusters_) electron.pflowPreshowerClusters_.clear();
+        if (dropRecHits_) electron.recHits_ = EcalRecHitCollection();
+        if (linkToPackedPF_) {
+            electron.setPackedPFCandidateCollection(edm::RefProd<pat::PackedCandidateCollection>(pc));
+            //std::cout << " PAT  electron in  " << src.id() << " comes from " << electron.refToOrig_.id() << ", " << electron.refToOrig_.key() << std::endl;
+            edm::RefVector<pat::PackedCandidateCollection> origs;
+            for (const reco::PFCandidateRef & pf : (*reco2pf)[electron.refToOrig_]) {
+                if (pf2pc->contains(pf.id())) {
+                    origs.push_back((*pf2pc)[pf]);
+                } //else std::cerr << " Electron linked to a PFCand in " << pf.id() << " while we expect them in " << pf2pc->ids().front().first << "\n";
+            }
+            //std::cout << "Electron with pt " << electron.pt() << " associated to " << origs.size() << " PF Candidates\n";
+            electron.setAssociatedPackedPFCandidates(origs);
+            //if there's just one PF Cand then it's me, otherwise I have no univoque parent so my ref will be null 
+            if (origs.size() == 1) {
+                electron.refToOrig_ = refToPtr(origs[0]);
+            } else {
+                electron.refToOrig_ = reco::CandidatePtr(pc.id());
+            }
+       }
+
+    }
+
+    iEvent.put(out);
+}
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+using namespace pat;
+DEFINE_FWK_MODULE(PATElectronSlimmer);

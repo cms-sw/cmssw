@@ -20,6 +20,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
 #include "DataFormats/PatCandidates/interface/TriggerCondition.h"
@@ -76,7 +77,8 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   labelHltPrescaleTable_(),
   hltPrescaleTableRun_(),
   hltPrescaleTableLumi_(),
-  addPathModuleLabels_( false )
+  addPathModuleLabels_( false ),
+  packPathNames_( iConfig.existsAs<bool>("packTriggerPathNames") ? iConfig.getParameter<bool>("packTriggerPathNames") : false ) 
 {
 
   // L1 configuration parameters
@@ -977,6 +979,13 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     iEvent.put( triggerConditions );
   }
 
+
+  if (packPathNames_) {
+    const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
+    for (pat::TriggerObjectStandAlone &obj : *triggerObjectsStandAlone) {
+      obj.packPathNames(names);
+    }
+  }
   // Put (finally) stand-alone trigger objects to event
   iEvent.put( triggerObjectsStandAlone );
 
