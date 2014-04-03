@@ -35,15 +35,15 @@ DataCertificationJetMET::DataCertificationJetMET(const edm::ParameterSet& iConfi
   jetTests[2][1] = conf_.getUntrackedParameter<bool>("pfForwardJetKSTest",false);
   jetTests[3][0] = conf_.getUntrackedParameter<bool>("caloJetMeanTest",true);
   jetTests[3][1] = conf_.getUntrackedParameter<bool>("caloJetKSTest",false);
-  //jetTests[4][0] = conf_.getUntrackedParameter<bool>("jptJetMeanTest",true);
-  //jetTests[4][1] = conf_.getUntrackedParameter<bool>("jptJetKSTest",false);
+  jetTests[4][0] = conf_.getUntrackedParameter<bool>("jptJetMeanTest",true);
+  jetTests[4][1] = conf_.getUntrackedParameter<bool>("jptJetKSTest",false);
 
   metTests[0][0] = conf_.getUntrackedParameter<bool>("caloMETMeanTest",true);
   metTests[0][1] = conf_.getUntrackedParameter<bool>("caloMETKSTest",false);
   metTests[1][0] = conf_.getUntrackedParameter<bool>("pfMETMeanTest",true);
   metTests[1][1] = conf_.getUntrackedParameter<bool>("pfMETKSTest",false);
-  //metTests[2][0] = conf_.getUntrackedParameter<bool>("tcMETMeanTest",true);
-  //metTests[2][1] = conf_.getUntrackedParameter<bool>("tcMETKSTest",false);
+  metTests[2][0] = conf_.getUntrackedParameter<bool>("tcMETMeanTest",true);
+  metTests[2][1] = conf_.getUntrackedParameter<bool>("tcMETKSTest",false);
   dbe_ = edm::Service<DQMStore>().operator->();
  
   if (verbose_) std::cout << ">>> Constructor (DataCertificationJetMET) <<<" << std::endl;
@@ -124,22 +124,6 @@ DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBloc
 
 }
 
-// ------------ method called just before starting a new run  ------------
-
-void DataCertificationJetMET::bookHistograms(DQMStore::IBooker & ibooker,
-				 edm::Run const & iRun,
-				 edm::EventSetup const & ) {
-  ibooker.setCurrentFolder(folderName);
-
-  reportSummary = ibooker.bookFloat("reportSummary");
-  CertificationSummary = ibooker.bookFloat("CertificationSummary");
-  
-  reportSummaryMap = ibooker.book2D("reportSummaryMap","reportSummaryMap",3,0,3,5,0,5);
-  CertificationSummaryMap = ibooker.book2D("CertificationSummaryMap","CertificationSummaryMap",3,0,3,5,0,5);
-}
-
-
-
 // ------------ method called right after a run ends ------------
 void 
 DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
@@ -215,7 +199,13 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 
   dbe_->setCurrentFolder(folderName);  
+  reportSummary = dbe_->bookFloat("reportSummary");
+  CertificationSummary = dbe_->bookFloat("CertificationSummary");
   
+  reportSummaryMap = dbe_->book2D("reportSummaryMap","reportSummaryMap",3,0,3,5,0,5);
+  CertificationSummaryMap = dbe_->book2D("CertificationSummaryMap","CertificationSummaryMap",3,0,3,5,0,5);
+
+
   reportSummary = dbe_->get(folderName+"/"+"reportSummary");
   CertificationSummary = dbe_->get(folderName+"/"+"CertificationSummary");
   reportSummaryMap = dbe_->get(folderName+"/"+"reportSummaryMap");
@@ -526,6 +516,8 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       dc_Jet[jtyp] = 1;
     
     if (verbose_) std::cout<<"Certifying Jet algo: "<<jtyp<<" with value: "<<dc_Jet[jtyp]<<std::endl;
+
+  
     CertificationSummaryMap->Fill(2, 4-jtyp, dc_Jet[jtyp]);
     reportSummaryMap->Fill(2, 4-jtyp, dc_Jet[jtyp]);
   }
