@@ -272,6 +272,7 @@ The old CVS repository is available *READ-ONLY* by setting:
 
     export CVSROOT=":ext:<cern-user-account>@lxplus5.cern.ch:/afs/cern.ch/user/c/cvscmssw/public/CMSSW"
     export CVS_RSH=ssh
+    # If you are using tcsh:
     # setenv CVSROOT ":ext:<cern-user-account>@lxplus5.cern.ch:/afs/cern.ch/user/c/cvscmssw/public/CMSSW"
     # setenv CVS_RSH ssh
 
