@@ -19,7 +19,6 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <cxxabi.h>
-# include <iostream>
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
