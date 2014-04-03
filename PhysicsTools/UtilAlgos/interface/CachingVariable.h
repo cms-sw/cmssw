@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
@@ -23,7 +24,7 @@ class Description {
   Description(std::vector<std::string> & d) : d_(d){}
   std::string text() const {
     std::string text;
-    for (unsigned int i=0;i!=d_.size();++i) 
+    for (unsigned int i=0;i!=d_.size();++i)
       text+=d_[i]+"\n";
     return text;
   }
@@ -49,7 +50,7 @@ class CachingVariable {
     edm::ParameterSet & iConfig;
   };
 
-  CachingVariable(std::string m, std::string n, const edm::ParameterSet & iConfig) :
+  CachingVariable(std::string m, std::string n, const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC) :
     cache_(std::make_pair(false,0)),method_(m),
     name_(n),conf_(iConfig) {}
 
@@ -75,15 +76,15 @@ class CachingVariable {
  protected:
 
   mutable evalType cache_;
-  mutable edm::Event::CacheIdentifier_t eventCacheID_=0; 
+  mutable edm::Event::CacheIdentifier_t eventCacheID_=0;
 
   std::string method_;
   std::string name_;
   mutable std::string holderName_;
-  void setCache(valueType & v) const { 
+  void setCache(valueType & v) const {
     eventCacheID_ = std::numeric_limits<edm::Event::CacheIdentifier_t>::max();
     cache_.first=true; cache_.second = v;}
-  void setNotCompute() const { 
+  void setNotCompute() const {
     eventCacheID_ = std::numeric_limits<edm::Event::CacheIdentifier_t>::max();
     cache_.first=false; cache_.second = 0;}
   evalType & baseEval(const edm::Event & iEvent) const {
@@ -114,12 +115,12 @@ class CachingVariable {
 class ComputedVariable;
 class VariableComputer{
  public:
-  VariableComputer(const CachingVariable::CachingVariableFactoryArg& arg);
+  VariableComputer(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC);
   virtual ~VariableComputer(){}
 
   virtual void compute(const edm::Event & iEvent) const = 0;
   const std::string & name() const { return name_;}
-  void declare(std::string var);
+  void declare(std::string var, edm::ConsumesCollector& iC);
   void assign(std::string  var, double & value) const;
   void doesNotCompute() const;
   void doesNotCompute(std::string var) const;
@@ -139,7 +140,7 @@ class VariableComputer{
   mutable std::map<std::string ,const ComputedVariable *> iCompute_;
   std::string separator_;
 
-  mutable edm::Event::CacheIdentifier_t eventCacheID_=0; 
+  mutable edm::Event::CacheIdentifier_t eventCacheID_=0;
 
 };
 
@@ -147,14 +148,14 @@ class VariableComputer{
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-typedef edmplugin::PluginFactory< CachingVariable* (CachingVariable::CachingVariableFactoryArg) > CachingVariableFactory;
-typedef edmplugin::PluginFactory< VariableComputer* (CachingVariable::CachingVariableFactoryArg) > VariableComputerFactory;
+typedef edmplugin::PluginFactory< CachingVariable* (CachingVariable::CachingVariableFactoryArg, edm::ConsumesCollector& iC) > CachingVariableFactory;
+typedef edmplugin::PluginFactory< VariableComputer* (CachingVariable::CachingVariableFactoryArg, edm::ConsumesCollector& iC) > VariableComputerFactory;
 
 class ComputedVariable : public CachingVariable {
  public:
-  ComputedVariable(const CachingVariableFactoryArg& arg );
-  ComputedVariable(const std::string & M, std::string & N, edm::ParameterSet & P, const VariableComputer * c) : 
-    CachingVariable(M,N,P), myComputer(c){}
+  ComputedVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC );
+  ComputedVariable(const std::string & M, std::string & N, edm::ParameterSet & P, const VariableComputer * c, edm::ConsumesCollector& iC) :
+    CachingVariable(M,N,P,iC), myComputer(c){}
   virtual ~ComputedVariable(){};
 
   virtual evalType eval(const edm::Event & iEvent) const {
@@ -168,7 +169,7 @@ class ComputedVariable : public CachingVariable {
 
 class VariableComputerTest : public VariableComputer {
  public:
-  VariableComputerTest(const CachingVariable::CachingVariableFactoryArg& arg) ;
+  VariableComputerTest(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) ;
   ~VariableComputerTest(){};
 
   void compute(const edm::Event & iEvent) const;
@@ -176,10 +177,10 @@ class VariableComputerTest : public VariableComputer {
 
 class Splitter : public CachingVariable {
  public:
-  Splitter(std::string method, std::string n, const edm::ParameterSet & iConfig) :
-    CachingVariable(method,n,iConfig) {}
+  Splitter(std::string method, std::string n, const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC) :
+    CachingVariable(method,n,iConfig,iC) {}
 
-  //purely virtual here 
+  //purely virtual here
   virtual CachingVariable::evalType eval(const edm::Event & iEvent) const =0;
 
   unsigned int maxIndex() const { return maxSlots()-1;}
@@ -187,28 +188,28 @@ class Splitter : public CachingVariable {
   //maximum NUMBER of slots: counting over/under flows
   virtual unsigned int maxSlots() const { return labels_.size();}
 
-  const std::string shortLabel(unsigned int i) const{ 
+  const std::string shortLabel(unsigned int i) const{
     if (i>=short_labels_.size()){
       edm::LogError("Splitter")<<"trying to access slots short_label at index: "<<i<<"while of size: "<<short_labels_.size()<<"\n"<<conf_.dump();
       return short_labels_.back(); }
     else  return short_labels_[i];}
-  
-  const std::string & label(unsigned int i) const{ 
+
+  const std::string & label(unsigned int i) const{
     if (i>=labels_.size()){
       edm::LogError("Splitter")<<"trying to access slots label at index: "<<i<<"while of size: "<<labels_.size()<<"\n"<<conf_.dump();
       return labels_.back(); }
     else return labels_[i];}
-  
+
  protected:
   std::vector<std::string> labels_;
   std::vector<std::string> short_labels_;
 };
 
 
-class VarSplitter : public Splitter{ 
+class VarSplitter : public Splitter{
  public:
-  VarSplitter(const CachingVariableFactoryArg& arg ) :
-    Splitter("VarSplitter",arg.n,arg.iConfig) {
+  VarSplitter(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC ) :
+    Splitter("VarSplitter",arg.n,arg.iConfig,iC) {
     var_=arg.iConfig.getParameter<std::string>("var");
     useUnderFlow_=arg.iConfig.getParameter<bool>("useUnderFlow");
     useOverFlow_=arg.iConfig.getParameter<bool>("useOverFlow");
@@ -236,7 +237,7 @@ class VarSplitter : public Splitter{
     if (useOverFlow_)
       { labels_.push_back("overFlow");
 	short_labels_.push_back("_"+arg.n+"_overFlow");}
-    
+
     //check consistency
     if (labels_.size()!=maxSlots())
       edm::LogError("Splitter")<<"splitter with name: "<<name()<<" has inconsistent configuration\n"<<conf_.dump();
@@ -264,7 +265,7 @@ template <typename Object> class sortByStringFunction  {
  public:
   sortByStringFunction(StringObjectFunction<Object> * f) : f_(f){}
   ~sortByStringFunction(){}
-  
+
   bool operator() (const Object * o1, const Object * o2) {
     return (*f_)(*o1) > (*f_)(*o2);
   }
@@ -272,12 +273,13 @@ template <typename Object> class sortByStringFunction  {
   StringObjectFunction<Object> * f_;
 };
 
-template <typename Object, const char * label> 
+template <typename Object, const char * label>
 class ExpressionVariable : public CachingVariable {
  public:
-  ExpressionVariable(const CachingVariableFactoryArg& arg) :
-    CachingVariable(std::string(label)+"ExpressionVariable",arg.n,arg.iConfig) , f_(0), forder_(0) {
-    src_=edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig);
+  ExpressionVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
+    CachingVariable(std::string(label)+"ExpressionVariable",arg.n,arg.iConfig,iC) , f_(0), forder_(0) {
+    srcTag_=edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig);
+    src_=iC.consumes<edm::View<Object> >(srcTag_);
     //old style constructor
     if (arg.iConfig.exists("expr") && arg.iConfig.exists("index")){
       std::string expr=arg.iConfig.getParameter<std::string>("expr");
@@ -285,7 +287,7 @@ class ExpressionVariable : public CachingVariable {
       f_ = new StringObjectFunction<Object>(expr);
       addDescriptionLine("calculating: "+expr);
       std::stringstream ss;
-      ss<<"on object at index: "<<index_<<" of: "<<src_;
+      ss<<"on object at index: "<<index_<<" of: "<<srcTag_;
 
       if (arg.iConfig.exists("order")){
 	std::string order=arg.iConfig.getParameter<std::string>("order");
@@ -319,7 +321,7 @@ class ExpressionVariable : public CachingVariable {
 	  indexEntry.insert(std::make_pair(ss.str(),e));
 	}
       }//contains "_N"
-      
+
       std::map< std::string, edm::Entry> varEntry;
       if (arg.n.find("_V")!=std::string::npos){
 	//do something fancy for multiple variable from one PSet
@@ -328,12 +330,12 @@ class ExpressionVariable : public CachingVariable {
 	  unsigned int sep=vars[v].find(":");
 	  std::string name=vars[v].substr(0,sep);
 	  std::string expr=vars[v].substr(sep+1);
-	  
+
 	  edm::Entry e("string",expr,true);
 	  varEntry.insert(std::make_pair(name,e));
 	}
       }//contains "_V"
-      
+
       std::string radical = arg.n;
       //remove the "_V";
       if (!varEntry.empty())
@@ -341,7 +343,7 @@ class ExpressionVariable : public CachingVariable {
       //remove the "_N";
       if (!indexEntry.empty())
 	radical = radical.substr(0,radical.size()-2);
-      
+
       if(varEntry.empty()){
 	//loop only the indexes
 	for(std::map< std::string, edm::Entry>::iterator iIt=indexEntry.begin();iIt!=indexEntry.end();++iIt){
@@ -350,7 +352,7 @@ class ExpressionVariable : public CachingVariable {
 	  std::string newVname = radical+iIt->first;
 	  //	  std::cout<<"in the loop, creating variable with name: "<<newVname<<std::endl;
 	  // the constructor auto log the new variable in the map
-	  new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname,arg.m,toUse));
+	  new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname,arg.m,toUse),iC);
 	}
       }else{
 	for (std::map< std::string, edm::Entry>::iterator vIt=varEntry.begin();vIt!=varEntry.end();++vIt){
@@ -360,7 +362,7 @@ class ExpressionVariable : public CachingVariable {
 	    std::string newVname = radical+vIt->first;
 	    //	    std::cout<<"in the loop, creating variable with name: "<<newVname<<std::endl;
 	    // the constructor auto log the new variable in the map
-	    new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname,arg.m,toUse));
+	    new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname,arg.m,toUse),iC);
 	  }else{
 	    for(std::map< std::string, edm::Entry>::iterator iIt=indexEntry.begin();iIt!=indexEntry.end();++iIt){
 	      edm::ParameterSet toUse = arg.iConfig;
@@ -368,8 +370,8 @@ class ExpressionVariable : public CachingVariable {
 	      toUse.insert(true,"index",iIt->second);
 	      std::string newVname = radical+iIt->first+vIt->first;
 	      //	      std::cout<<"in the loop, creating variable with name: "<<newVname<<std::endl;
-	      // the constructor auto log the new variable in the map 
-	      new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname,arg.m,toUse));
+	      // the constructor auto log the new variable in the map
+	      new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname,arg.m,toUse),iC);
 	    }}
 	}
       }
@@ -391,7 +393,7 @@ class ExpressionVariable : public CachingVariable {
       return std::make_pair(false,0);
     }
     edm::Handle<edm::View<Object> > oH;
-    iEvent.getByLabel(src_,oH);
+    iEvent.getByToken(src_,oH);
     if (index_>=oH->size()){
       LogDebug(method())<<"fail to get object at index: "<<index_<<" in collection: "<<src_;
       return std::make_pair(false,0);
@@ -407,7 +409,7 @@ class ExpressionVariable : public CachingVariable {
       }
       if (index_ >= copyToSort.size()) return std::make_pair(false,0);
       if (forder_) std::sort(copyToSort.begin(), copyToSort.end(), sortByStringFunction<Object>(forder_));
-      
+
       const Object * o = copyToSort[index_];
       return std::make_pair(true,(*f_)(*o));
     }
@@ -418,7 +420,8 @@ class ExpressionVariable : public CachingVariable {
   }
 
  private:
-  edm::InputTag src_;
+  edm::InputTag srcTag_;
+  edm::EDGetTokenT<edm::View<Object> > src_;
   unsigned int index_;
   StringObjectFunction<Object> * f_;
   StringObjectFunction<Object> * forder_;
@@ -429,11 +432,13 @@ class ExpressionVariable : public CachingVariable {
 template< typename LHS,const char * lLHS, typename RHS,const char * lRHS, typename Calculator>
 class TwoObjectVariable : public CachingVariable {
 public:
-  TwoObjectVariable(const CachingVariableFactoryArg& arg) :
-    CachingVariable(Calculator::calculationType()+std::string(lLHS)+std::string(lRHS),arg.n,arg.iConfig),
-    srcLhs_(edm::Service<InputTagDistributorService>()->retrieve("srcLhs",arg.iConfig)),
+  TwoObjectVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
+    CachingVariable(Calculator::calculationType()+std::string(lLHS)+std::string(lRHS),arg.n,arg.iConfig,iC),
+    srcLhsTag_(edm::Service<InputTagDistributorService>()->retrieve("srcLhs",arg.iConfig)),
+    srcLhs_(iC.consumes<std::vector<LHS> >(srcLhsTag_)),
     indexLhs_(arg.iConfig.getParameter<unsigned int>("indexLhs")),
-    srcRhs_(edm::Service<InputTagDistributorService>()->retrieve("srcRhs",arg.iConfig)),
+    srcRhsTag_(edm::Service<InputTagDistributorService>()->retrieve("srcRhs",arg.iConfig)),
+    srcRhs_(iC.consumes<std::vector<RHS> >(srcRhsTag_)),
     indexRhs_(arg.iConfig.getParameter<unsigned int>("indexRhs"))
       {
 	std::stringstream ss;
@@ -455,26 +460,26 @@ public:
     getObject objects(const edm::Event & iEvent) const {
       getObject failed;
       edm::Handle<std::vector<LHS> > lhsH;
-      iEvent.getByLabel(srcLhs_, lhsH);
+      iEvent.getByToken(srcLhs_, lhsH);
       if (lhsH.failedToGet()){
-	LogDebug("TwoObjectVariable")<<name()<<" could not get a collection with label: "<<srcLhs_;
+	LogDebug("TwoObjectVariable")<<name()<<" could not get a collection with label: "<<srcLhsTag_;
 	return failed;}
       if (indexLhs_>=lhsH->size()){
-	LogDebug("TwoObjectVariable")<<name()<<" tries to access index: "<<indexLhs_<<" of: "<<srcLhs_<<" with: "<<lhsH->size()<<" entries.";
+	LogDebug("TwoObjectVariable")<<name()<<" tries to access index: "<<indexLhs_<<" of: "<<srcLhsTag_<<" with: "<<lhsH->size()<<" entries.";
       return failed;}
       const LHS & lhs = (*lhsH)[indexLhs_];
-      
+
       edm::Handle<std::vector<RHS> > rhsH;
-      iEvent.getByLabel(srcRhs_, rhsH);
+      iEvent.getByToken(srcRhs_, rhsH);
       if (rhsH.failedToGet()){
-	LogDebug("TwoObjectVariable")<<name()<<" could not get a collection with label: "<<srcLhs_;
+	LogDebug("TwoObjectVariable")<<name()<<" could not get a collection with label: "<<srcLhsTag_;
 	return failed;}
-      
+
       if (indexRhs_>=rhsH->size()){
-	LogDebug("TwoObjectVariable")<<name()<<" tries to access index: "<<indexRhs_<<" of: "<<srcRhs_<<" with: "<<rhsH->size()<<" entries.";
+	LogDebug("TwoObjectVariable")<<name()<<" tries to access index: "<<indexRhs_<<" of: "<<srcRhsTag_<<" with: "<<rhsH->size()<<" entries.";
 	return failed;}
       const RHS & rhs = (*rhsH)[indexRhs_];
-      
+
       failed.test=true;
       failed.lhs=&lhs;
       failed.rhs=&rhs;
@@ -492,17 +497,19 @@ public:
       return std::make_pair(true,calculate(o));
     }
 private:
-  edm::InputTag srcLhs_;
+  edm::InputTag srcLhsTag_;
+  edm::EDGetTokenT<std::vector<LHS> > srcLhs_;
   unsigned int indexLhs_;
-  edm::InputTag srcRhs_;
+  edm::InputTag srcRhsTag_;
+  edm::EDGetTokenT<std::vector<RHS> > srcRhs_;
   unsigned int indexRhs_;
 };
 
 
 class VariablePower : public CachingVariable {
  public:
-  VariablePower(const CachingVariableFactoryArg& arg) :
-    CachingVariable("Power",arg.n,arg.iConfig){
+  VariablePower(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
+    CachingVariable("Power",arg.n,arg.iConfig,iC){
     power_=arg.iConfig.getParameter<double>("power");
     var_=arg.iConfig.getParameter<std::string>("var");
     std::stringstream ss("Calculare X^Y, with X=");
@@ -511,7 +518,7 @@ class VariablePower : public CachingVariable {
     arg.m[arg.n]=this;
   }
   ~VariablePower(){}
- 
+
  //concrete calculation of the variable
   CachingVariable::evalType eval(const edm::Event & iEvent) const;
 
@@ -524,38 +531,38 @@ class VariablePower : public CachingVariable {
 template <typename TYPE>
 class SimpleValueVariable : public CachingVariable {
  public:
-  SimpleValueVariable(const CachingVariableFactoryArg& arg) :
-    CachingVariable("SimpleValueVariable",arg.n,arg.iConfig),
-    src_(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig)) { arg.m[arg.n]=this;}
+  SimpleValueVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
+    CachingVariable("SimpleValueVariable",arg.n,arg.iConfig,iC),
+    src_(iC.consumes<TYPE>(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig))) { arg.m[arg.n]=this;}
   CachingVariable::evalType eval(const edm::Event & iEvent) const{
     edm::Handle<TYPE> value;
-    try{    iEvent.getByLabel(src_,value);   }  
+    try{    iEvent.getByToken(src_,value);   }
     catch(...){ return std::make_pair(false,0); }
     if (value.failedToGet() || !value.isValid()) return std::make_pair(false,0);
     else return std::make_pair(true, *value);
   }
  private:
-  edm::InputTag src_;
+  edm::EDGetTokenT<TYPE> src_;
 };
 
 template <typename TYPE>
 class SimpleValueVectorVariable : public CachingVariable {
  public:
-  SimpleValueVectorVariable(const CachingVariableFactoryArg& arg) :
-    CachingVariable("SimpleValueVectorVariable",arg.n,arg.iConfig),
-    src_(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig)),
+  SimpleValueVectorVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
+    CachingVariable("SimpleValueVectorVariable",arg.n,arg.iConfig,iC),
+    src_(iC.consumes<TYPE>(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig))),
     index_(arg.iConfig.getParameter<unsigned int>("index")) { arg.m[arg.n]=this;}
   CachingVariable::evalType eval(const edm::Event & iEvent) const{
     edm::Handle<std::vector<TYPE> > values;
-    try { iEvent.getByLabel(src_,values);} 
+    try { iEvent.getByToken(src_,values);}
     catch(...){ return std::make_pair(false,0); }
     if (values.failedToGet() || !values.isValid()) return std::make_pair(false,0);
     else if (index_>=values->size()) return std::make_pair(false,0);
     else return std::make_pair(true, (*values)[index_]);
   }
-  
+
  private:
-  edm::InputTag src_;
+  edm::EDGetTokenT<TYPE> src_;
   unsigned int index_;
 };
 
