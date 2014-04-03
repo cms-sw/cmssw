@@ -26,8 +26,8 @@ double unpack8log(int8_t i,double lmin, double lmax)
 
 void pat::PackedCandidate::pack(bool unpackAfterwards) {
     packedPt_  =  MiniFloatConverter::float32to16(p4_.Pt());
-    packedEta_ =  int16_t(p4_.Eta()/6.0f*std::numeric_limits<int16_t>::max());
-    packedPhi_ =  int16_t(p4_.Phi()/3.2f*std::numeric_limits<int16_t>::max());
+    packedEta_ =  int16_t(std::round(p4_.Eta()/6.0f*std::numeric_limits<int16_t>::max()));
+    packedPhi_ =  int16_t(std::round(p4_.Phi()/3.2f*std::numeric_limits<int16_t>::max()));
     packedM_   =  MiniFloatConverter::float32to16(p4_.M());
     if (unpackAfterwards) unpack(); // force the values to match with the packed ones
 }
@@ -43,8 +43,8 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
     float pzpt = p4_.Pz()/p4_.Pt();
     dz_ = vertex_.Z() - pv.Z() - (dxPV*c + dyPV*s) * pzpt;
     packedDxy_ = MiniFloatConverter::float32to16(dxy_*100);
-    packedDz_   = pvRef_.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(dz_/40.f*std::numeric_limits<int16_t>::max());
-    packedDPhi_ =  int16_t(dphi_/3.2f*std::numeric_limits<int16_t>::max());
+    packedDz_   = pvRef_.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(std::round(dz_/40.f*std::numeric_limits<int16_t>::max()));
+    packedDPhi_ =  int16_t(std::round(dphi_/3.2f*std::numeric_limits<int16_t>::max()));
     packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
     packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
     packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
