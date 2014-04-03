@@ -25,6 +25,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include <vector>
 #include <map>
@@ -71,6 +73,8 @@ private:
   //Labels to read from event
   edm::InputTag simHitLabel;
   edm::InputTag segment4DLabel;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
   //Sigma resolution on position
   double sigmaResX;
   double sigmaResY;
