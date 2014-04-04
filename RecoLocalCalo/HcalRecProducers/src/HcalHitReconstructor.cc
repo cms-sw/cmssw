@@ -36,11 +36,11 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
   tsFromDB_(conf.getParameter<bool>("tsFromDB")),
-  useLeakCorrection_( conf.getParameter<bool>("useLeakCorrection")),
-  dataOOTCorrectionName_(conf.getParameter<std::string>("dataOOTCorrectionName")),
-  dataOOTCorrectionCategory_(conf.getParameter<std::string>("dataOOTCorrectionCategory")),
-  mcOOTCorrectionName_(conf.getParameter<std::string>("mcOOTCorrectionName")),
-  mcOOTCorrectionCategory_(conf.getParameter<std::string>("mcOOTCorrectionCategory")),
+  useLeakCorrection_(conf.getParameter<bool>("useLeakCorrection")),
+  dataOOTCorrectionName_(""),
+  dataOOTCorrectionCategory_("DataOOTPileupCorrections"),
+  mcOOTCorrectionName_(""),
+  mcOOTCorrectionCategory_("MCOOTPileupCorrections"),
   setPileupCorrection_(0),
   paramTS(0),
   theTopology(0)
@@ -216,6 +216,14 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 
   // If no valid OOT pileup correction name specified,
   // disable the correction
+  if (conf.existsAs<std::string>("dataOOTCorrectionName"))
+      dataOOTCorrectionName_ = conf.getParameter<std::string>("dataOOTCorrectionName");
+  if (conf.existsAs<std::string>("dataOOTCorrectionCategory"))
+      dataOOTCorrectionCategory_ = conf.getParameter<std::string>("dataOOTCorrectionCategory");
+  if (conf.existsAs<std::string>("mcOOTCorrectionName"))
+      mcOOTCorrectionName_ = conf.getParameter<std::string>("mcOOTCorrectionName");
+  if (conf.existsAs<std::string>("mcOOTCorrectionCategory"))
+      mcOOTCorrectionCategory_ = conf.getParameter<std::string>("mcOOTCorrectionCategory");
   if (dataOOTCorrectionName_.empty() && mcOOTCorrectionName_.empty())
       setPileupCorrection_ = 0;
 }
