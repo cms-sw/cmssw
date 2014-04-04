@@ -5,7 +5,8 @@
 
 using namespace muonisolation;
 
-CutsIsolatorWithCorrection::CutsIsolatorWithCorrection(const edm::ParameterSet & par):
+CutsIsolatorWithCorrection::CutsIsolatorWithCorrection(const edm::ParameterSet & par,
+						       edm::ConsumesCollector && iC ):
   theCuts(par.getParameter<std::vector<double> > ("EtaBounds"),
 	  par.getParameter<std::vector<double> > ("ConeSizes"),
 	  par.getParameter<std::vector<double> > ("Thresholds")),
@@ -15,7 +16,7 @@ CutsIsolatorWithCorrection::CutsIsolatorWithCorrection(const edm::ParameterSet &
   theCutAbsIso(par.getParameter<bool>("CutAbsoluteIso")),
   theCutRelativeIso(par.getParameter<bool>("CutRelativeIso")),
   theUseRhoCorrection(par.getParameter<bool>("UseRhoCorrection")),
-  theRhoSrc(par.getParameter<edm::InputTag>("RhoSrc")),
+  theRhoToken(iC.consumes<double>(par.getParameter<edm::InputTag>("RhoSrc"))),
   theRhoMax(par.getParameter<double>("RhoMax")),
   theRhoScaleBarrel(par.getParameter<double>("RhoScaleBarrel")),
   theRhoScaleEndcap(par.getParameter<double>("RhoScaleEndcap")),
@@ -62,7 +63,7 @@ MuIsoBaseIsolator::Result CutsIsolatorWithCorrection::result(const DepositContai
 
   if (theUseRhoCorrection){
     edm::Handle<double> rhoHandle; 
-    ev->getByLabel(theRhoSrc, rhoHandle); 
+    ev->getByToken(theRhoToken, rhoHandle); 
     rho = *(rhoHandle.product());
     if (rho < 0.0) rho = 0.0;
     double rhoScale = fabs(tk.eta()) > 1.442 ? theRhoScaleEndcap : theRhoScaleBarrel;
