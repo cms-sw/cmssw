@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SPLIT')
+
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -17,21 +18,23 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
-#process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_0.root',
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_1.root',
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_2.root',
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_3.root',
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_4.root',
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_5.root',
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_6.root',
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_7.root',
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_8.root',
-    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_9.root'
+        'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTT_1500_8TeV_Tauola_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root'
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_0.root',
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_1.root',
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_2.root',
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_3.root',
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_4.root',
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_5.root',
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_6.root',
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_7.root',
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_8.root',
+#    'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_9.root'
+#        'file:/afs/cern.ch/work/t/taroni/private/ClusterSplitting/CMSSW_7_1_X_2014-03-18-0200/src/ZpTT_1500_8TeV_Tauola_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root'
     ),
 
 )
@@ -119,7 +122,9 @@ process.Vertex2TracksDefault = AssociationMaps.clone(
 # The commands included in splitter_tracking_setup_cff.py instruct 
 # the tracking machinery to use the clusters and rechits generated after 
 # cluster splitting (instead of the default clusters and rechits)
-process.load('RecoLocalTracker.SubCollectionProducers.splitter_tracking_setup_cff')
+#process.load('RecoLocalTracker.SubCollectionProducers.splitter_tracking_setup2_cff')
+from RecoLocalTracker.SubCollectionProducers.splitter_tracking_setup_cff import customizeTracking
+customizeTracking('splitClusters', 'splitClusters', 'mySiPixelRecHits', 'mySiStripRecHits')
 
 process.fullreco = cms.Sequence(process.globalreco*process.highlevelreco)
 process.Globalreco = cms.Sequence(process.globalreco)
@@ -154,10 +159,10 @@ process.PixelTreeSplit = cms.EDAnalyzer(
 
 
 process.RECOoutput = cms.OutputModule("PoolOutputModule",
-    outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('ZpTauTau8TeV_split_new.root'),
+    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
+    fileName = cms.untracked.string('ZpTauTau8TeV_split_71X_10.root'),
     dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('RECO')
+        dataTier = cms.untracked.string('GEN-SIM-RECO')
     )
 )
 ## process.RECOoutput.outputCommands.append( 'keep TrackingParticles_mergedtruth_MergedTrackTruth_*')
@@ -167,7 +172,7 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 # Other statements
 
-process.GlobalTag.globaltag = 'START70_V5::All'
+process.GlobalTag.globaltag = 'MC_71_V1::All'
 #process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 
 
