@@ -100,6 +100,8 @@ class EcalRawToDigi : public edm::EDProducer{
   
   unsigned int nevts_; // NA: for testing
   double  RUNNING_TIME_, SETUP_TIME_;
+
+  edm::EDGetTokenT<FEDRawDataCollection> fedToken_;
 };
 
 #endif

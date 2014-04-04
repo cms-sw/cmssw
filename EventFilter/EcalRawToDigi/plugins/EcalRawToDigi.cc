@@ -148,7 +148,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   produces<EcalElectronicsIdCollection>("EcalIntegrityMemChIdErrors");
   produces<EcalElectronicsIdCollection>("EcalIntegrityMemGainErrors");
 
-
+  fedToken_=consumes<FEDRawDataCollection>(dataLabel_);
  
   // Build a new Electronics mapper and parse default map file
   myMap_ = new EcalElectronicsMapper(numbXtalTSamples_,numbTriggerTSamples_);
@@ -285,7 +285,7 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   // Step A: Get Inputs    
 
   edm::Handle<FEDRawDataCollection> rawdata;  
-  e.getByLabel(dataLabel_,rawdata);
+  e.getByToken(fedToken_,rawdata);
 
 
   // Step B: encapsulate vectors in actual collections and set unpacker pointers

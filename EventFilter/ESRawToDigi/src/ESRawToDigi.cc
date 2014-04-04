@@ -23,6 +23,7 @@ ESRawToDigi::ESRawToDigi(edm::ParameterSet const& ps)
   produces<ESRawDataCollection>();
   produces<ESLocalRawDataCollection>();
   produces<ESDigiCollection>();
+  fedToken_=consumes<FEDRawDataCollection>(sourceTag_);
 }
 
 ESRawToDigi::~ESRawToDigi(){
@@ -35,7 +36,7 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Input
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel(sourceTag_, rawdata);
+  e.getByToken(fedToken_, rawdata);
   if (!rawdata.isValid()) {
     LogDebug("") << "ESRawToDigi : Error! can't get rawdata!" << std::endl;
   }

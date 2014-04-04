@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "RPCReadOutMappingWithFastSearch.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 
 class RPCReadOutMapping;
@@ -40,6 +41,8 @@ private:
   edm::ESWatcher<RPCEMapRcd> theRecordWatcher;
   const RPCReadOutMapping* theCabling;
   RPCReadOutMappingWithFastSearch theReadoutMappingSearch;
+  edm::EDGetTokenT<FEDRawDataCollection> fedToken_;
+
 };
 
 
