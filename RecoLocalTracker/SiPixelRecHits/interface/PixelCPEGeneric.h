@@ -164,14 +164,14 @@ private:
 
 #ifdef NEW
 
-  mutable SiPixelGenError gtempl_;
+  SiPixelGenError gtempl_;
 
 #else
   //--- DB Error Parametrization object
   SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
 #endif
 
-  mutable SiPixelTemplate templ_;
+  SiPixelTemplate templ_;
 
 };
 

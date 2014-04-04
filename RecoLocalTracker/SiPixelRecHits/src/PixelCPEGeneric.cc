@@ -224,9 +224,10 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       theClusterParam.sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
       theClusterParam.dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
   
-      if(useNewSimplerErrors) { // errors from new light templates 
+      if(useNewSimplerErrors) { // errors from new light templates
+        SiPixelGenError gtempl(gtempl_.templateStore());
 	int gtemplID_ = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
-	theClusterParam.qBin_ = gtempl_.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  // inputs
+	theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  // inputs
 			      theClusterParam.pixmx,                                       // returned by reference
 			      theClusterParam.sigmay, theClusterParam.deltay, theClusterParam.sigmax, theClusterParam.deltax,              // returned by reference
 			      theClusterParam.sy1, theClusterParam.dy1, theClusterParam.sy2, theClusterParam.dy2, theClusterParam.sx1, theClusterParam.dx1, theClusterParam.sx2, theClusterParam.dx2 );    // returned by reference
@@ -234,13 +235,13 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 
 	// OK, now use the charge widths stored in the new generic template headers (change to the
 	// incorrect sign convention of the base class)       
-	chargeWidthX = -micronsToCm*gtempl_.lorxwidth();
-	chargeWidthY = -micronsToCm*gtempl_.lorywidth();
+	chargeWidthX = -micronsToCm*gtempl.lorxwidth();
+	chargeWidthY = -micronsToCm*gtempl.lorywidth();
 
       } else { // errors from full templates 
-
+        SiPixelTemplate templ(templ_.templateStore());
 	int templID_ = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId().rawId());
-	theClusterParam.qBin_ = templ_.qbin( templID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  // inputs
+	theClusterParam.qBin_ = templ.qbin( templID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  // inputs
 			     theClusterParam.pixmx,                                       // returned by reference
 			     theClusterParam.sigmay, theClusterParam.deltay, theClusterParam.sigmax, theClusterParam.deltax,              // returned by reference
 			     theClusterParam.sy1, theClusterParam.dy1, theClusterParam.sy2, theClusterParam.dy2, theClusterParam.sx1, theClusterParam.dx1, theClusterParam.sx2, theClusterParam.dx2 );    // returned by reference
@@ -476,7 +477,9 @@ generic_position_formula( int size,                //!< Size of this projection.
     {
       W_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
       //  usedEdgeAlgo = true;
+#ifdef EDM_ML_DEBUG
       nRecHitsUsedEdge_++;
+#endif
     }
 
   

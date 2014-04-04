@@ -145,6 +145,8 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 	ID = 41; // endcap
     }
   
+  SiPixelTemplate templ(templ_.templateStore());
+
   //cout << "PixelCPETemplateReco : ID = " << ID << endl;
   
 
@@ -276,7 +278,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
     PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
 		     locBz, 
 		     clust_array_2d, ydouble, xdouble,
-		     templ_,
+		     templ,
 		     theClusterParam.templYrec_, theClusterParam.templSigmaY_, theClusterParam.templProbY_,
 		     theClusterParam.templXrec_, theClusterParam.templSigmaX_, theClusterParam.templProbX_, 
 		     theClusterParam.templQbin_, 
@@ -342,7 +344,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 	SiPixelTemplateSplit::PixelTempSplit( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
 					      clust_array_2d, 
 					      ydouble, xdouble,
-					      templ_,
+					      templ,
 					      templYrec1_, templYrec2_, theClusterParam.templSigmaY_, theClusterParam.templProbY_,
 					      templXrec1_, templXrec2_, theClusterParam.templSigmaX_, theClusterParam.templProbX_,
 					      theClusterParam.templQbin_, 
@@ -464,8 +466,8 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 	  // the LA width/shift returned by templates use (+)
 	  // the LA width/shift produced by PixelCPEBase for positive LA is (-)
 	  // correct this by iserting (-)
-	  float templateLorbiasCmX = -micronsToCm*templ_.lorxwidth();  // old
-	  float templateLorbiasCmY = -micronsToCm*templ_.lorywidth();
+	  float templateLorbiasCmX = -micronsToCm*templ.lorxwidth();  // old
+	  float templateLorbiasCmY = -micronsToCm*templ.lorywidth();
 	  //float templateLorbiasCmX = -micronsToCm*templ_.lorxbias();  // new 
 	  //float templateLorbiasCmY = -micronsToCm*templ_.lorybias();
 	  // now, correctly, we can use the difference of shifts  

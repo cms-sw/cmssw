@@ -145,8 +145,10 @@ public:
   inline ReturnType getParameters(const SiPixelCluster & cl, 
 				   const GeomDetUnit    & det ) const
     {
+#ifdef EDM_ML_DEBUG
       nRecHitsTotal_++ ;
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
+#endif 
 
       DetParam const & theDetParam = detParam(det);
       ClusterParam * theClusterParam = createClusterParam(cl);
@@ -170,9 +172,10 @@ public:
 				   const GeomDetUnit    & det, 
 				   const LocalTrajectoryParameters & ltp ) const
   {
+#ifdef EDM_ML_DEBUG
     nRecHitsTotal_++ ;
-
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
+#endif 
 
     DetParam const & theDetParam = detParam(det);
     ClusterParam *  theClusterParam = createClusterParam(cl);
@@ -221,8 +224,10 @@ private:
   //---------------------------------------------------------------------------
 
   //--- Counters
+#ifdef EDM_ML_DEBUG
   mutable int    nRecHitsTotal_ ; //for debugging only
   mutable int    nRecHitsUsedEdge_ ; //for debugging only
+#endif 
 
   // Added new members
   float lAOffset_; // la used to calculate the offset from configuration (for testing) 

@@ -73,7 +73,7 @@ class PixelCPETemplateReco : public PixelCPEBase
   LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
 
   // Template storage
-  mutable SiPixelTemplate templ_ ;
+  SiPixelTemplate templ_ ;
   
   int speed_ ;
 

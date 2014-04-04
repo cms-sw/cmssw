@@ -59,11 +59,16 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 			   const SiPixelTemplateDBObject * templateDBobject,
 			   const SiPixelLorentzAngle * lorentzAngleWidth)
 #endif
-  : nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
-    useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
+  : useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
     useLAWidthFromConfig_(false), useLAWidthFromDB_(false),
     magfield_(mag), geom_(geom)
 {
+
+#ifdef EDM_ML_DEBUG
+  nRecHitsTotal_=0;
+  nRecHitsUsedEdge_=0,
+#endif 
+    
   //--- Lorentz angle tangent per Tesla
 
   lorentzAngle_ = lorentzAngle;

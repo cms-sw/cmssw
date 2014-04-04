@@ -226,6 +226,10 @@ struct SiPixelTemplateStore { //!< template storage structure
 class SiPixelTemplate {
  public:
   SiPixelTemplate() {id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.;} //!< Default constructor
+
+  SiPixelTemplate(const std::vector< SiPixelTemplateStore > thePixelTemp) : SiPixelTemplate() { thePixelTemp_=thePixelTemp; } //!< Constructor for cases in which template store already exists
+  const std::vector< SiPixelTemplateStore > & templateStore() const {return thePixelTemp_;}
+  
   bool pushfile(int filenum);     // load the private store with info from the 
                                   // file with the index (int) filenum
 								  

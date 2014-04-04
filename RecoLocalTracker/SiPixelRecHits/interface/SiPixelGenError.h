@@ -102,6 +102,10 @@ struct SiPixelGenErrorStore { //!< template storage structure
 class SiPixelGenError {
  public:
   SiPixelGenError() {id_current_ = -1; index_id_ = -1;} //!< Default constructor
+
+  SiPixelGenError(const std::vector< SiPixelGenErrorStore > & thePixelTemp) : SiPixelGenError() { thePixelTemp_=thePixelTemp; } //!< Constructor for cases in which template store already exists
+  const std::vector< SiPixelGenErrorStore > & templateStore() const {return thePixelTemp_;}
+  
   bool pushfile(int filenum);     // load the private store with info from the 
                                   // file with the index (int) filenum
 								  
@@ -134,7 +138,7 @@ class SiPixelGenError {
   float xsize() {return xsize_;}                                    //!< pixel x-size (microns)
   float ysize() {return ysize_;}                                    //!< pixel y-size (microns)
   float zsize() {return zsize_;}                                    //!< pixel z-size or thickness (microns)
-  
+
  private:
   
   // Keep current template interpolaion parameters	
