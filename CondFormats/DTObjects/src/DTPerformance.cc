@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 15:57:23 $
- *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +13,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-//#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 
 //---------------
 // C++ Headers --
@@ -32,16 +30,18 @@
 // Constructors --
 //----------------
 DTPerformance::DTPerformance():
-  dataVersion( " " ) {
+  dataVersion( " " ),
+  nsPerCount(0.0),
+  dBuf(new DTBufferTree<int,int>) {
   dataList.reserve( 1000 );
-  dBuf = 0;
 }
 
 
 DTPerformance::DTPerformance( const std::string& version ):
-  dataVersion( version ) {
+  dataVersion( version ),
+  nsPerCount(0.0),
+  dBuf(new DTBufferTree<int,int>)  {
   dataList.reserve( 1000 );
-  dBuf = 0;
 }
 
 
@@ -68,8 +68,6 @@ DTPerformanceData::DTPerformanceData() :
 // Destructor --
 //--------------
 DTPerformance::~DTPerformance() {
-//  DTDataBuffer<int,int>::dropBuffer( mapName() );
-  delete dBuf;
 }
 
 
@@ -104,16 +102,6 @@ int DTPerformance::get( int   wheelId,
   meanAfterPulse =
   meanResolution =
   meanEfficiency = 0.0;
-
-//  std::string mName = mapName();
-//  DTBufferTree<int,int>* dBuf =
-//  DTDataBuffer<int,int>::findBuffer( mName );
-//  if ( dBuf == 0 ) {
-//    cacheMap();
-//    dBuf =
-//    DTDataBuffer<int,int>::findBuffer( mName );
-//  }
-  if ( dBuf == 0 ) cacheMap();
 
   std::vector<int> chanKey;
   chanKey.reserve(4);
@@ -185,10 +173,8 @@ std::string& DTPerformance::version() {
 
 
 void DTPerformance::clear() {
-//  DTDataBuffer<int,int>::dropBuffer( mapName() );
-  delete dBuf;
-  dBuf = 0;
   dataList.clear();
+  initialize();
   return;
 }
 
@@ -212,15 +198,6 @@ int DTPerformance::set( int   wheelId,
     meanMtime /= nsPerCount;
   }
 
-//  std::string mName = mapName();
-//  DTBufferTree<int,int>* dBuf =
-//  DTDataBuffer<int,int>::findBuffer( mName );
-//  if ( dBuf == 0 ) {
-//    cacheMap();
-//    dBuf =
-//    DTDataBuffer<int,int>::findBuffer( mName );
-//  }
-  if ( dBuf == 0 ) cacheMap();
   std::vector<int> chanKey;
   chanKey.reserve(4);
   chanKey.push_back(   wheelId );
@@ -313,14 +290,9 @@ std::string DTPerformance::mapName() const {
 }
 
 
-void DTPerformance::cacheMap() const {
+void DTPerformance::initialize() {
 
-//  std::string mName = mapName();
-//  DTBufferTree<int,int>* dBuf =
-//  DTDataBuffer<int,int>::openBuffer( mName );
-  DTBufferTree<int,int>** pBuf;
-  pBuf = const_cast<DTBufferTree<int,int>**>( &dBuf );
-  *pBuf = new DTBufferTree<int,int>;
+  dBuf->clear();
 
   int entryNum = 0;
   int entryMax = dataList.size();
@@ -336,10 +308,6 @@ void DTPerformance::cacheMap() const {
     chanKey.push_back( chan. sectorId );
     chanKey.push_back( chan.     slId );
     dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
-
   }
-
   return;
-
 }
-
