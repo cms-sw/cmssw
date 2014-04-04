@@ -8,11 +8,11 @@
 class InvalidTrackingRecHit GCC11_FINAL : public TrackingRecHit {
 public:
   typedef TrackingRecHit::Type Type;
-
-  InvalidTrackingRecHit(DetId id, Type type ) : TrackingRecHit(id, type) {}
-  InvalidTrackingRecHit(DetId id, GeomDet const * idet, Type type ) : TrackingRecHit(id, idet, type) {}
-  InvalidTrackingRecHit(GeomDet const * idet, Type type ) : TrackingRecHit(idet == nullptr ? DetId(0) : idet->geographicalId(), idet, type) {}
-  InvalidTrackingRecHit(GeomDet const & idet, Type type ) : TrackingRecHit(idet.geographicalId(), &idet, type) {}
+  
+  //  InvalidTrackingRecHit(DetId id, Type type ) : TrackingRecHit(id, type) , surface_(nullptr) {}
+  // InvalidTrackingRecHit(DetId id, GeomDet const * idet, Type type ) : TrackingRecHit(id, idet, type) ,  surface_(idet ? &(det()->surface()) : nullptr) {}
+  // InvalidTrackingRecHit(GeomDet const * idet, Type type ) : TrackingRecHit(idet == nullptr ? DetId(0) : idet->geographicalId(), idet, type) , surface_(idet ? &(det()->surface()) : nullptr) {}
+  InvalidTrackingRecHit(GeomDet const & idet, Type type ) : TrackingRecHit(idet.geographicalId(), &idet, type) , surface_(&det()->surface()) {}
 
   InvalidTrackingRecHit() : TrackingRecHit(0, TrackingRecHit::missing) {}
 
@@ -26,9 +26,9 @@ public:
 
   virtual ~InvalidTrackingRecHit() {}
 
-  const Surface* surface() const {  return  surface_; }
+  const Surface* surface() const GCC11_OVERRIDE {  return  surface_; }
   
-  virtual InvalidTrackingRecHit * clone() const {return new InvalidTrackingRecHit(*this);}
+  virtual InvalidTrackingRecHit * clone() const GCC11_OVERRIDE {return new InvalidTrackingRecHit(*this);}
   
   virtual AlgebraicVector parameters() const;
 

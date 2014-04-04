@@ -29,10 +29,10 @@ class TrackingRecHit {
 public:
 
 #ifdef NO_DICT
-   using RecHitPointer = std::shared_ptr<TrackingRecHit>;
+   using      RecHitPointer = std::shared_ptr<TrackingRecHit const>;
    using ConstRecHitPointer = std::shared_ptr<TrackingRecHit const>;   
 #else
-   typedef TrackingRecHit *           RecHitPointer;
+   typedef TrackingRecHit const *          RecHitPointer;
    typedef TrackingRecHit const *     ConstRecHitPointer;
 #endif
 
@@ -47,7 +47,7 @@ public:
   
   /** Type of hits:
    *   valid    = valid hit
-   *   missing  = detector is good, but no rec hit found
+   *   mwissing  = detector is good, but no rec hit found
    *   inactive = detector is off, so there was no hope
    *   bad      = there were many bad strips within the ellipse (in Tracker)
    *            = hit is compatible with the trajectory, but chi2 is too large (in Muon System)

@@ -81,6 +81,10 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	continue;
       }
 
+   if (hit->det() && hit->geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(*hit).name() << ' ' <<  hit->det()->geographicalId()  << std::endl;
+   if (hit->isValid() && hit->geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(*hit).name() << ' ' <<  hit->det()->geographicalId()  << std::endl;
+
+
     if (hitcounter != avtm.size())//no propagation needed for first smoothed (==last fitted) hit 
       predTsos = thePropagator->propagate( currTsos, *(hit->surface()) );
 
@@ -174,9 +178,14 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	  break;      
 	}
       
+        assert(hit->geographicalId()!=0U);
+       	assert(hit->surface()!=nullptr);
         assert( (!(hit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
         assert( (!(hit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>(hit.get())));
         auto preciseHit = theHitCloner->makeShared(hit,predTsos);
+        assert(preciseHit->isValid());
+       	assert(preciseHit->geographicalId()!=0U);
+       	assert(preciseHit->surface()!=nullptr);
 
       if unlikely(!preciseHit->isValid()){
 	  LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
@@ -261,13 +270,20 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     	  "KFTrajectorySmoother: combined tsos not valid!";
         return Trajectory();
 	}
-      
-      myTraj.push(TM(itm->forwardPredictedState(),
+      assert( (hit->det()==nullptr) || hit->geographicalId()!=0U);
+      if (hit->det()) 
+         myTraj.push(TM(itm->forwardPredictedState(),
 		     predTsos,
     		     combTsos,
     		     hit,
 		     0,
 		     theGeometry->idToLayer(hit->geographicalId()) ));
+     else myTraj.push(TM(itm->forwardPredictedState(),
+                     predTsos,
+                     combTsos,
+                     hit,
+                     0));
+
     }
   } // for loop
   

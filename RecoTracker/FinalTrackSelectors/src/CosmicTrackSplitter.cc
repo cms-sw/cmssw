@@ -317,7 +317,7 @@ namespace reco { namespace modules {
 							else {
 								// still, if replaceWithInactiveHits is true we have to put a new hit
 								if (replaceWithInactiveHits_) {
-									hits.push_back(new InvalidTrackingRecHit(detid, TrackingRecHit::inactive));
+									hits.push_back(new InvalidTrackingRecHit(*hit->det(), TrackingRecHit::inactive));
 								}
 							}
 						}

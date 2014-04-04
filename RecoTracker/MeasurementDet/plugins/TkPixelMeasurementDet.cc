@@ -29,7 +29,7 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 					  TempMeasurements & result) const {
 
   if (!isActive(data)) {
-    result.add(std::make_shared<InvalidTrackingRecHit>(&geomDet(),TrackingRecHit::missing), 0.F);
+    result.add(std::make_shared<InvalidTrackingRecHit>(geomDet(),TrackingRecHit::missing), 0.F);
     return true;
   }
   
@@ -46,7 +46,7 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
   bool inac = hasBadComponents(stateOnThisDet, data);
   TrackingRecHit::Type type = inac ? TrackingRecHit::inactive : TrackingRecHit::missing;
-  result.add(std::make_shared<InvalidTrackingRecHit>(&geomDet(),type), 0.F);
+  result.add(std::make_shared<InvalidTrackingRecHit>(geomDet(),type), 0.F);
   return inac;
 
 }

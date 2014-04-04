@@ -29,7 +29,7 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   virtual float errorGlobalRPhi() const;
   
   virtual const TrackingRecHit * hit() const { return &me; } // this;}
-  virtual InvalidTrackingRecHit * cloneHit() const { return new InvalidTrackingRecHit(rawId(), det(), type());}
+  virtual InvalidTrackingRecHit * cloneHit() const { return me.clone();}
   
   // duplicate of persistent class
   virtual AlgebraicVector parameters() const;
@@ -60,7 +60,7 @@ public:
   InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type) :
     Base(geom == nullptr ? DetId(0) : geom->geographicalId(), geom, type), 
     surface_(geom ? &(det()->surface()) : ( layer ?  &(layer->surface()) : nullptr)),
-    me( geom == nullptr ? DetId(0) : geom->geographicalId(), geom, type)
+    me( geom, layer, type)
       {}
   
     // hide the clone method for ReferenceCounted. Warning: this method is still 

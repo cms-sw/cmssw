@@ -42,7 +42,7 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
 	TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
 					 specificHit().cluster(), theCPE);
       
-      return RecHitPointer(proj.project( static_cast<TSiStripRecHit2DLocalPos&>(*updatedOriginalHit), *det(), ts)); 
+      return RecHitPointer(proj.project( static_cast<TSiStripRecHit2DLocalPos const&>(*updatedOriginalHit), *det(), ts)); 
       
   }
   /// FIXME: should report the problem somehow
@@ -82,7 +82,7 @@ ProjectedRecHit2D::ProjectedRecHit2D( const GeomDet * geom, const GeomDet* origi
 	  TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
 					   specificHit().cluster(), theCPE);
 	
-	RecHitPointer hit = proj.project(static_cast<TSiStripRecHit2DLocalPos&>(*updatedOriginalHit), *det()); 
+	RecHitPointer hit = proj.project(static_cast<TSiStripRecHit2DLocalPos const &>(*updatedOriginalHit), *det()); 
 	trackingRecHit_ = hit->hit()->clone();
     }
   }

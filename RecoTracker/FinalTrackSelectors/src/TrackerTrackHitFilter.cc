@@ -579,7 +579,7 @@ void TrackerTrackHitFilter::produceFromTrack(const edm::EventSetup &iSetup, cons
 	    else if(verdict<-2){//hit rejected because did not pass the selections
 	                        // still, if replaceWithInactiveHits is true we have to put a new hit
 	      if (replaceWithInactiveHits_) {
-		hits.push_back(new InvalidTrackingRecHit(detid, TrackingRecHit::inactive));
+		hits.push_back(new InvalidTrackingRecHit(*(hit->det()), TrackingRecHit::inactive));
 	      }
 	    }
 	    else if(verdict==-2) hits.push_back(hit->clone());//hit not in the tracker
@@ -687,7 +687,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
     else if(verdict<-2){//hit rejected because did not pass the selections
       // still, if replaceWithInactiveHits is true we have to put a new hit
       if (replaceWithInactiveHits_) {
-	hits.push_back(new InvalidTrackingRecHit(detid, TrackingRecHit::inactive));
+	hits.push_back(new InvalidTrackingRecHit(*hit->det(), TrackingRecHit::inactive));
       }
     }
     else if(verdict==-2) hits.push_back(hit->clone());//hit not in the tracker

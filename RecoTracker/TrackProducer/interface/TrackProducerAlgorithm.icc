@@ -64,12 +64,12 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
       
       //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-      TransientTrackingRecHit::RecHitContainer hits;
+      TrackingRecHit::RecHitContainer hits;
       
       float ndof=0;     
       for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
 	   i!=recHitVec.second; i++){
-	hits.push_back(builder->build(&(*i) ));  // major waste, will be soon fitted and recloned...
+	hits.push_back((*i).cloneSH());  // major waste, will be soon fitted and recloned...
       }      
       
       //build Track

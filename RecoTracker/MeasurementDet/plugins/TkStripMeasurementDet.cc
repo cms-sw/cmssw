@@ -163,7 +163,7 @@ bool TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 
   if (!isActive(data)) {
     LogDebug("TkStripMeasurementDet")<<" found an inactive module "<<rawId();
-     result.add(std::make_shared<InvalidTrackingRecHit>(&geomDet(),TrackingRecHit::missing), 0.F);
+     result.add(std::make_shared<InvalidTrackingRecHit>(geomDet(),TrackingRecHit::missing), 0.F);
     return true;
   }
   
@@ -178,7 +178,7 @@ bool TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
 
   if (!stateOnThisDet.hasError()) {
-    result.add(std::make_shared<InvalidTrackingRecHit>(&geomDet(),TrackingRecHit::missing), 0.F);
+    result.add(std::make_shared<InvalidTrackingRecHit>(geomDet(),TrackingRecHit::missing), 0.F);
     return false;
   }
 
@@ -186,12 +186,12 @@ bool TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   float uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
   if (testStrips(utraj,uerr)) {
     //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, but active ";
-    result.add(std::make_shared<InvalidTrackingRecHit>(&geomDet(),TrackingRecHit::missing), 0.F);
+    result.add(std::make_shared<InvalidTrackingRecHit>(geomDet(),TrackingRecHit::missing), 0.F);
     return false;
   }
 
   //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, and inactive ";
-  result.add(std::make_shared<InvalidTrackingRecHit>(&geomDet(),TrackingRecHit::inactive), 0.F);
+  result.add(std::make_shared<InvalidTrackingRecHit>(geomDet(),TrackingRecHit::inactive), 0.F);
 
   return true;
 
