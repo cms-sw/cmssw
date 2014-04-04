@@ -47,7 +47,7 @@ namespace edm {
 
   public:
     /// default contructor
-    FilterWrapper(const edm::ParameterSet& cfg){ filter_ = boost::shared_ptr<T>( new T(cfg) ); }
+    FilterWrapper(const edm::ParameterSet& cfg){ filter_ = boost::shared_ptr<T>( new T(cfg, consumesCollector()) ); }
     /// default destructor
     virtual ~FilterWrapper(){}
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
