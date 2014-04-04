@@ -2,6 +2,8 @@
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
+#include "CondFormats/HcalObjects/interface/HcalOOTPileupCorrectionData.h"
+
 namespace CondFormats_HcalObjects {
   struct dictionary {
 
@@ -83,6 +85,8 @@ namespace CondFormats_HcalObjects {
 
     HcalTimingParams myTimingParams;
     std::vector<HcalTimingParam> myTimingParamVec;
+
+    HcalOOTPileupCorrectionData myOOTPileupCorrectionData;
   };
 }
 

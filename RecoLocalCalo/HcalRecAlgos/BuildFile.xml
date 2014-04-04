@@ -1,4 +1,5 @@
 <use   name="boost"/>
+<use   name="Alignment/Geners"/>
 <use   name="DataFormats/HcalDigi"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="CalibFormats/HcalObjects"/>
