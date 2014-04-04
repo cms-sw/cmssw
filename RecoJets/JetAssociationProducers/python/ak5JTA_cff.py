@@ -10,6 +10,11 @@ ak5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
     jets = cms.InputTag("ak5CaloJets")
 )
 
+ak5JetTracksAssociatorExplicit = cms.EDProducer("JetTracksAssociatorExplicit",
+    j2tParametersVX,
+    jets = cms.InputTag("ak5PFJets")
+)
+
 ak5JetTracksAssociatorAtCaloFace = cms.EDProducer("JetTracksAssociatorAtCaloFace",
     j2tParametersCALO,
     jets = cms.InputTag("ak5CaloJets")
@@ -24,3 +29,4 @@ ak5JetExtender = cms.EDProducer("JetExtender",
 
 ak5JTA = cms.Sequence(ak5JetTracksAssociatorAtVertex*ak5JetTracksAssociatorAtCaloFace*ak5JetExtender)
 
+ak5JTAExplicit = cms.Sequence(ak5JetTracksAssociatorExplicit)
