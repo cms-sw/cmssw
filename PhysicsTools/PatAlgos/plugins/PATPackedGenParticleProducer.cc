@@ -37,10 +37,10 @@
 
 
 namespace pat {
-    class PATPackedGenCandidateProducer : public edm::EDProducer {
+    class PATPackedGenParticleProducer : public edm::EDProducer {
         public:
-            explicit PATPackedGenCandidateProducer(const edm::ParameterSet&);
-            ~PATPackedGenCandidateProducer();
+            explicit PATPackedGenParticleProducer(const edm::ParameterSet&);
+            ~PATPackedGenParticleProducer();
 
             virtual void produce(edm::Event&, const edm::EventSetup&);
 
@@ -52,7 +52,7 @@ namespace pat {
     };
 }
 
-pat::PATPackedGenCandidateProducer::PATPackedGenCandidateProducer(const edm::ParameterSet& iConfig) :
+pat::PATPackedGenParticleProducer::PATPackedGenParticleProducer(const edm::ParameterSet& iConfig) :
   Cands_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("inputCollection"))),
   Asso_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("map"))),
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
@@ -61,9 +61,9 @@ pat::PATPackedGenCandidateProducer::PATPackedGenCandidateProducer(const edm::Par
   produces< std::vector<pat::PackedGenParticle> > ();
 }
 
-pat::PATPackedGenCandidateProducer::~PATPackedGenCandidateProducer() {}
+pat::PATPackedGenParticleProducer::~PATPackedGenParticleProducer() {}
 
-void pat::PATPackedGenCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void pat::PATPackedGenParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
     edm::Handle<reco::GenParticleCollection> cands;
@@ -108,6 +108,6 @@ void pat::PATPackedGenCandidateProducer::produce(edm::Event& iEvent, const edm::
 }
 
 
-using pat::PATPackedGenCandidateProducer;
+using pat::PATPackedGenParticleProducer;
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(PATPackedGenCandidateProducer);
+DEFINE_FWK_MODULE(PATPackedGenParticleProducer);
