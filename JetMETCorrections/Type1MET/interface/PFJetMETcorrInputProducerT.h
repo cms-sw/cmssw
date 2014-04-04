@@ -152,7 +152,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	      cand != cands.end(); ++cand ) {
           const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate *>(cand->get());
           const reco::Candidate *mu = (pfcand != 0 ? ( pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : 0) : cand->get());
-	  if ( (*skipMuonSelection_)(*mu) ) {
+	  if ( mu != 0 && (*skipMuonSelection_)(*mu) ) {
 	    reco::Candidate::LorentzVector muonP4 = (*cand)->p4();
 	    rawJetP4 -= muonP4;
 	  }
