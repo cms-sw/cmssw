@@ -54,4 +54,31 @@ void JetCorrectorParametersCollection::serialize(Archive & ar, const unsigned in
 }
 COND_SERIALIZATION_INSTANTIATE(JetCorrectorParametersCollection);
 
+template <class Archive>
+void QGLikelihoodCategory::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(RhoVal);
+    ar & BOOST_SERIALIZATION_NVP(PtMin);
+    ar & BOOST_SERIALIZATION_NVP(PtMax);
+    ar & BOOST_SERIALIZATION_NVP(EtaBin);
+    ar & BOOST_SERIALIZATION_NVP(QGIndex);
+    ar & BOOST_SERIALIZATION_NVP(VarIndex);
+}
+COND_SERIALIZATION_INSTANTIATE(QGLikelihoodCategory);
+
+template <class Archive>
+void QGLikelihoodObject::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(data);
+}
+COND_SERIALIZATION_INSTANTIATE(QGLikelihoodObject);
+
+template <class Archive>
+void QGLikelihoodObject::Entry::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(category);
+    ar & BOOST_SERIALIZATION_NVP(histogram);
+}
+COND_SERIALIZATION_INSTANTIATE(QGLikelihoodObject::Entry);
+
 #include "CondFormats/JetMETObjects/src/SerializationManual.h"
