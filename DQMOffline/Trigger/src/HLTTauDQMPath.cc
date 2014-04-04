@@ -209,14 +209,18 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   isFirstL1Seed_(false),
   isValid_(false)
 {
+#ifdef EDM_ML_LOGDEBUG
   std::stringstream ss;
   ss << "HLTTauDQMPath: " << pathName_ << "\n";
+#endif
 
   // Get the filters
   HLTPath thePath(pathName_);
   filterIndices_ = thePath.interestingFilters(HLTCP, doRefAnalysis_);
   isFirstL1Seed_ = HLTCP.moduleType(std::get<0>(filterIndices_[0])) == "HLTLevel1GTSeed";
+#ifdef EDM_ML_LOGDEBUG
   ss << "  Filters";
+#endif
   // Set the filter multiplicity counts
   filterTauN_.clear();
   filterElectronN_.clear();
@@ -233,15 +237,19 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
     filterElectronN_.push_back(n.electron);
     filterMuonN_.push_back(n.muon);
 
+#ifdef EDM_ML_LOGDEBUG
     ss << "\n    " << std::get<1>(filterIndices_[i])
        << " " << filterName
        << " " << moduleType
        << " ntau " << n.tau
        << " nele " << n.electron
        << " nmu " << n.muon;
+#endif
 
   }
-  edm::LogInfo("HLTTauDQMOffline") << ss.str();
+#ifdef EDM_ML_LOGDEBUG
+  LogDebug("HLTTauDQMOffline") << ss.str();
+#endif
 
 
   // Find the position of PFRecoTauProducer, use filters with taus
