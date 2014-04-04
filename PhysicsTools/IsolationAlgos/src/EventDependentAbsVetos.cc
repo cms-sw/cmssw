@@ -1,11 +1,7 @@
 
 #include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVetos.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 bool
@@ -21,7 +17,7 @@ void
 reco::isodeposit::OtherCandidatesDeltaRVeto::setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     items_.clear();
     edm::Handle<edm::View<reco::Candidate> > candidates;
-    iEvent.getByLabel(src_, candidates);
+    iEvent.getByToken(src_, candidates);
     for (edm::View<reco::Candidate>::const_iterator it = candidates->begin(), ed = candidates->end(); it != ed; ++it) {
         items_.push_back(Direction(it->eta(), it->phi()));
     }
@@ -41,7 +37,7 @@ void
 reco::isodeposit::OtherCandVeto::setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     items_.clear();
     edm::Handle<edm::View<reco::Candidate> > candidates;
-    iEvent.getByLabel(src_, candidates);
+    iEvent.getByToken(src_, candidates);
     for (edm::View<reco::Candidate>::const_iterator it = candidates->begin(), ed = candidates->end(); it != ed; ++it) {
         items_.push_back(Direction(it->eta(), it->phi()));
     }
@@ -70,10 +66,9 @@ reco::isodeposit::OtherJetConstituentsDeltaRVeto::initialize()
     assert(evt_);
     items_.clear();
     edm::Handle<reco::PFJetCollection> jets;
-    evt_->getByLabel(srcJets_, jets);
-    typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;
+    evt_->getByToken(srcJets_, jets);
     edm::Handle<JetToPFCandidateAssociation> jetToPFCandMap;
-    evt_->getByLabel(srcPFCandAssocMap_, jetToPFCandMap);
+    evt_->getByToken(srcPFCandAssocMap_, jetToPFCandMap);
     double dR2min = dR2jet_;
     reco::PFJetRef matchedJet;
     size_t numJets = jets->size();

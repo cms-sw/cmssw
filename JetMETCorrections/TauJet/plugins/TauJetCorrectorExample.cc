@@ -2,7 +2,7 @@
 //
 // Package:    TauJetCorrectorExample
 // Class:      TauJetCorrectorExample
-// 
+//
 /**\class TauJetCorrectorExample TauJetCorrectorExample.cc MyTauAndHLTAnalyzer/TauJetCorrectorExample/src/TauJetCorrectorExample.cc
 
 Description: <one line class summary>
@@ -62,22 +62,25 @@ class TauJetCorrectorExample : public edm::EDAnalyzer {
 public:
   explicit TauJetCorrectorExample(const edm::ParameterSet&);
   ~TauJetCorrectorExample();
-  
-  
+
+
 private:
   virtual void beginJob() override ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
+
   // ----------member data ---------------------------
+#ifdef THIS_IS_AN_EVENT_EXAMPLE
+  edm::EDGetTokenT<ExampleData> exampletoken;
+#endif
   std::string jetname;
-  std::string tauname;
+  edm::EDGetTokenT<reco::IsolatedTauTagInfoCollection> tautoken;
   std::string tauCorrectorname;
-  
+
   int nEvt;// used to count the number of events
   int njets;
-  
-  JetCorrector* taucorrector; 
+
+  JetCorrector* taucorrector;
 
 };
 
@@ -97,8 +100,11 @@ private:
 using namespace reco;
 
 TauJetCorrectorExample::TauJetCorrectorExample(const edm::ParameterSet& iConfig):
+#ifdef THIS_IS_AN_EVENT_EXAMPLE
+  exampletoken(consumes<ExampleData>(edm::InputTag("example"))),
+#endif
   jetname(iConfig.getUntrackedParameter<std::string>("JetHandle","iterativeCone5CaloJets")),
-  tauname(iConfig.getUntrackedParameter<std::string>("TauHandle","coneIsolation")),
+  tautoken(consumes<reco::IsolatedTauTagInfoCollection>(edm::InputTag(iConfig.getUntrackedParameter<std::string>("TauHandle","coneIsolation")))),
   tauCorrectorname(iConfig.getUntrackedParameter<std::string>("tauCorrHandle", "TauJetCorrectorIcone5")),
   nEvt(0), njets(0), taucorrector(0)
 {
@@ -109,7 +115,7 @@ TauJetCorrectorExample::TauJetCorrectorExample(const edm::ParameterSet& iConfig)
 
 TauJetCorrectorExample::~TauJetCorrectorExample()
 {
- 
+
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -127,12 +133,12 @@ TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventSetup&
   taucorrector = const_cast<JetCorrector*>(JetCorrector::getJetCorrector(tauCorrectorname, iSetup));
 
   using namespace edm;
-  
+
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
   Handle<ExampleData> pIn;
-  iEvent.getByLabel("example",pIn);
+  iEvent.getByToken(exampletoken,pIn);
 #endif
-   
+
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
   ESHandle<SetupData> pSetup;
   iSetup.get<SetupRecord>().get(pSetup);
@@ -147,9 +153,9 @@ TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // get taus
   Handle<reco::IsolatedTauTagInfoCollection> tauTagInfoHandle;
-  iEvent.getByLabel(tauname,tauTagInfoHandle);
+  iEvent.getByToken(tautoken,tauTagInfoHandle);
   reco::IsolatedTauTagInfoCollection::const_iterator tau=tauTagInfoHandle->begin();
-  
+
   //get tau jet corrector
   //const JetCorrector* taucorrector = JetCorrector::getJetCorrector(tauCorrectorname, iSetup);
 
@@ -162,11 +168,11 @@ TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventSetup&
     	//Should check tau discriminator, but not done here
 
 		double pt = tau->jet().get()->et();
-        
+
 		//correction returns correction factor which must then be applied to original ET
 		double scale = taucorrector->correction(tau->jet().get()->p4());
 		double ptcorr = tau->jet().get()->et() * scale;
-       
+
 		std::cout << "Tau jet: Original Et = " << pt << " Corrected Et = " << ptcorr << std::endl;
 
 		++njets;
@@ -178,18 +184,18 @@ TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 //TauJetCorrectorExample::beginJob(const edm::EventSetup& iSetup)
 TauJetCorrectorExample::beginJob()
 {
-	
+
 //	taucorrector = const_cast<JetCorrector*>(JetCorrector::getJetCorrector(tauCorrectorname, iSetup));
-	
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-TauJetCorrectorExample::endJob() { 
+void
+TauJetCorrectorExample::endJob() {
 }
 
 //define this as a plug-in

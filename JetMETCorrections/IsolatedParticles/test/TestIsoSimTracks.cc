@@ -2,7 +2,7 @@
 //
 // Package:    TestIsoSimTracks
 // Class:      IsolatedParticles
-// 
+//
 /*
 
 
@@ -86,7 +86,7 @@ class TestIsoSimTracks : public edm::EDAnalyzer {
  public:
    explicit TestIsoSimTracks(const edm::ParameterSet&);
    virtual ~TestIsoSimTracks(){};
-   
+
    virtual void analyze (const edm::Event&, const edm::EventSetup&);
    void endJob(void);
 
@@ -98,24 +98,24 @@ class TestIsoSimTracks : public edm::EDAnalyzer {
         TH1F* p;
         TH1F* pt;
         TH1F* isomult;
-      } IsoHists;  
+      } IsoHists;
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters trackAssociatorParameters_;
 
-   edm::InputTag simTracksTag_;
-   edm::InputTag simVerticesTag_;
+   edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
+   edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken_;
 };
 
 TestIsoSimTracks::TestIsoSimTracks(const edm::ParameterSet& iConfig) :
-   simTracksTag_(iConfig.getParameter<edm::InputTag>("simTracksTag")),
-   simVerticesTag_(iConfig.getParameter<edm::InputTag>("simVerticesTag"))
+   simTracksToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("simTracksTag"))),
+   simVerticesToken_(consumes<edm::SimVertexContainer>(iConfig.getParameter<edm::InputTag>("simVerticesTag")))
 {
    // Fill data labels
    //std::vector<std::string> labels = iConfig.getParameter<std::vector<std::string> >("labels");
    //boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
    //boost::regex regExp2 ("([^\\s,]+)[\\s,]+([^\\s,]+)[\\s,]+([^\\s,]+)$");
    //boost::smatch matches;
-	
+
    m_Hfile=new TFile("IsoHists.root","RECREATE");
     IsoHists.eta = new TH1F("Eta","Track eta",100,-5.,5.);
     IsoHists.phi = new TH1F("Phi","Track phi",100,-3.5,3.5);
@@ -131,7 +131,7 @@ TestIsoSimTracks::TestIsoSimTracks(const edm::ParameterSet& iConfig) :
  //     else
 //	edm::LogError("ConfigurationError") << "Failed to parse label:\n" << *label << "Skipped.\n";
  //  }
-   
+
    // trackAssociator_.addDataLabels("EBRecHitCollection","ecalrechit","EcalRecHitsEB");
    // trackAssociator_.addDataLabels("CaloTowerCollection","towermaker");
    // trackAssociator_.addDataLabels("DTRecSegment4DCollection","recseg4dbuilder");
@@ -150,50 +150,50 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
      std::vector<GlobalPoint> AllTracks;
      std::vector<GlobalPoint> AllTracks1;
-     
+
 // mine! e
 
    // get list of tracks and their vertices
    Handle<SimTrackContainer> simTracks;
-   iEvent.getByLabel<SimTrackContainer>(simTracksTag_, simTracks);
-   
+   iEvent.getByToken(simTracksToken_, simTracks);
+
    Handle<SimVertexContainer> simVertices;
-   iEvent.getByLabel<SimVertexContainer>(simVerticesTag_, simVertices);
+   iEvent.getByToken(simVerticesToken_, simVertices);
    if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
-   
+
    // loop over simulated tracks
    std::cout << "Number of simulated tracks found in the event: " << simTracks->size() << std::endl;
-   for(SimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
+   for(SimTrackContainer::const_iterator tracksCI = simTracks->begin();
        tracksCI != simTracks->end(); tracksCI++){
-      
+
       // skip low Pt tracks
       if (tracksCI->momentum().Pt() < 0.7) {
 //	 std::cout << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" <<std::endl;
 	 continue;
       }
-      
+
       // get vertex
       int vertexIndex = tracksCI->vertIndex();
       // uint trackIndex = tracksCI->genpartIndex();
-      
+
       SimVertex vertex(math::XYZVectorD(0.,0.,0.),0);
       if (vertexIndex >= 0) vertex = (*simVertices)[vertexIndex];
-      
+
       // skip tracks originated away from the IP
 //      if (vertex.position().rho() > 50) {
 //	 std::cout << "Skipped track originated away from IP: " <<vertex.position().rho()<<std::endl;
 //	 continue;
 //      }
-      
+
       std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().Pt() << " , " <<
 	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() << std::endl;
-      
+
       // Simply get ECAL energy of the crossed crystals
-//      std::cout << "ECAL energy of crossed crystals: " << 
+//      std::cout << "ECAL energy of crossed crystals: " <<
 //	trackAssociator_.getEcalEnergy(iEvent, iSetup,
 //				       trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex) )
 //	  << " GeV" << std::endl;
-				       
+
 //      std::cout << "Details:\n" <<std::endl;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
 							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex),
@@ -204,13 +204,13 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 //      std::cout << "ECAL, number of cells in the cone: " << info.ecalRecHits.size() << std::endl;
 //      std::cout << "ECAL, energy in the cone: " << info.ecalConeEnergy() << " GeV" << std::endl;
 //      std::cout << "ECAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtEcal.z() << ", "
-//	<< info.trkGlobPosAtEcal.R() << " , "	<< info.trkGlobPosAtEcal.eta() << " , " 
+//	<< info.trkGlobPosAtEcal.R() << " , "	<< info.trkGlobPosAtEcal.eta() << " , "
 //	<< info.trkGlobPosAtEcal.phi()<< std::endl;
 
 // mine! b
 
 	  double rfa =     sqrt (info.trkGlobPosAtEcal.x()*info.trkGlobPosAtEcal.x() +
-	                         info.trkGlobPosAtEcal.y()*info.trkGlobPosAtEcal.y() + 
+	                         info.trkGlobPosAtEcal.y()*info.trkGlobPosAtEcal.y() +
 				 info.trkGlobPosAtEcal.z()*info.trkGlobPosAtEcal.z()) /
 		           sqrt ( tracksCI->momentum().x()*tracksCI->momentum().x() +
 			          tracksCI->momentum().y()*tracksCI->momentum().y() +
@@ -218,14 +218,14 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
           if (info.isGoodEcal==1 && fabs(info.trkGlobPosAtEcal.eta()) < 2.6){
  	   AllTracks.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
-	    if (tracksCI->momentum().Pt() > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1) 
-	     {				 
+	    if (tracksCI->momentum().Pt() > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1)
+	     {
 	     AllTracks1.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
 	     }
 	  }
 
-// mine! e   
-   
+// mine! e
+
 //      std::cout << "HCAL, if track reach HCAL:      " << info.isGoodHcal << std::endl;
 //      std::cout << "HCAL, number of crossed towers: " << info.crossedTowers.size() << std::endl;
 //      std::cout << "HCAL, energy of crossed towers: " << info.hcalEnergy() << " GeV" << std::endl;
@@ -242,13 +242,13 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
   std::cout << " NUMBER of tracks  " << AllTracks.size() << "  and candidates for iso tracks  " << AllTracks1.size() <<std::endl;
 
   double imult=0.;
-      
-  for (unsigned int ia1=0; ia1<AllTracks1.size(); ia1++) 
+
+  for (unsigned int ia1=0; ia1<AllTracks1.size(); ia1++)
   {
 
     double delta_min=3.141592;
-  
-   for (unsigned int ia=0; ia<AllTracks.size(); ia++) 
+
+   for (unsigned int ia=0; ia<AllTracks.size(); ia++)
    {
      double delta_phi = fabs(AllTracks1[ia1].phi() - AllTracks[ia].phi());
      if (delta_phi > 3.141592) delta_phi = 6.283184 - delta_phi;
@@ -257,11 +257,11 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
      if (delta_actual < delta_min && delta_actual != 0.) delta_min = delta_actual;
 
-   }    
-    
+   }
+
     if (delta_min > 0.5) {
-    
-    std::cout << "FIND ISOLATED TRACK " << AllTracks1[ia1].mag() << "  " << AllTracks1[ia1].eta()<< "  "<< AllTracks1[ia1].phi()<< std::endl;    
+
+    std::cout << "FIND ISOLATED TRACK " << AllTracks1[ia1].mag() << "  " << AllTracks1[ia1].eta()<< "  "<< AllTracks1[ia1].phi()<< std::endl;
 
     IsoHists.eta->Fill(AllTracks1[ia1].eta());
     IsoHists.phi->Fill(AllTracks1[ia1].phi());

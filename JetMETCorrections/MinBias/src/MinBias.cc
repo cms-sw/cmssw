@@ -10,18 +10,21 @@ MinBias::MinBias(const edm::ParameterSet& iConfig)
 {
   // get names of modules, producing object collections
   hbheLabel_= iConfig.getParameter<std::string>("hbheInput");
-  hoLabel_=iConfig.getParameter<std::string>("hoInput");
-  hfLabel_=iConfig.getParameter<std::string>("hfInput");
+  hoLabel_= iConfig.getParameter<std::string>("hoInput");
+  hfLabel_= iConfig.getParameter<std::string>("hfInput");
+  hbheToken_= mayConsume<HBHERecHitCollection>(edm::InputTag(hbheLabel_));
+  hoToken_=mayConsume<HORecHitCollection>(edm::InputTag(hoLabel_));
+  hfToken_=mayConsume<HFRecHitCollection>(edm::InputTag(hfLabel_));
   allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",false);
   // get name of output file with histogramms
-  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile"); 
+  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
 
 }
 
 
 MinBias::~MinBias()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -29,7 +32,7 @@ MinBias::~MinBias()
 
 void MinBias::beginJob()
 {
-   hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ; 
+   hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
    myTree = new TTree("RecJet","RecJet Tree");
    myTree->Branch("mydet",  &mydet, "mydet/I");
    myTree->Branch("mysubd",  &mysubd, "mysubd/I");
@@ -70,11 +73,11 @@ void MinBias::endJob()
       mom3 = theFillDetMap3[*id]/theFillDetMap0[*id]-3.*mom1*theFillDetMap2[*id]/theFillDetMap0[*id]+
              2.*pow(mom2,3);
       mom4 = (theFillDetMap4[*id]-4.*mom1*theFillDetMap3[*id]+6.*pow(mom1,2)*theFillDetMap2[*id])/theFillDetMap0[*id]-3.*pow(mom1,4);
-        
+
       }	else
       {
-       mom1 = 0.; mom2 = 0.; mom3 = 0.; mom4 = 0.; 
-      }     
+       mom1 = 0.; mom2 = 0.; mom3 = 0.; mom4 = 0.;
+      }
       std::cout<<" Detector "<<(*id).rawId()<<" mydet "<<mydet<<" "<<mysubd<<" "<<depth<<" "<<
       HcalDetId(*id).subdet()<<" "<<ieta<<" "<<iphi<<" "<<pos.eta()<<" "<<pos.phi()<<std::endl;
       std::cout<<" Energy "<<mom1<<" "<<mom2<<std::endl;
@@ -91,7 +94,7 @@ void MinBias::endJob()
    hOutputFile->cd();
    myTree->Write();
    hOutputFile->Close() ;
-   std::cout << "===== End writing user histograms =======" << std::endl; 
+   std::cout << "===== End writing user histograms =======" << std::endl;
 }
 
 
@@ -105,7 +108,7 @@ MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
    using namespace edm;
-   if(ievent == 0 ){ 
+   if(ievent == 0 ){
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);
    geo = pG.product();
@@ -124,14 +127,14 @@ MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
 
- 
+
   if (!hbheLabel_.empty()) {
     edm::Handle<HBHERecHitCollection> hbhe;
-    iEvent.getByLabel(hbheLabel_,hbhe);
+    iEvent.getByToken(hbheToken_,hbhe);
     if (!hbhe.isValid()) {
       // can't find it!
       if (!allowMissingInputs_) {
-	*hbhe;  // will throw the proper exception      
+	*hbhe;  // will throw the proper exception
       }
     } else {
       for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
@@ -150,7 +153,7 @@ MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (!hoLabel_.empty()) {
     edm::Handle<HORecHitCollection> ho;
-    iEvent.getByLabel(hoLabel_,ho);
+    iEvent.getByToken(hoToken_,ho);
     if (!ho.isValid()) {
       // can't find it!
       if (!allowMissingInputs_) {
@@ -172,7 +175,7 @@ MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (!hfLabel_.empty()) {
     edm::Handle<HFRecHitCollection> hf;
-    iEvent.getByLabel(hfLabel_,hf);
+    iEvent.getByToken(hfToken_,hf);
     if (!hf.isValid()) {
       // can't find it!
       if (!allowMissingInputs_) {
@@ -181,7 +184,7 @@ MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   } else {
       for(HFRecHitCollection::const_iterator hfItr = (*hf).begin();
 	  hfItr != (*hf).end(); ++hfItr)
-	{  
+	{
 	  DetId id = (hfItr)->detid();
 	  theFillDetMap0[id] = theFillDetMap0[id]+ 1.;
 	  theFillDetMap1[id] = theFillDetMap1[id]+(*hfItr).energy();
@@ -191,6 +194,6 @@ MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
     }
   }
-  
+
 }
 }
