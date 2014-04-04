@@ -42,7 +42,8 @@ namespace reco {
       HFEM=8,
       HFHAD=9,
       SC=10,
-      HO=11
+      HO=11,
+      kNBETypes=12
     };
 
     enum TrackType {

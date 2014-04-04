@@ -136,7 +136,10 @@ PFBlockProducerNew::PFBlockProducerNew(const edm::ParameterSet& iConfig) {
     edm::LogInfo("PFBlockProducerNew")  << "NI interactions are corrected in PFlow for " << securityLevel[nuclearInteractionsPurity-1].c_str() << endl;
   }
 
-
+  const std::vector<edm::ParameterSet>& linkdefs 
+    = iConfig.getParameterSetVector("linkDefinitions");
+  
+  
   pfBlockAlgo_.setParameters( DPtovPtCut,
 			      NHitCut,
 			      useConvBremPFRecTracks,
@@ -147,6 +150,8 @@ PFBlockProducerNew::PFBlockProducerNew(const edm::ParameterSet& iConfig) {
 			      useSuperClusters_,
                               superClusterMatchByRef_
 			    );
+
+  pfBlockAlgo_.setLinkers(linkdefs);
   
   pfBlockAlgo_.setDebug(debug_);
 
