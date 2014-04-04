@@ -6,8 +6,6 @@
  *       Class to hold high voltage status
  *             ( half layer by half layer )
  *
- *  $Date: 2009/09/25 12:03:19 $
- *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -32,6 +30,9 @@ class DTChamberId;
 //---------------
 #include <string>
 #include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -180,7 +181,12 @@ class DTHVStatus {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTHVStatus(DTHVStatus const&);
+  DTHVStatus& operator=(DTHVStatus const&);
 
   std::string dataVersion;
 
@@ -189,12 +195,9 @@ class DTHVStatus {
   DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
-  void cacheMap() const;
   std::string mapName() const;
 
 
  COND_SERIALIZABLE;
 };
-
 #endif // DTHVStatus_H
-

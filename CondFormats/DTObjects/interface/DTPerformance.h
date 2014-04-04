@@ -5,8 +5,6 @@
  *  Description:
  *       Class to hold drift tubes performances ( SL by SL )
  *
- *  $Date: 2008/09/29 13:10:34 $
- *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -22,14 +20,17 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -203,7 +204,12 @@ class DTPerformance {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTPerformance(DTPerformance const&);
+  DTPerformance& operator=(DTPerformance const&);
 
   std::string dataVersion;
   float nsPerCount;
@@ -213,13 +219,9 @@ class DTPerformance {
   DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
-  void cacheMap() const;
   std::string mapName() const;
 
 
  COND_SERIALIZABLE;
 };
-
-
 #endif // DTPerformance_H
-

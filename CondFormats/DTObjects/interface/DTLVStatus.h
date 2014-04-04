@@ -5,8 +5,6 @@
  *  Description:
  *       Class to hold CCB status
  *
- *  $Date: 2009/03/26 14:10:59 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -29,6 +27,9 @@ class DTChamberId;
 //---------------
 #include <string>
 #include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -147,7 +148,12 @@ class DTLVStatus {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTLVStatus(DTLVStatus const&);
+  DTLVStatus& operator=(DTLVStatus const&);
 
   std::string dataVersion;
 
@@ -156,13 +162,9 @@ class DTLVStatus {
   DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
-  void cacheMap() const;
   std::string mapName() const;
 
 
  COND_SERIALIZABLE;
 };
-
-
 #endif // DTLVStatus_H
-

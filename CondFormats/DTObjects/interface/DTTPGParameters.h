@@ -5,8 +5,6 @@
  *  Description:
  *       Class to hold drift tubes TPG parameters
  *
- *  $Date: 2009/03/06 14:09:14 $
- *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -22,14 +20,17 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -129,7 +130,13 @@ class DTTPGParameters {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
+  DTTPGParameters& operator=(DTTPGParameters const&);
+
  private:
+
+  DTTPGParameters(DTTPGParameters const&);
 
   std::string dataVersion;
   float nsPerCount;
@@ -139,14 +146,9 @@ class DTTPGParameters {
 
   DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
-  /// read and store full content
-  void cacheMap() const;
   std::string mapName() const;
 
 
  COND_SERIALIZABLE;
 };
-
-
 #endif // DTTPGParameters_H
-

@@ -5,8 +5,6 @@
  *  Description:
  *       Class to hold configuration identifier for chambers
  *
- *  $Date: 2010/01/20 18:20:07 $
- *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -22,14 +20,16 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
-#include <map>
+#include <utility>
+
+class DTBufferTreeUniquePtr;
 
 //              ---------------------
 //              -- Class Interface --
@@ -70,18 +70,11 @@ class DTCCBConfig {
 
  public:
 
-  /** Constructor
-   */
   DTCCBConfig();
   DTCCBConfig( const std::string& version );
 
-  /** Destructor
-   */
   virtual ~DTCCBConfig();
 
-  /** Operations
-   */
-  /// get content
   std::vector<DTConfigKey> fullKey() const;
   int stamp() const;
   int configKey( int   wheelId,
@@ -125,7 +118,12 @@ class DTCCBConfig {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTCCBConfig(DTCCBConfig const&);
+  DTCCBConfig& operator=(DTCCBConfig const&);
 
   int timeStamp;
   std::string dataVersion;
@@ -142,7 +140,4 @@ class DTCCBConfig {
 
  COND_SERIALIZABLE;
 };
-
-
 #endif // DTCCBConfig_H
-

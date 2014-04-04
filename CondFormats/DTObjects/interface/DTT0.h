@@ -6,8 +6,6 @@
  *       Class to hold drift tubes T0s
  *             ( cell by cell time offsets )
  *
- *  $Date: 2012/02/07 18:35:00 $
- *  $Revision: 1.11.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -23,7 +21,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 //---------------

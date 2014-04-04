@@ -1,16 +1,21 @@
 #ifndef PhysicsTools_IsolationAlgos_EventDependentAbsVetos_h
 #define PhysicsTools_IsolationAlgos_EventDependentAbsVetos_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVeto.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 namespace reco {
  namespace isodeposit {
     class OtherCandidatesDeltaRVeto : public EventDependentAbsVeto {
       public:
           //! Create a veto specifying the input collection of the candidates, and the deltaR
-          OtherCandidatesDeltaRVeto(const edm::InputTag& candidates, double deltaR) :
-            src_(candidates), deltaR2_(deltaR*deltaR) { }
+          OtherCandidatesDeltaRVeto(const edm::InputTag& candidates, double deltaR, edm::ConsumesCollector& iC) :
+            src_(iC.consumes<edm::View<reco::Candidate> >(candidates)), deltaR2_(deltaR*deltaR) { }
 
           // Virtual destructor (should always be there)
           virtual ~OtherCandidatesDeltaRVeto() {}
@@ -26,7 +31,7 @@ namespace reco {
           virtual void setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) ;
 
       private:
-          edm::InputTag src_;
+          edm::EDGetTokenT<edm::View<reco::Candidate> > src_;
           float         deltaR2_;
           std::vector<Direction> items_;
     };
@@ -34,8 +39,8 @@ namespace reco {
     class OtherCandVeto : public EventDependentAbsVeto {
       public:
           //! Create a veto specifying the input collection of the candidates, and the deltaR
-          OtherCandVeto(const edm::InputTag& candidates, AbsVeto *veto) :
-            src_(candidates), veto_(veto) { }
+          OtherCandVeto(const edm::InputTag& candidates, AbsVeto *veto, edm::ConsumesCollector& iC) :
+            src_(iC.consumes<edm::View<reco::Candidate> >(candidates)), veto_(veto) { }
 
           // Virtual destructor (should always be there)
           virtual ~OtherCandVeto() {}
@@ -51,7 +56,7 @@ namespace reco {
           virtual void setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) ;
 
       private:
-          edm::InputTag src_;
+          edm::EDGetTokenT<edm::View<reco::Candidate> > src_;
           std::vector<Direction> items_;
           std::auto_ptr<AbsVeto> veto_;
     };
@@ -59,12 +64,12 @@ namespace reco {
     class OtherJetConstituentsDeltaRVeto : public EventDependentAbsVeto {
       public:
           //! Create a veto specifying the input collection of the jets, the candidates, and the deltaR
-          OtherJetConstituentsDeltaRVeto(Direction dir, const edm::InputTag& jets, double dRjet, const edm::InputTag& pfCandAssocMap, double dRconstituent)
+          OtherJetConstituentsDeltaRVeto(Direction dir, const edm::InputTag& jets, double dRjet, const edm::InputTag& pfCandAssocMap, double dRconstituent, edm::ConsumesCollector& iC)
 	    : evt_(0),
 	      vetoDir_(dir),
-	      srcJets_(jets),
+	      srcJets_(iC.consumes<reco::PFJetCollection>(jets)),
 	      dR2jet_(dRjet*dRjet),
-	      srcPFCandAssocMap_(pfCandAssocMap),
+	      srcPFCandAssocMap_(iC.consumes<JetToPFCandidateAssociation>(pfCandAssocMap)),
 	      dR2constituent_(dRconstituent*dRconstituent)
 	  {
 	    //std::cout << "<OtherJetConstituentsDeltaRVeto::OtherJetConstituentsDeltaRVeto>:" << std::endl;
@@ -89,14 +94,16 @@ namespace reco {
           virtual void setEvent(const edm::Event& evt, const edm::EventSetup& es);
 
       private:
+          typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;
+
 	  void initialize();
 
 	  const edm::Event* evt_;
 
 	  Direction vetoDir_;
-          edm::InputTag srcJets_;
+          edm::EDGetTokenT<reco::PFJetCollection> srcJets_;
 	  double dR2jet_;
-	  edm::InputTag srcPFCandAssocMap_;
+	  edm::EDGetTokenT<JetToPFCandidateAssociation> srcPFCandAssocMap_;
 	  double dR2constituent_;
           std::vector<Direction> items_;
     };
