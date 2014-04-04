@@ -18,7 +18,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 
-
+#include<iostream>
 
 SiPixelRecHit * TkClonerImpl::operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
   const SiPixelCluster& clust = *hit.cluster();  
@@ -45,6 +45,7 @@ SiStripRecHit1D * TkClonerImpl::operator()(SiStripRecHit1D const & hit, Trajecto
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
+ // std::cout << "cloning " << typeid(hit).name() << std::endl;
   const SiPixelCluster& clust = *hit.cluster();  
   PixelClusterParameterEstimator::LocalValues lv = 
     pixelCPE->localParameters( clust, *hit.detUnit(), tsos);
@@ -52,6 +53,7 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiPixelRecHit const 
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  // std::cout << "cloning " << typeid(hit).name()	<< std::endl;
     /// FIXME: this only uses the first cluster and ignores the others
     const SiStripCluster&  clust = hit.stripCluster();  
     StripClusterParameterEstimator::LocalValues lv = 
@@ -60,6 +62,7 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiStripRecHit2D cons
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  // std::cout << "cloning " << typeid(hit).name()	<< std::endl;
   /// FIXME: this only uses the first cluster and ignores the others
   const SiStripCluster&  clust = hit.stripCluster();  
   StripClusterParameterEstimator::LocalValues lv = 
@@ -126,10 +129,12 @@ SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const &
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  ///std::cout << "cloning " << typeid(hit).name()	<< std::endl;
   return TrackingRecHit::ConstRecHitPointer((*this)(hit,tsos));
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  // std::cout << "cloning " << typeid(hit).name()	<< std::endl;
    return TrackingRecHit::ConstRecHitPointer((*this)(hit,tsos));
 }
 
