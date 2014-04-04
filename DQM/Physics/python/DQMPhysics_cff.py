@@ -14,7 +14,7 @@ from DQM.Physics.susyDQM_cfi import *
 from DQM.Physics.HiggsDQM_cfi import *
 from DQM.Physics.ExoticaDQM_cfi import *
 from DQM.Physics.B2GDQM_cfi import *
-from DQM.Physics_HWW.hwwDQM_cfi import *
+from DQM.PhysicsHWW.hwwDQM_cfi import *
 
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
