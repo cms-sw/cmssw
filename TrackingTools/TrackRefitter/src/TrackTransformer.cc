@@ -112,7 +112,7 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       if ( (*hit)->geographicalId().det() == DetId::Tracker ) {
-	result.push_back(theTrackerRecHitBuilder->build(&**hit));
+	result.emplace_back((**hit).cloneSH());
       } else if ( (*hit)->geographicalId().det() == DetId::Muon ){
 	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
 	  LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 

@@ -83,6 +83,8 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
     const TransientTrackingRecHit & hit = (**ihit);
 
+   if unlikely(hit.det() == nullptr) continue;
+
     if unlikely( (!hit.isValid()) && hit.surface() == nullptr) {
        std::cout << "TrackFitters" << " Error: invalid hit with no GeomDet attached .... skipping" << std::endl;
        LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";

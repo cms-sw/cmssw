@@ -168,10 +168,12 @@ private:
   friend class  TkCloner;
   // double dispatch
   virtual TrackingRecHit * clone(TkCloner const&, TrajectoryStateOnSurface const&) const {
+    assert("clone"==nullptr);
     return clone(); // default
   }
 #ifdef NO_DICT
   virtual  RecHitPointer cloneSH(TkCloner const&, TrajectoryStateOnSurface const&) const {
+    assert("cloneSH"==nullptr);
     return cloneSH(); // default
   }
 #endif

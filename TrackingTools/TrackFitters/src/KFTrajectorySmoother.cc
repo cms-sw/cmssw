@@ -76,6 +76,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     TransientTrackingRecHit::ConstRecHitPointer hit = itm->recHit();
 
     //check surface just for safety: should never be ==0 because they are skipped in the fitter 
+    if unlikely(hit->det() == nullptr) continue;
     if unlikely( hit->surface()==nullptr ) {
 	LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
 	continue;

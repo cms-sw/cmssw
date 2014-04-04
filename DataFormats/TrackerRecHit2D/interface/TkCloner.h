@@ -18,6 +18,7 @@ public:
 #ifdef NO_DICT
   TrackingRecHit::ConstRecHitPointer makeShared(TrackingRecHit::ConstRecHitPointer const & hit, TrajectoryStateOnSurface const& tsos) const {
     return hit->canImproveWithTrack() ?  hit->cloneSH(*this, tsos) : hit;
+    // return  hit->cloneSH(*this, tsos);
   }
 #endif
 

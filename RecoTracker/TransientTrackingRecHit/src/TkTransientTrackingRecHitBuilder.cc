@@ -38,7 +38,7 @@ TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder( const Tracki
 TransientTrackingRecHit::RecHitPointer 
 TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const 
 {
-  //assert("TkTransientTrackingRecHitBuilder::build"==nullptr);
+//  assert("TkTransientTrackingRecHitBuilder::build"==nullptr);
 
   return (*p).cloneSH();
 
