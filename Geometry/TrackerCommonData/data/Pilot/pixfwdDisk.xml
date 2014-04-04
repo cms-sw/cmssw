@@ -311,7 +311,7 @@
         <rParent name="pixfwdDisk:PixelForwardPilotDiskZMinus"/>
         <Numeric name="Endcap" value="-1."/>
         <String name="Child" value="pixfwdPilotBlade:PixelForwardBlade3"/> 
-        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], [zPilot] </Vector>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], [zPilot]+0.096*cm </Vector>
         <String name="ChildRotation" value="pixfwdCommon:ReflectionX"/> -->
         <String name="FlagString" value="-------RR----------RR---"/>
         <!-- Panel Layout ZMinus 3  -->
@@ -321,7 +321,7 @@
         <rParent name="pixfwdDisk:PixelForwardPilotDiskZMinus"/>
         <Numeric name="Endcap" value="-1."/>
         <String name="Child" value="pixfwdPilotBlade:PixelForwardBlade4"/>
-        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], -[zPilot] </Vector>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], -[zPilot]-0.096*cm </Vector>
         <!-- <String name="ChildRotation" value="pixfwdCommon:Y180"/> -->
         <String name="FlagString" value="-------RR----------RR---"/>
         <!-- Panel Layout ZMinus 4  -->
