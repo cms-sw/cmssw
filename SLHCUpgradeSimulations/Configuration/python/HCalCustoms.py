@@ -97,8 +97,7 @@ def customise_HcalPhase2(process):
         process.towerMaker.HcalPhase = cms.int32(2)
         process.towerMakerPF.HcalPhase = cms.int32(2)
         process.towerMakerWithHO.HcalPhase = cms.int32(2)
-
-    process.CaloTowerConstituentsMapBuilder.MapFile = cms.untracked.string("")
+        process.CaloTowerConstituentsMapBuilder.MapFile = cms.untracked.string("")
 
     return process
 
