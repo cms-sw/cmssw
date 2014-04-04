@@ -396,7 +396,10 @@ namespace edmNew {
     int m_subdetId;
     
     
-    IdContainer m_ids;
+    // Workaround for ROOT 6 bug.
+    // ROOT6 has a problem with this IdContainer typedef
+    //IdContainer m_ids;
+    std::vector<Trans::Item> m_ids;
     DataContainer m_data;
     
   };
