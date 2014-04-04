@@ -1,8 +1,15 @@
 // L1TCaloUpgradeToGCTConverter.cc
-// Author Ivan Cali
+// Authors: Ivan Cali
+//          R. Alex Barbieri
 
 // Stage 1 upgrade to old GT format converter
 // Assumes input collections are sorted, but not truncated.
+
+// In the 'gct' eta coordinates the HF is 0-3 and 18-21. Jets which
+// include any energy at all from the HF should be considered
+// 'forward' jets, however, so jets with centers in 0-4 and 17-21 are
+// considered 'forward'.
+
 
 #include "L1Trigger/L1TCalorimeter/plugins/L1TCaloUpgradeToGCTConverter.h"
 #include <boost/shared_ptr.hpp>
@@ -151,7 +158,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     int cenCount = 0; //max 4
     for(l1t::JetBxCollection::const_iterator itJet = Jet->begin(itBX);
 	itJet != Jet->end(itBX); ++itJet){
-      bool forward=(itJet->hwEta() < 4 || itJet->hwEta() > 17);
+      bool forward=(itJet->hwEta() <= 4 || itJet->hwEta() >= 17);
       //int hackPt = itJet->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
       double hackPt = static_cast<double>(itJet->hwPt()) * jetScale->linearLsb();
       hackPt = jetScale->rank(hackPt);
