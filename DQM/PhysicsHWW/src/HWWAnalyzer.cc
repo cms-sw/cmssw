@@ -169,10 +169,10 @@ void HWWAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,edm::Run const &, e
 
   ibooker.setCurrentFolder("PhysicsHWW");
 
-  cutflowHist[0] = ibooker.book1D("cutflow_mm", "HWW cutflow mm", 20, 0, 20);	
-  cutflowHist[1] = ibooker.book1D("cutflow_ee", "HWW cutflow ee", 20, 0, 20);	
-  cutflowHist[2] = ibooker.book1D("cutflow_em", "HWW cutflow em", 20, 0, 20);	
-  cutflowHist[3] = ibooker.book1D("cutflow_me", "HWW cutflow me", 20, 0, 20);	
+  cutflowHist[0] = ibooker.book1D("cutflow_mm", "HWW cutflow mm", 21, 0, 21);	
+  cutflowHist[1] = ibooker.book1D("cutflow_ee", "HWW cutflow ee", 21, 0, 21);	
+  cutflowHist[2] = ibooker.book1D("cutflow_em", "HWW cutflow em", 21, 0, 21);	
+  cutflowHist[3] = ibooker.book1D("cutflow_me", "HWW cutflow me", 21, 0, 21);	
   
 }
 
@@ -180,7 +180,7 @@ void HWWAnalyzer::FillHistograms(){
 
   for (unsigned int i=0; i<4; i++){
     for (unsigned int j=0; j<eventMonitor.monitor.counters.size(); j++){
-      cutflowHist[i]->setBinContent(j+1, eventMonitor.monitor.counters[j].nevt[i]);
+      cutflowHist[i]->setBinContent(j+1, eventMonitor.monitor.counters[j].nevt[i] - 1); //the "- 1" accounts for the initial count in the EventMonitor constructor
       cutflowHist[i]->setBinLabel(j+1, eventMonitor.monitor.counters[j].name.c_str(), 1);
     }
   }

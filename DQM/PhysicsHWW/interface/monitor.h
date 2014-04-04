@@ -11,6 +11,8 @@ class EventMonitor
 {
 public:
 
+  EventMonitor();
+
   struct Entry{
     unsigned int nevt[5];
     std::string name;
