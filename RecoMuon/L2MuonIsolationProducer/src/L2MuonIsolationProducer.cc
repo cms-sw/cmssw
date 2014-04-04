@@ -56,7 +56,7 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
   optOutputDecision = haveIsolator;
   if (optOutputDecision){
     std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
-    theDepositIsolator = MuonIsolatorFactory::get()->create(type,isolatorPSet);
+    theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet, consumesCollector());
   }
   if (optOutputDecision) produces<edm::ValueMap<bool> >();
   produces<reco::IsoDepositMap>();
