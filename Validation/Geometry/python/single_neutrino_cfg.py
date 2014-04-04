@@ -9,11 +9,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    generator = cms.PSet(
-        initialSeed = cms.untracked.uint32(456789)
-    )
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),
