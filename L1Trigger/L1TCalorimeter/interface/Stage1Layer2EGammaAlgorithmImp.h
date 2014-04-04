@@ -33,9 +33,11 @@ namespace l1t {
   private:
     double Isolation(int ieta, int iphi,
 		     const std::vector<l1t::CaloRegion> & regions)  const;
+    double HoverE(int et, int ieta, int iphi,
+		  const std::vector<l1t::CaloRegion> & regions)  const;
     int egtSeed;
     double relativeIsolationCut;
-
+    double HoverECut;
   };
 }
 

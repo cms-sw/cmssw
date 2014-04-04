@@ -30,7 +30,7 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
 
   if (m_fwv.firmwareVersion() == 1)
   { //HI algo
-    //m_egAlgo = new Stage1Layer2EGammaAlgorithmImpHI();
+    m_egAlgo = new Stage1Layer2EGammaAlgorithmImpPP(/*m_db*/);
     m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(m_db); //fwv =1 => HI algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
@@ -40,12 +40,12 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
     m_egAlgo = new Stage1Layer2EGammaAlgorithmImpPP(/*m_db*/);
     m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpPP(m_db); //fwv =2 => PP algo
-    m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/); //only for now
+    m_tauAlgo = new Stage1Layer2TauAlgorithmImpPP(/*m_db*/); 
   }
-  else if( m_fwv.firmwareVersion() == 3 )
-  {
-    //m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
-  }
+  // else if( m_fwv.firmwareVersion() == 3 )
+  // {
+  //   //m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
+  // }
   else{ // undefined fwv version
     edm::LogError("FWVersionError")
       << "Undefined firmware version passed to Stage1Layer2MainProcessorFirmwareImp1" << std::endl;

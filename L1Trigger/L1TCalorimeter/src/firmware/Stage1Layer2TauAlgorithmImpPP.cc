@@ -13,6 +13,22 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 
+
+
+using namespace std;
+using namespace l1t;
+
+
+Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(/*const CaloParams & dbPars*/) 
+{
+
+}
+
+Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
+
+
+
+
 void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, 
 						      const std::vector<l1t::CaloRegion> & regions, 
 						      std::vector<l1t::Tau> * taus) {
@@ -43,9 +59,9 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *tauLorentz =
       new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-    l1t::Tau theTau(*tauLorentz, tauEt, region->hwEta(), region->phi());
+    l1t::Tau theTau(*tauLorentz, tauEt, region->hwEta(), region->hwPhi());
 
-    if( (isolation / tauEt -1.0) < relativeIsolationCut) 
+    if( tauEt >0 && (isolation/tauEt) < relativeIsolationCut ) 
       taus->push_back(theTau);
   }
 
