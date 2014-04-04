@@ -149,6 +149,7 @@ namespace HLTOfflineDQMTopDiLepton {
       std::map<std::string,MonitorElement*> hists_;
 
       /// hlt objects
+      std::string          processName_;
       trigger::Vids        electronIds_;
       trigger::VRelectron  electronRefs_;
       trigger::Vids        muonIds_;
