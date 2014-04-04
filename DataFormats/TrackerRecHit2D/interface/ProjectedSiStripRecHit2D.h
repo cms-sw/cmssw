@@ -5,7 +5,7 @@
 
 #include<iostream>
 
-class ProjectedSiStripRecHit2D : public TrackerSingleRecHit  {
+class ProjectedSiStripRecHit2D GCC11_FINAL  : public TrackerSingleRecHit  {
 public:
   
   inline static bool isMono(GeomDet const & gdet, GeomDet const & sdet) {
@@ -40,6 +40,8 @@ public:
     }
 
 
+  virtual bool canImproveWithTrack() const {return true;}
+
   virtual ProjectedSiStripRecHit2D* clone() const {return new ProjectedSiStripRecHit2D( *this); }
   
   virtual int dimension() const {return 2;}
@@ -65,14 +67,14 @@ public:
     return rechits;
   }
   
-private:
+
 private:
   // double dispatch
   virtual ProjectedSiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
     return cloner(*this,tsos);
   }
 #ifdef NO_DICT
-  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+  virtual  ConstRecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
     return cloner.makeShared(*this,tsos);
   }
 #endif

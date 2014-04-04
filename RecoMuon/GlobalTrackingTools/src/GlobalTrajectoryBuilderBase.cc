@@ -75,7 +75,6 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 using namespace std;
@@ -486,27 +485,24 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
     
     // rescale the TEC rechit error matrix in its rotated frame
     const SiStripRecHit2D* strip = dynamic_cast<const SiStripRecHit2D*>((*lone_tec)->hit());
-    const TSiStripRecHit2DLocalPos* Tstrip = dynamic_cast<const TSiStripRecHit2DLocalPos*>((*lone_tec).get());
-    if (strip && Tstrip->det() && Tstrip) {
-      LocalPoint pos = Tstrip->localPosition();
+    if (strip && strip->det() ) {
+      LocalPoint pos = strip->localPosition();
       if ((*lone_tec)->detUnit()) {
         const StripTopology* topology = dynamic_cast<const StripTopology*>(&(*lone_tec)->detUnit()->topology());
         if (topology) {
           // rescale the local error along/perp the strip by a factor
           float angle = topology->stripAngle(topology->strip((*lone_tec)->hit()->localPosition()));
-          LocalError error = Tstrip->localPositionError();
+          LocalError error = strip->localPositionError();
           LocalError rotError = error.rotate(angle);
           LocalError scaledError(rotError.xx() * scl_x * scl_x, 0, rotError.yy() * scl_y * scl_y);
           error = scaledError.rotate(-angle);
-          MuonTransientTrackingRecHit* mtt_rechit;
           
             //// the implemetantion below works with cloning
             //// to get a RecHitPointer to SiStripRecHit2D, the only  method that works is
             //// RecHitPointer MuonTransientTrackingRecHit::build(const GeomDet*,const TrackingRecHit*)
-            SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,
-                                                      *Tstrip->detUnit(),
+            *lone_tec = std::make_shared<SiStripRecHit2D>(pos,error,
+                                                      *strip->det(),
                                                       strip->cluster());
-            *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
         }
       }
     }
