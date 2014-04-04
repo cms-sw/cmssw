@@ -6,10 +6,18 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "CalibFormats/EcalObjects/interface/EcalCoderDb.h"
-#include "CalibFormats/EcalObjects/interface/EcalCalibrations.h"
-#include "CalibFormats/EcalObjects/interface/EcalDbService.h"
-#include "CalibFormats/EcalObjects/interface/EcalDbRecord.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalDigi/interface/ESDataFrame.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -43,16 +51,14 @@ public:
   void initializeEvent(const edm::Event * event, const edm::EventSetup * eventSetup)
   {
     theEvent = event;
-    eventSetup->get<EcalDbRecord>().get(theConditions);
-    theParameterMap->setDbService(theConditions.product());
+    eventSetup->get<EcalGainRatiosRcd>().get(grHandle); // find the gains
   }
 
   /// some users use EventPrincipals, not Events.  We support both
   void initializeEvent(const edm::EventPrincipal * eventPrincipal, const edm::EventSetup * eventSetup)
   {
     theEventPrincipal = eventPrincipal;
-    eventSetup->get<EcalDbRecord>().get(theConditions);
-    theParameterMap->setDbService(theConditions.product());
+    eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
   }
 
   virtual void fill(edm::ModuleCallingContext const* mcc)
@@ -95,13 +101,6 @@ public:
       for(typename COLLECTION::const_iterator it  = digis->begin();
           it != digis->end(); ++it) 
       {
-        // for the first signal, set the starting cap id
-        if((it == digis->begin()) && theElectronicsSim)
-        {
-          int startingCapId = (*it)[0].capid();
-          theElectronicsSim->setStartingCapId(startingCapId);
-          theParameterMap->setFrameSize(it->id(), it->size());
-        }
 	// need to convert to something useful
         theNoiseSignals.push_back(samplesInPE(*it));
       }
@@ -122,26 +121,53 @@ private:
     //coder.adc2fC(digi, result);
     //fC2pe(result);
 
+    CaloSamples result;
+
+    DetId detId = digi.id();
+
+    const std::vector<float> gainRatios = GetGainRatios(detId);
+
+    for(int isample = 0; isample<digi.size(); ++isample){
+
+      int gainId = digi[isample].gainId();
+
+      result[isample] = digi[isample]/gainRatios[gainId-1];
+
+    }
+
     std::cout << " EcalSignalGenerator: noise result " << result << std::endl;
 
 
-
     return result;
+  }
+
+  const std::vector<float>  GetGainRatios(const DetId& detid) {
+
+    std::vector<float> gainRatios(3);
+    // get gain ratios  
+    EcalMGPAGainRatio theRatio= (*grHandle)[detid];
+    
+    
+    gainRatios[0] = 1.;
+    gainRatios[1] = theRatio.gain12Over6();
+    gainRatios[2] = theRatio.gain6Over1()  * theRatio.gain12Over6();
+
+    return gainRatios;
   }
 
     
   /// these fields are set in initializeEvent()
   const edm::Event * theEvent;
   const edm::EventPrincipal * theEventPrincipal;
-  edm::ESHandle<EcalDbService> theConditions;
-  /// these come from the ParameterSet
+  edm::ESHandle<EcalGainRatios> grHandle; 
+ /// these come from the ParameterSet
   edm::InputTag theInputTag;
   edm::EDGetTokenT<COLLECTION> tok_;
 };
 
 typedef EcalSignalGenerator<EBDigitizerTraits>   EBSignalGenerator;
 typedef EcalSignalGenerator<EEDigitizerTraits>   EESignalGenerator;
-typedef EcalSignalGenerator<ESDigitizerTraits>   ESSignalGenerator;
+//typedef EcalSignalGenerator<ESDigitizerTraits>   ESSignalGenerator;
 
 #endif
 

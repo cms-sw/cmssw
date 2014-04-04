@@ -21,7 +21,8 @@ namespace edm {
   {  
 
     theEBSignalGenerator = EBSignalGenerator(EBPileInputTag_,tok_eb_);
-    theESSignalGenerator = ESSignalGenerator(ESPileInputTag_,tok_es_);
+    theEESignalGenerator = EESignalGenerator(EBPileInputTag_,tok_ee_);
+    //    theESSignalGenerator = ESSignalGenerator(ESPileInputTag_,tok_es_);
 
     // get the subdetector names
     //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
@@ -37,11 +38,11 @@ namespace edm {
 
     // initialize EcalDigitizer here...
 
-    myEcalDigitizer_ = new EcalDigiProducer( ps, iC );
+    myEcalDigitizer_ = new EcalDigiProducer( ps , iC);
 
     myEcalDigitizer_->setEBNoiseSignalGenerator( & theEBSignalGenerator );
     myEcalDigitizer_->setEENoiseSignalGenerator( & theEESignalGenerator );
-    myEcalDigitizer_->setESNoiseSignalGenerator( & theESSignalGenerator );
+    //myEcalDigitizer_->setESNoiseSignalGenerator( & theESSignalGenerator );
 
 
     std::cout << " IN ECAL constructor " << std::endl;
@@ -55,9 +56,9 @@ namespace edm {
 
   void DataMixingEcalDigiWorkerProd::beginRun(const edm::EventSetup& ES) {
 
-    std::cout << " IN DM Ecal BeginRun " << std::endl;
+    //    std::cout << " IN DM Ecal BeginRun " << std::endl;
 
-    myEcalDigitizer_->beginRun(ES); 
+    // myEcalDigitizer_->beginRun(ES); 
   }
 
   void DataMixingEcalDigiWorkerProd::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) {
@@ -82,11 +83,11 @@ namespace edm {
 
     theEBSignalGenerator.initializeEvent(ep, &ES);
     theEESignalGenerator.initializeEvent(ep, &ES);
-    theESSignalGenerator.initializeEvent(ep, &ES);
+    //theESSignalGenerator.initializeEvent(ep, &ES);
 
     theEBSignalGenerator.fill(mcc);
     theEESignalGenerator.fill(mcc);
-    theESSignalGenerator.fill(mcc);
+    //theESSignalGenerator.fill(mcc);
   }
 
   void DataMixingEcalDigiWorkerProd::putEcal(edm::Event &e,const edm::EventSetup& ES) {

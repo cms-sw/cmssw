@@ -83,10 +83,10 @@ namespace edm
       edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
       edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;
 
-      EcalDigitizer* myEcalDigitizer_;
+      EcalDigiProducer* myEcalDigitizer_;
       EBSignalGenerator theEBSignalGenerator;
       EESignalGenerator theEESignalGenerator;
-      ESSignalGenerator theESSignalGenerator;
+      //      ESSignalGenerator theESSignalGenerator;
 
       std::string label_;
 

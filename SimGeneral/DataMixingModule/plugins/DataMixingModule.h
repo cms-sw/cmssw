@@ -140,6 +140,9 @@ namespace edm {
       DataMixingHcalDigiWorkerProd *HcalDigiWorkerProd_ ;
 
      // tokens needed to DataMixingHcalDigiWorkerProd
+      edm::InputTag EBPileInputTag_; // InputTag for Pileup Digis collection  
+      edm::InputTag EEPileInputTag_  ; // InputTag for Pileup Digis collection
+      edm::InputTag ESPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag HBHEPileInputTag_; // InputTag for Pileup Digis collection  
       edm::InputTag HOPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag HFPileInputTag_  ; // InputTag for Pileup Digis collection

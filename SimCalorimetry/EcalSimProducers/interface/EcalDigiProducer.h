@@ -56,6 +56,7 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
    public:
 
       EcalDigiProducer( const edm::ParameterSet& params , edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+      EcalDigiProducer( const edm::ParameterSet& params , edm::ConsumesCollector& iC);
       virtual ~EcalDigiProducer();
 
       virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);

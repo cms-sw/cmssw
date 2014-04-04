@@ -193,20 +193,23 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 //	    std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
 	 }
 	
+	 double signal;
 
-	 if(!PreMix1) {
+	 if(!m_PreMix1) {
 
 	   // noiseframe filled with zeros if !m_addNoise
-	   const double signal ( pedestals[igain] +
+	   const double asignal ( pedestals[igain] +
 			       ecalSamples[i] /( LSB[igain]*icalconst ) +
 			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
+	   signal = asignal;
 	 }
 	 else {
 
 	   // noiseframe filled with zeros if !m_addNoise
-	   const double signal ( // no pedestals for pre-mixing
+	   const double asignal ( // no pedestals for pre-mixing
 			       ecalSamples[i] /( LSB[igain]*icalconst ) +
 			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
+	   signal = asignal;
 	 }
 	 const int isignal ( signal ) ;
 	 const int tmpadc ( signal - (double)isignal < 0.5 ?

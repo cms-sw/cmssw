@@ -31,6 +31,9 @@ namespace edm
 
   // Constructor 
   DataMixingModule::DataMixingModule(const edm::ParameterSet& ps) : BMixingModule(ps),
+    EBPileInputTag_(ps.getParameter<edm::InputTag>("EBPileInputTag")),
+    EEPileInputTag_(ps.getParameter<edm::InputTag>("EEPileInputTag")),
+    ESPileInputTag_(ps.getParameter<edm::InputTag>("ESPileInputTag")),
     HBHEPileInputTag_(ps.getParameter<edm::InputTag>("HBHEPileInputTag")),
     HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
     HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
