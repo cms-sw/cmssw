@@ -1,6 +1,5 @@
 <use   name="CondFormats/RecoMuonObjects"/>
 <use   name="DataFormats/MuonReco"/>
-<use   name="CondFormats/RecoMuonObjects"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="root"/>
