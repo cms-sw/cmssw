@@ -101,8 +101,6 @@ class DetIdAssociator{
    virtual int iEta (const GlobalPoint&) const;
    /// look-up map phi index
    virtual int iPhi (const GlobalPoint&) const;
-   /// set a specific track propagator to be used
-   virtual void setPropagator(Propagator* ptr){	ivProp_ = ptr; };
    /// number of bins of the look-up map in phi dimension
    int nPhiBins() const { return nPhi_;}
    /// number of bins of the look-up map in eta dimension
@@ -159,8 +157,6 @@ class DetIdAssociator{
    const double etaBinSize_;
    double maxEta_;
    double minTheta_;
-   
-   Propagator *ivProp_;
    
    // Detector fiducial volume 
    // approximated as a closed cylinder with non-zero width.
