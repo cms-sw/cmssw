@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-packedGenCandidates = cms.EDProducer("PATPackedGenCandidateProducer",
+packedGenParticles = cms.EDProducer("PATPackedGenParticleProducer",
     inputCollection = cms.InputTag("genParticles"),
     map = cms.InputTag("genParticles"),
     inputVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
