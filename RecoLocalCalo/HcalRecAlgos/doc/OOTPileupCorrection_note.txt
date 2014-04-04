@@ -1,0 +1,50 @@
+To develop a new OOT pileup correction class, you can proceed as follows:
+
+1) Inherit your class from AbsOOTPileupCorrection, overriding all methods
+   of the base class except "operator==" and "operator!=". Develop your
+   correction implementation.
+
+2) Insert appropriate #include and "add_reader" statements inside
+   "OOTPileupCorrectionReader.cc".
+
+3) Optionally, update "parseOOTPileupCorrection" function defined inside
+   "OOTPileupCorrectionSerializer.cc". This will allow you to create your
+   correction objects using an edm::ParameterSet.
+
+4) Serialize your correction into a "Geners" string archive and write
+   that archive into a .gssa file (no compression). If you updated
+   "parseOOTPileupCorrection" function in the previous step, this can be
+   done using the "OOTPileupCorrectionSerializer" module. See config files
+   OOTPileupCorrectionSerializer_cfi.py (in the "python" directory of the
+   RecoLocalCalo/HcalRecAlgos package) and OOTPileupCorrectionSerializer_cfg.py
+   (in the "test" directory). Alternatively, serialization can be performed
+   in combination with any other method of constructing your class, inside
+   or outside of the CMSSW framework. You can employ objects which belong
+   to different correction classes for HBHE, HO, and HF.
+
+5) Make sure that you can write your corrections into the database and
+   read them back. See files OOTPileupCorrectionDBWriter_cfg.py and
+   OOTPileupCorrectionDBReader_cfg.py in the "test" directory of the
+   RecoLocalCalo/HcalRecAlgos package. Verify that the file created by
+   the "OOTPileupCorrectionDBReader" module is identical to the file that
+   contains the original serialized archive.
+
+6) Update the configuration files for the "HcalHitReconstructor" module.
+   Parameters that might need updating are "dataOOTCorrectionName",
+   "dataOOTCorrectionCategory", "mcOOTCorrectionName", and
+   "mcOOTCorrectionCategory". You might also need to update the settings
+   of the OOTPileupCorrectionESProducer event setup module.
+
+This is it! Your corrections, stored for now in your private database, are
+ready to be applied to the CMS HCAL data. If you need to make "official"
+corrections, follow the instructions at
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCondObjectsTutorial#How_to_read_write_the_data_to_th
+The steps described in the twiki page prior to this tag are already
+accomplished for you.
+
+A simple example class which has little useful functionality but plays
+nicely with the system is called "DummyOOTPileupCorrection". You can find
+it in the package RecoLocalCalo/HcalRecAlgos.
+
+Igor Volobouev
+April 2014
