@@ -4,7 +4,7 @@
 #include "CondFormats/BTauObjects/interface/CombinedSVCategoryData.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
 
-
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 
@@ -14,6 +14,8 @@ struct QGLikelihoodCategory {
   int EtaBin;  
   int QGIndex;
   int VarIndex;
+
+  COND_SERIALIZABLE;  
 };
 
 
@@ -26,10 +28,13 @@ struct QGLikelihoodObject
   {
     QGLikelihoodCategory category;
     Histogram histogram;
+
+    COND_SERIALIZABLE;  
   };
 
- std::vector<Entry> data;
-  
+  std::vector<Entry> data;
+
+  COND_SERIALIZABLE;  
 };
 
 #endif //QGLikelihoodObject_h

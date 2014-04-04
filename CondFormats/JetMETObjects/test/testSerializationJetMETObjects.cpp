@@ -18,6 +18,8 @@ int main()
     testSerialization<std::vector<JetCorrectorParameters::Record>>();
     testSerialization<std::vector<JetCorrectorParameters>>();
     testSerialization<std::vector<JetCorrectorParametersCollection>>();
+    testSerialization<QGLikelihoodCategory>();
+    testSerialization<QGLikelihoodObject>();
 
     return 0;
 }

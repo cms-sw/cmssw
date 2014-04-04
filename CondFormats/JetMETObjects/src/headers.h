@@ -5,5 +5,6 @@
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FFTJetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 
 #include <vector>
