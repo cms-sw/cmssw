@@ -88,7 +88,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     skipMuons_ = cfg.getParameter<bool>("skipMuons");
     if ( skipMuons_ ) {
       std::string skipMuonSelection_string = cfg.getParameter<std::string>("skipMuonSelection");
-      skipMuonSelection_ = new StringCutObjectSelector<reco::Muon>(skipMuonSelection_string);
+      skipMuonSelection_ = new StringCutObjectSelector<reco::Candidate>(skipMuonSelection_string,true);
     }
 
     if ( cfg.exists("type2Binning") ) {
@@ -147,10 +147,12 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       static PFJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
       if ( skipMuons_ ) {
-	std::vector<reco::PFCandidatePtr> cands = rawJet.getPFConstituents();
-	for ( std::vector<reco::PFCandidatePtr>::const_iterator cand = cands.begin();
+	const std::vector<reco::CandidatePtr> & cands = rawJet.daughterPtrVector();
+	for ( std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin();
 	      cand != cands.end(); ++cand ) {
-	  if ( (*cand)->muonRef().isNonnull() && (*skipMuonSelection_)(*(*cand)->muonRef()) ) {
+          const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate *>(cand->get());
+          const reco::Candidate *mu = (pfcand != 0 ? ( pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : 0) : cand->get());
+	  if ( mu != 0 && (*skipMuonSelection_)(*mu) ) {
 	    reco::Candidate::LorentzVector muonP4 = (*cand)->p4();
 	    rawJetP4 -= muonP4;
 	  }
@@ -225,7 +227,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
   bool skipMuons_; // flag to subtract momentum of muons (provided muons pass selection cuts) which are within jets
                    // from jet energy before compute JECs/propagating JECs to Type 1 + 2 MET corrections
-  StringCutObjectSelector<reco::Muon>* skipMuonSelection_;
+  StringCutObjectSelector<reco::Candidate>* skipMuonSelection_;
 
   struct type2BinningEntryType
   {
