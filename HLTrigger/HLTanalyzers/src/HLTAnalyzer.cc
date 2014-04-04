@@ -391,6 +391,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::HFEMClusterShapeAssociationCollection> electronHFClusterAssociation;   
     iEvent.getByLabel(edm::InputTag("hltHFEMClusters"),electronHFClusterAssociation);
 
+	edm::ESHandle<CaloTowerTopology> caloTowerTopology;
+	iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);	
+	
     edm::ESHandle<MagneticField>                theMagField;
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
     
@@ -616,6 +619,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			  caloTowersCleanerUpperR45,
 			  caloTowersCleanerLowerR45,
 			  caloTowersCleanerNoR45,
+              &*caloTowerTopology,
 			  recoPFMet,
                           towerThreshold_,
                           _MinPtGammas,

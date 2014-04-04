@@ -32,6 +32,8 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -152,6 +154,9 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
     return;
   }
 
+  //get the calotower topology
+  edm::ESHandle<CaloTowerTopology> caloTowerTopology;
+  iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
   
   // get the RBXs produced by RecoMET/METProducers/HcalNoiseInfoProducer
   edm::Handle<HcalNoiseRBXCollection> rbxs_h;
@@ -217,7 +222,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
 	for( noiseTowersIt = noiseTowers.begin(); noiseTowersIt != noiseTowers.end(); noiseTowersIt++){
 	  edm::Ref<edm::SortedCollection<CaloTower> > tower_ref = *noiseTowersIt;
 	  CaloTowerDetId id = tower_ref->id();
-	  noisyTowers.insert( id.denseIndex() );
+	  noisyTowers.insert( caloTowerTopology->denseIndex(id) );
 	}}
     } // done with noise loop
   }//if(severity_>0)
@@ -230,7 +235,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
   for(inTowersIt = tower_h->begin(); inTowersIt != tower_h->end(); inTowersIt++){
     const CaloTower & tower = (*inTowersIt);
     CaloTowerDetId id = tower.id();
-    if(noisyTowers.find( id.denseIndex() ) == noisyTowers.end()){ // the tower is not noisy
+    if(noisyTowers.find( caloTowerTopology->denseIndex(id) ) == noisyTowers.end()){ // the tower is not noisy
       OutputTowers->push_back(*inTowersIt);
     }
   }

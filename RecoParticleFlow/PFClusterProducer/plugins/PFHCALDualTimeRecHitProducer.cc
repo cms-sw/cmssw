@@ -167,8 +167,9 @@ void PFHCALDualTimeRecHitProducer::createRecHits(vector<reco::PFRecHit>& rechits
 
   if( !(inputTagCaloTowers_ == InputTag()) ) {
       
-    edm::Handle<CaloTowerCollection> caloTowers; 
-    CaloTowerTopology caloTowerTopology; 
+    edm::Handle<CaloTowerCollection> caloTowers;
+	edm::ESHandle<CaloTowerTopology> caloTowerTopology;
+	iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
     const CaloSubdetectorGeometry *caloTowerGeometry = 0; 
     // = geometry_->getSubdetectorGeometry(id)
 
@@ -998,7 +999,7 @@ void PFHCALDualTimeRecHitProducer::createRecHits(vector<reco::PFRecHit>& rechits
       for(unsigned i=0; i<rechits.size(); i++ ) {
 	findRecHitNeighboursCT( rechits[i], 
 				idSortedRecHits, 
-				caloTowerTopology);
+				*caloTowerTopology);
       }
 */
 
@@ -1014,12 +1015,12 @@ void PFHCALDualTimeRecHitProducer::createRecHits(vector<reco::PFRecHit>& rechits
       for(unsigned i=0; i<HFEMRecHits->size(); i++ ) {
 	findRecHitNeighboursCT( (*HFEMRecHits)[i], 
 				idSortedRecHitsHFEM, 
-				caloTowerTopology);
+				*caloTowerTopology);
       }
       for(unsigned i=0; i<HFHADRecHits->size(); i++ ) {
 	findRecHitNeighboursCT( (*HFHADRecHits)[i], 
 				idSortedRecHitsHFHAD, 
-				caloTowerTopology);
+				*caloTowerTopology);
       }
       iEvent.put( HFHADRecHits,"HFHAD" );	
       iEvent.put( HFEMRecHits,"HFEM" );	
