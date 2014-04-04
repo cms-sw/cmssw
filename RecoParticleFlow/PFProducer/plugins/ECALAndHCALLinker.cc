@@ -10,9 +10,9 @@ public:
     _useKDTree(conf.getParameter<bool>("useKDTree")),
     _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
   
-  double operator() 
-  ( const std::unique_ptr<reco::PFBlockElement>&,
-    const std::unique_ptr<reco::PFBlockElement>& ) const override;
+  double testLink 
+  ( const reco::PFBlockElement*,
+    const reco::PFBlockElement* ) const override;
 
 private:
   bool _useKDTree,_debug;
@@ -22,17 +22,17 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory,
 		  ECALAndHCALLinker, 
 		  "ECALAndHCALLinker");
 
-double ECALAndHCALLinker::operator()
-  ( const std::unique_ptr<reco::PFBlockElement>& elem1,
-    const std::unique_ptr<reco::PFBlockElement>& elem2) const {  
+double ECALAndHCALLinker::testLink
+  ( const reco::PFBlockElement* elem1,
+    const reco::PFBlockElement* elem2) const {  
   const reco::PFBlockElementCluster *hcalelem(NULL), *ecalelem(NULL);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1.get());
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2.get());
+    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
+    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
   } else {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2.get());
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1.get());
+    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
+    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
   }
   const reco::PFClusterRef& ecalref = ecalelem->clusterRef();
   const reco::PFClusterRef& hcalref = hcalelem->clusterRef();

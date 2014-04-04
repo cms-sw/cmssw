@@ -74,7 +74,7 @@ namespace std {
   template<>
     struct hash<PFBlockLink::Type> {
     std::size_t operator()(const PFBlockLink::Type& link) const {	
-      return std::hash<size_t>()((size_t)link);
+      return (size_t)link;
     }
     
   };
@@ -260,11 +260,6 @@ class PFBlockAlgoNew {
 	     PFBlockLink::Type& linktype, 
 	     reco::PFBlock::LinkTest& linktest,
 	     double& dist) const;
-		 
-  /// tests association between a track and a PS cluster
-  /// returns distance
-  double testTrackAndPS(const reco::PFRecTrack& track,
-			const reco::PFCluster& ps) const;
   
   /// tests association between an ECAL and an HCAL cluster
   /// \returns distance
@@ -275,20 +270,16 @@ class PFBlockAlgoNew {
   /// \returns distance
   double testHCALAndHO(const reco::PFCluster& hcal, 
 		       const reco::PFCluster& ho) const;
-
-			 
-  /// tests association between a PS1 v cluster and a PS2 h cluster
-  /// returns distance
-  double testPS1AndPS2(const reco::PFCluster& ps1,
-		       const reco::PFCluster& ps2) const;
-
- /// test association by Supercluster between two ECAL
+  /// test association by Supercluster between two ECAL
   double testLinkBySuperCluster(const reco::PFClusterRef & elt1,
 				const reco::PFClusterRef & elt2) const;   
 
   /// test association between SuperClusters and ECAL
   double testSuperClusterPFCluster(const reco::SuperClusterRef & sct1,
 				   const reco::PFClusterRef & elt2) const;
+
+  double testLinkByVertex(const reco::PFBlockElement* elt1,
+			  const reco::PFBlockElement* elt2) const;
 
   /// checks size of the masks with respect to the vectors
   /// they refer to. throws std::length_error if one of the
@@ -319,10 +310,7 @@ class PFBlockAlgoNew {
   // PFResolutionMap* openResolutionMap(const char* resMapName);
 
   /// check the Pt resolution 
-  bool goodPtResolution( const reco::TrackRef& trackref);
-
-  double testLinkByVertex(const reco::PFBlockElement* elt1,
-			  const reco::PFBlockElement* elt2) const;
+  bool goodPtResolution( const reco::TrackRef& trackref);  
 
   int muAssocToTrack( const reco::TrackRef& trackref,
 		      const edm::Handle<reco::MuonCollection>& muonh) const;
@@ -407,7 +395,7 @@ class PFBlockAlgoNew {
 
   const std::unordered_map<std::string,reco::PFBlockElement::Type> 
     _elementTypes;
-  std::unordered_map<PFBlockLink::Type,LinkTestPtr> _linkTests;
+  std::vector<LinkTestPtr> _linkTests;
 
 };
 

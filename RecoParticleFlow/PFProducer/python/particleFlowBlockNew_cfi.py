@@ -67,7 +67,7 @@ particleFlowBlockNew = cms.EDProducer(
         cms.PSet( linkerName = cms.string("SCAndECALLinker"),
                   linkType   = cms.string("SC:ECAL"),
                   useKDTree  = cms.bool(False),
-                  SuperClusterMatchByRef = cms.bool(True) ),
+                  SuperClusterMatchByRef = cms.bool(True) )
         ),
                                       
     # input clusters
