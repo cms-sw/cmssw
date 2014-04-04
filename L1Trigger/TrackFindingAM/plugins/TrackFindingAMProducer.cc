@@ -282,6 +282,7 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
       tempTrack.setSector( secID );
       tempTrack.setWedge( n_active );
+      tempTrack.setPOCA( GlobalPoint(0.,0.,0.),5);		
       TTTracksForOutput->push_back( tempTrack );
 
       delete pl[j];
