@@ -507,8 +507,10 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
   edm::Handle<reco::VertexCollection> vtxH;
-  e.getByToken(offline_pvToken_, vtxH);
-  h_nRecoVtx_ ->Fill (float(vtxH->size()));
+  if ( !isHeavyIon_) { 
+    e.getByToken(offline_pvToken_, vtxH);
+    h_nRecoVtx_ ->Fill (float(vtxH->size()));
+  }
 
   // Create array to hold #photons/event information
   int nPho[100][3][3];
@@ -776,7 +778,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	fill3DHistoVector(h_phoE_, aPho->energy(),cut,type,part);
 	fill3DHistoVector(h_phoSigmaEoverE_, aPho->getCorrectedEnergyError(aPho->getCandidateP4type())/aPho->energy(),cut,type,part);
 
-	fill3DHistoVector(p_phoSigmaEoverEvsNVtx_, float(vtxH->size()),  aPho->getCorrectedEnergyError(aPho->getCandidateP4type())/aPho->energy(),cut,type,part);
+	if ( !isHeavyIon_) fill3DHistoVector(p_phoSigmaEoverEvsNVtx_, float(vtxH->size()),  aPho->getCorrectedEnergyError(aPho->getCandidateP4type())/aPho->energy(),cut,type,part);
  
 	fill3DHistoVector(h_phoEt_,aPho->et(),    cut,type,part);
 
