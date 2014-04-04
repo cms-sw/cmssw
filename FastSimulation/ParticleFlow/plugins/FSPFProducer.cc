@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 using namespace std;
@@ -25,7 +24,9 @@ FSPFProducer::FSPFProducer(const edm::ParameterSet& iConfig) {
   middle_th  = iConfig.getParameter<double>("middle_th");
   // register products
   produces<reco::PFCandidateCollection>();
-  
+
+  // consumes
+  pfCandidateToken = consumes<reco::PFCandidateCollection>(labelPFCandidateCollection_);
 }
 
 FSPFProducer::~FSPFProducer() {}
@@ -35,7 +36,7 @@ FSPFProducer::produce(Event& iEvent,
 		      const EventSetup& iSetup) {
   
   Handle < reco::PFCandidateCollection > pfCandidates;
-  iEvent.getByLabel (labelPFCandidateCollection_, pfCandidates);
+  iEvent.getByToken (pfCandidateToken, pfCandidates);
   
   auto_ptr< reco::PFCandidateCollection >  pOutputCandidateCollection(new PFCandidateCollection);   
 
