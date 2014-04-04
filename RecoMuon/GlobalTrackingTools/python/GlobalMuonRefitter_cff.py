@@ -24,7 +24,7 @@ GlobalMuonRefitter = cms.PSet(
     RefitRPCHits = cms.bool(True),
  
     # DYT stuff
-    DYTthrs = cms.vint32(5, 5),
+    DYTthrs = cms.vint32(10, 10),
     DYTselector = cms.int32(1),
     DYTupdator = cms.bool(True),
     DYTuseAPE = cms.bool(False),
