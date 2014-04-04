@@ -144,7 +144,7 @@ struct EVTColContainer {
     }
 
     /// Tranform types into strings
-    static std::string getTypeString(const unsigned int & objtype)
+    const static std::string getTypeString(const unsigned int & objtype)
     {
         std::string objTypestr;
 
