@@ -83,7 +83,9 @@ class PerformancePayloadFromBinnedTFormula : public PerformancePayload {
   //
   // the transient part; now a vector of vector; CHANGE CHECK!!!!!
   //
-  mutable   std::vector<std::vector<TFormula *> > compiledFormulas_ COND_TRANSIENT;
+
+  // the compiled functions
+  std::vector<std::vector<boost::shared_ptr<TFormula> > > compiledFormulas_ COND_TRANSIENT;;
 
  COND_SERIALIZABLE;
 };
