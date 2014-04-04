@@ -1,4 +1,4 @@
-#include "Validation/Geometry/interface/MaterialBudgetForward.h"
+#include "Validation/Geometry/interface/MaterialBudget.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,11 +15,10 @@
 
 #include <iostream>
 //#define DebugLog
-const int MaterialBudgetForward::maxSet;
 
-MaterialBudgetForward::MaterialBudgetForward(const edm::ParameterSet& p) {
+MaterialBudget::MaterialBudget(const edm::ParameterSet& p) {
   
-  edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetForward");
+  edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudget");
   detTypes     = m_p.getParameter<std::vector<std::string> >("DetectorTypes");
   constituents = m_p.getParameter<std::vector<int> >("Constituents");
   stackOrder   = m_p.getParameter<std::vector<int> >("StackOrder");
@@ -28,7 +27,7 @@ MaterialBudgetForward::MaterialBudgetForward(const edm::ParameterSet& p) {
   etaRegions   = m_p.getParameter<std::vector<double> >("EtaBoundaries");
   regionTypes  = m_p.getParameter<std::vector<int> >("RegionTypes");
   boundaries   = m_p.getParameter<std::vector<double> >("Boundaries");
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetForward initialized for "
+  edm::LogInfo("MaterialBudget") << "MaterialBudget initialized for "
 				 << detTypes.size() << " detector types";
   unsigned int nc = 0;
   for (unsigned int ii=0; ii<detTypes.size(); ++ii) {
@@ -44,7 +43,7 @@ MaterialBudgetForward::MaterialBudgetForward(const edm::ParameterSet& p) {
 				     << name << " at level " << level;
     }
   }
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetForward Stop condition for "
+  edm::LogInfo("MaterialBudget") << "MaterialBudget Stop condition for "
 				 << etaRegions.size() << " eta regions";
   for (unsigned int ii=0; ii<etaRegions.size(); ++ii) {
     edm::LogInfo("MaterialBudget") << "Region[" << ii << "] : Eta < " 
@@ -55,10 +54,10 @@ MaterialBudgetForward::MaterialBudgetForward(const edm::ParameterSet& p) {
   book(m_p);
 }
 
-MaterialBudgetForward::~MaterialBudgetForward() {
+MaterialBudget::~MaterialBudget() {
 }
 
-void MaterialBudgetForward::update(const BeginOfRun* ) {
+void MaterialBudget::update(const BeginOfRun* ) {
 
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
@@ -77,7 +76,7 @@ void MaterialBudgetForward::update(const BeginOfRun* ) {
     }
     if (kount <= 0) break;
   }
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetForward::Finds " 
+  edm::LogInfo("MaterialBudget") << "MaterialBudget::Finds " 
 				 << detNames.size()-kount << " out of "
 				 << detNames.size() << " LV addresses";
   for (unsigned int ii=0; ii<detNames.size(); ++ii) {
@@ -94,7 +93,7 @@ void MaterialBudgetForward::update(const BeginOfRun* ) {
   stackOrder.push_back(0);
 }
 
-void MaterialBudgetForward::update(const BeginOfTrack* trk) {
+void MaterialBudget::update(const BeginOfTrack* trk) {
 
   for (unsigned int ii=0; ii<(detTypes.size()+1); ++ii) {
     stepLen[ii] = 0; radLen[ii] = 0; intLen[ii] = 0;
@@ -122,7 +121,7 @@ void MaterialBudgetForward::update(const BeginOfTrack* trk) {
 #endif
 }
  
-void MaterialBudgetForward::update(const G4Step* aStep) {
+void MaterialBudget::update(const G4Step* aStep) {
 
   //---------- each step
   G4Material * material = aStep->GetPreStepPoint()->GetMaterial();
@@ -152,7 +151,7 @@ void MaterialBudgetForward::update(const G4Step* aStep) {
   radLen[indx]  += (step/radl);
   intLen[indx]  += (step/intl);
 #ifdef DebugLog
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetForward::Step in "
+  edm::LogInfo("MaterialBudget") << "MaterialBudget::Step in "
 				 << touch->GetVolume(0)->GetLogicalVolume()->GetName()
 				 << " Index " << indx <<" Step " << step 
 				 << " RadL " << step/radl << " IntL " 
@@ -166,7 +165,7 @@ void MaterialBudgetForward::update(const G4Step* aStep) {
 }
 
 
-void MaterialBudgetForward::update(const EndOfTrack* trk) {
+void MaterialBudget::update(const EndOfTrack* trk) {
 
   for (unsigned int ii=0; ii<detTypes.size(); ++ii) {
     for (unsigned int jj=0; jj<=detTypes.size(); ++jj) {
@@ -176,7 +175,7 @@ void MaterialBudgetForward::update(const EndOfTrack* trk) {
 	    radLen[jj]  += radLen[kk];
 	    intLen[jj]  += intLen[kk];
 #ifdef DebugLog
-	    edm::LogInfo("MaterialBudget") << "MaterialBudgetForward::Add " 
+	    edm::LogInfo("MaterialBudget") << "MaterialBudget::Add " 
 					   << kk << ":" << stackOrder[kk] 
 					   << " to " << jj <<":" 
 					   << stackOrder[jj] <<" RadL "
@@ -198,16 +197,13 @@ void MaterialBudgetForward::update(const EndOfTrack* trk) {
     me100[ii]->Fill(eta, radLen[ii]);
     me200[ii]->Fill(eta, intLen[ii]);
     me300[ii]->Fill(eta, stepLen[ii]);
-    me400[ii]->Fill(eta);
-    me500[ii]->Fill(eta, phi, radLen[ii]);
-    me600[ii]->Fill(eta, phi, intLen[ii]);
-    me700[ii]->Fill(eta, phi, stepLen[ii]);
-    me800[ii]->Fill(eta, phi);
-    
+    me400[ii]->Fill(phi, radLen[ii]);
+    me500[ii]->Fill(phi, intLen[ii]);
+    me600[ii]->Fill(phi, stepLen[ii]);
+#ifdef DebugLog
     std::string name("Unknown");
     if (ii < detTypes.size()) name = detTypes[ii];
-#ifdef DebugLog
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetForward::Volume[" << ii
+    edm::LogInfo("MaterialBudget") << "MaterialBudget::Volume[" << ii
 				   << "]: " << name << " eta " << eta 
 				   << " == Step " << stepLen[ii] << " RadL " 
 				   << radLen[ii] << " IntL " << intLen[ii];
@@ -215,7 +211,7 @@ void MaterialBudgetForward::update(const EndOfTrack* trk) {
   }
 }
 
-void MaterialBudgetForward::book(const edm::ParameterSet& m_p) {
+void MaterialBudget::book(const edm::ParameterSet& m_p) {
 
   // Book histograms
   edm::Service<TFileService> tfile;
@@ -229,7 +225,7 @@ void MaterialBudgetForward::book(const edm::ParameterSet& m_p) {
   double minEta  = m_p.getUntrackedParameter<double>("MinEta",-8.0);
   double maxEta  = m_p.getUntrackedParameter<double>("MaxEta", 8.0);
   double maxPhi  = CLHEP::pi;
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetForward: Booking user "
+  edm::LogInfo("MaterialBudget") << "MaterialBudget: Booking user "
                                  << "histos === with " << binEta << " bins "
                                  << "in eta from " << minEta << " to "
                                  << maxEta << " and " << binPhi << " bins "
@@ -238,45 +234,35 @@ void MaterialBudgetForward::book(const edm::ParameterSet& m_p) {
 
   char  name[20], title[80];
   std::string named;
-  for (int i=0; i<std::min((int)(detTypes.size()+1),maxSet); i++) {
-    if (i >= (int)(detTypes.size())) named = "Unknown";
-    else                             named = detTypes[i];
+  for (unsigned int i=0; i<=detTypes.size(); i++) {
+    if (i >= detTypes.size()) named = "Unknown";
+    else                      named = detTypes[i];
     sprintf(name, "%d", i+100);
     sprintf(title, "MB(X0) prof Eta in %s", named.c_str());
-    me100[i] =  tfile->make<TProfile>(name, title, binEta, minEta, maxEta);
+    me100.push_back(tfile->make<TProfile>(name,title, binEta, minEta, maxEta));
     sprintf(name, "%d", i+200);
     sprintf(title, "MB(L0) prof Eta in %s", named.c_str());
-    me200[i] = tfile->make<TProfile>(name, title, binEta, minEta, maxEta);
+    me200.push_back(tfile->make<TProfile>(name,title, binEta, minEta, maxEta));
     sprintf(name, "%d", i+300);
     sprintf(title, "MB(Step) prof Eta in %s", named.c_str());
-    me300[i] = tfile->make<TProfile>(name, title, binEta, minEta, maxEta);
+    me300.push_back(tfile->make<TProfile>(name,title, binEta, minEta, maxEta));
     sprintf(name, "%d", i+400);
-    sprintf(title, "Eta in %s", named.c_str());
-    me400[i] = tfile->make<TH1F>(name, title, binEta, minEta, maxEta);
+    sprintf(title, "MB(X0) prof Phi in %s", named.c_str());
+    me400.push_back(tfile->make<TProfile>(name,title, binPhi,-maxPhi, maxPhi));
     sprintf(name, "%d", i+500);
-    sprintf(title, "MB(X0) prof Eta Phi in %s", named.c_str());
-    me500[i] = tfile->make<TProfile2D>(name, title, binEta/2, minEta, maxEta,
-                                       binPhi/2, -maxPhi, maxPhi);
+    sprintf(title, "MB(L0) prof Phi in %s", named.c_str());
+    me500.push_back(tfile->make<TProfile>(name,title, binPhi,-maxPhi, maxPhi));
     sprintf(name, "%d", i+600);
-    sprintf(title, "MB(L0) prof Eta Phi in %s", named.c_str());
-    me600[i]= tfile->make<TProfile2D>(name, title, binEta/2, minEta, maxEta,
-				      binPhi/2, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+700);
-    sprintf(title, "MB(Step) prof Eta Phi in %s", named.c_str());
-    me700[i]= tfile->make<TProfile2D>(name, title, binEta/2, minEta, maxEta,
-				      binPhi/2, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+800);
-    sprintf(title, "Eta vs Phi in %s", named.c_str());
-    me800[i]= tfile->make<TH2F>(name, title, binEta/2, minEta, maxEta,
-				binPhi/2, -maxPhi, maxPhi);
+    sprintf(title, "MB(Step) prof Phi in %s", named.c_str());
+    me600.push_back(tfile->make<TProfile>(name,title, binPhi,-maxPhi, maxPhi));
   }
 
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetForward: Booking user "
+  edm::LogInfo("MaterialBudget") << "MaterialBudget: Booking user "
                                  << "histos done ===";
 
 }
 
-bool MaterialBudgetForward::stopAfter(const G4Step* aStep) {
+bool MaterialBudget::stopAfter(const G4Step* aStep) {
 
   G4ThreeVector hitPoint    = aStep->GetPreStepPoint()->GetPosition();
   if (aStep->GetPostStepPoint() != 0) 
@@ -287,7 +273,7 @@ bool MaterialBudgetForward::stopAfter(const G4Step* aStep) {
   bool   flag(false);
   for (unsigned int ii=0; ii<etaRegions.size(); ++ii) {
 #ifdef DebugLog
-    edm::LogInfo("MaterialBudget") << " MaterialBudgetForward::Eta " << eta 
+    edm::LogInfo("MaterialBudget") << " MaterialBudget::Eta " << eta 
 				   << " in Region[" << ii << "] with " 
 				   << etaRegions[ii] << " type "   
 				   << regionTypes[ii] << "|" << boundaries[ii];
@@ -300,14 +286,14 @@ bool MaterialBudgetForward::stopAfter(const G4Step* aStep) {
       }
 #ifdef DebugLog
       if (flag)
-	edm::LogInfo("MaterialBudget") <<" MaterialBudgetForward::Stop after R = " 
+	edm::LogInfo("MaterialBudget") <<" MaterialBudget::Stop after R = " 
 				       << rr << " and Z = " << zz;
 #endif
       break;
     }
   }
 #ifdef DebugLog
-  edm::LogInfo("MaterialBudget") <<" MaterialBudgetForward:: R = " << rr 
+  edm::LogInfo("MaterialBudget") <<" MaterialBudget:: R = " << rr 
 				 << " and Z = "  << zz << " Flag " << flag;
 #endif
   return flag;

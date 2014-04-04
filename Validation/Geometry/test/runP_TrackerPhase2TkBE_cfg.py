@@ -6,9 +6,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
-process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
-
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.Geometry.GeometryExtendedPhase2TkBE_cff")
 
 #Magnetic Field
 #
@@ -47,6 +45,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.p1 = cms.Path(process.g4SimHits)
+process.g4SimHits.StackingAction.TrackNeutrino = cms.bool(True)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
@@ -54,16 +53,14 @@ process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('MaterialBudgetAction'),
     MaterialBudgetAction = cms.PSet(
-        HistosFile = cms.string('matbdg_TEC.root'),
+        HistosFile = cms.string('matbdg_TrackerPhase2TkBE.root'),
         AllStepsToTree = cms.bool(True),
         HistogramList = cms.string('Tracker'),
-        SelectedVolumes = cms.vstring('TEC'),
+        SelectedVolumes = cms.vstring('Tracker'),
         TreeFile = cms.string('None'), ## is NOT requested
 
         StopAfterProcess = cms.string('None'),
-        # string TextFile = "matbdg_TEC.txt"
+        # string TextFile = "matbdg_Tracker.txt"
         TextFile = cms.string('None')
     )
 ))
-
-
