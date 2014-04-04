@@ -91,5 +91,6 @@ private:
   HERecalibration* he_recalibration;  
   HFRecalibration* hf_recalibration;  
   bool switchGainWidthsForTrigPrims; 
+  bool setHEdsegm;
 };
 
