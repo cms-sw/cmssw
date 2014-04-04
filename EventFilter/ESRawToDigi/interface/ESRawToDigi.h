@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "EventFilter/ESRawToDigi/interface/ESUnpacker.h"
-
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 
 
@@ -30,6 +30,8 @@ class ESRawToDigi : public edm::EDProducer {
   bool debug_;
 
   ESUnpacker* ESUnpacker_;
+
+  edm::EDGetTokenT<FEDRawDataCollection> fedToken_;
   
 };
 

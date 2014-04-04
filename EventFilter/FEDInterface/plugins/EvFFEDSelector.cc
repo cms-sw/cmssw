@@ -1,6 +1,5 @@
 #include "EvFFEDSelector.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 namespace evf{
 
@@ -10,12 +9,13 @@ namespace evf{
   {
     
     produces<FEDRawDataCollection>();
+    fedToken_=consumes<FEDRawDataCollection>(label_);
   }
   void EvFFEDSelector::produce(edm::Event & e, const edm::EventSetup& c)
   {
     edm::Handle<FEDRawDataCollection> rawdata;
     FEDRawDataCollection *fedcoll = new FEDRawDataCollection();
-    e.getByLabel(label_,rawdata);
+    e.getByToken(fedToken_,rawdata);
     std::vector<unsigned int>::iterator it = fedlist_.begin();
     for(;it!=fedlist_.end();it++)
       {

@@ -5,6 +5,7 @@
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/Framework/interface/Event.h>
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <vector>
@@ -22,7 +23,7 @@ namespace evf{
     private:
       edm::InputTag label_;
       std::vector<unsigned int> fedlist_;
-      
+      edm::EDGetTokenT<FEDRawDataCollection> fedToken_;
     };
 }
 
