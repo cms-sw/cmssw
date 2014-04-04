@@ -2,6 +2,7 @@
 #define PhysicsTools_UtilAlgos_interface_BasicAnalyzer_h
 
 #include "FWCore/Common/interface/EventBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
@@ -43,6 +44,7 @@ namespace edm {
   public:
     /// default constructor
     BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService){};
+    BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService, edm::ConsumesCollector&& iC){};
     /// default destructor
     virtual ~BasicAnalyzer(){};
 

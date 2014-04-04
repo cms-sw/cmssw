@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/20 18:20:08 $
- *  $Revision: 1.9 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,14 +13,11 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-//#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 
 //---------------
 // C++ Headers --
 //---------------
-#include <iostream>
-#include <sstream>
-#include <vector>
 
 //-------------------
 // Initializations --
@@ -33,16 +28,18 @@
 // Constructors --
 //----------------
 DTCCBConfig::DTCCBConfig():
-  dataVersion( " " ) {
+  timeStamp(0),
+  dataVersion( " " ),
+  dBuf(new DTBufferTreeUniquePtr) {
   dataList.reserve( 1000 );
-  dBuf = 0;
 }
 
 
 DTCCBConfig::DTCCBConfig( const std::string& version ):
-  dataVersion( version ) {
+  timeStamp(0),
+  dataVersion( version ),
+  dBuf(new DTBufferTreeUniquePtr) {
   dataList.reserve( 1000 );
-  dBuf = 0;
 }
 
 
@@ -63,9 +60,6 @@ DTConfigKey::DTConfigKey() :
 // Destructor --
 //--------------
 DTCCBConfig::~DTCCBConfig() {
-  resetMap();
-//  DTDataBuffer< int,std::vector<int>* >::dropBuffer( mapName() );
-  delete dBuf;
 }
 
 
@@ -96,27 +90,13 @@ int DTCCBConfig::configKey( int   wheelId,
                             std::vector<int>& confKey ) const {
 
   confKey.clear();
-//  std::string mName = mapName();
-//  DTBufferTree< int,std::vector<int>* >* dBuf =
-//  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-//  if ( dBuf == 0 ) {
-//    cacheMap();
-//    dBuf =
-//    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-//  }
-  if ( dBuf == 0 ) cacheMap();
 
-  std::vector<int> chanKey;
-  chanKey.reserve(3);
-  chanKey.push_back(   wheelId );
-  chanKey.push_back( stationId );
-  chanKey.push_back(  sectorId );
-  std::vector<int>* confPtr;
+  std::vector<int> chanKey { wheelId, stationId, sectorId };
+  std::vector<int> const* confPtr;
   int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), confPtr );
   if ( !searchStatus ) confKey = *confPtr;
 
   return searchStatus;
-
 }
 
 
@@ -180,11 +160,8 @@ std::string& DTCCBConfig::version() {
 
 
 void DTCCBConfig::clear() {
-  resetMap();
-//  DTDataBuffer< int,std::vector<int>* >::dropBuffer( mapName() );
-  delete dBuf;
-  dBuf = 0;
   dataList.clear();
+  initialize();
   return;
 }
 
@@ -204,21 +181,7 @@ int DTCCBConfig::setConfigKey( int   wheelId,
                                int  sectorId,
                                const std::vector<int>& confKey ) {
 
-//  std::string mName = mapName();
-//  DTBufferTree< int,std::vector<int>* >* dBuf =
-//  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-//  if ( dBuf == 0 ) {
-//    cacheMap();
-//    dBuf =
-//    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-//  }
-  if ( dBuf == 0 ) cacheMap();
-
-  std::vector<int> chanKey;
-  chanKey.reserve(3);
-  chanKey.push_back(   wheelId );
-  chanKey.push_back( stationId );
-  chanKey.push_back(  sectorId );
+  std::vector<int> chanKey { wheelId, stationId, sectorId };
 
   std::vector<int>* confPtr;
   int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), confPtr );
@@ -229,9 +192,6 @@ int DTCCBConfig::setConfigKey( int   wheelId,
     const_iterator iend = dataList.end();
     while ( iter != iend ) {
       const DTCCBId& ccbId( iter->first );
-//      if ( ( ccbId.  wheelId ==   wheelId ) &&
-//           ( ccbId.stationId == stationId ) &&
-//           ( ccbId. sectorId ==  sectorId ) ) tempList.push_back( *iter );
       if ( ( ccbId.  wheelId !=   wheelId ) ||
            ( ccbId.stationId != stationId ) ||
            ( ccbId. sectorId !=  sectorId ) ) tempList.push_back( *iter );
@@ -251,7 +211,7 @@ int DTCCBConfig::setConfigKey( int   wheelId,
   }
   else {
     dBuf->insert( chanKey.begin(),
-                  chanKey.end(), new std::vector<int>( confKey ) );
+                  chanKey.end(), std::unique_ptr<std::vector<int> >(new std::vector<int>( confKey ) ) );
     DTCCBId ccbId;
     ccbId.  wheelId =   wheelId;
     ccbId.stationId = stationId;
@@ -280,21 +240,7 @@ int DTCCBConfig::appendConfigKey( int   wheelId,
                                   int  sectorId,
                                   const std::vector<int>& confKey ) {
 
-//  std::string mName = mapName();
-//  DTBufferTree< int,std::vector<int>* >* dBuf =
-//  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-//  if ( dBuf == 0 ) {
-//    cacheMap();
-//    dBuf =
-//    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-//  }
-  if ( dBuf == 0 ) cacheMap();
-
-  std::vector<int> chanKey;
-  chanKey.reserve(3);
-  chanKey.push_back(   wheelId );
-  chanKey.push_back( stationId );
-  chanKey.push_back(  sectorId );
+  std::vector<int> chanKey { wheelId, stationId, sectorId };
 
   DTCCBId ccbId;
   ccbId.  wheelId =   wheelId;
@@ -308,8 +254,10 @@ int DTCCBConfig::appendConfigKey( int   wheelId,
   int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), confPtr );
 
   if ( searchStatus ) {
+    std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+    confPtr = newVector.get();
     dBuf->insert( chanKey.begin(),
-                  chanKey.end(), confPtr = new std::vector<int>( confKey ) );
+                  chanKey.end(), std::move(newVector) );
   }
 
   while ( iter != iend ) {
@@ -327,7 +275,6 @@ int DTCCBConfig::appendConfigKey( int   wheelId,
 
 }
 
-
 int DTCCBConfig::appendConfigKey( const DTChamberId& id,
                                   const std::vector<int>& confKey ) {
   return appendConfigKey( id.wheel(),
@@ -335,7 +282,6 @@ int DTCCBConfig::appendConfigKey( const DTChamberId& id,
                           id.sector(),
                           confKey );
 }
-
 
 DTCCBConfig::const_iterator DTCCBConfig::begin() const {
   return dataList.begin();
@@ -346,25 +292,9 @@ DTCCBConfig::const_iterator DTCCBConfig::end() const {
   return dataList.end();
 }
 
+void DTCCBConfig::initialize() {
 
-/*
-std::string DTCCBConfig::mapName() const {
-  std::stringstream name;
-  name << dataVersion << "_map_CCBConfig" << this;
-  return name.str();
-}
-*/
-
-
-void DTCCBConfig::cacheMap() const {
-
-//  std::string mName = mapName();
-//  DTBufferTree< int,std::vector<int>* >* dBuf =
-//  DTDataBuffer< int,std::vector<int>* >::openBuffer( mName );
-  DTBufferTree< int,std::vector<int>* >** pBuf;
-  pBuf = const_cast<DTBufferTree< int,std::vector<int>* >**>( &dBuf );
-  *pBuf = new DTBufferTree< int,std::vector<int>* >;
-  dBuf->setDefault( 0 );
+  dBuf->clear();
 
   const_iterator iter = dataList.begin();
   const_iterator iend = dataList.end();
@@ -381,29 +311,15 @@ void DTCCBConfig::cacheMap() const {
     std::vector<int>* ccbConfPtr;
     int searchStatus = dBuf->find( chanKey.begin(),
                                    chanKey.end(), ccbConfPtr );
-    if ( searchStatus ) dBuf->insert( chanKey.begin(),
-                                      chanKey.end(),
-                                      ccbConfPtr = new std::vector<int> );
+
+    if ( searchStatus ) {
+      std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+      ccbConfPtr = newVector.get();
+      dBuf->insert( chanKey.begin(), chanKey.end(), std::move(newVector) );
+    }
     ccbConfPtr->push_back( iter->second );
 
     iter++;
 
   }
-
 }
-
-
-void DTCCBConfig::resetMap() const {
-//  std::string mName = mapName();
-//  DTBufferTree< int,std::vector<int>* >* dBuf =
-//  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-  if ( dBuf != 0 ) {
-    std::vector< std::vector<int>* > list( dBuf->contList() );
-    std::vector< std::vector<int>* >::const_iterator iter = list.begin();
-    std::vector< std::vector<int>* >::const_iterator iend = list.end();
-    while ( iter != iend ) delete *iter++;
-  }
-  return;
-}
-
-
