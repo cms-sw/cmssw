@@ -12,8 +12,8 @@ The latter can be used to change parameters in crab.
 
 job = 0 #job number
 njob = 1 #number of jobs
-nevents = 10 #number of events
-rootout = True #whether to produce root file
+nevents = 3564 #number of events
+rootout = False #whether to produce root file
 dump = False #dump python
 
 # Argument parsing
@@ -120,7 +120,9 @@ process.mcL1GTinput = cms.EDProducer("l1t::L1uGtGenToInputProducer",
                                      jetEtThreshold = cms.double(1),
                                      tauEtThreshold = cms.double(1),
                                      egEtThreshold  = cms.double(1),
-                                     muEtThreshold  = cms.double(1)
+                                     muEtThreshold  = cms.double(1),
+				     emptyBxTrailer = cms.int32(5),
+				     emptyBxEvt = cms.int32(neventsPerJob)
                                      )
 
 process.mcL1GTinput.maxMuCand = cms.int32(8)
@@ -174,7 +176,7 @@ process.fakeL1GTinput = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
 process.load('L1Trigger.L1TGlobal.l1uGtTriggerMenuXml_cfi')
 process.l1uGtTriggerMenuXml.TriggerMenuLuminosity = 'startup'
 #process.l1uGtTriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
-process.l1uGtTriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
+process.l1uGtTriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014_v3.xml'
 
 process.load('L1Trigger.L1TGlobal.L1uGtTriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::L1uGtTriggerMenuXmlProducer','l1uGtTriggerMenuXml')
