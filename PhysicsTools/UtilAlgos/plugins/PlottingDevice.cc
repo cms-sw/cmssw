@@ -2,7 +2,7 @@
 //
 // Package:    PlottingDevice
 // Class:      PlottingDevice
-// 
+//
 /**\class PlottingDevice PlottingDevice.cc Workspace/PlottingDevice/src/PlottingDevice.cc
 
  Description: <one line class summary>
@@ -67,13 +67,13 @@ PlottingDevice::PlottingDevice(const edm::ParameterSet& iConfig)
 {
   vHelperInstance_ = iConfig.getParameter<std::string>("@module_label");
   plotDirectoryName_="PlottingDevice";
-  
+
   //configure the inputtag distributor
   if (iConfig.exists("InputTags"))
-    edm::Service<InputTagDistributorService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("InputTags"));
-  
+    edm::Service<InputTagDistributorService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("InputTags"), consumesCollector());
+
   //configure the variable helper
-  edm::Service<VariableHelperService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("Variables"));
+  edm::Service<VariableHelperService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("Variables"), consumesCollector());
 
   //configure the plotting device
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
