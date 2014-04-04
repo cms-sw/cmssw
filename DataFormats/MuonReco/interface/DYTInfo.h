@@ -26,7 +26,7 @@ namespace reco {
     void setDYTEstimators( const std::map<int, double> &dytEstMap ) {
       DYTEstimators_.clear();
       for (int st = 1; st <= 4; st++) {
-	if (dytEstMap.count(st) > 0) DYTEstimators_.push_back(dytEstMap.at(st));
+	if (dytEstMap.count(st) > 0) DYTEstimators_.push_back(dytEstMap.find(st)->second);
         else DYTEstimators_.push_back(-1);
       }
     };
@@ -37,7 +37,7 @@ namespace reco {
     void setUsedStations( const std::map<int, bool> &ustMap ) {
       UsedStations_.clear();
       for (int st = 1; st <= 4; st++) 
-        UsedStations_.push_back(ustMap.at(st));
+        UsedStations_.push_back(ustMap.find(st)->second);
     };
     void setUsedStations( const std::vector<bool> ustVal ) { UsedStations_ = ustVal; };
 
@@ -46,7 +46,7 @@ namespace reco {
     void setIdChambers( const std::map<int, DetId> &IdChambersMap ) {
       IdChambers_.clear();
       for (int st = 1; st <= 4; st++)
-        IdChambers_.push_back(IdChambersMap.at(st));
+        IdChambers_.push_back(IdChambersMap.find(st)->second);
     };
     void setIdChambers( const std::vector<DetId> &IdChambersVal ) { IdChambers_ = IdChambersVal; };
     
@@ -55,7 +55,7 @@ namespace reco {
     void setThresholds( const std::map<int, double> &ThresholdsMap ) {
       Thresholds_.clear();
       for (int st = 1; st <= 4; st++)
-	Thresholds_.push_back(ThresholdsMap.at(st));
+	Thresholds_.push_back(ThresholdsMap.find(st)->second);
     };
     void setThresholds( const std::vector<double> &ThresholdsVal ) { Thresholds_ = ThresholdsVal; };
     
