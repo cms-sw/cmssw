@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/GRun/V21 (CMSSW_7_1_0_pre5_HLT1)
+# /dev/CMSSW_7_1_0/GRun/V22 (CMSSW_7_1_0_pre5_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V21')
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V22')
 )
 
 CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
@@ -1878,13 +1878,6 @@ hltEcalDigis = cms.EDProducer( "EcalRawToDigi",
     headerUnpacking = cms.bool( True ),
     memUnpacking = cms.bool( True )
 )
-hltEcalPreshowerDigis = cms.EDProducer( "ESRawToDigi",
-    sourceTag = cms.InputTag( "rawDataCollector" ),
-    debugMode = cms.untracked.bool( False ),
-    InstanceES = cms.string( "" ),
-    LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ),
-    ESdigiCollection = cms.string( "" )
-)
 hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     EEdigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
     alphaEB = cms.double( 1.138 ),
@@ -1965,12 +1958,6 @@ hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     EELaserMAX = cms.double( 8.0 ),
     logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
     recoverEEIsolatedChannels = cms.bool( False )
-)
-hltEcalPreshowerRecHit = cms.EDProducer( "ESRecHitProducer",
-    ESRecoAlgo = cms.int32( 0 ),
-    ESrechitCollection = cms.string( "EcalRecHitsES" ),
-    algo = cms.string( "ESRecHitWorker" ),
-    ESdigiCollection = cms.InputTag( "hltEcalPreshowerDigis" )
 )
 hltTowerMakerForPF = cms.EDProducer( "CaloTowersCreator",
     EBSumThreshold = cms.double( 0.2 ),
@@ -3316,6 +3303,19 @@ hltMuons = cms.EDProducer( "MuonIdProducer",
     maxAbsDx = cms.double( 3.0 ),
     ptThresholdToFillCandidateP4WithGlobalFit = cms.double( 200.0 ),
     minNumberOfMatches = cms.int32( 1 )
+)
+hltEcalPreshowerDigis = cms.EDProducer( "ESRawToDigi",
+    sourceTag = cms.InputTag( "rawDataCollector" ),
+    debugMode = cms.untracked.bool( False ),
+    InstanceES = cms.string( "" ),
+    LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ),
+    ESdigiCollection = cms.string( "" )
+)
+hltEcalPreshowerRecHit = cms.EDProducer( "ESRecHitProducer",
+    ESRecoAlgo = cms.int32( 0 ),
+    ESrechitCollection = cms.string( "EcalRecHitsES" ),
+    algo = cms.string( "ESRecHitWorker" ),
+    ESdigiCollection = cms.InputTag( "hltEcalPreshowerDigis" )
 )
 hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
@@ -41859,9 +41859,9 @@ hltPixelMatchElectronsActivity = cms.EDProducer( "EgammaHLTPixelMatchElectronPro
     GsfTrackProducer = cms.InputTag( "" )
 )
 
-HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence( hltEcalDigis + hltEcalPreshowerDigis + hltEcalUncalibRecHit + hltEcalDetIdToBeRecovered + hltEcalRecHit + hltEcalPreshowerRecHit )
+HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( hltEcalDigis + hltEcalUncalibRecHit + hltEcalDetIdToBeRecovered + hltEcalRecHit )
 HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )
-HLTDoCaloSequencePF = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTDoLocalHcalSequence + hltTowerMakerForPF )
+HLTDoCaloSequencePF = cms.Sequence( HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + HLTDoLocalHcalSequence + hltTowerMakerForPF )
 HLTRecoJetSequenceAK4UncorrectedPF = cms.Sequence( HLTDoCaloSequencePF + hltAntiKT4CaloJetsPF )
 HLTRecoJetSequenceAK4PrePF = cms.Sequence( HLTRecoJetSequenceAK4UncorrectedPF + hltAntiKT4CaloJetsPFEt5 )
 HLTMuonLocalRecoSequence = cms.Sequence( cms.SequencePlaceholder( "simMuonDTDigis" ) + hltDt1DRecHits + hltDt4DSegments + cms.SequencePlaceholder( "simMuonCSCDigis" ) + hltCsc2DRecHits + hltCscSegments + cms.SequencePlaceholder( "simMuonRPCDigis" ) + hltRpcRecHits )
@@ -41876,7 +41876,7 @@ HLTParticleFlowSequence = cms.Sequence( HLTPreshowerSequence + hltParticleFlowRe
 HLTPFL1FastL2L3JetsSequence = cms.Sequence( hltFixedGridRhoFastjetAll + hltAntiKT4PFJets + hltAK4PFJetL1FastL2L3Corrected )
 HLTPFL1FastL2L3JetTriggerSequence = cms.Sequence( HLTL2muonrecoSequence + HLTL3muonrecoSequence + HLTTrackReconstructionForPF + HLTParticleFlowSequence + HLTPFL1FastL2L3JetsSequence )
 HLTPFL1FastL2L3ReconstructionSequence = cms.Sequence( HLTRecoJetSequenceAK4PrePF + HLTPFL1FastL2L3JetTriggerSequence )
-HLTDoCaloSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTDoLocalHcalSequence + hltTowerMakerForAll )
+HLTDoCaloSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + HLTDoLocalHcalSequence + hltTowerMakerForAll )
 HLTRecoJetSequenceAK4Uncorrected = cms.Sequence( HLTDoCaloSequence + hltAntiKT4CaloJets )
 HLTRecoJetSequenceAK4Corrected = cms.Sequence( HLTRecoJetSequenceAK4Uncorrected + hltCaloJetIDPassed + hltCaloJetCorrected )
 HLTRegionalRecoJetSequenceAK4Corrected = cms.Sequence( HLTDoCaloSequence + hltAntiKT4CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetIDPassedRegional + hltCaloJetCorrectedRegional )
@@ -41913,6 +41913,7 @@ HLTPFJetsSequence = cms.Sequence( hltAntiKT4PFJets )
 HLTPFJetTriggerSequence = cms.Sequence( HLTL2muonrecoSequence + HLTL3muonrecoSequence + HLTTrackReconstructionForPF + HLTParticleFlowSequence + HLTPFJetsSequence )
 HLTPFReconstructionSequence = cms.Sequence( HLTRecoJetSequenceAK4PrePF + HLTPFJetTriggerSequence )
 HLTPFL1FastL2L3JetsSequenceNeutral = cms.Sequence( hltFixedGridRhoFastjetAll + hltPFNeutralHadronsAndPartons + hltAntiKT4PFJetsNeutral + hltAK4PFJetNeutralL1FastL2L3Corrected )
+HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence( hltEcalDigis + hltEcalPreshowerDigis + hltEcalUncalibRecHit + hltEcalDetIdToBeRecovered + hltEcalRecHit + hltEcalPreshowerRecHit )
 HLTL3muoncaloisorecoSequenceNoBools = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTDoLocalHcalSequence + hltTowerMakerForAll + hltFixedGridRhoFastjetAllCaloForMuons + hltL3CaloMuonCorrectedIsolations )
 HLTL3muonisorecoSequenceIso1p0 = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + HLTRegionalCKFTracksForL3Isolation + hltL3MuonCombRelIsolationsIso1p0 )
 HLTL3muonisorecoSequence = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + HLTRegionalCKFTracksForL3Isolation + hltL3MuonCombRelIsolations )
@@ -42024,7 +42025,7 @@ HLTFastJetSequenceForEgamma = cms.Sequence( HLTRecoJetSequenceAK4L1FastJetCorrec
 HLTDoLocalHcalWithTowerSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltTowerMakerForAll )
 HLTEle13WP90RhoSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleIsoEG12er + hltEG13L1sIsoEG12erEtFilter + hltL1SeededHLTClusterShape + hltEle13WP90ClusterShapeFilter + HLTFastJetSequenceForEgamma + hltL1SeededPhotonEcalIsoRhoCorr + hltEle13WP90RhoEcalIsoFilter + HLTDoLocalHcalWithTowerSequence + hltL1SeededPhotonHcalForHE + hltEle13WP90RhoHEFilter + hltL1SeededPhotonHcalIsoRhoCorr + hltEle13WP90RhoHcalIsoFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltMixedLayerPairs + hltL1SeededStartUpElectronPixelSeeds + hltEle13WP90RhoPixelMatchFilter + HLTPixelMatchElectronL1TrackingSequence + hltEle13WP90RhoOneOEMinusOneOPFilter + hltElectronL1SeededDetaDphi + hltEle13WP90RhoDetaFilter + hltEle13WP90RhoDphiFilter + HLTL1SeededEgammaRegionalRecoTrackerSequence + hltL1SeededElectronTrackIso + hltEle13WP90RhoTrackIsoFilter )
 HLTIsoEle13LooseIsoPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltIsoEle13Vertex + hltIsoEle13PFTauTagInfo + hltIsoEle13PFTaus + hltIsoEle13PFTau20 + hltIsoEle13PFTauTrackFindingDiscriminator + hltSelectedIsoEle13PFTausTrackFinding + hltIsoEle13PFTau20Track + hltIsoEle13PFTauLooseIsolationDiscriminator + hltSelectedIsoEle13PFTausTrackFindingLooseIsolation + hltIsoEle13PFTau20TrackLooseIso + hltOverlapFilterIsoEle13WP90LooseIsoPFTau20 )
-HLTEle13WP90NoIsoSequence = cms.Sequence( HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleIsoEG12er + hltEG13L1sIsoEG12erEtFilter + hltL1SeededHLTClusterShape + hltEle13WP90ClusterShapeFilter + HLTFastJetSequenceForEgamma + HLTDoLocalHcalWithTowerSequence + hltL1SeededPhotonHcalForHE + hltEle13WP90NoIsoHEFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltMixedLayerPairs + hltL1SeededStartUpElectronPixelSeeds + hltEle13WP90NoIsoPixelMatchFilter + HLTPixelMatchElectronL1TrackingSequence + hltEle13WP90NoIsoOneOEMinusOneOPFilter + hltElectronL1SeededDetaDphi + hltEle13WP90NoIsoDetaFilter + hltEle13WP90NoIsoDphiFilter )
+HLTEle13WP90NoIsoSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleIsoEG12er + hltEG13L1sIsoEG12erEtFilter + hltL1SeededHLTClusterShape + hltEle13WP90ClusterShapeFilter + HLTFastJetSequenceForEgamma + HLTDoLocalHcalWithTowerSequence + hltL1SeededPhotonHcalForHE + hltEle13WP90NoIsoHEFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltMixedLayerPairs + hltL1SeededStartUpElectronPixelSeeds + hltEle13WP90NoIsoPixelMatchFilter + HLTPixelMatchElectronL1TrackingSequence + hltEle13WP90NoIsoOneOEMinusOneOPFilter + hltElectronL1SeededDetaDphi + hltEle13WP90NoIsoDetaFilter + hltEle13WP90NoIsoDphiFilter )
 HLTEle13LooseIsoPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltEle13Vertex + hltEle13PFTauTagInfo + hltEle13PFTaus + hltEle13PFTau20 + hltEle13PFTauTrackFindingDiscriminator + hltSelectedEle13PFTausTrackFinding + hltEle13PFTau20Track + hltEle13PFTauLooseIsolationDiscriminator + hltSelectedEle13PFTausTrackFindingLooseIsolation + hltEle13PFTau20TrackLooseIso + hltOverlapFilterEle13WP90LooseIsoPFTau20 )
 HLTSingleEle13WP90RhoSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG12eta2p1 + hltEG13L1sSingleEG12eta2p1EtFilter + hltL1SeededHLTClusterShape + hltSingleEle13WP90RhoClusterShapeFilter + HLTFastJetSequenceForEgamma + hltL1SeededPhotonEcalIsoRhoCorr + hltSingleEle13WP90RhoEcalIsoFilter + HLTDoLocalHcalWithTowerSequence + hltL1SeededPhotonHcalForHE + hltSingleEle13WP90RhoHEFilter + hltL1SeededPhotonHcalIsoRhoCorr + hltSingleEle13WP90RhoHcalIsoFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltMixedLayerPairs + hltL1SeededStartUpElectronPixelSeeds + hltSingleEle13WP90RhoPixelMatchFilter + HLTPixelMatchElectronL1TrackingSequence + hltSingleEle13WP90RhoOneOEMinusOneOPFilter + hltElectronL1SeededDetaDphi + hltSingleEle13WP90RhoDetaFilter + hltSingleEle13WP90RhoDphiFilter + HLTL1SeededEgammaRegionalRecoTrackerSequence + hltL1SeededElectronTrackIso + hltSingleEle13WP90RhoTrackIsoFilter )
 HLTSingleEle13LooseIsoPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltSingleEle13Vertex + hltSingleEle13PFTauTagInfo + hltSingleEle13PFTaus + hltSingleEle13PFTau20 + hltSingleEle13PFTauTrackFindingDiscriminator + hltSelectedSingleEle13PFTausTrackFinding + hltSingleEle13PFTau20Track + hltSingleEle13PFTauLooseIsolationDiscriminator + hltSelectedSingleEle13PFTausTrackFindingLooseIsolation + hltSingleEle13PFTau20TrackLooseIso + hltOverlapFilterIsoSingleEle13WP90LooseIsoPFTau20 )

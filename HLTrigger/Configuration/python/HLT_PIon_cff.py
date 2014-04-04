@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_0/PIon/V21 (CMSSW_7_1_0_pre5_HLT1)
+# /dev/CMSSW_7_1_0/PIon/V22 (CMSSW_7_1_0_pre5_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/PIon/V21')
+  tableName = cms.string('/dev/CMSSW_7_1_0/PIon/V22')
 )
 
 streams = cms.PSet( 
@@ -14387,14 +14387,14 @@ HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( hltEcalDigi
 HLTBeginSequenceRandom = cms.Sequence( hltRandomEventsFilter + hltGtDigis )
 HLTBeginSequenceBPTX = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + hltBPTXCoincidence + HLTBeamSpot )
 HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )
-HLTDoCaloSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTDoLocalHcalSequence + hltTowerMakerForAll )
+HLTDoCaloSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + HLTDoLocalHcalSequence + hltTowerMakerForAll )
 HLTRecoJetSequenceAK4Uncorrected = cms.Sequence( HLTDoCaloSequence + hltAntiKT4CaloJets )
 HLTRecoJetSequenceAK4Corrected = cms.Sequence( HLTRecoJetSequenceAK4Uncorrected + hltCaloJetIDPassed + hltCaloJetCorrected )
 HLTDoLocalHfSequence = cms.Sequence( hltHcalDigis + hltHfreco + hltTowerMakerForHf )
 HLTRecoJetSequenceAK4L1FastJetCorrected = cms.Sequence( HLTDoCaloSequence + hltFixedGridRhoFastjetAllCalo + hltAntiKT4CaloJets + hltCaloJetIDPassed + hltCaloJetL1FastJetCorrected )
 HLTBTagMuJet20L1FastJetSequenceL25BPH = cms.Sequence( HLTL2muonrecoNocandSequence + hltBSoftMuonGetJetsFromJet20L1FastJetBPH + hltSelector4JetsJet20L1FastJetBPH + hltBSoftMuonJet20L1FastJetL25JetsBPH + hltBSoftMuonJet20L1FastJetL25TagInfosBPH + hltBSoftMuonJet20L1FastJetL25BJetTagsByDRBPH )
 HLTBTagMuJet20L1FastJetMu5SelSequenceL3BPH = cms.Sequence( HLTL3muonrecoNocandSequence + hltBSoftMuonMu4L3 + hltBSoftMuonJet20L1FastJetMu5SelL3TagInfosBPH + hltBSoftMuonJet20L1FastJetMu5SelL3BJetTagsByDRBPH )
-HLTDoCaloSequencePF = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTDoLocalHcalSequence + hltTowerMakerForPF )
+HLTDoCaloSequencePF = cms.Sequence( HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + HLTDoLocalHcalSequence + hltTowerMakerForPF )
 HLTRecoJetSequenceAK4UncorrectedPF = cms.Sequence( HLTDoCaloSequencePF + hltAntiKT4CaloJetsPF )
 HLTRecoJetSequenceAK4PrePF = cms.Sequence( HLTRecoJetSequenceAK4UncorrectedPF + hltAntiKT4CaloJetsPFEt5 )
 HLTRecopixelvertexingSequence = cms.Sequence( hltPixelLayerTriplets + hltPixelTracks + hltPixelVertices )
