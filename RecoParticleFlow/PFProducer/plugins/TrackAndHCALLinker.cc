@@ -12,9 +12,9 @@ public:
     _useKDTree(conf.getParameter<bool>("useKDTree")),
     _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
   
-  double operator() 
-  ( const std::unique_ptr<reco::PFBlockElement>&,
-    const std::unique_ptr<reco::PFBlockElement>& ) const override;
+  double testLink 
+  ( const reco::PFBlockElement*,
+    const reco::PFBlockElement* ) const override;
 
 private:
   bool _useKDTree,_debug;
@@ -24,9 +24,9 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory,
 		  TrackAndHCALLinker, 
 		  "TrackAndHCALLinker");
 
-double TrackAndHCALLinker::operator()
-  ( const std::unique_ptr<reco::PFBlockElement>& elem1,
-    const std::unique_ptr<reco::PFBlockElement>& elem2) const {  
+double TrackAndHCALLinker::testLink
+  ( const reco::PFBlockElement* elem1,
+    const reco::PFBlockElement* elem2) const {  
   constexpr reco::PFTrajectoryPoint::LayerType HCALEntrance =
     reco::PFTrajectoryPoint::HCALEntrance;
   constexpr reco::PFTrajectoryPoint::LayerType HCALExit =
@@ -35,11 +35,11 @@ double TrackAndHCALLinker::operator()
   const reco::PFBlockElementTrack   *tkelem(NULL);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
-    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1.get());
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2.get());
+    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);
+    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
   } else {
-    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem2.get());
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1.get());
+    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem2);
+    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
   }
   const reco::PFRecTrackRef& trackref = tkelem->trackRefPF();
   const reco::PFClusterRef& clusterref = hcalelem->clusterRef();
@@ -78,10 +78,9 @@ double TrackAndHCALLinker::operator()
     }
   } else {// Old algorithm
     if ( tkAtHCALEnt.isValid() )
-      dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref,
+      dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, 
+							*clusterref,
 							false, _debug );
-    else
-      dist = -1.;
   }
   return dist;
 }

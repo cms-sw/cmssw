@@ -44,6 +44,9 @@ PFBlockAlgoNew::PFBlockAlgoNew() :
 
 
 void PFBlockAlgoNew::setLinkers(const std::vector<edm::ParameterSet>& confs) {
+   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
+  _linkTests.resize(rowsize*rowsize);
+  const std::string prefix("PFBlockElement::");
   for( const auto& conf : confs ) {
     const std::string& linkerName = 
       conf.getParameter<std::string>("linkerName");
@@ -55,20 +58,19 @@ void PFBlockAlgoNew::setLinkers(const std::vector<edm::ParameterSet>& confs) {
 	<< "\"" << linkTypeStr << "\" is not a valid link type definition."
 	<< " This string should have the form \"linkFrom:linkTo\"";
     }
-    std::string link1(linkTypeStr.substr(0,split));
-    std::string link2(linkTypeStr.substr(split+1,std::string::npos));
+    std::string link1(prefix+linkTypeStr.substr(0,split));
+    std::string link2(prefix+linkTypeStr.substr(split+1,std::string::npos));
     if( !(_elementTypes.count(link1) && _elementTypes.count(link2) ) ) {
       throw cms::Exception("InvalidBlockElementType")
 	<< "One of \"" << link1 << "\" or \"" << link2 
 	<< "\" are invalid block element types!";
     }
     const PFBlockElement::Type type1 = _elementTypes.at(link1);
-    const PFBlockElement::Type type2 = _elementTypes.at(link2);
-    PFBlockLink::Type linkType = 
-      static_cast<PFBlockLink::Type>( (1<< (type1-1) ) | (1<< (type2-1)) );
+    const PFBlockElement::Type type2 = _elementTypes.at(link2);    
+    const unsigned index = rowsize*std::max(type1,type2)+std::min(type1,type2);
     const BlockElementLinkerBase * linker =
       BlockElementLinkerFactory::get()->create(linkerName,conf);
-    _linkTests.emplace(linkType,LinkTestPtr(linker));
+    _linkTests[index].reset(linker);
   }
 }
 
@@ -162,7 +164,7 @@ PFBlockAlgoNew::findBlocks() {
     
     packLinks( blocks_->back(), links );
   }
-  //std::cout << "(new) Found " << blocks_->size() << " PFBlocks!" << std::endl;
+  std::cout << "(new) Found " << blocks_->size() << " PFBlocks!" << std::endl;
 }
 
 // start from first element in elements_
@@ -190,17 +192,15 @@ PFBlockAlgoNew::associate( PFBlockAlgoNew::ElementList& elems,
 			 if( !linkPrefilter(comp->get(), a.get()) ) {
 			   return false;
 			 }
+			 dist = -1.0;
 			 linktype = PFBlockLink::NONE;
-			 dist = -1;
 			 linktest = PFBlock::LINKTEST_RECHIT;
 			 // compute linking info
 			 link( comp->get(), a.get(), 
 			       linktype, linktest, dist ); 
 			 if( dist >= -0.5 ) { 
 			   block.addElement( a.get() ); 
-			   links.emplace_back( linktype, 
-					       linktest,
-					       dist,
+			   links.emplace_back( linktype, linktest, dist,
 					       (*comp)->index(), 
 					       a->index() );
 			   return true;
@@ -216,7 +216,7 @@ PFBlockAlgoNew::associate( PFBlockAlgoNew::ElementList& elems,
 
 void 
 PFBlockAlgoNew::packLinks( reco::PFBlock& block, 
-			   const vector<PFBlockLink>& links ) const {
+			   const std::vector<PFBlockLink>& links ) const {
   
   
   const edm::OwnVector< reco::PFBlockElement >& els = block.elements();
@@ -301,612 +301,29 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
 		      PFBlockLink::Type& linktype, 
 		      reco::PFBlock::LinkTest& linktest,
 		      double& dist) const {
-  
+  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
   // ACHTUNG!!!! If you introduce new links check that they are not 
   // desabled in linkPrefilter!!!!
 
 
-  dist=-1.;
+  dist=-1.0;
   linktest = PFBlock::LINKTEST_RECHIT; //rechit by default 
 
   PFBlockElement::Type type1 = el1->type();
   PFBlockElement::Type type2 = el2->type();
+  const unsigned index = rowsize*std::max(type1,type2) + std::min(type1,type2);
 
-  linktype = static_cast<PFBlockLink::Type>
-    ((1<< (type1-1) ) | (1<< (type2-1) ));
-
-  if(debug_ ) std::cout << " PFBlockAlgoNew links type1 " << type1 << " type2 " << type2 << std::endl;
-
-  const reco::PFBlockElement* lowEl = el1;
-  const reco::PFBlockElement* highEl = el2;
-  
-  if(type1>type2) {
-    lowEl = el2;
-    highEl = el1;
+  /*
+  linktype = static_cast<PFBlockLink::Type>((1<<(type1-1))|(1<< (type2-1)));
+  */
+  if(debug_ ) { 
+    std::cout << " PFBlockAlgoNew links type1 " << type1 
+	      << " type2 " << type2 << std::endl;
   }
-  
-  switch(linktype) {
-  // Track and preshower cluster links are not used for now - disable
-  case PFBlockLink::PS1andECAL:
-  case PFBlockLink::PS2andECAL:
-    {
-      // if(debug_ ) cout<< "PSandECAL" <<endl;
-      const PFClusterRef&  psref = lowEl->clusterRef();
-      const PFClusterRef&  ecalref = highEl->clusterRef();
-      assert( !psref.isNull() );
-      assert( !ecalref.isNull() );
 
-      // Check if the linking has been done using the KDTree algo
-      // Glowinski & Gouzevitch
-      if ( useKDTreeTrackEcalLinker_ && lowEl->isMultilinksValide() ) { // KDTree algo
-	const reco::PFMultilinksType& multilinks = lowEl->getMultilinks();
-	
-	double ecalPhi = ecalref->positionREP().Phi();
-	double ecalEta = ecalref->positionREP().Eta();
-	
-	// Check if the link PS/Ecal exist
-	reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
-	for (; mlit != multilinks.end(); ++mlit)
-	  if ((mlit->first == ecalPhi) && (mlit->second == ecalEta))
-	    break;
-	
-	// If the link exist, we fill dist and linktest. We use old algorithme method.
-	if (mlit != multilinks.end()){
-	  double xPS = psref->position().X();
-	  double yPS = psref->position().Y();
-	  double xECAL  = ecalref->position().X();
-	  double yECAL  = ecalref->position().Y();
-
-	  dist = LinkByRecHit::computeDist(xECAL/1000.,yECAL/1000.,xPS/1000.  ,yPS/1000, false);
-	}
-
-      } else { //Old algorithm
-	dist = LinkByRecHit::testECALAndPSByRecHit( *ecalref, *psref ,debug_);
-      }
-
-      //      linktest = PFBlock::LINKTEST_RECHIT;
-      
-      break;
-    }
-  case PFBlockLink::TRACKandECAL:
-    {
-      if(debug_ ) cout<<"TRACKandECAL"<<endl;
-
-      const PFRecTrackRef& trackref = lowEl->trackRefPF();
-      const PFClusterRef& clusterref = highEl->clusterRef();
-      assert( !trackref.isNull() );
-      assert( !clusterref.isNull() );
-
-      if(debug_ ) std::cout << " Track pt " << trackref->trackRef()->pt() << std::endl;
-
-      // Check if the linking has been done using the KDTree algo
-      // Glowinski & Gouzevitch
-      if ( useKDTreeTrackEcalLinker_ && lowEl->isMultilinksValide() ) { //KDTree Algo
-
-	const reco::PFMultilinksType& multilinks = lowEl->getMultilinks();
-	double ecalphi = clusterref->positionREP().Phi();
-	double ecaleta = clusterref->positionREP().Eta();
-
-	// Check if the link Track/Ecal exist
-	reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
-	for (; mlit != multilinks.end(); ++mlit)
-	  if ((mlit->first == ecalphi) && (mlit->second == ecaleta))
-	    break;
-
-	
-	// If the link exist, we fill dist and linktest. We use old algorithme method.
-	if (mlit != multilinks.end()){
-
-
-	  //Should be something like this :
-	  // 	  const reco::PFRecTrack& track = *trackref;
-	  //instead of this :
-	  /*
-	  reco::PFRecTrack track (*trackref);
-	  const reco::PFTrajectoryPoint& atECAL_tmp = 
-	    (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
-	  if(std::abs(atECAL_tmp.positionREP().Eta())<1E-9 &&
-	     std::abs(atECAL_tmp.positionREP().Phi())<1E-9 &&
-	     atECAL_tmp.positionREP().R()<1E-9) 
-	    track.calculatePositionREP();
-	  */
-
-	  const reco::PFTrajectoryPoint& atECAL = 
-	    trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
-	  
-	  double tracketa = atECAL.positionREP().Eta();
-	  double trackphi = atECAL.positionREP().Phi();
-
-	  dist = LinkByRecHit::computeDist(ecaleta, ecalphi, tracketa, trackphi);
-	}
-
-      } else {// Old algorithm
-	if ( trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
-	  dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
-	else
-	  dist = -1.;
-      }
-
-      if ( debug_ ) { 
-	if( dist > 0. ) { 
-	  std::cout << " Here a link has been established"
-		    << " between a track an Ecal with dist  " 
-		    << dist <<  std::endl;
-	} else
-	  std::cout << " No link found " << std::endl;
-      }
-      
-      //     linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-  case PFBlockLink::TRACKandHCAL:
-    {
-      //      if(debug_ ) cout<<"TRACKandHCAL"<<endl;
-
-      const PFRecTrackRef& trackref = lowEl->trackRefPF();
-      const PFClusterRef&  clusterref = highEl->clusterRef();
-      assert( !trackref.isNull() );
-      assert( !clusterref.isNull() );
-
-      // Check if the linking has been done using the KDTree algo
-      // Glowinski & Gouzevitch
-      if ( useKDTreeTrackEcalLinker_ && highEl->isMultilinksValide() ) { //KDTree Algo
-	
-	const reco::PFMultilinksType& multilinks = highEl->getMultilinks();
-
-	/*
-	reco::PFRecTrack track (*trackref);
-	const reco::PFTrajectoryPoint& atHCALEntrance_tmp = 
-	  (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance);
-	if (std::abs(atHCALEntrance_tmp.positionREP().Eta())<1E-9 &&
-	    std::abs(atHCALEntrance_tmp.positionREP().Phi())<1E-9 &&
-	    atHCALEntrance_tmp.positionREP().R()<1E-9)   
-	  track.calculatePositionREP();
-	*/
-
-	const reco::PFTrajectoryPoint& atHCAL = 
-	  trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
-	
-	  
-	double tracketa = atHCAL.positionREP().Eta();
-	double trackphi = atHCAL.positionREP().Phi();
-
-	// Check if the link Track/Ecal exist
-	reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
-	for (; mlit != multilinks.end(); ++mlit)
-	  if ((mlit->first == trackphi) && (mlit->second == tracketa))
-	    break;
-
-	// If the link exist, we fill dist and linktest. We use old algorithme method.
-	if (mlit != multilinks.end()){
-
-	  const reco::PFTrajectoryPoint& atHCALExit = 
-	    trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALExit);
-	  double dHEta = 0.0;
-	  double dHPhi = 0.0;
-	  if (atHCALExit.position().R()>atHCAL.position().R()) {
-	    dHEta = atHCALExit.positionREP().Eta()-atHCAL.positionREP().Eta();
-	    dHPhi = atHCALExit.positionREP().Phi()-atHCAL.positionREP().Phi(); 
-	    if ( dHPhi > M_PI ) dHPhi = dHPhi - 2.*M_PI;
-	    else if ( dHPhi < -M_PI ) dHPhi = dHPhi + 2.*M_PI; 
-	  } else {
-	    std::cout << "Qu'est ce que c'est que ce gag ? " 
-		      << atHCALExit.position().R() << " is larger than " 
-		      << atHCAL.position().R() << " !" << std::endl;
-	  }
-
-	  tracketa += 0.1 * dHEta;
-	  trackphi += 0.1 * dHPhi;
-
-	  double clusterphi = clusterref->positionREP().Phi();
-	  double clustereta = clusterref->positionREP().Eta();
-	  
-	  dist = LinkByRecHit::computeDist(clustereta, clusterphi, tracketa, trackphi);
-	}      	
-
-      } else {// Old algorithm
-	if ( trackref->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
-	  dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
-	else
-	  dist = -1.;
-      }
-      
-      //      linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-  case PFBlockLink::TRACKandHO:
-    {
-      if(debug_ ) cout<<"TRACKandHO"<<endl;
-
-      const PFRecTrackRef& trackref = lowEl->trackRefPF();
-      const PFClusterRef&  clusterref = highEl->clusterRef();
-      
-      assert( !trackref.isNull() );
-      assert( !clusterref.isNull() );
-
-      
-      // Old algorithm
-      //      cout<<"TRACKandHO1"<<trackref->pt()<<" "<<trackref->eta()<<" "<<trackref->phi()<<endl;
-      //Same value is used in PFTrackTransformer::addPoints() for HOLayer, but allow for some rounding precision
-      if ( lowEl->trackRef()->pt() > 3.00001 && trackref->extrapolatedPoint( reco::PFTrajectoryPoint::HOLayer ).isValid() ) {
-	//	cout<<"TRACKandHO2"<<endl;
-	dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
-	
-	//	cout <<"dist TRACKandHO "<<dist<<endl;
-      } else {
-	dist = -1.;
-      }
-      //      linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-  case PFBlockLink::ECALandHCAL:
-    {
-      //       cout<<"ECALandHCAL"<<endl;
-      const PFClusterRef&  ecalref = lowEl->clusterRef();
-      const PFClusterRef&  hcalref = highEl->clusterRef();
-      assert( !ecalref.isNull() );
-      assert( !hcalref.isNull() );
-      // PJ - 14-May-09 : A link by rechit is needed here !
-      dist = testECALAndHCAL( *ecalref, *hcalref );
-      // dist = -1.;
-      //     linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-  case PFBlockLink::HCALandHO:
-    {
-      //       cout<<"HCALandH0"<<endl;
-      const PFClusterRef&  hcalref = lowEl->clusterRef();
-      const PFClusterRef&  horef = highEl->clusterRef();
-      assert( !hcalref.isNull() );
-      assert( !horef.isNull() );
-      // PJ - 14-May-09 : A link by rechit is needed here !
-      dist = testHCALAndHO( *hcalref, *horef );
-      // dist = -1.;
-      //      cout <<"Dist "<<dist<<endl;
-      //     linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-  case PFBlockLink::HFEMandHFHAD:
-    {
-      // cout<<"HFEMandHFHAD"<<endl;
-      const PFClusterRef&  eref = lowEl->clusterRef();
-      const PFClusterRef&  href = highEl->clusterRef();
-      assert( !eref.isNull() );
-      assert( !href.isNull() );
-      dist = LinkByRecHit::testHFEMAndHFHADByRecHit( *eref, *href, debug_ );
-      //    linktest = PFBlock::LINKTEST_RECHIT;
-      break;      
-    }
-
-  case PFBlockLink::TRACKandTRACK:
-    {
-      if(debug_ ) 
-	cout<<"TRACKandTRACK"<<endl;
-      dist = testLinkByVertex(lowEl, highEl);
-      if(debug_ ) 
-	std::cout << " PFBlockLink::TRACKandTRACK dist " << dist << std::endl;
-      //   linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-
-  case PFBlockLink::ECALandECAL:
-      {
-	
-	const PFClusterRef&  ecal1ref = lowEl->clusterRef();
-	const PFClusterRef&  ecal2ref = highEl->clusterRef();
-	assert( !ecal1ref.isNull() );
-	assert( !ecal2ref.isNull() );
-	if(debug_)
-	  cout << " PFBlockLink::ECALandECAL" << endl;
-	dist = testLinkBySuperCluster(ecal1ref,ecal2ref);
-	break;
-      }
-
-  case PFBlockLink::ECALandGSF:
-    {
-      const PFClusterRef&  clusterref = lowEl->clusterRef();
-      assert( !clusterref.isNull() );
-      const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
-      const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
-      if ( myTrack->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
-	dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, false, debug_ );
-      else
-	dist = -1.;
-      //   linktest = PFBlock::LINKTEST_RECHIT;
-      
-      if ( debug_ ) {
-	if ( dist > 0. ) {
-	  std::cout << " Here a link has been established" 
-		    << " between a GSF track an Ecal with dist  " 
-		    << dist <<  std::endl;
-	} else {
-	  if(debug_ ) std::cout << " No link found " << std::endl;
-	}
-      }
-      break;
-    }
-  case PFBlockLink::TRACKandGSF:
-    {
-      PFRecTrackRef trackref = lowEl->trackRefPF();
-      assert( !trackref.isNull() );
-      const reco::PFBlockElementGsfTrack *  GsfEl =  
-	dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
-      GsfPFRecTrackRef gsfref = GsfEl->GsftrackRefPF();
-      reco::TrackRef kftrackref= (*trackref).trackRef();
-      assert( !gsfref.isNull() );
-      PFRecTrackRef refkf = (*gsfref).kfPFRecTrackRef();
-      if(refkf.isNonnull()) {
-	reco::TrackRef gsftrackref = (*refkf).trackRef();
-	if (gsftrackref.isNonnull()&&kftrackref.isNonnull()) {
-	  if (kftrackref == gsftrackref) { 
-	    dist = 0.001;
-	  } else { 
-	    dist = -1.;
-	  }
-	} else { 
-	  dist = -1.;
-	}
-      } else {
-	dist = -1.;
-      }
-      
-      
-      if(useConvBremPFRecTracks_) {
-	if(lowEl->isLinkedToDisplacedVertex()){
-	  vector<PFRecTrackRef> pfrectrack_vec = GsfEl->GsftrackRefPF()->convBremPFRecTrackRef();
-	  if(pfrectrack_vec.size() > 0){
-	    for(unsigned int iconv = 0; iconv <  pfrectrack_vec.size(); ++iconv) {
-	      if( lowEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) {
-		// use track ref
-		if(kftrackref == (*pfrectrack_vec[iconv]).trackRef()) {		
-		  dist = 0.001;
-		}
-	      }	
-	      else{
-		// use the track base ref
-		reco::TrackBaseRef newTrackBaseRef((*pfrectrack_vec[iconv]).trackRef());
-		reco::TrackBaseRef elemTrackBaseRef(kftrackref);	      
-		if(newTrackBaseRef == elemTrackBaseRef){
-		  dist = 0.001;
-		} 
-	      }
-	    }
-	  }
-	}
-      }
- 
-
-      break;      
-    }
-	 
-  case PFBlockLink::GSFandBREM:
-    {
-      const reco::PFBlockElementGsfTrack * GsfEl  =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(lowEl);
-      const reco::PFBlockElementBrem * BremEl =  dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
-      GsfPFRecTrackRef gsfref = GsfEl->GsftrackRefPF();
-      GsfPFRecTrackRef bremref = BremEl->GsftrackRefPF();
-      assert( !gsfref.isNull() );
-      assert( !bremref.isNull() );
-      if (gsfref == bremref)  { 
-	dist = 0.001;
-      } else { 
-	dist = -1.;
-      }
-      break;
-    }
-  case PFBlockLink::GSFandGSF:
-    {
-      const reco::PFBlockElementGsfTrack * lowGsfEl  =  
-	dynamic_cast<const reco::PFBlockElementGsfTrack*>(lowEl);
-      const reco::PFBlockElementGsfTrack * highGsfEl  =  
-	dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
-      
-      GsfPFRecTrackRef lowgsfref = lowGsfEl->GsftrackRefPF();
-      GsfPFRecTrackRef highgsfref = highGsfEl->GsftrackRefPF();
-      assert( !lowgsfref.isNull() );
-      assert( !highgsfref.isNull() );
-      
-      if( (lowGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false && 
-	   highGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) ||
-	  (highGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false && 
-	   lowGsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV))) {
-	if(lowgsfref->trackId() == highgsfref->trackId()) {
-	  dist = 0.001;
-	}
-	else {
-	  dist = -1.;
-	}
-      }
-      break;
-    }
-  case PFBlockLink::ECALandBREM:
-    {
-      const PFClusterRef&  clusterref = lowEl->clusterRef();
-      assert( !clusterref.isNull() );
-      const reco::PFBlockElementBrem * BremEl =  
-	dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
-      const PFRecTrack * myTrack = &(BremEl->trackPF());
-      /*
-      double DP = (BremEl->DeltaP())*(-1.);
-      double SigmaDP = BremEl->SigmaDeltaP();
-      double SignBremDp = DP/SigmaDP;
-      */
-      bool isBrem = true;
-      if ( myTrack->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
-	dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, isBrem, debug_);
-      else
-	dist = -1.;
-      if( debug_ && dist > 0. ) 
-	std::cout << "ECALandBREM: dist testTrackAndClusterByRecHit " 
-		  << dist << std::endl;
-      //   linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-  case PFBlockLink::HCALandGSF:
-    {
-      const PFClusterRef&  clusterref = lowEl->clusterRef();
-      assert( !clusterref.isNull() );
-      const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
-      const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
-      if ( myTrack->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
-	dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, false, debug_ );
-      else
-	dist = -1.;
-
-      //    linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-  case PFBlockLink::HCALandBREM:
-    {
-      const PFClusterRef&  clusterref = lowEl->clusterRef();
-      assert( !clusterref.isNull() );
-      const reco::PFBlockElementBrem * BremEl =  dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
-      const PFRecTrack * myTrack = &(BremEl->trackPF());
-      bool isBrem = true;
-      if ( myTrack->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
-	dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, isBrem, debug_);
-      else
-	dist = -1.;
-      break;
-    }
-  case PFBlockLink::SCandECAL:
-    {
-      const PFClusterRef&  clusterref = lowEl->clusterRef();
-
-      assert( !clusterref.isNull() );
-      
-      const reco::PFBlockElementSuperCluster * scEl = 
-	dynamic_cast<const reco::PFBlockElementSuperCluster*>(highEl);
-      assert (!scEl->superClusterRef().isNull());
-      dist = testSuperClusterPFCluster(scEl->superClusterRef(),
-				       clusterref);
-      break;
-    }
-    /*
-  // Links between the two preshower layers are not used for now - disable
-  case PFBlockLink::PS1andPS2:
-    {
-      PFClusterRef  ps1ref = lowEl->clusterRef();
-      PFClusterRef  ps2ref = highEl->clusterRef();
-      assert( !ps1ref.isNull() );
-      assert( !ps2ref.isNull() );
-      // PJ - 14-May-09 : A link by rechit is needed here !
-      // dist = testPS1AndPS2( *ps1ref, *ps2ref );
-      dist = -1.;
-      linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-  case PFBlockLink::TRACKandPS1:
-  case PFBlockLink::TRACKandPS2:
-    {
-      //cout<<"TRACKandPS"<<endl;
-      PFRecTrackRef trackref = lowEl->trackRefPF();
-      PFClusterRef  clusterref = highEl->clusterRef();
-      assert( !trackref.isNull() );
-      assert( !clusterref.isNull() );
-      // PJ - 14-May-09 : A link by rechit is needed here !
-      dist = testTrackAndPS( *trackref, *clusterref );
-      linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-    // GSF Track/Brem Track and preshower cluster links are not used for now - disable
-  case PFBlockLink::PS1andGSF:
-  case PFBlockLink::PS2andGSF:
-    {
-      PFClusterRef  psref = lowEl->clusterRef();
-      assert( !psref.isNull() );
-      const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
-      const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
-      // PJ - 14-May-09 : A link by rechit is needed here !
-      dist = testTrackAndPS( *myTrack, *psref );
-      linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-  case PFBlockLink::PS1andBREM:
-  case PFBlockLink::PS2andBREM:
-    {
-      PFClusterRef  psref = lowEl->clusterRef();
-      assert( !psref.isNull() );
-      const reco::PFBlockElementBrem * BremEl =  dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
-      const PFRecTrack * myTrack = &(BremEl->trackPF());
-      // PJ - 14-May-09 : A link by rechit is needed here !
-      dist = testTrackAndPS( *myTrack, *psref );
-      linktest = PFBlock::LINKTEST_RECHIT;
-      break;
-    }
-    */
-
-  default:
-    dist = -1.;
-    //   linktest = PFBlock::LINKTEST_RECHIT;
-    // cerr<<"link type not implemented yet: 0x"<<hex<<linktype<<dec<<endl;
-    // assert(0);
-    return;
-  }
-}
-
-double
-PFBlockAlgoNew::testTrackAndPS(const PFRecTrack& track, 
-			    const PFCluster& ps)  const {
-
-#ifdef PFLOW_DEBUG
-  //   cout<<"entering testTrackAndPS"<<endl;
-  // resolution of PS cluster dxdx and dydy from strip pitch and length
-  double dx=0.;
-  double dy=0.;
-  
-  unsigned layerid =0;
-  // PS1: vertical strips  PS2: horizontal strips
-  switch (ps.layer()) {
-  case PFLayer::PS1:
-    layerid = reco::PFTrajectoryPoint::PS1;
-    
-    // vertical strips in PS1, measure x with pitch precision
-    dx = resPSpitch_;
-    dy = resPSlength_; 
-    break;
-  case PFLayer::PS2:
-    layerid = reco::PFTrajectoryPoint::PS2;
-    // horizontal strips in PS2, measure y with pitch precision
-    dy = resPSpitch_;
-    dx = resPSlength_;
-    break;
-  default:
-    break;
-  }
-  const reco::PFTrajectoryPoint& atPS
-    = track.extrapolatedPoint( layerid );  
-  // did not reach PS, cannot be associated with a cluster.
-  if( ! atPS.isValid() ) return -1.;   
-  
-  double trackx = atPS.position().X();
-  double tracky = atPS.position().Y();
-  double trackz = atPS.position().Z(); // MDN jan 09
-  
-  // ps position  x, y
-  double psx = ps.position().X();
-  double psy = ps.position().Y();
-  // MDN Jan 09: check that trackz and psz have the same sign
-  double psz = ps.position().Z();
-  if( trackz*psz < 0.) return -1.; 
-  
-  // double chi2 = (psx-trackx)*(psx-trackx)/(dx*dx + trackresolx*trackresolx)
-  //  + (psy-tracky)*(psy-tracky)/(dy*dy + trackresoly*trackresoly);
-
-  double dist = std::sqrt( (psx-trackx)*(psx-trackx)
-			 + (psy-tracky)*(psy-tracky));  
-  if(debug_) cout<<"testTrackAndPS "<< dist <<" "<<endl;
-  if(debug_){
-    cout<<" trackx " << trackx 
-	<<" tracky " << tracky 
-	<<" psx "    <<  psx   
-	<<" psy "    << psy    
-	<< endl;
-  }
-#endif
-  
-  // Return -1. as long as no link by rechit is available
-  return -1.;
+  if( index < _linkTests.size() && _linkTests[index] ) {
+    dist = _linkTests[index]->testLink(el1,el2);
+  }  
 }
 
 double
@@ -1039,60 +456,6 @@ PFBlockAlgoNew::testSuperClusterPFCluster(const SuperClusterRef& ecal1,
   return dist;
 }
 
-
-
-double
-PFBlockAlgoNew::testPS1AndPS2(const PFCluster& ps1, 
-			   const PFCluster& ps2)  const {
-  
-#ifdef PFLOW_DEBUG
-  //   cout<<"entering testPS1AndPS2"<<endl;
-  
-  // compute chi2 in y, z using swimming formulae
-  // y2 = y1 * z2/z1   and x2 = x1 *z2/z1
-  
-  // ps position1  x, y, z
-  double x1 = ps1.position().X();
-  double y1 = ps1.position().Y();
-  double z1 = ps1.position().Z();
-  double x2 = ps2.position().X();
-  double y2 = ps2.position().Y();
-  double z2 = ps2.position().Z();
-  // MDN Bug correction Jan 09: check that z1 and z2 have the same sign!
-  if (z1*z2<0.) -1.;
-  // swim to PS2
-  double scale = z2/z1;
-  double x1atPS2 = x1*scale;
-  double y1atPS2 = y1*scale;
-  // resolution of PS cluster dxdx and dydy from strip pitch and length
-  // vertical strips in PS1, measure x with pitch precision
-  double dx1dx1 = resPSpitch_*resPSpitch_*scale*scale;
-  double dy1dy1 = resPSlength_*resPSlength_*scale*scale;
-  // horizontal strips in PS2 , measure y with pitch precision
-  double dy2dy2 = resPSpitch_*resPSpitch_;
-  double dx2dx2 = resPSlength_*resPSlength_;
-  
-  // double chi2 = (x2-x1atPS2)*(x2-x1atPS2)/(dx1dx1 + dx2dx2) 
-  //  + (y2-y1atPS2)*(y2-y1atPS2)/(dy1dy1 + dy2dy2);
-  
-  double dist = std::sqrt( (x2-x1atPS2)*(x2-x1atPS2)
-			 + (y2-y1atPS2)*(y2-y1atPS2));
-    
-  if(debug_) cout<<"testPS1AndPS2 "<<dist<<" "<<endl;
-  if(debug_){
-    cout<<" x1atPS2 "<< x1atPS2 << " dx1 "<<resPSpitch_*scale
-	<<" y1atPS2 "<< y1atPS2 << " dy1 "<<resPSlength_*scale<< endl
-	<<" x2 " <<x2  << " dx2 "<<resPSlength_
-	<<" y2 " << y2 << " dy2 "<<resPSpitch_<< endl;
-  }
-#endif
-
-  // Need a link by rechit here
-  return -1.; 
-}
-
-
-
 double
 PFBlockAlgoNew::testLinkByVertex( const reco::PFBlockElement* elt1, 
 			       const reco::PFBlockElement* elt2) const {
@@ -1124,7 +487,7 @@ PFBlockAlgoNew::testLinkByVertex( const reco::PFBlockElement* elt1,
     if(debug_ ) std::cout << " testLinkByVertex On Conversions " << std::endl;
     
     if ( elt1->convRef().isNonnull() && elt2->convRef().isNonnull() ) {
-      if(debug_ ) std::cout << " PFBlockAlgoNew.cc testLinkByVertex  Cconversion Refs are non null  " << std::endl;      
+      if(debug_ ) std::cout << " PFBlockAlgo.cc testLinkByVertex  Cconversion Refs are non null  " << std::endl;      
       if ( elt1->convRef() ==  elt2->convRef() ) {
 	result=1.0;
 	if(debug_ ) std::cout << " testLinkByVertex  Cconversion Refs are equal  " << std::endl;      
@@ -1138,7 +501,7 @@ PFBlockAlgoNew::testLinkByVertex( const reco::PFBlockElement* elt1,
              elt2->trackType(reco::PFBlockElement::T_FROM_V0)  ) {
     if(debug_ ) std::cout << " testLinkByVertex On V0 " << std::endl;
     if ( elt1->V0Ref().isNonnull() && elt2->V0Ref().isNonnull() ) {
-      if(debug_ ) std::cout << " PFBlockAlgoNew.cc testLinkByVertex  V0 Refs are non null  " << std::endl;
+      if(debug_ ) std::cout << " PFBlockAlgo.cc testLinkByVertex  V0 Refs are non null  " << std::endl;
       if ( elt1->V0Ref() ==  elt2->V0Ref() ) {
 	result=1.0;
 	if(debug_ ) std::cout << " testLinkByVertex  V0 Refs are equal  " << std::endl;
@@ -1149,7 +512,6 @@ PFBlockAlgoNew::testLinkByVertex( const reco::PFBlockElement* elt1,
 
   return result;
 }
-
 
 
 void 
@@ -1408,45 +770,68 @@ PFBlockAlgoNew::muAssocToTrack( const reco::TrackRef& trackref,
 inline bool
 PFBlockAlgoNew::linkPrefilter(const reco::PFBlockElement* last, 
 			      const reco::PFBlockElement* next) const {
-
-  PFBlockElement::Type type1 = (last)->type();
-  PFBlockElement::Type type2 = (next)->type();
-
-  if( type1==type2 ) {
-    // cannot link 2 elements of the same type. 
-    // except if the elements are 2 tracks or 2 ECAL
-    if( type1!=PFBlockElement::TRACK && type1!=PFBlockElement::GSF &&
-	type1!=PFBlockElement::ECAL) { // && type1!=PFBlockElement::HCAL) {
-      return false;
-    }
-
-    if (type1==PFBlockElement::ECAL && bNoSuperclus_) return false;
-
-    // cannot link two primary tracks  (except if they come from a V0)
-    if( type1 ==PFBlockElement::TRACK) {
-      if ( !((last)->isLinkedToDisplacedVertex()) || !((next)->isLinkedToDisplacedVertex())) 
-      return false;
-    }
+  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
+  const PFBlockElement::Type& type1 = (last)->type();
+  const PFBlockElement::Type& type2 = (next)->type();
+  const unsigned index = rowsize*std::max(type1,type2) + std::min(type1,type2);
+  bool result = false;
+  if( _linkTests[index] ) {
+    result = _linkTests[index]->linkPrefilter(last,next);
   }
-
-  if ((type1 == PFBlockElement::PS1 || type1 == PFBlockElement::PS2) && (type2 != PFBlockElement::ECAL)) return false;
-  if ((type2 == PFBlockElement::PS1 || type2 == PFBlockElement::PS2) && (type1 != PFBlockElement::ECAL)) return false;
-  if ((type1 == PFBlockElement::HFEM && type2 != PFBlockElement::HFHAD) || (type1 == PFBlockElement::HFHAD && type2 != PFBlockElement::HFEM)) return false;
-
-  if (useKDTreeTrackEcalLinker_){ 
-  
-    if ( type1 == PFBlockElement::TRACK && type2 == PFBlockElement::ECAL)
-      if ( last->isMultilinksValide()  && last->getMultilinks().size()==0 ) return false;
-    if ( type2 == PFBlockElement::TRACK && type1 == PFBlockElement::ECAL)
-      if ( next->isMultilinksValide() && next->getMultilinks().size()==0 ) return false;
-    if ( type1 == PFBlockElement::PS1 || type1 == PFBlockElement::PS2)
-      if ( last->isMultilinksValide()  && last->getMultilinks().size()==0 ) return false;
-    if ( type2 == PFBlockElement::PS1 || type2 == PFBlockElement::PS2)
-      if ( next->isMultilinksValide() && next->getMultilinks().size()==0 ) return false;
-
-  }
-
-  return true;
-
+  return result;  
 }
 
+// a little history, ideas we may want to keep around for later
+   /*
+  // Links between the two preshower layers are not used for now - disable
+  case PFBlockLink::PS1andPS2:
+    {
+      PFClusterRef  ps1ref = lowEl->clusterRef();
+      PFClusterRef  ps2ref = highEl->clusterRef();
+      assert( !ps1ref.isNull() );
+      assert( !ps2ref.isNull() );
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      // dist = testPS1AndPS2( *ps1ref, *ps2ref );
+      dist = -1.;
+      linktest = PFBlock::LINKTEST_RECHIT;
+      break;
+    }
+  case PFBlockLink::TRACKandPS1:
+  case PFBlockLink::TRACKandPS2:
+    {
+      //cout<<"TRACKandPS"<<endl;
+      PFRecTrackRef trackref = lowEl->trackRefPF();
+      PFClusterRef  clusterref = highEl->clusterRef();
+      assert( !trackref.isNull() );
+      assert( !clusterref.isNull() );
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      dist = testTrackAndPS( *trackref, *clusterref );
+      linktest = PFBlock::LINKTEST_RECHIT;
+      break;
+    }
+    // GSF Track/Brem Track and preshower cluster links are not used for now - disable
+  case PFBlockLink::PS1andGSF:
+  case PFBlockLink::PS2andGSF:
+    {
+      PFClusterRef  psref = lowEl->clusterRef();
+      assert( !psref.isNull() );
+      const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
+      const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      dist = testTrackAndPS( *myTrack, *psref );
+      linktest = PFBlock::LINKTEST_RECHIT;
+      break;
+    }
+  case PFBlockLink::PS1andBREM:
+  case PFBlockLink::PS2andBREM:
+    {
+      PFClusterRef  psref = lowEl->clusterRef();
+      assert( !psref.isNull() );
+      const reco::PFBlockElementBrem * BremEl =  dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
+      const PFRecTrack * myTrack = &(BremEl->trackPF());
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      dist = testTrackAndPS( *myTrack, *psref );
+      linktest = PFBlock::LINKTEST_RECHIT;
+      break;
+    }
+    */

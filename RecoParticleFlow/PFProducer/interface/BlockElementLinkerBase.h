@@ -14,9 +14,12 @@ class BlockElementLinkerBase {
   BlockElementLinkerBase(const BlockElementLinkerBase& ) = delete;
   BlockElementLinkerBase& operator=(const BlockElementLinkerBase&) = delete;
 
-  virtual double operator()
-    (const std::unique_ptr<reco::PFBlockElement>&,
-     const std::unique_ptr<reco::PFBlockElement>&) const = 0;
+  virtual bool linkPrefilter( const reco::PFBlockElement*,
+			      const reco::PFBlockElement* ) const 
+  { return true; }
+
+  virtual double testLink( const reco::PFBlockElement*,
+			   const reco::PFBlockElement* ) const = 0;
 
   const std::string& name() const { return _linkerName; }
   

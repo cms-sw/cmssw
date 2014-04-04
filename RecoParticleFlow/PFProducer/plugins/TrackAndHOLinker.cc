@@ -11,9 +11,9 @@ public:
     _useKDTree(conf.getParameter<bool>("useKDTree")),
     _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
   
-  double operator() 
-  ( const std::unique_ptr<reco::PFBlockElement>&,
-    const std::unique_ptr<reco::PFBlockElement>& ) const override;
+  double testLink 
+  ( const reco::PFBlockElement*,
+    const reco::PFBlockElement* ) const override;
 
 private:
   bool _useKDTree,_debug;
@@ -23,20 +23,20 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory,
 		  TrackAndHOLinker, 
 		  "TrackAndHOLinker");
 
-double TrackAndHOLinker::operator()
-  ( const std::unique_ptr<reco::PFBlockElement>& elem1,
-    const std::unique_ptr<reco::PFBlockElement>& elem2) const {  
+double TrackAndHOLinker::testLink
+  ( const reco::PFBlockElement* elem1,
+    const reco::PFBlockElement* elem2) const {  
   constexpr reco::PFTrajectoryPoint::LayerType HOLayer =
     reco::PFTrajectoryPoint::HOLayer;
   const reco::PFBlockElementTrack   *tkelem(NULL);
   const reco::PFBlockElementCluster *hoelem(NULL);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
-    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1.get());
-    hoelem = static_cast<const reco::PFBlockElementCluster*>(elem2.get());
+    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);
+    hoelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
   } else {
-    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem2.get());
-    hoelem = static_cast<const reco::PFBlockElementCluster*>(elem1.get());
+    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem2);
+    hoelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
   }
   const reco::PFClusterRef& horef = hoelem->clusterRef();
   const reco::PFRecTrackRef& tkref = tkelem->trackRefPF();  

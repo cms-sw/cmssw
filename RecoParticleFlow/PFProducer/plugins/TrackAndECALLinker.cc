@@ -11,32 +11,50 @@ public:
     _useKDTree(conf.getParameter<bool>("useKDTree")),
     _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
   
-  double operator() 
-  ( const std::unique_ptr<reco::PFBlockElement>&,
-    const std::unique_ptr<reco::PFBlockElement>& ) const override;
+  bool linkPrefilter( const reco::PFBlockElement*,
+		      const reco::PFBlockElement* ) const override;
+
+  double testLink( const reco::PFBlockElement*,
+		   const reco::PFBlockElement* ) const override;
 
 private:
-  bool _useKDTree,_debug;
+  const bool _useKDTree,_debug;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, 
 		  TrackAndECALLinker, 
 		  "TrackAndECALLinker");
 
-double TrackAndECALLinker::operator()
-  ( const std::unique_ptr<reco::PFBlockElement>& elem1,
-    const std::unique_ptr<reco::PFBlockElement>& elem2) const {  
+bool TrackAndECALLinker::
+linkPrefilter( const reco::PFBlockElement* elem1,
+	       const reco::PFBlockElement* elem2 ) const {  
+  bool result = false;
+  switch( elem1->type() ){ 
+  case reco::PFBlockElement::TRACK:
+    result = (elem1->isMultilinksValide() && elem1->getMultilinks().size() > 0);
+    break;
+  case reco::PFBlockElement::ECAL:
+    result = (elem2->isMultilinksValide() && elem2->getMultilinks().size() > 0);
+  default:
+    break;
+  } 
+  return (_useKDTree ? result : true);  
+}
+
+double TrackAndECALLinker::
+testLink( const reco::PFBlockElement* elem1,
+	  const reco::PFBlockElement* elem2 ) const {  
   constexpr reco::PFTrajectoryPoint::LayerType ECALShowerMax =
     reco::PFTrajectoryPoint::ECALShowerMax;
   const reco::PFBlockElementCluster *ecalelem(NULL);
   const reco::PFBlockElementTrack   *tkelem(NULL);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
-    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1.get());
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2.get());
+    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);
+    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
   } else {
-    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem2.get());
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1.get());
+    tkelem = static_cast<const reco::PFBlockElementTrack*>(elem2);
+    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
   }
   const reco::PFRecTrackRef& trackref = tkelem->trackRefPF();
   const reco::PFClusterRef& clusterref = ecalelem->clusterRef();
@@ -69,8 +87,6 @@ double TrackAndECALLinker::operator()
       dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, 
 							*clusterref, 
 							false, _debug );
-    else
-      dist = -1.;
   }
   
   if ( _debug ) { 

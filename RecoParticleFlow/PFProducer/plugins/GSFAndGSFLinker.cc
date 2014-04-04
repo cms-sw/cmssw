@@ -9,31 +9,30 @@ public:
   GSFAndGSFLinker(const edm::ParameterSet& conf) :
     BlockElementLinkerBase(conf),
     _useKDTree(conf.getParameter<bool>("useKDTree")),
-    _useConvertedBrems(conf.getParameter<bool>("useConvertedBrems")),
     _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
   
-  double operator() 
-  ( const std::unique_ptr<reco::PFBlockElement>&,
-    const std::unique_ptr<reco::PFBlockElement>& ) const override;
+  double testLink 
+  ( const reco::PFBlockElement*,
+    const reco::PFBlockElement* ) const override;
 
 private:
-  bool _useKDTree,_useConvertedBrems,_debug;
+  bool _useKDTree,_debug;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, 
 		  GSFAndGSFLinker, 
 		  "GSFAndGSFLinker");
 
-double GSFAndGSFLinker::operator()
-  ( const std::unique_ptr<reco::PFBlockElement>& elem1,
-    const std::unique_ptr<reco::PFBlockElement>& elem2) const { 
+double GSFAndGSFLinker::testLink
+  ( const reco::PFBlockElement* elem1,
+    const reco::PFBlockElement* elem2) const { 
   constexpr reco::PFBlockElement::TrackType T_FROM_GAMMACONV =
     reco::PFBlockElement::T_FROM_GAMMACONV;
   double dist = -1.0;
   const reco::PFBlockElementGsfTrack * gsfelem1 =
-    static_cast<const reco::PFBlockElementGsfTrack *>(elem1.get());
+    static_cast<const reco::PFBlockElementGsfTrack *>(elem1);
   const reco::PFBlockElementGsfTrack * gsfelem2 = 
-    static_cast<const reco::PFBlockElementGsfTrack *>(elem2.get());
+    static_cast<const reco::PFBlockElementGsfTrack *>(elem2);
   const reco::GsfPFRecTrackRef& gsfref1 = gsfelem1->GsftrackRefPF();
   const reco::GsfPFRecTrackRef& gsfref2 = gsfelem2->GsftrackRefPF();
   if( gsfref1.isNonnull() && gsfref2.isNonnull() ) {

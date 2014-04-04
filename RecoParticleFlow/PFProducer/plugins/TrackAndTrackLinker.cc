@@ -11,9 +11,11 @@ public:
     _useKDTree(conf.getParameter<bool>("useKDTree")),
     _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
   
-  double operator() 
-  ( const std::unique_ptr<reco::PFBlockElement>&,
-    const std::unique_ptr<reco::PFBlockElement>& ) const override;
+  bool linkPrefilter( const reco::PFBlockElement*,
+		      const reco::PFBlockElement* ) const override;
+
+  double testLink( const reco::PFBlockElement*,
+		   const reco::PFBlockElement* ) const override;
 
 private:
   bool _useKDTree,_debug;
@@ -23,9 +25,16 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory,
 		  TrackAndTrackLinker, 
 		  "TrackAndTrackLinker");
 
-double TrackAndTrackLinker::operator()
-  ( const std::unique_ptr<reco::PFBlockElement>& elem1,
-    const std::unique_ptr<reco::PFBlockElement>& elem2) const { 
+bool TrackAndTrackLinker::
+linkPrefilter( const reco::PFBlockElement* e1,
+	       const reco::PFBlockElement* e2 ) const {
+  return ( e1->isLinkedToDisplacedVertex() || 
+	   e2->isLinkedToDisplacedVertex()    );
+}
+
+double TrackAndTrackLinker::
+testLink( const reco::PFBlockElement* elem1,
+	  const reco::PFBlockElement* elem2) const { 
   constexpr reco::PFBlockElement::TrackType T_TO_DISP = 
     reco::PFBlockElement::T_TO_DISP;
   constexpr reco::PFBlockElement::TrackType T_FROM_DISP = 

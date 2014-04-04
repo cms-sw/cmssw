@@ -11,9 +11,9 @@ public:
     _useKDTree(conf.getParameter<bool>("useKDTree")),
     _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
   
-  double operator() 
-  ( const std::unique_ptr<reco::PFBlockElement>&,
-    const std::unique_ptr<reco::PFBlockElement>& ) const override;
+  double testLink 
+  ( const reco::PFBlockElement*,
+    const reco::PFBlockElement* ) const override;
 
 private:
   bool _useKDTree,_debug;
@@ -23,20 +23,20 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory,
 		  GSFAndHCALLinker, 
 		  "GSFAndHCALLinker");
 
-double GSFAndHCALLinker::operator()
-  ( const std::unique_ptr<reco::PFBlockElement>& elem1,
-    const std::unique_ptr<reco::PFBlockElement>& elem2) const {  
+double GSFAndHCALLinker::testLink
+  ( const reco::PFBlockElement* elem1,
+    const reco::PFBlockElement* elem2) const {  
   constexpr reco::PFTrajectoryPoint::LayerType HCALEnt =
     reco::PFTrajectoryPoint::HCALEntrance;
   const reco::PFBlockElementCluster  *hcalelem(NULL);
   const reco::PFBlockElementGsfTrack *gsfelem(NULL);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1.get());
-    gsfelem  = static_cast<const reco::PFBlockElementGsfTrack*>(elem2.get());
+    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
+    gsfelem  = static_cast<const reco::PFBlockElementGsfTrack*>(elem2);
   } else {
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2.get());
-    gsfelem  = static_cast<const reco::PFBlockElementGsfTrack*>(elem1.get());
+    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
+    gsfelem  = static_cast<const reco::PFBlockElementGsfTrack*>(elem1);
   }
   const reco::PFRecTrack& track = gsfelem->GsftrackPF();
   const reco::PFClusterRef& clusterref = hcalelem->clusterRef();

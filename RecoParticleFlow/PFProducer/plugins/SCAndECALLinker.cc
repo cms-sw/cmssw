@@ -13,9 +13,9 @@ public:
     _debug(conf.getUntrackedParameter<bool>("debug",false)),
     _superClusterMatchByRef(conf.getParameter<bool>("SuperClusterMatchByRef")){}
   
-  double operator() 
-  ( const std::unique_ptr<reco::PFBlockElement>&,
-    const std::unique_ptr<reco::PFBlockElement>& ) const override;
+  double testLink 
+  ( const reco::PFBlockElement*,
+    const reco::PFBlockElement* ) const override;
 
 private:
   bool _useKDTree,_debug,_superClusterMatchByRef;
@@ -25,18 +25,18 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory,
 		  SCAndECALLinker, 
 		  "SCAndECALLinker");
 
-double SCAndECALLinker::operator()
-  ( const std::unique_ptr<reco::PFBlockElement>& elem1,
-    const std::unique_ptr<reco::PFBlockElement>& elem2) const { 
+double SCAndECALLinker::testLink
+  ( const reco::PFBlockElement* elem1,
+    const reco::PFBlockElement* elem2) const { 
   double dist = -1.0;  
   const reco::PFBlockElementCluster* ecalelem(NULL);    
   const reco::PFBlockElementSuperCluster* scelem(NULL); 
   if( elem1->type() < elem2->type() ) {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1.get());
-    scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem2.get());
+    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
+    scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem2);
   } else {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2.get());
-    scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem1.get());
+    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
+    scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem1);
   }
   const reco::PFClusterRef& clus = ecalelem->clusterRef();
   const reco::SuperClusterRef& sclus = scelem->superClusterRef();
