@@ -80,7 +80,7 @@ void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Plane& pla
    if( const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_) )
      {
 	try {
-	   state = shp->propagate(state, plane);
+	   shp->propagate(state, plane, state);
 	}
 	catch(cms::Exception &ex){
            edm::LogWarning("TrackAssociator") << 
@@ -104,7 +104,7 @@ void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Cylinder& 
    if( const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_) )
      {
 	try {
-	   state = shp->propagate(state, cylinder);
+	   shp->propagate(state, cylinder,state);
 	}
 	catch(cms::Exception &ex){
            edm::LogWarning("TrackAssociator") << 
@@ -259,7 +259,7 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
      {
 	SteppingHelixStateInfo state;
 	try { 
-	   state = shp->propagate(fullTrajectory_[closestPointOnLeft], *plane);
+	   shp->propagate(fullTrajectory_[closestPointOnLeft], *plane, state);
 	}
 	catch(cms::Exception &ex){
            edm::LogWarning("TrackAssociator") << 
