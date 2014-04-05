@@ -40,6 +40,9 @@ namespace edm {
 
     myEcalDigitizer_ = new EcalDigiProducer( ps , iC);
 
+
+    std::cout << " Setting NG from DataMixer " << std::endl;
+
     myEcalDigitizer_->setEBNoiseSignalGenerator( & theEBSignalGenerator );
     myEcalDigitizer_->setEENoiseSignalGenerator( & theEESignalGenerator );
     //myEcalDigitizer_->setESNoiseSignalGenerator( & theESSignalGenerator );
