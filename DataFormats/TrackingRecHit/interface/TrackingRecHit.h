@@ -29,7 +29,7 @@ class TrackingRecHit {
 public:
 
 #ifdef NO_DICT
-   using      RecHitPointer = std::shared_ptr<TrackingRecHit const>;
+   using      RecHitPointer = std::shared_ptr<TrackingRecHit const>;  // requires to much editing
    using ConstRecHitPointer = std::shared_ptr<TrackingRecHit const>;   
 #else
    typedef TrackingRecHit const *          RecHitPointer;
@@ -82,6 +82,13 @@ public:
   virtual TrackingRecHit * clone() const = 0;
 #ifdef NO_DICT
   virtual RecHitPointer cloneSH() const { return RecHitPointer(clone());}
+  // clone and add the geom (ready for refit)
+  RecHitPointer cloneForFit(const GeomDet & idet) const {
+    auto cl = cloneSH();
+    const_cast<TrackingRecHit&>(*cl).setDet(idet); // const_cast (can be fixed editing some 100 files)
+    return cl;  
+  }
+  void setDet(const GeomDet & idet) {m_det = &idet;}
 #endif
   
   virtual AlgebraicVector parameters() const = 0;
