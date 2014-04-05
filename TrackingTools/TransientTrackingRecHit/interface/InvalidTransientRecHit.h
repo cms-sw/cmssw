@@ -57,12 +57,13 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
 
 public:  
   /// invalid RecHit - has only GeomDet and Type
+  /*
   InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type) :
     Base(geom == nullptr ? DetId(0) : geom->geographicalId(), geom, type), 
     surface_(geom ? &(det()->surface()) : ( layer ?  &(layer->surface()) : nullptr)),
     me( geom, layer, type)
       {}
-  
+  */
     // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
   virtual InvalidTransientRecHit* clone() const {return new InvalidTransientRecHit(*this);}

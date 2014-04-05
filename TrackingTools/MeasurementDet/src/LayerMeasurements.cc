@@ -123,7 +123,7 @@ LayerMeasurements::measurements( const DetLayer& layer,
   
   if ( compat.first) {
     result.push_back( TrajectoryMeasurement( compat.second, 
-					     std::make_shared<InvalidTrackingRecHit>(nullptr, &layer, TrackingRecHit::inactive), 0.F,
+					     std::make_shared<InvalidTrackingRecHitNoDet>(layer.surface(), TrackingRecHit::inactive), 0.F,
 					     &layer));
     LogDebug("LayerMeasurements")<<"adding a missing hit.";
   }else LogDebug("LayerMeasurements")<<"adding not measurement.";
@@ -172,7 +172,7 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
     pair<bool, TrajectoryStateOnSurface> compat = layer.compatible( startingState, prop, est);
     if ( compat.first) {
       vector<TrajectoryMeasurement> tmVec;
-      tmVec.emplace_back(compat.second, std::make_shared<InvalidTrackingRecHit>(nullptr, &layer, TrackingRecHit::inactive), 0.F,&layer);
+      tmVec.emplace_back(compat.second, std::make_shared<InvalidTrackingRecHitNoDet>(layer.surface(), TrackingRecHit::inactive), 0.F,&layer);
       result.emplace_back(std::move(tmVec), DetGroup());
     }
   }
