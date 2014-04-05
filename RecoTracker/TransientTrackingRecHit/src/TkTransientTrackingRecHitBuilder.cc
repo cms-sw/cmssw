@@ -42,6 +42,7 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
 
   return (*p).cloneSH();
 
+/*
   std::type_info const & tp = typeid(*p);
  
   if (tp == typeid(SiPixelRecHit))
@@ -90,12 +91,14 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
       return ( GSTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
     } 
   return oldbuild(p);
+  */
 }
 
 
 TransientTrackingRecHit::RecHitPointer 
 TkTransientTrackingRecHitBuilder::oldbuild (const TrackingRecHit * p) const 
 {
+/*
   if ( const SiPixelRecHit* ph = dynamic_cast<const SiPixelRecHit*>(p)) {
     return ( TSiPixelRecHit::build( tGeometry_->idToDet(p->geographicalId()), ph, pixelCPE, theComputeCoarseLocalPosition) ); 
   } else if ( const SiStripRecHit2D* sh = dynamic_cast<const SiStripRecHit2D*>(p)) { 
@@ -121,7 +124,7 @@ TkTransientTrackingRecHitBuilder::oldbuild (const TrackingRecHit * p) const
   } else if ( const SiTrackerGSMatchedRecHit2D* gh = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(p)) {
     return ( GSTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
   } 
-  
+*/  
   throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type. hit type is: "<< className(*p);
 }
 

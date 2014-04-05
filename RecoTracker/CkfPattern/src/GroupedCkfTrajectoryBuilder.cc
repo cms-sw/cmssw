@@ -614,13 +614,14 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       }
       
     rejected:;    // http://xkcd.com/292/
-      if(toBeRejected){	
+      if(toBeRejected){
+#ifdef VI_DEBUG	
 	cout << "WARNING: neglect candidate because it contains the same hit twice \n";
 	  cout << "-- discarded track's pt,eta,#found: " 
 	  << traj.lastMeasurement().updatedState().globalMomentum().perp() << " , "
 	  << traj.lastMeasurement().updatedState().globalMomentum().eta() << " , "
 	  << traj.foundHits() << "\n";
-	
+#endif	
 	traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
 	continue; //Are we sure about this????
       }
