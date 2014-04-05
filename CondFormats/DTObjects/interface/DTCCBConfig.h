@@ -130,13 +130,7 @@ class DTCCBConfig {
   std::vector<DTConfigKey> fullConfigKey;
   std::vector< std::pair<DTCCBId,int> > dataList;
 
-  DTBufferTree< int,std::vector<int>* >* dBuf COND_TRANSIENT;
-
-  /// read and store full content
-  void cacheMap() const;
-  void resetMap() const;
-//  std::string mapName() const;
-
+  edm::ConstRespectingPtr<DTBufferTreeUniquePtr> dBuf COND_TRANSIENT;
 
  COND_SERIALIZABLE;
 };

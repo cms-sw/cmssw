@@ -20,7 +20,6 @@
 //------------------------------------
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
@@ -275,7 +274,7 @@ class DTStatusFlag {
 
   std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > dataList;
 
-  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   std::string mapName() const;
 
