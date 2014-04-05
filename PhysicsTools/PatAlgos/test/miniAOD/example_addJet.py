@@ -4,7 +4,7 @@ process = cms.Process("S2")
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("file:patTuple_mini.root")
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
@@ -28,8 +28,8 @@ addJetCollection(
    postfix   = "",
    labelName = 'AK5PFCHS',
    jetSource = cms.InputTag('ak5PFJetsCHS'),
-   trackSource = cms.InputTag('unpackedTrackAndVertices'), 	
-   pvSource = cms.InputTag('unpackedTrackAndVertices'), 
+   trackSource = cms.InputTag('unpackedTracksAndVertices'), 	
+   pvSource = cms.InputTag('unpackedTracksAndVertices'), 
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [      'combinedSecondaryVertexBJetTags'     ]
    )
@@ -38,11 +38,8 @@ process.patJetPartons.src = "prunedGenParticles"
 process.patJetCorrFactorsPatJetsAK5PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
 
 #recreate tracks and pv for btagging
-process.unpackedTrackAndVertices = cms.EDProducer('PATTrackAndVertexUnpacker',
- slimmedVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
- additionalTracks= cms.InputTag("lostTracks"),
- packedCandidates = cms.InputTag("packedPFCandidates")
-)
+process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
+process.combinedSecondaryVertex.trackMultiplicityMin = 1 #silly sv, uses un filtered tracks.. i.e. any pt
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

@@ -37,14 +37,12 @@ process.patMETs.addGenMET = False # There's no point in recalculating this, and 
 
 process.load('RecoBTag.Configuration.RecoBTag_cff')
 process.load('RecoJets.Configuration.RecoJetAssociations_cff')
-process.unpackedTrackAndVertices = cms.EDProducer('PATTrackAndVertexUnpacker',
- slimmedVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
- additionalTracks= cms.InputTag("lostTracks"),
- packedCandidates = cms.InputTag("packedPFCandidates")
-)
+
+process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
+
 process.ak5JetTracksAssociatorAtVertexPF.jets = cms.InputTag("ak5PFJetsCHS")
-process.ak5JetTracksAssociatorAtVertexPF.tracks = cms.InputTag("unpackedTrackAndVertices")
-process.impactParameterTagInfos.primaryVertex = cms.InputTag("unpackedTrackAndVertices")
+process.ak5JetTracksAssociatorAtVertexPF.tracks = cms.InputTag("unpackedTracksAndVertices")
+process.impactParameterTagInfos.primaryVertex = cms.InputTag("unpackedTracksAndVertices")
 process.combinedSecondaryVertex.trackMultiplicityMin = 1 #silly sv, uses un filtered tracks.. i.e. any pt
 
 
