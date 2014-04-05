@@ -118,6 +118,33 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   ndof -= 5.f;
   if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
  
+
+#ifdef VI_DEBUG
+int chit[7]={};
+for (auto const & tm : theTraj->measurements()) {
+  auto const & hit = tm.recHitR();
+  if (!hit.isValid()) ++chit[0];
+  if (hit.det()==nullptr) ++chit[1];
+  if ( trackerHitRTTI::isUndef(hit) ) continue;
+  if ( hit.dimension()!=2 ) {
+    ++chit[2];
+  } else {
+    auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
+    auto const & clus = thit.firstClusterRef();
+    if (clus.isPixel()) ++chit[3];
+    else if (thit.isMatched()) {
+      ++chit[4];
+    } else  if (thit.isProjected()) {
+      ++chit[5];
+    } else {
+      ++chit[6];
+        }
+  }
+ }
+
+std::cout << algo_ << ": "; for (auto c:chit) std::cout << c <<'/'; std::cout<< std::endl;
+
+#endif
  
   //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
   //if geometricInnerState_ is true the state for projection to beam line is the one from the (geometrically) closest measurement to the beam line: to be sued for non-collision tracks

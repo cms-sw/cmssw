@@ -29,7 +29,7 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 					  TempMeasurements & result) const {
 
   if (!isActive(data)) {
-    result.add(std::make_shared<InvalidTrackingRecHit>(geomDet(),TrackingRecHit::missing), 0.F);
+    result.add(std::make_shared<InvalidTrackingRecHit>(geomDet(),TrackingRecHit::inactive), 0.F);
     return true;
   }
   

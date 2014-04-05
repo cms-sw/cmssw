@@ -213,14 +213,14 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 	      LogTrace("TrackFitters") << "Rejecting outlier hit  with estimate " << cut << " at position "
 				       << j << " with rawId=" << myHits[j]->geographicalId().rawId();
 	      LogTrace("TrackFitters") << "The fit will be repeated without the outlier";
-	      myHits[j] = InvalidTransientRecHit::build(outlierDet, TrackingRecHit::missing);
+	      myHits[j] = std::make_shared<InvalidTrackingRecHit>(*outlierDet, TrackingRecHit::missing);
 	    }
 	  else if ( has_low_pixel_prob && low_pixel_prob_Id == myHits[j]->geographicalId().rawId() ){
 	    LogTrace("TrackFitters") << "Rejecting low proability pixel hit with log_pixel_prob_cut = "
 				     << log_pixel_prob_cut << " at position "
 				     << j << " with rawId =" << myHits[j]->geographicalId().rawId();
 	    LogTrace("TrackFitters") << "The fit will be repeated without the outlier";
-	    myHits[j] = InvalidTransientRecHit::build(low_pixel_prob_Det, TrackingRecHit::missing);
+	    myHits[j] = std::make_shared<InvalidTrackingRecHit>(*low_pixel_prob_Det, TrackingRecHit::missing);
 	  }
 
 	} // for ( unsigned int j=0; j<myHits.size(); ++j)

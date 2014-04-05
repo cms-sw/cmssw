@@ -27,7 +27,7 @@ namespace {
   inline
   void addInvalidMeas( std::vector<TrajectoryMeasurement>& result, 
 		       const TrajectoryStateOnSurface& ts, const GeomDet* det, const DetLayer& layer) {
-    result.emplace_back(ts, InvalidTransientRecHit::build(det, TrackingRecHit::missing), 0.F,&layer);
+    result.emplace_back(ts, std::make_shared<InvalidTrackingRecHit>(*det, TrackingRecHit::missing), 0.F,&layer);
   }
   
   
@@ -123,7 +123,7 @@ LayerMeasurements::measurements( const DetLayer& layer,
   
   if ( compat.first) {
     result.push_back( TrajectoryMeasurement( compat.second, 
-					     InvalidTransientRecHit::build(0, TrackingRecHit::inactive,&layer), 0.F,
+					     std::make_shared<InvalidTrackingRecHit>(nullptr, &layer, TrackingRecHit::inactive), 0.F,
 					     &layer));
     LogDebug("LayerMeasurements")<<"adding a missing hit.";
   }else LogDebug("LayerMeasurements")<<"adding not measurement.";
@@ -172,7 +172,7 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
     pair<bool, TrajectoryStateOnSurface> compat = layer.compatible( startingState, prop, est);
     if ( compat.first) {
       vector<TrajectoryMeasurement> tmVec;
-      tmVec.emplace_back(compat.second, InvalidTransientRecHit::build(nullptr, TrackingRecHit::inactive,&layer), 0.F,&layer);
+      tmVec.emplace_back(compat.second, std::make_shared<InvalidTrackingRecHit>(nullptr, &layer, TrackingRecHit::inactive), 0.F,&layer);
       result.emplace_back(std::move(tmVec), DetGroup());
     }
   }
@@ -186,12 +186,12 @@ void LayerMeasurements::addInvalidMeas( vector<TrajectoryMeasurement>& measVec,
   if (!measVec.empty()) {
     // invalidMeas on Det of most compatible hit
     measVec.emplace_back(measVec.front().predictedState(), 
-			 InvalidTransientRecHit::build(measVec.front().recHit()->det(), TrackingRecHit::missing),
+			 std::make_shared<InvalidTrackingRecHit>(*measVec.front().recHit()->det(), TrackingRecHit::missing),
 			 0.,&layer);
   }
   else if (!group.empty()) {
     // invalid state on first compatible Det
     measVec.emplace_back(group.front().trajectoryState(), 
-			 InvalidTransientRecHit::build(group.front().det(), TrackingRecHit::missing), 0.,&layer);
+			 std::make_shared<InvalidTrackingRecHit>(*group.front().det(), TrackingRecHit::missing), 0.,&layer);
   }
 }

@@ -73,7 +73,7 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   
   if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
        //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
-       result.add(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::missing), 0.F);
+       result.add(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::inactive), 0.F);
        return true;
     }
   
@@ -476,9 +476,9 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::addProjected(const Track
   auto && vl = projectedPos(hit,*geomDet_, gdir,  cpe_);
   auto && phit = std::make_shared<ProjectedSiStripRecHit2D> (vl.first,vl.second,*geomDet_, static_cast<SiStripRecHit2D const &>(hit));
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *phit);
-if ( diffEst.first) {
-  target_.add(phit, diffEst.second);
- }
+  if ( diffEst.first) {
+    target_.add(phit, diffEst.second);
+  }
 }
 
 

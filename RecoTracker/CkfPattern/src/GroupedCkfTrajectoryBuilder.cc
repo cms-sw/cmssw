@@ -1,4 +1,3 @@
-
 #include "RecoTracker/CkfPattern/interface/GroupedCkfTrajectoryBuilder.h"
 #include "TrajectorySegmentBuilder.h"
 
@@ -41,6 +40,7 @@
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
 #include <algorithm>
 #include <array>
@@ -302,6 +302,34 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   LogDebug("CkfPattern")<< "GroupedCkfTrajectoryBuilder: returning result of size " << result.size();
   statCount.traj(result.size());
 
+#ifdef VI_DEBUG
+  int kt=0;
+  for (auto const & traj : result) {
+int chit[7]={};
+for (auto const & tm : traj.measurements()) {
+  auto const & hit = tm.recHitR();
+  if (!hit.isValid()) ++chit[0];
+  if (hit.det()==nullptr) ++chit[1];
+  if ( trackerHitRTTI::isUndef(hit) ) continue;
+  if ( hit.dimension()!=2 ) {
+    ++chit[2];
+  } else {
+    auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
+    auto const & clus = thit.firstClusterRef();
+    if (clus.isPixel()) ++chit[3];
+    else if (thit.isMatched()) {
+      ++chit[4];
+    } else  if (thit.isProjected()) {
+      ++chit[5];
+    } else {
+      ++chit[6];
+        }
+  }
+ }
+
+std::cout << "ckf " << kt++ << ": "; for (auto c:chit) std::cout << c <<'/'; std::cout<< std::endl;
+}
+#endif
 
   return startingTraj;
 
@@ -587,12 +615,12 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       
     rejected:;    // http://xkcd.com/292/
       if(toBeRejected){	
-	/*cout << "WARNING: neglect candidate because it contains the same hit twice \n";
+	cout << "WARNING: neglect candidate because it contains the same hit twice \n";
 	  cout << "-- discarded track's pt,eta,#found: " 
 	  << traj.lastMeasurement().updatedState().globalMomentum().perp() << " , "
 	  << traj.lastMeasurement().updatedState().globalMomentum().eta() << " , "
 	  << traj.foundHits() << "\n";
-	*/
+	
 	traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
 	continue; //Are we sure about this????
       }
