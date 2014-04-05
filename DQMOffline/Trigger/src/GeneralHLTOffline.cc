@@ -21,6 +21,7 @@ Implementation:
 // user include files
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -44,22 +45,22 @@ Implementation:
 // class declaration
 //
 
-class GeneralHLTOffline : public edm::EDAnalyzer {
+class GeneralHLTOffline : public DQMEDAnalyzer {
  public:
   explicit GeneralHLTOffline(const edm::ParameterSet&);
   ~GeneralHLTOffline();
 
  private:
-  virtual void beginJob() override;
+  // virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun,
+			      edm::EventSetup const & iSetup) override;
+  virtual void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
                                     edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&,
                                   edm::EventSetup const&) override;
-  virtual void setupHltMatrix(const std::string &, int);
+  virtual void setupHltMatrix(DQMStore::IBooker & iBooker, const std::string &, int);
   virtual void fillHltMatrix(const std::string &,
                              const std::string &,
                              double, double, bool);
@@ -81,8 +82,12 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
   edm::EDGetTokenT <edm::TriggerResults>   triggerResultsToken;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
 
-  DQMStore * dbe_;
   MonitorElement * cppath_;
+  std::map<std::string, MonitorElement*> cppath_mini_;
+  std::map<std::string, MonitorElement*> me_etaphi_;
+  std::map<std::string, MonitorElement*> me_eta_;
+  std::map<std::string, MonitorElement*> me_phi_;
+
 };
 
 //
@@ -90,7 +95,6 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
 //
 GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_(false),
                                                                   hlt_menu_(""),
-                                                                  dbe_(0),
                                                                   cppath_(0) {
   debugPrint  = false;
   outputPrint = false;
@@ -168,10 +172,12 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
         const std::string &label = datasetNames[iPD];
         std::string fullPathToCPP = "HLT/GeneralHLTOffline/"
             + label + "/cppath_" + label + hlt_menu_;
-        MonitorElement * ME_mini_cppath = dbe_->get(fullPathToCPP);
+        MonitorElement * ME_mini_cppath = NULL;
         TH1F * hist_mini_cppath = NULL;
-        if (ME_mini_cppath)
+        if( cppath_mini_.find(fullPathToCPP)!=cppath_mini_.end() ){
+	  ME_mini_cppath = cppath_mini_[fullPathToCPP];
           hist_mini_cppath = ME_mini_cppath->getTH1F();
+	}
 
         if (hist_mini_cppath) {
           TAxis * axis = hist_mini_cppath->GetXaxis();
@@ -287,26 +293,11 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-GeneralHLTOffline::beginJob() {
-  if (debugPrint)
-    std::cout << "Inside begin job" << std::endl;
-
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (dbe_)
-    dbe_->setCurrentFolder(plotDirectoryName);
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-GeneralHLTOffline::endJob() {
-}
 
 // ------------ method called when starting to processes a run  ------------
 void
-GeneralHLTOffline::beginRun(edm::Run const& iRun,
-                            edm::EventSetup const& iSetup) {
+GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
+			       edm::EventSetup const& iSetup) {
   if (debugPrint)
     std::cout << "Inside beginRun" << std::endl;
 
@@ -315,6 +306,15 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun,
 
   PDsVectorPathsVector.clear();
   AddedDatasets.clear();
+}
+
+
+// ------------ method called to book histograms before starting event loop  ------------
+void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
+				       edm::Run const & iRun,
+				       edm::EventSetup const & iSetup)
+{
+  iBooker.setCurrentFolder(plotDirectoryName) ;
 
   bool changed = true;
   if (!hlt_config_.init(iRun, iSetup, hltTag, changed)) {
@@ -336,11 +336,11 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun,
 
   //////////// Book a simple ME
 
-  dbe_->setCurrentFolder("HLT/GeneralHLTOffline/");
-  dbe_->bookString("hltMenuName", hlt_menu_.c_str());
-  cppath_ = dbe_->book1D("cppath" + hlt_menu_,
-                         "Counts/Path",
-                         hlt_config_.size(), 0, hlt_config_.size());
+  iBooker.setCurrentFolder("HLT/GeneralHLTOffline/");
+  iBooker.bookString("hltMenuName", hlt_menu_.c_str());
+  cppath_ = iBooker.book1D("cppath" + hlt_menu_,
+			   "Counts/Path",
+			   hlt_config_.size(), 0, hlt_config_.size());
 
   const std::vector<std::string> &nameStreams = hlt_config_.streamNames();
   std::vector<std::string>::const_iterator si = nameStreams.begin();
@@ -449,19 +449,19 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun,
       if (debugPrint)
         std::cout <<"Found PD: " << datasetNames[i] << std::endl;
 
-      setupHltMatrix(datasetNames[i], i);
+      setupHltMatrix(iBooker, datasetNames[i], i);
     }  // end of loop over dataset names
   }  // if stream A found
 }  // end of beginRun
 
-// ------------ method called when ending the processing of a run  ------------
-void GeneralHLTOffline::endRun(edm::Run const&, edm::EventSetup const&) {
-  if (debugPrint)
-    std::cout << " endRun called " << std::endl;
-}
+// // ------------ method called when ending the processing of a run  ------------
+// void GeneralHLTOffline::endRun(edm::Run const&, edm::EventSetup const&) {
+//   if (debugPrint)
+//     std::cout << " endRun called " << std::endl;
+// }
 
 
-void GeneralHLTOffline::setupHltMatrix(const std::string & label, int iPD) {
+void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::string & label, int iPD) {
   std::string h_name;
   std::string h_title;
   std::string h_name_1dEta;
@@ -478,7 +478,7 @@ void GeneralHLTOffline::setupHltMatrix(const std::string & label, int iPD) {
 
   PD_Folder = TString("HLT/GeneralHLTOffline/"+label);
 
-  dbe_->setCurrentFolder(PD_Folder.c_str());
+  iBooker.setCurrentFolder(PD_Folder.c_str());
   h_name = "HLT_" +label + "_EtaVsPhi";
   h_title = "HLT_" + label + "_EtaVsPhi";
   h_name_1dEta = "HLT_" + label + "_1dEta";
@@ -493,25 +493,24 @@ void GeneralHLTOffline::setupHltMatrix(const std::string & label, int iPD) {
   Double_t EtaMax = 2.610;
   Double_t PhiMax = 17.0*TMath::Pi()/16.0;
   Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
-  MonitorElement * service_me = NULL;
 
-  service_me = dbe_->book2D(h_name.c_str(),
-                            h_title.c_str(),
-                            numBinsEta, -EtaMax, EtaMax,
-                            numBinsPhi, -PhiMax, PhiMax);
-  if (TH1 * service_histo = service_me->getTH2F())
+  me_etaphi_[h_name] = iBooker.book2D(h_name.c_str(),
+				      h_title.c_str(),
+				      numBinsEta, -EtaMax, EtaMax,
+				      numBinsPhi, -PhiMax, PhiMax);
+  if (TH1 * service_histo = me_etaphi_[h_name]->getTH2F())
     service_histo->SetMinimum(0);
 
-  service_me = dbe_->book1D(h_name_1dEta.c_str(),
-			    h_title_1dEta.c_str(),
-			    numBinsEtaFine, -EtaMax, EtaMax);
-  if (TH1 * service_histo = service_me->getTH1F())
+  me_eta_[h_name_1dEta] = iBooker.book1D(h_name_1dEta.c_str(),
+					 h_title_1dEta.c_str(),
+					 numBinsEtaFine, -EtaMax, EtaMax);
+  if (TH1 * service_histo = me_eta_[h_name_1dEta]->getTH1F())
     service_histo->SetMinimum(0);
   
-  service_me = dbe_->book1D(h_name_1dPhi.c_str(),
-			    h_title_1dPhi.c_str(),
-			    numBinsPhiFine, -PhiMaxFine, PhiMaxFine);
-  if (TH1 * service_histo = service_me->getTH1F())
+  me_phi_[h_name_1dPhi] = iBooker.book1D(h_name_1dPhi.c_str(),
+					 h_title_1dPhi.c_str(),
+					 numBinsPhiFine, -PhiMaxFine, PhiMaxFine);
+  if (TH1 * service_histo = me_phi_[h_name_1dPhi]->getTH1F())
     service_histo->SetMinimum(0);
 
 
@@ -519,18 +518,18 @@ void GeneralHLTOffline::setupHltMatrix(const std::string & label, int iPD) {
   // paths
   std::string folderz;
   folderz = TString("HLT/GeneralHLTOffline/"+label);
-  dbe_->setCurrentFolder(folderz.c_str());
+  iBooker.setCurrentFolder(folderz.c_str());
 
   std::string dnamez = "cppath_" + label + "_" + hlt_menu_;
   int sizez = PDsVectorPathsVector[iPD].size();
   TH1F * hist_mini_cppath = NULL;
-  MonitorElement * hist_mini_cppath_me = dbe_->book1D(dnamez.c_str(),
-                                                      dnamez.c_str(),
-                                                      sizez,
-                                                      0,
-                                                      sizez);
-  if (hist_mini_cppath_me)
-    hist_mini_cppath = hist_mini_cppath_me->getTH1F();
+  cppath_mini_[dnamez] = iBooker.book1D(dnamez.c_str(),
+					dnamez.c_str(),
+					sizez,
+					0,
+					sizez);
+  if( cppath_mini_[dnamez] )
+    hist_mini_cppath = cppath_mini_[dnamez]->getTH1F();
 
   unsigned int jPath;
   for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) {
@@ -570,7 +569,6 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
   std::string fullPathToME1dPhiPath;
   std::string fullPathToCPP;
 
-
   fullPathToME = "HLT/GeneralHLTOffline/HLT_" + label + "_EtaVsPhi";
   fullPathToME1dEta = "HLT/GeneralHLTOffline/HLT_" + label + "_1dEta";
   fullPathToME1dPhi = "HLT/GeneralHLTOffline/HLT_" + label + "_1dPhi";
@@ -587,9 +585,11 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
 
 
   TH1F * hist_mini_cppath = NULL;
-  MonitorElement * ME_mini_cppath = dbe_->get(fullPathToCPP);
-  if (ME_mini_cppath)
+  MonitorElement * ME_mini_cppath = NULL;
+  if( cppath_mini_.find(fullPathToCPP)!=cppath_mini_.end() ){
+    ME_mini_cppath = cppath_mini_[fullPathToCPP];
     hist_mini_cppath = ME_mini_cppath->getTH1F();
+  }
 
   // fill top-level histograms
   if (first_count) {
@@ -598,14 +598,16 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
                 << fullPathToME1dPhi << " path "  << path
                 << " Phi " << Phi << " Eta " << Eta << std::endl;
     
-    MonitorElement * ME_1dEta = dbe_->get(fullPathToME1dEta);
-    if (ME_1dEta) {
+    MonitorElement * ME_1dEta = NULL;
+    if( me_eta_.find(fullPathToME1dEta)!=me_eta_.end() ){
+      ME_1dEta = me_eta_[fullPathToME1dEta];
       TH1F * hist_1dEta = ME_1dEta->getTH1F();
       if (hist_1dEta)
 	hist_1dEta->Fill(Eta);
     }
-    MonitorElement * ME_1dPhi = dbe_->get(fullPathToME1dPhi);
-    if (ME_1dPhi) {
+    MonitorElement * ME_1dPhi = NULL;
+    if( me_phi_.find(fullPathToME1dPhi)!=me_phi_.end() ){
+      ME_1dPhi = me_phi_[fullPathToME1dPhi];
       TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
       if (hist_1dPhi)
 	hist_1dPhi->Fill(Phi);
@@ -614,8 +616,9 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
 		  << fullPathToME1dPhi << " path "  << path
 		  << " Phi " << Phi << " Eta " << Eta << std::endl;
     }
-    MonitorElement * ME_2d = dbe_->get(fullPathToME);
-    if (ME_2d) {
+    MonitorElement * ME_2d = NULL;
+    if( me_etaphi_.find(fullPathToME)!=me_etaphi_.end() ){
+      ME_2d = me_etaphi_[fullPathToME];
       TH2F * hist_2d = ME_2d->getTH2F();
       if (hist_2d)
 	hist_2d->Fill(Eta, Phi);
