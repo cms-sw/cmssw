@@ -124,7 +124,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
 
     //Add Partons status 2
     int nparton_daughters = 0;
-    if( aParticle.numberOfDaughters() > 0 && isAParton ) {
+    if( ( aParticle.numberOfDaughters() > 0 || acceptNoDaughters) && isAParton ) {
 
       for (unsigned int i=0; i < aParticle.numberOfDaughters(); i++){
 
@@ -140,11 +140,6 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
 	  thePartons->push_back( GenParticleRef( particles, m ) );
       }
 
-    } else {
-	    if(isAParton && acceptNoDaughters) {
-		    nPart++;
-		    thePartons->push_back( GenParticleRef( particles, m ) );
-	    } 
     }
 
     //Add Leptons
