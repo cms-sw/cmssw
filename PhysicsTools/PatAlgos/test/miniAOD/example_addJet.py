@@ -35,6 +35,7 @@ addJetCollection(
    )
 process.patJetPartonMatchPatJetsAK5PFCHS.matched = "prunedGenParticles"
 process.patJetPartons.src = "prunedGenParticles"
+process.patJetPartons.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
 process.patJetCorrFactorsPatJetsAK5PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
 
 #recreate tracks and pv for btagging

@@ -44,6 +44,7 @@ class PartonSelector : public edm::EDProducer
     virtual void produce(edm::Event&, const edm::EventSetup& ) override;
     bool withLeptons;  // Optionally specify leptons
     bool withTop;      // Optionally include top quarks in the list
+    unsigned int  skipFirstN;      // Default skips first 6 particles, make it configurable
     edm::EDGetTokenT<reco::GenParticleCollection>   tokenGenParticles_; // input collection
 };
 //=========================================================================
@@ -53,6 +54,11 @@ PartonSelector::PartonSelector( const edm::ParameterSet& iConfig )
     produces<reco::GenParticleRefVector>();
     withLeptons           = iConfig.getParameter<bool>("withLeptons");
     tokenGenParticles_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("src"));
+    if ( iConfig.exists("skipFirstN") ) {
+      skipFirstN = iConfig.getParameter<unsigned int>("skipFirstN");
+	} else {
+	skipFirstN=6;
+    }
     if ( iConfig.exists("withTop") ) {
       withTop = iConfig.getParameter<bool>("withTop");
     } else {
@@ -82,7 +88,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
   for (size_t m = 0; m < particles->size(); m++) {
 
     // Don't take into account first 6 particles in generator list
-    if (m<6) continue;
+    if (m<skipFirstN) continue;
 
     const GenParticle & aParticle = (*particles)[ m ];
 
