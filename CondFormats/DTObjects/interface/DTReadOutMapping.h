@@ -22,7 +22,6 @@
 //------------------------------------
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
@@ -172,18 +171,35 @@ class DTReadOutMapping {
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
 
-  DTBufferTree<int,int>* mType COND_TRANSIENT;
-  DTBufferTree<int,int>* rgBuf COND_TRANSIENT;
-  DTBufferTree<int,int>* rgROB COND_TRANSIENT;
-  DTBufferTree<int,int>* rgROS COND_TRANSIENT;
-  DTBufferTree<int,int>* rgDDU COND_TRANSIENT;
-  DTBufferTree<int,int>* grBuf COND_TRANSIENT;
-  DTBufferTree<int,
-     std::vector<int>*>* grROB COND_TRANSIENT;
-  DTBufferTree<int,
-     std::vector<int>*>* grROS COND_TRANSIENT;
-  DTBufferTree<int,
-     std::vector<int>*>* grDDU COND_TRANSIENT;
+  // There are some caches to help look up the data in the
+  // preceding vector. cache_ holds a pointer to several
+  // maps. Normally it is automatically filled immediately
+  // after the object is read in from the database by the
+  // initialize function.  The initialize function is a
+  // non const function and it is not safe to call it
+  // concurrently.  That is why atomicCache_ exists.
+  // It holds exactly the same information, but the function
+  // that fills it is declared const and can be called concurrently.
+  // When the functions that use the caches are called
+  // the first time, atomicCache_ is filled if cache_
+  // has not already been filled. The initialize function
+  // is implemented to fill atomicCache_
+  // if it is not already filled, then move the pointer
+  // it holds into cache_. One would use atomicCache_
+  // in cases where the object is not read in from the
+  // database and the insert function was used to fill
+  // it. After all the inserts are done one could call
+  // readoutToGeometry or its inverse and use the maps.
+  // With the plain (noncompact) format, one can also do
+  // that even before all the inserts are done.
+  // rgBuf and grBuf are filled as new entries are inserted
+  // in the vector before either cache was filled.
+  // The caches contain their own rgBuf and grBuf after they
+  // are filled.
+  edm::ConstRespectingPtr<DTReadOutMappingCache> cache_;
+  edm::AtomicPtrCache<DTReadOutMappingCache> atomicCache_;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > grBuf;
 
   /// read and store full content
   void cacheMap() const;

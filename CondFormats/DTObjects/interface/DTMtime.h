@@ -276,7 +276,7 @@ class DTMtime {
 
   std::vector< std::pair<DTMtimeId,DTMtimeData> > dataList;
 
-  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   /// read and store full content
   std::string mapName() const;

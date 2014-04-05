@@ -20,7 +20,6 @@
 //------------------------------------
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 

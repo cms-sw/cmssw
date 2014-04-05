@@ -144,7 +144,7 @@ class DTTPGParameters {
 
   std::vector< std::pair<DTTPGParametersId,DTTPGParametersData> > dataList;
 
-  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   std::string mapName() const;
 

@@ -196,11 +196,7 @@ class DTTtrig {
 
   std::vector< std::pair<DTTtrigId,DTTtrigData> > dataList;
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-  mutable std::atomic<DTBufferTree<int,int>*> dBuf COND_TRANSIENT;
-#else
-  mutable DTBufferTree<int,int>* dBuf COND_TRANSIENT;
-#endif
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   std::string mapName() const;
 
