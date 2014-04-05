@@ -8,8 +8,7 @@
   <class name="RecHit1D" ClassVersion="10">
    <version ClassVersion="10" checksum="2579934268"/>
   </class>
-  <class name="InvalidTrackingRecHit" ClassVersion="11">
-   <version ClassVersion="11" checksum="228092866"/>
+  <class name="InvalidTrackingRecHit" ClassVersion="10">
    <version ClassVersion="10" checksum="3356557851"/>
   </class>
   <class name="InvalidTrackingRecHitNoDet" ClassVersion="10">

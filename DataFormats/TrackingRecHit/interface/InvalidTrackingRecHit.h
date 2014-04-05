@@ -40,9 +40,6 @@ private:
 
   void throwError() const;
 
- private:
-  Surface const * surface_;
-
 };
 
 class InvalidTrackingRecHitNoDet GCC11_FINAL : public InvalidTrackingRecHit {
