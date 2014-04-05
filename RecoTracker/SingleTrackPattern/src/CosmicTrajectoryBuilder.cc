@@ -36,6 +36,7 @@ CosmicTrajectoryBuilder::~CosmicTrajectoryBuilder() {
 
 void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
 
+  // FIXME: this is a memory leak generator
 
   //services
   es.get<IdealMagneticFieldRecord>().get(magfield);
@@ -63,19 +64,19 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
   
 
   RHBuilder=   theBuilder.product();
-
+  hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(RHBuilder)->cloner();
 
 
 
   theFitter=        new KFTrajectoryFitter(*thePropagator,
 					   *theUpdator,	
 					   *theEstimator) ;
-  
+  theFitter->setHitCloner(&hitCloner);
 
   theSmoother=      new KFTrajectorySmoother(*thePropagatorOp,
 					     *theUpdator,	
 					     *theEstimator);
-  
+  theSmoother->setHitCloner(&hitCloner);
 }
 
 void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
