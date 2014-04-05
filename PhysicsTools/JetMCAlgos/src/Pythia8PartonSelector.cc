@@ -1,6 +1,6 @@
 
 /**
- * This is a Pythia8-specific parton selector that selects all status==71 partons. An explanation of
+ * This is a Pythia8-specific parton selector that selects all status==71 or 72 partons. An explanation of
  * the particle status codes returned by Pythia8 can be found in Pythia8 online manual
  * (http://home.thep.lu.se/~torbjorn/pythia81html/ParticleProperties.html).
  */
@@ -25,8 +25,7 @@ Pythia8PartonSelector::run(const edm::Handle<reco::GenParticleCollection> & part
    for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
    {
      int status = it->status();
-     if( !(status==71) ) continue;                     // only accept status==71 particles
-     if( it->numberOfDaughters()==0 ) continue;        // skip particle if it has no daughters (likely a documentation line)
+     if( !(status==71 || status==72) ) continue;       // only accept status==71 or 72 particles
      if( !CandMCTagUtils::isParton( *it ) ) continue;  // skip particle if not a parton
 
      partons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
