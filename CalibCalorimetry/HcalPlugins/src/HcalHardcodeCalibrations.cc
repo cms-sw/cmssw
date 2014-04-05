@@ -108,7 +108,7 @@ namespace {
 
 }
 
-HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): he_recalibration(0), hf_recalibration(0)
+HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): he_recalibration(0), hf_recalibration(0), setHEdsegm(false)
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
@@ -133,41 +133,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     
     //     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
   }
-
-  bool relabel_=false;
-  edm::ParameterSet ps0;
-  if ( iConfig.exists("HcalReLabel") ) {
-    ps0 = iConfig.getParameter<edm::ParameterSet>("HcalReLabel");
-    relabel_= ps0.getUntrackedParameter<bool>("RelabelHits",false);
-  }
-
-  if (relabel_) {
-    std::vector<std::vector<int>> m_segmentation;
-    m_segmentation.resize(29);
-    edm::ParameterSet ps1 = ps0.getUntrackedParameter<edm::ParameterSet>("RelabelRules");
-    for (int i = 0; i < 29; i++) {
-      char name[10];
-      snprintf(name,10,"Eta%d",i+1);
-      if (i > 0) {
-	m_segmentation[i]=
-	  ps1.getUntrackedParameter<std::vector<int>>(name,m_segmentation[i-1]);
-      } else {
-	m_segmentation[i]=ps1.getUntrackedParameter<std::vector<int> >(name);
-      }
-      
-      /*
-      std::cout << name;
-      for (unsigned int k=0; k<m_segmentation[i].size(); k++) {
-	std::cout << " [" << k << "] " << m_segmentation[i][k];
-      }
-      std::cout << std::endl;
-      */
-
-    }
-
-    if(he_recalibration !=0) he_recalibration->setDsegm(m_segmentation);
-  }
-
 
   std::vector <std::string> toGet = iConfig.getUntrackedParameter <std::vector <std::string> > ("toGet");
   for(std::vector <std::string>::iterator objectName = toGet.begin(); objectName != toGet.end(); ++objectName ) {
@@ -394,6 +359,18 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
 
+  //set depth segmentation for HE recalib - only happens once
+  if(he_recalibration && !setHEdsegm){
+    std::vector<std::vector<int>> m_segmentation;
+    m_segmentation.resize(29);
+    for (int i = 0; i < 29; i++) {
+      if(i>0) topo->getDepthSegmentation(i,m_segmentation[i]);
+    }
+    
+    he_recalibration->setDsegm(m_segmentation);
+	setHEdsegm = true;
+  }
+  
   std::auto_ptr<HcalRespCorrs> result (new HcalRespCorrs (topo));
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
