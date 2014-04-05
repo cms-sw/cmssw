@@ -79,7 +79,7 @@ runMEtUncertainties(process,jetCollection="selectedPatJetsAK5PFForMetUnc", outpu
 
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
-process.out.fileName = 'patTuple_micro_singlemu.root'
+process.out.fileName = 'patTuple_mini_singlemu.root'
 process.out.outputCommands = process.MicroEventContent.outputCommands
 process.out.dropMetaData = cms.untracked.string('ALL')
 process.out.fastCloning= cms.untracked.bool(False)

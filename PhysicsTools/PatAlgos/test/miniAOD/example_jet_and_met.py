@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("S2")
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:patTuple_micro.root")
+    fileNames = cms.untracked.vstring("file:patTuple_mini.root")
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
