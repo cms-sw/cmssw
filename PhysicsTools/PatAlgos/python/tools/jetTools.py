@@ -24,8 +24,8 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'labelName','', "Label name of the new patJet collection.", str)
         self.addParameter(self._defaultParameters,'postfix','', "Postfix from usePF2PAT.", str)
         self.addParameter(self._defaultParameters,'jetSource','', "Label of the input collection from which the new patJet collection should be created", cms.InputTag)
-        self.addParameter(self._defaultParameters,'trackSource','', "Label of the input collection for tracks to be used in b-tagging", cms.InputTag)
-        self.addParameter(self._defaultParameters,'pvSource','', "Label of the input collection for primary vertices used in b-tagging", cms.InputTag)
+        self.addParameter(self._defaultParameters,'trackSource','generalTracks', "Label of the input collection for tracks to be used in b-tagging", cms.InputTag)
+        self.addParameter(self._defaultParameters,'pvSource','offlinePrimaryVertices', "Label of the input collection for primary vertices used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'algo','', "Jet algorithm of the input collection from which the new patJet collection should be created")
         self.addParameter(self._defaultParameters,'jetCorrections',None, "Add all relevant information about jet energy corrections that you want to be added to your new patJet \
         collection. The format has to be given in a python tuple of type: (\'AK5Calo\',[\'L2Relative\', \'L3Absolute\'], patMet). Here the first argument corresponds to the payload \
@@ -463,6 +463,8 @@ class SwitchJetCollection(ConfigToolBase):
         ConfigToolBase.__init__(self)
         ## add all parameters that should be known to the class
         self.addParameter(self._defaultParameters,'jetSource','', "Label of the input collection from which the new patJet collection should be created", cms.InputTag)
+        self.addParameter(self._defaultParameters,'trackSource','generalTracks', "Label of the input collection for tracks to be used in b-tagging", cms.InputTag)
+        self.addParameter(self._defaultParameters,'pvSource','offlinePrimaryVertices', "Label of the input collection for primary vertices used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'algo','', "Jet algorithm of the input collection from which the new patJet collection should be created")
         self.addParameter(self._defaultParameters,'postfix','', "postfix from usePF2PAT")
         self.addParameter(self._defaultParameters,'jetCorrections',None, "Add all relevant information about jet energy corrections that you want to be added to your new patJet \
@@ -534,6 +536,8 @@ class SwitchJetCollection(ConfigToolBase):
         """
         ## initialize parameters
         jetSource=self._parameters['jetSource'].value
+        pvSource=self._parameters['pvSource'].value
+        trackSource=self._parameters['trackSource'].value
 	postfix=self._parameters['postfix'].value
         algo=self._parameters['algo'].value
         jetCorrections=self._parameters['jetCorrections'].value
@@ -548,6 +552,8 @@ class SwitchJetCollection(ConfigToolBase):
             labelName='',
 	    postfix=postfix,
             jetSource=jetSource,
+	    trackSource=trackSource,
+	    pvSource=pvSource,
 	    algo=algo,
             jetCorrections=jetCorrections,
             btagDiscriminators=btagDiscriminators,
