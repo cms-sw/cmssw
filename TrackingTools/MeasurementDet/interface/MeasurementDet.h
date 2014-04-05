@@ -4,9 +4,9 @@
 #include "TrackingTools/MeasurementDet/interface/TempMeasurements.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
@@ -23,7 +23,10 @@ public:
   using SimpleHitContainer=std::vector<BaseTrackerRecHit *>;
 
 
-  MeasurementDet( const GeomDet* gdet) : theGeomDet(gdet) {}
+  MeasurementDet( const GeomDet* gdet) : 
+    theGeomDet(gdet), 
+    theMissingHit(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::missing)),
+    theInactiveHit(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::inactive)){}
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent &) const = 0;
 
@@ -84,6 +87,9 @@ public:
  private:
 
   const GeomDet* theGeomDet;
+protected:
+  TrackingRecHit::ConstRecHitPointer theMissingHit;
+  TrackingRecHit::ConstRecHitPointer theInactiveHit;
 
 };
 

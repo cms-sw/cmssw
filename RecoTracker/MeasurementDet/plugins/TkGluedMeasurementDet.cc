@@ -73,7 +73,7 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   
   if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
        //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
-       result.add(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::inactive), 0.F);
+       result.add(theInactiveHit, 0.F);
        return true;
     }
   
@@ -102,10 +102,10 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 				      ) /*Stereo OK*/ 
 				      ) /* State has errors */
 	 ) {
-     result.add(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::missing), 0.F);
+     result.add(theMissingHit, 0.F);
      return false;
    } 
-   result.add(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(), TrackingRecHit::inactive), 0.F);
+   result.add(theInactiveHit, 0.F);
    return true;
    
 }
