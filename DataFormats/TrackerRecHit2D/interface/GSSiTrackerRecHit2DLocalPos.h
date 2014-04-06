@@ -13,7 +13,7 @@ public:
   GSSiTrackerRecHit2DLocalPos( const LocalPoint& p, const LocalError&e, GeomDet const & idet) :  
   BaseTrackerRecHit(p,e,idet, trackerHitRTTI::gs) {}
 
-  //  virtual GSSiTrackerRecHit2DLocalPos * clone() const {return new GSSiTrackerRecHit2DLocalPos( * this); }
+  virtual GSSiTrackerRecHit2DLocalPos * clone() const =0;
 
   
   virtual void getKfComponents( KfComponentsHolder & holder ) const {
@@ -30,6 +30,8 @@ public:
   // shall I support FakeCluster?
   virtual OmniClusterRef const & firstClusterRef() const;
 
+private:
+  virtual TrackingRecHit* clone(const TkCloner&, const TrajectoryStateOnSurface&) const { return clone();}
 
 };
 
