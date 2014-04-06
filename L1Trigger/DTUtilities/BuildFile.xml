@@ -2,6 +2,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="L1TriggerConfig/DTTPGConfig"/>
+<use   name="CondFormats/DTObjects"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
 <use   name="rootrflx"/>
