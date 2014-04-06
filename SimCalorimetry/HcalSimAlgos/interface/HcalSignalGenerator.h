@@ -57,6 +57,9 @@ public:
 
   virtual void fill(edm::ModuleCallingContext const* mcc)
   {
+
+    std::cout << " In Signal Generator, Filling event " << std::endl;
+
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
     const COLLECTION *  digis = 0;
@@ -87,6 +90,7 @@ public:
 
     if (digis)
     {
+
       // loop over digis, adding these to the existing maps
       for(typename COLLECTION::const_iterator it  = digis->begin();
           it != digis->end(); ++it) 
@@ -98,7 +102,6 @@ public:
           theElectronicsSim->setStartingCapId(startingCapId);
           theParameterMap->setFrameSize(it->id(), it->size());
         }
-
         theNoiseSignals.push_back(samplesInPE(*it));
       }
     }
@@ -117,6 +120,11 @@ private:
     CaloSamples result;
     coder.adc2fC(digi, result);
     fC2pe(result);
+
+    //    std::cout << " HcalSignalGenerator: noise result " << result << std::endl;
+
+
+
     return result;
   }
 

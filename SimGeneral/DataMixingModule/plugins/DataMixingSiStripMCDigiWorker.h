@@ -95,6 +95,24 @@ namespace edm
 
       //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
+      // variables for temporary storage of mixed hits:
+
+      typedef float Amplitude;
+      typedef std::map<int, Amplitude>  SignalMapType;
+      typedef std::map<uint32_t, SignalMapType>  signalMaps;
+
+      const SignalMapType* getSignal(uint32_t detID) const {
+	auto where = signals_.find(detID);
+	if(where == signals_.end()) {
+	  return 0;
+	}
+	return &where->second;
+      }
+
+      signalMaps signals_;
+
+      // for noise adding:
+
       std::string label_;
 
       std::string gainLabel;
@@ -118,6 +136,7 @@ namespace edm
       std::map<unsigned int, size_t> firstChannelsWithSignal;
       std::map<unsigned int, size_t> lastChannelsWithSignal;
 
+      //----------------------------
 
       class StrictWeakOrdering{
       public:

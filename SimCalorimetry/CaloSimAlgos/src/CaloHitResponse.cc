@@ -134,7 +134,9 @@ void CaloHitResponse::add( const PCaloHit& hit ) {
 	  }
        }
     }
-    LogDebug("CaloHitResponse") << signal;
+
+
+    //    std::cout << "CaloHitResponse " << signal << std::endl;
     if( keep ) add(signal);
   }
 }
@@ -146,6 +148,8 @@ void CaloHitResponse::add(const CaloSamples & signal)
   CaloSamples * oldSignal = findSignal(id);
   if (oldSignal == 0) {
     theAnalogSignalMap[id] = signal;
+    //std::cout << "CaloHitResponseAdd " << signal << std::endl;
+
   } else  {
     // need a "+=" to CaloSamples
     int sampleSize =  oldSignal->size();
@@ -155,6 +159,7 @@ void CaloHitResponse::add(const CaloSamples & signal)
     for(int i = 0; i < sampleSize; ++i) {
       (*oldSignal)[i] += signal[i];
     }
+    //std::cout << "CaloHitResponseAdd " << (*oldSignal) << std::endl;
   }
 }
 

@@ -10,6 +10,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalBaseSignalGenerator.h"
 
 class EcalHitResponse ;
 
@@ -40,6 +41,10 @@ class EcalTDigitizer
          assert(0);
       }
 
+      void setNoiseSignalGenerator(EcalBaseSignalGenerator * noiseSignalGenerator);
+
+      void addNoiseSignals();
+
    protected:
 
       bool addNoise() const ;
@@ -53,6 +58,9 @@ class EcalTDigitizer
       EcalHitResponse* m_hitResponse    ;
       ElectronicsSim*  m_electronicsSim ;
       bool             m_addNoise       ;
+      EcalBaseSignalGenerator * theNoiseSignalGenerator;
+
+
 };
 
 #endif

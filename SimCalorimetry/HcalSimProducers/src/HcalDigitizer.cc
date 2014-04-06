@@ -139,6 +139,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "HcalHits"));
 
   bool doNoise = ps.getParameter<bool>("doNoise");
+  bool PreMix1 = ps.getParameter<bool>("PreMixStage1");  // special threshold/pedestal treatment
+  bool PreMix2 = ps.getParameter<bool>("PreMixStage2");  // special threshold/pedestal treatment
   bool useOldNoiseHB = ps.getParameter<bool>("useOldHB");
   bool useOldNoiseHE = ps.getParameter<bool>("useOldHE");
   bool useOldNoiseHF = ps.getParameter<bool>("useOldHF");
@@ -154,11 +156,20 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
   bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
 
+
+  if(PreMix1 && PreMix2) {
+     throw cms::Exception("Configuration")
+      << "HcalDigitizer cannot operate in PreMixing digitization and PreMixing\n"
+         "digi combination modes at the same time.  Please set one mode to False\n"
+         "in the configuration file.";
+  }
+
+
   // need to make copies, because they might get different noise generators
-  theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise);
-  theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise);
-  theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise);
-  theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise);
+  theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theHBHEAmplifier->setHBtuningParameter(HBtp);
   theHBHEAmplifier->setHEtuningParameter(HEtp);
   theHFAmplifier->setHFtuningParameter(HFtp);
@@ -308,7 +319,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
+     throw cms::Exception("Configuration")
       << "HcalDigitizer requires the RandomNumberGeneratorService\n"
          "which is not present in the configuration file.  You must add the service\n"
          "in the configuration file or remove the modules that require it.";
@@ -589,6 +600,8 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 
 
 void HcalDigitizer::beginRun(const edm::EventSetup & es) {
+
+  std::cout << " IN Hcal BeginRun " << std::endl;
   checkGeometry(es);
   theShapes->beginRun(es);
 }
@@ -606,6 +619,9 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   // See if it's been updated
   if(&*geometry != theGeometry)
   {
+
+    std::cout << " New Geometry " << std::endl;
+
     theGeometry = &*geometry;
     updateGeometry(eventSetup);
   }

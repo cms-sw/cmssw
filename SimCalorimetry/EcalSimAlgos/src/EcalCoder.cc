@@ -10,6 +10,7 @@
 
 
 EcalCoder::EcalCoder( bool                  addNoise     , 
+		      bool                  PreMix1      ,
 		      EcalCoder::Noisifier* ebCorrNoise0 ,
 		      EcalCoder::Noisifier* eeCorrNoise0 ,
 		      EcalCoder::Noisifier* ebCorrNoise1 ,
@@ -21,8 +22,9 @@ EcalCoder::EcalCoder( bool                  addNoise     ,
    m_intercals   (           0 ) ,
    m_maxEneEB    (      1668.3 ) , // 4095(MAXADC)*12(gain 2)*0.035(GeVtoADC)*0.97
    m_maxEneEE    (      2859.9 ) , // 4095(MAXADC)*12(gain 2)*0.060(GeVtoADC)*0.97
-   m_addNoise    ( addNoise    )
-{
+   m_addNoise    ( addNoise    ) ,
+   m_PreMix1     ( PreMix1     ) 
+   {
    m_ebCorrNoise[0] = ebCorrNoise0 ;
    assert( 0 != m_ebCorrNoise[0] ) ;
    m_eeCorrNoise[0] = eeCorrNoise0 ;
@@ -191,11 +193,24 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 //	    std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
 	 }
 	
-	 // noiseframe filled with zeros if !m_addNoise
-	 const double signal ( pedestals[igain] +
+	 double signal;
+
+	 if(!m_PreMix1) {
+
+	   // noiseframe filled with zeros if !m_addNoise
+	   const double asignal ( pedestals[igain] +
 			       ecalSamples[i] /( LSB[igain]*icalconst ) +
 			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
-	 
+	   signal = asignal;
+	 }
+	 else {
+
+	   // noiseframe filled with zeros if !m_addNoise
+	   const double asignal ( // no pedestals for pre-mixing
+			       ecalSamples[i] /( LSB[igain]*icalconst ) +
+			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
+	   signal = asignal;
+	 }
 	 const int isignal ( signal ) ;
 	 const int tmpadc ( signal - (double)isignal < 0.5 ?
 			    isignal : isignal + 1 ) ;

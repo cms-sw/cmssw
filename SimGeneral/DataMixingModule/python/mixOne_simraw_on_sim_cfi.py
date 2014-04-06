@@ -1,6 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock
+from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
+from SimCalorimetry.EcalSimProducers.apdSimParameters_cff import *
+from SimCalorimetry.EcalSimProducers.ecalSimParameterMap_cff import *
+from SimCalorimetry.EcalSimProducers.ecalElectronicsSim_cff import *
+from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
+from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
+from SimCalorimetry.EcalSimProducers.ecalCosmicsSim_cff import *
+
+
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 import EventFilter.ESRawToDigi.esRawToDigi_cfi
 import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
@@ -43,6 +52,13 @@ muonRPCDigis.InputLabel = 'rawDataCollector'
 mixData = cms.EDProducer("DataMixingModule",
           hcalSimBlock,
           SiStripSimBlock,
+          ecal_digi_parameters,
+          apd_sim_parameters,
+          ecal_electronics_sim,
+          ecal_cosmics_sim,
+          ecal_sim_parameter_map,
+          ecal_notCont_sim,
+          es_electronics_sim,
     input = cms.SecSource("PoolSource",
         producers = cms.VPSet(cms.convertToVPSet(
                                              ecalDigis = ecalDigis,
@@ -78,7 +94,7 @@ mixData = cms.EDProducer("DataMixingModule",
     # Use digis?               
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
-    HcalDigiMerge = cms.string('Prod'), #use sim hits for signal
+    HcalDigiMerge = cms.string('FullProd'), #use sim hits for signal
     addMCDigiNoise = cms.untracked.bool(True),
     #
     # Input Specifications:
@@ -175,8 +191,8 @@ mixData = cms.EDProducer("DataMixingModule",
     #
     #  Calorimeter Digis
     #               
-    EBDigiCollectionDM   = cms.string('EBDigiCollectionDM'),
-    EEDigiCollectionDM   = cms.string('EEDigiCollectionDM'),
+    EBDigiCollectionDM   = cms.string(''),
+    EEDigiCollectionDM   = cms.string(''),
     ESDigiCollectionDM   = cms.string(''),
     HBHEDigiCollectionDM = cms.string(''),
     HODigiCollectionDM   = cms.string(''),
