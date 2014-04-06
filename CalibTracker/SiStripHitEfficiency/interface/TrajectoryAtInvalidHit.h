@@ -13,7 +13,7 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 class Topology;
-class TransientTrackingRecHit;
+class TrackingRecHit;
 class StripTopology;
 class PixelTopology;
 class TrackerTopology;
@@ -59,7 +59,7 @@ private:
   bool acceptance;
   bool hasValidHit;
 
-  ConstReferenceCountingPointer<TransientTrackingRecHit> theHit;
+  TrackingRecHit::ConstRecHitPointer theHit;
 };
 
 #endif

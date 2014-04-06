@@ -60,7 +60,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
 
   for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
  
-   TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&(*ihit));
+    TrackingRecHit::RecHitPointer recHit = ihit->cloneSH();
     const GeomDet* hitGeomDet = recHit->det();
  
     const DetLayer* hitLayer = 

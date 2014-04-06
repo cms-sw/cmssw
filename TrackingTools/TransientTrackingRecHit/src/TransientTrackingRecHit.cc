@@ -20,7 +20,7 @@ void countTTRH(TrackingRecHit::Type type) {
 #endif
 
 
-
+/*
 
 
 TransientTrackingRecHit::ConstRecHitContainer TransientTrackingRecHit::transientHits() const 
@@ -31,5 +31,7 @@ TransientTrackingRecHit::ConstRecHitContainer TransientTrackingRecHit::transient
 
 TransientTrackingRecHit::RecHitPointer 
 TransientTrackingRecHit::clone( const TrajectoryStateOnSurface&) const {
-  return RecHitPointer(const_cast<TransientTrackingRecHit*>(this));
+  return  RecHitPointer(clone());
 }
+
+*/

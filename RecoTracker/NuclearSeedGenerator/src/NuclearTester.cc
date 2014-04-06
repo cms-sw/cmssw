@@ -93,7 +93,7 @@ std::vector<GlobalPoint> NuclearTester::HitPositions(const std::vector<Trajector
 double NuclearTester::fwdEstimate(const std::vector<TrajectoryMeasurement>& vecTM) const {
        if(vecTM.empty()) return 0;
 
-       const TransientTrackingRecHit* hit = vecTM.front().recHit().get();
+       auto hit = vecTM.front().recHit().get();
        if( hit->isValid() )
           return theEstimator->estimate( vecTM.front().forwardPredictedState(), *hit ).second;
        else return -1;

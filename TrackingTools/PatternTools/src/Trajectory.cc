@@ -125,7 +125,7 @@ void Trajectory::check() const {
     throw cms::Exception("TrackingTools/PatternTools","Trajectory::check() - information requested from empty Trajectory");
 }
 
-bool Trajectory::lost( const TransientTrackingRecHit& hit)
+bool Trajectory::lost( const TrackingRecHit& hit)
 {
   if ( hit.isValid()) return false;
   else {
@@ -141,7 +141,7 @@ bool Trajectory::lost( const TransientTrackingRecHit& hit)
   }
 }
 
-bool Trajectory::isBad( const TransientTrackingRecHit& hit)
+bool Trajectory::isBad( const TrackingRecHit& hit)
 {
   if ( hit.isValid()) return false;
   else {

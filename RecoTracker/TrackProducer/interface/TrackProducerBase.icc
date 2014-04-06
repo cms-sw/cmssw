@@ -222,7 +222,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       MeasurementDetWithData measDet = measTk->idToDet(id);	
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet.isActive()){	  
-	InvalidTrackingRecHit  tmpHit(id,TrackingRecHit::missing);
+	InvalidTrackingRecHit  tmpHit(*detWithState.front().first,TrackingRecHit::missing);
 	track.setTrackerExpectedHitsInner(tmpHit,counter); counter++;
 	//cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
       }else{
@@ -246,7 +246,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       MeasurementDetWithData measDet = measTk->idToDet(id);	
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet.isActive()){	  
-	InvalidTrackingRecHit  tmpHit(id,TrackingRecHit::missing);
+	InvalidTrackingRecHit  tmpHit(*detWithState.front().first,TrackingRecHit::missing);
 	track.setTrackerExpectedHitsOuter(tmpHit,counter); counter++;
 	//cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
       }else{

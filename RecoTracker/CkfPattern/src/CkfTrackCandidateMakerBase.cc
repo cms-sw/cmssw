@@ -60,7 +60,6 @@ namespace cms{
     theTrajectoryBuilder(0),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
     theTrajectoryCleaner(0),
-    theInitialState(0),
     theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
     theNavigationSchool(0),
     theSeedCleaner(0),
@@ -108,7 +107,6 @@ namespace cms{
   
   // Virtual destructor needed.
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
-    delete theInitialState;  
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
@@ -128,14 +126,6 @@ namespace cms{
     //    edm::ESInputTag mfESInputTag(mfName);
     //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
 
-    if (!theInitialState){
-      // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
-      // get nested parameter set for the TransientInitialStateEstimator
-      ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-      theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    }
-
-    theInitialState->setEventSetup( es );
 
     edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
     es.get<TrajectoryCleaner::Record>().get(theTrajectoryCleanerName, trajectoryCleanerH);
@@ -150,6 +140,12 @@ namespace cms{
     es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
     theTrajectoryBuilder = dynamic_cast<const BaseCkfTrajectoryBuilder*>(theTrajectoryBuilderHandle.product());    
     assert(theTrajectoryBuilder);
+
+    // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
+    // get nested parameter set for the TransientInitialStateEstimator
+    ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
+    theInitialState.reset(new TransientInitialStateEstimator( es,tise_params,static_cast<TkTransientTrackingRecHitBuilder const *>(theTrajectoryBuilder->hitBuilder())->cloner()));
+
   }
 
   // Functions that gets called by framework every event

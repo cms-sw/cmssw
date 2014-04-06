@@ -3,7 +3,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "boost/intrusive_ptr.hpp" 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include<algorithm>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
@@ -26,8 +26,13 @@ class DetLayer;
 class TrajectoryMeasurement {
 public:
 
-  typedef TransientTrackingRecHit::RecHitPointer         RecHitPointer;
-  typedef TransientTrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  using RecHitPointer = TrackingRecHit::RecHitPointer;
+  using ConstRecHitPointer = TrackingRecHit::ConstRecHitPointer;
+#else
+  typedef TrackingRecHit::RecHitPointer         RecHitPointer;
+  typedef TrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
+#endif
 
   TrajectoryMeasurement() {}
 
@@ -185,9 +190,16 @@ public:
     return theUpdatedState;
   }
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   ConstRecHitPointer::element_type const & recHitR() const {
-    return *theRecHit.get();
+    return *theRecHit;
   }
+#else
+  TrackingRecHit const & recHitR() const {   
+    return *theRecHit;
+  }  
+
+#endif
 
   ConstRecHitPointer const & recHitP() const {
     return theRecHit;

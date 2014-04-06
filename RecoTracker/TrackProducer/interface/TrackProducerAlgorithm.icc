@@ -10,11 +10,8 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
@@ -67,17 +64,19 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
       
       //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-      TransientTrackingRecHit::RecHitContainer hits;
+      TrackingRecHit::RecHitContainer hits;
       
       float ndof=0;     
+      //  we assume are transient...
       for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
 	   i!=recHitVec.second; i++){
-	hits.push_back(builder->build(&(*i) ));  // major waste, will be soon fitted and recloned...
+	hits.push_back((*i).cloneSH());  // major waste, will be soon fitted and recloned...
       }      
       
       //build Track
-      LogDebug("TrackProducer") << "going to buildTrack"<< "\n";      
-      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof, bs,
+      LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
+      FitterCloner fc(theFitter,builder);   
+      bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theTSOS, seed, ndof, bs,
       	      		    theTC->seedRef(),0,theTC->nLoops());
       LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
       if(ok) cont++;
@@ -116,10 +115,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	   	//re-match hits that belong together
       		trackingRecHit_iterator next = i; next++;
                 if (next != theT->recHitsEnd() && (*i)->isValid()){
-			TransientTrackingRecHit::RecHitPointer hit=builder->build(&**i );
-			TransientTrackingRecHit::RecHitPointer nexthit = builder->build(&**next );
 			//check whether hit and nexthit are on glued module
-			DetId hitId = hit->geographicalId();
+			DetId hitId = (**i).geographicalId();
 
 			if(hitId.det() == DetId::Tracker) {
 			  if (hitId.subdetId() == StripSubdetector::TIB || 
@@ -127,8 +124,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 			      hitId.subdetId() == StripSubdetector::TEC ||
 			      hitId.subdetId() == StripSubdetector::TID ){
 
-			    SiStripDetId stripId(hit->geographicalId());
-			    if (stripId.partnerDetId() == nexthit->geographicalId().rawId()){
+			    SiStripDetId stripId(hitId);
+			    if (stripId.partnerDetId() == (*next)->geographicalId().rawId()){
 			      //yes they are parterns in a glued geometry.
 			      DetId gluedId = stripId.glued();
 			      const SiStripRecHit2D *mono=0;
@@ -146,12 +143,11 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 						<<"cannot get a SiStripRecHit2D from the rechit."<<hitId.rawId()
 						<<" "<<gluedId.rawId()
 						<<" "<<stripId.partnerDetId()
-						<<" "<<nexthit->geographicalId().rawId();
+						<<" "<<(*next)->geographicalId().rawId();
 				}
 			      LocalPoint pos;//null
 			      LocalError err;//null
-			      SiStripMatchedRecHit2D rematchedH(pos,err, *builder->geometry()->idToDet(gluedId), mono,stereo);
-			      hits.push_back(builder->build(&rematchedH));
+			      hits.push_back(std::make_shared<SiStripMatchedRecHit2D>(pos,err, *builder->geometry()->idToDet(gluedId), mono,stereo));
 			      //the local position and error is dummy but the fitter does not need that anyways
 			      i++;
 			      continue;//go to next.
@@ -161,7 +157,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	   }//if rematching option is on.
 
 
-	  hits.push_back(builder->build(&**i ));
+	  if ((**i).geographicalId()!=0U)  hits.push_back( (**i).cloneForFit(*builder->geometry()->idToDet( (**i).geographicalId() ) ) );
 	}
 	
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
@@ -180,8 +176,9 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	//set the algo_ member in order to propagate the old alog name
 	algo_=theT->algo();	
 
-	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, 
+	//=====  the hits are in the same order as they were in the track::extra.
+        FitterCloner fc(theFitter,builder);        
+	bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theInitialStateForRefitting, 
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
       }catch ( cms::Exception & e){
@@ -199,12 +196,13 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 					   const TrackMomConstraintAssociationCollection& theTCollectionWithConstraint,
 					   const TrajectoryFitter * theFitter,
 					   const Propagator * thePropagator,
-					   const TransientTrackingRecHitBuilder* builder,
+					   const TransientTrackingRecHitBuilder* gbuilder,
 			   		   const reco::BeamSpot& bs,
 					   AlgoProductCollection& algoResults){
   
   LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
-  
+    const TkTransientTrackingRecHitBuilder * builder = dynamic_cast<TkTransientTrackingRecHitBuilder const *>(gbuilder);
+
   int cont = 0;
   for (TrackMomConstraintAssociationCollection::const_iterator i=theTCollectionWithConstraint.begin(); i!=theTCollectionWithConstraint.end();i++) {
       try{
@@ -217,8 +215,8 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 
 	// WARNING: here we assume that the hits are correcly sorted according to seedDir
 	TransientTrackingRecHit::RecHitContainer hits;       
-	for (trackingRecHit_iterator j=theT->recHitsBegin(); j!=theT->recHitsEnd();++j){
-	  hits.push_back(builder->build(&**j ));
+	for (trackingRecHit_iterator j=theT->recHitsBegin(); j!=theT->recHitsEnd();++j) {
+          if ((**j).geographicalId()!=0U)  hits.push_back( (**j).cloneForFit(*builder->geometry()->idToDet( (**j).geographicalId() ) ) );
 	}
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
@@ -244,8 +242,9 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 	// =========================
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 	
-	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
+	//=====  the hits are in the same order as they were in the track::extra.
+        FitterCloner fc(theFitter,builder);     
+	bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theInitialStateForRefitting,
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
       }catch ( cms::Exception & e){
@@ -264,11 +263,12 @@ TrackProducerAlgorithm<T>::runWithTrackParameters(const TrackingGeometry * theG,
 						  const TrackParamConstraintAssociationCollection& theTCollectionWithConstraint,
 						  const TrajectoryFitter * theFitter,
 						  const Propagator * thePropagator,
-						  const TransientTrackingRecHitBuilder* builder,
+						  const TransientTrackingRecHitBuilder* gbuilder,
 						  const reco::BeamSpot& bs,
 						  AlgoProductCollection& algoResults)
 {
   LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
+  const TkTransientTrackingRecHitBuilder * builder = dynamic_cast<TkTransientTrackingRecHitBuilder const *>(gbuilder);
 
   int cont = 0;
 
@@ -285,7 +285,7 @@ TrackProducerAlgorithm<T>::runWithTrackParameters(const TrackingGeometry * theG,
 	TransientTrackingRecHit::RecHitContainer hits;       
 	hits.push_back( constraintHit );
 	for (trackingRecHit_iterator j=theT->recHitsBegin(); j!=theT->recHitsEnd(); ++j){
-	  hits.push_back(builder->build(&**j ));
+          if ((**j).geographicalId()!=0U)  hits.push_back( (**j).cloneForFit(*builder->geometry()->idToDet( (**j).geographicalId() ) ) );
 	}
 
 	float ndof=0;
@@ -299,7 +299,8 @@ TrackProducerAlgorithm<T>::runWithTrackParameters(const TrackingGeometry * theG,
 						   TrajectorySeed::recHitContainer(), seedDir);
 
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
+        FitterCloner fc(theFitter,builder);
+	bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theInitialStateForRefitting,
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
       } catch ( cms::Exception & e){
@@ -317,9 +318,10 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 					 const VtxConstraintAssociationCollection& theTCollectionWithConstraint,
 					 const TrajectoryFitter * theFitter,
 					 const Propagator * thePropagator,
-					 const TransientTrackingRecHitBuilder* builder,
+					 const TransientTrackingRecHitBuilder* gbuilder,
 			   		 const reco::BeamSpot& bs,
 					 AlgoProductCollection& algoResults){
+  const TkTransientTrackingRecHitBuilder * builder = dynamic_cast<TkTransientTrackingRecHitBuilder const *>(gbuilder);
 
   LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
   
@@ -359,7 +361,7 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 	// WARNING: here we assume that the hits are correcly sorted according to seedDir
 	TransientTrackingRecHit::RecHitContainer hits;       
 	for (trackingRecHit_iterator j=theT->recHitsBegin(); j!=theT->recHitsEnd(); ++j){
-	  hits.push_back(builder->build(&**j ));
+          if ((**j).geographicalId()!=0U)  hits.push_back( (**j).cloneForFit(*builder->geometry()->idToDet( (**j).geographicalId() ) ) );
 	}
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
@@ -399,7 +401,8 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
+        FitterCloner fc(theFitter,builder);
+	bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theInitialStateForRefitting,
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
       } catch ( cms::Exception & e){

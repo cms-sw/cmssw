@@ -199,8 +199,8 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   theOutInSeedFinder_->setEvent(theEvent);
   theInOutSeedFinder_->setEvent(theEvent);
-  theOutInTrackFinder_->setTrajectoryBuilder(*trajectoryBuilder);
-  theInOutTrackFinder_->setTrajectoryBuilder(*trajectoryBuilder);
+  theOutInTrackFinder_->setTrajectoryBuilder(theEventSetup,*trajectoryBuilder);
+  theInOutTrackFinder_->setTrajectoryBuilder(theEventSetup,*trajectoryBuilder);
 
 // Set the navigation school  
   NavigationSetter setter(*theNavigationSchool_);  

@@ -54,7 +54,11 @@ private:
   virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
     return cloner(*this,tsos);
   }
-  
+#ifdef NO_DICT
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner.makeShared(*this,tsos);
+  }
+#endif  
   
 public:
   //--- The overall probability.  flags is the 32-bit-packed set of flags that

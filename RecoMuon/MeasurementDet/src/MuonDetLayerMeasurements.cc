@@ -236,7 +236,7 @@ MuonDetLayerMeasurements::measurements( const DetLayer* layer,
     LogTrace("RecoMuon")<<"Dimension: "<<(*rechit)->dimension()
 			<<" Chi2: "<<estimate.second<<std::endl;
     if (estimate.first) {
-      result.push_back(TrajectoryMeasurement(stateOnDet, rechit->get(),
+      result.push_back(TrajectoryMeasurement(stateOnDet, *rechit,
 					     estimate.second,layer));
     }
   }
@@ -261,7 +261,7 @@ MuonDetLayerMeasurements::fastMeasurements( const DetLayer* layer,
     MeasurementEstimator::HitReturnType estimate = est.estimate(theStateOnDet, (**irh));
     if (estimate.first)
     {
-      result.push_back(TrajectoryMeasurement(theStateOnDet,(*irh).get(),
+      result.push_back(TrajectoryMeasurement(theStateOnDet,(*irh),
                                              estimate.second,layer));
     }
   }

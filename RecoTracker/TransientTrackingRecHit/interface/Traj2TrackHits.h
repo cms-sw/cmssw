@@ -18,13 +18,13 @@
 class Traj2TrackHits {
 private:
   const StripClusterParameterEstimator * theCPE;
-  bool keepOrder;
-
+  bool keepOrder;  // FIXME move to enum
+  bool removeNoDet;  // true == as in conversion from TTRH tp TRH
 public:
 
-  explicit Traj2TrackHits(const TransientTrackingRecHitBuilder* builder,bool ikeepOrder) :
+  Traj2TrackHits(const TransientTrackingRecHitBuilder* builder, bool ikeepOrder, bool noNoDet=true) :
     theCPE(static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->stripClusterParameterEstimator()),
-    keepOrder(ikeepOrder){}
+    keepOrder(ikeepOrder), removeNoDet(noNoDet) {}
 
   void operator()(Trajectory const & traj, TrackingRecHitCollection & hits, bool splitting) const {
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
@@ -42,14 +42,15 @@ public:
 
 private:
   template<typename HI>
-  static void copy(HI itm, HI e, TrackingRecHitCollection & hits) { 
-    for(;itm!=e;++itm) hits.push_back((*itm).recHit()->hit()->clone());
+  void copy(HI itm, HI e, TrackingRecHitCollection & hits) const { 
+    for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) hits.push_back((*itm).recHitR().clone());
   }
 
   template<typename HI>
   void split(HI itm, HI e, TrackingRecHitCollection & hits, bool along) const { 
     for(;itm!=e;++itm) {
       auto const & hit = *(*itm).recHit()->hit();
+       if( (removeNoDet) & ((*itm).recHitR().det()==nullptr)) continue; 
       if(trackerHitRTTI::isUndef(hit) | ( hit.dimension()!=2) ) {
 	hits.push_back(hit.clone());
 	continue;

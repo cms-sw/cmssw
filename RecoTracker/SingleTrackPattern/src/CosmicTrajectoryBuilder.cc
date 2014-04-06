@@ -36,6 +36,7 @@ CosmicTrajectoryBuilder::~CosmicTrajectoryBuilder() {
 
 void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
 
+  // FIXME: this is a memory leak generator
 
   //services
   es.get<IdealMagneticFieldRecord>().get(magfield);
@@ -63,19 +64,19 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
   
 
   RHBuilder=   theBuilder.product();
-
+  hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(RHBuilder)->cloner();
 
 
 
   theFitter=        new KFTrajectoryFitter(*thePropagator,
 					   *theUpdator,	
 					   *theEstimator) ;
-  
+  theFitter->setHitCloner(&hitCloner);
 
   theSmoother=      new KFTrajectorySmoother(*thePropagatorOp,
 					     *theUpdator,	
 					     *theEstimator);
-  
+  theSmoother->setHitCloner(&hitCloner);
 }
 
 void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
@@ -313,7 +314,7 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 					   <<UpdatedState<<" "
 					   <<traj.chiSquared();
 
-	     hits.push_back(&(*tmphitbestdet));
+	     hits.push_back(tmphitbestdet);
 	   }
 	 }else LogDebug("CosmicTrackFinder")<<" Hits outside module surface "<< prLoc;
        }else LogDebug("CosmicTrackFinder")<<" State can not be updated with hit at position " <<gphit;
@@ -341,9 +342,8 @@ bool
 CosmicTrajectoryBuilder::qualityFilter(const Trajectory& traj){
   int ngoodhits=0;
   if(geometry=="MTCC"){
-    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();
-    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
-    for(hit=hits.begin();hit!=hits.end();hit++){
+    auto hits = traj.recHits();
+    for(auto hit=hits.begin();hit!=hits.end();hit++){
       unsigned int iid=(*hit)->hit()->geographicalId().rawId();
       //CHECK FOR 3 hits r-phi
       if(((iid>>0)&0x3)!=1) ngoodhits++;

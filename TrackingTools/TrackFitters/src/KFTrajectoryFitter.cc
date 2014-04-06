@@ -4,6 +4,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 
 #ifdef EDM_ML_DEBUG
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -81,10 +83,15 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
     const TransientTrackingRecHit & hit = (**ihit);
 
+    // if unlikely(hit.det() == nullptr) continue;
+
     if unlikely( (!hit.isValid()) && hit.surface() == nullptr) {
-      LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
+       std::cout << "TrackFitters" << " Error: invalid hit with no GeomDet attached .... skipping" << std::endl;
+       LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
+   if (hit.det() && hit.geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId()  << std::endl;
+   if (hit.isValid() && hit.geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId()  << std::endl;
 
 #ifdef EDM_ML_DEBUG
     if (hit.isValid()) {
@@ -162,9 +169,16 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     }
 
     if likely(hit.isValid()) {
+        assert(hit.geographicalId()!=0U);
+       	assert(hit.surface()!=nullptr);
 	//update
 	LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
-	TransientTrackingRecHit::RecHitPointer preciseHit = hit.clone(predTsos);
+        assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
+        assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
+	auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
+        assert(preciseHit->isValid());
+       	assert(preciseHit->geographicalId()!=0U);
+       	assert(preciseHit->surface()!=nullptr);
 
 	if unlikely(!preciseHit->isValid()){
 	    LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
@@ -210,7 +224,9 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       //no update
       LogDebug("TrackFitters") << "THE HIT IS NOT VALID: using currTsos" << "\n";
       currTsos = predTsos;
-      myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
+      assert( ((*ihit)->det()==nullptr) || (*ihit)->geographicalId()!=0U);
+      if ((*ihit)->det()) myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
+      else   myTraj.push(TM(predTsos, *ihit,0));
     }
 
     LogTrace("TrackFitters")

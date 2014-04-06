@@ -219,8 +219,6 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
     if(it->direction() == alongMomentum) LogDebug("OutInConversionTrackFinder") << "OutInConv along momentum... " << std::endl;
     t2t(*it,recHits,useSplitHits_);
 
-    assert(recHits.size()==(*it).measurements().size());
-
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
 
     assert(initState.second == recHits.front().det());

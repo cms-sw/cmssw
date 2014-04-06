@@ -20,8 +20,9 @@ class TkTransientTrackingRecHitBuilder GCC11_FINAL : public TransientTrackingRec
 				    const StripClusterParameterEstimator * ,
                                     const SiStripRecHitMatcher           *,
 				    bool computeCoarseLocalPositionFromDisk);
+
   TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const ;
-  TransientTrackingRecHit::RecHitPointer build ( const TrackingRecHit * p, const TrajectoryStateOnSurface & state)  const ;
+
 
   const PixelClusterParameterEstimator * pixelClusterParameterEstimator() const {return pixelCPE;}
   const StripClusterParameterEstimator * stripClusterParameterEstimator() const {return stripCPE;}
@@ -32,7 +33,6 @@ class TkTransientTrackingRecHitBuilder GCC11_FINAL : public TransientTrackingRec
   TkClonerImpl cloner() const { return TkClonerImpl(pixelCPE,stripCPE,theMatcher);}
 
 private:
-  TransientTrackingRecHit::RecHitPointer oldbuild (const TrackingRecHit * p) const ;
 
 
  private:

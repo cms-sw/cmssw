@@ -139,13 +139,13 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	    if (hitInStrip){
 	      //cout<<"  TypeId of the RecHit: "<<className(*hit)<<endl;
 	      // const std::type_info &type = typeid(*hit);
-	      const TSiStripRecHit2DLocalPos* transstriphit2D = dynamic_cast<const  TSiStripRecHit2DLocalPos*>(hit);
-	      const TSiStripRecHit1D* transstriphit1D = dynamic_cast<const  TSiStripRecHit1D*>(hit);
+	      const SiStripRecHit2D* transstriphit2D = dynamic_cast<const  SiStripRecHit2D*>(hit);
+	      const SiStripRecHit1D* transstriphit1D = dynamic_cast<const  SiStripRecHit1D*>(hit);
 	   
 	      //   if (type == typeid(SiStripRecHit1D)) {
 	      if(transstriphit1D!=0){
 		//	const SiStripRecHit1D* striphit=dynamic_cast<const  SiStripRecHit1D*>(hit);
-		const SiStripRecHit1D* striphit=transstriphit1D->specificHit();
+		const SiStripRecHit1D* striphit=transstriphit1D;
 		if(striphit!=0){
 		  SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
 		  
@@ -163,7 +163,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	      else if(transstriphit2D!=0){
 	      //else if (type == typeid(SiStripRecHit2D)) {
 		//		const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
-		const SiStripRecHit2D* striphit=transstriphit2D->specificHit();   
+		const SiStripRecHit2D* striphit=transstriphit2D;   
 		if(striphit!=0){
 		  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
 		  
@@ -188,9 +188,9 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	 
 	    }//end if hit in Strips
 	    else {//pixel hit
-	      const TSiPixelRecHit* transpixelhit = dynamic_cast<const TSiPixelRecHit*>(hit);
+	      const SiPixelRecHit* transpixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
 	      if(transpixelhit!=0){
-		const SiPixelRecHit* pixelhit=transpixelhit->specificHit();
+		const SiPixelRecHit* pixelhit=transpixelhit;
 		SiPixelClusterRefNew pixclust(pixelhit->cluster());
 		
 		if(pixclust.id()==pixelclusters.id()){

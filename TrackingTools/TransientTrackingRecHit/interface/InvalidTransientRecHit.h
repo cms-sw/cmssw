@@ -11,9 +11,10 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   typedef TransientTrackingRecHit Base;
   typedef TrackingRecHit::Type Type;
   
-  static RecHitPointer build( const GeomDet * geom, Type type=TrackingRecHit::missing, const DetLayer * layer=nullptr) {
-    return RecHitPointer( new InvalidTransientRecHit( geom, layer, type ));
-  }
+//  static RecHitPointer build( const GeomDet * geom, Type type=TrackingRecHit::missing, const DetLayer * layer=nullptr) {
+//    return std::make_shared<InvalidTransientRecHit>( geom, layer, type );
+//   // return RecHitPointer( new InvalidTransientRecHit( geom, layer, type ));
+//  }
   
 
   ~InvalidTransientRecHit();
@@ -28,7 +29,7 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   virtual float errorGlobalRPhi() const;
   
   virtual const TrackingRecHit * hit() const { return &me; } // this;}
-  virtual InvalidTrackingRecHit * cloneHit() const { return new InvalidTrackingRecHit(rawId(), det(), type());}
+  virtual InvalidTrackingRecHit * cloneHit() const { return me.clone();}
   
   // duplicate of persistent class
   virtual AlgebraicVector parameters() const;
@@ -53,14 +54,16 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   
   // until all clients are migrated...
   InvalidTrackingRecHit me;
-  
+
+public:  
   /// invalid RecHit - has only GeomDet and Type
+  /*
   InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type) :
     Base(geom == nullptr ? DetId(0) : geom->geographicalId(), geom, type), 
     surface_(geom ? &(det()->surface()) : ( layer ?  &(layer->surface()) : nullptr)),
-    me( geom == nullptr ? DetId(0) : geom->geographicalId(), geom, type)
+    me( geom, layer, type)
       {}
-  
+  */
     // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
   virtual InvalidTransientRecHit* clone() const {return new InvalidTransientRecHit(*this);}

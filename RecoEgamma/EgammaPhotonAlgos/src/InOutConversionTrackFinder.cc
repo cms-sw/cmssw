@@ -160,17 +160,6 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
      t2t(*it,recHits,useSplitHits_);
     
-     assert(recHits.size()==(*it).measurements().size());
-    
-    /*
-    edm::OwnVector<TrackingRecHit> recHits;
-    Trajectory::RecHitContainer thits;
-    it->recHitsV(thits,useSplitHits_);
-    recHits.reserve(thits.size());
-    for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++) {
-      recHits.push_back( (**hitIt).hit()->clone());
-    }
-    */
     
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
 

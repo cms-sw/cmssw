@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 
 #include <utility>
 
@@ -22,9 +23,7 @@ public:
 
   typedef TrajectoryStateOnSurface TSOS;
 
-  TransientInitialStateEstimator( const edm::EventSetup& es, const edm::ParameterSet& conf);
-  /// Call this at each event until this object will come from the EventSetup as it should
-  void setEventSetup( const edm::EventSetup& es );
+  TransientInitialStateEstimator( const edm::EventSetup& es, const edm::ParameterSet& conf, TkClonerImpl const & hc);
 
   std::pair<TrajectoryStateOnSurface, const GeomDet*>
     innerState( const Trajectory& traj, bool doBackFit=true) const;
@@ -33,6 +32,7 @@ public:
 private:
   std::string thePropagatorAlongName;    
   std::string thePropagatorOppositeName;  
+  TkClonerImpl hitCloner;	
   edm::ESHandle<Propagator>  thePropagatorAlong; 
   edm::ESHandle<Propagator>  thePropagatorOpposite;
   int theNumberMeasurementsForFit;

@@ -49,20 +49,23 @@ protected:
   GSTransientTrackingRecHit(const GeomDet * geom, TrackingRecHit* rh) :
     TValidTrackingRecHit(geom,*rh), trackingRecHit_(rh) {}
   
-  GSTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
+  GSTransientTrackingRecHit( const GSTransientTrackingRecHit & other ) :
   TValidTrackingRecHit( other.det(),other) {
     trackingRecHit_ = other.cloneHit();
   }
+
   
   TrackingRecHit * trackingRecHit_;
   
  private:
   
   // should not have assignment operator (?)
-  GSTransientTrackingRecHit & operator= (const GenericTransientTrackingRecHit & t) {
+  GSTransientTrackingRecHit & operator= (const GSTransientTrackingRecHit & t) {
+    delete trackingRecHit_;
     trackingRecHit_ = t.cloneHit();
     return *(this);
   }
+
 
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!

@@ -28,13 +28,15 @@ public:
 			      const SiStripRecHitMatcher *matcher,
 			      const StripClusterParameterEstimator* cpe=0,
 			       bool computeCoarseLocalPosition=false) {
-    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe, computeCoarseLocalPosition));
+    return std::make_shared<TSiStripMatchedRecHit>( geom, rh, matcher,cpe, computeCoarseLocalPosition);
+//    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe, computeCoarseLocalPosition));
   }
 
   static RecHitPointer build( const GeomDet * geom, std::auto_ptr<TrackingRecHit> rh, 
 			      const SiStripRecHitMatcher *matcher,
 			      const StripClusterParameterEstimator* cpe=0,
 			      bool computeCoarseLocalPosition=false) {
+    return std::make_shared<TSiStripMatchedRecHit>( geom, rh, matcher,cpe, computeCoarseLocalPosition);
     return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe, computeCoarseLocalPosition));
   }
 
@@ -72,7 +74,7 @@ private:
   const SiStripRecHitMatcher* theMatcher; 
   const StripClusterParameterEstimator* theCPE;
 
-private:
+public:
   TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh, 
 			 const SiStripRecHitMatcher *matcher,
 			 const StripClusterParameterEstimator* cpe,
