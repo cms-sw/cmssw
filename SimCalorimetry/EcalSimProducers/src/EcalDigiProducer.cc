@@ -160,7 +160,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::one::E
    const bool applyConstantTerm          = params.getParameter<bool>       ("applyConstantTerm");
    const double rmsConstantTerm          = params.getParameter<double>     ("ConstantTerm");
 
-   const bool addNoise                   = params.getParameter<bool>       ("doNoise"); 
+   const bool addNoise                   = params.getParameter<bool>       ("doENoise"); 
    const bool cosmicsPhase               = params.getParameter<bool>       ("cosmicsPhase");
    const double cosmicsShift             = params.getParameter<double>     ("cosmicsShift");
 
@@ -615,7 +615,7 @@ EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventS
 
    // Step D: Put outputs into event
    if( m_apdSeparateDigi ) {
-      event.put( apdResult,    m_apdDigiTag         ) ;
+     //event.put( apdResult,    m_apdDigiTag         ) ;
    }
 
    event.put( barrelResult,    m_EBdigiCollection ) ;

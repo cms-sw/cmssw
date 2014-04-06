@@ -355,9 +355,9 @@ namespace edm
     }else{
       if(useSiStripRawDigi_)
 	delete SiStripRawWorker_;
-      else
-	if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
-	else delete SiStripWorker_;
+      else if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
+      else delete SiStripWorker_;
+
       delete SiPixelWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}

@@ -121,7 +121,7 @@ private:
     coder.adc2fC(digi, result);
     fC2pe(result);
 
-    std::cout << " HcalSignalGenerator: noise result " << result << std::endl;
+    //    std::cout << " HcalSignalGenerator: noise result " << result << std::endl;
 
 
 

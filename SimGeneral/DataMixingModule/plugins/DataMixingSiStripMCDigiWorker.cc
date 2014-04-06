@@ -136,8 +136,6 @@ namespace edm
 	LogDebug("DataMixingSiStripMCDigiWorker")  << "Processing DetID " << DSViter->id;
 #endif
 
-	std::cout << "SIStripDM Sig: Processing DetID " << DSViter->id << std::endl;
-	
 	LocalMap.clear();
 	LocalMap.reserve((DSViter->data).size());
 	LocalMap.insert(LocalMap.end(),(DSViter->data).begin(),(DSViter->data).end());	
@@ -176,8 +174,6 @@ namespace edm
 #ifdef DEBUG
 	LogDebug("DataMixingSiStripMCDigiWorker")  << "Pileups: Processing DetID " << DSViter->id;
 #endif
-
-	std::cout << "SIStripDM PU: Processing DetID " << DSViter->id << std::endl;
 
 	// find correct local map (or new one) for this detector ID
 

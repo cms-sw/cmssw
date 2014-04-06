@@ -11,7 +11,8 @@ EcalTDigitizer<Traits>::EcalTDigitizer( EcalHitResponse* hitResponse    ,
 					bool             addNoise         ) :
    m_hitResponse    ( hitResponse    ) ,
    m_electronicsSim ( electronicsSim ) ,
-   m_addNoise       ( addNoise       )
+   m_addNoise       ( addNoise       ) ,
+   theNoiseSignalGenerator (0)
 {
 }
 
@@ -40,6 +41,9 @@ EcalTDigitizer<Traits>::initializeHits() {
 template <class Traits>
 void
 EcalTDigitizer<Traits>::setNoiseSignalGenerator(EcalBaseSignalGenerator* noiseSignalGenerator) {
+
+	std::cout << " Setting noise Signal Generator " << std::endl;
+
    theNoiseSignalGenerator = noiseSignalGenerator;
 }
 
@@ -51,7 +55,11 @@ EcalTDigitizer<Traits>::run( DigiCollection&          output   )
 {
    m_hitResponse->finalizeHits()  ;
 
-   if(theNoiseSignalGenerator != 0) addNoiseSignals();	
+   if(theNoiseSignalGenerator != 0) {
+
+	std::cout << "Ecal NG: " << theNoiseSignalGenerator << std::endl;
+//	addNoiseSignals();	
+   }
 
    m_electronicsSim->newEvent() ;
 
