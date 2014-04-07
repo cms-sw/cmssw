@@ -32,7 +32,7 @@ class BeamSpotTransientTrackingRecHit GCC11_FINAL : public TValidTrackingRecHit 
   BeamSpotTransientTrackingRecHit(const reco::BeamSpot &beamSpot,
 				  const BeamSpotGeomDet * geom,
 				  double phi)
-    : TValidTrackingRecHit(geom, AlignableBeamSpot::detId(), valid) {
+    : TValidTrackingRecHit(*geom) {
 
     localPosition_ = det()->toLocal(GlobalPoint(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()));
     localError_ = LocalError(std::pow(beamSpot.BeamWidthX()*cos(phi), 2) +

@@ -35,23 +35,23 @@ public:
   }
 
   static RecHitPointer build( const GeomDet * geom, const TrackingRecHit * rh) {
-    return RecHitPointer( new GenericTransientTrackingRecHit( geom, *rh));
+    return RecHitPointer( new GenericTransientTrackingRecHit( *geom, *rh));
   }
 
 protected:
 
   // private constructors enforce usage of builders
-  GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit& rh) :
+  GenericTransientTrackingRecHit(const GeomDet & geom, const TrackingRecHit& rh) :
     TValidTrackingRecHit(geom,rh) {
     trackingRecHit_ = rh.clone();
   }
   
   /// for derived classes convenience, does not clone!
-  GenericTransientTrackingRecHit(const GeomDet * geom, TrackingRecHit* rh) :
+  GenericTransientTrackingRecHit(const GeomDet & geom, TrackingRecHit* rh) :
     TValidTrackingRecHit(geom,*rh), trackingRecHit_(rh) {}
   
   GenericTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
-  TValidTrackingRecHit( other.det(),other) {
+  TValidTrackingRecHit( *other.det(),other) {
     trackingRecHit_ = other.cloneHit();
   }
   

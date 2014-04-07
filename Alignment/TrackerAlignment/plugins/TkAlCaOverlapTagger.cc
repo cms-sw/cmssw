@@ -20,8 +20,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit1D.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "Utilities/General/interface/ClassName.h"
 
@@ -112,7 +110,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       }
       
       
-      TransientTrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
+      TrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
       const TrackingRecHit *hit=&(* hitpointer);
       if(!hit->isValid())continue;
 

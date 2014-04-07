@@ -44,7 +44,7 @@ public:
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
 		     GeomDet const & idet, trackerHitRTTI::RTTI rt) :  
-    TrackingRecHit(idet.geographicalId(),&idet, (unsigned int)(rt)), pos_(p), err_(e){
+    TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e){
     LocalError lape = det()->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx()+lape.xx(),

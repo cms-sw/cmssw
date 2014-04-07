@@ -78,7 +78,7 @@ class MyDet : public GeomDet {
 class My2DHit : public GenericTransientTrackingRecHit {
 public:
 
-  My2DHit(const GeomDet * geom, TrackingRecHit* rh) :
+  My2DHit(const GeomDet & geom, TrackingRecHit* rh) :
     GenericTransientTrackingRecHit(geom,  rh) {}
 
   virtual void getKfComponents( KfComponentsHolder & holder ) const {
@@ -195,7 +195,7 @@ int main() {
     
   SiStripRecHit2D dummy;
   TrackingRecHit * hit = new SiStripMatchedRecHit2D(m, e, *det, &dummy, &dummy);
-  TransientTrackingRecHit * thit = new  My2DHit(det, hit);
+  TransientTrackingRecHit * thit = new  My2DHit(*det, hit);
 
   KFUTest kt(new KFUpdator());
   Chi2Test chi2(new Chi2MeasurementEstimator(10.));

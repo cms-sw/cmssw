@@ -19,10 +19,10 @@ typedef MuonTransientTrackingRecHit::RecHitContainer   MuonRecHitContainer;
 
 
 MuonTransientTrackingRecHit::MuonTransientTrackingRecHit(const GeomDet* geom, const TrackingRecHit* rh) :
-  GenericTransientTrackingRecHit(geom,*rh){}
+  GenericTransientTrackingRecHit(*geom,*rh){}
 
 MuonTransientTrackingRecHit::MuonTransientTrackingRecHit(const MuonTransientTrackingRecHit& other ) :
-  GenericTransientTrackingRecHit(other.det(), *(other.hit())) {}
+  GenericTransientTrackingRecHit(*other.det(), *(other.hit())) {}
 
 
 LocalVector MuonTransientTrackingRecHit::localDirection() const {

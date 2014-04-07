@@ -61,15 +61,12 @@ public:
   
   explicit TrackingRecHit(DetId id, Type type=valid ) : m_id(id), m_status(type),  m_det(nullptr) {}
   explicit TrackingRecHit(id_type id=0, Type type=valid ) : m_id(id), m_status(type), m_det(nullptr) {}
+  TrackingRecHit(DetId id,  unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)),  m_det(nullptr){}
 
-  TrackingRecHit(DetId id, unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)), m_det(nullptr) {}
 
-  TrackingRecHit(DetId id, GeomDet const * idet, Type type=valid ) : m_id(id), m_status(type),  m_det(idet) {}
-  TrackingRecHit(DetId id, GeomDet const * idet, unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)), m_det(idet) {}
-
-  TrackingRecHit(const GeomDet * idet, DetId id, Type type=valid  ) : m_id(id), m_status(type), m_det(idet){}
-  TrackingRecHit(const GeomDet * idet, DetId id, unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)),  m_det(idet){}
-  TrackingRecHit(const GeomDet * idet,  TrackingRecHit const & rh) : m_id(rh.m_id), m_status(rh.m_status), m_det(idet){} 
+  explicit TrackingRecHit(const GeomDet & idet, Type type=valid) : m_id(idet.geographicalId()), m_status(type), m_det(&idet){}
+  TrackingRecHit(const GeomDet & idet,  unsigned int rt, Type type=valid  ) : m_id(idet.geographicalId()), m_status((rt<< rttiShift)|int(type)),  m_det(&idet){}
+  TrackingRecHit(const GeomDet & idet,  TrackingRecHit const & rh) : m_id(rh.m_id), m_status(rh.m_status), m_det(&idet){} 
 
 
   virtual ~TrackingRecHit() {}

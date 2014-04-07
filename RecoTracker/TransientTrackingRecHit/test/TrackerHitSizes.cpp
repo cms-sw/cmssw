@@ -2,11 +2,9 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit1D.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 //
 // For FAMOS
 //
@@ -28,12 +26,6 @@ int main() {
 
   std::cout << std::endl;
 
-  PSIZE(TSiStripRecHit2DLocalPos);
-  PSIZE(TSiStripRecHit1D);
-  PSIZE(TSiStripMatchedRecHit);
-  PSIZE(TSiPixelRecHit);
-  PSIZE(InvalidTransientRecHit);
-  PSIZE(ProjectedRecHit2D);
   PSIZE(GenericTransientTrackingRecHit);
 
   PSIZE(SiTrackerGSRecHit2D);

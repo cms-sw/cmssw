@@ -9,7 +9,7 @@ class InvalidTrackingRecHit : public TrackingRecHit {
 public:
   typedef TrackingRecHit::Type Type;
   
-  InvalidTrackingRecHit(GeomDet const & idet, Type type ) : TrackingRecHit(idet.geographicalId(), &idet, type)  {}
+  InvalidTrackingRecHit(GeomDet const & idet, Type type ) : TrackingRecHit(idet, type)  {}
   explicit InvalidTrackingRecHit(Type type) : TrackingRecHit(DetId(0), type) {}
 
   InvalidTrackingRecHit() : TrackingRecHit(DetId(0), TrackingRecHit::missing) {}
@@ -49,7 +49,7 @@ private:
 class InvalidTrackingRecHitNoDet GCC11_FINAL : public InvalidTrackingRecHit {
 public:
 
-  InvalidTrackingRecHitNoDet() : InvalidTrackingRecHit() {}
+  InvalidTrackingRecHitNoDet() {}
   InvalidTrackingRecHitNoDet(Surface const & surface, Type type) : InvalidTrackingRecHit(type), m_surface(&surface){}
 
   virtual InvalidTrackingRecHitNoDet * clone() const GCC11_OVERRIDE {return new InvalidTrackingRecHitNoDet(*this);}

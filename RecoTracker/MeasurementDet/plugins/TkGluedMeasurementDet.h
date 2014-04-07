@@ -69,10 +69,7 @@ private:
 			   const StripClusterParameterEstimator* cpe,
 			   RecHitContainer & target) ;
     void add(SiStripMatchedRecHit2D const& hit) {
-      target_.push_back(
-			TSiStripMatchedRecHit::build( geomDet_, std::auto_ptr<TrackingRecHit>(hit.clone()), 
-						      matcher_,cpe_)
-			);
+      target_.emplace_back(hit.cloneSH());
       hasNewHits_ = true; 
     }
     void addProjected(const TrackingRecHit& hit,

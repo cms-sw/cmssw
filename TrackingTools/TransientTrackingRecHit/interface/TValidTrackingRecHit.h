@@ -15,13 +15,13 @@ class GeomDetUnit;
 class TValidTrackingRecHit : public TransientTrackingRecHit {
 public:
   
-  TValidTrackingRecHit(const GeomDet * geom) : 
-  TransientTrackingRecHit(geom->geographicalId(), geom) {}
+  TValidTrackingRecHit(const GeomDet & geom) : 
+  TrackingRecHit(geom) {}
 
 
   template<typename... Args>
   TValidTrackingRecHit(Args && ...args) : 
-    TransientTrackingRecHit(std::forward<Args>(args)...) {}
+    TrackingRecHit(std::forward<Args>(args)...) {}
 
   // to be moved in children
   TrackingRecHit * cloneHit() const { return hit()->clone();}
