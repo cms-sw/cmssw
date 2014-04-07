@@ -3,6 +3,7 @@
 //
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 //
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -44,5 +45,5 @@ void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
   es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",
 					thePropagator_);
 
-  theInitialState_->setEventSetup( es );
+  theInitialState_->setEventSetup( es, static_cast<TkTransientTrackingRecHitBuilder const *>(theCkfTrajectoryBuilder_->hitBuilder())->cloner() );
 }

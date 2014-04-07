@@ -129,8 +129,6 @@ namespace cms{
     //    edm::ESInputTag mfESInputTag(mfName);
     //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
 
-    theInitialState->setEventSetup( es );
-
     edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
     es.get<TrajectoryCleaner::Record>().get(theTrajectoryCleanerName, trajectoryCleanerH);
     theTrajectoryCleaner= trajectoryCleanerH.product();
@@ -174,7 +172,9 @@ namespace cms{
         //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created without masks, " << std::endl;
         theTrajectoryBuilder->setEvent(e, es, &*data);
     }
-    
+    // TISE ES must be set here due to dependence on theTrajectoryBuilder
+    theInitialState->setEventSetup( es, static_cast<TkTransientTrackingRecHitBuilder const *>(theTrajectoryBuilder->hitBuilder())->cloner() );
+
     // Step B: Retrieve seeds
     
     edm::Handle<View<TrajectorySeed> > collseed;

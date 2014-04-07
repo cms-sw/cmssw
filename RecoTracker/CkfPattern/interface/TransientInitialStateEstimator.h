@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 
 #include <utility>
 
@@ -23,7 +24,7 @@ public:
   typedef TrajectoryStateOnSurface TSOS;
 
   TransientInitialStateEstimator(const edm::ParameterSet& conf);
-  void setEventSetup( const edm::EventSetup& es );
+  void setEventSetup( const edm::EventSetup& es, const TkClonerImpl& hc );
 
   std::pair<TrajectoryStateOnSurface, const GeomDet*>
     innerState( const Trajectory& traj, bool doBackFit=true) const;
@@ -34,6 +35,7 @@ private:
   const std::string thePropagatorOppositeName;
   const Propagator *thePropagatorAlong;
   const Propagator *thePropagatorOpposite; // not used? can we remove it?
+  TkClonerImpl theHitCloner;
   const int theNumberMeasurementsForFit;
 };
 
