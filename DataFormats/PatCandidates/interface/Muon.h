@@ -78,9 +78,19 @@ namespace pat {
       reco::TrackRef combinedMuon() const;
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       reco::TrackRef globalTrack() const { return combinedMuon(); }
+      /// Track selected to be the best measurement of the muon parameters (including PFlow global information)
+      const reco::Track * bestTrack() const { return muonBestTrack().get(); }
+      /// Track selected to be the best measurement of the muon parameters (including PFlow global information)
+      reco::TrackRef      muonBestTrack() const ; 
+      /// Track selected to be the best measurement of the muon parameters (from muon information alone)
+      virtual reco::TrackRef tunePMuonBestTrack() const ;
 
       /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
-      void embedMuonBestTrack();
+      /// if force == false, do not embed this track if it's embedded already (e.g. ig it's a tracker track, and that's already embedded)
+      void embedMuonBestTrack(bool force=false);
+      /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
+      /// if force == false, do not embed this track if it's embedded already (e.g. ig it's a tracker track, and that's already embedded)
+      void embedTunePMuonBestTrack(bool force=false);
       /// set reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
       void embedTrack();
       /// set reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
@@ -227,9 +237,12 @@ namespace pat {
 
       // ---- for content embedding ----
 
-      /// best muon track
+      /// best muon track (global pflow)
       bool embeddedMuonBestTrack_;
       std::vector<reco::Track> muonBestTrack_;
+      /// best muon track (muon only)
+      bool embeddedTunePMuonBestTrack_;
+      std::vector<reco::Track> tunePMuonBestTrack_;
       /// track of inner track detector
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
