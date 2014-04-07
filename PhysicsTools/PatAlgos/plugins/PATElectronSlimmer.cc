@@ -20,6 +20,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
 #define protected public
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -37,7 +38,7 @@ namespace pat {
     private:
       edm::InputTag src_;
 
-      bool dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropRecHits_;
+      StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
 
       edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf_;
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
@@ -49,11 +50,12 @@ namespace pat {
 
 pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     src_(iConfig.getParameter<edm::InputTag>("src")),
-    dropSuperClusters_(iConfig.getParameter<bool>("dropSuperCluster")),
-    dropBasicClusters_(iConfig.getParameter<bool>("dropBasicClusters")),
-    dropPFlowClusters_(iConfig.getParameter<bool>("dropPFlowClusters")),
-    dropPreshowerClusters_(iConfig.getParameter<bool>("dropPreshowerClusters")),
-    dropRecHits_(iConfig.getParameter<bool>("dropRecHits")),
+    dropSuperClusters_(iConfig.getParameter<std::string>("dropSuperCluster")),
+    dropBasicClusters_(iConfig.getParameter<std::string>("dropBasicClusters")),
+    dropPFlowClusters_(iConfig.getParameter<std::string>("dropPFlowClusters")),
+    dropPreshowerClusters_(iConfig.getParameter<std::string>("dropPreshowerClusters")),
+    dropSeedCluster_(iConfig.getParameter<std::string>("dropSeedCluster")),
+    dropRecHits_(iConfig.getParameter<std::string>("dropRecHits")),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates"))
 {
     produces<std::vector<pat::Electron> >();
@@ -87,13 +89,14 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     for (View<pat::Electron>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Electron & electron = out->back();
-        if (dropSuperClusters_) electron.superCluster_.clear();
-	if (dropBasicClusters_) electron.basicClusters_.clear();
-	if (dropSuperClusters_ || dropPFlowClusters_) electron.pflowSuperCluster_.clear();
-	if (dropBasicClusters_ || dropPFlowClusters_) electron.pflowBasicClusters_.clear();
-	if (dropPreshowerClusters_) electron.preshowerClusters_.clear();
-	if (dropPreshowerClusters_ || dropPFlowClusters_) electron.pflowPreshowerClusters_.clear();
-        if (dropRecHits_) electron.recHits_ = EcalRecHitCollection();
+        if (dropSuperClusters_(electron)) { electron.superCluster_.clear(); electron.embeddedSuperCluster_ = false; }
+	if (dropBasicClusters_(electron)) { electron.basicClusters_.clear();  }
+	if (dropSuperClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowSuperCluster_.clear(); electron.embeddedPflowSuperCluster_ = false; }
+	if (dropBasicClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowBasicClusters_.clear(); }
+	if (dropPreshowerClusters_(electron)) { electron.preshowerClusters_.clear(); electron.embeddedSuperCluster_ = false; }
+	if (dropPreshowerClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowPreshowerClusters_.clear(); }
+	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
+        if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
         if (linkToPackedPF_) {
             electron.setPackedPFCandidateCollection(edm::RefProd<pat::PackedCandidateCollection>(pc));
             //std::cout << " PAT  electron in  " << src.id() << " comes from " << electron.refToOrig_.id() << ", " << electron.refToOrig_.key() << std::endl;
