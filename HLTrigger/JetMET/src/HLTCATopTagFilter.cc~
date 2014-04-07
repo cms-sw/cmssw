@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    CAWZTagFilter
-// Class:      CAWZTagFilter
+// Package:    HLTCATopTagFilter
+// Class:      HLTCATopTagFilter
 // 
-/**\class CAWZTagFilter CAWZTagFilter.cc UserCode/CAWZTagFilter/plugins/CAWZTagFilter.cc
+/**\class HLTCATopTagFilter HLTCATopTagFilter.cc UserCode/HLTCATopTagFilter/plugins/HLTCATopTagFilter.cc
 
  Description: [one line class summary]
 
@@ -17,8 +17,8 @@
 //
 //
 
-#include "../interface/CAWZTagFilter.h"
-
+#include "../interface/HLTCATopTagFilter.h"
+#include <typeinfo>
 
 using namespace std;
 using namespace reco;
@@ -28,52 +28,47 @@ using namespace edm;
 // constructors and destructor
 //
 
-CAWZTagFilter::CAWZTagFilter(const edm::ParameterSet& iConfig): HLTFilter(iConfig),
+HLTCATopTagFilter::HLTCATopTagFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),  
 								      src_  (iConfig.getParameter<edm::InputTag>("src")),
 								      pfsrc_ (iConfig.getParameter<edm::InputTag>("pfsrc")),
-								   inputToken_ (consumes<reco::BasicJetCollection>(src_)),
-								   inputPFToken_ (consumes<reco::PFJetCollection>(pfsrc_))
+								      inputToken_ (consumes<reco::BasicJetCollection>(src_)),
+								      inputPFToken_ (consumes<reco::PFJetCollection>(pfsrc_))
 {
-  if ( iConfig.exists("minWMass") ) minWMass_ = iConfig.getParameter<double>("minWMass");
-  else minWMass_ = -1;
-  if ( iConfig.exists("maxWMass") ) maxWMass_ = iConfig.getParameter<double>("maxWMass");
-  else maxWMass_ = 999999;
-  if ( iConfig.exists("massdropcut") ) massdropcut_ = iConfig.getParameter<double>("massdropcut");
-  else massdropcut_ = 1;
-
+  TopMass_ = iConfig.getParameter<double>("TopMass");
+  minTopMass_ = iConfig.getParameter<double>("minTopMass");
+  maxTopMass_ = iConfig.getParameter<double>("maxTopMass");
+  minMinMass_ = iConfig.getParameter<double>("minMinMass");
 }
 
 
-CAWZTagFilter::~CAWZTagFilter()
-{
-}
+HLTCATopTagFilter::~HLTCATopTagFilter(){}
 
 
-void CAWZTagFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+void HLTCATopTagFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<double>("maxWMass",130.);
-  desc.add<double>("minWMass",60.);
-  desc.add<double>("massdropcut",0.4);
+  desc.add<double>("TopMass",171.);
+  desc.add<double>("maxTopMass",230.);
+  desc.add<double>("minTopMass",140.);
+  desc.add<double>("minMinMass",50.);
   desc.add<edm::InputTag>("src",edm::InputTag("hltParticleFlow"));
   desc.add<edm::InputTag>("pfsrc",edm::InputTag("selectedPFJets"));
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add("hltCA8WZTagFilter",desc);
+  descriptions.add("hltCA8TopTagFilter",desc);
 }
-
 // ------------ method called to for each event  ------------
 
-bool CAWZTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterobject) const
+bool HLTCATopTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterobject) const
 {
 
-  // Get the input list of basic jets corresponding to the hard jets
-  Handle<reco::BasicJetCollection> pBasicJets;
+
+  //get basic jets
+  Handle<reco::BasicJetCollection > pBasicJets;
   iEvent.getByToken(inputToken_, pBasicJets);
 
- //get corresponding pf jets
+  //get corresponding pf jets
   Handle<reco::PFJetCollection> pfJets;
   iEvent.getByToken(inputPFToken_, pfJets);
-
 
   //add filter object
   if(saveTags()){
@@ -81,7 +76,7 @@ bool CAWZTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   //initialize the properties
-  CAWZJetHelperUser helper( massdropcut_ );
+  CATopJetHelperUser helper( TopMass_);
   CATopJetProperties properties;
 
   // Now loop over the hard jets and do kinematic cuts
@@ -89,15 +84,15 @@ bool CAWZTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetup
     ihardJetEnd = pBasicJets->end();
   reco::PFJetCollection::const_iterator ipfJet = pfJets->begin();
   bool pass = false;
-
+  
   for ( ; ihardJet != ihardJetEnd; ++ihardJet, ++ipfJet ) {
 
-    if (ihardJet->pt() < 150) continue;
+    if (ihardJet->pt() < 350) continue;
 
     // Get properties
     properties = helper( (reco::Jet&) *ihardJet );
 
-    if (properties.wMass < minWMass_ || properties.wMass > maxWMass_) continue;
+    if (properties.nSubJets < 3 ||properties.minMass < minMinMass_ || properties.topMass < minTopMass_ || properties.topMass > maxTopMass_) continue;
     else {
       // Get a ref to the hard jet
       reco::PFJetRef ref = reco::PFJetRef(pfJets,distance(pfJets->begin(),ipfJet));
@@ -108,10 +103,14 @@ bool CAWZTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetup
 
   }// end loop over hard jets
 
+
+
+
   return pass;
 }
+// ------------ method called once each job just before starting event loop  ------------
 
  
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(CAWZTagFilter);
+DEFINE_FWK_MODULE(HLTCATopTagFilter);
