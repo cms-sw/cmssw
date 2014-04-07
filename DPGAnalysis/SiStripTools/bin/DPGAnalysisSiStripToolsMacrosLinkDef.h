@@ -27,4 +27,5 @@
 #pragma link C++ function printSOF;
 #pragma link C++ function AverageRunBadChannels;
 #pragma link C++ function StripCompletePlot;
+#pragma link C++ function PlotOnTrackOccupancyPhase2;;
 #endif
