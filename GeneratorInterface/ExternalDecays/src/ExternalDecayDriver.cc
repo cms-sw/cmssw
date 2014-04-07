@@ -33,12 +33,6 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
     }
     else if ( curSet == "Tauola" || curSet == "Tauolapp113a" ){
-      // this is for old tauola27 (+pretauola)
-      //
-      // --> fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
-      //
-      // for tauola++, here it should be something like:
-      //
       fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp113a", pset.getUntrackedParameter< ParameterSet >(curSet)));
       fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
       fPhotosInterface->configureOnlyFor( 15 );
@@ -46,6 +40,15 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
       exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
     }
+    else if ( curSet == "Tauolapp114" ){
+      fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp114", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fPhotosInterface->configureOnlyFor( 15 );
+      fPhotosInterface->avoidTauLeptonicDecays();
+      exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
+    }
+
     else if ( curSet == "Photos" || curSet == "Photos2155" ){
       if ( !fPhotosInterface ){
 	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));

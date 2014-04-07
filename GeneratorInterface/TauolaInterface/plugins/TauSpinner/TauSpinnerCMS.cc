@@ -16,10 +16,10 @@
 using namespace edm;
 using namespace TauSpinner;
 
+
 CLHEP::HepRandomEngine* TauSpinnerCMS::fRandomEngine= nullptr;
 bool                    TauSpinnerCMS::isTauSpinnerConfigure=false;
-
-bool TauSpinnerCMS::fInitialized=false;
+bool                    TauSpinnerCMS::fInitialized=false;
 
 TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   EDProducer()
@@ -52,6 +52,9 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   }
 }
 
+void  TauSpinnerCMS::beginJob(){};
+void  TauSpinnerCMS::endJob(){};
+
 void TauSpinnerCMS::initialize(){
   // Now for Tauola and TauSpinner
   if(!isTauolaConfigured_){
@@ -73,11 +76,6 @@ void TauSpinnerCMS::initialize(){
   fInitialized=true;
 }
 
-void TauSpinnerCMS::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){}
-
-void TauSpinnerCMS::beginJob(){
-
-}
 
 void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   RandomEngineSentry<TauSpinnerCMS> randomEngineSentry(this, e.streamID());
@@ -176,10 +174,6 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   return ;
 }  
 
-void TauSpinnerCMS::endRun( const edm::Run& r, const edm::EventSetup& ){}
-
-void TauSpinnerCMS::endJob(){}
-
 int TauSpinnerCMS::readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleParticle &tau,SimpleParticle &tau2, 
 					 std::vector<SimpleParticle> &tau_daughters,std::vector<SimpleParticle> &tau2_daughters){
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -277,6 +271,5 @@ double TauSpinnerCMS::flat()
   }
   return fRandomEngine->flat();
 }
-
 
 DEFINE_FWK_MODULE(TauSpinnerCMS);
