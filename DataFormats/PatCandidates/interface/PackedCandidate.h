@@ -1,5 +1,5 @@
-#ifndef __AnalysisDataFormats_CMGTools_PackedCandidate_h__
-#define __AnalysisDataFormats_CMGTools_PackedCandidate_h__
+#ifndef __DataFormats_PatCandidates_PackedCandidate_h__
+#define __DataFormats_PatCandidates_PackedCandidate_h__
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
