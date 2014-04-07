@@ -213,7 +213,13 @@ namespace pat {
     /// dz  with respect to another point
     virtual float dz(const Point &p)  const ;
 
-    /// Return a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
+    /// uncertainty on dz 
+    virtual float dzError() const { maybeUnpackBoth(); return sqrt(dzdz_); }
+    /// uncertainty on dxy
+    virtual float dxyError() const { maybeUnpackBoth(); return sqrt(dxydxy_); }
+
+
+    /// Return by value (no caching heavy function) a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
     virtual reco::Track pseudoTrack() const;
 
     /// true if the track had the highPurity quality bit
@@ -235,6 +241,11 @@ namespace pat {
         int lost = hits; if (lost > 2) lost = 2; // protection against misuse
         lost++; // shift so it's 0 .. 3 instead of (-1) .. 2
         qualityFlags_ = (qualityFlags_ & ~lostInnerHitsMask) | ((lost << lostInnerHitsShift) & lostInnerHitsMask); 
+    }
+
+    void setMuonID(bool isStandAlone, bool isGlobal) {
+        int16_t muonFlags = isStandAlone | (2*isGlobal);
+        qualityFlags_ = (qualityFlags_ & ~muonFlagsMask) | ((muonFlags << muonFlagsShift) & muonFlagsMask);
     }
 
     /// PDG identifier                                                                    
@@ -344,15 +355,15 @@ namespace pat {
     /* } */
 
 
-    virtual bool isElectron() const;
-    virtual bool isMuon() const;
-    virtual bool isStandAloneMuon() const;
-    virtual bool isGlobalMuon() const;
-    virtual bool isTrackerMuon() const;
-    virtual bool isCaloMuon() const;
-    virtual bool isPhoton() const;
-    virtual bool isConvertedPhoton() const;
-    virtual bool isJet() const;
+    virtual bool isElectron() const { return false; }
+    virtual bool isMuon() const { return false; }
+    virtual bool isStandAloneMuon() const { return ((qualityFlags_ & muonFlagsMask) >> muonFlagsShift) & 1; }
+    virtual bool isGlobalMuon() const { return ((qualityFlags_ & muonFlagsMask) >> muonFlagsShift) & 2; }
+    virtual bool isTrackerMuon() const { return false; }
+    virtual bool isCaloMuon() const { return false; }
+    virtual bool isPhoton() const { return false; }
+    virtual bool isConvertedPhoton() const { return false; }
+    virtual bool isJet() const { return false; }
 
   protected:
     uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
@@ -399,7 +410,8 @@ namespace pat {
     enum qualityFlagsShiftsAndMasks {
         fromPVMask = 0x3, fromPVShift = 0,
         trackHighPurityMask  = 0x4, trackHighPurityShift=2,
-        lostInnerHitsMask = 0x18, lostInnerHitsShift=3
+        lostInnerHitsMask = 0x18, lostInnerHitsShift=3,
+        muonFlagsMask = 0x0300, muonFlagsShift=8
     };
   private:
     // const iterator implementation

@@ -12,6 +12,7 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
         "keep++ abs(pdgId) == 15",                                         # but keep keep taus with decays
         "++keep  4 <= abs(pdgId) <= 6 ",                                   # keep also heavy quarks
         "++keep  (400 < abs(pdgId) < 600) || (4000 < abs(pdgId) < 6000)",  # and their hadrons
-        "drop   status == 2 && abs(pdgId) == 22",                          # but remove again gluons in the inheritance chain
+        "drop   status == 2 && abs(pdgId) == 21",                          # but remove again gluons in the inheritance chain
+        "keep  (1 <= abs(pdgId) <= 3 || abs(pdgId) == 21) && pt > 10",     # keep hard partons
     )
 )

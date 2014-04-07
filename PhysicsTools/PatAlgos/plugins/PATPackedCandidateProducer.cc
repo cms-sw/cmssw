@@ -287,6 +287,9 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
             }
 #endif
 //// ENDDEBUG
+            if (cand.muonRef().isNonnull()) {
+                outPtrP->back().setMuonID(cand.muonRef()->isStandAloneMuon(), cand.muonRef()->isGlobalMuon());
+            }
         } else {
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV));
             outPtrP->back().setFromPV( fromPV[ic] );
