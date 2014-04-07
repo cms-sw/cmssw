@@ -1,5 +1,5 @@
-#ifndef UserCode_CATopTagFilter_h
-#define UserCode_CATopTagFilter_h
+#ifndef UserCode_HLTCATopTagFilter_h
+#define UserCode_HLTCATopTagFilter_h
 
 // system include files
 #include <memory>
@@ -28,15 +28,14 @@
 class CATopJetHelperUser : public std::unary_function<reco::Jet, reco::CATopJetProperties> {
  public:
 
-  CATopJetHelperUser(double TopMass, double WMass) :
-    TopMass_(TopMass), WMass_(WMass)
+  CATopJetHelperUser(double TopMass) :
+  TopMass_(TopMass)
     {}
 
     reco::CATopJetProperties operator()( reco::Jet const & ihardJet ) const;
   
  protected:
     double      TopMass_;
-    double      WMass_;
 
 };
 
@@ -54,10 +53,10 @@ struct GreaterByPtCandPtrUser {
 // class declaration
 //
 
-class CATopTagFilter : public HLTFilter {
+class HLTCATopTagFilter : public HLTFilter {
  public:
-  explicit CATopTagFilter(const edm::ParameterSet&);
-  ~CATopTagFilter();
+  explicit HLTCATopTagFilter(const edm::ParameterSet&);
+  ~HLTCATopTagFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual bool hltFilter( edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterobject) const override;
 
@@ -71,11 +70,8 @@ class CATopTagFilter : public HLTFilter {
   double      TopMass_;
   double      minTopMass_;
   double      maxTopMass_;
-  double      WMass_;
-  double      minWMass_;
-  double      maxWMass_;
   double      minMinMass_;
-  double      maxMinMass_;
+
 
 };
 
@@ -85,7 +81,6 @@ reco::CATopJetProperties CATopJetHelperUser::operator()( reco::Jet const & ihard
   reco::Jet::Constituents subjets = ihardJet.getJetConstituents();
   properties.nSubJets = subjets.size();  // number of subjets
   properties.topMass = ihardJet.mass();      // jet mass
-  properties.wMass = 999999.;                  // best W mass
   properties.minMass = 999999.;            // minimum mass pairing
 
   // Require at least three subjets in all cases, if not, untagged
@@ -112,10 +107,6 @@ reco::CATopJetProperties CATopJetHelperUser::operator()( reco::Jet const & ihard
         // Get the candidate mass
         double imw = wCand.mass();
 
-        // Find the combination closest to the W mass
-        if ( fabs( imw - WMass_ ) < fabs(properties.wMass - WMass_) ) {
-          properties.wMass = imw;
-        }
         // Find the minimum mass pairing. 
         if ( fabs( imw ) < properties.minMass ) {
           properties.minMass = imw;

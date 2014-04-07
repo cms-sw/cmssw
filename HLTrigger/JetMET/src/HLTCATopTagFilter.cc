@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    CATopTagFilter
-// Class:      CATopTagFilter
+// Package:    HLTCATopTagFilter
+// Class:      HLTCATopTagFilter
 // 
-/**\class CATopTagFilter CATopTagFilter.cc UserCode/CATopTagFilter/plugins/CATopTagFilter.cc
+/**\class HLTCATopTagFilter HLTCATopTagFilter.cc UserCode/HLTCATopTagFilter/plugins/HLTCATopTagFilter.cc
 
  Description: [one line class summary]
 
@@ -17,7 +17,7 @@
 //
 //
 
-#include "../interface/CATopTagFilter.h"
+#include "../interface/HLTCATopTagFilter.h"
 #include <typeinfo>
 
 using namespace std;
@@ -28,40 +28,29 @@ using namespace edm;
 // constructors and destructor
 //
 
-CATopTagFilter::CATopTagFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),  
+HLTCATopTagFilter::HLTCATopTagFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),  
 								      src_  (iConfig.getParameter<edm::InputTag>("src")),
 								      pfsrc_ (iConfig.getParameter<edm::InputTag>("pfsrc")),
 								      inputToken_ (consumes<reco::BasicJetCollection>(src_)),
 								      inputPFToken_ (consumes<reco::PFJetCollection>(pfsrc_))
 {
-  if ( iConfig.exists("TopMass") ) TopMass_ = iConfig.getParameter<double>("TopMass");
-  else TopMass_ = 171.;
-  if ( iConfig.exists("minTopMass") ) minTopMass_ = iConfig.getParameter<double>("minTopMass");
-  else minTopMass_ = -1;
-  if ( iConfig.exists("maxTopMass") ) maxTopMass_ = iConfig.getParameter<double>("maxTopMass");
-  else maxTopMass_ = 999999;
-  if ( iConfig.exists("WMass") ) WMass_ = iConfig.getParameter<double>("WMass");
-  else WMass_ = 80.4;
-  if ( iConfig.exists("minWMass") ) minWMass_ = iConfig.getParameter<double>("minWMass");
-  else minWMass_ = -1;
-  if ( iConfig.exists("maxWMass") ) maxWMass_ = iConfig.getParameter<double>("maxWMass");
-  else maxWMass_ = 999999;
-  if ( iConfig.exists("minMinMass") ) minMinMass_ = iConfig.getParameter<double>("minMinMass");
-  else minMinMass_ = -1;
-  if ( iConfig.exists("maxMinMass") ) maxMinMass_ = iConfig.getParameter<double>("maxMinMass");
-  else maxMinMass_ = 999999;
+  TopMass_ = iConfig.getParameter<double>("TopMass");
+  minTopMass_ = iConfig.getParameter<double>("minTopMass");
+  maxTopMass_ = iConfig.getParameter<double>("maxTopMass");
+  minMinMass_ = iConfig.getParameter<double>("minMinMass");
 }
 
 
-CATopTagFilter::~CATopTagFilter(){}
+HLTCATopTagFilter::~HLTCATopTagFilter(){}
 
 
-void CATopTagFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+void HLTCATopTagFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
+  desc.add<double>("TopMass",171.);
   desc.add<double>("maxTopMass",230.);
-  desc.add<double>("minMinMass",50.);
   desc.add<double>("minTopMass",140.);
+  desc.add<double>("minMinMass",50.);
   desc.add<edm::InputTag>("src",edm::InputTag("hltParticleFlow"));
   desc.add<edm::InputTag>("pfsrc",edm::InputTag("selectedPFJets"));
   desc.add<int>("triggerType",trigger::TriggerJet);
@@ -69,7 +58,7 @@ void CATopTagFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 }
 // ------------ method called to for each event  ------------
 
-bool CATopTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterobject) const
+bool HLTCATopTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterobject) const
 {
 
 
@@ -87,7 +76,7 @@ bool CATopTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   //initialize the properties
-  CATopJetHelperUser helper( TopMass_, WMass_ );
+  CATopJetHelperUser helper( TopMass_);
   CATopJetProperties properties;
 
   // Now loop over the hard jets and do kinematic cuts
@@ -98,12 +87,12 @@ bool CATopTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetu
   
   for ( ; ihardJet != ihardJetEnd; ++ihardJet, ++ipfJet ) {
 
-    if (ihardJet->pt() < 350) continue;
+    //if (ihardJet->pt() < 350) continue;
 
     // Get properties
     properties = helper( (reco::Jet&) *ihardJet );
 
-    if (properties.minMass < minMinMass_ || properties.minMass > maxMinMass_ || properties.wMass < minWMass_ || properties.wMass > maxWMass_ || properties.topMass < minTopMass_ || properties.topMass > maxTopMass_) continue;
+    if (properties.nSubJets < 3 ||properties.minMass < minMinMass_ || properties.topMass < minTopMass_ || properties.topMass > maxTopMass_) continue;
     else {
       // Get a ref to the hard jet
       reco::PFJetRef ref = reco::PFJetRef(pfJets,distance(pfJets->begin(),ipfJet));
@@ -124,4 +113,4 @@ bool CATopTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetu
  
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(CATopTagFilter);
+DEFINE_FWK_MODULE(HLTCATopTagFilter);
