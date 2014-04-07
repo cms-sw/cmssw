@@ -26,7 +26,9 @@ TransientInitialStateEstimator::TransientInitialStateEstimator(const edm::Parame
   theNumberMeasurementsForFit(conf.getParameter<int>("numberMeasurementsForFit"))
 {}
 
-void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) {
+void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es, const TkClonerImpl& hc ) {
+  theHitCloner = hc;
+
   edm::ESHandle<Propagator> halong;
   edm::ESHandle<Propagator> hopposite;
 
