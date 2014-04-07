@@ -67,6 +67,6 @@ class BoostedJetMerger : public edm::EDProducer {
       // ----------member data ---------------------------
 
       // data labels
-      edm::InputTag jetLabel_;
-      edm::InputTag subjetLabel_;
+      edm::EDGetTokenT<edm::View<pat::Jet> >  jetToken_;
+      edm::EDGetTokenT<edm::View<pat::Jet> >  subjetToken_;
 };
