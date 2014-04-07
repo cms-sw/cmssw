@@ -20,7 +20,7 @@ private:
   typedef TrajectoryStateOnSurface TSOS;
   typedef FreeTrajectoryState FTS;
   typedef TrajectoryMeasurement TM;
-  
+
 public:
 
   KFSplittingFitter(const Propagator& aPropagator,
@@ -31,20 +31,23 @@ public:
 
   KFSplittingFitter(const Propagator* aPropagator,
 		    const TrajectoryStateUpdator* aUpdator,
-		    const MeasurementEstimator* aEstimator) : 
+		    const MeasurementEstimator* aEstimator) :
     fitter(aPropagator, aUpdator, aEstimator) {}
 
-  virtual KFSplittingFitter* clone() const {
-    return new KFSplittingFitter(fitter.propagator(),fitter.updator(),fitter.estimator());
+    virtual std::unique_ptr<TrajectoryFitter> clone() const override {
+      return std::unique_ptr<TrajectoryFitter>(
+          new KFSplittingFitter(fitter.propagator(),
+                                fitter.updator(),
+                                fitter.estimator()));
   }
-  
+
   Trajectory fitOne(const Trajectory& aTraj,
 		    fitType type) const;
   Trajectory fitOne(const TrajectorySeed& aSeed,
 		    const RecHitContainer& hits,
 		    fitType type) const;
  Trajectory fitOne(const TrajectorySeed& aSeed,
-		    const RecHitContainer& hits, 
+		    const RecHitContainer& hits,
 		    const TSOS& firstPredTsos,
 		    fitType type) const;
 
