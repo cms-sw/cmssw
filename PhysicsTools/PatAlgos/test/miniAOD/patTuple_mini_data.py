@@ -41,7 +41,7 @@ process.patElectrons.embedPflowBasicClusters        = False
 process.patElectrons.embedPflowPreshowerClusters    = False
 
 process.selectedPatJets.cut = cms.string("pt > 10")
-process.selectedPatMuons.cut = cms.string("pt > 3") 
+process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))") 
 process.selectedPatElectrons.cut = cms.string("pt > 5") 
 process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
 process.selectedPatPhotons.cut = cms.string("pt > 15")

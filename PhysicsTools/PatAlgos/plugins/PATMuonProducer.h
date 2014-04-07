@@ -83,8 +83,12 @@ namespace pat {
     /// input source
     edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
 
-    /// embed the track from best muon measurement
+    /// embed the track from best muon measurement (global pflow)
     bool embedBestTrack_;
+    /// embed the track from best muon measurement (muon only)
+    bool embedTunePBestTrack_;
+    /// force separate embed of the best track even if already embedded 
+    bool forceEmbedBestTrack_;
     /// embed the track from inner tracker into the muon
     bool embedTrack_;
     /// embed track from muon system into the muon

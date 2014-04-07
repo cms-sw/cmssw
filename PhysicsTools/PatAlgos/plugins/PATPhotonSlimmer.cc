@@ -19,6 +19,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
 namespace pat {
 
@@ -31,6 +32,9 @@ namespace pat {
 
     private:
       edm::InputTag src_;
+
+      StringCutObjectSelector<pat::Photon> dropSuperClusters_, dropBasicClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
+
       edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf_;
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
       edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
@@ -41,6 +45,11 @@ namespace pat {
 
 pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
     src_(iConfig.getParameter<edm::InputTag>("src")),
+    dropSuperClusters_(iConfig.getParameter<std::string>("dropSuperCluster")),
+    dropBasicClusters_(iConfig.getParameter<std::string>("dropBasicClusters")),
+    dropPreshowerClusters_(iConfig.getParameter<std::string>("dropPreshowerClusters")),
+    dropSeedCluster_(iConfig.getParameter<std::string>("dropSeedCluster")),
+    dropRecHits_(iConfig.getParameter<std::string>("dropRecHits")),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates"))
 {
     produces<std::vector<pat::Photon> >();
@@ -74,6 +83,13 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     for (View<pat::Photon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Photon & photon = out->back();
+
+        if (dropSuperClusters_(photon)) { photon.superCluster_.clear(); photon.embeddedSuperCluster_ = false; }
+	if (dropBasicClusters_(photon)) { photon.basicClusters_.clear(); }
+	if (dropPreshowerClusters_(photon)) { photon.preshowerClusters_.clear(); }
+	if (dropSeedCluster_(photon)) { photon.seedCluster_.clear(); photon.embeddedSeedCluster_ = false; }
+        if (dropRecHits_(photon)) { photon.recHits_ = EcalRecHitCollection(); photon.embeddedRecHits_ = false; }
+
         if (linkToPackedPF_) {
             photon.setPackedPFCandidateCollection(edm::RefProd<pat::PackedCandidateCollection>(pc));
             //std::cout << " PAT  photon in  " << src.id() << " comes from " << photon.refToOrig_.id() << ", " << photon.refToOrig_.key() << std::endl;
