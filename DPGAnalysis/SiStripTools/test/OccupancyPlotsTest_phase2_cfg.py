@@ -35,7 +35,7 @@ process.options = cms.untracked.PSet(
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
-process.MessageLogger.cout.threshold = cms.untracked.string("WARNING")
+process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
     )
@@ -157,6 +157,8 @@ process.seqAnalyzers = cms.Sequence(
 #-------------------------------------------------------------------------------------------
 
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
+process.AlignmentTrackSelector.etaMin = cms.double(-5.)
+process.AlignmentTrackSelector.etaMax = cms.double(5.)
 
 process.seqProducers = cms.Sequence(process.AlignmentTrackSelector + process.seqMultProd)
 
