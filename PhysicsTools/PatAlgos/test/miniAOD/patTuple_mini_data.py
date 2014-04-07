@@ -14,10 +14,10 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-#process.source.fileNames = {'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU25ns_POSTLS170_V3-v2/00000/5A98DF7C-C998-E311-8FF8-003048FEADBC.root'}
 process.source.fileNames = {'/store/relval/CMSSW_7_0_0/SingleMu/RECO/GR_R_70_V1_RelVal_zMu2012D-v2/00000/0259E46E-F698-E311-8CFD-003048FF9AC6.root'}
+
 #                                         ##
-process.maxEvents.input = -1
+process.maxEvents.input = 10000
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
@@ -44,7 +44,7 @@ process.selectedPatJets.cut = cms.string("pt > 10")
 process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))") 
 process.selectedPatElectrons.cut = cms.string("pt > 5") 
 process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
-process.selectedPatPhotons.cut = cms.string("pt > 15")
+process.selectedPatPhotons.cut = cms.string("pt > 15 && hadTowOverEm()<0.15 ")
 
 process.slimmedJets.clearDaughters = False
 
@@ -84,6 +84,7 @@ process.out.outputCommands = process.MicroEventContent.outputCommands
 process.out.dropMetaData = cms.untracked.string('ALL')
 process.out.fastCloning= cms.untracked.bool(False)
 process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
+process.out.compressionAlgorithm = cms.untracked.string('LZMA')
 
 from PhysicsTools.PatAlgos.tools.coreTools import runOnData
 runOnData( process )
