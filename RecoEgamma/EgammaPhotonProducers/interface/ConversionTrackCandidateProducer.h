@@ -44,7 +44,6 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   ~ConversionTrackCandidateProducer();
   
   virtual void beginRun (edm::Run const&, edm::EventSetup const & es) override final;
-  virtual void endRun (edm::Run const&, edm::EventSetup const & es) override final;
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:
@@ -65,7 +64,6 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > scIslandEndcapProducer_;
-  edm::ParameterSet conf_;
   edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelecalCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapecalCollection_;
