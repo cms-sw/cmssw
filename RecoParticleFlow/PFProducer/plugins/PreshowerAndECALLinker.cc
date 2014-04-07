@@ -31,13 +31,16 @@ linkPrefilter( const reco::PFBlockElement* elem1,
   switch( elem1->type() ){
   case reco::PFBlockElement::PS1:
   case reco::PFBlockElement::PS2:
-    result = (elem1->isMultilinksValide() && elem1->getMultilinks().size() > 0);
+    result = ( elem1->isMultilinksValide() && 
+	       elem1->getMultilinks().size() > 0 );    
     break;
   case reco::PFBlockElement::ECAL:
-    result = (elem2->isMultilinksValide() && elem2->getMultilinks().size() > 0);
+    result = ( elem2->isMultilinksValide() && 
+	       elem2->getMultilinks().size() > 0 );
+    break;
   default:
     break;
-  } 
+  }   
   return (_useKDTree ? result : true);
 }
 

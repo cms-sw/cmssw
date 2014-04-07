@@ -74,6 +74,18 @@ void PFBlockAlgoNew::setLinkers(const std::vector<edm::ParameterSet>& confs) {
   }
 }
 
+void PFBlockAlgoNew::setImporters(const std::vector<edm::ParameterSet>& confs,
+				  edm::ConsumesCollector& sumes) {
+   _importers.reserve(confs.size());  
+  for( const auto& conf : confs ) {
+    const std::string& importerName = 
+      conf.getParameter<std::string>("importerName");    
+    const BlockElementImporterBase * importer =
+      BlockElementImporterFactory::get()->create(importerName,conf,sumes);
+    _importers.emplace_back(importer);
+  }
+}
+
 void PFBlockAlgoNew::setParameters( std::vector<double>& DPtovPtCut,
 				 std::vector<unsigned int>& NHitCut,
 				 bool useConvBremPFRecTracks,
@@ -130,7 +142,6 @@ PFBlockAlgoNew::~PFBlockAlgoNew() {
 
 void 
 PFBlockAlgoNew::findBlocks() {
-
   // Glowinski & Gouzevitch
   if (useKDTreeTrackEcalLinker_) {
     TELinker_.process();
@@ -138,12 +149,9 @@ PFBlockAlgoNew::findBlocks() {
     PSELinker_.process();
   }
   // !Glowinski & Gouzevitch
-
   // the blocks have not been passed to the event, and need to be cleared
-  if(blocks_.get() )blocks_->clear();
-  else 
-    blocks_.reset( new reco::PFBlockCollection );
-
+  if( blocks_.get() ) blocks_->clear();
+  else                blocks_.reset( new reco::PFBlockCollection );
   blocks_->reserve(elements_.size());
   for(IE ie = elements_.begin(); 
       ie != elements_.end();) {
@@ -241,7 +249,8 @@ PFBlockAlgoNew::packLinks( reco::PFBlock& block,
       // this can be optimized
       unsigned linksize = links.size();
       for( unsigned il = ilStart; il<linksize; ++il ) {
-	// The following three lines exploits the increasing-element2 ordering of links.
+	// The following three lines exploits the increasing-element2 
+	// ordering of links.
 	if ( links[il].element2() < i1 ) ilStart = il;
 	if ( links[il].element2() > i1 ) break;
 	if( (links[il].element1() == i2 &&
@@ -295,6 +304,20 @@ PFBlockAlgoNew::buildGraph() {
 
 
 
+inline bool
+PFBlockAlgoNew::linkPrefilter(const reco::PFBlockElement* last, 
+			      const reco::PFBlockElement* next) const {
+  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
+  const PFBlockElement::Type& type1 = (last)->type();
+  const PFBlockElement::Type& type2 = (next)->type();
+  const unsigned index = rowsize*std::max(type1,type2) + std::min(type1,type2);
+  bool result = false;
+  if( index < _linkTests.size() && _linkTests[index] ) {
+    result = _linkTests[index]->linkPrefilter(last,next);
+  }
+  return result;  
+}
+
 void 
 PFBlockAlgoNew::link( const reco::PFBlockElement* el1, 
 		      const reco::PFBlockElement* el2, 
@@ -302,217 +325,19 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
 		      reco::PFBlock::LinkTest& linktest,
 		      double& dist) const {
   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
-  // ACHTUNG!!!! If you introduce new links check that they are not 
-  // desabled in linkPrefilter!!!!
-
-
   dist=-1.0;
   linktest = PFBlock::LINKTEST_RECHIT; //rechit by default 
-
   PFBlockElement::Type type1 = el1->type();
   PFBlockElement::Type type2 = el2->type();
+  linktype = static_cast<PFBlockLink::Type>(1<<(type1-1)|1<<(type2-1));
   const unsigned index = rowsize*std::max(type1,type2) + std::min(type1,type2);
-
-  /*
-  linktype = static_cast<PFBlockLink::Type>((1<<(type1-1))|(1<< (type2-1)));
-  */
   if(debug_ ) { 
     std::cout << " PFBlockAlgoNew links type1 " << type1 
 	      << " type2 " << type2 << std::endl;
   }
-
-  if( index < _linkTests.size() && _linkTests[index] ) {
-    dist = _linkTests[index]->testLink(el1,el2);
-  }  
+  // index is always checked in the preFilter above, no need to check here
+  dist = _linkTests[index]->testLink(el1,el2);
 }
-
-double
-PFBlockAlgoNew::testECALAndHCAL(const PFCluster& ecal, 
-			     const PFCluster& hcal)  const {
-  
-  //   cout<<"entering testECALAndHCAL"<<endl;
-  
-  double dist = fabs(ecal.positionREP().Eta()) > 2.5 ?
-    LinkByRecHit::computeDist( ecal.positionREP().Eta(),
-			       ecal.positionREP().Phi(), 
-			       hcal.positionREP().Eta(), 
-			       hcal.positionREP().Phi() )
-    : 
-    -1.;
-
-#ifdef PFLOW_DEBUG
-  if(debug_) cout<<"testECALAndHCAL "<< dist <<" "<<endl;
-  if(debug_){
-    cout<<" ecaleta " << ecal.positionREP().Eta()
-	<<" ecalphi " << ecal.positionREP().Phi()
-	<<" hcaleta " << hcal.positionREP().Eta()
-	<<" hcalphi " << hcal.positionREP().Phi()
-  }
-#endif
-
-  if ( dist < 0.2 ) return dist; 
- 
-  // Need to implement a link by RecHit
-  return -1.;
-}
-
-double
-PFBlockAlgoNew::testHCALAndHO(const PFCluster& hcal, 
-			     const PFCluster& ho)  const {
-  
-  double dist = fabs(hcal.positionREP().Eta()) < 1.5 ?
-    LinkByRecHit::computeDist( hcal.positionREP().Eta(),
-			       hcal.positionREP().Phi(), 
-			       ho.positionREP().Eta(), 
-			       ho.positionREP().Phi() )
-    : 
-    -1.;
-
-#ifdef PFLOW_DEBUG
-  if(debug_) cout<<"testHCALAndHO "<< dist <<" "<<endl;
-  if(debug_){
-    cout<<" hcaleta " << hcal.positionREP().Eta()
-	<<" hcalphi " << hcal.positionREP().Phi()
-	<<" hoeta " << ho.positionREP().Eta()
-	<<" hophi " << ho.positionREP().Phi()
-	<<" dist " << dist<<endl;
-  }
-#endif
-
-  if ( dist < 0.20 ) return dist; 
- 
-  // Need to implement a link by RecHit
-  return -1.;
-}
-
-
-
-double
-PFBlockAlgoNew::testLinkBySuperCluster(const PFClusterRef& ecal1, 
-				    const PFClusterRef& ecal2)  const {
-  
-  //  cout<<"entering testECALAndECAL "<< pfcRefSCMap_.size() << endl;
-  
-  double dist = -1;
-  
-  // the first one is not in any super cluster
-  int testindex=pfcSCVec_[ecal1.key()];
-  if(testindex == -1.) return dist;
-  //  if(itcheck==pfcRefSCMap_.end()) return dist;
-  // now retrieve the of PFclusters in this super cluster  
-
-  const std::vector<reco::PFClusterRef> & thePFClusters(scpfcRefs_[testindex]);
-  
-  unsigned npf=thePFClusters.size();
-  for(unsigned i=0;i<npf;++i)
-    {
-      if(thePFClusters[i]==ecal2) // yes they are in the same SC 
-	{
-	  dist=LinkByRecHit::computeDist( ecal1->positionREP().Eta(),
-					  ecal1->positionREP().Phi(), 
-					  ecal2->positionREP().Eta(), 
-					  ecal2->positionREP().Phi() );
-//	  std::cout << " DETA " << fabs(ecal1->positionREP().Eta()-ecal2->positionREP().Eta()) << std::endl;
-//	  if(fabs(ecal1->positionREP().Eta()-ecal2->positionREP().Eta())>0.2)
-//	    {
-//	      std::cout <<  " Super Cluster " <<  *(superClusters_[testindex]) << std::endl;
-//	      std::cout <<  " Cluster1 " <<  *ecal1 << std::endl;
-//	      std::cout <<  " Cluster2 " <<  *ecal2 << std::endl;
-//	      ClusterClusterMapping::checkOverlap(*ecal1,superClusters_,0.01,true);
-//	      ClusterClusterMapping::checkOverlap(*ecal2,superClusters_,0.01,true);
-//	    }
-	  return dist;
-	}
-    }
-  return dist;
-}
-
-
-double
-PFBlockAlgoNew::testSuperClusterPFCluster(const SuperClusterRef& ecal1, 
-				       const PFClusterRef& ecal2)  const {
-  
-  //  cout<<"entering testECALAndECAL "<< pfcRefSCMap_.size() << endl;
-  
-  double dist = -1;
-  
-  if(superClusterMatchByRef_) {
-    //loop over supercluster CaloClusters, look up PFCluster ptrs in value map, and match by ref
-    for (reco::CaloCluster_iterator caloclus = ecal1->clustersBegin(); caloclus!=ecal1->clustersEnd(); ++caloclus) {
-      bool overlap = ClusterClusterMapping::overlap(ecal2, *ecal1,*pfclusterassoc_);
-      if (overlap) dist = 0.001;
-    }
-  }
-  else {
-    bool overlap=ClusterClusterMapping::overlap(*ecal1,*ecal2);
-    
-    if(overlap) 	{
-      dist=LinkByRecHit::computeDist( ecal1->position().eta(),
-                                      ecal1->position().phi(), 
-                                      ecal2->positionREP().Eta(), 
-                                      ecal2->positionREP().Phi() );
-    }
-  }
-  return dist;
-}
-
-double
-PFBlockAlgoNew::testLinkByVertex( const reco::PFBlockElement* elt1, 
-			       const reco::PFBlockElement* elt2) const {
-
-  //  cout << "Test link by vertex between" << endl << *elt1 << endl << " and " << endl << *elt2 << endl;
-
-  double result=-1.;
-
-  reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
-  reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
-  PFDisplacedTrackerVertexRef ni1_TO_DISP = elt1->displacedVertexRef(T_TO_DISP);
-  PFDisplacedTrackerVertexRef ni2_TO_DISP = elt2->displacedVertexRef(T_TO_DISP);
-  PFDisplacedTrackerVertexRef ni1_FROM_DISP = elt1->displacedVertexRef(T_FROM_DISP);
-  PFDisplacedTrackerVertexRef ni2_FROM_DISP = elt2->displacedVertexRef(T_FROM_DISP);
-  
-  if( ni1_TO_DISP.isNonnull() && ni2_FROM_DISP.isNonnull())
-    if( ni1_TO_DISP == ni2_FROM_DISP ) { result = 1.0; return result; }
-
-  if( ni1_FROM_DISP.isNonnull() && ni2_TO_DISP.isNonnull())
-    if( ni1_FROM_DISP == ni2_TO_DISP ) { result = 1.0; return result; }
-
-  if( ni1_FROM_DISP.isNonnull() && ni2_FROM_DISP.isNonnull())
-    if( ni1_FROM_DISP == ni2_FROM_DISP ) { result = 1.0; return result; }
-    
-  
-  if (  elt1->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)  &&
-	     elt2->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)  ) {
-    
-    if(debug_ ) std::cout << " testLinkByVertex On Conversions " << std::endl;
-    
-    if ( elt1->convRef().isNonnull() && elt2->convRef().isNonnull() ) {
-      if(debug_ ) std::cout << " PFBlockAlgo.cc testLinkByVertex  Cconversion Refs are non null  " << std::endl;      
-      if ( elt1->convRef() ==  elt2->convRef() ) {
-	result=1.0;
-	if(debug_ ) std::cout << " testLinkByVertex  Cconversion Refs are equal  " << std::endl;      
-	return result;
-      }
-    } 
-    
-  }
-  
-  if (  elt1->trackType(reco::PFBlockElement::T_FROM_V0)  &&
-             elt2->trackType(reco::PFBlockElement::T_FROM_V0)  ) {
-    if(debug_ ) std::cout << " testLinkByVertex On V0 " << std::endl;
-    if ( elt1->V0Ref().isNonnull() && elt2->V0Ref().isNonnull() ) {
-      if(debug_ ) std::cout << " PFBlockAlgo.cc testLinkByVertex  V0 Refs are non null  " << std::endl;
-      if ( elt1->V0Ref() ==  elt2->V0Ref() ) {
-	result=1.0;
-	if(debug_ ) std::cout << " testLinkByVertex  V0 Refs are equal  " << std::endl;
-	return result;
-      }
-    }
-  }
-
-  return result;
-}
-
 
 void 
 PFBlockAlgoNew::checkMaskSize( const reco::PFRecTrackCollection& tracks,
@@ -765,21 +590,6 @@ PFBlockAlgoNew::muAssocToTrack( const reco::TrackRef& trackref,
 }
 
 
-// This prefilter avoid to call associate when not necessary.
-// ACHTUNG!!!! If you introduce new links check that they are not desables here
-inline bool
-PFBlockAlgoNew::linkPrefilter(const reco::PFBlockElement* last, 
-			      const reco::PFBlockElement* next) const {
-  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
-  const PFBlockElement::Type& type1 = (last)->type();
-  const PFBlockElement::Type& type2 = (next)->type();
-  const unsigned index = rowsize*std::max(type1,type2) + std::min(type1,type2);
-  bool result = false;
-  if( _linkTests[index] ) {
-    result = _linkTests[index]->linkPrefilter(last,next);
-  }
-  return result;  
-}
 
 // a little history, ideas we may want to keep around for later
    /*

@@ -10,7 +10,78 @@ particleFlowBlockNew = cms.EDProducer(
     # Link tracks and HCAL clusters to HO clusters
     useHO = cms.bool(True),
 
+    #define what we are importing into particle flow
+    #from the various subdetectors
+    # importers are executed in the order they are defined here!!!
+    #order matters for some modules (it is pointed out where this is important)
+    # you can find a list of all available importers in:
+    #  plugins/importers
+    elementImporters = cms.VPSet(
+        cms.PSet( importerName = cms.string("GSFTrackImporter"),
+                  source = cms.InputTag("pfTrackElec"),
+                  gsfsAreSecondary = cms.bool(False) ),
+        cms.PSet( importerName = cms.string("ConvBremTrackImporter"),
+                  source = cms.InputTag("pfTrackElec") ),
+        cms.PSet( importerName = cms.string("EGPhotonImporter"),
+                  source = cms.InputTag("mustachePhotons"),
+                  SelectionChoice = cms.string("CombinedDetectorIso"),
+                  SelectionDefinition = cms.PSet( 
+                             minEt = cms.double(-99),
+                             # for SeperateDetectorIso
+                             trackIsoConstTerm = cms.double(2.0),
+                             trackIsoSlopeTerm = cms.double(0.001),
+                             ecalIsoConstTerm = cms.double(4.2),
+                             ecalIsoSlopeTerm = cms.double(0.003),
+                             hcalIsoConstTerm = cms.double(2.2),
+                             hcalIsoSlopeTerm = cms.double(0.001),
+                             HoverE = cms.double(0.05),
+                             #for CombinedDetectorIso
+                             LooseHoverE = cms.double(99999.0),
+                             combIsoConstTerm = cms.double(99999.0)
+                             ) ),        
+        cms.PSet( importerName = cms.string("ConversionTrackImporter"),
+                  source = cms.InputTag("pfConversions") ),
+        # V0's not actually used in particle flow block building so far
+        #cms.PSet( importerName = cms.string("V0TrackImporter"),
+        #          source = cms.InputTag("pfV0") ),
+        #NuclearInteraction's also come in Loose and VeryLoose varieties
+        cms.PSet( importerName = cms.string("NuclearInteractionTrackImporter"),
+                  source = cms.InputTag("pfDisplacedTrackerVertex") ),
+        #for best timing GeneralTracksImporter should come after
+        # all secondary track importers
+        cms.PSet( importerName = cms.string("GeneralTracksImporter"),
+                  source = cms.InputTag("pfTrack"),
+                  muonSrc = cms.InputTag("muons1stStep"),
+                  useIterativeTracking = cms.bool(True),
+                  DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
+                                                           1.0,1.0),
+                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
+                  ),
+        # secondary GSF tracks are also turned off
+        #cms.PSet( importerName = cms.string("GSFTrackImporter"),
+        #          source = cms.InputTag("pfTrackElec:Secondary"),
+        #          gsfsAreSecondary = cms.bool(True) ),
+        # to properly set SC based links you need to run ECAL importer
+        # after you've imported all SCs to the block
+        cms.PSet( importerName = cms.string("ECALClusterImporter"),
+                  source = cms.InputTag("particleFlowClusterECAL"),
+                  BCtoPFCMap = cms.InputTag('particleFlowSuperClusterECAL:PFClusterAssociationEBEE') ),
+        cms.PSet( importerName = cms.string("GenericClusterImporter"),
+                  source = cms.InputTag("particleFlowClusterHCAL") ),
+        cms.PSet( importerName = cms.string("GenericClusterImporter"),
+                  source = cms.InputTag("particleFlowClusterHO") ),
+        cms.PSet( importerName = cms.string("GenericClusterImporter"),
+                  source = cms.InputTag("particleFlowClusterHFEM") ),
+        cms.PSet( importerName = cms.string("GenericClusterImporter"),
+                  source = cms.InputTag("particleFlowClusterHFHAD") ),
+        cms.PSet( importerName = cms.string("GenericClusterImporter"),
+                  source = cms.InputTag("particleFlowClusterPS") ),
+        
+        ),
+    
     #linking definitions
+    # you can find a list of all available linkers in:
+    #  plugins/linkers
     linkDefinitions = cms.VPSet(
         cms.PSet( linkerName = cms.string("PreshowerAndECALLinker"),
                   linkType   = cms.string("PS1:ECAL"),
