@@ -63,7 +63,13 @@ class Reco(Scenario):
         Proton collision data taking express processing
 
         """
-        step = stepALCAPRODUCER(args['skims'])
+        skims = args['skims']
+        # the AlCaReco skims for PCL should only run during AlCaSkimming step which uses the same configuration on the Tier0 side, for this reason we drop them here
+        pclWkflws = [x for x in skims if "PromptCalibProd" in x]
+        for wfl in pclWkflws:
+            skims.remove(wfl)
+        
+        step = stepALCAPRODUCER(skims)
         dqmStep= dqmSeq(args,'')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
