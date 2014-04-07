@@ -6,6 +6,7 @@
 #include "TF1.h"
 
 #include <sstream>
+#include <iomanip>
 
 /**
  * Small function to simplify the creation of text in the TPaveText. <br>
