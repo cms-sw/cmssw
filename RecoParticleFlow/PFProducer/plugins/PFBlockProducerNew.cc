@@ -139,6 +139,8 @@ PFBlockProducerNew::PFBlockProducerNew(const edm::ParameterSet& iConfig) {
   const std::vector<edm::ParameterSet>& linkdefs 
     = iConfig.getParameterSetVector("linkDefinitions");
   
+  const std::vector<edm::ParameterSet>& importers
+    = iConfig.getParameterSetVector("elementImporters");
   
   pfBlockAlgo_.setParameters( DPtovPtCut,
 			      NHitCut,
@@ -151,7 +153,10 @@ PFBlockProducerNew::PFBlockProducerNew(const edm::ParameterSet& iConfig) {
                               superClusterMatchByRef_
 			    );
 
-  pfBlockAlgo_.setLinkers(linkdefs);
+  edm::ConsumesCollector coll = consumesCollector();
+  pfBlockAlgo_.setImporters(importers,coll);
+
+  pfBlockAlgo_.setLinkers(linkdefs);  
   
   pfBlockAlgo_.setDebug(debug_);
 
@@ -272,7 +277,8 @@ PFBlockProducerNew::produce(Event& iEvent,
   }
 
   if( usePFatHLT_  ) {
-     pfBlockAlgo_.setInput( recTracks, 		
+    pfBlockAlgo_.setInput( iEvent,
+			   recTracks, 		
 			    recMuons,
 			    clustersECAL,
 			    clustersHCAL,
@@ -281,7 +287,8 @@ PFBlockProducerNew::produce(Event& iEvent,
 			    clustersHFHAD,
 			    clustersPS);
   } else { 
-    pfBlockAlgo_.setInput( recTracks, 
+    pfBlockAlgo_.setInput( iEvent,
+			   recTracks, 
 			   GsfrecTracks,
 			   convBremGsfrecTracks,
 			   recMuons, 

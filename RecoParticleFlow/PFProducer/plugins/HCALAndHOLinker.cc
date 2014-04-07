@@ -41,7 +41,7 @@ double HCALAndHOLinker::testLink
     throw cms::Exception("BadClusterRefs") 
       << "PFBlockElementCluster's refs are null!";
   }  
-  dist = ( std::abs(hcalreppos.Eta()) > 1.5 ?
+  dist = ( std::abs(hcalreppos.Eta()) < 1.5 ?
 	   LinkByRecHit::computeDist( hcalreppos.Eta(),
 				      hcalreppos.Phi(), 
 				      horef->positionREP().Eta(), 

@@ -554,6 +554,11 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
   }
 
+  std::cout << "imported " << elements_.size()
+	      << " elements in gsf step!" << std::endl;
+  std::cout << "imported " << convBremPFRecTracks.size()
+	      << " conv brem elements!" << std::endl;
+
   /// Loop over the photons
   if(useEGPhotons_ && egphh.isValid()) {
     unsigned size=egphh->size();
@@ -666,7 +671,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	trkFromConversionElement->setConversionRef( convRef->originalConversion(), reco::PFBlockElement::T_FROM_GAMMACONV);
 
 	elements_.push_back( trkFromConversionElement );
-
 
 	if (debug_){
 	  std::cout << "PF Block Element from Conversion electron " << 
