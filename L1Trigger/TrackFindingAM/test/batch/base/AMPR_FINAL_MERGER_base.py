@@ -1,7 +1,6 @@
 #########################
 #
 # Base file for L1 branch merging
-#
 # This script works on any official production sample
 #
 # Instruction to run this script are provided on this page:
