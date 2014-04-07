@@ -30,7 +30,7 @@ class ConversionTrackFinder {
 
  public:
   
-  ConversionTrackFinder( const edm::ParameterSet& config );
+  ConversionTrackFinder( const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder *trajectoryBuilder);
                        
   
   virtual ~ConversionTrackFinder();
@@ -40,7 +40,6 @@ class ConversionTrackFinder {
 
   /// Initialize EventSetup objects at each event
   void setEventSetup( const edm::EventSetup& es ) ; 
-  void setTrajectoryBuilder(const BaseCkfTrajectoryBuilder & builder) ; 
 
 
  private:

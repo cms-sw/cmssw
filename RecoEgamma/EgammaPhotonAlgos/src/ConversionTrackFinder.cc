@@ -12,8 +12,8 @@
 #include <sstream>
 
 
-ConversionTrackFinder::ConversionTrackFinder(const edm::ParameterSet& conf ) :
-  theCkfTrajectoryBuilder_(0), 
+ConversionTrackFinder::ConversionTrackFinder(const edm::ParameterSet& conf, const BaseCkfTrajectoryBuilder *trajectoryBuilder ) :
+  theCkfTrajectoryBuilder_(trajectoryBuilder),
   theInitialState_(new TransientInitialStateEstimator(conf.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters"))),
   theTrackerGeom_(0),
   theUpdator_(0),
@@ -45,8 +45,4 @@ void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
 					thePropagator_);
 
   theInitialState_->setEventSetup( es );
-}
-
-void ConversionTrackFinder::setTrajectoryBuilder(const BaseCkfTrajectoryBuilder & builder)   {
-  theCkfTrajectoryBuilder_ = & builder;
 }
