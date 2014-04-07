@@ -149,7 +149,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
       const GeomDet * g = theMeasurementTracker->geomTracker()->idToDet(id);
       const Surface * surface=&g->surface();
       
-      TrajectoryStateOnSurface currentState(trajectoryStateTransform::transientState(ptod,surface,theForwardPropagator->magneticField()));
+      TrajectoryStateOnSurface currentState(trajectoryStateTransform::transientState(ptod,surface,forwardPropagator(seed)->magneticField()));
 
       //set the next layers to be that one the state is on
       const DetLayer * l=theMeasurementTracker->geometricSearchTracker()->detLayer(id);
@@ -188,7 +188,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
             nl = l->nextLayers(((traj.direction()==alongMomentum)?insideOut:outsideIn));
           }
           invalidHits=0;
-          collectMeasurement(l,nl,currentState,result,invalidHits,theForwardPropagator);
+          collectMeasurement(l,nl,currentState,result,invalidHits,forwardPropagator(seed));
         }
 
       //if fails: this is on the next layers already, try rescaling locally the state
@@ -199,7 +199,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
           TrajectoryStateOnSurface rescaledCurrentState = currentState;
           rescaledCurrentState.rescaleError(theRescaleErrorIfFail);
           invalidHits=0;
-          collectMeasurement(l,nl,rescaledCurrentState, result,invalidHits,theForwardPropagator);
+          collectMeasurement(l,nl,rescaledCurrentState, result,invalidHits,forwardPropagator(seed));
         }
 
     }
@@ -211,7 +211,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
       nl = traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
       if (nl.empty()){LogDebug("CkfPattern")<<" no next layers... going "<<traj.direction()<<"\n from: \n"<<currentState<<"\n from detId: "<<traj.lastMeasurement().recHit()->geographicalId().rawId(); return ;}
 
-      collectMeasurement(traj.lastLayer(),nl,currentState,result,invalidHits,theForwardPropagator);
+      collectMeasurement(traj.lastLayer(),nl,currentState,result,invalidHits,forwardPropagator(seed));
     }
 
 

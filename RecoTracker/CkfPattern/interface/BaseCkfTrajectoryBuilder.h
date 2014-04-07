@@ -5,6 +5,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 #include<cassert>
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
@@ -22,7 +23,6 @@ class NavigationSchool;
 class Propagator;
 class TrajectoryStateUpdator;
 class TrajectoryMeasurement;
-class TrajectorySeed;
 class TrajectoryContainer;
 class TrajectoryStateOnSurface;
 class TrajectoryFitter;
@@ -142,6 +142,13 @@ public:
  protected:
   void setData(const MeasurementTrackerEvent *data) ;
 
+  const Propagator *forwardPropagator(const TrajectorySeed& seed) const {
+    return seed.direction() == alongMomentum ? thePropagatorAlong : thePropagatorOpposite;
+  }
+  const Propagator *backwardPropagator(const TrajectorySeed& seed) const {
+    return seed.direction() == alongMomentum ? thePropagatorOpposite : thePropagatorAlong;
+  }
+
  protected:
   typedef TrackingComponentsRecord Chi2MeasurementEstimatorRecord;
 
@@ -151,10 +158,6 @@ public:
   const Chi2MeasurementEstimatorBase*   theEstimator;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTrackerEvent*        theMeasurementTracker;
-
-  // these may change from seed to seed
-  mutable const Propagator*             theForwardPropagator;
-  mutable const Propagator*             theBackwardPropagator;
 
  private:
   //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/

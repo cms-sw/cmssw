@@ -112,14 +112,16 @@ private :
   inline bool tkxor(bool a, bool b) const  dso_internal {return (a||b) && !(a&&b);}
   // to be ported later
 
-  bool advanceOneLayer( TempTrajectory& traj, 
+  bool advanceOneLayer( const TrajectorySeed& seed,
+                        TempTrajectory& traj, 
 			const TrajectoryFilter* regionalCondition,
 			const Propagator* propagator, 
                         bool inOut,
 			TempTrajectoryContainer& newCand, 
 			TempTrajectoryContainer& result) const  dso_internal;
 
-  void groupedLimitedCandidates( TempTrajectory const& startingTraj, 
+  void groupedLimitedCandidates( const TrajectorySeed& seed,
+                                 TempTrajectory const& startingTraj, 
 				 const TrajectoryFilter* regionalCondition,
 				 const Propagator* propagator, 
                                  bool inOut,
