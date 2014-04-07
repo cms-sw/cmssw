@@ -2,8 +2,8 @@
 
 
 BoostedJetMerger::BoostedJetMerger(const edm::ParameterSet& iConfig) :
-  jetLabel_(iConfig.getParameter<edm::InputTag>("jetSrc")),
-  subjetLabel_(iConfig.getParameter<edm::InputTag>("subjetSrc"))
+  jetToken_(consumes<edm::View<pat::Jet> >( iConfig.getParameter<edm::InputTag>("jetSrc") )),
+  subjetToken_(consumes<edm::View<pat::Jet> >( iConfig.getParameter<edm::InputTag>("subjetSrc") ))
 {
   //register products
   produces<std::vector<pat::Jet> > ();
@@ -25,8 +25,8 @@ BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle< edm::View<pat::Jet> > jetHandle;
   edm::Handle< edm::View<pat::Jet> > subjetHandle;
 
-  iEvent.getByLabel( jetLabel_, jetHandle );
-  iEvent.getByLabel( subjetLabel_, subjetHandle ); 
+  iEvent.getByToken( jetToken_, jetHandle );
+  iEvent.getByToken( subjetToken_, subjetHandle ); 
 
   for ( edm::View<pat::Jet>::const_iterator ijetBegin = jetHandle->begin(),
 	  ijetEnd = jetHandle->end(), ijet = ijetBegin; ijet != ijetEnd; ++ijet ) {
