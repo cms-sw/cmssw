@@ -213,7 +213,13 @@ namespace pat {
     /// dz  with respect to another point
     virtual float dz(const Point &p)  const ;
 
-    /// Return a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
+    /// uncertainty on dz 
+    virtual float dzError() const { maybeUnpackBoth(); return sqrt(dzdz_); }
+    /// uncertainty on dxy
+    virtual float dxyError() const { maybeUnpackBoth(); return sqrt(dxydxy_); }
+
+
+    /// Return by value (no caching heavy function) a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
     virtual reco::Track pseudoTrack() const;
 
     /// true if the track had the highPurity quality bit
