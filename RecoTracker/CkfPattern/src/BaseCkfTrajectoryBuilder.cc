@@ -14,7 +14,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
@@ -34,7 +33,6 @@ BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf
   theEstimator(nullptr),
   theTTRHBuilder(nullptr),
   theMeasurementTracker(nullptr),
-  theForwardPropagator(nullptr),theBackwardPropagator(nullptr),
   theFilter(filter),
   theInOutFilter(inOutFilter),
   theUpdatorName(conf.getParameter<std::string>("updator")),
@@ -64,7 +62,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
   PTrajectoryStateOnDet pState( seed.startingState());
   const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet(pState.detId());
   TSOS outerState = trajectoryStateTransform::transientState(pState, &(gdet->surface()),
-							     theForwardPropagator->magneticField());
+							     forwardPropagator(seed)->magneticField());
 
 
   for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
@@ -87,7 +85,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
       result.emplace(invalidState, outerState, recHit, 0, hitLayer);
     }
     else {
-      TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
+      TSOS innerState   = backwardPropagator(seed)->propagate(outerState,hitGeomDet->surface());
       if(innerState.isValid()) {
 	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
 	result.emplace(invalidState, innerUpdated, recHit, 0, hitLayer);
@@ -106,15 +104,6 @@ TempTrajectory BaseCkfTrajectoryBuilder::
 createStartingTrajectory( const TrajectorySeed& seed) const
 {
   TempTrajectory result(seed.direction());
-  if (  seed.direction() == alongMomentum) {
-    theForwardPropagator = &(*thePropagatorAlong);
-    theBackwardPropagator = &(*thePropagatorOpposite);
-  }
-  else {
-    theForwardPropagator = &(*thePropagatorOpposite);
-    theBackwardPropagator = &(*thePropagatorAlong);
-  }
-
   seedMeasurements(seed, result);
 
   LogDebug("CkfPattern")
@@ -219,7 +208,7 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TrajectorySeed& seed, const T
       const Surface * surface=&g->surface();
       
       
-      TSOS currentState(trajectoryStateTransform::transientState(ptod,surface,theForwardPropagator->magneticField()));      
+      TSOS currentState(trajectoryStateTransform::transientState(ptod,surface,forwardPropagator(seed)->magneticField()));      
       const DetLayer* lastLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(id);      
       return StateAndLayers(currentState,lastLayer->nextLayers( *currentState.freeState(), traj.direction()) );
     }

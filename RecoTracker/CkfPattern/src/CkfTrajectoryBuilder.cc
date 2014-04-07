@@ -204,7 +204,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
       // --- method for debugging
       if(!analyzeMeasurementsDebugger(*traj,meas,
 				      theMeasurementTracker,
-				      theForwardPropagator,theEstimator,
+				      forwardPropagator(*sharedSeed),theEstimator,
 				      theTTRHBuilder)) return;
       // ---
 
@@ -332,6 +332,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
   auto layerBegin = stateAndLayers.second.begin();
   auto layerEnd  = stateAndLayers.second.end();
   LogDebug("CkfPattern")<<"looping on "<< stateAndLayers.second.size()<<" layers.";
+  const Propagator *fwdPropagator = forwardPropagator(seed);
   for (auto il = layerBegin;  il != layerEnd; il++) {
 
     LogDebug("CkfPattern")<<"looping on a layer in findCompatibleMeasurements.\n last layer: "<<traj.lastLayer()<<" current layer: "<<(*il);
@@ -343,14 +344,14 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 	// go to a middle point first
 	TransverseImpactPointExtrapolator middle;
 	GlobalPoint center(0,0,0);
-	stateToUse = middle.extrapolate(stateToUse, center, *theForwardPropagator);
+	stateToUse = middle.extrapolate(stateToUse, center, *fwdPropagator);
 	
 	if (!stateToUse.isValid()) continue;
 	LogDebug("CkfPattern")<<"to: "<<stateToUse;
       }
     
     LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
-    std::vector<TrajectoryMeasurement> tmp = layerMeasurements.measurements((**il),stateToUse, *theForwardPropagator, *theEstimator);
+    std::vector<TrajectoryMeasurement> tmp = layerMeasurements.measurements((**il),stateToUse, *fwdPropagator, *theEstimator);
     
     if ( !tmp.empty()) {
       if ( result.empty()) result.swap(tmp);
