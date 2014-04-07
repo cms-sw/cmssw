@@ -46,6 +46,7 @@
  * The methods names after the variables return the fit result.
  */
 
+using namespace RooFit;
 
 namespace
 {
