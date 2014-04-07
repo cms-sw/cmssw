@@ -53,7 +53,6 @@ namespace {
 }
 
 ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
-  conf_(config), 
   theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(config.getParameter<edm::ParameterSet>("TrajectoryBuilder"), consumesCollector())),
   theNavigationSchool_(0), 
   theOutInSeedFinder_(new OutInConversionSeedFinder(config)),
@@ -68,41 +67,41 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
  
 
   bcBarrelCollection_ = 
-    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("bcBarrelCollection"));
+    consumes<edm::View<reco::CaloCluster> >(config.getParameter<edm::InputTag>("bcBarrelCollection"));
   bcEndcapCollection_ = 
-    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("bcEndcapCollection"));
+    consumes<edm::View<reco::CaloCluster> >(config.getParameter<edm::InputTag>("bcEndcapCollection"));
   
   scHybridBarrelProducer_ = 
-    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("scHybridBarrelProducer"));
+    consumes<edm::View<reco::CaloCluster> >(config.getParameter<edm::InputTag>("scHybridBarrelProducer"));
   scIslandEndcapProducer_ = 
-    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer"));
+    consumes<edm::View<reco::CaloCluster> >(config.getParameter<edm::InputTag>("scIslandEndcapProducer"));
   
-  OutInTrackCandidateCollection_ = conf_.getParameter<std::string>("outInTrackCandidateCollection");
-  InOutTrackCandidateCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateCollection");
+  OutInTrackCandidateCollection_ = config.getParameter<std::string>("outInTrackCandidateCollection");
+  InOutTrackCandidateCollection_ = config.getParameter<std::string>("inOutTrackCandidateCollection");
 
 
-  OutInTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
-  InOutTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
+  OutInTrackSuperClusterAssociationCollection_ = config.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
+  InOutTrackSuperClusterAssociationCollection_ = config.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
   barrelecalCollection_ = 
-    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
+    consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
   endcapecalCollection_ = 
-    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
+    consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
   
   hcalTowers_        = 
-    consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers"));
-  hOverEConeSize_    = conf_.getParameter<double>("hOverEConeSize");
-  maxHOverE_         = conf_.getParameter<double>("maxHOverE");
-  minSCEt_           = conf_.getParameter<double>("minSCEt");
-  isoConeR_          = conf_.getParameter<double>("isoConeR");
-  isoInnerConeR_     = conf_.getParameter<double>("isoInnerConeR");
-  isoEtaSlice_       = conf_.getParameter<double>("isoEtaSlice");
-  isoEtMin_          = conf_.getParameter<double>("isoEtMin");
-  isoEMin_           = conf_.getParameter<double>("isoEMin");
-  vetoClusteredHits_ = conf_.getParameter<bool>("vetoClusteredHits");
-  useNumXtals_       = conf_.getParameter<bool>("useNumXstals");
-   ecalIsoCut_offset_ = conf_.getParameter<double>("ecalIsoCut_offset");
-  ecalIsoCut_slope_  = conf_.getParameter<double>("ecalIsoCut_slope");
+    consumes<CaloTowerCollection>(config.getParameter<edm::InputTag>("hcalTowers"));
+  hOverEConeSize_    = config.getParameter<double>("hOverEConeSize");
+  maxHOverE_         = config.getParameter<double>("maxHOverE");
+  minSCEt_           = config.getParameter<double>("minSCEt");
+  isoConeR_          = config.getParameter<double>("isoConeR");
+  isoInnerConeR_     = config.getParameter<double>("isoInnerConeR");
+  isoEtaSlice_       = config.getParameter<double>("isoEtaSlice");
+  isoEtMin_          = config.getParameter<double>("isoEtMin");
+  isoEMin_           = config.getParameter<double>("isoEMin");
+  vetoClusteredHits_ = config.getParameter<bool>("vetoClusteredHits");
+  useNumXtals_       = config.getParameter<bool>("useNumXstals");
+   ecalIsoCut_offset_ = config.getParameter<double>("ecalIsoCut_offset");
+  ecalIsoCut_slope_  = config.getParameter<double>("ecalIsoCut_slope");
 
   //Flags and Severities to be excluded from photon calculations
   const std::vector<std::string> flagnamesEB = 
@@ -155,12 +154,6 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run const& r , edm::Event
   theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
   theNavigationSchool_ = nav.product();
 }
-
-
-void  ConversionTrackCandidateProducer::endRun (edm::Run const& r , edm::EventSetup const & theEventSetup) {
-}
-
-
 
 
 void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
