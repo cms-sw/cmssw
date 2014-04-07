@@ -19,6 +19,7 @@ GeometryConf={
     'Extended2023Pixel'   : 'Extended2023Pixel,Extended2023PixelReco',
     'Extended2023TTI'   : 'Extended2023TTI,Extended2023TTIReco',
     'Extended2023Muon'   : 'Extended2023Muon,Extended2023MuonReco',
+    'Extended2023Muon4Eta'   : 'Extended2023Muon4Eta,Extended2023Muon4EtaReco',
     'Extended2023SHCal'   : 'Extended2023SHCal,Extended2023SHCalReco',
     'Extended2023SHCal4Eta'   : 'Extended2023SHCal4Eta,Extended2023SHCal4EtaReco',
     'Extended2023SHCalNoTaper'   : 'Extended2023SHCalNoTaper,Extended2023SHCalNoTaperReco',
