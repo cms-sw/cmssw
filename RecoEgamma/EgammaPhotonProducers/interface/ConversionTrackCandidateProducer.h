@@ -95,10 +95,10 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder_;
 
   const NavigationSchool*     theNavigationSchool_;
-  OutInConversionSeedFinder*  theOutInSeedFinder_;
-  OutInConversionTrackFinder* theOutInTrackFinder_;
-  InOutConversionSeedFinder*  theInOutSeedFinder_;
-  InOutConversionTrackFinder* theInOutTrackFinder_;
+  std::unique_ptr<OutInConversionSeedFinder>  theOutInSeedFinder_;
+  std::unique_ptr<OutInConversionTrackFinder> theOutInTrackFinder_;
+  std::unique_ptr<InOutConversionSeedFinder>  theInOutSeedFinder_;
+  std::unique_ptr<InOutConversionTrackFinder> theInOutTrackFinder_;
 
 
   std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVecOutIn_; 

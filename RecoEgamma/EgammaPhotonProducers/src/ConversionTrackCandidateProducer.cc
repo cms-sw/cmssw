@@ -56,10 +56,10 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   conf_(config), 
   theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(config.getParameter<edm::ParameterSet>("TrajectoryBuilder"), consumesCollector())),
   theNavigationSchool_(0), 
-  theOutInSeedFinder_(0), 
-  theOutInTrackFinder_(0), 
-  theInOutSeedFinder_(0),
-  theInOutTrackFinder_(0)
+  theOutInSeedFinder_(new OutInConversionSeedFinder(config)),
+  theOutInTrackFinder_(new OutInConversionTrackFinder(config, theTrajectoryBuilder_.get())),
+  theInOutSeedFinder_(new InOutConversionSeedFinder(config)),
+  theInOutTrackFinder_(new InOutConversionTrackFinder(config, theTrajectoryBuilder_.get()))
 {  
   //std::cout << "ConversionTrackCandidateProducer CTOR " << "\n";
   nEvt_=0;  
@@ -142,14 +142,10 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
 ConversionTrackCandidateProducer::~ConversionTrackCandidateProducer() {}
 
 void  ConversionTrackCandidateProducer::setEventSetup (const edm::EventSetup & theEventSetup) {
-
-
   theOutInSeedFinder_->setEventSetup(theEventSetup);
   theInOutSeedFinder_->setEventSetup(theEventSetup);
   theOutInTrackFinder_->setEventSetup(theEventSetup);
   theInOutTrackFinder_->setEventSetup(theEventSetup);
-
-
 }
 
 
@@ -158,28 +154,10 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run const& r , edm::Event
   edm::ESHandle<NavigationSchool> nav;
   theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
   theNavigationSchool_ = nav.product();
-
-  // get the Out In Seed Finder  
-  theOutInSeedFinder_ = new OutInConversionSeedFinder (  conf_ );
-  
-  // get the Out In Track Finder
-  theOutInTrackFinder_ = new OutInConversionTrackFinder ( conf_, theTrajectoryBuilder_.get() );
-
-  
-  // get the In Out Seed Finder  
-  theInOutSeedFinder_ = new InOutConversionSeedFinder ( conf_ );
-  
-  
-  // get the In Out Track Finder
-  theInOutTrackFinder_ = new InOutConversionTrackFinder ( conf_, theTrajectoryBuilder_.get() );
 }
 
 
 void  ConversionTrackCandidateProducer::endRun (edm::Run const& r , edm::EventSetup const & theEventSetup) {
-  delete theOutInSeedFinder_; 
-  delete theOutInTrackFinder_;
-  delete theInOutSeedFinder_;  
-  delete theInOutTrackFinder_;
 }
 
 
@@ -202,8 +180,6 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   theOutInSeedFinder_->setEvent(theEvent);
   theInOutSeedFinder_->setEvent(theEvent);
-  theOutInTrackFinder_->setEventSetup(theEventSetup);
-  theInOutTrackFinder_->setEventSetup(theEventSetup);
 
 // Set the navigation school  
   NavigationSetter setter(*theNavigationSchool_);  
