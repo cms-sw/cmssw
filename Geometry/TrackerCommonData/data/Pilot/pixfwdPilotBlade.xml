@@ -241,18 +241,18 @@ Old faulty blade structure -->
   <rSolid name="PixelForwardBladeBase4"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
- <LogicalPart name="TPGBladeBase" category="support">
+ <!-- LogicalPart name="TPGBladeBase" category="support">
   <rSolid name="TPGBladeBase"/>
   <rMaterial name="materials:FPix_TPG"/>
- </LogicalPart>
+ </LogicalPart> -->
  <LogicalPart name="TPGBladeBase1" category="support">
   <rSolid name="TPGBladeBase1"/>
   <rMaterial name="materials:FPix_TPG"/>
  </LogicalPart>
- <LogicalPart name="CarbonFiberSkin" category="support">
+ <!-- LogicalPart name="CarbonFiberSkin" category="support">
   <rSolid name="CarbonFiberSkin"/>
   <rMaterial name="materials:FPix_CFSkin"/>
- </LogicalPart>
+ </LogicalPart> -->
  <LogicalPart name="CarbonFiberSkin1" category="support">
   <rSolid name="CarbonFiberSkin1"/>
   <rMaterial name="materials:FPix_CFSkin"/>
