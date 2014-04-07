@@ -21,11 +21,6 @@ StripClusterParameterEstimator::LocalValues FastStripCPE::localParameters( const
   throw cms::Exception("FastStripCPE") << "Cluster not filled.";
 }
 
-std::unique_ptr<ClusterParameterEstimator<SiStripCluster>>
-FastStripCPE::clone() const {
-    return std::unique_ptr<ClusterParameterEstimator<SiStripCluster>>(new ClusterParameterEstimator<SiStripCluster>(*this));
-}
-
 LocalVector FastStripCPE::driftDirection(const StripGeomDetUnit* det) const {
   throw cms::Exception("FastStripCPE") << "Should Not Be Called.";
 }

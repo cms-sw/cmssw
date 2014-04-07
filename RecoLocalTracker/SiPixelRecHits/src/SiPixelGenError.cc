@@ -47,7 +47,7 @@ using namespace edm;
 //! digits of filenum.                                           
 //! \param filenum - an integer NNNN used in the filename generror_summary_zpNNNN
 //**************************************************************** 
-bool SiPixelGenError::pushfile(int filenum)
+bool SiPixelGenError::pushfile(int filenum, std::vector< SiPixelGenErrorStore > & thePixelTemp_)
 {
     // Add info stored in external file numbered filenum to theGenErrorStore
     
@@ -213,7 +213,7 @@ bool SiPixelGenError::pushfile(int filenum)
 		
 		thePixelTemp_.push_back(theCurrentTemp);
       
-		postInit();
+		postInit(thePixelTemp_);
 		
 		return true;
 		
@@ -236,7 +236,7 @@ bool SiPixelGenError::pushfile(int filenum)
 //! SiPixelGenErrorDBObject
 //! \param dbobject - db storing multiple generic calibrations
 //**************************************************************** 
-bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject)
+bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject, std::vector< SiPixelGenErrorStore > & thePixelTemp_)
 {
 	// Add GenError stored in external dbobject to theGenErrorStore
     
@@ -375,7 +375,7 @@ bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject)
 		
 		thePixelTemp_.push_back(theCurrentTemp);
       
-		postInit();
+		postInit(thePixelTemp_);
 		
 	}
 	return true;
@@ -386,7 +386,7 @@ bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject)
 
 
 
-void SiPixelGenError::postInit() {
+void SiPixelGenError::postInit(std::vector< SiPixelGenErrorStore > & thePixelTemp_) {
    
    for (auto & templ : thePixelTemp_) {
       for ( auto iy=0; iy<templ.head.NTy; ++iy ) templ.cotbetaY[iy]=templ.enty[iy].cotbeta;

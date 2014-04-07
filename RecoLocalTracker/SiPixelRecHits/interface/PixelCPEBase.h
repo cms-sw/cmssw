@@ -84,7 +84,9 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 
   struct ClusterParam
   {
-    ClusterParam(const SiPixelCluster & cl) : theCluster(&cl), loc_trk_pred(0.0,0.0,0.0,0.0) {}
+    ClusterParam(const SiPixelCluster & cl) : theCluster(&cl), loc_trk_pred(0.0,0.0,0.0,0.0),
+      probabilityX_(0.0), probabilityY_(0.0), probabilityQ_(0.0), qBin_(0.0),
+      isOnEdge_(false), hasBadPixels_(false), spansTwoROCs_(false), hasFilledProb_(false) {}
     const SiPixelCluster * theCluster;
 
     //--- Cluster-level quantities (may need more)
@@ -158,7 +160,8 @@ public:
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
       LocalPoint lp = localPosition(theDetParam, *theClusterParam);
       LocalError le = localError(theDetParam, *theClusterParam);        
-      auto tuple = std::make_tuple(lp, le ,rawQualityWord(*theClusterParam));
+      SiPixelRecHitQuality::QualWordType rqw = rawQualityWord(*theClusterParam);
+      auto tuple = std::make_tuple(lp, le , rqw);
       delete theClusterParam;
       
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
@@ -185,7 +188,8 @@ public:
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
     LocalPoint lp = localPosition(theDetParam, *theClusterParam); 
     LocalError le = localError(theDetParam, *theClusterParam);        
-    auto tuple = std::make_tuple(lp, le ,rawQualityWord(*theClusterParam));
+    SiPixelRecHitQuality::QualWordType rqw = rawQualityWord(*theClusterParam);
+    auto tuple = std::make_tuple(lp, le , rqw);
     delete theClusterParam;
 
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk

@@ -73,7 +73,7 @@ class PixelCPETemplateReco : public PixelCPEBase
   LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
 
   // Template storage
-  SiPixelTemplate templ_ ;
+  std::vector< SiPixelTemplateStore > thePixelTemp_;
   
   int speed_ ;
 

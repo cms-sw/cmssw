@@ -46,7 +46,11 @@ class StripClusterParameterEstimator
     vlp.push_back(localParameters(cluster,gd,tsos.localParameters()));
     return vlp;
   }
-  
+
+  virtual std::unique_ptr<StripClusterParameterEstimator> clone() const {
+    return std::unique_ptr<StripClusterParameterEstimator>(new StripClusterParameterEstimator(*this));
+  }
+
   virtual ~StripClusterParameterEstimator(){}
   
   //methods needed by FastSim
@@ -57,7 +61,9 @@ class StripClusterParameterEstimator
   virtual void clearParameters() {}
 
   typedef std::pair<MeasurementPoint,MeasurementError>  MeasurementValues;
-  virtual LocalVector driftDirection(const StripGeomDetUnit* det)const=0;
+  virtual LocalVector driftDirection(const StripGeomDetUnit* det)const {
+    return LocalVector();
+  }
 
   //
   // methods to get directly the measurements

@@ -41,7 +41,7 @@ const int cluster_matrix_size_y = 21;
 
 //-----------------------------------------------------------------------------
 //  Constructor.  All detUnit-dependent quantities will be initialized later,
-//  in setTheDet().  Here we only load the templates into the template store templ_ .
+//  in setTheDet().  Here we only load the templates into the template store templ .
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
 					   const MagneticField * mag,
@@ -71,7 +71,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
       //cout << "PixelCPETemplateReco: Loading templates from database (DB) ------------------------------- " << endl;
       
       // Initialize template store to the selected ID [Morris, 6/25/08]  
-      if ( !templ_.pushfile( *templateDBobject_) )
+      if ( !SiPixelTemplate::pushfile( *templateDBobject_, thePixelTemp_) )
 	throw cms::Exception("PixelCPETemplateReco") 
 	  << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
 	  << (*templateDBobject_).version() << "\n\n";
@@ -80,11 +80,11 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
     {
       //cout << "PixelCPETemplateReco : Loading templates 40 and 41 from ASCII files ------------------------" << endl;
 
-      if ( !templ_.pushfile( 40 ) )
+      if ( !SiPixelTemplate::pushfile( 40, thePixelTemp_ ) )
 	throw cms::Exception("PixelCPETemplateReco") 
 	  << "\nERROR: Templates 40 not loaded correctly from text file. Reconstruction will fail.\n\n";
     
-      if ( !templ_.pushfile( 41 ) )
+      if ( !SiPixelTemplate::pushfile( 41, thePixelTemp_ ) )
 	throw cms::Exception("PixelCPETemplateReco") 
 	  << "\nERROR: Templates 41 not loaded correctly from text file. Reconstruction will fail.\n\n";
     }
@@ -145,7 +145,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 	ID = 41; // endcap
     }
   
-  SiPixelTemplate templ(templ_.templateStore());
+  SiPixelTemplate templ(thePixelTemp_);
 
   //cout << "PixelCPETemplateReco : ID = " << ID << endl;
   
@@ -329,7 +329,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       //ierr = 
       //PixelTempSplit( ID, fpix, cotalpha_, cotbeta_, 
       //		clust_array_2d, ydouble, xdouble, 
-      //		templ_, 
+      //		templ, 
       //		templYrec1_, templYrec2_, templSigmaY_, templProbY_,
       //		templXrec1_, templXrec2_, templSigmaX_, templProbX_, 
       //		templQbin_ );
@@ -337,8 +337,9 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 
       float dchisq;
       float templProbQ_;
-      SiPixelTemplate2D templ2D_;
-      templ2D_.pushfile(ID);
+      std::vector< SiPixelTemplateStore2D > thePixelTemp2D_;
+      SiPixelTemplate2D::pushfile(ID, thePixelTemp2D_);
+      SiPixelTemplate2D templ2D_(thePixelTemp2D_);
       	
       theClusterParam.ierr =
 	SiPixelTemplateSplit::PixelTempSplit( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
@@ -468,8 +469,8 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 	  // correct this by iserting (-)
 	  float templateLorbiasCmX = -micronsToCm*templ.lorxwidth();  // old
 	  float templateLorbiasCmY = -micronsToCm*templ.lorywidth();
-	  //float templateLorbiasCmX = -micronsToCm*templ_.lorxbias();  // new 
-	  //float templateLorbiasCmY = -micronsToCm*templ_.lorybias();
+	  //float templateLorbiasCmX = -micronsToCm*templ.lorxbias();  // new 
+	  //float templateLorbiasCmY = -micronsToCm*templ.lorybias();
 	  // now, correctly, we can use the difference of shifts  
 	  theClusterParam.templXrec_ += 0.5*(theDetParam.lorentzShiftInCmX - templateLorbiasCmX);
 	  theClusterParam.templYrec_ += 0.5*(theDetParam.lorentzShiftInCmY - templateLorbiasCmY);

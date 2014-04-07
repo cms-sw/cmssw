@@ -57,8 +57,8 @@ TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 				    const LocalTrajectoryParameters & ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = cpe()->localParameters( * cluster, gdu, ltp );
-  return TSiPixelRecHit::build( lv.first, lv.second, cpe()->rawQualityWord(), &fastGeomDet(), cluster, cpe());
+  PixelClusterParameterEstimator::ReturnType tuple = cpe()->getParameters( * cluster, gdu, ltp );
+  return TSiPixelRecHit::build( std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple), &fastGeomDet(), cluster, cpe());
 }
 
 TkPixelMeasurementDet::RecHitContainer 

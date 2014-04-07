@@ -164,14 +164,14 @@ private:
 
 #ifdef NEW
 
-  SiPixelGenError gtempl_;
+  std::vector< SiPixelGenErrorStore > thePixelGenError_;
 
 #else
   //--- DB Error Parametrization object
   SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
 #endif
 
-  SiPixelTemplate templ_;
+  std::vector< SiPixelTemplateStore > thePixelTemp_;
 
 };
 

@@ -110,7 +110,7 @@ using namespace edm;
 //! digits of filenum.                                           
 //! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
 //**************************************************************** 
-bool SiPixelTemplate::pushfile(int filenum)
+bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_)
 {
     // Add template stored in external file numbered filenum to theTemplateStore
     
@@ -480,7 +480,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 		
 		thePixelTemp_.push_back(theCurrentTemp);
 
-		postInit();		
+		postInit(thePixelTemp_);		
 		return true;
 		
 	} else {
@@ -503,7 +503,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 //! external file template_summary_zpNNNN where NNNN are four digits 
 //! \param dbobject - db storing multiple template calibrations
 //**************************************************************** 
-bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
+bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & thePixelTemp_)
 {
 	// Add template stored in external dbobject to theTemplateStore
     
@@ -860,7 +860,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 		thePixelTemp_.push_back(theCurrentTemp);
 		
 	}
-	postInit();
+	postInit(thePixelTemp_);
 	return true;
 	
 } // TempInit 
@@ -868,7 +868,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 #endif
 
 
-void SiPixelTemplate::postInit() {
+void SiPixelTemplate::postInit(std::vector< SiPixelTemplateStore > & thePixelTemp_) {
   /*
   std::cout << "SiPixelTemplate size " << thePixelTemp_.size() << std::endl;
 #ifndef SI_PIXEL_TEMPLATE_USE_BOOST 

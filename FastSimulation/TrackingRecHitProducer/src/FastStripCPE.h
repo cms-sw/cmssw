@@ -3,7 +3,6 @@
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -30,8 +29,6 @@ class FastStripCPE : public StripClusterParameterEstimator
   void clearParameters() const {
     pos_err_map.clear();
   }
-  
-  std::unique_ptr<ClusterParameterEstimator<SiStripCluster>> clone() const;
 
   LocalVector driftDirection(const StripGeomDetUnit* det)const;
   

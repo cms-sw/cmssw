@@ -101,20 +101,17 @@ struct SiPixelGenErrorStore { //!< template storage structure
 // ******************************************************************************************
 class SiPixelGenError {
  public:
-  SiPixelGenError() {id_current_ = -1; index_id_ = -1;} //!< Default constructor
-
-  SiPixelGenError(const std::vector< SiPixelGenErrorStore > & thePixelTemp) : SiPixelGenError() { thePixelTemp_=thePixelTemp; } //!< Constructor for cases in which template store already exists
-  const std::vector< SiPixelGenErrorStore > & templateStore() const {return thePixelTemp_;}
+  SiPixelGenError(const std::vector< SiPixelGenErrorStore > & thePixelTemp) : thePixelTemp_(thePixelTemp) { id_current_ = -1; index_id_ = -1;} //!< Constructor for cases in which template store already exists
   
-  bool pushfile(int filenum);     // load the private store with info from the 
+  static bool pushfile(int filenum, std::vector< SiPixelGenErrorStore > & thePixelTemp_);     // load the private store with info from the 
                                   // file with the index (int) filenum
 								  
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-  bool pushfile(const SiPixelGenErrorDBObject& dbobject);     // load the private store with info from db
+  static bool pushfile(const SiPixelGenErrorDBObject& dbobject, std::vector< SiPixelGenErrorStore > & thePixelTemp_);     // load the private store with info from db
 #endif
 
 // initialize the binary search information;
-  void postInit();
+  static void postInit(std::vector< SiPixelGenErrorStore > & thePixelTemp_);
   
 	
 // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases for the Generic Algorithm.
@@ -161,7 +158,7 @@ class SiPixelGenError {
   
   // The actual template store is a std::vector container
 
-  std::vector< SiPixelGenErrorStore > thePixelTemp_;
+  const std::vector< SiPixelGenErrorStore > & thePixelTemp_;
 } ;
 
 

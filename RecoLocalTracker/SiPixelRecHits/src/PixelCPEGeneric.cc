@@ -124,12 +124,12 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
     if(useNewSimplerErrors) {  // use new errors from mini templates 
 
       if ( LoadTemplatesFromDB_ )  {  // From DB
-	if ( !gtempl_.pushfile( *genErrorDBObject_) )
+	if ( !SiPixelGenError::pushfile( *genErrorDBObject_, thePixelGenError_) )
           throw cms::Exception("InvalidCalibrationLoaded") 
             << "ERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
             << ( *genErrorDBObject_ ).version();
       } else  { // From file      
-        if ( !gtempl_.pushfile( -999 ) )
+        if ( !SiPixelGenError::pushfile( -999, thePixelGenError_ ) )
           throw cms::Exception("InvalidCalibrationLoaded") 
             << "ERROR: Templates not loaded correctly from text file. Reconstruction will fail.";
       } // if load from DB
@@ -138,12 +138,12 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 
       if ( LoadTemplatesFromDB_ ) {
 	// Initialize template store to the selected ID [Morris, 6/25/08]  
-	if ( !templ_.pushfile( *templateDBobject_) )
+	if ( !SiPixelTemplate::pushfile( *templateDBobject_, thePixelTemp_) )
 	  throw cms::Exception("InvalidCalibrationLoaded") 
 	    << "ERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
 	    << ( *templateDBobject_ ).version();
       } else {
-	if ( !templ_.pushfile( -999 ) )
+	if ( !SiPixelTemplate::pushfile( -999, thePixelTemp_ ) )
 	  throw cms::Exception("InvalidCalibrationLoaded") 
 	    << "ERROR: Templates not loaded correctly from text file. Reconstruction will fail.";
       } // if load from DB
@@ -225,7 +225,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       theClusterParam.dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
   
       if(useNewSimplerErrors) { // errors from new light templates
-        SiPixelGenError gtempl(gtempl_.templateStore());
+        SiPixelGenError gtempl(thePixelGenError_);
 	int gtemplID_ = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
 	theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  // inputs
 			      theClusterParam.pixmx,                                       // returned by reference
@@ -239,7 +239,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 	chargeWidthY = -micronsToCm*gtempl.lorywidth();
 
       } else { // errors from full templates 
-        SiPixelTemplate templ(templ_.templateStore());
+        SiPixelTemplate templ(thePixelTemp_);
 	int templID_ = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId().rawId());
 	theClusterParam.qBin_ = templ.qbin( templID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  // inputs
 			     theClusterParam.pixmx,                                       // returned by reference

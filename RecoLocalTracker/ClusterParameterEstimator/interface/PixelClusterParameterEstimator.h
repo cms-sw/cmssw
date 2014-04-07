@@ -19,15 +19,13 @@ class PixelClusterParameterEstimator
   virtual ~PixelClusterParameterEstimator(){}
   
   typedef std::pair<LocalPoint,LocalError>  LocalValues;
+  typedef std::vector<LocalValues> VLocalValues;
   //methods needed by FastSim
   virtual void enterLocalParameters(unsigned int id, std::pair<int,int>
 				    &row_col, LocalValues pos_err_info) {}
   virtual void enterLocalParameters(uint32_t id, uint16_t firstStrip,
 				    LocalValues pos_err_info) {}
   virtual void clearParameters() {}
-  virtual std::unique_ptr<PixelClusterParameterEstimator> clone() const {
-      return std::unique_ptr<PixelClusterParameterEstimator>(new PixelClusterParameterEstimator(*this));
-  }
   
   using ReturnType = std::tuple<LocalPoint,LocalError,SiPixelRecHitQuality::QualWordType>;
 
@@ -48,6 +46,22 @@ class PixelClusterParameterEstimator
     return getParameters(cl,det,tsos.localParameters());
   }
 
+  virtual VLocalValues localParametersV(const SiPixelCluster& cluster, const GeomDetUnit& gd) const {
+    VLocalValues vlp;
+    ReturnType tuple = getParameters(cluster, gd);
+    vlp.push_back(std::make_pair(std::get<0>(tuple), std::get<1>(tuple)));
+    return vlp;
+  }
+  virtual VLocalValues localParametersV(const SiPixelCluster& cluster, const GeomDetUnit& gd, TrajectoryStateOnSurface& tsos) const {
+    VLocalValues vlp;
+    ReturnType tuple = getParameters(cluster,  gd, tsos);
+    vlp.push_back(std::make_pair(std::get<0>(tuple), std::get<1>(tuple)));
+    return vlp;
+  }
+
+  virtual std::unique_ptr<PixelClusterParameterEstimator> clone() const {
+    return std::unique_ptr<PixelClusterParameterEstimator>(new PixelClusterParameterEstimator(*this));
+  }
 
   PixelClusterParameterEstimator() : clusterProbComputationFlag_(0){}
 
