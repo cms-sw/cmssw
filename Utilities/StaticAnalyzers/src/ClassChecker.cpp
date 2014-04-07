@@ -424,8 +424,10 @@ void WalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE) {
   Execute();
   Visit(CE->getImplicitObjectArgument()->IgnoreParenCasts());
 
-  if (llvm::isa<clang::MemberExpr>(CE->getImplicitObjectArgument()->IgnoreParenCasts() ) ) {
-	if ( !MD->isConst() ) ReportCall(CE);
+  const Expr * IOA = CE->getImplicitObjectArgument()->IgnoreParenCasts();
+  if ( llvm::isa<clang::MemberExpr>(IOA) ) {
+	const MemberExpr * ME = dyn_cast<MemberExpr>(IOA);
+	if ( !MD->isConst() && ME->isImplicitAccess() ) ReportCall(CE);
   }
 
   for(int i=0, j=CE->getNumArgs(); i<j; i++) {
@@ -476,6 +478,7 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
 void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
 
   const clang::CXXRecordDecl * RD = CE->getRecordDecl();
+  const clang::CXXMethodDecl * MD = CE->getMethodDecl();
   if ( !RD || support::isSafeClassName( RD->getQualifiedNameAsString() ) ) return; 
   std::string buf;
   llvm::raw_string_ostream os(buf);
@@ -485,11 +488,15 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
   LangOpts.CPlusPlus = true;
   clang::PrintingPolicy Policy(LangOpts);
  
-  os << "'";
+  os << "call expr '";
   CE->printPretty(os,0,Policy);
-  os<<"' is a non-const member function that could modify member data object of type '"<<RD->getQualifiedNameAsString()<<"'\n";
-  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
+  os << "' with implicit object argument '";
+  CE->getImplicitObjectArgument()->IgnoreParenCasts()->printPretty(os,0,Policy);  
+  os << "'";
+  os<<"' is a non-const member function '"<<MD->getQualifiedNameAsString();
+  os<<"' that could modify member data object of type '"<<RD->getQualifiedNameAsString()<<"'\n";
+  const clang::CXXMethodDecl * ACMD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl()); 
+  std::string tolog = "data class '"+ACMD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*ACMD) + "' Warning: "+os.str();
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
   if ( support::isSafeClassName(MD->getQualifiedNameAsString()) ) return;
