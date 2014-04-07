@@ -20,7 +20,7 @@
 #include <sstream>
 
 
-InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::ParameterSet& conf ) : ConversionTrackFinder ( conf )
+InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::ParameterSet& conf, const BaseCkfTrajectoryBuilder *trajectoryBuilder ) : ConversionTrackFinder ( conf, trajectoryBuilder )
 { 
 
  
