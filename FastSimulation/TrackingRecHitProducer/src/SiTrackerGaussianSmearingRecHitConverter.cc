@@ -91,7 +91,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   //--- PSimHit Containers
   //  trackerContainers.clear();
   //  trackerContainers = conf.getParameter<std::vector<edm::InputTag> >("ROUList");
-  inputSimHits = conf.getParameter<edm::InputTag>("InputSimHits"); 
+  simHitLabel = conf.getParameter<edm::InputTag>("InputSimHits"); 
+  simHitToken = consumes<edm::PSimHitContainer>(simHitLabel);
   //--- delta rays p cut [GeV/c] to filter PSimHits with p>
   deltaRaysPCut = conf.getParameter<double>("DeltaRaysMomentumCut");
 
@@ -615,7 +616,7 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   */
 
   edm::Handle<edm::PSimHitContainer> allTrackerHits_handle;
-  e.getByLabel(inputSimHits,allTrackerHits_handle);
+  e.getByToken(simHitToken,allTrackerHits_handle);
   const edm::PSimHitContainer& allTrackerHits=*allTrackerHits_handle;
 
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
