@@ -147,7 +147,9 @@ process.newrechits = cms.Sequence(process.mySiPixelRecHits*process.mySiStripRecH
 # The commands included in splitter_tracking_setup_cff.py instruct 
 # the tracking machinery to use the clusters and rechits generated after 
 # cluster splitting (instead of the default clusters and rechits)
-process.load('RecoLocalTracker.SubCollectionProducers.splitter_tracking_RunI_setup_cff')
+
+from RecoLocalTracker.SubCollectionProducers.splitter_tracking_setup_cff import customizeTracking
+customizeTracking('splitClusters', 'splitClusters', 'mySiPixelRecHits', 'mySiStripRecHits')
 
 process.fullreco = cms.Sequence(process.globalreco*process.highlevelreco)
 process.options = cms.untracked.PSet(
@@ -177,6 +179,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'START70_V5::All', '')
 
 process.GlobalTag.globaltag = 'START70_V5::All'
+from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
+process.hbhereco.hbheInput= cms.InputTag("hbheprereco::SPLIT")
 
 process.mix.mixObjects.mixSH.crossingFrames.append('TrackerHitsPixelBarrelHighTof')
 process.mix.mixObjects.mixSH.crossingFrames.append('TrackerHitsPixelBarrelLowTof')
@@ -205,56 +209,6 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RECOoutput_step = cms.EndPath(process.RECOoutput)
 #process.pixeltree_tempsplit =cms.Path(process.PixelTreeSplit)
 #process.vertex_assoc = cms.Path(process.Vertex2TracksDefault)
-
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-#process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
-process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
-process.load("Validation.RecoTrack.cuts_cff")
-process.load("Validation.RecoTrack.MultiTrackValidator_cff")
-process.load("DQMServices.Components.EDMtoMEConverter_cff")
-process.load("Validation.Configuration.postValidation_cff")
-#process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
-process.TrackAssociatorByChi2ESProducer.chi2cut = 50.0
-process.TrackAssociatorByChi2ESProducer.onlyDiagonal = True
-
-########### configuration MultiTrackValidator ########
-process.multiTrackValidator.outputFile = 'valid_SS_Zp8TeV_runI_chi2.root'
-process.multiTrackValidator.associators = ['TrackAssociatorByChi2']
-process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
-#process.cutsRecoTracks.quality = cms.vstring('','highPurity')
-#process.cutsRecoTracks.quality = cms.vstring('')
-process.multiTrackValidator.runStandalone = True
-
-
-process.multiTrackValidator.label = ['generalTracks::SPLIT']
-process.multiTrackValidator.useLogPt=cms.untracked.bool(False)
-process.multiTrackValidator.minpT = cms.double(0.1)
-process.multiTrackValidator.maxpT = cms.double(3000.0)
-process.multiTrackValidator.nintpT = cms.int32(40)
-process.multiTrackValidator.UseAssociators = cms.bool(True)
-## process.multiTrackValidator.label_tv=cms.InputTag("mergedtruthNoSimHits","MergedTrackTruth")
-## process.multiTrackValidator.label_tp_effic=cms.InputTag("mergedtruthNoSimHits","MergedTrackTruth")
-## process.multiTrackValidator.label_tp_fake=cms.InputTag("mergedtruthNoSimHits","MergedTrackTruth")
-
-process.load("Validation.RecoTrack.cuts_cff")
-process.cutsRecoTracks.ptMin    = cms.double(0.5)
-process.cutsRecoTracks.minHit   = cms.int32(10)
-#process.cutsRecoTracks.minRapidity  = cms.int32(-1.0)
-#process.cutsRecoTracks.maxRapidity  = cms.int32(1.0)
-
-process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
-
-process.validation = cms.Sequence(
-    process.tpClusterProducer *
-    process.multiTrackValidator
-)
-
-process.p = cms.Path(
-       process.cutsRecoTracks
-       *
-       process.validation
-)
-
 
 #Schedule definition
 process.schedule = cms.Schedule(process.init_step,process.splitClusters_step,process.newrechits_step,process.fullreco_step, process.RECOoutput_step)
