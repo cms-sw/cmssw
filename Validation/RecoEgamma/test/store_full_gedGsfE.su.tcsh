@@ -1,7 +1,0 @@
-#!/bin/tcsh
-oval run store.ValFullPt10Startup_UP15_gedGsfE
-oval run store.ValFullPt1000Startup_UP15_gedGsfE
-oval run store.ValFullPt35Startup_UP15_gedGsfE
-oval run store.ValFullTTbarStartup_13_gedGsfE
-oval run store.ValFullZEEStartup_13_gedGsfE
-oval run store.ValFullQcdPt80Pt120Startup_13_gedGsfE
