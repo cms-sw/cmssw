@@ -19,7 +19,7 @@
 
 using namespace edm;
 
-#define NEW
+#define NEW_PIXELCPEERROR
 
 PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p) 
 {
@@ -83,7 +83,7 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
   ESHandle<SiPixelTemplateDBObject> templateDBobject;
   iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
-#ifdef NEW
+#ifdef NEW_PIXELCPEERROR
   cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
 	  pset_,magfield.product(),*pDD.product(),lorentzAngle.product(),genErrorDBObjectProduct,
           templateDBobject.product(),lorentzAngleWidthProduct) );

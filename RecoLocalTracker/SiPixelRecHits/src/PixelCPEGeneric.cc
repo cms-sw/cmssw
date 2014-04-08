@@ -24,12 +24,12 @@ namespace {
   const bool useNewSimplerErrors = false;
 }
 
-#define NEW 
+#define NEW_PIXELCPEERROR 
 
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
-#ifdef NEW
+#ifdef NEW_PIXELCPEERROR
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
 				 const MagneticField * mag,
                                  const TrackerGeometry& geom,

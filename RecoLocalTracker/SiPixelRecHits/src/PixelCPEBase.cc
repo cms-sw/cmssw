@@ -11,7 +11,7 @@
 // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 
-#define NEW
+#define NEW_PIXELCPEERROR
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -46,7 +46,7 @@ namespace {
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-#ifdef NEW
+#ifdef NEW_PIXELCPEERROR
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const TrackerGeometry& geom,
 			   const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelGenErrorDBObject * genErrorDBObject, 
@@ -78,7 +78,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   theVerboseLevel = 
     conf.getUntrackedParameter<int>("VerboseLevel",0);
   
-#ifdef NEW
+#ifdef NEW_PIXELCPEERROR
    //-- GenError Calibration Object (different from SiPixelCPEGenericErrorParm) from DB
    genErrorDBObject_ = genErrorDBObject;
 #else

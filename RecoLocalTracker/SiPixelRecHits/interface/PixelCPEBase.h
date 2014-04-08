@@ -11,7 +11,7 @@
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 //-----------------------------------------------------------------------------
 
-#define NEW
+#define NEW_PIXELCPEERROR
 
 #include <utility>
 #include <vector>
@@ -36,7 +36,7 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 
-#ifdef NEW
+#ifdef NEW_PIXELCPEERROR
 // new errors 
 #include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
 #else
@@ -118,7 +118,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   };
 
 public:
-#ifdef NEW
+#ifdef NEW_PIXELCPEERROR
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag, const TrackerGeometry& geom,
 	       const SiPixelLorentzAngle * lorentzAngle, 
 	       const SiPixelGenErrorDBObject * genErrorDBObject, 
@@ -252,7 +252,7 @@ private:
   const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
   
 
-#ifdef NEW
+#ifdef NEW_PIXELCPEERROR
   const SiPixelGenErrorDBObject * genErrorDBObject_;  // NEW
 #else  
   const SiPixelCPEGenericErrorParm * genErrorParm_;  // OLD

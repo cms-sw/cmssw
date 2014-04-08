@@ -30,7 +30,7 @@
 // simple, and is described in Morris's note (IN ???) on the generalizaton
 // of the pixel algorithm.
 
-#define NEW
+#define NEW_PIXELCPEERROR
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
@@ -83,7 +83,7 @@ class PixelCPEGeneric : public PixelCPEBase
   float dx2   ; // CPE Generic x-bias for single double-pixel cluster
   };
 
-#ifdef NEW
+#ifdef NEW_PIXELCPEERROR
   PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
 		  const SiPixelLorentzAngle *, const SiPixelGenErrorDBObject *, 
 		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
@@ -162,7 +162,7 @@ private:
   float xerr_barrel_l1_def_, yerr_barrel_l1_def_,xerr_barrel_ln_def_;
   float yerr_barrel_ln_def_, xerr_endcap_def_, yerr_endcap_def_;
 
-#ifdef NEW
+#ifdef NEW_PIXELCPEERROR
 
   std::vector< SiPixelGenErrorStore > thePixelGenError_;
 
