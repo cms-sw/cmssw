@@ -122,14 +122,14 @@ struct KFUTest {
 
 
   void print(const TrajectoryStateOnSurface& tsos,
-	     const TransientTrackingRecHit& hit) const {
+	     const TrackingRecHit& hit) const {
     TrajectoryStateOnSurface tsn =  tsu.update(tsos, hit);
     ::print (tsn);
   }
   
 
   void time(const TrajectoryStateOnSurface& tsos,
-	     const TransientTrackingRecHit& hit) const {
+	     const TrackingRecHit& hit) const {
     edm::HRTimeType s= edm::hrRealTime();
     st();	
     TrajectoryStateOnSurface tsn =  tsu.update(tsos, hit);
@@ -147,14 +147,14 @@ struct Chi2Test {
 
 
   void print(const TrajectoryStateOnSurface& tsos,
-	     const TransientTrackingRecHit& hit) const {
+	     const TrackingRecHit& hit) const {
     res = chi2.estimate(tsos, hit);
     std::cout << "chi2 " << res.second << std::endl;
   }
   
 
   void time(const TrajectoryStateOnSurface& tsos,
-	    const TransientTrackingRecHit& hit) const {
+	    const TrackingRecHit& hit) const {
     edm::HRTimeType s= edm::hrRealTime();
     st();	
     res = chi2.estimate(tsos, hit);
