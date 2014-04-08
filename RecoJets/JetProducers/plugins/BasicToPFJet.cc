@@ -18,7 +18,7 @@
 //
 //
 
-#include "../interface/BasicToPFJet.h"
+#include "RecoJets/JetProducers/plugins/BasicToPFJet.h"
 
 BasicToPFJet::BasicToPFJet(const edm::ParameterSet& PSet) :
   src_ (PSet.getParameter<edm::InputTag>("src")),
