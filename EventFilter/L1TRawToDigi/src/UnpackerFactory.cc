@@ -4,6 +4,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "implementations/JetUnpacker.h"
+#include "implementations/TauUnpacker.h"
+#include "implementations/EGammaUnpacker.h"
+#include "implementations/EtSumUnpacker.h"
+#include "implementations/CaloTowerUnpacker.h"
 
 namespace l1t {
    std::vector<UnpackerFactory*> UnpackerFactory::factories_ = UnpackerFactory::createFactories();
@@ -12,6 +16,11 @@ namespace l1t {
    {
       std::vector<UnpackerFactory*> res;
       res.push_back(new JetUnpackerFactory());
+      res.push_back(new TauUnpackerFactory());
+      res.push_back(new EGammaUnpackerFactory());
+      res.push_back(new EtSumUnpackerFactory());
+      res.push_back(new CaloTowerUnpackerFactory());
+
       return res;
    }
 

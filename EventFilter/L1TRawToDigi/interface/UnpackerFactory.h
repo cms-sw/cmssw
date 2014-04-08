@@ -14,9 +14,9 @@ namespace l1t {
    typedef std::unordered_map<BlockId, std::shared_ptr<l1t::BaseUnpacker>> UnpackerMap;
 
    inline uint32_t pop(const unsigned char* ptr, unsigned& idx) {
-      uint32_t res = ptr[idx + 0] | (ptr[idx + 1] << 8) | (ptr[idx + 2] << 16) | (ptr[idx + 3] << 24);
-      idx += 4;
-      return res;
+     uint32_t res = ptr[idx + 0] | (ptr[idx + 1] << 8) | (ptr[idx + 2] << 16) | (ptr[idx + 3] << 24);
+     idx += 4;
+     return res;
    };
 
    class UnpackerFactory {
