@@ -15,6 +15,7 @@
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
 
@@ -25,10 +26,6 @@ class EndOfTrack;
 class EndOfEvent;
 class G4StepPoint;
 class G4VTouchable;
-
-namespace edm {
-  class ParameterSet;
-}
 
 class MaterialBudgetAction : public SimProducer, 
 			     public Observer<const BeginOfRun*>,
