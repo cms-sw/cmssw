@@ -3,6 +3,7 @@
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 #include <limits>
 
@@ -375,11 +376,18 @@ void Electron::embedPFCandidate() {
 /// Returns the reference to the parent PF candidate with index i.
 /// For use in TopProjector.
 reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
-  if (embeddedPFCandidate_) {
-    return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() );
-  } else {
-    return reco::CandidatePtr();
-  }
+    if (pfCandidateRef_.isNonnull()) {
+        if (i == 0) {
+            return reco::CandidatePtr(edm::refToPtr(pfCandidateRef_));
+        } else {
+            i--;
+        }
+    }
+    if (i >= associatedPackedFCandidateIndices_.size()) {
+        return reco::CandidatePtr();
+    } else {
+        return reco::CandidatePtr(edm::refToPtr(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, i)));
+    }
 }
 
 

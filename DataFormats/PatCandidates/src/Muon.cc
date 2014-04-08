@@ -4,7 +4,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include <limits>
 
 using namespace pat;
@@ -227,7 +227,7 @@ reco::PFCandidateRef Muon::pfCandidateRef() const {
 
 /// reference to the parent PF candidate for use in TopProjector
 reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
-  if(pfCandidateRef_.isNonnull() && i==0 ) return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() );
+  if(pfCandidateRef_.isNonnull() && i==0 ) return reco::CandidatePtr(edm::refToPtr(pfCandidateRef_) );
   if(refToOrig_.isNonnull() &&  pfCandidateRef_.isNonnull() && i==1 ) return refToOrig_;
   if(refToOrig_.isNonnull() && ! pfCandidateRef_.isNonnull() && i==0 ) return refToOrig_;
   return reco::CandidatePtr();
