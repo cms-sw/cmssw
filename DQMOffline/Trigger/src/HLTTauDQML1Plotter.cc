@@ -120,7 +120,6 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
     snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
     l1jetPhiEffDenom_ = iBooker.book1D("L1JetPhiEffDenom", buffer, binsPhi_, minPhi, maxPhi);
   }
-  runValid_ = true;
 }
 
 

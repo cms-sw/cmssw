@@ -19,10 +19,7 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const std::string& pathName, const HL
   doRefAnalysis_(doRefAnalysis),
   hltPath_(pathName, hltProcess, doRefAnalysis_, HLTCP)
 {
-  if(!configValid_)
-    return;
-
-  runValid_ = hltPath_.isValid();
+  configValid_ = configValid_ && hltPath_.isValid();
 }
 
 void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {

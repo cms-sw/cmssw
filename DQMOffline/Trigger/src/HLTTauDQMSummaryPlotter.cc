@@ -50,17 +50,11 @@ private:
 HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, const std::string& dqmBaseFolder, const std::string& type):
   HLTTauDQMPlotter(ps, dqmBaseFolder),
   type_(type)
-{
-  // no run concept in summary plotter
-  runValid_ = configValid_;
-}
+{}
 HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const std::string& dqmBaseFolder, const std::string& type):
   HLTTauDQMPlotter("", dqmBaseFolder),
   type_(type)
-{
-  // no run concept in summary plotter
-  runValid_ = configValid_;
-}
+{}
 
 HLTTauDQMSummaryPlotter::~HLTTauDQMSummaryPlotter() {}
 
@@ -96,7 +90,6 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
   else if(type_ == "PathSummary") {
     plotters_.emplace_back(new SummaryPlotter(type_, triggerTag(), store));
   }
-  runValid_ = true;
 }
 
 void HLTTauDQMSummaryPlotter::plot() {

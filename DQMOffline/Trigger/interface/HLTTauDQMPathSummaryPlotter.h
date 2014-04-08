@@ -24,7 +24,6 @@ public:
 
   void setPathObjects(const std::vector<const HLTTauDQMPath *>& pathObjects) {
     pathObjects_ = pathObjects;
-    runValid_ = !pathObjects_.empty();
   }
   void bookHistograms(DQMStore::IBooker &iBooker);
 
