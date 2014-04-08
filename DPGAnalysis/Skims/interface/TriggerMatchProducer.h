@@ -35,8 +35,11 @@ class TriggerMatchProducer : public edm::EDProducer
   // ----------member data --------------------------
     
   edm::InputTag _inputProducer;
+  edm::EDGetTokenT<edm::View<object> > _inputProducerToken;
   edm::InputTag triggerEventTag_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
   edm::InputTag triggerResultsTag_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   std::string hltTag_;
   double delRMatchingCut_;
   std::string filterName_;

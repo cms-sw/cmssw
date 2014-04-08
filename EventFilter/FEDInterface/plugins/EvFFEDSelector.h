@@ -7,6 +7,8 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 #include <vector>
 
 namespace evf{
@@ -21,6 +23,7 @@ namespace evf{
       
     private:
       edm::InputTag label_;
+      edm::EDGetTokenT<FEDRawDataCollection> token_;
       std::vector<unsigned int> fedlist_;
       
     };

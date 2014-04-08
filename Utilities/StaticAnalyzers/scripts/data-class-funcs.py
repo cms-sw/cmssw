@@ -5,7 +5,7 @@ mbcl = re.compile("(base|data) class")
 farg = re.compile("(.*)\(\w+\)")
 nsep = re.compile("\:\:")
 topfunc = re.compile("::produce\(|::analyze\(|::filter\(::beginLuminosityBlock\(|::beginRun\(")
-onefunc = re.compile("edm::one::ED(Producer|Filter|Analyzer)Base::(produce|filter|analyze)")
+onefunc = re.compile("edm::one::ED(Producer|Filter|Analyzer)Base::(produce|filter|analyze|beginLuminosityBlock|beginRun)")
 getfunc = re.compile("edm::eventsetup::EventSetupRecord::get\((.*)&\) const")
 handle = re.compile("(.*)class edm::ES(.*)Handle<(.*)>")
 statics = set()
@@ -42,7 +42,7 @@ f.close()
 
 
 
-f = open('class-checker.txt.sorted')
+f = open('class-checker.txt')
 for line in f:
 	if mbcl.search(line):
 		fields = line.split("'")
@@ -53,7 +53,7 @@ for line in f:
 			badfuncs.add(funcname)	
 f.close()
 
-f = open('classes.txt.dumperall.sorted')
+f = open('classes.txt.dumperall')
 for line in f :
 	if mbcl.search(line) :
 		fields = line.split("'")
@@ -83,6 +83,7 @@ for line in f :
 f.close()
 
 
+
 for n,nbrdict in G.adjacency_iter():
 	if n in badfuncs :
 		for nbr,eattr in nbrdict.items():
@@ -94,13 +95,8 @@ print
 
 for n,nbrdict in H.adjacency_iter():
 	for nbr,eattr in nbrdict.items():
-		if 'kind' in eattr and eattr['kind'] == ' base class '  :
-			regex1 = r"^"+re.escape(n)+r"::"
-			regex2 = r"^"+re.escape(nbr)+r"::"
-			for key in virtdict.keys():
-				if re.search(regex1,key) and re.search(regex2,virtdict[key]) :
-					print "flagged class '"+n+"' base class with overriden virtual function '"+nbr+"'"
-					virtclasses.add(nbr)
+		if n in badclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
+			virtclasses.add(nbr)
 print
 
 
@@ -111,17 +107,13 @@ for tfunc in toplevelfuncs:
 			break
 
 
-#for esdclass in sorted(esdclasses):
-#	print "Event setup data class '"+esdclass+"'."
-#print
-
 for badclass in sorted(badclasses):
 	print "Event setup data class '"+badclass+"' is flagged."
 	flaggedclasses.add(badclass)
 print
 
 for virtclass in sorted(virtclasses):
-	print "Event setup data class '"+virtclass+"' is flagged because of flagged overridden virtual function"
+	print "Event setup data class '"+virtclass+"' is flagged because inheriting class is flagged"
 	flaggedclasses.add(virtclass)
 print
 
@@ -147,13 +139,23 @@ for dataclassfunc in sorted(dataclassfuncs):
 			else : o = m.group(1)
 			p = re.sub("class ","",o)
 			dataclass = re.sub("struct ","",p)
-#			print "Event setup data '"+dataclass+"' is accessed in call stack '",
-#			for path in paths[tfunc][dataclassfunc]:
-#				print path+"; ",
-#			print "'."
 			for flaggedclass in sorted(flaggedclasses):
 				if re.search(flaggedclass,dataclass) :
 					print "Flagged event setup data class '"+dataclass+"' is accessed in call stack '",
 					for path in paths[tfunc][dataclassfunc]:
 						print path+"; ",
-					print "'."
+					print "' ",
+					for key in  G[tfunc].keys() :
+						if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
+							print "'"+tfunc+"'"+G[tfunc][key]['kind']+"'"+key+"'",
+					print ""
+					print ""
+					print "In call stack '",
+					for path in paths[tfunc][dataclassfunc]:
+						print path+"; ",
+					print "' flagged event setup data class '"+dataclass+"' is accessed. ",
+					for key in  G[tfunc].keys() :
+						if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
+							print "'"+tfunc+"'"+G[tfunc][key]['kind']+"'"+key+"'",
+					print ""
+					print ""
