@@ -35,20 +35,12 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   doRefAnalysis_ = matching.getUntrackedParameter<bool>("doMatching");
 
   if(ps.exists("L1Plotter")) {
-    try {
-      l1Plotter_.reset(new HLTTauDQML1Plotter(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"), consumesCollector(),
-                                              nPhiBins_, ptMax_, highPtMax_, doRefAnalysis_, l1MatchDr_, dqmBaseFolder_));
-    } catch(cms::Exception& e) {
-      edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
-    }
+    l1Plotter_.reset(new HLTTauDQML1Plotter(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"), consumesCollector(),
+                                            nPhiBins_, ptMax_, highPtMax_, doRefAnalysis_, l1MatchDr_, dqmBaseFolder_));
   }
   if(ps.exists("PathSummaryPlotter")) {
-    try {
-      pathSummaryPlotter_.reset(new HLTTauDQMPathSummaryPlotter(ps.getUntrackedParameter<edm::ParameterSet>("PathSummaryPlotter"),
-                                                                doRefAnalysis_, dqmBaseFolder_, hltMatchDr_));
-    } catch(cms::Exception& e) {
-      edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
-    }
+    pathSummaryPlotter_.reset(new HLTTauDQMPathSummaryPlotter(ps.getUntrackedParameter<edm::ParameterSet>("PathSummaryPlotter"),
+                                                              doRefAnalysis_, dqmBaseFolder_, hltMatchDr_));
   }
 
   if(doRefAnalysis_) {

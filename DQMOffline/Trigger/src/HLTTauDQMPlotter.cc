@@ -6,14 +6,9 @@ HLTTauDQMPlotter::HLTTauDQMPlotter(const edm::ParameterSet& pset, const std::str
   dqmFullFolder_(dqmBaseFolder),
   configValid_(false)
 {
-  try {
-    dqmFolder_ = pset.getUntrackedParameter<std::string>("DQMFolder");
-    dqmFullFolder_ += dqmFolder_;
-    configValid_  = true;
-  } catch ( cms::Exception &e ) {
-    edm::LogWarning("HLTTauDQMOfflineSource") << "HLTTauDQMPlotter::HLTTauDQMPlotter(): " << e.what();
-    configValid_ = false;
-  }
+  dqmFolder_ = pset.getUntrackedParameter<std::string>("DQMFolder");
+  dqmFullFolder_ += dqmFolder_;
+  configValid_  = true;
 }
 
 HLTTauDQMPlotter::HLTTauDQMPlotter(const std::string& dqmFolder, const std::string& dqmBaseFolder):
