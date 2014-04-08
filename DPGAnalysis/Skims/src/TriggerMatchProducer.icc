@@ -13,19 +13,21 @@ template<class object >
 TriggerMatchProducer<object>::TriggerMatchProducer(const edm::ParameterSet& iConfig )
 {
 
-  _inputProducer = iConfig.template getParameter<edm::InputTag>("InputProducer");
+  _inputProducer= iConfig.template getParameter<edm::InputTag>("InputProducer");
+  _inputProducerToken = consumes<edm::View<object> >(_inputProducer);
   
   // **************** Trigger ******************* //
   const edm::InputTag dTriggerEventTag("hltTriggerSummaryAOD","","HLT");
   triggerEventTag_ = 
     iConfig.getUntrackedParameter<edm::InputTag>("triggerEventTag",
 						 dTriggerEventTag);
+  triggerEventToken_ = consumes<trigger::TriggerEvent>(triggerEventTag_);
+
   const edm::InputTag dTriggerResults("TriggerResults","","HLT");
-
-
   // By default, trigger results are labeled "TriggerResults" with process name "HLT" in the event.
   triggerResultsTag_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerResultsTag", 
 								    dTriggerResults);
+  triggerResultsToken_ = consumes<edm::TriggerResults>(triggerResultsTag_);
   
   //  const edm::InputTag dHLTTag("HLT_Ele15_LW_L1R", "","HLT8E29");
   hltTag_ = iConfig.getUntrackedParameter<std::string>("hltTag","HLT_Ele*");
@@ -76,7 +78,7 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
    edm::Handle<edm::View<object> > candHandle;
    try
    {
-      event.getByLabel(_inputProducer, candHandle);
+      event.getByToken(_inputProducerToken, candHandle);
    }
    catch(cms::Exception &ex)
    {
@@ -87,9 +89,9 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
 
    // Trigger Info
    edm::Handle<trigger::TriggerEvent> trgEvent;
-   event.getByLabel(triggerEventTag_,trgEvent);
+   event.getByToken(triggerEventToken_,trgEvent);
    edm::Handle<edm::TriggerResults> pTrgResults;
-   event.getByLabel(triggerResultsTag_, pTrgResults);
+   event.getByToken(triggerResultsToken_, pTrgResults);
 
    //gracefully choose the single appropriate HLT path from the list of desired paths
    std::vector<std::string> activeHLTPathsInThisEvent = hltConfig_.triggerNames();
