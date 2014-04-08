@@ -4,7 +4,7 @@ echo $1 $2
 
 if [ "$1" == "?" ] 
 then
-	echo "methode : ./analyze_gedGsfE [i(nteractif),j(ob)] [r(eco),f(ast),p(ileup)]"
+	echo "methode : .store_gedGsfE [i(nteractif),j(ob)] [r(eco),f(ast),p(ileup)]"
 	echo "defaut = j r"
 	exit
 fi
@@ -59,7 +59,7 @@ PileUp) echo "PileUp"
 	for i in TTbarStartup ZEEStartup
 		do 
 			echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
-			#${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
+			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
 		done
 	;;
 Fast) echo "Fast"
@@ -67,7 +67,7 @@ Fast) echo "Fast"
 	for i in TTbarStartup ZEEStartup
 		do 
 			echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
-			#${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
+			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
 		done
 	;;
 esac
