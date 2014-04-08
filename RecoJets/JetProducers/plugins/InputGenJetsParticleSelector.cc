@@ -27,6 +27,11 @@
 *
 *
 * \author: Christophe Saout, Andreas Oehler
+* 
+* Modifications:
+* 
+*    04.08.2014: Dinko Ferencek
+*                Added support for Pythia8 (status=22 for intermediate resonances)
 *
 */
 
@@ -115,8 +120,7 @@ bool InputGenJetsParticleSelector::isExcludedFromResonance(int pdgId) const
 }
 
 static unsigned int partIdx(const InputGenJetsParticleSelector::ParticleVector &p,
-			    //const reco::GenParticle *particle)
-			    const reco::GenParticle *particle)
+			       const reco::GenParticle *particle)
 {
   InputGenJetsParticleSelector::ParticleVector::const_iterator pos =
     std::lower_bound(p.begin(), p.end(), particle);
@@ -180,7 +184,7 @@ InputGenJetsParticleSelector::fromResonance(ParticleBitmap &invalid,
 
   if (invalid[idx]) return kIndirect;
       
-  if (isResonance(id) && particle->status() == 3){
+  if (isResonance(id) && (particle->status() == 3 || particle->status() == 22) ){
     return kDirect;
   }
 
