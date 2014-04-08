@@ -8,9 +8,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -21,8 +19,6 @@
 #include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -320,6 +316,17 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
 	<< " WARNING : zVertexConstraint does not have the proper size "
 	<< std::endl;
   //removed - }
+
+    // consumes
+    beamSpotToken = consumes<reco::BeamSpot>(theBeamSpot);
+    edm::InputTag _label("famosSimHits");
+    simTrackToken = consumes<edm::SimTrackContainer>(_label);
+    simVertexToken = consumes<edm::SimVertexContainer>(_label);
+    recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(hitProducer);
+    for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) {
+      _label = edm::InputTag(primaryVertices[ialgo]);
+      recoVertexToken.push_back(consumes<reco::VertexCollection>(_label));
+    }
 }
   
 // Virtual destructor needed.
@@ -394,7 +401,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e.getByLabel(theBeamSpot,recoBeamSpotHandle); 
+  e.getByToken(beamSpotToken,recoBeamSpotHandle); 
   math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
 
   //not used anymore. take the value from the py
@@ -408,10 +415,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // SimTracks and SimVertices
   edm::Handle<edm::SimTrackContainer> theSimTracks;
-  e.getByLabel("famosSimHits",theSimTracks);
+  e.getByToken(simTrackToken,theSimTracks);
   
   edm::Handle<edm::SimVertexContainer> theSimVtx;
-  e.getByLabel("famosSimHits",theSimVtx);
+  e.getByToken(simVertexToken,theSimVtx);
 
 #ifdef FAMOS_DEBUG
   std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;
@@ -419,7 +426,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
-  e.getByLabel(hitProducer, theGSRecHits);
+  e.getByToken(recHitToken, theGSRecHits);
   
   // No tracking attempted if no hits (but put an empty collection in the event)!
 #ifdef FAMOS_DEBUG
@@ -440,7 +447,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //PAT Attempt!!!! 
    //originHalfLength[ialgo] = 3.*sigmaz0; // Overrides the configuration
     edm::Handle<reco::VertexCollection> aHandle;
-    bool isVertexCollection = e.getByLabel(primaryVertices[ialgo],aHandle);
+    bool isVertexCollection = e.getByToken(recoVertexToken[ialgo],aHandle);
     if (!isVertexCollection ) continue;
     vertices[ialgo] = &(*aHandle);
   }
