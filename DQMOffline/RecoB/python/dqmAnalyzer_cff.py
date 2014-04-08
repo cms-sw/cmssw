@@ -13,6 +13,11 @@ newak5PFCHSResidual = ak5PFCHSResidual.clone(algorithm = 'AK5PFchs')
 newak5PFCHSL1FastL2L3 = ak5PFCHSL1FastL2L3.clone(correctors = cms.vstring('newak5PFCHSL1Fastjet','newak5PFCHSL2Relative','newak5PFCHSL3Absolute'))
 newak5PFCHSL1FastL2L3Residual = ak5PFCHSL1FastL2L3Residual.clone(correctors = cms.vstring('newak5PFCHSL1Fastjet','newak5PFCHSL2Relative','newak5PFCHSL3Absolute','newak5PFCHSResidual'))
 
+#Needed only for fastsim, why?
+ak5PFCHSL1Fastjet.algorithm = 'AK5PFchs'
+ak5PFCHSL2Relative.algorithm = 'AK5PFchs'
+ak5PFCHSL3Absolute.algorithm = 'AK5PFchs'
+ak5PFCHSResidual.algorithm = 'AK5PFchs'
 
 ######### DATA ############
 from DQMOffline.RecoB.bTagAnalysisData_cfi import *
@@ -55,7 +60,7 @@ bTagValidation.doJetID = True
 bTagValidation.doJEC = True
 bTagValidation.JECsource = cms.string("newak5PFCHSL1FastL2L3")
 bTagValidation.doPUid = cms.bool(True)
-bTagValidation.genJetsMatched = cms.InputTag("patJetGenJetMatch")
+bTagValidation.genJetsMatched = cms.InputTag("newpatJetGenJetMatch")
 #to run on fastsim
 prebTagSequenceMC = cms.Sequence(ak5GenJetsForPUid*newpatJetGenJetMatch*myPartons*AK5Flavour)
 bTagPlotsMC = cms.Sequence(bTagValidation)
