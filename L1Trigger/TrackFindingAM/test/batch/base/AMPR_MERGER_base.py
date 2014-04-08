@@ -20,4 +20,5 @@ process.out = cms.OutputModule("PoolOutputModule",
                                 fileName = cms.untracked.string('OUTPUTFILENAME')
                               )
  
+
 process.o = cms.EndPath(process.out)
