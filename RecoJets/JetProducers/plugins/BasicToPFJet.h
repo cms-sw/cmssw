@@ -1,5 +1,5 @@
-#ifndef UserCode_BasicToPFJet_h
-#define UserCode_BasicToPFJet_h
+#ifndef BasicToPFJet_h
+#define BasicToPFJet_h
 
 // system include files
 #include <memory>
