@@ -49,21 +49,6 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::
 }
 
 
-EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
-  EcalRecHitWorkerBaseClass(ps)
-{
-        rechitMaker_ = new EcalRecHitSimpleAlgo();
-        v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
-	v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
-        killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
-        laserCorrection_ = ps.getParameter<bool>("laserCorrection");
-	EBLaserMIN_ = ps.getParameter<double>("EBLaserMIN");
-	EELaserMIN_ = ps.getParameter<double>("EELaserMIN");
-	EBLaserMAX_ = ps.getParameter<double>("EBLaserMAX");
-	EELaserMAX_ = ps.getParameter<double>("EELaserMAX");
-
-}
-
 
 void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)
 {
@@ -93,7 +78,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                         << "! something wrong with EcalChannelStatus in your DB? ";
         }
         if ( v_chstatus_.size() > 0) {
-                uint16_t code = chStatusCode.getDecodedStatusCode();
+                uint16_t code = chStatusCode.getStatusCode();
                 std::vector<int>::const_iterator res = 
 		    std::find( v_chstatus_.begin(), v_chstatus_.end(), code );
                 if ( res != v_chstatus_.end() ) return false;
@@ -104,7 +89,8 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         // from a configurable vector
         // (see cfg file for the association)
 //        uint32_t recoFlag = 0;
-        uint16_t statusCode = chStatusCode.getDecodedStatusCode();
+        uint16_t statusCode = chStatusCode.getStatusCode();
+#warning silly 
 #ifdef silly
         if ( statusCode < v_DB_reco_flags_.size() ) {
                 // not very nice...

@@ -159,7 +159,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                                                 << "! something wrong with EcalChannelStatus in your DB? ";
                                 }
                                 EcalUncalibratedRecHit urh;
-                                if ( chStatusCode.getDecodedStatusCode()  == EcalChannelStatusCode::kDeadVFE ) { // dead VFE (from DB info)
+                                if ( chStatusCode.getStatusCode()  == EcalChannelStatusCode::kDeadVFE ) { // dead VFE (from DB info)
                                         // uses the EcalUncalibratedRecHit to pass the DetId info
                                         urh = EcalUncalibratedRecHit( *it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_VFE );
                                         if ( recoverEBVFE_ || killDeadChannels_ ) workerRecover_->run( evt, urh, *ebRecHits );
@@ -196,7 +196,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                                                 << "! something wrong with EcalChannelStatus in your DB? ";
                                 }
                                 EcalUncalibratedRecHit urh;
-                                if ( chStatusCode.getDecodedStatusCode()  == EcalChannelStatusCode::kDeadVFE) { // dead VFE (from DB info)
+                                if ( chStatusCode.getStatusCode()  == EcalChannelStatusCode::kDeadVFE) { // dead VFE (from DB info)
                                         // uses the EcalUncalibratedRecHit to pass the DetId info
                                         urh = EcalUncalibratedRecHit( *it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_VFE );
                                         if ( recoverEEVFE_ || killDeadChannels_ ) workerRecover_->run( evt, urh, *eeRecHits );
