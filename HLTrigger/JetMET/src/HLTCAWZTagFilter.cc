@@ -17,7 +17,7 @@
 //
 //
 
-#include "../interface/HLTCAWZTagFilter.h"
+#include "HLTrigger/JetMET/interface/HLTCAWZTagFilter.h"
 
 
 using namespace std;
