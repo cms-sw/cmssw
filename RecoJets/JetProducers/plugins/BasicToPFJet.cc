@@ -14,10 +14,20 @@
 //
 // Original Author:  clint richardson
 //         Created:  Thu, 6 Mar 2014 12:00:00 GMT
-// $Id$
 //
 //
+// system include files
+#include <memory>
+#include <vector>
+#include <sstream>
 
+// user include files
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
+//include header file
 #include "RecoJets/JetProducers/plugins/BasicToPFJet.h"
 
 BasicToPFJet::BasicToPFJet(const edm::ParameterSet& PSet) :
