@@ -230,6 +230,13 @@ namespace pat {
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
       void setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) ;
 
+      /// get the number of non-null PFCandidates
+      size_t numberOfSourceCandidatePtrs() const { return associatedPackedFCandidateIndices_.size(); }
+      /// get the source candidate pointer with index i
+      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
+
+
+
     protected:
 
       // ---- for content embedding ----
