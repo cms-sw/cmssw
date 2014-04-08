@@ -32,7 +32,9 @@ patMuons = cms.EDProducer("PATMuonProducer",
     ),
 
     # embedding objects
-    embedMuonBestTrack  = cms.bool(True),  ## embed in AOD externally stored muon best track
+    embedMuonBestTrack      = cms.bool(True),  ## embed in AOD externally stored muon best track from global pflow
+    embedTunePMuonBestTrack = cms.bool(True),  ## embed in AOD externally stored muon best track from muon only
+    forceBestTrackEmbedding = cms.bool(False), ## force embedding separately the best tracks even if they're already embedded e.g. as tracker or global tracks
     embedTrack          = cms.bool(False), ## embed in AOD externally stored tracker track
     embedCombinedMuon   = cms.bool(True),  ## embed in AOD externally stored combined muon track
     embedStandAloneMuon = cms.bool(True),  ## embed in AOD externally stored standalone muon track

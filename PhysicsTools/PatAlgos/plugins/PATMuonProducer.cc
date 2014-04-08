@@ -50,6 +50,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
   muonToken_ = consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag>( "muonSource" ));
   // embedding of tracks
   embedBestTrack_ = iConfig.getParameter<bool>( "embedMuonBestTrack" );
+  embedTunePBestTrack_ = iConfig.getParameter<bool>( "embedTunePMuonBestTrack" );
+  forceEmbedBestTrack_ = iConfig.getParameter<bool>( "forceBestTrackEmbedding" );
   embedTrack_ = iConfig.getParameter<bool>( "embedTrack" );
   embedCombinedMuon_ = iConfig.getParameter<bool>( "embedCombinedMuon"   );
   embedStandAloneMuon_ = iConfig.getParameter<bool>( "embedStandAloneMuon" );
@@ -374,7 +376,6 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
   // as the pat::Muon momentum
   if (useParticleFlow_)
     aMuon.setP4( aMuon.pfCandidateRef()->p4() );
-  if (embedBestTrack_)      aMuon.embedMuonBestTrack();
   if (embedTrack_)          aMuon.embedTrack();
   if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
   if (embedCombinedMuon_)   aMuon.embedCombinedMuon();
@@ -388,6 +389,10 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
     if (embedDytMuon_ && aMuon.isAValidMuonTrack(reco::Muon::DYT))
       aMuon.embedDytMuon();
   }
+
+  // embed best tracks (at the end, so unless forceEmbedBestTrack_ is true we can save some space not embedding them twice)
+  if (embedBestTrack_)      aMuon.embedMuonBestTrack(forceEmbedBestTrack_);
+  if (embedTunePBestTrack_)      aMuon.embedTunePMuonBestTrack(forceEmbedBestTrack_);
 
   // store the match to the generated final state muons
   if (addGenMatch_) {
@@ -448,7 +453,9 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   iDesc.add<edm::InputTag>("muonSource", edm::InputTag("no default"))->setComment("input collection");
 
   // embedding
-  iDesc.add<bool>("embedMuonBestTrack", true)->setComment("embed muon best track");
+  iDesc.add<bool>("embedMuonBestTrack",      true)->setComment("embed muon best track (global pflow)");
+  iDesc.add<bool>("embedTunePMuonBestTrack", true)->setComment("embed muon best track (muon only)");
+  iDesc.add<bool>("forceBestTrackEmbedding", true)->setComment("force embedding separately the best tracks even if they're already embedded e.g. as tracker or global tracks");
   iDesc.add<bool>("embedTrack", true)->setComment("embed external track");
   iDesc.add<bool>("embedStandAloneMuon", true)->setComment("embed external stand-alone muon");
   iDesc.add<bool>("embedCombinedMuon", false)->setComment("embed external combined muon");
