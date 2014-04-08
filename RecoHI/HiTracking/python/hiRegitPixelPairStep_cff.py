@@ -55,7 +55,7 @@ hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairS
 # trackign candidate
 hiRegitPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitPixelPairStepSeeds'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryBuilder')),
     maxNSeeds = 100000
     )
 

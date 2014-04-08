@@ -21,7 +21,8 @@ ckfTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
     SimpleMagneticField = cms.string(''),                                    
 #    SimpleMagneticField = cms.string('ParabolicMf'), # parabolic magnetic field
     NavigationSchool = cms.string('SimpleNavigationSchool'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('GroupedCkfTrajectoryBuilder')),
+    TrajectoryBuilder = cms.string('GroupedCkfTrajectoryBuilder'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('GroupedCkfTrajectoryBuilder')),
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
         propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite'),

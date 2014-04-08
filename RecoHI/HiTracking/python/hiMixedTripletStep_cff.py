@@ -155,7 +155,7 @@ hiMixedTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBui
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiMixedTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiMixedTripletSeeds'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiMixedTripletTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiMixedTripletTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
     )

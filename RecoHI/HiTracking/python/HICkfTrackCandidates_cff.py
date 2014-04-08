@@ -19,7 +19,7 @@ CkfTrajectoryBuilder.alwaysUseInvalidHits = False #default is true
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiPrimTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
 	TrajectoryCleaner = 'TrajectoryCleanerBySharedSeeds',
-	TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('CkfTrajectoryBuilder')), #instead of GroupedCkfTrajectoryBuilder
+	TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('CkfTrajectoryBuilder')), #instead of GroupedCkfTrajectoryBuilder
 	src = 'hiPixelTrackSeeds', 
 	RedundantSeedCleaner = 'none',
 	doSeedingRegionRebuilding = False 

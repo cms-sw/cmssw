@@ -90,7 +90,7 @@ thirdCkfTrajectoryBuilder.inOutTrajectoryFilter.refToPSet_   = 'MinBiasCkfTrajec
 # Tertiary track candidates
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 tertTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-tertTrackCandidates.TrajectoryBuilder.refToPSet_ = 'thirdCkfTrajectoryBuilder'
+tertTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'thirdCkfTrajectoryBuilder'
 tertTrackCandidates.TrajectoryCleaner    = 'TrajectoryCleanerBySharedSeeds'
 tertTrackCandidates.src                  = 'tertSeeds'
 tertTrackCandidates.RedundantSeedCleaner = 'none'

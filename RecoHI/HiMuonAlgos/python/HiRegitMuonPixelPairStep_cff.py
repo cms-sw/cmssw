@@ -61,7 +61,7 @@ hiRegitMuPixelPairStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitPixelPairSte
 # trackign candidate
 hiRegitMuPixelPairStepTrackCandidates        = RecoHI.HiTracking.hiRegitPixelPairStep_cff.hiRegitPixelPairStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuPixelPairStepSeeds'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelPairStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelPairStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 

@@ -75,7 +75,7 @@ secondCkfTrajectoryBuilder.inOutTrajectoryFilter.refToPSet_   = 'MinBiasCkfTraje
 # Secondary track candidates
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 secoTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-secoTrackCandidates.TrajectoryBuilder.refToPSet_ = 'secondCkfTrajectoryBuilder'
+secoTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'secondCkfTrajectoryBuilder'
 secoTrackCandidates.TrajectoryCleaner    = 'TrajectoryCleanerBySharedSeeds'
 secoTrackCandidates.src                  = 'secoSeeds'
 secoTrackCandidates.RedundantSeedCleaner = 'none'
