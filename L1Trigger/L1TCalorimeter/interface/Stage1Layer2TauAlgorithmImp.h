@@ -2,6 +2,7 @@
 #define Stage1Layer2TauAlgorithmImp_h
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2TauAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2JetAlgorithmImp.h"
 
 //	This is the implementation of the Stage1Layer2TauAlgorithm abstract base class.
 //	This class will be used to find sngle high pt tracks in heavy ion collisions.
@@ -35,8 +36,12 @@ namespace l1t {
 				 const std::vector<l1t::CaloRegion> & regions,
 				 double& isolation) const;
 
+    double JetIsolation(int et, int ieta, int iphi, 
+			const std::vector<l1t::Jet> & jets) const;
+
     int tauSeed;
     double relativeIsolationCut;
+    double relativeJetIsolationCut;
   };
 }
 #endif

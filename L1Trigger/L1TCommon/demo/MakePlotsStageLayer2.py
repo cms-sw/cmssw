@@ -25,8 +25,11 @@ def setHistStyle(hist, xtitle):
 def drawHist(tree, suffix, object, var, nBins, min, max, cuts):
     h = TH1D(var, "",  int(nBins), min, max)
     setHistStyle(h, var)
-    tree.Draw( prefix + object + suffix +
-               var + "_>>" + var, cuts, "goff")
+    drawStr = prefix + object + suffix + var
+    if object=="EtSum": drawStr = drawStr + "_[0]>>"
+    else: drawStr = drawStr +  "_>>"
+    
+    tree.Draw( drawStr  + var, cuts, "goff")
     h.SetMinimum(0.5)    
     h.SetMaximum( 5 * h.GetMaximum() )
     

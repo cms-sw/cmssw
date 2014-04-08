@@ -12,7 +12,7 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
-
+#include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 
 
 using namespace std;
@@ -33,11 +33,28 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 						      const std::vector<l1t::CaloRegion> & regions, 
 						      std::vector<l1t::Tau> * taus) {
 
-  tauSeed = 0;
-  relativeIsolationCut = 0.2;
+  tauSeed = 5;
+  relativeIsolationCut = 0.1;
+  relativeJetIsolationCut = 0.1;
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
-  RegionCorrection(regions, EMCands, subRegions);
+
+  bool Correct=true;   //  default is to use the corrected regions
+
+  // ----- if using corrected regions ------
+  if (Correct) RegionCorrection(regions, EMCands, subRegions);
+  else { // --- else just take the uncorrected regions
+    for(std::vector<l1t::CaloRegion>::const_iterator region = regions.begin(); 
+	region!= regions.end(); region++){
+      CaloRegion newSubRegion= *region;
+      subRegions->push_back(newSubRegion);
+    }
+  }
+
+
+  // ----- need to cluster jets in order to compute jet isolation ----
+  std::vector<l1t::Jet> *jets = new std::vector<l1t::Jet>();
+  slidingWindowJetFinder(tauSeed, subRegions, jets);
 
 
 
@@ -56,12 +73,16 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     if(associatedSecondRegionEt>tauSeed) tauEt +=associatedSecondRegionEt;
 
 
+    double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *jets);
+
+
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *tauLorentz =
       new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
     l1t::Tau theTau(*tauLorentz, tauEt, region->hwEta(), region->hwPhi());
 
-    if( tauEt >0 && (isolation/tauEt) < relativeIsolationCut ) 
+    if( tauEt >0 && (isolation/tauEt) < relativeIsolationCut 
+	&& jetIsolation < relativeJetIsolationCut) 
       taus->push_back(theTau);
   }
 
@@ -115,3 +136,22 @@ int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedSecondRegionEt(int ieta, int i
 }
 
 
+
+
+
+//  Compute jet isolation.
+double l1t::Stage1Layer2TauAlgorithmImpPP::JetIsolation(int et, int ieta, int iphi,
+							const std::vector<l1t::Jet> & jets) const {
+
+  double isolation = 0;
+
+  for(JetBxCollection::const_iterator jet = jets.begin();
+      jet != jets.end(); jet++) {
+
+    if (ieta==jet->hwEta() && iphi==jet->hwPhi())
+      isolation = (double) (jet->hwPt() - et);
+  }
+
+  // set output
+  return isolation/et;
+}
