@@ -1,4 +1,5 @@
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGT.h"
+#include "stdint.h"
 
 
 L1Analysis::L1AnalysisGT::L1AnalysisGT()  
@@ -21,7 +22,7 @@ void L1Analysis::L1AnalysisGT::SetEvm(const L1GlobalTriggerEvmReadoutRecord* gte
     //orbitn = tcsw.orbitNr();
     gt_.partrig_tcs = tcsw.partTrigNr();
     L1GtfeExtWord myGtfeExtWord = gtevmrr->gtfeWord();
-    boost::uint64_t gpsTime = myGtfeExtWord.gpsTime();
+    uint64_t gpsTime = myGtfeExtWord.gpsTime();
 
     gt_.gpsTimelo              = gpsTime&0xffffffff;
     gt_.gpsTimehi              = (gpsTime>>32)&0xffffffff;

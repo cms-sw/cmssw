@@ -1,4 +1,5 @@
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisDTTF.h"
+#include "math.h"
 
 
 L1Analysis::L1AnalysisDTTF::L1AnalysisDTTF()
@@ -14,7 +15,7 @@ L1Analysis::L1AnalysisDTTF::~L1AnalysisDTTF()
 void L1Analysis::L1AnalysisDTTF::SetDTPH(const edm::Handle<L1MuDTChambPhContainer > L1MuDTChambPhContainer, unsigned int maxDTPH)
 {
    
-   L1MuDTChambPhContainer::Phi_Container *PhContainer = L1MuDTChambPhContainer->getContainer();
+   const L1MuDTChambPhContainer::Phi_Container *PhContainer = L1MuDTChambPhContainer->getContainer();
     
    dttf_.phSize = PhContainer->size();
    int iphtr=0;
@@ -49,7 +50,7 @@ void L1Analysis::L1AnalysisDTTF::SetDTPH(const edm::Handle<L1MuDTChambPhContaine
 void L1Analysis::L1AnalysisDTTF::SetDTTH(const edm::Handle<L1MuDTChambThContainer > L1MuDTChambThContainer, unsigned int maxDTTH)
 {
    
-   L1MuDTChambThContainer::The_Container* ThContainer = L1MuDTChambThContainer->getContainer();
+   const L1MuDTChambThContainer::The_Container* ThContainer = L1MuDTChambThContainer->getContainer();
 
    int ithtr=0;
    dttf_.thSize = ThContainer->size();
@@ -88,7 +89,7 @@ void L1Analysis::L1AnalysisDTTF::SetDTTH(const edm::Handle<L1MuDTChambThContaine
 void L1Analysis::L1AnalysisDTTF::SetDTTR(const edm::Handle<L1MuDTTrackContainer > L1MuDTTrackContainer, unsigned int maxDTTR)
 {
   double pig=acos(-1);
-  L1MuDTTrackContainer::TrackContainer *tr =  L1MuDTTrackContainer->getContainer();
+  const L1MuDTTrackContainer::TrackContainer *tr =  L1MuDTTrackContainer->getContainer();
   int idttr = 0 ;
   dttf_.trSize = tr->size();
   for ( L1MuDTTrackContainer::TrackContainer::const_iterator i 

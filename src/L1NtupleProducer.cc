@@ -65,7 +65,6 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 
-
 //----------------
 // Constructor  --
 //----------------
@@ -204,18 +203,18 @@ void L1NtupleProducer::endJob() {
 
 void L1NtupleProducer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   
-   //add if "none" ..  
-  analyzeEvent(e);    
+   //add if "none" ..
+  analyzeEvent(e);
   analyzeGenerator(e);
   analyzeSimulation(e);
-  analyzeGMT(e);      
-  analyzeGT(e);       
-  analyzeGCT(e);      
-  analyzeRCT(e);      
-  analyzeDTTF(e);     
+  analyzeGMT(e);
+  analyzeGT(e);
+  analyzeGCT(e);
+  analyzeRCT(e);
+  analyzeDTTF(e);
   analyzeCSCTF(e,es); 
   pL1calotp->Reset();
-  analyzeECAL(e, es);     
+  analyzeECAL(e, es);
   analyzeHCAL(e, es);                           
 
   tree_->Fill();
@@ -482,15 +481,15 @@ void L1NtupleProducer::analyzeCSCTF(const edm::Event& e, const edm::EventSetup& 
        } 
 
      // otherwise use the O2O mechanism
-     else if (es.get< L1MuCSCPtLutRcd > ().cacheIdentifier() != m_csctfptlutCacheID )
-       {
-         edm::LogInfo("L1NtupleProducer") << "  Initializing the CSCTF ptLUTs via O2O mechanism...";
-         // initializing the ptLUT from O2O
-         csctfPtLUTs_ = new CSCTFPtLUT(es);
+     // else if (es.get< L1MuCSCPtLutRcd > ().cacheIdentifier() != m_csctfptlutCacheID )
+     //   {
+     //     edm::LogInfo("L1NtupleProducer") << "  Initializing the CSCTF ptLUTs via O2O mechanism...";
+     //     // initializing the ptLUT from O2O
+     //     csctfPtLUTs_ = new CSCTFPtLUT(es);
          
-         m_csctfptlutCacheID = es.get< L1MuCSCPtLutRcd > ().cacheIdentifier();
-         edm::LogInfo("L1NtupleProducer") << "  Changed the cache ID for CSCTF ptLUTs...";
-       }
+     //     m_csctfptlutCacheID = es.get< L1MuCSCPtLutRcd > ().cacheIdentifier();
+     //     edm::LogInfo("L1NtupleProducer") << "  Changed the cache ID for CSCTF ptLUTs...";
+     //   }
      
      if (csctfPtLUTs_ == NULL)
        edm::LogWarning("L1NtupleProducer")<<"  No valid CSCTFPtLUT initialized!";
