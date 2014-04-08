@@ -92,8 +92,12 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper : TrajectoryFitter::standard);
-  if unlikely(!trajTmp.isValid()) return false;
-  
+  if unlikely(!trajTmp.isValid()) {
+#ifdef VI_DEBUG
+    std::cout << "fit failed " << algo_ << ": " <<  hits.size() <<'|' << int(nLoops) << ' ' << std::endl; 
+#endif     
+     return false;
+  }
   
   
   theTraj = new Trajectory(std::move(trajTmp));
@@ -142,7 +146,7 @@ for (auto const & tm : theTraj->measurements()) {
   }
  }
 
-std::cout << algo_ << ": "; for (auto c:chit) std::cout << c <<'/'; std::cout<< std::endl;
+std::cout << algo_ << ": " <<  hits.size() <<'|' <<theTraj->measurements().size()<<'|' << int(nLoops) << ' ';   for (auto c:chit) std::cout << c <<'/'; std::cout<< std::endl;
 
 #endif
  
