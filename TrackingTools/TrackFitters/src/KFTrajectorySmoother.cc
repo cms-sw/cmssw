@@ -183,7 +183,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
        	assert(hit->surface()!=nullptr);
         assert( (!(hit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
         assert( (!(hit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>(hit.get())));
-        auto preciseHit = theHitCloner->makeShared(hit,predTsos);
+        auto preciseHit = theHitCloner->makeShared(hit,combTsos);
         assert(preciseHit->isValid());
        	assert(preciseHit->geographicalId()!=0U);
        	assert(preciseHit->surface()!=nullptr);
