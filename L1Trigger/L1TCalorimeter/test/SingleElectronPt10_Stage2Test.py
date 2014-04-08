@@ -69,8 +69,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(10.01),
-        MinPt = cms.double(9.99),
+        MaxPt = cms.double(20.01),
+        MinPt = cms.double(19.99),
         PartID = cms.vint32(11),
         MaxEta = cms.double(2.5),
         MaxPhi = cms.double(3.14159265359),
@@ -85,9 +85,10 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 
 # upgrade calo stage 2
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
-process.l1tCaloStage2TowerDigis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
-process.l1tCaloStage2TowerDigis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
+process.l1tCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+process.l1tCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 
+process.load('L1Trigger.L1TCalorimeter.l1tCaloAnalyzer_cfi')
 
 # enable debug message logging for our modules
 process.MessageLogger = cms.Service(
@@ -105,12 +106,16 @@ process.MessageLogger = cms.Service(
     )
 )
 
+# TTree output file
+process.load("CommonTools.UtilAlgos.TFileService_cfi")
+process.TFileService.fileName = cms.string('l1t.root')
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.digitisation_step = cms.Path(process.pdigi)
-process.L1simulation_step = cms.Path(process.SimL1Emulator+process.L1TCaloStage2)
+process.L1simulation_step = cms.Path(process.SimL1Emulator+process.L1TCaloStage2+process.l1tCaloAnalyzer)
+#process.L1simulation_step = cms.Path(process.SimL1Emulator+process.L1TCaloStage2)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.output)

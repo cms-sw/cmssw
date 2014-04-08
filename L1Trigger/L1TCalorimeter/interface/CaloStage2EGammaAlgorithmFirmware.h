@@ -14,6 +14,7 @@
 #define CaloStage2EGammaAlgorithmFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/LUT.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 namespace l1t {
@@ -29,6 +30,7 @@ namespace l1t {
     
   private:
     CaloParams* params_;
+    LUT lut_;
   };
   
 }

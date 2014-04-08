@@ -94,6 +94,11 @@ namespace l1t {
     double egEtThreshold_;
     double muEtThreshold_;
 
+    // Control how to end the job 
+    int emptyBxTrailer_;
+    int emptyBxEvt_;
+    int eventCnt_;
+
     // Tokens
     edm::EDGetTokenT <reco::GenParticleCollection> genParticlesToken;
     edm::EDGetTokenT <reco::GenJetCollection> genJetsToken;
@@ -155,13 +160,18 @@ namespace l1t {
     muEtThreshold_  = iConfig.getParameter<double>("muEtThreshold");
 
 
+    emptyBxTrailer_   = iConfig.getParameter<int>("emptyBxTrailer");
+    emptyBxEvt_       = iConfig.getParameter<int>("emptyBxEvt");
+
+
     genParticlesToken = consumes <reco::GenParticleCollection> (std::string("genParticles"));
     genJetsToken      = consumes <reco::GenJetCollection> (std::string("ak5GenJets"));
-    genMetToken       = consumes <reco::GenMETCollection> (std::string("genMetCalo"));
+    genMetToken       = consumes <reco::GenMETCollection> (std::string("genMetCalo"));   
 
 
     // set cache id to zero, will be set at first beginRun:
     m_paramsCacheId = 0;
+    eventCnt_ = 0;
   }
 
 
@@ -180,6 +190,8 @@ void
 L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
+  eventCnt_++;
+
   LogDebug("l1t|Global") << "L1uGtGenToInputProducer::produce function called...\n";
 
   // Setup vectors
@@ -194,15 +206,24 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   int bxLast  = bxLast_;
 
 
-  // Et scale (in GeV)
-  double pTstep_ = 0.5;
+  // Default values objects
+  double MaxLepPt_ = 255;
+  double MaxJetPt_ = 1023;
+  double MaxEt_ = 2047;
 
-  // Default values for EG/Tau. Redefined for individual objects below
-  int maxPt_ = 255;
-  double minEta_ = -5.;
-  double maxEta_ = 5.;
-  int etaSteps_ = 230;
-  int phiSteps_ = 144;
+  double MaxCaloEta_ = 5.0;
+  double MaxMuonEta_ = 2.45;
+
+  double PhiStepCalo_ = 144;
+  double PhiStepMuon_ = 576;
+
+  // eta scale
+  double EtaStepCalo_ = 230;
+  double EtaStepMuon_ = 450;
+
+  // Et scale (in GeV)
+  double PtStep_ = 0.5;
+
 
   //outputs
   std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
@@ -251,18 +272,12 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   for( int iMu=0; iMu<numMuCands; iMu++ ){
 
     if( iMu>=maxNumMuCands_ ) continue;
-
-    maxPt_ = 255;
-    minEta_ = -2.45;
-    maxEta_ = 2.45;
-    etaSteps_ = 450;
-    phiSteps_ = 576;
   
     const reco::Candidate & mcParticle = (*genParticles)[mu_cands_index[idxMu[iMu]]];
 
-    int pt   = convertPtToHW( mcParticle.pt(), maxPt_, pTstep_ );
-    int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_, 0x1ff );
-    int phi  = convertPhiToHW( mcParticle.phi(), phiSteps_ );
+    int pt   = convertPtToHW( mcParticle.pt(), MaxLepPt_, PtStep_ );
+    int eta  = convertEtaToHW( mcParticle.eta(), -MaxMuonEta_, MaxMuonEta_, EtaStepMuon_, 0x1ff );
+    int phi  = convertPhiToHW( mcParticle.phi(), PhiStepMuon_ );
     int qual = 4;
     int iso  = 1;
     int charge = ( mcParticle.charge()>0 ) ? 1 : 0;
@@ -290,18 +305,12 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   for( int iEg=0; iEg<numEgCands; iEg++ ){
 
     if( iEg>=maxNumEGCands_ ) continue;
-
-    maxPt_ = 255;
-    minEta_ = -5.;
-    maxEta_ = 5.;
-    etaSteps_ = 230;
-    phiSteps_ = 144;
   
     const reco::Candidate & mcParticle = (*genParticles)[eg_cands_index[idxEg[iEg]]];
 
-    int pt   = convertPtToHW( mcParticle.pt(), maxPt_, pTstep_ );
-    int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_ , 0xff);
-    int phi  = convertPhiToHW( mcParticle.phi(), phiSteps_ );
+    int pt   = convertPtToHW( mcParticle.pt(), MaxLepPt_, PtStep_ );
+    int eta  = convertEtaToHW( mcParticle.eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+    int phi  = convertPhiToHW( mcParticle.phi(), PhiStepCalo_ );
     int qual = 1;
     int iso  = 1;
 
@@ -326,18 +335,12 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   for( int iTau=0; iTau<numTauCands; iTau++ ){
 
     if( iTau>=maxNumTauCands_ ) continue;
-
-    maxPt_ = 255;
-    minEta_ = -5.;
-    maxEta_ = 5.;
-    etaSteps_ = 230;
-    phiSteps_ = 144;
   
     const reco::Candidate & mcParticle = (*genParticles)[tau_cands_index[idxTau[iTau]]];
 
-    int pt   = convertPtToHW( mcParticle.pt(), maxPt_, pTstep_ );
-    int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_ , 0xff);
-    int phi  = convertPhiToHW( mcParticle.phi(), phiSteps_ );
+    int pt   = convertPtToHW( mcParticle.pt(), MaxLepPt_, PtStep_ );
+    int eta  = convertEtaToHW( mcParticle.eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+    int phi  = convertPhiToHW( mcParticle.phi(), PhiStepCalo_ );
     int qual = 1;
     int iso  = 1;
 
@@ -351,6 +354,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   }
 
 
+  // Temporary hack to increase number of EGs and taus
+  int maxOtherEGs = 4;
+  int maxOtherTaus = 8;
+  int numCurrentEGs  = int( egammaVec.size() );
+  int numCurrentTaus = int( tauVec.size() );
+
+  int numExtraEGs=0, numExtraTaus=0;
+  // end hack
 
   // Use to sum the energy of the objects in the event for ETT and HTT
   // sum all jets
@@ -372,9 +383,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if( nJet>=maxNumJetCands_ ) continue;
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-      int pt  = convertPtToHW( genJet->et(), 1023, pTstep_ );
-      int eta = convertEtaToHW( genJet->eta(), -5., 5., 230, 0xff );
-      int phi = convertPhiToHW( genJet->phi(), 144 );
+      int pt  = convertPtToHW( genJet->et(), MaxJetPt_, PtStep_ );
+      int eta = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+      int phi = convertPhiToHW( genJet->phi(), PhiStepCalo_ );
 
       // Eta outside of acceptance
       if( eta>=9999 ) continue;
@@ -384,7 +395,36 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       l1t::Jet jet(*p4, pt, eta, phi, qual);
       jetVec.push_back(jet);
 
-      nJet++;     
+      nJet++;
+
+      // Temporary hack to increase number of EGs and taus
+      if( (numExtraEGs+numCurrentEGs)<maxNumEGCands_ && numExtraEGs<maxOtherEGs ){
+	numExtraEGs++;
+
+	int EGpt   = convertPtToHW( genJet->et(), MaxLepPt_, PtStep_ );
+	int EGeta  = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+	int EGphi  = convertPhiToHW( genJet->phi(), PhiStepCalo_ );
+
+	int EGqual = 1;
+	int EGiso  = 1;
+
+	l1t::EGamma eg(*p4, EGpt, EGeta, EGphi, EGqual, EGiso);
+	egammaVec.push_back(eg);
+      }
+
+      if( (numExtraTaus+numCurrentTaus)<maxNumTauCands_ && numExtraTaus<maxOtherTaus ){
+	numExtraTaus++;
+
+	int Taupt   = convertPtToHW( genJet->et(), MaxLepPt_, PtStep_ );
+	int Taueta  = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+	int Tauphi  = convertPhiToHW( genJet->phi(), PhiStepCalo_ );
+	int Tauqual = 1;
+	int Tauiso  = 1;
+
+	l1t::Tau tau(*p4, Taupt, Taueta, Tauphi, Tauqual, Tauiso);
+	tauVec.push_back(tau);
+      }
+      // end hack
     }
   }
   else {
@@ -395,8 +435,8 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   edm::Handle<reco::GenMETCollection> genMet;
   // Make sure that you can get genMET
   if( iEvent.getByToken(genMetToken, genMet) ){
-    int pt  = convertPtToHW( genMet->front().pt(), 2047, pTstep_ );
-    int phi = convertPhiToHW( genMet->front().phi(), 144 );
+    int pt  = convertPtToHW( genMet->front().pt(), MaxEt_, PtStep_ );
+    int phi = convertPhiToHW( genMet->front().phi(), PhiStepCalo_ );
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
@@ -405,8 +445,8 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     etsumVec.push_back(etmiss);
 
     // Make Missing Ht slightly smaller and rotated (These are all fake inputs anyway...not supposed to be realistic)
-    pt  = convertPtToHW( genMet->front().pt()*0.9, 2047, pTstep_ );
-    phi = convertPhiToHW( genMet->front().phi()+ 3.14/5., 144 );
+    pt  = convertPtToHW( genMet->front().pt()*0.9, MaxEt_, PtStep_ );
+    phi = convertPhiToHW( genMet->front().phi()+ 3.14/5., PhiStepCalo_ );
 
     l1t::EtSum htmiss(*p4, l1t::EtSum::EtSumType::kMissingHt,pt, 0,phi, 0); 
     etsumVec.push_back(htmiss);
@@ -419,17 +459,18 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
 // Put the total Et into EtSums  (Make HTT slightly smaller to tell them apart....not supposed to be realistic) 
-   int pt  = convertPtToHW( sumEt, 2047, pTstep_ );
+   int pt  = convertPtToHW( sumEt, 2047, PtStep_ );
    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
    l1t::EtSum etTotal(*p4, l1t::EtSum::EtSumType::kTotalEt,pt, 0, 0, 0); 
    etsumVec.push_back(etTotal);
 
-   pt  = convertPtToHW( sumEt*0.9, 2047, pTstep_ );
+   pt  = convertPtToHW( sumEt*0.9, 2047, PtStep_ );
    l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
    etsumVec.push_back(htTotal);
 
  
    // Insert all the bx into the L1 Collections
+   printf("Event %i  EmptyBxEvt %i emptyBxTrailer %i diff %i \n",eventCnt_,emptyBxEvt_,emptyBxTrailer_,(emptyBxEvt_ - eventCnt_));
 
    // Fill Muons
    for( int iMu=0; iMu<int(muonVec_bxm2.size()); iMu++ ){
@@ -444,9 +485,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iMu=0; iMu<int(muonVec_bxp1.size()); iMu++ ){
      muons->push_back(1, muonVec_bxp1[iMu]);
    }
-   for( int iMu=0; iMu<int(muonVec.size()); iMu++ ){
-     muons->push_back(2, muonVec[iMu]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iMu=0; iMu<int(muonVec.size()); iMu++ ){
+        muons->push_back(2, muonVec[iMu]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     muonVec.clear();  
+   }  
 
    // Fill Egammas
    for( int iEG=0; iEG<int(egammaVec_bxm2.size()); iEG++ ){
@@ -461,9 +507,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iEG=0; iEG<int(egammaVec_bxp1.size()); iEG++ ){
      egammas->push_back(1, egammaVec_bxp1[iEG]);
    }
-   for( int iEG=0; iEG<int(egammaVec.size()); iEG++ ){
-     egammas->push_back(2, egammaVec[iEG]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iEG=0; iEG<int(egammaVec.size()); iEG++ ){
+        egammas->push_back(2, egammaVec[iEG]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     egammaVec.clear();  
+   }  
 
    // Fill Taus
    for( int iTau=0; iTau<int(tauVec_bxm2.size()); iTau++ ){
@@ -478,9 +529,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iTau=0; iTau<int(tauVec_bxp1.size()); iTau++ ){
      taus->push_back(1, tauVec_bxp1[iTau]);
    }
-   for( int iTau=0; iTau<int(tauVec.size()); iTau++ ){
-     taus->push_back(2, tauVec[iTau]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iTau=0; iTau<int(tauVec.size()); iTau++ ){
+        taus->push_back(2, tauVec[iTau]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     tauVec.clear();  
+   }  
 
    // Fill Jets
    for( int iJet=0; iJet<int(jetVec_bxm2.size()); iJet++ ){
@@ -495,9 +551,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iJet=0; iJet<int(jetVec_bxp1.size()); iJet++ ){
      jets->push_back(1, jetVec_bxp1[iJet]);
    }
-   for( int iJet=0; iJet<int(jetVec.size()); iJet++ ){
-     jets->push_back(2, jetVec[iJet]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iJet=0; iJet<int(jetVec.size()); iJet++ ){
+        jets->push_back(2, jetVec[iJet]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     jetVec.clear();  
+   }  
 
    // Fill Etsums
    for( int iETsum=0; iETsum<int(etsumVec_bxm2.size()); iETsum++ ){
@@ -512,9 +573,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iETsum=0; iETsum<int(etsumVec_bxp1.size()); iETsum++ ){
      etsums->push_back(1, etsumVec_bxp1[iETsum]);
    }
-   for( int iETsum=0; iETsum<int(etsumVec.size()); iETsum++ ){
-     etsums->push_back(2, etsumVec[iETsum]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iETsum=0; iETsum<int(etsumVec.size()); iETsum++ ){
+        etsums->push_back(2, etsumVec[iETsum]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     etsumVec.clear();  
+   }  
 
 
   iEvent.put(egammas);

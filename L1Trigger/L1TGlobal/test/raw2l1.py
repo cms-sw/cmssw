@@ -184,7 +184,7 @@ if legacy:
     process.l1GtTriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml'
 
     process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
-    process.es_prefer_l1GtParameters = cms.ESPrefer('L1uGtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
+    process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
 else:
     process.load('L1Trigger.L1TGlobal.l1uGtTriggerMenuXml_cfi')
     process.l1uGtTriggerMenuXml.TriggerMenuLuminosity = 'startup'
@@ -231,7 +231,10 @@ process.source = cms.Source ("PoolSource",
                              )
 
 readFiles.extend( [
-    '/store/user/puigh/Neutrino_Pt2to20_gun_UpgradeL1TDR-PU50_POSTLS161_V12-v1_A4FFBC76-5B39-E211-999D-0030487F1BE5.root',
+    "/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root",
+    #"/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_1A20137C-E651-E311-A9C6-00304867BFAA.root",
+    #"/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_2EFD8C7A-E651-E311-8C92-002354EF3BE3.root"
+    #'/store/user/puigh/Neutrino_Pt2to20_gun_UpgradeL1TDR-PU50_POSTLS161_V12-v1_A4FFBC76-5B39-E211-999D-0030487F1BE5.root',
     ##'root://xrootd.unl.edu//store/mc/Summer12/Neutrino_Pt2to20_gun/GEN-SIM-DIGI-RAW/UpgradeL1TDR-PU50_POSTLS161_V12-v1/00000/002EF512-2A39-E211-9B80-0030487F1A47.root',
     ##'/store/mc/Summer12/Neutrino_Pt2to20_gun/GEN-SIM-DIGI-RAW/UpgradeL1TDR-PU50_POSTLS161_V12-v1/00000/002EF512-2A39-E211-9B80-0030487F1A47.root',
         ] )
@@ -245,10 +248,15 @@ process.output = cms.OutputModule( "PoolOutputModule"
                                 )
 process.output.fileName = outputFile
 
+process.options = cms.untracked.PSet()
+
 process.outpath = cms.EndPath(process.output)
 
-process.schedule.append(process.outpath)
+#process.schedule.append(process.outpath)
 
-outfile = open(dumpFile,'w')
-print >> outfile,process.dumpPython()
-outfile.close()
+# Spit out filter efficiency at the end.
+process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+
+#outfile = open(dumpFile,'w')
+#print >> outfile,process.dumpPython()
+#outfile.close()

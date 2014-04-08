@@ -10,13 +10,13 @@ l1t::CaloTower::CaloTower( const LorentzVector& p4,
 			   int qual,
 			   int hwEtEm,
 			   int hwEtHad,
-			   int hwFGEm)
+			   int hwEtRatio)
   : L1Candidate(p4, pt, eta, phi, qual),
     etEm_(etEm),
     etHad_(etHad),
     hwEtEm_(hwEtEm),
-    hwFGEm_(hwFGEm),
-    hwEtHad_(hwEtHad)
+    hwEtHad_(hwEtHad),
+    hwEtRatio_(hwEtRatio)
 {
   
 }
@@ -46,11 +46,10 @@ void l1t::CaloTower::setHwEtHad(int et)
   hwEtHad_ = et;
 }
 
-void l1t::CaloTower::setHwFGEm(int fg)
+void l1t::CaloTower::setHwEtRatio(int ratio)
 {
-  hwFGEm_ = fg;
+  hwEtRatio_ = ratio;
 }
-
 
 double l1t::CaloTower::etEm()const
 {
@@ -72,8 +71,8 @@ int l1t::CaloTower::hwEtHad()const
   return hwEtHad_;
 }
 
-int l1t::CaloTower::hwFGEm() const
+int l1t::CaloTower::hwEtRatio()const
 {
-  return hwFGEm_;
+  return hwEtRatio_;
 }
 

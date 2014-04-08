@@ -72,10 +72,17 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   setWhatProduced(this);
    //setWhatProduced(this, conf.getParameter<std::string>("label"));
 
+  // tower scales
   m_params.setTowerLsbH(conf.getParameter<double>("towerLsbH"));
   m_params.setTowerLsbE(conf.getParameter<double>("towerLsbE"));
+  m_params.setTowerLsbSum(conf.getParameter<double>("towerLsbSum"));
   m_params.setTowerNBitsH(conf.getParameter<int>("towerNBitsH"));
   m_params.setTowerNBitsE(conf.getParameter<int>("towerNBitsE"));
+  m_params.setTowerNBitsSum(conf.getParameter<int>("towerNBitsSum"));
+  m_params.setTowerNBitsRatio(conf.getParameter<int>("towerNBitsRatio"));
+  m_params.setTowerCompression(conf.getParameter<bool>("towerCompression"));
+
+  m_params.setJetSeedThreshold(conf.getParameter<double>("jetSeedThreshold"));
 
 }
 
@@ -100,7 +107,7 @@ L1TCaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
    using namespace edm::es;
    boost::shared_ptr<CaloParams> pCaloParams ;
 
-   pCaloParams = boost::shared_ptr< CaloParams >(new CaloParams( ));
+   pCaloParams = boost::shared_ptr< CaloParams >(new CaloParams(m_params));
    return pCaloParams;
 }
 

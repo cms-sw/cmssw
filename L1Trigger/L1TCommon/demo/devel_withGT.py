@@ -47,36 +47,41 @@ process.options = cms.untracked.PSet()
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
-process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
-process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
-
-process.RCTConverter = cms.EDProducer(
+process.rctLayer2Format = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
     regionTag = cms.InputTag("simRctDigis"),
     emTag = cms.InputTag("simRctDigis"))
 
-process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
-process.caloStage1 = cms.EDProducer(
-    "l1t::L1TCaloStage1Producer",
-    CaloRegions = cms.InputTag("RCTConverter"),
-    CaloEmCands = cms.InputTag("RCTConverter"),
-    FirmwareVersion = cms.uint32(1)  ## 1=HI algo, 2= pp algo
+process.Layer2HW = cms.EDProducer(
+    "l1t::Stage1Layer2Producer",
+    CaloRegions = cms.InputTag("rctLayer2Format"),
+    CaloEmCands = cms.InputTag("rctLayer2Format"),
+    FirmwareVersion = cms.uint32(1),  ## 1=HI algo, 2= pp algo
+    regionETCutForHT = cms.uint32(7),
+    regionETCutForMET = cms.uint32(0),
+    minGctEtaForSums = cms.int32(4),
+    maxGctEtaForSums = cms.int32(17),
+    jetSeedThreshold = cms.double(0.) ## seed threshold in GeV
     )
 
-process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
-    InputCollection = cms.InputTag("caloStage1")
+process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",
+                                      InputCollection = cms.InputTag("Layer2HW")
+)
+
+process.Layer2gctFormat = cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
+    InputCollection = cms.InputTag("Layer2Phys")
     )
 
 
 process.load('L1Trigger.Configuration.SimL1Emulator_cff')
-process.simGtDigis.GctInputTag = 'GCTConverter'
+process.simGtDigis.GctInputTag = 'Layer2gctFormat'
 
 # overwrite old simGctDigis
 process.simGctDigis = cms.Sequence(
-        process.RCTConverter
-#        *process.caloTowers
-        *process.caloStage1
-        *process.GCTConverter
+        process.rctLayer2Format
+        *process.Layer2HW
+        *process.Layer2Phys
+        *process.Layer2gctFormat
         )
 
 
@@ -84,9 +89,6 @@ process.p1 = cms.Path(
 #    process.digiStep
     #process.Stage1GCT
     process.SimL1Emulator
-#    * process.debug
-#    *process.dumpED
-#    *process.dumpES
     )
 
 

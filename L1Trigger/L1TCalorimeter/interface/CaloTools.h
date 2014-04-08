@@ -15,6 +15,7 @@
 #define L1Trigger_L1TCommon_CaloTools_h
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
 
 namespace l1t {
 
@@ -25,14 +26,32 @@ namespace l1t {
     CaloTools(){}
     ~CaloTools(){}
   
+  private:
+    //temporary location of these key parameters, probably should be read in from a database
+    //they are private to stop people using them as they will change (naming is invalid for a start)
+    static const int kHBHEEnd=28;
+    static const int kHFBegin=29;
+    static const int kHFEnd=32;
+    static const int kHFPhiSeg=4;
+    static const int kHFNrPhi=72/kHFPhiSeg;
+    static const int kHBHENrPhi=72;
+    static const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
+    static const int kNrHBHETowers = kHBHEEnd*kHBHENrPhi*2;
+
   public:
- 
     enum SubDet{ECAL=0x1,HCAL=0x2,CALO=0x3}; //CALO is a short cut for ECAL|HCAL
 
-    static const l1t::CaloTower& getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi);
+    static const l1t::CaloTower&   getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi);
+    static const l1t::CaloCluster& getCluster(const std::vector<l1t::CaloCluster>& clusters,int iEta,int iPhi);
 
-    //returns a hash suitable for indexing a vector (note does not check for validity yet of iEta,iPhi)
+    //returns a hash suitable for indexing a vector, returns caloTowerHashMax if invalid iEta,iPhi
     static size_t caloTowerHash(int iEta,int iPhi);
+
+    //returns maximum size of hash, for vector allocation
+    static size_t caloTowerHashMax();
+
+    //checks if the iEta, iPhi is valid (ie -28->28, 1->72; |29|->|32|,1-72, %4=1)
+    static bool isValidIEtaIPhi(int iEta,int iPhi);
     
     //returns the hw Et sum of of a rectangle bounded by iEta-localEtaMin,iEta+localEtaMax,iPhi-localPhiMin,iPhi-localPhiMax (inclusive)
     //sum is either ECAL, HCAL or CALO (ECAL+HCAL) Et
@@ -43,8 +62,11 @@ namespace l1t {
     //hwEt is either ECAL, HCAL or CALO (ECAL+HCAL) Et
     static size_t calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiMax,const std::vector<l1t::CaloTower>& towers,int minHwEt,int maxHwEt,SubDet etMode=CALO);
 
+
+
   private:
     static const l1t::CaloTower nullTower_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
+    static const l1t::CaloCluster nullCluster_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
   };
 
 }

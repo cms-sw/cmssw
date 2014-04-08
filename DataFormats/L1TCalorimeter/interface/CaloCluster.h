@@ -11,14 +11,14 @@ namespace l1t {
       enum ClusterFlag{
         PASS_THRES_SEED     = 0,
         PASS_FILTER_CLUSTER = 1,
-        PASS_FILTER_NW      = 2,
-        PASS_FILTER_N       = 3,
-        PASS_FILTER_NE      = 4,
-        PASS_FILTER_E       = 5,
-        PASS_FILTER_SE      = 7,
-        PASS_FILTER_S       = 8,
-        PASS_FILTER_SW      = 9,
-        PASS_FILTER_W       = 10,
+        TRIM_NW             = 2,
+        TRIM_N              = 3,
+        TRIM_NE             = 4,
+        TRIM_E              = 5,
+        TRIM_SE             = 7,
+        TRIM_S              = 8,
+        TRIM_SW             = 9,
+        TRIM_W              = 10,
         TRIM_LEFT           = 11,
         TRIM_RIGHT          = 12,
         EXT_UP              = 13,
@@ -36,8 +36,12 @@ namespace l1t {
       ~CaloCluster();
 
       void setClusterFlag(ClusterFlag flag, bool val=true);
+      void setHwSeedPt(int pt);
+      void setHOverE(int hOverE);
 
       bool checkClusterFlag(ClusterFlag flag) const;
+      bool isValid() const;
+      int hwSeedPt() const;
       int fgEta() const;
       int fgPhi() const;
       int hOverE() const;
@@ -45,6 +49,9 @@ namespace l1t {
     private:
       // Summary of clustering outcomes
       int m_clusterFlags; // see ClusterFlag bits (15 bits, will evolve)
+
+      // Energies
+      int m_hwSeedPt;
 
       // fine grained position
       int m_fgEta; // 2 bits (to be defined in agreement with GT inputs)

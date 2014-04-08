@@ -9,11 +9,11 @@ namespace l1t {
 
   class EtSum;
   typedef BXVector<EtSum> EtSumBxCollection;
-  
+
   class EtSum : public L1Candidate {
-    
+
   public:
-    
+
     enum EtSumType {
       kMissingEt,
       kMissingHt,
@@ -28,24 +28,31 @@ namespace l1t {
 	   int eta=0,
 	   int phi=0,
 	   int qual=0);
-    
-    ~EtSum();		
-    
+
+    EtSum( const PolarLorentzVector& p4,
+	   EtSumType type,
+	   int pt=0,
+	   int eta=0,
+	   int phi=0,
+	   int qual=0);
+
+
+    ~EtSum();
+
     void setType(EtSumType type);
-    
+
     EtSumType getType() const;
-      
+
   private:
-    
+
     // type of EtSum
     EtSumType type_;
-    
+
     // additional hardware quantities common to L1 global EtSum
     // there are currently none
-    
+
   };
-  
+
 }
 
 #endif
-

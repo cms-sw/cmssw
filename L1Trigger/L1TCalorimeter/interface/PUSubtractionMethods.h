@@ -1,5 +1,6 @@
 // PUSubtractionMethods.h
-// Author: Alex Barbieri
+// Authors: Alex Barbieri
+//          Kalanand Mishra, Fermilab
 //
 // This file should contain the different algorithms used for PU subtraction.
 
@@ -7,8 +8,8 @@
 #define PUSUBTRACTIONMETHODS_H
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
-
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 
 #include <vector>
 
@@ -16,6 +17,10 @@ namespace l1t {
 
   void HICaloRingSubtraction(const std::vector<l1t::CaloRegion> & regions,
 			     std::vector<l1t::CaloRegion> *subRegions);
+
+  void RegionCorrection(const std::vector<l1t::CaloRegion> & regions, 
+			const std::vector<l1t::CaloEmCand> & EMCands, 
+			std::vector<l1t::CaloRegion> *subRegions); 
 }
 
 #endif

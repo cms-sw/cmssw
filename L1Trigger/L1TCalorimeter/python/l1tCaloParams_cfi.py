@@ -9,8 +9,18 @@ l1tCaloParamsSource = cms.ESSource(
 
 l1tStage2CaloParams = cms.ESProducer(
     "l1t::L1TCaloParamsESProducer",
-    towerLsbH = cms.double(0.5),
-    towerLsbE = cms.double(0.5),
-    towerNBitsH = cms.int32(8),
-    towerNBitsE = cms.int32(8)
+
+    # towers
+    towerLsbH        = cms.double(0.5),
+    towerLsbE        = cms.double(0.5),
+    towerLsbSum      = cms.double(0.5),
+    towerNBitsH      = cms.int32(8),
+    towerNBitsE      = cms.int32(8),
+    towerNBitsSum    = cms.int32(9),
+    towerNBitsRatio  = cms.int32(3),
+    towerCompression = cms.bool(True),
+
+    # jets
+    jetSeedThreshold = cms.double(5.)
+
 )

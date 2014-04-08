@@ -1,14 +1,22 @@
 // L1TCaloUpgradeToGCTConverter.cc
-// Author Ivan Cali
+// Authors: Ivan Cali
+//          R. Alex Barbieri
 
 // Stage 1 upgrade to old GT format converter
 // Assumes input collections are sorted, but not truncated.
+
+// In the 'gct' eta coordinates the HF is 0-3 and 18-21. Jets which
+// include any energy at all from the HF should be considered
+// 'forward' jets, however, so jets with centers in 0-4 and 17-21 are
+// considered 'forward'.
+
 
 #include "L1Trigger/L1TCalorimeter/plugins/L1TCaloUpgradeToGCTConverter.h"
 #include <boost/shared_ptr.hpp>
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig)
@@ -29,10 +37,10 @@ l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterS
   produces<L1GctHFRingEtSumsCollection>();
 
   // register what you consume and keep token for later access:
-  EGammaToken_ = consumes<L1TEGammaCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  TauToken_ = consumes<L1TTauCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  JetToken_ = consumes<L1TJetCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  EtSumToken_ = consumes<L1TEtSumCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  EGammaToken_ = consumes<l1t::EGammaBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  TauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  JetToken_ = consumes<l1t::JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  EtSumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
 }
 
 
@@ -50,20 +58,23 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   LogDebug("l1t|stage 1 Converter") << "L1TCaloUpgradeToGCTConverter::produce function called...\n";
 
   //inputs
-  Handle<L1TEGammaCollection> EGamma;
+  Handle<l1t::EGammaBxCollection> EGamma;
   e.getByToken(EGammaToken_,EGamma);
 
-  Handle<L1TTauCollection> Tau;
+  Handle<l1t::TauBxCollection> Tau;
   e.getByToken(TauToken_,Tau);
 
-  Handle<L1TJetCollection> Jet;
+  Handle<l1t::JetBxCollection> Jet;
   e.getByToken(JetToken_,Jet);
 
-  Handle<L1TEtSumCollection> EtSum;
+  Handle<l1t::EtSumBxCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
 
-  edm::ESHandle< L1CaloEtScale > etScale ;
-  es.get< L1JetEtScaleRcd >().get( etScale ) ;
+  edm::ESHandle< L1CaloEtScale > emScale ;
+  es.get< L1EmEtScaleRcd >().get( emScale ) ;
+
+  edm::ESHandle< L1CaloEtScale > jetScale ;
+  es.get< L1JetEtScaleRcd >().get( jetScale ) ;
 
 
   // create the em and jet collections
@@ -105,7 +116,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   for(int itBX=firstBX; itBX!=lastBX+1; ++itBX){
 
     //looping over EGamma elments with a specific BX
-    for(L1TEGammaCollection::const_iterator itEGamma = EGamma->begin(itBX);
+    for(l1t::EGammaBxCollection::const_iterator itEGamma = EGamma->begin(itBX);
 	itEGamma != EGamma->end(itBX); ++itEGamma){
       bool iso = itEGamma->hwIso();
 
@@ -120,12 +131,19 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
-    for(L1TTauCollection::const_iterator itTau = Tau->begin(itBX);
+    for(l1t::TauBxCollection::const_iterator itTau = Tau->begin(itBX);
 	itTau != Tau->end(itBX); ++itTau){
       bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
-      int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      //int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      double hackPt = static_cast<double>(itTau->hwPt()) * jetScale->linearLsb();
+      hackPt = jetScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
-      L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(),
+
+      unsigned iEta = itTau->hwEta();
+      unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
+      unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+
+      L1GctJetCand TauCand(hackPt, itTau->hwPhi(), gtEta,
 			   true, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
@@ -138,14 +156,22 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
     int cenCount = 0; //max 4
-    for(L1TJetCollection::const_iterator itJet = Jet->begin(itBX);
+    for(l1t::JetBxCollection::const_iterator itJet = Jet->begin(itBX);
 	itJet != Jet->end(itBX); ++itJet){
-      bool forward=(itJet->hwEta() < 4 || itJet->hwEta() > 17);
+      bool forward=(itJet->hwEta() <= 4 || itJet->hwEta() >= 17);
       //int hackPt = itJet->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
-      double hackPt = static_cast<double>(itJet->hwPt()) * etScale->linearLsb();
-      hackPt = etScale->rank(hackPt);
+      double hackPt = static_cast<double>(itJet->hwPt()) * jetScale->linearLsb();
+      hackPt = jetScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
-      L1GctJetCand JetCand(hackPt, itJet->hwPhi(), itJet->hwEta(),
+
+      //printf("jetlinearLsb: %lf\n",jetScale->linearLsb());
+      //printf("emlinearLsb: %lf]n",emScale->linearLsb());
+
+      unsigned iEta = itJet->hwEta();
+      unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
+      unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+
+      L1GctJetCand JetCand(hackPt, itJet->hwPhi(), gtEta,
 			   false, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
@@ -162,16 +188,27 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
+    //looping over EtSum elments with a specific BX
+    for (l1t::EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
+	itEtSum != EtSum->end(itBX); ++itEtSum){
+
+      if (EtSum::EtSumType::kMissingEt == itEtSum->getType()){
+	L1GctEtMiss Cand(itEtSum->hwPt(), itEtSum->hwPhi(), 0, itBX);
+	etMissResult->push_back(Cand);
+      }else if (EtSum::EtSumType::kMissingHt == itEtSum->getType()){
+	L1GctHtMiss Cand(itEtSum->hwPt(), itEtSum->hwPhi(), 0, itBX);
+	htMissResult->push_back(Cand);
+      }else if (EtSum::EtSumType::kTotalEt == itEtSum->getType()){
+	L1GctEtTotal Cand(itEtSum->hwPt(), 0, itBX);
+	etTotResult->push_back(Cand);
+      }else if (EtSum::EtSumType::kTotalHt == itEtSum->getType()){
+	L1GctEtHad Cand(itEtSum->hwPt(), 0, itBX);
+	etHadResult->push_back(Cand);
+      }else {
+	LogError("l1t|stage 1 Converter") <<" Unknown EtSumType --- EtSum collection will not be saved...\n ";
+      }
+    }
   }
-
-
-
-  // //Looping over EtSum BXVector
-  // for(int itBX=firstBxEtSum; itBX!=lastBxEtSum+1; ++itBX){
-  //   L1TEtSumCollection::const_iterator itEtSum = EtSum->begin(itBX);
-  // }
-
-
 
 
 
