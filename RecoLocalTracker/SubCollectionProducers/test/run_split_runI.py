@@ -204,6 +204,11 @@ process.GlobalTag.globaltag = 'START70_V5::All'
 #process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
 process.hbhereco.hbheInput= cms.InputTag("hbheprereco::SPLIT")
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> tracking customization runI
 # Path and EndPath definitions
 process.init_step = cms.Path(cms.Sequence(process.RawToDigi*process.localreco*process.offlineBeamSpot+process.recopixelvertexing))
 process.dump_step = cms.Path(process.dump)
