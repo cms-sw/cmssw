@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export LC_ALL=C 
 if [ $# -eq 0 ] 
  	then
 	echo "Passing -j1 to make."
@@ -21,4 +22,4 @@ fi
 mv ${CMSSW_BASE}/tmp/class-checker.txt.sorted ${CMSSW_BASE}/tmp/class-checker.txt.sorted.old
 rm ${CMSSW_BASE}/tmp/class-checker.txt.unsorted
 scram b -k -j $J checker 2>&1 | tee ${CMSSW_BASE}/tmp/classchecker.log
-sort -u ${CMSSW_BASE}/tmp/class-checker.txt.unsorted >${CMSSW_BASE}/tmp/class-checker.txt.sorted 
+sort -u < ${CMSSW_BASE}/tmp/class-checker.txt.unsorted | grep -e"^data class">${CMSSW_BASE}/tmp/class-checker.txt.sorted 

@@ -21,7 +21,9 @@
 //
 //     try {
 //         /* Arguments are short and long versions of the option name. */
-//         /* Long version can be omitted.                              */
+//         /* Long version can be omitted. If you want to use the long  */
+//         /* version only, call the two-argument method with the short */
+//         /* version set to NULL.                                      */
 //         cmdline.option("-i", "--integer") >> i;
 //         cmdline.option("-d") >> d;
 //
@@ -54,13 +56,26 @@
 //     return 0;
 // }    
 //
+// Short version options must use a single character. It is possible
+// to combine several short options together on the command line,
+// for exampe, "-xzvf" is equivalent to "-x -z -v -f".
+//
+// Use standalone "-" to indicate that the next argument is either
+// an option value or the program argument (but not a switch), even
+// if it starts with "-". This is useful if the option value has to
+// be set to a negative number.
+//
+// Use standalone "--" (not preceded by standalone "-") to indicate
+// the end of options. All remaining arguments will be treated as
+// program arguments, even if they start with "-".
+//
 // Note that each of the parsing methods of the CmdLine class ("option",
 // "has", and "require") is greedy. These methods will consume all
 // corresponding options or switches and will set the result to the last
 // option value seen. It is therefore impossible to provide a collection
 // of values by using an option more than once. This is done in order to
 // avoid difficulties with deciding what to do when multiple option values
-// were consumed only partially.
+// were consumed by the user code only partially.
 //
 // After the "optend()" call, the "argc()" method of the CmdLine 
 // class can be used to determine the number of remaining program
@@ -74,7 +89,7 @@
 //
 //
 // I. Volobouev
-// July 2011
+// March 2013
 //=========================================================================
 
 #ifndef CMDLINE_HH_
@@ -203,14 +218,18 @@ public:
         // Make a list of arguments noting on the way if this is
         // a short option, long option, or possible option argument
         bool previousIsOpt = false;
+        bool nextIsArg = false;
         for (unsigned i=1; i<argc; ++i)
         {
-            if (strcmp(argv[i], "-") == 0)
+            if (nextIsArg)
             {
                 args_.push_back(Pair(argv[i], previousIsOpt ? 0 : 3));
                 previousIsOpt = false;
                 ++nprogargs_;
+                nextIsArg = false;
             }
+            else if (strcmp(argv[i], "-") == 0)
+                nextIsArg = true;
             else if (strcmp(argv[i], "--") == 0)
             {
                 // End of options
