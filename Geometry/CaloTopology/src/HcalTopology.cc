@@ -4,6 +4,7 @@
 #include <cassert>
 #include <algorithm>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
@@ -165,6 +166,9 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   }
   nEtaHB_ = (lastHBRing_-firstHBRing_+1);
   nEtaHE_ = (lastHERing_-firstHERing_+1);
+
+  edm::LogWarning("CaloTopology") << "This is an incomplete constructor of HcalTopology - be warned that many functionalities will not be there - revert from this - get from EventSetup";
+
 }
 
 bool HcalTopology::valid(const DetId& id) const {
@@ -687,7 +691,7 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
 	     mode_ != HcalTopologyMode::SLHC) {
     (ieta > 0) ? --ieta : ++ieta;
   } else if (depth <= 0) {
-    if (subdet == HcalEndcap && etaRing ==  firstHFRing()) {
+    if (subdet == HcalForward && etaRing ==  firstHFRing()) {
       // overlap
       subdet = HcalEndcap;
       etaRing= etaHF2HE_;
