@@ -102,7 +102,8 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id) const {
 
 
   EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
-  uint16_t dbStatus = chIt->getStatusCode() & 0x1F;
+
+  uint16_t dbStatus = chIt->getStatusCode();
  
   // kGood==0 we know!
   if (0==dbStatus)  return kGood;
