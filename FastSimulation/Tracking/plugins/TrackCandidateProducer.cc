@@ -12,14 +12,10 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 //#include "FastSimulation/Tracking/interface/TrackerRecHitSplit.h"
@@ -43,8 +39,6 @@
 //Propagator withMaterial
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 //
 
@@ -99,6 +93,18 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf):th
 
   simTracks_ = conf.getParameter<edm::InputTag>("SimTracks");
   estimatorCut_= conf.getParameter<double>("EstimatorCut");
+
+  // consumes
+  seedToken = consumes<edm::View<TrajectorySeed> >(seedProducer);
+  recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(hitProducer);
+  edm::InputTag _label("famosSimHits");
+  simVertexToken = consumes<edm::SimVertexContainer>(_label);
+  simTrackToken = consumes<edm::SimTrackContainer>(_label);
+  for(unsigned tprod=0; tprod < trackProducers.size(); ++tprod){
+    trackTokens.push_back(consumes<reco::TrackCollection>(trackProducers[tprod]));
+    trajectoryTokens.push_back(consumes<std::vector<Trajectory> >(trackProducers[tprod]));
+    assoMapTokens.push_back(consumes<TrajTrackAssociationCollection>(trackProducers[tprod]));
+  }
 }
 
   
@@ -156,7 +162,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // Get the seeds
   // edm::Handle<TrajectorySeedCollection> theSeeds;
   edm::Handle<edm::View<TrajectorySeed> > theSeeds;
-  e.getByLabel(seedProducer,theSeeds);
+  e.getByToken(seedToken,theSeeds);
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
@@ -178,16 +184,16 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // Get the GS RecHits
   //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
-  e.getByLabel(hitProducer, theGSRecHits);
+  e.getByToken(recHitToken, theGSRecHits);
 
   //get other general things
   const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids(); 
   // SimTracks and SimVertices
 
   edm::Handle<edm::SimVertexContainer> theSimVtx;
-  e.getByLabel("famosSimHits",theSimVtx);
+  e.getByToken(simVertexToken,theSimVtx);
   edm::Handle<edm::SimTrackContainer> theSTC;
-  e.getByLabel("famosSimHits",theSTC);
+  e.getByToken(simTrackToken,theSTC);
 
   const edm::SimTrackContainer* theSimTracks = &(*theSTC);
   LogDebug("FastTracking")<<"looking at: "<< theSimTrackIds.size()<<" simtracks.";
@@ -218,7 +224,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     theAssoMaps.resize(nCollections);
     isTrackCollections.resize(nCollections);
     for ( unsigned tprod=0; tprod < nCollections; ++tprod ) { 
-      isTrackCollections[tprod] = e.getByLabel(trackProducers[tprod],theTrackCollections[tprod]); 
+      isTrackCollections[tprod] = e.getByToken(trackTokens[tprod],theTrackCollections[tprod]); 
 
       if ( isTrackCollections[tprod] ) { 
 	// The track collection
@@ -226,8 +232,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	reco::TrackCollection::const_iterator lastTrack = theTrackCollections[tprod]->end();
 	// The numbers of hits
 	for ( ; aTrack!=lastTrack; ++aTrack ) nRecoHits+= aTrack->recHitsSize();
-	e.getByLabel(trackProducers[tprod],theTrajectoryCollections[tprod]);
-	e.getByLabel(trackProducers[tprod],theAssoMaps[tprod]);
+	e.getByToken(trajectoryTokens[tprod],theTrajectoryCollections[tprod]);
+	e.getByToken(assoMapTokens[tprod],theAssoMaps[tprod]);
 	// The association between trajectories and tracks
 	anAssociation = theAssoMaps[tprod]->begin();
 	lastAssociation = theAssoMaps[tprod]->end(); 
