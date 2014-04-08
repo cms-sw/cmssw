@@ -136,7 +136,10 @@ namespace pat {
       void embedPFCandidate();
       /// get the number of non-null PF candidates
       size_t numberOfSourceCandidatePtrs() const { 
-	return pfCandidateRef_.isNonnull() ? 1 : 0;
+	size_t res=0;
+        if(pfCandidateRef_.isNonnull()) res++;
+        if(refToOrig_.isNonnull()) res++;
+	return res;
       }
       /// get the candidate pointer with index i
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;

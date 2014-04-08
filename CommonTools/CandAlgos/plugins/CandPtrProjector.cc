@@ -50,18 +50,14 @@ CandPtrProjector::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
   std::auto_ptr<PtrVector<reco::Candidate> > result(new PtrVector<reco::Candidate>());
   std::set<reco::CandidatePtr> vetoedPtrs;
   for(size_t i = 0; i< vetos->size();  ++i) {
-//   std::cout << "Veto object " << i << " has " << (*vetos)[i].numberOfSourceCandidatePtrs() << " sources " << std::endl; 
    for(size_t j=0,n=(*vetos)[i].numberOfSourceCandidatePtrs(); j<n;j++ )    {
      vetoedPtrs.insert((*vetos)[i].sourceCandidatePtr(j));   
-//     std::cout << "vetoed key" <<  (*vetos)[i].sourceCandidatePtr(j).key() << std::endl; 
   }
   }
  for(size_t i = 0; i< cands->size();  ++i) {
     reco::CandidatePtr c =  cands->ptrAt(i);
-//    std::cout << i << std::endl;
     if(vetoedPtrs.find(c)==vetoedPtrs.end())
     {
-//      std::cout << "pass" << std::endl;
       result->push_back(c);
     }
   }

@@ -227,11 +227,10 @@ reco::PFCandidateRef Muon::pfCandidateRef() const {
 
 /// reference to the parent PF candidate for use in TopProjector
 reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
-  if (embeddedPFCandidate_) {
-    return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() ); 
-  } else {
-    return reco::CandidatePtr();
-  }
+  if(pfCandidateRef_.isNonnull() && i==0 ) return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() );
+  if(refToOrig_.isNonnull() &&  pfCandidateRef_.isNonnull() && i==1 ) return refToOrig_;
+  if(refToOrig_.isNonnull() && ! pfCandidateRef_.isNonnull() && i==0 ) return refToOrig_;
+  return reco::CandidatePtr();
 }
 
 /// embed the Track selected to be the best measurement of the muon parameters
