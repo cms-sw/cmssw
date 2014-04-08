@@ -229,13 +229,13 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
   std::auto_ptr<reco::GenParticleRefVector> selected_ (new reco::GenParticleRefVector);
     
   edm::Handle<reco::GenParticleCollection> genParticles;
-  //  evt.getByLabel("genParticles", genParticles );
   evt.getByLabel(inTag, genParticles );
     
-    
+  std::map<const reco::GenParticle*,size_t> particlePtrIdxMap;
   ParticleVector particles;
   for (reco::GenParticleCollection::const_iterator iter=genParticles->begin();iter!=genParticles->end();++iter){
-    particles.push_back(&*iter); 
+    particles.push_back(&*iter);
+    particlePtrIdxMap[&*iter] = (iter - genParticles->begin());
   }
   
   std::sort(particles.begin(), particles.end());
@@ -265,8 +265,8 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
     }
 	
   }
- unsigned int count=0;
-  for(size_t idx=0;idx<genParticles->size();++idx){ 
+
+  for(size_t idx = 0; idx < size; ++idx){ 
     const reco::GenParticle *particle = particles[idx];
     if (!selected[idx] || invalid[idx]){
       continue;
@@ -285,10 +285,9 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
 
    
     if (particle->pt() >= ptMin){
-      edm::Ref<reco::GenParticleCollection> particleRef(genParticles,idx);
+      edm::Ref<reco::GenParticleCollection> particleRef(genParticles,particlePtrIdxMap[particle]);
       selected_->push_back(particleRef);
       //cout<<"Finally we have: ["<<setw(4)<<idx<<"] "<<setw(4)<<particle->pdgId()<<" "<<particle->pt()<<endl;
-      count++;
     }
   }
   evt.put(selected_);
