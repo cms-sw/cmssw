@@ -10,8 +10,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-
-
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h" 
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include <iostream>
 
 class ConstMagneticField : public MagneticField {
@@ -55,10 +56,9 @@ Matrix5 buildCovariance(float y) {
 
 class MyDet : public GeomDet {
  public:
-  MyDet(BoundPlane * bp) :
-    GeomDet(bp){}
+  MyDet(BoundPlane * bp, DetId id) :
+    GeomDet(bp){setDetId(id);}
   
-  virtual DetId geographicalId() const {return DetId();}
   virtual std::vector< const GeomDet*> components() const {
     return std::vector< const GeomDet*>();
   }
@@ -175,7 +175,8 @@ int main() {
   GlobalTrajectoryParameters gtp(gp,gv,1,field);
   CurvilinearTrajectoryError gerr(buildCovariance(1.));
   BoundPlane* plane = new BoundPlane( gp, Surface::RotationType());
-  GeomDet *  det =  new MyDet(plane);
+  GeomDet *  det =  new MyDet(plane,41);
+  GeomDet *  gdet =  new MyDet(plane,40);
 
   
 
@@ -193,7 +194,13 @@ int main() {
   LocalPoint m(0.1,0.1,0);
   LocalError e(0.2,-0.05,0.1);
     
+  OmniClusterRef cref;
+  SiPixelRecHit::ClusterRef pref;
   SiStripRecHit2D dummy;
+  SiPixelRecHit    hitpx(m,e,1.,*det,pref);
+  SiStripRecHit1D  hit1d(m,e,*det,cref);
+  SiStripRecHit2D  hit2d(m,e,*det,cref);
+  ProjectedSiStripRecHit2D hitpj(m,e,*gdet,hit2d);
   TrackingRecHit * hit = new SiStripMatchedRecHit2D(m, e, *det, &dummy, &dummy);
   TransientTrackingRecHit * thit = new  My2DHit(*det, hit);
 
@@ -208,10 +215,43 @@ int main() {
   kt.time(ts,*thit);
   kt.time(ts2,*thit);
 
+  kt.print(ts,hit2d);
+  kt.print(ts2,hit2d);
+
+  kt.print(ts,hitpx);
+  kt.print(ts2,hitpx);
+
+ kt.print(ts,hitpj);
+  kt.print(ts2,hitpj);
+
+
+  kt.print(ts,hit1d);
+  kt.print(ts2,hit1d);
+
+
+  kt.time(ts,*thit);
+  kt.time(ts2,*thit);
+
+
+
   std::cout << "\n** Chi2 ** \n" << std::endl;
   
   chi2.print(ts,*thit);
   chi2.print(ts2,*thit);
+
+  chi2.print(ts,hit2d);
+  chi2.print(ts2,hit2d);
+
+  chi2.print(ts,hitpx);
+  chi2.print(ts2,hitpx);
+
+  chi2.print(ts,hitpj);
+  chi2.print(ts2,hitpj);
+
+
+  chi2.print(ts,hit1d);
+  chi2.print(ts2,hit1d);
+
 
   chi2.time(ts,*thit);
   chi2.time(ts2,*thit);

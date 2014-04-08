@@ -125,11 +125,14 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 
 #ifdef VI_DEBUG
 int chit[7]={};
+int kk=0;
 for (auto const & tm : theTraj->measurements()) {
+  ++kk;
   auto const & hit = tm.recHitR();
   if (!hit.isValid()) ++chit[0];
   if (hit.det()==nullptr) ++chit[1];
   if ( trackerHitRTTI::isUndef(hit) ) continue;
+  std::cout << "h " << kk << ": "<< hit.localPosition() << ' ' << hit.localPositionError() << ' ' << tm.estimate() << std::endl;
   if ( hit.dimension()!=2 ) {
     ++chit[2];
   } else {

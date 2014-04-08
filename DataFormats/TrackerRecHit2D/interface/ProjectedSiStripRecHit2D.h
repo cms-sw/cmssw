@@ -43,6 +43,7 @@ public:
   virtual bool canImproveWithTrack() const {return true;}
 
   virtual ProjectedSiStripRecHit2D* clone() const {return new ProjectedSiStripRecHit2D( *this); }
+
   
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }

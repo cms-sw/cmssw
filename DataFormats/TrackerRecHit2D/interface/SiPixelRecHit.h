@@ -39,6 +39,10 @@ public:
 
   
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
+#ifdef NO_DICT
+  virtual RecHitPointer cloneSH() const { return std::make_shared<SiPixelRecHit>(*this);}
+#endif
+
   
   ClusterRef cluster()  const { return cluster_pixel(); }
 
