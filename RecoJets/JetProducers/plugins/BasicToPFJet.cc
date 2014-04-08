@@ -53,7 +53,8 @@ void BasicToPFJet::produce( edm::Event& Event, const edm::EventSetup& EventSetup
   Event.getByToken(inputToken_, BasicJetColl);
 
   //now make the new pf jet collection
-  reco::PFJetCollection* PFJetColl = new reco::PFJetCollection;
+  std::auto_ptr<reco::PFJetCollection> PFJetColl(new reco::PFJetCollection);
+  //reco::PFJetCollection* PFJetColl = new reco::PFJetCollection;
   //make the 'specific'
   reco::PFJet::Specific specific;
 
@@ -66,8 +67,8 @@ void BasicToPFJet::produce( edm::Event& Event, const edm::EventSetup& EventSetup
     PFJetColl->push_back(pfjet);
   }
 
-  std::auto_ptr<reco::PFJetCollection> selectedPFJets(PFJetColl);
-  Event.put(selectedPFJets);
+  //std::auto_ptr<reco::PFJetCollection> selectedPFJets(PFJetColl);
+  Event.put(PFJetColl);
 }
 
  
