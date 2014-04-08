@@ -238,7 +238,7 @@ convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cf
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('photonConvTrajSeedFromSingleLeg:convSeedCandidates'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryBuilder'))
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryBuilder'))
 )
 
 # TRACK FITTING

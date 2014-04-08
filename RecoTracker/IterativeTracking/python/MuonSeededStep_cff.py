@@ -88,13 +88,13 @@ muonSeededFittingSmootherWithOutliersRejectionAndRK = TrackingTools.TrackFitters
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 muonSeededTrackCandidatesInOut = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag("muonSeededSeedsInOut"),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string("muonSeededTrajectoryBuilderForInOut")),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string("muonSeededTrajectoryBuilderForInOut")),
     TrajectoryCleaner = cms.string('muonSeededTrajectoryCleanerBySharedHits'),
     RedundantSeedCleaner = cms.string("none"), 
 )
 muonSeededTrackCandidatesOutIn = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag("muonSeededSeedsOutIn"),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string("muonSeededTrajectoryBuilderForOutIn")),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string("muonSeededTrajectoryBuilderForOutIn")),
     TrajectoryCleaner = cms.string('muonSeededTrajectoryCleanerBySharedHits'),
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(False),

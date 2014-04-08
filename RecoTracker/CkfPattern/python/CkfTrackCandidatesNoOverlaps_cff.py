@@ -10,5 +10,5 @@ import copy
 from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 # generate CTF track candidates ############
 ckfTrackCandidatesNoOverlaps = copy.deepcopy(ckfTrackCandidates)
-ckfTrackCandidatesNoOverlaps.TrajectoryBuilder.refToPSet_ = 'CkfTrajectoryBuilder'
+ckfTrackCandidatesNoOverlaps.TrajectoryBuilderPSet.refToPSet_ = 'CkfTrajectoryBuilder'
 

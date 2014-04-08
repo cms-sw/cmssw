@@ -22,7 +22,7 @@ from RecoEgamma.EgammaElectronProducers.bwdGsfElectronPropagator_cff import *
 from RecoEgamma.EgammaElectronProducers.fwdGsfElectronPropagator_cff import *
 
 egammaCkfTrackCandidates.src = cms.InputTag('ecalDrivenElectronSeeds')
-egammaCkfTrackCandidates.TrajectoryBuilder.refToPSet_ = 'TrajectoryBuilderForPixelMatchGsfElectrons'
+egammaCkfTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'TrajectoryBuilderForPixelMatchGsfElectrons'
 egammaCkfTrackCandidates.SeedLabel = cms.InputTag('')
 egammaCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
 egammaCkfTrackCandidates.NavigationSchool = 'SimpleNavigationSchool'

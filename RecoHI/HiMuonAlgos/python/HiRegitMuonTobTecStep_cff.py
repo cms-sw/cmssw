@@ -61,7 +61,7 @@ hiRegitMuTobTecStepTrajectoryBuilder = RecoTracker.IterativeTracking.TobTecStep_
 
 hiRegitMuTobTecStepTrackCandidates        =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuTobTecStepSeeds'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuTobTecStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuTobTecStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 

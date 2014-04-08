@@ -85,7 +85,7 @@ hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTraject
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiSecondPixelTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiSecondPixelTripletSeeds'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiSecondPixelTripletTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiSecondPixelTripletTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
     )

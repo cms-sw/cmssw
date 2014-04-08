@@ -54,7 +54,7 @@ hiRegitMuDetachedTripletStepTrajectoryBuilder = RecoHI.HiTracking.hiRegitDetache
 
 hiRegitMuDetachedTripletStepTrackCandidates        =  RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuDetachedTripletStepSeeds'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuDetachedTripletStepTrajectoryBuilder'))
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuDetachedTripletStepTrajectoryBuilder'))
     )
 
 # fitting: feed new-names

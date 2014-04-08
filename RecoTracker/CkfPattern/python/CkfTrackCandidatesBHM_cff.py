@@ -27,5 +27,5 @@ beamhaloTrackCandidates.src = cms.InputTag('beamhaloTrackerSeeds')
 beamhaloTrackCandidates.NavigationSchool = 'BeamHaloNavigationSchool'
 beamhaloTrackCandidates.TransientInitialStateEstimatorParameters.propagatorAlongTISE = 'BeamHaloPropagatorAlong'
 beamhaloTrackCandidates.TransientInitialStateEstimatorParameters.propagatorOppositeTISE = 'BeamHaloPropagatorOpposite'
-beamhaloTrackCandidates.TrajectoryBuilder.refToPSet_ = 'CkfTrajectoryBuilderBeamHalo'
+beamhaloTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'CkfTrajectoryBuilderBeamHalo'
 

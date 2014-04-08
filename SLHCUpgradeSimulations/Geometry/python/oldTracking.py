@@ -5,8 +5,8 @@ from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
 
 ckfTrackCandidates.doSeedingRegionRebuilding = False
-#ckfTrackCandidates.TrajectoryBuilder.refToPSet_ = 'CkfTrajectoryBuilder'
-ckfTrackCandidates.TrajectoryBuilder.refToPSet_ = 'GroupedCkfTrajectoryBuilder'
+#ckfTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'CkfTrajectoryBuilder'
+ckfTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'GroupedCkfTrajectoryBuilder'
 #ckfTrackCandidates.SeedProducer = 'newCombinedSeeds'
 ckfTrackCandidates.useHitsSplitting = False
 #GroupedCkfTrajectoryBuilder.bestHitOnly = False

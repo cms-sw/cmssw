@@ -215,7 +215,7 @@ conv2CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_c
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 conv2TrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('photonConvTrajSeedFromQuadruplets:conv2SeedCandidates'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('conv2CkfTrajectoryBuilder'))
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('conv2CkfTrajectoryBuilder'))
 )
 
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff

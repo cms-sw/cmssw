@@ -53,7 +53,7 @@ namespace {
 }
 
 ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
-  theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(config.getParameter<edm::ParameterSet>("TrajectoryBuilder"), consumesCollector())),
+  theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(config.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), consumesCollector())),
   theNavigationSchool_(0), 
   theOutInSeedFinder_(new OutInConversionSeedFinder(config)),
   theOutInTrackFinder_(new OutInConversionTrackFinder(config, theTrajectoryBuilder_.get())),

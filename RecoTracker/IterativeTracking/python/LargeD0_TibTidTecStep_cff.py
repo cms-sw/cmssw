@@ -109,7 +109,7 @@ largeD0step4CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBu
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 largeD0step4TrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'largeD0step4Seeds',
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('largeD0step4CkfTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('largeD0step4CkfTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True,
     cleanTrajectoryAfterInOut = True,

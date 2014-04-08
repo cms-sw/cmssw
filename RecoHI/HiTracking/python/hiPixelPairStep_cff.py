@@ -84,7 +84,7 @@ hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiPixelPairSeeds'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryBuilder'))
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryBuilder'))
     )
 
 

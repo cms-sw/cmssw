@@ -55,7 +55,7 @@ hiRegitMuPixelLessStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelLes
 
 hiRegitMuPixelLessStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuPixelLessStepSeeds'),
-    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 
