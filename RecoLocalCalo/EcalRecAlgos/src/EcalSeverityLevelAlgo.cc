@@ -53,7 +53,7 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
   const edm::ParameterSet & dbps=
     p.getParameter< edm::ParameterSet >("dbstatusMask");
   std::vector<std::string> dbseverities = dbps.getParameterNames();
-  std::vector<uint32_t>    dbflags;
+  std::vector<std::string> dbflags;
  
   dbstatusMask_.resize(dbseverities.size());
 
@@ -62,10 +62,11 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
     EcalSeverityLevel::SeverityLevel snum=
       (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
     
-    dbflags=dbps.getParameter<std::vector<uint32_t> >(severities[is]);
+    dbflags=dbps.getParameter<std::vector<std::string> >(severities[is]);
     uint32_t mask=0;
     for (unsigned int ifi=0;ifi!=dbflags.size();++ifi){
-      int f= dbflags[ifi];
+        EcalChannelStatusCode::Code f= 
+            (EcalChannelStatusCode::Code)StringToEnumValue<EcalChannelStatusCode::Code>(dbflags[ifi]);
       
       //manipulate the mask
       mask|=(0x1<<f);
