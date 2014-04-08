@@ -14,5 +14,3 @@ void PlotOnTrackOccupancyPhase2(TFile* ff, const char* module, const char* ontrk
 
 #endif // DPGAnalysis_SiStripTools_OccupancyPlotMacros_h
 
-#endif // DPGAnalysis_SiStripTools_OccupancyPlotMacros_h
-
