@@ -133,17 +133,17 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     int tauCount = 0; //max 4
     for(l1t::TauBxCollection::const_iterator itTau = Tau->begin(itBX);
 	itTau != Tau->end(itBX); ++itTau){
-      bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
-      //int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
-      double hackPt = static_cast<double>(itTau->hwPt()) * jetScale->linearLsb();
-      hackPt = jetScale->rank(hackPt);
-      if(hackPt > 0x3f) hackPt = 0x3f;
+      // forward def is okay for Taus
+      const bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
+      const double physicalPt = static_cast<double>(itTau->hwPt()) * jetScale->linearLsb();
+      double rankPt = jetScale->rank(physicalPt);
+      if(rankPt > 0x3f) rankPt = 0x3f;
 
       unsigned iEta = itTau->hwEta();
       unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
       unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
 
-      L1GctJetCand TauCand(hackPt, itTau->hwPhi(), gtEta,
+      L1GctJetCand TauCand(rankPt, itTau->hwPhi(), gtEta,
 			   true, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
@@ -158,20 +158,17 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     int cenCount = 0; //max 4
     for(l1t::JetBxCollection::const_iterator itJet = Jet->begin(itBX);
 	itJet != Jet->end(itBX); ++itJet){
-      bool forward=(itJet->hwEta() <= 4 || itJet->hwEta() >= 17);
-      //int hackPt = itJet->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
-      double hackPt = static_cast<double>(itJet->hwPt()) * jetScale->linearLsb();
-      hackPt = jetScale->rank(hackPt);
-      if(hackPt > 0x3f) hackPt = 0x3f;
-
-      //printf("jetlinearLsb: %lf\n",jetScale->linearLsb());
-      //printf("emlinearLsb: %lf]n",emScale->linearLsb());
+      // use 2nd quality bit to define forward
+      const bool forward = ((itJet->hwQual() & 0x2) != 0);
+      const double physicalPt = static_cast<double>(itJet->hwPt()) * jetScale->linearLsb();
+      double rankPt = jetScale->rank(physicalPt);
+      if(rankPt > 0x3f) rankPt = 0x3f;
 
       unsigned iEta = itJet->hwEta();
       unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
       unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
 
-      L1GctJetCand JetCand(hackPt, itJet->hwPhi(), gtEta,
+      L1GctJetCand JetCand(rankPt, itJet->hwPhi(), gtEta,
 			   false, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
