@@ -16,7 +16,7 @@ namespace l1t {
    };
 
    std::vector<UnpackerItem> JetUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
-      return {std::make_pair(0xF, std::shared_ptr<BaseUnpacker>(new JetUnpacker()))};
+      return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker()))};
    };
 
    bool JetUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {

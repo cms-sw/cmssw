@@ -17,7 +17,7 @@ namespace l1t {
    };
 
    std::vector<UnpackerItem> EGammaUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
-      return {std::make_pair(0xF, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker()))};
+      return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker()))};
    };
 
    bool EGammaUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {

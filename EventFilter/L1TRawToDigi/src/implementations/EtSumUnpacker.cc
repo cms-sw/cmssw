@@ -17,7 +17,7 @@ namespace l1t {
    };
 
    std::vector<UnpackerItem> EtSumUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
-      return {std::make_pair(0xF, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker()))};
+      return {std::make_pair(3, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker()))};
    };
 
    bool EtSumUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {

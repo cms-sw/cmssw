@@ -17,7 +17,7 @@ namespace l1t {
    };
 
   std::vector<UnpackerItem> TauUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
-      return {std::make_pair(0xF, std::shared_ptr<BaseUnpacker>(new TauUnpacker()))};
+      return {std::make_pair(7, std::shared_ptr<BaseUnpacker>(new TauUnpacker()))};
    };
 
    bool TauUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {
