@@ -7,9 +7,9 @@
 
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "EventFilter/L1TRawToDigi/interface/BaseUnpacker.h"
+#include "EventFilter/L1TRawToDigi/interface/Block.h"
 
 namespace l1t {
-   typedef uint32_t BlockId;
    typedef std::pair<BlockId, std::shared_ptr<l1t::BaseUnpacker>> UnpackerItem;
    typedef std::unordered_map<BlockId, std::shared_ptr<l1t::BaseUnpacker>> UnpackerMap;
 

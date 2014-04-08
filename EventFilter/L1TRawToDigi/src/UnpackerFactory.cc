@@ -1,6 +1,8 @@
 #include "EventFilter/L1TRawToDigi/interface/BaseUnpacker.h"
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "implementations/JetUnpacker.h"
 
 namespace l1t {
@@ -22,8 +24,7 @@ namespace l1t {
             if (res.find(i.first) == res.end()) {
                res.insert(i);
             } else {
-               // FIXME make proper edm error message
-               throw;
+               throw cms::Exception("L1TRawToDigi") << "Multiple instances of BlockID " << i.first << "!";
             }
          }
       }

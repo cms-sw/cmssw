@@ -32,6 +32,8 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
+
 namespace l1t {
    class L1TDigiToRaw : public edm::EDProducer {
       public:
@@ -39,6 +41,8 @@ namespace l1t {
          ~L1TDigiToRaw();
 
          static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+         using edm::EDProducer::consumes;
 
       private:
          virtual void beginJob() override;
@@ -56,6 +60,9 @@ namespace l1t {
 
          edm::InputTag inputLabel_;
          int fedId_;
+         FirmwareVersion fwId_;
+
+         PackerList packers_;
    };
 }
 

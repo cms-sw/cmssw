@@ -3,8 +3,6 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "DataFormats/L1Trigger/interface/Jet.h"
-
 #include "EventFilter/L1TRawToDigi/interface/L1TDigiToRaw.h"
 
 #include "FWCore/Utilities/interface/CRC16.h"
@@ -18,22 +16,17 @@ namespace l1t {
    {
       // Register products
       produces<FEDRawDataCollection>();
+
+      fwId_.setFirmwareVersion(config.getParameter<unsigned int>("FWId"));
+      packers_ = PackerFactory::createPackers(config, fwId_, fedId_);
+
+      for (auto& packer: packers_)
+         packer->fetchToken(this);
    }
 
 
    L1TDigiToRaw::~L1TDigiToRaw()
    {
-   }
-
-
-   //
-   // member functions
-   //
-
-   inline uint32_t pop(const unsigned char* ptr, unsigned& idx) {
-      uint32_t res = ptr[idx + 0] | (ptr[idx + 1] << 4) | (ptr[idx + 2] << 8) | (ptr[idx + 3] << 12);
-      idx += 4;
-      return res;
    }
 
    inline unsigned char *
@@ -52,19 +45,23 @@ namespace l1t {
    {
       using namespace edm;
 
-      edm::Handle<l1t::JetBxCollection> jets;
-      event.getByLabel(inputLabel_, jets);
+      Blocks blocks;
+
+      for (auto& packer: packers_) {
+         auto pblocks = packer->pack(event);
+         blocks.insert(blocks.end(), pblocks.begin(), pblocks.end());
+      }
 
       std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
       FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
       unsigned int size = 24; // 16 for the header, 8 for the footer
       size += 12; // the L1T header...
-      unsigned int njets = 0;
-      for (int i = jets->getFirstBX(); i <= jets->getLastBX(); ++i) {
-         njets += jets->size(i);
-      }
-      size += njets * 7 * 4; // 6 words for members, 1 for block header
+      unsigned int words = 0;
+      for (const auto& block: blocks)
+         // add one for the block header
+         words += block.load.size() + 1;
+      size += words * 4;
       int mod = size % 8;
       size = (mod == 0) ? size : size + 8 - mod;
       fed_data.resize(size);
@@ -79,18 +76,12 @@ namespace l1t {
       // create the header
       payload = push(payload, 0);
       payload = push(payload, 0);
-      payload = push(payload, (1 << 24) | ((njets * 7) << 8)); // FW ID, payload size (words)
+      payload = push(payload, (fwId_.firmwareVersion() << 24) | (words << 8)); // FW ID, payload size (words)
 
-      for (int bx = jets->getFirstBX(); bx <= jets->getLastBX(); ++bx) {
-         for (unsigned int i = 0; i < jets->size(bx); ++i) {
-            payload = push(payload, (0xF << 24) | (6 << 16)); // block ID, block size (words)
-            payload = push(payload, bx);
-            payload = push(payload, jets->at(bx, i).hwPt());
-            payload = push(payload, jets->at(bx, i).hwEta());
-            payload = push(payload, jets->at(bx, i).hwPhi());
-            payload = push(payload, jets->at(bx, i).hwQual());
-            payload = push(payload, jets->at(bx, i).hwIso());
-         }
+      for (const auto& block: blocks) {
+         payload = push(payload, (block.id << 24) | (block.load.size() << 16));
+         for (const auto& word: block.load)
+            payload = push(payload, word);
       }
 
       FEDTrailer trailer(footer);
