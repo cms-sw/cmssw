@@ -64,7 +64,7 @@ void MVAJetTagPlotter::setEventSetup(const edm::EventSetup &setup)
 void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfos, const double & jec, 
                                    const int &jetFlavour)
 {
-  analyzeTag(baseTagInfos,jetFlavour,1.);
+  analyzeTag(baseTagInfos,jec,jetFlavour,1.);
 }
 
 void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfos,

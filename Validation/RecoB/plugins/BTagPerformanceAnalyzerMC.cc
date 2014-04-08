@@ -26,7 +26,8 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pS
     pSet.getParameter<double>("ptRecJetMax"),
     0.0, 99999.0,
     pSet.getParameter<double>("ratioMin"),
-    pSet.getParameter<double>("ratioMax")
+    pSet.getParameter<double>("ratioMax"),
+    pSet.getParameter<bool>( "doJetID" )
   ),
   etaRanges(pSet.getParameter< vector<double> >("etaRanges")),
   ptRanges(pSet.getParameter< vector<double> >("ptRanges")),
@@ -358,8 +359,11 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
   //Get JEC
   const JetCorrector* corrector = 0;
   if(doJEC) {
-    //corrector = JetCorrector::getJetCorrector ("ak5PFL2L3",iSetup);   //Get the jet corrector from the event setup
-    corrector = JetCorrector::getJetCorrector (JECsource,iSetup);   //Get the jet corrector from the event setup
+    edm::Handle<GenEventInfoProduct> genInfoHandle; //check if data or MC
+    iEvent.getByToken(genToken, genInfoHandle);
+    std::string allJECsource = JECsource;
+    if( !genInfoHandle.isValid() ) allJECsource += "Residual";
+    corrector = JetCorrector::getJetCorrector (allJECsource,iSetup);   //Get the jet corrector from the event setup
   }
   //
 
