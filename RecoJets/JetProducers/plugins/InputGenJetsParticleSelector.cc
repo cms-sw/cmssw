@@ -78,7 +78,7 @@ void InputGenJetsParticleSelector::setExcludeFromResonancePids(const std::vector
 
 bool InputGenJetsParticleSelector::isParton(int pdgId) const{
   pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-  return (pdgId > 0 && pdgId < 6) || pdgId == 7 ||
+  return (pdgId > 0 && pdgId < 6) ||
     pdgId == 9 || (tausAsJets && pdgId == 15) || pdgId == 21;
   // tops are not considered "regular" partons
   // but taus eventually are (since they may hadronize later)
@@ -95,7 +95,7 @@ bool InputGenJetsParticleSelector::isResonance(int pdgId)
 {
   // gauge bosons and tops
   pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-  return (pdgId > 21 && pdgId <= 42) || pdgId == 6 || pdgId == 8 ;  //BUG! war 21. 22=gamma..
+  return (pdgId > 21 && pdgId <= 42) || pdgId == 6 || pdgId == 7 || pdgId == 8 ;  //BUG! was 21. 22=gamma..
 }
 
 bool InputGenJetsParticleSelector::isIgnored(int pdgId) const
