@@ -1,6 +1,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 class SiStripFedCabling;
 
 class LaserAlignmentEventFilter : public edm::EDFilter {
@@ -13,6 +15,7 @@ class LaserAlignmentEventFilter : public edm::EDFilter {
 
   // Name of the FED collection
   const edm::InputTag FED_collection;
+  edm::EDGetTokenT<FEDRawDataCollection> FED_collection_token;
 
   // Map the std::vector<int> that is returned by edm::ParameterSet::getParameter() to internal representations (which are optimized for the Filter)
   void set_las_fed_ids(const std::vector<int>& las_feds);
