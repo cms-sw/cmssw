@@ -1,5 +1,5 @@
-#ifndef UserCode_HLTCATopTagFilter_h
-#define UserCode_HLTCATopTagFilter_h
+#ifndef HLTCATopTagFilter_h
+#define HLTCATopTagFilter_h
 
 // system include files
 #include <memory>
