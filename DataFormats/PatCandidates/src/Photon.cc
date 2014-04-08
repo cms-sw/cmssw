@@ -2,6 +2,7 @@
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 
 using pat::Photon;
@@ -200,3 +201,14 @@ void Photon::setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCan
         associatedPackedFCandidateIndices_.push_back(ref.key());
     }
 }
+
+/// Returns the reference to the parent PF candidate with index i.
+/// For use in TopProjector.
+reco::CandidatePtr Photon::sourceCandidatePtr( size_type i ) const {
+    if (i >= associatedPackedFCandidateIndices_.size()) {
+        return reco::CandidatePtr();
+    } else {
+        return reco::CandidatePtr(edm::refToPtr(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, i)));
+    }
+}
+
