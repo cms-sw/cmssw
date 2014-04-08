@@ -378,7 +378,7 @@ void Electron::embedPFCandidate() {
 reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
     if (pfCandidateRef_.isNonnull()) {
         if (i == 0) {
-            return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() );
+            return reco::CandidatePtr(edm::refToPtr(pfCandidateRef_));
         } else {
             i--;
         }
