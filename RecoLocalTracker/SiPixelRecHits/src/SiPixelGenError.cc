@@ -53,7 +53,7 @@ bool SiPixelGenError::pushfile(int filenum, std::vector< SiPixelGenErrorStore > 
     
     // Local variables 
     int i, j, k;
-	float costrk[3];
+	float costrk[3]={0,0,0};
 	const char *tempfile;
 	//	char title[80]; remove this
     char c;
@@ -242,7 +242,7 @@ bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject, std::vec
     
 	// Local variables 
 	int i, j, k;
-	float costrk[3];
+	float costrk[3]={0,0,0};
 	//	const char *tempfile;
 	const int code_version={1};
 	
