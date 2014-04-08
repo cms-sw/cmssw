@@ -11,8 +11,8 @@
    <ZSection z="6590*mm" rMin="67.5*cm " rMax="85*cm "/>
    <ZSection z="6.835*m  " rMin="701*mm" rMax="85*cm "/>
   </Polycone>
-  <Tubs name="ShieldingBoronPoly_1_ME0" rMin="200*mm" rMax="250*mm" dz="15*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="ShieldingAntinomyLead_1_ME0" rMin="250*mm" rMax="300*mm" dz="15*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_ME0" rMin="[mf:rMinME0]" rMax="[mf:rMinME0] + 50*mm" dz="15*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME0" rMin="[mf:rMinME0] + 50*mm" rMax="[mf:rMinME0] + 100*mm" dz="15*cm " startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="ShieldingBoronPoly_1_ME1" rMin="965*mm" rMax="1240*mm" dz="2*cm " startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="ShieldingAntinomyLead_1_ME1" rMin="965*mm" rMax="1240*mm" dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="ShieldingBoronPoly_2_ME1" rMin="85.1*cm " rMax="88.1*cm " dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>

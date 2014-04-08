@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
  <ConstantsSection label="me0.xml" eval="true">
-   <Constant name="rMin"  value="30.*cm"/>
+   <Constant name="rMin"  value="[mf:rMinME0] + 10.*cm"/>
    <Constant name="rMax"  value="149.5*cm"/>
-   <Constant name="dZ"    value="58.62*cm"/> 
+   <Constant name="dZ"    value="0.5*([rMax]-[rMin])"/> 
    <Constant name="rPos"  value="([dZ] + [rMin])"/>
    <Constant name="z10"   value="12.35*cm"/> 
    <Constant name="z20"   value="([z10]-5*cm)"/> 
@@ -15,7 +15,7 @@
    <Constant name="xTop"  value="(2.*[dZ]*tan(10*deg)+[xBot])"/> 
  </ConstantsSection>
  <SolidSection label="me0.xml">
-  <Tubs name="ME0" rMin="[rMin]" rMax="[rMax]" dz="14.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME0" rMin="[rMin]" rMax="[rMax]+2.5*cm" dz="14.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
   <Trd1 name="ME0Box" dz="[dZ]" dy1="14.75*cm" dy2="14.75*cm" dx1="[xBot]" dx2="[xTop]" />
   <Trd1 name="ME0L" dz="[dZ]" dy1="0.3*cm" dy2="0.3*cm" dx1="[xBot]" dx2="[xTop]" />
  </SolidSection>
