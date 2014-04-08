@@ -1,29 +1,13 @@
-#ifndef BasicToPFJet_h
-#define BasicToPFJet_h
+#ifndef RecoJets_JetProducers_BasicToPFJet_h
+#define RecoJets_JetProducers_BasicToPFJet_h
 
-// system include files
-#include <memory>
-#include <vector>
-#include <sstream>
-
-// user include files
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
-#include "DataFormats/JetReco/interface/BasicJet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-using std::cout;
-using std::endl;
+#include "DataFormats/JetReco/interface/BasicJet.h"
+
 
 class BasicToPFJet : public edm::EDProducer {
 
