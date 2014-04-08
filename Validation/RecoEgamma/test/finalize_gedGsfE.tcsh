@@ -27,7 +27,7 @@ then
 	then
 		if [ "$2" != "p" ] 
 		then
-			echo "pas de choix calcul"
+			echo "pas de choix calcul" 
 			echo "defaut = FULL"
 			CHOIX_CALCUL='Full'
 		else
