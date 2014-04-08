@@ -21,7 +21,7 @@ namespace l1t {
 
    bool JetUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {
 
-     int nBX = size / 12; // Since there are 12 jets reported per event (see CMS IN-2013/005)
+     int nBX = int(ceil(size / 12.)); // Since there are 12 jets reported per event (see CMS IN-2013/005)
 
      // Find the first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -37,27 +37,24 @@ namespace l1t {
 
      // Loop over multiple BX and then number of jets filling jet collection
      for (int bx=firstBX; bx<lastBX; bx++){
-
-       for (unsigned nJet=0; nJet < 12; nJet++){
-
+       for (unsigned nJet=0; nJet < 12 && nJet < size; nJet++){
          uint32_t raw_data = pop(data,i); // pop advances the index i internally
 
          l1t::Jet jet = l1t::Jet();
-    
+
          jet.setHwPt(raw_data & 0x7FF);
-         jet.setHwPhi(raw_data & 0x7F80000);
-         if (raw_data & 0x40000) {
-           jet.setHwEta(-1*(raw_data & 0x3F800));
+         jet.setHwPhi((raw_data >> 19) & 0xFF);
+         int abs_eta = (raw_data >> 11) & 0x7F;
+         if ((raw_data >> 18) & 0x1) {
+           jet.setHwEta(-1 * abs_eta);
          } else {
-           jet.setHwEta(raw_data & 0x3F800);
+           jet.setHwEta(abs_eta);
          }
 
-         jet.setHwQual(raw_data & 0x38000000); // Assume 3 bits for now? Leaves 4 bits spare
-       
+         jet.setHwQual((raw_data >> 27) & 0x7); // Assume 3 bits for now? Leaves 2 bits spare
+
          res->push_back(bx,jet);
-
        }
-
      }
 
      return true;
