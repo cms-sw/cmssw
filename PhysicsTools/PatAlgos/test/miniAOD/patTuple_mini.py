@@ -85,6 +85,10 @@ process.slimmedJetsCA8 = cms.EDProducer("PATJetSlimmer",
 process.patJetGenJetMatchPatJetsCA8.matched =  'slimmedGenJets'
 process.slimmedJetsCA8.clearDaughters = False
 
+## PU JetID
+process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
+process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
+
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
 switchOnTriggerStandAlone( process )
 process.patTrigger.packTriggerPathNames = cms.bool(True)
