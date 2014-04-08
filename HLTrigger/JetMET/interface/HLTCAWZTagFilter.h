@@ -1,5 +1,5 @@
-#ifndef UserCode_HLTCAWZTagFilter_h
-#define UserCode_HLTCAWZTagFilter_h
+#ifndef HLTCAWZTagFilter_h
+#define HLTCAWZTagFilter_h
 
 // system include files
 #include <memory>
