@@ -10,6 +10,10 @@
    <use  name="Alignment/Geners"/>
 </bin>
 
+<bin   name="gssa_dump" file="gssa_dump.cc">
+   <use  name="Alignment/Geners"/>
+</bin>
+
 <bin   name="cdump" file="cdump.cc">
    <use  name="Alignment/Geners"/>
 </bin>
