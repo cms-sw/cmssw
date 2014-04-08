@@ -17,7 +17,7 @@
 //
 //
 
-#include "../interface/HLTCATopTagFilter.h"
+#include "HLTrigger/JetMET/interface/HLTCATopTagFilter.h"
 #include <typeinfo>
 
 using namespace std;
