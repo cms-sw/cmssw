@@ -4,7 +4,7 @@ echo $1 $2
 
 if [ "$1" == "?" ] 
 then
-	echo "methode : ./analyze_gedGsfE [i,j] [r,f,p]"
+	echo "methode : ./analyze_gedGsfE [i(nteractif),j(ob)] [r(eco),f(ast),p(ileup)]"
 	echo "defaut = j r"
 	exit
 fi
