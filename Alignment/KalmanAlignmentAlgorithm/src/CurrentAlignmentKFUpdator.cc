@@ -9,7 +9,7 @@
 
 
 TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStateOnSurface & tsos,
-							    const TransientTrackingRecHit & aRecHit ) const 
+							    const TrackingRecHit & aRecHit ) const 
 {
     switch (aRecHit.dimension()) {
         case 1: return update<1>(tsos,aRecHit);
@@ -24,7 +24,7 @@ TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStat
 
 template <unsigned int D>
 TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStateOnSurface & tsos,
-							    const TransientTrackingRecHit & aRecHit ) const
+							    const TrackingRecHit & aRecHit ) const
 {
   //std::cout << "[CurrentAlignmentKFUpdator::update] Start Updating." << std::endl;
   typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
@@ -77,7 +77,7 @@ TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStat
 
 
 template <unsigned int D>
-void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const TransientTrackingRecHit & aRecHit,
+void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const TrackingRecHit & aRecHit,
 								 const TrajectoryStateOnSurface & tsos,
 								 typename AlgebraicROOTObject<D>::Vector & vecR,
 								 typename AlgebraicROOTObject<D>::SymMatrix & matV ) const

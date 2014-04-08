@@ -29,10 +29,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
-#include "DataFormats/HcalRecHit/interface/HORecHit.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include <memory>
 #include <vector>
@@ -51,9 +47,9 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
 
   // Retrieve Information from the Configuration File
-  hBHERecHitsLabel_  = iConfig.getParameter<edm::InputTag>("HBHERecHitsLabel");
-  hORecHitsLabel_    = iConfig.getParameter<edm::InputTag>("HORecHitsLabel");
-  hFRecHitsLabel_    = iConfig.getParameter<edm::InputTag>("HFRecHitsLabel");
+  hBHERecHitsLabel_  = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("HBHERecHitsLabel"));
+  hORecHitsLabel_    = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("HORecHitsLabel"));
+  hFRecHitsLabel_    = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("HFRecHitsLabel"));
 
   debug_             = iConfig.getParameter<bool>("Debug");
   finebinning_ = iConfig.getUntrackedParameter<bool>("FineBinning");
@@ -61,30 +57,27 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
 }
 
-void HCALRecHitAnalyzer::beginRun(const edm::Run& iRun,  const edm::EventSetup& iSetup)
+void HCALRecHitAnalyzer::dqmBeginRun(const edm::Run& iRun,  const edm::EventSetup& iSetup)
 {
   Nevents = 0;
-  BookHistos();
   FillGeometry(iSetup);
-
 }
 
-void HCALRecHitAnalyzer::BookHistos(){
+void HCALRecHitAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const & iRun,
+				     edm::EventSetup const & ) {
   // get ahold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
+  //  dbe_ = edm::Service<DQMStore>().operator->();
 
-
-  if (dbe_) {
-
-    dbe_->setCurrentFolder(FolderName_+"/geometry");
-    hHCAL_ieta_iphi_HBMap = dbe_->book2D("METTask_HCAL_ieta_iphi_HBMap","",83,-41,42,72,1,73); 
-    hHCAL_ieta_iphi_HEMap = dbe_->book2D("METTask_HCAL_ieta_iphi_HEMap","",83,-41,42,72,1,73); 
-    hHCAL_ieta_iphi_HFMap = dbe_->book2D("METTask_HCAL_ieta_iphi_HFMap","",83,-41,42,72,1,73); 
-    hHCAL_ieta_iphi_HOMap = dbe_->book2D("METTask_HCAL_ieta_iphi_HOMap","",83,-41,42,72,1,73); 
-    hHCAL_ieta_iphi_etaMap = dbe_->book2D("METTask_HCAL_ieta_iphi_etaMap","",83,-41,42,72,1,73);
-    hHCAL_ieta_iphi_phiMap = dbe_->book2D("METTask_HCAL_ieta_iphi_phiMap","",83,-41,42,72,1,73);
-    hHCAL_ieta_detaMap = dbe_->book1D("METTask_HCAL_ieta_detaMap","",83,-41,42);
-    hHCAL_ieta_dphiMap = dbe_->book1D("METTask_HCAL_ieta_dphiMap","",83,-41,42);  
+    ibooker.setCurrentFolder(FolderName_+"/geometry");
+    hHCAL_ieta_iphi_HBMap = ibooker.book2D("METTask_HCAL_ieta_iphi_HBMap","",83,-41,42,72,1,73); 
+    hHCAL_ieta_iphi_HEMap = ibooker.book2D("METTask_HCAL_ieta_iphi_HEMap","",83,-41,42,72,1,73); 
+    hHCAL_ieta_iphi_HFMap = ibooker.book2D("METTask_HCAL_ieta_iphi_HFMap","",83,-41,42,72,1,73); 
+    hHCAL_ieta_iphi_HOMap = ibooker.book2D("METTask_HCAL_ieta_iphi_HOMap","",83,-41,42,72,1,73); 
+    hHCAL_ieta_iphi_etaMap = ibooker.book2D("METTask_HCAL_ieta_iphi_etaMap","",83,-41,42,72,1,73);
+    hHCAL_ieta_iphi_phiMap = ibooker.book2D("METTask_HCAL_ieta_iphi_phiMap","",83,-41,42,72,1,73);
+    hHCAL_ieta_detaMap = ibooker.book1D("METTask_HCAL_ieta_detaMap","",83,-41,42);
+    hHCAL_ieta_dphiMap = ibooker.book1D("METTask_HCAL_ieta_dphiMap","",83,-41,42);  
 
     // Initialize bins for geometry to -999 because z = 0 is a valid entry 
     for (int i = 1; i <= 83; i++) {
@@ -105,26 +98,26 @@ void HCALRecHitAnalyzer::BookHistos(){
 
     }
   
-    //    dbe_->setCurrentFolder("RecoMETV/MET_HCAL/data");
-    dbe_->setCurrentFolder(FolderName_);
+    //    ibooker.setCurrentFolder("RecoMETV/MET_HCAL/data");
+    ibooker.setCurrentFolder(FolderName_);
     //--Store number of events used
-    hHCAL_Nevents          = dbe_->book1D("METTask_HCAL_Nevents","",1,0,1);  
+    hHCAL_Nevents          = ibooker.book1D("METTask_HCAL_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by HCAL(ieta,iphi) 
 
-    hHCAL_D1_energy_ieta_iphi = dbe_->book2D("METTask_HCAL_D1_energy_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D2_energy_ieta_iphi = dbe_->book2D("METTask_HCAL_D2_energy_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D3_energy_ieta_iphi = dbe_->book2D("METTask_HCAL_D3_energy_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D4_energy_ieta_iphi = dbe_->book2D("METTask_HCAL_D4_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D1_energy_ieta_iphi = ibooker.book2D("METTask_HCAL_D1_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D2_energy_ieta_iphi = ibooker.book2D("METTask_HCAL_D2_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D3_energy_ieta_iphi = ibooker.book2D("METTask_HCAL_D3_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D4_energy_ieta_iphi = ibooker.book2D("METTask_HCAL_D4_energy_ieta_iphi","",83,-41,42,72,1,73);  
     
-    hHCAL_D1_Minenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D1_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D2_Minenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D2_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D3_Minenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D3_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D4_Minenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D4_Minenergy_ieta_iphi","",83,-41,42,72,1,73); 
+    hHCAL_D1_Minenergy_ieta_iphi = ibooker.book2D("METTask_HCAL_D1_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D2_Minenergy_ieta_iphi = ibooker.book2D("METTask_HCAL_D2_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D3_Minenergy_ieta_iphi = ibooker.book2D("METTask_HCAL_D3_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D4_Minenergy_ieta_iphi = ibooker.book2D("METTask_HCAL_D4_Minenergy_ieta_iphi","",83,-41,42,72,1,73); 
     
-    hHCAL_D1_Maxenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D1_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D2_Maxenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D2_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D3_Maxenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D3_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D4_Maxenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D4_Maxenergy_ieta_iphi","",83,-41,42,72,1,73); 
+    hHCAL_D1_Maxenergy_ieta_iphi = ibooker.book2D("METTask_HCAL_D1_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D2_Maxenergy_ieta_iphi = ibooker.book2D("METTask_HCAL_D2_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D3_Maxenergy_ieta_iphi = ibooker.book2D("METTask_HCAL_D3_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D4_Maxenergy_ieta_iphi = ibooker.book2D("METTask_HCAL_D4_Maxenergy_ieta_iphi","",83,-41,42,72,1,73); 
     
     // need to initialize those
     for (int i=1; i<=83; i++)
@@ -141,10 +134,10 @@ void HCALRecHitAnalyzer::BookHistos(){
 	  hHCAL_D4_Minenergy_ieta_iphi->setBinContent(i,j, 14000);
 	}
 
-    hHCAL_D1_Occ_ieta_iphi = dbe_->book2D("METTask_HCAL_D1_Occ_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D2_Occ_ieta_iphi = dbe_->book2D("METTask_HCAL_D2_Occ_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D3_Occ_ieta_iphi = dbe_->book2D("METTask_HCAL_D3_Occ_ieta_iphi","",83,-41,42,72,1,73);  
-    hHCAL_D4_Occ_ieta_iphi = dbe_->book2D("METTask_HCAL_D4_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D1_Occ_ieta_iphi = ibooker.book2D("METTask_HCAL_D1_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D2_Occ_ieta_iphi = ibooker.book2D("METTask_HCAL_D2_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D3_Occ_ieta_iphi = ibooker.book2D("METTask_HCAL_D3_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D4_Occ_ieta_iphi = ibooker.book2D("METTask_HCAL_D4_Occ_ieta_iphi","",83,-41,42,72,1,73);  
     //--Data over eta-rings
     
     
@@ -152,107 +145,103 @@ void HCALRecHitAnalyzer::BookHistos(){
 
     if(finebinning_)
       {
-	hHCAL_D1_energyvsieta = dbe_->book2D("METTask_HCAL_D1_energyvsieta","",83,-41,42,20101,-100,2001);  
-	hHCAL_D2_energyvsieta = dbe_->book2D("METTask_HCAL_D2_energyvsieta","",83,-41,42,20101,-100,2001);
-	hHCAL_D3_energyvsieta = dbe_->book2D("METTask_HCAL_D3_energyvsieta","",83,-41,42,20101,-100,2001);
-	hHCAL_D4_energyvsieta = dbe_->book2D("METTask_HCAL_D4_energyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D1_energyvsieta = ibooker.book2D("METTask_HCAL_D1_energyvsieta","",83,-41,42,20101,-100,2001);  
+	hHCAL_D2_energyvsieta = ibooker.book2D("METTask_HCAL_D2_energyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D3_energyvsieta = ibooker.book2D("METTask_HCAL_D3_energyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D4_energyvsieta = ibooker.book2D("METTask_HCAL_D4_energyvsieta","",83,-41,42,20101,-100,2001);
 	
-	hHCAL_D1_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D1_Minenergyvsieta","",83,-41,42,20101,-100,2001);  
-	hHCAL_D2_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D2_Minenergyvsieta","",83,-41,42,20101,-100,2001);
-	hHCAL_D3_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D3_Minenergyvsieta","",83,-41,42,20101,-100,2001);
-	hHCAL_D4_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D4_Minenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D1_Minenergyvsieta = ibooker.book2D("METTask_HCAL_D1_Minenergyvsieta","",83,-41,42,20101,-100,2001);  
+	hHCAL_D2_Minenergyvsieta = ibooker.book2D("METTask_HCAL_D2_Minenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D3_Minenergyvsieta = ibooker.book2D("METTask_HCAL_D3_Minenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D4_Minenergyvsieta = ibooker.book2D("METTask_HCAL_D4_Minenergyvsieta","",83,-41,42,20101,-100,2001);
 	
-	hHCAL_D1_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D1_Maxenergyvsieta","",83,-41,42,20101,-100,2001);  
-	hHCAL_D2_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D2_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
-	hHCAL_D3_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D3_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
-	hHCAL_D4_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D4_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D1_Maxenergyvsieta = ibooker.book2D("METTask_HCAL_D1_Maxenergyvsieta","",83,-41,42,20101,-100,2001);  
+	hHCAL_D2_Maxenergyvsieta = ibooker.book2D("METTask_HCAL_D2_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D3_Maxenergyvsieta = ibooker.book2D("METTask_HCAL_D3_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D4_Maxenergyvsieta = ibooker.book2D("METTask_HCAL_D4_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
 	
 	// Integrated over phi
-	hHCAL_D1_Occvsieta = dbe_->book2D("METTask_HCAL_D1_Occvsieta","",83,-41,42,73,0,73);
-	hHCAL_D2_Occvsieta = dbe_->book2D("METTask_HCAL_D2_Occvsieta","",83,-41,42,73,0,73);
-	hHCAL_D3_Occvsieta = dbe_->book2D("METTask_HCAL_D3_Occvsieta","",83,-41,42,73,0,73);
-	hHCAL_D4_Occvsieta = dbe_->book2D("METTask_HCAL_D4_Occvsieta","",83,-41,42,73,0,73);
+	hHCAL_D1_Occvsieta = ibooker.book2D("METTask_HCAL_D1_Occvsieta","",83,-41,42,73,0,73);
+	hHCAL_D2_Occvsieta = ibooker.book2D("METTask_HCAL_D2_Occvsieta","",83,-41,42,73,0,73);
+	hHCAL_D3_Occvsieta = ibooker.book2D("METTask_HCAL_D3_Occvsieta","",83,-41,42,73,0,73);
+	hHCAL_D4_Occvsieta = ibooker.book2D("METTask_HCAL_D4_Occvsieta","",83,-41,42,73,0,73);
 	
-	hHCAL_D1_SETvsieta = dbe_->book2D("METTask_HCAL_D1_SETvsieta","",83,-41,42,20001,0,2001); 
-	hHCAL_D2_SETvsieta = dbe_->book2D("METTask_HCAL_D2_SETvsieta","",83,-41,42,20001,0,2001); 
-	hHCAL_D3_SETvsieta = dbe_->book2D("METTask_HCAL_D3_SETvsieta","",83,-41,42,20001,0,2001); 
-	hHCAL_D4_SETvsieta = dbe_->book2D("METTask_HCAL_D4_SETvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D1_SETvsieta = ibooker.book2D("METTask_HCAL_D1_SETvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D2_SETvsieta = ibooker.book2D("METTask_HCAL_D2_SETvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D3_SETvsieta = ibooker.book2D("METTask_HCAL_D3_SETvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D4_SETvsieta = ibooker.book2D("METTask_HCAL_D4_SETvsieta","",83,-41,42,20001,0,2001); 
 	
-	hHCAL_D1_METvsieta = dbe_->book2D("METTask_HCAL_D1_METvsieta","",83,-41,42,20001,0,2001); 
-	hHCAL_D2_METvsieta = dbe_->book2D("METTask_HCAL_D2_METvsieta","",83,-41,42,20001,0,2001); 
-	hHCAL_D3_METvsieta = dbe_->book2D("METTask_HCAL_D3_METvsieta","",83,-41,42,20001,0,2001); 
-	hHCAL_D4_METvsieta = dbe_->book2D("METTask_HCAL_D4_METvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D1_METvsieta = ibooker.book2D("METTask_HCAL_D1_METvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D2_METvsieta = ibooker.book2D("METTask_HCAL_D2_METvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D3_METvsieta = ibooker.book2D("METTask_HCAL_D3_METvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D4_METvsieta = ibooker.book2D("METTask_HCAL_D4_METvsieta","",83,-41,42,20001,0,2001); 
 	
-	hHCAL_D1_METPhivsieta      = dbe_->book2D("METTask_HCAL_D1_METPhivsieta","",83,-41,42, 80, -4,4);  
-	hHCAL_D2_METPhivsieta      = dbe_->book2D("METTask_HCAL_D2_METPhivsieta","",83,-41,42, 80, -4,4);  
-	hHCAL_D3_METPhivsieta      = dbe_->book2D("METTask_HCAL_D3_METPhivsieta","",83,-41,42, 80, -4,4);  
-	hHCAL_D4_METPhivsieta      = dbe_->book2D("METTask_HCAL_D4_METPhivsieta","",83,-41,42, 80, -4,4);  
+	hHCAL_D1_METPhivsieta      = ibooker.book2D("METTask_HCAL_D1_METPhivsieta","",83,-41,42, 80, -4,4);  
+	hHCAL_D2_METPhivsieta      = ibooker.book2D("METTask_HCAL_D2_METPhivsieta","",83,-41,42, 80, -4,4);  
+	hHCAL_D3_METPhivsieta      = ibooker.book2D("METTask_HCAL_D3_METPhivsieta","",83,-41,42, 80, -4,4);  
+	hHCAL_D4_METPhivsieta      = ibooker.book2D("METTask_HCAL_D4_METPhivsieta","",83,-41,42, 80, -4,4);  
 	
-	hHCAL_D1_MExvsieta         = dbe_->book2D("METTask_HCAL_D1_MExvsieta","",83,-41,42, 10001,-500,501);  
-	hHCAL_D2_MExvsieta         = dbe_->book2D("METTask_HCAL_D2_MExvsieta","",83,-41,42, 10001,-500,501);  
-	hHCAL_D3_MExvsieta         = dbe_->book2D("METTask_HCAL_D3_MExvsieta","",83,-41,42, 10001,-500,501);  
-	hHCAL_D4_MExvsieta         = dbe_->book2D("METTask_HCAL_D4_MExvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D1_MExvsieta         = ibooker.book2D("METTask_HCAL_D1_MExvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D2_MExvsieta         = ibooker.book2D("METTask_HCAL_D2_MExvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D3_MExvsieta         = ibooker.book2D("METTask_HCAL_D3_MExvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D4_MExvsieta         = ibooker.book2D("METTask_HCAL_D4_MExvsieta","",83,-41,42, 10001,-500,501);  
 	
-	hHCAL_D1_MEyvsieta         = dbe_->book2D("METTask_HCAL_D1_MEyvsieta","",83,-41,42, 10001,-500,501);  
-	hHCAL_D2_MEyvsieta         = dbe_->book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 10001,-500,501);  
-	hHCAL_D3_MEyvsieta         = dbe_->book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 10001,-500,501);  
-	hHCAL_D4_MEyvsieta         = dbe_->book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D1_MEyvsieta         = ibooker.book2D("METTask_HCAL_D1_MEyvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D2_MEyvsieta         = ibooker.book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D3_MEyvsieta         = ibooker.book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D4_MEyvsieta         = ibooker.book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 10001,-500,501);  
       }
     else
       {
-	hHCAL_D1_energyvsieta = dbe_->book2D("METTask_HCAL_D1_energyvsieta","",83,-41,42,1000,-10,1990);
-        hHCAL_D2_energyvsieta = dbe_->book2D("METTask_HCAL_D2_energyvsieta","",83,-41,42,1000,-10,1990);
-        hHCAL_D3_energyvsieta = dbe_->book2D("METTask_HCAL_D3_energyvsieta","",83,-41,42,1000,-10,1990);
-        hHCAL_D4_energyvsieta = dbe_->book2D("METTask_HCAL_D4_energyvsieta","",83,-41,42,1000,-10,1990);
+	hHCAL_D1_energyvsieta = ibooker.book2D("METTask_HCAL_D1_energyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D2_energyvsieta = ibooker.book2D("METTask_HCAL_D2_energyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D3_energyvsieta = ibooker.book2D("METTask_HCAL_D3_energyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D4_energyvsieta = ibooker.book2D("METTask_HCAL_D4_energyvsieta","",83,-41,42,1000,-10,1990);
 
-        hHCAL_D1_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D1_Minenergyvsieta","",83,-41,42,1000,-10,1990);
-        hHCAL_D2_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D2_Minenergyvsieta","",83,-41,42,1000,-10,1990);
-        hHCAL_D3_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D3_Minenergyvsieta","",83,-41,42,1000,-10,1990);
-        hHCAL_D4_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D4_Minenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D1_Minenergyvsieta = ibooker.book2D("METTask_HCAL_D1_Minenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D2_Minenergyvsieta = ibooker.book2D("METTask_HCAL_D2_Minenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D3_Minenergyvsieta = ibooker.book2D("METTask_HCAL_D3_Minenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D4_Minenergyvsieta = ibooker.book2D("METTask_HCAL_D4_Minenergyvsieta","",83,-41,42,1000,-10,1990);
 
-        hHCAL_D1_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D1_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
-        hHCAL_D2_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D2_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
-        hHCAL_D3_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D3_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
-        hHCAL_D4_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D4_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D1_Maxenergyvsieta = ibooker.book2D("METTask_HCAL_D1_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D2_Maxenergyvsieta = ibooker.book2D("METTask_HCAL_D2_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D3_Maxenergyvsieta = ibooker.book2D("METTask_HCAL_D3_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D4_Maxenergyvsieta = ibooker.book2D("METTask_HCAL_D4_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
 
         // Integrated over phi                                                                                                                                                                                 
-        hHCAL_D1_Occvsieta = dbe_->book2D("METTask_HCAL_D1_Occvsieta","",83,-41,42,73,0,73);
-        hHCAL_D2_Occvsieta = dbe_->book2D("METTask_HCAL_D2_Occvsieta","",83,-41,42,73,0,73);
-        hHCAL_D3_Occvsieta = dbe_->book2D("METTask_HCAL_D3_Occvsieta","",83,-41,42,73,0,73);
-        hHCAL_D4_Occvsieta = dbe_->book2D("METTask_HCAL_D4_Occvsieta","",83,-41,42,73,0,73);
+        hHCAL_D1_Occvsieta = ibooker.book2D("METTask_HCAL_D1_Occvsieta","",83,-41,42,73,0,73);
+        hHCAL_D2_Occvsieta = ibooker.book2D("METTask_HCAL_D2_Occvsieta","",83,-41,42,73,0,73);
+        hHCAL_D3_Occvsieta = ibooker.book2D("METTask_HCAL_D3_Occvsieta","",83,-41,42,73,0,73);
+        hHCAL_D4_Occvsieta = ibooker.book2D("METTask_HCAL_D4_Occvsieta","",83,-41,42,73,0,73);
 
-        hHCAL_D1_SETvsieta = dbe_->book2D("METTask_HCAL_D1_SETvsieta","",83,-41,42,1000,0,2000);
-        hHCAL_D2_SETvsieta = dbe_->book2D("METTask_HCAL_D2_SETvsieta","",83,-41,42,1000,0,2000);
-        hHCAL_D3_SETvsieta = dbe_->book2D("METTask_HCAL_D3_SETvsieta","",83,-41,42,1000,0,2000);
-        hHCAL_D4_SETvsieta = dbe_->book2D("METTask_HCAL_D4_SETvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D1_SETvsieta = ibooker.book2D("METTask_HCAL_D1_SETvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D2_SETvsieta = ibooker.book2D("METTask_HCAL_D2_SETvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D3_SETvsieta = ibooker.book2D("METTask_HCAL_D3_SETvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D4_SETvsieta = ibooker.book2D("METTask_HCAL_D4_SETvsieta","",83,-41,42,1000,0,2000);
 
-        hHCAL_D1_METvsieta = dbe_->book2D("METTask_HCAL_D1_METvsieta","",83,-41,42,1000,0,2000);
-        hHCAL_D2_METvsieta = dbe_->book2D("METTask_HCAL_D2_METvsieta","",83,-41,42,1000,0,2000);
-        hHCAL_D3_METvsieta = dbe_->book2D("METTask_HCAL_D3_METvsieta","",83,-41,42,1000,0,2000);
-        hHCAL_D4_METvsieta = dbe_->book2D("METTask_HCAL_D4_METvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D1_METvsieta = ibooker.book2D("METTask_HCAL_D1_METvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D2_METvsieta = ibooker.book2D("METTask_HCAL_D2_METvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D3_METvsieta = ibooker.book2D("METTask_HCAL_D3_METvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D4_METvsieta = ibooker.book2D("METTask_HCAL_D4_METvsieta","",83,-41,42,1000,0,2000);
 
-	hHCAL_D1_METPhivsieta      = dbe_->book2D("METTask_HCAL_D1_METPhivsieta","",83,-41,42, 80, -4,4);
-        hHCAL_D2_METPhivsieta      = dbe_->book2D("METTask_HCAL_D2_METPhivsieta","",83,-41,42, 80, -4,4);
-        hHCAL_D3_METPhivsieta      = dbe_->book2D("METTask_HCAL_D3_METPhivsieta","",83,-41,42, 80, -4,4);
-        hHCAL_D4_METPhivsieta      = dbe_->book2D("METTask_HCAL_D4_METPhivsieta","",83,-41,42, 80, -4,4);
+	hHCAL_D1_METPhivsieta      = ibooker.book2D("METTask_HCAL_D1_METPhivsieta","",83,-41,42, 80, -4,4);
+        hHCAL_D2_METPhivsieta      = ibooker.book2D("METTask_HCAL_D2_METPhivsieta","",83,-41,42, 80, -4,4);
+        hHCAL_D3_METPhivsieta      = ibooker.book2D("METTask_HCAL_D3_METPhivsieta","",83,-41,42, 80, -4,4);
+        hHCAL_D4_METPhivsieta      = ibooker.book2D("METTask_HCAL_D4_METPhivsieta","",83,-41,42, 80, -4,4);
 
-        hHCAL_D1_MExvsieta         = dbe_->book2D("METTask_HCAL_D1_MExvsieta","",83,-41,42, 500,-500,500);
-        hHCAL_D2_MExvsieta         = dbe_->book2D("METTask_HCAL_D2_MExvsieta","",83,-41,42, 500,-500,500);
-        hHCAL_D3_MExvsieta         = dbe_->book2D("METTask_HCAL_D3_MExvsieta","",83,-41,42, 500,-500,500);
-        hHCAL_D4_MExvsieta         = dbe_->book2D("METTask_HCAL_D4_MExvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D1_MExvsieta         = ibooker.book2D("METTask_HCAL_D1_MExvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D2_MExvsieta         = ibooker.book2D("METTask_HCAL_D2_MExvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D3_MExvsieta         = ibooker.book2D("METTask_HCAL_D3_MExvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D4_MExvsieta         = ibooker.book2D("METTask_HCAL_D4_MExvsieta","",83,-41,42, 500,-500,500);
 
-        hHCAL_D1_MEyvsieta         = dbe_->book2D("METTask_HCAL_D1_MEyvsieta","",83,-41,42, 500,-500,500);
-        hHCAL_D2_MEyvsieta         = dbe_->book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 500,-500,500);
-        hHCAL_D3_MEyvsieta         = dbe_->book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 500,-500,500);
-        hHCAL_D4_MEyvsieta         = dbe_->book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D1_MEyvsieta         = ibooker.book2D("METTask_HCAL_D1_MEyvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D2_MEyvsieta         = ibooker.book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D3_MEyvsieta         = ibooker.book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D4_MEyvsieta         = ibooker.book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 500,-500,500);
 	
       }
-    
-  }
-  
   // Inspect Setup for CaloTower Geometry
   //  FillGeometry(iSetup);
-  
 }
 
 void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
@@ -476,7 +465,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   const HFRecHitCollection *HFRecHits;
 
   edm::Handle<HBHERecHitCollection> HBHERecHitsHandle;
-  iEvent.getByLabel(hBHERecHitsLabel_,HBHERecHitsHandle);
+  iEvent.getByToken(hBHERecHitsLabel_,HBHERecHitsHandle);
   if (!HBHERecHitsHandle.isValid()) {
     edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
 			       << "HCALRecHitAnalyzer::analyze!\n"; return;
@@ -484,7 +473,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     HBHERecHits = HBHERecHitsHandle.product();
   }
   edm::Handle<HORecHitCollection> HORecHitsHandle;
-  iEvent.getByLabel(hORecHitsLabel_,HORecHitsHandle);
+  iEvent.getByToken(hORecHitsLabel_,HORecHitsHandle);
   if (!HORecHitsHandle.isValid()) {
     edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
 			       << "HCALRecHitAnalyzer::analyze!\n"; return;
@@ -492,7 +481,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     HORecHits = HORecHitsHandle.product();
   }
   edm::Handle<HFRecHitCollection> HFRecHitsHandle;
-  iEvent.getByLabel(hFRecHitsLabel_,HFRecHitsHandle);
+  iEvent.getByToken(hFRecHitsLabel_,HFRecHitsHandle);
   if (!HFRecHitsHandle.isValid()) {
     edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
 			       << "HCALRecHitAnalyzer::analyze!\n"; return;

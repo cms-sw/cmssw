@@ -27,5 +27,8 @@ cscpacker.comparatorDigiTag = cms.InputTag("mixData","MuonCSCComparatorDigisDM")
 dtpacker.digiColl = cms.InputTag('mixData')
 #dtpacker.digiColl = cms.InputTag('simMuonDTDigis')
 rpcpacker.InputLabel = cms.InputTag("mixData")
-castorRawData.CASTOR = cms.untracked.InputTag("castorDigis")
+
+DigiToRaw.remove(castorRawData)
+
+#castorRawData.CASTOR = cms.untracked.InputTag("castorDigis")
 #

@@ -93,6 +93,7 @@ class SiPixelHitEfficiencyModule {
     MonitorElement* meValidLad_;
     MonitorElement* meValidXLad_;
     MonitorElement* meValidYLad_;
+    MonitorElement* meValidModLad_;
     MonitorElement* meValidAlphaLad_;
     MonitorElement* meValidBetaLad_;
     
@@ -136,6 +137,7 @@ class SiPixelHitEfficiencyModule {
     MonitorElement* meMissingLad_;
     MonitorElement* meMissingXLad_;
     MonitorElement* meMissingYLad_;
+    MonitorElement* meMissingModLad_;
     MonitorElement* meMissingAlphaLad_;
     MonitorElement* meMissingBetaLad_;
     

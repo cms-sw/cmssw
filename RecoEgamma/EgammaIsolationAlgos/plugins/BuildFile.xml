@@ -10,7 +10,6 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/Records"/>
-<use   name="RecoCaloTools/MetaCollections"/>
 <use   name="RecoCaloTools/Selectors"/>
 <use   name="CommonTools/Statistics"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>

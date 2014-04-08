@@ -4,11 +4,14 @@
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
+#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #include <signal.h>
@@ -21,44 +24,39 @@ void RawEventFileWriterForBU::handler(int s){
   if (destinationDir_.size() > 0)
     {
       // CREATE EOR file
-      string path = destinationDir_ + "/" + "EoR.jsd";
-      string output = "EOR";
-      FileIO::writeStringToFile(path, output);
-      //dirty hack: extract run number from destination directory
-      std::string::size_type pos = destinationDir_.find("run");
-      std::string run = destinationDir_.substr(pos+3);
-      path=destinationDir_ + "/" + "EoR_" + run + ".jsn";
+      
+      if (run_==-1) makeRunPrefix(destinationDir_);
+
+      std::string path = destinationDir_ + "/" + runPrefix_ + "_ls0000_EoR.jsn";
+      std::string output = "EOR";
       FileIO::writeStringToFile(path, output);
     }
   _exit(0);
 }
 
 RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps): lumiMon_(0), outfd_(0),
-									       jsonDefLocation_(ps.getUntrackedParameter<string>("jsonDefLocation","")),
-									       // default to .5ms sleep per event
-									       microSleep_(ps.getUntrackedParameter<int>("microSleep", 0))
+       jsonDefLocation_(ps.getUntrackedParameter<std::string>("jsonDefLocation","")),
+      // default to .5ms sleep per event
+       microSleep_(ps.getUntrackedParameter<int>("microSleep", 0))
 {
   //  initialize(ps.getUntrackedParameter<std::string>("fileName", "testFRDfile.dat"));
   perLumiEventCount_ = 0;
   // set names of the variables to be matched with JSON Definition
   perLumiEventCount_.setName("NEvents");
 
-  // create a vector of all monitorable parameters to be passed to the monitor
-  vector<JsonMonitorable*> lumiMonParams;
-  lumiMonParams.push_back(&perLumiEventCount_);
-
-  // create a DataPointMonitor using vector of monitorable parameters and a path to a JSON Definition file
-  lumiMon_ = new DataPointMonitor(lumiMonParams, jsonDefLocation_);
+  // create a FastMonitor using monitorable parameters and a path to a JSON Definition file
+  std::string defGroup = "data";
+  lumiMon_ = new FastMonitor(jsonDefLocation_,defGroup,false);
+  lumiMon_->registerGlobalMonitorable(&perLumiEventCount_,false,nullptr);
+  lumiMon_->commit(nullptr);
 
 
   perFileEventCount_.value() = 0;
   perFileEventCount_.setName("NEvents");
-
-  // create a vector of all monitorable parameters to be passed to the monitor
-  vector<JsonMonitorable*> fileMonParams;
-  fileMonParams.push_back(&perFileEventCount_);
-
-  perFileMon_ = new DataPointMonitor(fileMonParams, jsonDefLocation_);
+  // create a FastMonitor using monitorable parameters and a path to a JSON Definition file
+  perFileMon_ = new FastMonitor(jsonDefLocation_,defGroup,false);
+  perFileMon_->registerGlobalMonitorable(&perFileEventCount_,false,nullptr);
+  perFileMon_->commit(nullptr);
   instance = this;
 
   // SIGINT Handler
@@ -168,14 +166,14 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   if (!oldFileName.empty()) {
     //rename(oldFileName.c_str(),destinationDir_.c_str());
 
-    DataPoint dp;
-    perFileMon_->snap(dp);
-    string output;
-    JSONSerializer::serialize(&dp, output);
+    perFileMon_->snap(false, "",ls);
+
     std::stringstream ss;
     ss << destinationDir_ << "/" << oldFileName.substr(oldFileName.rfind("/") + 1, oldFileName.size() - oldFileName.rfind("/") - 5) << ".jsn";
-    string path = ss.str();
-    FileIO::writeStringToFile(path, output);
+    std::string path = ss.str();
+
+    perFileMon_->outputFullJSON(path, ls);
+    perFileMon_->discardCollected(ls);
     //now that the json file is there, move the raw file
     int fretval = rename(oldFileName.c_str(),(destinationDir_+oldFileName.substr(oldFileName.rfind("/"))).c_str());
     // if (debug_)
@@ -202,21 +200,32 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
 void RawEventFileWriterForBU::endOfLS(int ls)
 {
   //writing empty EoLS file (will be filled with information)
-  // create a DataPoint object and take a snapshot of the monitored data into it
-  DataPoint dp;
-  lumiMon_->snap(dp);
+  //take snapshot of the monitored data into it
+
+  lumiMon_->snap(false,"",ls);
 
   std::ostringstream ostr;
-  ostr << destinationDir_ << "/EoLS_" << std::setfill('0') << std::setw(4) << ls << ".jsn";
+
+  if (run_==-1) makeRunPrefix(destinationDir_);
+
+  ostr << destinationDir_ << "/"<< runPrefix_ << "_ls" << std::setfill('0') << std::setw(4) << ls << "_EoLS" << ".jsn";
   int outfd_ = open(ostr.str().c_str(), O_WRONLY | O_CREAT,  S_IRWXU | S_IRWXG | S_IRWXO);
   if(outfd_!=0){close(outfd_); outfd_=0;}
 
+  std::string path = ostr.str();
   // serialize the DataPoint and output it
-  string output;
-  JSONSerializer::serialize(&dp, output);
-
-  string path = ostr.str();
-  FileIO::writeStringToFile(path, output);
+  lumiMon_->outputFullJSON(path, ls);
 
   perLumiEventCount_ = 0;
+}
+
+void RawEventFileWriterForBU::makeRunPrefix(std::string const& destinationDir)
+{
+  //dirty hack: extract run number from destination directory
+  std::string::size_type pos = destinationDir.find("run");
+  std::string run = destinationDir.substr(pos+3);
+  run_=atoi(run.c_str());
+  std::stringstream ss;
+  ss << "run" << std::setfill('0') << std::setw(6) << run_;
+  runPrefix_ = ss.str();
 }

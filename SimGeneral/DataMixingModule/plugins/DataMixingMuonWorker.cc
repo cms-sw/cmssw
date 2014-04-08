@@ -27,7 +27,7 @@ namespace edm
   DataMixingMuonWorker::DataMixingMuonWorker() { } 
 
   // Constructor 
-  DataMixingMuonWorker::DataMixingMuonWorker(const edm::ParameterSet& ps) : 
+  DataMixingMuonWorker::DataMixingMuonWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
 							    label_(ps.getParameter<std::string>("Label"))
 
   {                                                         
@@ -44,11 +44,24 @@ namespace edm
     CSCwiredigi_collectionSig_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionSig");
     CSCCompdigi_collectionSig_    = ps.getParameter<edm::InputTag>("CSCCompdigiCollectionSig");
 
+    DTDigiToken_ = iC.consumes<DTDigiCollection>(DTDigiTagSig_);
+    CSCStripDigiToken_ = iC.consumes<CSCStripDigiCollection>(CSCstripdigi_collectionSig_);
+    CSCWireDigiToken_ = iC.consumes<CSCWireDigiCollection>(CSCwiredigi_collectionSig_);
+    CSCCompDigiToken_ = iC.consumes<CSCComparatorDigiCollection>(CSCCompdigi_collectionSig_);
+    RPCDigiToken_ = iC.consumes<RPCDigiCollection>(RPCDigiTagSig_);
+
     DTPileInputTag_       = ps.getParameter<edm::InputTag>("DTPileInputTag");
     RPCPileInputTag_      = ps.getParameter<edm::InputTag>("RPCPileInputTag");
     CSCWirePileInputTag_  = ps.getParameter<edm::InputTag>("CSCWirePileInputTag");
     CSCStripPileInputTag_ = ps.getParameter<edm::InputTag>("CSCStripPileInputTag");
     CSCCompPileInputTag_  = ps.getParameter<edm::InputTag>("CSCCompPileInputTag");
+
+    DTDigiPToken_ = iC.consumes<DTDigiCollection>(DTPileInputTag_);
+    CSCStripDigiPToken_ = iC.consumes<CSCStripDigiCollection>(CSCStripPileInputTag_);
+    CSCWireDigiPToken_ = iC.consumes<CSCWireDigiCollection>(CSCWirePileInputTag_);
+    CSCCompDigiPToken_ = iC.consumes<CSCComparatorDigiCollection>(CSCCompPileInputTag_);
+    RPCDigiPToken_ = iC.consumes<RPCDigiCollection>(RPCPileInputTag_);
+
 
     // outputs:
 
@@ -78,7 +91,7 @@ namespace edm
     Handle<DTDigiCollection> pDTdigis; 
 
     // Get the digis from the event
-    if( e.getByLabel(DTDigiTagSig_, pDTdigis) ) {
+    if( e.getByToken(DTDigiToken_, pDTdigis) ) {
 
     //    LogInfo("DataMixingMuonWorker") << "total # DT Digis: " << DTdigis->size();
 
@@ -103,7 +116,7 @@ namespace edm
     // Get the digis from the event
     Handle<RPCDigiCollection> pRPCdigis; 
 
-    if( e.getByLabel(RPCDigiTagSig_, pRPCdigis) ) {
+    if( e.getByToken(RPCDigiToken_, pRPCdigis) ) {
 
     // Loop over digis, copying them to our own local storage
 
@@ -128,7 +141,7 @@ namespace edm
     // Get the digis from the event
     Handle<CSCStripDigiCollection> pCSCStripdigis; 
 
-    if( e.getByLabel(CSCstripdigi_collectionSig_, pCSCStripdigis) ) {
+    if( e.getByToken(CSCStripDigiToken_, pCSCStripdigis) ) {
 
     //if(pCSCStripdigis.isValid() ) { std::cout << "Signal: have CSCStripDigis" << std::endl;}
     //else { std::cout << "Signal: NO CSCStripDigis" << std::endl;}
@@ -156,7 +169,7 @@ namespace edm
     // Get the digis from the event
     Handle<CSCWireDigiCollection> pCSCWiredigis; 
 
-    if( e.getByLabel(CSCwiredigi_collectionSig_, pCSCWiredigis) ) {
+    if( e.getByToken(CSCWireDigiToken_, pCSCWiredigis) ) {
    
 
     //if(pCSCWiredigis.isValid() ) { std::cout << "Signal: have CSCWireDigis" << std::endl;}
@@ -188,7 +201,7 @@ namespace edm
 
     //std::cout << "CSCComp label: " << CSCDigiTagSig_.label() << " " << CSCCompdigi_collectionSig_.label() << std::endl;
 
-    if( e.getByLabel(CSCCompdigi_collectionSig_, pCSCComparatordigis) ) {
+    if( e.getByToken(CSCCompDigiToken_, pCSCComparatordigis) ) {
    
 
       //if(pCSCComparatordigis.isValid() ) { std::cout << "Signal: have CSCComparatorDigis" << std::endl;}

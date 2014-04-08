@@ -237,36 +237,36 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs, const e
       unsigned int nHits = shs.size();
       for (unsigned int iHit=0; iHit < nHits; ++iHit) {
 		//hits for the seeds must be at positive y
-            const TrackingRecHit * trh = shs[iHit]->hit();
-		TransientTrackingRecHit::RecHitPointer recHit = theBuilder->build(trh);
-    		GlobalPoint hitPos = recHit->globalPosition();
-		//GlobalPoint point = 
-		//  theTracker->idToDet(iHits->geographicalId() )->surface().toGlobal(iHits->localPosition());
-		if (checkHitsAtPositiveY){ if (hitPos.y() < 0) return false;}
-		//***top-bottom
-		if (checkHitsAtNegativeY){ if (hitPos.y() > 0) return false;}
-		//***
-		//std::string name = iHits->seedinglayer().name(); 
-		//hits for the seeds must be in different layers
-		unsigned int subid=(*trh).geographicalId().subdetId();
-		unsigned int layer = tTopo->layer( (*trh).geographicalId());
-		std::vector<std::pair<unsigned int, unsigned int> >::const_iterator iter;
-		//std::vector<std::string>::const_iterator iNames;
-		if (checkHitsOnDifferentLayers){
-			
-			for (iter = vSubdetLayer.begin(); iter != vSubdetLayer.end(); iter++){
-				if (iter->first == subid && iter->second == layer) return false;
-			}
-			/*
-			for (iNames = vSeedLayerNames.begin(); iNames != vSeedLayerNames.end(); iNames++){
-				if (*iNames == name) return false;
-			}
-			*/
-		}
-		//vSeedLayerNames.push_back(iHits->seedinglayer().name());
-		vSubdetLayer.push_back(std::make_pair(subid, layer));	
+	auto trh = shs[iHit];
+	auto recHit = trh;
+	GlobalPoint hitPos = recHit->globalPosition();
+	//GlobalPoint point = 
+	//  theTracker->idToDet(iHits->geographicalId() )->surface().toGlobal(iHits->localPosition());
+	if (checkHitsAtPositiveY){ if (hitPos.y() < 0) return false;}
+	//***top-bottom
+	if (checkHitsAtNegativeY){ if (hitPos.y() > 0) return false;}
+	//***
+	//std::string name = iHits->seedinglayer().name(); 
+	//hits for the seeds must be in different layers
+	unsigned int subid=(*trh).geographicalId().subdetId();
+	unsigned int layer = tTopo->layer( (*trh).geographicalId());
+	std::vector<std::pair<unsigned int, unsigned int> >::const_iterator iter;
+	//std::vector<std::string>::const_iterator iNames;
+	if (checkHitsOnDifferentLayers){
+	  
+	  for (iter = vSubdetLayer.begin(); iter != vSubdetLayer.end(); iter++){
+	    if (iter->first == subid && iter->second == layer) return false;
+	  }
+	  /*
+	    for (iNames = vSeedLayerNames.begin(); iNames != vSeedLayerNames.end(); iNames++){
+	    if (*iNames == name) return false;
+	    }
+	  */
 	}
-	return true;
+	//vSeedLayerNames.push_back(iHits->seedinglayer().name());
+	vSubdetLayer.push_back(std::make_pair(subid, layer));	
+      }
+      return true;
 }
 
 

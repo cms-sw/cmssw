@@ -16,6 +16,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
+// $Id: CastorNumberingScheme.h,v 1.5 2009/09/02 20:41:25 sunanda Exp $
 //
  
 // system include files
@@ -59,8 +60,10 @@ private:
   // Utilities to get detector levels during a step
   void detectorLevel(const G4Step*, int&, int*, lvp*) const;
 
-  lvp lvCAST, lvCAES, lvCEDS, lvCAHS, lvCHDS, lvCAER, lvCEDR;
+  lvp lvCASTFar, lvCASTNear, lvCAST, lvCAES, lvCEDS, lvCAHS, lvCHDS, lvCAER, lvCEDR;
   lvp lvCAHR, lvCHDR, lvC3EF, lvC3HF, lvC4EF, lvC4HF;
+  
+  int copyNoToSector[17];
 
 };
 

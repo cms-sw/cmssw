@@ -1,17 +1,14 @@
 #ifndef EVF_FASTMONITORINGTHREAD
 #define EVF_FASTMONITORINGTHREAD
 
-#include "boost/thread/thread.hpp"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
 
 #include <iostream>
 #include <vector>
-
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/FastMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include <thread>
+#include <mutex>
 
 using namespace jsoncollector;
-using std::vector;
 
 namespace evf{
 
@@ -19,43 +16,102 @@ namespace evf{
 
   class FastMonitoringThread{
   public:
+    // a copy of the Framework/EventProcessor states 
     enum Macrostate { sInit = 0, sJobReady, sRunGiven, sRunning, sStopping,
 		      sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid,MCOUNT}; 
     struct MonitorData
     {
-      Macrostate macrostate_;
-      const void *ministate_;
-      const void *microstate_;
-      unsigned int eventnumber_;
-      unsigned int processed_;
-      // accummulated size of processed files over a lumi (in Bytes)
-      unsigned long accuSize_;
-      unsigned int lumisection_; //only updated on beginLumi signal
-      unsigned int prescaleindex_; // ditto
+      //fastpath global monitorables
+      IntJ fastMacrostateJ_;
+      DoubleJ fastThroughputJ_;
+      DoubleJ fastAvgLeadTimeJ_;
+      IntJ fastFilesProcessedJ_;
 
-      // Micro, mini, macrostate numbers
-      IntJ macrostateJ_;
-      IntJ ministateJ_;
-      IntJ microstateJ_;
-      // Processed events count
-      IntJ processedJ_;
-      // Throughput, MB/s
-      DoubleJ throughputJ_;
-      // Average time to obtain a file to read (ms)
-      DoubleJ avgLeadTimeJ_;
-      // Number of files processed during lumi section
-      IntJ filesProcessedDuringLumi_;
-      boost::shared_ptr<FastMonitor> jsonMonitor_;
+      unsigned int varIndexThrougput_;
 
+      //per stream
+      std::vector<unsigned int> microstateEncoded_;
+      std::vector<unsigned int> ministateEncoded_;
+      std::vector<AtomicMonUInt*> processed_;
+      IntJ fastPathProcessedJ_;
+      std::vector<unsigned int> threadMicrostateEncoded_;
+
+      //tracking luminosity of a stream
+      std::vector<unsigned int> streamLumi_;
+
+      //N bins for histograms
+      unsigned int macrostateBins_;
+      unsigned int ministateBins_;
+      unsigned int microstateBins_;
+
+      //unsigned int prescaleindex_; // ditto
+
+      MonitorData() {
+
+	fastMacrostateJ_ = FastMonitoringThread::sInit;
+	fastThroughputJ_ = 0;
+	fastAvgLeadTimeJ_ = 0;
+	fastFilesProcessedJ_ = 0;
+        fastMacrostateJ_.setName("Macrostate");
+        fastThroughputJ_.setName("Throughput");
+        fastAvgLeadTimeJ_.setName("AverageLeadTime");
+	fastFilesProcessedJ_.setName("FilesProcessed");
+
+        fastPathProcessedJ_ = 0;
+        fastPathProcessedJ_.setName("Processed");
+      }
+
+      //to be called after fast monitor is constructed
+      void registerVariables(FastMonitor* fm, unsigned int nStreams, unsigned int nThreads) {
+	//tell FM to track these global variables(for fast and slow monitoring)
+        fm->registerGlobalMonitorable(&fastMacrostateJ_,true,&macrostateBins_);
+        fm->registerGlobalMonitorable(&fastThroughputJ_,false);
+        fm->registerGlobalMonitorable(&fastAvgLeadTimeJ_,false);
+        fm->registerGlobalMonitorable(&fastFilesProcessedJ_,false);
+
+	for (unsigned int i=0;i<nStreams;i++) {
+	 AtomicMonUInt * p  = new AtomicMonUInt;
+	 *p=0;
+   	  processed_.push_back(p);
+          streamLumi_.push_back(0);
+	}
+	
+	microstateEncoded_.resize(nStreams);
+	ministateEncoded_.resize(nStreams);
+	threadMicrostateEncoded_.resize(nThreads);
+
+	//tell FM to track these int vectors
+        fm->registerStreamMonitorableUIntVec("Ministate", &ministateEncoded_,true,&ministateBins_);
+
+	if (nThreads<=nStreams)//no overlapping in module execution per stream
+          fm->registerStreamMonitorableUIntVec("Microstate",&microstateEncoded_,true,&microstateBins_);
+	else
+	  fm->registerStreamMonitorableUIntVec("Microstate",&threadMicrostateEncoded_,true,&microstateBins_);
+
+        fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
+
+        //global cumulative event counter is used for fast path
+        fm->registerFastGlobalMonitorable(&fastPathProcessedJ_);
+
+	//provide vector with updated per stream lumis and let it finish initialization
+	fm->commit(&streamLumi_);
+      }
     };
-    // a copy of the Framework/EventProcessor states 
 
+    //constructor
+    FastMonitoringThread() : m_stoprequest(false) {
+    }
 
-    FastMonitoringThread() : m_stoprequest(false){}
-      
+    void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
+      std::string defGroup = "data";
+      jsonMonitor_.reset(new FastMonitor(microStateDefPath,defGroup,false));
+      if (fastMicroStateDefPath.size())
+        jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath,defGroup,false);
+    }
+
     void start(void (FastMonitoringService::*fp)(),FastMonitoringService *cp){
       assert(!m_thread);
-      m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(fp,cp)));
+      m_thread = boost::shared_ptr<std::thread>(new std::thread(fp,cp));
     }
     void stop(){
       assert(m_thread);
@@ -65,11 +121,12 @@ namespace evf{
 
   private:
 
-    volatile bool m_stoprequest;
-    boost::shared_ptr<boost::thread> m_thread;
+    std::atomic<bool> m_stoprequest;
+    boost::shared_ptr<std::thread> m_thread;
     MonitorData m_data;
-    boost::mutex lock_;
-    boost::mutex monlock_;
+    std::mutex monlock_;
+
+    std::unique_ptr<FastMonitor> jsonMonitor_;
 
     friend class FastMonitoringService;
   };

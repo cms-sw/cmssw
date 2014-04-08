@@ -31,7 +31,9 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
 
  protected:
   //these are used by MTVGenPs
-  edm::InputTag associatormap;
+  edm::InputTag assMapInput;
+  edm::EDGetTokenT<reco::SimToRecoCollection> associatormapStR;
+  edm::EDGetTokenT<reco::RecoToSimCollection> associatormapRtS;
   bool UseAssociators;
   MTVHistoProducerAlgo* histoProducerAlgo_;
 
@@ -44,7 +46,8 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
-  edm::InputTag _simHitTpMapTag;
+
+  edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
 };
 
 

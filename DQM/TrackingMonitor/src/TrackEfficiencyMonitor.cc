@@ -73,18 +73,17 @@ TrackEfficiencyMonitor::~TrackEfficiencyMonitor()
 //-----------------------------------------------------------------------------------
 {}
 
-
-
-
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::beginJob(void) 
+void TrackEfficiencyMonitor::bookHistograms(DQMStore::IBooker & ibooker,
+					    edm::Run const & /* iRun */,
+					    edm::EventSetup const & /* iSetup */)
 //-----------------------------------------------------------------------------------
 {
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
   
   
-  dqmStore_->setCurrentFolder(MEFolderName);
+  ibooker.setCurrentFolder(MEFolderName);
   
   //
   int    muonXBin = conf_.getParameter<int>   ("muonXBin");
@@ -92,7 +91,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double muonXMax = conf_.getParameter<double>("muonXMax");
  
   histname = "muonX_";
-  muonX = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, muonXBin, muonXMin, muonXMax);
+  muonX = ibooker.book1D(histname+AlgoName, histname+AlgoName, muonXBin, muonXMin, muonXMax);
   muonX->setAxisTitle("");
   
   //
@@ -101,7 +100,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double muonYMax = conf_.getParameter<double>("muonYMax");
  
   histname = "muonY_";
-  muonY = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, muonYBin, muonYMin, muonYMax);
+  muonY = ibooker.book1D(histname+AlgoName, histname+AlgoName, muonYBin, muonYMin, muonYMax);
   muonY->setAxisTitle("");
   
   //
@@ -110,7 +109,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double muonZMax = conf_.getParameter<double>("muonZMax");
  
   histname = "muonZ_";
-  muonZ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, muonZBin, muonZMin, muonZMax);
+  muonZ = ibooker.book1D(histname+AlgoName, histname+AlgoName, muonZBin, muonZMin, muonZMax);
   muonZ->setAxisTitle("");
   
   //
@@ -119,7 +118,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double muonEtaMax = conf_.getParameter<double>("muonEtaMax");
  
   histname = "muonEta_";
-  muonEta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, muonEtaBin, muonEtaMin, muonEtaMax);
+  muonEta = ibooker.book1D(histname+AlgoName, histname+AlgoName, muonEtaBin, muonEtaMin, muonEtaMax);
   muonEta->setAxisTitle("");
   
   //
@@ -128,7 +127,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double muonPhiMax = conf_.getParameter<double>("muonPhiMax");
  
   histname = "muonPhi_";
-  muonPhi = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, muonPhiBin, muonPhiMin, muonPhiMax);
+  muonPhi = ibooker.book1D(histname+AlgoName, histname+AlgoName, muonPhiBin, muonPhiMin, muonPhiMax);
   muonPhi->setAxisTitle("");
   
   //
@@ -137,7 +136,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double muonD0Max = conf_.getParameter<double>("muonD0Max");
  
   histname = "muonD0_";
-  muonD0 = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, muonD0Bin, muonD0Min, muonD0Max);
+  muonD0 = ibooker.book1D(histname+AlgoName, histname+AlgoName, muonD0Bin, muonD0Min, muonD0Max);
   muonD0->setAxisTitle("");
   
   //
@@ -146,7 +145,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double muonCompatibleLayersMax = conf_.getParameter<double>("muonCompatibleLayersMax");
  
   histname = "muonCompatibleLayers_";
-  muonCompatibleLayers = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, muonCompatibleLayersBin, muonCompatibleLayersMin, muonCompatibleLayersMax);
+  muonCompatibleLayers = ibooker.book1D(histname+AlgoName, histname+AlgoName, muonCompatibleLayersBin, muonCompatibleLayersMin, muonCompatibleLayersMax);
   muonCompatibleLayers->setAxisTitle("");
 
   //------------------------------------------------------------------------------------
@@ -157,7 +156,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double trackXMax = conf_.getParameter<double>("trackXMax");
  
   histname = "trackX_";
-  trackX = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, trackXBin, trackXMin, trackXMax);
+  trackX = ibooker.book1D(histname+AlgoName, histname+AlgoName, trackXBin, trackXMin, trackXMax);
   trackX->setAxisTitle("");
   
   //
@@ -166,7 +165,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double trackYMax = conf_.getParameter<double>("trackYMax");
  
   histname = "trackY_";
-  trackY = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, trackYBin, trackYMin, trackYMax);
+  trackY = ibooker.book1D(histname+AlgoName, histname+AlgoName, trackYBin, trackYMin, trackYMax);
   trackY->setAxisTitle("");
   
   //
@@ -175,7 +174,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double trackZMax = conf_.getParameter<double>("trackZMax");
  
   histname = "trackZ_";
-  trackZ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, trackZBin, trackZMin, trackZMax);
+  trackZ = ibooker.book1D(histname+AlgoName, histname+AlgoName, trackZBin, trackZMin, trackZMax);
   trackZ->setAxisTitle("");
   
   //
@@ -184,7 +183,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double trackEtaMax = conf_.getParameter<double>("trackEtaMax");
  
   histname = "trackEta_";
-  trackEta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, trackEtaBin, trackEtaMin, trackEtaMax);
+  trackEta = ibooker.book1D(histname+AlgoName, histname+AlgoName, trackEtaBin, trackEtaMin, trackEtaMax);
   trackEta->setAxisTitle("");
   
   //
@@ -193,7 +192,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double trackPhiMax = conf_.getParameter<double>("trackPhiMax");
  
   histname = "trackPhi_";
-  trackPhi = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, trackPhiBin, trackPhiMin, trackPhiMax);
+  trackPhi = ibooker.book1D(histname+AlgoName, histname+AlgoName, trackPhiBin, trackPhiMin, trackPhiMax);
   trackPhi->setAxisTitle("");
   
   //
@@ -202,7 +201,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double trackD0Max = conf_.getParameter<double>("trackD0Max");
  
   histname = "trackD0_";
-  trackD0 = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, trackD0Bin, trackD0Min, trackD0Max);
+  trackD0 = ibooker.book1D(histname+AlgoName, histname+AlgoName, trackD0Bin, trackD0Min, trackD0Max);
   trackD0->setAxisTitle("");
   
   //
@@ -211,7 +210,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double trackCompatibleLayersMax = conf_.getParameter<double>("trackCompatibleLayersMax");
  
   histname = "trackCompatibleLayers_";
-  trackCompatibleLayers = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, trackCompatibleLayersBin, trackCompatibleLayersMin, trackCompatibleLayersMax);
+  trackCompatibleLayers = ibooker.book1D(histname+AlgoName, histname+AlgoName, trackCompatibleLayersBin, trackCompatibleLayersMin, trackCompatibleLayersMax);
   trackCompatibleLayers->setAxisTitle("");
 
   //------------------------------------------------------------------------------------
@@ -222,7 +221,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double deltaXMax = conf_.getParameter<double>("deltaXMax");
  
   histname = "deltaX_";
-  deltaX = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, deltaXBin, deltaXMin, deltaXMax);
+  deltaX = ibooker.book1D(histname+AlgoName, histname+AlgoName, deltaXBin, deltaXMin, deltaXMax);
   deltaX->setAxisTitle("");
   
   //
@@ -231,7 +230,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double deltaYMax = conf_.getParameter<double>("deltaYMax");
  
   histname = "deltaY_";
-  deltaY = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, deltaYBin, deltaYMin, deltaYMax);
+  deltaY = ibooker.book1D(histname+AlgoName, histname+AlgoName, deltaYBin, deltaYMin, deltaYMax);
   deltaY->setAxisTitle("");
   
   //
@@ -240,7 +239,7 @@ void TrackEfficiencyMonitor::beginJob(void)
   double signDeltaXMax = conf_.getParameter<double>("signDeltaXMax");
  
   histname = "signDeltaX_";
-  signDeltaX = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, signDeltaXBin, signDeltaXMin, signDeltaXMax);
+  signDeltaX = ibooker.book1D(histname+AlgoName, histname+AlgoName, signDeltaXBin, signDeltaXMin, signDeltaXMax);
   signDeltaX->setAxisTitle("");
   
   //
@@ -249,8 +248,16 @@ void TrackEfficiencyMonitor::beginJob(void)
   double signDeltaYMax = conf_.getParameter<double>("signDeltaYMax");
  
   histname = "signDeltaY_";
-  signDeltaY = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, signDeltaYBin, signDeltaYMin, signDeltaYMax);
+  signDeltaY = ibooker.book1D(histname+AlgoName, histname+AlgoName, signDeltaYBin, signDeltaYMin, signDeltaYMax);
   signDeltaY->setAxisTitle("");
+
+}
+
+
+//-----------------------------------------------------------------------------------
+void TrackEfficiencyMonitor::beginJob(void) 
+//-----------------------------------------------------------------------------------
+{
   
 }
 
@@ -263,10 +270,8 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
    
 
   edm::Handle<reco::TrackCollection> tkTracks;
-  //  iEvent.getByLabel(theTKTracksLabel_, tkTracks);
   iEvent.getByToken(theTKTracksToken_, tkTracks);
   edm::Handle<reco::TrackCollection> staTracks;
-  //  iEvent.getByLabel(theSTATracksLabel_, staTracks);
   iEvent.getByToken(theSTATracksToken_, staTracks);
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get("CosmicNavigationSchool", nav); 

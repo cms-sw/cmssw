@@ -9,6 +9,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
+
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class FreeTrajectoryState;
@@ -46,7 +49,7 @@ public:
 
   bool checkHit(
 			const TrajectoryStateOnSurface &,
-			const TransientTrackingRecHit::ConstRecHitPointer &hit,
+			const SeedingHitSet::ConstRecHitPointer &hit,
 			const edm::EventSetup& es) const { return true; }
 
   GlobalTrajectoryParameters initialKinematic(
@@ -66,13 +69,15 @@ public:
 					   const FreeTrajectoryState & fts,
 					   const edm::EventSetup& es) const;
 
-  TransientTrackingRecHit::RecHitPointer refitHit(
-							  const TransientTrackingRecHit::ConstRecHitPointer &hit, 
-							  const TrajectoryStateOnSurface &state) const;
+  SeedingHitSet::RecHitPointer refitHit( SeedingHitSet::ConstRecHitPointer hit, 
+					 const TrajectoryStateOnSurface &state) const;
   
 protected:
   std::string thePropagatorLabel;
   double theBOFFMomentum;
+
+  // FIXME (well the whole class needs to be fixed!)      
+  mutable  TkClonerImpl cloner;
 
   std::stringstream * pss;
   PrintRecoObjects po;

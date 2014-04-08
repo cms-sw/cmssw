@@ -9,7 +9,6 @@
 #include <map>
 #include <iostream>
 
-using namespace std;
 
 void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, const TString & resonance);
 
@@ -59,7 +58,7 @@ histo4->Scale(integral/histo4->Integral(option));
 //   histo3->Scale(1./histo3->Integral());
 //   histo4->Scale(1./histo4->Integral());
 
-  map<double, TH1*, greater<double> > histoMap;
+  std::map<double, TH1*, greater<double> > histoMap;
   histoMap.insert(make_pair(histo1->GetMaximum(), histo1));
   histoMap.insert(make_pair(histo2->GetMaximum(), histo2));
   histoMap.insert(make_pair(histo3->GetMaximum(), histo3));
@@ -75,7 +74,7 @@ histo4->Scale(integral/histo4->Integral(option));
   histo1->SetLineColor(kBlack);
   histo3->SetLineColor(kGreen);
 
-  map<double, TH1*, greater<double> >::const_iterator it = histoMap.begin();
+  std::map<double, TH1*, greater<double> >::const_iterator it = histoMap.begin();
   it->second->Draw();
   for( ; it != histoMap.end(); ++it ) it->second->Draw("SAME");
 
@@ -97,7 +96,7 @@ histo4->Scale(integral/histo4->Integral(option));
 // In Progress:
 // Histograms normalized in each region before putting all together
 // ----------------------------------------------------------------
-void fillMapAndLegend( const TString & canvasName, const TString & resonance, map<double, TH1*, greater<double> > & histoMap, TLegend * legend = 0 )
+void fillMapAndLegend( const TString & canvasName, const TString & resonance, std::map<double, TH1*, greater<double> > & histoMap, TLegend * legend = 0 )
 {
   TH1F * histo1 = 0;
   TH1D * histo2 = 0;
@@ -136,7 +135,7 @@ void ShowMassesComparison(const TString & resonance = "Z")
 {
   TString canvasName("Allres");
 
-  map<double, TH1*, greater<double> > histoMap;
+  std::map<double, TH1*, greater<double> > histoMap;
   TLegend * legend = new TLegend(0.7,0.71,0.98,1.);
 
   fillMapAndLegend(canvasName, "Upsilon", histoMap, legend);
@@ -144,8 +143,8 @@ void ShowMassesComparison(const TString & resonance = "Z")
   fillMapAndLegend(canvasName, "Upsilon3S", histoMap);
 
   TCanvas * newCanvas = new TCanvas("newCanvas", "newCanvas", 1000, 800);
-  cout << "size = " << histoMap.size() << endl;
-  map<double, TH1*, greater<double> >::const_iterator it = histoMap.begin();
+  std::cout << "size = " << histoMap.size() << std::endl;
+  std::map<double, TH1*, greater<double> >::const_iterator it = histoMap.begin();
   it->second->Draw();
   it->second->SetAxisRange(9,11);
   for( ; it != histoMap.end(); ++it ) it->second->Draw("SAME");
@@ -185,7 +184,7 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, c
   // if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TH1D*)pad->GetPrimitive("Mass_Probability");
   // else histo2 = (TH1D*)pad->GetPrimitive("Mass_fine_Probability");
 
-  // cout << "histo1 = " << histo1 << ", histo2 = " << histo2 << endl;
-  // cout << "histo1 = " << histo1->GetEntries() << ", histo2 = " << histo2->GetEntries() << endl;
+  // std::cout << "histo1 = " << histo1 << ", histo2 = " << histo2 << std::endl;
+  // std::cout << "histo1 = " << histo1->GetEntries() << ", histo2 = " << histo2->GetEntries() << std::endl;
 }
 

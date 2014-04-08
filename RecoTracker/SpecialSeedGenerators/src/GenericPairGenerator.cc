@@ -1,6 +1,6 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/GenericPairGenerator.h"
 //#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
-typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
+typedef SeedingHitSet::ConstRecHitPointer SeedingHit;
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace ctfseeding;
@@ -26,15 +26,14 @@ const OrderedSeedingHits& GenericPairGenerator::run(const TrackingRegion& region
 		if (ls.size() != 2){
                 	throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 2 ";
         	}	
-		std::vector<SeedingHit> innerHits  = region.hits(e, es, &ls[0]);
-		std::vector<SeedingHit> outerHits  = region.hits(e, es, &ls[1]);
-		std::vector<SeedingHit>::const_iterator iOuterHit;
-		for (iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++){
-			std::vector<SeedingHit>::const_iterator iInnerHit;
-			for (iInnerHit = innerHits.begin(); iInnerHit != innerHits.end(); iInnerHit++){
-				hitPairs.push_back(OrderedHitPair(*iInnerHit,
-								  *iOuterHit));
-			}
+		auto innerHits  = region.hits(e, es, &ls[0]);
+		auto outerHits  = region.hits(e, es, &ls[1]);
+		for (auto iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++){
+		  for (auto iInnerHit = innerHits.begin(); iInnerHit != innerHits.end(); iInnerHit++){
+		    hitPairs.push_back(OrderedHitPair(&(**iInnerHit),
+						      &(**iOuterHit))
+				       );
+		  }
 		}
         }
 	return hitPairs;

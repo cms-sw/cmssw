@@ -57,30 +57,30 @@
 </QTEST>
 
 
-<LINK name="JetMET/Jet/*/*Eta*">
+<LINK name="JetMET/Jet/*/Eta*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
-<LINK name="JetMET/Jet/*/*Phi*">
+<LINK name="JetMET/Jet/*/Phi*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
-<LINK name="JetMET/Jet/*/*Pt*">
+<LINK name="JetMET/Jet/*/Pt*">
    <TestName activate="true">KolmogorovTest</TestName>
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>
 
-<LINK name="JetMET/Jet/*/*Constituents*">
+<LINK name="JetMET/Jet/*/Constituents*">
    <TestName activate="true">KolmogorovTest</TestName>
    <TestName activate="true">meanJetConstituentsTest</TestName>
 </LINK>
 
-<LINK name="JetMET/Jet/*/*EFrac*">
+<LINK name="JetMET/Jet/*/EFrac*">
    <TestName activate="true">KolmogorovTest</TestName>
    <TestName activate="true">meanEMFractionTest</TestName>
 </LINK>
 
-<LINK name="JetMET/Jet/JPT/*nTracks*">
+<LINK name="JetMET/Jet/*JetPlusTrack*/nTracks">
    <TestName activate="true">KolmogorovTest</TestName>
    <TestName activate="true">meanNTracksTest</TestName>
 </LINK>

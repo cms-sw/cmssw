@@ -9,13 +9,14 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
 #include "SimGeneral/PileupInformation/interface/PileupInformation.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+
 
 PileupInformation::PileupInformation(const edm::ParameterSet & config) 
 {
@@ -29,13 +30,14 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
     pTcut_1_                = config.getParameter<double>("pTcut_1");
     pTcut_2_                = config.getParameter<double>("pTcut_2");
 
-    PileupInfoLabel_        = config.getParameter<std::string>("PileupMixingLabel");
+    PileupInfoLabel_        = consumes<PileupMixingContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
 
-    trackingTruth_  = config.getParameter<std::string>("TrackingParticlesLabel");
+    LookAtTrackingTruth_    = config.getUntrackedParameter<bool>("doTrackTruth");
 
-    simHitLabel_            = config.getParameter<std::string>("simHitLabel");
+    trackingTruthT_          = mayConsume<TrackingParticleCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
+    trackingTruthV_          = mayConsume<TrackingVertexCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
 
-    MessageCategory_       = "PileupInformation";
+    MessageCategory_        = "PileupInformation";
 
     edm::LogInfo (MessageCategory_) << "Setting up PileupInformation";
     edm::LogInfo (MessageCategory_) << "Vertex distance cut set to " << distanceCut_  << " mm";
@@ -56,7 +58,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
   std::auto_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
 
   edm::Handle< PileupMixingContent > MixingPileup;  // Get True pileup information from MixingModule
-  event.getByLabel(PileupInfoLabel_, MixingPileup);
+  event.getByToken(PileupInfoLabel_, MixingPileup);
 
   std::vector<int> BunchCrossings;
   std::vector<int> Interactions_Xing;
@@ -78,11 +80,18 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
       TrueInteractions_Xing.push_back(TrueInteractions[ib]);
     }
   }
-  else{ //If no Mixing Truth, work with SimVertices  (probably should throw an exception, but...)
+  else{ // have to throw an exception..
+
+    throw cms::Exception("PileupInformation") << " PileupMixingContent is missing from the event.\n" 
+                                                 "There must be some breakdown in the Simulation Chain.\n"
+                                                 "You must run the MixingModule before calling this routine."; 
+
+    /**  The following code is not valid when there are no Crossing Frames, since all of the vertices 
+        will not be in memory at the same time
 
     // Collect all the simvertex from the crossing frame                                            
     edm::Handle<CrossingFrame<SimVertex> > cfSimVertexes;
-    if( event.getByLabel("mix", simHitLabel_, cfSimVertexes) ) {
+    if( event.getByToken(simHitToken_, cfSimVertexes) ) {
 
       // Create a mix collection from one simvertex collection                                        
       simVertexes_ = std::auto_ptr<MixCollection<SimVertex> >( new MixCollection<SimVertex>(cfSimVertexes.product()) );
@@ -134,8 +143,8 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
       }
 
     } // end of "did we find vertices?"
-  } // end of look at SimVertices
-
+   // end of look at SimVertices   **/  // end of cut
+  }
 
   //Now, get information on valid particles that look like they could be in the tracking volume
 
@@ -151,22 +160,25 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   // int lastBunchCrossing = 0; // 0 is the true bunch crossing, should always come first.
 
+  bool HaveTrackingParticles = false;
+
   edm::Handle<TrackingParticleCollection> mergedPH;
   edm::Handle<TrackingVertexCollection>   mergedVH;
-
-  bool HaveTrackingParticles = false;
 
   TrackingVertexCollection::const_iterator iVtx;
   TrackingVertexCollection::const_iterator iVtxTest;
   TrackingParticleCollection::const_iterator iTrackTest;
 
+  if( LookAtTrackingTruth_ ){
 
-  if(event.getByLabel(trackingTruth_, mergedPH) && event.getByLabel(trackingTruth_, mergedVH)) {
+    if(event.getByToken(trackingTruthT_, mergedPH) && event.getByToken(trackingTruthV_, mergedVH)) {
 
-    HaveTrackingParticles = true;
+      HaveTrackingParticles = true;
 
-    iVtxTest = mergedVH->begin();
-    iTrackTest = mergedPH->begin();
+      iVtxTest = mergedVH->begin();
+      iTrackTest = mergedPH->begin();
+    }
+
   }
 
   int nminb_vtx = 0;

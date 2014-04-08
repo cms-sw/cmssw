@@ -16,7 +16,7 @@ void writeSummaryTable(){
 }
 
 
-void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, bool doRes=true, bool doResab = true, bool doPull=true,bool doPullabxy=true, bool doSegRes=true) {
+void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, bool doRes=true, bool doResab = true, bool doPull=true,bool doPullabxy=true, bool doSegRes=true, bool doNSeg= true, bool doPar = false) {
 
   //----------------------------------------------------------------------
   // Configurable options  
@@ -29,6 +29,7 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, b
   if (! TString(gSystem->GetLibraries()).Contains("Histograms_h")) {
     gROOT->LoadMacro("$CMSSW_BASE/src/Validation/DTRecHits/test/Histograms.h+");
     gROOT->LoadMacro("macros.C");
+    gROOT->LoadMacro("ranges.C");
   }
 
   float cmToMicron = 10000.;
@@ -240,6 +241,69 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, b
 	  cout << endl;
 	  
 	}
+	
+
+	double ratio=0;
+
+	if (doNSeg) {
+	  TH1F* hNs =  hEff4D->hNSeg;
+	  double int_1 = hNs->Integral(2,21);
+	  double int_2 = hNs->Integral(3,21);
+	  ratio = int_2/int_1;
+	  //  cout << "int_1: " << int_1 <<" int_2: " << int_2 << " ratio: " << ratio << endl;
+	}
+
+
+
+	float p0_Phi=0;
+	float p1_Phi=0;
+	float p2_Phi=0;
+	float p0_Theta=0;
+	float p1_Theta=0;
+	float p2_Theta=0;
+
+	if(doPar){
+	  float min_Phi;
+	  float max_Phi;
+	  float min_Theta;
+	  float max_Theta;
+
+	  rangeAngle(abs(wheel), station, 1, min_Phi, max_Phi);	  
+	  TF1 *angleDep_Phi= new TF1("angleDep_Phi","[0]*cos(x+[2])+[1]", min_Phi, max_Phi);
+	  angleDep_Phi->SetParameters(0.01,0.001, 0.1);
+  
+	  TH1F* hprof_Phi = plotAndProfileX(hResPhi1->hResVsAngle,1,1,1,-0.04, 0.04, min_Phi-0.03, max_Phi+0.03);
+	  if((station!=1 ||(station==1 && wheel==0))) angleDep_Phi->FixParameter(2,0.);
+	  if((abs(wheel) == 1 ||wheel == -2) && station == 1)  angleDep_Phi->SetParameter(2,-0.12);
+  	  
+	  hprof_Phi->Fit(angleDep_Phi,"RQN"); 
+	  
+	  angleDep_Phi->Draw("same");
+	  p0_Phi = angleDep_Phi->GetParameter(0);
+	  p1_Phi = angleDep_Phi->GetParameter(1);
+	  p2_Phi = angleDep_Phi->GetParameter(2);
+
+ 	  if (station!=4){
+	    rangeAngle(abs(wheel), station, 2, min_Theta, max_Theta);	  
+	    TF1 *angleDep_Theta= new TF1("angleDep_Theta","[0]*cos(x+[2])+[1]", min_Theta, max_Theta);
+	    angleDep_Theta->SetParameters(0.01,0.001, 0.1);
+	    angleDep_Theta->FixParameter(2,0.);
+	    TH1F* hprof_Theta = plotAndProfileX(hResTheta->hResVsAngle,1,1,1,-0.04, 0.04, min_Theta-0.03, max_Theta+0.03);
+	    
+	    if((wheel==-2 || wheel==2) &&(station == 1 || station == 2)) { 
+	      angleDep_Theta->FixParameter(0,0.);
+	      angleDep_Theta->FixParameter(1,0.);
+	    }
+		    
+	    hprof_Theta->Fit(angleDep_Theta,"RQN"); 
+	    angleDep_Theta->Draw("same");
+	    //angleDep_Theta->Draw("same");
+	    p0_Theta = angleDep_Theta->GetParameter(0);
+	    p1_Theta = angleDep_Theta->GetParameter(1);
+	    p2_Theta = angleDep_Theta->GetParameter(2);
+
+	  }
+	}
 
 
 	// Write summary table (one row per SL)
@@ -251,9 +315,9 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, b
  	}
  	for (int sec = secmin; sec<=secmax; sec++) {
  	  if (station!=4 && sec>12) continue;
-	  f                 << wheel << " " << station << " " << sec << " " << 1 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha_res <<  " " <<salpha_res  << " " << malpha_pull <<  " " <<salpha_pull << " " << mx_pull <<  " " <<sx_pull << " " << mx << " " << sx << endl;
-	  if (station!=4) f << wheel << " " << station << " " << sec << " " << 2 << " " << effS1RZ   << " " << effS3RZ   << " " <<  effSeg <<" " << stheta << " " << ptheta << " " << mbeta_res <<  " " <<sbeta_res  << " " << mbeta_pull <<  " " <<sbeta_pull << " " << my_pull <<  " " <<sy_pull << " " << my << " " << sy <<endl;
-	  f                 << wheel << " " << station << " " << sec << " " << 3 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha_res <<  " " <<salpha_res  << " " << malpha_pull <<  " " <<salpha_pull  << " " << mx_pull <<  " " <<sx_pull << " " << mx << " " << sx << endl;
+	  f                 << wheel << " " << station << " " << sec << " " << 1 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha_res <<  " " <<salpha_res  << " " << malpha_pull <<  " " <<salpha_pull << " " << mx_pull <<  " " <<sx_pull << " " << mx << " " << sx << " " <<ratio << " " << p0_Phi << " " << p1_Phi << " " << p2_Phi << endl;
+	  if (station!=4) f << wheel << " " << station << " " << sec << " " << 2 << " " << effS1RZ   << " " << effS3RZ   << " " <<  effSeg <<" " << stheta << " " << ptheta << " " << mbeta_res <<  " " <<sbeta_res  << " " << mbeta_pull <<  " " <<sbeta_pull << " " << my_pull <<  " " <<sy_pull << " " << my << " " << sy << " " <<ratio <<" " << p0_Theta << " " << p1_Theta << " " << p2_Theta <<endl;
+	  f                 << wheel << " " << station << " " << sec << " " << 3 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha_res <<  " " <<salpha_res  << " " << malpha_pull <<  " " <<salpha_pull  << " " << mx_pull <<  " " <<sx_pull << " " << mx << " " << sx <<  " " <<ratio << " " << p0_Phi  << " " << p1_Phi << " " << p2_Phi <<endl;
  	}
       } // sector
     } //station

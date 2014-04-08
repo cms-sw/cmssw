@@ -47,13 +47,12 @@ reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event & iEvent,
     //Get MetaRecHit collection
     edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
     iEvent.getByToken(hcalRecHitProducerToken_, hcalRecHitHandle);
-    HBHERecHitMetaCollection mhbhe =  HBHERecHitMetaCollection(*hcalRecHitHandle);
 
     //Get Calo Geometry
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
     const CaloGeometry* caloGeom = pG.product();
-    CaloDualConeSelector coneSel(intRadius_, extRadius_, caloGeom, DetId::Hcal);
+    CaloDualConeSelector<HBHERecHit> coneSel(intRadius_, extRadius_, caloGeom, DetId::Hcal);
 
     //Take the SC position
     reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
@@ -68,16 +67,14 @@ reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event & iEvent,
     deposit.addCandEnergy(sc->energy()*sinTheta);
 
     //Compute the HCAL energy behind ECAL
-    std::auto_ptr<CaloRecHitMetaCollectionV> chosen = coneSel.select(point, mhbhe);
-    for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin (), ed = chosen->end() ;
-            i!= ed; ++i) {
-        const  GlobalPoint & hcalHit_position = caloGeom->getPosition(i->detid());
+	coneSel.selectCallback(point, *hcalRecHitHandle, [&](const HBHERecHit& i) {
+        const  GlobalPoint & hcalHit_position = caloGeom->getPosition(i.detid());
         double hcalHit_eta = hcalHit_position.eta();
-        double hcalHit_Et = i->energy()*sin(2*atan(exp(-hcalHit_eta)));
+        double hcalHit_Et = i.energy()*sin(2*atan(exp(-hcalHit_eta)));
         if ( hcalHit_Et > etLow_) {
             deposit.addDeposit( Direction(hcalHit_eta, hcalHit_position.phi()), hcalHit_Et);
         }
-    }
+	});
 
     return deposit;
 }

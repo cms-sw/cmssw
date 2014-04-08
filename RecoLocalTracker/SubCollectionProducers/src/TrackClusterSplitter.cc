@@ -243,7 +243,7 @@ TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
 
   pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters"));
   stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
-  vertices_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
+  vertices_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices"));
 
   produces< edmNew::DetSetVector<SiPixelCluster> >();
 

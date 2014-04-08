@@ -37,7 +37,7 @@ TrackBuildingAnalyzer::~TrackBuildingAnalyzer()
 { 
 }
 
-void TrackBuildingAnalyzer::beginRun(DQMStore * dqmStore_) 
+void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
 {
   
   // parameters from the configuration
@@ -115,86 +115,86 @@ void TrackBuildingAnalyzer::beginRun(DQMStore * dqmStore_)
   
   //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
   
-  dqmStore_->setCurrentFolder(MEFolderName);
+  ibooker.setCurrentFolder(MEFolderName);
   
   // book the Seed histograms
   // ---------------------------------------------------------------------------------//
   //  std::cout << "[TrackBuildingAnalyzer::beginRun] MEFolderName: " << MEFolderName << std::endl;
-  dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
+  ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
   
   if (doAllSeedPlots || doPT) {
     histname = "SeedPt_"+seedProducer.label() + "_";
-    SeedPt = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TrackPtBin, TrackPtMin, TrackPtMax);
+    SeedPt = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TrackPtBin, TrackPtMin, TrackPtMax);
     SeedPt->setAxisTitle("Seed p_{T} (GeV/c)", 1);
     SeedPt->setAxisTitle("Number of Seeds", 2);
   }
   
   if (doAllSeedPlots || doETA) {
     histname = "SeedEta_"+seedProducer.label() + "_";
-    SeedEta = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax);
+    SeedEta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax);
       SeedEta->setAxisTitle("Seed #eta", 1);
       SeedEta->setAxisTitle("Number of Seeds", 2);
   }
   
   if (doAllSeedPlots || doPHI) {
     histname = "SeedPhi_"+seedProducer.label() + "_";
-    SeedPhi = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
+    SeedPhi = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
     SeedPhi->setAxisTitle("Seed #phi", 1);
     SeedPhi->setAxisTitle("Number of Seed", 2);
   }
   
   if (doAllSeedPlots || doPHIVsETA) {
     histname = "SeedPhiVsEta_"+seedProducer.label() + "_";
-    SeedPhiVsEta = dqmStore_->book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    SeedPhiVsEta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
     SeedPhiVsEta->setAxisTitle("Seed #eta", 1);
     SeedPhiVsEta->setAxisTitle("Seed #phi", 2);
   }
   
   if (doAllSeedPlots || doTheta){
     histname = "SeedTheta_"+seedProducer.label() + "_";
-    SeedTheta = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, ThetaBin, ThetaMin, ThetaMax);
+    SeedTheta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, ThetaBin, ThetaMin, ThetaMax);
     SeedTheta->setAxisTitle("Seed #theta", 1);
     SeedTheta->setAxisTitle("Number of Seeds", 2);
   }
   
   if (doAllSeedPlots || doQ){
     histname = "SeedQ_"+seedProducer.label() + "_";
-    SeedQ = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TrackQBin, TrackQMin, TrackQMax);
+    SeedQ = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TrackQBin, TrackQMin, TrackQMax);
     SeedQ->setAxisTitle("Seed Charge", 1);
     SeedQ->setAxisTitle("Number of Seeds",2);
   }
   
   if (doAllSeedPlots || doDxy){
     histname = "SeedDxy_"+seedProducer.label() + "_";
-    SeedDxy = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, SeedDxyBin, SeedDxyMin, SeedDxyMax);
+    SeedDxy = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, SeedDxyBin, SeedDxyMin, SeedDxyMax);
     SeedDxy->setAxisTitle("Seed d_{xy} (cm)", 1);
     SeedDxy->setAxisTitle("Number of Seeds",2);
   }
   
   if (doAllSeedPlots || doDz){
     histname = "SeedDz_"+seedProducer.label() + "_";
-    SeedDz = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, SeedDzBin, SeedDzMin, SeedDzMax);
+    SeedDz = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, SeedDzBin, SeedDzMin, SeedDzMax);
     SeedDz->setAxisTitle("Seed d_{z} (cm)", 1);
     SeedDz->setAxisTitle("Number of Seeds",2);
   }
   
   if (doAllSeedPlots || doNRecHits){
     histname = "NumberOfRecHitsPerSeed_"+seedProducer.label() + "_";
-    NumberOfRecHitsPerSeed = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, SeedHitBin, SeedHitMin, SeedHitMax);
+    NumberOfRecHitsPerSeed = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, SeedHitBin, SeedHitMin, SeedHitMax);
     NumberOfRecHitsPerSeed->setAxisTitle("Number of RecHits per Seed", 1);
     NumberOfRecHitsPerSeed->setAxisTitle("Number of Seeds",2);
   }
   
   if (doAllSeedPlots || doProfPHI){
     histname = "NumberOfRecHitsPerSeedVsPhiProfile_"+seedProducer.label() + "_";
-    NumberOfRecHitsPerSeedVsPhiProfile = dqmStore_->bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, SeedHitBin, SeedHitMin, SeedHitMax,"s");
+    NumberOfRecHitsPerSeedVsPhiProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, SeedHitBin, SeedHitMin, SeedHitMax,"s");
     NumberOfRecHitsPerSeedVsPhiProfile->setAxisTitle("Seed #phi",1);
     NumberOfRecHitsPerSeedVsPhiProfile->setAxisTitle("Number of RecHits of each Seed",2);
   }
   
   if (doAllSeedPlots || doProfETA){
     histname = "NumberOfRecHitsPerSeedVsEtaProfile_"+seedProducer.label() + "_";
-    NumberOfRecHitsPerSeedVsEtaProfile = dqmStore_->bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, SeedHitBin, SeedHitMin, SeedHitMax,"s");
+    NumberOfRecHitsPerSeedVsEtaProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, SeedHitBin, SeedHitMin, SeedHitMax,"s");
     NumberOfRecHitsPerSeedVsEtaProfile->setAxisTitle("Seed #eta",1);
     NumberOfRecHitsPerSeedVsEtaProfile->setAxisTitle("Number of RecHits of each Seed",2);
   }
@@ -204,55 +204,55 @@ void TrackBuildingAnalyzer::beginRun(DQMStore * dqmStore_)
   
   if (doTCPlots){
     
-    dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
+    ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
     
     histname = "TrackCandPt_"+tcProducer.label() + "_";
-    TrackCandPt = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TrackPtBin, TrackPtMin, TrackPtMax);
+    TrackCandPt = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TrackPtBin, TrackPtMin, TrackPtMax);
     TrackCandPt->setAxisTitle("Track Candidate p_{T} (GeV/c)", 1);
     TrackCandPt->setAxisTitle("Number of Track Candidates", 2);
     
     histname = "TrackCandEta_"+tcProducer.label() + "_";
-    TrackCandEta = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax);
+    TrackCandEta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax);
     TrackCandEta->setAxisTitle("Track Candidate #eta", 1);
     TrackCandEta->setAxisTitle("Number of Track Candidates", 2);
     
     histname = "TrackCandPhi_"+tcProducer.label() + "_";
-    TrackCandPhi = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
+    TrackCandPhi = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
     TrackCandPhi->setAxisTitle("Track Candidate #phi", 1);
     TrackCandPhi->setAxisTitle("Number of Track Candidates", 2);
     
     histname = "TrackCandTheta_"+tcProducer.label() + "_";
-    TrackCandTheta = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, ThetaBin, ThetaMin, ThetaMax);
+    TrackCandTheta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, ThetaBin, ThetaMin, ThetaMax);
     TrackCandTheta->setAxisTitle("Track Candidate #theta", 1);
     TrackCandTheta->setAxisTitle("Number of Track Candidates", 2);
     
     histname = "TrackCandQ_"+tcProducer.label() + "_";
-    TrackCandQ = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TrackQBin, TrackQMin, TrackQMax);
+    TrackCandQ = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TrackQBin, TrackQMin, TrackQMax);
     TrackCandQ->setAxisTitle("Track Candidate Charge", 1);
     TrackCandQ->setAxisTitle("Number of Track Candidates",2);
     
     histname = "TrackCandDxy_"+tcProducer.label() + "_";
-    TrackCandDxy = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TCDxyBin, TCDxyMin, TCDxyMax);
+    TrackCandDxy = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDxyBin, TCDxyMin, TCDxyMax);
     TrackCandDxy->setAxisTitle("Track Candidate d_{xy} (cm)", 1);
     TrackCandDxy->setAxisTitle("Number of Track Candidates",2);
     
     histname = "TrackCandDz_"+tcProducer.label() + "_";
-    TrackCandDz = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TCDzBin, TCDzMin, TCDzMax);
+    TrackCandDz = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDzBin, TCDzMin, TCDzMax);
     TrackCandDz->setAxisTitle("Track Candidate d_{z} (cm)", 1);
     TrackCandDz->setAxisTitle("Number of Track Candidates",2);
     
     histname = "NumberOfRecHitsPerTrackCand_"+tcProducer.label() + "_";
-    NumberOfRecHitsPerTrackCand = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TCHitBin, TCHitMin, TCHitMax);
+    NumberOfRecHitsPerTrackCand = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCHitBin, TCHitMin, TCHitMax);
     NumberOfRecHitsPerTrackCand->setAxisTitle("Number of RecHits per Track Candidate", 1);
     NumberOfRecHitsPerTrackCand->setAxisTitle("Number of Track Candidates",2);
     
     histname = "NumberOfRecHitsPerTrackCandVsPhiProfile_"+tcProducer.label() + "_";
-    NumberOfRecHitsPerTrackCandVsPhiProfile = dqmStore_->bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, TCHitBin, TCHitMin, TCHitMax,"s");
+    NumberOfRecHitsPerTrackCandVsPhiProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, TCHitBin, TCHitMin, TCHitMax,"s");
     NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Track Candidate #phi",1);
     NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
     
     histname = "NumberOfRecHitsPerTrackCandVsEtaProfile_"+tcProducer.label() + "_";
-    NumberOfRecHitsPerTrackCandVsEtaProfile = dqmStore_->bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, TCHitBin, TCHitMin, TCHitMax,"s");
+    NumberOfRecHitsPerTrackCandVsEtaProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, TCHitBin, TCHitMin, TCHitMax,"s");
     NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Track Candidate #eta",1);
     NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
   }

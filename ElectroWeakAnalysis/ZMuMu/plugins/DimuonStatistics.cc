@@ -1,5 +1,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include <iostream>
 
 class DimuonStatistics : public edm::EDAnalyzer {
@@ -9,12 +11,11 @@ public:
   virtual void endJob() override;
 private:
   edm::InputTag src_;
+  edm::EDGetTokenT<reco::CandidateView> srcToken_;
   std::vector<unsigned int> matched_, unMatched_;
   double  ptMin_, massMin_,massMax_,  etaMin_,  etaMax_,  trkIso_;
 };
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,10 +28,11 @@ using namespace reco;
 using namespace edm;
 const unsigned int maxEntries = 10;
 
-DimuonStatistics::DimuonStatistics(const edm::ParameterSet & cfg) : 
-  src_(cfg.getParameter<InputTag>("src")), 
-  matched_(maxEntries + 1, 0), 
-  unMatched_(maxEntries + 1, 0), 
+DimuonStatistics::DimuonStatistics(const edm::ParameterSet & cfg) :
+  src_(cfg.getParameter<InputTag>("src")),
+  srcToken_(consumes<CandidateView>(src_)),
+  matched_(maxEntries + 1, 0),
+  unMatched_(maxEntries + 1, 0),
   ptMin_(cfg.getUntrackedParameter<double>("ptMin")),
   massMin_(cfg.getUntrackedParameter<double>("massMin")),
   massMax_(cfg.getUntrackedParameter<double>("massMax")),
@@ -57,7 +59,7 @@ void DimuonStatistics::endJob() {
 
 void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
   Handle<CandidateView> src;
-  evt.getByLabel(src_, src);
+  evt.getByToken(srcToken_, src);
   double trackIso1=-1;
   double trackIso2=-1;
   int j=0;
@@ -67,7 +69,7 @@ void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
     j++;
     const Candidate * dau1 = i->daughter(0);
     const Candidate * dau2 = i->daughter(1);
-    if(dau1 == 0|| dau2 == 0) 
+    if(dau1 == 0|| dau2 == 0)
       throw Exception(errors::InvalidReference) <<
 	"one of the two daughter does not exist\n";
     const Candidate * c1 = dau1->masterClone().get();
@@ -79,7 +81,7 @@ void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
       trackIso1=mu1->trackIso();
     } else {
       const pat::GenericParticle * gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
-      if(gp1 == 0) 
+      if(gp1 == 0)
 	throw Exception(errors::InvalidReference) <<
 	  "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
       mc1 = gp1->genParticleRef();
@@ -93,7 +95,7 @@ void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
      trackIso2=mu2->trackIso();
     } else {
       const pat::GenericParticle * gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
-      if(gp2 == 0) 
+      if(gp2 == 0)
 	throw Exception(errors::InvalidReference) <<
 	  "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
       mc2 = gp2->genParticleRef();
@@ -114,20 +116,20 @@ void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
     }
     //    cout << "DimuonMatcher> dimuonMatch " << dimuonMatch.isNonnull() << endl;
     if( (fabs(dau1->eta()) > etaMin_  && fabs(dau1->eta()) < etaMax_)   && dau1->pt()>ptMin_ &&
-     ( (fabs(dau2->eta()) > etaMin_ ) && (fabs(dau2->eta()) < etaMax_) ) && dau2->pt()>ptMin_ &&	
-  trackIso1 < trkIso_ &&  trackIso2 < trkIso_ &&  		      	   i->mass() > massMin_ && i->mass() < massMax_ 
+     ( (fabs(dau2->eta()) > etaMin_ ) && (fabs(dau2->eta()) < etaMax_) ) && dau2->pt()>ptMin_ &&
+  trackIso1 < trkIso_ &&  trackIso2 < trkIso_ &&  		      	   i->mass() > massMin_ && i->mass() < massMax_
 	)  {
-      cout << "dimuon mass " << i->mass() << endl;    
+      cout << "dimuon mass " << i->mass() << endl;
       if(dimuonMatch.isNonnull())
 	++matched;
       else
 	++unMatched;
-         
-         
+
+
     }
   }
   cout << "matched: " << matched << ", unmatched: " << unMatched << endl;
-  
+
   if(matched > maxEntries) matched = maxEntries;
   if(unMatched > maxEntries) unMatched = maxEntries;
   ++matched_[matched];

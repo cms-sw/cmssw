@@ -97,7 +97,9 @@ SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const &
 						 *gdet->stereoDet(),
 						 hit.stereoClusterRef());
     
-    return theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,true);
+    // return theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,true);
+    auto better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,false);
+    return better ? better : hit.clone();
 
 }
 
@@ -107,6 +109,65 @@ ProjectedSiStripRecHit2D * TkClonerImpl::operator()(ProjectedSiStripRecHit2D con
   const GeomDetUnit * gdu = reinterpret_cast<const GeomDetUnit *>(hit.originalDet());
   //if (!gdu) std::cout<<"no luck dude"<<std::endl;
   StripClusterParameterEstimator::LocalValues lv = stripCPE->localParameters(clust, *gdu, tsos);
-  return new ProjectedSiStripRecHit2D(lv.first, lv.second, *hit.det(), *hit.originalDet(), hit.omniCluster());
+
+  // project...
+  const GeomDet & det = *hit.det();
+  const BoundPlane& gluedPlane = det.surface();
+  const BoundPlane& hitPlane = gdu->surface();
+  LocalVector tkDir = (tsos.isValid() ? tsos.localDirection() : 
+		       det.surface().toLocal( det.position()-GlobalPoint(0,0,0)));
+
+  auto delta = gluedPlane.localZ( hitPlane.position());
+  LocalVector ldir = tkDir;
+  LocalPoint lhitPos = gluedPlane.toLocal( hitPlane.toGlobal(lv.first));
+  LocalPoint projectedHitPos = lhitPos - ldir * delta/ldir.z();                  
+
+  LocalVector hitXAxis = gluedPlane.toLocal( hitPlane.toGlobal( LocalVector(1.f,0,0)));
+  LocalError hitErr = lv.second;
+  if (gluedPlane.normalVector().dot( hitPlane.normalVector()) < 0) {
+    // the two planes are inverted, and the correlation element must change sign
+    hitErr = LocalError( hitErr.xx(), -hitErr.xy(), hitErr.yy());
+  }
+  LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
+  return new ProjectedSiStripRecHit2D(projectedHitPos, rotatedError, *hit.det(), *hit.originalDet(), hit.omniCluster());
 }
 
+
+ProjectedSiStripRecHit2D * TkClonerImpl::project(SiStripMatchedRecHit2D const & hit, bool mono, TrajectoryStateOnSurface const& tsos) const {
+  const GeomDet & det = *hit.det();
+  const GluedGeomDet & gdet = static_cast<const GluedGeomDet &> (det);
+  const GeomDetUnit * odet = mono ? gdet.monoDet() : gdet.stereoDet();
+  const BoundPlane& gluedPlane = det.surface();
+  const BoundPlane& hitPlane = odet->surface();
+
+
+  LocalVector tkDir = (tsos.isValid() ? tsos.localDirection() : 
+		       det.surface().toLocal( det.position()-GlobalPoint(0,0,0)));
+
+  const SiStripCluster& monoclust   = hit.monoCluster();  
+  const SiStripCluster& stereoclust = hit.stereoCluster();
+
+  StripClusterParameterEstimator::LocalValues lv;
+  if (tsos.isValid()) 
+    lv = mono ?
+    stripCPE->localParameters( monoclust, *odet, tsos) :
+    stripCPE->localParameters( stereoclust, *odet, gluedToStereo(tsos, &gdet));
+  else 
+    lv = stripCPE->localParameters( mono ? monoclust : stereoclust, *odet);
+
+
+  auto delta = gluedPlane.localZ( hitPlane.position());
+  LocalVector ldir = tkDir;
+  LocalPoint lhitPos = gluedPlane.toLocal( hitPlane.toGlobal(lv.first));
+  LocalPoint projectedHitPos = lhitPos - ldir * delta/ldir.z();                  
+
+  LocalVector hitXAxis = gluedPlane.toLocal( hitPlane.toGlobal( LocalVector(1.f,0,0)));
+  LocalError hitErr = lv.second;
+  if (gluedPlane.normalVector().dot( hitPlane.normalVector()) < 0) {
+    // the two planes are inverted, and the correlation element must change sign
+    hitErr = LocalError( hitErr.xx(), -hitErr.xy(), hitErr.yy());
+  }
+  LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
+  return new ProjectedSiStripRecHit2D(projectedHitPos, rotatedError, det, *odet, 
+				      mono ? hit.monoClusterRef() : hit.stereoClusterRef() );
+}

@@ -45,6 +45,7 @@ void plotValidation(TString filename, int wheel, int station) {
   bool doSegPull = true;
   bool doAngularDeps = true;
   bool doEff4D = true;
+  bool doNSeg = true;
 
 
   //----------------------------------------------------------------------
@@ -370,6 +371,28 @@ void plotValidation(TString filename, int wheel, int station) {
 //     drawGFit(hRes4D->hPullBeta, nsigma, -10.,10.);  
 
 
+  }
+
+  //-------------------- #segments
+  if (doNSeg) {
+    TCanvas* c1= new TCanvas;
+    c1->SetTitle(canvbasename+"_NSeg");   
+    c1->SetName(canvbasename+"_NSeg");
+    // c1->Divide(2,2);
+//     c1->cd(1);
+    
+    TH1F* hNs =  hEff4D->hNSeg;
+ 
+    hNs->SetXTitle("#segments");
+    hNs->Draw();
+
+    double int_1 = hNs->Integral(2,21);
+    double int_2 = hNs->Integral(3,21);
+    
+    double ratio = int_2/int_1;
+    
+    cout << "int_1: " << int_1 <<" int_2: " << int_2 << " ratio: " << ratio << endl;
+    
   }
 
 
