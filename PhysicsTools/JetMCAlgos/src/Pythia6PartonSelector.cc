@@ -24,7 +24,6 @@ Pythia6PartonSelector::run(const edm::Handle<reco::GenParticleCollection> & part
    for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
    {
      if( it->status()!=2 ) continue;                   // only accept status==2 particles
-     if( it->numberOfDaughters()==0 ) continue;        // skip particle if it has no daughters (likely a documentation line)
      if( !CandMCTagUtils::isParton( *it ) ) continue;  // skip particle if not a parton
 
      partons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
