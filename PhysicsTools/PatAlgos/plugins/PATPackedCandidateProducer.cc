@@ -186,7 +186,6 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
                     lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
                 }
             } else {
-                if (cand.pt() > 1 && ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) std::cout << "HELP: " << nlost << " and " << ctrack->hitPattern().hasValidHitInFirstPixelBarrel() << " AND  " << cand.pt() << " and " << cand.pdgId() << std::endl;
                 lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
             }
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV));
