@@ -15,11 +15,11 @@
 EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
   EcalRecHitWorkerBaseClass(ps,c)
 {
-        rechitMaker_ = new EcalRecHitSimpleAlgo();
-        v_chstatus_ = 
-	  StringToEnumValue<EcalChannelStatusCode::Code>(ps.getParameter<std::vector<std::string> >("ChannelStatusToBeExcluded"));
-        killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
-        laserCorrection_ = ps.getParameter<bool>("laserCorrection");
+    rechitMaker_ = new EcalRecHitSimpleAlgo();
+    v_chstatus_ = 
+        StringToEnumValue<EcalChannelStatusCode::Code>(ps.getParameter<std::vector<std::string> >("ChannelStatusToBeExcluded"));
+    killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
+    laserCorrection_ = ps.getParameter<bool>("laserCorrection");
 	EBLaserMIN_ = ps.getParameter<double>("EBLaserMIN");
 	EELaserMIN_ = ps.getParameter<double>("EELaserMIN");
 	EBLaserMAX_ = ps.getParameter<double>("EBLaserMAX");
@@ -29,7 +29,7 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::
 	// Traslate string representation of flagsMapDBReco into enum values 
 	const edm::ParameterSet & p=ps.getParameter< edm::ParameterSet >("flagsMapDBReco");
 	std::vector<std::string> recoflagbitsStrings = p.getParameterNames();
-	v_DB_reco_flags_.resize(recoflagbitsStrings.size()); 
+	v_DB_reco_flags_.resize(32); 
 
 	for (unsigned int i=0;i!=recoflagbitsStrings.size();++i){
 	  EcalRecHit::Flags recoflagbit = (EcalRecHit::Flags)
@@ -42,6 +42,7 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::
 	      StringToEnumValue<EcalChannelStatusCode::Code>(dbstatus_s[j]);
 	    dbstatuses.push_back(dbstatus);
 	  }
+
 	  v_DB_reco_flags_[recoflagbit]=dbstatuses;
 	}  
 	

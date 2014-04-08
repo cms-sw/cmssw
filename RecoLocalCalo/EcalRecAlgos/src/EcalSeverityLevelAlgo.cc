@@ -46,6 +46,7 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
       //manipulate the mask
       mask|=(0x1<<f);
     }
+
     flagMask_[snum]=mask;
   }
   // read configuration of dbstatus
@@ -71,6 +72,7 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
       //manipulate the mask
       mask|=(0x1<<f);
     }
+
     dbstatusMask_[snum]=mask;
   }
 
