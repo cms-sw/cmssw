@@ -29,18 +29,25 @@ public:
   ClusterRef cluster()  const { return cluster_strip() ; }
   void setClusterRef(ClusterRef const & ref)  {setClusterStripRef(ref);}
 
-  virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
+  virtual SiStripRecHit2D * clone() const GCC11_OVERRIDE {return new SiStripRecHit2D( * this); }
+#ifdef NO_DICT
+  virtual RecHitPointer cloneSH() const { return std::make_shared<SiStripRecHit2D>(*this);}
+#endif
   
-  virtual int dimension() const {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+  virtual int dimension() const GCC11_OVERRIDE {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const GCC11_OVERRIDE { getKfComponents2D(holder); }
 
-  virtual bool canImproveWithTrack() const {return true;}
+  virtual bool canImproveWithTrack() const GCC11_OVERRIDE {return true;}
 private:
   // double dispatch
-  virtual SiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+  virtual SiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
     return cloner(*this,tsos);
   }
- 
+#ifdef NO_DICT
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
+    return cloner.makeShared(*this,tsos);
+  }
+#endif 
   
 private:
  

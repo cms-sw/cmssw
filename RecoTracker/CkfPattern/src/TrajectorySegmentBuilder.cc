@@ -179,7 +179,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   }
 #endif
 
-  TempTrajectoryContainer candidates = 
+  TempTrajectoryContainer && candidates = 
     addGroup(startingTrajectory,measGroups.begin(),measGroups.end());
 
   if unlikely(theDbgFlg) cout << "TSB: back with " << candidates.size() << " candidates" << endl;
@@ -275,7 +275,7 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory const & traj,
     for (auto const & ut : updatedTrajectories) {
       if unlikely(theDbgFlg) cout << "TSB::addGroup : trying to extend candidate at "
 				  << &ut << " size " << ut.measurements().size() << endl;
-      vector<TempTrajectory> finalTrajectories = addGroup(ut,begin+1,end);
+      vector<TempTrajectory> && finalTrajectories = addGroup(ut,begin+1,end);
       if unlikely(theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
 				  << " finalised candidates before cleaning" << endl;
       //B.M. to be ported later
@@ -442,9 +442,6 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	       (predState.isValid() &&
 		hit.det()->surface().bounds().inside(predState.localPosition())) ) {
 	    // add the hit
-	    /*TempTrajectory newTraj(traj);
-	    updateTrajectory(newTraj,*im);
-	    candidates.push_back(newTraj);  // FIXME: avoid useless copy */
             candidates.push_back(traj); 
             updateTrajectory(candidates.back(), *im);
 	    if unlikely( theDbgFlg ) cout << "TrajectorySegmentBuilder::updateWithInvalidHit "
@@ -482,9 +479,6 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	  if ( iteration>0 || (predState.isValid() &&
 			       hit.det()->surface().bounds().inside(predState.localPosition())) ) {
 	    // add invalid hit
-	    /*TempTrajectory newTraj(traj);
-	    updateTrajectory(newTraj,*im);
-	    candidates.push_back(newTraj);  // FIXME: avoid useless copy */
             candidates.push_back(traj); 
             updateTrajectory(candidates.back(), *im);
 	    found = true;
@@ -495,9 +489,6 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	  if ( iteration>0 || (predState.isValid() &&
 			       im->layer()->surface().bounds().inside(predState.localPosition())) ){
 	    // add invalid hit
-	    /*TempTrajectory newTraj(traj);
-	    updateTrajectory(newTraj,*im);
-	    candidates.push_back(newTraj);  // FIXME: avoid useless copy */
             candidates.push_back(traj); 
             updateTrajectory(candidates.back(), *im);
 	    found = true;
@@ -608,19 +599,6 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
     }
   }
 
-  /* will remove while coping
-  candidates.erase(std::remove_if( candidates.begin(),candidates.end(),
-				   [&](TempTrajectory const & t) { return !t.isValid();}),
-				   // std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
- //                                boost::bind(&TempTrajectory::isValid,_1)), 
-                                   candidates.end()); 
-#ifdef DBG_TSB
-  cout << "TSB: cleanCandidates: reduced from " << sortedCandidates.size()
-       << " to " << candidates.size() << " candidates" << endl;
-#endif
-
-
-  */
 }
 
 //==================================================

@@ -21,6 +21,10 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
+
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -85,10 +89,13 @@ class GoodSeedProducer : public edm::EDProducer {
       std::string preidname_;
 
       ///Fitter
-      edm::ESHandle<TrajectoryFitter> fitter_;
+      std::unique_ptr<TrajectoryFitter> fitter_;
 
       ///Smoother
-      edm::ESHandle<TrajectorySmoother> smoother_;
+      std::unique_ptr<TrajectorySmoother> smoother_;
+
+      // needed by the above
+      TkClonerImpl hitCloner;
 
       ///PFTrackTransformer
       PFTrackTransformer *pfTransformer_;
