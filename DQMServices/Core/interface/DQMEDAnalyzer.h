@@ -60,25 +60,21 @@ private:
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 //############################## ONLY NEEDED IN THE TRANSITION PERIOD ################################
-//here the thread_unsafe carbon copy of the DQMEDAnalyzer
+//here the thread_unsafe (simplified) carbon copy of the DQMEDAnalyzer
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 namespace thread_unsafe {
-class DQMEDAnalyzer: public edm::EDAnalyzer
-{
-public:
-  DQMEDAnalyzer(void);
-  // implicit copy constructor
-  // implicit assignment operator
-  // implicit destructor
-  virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
+  class DQMEDAnalyzer: public edm::EDAnalyzer
+  {
+  public:
+    DQMEDAnalyzer(void);
+    virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
+    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
   virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;
 
 private:
-};
-
+  };
 } //thread_unsafe namespace
 
 #endif // CORE_DQMED_ANALYZER_H
