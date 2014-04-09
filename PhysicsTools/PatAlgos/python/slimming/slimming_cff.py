@@ -38,6 +38,7 @@ MicroEventContent = cms.PSet(
         'keep doubles_ak5*_rhos_*', 
 
         'keep *_selectedPatTrigger_*_PAT',
+        'keep patPackedTriggerPrescales_patTrigger__PAT',
         'keep *_l1extraParticles_*_HLT',
         'keep *_TriggerResults_*_HLT',
         'keep *_TriggerResults_*_PAT', # for MET filters

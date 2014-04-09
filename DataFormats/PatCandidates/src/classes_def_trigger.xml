@@ -97,6 +97,16 @@
   </class>
   <class name="edm::Wrapper&lt;pat::TriggerEvent&gt;" />
 
+  <class name="pat::PackedTriggerPrescales"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2688342584"/>
+   <field name="triggerNames_" transient="true" />
+  </class>
+  <ioread sourceClass="pat::PackedTriggerPrescales"  version="[1-]" targetClass="pat::PackedTriggerPrescales" source="" target="triggerNames_">
+    <![CDATA[triggerNames_ = 0; ]]>
+  </ioread>
+  <class name="edm::Wrapper&lt;pat::PackedTriggerPrescales&gt;" />
+ 
+
   <class pattern="std::iterator&lt;std::random_access_iterator_tag,edm::Ref&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath&gt; &gt;,*,edm::Ref&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath&gt; &gt;*,edm::Ref&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath&gt; &gt;&amp;&gt;"/>
   <class pattern="std::iterator&lt;std::random_access_iterator_tag,edm::Ref&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone&gt; &gt;,*,edm::Ref&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone&gt; &gt;*,edm::Ref&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone&gt; &gt;&amp;&gt;"/>
   <class pattern="std::iterator&lt;std::random_access_iterator_tag,edm::Ref&lt;std::vector&lt;pat::TriggerFilter&gt;,pat::TriggerFilter,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerFilter&gt;,pat::TriggerFilter&gt; &gt;,*,edm::Ref&lt;std::vector&lt;pat::TriggerFilter&gt;,pat::TriggerFilter,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerFilter&gt;,pat::TriggerFilter&gt; &gt;*,edm::Ref&lt;std::vector&lt;pat::TriggerFilter&gt;,pat::TriggerFilter,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerFilter&gt;,pat::TriggerFilter&gt; &gt;&amp;&gt;"/>
