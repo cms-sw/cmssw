@@ -11,6 +11,8 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondTools/DT/interface/DTKeyedConfigCache.h"
+
 #include <string>
 
 namespace edmtest {
@@ -24,5 +26,6 @@ namespace edmtest {
   private:
     bool dumpCCBKeys;
     bool dumpAllData;
+    DTKeyedConfigCache cfgCache;
   };
 }

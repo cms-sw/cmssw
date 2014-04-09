@@ -1,6 +1,11 @@
 /*
  *  See header file for a description of this class.
  *
+ *  This class was originally defined in
+ *  CondCore/DTPlugins/src/DTConfigPluginHandler.cc
+ *  It was moved, renamed, and modified to not be a singleton
+ *  for thread safety, but otherwise little was changed.
+ *
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -8,72 +13,45 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondCore/DTPlugins/interface/DTConfigPluginHandler.h"
+#include "CondTools/DT/interface/DTKeyedConfigCache.h"
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
-#include "CondCore/DBOutputService/interface/KeyedElement.h"
 #include "CondCore/CondDB/interface/KeyList.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-//---------------
-// C++ Headers --
-//---------------
-#include <cstdio>
-#include <iostream>
+#include <boost/shared_ptr.hpp>
 
 //-------------------
 // Initializations --
 //-------------------
-const int DTConfigPluginHandler::maxBrickNumber  = 5000;
-const int DTConfigPluginHandler::maxStringNumber = 100000;
-const int DTConfigPluginHandler::maxByteNumber   = 10000000;
-//DTConfigPluginHandler::handler_map DTConfigPluginHandler::handlerMap;
+const int DTKeyedConfigCache::maxBrickNumber  = 5000;
+const int DTKeyedConfigCache::maxStringNumber = 100000;
+const int DTKeyedConfigCache::maxByteNumber   = 10000000;
 
 //----------------
 // Constructors --
 //----------------
-DTConfigPluginHandler::DTConfigPluginHandler():
+DTKeyedConfigCache::DTKeyedConfigCache():
   cachedBrickNumber(  0 ),
   cachedStringNumber( 0 ),
   cachedByteNumber(   0 ) {
-//  std::cout << "===============================" << std::endl;
-//  std::cout << "=                             =" << std::endl;
-//  std::cout << "=  new DTConfigPluginHandler  =" << std::endl;
-//  std::cout << "=                             =" << std::endl;
-//  std::cout << "===============================" << std::endl;
-//  if ( instance == 0 ) instance = this;
 }
 
 
 //--------------
 // Destructor --
 //--------------
-DTConfigPluginHandler::~DTConfigPluginHandler() {
+DTKeyedConfigCache::~DTKeyedConfigCache() {
   purge();
 }
 
 
-//--------------
-// Operations --
-//--------------
-void DTConfigPluginHandler::build() {
-  if ( instance == 0 ) instance = new DTConfigPluginHandler;
-}
-
-
-int DTConfigPluginHandler::get( const edm::EventSetup& context,
-                                int cfgId, const DTKeyedConfig*& obj ) {
-  return get( context.get<DTKeyedConfigListRcd>(), cfgId, obj );
-}
-
-
-int DTConfigPluginHandler::get( const DTKeyedConfigListRcd& keyRecord,
-                                int cfgId, const DTKeyedConfig*& obj ) {
+int DTKeyedConfigCache::get( const DTKeyedConfigListRcd& keyRecord,
+                             int cfgId, const DTKeyedConfig*& obj ) {
 
   bool cacheFound = false;
   int cacheAge = 999999999;
@@ -113,6 +91,11 @@ int DTConfigPluginHandler::get( const DTKeyedConfigListRcd& keyRecord,
   edm::ESHandle<cond::persistency::KeyList> klh;
   keyRecord.get( klh );
   cond::persistency::KeyList const &  kl= *klh.product();
+  // This const_cast and usage of KeyList is a problem
+  // that will need to be addressed in the future.
+  // I'm not fixing now, because I want to finish what I am
+  // fixing. One thing at a time. (This was already in the
+  // the code I copied to make this file)
   cond::persistency::KeyList* keyList = const_cast<cond::persistency::KeyList*>( &kl );
   if ( keyList == 0 ) return 999;
 
@@ -157,14 +140,7 @@ int DTConfigPluginHandler::get( const DTKeyedConfigListRcd& keyRecord,
 }
 
 
-void DTConfigPluginHandler::getData( const edm::EventSetup& context, int cfgId,
-                                     std::vector<std::string>& list ) {
-  getData( context.get<DTKeyedConfigListRcd>(), cfgId, list );
-  return;
-}
-
-
-void DTConfigPluginHandler::getData( const DTKeyedConfigListRcd& keyRecord,
+void DTKeyedConfigCache::getData( const DTKeyedConfigListRcd& keyRecord,
                                      int cfgId,
                                      std::vector<std::string>& list ) {
   const DTKeyedConfig* obj = 0;
@@ -180,12 +156,7 @@ void DTConfigPluginHandler::getData( const DTKeyedConfigListRcd& keyRecord,
 }
 
 
-void DTConfigPluginHandler::purge() {
-  std::cout << "DTConfigPluginHandler::purge "
-            << this << " "
-            << cachedBrickNumber  << " "
-            << cachedStringNumber << " "
-            << cachedByteNumber   << std::endl;
+void DTKeyedConfigCache::purge() {
   std::map<int,counted_brick>::const_iterator iter = brickMap.begin();
   std::map<int,counted_brick>::const_iterator iend = brickMap.end();
   while ( iter != iend ) {
