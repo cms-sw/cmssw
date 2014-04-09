@@ -142,8 +142,8 @@ public:
   int hadLv11() const { return hadLvl1_; }
 
   // energy contained in depths>1 in the HE for 18<|iEta|<29
-  double hadEnergyHeOuterLayer() const { return (id_.ietaAbs()<=firstHERing_ || id_.ietaAbs()>lastHERing_)? 0 : outerE_; }
-  double hadEnergyHeInnerLayer() const { return (id_.ietaAbs()<=firstHERing_ || id_.ietaAbs()>lastHERing_)? 0 : hadE_ - outerE_; }
+  double hadEnergyHeOuterLayer() const { return (id_.ietaAbs()<=firstHERing_+1 || id_.ietaAbs()>lastHERing_)? 0 : outerE_; }
+  double hadEnergyHeInnerLayer() const { return (id_.ietaAbs()<=firstHERing_+1 || id_.ietaAbs()>lastHERing_)? 0 : hadE_ - outerE_; }
 
   // energy in the tower by HCAL subdetector
   // This is trivial except for tower 16
