@@ -180,7 +180,7 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
     }
   else
     {
-      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] Total number of events is " << TotNumberOfEvents << ", wich is below the threshold (" << calibrationthreshold << "). Calibration will NOT be launched." <<std::endl;
+      edm::LogWarning("NotEnoughEvents") <<"Total number of events is " << TotNumberOfEvents << ", which is below the threshold (" << calibrationthreshold << "). Calibration will NOT be launched.";
       setDoStore(false); // Don't put anything in the sqlite-file!
     }
 
@@ -266,6 +266,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
     ClusterPositionHistoMap[detid]=boost::shared_ptr<TH1F>(new TH1F(*(*iter)->getTH1F()));
     
   }
+  if(!gotNentries) edm::LogWarning("MissingNumberOfEvents") <<"Missing histogram to get the number of events";
   
 }
 
