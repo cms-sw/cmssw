@@ -20,22 +20,25 @@ class SteppingAction: public G4UserSteppingAction {
 
 public:
   SteppingAction(EventAction * ea,const edm::ParameterSet & ps);
-  ~SteppingAction();
+  virtual ~SteppingAction();
 
-  void UserSteppingAction(const G4Step * aStep);
+  virtual void UserSteppingAction(const G4Step * aStep);
   
   SimActivityRegistry::G4StepSignal m_g4StepSignal;
 
 private:
 
-  bool catchLowEnergyInVacuum(G4Track * theTrack, double theKenergy); 
-  bool catchLongLived            (const G4Step * aStep);
-  bool killLowEnergy             (const G4Step * aStep);
   bool initPointer();
-  bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv);
-  void killTrack                 (const G4Step * aStep);
+
+  bool catchLowEnergyInVacuum(G4Track * theTrack) const; 
+  bool catchLongLived(const G4Step * aStep) const;
+  bool killLowEnergy(const G4Step * aStep) const;
+  bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv) const;
+
+  void PrintKilledTrack(const G4Track*, int type) const;
 
 private:
+
   EventAction                   *eventAction_;
   G4VPhysicalVolume             *tracker, *calo;
   double                        theCriticalEnergyForVacuum;
@@ -43,15 +46,15 @@ private:
   double                        maxTrackTime;
   std::vector<double>           maxTrackTimes, ekinMins;
   std::vector<std::string>      maxTimeNames, ekinNames, ekinParticles;
-  std::vector<G4Region*>        maxTimeRegions;
+  std::vector<const G4Region*>  maxTimeRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int>              ekinPDG;
-  int                           verbose;
+  unsigned int                  numberTimes;
+  unsigned int                  numberEkins;
+  unsigned int                  numberPart;
 
   bool                          initialized;
   bool                          killBeamPipe;
-  bool                          killByTimeAtRegion;
-  bool                          killByEnergy;
 
 };
 

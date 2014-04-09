@@ -11,7 +11,10 @@ common_heavy_suppression = cms.PSet(
 common_maximum_time = cms.PSet(
     MaxTrackTime  = cms.double(500.0),
     MaxTimeNames  = cms.vstring('ZDCRegion','QuadRegion','InterimRegion'),
-    MaxTrackTimes = cms.vdouble(2000.0,0.,0.)
+    MaxTrackTimes = cms.vdouble(2000.0,0.,0.),
+    KillBeamPipe            = cms.bool(True),
+    CriticalEnergyForVacuum = cms.double(2.0),
+    CriticalDensity         = cms.double(1e-15)
 )
 
 common_UsePMT = cms.PSet(
@@ -96,12 +99,12 @@ g4SimHits = cms.EDProducer("OscarProducer",
         MonopoleTransport    = cms.untracked.bool(True),
         MonopoleMass         = cms.untracked.double(0),
         Region      = cms.string(' '),
-	TrackingCut = cms.bool(True),
+	TrackingCut = cms.bool(False),
         SRType      = cms.bool(True),
+        FlagMuNucl  = cms.bool(False),
         EMPhysics   = cms.untracked.bool(True),
         HadPhysics  = cms.untracked.bool(True),
         FlagBERT    = cms.untracked.bool(False),
-        FlagMuNucl  = cms.untracked.bool(False),
         FlagFTF     = cms.untracked.bool(False),
         FlagGlauber = cms.untracked.bool(False),
         FlagHP      = cms.untracked.bool(False),
@@ -185,13 +188,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
-        KillBeamPipe            = cms.bool(True),
-        CriticalEnergyForVacuum = cms.double(2.0),
-        CriticalDensity         = cms.double(1e-15),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
-        EkinParticles           = cms.vstring(),
-        Verbosity = cms.untracked.int32(0)
+        EkinParticles           = cms.vstring()
     ),
     TrackerSD = cms.PSet(
         ZeroEnergyLoss = cms.bool(False),
