@@ -90,12 +90,11 @@ void DQMEDAnalyzer::globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
 
 
 //############################## ONLY NEEDED IN THE TRANSITION PERIOD ################################
-//here the thread_unsafe carbon copy of the DQMEDAnalyzer
+//here the thread_unsafe (simplified) carbon copy of the DQMEDAnalyzer
 
-namespace thread_unsafe {
-DQMEDAnalyzer::DQMEDAnalyzer() {}
+thread_unsafe::DQMEDAnalyzer::DQMEDAnalyzer() {}
 
-void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
+void thread_unsafe::DQMEDAnalyzer::beginRun(edm::Run const &iRun,
                              edm::EventSetup const &iSetup) {
   dqmBeginRun(iRun, iSetup);
   DQMStore * store = edm::Service<DQMStore>().operator->();
@@ -107,4 +106,3 @@ void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
                          0);
 }
 
-} //thread_unsafe namespace
