@@ -35,7 +35,7 @@ class EVTColContainer;
 /// of one single analysis. Each of those, in turn, books a
 /// vector if HLTExoticaPlotters to make plots for each
 /// HLT path
-class HLTExoticaValidator : public DQMEDAnalyzer {
+class HLTExoticaValidator : public thread_unsafe::DQMEDAnalyzer {
 public:
     /// Constructor and destructor
     HLTExoticaValidator(const edm::ParameterSet &);
