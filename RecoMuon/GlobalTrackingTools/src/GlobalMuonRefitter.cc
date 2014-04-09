@@ -144,7 +144,10 @@ void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 
 void GlobalMuonRefitter::setServices(const EventSetup& setup) {
 
-  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
+  edm::ESHandle<TrajectoryFitter> aFitter;
+  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName,aFitter);
+  theFitter = aFitter->clone();
+  
 
   // Transient Rechit Builders
   unsigned long long newCacheId_TRH = setup.get<TransientRecHitRecord>().cacheIdentifier();
@@ -152,7 +155,10 @@ void GlobalMuonRefitter::setServices(const EventSetup& setup) {
     LogDebug(theCategory) << "TransientRecHitRecord changed!";
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
   }
+  theFitter->setHitCloner(&hitCloner);
+
 }
 
 
@@ -462,7 +468,7 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
       muonRecHits.push_back((*im).recHit());
       continue;
     }  
-    ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
+    const MuonTransientTrackingRecHit* immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
 
     DetId id = immrh->geographicalId();
     DetId chamberId;

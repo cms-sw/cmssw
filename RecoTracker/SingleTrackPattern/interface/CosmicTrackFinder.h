@@ -33,11 +33,10 @@ namespace cms
       // std::cout<<"chi "<<t1.chiSquared()<<" "<<t2.chiSquared()<<std::endl;
       // return false;
     }
-    void  AnalHits(const std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >& hits){
+    void  AnalHits(const std::vector< TransientTrackingRecHit::ConstRecHitPointer >& hits){
       ltob1=false; ltob2=false; ltib1=false; ltib2=false;
-      std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
       //     ConstRecHitIterator hit;
-      for(hit=hits.begin();hit!=hits.end();hit++){
+      for(auto hit=hits.begin();hit!=hits.end();hit++){
 	unsigned int iid=(*hit)->hit()->geographicalId().rawId();
 	
 	int sub=(iid>>25)&0x7 ;

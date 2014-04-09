@@ -40,4 +40,6 @@
   <class name="std::vector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector> >" />
   <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector> >" />
   <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector> > >" />
+ <class name="SiPixelClusterShapeCache" persistent="false"/>
+ <class name="edm::Wrapper<SiPixelClusterShapeCache>" persistent="false"/>
 </lcgdict>

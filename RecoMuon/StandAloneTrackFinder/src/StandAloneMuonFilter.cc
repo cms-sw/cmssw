@@ -367,7 +367,7 @@ void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory & oldTraj, T
     else {
       MuonTransientTrackingRecHit::MuonRecHitPointer invRhPtr = MuonTransientTrackingRecHit::specificBuild( (*itm).recHit()->det(), (*itm).recHit()->hit() );
       invRhPtr->invalidateHit();
-      TrajectoryMeasurement invRhMeas( (*itm).forwardPredictedState(), (*itm).updatedState(), invRhPtr.get(), (*itm).estimate(), (*itm).layer() );
+      TrajectoryMeasurement invRhMeas( (*itm).forwardPredictedState(), (*itm).updatedState(), invRhPtr, (*itm).estimate(), (*itm).layer() );
       defTraj.push( std::move(invRhMeas), (*itm).estimate() );	  
     }
 

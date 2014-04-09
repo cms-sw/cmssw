@@ -34,7 +34,7 @@ TripletFilter::~TripletFilter()
 
 /*****************************************************************************/
 bool TripletFilter::checkTrack
-(const vector<const TrackingRecHit*>& recHits, const vector<LocalVector>& localDirs, const TrackerTopology *tTopo)
+(const vector<const TrackingRecHit*>& recHits, const vector<LocalVector>& localDirs, const TrackerTopology *tTopo, const SiPixelClusterShapeCache& clusterShapeCache)
 {
   bool ok = true;
 
@@ -49,7 +49,7 @@ bool TripletFilter::checkTrack
     if(! pixelRecHit->isValid())
     {  ok = false; break; }
 
-    if(! theFilter->isCompatible(*pixelRecHit, *localDir))
+    if(! theFilter->isCompatible(*pixelRecHit, *localDir, clusterShapeCache))
     {
       LogTrace("MinBiasTracking")
        << "  [TripletFilter] clusShape problem"
@@ -66,7 +66,7 @@ bool TripletFilter::checkTrack
 
 /*****************************************************************************/
 bool TripletFilter::checkTrack
-(const vector<const TrackingRecHit*>& recHits, const vector<GlobalVector>& globalDirs, const TrackerTopology *tTopo)
+(const vector<const TrackingRecHit*>& recHits, const vector<GlobalVector>& globalDirs, const TrackerTopology *tTopo, const SiPixelClusterShapeCache& clusterShapeCache)
 {
   bool ok = true;
 
@@ -81,7 +81,7 @@ bool TripletFilter::checkTrack
     if(! pixelRecHit->isValid())
     {  ok = false; break; }
 
-    if(! theFilter->isCompatible(*pixelRecHit, *globalDir))
+    if(! theFilter->isCompatible(*pixelRecHit, *globalDir, clusterShapeCache))
     {
       LogTrace("MinBiasTracking")
        << "  [TripletFilter] clusShape problem"

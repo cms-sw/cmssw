@@ -55,7 +55,7 @@
 template <class T> inline T sqr( T t) {return t*t;}
 
 KFBasedPixelFitter::MyBeamSpotHit::MyBeamSpotHit (const reco::BeamSpot &beamSpot, const GeomDet * geom)
-  : TValidTrackingRecHit(geom, 0)
+  : TValidTrackingRecHit(*geom)
 {
   localPosition_ = LocalPoint(0.,0.,0.);
   localError_ = LocalError( sqr(beamSpot.BeamWidthX()), 0.0, sqr(beamSpot.sigmaZ())); //neglect XY differences and BS slope

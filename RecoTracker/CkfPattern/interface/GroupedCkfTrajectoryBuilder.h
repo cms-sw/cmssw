@@ -25,16 +25,7 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   
  public:
   /// constructor from ParameterSet
-  GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-			      const TrajectoryStateUpdator*         updator,
-			      const Propagator*                     propagatorAlong,
-			      const Propagator*                     propagatorOpposite,
-			      const Chi2MeasurementEstimatorBase*   estimator,
-			      const TransientTrackingRecHitBuilder* RecHitBuilder,
-			      const TrajectoryFilter*               filter,
-			      const TrajectoryFilter*               inOutFilter);
-
-  virtual GroupedCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const ;
+  GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 
   /// destructor
   virtual ~GroupedCkfTrajectoryBuilder(){}
@@ -102,6 +93,7 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   double mass() {return theMass;}
 
 protected:
+  void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   virtual void analyseSeed(const TrajectorySeed& seed) const{}
 
@@ -120,14 +112,16 @@ private :
   inline bool tkxor(bool a, bool b) const  dso_internal {return (a||b) && !(a&&b);}
   // to be ported later
 
-  bool advanceOneLayer( TempTrajectory& traj, 
+  bool advanceOneLayer( const TrajectorySeed& seed,
+                        TempTrajectory& traj, 
 			const TrajectoryFilter* regionalCondition,
 			const Propagator* propagator, 
                         bool inOut,
 			TempTrajectoryContainer& newCand, 
 			TempTrajectoryContainer& result) const  dso_internal;
 
-  void groupedLimitedCandidates( TempTrajectory const& startingTraj, 
+  void groupedLimitedCandidates( const TrajectorySeed& seed,
+                                 TempTrajectory const& startingTraj, 
 				 const TrajectoryFilter* regionalCondition,
 				 const Propagator* propagator, 
                                  bool inOut,
