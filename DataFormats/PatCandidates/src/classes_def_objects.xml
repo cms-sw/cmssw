@@ -313,9 +313,6 @@
   <class name="edm::RefProd<pat::PackedCandidateCollection>" />
   <class name="edm::Association<pat::PackedCandidateCollection>" />
   <class name="edm::Wrapper<edm::Association<pat::PackedCandidateCollection> >" />
-  <class name="edm::RefProd<reco::PFCandidateCollection>" />
-  <class name="edm::Association<reco::PFCandidateCollection>" />
-  <class name="edm::Wrapper<edm::Association<reco::PFCandidateCollection> >" />
 
   </selection>
  <exclusion>
