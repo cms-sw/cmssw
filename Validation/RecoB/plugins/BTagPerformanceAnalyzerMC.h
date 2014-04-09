@@ -2,7 +2,7 @@
 #define BTagPerformanceAnalyzerMC_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,13 +42,11 @@
  *
  */
 
-class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
+class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
    public:
       explicit BTagPerformanceAnalyzerMC(const edm::ParameterSet& pSet);
 
       ~BTagPerformanceAnalyzerMC();
-
-      virtual void beginRun(const edm::Run & run, const edm::EventSetup & es);
 
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
@@ -64,13 +62,14 @@ class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
   };
 
   // Get histogram plotting options from configuration.
-  void bookHistos();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;     
+
   EtaPtBin getEtaPtBin(const int& iEta, const int& iPt);
-    typedef std::pair<reco::Jet, reco::JetFlavour> JetWithFlavour;
-typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
-typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCompare> LeptonMap;
-  //  reco::JetFlavour getJetFlavour(
-  //	edm::RefToBase<reco::Jet> caloRef, FlavourMap flavours);
+
+  typedef std::pair<reco::Jet, reco::JetFlavour> JetWithFlavour;
+  typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
+  typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCompare> LeptonMap;
+  
   bool getJetWithFlavour(edm::RefToBase<reco::Jet> caloRef,
                          const FlavourMap& _flavours, JetWithFlavour &jetWithFlavour,
 			 const edm::EventSetup & es, 

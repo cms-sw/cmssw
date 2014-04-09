@@ -89,11 +89,7 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
   }
 }
 
-void BTagPerformanceAnalyzerOnData::beginRun(const edm::Run & run, const edm::EventSetup & es){
-  bookHistos();
-}
-
-void BTagPerformanceAnalyzerOnData::bookHistos()
+void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, edm::Run const & run, edm::EventSetup const & es)
 {
   //
   // Book all histograms.

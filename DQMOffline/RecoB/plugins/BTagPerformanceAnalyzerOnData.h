@@ -2,7 +2,7 @@
 #define BTagPerformanceAnalyzerOnData_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,13 +34,11 @@
  *
  */
 
-class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
+class BTagPerformanceAnalyzerOnData : public DQMEDAnalyzer {
    public:
       explicit BTagPerformanceAnalyzerOnData(const edm::ParameterSet& pSet);
 
       ~BTagPerformanceAnalyzerOnData();
-
-      void beginRun(const edm::Run & run, const edm::EventSetup & es);
 
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
@@ -56,7 +54,8 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
   };
 
   // Get histogram plotting options from configuration.
-  void bookHistos();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
   EtaPtBin getEtaPtBin(const int& iEta, const int& iPt);
 
   std::vector<std::string> tiDataFormatType;
