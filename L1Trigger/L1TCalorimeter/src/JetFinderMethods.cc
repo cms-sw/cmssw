@@ -140,7 +140,8 @@ namespace l1t {
 	}
 
 	//first iteration, eta cut defines forward
-	const bool forward = (jetEta <= 4 || jetEta >= 17);
+	//const bool forward = (jetEta <= 4 || jetEta >= 17);
+	const bool forward = (jetEta < 4 || jetEta > 17);
 	int jetQual = 0;
 	if(forward)
 	  jetQual |= 0x2;
