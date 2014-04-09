@@ -49,7 +49,7 @@ class EcalShashlikGeometry GCC11_FINAL: public CaloSubdetectorGeometry
   
   typedef EKDetId DetIdType ;
   
-  enum { k_NumberOfCellsForCorners =  EKDetId::kSizeForDenseIndexing } ; 
+  //enum { k_NumberOfCellsForCorners =  EKDetId::kSizeForDenseIndexing } ; 
   
   enum { k_NumberOfShapes = 1 } ; 
   

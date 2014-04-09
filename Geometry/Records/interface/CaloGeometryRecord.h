@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/EcalBarrelGeometryRecord.h"
 #include "Geometry/Records/interface/EcalEndcapGeometryRecord.h"
+#include "Geometry/Records/interface/EcalShashlikGeometryRecord.h"
 #include "Geometry/Records/interface/EcalPreshowerGeometryRecord.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -32,6 +33,7 @@ class CaloGeometryRecord :
                 IdealGeometryRecord,
 		EcalBarrelGeometryRecord,
 		EcalEndcapGeometryRecord,
+		EcalShashlikGeometryRecord,
 		EcalPreshowerGeometryRecord,
 		HcalGeometryRecord,
                 HcalRecNumberingRecord,

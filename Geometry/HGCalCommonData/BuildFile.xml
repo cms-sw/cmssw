@@ -1,5 +1,7 @@
 <use   name="DetectorDescription/Base"/>
 <use   name="DetectorDescription/Core"/>
+<use   name="Geometry/EcalCommonData"/>
+<use   name="DataFormats/EcalDetId"/>
 <export>
   <lib   name="1"/>
 </export>
