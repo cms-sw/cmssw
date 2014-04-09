@@ -1,0 +1,531 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!-- 
+         
+         == CMS Forward Pixels Geometry ==
+         
+         @version 3.02.01 May 30, 2006
+         @created Dmitry Onoprienko
+         @modified Xingtao Huang to implement the fpix service cylinder
+         @modified Vesna Cuplov to fix the Electronics boards positions (august 2008).
+         
+         
+         == COMPONENT DEFINED BY THIS FILE: ==
+         
+         Service cylinders.
+         
+         == Comments : ==
+         
+         Currently, only three graphite cylinders are described. No ribs, cables, coolant pipes, circuit boards, etc. 
+         And unlike files for all other subsystems, this file does not define a root volume, but instead positions 
+         new volumes directly into pixfwd:PixelForwardZPlus and pixfwd:PixelForwardZMinus, using 
+         the pixfwd:ZCylinder constant defined in pixfwd.xml.
+         
+         The reason is that many components that should go into service cylinders have not been designed yet, 
+         and it's not clear what shape the root volume will eventually have to have, what symmetry 
+         between Z+ and Z- endcaps we will be able to use, and so on. Once the exact geometry is known, 
+         the file will need to be modified to follow the standard scheme for forward pixels geometry - 
+         root volume plus an anchor point for positioning. 
+         
+         -->
+    <ConstantsSection label="Cylinders" eval="true">
+        <Constant name="CylindersOuterRmin" value="160.00*mm"/>
+        <Constant name="CylindersOuterRmax" value="168.50*mm"/>
+        <Constant name="CylindersOuterLength" value="2101.09*mm"/>
+        <Constant name="CylindersEndFlangeRmin" value="132.50*mm"/>
+        <Constant name="CylindersEndFlangeRmax" value="160.50*mm"/>
+        <Constant name="CylindersEndFlangeLength" value="41.30*mm"/>
+        <Constant name="CylindersElectronicsRmin" value="117.20*mm"/>
+        <Constant name="CylindersElectronicsRmax" value="160.00*mm"/>
+        <Constant name="CylindersElectronicsLength" value="132.08*mm"/>
+        <Constant name="CylindersCoilFiberWidth" value="98.48*mm"/>
+        <Constant name="CylindersCoilFiberLength" value="582.97*mm"/>
+        <Constant name="CylindersCoilFiberThickness" value="12.70*mm"/>
+        <Constant name="CylinderPipeRmax" value="15.0/2.0*mm"/>
+        <Constant name="CylinderPipeRmin" value="9.02/2.0*mm"/>
+        <Constant name="CylinderPipeLength1" value="(1177.16-239.58)*mm"/>
+        <Constant name="CylinderPipeLength2" value="823.60*mm"/>
+        <Constant name="CylindersPortCardsWidth" value="60.0*mm"/>
+        <Constant name="CylindersPortCardsLength1" value="223.52*mm"/>
+        <Constant name="CylindersPortCardsLength2" value="355.60*mm"/>
+        <Constant name="PortCardsOffset" value="([CylindersPortCardsLength2]-[CylindersPortCardsLength1])/2."/>
+        <Constant name="CylindersPortCardsThickness" value="5.40*mm"/>
+        <Constant name="CylindersServiceZoff" value="320.0*mm"/>
+        <Constant name="CylindersServiceRmin" value="100*mm"/>
+        <Constant name="CylindersServiceZ0" value="0*mm"/>
+        <Constant name="CylindersServiceZMin" value="[CylindersServiceZoff]"/>
+        <Constant name="CylindersServiceZMax" value="[CylindersOuterLength]"/>
+    </ConstantsSection>
+    <RotationSection label="Cylinders">
+        <Rotation name="EndFlangeRot1" phiX="290.*deg" thetaX="90.*deg" phiY="20.*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="EndFlangeRot2" phiX="110.*deg" thetaX="90.*deg" phiY="200.*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="ElectronicsRot1" phiX="39.31*deg" thetaX="90.*deg" phiY="129.31*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="ElectronicsRot2" phiX="39.31*deg" thetaX="90.*deg" phiY="129.31*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="CoilFiberRot1" phiX="317.19*deg" thetaX="90.*deg" phiY="47.19*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="CoilFiberRot2" phiX="222.81*deg" thetaX="90.*deg" phiY="312.81*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="CoilFiberRot3" phiX="42.81*deg" thetaX="90.*deg" phiY="132.81*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="CoilFiberRot4" phiX="137.19*deg" thetaX="90.*deg" phiY="227.19*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="PortCardsRot1" phiX="337.5*deg" thetaX="90.*deg" phiY="67.5*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="PortCardsRot2" phiX="292.5*deg" thetaX="90.*deg" phiY="22.5*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="PortCardsRot3" phiX="247.5*deg" thetaX="90.*deg" phiY="337.5*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="PortCardsRot4" phiX="202.5*deg" thetaX="90.*deg" phiY="292.5*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="PortCardsRot5" phiX="22.5*deg" thetaX="90.*deg" phiY="112.5*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="PortCardsRot6" phiX="67.5*deg" thetaX="90.*deg" phiY="157.5*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="PortCardsRot7" phiX="112.5*deg" thetaX="90.*deg" phiY="202.5*deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="PortCardsRot8" phiX="157.5*deg" thetaX="90.*deg" phiY="247.5* deg" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+    </RotationSection>
+    <SolidSection label="Cylinders">
+        <Polycone name="PixelForwardServiceCylinderPlus" startPhi="0*deg" deltaPhi="360*deg">
+            <ZSection z="[CylindersServiceZ0]" rMin="[CylindersOuterRmin]" rMax="[CylindersOuterRmax]"/>
+            <ZSection z="[CylindersServiceZMin]" rMin="[CylindersOuterRmin]" rMax="[CylindersOuterRmax]"/>
+            <ZSection z="[CylindersServiceZMin]" rMin="[CylindersServiceRmin]" rMax="[CylindersOuterRmax]"/>
+            <ZSection z="[CylindersServiceZMax]" rMin="[CylindersServiceRmin]" rMax="[CylindersOuterRmax]"/>
+        </Polycone>
+        <Polycone name="PixelForwardServiceCylinderMinus" startPhi="0*deg" deltaPhi="360*deg">
+            <ZSection z="[CylindersServiceZ0]" rMin="[CylindersOuterRmin]" rMax="[CylindersOuterRmax]"/>
+            <ZSection z="[CylindersServiceZMin]" rMin="[CylindersOuterRmin]" rMax="[CylindersOuterRmax]"/>
+            <ZSection z="[CylindersServiceZMin]" rMin="[CylindersServiceRmin]" rMax="[CylindersOuterRmax]"/>
+            <ZSection z="[CylindersServiceZMax]" rMin="[CylindersServiceRmin]" rMax="[CylindersOuterRmax]"/>
+        </Polycone>
+        <Tubs name="PixelForwardCylinderOuterCyl" rMin="[CylindersOuterRmin]" rMax="[CylindersOuterRmax]" dz="[CylindersOuterLength]/2." startPhi="0." deltaPhi="360*deg"/>
+        <Tubs name="PixelForwardCylinderEndFlange" rMin="[CylindersEndFlangeRmin]" rMax="[CylindersEndFlangeRmax]" dz="[CylindersEndFlangeLength]/2." startPhi="0.*deg" deltaPhi="140.*deg"/>
+        <Tubs name="PixelForwardCylinderElectronics1" rMin="[CylindersElectronicsRmin]" rMax="[CylindersElectronicsRmax]" dz="[CylindersElectronicsLength]/2." startPhi="19.79*deg" deltaPhi="33.57*deg"/>
+        <Tubs name="PixelForwardCylinderElectronics2" rMin="[CylindersElectronicsRmin]" rMax="[CylindersElectronicsRmax]" dz="[CylindersElectronicsLength]/2." startPhi="121.17*deg" deltaPhi="39.04*deg"/>
+        <Tubs name="PixelForwardCylinderElectronics3" rMin="[CylindersElectronicsRmin]" rMax="[CylindersElectronicsRmax]" dz="[CylindersElectronicsLength]/2." startPhi="302.75*deg" deltaPhi="39.04*deg"/>
+        <Tubs name="PixelForwardCylinderElectronics4" rMin="[CylindersElectronicsRmin]" rMax="[CylindersElectronicsRmax]" dz="[CylindersElectronicsLength]/2." startPhi="203.675*deg" deltaPhi="33.57*deg"/>
+        <Box name="PixelForwardCylindersCoilFiber" dx="[CylindersCoilFiberWidth]/2." dy="[CylindersCoilFiberThickness]/2." dz="[CylindersCoilFiberLength]/2."/>
+        <Tubs name="PixelForwardCylinderPipe1" rMin="[CylinderPipeRmin]" rMax="[CylinderPipeRmax]" dz="[CylinderPipeLength1]/2." startPhi="0." deltaPhi="360*deg"/>
+        <Tubs name="PixelForwardCylinderPipe2" rMin="[CylinderPipeRmin]" rMax="[CylinderPipeRmax]" dz="[CylinderPipeLength2]/2." startPhi="0." deltaPhi="360*deg"/>
+        <Box name="PixelForwardCylindersPortCards1" dx="[CylindersPortCardsWidth]/2." dy="[CylindersPortCardsThickness]/2." dz="[CylindersPortCardsLength1]/2."/>
+        <Box name="PixelForwardCylindersPortCards2" dx="[CylindersPortCardsWidth]/2." dy="[CylindersPortCardsThickness]/2." dz="[CylindersPortCardsLength2]/2."/>
+    </SolidSection>
+    <LogicalPartSection label="Cylinders">
+        <LogicalPart name="PixelForwardServiceCylinderPlus" category="support">
+            <rSolid name="PixelForwardServiceCylinderPlus"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardServiceCylinderMinus" category="support">
+            <rSolid name="PixelForwardServiceCylinderMinus"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylinderOuterCyl" category="support">
+            <rSolid name="PixelForwardCylinderOuterCyl"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_Servi_Cylind"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylinderEndFlange" category="support">
+            <rSolid name="PixelForwardCylinderEndFlange"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_End_Flange"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylinderElectronics1" category="support">
+            <rSolid name="PixelForwardCylinderElectronics1"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_End_Electro_2"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylinderElectronics2" category="support">
+            <rSolid name="PixelForwardCylinderElectronics2"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_End_Electro_1"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylinderElectronics3" category="support">
+            <rSolid name="PixelForwardCylinderElectronics3"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_End_Electro_1"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylinderElectronics4" category="support">
+            <rSolid name="PixelForwardCylinderElectronics4"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_End_Electro_2"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylindersCoilFiber" category="support">
+            <rSolid name="PixelForwardCylindersCoilFiber"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_End_Coil_Fiber"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylinderPipe1" category="support">
+            <rSolid name="PixelForwardCylinderPipe1"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_End_Pipe_1"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylinderPipe2" category="support">
+            <rSolid name="PixelForwardCylinderPipe2"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_End_Pipe_2"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylindersPortCards1" category="support">
+            <rSolid name="PixelForwardCylindersPortCards1"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_Port_Cards"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardCylindersPortCards2" category="support">
+            <rSolid name="PixelForwardCylindersPortCards2"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_Port_Cards"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <ConstantsSection label="CylindersPosition" eval="true">
+        <Constant name="ZOuterCylinder" value="([pixfwd:AnchorZ]+[CylindersOuterLength]/2.0)"/>
+        <Constant name="CoilFiblerToIP" value="1538.97*mm"/>
+        <Constant name="CoilFilberToBeam" value="114.7*mm"/>
+        <Constant name="CoilFilberAngle" value="47.19*deg"/>
+        <!--Constant name="FractionForPipe" value="0.9499"/-->
+        <Constant name="FractionForPipe" value="0.99"/>
+        <Constant name="PipeX1" value="19.9*mm"/>
+        <Constant name="PipeX2" value="151.7*mm"/>
+        <Constant name="PipeY1" value="150.4*mm"/>
+        <Constant name="PipeY2" value="16.9*mm"/>
+        <Constant name="PipeToIP1" value="([pixfwd:ZPixelForward]+[CylindersServiceZMin]+[CylinderPipeLength1]/2)"/>
+        <Constant name="PipeToIP2" value="1994.38*mm"/>
+        <Constant name="PortCardsToBeam" value="143.1*mm"/>
+        <Constant name="PortCardsAngle1" value="(22.5+1)*deg"/>
+        <Constant name="PortCardsAngle2" value="(67.5-1)*deg"/>
+        <Constant name="PortCardsToIP" value="952.75*mm"/>
+        <Constant name="ZOffCylinder" value="-[pixfwd:ZPixelForward]"/>
+    </ConstantsSection>
+    <PosPartSection label="Cylinders">
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderOuterCyl"/>
+            <Translation x="0." y="0." z="[ZOuterCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderOuterCyl"/>
+            <Translation x="0." y="0." z="[ZOuterCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderElectronics1"/>
+            <Translation x="0." y="0." z="[CylindersServiceZMax]-[CylindersElectronicsLength]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderElectronics1"/>
+            <Translation x="0." y="0." z="[CylindersServiceZMax]-[CylindersElectronicsLength]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderElectronics2"/>
+            <Translation x="0." y="0." z="[CylindersServiceZMax]-[CylindersElectronicsLength]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderElectronics2"/>
+            <Translation x="0." y="0." z="[CylindersServiceZMax]-[CylindersElectronicsLength]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderElectronics3"/>
+            <Translation x="0." y="0." z="[CylindersServiceZMax]-[CylindersElectronicsLength]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderElectronics3"/>
+            <Translation x="0." y="0." z="[CylindersServiceZMax]-[CylindersElectronicsLength]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderElectronics4"/>
+            <Translation x="0." y="0." z="[CylindersServiceZMax]-[CylindersElectronicsLength]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderElectronics4"/>
+            <Translation x="0." y="0." z="[CylindersServiceZMax]-[CylindersElectronicsLength]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersCoilFiber"/>
+            <Translation x="[CoilFilberToBeam]*cos([CoilFilberAngle])" y="[CoilFilberToBeam]*sin([CoilFilberAngle])" z="[CoilFiblerToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:CoilFiberRot1"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersCoilFiber"/>
+            <Translation x="[CoilFilberToBeam]*cos([CoilFilberAngle])" y="-[CoilFilberToBeam]*sin([CoilFilberAngle])" z="[CoilFiblerToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:CoilFiberRot2"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersCoilFiber"/>
+            <Translation x="-[CoilFilberToBeam]*cos([CoilFilberAngle])" y="[CoilFilberToBeam]*sin([CoilFilberAngle])" z="[CoilFiblerToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:CoilFiberRot3"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersCoilFiber"/>
+            <Translation x="-[CoilFilberToBeam]*cos([CoilFilberAngle])" y="-[CoilFilberToBeam]*sin([CoilFilberAngle])" z="[CoilFiblerToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:CoilFiberRot4"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersCoilFiber"/>
+            <Translation x="[CoilFilberToBeam]*cos([CoilFilberAngle])" y="[CoilFilberToBeam]*sin([CoilFilberAngle])" z="[CoilFiblerToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:CoilFiberRot1"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersCoilFiber"/>
+            <Translation x="[CoilFilberToBeam]*cos([CoilFilberAngle])" y="-[CoilFilberToBeam]*sin([CoilFilberAngle])" z="[CoilFiblerToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:CoilFiberRot2"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersCoilFiber"/>
+            <Translation x="-[CoilFilberToBeam]*cos([CoilFilberAngle])" y="[CoilFilberToBeam]*sin([CoilFilberAngle])" z="[CoilFiblerToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:CoilFiberRot3"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersCoilFiber"/>
+            <Translation x="-[CoilFilberToBeam]*cos([CoilFilberAngle])" y="-[CoilFilberToBeam]*sin([CoilFilberAngle])" z="[CoilFiblerToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:CoilFiberRot4"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="[PipeX1]*[FractionForPipe]" y="[PipeY1]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="[PipeX2]*[FractionForPipe]" y="[PipeY2]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="[PipeX2]*[FractionForPipe]" y="-[PipeY2]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="[PipeX1]*[FractionForPipe]" y="-[PipeY1]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="-[PipeX1]*[FractionForPipe]" y="[PipeY1]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="-[PipeX2]*[FractionForPipe]" y="[PipeY2]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="-[PipeX2]*[FractionForPipe]" y="-[PipeY2]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="-[PipeX1]*[FractionForPipe]" y="-[PipeY1]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="[PipeX1]*[FractionForPipe]" y="[PipeY1]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="[PipeX2]*[FractionForPipe]" y="[PipeY2]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="[PipeX2]*[FractionForPipe]" y="-[PipeY2]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="[PipeX1]*[FractionForPipe]" y="-[PipeY1]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="-[PipeX1]*[FractionForPipe]" y="[PipeY1]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="-[PipeX2]*[FractionForPipe]" y="[PipeY2]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="-[PipeX2]*[FractionForPipe]" y="-[PipeY2]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>
+            <Translation x="-[PipeX1]*[FractionForPipe]" y="-[PipeY1]*[FractionForPipe]" z="[PipeToIP1]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="[PipeX1]*[FractionForPipe]" y="[PipeY1]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="[PipeX2]*[FractionForPipe]" y="[PipeY2]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="[PipeX2]*[FractionForPipe]" y="-[PipeY2]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="[PipeX1]*[FractionForPipe]" y="-[PipeY1]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="-[PipeX1]*[FractionForPipe]" y="[PipeY1]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="-[PipeX2]*[FractionForPipe]" y="[PipeY2]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="-[PipeX2]*[FractionForPipe]" y="-[PipeY2]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="-[PipeX1]*[FractionForPipe]" y="-[PipeY1]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="[PipeX1]*[FractionForPipe]" y="[PipeY1]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="[PipeX2]*[FractionForPipe]" y="[PipeY2]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="[PipeX2]*[FractionForPipe]" y="-[PipeY2]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="[PipeX1]*[FractionForPipe]" y="-[PipeY1]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="-[PipeX1]*[FractionForPipe]" y="[PipeY1]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="-[PipeX2]*[FractionForPipe]" y="[PipeY2]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="-[PipeX2]*[FractionForPipe]" y="-[PipeY2]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderPipe2"/>
+            <Translation x="-[PipeX1]*[FractionForPipe]" y="-[PipeY1]*[FractionForPipe]" z="[PipeToIP2]+[ZOffCylinder]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot1"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot2"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot3"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot4"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot5"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot6"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot7"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot8"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot1"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot2"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot3"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot4"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot5"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot6"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot7"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <rRotation name="pixfwdCylinder:PortCardsRot8"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>

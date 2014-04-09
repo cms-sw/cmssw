@@ -3,7 +3,7 @@
 
 #include "SiChargeCollectionDrifter.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "SiPileUpSignals.h"
+#include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
 
 #include<map>
 

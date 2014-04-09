@@ -11,9 +11,13 @@ IsolatedTauJetsSelector::IsolatedTauJetsSelector(const edm::ParameterSet& iConfi
 {
 
   jetSrc = iConfig.getParameter<vtag>("JetSrc");
+  for(vtag::const_iterator it = jetSrc.begin(); it != jetSrc.end(); ++it) {
+    edm::EDGetTokenT<reco::IsolatedTauTagInfoCollection> aToken = consumes<reco::IsolatedTauTagInfoCollection>(*it);
+    jetSrcToken.push_back(aToken);
+  }
   pt_min_leadTrack   = iConfig.getParameter<double>("MinimumTransverseMomentumLeadingTrack"); 
-useIsolationDiscriminator = iConfig.getParameter<bool>("UseIsolationDiscriminator");
- useInHLTOpen       = iConfig.getParameter<bool>("UseInHLTOpen");
+  useIsolationDiscriminator = iConfig.getParameter<bool>("UseIsolationDiscriminator");
+  useInHLTOpen       = iConfig.getParameter<bool>("UseInHLTOpen");
  
   produces<reco::CaloJetCollection>();
   //  produces<reco::IsolatedTauTagInfoCollection>();  
@@ -31,9 +35,10 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   CaloJetCollection * jetCollectionTmp = new CaloJetCollection;
 //    IsolatedTauTagInfoCollection * extendedCollection = new IsolatedTauTagInfoCollection;
 
-  for( vtag::const_iterator s = jetSrc.begin(); s != jetSrc.end(); ++ s ) {
+  typedef vector<EDGetTokenT<IsolatedTauTagInfoCollection> > vtag_token;
+  for( vtag_token::const_iterator s = jetSrcToken.begin(); s != jetSrcToken.end(); ++ s ) {
     edm::Handle<IsolatedTauTagInfoCollection> tauJets;
-    iEvent.getByLabel( * s, tauJets );
+    iEvent.getByToken( * s, tauJets );
     IsolatedTauTagInfoCollection::const_iterator i = tauJets->begin();
     for(;i !=tauJets->end(); i++ ) {
 

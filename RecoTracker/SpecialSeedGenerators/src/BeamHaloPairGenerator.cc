@@ -1,12 +1,14 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/BeamHaloPairGenerator.h"
 typedef SeedingHitSet::ConstRecHitPointer SeedingHit;
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 using namespace ctfseeding;
 
 
 BeamHaloPairGenerator::BeamHaloPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC): 
-  theLayerBuilder(conf.getParameter<edm::ParameterSet>("LayerPSet"), iC)
+  theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(conf.getParameter<edm::InputTag>("LayerSrc")))
 {
 	edm::LogInfo("CtfSpecialSeedGenerator|BeamHaloPairGenerator") << "Constructing BeamHaloPairGenerator";
 	theMaxTheta=conf.getParameter<double>("maxTheta");
@@ -18,17 +20,14 @@ const OrderedSeedingHits& BeamHaloPairGenerator::run(const TrackingRegion& regio
                           			    const edm::Event& e,
                               			    const edm::EventSetup& es){
 	hitPairs.clear();
-        if(theLayerBuilder.check(es)) {
-          theLss = theLayerBuilder.layers(es);
-        }
-	SeedingLayerSets::const_iterator iLss;
-	for (iLss = theLss.begin(); iLss != theLss.end(); iLss++){
-		SeedingLayers ls = *iLss;
-		if (ls.size() != 2){
-                	throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 2 ";
-        	}	
-		auto innerHits  = region.hits(e, es, &ls[0]);
-		auto outerHits  = region.hits(e, es, &ls[1]);
+        edm::Handle<SeedingLayerSetsHits> hlayers;
+        e.getByToken(theSeedingLayerToken, hlayers);
+        const SeedingLayerSetsHits& layers = *hlayers;
+        if(layers.numberOfLayersInSet() != 2)
+          throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << layers.numberOfLayersInSet() <<" layers in set instead of 2 ";
+        for(SeedingLayerSetsHits::SeedingLayerSet ls: layers) {
+		auto innerHits  = region.hits(e, es, ls[0]);
+		auto outerHits  = region.hits(e, es, ls[1]);
 		
 		for (auto iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++){
 		  for (auto iInnerHit = innerHits.begin(); iInnerHit != innerHits.end(); iInnerHit++){

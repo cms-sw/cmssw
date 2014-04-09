@@ -79,6 +79,26 @@ TestMixedSource::TestMixedSource(const edm::ParameterSet& iConfig)
   // HepMCProduct
   histHepMCProduct_bunch_ = new TH1I("histoHepMCProduct","Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
 
+  // Tokens
+
+  edm::InputTag tag = edm::InputTag("mix","g4SimHits");
+  
+  SimTrackToken_ = consumes<CrossingFrame<SimTrack>>(tag);
+  SimVertexToken_ = consumes<CrossingFrame<SimVertex>>(tag);
+
+  tag = edm::InputTag("mix","g4SimHitsTrackerHitsTECHighTof");
+  TrackerToken0_ = consumes<CrossingFrame<PSimHit>>(tag);
+
+  tag = edm::InputTag("mix","g4SimHitsEcalHitsEB");
+  CaloToken1_ = consumes<CrossingFrame<PCaloHit>>(tag);
+
+  tag = edm::InputTag("mix","g4SimHitsMuonCSCHits");
+  MuonToken_ = consumes<CrossingFrame<PSimHit>>(tag);
+
+  tag = edm::InputTag("mix","generator");
+  HepMCToken_ = consumes<CrossingFrame<edm::HepMCProduct>>(tag);
+
+
 }
 
 
@@ -99,7 +119,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // test SimTracks
   //----------------------
   edm::Handle<CrossingFrame<SimTrack> > cf_simtrack;
-  bool gotTracks = iEvent.getByLabel("mix","g4SimHits",cf_simtrack);
+  bool gotTracks = iEvent.getByToken(SimTrackToken_,cf_simtrack);
   if (!gotTracks)  outputFile<<" Could not read SimTracks!!!!" 
   		   << " Please, check if the object SimTracks has been declared in the"
   		   << " MixingModule configuration file."<<std::endl;
@@ -134,7 +154,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // test SimVertices
   //---------------------
   edm::Handle<CrossingFrame<SimVertex> > cf_simvtx;
-  bool gotSimVertex = iEvent.getByLabel("mix","g4SimHits",cf_simvtx);
+  bool gotSimVertex = iEvent.getByToken(SimVertexToken_,cf_simvtx);
   if (!gotSimVertex) outputFile<<" Could not read Simvertices !!!!"<<std::endl;
   else {
     outputFile<<"\n=================== Starting SimVertex access ==================="<<std::endl;
@@ -158,7 +178,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //test HepMCProducts
   //------------------------------------
   edm::Handle<CrossingFrame<edm::HepMCProduct> > cf_hepmc;
-  bool gotHepMCP = iEvent.getByLabel("mix","generator",cf_hepmc);
+  bool gotHepMCP = iEvent.getByToken(HepMCToken_,cf_hepmc);
   if (!gotHepMCP) std::cout<<" Could not read HepMCProducts!!!!"<<std::endl;
   else {
     outputFile<<"\n=================== Starting HepMCProduct access ==================="<<std::endl;
@@ -184,7 +204,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //--------------------------  
   const std::string subdetcalo("g4SimHitsEcalHitsEB");
   edm::Handle<CrossingFrame<PCaloHit> > cf_calo;
-  bool gotPCaloHit = iEvent.getByLabel("mix",subdetcalo,cf_calo);
+  bool gotPCaloHit = iEvent.getByToken(CaloToken1_,cf_calo);
   if (!gotPCaloHit) outputFile<<" Could not read CaloHits with label "<<subdetcalo<<"!!!!"<<std::endl;
   else {
     outputFile<<"\n\n=================== Starting CaloHit access, subdet "<<subdetcalo<<"  ==================="<<std::endl;
@@ -209,7 +229,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   
   const std::string subdet("g4SimHitsTrackerHitsTECHighTof");
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
-  bool gotPSimHit = iEvent.getByLabel("mix",subdet,cf_simhit);
+  bool gotPSimHit = iEvent.getByToken(TrackerToken0_,cf_simhit);
   if (!gotPSimHit) outputFile<<" Could not read SimHits with label "<<subdet<<"!!!!"<<std::endl;
   else {
     outputFile<<"\n\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
@@ -243,7 +263,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   
   const std::string subdet1("g4SimHitsMuonCSCHits");
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit1;
-  bool gotPSimHit1 = iEvent.getByLabel("mix",subdet1,cf_simhit1);
+  bool gotPSimHit1 = iEvent.getByToken(MuonToken_,cf_simhit1);
   if (!gotPSimHit1) outputFile<<" Could not read SimHits with label "<<subdet1<<"!!!!"<<std::endl;
   else {
     outputFile<<"\n\n=================== Starting SimHit access, subdet "<<subdet1<<"  ==================="<<std::endl;

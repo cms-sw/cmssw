@@ -138,19 +138,19 @@ std::vector<DetId> HcalTopology::south(const DetId& id) const {
 
 std::vector<DetId> HcalTopology::up(const DetId& id) const {
   HcalDetId neighbor = id;
-  //A.N.
-  //  incrementDepth(neighbor);
   std::vector<DetId> vNeighborsDetId;
-  if(incrementDepth(neighbor)) 
-  {
+  if(incrementDepth(neighbor)) {
     vNeighborsDetId.push_back(neighbor);
   }
   return  vNeighborsDetId;
 }
 
 std::vector<DetId> HcalTopology::down(const DetId& id) const {
-  std::cout << "HcalTopology::down() not yet implemented" << std::endl; 
+  HcalDetId neighbor = id;
   std::vector<DetId> vNeighborsDetId;
+  if (decrementDepth(neighbor)) {
+    vNeighborsDetId.push_back(neighbor);
+  }
   return  vNeighborsDetId;
 }
 
@@ -522,12 +522,47 @@ bool HcalTopology::incrementDepth(HcalDetId & detId) const
     }
   }
   detId = HcalDetId(subdet, ieta, detId.iphi(), depth);
-  //A.N.  
-  // assert(validRaw(detId));
   return validRaw(detId);
-  //A.N.  return true;
 }
 
+bool HcalTopology::decrementDepth(HcalDetId & detId) const {
+  HcalSubdetector subdet = detId.subdet();
+  int ieta    = detId.ieta();
+  int etaRing = detId.ietaAbs();
+  int depth   = detId.depth();
+  int nDepthBins, startingBin;
+  depthBinInformation(subdet, etaRing, nDepthBins, startingBin);
+
+  // see if the new depth bin exists
+  --depth;
+  if (subdet == HcalOuter) {
+    subdet = HcalBarrel;
+    if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
+      depth = maxDepthHB_;
+    } else {
+      depth = (etaRing<=14) ? 1 : 2;
+    }
+  } else if (subdet == HcalEndcap && etaRing == firstHERing()) {
+    subdet = HcalBarrel;
+    depth  = 2;
+  } else if (subdet == HcalEndcap && etaRing ==  lastHERing() && depth == 2 &&
+	     mode_ != HcalTopologyMode::SLHC) {
+    (ieta > 0) ? --ieta : ++ieta;
+  } else if (depth <= 0) {
+    if (subdet == HcalForward && etaRing ==  firstHFRing()) {
+      // overlap
+      subdet = HcalEndcap;
+      etaRing= lastHERing()-1;
+      ieta   = (ieta > 0) ? etaRing : -etaRing;
+    } else {
+      // no more chances
+      detId = HcalDetId();
+      return false;
+    }
+  }
+  detId = HcalDetId(subdet, ieta, detId.iphi(), depth);
+  return validRaw(detId);
+}
 
 int HcalTopology::nPhiBins(int etaRing) const {
   int lastPhiBin=singlePhiBins_;

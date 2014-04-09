@@ -13,6 +13,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -28,20 +29,21 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
-class CaloTowersAnalyzer : public edm::EDAnalyzer {
+class CaloTowersAnalyzer : public DQMEDAnalyzer {
  public:
    CaloTowersAnalyzer(edm::ParameterSet const& conf);
   ~CaloTowersAnalyzer();
+  
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   virtual void beginJob() ;
   virtual void endJob() ;
   virtual void beginRun() ;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void endRun() ;
 
  private:
   double dR(double eta1, double phi1, double eta2, double phi2);
    
-  DQMStore* dbe_;
   std::string outputFile_;
   std::string hcalselector_;
   std::string mc_;

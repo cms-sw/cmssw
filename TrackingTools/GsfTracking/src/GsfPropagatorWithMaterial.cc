@@ -14,7 +14,7 @@ GsfPropagatorWithMaterial::GsfPropagatorWithMaterial (const Propagator& aPropaga
   theGeometricalPropagator(new GsfPropagatorAdapter(aPropagator)),
   theConvolutor(new FullConvolutionWithMaterial(aMEUpdator)),
   theMaterialLocation(atDestination)
-{  
+{
   //   if ( propWithPathTimer1==0 )  defineTimer();
 }
 
@@ -23,8 +23,8 @@ GsfPropagatorWithMaterial::GsfPropagatorWithMaterial (const GsfPropagatorAdapter
   Propagator(aGsfPropagator.propagationDirection()),
   theGeometricalPropagator(aGsfPropagator.clone()),
   theConvolutor(aConvolutor.clone()),
-  theMaterialLocation(atDestination) 
-{  
+  theMaterialLocation(atDestination)
+{
   //   if ( propWithPathTimer1==0 )  defineTimer();
 }
 
@@ -32,9 +32,9 @@ GsfPropagatorWithMaterial::GsfPropagatorWithMaterial (const GsfPropagatorAdapter
 // GsfPropagatorWithMaterial::defineTimer()
 // {
 //   if ( propWithPathTimer1==0 ) {
-//     propWithPathTimer1 = 
+//     propWithPathTimer1 =
 //       &(*TimingReport::current())[string("GsfPropagatorWithMaterial:toPlane")];
-//     propWithPathTimer2 = 
+//     propWithPathTimer2 =
 //       &(*TimingReport::current())[string("GsfPropagatorWithMaterial:toCylinder")];
 //     static SimpleConfigurable<bool> timeConf(false,"GsfPropagatorWithMaterial:activateTiming");
 //     if ( timeConf.value() ) {
@@ -48,8 +48,8 @@ GsfPropagatorWithMaterial::GsfPropagatorWithMaterial (const GsfPropagatorAdapter
 //   }
 // }
 
-std::pair<TrajectoryStateOnSurface,double> 
-GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
+std::pair<TrajectoryStateOnSurface,double>
+GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
 					      const Plane& plane) const {
   //   TimeMe t1(*propWithPathTimer1,false);
   //
@@ -72,8 +72,8 @@ GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& ts
   return convoluteWithMaterial(propStateWP);
 }
 
-std::pair<TrajectoryStateOnSurface,double> 
-GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
+std::pair<TrajectoryStateOnSurface,double>
+GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
 					      const Cylinder& cylinder) const {
   //   TimeMe t2(*propWithPathTimer2,false);
   //
@@ -96,12 +96,12 @@ GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& ts
   return convoluteWithMaterial(propStateWP);
 }
 
-std::pair<TrajectoryStateOnSurface,double> 
-GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
+std::pair<TrajectoryStateOnSurface,double>
+GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 					      const Plane& plane) const {
   static std::atomic<int> nWarn(0);
   if ( nWarn++<5 )
-    edm::LogInfo("GsfPropagatorWithMaterial") 
+    edm::LogInfo("GsfPropagatorWithMaterial")
       << "GsfPropagatorWithMaterial used from FTS: input state might have been collapsed!";
   TsosWP propStateWP = theGeometricalPropagator->propagateWithPath(fts,plane);
   if ( !(propStateWP.first).isValid() || materialAtSource() )  return propStateWP;
@@ -111,12 +111,12 @@ GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
   return convoluteWithMaterial(propStateWP);
 }
 
-std::pair<TrajectoryStateOnSurface,double> 
-GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
+std::pair<TrajectoryStateOnSurface,double>
+GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 					      const Cylinder& cylinder) const {
   static std::atomic<int> nWarn(0);
   if ( nWarn++<5 )
-    edm::LogInfo("GsfPropagatorWithMaterial") 
+    edm::LogInfo("GsfPropagatorWithMaterial")
       << "GsfPropagatorWithMaterial used from FTS: input state might have been collapsed!";
   TsosWP propStateWP = theGeometricalPropagator->propagateWithPath(fts,cylinder);
   if ( !(propStateWP.first).isValid() || materialAtSource() )  return propStateWP;
@@ -127,7 +127,7 @@ GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 }
 
 
-void GsfPropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) const {
+void GsfPropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) {
   theGeometricalPropagator->setPropagationDirection(dir);
   Propagator::setPropagationDirection(dir);
 }
@@ -157,7 +157,7 @@ GsfPropagatorWithMaterial::convoluteStateWithMaterial (const TrajectoryStateOnSu
 bool
 GsfPropagatorWithMaterial::materialAtSource() const {
   if ( propagationDirection()==anyDirection ) {
-    if ( theMaterialLocation!=atDestination ) { 
+    if ( theMaterialLocation!=atDestination ) {
       throw cms::Exception("LogicError")
 	<< "PropagatorWithMaterial: propagation direction = anyDirection is "
 	<< "incompatible with adding of material at source";

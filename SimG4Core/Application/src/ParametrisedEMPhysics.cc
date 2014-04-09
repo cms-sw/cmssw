@@ -68,9 +68,9 @@ void ParametrisedEMPhysics::ConstructProcess() {
       << gem << "  " << ghad;
     G4FastSimulationManagerProcess * theFastSimulationManagerProcess = 
       new G4FastSimulationManagerProcess();
-    theParticleIterator->reset();
-    while ((*theParticleIterator)()) {
-      G4ParticleDefinition * particle = theParticleIterator->value();
+    aParticleIterator->reset();
+    while ((*aParticleIterator)()) {
+      G4ParticleDefinition * particle = aParticleIterator->value();
       G4ProcessManager * pmanager = particle->GetProcessManager();
       G4String pname = particle->GetParticleName();
       if(pname == "e-" || pname == "e+") {

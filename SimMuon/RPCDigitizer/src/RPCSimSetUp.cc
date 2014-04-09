@@ -40,7 +40,6 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
   _mapDetIdEff.clear();
   _bxmap.clear();
   _clsMap.clear();
-
 }
 
 void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoise, const std::vector<float>& vcls){
@@ -109,9 +108,21 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
 
   for(itCls = vClusterSize.begin(); itCls != vClusterSize.end(); ++itCls){
     clsVect.push_back(((double)(itCls->clusterSize)));
-    if((!(clsCounter%100)) && (clsCounter!=0)){
+    if((!(clsCounter%120)) && (clsCounter!=0)){
       detId=itCls->dpid;
       _mapDetClsMap[detId]=clsVect;
+      clsVect.clear();
+      clsCounter=0;
+    }
+    ++clsCounter;
+  }
+
+  // the same loop (but till 100) to allow old format to be used
+  for(itCls = vClusterSize.begin(); itCls != vClusterSize.end(); ++itCls){
+    clsVect.push_back(((double)(itCls->clusterSize)));
+    if((!(clsCounter%100)) && (clsCounter!=0)){
+      detId=itCls->dpid;
+      _mapDetClsMapLegacy[detId]=clsVect;
       clsVect.clear();
       clsCounter=0;
     }
@@ -155,7 +166,6 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     n++;
   }
 }
-
 
 const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id)
 {
@@ -203,11 +213,11 @@ const std::map< int, std::vector<double> >& RPCSimSetUp::getClsMap()
 
 
 //const std::map<int, std::vector<double> >& RPCSimSetUp::getClsMap(uint32_t id)
-const std::vector<double>& RPCSimSetUp::getCls(uint32_t id)
+const std::vector<double>& RPCSimSetUp::getCls(uint32_t id) //legacy member function
 {
 
-  map<uint32_t,std::vector<double> >::iterator iter = _mapDetClsMap.find(id);
-  if(iter == _mapDetClsMap.end()){
+  map<uint32_t,std::vector<double> >::iterator iter = _mapDetClsMapLegacy.find(id);
+  if(iter == _mapDetClsMapLegacy.end()){
     throw cms::Exception("DataCorrupt") 
       << "Exception comming from RPCSimSetUp - no cluster size information for DetId\t"<<id<< std::endl;
   }
@@ -216,6 +226,135 @@ const std::vector<double>& RPCSimSetUp::getCls(uint32_t id)
       << "Exception comming from RPCSimSetUp - cluster size information in a wrong format for DetId\t"<<id<< std::endl;
   }
   return iter->second;
+}
+
+const std::vector<double> & RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id, uint32_t slice){
+
+ map<uint32_t,std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
+  if(iter == _mapDetClsMap.end()){
+    throw cms::Exception("DataCorrupt")
+      << "Exception comming from RPCSimSetUp - no cluster size information for DetId\t"<<id<< std::endl;
+  }
+  if((iter->second).size() != 120){
+    throw cms::Exception("DataCorrupt")
+      << "Exception comming from RPCSimSetUp - cluster size information in a wrong format for DetId\t"<<id<< std::endl;
+  }
+//  return iter->second;
+
+std::vector<double> dataForAsymmCls = iter->second;
+   if(slice>4){ 
+     throw cms::Exception("DataCorrupt") 
+       << "Exception comming from RPCSimSetUp - slice variable not in the range"<< std::endl;
+   }     
+
+   _DetClsAsymmetric.clear();
+   
+
+  vector<double> clsFewStripsDistribution;
+  vector<double> clsDistribution;
+  vector<double> clsAccumulativeDistribution;
+  
+  std::map< int, std::vector<double> > mapSliceVsDistribution;
+
+  const int slices=5;
+  const int distributionFewStrips=24;
+
+  double sliceVsFewStripsDistribution[slices][distributionFewStrips];
+    
+  for(int j = 0; j < distributionFewStrips; j++){
+    for(int i = 0; i < slices; i++){
+      sliceVsFewStripsDistribution[i][j]=dataForAsymmCls[j*slices+i];
+    }
+  }
+
+double control=0;
+for(int j = 0 ; j < distributionFewStrips; j++){
+control+=sliceVsFewStripsDistribution[0][j];
+} 
+
+double control1=0;
+  for(int j = 0; j < distributionFewStrips; j++){
+    for(int i = 0; i < slices; i++){
+      control1+=dataForAsymmCls[j*slices+i];
+    }
+  }
+
+  int i = slice;
+  double sum=0;
+  int counter = 0 ;
+  for(int j = 0; j < distributionFewStrips; j++){
+    counter++;
+    sum+=sliceVsFewStripsDistribution[i][j];
+    if(counter%4==0){
+      _DetClsAsymmetric.push_back(sum);
+    }
+  }
+  return _DetClsAsymmetric;
+}
+
+const std::vector<double> & RPCSimSetUp::getAsymmetryForCls(uint32_t id, uint32_t slice, uint32_t cls){
+
+ map<uint32_t,std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
+  if(iter == _mapDetClsMap.end()){
+    throw cms::Exception("DataCorrupt")
+      << "Exception comming from RPCSimSetUp - no cluster size information for DetId\t"<<id<< std::endl;
+  }
+  if((iter->second).size() != 120){
+    throw cms::Exception("DataCorrupt")
+      << "Exception comming from RPCSimSetUp - cluster size information in a wrong format for DetId\t"<<id<<'\t'<<(iter->second).size()<< std::endl;
+  }
+
+std::vector<double> dataForAsymmCls = iter->second;
+
+if(slice>4){ 
+     throw cms::Exception("DataCorrupt") 
+       << "Exception comming from RPCSimSetUp - slice variable not in the range"<< std::endl;
+   }   
+
+  _DetAsymmetryForCls.clear();
+
+ vector<double> clsFewStripsDistribution;
+  vector<double> clsDistribution;
+  vector<double> clsAccumulativeDistribution;
+vector<double> clsDetAsymmetryForCls;
+ clsDetAsymmetryForCls.clear();
+  
+  std::map< int, std::vector<double> > mapSliceVsDistribution;
+
+  const int slices=5;
+  const int distributionFewStrips=24;
+
+  double sliceVsFewStripsDistribution[slices][distributionFewStrips];
+    
+  for(int j = 0; j < distributionFewStrips; j++){
+    for(int i = 0; i < slices; i++){
+      sliceVsFewStripsDistribution[i][j]=dataForAsymmCls[j*slices+i];
+    }
+  }
+
+  int vector_lenght;
+  switch(cls){
+  case 1:  case 3:  case 5:   vector_lenght =3; break;
+  case 2:  case 4:            vector_lenght =4; break;
+  case 6:  default:           vector_lenght = 1; break;
+  }
+  
+  float sum=0;
+  float value;
+  for(int i = 0; i < vector_lenght ; i ++){
+    value = sliceVsFewStripsDistribution[slice][(cls-1)*4+i];
+    clsDetAsymmetryForCls.push_back(value);
+    sum +=value; 
+    //     std::cout<<"value\t"<<value<<std::endl;
+     //    std::cout<<"sum\t"<<sum<<std::endl;
+  }
+  
+  float accum=0;
+  for(int i = clsDetAsymmetryForCls.size()-1; i>-1; i--){
+    accum += clsDetAsymmetryForCls[i];
+    _DetAsymmetryForCls.push_back(accum/sum);
+  }
+return  _DetAsymmetryForCls;
 }
 
 RPCSimSetUp::~RPCSimSetUp(){}

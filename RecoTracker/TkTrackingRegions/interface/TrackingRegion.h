@@ -96,11 +96,6 @@ public:
 
 
 /// get hits from layer compatible with region constraints 
-  virtual ctfHits hits(
-		       const edm::Event& ev, 
-		       const edm::EventSetup& es, 
-		       const ctfseeding::SeedingLayer* layer) const = 0; 
-
   virtual Hits hits(
 		    const edm::Event& ev,
 		    const edm::EventSetup& es,

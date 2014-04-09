@@ -19,7 +19,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 // C/C++ headers
 #include <string>
@@ -41,7 +41,7 @@ class ConversionTrackFinder {
 
   /// Initialize EventSetup objects at each event
   void setEventSetup( const edm::EventSetup& es ) ; 
-  void setTrajectoryBuilder(const TrajectoryBuilder & builder) ; 
+  void setTrajectoryBuilder(const BaseCkfTrajectoryBuilder & builder) ; 
 
 
  private:
@@ -57,7 +57,7 @@ class ConversionTrackFinder {
 
   std::string theMeasurementTrackerName_;
   const MeasurementTracker*     theMeasurementTracker_;
-  const TrajectoryBuilder*  theCkfTrajectoryBuilder_;
+  const BaseCkfTrajectoryBuilder*  theCkfTrajectoryBuilder_;
 
   TransientInitialStateEstimator* theInitialState_;  
   const TrackerGeometry* theTrackerGeom_;

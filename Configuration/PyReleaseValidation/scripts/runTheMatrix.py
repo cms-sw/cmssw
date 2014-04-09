@@ -192,6 +192,11 @@ if __name__ == '__main__':
                       default="--limit 0",
                       action='store')
 
+    parser.add_option('--job-reports',
+                      help='Dump framework job reports',
+                      dest='jobReports',
+                      default=False,
+                      action='store_true')
     
     opt,args = parser.parse_args()
     if opt.restricted:

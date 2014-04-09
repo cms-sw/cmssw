@@ -17,15 +17,9 @@ TValidTrackingRecHit(geom), theCPE(cpe)
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
     LogDebug("TSiStripRecHit2DLocalPos")<<"calculating coarse position/error.";
     if (gdu){
-      if (rh->cluster().isNonnull()){
 	StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
 	LocalError le(lval.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
 	theHitData = SiStripRecHit1D(lval.first, le, *geom,rh->cluster());
-      }else{
-	StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster_regional(), *gdu);
-	LocalError le(lval.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
-	theHitData = SiStripRecHit1D(lval.first, le, *geom,rh->cluster_regional());
-	}
     }else{
       edm::LogError("TSiStripRecHit2DLocalPos")<<" geomdet does not cast into geomdet unit. cannot create strip local parameters.";
       theHitData = SiStripRecHit1D(*rh);

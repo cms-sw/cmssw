@@ -10,6 +10,7 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimAverageNoise.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEff.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEffCls.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimAsymmetricCls.h"
 
 #include "SimMuon/RPCDigitizer/src/RPCNeutronWriter.h"
 
@@ -22,5 +23,6 @@ DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverage,"RPCSimAverage");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoise,"RPCSimAverageNoise");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoiseEff,"RPCSimAverageNoiseEff");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoiseEffCls,"RPCSimAverageNoiseEffCls");
+DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAsymmetricCls,"RPCSimAsymmetricCls");
 
 DEFINE_FWK_MODULE(RPCNeutronWriter);

@@ -72,8 +72,6 @@ public:
 
   
   
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-  
   TempTrajectory(TempTrajectory const & rh) : 
     theData(rh.theData),
     theChiSquared(rh.theChiSquared), 
@@ -127,17 +125,14 @@ public:
   }
 
 
-#endif
-
-
-
   /// construct TempTrajectory from standard Trajectory
-  explicit TempTrajectory( const Trajectory& traj);
+  explicit TempTrajectory(Trajectory && traj);
+
 
   /// destruct a TempTrajectory 
   ~TempTrajectory() {}
 
-    /** Add a new measurement to a Trajectory.
+  /** Add a new measurement to a Trajectory.
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 
    */
@@ -219,26 +214,19 @@ public:
   /** Return all measurements in a container.
    */
   const DataContainer & measurements() const { return theData; }
-  /// obsolete name, use measurements() instead.
-  //DataContainer data() const { return measurements();}
 
-  /** Return all RecHits in a container.
-   */
-  //ConstRecHitContainer recHits() const;
 
   /** Number of valid RecHits used to determine the trajectory.
    *  Can be less than the number of measurements in data() since
    *  detector layers crossed without using RecHits from them are also 
    *  stored as measurements.
    */
-
   int foundHits() const { return theNumberOfFoundHits;}
 
   /** Number of detector layers crossed without valid RecHits.
    *  Used mainly as a criteria for abandoning a trajectory candidate
    *  during trajectory building.
    */
-
   int lostHits() const { return theNumberOfLostHits;}
   
   /// True if trajectory has no measurements.

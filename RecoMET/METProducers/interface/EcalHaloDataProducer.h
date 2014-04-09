@@ -24,6 +24,7 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -108,6 +109,12 @@ namespace reco
     //Higher Level Reco
     edm::InputTag IT_SuperCluster;
     edm::InputTag IT_Photon;
+
+    edm::EDGetTokenT<EBRecHitCollection> ebrechit_token_;
+    edm::EDGetTokenT<EERecHitCollection> eerechit_token_;
+    edm::EDGetTokenT<ESRecHitCollection> esrechit_token_;
+    edm::EDGetTokenT<reco::SuperClusterCollection> supercluster_token_;
+    edm::EDGetTokenT<reco::PhotonCollection> photon_token_;
     
     float  EBRecHitEnergyThreshold;
     float  EERecHitEnergyThreshold;

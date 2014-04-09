@@ -31,7 +31,6 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
 {
   if (theCPE != 0) {
     TrackingRecHitProjector<ProjectedRecHit2D> proj;
-    if(!specificHit().cluster().isNull()){
       const SiStripCluster& clust = *(specificHit().cluster());  
       
       const GeomDetUnit * gdu = reinterpret_cast<const GeomDetUnit *>(theOriginalDet);
@@ -46,22 +45,6 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
       RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts); 
       
     return hit;
-    }else{
-      const SiStripCluster& clust = *(specificHit().cluster_regional());  
-      
-      const GeomDetUnit * gdu = reinterpret_cast<const GeomDetUnit *>(theOriginalDet);
-      StripClusterParameterEstimator::LocalValues lv = 
-	theCPE->localParameters( clust, *gdu, ts);
-      
-      RecHitPointer updatedOriginalHit = 
-	TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
-					 specificHit().cluster_regional(), theCPE);
-      
-      RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts); 
-      
-      return hit;
-      
-    }
   }
   /// FIXME: should report the problem somehow
   else return clone();
@@ -91,7 +74,6 @@ ProjectedRecHit2D::ProjectedRecHit2D( const GeomDet * geom, const GeomDet* origi
   if (computeCoarseLocalPosition){
     if (theCPE != 0) {
       TrackingRecHitProjector<ProjectedRecHit2D> proj;
-      if(!specificHit().cluster().isNull()){
 	const SiStripCluster& clust = *(specificHit().cluster());  
 	
 	StripClusterParameterEstimator::LocalValues lv =
@@ -103,19 +85,6 @@ ProjectedRecHit2D::ProjectedRecHit2D( const GeomDet * geom, const GeomDet* origi
 	
 	RecHitPointer hit = proj.project( *updatedOriginalHit, *det()); 
 	trackingRecHit_ = hit->hit()->clone();
-      }else{
-	const SiStripCluster& clust = *(specificHit().cluster_regional());  
-	
-	StripClusterParameterEstimator::LocalValues lv =
-            theCPE->localParameters( clust, *reinterpret_cast<const GeomDetUnit *>(theOriginalDet));
-	
-	RecHitPointer updatedOriginalHit = 
-	  TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
-					   specificHit().cluster_regional(), theCPE);
-	
-	RecHitPointer hit = proj.project( *updatedOriginalHit, *det()); 
-	trackingRecHit_ = hit->hit()->clone();
-      }
     }
   }
 }

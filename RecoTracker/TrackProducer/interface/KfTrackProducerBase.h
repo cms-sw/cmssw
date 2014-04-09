@@ -28,7 +28,7 @@ public:
 			std::auto_ptr<reco::TrackCollection>&,
 			std::auto_ptr<reco::TrackExtraCollection>&,
 			std::auto_ptr<std::vector<Trajectory> >&,
-			AlgoProductCollection&);
+			AlgoProductCollection&, TransientTrackingRecHitBuilder const*);
 
 
   //  void setSecondHitPattern(Trajectory* traj, reco::Track& track);

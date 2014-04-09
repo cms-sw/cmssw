@@ -13,9 +13,9 @@ class MagneticField;
 
 /** \class GsfPropagatorWithMaterial
  * Propagation including material effects on destination surface
- * for multiple trajectory states. 
- * Propagates components independently using a specific propagator 
- * for the geometrical part and a GsfMaterialEffectsUpdator to include 
+ * for multiple trajectory states.
+ * Propagates components independently using a specific propagator
+ * for the geometrical part and a GsfMaterialEffectsUpdator to include
  * multiple scattering and energy loss at the destination.
  * The number of components will increase according to the result
  * of the GsfMaterialEffectsUpdator.
@@ -24,7 +24,7 @@ class GsfPropagatorWithMaterial : public Propagator {
 
  public:
   // Constructors
-  /** Constructor with explicit single state propagator and 
+  /** Constructor with explicit single state propagator and
    * material effects objects.
    */
   GsfPropagatorWithMaterial(const Propagator& Propagator,
@@ -38,7 +38,7 @@ class GsfPropagatorWithMaterial : public Propagator {
 
   /** Propagation to generic surface: specialisation done in base class.
    */
-  virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
+  virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos,
 					      const Surface& surface) const
   {
     return Propagator::propagate(tsos,surface);
@@ -46,7 +46,7 @@ class GsfPropagatorWithMaterial : public Propagator {
   /** Propagation to plane: use propagationWithPath (adequate for use with
    *  AnalyticalPropagator, should be implemented to be more general).
    */
-  virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
+  virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos,
 					      const Plane& plane) const
   {
     return propagateWithPath(tsos,plane).first;
@@ -54,36 +54,36 @@ class GsfPropagatorWithMaterial : public Propagator {
   /** Propagation to cylinder: use propagationWithPath (adequate for use with
    *  AnalyticalPropagator, should be implemented to be more general).
    */
-  virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
+  virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos,
 					      const Cylinder& cylinder) const
   {
     return propagateWithPath(tsos,cylinder).first;
   }
 
-  /** Propagation to generic surface with path length calculation: 
+  /** Propagation to generic surface with path length calculation:
    *  specialisation done in base class.
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> 
-  propagateWithPath (const TrajectoryStateOnSurface& tsos, 
+  virtual std::pair<TrajectoryStateOnSurface,double>
+  propagateWithPath (const TrajectoryStateOnSurface& tsos,
 		     const Surface& surface) const
   {
     return Propagator::propagateWithPath(tsos,surface);
   }
   /** Propagation to plane with path length calculation.
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> 
-  propagateWithPath (const TrajectoryStateOnSurface&, 
+  virtual std::pair<TrajectoryStateOnSurface,double>
+  propagateWithPath (const TrajectoryStateOnSurface&,
 		     const Plane&) const;
   /** Propagation to cylinder with path length calculation.
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> 
-  propagateWithPath (const TrajectoryStateOnSurface&, 
+  virtual std::pair<TrajectoryStateOnSurface,double>
+  propagateWithPath (const TrajectoryStateOnSurface&,
 		     const Cylinder&) const;
 
   /** Propagation to generic surface: specialisation done in base class.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts, 
+  virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts,
 					      const Surface& surface) const
   {
     return Propagator::propagate(fts,surface);
@@ -92,7 +92,7 @@ class GsfPropagatorWithMaterial : public Propagator {
    *  AnalyticalPropagator, should be implemented to be more general).
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts, 
+  virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts,
 					      const Plane& plane) const
   {
     return propagateWithPath(fts,plane).first;
@@ -101,17 +101,17 @@ class GsfPropagatorWithMaterial : public Propagator {
    *  AnalyticalPropagator, should be implemented to be more general).
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts, 
+  virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts,
 					      const Cylinder& cylinder) const
   {
     return propagateWithPath(fts,cylinder).first;
   }
 
-  /** Propagation to generic surface with path length calculation: 
+  /** Propagation to generic surface with path length calculation:
    *  specialisation done in base class.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts, 
+  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts,
 								   const Surface& surface) const
   {
     return Propagator::propagateWithPath(fts,surface);
@@ -119,24 +119,24 @@ class GsfPropagatorWithMaterial : public Propagator {
   /** Propagation to plane with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&, 
+  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
 								   const Plane&) const;
-  /** Propagation to cylinder with path length calculation. 
+  /** Propagation to cylinder with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&, 
+  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
 								   const Cylinder&) const;
 
-  virtual bool setMaxDirectionChange( float phiMax) { 
+  virtual bool setMaxDirectionChange( float phiMax) {
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
 
- virtual void setPropagationDirection (PropagationDirection dir) const;
+ virtual void setPropagationDirection (PropagationDirection dir) override;
 
   enum MaterialLocation {atSource, atDestination, fromDirection};
   /** Choice of location for including material effects:
    *  fromDirection is equivalent to atSource for propagation alongMomentum
-   *  and to atDestination for propagation oppositeToMomentum. 
+   *  and to atDestination for propagation oppositeToMomentum.
    *  Inclusion of material effects at the source (either explicitely or
    *  implicitely) is not possible if propagating with anyDirection and
    *  will effectively disable material effects when propagating from
@@ -165,7 +165,7 @@ private:
 //   /// Definition of timers (temporary)
 //   void defineTimer();
   /// Convolution of state+path with material effects
-  std::pair<TrajectoryStateOnSurface,double> 
+  std::pair<TrajectoryStateOnSurface,double>
   convoluteWithMaterial (const std::pair<TrajectoryStateOnSurface,double>&) const;
   /// Convolution of state with material effects
   TrajectoryStateOnSurface
@@ -186,7 +186,7 @@ private:
 
 //   static TimingReport::Item* propWithPathTimer1;
 //   static TimingReport::Item* propWithPathTimer2;
-  
+
 };
 
 #endif

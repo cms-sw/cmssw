@@ -163,8 +163,8 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
      traj->lastMeasurement().updatedState().isValid()){
     const FreeTrajectoryState*  outerState = traj->firstMeasurement().updatedState().freeState();    
     const FreeTrajectoryState*  innerState = traj->lastMeasurement().updatedState().freeState(); 
-    TrajectoryStateOnSurface outerTSOS = traj->firstMeasurement().updatedState();
-    TrajectoryStateOnSurface innerTSOS = traj->lastMeasurement().updatedState();
+    TrajectoryStateOnSurface const & outerTSOS = traj->firstMeasurement().updatedState();
+    TrajectoryStateOnSurface const & innerTSOS = traj->lastMeasurement().updatedState();
     const DetLayer* outerLayer = traj->firstMeasurement().layer();
     const DetLayer* innerLayer = traj->lastMeasurement().layer();
 

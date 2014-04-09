@@ -79,10 +79,8 @@ namespace cms
     bool skipClusters_;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelClusterMask;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripClusterMask;
-    typedef edm::ContainerMask<edm::LazyGetter<SiStripCluster> >      StripClusterLazyMask;
     edm::EDGetTokenT<PixelClusterMask> maskPixels_;
     edm::EDGetTokenT<StripClusterMask> maskStrips_;
-    edm::EDGetTokenT<StripClusterLazyMask> maskStripsLazy_;
 
     // methods for debugging
     virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}

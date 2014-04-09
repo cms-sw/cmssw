@@ -62,7 +62,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.froml1abcHEs = cms.EDProducer("EventWithHistoryProducerFromL1ABC",
                                       l1ABCCollection=cms.InputTag("scalersRawToDigi")
                                       )
-process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi")
+process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
 process.APVPhases.wantHistos = cms.untracked.bool(True)
 
 process.load("DPGAnalysis.SiStripTools.eventtimedistribution_cfi")

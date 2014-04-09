@@ -53,6 +53,7 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   }
   theRPCSimSetUp =  new RPCSimSetUp(ps);
   theDigitizer = new RPCDigitizer(ps);
+  crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_,collection_for_XF));
 }
 
 RPCDigiProducer::~RPCDigiProducer() {
@@ -86,7 +87,10 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel(mix_, collection_for_XF, cf);
+  // Obsolate code, based on getByLabel  
+  //  e.getByLabel(mix_, collection_for_XF, cf);
+  //New code, based on tokens
+  e.getByToken(crossingFrameToken, cf);
 
   std::auto_ptr<MixCollection<PSimHit> > 
     hits( new MixCollection<PSimHit>(cf.product()) );

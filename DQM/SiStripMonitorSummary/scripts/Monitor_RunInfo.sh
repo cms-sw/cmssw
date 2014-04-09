@@ -140,41 +140,43 @@ for globaltag in `cat $GLOBALTAGCOLLECTION`; do
     fi
 
     # Creation of Global Tag directory if not existing yet
-    if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR" ]; then 
-	afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR"
-	mkdir $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR;
+    if [ ! -d "$STORAGEPATH/$DB/$GLOBALTAGDIR" ]; then 
+	afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$GLOBALTAGDIR"
+	mkdir $STORAGEPATH/$DB/$GLOBALTAGDIR;
     fi
 
-    if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag" ]; then 
-	afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag"
-	mkdir $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag;
+    if [ ! -d "$STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag" ]; then 
+	afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag"
+	mkdir $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag;
+    fi
+
+    if [ ! -d "$STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag/RunInfo" ]; then 
+	afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag/RunInfo"
+	mkdir $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag/RunInfo;
     fi
 
     # Creation of links between the DB-Tag and the respective Global Tags
-    cd $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag;
-    if [ -f $tag ]; then
-	rm $tag;
-    fi
-    cat >> $tag << EOF
+    if [ ! -f $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag/RunInfo/$tag ] || [ ! -f $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/RelatedGlobalTags/$globaltag ]; then
+	cd $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag/RunInfo;
+	rm -f $tag;
+	cat >> $tag << EOF
 <html>
 <body>
 <a href="https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag">https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag</a>
 </body>
 </html>
 EOF
-    #ln -s $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag $tag;
-    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/RelatedGlobalTags;
-    if [ -f $globaltag ]; then
-	rm $globaltag;
-    fi
-    cat >> $globaltag << EOF
+
+	cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/RelatedGlobalTags;
+	rm -f $globaltag;
+	cat >> $globaltag << EOF
 <html>
 <body>
-<a href="https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag">https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag</a>
+<a href="https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$GLOBALTAGDIR/$globaltag">https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$GLOBALTAGDIR/$globaltag</a>
 </body>
 </html>
 EOF
-    #ln -s $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag $globaltag;
+
     cd $WORKDIR;
 
 # check if the tag has been analyzed already

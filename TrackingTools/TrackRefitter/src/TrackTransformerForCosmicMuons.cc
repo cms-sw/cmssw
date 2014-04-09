@@ -325,16 +325,16 @@ vector<Trajectory> TrackTransformerForCosmicMuons::transform(const reco::Track& 
   }
   
 
-  vector<Trajectory> trajectories = fitter(up, quadrant, sumdy)->fit(seed,recHitsForReFit,firstTSOS);
+  vector<Trajectory> && trajectories = fitter(up, quadrant, sumdy)->fit(seed,recHitsForReFit,firstTSOS);
   
   if(trajectories.empty()){
     LogTrace(metname)<<"No Track refitted!"<<endl;
     return vector<Trajectory>();
   }
   
-  Trajectory trajectoryBW = trajectories.front();
+  Trajectory const & trajectoryBW = trajectories.front();
     
-  vector<Trajectory> trajectoriesSM = smoother(up, quadrant, sumdy)->trajectories(trajectoryBW);
+  vector<Trajectory> && trajectoriesSM = smoother(up, quadrant, sumdy)->trajectories(trajectoryBW);
 
   if(trajectoriesSM.empty()){
     LogTrace(metname)<<"No Track smoothed!"<<endl;

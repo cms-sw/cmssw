@@ -27,22 +27,22 @@ outputRootFile="DQM_V0001_HLT_R000000001.root"
 # as we explicitly require the release in the DBS query ?
 knownDatasets = {
     "diGamma" : {
-        "dataset": "/RelValH130GGgluonfusion/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
+        "dataset": "/RelValH130GGgluonfusion*/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
         "output":  "DiGamma_%(version)s.root", 
         },
 
     "photonJet" : {
-        "dataset": "/RelValPhotonJets_Pt_10/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
+        "dataset": "/RelValPhotonJets_Pt_10*/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
         "output":  "GammaJet_%(version)s.root", 
         },
     
     "zee" : {
-        "dataset": "/RelValZEE/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
+        "dataset": "/RelValZEE*/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
         "output":  "ZEE_%(version)s.root",
         },
 
     "wen" : {
-        "dataset": "/RelValWE/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
+        "dataset": "/RelValWE*/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
         "output":  "WEN_%(version)s.root",
         },
 } 
@@ -365,7 +365,7 @@ parser.add_option("--data",
                   dest="isData",
                   default = False,
                   action = "store_true",
-                  help="run on real data file (works only together with EmDQMFeeder at the moment)",
+                  help="run on real data file",
                   )
 
 (options, ARGV) = parser.parse_args()
@@ -442,7 +442,7 @@ if len(options.direct_input_files) == 0:
         "cd -",
             ])
 
-    cmd_parts.append("dbs lsf --path=" + datasetToCheck)
+    cmd_parts.append("das_client.py --query='file dataset=" + datasetToCheck + "'")
 
 
     FILES=os.popen(" && ".join(cmd_parts)).readlines()
@@ -577,13 +577,13 @@ if options.num_events != None:
     print >> fout,"#----------------------------------------"
 
 #----------------------------------------
-# run on real data with EmDQMFeeder
-if options.isData and absoluteInputConfigFile.find("testEmDQMFeeder_cfg.py") != -1:
+# run on real data
+if options.isData and absoluteInputConfigFile.find("testEmDQM_cfg.py") != -1:
     print >> fout
     print >> fout,"#----------------------------------------"
     print >> fout,"# Running on real data sample"
     print >> fout,"#----------------------------------------"
-    print >> fout,"process.dqmFeeder.isData = cms.bool(True)" 
+    print >> fout,"process.emdqm.isData = cms.bool(True)" 
     print >> fout,"#----------------------------------------"
 
 #----------------------------------------

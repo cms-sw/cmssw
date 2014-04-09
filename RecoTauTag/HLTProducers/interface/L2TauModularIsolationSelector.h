@@ -17,6 +17,7 @@ e-mail: bachtis@hep.wisc.edu
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 
 class L2TauModularIsolationSelector : public edm::EDProducer {
    public:
@@ -30,7 +31,7 @@ class L2TauModularIsolationSelector : public edm::EDProducer {
       
 
       //Association class Input
-      edm::InputTag associationInput_;  
+      edm::EDGetTokenT<reco::L2TauInfoAssociation> associationInput_;  
       
       //Sliding Cuts (ECAL)
 

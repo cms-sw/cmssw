@@ -21,6 +21,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
 
 namespace cms
 {
@@ -88,6 +90,8 @@ namespace cms
 
       std::vector<Trajectory> trajoutput;
       
+
+      const TransientTrackingRecHitBuilder * hitBuilder = nullptr;
       if(geometry!="CRACK" ) {
         cosmicTrajectoryBuilder_.run(*seed,
                                    *stereorecHits,
@@ -97,6 +101,7 @@ namespace cms
                                    es,
                                    e,
                                    trajoutput);
+        hitBuilder = cosmicTrajectoryBuilder_.hitBuilder();
       } else {
         crackTrajectoryBuilder_.run(*seed,
                                    *stereorecHits,
@@ -106,11 +111,16 @@ namespace cms
                                    es,
                                    e,
                                    trajoutput);
+	hitBuilder = crackTrajectoryBuilder_.hitBuilder();
       }
+      assert(hitBuilder);
+      Traj2TrackHits t2t(hitBuilder,true);
 
       edm::LogVerbatim("CosmicTrackFinder") << " Numbers of Temp Trajectories " << trajoutput.size();
       edm::LogVerbatim("CosmicTrackFinder") << "========== END Info ==========";
       if(trajoutput.size()>0){
+
+        // crazyness...
 	std::vector<Trajectory*> tmpTraj;
 	std::vector<Trajectory>::iterator itr;
 	for (itr=trajoutput.begin();itr!=trajoutput.end();itr++)tmpTraj.push_back(&(*itr));
@@ -121,38 +131,43 @@ namespace cms
 	if (geometry=="MTCC")  stable_sort(tmpTraj.begin(),tmpTraj.end(),CompareTrajLay());
 	else  stable_sort(tmpTraj.begin(),tmpTraj.end(),CompareTrajChi());
 
-
+        ///.....
 
 	const Trajectory  theTraj = *(*tmpTraj.begin());
 	bool seedplus=(theTraj.seed().direction()==alongMomentum);
-	//PropagationDirection seedDir =theTraj.seed().direction();
 
-	if (seedplus)
-	  LogDebug("CosmicTrackFinder")<<"Reconstruction along momentum ";
-	else
-	  LogDebug("CosmicTrackFinder")<<"Reconstruction opposite to momentum";
+        // std::cout << "CosmicTrackFinder " <<"Reconstruction " <<  (seedplus ? "along" : "opposite to") << " momentum" << std::endl;
+        LogDebug("CosmicTrackFinder")<<"Reconstruction " <<  (seedplus ? "along" : "opposite to") << " momentum";
 
 	/*
-	// === the convention is to save always final tracks with hits sorted *along* momentum	
+	// === the convention is to save always final tracks with hits sorted *along* momentum
+        // --- this is NOT what was necessaraly happening before and not consistent with what done in standard CKF (this is a candidate not a track) 	
 	*/
+         edm::OwnVector<TrackingRecHit> recHits;
+         if(theTraj.direction() == alongMomentum) std::cout << "cosmic: along momentum... " << std::endl;
+         t2t(theTraj,recHits,useHitsSplitting_);
+         recHits.reverse();  // according to original code
 
+        /*
 	Trajectory::RecHitContainer thits;
 	//it->recHitsV(thits);
         theTraj.recHitsV(thits,useHitsSplitting_);
 	edm::OwnVector<TrackingRecHit> recHits;
 	recHits.reserve(thits.size());
-
 	// reverse hit order
 	for (Trajectory::RecHitContainer::const_iterator hitIt = thits.end()-1;
 	     hitIt >= thits.begin(); hitIt--) {
 	  recHits.push_back( (**hitIt).hit()->clone());
 	}
+       */
 
 	TSOS firstState;
 	unsigned int firstId;
 
+        // assume not along momentum....
 	firstState=theTraj.lastMeasurement().updatedState();
-	firstId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
+        firstId = theTraj.lastMeasurement().recHitR().rawId();
+	//firstId = recHits.front().rawId();
 
 	/*
 	cout << "firstState y, z: " << firstState.globalPosition().y() 
@@ -172,7 +187,8 @@ namespace cms
 	  return;
 	}
 
-	if(firstId != recHits.front().geographicalId().rawId()){
+        // FIXME in case of slitting this can happen see CkfTrackCandidateMakerBase
+	if(firstId != recHits.front().rawId()){
 	  edm::LogWarning("CosmicTrackFinder") <<"Mismatch in DetID of first hit: firstID= " <<firstId
 					       << "   DetId= " << recHits.front().geographicalId().rawId();
 	  edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(output);  

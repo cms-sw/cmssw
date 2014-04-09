@@ -18,7 +18,7 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo );	\
+    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo, isOra ); \
     payloadPtr = payload; \
     match = true; \
   }
@@ -257,6 +257,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( SiPixelLorentzAngle )
       IMPORT_PAYLOAD_CASE( SiPixelQuality )
       IMPORT_PAYLOAD_CASE( SiPixelTemplateDBObject )
+      IMPORT_PAYLOAD_CASE( SiPixelGenErrorDBObject )
       IMPORT_PAYLOAD_CASE( SiStripApvGain )
       IMPORT_PAYLOAD_CASE( SiStripBadStrip )
       IMPORT_PAYLOAD_CASE( SiStripBackPlaneCorrection )
@@ -304,6 +305,7 @@ namespace cond {
       if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
       //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
       bool match = false;
+      bool isOra = session.isOraSession();
     FETCH_PAYLOAD_CASE( std::string ) 
     FETCH_PAYLOAD_CASE( std::vector<unsigned long long> )
     FETCH_PAYLOAD_CASE( AlCaRecoTriggerBits )
@@ -499,6 +501,7 @@ namespace cond {
     FETCH_PAYLOAD_CASE( SiPixelLorentzAngle )
     FETCH_PAYLOAD_CASE( SiPixelQuality )
     FETCH_PAYLOAD_CASE( SiPixelTemplateDBObject )
+    FETCH_PAYLOAD_CASE( SiPixelGenErrorDBObject )
     FETCH_PAYLOAD_CASE( SiStripApvGain )
     FETCH_PAYLOAD_CASE( SiStripBackPlaneCorrection )
     FETCH_PAYLOAD_CASE( SiStripBadStrip )

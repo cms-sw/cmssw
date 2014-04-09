@@ -6,8 +6,8 @@
  * A propagator which use different algorithm to propagate inside or outside
  * tracker
  *
- * \author  Stefano Lacaprara - INFN Padova 
- * \porting author Chang Liu - Purdue University 
+ * \author  Stefano Lacaprara - INFN Padova
+ * \porting author Chang Liu - Purdue University
  *
  * Modification:
  *    26-Jun-2002 SL: theTkVolume is now a static
@@ -36,7 +36,7 @@ class SmartPropagator GCC11_FINAL : public Propagator {
 
   public:
 
-    /* Constructor */ 
+    /* Constructor */
     ///Defines which propagator is used inside Tk and which outside
     SmartPropagator(const Propagator* aTkProp, const Propagator* aGenProp, const MagneticField* field,
         PropagationDirection dir = alongMomentum, float epsilon = 5) ;
@@ -48,7 +48,7 @@ class SmartPropagator GCC11_FINAL : public Propagator {
     ///Copy constructor
     SmartPropagator( const SmartPropagator& );
 
-    /** virtual destructor */ 
+    /** virtual destructor */
     virtual ~SmartPropagator() ;
 
     ///Virtual constructor (using copy c'tor)
@@ -57,19 +57,19 @@ class SmartPropagator GCC11_FINAL : public Propagator {
     }
 
     ///setting the direction fo both components
-    void setPropagationDirection (PropagationDirection dir) const
+    void setPropagationDirection (PropagationDirection dir) override
     {
       Propagator::setPropagationDirection (dir);
-      getTkPropagator()->setPropagationDirection(dir);
-      getGenPropagator()->setPropagationDirection(dir);
+      theTkProp->setPropagationDirection(dir);
+      theGenProp->setPropagationDirection(dir);
     }
 
 
-    /* Operations as propagator*/ 
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
+    /* Operations as propagator*/
+    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
                                        const Surface& surface) const;
 
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos, 
+    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
                                        const Surface& surface) const {
       return Propagator::propagate(tsos,surface);
     }
@@ -82,42 +82,42 @@ class SmartPropagator GCC11_FINAL : public Propagator {
       return Propagator::propagate(tsos, plane);
     }
 
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
+    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
                                        const Cylinder& cylinder) const;
 
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos, 
+    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
                                        const Cylinder& cylinder) const {
       return Propagator::propagate(tsos, cylinder);
     }
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const FreeTrajectoryState& fts, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const FreeTrajectoryState& fts,
                         const Surface& surface) const {
         return Propagator::propagateWithPath(fts,surface);
       }
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const TrajectoryStateOnSurface& tsos, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const TrajectoryStateOnSurface& tsos,
                         const Surface& surface) const {
         return Propagator::propagateWithPath(tsos,surface);
       }
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const FreeTrajectoryState& fts, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const FreeTrajectoryState& fts,
                         const Plane& plane) const;
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const TrajectoryStateOnSurface& tsos, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const TrajectoryStateOnSurface& tsos,
                         const Plane& plane) const {
         return Propagator::propagateWithPath(tsos, plane);
       }
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const FreeTrajectoryState& fts, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const FreeTrajectoryState& fts,
                         const Cylinder& cylinder) const;
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const TrajectoryStateOnSurface& tsos, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const TrajectoryStateOnSurface& tsos,
                         const Cylinder& cylinder) const {
         return Propagator::propagateWithPath(tsos, cylinder);
       }

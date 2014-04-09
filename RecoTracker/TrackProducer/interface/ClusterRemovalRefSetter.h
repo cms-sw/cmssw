@@ -28,11 +28,9 @@ public:
 private:
   typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
   typedef OmniClusterRef::ClusterStripRef ClusterStripRef;
-  typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
   void reKeyPixel(OmniClusterRef& clusRef) const ;
   void reKeyStrip(OmniClusterRef& clusRef) const ;
-  //void reKeyRegional(OmniClusterRef& clusRef) const ;
 private:
   const reco::ClusterRemovalInfo *cri_;
 };

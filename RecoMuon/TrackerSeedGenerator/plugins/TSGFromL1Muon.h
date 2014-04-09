@@ -10,6 +10,8 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
 namespace edm { class Event; class EventSetup; }
 class L1MuonRegionProducer;
@@ -30,7 +32,7 @@ private:
 private:
   edm::ParameterSet theConfig;
   edm::InputTag theSourceTag;
-
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> theSourceToken; 
 
   L1MuonRegionProducer * theRegionProducer;
   OrderedHitsGenerator * theHitGenerator;

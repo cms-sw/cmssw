@@ -3,6 +3,9 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
+
+
+
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   
@@ -13,13 +16,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
   }
   
   nevtot = 0;
-  
-  dbe_ = 0;
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-   
-  Char_t histo[200];
-
+ 
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
   ecalselector_ = conf.getUntrackedParameter<std::string>("ecalselector", "yes");
   eventype_     = conf.getUntrackedParameter<std::string>("eventype", "single");
@@ -51,18 +48,25 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 
   imc = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("HcalRecHitsD/HcalRecHitTask");
+  }
+  
+  void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & /* iRun*/, edm::EventSetup const & /* iSetup */)
+
+{ 
+
+    Char_t histo[200];
+
+    ibooker.setCurrentFolder("HcalRecHitsD/HcalRecHitTask");
 
     // General counters (drawn)
     sprintf  (histo, "N_HB" );
-    Nhb = dbe_->book1D(histo, histo, 2600,0.,2600.);
+    Nhb = ibooker.book1D(histo, histo, 2600,0.,2600.);
     sprintf  (histo, "N_HE" );
-    Nhe = dbe_->book1D(histo, histo, 2600,0.,2600.);
+    Nhe = ibooker.book1D(histo, histo, 2600,0.,2600.);
     sprintf  (histo, "N_HO" );
-    Nho = dbe_->book1D(histo, histo, 2200,0.,2200.);
+    Nho = ibooker.book1D(histo, histo, 2200,0.,2200.);
     sprintf  (histo, "N_HF" );
-    Nhf = dbe_->book1D(histo, histo, 1800,0., 1800.);
+    Nhf = ibooker.book1D(histo, histo, 1800,0., 1800.);
 
     // ZS
     if(subdet_ == 6) {
@@ -80,65 +84,65 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       //None of the ZS histos are drawn
       if (useAllHistos_){
 	sprintf  (histo, "ZSmin_map_depth1" );
-	map_depth1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+	map_depth1 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 	sprintf  (histo, "ZSmin_map_depth2" );
-	map_depth2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+	map_depth2 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 	sprintf  (histo, "ZSmin_map_depth3" );
-	map_depth3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+	map_depth3 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 	sprintf  (histo, "ZSmin_map_depth4" );
-	map_depth4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+	map_depth4 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 	
       
 	sprintf  (histo, "ZS_Nreco_HB1" );
-	ZS_nHB1 = dbe_->book1D(histo, histo, 2500, 0., 2500.);
+	ZS_nHB1 = ibooker.book1D(histo, histo, 2500, 0., 2500.);
 	sprintf  (histo, "ZS_Nreco_HB2" );
-	ZS_nHB2 = dbe_->book1D(histo, histo,  500, 0.,  500.);
+	ZS_nHB2 = ibooker.book1D(histo, histo,  500, 0.,  500.);
 	sprintf  (histo, "ZS_Nreco_HE1" );
-	ZS_nHE1 = dbe_->book1D(histo, histo, 2000, 0., 2000.);
+	ZS_nHE1 = ibooker.book1D(histo, histo, 2000, 0., 2000.);
 	sprintf  (histo, "ZS_Nreco_HE2" );
-	ZS_nHE2 = dbe_->book1D(histo, histo, 2000, 0., 2000.);
+	ZS_nHE2 = ibooker.book1D(histo, histo, 2000, 0., 2000.);
 	sprintf  (histo, "ZS_Nreco_HE3" );
-	ZS_nHE3 = dbe_->book1D(histo, histo,  500, 0.,  500.);
+	ZS_nHE3 = ibooker.book1D(histo, histo,  500, 0.,  500.);
 	sprintf  (histo, "ZS_Nreco_HO" );
-	ZS_nHO  = dbe_->book1D(histo, histo, 2500, 0., 2500.);
+	ZS_nHO  = ibooker.book1D(histo, histo, 2500, 0., 2500.);
 	sprintf  (histo, "ZS_Nreco_HF1" );
-	ZS_nHF1 = dbe_->book1D(histo, histo, 1000, 0., 1000.);
+	ZS_nHF1 = ibooker.book1D(histo, histo, 1000, 0., 1000.);
 	sprintf  (histo, "ZS_Nreco_HF2" );
-	ZS_nHF2 = dbe_->book1D(histo, histo, 1000, 0., 1000.);
+	ZS_nHF2 = ibooker.book1D(histo, histo, 1000, 0., 1000.);
       
 	sprintf  (histo, "ZSmin_simple1D_HB1" );
-	ZS_HB1 = dbe_->book1D(histo, histo,120, -2., 10.);
+	ZS_HB1 = ibooker.book1D(histo, histo,120, -2., 10.);
 	sprintf  (histo, "ZSmin_simple1D_HB2" );
-	ZS_HB2 = dbe_->book1D(histo, histo,120, -2., 10.);
+	ZS_HB2 = ibooker.book1D(histo, histo,120, -2., 10.);
 	sprintf  (histo, "ZSmin_simple1D_HE1" );
-	ZS_HE1 = dbe_->book1D(histo, histo,120, -2., 10.);
+	ZS_HE1 = ibooker.book1D(histo, histo,120, -2., 10.);
 	sprintf  (histo, "ZSmin_simple1D_HE2" );
-	ZS_HE2 = dbe_->book1D(histo, histo,120, -2., 10.);
+	ZS_HE2 = ibooker.book1D(histo, histo,120, -2., 10.);
 	sprintf  (histo, "ZSmin_simple1D_HE3" );
-	ZS_HE3 = dbe_->book1D(histo, histo,120, -2., 10.);
+	ZS_HE3 = ibooker.book1D(histo, histo,120, -2., 10.);
 	sprintf  (histo, "ZSmin_simple1D_HO" );
-	ZS_HO = dbe_->book1D(histo, histo,120, -2., 10.);
+	ZS_HO = ibooker.book1D(histo, histo,120, -2., 10.);
 	sprintf  (histo, "ZSmin_simple1D_HF1" );
-	ZS_HF1 = dbe_->book1D(histo, histo,200, -10., 10.);
+	ZS_HF1 = ibooker.book1D(histo, histo,200, -10., 10.);
 	sprintf  (histo, "ZSmin_simple1D_HF2" );
-	ZS_HF2 = dbe_->book1D(histo, histo,200, -10., 10.);
+	ZS_HF2 = ibooker.book1D(histo, histo,200, -10., 10.);
 	
 	sprintf  (histo, "ZSmin_sequential1D_HB1" );
-	ZS_seqHB1 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+	ZS_seqHB1 = ibooker.book1D(histo, histo,2400, -1200., 1200.);
 	sprintf  (histo, "ZSmin_sequential1D_HB2" );
-	ZS_seqHB2 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+	ZS_seqHB2 = ibooker.book1D(histo, histo,2400, -1200., 1200.);
 	sprintf  (histo, "ZSmin_sequential1D_HE1" );
-	ZS_seqHE1 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+	ZS_seqHE1 = ibooker.book1D(histo, histo,4400, -2200., 2200.);
 	sprintf  (histo, "ZSmin_sequential1D_HE2" );
-	ZS_seqHE2 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+	ZS_seqHE2 = ibooker.book1D(histo, histo,4400, -2200., 2200.);
 	sprintf  (histo, "ZSmin_sequential1D_HE3" );
-	ZS_seqHE3 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+	ZS_seqHE3 = ibooker.book1D(histo, histo,4400, -2200., 2200.);
 	sprintf  (histo, "ZSmin_sequential1D_HO" );
-	ZS_seqHO  = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+	ZS_seqHO  = ibooker.book1D(histo, histo,2400, -1200., 1200.);
 	sprintf  (histo, "ZSmin_sequential1D_HF1" );
-	ZS_seqHF1 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+	ZS_seqHF1 = ibooker.book1D(histo, histo,6000, -3000., 3000.);
 	sprintf  (histo, "ZSmin_sequential1D_HF2" );
-	ZS_seqHF2 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+	ZS_seqHF2 = ibooker.book1D(histo, histo,6000, -3000., 3000.);
       }
     }
 
@@ -146,180 +150,180 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     else {
   
       sprintf  (histo, "emap_depth1" );
-      emap_depth1 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
+      emap_depth1 = ibooker.book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
       sprintf  (histo, "emap_depth2" );
-      emap_depth2 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
+      emap_depth2 = ibooker.book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
       sprintf  (histo, "emap_depth3" );
-      emap_depth3 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
+      emap_depth3 = ibooker.book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
       sprintf  (histo, "emap_depth4" );
-      emap_depth4 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
+      emap_depth4 = ibooker.book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
       
       if (useAllHistos_){
 	
 	if (ecalselector_ == "yes") {
 	  sprintf  (histo, "map_ecal" );
-	  map_ecal = dbe_->book2D(histo, histo, 70, -3.045, 3.045, 72, -3.1415926536, 3.1415926536);
+	  map_ecal = ibooker.book2D(histo, histo, 70, -3.045, 3.045, 72, -3.1415926536, 3.1415926536);
 	}
       }
       
       //The mean energy histos are drawn, but not the RMS or emean seq
       sprintf  (histo, "emean_vs_ieta_HB1" );
-      emean_vs_ieta_HB1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+      emean_vs_ieta_HB1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000.);
       sprintf  (histo, "emean_vs_ieta_HB2" );
-      emean_vs_ieta_HB2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+      emean_vs_ieta_HB2 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000.);
       sprintf  (histo, "emean_vs_ieta_HE1" );
-      emean_vs_ieta_HE1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10. ,2000., "s" );
+      emean_vs_ieta_HE1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2010, -10. ,2000.);
       sprintf  (histo, "emean_vs_ieta_HE2" );
-      emean_vs_ieta_HE2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+      emean_vs_ieta_HE2 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000.);
       sprintf  (histo, "emean_vs_ieta_HE3" );
-      emean_vs_ieta_HE3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+      emean_vs_ieta_HE3 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000. );
       sprintf  (histo, "emean_vs_ieta_HO" );
-      emean_vs_ieta_HO = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+      emean_vs_ieta_HO = ibooker.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000. );
       sprintf  (histo, "emean_vs_ieta_HF1" );
-      emean_vs_ieta_HF1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+      emean_vs_ieta_HF1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000. );
       sprintf  (histo, "emean_vs_ieta_HF2" );
-      emean_vs_ieta_HF2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+      emean_vs_ieta_HF2 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000. );
 
       if (useAllHistos_){
 	sprintf  (histo, "RMS_vs_ieta_HB1" );
-	RMS_vs_ieta_HB1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+	RMS_vs_ieta_HB1 = ibooker.book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HB2" );
-	RMS_vs_ieta_HB2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+	RMS_vs_ieta_HB2 = ibooker.book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HE1" );
-	RMS_vs_ieta_HE1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+	RMS_vs_ieta_HE1 = ibooker.book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HE2" );
-	RMS_vs_ieta_HE2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+	RMS_vs_ieta_HE2 = ibooker.book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HE3" );
-	RMS_vs_ieta_HE3 = dbe_->book1D(histo, histo, 82, -41., 41.);
+	RMS_vs_ieta_HE3 = ibooker.book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HO" );
-	RMS_vs_ieta_HO = dbe_->book1D(histo, histo, 82, -41., 41.);
+	RMS_vs_ieta_HO = ibooker.book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HF1" );
-	RMS_vs_ieta_HF1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+	RMS_vs_ieta_HF1 = ibooker.book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HF2" );
-	RMS_vs_ieta_HF2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+	RMS_vs_ieta_HF2 = ibooker.book1D(histo, histo, 82, -41., 41.);
 	
 	// Sequential emean and RMS
 	sprintf  (histo, "emean_seq_HB1" );
-	emean_seqHB1 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
+	emean_seqHB1 = ibooker.bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000. );
 	sprintf  (histo, "emean_seq_HB2" );
-	emean_seqHB2 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
+	emean_seqHB2 = ibooker.bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000. );
 	sprintf  (histo, "emean_seq_HE1" );
-	emean_seqHE1 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
+	emean_seqHE1 = ibooker.bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000. );
 	sprintf  (histo, "emean_seq_HE2" );
-	emean_seqHE2 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
+	emean_seqHE2 = ibooker.bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000. );
 	sprintf  (histo, "emean_seq_HE3" );
-	emean_seqHE3 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
+	emean_seqHE3 = ibooker.bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000. );
 	sprintf  (histo, "emean_seq_HO" );
-	emean_seqHO = dbe_->bookProfile(histo, histo,  2400, -1200., 1200.,  2010, -10., 2000., "s" );
+	emean_seqHO = ibooker.bookProfile(histo, histo,  2400, -1200., 1200.,  2010, -10., 2000. );
 	sprintf  (histo, "emean_seq_HF1" );
-	emean_seqHF1 = dbe_->bookProfile(histo, histo, 6000, -3000., 3000.,  2010, -10., 2000., "s" );
+	emean_seqHF1 = ibooker.bookProfile(histo, histo, 6000, -3000., 3000.,  2010, -10., 2000. );
 	sprintf  (histo, "emean_seq_HF2" );
-	emean_seqHF2 = dbe_->bookProfile(histo, histo, 6000, -3000., 3000.,  2010, -10., 2000., "s" );
+	emean_seqHF2 = ibooker.bookProfile(histo, histo, 6000, -3000., 3000.,  2010, -10., 2000. );
 	
 	sprintf  (histo, "RMS_seq_HB1" );
-	RMS_seq_HB1 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
+	RMS_seq_HB1 = ibooker.book1D(histo, histo, 2400, -1200., 1200.);
 	sprintf  (histo, "RMS_seq_HB2" );
-	RMS_seq_HB2 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
+	RMS_seq_HB2 = ibooker.book1D(histo, histo, 2400, -1200., 1200.);
 	sprintf  (histo, "RMS_seq_HE1" );
-	RMS_seq_HE1 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
+	RMS_seq_HE1 = ibooker.book1D(histo, histo, 4400, -2200., 2200.);
 	sprintf  (histo, "RMS_seq_HE2" );
-	RMS_seq_HE2 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
+	RMS_seq_HE2 = ibooker.book1D(histo, histo, 4400, -2200., 2200.);
 	sprintf  (histo, "RMS_seq_HE3" );
-	RMS_seq_HE3 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
+	RMS_seq_HE3 = ibooker.book1D(histo, histo, 4400, -2200., 2200.);
 	sprintf  (histo, "RMS_seq_HO" );
-	RMS_seq_HO = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
+	RMS_seq_HO = ibooker.book1D(histo, histo, 2400, -1200., 1200.);
 	sprintf  (histo, "RMS_seq_HF1" );
-	RMS_seq_HF1 = dbe_->book1D(histo, histo, 6000, -3000., 3000.);
+	RMS_seq_HF1 = ibooker.book1D(histo, histo, 6000, -3000., 3000.);
 	sprintf  (histo, "RMS_seq_HF2" );
-	RMS_seq_HF2 = dbe_->book1D(histo, histo, 6000, -3000., 3000.);
+	RMS_seq_HF2 = ibooker.book1D(histo, histo, 6000, -3000., 3000.);
       }
       // Occupancy
       //The only occupancy histos drawn are occupancy vs. ieta
       //but the maps are needed because this is where the latter are filled from
       sprintf  (histo, "occupancy_map_HB1" );
-      occupancy_map_HB1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      occupancy_map_HB1 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       sprintf  (histo, "occupancy_map_HB2" );
-      occupancy_map_HB2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      occupancy_map_HB2 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       sprintf  (histo, "occupancy_map_HE1" );
-      occupancy_map_HE1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      occupancy_map_HE1 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       sprintf  (histo, "occupancy_map_HE2" );
-      occupancy_map_HE2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);      
+      occupancy_map_HE2 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);      
       sprintf  (histo, "occupancy_map_HE3" );
-      occupancy_map_HE3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      occupancy_map_HE3 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       sprintf  (histo, "occupancy_map_HO" );
-      occupancy_map_HO = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);      
+      occupancy_map_HO = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);      
       sprintf  (histo, "occupancy_map_HF1" );
-      occupancy_map_HF1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      occupancy_map_HF1 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       sprintf  (histo, "occupancy_map_HF2" );
-      occupancy_map_HF2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      occupancy_map_HF2 = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       
       //These are drawn
       sprintf  (histo, "occupancy_vs_ieta_HB1" );
-      occupancy_vs_ieta_HB1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      occupancy_vs_ieta_HB1 = ibooker.book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HB2" );
-      occupancy_vs_ieta_HB2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      occupancy_vs_ieta_HB2 = ibooker.book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HE1" );
-      occupancy_vs_ieta_HE1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      occupancy_vs_ieta_HE1 = ibooker.book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HE2" );
-      occupancy_vs_ieta_HE2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      occupancy_vs_ieta_HE2 = ibooker.book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HE3" );
-      occupancy_vs_ieta_HE3 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      occupancy_vs_ieta_HE3 = ibooker.book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HO" );
-      occupancy_vs_ieta_HO = dbe_->book1D(histo, histo, 82, -41., 41.);
+      occupancy_vs_ieta_HO = ibooker.book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HF1" );
-      occupancy_vs_ieta_HF1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      occupancy_vs_ieta_HF1 = ibooker.book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HF2" );
-      occupancy_vs_ieta_HF2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      occupancy_vs_ieta_HF2 = ibooker.book1D(histo, histo, 82, -41., 41.);
       
       //These are not
       if (useAllHistos_){
 	sprintf  (histo, "occ_sequential1D_HB1" );
-	occupancy_seqHB1 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+	occupancy_seqHB1 = ibooker.book1D(histo, histo,2400, -1200., 1200.);
 	sprintf  (histo, "occ_sequential1D_HB2" );
-	occupancy_seqHB2 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+	occupancy_seqHB2 = ibooker.book1D(histo, histo,2400, -1200., 1200.);
 	sprintf  (histo, "occ_sequential1D_HE1" );
-	occupancy_seqHE1 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+	occupancy_seqHE1 = ibooker.book1D(histo, histo,4400, -2200., 2200.);
 	sprintf  (histo, "occ_sequential1D_HE2" );
-	occupancy_seqHE2 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+	occupancy_seqHE2 = ibooker.book1D(histo, histo,4400, -2200., 2200.);
 	sprintf  (histo, "occ_sequential1D_HE3" );
-	occupancy_seqHE3 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+	occupancy_seqHE3 = ibooker.book1D(histo, histo,4400, -2200., 2200.);
 	sprintf  (histo, "occ_sequential1D_HO" );
-	occupancy_seqHO  = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+	occupancy_seqHO  = ibooker.book1D(histo, histo,2400, -1200., 1200.);
 	sprintf  (histo, "occ_sequential1D_HF1" );
-	occupancy_seqHF1 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+	occupancy_seqHF1 = ibooker.book1D(histo, histo,6000, -3000., 3000.);
 	sprintf  (histo, "occ_sequential1D_HF2" );
-	occupancy_seqHF2 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+	occupancy_seqHF2 = ibooker.book1D(histo, histo,6000, -3000., 3000.);
       }
 
       //All status word histos except HF67 are drawn
       sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HB" ) ;
-      RecHit_StatusWord_HB = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+      RecHit_StatusWord_HB = ibooker.book1D(histo, histo, 32 , -0.5, 31.5); 
       
       sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HE" ) ;
-      RecHit_StatusWord_HE = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+      RecHit_StatusWord_HE = ibooker.book1D(histo, histo, 32 , -0.5, 31.5); 
 
       sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HF" ) ;
-      RecHit_StatusWord_HF = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+      RecHit_StatusWord_HF = ibooker.book1D(histo, histo, 32 , -0.5, 31.5); 
 
       if (useAllHistos_){
 	sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HF67" ) ;
-	RecHit_StatusWord_HF67 = dbe_->book1D(histo, histo, 3 , 0.5, 3.5); 
+	RecHit_StatusWord_HF67 = ibooker.book1D(histo, histo, 3 , 0.5, 3.5); 
       }
       sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HO" ) ;
-      RecHit_StatusWord_HO = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+      RecHit_StatusWord_HO = ibooker.book1D(histo, histo, 32 , -0.5, 31.5); 
 
       //Aux status word histos
       sprintf (histo, "HcalRecHitTask_RecHit_Aux_StatusWord_HB" ) ;
-      RecHit_Aux_StatusWord_HB = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+      RecHit_Aux_StatusWord_HB = ibooker.book1D(histo, histo, 32 , -0.5, 31.5); 
       
       sprintf (histo, "HcalRecHitTask_RecHit_Aux_StatusWord_HE" ) ;
-      RecHit_Aux_StatusWord_HE = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+      RecHit_Aux_StatusWord_HE = ibooker.book1D(histo, histo, 32 , -0.5, 31.5); 
 
       sprintf (histo, "HcalRecHitTask_RecHit_Aux_StatusWord_HF" ) ;
-      RecHit_Aux_StatusWord_HF = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+      RecHit_Aux_StatusWord_HF = ibooker.book1D(histo, histo, 32 , -0.5, 31.5); 
 
       sprintf (histo, "HcalRecHitTask_RecHit_Aux_StatusWord_HO" ) ;
-      RecHit_Aux_StatusWord_HO = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+      RecHit_Aux_StatusWord_HO = ibooker.book1D(histo, histo, 32 , -0.5, 31.5); 
 
     }  // end-of (subdet_ =! 6)
 
@@ -328,13 +332,13 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     //Histograms drawn for single pion scan
     if(subdet_ != 0 && imc != 0) { // just not for noise  
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
-      meEnConeEtaProfile = dbe_->bookProfile(histo, histo, 82, -41., 41.,        2100, -100., 2000.);  
+      meEnConeEtaProfile = ibooker.bookProfile(histo, histo, 82, -41., 41.,        2100, -100., 2000.);  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
-      meEnConeEtaProfile_E = dbe_->bookProfile(histo, histo, 82, -41., 41.,      2100, -100., 2000.);  
+      meEnConeEtaProfile_E = ibooker.bookProfile(histo, histo, 82, -41., 41.,      2100, -100., 2000.);  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
-      meEnConeEtaProfile_EH = dbe_->bookProfile(histo, histo, 82, -41., 41.,     2100, -100., 2000.);  
+      meEnConeEtaProfile_EH = ibooker.bookProfile(histo, histo, 82, -41., 41.,     2100, -100., 2000.);  
     }
     //The other cone profile, delta ieta/phi and noise histos are not drawn
     if (useAllHistos_){
@@ -343,26 +347,26 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 	//    meEnConeEtaProfiel_depth1->Fill(eta_RecHit, HcalCone_d1);
 	
 	sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth1");
-	meEnConeEtaProfile_depth1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);   
+	meEnConeEtaProfile_depth1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);   
 	
 	sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth2");
-	meEnConeEtaProfile_depth2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
+	meEnConeEtaProfile_depth2 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
 	
 	sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth3");
-	meEnConeEtaProfile_depth3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
+	meEnConeEtaProfile_depth3 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
 	
 	sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth4");
-	meEnConeEtaProfile_depth4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
+	meEnConeEtaProfile_depth4 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
 	
       }
       
       if(etype_ == 1 && subdet_ != 0) { // single part., not for noise
 	
 	sprintf  (histo, "Delta_phi_cluster-MC");
-	meDeltaPhi =  dbe_->book2D(histo, histo, 520, -5.2, 5.2, 60, -0.6, 0.6);
+	meDeltaPhi =  ibooker.book2D(histo, histo, 520, -5.2, 5.2, 60, -0.6, 0.6);
 	
 	sprintf  (histo, "Delta_eta_cluster-MC");
-	meDeltaEta =  dbe_->book2D(histo, histo, 520, -5.2, 5.2, 60, -0.6, 0.6);
+	meDeltaEta =  ibooker.book2D(histo, histo, 520, -5.2, 5.2, 60, -0.6, 0.6);
       
       }
       // NOISE-specific
@@ -370,15 +374,15 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       if (hcalselector_ == "noise" ){
 	
 	sprintf  (histo, "e_hb" ) ;
-	e_hb = dbe_->book1D(histo, histo,1000, -5., 5.);
+	e_hb = ibooker.book1D(histo, histo,1000, -5., 5.);
 	sprintf  (histo, "e_he" ) ;
-	e_he = dbe_->book1D(histo, histo,1000, -5., 5.);
+	e_he = ibooker.book1D(histo, histo,1000, -5., 5.);
 	sprintf  (histo, "e_ho" ) ;
-	e_ho = dbe_->book1D(histo, histo,1000, -5., 5.);
+	e_ho = ibooker.book1D(histo, histo,1000, -5., 5.);
 	sprintf  (histo, "e_hfl" ) ;
-	e_hfl = dbe_->book1D(histo, histo,2000, -10., 10.);
+	e_hfl = ibooker.book1D(histo, histo,2000, -10., 10.);
 	sprintf  (histo, "e_hfs" ) ;
-	e_hfs = dbe_->book1D(histo, histo,2000, -10., 10.);
+	e_hfs = ibooker.book1D(histo, histo,2000, -10., 10.);
       }
     }
     // ************** HB **********************************
@@ -389,61 +393,61 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 	if(etype_ == 1 && subdet_ == 1 ) { 
 	  if(imc != 0) {
 	    sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HB" ) ;
-	    meNumRecHitsConeHB    = dbe_->book1D(histo, histo, 100, 0., 100.);
+	    meNumRecHitsConeHB    = ibooker.book1D(histo, histo, 100, 0., 100.);
 	    
 	    sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HB" ) ;
-	    meSumRecHitsEnergyConeHB = dbe_->book1D(histo,histo, 60 ,-20., 280.);
+	    meSumRecHitsEnergyConeHB = ibooker.book1D(histo,histo, 60 ,-20., 280.);
 	  }
 	  
 	  sprintf (histo, "HcalRecHitTask_number_of_rechits_above_1GeV_HB");
-	  meNumRecHitsThreshHB = dbe_->book1D(histo, histo,  30, 0., 30.); 
+	  meNumRecHitsThreshHB = ibooker.book1D(histo, histo,  30, 0., 30.); 
 	  
 	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HB" ) ;
-	  meSumRecHitsEnergyHB = dbe_->book1D(histo,histo, 60 , -20., 280.);
+	  meSumRecHitsEnergyHB = ibooker.book1D(histo,histo, 60 , -20., 280.);
 	
 	  if (ecalselector_ == "yes") {  
 	    if(imc != 0) {
 	      sprintf (histo, "HcalRecHitTask_number_of_ecalrechits_in_cone_HB");
-	      meNumEcalRecHitsConeHB = dbe_->book1D(histo, histo, 300, 0., 300.);	    
+	      meNumEcalRecHitsConeHB = ibooker.book1D(histo, histo, 300, 0., 300.);	    
 	      sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_in_cone_HB");
-	      meEcalHcalEnergyConeHB =  dbe_->book1D(histo,histo, 60 , -20., 280.);
+	      meEcalHcalEnergyConeHB =  ibooker.book1D(histo,histo, 60 , -20., 280.);
 	    }
 	    
 	    sprintf (histo, "HcalRecHitTask_energy_hcal_vs_ecal_HB");
-	    meEnergyHcalVsEcalHB = dbe_->book2D(histo, histo, 300, 0., 150., 300, 0., 150.);  	
+	    meEnergyHcalVsEcalHB = ibooker.book2D(histo, histo, 300, 0., 150., 300, 0., 150.);  	
 	    sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_HB" ) ;
-	    meEcalHcalEnergyHB = dbe_->book1D(histo,histo, 60 , -20., 280.);
+	    meEcalHcalEnergyHB = ibooker.book1D(histo,histo, 60 , -20., 280.);
 	  }
 	}
       }
       
       sprintf(histo, "HcalRecHitTask_severityLevel_HB");
-      sevLvl_HB = dbe_->book1D(histo, histo, 25, -0.5, 24.5); 
+      sevLvl_HB = ibooker.book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HB" ) ;
-      meRecHitsEnergyHB = dbe_->book1D(histo, histo, 2010 , -10. , 2000.); 
+      meRecHitsEnergyHB = ibooker.book1D(histo, histo, 2010 , -10. , 2000.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HB" ) ;
-      meTimeHB = dbe_->book1D(histo, histo, 70, -48., 92.); 
+      meTimeHB = ibooker.book1D(histo, histo, 70, -48., 92.); 
 
       //High, medium and low histograms to reduce RAM usage
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_Low_HB" ) ;
-      meTE_Low_HB = dbe_->book2D(histo, histo, 50, -5., 45.,  70, -48., 92.);
+      meTE_Low_HB = ibooker.book2D(histo, histo, 50, -5., 45.,  70, -48., 92.);
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB" ) ;
-      meTE_HB = dbe_->book2D(histo, histo, 150, -5., 295.,  70, -48., 92.);
+      meTE_HB = ibooker.book2D(histo, histo, 150, -5., 295.,  70, -48., 92.);
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_High_HB" ) ;
-      meTE_High_HB = dbe_->book2D(histo, histo, 150, -5., 2995.,  70, -48., 92.);
+      meTE_High_HB = ibooker.book2D(histo, histo, 150, -5., 2995.,  70, -48., 92.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_Low_HB" ) ;
-      meTEprofileHB_Low = dbe_->bookProfile(histo, histo, 50, -5., 45., 70, -48., 92.); 
+      meTEprofileHB_Low = ibooker.bookProfile(histo, histo, 50, -5., 45., 70, -48., 92.); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HB" ) ;
-      meTEprofileHB = dbe_->bookProfile(histo, histo, 150, -5., 295., 70, -48., 92.); 
+      meTEprofileHB = ibooker.bookProfile(histo, histo, 150, -5., 295., 70, -48., 92.); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_High_HB" ) ;
-      meTEprofileHB_High = dbe_->bookProfile(histo, histo, 150, -5., 2995., 70, -48., 92.); 
+      meTEprofileHB_High = ibooker.bookProfile(histo, histo, 150, -5., 2995., 70, -48., 92.); 
 
     }
     
@@ -456,29 +460,29 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 	  
 	  if(imc != 0) {
 	    sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HE" ) ;
-	    meNumRecHitsConeHE    = dbe_->book1D(histo, histo, 100, 0., 100.);
+	    meNumRecHitsConeHE    = ibooker.book1D(histo, histo, 100, 0., 100.);
 	    
 	    sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HE" ) ;
-	    meSumRecHitsEnergyConeHE = dbe_->book1D(histo,histo, 60 ,-20., 280.);
+	    meSumRecHitsEnergyConeHE = ibooker.book1D(histo,histo, 60 ,-20., 280.);
 	  }	
 	  
 	  sprintf (histo, "HcalRecHitTask_number_of_rechits_above_1GeV_HE");
-	  meNumRecHitsThreshHE = dbe_->book1D(histo, histo,  30, 0., 30.);  
+	  meNumRecHitsThreshHE = ibooker.book1D(histo, histo,  30, 0., 30.);  
 	  
 	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HE" ) ;
-	  meSumRecHitsEnergyHE = dbe_->book1D(histo,histo, 60 , -20., 280.);
+	  meSumRecHitsEnergyHE = ibooker.book1D(histo,histo, 60 , -20., 280.);
 	  
 	  if (ecalselector_ == "yes") {  	
 	    sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_HE" ) ;
-	    meEcalHcalEnergyHE = dbe_->book1D(histo,histo, 80, -20., 380.);
+	    meEcalHcalEnergyHE = ibooker.book1D(histo,histo, 80, -20., 380.);
 	    
 	    sprintf (histo, "HcalRecHitTask_energy_hcal_vs_ecal_HE");
-	    meEnergyHcalVsEcalHE = dbe_->book2D(histo, histo, 300, 0., 150., 300, 0., 150.);
+	    meEnergyHcalVsEcalHE = ibooker.book2D(histo, histo, 300, 0., 150., 300, 0., 150.);
 	    if(imc != 0) {
 	      sprintf (histo, "HcalRecHitTask_number_of_ecalrechits_in_cone_HE");
-	      meNumEcalRecHitsConeHE = dbe_->book1D(histo, histo, 300, 0., 300.);   
+	      meNumEcalRecHitsConeHE = ibooker.book1D(histo, histo, 300, 0., 300.);   
 	      sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_in_cone_HE");
-	      meEcalHcalEnergyConeHE =  dbe_->book1D(histo,histo, 60,-20., 280.);
+	      meEcalHcalEnergyConeHE =  ibooker.book1D(histo,histo, 60,-20., 280.);
 	    }
 	  }	      
 	}
@@ -486,25 +490,25 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       
       //Only severity level, energy of rechits and overall HB timing histos are drawn  
       sprintf(histo, "HcalRecHitTask_severityLevel_HE");
-      sevLvl_HE = dbe_->book1D(histo, histo, 25, -0.5, 24.5); 
+      sevLvl_HE = ibooker.book1D(histo, histo, 25, -0.5, 24.5); 
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HE" ) ;
-      meRecHitsEnergyHE = dbe_->book1D(histo, histo, 510, -10., 500.); 
+      meRecHitsEnergyHE = ibooker.book1D(histo, histo, 510, -10., 500.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HE" ) ;
-      meTimeHE = dbe_->book1D(histo, histo, 70, -48., 92.); 
+      meTimeHE = ibooker.book1D(histo, histo, 70, -48., 92.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_Low_HE" ) ;
-      meTE_Low_HE = dbe_->book2D(histo, histo, 80, -5., 75.,  70, -48., 92.);
+      meTE_Low_HE = ibooker.book2D(histo, histo, 80, -5., 75.,  70, -48., 92.);
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE" ) ;
-      meTE_HE = dbe_->book2D(histo, histo, 200, -5., 395.,  70, -48., 92.);
+      meTE_HE = ibooker.book2D(histo, histo, 200, -5., 395.,  70, -48., 92.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_Low_HE" ) ;
-      meTEprofileHE_Low = dbe_->bookProfile(histo, histo, 80, -5., 75., 70, -48., 92.); 
+      meTEprofileHE_Low = ibooker.bookProfile(histo, histo, 80, -5., 75., 70, -48., 92.); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HE" ) ;
-      meTEprofileHE = dbe_->bookProfile(histo, histo, 200, -5., 395., 70, -48., 92.); 
+      meTEprofileHE = ibooker.bookProfile(histo, histo, 200, -5., 395., 70, -48., 92.); 
       
     }
 
@@ -516,40 +520,40 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 	if(etype_ == 1 && subdet_ == 3) { 
 	  if (imc != 0) {
 	    sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HO" ) ;
-	    meNumRecHitsConeHO    = dbe_->book1D(histo, histo, 100, 0 , 100.);
+	    meNumRecHitsConeHO    = ibooker.book1D(histo, histo, 100, 0 , 100.);
 	    
 	    sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HO" ) ;
-	    meSumRecHitsEnergyConeHO = dbe_->book1D(histo,histo, 80 ,-20., 380.);
+	    meSumRecHitsEnergyConeHO = ibooker.book1D(histo,histo, 80 ,-20., 380.);
 	  }
 	  
 	  sprintf (histo, "HcalRecHitTask_number_of_rechits_above_1GeV_HO");
-	  meNumRecHitsThreshHO = dbe_->book1D(histo, histo,   100, 0., 100.);   
+	  meNumRecHitsThreshHO = ibooker.book1D(histo, histo,   100, 0., 100.);   
 	  
 	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HO" ) ;
-	  meSumRecHitsEnergyHO = dbe_->book1D(histo,histo, 80 , -20., 380.);
+	  meSumRecHitsEnergyHO = ibooker.book1D(histo,histo, 80 , -20., 380.);
 	}
       }      
       
       sprintf(histo, "HcalRecHitTask_severityLevel_HO");
-      sevLvl_HO = dbe_->book1D(histo, histo, 25, -0.5, 24.5); 
+      sevLvl_HO = ibooker.book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HO" ) ;
-      meRecHitsEnergyHO = dbe_->book1D(histo, histo, 510 , -10. , 500.); 
+      meRecHitsEnergyHO = ibooker.book1D(histo, histo, 510 , -10. , 500.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HO" ) ;
-      meTimeHO = dbe_->book1D(histo, histo, 70, -48., 92.); 
+      meTimeHO = ibooker.book1D(histo, histo, 70, -48., 92.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HO" ) ;
-      meTE_HO= dbe_->book2D(histo, histo, 60, -5., 55., 70, -48., 92.);
+      meTE_HO= ibooker.book2D(histo, histo, 60, -5., 55., 70, -48., 92.);
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_High_HO" ) ;
-      meTE_High_HO= dbe_->book2D(histo, histo, 100, -5., 995., 70, -48., 92.);
+      meTE_High_HO= ibooker.book2D(histo, histo, 100, -5., 995., 70, -48., 92.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HO" ) ;
-      meTEprofileHO = dbe_->bookProfile(histo, histo, 60, -5., 55.,  70, -48., 92.); 
+      meTEprofileHO = ibooker.bookProfile(histo, histo, 60, -5., 55.,  70, -48., 92.); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_High_HO" ) ;
-      meTEprofileHO_High = dbe_->bookProfile(histo, histo, 100, -5., 995.,  70, -48., 92.); 
+      meTEprofileHO_High = ibooker.bookProfile(histo, histo, 100, -5., 995.,  70, -48., 92.); 
       
     }   
   
@@ -562,45 +566,45 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 	  
 	  if(imc != 0) {
 	    sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HF" ) ;
-	    meNumRecHitsConeHF    = dbe_->book1D(histo, histo, 30, 0 , 30.);
+	    meNumRecHitsConeHF    = ibooker.book1D(histo, histo, 30, 0 , 30.);
 	    
 	    sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HF" ) ;
-	    meSumRecHitsEnergyConeHF = dbe_->book1D(histo,histo,100, -20., 180.);
+	    meSumRecHitsEnergyConeHF = ibooker.book1D(histo,histo,100, -20., 180.);
 	    
 	    sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFL" );
-	    meSumRecHitsEnergyConeHFL = dbe_->book1D(histo,histo,100,-20., 180.);
+	    meSumRecHitsEnergyConeHFL = ibooker.book1D(histo,histo,100,-20., 180.);
 	    
 	    sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFS");
-	    meSumRecHitsEnergyConeHFS = dbe_->book1D(histo,histo,100,-20., 180.);
+	    meSumRecHitsEnergyConeHFS = ibooker.book1D(histo,histo,100,-20., 180.);
 	  }
 	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HF" ) ;
-	  meSumRecHitsEnergyHF = dbe_->book1D(histo,histo, 80 , -20., 380.);  
+	  meSumRecHitsEnergyHF = ibooker.book1D(histo,histo, 80 , -20., 380.);  
 	}
       }
       
       sprintf(histo, "HcalRecHitTask_severityLevel_HF");
-      sevLvl_HF = dbe_->book1D(histo, histo, 25, -0.5, 24.5); 
+      sevLvl_HF = ibooker.book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HF" ) ;
-      meRecHitsEnergyHF = dbe_->book1D(histo, histo, 1010 , -10. , 1000.); 
+      meRecHitsEnergyHF = ibooker.book1D(histo, histo, 1010 , -10. , 1000.); 
 
       sprintf (histo, "HcalRecHitTask_timing_HF" ) ;
-      meTimeHF = dbe_->book1D(histo, histo, 70, -48., 92.); 
+      meTimeHF = ibooker.book1D(histo, histo, 70, -48., 92.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_Low_HF" ) ;
-      meTE_Low_HF = dbe_->book2D(histo, histo, 100, -5., 195., 70, -48., 92.);
+      meTE_Low_HF = ibooker.book2D(histo, histo, 100, -5., 195., 70, -48., 92.);
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HF" ) ;
-      meTE_HF = dbe_->book2D(histo, histo, 200, -5., 995., 70, -48., 92.);
+      meTE_HF = ibooker.book2D(histo, histo, 200, -5., 995., 70, -48., 92.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_Low_HF" ) ;
-      meTEprofileHF_Low = dbe_->bookProfile(histo, histo, 100, -5., 195., 70, -48., 92.); 
+      meTEprofileHF_Low = ibooker.bookProfile(histo, histo, 100, -5., 195., 70, -48., 92.); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HF" ) ;
-      meTEprofileHF = dbe_->bookProfile(histo, histo, 200, -5., 995., 70, -48., 92.); 
+      meTEprofileHF = ibooker.bookProfile(histo, histo, 200, -5., 995., 70, -48., 92.); 
 
     }
-  }  //end-of if(_dbe) 
+//  }  //end-of if(_dbe) 
 
 }
 
