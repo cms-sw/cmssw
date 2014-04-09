@@ -1,6 +1,6 @@
 autoCond = { 
-    # GlobalTag for MC production with perfectly aligned and calibrated detector
-    'mc'                :   'PRE_MC_71_V2::All',
+    # GlobalTag for MC production with perfectly aligned and calibrated detector                                                                                                                              
+    'mc'                :   'PRE_MC_71_V3::All',
     # GlobalTag for MC production with realistic alignment and calibrations
     'startup'           :   'PRE_STA71_V2::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
@@ -13,8 +13,8 @@ autoCond = {
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_H_V36::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'PRE_LS171_V3::All',
-    'upgradePLS150ns'   :   'PRE_LS171_V4::All',
+    'upgradePLS1'       :   'PRE_LS171_V5::All',
+    'upgradePLS150ns'   :   'PRE_LS171_V6::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgradePLS3'       :   'POSTLS262_V1::All' # placeholder (GT not meant for standard RelVal)
