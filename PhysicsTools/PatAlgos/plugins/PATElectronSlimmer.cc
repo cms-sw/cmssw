@@ -9,6 +9,12 @@
   \author   Giovanni Petrucciani
   \version  $Id: PATElectronSlimmer.cc,v 1.1 2011/03/24 18:45:45 mwlebour Exp $
 */
+#define private public
+#define protected public
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#undef protected
+#undef private
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -22,9 +28,6 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
-#define protected public
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#undef protected
 
 namespace pat {
 
@@ -38,7 +41,7 @@ namespace pat {
     private:
       edm::InputTag src_;
 
-      StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
+      StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_,dropCorrections_,dropIsolations_,dropShapes_,dropExtrapolations_;
 
       edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf_;
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
@@ -56,6 +59,11 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     dropPreshowerClusters_(iConfig.getParameter<std::string>("dropPreshowerClusters")),
     dropSeedCluster_(iConfig.getParameter<std::string>("dropSeedCluster")),
     dropRecHits_(iConfig.getParameter<std::string>("dropRecHits")),
+    dropCorrections_(iConfig.getParameter<std::string>("dropCorrections")),
+    dropIsolations_(iConfig.getParameter<std::string>("dropIsolations")),
+    dropShapes_(iConfig.getParameter<std::string>("dropShapes")),
+    dropExtrapolations_(iConfig.getParameter<std::string>("dropExtrapolations")),
+    dropClassifications_(iConfig.getParameter<std::string>("dropClassifications")),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates"))
 {
     produces<std::vector<pat::Electron> >();
@@ -97,6 +105,11 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 	if (dropPreshowerClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowPreshowerClusters_.clear(); }
 	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
+        if (dropCorrections_(electron)) { electron.corrections_ = reco::GsfElectron::Corrections(); }
+        if (dropIsolations_(electron)) { electron.dr03_=reco::GsfElectron::IsolationVariables(); electron.dr04_=reco::GsfElectron::IsolationVariables(); electron.pfIso_=reco::GsfElectron::PflowIsolationVariables(); }
+        if (dropShapes_(electron)) { electron.pfShowerShape_=reco::GsfElectron::ShowerShape(); electron.showerShape_=reco::GsfElectron::ShowerShape();  }
+        if (dropExtrapolations_(electron)) { electron.trackExtrapolations_=reco::GsfElectron::TrackExtrapolations();  }
+        if (dropClassifications_(electron)) { electron.classVariables_=reco::GsfElectron::ClassificationVariables(); electron.class_=reco::GsfElectron::Classification(); }
         if (linkToPackedPF_) {
             electron.setPackedPFCandidateCollection(edm::RefProd<pat::PackedCandidateCollection>(pc));
             //std::cout << " PAT  electron in  " << src.id() << " comes from " << electron.refToOrig_.id() << ", " << electron.refToOrig_.key() << std::endl;
