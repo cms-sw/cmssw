@@ -135,9 +135,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	itTau != Tau->end(itBX); ++itTau){
       // forward def is okay for Taus
       const bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
-      const double physicalPt = static_cast<double>(itTau->hwPt()) * jetScale->linearLsb();
-      double rankPt = jetScale->rank(physicalPt);
-      if(rankPt > 0x3f) rankPt = 0x3f;
+      const uint16_t rankPt = jetScale->rank((uint16_t)itTau->hwPt());
 
       unsigned iEta = itTau->hwEta();
       unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
@@ -160,10 +158,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	itJet != Jet->end(itBX); ++itJet){
       // use 2nd quality bit to define forward
       const bool forward = ((itJet->hwQual() & 0x2) != 0);
-      const double physicalPt = static_cast<double>(itJet->hwPt()) * jetScale->linearLsb();
-      double rankPt = jetScale->rank(physicalPt);
-      if(rankPt > 0x3f) rankPt = 0x3f;
-
+      const uint16_t rankPt = jetScale->rank((uint16_t)itJet->hwPt());
+      
       unsigned iEta = itJet->hwEta();
       unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
       unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
