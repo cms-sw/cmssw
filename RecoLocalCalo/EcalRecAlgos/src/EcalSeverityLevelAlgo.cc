@@ -76,7 +76,6 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
     dbstatusMask_[snum]=mask;
   }
 
-  
 
 }
 

@@ -52,12 +52,11 @@ class EcalChannelStatusCode {
   EcalChannelStatusCode() : status_(0){}
   EcalChannelStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus) {};
 
-    //get Methods to be defined according to the final definition
 
     void print(std::ostream& s) const { s << "status is: " << status_; }
 
     /// return decoded status
-    uint16_t getStatusCode() const { return status_&chStatusMask;; }
+    Code  getStatusCode() const { return Code(status_&chStatusMask); }
 
     /// Return the encoded raw status
     uint16_t getEncodedStatusCode() const { return status_; }

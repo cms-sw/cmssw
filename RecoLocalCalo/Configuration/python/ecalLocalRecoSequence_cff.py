@@ -29,14 +29,3 @@ ecalRecHitSequence        = cms.Sequence(ecalRecHit*
 ecalLocalRecoSequence     = cms.Sequence(ecalUncalibRecHitSequence*
                                          ecalRecHitSequence)
 
-ecalRecHit.ChannelStatusToBeExcluded = [ 
-    'kNoisy',
-    'kNNoisy',
-    'kFixedG6',
-    'kFixedG1',
-    'kFixedG0',
-    'kNonRespondingIsolated',
-    'kDeadVFE',
-    'kDeadFE',
-    'kNoDataNoTP',
-    ]     
