@@ -41,7 +41,8 @@ namespace pat {
     private:
       edm::InputTag src_;
 
-      StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_,dropCorrections_,dropIsolations_,dropShapes_,dropExtrapolations_;
+      StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
+      StringCutObjectSelector<pat::Electron> dropCorrections_,dropIsolations_,dropShapes_,dropExtrapolations_,dropClassifications_;
 
       edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf_;
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
