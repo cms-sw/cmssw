@@ -78,11 +78,24 @@ process.Layer2gctFormat = cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
                                          InputCollection = cms.InputTag("Layer2Phys")
 )
 
+process.L1Packer = cms.EDProducer("l1t::L1TDigiToRaw",
+        InputLabel = cms.InputTag("caloStage1"),
+        FedId = cms.int32(100),
+        FWId = cms.uint32(1),
+        CaloTowers = cms.InputTag(""),
+        Jets = cms.InputTag("Layer2HW"))
+
+process.L1Unpacker = cms.EDProducer("l1t::L1TRawToDigi",
+        InputLabel = cms.InputTag("L1Packer"),
+        FedIds = cms.vint32(100))
+
 process.Layer2 = cms.Sequence(
         process.rctLayer2Format
         *process.Layer2HW
         *process.Layer2Phys
         *process.Layer2gctFormat
+        *process.L1Packer
+        *process.L1Unpacker
         )
 
 
