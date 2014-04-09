@@ -52,6 +52,7 @@ jetCoreRegionalStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 jetCoreRegionalStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
+jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak5CaloJets"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
       ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
       RegionPSet = cms.PSet(
@@ -59,11 +60,10 @@ jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
         originRadius = cms.double( 0.2 ),
         ptMin = cms.double( 10. ),
         originHalfLength = cms.double( 0.2 ),
-        deltaPhiRegion = cms.double( 0.05 ), ## 0.5
-        deltaEtaRegion = cms.double( 0.05 ), ## 0.5
-        JetSrc = cms.InputTag( "ak5CaloJets" ),
+        deltaPhiRegion = cms.double( 0.10 ), 
+        deltaEtaRegion = cms.double( 0.10 ), 
+        JetSrc = cms.InputTag( "jetsForCoreTracking" ),
         vertexSrc = cms.InputTag( "firstStepGoodPrimaryVertices" ),
-#        JetMinPt = cms.double( 20.0 ),
       ))
 
 jetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('jetCoreRegionalStepSeedLayers')

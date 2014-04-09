@@ -12,6 +12,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
 namespace {
 
@@ -63,14 +64,17 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCol
 
   CurvilinearTrajectoryError error = initialError(sin2Theta);
   FreeTrajectoryState fts(kine, error);
-  if(region.direction().x()!=0)
+  if(region.direction().x()!=0) // a direction was given, check if it is an etaPhi region
   {
-	//FIXME: make itconfigurable	 
-	if(region.direction().perp() < 20) return 0;
+     const RectangularEtaPhiTrackingRegion * etaPhiRegion =  dynamic_cast<const RectangularEtaPhiTrackingRegion *>(&region);
+     if(etaPhiRegion) {  
+
+	//the following completely reset the kinematics, perhaps it makes no sense and newKine=kine would do better 
    	GlobalVector direction=region.direction()/region.direction().mag();
    	GlobalVector momentum=direction*fts.momentum().mag();
-   	GlobalPoint position=region.origin()+5*direction;
+   	GlobalPoint position=region.origin()+5*direction;  
    	GlobalTrajectoryParameters newKine(position,momentum,fts.charge(),&fts.parameters().magneticField());
+
   	GlobalError vertexErr( sqr(region.originRBound()), 0, sqr(region.originRBound()),
                    0, 0, sqr(region.originZBound()));
 
@@ -82,13 +86,15 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCol
   	C[0][0] = std::max(sin2th/sqr(ptMin), minC00);
   	float zErr = vertexErr.czz();
   	float transverseErr = vertexErr.cxx(); // assume equal cxx cyy
-	//FIXME: take it from region  
-	C[1][1] = 0.05;
-  	C[2][2] = 0.05;
+        float deltaEta = (etaPhiRegion->etaRange().first-etaPhiRegion->etaRange().first)/2.;
+        float deltaPhi = (etaPhiRegion->phiMargin().right()-etaPhiRegion->phiMargin().left())/2.;
+	C[1][1] = deltaEta*deltaEta*4; //2 sigma of what given in input
+  	C[2][2] = deltaPhi*deltaPhi*4;
   	C[3][3] = transverseErr;
   	C[4][4] = zErr*sin2th + transverseErr*(1-sin2th);
    	CurvilinearTrajectoryError newError(C);
   	fts =  FreeTrajectoryState(newKine,newError);
+    }
   }
 
 
