@@ -24,7 +24,7 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(t
   //translate phi segmentation boundaries into continuous ieta
   firstHEDoublePhiRing_ = firstHERing_ + (hcaltopo->firstHEDoublePhiRing() - hcaltopo->firstHERing());
   firstHEQuadPhiRing_ = firstHERing_ + (hcaltopo->firstHEQuadPhiRing() - hcaltopo->firstHERing());
-  firstHFQuadPhiRing_ = firstHFRing_ + (hcaltopo->firstHFQuadPhiRing() - hcaltopo->firstHFRing());
+  firstHFQuadPhiRing_ = firstHFRing_ - 1 + (hcaltopo->firstHFQuadPhiRing() - hcaltopo->firstHFRing());
   
   //number of etas per phi segmentation type
   int nEtaSinglePhi_, nEtaDoublePhi_, nEtaQuadPhi_;
