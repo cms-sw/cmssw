@@ -36,6 +36,9 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
 //  packedCovarianceDzDz_ = pack8log(dzdz_,-13,-1); //MiniFloatConverter::float32to16(dzdz_*10000.);
     packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
     packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
+    packedCovarianceDptDpt_ = pack8log(dptdpt_,-15,5,32);
+    packedCovarianceDetaDeta_ = pack8log(detadeta_,-20,0,32);
+    packedCovarianceDphiDphi_ = pack8log(dphidphi_,-15,5,32);
     if (unpackAfterwards) unpackVtx();
 }
 
@@ -61,7 +64,9 @@ void pat::PackedCandidate::unpackVtx() const {
 //  dzdz_ = unpack8log(packedCovarianceDzDz_,-13,-1);
     dphidxy_ = unpack8log(packedCovarianceDphiDxy_,-17,-4);
     dlambdadz_ = unpack8log(packedCovarianceDlambdaDz_,-17,-4);
-
+    dptdpt_ = unpack8log(packedCovarianceDptDpt_,-15,5,32);
+    detadeta_ = unpack8log(packedCovarianceDetaDeta_,-20,0,32);
+    dphidphi_ = unpack8log(packedCovarianceDphiDphi_,-15,5,32);
 
   dxydxy_ = MiniFloatConverter::float16to32(packedCovarianceDxyDxy_)/10000.;
     dxydz_ =MiniFloatConverter::float16to32(packedCovarianceDxyDz_)/10000.;
@@ -87,9 +92,12 @@ float pat::PackedCandidate::dz(const Point &p) const {
 reco::Track pat::PackedCandidate::pseudoTrack() const {
     maybeUnpackBoth();
     reco::TrackBase::CovarianceMatrix m;
-    m(0,0)=0.5e-4/pt()/pt(); //TODO: tune
-    m(1,1)=6e-6; //TODO: tune 
-    m(2,2)=1.5e-5/pt()/pt(); //TODO: tune
+//    m(0,0)=0.5e-4/pt()/pt(); //TODO: tune
+//    m(1,1)=6e-6; //TODO: tune 
+//    m(2,2)=1.5e-5/pt()/pt(); //TODO: tune
+    m(0,0)=dptdpt_/pt()/pt(); //TODO: tune
+    m(1,1)=detadeta_; //TODO: tune 
+    m(2,2)=dphidphi_/pt()/pt(); //TODO: tune
     m(2,3)=dphidxy_;
     m(3,2)=dphidxy_;
     m(4,1)=dlambdadz_;

@@ -27,7 +27,7 @@ process.source.fileNames = {
 
 ##'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root'}
 #                                         ##
-process.maxEvents.input = 1000
+process.maxEvents.input = -1
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
@@ -64,7 +64,7 @@ process.patElectrons.embedPflowPreshowerClusters    = False
 
 process.selectedPatJets.cut = cms.string("pt > 10")
 process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))") 
-process.selectedPatElectrons.cut = cms.string("pt > 5") 
+process.selectedPatElectrons.cut = cms.string("") 
 process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
 process.selectedPatPhotons.cut = cms.string("pt > 15 && hadTowOverEm()<0.15 ")
 

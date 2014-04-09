@@ -173,6 +173,9 @@ namespace pat {
       dzdz_ = tk.covariance(4,4);
       dphidxy_ = tk.covariance(2,3);
       dlambdadz_ = tk.covariance(1,4);
+      dptdpt_ = tk.covariance(0,0)*pt()*pt();
+      detadeta_ = tk.covariance(1,1);
+      dphidphi_ = tk.covariance(2,2)*pt()*pt();
 
       normalizedChi2_ = tk.normalizedChi2();
       int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits();
@@ -370,6 +373,7 @@ namespace pat {
     uint16_t packedDxy_, packedDz_, packedDPhi_;
     uint16_t packedCovarianceDxyDxy_,packedCovarianceDxyDz_,packedCovarianceDzDz_;
     int8_t packedCovarianceDlambdaDz_,packedCovarianceDphiDxy_;
+    int8_t packedCovarianceDptDpt_,packedCovarianceDetaDeta_,packedCovarianceDphiDphi_;
     void pack(bool unpackAfterwards=true) ;
     void unpack() const ;
     void packVtx(bool unpackAfterwards=true) ;
@@ -393,7 +397,7 @@ namespace pat {
     // are the dxy, dz and vertex unpacked
     mutable bool unpackedVtx_;
     /// IP covariance	
-    mutable float dxydxy_, dzdz_, dxydz_,dlambdadz_,dphidxy_;
+    mutable float dxydxy_, dzdz_, dxydz_,dlambdadz_,dphidxy_,dptdpt_,detadeta_,dphidphi_;
     uint8_t packedHits_;
     /// track quality information
     uint8_t normalizedChi2_; 
