@@ -30,8 +30,7 @@ class ConversionTrackFinder {
 
  public:
   
-  ConversionTrackFinder( const edm::EventSetup& es,
-			 const edm::ParameterSet& config );
+  ConversionTrackFinder( const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder *trajectoryBuilder);
                        
   
   virtual ~ConversionTrackFinder();
@@ -41,7 +40,6 @@ class ConversionTrackFinder {
 
   /// Initialize EventSetup objects at each event
   void setEventSetup( const edm::EventSetup& es ) ; 
-  void setTrajectoryBuilder(const BaseCkfTrajectoryBuilder & builder) ; 
 
 
  private:
@@ -52,14 +50,13 @@ class ConversionTrackFinder {
 
  protected: 
   
-  edm::ParameterSet conf_;
   const MagneticField* theMF_;
 
   std::string theMeasurementTrackerName_;
   const MeasurementTracker*     theMeasurementTracker_;
   const BaseCkfTrajectoryBuilder*  theCkfTrajectoryBuilder_;
 
-  TransientInitialStateEstimator* theInitialState_;  
+  std::unique_ptr<TransientInitialStateEstimator> theInitialState_;
   const TrackerGeometry* theTrackerGeom_;
   KFUpdator*                          theUpdator_;
 

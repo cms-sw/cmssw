@@ -80,18 +80,17 @@ thirdMeasurementTracker.stripClusterProducer = 'thirdClusters'
 
 #################################
 # Tertiary trajectory builder
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-thirdCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-thirdCkfTrajectoryBuilder.ComponentName          = 'thirdCkfTrajectoryBuilder'
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+thirdCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone()
 thirdCkfTrajectoryBuilder.MeasurementTrackerName = 'thirdMeasurementTracker'
-thirdCkfTrajectoryBuilder.trajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
-thirdCkfTrajectoryBuilder.inOutTrajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
+thirdCkfTrajectoryBuilder.trajectoryFilter.refToPSet_   = 'MinBiasCkfTrajectoryFilter'
+thirdCkfTrajectoryBuilder.inOutTrajectoryFilter.refToPSet_   = 'MinBiasCkfTrajectoryFilter'
 
 #################################
 # Tertiary track candidates
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 tertTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-tertTrackCandidates.TrajectoryBuilder    = 'thirdCkfTrajectoryBuilder'
+tertTrackCandidates.TrajectoryBuilder.refToPSet_ = 'thirdCkfTrajectoryBuilder'
 tertTrackCandidates.TrajectoryCleaner    = 'TrajectoryCleanerBySharedSeeds'
 tertTrackCandidates.src                  = 'tertSeeds'
 tertTrackCandidates.RedundantSeedCleaner = 'none'

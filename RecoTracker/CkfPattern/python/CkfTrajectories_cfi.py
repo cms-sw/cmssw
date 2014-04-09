@@ -19,7 +19,7 @@ ckfTrajectories = cms.EDProducer("CkfTrajectoryMaker",
     #bool   seedCleaning         = false
     src = cms.InputTag('globalMixedSeeds'),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
-    TrajectoryBuilder = cms.string('GroupedCkfTrajectoryBuilder'),
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('GroupedCkfTrajectoryBuilder')),
     # nested parameter set for TransientInitialStateEstimator
     TransientInitialStateEstimatorParameters = cms.PSet(
        propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
