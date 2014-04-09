@@ -164,12 +164,16 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   
 
   
-  setEventSetup( theEventSetup );
-
   // get the trajectory builder and initialize it with the data
   edm::Handle<MeasurementTrackerEvent> data;
   theEvent.getByLabel(edm::InputTag("MeasurementTrackerEvent"), data);
   theTrajectoryBuilder_->setEvent(theEvent, theEventSetup, &*data);
+
+
+  // this need to be done after the initialization of the TrajectoryBuilder!
+  setEventSetup( theEventSetup );
+ 
+
 
   theOutInSeedFinder_->setEvent(theEvent);
   theInOutSeedFinder_->setEvent(theEvent);

@@ -34,7 +34,8 @@ void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es, c
 
   es.get<TrackingComponentsRecord>().get(thePropagatorAlongName, halong);
   es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName, hopposite);
-
+  thePropagatorAlong = halong.product();
+  thePropagatorOpposite = hopposite.product();
 }
 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
