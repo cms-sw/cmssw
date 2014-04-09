@@ -270,7 +270,7 @@ public:
 private:
 
     /// map containing the conditions (per condition chip) - transient
-    mutable std::vector<ConditionMap> m_conditionMap;
+    std::vector<ConditionMap> m_conditionMap;
 
 private:
 
