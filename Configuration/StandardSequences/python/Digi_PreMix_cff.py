@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # fragment to turn off ZS in Hcal:
+#from Configuration.StandardSequences.Digi_cff import *
 from Configuration.StandardSequences.DigiNZS_cff import *
 
 # modifications to the digi sequences defined above (DigiNZS imports the central Digi_cff)
@@ -16,4 +17,4 @@ from Configuration.StandardSequences.DigiNZS_cff import *
 # Turn off SR in Ecal
 simEcalDigis.UseFullReadout = cms.bool(True)
 
-                                
+

@@ -255,6 +255,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theZDCResponse->setHitFilter(&theZDCHitFilter);
 
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
+  //initialize: they won't be called later if flag is set
+  theTimeSlewSim = 0;
   if(doTimeSlew) {
     // no time slewing for HF
     theTimeSlewSim = new HcalTimeSlewSim(theParameterMap);
