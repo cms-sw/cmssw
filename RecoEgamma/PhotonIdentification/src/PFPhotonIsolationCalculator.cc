@@ -684,7 +684,7 @@ if(fabs(dxy) > 0.2)
 //--------------------------------------------------------------------------------------------------
 reco::VertexRef PFPhotonIsolationCalculator::chargedHadronVertex( edm::Handle< reco::VertexCollection > verticesColl, const reco::PFCandidate& pfcand ){
 
-  //code copied from Florian's PFNoPU class (who clearly did not understand the use of vtx.trackWeight....)
+  //code copied from Florian's PFNoPU class (corrected removing the double loop....)
     
   auto const & track = pfcand.trackRef();
 
