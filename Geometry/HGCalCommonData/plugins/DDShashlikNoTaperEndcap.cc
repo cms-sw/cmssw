@@ -85,15 +85,20 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
 #ifdef DebugLog
       row++;
 #endif
-      double limit = sqrt( offsetX*offsetX + offsetY*offsetY );
-      
+      double limit1 = sqrt((offsetX+0.5*xQuadrant*offsetXY)*
+			   (offsetX+0.5*xQuadrant*offsetXY) + 
+			   (offsetY+0.5*yQuadrant*offsetXY)*
+			   (offsetY+0.5*yQuadrant*offsetXY) );
+      double limit2 = sqrt((offsetX-0.5*xQuadrant*offsetXY)*
+			   (offsetX-0.5*xQuadrant*offsetXY) + 
+			   (offsetY-0.5*yQuadrant*offsetXY)*
+			   (offsetY-0.5*yQuadrant*offsetXY) );
       // Make sure we do not add supermodules in rMin area
-      if( limit > m_rMin && limit < m_rMax )
-      {
+      if( limit2 > m_rMin && limit1 < m_rMax ) {
 #ifdef DebugLog
 	std::cout << " copyNo = " << copyNo << " (" << column << "," << row 
 		  << "): offsetX,Y = " << offsetX << "," << offsetY 
-		  << " limit=" << limit	<< " rMin, rMax = " 
+		  << " limit=" << limit1 << ":" << limit2 << " rMin, rMax = " 
 		  << m_rMin << "," << m_rMax << std::endl;
 #endif
 	DDRotation rotation;
@@ -119,6 +124,13 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
 	cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
 
 	copyNo += m_incrCopyNo;
+      } else {
+#ifdef DebugLog
+	std::cout << " (" << column << "," << row << "): offsetX,Y = " 
+		  << offsetX << "," << offsetY << " is out of limit=" << limit1
+		  << ":" << limit2 << " rMin, rMax = " << m_rMin << "," 
+		  << m_rMax << std::endl;
+#endif
       }
 
       yphi += yQuadrant*2.*tiltAngle;
