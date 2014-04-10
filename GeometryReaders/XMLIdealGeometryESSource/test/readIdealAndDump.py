@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CompareGeometryTest")
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration.Geometry.GeometryExtended_cff')
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
