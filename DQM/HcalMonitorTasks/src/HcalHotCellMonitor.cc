@@ -1,5 +1,5 @@
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
@@ -379,29 +379,29 @@ void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<HORecHitCollection> ho_rechit;
   edm::Handle<HFRecHitCollection> hf_rechit;
 
-  if (!(e.getByLabel(hbheRechitLabel_,hbhe_rechit)))
-    {
-      edm::LogWarning("HcalHotCellMonitor")<< hbheRechitLabel_<<" hbhe_rechit not available";
-      return;
-    }
+  if (!(e.getByLabel(hbheRechitLabel_,hbhe_rechit))) {
+    edm::LogWarning("HcalHotCellMonitor")<< hbheRechitLabel_<<" hbhe_rechit not available";
+    return;
+  }
 
-  if (!(e.getByLabel(hfRechitLabel_,hf_rechit)))
-    {
-      edm::LogWarning("HcalHotCellMonitor")<< hfRechitLabel_<<" hf_rechit not available";
-      return;
-    }
-  if (!(e.getByLabel(hoRechitLabel_,ho_rechit)))
-    {
-      edm::LogWarning("HcalHotCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
-      return;
-    }
+  if (!(e.getByLabel(hfRechitLabel_,hf_rechit))) {
+    edm::LogWarning("HcalHotCellMonitor")<< hfRechitLabel_<<" hf_rechit not available";
+    return;
+  }
+  if (!(e.getByLabel(hoRechitLabel_,ho_rechit))) {
+    edm::LogWarning("HcalHotCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
+    return;
+  }
+
+  edm::ESHandle<HcalTopology> topo;
+  s.get<HcalRecNumberingRecord>().get(topo);
 
   // Good event found; increment counter (via base class analyze method)
 
   HcalBaseDQMonitor::analyze(e,s);
   if (debug_>1) std::cout <<"\t<HcalHotCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
 
-  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit);
+  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *topo);
 
 } // void HcalHotCellMonitor::analyze(...)
 
@@ -413,17 +413,15 @@ void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 
 void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				      const HORecHitCollection& hoHits,
-				      const HFRecHitCollection& hfHits
-				      )
-{
+				      const HFRecHitCollection& hfHits,
+				      const HcalTopology& topology) {
   
   if (debug_>1) std::cout <<"<HcalHotCellMonitor::processEvent> Processing event..."<<std::endl;
-
+  
   // Search for hot cells above a certain energy
-  if (test_energy_ || test_et_ || test_persistent_)
-    {
-      processEvent_rechitenergy(hbHits, hoHits,hfHits);
-    }
+  if (test_energy_ || test_et_ || test_persistent_) {
+    processEvent_rechitenergy(hbHits, hoHits,hfHits, topology);
+  }
 
   return;
 } // void HcalHotCellMonitor::processEvent(...)
@@ -432,142 +430,132 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 /* --------------------------------------- */
 
 
-void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
-						    const HORecHitCollection& hoHits,
-						    const HFRecHitCollection& hfHits)
-  
-{
+void HcalHotCellMonitor::processEvent_rechitenergy(const HBHERecHitCollection& hbheHits,
+						   const HORecHitCollection& hoHits,
+						   const HFRecHitCollection& hfHits,
+						   const HcalTopology& topology) {
   // Looks at rechits of cells and compares to threshold energies.
   // Cells above thresholds get marked as hot candidates
 
   if (debug_>1) std::cout <<"<HcalHotCellMonitor::processEvent_rechitenergy> Processing rechits..."<<std::endl;
 
   // loop over HBHE
-  for (HBHERecHitCollection::const_iterator HBHEiter=hbheHits.begin(); HBHEiter!=hbheHits.end(); ++HBHEiter) 
-    { // loop over all hits
-      float en = HBHEiter->energy();
-      //float ti = HBHEiter->time();
+  for (HBHERecHitCollection::const_iterator HBHEiter=hbheHits.begin(); HBHEiter!=hbheHits.end(); ++HBHEiter) { // loop over all hits
+    float en = HBHEiter->energy();
+    //float ti = HBHEiter->time();
 
-      HcalDetId id(HBHEiter->detid().rawId());
-      int ieta = id.ieta();
-      int iphi = id.iphi();
-      int depth = id.depth();
-      double fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
-      float et = en/cosh(fEta);
+    HcalDetId id(HBHEiter->detid().rawId());
+    int ieta = id.ieta();
+    int iphi = id.iphi();
+    int depth = id.depth();
+    std::pair<double,double> etas = topology.etaRange(id.subdet(),abs(ieta));
+    double fEta=fabs(0.5*(etas.first+etas.second));
+    float et = en/cosh(fEta);
 
-      if (test_neighbor_ || makeDiagnostics_)
-	{
-	  processHit_rechitNeighbors(HBHEiter, hbheHits, HBHENeighborParams_);
-	}
-      if (id.subdet()==HcalBarrel)
-	{
-	  if (en>=HBenergyThreshold_)
-	      ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (et>=HBETThreshold_)
-	      ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (test_energy_ && en>=HBpersistentThreshold_)
-		++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (test_et_ && et>=HBpersistentETThreshold_)
-		++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	}
-      else if (id.subdet()==HcalEndcap)
-	{
-	  if (en>=HEenergyThreshold_)
-	    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (et>=HEETThreshold_)
-	    ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (test_energy_) 
-	    if (en>=HEpersistentThreshold_)
-	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (test_et_) 
-	    if (et>=HEpersistentETThreshold_)
-	      ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	}
-    } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
+    if (test_neighbor_ || makeDiagnostics_) {
+      processHit_rechitNeighbors(HBHEiter, hbheHits, HBHENeighborParams_, topology);
+    }
+    if (id.subdet()==HcalBarrel) {
+      if (en>=HBenergyThreshold_)
+	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      if (et>=HBETThreshold_)
+	++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      if (test_energy_ && en>=HBpersistentThreshold_)
+	++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      if (test_et_ && et>=HBpersistentETThreshold_)
+	++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+    } else if (id.subdet()==HcalEndcap)	{
+      if (en>=HEenergyThreshold_)
+	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      if (et>=HEETThreshold_)
+	++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      if (test_energy_) 
+	if (en>=HEpersistentThreshold_)
+	  ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      if (test_et_) 
+	if (et>=HEpersistentETThreshold_)
+	  ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+    }
+  } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
   // loop over HO
-  for (HORecHitCollection::const_iterator HOiter=hoHits.begin(); HOiter!=hoHits.end(); ++HOiter) 
-    { // loop over all hits
-      float en = HOiter->energy();
+  for (HORecHitCollection::const_iterator HOiter=hoHits.begin(); HOiter!=hoHits.end(); ++HOiter) { // loop over all hits
+    float en = HOiter->energy();
      
-      HcalDetId id(HOiter->detid().rawId());
-      int ieta = id.ieta();
-      int iphi = id.iphi();
-      int depth = id.depth();
-      double fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
-      float et = en/cosh(fEta);
+    HcalDetId id(HOiter->detid().rawId());
+    int ieta = id.ieta();
+    int iphi = id.iphi();
+    int depth = id.depth();
+    std::pair<double,double> etas = topology.etaRange(id.subdet(),abs(ieta));
+    double fEta=fabs(0.5*(etas.first+etas.second));
+    float et = en/cosh(fEta);
 
-      if (test_neighbor_ || makeDiagnostics_)
-	processHit_rechitNeighbors(HOiter, hoHits, HONeighborParams_);
+    if (test_neighbor_ || makeDiagnostics_)
+      processHit_rechitNeighbors(HOiter, hoHits, HONeighborParams_, topology);
 
-      if (isSiPM(ieta,iphi,depth))
-	{
-	  if (en>=HOenergyThreshold_*SiPMscale_)
-	    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
-	  if (et>=HOETThreshold_*SiPMscale_)
-	    ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
-	  if (test_energy_) 
-	    if (en>=HOpersistentThreshold_*SiPMscale_)
-	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (test_et_) 
-	    if (et>=HOpersistentETThreshold_*SiPMscale_)
-	      ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	}
-      else
-	{
-	  // Skip HO ring 2 when required
-	  if (abs(ieta)>10 && excludeHORing2_==true)
-	    continue;
+    if (isSiPM(ieta,iphi,depth)) {
+      if (en>=HOenergyThreshold_*SiPMscale_)
+	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
+      if (et>=HOETThreshold_*SiPMscale_)
+	++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
+      if (test_energy_) 
+	if (en>=HOpersistentThreshold_*SiPMscale_)
+	  ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      if (test_et_) 
+	if (et>=HOpersistentETThreshold_*SiPMscale_)
+	  ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+    } else {
+      // Skip HO ring 2 when required
+      if (abs(ieta)>10 && excludeHORing2_==true) continue;
 
-	  if (en>=HOenergyThreshold_)
-	    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
-	  if (et>=HOETThreshold_)
-	    ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
-	  if (test_energy_) 
-	    if (en>=HOpersistentThreshold_)
-	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (test_et_) 
-	    if (en>=HOpersistentETThreshold_)
-	      ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	}
+      if (en>=HOenergyThreshold_)
+	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
+      if (et>=HOETThreshold_)
+	++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
+      if (test_energy_) 
+	if (en>=HOpersistentThreshold_)
+	  ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      if (test_et_) 
+	if (en>=HOpersistentETThreshold_)
+	  ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
     }
+  }
     
   // loop over HF
-  for (HFRecHitCollection::const_iterator HFiter=hfHits.begin(); HFiter!=hfHits.end(); ++HFiter) 
-    { // loop over all hits
-      float en = HFiter->energy();
-      float threshold=HFenergyThreshold_;
-      float threshold_pers = HFpersistentThreshold_; 
-      float etthreshold=HFETThreshold_;
-      HcalDetId id(HFiter->detid().rawId());
-      int ieta = id.ieta();
-      int iphi = id.iphi();
-      int depth = id.depth();
-      double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28]));
-      float et = en/cosh(fEta);
+  for (HFRecHitCollection::const_iterator HFiter=hfHits.begin(); HFiter!=hfHits.end(); ++HFiter) { // loop over all hits
+    float en = HFiter->energy();
+    float threshold=HFenergyThreshold_;
+    float threshold_pers = HFpersistentThreshold_; 
+    float etthreshold=HFETThreshold_;
+    HcalDetId id(HFiter->detid().rawId());
+    int ieta = id.ieta();
+    int iphi = id.iphi();
+    int depth = id.depth();
+    std::pair<double,double> etas = topology.etaRange(id.subdet(),abs(ieta));
+    double fEta=fabs(0.5*(etas.first+etas.second));
+    float et = en/cosh(fEta);
 
-      if (test_neighbor_ || makeDiagnostics_)
-	processHit_rechitNeighbors(HFiter, hfHits, HFNeighborParams_);
+    if (test_neighbor_ || makeDiagnostics_)
+      processHit_rechitNeighbors(HFiter, hfHits, HFNeighborParams_, topology);
 
-      if (abs(ieta)>39) // increase the thresholds in far-forward part of HF
-	{
-	  threshold*=HFfarfwdScale_;
-	  threshold_pers*=HFfarfwdScale_;
-	}
-      
-      if (en>=threshold)
-	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-      if (et>=etthreshold)
-	++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-      if (test_energy_) {
-	if (en>=threshold_pers)
-	  ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-      }
-      if (test_et_) {
-	if (et>=HFpersistentETThreshold_)
-	  ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-      }
+    if (abs(ieta)>39) { // increase the thresholds in far-forward part of HF
+      threshold*=HFfarfwdScale_;
+      threshold_pers*=HFfarfwdScale_;
     }
+      
+    if (en>=threshold)
+      ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+    if (et>=etthreshold)
+      ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+    if (test_energy_) {
+      if (en>=threshold_pers)
+	++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+    }
+    if (test_et_) {
+      if (et>=HFpersistentETThreshold_)
+	++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+    }
+  }
 
   // call update every event -- still necessary?
  
@@ -587,11 +575,10 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 
  
 template <class RECHIT, class RECHITCOLLECTION>
-void HcalHotCellMonitor::processHit_rechitNeighbors( RECHIT& rechit,
-						     RECHITCOLLECTION& coll,
-						     hotNeighborParams& params
-						     )
-{
+void HcalHotCellMonitor::processHit_rechitNeighbors(RECHIT& rechit,
+						    RECHITCOLLECTION& coll,
+						    hotNeighborParams& params,
+						    const HcalTopology& topology) {
   // Compares energy to energy of neighboring cells.
   // This is a slightly simplified version of D0's NADA algorithm
   // 17 June 2009 -- this needs major work.  I'm not sure I have the [eta][phi][depth] array mapping correct everywhere. 
@@ -609,11 +596,8 @@ void HcalHotCellMonitor::processHit_rechitNeighbors( RECHIT& rechit,
   iphi = id.iphi();
   depth = id.depth();
  
-  double fEta=0;
-  if (id.subdet()!=HcalForward)
-    fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
-  else
-    fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28]));
+  std::pair<double,double> etas = topology.etaRange(id.subdet(),abs(ieta));
+  double fEta=fabs(0.5*(etas.first+etas.second));
 
   float et = en/cosh(fEta);
 

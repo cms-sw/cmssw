@@ -6,7 +6,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
