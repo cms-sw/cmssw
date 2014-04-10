@@ -8,8 +8,8 @@ from HLTriggerOffline.JetMET.Validation.JetMETPostProcessor_cff import *
 #from HLTriggerOffline.special.hltAlCaPostVal_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_postProcessor_cff import *
 from HLTriggerOffline.Higgs.HLTHiggsPostVal_cff import *
+from HLTriggerOffline.Exotica.hltExoticaPostProcessors_cff import *
 from Validation.RecoTrack.HLTpostProcessorTracker_cfi import *
-
 #from HLTriggerOffline.Common.PostProcessorExample_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 
@@ -27,6 +27,7 @@ hltpostvalidation = cms.Sequence(
    #+ExamplePostVal
     +hltvalidationqt
     +HLTHiggsPostVal
+    +hltExoticaPostProcessors
     )
 
 hltpostvalidation_fastsim = cms.Sequence( 
