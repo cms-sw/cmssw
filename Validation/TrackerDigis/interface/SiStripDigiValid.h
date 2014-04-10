@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <string>
 
@@ -13,7 +14,7 @@ class SiStripDigi;
 class DQMStore;
 class MonitorElement;
 
-class  SiStripDigiValid: public edm::EDAnalyzer {
+class  SiStripDigiValid: public DQMEDAnalyzer {
 
  public:
 
@@ -23,7 +24,7 @@ class  SiStripDigiValid: public edm::EDAnalyzer {
  protected:
      void analyze(const edm::Event& e, const edm::EventSetup& c);
      void beginJob();
-     void beginRun(edm::Run const& r, edm::EventSetup const& es);
+     void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
      void endJob(void);
 
  private:
@@ -174,6 +175,7 @@ class  SiStripDigiValid: public edm::EDAnalyzer {
 
     //Back-End Interface
     DQMStore* dbe_;
+    bool runStandalone;
     std::string outputFile_;
     edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > edmDetSetVector_SiStripDigi_Token_;
 };
