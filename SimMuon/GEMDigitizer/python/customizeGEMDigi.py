@@ -88,6 +88,12 @@ def customize_random_GEMDigi(process):
     return process
 
 
+## load the digitizer and pad producer
+def load_GEM_digitizers(process):
+    process.load('SimMuon.GEMDigitizer.muonGEMDigi_cff')
+    return process
+
+
 # customize the full digitization sequence pdigi by adding GEMs
 def customize_digi_addGEM(process):
     process = customize_random_GEMDigi(process)
@@ -97,8 +103,9 @@ def customize_digi_addGEM(process):
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
         process.doAllDigi*
-        process.trackingParticles*
-        process.addPileupInfo )
+        process.addPileupInfo
+    )
+    process = append_GEMDigi_event(process)
     return process
 
 
@@ -110,7 +117,9 @@ def customize_digi_addGEM_muon_only(process):
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
-        process.muonDigi )
+        process.muonDigi
+    )
+    process = append_GEMDigi_event(process)
     return process
 
 
@@ -118,11 +127,21 @@ def customize_digi_addGEM_muon_only(process):
 def customize_digi_addGEM_gem_only(process):
     process = customize_random_GEMDigi(process)
     process = customize_mix_addGEM_muon_only(process)
-    process.muonDigi = cms.Sequence(process.simMuonCSCDigis + process.simMuonDTDigis + process.simMuonRPCDigis + process.simMuonGEMDigis + process.simMuonGEMPadDigis)
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
         process.simMuonGEMDigis*
         process.simMuonGEMPadDigis )
+    process = append_GEMDigi_event(process)
     return process
 
+    
+# insert the GEMDigi and GEMCSCPadDigi collection to the event
+def append_GEMDigi_event(process):
+    alist=['AODSIM','RECOSIM','FEVTSIM','FEVTDEBUG','FEVTDEBUGHLT','RECODEBUG','RAWRECOSIMHLT','RAWRECODEBUGHLT']
+    for a in alist:
+        b=a+'output'
+        if hasattr(process,b):
+            getattr(process,b).outputCommands.append('keep *_simMuonGEMDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_simMuonGEMCSCPadDigis_*_*')
+    return process
