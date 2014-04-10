@@ -38,9 +38,9 @@ void DQMExample_Step2::beginJob()
   edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::beginJob " << std::endl;
 }
 //
-// -------------------------------------- bookHistograms --------------------------------------------
+// -------------------------------------- get and book in the endJob --------------------------------------------
 //
-void DQMExample_Step2::manipulateHistograms(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_)
+void DQMExample_Step2::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_)
 {
   // create and cd into new folder
   ibooker_.setCurrentFolder("What_I_do_in_the_client/Ratio");
@@ -70,11 +70,9 @@ void DQMExample_Step2::manipulateHistograms(DQMStore::IBooker& ibooker_, DQMStor
 }
 
 //
-// -------------------------------------- endJob --------------------------------------------
+// -------------------------------------- get in the endLumi if needed --------------------------------------------
 //
-void DQMExample_Step2::dqmEndJob()
+void DQMExample_Step2::dqmEndLuminosityBlock(DQMStore::IGetter & igetter_, edm::LuminosityBlock const & iLumi, edm::EventSetup const& iSetup) 
 {
-  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::dqmEndJob" << std::endl;
+  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::endLumi " << std::endl;
 }
-
-

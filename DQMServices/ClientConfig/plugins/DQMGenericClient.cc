@@ -272,7 +272,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   isWildcardUsed_ = false;
 }
 
-void DQMGenericClient::manipulateHistograms(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) {
+void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) {
 
   typedef vector<string> vstring;
 
@@ -352,17 +352,6 @@ void DQMGenericClient::manipulateHistograms(DQMStore::IBooker & ibooker_, DQMSto
 
   if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
   
-}
-
-void DQMGenericClient::dqmEndJob()
-{
-
-  // Update 2009-09-23
-  // Migrated all code from here to endRun
-
-  LogTrace ("DQMGenericClient") << "inside of DQMGenericClient::dqmEndJob()"
-                                << endl;
-
 }
 
 void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_, const string& startDir, const string& efficMEName,

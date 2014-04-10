@@ -21,8 +21,8 @@ public:
 protected:
 
   void beginJob();
-  void manipulateHistograms(DQMStore::IBooker &, DQMStore::IGetter &) override;  //operation performed in the endJob
-  void dqmEndJob();
+  void dqmEndLuminosityBlock(DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:
 

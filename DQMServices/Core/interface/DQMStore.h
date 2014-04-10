@@ -247,10 +247,19 @@ class DQMStore
   // in the endJob. No handles to the run there. Two arguments ensure
   // the capability of booking and getting. The method relies on the
   // initialization of run, stream and module ID to 0. The mutex
-  // is not needed here.
+  // is not needed.
   template <typename iFunc>
-  void bookTransaction(iFunc f) {
+  void bookTransactionEndJob(iFunc f) {
     f(*ibooker_, *igetter_);
+  }
+  // Signature needed in the harvesting where it might be needed to get
+  // the LS based histograms. Handle to the Lumi and to the iSetup are available.
+  // No need to book anything there. The method relies on the
+  // initialization of run, stream and module ID to 0. The mutex
+  // is not needed.
+  template <typename iFunc>
+  void bookTransactionEndLumi(iFunc f) {
+    f(*igetter_);
   }
 
   //-------------------------------------------------------------------------

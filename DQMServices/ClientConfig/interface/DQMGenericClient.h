@@ -31,8 +31,7 @@ class DQMGenericClient : public DQMEDHarvester
   DQMGenericClient(const edm::ParameterSet& pset);
   ~DQMGenericClient() {};
 
-  void dqmEndJob();
-  void manipulateHistograms(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   struct EfficOption
   {
