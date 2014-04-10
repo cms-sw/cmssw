@@ -2,6 +2,7 @@
 #define SimMuon_GEMDigiReader_h
 
 /** \class GEMDigiReader
+ *
  *  Dumps GEM digis 
  *  
  *  \authors: Vadim Khotilovich
