@@ -178,11 +178,11 @@ public:
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     bool isCompatible(false);
     for(auto vl : vlv) {
-      auto && recHit  = std::make_shared<SiStripRecHit2D>(vl.first, vl.second, fastGeomDet(), cluster); 
-      std::pair<bool,double> diffEst = est.estimate(ltp, *recHit);
+      SiStripRecHit2D recHit(vl.first, vl.second, fastGeomDet(), cluster); 
+      std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
       LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
       if ( diffEst.first ) {
-	result.push_back(std::move(recHit));
+	result.push_back(std::move(std::make_shared<SiStripRecHit2D>(recHit)));
 	diffs.push_back(diffEst.second);
 	isCompatible = true;
       }

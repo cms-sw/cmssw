@@ -52,14 +52,15 @@ public:
     theRecHit(aRecHit), 
     theLayer(0),
     theEstimate(aEstimate) {}
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
                         ConstRecHitPointer aRecHit, float aEstimate,
 			const DetLayer* layer) :
-    theFwdPredictedState(fwdTrajectoryStateOnSurface),
-    theUpdatedState(fwdTrajectoryStateOnSurface),
-    theRecHit(aRecHit), theLayer(layer) ,
+    theFwdPredictedState(std::move(fwdTrajectoryStateOnSurface)),
+    theUpdatedState(theFwdPredictedState),
+    theRecHit(std::move(aRecHit)), theLayer(layer) ,
     theEstimate(aEstimate){}
-
+#endif
   /// Constructor with forward predicted & updated state, RecHit
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
