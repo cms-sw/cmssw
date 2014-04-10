@@ -6,44 +6,36 @@
   <Constant name="zSHCal2"    value="368.4*cm"/>
   <Constant name="rMinSHCal1" value="[etaMax:slope]*[zSHCal1]"/>
   <Constant name="rMinSHCal2" value="[etaMax:slope]*[zSHCal2]"/>
+  <!-- ccn: below changed from 159 to more-closely match current EE coverage -->
   <Constant name="rMaxSHCal1" value="154.0*cm"/>
   <Constant name="rMaxSHCal2" value="181.2*cm"/>
   <Constant name="deltaZ"     value="2*cm"/>
-  <Constant name="modZ"	      value="14*cm"/>
-  <Constant name="modRmin1"   value="[etaMax:slope]*([zSHCal1]-[modZ])"/>
-  <Constant name="modRmin2"   value="[etaMax:slope]*[zSHCal1]"/>
-  <Constant name="modRmax1"   value="135.*cm"/>
-  <Constant name="modRmax2"   value="145.*cm"/>
-  <Constant name="zSHBack1"   value="[zSHCal2]- 30.*cm"/>
+  <Constant name="thickBack"  value="30.*cm"/>
+  <Constant name="zSHBack1"   value="[zSHCal2]-[thickBack]"/>
   <Constant name="zSHBack2"   value="[zSHCal2]"/>
-  <Constant name="zSHBack3"   value="[zSHBack1] + 6.*cm"/>
-  <Constant name="zSHBack4"   value="[zSHBack3] + 4.8*cm"/>
   <Constant name="backRmin1"  value="[etaMax:slope]*[zSHBack1]"/>
   <Constant name="backRmin2"  value="[etaMax:slope]*[zSHBack2]"/>
+  <Constant name="backRmin3"  value="[etaMax:slope]*([zSHBack1]+6.*cm)"/>
   <Constant name="backRmax1"  value="165.*cm"/>
   <Constant name="backRmax2"  value="[rMaxSHCal2]"/>  
 </ConstantsSection>
 
 <SolidSection label="shashlik.xml">
   <Polycone name="SHCalEE" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zSHCal1]" rMin="[rMinSHCal1]" rMax="[rMaxSHCal1]"/>
-    <ZSection z="[zSHCal2]" rMin="[rMinSHCal2]" rMax="[rMaxSHCal2]"/>
-  </Polycone>
-  <Polycone name="SHCalMod" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="([zSHCal1]-[modZ])" rMin="[modRmin1]" rMax="[modRmax1]"/>
-    <ZSection z="[zSHCal1]" rMin="[modRmin2]" rMax="[modRmax2]"/>
+    <ZSection z="[zSHCal1]" rMin="([rMinSHCal1] - 1.5*cm)" rMax="([rMaxSHCal1] + 0.16*cm)"/>
+    <ZSection z="[zSHCal2]" rMin="([rMinSHCal2] - 1.5*cm)" rMax="([rMaxSHCal2] + 0.16*cm)"/>
   </Polycone>
   <Polycone name="SHCalBack" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[zSHBack1]" rMin="[backRmin1]" rMax="[backRmax1]"/>
     <ZSection z="[zSHBack2]" rMin="[backRmin2]" rMax="[backRmax2]"/>
   </Polycone>
   <Polycone name="SHCalSS" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zSHBack1]" rMin="[backRmin2]" rMax="[backRmax1]"/>
-    <ZSection z="[zSHBack3]" rMin="[backRmin2]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack1]" rMin="[backRmin1]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack1]+ 6.*cm" rMin="[backRmin3]" rMax="[backRmax1]"/>
   </Polycone>
   <Polycone name="SHCalCables" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zSHBack3]" rMin="[backRmin2]" rMax="[backRmax1]"/>
-    <ZSection z="[zSHBack4]" rMin="[backRmax1]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack1]+ 6.*cm" rMin="[backRmin1]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack1]+ 6.*cm + 4.8*cm" rMin="[backRmax1]" rMax="[backRmax1]"/>
   </Polycone>
 </SolidSection>
 
@@ -51,10 +43,6 @@
   <LogicalPart name="SHCalEE" category="unspecified">
     <rSolid name="SHCalEE"/>
     <rMaterial name="materials:E_Air"/>
-  </LogicalPart>
-  <LogicalPart name="SHCalMod" category="unspecified">
-    <rSolid name="SHCalMod"/>
-    <rMaterial name="materials:Polyethylene"/>
   </LogicalPart>
   <LogicalPart name="SHCalBack" category="unspecified">
     <rSolid name="SHCalBack"/>
@@ -82,16 +70,6 @@
     <rRotation name="rotations:180D"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="caloBase:CALO"/>
-    <rChild name="SHCalMod"/>
-    <rRotation name="rotations:000D"/>
-  </PosPart>
-  <PosPart copyNumber="2">
-    <rParent name="caloBase:CALO"/>
-    <rChild name="SHCalMod"/>
-    <rRotation name="rotations:180D"/>
-  </PosPart>
-  <PosPart copyNumber="1">
     <rParent name="SHCalEE"/>
     <rChild name="SHCalBack"/>
   </PosPart>
@@ -105,19 +83,18 @@
   </PosPart>
 </PosPartSection>
 
- <Algorithm name="shashlik:DDShashlikEndcap">
+ <Algorithm name="shashlik:DDShashlikNoTaperEndcap">
   <rParent name="SHCalEE"/>
   <String name="ChildName" value="shashliksupermodule:ShashlikSupermodule"/>
   <Numeric name="n" value="19"/>
   <Numeric name="startCopyNo" value="1"/>
   <Numeric name="incrCopyNo"  value="1"/>
   <Numeric name="invert"      value="1"/>
-  <Numeric name="tiltAngle"   value="5.*[shashlikmodule:moduleTaperAngle]"/> 
-  <Numeric name="rMin"	      value="[rMinSHCal1]+0.5*([shashliksupermodule:superModuleWidthFront]+[shashliksupermodule:superModuleWidthBack])"/>
-  <Numeric name="rMax"	      value="[rMaxSHCal1]-0.5*([shashliksupermodule:superModuleWidthFront]+[shashliksupermodule:superModuleWidthBack])"/>  
-  <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashliksupermodule:superModuleThickness] + 3.0*cm"/>
-  <Numeric name="zpointing"   value="2625.*mm - 0.5*[shashliksupermodule:superModuleThickness]"/>
-  <Numeric name="xyoffset"    value="-0.4*m"/>
+  <Numeric name="rMin"	      value="[rMinSHCal1]"/>
+  <Numeric name="rMax"	      value="[rMaxSHCal1]"/> 
+  <Numeric name="tiltAngle"   value="0"/>
+  <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashlikmodule:moduleThickness]"/>
+  <Numeric name="xyoffset"     value="0.5*([shashliksupermodule:superModuleWidthFront]+[shashliksupermodule:superModuleWidthBack])"/>
  </Algorithm>
 
 </DDDefinition>

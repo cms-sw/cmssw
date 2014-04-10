@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SolidSection label="esalgo.xml">
+  <Polycone name="SF" startPhi="0" deltaPhi="360*deg">
+    <ZSection z="[escon:ESFrontZ]" rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
+    <ZSection z="[escon:ESMidZ]"   rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
+    <ZSection z="[escon:ESRearZ]"  rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
+  </Polycone>
+  <Polycone name="SFFA" startPhi="0" deltaPhi="360*deg">
+    <ZSection z="[escon:Front_window_Z]"      rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
+    <ZSection z="[escon:Front_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/> 
+    <ZSection z="[escon:Front_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
+    <ZSection z="[escon:Front_window_Back_Z]" rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
+  </Polycone>
+  <Polycone name="SFFN" startPhi="0" deltaPhi="360*deg">
+    <ZSection z="[escon:Front_window_Z]"      rMin="[escon:NM_RMIN_outer]" rMax="[escon:Front_NM_RMAX_outer]"/>
+    <ZSection z="[escon:NM_Front_first_Z]"    rMin="[escon:NM_RMIN_outer]" rMax="[escon:Front_NM_RMAX_outer]"/>
+    <ZSection z="[escon:NM_Front_first_Z]"    rMin="[escon:NM_RMIN_inner]" rMax="[escon:Front_NM_RMAX_inner]"/>
+    <ZSection z="[escon:NM_Front_second_Z]"   rMin="[escon:NM_RMIN_inner]" rMax="[escon:Front_NM_RMAX_inner]"/>
+    <ZSection z="[escon:NM_Front_second_Z]"   rMin="[escon:NM_RMIN_outer]" rMax="[escon:Front_NM_RMAX_outer]"/>
+    <ZSection z="[escon:Front_window_Back_Z]" rMin="[escon:NM_RMIN_outer]" rMax="[escon:Front_NM_RMAX_outer]"/>
+  </Polycone>
+  <Polycone name="SFRA" startPhi="0" deltaPhi="360*deg">
+    <ZSection z="[escon:Rear_window_Z]"      rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
+    <ZSection z="[escon:Rear_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
+    <ZSection z="[escon:Rear_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Rear_window_Al]"/>
+    <ZSection z="[escon:Rear_window_Back_Z]" rMin="[escon:R_MIN]" rMax="[escon:Rear_window_Al]"/>
+  </Polycone>
+  <Polycone name="SFRN" startPhi="0" deltaPhi="360*deg">
+    <ZSection z="[escon:Rear_window_Z]"      rMin="[escon:NM_RMIN_outer]" rMax="[escon:Rear_NM_RMAX_outer]"/>
+    <ZSection z="[escon:NM_Rear_first_Z]"    rMin="[escon:NM_RMIN_outer]" rMax="[escon:Rear_NM_RMAX_outer]"/>
+    <ZSection z="[escon:NM_Rear_first_Z]"    rMin="[escon:NM_RMIN_inner]" rMax="[escon:Rear_NM_RMAX_inner]"/>
+    <ZSection z="[escon:NM_Rear_second_Z]"   rMin="[escon:NM_RMIN_inner]" rMax="[escon:Rear_NM_RMAX_inner]"/>
+    <ZSection z="[escon:NM_Rear_second_Z]"   rMin="[escon:NM_RMIN_outer]" rMax="[escon:Rear_NM_RMAX_outer]"/>
+    <ZSection z="[escon:Rear_window_Back_Z]" rMin="[escon:NM_RMIN_outer]" rMax="[escon:Rear_NM_RMAX_outer]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="esalgo.xml">
+  <LogicalPart name="SF" category="unspecified">
+    <rSolid name="SF"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+  <!-- LogicalPartSection label="Support Structures" -->
+  <LogicalPart name="SFFA" category="unspecified">
+    <rSolid name="SFFA"/>
+    <rMaterial name="materials:E_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="SFFN" category="unspecified">
+    <rSolid name="SFFN"/>
+    <rMaterial name="materials:E_Polythene"/>
+  </LogicalPart>
+  <LogicalPart name="SFRA" category="unspecified">
+    <rSolid name="SFRA"/>
+    <rMaterial name="materials:E_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="SFRN" category="unspecified">
+    <rSolid name="SFRN"/>
+    <rMaterial name="materials:E_Polythene"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="esalgo.xml">
+  <PosPart copyNumber="1">
+    <rParent name="eregalgo:ECAL"/>
+    <rChild name="esalgo:SF"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="eregalgo:ECAL"/>
+    <rChild name="esalgo:SF"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="esalgo:SF"/>
+    <rChild name="esalgo:SFFA"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="esalgo:SFFA"/>
+    <rChild name="esalgo:SFFN"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="esalgo:SF"/>
+    <rChild name="esalgo:SFRA"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="esalgo:SFRA"/>
+    <rChild name="esalgo:SFRN"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>
