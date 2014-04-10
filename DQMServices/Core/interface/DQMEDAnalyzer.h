@@ -59,9 +59,22 @@ private:
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
-#endif // CORE_DQMED_ANALYZER_H
+//############################## ONLY NEEDED IN THE TRANSITION PERIOD ################################
+//here the thread_unsafe (simplified) carbon copy of the DQMEDAnalyzer
 
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+namespace thread_unsafe {
+  class DQMEDAnalyzer: public edm::EDAnalyzer
+  {
+  public:
+    DQMEDAnalyzer(void);
+    virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
+    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
+  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;
+
+private:
+  };
+} //thread_unsafe namespace
+
+#endif // CORE_DQMED_ANALYZER_H
