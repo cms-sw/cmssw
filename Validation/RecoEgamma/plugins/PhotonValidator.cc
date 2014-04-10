@@ -724,9 +724,10 @@ void PhotonValidator::bookHistograms(void) {
     }
 
     /////    //
-    histname="R9VsEta";
-    if ( ! isRunCentrally_ ) h2_r9VsEta_[0] = dbe_->book2D(histname+"All"," All photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    if ( ! isRunCentrally_ ) h2_r9VsEta_[1] = dbe_->book2D(histname+"Unconv"," All photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    histname="pR9VsEta";
+    p_r9VsEta_[0] = dbe_->bookProfile(histname+"All"," All photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    p_r9VsEta_[1] = dbe_->bookProfile(histname+"Unconv"," Unconv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    p_r9VsEta_[2] = dbe_->bookProfile(histname+"Conv"," Conv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
     //
     histname="R9VsEt";
     if ( ! isRunCentrally_ ) h2_r9VsEt_[0] = dbe_->book2D(histname+"All"," All photons r9 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
@@ -2393,8 +2394,9 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_sigmaIetaIeta_[type][0]->Fill( sigmaIetaIeta );
       //
       h_hOverE_[type][0]->Fill( hOverE );
+      p_r9VsEta_[0] -> Fill (mcEta_, r9);
+
       if ( ! isRunCentrally_ ) {
-	h2_r9VsEta_[0] -> Fill (mcEta_, r9);
 	h2_r9VsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), r9);
 	h2_r1VsEta_[0] -> Fill (mcEta_, r1);
 	h2_r1VsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), r1);
@@ -2482,7 +2484,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if (  (*mcPho).isAConversion() == 0 ) {
 	if ( ! isRunCentrally_ ) {
 	  h2_eResVsEta_[1]->Fill (mcEta_, photonE/ (*mcPho).fourMomentum().e()  ) ;
-	  h2_r9VsEta_[1] -> Fill (mcEta_, r9);
 	  h2_r9VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), r9);
 	  //
 	  h2_r1VsEta_[1] -> Fill (mcEta_, r1);
@@ -2533,6 +2534,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	if ( ! isRunCentrally_ ) h2_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEta_[1]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;
+	p_r9VsEta_[1] -> Fill (mcEta_, r9);
 	p_sigmaEoEVsEta_[1] ->Fill(mcEta_,sigmaEoE);
 
 
@@ -2543,6 +2545,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_phoEResRegr2_[2][0]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	p_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEta_[2]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;
+	p_r9VsEta_[2] -> Fill (mcEta_, r9);
 	p_sigmaEoEVsEta_[2] ->Fill(mcEta_, sigmaEoE);
 
 	if ( ! isRunCentrally_ ) {
