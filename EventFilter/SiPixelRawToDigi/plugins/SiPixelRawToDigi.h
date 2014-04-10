@@ -40,7 +40,6 @@ private:
   edm::ParameterSet config_;
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
   const SiPixelQuality* badPixelInfo_;
-  bool  useCablingTree_;
   PixelUnpackingRegions* regions_;
   edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
 
