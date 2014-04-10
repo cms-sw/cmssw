@@ -19,9 +19,9 @@ public:
   // implicit copy constructor
   // implicit assignment operator
   // implicit destructor
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) final {};
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) {};
   virtual void analyze(edm::Event const&, edm::EventSetup const&) final {};
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) final {};
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) {};
   virtual void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const&) final;
   virtual void endJob() final;
   virtual void dqmEndLuminosityBlock(DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) {};

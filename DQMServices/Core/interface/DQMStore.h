@@ -249,7 +249,7 @@ class DQMStore
   // initialization of run, stream and module ID to 0. The mutex
   // is not needed.
   template <typename iFunc>
-  void bookTransactionEndJob(iFunc f) {
+  void meBookerGetter(iFunc f) {
     f(*ibooker_, *igetter_);
   }
   // Signature needed in the harvesting where it might be needed to get
@@ -258,7 +258,7 @@ class DQMStore
   // initialization of run, stream and module ID to 0. The mutex
   // is not needed.
   template <typename iFunc>
-  void bookTransactionEndLumi(iFunc f) {
+  void meGetter(iFunc f) {
     f(*igetter_);
   }
 

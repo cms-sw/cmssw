@@ -57,8 +57,8 @@ class DQMGenericClient : public DQMEDHarvester
     std::string name;
   };
 
-  void computeEfficiency(DQMStore::IBooker& ibooker_,
-			 DQMStore::IGetter& igetter_,
+  void computeEfficiency(DQMStore::IBooker& ibooker,
+			 DQMStore::IGetter& igetter,
 			 const std::string& startDir, 
                          const std::string& efficMEName, 
                          const std::string& efficMETitle,
@@ -66,19 +66,19 @@ class DQMGenericClient : public DQMEDHarvester
                          const std::string& simMEName, 
                          const int type=1,
                          const bool makeProfile = false);
-  void computeResolution(DQMStore::IBooker& ibooker_,
-			 DQMStore::IGetter& igetter_,
+  void computeResolution(DQMStore::IBooker& ibooker,
+			 DQMStore::IGetter& igetter,
 			 const std::string& startDir, 
                          const std::string& fitMEPrefix, const std::string& fitMETitlePrefix, 
                          const std::string& srcMEName);
 
-  void normalizeToEntries(DQMStore::IBooker& ibooker_,
-			  DQMStore::IGetter& igetter_,
+  void normalizeToEntries(DQMStore::IBooker& ibooker,
+			  DQMStore::IGetter& igetter,
 			  const std::string& startDir,
 			  const std::string& histName,
 			  const std::string& normHistName);
-  void makeCumulativeDist(DQMStore::IBooker& ibooker_,
-			  DQMStore::IGetter& igetter_,
+  void makeCumulativeDist(DQMStore::IBooker& ibooker,
+			  DQMStore::IGetter& igetter,
 			  const std::string& startDir,
 			  const std::string& cdName);
 
@@ -100,8 +100,8 @@ class DQMGenericClient : public DQMEDHarvester
 
   void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const int type=1);
 
-  void findAllSubdirectories (DQMStore::IBooker& ibooker_,
-			      DQMStore::IGetter& igetter_,
+  void findAllSubdirectories (DQMStore::IBooker& ibooker,
+			      DQMStore::IGetter& igetter,
 			      std::string dir,
 			      std::set<std::string> * myList,
 			      const TString& pattern);
