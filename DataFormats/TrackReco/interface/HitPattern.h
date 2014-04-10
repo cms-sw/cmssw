@@ -151,10 +151,10 @@ public:
     };
 
     enum HitCategory {
-        ALL_HITS,
-        TRACK_HITS,
-        MISSING_INNER_HITS,
-        MISSING_OUTER_HITS
+        ALL_HITS = 0,
+        TRACK_HITS = 1,
+        MISSING_INNER_HITS = 2,
+        MISSING_OUTER_HITS = 3
     };
 
     static const unsigned short MaxHits = 200;
@@ -212,7 +212,6 @@ public:
 
     /// RPC region: 0 = barrel, 1 = endcap. Only valid for muon RPC patterns, of course.
     static uint16_t getRPCregion(uint16_t pattern);
-
 
     HitPattern();
 
