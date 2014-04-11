@@ -39,6 +39,7 @@
 #include <DataFormats/GEMRecHit/interface/ME0RecHit.h>
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
+#include <DataFormats/GEMRecHit/interface/ME0Segment.h>
 #include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -457,6 +458,81 @@ MuonME0RecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         me0_sh.countMatching = count;
     }
     
+    
+    for (auto me0s = me0Segment_->begin(); me0s != me0Segment_->end(); me0s++) {
+        
+        // The ME0 Ensamble DetId refers to layer = 1
+        ME0DetId id = me0s->me0DetId();
+        //std::cout <<" Original ME0DetID "<<id<<std::endl;
+    //auto roll = me0_geometry_->etaPartition(id);
+        //std::cout <<"Global Segment Position "<< roll->toGlobal(me0s->localPosition())<<std::endl;
+        auto segLP = me0s->localPosition();
+        auto segLD = me0s->localDirection();
+        //std::cout <<" Global Direction theta = "<<segLD.theta()<<" phi="<<segLD.phi()<<std::endl;
+        auto me0rhs = me0s->specificRecHits();
+//        //std::cout <<"ME0 Ensamble Det Id "<<id<<" Number of RecHits "<<me0rhs.size()<<std::endl;
+        
+        me0_seg.detId = id;
+        me0_seg.localX = segLP.x();
+        me0_seg.localY = segLP.y();
+        me0_seg.localZ = segLP.z();
+        me0_seg.dirTheta = segLD.theta();
+        me0_seg.dirPhi = segLD.phi();
+//        me0_seg.numberRH = me0rhs.size();
+        me0_seg.chi2 = me0s->chi2();
+        me0_seg.ndof = me0s->degreesOfFreedom();
+//
+//        for (auto rh = me0rhs.begin(); rh!= me0rhs.end(); rh++){
+//            
+//            auto me0id = rh->me0Id();
+//            auto rhr = me0_geometry_->etaPartition(me0id);
+//            auto rhLP = rh->localPosition();
+//            auto erhLEP = rh->localPositionError();
+//            auto rhGP = rhr->toGlobal(rhLP);
+//            auto rhLPSegm = roll->toLocal(rhGP);
+//            float xe = segLP.x()+segLD.x()*rhLPSegm.z()/segLD.z();
+//            float ye = segLP.y()+segLD.y()*rhLPSegm.z()/segLD.z();
+//            float ze = rhLPSegm.z();
+//            LocalPoint extrPoint(xe,ye,ze); // in segment rest frame
+//            auto extSegm = rhr->toLocal(roll->toGlobal(extrPoint)); // in layer restframe
+//            
+//            me0_rhFromSeg.detId = me0id;
+//            
+//            me0_rhFromSeg.region = me0id.region();
+//            me0_rhFromSeg.station = 0;
+//            me0_rhFromSeg.ring = 0;
+//            me0_rhFromSeg.layer = me0id.layer();
+//            me0_rhFromSeg.chamber = me0id.chamber();
+//            me0_rhFromSeg.roll = me0id.roll();
+//            
+//            me0_rhFromSeg.x = rhLP.x();
+//            me0_rhFromSeg.xErr = erhLEP.xx();
+//            me0_rhFromSeg.y = rhLP.y();
+//            me0_rhFromSeg.yErr = erhLEP.yy();
+//            
+//            me0_rhFromSeg.globalR = rhGP.perp();
+//            me0_rhFromSeg.globalX = rhGP.x();
+//            me0_rhFromSeg.globalY = rhGP.y();
+//            me0_rhFromSeg.globalZ = rhGP.z();
+//            me0_rhFromSeg.globalEta = rhGP.eta();
+//            me0_rhFromSeg.globalPhi = rhGP.phi();
+//            
+//            me0_rhFromSeg.xExt = extSegm.x();
+//            me0_rhFromSeg.yExt = extSegm.y();
+//            
+//            bool verbose(false);
+//            if (verbose)
+//                std::cout <<" ME0 Layer Id "<<rh->me0Id()<<" error on the local point "<< erhLEP
+//                <<"\n-> Ensamble Rest Frame RH local position "<<rhLPSegm<<" Segment extrapolation "<<extrPoint
+//                <<"\n-> Layer Rest Frame RH local position "<<rhLP<<" Segment extrapolation "<<extSegm<<std::endl;
+//            
+//           // me0_rhSeg_tree_->Fill();
+        
+//        }
+        
+        //me0_seg_tree_->Fill();
+    }
+
 }
     
     
