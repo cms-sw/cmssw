@@ -60,33 +60,33 @@ public:
     theUpdatedState(theFwdPredictedState),
     theRecHit(std::move(aRecHit)), theLayer(layer) ,
     theEstimate(aEstimate){}
-#endif
+
   /// Constructor with forward predicted & updated state, RecHit
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
                         ConstRecHitPointer aRecHit) :
-    theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
-    theUpdatedState(uTrajectoryStateOnSurface),
-    theRecHit(aRecHit), theLayer(0),
+    theFwdPredictedState(std::move(fwdPredTrajectoryStateOnSurface)),
+    theUpdatedState(std::move(uTrajectoryStateOnSurface)),
+    theRecHit(std::move(aRecHit)), theLayer(0),
     theEstimate(0) {}
 
   /// Constructor with forward predicted & updated state, RecHit, estimate 
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
                         ConstRecHitPointer aRecHit, float aEstimate) :
-    theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
-    theUpdatedState(uTrajectoryStateOnSurface),
-    theRecHit(aRecHit), theLayer(0),
+    theFwdPredictedState(std::move(fwdPredTrajectoryStateOnSurface)),
+    theUpdatedState(std::move(uTrajectoryStateOnSurface)),
+    theRecHit(std::move(aRecHit)), theLayer(0),
     theEstimate(aEstimate) {}
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
                         ConstRecHitPointer aRecHit, float aEstimate,
 			const DetLayer* layer) :
-    theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
-    theUpdatedState(uTrajectoryStateOnSurface),
-    theRecHit(aRecHit), theLayer(layer),
+    theFwdPredictedState(std::move(fwdPredTrajectoryStateOnSurface)),
+    theUpdatedState(std::move(uTrajectoryStateOnSurface)),
+    theRecHit(std::move(aRecHit)), theLayer(layer),
     theEstimate(aEstimate) {}
-
+#endif
   /** Constructor with forward predicted, backward predicted & updated state, 
    *  RecHit
    */

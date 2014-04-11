@@ -200,15 +200,15 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   return candidates;
 }
 
-void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj,
-						 const TM& tm) const
+void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj, TM tm) const
 {
-  TSOS predictedState = tm.predictedState();
-  ConstRecHitPointer hit = tm.recHit();
- 
+  auto &&  predictedState = tm.predictedState();
+  auto &&  hit = tm.recHit();
+  
   if ( hit->isValid()) {
-    traj.emplace(predictedState, theUpdator.update( predictedState, *hit),
-		   hit, tm.estimate(), tm.layer());
+    auto && upState = theUpdator.update( predictedState, *hit); 
+    traj.emplace(std::move(predictedState), std::move(upState),
+		   std::move(hit), tm.estimate(), tm.layer());
 
 //     TrajectoryMeasurement tm(traj.lastMeasurement());
 //     if ( tm.updatedState().isValid() ) {
@@ -224,7 +224,7 @@ void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj,
 //     }
   }
   else {
-    traj.emplace(predictedState, hit,0, tm.layer());
+    traj.emplace(std::move(predictedState), std::move(hit),0, tm.layer());
   }
 }
 
@@ -251,25 +251,34 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory const & traj,
   
   TempTrajectoryContainer updatedTrajectories; updatedTrajectories.reserve(2);
   if ( traj.measurements().empty() ) {
-    vector<TM> const & firstMeasurements = unlockedMeasurements(begin->measurements());
-    if ( theBestHitOnly )
-      updateCandidatesWithBestHit(traj,firstMeasurements,updatedTrajectories);
-    else
+    auto && firstMeasurements = unlockedMeasurements(begin->measurements());
+    if ( theBestHitOnly ) {
+      if (!firstMeasurements.empty()) updateCandidatesWithBestHit(traj,std::move(firstMeasurements.front()),updatedTrajectories);
+    } else {
       updateCandidates(traj,begin->measurements(),updatedTrajectories);
+    }
     if unlikely(theDbgFlg) cout << "TSB::addGroup : updating with first group - "
 				<< updatedTrajectories.size() << " trajectories" << endl;
   }
   else {
-    if ( theBestHitOnly )
-      updateCandidatesWithBestHit(traj,redoMeasurements(traj,begin->detGroup()),
+    auto && meas = redoMeasurements(traj,begin->detGroup());
+    if (!meas.empty()) {
+    if ( theBestHitOnly ) {
+      updateCandidatesWithBestHit(traj,std::move(meas.front()),
 				  updatedTrajectories);
-    else
-      updateCandidates(traj,redoMeasurements(traj,begin->detGroup()),
+    }else{
+      updateCandidates(traj,std::move(meas),
 		       updatedTrajectories);
+    }
     if unlikely(theDbgFlg) cout << "TSB::addGroup : updating"
-				<< updatedTrajectories.size() << " trajectories" << endl;
+				<< updatedTrajectories.size() << " trajectories-1" << endl;
+    } 
   }
+  // keep old trajectory
+  //
+  updatedTrajectories.push_back(traj);
   
+
   if (begin+1 != end) {
     ret.reserve(4); // a good upper bound
     for (auto const & ut : updatedTrajectories) {
@@ -316,7 +325,7 @@ TrajectorySegmentBuilder::updateCandidates (TempTrajectory const & traj,
   //
   // generate updated candidates with all valid hits
   //
-  for ( vector<TM>::const_iterator im=measurements.begin();
+  for ( auto im=measurements.begin();
 	im!=measurements.end(); ++im ) {
     if ( im->recHit()->isValid() ) {
       candidates.push_back(traj);
@@ -324,52 +333,19 @@ TrajectorySegmentBuilder::updateCandidates (TempTrajectory const & traj,
       if ( theLockHits )  lockMeasurement(*im);
     }
   }
-  //
-  // keep old trajectory
-  //
-  candidates.push_back(traj);
 }
 
 void
 TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory const& traj,
-						       const vector<TM>& measurements,
+						       TM measurement,
 						       TempTrajectoryContainer& candidates)
 {
   // here we arrive with only valid hits and sorted.
   //so the best is the first!
 
-  auto ibest = measurements.begin();
-
-#ifdef DBG_TSB
-  // get first
-  while(ibest!=measurements.end() && !ibest->recHit()->isValid()) ++ibest;
-  if ( ibest!=measurements.end() ) {
-    // find real best;
-    for ( auto im=ibest+1;
-	  im!=measurements.end(); ++im ) {
-      if ( im->recHitR().isValid() &&
-	   im->estimate()<ibest->estimate()
-	   )
-	ibest = im;
-    } 
-   if unlikely( theDbgFlg )
-      cout << "TSB: found best measurement at " 
-	   << ibest->recHit()->globalPosition().perp() << " "
-	   << ibest->recHit()->globalPosition().phi() << " "
-	   << ibest->recHit()->globalPosition().z() << endl;
-
-    assert(ibest==measurements.begin());
-  }
-#endif
-
-    if (!measurements.empty()) {
-      if ( theLockHits )  lockMeasurement(*ibest);
-      candidates.push_back(traj);
-      updateTrajectory(candidates.back(),*ibest);
-    }
-
-    // keep old trajectorTempy
-    candidates.push_back(traj);
+  if ( theLockHits )  lockMeasurement(measurement);
+  candidates.push_back(traj);
+  updateTrajectory(candidates.back(),std::move(measurement));
 }
 
 vector<TrajectoryMeasurement>
