@@ -8,7 +8,6 @@
 # a container of TTClusters, and a container of TrackingParticles)
 #
 # And of course, a container of patterns.... (TTTracks) 
-#
 # Instruction to run this script are provided on this page:
 #
 # http://sviret.web.cern.ch/sviret/Welcome.php?n=CMS.HLLHCTuto

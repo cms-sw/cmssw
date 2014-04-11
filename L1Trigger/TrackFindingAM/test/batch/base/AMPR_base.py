@@ -4,7 +4,6 @@
 # using a pattern bank
 #
 # This script works on any official production sample
-#
 # Instruction to run this script are provided on this page:
 #
 # http://sviret.web.cern.ch/sviret/Welcome.php?n=CMS.HLLHCTuto

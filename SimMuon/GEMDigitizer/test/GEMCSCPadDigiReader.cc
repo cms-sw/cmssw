@@ -2,9 +2,9 @@
 #define SimMuon_GEMCSCPadDigiReader_h
 
 /** \class GEMDigiReader
+ *
  *  Dumps GEM-CSC trigger pad digis 
  *  
- *  $Id: GEMCSCPadDigiReader.cc,v 1.4 2013/01/30 12:12:45 khotilov Exp $
  *  \authors: Vadim Khotilovich
  */
 

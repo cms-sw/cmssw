@@ -9,7 +9,6 @@
 # You're not supposed to touch anything here
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
 #
 # Case 1: CMSSW pattern recognition on a given bank
 #

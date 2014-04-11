@@ -109,14 +109,6 @@ def cust_2023Pixel(process):
     process=customise_gem(process)
     return process
 
-def cust_2023Pixel(process):
-    process=customisePostLS1(process)
-    process=customiseBE5DPixel10D(process)
-    process=customise_HcalPhase2(process)
-    process=customise_ev_BE5DPixel10D(process)
-    process=customise_gem(process)
-    return process
-
 def cust_2023Muon(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
