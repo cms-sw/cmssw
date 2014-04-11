@@ -94,3 +94,7 @@ process.out.compressionAlgorithm = cms.untracked.string('LZMA')
 from PhysicsTools.PatAlgos.tools.coreTools import runOnData
 runOnData( process )
 process.GlobalTag.globaltag = "GR_R_70_V1::All"
+
+#test ivf
+process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
+
