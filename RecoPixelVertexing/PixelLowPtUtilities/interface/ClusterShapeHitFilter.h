@@ -163,6 +163,11 @@ class ClusterShapeHitFilter
  
   ~ClusterShapeHitFilter();
 
+  void setChargeCuts(bool cutOnPixelCharge, float minGoodPixelCharge,
+	bool cutOnStripCharge, float minGoodStripCharge) {
+    cutOnPixelCharge_ = cutOnPixelCharge; minGoodPixelCharge_= minGoodPixelCharge;
+    cutOnStripCharge_ = cutOnStripCharge; minGoodStripCharge_= minGoodStripCharge; } 
+
   bool getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
    int & part, std::vector<std::pair<int,int> > & meas,
@@ -237,6 +242,10 @@ class ClusterShapeHitFilter
   StripLimits stripLimits[StripKeys::N+1]; // [2][2]
 
   float theAngle[6];
+  bool cutOnPixelCharge_, cutOnStripCharge_;
+  float minGoodPixelCharge_, minGoodStripCharge_;
+  bool checkClusterCharge(DetId detId, const SiStripCluster& cluster, const LocalVector & ldir) const;
+  bool checkClusterCharge(DetId detId, const SiPixelCluster& cluster, const LocalVector & ldir) const;
 };
 
 #endif
