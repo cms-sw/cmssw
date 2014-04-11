@@ -44,87 +44,68 @@ class EcalClusterLazyTools {
   //note e3x2 does not have a definate eta/phi geometry, it takes the maximum 3x2 block containing the 
   //seed regardless of whether that 3 in eta or phi
   float e1x3( const reco::BasicCluster &cluster );
-  float e1x3( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   float e3x1( const reco::BasicCluster &cluster );
-  float e3x1( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
        
   float e1x5( const reco::BasicCluster &cluster );
-  float e1x5( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   float e5x1( const reco::BasicCluster &cluster );
-  float e5x1( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   float e2x2( const reco::BasicCluster &cluster );
-  float e2x2( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   float e3x2( const reco::BasicCluster &cluster );
-  float e3x2( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   float e3x3( const reco::BasicCluster &cluster );
-  float e3x3( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   float e4x4( const reco::BasicCluster &cluster );
-  float e4x4( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   float e5x5( const reco::BasicCluster &cluster );
-  float e5x5( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   // energy in the 2x5 strip right of the max crystal (does not contain max crystal)
   // 2 crystals wide in eta, 5 wide in phi.
   float e2x5Right( const reco::BasicCluster &cluster );
-  float e2x5Right( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
+
   // energy in the 2x5 strip left of the max crystal (does not contain max crystal)
   float e2x5Left( const reco::BasicCluster &cluster );
-  float e2x5Left( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
+
   // energy in the 5x2 strip above the max crystal (does not contain max crystal)
   // 5 crystals wide in eta, 2 wide in phi.
   float e2x5Top( const reco::BasicCluster &cluster );
-  float e2x5Top( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   // energy in the 5x2 strip below the max crystal (does not contain max crystal)
   float e2x5Bottom( const reco::BasicCluster &cluster );
-  float e2x5Bottom( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
+
   // energy in a 2x5 strip containing the seed (max) crystal.
   // 2 crystals wide in eta, 5 wide in phi.
   // it is the maximum of either (1x5left + 1x5center) or (1x5right + 1x5center)
   float e2x5Max( const reco::BasicCluster &cluster );
-  float e2x5Max( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
+
   // energies in the crystal left, right, top, bottom w.r.t. to the most energetic crystal
   float eLeft( const reco::BasicCluster &cluster );
-  float eLeft( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
-  
+
   float eRight( const reco::BasicCluster &cluster );
-  float eRight( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   float eTop( const reco::BasicCluster &cluster );
-  float eTop( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   float eBottom( const reco::BasicCluster &cluster );
-  float eBottom( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
+
   // the energy of the most energetic crystal in the cluster
   float eMax( const reco::BasicCluster &cluster );
-  float eMax( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
+
   // the energy of the second most energetic crystal in the cluster
   float e2nd( const reco::BasicCluster &cluster );
-  float e2nd( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   // get the DetId and the energy of the maximum energy crystal of the input cluster
   std::pair<DetId, float> getMaximum( const reco::BasicCluster &cluster );
-  std::pair<DetId, float> getMaximum( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
-  
+
   std::vector<float> energyBasketFractionEta( const reco::BasicCluster &cluster );
-  std::vector<float> energyBasketFractionEta( const reco::BasicCluster &cluster,const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv  );
   
   std::vector<float> energyBasketFractionPhi( const reco::BasicCluster &cluster );
-  std::vector<float> energyBasketFractionPhi( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   // return a vector v with v[0] = etaLat, v[1] = phiLat, v[2] = lat
   std::vector<float> lat( const reco::BasicCluster &cluster, bool logW = true, float w0 = 4.7 );
-  std::vector<float> lat( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv, bool logW = true, float w0 = 4.7 );
   
   // return a vector v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
   std::vector<float> covariances(const reco::BasicCluster &cluster, float w0 = 4.7 );
-  std::vector<float> covariances(const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0 = 4.7 );
   
   // return a vector v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
   //this function calculates differences in eta/phi in units of crystals not global eta/phi
@@ -133,10 +114,8 @@ class EcalClusterLazyTools {
   //Warning: covIEtaIEta has been studied by egamma, but so far covIPhiIPhi hasnt been studied extensively so there could be a bug in 
   //         the covIPhiIEta or covIPhiIPhi calculations. I dont think there is but as it hasnt been heavily used, there might be one
   std::vector<float> localCovariances(const reco::BasicCluster &cluster, float w0 = 4.7);
-  std::vector<float> localCovariances(const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0 = 4.7);
   
   std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster, float w0 = 4.7);
-  std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0 = 4.7);
   
   double zernike20( const reco::BasicCluster &cluster, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
   double zernike42( const reco::BasicCluster &cluster, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
@@ -147,7 +126,6 @@ class EcalClusterLazyTools {
   // get the energy deposited in a matrix centered in the maximum energy crystal = (0,0)
   // the size is specified by ixMin, ixMax, iyMin, iyMax in unit of crystals
   float matrixEnergy( const reco::BasicCluster &cluster, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
-  float matrixEnergy( const reco::BasicCluster &cluster, DetId id, int ixMin, int ixMax, int iyMin, int iyMax, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
   
   // get time of basic cluster seed crystal 
   float BasicClusterSeedTime(const reco::BasicCluster &cluster);
