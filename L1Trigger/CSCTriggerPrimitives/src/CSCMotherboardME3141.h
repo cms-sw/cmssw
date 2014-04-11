@@ -20,6 +20,10 @@ class RPCGeometry;
 
 class CSCMotherboardME3141 : public CSCMotherboard
 {
+  typedef std::pair<unsigned int, const RPCDigi*> RPCDigiBX;
+  typedef std::vector<RPCDigiBX> RPCDigisBX;
+  typedef std::map<int, RPCDigisBX> RPCDigis;
+
  public:
   /** Normal constructor. */
   CSCMotherboardME3141(unsigned endcap, unsigned station, unsigned sector, 
@@ -41,8 +45,17 @@ class CSCMotherboardME3141 : public CSCMotherboard
 
   // check that the RE31 and RE41 chambers are really there
   bool hasRE31andRE41();
+  int assignRPCRoll(double eta);
+  void retrieveRPCDigis(const RPCDigiCollection* digis, unsigned id);
+
+  std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
 
  private: 
+
+  static const double lut_wg_me31_eta_odd[96][2];
+  static const double lut_wg_me31_eta_even[96][2];
+  static const double lut_wg_me41_eta_odd[96][2];
+  static const double lut_wg_me41_eta_even[96][2];
 
   const CSCGeometry* csc_g;
   const RPCGeometry* rpc_g;
@@ -69,5 +82,15 @@ class CSCMotherboardME3141 : public CSCMotherboard
   // drop low quality stubs if they don't have RPCs
   bool dropLowQualityCLCTsNoRPC_;
   bool dropLowQualityALCTsNoRPCs_;
+
+  std::map<int,std::pair<double,double> > rpcRollToEtaLimits_;
+  std::map<int,int> cscWgToRpcRoll_;
+
+  // map of RPC strip to CSC HS
+  std::map<int,int> rpcStripToCscHs_;
+  std::map<int,std::pair<int,int>> cscHsToRpcStrip_;
+
+  // map< bx , vector<gemid, pad> >
+  RPCDigis rpcDigis_;
 };
 #endif

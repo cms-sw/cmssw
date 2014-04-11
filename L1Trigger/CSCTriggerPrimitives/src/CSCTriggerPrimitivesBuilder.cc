@@ -74,7 +74,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
       for (int sect = min_sector; sect <= max_sector; sect++)
       {
         for (int subs = min_subsector; subs <= numsubs; subs++)
-        {
+       {
           for (int cham = min_chamber; cham <= max_chamber; cham++)
           {
             if ((endc <= 0 || endc > MAX_ENDCAPS)    ||
