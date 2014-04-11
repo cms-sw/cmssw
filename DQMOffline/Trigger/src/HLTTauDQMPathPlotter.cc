@@ -3,12 +3,21 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
+namespace {
+  std::string stripVersion(const std::string& pathName) {
+    size_t versionStart = pathName.rfind("_v");
+    if(versionStart == std::string::npos)
+      return pathName;
+    return pathName.substr(0, versionStart);
+  }
+}
+
 HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const std::string& pathName, const HLTConfigProvider& HLTCP,
                                            bool doRefAnalysis, const std::string& dqmBaseFolder,
                                            const std::string& hltProcess, int ptbins, int etabins, int phibins,
                                            double ptmax, double highptmax,
                                            double l1MatchDr, double hltMatchDr):
-  HLTTauDQMPlotter(pathName, dqmBaseFolder),
+  HLTTauDQMPlotter(stripVersion(pathName), dqmBaseFolder),
   ptbins_(ptbins),
   etabins_(etabins),
   phibins_(phibins),
