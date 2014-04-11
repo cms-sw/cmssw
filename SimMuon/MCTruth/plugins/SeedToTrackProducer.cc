@@ -144,7 +144,7 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         unsigned int index_hit = 0;
         for(TrajectorySeed::recHitContainer::const_iterator itRecHits=(L2seeds->at(i)).recHits().first; itRecHits!=(L2seeds->at(i)).recHits().second; ++itRecHits, ++countRH) {
             TrackingRecHit* hit = (itRecHits)->clone();
-            theTrack.setHitPattern( *hit, index_hit);
+            theTrack.appendHitPattern(*hit);
             selectedTrackHits->push_back(hit);
             index_hit++;
             theTrackExtra.add(TrackingRecHitRef( rHits, hidx ++ ) );
