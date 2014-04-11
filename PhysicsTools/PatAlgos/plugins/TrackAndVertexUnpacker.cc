@@ -99,7 +99,6 @@ void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSet
 	for(unsigned int i = 0; i < addTracks->size(); i++) {
 	      outTks->push_back((*addTracks)[i].pseudoTrack());
 	}
-
 	edm::OrphanHandle< std::vector<reco::Track>  > oh = iEvent.put( outTks );
 	for(unsigned int i=0;i<asso.size();i++)
 	{
@@ -110,27 +109,24 @@ void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSet
 	outPv->push_back(pv);
 	iEvent.put(outPv);
 
-	//Secondary Vertices
         std::auto_ptr< std::vector<reco::Vertex> > outSv( new std::vector<reco::Vertex> );
 	for(size_t i=0;i< svs->size(); i++) {
 		const reco::VertexCompositePtrCandidate &sv = (*svs)[i];	
 		outSv->push_back(reco::Vertex(sv.vertex(),sv.vertexCovariance(),sv.vertexChi2(),sv.vertexNdof(),0));
-	        //TODO: fill daughters
 		for(size_t j=0;j<sv.numberOfDaughters();j++){
-			int k=sv.daughterPtr(j).key();
 	                TrackRef r;
-			if(k<offsetAdd) {
-	                	TrackRef r(oh,trackKeys[sv.daughterPtr(j).key()]); // use trackKeys because cand->track has gaps from neutral
+			if(sv.daughterPtr(j).id() == cands.id()) {
+	                	 r= TrackRef(oh,trackKeys[sv.daughterPtr(j).key()]); // use trackKeys because cand->track has gaps from neutral
 			} else {
-                                TrackRef r(oh,offsetAdd+sv.daughterPtr(j).key());  // use directly the key because addTracks is only charged
+                                r=TrackRef(oh,offsetAdd+sv.daughterPtr(j).key());  // use directly the key because addTracks is only charged
 			}
-
         	        TrackBaseRef rr(r);
-			pv.add(rr);
-
+			outSv->back().add(rr);
 
 		}	
 	}   
+
+       iEvent.put(outSv,"secondary");
 
 }
 
