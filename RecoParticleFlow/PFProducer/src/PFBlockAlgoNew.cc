@@ -314,7 +314,7 @@ void PFBlockAlgoNew::buildElements(const edm::Event& evt) {
 	       const ElementList::value_type& b) {
 	      return a->type() < b->type();
 	    });
-
+  
   // -------------- Loop over block elements ---------------------
 
   // Here we provide to all KDTree linkers the collections to link.
