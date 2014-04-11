@@ -61,13 +61,13 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0),
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid",770); // default: 770
   maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid",779); // default 779
   dqmOnly = ps.getParameter<bool>("dqmOnly"); // default: false
-  saveDQMCollections = ps.getParameter<bool>("saveDQMCollections"); // default: true
+  performDataIntegrityMonitor = unpackerParameters.getUntrackedParameter<bool>("performDataIntegrityMonitor"); // default: true
   
   if(!dqmOnly) {
     produces<DTDigiCollection>();
     produces<DTLocalTriggerCollection>();
   }
-  if(saveDQMCollections) {
+  if(performDataIntegrityMonitor) {
     produces<std::vector<DTDDUData> >();
     produces<std::vector<std::vector<DTROS25Data> > >();
   }
@@ -117,7 +117,7 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
       // Unpack the data
       unpacker->interpretRawData(reinterpret_cast<const unsigned int*>(feddata.data()), 
  				 feddata.size(), id, mapping, detectorProduct, triggerProduct);
-      if(saveDQMCollections) {
+      if(performDataIntegrityMonitor) {
         if(dataType == "DDU") {
           dduProduct->push_back(dynamic_cast<DTDDUUnpacker*>(unpacker)->getDDUControlData());
           ros25Product->push_back(dynamic_cast<DTDDUUnpacker*>(unpacker)->getROSsControlData());
@@ -134,7 +134,7 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
     e.put(detectorProduct);
     e.put(triggerProduct);
   }
-  if(saveDQMCollections) {
+  if(performDataIntegrityMonitor) {
     e.put(dduProduct);
     e.put(ros25Product);
   }

@@ -8,7 +8,6 @@ muonDTDigis = cms.EDProducer("DTUnpackingModule",
     fedbyType = cms.bool(False),
     useStandardFEDid = cms.bool(True),
     dqmOnly = cms.bool(False), 
-    saveDQMCollections = cms.bool(True),
     readOutParameters = cms.PSet(
         debug = cms.untracked.bool(False),
         rosParameters = cms.PSet(
