@@ -144,20 +144,6 @@ TMatrixD MET::getSignificanceMatrix(void) const
   return result;
 }
 
-// Returns the vector of all corrections applied to the significance of the 
-// transverse energy (over all objects)
-//____________________________________________________________________________||
-std::vector<double> MET::dSignificance() const
-{
-  std::vector<double> deltas;
-  std::vector<CorrMETData>::const_iterator i;
-  for( i = corr.begin(); i != corr.end(); i++ )
-    {
-      deltas.push_back( i->significance );
-    }
-  return deltas;
-}
-
 // Required RecoCandidate polymorphism
 //____________________________________________________________________________||
 bool MET::overlap( const Candidate & ) const 

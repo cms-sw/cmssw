@@ -64,7 +64,6 @@ namespace reco
     std::vector<double> dmEx() const ;
     std::vector<double> dmEy() const ;
     std::vector<double> dsumEt() const ;
-    std::vector<double> dSignificance() const ;
     std::vector<CorrMETData> mEtCorr() const { return corr; }
 
     //________________________________________________________________________||
