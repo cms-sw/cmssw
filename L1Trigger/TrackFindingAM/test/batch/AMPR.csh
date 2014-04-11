@@ -1,6 +1,5 @@
 #!/bin/csh
 
-
 ###########################################
 #
 # Main script for CMSSW AM-based pattern 

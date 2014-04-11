@@ -23,6 +23,7 @@
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
 
 <export>
   <lib   name="1"/>

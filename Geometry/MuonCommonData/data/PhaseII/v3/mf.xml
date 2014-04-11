@@ -1,6 +1,13 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
+<ConstantsSection label="hcalalgo.xml" eval="true">
+  <Constant name="z1ME0" value="5.241*m"/>
+  <Constant name="z2ME0" value="5.541*m"/>
+  <Constant name="rMinME0" value="[z1ME0]*[etaMax:slope]"/>
+  <Constant name="rMaxME0" value="2.73*m"/>
+</ConstantsSection>
+
  <SolidSection label="mf.xml">
   <Polycone name="ME" startPhi="0*deg" deltaPhi="360*deg">
    <ZSection z="524.1*cm" rMin="[cms:CalorBeamR2]" rMax="273.76*cm"/>
@@ -19,8 +26,8 @@
    <ZSection z="[cms:MuonBeamZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR1]"/>
   </Polycone>
   <Polycone name="ME0Ring" startPhi="0*deg" deltaPhi="360*deg">
-   <ZSection z="5.241*m  " rMin="0.2*m " rMax="2.73*m  "/>
-   <ZSection z="5.541*m  " rMin="0.2*m " rMax="2.73*m  "/>
+   <ZSection z="[z1ME0]" rMin="[rMinME0]" rMax="[rMaxME0]"/>
+   <ZSection z="[z2ME0]" rMin="[rMinME0]" rMax="[rMaxME0]"/>
   </Polycone>
   <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg">
    <ZSection z="5.641*m  " rMin="1.3*m " rMax="2.8*m  "/>
