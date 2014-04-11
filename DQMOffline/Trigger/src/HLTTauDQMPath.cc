@@ -75,8 +75,8 @@ namespace {
         // FIXME: this will not work in unscheduled mode, where
         // producers are not in paths. Try looking first filter using
         // the PFRecoTauProducer output instead.
-        if(type == "PFRecoTauProducer") {
-          //edm::LogInfo("HLTTauDQMOffline") << "Found PFTauProducer " << *iLabel << " index " << (iLabel-moduleLabels.begin());
+        if(type == "PFRecoTauProducer" || type == "RecoTauPiZeroUnembedder") {
+          LogDebug("HLTTauDQMOffline") << "Found tau producer " << type << " " << *iLabel << " index " << (iLabel-moduleLabels.begin());
           return iLabel-moduleLabels.begin();
         }
       }
@@ -252,12 +252,12 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
 #endif
 
 
-  // Find the position of PFRecoTauProducer, use filters with taus
+  // Find the position of tau producer, use filters with taus
   // before it for L2 tau efficiency, and filters with taus after it
   // for L3 tau efficiency
   const size_t tauProducerIndex = thePath.tauProducerIndex(HLTCP);
   if(tauProducerIndex == std::numeric_limits<size_t>::max()) {
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): Did not find PFRecoTauProducer from HLT path " << pathName_;
+    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): Did not find tau producer from HLT path " << pathName_;
   }
   //lastFilterBeforeL2TauIndex_ = std::numeric_limits<size_t>::max();
   lastL2TauFilterIndex_ = std::numeric_limits<size_t>::max();
