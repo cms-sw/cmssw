@@ -24,7 +24,7 @@ process.source.fileNames = {
 
 ##'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root'}
 #                                         ##
-process.maxEvents.input = -1
+process.maxEvents.input = 100
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
@@ -65,27 +65,26 @@ process.selectedPatElectrons.cut = cms.string("")
 process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
 process.selectedPatPhotons.cut = cms.string("pt > 15 && hadTowOverEm()<0.15 ")
 
-process.slimmedJets.clearDaughters = False
-
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
 addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS') )
 process.selectedPatJetsCA8.cut = cms.string("pt > 100")
-
-process.slimmedJetsCA8 = cms.EDProducer("PATJetSlimmer",
-   src = cms.InputTag("selectedPatJetsCA8"),
-   map = cms.InputTag("packedPFCandidates"),
-   clearJetVars = cms.bool(True),
-   clearDaughters = cms.bool(False),
-   clearTrackRefs = cms.bool(True),
-   dropSpecific = cms.bool(False),
-)
 process.patJetGenJetMatchPatJetsCA8.matched =  'slimmedGenJets'
-process.slimmedJetsCA8.clearDaughters = False
 
 ## PU JetID
 process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
 process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
+
+#Some useful BTAG vars
+process.patJets.userData.userFunctions = cms.vstring(
+'?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().secondaryVertex(0).p4.M):(0)',
+'?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().secondaryVertex(0).nTracks):(0)',
+'?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().flightDistance(0).value):(0)',
+'?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().flightDistance(0).significance):(0)',
+)
+process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig')
+process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("secondaryVertexTagInfos"))
+process.patJets.addTagInfos = cms.bool(True)
 
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
 switchOnTriggerStandAlone( process )
@@ -110,4 +109,8 @@ process.out.dropMetaData = cms.untracked.string('ALL')
 process.out.fastCloning= cms.untracked.bool(False)
 process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
 process.out.compressionAlgorithm = cms.untracked.string('LZMA')
+
+
+#test ivf
+process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
 
