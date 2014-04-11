@@ -4,7 +4,7 @@ def customise(process):
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'L1simulation_step'):
-       process=customise_L1Emulator(process)
+        process=customise_L1Emulator(process,'pt0')
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
@@ -35,18 +35,73 @@ def customise_Digi(process):
     process=outputCustoms(process)
     return process
 
-def customise_L1Emulator(process):
+def customise_L1Emulator(process, ptdphi):
     process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
-    process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+    ## GE1/1-ME1/1
+    dphi_lct_pad98 = {
+        'pt0'  : { 'odd' :  2.00000000 , 'even' :  2.00000000 },
+        'pt05' : { 'odd' :  0.02203510 , 'even' :  0.00930056 },
+        'pt06' : { 'odd' :  0.01825790 , 'even' :  0.00790009 },
+        'pt10' : { 'odd' :  0.01066000 , 'even' :  0.00483286 },
+        'pt15' : { 'odd' :  0.00722795 , 'even' :  0.00363230 },
+        'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
+        'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
+        'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
+    }
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-    tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
-    tmb.gemMatchDeltaBX = cms.untracked.int32(1)
-    lct_store_gemdphi = True
-    if lct_store_gemdphi:
-        tmb.gemClearNomatchLCTs = cms.untracked.bool(False)
-	tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
-        tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
+    tmb.me11ILT = cms.PSet(
+        ## run the upgrade algorithm
+        runME11ILT = cms.untracked.bool(True),
+
+        ## run in debug mode
+        printAvailablePads = cms.untracked.bool(False),
+
+        ## use old dataformat
+        useOldLCTDataFormatALCTGEM = cms.untracked.bool(True),
+        
+        ## copad construction
+        maxDeltaBXInCoPad = cms.untracked.int32(1),
+        maxDeltaPadInCoPad = cms.untracked.int32(1),
+
+        ## matching to pads in case LowQ CLCT
+        maxDeltaBXPadEven = cms.untracked.int32(1),
+        maxDeltaBXPadOdd = cms.untracked.int32(1),
+        maxDeltaPadPadEven = cms.untracked.int32(2),
+        maxDeltaPadPadOdd = cms.untracked.int32(3),
+
+        ## matching to pads in case absent CLCT
+        maxDeltaBXCoPadEven = cms.untracked.int32(0),
+        maxDeltaBXCoPadOdd = cms.untracked.int32(0),
+        maxDeltaPadCoPadEven = cms.untracked.int32(2),
+        maxDeltaPadCoPadOdd = cms.untracked.int32(3),
+
+        ## efficiency recovery switches
+        dropLowQualityCLCTsNoGEMs_ME1a = cms.untracked.bool(True),
+        dropLowQualityCLCTsNoGEMs_ME1b = cms.untracked.bool(True),
+        buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(True),
+        buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True),
+        doLCTGhostBustingWithGEMs = cms.untracked.bool(False),
+        correctLCTtimingWithGEM = cms.untracked.bool(True),
+        
+        ## rate reduction 
+        doGemMatching = cms.untracked.bool(True),
+        gemMatchDeltaEta = cms.untracked.double(0.08),
+        gemMatchDeltaBX = cms.untracked.int32(1),
+        gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd']),
+        gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even']),
+        gemClearNomatchLCTs = cms.untracked.bool(ptdphi == 'pt0' and False),
+    )
+    if tmb.me11ILT.runME11ILT:
+        process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
+        process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
+        process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+    
+    ## GE2/1-ME2/1
+    tmb.me21ILT = cms.PSet(
+        runME21ILT = cms.untracked.bool(False),
+        dropLowQualityCLCTsNoGEMs_ME21 = cms.untracked.bool(False),
+        buildLCTfromALCTandGEM_ME21 = cms.untracked.bool(False),
+    )
     return process
 
 def customise_DigiToRaw(process):
@@ -79,7 +134,7 @@ def customise_Validation(process):
 
 def customise_harvesting(process):
     process.load('Validation.Configuration.gemPostValidation_cff')
-    process.genHarvesting += process.gemPostValidation
+    process.postValidation += process.gemPostValidation
     return process
 
 def outputCustoms(process):
