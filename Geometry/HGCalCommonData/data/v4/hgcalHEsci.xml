@@ -78,26 +78,26 @@
   <SpecPar name="HGCalHEScintillator readout granularity per layer">
     <PartSelector path="//HGCalHEScintillator"/>
     <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
-    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
+    <Parameter name="Granularity" value="20*mm"/>
   </SpecPar>
 </SpecParSection>
 
