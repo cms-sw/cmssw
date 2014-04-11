@@ -4,7 +4,7 @@
 <SpecParSection label="shashliksens.xml" eval="true">
   <SpecPar name="shcalee">
     <PartSelector path="//ShashlikActive.*"/>
-    <Parameter name="SensitiveDetector" value="ShashlikSensitiveDetector" eval="false"/>
+    <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="EcalHitsEK" eval="false"/>
     <Parameter name="ModuleLength" value="56.75*mm"/>
     <Parameter name="FiberLength"  value="0.75*mm"/>

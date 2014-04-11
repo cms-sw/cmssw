@@ -82,7 +82,6 @@ std::pair<int,int> ShashlikDDDConstants::getXY(int sm, int mod) const {
 void ShashlikDDDConstants::initialize(const DDCompactView& cpv) {
 
   if (tobeInitialized) {
-    tobeInitialized = false;
 
     std::string attribute = "OnlyForShashlikNumbering"; 
     std::string value     = "any";
@@ -97,6 +96,7 @@ void ShashlikDDDConstants::initialize(const DDCompactView& cpv) {
 
     if (ok) {
       loadSpecPars(fv);
+      tobeInitialized = false;
 
     } else {
       edm::LogError("HGCalGeom") << "ShashlikDDDConstants: cannot get filtered"
@@ -128,6 +128,8 @@ bool ShashlikDDDConstants::isValidSMM(int sm, int mod) const {
 
 int ShashlikDDDConstants::quadrant(int ix, int iy) const {
   int iq(0);
+  ix = (ix-1) / nMods + 1;
+  iy = (iy-1) / nMods + 1;
   if (ix>nRow && ix<=2*nRow) {
     if (iy>nRow && iy<=2*nRow) iq = 1;
     else if (iy>0 && iy<=nRow) iq = 4;
@@ -135,6 +137,7 @@ int ShashlikDDDConstants::quadrant(int ix, int iy) const {
     if (iy>nRow && iy<=2*nRow) iq = 2;
     else if (iy>0 && iy<=nRow) iq = 3;
   }
+  if (iq == 0) std::cout << "ShashlikDDDConstants::quadrant-> missing ix/iy " << ix << '/' << iy << '/' << nRow << std::endl;
   return iq;
 }
 
@@ -150,6 +153,7 @@ int ShashlikDDDConstants::quadrant(int sm) const {
   } else if (sm > 0) {
     iq = 1;
   }
+  if (iq == 0)  std::cerr << "ShashlikDDDConstants::quadrant-> missing SM/nSM " << sm << '/' << nSM << std::endl;
   return iq;
 }
 
@@ -158,22 +162,17 @@ void ShashlikDDDConstants::checkInitialized() const {
     edm::LogError("HGCalGeom") << "ShashlikDDDConstants : to be initialized correctly";
     throw cms::Exception("DDException") << "ShashlikDDDConstants: to be initialized";
   }
-} 
+}
 
-void ShashlikDDDConstants::loadSpecPars(const DDFilteredView& fv) {
-
-  DDsvalues_type sv(fv.mergedSpecifics());
-
-  // First and Last Row number in each column
-  firstY = dbl_to_int(getDDDArray("firstRow",sv));
-  lastY  = dbl_to_int(getDDDArray("lastRow", sv));
+void ShashlikDDDConstants::loadSpecPars(const std::vector<int>& firstY,
+					const std::vector<int>& lastY) {
   if (firstY.size() != lastY.size()) {
     edm::LogError("HGCalGeom") << "ShashlikDDDConstants: unequal # of columns "
 			       << firstY.size() << ":" << lastY.size()
 			       << " for first and last rows";
     throw cms::Exception("DDException") << "ShashlikDDDConstants: wrong array sizes for first/last Row";
   }
-
+  
   nSM   = 0;
   nColS = (int)(firstY.size());
   nRow  = 0;
@@ -183,16 +182,18 @@ void ShashlikDDDConstants::loadSpecPars(const DDFilteredView& fv) {
     lastSM.push_back(nSM);
     if (lastY[k] > nRow) nRow = lastY[k];
   }
+  //std::cout << " ShashlikDDDConstants::loadSpecPars-> SM/Rows/Cols: " << nSM << '/' << nRow << '/' << nColS << std::endl;
+}
+ 
 
-#ifdef DebugLog
-  std::cout << "ShashlikDDDConstants: nSM = " << nSM << ", nModule = " 
-	    << nMods << ", nRow = " << 2*nRow << ", nColumns = " 
-	    << 2*nColS << std::endl;
-  for (unsigned int k=0; k<firstY.size(); ++k) 
-    std::cout << "Column[" << k << "] SM = " << firstSM[k] << ":" << lastSM[k]
-	      << ", Rows = " << firstY[k] << ":" << lastY[k] << std::endl;
-#endif
-  nRow  = nColS*nMods;
+void ShashlikDDDConstants::loadSpecPars(const DDFilteredView& fv) {
+
+  DDsvalues_type sv(fv.mergedSpecifics());
+
+  // First and Last Row number in each column
+  firstY = dbl_to_int(getDDDArray("firstRow",sv));
+  lastY  = dbl_to_int(getDDDArray("lastRow", sv));
+  loadSpecPars (firstY, lastY); 
 }
 
 std::vector<double> ShashlikDDDConstants::getDDDArray(const std::string & str, 
