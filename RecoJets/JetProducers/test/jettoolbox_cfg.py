@@ -174,9 +174,8 @@ process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSLinksAK8_*_*']
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
-#process.source.fileNames = filesRelValProdTTbarAODSIM
-process.source.fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_0_0_pre11/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS162_V4-v1/00000/1CCFFDA6-846A-E311-9E61-0025905964C2.root')
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+process.source.fileNames = filesRelValProdTTbarAODSIM
 #                                         ##
 process.maxEvents.input = 5
 #                                         ##
