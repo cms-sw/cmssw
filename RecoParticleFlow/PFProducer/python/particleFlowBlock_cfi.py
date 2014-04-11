@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowBlock = cms.EDProducer("PFBlockProducer",
+particleFlowBlockOld = cms.EDProducer("PFBlockProducer",
 
     # verbosity 
     verbose = cms.untracked.bool(False),
