@@ -206,4 +206,4 @@ double PhotosppInterface::flat(){
 
 void PhotosppInterface::statistics(){Photospp::Photos::iniInfo();}
 
-DEFINE_EDM_PLUGIN(PhotosFactory, gen::PhotosppInterface, "Photospp354");
+DEFINE_EDM_PLUGIN(PhotosFactory, gen::PhotosppInterface, "Photospp355");
