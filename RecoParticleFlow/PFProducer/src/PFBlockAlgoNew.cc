@@ -19,14 +19,8 @@ using namespace reco;
 //for debug only 
 //#define PFLOW_DEBUG
 
-const PFBlockAlgoNew::Mask PFBlockAlgoNew::dummyMask_;
-
 PFBlockAlgoNew::PFBlockAlgoNew() : 
-  blocks_( new reco::PFBlockCollection ),
-  DPtovPtCut_(std::vector<double>(4,static_cast<double>(999.))),
-  NHitCut_(std::vector<unsigned int>(4,static_cast<unsigned>(0))), 
-  useIterTracking_(true),
-  photonSelector_(0),
+  blocks_( new reco::PFBlockCollection ),  
   debug_(false),
   _elementTypes( {
         INIT_ENTRY(PFBlockElement::TRACK),
@@ -42,11 +36,11 @@ PFBlockAlgoNew::PFBlockAlgoNew() :
 	INIT_ENTRY(PFBlockElement::HO) 
 	  } ) {}
 
-
 void PFBlockAlgoNew::setLinkers(const std::vector<edm::ParameterSet>& confs) {
    constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
   _linkTests.resize(rowsize*rowsize);
   const std::string prefix("PFBlockElement::");
+  const std::string pfx_kdtree("KDTree");
   for( const auto& conf : confs ) {
     const std::string& linkerName = 
       conf.getParameter<std::string>("linkerName");
@@ -71,6 +65,14 @@ void PFBlockAlgoNew::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     const BlockElementLinkerBase * linker =
       BlockElementLinkerFactory::get()->create(linkerName,conf);
     _linkTests[index].reset(linker);
+    // setup KDtree if requested
+    const bool useKDTree = conf.getParameter<bool>("useKDTree");
+    if( useKDTree ) {
+      _kdtrees.emplace_back( KDTreeLinkerFactory::get()->create(pfx_kdtree+
+								linkerName) );
+      _kdtrees.back()->setTargetType(std::min(type1,type2));
+      _kdtrees.back()->setFieldType(std::max(type1,type2));
+    }
   }
 }
 
@@ -86,68 +88,21 @@ void PFBlockAlgoNew::setImporters(const std::vector<edm::ParameterSet>& confs,
   }
 }
 
-void PFBlockAlgoNew::setParameters( std::vector<double>& DPtovPtCut,
-				 std::vector<unsigned int>& NHitCut,
-				 bool useConvBremPFRecTracks,
-				 bool useIterTracking,
-				 int nuclearInteractionsPurity,
-				 bool useEGPhotons,
-				 std::vector<double>& photonSelectionCuts,
-				 bool useSuperClusters,
-                                 bool superClusterMatchByRef
-                               ) {
-  
-  DPtovPtCut_    = DPtovPtCut;
-  NHitCut_       = NHitCut;
-  useIterTracking_ = useIterTracking;
-  useConvBremPFRecTracks_ = useConvBremPFRecTracks;
-  nuclearInteractionsPurity_ = nuclearInteractionsPurity;
-  useEGPhotons_ = useEGPhotons;
-  // Pt cut; Track iso (constant + slope), Ecal iso (constant + slope), HCAL iso (constant+slope), H/E
-  if(useEGPhotons_)
-    photonSelector_ = new PhotonSelectorAlgo(photonSelectionCuts[0],   
-					     photonSelectionCuts[1], photonSelectionCuts[2],   
-					     photonSelectionCuts[3], photonSelectionCuts[4],    
-					     photonSelectionCuts[5], photonSelectionCuts[6],    
-					     photonSelectionCuts[7],
-					     photonSelectionCuts[8],
-					     photonSelectionCuts[9],
-					     photonSelectionCuts[10]
-					     );
-
-
-  useSuperClusters_ = useSuperClusters;
-  superClusterMatchByRef_ = superClusterMatchByRef;
-}
-
-// Glowinski & Gouzevitch
-void PFBlockAlgoNew::setUseOptimization(bool useKDTreeTrackEcalLinker)
-{
-  useKDTreeTrackEcalLinker_ = useKDTreeTrackEcalLinker;
-}
-// !Glowinski & Gouzevitch
-
-
 PFBlockAlgoNew::~PFBlockAlgoNew() {
 
 #ifdef PFLOW_DEBUG
   if(debug_)
     cout<<"~PFBlockAlgoNew - number of remaining elements: "
 	<<elements_.size()<<endl;
-#endif
-
-  if(photonSelector_) delete photonSelector_;
-
+#endif  
 }
 
 void 
 PFBlockAlgoNew::findBlocks() {
   // Glowinski & Gouzevitch
-  if (useKDTreeTrackEcalLinker_) {
-    TELinker_.process();
-    THLinker_.process();
-    PSELinker_.process();
-  }
+  for( const auto& kdtree : _kdtrees ) {
+    kdtree->process();
+  }  
   // !Glowinski & Gouzevitch
   // the blocks have not been passed to the event, and need to be cleared
   if( blocks_.get() ) blocks_->clear();
@@ -190,22 +145,31 @@ PFBlockAlgoNew::associate( PFBlockAlgoNew::ElementList& elems,
   PFBlockLink::Type linktype = PFBlockLink::NONE;
   PFBlock::LinkTest linktest = PFBlock::LINKTEST_RECHIT;
   block.addElement(scan_lower->get()); // seed the block
+  // the terminating condition of this loop is when the next range 
+  // to scan has zero length (i.e. you have found no more nearest neighbours)
   do {     
     scan_upper = search_lower;
+    // for each element added in the previous iteration we check to see what
+    // elements are linked to it
     for( auto comp = scan_lower; comp != scan_upper; ++comp ) {
-      search_lower = // group everything that's linked to the current element
+      // group everything that's linked to the current element:
+      // std::partition moves all elements that return true for the 
+      // function defined below (a.k.a. the linking function) to the
+      // front of the range provided
+      search_lower = 
 	std::partition(search_lower,elems.end(),
 		       [&](ElementList::value_type& a){
 			 // check if link is somehow possible
-			 if( !linkPrefilter(comp->get(), a.get()) ) {
-			   return false;
-			 }
+			 const bool prelink_pass = linkPrefilter(comp->get(),
+								 a.get());
 			 dist = -1.0;
 			 linktype = PFBlockLink::NONE;
 			 linktest = PFBlock::LINKTEST_RECHIT;
-			 // compute linking info
-			 link( comp->get(), a.get(), 
-			       linktype, linktest, dist ); 
+			 // compute linking info if it is possible
+			 if( prelink_pass ) {
+			   link( comp->get(), a.get(), 
+				 linktype, linktest, dist ); 
+			 }
 			 if( dist >= -0.5 ) { 
 			   block.addElement( a.get() ); 
 			   links.emplace_back( linktype, linktest, dist,
@@ -217,8 +181,11 @@ PFBlockAlgoNew::associate( PFBlockAlgoNew::ElementList& elems,
 			 }
 		       });
     }
+    // we then update the scan range lower boundary to point to the
+    // first element that we added in this round of association
     scan_lower = scan_upper;      
-  } while( search_lower != scan_upper );  
+  } while( search_lower != scan_upper ); 
+  // return the pointer to the first element not in the PFBlock we just made
   return elems.erase(elems.begin(),scan_upper);
 }
 
@@ -295,15 +262,8 @@ PFBlockAlgoNew::packLinks( reco::PFBlock& block,
 
 }
 
-
-
-void 
-PFBlockAlgoNew::buildGraph() {
-  // loop on all blocks and create a big graph
-}
-
-
-
+// see plugins/linkers for the functions that calculate distances
+// for each available link type
 inline bool
 PFBlockAlgoNew::linkPrefilter(const reco::PFBlockElement* last, 
 			      const reco::PFBlockElement* next) const {
@@ -318,7 +278,7 @@ PFBlockAlgoNew::linkPrefilter(const reco::PFBlockElement* last,
   return result;  
 }
 
-void 
+inline void 
 PFBlockAlgoNew::link( const reco::PFBlockElement* el1, 
 		      const reco::PFBlockElement* el2, 
 		      PFBlockLink::Type& linktype, 
@@ -339,6 +299,9 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
   dist = _linkTests[index]->testLink(el1,el2);
 }
 
+// see plugins/importers and plugins/kdtrees
+// for the definitions of available block element importers
+// and kdtree preprocessors
 void PFBlockAlgoNew::buildElements(const edm::Event& evt) {
   // import block elements as defined in python configuration
   for( const auto& importer : _importers ) {
@@ -359,155 +322,16 @@ void PFBlockAlgoNew::buildElements(const edm::Event& evt) {
   
   for (ElementList::iterator it = elements_.begin();
        it != elements_.end(); ++it) {
-    switch ((*it)->type()){
-	
-    case reco::PFBlockElement::TRACK:
-      if (useKDTreeTrackEcalLinker_) {
-	if ( (*it)->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
-	  TELinker_.insertTargetElt(it->get());
-	if ( (*it)->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
-	  THLinker_.insertTargetElt(it->get());
+    for( const auto& kdtree : _kdtrees ) {
+      if( (*it)->type() == kdtree->targetType() ) {
+	kdtree->insertTargetElt(it->get());
       }
-      
-      break;
-
-    case reco::PFBlockElement::PS1:
-    case reco::PFBlockElement::PS2:
-      if (useKDTreeTrackEcalLinker_)
-	PSELinker_.insertTargetElt(it->get());
-      break;
-
-    case reco::PFBlockElement::HCAL:
-      if (useKDTreeTrackEcalLinker_)
-	THLinker_.insertFieldClusterElt(it->get());
-      break;
-
-    case reco::PFBlockElement::HO: 
-      if (useHO_ && useKDTreeTrackEcalLinker_) {
-	// THLinker_.insertFieldClusterElt(*it);
+      if( (*it)->type() == kdtree->fieldType() ) {
+	kdtree->insertFieldClusterElt(it->get());
       }
-      break;
-
-	
-    case reco::PFBlockElement::ECAL:
-      if (useKDTreeTrackEcalLinker_) {
-	TELinker_.insertFieldClusterElt(it->get());
-	PSELinker_.insertFieldClusterElt(it->get());
-      }
-      break;
-
-    default:
-      break;
-    }
+    }    
   }
 }
-
-void 
-PFBlockAlgoNew::checkMaskSize( const reco::PFRecTrackCollection& tracks,
-			    const reco::GsfPFRecTrackCollection& gsftracks, 
-			    const reco::PFClusterCollection&  ecals,
-			    const reco::PFClusterCollection&  hcals,
-			    const reco::PFClusterCollection&  hos,
-			    const reco::PFClusterCollection&  hfems,
-			    const reco::PFClusterCollection&  hfhads,
-			    const reco::PFClusterCollection&  pss, 
-			    const reco::PhotonCollection&  egphh, 
-			    const reco::SuperClusterCollection&  sceb, 
-			    const reco::SuperClusterCollection&  scee, 			    
-			    const Mask& trackMask, 
-			    const Mask& gsftrackMask,  
-			    const Mask& ecalMask,
-			    const Mask& hcalMask,
-			    const Mask& hoMask, 
-			    const Mask& hfemMask,
-			    const Mask& hfhadMask,		      
-			    const Mask& psMask,
-			    const Mask& phMask,
-			    const Mask& scMask) const {
-
-  if( !trackMask.empty() && 
-      trackMask.size() != tracks.size() ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the track mask is different ";
-    err += "from the size of the track vector.";
-    throw std::length_error( err.c_str() );
-  }
-
-  if( !gsftrackMask.empty() && 
-      gsftrackMask.size() != gsftracks.size() ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the gsf track mask is different ";
-    err += "from the size of the gsftrack vector.";
-    throw std::length_error( err.c_str() );
-  }
-
-  if( !ecalMask.empty() && 
-      ecalMask.size() != ecals.size() ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the ecal mask is different ";
-    err += "from the size of the ecal clusters vector.";
-    throw std::length_error( err.c_str() );
-  }
-  
-  if( !hcalMask.empty() && 
-      hcalMask.size() != hcals.size() ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the hcal mask is different ";
-    err += "from the size of the hcal clusters vector.";
-    throw std::length_error( err.c_str() );
-  }
-
-  if( !hoMask.empty() && 
-      hoMask.size() != hos.size() ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the ho mask is different ";
-    err += "from the size of the ho clusters vector.";
-    throw std::length_error( err.c_str() );
-  }
-
-
-  if( !hfemMask.empty() && 
-      hfemMask.size() != hfems.size() ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the hfem mask is different ";
-    err += "from the size of the hfem clusters vector.";
-    throw std::length_error( err.c_str() );
-  }
-
-  if( !hfhadMask.empty() && 
-      hfhadMask.size() != hfhads.size() ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the hfhad mask is different ";
-    err += "from the size of the hfhad clusters vector.";
-    throw std::length_error( err.c_str() );
-  }
-
-  if( !psMask.empty() && 
-      psMask.size() != pss.size() ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the ps mask is different ";
-    err += "from the size of the ps clusters vector.";
-    throw std::length_error( err.c_str() );
-  }
-  
-  if( !phMask.empty() && 
-      phMask.size() != egphh.size() ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the photon mask is different ";
-    err += "from the size of the photon vector.";
-    throw std::length_error( err.c_str() );
-  }
-  
-  if( !scMask.empty() && 
-      scMask.size() != (sceb.size() + scee.size()) ) {
-    string err = "PFBlockAlgoNew::setInput: ";
-    err += "The size of the SC mask is different ";
-    err += "from the size of the SC vectors.";
-    throw std::length_error( err.c_str() );
-  }  
-
-}
-
 
 std::ostream& operator<<(std::ostream& out, const PFBlockAlgoNew& a) {
   if(! out) return out;
@@ -543,116 +367,6 @@ std::ostream& operator<<(std::ostream& out, const PFBlockAlgoNew& a) {
 
   return out;
 }
-
-bool 
-PFBlockAlgoNew::goodPtResolution( const reco::TrackRef& trackref) {
-
-  double P = trackref->p();
-  double Pt = trackref->pt();
-  double DPt = trackref->ptError();
-  unsigned int NHit = trackref->hitPattern().trackerLayersWithMeasurement();
-  unsigned int NLostHit = trackref->hitPattern().trackerLayersWithoutMeasurement();
-  unsigned int LostHits = trackref->numberOfLostHits();
-  double sigmaHad = sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits);
-
-  // iteration 1,2,3,4,5 correspond to algo = 1/4,5,6,7,8,9
-  unsigned int Algo = 0; 
-  switch (trackref->algo()) {
-  case TrackBase::ctf:
-  case TrackBase::iter0:
-  case TrackBase::iter1:
-  case TrackBase::iter2:
-    Algo = 0;
-    break;
-  case TrackBase::iter3:
-    Algo = 1;
-    break;
-  case TrackBase::iter4:
-    Algo = 2;
-    break;
-  case TrackBase::iter5:
-    Algo = 3;
-    break;
-  case TrackBase::iter6:
-    Algo = 4;
-    break;
-  default:
-    Algo = useIterTracking_ ? 5 : 0;
-    break;
-  }
-
-  // Protection against 0 momentum tracks
-  if ( P < 0.05 ) return false;
-
-  // Temporary : Reject all tracking iteration beyond 5th step. 
-  if ( Algo > 4 ) return false;
- 
-  if (debug_) cout << " PFBlockAlgoNew: PFrecTrack->Track Pt= "
-		   << Pt << " DPt = " << DPt << endl;
-  if ( ( DPtovPtCut_[Algo] > 0. && 
-	 DPt/Pt > DPtovPtCut_[Algo]*sigmaHad ) || 
-       NHit < NHitCut_[Algo] ) { 
-    // (Algo >= 3 && LostHits != 0) ) {
-    if (debug_) cout << " PFBlockAlgoNew: skip badly measured track"
-		     << ", P = " << P 
-		     << ", Pt = " << Pt 
-		     << " DPt = " << DPt 
-		     << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-		     << ", Algo = " << Algo
-		     << endl;
-    if (debug_) cout << " cut is DPt/Pt < " << DPtovPtCut_[Algo] * sigmaHad << endl;
-    if (debug_) cout << " cut is NHit >= " << NHitCut_[Algo] << endl;
-    /*
-    std::cout << "Track REJECTED : ";
-    std::cout << ", P = " << P 
-	      << ", Pt = " << Pt 
-	      << " DPt = " << DPt 
-	      << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-	      << ", Algo = " << Algo
-	      << std::endl;
-    */
-    return false;
-  }
-
-  /*
-  std::cout << "Track Accepted : ";
-  std::cout << ", P = " << P 
-       << ", Pt = " << Pt 
-       << " DPt = " << DPt 
-       << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-       << ", Algo = " << Algo
-       << std::endl;
-  */
-  return true;
-}
-
-int
-PFBlockAlgoNew::muAssocToTrack( const reco::TrackRef& trackref,
-			     const edm::Handle<reco::MuonCollection>& muonh) const {
-  if(muonh.isValid() ) {
-    for(unsigned j=0;j<muonh->size(); ++j) {
-      reco::MuonRef muonref( muonh, j );
-      if (muonref->track().isNonnull()) 
-	if( muonref->track() == trackref ) return j;
-    }
-  }
-  return -1; // not found
-}
-
-int 
-PFBlockAlgoNew::muAssocToTrack( const reco::TrackRef& trackref,
-			     const edm::OrphanHandle<reco::MuonCollection>& muonh) const {
-  if(muonh.isValid() ) {
-    for(unsigned j=0;j<muonh->size(); ++j) {
-      reco::MuonRef muonref( muonh, j );
-      if (muonref->track().isNonnull())
-	if( muonref->track() == trackref ) return j;
-    }
-  }
-  return -1; // not found
-}
-
-
 
 // a little history, ideas we may want to keep around for later
    /*

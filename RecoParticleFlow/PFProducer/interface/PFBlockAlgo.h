@@ -31,9 +31,7 @@
 
 // Glowinski & Gouzevitch
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"             
-#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackEcal.h" 
-#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackHcal.h" 
-#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerPSEcal.h" 
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h" 
 // !Glowinski & Gouzevitch
 
 // #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -318,9 +316,9 @@ class PFBlockAlgo {
 
   // Glowinski & Gouzevitch
   bool useKDTreeTrackEcalLinker_;
-  KDTreeLinkerTrackEcal TELinker_;
-  KDTreeLinkerTrackHcal THLinker_;
-  KDTreeLinkerPSEcal	PSELinker_;
+  std::unique_ptr<KDTreeLinkerBase> TELinker_;
+  std::unique_ptr<KDTreeLinkerBase> THLinker_;
+  std::unique_ptr<KDTreeLinkerBase> PSELinker_;
   // !Glowinski & Gouzevitch
 
   static const Mask                      dummyMask_;
@@ -1184,9 +1182,9 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
     case reco::PFBlockElement::TRACK:
       if (useKDTreeTrackEcalLinker_) {
 	if ( (*it)->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
-	  TELinker_.insertTargetElt(*it);
+	  TELinker_->insertTargetElt(*it);
 	if ( (*it)->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
-	  THLinker_.insertTargetElt(*it);
+	  THLinker_->insertTargetElt(*it);
       }
       
       break;
@@ -1194,25 +1192,25 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
     case reco::PFBlockElement::PS1:
     case reco::PFBlockElement::PS2:
       if (useKDTreeTrackEcalLinker_)
-	PSELinker_.insertTargetElt(*it);
+	PSELinker_->insertTargetElt(*it);
       break;
 
     case reco::PFBlockElement::HCAL:
       if (useKDTreeTrackEcalLinker_)
-	THLinker_.insertFieldClusterElt(*it);
+	THLinker_->insertFieldClusterElt(*it);
       break;
 
     case reco::PFBlockElement::HO: 
       if (useHO_ && useKDTreeTrackEcalLinker_) {
-	// THLinker_.insertFieldClusterElt(*it);
+	// THLinker_->insertFieldClusterElt(*it);
       }
       break;
 
 	
     case reco::PFBlockElement::ECAL:
       if (useKDTreeTrackEcalLinker_) {
-	TELinker_.insertFieldClusterElt(*it);
-	PSELinker_.insertFieldClusterElt(*it);
+	TELinker_->insertFieldClusterElt(*it);
+	PSELinker_->insertFieldClusterElt(*it);
       }
       break;
 
