@@ -37,8 +37,8 @@ namespace cond {
       
       template<typename T> 
       boost::shared_ptr<T> get(size_t n) const {
-	if( n> (size()-1) ) throwException( "Index outside the bounds of the key array.",
-					    "KeyList::get");
+	if( n >= size() ) throwException( "Index outside the bounds of the key array.", 
+					  "KeyList::get");
 	if( !m_objects[n] ){
 	  auto i = m_data.find( n );
 	  if( i != m_data.end() ){
