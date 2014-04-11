@@ -94,7 +94,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 
 	    pGptr->getSummary( tvec, ivec, dvec, dins ) ;
 
-	    U::write( tvec, dvec, ivec, T::dbString() ) ;
+	    U::writeIndexed( tvec, dvec, ivec, dins, T::dbString() ) ;
 	 }
 	 else
 	 {
@@ -104,23 +104,26 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    tvec = pG->getTranslation() ;
 	    dvec = pG->getDimension() ;
 	    ivec = pG->getIndexes() ;
+	    dins = pG->getDenseIndices() ;
 	 }	 
 //*********************************************************************************************
 
-	 const unsigned int nTrParm ( tvec.size()/T::k_NumberOfCellsForCorners ) ;
+	 T* geom = new T;
+
+	 const unsigned int nTrParm ( dvec.size()) ;
+
+	 assert(nTrParm * T::k_NumberOfParametersPerShape == tvec.size());
 
 	 assert( dvec.size() == T::k_NumberOfShapes * T::k_NumberOfParametersPerShape ) ;
 
-	 PtrType ptr ( new T ) ;
+	 geom->fillDefaultNamedParameters() ;
 
-	 ptr->fillDefaultNamedParameters() ;
+	 geom->allocateCorners( nTrParm ) ;
 
-	 ptr->allocateCorners( T::k_NumberOfCellsForCorners ) ;
-
-	 ptr->allocatePar(    dvec.size() ,
+	 geom->allocatePar(    dvec.size() ,
 			      T::k_NumberOfParametersPerShape ) ;
 
-	 for( unsigned int i ( 0 ) ; i != T::k_NumberOfCellsForCorners ; ++i )
+	 for( unsigned int i ( 0 ) ; i != nTrParm ; ++i )
 	 {
 	    const unsigned int nPerShape ( T::k_NumberOfParametersPerShape ) ;
 	    DimVec dims ;
@@ -137,36 +140,36 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    }
 
 	    const CCGFloat* myParm ( CaloCellGeometry::getParmPtr( dims, 
-								   ptr->parMgr(), 
-								   ptr->parVecVec() ) ) ;
+								   geom->parMgr(), 
+								   geom->parVecVec() ) ) ;
 
 
-	    const DetId id ( T::DetIdType::detIdFromDenseIndex( i ) ) ;
+	    const DetId id ( dins[i] ) ;
     
 	    const unsigned int iGlob ( 0 == globalPtr ? 0 :
-				       T::alignmentTransformIndexGlobal( id ) ) ;
+				       geom->alignmentTransformIndexGlobal( id ) ) ;
 
 	    assert( 0 == globalPtr || iGlob < globalPtr->m_align.size() ) ;
 
 	    const AlignTransform* gt ( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ] ) ;
 
-	    assert( 0 == gt || iGlob == T::alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
+	    assert( 0 == gt || iGlob == geom->alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
 
 	    const unsigned int iLoc ( 0 == alignPtr ? 0 :
-				      T::alignmentTransformIndexLocal( id ) ) ;
+				      geom->alignmentTransformIndexLocal( id ) ) ;
 
 	    assert( 0 == alignPtr || iLoc < alignPtr->m_align.size() ) ;
 
 	    const AlignTransform* at ( 0 == alignPtr ? 0 :
 				       &alignPtr->m_align[ iLoc ] ) ;
 
-	    assert( 0 == at || ( T::alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
+	    assert( 0 == at || ( geom->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
 
 	    const CaloGenericDetId gId ( id ) ;
 
 	    Pt3D  lRef ;
 	    Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
-	    T::localCorners( lc, &dims.front(), i, lRef ) ;
+	    geom->localCorners( lc, &dims.front(), i, lRef ) ;
 
 	    const Pt3D lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
 	    const Pt3D lCor ( lc[0] ) ;
@@ -200,12 +203,12 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    const Pt3D        gCor ( atr*lCor ) ;
 	    const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
 
-	    ptr->newCell(  fCtr, fBck, fCor, myParm, id ) ;
+	    geom->newCell(  fCtr, fBck, fCor, myParm, id ) ;
 	 }
 
-	 ptr->initializeParms() ; // initializations; must happen after cells filled
+	 geom->initializeParms() ; // initializations; must happen after cells filled
 
-	 return ptr ; 
+	 return PtrType (geom);
       }
     
 private:
