@@ -54,7 +54,7 @@ process.DQMStore.verbose =  cms.untracked.int32(1)
 process.DQMStore.verboseQT =  cms.untracked.int32(1)
 
 #process.DQMStore.collateHistograms = cms.untracked.bool(True)
-process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
-process.dqmSaver.forceRunNumber = cms.untracked.int32(123456)
+#process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
+#process.dqmSaver.forceRunNumber = cms.untracked.int32(123456)
 
 process.dqmSaver.workflow = '/TTbarLepton/myTest/DQM'
