@@ -18,6 +18,7 @@ public:
 
 private:
   edm::EDGetTokenT<reco::SuperClusterCollection> _srcEB,_srcEE;  
+  bool _superClustersArePF;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
@@ -28,7 +29,8 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf,
 				   edm::ConsumesCollector& sumes) :
     BlockElementImporterBase(conf,sumes),
     _srcEB(sumes.consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("source_eb"))),
-    _srcEE(sumes.consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("source_ee"))) {  
+    _srcEE(sumes.consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("source_ee"))),
+    _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {  
 }
 
 void SuperClusterImporter::
@@ -56,6 +58,7 @@ importToBlock( const edm::Event& e,
     auto sc_elem = std::find_if(elems.begin(),SCs_end,myEqual);
     if( sc_elem == SCs_end ) {	
       scbe = new reco::PFBlockElementSuperCluster(scref);      
+      scbe->setFromPFSuperCluster(_superClustersArePF);
       SCs_end = elems.insert(SCs_end,ElementType(scbe));
       ++SCs_end; // point to element *after* the new one
     }    
@@ -68,7 +71,8 @@ importToBlock( const edm::Event& e,
     PFBlockElementSCEqual myEqual(scref);
     auto sc_elem = std::find_if(elems.begin(),SCs_end,myEqual);
     if( sc_elem == SCs_end ) {	
-      scbe = new reco::PFBlockElementSuperCluster(scref);      
+      scbe = new reco::PFBlockElementSuperCluster(scref);  
+      scbe->setFromPFSuperCluster(_superClustersArePF);
       SCs_end = elems.insert(SCs_end,ElementType(scbe));
       ++SCs_end; // point to element *after* the new one
     }    
