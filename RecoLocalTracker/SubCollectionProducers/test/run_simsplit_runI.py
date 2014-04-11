@@ -150,6 +150,7 @@ process.newrechits = cms.Sequence(process.mySiPixelRecHits*process.mySiStripRecH
 
 from RecoLocalTracker.SubCollectionProducers.splitter_RunI_tracking_setup_cff import customizeTracking
 customizeTracking('splitClusters', 'splitClusters', 'mySiPixelRecHits', 'mySiStripRecHits')
+
 process.fullreco = cms.Sequence(process.globalreco*process.highlevelreco)
 process.options = cms.untracked.PSet(
 

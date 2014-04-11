@@ -12,6 +12,7 @@ from RecoTracker.IterativeTracking.PixelLessStep_cff import *
 from  RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
+
 def customizeTracking(newpixclusters, newstripclusters, newpixrechits, newstriprechits):
 
     matchedsplitSiStripRecHits = cms.InputTag(newstriprechits,"matchedRecHit"), 

@@ -175,6 +175,7 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.GlobalTag.globaltag = 'MC_71_V1::All'
 
 
+
 # Path and EndPath definitions
 process.init_step = cms.Path(cms.Sequence(process.RawToDigi*process.localreco*process.offlineBeamSpot+process.recopixelvertexing))
 process.dump_step = cms.Path(process.dump)
