@@ -339,6 +339,69 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
   dist = _linkTests[index]->testLink(el1,el2);
 }
 
+void PFBlockAlgoNew::buildElements(const edm::Event& evt) {
+  // import block elements as defined in python configuration
+  for( const auto& importer : _importers ) {
+    importer->importToBlock(evt,elements_);
+  }
+
+  // sort to regularize access patterns
+  std::sort(elements_.begin(),elements_.end(),
+	    [](const ElementList::value_type& a,
+	       const ElementList::value_type& b) {
+	      return a->type() < b->type();
+	    });
+
+  // -------------- Loop over block elements ---------------------
+
+  // Here we provide to all KDTree linkers the collections to link.
+  // Glowinski & Gouzevitch
+  
+  for (ElementList::iterator it = elements_.begin();
+       it != elements_.end(); ++it) {
+    switch ((*it)->type()){
+	
+    case reco::PFBlockElement::TRACK:
+      if (useKDTreeTrackEcalLinker_) {
+	if ( (*it)->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
+	  TELinker_.insertTargetElt(it->get());
+	if ( (*it)->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
+	  THLinker_.insertTargetElt(it->get());
+      }
+      
+      break;
+
+    case reco::PFBlockElement::PS1:
+    case reco::PFBlockElement::PS2:
+      if (useKDTreeTrackEcalLinker_)
+	PSELinker_.insertTargetElt(it->get());
+      break;
+
+    case reco::PFBlockElement::HCAL:
+      if (useKDTreeTrackEcalLinker_)
+	THLinker_.insertFieldClusterElt(it->get());
+      break;
+
+    case reco::PFBlockElement::HO: 
+      if (useHO_ && useKDTreeTrackEcalLinker_) {
+	// THLinker_.insertFieldClusterElt(*it);
+      }
+      break;
+
+	
+    case reco::PFBlockElement::ECAL:
+      if (useKDTreeTrackEcalLinker_) {
+	TELinker_.insertFieldClusterElt(it->get());
+	PSELinker_.insertFieldClusterElt(it->get());
+      }
+      break;
+
+    default:
+      break;
+    }
+  }
+}
+
 void 
 PFBlockAlgoNew::checkMaskSize( const reco::PFRecTrackCollection& tracks,
 			    const reco::GsfPFRecTrackCollection& gsftracks, 

@@ -24,6 +24,7 @@ private:
   const std::unordered_map<std::string,SelectionChoices> _selectionTypes;
   SelectionChoices _selectionChoice;
   std::unique_ptr<const PhotonSelectorAlgo> _selector;
+  bool _superClustersArePF;
   
 };
 
@@ -36,7 +37,8 @@ EGPhotonImporter::EGPhotonImporter(const edm::ParameterSet& conf,
     BlockElementImporterBase(conf,sumes),
     _src(sumes.consumes<reco::PhotonCollection>(conf.getParameter<edm::InputTag>("source"))),
     _selectionTypes({ {"SeparateDetectorIso",EGPhotonImporter::SeparateDetectorIso},
-	  {"CombinedDetectorIso",EGPhotonImporter::CombinedDetectorIso} }){
+	  {"CombinedDetectorIso",EGPhotonImporter::CombinedDetectorIso} }),
+    _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {
   const std::string& selChoice = 
     conf.getParameter<std::string>("SelectionChoice");
   _selectionChoice = _selectionTypes.at(selChoice);
@@ -96,6 +98,7 @@ importToBlock( const edm::Event& e,
       } else {
 	scbe = new reco::PFBlockElementSuperCluster(scref);
 	scbe->setFromPhoton(true);
+	scbe->setFromPFSuperCluster(_superClustersArePF);
 	scbe->setPhotonRef(phoref);
 	scbe->setTrackIso(photon->trkSumPtHollowConeDR04());
 	scbe->setEcalIso(photon->ecalRecHitSumEtConeDR04());

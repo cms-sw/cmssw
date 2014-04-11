@@ -102,6 +102,9 @@ class PFBlockAlgoNew {
 
   typedef std::vector<bool> Mask;
 
+  // run all of the importers and build KDtrees
+  void buildElements(const edm::Event&);
+
   /// set input collections of tracks and clusters
   template< template<typename> class T>
     void  setInput(const edm::Event& evt,
@@ -451,19 +454,6 @@ PFBlockAlgoNew::setInput(const edm::Event& evt,
                  psMask,
 		 phMask,
 		 scMask);
-
-  /*
-  if (nucleartrackh.isValid()){
-    for(unsigned i=0;i<nucleartrackh->size(); i++) {
-      reco::PFRecTrackRef trackRef(nucleartrackh,i);
-      std::cout << *trackRef << std::endl;
-    }
-  }
-  */
-
-  if (superClusterMatchByRef_) {
-    pfclusterassoc_ = pfclusterassoc.product();
-  }
   
   // import block elements as defined in python configuration
   for( const auto& importer : _importers ) {

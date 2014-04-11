@@ -17,14 +17,15 @@ public:
 		    edm::ConsumesCollector& sumes) :
     BlockElementImporterBase(conf,sumes),
     _src(sumes.consumes<reco::GsfPFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
-    _isSecondary(conf.getParameter<bool>("gsfsAreSecondary")){}
+    _isSecondary(conf.getParameter<bool>("gsfsAreSecondary")),
+    _superClustersArePF(conf.getParameter<bool>("superClustersArePF")){}
   
   void importToBlock( const edm::Event& ,
 		      ElementList& ) const override;
 
 private:
   edm::EDGetTokenT<reco::GsfPFRecTrackCollection> _src;
-  const bool _isSecondary;
+  const bool _isSecondary, _superClustersArePF;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
@@ -68,6 +69,7 @@ importToBlock( const edm::Event& e,
 	    reco::PFBlockElementSuperCluster* scbe = 
 	      new reco::PFBlockElementSuperCluster(scref);
 	    scbe->setFromGsfElectron(true);
+	    scbe->setFromPFSuperCluster(_superClustersArePF);
 	    SCs_end = elems.insert(SCs_end,ElementType(scbe));
 	    ++SCs_end; // point to element *after* the new one
 	  }
