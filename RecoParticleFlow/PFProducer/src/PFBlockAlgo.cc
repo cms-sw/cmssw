@@ -24,7 +24,11 @@ PFBlockAlgo::PFBlockAlgo() :
   NHitCut_(std::vector<unsigned int>(4,static_cast<unsigned>(0))), 
   useIterTracking_(true),
   photonSelector_(0),
-  debug_(false) {}
+  debug_(false) {
+  TELinker_.reset(KDTreeLinkerFactory::get()->create("KDTreeTrackAndECALLinker"));
+  THLinker_.reset(KDTreeLinkerFactory::get()->create("KDTreeTrackAndHCALLinker"));
+  PSELinker_.reset(KDTreeLinkerFactory::get()->create("KDTreePreshowerAndECALLinker"));
+}
 
 
 
@@ -85,9 +89,9 @@ PFBlockAlgo::findBlocks() {
 
   // Glowinski & Gouzevitch
   if (useKDTreeTrackEcalLinker_) {
-    TELinker_.process();
-    THLinker_.process();
-    PSELinker_.process();
+    TELinker_->process();
+    THLinker_->process();
+    PSELinker_->process();
   }
   // !Glowinski & Gouzevitch
 

@@ -65,8 +65,7 @@ particleFlowBlockNew = cms.EDProducer(
         # after you've imported all SCs to the block
         cms.PSet( importerName = cms.string("ECALClusterImporter"),
                   source = cms.InputTag("particleFlowClusterECAL"),
-                  BCtoPFCMap = cms.InputTag('particleFlowSuperClusterECAL:PFClusterAssociationEBEE'),
-                   ),
+                  BCtoPFCMap = cms.InputTag('particleFlowSuperClusterECAL:PFClusterAssociationEBEE') ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
                   source = cms.InputTag("particleFlowClusterHCAL") ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
@@ -82,7 +81,11 @@ particleFlowBlockNew = cms.EDProducer(
     
     #linking definitions
     # you can find a list of all available linkers in:
-    #  plugins/linkers
+    #  plugins/linkers 
+    # see : plugins/kdtrees for available KDTree Types
+    # to enable a KDTree for a linking pair, write a KDTree linker
+    # and set useKDTree = True in the linker PSet
+    #order does not matter here since we are defining a lookup table
     linkDefinitions = cms.VPSet(
         cms.PSet( linkerName = cms.string("PreshowerAndECALLinker"),
                   linkType   = cms.string("PS1:ECAL"),
@@ -140,10 +143,7 @@ particleFlowBlockNew = cms.EDProducer(
                   linkType   = cms.string("SC:ECAL"),
                   useKDTree  = cms.bool(False),
                   SuperClusterMatchByRef = cms.bool(True) )
-        ),
-        
-    # Glowinski & Gouzevitch                             
-    useKDTreeTrackEcalLinker = cms.bool(True)       
+        )          
 )
 
 

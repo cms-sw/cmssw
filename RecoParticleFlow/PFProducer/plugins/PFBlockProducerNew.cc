@@ -25,24 +25,16 @@ PFBlockProducerNew::PFBlockProducerNew(const edm::ParameterSet& iConfig) {
 
   bool debug_ = 
     iConfig.getUntrackedParameter<bool>("debug",false);  
+  pfBlockAlgo_.setDebug(debug_);  
       
-  const std::vector<edm::ParameterSet>& linkdefs 
-    = iConfig.getParameterSetVector("linkDefinitions");
-  
-  const std::vector<edm::ParameterSet>& importers
-    = iConfig.getParameterSetVector("elementImporters");    
-
   edm::ConsumesCollector coll = consumesCollector();
+  const std::vector<edm::ParameterSet>& importers
+    = iConfig.getParameterSetVector("elementImporters");      
   pfBlockAlgo_.setImporters(importers,coll);
 
+  const std::vector<edm::ParameterSet>& linkdefs 
+    = iConfig.getParameterSetVector("linkDefinitions");
   pfBlockAlgo_.setLinkers(linkdefs);  
-  
-  pfBlockAlgo_.setDebug(debug_);
-
-  // Glowinski & Gouzevitch
-  useKDTreeTrackEcalLinker_ = iConfig.getParameter<bool>("useKDTreeTrackEcalLinker");
-  pfBlockAlgo_.setUseOptimization(useKDTreeTrackEcalLinker_);
-  // !Glowinski & Gouzevitch
   
   produces<reco::PFBlockCollection>();
 }
