@@ -1005,6 +1005,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
       svNext.bf = bf;
       svNext.p3 = svCurrent.p3;
       svNext.isYokeVol = svCurrent.isYokeVol;
+      svNext.magVol = svCurrent.magVol;
       MatBounds rzTmp;
       dEdx = getDeDx(svNext, dEdXPrime, radX0, rzTmp);
       dP = dEdx*dS;      
