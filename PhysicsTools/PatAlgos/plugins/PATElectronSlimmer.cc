@@ -97,7 +97,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 	if (dropBasicClusters_(electron)) { electron.basicClusters_.clear();  }
 	if (dropSuperClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowSuperCluster_.clear(); electron.embeddedPflowSuperCluster_ = false; }
 	if (dropBasicClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowBasicClusters_.clear(); }
-	if (dropPreshowerClusters_(electron)) { electron.preshowerClusters_.clear(); electron.embeddedSuperCluster_ = false; }
+	if (dropPreshowerClusters_(electron)) { electron.preshowerClusters_.clear();  }
 	if (dropPreshowerClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowPreshowerClusters_.clear(); }
 	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
