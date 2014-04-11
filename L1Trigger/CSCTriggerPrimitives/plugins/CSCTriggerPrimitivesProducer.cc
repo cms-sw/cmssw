@@ -87,6 +87,16 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
       edm::LogInfo("L1CSCTPEmulatorNoGEMGeometry") 
 	<< "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
     }
+
+    edm::ESHandle<RPCGeometry> h_rpc;
+    try {
+      setup.get<MuonGeometryRecord>().get(h_rpc);
+      lctBuilder_->setRPCGeometry(&*h_rpc);
+    } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
+      edm::LogInfo("L1CSCTPEmulatorNoRPCGeometry") 
+	<< "+++ Info: RPC geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
+    }
+
   }
 
   // Find conditions data for bad chambers.
