@@ -42,7 +42,7 @@ importToBlock( const edm::Event& e,
   e.getByToken(_assoc,assoc);
   auto bclus = clusters->cbegin();
   auto eclus = clusters->cend();
-  // get all the SCs in the block
+  // get all the SCs in the element list
   auto sc_end = std::partition(elems.begin(),elems.end(),
 			       [](const ElementList::value_type& o){
 				 return o->type() == reco::PFBlockElement::SC;
@@ -55,8 +55,16 @@ importToBlock( const edm::Event& e,
     for( auto scelem = elems.begin(); scelem != sc_end; ++scelem ) {
       const reco::PFBlockElementSuperCluster* elem_as_sc =
 	static_cast<const reco::PFBlockElementSuperCluster*>(scelem->get());
-      auto this_sc = elem_as_sc->superClusterRef();
-      if(ClusterClusterMapping::overlap(tempref,*this_sc,*assoc)) {
+      const reco::SuperClusterRef& this_sc = elem_as_sc->superClusterRef();
+      const bool in_sc = ( elem_as_sc->fromPFSuperCluster() ?
+			   // use association map if from PFSC
+			   ClusterClusterMapping::overlap(tempref,
+							  *this_sc,
+							  *assoc) :
+			   // match by overlapping rechit otherwise
+			   ClusterClusterMapping::overlap(*tempref,
+							  *this_sc) );
+      if( in_sc ) {	
 	newelem->setSuperClusterRef(this_sc);
 	break;
       }
