@@ -12,6 +12,7 @@
 <use   name="fastjet"/>
 <use   name="roottmva"/>
 <use   name="vdt_headers"/>
+<use   name="vdt"/>
 <export>
   <lib   name="1"/>
 </export>
