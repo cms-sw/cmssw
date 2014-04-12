@@ -72,8 +72,8 @@ class GoodSeedProducer : public edm::EDProducer {
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
-      std::vector<reco::PFCluster> ps1Clus;
-      std::vector<reco::PFCluster> ps2Clus;
+      std::vector<reco::PFCluster const *> ps1Clus;
+      std::vector<reco::PFCluster const *> ps2Clus;
 
       ///Name of the Seed(Ckf) Collection
       std::string preidckf_;
