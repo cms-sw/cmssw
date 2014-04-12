@@ -2,7 +2,6 @@
  * Impl of DTLayerId
  *
  * \author Stefano ARGIRO
- * \version $Id: DTLayerId.cc,v 1.2 2006/01/19 15:42:59 cerminar Exp $
  * \date 02 Aug 2005
 */
 

@@ -56,19 +56,28 @@
 //			impose limits.  This is to implement the LogSystem
 //			feature:  Those messages are never to be ignored.
 //
-//  3 6/11/07  mf	In emit():  In preamble mode, do not break and indent 
+//  3 6/11/07  mf	In emitToken():  In preamble mode, do not break and indent 
 //			even if exceeding nominal line length.
 //
 //  4 6/11/07  mf	In log():  After the message, add a %MSG on its own line 
+//
+//  5 3/27/09  mf	Properly treat charsOnLine, which had been fouled due to
+//			change 3.  In log() and emitToken().
+//
+//  6 9/2/10  mf	Initialize preambleMode in each ctor, and remove the
+//			unnecessary use of tprm which was preserving a moot 
+//			initial value.
+//
+//  7 9/30/10 wmtan	make formatTime() thread safe by not using statics.
 //
 // ----------------------------------------------------------------------
 
 
 #include "FWCore/MessageService/interface/ELoutput.h"
-#include "FWCore/MessageService/interface/ELadministrator.h"
-#include "FWCore/MessageService/interface/ELcontextSupplier.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
 // Possible Traces:
 // #define ELoutputCONSTRUCTOR_TRACE
@@ -77,6 +86,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
+#include <cassert>
 
 namespace edm {
 namespace service {
@@ -86,21 +97,14 @@ namespace service {
 // ----------------------------------------------------------------------
 
 
-static char * formatTime( const time_t t )  {
+static ELstring formatTime( const time_t t )  { // Change log 7
 
-static char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
+  static char const dummy[] = "dd-Mon-yyyy hh:mm:ss TZN     "; // Change log 7 for length only
+  char ts[sizeof(dummy)]; // Change log 7
 
+  struct tm timebuf; // Change log 7
 
-#ifdef AN_ALTERNATIVE_FOR_TIMEZONE
-  char * c  = ctime( &t );                      // 6/14/99 mf Can't be static!
-  strncpy( ts+ 0, c+ 8, 2 );  // dd
-  strncpy( ts+ 3, c+ 4, 3 );  // Mon
-  strncpy( ts+ 7, c+20, 4 );  // yyyy
-  strncpy( ts+12, c+11, 8 );  // hh:mm:ss
-  strncpy( ts+21, tzname[localtime(&t)->tm_isdst], 8 );  // CST
-#endif
-
-  strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
+  strftime( ts, sizeof(dummy), "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &timebuf) ); // Change log 7
                 // mf 4-9-04
 
 #ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
@@ -110,8 +114,8 @@ static char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
   while (ts[--b] == ' ') {ts[b] = 0;}
 #endif 
 
-  return ts;
-
+  ELstring result(ts); // Change log 7
+  return result; // Change log 7
 }  // formatTime()
 
 
@@ -121,8 +125,7 @@ static char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
 
 ELoutput::ELoutput()
 : ELdestination       (            )
-, os                  ( &std::cerr )
-, osIsOwned           ( false      )
+, os                  ( &std::cerr, do_nothing_deleter() )
 , charsOnLine         ( 0          )
 , xid                 (            )
 , wantTimestamp       ( true       )
@@ -134,23 +137,23 @@ ELoutput::ELoutput()
 , wantFullContext     ( false      )
 , wantTimeSeparate    ( false      )
 , wantEpilogueSeparate( false      )
+, preambleMode        ( true       )		// 006 9/2/10 mf
 {
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ELoutput()\n";
   #endif
 
-  emit( "\n=================================================", true );
-  emit( "\nMessage Log File written by MessageLogger service \n" );
-  emit( "\n=================================================\n", true );
+  emitToken( "\n=================================================", true );
+  emitToken( "\nMessage Log File written by MessageLogger service \n" );
+  emitToken( "\n=================================================\n", true );
 
 }  // ELoutput()
 
 
 ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 : ELdestination       (       )
-, os                  ( &os_  )
-, osIsOwned           ( false )
+, os                  ( &os_, do_nothing_deleter() )
 , charsOnLine         ( 0     )
 , xid                 (       )
 , wantTimestamp       ( true  )
@@ -162,6 +165,7 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 , wantFullContext     ( false )
 , wantTimeSeparate    ( false )
 , wantEpilogueSeparate( false )
+, preambleMode        ( true  )		// 006 9/2/10 mf
 {
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
@@ -170,12 +174,10 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 
                                         // Enh 001 2/13/01 mf
   if (emitAtStart) {
-    bool tprm = preambleMode;
     preambleMode = true;
-    emit( "\n=================================================", true );
-    emit( "\nMessage Log File written by MessageLogger service \n" );
-    emit( "\n=================================================\n", true );
-    preambleMode = tprm;
+    emitToken( "\n=================================================", true );
+    emitToken( "\nMessage Log File written by MessageLogger service \n" );
+    emitToken( "\n=================================================\n", true );
   }
 
 }  // ELoutput()
@@ -183,11 +185,7 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 
 ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
 : ELdestination       (       )
-, os                  ( new std::ofstream( fileName.c_str()
-                                         , std::ios/*_base*/::app
-                                         )
-                      )
-, osIsOwned           ( false )
+, os                  ( new std::ofstream( fileName.c_str() , std::ios/*_base*/::app), close_and_delete())
 , charsOnLine         ( 0     )
 , xid                 (       )
 , wantTimestamp       ( true  )
@@ -199,55 +197,54 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
 , wantFullContext     ( false )
 , wantTimeSeparate    ( false )
 , wantEpilogueSeparate( false )
+, preambleMode        ( true  )		// 006 9/2/10 mf
 {
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ELoutput( " << fileName << " )\n";
   #endif
 
-  bool tprm = preambleMode;
   preambleMode = true;
   if ( os && *os )  {
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          Testing if os is owned\n";
     #endif
-    osIsOwned = true;
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          About to do first emit\n";
     #endif
                                         // Enh 001 2/13/01 mf
     if (emitAtStart) {
-      emit( "\n=======================================================",
+      emitToken( "\n=======================================================",
                                                                 true );
-      emit( "\nError Log File " );
-      emit( fileName );
-      emit( " \n" );
+      emitToken( "\nError Log File " );
+      emitToken( fileName );
+      emitToken( " \n" );
     }
   }
   else  {
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          Deleting os\n";
     #endif
-    delete os;
-    os = & std::cerr;
+    os.reset(&std::cerr, do_nothing_deleter());
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          about to emit to cerr\n";
     #endif
     if (emitAtStart) {
-      emit( "\n=======================================================",
+      emitToken( "\n=======================================================",
                                                                 true );
-      emit( "\n%MSG** Logging to cerr is being substituted" );
-      emit( " for specified log file \"" );
-      emit( fileName  );
-      emit( "\" which could not be opened for write or append.\n" );
+      emitToken( "\n%MSG** Logging to cerr is being substituted" );
+      emitToken( " for specified log file \"" );
+      emitToken( fileName  );
+      emitToken( "\" which could not be opened for write or append.\n" );
     }
   }
   if (emitAtStart) {
-    emit( formatTime(time(0)), true );
-    emit( "\n=======================================================\n",
+    ELstring const& ftime = formatTime(time(0)); // Change log 7
+    emitToken( ftime, true );
+    emitToken( "\n=======================================================\n",
                                                                 true );
   }
-  preambleMode = tprm;
+  // preambleMode = tprm; removed 9/2/10 mf see change log 6
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ELoutput completed.\n";
@@ -259,7 +256,6 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
 ELoutput::ELoutput( const ELoutput & orig )
 : ELdestination       (                           )
 , os                  ( orig.os                   )
-, osIsOwned           ( orig.osIsOwned            )
 , charsOnLine         ( orig.charsOnLine          )
 , xid                 ( orig.xid                  )
 , wantTimestamp       ( orig.wantTimestamp        )
@@ -271,6 +267,7 @@ ELoutput::ELoutput( const ELoutput & orig )
 , wantFullContext     ( orig.wantFullContext      )
 , wantTimeSeparate    ( orig.wantTimeSeparate     )
 , wantEpilogueSeparate( orig.wantEpilogueSeparate )
+, preambleMode        ( orig.preambleMode         )	// 006 9/2/10 mf
 {
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
@@ -291,9 +288,6 @@ ELoutput::ELoutput( const ELoutput & orig )
   respondToMostModules  = orig.respondToMostModules;
   ignoreThese           = orig.ignoreThese;
 
-  // ownership, if any, passes to new copy:
-  const_cast<ELoutput &>(orig).osIsOwned = false;
-
 }  // ELoutput()
 
 
@@ -302,11 +296,6 @@ ELoutput::~ELoutput()  {
   #ifdef ELoutputCONSTRUCTOR_TRACE
     std::cerr << "Destructor for ELoutput\n";
   #endif
-
-  if ( osIsOwned )  { // we have an ofstream
-    ((std::ofstream*)os)->close();
-    delete os;
-  }
 
 }  // ~ELoutput()
 
@@ -322,6 +311,8 @@ ELoutput::clone() const  {
 
 } // clone()
 
+//#define THRESHTRACE
+//#define ELoutputTRACE_LOG
 
 bool ELoutput::log( const edm::ErrorObj & msg )  {
 
@@ -330,6 +321,13 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   #endif
 
   xid = msg.xid();      // Save the xid.
+
+#ifdef THRESHTRACE
+  std::cerr << "    =:=:=: Log to an ELoutput \n"
+    	    << "           severity  = " << xid.severity  << "\n"
+	    << "           threshold = " << threshold     << "\n"
+	    << "           id        = " << xid.id        << "\n";
+#endif
 
   // See if this message is to be acted upon, and add it to limits table
   // if it was not already present:
@@ -351,12 +349,13 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   preambleMode = true;
 
   if  ( !msg.is_verbatim()  ) {
-    emit( preamble );
-    emit( xid.severity.getSymbol() );
-    emit( " " );
-    emit( xid.id );
-    emit( msg.idOverflow() );
-    emit( ": " );
+    charsOnLine = 0; 						// Change log 5
+    emitToken( preamble );
+    emitToken( xid.severity.getSymbol() );
+    emitToken( " " );
+    emitToken( xid.id );
+    emitToken( msg.idOverflow() );
+    emitToken( ": " );
   }
   
   #ifdef ELoutputTRACE_LOG
@@ -369,7 +368,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
     if ( wantSerial )  {
       std::ostringstream s;
       s << msg.serial();
-      emit( "[serial #" + s.str() + ELstring("] ") );
+      emitToken( "[serial #" + s.str() + ELstring("] ") );
     }
   }
   
@@ -382,7 +381,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
     #ifdef ELoutputTRACE_LOG
       std::cerr << "      =:=:=: Item:  " << *it << '\n';
     #endif
-      emit( *it );
+      emitToken( *it );
     }
   }
 #endif
@@ -394,21 +393,21 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
  {
     if ( wantEpilogueSeparate )  {
       if ( xid.module.length() + xid.subroutine.length() > 0 )  {
-	emit("\n");
+	emitToken("\n");
 	needAspace = false;
       }
       else if ( wantTimestamp && !wantTimeSeparate )  {
-	emit("\n");
+	emitToken("\n");
 	needAspace = false;
       }
     }
     if ( wantModule && (xid.module.length() > 0) )  {
-      if (needAspace) { emit(ELstring(" ")); needAspace = false; }
-      emit( xid.module + ELstring(" ") );
+      if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
+      emitToken( xid.module + ELstring(" ") );
     }
     if ( wantSubroutine && (xid.subroutine.length() > 0) )  {
-      if (needAspace) { emit(ELstring(" ")); needAspace = false; }
-      emit( xid.subroutine + "()" + ELstring(" ") );
+      if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
+      emitToken( xid.subroutine + "()" + ELstring(" ") );
     }
   }
   
@@ -422,11 +421,12 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
  {
     if ( wantTimestamp )  {
       if ( wantTimeSeparate )  {
-	emit( ELstring("\n") );
+	emitToken( ELstring("\n") );
 	needAspace = false;
       }
-      if (needAspace) { emit(ELstring(" ")); needAspace = false; }
-      emit( formatTime(msg.timestamp()) + ELstring(" ") );
+      if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
+      ELstring const& ftime = formatTime(msg.timestamp()); // Change log 7
+      emitToken( ftime + ELstring(" ") );
     }
   }
   
@@ -439,22 +439,15 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   if  ( !msg.is_verbatim() ) 
  {
     if ( wantSomeContext ) {
-      if (needAspace) { emit(ELstring(" ")); needAspace = false; }
-      #ifdef ELoutputTRACE_LOG
-	std::cerr << "    =:=:=:>> context supplier is at 0x"
-                  << std::hex
-                  << &ELadministrator::instance()->getContextSupplier() << '\n';
-	std::cerr << "    =:=:=:>> context is --- "
-                  << ELadministrator::instance()->getContextSupplier().context()
-                  << '\n';
-      #endif
+      if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
+      assert(!needAspace);
       if ( wantFullContext )  {
-	emit( ELadministrator::instance()->getContextSupplier().fullContext());
+	emitToken( msg.context());
       #ifdef ELoutputTRACE_LOG
 	std::cerr << "    =:=:=: fullContext done: \n";
       #endif
       } else  {
-	emit( ELadministrator::instance()->getContextSupplier().context());
+	emitToken( msg.context());
     #ifdef ELoutputTRACE_LOG
       std::cerr << "    =:=:=: Context done: \n";
     #endif
@@ -465,18 +458,17 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   // Provide traceback information:
   //
 
-  bool insertNewlineAfterHeader = ( msg.xid().severity != ELsuccess );
-  // ELsuccess is what LogDebug issues
+  bool insertNewlineAfterHeader = ( msg.xid().severity != ELdebug );
+  // ELdebug is what LogDebug issues
   
   if  ( !msg.is_verbatim() ) 
  {
     if ( msg.xid().severity >= traceThreshold )  {
-      emit( ELstring("\n")
-            + ELadministrator::instance()->getContextSupplier().traceRoutine()
+      emitToken( ELstring("\n")
           , insertNewlineAfterHeader );
     }
     else  {                                        //else statement added JV:1
-      emit ("", insertNewlineAfterHeader);
+      emitToken("", insertNewlineAfterHeader);
     }
   }
   #ifdef ELoutputTRACE_LOG
@@ -498,12 +490,12 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
       if  ( !msg.is_verbatim() ) {
 	if ( !insertNewlineAfterHeader && (item_count == 3) ) {
           // in a LogDebug message, the first 3 items are FILE, :, and LINE
-          emit( *it, true );
+          emitToken( *it, true );
 	} else {
-          emit( *it );
+          emitToken( *it );
 	}
       } else {
-        emit( *it );
+        emitToken( *it );
       }
     }
   }
@@ -514,7 +506,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 
   if  ( !msg.is_verbatim() ) 
   {
-    emit ("\n%MSG");
+    emitToken("\n%MSG");
   }
   
 
@@ -540,7 +532,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 // Output methods:
 // ----------------------------------------------------------------------
 
-void ELoutput::emit( const ELstring & s, bool nl )  {
+void ELoutput::emitToken( const ELstring & s, bool nl )  {
 
   #ifdef ELoutput_EMIT_TRACE
     std::cerr << "[][][] in emit:  charsOnLine is " << charsOnLine << '\n';
@@ -577,6 +569,8 @@ void ELoutput::emit( const ELstring & s, bool nl )  {
       // Change log 3: Removed this code 6/11/07 mf
       (*os) << newline << indent;
       charsOnLine = indent.length();
+      #else
+      charsOnLine = 0;   					// Change log 5   
       #endif
       if (second != ' ')  {
 	(*os) << ' ';
@@ -615,7 +609,7 @@ void ELoutput::emit( const ELstring & s, bool nl )  {
     std::cerr << "[][][] in emit: completed \n";
   #endif
 
-}  // emit()
+}  // emitToken()
 
 
 // ----------------------------------------------------------------------
@@ -665,12 +659,12 @@ void ELoutput::summarization(
   ELstring title( fullTitle, 0, titleMaxLength );
   int q = (lineLength - title.length() - 2) / 2;
   ELstring line(q, '=');
-  emit( "", true );
-  emit( line );
-  emit( " " );
-  emit( title );
-  emit( " " );
-  emit( line, true );
+  emitToken( "", true );
+  emitToken( line );
+  emitToken( " " );
+  emitToken( title );
+  emitToken( " " );
+  emitToken( line, true );
 
   // body:
   //
@@ -678,8 +672,8 @@ void ELoutput::summarization(
 
   // finish:
   //
-  emit( "", true );
-  emit( ELstring(lineLength, '='), true );
+  emitToken( "", true );
+  emitToken( ELstring(lineLength, '='), true );
 
 }  // summarization()
 
@@ -689,29 +683,21 @@ void ELoutput::summarization(
 // ----------------------------------------------------------------------
 
 void ELoutput::changeFile (std::ostream & os_) {
-    if ( osIsOwned )  { // we have an ofstream, close and delete it.
-    ((std::ofstream*)os)->close();
-    delete os;
-  }
-  os = &os_;
-  osIsOwned = false;
-  emit( "\n=======================================================", true );
-  emit( "\nError Log changed to this stream\n" );
-  emit( formatTime(time(0)), true );
-  emit( "\n=======================================================\n", true );
+  os.reset(&os_, do_nothing_deleter());
+  emitToken( "\n=======================================================", true );
+  emitToken( "\nError Log changed to this stream\n" );
+  ELstring const& ftime = formatTime(time(0)); // Change log 7
+  emitToken( ftime, true );
+  emitToken( "\n=======================================================\n", true );
 }
 
 void ELoutput::changeFile (const ELstring & filename) {
-    if ( osIsOwned )  { // we have an ofstream, close and delete it.
-    ((std::ofstream*)os)->close();
-    delete os;
-  }
-  os = new std::ofstream( filename.c_str(), std::ios/*_base*/::app );
-  osIsOwned = false;
-  emit( "\n=======================================================", true );
-  emit( "\nError Log changed to this file\n" );
-  emit( formatTime(time(0)), true );
-  emit( "\n=======================================================\n", true );
+  os.reset(new std::ofstream( filename.c_str(), std::ios/*_base*/::app), close_and_delete());
+  emitToken( "\n=======================================================", true );
+  emitToken( "\nError Log changed to this file\n" );
+  ELstring const& ftime = formatTime(time(0)); // Change log 7
+  emitToken( ftime, true );
+  emitToken( "\n=======================================================\n", true );
 }
 
 void ELoutput::flush()  {

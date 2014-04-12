@@ -1,10 +1,8 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
+#include "SiStripDigitizer.h"
+#include "DigiSimLinkProducer.h"
 
-#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
-
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripDigitizer);
-
+DEFINE_DIGI_ACCUMULATOR(SiStripDigitizer);
+DEFINE_FWK_MODULE(DigiSimLinkProducer);
 

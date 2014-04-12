@@ -1,6 +1,6 @@
-#include "MagneticField/Interpolation/src/RectangularCartesianMFGrid.h"
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
-#include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
+#include "RectangularCartesianMFGrid.h"
+#include "binary_ifstream.h"
+#include "LinearGridInterpolator3D.h"
 
 #include <iostream>
 
@@ -10,6 +10,23 @@ RectangularCartesianMFGrid::RectangularCartesianMFGrid( binary_ifstream& inFile,
 							const GloballyPositioned<float>& vol)
   : MFGrid3D(vol)
 {
+
+  // The parameters read from the data files are given in global coordinates.
+  // In version 85l, local frame has the same orientation of global frame for the reference
+  // volume, i.e. the r.f. transformation is only a translation.
+  // There is therefore no need to convert the field values to local coordinates.
+  // Check this assumption: 
+  GlobalVector localXDir(frame().toGlobal(LocalVector(1,0,0)));
+  GlobalVector localYDir(frame().toGlobal(LocalVector(0,1,0)));
+
+  if (localXDir.dot(GlobalVector(1,0,0)) > 0.999999 &&
+      localYDir.dot(GlobalVector(0,1,0)) > 0.999999) {
+    // "null" rotation - requires no conversion...
+  } else {
+    cout << "ERROR: RectangularCartesianMFGrid: unexpected orientation: x: " 
+	 << localXDir << " y: " << localYDir << endl;
+  }
+
   int n1, n2, n3;
   inFile >> n1 >> n2 >> n3;
   double xref, yref, zref;
@@ -20,6 +37,7 @@ RectangularCartesianMFGrid::RectangularCartesianMFGrid( binary_ifstream& inFile,
   vector<BVector> fieldValues;
   float Bx, By, Bz;
   int nLines = n1*n2*n3;
+  fieldValues.reserve(nLines);
   for (int iLine=0; iLine<nLines; ++iLine){
     inFile >> Bx >> By >> Bz;
     fieldValues.push_back(BVector(Bx,By,Bz));
@@ -28,15 +46,15 @@ RectangularCartesianMFGrid::RectangularCartesianMFGrid( binary_ifstream& inFile,
   string lastEntry;
   inFile >> lastEntry;
   if (lastEntry != "complete"){
-    cout << "error during file reading: file is not complete" << endl;
+    cout << "ERROR during file reading: file is not complete" << endl;
   }
 
   GlobalPoint grefp( xref, yref, zref);
   LocalPoint lrefp = frame().toLocal( grefp);
 
-  Grid1D<double> gridX( lrefp.x(), lrefp.x() + stepx*(n1-1), n1);
-  Grid1D<double> gridY( lrefp.y(), lrefp.y() + stepy*(n2-1), n2);
-  Grid1D<double> gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);
+  Grid1D gridX( lrefp.x(), lrefp.x() + stepx*(n1-1), n1);
+  Grid1D gridY( lrefp.y(), lrefp.y() + stepy*(n2-1), n2);
+  Grid1D gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);
   grid_ = GridType( gridX, gridY, gridZ, fieldValues);
   
   // Activate/deactivate timers
@@ -74,8 +92,8 @@ RectangularCartesianMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(RectangularCartesianMFGrid)"];
 //   TimeMe t(timer,false);
 
-  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
-  GridType::ValueType value = interpol( p.x(), p.y(), p.z());
+  LinearGridInterpolator3D interpol( grid_);
+  GridType::ReturnType value = interpol.interpolate( p.x(), p.y(), p.z());
   return LocalVector(value);
 }
 

@@ -1,42 +1,50 @@
 #ifndef _ClusterShapeTrackFilter_h_
 #define _ClusterShapeTrackFilter_h_
 
-#include "FWCore/Framework/interface/EventSetup.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
+#include "DataFormats/GeometryVector/interface/Vector2DBase.h"
+typedef Vector2DBase<float,GlobalTag> Global2DVector;
 
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+//#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include <vector>
 
-using namespace std;
+namespace edm { class ParameterSet; class EventSetup; }
 
-#define MaxSize 20
+class TrackerGeometry;
+class TrackingRecHit;
+class ClusterShapeHitFilter;
+class TrackerTopology;
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilter.h"
-
-class ClusterShapeTrackFilter : public TrackHitsFilter 
+class ClusterShapeTrackFilter : public PixelTrackFilter 
 {
-  public:
-    ClusterShapeTrackFilter
-      (const edm::ParameterSet& ps);
-//      (const edm::EventSetup& es);
-    virtual ~ClusterShapeTrackFilter();
-    virtual bool operator()(const reco::Track*, vector<const TrackingRecHit *> hits) const;
+ public:
+  ClusterShapeTrackFilter(const edm::ParameterSet& ps,
+                          edm::ConsumesCollector& iC);
+  virtual ~ClusterShapeTrackFilter();
+  void update(const edm::Event& ev, const edm::EventSetup& es) override;
+  virtual bool operator()
+    (const reco::Track*, const std::vector<const TrackingRecHit *> &hits, 
+     const TrackerTopology *tTopo) const;
 
-  private:
-    void loadClusterLimits();
-    bool isInside(const double a[2][2], pair<double,double> movement) const;
-    bool isCompatible(const SiPixelRecHit *recHit, const LocalVector& dir) const;
+ private:
+  float areaParallelogram(const Global2DVector & a,
+                          const Global2DVector & b) const;
+  std::vector<GlobalVector>
+    getGlobalDirs(const std::vector<GlobalPoint> & globalPoss) const;
+  std::vector<GlobalPoint>
+    getGlobalPoss(const std::vector<const TrackingRecHit *>& recHits) const;
  
-    const TrackerGeometry* theTracker;
- 
-    /*static*/ double limits[2][MaxSize + 1][MaxSize + 1][2][2][2];
+  const TrackerGeometry * theTracker;
+  const ClusterShapeHitFilter * theFilter;
+
+  double ptMin;
+  double ptMax;
 };
 
 #endif

@@ -7,16 +7,26 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <boost/shared_ptr.hpp>
 
+#include <string>
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class  TrackerDigiGeometryESModule: public edm::ESProducer{
  public:
   TrackerDigiGeometryESModule(const edm::ParameterSet & p);
   virtual ~TrackerDigiGeometryESModule(); 
   boost::shared_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord &);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  
  private:
   /// Called when geometry description changes
-  void ddGeometryCallback_( const IdealGeometryRecord& );
-  void gdGeometryCallback_( const PGeometricDetRcd& );
   boost::shared_ptr<TrackerGeometry> _tracker;
+  const std::string alignmentsLabel_;
+  const std::string myLabel_;
+  const edm::ParameterSet m_pSet;
   bool applyAlignment_; // Switch to apply alignment corrections
   bool fromDDD_;
 };

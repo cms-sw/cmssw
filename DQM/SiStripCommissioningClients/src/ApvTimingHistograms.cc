@@ -1,7 +1,11 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAlgorithm.h"
+#include "DQM/SiStripCommissioningSummary/interface/ApvTimingSummaryFactory.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TProfile.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -11,21 +15,13 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::APV_TIMING ),
-    factory_( new Factory )
+ApvTimingHistograms::ApvTimingHistograms( const edm::ParameterSet& pset,
+                                          DQMStore* bei ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
+                             bei,
+                             sistrip::APV_TIMING )
 {
-  LogTrace(mlDqmClient_) 
-    << "[ApvTimingHistograms::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-ApvTimingHistograms::ApvTimingHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::APV_TIMING ),
-    factory_( new Factory )
-{
+  factory_ = auto_ptr<ApvTimingSummaryFactory>( new ApvTimingSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[ApvTimingHistograms::" << __func__ << "]"
     << " Constructing object...";
@@ -47,15 +43,15 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
 
   // Some initialisation
   uint16_t valid = 0;
-  HistosMap::const_iterator iter = 0;
-  Analyses::iterator ianal = 0;
+  HistosMap::const_iterator iter;
+  Analyses::iterator ianal;
   std::map<std::string,uint16_t> errors;
   
   // Clear map holding analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
+  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
     if ( ianal->second ) { delete ianal->second; }
   } 
-  data_.clear();
+  data().clear();
   
   // Reset minimum / maximum delays
   float time_min =  1. * sistrip::invalid_;
@@ -85,17 +81,12 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     ApvTimingAnalysis* anal = new ApvTimingAnalysis( iter->first );
-    anal->analysis( profs );
-    data_[iter->first] = anal; 
-    
-    // Check tick height is valid
-    if ( anal->height() < ApvTimingAnalysis::tickMarkHeightThreshold_ ) { 
-      anal->addErrorCode(sistrip::tickMarkBelowThresh_);      
-      continue; 
-    }
+    ApvTimingAlgorithm algo( this->pset(), anal );
+    algo.analysis( profs );
+    data()[iter->first] = anal; 
 
-    // Check time of rising edge
-    if ( anal->time() > sistrip::valid_ ) { continue; }
+    // Check if tick mark found
+    if ( !anal->foundTickMark() ) { continue; }
     
     // Find maximum time
     if ( anal->time() > time_max ) { 
@@ -116,7 +107,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        time_max < -1.*sistrip::valid_ ) { 
 
     edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningOffline::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " Unable to set maximum time! Found unexpected value: "
       << time_max;
     
@@ -124,7 +115,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     SiStripFecKey min( device_min );
     edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOffline::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " Crate/FEC/Ring/CCU/module/channel: " 
       << min.fecCrate() << "/" 
       << min.fecSlot() << "/" 
@@ -136,7 +127,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     SiStripFecKey max( device_max );
     edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOffline::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " Crate/FEC/Ring/CCU/module/channel: " 
       << max.fecCrate() << "/" 
       << max.fecSlot() << "/" 
@@ -147,24 +138,20 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
       << " has maximum time for tick mark rising edge [ns]: " << time_max;
 
     edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOffline::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " Difference b/w minimum and maximum times"
       << " for tick mark rising edges [ns] is: " << ( time_max - time_min );
 
   }
   
   // Set reference time for all analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
-    ianal->second->refTime( time_max ); 
-    if ( ianal->second->isValid() ) { valid++; }
-    if ( debug ) {
-      std::stringstream ss;
-      ianal->second->print( ss ); 
-      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
-      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-      if ( !ianal->second->getErrorCodes().empty() ) { 
-	errors[ianal->second->getErrorCodes()[0]]++;
-      }
+  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
+    ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(ianal->second);
+    if ( !anal ) { continue; }
+    anal->refTime( time_max, this->pset().getParameter<int>("TargetDelay") );
+    if ( anal->isValid() ) { valid++; }
+    if ( !anal->getErrorCodes().empty() ) { 
+      errors[anal->getErrorCodes()[0]]++;
     }
   }
 
@@ -197,45 +184,16 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
 	ss << " " << ii->first << ": " << ii->second << std::endl;
 	count += ii->second;
       }
-      edm::LogVerbatim(mlDqmClient_) 
-	<< "[FastFedCablingHistograms::" << __func__ << "]"
+      edm::LogWarning(mlDqmClient_) 
+	<< "[ApvTimingHistograms::" << __func__ << "]"
 	<< " Found " << count << " errors ("
 	<< 100 * count / histos().size() << "%): " 
 	<< ss.str();
     }
   } else {
     edm::LogWarning(mlDqmClient_) 
-      << "[FastFedCablingHistograms::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " No histograms to analyze!";
   }
-  
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void ApvTimingHistograms::createSummaryHisto( const sistrip::Monitorable& mon, 
-					      const sistrip::Presentation& pres, 
-					      const std::string& dir,
-					      const sistrip::Granularity& gran ) {
-  LogTrace(mlDqmClient_)
-    << "[ApvTimingHistograms::" << __func__ << "]";
-  
-  // Check view 
-  sistrip::View view = SiStripEnumsAndStrings::view(dir);
-  if ( view == sistrip::UNKNOWN_VIEW ) { return; }
-  
-  // Analyze histograms
-  if ( data_.empty() ) { histoAnalysis( false ); }
-  
-  // Extract data to be histogrammed
-  uint32_t xbins = factory_->init( mon, pres, view, dir, gran, data_ );
-  
-  // Create summary histogram (if it doesn't already exist)
-  TH1* summary = 0;
-  if ( pres != sistrip::HISTO_1D ) { summary = histogram( mon, pres, view, dir, xbins ); }
-  else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
-  
-  // Fill histogram with data
-  factory_->fill( *summary );
   
 }

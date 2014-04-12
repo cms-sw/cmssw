@@ -7,12 +7,11 @@
 #include <iostream>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "CondFormats/HcalObjects/interface/AllClasses.h"
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 /**
    \brief IO for XML instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbXml.h,v 1.6 2006/05/22 21:10:35 fedor Exp $
    
 */
 namespace HcalDbXml {

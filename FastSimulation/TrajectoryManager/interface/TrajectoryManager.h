@@ -8,6 +8,8 @@
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 
+#include "Math/GenVector/AxisAngle.h"
+
 /**
  * This class takes all the particles of a FSimEvent with no end vertex, 
  * and propagate them from their parent vertex through the tracker 
@@ -34,20 +36,22 @@
 #include <vector>
 #include <map>
 
-class Pythia6Decays;
+class PythiaDecays;
 class TrackerInteractionGeometry;
 class TrackerLayer;
 class ParticlePropagator;
 class FSimEvent;
 //class Histos;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class TrajectoryStateOnSurface;
 class DetLayer;
 class GeomDet;
 class GeomDetUnit;
 class MagneticField;
+class MagneticFieldMap;
 class GeometricSearchTracker;
 class TrackerGeometry;
+class TrackerTopology;
 
 namespace edm { 
   class ParameterSet;
@@ -58,6 +62,8 @@ class TrajectoryManager
 {
  public:
 
+  typedef ROOT::Math::AxisAngle Rotation;
+
   /// Default Constructor
   TrajectoryManager() {;}
 
@@ -65,35 +71,36 @@ class TrajectoryManager
   TrajectoryManager(FSimEvent* aSimEvent, 
 		    const edm::ParameterSet& matEff,
 		    const edm::ParameterSet& simHits,
-		    const edm::ParameterSet& decays,
-		    const RandomEngine* engine);
+		    const edm::ParameterSet& decays);
 
   /// Default Destructor
   ~TrajectoryManager();
   
   /// Does the real job
-  void reconstruct();
+  void reconstruct(const TrackerTopology *tTopo, RandomEngineAndDistribution const*);
 
   /// Create a vector of PSimHits 
   void createPSimHits(const TrackerLayer& layer,
 		      const ParticlePropagator& P_before,
 		      std::map<double,PSimHit>& theHitMap,
-		      int trackID, int partID);
+		      int trackID, int partID, const TrackerTopology *tTopo);
 
 /// Propagate the particle through the calorimeters
-  void propagateToCalorimeters(ParticlePropagator& PP, 
-			       int fsimi);
-
+  void propagateToCalorimeters(ParticlePropagator& PP,
+                               int fsimi,
+                               RandomEngineAndDistribution const*);
 
   /// Propagate a particle to a given tracker layer 
   /// (for electron pixel matching mostly)
   bool propagateToLayer(ParticlePropagator& PP,unsigned layer);
 
   /// Returns the pointer to geometry
-  TrackerInteractionGeometry* theGeometry();
+  const TrackerInteractionGeometry* theGeometry();
 
   /// Initialize the Reconstruction Geometry
-  void initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker);
+  void initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker,
+			      const TrackerInteractionGeometry* interactionGeometry,
+			      const MagneticFieldMap* aFieldMap);
 
   /// Initialize the full Tracker Geometry
   void initializeTrackerGeometry(const TrackerGeometry* geomTracker);
@@ -104,7 +111,10 @@ class TrajectoryManager
  private:
 
   /// Decay the particle and update the SimEvent with daughters 
-  void updateWithDaughters(ParticlePropagator& PP, int fsimi);
+  void updateWithDaughters(ParticlePropagator& PP, int fsimi, RandomEngineAndDistribution const*);
+
+  /// Move, rescale and rotate all daughters after propagation, material effects and decay of the mother.
+  void moveAllDaughters(int fsimi, const Rotation& r, double rescale);
 
   /// Initialize correspondence map between Famos interaction geometry and tracker reco geometry
   void initializeLayerMap();
@@ -117,12 +127,11 @@ class TrajectoryManager
   /// and there
   void makePSimHits( const GeomDet* det, const TrajectoryStateOnSurface& ts,
 		     std::map<double,PSimHit>& theHitMap,
-		     int tkID, float el, float thick, int pID);
-
+		     int tkID, float el, float thick, int pID, const TrackerTopology *tTopo);
   /// and there
   std::pair<double,PSimHit> makeSinglePSimHit( const GeomDetUnit& det,
 					       const TrajectoryStateOnSurface& ts, 
-					       int tkID, float el, float thick, int pID) const;
+					       int tkID, float el, float thick, int pID, const TrackerTopology *tTopo) const;
 
   /// Returns the DetLayer pointer corresponding to the FAMOS layer 
   const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
@@ -131,11 +140,14 @@ class TrajectoryManager
 
   FSimEvent* mySimEvent;
 
-  TrackerInteractionGeometry* _theGeometry;
+  const TrackerInteractionGeometry* _theGeometry;
+  const MagneticFieldMap* _theFieldMap;
   
   MaterialEffects* theMaterialEffects;
 
-  Pythia6Decays* myDecayEngine;
+  PythiaDecays* myDecayEngine;
+  std::string decayer;
+  double distCut;
 
   double pTmin;
   bool firstLoop;
@@ -148,7 +160,7 @@ class TrajectoryManager
 
   //  Histos* myHistos;
 
-  const RandomEngine* random;
+  bool use_hardcoded;
 
 };
 #endif

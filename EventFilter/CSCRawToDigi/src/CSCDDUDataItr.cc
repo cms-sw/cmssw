@@ -1,6 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUDataItr.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -27,7 +26,7 @@ CSCDDUDataItr::CSCDDUDataItr(const char * buf) :
     theDDUData = new CSCDDUEventData((unsigned short *)buf);
     theNumberOfCSCs = theDDUData->cscData().size();
   } else {
-    edm::LogError ("CSCDDUDataItr") << "OMG! FAILED THE HEADER CHECK ";
+    LogTrace ("CSCDDUDataItr|CSCRawToDigi") << "Failed DDU header check.";
   }
 }
   

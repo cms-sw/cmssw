@@ -3,35 +3,34 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: edproducer_productregistry_callback.cc,v 1.12 2007/06/14 17:52:19 wmtan Exp $
    \date 21 July 2005
 */
 
 
 #include <iostream>
-#include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/Utilities/interface/Exception.h"
+#include "cppunit/extensions/HelperMacros.h"
+#include "boost/shared_ptr.hpp"
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/src/ProducerWorker.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/Framework/src/MakeModuleParams.h"
+#include "FWCore/Framework/src/WorkerT.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-
-class testEDProducerProductRegistryCallback: public CppUnit::TestFixture
-{
+class testEDProducerProductRegistryCallback: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testEDProducerProductRegistryCallback);
 
    CPPUNIT_TEST_EXCEPTION(testCircularRef,cms::Exception);
@@ -55,8 +54,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEDProducerProductRegistryCallback);
 using namespace edm;
 
 namespace {
-   class TestMod : public EDProducer
-   {
+   class TestMod : public EDProducer {
      public:
       explicit TestMod(ParameterSet const& p);
       
@@ -68,54 +66,45 @@ namespace {
    TestMod::TestMod(ParameterSet const&)
    { produces<int>();}
    
-   void TestMod::produce(Event&, EventSetup const&)
-   {
+   void TestMod::produce(Event&, EventSetup const&) {
    }
 
-   class ListenMod : public EDProducer
-   {
+   class ListenMod : public EDProducer {
      public:
       explicit ListenMod(ParameterSet const&);
       void produce(Event& e, EventSetup const&);
       void listen(BranchDescription const&);
    };
    
-   ListenMod::ListenMod(ParameterSet const&)
-   {
-      callWhenNewProductsRegistered(this,&ListenMod::listen);
+   ListenMod::ListenMod(ParameterSet const&) {
+     callWhenNewProductsRegistered([this](BranchDescription const& branchDescription){this->listen(branchDescription);});
    }
-   void ListenMod::produce(Event&, EventSetup const&)
-   {
+   void ListenMod::produce(Event&, EventSetup const&) {
    }
    
-   void ListenMod::listen(BranchDescription const& iDesc)
-   {
+   void ListenMod::listen(BranchDescription const& iDesc) {
       edm::TypeID intType(typeid(int));
-      //std::cout <<"see class "<<iDesc.typeName()<<std::endl;
-      if(iDesc.friendlyClassName_ == intType.friendlyClassName()) {
-         produces<int>(iDesc.moduleLabel()+"-"+iDesc.productInstanceName_);
-         //std::cout <<iDesc.moduleLabel()<<"-"<<iDesc.productInstanceName_<<std::endl;
+      //std::cout << "see class " << iDesc.typeName() << std::endl;
+      if(iDesc.friendlyClassName() == intType.friendlyClassName()) {
+         produces<int>(iDesc.moduleLabel() + "-" + iDesc.productInstanceName());
+         //std::cout << iDesc.moduleLabel() << "-" << iDesc.productInstanceName() << std::endl;
       }
    }
 
-   class ListenFloatMod : public EDProducer
-   {
+   class ListenFloatMod : public EDProducer {
 public:
       explicit ListenFloatMod(ParameterSet const&);
       void produce(Event& e, EventSetup const&);
       void listen(BranchDescription const&);
    };
    
-   ListenFloatMod::ListenFloatMod(ParameterSet const&)
-   {
-      callWhenNewProductsRegistered(this,&ListenFloatMod::listen);
+   ListenFloatMod::ListenFloatMod(ParameterSet const&) {
+      callWhenNewProductsRegistered([this](BranchDescription const& branchDescription){this->listen(branchDescription);});
    }
-   void ListenFloatMod::produce(Event&, EventSetup const&)
-   {
+   void ListenFloatMod::produce(Event&, EventSetup const&) {
    }
    
-   void ListenFloatMod::listen(BranchDescription const& iDesc)
-   {
+   void ListenFloatMod::listen(BranchDescription const& iDesc) {
       edm::TypeID intType(typeid(int));
       //std::cout <<"see class "<<iDesc.typeName()<<std::endl;
       if(iDesc.friendlyClassName() == intType.friendlyClassName()) {
@@ -123,54 +112,68 @@ public:
          //std::cout <<iDesc.moduleLabel()<<"-"<<iDesc.productInstanceName()<<std::endl;
       }
    }
-   
 }
 
-void  testEDProducerProductRegistryCallback::testCircularRef(){
+void  testEDProducerProductRegistryCallback::testCircularRef() {
    using namespace edm;
-   using namespace std;
    
    SignallingProductRegistry preg;
 
    //Need access to the ConstProductRegistry service
-   auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
+   std::auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
    ServiceToken token = ServiceRegistry::createContaining(cReg);
    ServiceRegistry::Operate startServices(token);
    
-   auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
    
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
    p1.addParameter("@module_label",std::string("t1") );
+   p1.addParameter("@module_edm_type",std::string("EDProducer") );
+   p1.registerIt();
    
    ParameterSet p2;
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
+   p2.addParameter("@module_edm_type",std::string("EDProducer") );
+   p2.registerIt();
    
-   edm::ActionTable table;
-   
-   edm::WorkerParams params1(p1, p1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   edm::ExceptionToActionTable table;
+   edm::PreallocationConfiguration prealloc;
+  
+   edm::ParameterSet dummyProcessPset;
+   dummyProcessPset.registerIt();
+   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
+   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
+   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
    
-   auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
+   std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
+   l1.addParameter("@module_edm_type",std::string("EDProducer") );
+   l1.registerIt();
    
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
+   l2.addParameter("@module_edm_type",std::string("EDProducer") );
+   l2.registerIt();
 
-   edm::WorkerParams paramsl1(l1, l1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams paramsl2(l2, l2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   edm::MakeModuleParams paramsl1(&l1, preg, &prealloc, pc);
+   edm::MakeModuleParams paramsl2(&l2, preg, &prealloc, pc);
 
-   sigc::signal<void, const ModuleDescription&> aSignal;
+   signalslot::Signal<void(const ModuleDescription&)> aSignal;
 
-   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
-   auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   auto m1 = f->makeModule(params1,aSignal,aSignal);
+   std::unique_ptr<Worker> w1 = m1->makeWorker(&table);
+   auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
+   std::unique_ptr<Worker> wl1 = ml1->makeWorker(&table);
+   auto ml2 = lM->makeModule(paramsl2,aSignal,aSignal);
+   std::unique_ptr<Worker> wl2 = ml2->makeWorker(&table);
+   auto m2 = f->makeModule(params2,aSignal,aSignal);
+   std::unique_ptr<Worker> w2 = m2->makeWorker(&table);
 
    //Should be 5 products
    // 1 from the module 't1'
@@ -187,51 +190,65 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    CPPUNIT_ASSERT(10 == preg.size());
 }
 
-void  testEDProducerProductRegistryCallback::testCircularRef2(){
+void  testEDProducerProductRegistryCallback::testCircularRef2() {
    using namespace edm;
-   using namespace std;
    
    SignallingProductRegistry preg;
    
    //Need access to the ConstProductRegistry service
-   auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
+   std::auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
    ServiceToken token = ServiceRegistry::createContaining(cReg);
    ServiceRegistry::Operate startServices(token);
    
-   auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
    
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
    p1.addParameter("@module_label",std::string("t1") );
+   p1.addParameter("@module_edm_type",std::string("EDProducer") );
+   p1.registerIt();
    
    ParameterSet p2;
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
+   p2.addParameter("@module_edm_type",std::string("EDProducer") );
+   p2.registerIt();
    
-   edm::ActionTable table;
+   edm::ExceptionToActionTable table;
+   edm::PreallocationConfiguration prealloc;
+  
+   edm::ParameterSet dummyProcessPset;
+   dummyProcessPset.registerIt();
+   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
+
+   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
+   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
    
-   edm::WorkerParams params1(p1, p1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   
-   
-   auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
+   std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
+   l1.addParameter("@module_edm_type",std::string("EDProducer") );
+   l1.registerIt();
    
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
+   l2.addParameter("@module_edm_type",std::string("EDProducer") );
+   l2.registerIt();
    
-   edm::WorkerParams paramsl1(l1, l1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams paramsl2(l2, l2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   edm::MakeModuleParams paramsl1(&l1, preg, &prealloc, pc);
+   edm::MakeModuleParams paramsl2(&l2, preg, &prealloc, pc);
    
-   
-   sigc::signal<void, const ModuleDescription&> aSignal;
-   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
-   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   signalslot::Signal<void(const ModuleDescription&)> aSignal;
+   auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
+   std::unique_ptr<Worker> wl1 = ml1->makeWorker(&table);
+   auto ml2 = lM->makeModule(paramsl2,aSignal,aSignal);
+   std::unique_ptr<Worker> wl2 = ml2->makeWorker(&table);
+   auto m1 = f->makeModule(params1,aSignal,aSignal);
+   std::unique_ptr<Worker> w1 = m1->makeWorker(&table);
+   auto m2 = f->makeModule(params2,aSignal,aSignal);
+   std::unique_ptr<Worker> w2 = m2->makeWorker(&table);
    
    //Would be 10 products
    // 1 from the module 't1'
@@ -250,51 +267,66 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
 
 void  testEDProducerProductRegistryCallback::testTwoListeners(){
    using namespace edm;
-   using namespace std;
    
    SignallingProductRegistry preg;
    
    //Need access to the ConstProductRegistry service
-   auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
+   std::auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
    ServiceToken token = ServiceRegistry::createContaining(cReg);
    ServiceRegistry::Operate startServices(token);
    
-   auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
    
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
    p1.addParameter("@module_label",std::string("t1") );
+   p1.addParameter("@module_edm_type",std::string("EDProducer") );
+   p1.registerIt();
    
    ParameterSet p2;
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
+   p2.addParameter("@module_edm_type",std::string("EDProducer") );
+   p2.registerIt();
    
-   edm::ActionTable table;
+   edm::ExceptionToActionTable table;
+   edm::PreallocationConfiguration prealloc;
+  
+   edm::ParameterSet dummyProcessPset;
+   dummyProcessPset.registerIt();
+   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
+
+   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
+   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
    
-   edm::WorkerParams params1(p1, p1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   
-   
-   auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
+   std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
+   l1.addParameter("@module_edm_type",std::string("EDProducer") );
+   l1.registerIt();
    
-   auto_ptr<Maker> lFM(new WorkerMaker<ListenFloatMod>);
+   std::auto_ptr<Maker> lFM(new WorkerMaker<ListenFloatMod>);
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
+   l2.addParameter("@module_edm_type",std::string("EDProducer") );
+   l2.registerIt();
    
-   edm::WorkerParams paramsl1(l1, l1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams paramsl2(l2, l2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   edm::MakeModuleParams paramsl1(&l1, preg, &prealloc, pc);
+   edm::MakeModuleParams paramsl2(&l2, preg, &prealloc, pc);
    
    
-   sigc::signal<void, const ModuleDescription&> aSignal;
-   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   auto_ptr<Worker> wl2 = lFM->makeWorker(paramsl2,aSignal,aSignal);
-   auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
-   
+   signalslot::Signal<void(const ModuleDescription&)> aSignal;
+   auto m1 = f->makeModule(params1,aSignal,aSignal);
+   std::unique_ptr<Worker> w1 = m1->makeWorker(&table);
+   auto ml1 = lM->makeModule(paramsl1,aSignal,aSignal);
+   std::unique_ptr<Worker> wl1 = ml1->makeWorker(&table);
+   auto ml2 = lFM->makeModule(paramsl2,aSignal,aSignal);
+   std::unique_ptr<Worker> wl2 = ml2->makeWorker(&table);
+   auto m2 = f->makeModule(params2,aSignal,aSignal);
+   std::unique_ptr<Worker> w2 = m2->makeWorker(&table);
+
    //Should be 8 products
    // 1 from the module 't1'
    //    1 from 'l1' in response

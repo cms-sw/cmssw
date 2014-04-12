@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr  6 12:36:24 EDT 2007
-// $Id: PluginCapabilities.cc,v 1.3 2007/04/27 19:26:09 chrjones Exp $
 //
 
 // system include files
@@ -71,7 +70,7 @@ PluginCapabilities::tryToFind(const SharedLibrary& iLoadable)
   const char** names;
   int size;
   //reinterpret_cast<void (*)(const char**&,int&)>(sym)(names,size);
-  ((void (*)(const char**&,int&))(sym))(names,size);
+  reinterpret_cast<void (*)(const char**&,int&)>(reinterpret_cast<unsigned long>(sym))(names,size);
 
   PluginInfo info;
   for(int i=0; i < size; ++i) {
@@ -96,14 +95,14 @@ PluginCapabilities::load(const std::string& iName)
     //read the items from the 'capabilities' symbol
     if(not tryToFind(lib) ) {
       throw cms::Exception("PluginNotFound")<<"The dictionary for class '"<<iName <<"' is supposed to be in file\n '"
-      <<lib.path().native_file_string()<<"'\n but no dictionaries are in that file.\n"
-      "It appears like the cache is wrong.  Please do 'EdmPluginRefresh "<<lib.path().native_file_string()<<"'.";
+      <<lib.path().string()<<"'\n but no dictionaries are in that file.\n"
+      "It appears like the cache is wrong.  Please do 'EdmPluginRefresh "<<lib.path().string()<<"'.";
     }
     
     if(classToLoadable_.end() == classToLoadable_.find(iName)) {
       throw cms::Exception("PluginNotFound")<<"The dictionary for class '"<<iName<<"' is supposed to be in file\n '"
-      <<lib.path().native_file_string()<<"'\n but was not found.\n"
-      "It appears like the cache is wrong.  Please do 'EdmPluginRefresh "<<lib.path().native_file_string()<<"'.";
+      <<lib.path().string()<<"'\n but was not found.\n"
+      "It appears like the cache is wrong.  Please do 'EdmPluginRefresh "<<lib.path().string()<<"'.";
     }
   }
 }
@@ -120,14 +119,14 @@ PluginCapabilities::tryToLoad(const std::string& iName)
     //read the items from the 'capabilities' symbol
     if(not tryToFind(*lib) ) {
       throw cms::Exception("PluginNotFound")<<"The dictionary for class '"<<iName <<"' is supposed to be in file\n '"
-      <<lib->path().native_file_string()<<"'\n but no dictionaries are in that file.\n"
-      "It appears like the cache is wrong.  Please do 'EdmPluginRefresh "<<lib->path().native_file_string()<<"'.";
+      <<lib->path().string()<<"'\n but no dictionaries are in that file.\n"
+      "It appears like the cache is wrong.  Please do 'EdmPluginRefresh "<<lib->path().string()<<"'.";
     }
     
     if(classToLoadable_.end() == classToLoadable_.find(iName)) {
       throw cms::Exception("PluginNotFound")<<"The dictionary for class '"<<iName<<"' is supposed to be in file\n '"
-      <<lib->path().native_file_string()<<"'\n but was not found.\n"
-      "It appears like the cache is wrong.  Please do 'EdmPluginRefresh "<<lib->path().native_file_string()<<"'.";
+      <<lib->path().string()<<"'\n but was not found.\n"
+      "It appears like the cache is wrong.  Please do 'EdmPluginRefresh "<<lib->path().string()<<"'.";
     }
   }
   return true;
@@ -164,7 +163,7 @@ PluginCapabilities::category() const
 //
 PluginCapabilities*
 PluginCapabilities::get() {
-  static PluginCapabilities s_instance;
+  [[cms::thread_safe]] static PluginCapabilities s_instance;
   return &s_instance;
 }
 

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <cstdio>
+#include "FWCore/Utilities/interface/Visibility.h"
 
 class binary_ifstream {
 public:

@@ -8,6 +8,7 @@
 #include "Alignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include <cstdlib>
 
 enum directions{ xdir = 0, ydir = 1};
 
@@ -153,9 +154,9 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
   //---------- look which point in the deviation matrices correspond to intersX,Y
   //----- Look for each column, between which rows intersY is
   //assume first dir is Y
-  uint* yrows = new uint[ theNPoints ];
+  unsigned int* yrows = new unsigned int[ theNPoints ];
 
-  uint ii = 0;
+  unsigned int ii = 0;
   ALIbool insideMatrix = 0;
   for( vvdite = theDeviations.begin(); vvdite != (theDeviations.end()-1); vvdite++ ){
     for( vdite = (*vvdite).begin(); vdite != ((*vvdite).end()-1); vdite++ ){
@@ -184,7 +185,7 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
   vd thePoints;
   thePoints.clear();
   //----- For each row in 'yrows' look between which columns intersX is
-  uint rn;
+  unsigned int rn;
   DeviationSensor2D *dev1,*dev2;
   for( ii = 0; ii < theNPoints-1; ii++) {
     rn = yrows[ii];

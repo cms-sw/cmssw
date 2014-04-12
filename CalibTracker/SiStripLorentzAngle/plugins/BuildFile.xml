@@ -1,0 +1,34 @@
+<use   name="CondCore/DBOutputService"/>
+<use   name="DQM/SiStripCommon"/>
+<use   name="DQMServices/Core"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="DataFormats/TrackingRecHit"/>
+<use   name="DataFormats/TrajectorySeed"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/CommonTopologies"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<use   name="DataFormats/SiStripCluster"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="clhep"/>
+<use   name="rootcore"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/SiStripObjects"/>
+<use   name="CalibTracker/Records"/>
+<use   name="CalibTracker/SiStripCommon"/>
+<use   name="CalibFormats/SiStripObjects"/>
+<use   name="CalibTracker/SiStripLorentzAngle"/>
+<use   name="rootgraphics"/>
+<library   file="*.cc" name="CalibTrackerSiStripLorentzAnglePlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

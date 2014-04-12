@@ -1,42 +1,52 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2007/03/25 11:10:39 $ 
- ** $Revision: 1.4 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
 #include "RecoEgamma/Examples/plugins/SimplePhotonAnalyzer.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
 //
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
+
 //
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "TFile.h"
 
 //========================================================================
 SimplePhotonAnalyzer::SimplePhotonAnalyzer( const edm::ParameterSet& ps )
 //========================================================================
 {
-
-
   photonCollectionProducer_ = ps.getParameter<std::string>("phoProducer");
-  photonCorrCollectionProducer_ = ps.getParameter<std::string>("corrPhoProducer");
-  uncorrectedPhotonCollection_ = ps.getParameter<std::string>("uncorrectedPhotonCollection");
-  correctedPhotonCollection_ = ps.getParameter<std::string>("correctedPhotonCollection");
+  photonCollection_ = ps.getParameter<std::string>("photonCollection");
+
+  barrelEcalHits_   = ps.getParameter<edm::InputTag>("barrelEcalHits");
+  endcapEcalHits_   = ps.getParameter<edm::InputTag>("endcapEcalHits");
+
+  pfEgammaCandidates_      = ps.getParameter<edm::InputTag>("pfEgammaCandidates");
+  valueMapPFCandPhoton_ =  ps.getParameter<std::string>("valueMapPhotons");
+
   mcProducer_ = ps.getParameter<std::string>("mcProducer");
   //mcCollection_ = ps.getParameter<std::string>("mcCollection");
   vertexProducer_ = ps.getParameter<std::string>("primaryVertexProducer");
- 
+  sample_ = ps.getParameter<int>("sample");
 
-  outputFile_   = ps.getParameter<std::string>("outputFile");
-  rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); // open output file to store histograms
 
 }
 
@@ -46,33 +56,94 @@ SimplePhotonAnalyzer::~SimplePhotonAnalyzer()
 //========================================================================
 {
 
-  delete rootFile_;
+
 }
 
 //========================================================================
 void
-SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
+SimplePhotonAnalyzer::beginJob() {
 //========================================================================
 
-  // go to *OUR* rootfile and book histograms
-  rootFile_->cd();
 
-  h1_scE_ = new TH1F("scE","Uncorrected photons : SC Energy ",100,0.,100.);
-  h1_scEta_ = new TH1F("scEta","Uncorrected photons:  SC Eta ",40,-3., 3.);
-  h1_scPhi_ = new TH1F("scPhi","Uncorrected photons: SC Phi ",40,-3.14, 3.14);
+  dbe_ = 0;
+  dbe_ = edm::Service<DQMStore>().operator->();
+
+
+
+  float hiE=0;
+  float loE=0;
+  float hiEt=0;
+  float loEt=0;
+  float dPhi=0;
+  float loRes=0;
+  float hiRes=0;
+  if ( sample_ ==1 ) {
+    loE=0.;
+    hiE=30.;
+    loEt=0.;
+    hiEt=30.;
+    dPhi=0.2;
+    loRes=0.;
+    hiRes=1.2;
+  } else if ( sample_ ==2 ) {
+    loE=0.;
+    hiE=200.;
+    loEt=0.;
+    hiEt=50.;
+    dPhi=0.05;
+    loRes=0.7;
+    hiRes=1.2;
+  } else if ( sample_ ==3 ) {
+    loE=0.;
+    hiE=500.;
+    loEt=0.;
+    hiEt=500.;
+    dPhi=0.05;
+    loRes=0.7;
+    hiRes=1.2;
+  }  else if (sample_==4) {
+    loE=0.;
+    hiE=6000.;
+    loEt=0.;
+    hiEt=1200.;
+    dPhi=0.05;
+    loRes=0.7;
+    hiRes=1.2;
+  }
+
+
+
+  h1_deltaEta_ =  dbe_->book1D("deltaEta"," Reco photon Eta minus Generated photon Eta  ",100,-0.2, 0.2);
+  h1_deltaPhi_ =  dbe_->book1D("deltaPhi","Reco photon Phi minus Generated photon Phi ",100,-dPhi, dPhi);
+  h1_pho_Eta_ =  dbe_->book1D("phoEta","Photon  Eta ",40,-3., 3.);
+  h1_pho_Phi_ =  dbe_->book1D("phoPhi","Photon  Phi ",40,-3.14, 3.14);
+  h1_pho_E_ =  dbe_->book1D("phoE","Photon Energy ",100,loE,hiE);
+  h1_pho_Et_ =  dbe_->book1D("phoEt","Photon Et ",100,loEt,hiEt);
+
+  h1_scEta_ =  dbe_->book1D("scEta"," SC Eta ",40,-3., 3.);
+  h1_deltaEtaSC_ =  dbe_->book1D("deltaEtaSC"," SC Eta minus Generated photon Eta  ",100,-0.02, 0.02);
+
+ //
+  h1_recEoverTrueEBarrel_ =  dbe_->book1D("recEoverTrueEBarrel"," Reco photon Energy over Generated photon Energy: Barrel ",100,loRes, hiRes);
+  h1_recEoverTrueEEndcap_ =  dbe_->book1D("recEoverTrueEEndcap"," Reco photon Energy over Generated photon Energy: Endcap ",100,loRes, hiRes);
+
   //
-  h1_phoE_ = new TH1F("phoE","Uncorrected photons : photon Energy ",100,0., 100.);
-  h1_phoEta_ = new TH1F("phoEta","Uncorrected photons:  photon Eta ",40,-3., 3.);
-  h1_phoPhi_ = new TH1F("phoPhi","Uncorrected photons: photon Phi ",40,-3.14, 3.14);
-  //
-  h1_recEoverTrueE_ = new TH1F("recEoverTrueE"," Reco photon Energy over Generated photon Energy ",100,0., 3);
-  h1_deltaEta_ = new TH1F("deltaEta"," Reco photon Eta minus Generated photon Eta  ",100,-0.2, 0.2);
-  h1_deltaPhi_ = new TH1F("deltaPhi","Reco photon Phi minus Generated photon Phi ",100,-0.2, 0.2);
-  //
-  h1_corrPho_E_ = new TH1F("corrPhoE","Corrected photons : Energy ",100,0., 100.);
-  h1_corrPho_Eta_ = new TH1F("corrPhoEta","Corrected photons:  Eta ",40,-3., 3.);
-  h1_corrPho_Phi_ = new TH1F("corrPhoPhi","Corrected photons:  Phi ",40,-3.14, 3.14);
-  h1_corrPho_R9_ = new TH1F("corrPhoR9","Corrected photons:  3x3 energy / SuperCluster energy",100,0.,1.2);
+
+  h1_pho_R9Barrel_ =  dbe_->book1D("phoR9Barrel","Photon  3x3 energy / SuperCluster energy : Barrel ",100,0.,1.2);
+  h1_pho_R9Endcap_ =  dbe_->book1D("phoR9Endcap","Photon  3x3 energy / SuperCluster energy : Endcap ",100,0.,1.2);
+  h1_pho_sigmaIetaIetaBarrel_ =  dbe_->book1D("sigmaIetaIetaBarrel",   "sigmaIetaIeta: Barrel",100,0., 0.05) ;
+  h1_pho_sigmaIetaIetaEndcap_ =  dbe_->book1D("sigmaIetaIetaEndcap" ,  "sigmaIetaIeta: Endcap",100,0., 0.1) ;
+  h1_pho_hOverEBarrel_ =  dbe_->book1D("hOverEBarrel",   "H/E: Barrel",100,0., 0.1) ;
+  h1_pho_hOverEEndcap_ =  dbe_->book1D("hOverEEndcap",   "H/E: Endcap",100,0., 0.1) ;
+  h1_pho_ecalIsoBarrel_ =  dbe_->book1D("ecalIsolBarrel",   "isolation et sum in Ecal: Barrel",100,0., 100.) ;
+  h1_pho_ecalIsoEndcap_ =  dbe_->book1D("ecalIsolEndcap",   "isolation et sum in Ecal: Endcap",100,0., 100.) ;
+  h1_pho_hcalIsoBarrel_ =  dbe_->book1D("hcalIsolBarrel",   "isolation et sum in Hcal: Barrel",100,0., 100.) ;
+  h1_pho_hcalIsoEndcap_ =  dbe_->book1D("hcalIsolEndcap",   "isolation et sum in Hcal: Endcap",100,0., 100.) ;
+  h1_pho_trkIsoBarrel_ =  dbe_->book1D("trkIsolBarrel",   "isolation pt sum in the tracker: Barrel",100,0., 100.) ;
+  h1_pho_trkIsoEndcap_ =  dbe_->book1D("trkIsolEndcap",   "isolation pt sum in the tracker: Endcap",100,0., 100.) ;
+
+
+
 
 
 }
@@ -86,126 +157,210 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   using namespace edm; // needed for all fwk related classes
   edm::LogInfo("PhotonAnalyzer") << "Analyzing event number: " << evt.id() << "\n";
 
-  //  ----- barrel with island
 
-  // Get theuncorrected  photon collection
- Handle<reco::PhotonCollection> uncorrectedPhotonHandle; 
- evt.getByLabel(photonCollectionProducer_, uncorrectedPhotonCollection_ , uncorrectedPhotonHandle);
- const reco::PhotonCollection phoCollection = *(uncorrectedPhotonHandle.product());
+ // get the  calo topology  from the event setup:
+  edm::ESHandle<CaloTopology> pTopology;
+  es.get<CaloTopologyRecord>().get(theCaloTopo_);
 
 
 
+  // Get the  corrected  photon collection (set in the configuration) which also contains infos about conversions
 
-  // Get the  corrected  photon collection
- Handle<reco::PhotonCollection> correctedPhotonHandle; 
- evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
- const reco::PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
+  Handle<reco::PhotonCollection> photonHandle;
+  evt.getByLabel(photonCollectionProducer_, photonCollection_ , photonHandle);
+  const reco::PhotonCollection photonCollection = *(photonHandle.product());
 
-
-
-
-  // Get the primary event vertex
-  Handle<reco::VertexCollection> vertexHandle;
-  evt.getByLabel(vertexProducer_, vertexHandle);
-  reco::VertexCollection vertexCollection = *(vertexHandle.product());
-  math::XYZPoint vtx(0.,0.,0.);
-  if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
-
-
-
-  /// Get the MC truth
   Handle< HepMCProduct > hepProd ;
   evt.getByLabel( mcProducer_.c_str(),  hepProd ) ;
   const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
- 
+
+
+  // Get the  PF refined cluster  collection
+  Handle<reco::PFCandidateCollection> pfCandidateHandle;
+  evt.getByLabel(pfEgammaCandidates_,pfCandidateHandle);
+  if (!pfCandidateHandle.isValid()) {
+    edm::LogError("SimplePhotonAnalyzer") << "Error! Can't get the product "<<pfEgammaCandidates_.label();
+  }
+
+  edm::Handle<edm::ValueMap<reco::PhotonRef> > pfCandToPhotonMapHandle;
+  edm::ValueMap<reco::PhotonRef> pfCandToPhotonMap;
+  evt.getByLabel("gedPhotons",valueMapPFCandPhoton_,pfCandToPhotonMapHandle);
+  if ( ! pfCandToPhotonMapHandle.isValid()) {
+    edm::LogInfo("SimplePhotonAnalyzer") << "Error! Can't get the product: valueMapPhotons " << std::endl;
+  }
+  pfCandToPhotonMap = *(pfCandToPhotonMapHandle.product());
+
+  std::cout << " SimplePhotonAnalyzer  valueMap size" <<  pfCandToPhotonMap.size() << std::endl;
+  unsigned nObj = pfCandidateHandle->size();
+  for(unsigned int lCand=0; lCand < nObj; lCand++) {
+    reco::PFCandidateRef pfCandRef (reco::PFCandidateRef(pfCandidateHandle,lCand));
+    if(pfCandRef->particleId()!=reco::PFCandidate::gamma) continue;
+    reco::PhotonRef myPho= (pfCandToPhotonMap)[pfCandRef];   
+    if ( myPho.isNonnull() ) std::cout << " PF SC " << pfCandRef->superClusterRef()->energy() <<  " Photon SC " << myPho->superCluster()->energy() << std::endl;
+  }
 
 
 
-  // Just simply loop over uncorrected  Photon candidates 
-  for( reco::PhotonCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
+  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
+    if ( !( (*p)->pdg_id() == 22 && (*p)->status()==1 )  )  continue;
 
-    /////  Set event vertex
-    reco::Photon localPho(*iPho);
-    localPho.setVertex(vtx);
+    // single primary photons or photons from Higgs or RS Graviton
+    HepMC::GenParticle* mother = 0;
+    if ( (*p)->production_vertex() )  {
+      if ( (*p)->production_vertex()->particles_begin(HepMC::parents) !=
+           (*p)->production_vertex()->particles_end(HepMC::parents))
+	mother = *((*p)->production_vertex()->particles_begin(HepMC::parents));
+    }
+    if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 25))
+	  || ((mother != 0) && (mother->pdg_id() == 22)))) {
 
-    /////  Fill histos
+      float minDelta=10000.;
+      std::vector<reco::Photon> localPhotons;
+      int index=0;
+      int iMatch=-1;
 
-    h1_scE_->Fill( localPho.superCluster()->energy() );
-    h1_scEta_->Fill( localPho.superCluster()->position().eta() );
-    h1_scPhi_->Fill( localPho.superCluster()->position().phi() );
-
-    h1_phoE_->Fill( localPho.energy() );
-    h1_phoEta_->Fill( localPho.eta() );
-    h1_phoPhi_->Fill( localPho.phi() );
-    
-  }  
-
-
-
-  // Loop over corrected  Photon candidates 
-  for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
-    
-    /////  Set event vertex
-    reco::Photon localPho(*iPho);
-    localPho.setVertex(vtx);
-
-    /////  Fill histos
-    h1_corrPho_E_->Fill( localPho.energy() );
-    h1_corrPho_Eta_->Fill( localPho.eta() );
-    h1_corrPho_Phi_->Fill( localPho.phi() );
-    h1_corrPho_R9_->Fill( localPho.r9() );
-    
-  } 
-
-
-
-  /// Match reconstructed photon candidates with the nearest generated photon
-  float minDelta=10000.;
-  float delta=0.;
- 
-  HepMC::GenParticle mcMatchedPhoton;
-
-
-  for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
-
-    /////  Set event vertex
-    reco::Photon localPho(*iPho);
-    localPho.setVertex(vtx);
-
-    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
-      if ( !( (*p)->pdg_id() == 22 && (*p)->status()==1 )  )  continue;
-      
-      float phiClu=localPho.phi();
-      float etaClu=localPho.eta();
       float phiPho=(*p)->momentum().phi();
       float etaPho=(*p)->momentum().eta();
-      float deltaPhi = phiClu-phiPho;
-      float deltaEta = etaClu-etaPho;
-      
-      
-      if ( deltaPhi > pi )  deltaPhi -= twopi;
-      if ( deltaPhi < -pi) deltaPhi += twopi;
-      deltaPhi=pow(deltaPhi,2);
-      deltaEta=pow(deltaEta,2);
-      delta = sqrt( deltaPhi+deltaEta); 
-      if ( delta < minDelta ) {
-        minDelta=delta;
-	mcMatchedPhoton=*(*p);
-      }
-    } //loop over MC particles
-    
+      etaPho = etaTransformation(etaPho, (*p)->production_vertex()->position().z()/10. );
 
-    h1_recEoverTrueE_     -> Fill( localPho.energy()/ mcMatchedPhoton.momentum().e() );
-    h1_deltaEta_ -> Fill(  localPho.eta()- mcMatchedPhoton.momentum().eta()  );
-    h1_deltaPhi_ -> Fill(  localPho.phi()-mcMatchedPhoton.momentum().phi()  );
-    
+      bool matched=false;
+      // loop  Photon candidates
+      for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
+	reco::Photon localPho = reco::Photon(*iPho);
+	localPhotons.push_back(localPho);
+
+	/// Match reconstructed photon candidates with the nearest generated photonPho;
+	float phiClu=localPho.phi();
+	float etaClu=localPho.eta();
+	float deltaPhi = phiClu-phiPho;
+	float deltaEta = etaClu-etaPho;
+
+	if ( deltaPhi > pi )  deltaPhi -= twopi;
+	if ( deltaPhi < -pi) deltaPhi += twopi;
+	deltaPhi=std::pow(deltaPhi,2);
+	deltaEta=std::pow(deltaEta,2);
+	float delta = sqrt( deltaPhi+deltaEta);
+	if ( delta<0.1 && delta < minDelta ) {
+	  minDelta=delta;
+	  iMatch=index;
+
+	}
+	index++;
+      } // End loop over photons
 
 
-  }  //  End loop over reconstructed photons
+      if ( iMatch>-1 ) matched = true;
 
+      /// Plot kinematic disctributions for matched photons
+      if (matched ) {
+
+	reco::Photon matchingPho = localPhotons[iMatch];
+
+	bool  phoIsInBarrel=false;
+	if ( fabs(matchingPho.superCluster()->position().eta() ) <  1.479 ) {
+	  phoIsInBarrel=true;
+	}
+	edm::Handle<EcalRecHitCollection>   ecalRecHitHandle;
+
+
+	h1_scEta_->Fill( matchingPho.superCluster()->position().eta() );
+	float trueEta=  (*p)->momentum().eta() ;
+	trueEta = etaTransformation(trueEta, (*p)->production_vertex()->position().z()/10. );
+	h1_deltaEtaSC_ -> Fill(  localPhotons[iMatch].superCluster()->eta()- trueEta  );
+
+	float photonE = matchingPho.energy();
+	float photonEt= matchingPho.et() ;
+	float photonEta= matchingPho.eta() ;
+	float photonPhi= matchingPho.phi() ;
+
+	float r9 = matchingPho.r9();
+	float sigmaIetaIeta =  matchingPho.sigmaIetaIeta();
+	float hOverE = matchingPho.hadronicOverEm();
+	float ecalIso = matchingPho.ecalRecHitSumEtConeDR04();
+	float hcalIso = matchingPho.hcalTowerSumEtConeDR04();
+	float trkIso =  matchingPho.trkSumPtSolidConeDR04();
+
+
+	h1_pho_E_->Fill( photonE  );
+	h1_pho_Et_->Fill( photonEt );
+	h1_pho_Eta_->Fill( photonEta );
+	h1_pho_Phi_->Fill( photonPhi );
+
+	h1_deltaEta_ -> Fill(  photonEta - (*p)->momentum().eta()  );
+	h1_deltaPhi_ -> Fill(  photonPhi - (*p)->momentum().phi()  );
+
+	if ( phoIsInBarrel ) {
+	  h1_recEoverTrueEBarrel_ -> Fill ( photonE / (*p)->momentum().e() );
+	  h1_pho_R9Barrel_->Fill( r9 );
+          h1_pho_sigmaIetaIetaBarrel_->Fill ( sigmaIetaIeta );
+          h1_pho_hOverEBarrel_-> Fill ( hOverE );
+	  h1_pho_ecalIsoBarrel_-> Fill ( ecalIso );
+	  h1_pho_hcalIsoBarrel_-> Fill ( hcalIso );
+	  h1_pho_trkIsoBarrel_-> Fill ( trkIso );
+
+	} else {
+	  h1_recEoverTrueEEndcap_ -> Fill ( photonE / (*p)->momentum().e() );
+	  h1_pho_R9Endcap_->Fill( r9 );
+          h1_pho_sigmaIetaIetaEndcap_->Fill ( sigmaIetaIeta );
+          h1_pho_hOverEEndcap_-> Fill ( hOverE );
+	  h1_pho_ecalIsoEndcap_-> Fill ( ecalIso );
+	  h1_pho_hcalIsoEndcap_-> Fill ( hcalIso );
+	  h1_pho_trkIsoEndcap_-> Fill ( trkIso );
+
+
+	}
+
+
+      } //  reco photon matching MC truth 
+
+
+
+
+    } // End loop over MC particles
+
+  }
 
 
 }
+
+
+float SimplePhotonAnalyzer::etaTransformation(  float EtaParticle , float Zvertex)  {
+
+  //---Definitions
+  const float PI    = 3.1415927;
+  //UNUSED const float TWOPI = 2.0*PI;
+
+  //---Definitions for ECAL
+  const float R_ECAL           = 136.5;
+  const float Z_Endcap         = 328.0;
+  const float etaBarrelEndcap  = 1.479;
+
+  //---ETA correction
+
+  float Theta = 0.0  ;
+  float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
+
+  if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
+  if(Theta<0.0) Theta = Theta+PI ;
+  float ETA = - log(tan(0.5*Theta));
+
+  if( fabs(ETA) > etaBarrelEndcap )
+    {
+      float Zend = Z_Endcap ;
+      if(EtaParticle<0.0 )  Zend = -Zend ;
+      float Zlen = Zend - Zvertex ;
+      float RR = Zlen/sinh(EtaParticle);
+      Theta = atan(RR/Zend);
+      if(Theta<0.0) Theta = Theta+PI ;
+      ETA = - log(tan(0.5*Theta));
+    }
+  //---Return the result
+  return ETA;
+  //---end
+}
+
+
+
 
 //========================================================================
 void
@@ -213,27 +368,5 @@ SimplePhotonAnalyzer::endJob() {
 //========================================================================
 
 
-  rootFile_->cd();
 
-  h1_scE_  -> Write();
-  h1_scEta_-> Write();
-  h1_scPhi_-> Write();
-
-
-  h1_phoE_  -> Write();
-  h1_phoEta_-> Write();
-  h1_phoPhi_-> Write();
-
-  h1_recEoverTrueE_     ->  Write();
-  h1_deltaEta_ ->  Write();
-  h1_deltaPhi_ ->  Write();
-
-
-  h1_corrPho_E_->Write();
-  h1_corrPho_Eta_->Write();
-  h1_corrPho_Phi_->Write();
-  h1_corrPho_R9_->Write();
-
-
-  rootFile_->Close();
 }

@@ -5,8 +5,8 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "G4NavigationHistory.hh"
@@ -36,16 +36,16 @@ private:
   void update(const EndOfEvent * );
   void update(const G4Step * );
   void findTouch(G4VPhysicalVolume * , int );
-  int findName(std::string);
+  int  findName(std::string);
 private:
-  int                      level;
-  std::string              outFile;
+  int                          level;
+  std::string                  outFile;
 
-  std::vector<std::string> lvnames;
-  std::vector<int>         steps;
-  G4NavigationHistory      fHistory;
+  std::vector<std::string>     lvnames;
+  std::vector<int>             steps;
+  G4NavigationHistory          fHistory;
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore                     *dbe_;
   std::vector<MonitorElement*> meStep, meCall, meStepCH, meStepNH, meStepC;
   std::vector<MonitorElement*> meStepE, meStepG, meStepMu, meStepNu, meStepN;
 };

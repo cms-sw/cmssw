@@ -1,7 +1,8 @@
 #ifndef _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 #define _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometrySurface/interface/TrivialError.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/Math/interface/Error.h"
 
 /** Parametrization of the error matrix in the curvilinear frame.
@@ -34,38 +35,28 @@ public:
 // construct
   CurvilinearTrajectoryError() {}
 
-  /** Constructing class from a full covariance matrix. The sequence of the parameters is
-   *  the same as the one described above.
-   */
-
-  CurvilinearTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
-    theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)) {}
+  CurvilinearTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-99999.e10;}
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
-
   CurvilinearTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
 
-  /// Implicit conversion
-  //CurvilinearTrajectoryError( const MathCovarianceMatrix & cov) { return theCovarianceMatrix; }
-  // not needed anymore: MathCovarianceMatrix === AlgebraicSymMatrix55
+  bool invalid() const { return theCovarianceMatrix(0,0)<-1.e10;}
+  bool valid() const { return !invalid();}
+
+  // not really full check of posdef
+  bool posDef() const { 
+    return (theCovarianceMatrix(0,0)>=0) && (theCovarianceMatrix(1,1)>=0) && 
+      (theCovarianceMatrix(2,2)>=0) && (theCovarianceMatrix(3,3)>=0) && (theCovarianceMatrix(4,4)>=0);
+  }
 
 
 // access
 
   /** Returning the covariance matrix.
    */
-
-  const AlgebraicSymMatrix matrix_old() const {
-    return asHepMatrix(theCovarianceMatrix);
-  }
-
-  /** Returning the covariance matrix.
-   */
-
-  //const AlgebraicSymMatrix55 &matrix() const {
   const AlgebraicSymMatrix55 &matrix() const {
     return theCovarianceMatrix;
   }
@@ -75,6 +66,16 @@ public:
 
   void operator *= (double factor) {
     theCovarianceMatrix *= factor;
+  }
+
+  void zeroFieldScaling(double factor){
+    double root_of_factor = sqrt(factor);
+    //scale the 0 indexed covariance by the factor
+    for (unsigned int i=1;i!=5;++i)      theCovarianceMatrix(i,0)*=root_of_factor;
+
+    //scale all others by the scared factor
+    for (unsigned int i=1;i!=5;++i)  for (unsigned int j=i;j!=5;++j) theCovarianceMatrix(i,j)*=factor;
+    //term 0,0 is not scaled at all
   }
 
   operator MathCovarianceMatrix() { return theCovarianceMatrix; }

@@ -1,6 +1,7 @@
 #ifndef HCALSIMPLERECALGO_H
 #define HCALSIMPLERECALGO_H 1
 
+#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
@@ -13,7 +14,8 @@
 #include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
+#include <memory>
 
 /** \class HcalSimpleRecAlgo
 
@@ -24,27 +26,47 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2006/09/25 22:00:51 $
-   $Revision: 1.6 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
-  HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew, 
+  HcalSimpleRecAlgo(bool correctForTimeslew, 
 		    bool correctForContainment, float fixedPhaseNs);
   /** Simple constructor for PMT-based detectors */
-  HcalSimpleRecAlgo(int firstSample, int samplesToAdd);
+  HcalSimpleRecAlgo();
+  void beginRun(edm::EventSetup const & es);
+  void endRun();
 
-  HBHERecHit reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HFRecHit reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HORecHit reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  ZDCRecHit reconstruct(const ZDCDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  void initPulseCorr(int toadd); 
+
+  // set RecoParams channel-by-channel.
+  void setRecoParams(bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
+
+  // ugly hack related to HB- e-dependent corrections
+  void setForData(int runnum);
+  // usage of leak correction 
+  void setLeakCorrection();
+
+  HBHERecHit reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HBHERecHit reconstructHBHEUpgrade(const HcalUpgradeDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+
+  HFRecHit reconstruct(const HFDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HFRecHit reconstructHFUpgrade(const HcalUpgradeDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+
+  HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+
+
+
 private:
-  int firstSample_, samplesToAdd_;
   bool correctForTimeslew_;
-  std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_;
+  bool correctForPulse_;
+  float phaseNS_;
+  std::auto_ptr<HcalPulseContainmentManager> pulseCorr_;
+  int runnum_;  // data run numer
+  bool setLeakCorrection_;
+  int pileupCleaningID_;
 };
 
 #endif

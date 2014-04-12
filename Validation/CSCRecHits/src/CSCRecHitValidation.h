@@ -6,9 +6,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
@@ -21,19 +21,19 @@ public:
   explicit CSCRecHitValidation(const edm::ParameterSet&);
   ~CSCRecHitValidation();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&){} 
+  virtual void beginJob(){} 
   virtual void endJob() ;
  
 
  private:
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   std::string theOutputFile;
   PSimHitMap theSimHitMap;
   const CSCGeometry * theCSCGeometry;
 
-  CSCRecHit2DValidation the2DValidation;
-  CSCSegmentValidation theSegmentValidation;
+  CSCRecHit2DValidation * the2DValidation;
+  CSCSegmentValidation * theSegmentValidation;
 };
 
 #endif

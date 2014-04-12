@@ -7,7 +7,7 @@
 #define CROSSSECTION_HH
 
 #include <cmath>
-#include <complex.h>
+#include <complex>
 #include <cstdlib>
 #include <iostream>
 #include <map>
@@ -15,7 +15,7 @@
 #include <utility>
 #include <vector>
 
-#include "CLHEP/config/CLHEP.h"
+//#include "CLHEP/config/CLHEP.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -29,6 +29,10 @@
 //#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
 //#include "CLHEP/HepMC/ConvertHEPEVT.h"
 //#include "CLHEP/HepMC/CBhepevt.h"
+
+namespace CLHEP {
+class HepRandomEngine;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 namespace Exhume{
@@ -50,6 +54,8 @@ namespace Exhume{
     virtual double SubParameterWeight()=0;
 
     double AlphaS(const double&);
+
+    inline void SetRandomEngine(CLHEP::HepRandomEngine* engine){randomEngine = engine;}
 
     inline double GetRg(const double &x_, const double &Qt){
 
@@ -82,11 +88,11 @@ namespace Exhume{
       return(fg2Map);
     };
 
-    inline HepLorentzVector GetProton1(){
+    inline CLHEP::HepLorentzVector GetProton1(){
       return(Proton1);
     };
 
-    inline HepLorentzVector GetProton2(){
+    inline CLHEP::HepLorentzVector GetProton2(){
       return(Proton2);
     };
 
@@ -232,9 +238,9 @@ namespace Exhume{
 
     std::string Name;
 
-    complex<double> F0(const double&);
-    complex<double> f(const double&);
-    complex<double> Fsf(const double&);
+    std::complex<double> F0(const double&);
+    std::complex<double> f(const double&);
+    std::complex<double> Fsf(const double&);
 
     //PPhi is azimuthal angle between protons.  
     //InvSqrtsHat = 1/sHat
@@ -266,11 +272,11 @@ namespace Exhume{
     double root_s,
       s, Invs;
 
-    HepLorentzVector CentralVector;
-    HepLorentzVector Proton1, Proton2, P1In, P2In;
+    CLHEP::HepLorentzVector CentralVector;
+    CLHEP::HepLorentzVector Proton1, Proton2, P1In, P2In;
     /*
     struct Particle {
-      HepLorentzVector p;
+      CLHEP::HepLorentzVector p;
       int id;
     };
     */
@@ -280,7 +286,9 @@ namespace Exhume{
 
     double Gev2fb;
 
-    std::string lhapdfSetPath_;	
+    std::string lhapdfSetPath_;
+
+    CLHEP::HepRandomEngine* randomEngine;
   };
 }
 

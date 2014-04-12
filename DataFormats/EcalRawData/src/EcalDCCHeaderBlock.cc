@@ -4,11 +4,23 @@ EcalDCCHeaderBlock::EcalDCCHeaderBlock()
 {
   dccId_ = -1; // initialize
   fedId_ = -1; // initialize
+  dccInTTCCommand_ = -1; // initialize
   tccStatus_.reserve(MAX_TCC_SIZE);
-  triggerTowerStatus_.reserve(MAX_TT_SIZE);
+  triggerTowerFlag_.reserve(MAX_TT_SIZE);
+  feStatus_.reserve(MAX_TT_SIZE);
+
+  feBx_.reserve(MAX_TT_SIZE);
+  feLv1_.reserve(MAX_TT_SIZE);
+  tccBx_.reserve(MAX_TCC_SIZE);
+  tccLv1_.reserve(MAX_TCC_SIZE);
+
+  srpLv1_=-1;
+  srpBx_=-1;
+
   dccErrors_=-1;
   orbitNumber_=-1; // do we need it here?
   runType_=-1;
+  zs_=-1;
   basic_trigger_type_=-1;
   LV1event_ =-1;
   runNumber_ =-1;
@@ -39,7 +51,18 @@ EcalDCCHeaderBlock::EcalDCCHeaderBlock(const int& dccId)
   dccId_ = dccId;
   fedId_ = -1;  // initialize
   tccStatus_.reserve(MAX_TCC_SIZE);
-  triggerTowerStatus_.reserve(MAX_TT_SIZE);
+  triggerTowerFlag_.reserve(MAX_TT_SIZE);
+  feStatus_.reserve(MAX_TT_SIZE);
+
+  feBx_.reserve(MAX_TT_SIZE);
+  feLv1_.reserve(MAX_TT_SIZE);
+  tccBx_.reserve(MAX_TCC_SIZE);
+  tccLv1_.reserve(MAX_TCC_SIZE);
+
+  srpLv1_=-1;
+  srpBx_=-1;
+
+
   dccErrors_=-1;
   orbitNumber_=-1; // do we need it here?
   runType_=-1;

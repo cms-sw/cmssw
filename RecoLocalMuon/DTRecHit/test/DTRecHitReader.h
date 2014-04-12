@@ -5,8 +5,6 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing them with muon simhits
  *
- *  $Date: 2006/03/22 16:15:36 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 

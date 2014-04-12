@@ -15,11 +15,11 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <string>
 
@@ -57,7 +57,7 @@ class TauImpactParameterTest : public edm::EDAnalyzer {
 
         TTree* t_performance;
 
-        string jetTagSrc;
+        std::string jetTagSrc;
 
 	int nevents;
 	double ip2d,ip3d,sip2d,sip3d;
@@ -65,7 +65,7 @@ class TauImpactParameterTest : public edm::EDAnalyzer {
 
 
 TauImpactParameterTest::TauImpactParameterTest(const edm::ParameterSet& iConfig){
-	jetTagSrc = iConfig.getParameter<string>("JetTagProd");
+	jetTagSrc = iConfig.getParameter<std::string>("JetTagProd");
 
         h_ip2d_1prong = new TH1F("h_ip2d_1prong","",50,0,1);
         h_ip2d_3prong = new TH1F("h_ip2d_3prong","",50,0,1);
@@ -99,7 +99,7 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 	iEvent.getByLabel(jetTagSrc,tauHandle);
 
 	const TauImpactParameterInfoCollection & tauIpInfo = *(tauHandle.product());
-	cout << "Found " << tauIpInfo.size() << " Tau candidates" << endl;
+	LogInfo("TauImpactParameterTest") << "Found " << tauIpInfo.size() << " Tau candidates" ;
 
 	TauImpactParameterInfoCollection::const_iterator iJet;
 	for (iJet = tauIpInfo.begin(); iJet != tauIpInfo.end(); iJet++) {
@@ -114,8 +114,8 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 	      double discriminator = iJet->getIsolatedTauTag()->discriminator(Rmatch,Rsignal,Riso,pT_LT,pT_min);
 
 	      const Jet* theJet = iJet->getIsolatedTauTag()->jet().get();
-	      cout << "  Candidate jet Et = " << theJet->et() << endl;
-              cout << "    isolation discriminator = "<< discriminator <<endl;
+	      LogInfo("TauImpactParameterTest") << "  Candidate jet Et = " << theJet->et() ;
+              LogInfo("TauImpactParameterTest") << "    isolation discriminator = "<< discriminator ;
 
               if(discriminator == 0) continue;
               if(theJet->et() < 0 || theJet->et() > 150) continue;
@@ -127,23 +127,23 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 	      double ptmin = 6;
 	      const TrackRef leadingTrack = iJet->getIsolatedTauTag()->leadingSignalTrack(cone,ptmin);
 
-	      if((leadingTrack)->recHitsSize() < 8 || leadingTrack->normalizedChi2() > 10) continue;
+	      if((leadingTrack)->numberOfValidHits() < 8 || leadingTrack->normalizedChi2() > 10) continue;
 
 	      if(!leadingTrack) continue;
 
               RefVector<TrackCollection>::const_iterator iTrack;
 
-	      vector<TrackRef> tauTracks;
+	      std::vector<TrackRef> tauTracks;
   	      for (iTrack = tracks.begin(); iTrack != tracks.end(); iTrack++){
 
-                  cout << "    track pt, eta "  << (*iTrack)->pt()  << " " 
+                  LogInfo("TauImpactParameterTest") << "    track pt, eta "  << (*iTrack)->pt()  << " " 
                                                 << (*iTrack)->eta() << " " 
                                                 << (*iTrack)->d0()  << " "
                                                 << (*iTrack)->d0Error()  << " "
                                                 << (*iTrack)->dz()  << " "
                                                 << (*iTrack)->dzError()  << " "
 						<< (*iTrack)->recHitsSize() << " "
-                                                << (*iTrack)->normalizedChi2() << endl;
+                                                << (*iTrack)->normalizedChi2() ;
 
 		  if((*iTrack)->pt() < 1.0) continue;
 		  tauTracks.push_back(*iTrack);
@@ -155,13 +155,12 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 		    Measurement1D tip = trackData->transverseIp;
 		    Measurement1D tzip = trackData->ip3D;
 
-                    cout << "          ip,sip,err " << tip.value()
+                    LogInfo("TauImpactParameterTest") << "          ip,sip,err " << tip.value()
                          << " "                     << tip.significance()
-                         << " "                     << tip.error() << endl;
-                    
-                    cout << "       3D ip,sip,err " << tzip.value()
+                         << " "                     << tip.error() ;
+                    LogInfo("TauImpactParameterTest") << "       3D ip,sip,err " << tzip.value()
                          << " "                     << tzip.significance()
-                         << " "                     << tzip.error() << endl;
+                         << " "                     << tzip.error() ;
 
 		    h_sip2d_leadingTrack->Fill(tip.significance());
                     h_sip3d_leadingTrack->Fill(tzip.significance());
@@ -173,7 +172,7 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
                     if(tauTracks.size() == 3) {
 			h_ip2d_3prong_leadingTrack->Fill(10*tip.value()); // 10* = conversion to mm
                         h_ip3d_3prong_leadingTrack->Fill(10*tzip.value()); // 10* = conversion to mm
-			for(vector<TrackRef>::const_iterator iTr = tauTracks.begin();
+			for(std::vector<TrackRef>::const_iterator iTr = tauTracks.begin();
 			                                     iTr!= tauTracks.end(); iTr++){
 			  const reco::TauImpactParameterTrackData* trData = iJet->getTrackData(*iTr);
 			  Measurement1D tip = trData->transverseIp;
@@ -190,17 +189,17 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 			ip3d = 10*tzip.value();
 			sip2d = tip.significance();
 			sip3d = tzip.significance();
-//cout << "check tree " << ip2d << " " << sip2d << " " << ip3d << " " << sip3d << endl;
+			LogDebug("TauImpactParameterTest") << "check tree " << ip2d << " " << sip2d << " " << ip3d << " " << sip3d ;
 			t_performance->Fill();
 		    }
                 }else{
-                    cout << "    track data = 0! " << endl;
+                    LogInfo("TauImpactParameterTest") << "    track data = 0! " ;
 		}
 	      }
 
 
 	    }catch ( std::exception & e){
-        	cout << "Genexception: " << e.what() << endl;
+	      LogInfo("TauImpactParameterTest") << "Genexception: " << e.what() ;
 	    }
 	}
 }
@@ -210,7 +209,7 @@ void TauImpactParameterTest::beginJob(){
 
 void TauImpactParameterTest::endJob(){
 
-	cout << " Events analysed " << nevents << endl;
+  LogInfo("TauImpactParameterTest") << " Events analysed " << nevents ;
 
 	// ip performance plot calculation
 	const int N = 50;
@@ -278,7 +277,7 @@ void TauImpactParameterTest::endJob(){
         tauip->cd(1);
 	  gPad->SetLogy();
 	  h_ip2d_1prong->SetStats(0);
-	  cout << "1-prong taus: " << h_ip2d_1prong->GetEntries() << endl;
+	  LogInfo("TauImpactParameterTest") << "1-prong taus: " << h_ip2d_1prong->GetEntries() ;
 	  if(h_ip2d_1prong->GetMaximum() > 0) h_ip2d_1prong->Scale(1/h_ip2d_1prong->GetMaximum());
           h_ip2d_1prong->GetXaxis()->SetTitle("ip_{T} (mm)");
           h_ip2d_1prong->Draw();
@@ -288,7 +287,7 @@ void TauImpactParameterTest::endJob(){
         tauip->cd(2);
           gPad->SetLogy();
           h_ip2d_3prong_leadingTrack->SetStats(0);
-          cout << "3-prong taus: " << h_ip2d_3prong_leadingTrack->GetEntries() << endl;
+          LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip2d_3prong_leadingTrack->GetEntries() ;
           if(h_ip2d_3prong_leadingTrack->GetMaximum() > 0) h_ip2d_3prong_leadingTrack->Scale(1/h_ip2d_3prong_leadingTrack->GetMaximum());
           h_ip2d_3prong_leadingTrack->GetXaxis()->SetTitle("ip_{T} (mm)");
           h_ip2d_3prong_leadingTrack->Draw();
@@ -300,7 +299,7 @@ void TauImpactParameterTest::endJob(){
         tauip->cd(3);
           gPad->SetLogy();
 	  h_ip2d_3prong->SetStats(0);
-          cout << "3-prong taus: " << h_ip2d_3prong->GetEntries() << endl;
+          LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip2d_3prong->GetEntries() ;
           if(h_ip2d_3prong->GetMaximum() > 0) h_ip2d_3prong->Scale(1/h_ip2d_3prong->GetMaximum());
 	  h_ip2d_3prong->GetXaxis()->SetTitle("ip_{T} (mm)");
           h_ip2d_3prong->Draw();
@@ -359,7 +358,7 @@ void TauImpactParameterTest::endJob(){
         tauip3D->cd(1);
           gPad->SetLogy();
           h_ip3d_1prong->SetStats(0);
-          cout << "1-prong taus: " << h_ip3d_1prong->GetEntries() << endl;
+          LogInfo("TauImpactParameterTest") << "1-prong taus: " << h_ip3d_1prong->GetEntries() ;
           if(h_ip3d_1prong->GetMaximum() > 0) h_ip3d_1prong->Scale(1/h_ip3d_1prong->GetMaximum());
           h_ip3d_1prong->GetXaxis()->SetTitle("ip_{3D} (mm)");
           h_ip3d_1prong->Draw();
@@ -369,7 +368,7 @@ void TauImpactParameterTest::endJob(){
         tauip3D->cd(2);
           gPad->SetLogy();
           h_ip3d_3prong_leadingTrack->SetStats(0);
-          cout << "3-prong taus: " << h_ip3d_3prong_leadingTrack->GetEntries() << endl;
+          LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip3d_3prong_leadingTrack->GetEntries() ;
           if(h_ip3d_3prong_leadingTrack->GetMaximum() > 0) h_ip3d_3prong_leadingTrack->Scale(1/h_ip3d_3prong_leadingTrack->GetMaximum());
           h_ip3d_3prong_leadingTrack->GetXaxis()->SetTitle("ip_{3D} (mm)");
           h_ip3d_3prong_leadingTrack->Draw();
@@ -381,7 +380,7 @@ void TauImpactParameterTest::endJob(){
         tauip3D->cd(3);
           gPad->SetLogy();
           h_ip3d_3prong->SetStats(0);
-          cout << "3-prong taus: " << h_ip3d_3prong->GetEntries() << endl;
+          LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip3d_3prong->GetEntries() ;
           if(h_ip3d_3prong->GetMaximum() > 0) h_ip3d_3prong->Scale(1/h_ip3d_3prong->GetMaximum());
           h_ip3d_3prong->GetXaxis()->SetTitle("ip_{3D} (mm)");
           h_ip3d_3prong->Draw();
@@ -428,5 +427,5 @@ void TauImpactParameterTest::endJob(){
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TauImpactParameterTest);
+
+DEFINE_FWK_MODULE(TauImpactParameterTest);

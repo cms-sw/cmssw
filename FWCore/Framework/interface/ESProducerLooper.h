@@ -16,10 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jul 17 09:03:32 EDT 2006
-// $Id$
 //
 
 // system include files
+#include <memory>
+#include <set>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"

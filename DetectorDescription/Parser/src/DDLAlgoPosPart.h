@@ -2,7 +2,6 @@
 #define DDL_AlgoPosPart_H
 /***************************************************************************
  ***************************************************************************/
-
 #include "DDXMLElement.h"
 
 #include <string>
@@ -28,13 +27,12 @@ class DDLAlgoPosPart : public DDXMLElement
  public:
 
   /// Constructor
-  DDLAlgoPosPart();
+  DDLAlgoPosPart( DDLElementRegistry* myreg );
 
   /// Destructor
   ~DDLAlgoPosPart();
 
-  void processElement (const std::string& name, const std::string& nmspace); 
-
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
 };
 
 #endif

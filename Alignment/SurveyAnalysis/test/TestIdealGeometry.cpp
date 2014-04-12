@@ -13,41 +13,31 @@
 
 
 // system include files
-#include <string>
-#include <TTree.h>
-#include <TFile.h>
-#include <TRotMatrix.h>
+#include "TTree.h"
+#include "TFile.h"
+// #include "TRotMatrix.h"
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
-
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 /* #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"*/
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"*/
 
-#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
 //
@@ -55,15 +45,13 @@
 // class declaration
 //
 using namespace std;
-static const int NFILES = 2;
 
 class TestIdealGeometry : public edm::EDAnalyzer {
 
-  typedef unsigned int DetIdType;
-  typedef std::map< DetIdType, std::vector<float> > MapType;
-  typedef std::pair< DetIdType, std::vector<float> > PairType;
-  typedef std::map< std::vector<int>, std::vector<float> > MapTypeOr;
-  typedef std::pair< std::vector<int>, std::vector<float> > PairTypeOr;
+  typedef SurveyDataReader::MapType    MapType;
+  typedef SurveyDataReader::PairType   PairType;
+  typedef SurveyDataReader::MapTypeOr  MapTypeOr;
+  typedef SurveyDataReader::PairTypeOr PairTypeOr;
 
 public:
   explicit TestIdealGeometry( const edm::ParameterSet& );
@@ -81,7 +69,7 @@ private:
   float dnx_,dny_,dnz_;
   int Id_;
   // TRotMatrix* rot_;
-
+  static const int NFILES = 2;
 };
 
 //
@@ -124,7 +112,11 @@ TestIdealGeometry::~TestIdealGeometry()
 void
 TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
   //
@@ -142,12 +134,12 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   for (int ii=0 ; ii<NFILES ;ii++) {
     if ( textFileNames[ii] == "NONE" )
       throw cms::Exception("BadConfig") << fileType[ii] << " input file not found in configuration";
-    dataReader.readFile( textFileNames[ii], fileType[ii] );
+    dataReader.readFile( textFileNames[ii], fileType[ii], tTopo );
   } 
 
   edm::LogInfo("TrackerAlignment") << "Files read";
 
-  const MapTypeOr theSurveyMap = dataReader.surveyMap();
+  const MapTypeOr& theSurveyMap = dataReader.surveyMap();
 
   edm::LogInfo("TrackerAlignment") << "Map written";
 
@@ -180,24 +172,24 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	    if (((*iGeomDet)->geographicalId()).subdetId() == int(StripSubdetector::TIB)) {
 	      
 	      comparisonVect[0] = int(StripSubdetector::TIB);
-	      TIBDetId * thisTIBid = new TIBDetId( (*iGeomDet)->geographicalId() );
-	      comparisonVect[1] = thisTIBid->layer();
+	      
+	      comparisonVect[1] = tTopo->tibLayer((*iGeomDet)->geographicalId());
               if (comparisonVect[1] < 3) countDet = countDet + 2;  
-	      std::vector<unsigned int> theString = thisTIBid->string();
+	      std::vector<unsigned int> theString = tTopo->tibStringInfo((*iGeomDet)->geographicalId());
 	      comparisonVect[2] = theString[0];
 	      comparisonVect[3] = theString[1];
 	      comparisonVect[4] = theString[2];
-	      comparisonVect[5] = thisTIBid->module();
+	      comparisonVect[5] = tTopo->tibModule((*iGeomDet)->geographicalId());
 	      
 	    } else if (((*iGeomDet)->geographicalId()).subdetId() == int(StripSubdetector::TID)) {
 	      
 	      comparisonVect[0] = int(StripSubdetector::TID);
-	      TIDDetId * thisTIDid = new TIDDetId( (*iGeomDet)->geographicalId() );
-	      comparisonVect[1] = thisTIDid->side();
-	      comparisonVect[2] = thisTIDid->wheel();
-	      comparisonVect[3] = thisTIDid->ring();
+	      
+	      comparisonVect[1] = tTopo->tidSide((*iGeomDet)->geographicalId());
+	      comparisonVect[2] = tTopo->tidWheel((*iGeomDet)->geographicalId());
+	      comparisonVect[3] = tTopo->tidRing((*iGeomDet)->geographicalId());
               if (comparisonVect[3] < 3) countDet = countDet + 2; 
-	      std::vector<unsigned int> theModule = thisTIDid->module();
+	      std::vector<unsigned int> theModule = tTopo->tidModuleInfo((*iGeomDet)->geographicalId());
 	      comparisonVect[4] = theModule[0];
 	      comparisonVect[5] = theModule[1];
 	      
@@ -205,7 +197,7 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 
 	    for ( MapTypeOr::const_iterator it = theSurveyMap.begin(); it != theSurveyMap.end(); it++ ) {
 	      std::vector<int> locPos = (it)->first;
-	      std::vector<float> align_params = (it)->second;
+	      align::Scalars align_params = (it)->second;
 	      
 	      if (locPos[0] == int(comparisonVect[0]) &&
 		  locPos[1] == int(comparisonVect[1]) &&

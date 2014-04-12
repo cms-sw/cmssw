@@ -1,7 +1,7 @@
 #ifndef GTPSBTEXTTODIGI_H
 #define GTPSBTEXTTODIGI_H
 
-/*\class GtPsbToDigi
+/*\class GtPsbTextToDigi
  *\description makes digis from GT PSB captured data file
  *\author Nuno Leonardo (CERN)
  *\date 08.08
@@ -47,11 +47,11 @@ class GtPsbTextToDigi : public edm::EDProducer {
   /// Number of events to be offset wrt input
   int m_fileEventOffset;
 
-  /// Event counter
-  int m_nevt;
-  
   /// Name out input file
   std::string m_textFileName;
+
+  /// Event counter
+  int m_nevt;
 
   /// File handle
   std::ifstream m_file[4];

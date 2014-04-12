@@ -1,0 +1,8 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="TBDataFormats/EcalTBObjects"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/MessageService"/>
+<use   name="Geometry/EcalTestBeam"/>
+<use   name="root"/>
+<flags   EDM_PLUGIN="1"/>

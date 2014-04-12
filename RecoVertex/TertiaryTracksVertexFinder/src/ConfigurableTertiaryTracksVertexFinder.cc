@@ -14,8 +14,8 @@ using namespace std;
 // constructor
 
 ConfigurableTertiaryTracksVertexFinder::ConfigurableTertiaryTracksVertexFinder(
-  const VertexFitter * vf, 
-  const VertexUpdator * vu, const VertexTrackCompatibilityEstimator * ve)
+  const VertexFitter<5> * vf, 
+  const VertexUpdator<5> * vu, const VertexTrackCompatibilityEstimator<5> * ve)
 {
   theTKVF = new ConfigurableTrimmedVertexFinder(vf,vu,ve);
 

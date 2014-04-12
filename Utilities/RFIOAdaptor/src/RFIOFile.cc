@@ -1,246 +1,324 @@
-//<<<<<< INCLUDES                                                       >>>>>>
-
+#define __STDC_LIMIT_MACROS 1
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
-#include "Utilities/RFIOAdaptor/interface/RFIOError.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cerrno>
+#include <unistd.h>
+#include <stdint.h>
+#include <time.h>
+#include <sys/time.h>
 
-#include "SealBase/DebugAids.h"
-#include "SealBase/StringFormat.h"
-#include "SealBase/TimeInfo.h"
-#include <iostream>
+#include <cstring>
+#include <vector>
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
+static double realNanoSecs (void)
+{
+#if _POSIX_TIMERS > 0
+  struct timespec tm;
+  if (clock_gettime(CLOCK_REALTIME, &tm) == 0)
+    return tm.tv_sec * 1e9 + tm.tv_nsec;
+#else
+  struct timeval tm;
+  if (gettimeofday(&tm, 0) == 0)
+    return tm.tv_sec * 1e9 + tm.tv_usec * 1e3;
+#endif
+  return 0;
+}
 
 RFIOFile::RFIOFile (void)
-    : m_fd (IOFD_INVALID),
-      m_close (false),
-      m_nRetries(0)
+  : m_fd (EDM_IOFD_INVALID),
+    m_close (false),
+    m_flags (0),
+    m_perms (0),
+    m_curpos (0)
 {}
 
 RFIOFile::RFIOFile (IOFD fd)
-    : m_fd (fd),
-      m_close (true),
-      m_nRetries(0)
+  : m_fd (fd),
+    m_close (true),
+    m_flags (0),
+    m_perms (0),
+    m_curpos (0)
 {}
 
 RFIOFile::RFIOFile (const char *name,
 		    int flags /* = IOFlags::OpenRead */,
-		    FileAcl perms /* = 066 */)
-    : m_fd (IOFD_INVALID),
-      m_close (false),
-      m_nRetries(0)
+		    int perms /* = 066 */)
+  : m_fd (EDM_IOFD_INVALID),
+    m_close (false),
+    m_flags (0),
+    m_perms (0),
+    m_curpos (0)
 { open (name, flags, perms); }
 
 RFIOFile::RFIOFile (const std::string &name,
 		    int flags /* = IOFlags::OpenRead */,
-		    FileAcl perms /* = 066 */)
-    : m_fd (IOFD_INVALID),
-      m_close (false),
-      m_nRetries(0)
+		    int perms /* = 066 */)
+  : m_fd (EDM_IOFD_INVALID),
+    m_close (false),
+    m_flags (0),
+    m_perms (0),
+    m_curpos (0)
 { open (name.c_str (), flags, perms); }
 
 RFIOFile::~RFIOFile (void)
 {
-    edm::LogWarning("RFIOFile")
-      << "Total RFIO retries: " << m_nRetries;
-    if (m_close)
-	abort ();
+  if (m_close)
+    edm::LogError("RFIOFileError")
+      << "Destructor called on RFIO file '" << m_name
+      << "' but the file is still open";
 }
 
 //////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
+
 void
 RFIOFile::create (const char *name,
 		  bool exclusive /* = false */,
-		  FileAcl perms /* = 066 */)
+		  int perms /* = 066 */)
 {
-    open (name,
-	  (IOFlags::OpenCreate | IOFlags::OpenWrite | IOFlags::OpenTruncate
-	   | (exclusive ? IOFlags::OpenExclusive : 0)),
-	  perms);
+  open (name,
+	(IOFlags::OpenCreate | IOFlags::OpenWrite | IOFlags::OpenTruncate
+	 | (exclusive ? IOFlags::OpenExclusive : 0)),
+	perms);
 }
 
 void
 RFIOFile::create (const std::string &name,
 		  bool exclusive /* = false */,
-		  FileAcl perms /* = 066 */)
+		  int perms /* = 066 */)
 {
-    open (name.c_str (),
-	  (IOFlags::OpenCreate | IOFlags::OpenWrite | IOFlags::OpenTruncate
-	   | (exclusive ? IOFlags::OpenExclusive : 0)),
-	  perms);
+  open (name.c_str (),
+	(IOFlags::OpenCreate | IOFlags::OpenWrite | IOFlags::OpenTruncate
+	 | (exclusive ? IOFlags::OpenExclusive : 0)),
+	perms);
 }
 
 void
 RFIOFile::open (const std::string &name,
 		int flags /* = IOFlags::OpenRead */,
-		FileAcl perms /* = 066 */)
+		int perms /* = 066 */)
 { open (name.c_str (), flags, perms); }
 
 void
 RFIOFile::open (const char *name,
 		int flags /* = IOFlags::OpenRead */,
-		FileAcl perms /* = 066 */)
+		int perms /* = 066 */)
 {
-  /// save history
-  m_name = name;
+  // Save parameters for error recovery.
+  if (name == 0) {
+    m_name = "";
+  } else {
+    m_name = name;
+  }
   m_flags = flags;
   m_perms = perms;
-  m_lastIOV.clear();
 
+  // Reset RFIO error code.
   serrno = 0;
-    // Disable buffering in rfio library?  Note that doing this on
-    // one file disables it for everything.  Not much we can do...
-    // but it does make a significant performance difference to the
-    // clients.  Note also that docs say the flag turns off write
-    // buffering -- this turns off all buffering.
-    if (flags & IOFlags::OpenUnbuffered)
-      {
-	int readopt = 0;
-	rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
-      }
-    else 
-      {
-	int readopt = 1;
-	rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
-      }
-    
-    // Actual open
-    ASSERT (name && *name);
-    ASSERT (flags & (IOFlags::OpenRead | IOFlags::OpenWrite));
 
-    std::string lname (name);
-    if (lname.find ("//")==0) lname.erase(0,1);
+  // Disable buffering in rfio library?  Note that doing this on
+  // one file disables it for everything.  Not much we can do...
+  // but it does make a significant performance difference to the
+  // clients.  Note also that docs say the flag turns off write
+  // buffering -- this turns off all buffering.
+  if (flags & IOFlags::OpenUnbuffered)
+  {
+    int readopt = 0;
+    rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
+  }
+  else 
+  {
+    int readopt = 1;
+    rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
+  }
 
-    // If I am already open, close old file first
-    if (m_fd != IOFD_INVALID && m_close)
-	close ();
+  if ((name == 0) || (*name == 0)) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Cannot open a file without a name";
+    ex.addContext("Calling RFIOFile::open()");
+    throw ex;
+  }
+  if ((flags & (IOFlags::OpenRead | IOFlags::OpenWrite)) == 0) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Must open file '" << name << "' at least for read or write";
+    ex.addContext("Calling RFIOFile::open()");
+    throw ex;
+  }
+  std::string lname (name);
+  if (lname.find ("//") == 0)
+    lname.erase(0, 1);
 
-    // Translate our flags to system flags
-    int openflags = 0;
+  // If I am already open, close old file first
+  if (m_fd != EDM_IOFD_INVALID && m_close)
+    close ();
 
-    if ((flags & IOFlags::OpenRead) && (flags & IOFlags::OpenWrite))
-	openflags |= O_RDWR;
-    else if (flags & IOFlags::OpenRead)
-	openflags |= O_RDONLY;
-    else if (flags & IOFlags::OpenWrite)
-	openflags |= O_WRONLY;
+  // Translate our flags to system flags
+  int openflags = 0;
 
-    if (flags & IOFlags::OpenNonBlock)
-	openflags |= O_NONBLOCK;
+  if ((flags & IOFlags::OpenRead) && (flags & IOFlags::OpenWrite))
+    openflags |= O_RDWR;
+  else if (flags & IOFlags::OpenRead)
+    openflags |= O_RDONLY;
+  else if (flags & IOFlags::OpenWrite)
+    openflags |= O_WRONLY;
 
-    if (flags & IOFlags::OpenAppend)
-	openflags |= O_APPEND;
+  if (flags & IOFlags::OpenNonBlock)
+    openflags |= O_NONBLOCK;
 
-    if (flags & IOFlags::OpenCreate)
-	openflags |= O_CREAT;
+  if (flags & IOFlags::OpenAppend)
+    openflags |= O_APPEND;
 
-    if (flags & IOFlags::OpenExclusive)
-	openflags |= O_EXCL;
+  if (flags & IOFlags::OpenCreate)
+    openflags |= O_CREAT;
 
-    if (flags & IOFlags::OpenTruncate)
-	openflags |= O_TRUNC;
+  if (flags & IOFlags::OpenExclusive)
+    openflags |= O_EXCL;
 
-    IOFD newfd = IOFD_INVALID;
-    if ((newfd = rfio_open64 (lname.c_str(), openflags, perms.native ())) == -1)
-      throw RFIOError (seal::StringFormat ("rfio_open(%1,%2,%3)").arg(lname).arg(openflags).arg(perms.native()).value().c_str(),
-			rfio_errno, serrno);
+  if (flags & IOFlags::OpenTruncate)
+    openflags |= O_TRUNC;
 
-    m_fd = newfd;
-    m_close = true;
-    m_currentPosition = 0;
+  IOFD newfd = EDM_IOFD_INVALID;
+  if ((newfd = rfio_open64 (lname.c_str(), openflags, perms)) == -1) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "rfio_open(name='" << lname
+       << "', flags=0x" << std::hex << openflags
+       << ", permissions=0" << std::oct << perms << std::dec
+       << ") => error '" << rfio_serror ()
+       << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
+    ex.addContext("Calling RFIOFile::open()");
+    throw ex;
+  }
+  m_fd = newfd;
+  m_close = true;
+  m_curpos = 0;
 
-    edm::LogInfo("RFIOFile")
-      << "Opened file " << lname;
+  edm::LogInfo("RFIOFileInfo") << "Opened " << lname;
 }
 
 void
 RFIOFile::close (void)
 {
-    ASSERT (m_fd != IOFD_INVALID);
-    serrno = 0;
-
-    if (rfio_close64 (m_fd) == -1) {
-      //throw RFIOError ("rfio_close()", rfio_errno, serrno);
-      edm::LogWarning("RFIOFile")
-        << "error in rfio_close() " << rfio_errno
-        << " " << serrno << std::endl;
-      sleep(5);
-    }
-
+  if (m_fd == EDM_IOFD_INVALID)
+  {
+    edm::LogError("RFIOFileError")
+      << "RFIOFile::close(name='" << m_name
+      << "') called but the file is not open";
     m_close = false;
-    m_fd = IOFD_INVALID;
+    return;
+  }
 
-    std::string lname (m_name);
-    if (lname.find ("//")==0) lname.erase(0,1);
+  serrno = 0;
+  if (rfio_close64 (m_fd) == -1)
+  {
+    // If we fail to close the file, report a warning.
+    edm::LogWarning("RFIOFileWarning")
+      << "rfio_close64(name='" << m_name
+      << "') failed with error '" << rfio_serror()
+      << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
 
-    edm::LogInfo("RFIOFile")
-      << "Closed file " << lname;
+    // When rfio_close64 fails then try the system close function as
+    // per the advice from Olof Barring from the Castor operations.
+    int status = ::close(m_fd);
+    if (status < 0)
+      edm::LogWarning("RFIOFileWarning")
+        << "RFIOFile::close(): system level close after a failed"
+        << " rfio_close64 also failed with error '" << strerror (errno)
+        << "' (error code " << errno << ")";
+    else
+      edm::LogWarning("RFIOFileWarning")
+        << "RFIOFile::close(): system level close after a failed"
+        << " rfio_close64 succeeded";
+
+    sleep(5);
+  }
+
+  m_close = false;
+  m_fd = EDM_IOFD_INVALID;
+
+  // Caused hang.  Will be added back after problem is fix
+  // edm::LogInfo("RFIOFileInfo") << "Closed " << m_name;
 }
 
 void
 RFIOFile::abort (void)
 {
   serrno = 0;
-  if (m_fd != IOFD_INVALID)
-	rfio_close64 (m_fd);
+  if (m_fd != EDM_IOFD_INVALID)
+    rfio_close64 (m_fd);
 
-    m_close = false;
-    m_fd = IOFD_INVALID;
+  m_close = false;
+  m_fd = EDM_IOFD_INVALID;
 }
 
-/// close and open again...
-void RFIOFile::reOpen() {
-
+void RFIOFile::reopen (void)
+{
   // Remember the current position in the file
-  IOOffset l_pos = m_currentPosition;
-
+  IOOffset lastpos = m_curpos;
   close();
   sleep(5);
   open(m_name, m_flags, m_perms);
 
   // Set the position back to the same place it was
-  // before the file close and open
-  position(l_pos);
+  // before the file closed and opened.
+  position(lastpos);
 }
 
 ssize_t
-RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
-  if (max_retry == 0) return -1;
-  serrno=0;
-  ssize_t s = rfio_read64 (m_fd, into, n);
-  if ( (s == -1 && serrno == 1004) || (s>int(n)) ) {
-    ++m_nRetries;
-    edm::LogWarning("RFIOFile")
-      << "RFIOFile retrying read\n"
-      << "  return value from rfio_read64 = " << s << "  (normally this is bytes read, -1 for error)\n"
-      << "  bytes requested = " << n << "  (this and bytes read are equal unless error or EOF)\n"
-      << "  serrno = " << serrno << "  (an error code rfio sets, 0 = OK, 1004 = timeout, ...)\n"
-      << "  current position = " << m_currentPosition << "  (in bytes, beginning of file is 0)\n"
-      << "  retries left before quitting = " << max_retry << "\n"
-      << "  will close and reopen file " << m_name;
+RFIOFile::retryRead (void *into, IOSize n, int maxRetry /* = 10 */)
+{
+  // Attempt to read up to maxRetry times.
+  ssize_t s;
+  do
+  {
+    serrno = 0;
+    s = rfio_read64 (m_fd, into, n);
+    if ((s == -1 && serrno == 1004) || (s > ssize_t (n)))
+    {
+      // Wait a little while to allow Castor to recover from the timeout.
+      const char *sleepTimeMsg;
+      int secondsToSleep = 5;
+      switch (maxRetry)
+      {
+      case 1:
+        sleepTimeMsg = "10 minutes";
+        secondsToSleep = 600;
+        break;
 
-    sleep(5);
-    max_retry--;
+      case 2:
+        sleepTimeMsg = "5 minutes";
+        secondsToSleep = 300;
+        break;
 
-    // Improve the chances of success by closing and reopening
-    // the file before retrying the read.  This also resets
-    // the position in the file to the correct place.
-    reOpen();
+      default:
+        sleepTimeMsg = "1 minute";
+        secondsToSleep = 60;
+      }
 
-    return retry_read (into, n, max_retry);
-  } 
+      edm::LogWarning("RFIOFileRetry")
+        << "RFIOFile retrying read\n"
+        << "  return value from rfio_read64 = " << s << " (normally this is bytes read, -1 for error)\n"
+        << "  bytes requested = " << n << "  (this and bytes read are equal unless error or EOF)\n"
+        << "  rfio error message = " << rfio_serror() << " (explanation from server, if possible)\n"
+        << "  serrno = " << serrno << " (rfio server error code, 0 = OK, 1004 = timeout, ...)\n"
+        << "  rfio_errno = " << rfio_errno << " (rfio error from actually accessing the file)\n"
+        << "  current position = " << m_curpos << " (in bytes, beginning of file is 0)\n"
+        << "  retries left before quitting = " << maxRetry << "\n"
+        << "  will close and reopen file " << m_name << "\n"
+        << "  will sleep for " << sleepTimeMsg << " before attempting retry";
+      edm::FlushMessageLog();
+      sleep(secondsToSleep);
+
+      // Improve the chances of success by closing and reopening
+      // the file before retrying the read.  This also resets
+      // the position in the file to the correct place.
+      reopen();
+    }
+    else
+      break;
+  } while (--maxRetry > 0);
+
   return s;
 }
 
@@ -250,39 +328,51 @@ RFIOFile::read (void *into, IOSize n)
   // Be aware that when enabled these LogDebug prints
   // will take more time than the read itself unless the reads
   // are proceeding slower than under optimal conditions.
-  LogDebug("RFIOFile")
-    << "Entering RFIOFile read()";
+  LogDebug("RFIOFileDebug") << "Entering RFIOFile read()";
+  double start = realNanoSecs();
 
-  double start = seal::TimeInfo::realNsecs();
-
+  ssize_t s;
   serrno = 0;
-  ssize_t s = retry_read (into, n);
-  //    ssize_t s = rfio_read64 (m_fd, into, n);
-  if (s == -1)
-    throw RFIOError ("rfio_read()", rfio_errno, serrno);
-  
-  m_currentPosition += s;
+  if ((s = retryRead (into, n, 3)) < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "rfio_read(name='" << m_name << "', n=" << n << ") failed"
+       << " at position " << m_curpos << " with error '" << rfio_serror()
+       << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
+    ex.addContext("Calling RFIOFile::read()");
+    throw ex;
+  }
+  m_curpos += s;
 
-  double end = seal::TimeInfo::realNsecs();
-
-  LogDebug("RFIOFile")
-    << "Exiting RFIOFile read()\n"
-    << "  elapsed time = " << end - start << " ns\n"
-    << "  bytes read = " << s << "\n"
-    << "  file position = " << m_currentPosition << "\n";
+  double end = realNanoSecs();
+  LogDebug("RFIOFileDebug")
+    << "Exiting RFIOFile read(), elapsed time = " << end - start
+    << " ns, bytes read = " << s << ", file position = " << m_curpos;
 
   return s;
+}
+
+IOSize
+RFIOFile::readv (IOPosBuffer *into, IOSize buffers)
+{
+  if (! (m_flags & IOFlags::OpenUnbuffered))
+    prefetch(into, buffers);
+  return Storage::readv(into, buffers);
 }
 
 IOSize
 RFIOFile::write (const void *from, IOSize n)
 {
   serrno = 0;
-    ssize_t s = rfio_write64 (m_fd, from, n);
-    if (s == -1)
-	throw RFIOError ("rfio_write()", rfio_errno, serrno);
-
-    return s >= 0 ? s : 0;
+  ssize_t s = rfio_write64 (m_fd, from, n);
+  if (s < 0) {
+    cms::Exception ex("FileWriteError");
+    ex << "rfio_write(name='" << m_name << "', n=" << n << ") failed"
+       << " at position " << m_curpos << " with error '" << rfio_serror()
+       << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
+    ex.addContext("Calling RFIOFile::write()");
+    throw ex;
+  }
+  return s;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -291,47 +381,40 @@ RFIOFile::write (const void *from, IOSize n)
 IOOffset
 RFIOFile::position (IOOffset offset, Relative whence /* = SET */)
 {
-    ASSERT (m_fd != IOFD_INVALID);
-    ASSERT (whence == CURRENT || whence == SET || whence == END);
-
-    serrno = 0;
-    IOOffset	result;
-    int		mywhence = (whence == SET ? SEEK_SET
+  if (m_fd == EDM_IOFD_INVALID) {
+    cms::Exception ex("FilePositionError");
+    ex << "RFIOFile::position() called on a closed file";
+    throw ex;
+  }
+  if (whence != CURRENT && whence != SET && whence != END) {
+    cms::Exception ex("FilePositionError");
+    ex << "RFIOFile::position() called with incorrect 'whence' parameter";
+    throw ex;
+  }
+  IOOffset	result;
+  int		mywhence = (whence == SET ? SEEK_SET
 		    	    : whence == CURRENT ? SEEK_CUR
 			    : SEEK_END);
 
-    if ((result = rfio_lseek64 (m_fd, offset, mywhence)) == -1)
-	throw RFIOError ("rfio_lseek()", rfio_errno, serrno);
-
-    m_currentPosition = result;
-    return result;
+  serrno = 0;
+  if ((result = rfio_lseek64 (m_fd, offset, mywhence)) == -1) {
+    cms::Exception ex("FilePositionError");
+    ex << "rfio_lseek(name='" << m_name << "', offset=" << offset
+       << ", whence=" << mywhence << ") failed at position "
+       << m_curpos << " with error '" << rfio_serror()
+       << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
+    ex.addContext("Calling RFIOFile::position()");
+    throw ex;
+  }
+  m_curpos = result;
+  return result;
 }
 
 void
 RFIOFile::resize (IOOffset /* size */)
-{ throw RFIOError ("rfio_ftruncate()", 0); }
-
-
-void          
-RFIOFile::preseek(const IOVec& iov) {
-  m_lastIOV = iov;
-
-  if (rfioreadopt (RFIO_READOPT)!=1) 
-    throw RFIOError ("rfio_preseek(): readopt!=1", 0,0);
-
-
-  serrno = 0;
-  int max_retry = 5;
-  while ( rfio_preseek64(m_fd, 
-			 const_cast<struct iovec64*>(&iov[0]), iov.size()) == -1) {
-    if (max_retry == 0)  
-      throw RFIOError ("rfio_preseek()", rfio_errno, serrno);
-
-    edm::LogWarning("RFIOFile")
-      << "error in RFIO preseek: retry";
-    max_retry--;
-    sleep(5);
-    serrno = 0;
-  }
+{
+  cms::Exception ex("FileResizeError");
+  ex << "RFIOFile::resize(name='" << m_name << "') not implemented";
+  throw ex;
 }
 

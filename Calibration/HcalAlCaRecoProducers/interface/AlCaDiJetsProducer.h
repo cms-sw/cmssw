@@ -1,5 +1,5 @@
-#ifndef AlCaDiJetsProducer_AlCaHcalProducers_h
-#define AlCaDiJetsProducer_AlCaHcalProducers_h
+#ifndef AlCaDiJetsProducer_h
+#define AlCaDiJetsProducer_h
 
 
 // -*- C++ -*-
@@ -21,6 +21,10 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 //
@@ -37,23 +41,24 @@ namespace cms
 
 class AlCaDiJetsProducer : public edm::EDProducer {
    public:
-      explicit AlCaDiJetsProducer(const edm::ParameterSet&);
-      ~AlCaDiJetsProducer();
+     explicit AlCaDiJetsProducer(const edm::ParameterSet&);
+     ~AlCaDiJetsProducer();
 
-      virtual void beginJob(const edm::EventSetup& ) ;
+     virtual void beginJob() ;
 
-      virtual void produce(edm::Event &, const edm::EventSetup&);
+     virtual void produce(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
      std::vector<edm::InputTag> ecalLabels_;
-     std::vector<edm::InputTag> mInputCalo_;
+
+     edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
+     edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+     edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+     edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+     std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
+
      bool allowMissingInputs_;
-     edm::InputTag hbheInput_;
-     edm::InputTag hoInput_;
-     edm::InputTag hfInput_;
-     std::string m_inputTrackLabel;
- // Calo geometry
-  const CaloGeometry* geo;
 
 };
 }// end namespace cms

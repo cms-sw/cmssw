@@ -2,15 +2,13 @@
 #define RPCRecordFormatter_H
 
 
-/** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
- *
- *  $Date: 2007/01/04 21:29:03 $
- *  $Revision: 1.13 $
- *  \author Ilaria Segoni - CERN
+/** \class Interprets the RPC raw data and fills the RPCDigiCollection
  */
 
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
+#include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
 class RPCReadOutMapping;
@@ -27,8 +25,10 @@ public:
   std::vector<rpcrawtodigi::EventRecords> recordPack(
       uint32_t rawDetId, const RPCDigi & digi, int trigger_BX) const; 
 
-  void recordUnpack(const rpcrawtodigi::EventRecords & event, 
-                    std::auto_ptr<RPCDigiCollection> & prod);
+  int recordUnpack( const rpcrawtodigi::EventRecords & event, 
+                    RPCDigiCollection * prod, 
+                    RPCRawDataCounts * counter, 
+                    RPCRawSynchro::ProdItem * synchro);
 
 private:    
   int currentFED;

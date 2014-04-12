@@ -2,65 +2,80 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in){
-  electronperADC = in;
+SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in) :
+  electronperADC(in) {
+  _temp.reserve(800);
+  _tempRaw.reserve(800);
 }
 
 SiDigitalConverter::DigitalVecType
-SiTrivialDigitalConverter::convert(const signal_map_type& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
-
-  SiDigitalConverter::DigitalVecType _temp;
-  _temp.reserve(analogSignal.size());
-
-  SiStripApvGain::Range detGainRange; 
-  if(gainHandle.isValid()) detGainRange = gainHandle->getRange(detid);
-
-
-  for ( signal_map_type::const_iterator i=analogSignal.begin(); 
-	i!=analogSignal.end(); i++) {
-    float gainFactor  = (gainHandle.isValid()) ? gainHandle->getStripGain((*i).first, detGainRange) : 1;
-
-    // convert analog amplitude to digital
-    int adc = convert( gainFactor*((*i).second));
-     
-    if ( adc > 0) _temp.push_back(SiStripDigi((*i).first, adc));
+SiTrivialDigitalConverter::convert(const std::vector<float>& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
+  
+  _temp.clear();
+  
+  if(gainHandle.isValid()) {
+    SiStripApvGain::Range detGainRange = gainHandle->getRange(detid);
+    for ( size_t i=0; i<analogSignal.size(); i++) {
+      if (analogSignal[i]<=0) continue;
+      // convert analog amplitude to digital
+      int adc = convert( (gainHandle->getStripGain(i, detGainRange))*(analogSignal[i]) );
+      if ( adc > 0) _temp.push_back(SiStripDigi(i, adc));
+    }
+  } else {
+    for ( size_t i=0; i<analogSignal.size(); i++) {
+      if (analogSignal[i]<=0) continue;
+      // convert analog amplitude to digital
+      int adc = convert( analogSignal[i] );
+      if ( adc > 0) _temp.push_back(SiStripDigi(i, adc));
+    }
   }
   return _temp;
 }
+
 SiDigitalConverter::DigitalRawVecType
-SiTrivialDigitalConverter::convertRaw(const signal_map_type& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
+SiTrivialDigitalConverter::convertRaw(const std::vector<float>& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
+  
+  _tempRaw.clear();
 
-  SiDigitalConverter::DigitalRawVecType _temp;
-  _temp.reserve(analogSignal.size());
-
-  SiStripApvGain::Range detGainRange; 
-  if(gainHandle.isValid()) detGainRange = gainHandle->getRange(detid);
-
-
-  for ( signal_map_type::const_iterator i=analogSignal.begin(); 
-	i!=analogSignal.end(); i++) {
-    float gainFactor  = (gainHandle.isValid()) ? gainHandle->getStripGain((*i).first, detGainRange) : 1;
-
-    // convert analog amplitude to digital
-    int adc = convert( gainFactor*((*i).second));
-     
-    _temp.push_back(SiStripRawDigi(adc));
+  if(gainHandle.isValid()) {
+    SiStripApvGain::Range detGainRange = gainHandle->getRange(detid);
+    for ( size_t i=0; i<analogSignal.size(); i++) {
+      if (analogSignal[i]<=0) { _tempRaw.push_back(SiStripRawDigi(0)); continue; }
+      // convert analog amplitude to digital
+      int adc = convertRaw( (gainHandle->getStripGain(i, detGainRange))*(analogSignal[i]));
+      _tempRaw.push_back(SiStripRawDigi(adc));
+    }
+  } else {
+    for ( size_t i=0; i<analogSignal.size(); i++) {
+      if (analogSignal[i]<=0) { _tempRaw.push_back(SiStripRawDigi(0)); continue; }
+      // convert analog amplitude to digital
+      int adc = convertRaw( analogSignal[i] );
+      _tempRaw.push_back(SiStripRawDigi(adc));
+    }
   }
-  return _temp;
+  return _tempRaw;
 }
 
-
-int SiTrivialDigitalConverter::truncate(float in_adc) {
-
-  //Rounding teh ADC number instaed of truncating it
+int SiTrivialDigitalConverter::truncate(float in_adc) const {
+  //Rounding the ADC number instead of truncating it
   int adc = int(in_adc+0.5);
   /*
-    254 ADC: 254<=raw charge < 511
-    255 ADC: 512< raw charge < 1023
+    254 ADC: 254  <= raw charge < 1023
+    255 ADC: raw charge >= 1023
   */
-  if (adc > 253 && adc < 512) adc = 254;
-  if (adc > 511 ) adc = 255;
+  if (adc > 1022 ) return 255;
+  if (adc > 253) return 254;
   //Protection
-  if (adc < 0) adc = 0;
+  if (adc < 0) return 0;
   return adc;
 }
+
+int SiTrivialDigitalConverter::truncateRaw(float in_adc) const {
+  //Rounding the ADC number
+  int adc = int(in_adc+0.5);
+  if (adc > 1023 ) return 1023;
+  //Protection
+  if (adc < 0) return 0;
+  return adc;
+}
+

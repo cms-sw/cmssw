@@ -14,31 +14,27 @@ class RPCGeometry;
 
 namespace CLHEP {
   class HepRandomEngine;
-  class RandFlat;
-}
-
-namespace CLHEP {
-  class HepRandomEngine;
-  class RandFlat;
 }
 
 class RPCSimSimple : public RPCSim
 {
  public:
   RPCSimSimple(const edm::ParameterSet& config);
-  ~RPCSimSimple(){}
-  void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits ){};
+  ~RPCSimSimple();
 
   void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits, const RPCGeometry*);
+		const edm::PSimHitContainer& rpcHits,
+                CLHEP::HepRandomEngine*) override;
+
+  void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
 
  private:
   void init(){};
 
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
   RPCSynchronizer* _rpcSync;
-
+  int N_hits;
+  int nbxing;
+  double rate;
+  double gate;
 };
 #endif

@@ -1,6 +1,6 @@
-#include "TrackPropagation/RungeKutta/interface/CurvilinearLorentzForce.h"
-#include "TrackPropagation/RungeKutta/interface/CurvilinearState.h"
-#include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
+#include "CurvilinearLorentzForce.h"
+#include "CurvilinearState.h"
+#include "RKLocalFieldProvider.h"
 
 #include <exception>
 

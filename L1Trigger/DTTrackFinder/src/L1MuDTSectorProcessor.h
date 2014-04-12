@@ -11,8 +11,6 @@
  *    - two Assignment Units (AU)
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -100,6 +98,9 @@ class L1MuDTSectorProcessor {
 
     /// return pointer to muon candidate, index [0,1]
     inline L1MuDTTrack* track(int id) const { return m_TrackCands[id]; }
+
+    /// return pointer to muon candidate, index [0,1]
+    inline L1MuDTTrack* tracK(int id) const { return m_TracKCands[id]; }
     
   private:
 
@@ -118,6 +119,7 @@ class L1MuDTSectorProcessor {
     std::vector<L1MuDTAssignmentUnit*>  m_AUs;
 
     std::vector<L1MuDTTrack*>           m_TrackCands;
+    std::vector<L1MuDTTrack*>           m_TracKCands;
  
 };
 

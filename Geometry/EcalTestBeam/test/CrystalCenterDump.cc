@@ -20,10 +20,8 @@
 #include <iomanip>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,12 +32,9 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 
 #include <fstream>
 
@@ -109,8 +104,8 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
 
   int n=0;
-  std::vector<DetId> ids=geom->getValidDetIds(det,subdetn);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+  const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
+  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
     n++;
     const CaloCellGeometry* cell=geom->getGeometry(*i);
     if (det == DetId::Ecal)
@@ -124,7 +119,7 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
             double crysY = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).y();
             double crysZ = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).z();
 
-            Hep3Vector crysPos(crysX,crysY,crysZ);
+            CLHEP::Hep3Vector crysPos(crysX,crysY,crysZ);
             double crysEta = crysPos.eta();
             double crysTheta = crysPos.theta();
             double crysPhi = crysPos.phi();
@@ -150,12 +145,11 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
 void
 CrystalCenterDump::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
    
    std::cout << "Writing the center (eta,phi) for crystals in barrel SM 1 " << std::endl;
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
    //
    // get the ecal & hcal geometry
    //
@@ -168,5 +162,5 @@ CrystalCenterDump::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CrystalCenterDump);
+
+DEFINE_FWK_MODULE(CrystalCenterDump);

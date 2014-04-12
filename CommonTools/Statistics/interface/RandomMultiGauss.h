@@ -8,7 +8,7 @@
  * Generates vectors of random numbers given a vector of
  * mean values (optional) and a covariance matrix.
  * Will accept empty rows/columns in the input matrix.
- * Uses RandGauss with default engine for generation.
+ * Uses CLHEP::RandGauss with default engine for generation.
  */
 
 class RandomMultiGauss {

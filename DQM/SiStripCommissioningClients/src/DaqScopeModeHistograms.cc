@@ -1,6 +1,9 @@
 #include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/DaqScopeModeAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/DaqScopeModeAlgorithm.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
@@ -11,8 +14,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-DaqScopeModeHistograms::DaqScopeModeHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::DAQ_SCOPE_MODE ),
+DaqScopeModeHistograms::DaqScopeModeHistograms( const edm::ParameterSet& pset,
+                                                DQMStore* bei ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("DaqScopeModeParameters"),
+                             bei,
+                             sistrip::DAQ_SCOPE_MODE ),
     factory_( new Factory )
 {
   cout << endl // LogTrace(mlDqmClient_) 
@@ -57,7 +63,8 @@ void DaqScopeModeHistograms::histoAnalysis( bool debug ) {
     
 //     // Perform histo analysis
 //     DaqScopeModeAnalysis anal( iter->first );
-//     anal.analysis( histos );
+//     DaqScopeModeAlgorithm algo( &anal );
+//     algo.analysis( histos );
 //     data_[iter->first] = anal; 
 //     if ( debug ) {
 //       std::stringstream ss;

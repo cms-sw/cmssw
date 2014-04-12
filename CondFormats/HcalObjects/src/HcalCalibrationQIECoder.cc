@@ -7,7 +7,6 @@ $Id
 
 #include <iostream>
 
-#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIECoder.h"
 
 float HcalCalibrationQIECoder::charge (unsigned fAdc) const {

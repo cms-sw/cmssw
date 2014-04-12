@@ -9,20 +9,14 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTTtrigWrite.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include <string>
 #include <map>
@@ -67,13 +61,16 @@ namespace edmtest {
     int qua;
     float tri;
     float rms;
+    float fac;
     while ( ifile >> whe
                   >> sta
                   >> sec
                   >> qua
                   >> tri
-                  >> rms ) {
-      status = tTrig->setSLTtrig( whe, sta, sec, qua, tri, rms );
+                  >> rms
+                  >> fac ) {
+      status = tTrig->set( whe, sta, sec, qua, tri, rms, fac,
+                           DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "
@@ -83,9 +80,14 @@ namespace edmtest {
       std::cout << "insert status: " << status << std::endl;
     }
 
+    chkData( tTrig );
+
     if( dbservice->isNewTagRequest("DTTtrigRcd") ){
       dbservice->createNewIOV<DTTtrig>(
-                 tTrig,dbservice->endOfTime(),"DTTtrigRcd");
+                 tTrig,dbservice->currentTime(),
+                       dbservice->endOfTime(),"DTTtrigRcd");
+//                 tTrig,dbservice->beginOfTime(),
+//                       dbservice->endOfTime(),"DTTtrigRcd");
     }
     else{
       std::cout << "already present tag" << std::endl;
@@ -94,5 +96,43 @@ namespace edmtest {
     }
 
   }
+
+  void DTTtrigWrite::chkData( DTTtrig* tTrig ) {
+    std::ifstream ifile( "testTtrig.txt" );
+    int status = 0;
+    int whe;
+    int sta;
+    int sec;
+    int qua;
+    float tri;
+    float rms;
+    float fac;
+    float cktri;
+    float ckrms;
+    float ckfac;
+    while ( ifile >> whe
+                  >> sta
+                  >> sec
+                  >> qua
+                  >> tri
+                  >> rms
+                  >> fac ) {
+      status = tTrig->get( whe, sta, sec, qua, cktri, ckrms, ckfac, 
+                           DTTimeUnits::counts );
+      std::cout << whe << " "
+                << sta << " "
+                << sec << " "
+                << qua << " "
+                << tri << " "
+                << rms << " "
+                << fac << "  -> "
+                << cktri << " "
+                << ckrms << " "
+                << ckfac << "  -> ";
+      std::cout << "get status: " << status << std::endl;
+    }
+    return;
+  }
+
   DEFINE_FWK_MODULE(DTTtrigWrite);
 }

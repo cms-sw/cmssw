@@ -2,8 +2,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Utilities/Timing/interface/TimingReport.h"
@@ -15,19 +13,26 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+//#include "CommonTools/Utils/interface/deltaR.h"
+//#include "PhysicsTools/Utilities/interface/deltaR.h"
+
 using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace muonisolation;
+using reco::isodeposit::Direction;
 
-CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
+CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, edm::ConsumesCollector && iC) :
   theUseRecHitsFlag(par.getParameter<bool>("UseRecHitsFlag")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDepositInstanceLabels(par.getParameter<std::vector<std::string> >("DepositInstanceLabels")),
@@ -38,18 +43,22 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
   theDR_Veto_E(par.getParameter<double>("DR_Veto_E")),
   theDR_Veto_H(par.getParameter<double>("DR_Veto_H")),
   theDR_Veto_HO(par.getParameter<double>("DR_Veto_HO")),
+  theCenterConeOnCalIntersection(par.getParameter<bool>("CenterConeOnCalIntersection")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theNoise_EB(par.getParameter<double>("Noise_EB")),
   theNoise_EE(par.getParameter<double>("Noise_EE")),
   theNoise_HB(par.getParameter<double>("Noise_HB")),
   theNoise_HE(par.getParameter<double>("Noise_HE")),
-  theNoise_HO(par.getParameter<double>("Noise_HO")),	
+  theNoise_HO(par.getParameter<double>("Noise_HO")),
   theNoiseTow_EB(par.getParameter<double>("NoiseTow_EB")),
   theNoiseTow_EE(par.getParameter<double>("NoiseTow_EE")),
+  theService(0),
   theAssociator(0),
-  thePropagator(0),
   thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport"))
 {
+  ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
+  theService = new MuonServiceProxy(serviceParameters);
+
   theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
   theAssociator = new TrackDetectorAssociator();
 }
@@ -57,22 +66,22 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
 CaloExtractorByAssociator::~CaloExtractorByAssociator(){
   if (thePrintTimeReport) TimingReport::current()->dump(std::cout);
   if (theAssociatorParameters) delete theAssociatorParameters;
+  if (theService) delete theService;
   if (theAssociator) delete theAssociator;
-  if (thePropagator) delete thePropagator;
 }
 
 void CaloExtractorByAssociator::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons)
 {
 //   LogWarning("CaloExtractorByAssociator")
-//     <<"fillVetos does nothing now: MuIsoDeposit provides enough functionality\n"
+//     <<"fillVetos does nothing now: IsoDeposit provides enough functionality\n"
 //     <<"to remove a deposit at/around given (eta, phi)";
 
 }
 
-MuIsoDeposit CaloExtractorByAssociator::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
+IsoDeposit CaloExtractorByAssociator::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
 {
-  MuIsoDeposit::Direction muonDir(muon.eta(), muon.phi());
-  MuIsoDeposit dep(theDepositLabel, muonDir );
+  IsoDeposit::Direction muonDir(muon.eta(), muon.phi());
+  IsoDeposit dep(muonDir );
 
 //   LogWarning("CaloExtractorByAssociator")
 //     <<"single deposit is not an option here\n"
@@ -84,16 +93,10 @@ MuIsoDeposit CaloExtractorByAssociator::deposit( const Event & event, const Even
 
 
 //! Make separate deposits: for ECAL, HCAL, HO
-std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & event, const EventSetup& eventSetup, const Track & muon) const
+std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event, const EventSetup& eventSetup, const Track & muon) const
 {
-
-  if (thePropagator == 0){
-    //! get the propagator form ES if it's not picked up yet
-    ESHandle<Propagator> prop;
-    eventSetup.get<TrackingComponentsRecord>().get(thePropagatorName, prop);
-    thePropagator = prop->clone();
-    theAssociator->setPropagator(thePropagator);
-  }
+  theService->update(eventSetup);
+  theAssociator->setPropagator(&*(theService->propagator(thePropagatorName)));
 
   //! check configuration consistency
   //! could've been made at construction stage (fix later?)
@@ -107,14 +110,14 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 			       <<"proceed at your own risk. The extractor interprets lab0=from ecal; lab1=from hcal; lab2=from ho";
   }
 
-  typedef MuIsoDeposit::Veto Veto;
-  //! this should be (eventually) set to the eta-phi of the crossing point of 
+  typedef IsoDeposit::Veto Veto;
+  //! this should be (eventually) set to the eta-phi of the crossing point of
   //! a straight line tangent to a muon at IP and the calorimeter
-  MuIsoDeposit::Direction muonDir(muon.eta(), muon.phi());
-  
-  MuIsoDeposit depEcal(theDepositInstanceLabels[0], muonDir);
-  MuIsoDeposit depHcal(theDepositInstanceLabels[1], muonDir);
-  MuIsoDeposit depHOcal(theDepositInstanceLabels[2], muonDir);
+  IsoDeposit::Direction muonDir(muon.eta(), muon.phi());
+
+  IsoDeposit depEcal(muonDir);
+  IsoDeposit depHcal(muonDir);
+  IsoDeposit depHOcal(muonDir);
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -125,32 +128,47 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
   TrackDetMatchInfo mInfo = theAssociator->associate(event, eventSetup, iFTS, *theAssociatorParameters);
 
   //! each deposit type veto is at the point of intersect with that detector
-  depEcal.setVeto(Veto(Direction(mInfo.trkGlobPosAtEcal.eta(), mInfo.trkGlobPosAtEcal.phi()),
+  depEcal.setVeto(Veto(reco::isodeposit::Direction(mInfo.trkGlobPosAtEcal.eta(), mInfo.trkGlobPosAtEcal.phi()),
 		       theDR_Veto_E));
-  depHcal.setVeto(Veto(Direction(mInfo.trkGlobPosAtHcal.eta(), mInfo.trkGlobPosAtHcal.phi()),
+  depHcal.setVeto(Veto(reco::isodeposit::Direction(mInfo.trkGlobPosAtHcal.eta(), mInfo.trkGlobPosAtHcal.phi()),
 		       theDR_Veto_H));
-  depHOcal.setVeto(Veto(Direction(mInfo.trkGlobPosAtHO.eta(), mInfo.trkGlobPosAtHO.phi()),
+  depHOcal.setVeto(Veto(reco::isodeposit::Direction(mInfo.trkGlobPosAtHO.eta(), mInfo.trkGlobPosAtHO.phi()),
 			theDR_Veto_HO));
+
+  if (theCenterConeOnCalIntersection){
+    reco::isodeposit::Direction dirTmp = depEcal.veto().vetoDir;
+    double dRtmp = depEcal.veto().dR;
+    depEcal = IsoDeposit(dirTmp); depEcal.setVeto(Veto(dirTmp, dRtmp));
+
+    dirTmp = depHcal.veto().vetoDir;
+    dRtmp = depHcal.veto().dR;
+    depHcal = IsoDeposit(dirTmp); depHcal.setVeto(Veto(dirTmp, dRtmp));
+
+    dirTmp = depHOcal.veto().vetoDir;
+    dRtmp = depHOcal.veto().dR;
+    depHOcal = IsoDeposit(dirTmp); depHOcal.setVeto(Veto(dirTmp, dRtmp));
+  }
 
   if (theUseRecHitsFlag){
     //! do things based on rec-hits here
     //! too much copy-pasting now (refactor later?)
     edm::ESHandle<CaloGeometry> caloGeom;
-    eventSetup.get<IdealGeometryRecord>().get(caloGeom);
+    eventSetup.get<CaloGeometryRecord>().get(caloGeom);
 
     //Ecal
-    std::vector<EcalRecHit>::const_iterator eHitCI = mInfo.ecalRecHits.begin();
+    std::vector<const EcalRecHit*>::const_iterator eHitCI = mInfo.ecalRecHits.begin();
     for (; eHitCI != mInfo.ecalRecHits.end(); ++eHitCI){
-      GlobalPoint eHitPos = caloGeom->getPosition(eHitCI->detid());
-      double deltar0 = deltaR(muon, eHitPos);
+      const EcalRecHit* eHitCPtr = *eHitCI;
+      GlobalPoint eHitPos = caloGeom->getPosition(eHitCPtr->detid());
+      double deltar0 = reco::deltaR(muon, eHitPos);
       double cosTheta = 1./cosh(eHitPos.eta());
-      double energy = eHitCI->energy();
-      double et = energy*cosTheta; 
-      if (deltar0 > theDR_Max 
-	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCI->detid()))) continue;
+      double energy = eHitCPtr->energy();
+      double et = energy*cosTheta;
+      if (deltar0 > theDR_Max
+	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
-      double deltar = deltaR(mInfo.trkGlobPosAtEcal, eHitPos);
+      double deltar = reco::deltaR(mInfo.trkGlobPosAtEcal, eHitPos);
       //! first check if the hit is inside the veto cone by dR-alone
       if (deltar < theDR_Veto_E ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
@@ -161,31 +179,32 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       }
       //! and now pitch those in the crossed list
       if (! vetoHit){
-	for (uint iH = 0; iH< mInfo.crossedEcalIds.size() && ! vetoHit; ++iH){
-	  if (mInfo.crossedEcalIds[iH].rawId() == eHitCI->detid().rawId()) vetoHit = true;
+	for (unsigned int iH = 0; iH< mInfo.crossedEcalIds.size() && ! vetoHit; ++iH){
+	  if (mInfo.crossedEcalIds[iH].rawId() == eHitCPtr->detid().rawId()) vetoHit = true;
 	}
       }
 
       if (vetoHit ){
-	depEcal.addMuonEnergy(et);
+	depEcal.addCandEnergy(et);
       } else {
-	depEcal.addDeposit(Direction(eHitPos.eta(), eHitPos.phi()), et);      
+	depEcal.addDeposit(reco::isodeposit::Direction(eHitPos.eta(), eHitPos.phi()), et);
       }
     }
 
     //Hcal
-    std::vector<HBHERecHit>::const_iterator hHitCI = mInfo.hcalRecHits.begin();
+    std::vector<const HBHERecHit*>::const_iterator hHitCI = mInfo.hcalRecHits.begin();
     for (; hHitCI != mInfo.hcalRecHits.end(); ++hHitCI){
-      GlobalPoint hHitPos = caloGeom->getPosition(hHitCI->detid());
-      double deltar0 = deltaR(muon, hHitPos);
+      const HBHERecHit* hHitCPtr = *hHitCI;
+      GlobalPoint hHitPos = caloGeom->getPosition(hHitCPtr->detid());
+      double deltar0 = reco::deltaR(muon, hHitPos);
       double cosTheta = 1./cosh(hHitPos.eta());
-      double energy = hHitCI->energy();
+      double energy = hHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max 
-	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCI->detid()))) continue;
+      if (deltar0 > theDR_Max
+	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
-      double deltar = deltaR(mInfo.trkGlobPosAtHcal, hHitPos);
+      double deltar = reco::deltaR(mInfo.trkGlobPosAtHcal, hHitPos);
       //! first check if the hit is inside the veto cone by dR-alone
       if (deltar < theDR_Veto_H ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
@@ -196,31 +215,32 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       }
       //! and now pitch those in the crossed list
       if (! vetoHit){
-	for (uint iH = 0; iH< mInfo.crossedHcalIds.size() && ! vetoHit; ++iH){
-	  if (mInfo.crossedHcalIds[iH].rawId() == hHitCI->detid().rawId()) vetoHit = true;
+	for (unsigned int iH = 0; iH< mInfo.crossedHcalIds.size() && ! vetoHit; ++iH){
+	  if (mInfo.crossedHcalIds[iH].rawId() == hHitCPtr->detid().rawId()) vetoHit = true;
 	}
       }
 
       if (vetoHit ){
-	depHcal.addMuonEnergy(et);
+	depHcal.addCandEnergy(et);
       } else {
-	depHcal.addDeposit(Direction(hHitPos.eta(), hHitPos.phi()), et);      
+	depHcal.addDeposit(reco::isodeposit::Direction(hHitPos.eta(), hHitPos.phi()), et);
       }
     }
 
     //HOcal
-    std::vector<HORecHit>::const_iterator hoHitCI = mInfo.hoRecHits.begin();
+    std::vector<const HORecHit*>::const_iterator hoHitCI = mInfo.hoRecHits.begin();
     for (; hoHitCI != mInfo.hoRecHits.end(); ++hoHitCI){
-      GlobalPoint hoHitPos = caloGeom->getPosition(hoHitCI->detid());
-      double deltar0 = deltaR(muon, hoHitPos);
+      const HORecHit* hoHitCPtr = *hoHitCI;
+      GlobalPoint hoHitPos = caloGeom->getPosition(hoHitCPtr->detid());
+      double deltar0 = reco::deltaR(muon, hoHitPos);
       double cosTheta = 1./cosh(hoHitPos.eta());
-      double energy = hoHitCI->energy();
+      double energy = hoHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max 
-	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCI->detid()))) continue;
+      if (deltar0 > theDR_Max
+	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
-      double deltar = deltaR(mInfo.trkGlobPosAtHO, hoHitPos);
+      double deltar = reco::deltaR(mInfo.trkGlobPosAtHO, hoHitPos);
       //! first check if the hit is inside the veto cone by dR-alone
       if (deltar < theDR_Veto_HO ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
@@ -231,73 +251,74 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       }
       //! and now pitch those in the crossed list
       if (! vetoHit){
-	for (uint iH = 0; iH< mInfo.crossedHOIds.size() && ! vetoHit; ++iH){
-	  if (mInfo.crossedHOIds[iH].rawId() == hoHitCI->detid().rawId()) vetoHit = true;
+	for (unsigned int iH = 0; iH< mInfo.crossedHOIds.size() && ! vetoHit; ++iH){
+	  if (mInfo.crossedHOIds[iH].rawId() == hoHitCPtr->detid().rawId()) vetoHit = true;
 	}
       }
 
       if (vetoHit ){
-	depHOcal.addMuonEnergy(et);
+	depHOcal.addCandEnergy(et);
       } else {
-	depHOcal.addDeposit(Direction(hoHitPos.eta(), hoHitPos.phi()), et);      	
+	depHOcal.addDeposit(reco::isodeposit::Direction(hoHitPos.eta(), hoHitPos.phi()), et);
       }
     }
 
 
   } else {
-    //! use calo towers    
-    CaloTowerCollection::const_iterator calCI = mInfo.towers.begin();
+    //! use calo towers
+    std::vector<const CaloTower*>::const_iterator calCI = mInfo.towers.begin();
     for (; calCI != mInfo.towers.end(); ++calCI){
-      double deltar0 = deltaR(muon,*calCI);
+      const CaloTower* calCPtr = *calCI;
+      double deltar0 = reco::deltaR(muon,*calCPtr);
       if (deltar0>theDR_Max) continue;
-    
+
       //even more copy-pasting .. need to refactor
-      double etecal = calCI->emEt();
-      double eecal = calCI->emEnergy();
-      bool doEcal = etecal>theThreshold_E && eecal>3*noiseEcal(*calCI);
-      double ethcal = calCI->hadEt();
-      double ehcal = calCI->hadEnergy();
-      bool doHcal = ethcal>theThreshold_H && ehcal>3*noiseHcal(*calCI);
-      double ethocal = calCI->outerEt();
-      double ehocal = calCI->outerEnergy();
-      bool doHOcal = ethocal>theThreshold_HO && ehocal>3*noiseHOcal(*calCI);
+      double etecal = calCPtr->emEt();
+      double eecal = calCPtr->emEnergy();
+      bool doEcal = etecal>theThreshold_E && eecal>3*noiseEcal(*calCPtr);
+      double ethcal = calCPtr->hadEt();
+      double ehcal = calCPtr->hadEnergy();
+      bool doHcal = ethcal>theThreshold_H && ehcal>3*noiseHcal(*calCPtr);
+      double ethocal = calCPtr->outerEt();
+      double ehocal = calCPtr->outerEnergy();
+      bool doHOcal = ethocal>theThreshold_HO && ehocal>3*noiseHOcal(*calCPtr);
       if ((!doEcal) && (!doHcal) && (!doHcal)) continue;
-    
+
       bool vetoTowerEcal = false;
-      double deltarEcal = deltaR(mInfo.trkGlobPosAtEcal, *calCI);
+      double deltarEcal = reco::deltaR(mInfo.trkGlobPosAtEcal, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
       if (deltarEcal < theDR_Veto_E ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto ecal tower: Calo deltaR= " << deltarEcal;
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
-	  << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
+	  << " >>> Calo eta phi ethcal: " << calCPtr->eta() << " " << calCPtr->phi() << " " << ethcal;
 	vetoTowerEcal = true;
       }
       bool vetoTowerHcal = false;
-      double deltarHcal = deltaR(mInfo.trkGlobPosAtHcal, *calCI);
+      double deltarHcal = reco::deltaR(mInfo.trkGlobPosAtHcal, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
       if (deltarHcal < theDR_Veto_H ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto hcal tower: Calo deltaR= " << deltarHcal;
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
-	  << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
+	  << " >>> Calo eta phi ethcal: " << calCPtr->eta() << " " << calCPtr->phi() << " " << ethcal;
 	vetoTowerHcal = true;
       }
       bool vetoTowerHOCal = false;
-      double deltarHOcal = deltaR(mInfo.trkGlobPosAtHO, *calCI);
+      double deltarHOcal = reco::deltaR(mInfo.trkGlobPosAtHO, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
       if (deltarHOcal < theDR_Veto_HO ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto HO tower: Calo deltaR= " << deltarHOcal;
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
-	  << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
+	  << " >>> Calo eta phi ethcal: " << calCPtr->eta() << " " << calCPtr->phi() << " " << ethcal;
 	vetoTowerHOCal = true;
       }
 
       //! and now pitch those in the crossed list
       if (! (vetoTowerHOCal && vetoTowerHcal &&  vetoTowerEcal )){
-	for (uint iH = 0; iH< mInfo.crossedTowerIds.size(); ++iH){
-	  if (mInfo.crossedTowerIds[iH].rawId() == calCI->id().rawId()){
+	for (unsigned int iH = 0; iH< mInfo.crossedTowerIds.size(); ++iH){
+	  if (mInfo.crossedTowerIds[iH].rawId() == calCPtr->id().rawId()){
 	    vetoTowerEcal = true;
 	    vetoTowerHcal = true;
 	    vetoTowerHOCal = true;
@@ -306,47 +327,30 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	}
       }
 
-      Direction towerDir(calCI->eta(), calCI->phi());
+      reco::isodeposit::Direction towerDir(calCPtr->eta(), calCPtr->phi());
       //! add the Et of the tower to deposits if it's not a vetoed; put into muonEnergy otherwise
       if (doEcal){
-	if (vetoTowerEcal) depEcal.addMuonEnergy(etecal);
+	if (vetoTowerEcal) depEcal.addCandEnergy(etecal);
 	else depEcal.addDeposit(towerDir, etecal);
       }
       if (doHcal){
-	if (vetoTowerHcal) depHcal.addMuonEnergy(ethcal);
+	if (vetoTowerHcal) depHcal.addCandEnergy(ethcal);
 	else depHcal.addDeposit(towerDir, ethcal);
       }
       if (doHOcal){
-	if (vetoTowerHOCal) depHOcal.addMuonEnergy(ethocal);
+	if (vetoTowerHOCal) depHOcal.addCandEnergy(ethocal);
 	else depHOcal.addDeposit(towerDir, ethocal);
       }
     }
   }
 
-  std::vector<MuIsoDeposit> resultDeps;    
+  std::vector<IsoDeposit> resultDeps;
   resultDeps.push_back(depEcal);
   resultDeps.push_back(depHcal);
   resultDeps.push_back(depHOcal);
 
   return resultDeps;
 
-}
-
-double CaloExtractorByAssociator::PhiInRange(const double& phi) {
-      double phiout = phi;
-
-      if( phiout > 2*M_PI || phiout < -2*M_PI) {
-            phiout = fmod( phiout, 2*M_PI);
-      }
-      if (phiout <= -M_PI) phiout += 2*M_PI;
-      else if (phiout >  M_PI) phiout -= 2*M_PI;
-
-      return phiout;
-}
-
-template <class T, class U>
-double CaloExtractorByAssociator::deltaR(const T& t, const U& u) {
-      return sqrt(pow(t.eta()-u.eta(),2) +pow(PhiInRange(t.phi()-u.phi()),2));
 }
 
 double CaloExtractorByAssociator::noiseEcal(const CaloTower& tower) const {
@@ -357,7 +361,7 @@ double CaloExtractorByAssociator::noiseEcal(const CaloTower& tower) const {
 }
 
 double CaloExtractorByAssociator::noiseHcal(const CaloTower& tower) const {
-  double noise = fabs(tower.eta())> 1.479 ? theNoise_HE : theNoise_HB;      
+  double noise = fabs(tower.eta())> 1.479 ? theNoise_HE : theNoise_HB;
   return noise;
 }
 
@@ -382,7 +386,7 @@ double CaloExtractorByAssociator::noiseRecHit(const DetId& detId) const {
     if (subDet == HcalBarrel){
       noise = theNoise_HB;
     } else if (subDet == HcalEndcap){
-      noise = theNoise_HE;      
+      noise = theNoise_HE;
     } else if (subDet == HcalOuter){
       noise = theNoise_HO;
     }

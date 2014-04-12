@@ -5,9 +5,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
@@ -31,7 +28,7 @@ class RPCReadOutMapBuilder : public edm::EDAnalyzer {
  public:
   explicit RPCReadOutMapBuilder( const edm::ParameterSet& );
   ~RPCReadOutMapBuilder();
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
  private:
@@ -44,8 +41,8 @@ RPCReadOutMapBuilder::RPCReadOutMapBuilder( const edm::ParameterSet& iConfig )
   : m_record(iConfig.getParameter<std::string>("record"))
 {
   cout <<" HERE record: "<<m_record<<endl;
-  ::putenv("CORAL_AUTH_USER=me");
-  ::putenv("CORAL_AUTH_PASSWORD=test"); 
+  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER=me").c_str()));
+  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=test").c_str())); 
 }
 
 
@@ -66,7 +63,7 @@ void RPCReadOutMapBuilder::endJob()
   try {
     if( mydbservice->isNewTagRequest(m_record) ) {
       mydbservice->createNewIOV<RPCReadOutMapping>(
-          cabling, mydbservice->endOfTime(), m_record);
+          cabling, mydbservice->beginOfTime(), mydbservice->endOfTime(), m_record);
     } else {
       mydbservice->appendSinceTime<RPCReadOutMapping>(
           cabling, mydbservice->currentTime(), m_record);
@@ -78,7 +75,7 @@ void RPCReadOutMapBuilder::endJob()
 }
 
 // ------------ method called to produce the data  ------------
-void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup ) 
+void RPCReadOutMapBuilder::beginJob()
 {
   cout << "BeginJob method " << endl;
   cout<<"Building RPC Cabling"<<endl;   
@@ -92,17 +89,18 @@ void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup )
         LinkConnSpec  lc(idlc); 
         for (int idlb=0; idlb <=2; idlb++) {
           bool master = (idlb==0);
-          LinkBoardSpec lb(master, idlb);
+          LinkBoardSpec lb(master, idlb, 0);
           for (int ifeb=0; ifeb <= 5; ifeb++) {
-            FebLocationSpec febLocation = {"3",2,"Forward",2};
-            ChamberLocationSpec chamber = {1,5,3,"+","ch","IN","+z","Barrel"};
+            FebLocationSpec febLocation = {3,2,1,2};
+            ChamberLocationSpec chamber = {1,5,3,1,1,1,1};
             FebConnectorSpec febConn(ifeb, chamber, febLocation);
-            for (int istrip=0; istrip <= 15; istrip++) {
+/*              for (int istrip=0; istrip <= 15; istrip++) {
               int chamberStrip = ifeb*16+istrip;
               int cmsStrip = chamberStrip;
               ChamberStripSpec strip = {istrip, chamberStrip, cmsStrip};
               febConn.add( strip);
-            }
+            } */
+//            febConn.addStrips(16,1,1,1,1);
             lb.add(febConn); 
           }
           lc.add(lb);

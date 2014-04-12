@@ -7,19 +7,18 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/MeasurementDiffEntry.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/ALIVisLightPath.h"
 #endif
-#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

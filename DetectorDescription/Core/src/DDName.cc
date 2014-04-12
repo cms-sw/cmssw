@@ -1,16 +1,10 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Base/interface/Singleton.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <sstream>
-
-//Timing
-
-#include "SealUtil/SealTimer.h"
-
-
 
 std::ostream & operator<<(std::ostream & os, const DDName & n)
 { 
@@ -80,7 +74,7 @@ void DDName::defineId(const std::pair<std::string,std::string> & nm, DDName::id_
     if(id2n[id]->first != nm) {
       std::stringstream s;
       s << id;
-      throw DDException("DDName::DDName(std::pair<std::string,std::string>,id_type): id=" + s.str() + " reg-name=?" );
+      throw cms::Exception("DDException") << "DDName::DDName(std::pair<std::string,std::string>,id_type): id=" + s.str() + " reg-name=?";
     }
   }
   else {
@@ -92,7 +86,7 @@ void DDName::defineId(const std::pair<std::string,std::string> & nm, DDName::id_
 
 const std::string & DDName::name() const 
 {
-  static std::string ano_("anonymous");
+  const static std::string ano_("anonymous");
   const std::string * result;
   if (id_ < 0) {
       result = &ano_;
@@ -106,7 +100,7 @@ const std::string & DDName::name() const
 
 const std::string & DDName::ns() const
 {
-  static std::string ano_("anonymous");
+  const static std::string ano_("anonymous");
   const std::string * result;
   if (id_ < 0) {
       result = &ano_;
@@ -128,8 +122,6 @@ bool DDName::exists(const std::string & name, const std::string & ns)
 
 
 DDName::Registry::iterator DDName::registerName(const std::pair<std::string,std::string> & nm) {
-    static seal::SealTimer rddnamern("DDName::registerName(...)", false);
-
     Registry& reg_ = DDI::Singleton<Registry>::instance();
     IdToName & idToName = DDI::Singleton<IdToName>::instance();  
     Registry::size_type sz = reg_.size();

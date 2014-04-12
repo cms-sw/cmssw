@@ -7,7 +7,7 @@
 // 
 /**\class DataProxyTemplate DataProxyTemplate.h FWCore/Framework/interface/DataProxyTemplate.h
 
- Description: <one line class summary>
+ Description: A DataProxy base class which allows one to write type-safe proxies
 
  Usage:
     <usage>
@@ -16,15 +16,14 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:45:32 EST 2005
-// $Id: DataProxyTemplate.h,v 1.8 2006/08/16 13:48:43 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
-#include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include <cassert>
 
 // forward declarations
 
@@ -38,7 +37,7 @@ class DataProxyTemplate : public DataProxy
       typedef DataT value_type;
       typedef RecordT record_type;
    
-      DataProxyTemplate() : cache_(0) {}
+      DataProxyTemplate(){}
       //virtual ~DataProxyTemplate();
 
       // ---------- const member functions ---------------------
@@ -46,37 +45,21 @@ class DataProxyTemplate : public DataProxy
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual const DataT* get(const RecordT& iRecord,
-                                const DataKey& iKey) const {
-         if(!cacheIsValid()) {
-            cache_ = const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->make(iRecord, iKey);
-            const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->setCacheIsValid();
-         }
-         if(0 == cache_) {
-            throwMakeException(iRecord, iKey);
-         }
-         return cache_;
+      virtual const void* getImpl(const EventSetupRecord& iRecord,
+                                  const DataKey& iKey) {
+         assert(iRecord.key() == RecordT::keyForClass());
+         return this->make(static_cast<const RecordT&>(iRecord), iKey);
       }
       
-      void doGet(const EventSetupRecord& iRecord, const DataKey& iKey) const {
-         assert(iRecord.key() == RecordT::keyForClass());
-         get(static_cast<const RecordT&>(iRecord), iKey);
-      }
    protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
       
-      virtual void throwMakeException(const RecordT& /*iRecord*/,
-                                       const DataKey& iKey) const {
-         throw MakeDataException<record_type, value_type>(iKey);
-      }
-
    private:
       DataProxyTemplate(const DataProxyTemplate&); // stop default
 
       const DataProxyTemplate& operator=(const DataProxyTemplate&); // stop default
 
       // ---------- member data --------------------------------
-      mutable const DataT* cache_;
 };
 
    }

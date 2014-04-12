@@ -3,48 +3,28 @@
 
 /** 
 \class HcalChannelQuality
-\author Fedor Ratnikov (UMd)
-POOL object to store channel quality information
-$Author: ratnikov
-$Date: 2006/02/01 21:34:52 $
-$Revision: 1.3 $
+\author Radek Ofierzynski
+POOL object to store HcalChannelStatus
 */
 
-#include <vector>
-#include <algorithm>
-#include <boost/cstdint.hpp>
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 
-// 
-class HcalChannelQuality {
+//typedef HcalCondObjectContainer<HcalChannelStatus> HcalChannelQuality;
+
+class HcalChannelQuality: public HcalCondObjectContainer<HcalChannelStatus>
+{
  public:
-  enum Quality {
-    UNKNOWN = 0,
-    BAD = 1,
-    GOOD = 2,
-    HOT = 3,
-    DEAD = 4,
-    END = 5
-  };
-  HcalChannelQuality();
-  ~HcalChannelQuality();
-  Quality quality (unsigned long fId, bool fWarning = true) const;
-  bool sorted () const {return mSorted;}
-  // get list of all available channels
-  std::vector<unsigned long> getAllChannels () const;
-  bool setChannel (unsigned long fId, Quality fQuality = UNKNOWN);
-  void sort ();
-  static const char* str (Quality fQuality);
-  class Item {
-  public:
-    bool operator< (const Item& other) const {return mId < other.mId;}
-    bool operator== (const Item& other) const {return mId == other.mId;}
-    uint32_t mId;
-    unsigned mQuality;
-  };
- protected:
-  std::vector<Item> mItems;
-  bool mSorted;
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalChannelQuality():HcalCondObjectContainer<HcalChannelStatus>(0) {}
+#endif
+  HcalChannelQuality(const HcalTopology* topo):HcalCondObjectContainer<HcalChannelStatus>(topo) {}
+
+  std::string myname() const {return (std::string)"HcalChannelQuality";}
+
+ private:
 };
+
 
 #endif
 

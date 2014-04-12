@@ -17,7 +17,6 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestSmoothHits.h,v 1.2 2007/06/27 18:13:43 cerati Exp $
 //
 //
 #include <memory>
@@ -27,15 +26,15 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -55,21 +54,11 @@ public:
   ~TestSmoothHits();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-/*   template<unsigned int D>  */
-/*     double computeChi2Increment(MeasurementExtractor, TransientTrackingRecHit::ConstRecHitPointer); */
-/*   double computeChi2Increment(MeasurementExtractor me, TransientTrackingRecHit::ConstRecHitPointer hit) { */
-/*     switch (hit->dimension()) { */
-/*     case 1: return computeChi2Increment<1>(me,hit); */
-/*     case 2: return computeChi2Increment<2>(me,hit); */
-/*     case 3: return computeChi2Increment<3>(me,hit); */
-/*     case 4: return computeChi2Increment<4>(me,hit); */
-/*     case 5: return computeChi2Increment<5>(me,hit); */
-/*     } */
-/*     throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5"); */
-/*   } */
+
+  std::pair<LocalPoint,LocalVector> projectHit(const PSimHit&, const StripGeomDetUnit*, const BoundPlane&);
 
   const edm::ParameterSet conf_;
   TrackerHitAssociator * hitAssociator;
@@ -79,7 +68,6 @@ private:
   std::string propagatorName;
   std::string builderName;
   std::string srcName;
-  std::string updatorName;
   std::string fname;
   std::string sname;
 
@@ -87,7 +75,6 @@ private:
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  edm::ESHandle<TrajectoryStateUpdator> theUpdator;
   edm::Handle<TrackCandidateCollection> theTCCollection;
   edm::ESHandle<TrajectoryFitter> fit;
   edm::ESHandle<TrajectorySmoother> smooth;

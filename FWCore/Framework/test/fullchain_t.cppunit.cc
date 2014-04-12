@@ -4,21 +4,19 @@
  *
  *  Created by Chris Jones on 4/3/05.
  *  Changed by Viji Sundararajan on 29-Jun-05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
  *
  */
 #include <iostream>
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/HCMethods.icc"
-#include "FWCore/Framework/interface/recordGetImplementation.icc"
+#include "FWCore/Framework/interface/HCMethods.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 using namespace edm;
 using namespace edm::eventsetup;

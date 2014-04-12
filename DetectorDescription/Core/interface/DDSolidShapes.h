@@ -1,6 +1,7 @@
 #ifndef DDSolidShapes_h
 #define DDSolidShapes_h
-#include "DetectorDescription/Base/interface/DDException.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 enum DDSolidShape { dd_not_init,
                     ddbox, ddtubs, ddtrap, ddcons,
@@ -10,14 +11,16 @@ enum DDSolidShape { dd_not_init,
                     ddunion, ddsubtraction, ddintersection,
 		    ddreflected,
 		    ddshapeless,
-		    ddpseudotrap, ddtrunctubs
+		    ddpseudotrap, ddtrunctubs, ddsphere,
+		    ddorb, ddellipticaltube, ddellipsoid,
+		    ddparallelepiped
 		   };
 		   
 struct DDSolidShapesName {
 
-  static const char * name(DDSolidShape s) 
+  static const char * const name(DDSolidShape s) 
   {
-    static const char* c[] = { 
+    static const char * const c[] = { 
       "Solid not initialized",
       "Box", "Tube(section)", "Trapezoid", "Cone(section)",
       "Polycone_rz", "Polyhedra_rz",
@@ -26,12 +29,14 @@ struct DDSolidShapesName {
       "UnionSolid", "SubtractionSolid", "IntersectionSolid",
       "ReflectedSolid", 
       "ShapelessSolid",
-      "PseudoTrapezoid","TruncatedTube(section)"
+      "PseudoTrapezoid","TruncatedTube(section)",
+      "Sphere(section)", "Orb", "EllipticalTube", "Ellipsoid",
+      "Parallelepiped"
     };
     return c[s];   			  
   }
   
-  static const DDSolidShape index( const int& ind ) {
+  static DDSolidShape index( const int& ind ) {
     switch (ind) {
     case 0:
       return dd_not_init;
@@ -84,8 +89,23 @@ struct DDSolidShapesName {
     case 16:
       return ddtrunctubs;
       break;
+    case 17:
+      return ddsphere;
+      break;
+    case 18: 
+      return ddorb;
+      break;
+    case 19:
+      return ddellipticaltube;
+      break;
+    case 20:
+      return ddellipsoid;
+      break;
+    case 21:
+      return ddparallelepiped;
+      break;
     default:
-      throw DDException("DDSolidShapes:index wrong shape");   
+      throw cms::Exception("DDException") << "DDSolidShapes:index wrong shape";   
       break;
     }
   }

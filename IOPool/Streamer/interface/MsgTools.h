@@ -1,8 +1,11 @@
-#ifndef _MsgTools_h
-#define _MsgTools_h
+#ifndef IOPool_Streamer_MsgTools_h
+#define IOPool_Streamer_MsgTools_h
 
 #include <vector>
 #include <string>
+#include <sstream>
+#include <iterator>
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 // could just use the c99 names here from stdint.h
 typedef unsigned char uint8;
@@ -66,6 +69,33 @@ inline void convert(uint64 li, char_uint64 v)
   v[7]=(li>>56)&0xff;
 }
 
+namespace MsgTools
+{
+
+inline uint8* fillNames(const Strings& names, uint8* pos)
+{
+  uint32 sz = names.size();
+  convert(sz,pos); // save number of strings
+  uint8* len_pos = pos + sizeof(char_uint32); // area for length
+  pos = len_pos + sizeof(char_uint32); // area for full string of names
+  bool first = true;
+
+  for(Strings::const_iterator beg = names.begin(); beg != names.end(); ++beg) {
+      if(first) first = false; else *pos++ = ' ';
+      pos = edm::copy_all(*beg,pos);
+  }
+  convert((uint32)(pos-len_pos-sizeof(char_uint32)),len_pos);
+  return pos;
+}
+
+inline void getNames(uint8* from, uint32 from_len, Strings& to)
+{
+  // not the most efficient way to do this
+  std::istringstream ist(std::string(reinterpret_cast<char *>(from),from_len));
+  typedef std::istream_iterator<std::string> Iter;
+  std::copy(Iter(ist),Iter(),std::back_inserter(to));
+}
+
+}
 
 #endif
-

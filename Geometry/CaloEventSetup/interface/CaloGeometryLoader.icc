@@ -1,0 +1,171 @@
+#ifndef GEOMETRY_ECALGEOMETRYLOADER_ICC
+#define GEOMETRY_ECALGEOMETRYLOADER_ICC 1
+
+#include "CondFormats/Alignment/interface/AlignTransform.h"
+
+#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
+
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDNodes.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDScope.h"
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDQuery.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <boost/algorithm/string/predicate.hpp>
+
+#include <vector>
+
+template <class T>
+const double 
+CaloGeometryLoader<T>::k_ScaleFromDDDtoGeant ( 0.1 ) ;
+
+template <class T>
+CaloGeometryLoader<T>::CaloGeometryLoader() 
+{
+   m_filter.setCriteria( DDValue( "SensitiveDetector",
+				  "EcalSensitiveDetector",
+				  0                        ),
+			 DDSpecificsFilter::equals,
+			 DDSpecificsFilter::AND,
+			 true,
+			 true                               ) ;
+
+   m_filter.setCriteria( DDValue( "ReadOutName",
+				  T::hitString(),
+				  0                  ),
+			 DDSpecificsFilter::equals,
+			 DDSpecificsFilter::AND,
+			 true,
+			 true                       ) ;
+}
+
+template <class T>
+typename CaloGeometryLoader<T>::PtrType
+CaloGeometryLoader<T>::load( const DDCompactView*  cpv        ,
+			     const Alignments*     alignments ,
+			     const Alignments*     globals       ) 
+{
+   PtrType geom ( new T ) ;
+
+   makeGeometry( cpv,
+		 dynamic_cast<T*>( geom.get() ),
+		 alignments,
+		 globals ) ;
+
+   return geom ;
+}
+
+template <class T>
+void 
+CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
+				     T*                    geom       ,
+				     const Alignments*     alignments ,
+				     const Alignments*     globals      )
+{
+   DDFilteredView fv0 ( *cpv ) ;
+   fv0.addFilter( m_filter ) ;
+
+   fillNamedParams( fv0, geom ) ;
+
+   geom->allocateCorners( T::k_NumberOfCellsForCorners ) ;
+   geom->allocatePar( T::k_NumberOfParametersPerShape*T::k_NumberOfShapes,
+		      T::k_NumberOfParametersPerShape ) ;
+
+   DDFilteredView fv( *cpv ) ;
+   fv.addFilter( m_filter ) ;
+ 
+   unsigned int counter ( 0 ) ;
+   for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )
+   {
+      const DDSolid& solid ( fv.logicalPart().solid() ) ;
+      if (boost::starts_with(solid.name().name(), "EA")) 
+      {
+	 continue;
+      }      
+      ++counter ;
+
+      const ParmVec& parameters ( solid.parameters() ) ;
+
+      DD3Vector x, y, z;
+      fv.rotation().GetComponents( x, y, z ) ;
+      const CLHEP::HepRep3x3 temp( x.X(), y.X(), z.X(),
+				   x.Y(), y.Y(), z.Y(),
+			           x.Z(), y.Z(), z.Z() );
+      const CLHEP::HepRotation hr ( temp );
+      const CLHEP::Hep3Vector h3v ( fv.translation().X(),
+		 		    fv.translation().Y(),
+				    fv.translation().Z()  ) ;
+      const HepGeom::Transform3D ht3d ( hr,          // only scale translation
+	 	 		        k_ScaleFromDDDtoGeant*h3v ) ;    
+
+      const DetId id ( getDetIdForDDDNode( fv ) ) ;
+
+      const unsigned int which ( geom->alignmentTransformIndexLocal( id ) ) ;
+
+      assert( 0 == alignments ||
+	      which < alignments->m_align.size() ) ;
+
+      const AlignTransform* at ( 0 == alignments ? 0 :
+				 &alignments->m_align[ which ] ) ;
+
+      assert( 0 == at || ( geom->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == which ) ) ;
+
+      const unsigned int gIndex ( geom->alignmentTransformIndexGlobal( id ) ) ;
+
+      const AlignTransform* globalT ( 0 == globals ? 0 :
+				      ( globals->m_align.size() > gIndex ? 
+					&globals->m_align[ gIndex ] : 0 ) ) ;
+
+      const HepGeom::Transform3D atr ( 0 == at ? ht3d :
+				 ( 0 == globalT ? at->transform()*ht3d :
+				   at->transform()*globalT->transform()*ht3d ) ) ;
+
+      fillGeom( geom, parameters, atr, id ) ;
+   }
+
+   assert( counter <= T::k_NumberOfCellsForCorners ) ;
+
+   geom->initializeParms() ;
+}
+
+template <class T>
+unsigned int 
+CaloGeometryLoader<T>::getDetIdForDDDNode( const DDFilteredView& fv )
+{
+  // perform some consistency checks
+  // get the parents and grandparents of this node
+
+  const DDGeoHistory& parents ( fv.geoHistory() ) ;
+  const DDGeoHistory::size_type psize ( parents.size() ) ;
+
+  EcalBaseNumber baseNumber ;
+  baseNumber.setSize( psize ) ;
+
+  for( unsigned int i=1 ; i<=psize ; ++i )
+  {
+     baseNumber.addLevel( parents[psize-i].logicalPart().name().name(),
+			  parents[psize-i].copyno() ) ;
+  }
+
+  return m_scheme.getUnitID( baseNumber );  
+}
+
+
+#endif

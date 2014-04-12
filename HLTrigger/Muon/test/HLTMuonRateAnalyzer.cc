@@ -14,12 +14,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,6 +28,8 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
+using namespace trigger;
+using namespace l1extra;
 
 /// Constructor
 HLTMuonRateAnalyzer::HLTMuonRateAnalyzer(const ParameterSet& pset)
@@ -36,6 +37,11 @@ HLTMuonRateAnalyzer::HLTMuonRateAnalyzer(const ParameterSet& pset)
   theGenLabel = pset.getUntrackedParameter<InputTag>("GenLabel");
   theL1CollectionLabel = pset.getUntrackedParameter<InputTag>("L1CollectionLabel");
   theHLTCollectionLabels = pset.getUntrackedParameter<std::vector<InputTag> >("HLTCollectionLabels");
+  theGenToken = consumes<edm::HepMCProduct>(theGenLabel);
+  theL1CollectionToken = consumes<trigger::TriggerFilterObjectWithRefs>(theL1CollectionLabel);
+  for (unsigned int i=0; i<theHLTCollectionLabels.size(); ++i) {
+    theHLTCollectionTokens.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(theHLTCollectionLabels[i]));
+  }
   theL1ReferenceThreshold = pset.getUntrackedParameter<double>("L1ReferenceThreshold");
   theNSigmas = pset.getUntrackedParameter<std::vector<double> >("NSigmas90");
 
@@ -57,7 +63,7 @@ HLTMuonRateAnalyzer::HLTMuonRateAnalyzer(const ParameterSet& pset)
 HLTMuonRateAnalyzer::~HLTMuonRateAnalyzer(){
 }
 
-void HLTMuonRateAnalyzer::beginJob(const EventSetup& eventSetup){
+void HLTMuonRateAnalyzer::beginJob(){
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
@@ -141,7 +147,7 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
   double this_event_weight=1.;
   try {
       Handle<HepMCProduct> genProduct;
-      event.getByLabel(theGenLabel,genProduct);
+      event.getByToken(theGenToken,genProduct);
       const HepMC::GenEvent* evt = genProduct->GetEvent();
       HepMC::WeightContainer weights = evt->weights();
       if ( weights.size() > 0 )  this_event_weight=weights[0];
@@ -152,32 +158,26 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
   theNumberOfEvents += this_event_weight;
 
   // Get the L1 collection
-  Handle<HLTFilterObjectWithRefs> l1cands;
-  try {
-      event.getByLabel(theL1CollectionLabel, l1cands);
-  } catch (...) {
-      // Do nothing
-      return;
-  }
+  Handle<TriggerFilterObjectWithRefs> l1cands;
+  event.getByToken(theL1CollectionToken, l1cands);
+  if (l1cands.failedToGet()) return;
 
   // Get the HLT collections
-  std::vector<Handle<HLTFilterObjectWithRefs> > hltcands;
-  hltcands.reserve(theHLTCollectionLabels.size());
+  std::vector<Handle<TriggerFilterObjectWithRefs> > hltcands(theHLTCollectionLabels.size());
   unsigned int modules_in_this_event = 0;
   for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      try {
-            event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
-      } catch (...) {
-            break;
-      }
-      modules_in_this_event++;
+    event.getByToken(theHLTCollectionTokens[i], hltcands[i]);
+    if (hltcands[i].failedToGet())break;
+    modules_in_this_event++;
   }
 
   // Fix L1 thresholds to obtain HLT plots
   unsigned int nL1FoundRef = 0;
   double epsilon = 0.001;
-  for (unsigned int k=0; k<l1cands->size(); k++) {
-      RefToBase<Candidate> candref = l1cands->getParticleRef(k);
+  vector<L1MuonParticleRef> l1mu;
+  l1cands->getObjects(TriggerL1Mu,l1mu);
+  for (unsigned int k=0; k<l1mu.size(); k++) {
+      L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
       // L1 PTs are "quantized" due to LUTs. 
       // Their meaning: true_pt > ptLUT more than 90% pof the times
       double ptLUT = candref->pt();
@@ -190,8 +190,8 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
 
       // L1 filling
       unsigned int nFound = 0;
-      for (unsigned int k=0; k<l1cands->size(); k++) {
-            RefToBase<Candidate> candref = l1cands->getParticleRef(k);
+      for (unsigned int k=0; k<l1mu.size(); k++) {
+            L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
             double pt = candref->pt();
             if (pt>ptcut) nFound++;
       }
@@ -203,8 +203,10 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
       // HLT filling
       for (unsigned int i=0; i<modules_in_this_event; i++) {
             unsigned nFound = 0;
-            for (unsigned int k=0; k<hltcands[i]->size(); k++) {
-                  RefToBase<Candidate> candref = hltcands[i]->getParticleRef(k);
+	    vector<RecoChargedCandidateRef> vref;
+	    hltcands[i]->getObjects(TriggerMuon,vref);
+            for (unsigned int k=0; k<vref.size(); k++) {
+                  RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[k]);
                   TrackRef tk = candref->get<TrackRef>();
                   double pt = tk->pt();
                   double err0 = tk->error(0);

@@ -4,14 +4,12 @@
 /** \class KFFittingSmootherESProducer
  *  ESProducer for the KFFittingSmoother
  *
- *  $Date$
- *  $Revision$
  *  \author cerati
  */
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
 #include "TrackingTools/TrackFitters/interface/KFFittingSmoother.h"
 #include <boost/shared_ptr.hpp>
 
@@ -19,7 +17,7 @@ class  KFFittingSmootherESProducer: public edm::ESProducer{
  public:
   KFFittingSmootherESProducer(const edm::ParameterSet & p);
   virtual ~KFFittingSmootherESProducer(); 
-  boost::shared_ptr<TrajectoryFitter> produce(const TrackingComponentsRecord &);
+  boost::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
  private:
   boost::shared_ptr<TrajectoryFitter> _fitter;
   edm::ParameterSet pset_;

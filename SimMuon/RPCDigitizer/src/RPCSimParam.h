@@ -15,25 +15,20 @@ class RPCGeometry;
 
 namespace CLHEP {
   class HepRandomEngine;
-  class RandFlat;
-}
-
-namespace CLHEP {
-  class HepRandomEngine;
-  class RandFlat;
 }
 
 class RPCSimParam : public RPCSim
 {
  public:
   RPCSimParam(const edm::ParameterSet& config);
-  ~RPCSimParam(){}
+  ~RPCSimParam();
 
   void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits ){};
+		const edm::PSimHitContainer& rpcHits,
+                CLHEP::HepRandomEngine*) override;
 
-  void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits, const RPCGeometry*);
+  void simulateNoise(const RPCRoll*,
+                     CLHEP::HepRandomEngine*) override;
 
  private:
   void init(){};
@@ -48,10 +43,11 @@ class RPCSimParam : public RPCSim
   double lbGate;
   bool rpcdigiprint;
 
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
+  int N_hits;
+  int nbxing;
+  double rate;
+  double gate;
 
   RPCSynchronizer* _rpcSync;
-
 };
 #endif

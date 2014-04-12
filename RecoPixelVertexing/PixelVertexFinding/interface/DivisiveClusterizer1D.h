@@ -39,6 +39,8 @@ public:
         ( const std::vector < Cluster1D<T> > & ) const;
     virtual DivisiveClusterizer1D * clone() const;
 
+    void setBeamSpot(const math::XYZPoint & bs) {theMerger->setBeamSpot(bs); } 
+
 private:
     //methods
     void findCandidates( const std::vector < Cluster1D<T> >&,
@@ -73,8 +75,8 @@ DivisiveClusterizer1D<T>::DivisiveClusterizer1D(float zoffset,
         int ntkmin,
         bool useError,
         float zsep, bool wei)
-        :theZOffSet(zoffset), theZSeparation(zsep), theNTkMin(ntkmin),
-        theWei(wei), theUseError(useError)
+        :theZOffSet(zoffset), theNTkMin(ntkmin),
+	 theUseError(useError), theZSeparation(zsep), theWei(wei)
 {
     //  theDiscardedTracks.clear();
     // theTotalDiscardedTracks.clear();

@@ -1,122 +1,137 @@
 // Framework headers
-#include "PluginManager/PluginManager.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
+
 // SimpleConfigurable replacement
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+
 // HepMC headers
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenParticle.h"
-#include "CLHEP/HepMC/ParticleDataTableConfig.h"
- 
-#include "CLHEP/Vector/LorentzVector.h"
- 
+#include "HepMC/GenEvent.h"
+
 // Hector headers
 #include "SimTransport/HectorProducer/interface/HectorProducer.h"
-//#include "SimTransport/Hector/interface/TransportHector.h"
-#include "SimTransport/Hector/interface/Hector.h"
+#include "SimTransport/HectorProducer/interface/Hector.h"
 
 // SimDataFormats headers
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
+
+#include "CLHEP/Random/RandomEngine.h"
 
 #include <iostream>
 #include <memory>
+#include <string>
+
+class TRandom3;
 
 using std::cout;
 using std::endl;
 
 HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnalysed(0) {
-
-  cout << "===================================================================" << endl;  
-  cout << "=== Start create new HectorProducer                           =====" << endl;
-
-  //  produces<edm::HepMCProduct>();
- 
+  
+  
   // TransportHector
-
-  m_InTag = parameters.getParameter<std::string>("HepMCProductLabel") ;
-
+  
+  m_InTag          = parameters.getParameter<std::string>("HepMCProductLabel") ;
+  m_verbosity      = parameters.getParameter<bool>("Verbosity");
+  m_FP420Transport = parameters.getParameter<bool>("FP420Transport");
+  m_ZDCTransport   = parameters.getParameter<bool>("ZDCTransport");
+  
   produces<edm::HepMCProduct>();
-  hector = new Hector( parameters );
-  cout << "===================================================================" << endl;  
+  produces<edm::LHCTransportLinkContainer>();
+
+  hector = new Hector(parameters, 
+		      m_verbosity,
+		      m_FP420Transport,
+		      m_ZDCTransport);
+  
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable() ) {
+    throw cms::Exception("Configuration")
+      << "LHCTransport (HectorProducer) requires the RandomNumberGeneratorService\n"
+         "which is not present in the configuration file.  You must add the service\n"
+         "in the configuration file or remove the modules that require it.";
+  }
 }
 
 HectorProducer::~HectorProducer(){
-
-    //if ( hector ) delete hector;
-    
-  cout << "===================================================================" << endl;  
-  cout << "=== Start delete HectorProducer                               =====" << endl;
-  cout << "=== Number of events analysed: " << eventsAnalysed << endl;
-  delete hector;
-  cout << "===================================================================" << endl;  
+  
+  if(m_verbosity) {
+    LogDebug("HectorSetup") << "Delete HectorProducer"  
+                            << "Number of events analysed: " << eventsAnalysed;
+  }
 
 }
-
-void HectorProducer::beginJob(const edm::EventSetup & es)
-{
-  //  cout << "HectorProducer::beginJob" << std::endl;
-  //  cout << "" << std::endl;
-}
-
-void HectorProducer::endJob()
-{
-  //    std::cout << " HectorProducer terminating " << std::endl;
-}
-
 
 void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
-  //  cout << "HectorProducer::produce" << std::endl;
-   using namespace edm;
-   using namespace std;
-   //   using namespace HepMC;
-   //   using namespace CLHEP;
 
-   eventsAnalysed++;
+  using namespace edm;
+  using namespace std;
 
-   //   vector< Handle<HepMCProduct> > AllHepMCEvt ;   
-   //   iEvent.getManyByType( AllHepMCEvt ) ;
-   Handle<HepMCProduct>  HepMCEvt;   
-   iEvent.getByLabel( m_InTag, HepMCEvt ) ;
-      
-   //   for ( unsigned int i=0; i<HepMCEvt.size(); ++i )
-   //   {
-      if ( !HepMCEvt.isValid() )
-      {
-         // in principal, should never happen, as it's taken care of bt Framework
-         throw cms::Exception("InvalidReference")
-            << "Invalid reference to HepMCProduct\n";
-      }
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+  if ( engine->name() != "TRandom3" ) {
+    throw cms::Exception("Configuration")
+      << "The TRandom3 engine type must be used with HectorProducer, Random Number Generator Service not correctly configured!";
+  }
+  TRandom3* rootEngine = ( (edm::TRandomAdaptor*) engine )->getRootEngine();
 
-      if ( HepMCEvt.provenance()->moduleLabel() == "HectorTrasported" )
-      {
-         throw cms::Exception("LogicError")
-            << "HectorTrasported HepMCProduce already exists\n";
-      }
-     
-      //   }
+  eventsAnalysed++;
+  
+  Handle<HepMCProduct>  HepMCEvt;   
+  iEvent.getByLabel( m_InTag, HepMCEvt ) ;
+  
+  if ( !HepMCEvt.isValid() )
+    {
+      throw cms::Exception("InvalidReference")
+        << "Invalid reference to HepMCProduct\n";
+    }
+  
+  if ( HepMCEvt.provenance()->moduleLabel() == "LHCTransport" )
+    {
+      throw cms::Exception("LogicError")
+        << "HectorTrasported HepMCProduce already exists\n";
+    }
 
-   evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
+  evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
+  hector->clearApertureFlags();
+  if(m_FP420Transport) {
+    hector->clear();
+    hector->add( evt_ ,es);
+    hector->filterFP420(rootEngine);
+  }
+  if(m_ZDCTransport) {
+    hector->clear();
+    hector->add( evt_ ,es);
+    hector->filterZDC(rootEngine);
+    
+    hector->clear();
+    hector->add( evt_ ,es);
+    hector->filterD1(rootEngine);
+  }
+  evt_ = hector->addPartToHepMC( evt_ );
+  if (m_verbosity) {
+    evt_->print();
+  }
+  
+  auto_ptr<HepMCProduct> NewProduct(new HepMCProduct()) ;
+  NewProduct->addHepMCData( evt_ ) ;
+  
+  iEvent.put( NewProduct ) ;
 
-   hector->clear();
-   hector->setIP( 0., 0., 0. );
-   hector->add( evt_ );
-   //   hector->add( *HepMCEvt[0]->GetEvent() );
-   std::vector<unsigned int> part_list = hector->part_list();
-   hector->reconstruct();
-   evt_ = hector->addPartToHepMC( evt_ );
+  auto_ptr<LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer() );
+  edm::LHCTransportLinkContainer thisLink(hector->getCorrespondenceMap());
+  (*NewCorrespondenceMap).swap(thisLink);
 
-   // put reconstructed particles in to HepMC
+  if ( m_verbosity ) {
+    for ( unsigned int i = 0; i < (*NewCorrespondenceMap).size(); i++) 
+      LogDebug("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
+  }
 
-   // OK, create a product and put in into edm::Event
-   //
-   auto_ptr<HepMCProduct> NewProduct(new HepMCProduct()) ;
-   NewProduct->addHepMCData( evt_ ) ;
-      
-   //   iEvent.put( NewProduct, "HectorTrasported" ) ;
-   iEvent.put( NewProduct ) ;
+  iEvent.put( NewCorrespondenceMap );
+
 }
 
-DEFINE_FWK_MODULE(HectorProducer);

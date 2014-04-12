@@ -14,16 +14,18 @@ class ElectronIDAnalyzer : public edm::EDAnalyzer
   explicit ElectronIDAnalyzer(const edm::ParameterSet& conf);
   virtual ~ElectronIDAnalyzer(){};
 
-  virtual void beginJob(edm::EventSetup const& iSetup){};
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-   
+
  private:
 
   edm::ParameterSet conf_;
 
   std::string electronProducer_;
-  std::string electronLabel_;
-  std::string electronIDAssocProducer_;
+
+  std::string electronLabelRobustLoose_;
+  std::string electronLabelRobustTight_;
+  std::string electronLabelLoose_;
+  std::string electronLabelTight_;
 
 };
 

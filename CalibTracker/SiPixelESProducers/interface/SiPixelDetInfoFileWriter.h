@@ -15,7 +15,6 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiPixelDetInfoFileWriter.h,v 1.1 2007/07/09 11:24:03 gbruno Exp $
 //
 //
 
@@ -33,9 +32,9 @@ public:
 
 private:
 
-  void beginJob(const edm::EventSetup& iSetup);
-
-  void analyze(const edm::Event &, const edm::EventSetup &){};
+  void beginJob();
+  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void analyze(const edm::Event &, const edm::EventSetup &);
 
 private:
 

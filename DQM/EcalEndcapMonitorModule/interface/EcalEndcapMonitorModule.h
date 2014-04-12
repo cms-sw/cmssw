@@ -4,20 +4,21 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2007/05/12 09:32:24 $
- * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
-
-#include <string>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+class MonitorElement;
+class DQMStore;
 
 class EcalEndcapMonitorModule: public edm::EDAnalyzer{
 
@@ -35,7 +36,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 // EndJob
 void endJob(void);
@@ -43,35 +44,51 @@ void endJob(void);
 /// Setup
 void setup(void);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
+
 /// Cleanup
 void cleanup(void);
 
 private:
 
-int runType_;
-int evtType_;
-
 int runNumber_;
 int evtNumber_;
 
+int runType_;
+int evtType_;
+
 bool fixedRunNumber_;
+
+bool fixedRunType_;
+
+bool isPhysics_;
 
 int ievt_;
 
-edm::InputTag EcalTBEventHeader_;
-edm::InputTag EcalRawDataCollection_;
-edm::InputTag EBDigiCollection_;
-edm::InputTag EcalUncalibratedRecHitCollection_;
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<EEDigiCollection> EEDigiCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
+edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcalTrigPrimDigiCollection_;
 
 bool verbose_;
-
-bool enableMonitorDaemon_;
+bool debug_;
 
 bool enableEventDisplay_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
+
+bool mergeRuns_;
 
 MonitorElement* meStatus_;
 
@@ -83,14 +100,13 @@ MonitorElement* meEvtType_;
 
 MonitorElement* meEEDCC_;
 
-MonitorElement* meEEdigi_;
-MonitorElement* meEEhits_;
+MonitorElement* meEEdigis_[2];
+MonitorElement* meEEhits_[2];
+MonitorElement* meEEtpdigis_[2];
 
 MonitorElement* meEvent_[18];
 
 bool init_;
-
-std::string outputFile_;
 
 };
 

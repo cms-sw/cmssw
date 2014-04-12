@@ -20,8 +20,7 @@
  */ 
 
 
-class ParticlePropagator;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class LandauFluctuationGenerator;
 
 class EnergyLossSimulator : public MaterialEffectsSimulator
@@ -29,17 +28,30 @@ class EnergyLossSimulator : public MaterialEffectsSimulator
  public:
 
   /// Constructor
-  EnergyLossSimulator(const RandomEngine* engine);
+  EnergyLossSimulator(double A, double Z, double density, double radLen);
 
   /// Default Destructor
   ~EnergyLossSimulator();
+
+  /// Return most probable energy loss
+  inline double mostLikelyLoss() const { return mostProbableLoss; }
+
+  /// Returns the actual energy lost
+  inline const XYZTLorentzVector& deltaMom() const { return deltaP; }
 
  private:
   /// The Landau Fluctuation generator
   LandauFluctuationGenerator* theGenerator;
 
   /// The real dE/dx generation and particle update
-  void compute(ParticlePropagator &Particle);
+  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*);
+
+  /// The most probable enery loss
+  double mostProbableLoss;
+
+  /// The actual energy loss
+  XYZTLorentzVector deltaP;
+
 };
 
 #endif

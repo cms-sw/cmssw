@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/parsers/SAXParser.hpp>
 
 // ---------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 class StrX
 {
 public :
-    typedef xercesc_2_7::XMLString XMLString;
+    typedef XERCES_CPP_NAMESPACE::XMLString XMLString;
     // -----------------------------------------------------------------------
     //  Constructors and Destructor
     // -----------------------------------------------------------------------

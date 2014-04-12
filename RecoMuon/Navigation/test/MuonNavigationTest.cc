@@ -1,8 +1,6 @@
 #include <memory>
 /** \file MuonNavigationTest
  *
- *  $Date: 2006/06/28 07:40:15 $
- *  $Revision: 1.4 $
  *  \author Chang Liu
  */
 

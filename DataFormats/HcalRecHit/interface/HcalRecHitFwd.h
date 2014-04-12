@@ -10,6 +10,7 @@ class HBHERecHit;
 class HORecHit;
 class HFRecHit;
 class ZDCRecHit;
+class CastorRecHit;
 class HcalCalibRecHit;
 
 typedef edm::SortedCollection<HBHERecHit> HBHERecHitCollection;
@@ -31,6 +32,11 @@ typedef edm::SortedCollection<ZDCRecHit> ZDCRecHitCollection;
 typedef edm::Ref<ZDCRecHitCollection> ZDCRecHitRef;
 typedef edm::RefVector<ZDCRecHitCollection> ZDCRecHitRefs;
 typedef edm::RefProd<ZDCRecHitCollection> ZDCRecHitsRef;
+
+typedef edm::SortedCollection<CastorRecHit> CastorRecHitCollection;
+typedef edm::Ref<CastorRecHitCollection> CastorRecHitRef;
+typedef edm::RefVector<CastorRecHitCollection> CastorRecHitRefs;
+typedef edm::RefProd<CastorRecHitCollection> CastorRecHitsRef;
 
 typedef edm::SortedCollection<HcalCalibRecHit> HcalCalibRecHitCollection;
 typedef edm::Ref<HcalCalibRecHitCollection> HcalCalibRecHitRef;

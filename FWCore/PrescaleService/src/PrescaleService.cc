@@ -1,377 +1,189 @@
-// -*- C++ -*-
+///////////////////////////////////////////////////////////////////////////////
 //
-// Package:     Services
-// Class  :     PrescaleServices
-// 
-// Implementation:
-//     Cache and make prescale factors available online.
+// PrescaleService
+// ---------------
 //
-// Current revision: $Revision: 1.4 $
-// On branch: $Name:  $
-// Latest change by $Author: youngman $ on $Date: 2007/07/27 07:43:06 $ 
-//
+///////////////////////////////////////////////////////////////////////////////
 
 
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
-#include <sstream>
+#include <set>
 #include <algorithm>
 
-using namespace std;
 
 namespace edm {
   namespace service {
 
-    PrescaleService::PrescaleService(const ParameterSet& iPS, ActivityRegistry&iReg)
+    // constructor
+    PrescaleService::PrescaleService(ParameterSet const& iPS,ActivityRegistry& iReg)
+      : forceDefault_(iPS.getParameter<bool>("forceDefault"))
+      , lvl1Labels_(iPS.getParameter<std::vector<std::string> >("lvl1Labels"))
+      , lvl1Default_(findDefaultIndex(iPS.getParameter<std::string>("lvl1DefaultLabel"), lvl1Labels_))
+      , vpsetPrescales_(iPS.getParameterSetVector("prescaleTable"))
+      , prescaleTable_()
     {
-      blsn = bpath = bmod = bfac = berr = 0;
-      lsgmax = glow = 0;
-      lspmax = pleq = 0;
-      lsg = lsc = bang = 0;
-      count_ = 0;
-      fu_ = 0;
-      lsold = 0;
-      nops = 0; 
+      iReg.watchPostBeginJob(this, &PrescaleService::postBeginJob);
 
-      LogDebug("PrescaleService") << "PrescaleService::PrescaleService";
-
-      iReg.watchPostBeginJob(this,&PrescaleService::postBeginJob);
-      iReg.watchPostEndJob(this,&PrescaleService::postEndJob);
-
-      iReg.watchPreProcessEvent(this,&PrescaleService::preEventProcessing);
-      iReg.watchPostProcessEvent(this,&PrescaleService::postEventProcessing);
-
-      iReg.watchPreModule(this,&PrescaleService::preModule);
-      iReg.watchPostModule(this,&PrescaleService::postModule);
-
-    }
-
-    PrescaleService::~PrescaleService()
-    {
-    }
-
-    void PrescaleService::postBeginJob()
-    {
-    }
-
-    void PrescaleService::postEndJob()
-    {
-    }
-
-    void PrescaleService::preEventProcessing(const edm::EventID& iID,
-					       const edm::Timestamp& iTime)
-    {
-      if (fu_ != 0) {
-//        std::cout << "!!! get trigger report" << std::endl;
-        fu_->getTriggerReport(trold);
+      // Sanity check
+      if (lvl1Default_ >= lvl1Labels_.size()) {
+        throw cms::Exception("InvalidLvl1Index")
+          <<"lvl1Default_ '" << lvl1Default_ << "' exceeds number of prescale columns " << lvl1Labels_.size() << "!";
       }
-    }
 
-    void PrescaleService::postEventProcessing(const edm::Event& e, const edm::EventSetup& c)
-    {
-      if (fu_ != 0) {
-	//        if ((count_ != 0)&&(e.luminosityBlock() != lsold)) {
-        if ((count_ != 0)&&(count_/100 != lsold)) {  //test//
-	  ostringstream oss;
-	  string ARRAY_LEN = "_";
-	  string SEPARATOR = " ";
-	  oss << lsold << SEPARATOR;
-	  //TriggerReport::eventSummary
-	  oss << trold.eventSummary.totalEvents << SEPARATOR
-	      << trold.eventSummary.totalEventsPassed << SEPARATOR
-	      << trold.eventSummary.totalEventsFailed << SEPARATOR;
-	  //TriggerReport::trigPathSummaries
-	  oss << ARRAY_LEN << trold.trigPathSummaries.size() << SEPARATOR;
-	  for(unsigned int i=0; i<trold.trigPathSummaries.size(); i++) {
-            oss << trold.trigPathSummaries[i].bitPosition << SEPARATOR
-		<< trold.trigPathSummaries[i].timesRun << SEPARATOR
-		<< trold.trigPathSummaries[i].timesPassed << SEPARATOR
-		<< trold.trigPathSummaries[i].timesFailed << SEPARATOR
-		<< trold.trigPathSummaries[i].timesExcept << SEPARATOR
-		<< trold.trigPathSummaries[i].name << SEPARATOR;
-	  }
-          boost::mutex::scoped_lock scoped_lock(mutex);
-	  triggers.push_back(oss.str());
+      // Check and store Prescale Table
+      for (unsigned int iVPSet=0; iVPSet < vpsetPrescales_.size(); ++iVPSet) {
+        const ParameterSet& psetPrescales = vpsetPrescales_[iVPSet];
+        const std::string pathName = psetPrescales.getParameter<std::string>("pathName");
+	if (prescaleTable_.find(pathName)!=prescaleTable_.end()) {
+	  throw cms::Exception("PrescaleServiceConfigError")
+	    << " Path '" << pathName << "' found more than once!";
 	}
-	//	lsold = e.luminosityBlock();
-	lsold = count_/100;          //test//
-      }
-
-//        edm::Timestamp t = e.time();
-//        std::cout << "Event time " << t.value() << std::endl;
-//        std::cout << "Run# " << e.run() << std::endl;
-//        std::cout << "Event LS# " << e.luminosityBlock() << std::endl; 
-
-      ++count_;
-    }
-
-    void PrescaleService::preModule(const ModuleDescription& md)
-    {
-    }
-
-    void PrescaleService::postModule(const ModuleDescription& md)
-    {
-    }
-
-    // Prepare indexed access without LS#
-    int PrescaleService::getPrescale(string module)
-    {
-      return getPrescale(0, module);
-    }
-
-    int PrescaleService::getPrescale(unsigned int ls, string module)
-    {
-      boost::mutex::scoped_lock scoped_lock(mutex);
-
-      if (ls < lsgmax) {
-	glow++;
-      } else {
-	lsgmax = ls;
-      }
-
-      if (prescalers.size()<=0) {
-        nops++;
-        return -1;
-      }
-
-      int j = prescalers.size()-1;
-      for( ; j>=0; j--) {
-//	cout << "getPrescale j " << j << endl;
-	unsigned int n; 
-	istringstream iss(prescalers[j]);
-	iss >> n;
-//	cout << "getPrescale n " << n << " ls " << ls << endl;
-	if (ls >= n) {
-//	    cout << "getPrescale n  " << n << " <= " << " ls " << ls << endl;
-	    break;
+	std::vector<unsigned int> prescales = psetPrescales.getParameter<std::vector<unsigned int> >("prescales");
+	if (prescales.size()!=lvl1Labels_.size()) {
+	  throw cms::Exception("PrescaleServiceConfigError")
+	    << " Path '" << pathName << "' has " << prescales.size() << " prescales, instead of expected " << lvl1Labels_.size() << "!";
 	}
-      }
-      if (j < 0) j = 0;
-
-      unsigned int i = j;
-      unsigned int n, m;
-      string a, b;
-      istringstream iss(prescalers[i]);
-      iss >> n;
-      while (!(iss.rdstate() & istringstream::goodbit)) {
-	iss >> a >> b >> m; 
-//	cout << "getPrescale " << n << "==" << ls << " a " << a << " b " << b << " m " << m << endl;
-	if (module == b) {
-            if (lsg == ls && lsc < n) {
-		bang++;
-		return -1;
-	    }
-	    lsg = ls;
-	    lsc = n;
-	    return (int)m;
-	}  
+	prescaleTable_[pathName] = prescales;
       }
 
-      return -1;
     }
-
-    int PrescaleService::putPrescale(string s)
-    {
-
-      istringstream iss(s);
-      unsigned int i, n, m;
-      string a, b;
       
-      iss >> n;
-      if (iss.fail()||iss.eof()) {
-	  blsn++;
-	  return -1;
-      }
-
-      if ((n <= lspmax)&&(lspmax != 0)) {
-	  pleq++;
-	  return -1;
-      }
-      lspmax = n;
-
-      for(i=0; iss.good(); i++) {
-	iss >> a;
-	if (iss.fail()||iss.eof()) {
-	  if (i>0) break; // trailing space
-	  bpath++;
-	  return -1;
-	}
-	iss >> b;
-	if (iss.fail()||iss.eof()) {
-	  bmod++;
-	  return -1;
-	}
-	iss >> m;
-	if (iss.fail()) {
-	  bfac++;
-	  return -1;
-	}
-      }
-
-      // validate
-      if (i < 1) {
-        berr++;
-	return -1;
-      }
-
-      // only insert valid strings
-      boost::mutex::scoped_lock scoped_lock(mutex);
-      prescalers.push_back(s);
-
-      return prescalers.size();
+    // destructor
+    PrescaleService::~PrescaleService() {
     }
 
-    int PrescaleService::sizePrescale()
-    {
-      boost::mutex::scoped_lock scoped_lock(mutex);
-      return prescalers.size();
-    }
+    // member functions
 
+    void PrescaleService::postBeginJob() {
 
+      // Acesss to Process ParameterSet needed - can't be done in c'tor
+      const ParameterSet prcPS = getProcessParameterSet();
 
-    void PrescaleService::putHandle(edm::EventProcessor *proc_)
-    {
-      fu_ = proc_;
-    }
+      // Label of HLTPrescaler on each path, keyed on pathName
+      std::map<std::string,std::string> path2module;
+      // Name of path for each HLTPrescaler, keyed on moduleLabel
+      std::map<std::string,std::string> module2path;
 
-    string PrescaleService::getStatus()
-    {
-      boost::mutex::scoped_lock scoped_lock(mutex);
+      // Check process config:
+      // * each path contains at most one HLTPrescaler instance
+      // * each HLTPrescaler instance is part of at most one path
+      // * each HLTPrescaler instance is part of at least one ptah
 
-      ostringstream oss;
-      string SEPARATOR = " ";
-      oss << prescalers.size();
-      oss << SEPARATOR << blsn;
-      oss << SEPARATOR << bpath;
-      oss << SEPARATOR << bmod;
-      oss << SEPARATOR << bfac;
-      oss << SEPARATOR << berr;
-      oss << SEPARATOR << glow;
-      oss << SEPARATOR << pleq;
-      oss << SEPARATOR << bang;
-      oss << SEPARATOR << triggers.size();
-      oss << SEPARATOR << lspmax;
-      oss << SEPARATOR << count_;
-      oss << SEPARATOR << nops;
-      stsstr = oss.str();
-      return stsstr;
-    }
-
-    string PrescaleService::getLs(string s)
-    {
-      int n;
-      istringstream iss(s);
-      iss >> n;
-      if (n >= 0) {
-	boost::mutex::scoped_lock scoped_lock(mutex);
-	vector<string>::iterator p;
-	for(p=triggers.begin(); p != triggers.end(); ) {
-	  istringstream jss(*p);
-	  int n2;
-	  jss >> n2;
-	  if (n2 < n) {
-//	    cout << "getLs" << n2 << "<" << n << " erasing " << *p << endl;
-	    triggers.erase(p);
-	    continue;
+      // Find all HLTPrescaler instances
+      const std::vector<std::string> allModules=prcPS.getParameter<std::vector<std::string> >("@all_modules");
+      for(unsigned int i = 0; i < allModules.size(); ++i) {
+        ParameterSet const& pset  = prcPS.getParameterSet(allModules[i]);
+	const std::string moduleLabel = pset.getParameter<std::string>("@module_label");
+	const std::string moduleType  = pset.getParameter<std::string>("@module_type");
+        if (moduleType == "HLTPrescaler") module2path[moduleLabel]="";
+      }
+      // Check all modules on all paths
+      const std::vector<std::string> allPaths = prcPS.getParameter<std::vector<std::string> >("@paths");
+      for (unsigned int iP = 0; iP < allPaths.size(); ++iP) {
+        const std::string& pathName = allPaths[iP];
+        std::vector<std::string> modules = prcPS.getParameter<std::vector<std::string> >(pathName);
+        for (unsigned int iM = 0; iM < modules.size(); ++iM) {
+          const std::string& moduleLabel = modules[iM];
+	  if (module2path.find(moduleLabel)!=module2path.end()) {
+            if (path2module.find(pathName)==path2module.end()) {
+	      path2module[pathName]=moduleLabel;
+	    } else {
+              throw cms::Exception("PrescaleServiceConfigError")
+		<< "Path '" << pathName << "' with (>1) HLTPrescalers: " << path2module[pathName] << "+" << moduleLabel << "!";
+	    }
+	    if (module2path[moduleLabel]=="") {
+	      module2path[moduleLabel]=pathName;
+	    } else {
+              throw cms::Exception("PrescaleServiceConfigError")
+                << " HLTPrescaler '" << moduleLabel << "' on (>1) Paths: " << module2path[moduleLabel] << "+" << pathName << "!";
+	    }
 	  }
-	  p++;
 	}
       }
-      return getLs();
+      // Check all HLTPrescaler instances are on a path
+      for (std::map<std::string,std::string>::const_iterator it = module2path.begin(); it!=module2path.end(); ++it) {
+	if (it->second=="") {
+	  throw cms::Exception("PrescaleServiceConfigError")
+	    << " HLTPrescaler '" << it->first << "' not found on any path!";
+	}
+      }
+
+      // Check paths stored Prescale Table: each path is actually in the process config
+      for (std::map<std::string, std::vector<unsigned int> >::const_iterator it = prescaleTable_.begin(); it!=prescaleTable_.end(); ++it) {
+	if (path2module.find(it->first)==path2module.end()) {
+          throw cms::Exception("PrescaleServiceConfigError")
+            << " Path '"<< it->first << "' is unknown or does not contain any HLTPrescaler!";
+        }
+      }
+
     }
     
-    string PrescaleService::getLs()
+    // const method
+    unsigned int PrescaleService::getPrescale(std::string const& prescaledPath) const
     {
-      boost::mutex::scoped_lock scoped_lock(mutex);
-      trgstr="";
-      for(unsigned int i=0; i<triggers.size(); i++) {
-        trgstr += triggers[i];
-      //for(unsigned int i=triggers.size(); i>0;) {
-      //  trgstr += triggers[--i];
-        trgstr += " ";
+      return getPrescale(lvl1Default_, prescaledPath);
+    }
+    
+    // const method
+    unsigned int PrescaleService::getPrescale(unsigned int lvl1Index, std::string const& prescaledPath) const
+    {
+      if (forceDefault_) lvl1Index = lvl1Default_;
+
+      if (lvl1Index >= lvl1Labels_.size()) {
+        throw cms::Exception("InvalidLvl1Index")
+          << "lvl1Index '" << lvl1Index << "' exceeds number of prescale columns " << lvl1Labels_.size() << "!";
       }
-      return trgstr;
+      PrescaleTable_t::const_iterator it = prescaleTable_.find(prescaledPath);
+      return (it == prescaleTable_.end()) ? 1 : it->second[lvl1Index];
+    }
+    
+    // static method
+    unsigned int PrescaleService::findDefaultIndex(std::string const & label, std::vector<std::string> const & labels) {
+      for (unsigned int i = 0; i < labels.size(); ++i) {
+        if (labels[i] == label) {
+          return i;
+        }
+      }
+      return labels.size();
+    }
+    
+    // static method
+    void PrescaleService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+      edm::ParameterSetDescription desc;
+
+      std::vector<std::string> defaultVector;
+      defaultVector.push_back(std::string("default"));
+      desc.add<std::vector<std::string> >("lvl1Labels", defaultVector);
+
+      // This default vector<ParameterSet> will be used when
+      // the configuration does not include this parameter and
+      // it also gets written into the generated cfi file.
+      std::vector<edm::ParameterSet> defaultVPSet;
+      edm::ParameterSet pset0;
+      pset0.addParameter<std::string>("pathName", std::string("HLTPath"));
+      std::vector<unsigned> defaultVectorU;
+      defaultVectorU.push_back(1u);
+      pset0.addParameter<std::vector<unsigned> >("prescales", defaultVectorU);
+      defaultVPSet.push_back(pset0);
+
+      edm::ParameterSetDescription validator;
+      validator.add<std::string>("pathName");
+      validator.add<std::vector<unsigned int> >("prescales");
+
+      desc.addVPSet("prescaleTable", validator, defaultVPSet);
+
+      desc.add<std::string>("lvl1DefaultLabel", std::string("default"));
+      desc.add<bool>       ("forceDefault",     false);
+
+      descriptions.add("PrescaleService", desc);
     }
 
-    string PrescaleService::getTr()
-    {
-      boost::mutex::scoped_lock scoped_lock(mutex);
-
-      trstr = " ";
-      if (fu_ != 0) {
-        fu_->getTriggerReport(tr_);
-
-        // Add an array length indicator so that the resulting string will have a
-        // little more readability.
-        string ARRAY_LEN = "_";
-        string SEPARATOR = " ";
-
-        ostringstream oss;
-
-        //TriggerReport::eventSummary
-        oss<<tr_.eventSummary.totalEvents<<SEPARATOR
-           <<tr_.eventSummary.totalEventsPassed<<SEPARATOR
-           <<tr_.eventSummary.totalEventsFailed<<SEPARATOR;
-
-        //TriggerReport::trigPathSummaries
-        oss<<ARRAY_LEN<<tr_.trigPathSummaries.size()<<SEPARATOR;
-        for(unsigned int i=0; i<tr_.trigPathSummaries.size(); i++) {
-          oss<<tr_.trigPathSummaries[i].bitPosition<<SEPARATOR
-             <<tr_.trigPathSummaries[i].timesRun<<SEPARATOR
-             <<tr_.trigPathSummaries[i].timesPassed<<SEPARATOR
-             <<tr_.trigPathSummaries[i].timesFailed<<SEPARATOR
-             <<tr_.trigPathSummaries[i].timesExcept<<SEPARATOR
-             <<tr_.trigPathSummaries[i].name<<SEPARATOR;
-          //TriggerReport::trigPathSummaries::moduleInPathSummaries
-          oss<<ARRAY_LEN<<tr_.trigPathSummaries[i].moduleInPathSummaries.size()<<SEPARATOR;
-          for(unsigned int j=0;j<tr_.trigPathSummaries[i].moduleInPathSummaries.size();j++) {
-            oss<<tr_.trigPathSummaries[i].moduleInPathSummaries[j].timesVisited<<SEPARATOR
-               <<tr_.trigPathSummaries[i].moduleInPathSummaries[j].timesPassed <<SEPARATOR
-               <<tr_.trigPathSummaries[i].moduleInPathSummaries[j].timesFailed <<SEPARATOR
-               <<tr_.trigPathSummaries[i].moduleInPathSummaries[j].timesExcept <<SEPARATOR
-               <<tr_.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel <<SEPARATOR;
-          }
-        }
-
-        //TriggerReport::endPathSummaries
-        oss<<ARRAY_LEN<<tr_.endPathSummaries.size()<<SEPARATOR;
-        for(unsigned int i=0; i<tr_.endPathSummaries.size(); i++) {
-          oss<<tr_.endPathSummaries[i].bitPosition<<SEPARATOR
-             <<tr_.endPathSummaries[i].timesRun<<SEPARATOR
-             <<tr_.endPathSummaries[i].timesPassed<<SEPARATOR
-             <<tr_.endPathSummaries[i].timesFailed<<SEPARATOR
-             <<tr_.endPathSummaries[i].timesExcept<<SEPARATOR
-             <<tr_.endPathSummaries[i].name<<SEPARATOR;
-          //TriggerReport::endPathSummaries::moduleInPathSummaries
-          oss<<ARRAY_LEN<<tr_.endPathSummaries[i].moduleInPathSummaries.size()<<SEPARATOR;
-          for(unsigned int j=0;j<tr_.endPathSummaries[i].moduleInPathSummaries.size();j++) {
-            oss<<tr_.endPathSummaries[i].moduleInPathSummaries[j].timesVisited<<SEPARATOR
-               <<tr_.endPathSummaries[i].moduleInPathSummaries[j].timesPassed <<SEPARATOR
-               <<tr_.endPathSummaries[i].moduleInPathSummaries[j].timesFailed <<SEPARATOR
-               <<tr_.endPathSummaries[i].moduleInPathSummaries[j].timesExcept <<SEPARATOR
-               <<tr_.endPathSummaries[i].moduleInPathSummaries[j].moduleLabel <<SEPARATOR;
-          }
-        }
-
-        //TriggerReport::workerSummaries
-        oss<<ARRAY_LEN<<tr_.workerSummaries.size()<<SEPARATOR;
-        for(unsigned int i=0; i<tr_.workerSummaries.size(); i++) {
-          oss<<tr_.workerSummaries[i].timesVisited<<SEPARATOR
-             <<tr_.workerSummaries[i].timesRun    <<SEPARATOR
-             <<tr_.workerSummaries[i].timesPassed <<SEPARATOR
-             <<tr_.workerSummaries[i].timesFailed <<SEPARATOR
-             <<tr_.workerSummaries[i].timesExcept <<SEPARATOR
-             <<tr_.workerSummaries[i].moduleLabel <<SEPARATOR;
-        }
-        trstr = oss.str();
-      }
-      return trstr;
-    }
-
-
-
-  }
-}
-
+  } // namespace service
+} // namespace edm

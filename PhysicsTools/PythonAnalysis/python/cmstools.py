@@ -6,9 +6,10 @@ benedikt.hegner@cern.ch
 import re
 import ROOT
 import exceptions
+import sys
 ### define tab completion
 try:
-  import readline, cmscompleter
+  import readline #cmscompleter
   readline.parse_and_bind('tab: complete')
 except:
   print 'WARNING: Could not load tab completion'
@@ -54,7 +55,7 @@ def createBranchBuffer(branch):
     branchType = ROOT.branchToClass(branch)
     #buffer = eval ('ROOT.'+reColons.sub(".",reOpenTemplate.sub("(ROOT.",reCloseTemplate.sub(")",branchType.GetName())))+'()')
     buffer = ROOT.MakeRootClass(branchType.GetName()) ()
-    if( branch.GetName()[-1] != '.'):
+    if( branch.GetName()[-1] != '.') and (branch.GetName()!="EventAuxiliary"):
         branch.SetAddress(buffer)
     else:
         branch.SetAddress(ROOT.AddressOf(buffer))
@@ -63,12 +64,14 @@ def createBranchBuffer(branch):
 
 class EventTree(object):
       def __init__(self,obj):
+          sys.stderr.write ("WARNING: This package has been deprecated and will be removed in the near future.\nPlease switch to using FWLite.Python (https://twiki.cern.ch/twiki/bin/viewauth/CMS/WorkBookFWLitePython)\n")
+          treeName = 'Events'
           if isinstance(obj, ROOT.TTree):
               self._tree = obj
           elif isinstance(obj, ROOT.TFile):
-              self._tree = obj.Get("Events")
+              self._tree = obj.Get(treeName)
           elif isinstance(obj, str):
-              self._tree = ROOT.TFile.Open(obj).Get("Events")
+              self._tree = ROOT.TFile.Open(obj).Get(treeName)
           else:
               raise cmserror("EventTree accepts only TTrees, TFiles and filenames")
           self._usedBranches = dict()
@@ -102,6 +105,8 @@ class EventTree(object):
           return cppCode
       def getListOfAliases(self):
           return self._aliases
+      def SetAlias (self, alias, fullName):
+          self.tree().SetAlias(alias, fullName)
       def index(self):
           return self._index
       def tree(self):
@@ -110,13 +115,14 @@ class EventTree(object):
           for branch in self._usedBranches.itervalues():
               branch.setIndex(self._index)
       def __getattr__(self, name):
-          return self.branch()
+          return self.branch(name)
       def __getitem__(self,key):
           if key <0 or key > self._tree.GetEntries():
               raise IndexError
           self._index = key
           self.__setBranchIndicies()
-          return self
+          self._tree.GetEntry(self._index,0)
+          return Event(self)
       def __iter__(self):
           # flushing/initializing the root buffers 
           entry = 0

@@ -1,4 +1,5 @@
 #include "TrackingTools/DetLayers/interface/DetRodOneR.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
@@ -13,13 +14,13 @@ DetRodOneR::~DetRodOneR(){}
 
 DetRodOneR::DetRodOneR(vector<const GeomDet*>::const_iterator first,
 		       vector<const GeomDet*>::const_iterator last)
-  : theDets(first,last)
+  : DetRod(false), theDets(first,last)
 {
   initialize();
 }
 
 DetRodOneR::DetRodOneR( const vector<const GeomDet*>& dets)
-  : theDets(dets) 
+  : DetRod(false), theDets(dets) 
 {
   initialize();
 }

@@ -4,8 +4,6 @@
  *   Defines the ability to calculate coordinates 
  *   of L1DT Trigger objects
  *
- *   $Date: 2007/02/09 11:18:46 $
- *   $Revision: 1.2 $
  *
  *   \author C.Grandi
  */
@@ -56,7 +54,7 @@ class DTGeomSupplier {
   inline DTTrigGeom* geom() const { return _geom; }
 
   /// Associated chamber
-  inline DTChamber* stat() const { return _geom->stat(); }
+  inline const DTChamber* stat() const { return _geom->stat(); }
 
   /// Identifier of the associated chamber
   inline DTChamberId ChamberId() const { return _geom->statId(); }
@@ -87,13 +85,7 @@ class DTGeomSupplier {
   }
 
   /// Print a trigger-data object with also local and global position/direction
-  virtual void print(const DTTrigData* trig) const {
-    trig->print();
-    std::cout << " Local (pos)(dir): " << localPosition(trig)
-	      << localDirection(trig) << std::endl;
-    std::cout << " CMS (pos)(dir): " << CMSPosition(trig) 
-	      << CMSDirection(trig) << std::endl;
-  }    
+  virtual void print(const DTTrigData* trig) const;
 
 protected:
 

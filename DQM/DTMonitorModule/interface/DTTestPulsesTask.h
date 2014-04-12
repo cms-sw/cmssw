@@ -4,8 +4,6 @@
 /*
  * \file DTTestPulsesTask.h
  *
- * $Date: 2006/10/18 18:06:16 $
- * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -18,9 +16,12 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 
 #include <iostream>
 #include <stdio.h>
@@ -37,47 +38,53 @@ class DTRangeT0;
 class DTTestPulsesTask: public edm::EDAnalyzer{
 
 public:
-  
+
   /// Constructor
   DTTestPulsesTask(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   virtual ~DTTestPulsesTask();
-  
+
 protected:
-  
+
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(const edm::Run& , const edm::EventSetup&);
 
   /// Book the ME
   void bookHistos(const DTLayerId& dtLayer, std::string folder, std::string histoTag);
-  
+
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  
+
 private:
-  
+
   int nevents;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
 
   edm::ParameterSet parameters;
 
   edm::ESHandle<DTGeometry> muonGeom;
-
   edm::ESHandle<DTRangeT0> t0RangeMap;
 
-  std::string outputFile;
-
+  edm::EDGetTokenT<DTDigiCollection> dtDigisToken_; // dtunpacker
   std::pair <int, int> t0sPeakRange;
-  
+
   // My monitor elements
   std::map<int, MonitorElement*> testPulsesProfiles;
   std::map<int, MonitorElement*> testPulsesOccupancies;
   std::map<int, MonitorElement*> testPulsesTimeBoxes;
 
-  
+
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

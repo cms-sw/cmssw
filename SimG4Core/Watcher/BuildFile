@@ -1,8 +1,0 @@
-<export>
- <lib name=SimG4CoreWatcher>
- <use name=sigcpp>
-</export>
-
-<use name=FWCore/ParameterSet>
-<use name=boost>
-<use name=sigcpp>

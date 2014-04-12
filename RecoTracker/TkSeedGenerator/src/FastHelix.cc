@@ -1,120 +1,109 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastLine.h"
-#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
-#include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-FastHelix::FastHelix(const GlobalPoint& outerHit,
-		     const GlobalPoint& middleHit,
-		     const GlobalPoint& aVertex,
-		     const edm::EventSetup& iSetup) : theOuterHit(outerHit),
-						      theMiddleHit(middleHit),
-						      theVertex(aVertex),
-						      theCircle(outerHit,
-								middleHit,
-								aVertex) {
-
-		       iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-		       tesla0=pSetup->inTesla(GlobalPoint(0,0,0));
-		     }
-
-FreeTrajectoryState FastHelix::stateAtVertex() const {
+void FastHelix::compute() {
   
-  if(isValid())
-    return helixStateAtVertex();
+  if(isValid() && (std::abs(tesla0) > 1e-3) && theCircle.rho()<maxRho)
+    helixStateAtVertex();
   else 
-    return straightLineStateAtVertex();
+    straightLineStateAtVertex();
     
 }
 
-FreeTrajectoryState FastHelix::helixStateAtVertex() const {
-  
-  GlobalPoint pMid(theMiddleHit);
-  GlobalPoint v(theVertex);
-  
-  double dydx = 0.;
-  double pt = 0., px = 0., py = 0.;
-  
+void FastHelix::helixStateAtVertex() {
+
+  // given the above rho>0.
+  double rho = theCircle.rho();
   //remember (radius rho in cm):
   //rho = 
   //100. * pt * 
   //(10./(3.*MagneticField::inTesla(GlobalPoint(0., 0., 0.)).z()));
   
-  double rho = theCircle.rho();
   // pt = 0.01 * rho * (0.3*MagneticField::inTesla(GlobalPoint(0.,0.,0.)).z());
-  pt = 0.01 * rho * (0.3*tesla0.z());
-  //  pt = 0.01 * rho * (0.3*GlobalPoint(0.,0.,0.).MagneticField().z());
-
-  // (py/px)|x=v.x() = (dy/dx)|x=v.x()
-  //remember:
-  //y(x) = +-sqrt(rho^2 - (x-x0)^2) + y0 
-  //y(x) =  sqrt(rho^2 - (x-x0)^2) + y0  if y(x) >= y0 
-  //y(x) = -sqrt(rho^2 - (x-x0)^2) + y0  if y(x) < y0
-  //=> (dy/dx) = -(x-x0)/sqrt(Q)  if y(x) >= y0
-  //   (dy/dx) =  (x-x0)/sqrt(Q)  if y(x) < y0
-  //with Q = rho^2 - (x-x0)^2
-  double root = sqrt(rho*rho - (v.x()-theCircle.x0())*(v.x()-theCircle.x0()));
-  if((v.y() - theCircle.y0()) > 0.)
-    dydx = -(v.x() - theCircle.x0()) / root;
-  else
-    dydx = (v.x() - theCircle.x0()) / root;
+  double cm2GeV = 0.01 * 0.3*tesla0;
+  double pt = cm2GeV * rho; 
+ 
+  // verify that rho is not toooo large
+  double dcphi = ((outerHit().x()-theCircle.x0())*(middleHit().x()-theCircle.x0()) +
+		 (outerHit().y()-theCircle.y0())*(middleHit().y()-theCircle.y0())
+		 )/(rho*rho);
+  if (std::abs(dcphi)>=1.f) { straightLineStateAtVertex(); return;}
   
-  px = pt/sqrt(1. + dydx*dydx);
-  py = px*dydx;
+  GlobalPoint pMid(middleHit());
+  GlobalPoint v(vertex());
+  
+  // tangent in v (or the opposite...)
+  double px = -cm2GeV * (v.y()-theCircle.y0());
+  double py =  cm2GeV * (v.x()-theCircle.x0());
   // check sign with scalar product
   if(px*(pMid.x() - v.x()) + py*(pMid.y() - v.y()) < 0.) {
-    px *= -1.;
-    py *= -1.;
+    px = -px;
+    py = -py;
   } 
 
+ 
+ 
   //calculate z0, pz
   //(z, R*phi) linear relation in a helix
   //with R, phi defined as radius and angle w.r.t. centre of circle
   //in transverse plane
   //pz = pT*(dz/d(R*phi)))
   
-  FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
-  double z_0 = -flfit.c()/flfit.n2();
-  double dzdrphi = -flfit.n1()/flfit.n2();
+
+  // VI 23/01/2012
+  double dzdrphi = outerHit().z() - middleHit().z();
+  dzdrphi /= rho*acos(dcphi);
   double pz = pt*dzdrphi;
 
-  //get sign of particle
 
+  TrackCharge q = 1;
+  if (theCircle.x0()*py - theCircle.y0()*px < 0) q =-q;
+  if (tesla0 < 0.) q =-q;
 
+  //VI
+  if ( useBasisVertex ) {
+    atVertex =  GlobalTrajectoryParameters(basisVertex, 
+					   GlobalVector(px, py, pz),
+					   q, 
+					   bField
+					   );
+  } else {
+    double z_0 =  middleHit().z();
+    // assume v is before middleHit (opposite to outer)
+    double ds = ( (v.x()-theCircle.x0())*(middleHit().x()-theCircle.x0()) +
+		  (v.y()-theCircle.y0())*(middleHit().y()-theCircle.y0())
+		  )/(rho*rho);
+    if (std::abs(ds)<1.f) {
+      ds = rho*acos(ds);
+      z_0 -= ds*dzdrphi;
+    } else { // line????
+      z_0 -= std::sqrt((middleHit()-v).perp2()/(outerHit()-middleHit()).perp2())*(outerHit().z()-middleHit().z());
+    }
+    
+    //double z_old = -flfit.c()/flfit.n2();
+    // std::cout << "v:xyz, z,old,new " << v << "   " << z_old << " " << z_0 << std::endl;
 
-  GlobalVector magvtx=pSetup->inTesla(v);
-  TrackCharge q = 
-    ((theCircle.x0()*py - theCircle.y0()*px) / 
-     (magvtx.z()) < 0.) ? 
-    -1 : 1;
+    atVertex =  GlobalTrajectoryParameters(GlobalPoint(v.x(),v.y(),z_0), 
+					   GlobalVector(px, py, pz),
+					   q, 
+					   bField
+					   );
+  }
   
-  AlgebraicSymMatrix C(5,1);
-  //MP
-  FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-						GlobalVector(px, py, pz),
-						q,
-						&(*pSetup)),
-		     CurvilinearTrajectoryError(C));
-  
-
-  
-  return atVertex;
 }
 
-FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
+void FastHelix::straightLineStateAtVertex() {
 
-  //calculate FTS assuming straight line...
+  //calculate GlobalTrajectoryParameters assuming straight line...
 
-  GlobalPoint pMid(theMiddleHit);
-  GlobalPoint v(theVertex);
+  GlobalPoint pMid(middleHit());
+  GlobalPoint v(vertex());
 
   double dydx = 0.;
   double pt = 0., px = 0., py = 0.;
   
   if(fabs(theCircle.n1()) > 0. || fabs(theCircle.n2()) > 0.)
-    pt = 1.e+4;// 10 TeV //else no pt
+    pt = maxPt  ;// 10 TeV //else no pt
   if(fabs(theCircle.n2()) > 0.) {
     dydx = -theCircle.n1()/theCircle.n2(); //else px = 0 
   }
@@ -133,19 +122,25 @@ FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
   //p = pt/sin(theta)
   //pz = p*cos(theta) = pt/tan(theta) 
 
-  FastLine flfit(theOuterHit, theMiddleHit);
-  double z_0 = -flfit.c()/flfit.n2();
+  FastLine flfit(outerHit(), middleHit());
   double dzdr = -flfit.n1()/flfit.n2();
   double pz = pt*dzdr; 
   
   TrackCharge q = 1;
-  AlgebraicSymMatrix66 C = AlgebraicMatrixID();
-  //MP
-  FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-						GlobalVector(px, py, pz),
-						q,
-						&(*pSetup)),
-		     CartesianTrajectoryError());
-  
-  return atVertex;
+  //VI
+
+  if ( useBasisVertex ) {
+    atVertex = GlobalTrajectoryParameters(basisVertex, 
+					  GlobalVector(px, py, pz),
+					  q, 
+					  bField
+					  );
+  } else {
+  double z_0 = -flfit.c()/flfit.n2();
+  atVertex = GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
+					GlobalVector(px, py, pz),
+					q,
+					bField
+					);
+  }
 }

@@ -7,8 +7,6 @@
  *  +phi(-X)                   +X
  *  +Z                         +Y
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -53,6 +51,12 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   GlobalVector planeYAxis = refPlane->toGlobal(LocalVector( 0, 1, 0));
   GlobalVector planeZAxis = refPlane->toGlobal(LocalVector( 0, 0, 1));
 
+  //FIXME assumption: here we do use the assumption on the orientation /
+  //of local Z (see above)
+   GlobalVector Rvol(refPlane->position().x(), refPlane->position().y(), refPlane->position().z());
+  theRN = fabs(planeZAxis.dot(Rvol));
+
+
   double fR = fabs(radius);
   Sides cyl_side;
   Sides plane_side;
@@ -85,7 +89,8 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   }
 
   if (MagGeoBuilderFromDDD::debug) {
-    cout << "pos_Rplane    " << pos_Rplane << " "
+    cout << "RN           " << theRN << endl 
+         << "pos_Rplane   " << pos_Rplane << " "
 	 << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl 
 	 << "pos_zplus    " << pos_zplus << " "
 	 << pos_zplus.perp() << " " << pos_zplus.phi() << endl
@@ -98,14 +103,14 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   }
   
   // Check ordering.
-  if (pos_Rplane.perp() < radius == atMinusZ) {
-    cout << "*** WARNING: pos_outer < pos_inner " << endl;
+  if ((pos_Rplane.perp() < radius) == atMinusZ) {
+    cout << "*** WARNING: pos_outer < pos_inner for pseudotrapezoid" << endl;
   }
   if (pos_zplus.z() < pos_zminus.z()) {
-    cout << "*** WARNING: pos_zplus < pos_zminus " << endl;
+    cout << "*** WARNING: pos_zplus < pos_zminus for pseudotrapezoid" << endl;
   }
   if (Geom::Phi<float>(pos_phiplus.phi()-pos_phiminus.phi()) < 0. ) {
-    cout << "*** WARNING: pos_phiplus < pos_phiminus " << endl;
+    cout << "*** WARNING: pos_phiplus < pos_phiminus for pseudotrapezoid" << endl;
   }
 
 
@@ -126,9 +131,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
     
   // FIXME: use builder
   surfaces[plane_side] = new Plane(pos_Rplane, rot_R);
-  surfaces[cyl_side] = new Cylinder(Surface::PositionType(0,0,center_.z()),
-				       Surface::RotationType(),
-				       fR);
+  surfaces[cyl_side] = new Cylinder(fR,Surface::PositionType(0,0,center_.z()),
+				       Surface::RotationType());
+				       
 
   surfaces[zplus]    = new Plane(pos_zplus, rot_Z);
   surfaces[zminus]   = new Plane(pos_zminus, rot_Z);
@@ -151,4 +156,6 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   double R1 = fabs(surfaces[plane_side]->toLocal(GlobalPoint(0,0,0)).z());
   theRMin = min(fR, R1);
   theRMax = max(fR, R1);
+  // FIXME: use phi of middle plane of phiminus surface. Is not the absolute phimin!
+  thePhiMin = surfaces[phiminus]->position().phi();
 }

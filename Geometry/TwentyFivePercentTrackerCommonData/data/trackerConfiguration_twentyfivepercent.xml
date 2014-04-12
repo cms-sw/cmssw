@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Configuration xmlns="http://www.cern.ch/cms/CDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="CMSConfiguration" version="0" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/CDLSchema.xsd">
  <Include name="test">
- <File name="Geometry/CMSCommonData/data/materials.xml"           url="."/>
- <File name="Geometry/TrackerCommonData/data/trackermaterial.xml" url="."/>
- <File name="Geometry/TrackerCommonData/data/cms.xml"             url="."/>
- <File name="Geometry/TrackerCommonData/data/tracker.xml"         url="."/>
+  <File name="Geometry/CMSCommonData/data/materials.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/trackermaterial.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/cms.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tracker.xml" url="."/>
  </Include>
- <Root fileName="cms.xml"          logicalPartName="Tracker"/>
+ <Root fileName="cms.xml" logicalPartName="Tracker"/>
 </Configuration>

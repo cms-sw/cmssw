@@ -29,13 +29,15 @@ private :
 public :
   SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig);
 
+  virtual ~SeedFromNuclearInteraction(){}
+
   /// Fill all data members from 2 TM's where the first one is supposed to be at the interaction point
   void setMeasurements(const TSOS& tsosAtInteractionPoint, ConstRecHitPointer ihit, ConstRecHitPointer ohit);
 
   /// Fill all data members from 1 TSOS and 2 rec Hits and using the circle associated to the primary track as constraint
   void setMeasurements(TangentHelix& primHelix, const TSOS& inner_TSOS, ConstRecHitPointer ihit, ConstRecHitPointer ohit);
 
-  PTrajectoryStateOnDet trajectoryState() const { return *pTraj; }
+  PTrajectoryStateOnDet const & trajectoryState() const { return pTraj; }
 
   FreeTrajectoryState* stateWithError() const;
 
@@ -61,6 +63,10 @@ public :
 
   ConstRecHitPointer outerHit() const { return outerHit_; }
 
+  /// Return the rotation matrix to be applied to get parameters in 
+  /// a framework where the z direction is along perp
+  AlgebraicMatrix33  rotationMatrix(const GlobalVector& perp) const;
+
 private :
   bool                                     isValid_;        /**< check if the seed is valid */
 
@@ -76,14 +82,10 @@ private :
   
   boost::shared_ptr<FreeTrajectoryState>       freeTS_;          /**< Initial FreeTrajectoryState */
 
-  boost::shared_ptr<PTrajectoryStateOnDet> pTraj;           /**< the final persistent TSOS */
+  PTrajectoryStateOnDet pTraj;           /**< the final persistent TSOS */
 
 
   // input parameters
-
-  double rescaleDirectionFactor; /**< Rescale the direction error */
-  double rescalePositionFactor;  /**< Rescale the position error */
-  double rescaleCurvatureFactor; /**< Rescale the curvature error */
 
   double ptMin;                  /**< Minimum transverse momentum of the seed */
 

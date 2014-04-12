@@ -6,6 +6,7 @@
  */
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 
 namespace helper {
@@ -22,6 +23,11 @@ namespace helper {
   template<typename T>
   struct StoreContainerTrait<edm::RefToBaseVector<T> > {
     typedef edm::RefToBaseVector<T> type;
+  };
+
+  template<typename T>
+  struct StoreContainerTrait<edm::PtrVector<T> > {
+    typedef edm::PtrVector<T> type;
   };
 
   template<typename R, typename C>

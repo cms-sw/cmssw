@@ -5,12 +5,9 @@
  *
  *
  * Filter to select 4 lepton events based on the
- * 1 or 2 electron or 1 or 2 muon HLT trigger, 
+ * 1 or 2 electron or 1 or 2 muon HLT trigger,
  * and four leptons (no flavour requirement).
  * No charge requirements are applied on event.
- *
- * At this stage, the L3 trigger isn't setup, so mimic L3 trigger
- * selection using full reconstruction
  *
  * \author Dominique Fortin - UC Riverside
  *
@@ -26,13 +23,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-using namespace edm;
-using namespace std;
+#include <DataFormats/TrackReco/interface/TrackFwd.h>
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
-  
+
  public:
   // Constructor
   explicit HiggsToZZ4LeptonsSkim(const edm::ParameterSet&);
@@ -49,14 +46,14 @@ class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
 
 
   bool debug;
-  float muonMinPt;
-  float elecMinEt;
+  float stiffMinPt;
+  float softMinPt;
+  int nStiffLeptonMin;
   int nLeptonMin;
 
   // Reco samples
-  edm::InputTag recTrackLabel;
-  edm::InputTag theGLBMuonLabel;
-  edm::InputTag thePixelGsfELabel;
+  edm::EDGetTokenT<reco::TrackCollection> theGLBMuonToken;
+  edm::EDGetTokenT<reco::GsfElectronCollection> theGsfEToken;
 };
 
 #endif

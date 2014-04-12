@@ -4,8 +4,6 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +11,13 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+class MonitorElement;
+class DQMStore;
 
 class EBOccupancyTask: public edm::EDAnalyzer{
 
@@ -31,10 +35,19 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -46,16 +59,52 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
+
+ std::string subfolder_;
 
 bool enableCleanup_;
 
-edm::InputTag EBDigiCollection_;
-edm::InputTag EcalPnDiodeDigiCollection_;
+bool mergeRuns_;
+
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<EBDigiCollection> EBDigiCollection_;
+edm::EDGetTokenT<EcalPnDiodeDigiCollection> EcalPnDiodeDigiCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
+edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcalTrigPrimDigiCollection_;
+
+enum runClassification { notdata, physics, testpulse, laser, pedestal }; 
 
 MonitorElement* meEvent_[36];
 MonitorElement* meOccupancy_[36];
 MonitorElement* meOccupancyMem_[36];
+MonitorElement* meEBRecHitEnergy_[36];
+MonitorElement* meSpectrum_[36];
+
+MonitorElement* meEBRecHitSpectrum_;
+MonitorElement* meEBDigiOccupancy_;
+MonitorElement* meEBDigiOccupancyProjEta_;
+MonitorElement* meEBDigiOccupancyProjPhi_;
+MonitorElement* meEBRecHitOccupancy_;
+MonitorElement* meEBRecHitOccupancyProjEta_;
+MonitorElement* meEBRecHitOccupancyProjPhi_;
+MonitorElement* meEBRecHitOccupancyThr_;
+MonitorElement* meEBRecHitOccupancyProjEtaThr_;
+MonitorElement* meEBRecHitOccupancyProjPhiThr_;
+MonitorElement* meEBTrigPrimDigiOccupancy_;
+MonitorElement* meEBTrigPrimDigiOccupancyProjEta_;
+MonitorElement* meEBTrigPrimDigiOccupancyProjPhi_;
+MonitorElement* meEBTrigPrimDigiOccupancyThr_;
+MonitorElement* meEBTrigPrimDigiOccupancyProjEtaThr_;
+MonitorElement* meEBTrigPrimDigiOccupancyProjPhiThr_;
+MonitorElement* meEBTestPulseDigiOccupancy_;
+MonitorElement* meEBLaserDigiOccupancy_;
+MonitorElement* meEBPedestalDigiOccupancy_;
+
+float recHitEnergyMin_;
+float trigPrimEtMin_;
 
 bool init_;
 

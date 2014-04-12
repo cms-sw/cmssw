@@ -1,10 +1,9 @@
 #ifndef PerigeeTrajectoryError_H
 #define PerigeeTrajectoryError_H
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-#include "DataFormats/Math/interface/Error.h"
-
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "FWCore/Utilities/interface/Likely.h"
 /**
  *  Class providing access to the <i> Perigee</i> parameters of a trajectory.
  *  These parameters consist of <BR>
@@ -18,10 +17,12 @@ class PerigeeTrajectoryError
 public:
 
   PerigeeTrajectoryError() {}
+  // ~PerigeeTrajectoryError() {}
 
+  /*
   PerigeeTrajectoryError(AlgebraicSymMatrix aPerigeeError):
     thePerigeeError(asSMatrix<5>(aPerigeeError)), weightIsAvailable(false) {}
-
+  */
   PerigeeTrajectoryError(const AlgebraicSymMatrix55 &aPerigeeError):
     thePerigeeError(aPerigeeError), weightIsAvailable(false) {
          
@@ -31,36 +32,21 @@ public:
   /**
    * The covariance matrix
    */
-
-  const AlgebraicSymMatrix covarianceMatrix_old() const {return asHepMatrix(thePerigeeError);}
   const AlgebraicSymMatrix55 & covarianceMatrix() const {return thePerigeeError;}
 
 
   /**
    * The weight matrix (inverse of the covariance matrix)
+   * The error variable is 0 in case of success.
    */
-  const AlgebraicSymMatrix weightMatrix_old() const {
-    if (!weightIsAvailable) calculateWeightMatrix();
-    return asHepMatrix(thePerigeeWeight);
-  }
-  /**
-   * The weight matrix (inverse of the covariance matrix)
-   */
- 
-  const AlgebraicSymMatrix55 &weightMatrix() const
+  const AlgebraicSymMatrix55 &weightMatrix(int & error) const
   {
-    if (!weightIsAvailable) calculateWeightMatrix();
+    if unlikely(!weightIsAvailable) calculateWeightMatrix();
+    error = inverseError;
     return thePerigeeWeight;
   }
 
-  void calculateWeightMatrix() const
-  {
-    int error;
-    thePerigeeWeight = thePerigeeError.Inverse(error);
-    if (error != 0 ) throw TrajectoryStateException(
-      "PerigeeTrajectoryError::Unable to inverse covariance matrix"); 
-    weightIsAvailable = true;
-  }
+  void calculateWeightMatrix() const;
 
   double transverseCurvatureError() const {return sqrt(thePerigeeError(0,0));}
 
@@ -92,6 +78,7 @@ public:
 private:
   AlgebraicSymMatrix55 thePerigeeError;
   mutable AlgebraicSymMatrix55 thePerigeeWeight;
+  mutable int inverseError;
   mutable bool weightIsAvailable;
 
 };

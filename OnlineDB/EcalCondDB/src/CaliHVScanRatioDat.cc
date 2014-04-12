@@ -29,7 +29,7 @@ CaliHVScanRatioDat::~CaliHVScanRatioDat()
 
 
 void CaliHVScanRatioDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   
@@ -40,23 +40,23 @@ void CaliHVScanRatioDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(runtime_error("CaliHVScanRatioDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("CaliHVScanRatioDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void CaliHVScanRatioDat::writeDB(const EcalLogicID* ecid, const CaliHVScanRatioDat* item, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
   
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("CaliHVScanRatioDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("CaliHVScanRatioDat::writeDB:  IOV not in DB")); }
   
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("CaliHVScanRatioDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("CaliHVScanRatioDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -68,14 +68,14 @@ void CaliHVScanRatioDat::writeDB(const EcalLogicID* ecid, const CaliHVScanRatioD
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("CaliHVScanRatioDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("CaliHVScanRatioDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void CaliHVScanRatioDat::fetchData(std::map< EcalLogicID, CaliHVScanRatioDat >* fillMap, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -83,7 +83,7 @@ void CaliHVScanRatioDat::fetchData(std::map< EcalLogicID, CaliHVScanRatioDat >* 
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("CaliHVScanRatioDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("CaliHVScanRatioDat::writeDB:  IOV not in DB")); 
     return;
   }
   
@@ -115,6 +115,6 @@ void CaliHVScanRatioDat::fetchData(std::map< EcalLogicID, CaliHVScanRatioDat >* 
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("CaliHVScanRatioDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("CaliHVScanRatioDat::fetchData():  "+e.getMessage()));
   }
 }

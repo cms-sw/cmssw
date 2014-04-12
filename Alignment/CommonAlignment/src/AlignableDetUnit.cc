@@ -1,21 +1,50 @@
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CLHEP/Vector/RotationInterfaces.h" 
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 //__________________________________________________________________________________________________
-AlignableDetUnit::AlignableDetUnit( const GeomDet* geomDet ) :
-  Alignable(geomDet),
-  theAlignmentPositionError(0)
+AlignableDetUnit::AlignableDetUnit(const GeomDetUnit *geomDetUnit) : // rely on non-NULL pointer!
+  Alignable(geomDetUnit->geographicalId().rawId(), geomDetUnit->surface()),
+  theAlignmentPositionError(0),
+  theSurfaceDeformation(0),
+  theCachedSurfaceDeformation(0)
 {
+  if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
+    // 2nd argument w/o effect:
+    this->setAlignmentPositionError(*(geomDetUnit->alignmentPositionError()), false);
+  }
+
+  if (geomDetUnit->surfaceDeformation()) { // take over surface modification
+    // 2nd argument w/o effect:
+    this->setSurfaceDeformation(geomDetUnit->surfaceDeformation(), false);
+  }
+  
   theDeepComponents.push_back(this);
+
 }
 
 //__________________________________________________________________________________________________
-AlignableDetUnit::~AlignableDetUnit() {
+AlignableDetUnit::~AlignableDetUnit()
+{
   delete theAlignmentPositionError;
+  delete theSurfaceDeformation;
+  delete theCachedSurfaceDeformation;
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::addComponent( Alignable* /*unused*/)
+{
+  throw cms::Exception("LogicError") 
+    << "AlignableDetUnit cannot have components, but try to add one!";
 }
 
 //__________________________________________________________________________________________________
@@ -39,7 +68,8 @@ void AlignableDetUnit::rotateInGlobalFrame( const RotationType& rotation)
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& ape)
+void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& ape,
+						 bool /*propagateDown*/)
 {
 
   if ( !theAlignmentPositionError ) 
@@ -51,45 +81,76 @@ void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& a
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::addAlignmentPositionError(const AlignmentPositionError& ape )
+void AlignableDetUnit::addAlignmentPositionError(const AlignmentPositionError& ape,
+						 bool propagateDown )
 {
 
   if ( !theAlignmentPositionError )
-    this->setAlignmentPositionError( ape );
+    this->setAlignmentPositionError( ape, propagateDown ); // 2nd argument w/o effect
   else 
-    this->setAlignmentPositionError( *theAlignmentPositionError += ape );
-
+    *theAlignmentPositionError += ape;
 }
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType& rot ) 
+void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType& rot,
+							     bool propagateDown ) 
 {
-
 
   // average error calculated by movement of a local point at
   // (xWidth/2,yLength/2,0) caused by the rotation rot
-  const GlobalVector localPositionVector = this->globalPosition()
-    - this->surface().toGlobal( Local3DPoint(.5 * surface().width(), .5 * surface().length(), 0.) );
+  GlobalVector localPositionVector = surface().toGlobal( LocalVector(.5 * surface().width(),
+								     .5 * surface().length(),
+								     0.) );
 
   LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
 
   AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );
-  this->addAlignmentPositionError( ape );
+  this->addAlignmentPositionError( ape, propagateDown ); // 2nd argument w/o effect
 
 }
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::addAlignmentPositionErrorFromLocalRotation(const RotationType& rot )
+void AlignableDetUnit::addAlignmentPositionErrorFromLocalRotation(const RotationType& rot,
+								  bool propagateDown )
 {
 
   RotationType globalRot = globalRotation().multiplyInverse(rot*globalRotation());
-  this->addAlignmentPositionErrorFromRotation(globalRot);
+  this->addAlignmentPositionErrorFromRotation(globalRot, propagateDown); // 2nd argument w/o effect
 
 }
 
+//__________________________________________________________________________________________________
+void AlignableDetUnit::setSurfaceDeformation(const SurfaceDeformation *deformation,
+					      bool /* propagateDown */ )
+{
+  delete theSurfaceDeformation; // OK for zero pointers
+  if (deformation) {
+    theSurfaceDeformation = deformation->clone();
+  } else {
+    theSurfaceDeformation = 0;
+  }
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::addSurfaceDeformation(const SurfaceDeformation *deformation,
+					     bool propagateDown)
+{
+  if (!deformation) {
+    // nothing to do
+  } else if (!theSurfaceDeformation) {
+    this->setSurfaceDeformation(deformation, propagateDown); // fine since no components
+  } else if (!theSurfaceDeformation->add(*deformation)) {
+    edm::LogError("Alignment") << "@SUB=AlignableDetUnit::addSurfaceDeformation"
+			       << "Cannot add deformation type " << deformation->type()
+			       << " to type " << theSurfaceDeformation->type()
+			       << ", so erase deformation information.";
+    delete theSurfaceDeformation;
+    theSurfaceDeformation = 0;
+  }
+}
 
 //__________________________________________________________________________________________________
 void AlignableDetUnit::dump() const
@@ -107,13 +168,12 @@ void AlignableDetUnit::dump() const
 //__________________________________________________________________________________________________
 Alignments* AlignableDetUnit::alignments() const
 {
-
   Alignments* m_alignments = new Alignments();
   RotationType rot( this->globalRotation() );
   
   // Get alignments (position, rotation, detId)
-  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
-  HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
+  CLHEP::Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
+  CLHEP::HepRotation clhepRotation( CLHEP::HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
 										rot.yx(), rot.yy(), rot.yz(),
 										rot.zx(), rot.zy(), rot.zz() ) );
   uint32_t detId = this->geomDetId().rawId();
@@ -136,9 +196,9 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
   
   uint32_t detId = this->geomDetId().rawId();
  
-  HepSymMatrix clhepSymMatrix(3,0);
+  CLHEP::HepSymMatrix clhepSymMatrix(3,0);
   if ( theAlignmentPositionError ) // Might not be set
-    clhepSymMatrix = theAlignmentPositionError->globalError().matrix();
+    clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
   
   AlignTransformError transformError( clhepSymMatrix, detId );
   
@@ -146,4 +206,49 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
   
   return m_alignmentErrors;
 
+}
+
+
+//__________________________________________________________________________________________________
+int AlignableDetUnit::surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > & result) const
+{
+  if ( theSurfaceDeformation ) {
+    result.push_back( std::pair<int,SurfaceDeformation*>(this->geomDetId().rawId(),theSurfaceDeformation) );
+    return 1;
+  }
+  
+  return 0;
+}
+ 
+//__________________________________________________________________________________________________
+void AlignableDetUnit::cacheTransformation()
+{
+  theCachedSurface = theSurface;
+  theCachedDisplacement = theDisplacement;
+  theCachedRotation = theRotation;
+
+  if (theCachedSurfaceDeformation) {
+    delete theCachedSurfaceDeformation;
+    theCachedSurfaceDeformation = 0;
+  }
+
+  if (theSurfaceDeformation)
+    theCachedSurfaceDeformation = theSurfaceDeformation->clone();
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::restoreCachedTransformation()
+{
+  theSurface = theCachedSurface;
+  theDisplacement = theCachedDisplacement;
+  theRotation = theCachedRotation;
+
+  if (theSurfaceDeformation) {
+    delete theSurfaceDeformation;
+    theSurfaceDeformation = 0;
+  }
+
+  if (theCachedSurfaceDeformation) {
+    this->setSurfaceDeformation(theCachedSurfaceDeformation, false);
+  }
 }

@@ -9,7 +9,7 @@
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include "L1Trigger/RPCTrigger/interface/RPCMuon.h"
-#include "CondFormats/RPCObjects/interface/RPCPattern.h"
+#include "CondFormats/L1TObjects/interface/RPCPattern.h"
 //------------------------------------------------------------------------------
 
 class RPCPacMuon: public RPCMuon {

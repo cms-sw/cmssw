@@ -1,11 +1,7 @@
-// $Id: MCFileSource.cc,v 1.9 2007/05/29 21:00:00 weng Exp $
-
 /**  
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2007/05/29 21:00:00 $
-*  $Revision: 1.9 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -19,28 +15,23 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOMC/Input/interface/HepMCFileReader.h" 
 #include "IOMC/Input/interface/MCFileSource.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-
-
-using namespace edm;
-using namespace std;
-
+namespace edm {
 
 //-------------------------------------------------------------------------
 MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription const& desc) :
-  ExternalInputSource(pset, desc),
-  reader_(HepMCFileReader::instance()), evt_(0),
-  useExtendedAscii_(pset.getUntrackedParameter<bool>("useExtendedAscii",false))
+  ProducerSourceFromFiles(pset, desc, false),
+  reader_(HepMCFileReader::instance()), evt_(0)
 {
-  edm::LogInfo("MCFileSource") << "Reading HepMC file:" << fileNames()[0];
-  string fileName = fileNames()[0];
+  LogInfo("MCFileSource") << "Reading HepMC file:" << fileNames()[0];
+  std::string fileName = fileNames()[0];
   // strip the file: 
   if (fileName.find("file:") == 0){
     fileName.erase(0,5);
   }  
   
-  reader_->initialize(fileName, useExtendedAscii_);  
+  reader_->initialize(fileName);  
   produces<HepMCProduct>();
 }
 
@@ -49,19 +40,21 @@ MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription con
 MCFileSource::~MCFileSource(){
 }
 
+//-------------------------------------------------------------------------
+bool MCFileSource::setRunAndEventInfo(EventID&, TimeValue_t&) {
+  // Read one HepMC event
+  LogInfo("MCFileSource") << "Start Reading";
+  evt_ = reader_->fillCurrentEventData(); 
+  return(evt_ != nullptr);
+}
 
 //-------------------------------------------------------------------------
-bool MCFileSource::produce(Event &e) {
-  // Read one HepMC event and store it in the Event.
+void MCFileSource::produce(Event &e) {
+  // Store one HepMC event in the Event.
 
-  auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
-
-  edm::LogInfo("MCFileSource") << "Start Reading";
-  evt_ = reader_->fillCurrentEventData(); 
-  if (evt_ == 0) return false;
-
+  std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
   bare_product->addHepMCData(evt_);
   e.put(bare_product);
+}
 
-  return true;
 }

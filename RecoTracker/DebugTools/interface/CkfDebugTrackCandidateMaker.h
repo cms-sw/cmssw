@@ -1,24 +1,24 @@
+
 #ifndef CkfDebugTrackCandidateMaker_h
 #define CkfDebugTrackCandidateMaker_h
 
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMakerBase.h"
 #include "RecoTracker/DebugTools/interface/CkfDebugTrajectoryBuilder.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 namespace cms {
-  class CkfDebugTrackCandidateMaker : public CkfTrackCandidateMakerBase, public edm::EDProducer {
+  class CkfDebugTrackCandidateMaker : public edm::EDProducer, public CkfTrackCandidateMakerBase {
   public:
-    CkfDebugTrackCandidateMaker(const edm::ParameterSet& conf) : CkfTrackCandidateMakerBase(conf) {
+    CkfDebugTrackCandidateMaker(const edm::ParameterSet& conf) : CkfTrackCandidateMakerBase(conf, consumesCollector()) {
       produces<TrackCandidateCollection>();
     }
 
-    virtual void beginJob (edm::EventSetup const & es){
-      beginJobBase(es); 
+    virtual void beginRun (edm::Run const & run, edm::EventSetup const & es) override {
+      beginRunBase(run,es); 
       initDebugger(es);
     }
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& es){produceBase(e,es);}
+    virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
     virtual void endJob() {delete dbg; }
 
   private:
@@ -27,10 +27,10 @@ namespace cms {
 
     void initDebugger(edm::EventSetup const & es){
       dbg = new CkfDebugger(es);
-/*       myTrajectoryBuilder = dynamic_cast<const CkfDebugTrajectoryBuilder*>(theTrajectoryBuilder); */
-/*       if (myTrajectoryBuilder) myTrajectoryBuilder->setDebugger( dbg); */
-/* 	else */
-	  theTrajectoryBuilder->setDebugger( dbg);
+      myTrajectoryBuilder = dynamic_cast<const CkfDebugTrajectoryBuilder*>(theTrajectoryBuilder);
+      if (myTrajectoryBuilder) myTrajectoryBuilder->setDebugger( dbg);
+      else throw cms::Exception("CkfDebugger") << "please use CkfDebugTrajectoryBuilder";
+	//theTrajectoryBuilder->setDebugger( dbg);
     };
     
     void printHitsDebugger(edm::Event& e){dbg->printSimHits(e);};
@@ -38,7 +38,7 @@ namespace cms {
     void deleteAssocDebugger(){dbg->deleteHitAssociator();};
     void deleteDebugger(){delete dbg;};
     CkfDebugger *  dbg;
-/*     const CkfDebugTrajectoryBuilder* myTrajectoryBuilder; */
+    const CkfDebugTrajectoryBuilder* myTrajectoryBuilder;
   };
 }
 

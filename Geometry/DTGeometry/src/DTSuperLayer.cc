@@ -1,7 +1,5 @@
 /** \file 
  *  
- *  $date   : 13/01/2006 11:46:51 CET $
- *  $Revision: 1.3 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -12,9 +10,7 @@
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 
 /* Collaborating Class Header */
-#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/DTGeometry/interface/DTChamber.h"
 
 /* C++ Headers */
 #include <iostream>
@@ -26,16 +22,16 @@ DTSuperLayer::DTSuperLayer(DTSuperLayerId id,
                            ReferenceCountingPointer<BoundPlane>& plane,
                            const DTChamber* ch) :
   GeomDet(plane), theId(id) , theLayers(4,(const DTLayer*)0), theCh(ch) {
+  setDetId(id);
 }
 
 /* Destructor */ 
 DTSuperLayer::~DTSuperLayer() {
+  for (std::vector<const DTLayer*>::const_iterator il=theLayers.begin();
+       il!=theLayers.end(); ++il) delete (*il);
 }
 
 /* Operations */ 
-DetId DTSuperLayer::geographicalId() const {
-  return theId;
-}
 
 DTSuperLayerId DTSuperLayer::id() const {
   return theId;

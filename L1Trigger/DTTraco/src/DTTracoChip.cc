@@ -12,7 +12,8 @@
 //   22/VI/04 SV : last trigger code update
 //   16/I/07  SV : new DTConfig update
 //   3/IV/07  SV : setTracoAcceptance moved from card to chip
-//
+//   30/10/09 SV : lut parameters from DB are used in code
+//   110208 SV   : TRACO hardware bug included
 //------------------------------------------------------------
 
 //-----------------------
@@ -29,7 +30,7 @@
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTTSTheta.h"
 #include "L1Trigger/DTTraco/interface/DTTracoCand.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
 
 //---------------
 // C++ Headers --
@@ -48,13 +49,14 @@ DTTracoChip::DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* conf) :
 
   _geom = _card->geom();
 
+  // n=traco number 1,2,...
   if(config()->debug()==4){
     std::cout << "DTTracoChip constructor called for TRACO number " << n << std::endl;
   }
 
-  // set acceptances for this traco
+  // set acceptances from CMSSW geometry
   setTracoAcceptances();
-
+  
   // reserve the appropriate amount of space for vectors
   int i=0;
   for(i=0;i<DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF;i++) {
@@ -79,10 +81,6 @@ DTTracoChip::DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* conf) :
     std::cout << " psiRad=" << psiRad() << " KRad=" << KRad() << std::endl;
   }
 
-  //NEWGEO init traco parameters
-  //_krad=0;                        //always 0 for hardware bug
-  //_btic=config()->ST();           //equal to bti ST
-
   //init traco parameters from traco config file
   _krad = config()->KRAD();
   _btic=config()->BTIC(); 
@@ -90,6 +88,22 @@ DTTracoChip::DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* conf) :
   //offset from geometry (x1-x3 FE view): converted from cm to ST units (0.9999 for rounding)
   _ibtioff=static_cast<int>(config()->BTIC()/(_geom->cellPitch())*(_geom->phiSLOffset()/0.9999));  
 
+  // 091030 SV lut parameters from DB
+  // SV 08/12/12 : added flag for computing luts from DB parameters
+  if( _card->lutFromDBFlag()==1 )
+  {
+    //int board = int( (n-1)/4 );
+    //int traco = int(fmod( double(n-1),4.));
+    // 110208 SV for TRACO hardware bug included SL_shift
+    // SL shift
+    float xBTI1_3 	= _geom->localPosition( DTBtiId(DTSuperLayerId(sid.wheel(),sid.station(),sid.sector(),3),1) ).x();
+    float xBTI1_1 	= _geom->localPosition( DTBtiId(DTSuperLayerId(sid.wheel(),sid.station(),sid.sector(),1),1) ).x();
+    float SL_shift 	= xBTI1_3 - xBTI1_1;
+
+    _lutsCCB = new Lut(_card->config_luts(),n,SL_shift);
+    _luts = 0;
+  }
+  else
   //this is always the case with new DTConfig SV 15/I/2007
   //if( config()->trigSetupGeom()==0 ){
   {
@@ -130,6 +144,7 @@ DTTracoChip::DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* conf) :
     int board = int( (n-1)/4 );
     int traco = fmod( double(n-1),4. );
     _lutsCCB = new Lut(sid.station(),board,traco);
+    // 091030 SV this constructur is obsolete now, use setForTestBeam instead
   }//end TB2004
 */
 }
@@ -176,6 +191,10 @@ DTTracoChip::~DTTracoChip(){
   if(config()->trigSetupGeom()==2)
     delete _lutsCCB;
   */
+
+  if( _card->lutFromDBFlag()==1 )
+    delete _lutsCCB;
+
 }
 
 //--------------
@@ -849,8 +868,8 @@ DTTracoChip::storeUncorr(DTTracoTrig* tctrig, DTTracoCand* inner, DTTracoCand* o
       if( !config()->singleLenab(tkn) ) {
         // LTF: single LTRIG not always en. Check cond.:
         if( config()->singleLflag(tkn)==1 ||      //always discarded
-	  config()->singleLflag(tkn)==2 && !(_card->TSTh()->nHTrig(is)) ||
-	  config()->singleLflag(tkn)==0 && !(_card->TSTh()->nTrig(is)) ){ 
+	    ( config()->singleLflag(tkn)==2 && !(_card->TSTh()->nHTrig(is)) ) ||
+	    ( config()->singleLflag(tkn)==0 && !(_card->TSTh()->nTrig(is))  ) ){ 
 // SV --> for TESTS version
 //        config()->singleLflag(tkn)==0 && thTr==0 ||   //only with theta trig. 
 //        config()->singleLflag(tkn)==2 && thTr==0  ){  //only with theta H trig (not hw)
@@ -990,17 +1009,19 @@ DTTracoChip::add_btiT(int step, int pos, const DTBtiTrigData* btitrig) {
   }
 
 
-
-
-  // check K inside acceptance
-  if(btitrig->K()<_PSIMIN[pos-1] || btitrig->K()>_PSIMAX[pos-1] ) {
-    if(config()->debug()>1){
-      std::cout << "In TRACO num. " << number() << " BTI trig. in pos " << pos << " outside K acceptance (";
-      std::cout << _PSIMIN[pos-1] << "-->";
-      std::cout << _PSIMAX[pos-1] << ") - Not added" << std::endl;
+  // 091103 SV: acceptances are taken from geometry if useAcceptParam()=false
+  // otherwise cuts based on LL,LH,CL,CH,RL,RH taken from  configuration are applied in TracoCard::loadTraco 
+  if(_card->useAcceptParamFlag()==false) {
+    // check K inside acceptance
+    if(btitrig->K()<_PSIMIN[pos-1] || btitrig->K()>_PSIMAX[pos-1] ) {
+      if(config()->debug()>1){
+        std::cout << "In TRACO num. " << number() << " BTI trig. in pos " << pos << " outside K acceptance (";
+        std::cout << _PSIMIN[pos-1] << "-->";
+        std::cout << _PSIMAX[pos-1] << ") - Not added" << std::endl;
+      }
+      return;
     }
-    return;
-  }
+  } 
 
   // Store trigger candidate
   if(pos<=DTConfigTraco::NBTITC){
@@ -1227,6 +1248,27 @@ DTTracoChip::calculateAngles(DTTracoTrig* tct) {
     idpsir = _luts->getBendAng( tct->X(), tct->K(), flag);
   }
  */
+
+  // 091030 SV angles computed from DB lut parameters
+  if( _card->lutFromDBFlag()==1 )
+  {
+    ipsi = _lutsCCB->get_k( (tct->K()+512) );
+
+    int flag = 0;
+    int qual=tct->data().qdec();
+    if(qual==3 || qual==1)                //case 0:outer
+      flag=0;
+    if(qual==2 || qual==0)                //case 1:inner
+      flag=1;
+    if(qual==6 || qual==5 || qual==4)     //case 2:correlated
+      flag=2;
+
+    iphir = _lutsCCB->get_x( (tct->X()+512*flag) );
+
+    idpsir = ipsi - iphir/8;
+  }
+  else
+  // compute angles from CMSSW geometry 
   //if( config()->trigSetupGeom()==0 )
   {
     DTTracoTrigData td = tct->data();
@@ -1250,8 +1292,10 @@ DTTracoChip::calculateAngles(DTTracoTrig* tct) {
     if( ipsi>= DTConfigTraco::RESOLPSI || ipsi< -DTConfigTraco::RESOLPSI ) 
       ipsi=-DTConfigTraco::RESOLPSI;
 
+
     // psi_r
     float fpsir = _card->CMSPosition(&td).phi()-_geom->phiCh();
+
     if(fpsir<-M_PI)
       fpsir+=M_PI*2;
     if(fpsir>M_PI)
@@ -1278,9 +1322,11 @@ DTTracoChip::calculateAngles(DTTracoTrig* tct) {
   if(config()->debug()==4){
     std::cout << "DTTracoChip::calculateAngles :" << std::endl;
     tct->print();
-    std::cout << "K = " << tct->K() << " X = " << tct->X(); 
+    std::cout << std::dec << "K = " << tct->K() << " X = " << tct->X(); 
     std::cout << " ipsi = " << ipsi << " iphir = " << iphir;
     std::cout << " idpsir = " << idpsir << std::endl;
+    if( _card->lutFromDBFlag()==1 )
+      std::cout << "Angles are calculated from LUT parameters from DB!" << std::endl; 
   }// end debugging
 
 }

@@ -18,14 +18,15 @@ class DCUIOV : public IIOV {
   ~DCUIOV();
 
   // Methods for user data
-  void setSince(Tm since);
+  void setSince(const Tm& since);
   Tm getSince() const;
-  void setTill(Tm till);
+  void setTill(const Tm& till);
   Tm getTill() const;
-  void setDCUTag(DCUTag tag);
+  void setDCUTag(const DCUTag& tag);
   DCUTag getDCUTag() const;
 
   // Methods from IUniqueDBObject
+  int getID(){ return m_ID;} ;
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
@@ -47,7 +48,7 @@ class DCUIOV : public IIOV {
   DCUTag m_dcuTag;
 
   int writeDB() throw(std::runtime_error);
-  void setByTm(DCUTag* tag, Tm time) throw(std::runtime_error);
+  void setByTm(DCUTag* tag, const Tm& time) throw(std::runtime_error);
 };
 
 #endif

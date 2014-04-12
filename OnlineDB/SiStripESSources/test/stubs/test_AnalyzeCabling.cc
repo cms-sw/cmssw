@@ -1,4 +1,3 @@
-// Last commit: $Id: $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_AnalyzeCabling.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,7 +11,7 @@
 
 // -----------------------------------------------------------------------------
 // 
-void test_AnalyzeCabling::beginJob( const edm::EventSetup& setup ) {
+void test_AnalyzeCabling::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
   
   using namespace sistrip;
   

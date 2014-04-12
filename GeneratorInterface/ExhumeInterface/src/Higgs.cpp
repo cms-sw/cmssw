@@ -7,11 +7,13 @@
 
 //#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
 
-extern struct {
-	int mdcy[3][500], mdme[2][8000];
-	double brat[8000];
-	int kfdp[5][8000];
-} pydat3_;
+extern "C" {
+  extern struct {
+     int mdcy[3][500], mdme[2][8000];
+     double brat[8000];
+     int kfdp[5][8000];
+  } pydat3_;
+}
 #define pydat3 pydat3_
 
 /////////////////////////////////////////////////////////////////////////////
@@ -149,8 +151,9 @@ double Exhume::Higgs::HiggsWidth_(){
   wzwdth_.gamt0 = GfAmt*GfAmt*GfAmt * 0.125/sqrt(2.0)/PI*
     one_Mw_Mt2*one_Mw_Mt2*(1+2*Mw_Mt2);
   wzwdth_.gamt1 = wzwdth_.gamt0;
-  double tgbet = 1.0;
-  hdec_(&tgbet);
+  //double tgbet = 1.0;
+  //hdec_(&tgbet);
+  hdec_();
   
   //std::cout<<std::endl<<"  S.M. Higgs width = "<<widthsm_.smwdth<<std::endl;
 

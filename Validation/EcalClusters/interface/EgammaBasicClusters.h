@@ -9,7 +9,6 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaBasicClusters.h,v 1.2 2006/11/13 15:23:03 mabalazs Exp $
 //
 #include <string>
 
@@ -19,8 +18,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 class EgammaBasicClusters : public edm::EDAnalyzer
 {
@@ -29,58 +31,65 @@ class EgammaBasicClusters : public edm::EDAnalyzer
       	~EgammaBasicClusters();
 
       	virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      	virtual void beginJob(edm::EventSetup const&);
+      	virtual void beginJob();
       	virtual void endJob();
 
 	private:
 	std::string outputFile_;
-	std::string CMSSW_Version_;
+	//std::string CMSSW_Version_;
 
 	bool verboseDBE_;
-	DaqMonitorBEInterface* dbe_;
+	DQMStore* dbe_;
 
-      	edm::InputTag hybridBarrelBasicClusterCollection_;
-      	edm::InputTag islandBarrelBasicClusterCollection_;
-      	edm::InputTag islandEndcapBasicClusterCollection_;
+      	edm::EDGetTokenT<reco::BasicClusterCollection> barrelBasicClusterCollection_;
+      	edm::EDGetTokenT<reco::BasicClusterCollection> endcapBasicClusterCollection_;
  
-      	MonitorElement* hist_HybridEB_BC_Size_;
-      	MonitorElement* hist_IslandEB_BC_Size_;
-      	MonitorElement* hist_IslandEE_BC_Size_;
+      	MonitorElement* hist_EB_BC_Size_;
+      	MonitorElement* hist_EE_BC_Size_;
 
       	double hist_min_Size_;
       	double hist_max_Size_;
       	int    hist_bins_Size_;
 
-      	MonitorElement* hist_HybridEB_BC_NumRecHits_;
-      	MonitorElement* hist_IslandEB_BC_NumRecHits_;
-      	MonitorElement* hist_IslandEE_BC_NumRecHits_;
+      	MonitorElement* hist_EB_BC_NumRecHits_;
+      	MonitorElement* hist_EE_BC_NumRecHits_;
 
       	double hist_min_NumRecHits_;
       	double hist_max_NumRecHits_;
       	int    hist_bins_NumRecHits_;
 
-      	MonitorElement* hist_HybridEB_BC_ET_;
-      	MonitorElement* hist_IslandEB_BC_ET_;
-      	MonitorElement* hist_IslandEE_BC_ET_;
+      	MonitorElement* hist_EB_BC_ET_;
+      	MonitorElement* hist_EE_BC_ET_;
 
       	double hist_min_ET_;
       	double hist_max_ET_;
       	int    hist_bins_ET_;
 
-      	MonitorElement* hist_HybridEB_BC_Eta_;
-      	MonitorElement* hist_IslandEB_BC_Eta_;
-      	MonitorElement* hist_IslandEE_BC_Eta_;
+      	MonitorElement* hist_EB_BC_Eta_;
+      	MonitorElement* hist_EE_BC_Eta_;
 
       	double hist_min_Eta_;
       	double hist_max_Eta_;
       	int    hist_bins_Eta_;
 
-      	MonitorElement* hist_HybridEB_BC_Phi_;
-      	MonitorElement* hist_IslandEB_BC_Phi_;
-      	MonitorElement* hist_IslandEE_BC_Phi_;
+      	MonitorElement* hist_EB_BC_Phi_;
+      	MonitorElement* hist_EE_BC_Phi_;
 
       	double hist_min_Phi_;
       	double hist_max_Phi_;
       	int    hist_bins_Phi_;
+
+      	double hist_min_R_;
+      	double hist_max_R_;
+      	int    hist_bins_R_;
+
+	MonitorElement* hist_EB_BC_ET_vs_Eta_;
+	MonitorElement* hist_EB_BC_ET_vs_Phi_;
+
+	MonitorElement* hist_EE_BC_ET_vs_Eta_;
+	MonitorElement* hist_EE_BC_ET_vs_Phi_;
+	MonitorElement* hist_EE_BC_ET_vs_R_;
+
+
 };
 #endif

@@ -37,21 +37,19 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
   const EBDigiCollection* fullBarrelDigis =0;
   const EEDigiCollection* fullEndcapDigis =0;
   
-  try {
-    //     event.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
-    event.getByLabel( digiProducer_, pEBDigis);
+  event.getByLabel( digiProducer_, pEBDigis);
+  if (pEBDigis.isValid()){ 
     fullBarrelDigis = pEBDigis.product(); // get a ptr to the produc
     edm::LogInfo("ZeroSuppressionInfo") << "total # fullBarrelDigis: " << fullBarrelDigis->size() ;
-  } catch ( std::exception& ex ) {
+  } else {
     edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
   }
   
-  try {
-    //     event.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
-    event.getByLabel( digiProducer_, pEEDigis);
+  event.getByLabel( digiProducer_, pEEDigis);
+  if (pEEDigis.isValid()){ 
     fullEndcapDigis = pEEDigis.product(); // get a ptr to the product
     edm::LogInfo("ZeroSuppressionInfo") << "total # fullEndcapDigis: " << fullEndcapDigis->size() ;
-  } catch ( std::exception& ex ) {
+  } else {
     edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << EEdigiCollection_.c_str() ;
   }
 

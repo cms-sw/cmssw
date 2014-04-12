@@ -38,9 +38,6 @@ namespace edm {
 // Prerequisite classes:
 // ----------------------------------------------------------------------
 
-class ELcontextSupplier;
-class ErrorLog;
-class ELadministrator;
 class ELcout;
 
 
@@ -59,6 +56,8 @@ public:
   ErrorObj( const ErrorObj & orig );  // Same serial number and everything!
   virtual ~ErrorObj();
 
+  ErrorObj& operator=( const ErrorObj& other );
+  void swap ( ErrorObj& other );
   // --- accessors:
   //
   int                    serial() const;
@@ -78,9 +77,6 @@ public:
   virtual void  setModule    ( const ELstring & module );
   virtual void  setSubroutine( const ELstring & subroutine );
   virtual void  setContext   ( const ELstring & context );
-  virtual void  setProcess   ( const ELstring & proc );
-		//-| process is always determined through ErrorLog or
-		//-| an ELdestControl, both of which talk to ELadministrator.
 
   // -----  Methods for ErrorLog or for physicists logging errors:
   //
@@ -90,7 +86,7 @@ public:
   inline ErrorObj &  operator<< ( std::ostream&(*f)(std::ostream&) ); 
   inline ErrorObj &  operator<< ( std::ios_base&(*f)(std::ios_base&) ); 
 
-  virtual ErrorObj &  emit( const ELstring & txt );
+  virtual ErrorObj &  emitToken( const ELstring & txt );
 
   // ---  mutators for use by ELadministrator and ELtsErrorLog
   //
@@ -99,9 +95,6 @@ public:
   virtual void  setReactedTo ( bool r );
 
 private:
-  // ---  class-wide serial number stamper:
-  //
-  static int     ourSerial;
 
   // ---  data members:
   //
@@ -122,7 +115,7 @@ private:
 // ----------------------------------------------------------------------
 
 
-// -----  Method for ErrorLog or for physicists logging errors:
+// -----  Method for physicists logging errors:
 //
 template< class T >
 inline ErrorObj &  operator<<( ErrorObj & e, const T & t );
@@ -137,10 +130,12 @@ ErrorObj &  operator<<( ErrorObj & e, const char s[] );
 // Global functions:
 // ----------------------------------------------------------------------
 
-void endmsg( ErrorLog & );
+inline
+void swap(ErrorObj& a, ErrorObj& b) {
+  a.swap(b);
+}
 
 }        // end of namespace edm
-
 
 // ----------------------------------------------------------------------
 // .icc

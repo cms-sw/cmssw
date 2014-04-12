@@ -12,7 +12,8 @@ class TrackerHitAssociator;
 myTrackAnalyzer::myTrackAnalyzer(edm::ParameterSet const& conf) : 
   conf_(conf),
   doPixel_( conf.getParameter<bool>("associatePixel") ),
-  doStrip_( conf.getParameter<bool>("associateStrip") ) {
+  doStrip_( conf.getParameter<bool>("associateStrip") ),
+  trackCollectionTag_(conf.getParameter<edm::InputTag>("trackCollectionTag")) {
 }
 
 myTrackAnalyzer::~myTrackAnalyzer()
@@ -34,7 +35,7 @@ void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& se
     std::cout << "\nEvent ID = "<< event.id() << std::endl ;
     
     edm::Handle<reco::TrackCollection> trackCollection;
-    event.getByType(trackCollection);
+    event.getByLabel(trackCollectionTag_, trackCollection);
     
     //get simtrack info
    std::vector<SimTrack> theSimTracks;

@@ -13,7 +13,6 @@
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Fri Apr 27 17:05:15 CEST 2007
-// $Id: MuEnrichType1Filter.cc,v 1.1 2007/05/14 14:33:42 muriel Exp $
 //
 //
 
@@ -27,8 +26,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
- 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "HLTrigger/Muon/test/MuEnrichType1Filter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -48,6 +45,7 @@
 MuEnrichType1Filter::MuEnrichType1Filter(const edm::ParameterSet& iConfig)
 {
   type = iConfig.getParameter<int>("type");
+  theGenToken = consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"));
    //now do what ever initialization is needed
   nrejected=0;
   naccepted=0;
@@ -76,7 +74,7 @@ MuEnrichType1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace HepMC;
 
    Handle< HepMCProduct > EvtHandle ;
-   iEvent.getByLabel( "VtxSmeared", EvtHandle ) ;
+   iEvent.getByToken(theGenToken, EvtHandle) ;
    const GenEvent* Evt = EvtHandle->GetEvent() ;
    if (Evt != 0 ) {   
      edm::LogVerbatim ("MuEnrichFltr")  << "------------------------------";
@@ -108,7 +106,7 @@ MuEnrichType1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MuEnrichType1Filter::beginJob(const edm::EventSetup&)
+MuEnrichType1Filter::beginJob()
 {
 }
 

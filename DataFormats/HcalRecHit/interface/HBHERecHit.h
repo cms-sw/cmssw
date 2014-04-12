@@ -7,8 +7,6 @@
 
 /** \class HBHERecHit
  *  
- * $Date: 2005/09/26 14:10:28 $
- * $Revision: 1.3 $
  * \author J. Mans - Minnesota
  */
 class HBHERecHit : public CaloRecHit {
@@ -16,11 +14,23 @@ public:
   typedef HcalDetId key_type;
 
   HBHERecHit();
-  HBHERecHit(const HcalDetId& id, float energy, float time);
+  //HBHERecHit(const HcalDetId& id, float energy, float time);
+  HBHERecHit(const HcalDetId& id, float amplitude, float timeRising, float timeFalling=0);
+
+  /// get the hit falling time
+  float timeFalling() const { return timeFalling_; }
   /// get the id
   HcalDetId id() const { return HcalDetId(detid()); }
+
+  inline void setRawEnergy(const float en) {rawEnergy_ = en;}
+  inline float eraw() const {return rawEnergy_;}
+
+private:
+  float timeFalling_;
+  float rawEnergy_;
 };
 
 std::ostream& operator<<(std::ostream& s, const HBHERecHit& hit);
+
 
 #endif

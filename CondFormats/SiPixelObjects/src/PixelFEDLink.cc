@@ -2,12 +2,9 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 #include <sstream>
-#include <iostream>
 
 using namespace std;
 using namespace sipixelobjects;
@@ -22,7 +19,7 @@ void PixelFEDLink::addItem(const PixelROC & roc)
 bool PixelFEDLink::checkRocNumbering() const
 {
   bool result = true;
-  int idx_expected = 0;
+  unsigned int idx_expected = 0;
   typedef ROCs::const_iterator CIR;
   for (CIR it = theROCs.begin(); it != theROCs.end(); it++) {
     idx_expected++;
@@ -43,7 +40,7 @@ void PixelFEDLink::add(const ROCs & rocs)
 string PixelFEDLink::print(int depth) const
 {
   ostringstream out;
-  if (id() < 0) return  out.str();
+  // if (id() < 0) return  out.str(); // id() >= 0, since it returns an unsigned
 
   if (depth-- >=0 ) {
     if(id()<10) out <<"  LNK:  "<<id(); else  out <<"  LNK: "<<id();

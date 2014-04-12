@@ -1,0 +1,30 @@
+#
+# This is the decay file for the decay BS0 -> MU+ MU- PHI(-> K+ K-)
+#
+# EventType: 13144001
+#
+# Descriptor: [B_s0 -> mu+ mu- {,gamma} {,gamma} (phi(1020) -> K+ K-)]cc
+#
+# NickName: 
+#
+# Physics: Includes radiative mode
+#
+# Tested: Never
+# By: 
+# Date: 
+#
+Alias      MyB_s0   B_s0
+Alias      Myanti-B_s0   anti-B_s0
+ChargeConj Myanti-B_s0   MyB_s0 
+Alias      myPhi    phi
+ChargeConj myPhi    myPhi
+#
+Decay MyB_s0
+1.000 myPhi   mu+  mu-                        BTOSLLALI;
+Enddecay
+CDecay Myanti-B_s0
+#
+Decay myPhi
+1.000 K+      K-                              VSS;
+Enddecay
+End

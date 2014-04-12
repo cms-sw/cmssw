@@ -5,8 +5,6 @@
  *   L1 DT Track Finder Digi-to-Raw
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
- *   $Revision: 1.1 $
  *
  *   J. Troconiz  UAM Madrid
  */
@@ -19,6 +17,7 @@
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 #include <string>
 
@@ -43,6 +42,9 @@ class DTTFFEDSim : public edm::EDProducer {
   
   unsigned int eventNum;
 
+  edm::InputTag DTDigiInputTag;
+  edm::InputTag DTPHTFInputTag;
+
  // utilities
   int channel(int wheel, int sector, int bx);
 
@@ -52,7 +54,10 @@ class DTTFFEDSim : public edm::EDProducer {
 
   int wheel(int channel);
 
-  void calcCRC(long myD1, long myD2, int &myC);
+  void calcCRC(int myD1, int myD2, int &myC);
+
+  edm::InputTag getDTDigiInputTag() { return DTDigiInputTag; }
+  edm::InputTag getDTPHTFInputTag() { return DTPHTFInputTag; }
 
 };
 #endif

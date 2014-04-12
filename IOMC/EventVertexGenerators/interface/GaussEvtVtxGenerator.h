@@ -5,13 +5,12 @@
  * Generate event vertices according to a Gauss distribution. 
  * Attention: All values are assumed to be cm!
  *
- * $Id: GaussEvtVtxGenerator.h,v 1.3 2007/03/22 02:28:46 yarba Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 
 namespace CLHEP {
-   class RandGauss;
+  class HepRandomEngine;
 }
 
 class GaussEvtVtxGenerator : public BaseEvtVtxGenerator 
@@ -22,12 +21,13 @@ public:
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
-  virtual HepMC::FourVector* newVertex() ;
+  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
 
   virtual TMatrixD* GetInvLorentzBoost() {
 	  return 0;
   }
-  
+
+   
   /// set resolution in X in cm
   void sigmaX(double s=1.0);
   /// set resolution in Y in cm
@@ -50,7 +50,7 @@ private:
 private:
   double fSigmaX, fSigmaY, fSigmaZ;
   double fMeanX,  fMeanY,  fMeanZ;
-  CLHEP::RandGauss*  fRandom ; 
+  double fTimeOffset;
 };
 
 #endif

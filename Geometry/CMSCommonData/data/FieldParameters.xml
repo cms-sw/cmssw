@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
   <SpecParSection label="fields.xml" eval="true">
     <SpecPar name="field-map">
-      <PartSelector path="//OCMS"/> 
+      <PartSelector path="//OCMS"/>
       <Parameter name="MagneticFieldType" value="CMSIMField" eval="false"/>
       <Parameter name="Stepper" value="G4ClassicalRK4" eval="false"/>
       <Parameter name="MinStep" value="1.e-1*mm"/>

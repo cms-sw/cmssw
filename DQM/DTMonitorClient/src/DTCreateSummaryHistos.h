@@ -6,8 +6,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/05/22 07:03:05 $
- *  $Revision: 1.3 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -21,8 +19,7 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
@@ -49,7 +46,10 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);

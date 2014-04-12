@@ -1,72 +1,45 @@
-
 #ifndef HcalPedestalClient_H
 #define HcalPedestalClient_H
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
-#include <CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h>
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
-
+#include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include <CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h>
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include "TROOT.h"
-#include "TStyle.h"
-#include "TFile.h"
+#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class HcalPedestalClient{
+class HcalPedestalClient : public HcalBaseClient {
   
-public:
+ public:
   
   /// Constructor
-  HcalPedestalClient(const ParameterSet& ps, MonitorUserInterface* mui);
   HcalPedestalClient();
-  
   /// Destructor
-  virtual ~HcalPedestalClient();
-  
-  /// Subscribe/Unsubscribe to Monitoring Elements
-  void subscribe(void);
-  void subscribeNew(void);
-  void unsubscribe(void);
-  
+  ~HcalPedestalClient();
+
+  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
+
   /// Analyze
   void analyze(void);
   
   /// BeginJob
-  void beginJob(const EventSetup& c);
+  void beginJob();
   
   /// EndJob
   void endJob(void);
   
   /// BeginRun
-  void beginRun(void);
-  
+  void beginRun(const EventSetup& c);
+
   /// EndRun
   void endRun(void);
   
@@ -78,82 +51,85 @@ public:
   
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
+  void htmlExpertOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
-
+  
   ///process report
   void report();
   
-  void errorOutput();
-  void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);
-  bool hasErrors() const { return dqmReportMapErr_.size(); }
-  bool hasWarnings() const { return dqmReportMapWarn_.size(); }
-  bool hasOther() const { return dqmReportMapOther_.size(); }
-
   void resetAllME();
   void createTests();
 
+  // Introduce temporary error/warning checks
+  bool hasErrors_Temp();
+  bool hasWarnings_Temp();
+  bool hasOther_Temp()  {return false;}
+
 
 private:
-
-  void generateBadChanList(string dir);
+  
+  //void generateBadChanList(string dir);
   vector<int> badChan_;
   vector<double> badMean_;
   vector<double> badRMS_;
-
-  int ievt_;
-  int jevt_;
-
-  bool subDetsOn_[4];
-  edm::ESHandle<HcalDbService> conditions_;
-
-  bool collateSources_;
-  bool cloneME_;
-  bool verbose_;
-  bool offline_;
-  bool doPerChanTests_;
-  bool plotPedRAW_;
-  string process_;
   
-  MonitorUserInterface* mui_;
-  const HcalElectronicsMap* readoutMap_;
+  vector <std::string> subdets_;
+  vector <std::string> subdets1D_;
 
-  int nCrates_;
-  TH1F* htrMean_[1000];
-  TH1F* htrRMS_[1000];
+  bool doFCpeds_; // pedestal units in fC (if false, assume ADC)
+  // specify time slices over which to calculate pedestals -- are these needed in client?
+  bool startingTimeSlice_;
+  bool endingTimeSlice_;
 
-  TH1F* all_peds_[4];
-  TH1F* ped_rms_[4];
-  TH1F* ped_mean_[4];
+  // Specify maximum allowed difference between ADC pedestal and nominal value
+  double nominalPedMeanInADC_;
+  double nominalPedWidthInADC_;
+  double maxPedMeanDiffADC_;
+  double maxPedWidthDiffADC_; // specify maximum width of pedestal (in ADC)
+  double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
+  bool makeDiagnostics_;
+  TH2F* MeanMapByDepth[4];
+  TH2F* RMSMapByDepth[4];
 
-  TH1F* sub_rms_[4];
-  TH1F* sub_mean_[4];
+ // Problem Pedestal Plots
+  TH2F* ProblemPedestals;
+  TH2F* ProblemPedestalsByDepth[4];
 
-  TH1F* capid_mean_[4];
-  TH1F* capid_rms_[4];
-  TH1F* qie_mean_[4];
-  TH1F* qie_rms_[4];
+  // Pedestals from Database
+  TH2F* ADC_PedestalFromDBByDepth[4];
+  TH2F* ADC_WidthFromDBByDepth[4];
+  TH2F* fC_PedestalFromDBByDepth[4];
+  TH2F* fC_WidthFromDBByDepth[4];
+  TH1F* ADC_PedestalFromDBByDepth_1D[4];
+  TH1F* ADC_WidthFromDBByDepth_1D[4];
+  TH1F* fC_PedestalFromDBByDepth_1D[4];
+  TH1F* fC_WidthFromDBByDepth_1D[4];
 
-  TH2F* pedMapMeanD_[4];
-  TH2F* pedMapRMSD_[4];
-
-  TH2F* pedMapMean_E[4];
-  TH2F* pedMapRMS_E[4];
-
-  TH2F* err_map_geo_[4];
-  TH2F* err_map_elec_[4];
-  TH2F* geoRef_;
-
-  // Quality criteria for data integrity
-  float pedrms_thresh_;
-  float pedmean_thresh_;
-  float caprms_thresh_;
-  float capmean_thresh_;
+  // Raw pedestals in ADC
+  TH2F* rawADCPedestalMean[4];
+  TH2F* rawADCPedestalRMS[4];
+  TH1F* rawADCPedestalMean_1D[4];
+  TH1F* rawADCPedestalRMS_1D[4];
   
-  map<string, vector<QReport*> > dqmReportMapErr_;
-  map<string, vector<QReport*> > dqmReportMapWarn_;
-  map<string, vector<QReport*> > dqmReportMapOther_;
-  map<string, string> dqmQtests_;
+  // subtracted pedestals in ADC
+  TH2F* subADCPedestalMean[4];
+  TH2F* subADCPedestalRMS[4];
+  TH1F* subADCPedestalMean_1D[4];
+  TH1F* subADCPedestalRMS_1D[4];
+  
+  // Raw pedestals in FC
+  TH2F* rawfCPedestalMean[4];
+  TH2F* rawfCPedestalRMS[4];
+  TH1F* rawfCPedestalMean_1D[4];
+  TH1F* rawfCPedestalRMS_1D[4];
+  
+  // subtracted pedestals in FC
+  TH2F* subfCPedestalMean[4];
+  TH2F* subfCPedestalRMS[4];
+  TH1F* subfCPedestalMean_1D[4];
+  TH1F* subfCPedestalRMS_1D[4];
+
 };
 
 #endif

@@ -4,8 +4,6 @@
 /** \class MuRodBarrelLayer
  *  A cylinder composed of rods. Represents barrel muon DT/RPC stations.
  *
- *  $Date: 2006/06/07 14:17:03 $
- *  $Revision: 1.7 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -39,9 +37,6 @@ public:
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
-
-
-  virtual bool hasGroups() const;
 
 
   // DetLayer interface

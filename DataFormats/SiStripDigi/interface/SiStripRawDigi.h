@@ -32,6 +32,11 @@ class SiStripRawDigi : public edm::DoNotSortUponInsertion {
   
 };
 
+#include<iostream>
+inline std::ostream & operator<<(std::ostream & o, const SiStripRawDigi& digi) {
+  return o << " " << digi.adc();
+}
+
 // inline methods 
 const uint16_t& SiStripRawDigi::adc() const {  return adc_; }
 bool SiStripRawDigi::operator< ( const SiStripRawDigi& other ) const { return ( this->adc() < other.adc() ); }

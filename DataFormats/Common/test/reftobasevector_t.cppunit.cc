@@ -1,8 +1,8 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.8 2007/07/09 07:28:52 llista Exp $
 
 #include <algorithm>
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -34,16 +34,6 @@ namespace testreftobase {
   struct Inherit2 : public Base {
     virtual int val() const {return 2;}
   };
-  
-  template<class T>
-    struct TestHandle {
-      TestHandle(const edm::ProductID& iId, const T* iProd) : id_(iId), prod_(iProd) {}
-      const edm::ProductID& id() const { return id_;}
-      const T* product() const { return prod_;}
-    private:
-      edm::ProductID id_;
-      const T* prod_;
-    };
 }
 
 using namespace testreftobase;
@@ -69,11 +59,11 @@ testRefToBaseVector::check()
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
   
-  TestHandle<std::vector<Inherit1> > h1(ProductID(1), &v1);
+  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1, 1));
   RefVector<std::vector<Inherit1> > rv1;
   rv1.push_back( Ref<std::vector<Inherit1> >( h1, 0 ) );
   rv1.push_back( Ref<std::vector<Inherit1> >( h1, 1 ) );
-  TestHandle<std::vector<Inherit2> > h2(ProductID(2), &v2);
+  TestHandle<std::vector<Inherit2> > h2(&v2, ProductID(1, 2));
   RefVector<std::vector<Inherit2> > rv2;
   rv2.push_back( Ref<std::vector<Inherit2> >( h2, 0 ) );
   rv2.push_back( Ref<std::vector<Inherit2> >( h2, 1 ) );

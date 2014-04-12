@@ -8,10 +8,8 @@
 //
 // Original Author:  chiochia
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiPixelHistogramId.cc,v 1.5 2007/03/21 16:39:28 chiochia Exp $
 //
 
-#include<boost/cstdint.hpp>
 #include<iostream>
 #include<sstream>
 
@@ -60,7 +58,7 @@ uint32_t SiPixelHistogramId::getRawId( std::string histoid ) {
 /// get Part
 std::string SiPixelHistogramId::returnIdPart(std::string histoid, uint32_t whichpart){
 
-  uint32_t length1=histoid.find(separator_,0);
+  size_t length1=histoid.find(separator_,0);
   if(length1==std::string::npos){ // no separator1 found
     LogWarning("PixelDQM")<<"SiPixelHistogramId::returnIdPart - no regular histoid. Returning 0";
     return "0";
@@ -68,7 +66,7 @@ std::string SiPixelHistogramId::returnIdPart(std::string histoid, uint32_t which
   std::string part1 = histoid.substr(0,length1); // part of 'histoid' up to 'separator1'
   if(whichpart==1) return part1;
   std::string remain1 = histoid.substr(length1+separator_.size()); // rest of 'histoid' starting at end of 'separator1'
-  uint32_t length2=remain1.find(separator_,0);
+  size_t length2=remain1.find(separator_,0);
   if(length2==std::string::npos){ // no separator2 found
     LogWarning("PixelDQM")<<"SiPixelHistogramId::returnIdPart - no regular histoid. Returning 0";
     return "0";

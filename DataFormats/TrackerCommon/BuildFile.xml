@@ -1,0 +1,9 @@
+<use name="DataFormats/Common"/>
+<use name="DataFormats/SiStripCluster"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="rootcintex"/>
+<export>
+ <lib   name="1"/>
+</export>

@@ -18,22 +18,16 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
@@ -46,8 +40,6 @@
 #include <TStyle.h>
 #include <TROOT.h>
 #include <TH2F.h>
-#include <TText.h>
-#include <TArrow.h>
 #include <TBox.h>
 
 #include <iostream>
@@ -81,7 +73,7 @@ private:
 //
 // constructors and destructor
 //
-testEcalGetWindow::testEcalGetWindow( const edm::ParameterSet& iConfig )
+testEcalGetWindow::testEcalGetWindow( const edm::ParameterSet& /*iConfig*/ )
 {
    //now do what ever initialization is needed
   pass_=0;
@@ -102,7 +94,7 @@ testEcalGetWindow::~testEcalGetWindow()
 //
 // member functions
 //
-void testEcalGetWindow::build(const CaloGeometry& cg, const CaloTopology& ct, DetId::Detector det, int subdetn, const char* name) 
+void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct, DetId::Detector det, int subdetn, const char* name) 
 {
   if (det == DetId::Ecal && subdetn == EcalEndcap) 
     {
@@ -232,9 +224,8 @@ void testEcalGetWindow::build(const CaloGeometry& cg, const CaloTopology& ct, De
 }
 // ------------ method called to produce the data  ------------
 void
-testEcalGetWindow::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+testEcalGetWindow::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
    
    std::cout << "Here I am " << std::endl;
 
@@ -242,7 +233,7 @@ testEcalGetWindow::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);     
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
 
    if (pass_==1) {
      build(*pG,*theCaloTopology,DetId::Ecal,EcalBarrel,"EBGetWindowTest.eps");
@@ -256,5 +247,5 @@ testEcalGetWindow::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testEcalGetWindow);
+
+DEFINE_FWK_MODULE(testEcalGetWindow);

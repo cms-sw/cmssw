@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.8 2007/07/02 21:10:22 chrjones Exp $
 //
 
 // system include files
@@ -22,6 +21,7 @@
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginFactoryBase.h"
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
 #include "FWCore/PluginManager/interface/CacheParser.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -47,10 +47,19 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
     //NOTE: This may not be needed :/
     PluginFactoryManager* pfm = PluginFactoryManager::get();
     pfm->newFactory_.connect(boost::bind(boost::mem_fn(&PluginManager::newFactory),this,_1));
-    
+
+    // When building a single big executable the plugins are already registered in the 
+    // PluginFactoryManager, we therefore only need to populate the categoryToInfos_ map
+    // with the relevant information.
+    for (PluginFactoryManager::const_iterator i = pfm->begin(), e = pfm->end(); i != e; ++i)
+    {
+    	categoryToInfos_[(*i)->category()] = (*i)->available();
+    }
+
     //read in the files
     //Since we are looping in the 'precidence' order then the lists in categoryToInfos_ will also be
     // in that order
+    bool foundAtLeastOneCacheFile = false;
     std::set<std::string> alreadySeen;
     for(SearchPath::const_iterator itPath=searchPath_.begin(), itEnd = searchPath_.end();
         itPath != itEnd;
@@ -60,22 +69,30 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
         continue;
       }
       alreadySeen.insert(*itPath);
-      boost::filesystem::path dir(*itPath,boost::filesystem::no_check);
+      boost::filesystem::path dir(*itPath);
       if( exists( dir) ) {
         if(not is_directory(dir) ) {
-          throw cms::Exception("PluginManagerBadPath") <<"The path '"<<dir.native_file_string()<<"' for the PluginManager is not a directory";
+          throw cms::Exception("PluginManagerBadPath") <<"The path '"<<dir.string()<<"' for the PluginManager is not a directory";
         }
         boost::filesystem::path cacheFile = dir/kCacheFile;
         
         if(exists(cacheFile) ) {
-          std::ifstream file(cacheFile.native_file_string().c_str());
+          std::ifstream file(cacheFile.string().c_str());
           if(not file) {
-            throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.native_file_string()
+            throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.string()
             <<"'. Please check permissions on file";
           }
+          foundAtLeastOneCacheFile=true;
           CacheParser::read(file, dir, categoryToInfos_);          
         }
       }
+    }
+    if(not foundAtLeastOneCacheFile) {
+      auto ex = cms::Exception("PluginManagerNoCacheFile")<<"No cache files named '"<<standard::cachefileName()<<"' were found in the directories \n";
+      for( auto const& seen : alreadySeen) {
+        ex <<" '"<<seen<<"'\n";
+      }
+      throw ex;
     }
     //Since this should not be called until after 'main' has started, we can set the value
     loadingLibraryNamed_()="<loaded by another plugin system>";
@@ -143,7 +160,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
       "' because the category '"<<iCategory<<"' has no known plugins";
     } else {
       ioThrowIfFailElseSucceedStatus = false;
-      static boost::filesystem::path s_path;
+      static const boost::filesystem::path s_path;
       return s_path;
     }
   }
@@ -159,10 +176,10 @@ PluginManager::loadableFor_(const std::string& iCategory,
   if(range.first == range.second) {
     if(throwIfFail) {
       throw cms::Exception("PluginNotFound")<<"Unable to find plugin '"<<iPlugin
-      <<"'. Please check spelling of name.";
+      <<"' in category '"<<iCategory<<"'. Please check spelling of name.";
     } else {
       ioThrowIfFailElseSucceedStatus = false;
-      static boost::filesystem::path s_path;
+      static const boost::filesystem::path s_path;
       return s_path;
     }
   }
@@ -174,7 +191,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
       throw cms::Exception("MultiplePlugins")<<"The plugin '"<<iPlugin<<"' is found in multiple files \n"
       " '"<<range.first->loadable_.leaf()<<"'\n '"
       <<(range.first+1)->loadable_.leaf()<<"'\n"
-      "in directory '"<<range.first->loadable_.branch_path().native_file_string()<<"'.\n"
+      "in directory '"<<range.first->loadable_.branch_path().string()<<"'.\n"
       "The code must be changed so the plugin only appears in one plugin file. "
       "You will need to remove the macro which registers the plugin so it only appears in"
       " one of these files.\n"
@@ -213,17 +230,22 @@ PluginManager::load(const std::string& iCategory,
   const boost::filesystem::path& p = loadableFor(iCategory,iPlugin);
   
   //have we already loaded this?
-  std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> >::iterator itLoaded = 
-    loadables_.find(p);
+  auto itLoaded = loadables_.find(p);
   if(itLoaded == loadables_.end()) {
-    //try to make one
-    goingToLoad_(p);
-    Sentry s(loadingLibraryNamed_(), p.native_file_string());
-    //boost::filesystem::path native(p.native_file_string(),boost::filesystem::no_check);
-    boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
-    loadables_[p]=ptr;
-    justLoaded_(*ptr);
-    return *ptr;
+    //Need to make sure we only have on SharedLibrary loading at a time
+    std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
+    //Another thread may have gotten this while we were waiting on the mutex
+    itLoaded = loadables_.find(p);
+    if(itLoaded == loadables_.end()){
+      //try to make one
+      goingToLoad_(p);
+      Sentry s(loadingLibraryNamed_(), p.string());
+      //boost::filesystem::path native(p.string());
+      boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
+      loadables_[p]=ptr;
+      justLoaded_(*ptr);
+      return *ptr;
+    }
   }
   return *(itLoaded->second);
 }
@@ -240,18 +262,24 @@ PluginManager::tryToLoad(const std::string& iCategory,
     return 0;
   }
   
+
   //have we already loaded this?
-  std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> >::iterator itLoaded = 
-    loadables_.find(p);
+  auto itLoaded = loadables_.find(p);
   if(itLoaded == loadables_.end()) {
-    //try to make one
-    goingToLoad_(p);
-    Sentry s(loadingLibraryNamed_(), p.native_file_string());
-    //boost::filesystem::path native(p.native_file_string(),boost::filesystem::no_check);
-    boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
-    loadables_[p]=ptr;
-    justLoaded_(*ptr);
-    return ptr.get();
+    //Need to make sure we only have on SharedLibrary loading at a time
+    std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
+    //Another thread may have gotten this while we were waiting on the mutex
+    itLoaded = loadables_.find(p);
+    if(itLoaded == loadables_.end()){
+      //try to make one
+      goingToLoad_(p);
+      Sentry s(loadingLibraryNamed_(), p.string());
+      //boost::filesystem::path native(p.string());
+      boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
+      loadables_[p]=ptr;
+      justLoaded_(*ptr);
+      return ptr.get();
+    }
   }
   return (itLoaded->second).get();
 }
@@ -289,20 +317,22 @@ PluginManager::configure(const Config& iConfig )
 const std::string& 
 PluginManager::staticallyLinkedLoadingFileName()
 {
-  static std::string s_name("static");
+  static const std::string s_name("static");
   return s_name;
 }
 
 std::string& 
 PluginManager::loadingLibraryNamed_()
 {
-  static std::string s_name(staticallyLinkedLoadingFileName());
+  //NOTE: pluginLoadMutex() indirectly guards this since this value
+  // is only accessible via the Sentry call which us guarded by the mutex
+  [[cms::thread_safe]] static std::string s_name(staticallyLinkedLoadingFileName());
   return s_name;
 }
 
 PluginManager*& PluginManager::singleton()
 {
-  static PluginManager* s_singleton;
+  [[cms::thread_safe]] static PluginManager* s_singleton=0;
   return s_singleton;
 }
 

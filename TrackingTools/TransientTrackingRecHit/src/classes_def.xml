@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="SeedingLayerSetsHits" persistence="false"/>
+  <class name="edm::Wrapper<SeedingLayerSetsHits>" persistent="false"/>
+</lcgdict>

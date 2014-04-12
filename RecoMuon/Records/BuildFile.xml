@@ -1,0 +1,7 @@
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/Records"/>
+<use   name="boost"/>
+<use   name="CondFormats/DataRecord"/>
+<export>
+  <lib   name="1"/>
+</export>

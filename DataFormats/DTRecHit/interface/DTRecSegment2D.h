@@ -18,8 +18,6 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2007/08/02 05:35:46 $
- * $Revision: 1.12 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -50,7 +48,7 @@ class DTRecSegment2D : public RecSegment{
 
   /// Constructor
   /// empty c'tor needed by POOL (I guess)
-  DTRecSegment2D() {}
+  DTRecSegment2D(): theChi2(0.0), theT0(0.), theVdrift(0.) {}
   
   /// c'tor from hits
   DTRecSegment2D(DetId id, const std::vector<DTRecHit1D>& hits) ;
@@ -62,7 +60,7 @@ class DTRecSegment2D : public RecSegment{
 		 std::vector<DTRecHit1D> &hits1D);
 
   /// Destructor
-  virtual ~DTRecSegment2D() {};
+  virtual ~DTRecSegment2D();
 
   /* Operations */ 
 
@@ -75,15 +73,12 @@ class DTRecSegment2D : public RecSegment{
   }
 
   // The parameter error matrix 
-  virtual AlgebraicSymMatrix parametersError() const {
-    return parError( localPositionError(), localDirectionError());
-  }
+  virtual AlgebraicSymMatrix parametersError() const;
 
   /** return the projection matrix, which must project a parameter vector,
    * whose components are (q/p, dx/dz, dy/dz, x, y), into the vector returned
    * by parameters() */
   virtual AlgebraicMatrix projectionMatrix() const {
-    if ( !isInitialized) initialize();
     return theProjectionMatrix;
   }
     
@@ -122,6 +117,11 @@ class DTRecSegment2D : public RecSegment{
 
   /// Get the segment t0 (if recomputed, 0 is returned otherwise)
   double t0() const {return theT0;}
+  bool ist0Valid() const {return (theT0 > -998.) ? true : false;}
+
+  /// Get the vDirft as computed by the algo for the computation of the segment t0
+  /// (if recomputed, 0 is returned otherwise)
+  double vDrift() const {return theVdrift;}
 
  protected:
   friend class DTSegmentUpdator;
@@ -131,6 +131,7 @@ class DTRecSegment2D : public RecSegment{
   void setChi2(const double& chi2);
   void update(std::vector<DTRecHit1D> & updatedRecHits);
   void setT0(const double& t0);
+  void setVdrift(const double& vdrift);
 
   LocalPoint  thePosition;  // in SL frame
   LocalVector theDirection; // in SL frame
@@ -142,21 +143,14 @@ class DTRecSegment2D : public RecSegment{
 
   double theChi2;           // chi2 of the fit
   double theT0;             // T0 as coming from the fit
+  double theVdrift;             // vDrift as coming from the fit
 
   std::vector<DTRecHit1D> theHits; // the hits with defined R/L
   
 
  private:
 
-  static bool isInitialized;
-  static AlgebraicMatrix theProjectionMatrix;
-  
-  void initialize() const {
-    isInitialized=true;
-    theProjectionMatrix = AlgebraicMatrix( 2, 5, 0);
-    theProjectionMatrix[0][1]=1;
-    theProjectionMatrix[1][3]=1;
-  }
+  static const AlgebraicMatrix theProjectionMatrix;
   
   AlgebraicVector param( const LocalPoint& lp, const LocalVector& lv) const {
     AlgebraicVector result(2);
@@ -164,9 +158,6 @@ class DTRecSegment2D : public RecSegment{
     result[0]=lv.x()/lv.z();
     return result;
   }
-
-  AlgebraicSymMatrix parError( const LocalError& lp,
-			       const LocalError& lv) const;
 
 };
 std::ostream& operator<<(std::ostream& os, const DTRecSegment2D& seg);

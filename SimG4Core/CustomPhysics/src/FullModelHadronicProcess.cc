@@ -9,6 +9,8 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 
+using namespace CLHEP;
+
 FullModelHadronicProcess::FullModelHadronicProcess(G4ProcessHelper * aHelper, const G4String& processName) :
   G4VDiscreteProcess(processName), theHelper(aHelper)
 {}
@@ -72,6 +74,9 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 							  const G4Step&  aStep)
 {
   //  G4cout<<"*****************    Entering FullModelHadronicProcess::PostStepDoIt       **********************"<<G4endl;
+
+  const G4TouchableHandle thisTouchable(aTrack.GetTouchableHandle());
+
   // A little setting up
   aParticleChange.Initialize(aTrack);
   //  G4DynamicParticle* OrgPart = const_cast<G4DynamicParticle*>(aTrack.GetDynamicParticle());
@@ -86,10 +91,10 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   G4bool IncidentSurvives = false;
   G4bool TargetSurvives = false;
   G4Nucleus targetNucleus(aTrack.GetMaterial());
-  G4ParticleDefinition* outgoingRhadron;
-  G4ParticleDefinition* outgoingCloud;
+  G4ParticleDefinition* outgoingRhadron=0;
+  G4ParticleDefinition* outgoingCloud=0;
   G4ParticleDefinition* outgoingTarget=0;
-  double gamma = IncidentRhadron->GetTotalEnergy()/IncidentRhadron->GetDefinition()->GetPDGMass();
+//  double gamma = IncidentRhadron->GetTotalEnergy()/IncidentRhadron->GetDefinition()->GetPDGMass();
 
 
   G4ThreeVector p_0 = IncidentRhadron->GetMomentum();
@@ -116,7 +121,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 
   if(cloudParticle->GetDefinition() == 0) 
      {
-      std::cout << "ToyModelHadronicProcess::PostStepDoIt  Definition of particle cloud not available!!" << std::endl;
+      std::cout << "FullModelHadronicProcess::PostStepDoIt  Definition of particle cloud not available!!" << std::endl;
      }
   /*
   std::cout<<"Incoming particle was "<<IncidentRhadron->GetDefinition()->GetParticleName()<<". Corresponding cloud is "<<cloudParticle->GetDefinition()->GetParticleName()<<std::endl;
@@ -169,15 +174,14 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     }
   
   // calculate black track energies
-  
-  tkin = targetNucleus.EvaporationEffects( ek );
-  ek -= tkin;
+  if(ek > 0.) {  tkin = targetNucleus.EvaporationEffects( ek );  ek -= tkin; } // AR_NEWCODE_IMPORT
   if(ek+gluinoMomentum.e()-gluinoMomentum.m()<=0.1*MeV||ek<=0.) {
     //Very rare event...
     G4cout<<"Kinetic energy is sick"<<G4endl;
     G4cout<<"Full R-hadron: "<<(ek+gluinoMomentum.e()-gluinoMomentum.m())/MeV<<" MeV" <<G4endl;
     G4cout<<"Quark system: "<<ek/MeV<<" MeV"<<G4endl;
-    aParticleChange.ProposeTrackStatus( fStopAndKill );
+//    aParticleChange.ProposeTrackStatus( fStopAndKill ); // AR_NEWCODE_IMPORT
+    aParticleChange.ProposeTrackStatus( fStopButAlive ); // AR_NEWCODE_IMPORT
     return &aParticleChange;
   }
   OrgPart->SetKineticEnergy( ek );
@@ -207,7 +211,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 
   //Getting CMS transforms. Boosting is done at histogram filling
   G4LorentzVector Target4Momentum;
-  Target4Momentum.setVectM(0.,aTarget->GetPDGMass());
+  Target4Momentum.set(0.,0.,0.,aTarget->GetPDGMass());
   //  Target4Momentum.setVectM(0.,targetNucleus.GetN()*GeV);
   G4LorentzVector psum_full,psum_cloud;
   psum_full = FullRhadron4Momentum + Target4Momentum;
@@ -245,7 +249,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 	  outgoingCloud=tempCust->GetCloud();
 	  if(outgoingCloud == 0) 
 	    {
-	      std::cout << "ToyModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud not available!!" << std::endl;
+	      std::cout << "FullModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud not available!!" << std::endl;
 	    }
 	  /*
 	  std::cout<<"Outgoing Rhadron is: "<<outgoingRhadron->GetParticleName()<<std::endl;
@@ -427,7 +431,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   //    G4cout<<"Check aParticleChange.GetNumberOfSecondaries(): "<<aParticleChange.GetNumberOfSecondaries()<<G4endl;
 
   aParticleChange.SetNumberOfSecondaries(vecLen+NumberOfSecondaries);
-  G4double e_kin;
+  G4double e_kin=0;
   G4LorentzVector cloud_p4_new; //Cloud 4-momentum in lab after collision
   //  n++;
   //  G4cout << n << G4endl;
@@ -461,7 +465,6 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     //    p4_new = cloud_p4_new + gluinoMomentum;
   p4_new.setVectM( cloud_p4_new.v() + gluinoMomentum.v(), outgoingRhadron->GetPDGMass() );
   //  G4cout<<"P4-diff: "<<(p4_new-cloud_p4_new-gluinoMomentum)/GeV<<", magnitude: "<<(p4_new-cloud_p4_new-gluinoMomentum).m()/MeV<<" MeV" <<G4endl;
-  double virt=(p4_new-cloud_p4_new-gluinoMomentum).m()/MeV;
 
   G4ThreeVector p_new;
   p_new = p4_new.vect();
@@ -478,6 +481,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       G4Track* Track0 = new G4Track(p0,
 				    aTrack.GetGlobalTime(),
 				    aPosition);
+      Track0->SetTouchableHandle(thisTouchable);
       aParticleChange.AddSecondary(Track0);
       /*
       G4cout<<"Adding a particle "<<p0->GetDefinition()->GetParticleName()<<G4endl;
@@ -511,10 +515,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       
       G4double aE = sqrt(p*p+(outgoingRhadron->GetPDGMass()*outgoingRhadron->GetPDGMass()) );
       e_kin = aE - outgoingRhadron->GetPDGMass();
-      /*
-      G4cout<<"New momentum: "<<m/GeV<<" GeV"<<G4endl;
-      G4cout<<"Kinetic energy: "<<e_kin/GeV<<" GeV"<<G4endl;
-      */
+      /* AR_NEWCODE_IMPORT 
       if(e_kin>e_kin_0) {
 	G4cout<<"ALAAAAARM!!!"<<G4endl;
 	G4cout<<"Energy loss: "<<(e_kin_0-e_kin)/GeV<<" GeV (should be positive)"<<G4endl;
@@ -529,7 +530,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       if(std::abs(e_kin-e_kin_0)>100*GeV) {
 	G4cout<<"Diff. too big"<<G4endl;
       }
-
+          */
     }
   
   //    return G4VDiscreteProcess::PostStepDoIt( aTrack, aStep);
@@ -545,6 +546,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       G4Track* Track1 = new G4Track(p1,
 				    aTrack.GetGlobalTime(),
 				    aPosition);
+      Track1->SetTouchableHandle(thisTouchable); 
       aParticleChange.AddSecondary(Track1);
     }
   G4DynamicParticle *pa;
@@ -560,14 +562,23 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       pa = new G4DynamicParticle();
       pa->SetDefinition( vec[i]->GetDefinition() );
       pa->SetMomentum( vec[i]->GetMomentum() );
-      double evec0 = pa->Get4Momentum().e();
       pa->Set4Momentum(trans*(pa->Get4Momentum()));
       G4ThreeVector pvec = pa->GetMomentum();
-      double evec = pa->Get4Momentum().e();
       G4Track* Trackn = new G4Track(pa,
 				    aTrack.GetGlobalTime(),
 				    aPosition);
+      Trackn->SetTouchableHandle(thisTouchable);
       aParticleChange.AddSecondary(Trackn);
+
+      // debug 
+
+//       G4cerr << "FullModelHadronicProcess: New secondary " << i 
+//              << " ID " << Trackn->GetTrackID() 
+//              << " PDG " << Trackn->GetDefinition()->GetParticleName() 
+//              << " position " << Trackn->GetPosition() 
+//              << " volume " << Trackn->GetTouchable() 
+//              << " handle " << Trackn->GetTouchableHandle() << G4endl;
+
       delete vec[i];
     } 
 
@@ -591,10 +602,12 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 	     CustomPDGParser::s_isMesonino(theRhadron->GetDefinition()->GetPDGEncoding())
 	     !=CustomPDGParser::s_isMesonino(theIncidentPDG)
 	     ) {
-	    std::cout<<"Rm: "<<CustomPDGParser::s_isRMeson(theRhadron->GetDefinition()->GetPDGEncoding())
-		     <<" vs: "<<CustomPDGParser::s_isRMeson(theIncidentPDG)<<std::endl;
-	    std::cout<<"Sm: "<<CustomPDGParser::s_isMesonino(theRhadron->GetDefinition()->GetPDGEncoding())
-		     <<" vs: "<<CustomPDGParser::s_isMesonino(theIncidentPDG)<<std::endl;
+
+	    G4cout<<"Rm: "<<CustomPDGParser::s_isRMeson(theRhadron->GetDefinition()->GetPDGEncoding())
+		     <<" vs: "<<CustomPDGParser::s_isRMeson(theIncidentPDG)<<G4endl;
+	    G4cout<<"Sm: "<<CustomPDGParser::s_isMesonino(theRhadron->GetDefinition()->GetPDGEncoding())
+		     <<" vs: "<<CustomPDGParser::s_isMesonino(theIncidentPDG)<<G4endl;
+
 	  }
 	}
       
@@ -611,6 +624,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       p4_cloud.boost(trafo_cloud_cms);
 
       
+      /*
       G4double dtheta_fullcms = p4_full.vect().angle(p4_old_full.vect());
       G4double dtheta_cloudcms = p4_cloud.vect().angle(p4_old_cloud.vect());
       G4double dtheta_lab = p_new.angle(p_0);//acos(p_0*p_new/(p_0.mag()*p_new.mag())); 
@@ -618,7 +632,6 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       G4double cloud_dtheta_fullcms = cloud_p4_full.vect().angle(cloud_p4_old_full.vect());
       G4double cloud_dtheta_cloudcms = cloud_p4_cloud.vect().angle(p4_old_cloud.vect());
       G4double cloud_dtheta_lab = cloud_p4_new.vect().angle(p_0);
-      /*
       //Writing out momenta for manual check of boosts:
       G4cout<<"******************************************"<<G4endl;
 
@@ -744,7 +757,7 @@ void FullModelHadronicProcess::CalculateMomenta(
 
       const G4double tarmas = originalTarget->GetDefinition()->GetPDGMass();
       if( ek > 1.0*GeV )ekcor = 1./(ek/GeV);
-      const G4double atomicWeight = targetNucleus.GetN();
+      const G4double atomicWeight = G4double(targetNucleus.GetN_asInt());
       ek = 2*tarmas + ek*(1.+ekcor/atomicWeight);
 
       G4double tkin = targetNucleus.Cinema( ek );
@@ -756,13 +769,12 @@ void FullModelHadronicProcess::CalculateMomenta(
   const G4double twsup[] = { 1.0, 0.7, 0.5, 0.3, 0.2, 0.1 };
   G4double rand1 = G4UniformRand();
   G4double rand2 = G4UniformRand();
-  if( annihilation || (vecLen >= 6) ||
-      (modifiedOriginal.GetKineticEnergy()/GeV >= 1.0) &&
-      (((originalIncident->GetDefinition() == G4KaonPlus::KaonPlus() ||
-	 originalIncident->GetDefinition() == G4KaonMinus::KaonMinus() ||
-	 originalIncident->GetDefinition() == G4KaonZeroLong::KaonZeroLong() ||
-	 originalIncident->GetDefinition() == G4KaonZeroShort::KaonZeroShort()) &&
-	rand1 < 0.5) || rand2 > twsup[vecLen]) )
+  if( (annihilation || (vecLen >= 6) || (modifiedOriginal.GetKineticEnergy()/GeV >= 1.0)) && 
+      (((originalIncident->GetDefinition() == G4KaonPlus::KaonPlus()) || 
+         (originalIncident->GetDefinition() == G4KaonMinus::KaonMinus()) || 
+         (originalIncident->GetDefinition() == G4KaonZeroLong::KaonZeroLong()) || 
+         (originalIncident->GetDefinition() == G4KaonZeroShort::KaonZeroShort())) && 
+       ((rand1 < 0.5) || (rand2 > twsup[vecLen]))))
     finishedGenXPt =
       theReactionDynamics.GenerateXandPt( vec, vecLen,
 					  modifiedOriginal, originalIncident,

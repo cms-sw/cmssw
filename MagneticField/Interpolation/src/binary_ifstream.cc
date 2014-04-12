@@ -1,4 +1,4 @@
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
+#include "binary_ifstream.h"
 
 #include <cstdio>
 #include <iostream>

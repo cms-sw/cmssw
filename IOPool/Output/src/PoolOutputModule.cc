@@ -1,448 +1,376 @@
-// $Id: PoolOutputModule.cc,v 1.77 2007/06/29 16:36:43 wmtan Exp $
+#include "IOPool/Output/interface/PoolOutputModule.h"
 
-#include "IOPool/Output/src/PoolOutputModule.h"
-#include "IOPool/Common/interface/ClassFiller.h"
-#include "IOPool/Common/interface/RefStreamer.h"
-#include "IOPool/Common/interface/CustomStreamer.h"
+#include "IOPool/Output/src/RootOutputFile.h"
 
-#include "DataFormats/Provenance/interface/FileFormatVersion.h"
-#include "FWCore/Utilities/interface/GetFileFormatVersion.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Catalog/interface/FileCatalog.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
-#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataSvc/Ref.h"
-#include "DataSvc/IDataSvc.h"
-#include "PersistencySvc/ITransaction.h"
-#include "PersistencySvc/ISession.h"
-#include "StorageSvc/DbType.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include "TTree.h"
-#include "TFile.h"
-#include "Rtypes.h"
+#include "TBranchElement.h"
+#include "TObjArray.h"
+#include "RVersion.h"
 
-#include <map>
-#include <vector>
+#include <fstream>
 #include <iomanip>
+#include <sstream>
 
 namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
-    OutputModule(pset),
-    catalog_(pset),
-    dataSvc_(catalog_, false),
-    commitInterval_(pset.getUntrackedParameter<unsigned int>("commitInterval", 100U)),
-    maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
-    compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
-    basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
-    splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
+  edm::one::OutputModuleBase::OutputModuleBase(pset),
+  one::OutputModule<WatchInputFiles>(pset),
+    rootServiceChecker_(),
+    auxItems_(),
+    selectedOutputItemList_(),
+    fileName_(pset.getUntrackedParameter<std::string>("fileName")),
+    logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName")),
+    catalog_(pset.getUntrackedParameter<std::string>("catalog")),
+    maxFileSize_(pset.getUntrackedParameter<int>("maxSize")),
+    compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel")),
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
+    compressionAlgorithm_(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
+#else
+    compressionAlgorithm_("ZLIB"),
+#endif
+    basketSize_(pset.getUntrackedParameter<int>("basketSize")),
+    eventAutoFlushSize_(pset.getUntrackedParameter<int>("eventAutoFlushCompressedSize")),
+    splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel") + 1, 99)),
+    basketOrder_(pset.getUntrackedParameter<std::string>("sortBaskets")),
+    treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize")),
+    whyNotFastClonable_(pset.getUntrackedParameter<bool>("fastCloning") ? FileBlock::CanFastClone : FileBlock::DisabledInConfigFile),
+    dropMetaData_(DropNone),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
-    fileCount_(-1),
-    poolFile_() {
-    ClassFiller();
-    // We need to set a custom streamer for edm::RefCore so that it will not be split.
-    // even though a custom streamer is not otherwise necessary.
-    SetRefStreamer();
-    // We need to set a custom streamer for top level provenance objects so they will not be split,
-    // This facilitates backward compatibility, since custom streamers can be used for reading
-    // if the branch is not split.
-    // Note: The map classes already have a custom streamer, so this is not needed now.
-    // We do this only to protect against future root changes.
-    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
-    SetCustomStreamer<EventAuxiliary>();
-    SetCustomStreamer<ProductRegistry>();
-    SetCustomStreamer<ParameterSetMap>();
-    SetCustomStreamer<ProcessHistoryMap>();
-    SetCustomStreamer<ModuleDescriptionMap>();
-    SetCustomStreamer<FileFormatVersion>();
-    SetCustomStreamer<BranchEntryDescription>();
-    SetCustomStreamer<LuminosityBlockAuxiliary>();
-    SetCustomStreamer<RunAuxiliary>();
+    initializedFromInput_(false),
+    outputFileCount_(0),
+    inputFileCount_(0),
+    childIndex_(0U),
+    numberOfDigitsInIndex_(0U),
+    overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
+    rootOutputFile_(),
+    statusFileName_() {
+
+      if (pset.getUntrackedParameter<bool>("writeStatusFile")) {
+        std::ostringstream statusfilename;
+        statusfilename << moduleLabel_ << '_' << getpid();
+        statusFileName_ = statusfilename.str();
+      }
+
+      std::string dropMetaData(pset.getUntrackedParameter<std::string>("dropMetaData"));
+      if(dropMetaData.empty()) dropMetaData_ = DropNone;
+      else if(dropMetaData == std::string("NONE")) dropMetaData_ = DropNone;
+      else if(dropMetaData == std::string("DROPPED")) dropMetaData_ = DropDroppedPrior;
+      else if(dropMetaData == std::string("PRIOR")) dropMetaData_ = DropPrior;
+      else if(dropMetaData == std::string("ALL")) dropMetaData_ = DropAll;
+      else {
+        throw edm::Exception(errors::Configuration, "Illegal dropMetaData parameter value: ")
+            << dropMetaData << ".\n"
+            << "Legal values are 'NONE', 'DROPPED', 'PRIOR', and 'ALL'.\n";
+      }
+
+    if (!wantAllEvents()) {
+      whyNotFastClonable_+= FileBlock::EventSelectionUsed;
+    }
+
+    // We don't use this next parameter, but we read it anyway because it is part
+    // of the configuration of this module.  An external parser creates the
+    // configuration by reading this source code.
+    pset.getUntrackedParameterSet("dataset");
   }
 
-  void PoolOutputModule::beginJob(EventSetup const&) {
+  void PoolOutputModule::beginJob() {
+    for(int i = InEvent; i < NumBranchTypes; ++i) {
+      BranchType branchType = static_cast<BranchType>(i);
+      SelectedProducts const& keptVector = keptProducts()[branchType];
+      for(SelectedProducts::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+        BranchDescription const& prod = **it;
+        checkDictionaries(prod.fullClassName(), true);
+        checkDictionaries(wrappedClassName(prod.fullClassName()), true);
+      }
+    }
   }
 
-  void PoolOutputModule::endJob() {
-    if (poolFile_.get() != 0) {
-      poolFile_->endFile();
-      poolFile_.reset();
+  std::string const& PoolOutputModule::currentFileName() const {
+    return rootOutputFile_->fileName();
+  }
+
+  PoolOutputModule::AuxItem::AuxItem() :
+        basketSize_(BranchDescription::invalidBasketSize) {}
+
+  PoolOutputModule::OutputItem::OutputItem() :
+        branchDescription_(0),
+        product_(0),
+        splitLevel_(BranchDescription::invalidSplitLevel),
+        basketSize_(BranchDescription::invalidBasketSize) {}
+
+  PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd, int splitLevel, int basketSize) :
+        branchDescription_(bd),
+        product_(0),
+        splitLevel_(splitLevel),
+        basketSize_(basketSize) {}
+
+
+  PoolOutputModule::OutputItem::Sorter::Sorter(TTree* tree) : treeMap_(new std::map<std::string, int>) {
+    // Fill a map mapping branch names to an index specifying the order in the tree.
+    if(tree != 0) {
+      TObjArray* branches = tree->GetListOfBranches();
+      for(int i = 0; i < branches->GetEntries(); ++i) {
+        TBranchElement* br = (TBranchElement*)branches->At(i);
+        treeMap_->insert(std::make_pair(std::string(br->GetName()), i));
+      }
+    }
+  }
+
+  bool
+  PoolOutputModule::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const {
+    // Provides a comparison for sorting branches according to the index values in treeMap_.
+    // Branches not found are always put at the end (i.e. not found > found).
+    if(treeMap_->empty()) return lh < rh;
+    std::string const& lstring = lh.branchDescription_->branchName();
+    std::string const& rstring = rh.branchDescription_->branchName();
+    std::map<std::string, int>::const_iterator lit = treeMap_->find(lstring);
+    std::map<std::string, int>::const_iterator rit = treeMap_->find(rstring);
+    bool lfound = (lit != treeMap_->end());
+    bool rfound = (rit != treeMap_->end());
+    if(lfound && rfound) {
+      return lit->second < rit->second;
+    } else if(lfound) {
+      return true;
+    } else if(rfound) {
+      return false;
+    }
+    return lh < rh;
+  }
+
+  void PoolOutputModule::fillSelectedItemList(BranchType branchType, TTree* theInputTree) {
+
+    SelectedProducts const& keptVector = keptProducts()[branchType];
+    OutputItemList&   outputItemList = selectedOutputItemList_[branchType];
+    AuxItem&   auxItem = auxItems_[branchType];
+
+    // Fill AuxItem
+    if (theInputTree != 0 && !overrideInputFileSplitLevels_) {
+      TBranch* auxBranch = theInputTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
+      if (auxBranch) {
+        auxItem.basketSize_ = auxBranch->GetBasketSize();
+      } else {
+        auxItem.basketSize_ = basketSize_;
+      }
+    } else {
+      auxItem.basketSize_ = basketSize_;
+    }
+
+    // Fill outputItemList with an entry for each branch.
+    for(SelectedProducts::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+      int splitLevel = BranchDescription::invalidSplitLevel;
+      int basketSize = BranchDescription::invalidBasketSize;
+
+      BranchDescription const& prod = **it;
+      TBranch* theBranch = ((!prod.produced() && theInputTree != 0 && !overrideInputFileSplitLevels_) ? theInputTree->GetBranch(prod.branchName().c_str()) : 0);
+
+      if(theBranch != 0) {
+        splitLevel = theBranch->GetSplitLevel();
+        basketSize = theBranch->GetBasketSize();
+      } else {
+        splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
+        basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
+      }
+      outputItemList.emplace_back(&prod, splitLevel, basketSize);
+    }
+
+    // Sort outputItemList to allow fast copying.
+    // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
+    sort_all(outputItemList, OutputItem::Sorter(theInputTree));
+  }
+
+  void PoolOutputModule::beginInputFile(FileBlock const& fb) {
+    if(isFileOpen()) {
+      rootOutputFile_->beginInputFile(fb, remainingEvents());
+    }
+  }
+
+  void PoolOutputModule::openFile(FileBlock const& fb) {
+    if(!isFileOpen()) {
+      reallyOpenFile();
+      beginInputFile(fb);
+    }
+  }
+
+  void PoolOutputModule::respondToOpenInputFile(FileBlock const& fb) {
+    if(!initializedFromInput_) {
+      for(int i = InEvent; i < NumBranchTypes; ++i) {
+        BranchType branchType = static_cast<BranchType>(i);
+        TTree* theInputTree = (branchType == InEvent ? fb.tree() :
+                              (branchType == InLumi ? fb.lumiTree() :
+                               fb.runTree()));
+        fillSelectedItemList(branchType, theInputTree);
+      }
+      initializedFromInput_ = true;
+    }
+    ++inputFileCount_;
+    beginInputFile(fb);
+  }
+
+  void PoolOutputModule::respondToCloseInputFile(FileBlock const& fb) {
+    if(rootOutputFile_) rootOutputFile_->respondToCloseInputFile(fb);
+  }
+
+  void PoolOutputModule::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    childIndex_ = iChildIndex;
+    while (iNumberOfChildren != 0) {
+      ++numberOfDigitsInIndex_;
+      iNumberOfChildren /= 10;
+    }
+    if (numberOfDigitsInIndex_ == 0) {
+      numberOfDigitsInIndex_ = 3; // Protect against zero iNumberOfChildren
     }
   }
 
   PoolOutputModule::~PoolOutputModule() {
   }
 
-  void PoolOutputModule::write(EventPrincipal const& e) {
-      if (hasNewlyDroppedBranch_[InEvent]) e.addToProcessHistory();
-      poolFile_->writeOne(e);
-  }
-
-  void PoolOutputModule::endLuminosityBlock(LuminosityBlockPrincipal const& lb) {
-      if (hasNewlyDroppedBranch_[InLumi]) lb.addToProcessHistory();
-      poolFile_->writeLuminosityBlock(lb);
-      Service<JobReport> reportSvc;
-      reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
-  }
-
-  void PoolOutputModule::beginRun(RunPrincipal const&) {
-    if (poolFile_.get() == 0) {
-      ++fileCount_;
-      poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(this));
-    }
-  }
-
-  void PoolOutputModule::endRun(RunPrincipal const& r) {
-      if (hasNewlyDroppedBranch_[InRun]) r.addToProcessHistory();
-      if (poolFile_->writeRun(r)) {
-	poolFile_->endFile();
-	poolFile_.reset();
+  void PoolOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+    rootOutputFile_->writeOne(e, mcc);
+      if (!statusFileName_.empty()) {
+        std::ofstream statusFile(statusFileName_.c_str());
+        statusFile << e.id() << " time: " << std::setprecision(3) << TimeOfDay() << '\n';
+        statusFile.close();
       }
   }
 
-  PoolOutputModule::PoolFile::PoolFile(PoolOutputModule *om) :
-    outputItemList_(), branchNames_(),
-      file_(), lfn_(),
-      reportToken_(0), eventCount_(0),
-      fileSizeCheckEvent_(100),
-      auxiliaryPlacement_(),
-      productDescriptionPlacement_(),
-      parameterSetPlacement_(),
-      moduleDescriptionPlacement_(),
-      processHistoryPlacement_(),
-      fileFormatVersionPlacement_(),
-      om_(om),
-      newFileAtEndOfRun_(false),
-      database_() {
-    TTree::SetMaxTreeSize(kMaxLong64);
-    std::string suffix(".root");
-    std::string::size_type offset = om_->fileName().rfind(suffix);
-    bool ext = (offset == om_->fileName().size() - suffix.size());
-    if (!ext) suffix.clear();
-    std::string fileBase(ext ? om_->fileName().substr(0, offset) : om_->fileName());
-    if (om_->fileCount_) {
-      std::ostringstream ofilename;
-      ofilename << fileBase << std::setw(3) << std::setfill('0') << om_->fileCount_ << suffix;
-      file_ = ofilename.str();
-      if (!om_->logicalFileName().empty()) {
-	std::ostringstream lfilename;
-	lfilename << om_->logicalFileName() << std::setw(3) << std::setfill('0') << om_->fileCount_;
-	lfn_ = lfilename.str();
-      }
-    } else {
-      file_ = fileBase + suffix;
-      lfn_ = om_->logicalFileName();
-    }
-    startTransaction();
-    database_ = PoolDatabase(file_, om_->dataSvc());
-    database_.setCompressionLevel(om_->compressionLevel());
-    database_.setBasketSize(om_->basketSize());
-    database_.setSplitLevel(om_->splitLevel());
-    commitAndFlushTransaction();
-
-    makePlacement(poolNames::metaDataTreeName(), poolNames::productDescriptionBranchName(),
-	productDescriptionPlacement_);
-    makePlacement(poolNames::metaDataTreeName(), poolNames::parameterSetMapBranchName(),
-	parameterSetPlacement_);
-    makePlacement(poolNames::metaDataTreeName(), poolNames::moduleDescriptionMapBranchName(),
-	moduleDescriptionPlacement_);
-    makePlacement(poolNames::metaDataTreeName(), poolNames::processHistoryMapBranchName(),
-	processHistoryPlacement_);
-    makePlacement(poolNames::metaDataTreeName(), poolNames::fileFormatVersionBranchName(),
-	fileFormatVersionPlacement_);
-   
-    for (int i = InEvent; i < EndBranchType; ++i) {
-      BranchType branchType = static_cast<BranchType>(i);
-      std::string productTreeName = BranchTypeToProductTreeName(branchType);
-      std::string metaDataTreeName = BranchTypeToMetaDataTreeName(branchType);
-      OutputItemList & outputItemList = outputItemList_[branchType];
-      std::vector<std::string> & branchNames = branchNames_[branchType];
-      Selections const& descVec = om_->descVec_[branchType];
-      Selections const& droppedVec = om_->droppedVec_[branchType];
-      
-      makePlacement(productTreeName, BranchTypeToAuxiliaryBranchName(branchType),
-		    auxiliaryPlacement_[branchType]);
-      for (Selections::const_iterator it = descVec.begin(), itEnd = descVec.end(); it != itEnd; ++it) {
-        pool::Placement provenancePlacement;
-        pool::Placement productPlacement;
-        makePlacement(metaDataTreeName, (*it)->branchName(), provenancePlacement);
-        makePlacement(productTreeName, (*it)->branchName(), productPlacement);
-        outputItemList.push_back(OutputItem(*it, true, provenancePlacement, productPlacement));
-        branchNames.push_back((*it)->branchName());
-      }
-      for (Selections::const_iterator it = droppedVec.begin(), itEnd = droppedVec.end(); it != itEnd; ++it) {
-        pool::Placement provenancePlacement;
-        makePlacement(metaDataTreeName, (*it)->branchName(), provenancePlacement);
-        outputItemList.push_back(OutputItem(*it, false, provenancePlacement));
-      }
-    }
-
-    pool::FileCatalog::FileID fid = om_->catalog_.registerFile(file_, lfn_);
-    startTransaction();
-
-    FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
-
-    pool::Ref<FileFormatVersion const> fft(om_->context(), &fileFormatVersion);
-    fft.markWrite(fileFormatVersionPlacement_);
-
-    commitAndFlushTransaction();
-    // Register the output file with the JobReport service
-    // and get back the token for it.
-    std::string moduleName = "PoolOutputModule";
-    Service<JobReport> reportSvc;
-    reportToken_ = reportSvc->outputFileOpened(
-		      file_, lfn_,  // PFN and LFN
-		      om_->catalog_.url(),  // catalog
-		      moduleName,   // module class name
-		      om_->moduleLabel_,  // module label
-		      fid, // file id (guid)
-		      branchNames_[InEvent]); // branch names being written
+  void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const* mcc) {
+    rootOutputFile_->writeLuminosityBlock(lb, mcc);
   }
 
-  void PoolOutputModule::PoolFile::startTransaction() const {
-   context()->transaction().start(pool::ITransaction::UPDATE);
+  void PoolOutputModule::writeRun(RunPrincipal const& r, ModuleCallingContext const* mcc) {
+    rootOutputFile_->writeRun(r, mcc);
   }
 
-  void PoolOutputModule::PoolFile::commitTransaction() const {
-    bool ret = context()->transaction().commitAndHold();
-    if (!ret) {
-      std::string message = "Fatal Pool Error in commitAndHoldTransaction.\n";
-      Exception except(edm::errors::FatalRootError, message);
-      throw except;
-    }
-    provenances_.clear();
+  void PoolOutputModule::reallyCloseFile() {
+    startEndFile();
+    writeFileFormatVersion();
+    writeFileIdentifier();
+    writeIndexIntoFile();
+    writeProcessHistoryRegistry();
+    writeParameterSetRegistry();
+    writeProductDescriptionRegistry();
+    writeParentageRegistry();
+    writeBranchIDListRegistry();
+    writeProductDependencies();
+    finishEndFile();
   }
 
-  void PoolOutputModule::PoolFile::commitAndFlushTransaction() const {
-    bool ret = context()->transaction().commit();
-    if (!ret) {
-      std::string message = "Fatal Pool Error in commitTransaction.\n";
-      Exception except(edm::errors::FatalRootError, message);
-      throw except;
-    }
-    provenances_.clear();
-  }
-
-  void PoolOutputModule::PoolFile::makePlacement(std::string const& treeName_, std::string const& branchName, pool::Placement& placement) {
-    placement.setTechnology(pool::ROOTTREE_StorageType.type());
-    placement.setDatabase(file_, pool::DatabaseSpecification::PFN);
-    placement.setContainerName(poolNames::containerName(treeName_, branchName));
-  }
-
-  void PoolOutputModule::PoolFile::writeOne(EventPrincipal const& e) {
-    ++eventCount_;
-    startTransaction();
-    // Write auxiliary branch
-
-    pool::Ref<EventAuxiliary const> ra(context(), &e.aux());
-    ra.markWrite(auxiliaryPlacement_[InEvent]);	
-
-    if (!outputItemList_[InEvent].empty()) fillBranches(outputItemList_[InEvent], e.groupGetter());
-
-    commitTransaction();
-
-    // Report event written 
-    Service<JobReport> reportSvc;
-    reportSvc->eventWrittenToFile(reportToken_, e.id().run(), e.id().event());
-
-    if (eventCount_ >= fileSizeCheckEvent_) {
-	unsigned int const oneK = 1024;
-	unsigned int size = database_.getFileSize()/oneK;
-	unsigned int eventSize = std::max(size/eventCount_, 1U);
-	if (size + 2*eventSize >= om_->maxFileSize_) {
-	  newFileAtEndOfRun_ = true;
-	} else {
-	  unsigned int increment = (om_->maxFileSize_ - size)/eventSize;
-	  increment -= increment/8;	// Prevents overshoot
-	  fileSizeCheckEvent_ = eventCount_ + increment;
-	}
-    }
-    if (eventCount_ % om_->commitInterval_ == 0) {
-      commitAndFlushTransaction();
-      startTransaction();
-    }
-  }
-
-  void PoolOutputModule::PoolFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
-    startTransaction();
-    // Write auxiliary branch
-    pool::Ref<LuminosityBlockAuxiliary const> ra(context(), &lb.aux());
-    ra.markWrite(auxiliaryPlacement_[InLumi]);	
-    if (!outputItemList_[InLumi].empty()) fillBranches(outputItemList_[InLumi], lb.groupGetter());
-    commitTransaction();
-  }
-
-  bool PoolOutputModule::PoolFile::writeRun(RunPrincipal const& r) {
-    startTransaction();
-    // Write auxiliary branch
-    pool::Ref<RunAuxiliary const> ra(context(), &r.aux());
-    ra.markWrite(auxiliaryPlacement_[InRun]);	
-    if (!outputItemList_[InRun].empty()) fillBranches(outputItemList_[InRun], r.groupGetter());
-    commitTransaction();
-    return newFileAtEndOfRun_;
-  }
-
-  void PoolOutputModule::PoolFile::fillBranches(OutputItemList const& items, Principal const& dataBlock) const {
-
-    // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end();
-	 i != iEnd; ++i) {
-      ProductID const& id = i->branchDescription_->productID_;
-
-      if (id == ProductID()) {
-	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	  << "PoolOutputModule::write: invalid ProductID supplied in productRegistry\n";
-      }
-
-      EDProduct const* product = 0;
-      BasicHandle const bh = dataBlock.getForOutput(id, i->selected_);
-      if (bh.provenance() == 0) {
-	// No group with this ID is in the event.
-	// Create and write the provenance.
-	if (i->branchDescription_->produced_) {
-          BranchEntryDescription provenance;
-	  provenance.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
-	  provenance.productID_ = id;
-	  provenance.status_ = BranchEntryDescription::CreatorNotRun;
-	  provenance.isPresent_ = false;
-	  provenance.cid_ = 0;
-	  
-	  provenances_.push_front(provenance); 
-          pool::Ref<BranchEntryDescription const> refp(context(), &*provenances_.begin());
-          refp.markWrite(i->provenancePlacement_);
-	} else {
-	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
-	      << "No group for branch" << i->branchDescription_->branchName_ << '\n';
-	}
-      } else {
-	product = bh.wrapper();
-        BranchEntryDescription const& provenance = bh.provenance()->event();
-	// There is a group with this ID is in the event.  Write the provenance.
-	bool present = i->selected_ && product && product->isPresent();
-	if (present == provenance.isPresent()) {
-	  // The provenance can be written out as is, saving a copy. 
-          pool::Ref<BranchEntryDescription const> refp(context(), &provenance);
-          refp.markWrite(i->provenancePlacement_);
-	} else {
-	  // We need to make a private copy of the provenance so we can set isPresent_ correctly.
-	  provenances_.push_front(provenance);
-	  provenances_.begin()->isPresent_ = present;
-          pool::Ref<BranchEntryDescription const> refp(context(), &*provenances_.begin());
-          refp.markWrite(i->provenancePlacement_);
-	}
-      }
-      if (i->selected_) {
-	if (product == 0) {
-	  // Add a null product.
-	  std::string const& name = i->branchDescription_->className();
-	  std::string const className = wrappedClassName(name);
-	  TClass *cp = gROOT->GetClass(className.c_str());
-	  if (cp == 0) {
-	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	      << "TypeID::className: No dictionary for class " << className << '\n'
-	      << "Add an entry for this class\n"
-	      << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
-	  }
-	  product = static_cast<EDProduct *>(cp->New());
-	}
-	pool::Ref<EDProduct const> ref(context(), product);
-	ref.markWrite(i->productPlacement_);
-      }
-    }
-  }
-
-  void PoolOutputModule::PoolFile::endFile() {
-    startTransaction();
-
-    Service<ConstProductRegistry> reg;
-    ProductRegistry pReg = reg->productRegistry();
-    pool::Ref<ProductRegistry const> rp(om_->context(), &pReg);
-    rp.markWrite(productDescriptionPlacement_);
-
-    pool::Ref<ModuleDescriptionMap const> rmod(om_->context(), &ModuleDescriptionRegistry::instance()->data());
-    rmod.markWrite(moduleDescriptionPlacement_);
-
-    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
-    ParameterSetMap psetMap;
-    pset::Registry const* psetRegistry = pset::Registry::instance();    
-    for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
-      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
-    }
-    pool::Ref<ParameterSetMap const> rpparam(om_->context(), &psetMap);
-    rpparam.markWrite(parameterSetPlacement_);
-
-    pool::Ref<ProcessHistoryMap const> rhist(om_->context(), &ProcessHistoryRegistry::instance()->data());
-    rhist.markWrite(processHistoryPlacement_);
-
-    commitAndFlushTransaction();
-    om_->catalog_.commitCatalog();
-    context()->session().disconnectAll();
-    rootPostProcess();
-    // report that file has been closed
-    Service<JobReport> reportSvc;
-    reportSvc->outputFileClosed(reportToken_);
-  }
-
-
-  // For now, we must use root directly to set Tree indices and branch aliases,
-  // since there is no way to do this in POOL
-  // We do this after POOL has closed the file.
-  void
-  PoolOutputModule::PoolFile::rootPostProcess() const {
-    std::auto_ptr<TFile> pf(TFile::Open(file_.c_str(), "update"));
-    TFile &f = *pf;
-    TTree *tEvent = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InEvent).c_str()));
-    if (tEvent) {
-      tEvent->BuildIndex("id_.run_", "id_.event_");
-      setBranchAliases(tEvent, om_->descVec_[InEvent]);
-    }
-    TTree *tLumi = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InLumi).c_str()));
-    if (tLumi) {
-      tLumi->BuildIndex("id_.run_", "id_.luminosityBlock_");
-      setBranchAliases(tLumi, om_->descVec_[InLumi]);
-    }
-    TTree *tRun = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InRun).c_str()));
-    if (tRun) {
-      tRun->BuildIndex("id_.run_");
-      setBranchAliases(tRun, om_->descVec_[InRun]);
-    }
-    f.Purge();
-    f.Close();
-  }
   
-  void
-  PoolOutputModule::PoolFile::setBranchAliases(TTree *tree, Selections const& branches) const {
-    if (tree) {
-      for (Selections::const_iterator i = branches.begin(), iEnd = branches.end();
-	  i != iEnd; ++i) {
-	BranchDescription const& pd = **i;
-	std::string const& full = pd.branchName() + "obj";
-	if (pd.branchAliases().empty()) {
-	  std::string const& alias =
-	      (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
-	  tree->SetAlias(alias.c_str(), full.c_str());
-	} else {
-	  std::set<std::string>::const_iterator it = pd.branchAliases().begin(), itEnd = pd.branchAliases().end();
-	  for (; it != itEnd; ++it) {
-	    tree->SetAlias((*it).c_str(), full.c_str());
-	  }
-	}
+  // At some later date, we may move functionality from finishEndFile() to here.
+  void PoolOutputModule::startEndFile() { }
+
+
+  void PoolOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
+  void PoolOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
+  void PoolOutputModule::writeIndexIntoFile() { rootOutputFile_->writeIndexIntoFile(); }
+  void PoolOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
+  void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
+  void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
+  void PoolOutputModule::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
+  void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
+  void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
+  void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
+  bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != 0; }
+  bool PoolOutputModule::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
+
+  void PoolOutputModule::reallyOpenFile() {
+      if(inputFileCount_ == 0) {
+        throw edm::Exception(errors::LogicError)
+          << "Attempt to open output file before input file. "
+          << "Please report this to the core framework developers.\n";
       }
-      tree->Write(tree->GetName(), TObject::kWriteDelete);
-    }
+      std::string suffix(".root");
+      std::string::size_type offset = fileName().rfind(suffix);
+      bool ext = (offset == fileName().size() - suffix.size());
+      if(!ext) suffix.clear();
+      std::string fileBase(ext ? fileName().substr(0, offset) : fileName());
+      std::ostringstream ofilename;
+      std::ostringstream lfilename;
+      ofilename << fileBase;
+      lfilename << logicalFileName();
+      if(numberOfDigitsInIndex_) {
+        ofilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
+        if(!logicalFileName().empty()) {
+          lfilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
+        }
+      }
+      if(outputFileCount_) {
+        ofilename << std::setw(3) << std::setfill('0') << outputFileCount_;
+        if(!logicalFileName().empty()) {
+          lfilename << std::setw(3) << std::setfill('0') << outputFileCount_;
+        }
+      }
+      ofilename << suffix;
+      rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));
+      ++outputFileCount_;
+  }
+
+  void
+  PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+    std::string defaultString;
+    ParameterSetDescription desc;
+    desc.setComment("Writes runs, lumis, and events into EDM/ROOT files.");
+    desc.addUntracked<std::string>("fileName")
+        ->setComment("Name of output file.");
+    desc.addUntracked<std::string>("logicalFileName", defaultString)
+        ->setComment("Passed to job report. Otherwise unused by module.");
+    desc.addUntracked<std::string>("catalog", defaultString)
+        ->setComment("Passed to job report. Otherwise unused by module.");
+    desc.addUntracked<int>("maxSize", 0x7f000000)
+        ->setComment("Maximum output file size, in kB.\n"
+                     "If over maximum, new output file will be started at next input file transition.");
+    desc.addUntracked<int>("compressionLevel", 7)
+        ->setComment("ROOT compression level of output file.");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
+    desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
+        ->setComment("Algorithm used to compress data in the ROOT output file, allowed values are ZLIB and LZMA");
+#endif
+    desc.addUntracked<int>("basketSize", 16384)
+        ->setComment("Default ROOT basket size in output file.");
+    desc.addUntracked<int>("eventAutoFlushCompressedSize",-1)->setComment("Set ROOT auto flush stored data size (in bytes) for event TTree. The value sets how large the compressed buffer is allowed to get. The uncompressed buffer can be quite a bit larger than this depending on the average compression ratio. The value of -1 just uses ROOT's default value. The value of 0 turns off this feature.");
+    desc.addUntracked<int>("splitLevel", 99)
+        ->setComment("Default ROOT branch split level in output file.");
+    desc.addUntracked<std::string>("sortBaskets", std::string("sortbasketsbyoffset"))
+        ->setComment("Legal values: 'sortbasketsbyoffset', 'sortbasketsbybranch', 'sortbasketsbyentry'.\n"
+                     "Used by ROOT when fast copying. Affects performance.");
+    desc.addUntracked<int>("treeMaxVirtualSize", -1)
+        ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
+    desc.addUntracked<bool>("fastCloning", true)
+        ->setComment("True:  Allow fast copying, if possible.\n"
+                     "False: Disable fast copying.");
+    desc.addUntracked<bool>("overrideInputFileSplitLevels", false)
+        ->setComment("False: Use branch split levels and basket sizes from input file, if possible.\n"
+                     "True:  Always use specified or default split levels and basket sizes.");
+    desc.addUntracked<bool>("writeStatusFile", false)
+        ->setComment("Write a status file. Intended for use by workflow management.");
+    desc.addUntracked<std::string>("dropMetaData", defaultString)
+        ->setComment("Determines handling of per product per event metadata.  Options are:\n"
+                     "'NONE':    Keep all of it.\n"
+                     "'DROPPED': Keep it for products produced in current process and all kept products. Drop it for dropped products produced in prior processes.\n"
+                     "'PRIOR':   Keep it for products produced in current process. Drop it for products produced in prior processes.\n"
+                     "'ALL':     Drop all of it.");
+    ParameterSetDescription dataSet;
+    dataSet.setAllowAnything();
+    desc.addUntracked<ParameterSetDescription>("dataset", dataSet)
+     ->setComment("PSet is only used by Data Operations and not by this module.");
+
+    OutputModule::fillDescription(desc);
+
+    descriptions.add("edmOutput", desc);
   }
 }

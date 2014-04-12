@@ -12,20 +12,14 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ParameterSet/interface/FileInPath.h>
-///KK
-#include <FWCore/Framework/interface/EventSetup.h>
-///
 
 class CSCLayer;
 
 class CSCSectorReceiverLUT
 {
  public:
-///KK
-  CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::EventSetup& c);
-///
 
-  CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::ParameterSet &pset);
+  CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::ParameterSet &pset, bool TMB07);
   CSCSectorReceiverLUT(const CSCSectorReceiverLUT&);
   ~CSCSectorReceiverLUT();
 
@@ -75,8 +69,11 @@ class CSCSectorReceiverLUT
   edm::FileInPath me_gbl_phi_file;
   edm::FileInPath mb_gbl_phi_file;
   edm::FileInPath me_gbl_eta_file;
-  bool LUTsFromFile;
-  bool isBinary;
+  bool LUTsFromFile; // readLUTs from file or generate on the fly
+  bool useMiniLUTs;  // if useMiniLUTs is set to true, the code will generate LUTs using the CSCSectorReceiverMiniLUTs class -- BJ
+  bool isBinary;     // if readLUTs is set to true, are the LUT files binary or ascii format
+
+  bool isTMB07;       // use the TMB 2007 patterns or the older set of parameters
 
   /// Arrays for holding read in LUT information.
   /// MB LUT arrays only initialized in ME1

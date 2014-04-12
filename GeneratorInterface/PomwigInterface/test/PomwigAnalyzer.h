@@ -8,12 +8,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "HepMC/WeightContainer.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TH1D.h"
 #include "TFile.h"
@@ -29,7 +30,8 @@ class PomwigAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      //virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -38,7 +40,7 @@ class PomwigAnalyzer : public edm::EDAnalyzer {
   std::string outputFilename;
   TH1D* hist_t;
   TH1D* hist_xigen;
-
+  edm::InputTag hepMCProductTag_;
 };
 
 #endif

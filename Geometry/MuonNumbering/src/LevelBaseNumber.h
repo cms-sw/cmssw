@@ -10,8 +10,6 @@
  * for detectors with identical copy numbers an additional 
  * identification number (Super) can be given
  *  
- *  $Date: 2005/10/18 16:54:41 $
- *  $Revision: 1.1 $
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
  */

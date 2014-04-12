@@ -2,44 +2,36 @@
 #define Alignment_CommonAlignment_AlignableDet_h
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
-#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
-/// An AlignableComposite that has AlignableDetUnits as direct component.
-
+/// An AlignableComposite corresponding to a composite GeomDet
+/// direct components are AlignableDetUnits or AlignableDets.
 class AlignableDet: public AlignableComposite 
 {
 
 public:
   
-  /// Constructor (copies  GeomDetUnits of GeomDet)
-  AlignableDet( const GeomDet* geomDet );
+  /// Constructor: If addComponents = true, creates components for
+  /// geomDet's components, assuming they are GeomDetUnits
+  AlignableDet( const GeomDet* geomDet, bool addComponents = true );
   
   /// Destructor
   virtual ~AlignableDet();
-  
-  /// Return vector of components
-  virtual std::vector<Alignable*> components() const ;
 
-  /// Return given AlignableDetUnit
-  AlignableDetUnit &detUnit(int i);
+  /// Set the AlignmentPositionError and, if (propagateDown), to all components
+  virtual void setAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown);
 
-  /// Set alignment position error of this and all components to given error
-  virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
+  /// Add (or set if it does not exist yet) the AlignmentPositionError,
+  /// if (propagateDown), add also to all components
+  virtual void addAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown);
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
-  virtual void addAlignmentPositionError(const AlignmentPositionError& ape);
+  /// resulting from a rotation in the global reference frame,
+  /// if (propagateDown), add also to all components
+  virtual void addAlignmentPositionErrorFromRotation(const RotationType &rot, bool propagateDown);
 
-  /// Add (or set if it does not exist yet) the AlignmentPositionError
-  /// resulting from a rotation in the global reference frame
-  virtual void addAlignmentPositionErrorFromRotation(const RotationType& rot);
-
-  /// Add (or set if it does not exist yet) the AlignmentPositionError
-  /// resulting from a rotation in the local reference frame
-  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
-
-
-  /// Alignable object identifier
-  virtual int alignableObjectId () const { return AlignableObjectId::AlignableDet; }
+  // No need to overwrite, version from AlignableComposite is just fine:
+  // virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType &rot,
+  //							  bool propagateDown);
 
   /// Return vector of alignment data
   virtual Alignments* alignments() const;
@@ -47,17 +39,13 @@ public:
   /// Return vector of alignment errors
   virtual AlignmentErrors* alignmentErrors() const;
 
-private:
+  /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
+  const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
 
-  /// Container of components
-  std::vector<AlignableDetUnit*> theDetUnits ;
+private:
 
   AlignmentPositionError* theAlignmentPositionError;
 
 };
 
-
-
-
 #endif // ALIGNABLE_DET_H
-

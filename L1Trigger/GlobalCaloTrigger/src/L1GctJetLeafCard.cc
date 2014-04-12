@@ -2,37 +2,52 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctNullJetFinder.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
-using namespace std;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DEFINE STATICS
 const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;  
 
 L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, jetFinderType jfType):
+  L1GctProcessor(),
   m_id(id),
   m_whichJetFinder(jfType),
-  phiPosition(iphi)
+  phiPosition(iphi),
+  m_exSum(0), m_eySum(0),
+  m_hxSum(0), m_hySum(0),
+  m_etSum(0), m_htSum(0),
+  m_hfSums(),
+  m_exSumPipe(), m_eySumPipe(),
+  m_hxSumPipe(), m_hySumPipe(),
+  m_etSumPipe(), m_htSumPipe(),
+  m_hfSumsPipe(),
+  m_ctorInputOk(true)
 {
   //Check jetLeafCard setup
   if(m_id < 0 || m_id > 5)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
-    << "ID number should be between the range of 0 to 5\n";
-  } 
+    {
+      m_ctorInputOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
+	  << "ID number should be between the range of 0 to 5\n";
+      } 
+    }
   
   //iphi is redundant
   if(phiPosition != m_id%3)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
-    << "Argument iphi is " << phiPosition << ", should be " << (m_id%3) << " for this ID value \n";
-  } 
+    {
+      m_ctorInputOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
+	  << "Argument iphi is " << phiPosition << ", should be " << (m_id%3) << " for this ID value \n";
+      } 
+    }
   
   switch (m_whichJetFinder) {
   case tdrJetFinder :
@@ -47,14 +62,26 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, jetFinderType jfType):
     m_jetFinderC = new L1GctHardwareJetFinder(3*id+2);
     break;
 
+  case nullJetFinder :
+    m_jetFinderA = new L1GctNullJetFinder( 3*id );
+    m_jetFinderB = new L1GctNullJetFinder(3*id+1);
+    m_jetFinderC = new L1GctNullJetFinder(3*id+2);
+    break;
+
   default :
 
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
-      << "Unrecognised jetFinder type " << m_whichJetFinder << ", cannot setup jetFinders\n";
+    m_ctorInputOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	<< "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
+	<< "Unrecognised jetFinder type " << m_whichJetFinder << ", cannot setup jetFinders\n";
+    }
 
   }
 
+  if (!m_ctorInputOk && m_verbose) {
+    edm::LogError("L1GctSetupError") << "Jet Leaf Card ID " << m_id << " has been incorrectly constructed";
+  }
 }
 
 L1GctJetLeafCard::~L1GctJetLeafCard()
@@ -65,9 +92,9 @@ L1GctJetLeafCard::~L1GctJetLeafCard()
 }
 
 /// set pointers to neighbours
-void L1GctJetLeafCard::setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neighbours)
+void L1GctJetLeafCard::setNeighbourLeafCards(const std::vector<L1GctJetLeafCard*>& neighbours)
 {
-  vector<L1GctJetFinderBase*> jfNeighbours(2);
+  std::vector<L1GctJetFinderBase*> jfNeighbours(2);
 
   if (neighbours.size()==2) {
 
@@ -84,19 +111,26 @@ void L1GctJetLeafCard::setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neig
     m_jetFinderC->setNeighbourJetFinders(jfNeighbours);
 
   } else {
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctJetLeafCard::setNeighbourLeafCards() : In Jet Leaf Card ID " << m_id 
-      << " size of input vector should be 2, but is in fact " << neighbours.size() << "\n";
+    m_ctorInputOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	<< "L1GctJetLeafCard::setNeighbourLeafCards() : In Jet Leaf Card ID " << m_id 
+	<< " size of input vector should be 2, but is in fact " << neighbours.size() << "\n";
+    }
   }
 }
 
 std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)
 {
+  using std::endl;
+
   s << "===L1GctJetLeafCard===" << endl;
   s << "ID = " << card.m_id << endl;
   s << "i_phi = " << card.phiPosition << endl;;
   s << "Ex " << card.m_exSum << endl;
   s << "Ey " << card.m_eySum << endl;
+  s << "Hx " << card.m_hxSum << endl;
+  s << "Hy " << card.m_hySum << endl;
   s << "Et " << card.m_etSum << endl;
   s << "Ht " << card.m_htSum << endl;
   s << "JetFinder A : " << endl << (*card.m_jetFinderA);
@@ -107,15 +141,49 @@ std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)
   return s;
 }
 
-void L1GctJetLeafCard::reset()
-{
+/// clear buffers
+void L1GctJetLeafCard::reset() {
+  L1GctProcessor::reset();
   m_jetFinderA->reset();
   m_jetFinderB->reset();
   m_jetFinderC->reset();
+}
+
+/// partially clear buffers
+void L1GctJetLeafCard::setBxRange(const int firstBx, const int numberOfBx) {
+  L1GctProcessor::setBxRange(firstBx, numberOfBx);
+  m_jetFinderA->setBxRange(firstBx, numberOfBx);
+  m_jetFinderB->setBxRange(firstBx, numberOfBx);
+  m_jetFinderC->setBxRange(firstBx, numberOfBx);
+}
+
+void L1GctJetLeafCard::setNextBx(const int bx) {
+  L1GctProcessor::setNextBx(bx);
+  m_jetFinderA->setNextBx(bx);
+  m_jetFinderB->setNextBx(bx);
+  m_jetFinderC->setNextBx(bx);
+}
+
+void L1GctJetLeafCard::resetProcessor()
+{
   m_exSum.reset();
   m_eySum.reset();
+  m_hxSum.reset();
+  m_hySum.reset();
   m_etSum.reset();
   m_htSum.reset();
+  m_hfSums.reset();
+}
+
+void L1GctJetLeafCard::resetPipelines()
+{
+  m_exSumPipe.reset(numOfBx());
+  m_eySumPipe.reset(numOfBx());
+  m_hxSumPipe.reset(numOfBx());
+  m_hySumPipe.reset(numOfBx());
+  m_etSumPipe.reset(numOfBx());
+  m_htSumPipe.reset(numOfBx());
+  m_hfSumsPipe.reset(numOfBx());
 }
 
 void L1GctJetLeafCard::fetchInput() {
@@ -127,90 +195,107 @@ void L1GctJetLeafCard::fetchInput() {
 void L1GctJetLeafCard::process() {
 
   // Check the setup
-  assert(setupOk());
+  if (setupOk()) {
 
-  // Perform the jet finding
-  m_jetFinderA->process();
-  m_jetFinderB->process();
-  m_jetFinderC->process();
+    // Perform the jet finding
+    m_jetFinderA->process();
+    m_jetFinderB->process();
+    m_jetFinderC->process();
 
-  // Finish Et and Ht sums for the Leaf Card
-  vector< L1GctUnsignedInt<12> > etStripSum(6);
-  etStripSum.at(0) = m_jetFinderA->getEtStrip0();
-  etStripSum.at(1) = m_jetFinderA->getEtStrip1();
-  etStripSum.at(2) = m_jetFinderB->getEtStrip0();
-  etStripSum.at(3) = m_jetFinderB->getEtStrip1();
-  etStripSum.at(4) = m_jetFinderC->getEtStrip0();
-  etStripSum.at(5) = m_jetFinderC->getEtStrip1();
+    // Finish Et and Ht sums for the Leaf Card
+    // First Et and missing Et
+    m_etSum =
+      m_jetFinderA->getEtSum() +
+      m_jetFinderB->getEtSum() +
+      m_jetFinderC->getEtSum();
+    if (m_etSum.overFlow()) m_etSum.setValue(etTotalMaxValue);
+    m_exSum =
+      ((etComponentType) m_jetFinderA->getExSum()) +
+      ((etComponentType) m_jetFinderB->getExSum()) +
+      ((etComponentType) m_jetFinderC->getExSum());
+    m_eySum =
+      ((etComponentType) m_jetFinderA->getEySum()) +
+      ((etComponentType) m_jetFinderB->getEySum()) +
+      ((etComponentType) m_jetFinderC->getEySum());
 
-  m_etSum.reset();
-  m_exSum.reset();
-  m_eySum.reset();
+    // Exactly the same procedure for Ht and missing Ht
+    m_htSum =
+      m_jetFinderA->getHtSum() +
+      m_jetFinderB->getHtSum() +
+      m_jetFinderC->getHtSum();
+    if (m_htSum.overFlow()) m_htSum.setValue(htTotalMaxValue);
+    m_hxSum =
+      ((htComponentType) m_jetFinderA->getHxSum()) +
+      ((htComponentType) m_jetFinderB->getHxSum()) +
+      ((htComponentType) m_jetFinderC->getHxSum());
+    m_hySum =
+      ((htComponentType) m_jetFinderA->getHySum()) +
+      ((htComponentType) m_jetFinderB->getHySum()) +
+      ((htComponentType) m_jetFinderC->getHySum());
 
-  for (unsigned i=0; i<6; ++i) {
-    m_etSum = m_etSum + etStripSum.at(i);
-    m_exSum = m_exSum + exComponent(etStripSum.at(i), (phiPosition*6+i));
-    m_eySum = m_eySum + eyComponent(etStripSum.at(i), (phiPosition*6+i));
+    // And the same again for Hf Sums
+    m_hfSums = 
+      m_jetFinderA->getHfSums() +
+      m_jetFinderB->getHfSums() +
+      m_jetFinderC->getHfSums();
+
+    // Store the outputs in pipelines
+    m_exSumPipe.store  (m_exSum,  bxRel());
+    m_eySumPipe.store  (m_eySum,  bxRel());
+    m_hxSumPipe.store  (m_hxSum,  bxRel());
+    m_hySumPipe.store  (m_hySum,  bxRel());
+    m_etSumPipe.store  (m_etSum,  bxRel());
+    m_htSumPipe.store  (m_htSum,  bxRel());
+    m_hfSumsPipe.store (m_hfSums, bxRel());
   }
-
-  m_htSum =
-    m_jetFinderA->getHt() +
-    m_jetFinderB->getHt() +
-    m_jetFinderC->getHt();
 }
 
-// PRIVATE MEMBER FUNCTIONS
-// Given a strip Et sum, perform rotations by sine and cosine
-// factors to find the corresponding Ex and Ey
+bool L1GctJetLeafCard::setupOk() const {
+  return (m_ctorInputOk &&
+	  m_jetFinderA->setupOk() &&
+          m_jetFinderB->setupOk() &&
+          m_jetFinderC->setupOk()); }
 
-L1GctTwosComplement<12>
-L1GctJetLeafCard::exComponent(const L1GctUnsignedInt<12> etStrip, const unsigned jphi) const {
-  unsigned fact = (2*jphi+10) % 36;
-  return rotateEtValue(etStrip, fact);
-}
+// get the jet output
+L1GctJetFinderBase::JetVector
+L1GctJetLeafCard::getOutputJetsA() const { return m_jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
+L1GctJetFinderBase::JetVector
+L1GctJetLeafCard::getOutputJetsB() const { return m_jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
+L1GctJetFinderBase::JetVector
+L1GctJetLeafCard::getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
 
-L1GctTwosComplement<12>
-L1GctJetLeafCard::eyComponent(const L1GctUnsignedInt<12> etStrip, const unsigned jphi) const {
-  unsigned fact = (2*jphi+19) % 36;
-  return rotateEtValue(etStrip, fact);
-}
+/// get the Et sums in internal component format
+std::vector< L1GctInternEtSum  > L1GctJetLeafCard::getInternalEtSums() const
+{
 
-// Here is where the rotations are actually done
-// Procedure suitable for implementation in hardware, using
-// integer multiplication and bit shifting operations
-L1GctTwosComplement<12>
-L1GctJetLeafCard::rotateEtValue(const L1GctUnsignedInt<12> etStrip, const unsigned fact) const {
-  // These factors correspond to the sine of angles from -90 degrees to
-  // 90 degrees in 10 degree steps, multiplied by 256 and written in 20 bits
-  const int factors[19] = {0xfff00, 0xfff04, 0xfff10, 0xfff23, 0xfff3c,
-			   0xfff5c, 0xfff80, 0xfffa9, 0xfffd4, 0x00000,
-			   0x0002c, 0x00057, 0x00080, 0x000a4, 0x000c4,
-			   0x000dd, 0x000f0, 0x000fc, 0x00100};
-  const int maxEt=1<<(etStrip.size());
-  int myValue, myFact;
-
-  if (fact >= 36) {
-    throw cms::Exception("L1GctProcessingError")
-      << "L1GctJetLeafCard::rotateEtValue() has been called with factor number "
-      << fact << "; should be less than 36 \n";
-  } 
-
-  // Choose the required multiplication factor
-  if (fact>18) { myFact = factors[(36-fact)]; }
-  else { myFact = factors[fact]; }
-
-  // Multiply the 12-bit Et value by the 20-bit factor.
-  // Discard the eight LSB and interpret the result as
-  // a 12-bit twos complement integer.
-  myValue = (static_cast<int>(etStrip.value())*myFact) >> 8;
-  myValue = myValue & (maxEt-1);
-  if (myValue >= (maxEt/2)) {
-    myValue = myValue - maxEt;
+  std::vector< L1GctInternEtSum > result;
+  for (int bx=0; bx<numOfBx(); bx++) {
+    result.push_back( L1GctInternEtSum::fromEmulatorJetTotEt ( m_etSumPipe.contents.at(bx).value(),
+							       m_etSumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorJetMissEt( m_exSumPipe.contents.at(bx).value(),
+							       m_exSumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorJetMissEt( m_eySumPipe.contents.at(bx).value(),
+							       m_eySumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorJetTotHt ( m_htSumPipe.contents.at(bx).value(),
+							       m_htSumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
   }
+  return result;
+}
 
-  L1GctTwosComplement<12> temp(myValue);
-  temp.setOverFlow(temp.overFlow() || etStrip.overFlow());
+std::vector< L1GctInternHtMiss > L1GctJetLeafCard::getInternalHtMiss() const
+{
 
-  return temp;
+  std::vector< L1GctInternHtMiss > result;
+  for (int bx=0; bx<numOfBx(); bx++) {
+    result.push_back( L1GctInternHtMiss::emulatorMissHtxHty( m_hxSumPipe.contents.at(bx).value(),
+							     m_hySumPipe.contents.at(bx).value(),
+							     m_hxSumPipe.contents.at(bx).overFlow(),
+							     static_cast<int16_t> (bx-bxMin()) ) );
+  }
+  return result;
 
 }

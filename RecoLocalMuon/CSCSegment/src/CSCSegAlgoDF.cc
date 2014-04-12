@@ -18,7 +18,7 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include "CSCSegAlgoPreClustering.h"
-#include "CSCSegAlgoHitPruning.h"
+#include "CSCSegAlgoShowering.h"
 
 #include <algorithm>
 #include <cmath>
@@ -32,19 +32,21 @@
 CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoDF") {
 	
   debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
-  minLayersApart         = ps.getUntrackedParameter<int>("minLayersApart");
-  nSigmaFromSegment      = ps.getUntrackedParameter<double>("nSigmaFromSegment");
-  minHitsPerSegment      = ps.getUntrackedParameter<int>("minHitsPerSegment");
-  dRPhiFineMax           = ps.getUntrackedParameter<double>("dRPhiFineMax");
-  dPhiFineMax            = ps.getUntrackedParameter<double>("dPhiFineMax");
-  tanThetaMax            = ps.getUntrackedParameter<double>("tanThetaMax");
-  tanPhiMax              = ps.getUntrackedParameter<double>("tanPhiMax");	
+  minLayersApart         = ps.getParameter<int>("minLayersApart");
+  minHitsPerSegment      = ps.getParameter<int>("minHitsPerSegment");
+  dRPhiFineMax           = ps.getParameter<double>("dRPhiFineMax");
+  dPhiFineMax            = ps.getParameter<double>("dPhiFineMax");
+  tanThetaMax            = ps.getParameter<double>("tanThetaMax");
+  tanPhiMax              = ps.getParameter<double>("tanPhiMax");	
+  chi2Max                = ps.getParameter<double>("chi2Max");	
   preClustering          = ps.getUntrackedParameter<bool>("preClustering");
+  minHitsForPreClustering= ps.getParameter<int>("minHitsForPreClustering");
+  nHitsPerClusterIsShower= ps.getParameter<int>("nHitsPerClusterIsShower");
   Pruning                = ps.getUntrackedParameter<bool>("Pruning");
+  maxRatioResidual       = ps.getParameter<double>("maxRatioResidualPrune");
 
   preCluster_            = new CSCSegAlgoPreClustering( ps );
-  hitPruning_            = new CSCSegAlgoHitPruning( ps );
-
+  showering_             = new CSCSegAlgoShowering( ps );
 }
 
 
@@ -52,29 +54,30 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
  *
  */
 CSCSegAlgoDF::~CSCSegAlgoDF() {
-
   delete preCluster_;
-  delete hitPruning_;
+  delete showering_;
 }
 
 
 /* run
  *
  */
-std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
 
   // Store chamber info in temp memory
   theChamber = aChamber; 
 
+  int nHits = rechits.size();
+
   // Segments prior to pruning
   std::vector<CSCSegment> segments_temp;  
 
-  if ( preClustering ) {
+  if ( preClustering && nHits > minHitsForPreClustering ) {
     // This is where the segment origin is in the chamber on avg.
     std::vector<CSCSegment> testSegments;
-    std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits, testSegments);
+    std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits);
     // loop over the found clusters:
-    for(std::vector<ChamberHitContainer>::iterator subrechits = clusteredHits.begin(); subrechits !=  clusteredHits.end(); ++subrechits ) {
+    for (std::vector<ChamberHitContainer>::iterator subrechits = clusteredHits.begin(); subrechits != clusteredHits.end(); ++subrechits ) {
       // build the subset of segments:
       std::vector<CSCSegment> segs = buildSegments( (*subrechits) );
       // add the found subset of segments to the collection of all segments in this chamber:
@@ -86,16 +89,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
     segments_temp.insert( segments_temp.end(), segs.begin(), segs.end() ); 
   }
 
-  // Prune bad hits off segments
-  std::vector<CSCSegment> segments;  
-
-  if ( Pruning ) {
-    std::vector<CSCSegment> segs = hitPruning_->pruneBadHits(theChamber, segments_temp);
-    segments.insert( segments.end(), segs.begin(), segs.end() );
-  } else {
-    segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
-  }
-  return segments; 
+  return segments_temp; 
 }
 
 
@@ -109,8 +103,9 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
  *
  * Also, only a certain muonsPerChamberMax maximum number of segments can be produced in the chamber
  */
-std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(const ChamberHitContainer& _rechits) {
 
+  ChamberHitContainer rechits = _rechits;
   // Clear buffer for segment vector
   std::vector<CSCSegment> segmentInChamber;
   segmentInChamber.clear();
@@ -119,11 +114,20 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
   if ( nHitInChamber < 3 ) return segmentInChamber;
 
   LayerIndex layerIndex( nHitInChamber );
-  
+
+  unsigned nLayers = 0;
+  int old_layer = -1;   
   for ( unsigned int i = 0; i < nHitInChamber; i++ ) {    
-    layerIndex[i] = rechits[i]->cscDetId().layer();
+    int this_layer = rechits[i]->cscDetId().layer();
+    layerIndex[i] = this_layer;
+    if ( this_layer != old_layer ) {
+      old_layer = this_layer;
+      nLayers++;   
+    }
   }
   
+  if ( nLayers < 3 ) return segmentInChamber;
+
   double z1 = theChamber->layer(1)->position().z();
   double z6 = theChamber->layer(6)->position().z();
   
@@ -139,6 +143,19 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
       reverse( rechits.begin(),    rechits.end() );
     }    
   }
+
+  // Showering muon
+  if ( preClustering && int(nHitInChamber) > nHitsPerClusterIsShower && nLayers > 2 ) {
+    CSCSegment segShower = showering_->showerSeg(theChamber, rechits);
+
+    // Make sure have at least 3 hits...
+    if ( segShower.nRecHits() < 3 ) return segmentInChamber;
+
+    segmentInChamber.push_back(segShower);
+
+    return segmentInChamber;
+  }
+
 
   // Initialize flags that a given hit has been allocated to a segment
   BoolContainer used_ini(rechits.size(), false);
@@ -189,26 +206,29 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
       protoSegment.push_back(h2);
 	
       // Try adding hits to proto segment
-      tryAddingHitsToSegment(rechits, i1, i2); 
+      tryAddingHitsToSegment(rechits, i1, i2, layerIndex); 
 	
       // Check no. of hits on segment to see if segment is large enough
       bool segok = true;
-      unsigned iadd = ( nHitInChamber > 20 )? iadd = 1 : 0;
-      if (nHitInChamber > 30 ) iadd++;  
+      unsigned iadd = 0;
+
       if (protoSegment.size() < minHitsPerSegment+iadd) segok = false;
+  
+      if ( Pruning && segok ) pruneFromResidual();
+
+      // Check if segment satisfies chi2 requirement
+      if (protoChi2 > chi2Max) segok = false;
 
       if ( segok ) {
 
         // Fill segment properties
-
-        // Get final slopes & chi2
-        updateParameters();
-
+       
         // Local direction
         double dz   = 1./sqrt(1. + protoSlope_u*protoSlope_u + protoSlope_v*protoSlope_v);
-        double dx   = dz*protoSlope_u;
-        double dy   = dz*protoSlope_v;
+        double dx   = dz * protoSlope_u;
+        double dy   = dz * protoSlope_v;
         LocalVector localDir(dx,dy,dz);
+      
         // localDir may need sign flip to ensure it points outward from IP  
         double globalZpos    = ( theChamber->toGlobal( protoIntercept ) ).z();
         double globalZdir    = ( theChamber->toGlobal( localDir ) ).z();
@@ -217,13 +237,17 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
 
         // Error matrix
         AlgebraicSymMatrix protoErrors = calculateError();     
+        // but reorder components to match what's required by TrackingRecHit interface
+        // i.e. slopes first, then positions
+        flipErrors( protoErrors );
 
         CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
-              
+
         segmentInChamber.push_back(temp); 
 
         if (nHitInChamber-protoSegment.size() < 3) return segmentInChamber; 
         if (segmentInChamber.size() > 4) return segmentInChamber;
+
         // Flag used hits
         flagHitsAsUsed(rechits);
       } 
@@ -241,7 +265,8 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
  */
 void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits, 
                                            const ChamberHitContainerCIt i1, 
-                                           const ChamberHitContainerCIt i2) {
+                                           const ChamberHitContainerCIt i2,
+                                           const LayerIndex& layerIndex ) {
   
 /* Iterate over the layers with hits in the chamber
  * Skip the layers containing the segment endpoints on first pass, but then
@@ -256,25 +281,45 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
 
   for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
 
-    if (i == i1 || i == i2 ) continue;   
+    if (i == i1 || i == i2 ) continue;
     if ( usedHits[i-ib] ) continue;   // Don't use hits already part of a segment.
 
-    const CSCRecHit2D* h = *i;      
-    int layer = (*i)->cscDetId().layer();
-    if ( isHitNearSegment( h ) ) {
-      if ( !hasHitOnLayer(layer) ) {
-        addHit(h, layer);  
-      } else {
-        closeHits.push_back(h);
+    const CSCRecHit2D* h = *i;
+    int layer = layerIndex[i-ib];
+    int layer1 = layerIndex[i1-ib];
+    int layer2 = layerIndex[i2-ib];
+
+    // Low multiplicity case
+    if (rechits.size() < 9) {
+      if ( isHitNearSegment( h ) ) {
+        if ( !hasHitOnLayer(layer) ) {
+          addHit(h, layer);
+        } else {
+          closeHits.push_back(h);
+        }
+      }
+
+    // High multiplicity case
+    } else { 
+      if ( isHitNearSegment( h ) ) {
+        if ( !hasHitOnLayer(layer) ) {
+          addHit(h, layer);
+          updateParameters();
+        // Don't change the starting points at this stage !!!
+        } else {
+          closeHits.push_back(h);
+          if (layer != layer1 && layer != layer2 ) compareProtoSegment(h, layer);
+        }
       }
     }
-  } 
+  }
+ 
+  if ( int(protoSegment.size()) < 3) return;
 
-  // Test if need to continue further
-  if ( protoSegment.size() < 3 || closeHits.size() < 1) return;
   updateParameters();
 
   // 2nd pass to remove biases 
+  // This time, also consider changing the endpoints
   for ( ChamberHitContainerCIt i = closeHits.begin() ; i != closeHits.end(); ++i ) {      
     const CSCRecHit2D* h = *i;      
     int layer = (*i)->cscDetId().layer();     
@@ -350,8 +395,8 @@ bool CSCSegAlgoDF::addHit(const CSCRecHit2D* aHit, int layer) {
 void CSCSegAlgoDF::updateParameters() {
 
   // Compute slope from Least Square Fit    
-  HepMatrix M(4,4,0);
-  HepVector B(4,0);
+  CLHEP::HepMatrix M(4,4,0);
+  CLHEP::HepVector B(4,0);
 
   ChamberHitContainer::const_iterator ih;
   
@@ -367,7 +412,7 @@ void CSCSegAlgoDF::updateParameters() {
     double z = lp.z();
     
     // ptc: Covariance matrix of local errors 
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,2) = hit.localPositionError().yy();
@@ -405,7 +450,7 @@ void CSCSegAlgoDF::updateParameters() {
     B(4)   += ( u * IC(2,1) + v * IC(2,2) ) * z;
   }
   
-  HepVector p = solve(M, B);
+  CLHEP::HepVector p = solve(M, B);
   
   // Update member variables 
   // Note that origin has local z = 0
@@ -433,7 +478,7 @@ void CSCSegAlgoDF::updateParameters() {
     double du = protoIntercept.x() + protoSlope_u * z - u;
     double dv = protoIntercept.y() + protoSlope_v * z - v;
     
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,2) = hit.localPositionError().yy();
@@ -522,8 +567,10 @@ void CSCSegAlgoDF::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber) {
       if (*hi == *iu) usedHits[iu-ib] = true;
     }
   }
-//  if (closeHits.size() < 20) return;  
-  // This is to deal with muon showering (not combinatorial problems)
+  // Don't reject hits marked as "nearby" for now.
+  // So this is bypassed at all times for now !!!
+  // Perhaps add back to speed up algorithm some more
+  if (closeHits.size() > 0) return;  
   for ( hi = closeHits.begin(); hi != closeHits.end(); ++hi ) {
     for ( iu = ib; iu != rechitsInChamber.end(); ++iu ) {
       if (*hi == *iu) usedHits[iu-ib] = true;
@@ -533,61 +580,190 @@ void CSCSegAlgoDF::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber) {
 }
 
 
+AlgebraicSymMatrix CSCSegAlgoDF::weightMatrix() const {
+
+  std::vector<const CSCRecHit2D*>::const_iterator it;
+  int nhits = protoSegment.size();
+  AlgebraicSymMatrix matrix(2*nhits, 0);
+  int row = 0;
+
+  for (it = protoSegment.begin(); it != protoSegment.end(); ++it) {
+
+    const CSCRecHit2D& hit = (**it);
+    ++row;
+    matrix(row, row)   = hit.localPositionError().xx();
+    matrix(row, row+1) = hit.localPositionError().xy();
+    ++row;
+    matrix(row, row-1) = hit.localPositionError().xy();
+    matrix(row, row)   = hit.localPositionError().yy();
+  }
+  int ierr;
+  matrix.invert(ierr);
+  return matrix;
+}
+
+
+CLHEP::HepMatrix CSCSegAlgoDF::derivativeMatrix() const {
+
+  ChamberHitContainer::const_iterator it;
+  int nhits = protoSegment.size();
+  CLHEP::HepMatrix matrix(2*nhits, 4);
+  int row = 0;
+
+  for(it = protoSegment.begin(); it != protoSegment.end(); ++it) {
+
+    const CSCRecHit2D& hit = (**it);
+    const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
+    GlobalPoint gp = layer->toGlobal(hit.localPosition());
+    LocalPoint lp = theChamber->toLocal(gp);
+    float z = lp.z();
+    ++row;
+    matrix(row, 1) = 1.;
+    matrix(row, 3) = z;
+    ++row;
+    matrix(row, 2) = 1.;
+    matrix(row, 4) = z;
+  }
+  return matrix;
+}
+
 /* calculateError
  *
  */
 AlgebraicSymMatrix CSCSegAlgoDF::calculateError() const {
 
-  // Blightly assume the following never fails
- 
-  std::vector<const CSCRecHit2D*>::const_iterator it;
-  int nhits = protoSegment.size();
-  int ierr; 
+  AlgebraicSymMatrix weights = weightMatrix();
+  AlgebraicMatrix A = derivativeMatrix();
 
-  AlgebraicSymMatrix weights(2*nhits, 0);
-  AlgebraicMatrix A(2*nhits, 4);
+  // (AT W A)^-1
+  // from http://www.phys.ufl.edu/~avery/fitting.html, part I
+  int ierr;
+  AlgebraicSymMatrix result = weights.similarityT(A);
+  result.invert(ierr);
 
-  int row = 0;  
-  for (it = protoSegment.begin(); it != protoSegment.end(); ++it) {
-    const CSCRecHit2D& hit = (**it);
-    const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp = layer->toGlobal(hit.localPosition());      
-    LocalPoint lp = theChamber->toLocal(gp); 
-    float z = lp.z();
-    ++row;
-    weights(row, row)   = hit.localPositionError().xx();
-    weights(row, row+1) = hit.localPositionError().xy();
-    A(row, 1) = 1.;
-    A(row, 3) = z;
-    ++row;
-    weights(row, row-1) = hit.localPositionError().xy();
-    weights(row, row)   = hit.localPositionError().yy();
-    A(row, 2) = 1.;
-    A(row, 4) = z;
+  // blithely assuming the inverting never fails...
+  return result;
+}
+
+void CSCSegAlgoDF::flipErrors( AlgebraicSymMatrix& a ) const {
+
+  // The CSCSegment needs the error matrix re-arranged
+
+  AlgebraicSymMatrix hold( a );
+
+  // errors on slopes into upper left
+  a(1,1) = hold(3,3);
+  a(1,2) = hold(3,4);
+  a(2,1) = hold(4,3);
+  a(2,2) = hold(4,4);
+
+  // errors on positions into lower right
+  a(3,3) = hold(1,1);
+  a(3,4) = hold(1,2);
+  a(4,3) = hold(2,1);
+  a(4,4) = hold(2,2);
+
+  // off-diagonal elements remain unchanged
+
+}
+
+
+// Try to clean up segments by quickly looking at residuals
+void CSCSegAlgoDF::pruneFromResidual(){
+
+  // Only prune if have at least 5 hits 
+  if ( protoSegment.size() < 5 ) return ;
+
+
+  // Now Study residuals
+      
+  float maxResidual = 0.;
+  float sumResidual = 0.;
+  int nHits = 0;
+  int badIndex = -1;
+  int j = 0;
+
+
+  ChamberHitContainer::const_iterator ih;
+
+  for ( ih = protoSegment.begin(); ih != protoSegment.end(); ++ih ) {
+    const CSCRecHit2D& hit = (**ih);
+    const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
+    GlobalPoint gp         = layer->toGlobal(hit.localPosition());
+    LocalPoint lp          = theChamber->toLocal(gp);
+
+    double u = lp.x();
+    double v = lp.y();
+    double z = lp.z();
+
+    double du = protoIntercept.x() + protoSlope_u * z - u;
+    double dv = protoIntercept.y() + protoSlope_v * z - v;
+
+    float residual = sqrt(du*du + dv*dv);
+
+    sumResidual += residual;
+    nHits++;
+    if ( residual > maxResidual ) {
+      maxResidual = residual;
+      badIndex = j;
+    }
+    j++;
   }
-  weights.invert(ierr);
 
-  AlgebraicSymMatrix a = weights.similarityT(A);
-  a.invert(ierr);
-    
-  // but reorder components to match what's required by TrackingRecHit interface 
-  // i.e. slopes first, then positions 
-    
-  AlgebraicSymMatrix hold( a ); 
-    
-  // errors on slopes into upper left 
-  a(1,1) = hold(3,3); 
-  a(1,2) = hold(3,4); 
-  a(2,1) = hold(4,3); 
-  a(2,2) = hold(4,4); 
-    
-  // errors on positions into lower right 
-  a(3,3) = hold(1,1); 
-  a(3,4) = hold(1,2); 
-  a(4,3) = hold(2,1); 
-  a(4,4) = hold(2,2); 
-    
-  // off-diagonal elements remain unchanged 
-  return a;    
-} 
+  float corrAvgResidual = (sumResidual - maxResidual)/(nHits -1);
 
+  // Keep all hits 
+  if ( maxResidual/corrAvgResidual < maxRatioResidual ) return;
+
+
+  // Drop worse hit and recompute segment properties + fill
+
+  ChamberHitContainer newProtoSegment;
+
+  j = 0;
+  for ( ih = protoSegment.begin(); ih != protoSegment.end(); ++ih ) {
+    if ( j != badIndex ) newProtoSegment.push_back(*ih);
+    j++;
+  }
+  
+  protoSegment.clear();
+
+  for ( ih = newProtoSegment.begin(); ih != newProtoSegment.end(); ++ih ) {
+    protoSegment.push_back(*ih);
+  }
+
+  // Update segment parameters
+  updateParameters();
+
+}
+
+
+/*
+ * Order the hits such that 2nd one is closest in x,y to first seed hit in global coordinates
+ */
+void CSCSegAlgoDF::orderSecondSeed( GlobalPoint gp1,
+                                           const ChamberHitContainerCIt i1, 
+                                           const ChamberHitContainerCIt i2, 
+                                           const ChamberHitContainer& rechits, 
+                                           const LayerIndex& layerIndex ) {
+
+  secondSeedHits.clear();
+
+  //ChamberHitContainerCIt ib = rechits.begin();
+  ChamberHitContainerCIt ie = rechits.end();
+
+  //  int layer1 = layerIndex[i1-ib];
+  //  int layer2 = layerIndex[i2-ib];
+
+
+  // Now fill vector of rechits closest to center of mass:
+  // secondSeedHitsIdx.clear() = 0;
+
+  // Loop over all hits and find hit closest to 1st seed.
+  for ( ChamberHitContainerCIt i2 = ie-1; i2 > i1; --i2 ) {	
+
+
+  }
+
+        
+}

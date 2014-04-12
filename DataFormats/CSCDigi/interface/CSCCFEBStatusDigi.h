@@ -5,14 +5,14 @@
  *
  * Digi for CSC CFEB status.
  *  
- *  $Date: 2006/12/14 22:33:47 $
- *  $Revision: 1.4 $
  *
  * \author N. Terentiev, CMU
  *
  */
 
 #include <vector>
+#include <iosfwd>
+#include <stdint.h>
 
 class CSCCFEBStatusDigi{
 
@@ -23,8 +23,8 @@ public:
 
 
   /// Constructor for all variables
-  CSCCFEBStatusDigi (int cfebnmb, std::vector<uint16_t> crcWords, 
-		     std::vector<uint16_t> contrWords,  std::vector<uint16_t> bWords) {
+  CSCCFEBStatusDigi (int cfebnmb, const std::vector<uint16_t>& crcWords, 
+		     const std::vector<uint16_t>& contrWords,  const std::vector<uint16_t>& bWords) {
     cfebnmb_ = cfebnmb;
     crcWords_ = crcWords;
     contrWords_ = contrWords;
@@ -36,10 +36,10 @@ public:
   CSCCFEBStatusDigi () {}
 
             /// Set CRC vector 
-  void setCRC (std::vector<uint16_t> crc) {crcWords_ = crc;}
+  void setCRC (const std::vector<uint16_t>& crc) {crcWords_ = crc;}
 
             /// Set SCAC (SCA Controller) vector
-  void setSCAC (std::vector<uint16_t> scac) {contrWords_ =  scac;}
+  void setSCAC (const std::vector<uint16_t>& scac) {contrWords_ =  scac;}
 
             /// Get the  CFEB number
   int getCFEBNmb() const {return cfebnmb_;}
@@ -83,36 +83,6 @@ private:
 
 };
 
-#include<iostream>
-            /// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const CSCCFEBStatusDigi& digi) {
-  o << " " << digi.getCFEBNmb()<<"\n";
-  for (size_t i = 0; i<4; ++i ){
-        o <<" " <<(digi.getSCAFullCond())[i]; }
-  o <<"\n";
-  for (size_t i = 0; i<digi.getCRC().size(); ++i ){
-    o <<" " <<(digi.getCRC())[i]; }
-  o<<"\n";
-  for (size_t i = 0; i<digi.getTS_FLAG().size(); ++i ){
-    o <<" " <<(digi.getTS_FLAG())[i]; }
-  o<<"\n";
-  for (size_t i = 0; i<digi.getSCA_FULL().size(); ++i ){
-    o <<" " <<(digi.getSCA_FULL())[i]; }
-  o<<"\n";
-  for (size_t i = 0; i<digi.getLCT_PHASE().size(); ++i ){
-    o <<" " <<(digi.getLCT_PHASE())[i]; }
-  o<<"\n";
-  for (size_t i = 0; i<digi.getL1A_PHASE().size(); ++i ){
-    o <<" " <<(digi.getL1A_PHASE())[i]; }
-  o<<"\n";
-  for (size_t i = 0; i<digi.getSCA_BLK().size(); ++i ){
-    o <<" " <<(digi.getSCA_BLK())[i]; }
-  o<<"\n";
-  for (size_t i = 0; i<digi.getTRIG_TIME().size(); ++i ){
-    o <<" " <<(digi.getTRIG_TIME())[i]; }
-  o<<"\n";
-
-  return o;
-}
+std::ostream & operator<<(std::ostream & o, const CSCCFEBStatusDigi& digi);
 
 #endif

@@ -5,11 +5,12 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/GsfTracking/interface/GsfPropagatorWithMaterial.h"
 #include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
 #include "TrackingTools/GsfTracking/interface/FullConvolutionWithMaterial.h"
+#include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
 class MultiTrajectoryStateMerger;
 
@@ -17,7 +18,7 @@ class MultiTrajectoryStateMerger;
  *  testing purposes) without combination with the forward fit. 
  */
 
-class GsfTrajectorySmoother : public TrajectorySmoother {
+class GsfTrajectorySmoother GCC11_FINAL : public TrajectorySmoother {
 
 private:
 
@@ -34,11 +35,13 @@ public:
 			const MeasurementEstimator& aEstimator,
 			const MultiTrajectoryStateMerger& merger,
 			float errorRescaling,
-			const bool materialBeforeUpdate = true);
+			const bool materialBeforeUpdate = true,
+			const DetLayerGeometry* detLayerGeometry=0);
 
   virtual ~GsfTrajectorySmoother();
 
-  virtual std::vector<Trajectory> trajectories(const Trajectory& aTraj) const;
+  virtual Trajectory trajectory(const Trajectory& aTraj) const;
+
   /** propagator used (full propagator, if material effects are
    * applied before the update, otherwise purely geometrical part)
    */
@@ -52,11 +55,11 @@ public:
   virtual GsfTrajectorySmoother* clone() const
   {
     return new GsfTrajectorySmoother(*thePropagator,*theUpdator,*theEstimator,
-				     *theMerger,theMatBeforeUpdate,theErrorRescaling);
+				     *theMerger,theErrorRescaling,theMatBeforeUpdate,theGeometry);
   }
 
 private:
-  const GsfPropagatorWithMaterial* thePropagator;
+  GsfPropagatorWithMaterial* thePropagator;
   const GsfPropagatorAdapter* theGeomPropagator;
   const FullConvolutionWithMaterial* theConvolutor;
   const TrajectoryStateUpdator* theUpdator;
@@ -66,6 +69,10 @@ private:
   bool theTiming;
   bool theMatBeforeUpdate;
   float theErrorRescaling;
+
+  const DetLayerGeometry dummyGeometry;
+  const DetLayerGeometry* theGeometry;
+
 };
 
 #endif //TR_GsfTrajectorySmoother_H_

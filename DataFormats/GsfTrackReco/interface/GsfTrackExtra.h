@@ -3,31 +3,28 @@
 /** Extension of a GSF track providing multi-states
  * at the inner- and outermost measurement
  */
-// #include "DataFormats/Math/interface/Vector3D.h"
-// #include "DataFormats/Math/interface/Point3D.h"
-// #include "DataFormats/Math/interface/Vector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Vector.h"
 // #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTangent.h"
+
+#include <iostream>
 
 namespace reco {
   class GsfTrackExtra {
   public:
     /// parameter dimension
     enum { dimension = 5 };
-//     /// error matrix size
-//     enum { covarianceSize = dimension * ( dimension + 1 ) / 2 };
-//     /// point in the space
-//     typedef math::XYZPoint Point;
-//     /// spatial vector
-//     typedef math::XYZVector Vector;
-//     /// 5 parameter covariance matrix
-//     typedef math::Error<dimension>::type CovarianceMatrix;
-//     /// index type
-//     typedef unsigned int index;
     /// local parameter vector
     typedef math::Vector<dimension>::type LocalParameterVector;
     /// local covariance matrix
     typedef math::Error<dimension>::type LocalCovarianceMatrix;
+    /// point in the space
+    typedef math::XYZPoint Point;
+    /// spatial vector
+    typedef math::XYZVector Vector;
 
     /// default constructor
     GsfTrackExtra() { }
@@ -35,7 +32,8 @@ namespace reco {
     GsfTrackExtra( const std::vector<GsfComponent5D>& outerStates,
 		   const double& outerLocalPzSign, 
 		   const std::vector<GsfComponent5D>& innerStates, 
-		   const double& innerLocalPzSign);
+		   const double& innerLocalPzSign,
+		   const std::vector<GsfTangent>& tangents);
     /// sign of local P_z at outermost state
     double outerStateLocalPzSign() const {return positiveOuterStatePz_ ? 1. : -1.;}
     /// weights at outermost state
@@ -60,6 +58,24 @@ namespace reco {
     std::vector<LocalCovarianceMatrix> innerStateCovariances() const {
       return covariances(innerStates_);
     }
+    /// number of objects with information for tangents to the electron track
+    inline unsigned int tangentsSize() const {return tangents_.size();}
+    /// access to tangent information
+    const std::vector<GsfTangent>& tangents() const {
+      return tangents_;
+    }
+    /// global position for tangent
+    const Point& tangentPosition (unsigned int index) const {
+      return tangents_[index].position();
+    }
+    /// global momentum for tangent
+    const Vector& tangentMomentum (unsigned int index) const {
+      return tangents_[index].momentum();
+    }
+    /// deltaP for tangent
+    Measurement1D tangentDeltaP (unsigned int index) const {
+      return tangents_[index].deltaP();
+    }
 
   private:
     /// extract weights from states
@@ -78,6 +94,8 @@ namespace reco {
     std::vector<GsfComponent5D> innerStates_;
     /// positive sign of P_z(local) at innermost State?
     bool positiveInnerStatePz_;
+    /// information for tangents
+    std::vector<GsfTangent> tangents_;
   };
 
 }

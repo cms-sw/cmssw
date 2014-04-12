@@ -23,6 +23,7 @@ mkdir $WWWDIR/eps/TK-pixels/Entryx-Exitx
 mkdir $WWWDIR/eps/TK-pixels/Entryy-Exity
 mkdir $WWWDIR/eps/TK-pixels/Entryz-Exitz
 mkdir $WWWDIR/eps/TK-summary
+mkdir $WWWDIR/eps/ToF
 
 mkdir $WWWDIR/gif
 mkdir $WWWDIR/gif/TK-strips
@@ -40,24 +41,26 @@ mkdir $WWWDIR/gif/TK-pixels/Entryx-Exitx
 mkdir $WWWDIR/gif/TK-pixels/Entryy-Exity
 mkdir $WWWDIR/gif/TK-pixels/Entryz-Exitz
 mkdir $WWWDIR/gif/TK-summary
+mkdir $WWWDIR/gif/ToF
 
 echo "...Copying..."
 
-mv plots/muon/eloss_T*_KS*.eps $WWWDIR/eps/TK-strips/eloss
-mv plots/muon/pos_Entryx-Exitx_T*.eps $WWWDIR/eps/TK-strips/Entryx-Exitx
-mv plots/muon/pos_Entryy-Exity_T*.eps $WWWDIR/eps/TK-strips/Entryy-Exity
-mv plots/muon/pos_Entryz-Exitz_T*.eps $WWWDIR/eps/TK-strips/Entryz-Exitz
-mv plots/muon/pos_Localy_T*.eps $WWWDIR/eps/TK-strips/Localy
-mv plots/muon/pos_Localx_T*.eps $WWWDIR/eps/TK-strips/Localx
+mv plots/muon/eloss_T*_KS*.eps.gz $WWWDIR/eps/TK-strips/eloss
+mv plots/muon/pos_Entryx-Exitx_T*.eps.gz $WWWDIR/eps/TK-strips/Entryx-Exitx
+mv plots/muon/pos_Entryy-Exity_T*.eps.gz $WWWDIR/eps/TK-strips/Entryy-Exity
+mv plots/muon/pos_Entryz-Exitz_T*.eps.gz $WWWDIR/eps/TK-strips/Entryz-Exitz
+mv plots/muon/pos_Localy_T*.eps.gz $WWWDIR/eps/TK-strips/Localy
+mv plots/muon/pos_Localx_T*.eps.gz $WWWDIR/eps/TK-strips/Localx
 
-mv plots/muon/eloss_*PIX_KS*.eps $WWWDIR/eps/TK-pixels/eloss
-mv plots/muon/pos_Entryx-Exitx_*PIX*.eps $WWWDIR/eps/TK-pixels/Entryx-Exitx
-mv plots/muon/pos_Entryy-Exity_*PIX*.eps $WWWDIR/eps/TK-pixels/Entryy-Exity
-mv plots/muon/pos_Entryz-Exitz_*PIX*.eps $WWWDIR/eps/TK-pixels/Entryz-Exitz
-mv plots/muon/pos_Localy_*PIX*.eps $WWWDIR/eps/TK-pixels/Localy
-mv plots/muon/pos_Localx_*PIX*.eps $WWWDIR/eps/TK-pixels/Localx
+mv plots/muon/eloss_*PIX_KS*.eps.gz $WWWDIR/eps/TK-pixels/eloss
+mv plots/muon/pos_Entryx-Exitx_*PIX*.eps.gz $WWWDIR/eps/TK-pixels/Entryx-Exitx
+mv plots/muon/pos_Entryy-Exity_*PIX*.eps.gz $WWWDIR/eps/TK-pixels/Entryy-Exity
+mv plots/muon/pos_Entryz-Exitz_*PIX*.eps.gz $WWWDIR/eps/TK-pixels/Entryz-Exitz
+mv plots/muon/pos_Localy_*PIX*.eps.gz $WWWDIR/eps/TK-pixels/Localy
+mv plots/muon/pos_Localx_*PIX*.eps.gz $WWWDIR/eps/TK-pixels/Localx
 
-mv plots/muon/*summary*.eps $WWWDIR/eps/TK-summary
+mv plots/muon/Tof.eps.gz       $WWWDIR/eps/ToF/
+mv plots/muon/*summary*.eps.gz $WWWDIR/eps/TK-summary
 
 mv plots/muon/eloss_T*_KS*.gif $WWWDIR/gif/TK-strips/eloss
 mv plots/muon/pos_Entryx-Exitx_T*.gif $WWWDIR/gif/TK-strips/Entryx-Exitx
@@ -73,6 +76,7 @@ mv plots/muon/pos_Entryz-Exitz_*PIX*.gif $WWWDIR/gif/TK-pixels/Entryz-Exitz
 mv plots/muon/pos_Localy_*PIX*.gif $WWWDIR/gif/TK-pixels/Localy
 mv plots/muon/pos_Localx_*PIX*.gif $WWWDIR/gif/TK-pixels/Localx
 
+mv plots/muon/Tof.gif       $WWWDIR/gif/ToF/
 mv plots/muon/*summary*.gif $WWWDIR/gif/TK-summary
 
 echo "...Done..."

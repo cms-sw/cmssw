@@ -2,19 +2,24 @@
 #define TrackReco_Track_h
 /** \class reco::Track Track.h DataFormats/TrackReco/interface/Track.h
  *
- * Reconstructed Track. It is ment to be stored
- * in the AOD, with a reference to an extension
- * object stored in the RECO
+ * This class describes the reconstructed tracks that are stored in the AOD and
+ * RECO. It also contains a reference to more detailed information about each 
+ * track, that is stoed in the TrackExtra object, available only in RECO.
+ * 
+ * Note that most of the functions provided in this Track class rely on the existance of
+ * the TrackExtra object, so will not work on AOD.
+ *
+ * The most useful functions are those provided in the TrackBase class from which this 
+ * inherits, all of which work on AOD.  
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.34 2007/07/16 10:31:11 gpetrucc Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h" 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
 
@@ -22,9 +27,12 @@ namespace reco {
   public:
     /// default constructor
     Track() { }
+    /// virtual destructor 
+    virtual ~Track();
     /// constructor from fit parameters and error matrix  
     Track( double chi2, double ndof, const Point & referencePoint,
-	   const Vector & momentum, int charge, const CovarianceMatrix &);
+	   const Vector & momentum, int charge, const CovarianceMatrix &,
+	   TrackAlgorithm=undefAlgorithm, TrackQuality quality=undefQuality);
     /// return true if the outermost hit is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// return true if the innermost hit is valid
@@ -50,13 +58,13 @@ namespace reco {
     unsigned int outerDetId() const { return extra_->outerDetId(); }
     /// DetId of the detector on which surface the innermost state is located
     unsigned int innerDetId() const { return extra_->innerDetId(); }
-    /// first iterator to RecHits
+    /// Iterator to first hit on the track.
     trackingRecHit_iterator recHitsBegin() const { return extra_->recHitsBegin(); }
-    /// last iterator to RecHits
+    /// Iterator to last hit on the track.
     trackingRecHit_iterator recHitsEnd() const { return extra_->recHitsEnd(); }
-    /// get n-th recHit
+    /// Get i-th hit on the track.
     TrackingRecHitRef recHit( size_t i ) const { return extra_->recHit( i ); }
-    /// number of RecHits
+    /// Get number of RecHits. (Warning, this includes invalid hits, which are not physical hits).
     size_t recHitsSize() const { return extra_->recHitsSize(); }
     /// x coordinate of momentum vector at the outermost hit position
     double outerPx()     const { return extra_->outerPx(); }
@@ -87,17 +95,32 @@ namespace reco {
     /// reference to "extra" object
     const TrackExtraRef & extra() const { return extra_; }
 
+    /// Number of valid hits on track.
     unsigned short found() const { return  numberOfValidHits(); }
-   /// number of hits lost
+    /// Number of lost (=invalid) hits on track.
     unsigned short lost() const {return  numberOfLostHits();  }
-    /// number of invalid hits
-    //    unsigned short invalid() const { return invalid_; }
 
-    // direction how the hits were sorted in the original seed
+    /// direction of how the hits were sorted in the original seed
     PropagationDirection seedDirection() const {return extra_->seedDirection();}
 
+    /**  return the edm::reference to the trajectory seed in the original
+     *   seeds collection. If the collection has been dropped from the
+     *   Event, the reference may be invalid. Its validity should be tested,
+     *   before the reference is actually used. 
+     */
+    edm::RefToBase<TrajectorySeed> seedRef() const { return extra_->seedRef(); }
+
+    ///  Access the lightweight track residuals; these are stored in
+    ///  TrackExtra and provide residual information with 4 bits of
+    ///  precision per hit
+    const TrackResiduals &residuals () const { return extra_->residuals(); }
+    /// return the residual (local x/y) for the hit in the ith position;
+    /// this position is aligned with the position in the HitPattern
+    double residualX (int position) const;
+    double residualY (int position) const;
+
   private:
-    /// reference to "extra" extension
+    /// Reference to additional information stored only on RECO.
     TrackExtraRef extra_;
 
   };

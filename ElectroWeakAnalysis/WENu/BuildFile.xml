@@ -1,0 +1,11 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/Common"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="RecoLocalCalo/EcalRecAlgos"/>
+<use   name="root"/>
+<use   name="rootmath"/>
+<use   name="rootcore"/>
+<flags   EDM_PLUGIN="1"/>

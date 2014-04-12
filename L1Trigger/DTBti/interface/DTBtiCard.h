@@ -4,8 +4,6 @@
  *     Contains active DTBtiChips
  *
  *
- *   $Date: 2007/04/20 15:29:01 $
- *   $Revision: 1.6 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -24,6 +22,7 @@
 class DTBtiChip;
 class DTBtiTrig;
 class DTTrigGeom;
+class DTTTrigBaseSync;
 
 //----------------------
 // Base Class Headers --
@@ -33,8 +32,8 @@ class DTTrigGeom;
 #include "DataFormats/MuonDetId/interface/DTBtiId.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
-#include "CondFormats/L1TObjects/interface/DTConfigBti.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigBti.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 
 
 //---------------
@@ -62,14 +61,16 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
   public:
 
     /// Constructor
-    //DTBtiCard(DTTrigGeom*,edm::ParameterSet&);
-    DTBtiCard(DTTrigGeom *, const DTConfigManager *);
+    DTBtiCard(DTTrigGeom *);
 
     /// Destructor 
     ~DTBtiCard();
 
     /// Clear all BTI stuff (map & cache)
     void clearCache();
+
+    /// Set configuration
+    void setConfig(const DTConfigManager *conf);
 
     /// Return TU debug flag
     inline bool debug() const {return _debug;}
@@ -98,7 +99,13 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
 
     // run the trigger algorithm
     virtual void reconstruct(const DTDigiCollection dtDigis) { clearCache();loadBTI(dtDigis); runBTI(); }
-  
+ 
+    /// Return bti chip configuration
+    DTConfigBti* config_bti(DTBtiId& btiid) const;
+
+   /// Return acceptance flag
+   inline bool useAcceptParamFlag() { return _flag_acc; } 
+ 
  private:
 
     /// store digi's in DTBtiChip's
@@ -118,10 +125,6 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     /// clear the BTI maps
     void localClear();
 
-    /// Return bti chip configuration
-    DTConfigBti* config_bti(DTBtiId& btiid) const;
-
-
   private:
 
     BTIContainer _btimap[3];
@@ -130,8 +133,9 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     std::vector<DTDigi*> _digis; 
 
     bool _debug;
-    int  _finedelay;
-    int  _MCdelay;
+    const DTConfigPedestals* _pedestals;
+
+    bool _flag_acc;
 };
 
 #endif

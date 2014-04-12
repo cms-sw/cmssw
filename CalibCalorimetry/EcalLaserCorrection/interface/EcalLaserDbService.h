@@ -6,7 +6,9 @@
 #define EcalLaserDbService_h
 
 #include <memory>
-#include <map>
+#include <tbb/concurrent_unordered_set.h>
+#include <tbb/concurrent_hash_map.h>
+
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -16,13 +18,10 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-//#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
-//#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
-//#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
-
-class EcalLaserAlphas;
-class EcalLaserAPDPNRatiosRef;
-class EcalLaserAPDPNRatios;
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 
 
 class EcalLaserDbService {
@@ -33,19 +32,23 @@ class EcalLaserDbService {
   const EcalLaserAlphas* getAlphas () const;
   const EcalLaserAPDPNRatiosRef* getAPDPNRatiosRef () const;
   const EcalLaserAPDPNRatios* getAPDPNRatios () const;
+  const EcalLinearCorrections* getLinearCorrections () const;
   float getLaserCorrection (DetId const & xid, edm::Timestamp const & iTime) const;
 
-  void setData (const EcalLaserAlphas* fItem) {mAlphas_ = fItem;}
-  void setData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef_ = fItem;}
-  void setData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios_ = fItem;}
+  void setAlphaData (const EcalLaserAlphas* fItem) {mAlphas_ = fItem;}
+  void setAPDPNRefData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef_ = fItem;}
+  void setAPDPNData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios_ = fItem;}
+  void setLinearCorrectionsData (const EcalLinearCorrections* fItem) {mLinearCorrections_ = fItem;}
 
  private:
-
-  int getLMNumber(DetId const & xid) const;
 
   const EcalLaserAlphas* mAlphas_;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef_;
   const EcalLaserAPDPNRatios* mAPDPNRatios_;  
+  const EcalLinearCorrections* mLinearCorrections_;  
+
+  typedef tbb::concurrent_unordered_set<uint32_t> ErrorMapT;
+  mutable ErrorMapT channelsWithInvalidCorrection_;
 
 };
 

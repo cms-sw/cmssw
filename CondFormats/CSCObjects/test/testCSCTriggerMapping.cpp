@@ -10,6 +10,7 @@
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include <CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include <iostream>
 #include <cstdlib>
 
@@ -162,4 +163,3 @@ void testCSCTriggerMapping::testRead(){
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCSCTriggerMapping);
 
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

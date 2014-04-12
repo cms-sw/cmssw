@@ -13,7 +13,6 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.h,v 1.1 2007/03/20 06:46:32 dmytro Exp $
 //
 //
 
@@ -32,6 +31,7 @@ class TrackAssociatorParameters {
    double dREcalPreselection;
    double dRHcalPreselection;
    double dRMuonPreselection;
+   double dRPreshowerPreselection;
    
    /// account for trajectory change for calorimeters.
    /// allows to compute energy around original track direction 
@@ -50,11 +50,14 @@ class TrackAssociatorParameters {
    /// distance from a chamber should be available as output of the TrackAssociation
    double muonMaxDistanceX;
    double muonMaxDistanceY;
+   double muonMaxDistanceSigmaX;
+   double muonMaxDistanceSigmaY;
    
    bool useEcal;
    bool useHcal;
    bool useHO;
    bool useCalo;
+   bool usePreshower;
    bool useMuon;
    bool truthMatch;
    
@@ -67,6 +70,12 @@ class TrackAssociatorParameters {
    edm::InputTag theDTRecSegment4DCollectionLabel;
    edm::InputTag theCSCSegmentCollectionLabel;
    
-
+   // Specify if we want to widen the search pass of the crossed
+   // calorimeter elements taking into account uncertainty
+   // of the track trajectory. The parameter below
+   // specifies how many standard deviations
+   // to account for. Negative numbers are ignored
+   // and trajectory is assumed to be known perfectly
+   double trajectoryUncertaintyTolerance;
 };
 #endif

@@ -1,19 +1,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
+
 //
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
-#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
-
+#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 //
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
 //
 #include "DataFormats/Common/interface/OwnVector.h"
 //
@@ -22,46 +20,26 @@
 #include <sstream>
 
 
-InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder( field, theInputMeasurementTracker) , conf_(conf) {
-
-
-  smootherChiSquare_ = conf_.getParameter<double>("smootherChiSquareCut");   
-
-  edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
-  theInitialState_       = new TransientInitialStateEstimator( es,  tise_params);
+InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, 
+						       const edm::ParameterSet& conf ) : ConversionTrackFinder (es,  conf ) 
+{ 
 
  
-  std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
-  edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
-  es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
-  theCkfTrajectoryBuilder_ = theTrajectoryBuilderHandle.product();
+  theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits(conf);
 
-  edm::ESHandle<TrackerGeometry> trackerHandle;
-  es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  trackerGeom= trackerHandle.product();
-
-
-
-  theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
-
-
-  // get the seed cleaner
-  std::string cleaner = conf_.getParameter<std::string>("InOutRedundantSeedCleaner");
-  if (cleaner == "SeedCleanerByHitPosition") {
-    theSeedCleaner_ = new SeedCleanerByHitPosition();
-  } else if (cleaner == "CachingSeedCleanerByHitPosition") {
-    theSeedCleaner_ = new CachingSeedCleanerByHitPosition();
-  } else if (cleaner == "CachingSeedCleanerBySharedInput") {
-    
-    theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
-  } else if (cleaner == "none") {
-    theSeedCleaner_ = 0;
-  } else {
-    throw cms::Exception("OutInRedundantSeedCleaner not found", cleaner);
-  }
-
-
-
+ // get the seed cleaner
+ std::string cleaner = conf_.getParameter<std::string>("InOutRedundantSeedCleaner");
+ if (cleaner == "SeedCleanerByHitPosition") {
+   theSeedCleaner_ = new SeedCleanerByHitPosition();
+ } else if (cleaner == "CachingSeedCleanerByHitPosition") {
+   theSeedCleaner_ = new CachingSeedCleanerByHitPosition();
+ } else if (cleaner == "CachingSeedCleanerBySharedInput") {
+   theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
+ } else if (cleaner == "none") {
+   theSeedCleaner_ = 0;
+ } else {
+   throw cms::Exception("InOutRedundantSeedCleaner not found", cleaner);
+ }
 
 }
 
@@ -69,19 +47,18 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es
 InOutConversionTrackFinder::~InOutConversionTrackFinder() {
 
   delete theTrajectoryCleaner_;
-  delete theInitialState_;
   if (theSeedCleaner_) delete theSeedCleaner_;
 }
 
 
 
 
-std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedCollection  inOutSeeds, 
+std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedCollection&  inOutSeeds, 
                                                            TrackCandidateCollection &output_p ) const {
 
 
 
-  LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks getting " <<  inOutSeeds.size() << " In-Out seeds " << "\n"; 
+  //  std::cout << " InOutConversionTrackFinder::tracks getting " <<  inOutSeeds.size() << " In-Out seeds " << "\n"; 
    
   std::vector<Trajectory> tmpO;
   tmpO.erase(tmpO.begin(), tmpO.end() ) ;
@@ -175,39 +152,55 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
 
   // Convert to TrackCandidates and fill in the output_p
+  Traj2TrackHits t2t(theCkfTrajectoryBuilder_->hitBuilder(),true);
   for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
 
-    if( !it->isValid() ) continue;
+     edm::OwnVector<TrackingRecHit> recHits;
+     if(it->direction() != alongMomentum) LogDebug("InOutConversionTrackFinder") << "InOutConv not along momentum... " << std::endl;
+
+     t2t(*it,recHits,useSplitHits_);
     
+     assert(recHits.size()==(*it).measurements().size());
+    
+    /*
     edm::OwnVector<TrackingRecHit> recHits;
-    Trajectory::RecHitContainer thits = it->recHits();
+    Trajectory::RecHitContainer thits;
+    it->recHitsV(thits,useSplitHits_);
+    recHits.reserve(thits.size());
     for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++) {
       recHits.push_back( (**hitIt).hit()->clone());
     }
-    
+    */
     
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
-    
+
+
     // temporary protection againt invalid initial states
-    if (! initState.first.isValid() || initState.second == 0) {
-      //cout << "invalid innerState, will not make TrackCandidate" << endl;
+    if ( (!initState.first.isValid()) | (initState.second == nullptr)) {
+      LogDebug("InOutConversionTrackFinder") << "invalid innerState, will not make TrackCandidate" << std::endl;
       continue;
     }
     
-    PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first, initState.second->geographicalId().rawId());
-
+    PTrajectoryStateOnDet state;
+    if(useSplitHits_ && (initState.second != recHits.front().det()) && recHits.front().det() ){ 
+      TrajectoryStateOnSurface propagated = thePropagator_->propagate(initState.first,recHits.front().det()->surface());
+      if (!propagated.isValid()) continue;
+      state = trajectoryStateTransform::persistentState(propagated,
+							 recHits.front().rawId());
+    }
+    else state = trajectoryStateTransform::persistentState( initState.first,
+								   initState.second->geographicalId().rawId());
+    
     LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track Making the result: seed position " << it->seed().startingState().parameters().position()  << " seed momentum " <<  it->seed().startingState().parameters().momentum() << " charge " <<  it->seed().startingState().parameters().charge () << "\n";
     LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track TSOS charge  " << initState.first.charge() << "\n";
     
-    LogDebug("InOutConversionTrackFinder") <<   " InOutConversionTrackFinder::track  PTrajectoryStateOnDet* state position  " << state->parameters().position() << " momentum " << state->parameters().momentum() << " charge " <<   state->parameters().charge () << "\n";
+    LogDebug("InOutConversionTrackFinder") <<   " InOutConversionTrackFinder::track  PTrajectoryStateOnDet* state position  " 
+     << state.parameters().position() << " momentum " << state.parameters().momentum() << " charge " <<   state.parameters().charge () << "\n";
     
-
-    result.push_back(*it);  
-    
-    output_p.push_back(TrackCandidate(recHits, it->seed(),*state ) );
-    delete state;
+    result.push_back(*it);
+    output_p.push_back(TrackCandidate(recHits, it->seed(),state ) );
   }
-  
+  // assert(result.size()==output_p.size());
   LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track Returning " << result.size() << " valid In Out Trajectories " << "\n";
   return  result;
 }

@@ -20,7 +20,9 @@
  * \author Patrick Janot
  * $Date: 12 Jan 2004 14:40 */
 
-class RandomEngine;
+#include <vector>
+
+class RandomEngineAndDistribution;
 
 class BaseNumericalRandomGenerator
 {
@@ -29,8 +31,7 @@ class BaseNumericalRandomGenerator
   /// Constructor that perform the necessary integration and inversion steps
   /// xmin and xmax are the generation bounds, n is the internal table size
   /// and iter is the number of iterations for the numerical part.
-  BaseNumericalRandomGenerator(const RandomEngine* engine,
-			       double xmin=0., 
+  BaseNumericalRandomGenerator(double xmin=0.,
 			       double xmax=1., 
 			       int n=1000, 
 			       int iter=6);
@@ -42,15 +43,15 @@ class BaseNumericalRandomGenerator
   void initialize();
 
   /// The random generation according to function()
-  double generate() const;
+  double generate(RandomEngineAndDistribution const*) const;
 
   /// The random generation according to function(), refined to generate
   /// as an exponential in each of the intervals
-  double generateExp() const;
+  double generateExp(RandomEngineAndDistribution const*) const;
 
   /// The random generation according to function(), refined to generate
   /// as a linear function in each of the intervals
-  double generateLin() const;
+  double generateLin(RandomEngineAndDistribution const*) const;
 
   // The probability density function, to be implemented in the real class
   virtual double function(double x)=0;
@@ -60,10 +61,8 @@ class BaseNumericalRandomGenerator
 
  protected:
 
-  const RandomEngine* random;
-
-  double sampling[1000];
-  double f[1000];
+  std::vector<double> sampling;
+  std::vector<double> f;
   double xmin, xmax;
   int n, iter;
   double rmin, deltar;

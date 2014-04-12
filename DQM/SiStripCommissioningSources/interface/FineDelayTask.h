@@ -2,6 +2,8 @@
 #define DQM_SiStripCommissioningSources_FineDelayTask_h
 
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
+#include <map>
+#include <string>
 
 /**
    @class FineDelayTask
@@ -10,7 +12,7 @@ class FineDelayTask : public CommissioningTask {
 
  public:
   
-  FineDelayTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  FineDelayTask( DQMStore*, const FedChannelConnection& );
   virtual ~FineDelayTask();
   
  private:
@@ -20,9 +22,8 @@ class FineDelayTask : public CommissioningTask {
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   
-  HistoSet timing_;
-
-  uint16_t nBins_;
+  static HistoSet timing_;
+  static MonitorElement * mode_;
 
 };
 

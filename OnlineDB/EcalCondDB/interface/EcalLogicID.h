@@ -1,4 +1,3 @@
-// $Id: EcalLogicID.h,v 1.2 2005/10/07 20:48:06 egeland Exp $
 
 #ifndef ECALLOGICID_HH
 #define ECALLOGICID_HH
@@ -29,15 +28,18 @@ class EcalLogicID {
   int getLogicID() const;
 
   int getID1() const;
-
   int getID2() const;
-
   int getID3() const;
+
+  inline void setID1(int x) { id1 = x; }
+  inline void setID2(int x) { id2 = x; }
+  inline void setID3(int x) { id3 = x; }
+
 
   std::string getMapsTo() const;
 
   // Constants
-  static const int NULLID = -1;
+  static const int NULLID = -100;
 
   // Operators
   friend inline bool operator<(EcalLogicID lhs, EcalLogicID rhs) { return (lhs.logicID < rhs.logicID); }

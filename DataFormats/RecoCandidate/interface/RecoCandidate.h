@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.19 2007/02/26 13:06:35 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -23,13 +22,17 @@ namespace reco {
     /// default constructor
     RecoCandidate() : LeafCandidate() { }
     /// constructor from values
-    RecoCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+    template<typename P4>
+    RecoCandidate( Charge q, const P4 & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0 ) : 
       LeafCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
     virtual ~RecoCandidate();
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const = 0;
+    /// returns a clone of the Candidate object                                           
+    virtual RecoCandidate * clone() const ;
+
     /// reference to a Track
     virtual reco::TrackRef track() const;
     /// reference to one of multiple Tracks
@@ -47,11 +50,13 @@ namespace reco {
     /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
     /// best track pointer
-    const Track * bestTrack() const;
+    virtual const Track * bestTrack() const;
+    /// best track RefToBase
+    virtual TrackBaseRef bestTrackRef() const;
     /// track type
     enum TrackType { noTrackType, recoTrackType, gsfTrackType };
     ///track type
-    TrackType bestTrackType() const;
+    virtual TrackType bestTrackType() const;
   protected:
     /// check if two components overlap
     template<typename R>
@@ -60,7 +65,7 @@ namespace reco {
     }
 
   private:
-    template<typename T> friend struct component; 
+    template<typename, typename, typename> friend struct component; 
   };
 
   /// stand alone muon component tag

@@ -2,7 +2,6 @@
 #define RecoTBCalo_EcalTBTDCReconstructor_EcalTBTDCRawInfoDumper_HH
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -22,7 +21,7 @@ class EcalTBTDCRawInfoDumper : public edm::EDAnalyzer {
   explicit EcalTBTDCRawInfoDumper(const edm::ParameterSet& ps);
   virtual ~EcalTBTDCRawInfoDumper() ;
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
 
  private:

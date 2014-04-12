@@ -14,7 +14,6 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
-// $Id$
 //
   
 // system include files
@@ -25,8 +24,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TProfile.h>
 
 class HcalTB04Histo {
    
@@ -40,22 +40,20 @@ public:
   void fillPrimary(double energy, double eta, double phi);
   void fillEdep(double etots, double eecals, double ehcals, 
 		double etotq, double eecalq, double ehcalq);
-  void fillTrnsProf(std::vector<double> es1, std::vector<double> eq1,
-                    std::vector<double> es2, std::vector<double> eq2);
-  void fillLongProf(std::vector<double> es, std::vector<double> eq);
+  void fillTrnsProf(const std::vector<double>& es1, const std::vector<double>& eq1,
+                    const std::vector<double>& es2, const std::vector<double>& eq2);
+  void fillLongProf(const std::vector<double>& es, const std::vector<double>& eq);
                                                                                
 private:
 
   // ---------- Private Data members -----------------------
-  std::string           fileName;
   bool                  verbose;
   double                eTotMax, eHcalMax;
 
-  DaqMonitorBEInterface *dbe_;
-  MonitorElement        *iniE,  *iEta,  *iPhi;
-  MonitorElement        *edepS, *edecS, *edhcS, *edepQ, *edecQ, *edhcQ;
-  MonitorElement        *edehS, *edehQ;
-  MonitorElement        *latse, *latqe, *latsf, *latqf, *lngs, *lngq;
+  TH1D                  *iniE,  *iEta,  *iPhi;
+  TH1D                  *edepS, *edecS, *edhcS, *edepQ, *edecQ, *edhcQ;
+  TH2D                  *edehS, *edehQ;
+  TProfile              *latse, *latqe, *latsf, *latqf, *lngs, *lngq;
 };
  
 #endif

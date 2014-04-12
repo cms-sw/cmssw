@@ -4,45 +4,50 @@
 // This code was created during the debugging of the fast RecHits and fast 
 // tracks.  It produces some validation and debugging plots of the RecHits and tracks.
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FastSimulation/Tracking/test/FastTrackAnalyzer.h"
-#include "Math/GenVector/BitReproducible.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h" 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 // Numbering scheme
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "TH1F.h"
 #include "TFile.h"
-#include "TString.h"
-#include <memory>
-#include <iostream>
-#include <string>
 
 using namespace edm;
 using namespace std;
     
 //---------------------------------------------------------
 FastTrackAnalyzer::FastTrackAnalyzer(edm::ParameterSet const& conf) : 
-  conf_(conf) {
+  conf_(conf),
+  // This is very likely what you want in the configuration for the
+  // following two parameters (I would put this in the cfi file instead
+  // of this comment if there was one)
+  //  simVertexContainerTag = cms.InputTag('famosSimHits'),
+  //  siTrackerGSRecHit2DCollectionTag = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSRecHits")
+  simVertexContainerTag(conf.getParameter<edm::InputTag>("simVertexContainerTag")),
+  siTrackerGSRecHit2DCollectionTag(conf.getParameter<edm::InputTag>("siTrackerGSRecHit2DCollectionTag")) {
   
   iEventCounter=0;
   
+  trackProducer = conf_.getParameter<std::string>("TrackProducer");
+
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("SimHitList");
 
@@ -84,7 +89,7 @@ FastTrackAnalyzer::FastTrackAnalyzer(edm::ParameterSet const& conf) :
 //---------------------------------------------------------
 FastTrackAnalyzer::~FastTrackAnalyzer() {}
 //---------------------------------------------------------
-void FastTrackAnalyzer::beginJob( const edm::EventSetup& es){
+void FastTrackAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& es){
   
   es.get<IdealMagneticFieldRecord>().get(theMagField);
   
@@ -312,39 +317,44 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
     const TrackerGeometry &tracker(*theG);
     trackerG = &tracker;
 
+    //Retrieve tracker topology from geometry
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    setup.get<IdealGeometryRecord>().get(tTopoHand);
+    const TrackerTopology *tTopo=tTopoHand.product();
+
     std::cout << "\nEvent ID = "<< event.id() << std::endl ;
     
     // get rec track collection
     edm::Handle<reco::TrackCollection> trackCollection;
-    event.getByType(trackCollection);
+    event.getByLabel(trackProducer, trackCollection);
     const reco::TrackCollection tC = *(trackCollection.product());
+
     
     //get simtrack info
      edm::Handle<std::vector<SimTrack> > theSimTracks;
      event.getByLabel("famosSimHits",theSimTracks); 
 
     edm::Handle<SimVertexContainer> theSimVtx;
-    event.getByType(theSimVtx);
+    event.getByLabel(simVertexContainerTag, theSimVtx);
 
     // print size of vertex collection
     std::cout<<" AS: vertex.size() = "<< theSimVtx->size() << std::endl;
-
-    // get track candidates
-    edm::Handle<TrackCandidateCollection> theTrackCandidates;
-    event.getByType(theTrackCandidates);
-    const TrackCandidateCollection* theTrackCandColl = theTrackCandidates.product();
 
     std::vector<unsigned int> SimTrackIds;
 
 
     // Get PSimHit's of the Event
-    edm::Handle<CrossingFrame> cf;
-    event.getByType(cf);
-    MixCollection<PSimHit> allTrackerHits(cf.product(),trackerContainers);
-
+    edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
+    std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+    for(uint32_t i=0; i<trackerContainers.size(); i++){
+      event.getByLabel("mix",trackerContainers[i], cf_simhit);
+      cf_simhitvec.push_back(cf_simhit.product());
+    }
+    std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
+    
     //Get RecHits from the event
     edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
-    event.getByType(theGSRecHits);
+    event.getByLabel(siTrackerGSRecHit2DCollectionTag, theGSRecHits);
     // stop with error if empty RecHit collection
     if(theGSRecHits->size() == 0) {
       std::cout<<" AS: theGSRecHits->size() == 0" << std::endl;
@@ -396,31 +406,31 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
       SiTrackerGSRecHit2D const rechit=*iterrechit;
 
-      LocalPoint position=rechit.localPosition();
-      LocalError error=rechit.localPositionError();
-
       //match sim hit to rec hit
       unsigned int matchedSimHits = 0;
-      PSimHit* simHit = NULL;
-      PSimHit* simHitStereoPatch = NULL;
+      const PSimHit* simHit = NULL;
+      const PSimHit* simHitStereoPatch = NULL;
       int numpartners=0;
-      for (MixCollection<PSimHit>::iterator isim=allTrackerHits.begin(); isim!= allTrackerHits.end(); isim++) {
+      for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
 	//	std::cout<<" looping over simhits " << std::endl;
 	//compare detUnitIds && SimTrackIds to match rechit to simhit (for pileup will need to add EncodedEventId info as well).
-	int simdetid = (*isim).detUnitId();
+	// int simdetid = (*isim).detUnitId();
 	//	std::cout<<"  simdetid = "<< simdetid << std::endl;
-	if(detid.rawId() == (*isim).detUnitId() && (*iterrechit).simtrackId()==(*isim).trackId())
+	if((int) detid.rawId() == (int) (*isim).detUnitId() && 
+	   (int) (*iterrechit).simtrackId()== (int) (*isim).trackId())
 	  {
 	    matchedSimHits++;
 	    numpartners++;
-	    simHit = const_cast<PSimHit*>(&(*isim));
+	    simHit = &*isim;
 	    
-	    std::cout << "\tRecHit pos = " << position << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
+	    /*
+	    std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
 	    std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 	    
+	    */
 	  }
 	else{
 	  if(subdet > 2){
-	    StripSubdetector specDetId=StripSubdetector(detid);
+	    //	    StripSubdetector specDetId=StripSubdetector(detid);
 	    //	    std::cout<<"   glued = " << specDetId.glued() << std::endl;
 	    const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> (trackerG->idToDet(detid));
 	    //	    std::cout<<"   gluedgeomdet = " << gluedDet << std::endl;
@@ -431,28 +441,34 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	      int monodetid = theMonoDet->geographicalId().rawId();
 	      int stereodetid = theStereoDet->geographicalId().rawId();
 	      //	      std::cout<< "   monodetid = " << monodetid << std::endl;
-	      if( monodetid ==  (*isim).detUnitId() && (*iterrechit).simtrackId()==(*isim).trackId()){
+	      if( monodetid == (int) (*isim).detUnitId() && 
+		  (int) (*iterrechit).simtrackId()==(int) (*isim).trackId()){
 		//matching the rphi one
-		std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
+		//		std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 		matchedSimHits++;
 		numpartners++;
-		simHit = const_cast<PSimHit*>(&(*isim));
+		simHit = &(*isim);
 		
-		std::cout << "\tRecHit pos = " << position << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
+		/*
+		std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
 		std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 
+		*/
 	      }
-	      if( stereodetid ==  (*isim).detUnitId() && (*iterrechit).simtrackId()==(*isim).trackId()){
+	      if( stereodetid == (int) (*isim).detUnitId() && 
+		  (int) (*iterrechit).simtrackId() == (int) (*isim).trackId()){
 		//matching the rphi one
 		numpartners++;
-		std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
+		//std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 		// 	matchedSimHits++;
-		simHitStereoPatch = const_cast<PSimHit*>(&(*isim));
+		simHitStereoPatch = &(*isim);
 		
-		std::cout << "\tRecHit pos = " << position << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
+		/*
+		std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
 		std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 
+		*/	  
 	      }
 	      
-
+	      
 	    }
 	  }
 	}
@@ -469,26 +485,9 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	exit(1);
       }
 
-      // now match TrackingRecHits from track candidate to rec hit
-      unsigned int matchedCandHits = 0;
-      const TrackingRecHit * matchedCandHit=0;
-//       TrackCandidate::RecHitContainer::const_iterator theItBegin =    theTrackCandColl->begin()->recHits().first;
-//       TrackCandidate::RecHitContainer::const_iterator theItEnd =    theTrackCandColl->begin()->recHits().second;
-//       for( TrackCandidate::RecHitContainer::const_iterator theIt = theItBegin; theIt!= theItEnd; theIt++){
-// 	const TrackingRecHit & candHit = *theIt;
-// 	if(detid.rawId() == candHit.geographicalId().rawId()){
-// 	  matchedCandHits++;
-// 	  matchedCandHit = &candHit;
-// 	}
-//       }
-//       if(matchedCandHits!=1){
-// 	std::cout<<"  AS:ERROR: matchedCandHits!=1"<< std::endl;
-// 	exit(1);
-//       }
-
 
       //make  plots for Hits
-      makeHitsPlots("all_", &rechit, simHit, matchedCandHit, numpartners);
+      makeHitsPlots("all_", &rechit, simHit, numpartners, tTopo);
 
     }
     //end all hits validation plots
@@ -545,20 +544,23 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
 	      // search the associated original PSimHit
 	      unsigned int matchedSimHits = 0;
-	      PSimHit* simHit = NULL;
-	      PSimHit* simHitStereoPatch = NULL;
+	      const PSimHit* simHit = NULL;
+	      const PSimHit* simHitStereoPatch = NULL;
 	      int numpartners=0;
 
-	      for (MixCollection<PSimHit>::iterator isim=allTrackerHits.begin(); isim!= allTrackerHits.end(); isim++) {
-		if(detid.rawId() == (*isim).detUnitId() && rechit->simtrackId()==(*isim).trackId()){
-		  simHit = const_cast<PSimHit*>(&(*isim));
+	      for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
+		if( (int) detid.rawId() == (int) (*isim).detUnitId() && 
+		    (int) rechit->simtrackId() == (int) (*isim).trackId()){
+		  simHit = &(*isim);
 		  matchedSimHits++;
+		  /*
 		  std::cout << "\tRecHit pos = " << rechit->localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << rechit->simtrackId() << std::endl;
 		  std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 	    		  
+		  */
 		}
 		else{
 		  if(subdet > 2){
-		    StripSubdetector specDetId=StripSubdetector(detid);
+		    //	    StripSubdetector specDetId=StripSubdetector(detid);
 		    //	    std::cout<<"   glued = " << specDetId.glued() << std::endl;
 		    const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> (trackerG->idToDet(detid));
 		    //	    std::cout<<"   gluedgeomdet = " << gluedDet << std::endl;
@@ -569,21 +571,23 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		      int monodetid = theMonoDet->geographicalId().rawId();
 		      int stereodetid = theStereoDet->geographicalId().rawId();
 		      //	      std::cout<< "   monodetid = " << monodetid << std::endl;
-		      if( monodetid ==  (*isim).detUnitId() && rechit->simtrackId()==(*isim).trackId()){
+		      if( monodetid == (int) (*isim).detUnitId() && 
+			  (int) rechit->simtrackId() == (int) (*isim).trackId()){
 			//matching the rphi one
-			std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
+			//std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 			matchedSimHits++;
 			numpartners++;
-			simHit = const_cast<PSimHit*>(&(*isim));
+			simHit = &(*isim);
 		
 
 		      }
-		      if( stereodetid ==  (*isim).detUnitId() && (*rechit).simtrackId()==(*isim).trackId()){
+		      if( stereodetid == (int) (*isim).detUnitId() && 
+			  (int) (*rechit).simtrackId() == (int) (*isim).trackId()){
 			//matching the rphi one
 			numpartners++;
-			std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
+			//std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 			// 	matchedSimHits++;
-			simHitStereoPatch = const_cast<PSimHit*>(&(*isim));
+			simHitStereoPatch = &(*isim);
 			
 
 		      }
@@ -609,7 +613,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	      
 	      
 	      //make plots for Hits
-	      makeHitsPlots("", rechit, simHit,0, numpartners);
+	      makeHitsPlots("", rechit, simHit, numpartners, tTopo);
 	 
 	    }
 	}else{
@@ -639,7 +643,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
        //      //now found the simtrack information
        for(SimTrackContainer::const_iterator simTrack = theSimTracks->begin(); simTrack != theSimTracks->end(); simTrack++)
 	 { 
-	   if(simTrack->trackId() == idmax) {
+	   if( (int) simTrack->trackId() == idmax) {
 	     std::cout << "\t\tSim track mom = " << simTrack->momentum() << " charge = " <<  simTrack->charge() << std::endl;
 	     
 	     
@@ -659,10 +663,10 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	     hMap["trk_Pull_eta"]	  ->Fill(   ( track->eta() -  simTrack->momentum().eta()) / track->etaError()   );
 	     
 	     hMap["trk_Rec_pt"] 	  ->Fill( track->pt()  );
-	     hMap["trk_Sim_pt"] 	  ->Fill( simTrack->momentum().perp()  );
-	     hMap["trk_Res_pt"] 	  ->Fill( track->pt() -  simTrack->momentum().perp() );
+	     hMap["trk_Sim_pt"] 	  ->Fill( simTrack->momentum().Pt()  );
+	     hMap["trk_Res_pt"] 	  ->Fill( track->pt() -  simTrack->momentum().Pt() );
 	     
-	     double simQoverp =  simTrack->charge() / simTrack->momentum().vect().mag();
+	     double simQoverp =  simTrack->charge() / simTrack->momentum().P();
 	     
 	     hMap["trk_Pull_qoverp"] ->Fill( (track->qoverp() -  simQoverp) / track->qoverpError()  );
 	     std::cout<<" qoverp = " << track->qoverp() << std::endl;
@@ -683,11 +687,14 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
     } // end loop on rectracks
     
 
+    /*
+
+// NEEDS TO BE FIXED PROPERLY 
     
     for(TrackCandidateCollection::const_iterator it = theTrackCandColl->begin(); it!= theTrackCandColl->end(); it++){
       PTrajectoryStateOnDet state = it->trajectoryStateOnDet();
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
-      TrajectoryStateTransform transformer;
+      
       DetId  detId(state.detId());
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
 								     &(theG->idToDet(detId)->surface()), 
@@ -695,26 +702,27 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
       
       hMap["trk_Cnd_eta"]->Fill(   theTSOS.globalMomentum().eta() );
     }
-    
+
+    */
     
   }
 
 
 //------------------------------------------------------
-void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, PSimHit * simHit, const TrackingRecHit * candHit, int numpartners){
-  std::cout<< "making plots" << std::endl;
+void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, const PSimHit * simHit, 
+				      int numpartners, const TrackerTopology *tTopo){
+  //  std::cout<< "making plots" << std::endl;
 
   DetId adetid = rechit->geographicalId();
-  DetId simdetid= DetId(simHit->detUnitId());
+  //  DetId simdetid= DetId(simHit->detUnitId());
+  //  DetId recdetid = rechit->geographicalId();
 
-  DetId recdetid = rechit->geographicalId();
-  unsigned int recsubdet = recdetid.subdetId();
   unsigned int subdet   = DetId(simHit->detUnitId()).subdetId();
   unsigned int detid    = DetId(simHit->detUnitId()).rawId();
 
   //  const GeomDetUnit *  det = trackerG->idToDetUnit(adetid);
   const GeomDet* det = trackerG->idToDet( adetid ); 
-  const GeomDetUnit *  simdet = trackerG->idToDetUnit(simdetid);
+  // const GeomDetUnit *  simdet = trackerG->idToDetUnit(DetId(simHit->detUnitId()));
 
   const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> (trackerG->idToDet(adetid));
 
@@ -725,24 +733,24 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
   float xGlobRec = posGlobRec.x();
   float yGlobRec = posGlobRec.y();
   float zGlobRec = posGlobRec.z();
-  float rGlobRec = posGlobRec.perp();
+  // float rGlobRec = posGlobRec.perp();
 
   float xGlobSim = posGlobSim.x();
   float yGlobSim = posGlobSim.y();
   float zGlobSim = posGlobSim.z();
-  float rGlobSim = posGlobSim.perp();
+  // float rGlobSim = posGlobSim.perp();
 
   float xRec = rechit->localPosition().x();
   float yRec = rechit->localPosition().y();
-  float zRec = rechit->localPosition().z();
+  // float zRec = rechit->localPosition().z();
   
   float xSim = simHit->localPosition().x();
   float ySim = simHit->localPosition().y();
-  float zSim = simHit->localPosition().z();
+  //  float zSim = simHit->localPosition().z();
  
   if(gluedDet){    
     const StripGeomDetUnit* partnerstripdet = (StripGeomDetUnit*) gluedDet->monoDet();
-    const StripGeomDetUnit* stereostripdet = (StripGeomDetUnit*) gluedDet->stereoDet();
+    //const StripGeomDetUnit* stereostripdet = (StripGeomDetUnit*) gluedDet->stereoDet();
     std::pair<LocalPoint,LocalVector> hitPair1, hitPair2;
     //check both track directions
     hitPair1= projectHit(*simHit,partnerstripdet,gluedDet->surface(), 1);
@@ -754,21 +762,21 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
     */
     float xSim1 =  hitPair1.first.x();
     float ySim1 =  hitPair1.first.y();
-    float zSim1 =  hitPair1.first.z();
+    //float zSim1 =  hitPair1.first.z();
 
     float xSim2 =  hitPair2.first.x();
     float ySim2 =  hitPair2.first.y();
-    float zSim2 =  hitPair2.first.z();
+    //float zSim2 =  hitPair2.first.z();
 
     if( ((xSim1-xRec)*(xSim1-xRec)+(ySim1-yRec)*(ySim1-yRec)) <  ((xSim2-xRec)*(xSim2-xRec)+(ySim2-yRec)*(ySim2-yRec))){
       xSim =  hitPair1.first.x();
       ySim =  hitPair1.first.y();
-      zSim =  hitPair1.first.z();
+      //      zSim =  hitPair1.first.z();
     }
     else{
       xSim =  hitPair2.first.x();
       ySim =  hitPair2.first.y();
-      zSim =  hitPair2.first.z();
+      //      zSim =  hitPair2.first.z();
     }
     /*
     std::cout<<"    xSim1After = " << xSim1 << std::endl;
@@ -780,18 +788,13 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 
   float delta_x = xRec - xSim;
   float delta_y = yRec - ySim;
-  float delta_z = zRec - zSim;
+  // float delta_z = zRec - zSim;
   
   float err_xx = sqrt(rechit->localPositionError().xx());
   float err_xy = sqrt(rechit->localPositionError().xy());
   float err_yy = sqrt(rechit->localPositionError().yy());
 
 
-  //check if rec and sim are the same
-//   if(subdet!=recsubdet){
-//     std::cout<<"subdet!=recsubdet"<<std::endl;
-//     exit(1);
-//   }
 /*
   std::cout<<"plotting for prefix "<< prefix << std::endl;
   std::cout<<"\t\t\t detid = "<< detid << "  subdet = "<< subdet<<" which means: "<< std::endl;
@@ -800,8 +803,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
  switch (subdet) {
     // Pixel Barrel
   case 1: {
-		PXBDetId module(detid);
-		unsigned int theLayer = module.layer();
+		
+		unsigned int theLayer = tTopo->pxbLayer(detid);
 		//	std::cout << "\t\t\tPixel Barrel Layer " << theLayer << std::endl;
 		TString layer = ""; layer+=theLayer;
 		hMap[prefix+"PXB_RecPos_x_"+layer]->Fill(xRec);
@@ -817,8 +820,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 	      }
 		//Pixel Forward
 	      case 2:    {
-		PXFDetId module(detid);
-		unsigned int theDisk = module.disk();
+		
+		unsigned int theDisk = tTopo->pxfDisk(detid);
 		//std::cout << "\t\t\tPixel Forward Disk " << theDisk << std::endl;
 		TString layer = ""; layer+=theDisk;
 		hMap[prefix+"PXF_RecPos_x_"+layer]->Fill(xRec);
@@ -835,8 +838,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		// TIB
 	      case 3:
 		{
-		  TIBDetId module(detid);
-		  unsigned int theLayer  = module.layer();
+		  
+		  unsigned int theLayer  = tTopo->tibLayer(detid);
 		  /*
 		  std::cout << "\t\t\tTIB Layer " << theLayer << std::endl;
 		  std::cout<<"\t\t\t recLocX = "<< xRec << "   simLocX = "<< xSim << std::endl;
@@ -860,8 +863,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		// TID
 	      case 4:
 		{
-		  TIDDetId module(detid);
-		  unsigned int theRing  = module.ring();
+		  
+		  unsigned int theRing  = tTopo->tidRing(detid);
 		  //std::cout << "\t\t\tTID Ring " << theRing << std::endl;
 		  TString ring=""; ring+=theRing;
 
@@ -884,8 +887,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		    // TOB
 	      case 5:
 		{
-		  TOBDetId module(detid);
-		  unsigned int theLayer  = module.layer();
+		  
+		  unsigned int theLayer  = tTopo->tobLayer(detid);
 		  //std::cout << "\t\t\tTOB Layer " << theLayer << std::endl;
 		  TString layer=""; layer+=theLayer;
 		  hMap[prefix+"TOB_Res_x_"+layer] ->Fill(delta_x);
@@ -904,13 +907,13 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 	      case 6:
 		{
 
-		  StripSubdetector specDetId=StripSubdetector(detid);
-		  TECDetId module(detid);
-		  unsigned int theRing  = module.ring();
-		  unsigned int theWheel = module.wheel();
+		  //	   StripSubdetector specDetId=StripSubdetector(detid);
+		  
+		  unsigned int theRing  = tTopo->tecRing(detid);
+		  //unsigned int theWheel = tTopo->tecWheel(detid);
 		  if(!gluedDet && theRing==1){
 		    std::cout<<"     AS debugging2 !gluedDet && theRing==1"<< std::endl;
-		    exit(1);
+		    // exit(1);
 		  }
 		  //std::cout << "\t\t\tTEC Ring " << theRing << ",    wheel = " << theWheel <<  std::endl;
 		  TString ring=""; ring+=theRing;
@@ -938,43 +941,6 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		
 	      }
 	  
-	      float err_x = sqrt(rechit->localPositionError().xx());
-	      float err_y = sqrt(rechit->localPositionError().yy());
-
-	      // some debugging printout
-
- // 	      std::cout<<"\t\t\t recLocX = "<< xRec << "   simLocX = "<< xSim << std::endl;
-//  	      std::cout<<"\t\t\t recLocY = "<< yRec << "   simLocY = "<< ySim << std::endl;
-//  	      std::cout<<"\t\t\t recLocZ = "<< zRec << "   simLocZ = "<< zSim << std::endl;
-//  	      std::cout<<"\t\t\t errX = "<< err_x <<"   errY = "<< err_y << std::endl;
-
-// 	      std::cout<<"\t\t\t recGlobX = "<< xGlobRec << "   simGlobX = "<< xGlobSim << std::endl;
-// 	      std::cout<<"\t\t\t recGlobY = "<< yGlobRec << "   simGlobY = "<< yGlobSim << std::endl;
-// 	      std::cout<<"\t\t\t recGlobZ = "<< zGlobRec << "   simGlobZ = "<< zGlobSim << std::endl;
-// 	      std::cout<<"\t\t\t recGlobR = "<< rGlobRec << "   simGlobR = "<< rGlobSim << std::endl;
-// 	      std::cout<<"\t\t\t errX = "<< err_x <<"   errY = "<< err_y << std::endl;
-
-// 	      if(candHit){
-// 		DetId adetid = candHit->geographicalId();
-// 		const GeomDetUnit *  det = trackerG->idToDetUnit(adetid);
-		
-// 		std::cout<<"\t\t\t candGlob_x = "<<  det->surface().toGlobal(  candHit->localPosition() ).x() << std::endl;
-// 		std::cout<<"\t\t\t candGlob_y = "<<  det->surface().toGlobal(  candHit->localPosition() ).y() << std::endl;
-// 		std::cout<<"\t\t\t candGlob_z = "<<  det->surface().toGlobal(  candHit->localPosition() ).z() << std::endl;
-// 	      }
-
-
-// 	      std::cout<<"\t\t\t surface of this hit: "<< std::endl;
-// 	      std::cout<<"\t\t\t position = "<<      det->surface().position() << std::endl;
-// 	      std::cout<<"\t\t\t position x = "<<      det->surface().position().x() << std::endl;
-// 	      std::cout<<"\t\t\t position y = "<<      det->surface().position().y() << std::endl;
-// 	      std::cout<<"\t\t\t position z = "<<      det->surface().position().z() << std::endl;
-// 	      std::cout<<"\t\t\t position r = "<<      det->surface().position().perp() << std::endl;
-// 	      std::cout<<"\t\t\t width = " << det->surface().bounds().width() << std::endl;
-// 	      std::cout<<"\t\t\t length = " << det->surface().bounds().length() << std::endl;
-// 	      std::cout<<"\t\t\t thickness = " << det->surface().bounds().thickness() << std::endl;
-	    
-	      
 	      hMap["all_GlobSimPos_x"] ->Fill(xGlobSim);
 	      hMap["all_GlobSimPos_y"] ->Fill(yGlobSim);
 	      hMap["all_GlobSimPos_z"] ->Fill(zGlobSim);
@@ -1039,6 +1005,6 @@ std::pair<LocalPoint,LocalVector> FastTrackAnalyzer::projectHit( const PSimHit& 
 
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(FastTrackAnalyzer);
+
+DEFINE_FWK_MODULE(FastTrackAnalyzer);
 

@@ -44,8 +44,8 @@ class AlCaEcalHcalReadoutsProducer : public edm::EDProducer {
    private:
       // ----------member data ---------------------------
 
- edm::InputTag hbheLabel_;
- edm::InputTag hoLabel_;
- edm::InputTag hfLabel_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
  
 };

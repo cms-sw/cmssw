@@ -4,15 +4,12 @@
 /** \class DTChamberId
  *  DetUnit identifier for DT chambers.
  *  
- *  $Date: 2007/07/26 07:20:15 $
- *  $Revision: 1.8 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 
 #include <DataFormats/DetId/interface/DetId.h>
 
 #include <iosfwd>
-#include <iostream> // FIXME
 
 class DTChamberId : public DetId {
 public:

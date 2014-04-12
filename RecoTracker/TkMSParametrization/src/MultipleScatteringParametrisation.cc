@@ -5,73 +5,75 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 
-template <class T> T sqr( T t) {return t*t;}
 
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0Averaged.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0DetLayer.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersAtAngle.h"
+template <class T> inline T sqr( T t) {return t*t;}
 
-//#include "Utilities/Notification/interface/TimingReport.h"
+#include "MSLayersKeeper.h"
+#include "MSLayersKeeperX0AtEta.h"
+#include "MSLayersKeeperX0Averaged.h"
+#include "MSLayersKeeperX0DetLayer.h"
+#include "MSLayersAtAngle.h"
+
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+
+#include<iostream>
 
 using namespace std;
 
-const float MultipleScatteringParametrisation::x0ToSigma = 0.0136;
+const float MultipleScatteringParametrisation::x0ToSigma = 0.0136f;
+
+namespace {
+  struct Keepers {
+    MSLayersKeeperX0DetLayer x0DetLayer;
+    MSLayersKeeperX0AtEta x0AtEta;
+    MSLayersKeeperX0Averaged x0Averaged;
+    MSLayersKeeper * keepers[3];// {&x0DetLayer,&x0AtEta,&x0Averaged};
+    bool isInitialised; // =false;
+    MSLayersKeeper const * operator()(int i) const { return keepers[i];}
+    void init(const edm::EventSetup &iSetup) {
+      if (isInitialised) return;
+      for (auto x : keepers) x->init(iSetup);
+      isInitialised=true;
+    }
+    Keepers() : keepers{&x0DetLayer,&x0AtEta,&x0Averaged}, isInitialised(false) {}
+  };
+
+  const Keepers keepers;
+
+}
+
+void MultipleScatteringParametrisation::initKeepers(const edm::EventSetup &iSetup){
+  const_cast<Keepers&>(keepers).init(iSetup);
+}
 
 //using namespace PixelRecoUtilities;
 //----------------------------------------------------------------------
 MultipleScatteringParametrisation::
-MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &iSetup, X0Source x0Source)
- 
+MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &iSetup, X0Source x0Source) :
+  theLayerKeeper(keepers(x0Source))
 {
-  switch (x0Source) {
-  case useX0AtEta: { 
-    static MSLayersKeeperX0AtEta x0AtEta; 
-    theLayerKeeper = &x0AtEta;
-    break;
-  }
-  case useX0DataAveraged: {
-    static MSLayersKeeperX0Averaged x0Averaged;
-    theLayerKeeper = &x0Averaged;
-    break;
-  }
 
-  case useDetLayer: {
-    static MSLayersKeeperX0DetLayer x0DetLayer;
-    theLayerKeeper = &x0DetLayer;
-    break;
-  }
-  default:
-    cout << "** MultipleScatteringParametrisation ** wrong x0Source"<<endl;
-    return;
-  }
-  theLayerKeeper->init(iSetup);
+  // FIXME not thread safe: move elsewhere...
+  initKeepers(iSetup);
+
   if (!layer) return;
   theLayer = theLayerKeeper->layer(layer);
 } 
 
 //----------------------------------------------------------------------
 float MultipleScatteringParametrisation::operator()(
-    float pT, float cotTheta) const
+    float pT, float cotTheta, float) const
 {
-//   static TimingReport::Item * theTimer =
-//      initTiming("MultScattering from vertex",5);
-//   TimeMe tm( *theTimer, false);
   float sumX0D = theLayer.sumX0D(cotTheta); 
   return x0ToSigma * sumX0D /pT;
 }
 
 //----------------------------------------------------------------------
 float MultipleScatteringParametrisation::operator()(
-  float pT, float cotTheta, const PixelRecoPointRZ & pointI) const
+  float pT, float cotTheta, const PixelRecoPointRZ & pointI, float tip) const
 {
-//   static TimingReport::Item * theTimer =
-//       initTiming("MultScattering 1p constraint",5);
-//   TimeMe tm( *theTimer, false);
 
-  PixelRecoLineRZ lineIO(pointI,cotTheta);
+  PixelRecoLineRZ lineIO(pointI, cotTheta, tip);
   PixelRecoPointRZ pointO = theLayer.crossing(lineIO).first;
 
   const MSLayersAtAngle & layersAtEta = theLayerKeeper->layers(cotTheta);
@@ -80,19 +82,31 @@ float MultipleScatteringParametrisation::operator()(
   return x0ToSigma * sumX0D /pT;
 }
 
+
+float 
+MultipleScatteringParametrisation::operator()(float pT, float cotTheta, const PixelRecoPointRZ & pointI,  int il) const {
+
+  PixelRecoLineRZ lineIO(pointI, cotTheta);
+  PixelRecoPointRZ pointO = theLayer.crossing(lineIO).first;
+
+  const MSLayersAtAngle & layersAtEta = theLayerKeeper->layers(cotTheta);
+  
+  float sumX0D = layersAtEta.sumX0D(il, theLayer.seqNum(), pointI, pointO);
+  return x0ToSigma * sumX0D /pT;
+}
+
+
 //----------------------------------------------------------------------
 float MultipleScatteringParametrisation::operator()(
     float pT,
     const PixelRecoPointRZ & pointI,
     const PixelRecoPointRZ & pointO,
-    Consecutive consecutive) const
+    Consecutive consecutive,
+    float tip) const
 {   
-//   static TimingReport::Item * theTimer =
-//       initTiming("MultScattering 2p constraint",5);
-//   TimeMe tm( *theTimer, false);
 
 
-  PixelRecoLineRZ lineIO(pointI, pointO);
+  PixelRecoLineRZ lineIO(pointI, pointO, tip);
   PixelRecoPointRZ pointM = theLayer.crossing(lineIO).first;
   float cotTheta = lineIO.cotLine();
 
@@ -106,4 +120,20 @@ float MultipleScatteringParametrisation::operator()(
     float sumX0D = layersAtEta.sumX0D(pointI, pointM, pointO);
     return x0ToSigma * sumX0D /pT;
   }
+}
+
+float MultipleScatteringParametrisation::operator()(
+    float pT,
+    const PixelRecoPointRZ & pointV,
+    const PixelRecoPointRZ & pointO,
+    int ol) const
+{   
+
+  PixelRecoLineRZ lineIO(pointV, pointO);
+  PixelRecoPointRZ pointI = theLayer.crossing(lineIO).first;
+  float cotTheta = lineIO.cotLine();
+
+  const MSLayersAtAngle & layersAtEta = theLayerKeeper->layers(cotTheta);
+  float sumX0D = layersAtEta.sumX0D(pointV.z(), theLayer.seqNum(), ol, pointI, pointO);
+  return x0ToSigma * sumX0D /pT;
 }

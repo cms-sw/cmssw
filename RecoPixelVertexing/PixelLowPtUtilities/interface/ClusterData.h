@@ -2,16 +2,13 @@
 #define _ClusterData_h_
 
 #include <utility>
-using namespace std;
+#include <vector>
 
 class ClusterData
 {
  public:
-   bool isInBarrel, isNormalOriented, isStraight,isComplete, isUnlocked;
-   bool isXBorder;
-   int posBorder;
-   pair<float,float> tangent;
-   pair<unsigned short int,short int> size;
+   bool isStraight,isComplete, hasBigPixelsOnlyInside; 
+   std::vector<std::pair<int,int> > size;
 };
 
 #endif

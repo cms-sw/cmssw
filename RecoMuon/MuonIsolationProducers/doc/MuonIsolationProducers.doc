@@ -24,8 +24,8 @@ None: modules only.
 <!-- Describe modules implemented in this package and their parameter set -->
 
 - MuIsoDepositProducer: produce MuIsoDepositAssociationMap(s) using an extractor (ExtractorPSet.ComponentName)
-- MuIsolationSumInConesProducer: produce sums and counts [e.g., sumPt (tracks) or sumEt (calo)]
-in a set of cones using MuIsoDepositAssociationMap(s) on input; 
+- MuIsolatorResultProducer: produce iso results, like sums, counts, flags using an isolator [e.g., sumPt (tracks) or sumEt (calo)]
+uses MuIsoDepositAssociationMap(s) on input; 
 can also exclude deposits in veto-cones of other muons (key-objects of the input maps).
 
 \subsection configuration Configuration files
@@ -52,39 +52,10 @@ Defines additional muIsoDepositCalEcal & muIsoDepositCalHcal: the same as muIsoD
   -# sequence muIsoDepositsAll = {muIsoDepositCtfTk & muIsoDepositsAssoc & muIsoDepositsCal}
 
 
-- \b muIsolationSumInConesTracks.cfi
-Defines an instance of MuIsolationSumInConesProducer which uses MuIsoDepositAssociationMap made with Tracks.
-Tracks with pt>1.5 are counted and sumPt is calculated in cone sizes {0.2, 0.3, 0.4, 0.7}
-- muIsolationSumInConesTracksMuVetoed.cfi
-Defines an instance of MuIsolationSumInConesProducer which uses MuIsoDepositAssociationMap made with Tracks.
-Tracks with pt>1.5 are counted and sumPt is calculated in cone sizes {0.2, 0.3, 0.4, 0.7}. In addition tracks coming from all other muons
-are excluded from the sum (count).
-
-- \b muIsolationSumInCones.cff
-defines additional instances of MuIsolationSumInConesProducer to calculate one set of sums (in cone sizes 0.2, 0.3, 0.4, 0.7) per each of the MuIsoDepositAssociationMap provided
-by the producers above.
-\n The additional modules (instances) are:
-  -# muIsolationSumCalEcal: sums for muIsoDepositCalEcal
-  -# muIsolationSumCalHcal: sums for muIsoDepositCalHcal
-  -# muIsolationSumAssocEcalTowers: sums for muIsoDepositCalByAssociatorTowers:ecal
-  -# muIsolationSumAssocHcalTowers: sums for muIsoDepositCalByAssociatorTowers:hcal
-  -# muIsolationSumAssocHOTowers: sums for muIsoDepositCalByAssociatorTowers:ho
-  -# muIsolationSumAssocEcalHits: sums for muIsoDepositCalByAssociatorHits:ecal
-  -# muIsolationSumAssocHcalHits: sums for muIsoDepositCalByAssociatorHits:hcal
-  -# muIsolationSumAssocHOHits: sums for muIsoDepositCalByAssociatorHits:ho
-  .
-The defined sequences are:
-  -# sequence muIsolationSumsTk = {muIsolationSumInConesTracks & muIsolationSumInConesTracksMuVetoed}
-  -# sequence muIsolationSumsCal = {muIsolationSumCalEcal & muIsolationSumCalHcal}
-  -# sequence muIsolationSumsAssocTowers = {muIsolationSumAssocEcalTowers & muIsolationSumAssocHcalTowers & muIsolationSumAssocHOTowers}
-  -# sequence muIsolationSumsAssocHits = {muIsolationSumAssocEcalHits & muIsolationSumAssocHcalHits & muIsolationSumAssocHOHits}
-  -# sequence muIsolationSumsAssocAll = {muIsolationSumsAssocTowers & muIsolationSumsAssocHits}
-  -# sequence muIsolationSumsAll = {muIsolationSumsTk & muIsolationSumsCal & muIsolationSumsAssocAll}
-
 - \b muIsolation_EventContent.cff
 Defines RecoMuonMuonIsolation{FEVT,RECO,AOD} blocks with OutputCommands
 containing outputs of the muon isolation producers. 
-FEVT and RECO keep all the outputs, AOD contains muIsolationSumInCones only.
+FEVT and RECO  and AOD keep all the outputs.
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->

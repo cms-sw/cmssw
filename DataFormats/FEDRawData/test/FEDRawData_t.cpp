@@ -3,11 +3,10 @@
    test file for FEDRawData library
 
    \author Stefano ARGIRO
-   \version $Id: FEDRawData_t.cpp,v 1.1 2006/03/27 10:05:32 argiro Exp $
    \date 28 Jun 2005
 */
 
-static const char CVSId[] = "$Id: FEDRawData_t.cpp,v 1.1 2006/03/27 10:05:32 argiro Exp $";
+static const char CVSId[] = "$Id: FEDRawData_t.cpp,v 1.2 2006/03/27 10:08:21 argiro Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>

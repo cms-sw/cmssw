@@ -1,0 +1,50 @@
+
+
+RandomNumberGeneratorService dump
+
+    Contents of seedMap
+        t1   81
+        t2   1   2
+        t3   83
+        t4   84
+        t5   191
+
+    Contents of engineNameMap
+        t1   HepJamesRandom
+        t2   RanecuEngine
+        t3   TRandom3
+        t4   HepJamesRandom
+        t5   TRandom3
+
+    Contents of engineMap
+        t1   HepJamesRandom   81
+        t2   RanecuEngine   Engine does not know original seed
+        t3   TRandom3   Engine does not know original seed
+        t4   HepJamesRandom   84
+        t5   TRandom3   Engine does not know original seed
+
+    currentLabel_ = t1
+    labelStack_ size = 2
+                 0  
+                 1  t1
+    currentEngine_ = t1  HepJamesRandom  81
+    engineStack_ size = 2
+                 0  Points to end of engine map
+                 1  t1  HepJamesRandom  81
+    restoreStateTag_ = InputTag:  label = , instance = , process = @skipCurrentProcess
+    saveFileName_ = StashState1.data
+    restoreFileName_ = 
+*** TestRandomNumberServiceAnalyzer constructor 81
+*** TestRandomNumberServiceAnalyzer beginJob 81
+*** TestRandomNumberServiceAnalyzer beginRun 81
+*** TestRandomNumberServiceAnalyzer beginLuminosityBlock 81
+*** TestRandomNumberServiceAnalyzer analyze 81
+*** TestRandomNumberServiceAnalyzer analyze 81
+*** TestRandomNumberServiceAnalyzer analyze 81
+*** TestRandomNumberServiceAnalyzer endLuminosityBlock 81
+*** TestRandomNumberServiceAnalyzer beginLuminosityBlock 81
+*** TestRandomNumberServiceAnalyzer analyze 81
+*** TestRandomNumberServiceAnalyzer analyze 81
+*** TestRandomNumberServiceAnalyzer endLuminosityBlock 81
+*** TestRandomNumberServiceAnalyzer endRun 81
+*** TestRandomNumberServiceAnalyzer endJob 81

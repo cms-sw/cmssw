@@ -1,0 +1,13 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="RecoEcal/EgammaClusterAlgos"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="clhep"/>
+<use   name="root"/>
+<export>
+  <lib   name="1"/>
+</export>

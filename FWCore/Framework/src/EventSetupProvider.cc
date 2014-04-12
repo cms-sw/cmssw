@@ -15,17 +15,25 @@
 // system include files
 #include "boost/bind.hpp"
 #include <algorithm>
+#include <cassert>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ParameterSetIDHolder.h"
+#include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
    namespace eventsetup {
+
 //
 // constants, enums and typedefs
 //
@@ -37,11 +45,19 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupProvider::EventSetupProvider(const PreferredProviderInfo* iInfo) :
+EventSetupProvider::EventSetupProvider(unsigned subProcessIndex, const PreferredProviderInfo* iInfo) :
 eventSetup_(),
 providers_(),
 mustFinishConfiguration_(true),
-preferredProviderInfo_((0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0)
+subProcessIndex_(subProcessIndex),
+preferredProviderInfo_((0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0),
+finders_(new std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >() ),
+dataProviders_(new std::vector<boost::shared_ptr<DataProxyProvider> >() ),
+referencedDataKeys_(new std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription const*> >),
+recordToFinders_(new std::map<EventSetupRecordKey, std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > >),
+psetIDToRecordKey_(new std::map<ParameterSetIDHolder, std::set<EventSetupRecordKey> >),
+recordToPreferred_(new std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription> >),
+recordsWithALooperProxy_(new std::set<EventSetupRecordKey>)
 {
 }
 
@@ -80,44 +96,26 @@ EventSetupProvider::insert(const EventSetupRecordKey& iKey, std::auto_ptr<EventS
 void 
 EventSetupProvider::add(boost::shared_ptr<DataProxyProvider> iProvider)
 {
-   mustFinishConfiguration_ = true;
    assert(&(*iProvider) != 0);
-   typedef std::set<EventSetupRecordKey> Keys;
-   const Keys recordsUsing = iProvider->usingRecords();
-
-   for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
-       itKey != itKeyEnd;
-       ++itKey) {
-      Providers::iterator itFound = providers_.find(*itKey);
-      if(providers_.end() == itFound) {
-         //create a provider for this record
-         insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
-         itFound = providers_.find(*itKey);
-      }
-      itFound->second->add(iProvider);
-   }
+   dataProviders_->push_back(iProvider);
 }
 
+void 
+EventSetupProvider::replaceExisting(boost::shared_ptr<DataProxyProvider> dataProxyProvider)
+{
+   ParameterSetIDHolder psetID(dataProxyProvider->description().pid_);
+   std::set<EventSetupRecordKey> const& keysForPSetID = (*psetIDToRecordKey_)[psetID];
+   for (auto const& key : keysForPSetID) {
+      boost::shared_ptr<EventSetupRecordProvider> const& recordProvider = providers_[key];
+      recordProvider->resetProxyProvider(psetID, dataProxyProvider);
+   }
+}
 
 void 
 EventSetupProvider::add(boost::shared_ptr<EventSetupRecordIntervalFinder> iFinder)
 {
-   mustFinishConfiguration_ = true;
    assert(&(*iFinder) != 0);
-   typedef std::set<EventSetupRecordKey> Keys;
-   const Keys recordsUsing = iFinder->findingForRecords();
-   
-   for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
-       itKey != itKeyEnd;
-       ++itKey) {
-      Providers::iterator itFound = providers_.find(*itKey);
-      if(providers_.end() == itFound) {
-         //create a provider for this record
-         insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
-         itFound = providers_.find(*itKey);
-      }
-      itFound->second->addFinder(iFinder);
-   }
+   finders_->push_back(iFinder);
 }
 
 typedef std::map<EventSetupRecordKey, boost::shared_ptr<EventSetupRecordProvider> > Providers;
@@ -263,11 +261,70 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
 
 void
 EventSetupProvider::finishConfiguration()
-{
+{   
+   //we delayed adding finders to the system till here so that everything would be loaded first
+   recordToFinders_->clear();
+   for(std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >::iterator itFinder=finders_->begin(),
+       itEnd = finders_->end();
+       itFinder != itEnd;
+       ++itFinder) {
+      typedef std::set<EventSetupRecordKey> Keys;
+      const Keys recordsUsing = (*itFinder)->findingForRecords();
+      
+      for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
+          itKey != itKeyEnd;
+          ++itKey) {
+        (*recordToFinders_)[*itKey].push_back(*itFinder);
+         Providers::iterator itFound = providers_.find(*itKey);
+         if(providers_.end() == itFound) {
+            //create a provider for this record
+            insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
+            itFound = providers_.find(*itKey);
+         }
+         itFound->second->addFinder(*itFinder);
+      }      
+   }
+   //we've transfered our ownership so this is no longer needed
+   finders_.reset();
+
+   //Now handle providers since sources can also be finders and the sources can delay registering
+   // their Records and therefore could delay setting up their Proxies
+   psetIDToRecordKey_->clear();
+   typedef std::set<EventSetupRecordKey> Keys;
+   for(std::vector<boost::shared_ptr<DataProxyProvider> >::iterator itProvider=dataProviders_->begin(),
+       itEnd = dataProviders_->end();
+       itProvider != itEnd;
+       ++itProvider) {
+      
+      ParameterSetIDHolder psetID((*itProvider)->description().pid_);
+
+      const Keys recordsUsing = (*itProvider)->usingRecords();
+      
+      for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
+          itKey != itKeyEnd;
+          ++itKey) {
+
+         if ((*itProvider)->description().isLooper_) {
+            recordsWithALooperProxy_->insert(*itKey);
+         }
+
+         (*psetIDToRecordKey_)[psetID].insert(*itKey);
+
+         Providers::iterator itFound = providers_.find(*itKey);
+         if(providers_.end() == itFound) {
+            //create a provider for this record
+            insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
+            itFound = providers_.find(*itKey);
+         }
+         itFound->second->add(*itProvider);
+      }
+   }
+   dataProviders_.reset();
+   
    //used for the case where no preferred Providers have been specified for the Record
    static const EventSetupRecordProvider::DataToPreferredProviderMap kEmptyMap;
    
-   RecordToPreferred recordToPreferred = determinePreferred(preferredProviderInfo_.get(),providers_);
+   *recordToPreferred_ = determinePreferred(preferredProviderInfo_.get(),providers_);
    //For each Provider, find all the Providers it depends on.  If a dependent Provider
    // can not be found pass in an empty list
    //CHANGE: now allow for missing Providers
@@ -275,8 +332,8 @@ EventSetupProvider::finishConfiguration()
         itProvider != itProviderEnd;
         ++itProvider) {
       const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
-      RecordToPreferred::const_iterator itRecordFound = recordToPreferred.find(itProvider->first);
-      if(itRecordFound != recordToPreferred.end()) {
+      RecordToPreferred::const_iterator itRecordFound = recordToPreferred_->find(itProvider->first);
+      if(itRecordFound != recordToPreferred_->end()) {
          preferredInfo = &(itRecordFound->second);
       }
       //Give it our list of preferred 
@@ -308,7 +365,7 @@ EventSetupProvider::finishConfiguration()
          }
          
          if(!foundAllProviders) {
-            edm::LogWarning("EventSetupDependency")<<"The EventSetup record "<<itProvider->second->key().name()
+            edm::LogInfo("EventSetupDependency")<<"The EventSetup record "<<itProvider->second->key().name()
             <<" depends on at least one Record \n ("<<missingRecords<<") which is not present in the job."
            "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs during the job than it is usually safe to ignore this message.";
 
@@ -320,8 +377,8 @@ EventSetupProvider::finishConfiguration()
       }
    }
    mustFinishConfiguration_ = false;
-   
 }
+
 typedef std::map<EventSetupRecordKey, boost::shared_ptr<EventSetupRecordProvider> > Providers;
 typedef Providers::iterator Itr;
 static
@@ -358,11 +415,310 @@ EventSetupProvider::resetRecordPlusDependentRecords(const EventSetupRecordKey& i
   dependents.erase(std::unique(dependents.begin(),dependents.end()), dependents.end());
   
   itFind->second->resetProxies();
-  std::for_each(dependents.begin(), dependents.end(), 
+  for_all(dependents,
                 boost::bind(&EventSetupRecordProvider::resetProxies,
                             _1));
 }
 
+void 
+EventSetupProvider::forceCacheClear()
+{
+   for(Providers::iterator it=providers_.begin(), itEnd = providers_.end();
+       it != itEnd;
+       ++it) {
+      it->second->resetProxies();
+   }
+}
+
+void
+EventSetupProvider::checkESProducerSharing(EventSetupProvider& precedingESProvider,
+                                           std::set<ParameterSetIDHolder>& sharingCheckDone,
+                                           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers,
+                                           EventSetupsController& esController) {
+
+   edm::LogVerbatim("EventSetupSharing") << "EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes "
+                                         << subProcessIndex() << " and " << precedingESProvider.subProcessIndex();
+
+   if (referencedESProducers.empty()) {
+      for (auto const& recordProvider : providers_) {
+         recordProvider.second->getReferencedESProducers(referencedESProducers);
+      }
+   }
+
+   // This records whether the configurations of all the DataProxyProviders
+   // and finders matches for a particular pair of processes and
+   // a particular record and also the records it depends on.
+   std::map<EventSetupRecordKey, bool> allComponentsMatch;
+
+   std::map<ParameterSetID, bool> candidateNotRejectedYet;
+
+   // Loop over all the ESProducers which have a DataProxy
+   // referenced by any EventSetupRecord in this EventSetupProvider
+   for (auto const& iRecord : referencedESProducers) {
+      for (auto const& iComponent : iRecord.second) {
+
+         ParameterSetID const& psetID = iComponent->pid_;
+         ParameterSetIDHolder psetIDHolder(psetID);
+         if (sharingCheckDone.find(psetIDHolder) != sharingCheckDone.end()) continue;
+
+         bool firstProcessWithThisPSet = false;
+         bool precedingHasMatchingPSet = false;
+
+         esController.lookForMatches(psetID,
+                                     subProcessIndex_,
+                                     precedingESProvider.subProcessIndex_,
+                                     firstProcessWithThisPSet,
+                                     precedingHasMatchingPSet);
+
+         if (firstProcessWithThisPSet) {
+            sharingCheckDone.insert(psetIDHolder);
+            allComponentsMatch[iRecord.first] = false;
+            continue;
+         }
+
+         if (!precedingHasMatchingPSet) {
+            allComponentsMatch[iRecord.first] = false;
+            continue;
+         }
+
+         // An ESProducer that survives to this point is a candidate.
+         // It was shared with some other process in the first pass where
+         // ESProducers were constructed and one of three possibilities exists:
+         //    1) It should not have been shared and a new ESProducer needs
+         //    to be created and the proper pointers set.
+         //    2) It should have been shared with a different preceding process
+         //    in which case some pointers need to be modified.
+         //    3) It was originally shared which the correct prior process
+         //    in which case nothing needs to be done, but we do need to
+         //    do some work to verify that.
+         // Make an entry in a map for each of these ESProducers. We
+         // will set the value to false if and when we determine
+         // the ESProducer cannot be shared between this pair of processes. 
+         auto iCandidateNotRejectedYet = candidateNotRejectedYet.find(psetID);
+         if (iCandidateNotRejectedYet == candidateNotRejectedYet.end()) {
+            candidateNotRejectedYet[psetID] = true;
+            iCandidateNotRejectedYet = candidateNotRejectedYet.find(psetID);
+         }
+
+         // At this point we know that the two processes both
+         // have an ESProducer matching the type and label in
+         // iComponent and also with exactly the same configuration.
+         // And there was not an earlier preceding process
+         // where the same instance of the ESProducer could
+         // have been shared.  And this ESProducer was referenced
+         // by the later process's EventSetupRecord (prefered or
+         // or just the only thing that could have made the data).
+         // To determine if sharing is allowed, now we need to
+         // check if all the DataProxyProviders and all the
+         // finders are the same for this record and also for
+         // all records this record depends on. And even
+         // if this is true, we have to wait until the loop
+         // ends because some other DataProxy associated with
+         // the ESProducer could write to a different record where
+         // the same determination will need to be repeated. Only if
+         // all of the the DataProxy's can be shared, can the ESProducer
+         // instance be shared across processes.
+
+         if (iCandidateNotRejectedYet->second == true) {
+
+            auto iAllComponentsMatch = allComponentsMatch.find(iRecord.first);
+            if (iAllComponentsMatch == allComponentsMatch.end()) {
+
+               // We do not know the value in AllComponents yet and
+               // we need it now so we have to do the difficult calculation
+               // now.
+               bool match = doRecordsMatch(precedingESProvider,
+                                           iRecord.first,
+                                           allComponentsMatch,
+                                           esController);
+               allComponentsMatch[iRecord.first] = match;
+               iAllComponentsMatch = allComponentsMatch.find(iRecord.first);            
+            }
+            if (!iAllComponentsMatch->second) {
+              iCandidateNotRejectedYet->second = false;
+            }
+         }
+      }  // end loop over components used by record
+   } // end loop over records
+
+   // Loop over candidates
+   for (auto const& candidate : candidateNotRejectedYet) {
+      ParameterSetID const& psetID = candidate.first;
+      bool canBeShared = candidate.second;
+      if (canBeShared) {
+         ParameterSet const& pset = *esController.getESProducerPSet(psetID, subProcessIndex_);
+         logInfoWhenSharing(pset);
+         ParameterSetIDHolder psetIDHolder(psetID);
+         sharingCheckDone.insert(psetIDHolder);
+         if (esController.isFirstMatch(psetID,
+                                       subProcessIndex_,
+                                       precedingESProvider.subProcessIndex_)) {
+            continue;  // Proper sharing was already done. Nothing more to do.
+         }
+
+         // Need to reset the pointer from the EventSetupRecordProvider to the
+         // the DataProxyProvider so these two processes share an ESProducer.
+
+         boost::shared_ptr<DataProxyProvider> dataProxyProvider;
+         std::set<EventSetupRecordKey> const& keysForPSetID1 = (*precedingESProvider.psetIDToRecordKey_)[psetIDHolder];
+         for (auto const& key : keysForPSetID1) {
+            boost::shared_ptr<EventSetupRecordProvider> const& recordProvider = precedingESProvider.providers_[key];
+            dataProxyProvider = recordProvider->proxyProvider(psetIDHolder);
+            assert(dataProxyProvider);
+            break;
+         }
+
+         std::set<EventSetupRecordKey> const& keysForPSetID2 = (*psetIDToRecordKey_)[psetIDHolder];
+         for (auto const& key : keysForPSetID2) {
+            boost::shared_ptr<EventSetupRecordProvider> const& recordProvider = providers_[key];
+            recordProvider->resetProxyProvider(psetIDHolder, dataProxyProvider);
+         }
+      } else {
+         if (esController.isLastMatch(psetID,
+                                      subProcessIndex_,
+                                      precedingESProvider.subProcessIndex_)) {
+            
+
+            ParameterSet const& pset = *esController.getESProducerPSet(psetID, subProcessIndex_);
+            ModuleFactory::get()->addTo(esController,
+                                        *this,
+                                        pset,
+                                        true);
+
+         }
+      }
+   }
+}
+
+bool
+EventSetupProvider::doRecordsMatch(EventSetupProvider & precedingESProvider,
+                                   EventSetupRecordKey const& eventSetupRecordKey,
+                                   std::map<EventSetupRecordKey, bool> & allComponentsMatch,
+                                   EventSetupsController const& esController) {
+   // first check if this record matches. If not just return false
+
+   // then find the directly dependent records and iterate over them
+   // recursively call this function on them. If they return false
+   // set allComponentsMatch to false for them and return false.
+   // if they all return true then set allComponents to true
+   // and return true.
+
+   if (precedingESProvider.recordsWithALooperProxy_->find(eventSetupRecordKey) != precedingESProvider.recordsWithALooperProxy_->end()) {
+      return false;
+   }
+
+   if ((*recordToFinders_)[eventSetupRecordKey].size() != (*precedingESProvider.recordToFinders_)[eventSetupRecordKey].size()) {
+      return false;
+   }
+
+   for (auto const& finder : (*recordToFinders_)[eventSetupRecordKey]) {
+      ParameterSetID const& psetID = finder->descriptionForFinder().pid_;
+      bool itMatches = esController.isMatchingESSource(psetID,
+                                                       subProcessIndex_,
+                                                       precedingESProvider.subProcessIndex_);
+      if (!itMatches) {
+         return false;
+      }
+   }
+
+   fillReferencedDataKeys(eventSetupRecordKey);
+   precedingESProvider.fillReferencedDataKeys(eventSetupRecordKey);
+
+   std::map<DataKey, ComponentDescription const*> const& dataItems = (*referencedDataKeys_)[eventSetupRecordKey];
+
+   std::map<DataKey, ComponentDescription const*> const& precedingDataItems = (*precedingESProvider.referencedDataKeys_)[eventSetupRecordKey];
+
+   if (dataItems.size() != precedingDataItems.size()) {
+      return false;
+   }
+
+   for (auto const& dataItem : dataItems) {
+      auto precedingDataItem = precedingDataItems.find(dataItem.first);
+      if (precedingDataItem == precedingDataItems.end()) {
+         return false;
+      }
+      if (dataItem.second->pid_ != precedingDataItem->second->pid_) {
+         return false;
+      }
+      // Check that the configurations match exactly for the ESProducers
+      // (We already checked the ESSources above and there should not be
+      // any loopers)
+      if (!dataItem.second->isSource_ && !dataItem.second->isLooper_) {
+         bool itMatches = esController.isMatchingESProducer(dataItem.second->pid_,
+                                                            subProcessIndex_,
+                                                            precedingESProvider.subProcessIndex_);
+         if (!itMatches) {
+            return false;
+         }
+      }
+   }
+   Providers::iterator itFound = providers_.find(eventSetupRecordKey);
+   if (itFound != providers_.end()) {
+      std::set<EventSetupRecordKey> dependentRecords = itFound->second->dependentRecords();
+      for (auto const& dependentRecord : dependentRecords) {
+         auto iter = allComponentsMatch.find(dependentRecord);
+         if (iter != allComponentsMatch.end()) {
+            if (iter->second) {
+               continue;
+            } else {
+               return false;
+            }
+         }
+         bool match = doRecordsMatch(precedingESProvider,
+                                     dependentRecord,
+                                     allComponentsMatch,
+                                     esController);            
+         allComponentsMatch[dependentRecord] = match;
+         if (!match) return false;
+      }
+   }
+   return true;
+}
+
+void
+EventSetupProvider::fillReferencedDataKeys(EventSetupRecordKey const& eventSetupRecordKey) {
+
+   if (referencedDataKeys_->find(eventSetupRecordKey) != referencedDataKeys_->end()) return;
+
+   auto recordProvider = providers_.find(eventSetupRecordKey);
+   if (recordProvider == providers_.end()) {
+      (*referencedDataKeys_)[eventSetupRecordKey];
+      return;
+   }
+   if (recordProvider->second) {
+      recordProvider->second->fillReferencedDataKeys((*referencedDataKeys_)[eventSetupRecordKey]);
+   }
+}
+
+void
+EventSetupProvider::resetRecordToProxyPointers() {
+   for (auto const& recordProvider : providers_) {
+      static const EventSetupRecordProvider::DataToPreferredProviderMap kEmptyMap;
+      const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
+      RecordToPreferred::const_iterator itRecordFound = recordToPreferred_->find(recordProvider.first);
+      if(itRecordFound != recordToPreferred_->end()) {
+         preferredInfo = &(itRecordFound->second);
+      }
+      recordProvider.second->resetRecordToProxyPointers(*preferredInfo);
+   }
+}
+
+void
+EventSetupProvider::clearInitializationData() {
+   preferredProviderInfo_.reset();
+   referencedDataKeys_.reset();
+   recordToFinders_.reset();
+   psetIDToRecordKey_.reset();
+   recordToPreferred_.reset();
+   recordsWithALooperProxy_.reset();
+}
+
+void
+EventSetupProvider::addRecordToEventSetup(EventSetupRecord& iRecord) {
+   iRecord.setEventSetup(&eventSetup_);
+   eventSetup_.add(iRecord);
+}
+      
 //
 // const member functions
 //
@@ -372,20 +728,22 @@ EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue)
    eventSetup_.setIOVSyncValue(iValue);
 
    eventSetup_.clear();
+
+   // In a cmsRun job this does nothing because the EventSetupsController
+   // will have already called finishConfiguration, but some tests will
+   // call finishConfiguration here.
    if(mustFinishConfiguration_) {
-      const_cast<EventSetupProvider*>(this)->finishConfiguration();
+      finishConfiguration();
    }
 
    for(Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
         itProvider != itProviderEnd;
         ++itProvider) {
       itProvider->second->addRecordToIfValid(*this, iValue);
-   }
-   
+   }   
    return eventSetup_;
-
-   
 }
+
 namespace {
    struct InsertAll : public std::unary_function< const std::set<ComponentDescription>&, void>{
       
@@ -404,10 +762,19 @@ EventSetupProvider::proxyProviderDescriptions() const
    typedef std::set<ComponentDescription> Set;
    Set descriptions;
 
-   std::for_each(providers_.begin(), providers_.end(),
+   for_all(providers_,
                  bind(InsertAll(descriptions),
                       bind(&EventSetupRecordProvider::proxyProviderDescriptions,
                            bind(&Providers::value_type::second,_1))));
+   if(dataProviders_.get()) {
+      for(std::vector<boost::shared_ptr<DataProxyProvider> >::const_iterator it = dataProviders_->begin(),
+          itEnd = dataProviders_->end();
+          it != itEnd;
+          ++it) {
+         descriptions.insert((*it)->description());
+      }
+         
+   }
                        
    return descriptions;
 }
@@ -415,5 +782,12 @@ EventSetupProvider::proxyProviderDescriptions() const
 //
 // static member functions
 //
+void EventSetupProvider::logInfoWhenSharing(ParameterSet const& iConfiguration) {
+
+   std::string edmtype = iConfiguration.getParameter<std::string>("@module_edm_type");
+   std::string modtype = iConfiguration.getParameter<std::string>("@module_type");
+   std::string label = iConfiguration.getParameter<std::string>("@module_label");
+   edm::LogVerbatim("EventSetupSharing") << "Sharing " << edmtype << ": class=" << modtype << " label='" << label << "'";
+}
    }
 }

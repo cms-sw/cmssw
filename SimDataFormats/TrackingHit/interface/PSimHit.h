@@ -117,6 +117,9 @@ public:
    */
   unsigned short processType() const {return theProcessType;}
 
+
+  void setTof(float tof) {theTof=tof;}
+
 protected:
   
   // properties
@@ -140,8 +143,6 @@ protected:
   friend class TrackingSlaveSD;
 };
 
-#include <iostream>
-inline std::ostream & operator<<(std::ostream & o, const PSimHit & hit) 
-{ return o << hit.detUnitId() << " " << hit.entryPoint() << " " << hit.tof(); }
+std::ostream & operator<<(std::ostream & o, const PSimHit & hit); 
 
 #endif // PSimHit_H

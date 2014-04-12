@@ -3,7 +3,6 @@
 # 
 # Simple script to install CMSSW from sources in one go
 #
-# Author $Id: InstallFromSource.sh,v 1.4 2006/04/11 11:50:59 argiro Exp $
 
 
 cmssw_release_area=/afs/cern.ch/cms/Releases/CMSSW
@@ -31,7 +30,7 @@ cmssw_version=$2
 
 echo Installing $cmssw_version;
 
-CVSROOT=:kserver:cmscvs.cern.ch:/cvs_server/repositories/CMSSW
+CVSROOT=:gserver:cmscvs.cern.ch:/cvs_server/repositories/CMSSW
 
 cvs co -r $cmssw_version config
 

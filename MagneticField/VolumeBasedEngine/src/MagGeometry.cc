@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/11 11:56:21 $
- *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -15,33 +13,34 @@
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Utilities/interface/isFinite.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "MagneticField/VolumeBasedEngine/src/trackerField.icc"
 
 using namespace std;
 using namespace edm;
 
-MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer *> tbl,
-			 std::vector<MagESector *> tes,
-			 std::vector<MagVolume6Faces*> tbv,
-			 std::vector<MagVolume6Faces*> tev) : 
-  lastVolume(0), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev)
+MagGeometry::MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer *>& tbl,
+			 const std::vector<MagESector *>& tes,
+			 const std::vector<MagVolume6Faces*>& tbv,
+			 const std::vector<MagVolume6Faces*>& tev) :
+  MagGeometry(config, reinterpret_cast<std::vector<MagBLayer const*> const&>(tbl), reinterpret_cast<std::vector<MagESector const*> const&>(tes), 
+	      reinterpret_cast<std::vector<MagVolume6Faces const*> const&>(tbv), reinterpret_cast<std::vector<MagVolume6Faces const*> const&>(tev)) {}
+
+MagGeometry::MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer const*>& tbl,
+			 const std::vector<MagESector const*>& tes,
+			 const std::vector<MagVolume6Faces const*>& tbv,
+			 const std::vector<MagVolume6Faces const*>& tev) : 
+  lastVolume(0), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev), geometryVersion(0)
 {
   
-  tolerance = config.getParameter<double>("findVolumeTolerance");
-  cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume");
-  timerOn = config.getUntrackedParameter<bool>("timerOn", false);
-  useParametrizedTrackerField = config.getParameter<bool>("useParametrizedTrackerField");
-
-  //TimeMe t1("MagGeometry:build",false);
+  cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume", true);
+  geometryVersion = config.getParameter<int>("geometryVersion");
 
   vector<double> rBorders;
 
-  for (vector<MagBLayer *>::const_iterator ilay = theBLayers.begin();
+  for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin();
        ilay != theBLayers.end(); ++ilay) {
     if (verbose::debugOut) cout << "  Barrel layer at " << (*ilay)->minR() <<endl;
     //FIXME assume layers are already sorted in minR
@@ -51,7 +50,7 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
   theBarrelBinFinder = new MagBinFinders::GeneralBinFinderInR<double>(rBorders);
 
   if (verbose::debugOut) {
-    for (vector<MagESector *>::const_iterator isec = theESectors.begin();
+    for (vector<MagESector const*>::const_iterator isec = theESectors.begin();
 	 isec != theESectors.end(); ++isec) {
       cout << "  Endcap sector at " << (*isec)->minPhi() << endl;
     }
@@ -59,14 +58,8 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
 
   //FIXME assume sectors are already sorted in phi
   //FIXME: PeriodicBinFinderInPhi gets *center* of first bin
-  theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi()+Geom::pi()/12., 12);
-
-  // Disable timers to save CPU
-  (*TimingReport::current()).switchOn("MagGeometry::fieldInTesla",timerOn);
-  (*TimingReport::current()).switchOn("MagGeometry::fieldInTesla:VolumeQuery",timerOn);
-  (*TimingReport::current()).switchOn("MagGeometry::findVolume",timerOn);
-  (*TimingReport::current()).switchOn("MagGeometry::findVolume1",timerOn);
-  (*TimingReport::current()).switchOn("MagGeometry::findVolume2",timerOn);  
+  int nEBins = theESectors.size();
+  theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi()+Geom::pi()/nEBins, nEBins);
 
 }
 
@@ -74,12 +67,12 @@ MagGeometry::~MagGeometry(){
   delete theBarrelBinFinder;
   delete theEndcapBinFinder;
 
-  for (vector<MagBLayer *>::const_iterator ilay = theBLayers.begin();
+  for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin();
        ilay != theBLayers.end(); ++ilay) {
     delete (*ilay);
   }
 
-  for (vector<MagESector *>::const_iterator ilay = theESectors.begin();
+  for (vector<MagESector const*>::const_iterator ilay = theESectors.begin();
        ilay != theESectors.end(); ++ilay) {
     delete (*ilay);
   }
@@ -88,87 +81,53 @@ MagGeometry::~MagGeometry(){
 
 // Return field vector at the specified global point
 GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
-  //  static TimingReport::Item & timer1 = (*TimingReport::current())["MagGeometry::fieldInTesla"];
-  //  static TimingReport::Item & timer2 = (*TimingReport::current())["MagGeometry::fieldInTesla:VolumeQuery"];
-  //  TimeMe t1(timer1,false);
+  MagVolume const * v = 0;
 
-  // Use Veikko's parametrized field in central volume? 
-  GlobalVector bresult;
-  if ( useParametrizedTrackerField && trackerField( gp, bresult) ) return bresult; 
-    
-  // If point is outside magfield map, return 0 field.
-  if (abs(gp.z()) > 1600. || gp.perp() > 1000.) return GlobalVector();
-
-  GlobalPoint gpSym = gp;
-  bool atMinusZ = true;
-  if (gpSym.z()>0.) {
-    atMinusZ = false;
-    gpSym=GlobalPoint(gp.x(), gp.y(), -gp.z()); 
-  }
-
-  MagVolume * v = findVolume(gpSym);
+  
+  v = findVolume(gp);
   if (v!=0) {
-    // TimeMe t2(timer2,false);
-    GlobalVector result = v->fieldInTesla(gpSym);
-    if (atMinusZ) return result;
-    else return GlobalVector(-result.x(), -result.y(), result.z());
-  } else {
-    if (isnan(gpSym.mag())) {
-      LogWarning("InvalidInput") << "Input value invalid (not a number): " << gpSym << endl;
+    return v->fieldInTesla(gp);
+  }
+  
+  // Fall-back case: no volume found
+  
+  if (edm::isNotFinite(gp.mag())) {
+    LogWarning("InvalidInput") << "Input value invalid (not a number): " << gp << endl;
       
-    } else {  
-      LogWarning("MagneticField") << "MagGeometry::fieldInTesla: failed to find volume for " << gpSym << endl;
-    }
-    return GlobalVector();
+  } else {
+    LogWarning("MagneticField") << "MagGeometry::fieldInTesla: failed to find volume for " << gp << endl;
   }
-}
-
-
-
-MagVolume * MagGeometry::findVolume(const GlobalPoint & gp) const {
-//   static const double tolerance = (SimpleConfigurable<double>(0.,"MagGeometry:FindVolumeTolerance"));
-//   static const bool cacheLastVolume = (SimpleConfigurable<bool>(true,"MagGeometry:cacheLastVolume"));
-
-  // static TimingReport::Item & timer = (*TimingReport::current())["MagGeometry::findVolume"];
-  // TimeMe t(timer,false);
-
-  if (cacheLastVolume && lastVolume!=0 && lastVolume->inside(gp, tolerance)){
-    return lastVolume;
-  }
-  return (lastVolume = findVolume2(gp, tolerance));
+  return GlobalVector();
 }
 
 
 // Linear search implementation (just for testing)
-MagVolume* 
-MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {
-  // static TimingReport::Item & timer = (*TimingReport::current())["MagGeometry::findVolume1"];
-  // TimeMe t(timer,false);
+MagVolume const* 
+MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {  
 
-  //FIXME: perform the search only in negative Z volumes
-  GlobalPoint gpSym(gp.x(), gp.y(), (gp.z()<0? gp.z() : -gp.z()));
+  MagVolume6Faces const* found = 0;
 
-  MagVolume6Faces * found = 0;
-  if (inBarrel(gpSym)) { // Barrel
-    for (vector<MagVolume6Faces*>::const_iterator v = theBVolumes.begin();
+  if (inBarrel(gp)) { // Barrel
+    for (vector<MagVolume6Faces const*>::const_iterator v = theBVolumes.begin();
 	 v!=theBVolumes.end(); ++v){
-      if ((*v)==0) {
+      if ((*v)==0) { //FIXME: remove this check
 	cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
 	continue;
       }
-      if ((*v)->inside(gpSym,tolerance)) {
+      if ((*v)->inside(gp,tolerance)) {
 	found = (*v);
 	break;
       }
     }
+
   } else { // Endcaps
-    for (vector<MagVolume6Faces*>::const_iterator v = theEVolumes.begin();
+    for (vector<MagVolume6Faces const*>::const_iterator v = theEVolumes.begin();
 	 v!=theEVolumes.end(); ++v){
-      if ((*v)==0) {
+      if ((*v)==0) {  //FIXME: remove this check
 	cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
 	continue;
       }
-      if ((*v)->inside(gpSym,tolerance)) {
+      if ((*v)->inside(gp,tolerance)) {
 	found = (*v);
 	break;
       }
@@ -179,15 +138,15 @@ MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {
 }
 
 // Use hierarchical structure for fast lookup.
-//FIXME: The search is performed only in negative Z volumes (gp.z() must be <=0)
-MagVolume* 
-MagGeometry::findVolume2(const GlobalPoint & gp, double tolerance) const{
-  MagVolume * result=0;
-  // static TimingReport::Item & timer = (*TimingReport::current())["MagGeometry::findVolume2"];
-  // TimeMe t(timer,false);
+MagVolume const* 
+MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
+  // Check volume cache
+  auto lastVolumeCheck = lastVolume.load(std::memory_order_acquire);
+  if (lastVolumeCheck!=nullptr && lastVolumeCheck->inside(gp)){
+    return lastVolumeCheck;
+  }
 
-  //  GlobalPoint gpSym(gp.x(), gp.y(), (gp.z()<0? gp.z() : -gp.z()));
-
+  MagVolume const* result=0;
   if (inBarrel(gp)) { // Barrel
     double R = gp.perp();
     int bin = theBarrelBinFinder->binIndex(R);
@@ -212,13 +171,15 @@ MagGeometry::findVolume2(const GlobalPoint & gp, double tolerance) const{
   }
 
 
-  if (result == 0 && tolerance < 0.0001) {
-    // Try increasing the tolerance to 300 micron
-    // FIXME: this is a temporary hack for thin gaps on air-iron boundaries,
+  if (result==0 && tolerance < 0.0001) {
+    // If search fails, retry with a 300 micron tolerance.
+    // This is a hack for thin gaps on air-iron boundaries,
     // which will not be present anymore once surfaces are matched.
     if (verbose::debugOut) cout << "Increasing the tolerance to 0.03" <<endl;
-    result = findVolume2(gp, 0.03); 
+    result = findVolume(gp, 0.03);
   }
+
+  if (cacheLastVolume) lastVolume.store(result,std::memory_order_release);
 
   return result;
 }
@@ -227,13 +188,22 @@ MagGeometry::findVolume2(const GlobalPoint & gp, double tolerance) const{
 
 
 bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
-  // FIXME! hardcoded boundary between barrel and endcaps!
-  float Z = gp.z();
+  float Z = fabs(gp.z());
   float R = gp.perp();
-  return (fabs(Z)<634.49 || (R>308.755 && fabs(Z)<661.01));
+
+  // FIXME: Get these dimensions from the builder. 
+  if (geometryVersion>=120812) {
+    return (Z<350. ||
+	    (R>172.4 && Z<633.29) || 
+	    (R>308.7345 && Z<662.01));    
+  } else if (geometryVersion>=90812) {
+    return (Z<350. ||
+	    (R>172.4 && Z<633.89) || 
+	    (R>308.755 && Z<662.01));
+  } else { // version 71212
+    return (Z<350. ||
+	    (R>172.4 && Z<633.29) || 
+	    (R>308.755 && Z<661.01));
+  }
 }
-
-
-
-
 

@@ -13,7 +13,6 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.h,v 1.1 2006/05/11 20:54:11 mansj Exp $
 //
 //
 
@@ -30,21 +29,26 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class decleration
 //
 
 class CaloTowerConstituentsMapBuilder : public edm::ESProducer {
-   public:
+public:
   CaloTowerConstituentsMapBuilder(const edm::ParameterSet&);
   ~CaloTowerConstituentsMapBuilder();
 
   typedef std::auto_ptr<CaloTowerConstituentsMap> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
 private:
   void parseTextMap(const std::string& filename,CaloTowerConstituentsMap& theMap);
   std::string mapFile_;
-      // ----------member data ---------------------------
 };
 

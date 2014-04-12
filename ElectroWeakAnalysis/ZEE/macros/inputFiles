@@ -1,0 +1,21 @@
+# zee or wenu
+zee
+# file name, type (sig, qcd, bce, gje, ewk), weight
+histos_zee.root      sig     1.46
+histos_q20_30.root   qcd     0
+histos_q30_80.root   qcd     100.
+histos_q80_170.root  qcd     0
+histos_b20_30.root   bce     0
+histos_b30_80.root   bce     0
+histos_b80_170.root  bce     0
+histos_wenu.root     ewk     0
+histos_wtaunu.root   ewk     0
+histos_ztautau.root  ewk     0
+histos_gj15.root     gje     0
+histos_gj20.root     gje     0
+histos_gj25.root     gje     10.12
+histos_gj30.root     gje     0
+histos_gj35.root     gje     0
+histos_wmunu.root    ewk     0
+histos_ttbar.root    ewk     0
+

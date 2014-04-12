@@ -1,37 +1,27 @@
 #ifndef MuonSeedGenerator_MuonOverlapSeedFromRecHits_h
 #define MuonSeedGenerator_MuonOverlapSeedFromRecHits_h
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
-#include <map>
+#include "RecoMuon/TrackingTools/interface/MuonSeedFromRecHits.h"
 
 class MuonOverlapSeedFromRecHits : public MuonSeedFromRecHits
 {
 public:
 
-  MuonOverlapSeedFromRecHits(const edm::EventSetup & eSetup);
+  MuonOverlapSeedFromRecHits();
   virtual ~MuonOverlapSeedFromRecHits() {}
 
   std::vector<TrajectorySeed> seeds() const;
 
   bool makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHitPointer barrelHit,
                 MuonTransientTrackingRecHit::ConstMuonRecHitPointer endcapHit,
+                MuonTransientTrackingRecHit::ConstMuonRecHitPointer bestSegment,
                 TrajectorySeed & result) const;
 
-
 private:
+  ConstMuonRecHitPointer bestHit(
+    const MuonRecHitContainer & barrelHits,
+    const MuonRecHitContainer & endcapHits) const;
 
-  void fillConstants(int dtStation, int cscChamberType, double c1, double c2);
-
-  // try to make something from a pair of layers with hits.
-  bool makeSeed(const MuonRecHitContainer & barrelHits, 
-                const MuonRecHitContainer & endcapHits,
-                TrajectorySeed & seed) const;
-
-  typedef std::map< std::pair<int, int>, std::pair<double, double> > ConstantsMap;
-  ConstantsMap theConstantsMap;
 };
 
 #endif

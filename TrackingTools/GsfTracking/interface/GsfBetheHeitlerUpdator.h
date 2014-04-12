@@ -2,11 +2,18 @@
 #define GsfBetheHeitlerUpdator_h_
 
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
+
+#include "DataFormats/Math/interface/approx_exp.h"
+#include "DataFormats/Math/interface/approx_log.h"
+
+
+
 #include "TrackingTools/GsfTracking/interface/Triplet.h"
 
-#include <vector>
 #include <iosfwd>
 #include <string>
+
+
 
 /** \class GsfBetheHeitlerUpdator
  *  Description of electron energy loss according to Bethe-Heitler
@@ -16,9 +23,12 @@
  * construction time.
  */
 
-class GsfBetheHeitlerUpdator : public GsfMaterialEffectsUpdator {
+class GsfBetheHeitlerUpdator GCC11_FINAL: public GsfMaterialEffectsUpdator {
 
 private:
+  static constexpr int MaxSize=6;
+  static constexpr int MaxOrder=6;
+
   /** Helper class for construction & evaluation of a polynomial
    */
   class Polynomial {
@@ -28,17 +38,21 @@ private:
     /** Constructor from a vector of coefficients
      *  (in decreasing order of powers of x)
      */
-    Polynomial (const std::vector<double>& coefficients) :
-      theCoeffs(coefficients) {}
+    Polynomial (float coefficients[], int is) :
+      m_size(is) {
+      for (int i=0; i!=m_size; ++i)
+	theCoeffs[i]=coefficients[i];
+    }
     /// Evaluation of the polynomial 
-    double operator() (const double& x) const {
-      double sum(0.);
-      for ( std::vector<double>::const_iterator i=theCoeffs.begin();
-	    i!=theCoeffs.end(); i++ )  sum = x*sum + *i;
+    float operator() (float x) const {
+      float sum=theCoeffs[0];
+      for (int i=1; i!=m_size; ++i)
+	sum = x*sum + theCoeffs[i];
       return sum;
     }
   private:
-    std::vector<double> theCoeffs;
+    float theCoeffs[MaxOrder] ={0};
+    int m_size=0;
   };
 
 public:
@@ -53,58 +67,40 @@ public:
 public:
   /// constructor with explicit filename and correction flag
   GsfBetheHeitlerUpdator (const std::string fileName, const int correctionFlag);
-//   GsfBetheHeitlerUpdator (const std::string fileName, const CorrectionFlag correctionFlag);
 
 private:
-  typedef std::vector< Triplet<double,double,double> > GSContainer;
+  typedef Triplet<float,float,float> GSContainer;
 
-private:
   /// Computation: generates vectors of weights, means and standard deviations
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
+
+private:
+
   /// Read parametrization from file
   void readParameters (const std::string);
   /// Read coefficients of one polynomial from file
   Polynomial readPolynomial (std::ifstream&,const int);
-  /// Logistic function (needed for transformation of weight and mean)
-  inline double logisticFunction (const double x) const {return 1./(1.+exp(-x));}
-  /// First moment of the Bethe-Heitler distribution (in z=E/E0)
-  inline double BetheHeitlerMean (const double rl) const
-  {
-    return exp(-rl);
-  }
-  /// Second moment of the Bethe-Heitler distribution (in z=E/E0)
-  inline double BetheHeitlerVariance (const double rl) const
-  {
-    return exp(-rl*log(3.)/log(2.)) - exp(-2*rl);
-  }
+
+ 
   /// Filling of mixture (in terms of z=E/E0)
-  void getMixtureParameters (const double, GSContainer&) const;
+  void getMixtureParameters (const float, GSContainer[]) const;
   /// Correction for weight of component 1
-  void correctWeights (GSContainer&) const;
+  void correctWeights (GSContainer[]) const;
   /// Correction for mean of component 1
-  double correctedFirstMean (const double, const GSContainer&) const;
+  float correctedFirstMean (const float, const GSContainer[]) const;
   /// Correction for variance of component 1
-  double correctedFirstVar (const double,const GSContainer&) const;
+  float correctedFirstVar (const float,const GSContainer[]) const;
   
-protected:
-  /// check of arguments for use with cached values
-  virtual bool newArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const;
-  /// storage of arguments for later use of 
-  virtual void storeArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const;
 
 private:
   int theNrComponents;                  /// number of components used for parameterisation
   int theTransformationCode;            /// values to be transformed by logistic / exp. function?
-  std::vector<Polynomial> thePolyWeights;    /// parametrisation of weight for each component
-  std::vector<Polynomial> thePolyMeans;      /// parametrisation of mean for each component
-  std::vector<Polynomial> thePolyVars;       /// parametrisation of variance for each component
-
   int theCorrectionFlag;                /// correction of 1st or 1st&2nd moments
 
-  mutable float theLastDz;
-  mutable float theLastP;
-  mutable PropagationDirection theLastPropDir;
-  mutable float theLastRadLength;
+  Polynomial thePolyWeights[MaxSize];    /// parametrisation of weight for each component
+  Polynomial thePolyMeans[MaxSize];      /// parametrisation of mean for each componentP
+  Polynomial thePolyVars[MaxSize];       /// parametrisation of variance for each component
+
 };
 
 #endif

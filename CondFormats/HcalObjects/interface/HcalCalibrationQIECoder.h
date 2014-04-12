@@ -26,7 +26,7 @@ class HcalCalibrationQIECoder {
   const float* minCharges () const;
   void setMinCharge (unsigned fBin, float fValue);
   void setMinCharges (const float fValue [32]);
-  unsigned long rawId () const {return mId;}
+  uint32_t rawId () const {return mId;}
  private:
   uint32_t mId;
   float bin0;

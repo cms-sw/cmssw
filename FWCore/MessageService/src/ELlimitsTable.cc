@@ -11,18 +11,23 @@
 //   6/15/00    web     using -> USING
 //  11/01/01    web     Fixed mixed-type comparisons
 //   5/18/06	mf	setInterval
+//  11/2/07	mf	add:  Changed ivl = wildcardLimit to wildcardInterval.
+//			Probably moot and never reached, but a clear correction.
+//  9/29/10	mf,ql	Fix savanah bug 65284 where two messages of same
+//			category but different severity, if limits were not
+//			take from category, first severity sets the limit
+//			for both of those xid's.
 //
 // ----------------------------------------------------------------------
 
 
 #include "FWCore/MessageService/interface/ELlimitsTable.h"
 
+// Posible traces
 //#include <iostream>
 //using std::cerr;
-
-// Posible traces
-// #define ELlimitsTableCONSTRUCTOR_TRACE
-// #define ELlimitsTableATRACE
+//#define ELlimitsTableCONSTRUCTOR_TRACE
+//#define ELlimitsTableATRACE
 
 
 namespace edm {
@@ -43,7 +48,7 @@ ELlimitsTable::ELlimitsTable()
 {
 
 #ifdef ELlimitsTableCONSTRUCTOR_TRACE
-  cerr << "Constructor for ELlimitsTable\n";
+  std::cerr << "Constructor for ELlimitsTable\n";
 #endif
 
   for ( int k = 0;  k < ELseverityLevel::nLevels;  ++k )  {
@@ -58,7 +63,7 @@ ELlimitsTable::ELlimitsTable()
 ELlimitsTable::~ELlimitsTable()  {
 
 #ifdef ELlimitsTableCONSTRUCTOR_TRACE
-  cerr << "Destructor for ELlimitsTable\n";
+  std::cerr << "Destructor for ELlimitsTable\n";
 #endif
 
 }  // ~ELlimitsTable()
@@ -74,7 +79,7 @@ void ELlimitsTable::setTableLimit( int n )  { tableLimit = n; }
 bool ELlimitsTable::add( const ELextendedID & xid )  {
 
 #ifdef ELlimitsTableATRACE
-  cerr << "&&&--- adding to limits table: " << xid.id << '\n';
+  std::cerr << "&&&--- adding to limits table: " << xid.id << '\n';
 #endif
 
   ELmap_counts::iterator c = counts.find( xid );
@@ -82,8 +87,14 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
   if ( c == counts.end() )  {  // no such entry yet
 
     #ifdef ELlimitsTableATRACE
-    cerr << "&&&    no such entry yet in counts \n";
+    std::cerr << "&&&    no such entry yet in counts \n";
     #endif
+
+    // if the counts table is "full", then this will never be rejected
+    // and info will not be kept so why go through significant work: 
+    if ( tableLimit > 0  && static_cast<int>(counts.size()) >= tableLimit ) {
+      return true;
+    }
     int lim;
     int ivl;
     int ts;
@@ -102,7 +113,7 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
       if ( ivl < 0 )  {                                    
         ivl = severityIntervals[xid.severity.getLevel()];
         if ( ivl < 0 )  {
-          ivl = wildcardLimit;
+          ivl = wildcardInterval;			// mf 11/02/07
         }
       }
       if ( ts < 0 )  {
@@ -113,44 +124,42 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
         limits[xid.id] = LimitAndTimespan( lim, ts );
       }
       #ifdef ELlimitsTableATRACE
-      cerr << "&&&    Entry found in limits: limit = " << lim
+      std::cerr << "&&&    Entry found in limits: limit = " << lim
            << " interval = " << ivl
            << " timespan = " << ts << '\n';
       #endif
-      limits[xid.id] = LimitAndTimespan( lim, ts, ivl );
+      // change log 9/29/10:  Do not put this into limits table
    } else  {   // establish and use limits new to this id
       lim = severityLimits   [xid.severity.getLevel()];
       ivl = severityIntervals[xid.severity.getLevel()];
       ts  = severityTimespans[xid.severity.getLevel()];
       #ifdef ELlimitsTableATRACE
-      cerr << "&&&    Limit taken from severityLimits: " << lim << '\n'
+      std::cerr << "&&&    Limit taken from severityLimits: " << lim << '\n'
            << "&&&    Interval taken from severityLimits: " << ivl << '\n';
       #endif
       if ( lim < 0 )  {
         lim = wildcardLimit;
         #ifdef ELlimitsTableATRACE
-        cerr << "&&&    Limit reset to wildcard limit: " << lim << '\n';
+        std::cerr << "&&&    Limit reset to wildcard limit: " << lim << '\n';
         #endif
       }
       if ( ivl < 0 )  {
         ivl = wildcardInterval;
         #ifdef ELlimitsTableATRACE
-        cerr << "&&&    Interval reset to wildcard interval: " << ivl << '\n';
+        std::cerr << "&&&    Interval reset to wildcard interval: " << ivl << '\n';
         #endif
       }
       #ifdef ELlimitsTableATRACE
-      cerr << "&&&    Timespan taken from severityTimespans: " << ts << '\n';
+      std::cerr << "&&&    Timespan taken from severityTimespans: " << ts << '\n';
       #endif
       if ( ts < 0 )  {
         ts = wildcardTimespan;
         #ifdef ELlimitsTableATRACE
-        cerr << "&&&    timespan reset to wildcard timespan: " << ts << '\n';
+        std::cerr << "&&&    timespan reset to wildcard timespan: " << ts << '\n';
         #endif
       }
 
-      // save, if possible, id's future limits:
-      if ( tableLimit < 0  || static_cast<int>(limits.size()) < tableLimit )
-        limits[xid.id] = LimitAndTimespan( lim, ts, ivl );
+      // change log 9/29/10 DO not save id's future limits:
     }
 
     // save, if possible, this xid's initial entry:
@@ -243,6 +252,9 @@ void ELlimitsTable::setTimespan( const ELseverityLevel & sev, int n )  {
 
 ELlimitsTable & ELlimitsTable::operator=( const ELlimitsTable & t )  {
 
+  if(this == &t) {
+    return  *this; // self assignment
+  }
   limits = t.limits;  // The non-trivial operator= for a map!
 
   for ( int lev = 0;  lev < ELseverityLevel::nLevels;  ++lev )  {

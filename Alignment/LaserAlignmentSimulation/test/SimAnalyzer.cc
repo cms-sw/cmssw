@@ -1,12 +1,26 @@
 /** \file SimAnalyzer.cc
  *  Get some statistics and plots about the simulation of the Laser Alignment System
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/12/14 22:21:45 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/test/SimAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/Framework/interface/EventSetup.h" 
+#include "FWCore/Utilities/interface/EDMException.h" 
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "DataFormats/DetId/interface/DetId.h" 
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h" 
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h" 
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
+#include "TFile.h" 
 
 	SimAnalyzer::SimAnalyzer(edm::ParameterSet const& theConf) 
 	: theEvents(0), 
@@ -18,7 +32,31 @@
 	theSearchZTOB(theConf.getUntrackedParameter<double>("SearchWindowZTOB",1.0)),
 	theFile(),
 	theCompression(theConf.getUntrackedParameter<int>("ROOTFileCompression",1)),
-	theFileName(theConf.getUntrackedParameter<std::string>("ROOTFileName","test.root"))
+	theFileName(theConf.getUntrackedParameter<std::string>("ROOTFileName","test.root")),
+	theBarrelSimHitsX(0),
+	theBarrelSimHitsY(0),
+	theBarrelSimHitsZ(0),
+	theBarrelSimHitsYvsX(0),
+	theBarrelSimHitsXvsZ(0),
+	theBarrelSimHitsYvsZ(0),
+	theBarrelSimHitsRvsZ(0),
+	theBarrelSimHitsPhivsX(0),
+	theBarrelSimHitsPhivsY(0),
+	theBarrelSimHitsPhivsZ(0),
+	// the histograms for Endcap Hits
+	theEndcapSimHitsX(0),
+	theEndcapSimHitsY(0),
+	theEndcapSimHitsZ(0),
+	theEndcapSimHitsYvsX(0),
+	theEndcapSimHitsXvsZ(0),
+	theEndcapSimHitsYvsZ(0),
+	theEndcapSimHitsRvsZ(0),
+	theEndcapSimHitsPhivsX(0),
+	theEndcapSimHitsPhivsY(0),
+	theEndcapSimHitsPhivsZ(0),
+	// the histograms for all SimHits
+	theSimHitsRvsZ(0),
+	theSimHitsPhivsZ(0)  
 {
 	// load the configuration from the ParameterSet  
 	edm::LogInfo("SimAnalyzer") << "==========================================================="  
@@ -36,10 +74,12 @@
 
 SimAnalyzer::~SimAnalyzer()
 {
-	// close the rootfile
-	closeRootFile();
-
-	if (theFile != 0) { delete theFile; }
+	if (theFile != 0) {
+	        // close the rootfile
+	        closeRootFile();
+	  
+   	        delete theFile; 
+	}
 
 }
 
@@ -62,18 +102,18 @@ void SimAnalyzer::analyze(edm::Event const& theEvent, edm::EventSetup const& the
 	LogDebug("SimAnalyzer") << "===========================================================";
 }
 
-void SimAnalyzer::beginJob(const edm::EventSetup& theSetup) 
+void SimAnalyzer::beginJob() 
 {
 	LogDebug("SimAnalyzer") << "==========================================================="
 		<< "===                Start beginJob()                     ==="
 		<< "     creating a CMS Root Tree ...";
 	// creating a new file
 	theFile = new TFile(theFileName.c_str(),"RECREATE","CMS ROOT file");
-	theFile->SetCompressionLevel(theCompression);
 
 	// initialize the histograms
 	if (theFile) 
 	{
+         	theFile->SetCompressionLevel(theCompression);
 		this->initHistograms();
 	}
 	else 

@@ -8,42 +8,48 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h" 
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+
 NuclearInteractionFinder::NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig) :
-ptMin(iConfig.getParameter<double>("ptMin")),
 maxHits(iConfig.getParameter<int>("maxHits")),
 rescaleErrorFactor(iConfig.getParameter<double>("rescaleErrorFactor")),
-checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
+checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack")),
+navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
 {
+
+   std::string measurementTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
+
    edm::ESHandle<Propagator> prop;
    edm::ESHandle<TrajectoryStateUpdator> upd;
    edm::ESHandle<Chi2MeasurementEstimatorBase> est;
    edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTrackerHandle;
-   edm::ESHandle<TrackerGeometry>           theTrackerGeom;
+   edm::ESHandle<TrackerGeometry>              theTrackerGeom;
 
    es.get<TrackerDigiGeometryRecord> ().get (theTrackerGeom);
    es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",prop);
    es.get<TrackingComponentsRecord>().get("Chi2",est);
-   es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
-   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTrackerHandle );
+   es.get<CkfComponentsRecord>().get(measurementTrackerName, measurementTrackerHandle);
+   es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTrackerHandle );
    es.get<IdealMagneticFieldRecord>().get(theMagField);
+
+   edm::ESHandle<NavigationSchool>             nav;
+   es.get<NavigationSchoolRecord>().get(navigationSchoolName, nav);
+   theNavigationSchool  = nav.product();
 
    thePropagator = prop.product();
    theEstimator = est.product();
    theMeasurementTracker = measurementTrackerHandle.product();
-   theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
    theGeomSearchTracker = theGeomSearchTrackerHandle.product();
-   theNavigationSchool  = new SimpleNavigationSchool(theGeomSearchTracker,&(*theMagField));
 
-   // set the correct navigation
-   NavigationSetter setter( *theNavigationSchool);
    LogDebug("NuclearSeedGenerator") << "New NuclearInteractionFinder instance with parameters : \n"
-                                        << "ptMin : " << ptMin << "\n"
                                         << "maxHits : " << maxHits << "\n"
                                         << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
                                         << "checkCompletedTrack : " << checkCompletedTrack << "\n";
@@ -51,26 +57,22 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    nuclTester = new NuclearTester(maxHits, theEstimator, theTrackerGeom.product() );
 
    currentSeed = new SeedFromNuclearInteraction(thePropagator, theTrackerGeom.product(), iConfig) ;
-}
-//----------------------------------------------------------------------
-void NuclearInteractionFinder::setEvent(const edm::Event& event) const
-{
-   theMeasurementTracker->update(event);
-}
 
+   thePrimaryHelix = new TangentHelix();
+}
 //----------------------------------------------------------------------
 NuclearInteractionFinder::~NuclearInteractionFinder() {
-  delete theLayerMeasurements;
-  delete theNavigationSchool;
   delete nuclTester;
   delete currentSeed;
   delete thePrimaryHelix;
 }
 
 //----------------------------------------------------------------------
-bool  NuclearInteractionFinder::run(const Trajectory& traj) {
+bool  NuclearInteractionFinder::run(const Trajectory& traj, const MeasurementTrackerEvent &event) {
 
         if(traj.empty() || !traj.isValid()) return false;
+
+        LogDebug("NuclearSeedGenerator") << "Analyzis of a new trajectory with a number of valid hits = " << traj.foundHits();
 
         std::vector<TrajectoryMeasurement> measurements = traj.measurements();
 
@@ -78,6 +80,7 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
         nuclTester->reset( measurements.size() );
         allSeeds.clear();
 
+        LayerMeasurements layerMeasurements(*theMeasurementTracker, event);
 
         if(traj.direction()==alongMomentum)  {
                 std::reverse(measurements.begin(), measurements.end());
@@ -96,7 +99,7 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
 	   // check only the maxHits outermost hits of the primary track
 	   if(nuclTester->nHitsChecked() > maxHits) break;
 
-           nuclTester->push_back(*it_meas, findCompatibleMeasurements(*it_meas, rescaleErrorFactor));
+           nuclTester->push_back(*it_meas, findCompatibleMeasurements(*it_meas, rescaleErrorFactor, layerMeasurements));
 
            LogDebug("NuclearSeedGenerator") << "Number of compatible meas:" << (nuclTester->back()).size() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanHitDistance() << "\n"
@@ -112,10 +115,6 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
 
         if(NIfound) {
             LogDebug("NuclearSeedGenerator") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex()  << "\n";
-
-
-	    if(nuclTester->nHitsChecked() < 3)
-		    LogDebug("NuclearSeedGenerator") << "PROBLEM in NuclearTester : nuclTester->nHitsChecked() = " <<  nuclTester->nHitsChecked() << "  < 3\n";
 
             // Get correct parametrization of the helix of the primary track at the interaction point (to be used by improveCurrentSeed)
             definePrimaryHelix(measurements.begin()+nuclTester->nuclearIndex()-1);
@@ -136,22 +135,22 @@ void NuclearInteractionFinder::definePrimaryHelix(std::vector<TrajectoryMeasurem
        pt[i] = (it_meas->updatedState()).globalParameters().position();
        it_meas++;
     }
+    delete thePrimaryHelix;
     thePrimaryHelix = new TangentHelix( pt[0], pt[1], pt[2] );
 }
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>
-NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double rescale) const
+NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double rescale, const LayerMeasurements & layerMeasurements) const
 {
   TSOS currentState = lastMeas.updatedState();
   LogDebug("NuclearSeedGenerator") << "currentState :" << currentState << "\n";
 
-  currentState.rescaleError(rescale);
-  return findMeasurementsFromTSOS(currentState, lastMeas.recHit()->geographicalId());
+  TSOS newState = rescaleError(rescale, currentState);
+  return findMeasurementsFromTSOS(newState, lastMeas.recHit()->geographicalId(), layerMeasurements);
 }
-
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>
-NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, DetId detid) const {
+NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, DetId detid, const LayerMeasurements & layerMeasurements) const {
 
   using namespace std;
   int invalidHits = 0;
@@ -175,7 +174,7 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, Det
   for (vector<const DetLayer*>::iterator il = nl.begin();
        il != nl.end(); il++) {
     vector<TM> tmp =
-      theLayerMeasurements->measurements((**il),currentState, *thePropagator, *theEstimator);
+      layerMeasurements.measurements((**il),currentState, *thePropagator, *theEstimator);
     if ( !tmp.empty()) {
       if ( result.empty()) result = tmp;
       else {
@@ -222,8 +221,10 @@ std::auto_ptr<TrajectorySeedCollection> NuclearInteractionFinder::getPersistentS
    return output;
 }
 //----------------------------------------------------------------------
-void NuclearInteractionFinder::improveSeeds() {
+void NuclearInteractionFinder::improveSeeds(const MeasurementTrackerEvent &event) {
         std::vector<SeedFromNuclearInteraction> newSeedCollection;
+
+        LayerMeasurements layerMeasurements(*theMeasurementTracker, event);
 
         // loop on all actual seeds
         for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
@@ -231,7 +232,7 @@ void NuclearInteractionFinder::improveSeeds() {
 	      if( !it_seed->isValid() ) continue;
 
               // find compatible TM in an outer layer
-              std::vector<TM> thirdTMs = findMeasurementsFromTSOS( it_seed->updatedTSOS() , it_seed->outerHitDetId() );
+              std::vector<TM> thirdTMs = findMeasurementsFromTSOS( it_seed->updatedTSOS() , it_seed->outerHitDetId(), layerMeasurements );
 
               // loop on those new TMs
               for(std::vector<TM>::const_iterator tm = thirdTMs.begin(); tm!= thirdTMs.end(); tm++) {
@@ -245,4 +246,24 @@ void NuclearInteractionFinder::improveSeeds() {
        }
        allSeeds.clear();
        allSeeds = newSeedCollection;
+}
+//----------------------------------------------------------------------
+TrajectoryStateOnSurface NuclearInteractionFinder::rescaleError(float rescale, const TSOS& state) const {
+
+     AlgebraicSymMatrix55 m(state.localError().matrix());
+     AlgebraicSymMatrix55 mr;
+     LocalTrajectoryParameters ltp = state.localParameters();
+
+     // we assume that the error on q/p is equal to 20% of q/p * rescale 
+     mr(0,0) = (ltp.signedInverseMomentum()*0.2*rescale)*(ltp.signedInverseMomentum()*0.2*rescale);
+
+     // the error on dx/z and dy/dz is fixed to 10% (* rescale)
+     mr(1,1) = 1E-2*rescale*rescale;
+     mr(2,2) = 1E-2*rescale*rescale;
+
+     // the error on the local x and y positions are not modified.
+     mr(3,3) = m(3,3);
+     mr(4,4) = m(4,4);
+
+     return TSOS(ltp, mr, state.surface(), &(state.globalParameters().magneticField()), state.surfaceSide());
 }

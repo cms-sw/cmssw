@@ -4,8 +4,8 @@
  *  Contains DTSurveyChambers and the displacements and rotations for each are 
  *  calculated.
  *
- *  $Date: 2007/04/13 18:05:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/06 01:53:28 $
+ *  $Revision: 1.3 $
  *  \author Pablo Martinez Ruiz del Arbol
  */
 
@@ -14,46 +14,33 @@
 #ifndef Alignment_SurveyAnalysis_DTSurvey_H
 #define Alignment_SurveyAnalysis_DTSurvey_H
 
+#include "TMatrixD.h"
 
-#include <TMatrixD.h>
-#include <string>
+class DTGeometry;
+class DTSurveyChamber;
 
-#include "Alignment/SurveyAnalysis/interface/DTSurveyChamber.h"
-
-//#include "Alignment/MuonAlignment/interface/MuonAlignment.h"
-
-
-#include <FWCore/Framework/interface/ESHandle.h>
-
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
-
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-
-
-using namespace std;
-
+namespace edm { template<class> class ESHandle; }
 
 class DTSurvey {
 
   
  public:
-  DTSurvey(string, string, int);
+  DTSurvey(const std::string&, const std::string&, int);
   ~DTSurvey();
  
   void ReadChambers(edm::ESHandle<DTGeometry>);
   void CalculateChambers();
 
-  DTSurveyChamber * getChamber(int, int);
+  const DTSurveyChamber * getChamber(int, int) const;
 
-  int getId();
+  int getId() const { return id; }
 
   //void ToDB(MuonAlignment *);
  
   private:
   void FillWheelInfo();
 
-  string nameOfWheelInfoFile, nameOfChamberInfoFile;
+  std::string nameOfWheelInfoFile, nameOfChamberInfoFile;
   int id; 
   
   //This is the displacement (vector) and rotation (matrix) for the wheel
@@ -66,6 +53,6 @@ class DTSurvey {
 };
 
 
-std::ostream &operator<<(std::ostream &, DTSurvey);
+std::ostream &operator<<(std::ostream &, const DTSurvey&);
 
 #endif

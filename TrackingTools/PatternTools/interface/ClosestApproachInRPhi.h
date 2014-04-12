@@ -2,9 +2,7 @@
 #define _ClosestApproachInRPhi_H_
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachOnHelices.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-using namespace std;
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 
 /** Given two trajectory states, computes the two points of closest approach 
  *  in the transverse plane for the helices extrapolated from these states. 
@@ -17,40 +15,37 @@ using namespace std;
  *     the z-coordinates on the 2 tracks are the closest is chosen. 
  */
 
-class ClosestApproachInRPhi : public ClosestApproachOnHelices {
+class ClosestApproachInRPhi GCC11_FINAL : public ClosestApproachOnHelices {
 
 public:
 
-  virtual pair<GlobalPoint, GlobalPoint> 
-  points(const TrajectoryStateOnSurface & sta, 
-	 const TrajectoryStateOnSurface & stb) const;
+  ClosestApproachInRPhi() {status_ = false;}
+  ~ClosestApproachInRPhi(){}
 
-  virtual pair<GlobalPoint, GlobalPoint> 
-  points(const FreeTrajectoryState & sta, 
-	 const FreeTrajectoryState & stb) const;
+  virtual bool calculate(const TrajectoryStateOnSurface & sta, 
+			 const TrajectoryStateOnSurface & stb);
+
+  virtual bool calculate(const FreeTrajectoryState & sta,
+			 const FreeTrajectoryState & stb);
+
+  virtual bool status() const {return status_;}
+
+  /**
+   * Returns the two PCA on the trajectories.
+   */
+  virtual std::pair<GlobalPoint, GlobalPoint> points() const;
 
   /** Returns not only the points, but the full GlobalTrajectoryParemeters 
    *  at the points of closest approach */
-  pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters >
-  trajectoryParameters ( const FreeTrajectoryState & sta, 
-                         const FreeTrajectoryState & stb) const;
-  pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters >
-  trajectoryParameters ( const TrajectoryStateOnSurface & sta,
-                         const TrajectoryStateOnSurface & stb ) const;
+  std::pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters >
+  trajectoryParameters () const;
 
   /** arithmetic mean of the two points of closest approach */
-  virtual GlobalPoint crossingPoint(const TrajectoryStateOnSurface & sta, 
-				    const TrajectoryStateOnSurface & stb) const;
-
-  virtual GlobalPoint crossingPoint(const FreeTrajectoryState & sta, 
-				    const FreeTrajectoryState & stb) const;
+  virtual GlobalPoint crossingPoint() const;
 
   /** distance between the two points of closest approach in 3D */
-  virtual float distance(const TrajectoryStateOnSurface & sta, 
-			 const TrajectoryStateOnSurface & stb) const;
+  virtual float distance() const;
 
-  virtual float distance(const FreeTrajectoryState & sta, 
-			 const FreeTrajectoryState & stb) const;
   /**
    *  Clone method
    */
@@ -60,42 +55,51 @@ public:
 
 private:
 
-  pair<GlobalPoint, GlobalPoint> points(const TrackCharge & chargeA, 
-					const GlobalVector & momentumA, 
-					const GlobalPoint & positionA, 
-					const TrackCharge & chargeB, 
-					const GlobalVector & momentumB, 
-					const GlobalPoint & positionB,
-					const MagneticField& magField) const;
+  bool compute(const TrackCharge & chargeA, 
+	       const GlobalVector & momentumA, 
+	       const GlobalPoint & positionA, 
+	       const TrackCharge & chargeB, 
+	       const GlobalVector & momentumB, 
+	       const GlobalPoint & positionB) dso_internal;
 
   // given the old Parameters, and a new GlobalPoint,
   // we return the full new GlobalTrajectoryParameters at the
   // Point.
-  GlobalTrajectoryParameters trajectoryParameters ( const GlobalPoint & newpt,
-        const GlobalTrajectoryParameters & oldpar ) const;
+  static GlobalTrajectoryParameters
+  newTrajectory( const GlobalPoint & newpt,
+		 const GlobalTrajectoryParameters & oldpar, double bz)  dso_internal;
 
   // Computes center coordinates and unsigned radius of circle;
-  void circleParameters(const TrackCharge& charge, 
-			const GlobalVector& momemtum, 
-			const GlobalPoint& position, 
-			double& xc, double& yc, double& r,
-			const MagneticField& magField) const;
+  static void circleParameters(const TrackCharge& charge, 
+			       const GlobalVector& momemtum, 
+			       const GlobalPoint& position, 
+			       double& xc, double& yc, double& r,
+			       double bz)  dso_internal;
 
   // Computes crossing points of 2 circles with centres (cx_i, cy_i) 
   // and unsigned radii r_i. 
   // Two cases: - circles have one or two intersection points; 
   //              return value = 1; 
   //            - circles do not cross; computes point of closest approach 
-  //              on each circle; return value = 2; 
-  int transverseCoord(double cxa, double cya, double ra, 
-		      double cxb, double cyb, double rb, 
-		      double & xg1, double & yg1, 
-		      double & xg2, double & yg2) const;
+  //              on each circle; return value = 2;
+  // if the calculation fails (e.g. concentric circles), return value = 0;
+
+  static int transverseCoord(double cxa, double cya, double ra, 
+			     double cxb, double cyb, double rb, 
+			     double & xg1, double & yg1, 
+			     double & xg2, double & yg2)  dso_internal;
 
   // Computes z-coordinate on helix at given transverse coordinates
-  double zCoord(const GlobalVector& mom, const GlobalPoint& pos, 
-		double r, double xc, double yc, double xg, double yg) const;
+  static double zCoord(const GlobalVector& mom, const GlobalPoint& pos, 
+		       double r, double xc, double yc, double xg, double yg)  dso_internal; 
 
+
+private:
+  GlobalPoint posA, posB;
+  GlobalTrajectoryParameters paramA, paramB;
+  double bz;
+  bool status_;
+  
 };
 
 #endif

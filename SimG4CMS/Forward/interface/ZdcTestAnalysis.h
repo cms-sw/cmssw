@@ -22,8 +22,8 @@
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4UserEventAction.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
@@ -37,7 +37,6 @@
 #include <memory>
 #include <vector>
 
-#include <CLHEP/Vector/LorentzVector.h>
 #include <CLHEP/Random/Randomize.h> 
 
 #include "TROOT.h"
@@ -104,7 +103,7 @@ private:
   int stepIndex;
 
   Float_t zdcsteparray[18];
-  Float_t zdceventarray[15];
+  Float_t zdceventarray[16];
 
 };
 

@@ -9,15 +9,8 @@
 
 #include "EventFilter/SiStripChannelChargeFilter/interface/TECClusterFilter.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-//#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-//#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-//#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -63,7 +56,7 @@ namespace cms
 	      { // calculate sum of amplitudes
 		unsigned int amplclus=0;
 		// int amplclus=0;
-		for(vector<uint16_t>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
+		for(vector<uint8_t>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
 		// for(vector<short>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
 		  { if ((*ia)>0) amplclus+=(*ia); } // why should this be negative?
 		if(amplclus>ChargeThresholdTEC) nr_clusters_above_threshold++;

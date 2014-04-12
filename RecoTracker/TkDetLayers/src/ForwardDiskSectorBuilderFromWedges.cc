@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromWedges.h"
+#include "ForwardDiskSectorBuilderFromWedges.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -35,15 +35,14 @@ ForwardDiskSectorBuilderFromWedges::operator()( const vector<const TECWedge*>& w
 				   << phidiff ;
   }
   
-  pair<DiskSectorBounds,GlobalVector> bo = 
-    computeBounds( wedges );
+  auto bo = computeBounds( wedges );
 
   Surface::PositionType pos( bo.second.x(), bo.second.y(), bo.second.z() );
   Surface::RotationType rot = computeRotation( wedges, pos);
   return new BoundDiskSector( pos, rot, bo.first);
 }
 
-pair<DiskSectorBounds, GlobalVector>
+pair<DiskSectorBounds*, GlobalVector>
 ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>& wedges) const
 {
 
@@ -63,8 +62,8 @@ ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>
     float ro = (**iw).specificSurface().outerRadius();
     float zmi = (**iw).surface().position().z() - (**iw).specificSurface().bounds().thickness()/2.;
     float zma = (**iw).surface().position().z() + (**iw).specificSurface().bounds().thickness()/2.;
-    float phi1 = (**iw).surface().position().phi() - (**iw).specificSurface().phiExtension()/2.;
-    float phi2 = (**iw).surface().position().phi() + (**iw).specificSurface().phiExtension()/2.;
+    float phi1 = (**iw).surface().position().phi() - (**iw).specificSurface().phiHalfExtension();
+    float phi2 = (**iw).surface().position().phi() + (**iw).specificSurface().phiHalfExtension();
     rmin = min( rmin, ri);
     rmax = max( rmax, ro);
     zmin = min( zmin, zmi);
@@ -91,7 +90,7 @@ ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>
   }
   
   GlobalVector pos( rmed*cos(phiPos), rmed*sin(phiPos), zPos);
-  return make_pair(DiskSectorBounds(rmin,rmax,zmin-zPos,zmax-zPos,phiWin), pos);
+  return make_pair(new DiskSectorBounds(rmin,rmax,zmin-zPos,zmax-zPos,phiWin), pos);
 }
 
 Surface::RotationType 

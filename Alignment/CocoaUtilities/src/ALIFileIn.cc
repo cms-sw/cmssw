@@ -22,25 +22,18 @@ std::vector<ALIFileIn*> ALIFileIn::theInstances;
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIFileIn& ALIFileIn::getInstance( const ALIstring& filename )
 {
-  std::vector<ALIFileIn*>::const_iterator vfcite;
-  for( vfcite = theInstances.begin(); vfcite != theInstances.end(); vfcite++) {
-    if( (*vfcite)->name() == filename) {
-      return *(*vfcite);
+  for (auto vfc : theInstances) {
+    if( vfc->name() == filename) {
+      return *vfc;
     }
   }
 
-  ALIFileIn* instance = 0;
-  if( vfcite == theInstances.end() ) {
-    instance = new ALIFileIn( filename );
-    
-    instance->theCurrentFile = -1;
-    instance->openNewFile( filename.c_str() );
-
-    theInstances.push_back( instance );
-  }
-
+  ALIFileIn* instance = new ALIFileIn( filename );
+  instance->theCurrentFile = -1;
+  instance->openNewFile(filename.c_str());
+  theInstances.push_back(instance);
+  
   return *instance;
-
 }
 
 
@@ -144,7 +137,7 @@ ALIint ALIFileIn::getWordsInLine(std::vector<ALIstring>& wordlist)
 	}
       }
       tt++;
-    }while(*tt != '\0' & stemp.length()!=0);
+    }while(*tt != '\0' && stemp.length()!=0);
     ALIstring stempt (ltemp);
     if(stempt.length() == 0) NoWords = 0;
     

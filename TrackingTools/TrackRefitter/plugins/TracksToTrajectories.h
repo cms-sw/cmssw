@@ -6,16 +6,14 @@
  *  strored in the reco::Tracks. The final result is a std::vector of Trajectories (objs of the type "Trajectory"), 
  *  which is loaded into the Event in a transient way
  *
- *  $Date: 2006/11/23 11:34:38 $
- *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
-class TrackTransformer;
+class TrackTransformerBase;
 
 class TracksToTrajectories: public edm::EDProducer{
 public:
@@ -27,6 +25,7 @@ public:
   virtual ~TracksToTrajectories();
   
   // Operations
+  void endJob();
 
   /// Convert a reco::TrackCollection into std::vector<Trajectory>
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -36,7 +35,10 @@ public:
  private:
   
   edm::InputTag theTracksLabel;
-  TrackTransformer *theTrackTransformer;
+  TrackTransformerBase *theTrackTransformer;
+
+  int theNTracks;
+  int theNFailures;
 };
 #endif
 

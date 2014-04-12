@@ -1,8 +1,8 @@
-#include "RecoTracker/TkDetLayers/interface/PixelRod.h"
+#include "PixelRod.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 
@@ -70,7 +70,7 @@ PixelRod::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
     if(!closestCompat.second.isValid()) return;  // to investigate why this happens
   }
 
-  const BoundPlane& closestPlane( theDets[closest]->specificSurface() );
+  const Plane& closestPlane( theDets[closest]->specificSurface() );
 
   Local2DVector maxDistance = 
     est.maximalLocalDisplacement( closestCompat.second, closestPlane);

@@ -1,8 +1,8 @@
-#ifndef FastL1CaloSim_FastL1Region_h
-#define FastL1CaloSim_FastL1Region_h
+#ifndef RecoTauTag_FastL1Region_h
+#define RecoTauTag_FastL1Region_h
 // -*- C++ -*-
 //
-// Package:    FastL1CaloSim
+// Package:    L1CaloSim
 // Class:      FastL1Region
 // 
 /**\class FastL1Region
@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.7 2007/06/17 13:53:31 chinhan Exp $
+// $Id: FastL1Region.h,v 1.5 2009/02/08 18:14:36 chinhan Exp $
 //
 
 // user include files
@@ -48,9 +48,9 @@
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
 // No BitInfos for release versions
-//#include "DataFormats/FastL1/interface/FastL1BitInfo.h" // FastL1BitInfo is not yet for publication
+#include "FastSimDataFormats/External/interface/FastL1BitInfo.h" // FastL1BitInfo is not yet for publication
 
-struct FastL1Config {
+struct L1Config {
   bool DoJetCorr;
   bool DoEMCorr;
 
@@ -89,7 +89,18 @@ struct FastL1Config {
 
   std::vector<edm::InputTag> EmInputs;
   edm::InputTag TowerInput;
+
+  edm::InputTag EcalTPInput;
+  edm::InputTag HcalTPInput;
+
+  edm::FileInPath HcalLUT;
 };
+
+
+class CaloTowerConstituentsMap;
+class CaloTopology;
+class CaloGeometry;
+//class EcalRecHitCollection;
 
 //
 //
@@ -102,11 +113,18 @@ class FastL1Region {
   FastL1Region();
   ~FastL1Region();
 
-  void SetParameters(FastL1Config);
-  void FillTower(const CaloTower& t, int& tid); 
-  void FillTowerZero(const CaloTower& t, int& tid); 
-  void FillTower_Scaled(const CaloTower& t, int& tid); 
-  void FillEMCrystals(const edm::Event&, const edm::EventSetup&,FastL1RegionMap* m_RMap);
+  void SetParameters(const L1Config&);
+  void FillTower(const CaloTower& t,int& tid,edm::ESHandle<CaloGeometry> &cGeom); 
+  void FillTowerZero(const CaloTower& t,int& tid); 
+  void FillTower_Scaled(const CaloTower& t,int& tid,bool doRCTTrunc,edm::ESHandle<CaloGeometry> &cGeom); 
+  void FillEMCrystals(const CaloTowerConstituentsMap* theTowerConstituentsMap,
+		      const CaloTopology* calotopo,
+		      const CaloGeometry* cGeom,
+		      const EcalRecHitCollection* ec0,
+		      const EcalRecHitCollection* ec1,
+		      FastL1RegionMap* m_RMap);
+
+
   void Dump();
   void SetEtaPhiIndex(int eta,int phi,int ind) 
   { ieta=eta; iphi=phi; id=ind; };
@@ -141,12 +159,26 @@ class FastL1Region {
 
   double SumE() { return CalcSumE(); };
   double SumEt() { return CalcSumEt(); };
+  double SumEmE() { return CalcSumEmE(); };
+  double SumEmEt() { return CalcSumEmEt(); };
+  double SumHadE() { return CalcSumHadE(); };
+  double SumHadEt() { return CalcSumHadEt(); };
   double CalcSumE();
   double CalcSumEt();
+  double CalcSumEmE();
+  double CalcSumEmEt();
+  double CalcSumHadE();
+  double CalcSumHadEt();
   double GetJetE() { return jetE; };
   double GetJetEt() { return jetEt; };
   void SetJetE(double jE) { jetE = jE; };
   void SetJetEt(double jEt) { jetEt = jEt; };
+
+  void SetDoBitInfo(bool doIt) {doBitInfo = doIt;}
+
+  int HighestEtTowerID();
+  int HighestEmEtTowerID();
+  int HighestHadEtTowerID();
 
   double GetJetE3x3() { return jetE3x3; };
   double GetJetEt3x3() { return jetEt3x3; };
@@ -157,10 +189,15 @@ class FastL1Region {
 
   std::pair<int, int> GetTowerNorthEtaPhi(int ieta, int iphi); 
 
-  //FastL1BitInfo getBitInfo() { return BitInfo; }
+  FastL1BitInfo getBitInfo() { return BitInfo; }
 
   // public - has to bechanged!!!
-  //FastL1BitInfo BitInfo;
+  bool doBitInfo;
+  FastL1BitInfo BitInfo;
+
+  void SetFGBit(int twrid,bool FGBIT);
+  void SetHCFGBit(int twrid,bool FGBIT);
+  void SetHOEBit(int twrid,bool FGBIT);
 
  private:
   void SetTauBit(edm::Event const& e);
@@ -202,7 +239,7 @@ class FastL1Region {
   double sumEt;
   double sumE;
 
-  FastL1Config Config;
+  L1Config Config;
 };
 
 
@@ -219,9 +256,13 @@ corrJetEt2(double et, double eta);
 
 // EM correction from ORCA for cmsim 133
 double 
-corrEmEt(double et, double eta);
+corrEmEt(double et, int eta);
+//corrEmEt(double et, double eta);
 
 double 
-TPEnergyRound(double et, double Resol = 1., double thres = 1.);
+RCTEnergyTrunc(double et, double Resol = 1., double thres = 1024.);
+
+double 
+GCTEnergyTrunc(double et, double LSB = 1., bool doEM=false);
 
 #endif

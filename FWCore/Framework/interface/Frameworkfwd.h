@@ -5,43 +5,37 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.39 2007/05/29 19:30:46 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 namespace edm {
-  class ConfigurableInputSource;
-  class CurrentProcessingContext;
+  class PrincipalGetAdapter;
   class DelayedReader;
-  class DataViewImpl;
   class EDAnalyzer;
   class EDFilter;
   class EDLooper;
-  class EDLooperHelper;
   class EDProducer;
   class Event;
   class EventPrincipal;
   class EventSetup;
-  class GeneratedInputSource;
-  class Group;
+  class FileBlock;
   class InputSource;
-  class InputSourceDescription;
+  struct InputSourceDescription;
   class LuminosityBlock;
   class LuminosityBlockPrincipal;
-  struct NoDelayedReader;
   class OutputModule;
+  class OutputModuleDescription;
   class ParameterSet;
   class Principal;
+  class PrincipalCache;
+  class PrincipalGetAdapter;
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class Run;
   class RunPrincipal;
   class Schedule;
-  class Selector;
-  class SelectorBase;
   class TypeID;
   class UnscheduledHandler;
   class ViewBase;
@@ -50,9 +44,7 @@ namespace edm {
   struct PathSummary;
   struct TriggerReport;
   template <typename T> class View;
+  template <typename T> class WorkerT;
 }
-
-// The following are trivial enough so that the real headers can be included.
-#include "FWCore/Framework/interface/BranchActionType.h"
 
 #endif

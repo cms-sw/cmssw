@@ -7,9 +7,7 @@ package detidGenerator;
 **/
 
 /*
-  $Date: 2006/02/10 09:22:13 $
   
-  $Log: DetIdConverter.java,v $
   Revision 1.2  2006/02/10 09:22:13  baulieu
   Retrieve the fibers length
 

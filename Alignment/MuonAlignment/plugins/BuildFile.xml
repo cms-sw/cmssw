@@ -1,0 +1,51 @@
+<library name="MisalignedMuonESProducer" file="MisalignedMuonESProducer.cc">
+  <use name="Alignment/MuonAlignment" />
+  <flags EDM_PLUGIN="1" />
+</library>
+
+<library name="MuonGeometryDBConverter" file="MuonGeometryDBConverter.cc">
+  <use name="FWCore/Framework" />
+  <use name="FWCore/ParameterSet" />
+  <use name="FWCore/MessageLogger" />
+  <use name="Alignment/CommonAlignment" />
+  <use name="Alignment/MuonAlignment" />
+  <flags EDM_PLUGIN="1" />
+</library>
+
+<library name="MuonGeometrySanityCheck" file="MuonGeometrySanityCheck.cc">
+  <use name="FWCore/Framework" />
+  <use name="FWCore/ParameterSet" />
+  <use name="DataFormats/GeometryVector" />
+  <use name="DataFormats/DetId" />
+  <use name="DataFormats/MuonDetId" />
+  <use name="Geometry/DTGeometry" />
+  <use name="Geometry/CSCGeometry" />
+  <use name="Geometry/Records" />
+  <use name="clhep" />
+  <flags EDM_PLUGIN="1" />
+</library>
+
+<library name="MuonGeometrySVGTemplate" file="MuonGeometrySVGTemplate.cc">
+  <use name="FWCore/Framework" />
+  <use name="FWCore/ParameterSet" />
+  <use name="DataFormats/GeometryVector" />
+  <use name="DataFormats/DetId" />
+  <use name="DataFormats/MuonDetId" />
+  <use name="Alignment/CommonAlignment" />
+  <use name="Alignment/MuonAlignment" />
+  <flags EDM_PLUGIN="1" />
+</library>
+
+<library name="MuonGeometryArrange" file="MuonGeometryArrange.cc">
+  <use name="Alignment/CommonAlignment" />
+  <use name="Alignment/MuonAlignment" />
+  <use name="CLHEP" />
+  <use name="rootcore" />
+  <use name="rootgraphics" />
+  <use name="FWCore/Framework" />
+  <use name="FWCore/ParameterSet" />
+  <use name="FWCore/MessageLogger" />
+  <use name="CondFormats/Alignment" />
+  <use name="DataFormats/MuonDetId" />
+  <flags EDM_PLUGIN="1" />
+</library>

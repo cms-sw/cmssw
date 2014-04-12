@@ -5,6 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //NOTE: I need to open a 'back door' so I can test ServiceManager 'inheritance'
 #define private public
@@ -18,8 +19,7 @@
 #include <memory>
 #include <iostream>
 
-int main()
-{
+int main() try {
   using namespace edm::serviceregistry;
 
   // We must initialize the plug-in manager first
@@ -97,4 +97,10 @@ int main()
   actReg.postEndJobSignal_();
 
   return 0;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }

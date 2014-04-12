@@ -26,11 +26,13 @@ public:
   void setBXN(int bxn);
   void setL1A(int l1a);
   void setCrateAddress(int crate, int dmbId);
+  void setdmbID(int newDMBID) {dmb_id = newDMBID;}
 
   unsigned cfebActive() const {return cfeb_active;} 
   unsigned crateID() const;
   unsigned dmbID() const;
   unsigned bxn() const;
+  unsigned bxn12() const;
   unsigned l1a() const;
   unsigned cfebAvailable() const;
   unsigned nalct() const;

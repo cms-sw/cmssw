@@ -1,5 +1,5 @@
-#ifndef Alignment_SurveyAnalysis_SurveyResidual_h
-#define Alignment_SurveyAnalysis_SurveyResidual_h
+#ifndef Alignment_CommonAlignment_SurveyResidual_h
+#define Alignment_CommonAlignment_SurveyResidual_h
 
 /** \class SurveyResidual
  *
@@ -8,12 +8,12 @@
  *  For more info, please refer to
  *    http://www.pha.jhu.edu/~gritsan/cms/cms-note-survey.pdf
  *
- *  $Date: 2007/04/07 03:29:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/09 07:45:04 $
+ *  $Revision: 1.6 $
  *  \author Chung Khim Lae
  */
 
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
 class Alignable;
@@ -21,22 +21,25 @@ class AlignableSurface;
 
 class SurveyResidual
 {
-  typedef AlignableObjectId::AlignableObjectIdType StructureType;
-
   public:
 
   /// Constructor from an alignable whose residuals are to be found.
-  /// The type of residuals (panel, disc etc.) is given by AlignableType.
+  /// The type of residuals (panel, disc etc.) is given by StructureType.
   /// Set bias to true for biased residuals.
   /// Default is to find unbiased residuals.
   SurveyResidual(
 		 const Alignable&,
-		 StructureType,    // level at which residuals are found 
-		 bool bias = false // true for biased residuals
+		 align::StructureType, // level at which residuals are found 
+		 bool bias = false     // true for biased residuals
 		 );
 
+  /// Check if survey residual is valid (theMother != 0).
+  /// This check must be done before calling the other methods so that
+  /// calculations can be performed correctly.
+  inline bool valid() const;
+
   /// Find residual for the alignable in local frame.
-  /// Returns a vector of 6 numbers: first 3 are linear, last 3 are angular.
+  /// Returns a vector based on the alignable's dof.
   AlgebraicVector sensorResidual() const;
 
   /// Find residuals in local frame for points on the alignable
@@ -62,16 +65,25 @@ class SurveyResidual
 		 
   // Cache some values for calculation
 
-  const AlignableSurface& theSurface; // current surface
-
   const Alignable* theMother; // mother that matches the structure type
                               // given in constructor
+
+  const AlignableSurface& theSurface; // current surface
+
+  const std::vector<bool>& theSelector; // flags for selected parameters
 
   std::vector<const Alignable*> theSisters; // list of final daughters for
                                             // finding mother's position
 
   align::GlobalVectors theNominalVs; // nominal points from mother's pos
   align::GlobalVectors theCurrentVs; // current points rotated to nominal surf
+
+  align::ErrorMatrix theCovariance;
 };
+
+bool SurveyResidual::valid() const
+{
+  return theMother != 0;
+}
 
 #endif

@@ -1,36 +1,29 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2007/05/28 17:08:56 $
- * $Revision: 1.14 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalBarrelDigisValidation.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
 using namespace std;
 
 EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps):
-  EBdigiCollection_(ps.getParameter<edm::InputTag>("EBdigiCollection"))
+  EBdigiCollection_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigiCollection")))
 {
   
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-  
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
-  
+    
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -78,7 +71,7 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps):
  
   
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigiTask");
+    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
   
     sprintf (histo, "EcalDigiTask Barrel occupancy" ) ;
     meEBDigiOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
@@ -131,7 +124,7 @@ EcalBarrelDigisValidation::~EcalBarrelDigisValidation(){
  
 }
 
-void EcalBarrelDigisValidation::beginJob(const EventSetup& c){
+void EcalBarrelDigisValidation::beginRun(Run const &, EventSetup const & c){
 
   checkCalibrations(c);
 
@@ -141,13 +134,16 @@ void EcalBarrelDigisValidation::endJob(){
 
 }
 
-void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
+void EcalBarrelDigisValidation::analyze(Event const & e, EventSetup const & c){
 
   //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
   Handle<EBDigiCollection> EcalDigiEB;
 
-  e.getByLabel( EBdigiCollection_ , EcalDigiEB );
+  e.getByToken( EBdigiCollection_ , EcalDigiEB );
+
+  //Return if no Barrel data 
+  if( !EcalDigiEB.isValid() ) return;
 
   // BARREL
 
@@ -263,7 +259,7 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
     
 }
 
-void  EcalBarrelDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
+void  EcalBarrelDigisValidation::checkCalibrations(edm::EventSetup const & eventSetup) 
   {
     
   // ADC -> GeV Scale

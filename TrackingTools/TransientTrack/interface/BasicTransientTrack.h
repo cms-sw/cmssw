@@ -9,21 +9,18 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToBeamLine.h"
 
-
 namespace reco {
 
-  class BasicTransientTrack : private ReferenceCounted {
+  class BasicTransientTrack : public ReferenceCountedInEvent {
   public:
 
     typedef BasicTransientTrack                              BTT;
@@ -60,7 +57,7 @@ namespace reco {
     virtual TrajectoryStateOnSurface impactPointState() const = 0;
     virtual bool impactPointStateAvailable() const = 0;
 
-//     TrackRef persistentTrackRef() const { return tkr_; }
+    virtual TrackBaseRef trackBaseRef() const = 0;
 
     virtual TrackCharge charge() const = 0;
 

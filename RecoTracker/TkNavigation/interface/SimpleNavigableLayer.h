@@ -7,6 +7,7 @@
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
 
 #include <vector>
 
@@ -22,43 +23,58 @@ public:
   typedef std::vector<BarrelDetLayer*>              BDLC;
   typedef std::vector<ForwardDetLayer*>             FDLC;
 
-  SimpleNavigableLayer( const MagneticField* field,float eps) :
-    theEpsilon(eps),thePropagator(field) {}
+  SimpleNavigableLayer( const MagneticField* field,float eps,bool checkCrossingSide=true) :
+    thePropagator(field), theEpsilon(eps),theCheckCrossingSide(checkCrossingSide),theSelfSearch(false) {}
 
-  virtual void setInwardLinks(const BDLC&, const FDLC&) = 0;
+  virtual void setInwardLinks(const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn)) = 0;
+  
+  virtual void setAdditionalLink(DetLayer*, NavigationDirection direction=insideOut) = 0;
 
+  void setCheckCrossingSide(bool docheck) {theCheckCrossingSide = docheck;}
+
+
+  virtual std::vector< const DetLayer * > compatibleLayers (const FreeTrajectoryState &fts, 
+							    PropagationDirection timeDirection,
+							    int& counter) const  GCC11_FINAL;
+  
 protected:
-
-  typedef BDLC::iterator                       BDLI;
+  
+  mutable AnalyticalPropagator     thePropagator;
+  float                     theEpsilon;
+  bool theCheckCrossingSide;
+public:
+  bool theSelfSearch;
+protected:
+ 
+ typedef BDLC::iterator                       BDLI;
   typedef FDLC::iterator                       FDLI;
   typedef BDLC::const_iterator                 ConstBDLI;
   typedef FDLC::const_iterator                 ConstFDLI;
   typedef TrajectoryStateOnSurface             TSOS;
 
-  float                     theEpsilon;
-
-  mutable AnalyticalPropagator     thePropagator;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   const BarrelDetLayer* bl, DLC& result) const;
+		   const BarrelDetLayer* bl, DLC& result) const dso_internal;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   const ForwardDetLayer* bl, DLC& result) const;
+		   const ForwardDetLayer* bl, DLC& result) const dso_internal;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   ConstBDLI begin, ConstBDLI end, DLC& result) const;
+		   ConstBDLI begin, ConstBDLI end, DLC& result) const dso_internal;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   const DLC& layers, DLC& result) const;
+		   const DLC& layers, DLC& result) const dso_internal;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   ConstFDLI begin, ConstFDLI end, DLC& result) const;
+		   ConstFDLI begin, ConstFDLI end, DLC& result) const dso_internal;
 
-  Propagator& propagator( PropagationDirection dir) const;
+  Propagator& propagator( PropagationDirection dir) const{
+    thePropagator.setPropagationDirection(dir);
+    return thePropagator;
+  }
 
-  void pushResult( DLC& result, const FDLC& tmp) const;
-  void pushResult( DLC& result, const BDLC& tmp) const;
-
+  TSOS crossingState(const FreeTrajectoryState& fts,PropagationDirection dir) const dso_internal;
+  
 };
 
 #endif // SimpleNavigableLayer_H

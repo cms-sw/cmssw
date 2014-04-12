@@ -1,5 +1,5 @@
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsCalculator.h"
-
+#include <limits.h>
 
 KalmanAlignmentMetricsCalculator::KalmanAlignmentMetricsCalculator( void ) : theMaxDistance( SHRT_MAX ) {}
 
@@ -257,3 +257,28 @@ void KalmanAlignmentMetricsCalculator::insertDistance( SingleDistancesList* dist
     (*distList)[j] = value;
   }
 }
+
+
+void KalmanAlignmentMetricsCalculator::writeDistances( std::string filename )
+{
+
+}
+
+
+void KalmanAlignmentMetricsCalculator::readDistances( std::string filename )
+{
+
+}
+
+
+void KalmanAlignmentMetricsCalculator::createBranches( TTree* tree )
+{
+
+}
+
+
+void KalmanAlignmentMetricsCalculator::setBranchAddresses( TTree* tree )
+{
+
+}
+

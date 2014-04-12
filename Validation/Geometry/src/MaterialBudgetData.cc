@@ -11,7 +11,7 @@
 
 MaterialBudgetData::MaterialBudgetData() 
 {
-  //instantiate categorizer to assing an ID to volumes and materials
+  //instantiate categorizer to assign an ID to volumes and materials
   myMaterialBudgetCategorizer = 0;
   allStepsToTree = false;
   densityConvertionFactor = 6.24E18;
@@ -80,6 +80,7 @@ void MaterialBudgetData::SetAllStepsToTree()
   theStepInitialPz      = new float[MAXNUMBERSTEPS];
   theStepInitialBeta    = new float[MAXNUMBERSTEPS];
   theStepInitialGamma   = new float[MAXNUMBERSTEPS];
+  theStepInitialMass    = new float[MAXNUMBERSTEPS];
   theStepFinalPt        = new float[MAXNUMBERSTEPS];
   theStepFinalEta       = new float[MAXNUMBERSTEPS];
   theStepFinalPhi       = new float[MAXNUMBERSTEPS];
@@ -89,7 +90,9 @@ void MaterialBudgetData::SetAllStepsToTree()
   theStepFinalPz        = new float[MAXNUMBERSTEPS];
   theStepFinalBeta      = new float[MAXNUMBERSTEPS];
   theStepFinalGamma     = new float[MAXNUMBERSTEPS];
-  theStepProcess        = new int[MAXNUMBERSTEPS];
+  theStepFinalMass      = new float[MAXNUMBERSTEPS];
+  theStepPreProcess     = new int[MAXNUMBERSTEPS];
+  theStepPostProcess    = new int[MAXNUMBERSTEPS];
   // rr
 }
 
@@ -165,6 +168,7 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 {
   //-  std::cout << "[OVAL] MaterialBudget " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << theEta << " " << thePhi << " " << theTotalMB << std::endl;
   // rr
+  std::cout << "Recorded steps " << theStepN << std::endl;
   std::cout << " Material Budget: Radiation Length   " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " SUP " << theSupportMB << " SEN " << theSensitiveMB << " CAB " << theCablesMB << " COL " << theCoolingMB << " ELE " << theElectronicsMB << " other " << theOtherMB << " Air " << theAirMB << std::endl;
   std::cout << " Material Budget: Interaction Length " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " eta " << theEta << " phi " << thePhi << " total L " << theTotalIL << " SUP " << theSupportIL << " SEN " << theSensitiveIL << " CAB " << theCablesIL << " COL " << theCoolingIL << " ELE " << theElectronicsIL << " other " << theOtherIL << " Air " << theAirIL << std::endl;
   // rr
@@ -179,8 +183,8 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   G4StepPoint* prePoint  = aStep->GetPreStepPoint();
   G4StepPoint* postPoint = aStep->GetPostStepPoint();
   
-  Hep3Vector prePos  = prePoint->GetPosition();
-  Hep3Vector postPos = postPoint->GetPosition();
+  CLHEP::Hep3Vector prePos  = prePoint->GetPosition();
+  CLHEP::Hep3Vector postPos = postPoint->GetPosition();
 
   G4double steplen = aStep->GetStepLength();
 
@@ -243,7 +247,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();
   
   G4Track* track = aStep->GetTrack();
-  if(theStepN==0) std::cout << " Simulated Particle " << theID << "\tMass " << theMass
+  if(theStepN==0) std::cout << " Simulated Particle " << theID << "\tMass " << theMass << " MeV/c2"
 			    << "\tPt = " << thePt  << " MeV/c" << "\tEta = " << theEta << "\tPhi = " << thePhi 
 			    << "\tEnergy = " << theEnergy << " MeV"
 		    //			    << std::endl
@@ -305,6 +309,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepInitialPz[theStepN]      = prePoint->GetMomentum().z();
     theStepInitialBeta[theStepN]    = prePoint->GetBeta();
     theStepInitialGamma[theStepN]   = prePoint->GetGamma();
+    theStepInitialMass[theStepN]    = prePoint->GetMass();
     theStepFinalPt[theStepN]        = postPoint->GetMomentum().perp();
     theStepFinalEta[theStepN]       = postPoint->GetMomentum().eta();
     theStepFinalPhi[theStepN]       = postPoint->GetMomentum().phi();
@@ -314,9 +319,13 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepFinalPz[theStepN]        = postPoint->GetMomentum().z();
     theStepFinalBeta[theStepN]      = postPoint->GetBeta();
     theStepFinalGamma[theStepN]     = postPoint->GetGamma();
-    int procType = -99;
-    if (interactionPre) procType = interactionPre->GetProcessType();
-    theStepProcess[theStepN]        = procType;
+    theStepFinalMass[theStepN]      = postPoint->GetMass();
+    int preProcType  = -99;
+    int postProcType = -99;
+    if (interactionPre) preProcType = interactionPre->GetProcessType();
+    theStepPreProcess[theStepN]     = preProcType;
+    if (interactionPost) postProcType = interactionPost->GetProcessType();
+    theStepPostProcess[theStepN]    = postProcType;
 #ifdef TREE_DEBUG
     std::cout << " step " << theStepN
 	      << "\tDelta MB = " << theDmb[theStepN]
@@ -341,12 +350,13 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << std::endl;
     if (interactionPre)
       std::cout << "\tProcess Pre " << interactionPre->GetProcessName()
-		<< " type " << theStepProcess[theStepN] << " " << interactionPre->GetProcessTypeName(G4ProcessType(theStepProcess[theStepN]))
+		<< " type " << theStepPreProcess[theStepN] << " " << interactionPre->GetProcessTypeName(G4ProcessType(theStepPreProcess[theStepN]))
 		<< std::endl;
-    std::cout << "\tProcess Post " << interactionPost->GetProcessName()
-	      << " type " << interactionPost->GetProcessType() << " "
-	      << interactionPost->GetProcessTypeName(G4ProcessType(interactionPost->GetProcessType()))
-	      << std::endl;
+    if (interactionPost)
+      std::cout << "\tProcess Post " << interactionPost->GetProcessName()
+		<< " type " << theStepPostProcess[theStepN] << " "
+		<< interactionPost->GetProcessTypeName(G4ProcessType(theStepPostProcess[theStepN]))
+		<< std::endl;
     std::cout << "\tPre x = " << theInitialX[theStepN]
 	      << "\ty = "     << theInitialY[theStepN]
 	      << "\tz = "     << theInitialZ[theStepN] 
@@ -375,6 +385,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << " eta = "        << theStepInitialEta[theStepN]
 	      << " phi = "        << theStepInitialPhi[theStepN]
 	      << " Energy = "     << theStepInitialEnergy[theStepN] << " MeV"
+	      << " Mass = "       << theStepInitialMass[theStepN]   << " MeV/c2"
 	      << " Beta = "       << theStepInitialBeta[theStepN]
 	      << " Gamma = "      << theStepInitialGamma[theStepN]
 	      << std::endl
@@ -383,6 +394,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << " eta = "        << theStepFinalEta[theStepN]
 	      << " phi = "        << theStepFinalPhi[theStepN]
 	      << " Energy = "     << theStepFinalEnergy[theStepN]   << " MeV"
+	      << " Mass = "       << theStepFinalMass[theStepN]     << " MeV/c2"
 	      << " Beta = "       << theStepFinalBeta[theStepN]
 	      << " Gamma = "      << theStepFinalGamma[theStepN]
 	      << std::endl;
@@ -407,6 +419,15 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << theVolumeZaxis2[theStepN] << "," 
 	      << theVolumeZaxis3[theStepN] << ")"
 	      << std::endl;
+    std::cout << "\tSecondaries"
+	      << std::endl;
+    for(G4TrackVector::iterator iSec = aStep->GetSecondary()->begin(); iSec!=aStep->GetSecondary()->end(); iSec++) {
+      std::cout << "\t\tid " << (*iSec)->GetDefinition()->GetPDGEncoding()
+		<< " created through process "
+		<< " type " << (*iSec)->GetCreatorProcess()->GetProcessType()
+		<< " " << (*iSec)->GetCreatorProcess()->GetProcessTypeName(G4ProcessType((*iSec)->GetCreatorProcess()->GetProcessType()))
+		<< std::endl;
+    }
 #endif
   }
   

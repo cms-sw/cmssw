@@ -1,23 +1,21 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.17 2007/03/14 22:32:31 michals Exp $
 //
 #include <vector>
-#include <string>
+#include <string> 
 
 #include "CLHEP/Random/RandGauss.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
-
-HcalPedestal HcalDbHardcode::makePedestal (HcalDetId fId, bool fSmear) {
+HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
-  float value0 = fId.subdet () == HcalForward ? 11. : 4.;  // fC
+  float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) value0 = 10.;
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
-      value [i] = RandGauss::shoot (value0, width.getWidth (i) / 100.); // ignore correlations, assume 10K pedestal run 
-      while (value [i] <= 0) value [i] = RandGauss::shoot (value0, width.getWidth (i));
+      value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i) / 100.); // ignore correlations, assume 10K pedestal run 
+      while (value [i] <= 0) value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i));
     }
   }
   HcalPedestal result (fId.rawId (), 
@@ -26,63 +24,560 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalDetId fId, bool fSmear) {
   return result;
 }
 
-HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalDetId fId) {
+
+HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear, double lumi) {
+  HcalPedestalWidth width = makePedestalWidth (fId, lumi);
+  //  float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
+
+  // Temporary disabling of lumi-dependent pedestal to avoid it being too big
+  // for TDC evaluations...
+  //  float value0 = 4.* width.getWidth(0);  // to be far enough from 0
+  float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
+
+  float value [4] = {value0, value0, value0, value0};
+  if (fSmear) {
+    for (int i = 0; i < 4; i++) {
+      value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i) / 100.); // ignore correlations, assume 10K pedestal run 
+      while (value [i] <= 0) value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i));
+    }
+  }
+  HcalPedestal result (fId.rawId (), 
+		       value[0], value[1], value[2], value[3]
+		       );
+  return result;
+}
+
+HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
   float value = 0;
-  if (fId.subdet() == HcalBarrel || fId.subdet() == HcalOuter) value = 0.7;
-  else if (fId.subdet() == HcalEndcap) value = 0.9;
-  else if (fId.subdet() == HcalForward) value = 2.5;  // everything in fC
+  if      (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) value = 5.0;
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) value = 5.0;
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter)  value = 1.5;
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward)value = 2.0;
+  // everything in fC
+
   HcalPedestalWidth result (fId.rawId ());
   for (int i = 0; i < 4; i++) {
     double width = value;
-    for (int j = 0; j <= i; j++) {
+    for (int j = 0; j < 4; j++) {
       result.setSigma (i, j, i == j ? width * width : 0);
     }
   } 
   return result;
 }
 
-HcalGain HcalDbHardcode::makeGain (HcalDetId fId, bool fSmear) {
+// Upgrade option with lumi dependence, assuming factor ~20 for HB 
+// while factor ~8 (~2.5 less) for HE at 3000 fb-1 
+// Tab.1.6 (p.10) and Fig. 5.7 (p.91) of HCAL Upgrade TDR  
+
+HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId, double lumi) {
+  float value = 0;
+  double eff_lumi = lumi - 200.; // offset to account for actual putting of SiPMs into
+                                 // operations
+  if(eff_lumi < 0.) eff_lumi = 0.;
+  if      (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) 
+    value = 5.0 + 1.7 * sqrt(eff_lumi);
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) 
+    value = 5.0 + 0.7 * sqrt(eff_lumi);
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter)  value = 1.5;
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward)value = 2.0;
+  // everything in fC
+
+  /*
+  if (fId.isHcalDetId()) {
+    HcalDetId cell = HcalDetId(fId);
+    int sub    = cell.subdet();
+    int dep    = cell.depth();
+    int ieta   = cell.ieta();
+    int iphi   = cell.iphi();
+    
+    std::cout << "HCAL subdet " << sub << "  (" << ieta << "," << iphi
+	      << "," << dep << ") " << " noise = " << value << std::endl; 
+  }
+  */
+
+  HcalPedestalWidth result (fId.rawId ());
+  for (int i = 0; i < 4; i++) {
+    double width = value;
+    for (int j = 0; j < 4; j++) {
+      result.setSigma (i, j, i == j ? width * width : 0);
+    }
+  } 
+  return result;
+}
+
+
+HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
+
+
+  /*
+  std::cout << std::endl << " HcalDbHardcode::makeMCParam   fId " 
+	    << fId 
+	    << "  fId.genericSubdet() = " << fId.genericSubdet() << std::endl;
+  if(fId.isHcalZDCDetId()) {
+    std::cout << "... ZDC " << std::endl;
+ 
+
+    HcalZDCDetId cell(fId);
+    int side   = cell.zside();
+    int depth  = cell.depth();
+    int ch     = cell.channel();
+    std::cout << "ZDC  side/depth/chanel = " 
+	      << side << "  " << depth << "  " << ch 
+	      << std::endl;
+  }
+  else if (fId.isHcalDetId()) {
+    HcalDetId cell = HcalDetId(fId);
+    int sub    = cell.subdet();
+    int dep    = cell.depth();
+    int ieta   = cell.ieta();
+    int iphi   = cell.iphi();
+    
+    std::cout << "  HCAL " 
+	      << "  subdet " << sub << "  ieta " << ieta << "  iphi " << iphi
+	      << "  depth " << dep << std::endl; 
+  }
+  else {  std::cout << "...Something else ! " << std::endl; }
+
+  */
+
+  int r1bit[5];
+  int pulseShapeID = 125;  r1bit[0] = 9;     //  [0,9]
+  int syncPhase    = 0;    r1bit[1] = 1;
+  int binOfMaximum = 0;    r1bit[2] = 4;
+  float phase      = -25.0;                  // [-25.0,25.0]
+  float Xphase     = (phase + 32.0) * 4.0;   // never change this line 
+                                             // (offset 50nsec,  0.25ns step)
+  int Iphase = Xphase;     r1bit[3] = 8;     // [0,256] offset 50ns, .25ns step
+  int timeSmearing = 0;    r1bit[4] = 1;     //  bool
+  
+ 
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) { 
+
+    syncPhase    = 1;                      // a0  bool
+    binOfMaximum = 5;                      // a1
+    phase        = 5.0;                    // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+                                           // (offset 50nsec,  0.25ns step)
+    Iphase       = Xphase;
+    timeSmearing = 1;                      // a3
+    pulseShapeID = 201;                    // a4   201 - Zecotec shape
+                                           //      202 - Hamamatsu
+
+  }
+
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) { 
+
+    syncPhase    = 1;                      // a0  bool
+    binOfMaximum = 5;                      // a1
+    phase        = 5.0;                    // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+                                           // (offset 50nsec,  0.25ns step)
+    Iphase       = Xphase;
+    timeSmearing = 1;                      // a3
+    pulseShapeID = 201;                    // a4
+
+  }
+
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+
+    syncPhase    = 1;                      // a0  bool
+    binOfMaximum = 5;                      // a1
+    phase        = 5.0;                    // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+                                           // (offset 50nsec,  0.25ns step)
+    Iphase       = Xphase;
+    timeSmearing = 0;                      // a3
+    pulseShapeID = 201;                    // a4
+
+    HcalDetId cell = HcalDetId(fId);
+    if (cell.ieta() == 1 && cell.iphi() == 1) pulseShapeID = 125;
+
+  }
+  
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) { 
+
+    syncPhase    = 1;                      // a0  bool
+    binOfMaximum = 3;                      // a1
+    phase        = 14.0;                   // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+                                           // (offset 50nsec,  0.25ns step)
+    Iphase       = Xphase;
+    timeSmearing = 0;                      // a3
+    pulseShapeID = 301;                    // a4
+ 
+  }
+
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenZDC) { 
+
+    //    std::cout << " >>>  ZDC  " << std::endl; 
+
+    syncPhase    = 1;                      // a0  bool
+    binOfMaximum = 5;                      // a1
+    phase        = -4.0;                   // a2  [-25.0,25.0]
+    Xphase       = (phase + 32.0) * 4.0;   // never change this line 
+                                           // (offset 50nsec,  0.25ns step)
+    Iphase       = Xphase;
+    timeSmearing = 0;                      // a3
+    pulseShapeID = 401;                    // a4
+ 
+  }
+
+
+  int rshift[7];
+  rshift[0]=0;
+  for(int k=0; k<5; k++) {
+    int j=k+1;
+    rshift[j]=rshift[k]+r1bit[k];
+    //  cout<<"  j= "<<j<<"  shift "<< rshift[j]<<endl;
+  }
+
+  int packingScheme  = 1;
+  unsigned int param = pulseShapeID |
+    syncPhase<<rshift[1]            |
+    (binOfMaximum << rshift[2])     |
+    (Iphase << rshift[3])           |
+    (timeSmearing << rshift[4] | packingScheme << 27);
+  
+  /*
+    
+  int a0 =  param%512;
+  int a1 = (param/512)%2;
+  int a2 = (param/(512*2))%16;
+  int a3 = (param/(512*2*16))%256;
+  int a4 = (param/(512*2*16*256))%2;
+  a3 = (a3/4)-32;
+  int a5 = (param/(512*2*16*256*2*16))%16;
+  
+  */
+  
+
+  // unpacking a la CondFormats/HcalObjects/interface/HcalMCParam.h
+
+  /*  
+  int shape         =  param&0x1FF;
+  syncPhase     = (param>>9)&0x1;
+  binOfMaximum  = (param>>10)&0xF;
+  int timePhase     = ((param>>14)&0xFF)/4-32;
+  timeSmearing  = (param>>22)&0x1;
+  int packingSc     = (param>>27)&0xF;
+       
+  std::cout << "  shape " << shape << "  sync.phase " <<  syncPhase
+	    << "  binOfMaximum " <<  binOfMaximum
+	    << "  timePhase " << timePhase 
+	    << "  timeSmear " << timeSmearing
+	    << "  packingSc " << packingSc
+	    << std::endl;
+  */
+
+  /*
+  if(shape != a0) 
+    { std::cout <<"  error   shape " << shape 
+		<< "  a0 " << a0 << std::endl; }
+  if(syncPhase != a1) 
+    { std::cout << "  error   syncPhase " << syncPhase 
+		<< "  a1 " << a1 << std::endl; }
+  if(binOfMaximum != a2) 
+    { std::cout << "  error   binOfMaximum " << binOfMaximum
+		<< "  a2 " << a2 << std::endl; }
+  if(timePhase !=  a3) 
+    { std::cout << "  error   timePhase " << timePhase 
+		<< "  a3 " << a3 << std::endl; }
+  if(timeSmearing != a4) 
+    { std::cout << "  error   timeSmearing " << timeSmearing 
+		<< "  a4 " << a4 << std::endl; }
+  if(packingSc != a5) 
+    { std::cout << "  error   packing sceme " << packingSc 
+		<< "  a5 " << a5 << std::endl; }
+  */
+ 
+  HcalMCParam result(fId.rawId(), param);
+  return result;
+
+}
+
+HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
+
+  /*
+  if (fId.isHcalDetId()) {
+    HcalDetId cell = HcalDetId(fId);
+    int sub    = cell.subdet();
+    int dep    = cell.depth();
+    int ieta   = cell.ieta();
+    int iphi   = cell.iphi();
+    
+    std::cout << "  HCAL " 
+	      << "  subdet " << sub << "  ieta " << ieta << "  iphi " << iphi
+	      << "  depth " << dep << std::endl; 
+  }
+  */
+
+
+  // Mostly comes from S.Kunori's macro 
+  int p1bit[6];
+  
+  // param1 
+  int containmentCorrectionFlag = 0;       p1bit[0]=1;   // bool
+  int containmentCorrectionPreSample = 0;  p1bit[1]=1;   // bool
+  float phase  = 13.0;                                  // [-25.0,25.0]
+  float Xphase = (phase + 32.0) * 4.0;     //never change this line 
+                                           // (offset 50nsec,  0.25ns step)
+  int Iphase = Xphase;                     p1bit[2]=8;   // [0,256]  
+                                           // (offset 50ns, 0.25ns step
+  int firstSample  = 4;                    p1bit[3]=4;   // [0,9]
+  int samplesToAdd = 2;                    p1bit[4]=4;   // [0,9]
+  int pulseShapeID = 105;                  p1bit[5]=9;   // [0,9]
+
+  int q2bit[10];
+  //  param2.
+  int useLeakCorrection  = 0;              q2bit[0]=1;   // bool
+  int LeakCorrectionID   = 0;              q2bit[1]=4;   // [0,15]
+  int correctForTimeslew = 0;              q2bit[2]=1;   // bool
+  int timeCorrectionID   = 0;              q2bit[3]=4;   // [0,15]
+  int correctTiming      = 0;              q2bit[4]=1;   // bool
+  int firstAuxTS         = 0;              q2bit[5]=4;   // [0,15]
+  int specialCaseID      = 0;              q2bit[6]=4;   // [0,15]
+  int noiseFlaggingID    = 0;              q2bit[7]=4;   // [0,15]
+  int pileupCleaningID   = 0;              q2bit[8]=4;   // [0,15]
+  int packingScheme      = 1;              q2bit[9]=4;
+    
+
+  if((fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) || 
+     (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
+    //  param1.
+    containmentCorrectionFlag = 1;         // p0
+    containmentCorrectionPreSample = 0;    // p1
+    float phase  = 25.0;
+    float Xphase = (phase + 32.0) * 4.0;   // never change this line 
+                                           //(offset 50nsec, 0.25ns step)
+    Iphase       = Xphase;                 // p2
+    firstSample  = 4;                      // p3
+    samplesToAdd = 2;                      // p4
+    pulseShapeID = 201;                    // p5
+    
+    //  param2.
+    useLeakCorrection  = 0;                //  q0
+    LeakCorrectionID   = 0;                //  q1
+    correctForTimeslew = 1;                //  q2
+    timeCorrectionID   = 0;                //  q3
+    correctTiming      = 1;                //  q4
+    firstAuxTS         = 4;                //  q5
+    specialCaseID      = 0;                //  q6
+    noiseFlaggingID    = 1;                //  q7
+    pileupCleaningID   = 0;                //  q8
+  } 
+
+
+  else if(fId.genericSubdet() == HcalGenericDetId::HcalGenOuter ) {
+    //  param1.
+    containmentCorrectionFlag = 1;         // p0
+    containmentCorrectionPreSample = 0;    // p1
+    float  phase  = 13.0;
+    float  Xphase = (phase + 32.0) * 4.0;  // never change this line 
+                                           // (offset 50nsec,  0.25ns step)
+    Iphase       = Xphase;                 // p2
+    firstSample  = 4;                      // p3
+    samplesToAdd = 4;                      // p4
+    pulseShapeID = 201;                    // p5
+    //  param2.
+    useLeakCorrection  = 0;                //  q0
+    LeakCorrectionID   = 0;                //  q1
+    correctForTimeslew = 1;                //  q2
+    timeCorrectionID   = 0;                //  q3
+    correctTiming      = 1;                //  q4
+    firstAuxTS         = 4;                //  q5
+    specialCaseID      = 0;                //  q6
+    noiseFlaggingID    = 1;                //  q7
+    pileupCleaningID   = 0;                //  q8
+
+  }
+  else if(fId.genericSubdet() == HcalGenericDetId::HcalGenForward ) {
+    //  param1.
+    containmentCorrectionFlag = 0;         // p0
+    containmentCorrectionPreSample = 0;    // p1
+    float  phase = 13.0;
+    float  Xphase = (phase + 32.0) * 4.0;  // never change this line 
+                                           // (offset 50nsec,  0.25ns step)
+    Iphase       = Xphase;                 // p2
+    pulseShapeID = 301;                    // p5
+
+    firstSample  = 2;                      // p3
+    samplesToAdd = 1;                      // p4
+    pulseShapeID = 301;                    // p5
+    
+    //  param2.
+    useLeakCorrection  = 0;                //  q0
+    LeakCorrectionID   = 0;                //  q1
+    correctForTimeslew = 0;                //  q2
+    timeCorrectionID   = 0;                //  q3
+    correctTiming      = 1;                //  q4
+    firstAuxTS         = 1;                //  q5
+    specialCaseID      = 0;                //  q6
+    noiseFlaggingID    = 1;                //  q7
+    pileupCleaningID   = 0;                //  q8
+  } 
+  
+
+  // Packing parameters in two words
+
+  int p1shift[7]; p1shift[0] = 0;
+  for(int k = 0; k < 6; k++) {
+    int j = k + 1;
+    p1shift[j] = p1shift[k] + p1bit[k];
+    //     cout<<"  j= "<<j<<"  shift "<< p1shift[j]<<endl;
+  }
+  int param1 = 0;
+  param1 = containmentCorrectionFlag               | 
+    (containmentCorrectionPreSample << p1shift[1]) | 
+    (Iphase                         << p1shift[2]) | 
+    (firstSample                    << p1shift[3]) | 
+    (samplesToAdd                   << p1shift[4]) | 
+    (pulseShapeID                   << p1shift[5]) ;
+  
+  int q2shift[10]; q2shift[0] = 0;
+  for(int k = 0; k < 9; k++) {
+    int j = k + 1;
+    q2shift[j] = q2shift[k] + q2bit[k];
+    //  cout<<"  j= "<<j<<"  shift "<< q2shift[j]<<endl;
+  }  
+  int param2 = 0;
+  param2 = useLeakCorrection           |
+    (LeakCorrectionID   << q2shift[1]) | 
+    (correctForTimeslew << q2shift[2]) |
+    (timeCorrectionID   << q2shift[3]) | 
+    (correctTiming      << q2shift[4]) | 
+    (firstAuxTS         << q2shift[5]) |
+    (specialCaseID      << q2shift[6]) | 
+    (noiseFlaggingID    << q2shift[7]) | 
+    (pileupCleaningID   << q2shift[8]) |
+    (packingScheme      << q2shift[9]) ;
+  
+  // Test printout
+  /*  
+    int a0=param1%2;
+    int a1=(param1/2)%2;
+    int a2=(param1/(2*2))%256;
+    int a3=(param1/(2*2*256))%16;
+    int a4=(param1/(2*2*256*16))%16;
+    int a5=(param1/(2*2*256*16*16))%512;
+    a2=(a2/4)-32;
+    
+    int b0=param2%2;
+    int b1=(param2/2)%16;
+    int b2=(param2/(2*16))%2;
+    int b3=(param2/(2*16*2))%16;
+    int b4=(param2/(2*16*2*16))%2;
+    int b5=(param2/(2*16*2*16*2))%16;
+    int b6=(param2/(2*16*2*16*2*16))%16;
+    int b7=(param2/(2*16*2*16*2*16*16))%16;
+    int b8=(param2/(2*16*2*16*2*16*16*16))%16;
+    int b9=(param2/(2*16*2*16*2*16*16*16*16))%16;
+
+    std::cout << " param1 (a012) " << a0 << " " <<a1 << " " << a2 
+	      << " (a345) " << a3 << " " << a4 << " "<< a5
+	      << " param2 (b012) " << b0 << " " << b1 << " " <<b2 
+	      << " (b345) " << b3 << " " << b4 << " " << b5 
+	      << " (b678) " << b6 << " " << b7 << " " << b8  << "   b9 " << b9
+	      << std::endl;
+  */
+
+
+  HcalRecoParam result(fId.rawId(), param1, param2);
+
+  return result;
+}
+
+HcalTimingParam HcalDbHardcode::makeTimingParam (HcalGenericDetId fId) {
+  int nhits = 0;
+  float phase = 0.0;
+  float rms = 0.0;
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {nhits=4; phase = 4.5; rms = 6.5;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {nhits=4;phase = 9.3; rms = 7.8;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {nhits=4;phase = 8.6; rms = 2.3;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {nhits=4;phase = 12.4; rms = 12.29;}
+  HcalTimingParam result(fId.rawId(), nhits,phase, rms);
+
+  return result;
+}
+
+
+HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) {
   HcalGainWidth width = makeGainWidth (fId);
   float value0 = 0;
-  if (fId.subdet() != HcalForward) value0 = 0.177;  // GeV/fC
-  else {
-    if (fId.depth() == 1) value0 = 0.2146;
-    else if (fId.depth() == 2) value0 = 0.3375;
-  }
+
+  static float const hbhevalue = 1./90./10.;  //90 is pe/GeV 10 is fC/pe.
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
+    HcalDetId hid(fId);
+    if (hid.depth() == 1) value0 = hbhevalue;
+    else if (hid.depth() == 2) value0 = hbhevalue;
+    else if (hid.depth() == 3) value0 = hbhevalue;
+    else if (hid.depth() == 4) value0 = hbhevalue;
+    else value0 = hbhevalue; // GeV/fC
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
+    HcalDetId hid(fId);
+    if (hid.depth() == 1) value0 = hbhevalue;
+    else if (hid.depth() == 2) value0 = hbhevalue;
+    else if (hid.depth() == 3) value0 = hbhevalue;
+    else if (hid.depth() == 4) value0 = hbhevalue;
+    else value0 = hbhevalue; // GeV/fC
+    // if (fId.genericSubdet() != HcalGenericDetId::HcalGenForward) value0 = 0.177;  // GeV/fC
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+    HcalDetId hid(fId);
+    if ((hid.ieta() > -5) && (hid.ieta() < 5))
+      value0 = 0.0125;
+    else
+      value0 = 0.02083;  // GeV/fC
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
+    HcalDetId hid(fId);
+    if (hid.depth() == 1) value0 = 0.2146;
+    else if (hid.depth() == 2) value0 = 0.3375;
+  } else value0 = hbhevalue; // GeV/fC
   float value [4] = {value0, value0, value0, value0};
-  if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getValue (i)); 
+  if (fSmear) for (int i = 0; i < 4; i++) value [i] = CLHEP::RandGauss::shoot (value0, width.getValue (i)); 
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);
   return result;
 }
 
-HcalGainWidth HcalDbHardcode::makeGainWidth (HcalDetId fId) {
+HcalGainWidth HcalDbHardcode::makeGainWidth (HcalGenericDetId fId) {
   float value = 0;
   HcalGainWidth result (fId.rawId (), value, value, value, value);
   return result;
 }
 
-HcalQIECoder HcalDbHardcode::makeQIECoder (HcalDetId fId) {
+HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
   HcalQIECoder result (fId.rawId ());
-  float offset = 0;
-  float slope = fId.subdet () == HcalForward ? 0.36 : 0.92;  // ADC/fC
+  float offset = 0.0;
+  float slope = fId.genericSubdet () == HcalGenericDetId::HcalGenForward ? 
+  0.36 : 0.333;  // ADC/fC
+
+  // qie8/qie10 attribution - 0/1
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+    result.setQIEIndex(0);
+    slope = 1.0;
+  } else 
+    result.setQIEIndex(1);
+    
   for (unsigned range = 0; range < 4; range++) {
     for (unsigned capid = 0; capid < 4; capid++) {
       result.setOffset (capid, range, offset);
       result.setSlope (capid, range, slope);
     }
   }
+
   return result;
 }
 
-HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalDetId fId) {
+HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalGenericDetId fId) {
   HcalCalibrationQIECoder result (fId.rawId ());
-  float lowEdges [32];
-  for (int i = 0; i < 32; i++) lowEdges[i] = -1.5 + i*0.35;
+  float lowEdges [64];
+  for (int i = 0; i < 64; i++) lowEdges[i] = -1.5 + i*1.0;
   result.setMinCharges (lowEdges);
   return result;
 }
 
 HcalQIEShape HcalDbHardcode::makeQIEShape () {
+
+  //  std::cout << " !!! HcalDbHardcode::makeQIEShape " << std::endl; 
+
   return HcalQIEShape ();
 }
 
@@ -97,6 +592,21 @@ HcalQIEShape HcalDbHardcode::makeQIEShape () {
 #define EMAP_NTOPBOT 2
 #define EMAP_NHTRSHO 4
 #define EMAP_NHSETSHO 3
+
+void HcalDbHardcode::makeHardcodeDcsMap(HcalDcsMap& dcs_map) {
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -16, 1, 1), 
+			  HcalDcsDetId(HcalDcsBarrel, -1, 1, HcalDcsDetId::HV, 2));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -41, 3, 1), 
+			  HcalDcsDetId(HcalDcsForward, -1, 1, HcalDcsDetId::DYN8, 1));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -26, 25, 2), 
+			  HcalDcsDetId(HcalDcsForward, -1, 7, HcalDcsDetId::HV, 1));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -15, 68, 1), 
+			  HcalDcsDetId(HcalDcsBarrel, -1, 18, HcalDcsDetId::HV, 3));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalOuter, -14, 1, 4), 
+			  HcalDcsDetId(HcalDcsOuter, -2, 2, HcalDcsDetId::HV, 4));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, 41, 71, 2), 
+			  HcalDcsDetId(HcalDcsForward, 1, 4, HcalDcsDetId::DYN8, 3));
+}
 
 void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 
@@ -262,7 +772,8 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
       {{13,-1,3},{13,-1,4},{13,-1,5}}}} 
   };
   int ic,is,ih,itb,ifb,ifc,ifwtb,iphi_loc;
-  int iside,ieta,iphi,idepth,icrate,ihtr,ihtr_fi,ifi_ch,ispigot,idcc,idcc_sl,ifed;
+  int iside,ieta,iphi,idepth,icrate,ihtr,ihtr_fi,ifi_ch,ispigot,idcc,ifed;
+  //  int idcc_sl;
   std::string det;
   std::string fpga;
   // printf("      side       eta       phi     depth       det     crate       htr      fpga    htr_fi     fi_ch     spigo       dcc    dcc_sl     fedid\n");
@@ -291,7 +802,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 	      iphi=(ieta>20)?(ihbhephis[ic]+(is%2)*4+itb*2-1)%72+1:(ihbhephis[ic]+(is%2)*4+itb*2+(ifb/2+is/2+1)%2-1)%72+1;
 	      ispigot=(is%2)*6+ih*2+itb;
 	      idcc=is<EMAP_NHSETS/2?1:2;
-	      idcc_sl=idcc==1?9:19;
+	      //	      idcc_sl=idcc==1?9:19;
 	      ifed=fedhbhenum[ic][idcc-1];
 	      /// load map
 	      HcalElectronicsId elId(ifi_ch, ihtr_fi, ispigot, ifed-700);
@@ -325,7 +836,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 	      iphi=(ieta>39)?(ihfphis[ic]+(is%2)*12+ih*4-3)%72+1:(ihfphis[ic]+(is%2)*12+ih*4+(ifb/4)*2-1)%72+1;
 	      ispigot=(is%2)*6+ih*2+itb;
 	      idcc=is<EMAP_NHSETS/2?1:2;
-	      idcc_sl=idcc==1?9:19;
+	      //	      idcc_sl=idcc==1?9:19;
 	      ifed=fedhfnum[ic][idcc-1];
 	      HcalElectronicsId elId(ifi_ch, ihtr_fi, ispigot, ifed-700);
 	      elId.setHTR(icrate, ihtr, (fpga=="top")?(1):(0));
@@ -358,7 +869,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 	      iphi=(ihophis[ic]+is*6+iphi_loc-1)%72+1;
 	      ispigot=ihtr<9?(ihtr-2)*2+itb:(ihtr-13)*2+itb;
 	      idcc=ihtr<9?1:2;
-	      idcc_sl=idcc==1?9:19;
+	      //	      idcc_sl=idcc==1?9:19;
 	      ifed=fedhonum[ic][idcc-1];
 	      HcalElectronicsId elId(ifi_ch, ihtr_fi, ispigot, ifed-700);
 	      elId.setHTR(icrate, ihtr, (fpga=="top")?(1):(0));

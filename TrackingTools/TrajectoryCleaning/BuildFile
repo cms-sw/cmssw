@@ -1,8 +1,0 @@
-<export>
- <lib name=TrackingToolsTrajectoryCleaning>
- <use name=TrackingTools/TransientTrackingRecHit>
- <use name=TrackingTools/PatternTools>
-</export>
-
-<use name=TrackingTools/TransientTrackingRecHit>
-<use name=TrackingTools/PatternTools>

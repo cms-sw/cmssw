@@ -1,0 +1,36 @@
+#
+# This is the decay file for the decay B0 -> MU+ MU- K*0(-> K+ pi-)
+#
+# EventType: 13144001
+#
+# Descriptor: [B0 -> mu+ mu- {,gamma} {,gamma} (K*0 -> K+ pi-)]cc
+#
+# NickName: 
+#
+# Physics: Includes radiative mode
+#
+# Tested: Never
+# By: 
+# Date: 
+#
+Alias      MyB0        B0
+Alias      Myanti-B0   anti-B0
+ChargeConj MyB0        Myanti-B0
+Alias      MyK*0       K*0
+Alias      MyK*0bar    anti-K*0
+ChargeConj MyK*0       MyK*0bar
+#
+Decay MyB0
+  1.000        MyK*0     mu+     mu-               BTOSLLBALL;
+Enddecay
+Decay Myanti-B0
+  1.000        MyK*0bar     mu+     mu-            BTOSLLBALL;
+Enddecay
+#
+Decay MyK*0
+  1.000        K+        pi-                    VSS;
+Enddecay
+Decay MyK*0bar
+  1.000        K-        pi+                    VSS;
+Enddecay 
+End

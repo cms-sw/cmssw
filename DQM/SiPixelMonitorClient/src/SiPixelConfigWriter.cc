@@ -1,7 +1,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 
 
-#include <iostream>
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 
 using namespace xercesc;
@@ -22,7 +21,7 @@ SiPixelConfigWriter::~SiPixelConfigWriter() {
 // 
 bool SiPixelConfigWriter::init() {
   try {
-    XMLPlatformUtils::Initialize();
+    cms::concurrency::xercesInitialize();
   }
   catch (const XMLException& toCatch) {
     cout << "Problem to initialise XML !!! " << endl;

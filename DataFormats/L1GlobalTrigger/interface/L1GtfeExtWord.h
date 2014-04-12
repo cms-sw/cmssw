@@ -3,31 +3,27 @@
 
 /**
  * \class L1GtfeExtWord
- * 
- * 
- * Description: L1 Global Trigger - extended GTFE block in the readout record.  
+ *
+ *
+ * Description: L1 Global Trigger - extended GTFE block in the readout record.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
- * $Date$
- * $Revision$
+ *
  *
  */
 
 // system include files
-#include <boost/cstdint.hpp>
-#include <iostream>
+#include <vector>
+#include <iosfwd>
 
 // user include files
+#include "FWCore/Utilities/interface/typedefs.h"
 
 // base class
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 // forward declarations
 
@@ -37,23 +33,24 @@ class L1GtfeExtWord : public L1GtfeWord
 
 public:
 
-    /// number of BST blocks - one block has 8 bits
-    static const int NumberBstBlocks = 30;
-
-public:
-
     /// constructors
     L1GtfeExtWord();    // empty constructor, all members set to zero;
 
-    /// constructor from unpacked values;
+    /// all members set to zero, m_bst has bstSizeBytes zero elements
+    L1GtfeExtWord(int bstSizeBytes);
+
+    /// constructor from unpacked values, m_bst size taken from bstValue
     L1GtfeExtWord(
-        boost::uint16_t boardIdValue,
-        boost::uint16_t recordLengthValue,
-        boost::uint16_t bxNrValue,
-        boost::uint32_t setupVersionValue,
-        boost::uint16_t activeBoardsValue,
-        boost::uint32_t totalTriggerNrValue, // end of L1GtfeWord
-        boost::uint16_t bstValue[NumberBstBlocks]
+        cms_uint16_t boardIdValue,
+        cms_uint16_t recordLengthValue,
+        cms_uint16_t recordLength1Value,
+        cms_uint16_t bxNrValue,
+        cms_uint32_t setupVersionValue,
+        cms_uint16_t activeBoardsValue,
+        cms_uint16_t altNrBxBoardValue,
+        cms_uint32_t totalTriggerNrValue, // end of L1GtfeWord
+        const std::vector<cms_uint16_t>& bstValue,
+        cms_uint16_t bstSourceValue
     );
 
 
@@ -68,43 +65,74 @@ public:
 
 public:
 
-    /// get/set BST block for index iB
-    const uint16_t bst(int iB) const;
-    void setBst(const uint16_t bstVal, const int iB);
+    /// get the full BST block
+    inline const std::vector<cms_uint16_t>&  bst() const {
+        return m_bst;
+    }
 
-    /// set the BST block for index iB from a 64-bits word
-    void setBst(const boost::uint64_t& word64, const int iB);
-
-    /// set the BST block in a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setBstWord64(boost::uint64_t& word64, int iB, int iWord);
+    /// get the size of the BST block
+    inline const unsigned int bstLengthBytes() const {
+        return m_bst.size();
+    }
 
 public:
 
     /// LHC-BOB-ES-0001 (EDMS 638899)
-    boost::uint64_t gpsTime();
-    boost::uint32_t turnCountNumber();
-    boost::uint32_t lhcFillNumber();
-    boost::uint32_t totalIntensityBeam1();
-    boost::uint32_t totalIntensityBeam2();
-    boost::uint16_t beamMomentum();
-    boost::uint16_t bstMasterStatus();
-    boost::uint16_t machineMode();
-    boost::uint16_t particleTypeBeam1();
-    boost::uint16_t particleTypeBeam2();
 
+    const cms_uint64_t gpsTime() const;
+    void setGpsTime(const cms_uint64_t);
+
+    const cms_uint16_t bstMasterStatus() const;
+    const cms_uint32_t turnCountNumber() const;
+    const cms_uint32_t lhcFillNumber() const;
+    const cms_uint16_t beamMode() const;
+    const cms_uint16_t particleTypeBeam1() const;
+    const cms_uint16_t particleTypeBeam2() const;
+    const cms_uint16_t beamMomentum() const;
+    const cms_uint32_t totalIntensityBeam1() const;
+    const cms_uint32_t totalIntensityBeam2() const;
+
+
+
+public:
+
+    /// get/set BST block for index iB
+    const cms_uint16_t bst(int iB) const;
+    void setBst(const cms_uint16_t bstVal, const int iB);
+
+    /// set the BST block for index iB from a 64-bits word
+    void setBst(const cms_uint64_t& word64, const int iB);
+
+    /// set the BST block in a 64-bits word, having the index iWord
+    /// in the GTFE raw record
+    void setBstWord64(cms_uint64_t& word64, int iB, const int iWord);
+
+
+    /// get/set hex message indicating the source of BST message
+    inline const cms_uint16_t bstSource() const {
+        return m_bstSource;
+    }
+
+    inline void setBstSource(const cms_uint16_t bstSourceVal) {
+        m_bstSource = bstSourceVal;
+    }
+
+    /// set the hex message indicating the source of BST message from a 64-bits word
+    void setBstSource(const cms_uint64_t& word64);
+
+    /// set hex message indicating the source of BST message in a 64-bits word,
+    /// having the index iWord in the GTFE raw record
+    void setBstSourceWord64(cms_uint64_t& word64, const int iWord);
 
 public:
 
     /// get the size of the GTFE block in GT EVM record (in multiple of 8 bits)
-    inline const unsigned int getSize() const
-    {
-        int unitLengthBits = L1GlobalTriggerReadoutSetup::UnitLength;
-
-        return BlockSizeExt*unitLengthBits;
-    }
+    const unsigned int getSize() const;
 
 public:
+
+    /// resize the BST vector to get the right size of the block
+    void resize(int bstSizeBytes);
 
     /// reset the content of a L1GtfeExtWord
     void reset();
@@ -128,36 +156,24 @@ private:
 
     /// BST block mask, correlated with the number of bits of a block
     /// 8 bit = 0xFF
-    static const boost::uint64_t BstBlockMask;
-
-    /// block size in 64bits words
-    static const int BlockSizeExt;
+    static const cms_uint64_t BstBlockMask;
 
     /// BST blocks: conversion to defined quantities (LHC-BOB-ES-0001)
 
     static const int GpsTimeFirstBlock;
     static const int GpsTimeLastBlock;
 
-    static const int TurnCountNumberFirstBlock;
-    static const int TurnCountNumberLastBlock;
-
-    static const int  LhcFillNumberFirstBlock;
-    static const int  LhcFillNumberLastBlock;
-
-    static const int  TotalIntensityBeam1FirstBlock;
-    static const int  TotalIntensityBeam1LastBlock;
-
-    static const int TotalIntensityBeam2FirstBlock;
-    static const int TotalIntensityBeam2LastBlock;
-
-    static const int BeamMomentumFirstBlock;
-    static const int BeamMomentumLastBlock;
-
     static const int BstMasterStatusFirstBlock;
     static const int BstMasterStatusLastBlock;
 
-    static const int MachineModeFirstBlock;
-    static const int MachineModeLastBlock;
+    static const int TurnCountNumberFirstBlock;
+    static const int TurnCountNumberLastBlock;
+
+    static const int LhcFillNumberFirstBlock;
+    static const int LhcFillNumberLastBlock;
+
+    static const int BeamModeFirstBlock;
+    static const int BeamModeLastBlock;
 
     static const int ParticleTypeBeam1FirstBlock;
     static const int ParticleTypeBeam1LastBlock;
@@ -165,11 +181,29 @@ private:
     static const int ParticleTypeBeam2FirstBlock;
     static const int ParticleTypeBeam2LastBlock;
 
+    static const int BeamMomentumFirstBlock;
+    static const int BeamMomentumLastBlock;
+
+    static const int TotalIntensityBeam1FirstBlock;
+    static const int TotalIntensityBeam1LastBlock;
+
+    static const int TotalIntensityBeam2FirstBlock;
+    static const int TotalIntensityBeam2LastBlock;
+
+    // BST message source written always in the last word of GTFE extended
+    static const cms_uint64_t BstSourceMask;
+
+    static const int BstSourceShift;
+
+
+
 private:
 
-    ///
-    uint16_t m_bst[NumberBstBlocks];
+    /// BST message - each byte is an vector element
+    std::vector<cms_uint16_t> m_bst;
 
+    /// hex message indicating the source of BST message (beam or simulated)
+    cms_uint16_t m_bstSource;
 
 };
 

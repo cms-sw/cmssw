@@ -1,5 +1,4 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.10 2007/07/31 19:05:13 torimoto Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -10,8 +9,8 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <vector>
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
@@ -22,13 +21,24 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalWeight.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibErrorsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
+#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -46,16 +56,29 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 
-//#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
-//#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionObjectSpecificParametersRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
+#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 
 using namespace std;
 
-  void
-   EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
-  {
+void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
+{
     using namespace edm::eventsetup;
     // Context is not used.
     std::cout <<">>> EcalTrivialObjectAnalyzer: processing run "<<e.id().run() << " event: " << e.id().event() << std::endl;
@@ -80,12 +103,12 @@ using namespace std;
     std::cout << "EcalTrivialObjectAnalyzer: using EBDetId: " << ebid << std::endl;
 
     const EcalPedestals* myped=pPeds.product();
-    std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(ebid.rawId());
-    if( it!=myped->m_pedestals.end() ){
+    EcalPedestals::const_iterator it = myped->find(ebid.rawId());
+    if( it!=myped->end() ){
       std::cout << "EcalPedestal: "
-                << "  mean_x1:  " << std::setprecision(8) << it->second.mean_x1 << " rms_x1: " << it->second.rms_x1
-                << "  mean_x6:  " <<it->second.mean_x6 << " rms_x6: " << it->second.rms_x6
-                << "  mean_x12: " <<it->second.mean_x12 << " rms_x12: " << it->second.rms_x12
+                << "  mean_x1:  " << std::setprecision(8) << (*it).mean_x1 << " rms_x1: " << (*it).rms_x1
+                << "  mean_x6:  " <<(*it).mean_x6 << " rms_x6: " << (*it).rms_x6
+                << "  mean_x12: " <<(*it).mean_x12 << " rms_x12: " << (*it).rms_x12
                 << std::endl;
     } else {
      std::cout << "No pedestal found for this xtal! something wrong with EcalPedestals in your DB? "
@@ -97,11 +120,11 @@ using namespace std;
     context.get<EcalWeightXtalGroupsRcd>().get(pGrp);
     const EcalWeightXtalGroups* grp = pGrp.product();
 
-    EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( ebid.rawId() );
+    EcalXtalGroupsMap::const_iterator git = grp->getMap().find( ebid.rawId() );
     EcalXtalGroupId gid;
     if( git != grp->getMap().end() ) {
-      std::cout << "XtalGroupId.id() = " << std::setprecision(3) << git->second.id() << std:: endl;
-      gid = git->second;
+      std::cout << "XtalGroupId.id() = " << std::setprecision(3) << (*git).id() << std:: endl;
+      gid = (*git);
     } else {
       std::cout << "No group id found for this crystal. something wrong with EcalWeightXtalGroups in your DB?"
                 << std::endl;
@@ -112,10 +135,10 @@ using namespace std;
     context.get<EcalGainRatiosRcd>().get(pRatio);
     const EcalGainRatios* gr = pRatio.product();
 
-    EcalGainRatios::EcalGainRatioMap::const_iterator grit=gr->getMap().find(ebid.rawId());
+    EcalGainRatioMap::const_iterator grit=gr->getMap().find(ebid.rawId());
     EcalMGPAGainRatio mgpa;
     if( grit!=gr->getMap().end() ){
-      mgpa = grit->second;
+      mgpa = (*grit);
 
       std::cout << "EcalMGPAGainRatio: "
                 << "gain 12/6 :  " << std::setprecision(4) << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
@@ -130,10 +153,10 @@ using namespace std;
     context.get<EcalIntercalibConstantsRcd>().get(pIcal);
     const EcalIntercalibConstants* ical = pIcal.product();
 
-    EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(ebid.rawId());
-    EcalIntercalibConstants::EcalIntercalibConstant icalconst;
+    EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(ebid.rawId());
+    EcalIntercalibConstant icalconst;
     if( icalit!=ical->getMap().end() ){
-      icalconst = icalit->second;
+      icalconst = (*icalit);
 
       std::cout << "EcalIntercalibConstant: "
                 <<std::setprecision(6)
@@ -144,6 +167,80 @@ using namespace std;
                << std::endl;
     }
 
+    // Intercalib errors
+    edm::ESHandle<EcalIntercalibErrors> pIcalErr;
+    context.get<EcalIntercalibErrorsRcd>().get(pIcalErr);
+    const EcalIntercalibErrors* icalErr = pIcalErr.product();
+
+    EcalIntercalibErrorMap::const_iterator icalitErr=icalErr->getMap().find(ebid.rawId());
+    EcalIntercalibError icalconstErr;
+    if( icalitErr!=icalErr->getMap().end() ){
+      icalconstErr = (*icalitErr);
+
+      std::cout << "EcalIntercalibError: "
+                <<std::setprecision(6)
+                << icalconstErr
+                << std::endl;
+    } else {
+     std::cout << "No intercalib const found for this xtal! something wrong with EcalIntercalibErrors in your DB? "
+               << std::endl;
+    }
+
+
+
+    { // quick and dirty for cut and paste ;) it is a test program...
+            // TimeCalib constants
+            edm::ESHandle<EcalTimeCalibConstants> pIcal;
+            context.get<EcalTimeCalibConstantsRcd>().get(pIcal);
+            const EcalTimeCalibConstants* ical = pIcal.product();
+
+            EcalTimeCalibConstantMap::const_iterator icalit=ical->getMap().find(ebid.rawId());
+            EcalTimeCalibConstant icalconst;
+            if( icalit!=ical->getMap().end() ){
+                    icalconst = (*icalit);
+
+                    std::cout << "EcalTimeCalibConstant: "
+                            <<std::setprecision(6)
+                            << icalconst
+                            << std::endl;
+            } else {
+                    std::cout << "No intercalib const found for this xtal! something wrong with EcalTimeCalibConstants in your DB? "
+                            << std::endl;
+            }
+
+            // TimeCalib errors
+            edm::ESHandle<EcalTimeCalibErrors> pIcalErr;
+            context.get<EcalTimeCalibErrorsRcd>().get(pIcalErr);
+            const EcalTimeCalibErrors* icalErr = pIcalErr.product();
+
+            EcalTimeCalibErrorMap::const_iterator icalitErr=icalErr->getMap().find(ebid.rawId());
+            EcalTimeCalibError icalconstErr;
+            if( icalitErr!=icalErr->getMap().end() ){
+                    icalconstErr = (*icalitErr);
+
+                    std::cout << "EcalTimeCalibError: "
+                            <<std::setprecision(6)
+                            << icalconstErr
+                            << std::endl;
+            } else {
+                    std::cout << "No intercalib const found for this xtal! something wrong with EcalTimeCalibErrors in your DB? "
+                            << std::endl;
+            }
+    }
+
+   // fetch Time Offset
+   //std::cout <<"Fetching TimeOffsetConstant from DB " << std::endl;
+
+   // Time Offset constants
+   edm::ESHandle<EcalTimeOffsetConstant> pTOff;
+   context.get<EcalTimeOffsetConstantRcd>().get(pTOff);
+   const EcalTimeOffsetConstant* TOff = pTOff.product();
+
+   std::cout << "EcalTimeOffsetConstant: "
+	     << " EB " << TOff->getEBValue()
+	     << " EE " << TOff->getEEValue()
+	     << std::endl;
+
    // fetch TB weights
    std::cout <<"Fetching EcalTBWeights from DB " << std::endl;
    edm::ESHandle<EcalTBWeights> pWgts;
@@ -151,8 +248,9 @@ using namespace std;
    const EcalTBWeights* wgts = pWgts.product();
    std::cout << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts->getMap().size() << std::endl;
 
+
    // look up the correct weights for this  xtal
-   //EcalXtalGroupId gid( git->second );
+   //EcalXtalGroupId gid( (*git) );
    EcalTBWeights::EcalTDCId tdcid(1);
 
    std::cout << "Lookup EcalWeightSet for groupid: " << std::setprecision(3) 
@@ -173,8 +271,8 @@ using namespace std;
 //                 << ", WeightsAfterGainSwitch.size: " << mat2.size() << std::endl;
 
 
-      HepMatrix clmat1(3,10,0);
-      HepMatrix clmat2(3,10,0);
+      CLHEP::HepMatrix clmat1(3,10,0);
+      CLHEP::HepMatrix clmat2(3,10,0);
       for(int irow=0; irow<3; irow++) {
        for(int icol=0; icol<10; icol++) {
          clmat1[irow][icol] = mat1(irow,icol);
@@ -190,23 +288,62 @@ using namespace std;
      std::cout << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid << std::endl;
   }
 
-   // laser correction
+   // cluster functions/corrections
+   edm::ESHandle<EcalClusterLocalContCorrParameters> pLocalCont;
+   context.get<EcalClusterLocalContCorrParametersRcd>().get(pLocalCont);
+   const EcalClusterLocalContCorrParameters* paramLocalCont = pLocalCont.product();
+   std::cout << "LocalContCorrParameters:";
+   for ( EcalFunctionParameters::const_iterator it = paramLocalCont->params().begin(); it != paramLocalCont->params().end(); ++it ) {
+           std::cout << " " << *it;
+   }
+   std::cout << "\n";
+   edm::ESHandle<EcalClusterCrackCorrParameters> pCrack;
+   context.get<EcalClusterCrackCorrParametersRcd>().get(pCrack);
+   const EcalClusterCrackCorrParameters* paramCrack = pCrack.product();
+   std::cout << "CrackCorrParameters:";
+   for ( EcalFunctionParameters::const_iterator it = paramCrack->params().begin(); it != paramCrack->params().end(); ++it ) {
+           std::cout << " " << *it;
+   }
+   std::cout << "\n";
+   edm::ESHandle<EcalClusterEnergyCorrectionParameters> pEnergyCorrection;
+   context.get<EcalClusterEnergyCorrectionParametersRcd>().get(pEnergyCorrection);
+   const EcalClusterEnergyCorrectionParameters* paramEnergyCorrection = pEnergyCorrection.product();
+   std::cout << "EnergyCorrectionParameters:";
+   for ( EcalFunctionParameters::const_iterator it = paramEnergyCorrection->params().begin(); it != paramEnergyCorrection->params().end(); ++it ) {
+           std::cout << " " << *it;
+   }
+   std::cout << "\n";
+   edm::ESHandle<EcalClusterEnergyUncertaintyParameters> pEnergyUncertainty;
+   context.get<EcalClusterEnergyUncertaintyParametersRcd>().get(pEnergyUncertainty);
+   const EcalClusterEnergyUncertaintyParameters* paramEnergyUncertainty = pEnergyUncertainty.product();
+   std::cout << "EnergyCorrectionParameters:";
+   for ( EcalFunctionParameters::const_iterator it = paramEnergyUncertainty->params().begin(); it != paramEnergyUncertainty->params().end(); ++it ) {
+           std::cout << " " << *it;
+   }
+   std::cout << "\n";
+   edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> pEnergyCorrectionObjectSpecific;
+   context.get<EcalClusterEnergyCorrectionObjectSpecificParametersRcd>().get(pEnergyCorrectionObjectSpecific);
+   const EcalClusterEnergyCorrectionObjectSpecificParameters* paramEnergyCorrectionObjectSpecific = pEnergyCorrectionObjectSpecific.product();
+   std::cout << "EnergyCorrectionObjectSpecificParameters:";
+   for ( EcalFunctionParameters::const_iterator it = paramEnergyCorrectionObjectSpecific->params().begin(); it != paramEnergyCorrectionObjectSpecific->params().end(); ++it ) {
+     std::cout << " " << *it;
+   }
+   std::cout << "\n";
 
+
+   // laser correction
+   
    // laser alphas
    edm::ESHandle<EcalLaserAlphas> pAlpha; 
    context.get<EcalLaserAlphasRcd>().get(pAlpha);
    const EcalLaserAlphas* lalpha = pAlpha.product();
    
-   EcalLaserAlphas::EcalLaserAlphaMapIterator lalphait;
+   EcalLaserAlphaMap::const_iterator lalphait;
    lalphait = lalpha->getMap().find(ebid.rawId());
-   EcalLaserAlphas::EcalLaserAlpha lalphaconst;
-
    if( lalphait!=lalpha->getMap().end() ){
-     lalphaconst = lalphait->second;     
      std::cout << "EcalLaserAlpha: "
-       //	       <<e.id().run() << " " << e.id().event() << " " 
 	       <<std::setprecision(6)
-	       << lalphaconst
+	       << (*lalphait)
 	       << std::endl;
    } else {
      std::cout << "No laser alpha found for this xtal! something wrong with EcalLaserAlphas in your DB? "
@@ -218,34 +355,29 @@ using namespace std;
    context.get<EcalLaserAPDPNRatiosRefRcd>().get(pAPDPNRatiosRef);  
    const EcalLaserAPDPNRatiosRef* lref = pAPDPNRatiosRef.product(); 
    
-   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMapIterator lrefit;
+   EcalLaserAPDPNRatiosRef::const_iterator lrefit;
    lrefit = lref->getMap().find(ebid.rawId());
-   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref lrefconst;      
-
    if( lrefit!=lref->getMap().end() ){
-     lrefconst = lrefit->second;     
      std::cout << "EcalLaserAPDPNRatiosRef: "
-       //	       <<e.id().run() << " " << e.id().event() << " " 
   	       <<std::setprecision(6)
-  	       << lrefconst
+  	       << (*lrefit)
   	       << std::endl;
    } else {
      std::cout << "No laser apd/pn ref found for this xtal! something wrong with EcalLaserAPDPNRatiosRef in your DB? "
 	       << std::endl;
    }
 
-
    // laser apdpn ratios 
    edm::ESHandle<EcalLaserAPDPNRatios> pAPDPNRatios;          
    context.get<EcalLaserAPDPNRatiosRcd>().get(pAPDPNRatios);  
    const EcalLaserAPDPNRatios* lratio = pAPDPNRatios.product();
 
-   EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMapIterator lratioit; 
+   EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator lratioit; 
    lratioit = lratio->getLaserMap().find(ebid.rawId());
    EcalLaserAPDPNRatios::EcalLaserAPDPNpair lratioconst;
    
    if( lratioit!=lratio->getLaserMap().end() ){
-     lratioconst = lratioit->second;
+     lratioconst = (*lratioit);
      
      std::cout << "EcalLaserAPDPNRatios: "
        //	       <<e.id().run() << " " << e.id().event() << " " 
@@ -258,34 +390,48 @@ using namespace std;
    }
 
    // laser timestamps
-   EcalLaserAPDPNRatios::EcalLaserTimeStampMapIterator ltimeit;
    EcalLaserAPDPNRatios::EcalLaserTimeStamp ltimestamp;
-   
-   std::cout << "EcalLaserTimeStamp: ";
+   EcalLaserAPDPNRatios::EcalLaserTimeStampMap::const_iterator ltimeit;
    for (int i=1; i<=92; i++) {     
-     ltimeit = lratio->getTimeMap().find(i);
-     if( ltimeit != lratio->getTimeMap().end() ) {
-       ltimestamp = ltimeit->second;
-       
-	 //		 <<e.id().run() << " " << e.id().event() << " " 
-       std::cout << std::setprecision(6)
-		   << ltimestamp.t1.value() << " " << ltimestamp.t2.value() << " : " ;
-     } else {
-       std::cout << "No laser timestamp found for this xtal! something wrong with EcalLaserAPDPNRatios in your DB? "
-		 << std::endl;
-     }
+     ltimestamp = lratio->getTimeMap()[i];
+     std::cout << "i = " << std::setprecision(6) << i
+             << ltimestamp.t1.value() << " " << ltimestamp.t2.value() << " : " ;
    }
-   std::cout << std::endl;
+   std::cout << "Tests finished." << std::endl;
+
+   // channel status
+   edm::ESHandle<EcalChannelStatus> pChannelStatus;
+   context.get<EcalChannelStatusRcd>().get(pChannelStatus);
+   const EcalChannelStatus *ch_status = pChannelStatus.product();
+
+   EcalChannelStatusMap::const_iterator chit;
+   chit = ch_status->getMap().find(ebid.rawId());
+   if( chit != ch_status->getMap().end() ){
+           EcalChannelStatusCode ch_code = (*chit);
+           std::cout << "EcalChannelStatus: "
+                   <<std::setprecision(6)
+                   << ch_code.getStatusCode()
+                   << std::endl;
+   } else {
+           std::cout << "No channel status found for this xtal! something wrong with EcalChannelStatus in your DB? "
+                   << std::endl;
+   }
 
 
    // laser transparency correction
-   
 
+   // Mask to ignore sample
+   edm::ESHandle<EcalSampleMask> pSMask;
+   context.get<EcalSampleMaskRcd>().get(pSMask);
+   const EcalSampleMask* smask = pSMask.product();
+   std::cout << "Sample Mask EB " << std::hex << smask->getEcalSampleMaskRecordEB() 
+	     << " EE " << std::hex << smask->getEcalSampleMaskRecordEE() << std::endl;
+   
 
 /*
     std::cout << "make CLHEP matrices from vector<vector<Ecalweight>>" << std::endl;
-    HepMatrix clmat1(3,8,0);
-    HepMatrix clmat2(3,8,0);
+    CLHEP::HepMatrix clmat1(3,8,0);
+    CLHEP::HepMatrix clmat2(3,8,0);
     for(int irow=0; irow<3; irow++) {
      for(int icol=0; icol<8; icol++) {
        clmat1[irow][icol] = (mat1[irow])[icol]();
@@ -296,5 +442,5 @@ using namespace std;
    std::cout << clmat2 << std::endl;
 */
 
-  } //end of ::Analyze()
+} //end of ::Analyze()
   //DEFINE_FWK_MODULE(EcalTrivialObjectAnalyzer);

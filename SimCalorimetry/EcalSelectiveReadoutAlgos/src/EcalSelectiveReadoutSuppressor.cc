@@ -4,11 +4,10 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -28,25 +27,62 @@ using namespace std;
 
 const int EcalSelectiveReadoutSuppressor::nFIRTaps = 6;
 
-EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params):
-  firstFIRSample(params.getParameter<int>("ecalDccZs1stSample")),
-  weights(params.getParameter<vector<double> >("dccNormalizedWeights")){
+EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params, const EcalSRSettings* settings):
+  ttThresOnCompressedEt_(false),
+  ievt_(0)
+{
+
+  firstFIRSample = settings->ecalDccZs1stSample_[0];
+  weights = settings->dccNormalizedWeights_[0];
+  symetricZS = settings->symetricZS_[0];
+  actions_ = settings->actions_;
+
+
+  int defTtf = params.getParameter<int>("defaultTtf");
+  if(defTtf < 0 || defTtf > 7){
+    throw cms::Exception("InvalidParameter") << "Value of EcalSelectiveReadoutProducer module parameter defaultTtf, "
+					     << defaultTtf_ << ", is out of the valid range 0..7\n";
+  } else{
+    defaultTtf_ = (EcalSelectiveReadout::ttFlag_t) defTtf; 
+  }
+
+  //online configuration has only 4 actions flags, the 4 'forced' flags being the same with the force
+  //bit set to 1. Extends the actions vector for case of online-type configuration:
+  if(actions_.size()==4){
+     for(int i = 0; i < 4; ++i){
+        actions_.push_back(actions_[i] | 0x4);
+     }
+  }
+
+
+  bool actionValid = actions_.size()==8;
+  for(size_t i = 0; i < actions_.size(); ++i){
+    if(actions_[i] < 0 || actions_[i] > 7) actionValid = false;
+  }
+
+  if(!actionValid){
+    throw cms::Exception("InvalidParameter") << "EcalSelectiveReadoutProducer module parameter 'actions' is "
+      "not valid. It must be a vector of 8 integer values comprised between 0 and 7\n";
+  }
   
-  double adcToGeV = params.getParameter<double>("ebDccAdcToGeV");
+  double adcToGeV = settings->ebDccAdcToGeV_;
   thrUnit[BARREL] = adcToGeV/4.; //unit=1/4th ADC count
   
-  adcToGeV = params.getParameter<double>("eeDccAdcToGeV");
+  adcToGeV = settings->eeDccAdcToGeV_;
   thrUnit[ENDCAP] = adcToGeV/4.; //unit=1/4th ADC count
   ecalSelectiveReadout
-    = auto_ptr<EcalSelectiveReadout>(new EcalSelectiveReadout
-				     (params.getParameter<int>("deltaEta"),
-				      params.getParameter<int>("deltaPhi")));
-  initCellThresholds(params.getParameter<double>("srpBarrelLowInterestChannelZS"),
-		     params.getParameter<double>("srpEndcapLowInterestChannelZS"),
-		     params.getParameter<double>("srpBarrelHighInterestChannelZS"),
-		     params.getParameter<double>("srpEndcapHighInterestChannelZS")
+    = auto_ptr<EcalSelectiveReadout>(new EcalSelectiveReadout(
+							      settings->deltaEta_[0],
+							      settings->deltaPhi_[0]));
+  const int eb = 0;
+  const int ee = 1;
+  initCellThresholds(settings->srpLowInterestChannelZS_[eb],
+		     settings->srpLowInterestChannelZS_[ee],
+		     settings->srpHighInterestChannelZS_[eb],
+		     settings->srpHighInterestChannelZS_[ee]
 		     );
   trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
+  trigPrimBypassMode_ = params.getParameter<int>("trigPrimBypassMode");
   trigPrimBypassWithPeakFinder_
     = params.getParameter<bool>("trigPrimBypassWithPeakFinder");
   trigPrimBypassLTH_ = params.getParameter<double>("trigPrimBypassLTH");
@@ -54,6 +90,12 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
   if(trigPrimBypass_){
     edm::LogWarning("Digitization") << "Beware a simplified trigger primitive "
       "computation is used for the ECAL selective readout";
+    if(trigPrimBypassMode_ !=0 && trigPrimBypassMode_ !=1){
+      throw cms::Exception("InvalidParameter")
+        << "Invalid value for EcalSelectiveReadoutProducer parameter 'trigPrimBypassMode_'."
+        " Valid values are 0 and 1.\n";
+    }
+    ttThresOnCompressedEt_ = (trigPrimBypassMode_==1);
   }
 }
 
@@ -61,6 +103,10 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
 void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituentsMap * map){
   theTriggerMap = map;
   ecalSelectiveReadout->setTriggerMap(map);
+}
+
+void EcalSelectiveReadoutSuppressor::setElecMap(const EcalElectronicsMapping * map){
+  ecalSelectiveReadout->setElecMap(map);
 }
 
 
@@ -79,54 +125,71 @@ void EcalSelectiveReadoutSuppressor::initCellThresholds(double barrelLowInterest
   //center, neighbour and single RUs are grouped into a single
   //'high interest' group
   int lowInterestThr[2]; //index for BARREL/ENDCAP
-  int lowInterestSrFlag[2];
+  //  int lowInterestSrFlag[2];
   int highInterestThr[2];
-  int highInterestSrFlag[2];
+  // int highInterestSrFlag[2];
   
   lowInterestThr[BARREL] = internalThreshold(barrelLowInterest, BARREL);
-  lowInterestSrFlag[BARREL] = thr2Srf(lowInterestThr[BARREL],
-				      EcalSrFlag::SRF_ZS1);
+  //  lowInterestSrFlag[BARREL] = thr2Srf(lowInterestThr[BARREL],
+  //				      EcalSrFlag::SRF_ZS1);
   
   highInterestThr[BARREL] = internalThreshold(barrelHighInterest, BARREL);
-  highInterestSrFlag[BARREL] = thr2Srf(highInterestThr[BARREL],
-				       EcalSrFlag::SRF_ZS2);
+  //  highInterestSrFlag[BARREL] = thr2Srf(highInterestThr[BARREL],
+  //				       EcalSrFlag::SRF_ZS2);
   
   lowInterestThr[ENDCAP] = internalThreshold(endcapLowInterest, ENDCAP);
-  lowInterestSrFlag[ENDCAP] = thr2Srf(lowInterestThr[ENDCAP],
-				      EcalSrFlag::SRF_ZS2);
+  //lowInterestSrFlag[ENDCAP] = thr2Srf(lowInterestThr[ENDCAP],
+  //			      EcalSrFlag::SRF_ZS1);
 
   highInterestThr[ENDCAP] = internalThreshold(endcapHighInterest, ENDCAP); 
-  highInterestSrFlag[ENDCAP] = thr2Srf(highInterestThr[ENDCAP],
-				       EcalSrFlag::SRF_ZS2);
+  //  highInterestSrFlag[ENDCAP] = thr2Srf(highInterestThr[ENDCAP],
+  //			       EcalSrFlag::SRF_ZS2);
+
+  const int FORCED_MASK = EcalSelectiveReadout::FORCED_MASK;
   
   for(int iSubDet = 0; iSubDet<2; ++iSubDet){
     //low interest
-    zsThreshold[iSubDet][0] = lowInterestThr[iSubDet];
-    srFlags[iSubDet][0] = lowInterestSrFlag[iSubDet];
+    //zsThreshold[iSubDet][0] = lowInterestThr[iSubDet];
+    //srFlags[iSubDet][0] = lowInterestSrFlag[iSubDet];
+    //srFlags[iSubDet][0 + FORCED_MASK] = FORCED_MASK | lowInterestSrFlag[iSubDet];
 
     //single->high interest
-    zsThreshold[iSubDet][1] = highInterestThr[iSubDet];
-    srFlags[iSubDet][1] = highInterestSrFlag[iSubDet];
+    //zsThreshold[iSubDet][1] = highInterestThr[iSubDet];
+    //srFlags[iSubDet][1] = highInterestSrFlag[iSubDet];
+    //srFlags[iSubDet][1 +  FORCED_MASK] = FORCED_MASK | highInterestSrFlag[iSubDet];
 
     //neighbour->high interest
-    zsThreshold[iSubDet][2] = highInterestThr[iSubDet];
-    srFlags[iSubDet][2] = highInterestSrFlag[iSubDet];
+    //zsThreshold[iSubDet][2] = highInterestThr[iSubDet];
+    //srFlags[iSubDet][2] = highInterestSrFlag[iSubDet];
+    //srFlags[iSubDet][2 + FORCED_MASK] = FORCED_MASK | highInterestSrFlag[iSubDet];
 
     //center->high interest
-    zsThreshold[iSubDet][3] = highInterestThr[iSubDet];
-    srFlags[iSubDet][3] = highInterestSrFlag[iSubDet];
+    //zsThreshold[iSubDet][3] = highInterestThr[iSubDet];
+    //srFlags[iSubDet][3] = highInterestSrFlag[iSubDet];
+    //srFlags[iSubDet][3 + FORCED_MASK] = FORCED_MASK | highInterestSrFlag[iSubDet];
+    for(size_t i = 0; i < 8; ++i){
+      srFlags[iSubDet][i] = actions_[i];
+      if((actions_[i] & ~FORCED_MASK) == 0) zsThreshold[iSubDet][i] = numeric_limits<int>::max();
+      else if((actions_[i] & ~FORCED_MASK) == 1) zsThreshold[iSubDet][i] = lowInterestThr[iSubDet];
+      else if((actions_[i] & ~FORCED_MASK) == 2)  zsThreshold[iSubDet][i] = highInterestThr[iSubDet];
+      else zsThreshold[iSubDet][i] = numeric_limits<int>::min();
+    }
+
+//     for(size_t i = 0; i < 8; ++i){
+//       cout << "zsThreshold[" << iSubDet << "]["  << i << "] = " << zsThreshold[iSubDet][i] << endl;
+//     }
   }
 }
 
-int EcalSelectiveReadoutSuppressor::thr2Srf(int thr, int zsFlag) const{
-  if(thr==numeric_limits<int>::max()){
-    return EcalSrFlag::SRF_SUPPRESS;
-  }
-  if(thr==numeric_limits<int>::min()){
-    return EcalSrFlag::SRF_FULL;
-  } 
-  return zsFlag;
-}
+// int EcalSelectiveReadoutSuppressor::thr2Srf(int thr, int zsFlag) const{
+//   if(thr==numeric_limits<int>::max()){
+//     return EcalSrFlag::SRF_SUPPRESS;
+//   }
+//   if(thr==numeric_limits<int>::min()){
+//     return EcalSrFlag::SRF_FULL;
+//   } 
+//   return zsFlag;
+// }
 
 int EcalSelectiveReadoutSuppressor::internalThreshold(double thresholdInGeV,
 						      int iSubDet) const{
@@ -163,7 +226,7 @@ bool EcalSelectiveReadoutSuppressor::accept(edm::DataFrame const & frame,
   int iWeight = 0;
   for(int iSample=firstFIRSample-1;
       iSample<lastFIRSample; ++iSample, ++iWeight){
-    if(iSample>=0 && iSample < frame.size()){
+    if(iSample>=0 && iSample < (int)frame.size()){
       EcalMGPASample sample(frame[iSample]);
       if(sample.gainId()!=gain12) gain12saturated = true;
       //LogTrace("DccFir") << (iSample>=firstFIRSample?"+":"") << sample.adc()
@@ -175,24 +238,32 @@ bool EcalSelectiveReadoutSuppressor::accept(edm::DataFrame const & frame,
 	"parameter is not valid...";
     }
   }
+
+  if(symetricZS){//cut on absolute value
+    if(acc<0) acc = -acc;
+  }
+  
   //LogTrace("DccFir") << "\n";
   //discards the 8 LSBs 
-  //(shift operator cannot be used on negative numbers because
-  // the result depends on compilator implementation)
-  acc = (acc>=0)?(acc >> 8):-(-acc >> 8);
+  //(result of shift operator on negative numbers depends on compiler
+  //implementation, therefore the value is offset to make sure it is positive
+  //before performing the bit shift).
+  acc = ((acc + (1<<30)) >>8) - (1 <<(30-8));
+
   //ZS passed if weigthed sum acc above ZS threshold or if
   //one sample has a lower gain than gain 12 (that is gain 12 output
   //is saturated)
-
-  const bool result = acc>=thr || gain12saturated;
+  
+  const bool result = (acc >= thr) || gain12saturated;
   
   //LogTrace("DccFir") << "acc: " << acc << "\n"
-  //  		     << "threshold: " << thr << " ("
-  //  		     << thr*thrUnit[frame.id().subdet()==EcalBarrel?0:1]
-  //  		     << "GeV)\n"
-  //  		     << "saturated: " << (gain12saturated?"yes":"no") << "\n"
-  //  		     << "ZS passed: " << (result?"yes":"no") << "\n";
-
+  //                   << "threshold: " << thr << " ("
+  //                   << thr*thrUnit[((EcalDataFrame&)frame).id().subdetId()==EcalBarrel?0:1]
+  //                   << "GeV)\n"
+  //                   << "saturated: " << (gain12saturated?"yes":"no") << "\n"
+  //                   << "ZS passed: " << (result?"yes":"no")
+  //                   << (symetricZS?" (symetric cut)":"") << "\n";
+  
   return result;
 }
 
@@ -202,11 +273,9 @@ void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 					 EEDigiCollection & endcapDigis){
   EBDigiCollection selectedBarrelDigis;
   EEDigiCollection selectedEndcapDigis;
-  EBSrFlagCollection ebSrFlags;
-  EESrFlagCollection eeSrFlags;
   
   run(eventSetup, trigPrims, barrelDigis, endcapDigis,
-      selectedBarrelDigis, selectedEndcapDigis, ebSrFlags, eeSrFlags);
+      &selectedBarrelDigis, &selectedEndcapDigis, 0, 0);
   
 //replaces the input with the suppressed version
   barrelDigis.swap(selectedBarrelDigis);
@@ -219,42 +288,62 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 				    const EcalTrigPrimDigiCollection & trigPrims,
 				    const EBDigiCollection & barrelDigis,
 				    const EEDigiCollection & endcapDigis,
-				    EBDigiCollection& selectedBarrelDigis,
-				    EEDigiCollection& selectedEndcapDigis,
-				    EBSrFlagCollection& ebSrFlags,
-				    EESrFlagCollection& eeSrFlags){
-  if(!trigPrimBypass_){//normal mode
+				    EBDigiCollection* selectedBarrelDigis,
+				    EEDigiCollection* selectedEndcapDigis,
+				    EBSrFlagCollection* ebSrFlags,
+				    EESrFlagCollection* eeSrFlags){
+  ++ievt_;
+  if(!trigPrimBypass_ || ttThresOnCompressedEt_){//uses output of TPG emulator
     setTtFlags(trigPrims);
   } else{//debug mode, run w/o TP digis
     setTtFlags(eventSetup, barrelDigis, endcapDigis);
   }
 
   ecalSelectiveReadout->runSelectiveReadout0(ttFlags);  
-  
-  selectedBarrelDigis.reserve(barrelDigis.size()/20);
-  selectedEndcapDigis.reserve(endcapDigis.size()/20);
 
-  // do barrel first
-  for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
-      digiItr != barrelDigis.end(); ++digiItr){
-    int interestLevel
-      = ecalSelectiveReadout->getCrystalInterest(EBDigiCollection::DetId(digiItr->id()));
-    if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
-      selectedBarrelDigis.push_back(digiItr->id(), digiItr->begin());
-    } 
-  }
-  
-  // and endcaps
-  for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
-      digiItr != endcapDigis.end(); ++digiItr){
-    int interestLevel = ecalSelectiveReadout->getCrystalInterest(EEDigiCollection::DetId(digiItr->id()));
-    if(accept(*digiItr, zsThreshold[ENDCAP][interestLevel])){
-      selectedEndcapDigis.push_back(digiItr->id(), digiItr->begin());
+  if(selectedBarrelDigis){
+    selectedBarrelDigis->reserve(barrelDigis.size()/20);
+    
+    // do barrel first
+    for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
+	digiItr != barrelDigis.end(); ++digiItr){
+      int interestLevel
+	= ecalSelectiveReadout->getCrystalInterest(EBDigiCollection::DetId(digiItr->id())) && ~EcalSelectiveReadout::FORCED_MASK;
+      if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
+	selectedBarrelDigis->push_back(digiItr->id(), digiItr->begin());
+      } 
     }
   }
   
-  ebSrFlags.reserve(34*72);
-  eeSrFlags.reserve(624);
+  // and endcaps
+  if(selectedEndcapDigis){
+    selectedEndcapDigis->reserve(endcapDigis.size()/20);
+    for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
+	digiItr != endcapDigis.end(); ++digiItr){
+      int interestLevel
+        = ecalSelectiveReadout->getCrystalInterest(EEDigiCollection::DetId(digiItr->id()))
+        & ~EcalSelectiveReadout::FORCED_MASK;
+      if(accept(*digiItr, zsThreshold[ENDCAP][interestLevel])){
+	selectedEndcapDigis->push_back(digiItr->id(), digiItr->begin());
+      }
+    }
+  }
+
+   if(ievt_ <= 10){
+     if(selectedEndcapDigis) LogDebug("EcalSelectiveReadout")
+			       //       << __FILE__ << ":" << __LINE__ << ": "
+       << "Number of EB digis passing the SR: "
+       << selectedBarrelDigis->size()
+       << " / " << barrelDigis.size() << "\n";
+     if(selectedEndcapDigis) LogDebug("EcalSelectiveReadout")
+			       //       << __FILE__ << ":" << __LINE__ << ": "
+       << "\nNumber of EE digis passing the SR: "
+       << selectedEndcapDigis->size()
+       << " / " << endcapDigis.size() << "\n";
+   }
+  
+  if(ebSrFlags) ebSrFlags->reserve(34*72);
+  if(eeSrFlags) eeSrFlags->reserve(624);
   //SR flags:
   for(int iZ = -1; iZ <=1; iZ+=2){ //-1=>EE-, EB-, +1=>EE+, EB+
     //barrel:
@@ -269,12 +358,12 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	    << " TT " << id << ". Most probably a bug.";
 	}
 	int flag;
-	if(interest==EcalSelectiveReadout::FORCED_RO){
-	  flag = EcalSrFlag::SRF_FORCED_MASK | EcalSrFlag::SRF_FULL;
-	} else{
-	  flag = srFlags[BARREL][interest];
-	}
-	ebSrFlags.push_back(EBSrFlag(id, flag));
+	//	if(interest==EcalSelectiveReadout::FORCED_RO){
+	//  flag = EcalSrFlag::SRF_FORCED_MASK | EcalSrFlag::SRF_FULL;
+	//} else{
+	flag = srFlags[BARREL][interest];
+	//}
+	if(ebSrFlags) ebSrFlags->push_back(EBSrFlag(id, flag));
       }//next iPhi
     } //next barrel iEta
 
@@ -282,6 +371,7 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
     EcalScDetId id;
     for(int iX = 1; iX <= 20; ++iX){
       for(int iY = 1; iY <= 20; ++iY){
+
 	if (EcalScDetId::validDetId(iX, iY, iZ))
 	  id = EcalScDetId(iX, iY, iZ);
 	else
@@ -289,18 +379,19 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	
 	EcalSelectiveReadout::towerInterest_t interest
 	  = ecalSelectiveReadout->getSuperCrystalInterest(id);
+	
 	if(interest>=0){//negative no SC at (iX,iY) coordinates
 	  int flag;
-	  if(interest==EcalSelectiveReadout::FORCED_RO){
-	    flag = EcalSrFlag::SRF_FORCED_MASK | EcalSrFlag::SRF_FULL;
-	  } else{
-	    flag = srFlags[BARREL][interest];
-	  }
-	  eeSrFlags.push_back(EESrFlag(id, flag));
-	} else{
-	  cout << __FILE__ << ":" << __LINE__ << ": "
-	       <<  "negative interest in EE for SC "
-	       << id << "\n";
+	  //	  if(interest==EcalSelectiveReadout::FORCED_RO){
+	  //  flag = EcalSrFlag::SRF_FORCED_MASK | EcalSrFlag::SRF_FULL;
+	  //} else{
+	  flag = srFlags[ENDCAP][interest];
+	  //}
+	  if(eeSrFlags) eeSrFlags->push_back(EESrFlag(id, flag));
+	} else  if(iX < 9 || iX > 12 || iY < 9 || iY >12){ //not an inner partial SC
+      	  edm::LogError("EcalSelectiveReadout") << __FILE__ << ":" << __LINE__ << ": "
+						<<  "negative interest in EE for SC "
+						<< id << "\n";
 	}
       } //next iY
     } //next iX
@@ -311,7 +402,7 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection & trigPrims){
   for(size_t iEta0 = 0; iEta0 < nTriggerTowersInEta; ++iEta0){
     for(size_t iPhi0 = 0; iPhi0 < nTriggerTowersInPhi; ++iPhi0){
-      ttFlags[iEta0][iPhi0] = EcalSelectiveReadout::TTF_FORCED_RO_OTHER1;
+      ttFlags[iEta0][iPhi0] = defaultTtf_;
     }
   }
   for(EcalTrigPrimDigiCollection::const_iterator trigPrim = trigPrims.begin();
@@ -325,8 +416,20 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
     }
 
     unsigned int iPhi0 = trigPrim->id().iphi() - 1;
-    ttFlags[iEta0][iPhi0] =
-      (EcalSelectiveReadout::ttFlag_t) trigPrim->ttFlag();
+
+    if(!ttThresOnCompressedEt_){
+      ttFlags[iEta0][iPhi0] =
+        (EcalSelectiveReadout::ttFlag_t) trigPrim->ttFlag();
+    } else{
+      int compressedEt = trigPrim->compressedEt();
+      if(compressedEt < trigPrimBypassLTH_){
+        ttFlags[iEta0][iPhi0] = EcalSelectiveReadout::TTF_LOW_INTEREST;
+      } else if(compressedEt < trigPrimBypassHTH_){
+        ttFlags[iEta0][iPhi0] = EcalSelectiveReadout::TTF_MID_INTEREST;
+      } else{
+        ttFlags[iEta0][iPhi0] = EcalSelectiveReadout::TTF_HIGH_INTEREST;
+      }
+    }
   }
 }
 
@@ -352,16 +455,18 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
   double trigPrim[nTriggerTowersInEta][nTriggerTowersInPhi];
 
   //ecal geometry:
-  static const CaloSubdetectorGeometry* eeGeometry = 0;
-  static const CaloSubdetectorGeometry* ebGeometry = 0;
-  if(eeGeometry==0 || ebGeometry==0){
+//  static const CaloSubdetectorGeometry* eeGeometry = 0;
+//  static const CaloSubdetectorGeometry* ebGeometry = 0;
+  const CaloSubdetectorGeometry* eeGeometry = 0;
+  const CaloSubdetectorGeometry* ebGeometry = 0;
+//  if(eeGeometry==0 || ebGeometry==0){
     edm::ESHandle<CaloGeometry> geoHandle;
-    es.get<IdealGeometryRecord>().get(geoHandle);
+    es.get<CaloGeometryRecord>().get(geoHandle);
     eeGeometry
       = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     ebGeometry
       = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  }
+//  }
 
   //init trigPrim array:
   bzero(trigPrim, sizeof(trigPrim));
@@ -370,7 +475,7 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
       it != ebDigis.end(); ++it){
     EBDataFrame frame(*it);
     const EcalTrigTowerDetId& ttId = theTriggerMap->towerOf(frame.id());
-//      edm:::LogDebug("TT") << __FILE__ << ":" << __LINE__ << ": " 
+//      edm:::LogDebug("TT") << __FILE__ << ":" << __LINE__ << ": "
 //  	 <<  ((EBDetId&)frame.id()).ieta()
 //  	 << "," << ((EBDetId&)frame.id()).iphi()
 //  	 << " -> " << ttId.ieta() << "," << ttId.iphi() << "\n";
@@ -517,4 +622,3 @@ void EcalSelectiveReadoutSuppressor::printTTFlags(ostream& os, int iEvent,
     os << "\n";
   }
 }
-  

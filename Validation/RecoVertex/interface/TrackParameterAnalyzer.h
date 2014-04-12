@@ -13,53 +13,32 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.6 2007/01/09 13:24:56 werdmann Exp $
 //
 //
 
 
 // system include files
-#include <memory>
 #include <string>
-#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// Hep MC stuff from CLHEP, add  <use name=clhep> to the buildfile
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenVertex.h"
-#include "CLHEP/HepMC/GenParticle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include <CLHEP/Vector/LorentzVector.h>
+// simulated vertex
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-// simulated vertices,..., add <use name=SimDataFormats/Vertex> and <../Track>
-#include <SimDataFormats/Vertex/interface/SimVertex.h>
-#include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
-#include <SimDataFormats/Track/interface/SimTrack.h>
-#include <SimDataFormats/Track/interface/SimTrackContainer.h>
+// simulated track
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
-// vertex stuff
-#include <DataFormats/VertexReco/interface/Vertex.h>
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-// perigee 
-#include <TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h>
-//#include <TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h>
+// track
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-// Root
-#include <TH1.h>
-#include <TH2.h>
-#include <TFile.h>
-
+// ROOT forward declarations
+class TFile;
+class TH1;
+class TH2;
 
 // class declaration
 //
@@ -71,13 +50,15 @@ class TrackParameterAnalyzer : public edm::EDAnalyzer {
       ~TrackParameterAnalyzer();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
 
    private:
        bool match(const ParameterVector  &a, const ParameterVector &b);
       // ----------member data ---------------------------
-      std::string recoTrackProducer_;
+      edm::EDGetTokenT<edm::SimVertexContainer> edmSimVertexContainerToken_;
+      edm::EDGetTokenT<edm::SimTrackContainer> edmSimTrackContainerToken_;
+      edm::EDGetTokenT<reco::TrackCollection> recoTrackCollectionToken_;
       // root file to store histograms
       std::string outputFile_; // output file
       TFile*  rootFile_;
@@ -98,8 +79,6 @@ class TrackParameterAnalyzer : public edm::EDAnalyzer {
       TH1*   h1_par2_;
       TH1*   h1_par3_;
       TH1*   h1_par4_;
-
-      edm::InputTag simG4_;
-      bool verbose_;
       double simUnit_;               
+      bool verbose_;
 };

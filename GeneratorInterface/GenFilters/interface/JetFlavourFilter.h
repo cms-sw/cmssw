@@ -16,7 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 
 // 
@@ -37,7 +37,7 @@ private:
   typedef std::vector< HepMC::GenParticle * > GenPartVect;
   typedef std::vector< HepMC::GenParticle * >::const_iterator GenPartVectIt;
 
-  HepMC::GenParticle * findParticle(const GenPartVect genPartVect, const int requested_id) ;
+  HepMC::GenParticle * findParticle(const GenPartVect& genPartVect, const int requested_id) ;
 
   void printHisto(const HepMC::GenEvent::particle_iterator start, 
 			       const HepMC::GenEvent::particle_iterator end);

@@ -1,11 +1,9 @@
-// Last commit: $Id: SiStripModule.cc,v 1.13 2007/05/15 13:20:14 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 
 using namespace sistrip;
 
@@ -95,7 +93,10 @@ void SiStripModule::addDevices( const FedChannelConnection& conn ) {
   nApvPairs( conn.nApvPairs() ); 
   
   // FED cabling
-  FedChannel fed_ch = FedChannel( conn.fedId(), conn.fedCh() ); 
+  FedChannel fed_ch( conn.fedCrate(), 
+		     conn.fedSlot(), 
+		     conn.fedId(), 
+		     conn.fedCh() ); 
   fedCh( conn.i2cAddr(0), fed_ch );
   
   // DCU, MUX, PLL, LLD
@@ -227,7 +228,7 @@ uint16_t SiStripModule::lldChannel( const uint16_t& apv_pair_num ) const {
     return 0;
   }
   if ( nApvPairs_ == 2 && apv_pair_num == 1 ) { return 3; }
-  else if ( nApvPairs_ == 2 && apv_pair_num == 3 ) { 
+  else if ( nApvPairs_ == 2 && apv_pair_num == 2 ) { 
     edm::LogWarning(mlCabling_)
       << "[SiStripFecCabling::" << __func__ << "]"
       << " APV pair number is incompatible with"
@@ -265,10 +266,10 @@ uint16_t SiStripModule::apvPairNumber( const uint16_t& lld_channel ) const {
 //
 SiStripModule::FedChannel SiStripModule::fedCh( const uint16_t& apv_pair ) const {
 
-  FedChannel fed_ch(0,0);
-
+  FedChannel fed_ch(0,0,0,0);
+  
   if ( !nApvPairs() ) {
-
+    
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
       << " No APV pairs exist!";
@@ -276,7 +277,7 @@ SiStripModule::FedChannel SiStripModule::fedCh( const uint16_t& apv_pair ) const
 
   } else {
 
-    uint16_t lld_ch;
+    uint16_t lld_ch = 0;
     if ( nApvPairs() == 2 ) {
 
       if      ( apv_pair == 0 ) { lld_ch = 1; }
@@ -344,21 +345,21 @@ bool SiStripModule::fedCh( const uint16_t& apv_address,
 void SiStripModule::print( std::stringstream& ss ) const {
 
   ss << " [SiStripModule::" << __func__ << "]" << std::endl
-     << " Crate/FEC/Ring/CCU/Module : "
+     << " Crate/FEC/Ring/CCU/Module               : "
      << key().fecCrate() << "/"
      << key().fecSlot() << "/"
      << key().fecRing() << "/"
      << key().ccuAddr() << "/"
      << key().ccuChan() << std::endl;
 
-  ss << " ActiveApvs                : ";
+  ss << " ActiveApvs                              : ";
   std::vector<uint16_t> apvs = activeApvs();
   if ( apvs.empty() ) { ss << "NONE!"; }
   std::vector<uint16_t>::const_iterator iapv = apvs.begin();
   for ( ; iapv != apvs.end(); iapv++ ) { ss << *iapv << ", "; }
   ss << std::endl;
   
-  ss << " DcuId/DetId/nPairs        : "
+  ss << " DcuId/DetId/nPairs                      : "
      << std::hex
      << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
      << "0x" << std::setfill('0') << std::setw(8) << detId() << "/"
@@ -366,16 +367,64 @@ void SiStripModule::print( std::stringstream& ss ) const {
      << nApvPairs() << std::endl;
   
   FedCabling channels = fedChannels();
-  ss << " ApvPairNum/FedId/FedCh    : ";
+  ss << " ApvPairNum/FedCrate/FedSlot/FedId/FedCh : ";
   FedCabling::const_iterator ichan = channels.begin();
   for ( ; ichan != channels.end(); ichan++ ) {
     ss << ichan->first << "/"
-       << ichan->second.first << "/"
-       << ichan->second.second << ", ";
+       << ichan->second.fedCrate_ << "/"
+       << ichan->second.fedSlot_ << "/"
+       << ichan->second.fedId_ << "/"
+       << ichan->second.fedCh_ << ", ";
   }
   ss << std::endl;
   
-  ss << " DCU/MUX/PLL/LLD found     : "
+  ss << " DCU/MUX/PLL/LLD found                   : "
+     << bool(dcu0x00_) << "/"
+     << bool(mux0x43_) << "/"
+     << bool(pll0x44_) << "/"
+     << bool(lld0x60_);
+  
+}
+
+// -----------------------------------------------------------------------------
+//@@ NEEDS MODIFYING!!!!
+void SiStripModule::terse( std::stringstream& ss ) const {
+
+  ss << " [SiStripModule::" << __func__ << "]" << std::endl
+     << " Crate/FEC/Ring/CCU/Module               : "
+     << key().fecCrate() << "/"
+     << key().fecSlot() << "/"
+     << key().fecRing() << "/"
+     << key().ccuAddr() << "/"
+     << key().ccuChan() << std::endl;
+
+  ss << " ActiveApvs                              : ";
+  std::vector<uint16_t> apvs = activeApvs();
+  if ( apvs.empty() ) { ss << "NONE!"; }
+  std::vector<uint16_t>::const_iterator iapv = apvs.begin();
+  for ( ; iapv != apvs.end(); iapv++ ) { ss << *iapv << ", "; }
+  ss << std::endl;
+  
+  ss << " DcuId/DetId/nPairs                      : "
+     << std::hex
+     << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
+     << "0x" << std::setfill('0') << std::setw(8) << detId() << "/"
+     << std::dec
+     << nApvPairs() << std::endl;
+  
+  FedCabling channels = fedChannels();
+  ss << " ApvPairNum/FedCrate/FedSlot/FedId/FedCh : ";
+  FedCabling::const_iterator ichan = channels.begin();
+  for ( ; ichan != channels.end(); ichan++ ) {
+    ss << ichan->first << "/"
+       << ichan->second.fedCrate_ << "/"
+       << ichan->second.fedSlot_ << "/"
+       << ichan->second.fedId_ << "/"
+       << ichan->second.fedCh_ << ", ";
+  }
+  ss << std::endl;
+  
+  ss << " DCU/MUX/PLL/LLD found                   : "
      << bool(dcu0x00_) << "/"
      << bool(mux0x43_) << "/"
      << bool(pll0x44_) << "/"

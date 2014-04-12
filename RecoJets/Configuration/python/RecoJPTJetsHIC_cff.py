@@ -1,0 +1,9 @@
+from RecoJets.JetPlusTracks.JetPlusTrackCorrectionsAA_cff import *
+
+#define jetPlusTrackZSPCorJet sequences
+jetPlusTrackZSPCorJetIconePu5   = cms.Sequence(JetPlusTrackCorrectionsIconePu5)
+jetPlusTrackZSPCorJetSisconePu5 = cms.Sequence(JetPlusTrackCorrectionsSisConePu5)
+jetPlusTrackZSPCorJetAntiKtPu5  = cms.Sequence(JetPlusTrackCorrectionsAntiKtPu5)
+ 
+#recoJPTJetsHIC=cms.Sequence(jetPlusTrackZSPCorJetIconePu5+jetPlusTrackZSPCorJetSisconePu5+jetPlusTrackZSPCorJetAntiKtPu5)
+recoJPTJetsHIC=cms.Sequence(jetPlusTrackZSPCorJetIconePu5)

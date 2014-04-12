@@ -1,0 +1,64 @@
+How to install:
+
+cmsrel CMSSW_2_1_12 (or any other release - RateEff package is independent of CMSSW)
+cd CMSSW_2_1_12/src
+project CMSSW
+
+cvs co -r RateEff-02-00-02 HLTrigger/HLTanalyzers/test/RateEff
+cd HLTrigger/HLTanalyzers/test/RateEff
+
+tar xvzf libconfig-1.3.tar.gz
+cd libconfig-1.3/
+./configure
+make
+
+cd ../
+make
+
+source setup.(c)sh 
+./OHltRateEff hltmenu_8E29_2009May11.cfg
+
+
+
+Class descriptions:
+===================
+
+Main program
+------------
+OHltRateEff.cpp
+
+
+Class to parse & store configs from file
+----------------------------------------
+OHltConfig.h
+OHltConfig.cpp 
+
+Container class for menu settings
+---------------------------------
+OHltMenu.h
+OHltMenu.cpp
+
+Container class for rate counts
+---------------------------------
+OHltRateCounter.h
+OHltRateCounter.cpp
+
+Class for printing txt and TeX results
+--------------------------------------
+OHltRatePrinter.h
+OHltRatePrinter.cpp
+
+Class to loop over event tree
+& do the actual rate count ...
+--------------------------------------
+OHltTree.h
+OHltTree.cpp
+OHltTreeOpen.cpp
+(OpenHLT part, 2 examples exists,
+still need updated!)
+
+
+ToDo
+====
+- add efficiency part
+- add primary dataset part

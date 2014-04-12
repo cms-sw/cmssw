@@ -1,13 +1,12 @@
-#!/usr/bin/perl 
+#!/usr/bin/env perl 
 #____________________________________________________________________ 
 # File: InstallCMSSWFromSource
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-26 17:51:03+0200
-# Revision: $Id: InstallCMSSWFromSource.pl,v 1.4 2006/04/28 10:29:14 sashby Exp $ 
 #
-# Copyright: 2006 (C) Shaun ASHBY
+# Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use Cwd;
@@ -20,7 +19,7 @@ $|=1;
 my $cvs = '/usr/bin/cvs';
 my $project = 'CMSSW';
 # If CVSROOT is set, use it, otherwise use this default:
-my $cvsroot=':kserver:cmscvs.cern.ch:/cvs_server/repositories/$project';
+my $cvsroot=':gserver:cmscvs.cern.ch:/cvs_server/repositories/$project';
 my $rv;
 
 if ($ENV{CVSROOT})

@@ -1,16 +1,10 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
-#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 using namespace std;
-
-ForwardDetLayer::ForwardDetLayer() : 
-  theDisk(0)
-  //theRmin(0), theRmax(0), theZmin(0), theZmax(0)
-{}
 
 
 ForwardDetLayer::~ForwardDetLayer() {
@@ -47,7 +41,7 @@ BoundDisk* ForwardDetLayer::computeSurface() {
   for ( vector<const GeomDet*>::const_iterator deti = ifirst;
 	deti != ilast; deti++) {
     vector<GlobalPoint> corners = 
-      BoundingBox().corners( dynamic_cast<const BoundPlane&>((**deti).surface()));
+      BoundingBox().corners( dynamic_cast<const Plane&>((**deti).surface()));
     for (vector<GlobalPoint>::const_iterator ic = corners.begin();
 	 ic != corners.end(); ic++) {
       float r = ic->perp();
@@ -101,28 +95,38 @@ BoundDisk* ForwardDetLayer::computeSurface() {
   RotationType rot;
 
   return new BoundDisk( pos, rot, 
-			SimpleDiskBounds( theRmin, theRmax, 
-					  theZmin-zPos, theZmax-zPos));
+			new SimpleDiskBounds( theRmin, theRmax, 
+			      		      theZmin-zPos, theZmax-zPos));
 }  
 
 
 pair<bool, TrajectoryStateOnSurface>
 ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts, 
 			     const Propagator& prop, 
-			     const MeasurementEstimator& est) const
+			     const MeasurementEstimator&) const
 {
-  if(theDisk == 0)  edm::LogError("DetLayers") 
+  if unlikely(theDisk == 0)  edm::LogError("DetLayers") 
     << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized" ;
   // throw an exception? which one?
 
   TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
-  if ( !myState.isValid()) return make_pair( false, myState);
+  if unlikely( !myState.isValid()) return make_pair( false, myState);
+
+
+  // check z;  (are we sure?????)
+  // auto z = myState.localPosition().z();
+  // if ( z<bounds().minZ | z>bounds().maxZ) return make_pair( false, myState);
+
+  // check r
+  auto r2 =  myState.localPosition().perp2();
+  if ( (r2 > rmin()*rmin()) & (r2< rmax()*rmax()) ) return make_pair( true, myState);
+
 
   // take into account the thickness of the layer
-  float deltaR = surface().bounds().thickness()/2. *
-    fabs( tan( myState.localDirection().theta()));
+  float deltaR = 0.5f*bounds().thickness() *
+    myState.localDirection().perp()/std::abs(myState.localDirection().z());
 
-  // take into account the error on the predicted state
+  // and take into account the error on the predicted state
   const float nSigma = 3.;
   if (myState.hasError()) {
     LocalError err = myState.localError().positionError();
@@ -130,9 +134,8 @@ ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts,
     deltaR += nSigma * sqrt(err.xx() + err.yy());
   }
 
-  float zPos = (zmax()+zmin())/2.;
-  SimpleDiskBounds tmp( rmin()-deltaR, rmax()+deltaR, 
-			zmin()-zPos, zmax()-zPos);
-
-  return make_pair( tmp.inside(myState.localPosition()), myState);
+  // check r again;
+  auto ri2 = std::max(rmin()-deltaR,0.f); ri2*=ri2;
+  auto ro2 = rmax()+deltaR; ro2*=ro2;
+  return make_pair( (r2>ri2) & (r2<ro2), myState);
 }

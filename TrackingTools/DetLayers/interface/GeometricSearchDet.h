@@ -5,12 +5,14 @@
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include <vector>
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class MeasurementEstimator; 
 
@@ -21,8 +23,8 @@ class GeometricSearchDet {
   typedef BoundSurface::RotationType        RotationType;
   typedef TrajectoryStateOnSurface          TrajectoryState;
   
-  GeometricSearchDet() : theCompatibilityChecker(){};
-  virtual ~GeometricSearchDet() {};
+  GeometricSearchDet(bool doHaveGroups ) : haveGroups(doHaveGroups) {}
+  virtual ~GeometricSearchDet();
   
   /// The surface of the GeometricSearchDet
   virtual const BoundSurface& surface() const = 0;
@@ -102,26 +104,13 @@ class GeometricSearchDet {
 			  std::vector<DetGroup> & result) const; // = 0;
 
 
-  virtual bool hasGroups() const = 0; 
+  bool hasGroups() const { return haveGroups; } 
 
  protected:
   GeomDetCompatibilityChecker theCompatibilityChecker;
+  bool haveGroups;
  
 };
 
-
-class GeometricSearchDetWithGroups : public virtual GeometricSearchDet {
-public:
-typedef GeometricSearchDet::DetWithState DetWithState;
-  
-  void
-  compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-		   const Propagator& prop, 
-		   const MeasurementEstimator& est,
-		   std::vector<DetWithState> & result) const;
-
-  bool hasGroups() const {return true;}
-  
-};
 
 #endif

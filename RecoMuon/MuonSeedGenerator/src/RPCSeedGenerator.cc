@@ -1,286 +1,284 @@
- /*
- *  See header file for a description of this class.
- *  
- *
- *  $Date: 2007/06/08 12:00:47 $
- *  $Revision: 1.1 $
- *
- *  \author: D. Pagano - University of Pavia & INFN Pavia
- */
+// -*- C++ -*-
+//
+// Package:    RPCSeedGenerator
+// Class:      RPCSeedGenerator
+// 
+/**\class RPCSeedGenerator RPCSeedGenerator.cc RecoMuon/MuonSeedGenerator/src/RPCSeedGenerator.cc
+
+Description: <one line class summary>
+
+Implementation:
+<Notes on implementation>
+*/
+//
+// Original Author:  Haiyun Teng
+//         Created:  Wed Oct 29 17:24:36 CET 2008
+//
+//
 
 
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedGenerator.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedFinder.h"
-
-// Data Formats 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+// system include files
+#include <memory>
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// special include files
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include <vector>
+// Using other classes
+#include "RecoMuon/MuonSeedGenerator/src/RPCSeedPattern.h"
+#include "RecoMuon/MuonSeedGenerator/src/RPCSeedFinder.h"
+#include "RecoMuon/MuonSeedGenerator/src/RPCSeedrecHitFinder.h"
+#include "RecoMuon/MuonSeedGenerator/src/RPCCosmicSeedrecHitFinder.h"
+#include "RecoMuon/MuonSeedGenerator/src/RPCSeedLayerFinder.h"
+#include "RecoMuon/MuonSeedGenerator/src/RPCSeedOverlapper.h"
 // Geometry
-#include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-#include "math.h"
-
+// Math
+#include <cmath>
 // C++
 #include <vector>
 
+//
+// constants, enums and typedefs
+//
 using namespace std;
 using namespace edm;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
+typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
+typedef RPCSeedPattern::weightedTrajectorySeed weightedTrajectorySeed;
 
-double RB1X, RB1Y, RB1Z, RB2X, RB2Y, RB2Z, RB3X, RB3Y, RB3Z, RB4X, RB4Y, RB4Z;
-double theta,L,s,r;
+#ifndef RPCLayerNumber
+#define RPCLayerNumber 12
+#endif
 
-// Constructor
-RPCSeedGenerator::RPCSeedGenerator(const edm::ParameterSet& pset){
-  produces<TrajectorySeedCollection>(); 
+#ifndef BarrelLayerNumber
+#define BarrelLayerNumber 6
+#endif
 
-  theRPCRecHits = pset.getParameter<edm::InputTag>("RPCRecHitsLabel");
-  cout << endl << "[RPCSeedGenerator] --> Constructor called" << endl;
-}  
+#ifndef EachEndcapLayerNumber
+#define EachEndcapLayerNumber 3
+#endif
+
+//
+// class decleration
+//
+
+class RPCSeedFinder;
+
+class RPCSeedGenerator : public edm::EDProducer {
+    public:
+        explicit RPCSeedGenerator(const edm::ParameterSet& iConfig);
+        ~RPCSeedGenerator();
+
+    private:
+        virtual void beginJob() override;
+        virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override;
+        virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+        virtual void endJob() override;
+
+        // ----------member data ---------------------------
+        RPCSeedFinder Finder;
+        RPCSeedrecHitFinder recHitFinder;
+        RPCCosmicSeedrecHitFinder CosmicrecHitFinder;
+        RPCSeedLayerFinder LayerFinder;
+        RPCSeedOverlapper Overlapper;
+        std::vector<weightedTrajectorySeed> candidateweightedSeeds;
+        std::vector<weightedTrajectorySeed> goodweightedSeeds;
+        edm::InputTag theRPCRecHits;
+  MuonDetLayerMeasurements *muonMeasurements;
+};
 
 
-// Destructor
-RPCSeedGenerator::~RPCSeedGenerator(){
-  cout << "[RPCSeedGenerator] --> Destructor called" << endl;
+//
+// constants, enums and typedefs
+//
+
+
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
+RPCSeedGenerator::RPCSeedGenerator(const edm::ParameterSet& iConfig)
+{
+    //register your products
+    /* Examples
+       produces<ExampleData2>();
+
+    //if do put with a label
+    produces<ExampleData2>("label");
+    */
+
+    // Now do what ever other initialization is needed
+    // Configure other modules
+    Finder.configure(iConfig);
+    recHitFinder.configure(iConfig);
+    CosmicrecHitFinder.configure(iConfig);
+    LayerFinder.configure(iConfig);
+    Overlapper.configure(iConfig);
+    // Register the production
+    produces<TrajectorySeedCollection>("goodSeeds");
+    produces<TrajectorySeedCollection>("candidateSeeds");
+    // Get event data Tag
+    theRPCRecHits = iConfig.getParameter<edm::InputTag>("RPCRecHitsLabel");
+
+
+    // Get RPC recHits by MuonDetLayerMeasurements, while CSC and DT is set to false and with empty InputTag
+    edm::ConsumesCollector iC = consumesCollector() ;
+    muonMeasurements = new MuonDetLayerMeasurements (edm::InputTag(), edm::InputTag(), theRPCRecHits,iC, false, false, true);
+
+    
+    cout << endl << "[RPCSeedGenerator] --> Constructor called" << endl;
 }
 
 
-void RPCSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup){
-  
-  theSeeds.clear();
+RPCSeedGenerator::~RPCSeedGenerator()
+{
+    // do anything here that needs to be done at desctruction time
+    // (e.g. close files, deallocate resources etc.)
+    cout << "[RPCSeedGenerator] --> Destructor called" << endl;
 
-  // create the pointer to the Seed container
-  auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
-  
-  // Muon Geometry - DT, CSC and RPC 
-  edm::ESHandle<MuonDetLayerGeometry> muonLayers;
-  eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
-
-  // get the RPC layers
-  vector<DetLayer*> RPCBarrelLayers = muonLayers->barrelRPCLayers();
-  const DetLayer* RB4L  = RPCBarrelLayers[5];
-  const DetLayer* RB3L  = RPCBarrelLayers[4];
-  const DetLayer* RB22L = RPCBarrelLayers[3];
-  const DetLayer* RB21L = RPCBarrelLayers[2];
-  const DetLayer* RB12L = RPCBarrelLayers[1];
-  const DetLayer* RB11L = RPCBarrelLayers[0];
-
-
-  MuonDetLayerMeasurements muonMeasurements(false, false, true, theRPCRecHits.label());
-
-  
-  MuonRecHitContainer list11 = muonMeasurements.recHits(RB11L,event);
-  MuonRecHitContainer list12 = muonMeasurements.recHits(RB12L,event);
-  MuonRecHitContainer list21 = muonMeasurements.recHits(RB21L,event);
-  MuonRecHitContainer list22 = muonMeasurements.recHits(RB22L,event);
-  MuonRecHitContainer list3  = muonMeasurements.recHits(RB3L,event);
-  MuonRecHitContainer list4  = muonMeasurements.recHits(RB4L,event); 
-
-
-  if (list11.size() == 1 && list21.size() == 1 && list3.size() == 1 && list4.size() == 1) {
-
-  
-  cout << "list11 = " << list11.size() << endl;
-  cout << "list21 = " << list21.size() << endl;
-  cout << "list3 = " << list3.size() << endl;
-  cout << "list4 = " << list4.size() << endl;
-  
-
-    unsigned int counter;
-    
-     bool* RB11 = 0;
-       if (list11.size()) {
-         RB11 = new bool[list11.size()];
-         for ( size_t i=0; i<list11.size(); i++ ) RB11[i]=false;
-       }
-
-     bool* RB21 = 0;
-       if (list21.size()) {
-         RB21 = new bool[list21.size()];
-         for ( size_t i=0; i<list21.size(); i++ ) RB21[i]=false;
-       }
-
-
-     bool* RB3 = 0;
-       if (list3.size()) {
-         RB3 = new bool[list3.size()];
-         for ( size_t i=0; i<list3.size(); i++ ) RB3[i]=false;
-       }
-
-
-      for (MuonRecHitContainer::iterator iter=list4.begin(); iter!=list4.end(); iter++ ){
-        RPCSeedFinder theSeed;
-        theSeed.add(*iter);
-        complete(theSeed, list3, RB3);
-        complete(theSeed, list21, RB21);
-        complete(theSeed, list11, RB11);
-        checkAndFill(theSeed, eSetup);
-      }
-  
-      for ( counter = 0; counter<list3.size(); counter++ ){
-        if ( !RB3[counter] ) { 
-          RPCSeedFinder theSeed;
-          theSeed.add(list3[counter]);
-          complete(theSeed, list21, RB21);
-	  complete(theSeed, list11, RB11);
-	  complete(theSeed, list4);
-          checkAndFill(theSeed,eSetup);
-        }
-      }
-  
-      for ( counter = 0; counter<list21.size(); counter++ ){
-        if ( !RB21[counter] ) { 
-	  RPCSeedFinder theSeed;
-	  theSeed.add(list21[counter]);
-	  complete(theSeed, list11, RB11);
-	  complete(theSeed, list4);
-	  complete(theSeed, list3, RB3);
-	    if (theSeed.nrhit()>1 || (theSeed.nrhit()==1 &&
-	              		      theSeed.firstRecHit()->dimension()==4) ) {
-	      checkAndFill(theSeed,eSetup);
-             }
-          }
-        }
- 
-      for ( counter = 0; counter<list11.size(); counter++ ){
-        if ( !RB11[counter] ) { 
-  	  RPCSeedFinder theSeed;
-	  theSeed.add(list11[counter]);
-	  complete(theSeed, list4);
-	  complete(theSeed, list3, RB3);
-	  complete(theSeed, list21, RB21);
-	    if (theSeed.nrhit()>1 || (theSeed.nrhit()==1 &&
-	     			      theSeed.firstRecHit()->dimension()==4) ) {
-	      checkAndFill(theSeed,eSetup);
-	    }
-          }
-        }
-  
-    if ( RB3 ) delete [] RB3;
-    if ( RB21 ) delete [] RB21;
-    if ( RB11 ) delete [] RB11;
-
-    if(theSeeds.size() == 1) output->push_back(theSeeds.front());
-  
-    else{
-      for(vector<TrajectorySeed>::iterator seed = theSeeds.begin();
-  	  seed != theSeeds.end(); ++seed){
-        int counter =0;
-        for(vector<TrajectorySeed>::iterator seed2 = seed;
-	    seed2 != theSeeds.end(); ++seed2) 
-	  if( seed->startingState().parameters().vector() ==
-	      seed2->startingState().parameters().vector() )
-	    ++counter;
-      
-        if( counter > 1 ) theSeeds.erase(seed--);
-        else output->push_back(*seed);
-      }
-    }
-    
-    event.put(output);
-    
-  }
-
+    if( muonMeasurements )
+      delete muonMeasurements;
 }
 
 
-void RPCSeedGenerator::complete(RPCSeedFinder& seed,
-                                MuonRecHitContainer &recHits, bool* used) const {
+//
+// member functions
+//
 
-  MuonRecHitContainer good_rhit;
-  
-  ConstMuonRecHitPointer first = seed.firstRecHit(); 
-  
-  GlobalPoint ptg2 = first->globalPosition();
-  
-  int nr=0; // count rechits we have checked against seed
-  
-  for (MuonRecHitContainer::iterator iter=recHits.begin(); iter!=recHits.end(); iter++){
-    
-    GlobalPoint ptg1 = (*iter)->globalPosition();  //+v global pos of rechit
-    
-    if ( fabs (ptg1.eta()-ptg2.eta()) > .2 || fabs (ptg1.phi()-ptg2.phi()) > .1 ) {
-      nr++;
-      continue;
-    }   // +vvp!!!
-    
-    if( fabs ( ptg2.eta() ) < 1.0 ) {    
-     
-      good_rhit.push_back(*iter);
-	
-    } 
-    
-    nr++;
-    
-  } 
-  
-  MuonRecHitPointer best=0;
-  
-  if( fabs ( ptg2.eta() ) < 1.0 ) {     
-    
-    float best_dphi = M_PI;
-    
-    for (MuonRecHitContainer::iterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
-      
-      GlobalVector dir1 = (*iter)->globalDirection();
-      
-      GlobalVector dir2 = first->globalDirection();
-      
-      float dphi = dir1.phi()-dir2.phi();
-      
-      if (dphi < 0.) dphi = -dphi;
-      if (dphi > M_PI) dphi = 2.*M_PI - dphi;
-      
-      if (  dphi < best_dphi ) {
-	
-	best_dphi = dphi;
-	best = (*iter);
-      }
-      
-    }   
-    
-  }
-  
-  
-  if(best)
-    if ( best->isValid() ) seed.add(best);
-  
-} 
+// ------------ method called to produce the data  ------------
+    void
+RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+    using namespace edm;
+    goodweightedSeeds.clear();
+    candidateweightedSeeds.clear();
+
+    // Create the pointer to the Seed container
+    auto_ptr<TrajectorySeedCollection> goodCollection(new TrajectorySeedCollection());
+    auto_ptr<TrajectorySeedCollection> candidateCollection(new TrajectorySeedCollection());
+
+    // Muon Geometry - DT, CSC and RPC 
+    edm::ESHandle<MuonDetLayerGeometry> muonLayers;
+    iSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
+
+    // Get the RPC layers
+    vector<DetLayer*> RPCBarrelLayers = muonLayers->barrelRPCLayers();
+    const DetLayer* RB4L  = RPCBarrelLayers[5];
+    const DetLayer* RB3L  = RPCBarrelLayers[4];
+    const DetLayer* RB22L = RPCBarrelLayers[3];
+    const DetLayer* RB21L = RPCBarrelLayers[2];
+    const DetLayer* RB12L = RPCBarrelLayers[1];
+    const DetLayer* RB11L = RPCBarrelLayers[0];
+    vector<DetLayer*> RPCEndcapLayers = muonLayers->endcapRPCLayers();
+    const DetLayer* REM3L = RPCEndcapLayers[0];
+    const DetLayer* REM2L = RPCEndcapLayers[1];
+    const DetLayer* REM1L = RPCEndcapLayers[2];
+    const DetLayer* REP1L = RPCEndcapLayers[3];
+    const DetLayer* REP2L = RPCEndcapLayers[4];
+    const DetLayer* REP3L = RPCEndcapLayers[5];
 
 
-void RPCSeedGenerator::checkAndFill(RPCSeedFinder& theSeed, const edm::EventSetup& eSetup){
-  
-  if (theSeed.nrhit()>1 ) {
-    vector<TrajectorySeed> the_seeds =  theSeed.seeds(eSetup);
-    for (vector<TrajectorySeed>::const_iterator
-	   the_seed=the_seeds.begin(); the_seed!=the_seeds.end(); ++the_seed) {
-      theSeeds.push_back(*the_seed);
-    }
-  }
+    // Dispatch RPC recHits to the corresponding DetLayer, 6 layers for barrel and 3 layers for each endcap
+    MuonRecHitContainer recHitsRPC[RPCLayerNumber];
+    recHitsRPC[0] = muonMeasurements->recHits(RB11L, iEvent);
+    recHitsRPC[1] = muonMeasurements->recHits(RB12L, iEvent);
+    recHitsRPC[2] = muonMeasurements->recHits(RB21L, iEvent);
+    recHitsRPC[3] = muonMeasurements->recHits(RB22L, iEvent);
+    recHitsRPC[4] = muonMeasurements->recHits(RB3L, iEvent);
+    recHitsRPC[5] = muonMeasurements->recHits(RB4L, iEvent); 
+    recHitsRPC[6] = muonMeasurements->recHits(REM1L, iEvent);
+    recHitsRPC[7] = muonMeasurements->recHits(REM2L, iEvent);
+    recHitsRPC[8] = muonMeasurements->recHits(REM3L, iEvent);
+    recHitsRPC[9] = muonMeasurements->recHits(REP1L, iEvent);
+    recHitsRPC[10] = muonMeasurements->recHits(REP2L, iEvent);
+    recHitsRPC[11] = muonMeasurements->recHits(REP3L, iEvent);
+
+    // Print the size of recHits in each DetLayer
+    cout << "RB1in "  << recHitsRPC[0].size()  << " recHits" << endl;
+    cout << "RB1out " << recHitsRPC[1].size()  << " recHits" << endl;
+    cout << "RB2in "  << recHitsRPC[2].size()  << " recHits" << endl;
+    cout << "RB2out " << recHitsRPC[3].size()  << " recHits" << endl;
+    cout << "RB3 "    << recHitsRPC[4].size()  << " recHits" << endl;
+    cout << "RB4 "    << recHitsRPC[5].size()  << " recHits" << endl;
+    cout << "REM1 "   << recHitsRPC[6].size()  << " recHits" << endl;
+    cout << "REM2 "   << recHitsRPC[7].size()  << " recHits" << endl;
+    cout << "REM3 "   << recHitsRPC[8].size()  << " recHits" << endl;
+    cout << "REP1 "   << recHitsRPC[9].size()  << " recHits" << endl;
+    cout << "REP2 "   << recHitsRPC[10].size() << " recHits" << endl;
+    cout << "REP3 "   << recHitsRPC[11].size() << " recHits" << endl;
+
+    // Set Input of RPCSeedFinder, PCSeedrecHitFinder, CosmicrecHitFinder, RPCSeedLayerFinder
+    recHitFinder.setInput(recHitsRPC);
+    CosmicrecHitFinder.setInput(recHitsRPC);
+    LayerFinder.setInput(recHitsRPC);
+    
+    // Set Magnetic Field EventSetup of RPCSeedFinder
+    Finder.setEventSetup(iSetup);
+
+    // Start from filling layers to filling seeds
+    LayerFinder.fill();
+    Overlapper.run();
+
+    // Save seeds to event
+    for(vector<weightedTrajectorySeed>::iterator weightedseed = goodweightedSeeds.begin(); weightedseed != goodweightedSeeds.end(); ++weightedseed)
+        goodCollection->push_back((*weightedseed).first);
+    for(vector<weightedTrajectorySeed>::iterator weightedseed = candidateweightedSeeds.begin(); weightedseed != candidateweightedSeeds.end(); ++weightedseed)
+        candidateCollection->push_back((*weightedseed).first);
+
+    // Put the seed to event
+    iEvent.put(goodCollection, "goodSeeds");
+    iEvent.put(candidateCollection, "candidateSeeds");
+
+    // Unset the input of RPCSeedFinder, PCSeedrecHitFinder, RPCSeedLayerFinder
+    recHitFinder.unsetInput();
+    CosmicrecHitFinder.unsetInput();
+    LayerFinder.unsetInput();
+    
 }
+
+void RPCSeedGenerator::beginJob() {
+
+    // Set link and EventSetup of RPCSeedFinder, PCSeedrecHitFinder, CosmicrecHitFinder, RPCSeedLayerFinder
+    cout << "set link and Geometry EventSetup of RPCSeedFinder, RPCSeedrecHitFinder, RPCCosmicSeedrecHitFinder, RPCSeedLayerFinder and RPCSeedOverlapper" << endl;
+    
+    Finder.setOutput(&goodweightedSeeds, &candidateweightedSeeds);
+    recHitFinder.setOutput(&Finder);
+    CosmicrecHitFinder.setOutput(&Finder);
+    LayerFinder.setOutput(&recHitFinder, &CosmicrecHitFinder);
+}
+void RPCSeedGenerator::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
+    CosmicrecHitFinder.setEdge(iSetup);
+    Overlapper.setEventSetup(iSetup);
+    Overlapper.setIO(&goodweightedSeeds, &candidateweightedSeeds);
+}
+
+void RPCSeedGenerator::endJob() {
+
+    cout << "All jobs completed" << endl;
+}
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(RPCSeedGenerator);

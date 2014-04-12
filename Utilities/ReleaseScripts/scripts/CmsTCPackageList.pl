@@ -89,10 +89,7 @@ my $wgetVersion=1000*$splitVers[0]+$splitVers[1];
 my $options="";
 $options="--no-check-certificate" if ( $wgetVersion>1009);
 
-my $user="cmstcreader";
-my $pass="CmsTC";
-
-open(CMSTCQUERY,"wget ${options}  -nv -o /dev/null -O- 'https://${user}:${pass}\@cmstags.cern.ch/cgi-bin/CmsTC/CreateTagList?release=${rel}' |");
+open(CMSTCQUERY,"wget ${options}  -nv -o /dev/null -O- 'https://cmstags.cern.ch/tc/public/CreateTagList?release=${rel}' |");
 
 my %tags;
 while ( <CMSTCQUERY> ) {

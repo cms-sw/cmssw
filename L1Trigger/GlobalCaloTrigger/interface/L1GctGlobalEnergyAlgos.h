@@ -1,16 +1,19 @@
 #ifndef L1GCTGLOBALENERGYALGOS_H_
 #define L1GCTGLOBALENERGYALGOS_H_
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctMet.h"
 
 
 #include <vector>
 
 class L1GctWheelEnergyFpga;
 class L1GctWheelJetFpga;
+class L1GctGlobalHfSumAlgos;
 
 /*!
  * \class L1GctGlobalEnergyAlgos
@@ -31,23 +34,43 @@ class L1GctWheelJetFpga;
 class L1GctGlobalEnergyAlgos : public L1GctProcessor
 {
 public:
+  
+        typedef L1GctUnsignedInt< L1GctEtTotal::kEtTotalNBits   > etTotalType;
+        typedef L1GctUnsignedInt<   L1GctEtHad::kEtHadNBits     > etHadType;
+        typedef L1GctMet::etMissType     etMissType;
+        typedef L1GctMet::etMissPhiType  etMissPhiType;
+        typedef L1GctMet::etmiss_vec     etmiss_vec;
+        typedef L1GctWheelEnergyFpga::etComponentType etComponentType;
+
+	enum maxValues {
+	  etTotalMaxValue = L1GctEtTotal::kEtTotalMaxValue,
+	  etHadMaxValue   =   L1GctEtHad::kEtHadMaxValue,
+	  etMissMaxValue  =  L1GctEtMiss::kEtMissMaxValue
+	};
+
         /// Constructor needs the Wheel card Fpgas set up first
-	L1GctGlobalEnergyAlgos(std::vector<L1GctWheelEnergyFpga*> WheelFpga,
-			       std::vector<L1GctWheelJetFpga*> WheelJetFpga);
-	/// Destructor
+	 L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnergyFpga*>& WheelFpga,
+			       const std::vector<L1GctWheelJetFpga*>& WheelJetFpga);
+	 /// Destructor
 	~L1GctGlobalEnergyAlgos();
 
         /// Overload << operator
         friend std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);
 
 	/// clear internal buffers
-	virtual void reset();
+	void reset();
 
-	/// get input data from sources; this is the standard way to provide input
+	/// get input data from sources
 	virtual void fetchInput();
 
 	/// process the data, fill output buffers
 	virtual void process();
+
+	/// define the bunch crossing range to process
+	void setBxRange(const int firstBx, const int numberOfBx);
+
+	/// partially clear buffers
+	void setNextBx(const int bx);
 
 	/// set input Ex value per wheel (0 or 1); not used in normal operation
 	void setInputWheelEx(unsigned wheel, int energy, bool overflow);
@@ -57,6 +80,9 @@ public:
 	void setInputWheelEt(unsigned wheel, unsigned energy, bool overflow);
 	/// set input Ht value per wheel (0 or 1); not used in normal operation
 	void setInputWheelHt(unsigned wheel, unsigned energy, bool overflow);
+	/// set input Ht component values per wheel (0 or 1); not used in normal operation
+	void setInputWheelHx(unsigned wheel, unsigned energy, bool overflow);
+	void setInputWheelHy(unsigned wheel, unsigned energy, bool overflow);
 
 	/// set input jet count (number 0-11) per wheel (0 or 1); not used in normal operation
         void setInputWheelJc(unsigned wheel, unsigned jcnum, unsigned count);
@@ -69,75 +95,117 @@ public:
 	L1GctWheelJetFpga* getPlusWheelJetFpga() const { return m_plusWheelJetFpga; }
 	/// provide access to input pointer, Wheel Jet Fpga 0
 	L1GctWheelJetFpga* getMinusWheelJetFpga() const { return m_minusWheelJetFpga; }
+	/// provide access to hf sum processor
+	L1GctGlobalHfSumAlgos* getHfSumProcessor() const { return m_hfSumProcessor; }
 
 	/// return input Ex value wheel 1
-        inline L1GctTwosComplement<12> getInputExValPlusWheel() const { return m_exValPlusWheel; }
+       inline std::vector< etComponentType > getInputExValPlusWheel() const { return m_exValPlusPipe.contents; }
 	/// return input Ex value wheel 1
-        inline L1GctTwosComplement<12> getInputEyValPlusWheel() const { return m_eyValPlusWheel; }
+       inline std::vector< etComponentType > getInputEyValPlusWheel() const { return m_eyValPlusPipe.contents; }
 	/// return input Ey value wheel 0
-        inline L1GctTwosComplement<12> getInputExVlMinusWheel() const { return m_exVlMinusWheel; }
+       inline std::vector< etComponentType > getInputExVlMinusWheel() const { return m_exVlMinusPipe.contents; }
 	/// return input Ey value wheel 0
-        inline L1GctTwosComplement<12> getInputEyVlMinusWheel() const { return m_eyVlMinusWheel; }
+       inline std::vector< etComponentType > getInputEyVlMinusWheel() const { return m_eyVlMinusPipe.contents; }
 	/// return input Et value wheel 1
-	inline L1GctUnsignedInt<12> getInputEtValPlusWheel() const { return m_etValPlusWheel; }
+	inline std::vector< etTotalType > getInputEtValPlusWheel() const { return m_etValPlusPipe.contents; }
 	/// return input Ht value wheel 1
-	inline L1GctUnsignedInt<12> getInputHtValPlusWheel() const { return m_htValPlusWheel; }
+	inline std::vector< etHadType   > getInputHtValPlusWheel() const { return m_htValPlusPipe.contents; }
+	/// return input Ht component values wheel 1
+	inline std::vector< etComponentType > getInputHxValPlusWheel() const { return m_hxValPlusPipe.contents; }
+	inline std::vector< etComponentType > getInputHyValPlusWheel() const { return m_hyValPlusPipe.contents; }
 	/// return input Et value wheel 0
-	inline L1GctUnsignedInt<12> getInputEtVlMinusWheel() const { return m_etVlMinusWheel; }
+	inline std::vector< etTotalType > getInputEtVlMinusWheel() const { return m_etVlMinusPipe.contents; }
 	/// return input Ht value wheel 0
-	inline L1GctUnsignedInt<12> getInputHtVlMinusWheel() const { return m_htVlMinusWheel; }
-	/// return input jet count (number 0-11) wheel 1
-        inline L1GctJetCount<3> getInputJcValPlusWheel(unsigned jcnum) const {return m_jcValPlusWheel.at(jcnum); }
-	/// return input jet count (number 0-11) wheel 0
-        inline L1GctJetCount<3> getInputJcVlMinusWheel(unsigned jcnum) const {return m_jcVlMinusWheel.at(jcnum); }
+	inline std::vector< etHadType   > getInputHtVlMinusWheel() const { return m_htVlMinusPipe.contents; }
+	/// return input Ht value wheel 0
+	inline std::vector< etComponentType > getInputHxVlMinusWheel() const { return m_hxVlMinusPipe.contents; }
+	inline std::vector< etComponentType > getInputHyVlMinusWheel() const { return m_hyVlMinusPipe.contents; }
 
+        /// Access to output quantities for all bunch crossings
 	/// return output missing Et magnitude
-	inline L1GctUnsignedInt<12> getEtMiss()    const { return m_outputEtMiss; }
+	inline std::vector< etMissType >    getEtMissColl()    const { return m_outputEtMiss.contents; }
 	/// return output missing Et value
-	inline L1GctUnsignedInt<7>  getEtMissPhi() const { return m_outputEtMissPhi; }
+	inline std::vector< etMissPhiType > getEtMissPhiColl() const { return m_outputEtMissPhi.contents; }
 	/// return output total scalar Et
-	inline L1GctUnsignedInt<12> getEtSum()     const { return m_outputEtSum; }
-	/// return output calibrated jet Et
-	inline L1GctUnsignedInt<12> getEtHad()     const { return m_outputEtHad; }
-	/// return output jet count (number 0-11)
-	inline L1GctJetCount<5> getJetCount(unsigned jcnum) const { return m_outputJetCounts.at(jcnum); }
+	inline std::vector< etTotalType >   getEtSumColl()     const { return m_outputEtSum.contents; }
+	/// return std::vector< output calibrated jet Et
+	inline std::vector< etHadType >     getEtHadColl()     const { return m_outputEtHad.contents; }
+	/// return output missing Ht magnitude
+	inline std::vector< etMissType >    getHtMissColl()    const { return m_outputHtMiss.contents; }
+	/// return output missing Ht value
+	inline std::vector< etMissPhiType > getHtMissPhiColl() const { return m_outputHtMissPhi.contents; }
+
+	void setJetFinderParams(const L1GctJetFinderParams* const jfpars);
+	void setHtMissScale(const L1CaloEtScale* const scale);
+
+	// get the missing Ht LUT (used by L1GctPrintLuts)
+	const L1GctHtMissLut* getHtMissLut() const { return m_mhtComponents.getHtMissLut(); }
+
+	/// check setup
+	bool setupOk() const;
+  
+ protected:
+	/// Separate reset methods for the processor itself and any data stored in pipelines
+	virtual void resetProcessor();
+	virtual void resetPipelines();
+
+	/// Initialise inputs with null objects for the correct bunch crossing if required
+	virtual void setupObjects() {}
 	
-private:
-	
+ private:
 	// Here are the algorithm types we get our inputs from
 	L1GctWheelEnergyFpga* m_plusWheelFpga;
 	L1GctWheelEnergyFpga* m_minusWheelFpga;
 	L1GctWheelJetFpga* m_plusWheelJetFpga;
 	L1GctWheelJetFpga* m_minusWheelJetFpga;
 
-	// input data
-	L1GctTwosComplement<12> m_exValPlusWheel;
-        L1GctTwosComplement<12> m_eyValPlusWheel;
-	L1GctUnsignedInt<12> m_etValPlusWheel;
-	L1GctUnsignedInt<12> m_htValPlusWheel;
-	L1GctTwosComplement<12> m_exVlMinusWheel;
-	L1GctTwosComplement<12> m_eyVlMinusWheel;
-	L1GctUnsignedInt<12> m_etVlMinusWheel;
-	L1GctUnsignedInt<12> m_htVlMinusWheel;
+	// Here's the class that does the Hf sums
+	L1GctGlobalHfSumAlgos* m_hfSumProcessor;
 
-        std::vector< L1GctJetCount<3> > m_jcValPlusWheel;
-        std::vector< L1GctJetCount<3> > m_jcVlMinusWheel;
+	// Missing Et and missing Ht
+	L1GctMet m_metComponents;
+	L1GctMet m_mhtComponents;
+
+	// input data
+	etComponentType m_exValPlusWheel;
+	etComponentType m_eyValPlusWheel;
+	etTotalType m_etValPlusWheel;
+	etHadType   m_htValPlusWheel;
+	etComponentType m_hxValPlusWheel;
+	etComponentType m_hyValPlusWheel;
+
+	etComponentType m_exVlMinusWheel;
+	etComponentType m_eyVlMinusWheel;
+	etTotalType m_etVlMinusWheel;
+	etHadType   m_htVlMinusWheel;
+	etComponentType m_hxVlMinusWheel;
+	etComponentType m_hyVlMinusWheel;
+
+	// stored copies of input data
+	Pipeline< etComponentType > m_exValPlusPipe;
+	Pipeline< etComponentType > m_eyValPlusPipe;
+	Pipeline< etTotalType > m_etValPlusPipe;
+	Pipeline< etHadType >   m_htValPlusPipe;
+	Pipeline< etComponentType > m_hxValPlusPipe;
+	Pipeline< etComponentType > m_hyValPlusPipe;
+
+	Pipeline< etComponentType > m_exVlMinusPipe;
+	Pipeline< etComponentType > m_eyVlMinusPipe;
+	Pipeline< etTotalType > m_etVlMinusPipe;
+	Pipeline< etHadType >   m_htVlMinusPipe;
+	Pipeline< etComponentType > m_hxVlMinusPipe;
+	Pipeline< etComponentType > m_hyVlMinusPipe;
 
 	// output data
-	L1GctUnsignedInt<12> m_outputEtMiss;
-	L1GctUnsignedInt<7>  m_outputEtMissPhi;
-	L1GctUnsignedInt<12> m_outputEtSum;
-	L1GctUnsignedInt<12> m_outputEtHad;
-        std::vector< L1GctJetCount<5> > m_outputJetCounts;
+	Pipeline<etMissType>    m_outputEtMiss;
+	Pipeline<etMissPhiType> m_outputEtMissPhi;
+	Pipeline<etTotalType>   m_outputEtSum;
+	Pipeline<etHadType>     m_outputEtHad;
+	Pipeline<etMissType>    m_outputHtMiss;
+	Pipeline<etMissPhiType> m_outputHtMissPhi;
 
-        // PRIVATE MEMBER FUNCTION
-	// the Etmiss algorithm
-        struct etmiss_vec {
-	  L1GctUnsignedInt<12> mag;
-	  L1GctUnsignedInt<7>  phi;
-	};
-        etmiss_vec calculate_etmiss_vec (const L1GctTwosComplement<12> ex, const L1GctTwosComplement<12> ey) const ;
-	
+	bool m_setupOk;
+
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);

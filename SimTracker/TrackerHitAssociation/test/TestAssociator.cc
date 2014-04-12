@@ -83,6 +83,7 @@ using namespace edm;
       e.getByLabel("siPixelRecHits",pixelrechits);
     }
     if(!doPixel_ && !doStrip_)  throw edm::Exception(errors::Configuration,"Strip and pixel association disabled");
+
     
     //first instance tracking geometry
     edm::ESHandle<TrackerGeometry> pDD;
@@ -96,15 +97,19 @@ using namespace edm;
       //construct the associator object
       TrackerHitAssociator  associate(e,conf_);
       
-      edm::OwnVector<SiStripRecHit2D> collector; 
       if(myid!=999999999){ //if is valid detector
 
 	if(doPixel_) {
-	  
-	  SiPixelRecHitCollection::range pixelrechitRange = (pixelrechits.product())->get((detid));
-	  SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
-	  SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd   = pixelrechitRange.second;
-	  SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+	 
+	  SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin(0);
+	  SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRangeIteratorBegin;
+          SiPixelRecHitCollection::const_iterator pixelrechitMatch = pixelrechits->find(detid);
+          if ( pixelrechitMatch != pixelrechits->end()) {
+               SiPixelRecHitCollection::DetSet pixelrechitRange = *pixelrechitMatch;
+               pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+               pixelrechitRangeIteratorEnd   = pixelrechitRange.end();
+          }
+	  SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
 	  
 	  // Do the pixels
 	  for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {
@@ -126,23 +131,12 @@ using namespace edm;
 	
 	if(doStrip_) {
 	  
-	  SiStripRecHit2DCollection::range rechitrphiRange = (rechitsrphi.product())->get((detid));
-	  SiStripRecHit2DCollection::const_iterator rechitrphiRangeIteratorBegin = rechitrphiRange.first;
-	  SiStripRecHit2DCollection::const_iterator rechitrphiRangeIteratorEnd   = rechitrphiRange.second;
-	  SiStripRecHit2DCollection::const_iterator iterrphi=rechitrphiRangeIteratorBegin;
-	  
-	  SiStripRecHit2DCollection::range rechitsterRange = (rechitsstereo.product())->get((detid));
-	  SiStripRecHit2DCollection::const_iterator rechitsterRangeIteratorBegin = rechitsterRange.first;
-	  SiStripRecHit2DCollection::const_iterator rechitsterRangeIteratorEnd   = rechitsterRange.second;
-	  SiStripRecHit2DCollection::const_iterator iterster=rechitsterRangeIteratorBegin;
-
-	  SiStripMatchedRecHit2DCollection::range rechitmatchRange = (rechitsmatched.product())->get((detid));
-	  SiStripMatchedRecHit2DCollection::const_iterator rechitmatchRangeIteratorBegin = rechitmatchRange.first;
-	  SiStripMatchedRecHit2DCollection::const_iterator rechitmatchRangeIteratorEnd   = rechitmatchRange.second;
-	  SiStripMatchedRecHit2DCollection::const_iterator itermatch=rechitmatchRangeIteratorBegin;
-	  
-	  // Do the strips
-	  for(iterrphi=rechitrphiRangeIteratorBegin;iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){//loop on the rechit
+          // Do the strips
+          SiStripRecHit2DCollection::const_iterator detrphi = rechitsrphi->find(detid);
+          if (detrphi != rechitsrphi->end()) {
+          SiStripRecHit2DCollection::DetSet rphiHits = *detrphi;
+          SiStripRecHit2DCollection::DetSet::const_iterator iterrphi = rphiHits.begin(), rechitrphiRangeIteratorEnd = rphiHits.end(); 
+	  for(;iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){//loop on the rechit
 	    SiStripRecHit2D const rechit=*iterrphi;
 	    int i=0;
 	    stripcounter++;
@@ -166,9 +160,14 @@ using namespace edm;
 	      cout << " Closest Simhit = " << closest.localPosition() << endl;
 	    }
 	    i++;
-	  } 
+	  }
+          } // if the det is there
 	  
-	  for(iterster=rechitsterRangeIteratorBegin;iterster!=rechitsterRangeIteratorEnd;++iterster){//loop on the rechit
+          SiStripRecHit2DCollection::const_iterator detster = rechitsstereo->find(detid);
+          if (detster != rechitsstereo->end()) {
+          SiStripRecHit2DCollection::DetSet sterHits = *detster;
+          SiStripRecHit2DCollection::DetSet::const_iterator iterster = sterHits.begin(), rechitsterRangeIteratorEnd = sterHits.end(); 
+	  for(;iterster!=rechitsterRangeIteratorEnd;++iterster){//loop on the rechit
 	    SiStripRecHit2D const rechit=*iterster;
 	    int i=0;
 	    stripcounter++;
@@ -193,8 +192,13 @@ using namespace edm;
 	    }
 	    i++;
 	  } 
+          } // end of if the det is there
 	  
-	  for(itermatch=rechitmatchRangeIteratorBegin;itermatch!=rechitmatchRangeIteratorEnd;++itermatch){//loop on the rechit
+          SiStripMatchedRecHit2DCollection::const_iterator detmatch = rechitsmatched->find(detid);
+          if (detmatch != rechitsmatched->end()) {
+          SiStripMatchedRecHit2DCollection::DetSet matchHits = *detmatch;
+          SiStripMatchedRecHit2DCollection::DetSet::const_iterator itermatch = matchHits.begin(), rechitmatchRangeIteratorEnd = matchHits.end(); 
+	  for(;itermatch!=rechitmatchRangeIteratorEnd;++itermatch){//loop on the rechit
 	    SiStripMatchedRecHit2D const rechit=*itermatch;
 	    int i=0;
 	    stripcounter++;
@@ -224,6 +228,7 @@ using namespace edm;
 	    }
 	    i++;
 	  } 
+          } // if the det is there
 	}
       }
     } 

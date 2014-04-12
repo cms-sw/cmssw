@@ -56,7 +56,7 @@ public:
 
   // ---- Service Interface: to  be called only by the Framework ----
   
-  void preSourceI() {
+  void preSourceI(edm::StreamID) {
     fullEvent();
   }
 

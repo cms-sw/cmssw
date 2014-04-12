@@ -1,0 +1,13 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CommonTools/Utils"/>
+<use name="PhysicsTools/JetMCAlgos"/>
+<use name="PhysicsTools/JetMCUtils"/>
+<use name="PhysicsTools/HepMCCandAlgos"/>
+<use name="SimDataFormats/JetMatching"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="fastjet"/>
+<library file="*.cc" name="PhysicsToolsJetMCAlgosPlugins">
+</library>

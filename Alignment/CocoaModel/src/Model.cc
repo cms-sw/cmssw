@@ -8,7 +8,6 @@
 #include "Alignment/CocoaModel/interface/Model.h"
 
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
@@ -19,10 +18,10 @@
 #include "Alignment/CocoaModel/interface/MeasurementCOPS.h"
 #include "Alignment/CocoaModel/interface/MeasurementDiffEntry.h"
 #include "Alignment/CocoaModel/interface/CocoaDaqReaderText.h"
+#include "Alignment/CocoaModel/interface/CocoaDaqReaderRoot.h"
 //t#include "Alignment/CocoaModel/interface/MeasurementDiffAngle.h"
 //t#include "Alignment/CocoaModel/interface/MeasurementCentreEntry.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
-#include "Alignment/CocoaModel/interface/EntryLength.h"
 #include "Alignment/CocoaModel/interface/EntryAngle.h"
 #include "Alignment/CocoaModel/interface/ParameterMgr.h"
 #include "Alignment/CocoaModel/interface/ErrorCorrelationMgr.h"
@@ -93,7 +92,6 @@ Model& Model::getInstance()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 Model::Model()
 {
-  GlobalOptionMgr::getInstance()->setDefaultGlobalOptions();
   //  theMeasurementsTime = clock();
 }
 
@@ -452,6 +450,8 @@ void Model::readSystemDescription()
 	  Measurement::only1Time = wordlist[3]; 
 	  //-      std::cout << " setting Measurement::only1" <<  Measurement::only1 << std::endl;
 	}
+      } else if ( measType == ALIstring("measurements_from_file_ROOT") || measType == ALIstring("@measurements_from_file") ) {
+	new CocoaDaqReaderRoot( wordlist[1] );
       } else if ( wordlist[0] == ALIstring("correlations_from_file") || wordlist[0] == ALIstring("@correlations_from_file") ) {
 	ErrorCorrelationMgr::getInstance()->readFromReportFile( wordlist[1] );
       } else if ( wordlist[0] == ALIstring("copy_measurements") || wordlist[0] == ALIstring("@copy_measurements") ) {
@@ -1410,7 +1410,7 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
 	  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
 	  ALIbool sigmaFF = gomgr->GlobalOptions()["measurementErrorFromFile"];
 	  //---------- Read the data 
-	  for ( uint ii=0; ii < meastemp->dim(); ii++){
+	  for ( ALIuint ii=0; ii < meastemp->dim(); ii++){
 	    filein.getWordsInLine( wordlist );
             ALIdouble sigma = 0.;
             if( !sigmaFF ) { 
@@ -1474,7 +1474,7 @@ void Model::copyMeasurements( const std::vector<ALIstring>& wl )
   for( mite = theMeasurementVector.begin(); mite != theMeasurementVector.end(); mite++) {
     Measurement* meas = (*mite);
     //improve this
-    if( meas->name().find( querystr ) != -1 ) {
+    if( meas->name().find( querystr ) != std::string::npos ) {
       measToCopy.push_back( meas );
     }
   }
@@ -1632,7 +1632,7 @@ void Model::BuildMeasurementsFromOA( OpticalAlignMeasurements& measList )
   for( mite = measInfos.begin(); mite != measInfos.end(); mite++ ) {
     std::string measType = (*mite).type_;
     std::string measName = (*mite).name_;
-    std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
+  if( ALIUtils::debug >= 4 ) std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
     //---------- Create Measurement with appropiate dimension
     Measurement* meastemp = 0;
     if ( measType == ALIstring("SENSOR2D") ) {

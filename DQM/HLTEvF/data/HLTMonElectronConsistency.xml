@@ -1,0 +1,17 @@
+<TESTSCONFIGURATION>
+<QTEST name="HLTMonElectronConsistency">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.99</PARAM>
+        <PARAM name="ymax">1.01</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+        <PARAM name="error">0.95</PARAM>
+        <PARAM name="warning">0.99</PARAM>
+
+</QTEST>
+
+<!-- <LINK name="*clientHisto*"> -->
+ <LINK name="HLT/HLTMonElectron/electronDQMConsumer/consistency check">
+        <TestName activate="true">HLTMonElectronConsistency</TestName>
+ </LINK>
+
+</TESTSCONFIGURATION>

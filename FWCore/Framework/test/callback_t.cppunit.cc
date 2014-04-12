@@ -3,14 +3,14 @@
  *  EDMProto
  *  Created by Chris Jones on 4/17/05.
  *  Changed by Viji Sundararajan on 03-Jul-05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
  *
  */
 
 #include <memory>
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "FWCore/Framework/interface/Callback.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include <cassert>
 
 namespace callbacktest {
    struct Data {
@@ -188,7 +188,7 @@ void testCallback::sharedPtrTest()
    CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
    CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
    
-   handle = boost::shared_ptr<Data>() ;
+   handle.reset() ;
    callback.newRecordComing();
    
    callback(record);

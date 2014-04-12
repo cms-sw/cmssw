@@ -12,7 +12,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1JetParticle.h,v 1.6 2007/04/02 08:03:13 wsun Exp $
 //
 
 // system include files
@@ -42,13 +41,23 @@ namespace l1extra {
 	 L1JetParticle();
 
 	 L1JetParticle( const LorentzVector& p4,
-			const edm::Ref< L1GctJetCandCollection >& aRef ) ;
+			const edm::Ref< L1GctJetCandCollection >& aRef,
+			int bx = 0 ) ;
+
+	 L1JetParticle( const PolarLorentzVector& p4,
+			const edm::Ref< L1GctJetCandCollection >& aRef,
+			int bx = 0 ) ;
 
          // Creates null Ref.
          L1JetParticle( const LorentzVector& p4,
-                        JetType type = kUndefined ) ;
+                        JetType type = kUndefined,
+			int bx = 0 ) ;
 
-	 virtual ~L1JetParticle();
+         L1JetParticle( const PolarLorentzVector& p4,
+                        JetType type = kUndefined,
+			int bx = 0 ) ;
+
+	 virtual ~L1JetParticle() {}
 
 	 // ---------- const member functions ---------------------
          JetType type() const
@@ -60,11 +69,20 @@ namespace l1extra {
 	 const L1GctJetCand* gctJetCand() const
 	 { return ref_.get() ; }
 
+         virtual L1JetParticle* clone() const
+         { return new L1JetParticle( *this ) ; }
+
+	 int bx() const
+	 { return bx_ ; }
+
 	 // ---------- static member functions --------------------
 
 	 // ---------- member functions ---------------------------
 	 void setType( JetType type )
 	 { type_ = type ; }
+
+	 void setBx( int bx )
+	 { bx_ = bx ; }
 
       private:
 	 // L1JetParticle(const L1JetParticle&); // stop default
@@ -74,6 +92,7 @@ namespace l1extra {
 	 // ---------- member data --------------------------------
          JetType type_ ;
 	 edm::Ref< L1GctJetCandCollection > ref_ ;
+	 int bx_ ;
    };
 }
 

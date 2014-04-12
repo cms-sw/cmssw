@@ -4,8 +4,6 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/11/30 03:30:50 $
- * $Revision: 1.4 $
  *
  */
 
@@ -26,6 +24,8 @@ using namespace std;
 //-----------------
 
 bool CSCAnodeLCTAnalyzer::debug = true;
+bool CSCAnodeLCTAnalyzer::isMTCCMask = true;
+bool CSCAnodeLCTAnalyzer::doME1A = true;
 
 vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(
       const CSCALCTDigi& alct, const CSCDetId& alctId,
@@ -44,12 +44,13 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(
       << "+++ Number of CSCAnodeLayerInfo objects, " << alctInfo.size()
       << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
-  if (alctInfo.size() != (unsigned)alct.getQuality()+3) {
-    edm::LogWarning("CSCAnodeLCTAnalyzer")
-      << "+++ Warning: mismatch between ALCT quality, " << alct.getQuality()
-      << ", and the number of layers with digis, " << alctInfo.size()
-      << ", in alctInfo! +++\n";
-  }
+  // not a good check for high PU
+  //if (alctInfo.size() != (unsigned)alct.getQuality()+3) {
+  //  edm::LogWarning("L1CSCTPEmulatorWrongValues")
+  //    << "+++ Warning: mismatch between ALCT quality, " << alct.getQuality()
+  //    << ", and the number of layers with digis, " << alctInfo.size()
+  //    << ", in alctInfo! +++\n";
+  //}
 
   // Find the closest SimHit to each Digi.
   vector<CSCAnodeLayerInfo>::iterator pali;
@@ -69,12 +70,6 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
   // themselves.
   CSCAnodeLayerInfo tempInfo;
   vector<CSCAnodeLayerInfo> vectInfo;
-
-  // Parameters defining time window for accepting hits; should come from
-  // configuration file eventually.
-  const int fifo_tbins  = 16;
-  const int bx_width    =  6;
-  const int drift_delay =  3;
 
   // Inquire the alct for its pattern and key wiregroup.
   int alct_pattern = 0;
@@ -102,60 +97,42 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
     // ALCT's endcap, chamber, etc.
     CSCDetId layerId(alctId.endcap(), alctId.station(), alctId.ring(),
 		     alctId.chamber(), i_layer+1);
-
     // Preselection of Digis: right layer and bx.
-    const CSCWireDigiCollection::Range rwired = wiredc->get(layerId);
-    for (CSCWireDigiCollection::const_iterator digiIt = rwired.first;
-         digiIt != rwired.second; ++digiIt) {
-      if (debug) LogDebug("lctDigis")
-	<< "Wire digi: layer " << i_layer << (*digiIt);
-      int bx_time = (*digiIt).getTimeBin();
-      if (bx_time >= 0 && bx_time < fifo_tbins) {
+    preselectDigis(alct_bx, layerId, wiredc, digiMap);
 
-	// Do not use digis which could not have contributed to a given ALCT.
-	int latch_bx = alct_bx + drift_delay;
-	if (bx_time <= latch_bx-bx_width || bx_time > latch_bx) {
-	  if (debug) LogDebug("lctDigis")
-	    << "Late wire digi: layer " << i_layer
-	    << " " << (*digiIt) << " skipping...";
-	  continue;
-	}
-
-	int i_wire = (*digiIt).getWireGroup() - 1;
-
-	// If there is more than one digi on the same wire, pick the one
-	// which occurred earlier.
-	if (digiMap.count(i_wire) > 0) {
-	  if (digiMap[i_wire].getTimeBin() > bx_time) {
-	    if (debug) {
-	      LogDebug("lctDigis")
-		<< " Replacing good wire digi on wire " << i_wire;
-	    }
-	    digiMap.erase(i_wire);
-	  }
-	}
-
-	digiMap[i_wire] = *digiIt;
-	if (debug) {
-	  LogDebug("lctDigis") << " Good wire digi: wire group " << i_wire;
-	}
+    // In case of ME1/1, one can also look for digis in ME1/A.
+    // Keep "on" by defailt since the resolution should not be different
+    // from that in ME1/B.
+    if (doME1A) {
+      if (alctId.station() == 1 && alctId.ring() == 1) {
+	CSCDetId layerId_me1a(alctId.endcap(), alctId.station(), 4,
+			      alctId.chamber(), i_layer+1);
+	preselectDigis(alct_bx, layerId_me1a, wiredc, digiMap);
       }
     }
 
     // Loop over all the wires in a pattern.
+    int mask;
     for (int i_wire = 0; i_wire < CSCAnodeLCTProcessor::NUM_PATTERN_WIRES;
 	 i_wire++) {
-      if ((CSCAnodeLCTProcessor::pattern_envelope[0][i_wire] == i_layer) &&
-	  (CSCAnodeLCTProcessor::pattern_mask[alct_pattern][i_wire] == 1)) {
-	int wire = alct_keywire +
-	  CSCAnodeLCTProcessor::pattern_envelope[1+MESelection][i_wire];
-	if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIRES) {
-	  // Check if there is a "good" Digi on this wire.
-	  if (digiMap.count(wire) > 0) {
-	    tempInfo.setId(layerId); // store the layer of this object
-	    tempInfo.addComponent(digiMap[wire]); // and the RecDigi
-	    if (debug) LogDebug("lctDigis")
-	      << " Digi on ALCT: wire group " << digiMap[wire].getWireGroup();
+      if (CSCAnodeLCTProcessor::pattern_envelope[0][i_wire] == i_layer) {
+	if (!isMTCCMask) {
+	  mask = CSCAnodeLCTProcessor::pattern_mask_slim[alct_pattern][i_wire];
+	}
+	else {
+	  mask = CSCAnodeLCTProcessor::pattern_mask_open[alct_pattern][i_wire];
+	}
+	if (mask == 1) {
+	  int wire = alct_keywire +
+	    CSCAnodeLCTProcessor::pattern_envelope[1+MESelection][i_wire];
+	  if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIRES) {
+	    // Check if there is a "good" Digi on this wire.
+	    if (digiMap.count(wire) > 0) {
+	      tempInfo.setId(layerId); // store the layer of this object
+	      tempInfo.addComponent(digiMap[wire]); // and the RecDigi
+	      if (debug) LogDebug("lctDigis")
+		<< " Digi on ALCT: wire group " << digiMap[wire].getWireGroup();
+	    }
 	  }
 	}
       }
@@ -169,6 +146,56 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
   return vectInfo;
 }
 
+void CSCAnodeLCTAnalyzer::preselectDigis(const int alct_bx,
+      const CSCDetId& layerId, const CSCWireDigiCollection* wiredc,
+      map<int, CSCWireDigi>& digiMap) {
+  // Preselection of Digis: right layer and bx.
+
+  // Parameters defining time window for accepting hits; should come from
+  // configuration file eventually.
+  const int fifo_tbins  = 16;
+  const int drift_delay =  2;
+  const int hit_persist =  6; // not a config. parameter, just const
+
+  const CSCWireDigiCollection::Range rwired = wiredc->get(layerId);
+  for (CSCWireDigiCollection::const_iterator digiIt = rwired.first;
+       digiIt != rwired.second; ++digiIt) {
+    if (debug) LogDebug("lctDigis")
+      << "Wire digi: layer " << layerId.layer()-1 << (*digiIt);
+    int bx_time = (*digiIt).getTimeBin();
+    if (bx_time >= 0 && bx_time < fifo_tbins) {
+
+      // Do not use digis which could not have contributed to a given ALCT.
+      int latch_bx = alct_bx + drift_delay;
+      if (bx_time <= latch_bx-hit_persist || bx_time > latch_bx) {
+	if (debug) LogDebug("lctDigis")
+	  << "Late wire digi: layer " << layerId.layer()-1
+	  << " " << (*digiIt) << " skipping...";
+	continue;
+      }
+
+      int i_wire = (*digiIt).getWireGroup() - 1;
+
+      // If there is more than one digi on the same wire, pick the one
+      // which occurred earlier.
+      if (digiMap.count(i_wire) > 0) {
+	if (digiMap[i_wire].getTimeBin() > bx_time) {
+	  if (debug) {
+	    LogDebug("lctDigis")
+	      << " Replacing good wire digi on wire " << i_wire;
+	  }
+	  digiMap.erase(i_wire);
+	}
+      }
+
+      digiMap[i_wire] = *digiIt;
+      if (debug) {
+	LogDebug("lctDigis") << " Good wire digi: wire group " << i_wire;
+      }
+    }
+  }
+}
+
 void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info,
 				     const edm::PSimHitContainer* allSimHits) {
   // This routine matches up the closest simHit to every digi on a given layer.
@@ -180,6 +207,7 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info,
   vector<CSCWireDigi> thisLayerDigis = info.getRecDigis();
   if (!thisLayerDigis.empty()) {
     CSCDetId layerId = info.getId();
+    bool me11 = (layerId.station() == 1) && (layerId.ring() == 1);
 
     // Get simHits in this layer.
     for (edm::PSimHitContainer::const_iterator simHitIt = allSimHits->begin();
@@ -189,6 +217,12 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info,
       CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
       if (hitId == layerId)
 	simHits.push_back(*simHitIt);
+      if (me11) {
+	CSCDetId layerId_me1a(layerId.endcap(), layerId.station(), 4,
+			      layerId.chamber(), layerId.layer());
+	if (hitId == layerId_me1a)
+	  simHits.push_back(*simHitIt);
+      }
     }
 
     if (!simHits.empty()) {
@@ -262,12 +296,12 @@ int CSCAnodeLCTAnalyzer::nearestWG(
 	// There can be only one RecDigi (and therefore only one SimHit)
 	// in a key layer.
 	if (thisLayerHits.size() != 1) {
-	  edm::LogWarning("nearestWG")
+	  edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	    << "+++ Warning: " << thisLayerHits.size()
 	    << " SimHits in key layer " << CSCConstants::KEY_ALCT_LAYER
 	    << "! +++ \n";
 	  for (unsigned i = 0; i < thisLayerHits.size(); i++) {
-	    edm::LogWarning("nearestWG")
+	    edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	      << " SimHit # " << i << thisLayerHits[i] << "\n";
 	  }
 	}
@@ -303,7 +337,7 @@ int CSCAnodeLCTAnalyzer::nearestWG(
     // are counted from 1 in MC-related info.
     nearestWG -= 1;
     if (nearestWG < 0 || nearestWG >= CSCConstants::MAX_NUM_WIRES) {
-      edm::LogWarning("nearestWG")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: nearest wire group, " << nearestWG
 	<< ", is not in [0-" << CSCConstants::MAX_NUM_WIRES
 	<< ") interval +++\n";
@@ -339,7 +373,7 @@ double CSCAnodeLCTAnalyzer::getWGEta(const CSCDetId& layerId,
 				     const int wiregroup) {
   // Returns eta position of a given wiregroup.
   if (wiregroup < 0 || wiregroup >= CSCConstants::MAX_NUM_WIRES) {
-    edm::LogWarning("getWGEta")
+    edm::LogWarning("L1CSCTPEmulatorWrongInput")
       << "+++ Warning: wire group, " << wiregroup
       << ", is not in [0-" << CSCConstants::MAX_NUM_WIRES
       << ") interval +++\n";

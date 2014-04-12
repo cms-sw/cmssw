@@ -1,8 +1,8 @@
 #include "DetectorDescription/Core/src/Cons.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <cmath>
-
+#include <ostream>
 
 DDI::Cons::Cons(double zhalf,
 	 double rInMinusZ,

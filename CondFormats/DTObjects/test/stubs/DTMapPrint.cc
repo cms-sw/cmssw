@@ -9,13 +9,9 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTMapPrint.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
@@ -43,6 +39,22 @@ namespace edmtest {
     std::cout << ro_map->mapCellTdc() << " - "
               << ro_map->mapRobRos()  << std::endl;
     std::cout << std::distance( ro_map->begin(), ro_map->end() ) << " connections in the map" << std::endl;
+    DTReadOutMapping::const_iterator iter = ro_map->begin();
+    DTReadOutMapping::const_iterator iend = ro_map->end();
+    while ( iter != iend ) {
+      const DTReadOutGeometryLink& link = *iter++;
+      std::cout << link.dduId << " "
+                << link.rosId << " "
+                << link.robId << " "
+                << link.tdcId << " "
+                << link.channelId << " "
+                << link.wheelId << " "
+                << link.stationId << " "
+                << link.sectorId << " "
+                << link.slId << " "
+                << link.layerId << " "
+                << link.cellId << std::endl;
+    }
   }
   DEFINE_FWK_MODULE(DTMapPrint);
 }

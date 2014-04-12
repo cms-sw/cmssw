@@ -3,23 +3,13 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: $
+ * $Id: EcalIntercalibConstants.h,v 1.3 2007/09/27 09:42:55 ferriff Exp $
  **/
-#include <map>
-#include <boost/cstdint.hpp>
+#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
+
+typedef float EcalIntercalibConstant;
+typedef EcalFloatCondObjectContainer EcalIntercalibConstantMap;
+typedef EcalIntercalibConstantMap EcalIntercalibConstants;
 
 
-class EcalIntercalibConstants {
-  public:
-   typedef float EcalIntercalibConstant;
-   typedef std::map<uint32_t, EcalIntercalibConstant> EcalIntercalibConstantMap;
-
-    EcalIntercalibConstants();
-    ~EcalIntercalibConstants();
-    void  setValue(const uint32_t& id, const EcalIntercalibConstant& value);
-    const EcalIntercalibConstantMap& getMap() const { return map_; }
-
-  private:
-    EcalIntercalibConstantMap map_;
-};
 #endif

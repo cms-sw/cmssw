@@ -8,26 +8,25 @@
 #include "DQM/DTMonitorModule/interface/DTTriggerCheck.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
-#include "DataFormats/LTCDigi/interface/LTCDigi.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iterator>
 
 using namespace edm;
 using namespace std;
 
-DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset){
- theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
+DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset) :
+  isLocalRun(pset.getUntrackedParameter<bool>("localrun", true)) {
 
-  edm::Service<MonitorDaemon> daemon; 	 
-  daemon.operator->();
+  if (!isLocalRun) {
+    ltcDigiCollectionToken_ = consumes<LTCDigiCollection>(
+        pset.getParameter<edm::InputTag>("ltcDigiCollectionTag"));
+  }
 
-  theDbe->setVerbose(1);
+ theDbe = edm::Service<DQMStore>().operator->();
 
- debug = pset.getUntrackedParameter<bool>("debug","false");
-    parameters = pset;
+ debug = pset.getUntrackedParameter<bool>("debug",false);
 
   theDbe->setCurrentFolder("DT/DTTriggerTask");
   histo = theDbe->book1D("hNTriggerPerType",
@@ -37,18 +36,14 @@ DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset){
 DTTriggerCheck::~DTTriggerCheck(){
 }
 
-void DTTriggerCheck::beginJob(const EventSetup& setup){
+void DTTriggerCheck::beginJob(){
 }
 
 void DTTriggerCheck::endJob(){
 
   if(debug)
     cout<<"[DTTriggerCheck] endjob called!"<<endl;
-  
-  // Write the histos
-  if (parameters.getUntrackedParameter<bool>("writeHisto", true)) 
-    theDbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTTriggerCheck.root"));
-  
+
   theDbe->rmdir("DT/DTTriggerTask");
 }
 
@@ -56,17 +51,17 @@ void DTTriggerCheck::analyze(const Event& event, const EventSetup& setup) {
   if(debug)
     cout << "[DTTriggerCheck] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
-  
+
   //Get the trigger source from ltc digis
   edm::Handle<LTCDigiCollection> ltcdigis;
-  if ( !parameters.getUntrackedParameter<bool>("localrun", true) ) 
+  if (!isLocalRun)
     {
-      event.getByType(ltcdigis);
+      event.getByToken(ltcDigiCollectionToken_, ltcdigis);
       for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
-	if (((*ltc_it).HasTriggered(0)) || 
-	    ((*ltc_it).HasTriggered(1)) || 
-	    ((*ltc_it).HasTriggered(2)) || 
-	    ((*ltc_it).HasTriggered(3)) || 
+	if (((*ltc_it).HasTriggered(0)) ||
+	    ((*ltc_it).HasTriggered(1)) ||
+	    ((*ltc_it).HasTriggered(2)) ||
+	    ((*ltc_it).HasTriggered(3)) ||
 	    ((*ltc_it).HasTriggered(4)))
 	  histo->Fill(-1);
 	if ((*ltc_it).HasTriggered(0))
@@ -82,5 +77,10 @@ void DTTriggerCheck::analyze(const Event& event, const EventSetup& setup) {
       }
     }
   else
-    histo->Fill(0);   
-}  
+    histo->Fill(0);
+}
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

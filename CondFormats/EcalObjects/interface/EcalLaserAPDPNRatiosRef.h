@@ -3,26 +3,13 @@
 /**
  * Author: Vladlen Timciuc, Caltech, Pasadena, USA
  * Created: 10 July 2007
- * $Id: EcalLaserAPDPNRatiosRef.cc,v 1.2 2007/07/10 11:46:00 vladlen Exp $
+ * $Id: EcalLaserAPDPNRatiosRef.h,v 1.4 2007/09/27 09:42:55 ferriff Exp $
  **/
-#include <map>
-#include <boost/cstdint.hpp>
 
+#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
-class EcalLaserAPDPNRatiosRef {
-  public:
-   typedef float EcalLaserAPDPNref;
-   typedef std::map<uint32_t, EcalLaserAPDPNref> EcalLaserAPDPNRatiosRefMap;
-   typedef std::map<uint32_t, EcalLaserAPDPNref>::const_iterator EcalLaserAPDPNRatiosRefMapIterator;
-
-   EcalLaserAPDPNRatiosRef();
-   ~EcalLaserAPDPNRatiosRef();
-   void  setValue(const uint32_t& id, const EcalLaserAPDPNref& value);
-   const EcalLaserAPDPNRatiosRefMap& getMap() const { return map_; }
-
-  private:
-    EcalLaserAPDPNRatiosRefMap map_;
-};
-
+typedef float EcalLaserAPDPNref;
+typedef EcalFloatCondObjectContainer EcalLaserAPDPNRatiosRefMap;
+typedef EcalLaserAPDPNRatiosRefMap EcalLaserAPDPNRatiosRef;
 
 #endif

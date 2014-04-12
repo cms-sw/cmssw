@@ -1,25 +1,25 @@
 // Date   : 30/05/2005
 // Author : N.Almeida (LIP)
 
-#ifndef DCCTRAILERBLOCK_HH
-#define DCCTRAILERBLOCK_HH
+#ifndef DCCTBTRAILERBLOCK_HH
+#define DCCTBTRAILERBLOCK_HH
 
 
 #include "DCCBlockPrototype.h"
 class DCCDataParser;
 
-class DCCTrailerBlock : public DCCBlockPrototype {
+class DCCTBTrailerBlock : public DCCTBBlockPrototype {
 
 	public :
 		
-		DCCTrailerBlock(
-			DCCDataParser * parser, 
-			ulong * buffer, 
-			ulong numbBytes,
-			ulong wToEnd, 
-			ulong wordEventOffset,
-			ulong expectedLength,
-			ulong expectedCRC
+		DCCTBTrailerBlock(
+			DCCTBDataParser * parser, 
+			uint32_t * buffer, 
+			uint32_t numbBytes,
+			uint32_t wToEnd, 
+			uint32_t wordEventOffset,
+			uint32_t expectedLength,
+			uint32_t expectedCRC
 		);
 		
 		void dataCheck(); 
@@ -28,8 +28,8 @@ class DCCTrailerBlock : public DCCBlockPrototype {
 	protected :
 		
 		enum traillerFields{ EOE = 0xA};
-		ulong expectedLength_;
-		ulong expectedCRC_;
+		uint32_t expectedLength_;
+		uint32_t expectedCRC_;
 
 
 };

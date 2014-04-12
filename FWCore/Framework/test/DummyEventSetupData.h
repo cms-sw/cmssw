@@ -23,8 +23,8 @@ EVENTSETUP_DATA_DEFAULT_RECORD(edm::DummyEventSetupData, edm::DummyEventSetupRec
 
 #if !defined(TEST_EXCLUDE_DEF)
 //NOTE: This should really be put into a .cc file
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-EVENTSETUP_DATA_REG(edm::DummyEventSetupData);
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(edm::DummyEventSetupData);
 #endif
 #endif
 

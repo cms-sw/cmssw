@@ -5,12 +5,15 @@
 
 #include <utility>
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
 class NavVolume;
 class TrajectoryStateOnSurface;
 class Propagator;
 class Bounds;
 
-class NavSurface : public ReferenceCounted // : public virtual Surface 
+class NavSurface : public ReferenceCountedInConditions // : public virtual Surface 
 {
 public:
 

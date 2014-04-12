@@ -2,7 +2,7 @@
 #define FWCore_Framework_EventPrincipal_h
 
 /*----------------------------------------------------------------------
-  
+
 EventPrincipal: This is the class responsible for management of
 per event EDProducts. It is not seen by reconstruction code;
 such code sees the Event class, which is a proxy for EventPrincipal.
@@ -10,52 +10,87 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.64 2007/08/02 23:14:10 wmtan Exp $
-
 ----------------------------------------------------------------------*/
+
+#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Framework/interface/Principal.h"
 
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "FWCore/Framework/interface/Principal.h"
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace edm {
+  class BranchIDListHelper;
+  class ProductProvenanceRetriever;
+  class DelayedReader;
   class EventID;
+  class HistoryAppender;
   class LuminosityBlockPrincipal;
+  class ModuleCallingContext;
+  class StreamContext;
+  class ProcessHistoryRegistry;
   class RunPrincipal;
   class UnscheduledHandler;
 
-  class EventPrincipal : private Principal {
-    typedef Principal Base;
+  class EventPrincipal : public Principal {
   public:
-    typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
+    typedef EventAuxiliary Auxiliary;
+    typedef Principal Base;
+
+    typedef Base::ConstProductHolderPtr ConstProductHolderPtr;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
-    EventPrincipal(EventID const& id,
-	Timestamp const& time,
-	boost::shared_ptr<ProductRegistry const> reg,
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
+    EventPrincipal(
+        boost::shared_ptr<ProductRegistry const> reg,
+        boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
-        bool isReal,
-	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Any,
-	int bunchXing = invalidBunchXing,
-	int storeNumber = invalidStoreNumber,
-	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        HistoryAppender* historyAppender,
+        unsigned int streamIndex = 0);
     ~EventPrincipal() {}
+
+    void fillEventPrincipal(EventAuxiliary const& aux,
+        ProcessHistoryRegistry const& processHistoryRegistry,
+                            DelayedReader* reader = nullptr);
+    void fillEventPrincipal(EventAuxiliary const& aux,
+                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            EventSelectionIDVector&& eventSelectionIDs,
+                            BranchListIndexes&& branchListIndexes);
+    //provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
+    void fillEventPrincipal(EventAuxiliary const& aux,
+                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            EventSelectionIDVector&& eventSelectionIDs,
+                            BranchListIndexes&& branchListIndexes,
+                            ProductProvenanceRetriever& provRetriever,
+                            DelayedReader* reader = nullptr);
+
+    
+    void clearEventPrincipal();
 
     LuminosityBlockPrincipal const& luminosityBlockPrincipal() const {
       return *luminosityBlockPrincipal_;
     }
 
-    LuminosityBlockPrincipal & luminosityBlockPrincipal() {
+    LuminosityBlockPrincipal& luminosityBlockPrincipal() {
       return *luminosityBlockPrincipal_;
     }
 
-    boost::shared_ptr<LuminosityBlockPrincipal>
-    luminosityBlockPrincipalSharedPtr() {
-      return luminosityBlockPrincipal_;
+    bool luminosityBlockPrincipalPtrValid() {
+      return (luminosityBlockPrincipal_) ? true : false;
     }
+
+    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> const& lbp);
+
+    void setRunAndLumiNumber(RunNumber_t run, LuminosityBlockNumber_t lumi);
 
     EventID const& id() const {
       return aux().id();
@@ -65,7 +100,7 @@ namespace edm {
       return aux().time();
     }
 
-    bool const isReal() const {
+    bool isReal() const {
       return aux().isRealData();
     }
 
@@ -73,78 +108,123 @@ namespace edm {
       return aux().experimentType();
     }
 
-    int const bunchCrossing() const {
+    int bunchCrossing() const {
       return aux().bunchCrossing();
     }
 
-    int const storeNumber() const {
+    int storeNumber() const {
       return aux().storeNumber();
     }
 
     EventAuxiliary const& aux() const {
-      aux_.processHistoryID_ = processHistoryID();
       return aux_;
     }
 
-    LuminosityBlockNumber_t const& luminosityBlock() const {
-      return aux().luminosityBlock();
+    StreamID streamID() const { return streamID_;}
+
+    LuminosityBlockNumber_t luminosityBlock() const {
+      return id().luminosityBlock();
     }
 
-    RunNumber_t runNumber() const {
+    RunNumber_t run() const {
       return id().run();
     }
 
     RunPrincipal const& runPrincipal() const;
 
-    RunPrincipal & runPrincipal();
-
-    using Base::addGroup;
-    using Base::addToProcessHistory;
-    using Base::getAllProvenance;
-    using Base::getByLabel;
-    using Base::get;
-    using Base::getBySelector;
-    using Base::getByType;
-    using Base::getForOutput;
-    using Base::getIt;
-    using Base::getMany;
-    using Base::getManyByType;
-    using Base::getProvenance;
-    using Base::groupGetter;
-    using Base::numEDProducts;
-    using Base::processConfiguration;
-    using Base::processHistory;
-    using Base::processHistoryID;
-    using Base::prodGetter;
-    using Base::productRegistry;
-    using Base::put;
-    using Base::size;
-    using Base::store;
+    boost::shared_ptr<ProductProvenanceRetriever> productProvenanceRetrieverPtr() const {return provRetrieverPtr_;}
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
+    boost::shared_ptr<UnscheduledHandler> unscheduledHandler() const;
 
+    EventSelectionIDVector const& eventSelectionIDs() const;
+
+    BranchListIndexes const& branchListIndexes() const;
+
+    Provenance
+    getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const;
+
+    BasicHandle
+    getByProductID(ProductID const& oid) const;
+
+    void put(
+        BranchDescription const& bd,
+        WrapperOwningHolder const& edp,
+        ProductProvenance const& productProvenance);
+
+    void putOnRead(
+        BranchDescription const& bd,
+        void const* product,
+        ProductProvenance const& productProvenance);
+
+    WrapperHolder getIt(ProductID const& pid) const;
+
+    ProductID branchIDToProductID(BranchID const& bid) const;
+
+    void mergeProvenanceRetrievers(EventPrincipal const& other) {
+      provRetrieverPtr_->mergeProvenanceRetrievers(other.productProvenanceRetrieverPtr());
+    }
+
+    using Base::getProvenance;
+    
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preModuleDelayedGetSignal_;
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postModuleDelayedGetSignal_;
+
+    
   private:
 
-    virtual bool unscheduledFill(Provenance const& prov) const;
+    BranchID pidToBid(ProductID const& pid) const;
+
+    virtual bool unscheduledFill(std::string const& moduleLabel,
+                                 ModuleCallingContext const* mcc) const override;
+
+    virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const override;
+
+    virtual unsigned int transitionIndex_() const override;
+    
+  private:
+
+    class UnscheduledSentry {
+    public:
+      UnscheduledSentry(std::vector<std::string>* moduleLabelsRunning, std::string const& moduleLabel) :
+        moduleLabelsRunning_(moduleLabelsRunning) {
+        moduleLabelsRunning_->push_back(moduleLabel);
+      }
+      ~UnscheduledSentry() {
+        moduleLabelsRunning_->pop_back();
+      }
+    private:
+      std::vector<std::string>* moduleLabelsRunning_;
+    };
 
     EventAuxiliary aux_;
+
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
+
+    // Pointer to the 'retriever' that will get provenance information from the persistent store.
+    boost::shared_ptr<ProductProvenanceRetriever> provRetrieverPtr_;
+
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
 
     mutable std::vector<std::string> moduleLabelsRunning_;
+
+    EventSelectionIDVector eventSelectionIDs_;
+
+    boost::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
+
+    BranchListIndexes branchListIndexes_;
+
+    std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
+    
+    StreamID streamID_;
+
   };
 
   inline
   bool
-  isSameRun(EventPrincipal const* a, EventPrincipal const* b) {
-    return(a != 0 && b != 0 && a->runNumber() == b->runNumber());
-  }
-
-  inline
-  bool
-  isSameLumi(EventPrincipal const* a, EventPrincipal const* b) {
-    return(isSameRun(a, b) && a->luminosityBlock() == b->luminosityBlock());
+  isSameEvent(EventPrincipal const& a, EventPrincipal const& b) {
+    return isSameEvent(a.aux(), b.aux());
   }
 }
 #endif

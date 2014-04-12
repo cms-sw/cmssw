@@ -8,7 +8,6 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:48:28 EDT 2006
-// $Id: SiStripElectron.cc,v 1.1 2006/06/21 22:36:29 pivarski Exp $
 //
 
 // system include files
@@ -70,6 +69,11 @@ bool SiStripElectron::overlap( const Candidate & c ) const {
 	   );
   return false;
 }
+
+bool SiStripElectron::isElectron() const {
+  return true;
+}
+
 
 //
 // const member functions

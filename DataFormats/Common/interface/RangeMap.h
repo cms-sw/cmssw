@@ -1,5 +1,5 @@
-#ifndef Common_RangeMap_h
-#define Common_RangeMap_h
+#ifndef DataFormats_Common_RangeMap_h
+#define DataFormats_Common_RangeMap_h
 /* \class edm::RangeMap
  *
  * Generic container storing objects arranged according 
@@ -16,19 +16,15 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.32 $
- *
- * $Id: RangeMap.h,v 1.32 2007/01/19 04:31:18 wmtan Exp $
  *
  */
 #include <map>
 #include <vector>
 #include <ext/functional>
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
   
@@ -46,7 +42,8 @@ namespace edm {
     /// constant access iterator type
     typedef typename C::const_iterator const_iterator;
     /// index range
-    typedef std::pair<typename C::size_type, typename C::size_type> pairType;
+    //use unsigned int rather than C::size_type in order to avoid porting problems
+    typedef std::pair<unsigned int, unsigned int> pairType;
     /// map of identifier to index range
     typedef std::map<ID, pairType> mapType;
     /// iterator range
@@ -119,8 +116,9 @@ namespace edm {
     template<typename CI>
     void put(ID id, CI begin, CI end) {
       typename mapType::const_iterator i = map_.find(id);
-      if(i != map_.end()) 
-      	throw cms::Exception("Error") << "trying to insert duplicate entry";
+      if(i != map_.end()) {
+      	throw Exception(errors::LogicError, "trying to insert duplicate entry");
+      }
       assert(i == map_.end());
       pairType & p = map_[ id ];
       p.first = collection_.size();
@@ -144,7 +142,6 @@ namespace edm {
       typedef typename mapType::const_iterator const_iterator;
       id_iterator() { }
       id_iterator(const_iterator o) : i(o) { }
-      id_iterator & operator=(const id_iterator & it) { i = it.i; return *this; }
       id_iterator& operator++() { ++i; return *this; }
       id_iterator operator++(int) { id_iterator ci = *this; ++i; return ci; }
       id_iterator& operator--() { --i; return *this; }
@@ -161,11 +158,12 @@ namespace edm {
       C tmp;
       for (typename mapType::iterator it = map_.begin(), itEnd = map_.end(); it != itEnd; it ++) {   
 	range r = get((*it).first);
-	typename C::size_type begIt = tmp.size();
+	//do cast to acknowledge that we may be going from a larger type to a smaller type but we are OK
+	unsigned int begIt = static_cast<unsigned int>(tmp.size());
 	for(const_iterator i = r.first; i != r.second; ++i)
 	  tmp.push_back(P::clone(*i));
-	typename C::size_type endIt = tmp.size();
-	it->second = std::make_pair(begIt, endIt);
+	unsigned int endIt = static_cast<unsigned int>(tmp.size());
+	it->second = pairType(begIt, endIt);
       }
       collection_ = tmp;
     }
@@ -187,6 +185,12 @@ namespace edm {
     /// swap member function
     void swap(RangeMap<ID, C, P> & other);
 
+    /// copy assignment
+    RangeMap& operator=(RangeMap const& rhs);
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
+
   private:
     /// stored collection
     C collection_;
@@ -202,6 +206,15 @@ namespace edm {
     map_.swap(other.map_);
   }
 
+  template <typename ID, typename C, typename P>
+  inline
+  RangeMap<ID, C, P>&
+  RangeMap<ID, C, P>::operator=(RangeMap<ID, C, P> const& rhs) {
+    RangeMap<ID, C, P> temp(rhs);
+    this->swap(temp);
+    return *this;
+  }
+
   // free swap function
   template <typename ID, typename C, typename P>
   inline
@@ -210,20 +223,6 @@ namespace edm {
     a.swap(b);
   }
 
-#if ! GCC_PREREQUISITE(3,4,4)
-  /// has swap function
-  template<typename  ID, typename C, typename P > 
-  struct has_swap<edm::RangeMap<ID,C,P> > {
-    static bool const value = true;
-  };
-
-  /// has post insert trait
-  template<typename  ID, typename C, typename P > 
-  struct edm::has_postinsert_trait<edm::RangeMap<ID,C,P> >  { 
-    static bool const value = true; 
-  }; 
-#endif
-  
 }
 
 #endif

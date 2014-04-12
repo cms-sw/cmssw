@@ -4,18 +4,27 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2007/03/13 09:39:37 $
- *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 namespace reco {class TransientTrack;}
@@ -54,8 +63,10 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 		     edm::Handle<edm::SimTrackContainer> simTracks);
     
 
-  virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
+  virtual void beginRun() ;
+  virtual void endRun() ;
  protected:
 
  private:
@@ -76,16 +87,28 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
   TrajectoryStateOnSurface getSeedTSOS(const TrajectorySeed& seed);
 
-  std::string theRootFileName;
-  TFile* theFile;
+  DQMStore* dbe_;
+  std::string dirName_;
+
+  std::string out;
+  //TFile* theFile;
 
   EtaRange theEtaRange;
   
-  edm::InputTag theTracksLabel;
+  edm::InputTag theSimTracksLabel;
   edm::InputTag theSeedsLabel;
+  edm::InputTag theTracksLabel;
   edm::InputTag theCSCSimHitLabel;
   edm::InputTag theDTSimHitLabel; 
   edm::InputTag theRPCSimHitLabel;
+
+  edm::EDGetTokenT<edm::SimTrackContainer> theSimTracksToken;
+  edm::EDGetTokenT<TrajectorySeedCollection> theSeedsToken;
+  edm::EDGetTokenT<reco::TrackCollection> theTracksToken;
+  edm::EDGetTokenT<std::vector<PSimHit> > theCSCSimHitToken;
+  edm::EDGetTokenT<std::vector<PSimHit> > theDTSimHitToken;
+  edm::EDGetTokenT<std::vector<PSimHit> > theRPCSimHitToken;
+
 
   bool doTracksAnalysis;
   bool doSeedsAnalysis;
@@ -95,25 +118,25 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
   MuonUpdatorAtVertex *theUpdator;
 
   // Histograms
-  TH1F *hChi2;
-  TH1F *hChi2Norm;
-  TH1F *hHitsPerTrack;
-  TH1F *hDof;
-  TH1F *hChi2Prob;
+  MonitorElement *hChi2;
+  MonitorElement *hChi2Norm;
+  MonitorElement *hHitsPerTrack;
+  MonitorElement *hDof;
+  MonitorElement *hChi2Prob;
 
-  TH1F *hNumberOfTracks;
-  TH2F *hNumberOfTracksVsEta;
-  TH2F *hChargeVsEta;
-  TH2F *hChargeVsPt;
-  TH2F *hPtRecVsPtGen;
+  MonitorElement *hNumberOfTracks;
+  MonitorElement *hNumberOfTracksVsEta;
+  MonitorElement *hChargeVsEta;
+  MonitorElement *hChargeVsPt;
+  MonitorElement *hPtRecVsPtGen;
 
-  TH2F *hChi2VsEta;
-  TH2F *hChi2NormVsEta;
-  TH2F *hHitsPerTrackVsEta;
-  TH2F *hDofVsEta; 
-  TH2F *hChi2ProbVsEta;
-  TH2F *hDeltaPtVsEta;
-  TH2F *hDeltaPt_In_Out_VsEta;
+  MonitorElement *hChi2VsEta;
+  MonitorElement *hChi2NormVsEta;
+  MonitorElement *hHitsPerTrackVsEta;
+  MonitorElement *hDofVsEta; 
+  MonitorElement *hChi2ProbVsEta;
+  MonitorElement *hDeltaPtVsEta;
+  MonitorElement *hDeltaPt_In_Out_VsEta;
 
   HTrackVariables *hSimTracks;
 

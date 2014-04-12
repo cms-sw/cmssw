@@ -1,13 +1,5 @@
-
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDComparator.h"
-//#include "DetectorDescription/Core/interface/DDMaterial.h"
-//#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-
-#include "SealUtil/SealTimer.h"
-
 
 /** 
    After construction the instance corresponds to the root of the geometrical tree.
@@ -16,40 +8,34 @@ DDExpandedView::DDExpandedView(const DDCompactView & cpv)
  : walker_(0),w2_(cpv.graph(),cpv.root()), trans_(DDTranslation()), rot_(DDRotationMatrix()),
    depth_(0), worldpos_(0)
 {
-    DCOUT('C', "Building a DDExpandedView" );
-    static DDPosData s_worldpos = DDPosData(DDTranslation(),DDRotation(),0);     
-    worldpos_ =  &s_worldpos;//new DDPosData(trans_,DDRotation(DDName("","")),0);    
-    //const DDLogicalPart & rt = cpv.root(); 
-    
-   // w2_ = DDCompactView::walker_type(cpv.graph(), rt);
-    walker_ = &w2_;
-/*					     
-    walker_ = new DDCompactView::walker_type(cpv.graph(), 
-                                             rt);
-*/    
-    DCOUT('C', "Walker: current.first=" << (*walker_).current().first);
-    DCOUT('C', "Walker: current.second=" << (*walker_).current().second);
-					     
-    DDPosData * pd((*walker_).current().second);
-    if (!pd)
-      pd = worldpos_;  
-    DDExpandedNode expn((*walker_).current().first,
+  //  std::cout << "Building a DDExpandedView" << std::endl;
+  // MEC:2010-02-08 - consider the ROOT as where you want to start LOOKING at
+  // the DDD, and worldpos_ as the "real" root node of the graph.  MOVE all this 
+  // logic to DDCompactView.  This should really be just the traverser...
+  DDRotation::StoreT::instance().setReadOnly(false);
+  worldpos_ = new DDPosData(DDTranslation(),DDRotation(),0);     
+  DDRotation::StoreT::instance().setReadOnly(true);
+  
+  walker_ = &w2_;
+
+  //  std::cout << "Walker: current.first=" << (*walker_).current().first << std::endl;
+  //  std::cout << "Walker: current.second=" << (*walker_).current().second << std::endl;
+  
+  DDPosData * pd((*walker_).current().second);
+  if (!pd)
+    pd = worldpos_;  
+  DDExpandedNode expn((*walker_).current().first,
                       pd,
 		      trans_,
 		      rot_,
 		      0);
-   
-   // starting point for position calculations, == root of expanded view
-   history_.push_back(expn);		      		      
+  
+  // starting point for position calculations, == root of expanded view
+  history_.push_back(expn);		      		      
 }
 
 
-DDExpandedView::~DDExpandedView() 
-{
-  // no deletion, because pointer points to static data in c-tor
-  //delete worldpos_->rot_.rotation();
-  //delete worldpos_;
-}  
+DDExpandedView::~DDExpandedView() { }  
 
 
 const DDLogicalPart & DDExpandedView::logicalPart() const 
@@ -85,11 +71,9 @@ int DDExpandedView::depth() const
 int DDExpandedView::copyno() const 
 { 
   return history_.back().copyno();
-  //return (*walker_).current().second->copyno_; 
 }
 
   
-#include<iostream>
 namespace {
 
   struct Counter {
@@ -306,7 +290,8 @@ void dump(const DDGeoHistory & h)
 }
 
 /** 
-   User specific data can be attached to single nodes or a selection of
+   User specific data can be attac
+hed to single nodes or a selection of
    nodes in the expanded view through the DDSpecifics interface.
       
    The resulting std::vector is of size 0 if no specific data was attached.
@@ -322,9 +307,6 @@ std::vector< const DDsvalues_type *>  DDExpandedView::specifics() const
 
 void  DDExpandedView::specificsV(std::vector<const DDsvalues_type * > & result) const
 {
-  //  static TimerProxy timer_("DDExpandedView::specifics()");
-  static seal::SealTimer tevsv("DDExpandedView::specifics()", false);
-  
   unsigned int i(0);
   //edm::LogInfo("DDExpandedView")  << " in ::specifics " << std::endl;
   const std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
@@ -358,8 +340,6 @@ DDsvalues_type DDExpandedView::mergedSpecifics() const {
 
 void DDExpandedView::mergedSpecificsV(DDsvalues_type & merged) const
 {
-  //  static TimerProxy timer_("DDExpandedView::mergedSpecifics()");
-  static seal::SealTimer tevmsv("DDExpandedView::mergedSpecifics()",false);
 
   merged.clear();
   const std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
@@ -523,7 +503,16 @@ bool DDExpandedView::descend(const DDGeoHistory & sc)
 }
 
 
-bool DDExpandedView:: goTo(const nav_type & newpos)
+bool DDExpandedView::goTo(const nav_type & newpos) {
+  return goTo(&newpos.front(),newpos.size());
+
+}
+
+bool DDExpandedView::goTo(NavRange newpos) {
+  return goTo(newpos.first,newpos.second);
+}
+
+bool DDExpandedView::goTo(int const * newpos, size_t sz)
 {
   bool result(false);
   
@@ -536,9 +525,7 @@ bool DDExpandedView:: goTo(const nav_type & newpos)
   reset();
   
   // try to navigate down to the newpos
-  nav_type::size_type sz = newpos.size();
-  nav_type::size_type i = 1;
-  for (; i < sz; ++i) {
+  for (size_t i = 1; i < sz; ++i) {
     result = firstChild();
     if (result) {
       int pos = newpos[i];
@@ -582,12 +569,9 @@ DDExpandedView::nav_type DDExpandedView::copyNumbers() const
   return result;
 }
 
-
-std::ostream & operator<<(std::ostream & os, const DDExpandedView::nav_type & n)
-{
-  DDExpandedView::nav_type::const_iterator it = n.begin();
+std::ostream & printNavType(std::ostream & os, int const * n, size_t sz){
   os << '(' ;
-  for (; it != n.end(); ++it) {
+  for (int const * it=n; it != n+sz; ++it) {
     os << *it << ',';
   }
   os << ')';

@@ -11,6 +11,8 @@ void DoCompareandDivide( ){
  TText* te = new TText();
  te->SetTextSize(0.1);
  
+ TPaveStats* st_1;
+ TPaveStats* st_2;
 
   char*  reffilename  = "${REFFILE}";  // "./DTDigiPlots.root";
 
@@ -54,17 +56,46 @@ void DoCompareandDivide( ){
    if( htemp2 == 0 ) std::cout << " Digis histo is empty " << endl;
    if( htemp1 == 0 || htemp2 == 0) continue;
    htemp1->SetLineColor(4);
-   htemp2->SetLineColor(2);
+   htemp2->SetLineColor(6);
    htemp1->SetLineStyle(1);
-   htemp2->SetLineStyle(3);
+   htemp2->SetLineStyle(1);
    htemp1->SetLineWidth(2);
-   TLegend leg(0.1, 0.15, 0.2, 0.25);
-   leg.AddEntry(htemp1, "SimHits", "l");
-   leg.AddEntry(htemp2, "Digis ", "l");
+   htemp2->SetLineWidth(2);
+   TLegend leg(0.1, 0.2, 0.2, 0.3);
+   leg.AddEntry(htemp1, "Muon SimHits", "l");
+   leg.AddEntry(htemp2, "All Digis ", "l");
  
    htemp2->Draw();
+   gStyle->SetOptStat(1111);
+   st_2 = (TPaveStats*)htemp2->GetListOfFunctions()->FindObject("stats");
 
-   htemp1->Draw("Same"); 
+   htemp1->Draw();
+   gStyle->SetOptStat(1111);
+   st_1 = (TPaveStats*)htemp1->GetListOfFunctions()->FindObject("stats");
+
+   TPaveStats* sta_1= (TPaveStats*)st_1->Clone();
+
+   sta_1->SetTextColor(2);
+   sta_1->SetX1NDC(.80);
+   sta_1->SetX2NDC(0.95);
+   sta_1->SetY1NDC(0.70);
+   sta_1->SetY2NDC(0.85);
+
+   TPaveStats* sta_2= (TPaveStats*)st_2->Clone();
+
+   sta_2->SetTextColor(4);
+   sta_2->SetX1NDC(.80);
+   sta_2->SetX2NDC(0.95);
+   sta_2->SetY1NDC(0.85);
+   sta_2->SetY2NDC(1.0);
+
+   gStyle->SetOptStat(000000);
+   htemp2->Draw();
+   gStyle->SetOptStat(000000);
+   htemp1->Draw("Same");
+   sta_2->Draw("Same");
+   sta_1->Draw("Same");
+
    leg.Draw();
    sprintf(title,"%s%s", label[2*i],"_and_Digi.eps");   
    c1.Print(title);

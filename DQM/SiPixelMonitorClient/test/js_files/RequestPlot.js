@@ -5,7 +5,7 @@ RequestPlot.DrawSelectedHistos = function()
 {                                                       // Unused?
   var queryString;
   var url = WebLib.getApplicationURL2();
-  url += "/Request?";
+  //url += "/Request?";
   queryString = 'RequestID=PlotAsModule';
   // Get Module Number
   var obj = document.getElementById("module_numbers");
@@ -165,7 +165,7 @@ RequestPlot.UpdatePlot = function ()
 
   var queryString = "RequestID=UpdatePlot";
   var url = WebLib.getApplicationURL2();
-  url = url + "/Request?";
+  //url = url + "/Request?";
   url = url + queryString;
   url = url + '&t=' + Math.random();
   canvas.src = url; 
@@ -175,7 +175,7 @@ RequestPlot.UpdatePlot = function ()
 RequestPlot.DrawSingleHisto = function(path)
 {                                                     // Unused? 
  var url = WebLib.getApplicationURL2();
-  url += "/Request?";
+  //url += "/Request?";
   queryString = 'RequestID=PlotSingleHistogram';
   queryString += '&Path='+path;
   
@@ -200,7 +200,7 @@ RequestPlot.DrawSingleHisto = function(path)
 RequestPlot.ReadStatus = function(path) 
 {
   var url = WebLib.getApplicationURL2();
-  url += "/Request?";
+  //url += "/Request?";
   queryString = 'RequestID=ReadQTestStatus';
   queryString += '&Path='+path;
   url += queryString;

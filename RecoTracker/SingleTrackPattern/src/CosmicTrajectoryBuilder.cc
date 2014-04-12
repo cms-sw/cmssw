@@ -95,7 +95,7 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
   std::vector<Trajectory>::iterator trajIter;
   
   TrajectorySeedCollection::const_iterator iseed;
-  uint IS=0;
+  unsigned int IS=0;
   for(iseed=collseed.begin();iseed!=collseed.end();iseed++){
     bool seedplus=((*iseed).direction()==alongMomentum);
     init(es,seedplus);
@@ -129,14 +129,9 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 
 Trajectory CosmicTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed) const
 {
-  Trajectory result( seed, seed.direction());
-  std::vector<TM> seedMeas = seedMeasurements(seed);
-  if ( !seedMeas.empty()) {
-    for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++){
-      result.push(*i);
-    }
-  }
- 
+  Trajectory result( seed, seed.direction()); 
+  std::vector<TM> && seedMeas = seedMeasurements(seed);
+  for (auto & i : seedMeas) result.push(std::move(i));
   return result;
 }
 
@@ -151,15 +146,14 @@ CosmicTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
     //RC TransientTrackingRecHit* recHit = RHBuilder->build(&(*ihit));
     TransientTrackingRecHit::RecHitPointer recHit = RHBuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = (&(*tracker))->idToDet( ihit->geographicalId());
-    TSOS invalidState( new BasicSingleTrajectoryState( hitGeomDet->surface()));
+    TSOS invalidState(new BasicSingleTrajectoryState( hitGeomDet->surface()));
 
     if (ihit == hitRange.second - 1) {
       TSOS  updatedState=startingTSOS(seed);
-      result.push_back(TM( invalidState, updatedState, recHit));
-
+      result.emplace_back(invalidState, updatedState, recHit);
     } 
     else {
-      result.push_back(TM( invalidState, recHit));
+      result.emplace_back(invalidState, recHit);
     }
     
   }
@@ -184,7 +178,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
   //At the end all the hits are sorted in y
   vector<const TrackingRecHit*> allHits;
 
-  SiStripRecHit2DCollection::const_iterator istrip;
+  SiStripRecHit2DCollection::DataContainer::const_iterator istrip;
   TrajectorySeed::range hRange= seed.recHits();
   TrajectorySeed::const_iterator ihit;
   float yref=0.;
@@ -197,8 +191,8 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
 
   
   if ((&collpixel)!=0){
-    SiPixelRecHitCollection::const_iterator ipix;
-    for(ipix=collpixel.begin();ipix!=collpixel.end();ipix++){
+    SiPixelRecHitCollection::DataContainer::const_iterator ipix;
+    for(ipix=collpixel.data().begin();ipix!=collpixel.data().end();ipix++){
       float ych= RHBuilder->build(&(*ipix))->globalPosition().y();
       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
 	allHits.push_back(&(*ipix));
@@ -208,7 +202,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
   
 
   if ((&collrphi)!=0){
-    for(istrip=collrphi.begin();istrip!=collrphi.end();istrip++){
+    for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
       float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
 	allHits.push_back(&(*istrip));   
@@ -219,16 +213,16 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
 
 
   if ((&collstereo)!=0){
-    for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
+    for(istrip=collstereo.data().begin();istrip!=collstereo.data().end();istrip++){
       float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
 	allHits.push_back(&(*istrip));
     }
   }
 
-//   SiStripMatchedRecHit2DCollection::const_iterator istripm;
+//   SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripm;
 //   if ((&collmatched)!=0){
-//     for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
+//     for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++){
 //       float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
 //       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
 // 	allHits.push_back(&(*istripm));
@@ -250,14 +244,14 @@ CosmicTrajectoryBuilder::startingTSOS(const TrajectorySeed& seed)const
 {
   PTrajectoryStateOnDet pState( seed.startingState());
   const GeomDet* gdet  = (&(*tracker))->idToDet(DetId(pState.detId()));
-  TSOS  State= tsTransform.transientState( pState, &(gdet->surface()), 
+  TSOS  State= trajectoryStateTransform::transientState( pState, &(gdet->surface()), 
 					   &(*magfield));
   return State;
 
 }
 
 void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
-				     vector<const TrackingRecHit*>Hits){
+				     const vector<const TrackingRecHit*>&Hits){
 
 
   unsigned int icosm2;
@@ -293,9 +287,12 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 	 }
 	 else  icosm2=Hits.size();
        }
-       LogDebug("CosmicTrackFinder")<<"Chi2 contribution for hit at "
-				    <<RHBuilder->build(Hits[ibestdet])->globalPosition()
-				    <<" is "<<chi2min;
+
+       if(chi2min<chi2cut) 
+	 LogDebug("CosmicTrackFinder")<<"Chi2 contribution for hit at "
+				      <<RHBuilder->build(Hits[ibestdet])->globalPosition()
+				      <<" is "<<chi2min;
+
        if(traj.foundHits()<3 &&(chi2min<chi2cut)){
 	 //check on the first hit after the seed
  	 GlobalVector ck=RHBuilder->build(Hits[ibestdet])->globalPosition()-
@@ -308,8 +305,8 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 	   TSOS UpdatedState= theUpdator->update( prSt, *tmphitbestdet);
 	   if (UpdatedState.isValid()){
 
-	     traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
-			  , chi2min));
+	     traj.push(std::move(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
+			  , chi2min)));
 	     LogDebug("CosmicTrackFinder") <<
 	       "STATE UPDATED WITH HIT AT POSITION "
 					   <<tmphitbestdet->globalPosition()
@@ -341,13 +338,13 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
 
 bool 
-CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
+CosmicTrajectoryBuilder::qualityFilter(const Trajectory& traj){
   int ngoodhits=0;
   if(geometry=="MTCC"){
     std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();
     std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
     for(hit=hits.begin();hit!=hits.end();hit++){
-      uint iid=(*hit)->hit()->geographicalId().rawId();
+      unsigned int iid=(*hit)->hit()->geographicalId().rawId();
       //CHECK FOR 3 hits r-phi
       if(((iid>>0)&0x3)!=1) ngoodhits++;
     }

@@ -1,8 +1,8 @@
 #include "FastSimDataFormats/PileUpEvents/interface/PUEvent.h"
 
-namespace { 
-  namespace {
+namespace FastSimDataFormats_PileUpEvents {
+  struct dictionary {
 
 
-  }
+  };
 }

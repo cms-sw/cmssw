@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2006/11/16 13:33:20 $
- *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN TO
  */
 
@@ -9,10 +7,8 @@
 
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 // #include "DataFormats/Common/interface/Handle.h"
 // #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
@@ -25,7 +21,8 @@ using namespace edm;
 
 FilterByLTC::FilterByLTC(const ParameterSet& pset) : 
   nEventsProcessed(0),
-  nEventsSelected(0)
+  nEventsSelected(0),
+  ltcTag_(pset.getParameter<edm::InputTag>("ltcTag"))
 {
   theTriggerSource = pset.getParameter<int>("triggerSource");
 }
@@ -40,7 +37,7 @@ bool FilterByLTC::filter(Event & event, const EventSetup& eventSetup){
   nEventsProcessed++;
 
   edm::Handle<LTCDigiCollection> ltcdigis;
-  event.getByType(ltcdigis);
+  event.getByLabel(ltcTag_, ltcdigis);
 
   bool DTtrig=false, CSCtrig=false, RPCtrig=false;
   for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){

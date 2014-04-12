@@ -1,12 +1,15 @@
-#ifndef RecoTracker_TrackProducer_FamosRecHitAnalysis_h
-#define RecoTracker_TrackProducer_FamosRecHitAnalysis_h 1
-
+// Why these variables? The names below make more sense to me - MG
+//#ifndef RecoTracker_TrackProducer_FamosRecHitAnalysis_h
+//#define RecoTracker_TrackProducer_FamosRecHitAnalysis_h 
+#ifndef FastSimulation_TrackingRecHitProducer_FamosRecHitAnalysis_h
+#define FastSimulation_TrackingRecHitProducer_FamosRecHitAnalysis_h
+ 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include <TROOT.h>
 #include <TFile.h>
@@ -14,6 +17,7 @@
 #include <TH1F.h>
 
 class TrackerGeometry;
+class TrackerTopology;
 
 class FamosRecHitAnalysis : public edm::EDAnalyzer
 {
@@ -22,9 +26,9 @@ public:
   explicit FamosRecHitAnalysis(const edm::ParameterSet& pset);
   
   virtual ~FamosRecHitAnalysis();
-  virtual void beginJob(const edm::EventSetup& setup);
-  virtual void endJob(); 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void beginRun(edm::Run const&, const edm::EventSetup & ) override;
+  virtual void endJob() override; 
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   
 private:
   edm::ParameterSet _pset;
@@ -42,9 +46,9 @@ private:
   void bookEnergyLosses( std::vector<TH1F*>& histos_x, int nBin, float range, char* det, unsigned int nHist );
   void loadPixelData(TFile* pixelMultiplicityFile, TFile* pixelBarrelResolutionFile, TFile* pixelForwardResolutionFile);
   void loadPixelData(TFile* pixelDataFile, unsigned int nMultiplicity, std::string histName,
-		     std::vector<TH1F*>& theMultiplicityProbabilities);
+		     std::vector<TH1F*>& theMultiplicityProbabilities, bool isBig = false);
   void loadPixelData( TFile* pixelDataFile, unsigned int nMultiplicity, int nBins, double binWidth,
-		      std::vector<TH1F*>& theResolutionHistograms, bool isAlpha);
+		      std::vector<TH1F*>& theResolutionHistograms, bool isAlpha, bool isBig = false);
   void bookPixel( std::vector<TH1F*>& histos_alpha , std::vector<TH1F*>& histos_beta , std::vector<TH1F*>& histos_nom_alpha  , 
                   std::vector<TH1F*>& histos_nom_beta,
                   std::vector<TH1F*>& histos_dedx_alpha, std::vector<TH1F*>& histos_dedx_beta,
@@ -62,7 +66,8 @@ private:
 		   TH1F*& hist_alpha , TH1F*& hist_beta , TH1F*& hist_res_alpha , TH1F*& hist_res_beta , TH1F*& hist_dedx, 
                    TH1F*& hist_dedx_alpha, TH1F*& hist_dedx_beta,
 		   unsigned int mult_alpha , unsigned int mult_beta ,
-		   double       alpha      , double       beta       );
+		   double       alpha      , double       beta      , 
+                   const bool hasBigPixelInX, const bool hasBigPixelInY, const TrackerTopology *tTopo );
   
   // ROOT
   void rootStyle();
@@ -120,10 +125,12 @@ private:
   //
   
   // PSimHits
-  std::vector<std::string> trackerContainers;
+  std::vector<edm::InputTag> trackerContainers;
   //
   
   // Pixel more detailed analysis
+  // Switch between old (ORCA) and new (CMSSW) pixel parameterization
+  bool useCMSSWPixelParameterization;
   // multiplicity bins
   unsigned int nAlphaBarrel, nBetaBarrel, nAlphaForward, nBetaForward;
   // resolution bins

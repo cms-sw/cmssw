@@ -1,0 +1,15 @@
+<!-- Data brick with checksums goes here -->        
+ <DATA_SET>
+    <VERSION>test:2</VERSION>
+    <SUBVERSION>1</SUBVERSION>
+   <CREATE_TIMESTAMP>2000-01-01 00:00:00.0</CREATE_TIMESTAMP>
+   <CREATED_BY_USER>gennadiy sample</CREATED_BY_USER>
+   <COMMENT_DESCRIPTION>checksum for all crates version test:2</COMMENT_DESCRIPTION>
+    <PART>
+   <NAME_LABEL>CMS-HCAL-ROOT</NAME_LABEL>
+    </PART>   
+    <DATA>
+    <TRIG_PRIM_LOOKUPTBL_DATA_FILE>./testLUT_checksums.xml</TRIG_PRIM_LOOKUPTBL_DATA_FILE>
+    <CRATE>-1</CRATE>
+    </DATA>
+ </DATA_SET>

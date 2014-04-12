@@ -7,21 +7,17 @@
  *
  * Initial author : Veronique Lefebure 08.10.98 <BR>
  *                  according to the FORTRAN code tgreset.F from Pascal Vanlaer <BR>
+ * Modified by C. Delaere 01.10.09 <BR>
  *
  * Fills in a map \< channel number, generated noise \>
  */
 #ifndef GaussianTailNoiseGenerator_h
 #define GaussianTailNoiseGenerator_h
 
-#include <gsl/gsl_sf_erf.h>
-#include <gsl/gsl_sf_result.h>
 #include <vector>
 #include <map>
 
 namespace CLHEP {
-  class RandGauss;
-  class RandPoisson;
-  class RandFlat;
   class HepRandomEngine;
 }
 
@@ -29,30 +25,42 @@ class GaussianTailNoiseGenerator {
 
 public:
 
-  GaussianTailNoiseGenerator( CLHEP::HepRandomEngine& eng);
-  ~GaussianTailNoiseGenerator();
+  GaussianTailNoiseGenerator();
+
+  // Compiler-generated destructor, copy c'tor, and assignment are all
+  // correct.
 
   void generate(int NumberOfchannels, 
 		float threshold,
 		float noiseRMS, 
-		std::map<int,float, std::less<int> >& theMap );
+		std::map<int,float>& theMap,
+                CLHEP::HepRandomEngine*);
 
   void generate(int NumberOfchannels, 
 		float threshold,
 		float noiseRMS, 
-		std::vector<std::pair<int,float> >&);
-
+		std::vector<std::pair<int,float> >&,
+                CLHEP::HepRandomEngine*);
+/*
   void generateRaw(int NumberOfchannels, 
 		   float noiseRMS, 
-		   std::vector<std::pair<int,float> >&);
+		   std::vector<std::pair<int,float> >&,
+                   CLHEP::HepRandomEngine*);
+*/
+  void generateRaw(float noiseRMS,
+		   std::vector<double>&,
+                   CLHEP::HepRandomEngine*);
 
-  double generate_gaussian_tail(const double,const double);
+protected:
+
+  int* getRandomChannels(int, int, CLHEP::HepRandomEngine*);
+
+  double generate_gaussian_tail(const double,const double, CLHEP::HepRandomEngine*);
 
 private:
-  CLHEP::RandGauss *gaussDistribution_;
-  CLHEP::RandPoisson *poissonDistribution_;
-  CLHEP::RandFlat *flatDistribution_;
-  CLHEP::HepRandomEngine& rndEngine;
+
+  int channel512_[512];
+  int channel768_[768];
 };
 
 #endif

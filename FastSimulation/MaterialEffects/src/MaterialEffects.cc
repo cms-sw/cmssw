@@ -1,8 +1,9 @@
+
 //Framework Headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //TrackingTools Headers
-#include "TrackingTools/PatternTools/interface/MediumProperties.h"
 
 // Famos Headers
 #include "FastSimulation/Event/interface/FSimEvent.h"
@@ -15,34 +16,40 @@
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungSimulator.h"
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/MuonBremsstrahlungSimulator.h"
 
 #include <list>
-#include <vector>
+#include <map>
 #include <string>
 
-MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
-				 const RandomEngine* engine)
-  : PairProduction(0), Bremsstrahlung(0), 
+MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
+  : PairProduction(0), Bremsstrahlung(0),MuonBremsstrahlung(0),
     MultipleScattering(0), EnergyLoss(0), 
     NuclearInteraction(0),
-    pTmin(999.), random(engine)
+    pTmin(999.), use_hardcoded(1)
 {
   // Set the minimal photon energy for a Brem from e+/-
+
+  use_hardcoded = matEff.getParameter<bool >("use_hardcoded_geometry");
 
   bool doPairProduction     = matEff.getParameter<bool>("PairProduction");
   bool doBremsstrahlung     = matEff.getParameter<bool>("Bremsstrahlung");
   bool doEnergyLoss         = matEff.getParameter<bool>("EnergyLoss");
   bool doMultipleScattering = matEff.getParameter<bool>("MultipleScattering");
   bool doNuclearInteraction = matEff.getParameter<bool>("NuclearInteraction");
+  bool doMuonBremsstrahlung = matEff.getParameter<bool>("MuonBremsstrahlung");
+
+  double A = matEff.getParameter<double>("A");
+  double Z = matEff.getParameter<double>("Z");
+  double density = matEff.getParameter<double>("Density");
+  double radLen = matEff.getParameter<double>("RadiationLength");
   
   // Set the minimal pT before giving up the dE/dx treatment
 
   if ( doPairProduction ) { 
 
     double photonEnergy = matEff.getParameter<double>("photonEnergy");
-    PairProduction = new PairProductionSimulator(photonEnergy,
-						 random);
-
+    PairProduction = new PairProductionSimulator(photonEnergy);
   }
 
   if ( doBremsstrahlung ) { 
@@ -50,50 +57,156 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     double bremEnergy = matEff.getParameter<double>("bremEnergy");
     double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
     Bremsstrahlung = new BremsstrahlungSimulator(bremEnergy,
-						 bremEnergyFraction,
-						 random);
+						 bremEnergyFraction);
+  }
+//muon Brem+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ if ( doMuonBremsstrahlung ) {
+
+    double bremEnergy = matEff.getParameter<double>("bremEnergy");
+    double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
+    MuonBremsstrahlung = new MuonBremsstrahlungSimulator(A,Z,density,radLen,bremEnergy,
+                                                 bremEnergyFraction);
 
   }
+
+
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   if ( doEnergyLoss ) { 
 
     pTmin = matEff.getParameter<double>("pTmin");
-    EnergyLoss = new EnergyLossSimulator(random);
+    EnergyLoss = new EnergyLossSimulator(A,Z,density,radLen);
 
   }
 
   if ( doMultipleScattering ) { 
-
-    MultipleScattering = new MultipleScatteringSimulator(random);
+    
+    MultipleScattering = new MultipleScatteringSimulator(A,Z,density,radLen);
 
   }
 
   if ( doNuclearInteraction ) { 
-    std::vector<std::string> listOfFiles 
-      = matEff.getUntrackedParameter<std::vector<std::string> >("fileNames");
+
+    // The energies simulated
     std::vector<double> pionEnergies 
       = matEff.getUntrackedParameter<std::vector<double> >("pionEnergies");
-    std::vector<double> ratioRatio 
-      = matEff.getUntrackedParameter<std::vector<double> >("ratioRatio");
+
+    // The particle types simulated
+    std::vector<int> pionTypes 
+      = matEff.getUntrackedParameter<std::vector<int> >("pionTypes");
+
+    // The corresponding particle names
+    std::vector<std::string> pionNames 
+      = matEff.getUntrackedParameter<std::vector<std::string> >("pionNames");
+
+    // The corresponding particle masses
+    std::vector<double> pionMasses 
+      = matEff.getUntrackedParameter<std::vector<double> >("pionMasses");
+
+    // The smallest momentum for inelastic interactions
+    std::vector<double> pionPMin 
+      = matEff.getUntrackedParameter<std::vector<double> >("pionMinP");
+
+    // The interaction length / radiation length ratio for each particle type
+    std::vector<double> lengthRatio 
+      = matEff.getParameter<std::vector<double> >("lengthRatio");
+    //    std::map<int,double> lengthRatio;
+    //    for ( unsigned i=0; i<theLengthRatio.size(); ++i )
+    //      lengthRatio[ pionTypes[i] ] = theLengthRatio[i];
+
+    // A global fudge factor for TEC layers (which apparently do not react to 
+    // hadrons the same way as all other layers...
+    theTECFudgeFactor = matEff.getParameter<double>("fudgeFactor");
+
+    // The evolution of the interaction lengths with energy
+    std::vector<double> theRatios  
+      = matEff.getUntrackedParameter<std::vector<double> >("ratios");
+    //std::map<int,std::vector<double> > ratios;
+    //for ( unsigned i=0; i<pionTypes.size(); ++i ) { 
+    //  for ( unsigned j=0; j<pionEnergies.size(); ++j ) { 
+    //	ratios[ pionTypes[i] ].push_back(theRatios[ i*pionEnergies.size() + j ]);
+    //  }
+    //}
+    std::vector< std::vector<double> > ratios;
+    ratios.resize(pionTypes.size());
+    for ( unsigned i=0; i<pionTypes.size(); ++i ) { 
+      for ( unsigned j=0; j<pionEnergies.size(); ++j ) { 
+	ratios[i].push_back(theRatios[ i*pionEnergies.size() + j ]);
+      }
+    }
+
+    // The smallest momentum for elastic interactions
     double pionEnergy 
       = matEff.getParameter<double>("pionEnergy");
-    double lengthRatio 
-      = matEff.getParameter<double>("lengthRatio");
+
+    // The algorithm to compute the distance between primary and secondaries
+    // when a nuclear interaction occurs
+    unsigned distAlgo 
+      = matEff.getParameter<unsigned>("distAlgo");
+    double distCut 
+      = matEff.getParameter<double>("distCut");
+
+    // The file to read the starting interaction in each files
+    // (random reproducibility in case of a crash)
     std::string inputFile 
       = matEff.getUntrackedParameter<std::string>("inputFile");
+
+    // Build the ID map (i.e., what is to be considered as a proton, etc...)
+    std::map<int,int> idMap;
+    // Protons
+    std::vector<int> idProtons 
+      = matEff.getUntrackedParameter<std::vector<int> >("protons");
+    for ( unsigned i=0; i<idProtons.size(); ++i ) 
+      idMap[idProtons[i]] = 2212;
+    // Anti-Protons
+    std::vector<int> idAntiProtons 
+      = matEff.getUntrackedParameter<std::vector<int> >("antiprotons");
+    for ( unsigned i=0; i<idAntiProtons.size(); ++i ) 
+      idMap[idAntiProtons[i]] = -2212;
+    // Neutrons
+    std::vector<int> idNeutrons 
+      = matEff.getUntrackedParameter<std::vector<int> >("neutrons");
+    for ( unsigned i=0; i<idNeutrons.size(); ++i ) 
+      idMap[idNeutrons[i]] = 2112;
+    // Anti-Neutrons
+    std::vector<int> idAntiNeutrons 
+      = matEff.getUntrackedParameter<std::vector<int> >("antineutrons");
+    for ( unsigned i=0; i<idAntiNeutrons.size(); ++i ) 
+      idMap[idAntiNeutrons[i]] = -2112;
+    // K0L's
+    std::vector<int> idK0Ls 
+      = matEff.getUntrackedParameter<std::vector<int> >("K0Ls");
+    for ( unsigned i=0; i<idK0Ls.size(); ++i ) 
+      idMap[idK0Ls[i]] = 130;
+    // K+'s
+    std::vector<int> idKplusses 
+      = matEff.getUntrackedParameter<std::vector<int> >("Kplusses");
+    for ( unsigned i=0; i<idKplusses.size(); ++i ) 
+      idMap[idKplusses[i]] = 321;
+    // K-'s
+    std::vector<int> idKminusses 
+      = matEff.getUntrackedParameter<std::vector<int> >("Kminusses");
+    for ( unsigned i=0; i<idKminusses.size(); ++i ) 
+      idMap[idKminusses[i]] = -321;
+    // pi+'s
+    std::vector<int> idPiplusses 
+      = matEff.getUntrackedParameter<std::vector<int> >("Piplusses");
+    for ( unsigned i=0; i<idPiplusses.size(); ++i ) 
+      idMap[idPiplusses[i]] = 211;
+    // pi-'s
+    std::vector<int> idPiminusses 
+      = matEff.getUntrackedParameter<std::vector<int> >("Piminusses");
+    for ( unsigned i=0; i<idPiminusses.size(); ++i ) 
+      idMap[idPiminusses[i]] = -211;
+
     // Construction
     NuclearInteraction = 
-      new NuclearInteractionSimulator(listOfFiles,
-				      pionEnergies,
-				      pionEnergy,
-				      lengthRatio,
-				      ratioRatio,
-				      inputFile,
-				      random);
+      new NuclearInteractionSimulator(pionEnergies, pionTypes, pionNames, 
+				      pionMasses, pionPMin, pionEnergy, 
+				      lengthRatio, ratios, idMap, 
+				      inputFile, distAlgo, distCut);
   }
-
 }
-
 
 MaterialEffects::~MaterialEffects() {
 
@@ -102,13 +215,15 @@ MaterialEffects::~MaterialEffects() {
   if ( EnergyLoss ) delete EnergyLoss;
   if ( MultipleScattering ) delete MultipleScattering;
   if ( NuclearInteraction ) delete NuclearInteraction;
-
+//Muon Brem
+  if ( MuonBremsstrahlung ) delete MuonBremsstrahlung;
 }
 
 void MaterialEffects::interact(FSimEvent& mySimEvent, 
 			       const TrackerLayer& layer,
 			       ParticlePropagator& myTrack,
-			       unsigned itrack) {
+			       unsigned itrack,
+                               RandomEngineAndDistribution const* random) {
 
   MaterialEffectsSimulator::RHEP_const_iter DaughterIter;
   double radlen;
@@ -123,23 +238,32 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   if ( PairProduction && myTrack.pid()==22 ) {
     
     //
-    PairProduction->updateState(myTrack,radlen);
+    PairProduction->updateState(myTrack, radlen, random);
 
     if ( PairProduction->nDaughters() ) {	
       //add a vertex to the mother particle
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+					    FSimVertexType::PAIR_VERTEX);
       
-      // This was a photon that converted
-      for ( DaughterIter = PairProduction->beginDaughters();
-	    DaughterIter != PairProduction->endDaughters(); 
-	    ++DaughterIter) {
-
-	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
-
+      // Check if it is a valid vertex first:
+      if (ivertex>=0) {
+	// This was a photon that converted
+	for ( DaughterIter = PairProduction->beginDaughters();
+	      DaughterIter != PairProduction->endDaughters(); 
+	      ++DaughterIter) {
+	  
+	  mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	  
+	}
+	// The photon converted. Return.
+	return;
       }
-      // The photon converted. Return.
-      return;
+      else {
+	edm::LogWarning("MaterialEffects") <<  " WARNING: A non valid vertex was found in photon conv. -> " << ivertex << std::endl;    
+      }
+
     }
+
   }
 
   if ( myTrack.pid() == 22 ) return;
@@ -151,46 +275,52 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   if ( NuclearInteraction && abs(myTrack.pid()) > 100 
                           && abs(myTrack.pid()) < 1000000) { 
 
-    // A few fudge factors ...
-    double factor = 1.;
-
-    if ( !layer.sensitive() ) { 
-      if ( layer.layerNumber() == 107 ) { 
-	double eta = myTrack.vertex().Eta();
-	factor = eta > 2.2 ? 1.0 +(eta-2.2)*3.0 : 1.0;
-      }	else if ( layer.layerNumber() == 113 ) { 
-	double zed = fabs(myTrack.Z());
-	factor = zed > 116. ? 0.6 : 1.4;
-      } else if ( layer.layerNumber() == 115 ) {
-	factor = 0.0;
-      }
-    }
-    
     // Simulate a nuclear interaction
-    NuclearInteraction->updateState(myTrack,radlen*factor);
+    double factor = 1.0;
+    if(use_hardcoded){
+      if (layer.layerNumber() >= 19 && layer.layerNumber() <= 27 ) 
+	factor = theTECFudgeFactor;
+    }
+    NuclearInteraction->updateState(myTrack, radlen*factor, random);
 
     if ( NuclearInteraction->nDaughters() ) { 
 
       //add a end vertex to the mother particle
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+					    FSimVertexType::NUCL_VERTEX);
       
-      // This was a hadron that interacted inelastically
-      for ( DaughterIter = NuclearInteraction->beginDaughters();
-	    DaughterIter != NuclearInteraction->endDaughters(); 
-	    ++DaughterIter) {
-
-	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
-
+      // Check if it is a valid vertex first:
+      if (ivertex>=0) {
+	// This was a hadron that interacted inelastically
+	int idaugh = 0;
+	for ( DaughterIter = NuclearInteraction->beginDaughters();
+	      DaughterIter != NuclearInteraction->endDaughters(); 
+	      ++DaughterIter) {
+	  
+	  // The daughter in the event
+	  int daughId = mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	  
+	  // Store the closest daughter in the mother info (for later tracking purposes)
+	  if ( NuclearInteraction->closestDaughterId() == idaugh++ ) {
+	    if ( mySimEvent.track(itrack).vertex().position().Pt() < 4.0 ) 
+	      mySimEvent.track(itrack).setClosestDaughterId(daughId);
+	  }
+	  
+	}
+	// The hadron is destroyed. Return.
+	return;
       }
-      // The hadron is destroyed. Return.
-      return;
+      else {
+	edm::LogWarning("MaterialEffects") <<  " WARNING: A non valid vertex was found in nucl. int. -> " << ivertex << std::endl;    
+      }
+
     }
     
   }
 
   if ( myTrack.charge() == 0 ) return;
 
-  if ( !Bremsstrahlung && !EnergyLoss && !MultipleScattering ) return;
+  if ( !MuonBremsstrahlung && !Bremsstrahlung && !EnergyLoss && !MultipleScattering ) return;
 
 //----------------
 //  Bremsstrahlung
@@ -198,25 +328,61 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
   if ( Bremsstrahlung && abs(myTrack.pid())==11 ) {
         
-    Bremsstrahlung->updateState(myTrack,radlen);
+    Bremsstrahlung->updateState(myTrack,radlen, random);
 
     if ( Bremsstrahlung->nDaughters() ) {
       
       // Add a vertex, but do not attach it to the electron, because it 
       // continues its way...
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+					    FSimVertexType::BREM_VERTEX);
 
-      for ( DaughterIter = Bremsstrahlung->beginDaughters();
-	    DaughterIter != Bremsstrahlung->endDaughters(); 
-	    ++DaughterIter) {
-	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
-
+      // Check if it is a valid vertex first:
+      if (ivertex>=0) {
+	for ( DaughterIter = Bremsstrahlung->beginDaughters();
+	      DaughterIter != Bremsstrahlung->endDaughters(); 
+	      ++DaughterIter) {
+	  mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	}
+      }
+      else {
+	edm::LogWarning("MaterialEffects") <<  " WARNING: A non valid vertex was found in brem -> " << ivertex << std::endl;    
       }
       
     }
     
   } 
 
+//---------------------------
+//  Muon_Bremsstrahlung
+//--------------------------
+
+  if (  MuonBremsstrahlung && abs(myTrack.pid())==13 ) {
+       
+    MuonBremsstrahlung->updateState(myTrack, radlen, random);
+
+    if ( MuonBremsstrahlung->nDaughters() ) {
+
+      // Add a vertex, but do not attach it to the muon, because it 
+      // continues its way...
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+                                            FSimVertexType::BREM_VERTEX);
+ 
+     // Check if it is a valid vertex first:
+      if (ivertex>=0) {
+	for ( DaughterIter = MuonBremsstrahlung->beginDaughters();
+	      DaughterIter != MuonBremsstrahlung->endDaughters();
+	      ++DaughterIter) {
+	  mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	}
+      }
+      else {
+	edm::LogWarning("MaterialEffects") <<  " WARNING: A non valid vertex was found in muon brem -> " << ivertex << std::endl;    
+      }
+
+    }
+
+  }
 
 ////--------------
 ////  Energy loss 
@@ -225,7 +391,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   if ( EnergyLoss )
   {
     theEnergyLoss = myTrack.E();
-    EnergyLoss->updateState(myTrack,radlen);
+    EnergyLoss->updateState(myTrack, radlen, random);
     theEnergyLoss -= myTrack.E();
   }
   
@@ -237,7 +403,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   if ( MultipleScattering && myTrack.Pt() > pTmin ) {
     //    MultipleScattering->setNormalVector(normalVector(layer,myTrack));
     MultipleScattering->setNormalVector(theNormalVector);
-    MultipleScattering->updateState(myTrack,radlen);
+    MultipleScattering->updateState(myTrack,radlen, random);
   }
     
 }
@@ -247,7 +413,7 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
 			    ParticlePropagator& myTrack) {
 
   // Thickness of layer
-  theThickness = layer.surface().mediumProperties()->radLen();
+  theThickness = layer.surface().mediumProperties().radLen();
 
   GlobalVector P(myTrack.Px(),myTrack.Py(),myTrack.Pz());
   
@@ -255,39 +421,26 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
   //  double radlen = theThickness / fabs(P.dot(theNormalVector)/(P.mag()*theNormalVector.mag()));
   double radlen = theThickness / fabs(P.dot(theNormalVector)) * P.mag();
 
-  // This is disgusting. It should be in the geometry description, by there
-  // is no way to define a cylinder with a hole in the middle...
+  // This is a series of fudge factors (from the geometry description), 
+  // to describe the layer inhomogeneities (services, cables, supports...)
   double rad = myTrack.R();
   double zed = fabs(myTrack.Z());
 
   double factor = 1;
 
-  if ( rad > 16. && zed < 299. ) {
+  // Are there fudge factors for this layer
+  if ( layer.fudgeNumber() ) 
 
-    // Simulate cables out the TEC's
-    if ( zed > 122. && layer.sensitive() ) { 
+    // If yes, loop on them
+    for ( unsigned int iLayer=0; iLayer < layer.fudgeNumber(); ++iLayer ) { 
 
-      if ( zed < 165. ) { 
-	if ( rad < 24. ) factor = 3.0;
-      } else {
-	if ( rad < 32.5 )  factor = 3.0;
-	else if ( (zed > 220. && rad < 45.0) || 
-		  (zed > 250. && rad < 54.) ) factor = 0.3;
+      // Apply to R if forward layer, to Z if barrel layer
+      if ( (  layer.forward() && layer.fudgeMin(iLayer) < rad && rad < layer.fudgeMax(iLayer) )  ||
+	   ( !layer.forward() && layer.fudgeMin(iLayer) < zed && zed < layer.fudgeMax(iLayer) ) ) {
+	factor = layer.fudgeFactor(iLayer);
+	break;
       }
-    }
-
-    // Less material on all sensitive layers of the Silicon Tracker
-    else if ( zed < 20. && layer.sensitive() ) { 
-      if ( rad > 55. ) factor = 0.50;
-      else if ( zed < 10 ) factor = 0.77;
-    }
-    // Much less cables outside the Si Tracker barrel
-    else if ( rad > 118. && zed < 250. ) { 
-      if ( zed < 116 ) factor = 0.225 * .75 ;
-      else factor = .75;
-    }
-    // No cable whatsoever in the Pixel Barrel.
-    else if ( rad < 18. && zed < 26. ) factor = 0.08;
+    
   }
 
   theThickness *= factor;

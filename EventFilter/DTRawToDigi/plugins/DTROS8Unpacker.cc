@@ -1,15 +1,10 @@
 /** \file
  *
- *  $Date: 2007/04/24 12:08:20 $
- *  $Revision: 1.1 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 140906
  */
 
 #include <EventFilter/DTRawToDigi/plugins/DTROS8Unpacker.h>
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-#include <EventFilter/DTRawToDigi/plugins/DTROSErrorNotifier.h>
-#include <EventFilter/DTRawToDigi/plugins/DTTDCErrorNotifier.h>
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 #include <FWCore/Utilities/interface/Exception.h>
 #include <DataFormats/MuonDetId/interface/DTWireId.h> 
@@ -35,8 +30,6 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
   int numberOfWords = datasize / wordLength;
   int robID = 0;
   int rosID = 0;
-  int eventID = 0;
-  int bunchID = 0;
 
   map<int,int> hitOrder;
 
@@ -54,12 +47,6 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
       robID =   word        & 0x7;
       rosID = ( word >> 3 ) & 0xFF;
     } 
-
-    // TDC Header/Trailer
-    else if ( type <= 3 ) {
-      eventID = ( word >> 12 ) & 0xFFF;
-      bunchID =   word &         0xFFF; 
-    }
 
     // TDC Measurement
     else if ( type >= 4 && type <= 5 ) {

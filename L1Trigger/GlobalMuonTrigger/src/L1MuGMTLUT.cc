@@ -7,8 +7,6 @@
  * 
 */ 
 //
-//   $Date: 2006/11/17 08:25:34 $
-//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -23,12 +21,14 @@
 //---------------
 
 #include <L1Trigger/GlobalMuonTrigger/src/L1MuGMTLUT.h>
-
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 
 using namespace std;
 
@@ -69,6 +69,7 @@ void L1MuGMTLUT::Init(const char* name, const vector<string>& instances,
          << "has to match the VME address width. Core Generation will not work."; 
   }
 
+  m_GeneralLUTVersion = L1MuGMTConfig::getVersionLUTs();
   m_initialized = true; 
 }
 
@@ -192,7 +193,6 @@ void L1MuGMTLUT::Set (int idx, unsigned address, unsigned value) {
 
 void L1MuGMTLUT::Load(const char* path) {
   string lf_name("");
-  int lf_NLUTS=0; 
   vector <string> lf_InstNames;
   vector <port> lf_Inputs;
   vector <port> lf_Outputs;
@@ -224,7 +224,7 @@ void L1MuGMTLUT::Load(const char* path) {
       tok[1].erase(tok[1].find_last_not_of(" ")+1); // skip trailing spaces
             
       if (tok[0] == "NAME") lf_name = tok[1];
-      else if (tok[0] == "INSTANCES") { lf_InstNames = L1MuGMTLUTHelpers::Tokenizer(" ",tok[1]); lf_NLUTS = lf_InstNames.size();}
+      else if (tok[0] == "INSTANCES") { lf_InstNames = L1MuGMTLUTHelpers::Tokenizer(" ",tok[1]); }
       else if (tok[0] == "LUT_INPUTS") lf_Inputs = PortDecoder(tok[1]);
       else if (tok[0] == "LUT_OUTPUTS") lf_Outputs = PortDecoder(tok[1]); 
       else if (tok[0] == "VME_ADDR_WIDTH") lf_vme_addr_width = atoi(tok[1].c_str()); 
@@ -328,7 +328,7 @@ void L1MuGMTLUT::MakeSubClass(const char* fname, const char* template_file_h,
 
   // prepare parts
   string ins_name (m_name);
-  string ins_name_upper = L1MuGMTLUTHelpers::upperCase (ins_name);
+  string ins_name_upper = boost::to_upper_copy(ins_name);
   string ins_instance_string;
   string ins_instances_enum;
   for (unsigned i=0; i<m_InstNames.size(); i++) {

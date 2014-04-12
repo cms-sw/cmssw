@@ -1,0 +1,24 @@
+#include "JetMETCorrections/FFTJetModules/plugins/FFTJetCorrectionESProducer.h"
+
+//
+// define this as a plug-in
+//
+typedef FFTJetCorrectionESProducer<fftcorrtypes::Calo0> FFTCalo0CorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::Calo1> FFTCalo1CorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::Calo2> FFTCalo2CorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::Calo3> FFTCalo3CorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::Calo4> FFTCalo4CorrectionESProducer;
+
+typedef FFTJetCorrectionESProducer<fftcorrtypes::Gen0Sys> FFTGen0SysCorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::Gen1Sys> FFTGen1SysCorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::Gen2Sys> FFTGen2SysCorrectionESProducer;
+
+DEFINE_FWK_EVENTSETUP_MODULE(FFTCalo0CorrectionESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(FFTCalo1CorrectionESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(FFTCalo2CorrectionESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(FFTCalo3CorrectionESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(FFTCalo4CorrectionESProducer);
+
+DEFINE_FWK_EVENTSETUP_MODULE(FFTGen0SysCorrectionESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(FFTGen1SysCorrectionESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(FFTGen2SysCorrectionESProducer);

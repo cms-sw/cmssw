@@ -3,27 +3,23 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/thread/mutex.hpp"
 #include "boost/thread/condition.hpp"
+#include "boost/thread/mutex.hpp"
 
-namespace edm
-{
+namespace edm {
+  class ParameterSet;
 
-typedef edm::Exception* Pointer_to_new_exception_on_heap;
-typedef Pointer_to_new_exception_on_heap* Place_for_passing_exception_ptr;
+  typedef boost::shared_ptr<edm::Exception> Pointer_to_new_exception_on_heap;
+  typedef boost::shared_ptr<Pointer_to_new_exception_on_heap> Place_for_passing_exception_ptr;
 
-struct ConfigurationHandshake {
-  ParameterSet * p;
-  boost::mutex m;
-  boost::condition c;
-  edm::Place_for_passing_exception_ptr epp;
-  explicit ConfigurationHandshake 
-      (ParameterSet * p_in, Place_for_passing_exception_ptr epp_in) : 
+  struct ConfigurationHandshake {
+    void* p;
+    boost::mutex m;
+    boost::condition c;
+    edm::Place_for_passing_exception_ptr epp;
+    explicit ConfigurationHandshake 
+      (void* p_in, Place_for_passing_exception_ptr epp_in) : 
     			      p(p_in), m(), c(), epp(epp_in) {}   
-};  
-
+  };  
 }  // namespace edm
-
-
-
 #endif  // FWCore_MessageLogger_ConfigurationHandshake_h

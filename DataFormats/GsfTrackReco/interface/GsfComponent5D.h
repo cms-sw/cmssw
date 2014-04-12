@@ -22,7 +22,7 @@ public:
 private:
   double weight_;
   ParameterVector parameters_;
-  double covariance_[dimension*(dimension+1)/2];
+  float covariance_[dimension*(dimension+1)/2];
 };
 }
 #endif

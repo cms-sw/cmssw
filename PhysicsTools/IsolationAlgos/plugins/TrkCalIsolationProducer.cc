@@ -8,6 +8,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/TrkCalIsolationAlgo.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 typedef IsolationProducer<reco::TrackCollection, CaloTowerCollection,

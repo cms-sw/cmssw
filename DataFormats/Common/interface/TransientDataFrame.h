@@ -1,5 +1,5 @@
-#ifndef Common_TransientDATAFRAME_H
-#define Common_TransientDATAFRAME_H
+#ifndef DataFormats_Common_TransientDataFrame_h
+#define DataFormats_Common_TransientDataFrame_h
 
 #include "DataFormats/Common/interface/DataFrame.h"
 #include <algorithm>
@@ -48,4 +48,4 @@ namespace edm {
   
 }
 
-#endif // Common_TransientDATAFRAME_H
+#endif // DataFormats_Common_TransientDataFrame_h

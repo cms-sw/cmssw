@@ -1,7 +1,5 @@
 /** \file
  * 
- *  $Date: 2006/11/16 16:55:47 $
- *  $Revision: 1.7 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -96,8 +94,8 @@ void
 CSCComparatorDigi::print() const {
   std::cout << "CSCComparatorDigi strip: " << getStrip() 
        << " comparator: " << getComparator() 
-	    << " first time bin: "<< getTimeBin() << std::endl;
-  std::cout << " time bins on:";
+	    << " first time bin: "<< getTimeBin()
+       << " time bins on: ";
   std::vector<int> tbins=getTimeBinsOn();
   std::copy( tbins.begin(), tbins.end(), 
      std::ostream_iterator<int>( std::cout, " "));

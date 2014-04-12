@@ -16,13 +16,13 @@ class LayerWithHits;
    CompareHitPairsY(const edm::EventSetup& iSetup){    
 
      iSetup.get<TrackerDigiGeometryRecord>().get(tracker);};
-   bool operator()( OrderedHitPair h1,
-		    OrderedHitPair h2)
+   bool operator()( const OrderedHitPair& h1,
+		    const OrderedHitPair& h2)
    {      
-     const TrackingRecHit * trh1i = h1.inner();
-     const TrackingRecHit * trh2i = h2.inner();
-     const TrackingRecHit * trh1o = h1.outer();
-     const TrackingRecHit * trh2o = h2.outer();
+     const TrackingRecHit * trh1i = h1.inner()->hit();
+     const TrackingRecHit * trh2i = h2.inner()->hit();
+     const TrackingRecHit * trh1o = h1.outer()->hit();
+     const TrackingRecHit * trh2o = h2.outer()->hit();
      GlobalPoint in1p=tracker->idToDet(trh1i->geographicalId())->surface().toGlobal(trh1i->localPosition());
      GlobalPoint in2p=tracker->idToDet(trh2i->geographicalId())->surface().toGlobal(trh2i->localPosition());
      GlobalPoint ou1p=tracker->idToDet(trh1o->geographicalId())->surface().toGlobal(trh1o->localPosition());
@@ -47,6 +47,8 @@ public:
 				const LayerWithHits* outer, 
 				const edm::EventSetup& iSetup);
   virtual ~CosmicHitPairGeneratorFromLayerPair() { }
+
+  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) override {}
 
 //  virtual OrderedHitPairs hitPairs( const TrackingRegion& region,const edm::EventSetup& iSetup ) {
 //    return HitPairGenerator::hitPairs(region, iSetup);

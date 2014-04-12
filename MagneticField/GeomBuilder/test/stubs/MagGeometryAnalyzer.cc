@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/03/26 17:43:18 $
- *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -15,7 +13,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
 //dirty hack
@@ -41,11 +38,10 @@ class MagGeometryAnalyzer : public edm::EDAnalyzer {
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   virtual void endJob() {
-    delete TimingReport::current();
   }
   
  private:
-  void testGrids( const vector<MagVolume6Faces*>& bvol);
+  void testGrids( const vector<MagVolume6Faces const*>& bvol);
 };
 
 using namespace edm;
@@ -60,15 +56,22 @@ void MagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetu
   
   // Test that findVolume succeeds for random points
   MagGeometryExerciser exe(field);
-  exe.testFindVolume(100000);
+
+  //FIXME: the region to be tested is specified inside.
+  exe.testFindVolume(10000000);
 
   // Test that random points are inside one and only one volume
-  // exe.testInside(100000);
+  // exe.testInside(100000,0.03); 
 
+  
   // Test that each grid point is inside its own volume
-  cout << "***TEST GRIDS:" << endl;
-  testGrids( field->barrelVolumes());
-  testGrids( field->endcapVolumes());
+  if (false) {
+    cout << "***TEST GRIDS: barrel volumes: " << field->barrelVolumes().size() << endl;
+    testGrids( field->barrelVolumes());
+    
+    cout << "***TEST GRIDS: endcap volumes: " << field->endcapVolumes().size() << endl;
+    testGrids( field->endcapVolumes());
+  }
 }
 
 
@@ -76,20 +79,23 @@ void MagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetu
 #include "VolumeGridTester.h"
 
 
-void MagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces*>& bvol) {
+void MagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bvol) {
   static map<string,int> nameCalls;
 
-  for (vector<MagVolume6Faces*>::const_iterator i=bvol.begin();
+  for (vector<MagVolume6Faces const*>::const_iterator i=bvol.begin();
        i!=bvol.end(); i++) {
-    if (++nameCalls[(*i)->name] > 1) {
-      //      cout << (*i)->name << " already checked, skipping... "; 
+    if ((*i)->copyno != 1) {
       continue;
     }
 
     const MagProviderInterpol* prov = (**i).provider();
+    if (prov == 0) {
+      cout << (*i)->volumeNo << " No interpolator; skipping " <<  endl;
+      continue;
+    }
     VolumeGridTester tester(*i, prov);
-    if (tester.testInside()) cout << "testGrids: success: " << (**i).name << endl;
-    else cout << "testGrids: ERROR: " << (**i).name << endl;
+    if (tester.testInside()) cout << "testGrids: success: " << (**i).volumeNo << endl;
+    else cout << "testGrids: ERROR: " << (**i).volumeNo << endl;
   }
 }
 

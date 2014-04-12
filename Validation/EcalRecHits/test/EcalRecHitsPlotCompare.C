@@ -21,10 +21,10 @@ void EcalRecHitsPlotCompare( TString currentfile = "EcalRecHitsValidation_new.ro
  TFile * rfile = new TFile(rfilename);
  TFile * sfile = new TFile(sfilename);
 
- rfile->cd("DQMData/EcalRecHitsTask");
+ rfile->cd("DQMData/EcalRecHitsV/EcalRecHitsTask");
  gDirectory->ls();
 
- sfile->cd("DQMData/EcalRecHitsTask");
+ sfile->cd("DQMData/EcalRecHitsV/EcalRecHitsTask");
  gDirectory->ls();
 
  Char_t histo[200];
@@ -40,32 +40,32 @@ void EcalRecHitsPlotCompare( TString currentfile = "EcalRecHitsValidation_new.ro
  if (1) 
    {   
      TH1* meGunEnergy_;
-     rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Gun Momentum;1",meGunEnergy_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Gun Momentum;1",meGunEnergy_);
      meGunEnergy_;
      meGunEnergy_->SetLineColor(rcolor);
      
      TH1* meGunEta_;
-     rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Gun Eta;1",meGunEta_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Gun Eta;1",meGunEta_);
      meGunEta_;
      meGunEta_->SetLineColor(rcolor);
      
      TH1* meGunPhi_; 
-     rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Gun Phi;1",meGunPhi_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Gun Phi;1",meGunPhi_);
      meGunPhi_; 
      meGunPhi_->SetLineColor(rcolor);
      
      TH1* newmeGunEnergy_;
-     sfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Gun Momentum;1",newmeGunEnergy_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Gun Momentum;1",newmeGunEnergy_);
      newmeGunEnergy_;
      newmeGunEnergy_->SetLineColor(scolor);
      
      TH1* newmeGunEta_;
-     sfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Gun Eta;1",newmeGunEta_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Gun Eta;1",newmeGunEta_);
      newmeGunEta_;
      newmeGunEta_->SetLineColor(scolor);
      
      TH1* newmeGunPhi_; 
-     sfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Gun Phi;1",newmeGunPhi_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Gun Phi;1",newmeGunPhi_);
      newmeGunPhi_; 
      newmeGunPhi_->SetLineColor(scolor);
      
@@ -105,52 +105,52 @@ void EcalRecHitsPlotCompare( TString currentfile = "EcalRecHitsValidation_new.ro
  if (1) 
    {
      TH1 *meEBRecHitSimHitRatio_;
-     rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Barrel RecSimHit Ratio;1",meEBRecHitSimHitRatio_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Barrel RecSimHit Ratio;1",meEBRecHitSimHitRatio_);
      meEBRecHitSimHitRatio_;
      meEBRecHitSimHitRatio_->SetLineColor(rcolor);
      
      TH1 *meEERecHitSimHitRatio_;
-     rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Endcap RecSimHit Ratio;1",meEERecHitSimHitRatio_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Endcap RecSimHit Ratio;1",meEERecHitSimHitRatio_);
      meEERecHitSimHitRatio_;
      meEERecHitSimHitRatio_->SetLineColor(rcolor);
      
      TH1 *meESRecHitSimHitRatio_;
-     rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Preshower RecSimHit Ratio;1",meESRecHitSimHitRatio_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Preshower RecSimHit Ratio;1",meESRecHitSimHitRatio_);
      meESRecHitSimHitRatio_;
      meESRecHitSimHitRatio_->SetLineColor(rcolor);
 
      TH1 *newmeEBRecHitSimHitRatio_;
-     sfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Barrel RecSimHit Ratio;1",newmeEBRecHitSimHitRatio_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Barrel RecSimHit Ratio;1",newmeEBRecHitSimHitRatio_);
      newmeEBRecHitSimHitRatio_;
      newmeEBRecHitSimHitRatio_->SetLineColor(scolor);
      
      TH1 *newmeEERecHitSimHitRatio_;
-     sfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Endcap RecSimHit Ratio;1",newmeEERecHitSimHitRatio_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Endcap RecSimHit Ratio;1",newmeEERecHitSimHitRatio_);
      newmeEERecHitSimHitRatio_;
      newmeEERecHitSimHitRatio_->SetLineColor(scolor);
      
      TH1 *newmeESRecHitSimHitRatio_;
-     sfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Preshower RecSimHit Ratio;1",newmeESRecHitSimHitRatio_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Preshower RecSimHit Ratio;1",newmeESRecHitSimHitRatio_);
      newmeESRecHitSimHitRatio_;
      newmeESRecHitSimHitRatio_->SetLineColor(scolor);
 
      TH1 *meEBRecHitSimHitRatioGt35_;
-     rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Barrel RecSimHit Ratio gt 3.5 GeV;1",meEBRecHitSimHitRatioGt35_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV;1",meEBRecHitSimHitRatioGt35_);
      meEBRecHitSimHitRatioGt35_;
      meEBRecHitSimHitRatioGt35_->SetLineColor(rcolor);
      
      TH1 *meEERecHitSimHitRatioGt35_;
-     rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Endcap RecSimHit Ratio gt 3.5 GeV;1",meEERecHitSimHitRatioGt35_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV;1",meEERecHitSimHitRatioGt35_);
      meEERecHitSimHitRatioGt35_;
      meEERecHitSimHitRatioGt35_->SetLineColor(rcolor);
      
      TH1 *newmeEBRecHitSimHitRatioGt35_;
-     sfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Barrel RecSimHit Ratio gt 3.5 GeV;1",newmeEBRecHitSimHitRatioGt35_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV;1",newmeEBRecHitSimHitRatioGt35_);
      newmeEBRecHitSimHitRatioGt35_;
      newmeEBRecHitSimHitRatioGt35_->SetLineColor(scolor);
      
      TH1 *newmeEERecHitSimHitRatioGt35_;
-     sfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Endcap RecSimHit Ratio gt 3.5 GeV;1",newmeEERecHitSimHitRatioGt35_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV;1",newmeEERecHitSimHitRatioGt35_);
      newmeEERecHitSimHitRatioGt35_;
      newmeEERecHitSimHitRatioGt35_->SetLineColor(scolor);
      
@@ -216,9 +216,9 @@ void EcalRecHitsPlotCompare( TString currentfile = "EcalRecHitsValidation_new.ro
  // ---------------------------------------------------------------------------------
  cout << endl;
  cout << "Barrel validation" << endl;
- rfile->cd("DQMData/EcalBarrelRecHitsTask");
+ rfile->cd("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask");
  gDirectory->ls();
- sfile->cd("DQMData/EcalBarrelRecHitsTask");
+ sfile->cd("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask");
  gDirectory->ls();
  
  
@@ -226,135 +226,135 @@ void EcalRecHitsPlotCompare( TString currentfile = "EcalRecHitsValidation_new.ro
  if (1) 
    {    
      TH2 *meEBUncalibRecHitsOccupancy_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Occupancy;1",meEBUncalibRecHitsOccupancy_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Occupancy;1",meEBUncalibRecHitsOccupancy_);
      meEBUncalibRecHitsOccupancy_;
       
      TH1 *meEBUncalibRecHitsAmplitude_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Amplitude;1",meEBUncalibRecHitsAmplitude_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amplitude;1",meEBUncalibRecHitsAmplitude_);
      meEBUncalibRecHitsAmplitude_;
      meEBUncalibRecHitsAmplitude_->SetLineColor(rcolor);
       
      TH1 *meEBUncalibRecHitsPedestal_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Pedestal;1",meEBUncalibRecHitsPedestal_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Pedestal;1",meEBUncalibRecHitsPedestal_);
      meEBUncalibRecHitsPedestal_;
      meEBUncalibRecHitsPedestal_->SetLineColor(rcolor);
      
      TH1 *meEBUncalibRecHitsJitter_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Jitter;1",meEBUncalibRecHitsJitter_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Jitter;1",meEBUncalibRecHitsJitter_);
      meEBUncalibRecHitsJitter_;
      meEBUncalibRecHitsJitter_->SetLineColor(rcolor);
      
      TH1 *meEBUncalibRecHitsChi2_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Chi2;1",meEBUncalibRecHitsChi2_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Chi2;1",meEBUncalibRecHitsChi2_);
      meEBUncalibRecHitsChi2_;
      meEBUncalibRecHitsChi2_->SetLineColor(rcolor);
 
      TH1 *meEBUncalibRecHitMaxSampleRatio_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio;1",meEBUncalibRecHitMaxSampleRatio_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio;1",meEBUncalibRecHitMaxSampleRatio_);
      meEBUncalibRecHitMaxSampleRatio_;
      meEBUncalibRecHitMaxSampleRatio_->SetLineColor(rcolor);
 
      TH2 *meEBUncalibRecHitsOccupancyGt100adc_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Occupancy gt 100 adc counts;1",meEBUncalibRecHitsOccupancyGt100adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Occupancy gt 100 adc counts;1",meEBUncalibRecHitsOccupancyGt100adc_);
      meEBUncalibRecHitsOccupancyGt100adc_;
       
      TH1 *meEBUncalibRecHitsAmplitudeGt100adc_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Amplitude gt 100 adc counts;1",meEBUncalibRecHitsAmplitudeGt100adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amplitude gt 100 adc counts;1",meEBUncalibRecHitsAmplitudeGt100adc_);
      meEBUncalibRecHitsAmplitudeGt100adc_;
      meEBUncalibRecHitsAmplitudeGt100adc_->SetLineColor(rcolor);
       
      TH1 *meEBUncalibRecHitsPedestalGt100adc_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Pedestal gt 100 adc counts;1",meEBUncalibRecHitsPedestalGt100adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Pedestal gt 100 adc counts;1",meEBUncalibRecHitsPedestalGt100adc_);
      meEBUncalibRecHitsPedestalGt100adc_;
      meEBUncalibRecHitsPedestalGt100adc_->SetLineColor(rcolor);
      
      TH1 *meEBUncalibRecHitsJitterGt100adc_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Jitter gt 100 adc counts;1",meEBUncalibRecHitsJitterGt100adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Jitter gt 100 adc counts;1",meEBUncalibRecHitsJitterGt100adc_);
      meEBUncalibRecHitsJitterGt100adc_;
      meEBUncalibRecHitsJitterGt100adc_->SetLineColor(rcolor);
      
      TH1 *meEBUncalibRecHitsChi2Gt100adc_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Chi2 gt 100 adc counts;1",meEBUncalibRecHitsChi2Gt100adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Chi2 gt 100 adc counts;1",meEBUncalibRecHitsChi2Gt100adc_);
      meEBUncalibRecHitsChi2Gt100adc_;
      meEBUncalibRecHitsChi2Gt100adc_->SetLineColor(rcolor);
 
      TH1 *meEBUncalibRecHitMaxSampleRatioGt100adc_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio gt 100 adc counts;1",meEBUncalibRecHitMaxSampleRatioGt100adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio gt 100 adc counts;1",meEBUncalibRecHitMaxSampleRatioGt100adc_);
      meEBUncalibRecHitMaxSampleRatioGt100adc_;
      meEBUncalibRecHitMaxSampleRatioGt100adc_->SetLineColor(rcolor);
 
      TProfile2D *meEBUncalibRecHitsAmpFullMap_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Amplitude Full Map;1",meEBUncalibRecHitsAmpFullMap_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amplitude Full Map;1",meEBUncalibRecHitsAmpFullMap_);
      meEBUncalibRecHitsAmpFullMap_;
 
      TProfile2D *meEBUncalibRecHitsPedFullMap_;
-     rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Pedestal Full Map;1",meEBUncalibRecHitsPedFullMap_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Pedestal Full Map;1",meEBUncalibRecHitsPedFullMap_);
      meEBUncalibRecHitsPedFullMap_;
 
      TH2 *newmeEBUncalibRecHitsOccupancy_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Occupancy;1",newmeEBUncalibRecHitsOccupancy_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Occupancy;1",newmeEBUncalibRecHitsOccupancy_);
      newmeEBUncalibRecHitsOccupancy_;
       
      TH1 *newmeEBUncalibRecHitsAmplitude_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Amplitude;1",newmeEBUncalibRecHitsAmplitude_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amplitude;1",newmeEBUncalibRecHitsAmplitude_);
      newmeEBUncalibRecHitsAmplitude_;
      newmeEBUncalibRecHitsAmplitude_->SetLineColor(scolor);
       
      TH1 *newmeEBUncalibRecHitsPedestal_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Pedestal;1",newmeEBUncalibRecHitsPedestal_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Pedestal;1",newmeEBUncalibRecHitsPedestal_);
      newmeEBUncalibRecHitsPedestal_;
      newmeEBUncalibRecHitsPedestal_->SetLineColor(scolor);
      
      TH1 *newmeEBUncalibRecHitsJitter_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Jitter;1",newmeEBUncalibRecHitsJitter_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Jitter;1",newmeEBUncalibRecHitsJitter_);
      newmeEBUncalibRecHitsJitter_;
      newmeEBUncalibRecHitsJitter_->SetLineColor(scolor);
      
      TH1 *newmeEBUncalibRecHitsChi2_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Chi2;1",newmeEBUncalibRecHitsChi2_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Chi2;1",newmeEBUncalibRecHitsChi2_);
      newmeEBUncalibRecHitsChi2_;
      newmeEBUncalibRecHitsChi2_->SetLineColor(scolor);
 
      TH1 *newmeEBUncalibRecHitMaxSampleRatio_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio;1",newmeEBUncalibRecHitMaxSampleRatio_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio;1",newmeEBUncalibRecHitMaxSampleRatio_);
      newmeEBUncalibRecHitMaxSampleRatio_;
      newmeEBUncalibRecHitMaxSampleRatio_->SetLineColor(scolor);
 
      TH2 *newmeEBUncalibRecHitsOccupancyGt100adc_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Occupancy gt 100 adc counts;1",newmeEBUncalibRecHitsOccupancyGt100adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Occupancy gt 100 adc counts;1",newmeEBUncalibRecHitsOccupancyGt100adc_);
      newmeEBUncalibRecHitsOccupancyGt100adc_;
       
      TH1 *newmeEBUncalibRecHitsAmplitudeGt100adc_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Amplitude gt 100 adc counts;1",newmeEBUncalibRecHitsAmplitudeGt100adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amplitude gt 100 adc counts;1",newmeEBUncalibRecHitsAmplitudeGt100adc_);
      newmeEBUncalibRecHitsAmplitudeGt100adc_;
      newmeEBUncalibRecHitsAmplitudeGt100adc_->SetLineColor(scolor);
       
      TH1 *newmeEBUncalibRecHitsPedestalGt100adc_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Pedestal gt 100 adc counts;1",newmeEBUncalibRecHitsPedestalGt100adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Pedestal gt 100 adc counts;1",newmeEBUncalibRecHitsPedestalGt100adc_);
      newmeEBUncalibRecHitsPedestalGt100adc_;
      newmeEBUncalibRecHitsPedestalGt100adc_->SetLineColor(scolor);
      
      TH1 *newmeEBUncalibRecHitsJitterGt100adc_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Jitter gt 100 adc counts;1",newmeEBUncalibRecHitsJitterGt100adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Jitter gt 100 adc counts;1",newmeEBUncalibRecHitsJitterGt100adc_);
      newmeEBUncalibRecHitsJitterGt100adc_;
      newmeEBUncalibRecHitsJitterGt100adc_->SetLineColor(scolor);
      
      TH1 *newmeEBUncalibRecHitsChi2Gt100adc_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Chi2 gt 100 adc counts;1",newmeEBUncalibRecHitsChi2Gt100adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Chi2 gt 100 adc counts;1",newmeEBUncalibRecHitsChi2Gt100adc_);
      newmeEBUncalibRecHitsChi2Gt100adc_;
      newmeEBUncalibRecHitsChi2Gt100adc_->SetLineColor(scolor);
 
      TH1 *newmeEBUncalibRecHitMaxSampleRatioGt100adc_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio gt 100 adc counts;1",newmeEBUncalibRecHitMaxSampleRatioGt100adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio gt 100 adc counts;1",newmeEBUncalibRecHitMaxSampleRatioGt100adc_);
      newmeEBUncalibRecHitMaxSampleRatioGt100adc_;
      newmeEBUncalibRecHitMaxSampleRatioGt100adc_->SetLineColor(scolor);
       
      TProfile2D *newmeEBUncalibRecHitsAmpFullMap_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Amplitude Full Map;1",newmeEBUncalibRecHitsAmpFullMap_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amplitude Full Map;1",newmeEBUncalibRecHitsAmpFullMap_);
      newmeEBUncalibRecHitsAmpFullMap_;
 
      TProfile2D *newmeEBUncalibRecHitsPedFullMap_;
-     sfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Pedestal Full Map;1",newmeEBUncalibRecHitsPedFullMap_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Pedestal Full Map;1",newmeEBUncalibRecHitsPedFullMap_);
      newmeEBUncalibRecHitsPedFullMap_;
 
 
@@ -503,9 +503,9 @@ void EcalRecHitsPlotCompare( TString currentfile = "EcalRecHitsValidation_new.ro
  // -----------------------------------------------------------------
  cout << endl;
  cout << "Endcap validation" << endl;
- rfile->cd("DQMData/EcalEndcapRecHitsTask");
+ rfile->cd("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask");
  gDirectory->ls();
- sfile->cd("DQMData/EcalEndcapRecHitsTask");
+ sfile->cd("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask");
  gDirectory->ls();
  
 
@@ -514,151 +514,151 @@ void EcalRecHitsPlotCompare( TString currentfile = "EcalRecHitsValidation_new.ro
  if (1) 
    {    
      TH2 *meEEUncalibRecHitsOccupancyPlus_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE+ Occupancy;1",meEEUncalibRecHitsOccupancyPlus_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE+ Occupancy;1",meEEUncalibRecHitsOccupancyPlus_);
      meEEUncalibRecHitsOccupancyPlus_;
 
      TH2 *meEEUncalibRecHitsOccupancyMinus_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE- Occupancy;1",meEEUncalibRecHitsOccupancyMinus_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE- Occupancy;1",meEEUncalibRecHitsOccupancyMinus_);
      meEEUncalibRecHitsOccupancyMinus_;
       
      TH1 *meEEUncalibRecHitsAmplitude_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Amplitude;1",meEEUncalibRecHitsAmplitude_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Amplitude;1",meEEUncalibRecHitsAmplitude_);
      meEEUncalibRecHitsAmplitude_;
      meEEUncalibRecHitsAmplitude_->SetLineColor(rcolor);
       
      TH1 *meEEUncalibRecHitsPedestal_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Pedestal;1",meEEUncalibRecHitsPedestal_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Pedestal;1",meEEUncalibRecHitsPedestal_);
      meEEUncalibRecHitsPedestal_;
      meEEUncalibRecHitsPedestal_->SetLineColor(rcolor);
      
      TH1 *meEEUncalibRecHitsJitter_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Jitter;1",meEEUncalibRecHitsJitter_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Jitter;1",meEEUncalibRecHitsJitter_);
      meEEUncalibRecHitsJitter_;
      meEEUncalibRecHitsJitter_->SetLineColor(rcolor);
      
      TH1 *meEEUncalibRecHitsChi2_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Chi2;1",meEEUncalibRecHitsChi2_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Chi2;1",meEEUncalibRecHitsChi2_);
      meEEUncalibRecHitsChi2_;
      meEEUncalibRecHitsChi2_->SetLineColor(rcolor);
 
      TH1 *meEEUncalibRecHitMaxSampleRatio_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio;1",meEEUncalibRecHitMaxSampleRatio_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio;1",meEEUncalibRecHitMaxSampleRatio_);
      meEEUncalibRecHitMaxSampleRatio_;
      meEEUncalibRecHitMaxSampleRatio_->SetLineColor(rcolor);
 
      TH2 *meEEUncalibRecHitsOccupancyPlusGt60adc_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE+ Occupancy gt 60 adc counts;1",meEEUncalibRecHitsOccupancyPlusGt60adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE+ Occupancy gt 60 adc counts;1",meEEUncalibRecHitsOccupancyPlusGt60adc_);
      meEEUncalibRecHitsOccupancyPlusGt60adc_;
 
      TH2 *meEEUncalibRecHitsOccupancyMinusGt60adc_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE- Occupancy gt 60 adc counts;1",meEEUncalibRecHitsOccupancyMinusGt60adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE- Occupancy gt 60 adc counts;1",meEEUncalibRecHitsOccupancyMinusGt60adc_);
      meEEUncalibRecHitsOccupancyMinusGt60adc_;
       
      TH1 *meEEUncalibRecHitsAmplitudeGt60adc_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Amplitude gt 60 adc counts;1",meEEUncalibRecHitsAmplitudeGt60adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Amplitude gt 60 adc counts;1",meEEUncalibRecHitsAmplitudeGt60adc_);
      meEEUncalibRecHitsAmplitudeGt60adc_;
      meEEUncalibRecHitsAmplitudeGt60adc_->SetLineColor(rcolor);
       
      TH1 *meEEUncalibRecHitsPedestalGt60adc_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Pedestal gt 60 adc counts;1",meEEUncalibRecHitsPedestalGt60adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Pedestal gt 60 adc counts;1",meEEUncalibRecHitsPedestalGt60adc_);
      meEEUncalibRecHitsPedestalGt60adc_;
      meEEUncalibRecHitsPedestalGt60adc_->SetLineColor(rcolor);
      
      TH1 *meEEUncalibRecHitsJitterGt60adc_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Jitter gt 60 adc counts;1",meEEUncalibRecHitsJitterGt60adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Jitter gt 60 adc counts;1",meEEUncalibRecHitsJitterGt60adc_);
      meEEUncalibRecHitsJitterGt60adc_;
      meEEUncalibRecHitsJitterGt60adc_->SetLineColor(rcolor);
      
      TH1 *meEEUncalibRecHitsChi2Gt60adc_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Chi2 gt 60 adc counts;1",meEEUncalibRecHitsChi2Gt60adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Chi2 gt 60 adc counts;1",meEEUncalibRecHitsChi2Gt60adc_);
      meEEUncalibRecHitsChi2Gt60adc_;
      meEEUncalibRecHitsChi2Gt60adc_->SetLineColor(rcolor);
 
      TH1 *meEEUncalibRecHitMaxSampleRatioGt60adc_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio gt 60 adc counts;1",meEEUncalibRecHitMaxSampleRatioGt60adc_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio gt 60 adc counts;1",meEEUncalibRecHitMaxSampleRatioGt60adc_);
      meEEUncalibRecHitMaxSampleRatioGt60adc_;
      meEEUncalibRecHitMaxSampleRatioGt60adc_->SetLineColor(rcolor);
 
      TProfile2D *meEEUncalibRecHitsAmpFullMap_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Amplitude Full Map;1",meEEUncalibRecHitsAmpFullMap_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Amplitude Full Map;1",meEEUncalibRecHitsAmpFullMap_);
      meEEUncalibRecHitsAmpFullMap_;
 
      TProfile2D *meEEUncalibRecHitsPedFullMap_;
-     rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Pedestal Full Map;1",meEEUncalibRecHitsPedFullMap_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Pedestal Full Map;1",meEEUncalibRecHitsPedFullMap_);
      meEEUncalibRecHitsPedFullMap_;
 
      TH2 *newmeEEUncalibRecHitsOccupancyPlus_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE+ Occupancy;1",newmeEEUncalibRecHitsOccupancyPlus_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE+ Occupancy;1",newmeEEUncalibRecHitsOccupancyPlus_);
      newmeEEUncalibRecHitsOccupancyPlus_;
 
      TH2 *newmeEEUncalibRecHitsOccupancyMinus_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE- Occupancy;1",newmeEEUncalibRecHitsOccupancyMinus_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE- Occupancy;1",newmeEEUncalibRecHitsOccupancyMinus_);
      newmeEEUncalibRecHitsOccupancyMinus_;
 
      TH1 *newmeEEUncalibRecHitsAmplitude_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Amplitude;1",newmeEEUncalibRecHitsAmplitude_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Amplitude;1",newmeEEUncalibRecHitsAmplitude_);
      newmeEEUncalibRecHitsAmplitude_;
      newmeEEUncalibRecHitsAmplitude_->SetLineColor(scolor);
       
      TH1 *newmeEEUncalibRecHitsPedestal_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Pedestal;1",newmeEEUncalibRecHitsPedestal_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Pedestal;1",newmeEEUncalibRecHitsPedestal_);
      newmeEEUncalibRecHitsPedestal_;
      newmeEEUncalibRecHitsPedestal_->SetLineColor(scolor);
      
      TH1 *newmeEEUncalibRecHitsJitter_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Jitter;1",newmeEEUncalibRecHitsJitter_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Jitter;1",newmeEEUncalibRecHitsJitter_);
      newmeEEUncalibRecHitsJitter_;
      newmeEEUncalibRecHitsJitter_->SetLineColor(scolor);
      
      TH1 *newmeEEUncalibRecHitsChi2_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Chi2;1",newmeEEUncalibRecHitsChi2_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Chi2;1",newmeEEUncalibRecHitsChi2_);
      newmeEEUncalibRecHitsChi2_;
      newmeEEUncalibRecHitsChi2_->SetLineColor(scolor);
       
      TH1 *newmeEEUncalibRecHitMaxSampleRatio_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio;1",newmeEEUncalibRecHitMaxSampleRatio_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio;1",newmeEEUncalibRecHitMaxSampleRatio_);
      newmeEEUncalibRecHitMaxSampleRatio_;
      newmeEEUncalibRecHitMaxSampleRatio_->SetLineColor(scolor);
 
      TH2 *newmeEEUncalibRecHitsOccupancyPlusGt60adc_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE+ Occupancy gt 60 adc counts;1",newmeEEUncalibRecHitsOccupancyPlusGt60adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE+ Occupancy gt 60 adc counts;1",newmeEEUncalibRecHitsOccupancyPlusGt60adc_);
      newmeEEUncalibRecHitsOccupancyPlusGt60adc_;
 
      TH2 *newmeEEUncalibRecHitsOccupancyMinusGt60adc_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE- Occupancy gt 60 adc counts;1",newmeEEUncalibRecHitsOccupancyMinusGt60adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE- Occupancy gt 60 adc counts;1",newmeEEUncalibRecHitsOccupancyMinusGt60adc_);
      newmeEEUncalibRecHitsOccupancyMinusGt60adc_;
 
      TH1 *newmeEEUncalibRecHitsAmplitudeGt60adc_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Amplitude gt 60 adc counts;1",newmeEEUncalibRecHitsAmplitudeGt60adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Amplitude gt 60 adc counts;1",newmeEEUncalibRecHitsAmplitudeGt60adc_);
      newmeEEUncalibRecHitsAmplitudeGt60adc_;
      newmeEEUncalibRecHitsAmplitudeGt60adc_->SetLineColor(scolor);
       
      TH1 *newmeEEUncalibRecHitsPedestalGt60adc_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Pedestal gt 60 adc counts;1",newmeEEUncalibRecHitsPedestalGt60adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Pedestal gt 60 adc counts;1",newmeEEUncalibRecHitsPedestalGt60adc_);
      newmeEEUncalibRecHitsPedestalGt60adc_;
      newmeEEUncalibRecHitsPedestalGt60adc_->SetLineColor(scolor);
      
      TH1 *newmeEEUncalibRecHitsJitterGt60adc_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Jitter gt 60 adc counts;1",newmeEEUncalibRecHitsJitterGt60adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Jitter gt 60 adc counts;1",newmeEEUncalibRecHitsJitterGt60adc_);
      newmeEEUncalibRecHitsJitterGt60adc_;
      newmeEEUncalibRecHitsJitterGt60adc_->SetLineColor(scolor);
      
      TH1 *newmeEEUncalibRecHitsChi2Gt60adc_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Chi2 gt 60 adc counts;1",newmeEEUncalibRecHitsChi2Gt60adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Chi2 gt 60 adc counts;1",newmeEEUncalibRecHitsChi2Gt60adc_);
      newmeEEUncalibRecHitsChi2Gt60adc_;
      newmeEEUncalibRecHitsChi2Gt60adc_->SetLineColor(scolor);
       
      TH1 *newmeEEUncalibRecHitMaxSampleRatioGt60adc_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio gt 60 adc counts;1",newmeEEUncalibRecHitMaxSampleRatioGt60adc_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio gt 60 adc counts;1",newmeEEUncalibRecHitMaxSampleRatioGt60adc_);
      newmeEEUncalibRecHitMaxSampleRatioGt60adc_;
      newmeEEUncalibRecHitMaxSampleRatioGt60adc_->SetLineColor(scolor);
 
      TProfile2D *newmeEEUncalibRecHitsAmpFullMap_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Amplitude Full Map;1",newmeEEUncalibRecHitsAmpFullMap_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Amplitude Full Map;1",newmeEEUncalibRecHitsAmpFullMap_);
      newmeEEUncalibRecHitsAmpFullMap_;
 
      TProfile2D *newmeEEUncalibRecHitsPedFullMap_;
-     sfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Pedestal Full Map;1",newmeEEUncalibRecHitsPedFullMap_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Pedestal Full Map;1",newmeEEUncalibRecHitsPedFullMap_);
      newmeEEUncalibRecHitsPedFullMap_;
 
 
@@ -805,9 +805,9 @@ void EcalRecHitsPlotCompare( TString currentfile = "EcalRecHitsValidation_new.ro
  // ----------------------------------------------------------------
  cout << endl;
  cout << "Preshower validation" << endl;
- rfile->cd("DQMData/EcalPreshowerRecHitsTask");
+ rfile->cd("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask");
  gDirectory->ls();
- sfile->cd("DQMData/EcalPreshowerRecHitsTask");
+ sfile->cd("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask");
  gDirectory->ls();
 
   
@@ -815,119 +815,119 @@ void EcalRecHitsPlotCompare( TString currentfile = "EcalRecHitsValidation_new.ro
  if (1) 
    {    
      TH1 *meESRecHitsEnergy_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy;1",meESRecHitsEnergy_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy;1",meESRecHitsEnergy_);
      meESRecHitsEnergy_;
      meESRecHitsEnergy_->SetLineColor(rcolor);
      
      TH1 *meESRecHitsEnergy_zp1st_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane1 Side+;1",meESRecHitsEnergy_zp1st_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane1 Side+;1",meESRecHitsEnergy_zp1st_);
      meESRecHitsEnergy_zp1st_;
      meESRecHitsEnergy_zp1st_->SetLineColor(rcolor);
 
      TH1 *meESRecHitsEnergy_zp2nd_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane2 Side+;1",meESRecHitsEnergy_zp2nd_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane2 Side+;1",meESRecHitsEnergy_zp2nd_);
      meESRecHitsEnergy_zp2nd_;
      meESRecHitsEnergy_zp2nd_->SetLineColor(rcolor);
 
      TH1 *meESRecHitsEnergy_zm1st_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane1 Side-;1",meESRecHitsEnergy_zm1st_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane1 Side-;1",meESRecHitsEnergy_zm1st_);
      meESRecHitsEnergy_zm1st_;
      meESRecHitsEnergy_zm1st_->SetLineColor(rcolor);
 
      TH1 *meESRecHitsEnergy_zm2nd_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane2 Side-;1",meESRecHitsEnergy_zm2nd_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane2 Side-;1",meESRecHitsEnergy_zm2nd_);
      meESRecHitsEnergy_zm2nd_;
      meESRecHitsEnergy_zm2nd_->SetLineColor(rcolor);
 
      TH1 *meESRecHitsMultip_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity;1",meESRecHitsMultip_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity;1",meESRecHitsMultip_);
      meESRecHitsMultip_;
      meESRecHitsMultip_->SetLineColor(rcolor);
 
      TH1 *meESRecHitsMultip_zp1st_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side+;1",meESRecHitsMultip_zp1st_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side+;1",meESRecHitsMultip_zp1st_);
      meESRecHitsMultip_zp1st_;
      meESRecHitsMultip_zp1st_->SetLineColor(rcolor);
 
      TH1 *meESRecHitsMultip_zp2nd_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane2 Side+;1",meESRecHitsMultip_zp2nd_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane2 Side+;1",meESRecHitsMultip_zp2nd_);
      meESRecHitsMultip_zp2nd_;
      meESRecHitsMultip_zp2nd_->SetLineColor(rcolor);
 
      TH1 *meESRecHitsMultip_zm1st_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",meESRecHitsMultip_zm1st_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",meESRecHitsMultip_zm1st_);
      meESRecHitsMultip_zm1st_;
      meESRecHitsMultip_zm1st_->SetLineColor(rcolor);
 
      TH1 *meESRecHitsMultip_zm2nd_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",meESRecHitsMultip_zm2nd_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",meESRecHitsMultip_zm2nd_);
      meESRecHitsMultip_zm2nd_;
      meESRecHitsMultip_zm2nd_->SetLineColor(rcolor);
 
      TH1 *meESEERecHitsEnergy_zp_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side+;1",meESEERecHitsEnergy_zp_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side+;1",meESEERecHitsEnergy_zp_);
      meESEERecHitsEnergy_zp_;
   
      TH1 *meESEERecHitsEnergy_zm_;
-     rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side-;1",meESEERecHitsEnergy_zm_);
+     rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side-;1",meESEERecHitsEnergy_zm_);
      meESEERecHitsEnergy_zm_;
 
      TH1 *newmeESRecHitsEnergy_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy;1",newmeESRecHitsEnergy_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy;1",newmeESRecHitsEnergy_);
      newmeESRecHitsEnergy_;
      newmeESRecHitsEnergy_->SetLineColor(scolor);
      
      TH1 *newmeESRecHitsEnergy_zp1st_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane1 Side+;1",newmeESRecHitsEnergy_zp1st_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane1 Side+;1",newmeESRecHitsEnergy_zp1st_);
      newmeESRecHitsEnergy_zp1st_;
      newmeESRecHitsEnergy_zp1st_->SetLineColor(scolor);
 
      TH1 *newmeESRecHitsEnergy_zp2nd_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane2 Side+;1",newmeESRecHitsEnergy_zp2nd_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane2 Side+;1",newmeESRecHitsEnergy_zp2nd_);
      newmeESRecHitsEnergy_zp2nd_;
      newmeESRecHitsEnergy_zp2nd_->SetLineColor(scolor);
 
      TH1 *newmeESRecHitsEnergy_zm1st_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane1 Side-;1",newmeESRecHitsEnergy_zm1st_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane1 Side-;1",newmeESRecHitsEnergy_zm1st_);
      newmeESRecHitsEnergy_zm1st_;
      newmeESRecHitsEnergy_zm1st_->SetLineColor(scolor);
 
      TH1 *newmeESRecHitsEnergy_zm2nd_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane2 Side-;1",newmeESRecHitsEnergy_zm2nd_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane2 Side-;1",newmeESRecHitsEnergy_zm2nd_);
      newmeESRecHitsEnergy_zm2nd_;
      newmeESRecHitsEnergy_zm2nd_->SetLineColor(scolor);
 
      TH1 *newmeESRecHitsMultip_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity;1",newmeESRecHitsMultip_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity;1",newmeESRecHitsMultip_);
      newmeESRecHitsMultip_;
      newmeESRecHitsMultip_->SetLineColor(scolor);
 
      TH1 *newmeESRecHitsMultip_zp1st_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side+;1",newmeESRecHitsMultip_zp1st_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side+;1",newmeESRecHitsMultip_zp1st_);
      newmeESRecHitsMultip_zp1st_;
      newmeESRecHitsMultip_zp1st_->SetLineColor(scolor);
 
      TH1 *newmeESRecHitsMultip_zp2nd_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane2 Side+;1",newmeESRecHitsMultip_zp2nd_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane2 Side+;1",newmeESRecHitsMultip_zp2nd_);
      newmeESRecHitsMultip_zp2nd_;
      newmeESRecHitsMultip_zp2nd_->SetLineColor(scolor);
 
      TH1 *newmeESRecHitsMultip_zm1st_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",newmeESRecHitsMultip_zm1st_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",newmeESRecHitsMultip_zm1st_);
      newmeESRecHitsMultip_zm1st_;
      newmeESRecHitsMultip_zm1st_->SetLineColor(scolor);
 
      TH1 *newmeESRecHitsMultip_zm2nd_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",newmeESRecHitsMultip_zm2nd_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",newmeESRecHitsMultip_zm2nd_);
      newmeESRecHitsMultip_zm2nd_;
      newmeESRecHitsMultip_zm2nd_->SetLineColor(scolor);
 
      TH1 *newmeESEERecHitsEnergy_zp_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side+;1",newmeESEERecHitsEnergy_zp_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side+;1",newmeESEERecHitsEnergy_zp_);
      newmeESEERecHitsEnergy_zp_;
   
      TH1 *newmeESEERecHitsEnergy_zm_;
-     sfile->GetObject("DQMData/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side-;1",newmeESEERecHitsEnergy_zm_);
+     sfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side-;1",newmeESEERecHitsEnergy_zm_);
      newmeESEERecHitsEnergy_zm_;
 
      

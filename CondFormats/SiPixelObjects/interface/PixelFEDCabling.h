@@ -18,7 +18,7 @@ public:
 
   typedef std::vector<PixelFEDLink> Links;
   
-  PixelFEDCabling(int id = -1) : theFedId(id) { }
+  PixelFEDCabling(unsigned int id = 0) : theFedId(id) { }
 
   void setLinks(Links & links);
 
@@ -29,22 +29,23 @@ public:
     { return (id > 0 && id <= theLinks.size()) ? &theLinks[id-1] : 0; }
 
   /// number of links in FED
-  int numberOfLinks() const { return theLinks.size(); }
+  unsigned int numberOfLinks() const { return theLinks.size(); }
 
-  int id() const { return theFedId; } 
+  unsigned int id() const { return theFedId; } 
 
   std::string print(int depth = 0) const;
 
-  void  addItem(int linkId, const PixelROC & roc);
-private:
+  void  addItem(unsigned int linkId, const PixelROC & roc);
+
   /// check link numbering consistency, ie. that link position in vector
   /// is the same as its id. Futhermore it checks numbering consistency for
-  /// ROCs belonging to Link. Called by constructor 
+  /// ROCs belonging to Link. 
   bool checkLinkNumbering() const;
+private:
   
 private:
 
-  int   theFedId;
+  unsigned int   theFedId;
   Links theLinks;
 
 }; 

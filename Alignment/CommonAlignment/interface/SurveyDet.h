@@ -1,12 +1,12 @@
-#ifndef Alignment_SurveyAnalysis_SurveyDet_h
-#define Alignment_SurveyAnalysis_SurveyDet_h
+#ifndef Alignment_CommonAlignment_SurveyDet_h
+#define Alignment_CommonAlignment_SurveyDet_h
 
 /** \class SurveyDet
  *
  *  Class to hold survey info.
  *
- *  $Date: 2007/03/12 03:26:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/07 03:29:38 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 

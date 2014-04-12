@@ -5,7 +5,6 @@
 // Description: Stores hits of TBH4 hodoscope fibers in appropriate
 //              container
 // Use in your sensitive detector builder:
-// $Id: EcalTBH4BeamSD.h,v 1.1 2007/03/19 17:21:49 fabiocos Exp $
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
@@ -31,11 +30,12 @@ public:
 
 private:    
 
-  EcalBaseNumber getBaseNumber(const G4Step* aStep) const; 
+  void                 getBaseNumber(const G4Step* aStep); 
   EcalNumberingScheme *numberingScheme;
   bool                 useWeight;
   bool                 useBirk;
-  double               birk1, birk2;
+  double               birk1, birk2, birk3;
+  EcalBaseNumber       theBaseNumber;
 
 };
 

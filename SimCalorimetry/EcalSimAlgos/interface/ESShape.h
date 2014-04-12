@@ -7,9 +7,8 @@
  * \brief preshower pulse-shape
  * 
  * Preshower pulse shape
- * - Gain = 0 : old shape used in ORCA
  * - Gain = 1 : shape for low gain for data taking
- * - Gain = 2 : shape for high gain for calibration
+ * - Gain = 2 : shape for high gain for calibration and low energy runs
  * 
  * Preshower three time samples happen at -5, 20 and 45 ns 
  *
@@ -20,23 +19,19 @@ class ESShape : public CaloVShape
  public:
   
   /// ctor
-  ESShape(int Gain);
+  ESShape();
   /// dtor
   ~ESShape(){}
   
-  double operator () (double time_) const;
+  void setGain (const int gain) { theGain_ = gain; }
+  virtual double operator () (double time) const;
+  virtual double timeToRise()              const ;
+  
   void display () const {}
-  double derivative (double time_) const;
-  double getTpeak () const;      
 
  private:
 
   int theGain_;
-  double A_;
-  double Qcf_;
-  double omegac_;
-  double norm_;
-  double M_;
 
 };
 

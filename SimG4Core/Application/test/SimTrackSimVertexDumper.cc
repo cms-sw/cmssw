@@ -41,14 +41,14 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenEvent.h"
  
 SimTrackSimVertexDumper::SimTrackSimVertexDumper( const edm::ParameterSet& iConfig ):
-  HepMCLabel(iConfig.getUntrackedParameter("moduleLabelHepMC",std::string("source"))),
-  SimTkLabel(iConfig.getUntrackedParameter("moduleLabelTk",std::string("g4SimHits"))),
-  SimVtxLabel(iConfig.getUntrackedParameter("moduleLabelVtx",std::string("g4SimHits"))),
-  dumpHepMC(iConfig.getUntrackedParameter("dumpHepMC",bool("false")))
+  HepMCLabel(iConfig.getParameter<edm::InputTag>("moduleLabelHepMC")),
+  SimTkLabel(iConfig.getParameter<edm::InputTag>("moduleLabelTk")),
+  SimVtxLabel(iConfig.getParameter<edm::InputTag>("moduleLabelVtx")),
+  dumpHepMC(iConfig.getUntrackedParameter<bool>("dumpHepMC","false"))
 {
 
 }
@@ -89,7 +89,7 @@ SimTrackSimVertexDumper::analyze( const edm::Event& iEvent, const edm::EventSetu
    for (unsigned int isimvtx = 0; isimvtx < theSimVertexes.size(); isimvtx++){
      std::cout << "SimVertex " << isimvtx << " = " << theSimVertexes[isimvtx] << "\n" << std::endl;
      for (unsigned int isimtk = 0; isimtk < theSimTracks.size() ; isimtk++ ) {
-       if ( theSimTracks[isimtk].vertIndex() >= 0 && abs(theSimTracks[isimtk].vertIndex()) == isimvtx ) {
+       if ( theSimTracks[isimtk].vertIndex() >= 0 && std::abs(theSimTracks[isimtk].vertIndex()) == (int)isimvtx ) {
          std::cout<<"  SimTrack " << isimtk << " = "<< theSimTracks[isimtk] 
 		  <<" Track Id = "<<theSimTracks[isimtk].trackId()<< std::endl;
 
@@ -97,7 +97,8 @@ SimTrackSimVertexDumper::analyze( const edm::Event& iEvent, const edm::EventSetu
          if (dumpHepMC ) {
            if ( theSimTracks[isimtk].genpartIndex() != -1 ) {
              HepMC::GenParticle* part = evt->barcode_to_particle( theSimTracks[isimtk].genpartIndex() ) ;
-             std::cout << "  ---> Corresponding to HepMC particle " << *part << std::endl;
+             if ( part ) { std::cout << "  ---> Corresponding to HepMC particle " << *part << std::endl; }
+             else { std::cout << " ---> Corresponding HepMC particle to barcode " << theSimTracks[isimtk].genpartIndex() << " not in selected event " << std::endl; }
            }
          }
        }

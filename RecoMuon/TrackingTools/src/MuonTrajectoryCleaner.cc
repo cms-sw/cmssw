@@ -1,17 +1,23 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2007/05/28 21:46:37 $
- *  $Revision: 1.13 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
+#include "DataFormats/TrackingRecHit/interface/RecSegment.h"                                // Daniele
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"  // Daniele
 
 using namespace std; 
 
-void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){ 
+typedef edm::AssociationMap<edm::OneToMany<L2MuonTrajectorySeedCollection, L2MuonTrajectorySeedCollection> > L2SeedAssoc;
+
+void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event) {
   const std::string metname = "Muon|RecoMuon|MuonTrajectoryCleaner";
 
   LogTrace(metname) << "Muon Trajectory Cleaner called" << endl;
@@ -19,12 +25,16 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   TrajectoryContainer::iterator iter, jter;
   Trajectory::DataContainer::const_iterator m1, m2;
 
-  if ( trajC.size() < 2 ) return;
+  if ( trajC.size() < 1 ) return;
   
   LogTrace(metname) << "Number of trajectories in the container: " <<trajC.size()<< endl;
 
   int i(0), j(0);
   int match(0);
+  int nTot1DHits_i(0), nTot1DHits_j(0);  // tot number of 1D/2D hits (including invalid)
+
+  // Map between chosen seed and ghost seeds (for trigger)
+  map<int, vector<int> > seedmap;
 
   // CAVEAT: vector<bool> is not a vector, its elements are not addressable!
   // This is fine as long as only operator [] is used as in this case.
@@ -32,45 +42,127 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   vector<bool> mask(trajC.size(),true);
   
   TrajectoryContainer result;
-  //  result.reserve(trajC.size());
   
   for ( iter = trajC.begin(); iter != trajC.end(); iter++ ) {
     if ( !mask[i] ) { i++; continue; }
+    if ( !(*iter)->isValid() || (*iter)->empty() ) {mask[i] = false; i++; continue; }
+    if(seedmap.count(i)==0) seedmap[i].push_back(i);
     const Trajectory::DataContainer& meas1 = (*iter)->measurements();
     j = i+1;
     bool skipnext=false;
     for ( jter = iter+1; jter != trajC.end(); jter++ ) {
       if ( !mask[j] ) { j++; continue; }
+      if(seedmap.count(j)==0) seedmap[j].push_back(j);
       const Trajectory::DataContainer& meas2 = (*jter)->measurements();
       match = 0;
-      for ( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
-        for ( m2 = meas2.begin(); m2 != meas2.end(); m2++ ) {
-	  if ( ( (*m1).recHit()->globalPosition() - (*m2).recHit()->globalPosition()).mag()< 10e-5 ) match++;
-        }
-      }
+      nTot1DHits_i = 0;
+      for( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
+ 	TransientTrackingRecHit::ConstRecHitContainer trhC1;
+ 	if((*m1).recHit()->dimension()==4) trhC1 = MuonTransientTrackingRecHitBreaker::breakInSubRecHits((*m1).recHit(), 2);
+ 	else trhC1.push_back((*m1).recHit());
+	for( TransientTrackingRecHit::ConstRecHitContainer::const_iterator trh1=trhC1.begin(); trh1!=trhC1.end(); ++trh1, ++nTot1DHits_i) {
+	  nTot1DHits_j = 0;
+	  for( m2 = meas2.begin(); m2 != meas2.end(); m2++ ) {
+	    TransientTrackingRecHit::ConstRecHitContainer trhC2;
+	    if((*m2).recHit()->dimension()==4) trhC2 = MuonTransientTrackingRecHitBreaker::breakInSubRecHits((*m2).recHit(), 2);
+	    else trhC2.push_back((*m2).recHit());
+	    for( TransientTrackingRecHit::ConstRecHitContainer::const_iterator trh2=trhC2.begin(); trh2!=trhC2.end(); ++trh2, ++nTot1DHits_j) {
+	      if( ( (*trh1)->globalPosition() - (*trh2)->globalPosition()).mag() < 10e-5 ) match++;
+	      //	  if ( ( (*m1).recHit()->globalPosition() - (*m2).recHit()->globalPosition()).mag()< 10e-5 ) match++;
+	    } // end for( trh2 ... )
+	  } // end for( m2 ... )
+        } // end for( trh1 ... )
+      } // end for( m1 ... )
       
-      LogTrace(metname) 
-	<< " MuonTrajSelector: trajC " << i << " chi2/nRH = " 
-	<< (*iter)->chiSquared() << "/" << (*iter)->foundHits() <<
-	" vs trajC " << j << " chi2/nRH = " << (*jter)->chiSquared() <<
-	"/" << (*jter)->foundHits() << " Shared RecHits: " << match;
-       
+
+      int nTotHits_i = (*iter)->measurements().size();
+      int nTotHits_j = (*jter)->measurements().size();
+
+      // FIXME Set Boff/on via cfg!
+      double chi2_dof_i = (*iter)->ndof() > 0 ? (*iter)->chiSquared()/(*iter)->ndof() : (*iter)->chiSquared()/1e-10;
+      double chi2_dof_j = (*jter)->ndof() > 0 ? (*jter)->chiSquared()/(*jter)->ndof() : (*jter)->chiSquared()/1e-10;
+
+      LogTrace(metname) << " MuonTrajectoryCleaner:";
+      LogTrace(metname) << " * trajC " << i 
+			<< " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() 
+			<< " GeV) - chi2/nDOF = " << (*iter)->chiSquared() << "/" << (*iter)->ndof() << " = " << chi2_dof_i;
+      LogTrace(metname)	<< "     - valid RH = " << (*iter)->foundHits() << " / total RH = " <<  nTotHits_i << " / total 1D RH = " << nTot1DHits_i;
+      LogTrace(metname)	<< " * trajC " << j 
+			<< " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() 
+			<< " GeV) - chi2/nDOF = " << (*jter)->chiSquared() << "/" << (*jter)->ndof() << " = " << chi2_dof_j;
+      LogTrace(metname)	<< "     - valid RH = " << (*jter)->foundHits() << " / total RH = " <<  nTotHits_j << " / total 1D RH = " << nTot1DHits_j;
+      LogTrace(metname)	<< " *** Shared 1D RecHits: " << match;
+
+      int hit_diff =  (*iter)->foundHits() - (*jter)->foundHits() ;       
       // If there are matches, reject the worst track
       if ( match > 0 ) {
-        if (  (*iter)->foundHits() == (*jter)->foundHits() ) {
-          if ( (*iter)->chiSquared() > (*jter)->chiSquared() ) {
+        // If the difference of # of rechits is less than 4, compare the chi2/ndf
+        if ( abs(hit_diff) <= 4  ) {
+
+	  double minPt = 3.5;
+	  double dPt = 7.;  // i.e. considering 10% (conservative!) resolution at minPt it is ~ 10 sigma away from the central value
+
+	  double maxFraction = 0.95;
+
+       	  double fraction = (2.*match)/((*iter)->measurements().size()+(*jter)->measurements().size());
+	  int belowLimit = 0;
+	  int above = 0;
+
+	  if((*jter)->lastMeasurement().updatedState().globalMomentum().perp() <= minPt) ++belowLimit; 
+	  if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() <= minPt) ++belowLimit; 
+	 
+	  if((*jter)->lastMeasurement().updatedState().globalMomentum().perp() >= dPt) ++above; 
+	  if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() >= dPt) ++above; 
+	  
+
+	  if(fraction >= maxFraction && belowLimit == 1 && above == 1){
+	    if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() < minPt){
+	      mask[i] = false;
+	      skipnext=true;
+	      seedmap[j].insert(seedmap[j].end(), seedmap[i].begin(), seedmap[i].end());
+	      seedmap.erase(i);
+	      LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() 
+				<< " GeV) rejected because it has too low pt";
+	    } 
+	    else {
+	      mask[j] = false;
+	      seedmap[i].insert(seedmap[i].end(), seedmap[j].begin(), seedmap[j].end());
+	      seedmap.erase(j);
+	      LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() 
+				<< " GeV) rejected because it has too low pt";
+	    }
+	  }
+	  else{   
+	    if (chi2_dof_i  > chi2_dof_j) {
+	      mask[i] = false;
+	      skipnext=true;
+	      seedmap[j].insert(seedmap[j].end(), seedmap[i].begin(), seedmap[i].end());
+	      seedmap.erase(i);
+	      LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
+	    }
+	    else{
+	      mask[j] = false;
+	      seedmap[i].insert(seedmap[i].end(), seedmap[j].begin(), seedmap[j].end());
+	      seedmap.erase(j);
+	      LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
+	    }
+	  }
+	}
+        else { // different number of hits
+          if ( hit_diff < 0 ) {
             mask[i] = false;
             skipnext=true;
+	    seedmap[j].insert(seedmap[j].end(), seedmap[i].begin(), seedmap[i].end());
+	    seedmap.erase(i);
+	    LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
           }
-          else mask[j] = false;
-        }
-        else { // different number of hits
-          if ( (*iter)->foundHits() < (*jter)->foundHits() ) {
-	    mask[i] = false;
-            skipnext=true;
-          }
-          else mask[j] = false;
-	}
+          else { 
+	    mask[j] = false;
+	    seedmap[i].insert(seedmap[i].end(), seedmap[j].begin(), seedmap[j].end());
+	    seedmap.erase(j);
+	    LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
+	  }
+        } 
       }
       if(skipnext) break;
       j++;
@@ -79,13 +171,40 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
     if(skipnext) continue;
   }
   
+
+  // Association map between the seed of the chosen trajectory and the seeds of the discarded trajectories
+  if(reportGhosts_) {
+    LogTrace(metname) << " Creating map between chosen seed and ghost seeds." << std::endl;
+
+    auto_ptr<L2SeedAssoc> seedToSeedsMap(new L2SeedAssoc);
+    int seedcnt(0);
+
+    for(map<int, vector<int> >::iterator itmap=seedmap.begin(); itmap!=seedmap.end(); ++itmap, ++seedcnt) {
+      edm::RefToBase<TrajectorySeed> tmpSeedRef1 = trajC[(*itmap).first]->seedRef();
+      edm::Ref<L2MuonTrajectorySeedCollection> tmpL2SeedRef1 = tmpSeedRef1.castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
+
+      int tmpsize=(*itmap).second.size();
+      for(int cnt=0; cnt!=tmpsize; ++cnt) {
+	edm::RefToBase<TrajectorySeed> tmpSeedRef2 = trajC[(*itmap).second[cnt]]->seedRef();
+	edm::Ref<L2MuonTrajectorySeedCollection> tmpL2SeedRef2 = tmpSeedRef2.castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
+	seedToSeedsMap->insert(tmpL2SeedRef1, tmpL2SeedRef2);
+      }
+    }
+
+    event.put(seedToSeedsMap, "");
+
+  } // end if(reportGhosts_)
+
   i = 0;
   for ( iter = trajC.begin(); iter != trajC.end(); iter++ ) {
-    if ( mask[i] ) result.push_back(*iter);
+    if ( mask[i] ){
+      result.push_back(*iter);
+      LogTrace(metname) << "Keep trajectory with pT = " << (*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV";
+    }
     else delete *iter;
     i++;
   }
-  
+
   trajC.clear();
   trajC = result;
 }
@@ -111,7 +230,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
 
   int i(0), j(0);
   int match(0);
-  bool directionMatch = false;
+  //unused  bool directionMatch = false;
 
   // CAVEAT: vector<bool> is not a vector, its elements are not addressable!
   // This is fine as long as only operator [] is used as in this case.
@@ -133,16 +252,15 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
     } 
     else if ((*iter)->trajectory()->direction() == oppositeToMomentum) { 
       innerTSOS = (*iter)->trajectory()->lastMeasurement().updatedState();
-    }
+	 }
     if ( !(innerTSOS.isValid()) ) continue;
-
     float pt1 = innerTSOS.globalMomentum().perp();
     float eta1 = innerTSOS.globalMomentum().eta();
     float phi1 = innerTSOS.globalMomentum().phi();
 
     for ( jter = iter+1; jter != candC.end(); jter++ ) {
       if ( !mask[j] ) { j++; continue; }
-      directionMatch = false;
+      //UNUSED:      directionMatch = false;
       const Trajectory::DataContainer& meas2 = (*jter)->trajectory()->measurements();
       match = 0;
       for ( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
@@ -153,7 +271,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
       }
       
       LogTrace(metname) 
-	<< " MuonTrajSelector: candC " << i << " chi2/nRH = " 
+	<< " MuonTrajectoryCleaner: candC " << i << " chi2/nRH = " 
 	<< (*iter)->trajectory()->chiSquared() << "/" << (*iter)->trajectory()->foundHits() <<
 	" vs trajC " << j << " chi2/nRH = " << (*jter)->trajectory()->chiSquared() <<
 	"/" << (*jter)->trajectory()->foundHits() << " Shared RecHits: " << match;
@@ -173,19 +291,22 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
 
       float deta(fabs(eta1-eta2));
       float dphi(fabs(Geom::Phi<float>(phi1)-Geom::Phi<float>(phi2)));
-      float dpt(abs(pt1-pt2));
+      float dpt(fabs(pt1-pt2));
       if ( dpt < deltaPt && deta < deltaEta && dphi < deltaPhi ) {
-        directionMatch = true;
+	//UNUSED:        directionMatch = true;
         LogTrace(metname)
-        << " MuonTrajSelector: candC " << i<<" and "<<j<< " direction matched: "
+        << " MuonTrajectoryCleaner: candC " << i<<" and "<<j<< " direction matched: "
         <<innerTSOS.globalMomentum()<<" and " <<innerTSOS2.globalMomentum();
-
       }
-      
+
       // If there are matches, reject the worst track
-      bool hitsMatch = ((match > 0) && (match/((*iter)->trajectory()->foundHits()) > 0.25) || (match/((*jter)->trajectory()->foundHits()) > 0.25)) ? true : false;
-      
-      if ( (hitsMatch > 0) || directionMatch ) {
+      bool hitsMatch = ((match > 0) && ((match/((*iter)->trajectory()->foundHits()) > 0.25) || (match/((*jter)->trajectory()->foundHits()) > 0.25))) ? true : false;
+      bool tracksMatch = 
+      ( ( (*iter)->trackerTrack() == (*jter)->trackerTrack() ) && 
+        ( deltaR<double>((*iter)->muonTrack()->eta(),(*iter)->muonTrack()->phi(), (*jter)->muonTrack()->eta(),(*jter)->muonTrack()->phi()) < 0.2) );
+
+      //if ( ( tracksMatch ) || (hitsMatch > 0) || directionMatch ) {
+			if ( ( tracksMatch ) || (hitsMatch > 0) ) { 
 	if (  (*iter)->trajectory()->foundHits() == (*jter)->trajectory()->foundHits() ) {
           if ( (*iter)->trajectory()->chiSquared() > (*jter)->trajectory()->chiSquared() ) {
             mask[i] = false;
@@ -210,10 +331,17 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
   
   i = 0;
   for ( iter = candC.begin(); iter != candC.end(); iter++ ) {
-    if ( mask[i] ) result.push_back(*iter);
+    if ( mask[i] ) {
+       result.push_back(*iter);
+    } else {
+       delete (*iter)->trajectory();
+       delete (*iter)->trackerTrajectory();
+       delete *iter;
+    } 
     i++;
   }
   
   candC.clear();
   candC = result;
 }
+

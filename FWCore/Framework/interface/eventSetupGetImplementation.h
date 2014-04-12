@@ -21,15 +21,21 @@
 // system include files
 
 // user include files
+#include "FWCore/Framework/interface/HCMethods.h"
+#include "FWCore/Framework/interface/NoRecordException.h"
 
-// forward declarations
 namespace edm {
-   class EventSetup;
+  class EventSetup;
    namespace eventsetup {
-      
       template< class T>
-         void eventSetupGetImplementation(EventSetup const &,
-                                       T const *&);
+      inline void eventSetupGetImplementation(EventSetup const& iEventSetup, T const*& iValue) {
+         T const* temp = heterocontainer::find<EventSetupRecordKey, T const>(iEventSetup);
+         if(0 == temp) {
+            throw NoRecordException<T>();
+         }
+         iValue = temp;
+      }
    }
 }
+
 #endif

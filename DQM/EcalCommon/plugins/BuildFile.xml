@@ -1,0 +1,4 @@
+<use   name="DQM/EcalCommon"/>
+<library file="*.cc" name="DQMEcalCommonPlugins">
+   <flags EDM_PLUGIN="1"/>
+</library>

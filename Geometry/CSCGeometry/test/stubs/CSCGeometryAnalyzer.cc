@@ -1,12 +1,9 @@
 #include <memory>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 //#include <Geometry/CommonDetUnit/interface/TrackingGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
@@ -69,7 +66,11 @@ void
    std::cout << " I have "<<pDD->layers().size()      << " layers" << std::endl;
    std::cout << " I have "<<pDD->chambers().size()    << " chambers" << std::endl;
 
-
+   std::cout << " Ganged strips? " << pDD->gangedStrips() << std::endl;
+   std::cout << " Wires only?    " << pDD->wiresOnly() << std::endl;
+   std::cout << " Real wire geometry? " << pDD->realWireGeometry() << std::endl;
+   std::cout << " Use offsets to coi? " << pDD->centreTIOffsets() << std::endl;
+   
    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
    std::cout << "iter " << dashedLine_ << std::endl;
 
@@ -161,13 +162,14 @@ void
         double cphiDeg = gCentre.phi().degrees();
 
 	// I want to display in range 0 to 360
-        if ( cphiDeg < 0. ) {
+	if ( fabs(cphiDeg) < 1.e-06 ) {
+          cphiDeg = 0.;
+	}
+        else if ( cphiDeg < 0. ) {
           cphiDeg += 360.;
 	}
-
-	// Clean up occasional bizarreness
-        if ( cphiDeg >= 360. ) {
-	  // std::cout << "WARNING: resetting phi= " << cphiDeg << " to zero." << std::endl;
+        else if ( cphiDeg >= 360. ) {
+	  std::cout << "WARNING: resetting phi= " << cphiDeg << " to zero." << std::endl;
           cphiDeg = 0.;
 	}
 
@@ -195,11 +197,12 @@ void
 
 	// Clean up some stupid floating decimal aesthetics
         cstrip1 = cstrip1 * radToDeg;
-        if ( cstrip1 < 0. ) cstrip1 += 360.;
         if ( fabs( cstrip1 ) < 1.e-06 ) cstrip1 = 0.;
+        else if ( cstrip1 < 0. ) cstrip1 += 360.;
+
         cstripN = cstripN * radToDeg;
-        if ( cstripN < 0. ) cstripN += 360.;
         if ( fabs( cstripN ) < 1.e-06 ) cstripN = 0.;
+        else if ( cstripN < 0. ) cstripN += 360.;
 
         if ( fabs( stripoff ) < 1.e-06 ) stripoff = 0.;
 
@@ -217,7 +220,7 @@ void
 
         // Layer geometry:  layer corner phi's...
 
-	std::vector<float> parameters = layer->geometry()->parameters();
+	std::array<const float, 4> const & parameters = layer->geometry()->parameters();
         // these parameters are half-lengths, due to GEANT
         float hBottomEdge = parameters[0];
         float hTopEdge    = parameters[1];

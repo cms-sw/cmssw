@@ -21,7 +21,7 @@
 
 
 class ParticlePropagator;
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class BremsstrahlungSimulator : public MaterialEffectsSimulator
 {
@@ -29,8 +29,7 @@ class BremsstrahlungSimulator : public MaterialEffectsSimulator
 
   /// Constructor
   BremsstrahlungSimulator(double photonEnergyCut, 
-			  double photonFractECut,
-			  const RandomEngine* engine); 
+			  double photonFractECut);
 
   /// Default destructor
   ~BremsstrahlungSimulator() {}
@@ -47,18 +46,19 @@ class BremsstrahlungSimulator : public MaterialEffectsSimulator
   double xmin;
 
   /// Generate numbers according to a Poisson distribution of mean ymu.
-  unsigned int poisson(double ymu);
+  unsigned int poisson(double ymu, RandomEngineAndDistribution const*);
 
   /// Generate Bremsstrahlung photons
-  void compute(ParticlePropagator &Particle);
+  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*);
 
   /// Compute Brem photon energy and angles, if any.
-  XYZTLorentzVector brem(ParticlePropagator& p) const;
+  XYZTLorentzVector brem(ParticlePropagator& p, RandomEngineAndDistribution const*) const;
 
   /// A universal angular distribution - still from GEANT.
   double gbteth(const double ener,
 		const double partm,
-		const double efrac) const;
+		const double efrac,
+                RandomEngineAndDistribution const*) const;
 
 };
 #endif

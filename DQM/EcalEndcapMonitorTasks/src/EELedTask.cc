@@ -1,68 +1,73 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/07/03 15:37:10 $
- * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
-#include <fstream>
+#include <sstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
+#include "DQM/EcalCommon/interface/NumbersPn.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EELedTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EELedTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EELedTask::EELedTask(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
+EELedTask::EELedTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
-  for (int i = 0; i < 18 ; i++) {
-    meShapeMapA_[i] = 0;
-    meAmplMapA_[i] = 0;
-    meTimeMapA_[i] = 0;
-    meAmplPNMapA_[i] = 0;
-    meShapeMapB_[i] = 0;
-    meAmplMapB_[i] = 0;
-    meTimeMapB_[i] = 0;
-    meAmplPNMapB_[i] = 0;
-    mePnAmplMapG01_[i] = 0;
-    mePnPedMapG01_[i] = 0;
-    mePnAmplMapG16_[i] = 0;
-    mePnPedMapG16_[i] = 0;
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EEDigiCollection_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEDigiCollection"));
+  EcalPnDiodeDigiCollection_ = consumes<EcalPnDiodeDigiCollection>(ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection"));
+  EcalUncalibratedRecHitCollection_ = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection"));
+
+  // vector of enabled wavelengths (Default to all 2)
+  ledWavelengths_.reserve(2);
+  for ( unsigned int i = 1; i <= 2; i++ ) ledWavelengths_.push_back(i);
+  ledWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("ledWavelengths", ledWavelengths_);
+
+  for (int i = 0; i < 18; i++) {
+    meShapeMapL1_[i] = 0;
+    meAmplMapL1_[i] = 0;
+    meTimeMapL1_[i] = 0;
+    meAmplPNMapL1_[i] = 0;
+    mePnAmplMapG01L1_[i] = 0;
+    mePnPedMapG01L1_[i] = 0;
+    mePnAmplMapG16L1_[i] = 0;
+    mePnPedMapG16L1_[i] = 0;
+
+    meShapeMapL2_[i] = 0;
+    meAmplMapL2_[i] = 0;
+    meTimeMapL2_[i] = 0;
+    meAmplPNMapL2_[i] = 0;
+    mePnAmplMapG01L2_[i] = 0;
+    mePnPedMapG01L2_[i] = 0;
+    mePnAmplMapG16L2_[i] = 0;
+    mePnPedMapG16L2_[i] = 0;
   }
 
 }
@@ -71,14 +76,62 @@ EELedTask::~EELedTask(){
 
 }
 
-void EELedTask::beginJob(const EventSetup& c){
+void EELedTask::beginJob(void){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask");
-    dbe_->rmdir("EcalEndcap/EELedTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask");
+    dqmStore_->rmdir(prefixME_ + "/EELedTask");
   }
+
+}
+
+void EELedTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EELedTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+      if ( meShapeMapL1_[i] )  meShapeMapL1_[i]->Reset();
+      if ( meAmplMapL1_[i] ) meAmplMapL1_[i]->Reset();
+      if ( meTimeMapL1_[i] ) meTimeMapL1_[i]->Reset();
+      if ( meAmplPNMapL1_[i] ) meAmplPNMapL1_[i]->Reset();
+    }
+
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+      if ( meShapeMapL2_[i] )  meShapeMapL2_[i]->Reset();
+      if ( meAmplMapL2_[i] ) meAmplMapL2_[i]->Reset();
+      if ( meTimeMapL2_[i] ) meTimeMapL2_[i]->Reset();
+      if ( meAmplPNMapL2_[i] ) meAmplPNMapL2_[i]->Reset();
+    }
+
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+      if ( mePnAmplMapG01L1_[i] ) mePnAmplMapG01L1_[i]->Reset();
+      if ( mePnPedMapG01L1_[i] ) mePnPedMapG01L1_[i]->Reset();
+
+      if ( mePnAmplMapG16L1_[i] ) mePnAmplMapG16L1_[i]->Reset();
+      if ( mePnPedMapG16L1_[i] ) mePnPedMapG16L1_[i]->Reset();
+    }
+
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+      if ( mePnAmplMapG01L2_[i] ) mePnAmplMapG01L2_[i]->Reset();
+      if ( mePnPedMapG01L2_[i] ) mePnPedMapG01L2_[i]->Reset();
+
+      if ( mePnAmplMapG16L2_[i] ) mePnAmplMapG16L2_[i]->Reset();
+      if ( mePnPedMapG16L2_[i] ) mePnPedMapG16L2_[i]->Reset();
+    }
+  }
+
+}
+
+void EELedTask::reset(void) {
 
 }
 
@@ -86,57 +139,156 @@ void EELedTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  std::string name;
+  std::stringstream LedN, LN;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask");
 
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EELDT shape %s A", Numbers::sEE(i+1).c_str());
-      meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapA_[i], i+1);
-      sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(i+1).c_str());
-      meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapA_[i], i+1);
-      sprintf(histo, "EELDT timing %s A", Numbers::sEE(i+1).c_str());
-      meTimeMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapA_[i], i+1);
-      sprintf(histo, "EELDT amplitude over PN %s A", Numbers::sEE(i+1).c_str());
-      meAmplPNMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapA_[i], i+1);
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, "EELDT shape %s B", Numbers::sEE(i+1).c_str());
-      meShapeMapB_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapB_[i], i+1);
-      sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(i+1).c_str());
-      meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapB_[i], i+1);
-      sprintf(histo, "EELDT timing %s B", Numbers::sEE(i+1).c_str());
-      meTimeMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapB_[i], i+1);
-      sprintf(histo, "EELDT amplitude over PN %s B", Numbers::sEE(i+1).c_str());
-      meAmplPNMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapB_[i], i+1);
+      LedN.str("");
+      LedN << "Led" << 1;
+      LN.str("");
+      LN << "L" << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EELDT shape " + Numbers::sEE(i+1) + " " + LN.str();
+        meShapeMapL1_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+        meShapeMapL1_[i]->setAxisTitle("channel", 1);
+        meShapeMapL1_[i]->setAxisTitle("sample", 2);
+        meShapeMapL1_[i]->setAxisTitle("amplitude", 3);
+        dqmStore_->tag(meShapeMapL1_[i], i+1);
+
+	name = "EELDT amplitude " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplMapL1_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplMapL1_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL1_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapL1_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplMapL1_[i], i+1);
+
+	name = "EELDT timing " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meTimeMapL1_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+        meTimeMapL1_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL1_[i]->setAxisTitle("101-ix", 1);
+        meTimeMapL1_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meTimeMapL1_[i], i+1);
+
+	name = "EELDT amplitude over PN " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplPNMapL1_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplPNMapL1_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL1_[i]->setAxisTitle("101-ix", 1);
+        meAmplPNMapL1_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplPNMapL1_[i], i+1);
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN");
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN/Gain01");
+      for (int i = 0; i < 18; i++) {
+	name = "EELDT PNs amplitude " + Numbers::sEE(i+1) + " G01 " + LN.str();
+        mePnAmplMapG01L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG01L1_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG01L1_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG01L1_[i], i+1);
+
+	name = "EELDT PNs pedestal " + Numbers::sEE(i+1) + " G01 " + LN.str();
+        mePnPedMapG01L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG01L1_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG01L1_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG01L1_[i], i+1);
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN/Gain16");
+
+      for (int i = 0; i < 18; i++) {
+	name = "EELDT PNs amplitude " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnAmplMapG16L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG16L1_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG16L1_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG16L1_[i], i+1);
+
+	name = "EELDT PNs pedestal " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnPedMapG16L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG16L1_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG01_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG01_[i], i+1);
-    }
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG16_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG16_[i], i+1);
+      LedN.str("");
+      LedN << "Led" << 2;
+      LN.str("");
+      LN << "L" << 2;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EELDT shape " + Numbers::sEE(i+1) + " " + LN.str();
+        meShapeMapL2_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+        meShapeMapL2_[i]->setAxisTitle("channel", 1);
+        meShapeMapL2_[i]->setAxisTitle("sample", 2);
+        meShapeMapL2_[i]->setAxisTitle("amplitude", 3);
+        dqmStore_->tag(meShapeMapL2_[i], i+1);
+
+	name = "EELDT amplitude " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplMapL2_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL2_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapL2_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplMapL2_[i], i+1);
+
+	name = "EELDT timing " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meTimeMapL2_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+        meTimeMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL2_[i]->setAxisTitle("101-ix", 1);
+        meTimeMapL2_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meTimeMapL2_[i], i+1);
+
+	name = "EELDT amplitude over PN " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplPNMapL2_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplPNMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL2_[i]->setAxisTitle("101-ix", 1);
+        meAmplPNMapL2_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplPNMapL2_[i], i+1);
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN");
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN/Gain01");
+      for (int i = 0; i < 18; i++) {
+	name = "EELDT PNs amplitude " + Numbers::sEE(i+1) + " G01 " + LN.str();
+        mePnAmplMapG01L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG01L2_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG01L2_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG01L2_[i], i+1);
+
+	name = "EELDT PNs pedestal " + Numbers::sEE(i+1) + " G01 " + LN.str();
+        mePnPedMapG01L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG01L2_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG01L2_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG01L2_[i], i+1);
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN/Gain16");
+
+      for (int i = 0; i < 18; i++) {
+	name = "EELDT PNs amplitude " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnAmplMapG16L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG16L2_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG16L2_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG16L2_[i], i+1);
+
+	name = "EELDT PNs pedestal " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnPedMapG16L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG16L2_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG16L2_[i], i+1);
+      }
+
     }
 
   }
@@ -145,45 +297,85 @@ void EELedTask::setup(void){
 
 void EELedTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask");
 
-    for (int i = 0; i < 18 ; i++) {
-      if ( meShapeMapA_[i] )  dbe_->removeElement( meShapeMapA_[i]->getName() );
-      meShapeMapA_[i] = 0;
-      if ( meAmplMapA_[i] ) dbe_->removeElement( meAmplMapA_[i]->getName() );
-      meAmplMapA_[i] = 0;
-      if ( meTimeMapA_[i] ) dbe_->removeElement( meTimeMapA_[i]->getName() );
-      meTimeMapA_[i] = 0;
-      if ( meAmplPNMapA_[i] ) dbe_->removeElement( meAmplPNMapA_[i]->getName() );
-      meAmplPNMapA_[i] = 0;
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      if ( meShapeMapB_[i] )  dbe_->removeElement( meShapeMapB_[i]->getName() );
-      meShapeMapB_[i] = 0;
-      if ( meAmplMapB_[i] ) dbe_->removeElement( meAmplMapB_[i]->getName() );
-      meAmplMapB_[i] = 0;
-      if ( meTimeMapB_[i] ) dbe_->removeElement( meTimeMapB_[i]->getName() );
-      meTimeMapB_[i] = 0;
-      if ( meAmplPNMapB_[i] ) dbe_->removeElement( meAmplPNMapB_[i]->getName() );
-      meAmplPNMapB_[i] = 0;
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led1");
+      for (int i = 0; i < 18; i++) {
+        if ( meShapeMapL1_[i] )  dqmStore_->removeElement( meShapeMapL1_[i]->getName() );
+        meShapeMapL1_[i] = 0;
+        if ( meAmplMapL1_[i] ) dqmStore_->removeElement( meAmplMapL1_[i]->getName() );
+        meAmplMapL1_[i] = 0;
+        if ( meTimeMapL1_[i] ) dqmStore_->removeElement( meTimeMapL1_[i]->getName() );
+        meTimeMapL1_[i] = 0;
+        if ( meAmplPNMapL1_[i] ) dqmStore_->removeElement( meAmplPNMapL1_[i]->getName() );
+        meAmplPNMapL1_[i] = 0;
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG01_[i] ) dbe_->removeElement( mePnAmplMapG01_[i]->getName() );
-      mePnAmplMapG01_[i] = 0;
-      if ( mePnPedMapG01_[i] ) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
-      mePnPedMapG01_[i] = 0;
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led2");
+      for (int i = 0; i < 18; i++) {
+        if ( meShapeMapL2_[i] )  dqmStore_->removeElement( meShapeMapL2_[i]->getName() );
+        meShapeMapL2_[i] = 0;
+        if ( meAmplMapL2_[i] ) dqmStore_->removeElement( meAmplMapL2_[i]->getName() );
+        meAmplMapL2_[i] = 0;
+        if ( meTimeMapL2_[i] ) dqmStore_->removeElement( meTimeMapL2_[i]->getName() );
+        meTimeMapL2_[i] = 0;
+        if ( meAmplPNMapL2_[i] ) dqmStore_->removeElement( meAmplPNMapL2_[i]->getName() );
+        meAmplPNMapL2_[i] = 0;
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG16_[i] ) dbe_->removeElement( mePnAmplMapG16_[i]->getName() );
-      mePnAmplMapG16_[i] = 0;
-      if ( mePnPedMapG16_[i] ) dbe_->removeElement( mePnPedMapG16_[i]->getName() );
-      mePnPedMapG16_[i] = 0;
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led1/PN");
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led1/PN/Gain01");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG01L1_[i] ) dqmStore_->removeElement( mePnAmplMapG01L1_[i]->getName() );
+        mePnAmplMapG01L1_[i] = 0;
+        if ( mePnPedMapG01L1_[i] ) dqmStore_->removeElement( mePnPedMapG01L1_[i]->getName() );
+        mePnPedMapG01L1_[i] = 0;
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led1/PN/Gain16");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG16L1_[i] ) dqmStore_->removeElement( mePnAmplMapG16L1_[i]->getName() );
+        mePnAmplMapG16L1_[i] = 0;
+        if ( mePnPedMapG16L1_[i] ) dqmStore_->removeElement( mePnPedMapG16L1_[i]->getName() );
+        mePnPedMapG16L1_[i] = 0;
+      }
+
+    }
+
+    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led2/PN");
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led2/PN/Gain01");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG01L2_[i] ) dqmStore_->removeElement( mePnAmplMapG01L2_[i]->getName() );
+        mePnAmplMapG01L2_[i] = 0;
+        if ( mePnPedMapG01L2_[i] ) dqmStore_->removeElement( mePnPedMapG01L2_[i]->getName() );
+        mePnPedMapG01L2_[i] = 0;
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led2/PN/Gain16");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG16L2_[i] ) dqmStore_->removeElement( mePnAmplMapG16L2_[i]->getName() );
+        mePnAmplMapG16L2_[i] = 0;
+        if ( mePnPedMapG16L2_[i] ) dqmStore_->removeElement( mePnPedMapG16L2_[i]->getName() );
+        mePnPedMapG16L2_[i] = 0;
+      }
+
     }
 
   }
@@ -194,41 +386,44 @@ void EELedTask::cleanup(void){
 
 void EELedTask::endJob(void){
 
-  LogInfo("EELedTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EELedTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EELedTask::analyze(const Event& e, const EventSetup& c){
+void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[18];
+  for (int i=0; i<18; i++) runType[i] = -1;
+  unsigned rtHalf[18];
+  for (int i=0; i<18; i++) rtHalf[i] = -1;
+  int waveLength[18];
+  for (int i=0; i<18; i++) waveLength[i] = -1;
 
-  try {
+  edm::Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( dcch ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
+      runType[ism-1] = dcchItr->getRunType();
+      rtHalf[ism-1] = dcchItr->getRtHalf();
+      waveLength[ism-1] = dcchItr->getEventSettings().wavelength;
 
-      dccMap[ ism ] = dcch;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::LED_STD ||
-           dcch.getRunType() == EcalDCCHeaderBlock::LED_GAP ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LED_STD ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::LED_GAP ) enable = true;
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EELedTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EELedTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -238,124 +433,170 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  bool numPN[80];
+  float adcPN[80];
+  for ( int i = 0; i < 80; i++ ) {
+    numPN[i] = false;
+    adcPN[i] = 0.;
+  }
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  std::vector<int> PNs;
+  PNs.reserve(12);
 
-    int nebd = digis->size();
-    LogDebug("EELedTask") << "event " << ievt_ << " digi collection size " << nebd;
+  edm::Handle<EEDigiCollection> digis;
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+  if ( e.getByToken(EEDigiCollection_, digis) ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+    int maxpos[10];
+    for(int i(0); i < 10; i++)
+      maxpos[i] = 0;
+    int nReadouts(0);
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      EEDetId id = digiItr->id();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      int ism = Numbers::iSM( id );
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
-      LogDebug("EELedTask") << " det id = " << id;
-      LogDebug("EELedTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
+
+      nReadouts++;
+
+      EEDataFrame dataframe = (*digiItr);
+
+      int iMax(-1);
+      float max(0.);
+      float min(4096.);
+      for (int i = 0; i < 10; i++) {
+        int adc = dataframe.sample(i).adc();
+	if(adc > max){
+	  max = adc;
+	  iMax = i;
+	}
+	if(adc < min)
+	  min = adc;
+      }
+      if(iMax >= 0 && max - min > 20.)
+	maxpos[iMax] += 1;
+
+    }
+
+    int threshold(nReadouts / 2);
+    enable = false;
+    for(int i(0); i < 10; i++){
+      if(maxpos[i] > threshold){
+	enable = true;
+	break;
+      }
+    }
+
+    if(!enable) return;
+
+    int need = digis->size();
+    LogDebug("EELedTask") << "event " << ievt_ << " digi collection size " << need;
+
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+
+      EEDetId id = digiItr->id();
+
+      int ix = id.ix();
+      int iy = id.iy();
+
+      int ism = Numbers::iSM( id );
+
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
+
+      if ( runType[ism-1] == EcalDCCHeaderBlock::LED_GAP &&
+           rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
+
+      int ic = Numbers::icEE(ism, ix, iy);
+
+      EEDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 10; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
-        float gain = 1.;
+        int adc = dataframe.sample(i).adc();
 
         MonitorElement* meShapeMap = 0;
 
-        if ( sample.gainId() == 1 ) gain = 1./12.;
-        if ( sample.gainId() == 2 ) gain = 1./ 6.;
-        if ( sample.gainId() == 3 ) gain = 1./ 1.;
+        if ( Numbers::RtHalf(id) == 0 || Numbers::RtHalf(id) == 1 ) {
 
-        if ( ie < 6 || ip > 10 ) {
-
-          meShapeMap = meShapeMapA_[ism-1];
+          if ( waveLength[ism-1] == 0 ) meShapeMap = meShapeMapL1_[ism-1];
+          if ( waveLength[ism-1] == 2 ) meShapeMap = meShapeMapL2_[ism-1];
 
         } else {
 
-          meShapeMap = meShapeMapB_[ism-1];
+          edm::LogWarning("EELedTask") << " RtHalf = " << Numbers::RtHalf(id);
 
         }
 
-//        float xval = float(adc) * gain;
         float xval = float(adc);
 
         if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
 
       }
 
+      NumbersPn::getPNs( ism, ix, iy, PNs );
+
+      for (unsigned int i=0; i<PNs.size(); i++) {
+        int ipn = PNs[i];
+        if ( ipn >= 0 && ipn < 80 ) numPN[ipn] = true;
+      }
+
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EELedTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EELedTask") << "EEDigiCollection not available";
 
   }
 
-  float adcA[18];
-  float adcB[18];
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
-  for ( int i = 0; i < 18; i++ ) {
-    adcA[i] = 0.;
-    adcB[i] = 0.;
-  }
-
-  try {
-
-    Handle<EcalPnDiodeDigiCollection> pns;
-    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+  if ( e.getByToken(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EELedTask") << "event " << ievt_ << " pns collection size " << nep;
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
-      EcalPnDiodeDigi pn = (*pnItr);
-      EcalPnDiodeDetId id = pn.id();
+      if ( Numbers::subDet( pnItr->id() ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( pnItr->id() );
 
-      int num = id.iPnId();
+      int num = pnItr->id().iPnId();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
+      int ipn = NumbersPn::ipnEE( ism, num );
 
-      LogDebug("EELedTask") << " det id = " << id;
-      LogDebug("EELedTask") << " sm, num " << ism << " " << num;
+      if ( ipn >= 0 && ipn < 80 && numPN[ipn] == false ) continue;
 
       float xvalped = 0.;
 
       for (int i = 0; i < 4; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         MonitorElement* mePNPed = 0;
 
-        if ( sample.gainId() == 0 ) {
-          mePNPed = mePnPedMapG01_[ism-1];
+        if ( pnItr->sample(i).gainId() == 0 ) {
+          if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
+          if ( waveLength[ism-1] == 2 ) mePNPed = mePnPedMapG01L2_[ism-1];
         }
-        if ( sample.gainId() == 1 ) {
-          mePNPed = mePnPedMapG16_[ism-1];
+        if ( pnItr->sample(i).gainId() == 1 ) {
+          if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
+          if ( waveLength[ism-1] == 2 ) mePNPed = mePnPedMapG16L2_[ism-1];
         }
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, xval);
 
         xvalped = xvalped + xval;
 
@@ -369,8 +610,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       for (int i = 0; i < 50; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         float xval = float(adc);
 
@@ -380,111 +620,122 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       xvalmax = xvalmax - xvalped;
 
-      if ( pn.sample(0).gainId() == 0 ) {
-        mePN = mePnAmplMapG01_[ism-1];
+      if ( pnItr->sample(0).gainId() == 0 ) {
+        if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
+        if ( waveLength[ism-1] == 2 ) mePN = mePnAmplMapG01L2_[ism-1];
       }
-      if ( pn.sample(0).gainId() == 1 ) {
-        mePN = mePnAmplMapG16_[ism-1];
+      if ( pnItr->sample(0).gainId() == 1 ) {
+        if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
+        if ( waveLength[ism-1] == 2 ) mePN = mePnAmplMapG16L2_[ism-1];
       }
 
-      if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
+      if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
-      if ( num == 1 ) adcA[ism-1] = xvalmax;
-      if ( num == 6 ) adcB[ism-1] = xvalmax;
+      if ( ipn >= 0 && ipn < 80 ) adcPN[ipn] = xvalmax;
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EELedTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EELedTask") << "EcalPnDiodeDigiCollection not available";
 
   }
 
-  try {
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByToken(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EELedTask") << "event " << ievt_ << " hits collection size " << neh;
 
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalUncalibratedRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EEDetId id = hitItr->id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
-      LogDebug("EELedTask") << " det id = " << id;
-      LogDebug("EELedTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( runType[ism-1] == EcalDCCHeaderBlock::LED_GAP &&
+           rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( ie < 6 || ip > 10 ) {
+      // Temporary measure to remove broken LED boxes for L1
+      if(waveLength[ism - 1] == 0){
+	if(ism == 14){
+	  EcalElectronicsId eid(Numbers::getElectronicsMapping()->getElectronicsId(id));
+	  int tower(eid.towerId());
+	  if(tower == 1 || tower == 2 || tower == 3 || tower == 4 || tower == 5 || tower == 6 || tower == 9 || tower == 15) continue;
+	}
+	else if(ism == 15){
+	  EcalElectronicsId eid(Numbers::getElectronicsMapping()->getElectronicsId(id));
+	  int tower(eid.towerId());
+	  if(tower == 3 || tower == 4 || tower == 10 || tower == 11 || tower == 12 || tower == 18 || tower == 19 || tower == 25) continue;
+	}
+      }
 
-        meAmplMap = meAmplMapA_[ism-1];
-        meTimeMap = meTimeMapA_[ism-1];
-        meAmplPNMap = meAmplPNMapA_[ism-1];
+      if ( Numbers::RtHalf(id) == 0 || Numbers::RtHalf(id) == 1 ) {
+
+        if ( waveLength[ism-1] == 0 ) {
+          meAmplMap = meAmplMapL1_[ism-1];
+          meTimeMap = meTimeMapL1_[ism-1];
+          meAmplPNMap = meAmplPNMapL1_[ism-1];
+        }
+        if ( waveLength[ism-1] == 2 ) {
+          meAmplMap = meAmplMapL2_[ism-1];
+          meTimeMap = meTimeMapL2_[ism-1];
+          meAmplPNMap = meAmplPNMapL2_[ism-1];
+        }
 
       } else {
 
-        meAmplMap = meAmplMapB_[ism-1];
-        meTimeMap = meTimeMapB_[ism-1];
-        meAmplPNMap = meAmplPNMapB_[ism-1];
+        edm::LogWarning("EELedTask") << " RtHalf = " << Numbers::RtHalf(id);
 
       }
 
-      float xval = hit.amplitude();
+      float xval = hitItr->amplitude();
       if ( xval <= 0. ) xval = 0.0;
-      float yval = hit.jitter() + 6.0;
+      float yval = hitItr->jitter() + 6.0;
       if ( yval <= 0. ) yval = 0.0;
-      float zval = hit.pedestal();
+      float zval = hitItr->pedestal();
       if ( zval <= 0. ) zval = 0.0;
 
-      LogDebug("EELedTask") << " hit amplitude " << xval;
-      LogDebug("EELedTask") << " hit jitter " << yval;
-      LogDebug("EELedTask") << " hit pedestal " << zval;
+      if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
 
-      if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
-
-      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      if ( xval > 16. ) {
+        if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
+      }
 
       float wval = 0.;
 
-      if ( ie < 6 || ip > 10 ) {
+      NumbersPn::getPNs( ism, ix, iy, PNs );
 
-        if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
-
-      } else {
-
-        if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
-
+      if ( PNs.size() > 0 ) {
+        int ipn = PNs[0];
+        if ( ipn >= 0 && ipn < 80 ) {
+          if ( adcPN[ipn] != 0. ) wval = xval / adcPN[ipn];
+        }
       }
 
-      LogDebug("EELedTask") << " hit amplitude over PN " << wval;
-
-      if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, wval);
+      if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EELedTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EELedTask") << "EcalUncalibratedRecHitCollection not available";
 
   }
 

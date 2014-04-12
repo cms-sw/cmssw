@@ -9,8 +9,12 @@
 
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
+
 #include <vector>
 
 class TFile;
@@ -28,16 +32,19 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
-  virtual bool isbc(HepMC::GenEvent evt) ;
-  virtual double parentWeight(HepMC::GenEvent evt) ;
+  virtual bool isbc(HepMC::GenEvent const & evt) ;
+  virtual double parentWeight(HepMC::GenEvent const & evt) ;
 
 private:
   // Input from cfg file
   edm::InputTag theGenLabel;
   edm::InputTag theL1CollectionLabel;
   std::vector<edm::InputTag> theHLTCollectionLabels;
+  edm::EDGetTokenT<edm::HepMCProduct> theGenToken;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> theL1CollectionToken;
+  std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> >  theHLTCollectionTokens;
   double theL1ReferenceThreshold;
   std::vector<double> theNSigmas;
   unsigned int theNumberOfObjects;

@@ -7,8 +7,6 @@
 #include <algorithm>
 #include <functional>
 
-using namespace std;
-
 /** Class to compute all distinct Combinations 
  *  of a collection 'data' of objects of type 'T'. 
  *  A Combination is a set of collections, each collection 
@@ -22,18 +20,18 @@ class CombinationGenerator {
 
 public:
 
-  typedef vector<T> Collection;
+  typedef std::vector<T> Collection;
 
-  typedef vector<Collection> Combination;
-  typedef vector<Combination> VectorOfCombinations;
+  typedef std::vector<Collection> Combination;
+  typedef std::vector<Combination> VectorOfCombinations;
 
   /** Create combinations obtained by dividing 'data' 
    *  according to all partitions with 'numberOfCollections' collections. 
    */
-  vector<Combination> 
+  std::vector<Combination> 
   combinations(const Collection & data, int numberOfCollections) const 
   {
-    vector<Combination> combinations;
+    std::vector<Combination> combinations;
     Collection sorted = data;
 
     // Sort if needed
@@ -43,18 +41,18 @@ public:
 
     // Create sorted partitions
     PartitionGenerator aPartitionGenerator;
-    vector< vector<PartitionGenerator::Partition> > partitions 
+    std::vector< std::vector<PartitionGenerator::Partition> > partitions 
       = aPartitionGenerator.sortedPartitions(data.size());
     
     // Use partitions of size 'numberOfCollections' only
-    for (vector<PartitionGenerator::Partition>::const_iterator idiv 
+    for (std::vector<PartitionGenerator::Partition>::const_iterator idiv 
 	   = partitions[numberOfCollections-1].begin(); 
 	 idiv != partitions[numberOfCollections-1].end(); idiv++) {
 
       const PartitionGenerator::Partition& partition = *idiv;
-      vector<Combination> subCombinations 
+      std::vector<Combination> subCombinations 
 	= this->combinations(data, partition);
-      for ( typename vector<Combination>::const_iterator iComb 
+      for ( typename std::vector<Combination>::const_iterator iComb 
 	     = subCombinations.begin(); 
 	   iComb != subCombinations.end(); iComb++) {
 	combinations.push_back(*iComb);
@@ -67,12 +65,12 @@ public:
   /** Create all combinations obtained by dividing 'data' 
    *  according to Partition 'partition'. 
    */
-  vector<Combination> 
+  std::vector<Combination> 
   combinations(const Collection & data,
 	       const PartitionGenerator::Partition & partition) const
   {
 
-    vector<Combination> combinations;
+    std::vector<Combination> combinations;
 
     // Check that sum of collection sizes in 'partition' 
     // amounts to number of elements in 'data' 
@@ -97,14 +95,14 @@ public:
       combinations.push_back(comb);
       return combinations;
     }
-    stack<Combination> cStack;
+    std::stack<Combination> cStack;
     cStack.push(comb);
 
     // Sort partitions by size 
     // Let 'sortedPartition' = ( n0, n1,... nk, nk+1,... nm ) 
     // Ordering is >= to speed up partitioning: n0 >= n1 >=... >= nm 
     PartitionGenerator::Partition sortedPartition = partition;
-    sort(sortedPartition.begin(), sortedPartition.end(), greater_equal<int>());
+    sort(sortedPartition.begin(), sortedPartition.end(), std::greater_equal<int>());
 
     while (!cStack.empty()) {
 
@@ -127,7 +125,7 @@ public:
 
       VectorOfCombinations subCombinations 
 	= splitInTwoCollections(combination[0], biPartition[0]);
-      for (typename vector<Combination>::const_iterator iComb = subCombinations.begin();
+      for (typename std::vector<Combination>::const_iterator iComb = subCombinations.begin();
 	   iComb != subCombinations.end(); iComb++) { 
 
 	// Check ordering of successive bins of equal size 
@@ -162,10 +160,10 @@ public:
 
   /** Create all combinations of elements from 'data'. 
    */
-  vector<Combination> combinations(const Collection & data) const 
+  std::vector<Combination> combinations(const Collection & data) const 
   {
 
-    vector<Combination> combinations;
+    std::vector<Combination> combinations;
     Collection sorted = data;
     // Sort if needed
     if (prev_permutation(sorted.begin(), sorted.end())) {
@@ -173,16 +171,16 @@ public:
     }
 
     PartitionGenerator aPartitionGenerator;
-    vector<PartitionGenerator::Partition> partitions 
+    std::vector<PartitionGenerator::Partition> partitions 
       = aPartitionGenerator.partitions(data.size());
     
-    for (vector<PartitionGenerator::Partition>::const_iterator idiv 
+    for (std::vector<PartitionGenerator::Partition>::const_iterator idiv 
 	   = partitions.begin(); idiv != partitions.end(); idiv++) {
       const PartitionGenerator::Partition& partition = *idiv;
 
-      vector<Combination> subCombinations 
+      std::vector<Combination> subCombinations 
 	= this->combinations(data, partition);
-      for ( typename vector<Combination>::const_iterator iComb 
+      for ( typename std::vector<Combination>::const_iterator iComb 
 	     = subCombinations.begin(); 
 	   iComb != subCombinations.end(); iComb++) {
 	combinations.push_back(*iComb);
@@ -200,8 +198,8 @@ private:
   VectorOfCombinations splitInTwoCollections(const Collection & data, 
 					    int sizeFirst) const
   {
-    vector<Combination> combinations;
-    stack<Combination> cStack;
+    std::vector<Combination> combinations;
+    std::stack<Combination> cStack;
 
     // Create first combination with 2 partitions
     Combination comb; comb.push_back(data); comb.push_back(Collection());
@@ -212,9 +210,9 @@ private:
       cStack.pop();
 
       Collection collection = combination[0];
-      vector<Combination> subCombinations = separateOneElement(collection);
+      std::vector<Combination> subCombinations = separateOneElement(collection);
       
-      for ( typename vector<Combination>::const_iterator iComb = subCombinations.begin();
+      for ( typename std::vector<Combination>::const_iterator iComb = subCombinations.begin();
 	   iComb != subCombinations.end(); iComb++) {
 
 	Collection second = combination[1];
@@ -252,9 +250,9 @@ private:
   /** Create all combinations obtained by dividing 'data' in two collections, 
    *  the second one having only one element. 
    */
-  vector<Combination> separateOneElement(const Collection & data) const
+  std::vector<Combination> separateOneElement(const Collection & data) const
   {
-    vector<Combination> combinations;
+    std::vector<Combination> combinations;
     for ( typename Collection::const_iterator i = data.begin(); i != data.end(); i++) {
       Combination comb;
       Collection single; single.push_back(*i);

@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripHistoTitle.cc,v 1.5 2007/06/29 10:12:43 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
@@ -24,10 +23,9 @@ SiStripHistoTitle::SiStripHistoTitle( const sistrip::HistoType& histo_type,
     channel_(sistrip::invalid_),
     extraInfo_(extra_info)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(key_object);
-  if ( &dynamic_cast<SiStripFedKey&>(temp) ) {
+  if ( &dynamic_cast<const SiStripFedKey&>(key_object) ) {
     keyType_ = sistrip::FED_KEY;
-  } else if ( &dynamic_cast<SiStripFecKey&>(temp) ) {
+  } else if ( &dynamic_cast<const SiStripFecKey&>(key_object) ) {
     keyType_ = sistrip::FEC_KEY;
   } else {
     keyType_ = sistrip::UNKNOWN_KEY;
@@ -118,7 +116,7 @@ void SiStripHistoTitle::extractTitle() {
   siz = title_.find(sistrip::sep_,position) - position;
   histoType_ = SiStripEnumsAndStrings::histoType( title_.substr(position,siz) );
   std::string histo_type = SiStripEnumsAndStrings::histoType( histoType_ );
-  position += title_.substr(position).find( histo_type ) + histo_type.size() + sistrip::sep_.size();
+  position += title_.substr(position).find( histo_type ) + histo_type.size() + (sizeof(sistrip::sep_) - 1);
   if ( histoType_ == sistrip::UNKNOWN_HISTO_TYPE ) { position = 0; }
   else if ( position >= length ) { return; }
   
@@ -126,14 +124,14 @@ void SiStripHistoTitle::extractTitle() {
   siz = title_.find(sistrip::sep_,position) - position;
   runType_ = SiStripEnumsAndStrings::runType( title_.substr(position,siz) );
   std::string run_type = SiStripEnumsAndStrings::runType( runType_ );
-  position += title_.substr(position).find( run_type ) + run_type.size() + sistrip::sep_.size();
+  position += title_.substr(position).find( run_type ) + run_type.size() + (sizeof(sistrip::sep_) - 1);
   if ( position >= length ) { return; }
   
   // Extract KeyType
   siz = title_.find(sistrip::sep_,position) - position;
   keyType_ = SiStripEnumsAndStrings::keyType( title_.substr(position,siz) );
   std::string key_type = SiStripEnumsAndStrings::keyType( keyType_ );
-  position += title_.substr(position).find( key_type ) + key_type.size() + sistrip::hex_.size();
+  position += title_.substr(position).find( key_type ) + key_type.size() + (sizeof(sistrip::hex_) - 1);
   if ( position >= length ) { return; }
   
   // Extract KeyValue
@@ -141,7 +139,7 @@ void SiStripHistoTitle::extractTitle() {
   std::stringstream key; 
   key << title_.substr(position,siz);
   key >> std::hex >> keyValue_;
-  position += siz + sistrip::sep_.size();
+  position += siz + (sizeof(sistrip::sep_) - 1);
   if ( position >= length ) { return; }
   
   // Extract Granularity
@@ -165,7 +163,7 @@ void SiStripHistoTitle::extractTitle() {
     chan << title_.substr(position,siz);
     chan >> std::dec >> channel_;
   }
-  position += siz + sistrip::sep_.size();
+  position += siz + (sizeof(sistrip::sep_) - 1);
   if ( position >= length ) { return; }
   
   // Extract ExtraInfo

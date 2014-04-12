@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/22 12:46:52 $
- *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,12 +13,13 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <sstream>
 
 //-------------------
 // Initializations --
@@ -31,12 +30,16 @@
 // Constructors --
 //----------------
 DTRangeT0::DTRangeT0():
-  dataVersion( " " ) {
+  dataVersion( " " ),
+  dBuf(new DTBufferTree<int,int>) {
+  dataList.reserve( 1000 );
 }
 
 
 DTRangeT0::DTRangeT0( const std::string& version ):
-  dataVersion( version ) {
+  dataVersion( version ),
+  dBuf(new DTBufferTree<int,int>) {
+  dataList.reserve( 1000 );
 }
 
 
@@ -72,58 +75,43 @@ DTRangeT0Data::~DTRangeT0Data() {
 //--------------
 // Operations --
 //--------------
-bool DTRangeT0Compare::operator()( const DTRangeT0Id& idl,
-                                   const DTRangeT0Id& idr ) const {
-  if ( idl.  wheelId < idr.  wheelId ) return true;
-  if ( idl.  wheelId > idr.  wheelId ) return false;
-  if ( idl.stationId < idr.stationId ) return true;
-  if ( idl.stationId > idr.stationId ) return false;
-  if ( idl. sectorId < idr. sectorId ) return true;
-  if ( idl. sectorId > idr. sectorId ) return false;
-  if ( idl.     slId < idr.     slId ) return true;
-  if ( idl.     slId > idr.     slId ) return false;
-  return false;
-}
+int DTRangeT0::get( int   wheelId,
+                     int stationId,
+                    int  sectorId,
+                    int      slId,
+                    int&    t0min,
+                    int&    t0max ) const {
 
-
-int DTRangeT0::slRangeT0( int   wheelId,
-                          int stationId,
-                          int  sectorId,
-                          int      slId,
-                          int&    t0min,
-                          int&    t0max ) const {
-
-  t0min = 0;
+  t0min =
   t0max = 0;
 
-  DTRangeT0Id key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
-  std::map<DTRangeT0Id,
-           DTRangeT0Data,
-           DTRangeT0Compare>::const_iterator iter = slData.find( key );
-
-  if ( iter != slData.end() ) {
-    const DTRangeT0Data& data = iter->second;
+  std::vector<int> chanKey;
+  chanKey.reserve(4);
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  if ( !searchStatus ) {
+    const DTRangeT0Data& data( dataList[ientry].second );
     t0min = data.t0min;
     t0max = data.t0max;
-    return 0;
   }
-  return 1;
+
+  return searchStatus;
 
 }
 
 
-int DTRangeT0::slRangeT0( const DTSuperLayerId& id,
-                          int&    t0min,
-                          int&    t0max ) const {
-  return slRangeT0( id.wheel(),
-                    id.station(),
-                    id.sector(),
-                    id.superLayer(),
-                    t0min, t0max );
+int DTRangeT0::get( const DTSuperLayerId& id,
+                    int&    t0min,
+                    int&    t0max ) const {
+  return get( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              t0min, t0max );
 }
 
 
@@ -139,38 +127,46 @@ std::string& DTRangeT0::version() {
 
 
 void DTRangeT0::clear() {
-  slData.clear();
+  dataList.clear();
+  initialize();
   return;
 }
 
 
-int DTRangeT0::setSLRangeT0( int   wheelId,
-                             int stationId,
-                             int  sectorId,
-                             int      slId,
-                             int     t0min,
-                             int     t0max ) {
+int DTRangeT0::set( int   wheelId,
+                    int stationId,
+                    int  sectorId,
+                    int      slId,
+                    int     t0min,
+                    int     t0max ) {
 
-  DTRangeT0Id key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
+  std::vector<int> chanKey;
+  chanKey.reserve(4);
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
 
-  std::map<DTRangeT0Id,
-           DTRangeT0Data,
-           DTRangeT0Compare>::iterator iter = slData.find( key );
-  if ( iter != slData.end() ) {
-    DTRangeT0Data& data = iter->second;
+  if ( !searchStatus ) {
+    DTRangeT0Data& data( dataList[ientry].second );
     data.t0min = t0min;
     data.t0max = t0max;
     return -1;
   }
   else {
+    DTRangeT0Id key;
+    key.  wheelId =   wheelId;
+    key.stationId = stationId;
+    key. sectorId =  sectorId;
+    key.     slId =      slId;
     DTRangeT0Data data;
     data.t0min = t0min;
     data.t0max = t0max;
-    slData.insert( std::pair<const DTRangeT0Id,DTRangeT0Data>( key, data ) );
+    ientry = dataList.size();
+    dataList.push_back( std::pair<DTRangeT0Id,DTRangeT0Data>( key, data ) );
+    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }
 
@@ -179,24 +175,52 @@ int DTRangeT0::setSLRangeT0( int   wheelId,
 }
 
 
-int DTRangeT0::setSLRangeT0( const DTSuperLayerId& id,
-                             int     t0min,
-                             int     t0max ) {
-  return setSLRangeT0( id.wheel(),
-                       id.station(),
-                       id.sector(),
-                       id.superLayer(),
-                       t0min, t0max );
+int DTRangeT0::set( const DTSuperLayerId& id,
+                    int t0min,
+                    int t0max ) {
+  return set( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              t0min, t0max );
 }
 
 
 DTRangeT0::const_iterator DTRangeT0::begin() const {
-  return slData.begin();
+  return dataList.begin();
 }
 
 
 DTRangeT0::const_iterator DTRangeT0::end() const {
-  return slData.end();
+  return dataList.end();
 }
 
 
+std::string DTRangeT0::mapName() const {
+  std::stringstream name;
+  name << dataVersion << "_map_RangeT0" << this;
+  return name.str();
+}
+
+
+void DTRangeT0::initialize() {
+
+  dBuf->clear();
+
+  int entryNum = 0;
+  int entryMax = dataList.size();
+  std::vector<int> chanKey;
+  chanKey.reserve(4);
+  while ( entryNum < entryMax ) {
+
+    const DTRangeT0Id& chan = dataList[entryNum].first;
+
+    chanKey.clear();
+    chanKey.push_back( chan.  wheelId );
+    chanKey.push_back( chan.stationId );
+    chanKey.push_back( chan. sectorId );
+    chanKey.push_back( chan.     slId );
+    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
+  }
+  return;
+}

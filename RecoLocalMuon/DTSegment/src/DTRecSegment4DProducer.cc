@@ -1,8 +1,6 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/05/17 12:36:43 $
- *  $Revision: 1.7 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -30,16 +28,16 @@ DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
   produces<DTRecSegment4DCollection>();
   
   // debug parameter
-  debug = pset.getUntrackedParameter<bool>("debug"); 
+  debug = pset.getUntrackedParameter<bool>("debug", false);
   
   if(debug)
     cout << "[DTRecSegment4DProducer] Constructor called" << endl;
   
   // the name of the 1D rec hits collection
-  theRecHits1DLabel = pset.getParameter<string>("recHits1DLabel");
+  theRecHits1DLabel = pset.getParameter<InputTag>("recHits1DLabel");
   
   // the name of the 2D rec hits collection
-  theRecHits2DLabel = pset.getParameter<string>("recHits2DLabel");
+  theRecHits2DLabel = pset.getParameter<InputTag>("recHits2DLabel");
   
   // Get the concrete 4D-segments reconstruction algo from the factory
   string theReco4DAlgoName = pset.getParameter<string>("Reco4DAlgoName");
@@ -52,6 +50,7 @@ DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
 DTRecSegment4DProducer::~DTRecSegment4DProducer(){
   if(debug)
     cout << "[DTRecSegment4DProducer] Destructor called" << endl;
+  delete the4DAlgo;
 }
 
 void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
@@ -101,7 +100,11 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
     
     OwnVector<DTRecSegment4D> segments4D = the4DAlgo->reconstruct();
     
-    if(debug) cout << "Number of reconstructed 4D-segments " << segments4D.size() << endl;
+    if(debug) {
+      cout << "Number of reconstructed 4D-segments " << segments4D.size() << endl;
+      copy(segments4D.begin(), segments4D.end(),
+           ostream_iterator<DTRecSegment4D>(cout, "\n"));
+    }
 
     if (segments4D.size() > 0 )
       // convert the OwnVector into a Collection

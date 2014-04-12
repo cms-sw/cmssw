@@ -27,7 +27,7 @@ RunMemChErrorsDat::~RunMemChErrorsDat()
 
 
 void RunMemChErrorsDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,23 +39,23 @@ void RunMemChErrorsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			"to_number(:error_bits))");
   } catch (SQLException &e) {
-    throw(runtime_error("RunMemChErrorsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("RunMemChErrorsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void RunMemChErrorsDat::writeDB(const EcalLogicID* ecid, const RunMemChErrorsDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunMemChErrorsDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("RunMemChErrorsDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("RunMemChErrorsDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("RunMemChErrorsDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -63,14 +63,14 @@ void RunMemChErrorsDat::writeDB(const EcalLogicID* ecid, const RunMemChErrorsDat
     m_writeStmt->setString(3, ( boost::lexical_cast<std::string>(item->getErrorBits()) ).c_str());
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunMemChErrorsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("RunMemChErrorsDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void RunMemChErrorsDat::fetchData(map< EcalLogicID, RunMemChErrorsDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -78,7 +78,7 @@ void RunMemChErrorsDat::fetchData(map< EcalLogicID, RunMemChErrorsDat >* fillMap
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunMemChErrorsDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("RunMemChErrorsDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -111,6 +111,6 @@ void RunMemChErrorsDat::fetchData(map< EcalLogicID, RunMemChErrorsDat >* fillMap
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("RunMemChErrorsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunMemChErrorsDat::fetchData():  "+e.getMessage()));
   }
 }

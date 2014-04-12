@@ -1,8 +1,6 @@
 /** \file
  *
- *  $Date: 2006/09/21 15:39:48 $
- *  $Revision: 1.2 $
- *  Author: Raffaello Trentadue - Università Bari 
+ *  Author: Raffaello Trentadue - Universit? Bari 
  *  Mail:     <raffaello.trentadue@ba.infn.it>
  */
 
@@ -11,7 +9,6 @@
 
 /* Collaborating Class Header */
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 
 /* C++ Headers */
@@ -23,17 +20,14 @@
 RPCChamber::RPCChamber(RPCDetId id, 
 		       const ReferenceCountingPointer<BoundPlane> & plane) :
   GeomDet(plane), theId(id)
-{}
+{
+  setDetId(id);
+}
 
 /* Destructor */ 
 RPCChamber::~RPCChamber() {
 }
 
-DetId 
-RPCChamber::geographicalId() const
-{
-  return theId;
-}
 
 RPCDetId
 RPCChamber::id() const
@@ -76,7 +70,8 @@ RPCChamber::rolls() const
   return theRolls;
 }
 
-const int RPCChamber::nrolls() const
+int
+RPCChamber::nrolls() const
 {
   return theRolls.size();
 }

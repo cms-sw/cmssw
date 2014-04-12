@@ -3,11 +3,9 @@
 
 /*----------------------------------------------------------------------
   
-BranchKey: The key used to identify a Group in the EventPrincipal. The
+BranchKey: The key used to identify a Product in the EventPrincipal. The
 name of the branch to which the related data product will be written
 is determined entirely from the BranchKey.
-
-$Id: BranchKey.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -15,9 +13,9 @@ $Id: BranchKey.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 
 namespace edm {
   class BranchDescription;
-  class ConstBranchDescription;
 
-  struct BranchKey {
+  class BranchKey {
+  public:
     BranchKey() : friendlyClassName_(), moduleLabel_(), productInstanceName_(), processName_()
     {}
 
@@ -30,41 +28,46 @@ namespace edm {
     {}
 
     explicit BranchKey(BranchDescription const& desc);
-    explicit BranchKey(ConstBranchDescription const& desc);
 
+    std::string const& friendlyClassName() const {return friendlyClassName_;}
+    std::string const& moduleLabel() const {return moduleLabel_;}
+    std::string const& productInstanceName() const {return productInstanceName_;}
+    std::string const& processName() const {return processName_;}
+
+  private:
     std::string friendlyClassName_;
     std::string moduleLabel_;
     std::string productInstanceName_;
-    std::string processName_; // ???
+    std::string processName_;
   };
 
   inline
   bool 
-  operator<(const BranchKey& a, const BranchKey& b) {
+  operator<(BranchKey const& a, BranchKey const& b) {
       return 
-	a.friendlyClassName_ < b.friendlyClassName_ ? true :
-	a.friendlyClassName_ > b.friendlyClassName_ ? false :
-	a.moduleLabel_ < b.moduleLabel_ ? true :
-	a.moduleLabel_ > b.moduleLabel_ ? false :
-	a.productInstanceName_ < b.productInstanceName_ ? true :
-	a.productInstanceName_ > b.productInstanceName_ ? false :
-	a.processName_ < b.processName_ ? true :
+	a.friendlyClassName() < b.friendlyClassName() ? true :
+	a.friendlyClassName() > b.friendlyClassName() ? false :
+	a.moduleLabel() < b.moduleLabel() ? true :
+	a.moduleLabel() > b.moduleLabel() ? false :
+	a.productInstanceName() < b.productInstanceName() ? true :
+	a.productInstanceName() > b.productInstanceName() ? false :
+	a.processName() < b.processName() ? true :
 	false;
   }
 
   inline
   bool 
-  operator==(const BranchKey& a, const BranchKey& b) {
+  operator==(BranchKey const& a, BranchKey const& b) {
     return !(a < b || b < a);
   }
 
   inline
   bool 
-  operator!=(const BranchKey& a, const BranchKey& b) {
+  operator!=(BranchKey const& a, BranchKey const& b) {
     return !(a == b);
   }
 
   std::ostream&
-  operator<<(std::ostream& os, const BranchKey& bk);
+  operator<<(std::ostream& os, BranchKey const& bk);
 }
 #endif

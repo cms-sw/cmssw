@@ -3,8 +3,6 @@
 //   Class: L1MuGMTLFPhiProLUT
 //
 // 
-//   $Date: 2006/11/17 08:25:34 $
-//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -30,6 +28,7 @@
 //-------------------------------
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTPhiLUT.h"
@@ -60,7 +59,8 @@ unsigned L1MuGMTLFPhiProLUT::TheLookupFunction (int idx, unsigned eta, unsigned 
   // INPUTS:  eta(4) pt(5) charge(1)
   // OUTPUTS: dphi(9) 
 
-  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+//  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+  const L1MuTriggerPtScale* theTriggerPtScale = L1MuGMTConfig::getTriggerPtScale();
 
   //  static bool doProjection = SimpleConfigurable<bool> (false, "L1GlobalMuonTrigger:PropagatePhi" );
   static bool doProjection = L1MuGMTConfig::getPropagatePhi();
@@ -77,7 +77,8 @@ unsigned L1MuGMTLFPhiProLUT::TheLookupFunction (int idx, unsigned eta, unsigned 
   if (eta>7) eta -= 8;
 
   float dphi =  L1MuGMTPhiLUT::dphi (isys, 1, ch_idx, (int) eta, 
-			       theTriggerScales->getPtScale()->getLowEdge(pt) );  // use old LUT, here
+     theTriggerPtScale->getPtScale()->getLowEdge(pt) );  // use old LUT, here
+  // theTriggerScales->getPtScale()->getLowEdge(pt) );  // use old LUT, here
   
   int dphi_int = (int) ( (-dphi + 1.25 / 180. * M_PI + 2* M_PI ) / ( 2.5 / 180. * M_PI ) ) - 144;
     

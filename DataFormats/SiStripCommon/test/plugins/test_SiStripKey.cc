@@ -1,4 +1,3 @@
-// Last commit: $Id: test_SiStripKey.cc,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -17,14 +16,14 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripKey::test_SiStripKey( const edm::ParameterSet& pset ) 
+testSiStripKey::testSiStripKey( const edm::ParameterSet& pset ) 
   : keyType_( sistrip::UNKNOWN_KEY ),
     key_(0),
     path_( pset.getUntrackedParameter<std::string>("Path","") )
 {
   
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripKey::" << __func__ << "]"
+    << "[testSiStripKey::" << __func__ << "]"
     << " Constructing object...";
   
   // extract key type
@@ -35,7 +34,7 @@ test_SiStripKey::test_SiStripKey( const edm::ParameterSet& pset )
   std::stringstream key;
   std::string tmp = pset.getUntrackedParameter<std::string>("Key","0x0");
   if ( tmp.find( sistrip::hex_ ) != std::string::npos ) {
-    key << std::string( tmp, sistrip::hex_.size(), tmp.size() ); 
+    key << std::string( tmp, (sizeof(sistrip::hex_) - 1), tmp.size() ); 
   } else { key << tmp; }
   key >> std::hex >> key_;
   
@@ -43,15 +42,15 @@ test_SiStripKey::test_SiStripKey( const edm::ParameterSet& pset )
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripKey::~test_SiStripKey() {
+testSiStripKey::~testSiStripKey() {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripKey::" << __func__ << "]"
+    << "[testSiStripKey::" << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripKey::beginJob( const edm::EventSetup& setup ) {
+void testSiStripKey::beginJob() {
   
   edm::LogVerbatim(mlDqmCommon_)
     << "[SiStripKey::" << __func__ << "]"
@@ -158,7 +157,7 @@ void test_SiStripKey::beginJob( const edm::EventSetup& setup ) {
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripKey::analyze( const edm::Event& event, 
+void testSiStripKey::analyze( const edm::Event& event, 
 			       const edm::EventSetup& setup ) {
   LogTrace(mlDqmCommon_) 
     << "[SiStripKey::" << __func__ << "]"

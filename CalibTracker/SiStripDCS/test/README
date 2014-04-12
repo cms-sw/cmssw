@@ -1,32 +1,13 @@
-To run writing and reading example 
+README - modified by J.Cole 16/12/2008
+======================================
 
-eval `scramv1 runtime -csh`
+To make this updated version of the code work, you need to check out OnlineDB/SiStripConfigDb and add SiStripPsuDetIdMap as a friend class.
+Other points to note:
 
-#####################################
-with cfg XXX_noblob.cfg:
+- Currently no working test job for PopCon interface, as PopCon interface needs updating.
 
+- python/test_map_cfg.py can be used to test the PSU-DetID map
 
-write:
-cmsRun write_modulehv_noblob.cfg
+- python/test_builder_cfg.py can be used to test the SiStripModuleHV object builder
 
-read:
-cmsRun read_modulehv_noblob.cfg  
-
-
-
-#####################################
-with cfg XXX_blob.cfg:
-
-
-cmscond_bootstrap_detector.pl --offline_connect sqlite_file:modulehv_blob.db --auth /afs/cern.ch/cms/DB/conddb/authentication.xml STRIP
-
-pool_insertFileToCatalog -u file:modulehv_blob.xml -t POOL_RDBMS sqlite_file:modulehv_blob.db
-
-write:
-cmsRun write_modulehv_blob.cfg
-
-read:
-cmsRun read_modulehv_blob.cfg  
-
-
-
+- Code that goes with the test python files is in plugins.

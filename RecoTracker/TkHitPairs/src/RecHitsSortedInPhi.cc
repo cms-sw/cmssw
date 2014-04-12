@@ -1,45 +1,103 @@
-#include "RecHitsSortedInPhi.h"
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+
 #include <algorithm>
+#include<cassert>
 
-using namespace std;
 
-RecHitsSortedInPhi::RecHitsSortedInPhi( const vector<const TrackingRecHit*>& hits,
-					const TrackerGeometry* theGeometry) 
+
+RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, DetLayer const * il) :
+  layer(il),
+  isBarrel(il->isBarrel()),
+  x(hits.size()),y(hits.size()),z(hits.size()),drphi(hits.size()),
+  u(hits.size()),v(hits.size()),du(hits.size()),dv(hits.size()),
+  lphi(hits.size())
 {
-  //initTiming();
-  // TimeMe tm1( *theFillTimer, false);
-  for (vector<const TrackingRecHit*>::const_iterator i=hits.begin(); i!=hits.end(); i++) {
-    theHits.push_back( Hit(*i,theGeometry));
+
+  // standard region have origin as 0,0,z (not true!!!!0
+  // cosmic region never used here
+  // assert(origin.x()==0 && origin.y()==0);
+
+  for (std::vector<Hit>::const_iterator i=hits.begin(); i!=hits.end(); i++) {
+    theHits.push_back(HitWithPhi(*i));
   }
-  //TimeMe tm2( *theSortTimer, false);
-  sort( theHits.begin(), theHits.end(), HitLessPhi());
+  std::sort( theHits.begin(), theHits.end(), HitLessPhi());
+
+  for (unsigned int i=0; i!=theHits.size(); ++i) {
+    auto const & h = *theHits[i].hit();
+    auto const & gs = reinterpret_cast<TValidTrackingRecHit const &>(h).globalState();
+    auto loc = gs.position-origin.basicVector();
+    float lr = loc.perp();
+    // float lr = gs.position.perp();
+    float lz = gs.position.z();
+    float dr = gs.errorR;
+    float dz = gs.errorZ;
+    // r[i] = gs.position.perp();
+    // phi[i] = gs.position.barePhi();
+    x[i] = gs.position.x();
+    y[i] = gs.position.y();
+    z[i] = lz;
+    drphi[i] = gs.errorRPhi;
+    u[i] = isBarrel ? lr : lz;
+    v[i] = isBarrel ? lz : lr;
+    du[i] = isBarrel ? dr : dz;
+    dv[i] = isBarrel ? dz : dr;
+    lphi[i] = loc.barePhi();
+  }
+  
 }
 
-void RecHitsSortedInPhi::hits( float phiMin, float phiMax, 
-			       vector<const TrackingRecHit*>& result) const
-{
+
+RecHitsSortedInPhi::DoubleRange RecHitsSortedInPhi::doubleRange(float phiMin, float phiMax) const {
+  Range r1,r2;
   if ( phiMin < phiMax) {
-    if ( phiMin < -Geom::pi()) {
-      copyResult( unsafeRange( phiMin + Geom::twoPi(), Geom::pi()), result);
-      copyResult( unsafeRange( -Geom::pi(), phiMax), result);
+    if ( phiMin < -Geom::fpi()) {
+      r1 = unsafeRange( phiMin + Geom::ftwoPi(), Geom::fpi());
+      r2 = unsafeRange( -Geom::fpi(), phiMax);
     }
     else if (phiMax > Geom::pi()) {
-      copyResult( unsafeRange( phiMin, Geom::pi()), result);
-      copyResult( unsafeRange( -Geom::pi(), phiMax-Geom::twoPi()), result);
+     r1 = unsafeRange( phiMin, Geom::fpi());
+     r2 = unsafeRange( -Geom::fpi(), phiMax-Geom::ftwoPi());
+    }
+    else {
+      r1 = unsafeRange( phiMin, phiMax);
+      r2 = Range(theHits.begin(),theHits.begin());
+    }
+  }
+  else {
+    r1 =unsafeRange( phiMin, Geom::fpi());
+    r2 =unsafeRange( -Geom::fpi(), phiMax);
+  }
+
+  return (DoubleRange){{int(r1.first-theHits.begin()),int(r1.second-theHits.begin())
+	,int(r2.first-theHits.begin()),int(r2.second-theHits.begin())}};
+}
+
+
+void RecHitsSortedInPhi::hits( float phiMin, float phiMax, std::vector<Hit>& result) const
+{
+  if ( phiMin < phiMax) {
+    if ( phiMin < -Geom::fpi()) {
+      copyResult( unsafeRange( phiMin + Geom::ftwoPi(), Geom::fpi()), result);
+      copyResult( unsafeRange( -Geom::fpi(), phiMax), result);
+    }
+    else if (phiMax > Geom::pi()) {
+      copyResult( unsafeRange( phiMin, Geom::fpi()), result);
+      copyResult( unsafeRange( -Geom::fpi(), phiMax-Geom::ftwoPi()), result);
     }
     else {
       copyResult( unsafeRange( phiMin, phiMax), result);
     }
   }
   else {
-    copyResult( unsafeRange( phiMin, Geom::pi()), result);
-    copyResult( unsafeRange( -Geom::pi(), phiMax), result);
+    copyResult( unsafeRange( phiMin, Geom::fpi()), result);
+    copyResult( unsafeRange( -Geom::fpi(), phiMax), result);
   }
 }
 
-vector<const TrackingRecHit*> RecHitsSortedInPhi::hits( float phiMin, float phiMax) const
+std::vector<RecHitsSortedInPhi::Hit> RecHitsSortedInPhi::hits( float phiMin, float phiMax) const
 {
-  vector<const TrackingRecHit*> result;
+  std::vector<Hit> result;
   hits( phiMin, phiMax, result);
   return result;
 }
@@ -47,39 +105,7 @@ vector<const TrackingRecHit*> RecHitsSortedInPhi::hits( float phiMin, float phiM
 RecHitsSortedInPhi::Range 
 RecHitsSortedInPhi::unsafeRange( float phiMin, float phiMax) const
 {
-  //TimeMe tm1( *theSearchTimer, false);
-  return Range( lower_bound( theHits.begin(), theHits.end(), Hit(phiMin), HitLessPhi()),
-		upper_bound( theHits.begin(), theHits.end(), Hit(phiMax), HitLessPhi()));
+  auto low = std::lower_bound( theHits.begin(), theHits.end(), HitWithPhi(phiMin), HitLessPhi());
+  return Range( low,
+	       std::upper_bound(low, theHits.end(), HitWithPhi(phiMax), HitLessPhi()));
 }
-
-/*
-void RecHitsSortedInPhi::initTiming() 
-{
-  if (timingDone) return;
-
-  TimingReport& tr(*TimingReport::current());
-
-  theFillTimer   =   &tr["RecHitsSortedInPhi construct"];
-  theSortTimer   =   &tr["RecHitsSortedInPhi sort"];
-  theCopyResultTimer =   &tr["RecHitsSortedInPhi result copy"];
-  theSearchTimer =   &tr["RecHitsSortedInPhi binary search"];
-
-  static bool detailedTiming =
-    SimpleConfigurable<bool>(false,"RecHitsSortedInPhi:detailedTiming").value();
-
-  if (!detailedTiming) {
-    theFillTimer->switchOn(false);
-    theSortTimer->switchOn(false);
-    theCopyResultTimer->switchOn(false);
-    theSearchTimer->switchOn(false);
-  }
-  timingDone = true;
-}
-*/
-
-
-//TimingReport::Item* RecHitsSortedInPhi::theFillTimer = 0;
-//TimingReport::Item* RecHitsSortedInPhi::theSortTimer = 0;
-//TimingReport::Item* RecHitsSortedInPhi::theCopyResultTimer = 0;
-//TimingReport::Item* RecHitsSortedInPhi::theSearchTimer = 0;
-//bool RecHitsSortedInPhi::timingDone = false;

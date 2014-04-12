@@ -2,7 +2,7 @@
 #define MuEnrichRenormalizer_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "TProfile.h"
 
 // forward declarations
@@ -20,7 +20,7 @@ class MuEnrichRenormalizer : public edm::EDAnalyzer
                                    // as it'll be deleted upon closing TFile
       
       virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob( const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
  
       //     HepMC::GenEvent  *evt;
@@ -29,6 +29,7 @@ class MuEnrichRenormalizer : public edm::EDAnalyzer
    private:
       int type,genLight,genBC, anaLight, anaBC;
       double genIntlumi, anaIntlumi,rwbc,rwlight;
+      edm::EDGetTokenT<edm::HepMCProduct> theGenToken;
 
 };
 

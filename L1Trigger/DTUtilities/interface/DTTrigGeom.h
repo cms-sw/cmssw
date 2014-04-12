@@ -4,8 +4,6 @@
  *     Muon Barrel Trigger Geometry
  *
  *
- *   $Date: 2007/03/09 15:17:45 $
- *   $Revision: 1.4 $
  *
  *   \author C.Grandi
  *   \modifications S.Vanini
@@ -27,7 +25,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
-#include "CondFormats/L1TObjects/interface/DTConfig.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
 #include "DataFormats/MuonDetId/interface/DTBtiId.h"
 #include "DataFormats/MuonDetId/interface/DTTracoId.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h" 
@@ -51,10 +49,13 @@ class DTTrigGeom {
     ~DTTrigGeom();
  
     /// Associated chamber
-    inline DTChamber* stat() const { return _stat; }
+    inline const DTChamber* stat() const { return _stat; }
 
     /// Identifier of the associated chamber
     inline DTChamberId statId() const { return _stat->id(); }
+
+    /// Set/Update Geometry
+    void setGeom(const DTChamber* stat);
 
     /// Return wheel number
     inline int wheel() const { return _stat->id().wheel(); }
@@ -190,14 +191,18 @@ class DTTrigGeom {
     /// Dump the geometry
     void dumpGeom() const;
 
+    /// Dump the LUT for this chamber
+    void dumpLUT(short int btic);
+    void IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp);
+
   private:
 
     /// Get the geometry from the station
-    void getGeom(bool debug);
+    void getGeom();
 
   private:
 
-    DTChamber* _stat;     // Pointer to the chamber
+    const DTChamber* _stat;     // Pointer to the chamber
 
     // geometrical parameters
     float _PHICH;       // angle of normal to the chamber in CMS frame (rad)
@@ -205,6 +210,7 @@ class DTTrigGeom {
     float _PITCH;       // width of a cell (cm)
     float _ZSL[3];      // Z coordinate of SL centers
     int _NCELL[3];      // number of cells (BTI) in SL each SL
+    bool _debug;
 
 };
 

@@ -12,33 +12,43 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/EgammaTrackReco/interface/TrackCandidateSuperClusterAssociation.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackSuperClusterAssociation.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h" 
+#include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h" 
+#include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h" 
 
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
-  namespace {
+namespace DataFormats_EgammaTrackReco {
+  struct dictionary {
 
     reco::TrackCandidateSuperClusterAssociationCollection v5;
-    edm::Wrapper<reco::TrackCandidateSuperClusterAssociationCollection> c5;
-    reco::TrackCandidateSuperClusterAssociation vv5;
-    reco::TrackCandidateSuperClusterAssociationRef r5;
-    reco::TrackCandidateSuperClusterAssociationRefProd rp5;
-    reco::TrackCandidateSuperClusterAssociationRefVector rv5;
+    edm::Wrapper<edm::ValueMap<reco::SuperClusterRef> > m5;
 
     reco::TrackSuperClusterAssociationCollection v6;
-    edm::Wrapper<reco::TrackSuperClusterAssociationCollection> c6;
-    reco::TrackSuperClusterAssociation vv6;
-    reco::TrackSuperClusterAssociationRef r6;
-    reco::TrackSuperClusterAssociationRefProd rp6;
-    reco::TrackSuperClusterAssociationRefVector rv6;
+    edm::Wrapper<edm::ValueMap<reco::SuperClusterRef> > m6;
 
+    reco::TrackCandidateCaloClusterPtrVectorAssociation v7;
+    edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> > m7;
 
+    reco::TrackCandidateCaloClusterPtrAssociation v8;
+    edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> > m8;
 
+    reco::TrackCaloClusterPtrVectorAssociation v9;
+    edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> > m9;
 
-  }
+    reco::TrackCaloClusterPtrAssociation v10;
+    edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> > m10;
+
+    reco::ConversionTrackCollection v11;
+    edm::Wrapper<reco::ConversionTrackCollection> m11;    
+    
+  };
 }
 

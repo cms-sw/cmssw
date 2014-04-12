@@ -19,13 +19,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
-
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <vector>
 #include <iostream>
@@ -44,8 +39,6 @@ class Chi2MeasurementEstimator;
 class Propagator;
 
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
-
-using namespace std;
 
 class CkfDebugger {
  public:
@@ -111,6 +104,7 @@ class CkfDebugger {
   TrackerHitAssociator*      hitAssociator;
   const MeasurementTracker*        theMeasurementTracker;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
+  const TrackerTopology *theTopo;
 
   std::map<unsigned int, std::vector<PSimHit*> > idHitsMap;
 
@@ -121,7 +115,7 @@ class CkfDebugger {
   int assocTrackId(CTTRHp rechit) const;
 
   //const PSimHit* nextCorrectHit( const Trajectory&, unsigned int&) ;
-  vector<const PSimHit*> nextCorrectHits( const Trajectory&, unsigned int&) ;
+  std::vector<const PSimHit*> nextCorrectHits( const Trajectory&, unsigned int&) ;
 
   bool associated(CTTRHp rechit, const PSimHit& sh) const;
 
@@ -139,7 +133,7 @@ class CkfDebugger {
 
   bool hasDelta(const PSimHit* correctHit){
     bool delta = false;
-    for (vector<PSimHit>::iterator isim = hitAssociator->SimHitMap[correctHit->detUnitId()].begin();
+    for (std::vector<PSimHit>::iterator isim = hitAssociator->SimHitMap[correctHit->detUnitId()].begin();
 	 isim != hitAssociator->SimHitMap[correctHit->detUnitId()].end(); ++isim){ 
 /*       edm::LogVerbatim("CkfDebugger") << "SimHit on this det at pos="<< position(&*isim)  */
 /* 	     << " det=" << isim->detUnitId() << " process=" << isim->processType() ; */
@@ -155,29 +149,15 @@ class CkfDebugger {
 
   int layer(const GeomDetUnit* det){
     //return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));
-    DetId id=det->geographicalId();
-    if (id.subdetId()==3) return ((TIBDetId)(id)).layer();
-    if (id.subdetId()==5) return ((TOBDetId)(id)).layer();
-    if (id.subdetId()==1) return ((PXBDetId)(id)).layer();
-    if (id.subdetId()==4) return ((TIDDetId)(id)).wheel();
-    if (id.subdetId()==6) return ((TECDetId)(id)).wheel();
-    if (id.subdetId()==2) return ((PXFDetId)(id)).disk();
-    return 0;
+    return theTopo->layer(det->geographicalId());
   }
   int layer(const GeomDet* det){
     //return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));
-    DetId id=det->geographicalId();
-    if (id.subdetId()==3) return ((TIBDetId)(id)).layer();
-    if (id.subdetId()==5) return ((TOBDetId)(id)).layer();
-    if (id.subdetId()==1) return ((PXBDetId)(id)).layer();
-    if (id.subdetId()==4) return ((TIDDetId)(id)).wheel();
-    if (id.subdetId()==6) return ((TECDetId)(id)).wheel();
-    if (id.subdetId()==2) return ((PXFDetId)(id)).disk();
-    return 0;
+    return theTopo->layer(det->geographicalId());
   }
 
   template<unsigned int D>  
-  pair<double,double> computePulls(CTTRHp recHit, TSOS startingState){
+  std::pair<double,double> computePulls(CTTRHp recHit, TSOS startingState){
     typedef typename AlgebraicROOTObject<D>::Vector VecD;
     typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
     TSOS detState = theForwardPropagator->propagate(startingState,recHit->det()->surface());
@@ -194,12 +174,17 @@ class CkfDebugger {
     LogTrace("CkfDebugger") << "R(-1)=" << R ;
     LogTrace("CkfDebugger") << "chi2=" << ROOT::Math::Similarity(r,R) ;
     double pullX=(-r[0])*sqrt(R(0,0));
-    double pullY=(-r[1])*sqrt(R(1,1));
+    double r_1 = 0;
+    if ( VecD::Dim() >= 2 )
+      {
+	r_1 = r[1];
+      }
+    double pullY=(-r_1)*sqrt(R(1,1));
     LogTrace("CkfDebugger") << "pullX=" << pullX ;
     LogTrace("CkfDebugger") << "pullY=" << pullY ;
-    return  pair<double,double>(pullX,pullY);
+    return  std::pair<double,double>(pullX,pullY);
   }
-  pair<double,double> computePulls(CTTRHp recHit, TSOS startingState) {
+  std::pair<double,double> computePulls(CTTRHp recHit, TSOS startingState) {
         switch (recHit->dimension()) {
                 case 1: return computePulls<1>(recHit,startingState);
                 case 2: return computePulls<2>(recHit,startingState);
@@ -210,33 +195,33 @@ class CkfDebugger {
         throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5");
   }
 
-  vector<int> dump;
-  map<pair<int,int>, int> dump2;
-  map<pair<int,int>, int> dump3;
-  map<pair<int,int>, int> dump4;
-  map<pair<int,int>, int> dump5;
-  map<pair<int,int>, int> dump6;
+  std::vector<int> dump;
+  std::map<std::pair<int,int>, int> dump2;
+  std::map<std::pair<int,int>, int> dump3;
+  std::map<std::pair<int,int>, int> dump4;
+  std::map<std::pair<int,int>, int> dump5;
+  std::map<std::pair<int,int>, int> dump6;
 
   TFile*  file;
   TH1F* hchi2seedAll, *hchi2seedProb;
 
-  map<string,TH1F*> hPullX_shrh;
-  map<string,TH1F*> hPullY_shrh;
-  map<string,TH1F*> hPullX_shst;
-  map<string,TH1F*> hPullY_shst;
-  map<string,TH1F*> hPullX_strh;
-  map<string,TH1F*> hPullY_strh;
+  std::map<std::string,TH1F*> hPullX_shrh;
+  std::map<std::string,TH1F*> hPullY_shrh;
+  std::map<std::string,TH1F*> hPullX_shst;
+  std::map<std::string,TH1F*> hPullY_shst;
+  std::map<std::string,TH1F*> hPullX_strh;
+  std::map<std::string,TH1F*> hPullY_strh;
 
-  map<string,TH1F*> hPullM_shrh;
-  map<string,TH1F*> hPullS_shrh;
-  map<string,TH1F*> hPullM_shst;
-  map<string,TH1F*> hPullS_shst;
-  map<string,TH1F*> hPullM_strh;
-  map<string,TH1F*> hPullS_strh;
+  std::map<std::string,TH1F*> hPullM_shrh;
+  std::map<std::string,TH1F*> hPullS_shrh;
+  std::map<std::string,TH1F*> hPullM_shst;
+  std::map<std::string,TH1F*> hPullS_shst;
+  std::map<std::string,TH1F*> hPullM_strh;
+  std::map<std::string,TH1F*> hPullS_strh;
 
-  map<string,TH1F*> hPullGP_X_shst;
-  map<string,TH1F*> hPullGP_Y_shst;
-  map<string,TH1F*> hPullGP_Z_shst;
+  std::map<std::string,TH1F*> hPullGP_X_shst;
+  std::map<std::string,TH1F*> hPullGP_Y_shst;
+  std::map<std::string,TH1F*> hPullGP_Z_shst;
 
   TH2F* hPullGPXvsGPX_shst;
   TH2F* hPullGPXvsGPY_shst;

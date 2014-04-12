@@ -17,13 +17,13 @@ public:
   virtual ~DistanceOfVertices () {}
 
   virtual Measurement1D distance       ( const TransientVertex & , const TransientVertex &                      ) = 0 ;
-  virtual Measurement1D signedDistance ( const TransientVertex & , const TransientVertex & , const Hep3Vector & ) = 0 ;
+  virtual Measurement1D signedDistance ( const TransientVertex & , const TransientVertex & , const CLHEP::Hep3Vector & ) = 0 ;
   
   
 protected:
 
-  Hep3Vector   deltaV2V1 ( const TransientVertex & v1 , const TransientVertex & v2 ) {
-    return Hep3Vector ( v2.position().x() - v1.position().x() ,
+  CLHEP::Hep3Vector   deltaV2V1 ( const TransientVertex & v1 , const TransientVertex & v2 ) {
+    return CLHEP::Hep3Vector ( v2.position().x() - v1.position().x() ,
 			v2.position().y() - v1.position().y() ,
 			v2.position().z() - v1.position().z() ) ;
   }

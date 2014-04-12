@@ -5,12 +5,12 @@
  *
  *  Digi for CSC TMB info available in DDU
  *  
- *  $Date: 2007/05/23 18:02:50 $
- *  $Revision: 1.6 $
  *
  */
 
 #include <vector>
+#include <iosfwd>
+#include <stdint.h>
 
 class CSCTMBStatusDigi{
 
@@ -28,17 +28,11 @@ public:
 
 private:
 
-  uint16_t header_[27];
+  uint16_t header_[43];
   uint16_t trailer_[8];
 };
 
-#include<iostream>
-/// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const CSCTMBStatusDigi& digi) {
-  o << " "; 
-  o <<"\n";
- 
-  return o;
-}
+
+std::ostream & operator<<(std::ostream & o, const CSCTMBStatusDigi& digi);
 
 #endif

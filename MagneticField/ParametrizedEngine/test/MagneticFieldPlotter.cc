@@ -14,12 +14,12 @@
 //
 // Original Author:  Massimiliano Chiorboli
 //         Created:  Mon Jun 11 17:20:15 CEST 2007
-// $Id$
 //
 //
 
 
 // system include files
+#include <iostream>
 #include <memory>
 
 // user include files
@@ -40,6 +40,9 @@
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include <TH1.h>
+#include <TH2.h>
+
 using namespace edm;
 using namespace std;
 
@@ -50,8 +53,8 @@ MagneticFieldPlotter::MagneticFieldPlotter(const edm::ParameterSet& iConfig):
 {
   theHistoFile = 0;
   
-  nZstep   = 100;
-  nPhistep = 100;
+  nZstep   = 1;
+  nPhistep = 1;
   zHalfLength = 280;
 
 }
@@ -71,8 +74,10 @@ MagneticFieldPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    theMGField = &(*ESMGField);
 
    
-   float radius[5] = {10, 20, 30, 50, 100};
-   for(int iR=0; iR<5; iR++) {
+   //   float radius[5] = {10, 20, 30, 50, 100};
+   float radius[1] = {100};
+   //   for(int iR=0; iR<5; iR++) {
+   for(int iR=0; iR<1; iR++) {
        for(int iPhi=0; iPhi<nPhistep; iPhi++) {
      for(int iZ=0; iZ<nZstep; iZ++) {
        float zCoordinate = (float)iZ*zHalfLength*2/(float)nZstep - zHalfLength;
@@ -82,6 +87,12 @@ MagneticFieldPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	 GlobalVector myFieldVector = theMGField->inTesla(gp);
 	 float Br   = myFieldVector.x()*cos(gp.phi()) + myFieldVector.y()*sin(gp.phi());
 	 float Bphi = - myFieldVector.x()*sin(gp.phi()) + myFieldVector.y()*cos(gp.phi());
+	 std::cout << "Radius  = " << rCoordinate       ;
+	 std::cout << ", Z     = " << zCoordinate      ;
+	 std::cout << ", Phi    = " << phiCoordinate     <<std::endl;
+	 std::cout << "Bz     = " << myFieldVector.z() ;
+	 std::cout << ", Br     = " << Br                ;
+	 std::cout << ", Bphi   = " << Bphi              << std::endl;
 	 gBz[iR]  ->Fill(phiCoordinate,zCoordinate,myFieldVector.z());
 	 gBr[iR]  ->Fill(phiCoordinate,zCoordinate,Br               );
 	 gBphi[iR]->Fill(phiCoordinate,zCoordinate,Bphi             );
@@ -93,7 +104,7 @@ MagneticFieldPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 void 
-MagneticFieldPlotter::beginJob(const edm::EventSetup&)
+MagneticFieldPlotter::beginJob()
 {
    theHistoFile = new TFile(HistoFileName.c_str(), "RECREATE");
   

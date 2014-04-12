@@ -3,7 +3,7 @@
 #include<vector>
   
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
-  
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 /**
 
    \class HcalShape
@@ -15,25 +15,13 @@
 class HcalShape : public CaloVShape
 {
 public:
-  
   HcalShape();
-  
-  HcalShape(const HcalShape&d);
-
-  virtual ~HcalShape(){}
-  
+  void setShape(int shapeType);
   virtual double operator () (double time) const;
-  void display () const {}
-  double derivative (double time) const;
-  double getTpeak () const;
+  virtual double timeToRise() const;
+private:
+  HcalPulseShapes::Shape shape_;
 
-  void computeShape();
-
- private:
-  
-  int nbin_;
-  std::vector<float> nt_;
-  
 };
 
 #endif

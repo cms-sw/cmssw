@@ -20,7 +20,7 @@
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
 #include <algorithm>
@@ -33,105 +33,55 @@ RPCGeometryBuilderFromDDD::~RPCGeometryBuilderFromDDD()
 
 RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants)
 {
+  std::string attribute = "ReadOutName"; // could come from .orcarc
+  std::string value     = "MuonRPCHits";    // could come from .orcarc
+  DDValue val(attribute, value, 0.0);
 
-  try {
+  // Asking only for the MuonRPC's
+  DDSpecificsFilter filter;
+  filter.setCriteria(val, // name & value of a variable 
+		     DDSpecificsFilter::matches,
+		     DDSpecificsFilter::AND, 
+		     true, // compare strings otherwise doubles
+		     true // use merged-specifics or simple-specifics
+		     );
+  DDFilteredView fview(*cview);
+  fview.addFilter(filter);
 
-
-    std::string attribute = "ReadOutName"; // could come from .orcarc
-    std::string value     = "MuonRPCHits";    // could come from .orcarc
-    DDValue val(attribute, value, 0.0);
-
-    // Asking only for the MuonRPC's
-    DDSpecificsFilter filter;
-    filter.setCriteria(val, // name & value of a variable 
-		       DDSpecificsFilter::matches,
-		       DDSpecificsFilter::AND, 
-		       true, // compare strings otherwise doubles
-		       true // use merged-specifics or simple-specifics
-		       );
-    DDFilteredView fview(*cview);
-    fview.addFilter(filter);
-
-    return this->buildGeometry(fview, muonConstants);
-  }
-  catch (const DDException & e ) {
-    std::cerr <<"RPCGeometryBuilderFromDDD::build() : "
-	      <<"DDD Exception: something went wrong during XML parsing!" 
-	      << std::endl
-	      << "  Message: " << e << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    throw;
-  }
-  catch (const cms::Exception& e){  
-    std::cerr <<"RPCGeometryBuilderFromDDD::build() : "
-	      <<"an unexpected exception occured: " 
-	      << e << std::endl;   
-    throw;
-  }
-  catch (const std::exception& e) {
-    std::cerr <<"RPCGeometryBuilderFromDDD::build() : "
-	      <<"an unexpected exception occured: " 
-	      << e.what() << std::endl; 
-    throw;
-  }
-  catch (...) {
-    std::cerr <<"RPCGeometryBuilderFromDDD::build() : "
-	      <<"An unexpected exception occured!" << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    std::unexpected();           
-  }
+  return this->buildGeometry(fview, muonConstants);
 }
 
 RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
-#ifdef LOCAL_DEBUG  
-  std::cout <<"Building the geometry service"<<std::endl;
-#endif
+  LogDebug("RPCGeometryBuilderFromDDD") <<"Building the geometry service";
   RPCGeometry* geometry = new RPCGeometry();
 
-#ifdef LOCAL_DEBUG  
-  std::cout << "About to run through the RPC structure" << std::endl;
-  std::cout <<" First logical part "
-  	    <<fview.logicalPart().name().name()<<std::endl;
-#endif
+  LogDebug("RPCGeometryBuilderFromDDD") << "About to run through the RPC structure\n" 
+					<<" First logical part "
+					<<fview.logicalPart().name().name();
   bool doSubDets = fview.firstChild();
 
-#ifdef LOCAL_DEBUG  
-  std::cout << "doSubDets = " << doSubDets << std::endl;
-#endif
+  LogDebug("RPCGeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
   while (doSubDets){
-
-#ifdef LOCAL_DEBUG  
-    std::cout <<"start the loop"<<std::endl; 
-#endif
+    LogDebug("RPCGeometryBuilderFromDDD") <<"start the loop"; 
 
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum(muonConstants);
-#ifdef LOCAL_DEBUG  
-    std::cout <<"Getting the Muon base Number"<<std::endl;
-#endif
+    LogDebug("RPCGeometryBuilderFromDDD") <<"Getting the Muon base Number";
     MuonBaseNumber   mbn=mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
-
-#ifdef LOCAL_DEBUG  
-    std::cout <<"Start the Rpc Numbering Schema"<<std::endl;
-#endif
+    LogDebug("RPCGeometryBuilderFromDDD") <<"Start the Rpc Numbering Schema";
     // Get the The Rpc det Id 
     RPCNumberingScheme rpcnum(muonConstants);
     int detid = 0;
 
-#ifdef LOCAL_DEBUG  
-    std::cout <<"Getting the Unit Number"<<std::endl;
-#endif
+    LogDebug("RPCGeometryBuilderFromDDD") <<"Getting the Unit Number";
     detid = rpcnum.baseNumberToUnitNumber(mbn);
-#ifdef LOCAL_DEBUG  
-    std::cout <<"Getting the RPC det Id "<<detid <<std::endl;
-#endif
+    LogDebug("RPCGeometryBuilderFromDDD") <<"Getting the RPC det Id "<<detid;
+
     RPCDetId rpcid(detid);
     RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
 
-#ifdef LOCAL_DEBUG  
-    std::cout <<"The RPCDetid is "<<rpcid<<std::endl;
-#endif
+    LogDebug("RPCGeometryBuilderFromDDD") <<"The RPCDetid is "<<rpcid;
 
     DDValue numbOfStrips("nStrips");
 
@@ -143,10 +93,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 	nStrips=int(numbOfStrips.doubles()[0]);	
       }
     }
-#ifdef LOCAL_DEBUG  
-    if (nStrips == 0 )
-      std::cout <<"No strip found!!"<<std::endl;
-#endif
+
+    LogDebug("RPCGeometryBuilderFromDDD") << ((nStrips == 0 ) ? ("No strip found!!") : (""));
     
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
     std::string name=fview.logicalPart().name().name();
@@ -197,12 +145,11 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       }
       
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel,name,pars);
-#ifdef LOCAL_DEBUG  
-      std::cout <<"Barrel "<<name
-		<<" par "<<width
-		<<" "<<length<<" "<<thickness;
-#endif
-    }else{
+      LogDebug("RPCGeometryBuilderFromDDD") <<"Barrel "<<name
+					    <<" par "<<width
+					    <<" "<<length<<" "<<thickness;
+    }
+    else{
       float be = dpar[4]/cm;
       float te = dpar[8]/cm;
       float ap = dpar[0]/cm;
@@ -215,35 +162,28 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       pars.push_back(dpar[0]/cm); //h/2;
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
       
-#ifdef LOCAL_DEBUG  
-      std::cout <<"Forward "<<name
-		<<" par "<<dpar[4]/cm
-		<<" "<<dpar[8]/cm<<" "<<dpar[3]/cm<<" "
-		<<dpar[0];
-#endif      
+      LogDebug("RPCGeometryBuilderFromDDD") <<"Forward "<<name
+					    <<" par "<<dpar[4]/cm
+					    <<" "<<dpar[8]/cm<<" "<<dpar[3]/cm<<" "
+					    <<dpar[0];
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap,name,pars);
 
       //Change of axes for the forward
       Basic3DVector<float> newX(1.,0.,0.);
       Basic3DVector<float> newY(0.,0.,1.);
-      if (tran.z() > 0. )
-	newY *= -1;
+      //      if (tran.z() > 0. )
+      newY *= -1;
       Basic3DVector<float> newZ(0.,1.,0.);
       rot.rotateAxes (newX, newY,newZ);
       
     }
-#ifdef LOCAL_DEBUG  
-    std::cout <<"   Number of strips "<<nStrips<<std::endl;
-#endif  
-
-
+    LogDebug("RPCGeometryBuilderFromDDD") <<"   Number of strips "<<nStrips;
     
     BoundPlane* bp = new BoundPlane(pos,rot,bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
     RPCRoll* r=new RPCRoll(rpcid,surf,rollspecs);
     geometry->add(r);
-    
 
     std::list<RPCRoll *> rls;
     if (chids.find(chid)!=chids.end()){
@@ -282,6 +222,3 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   } 
   return geometry;
 }
-
-    
-

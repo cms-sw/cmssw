@@ -20,14 +20,6 @@
 #include <map>
 #include <functional>
 
-// #define DBG_GSND
-#ifdef DRAW_GSND
-#include "TCanvas.h"
-#include "TF12.h"
-#include "TF2.h"
-#include "TGraph.h"
-#endif
-
 
 template <unsigned int N>
 bool
@@ -147,15 +139,6 @@ template <unsigned int N>
 typename GaussianSumUtilities<N>::Vector
 GaussianSumUtilities<N>::computeModeWithoutTransform () const
 {
-#ifdef DRAW_GSND
-  gPad->Clear();
-  double x1 = mean()(abs(v1Draw_));
-  double x2 = mean()(abs(v2Draw_));
-  double sig1 = sqrt(covariance()(abs(v1Draw_),abs(v1Draw_)));
-  double sig2 = sqrt(covariance()(abs(v2Draw_),abs(v2Draw_)));
-  if ( v2Draw_>=0 )
-    gPad->DrawFrame(x1-3*sig1,x2-3*sig2,x1+3*sig1,x2+3*sig2);  
-#endif
   //
   // initialize status
   //
@@ -172,20 +155,11 @@ GaussianSumUtilities<N>::computeModeWithoutTransform () const
   //
   // Now try with each start value
   //
-#ifdef DRAW_GSND
-  int ind(0);
-#endif
-#ifdef DBG_GSND
-  int iRes(-1);
-#endif
   std::pair<double,Vector> result(-1.,mean((*xStart.begin()).second));
   Vector xRes;
   double yRes(0.);
   for ( StartMap::const_iterator i=xStart.begin();
 	i!=xStart.end(); i++ ) {
-#ifdef DBG_GSND
-    std::cout << "Started findMode for component " << (*i).second << std::endl;
-#endif
     //
     // If a solution exists: drop as soon as the pdf at
     // start value drops to < 75% of maximum (try to avoid
@@ -198,17 +172,6 @@ GaussianSumUtilities<N>::computeModeWithoutTransform () const
     //
     bool valid = findMode(xRes,yRes,mean((*i).second));
 
-#ifdef DRAW_GSND
-    double xp[2];
-    double yp[2];
-    TGraph* g = new TGraph();
-    g->SetMarkerStyle(20+ind/4);
-    g->SetMarkerColor(1+ind%4);
-    g->SetLineColor(1+ind%4);
-    g->SetMarkerSize(2);
-    g->SetLineWidth(2);
-    ++ind;
-#endif
     //
     // store result if findMode was successful and if
     // the new value is significantly higher
@@ -216,85 +179,18 @@ GaussianSumUtilities<N>::computeModeWithoutTransform () const
     if ( valid && (result.first<0. || 
 		   (yRes-result.first)/(yRes+result.first)>1.e-5) ) {
       theModeStatus = Valid;
-#ifdef DBG_GSND
-      if ( iRes>=0 )
-	std::cout << "dxStart = " 
-		  << ROOT::Math::Similarity(result.second-mean((*i).second),
-					    components()[(*i).second]->weightMatrix())
-		  << std::endl;
-      iRes = (*i).second;
-#endif
       result = std::make_pair(yRes,xRes);
     }
-#ifdef DBG_GSND
-    if ( valid && iRes>=0 && (yRes-result.first)/(yRes+result.first)>1.e-5 ) {
-      std::cout << "Ratio of pdfs is = " << (*i).second << " "
-		<< pdf(mean((*i).second))/(*xStart.begin()).first << std::endl;
-    }
-#endif
-#ifdef DRAW_GSND
-    xp[0] = xp[1] = mean((*i).second)(abs(v1Draw_));
-    yp[0] = yp[1] = mean((*i).second)(abs(v2Draw_));
-    if ( valid ) {
-      xp[1] = xRes(abs(v1Draw_));
-      yp[1] = xRes(abs(v2Draw_));
-    }
-    if ( v2Draw_>=0 )
-      g->DrawGraph(2,xp,yp,"LP");
-#endif
   }
   //
   // check (existance of) solution
   //
   if ( theModeStatus==Valid ) {
     setMode(result.second);
-#ifdef DBG_GSND
-    std::cout << "Ratio of pdfs at first / real maximum = " << iRes << " "
-	      << pdf(mean(iRes))/(*xStart.begin()).first << std::endl;
-#endif
   }
   else
     setInvalidMode();
 
-#ifdef DRAW_GSND
-  {
-  TF2 f2("pdf2",&fcn2,x1-3*sig1,x1+3*sig1,x2-3*sig2,x2+3*sig2);  
-  f2.SetNpx(100);
-  f2.SetNpy(100);
-  f2.SetLineWidth(1);
-  TF2 f2mode("pdf2mode",&fcn2mode,x1-3*sig1,x1+3*sig1,x2-3*sig2,x2+3*sig2);  
-  f2mode.SetNpx(100);
-  f2mode.SetNpy(100);
-  f2mode.SetLineColor(2);
-  f2mode.SetLineWidth(1);
-  if ( v2Draw_>=0 ) {
-    f2.DrawClone("same");
-    f2mode.DrawClone("same");
-  }
-  else {
-    std::cout << "Found transformed mode =";
-    for ( unsigned int j=0; j<N; ++j )  std::cout << " " << mode().mean()(j);
-    std::cout << std::endl;
-    std::cout << "Pdf of full / mode state at mode = " << pdf(mode().mean());
-    {
-      double weight(mode().weight());
-      const Vector& ave(mode().mean());
-      const Matrix& covInv(mode().weightMatrix());
-      std::cout << " / " << weight*gauss(ave,ave,covInv);
-    }
-    std::cout << std::endl;
-    double v2Mode = mode().mean()(abs(v2Draw_));
-    TF12 f12("pdf2X",&f2,v2Mode,"X");
-    TF12 f12mode("pdf2modeX",&f2mode,v2Mode,"X");
-    f12.SetNpx(500);
-    f12mode.SetLineColor(2);
-    f12.DrawClone();
-    f12mode.DrawClone("same");
-  }
-  gPad->Modified();
-  gPad->Update();
-   }
-#endif
 
   return theMode.mean();
 }
@@ -327,10 +223,6 @@ GaussianSumUtilities<N>::findMode (Vector& xMode, double& yMode,
     pdfs = pdfComponents(x2);
     y2 = pdf(x2,pdfs);
     ydh2 = yd2 = d1LnPdf(x2,pdfs);
-#ifdef DBG_GSND
-    std::cout << "Loop " << nLoop << " " << y2 << " " << -detHesse2 << " "
-	      << (y2-y1)/(y2+y1) << " " <<  ROOT::Math::Mag2(yd2) << std::endl;
-#endif
     // cuts tuned on N=5, might need revision for other dimension
     // even if distribution is approx. normalized
     if ( nLoop>1 && usedHesse && detHesse2>0. &&
@@ -380,27 +272,11 @@ GaussianSumUtilities<N>::findMode (Vector& xMode, double& yMode,
     //
     x1 = x2;
     y1 = y2;
-#ifdef DBG_GSND
-    std::cout << "det / s / yd2 / x2+ydh2 = " << -detHesse2 << " " 
-	      << s*ROOT::Math::Mag(ydh2) << " " << s << " "  << std::endl;
-#endif
     //
     // set new values
     //
     x2 += s*ydh2;
   }
-#ifdef DBG_GSND
-    std::cout << "Last loop " << nLoop << " " << y2 << " " << -detHesse2 << " "
-	      << (y2-y1)/(y2+y1) << " " <<  ROOT::Math::Mag2(yd2) << std::endl;
-  std::cout << "findMode started from" << std::endl;
-  for ( unsigned int i=0; i<N; ++i )  std::cout << " " << xStart(i);
-  std::cout << " " << pdf(xStart) << std::endl;
-  std::cout << "findMode terminated at" << std::endl;
-  for ( unsigned int i=0; i<N; ++i )  std::cout << " " << x2(i);
-  std::cout << " " << y2 << std::endl;
-  std::cout << "after " << nLoop << " iterations, result = " 
-	    << result << std::endl;
-#endif
   xMode = x2;
   yMode = y2;
   return result;
@@ -694,30 +570,4 @@ GaussianSumUtilities<N>::tensorProduct (const Vector& v) const
   return result;
 }
 
-#ifdef DRAW_GSND
-template <unsigned int N>
-double
-GaussianSumUtilities<N>::fcn2 (double* x, double* p) {
-  Vector point(instance_->mode().mean());
-  point(abs(v1Draw_)) = x[0];
-  point(abs(v2Draw_)) = x[1];
-  return instance_->pdf(point);
-}
-template <unsigned int N>
-double
-GaussianSumUtilities<N>::fcn2mode (double* x, double* p) {
-  double weight(instance_->mode().weight());
-  const Vector& ave(instance_->mode().mean());
-  const Matrix& covInv(instance_->mode().weightMatrix());
-  Vector point(ave);
-  point(abs(v1Draw_)) = x[0];
-  point(abs(v2Draw_)) = x[1];
-  return weight*instance_->gauss(point,ave,covInv);
-//   return instance_->pdf(point);
-}
-
-template <unsigned int N> int GaussianSumUtilities<N>::v1Draw_ = 1;
-template <unsigned int N> int GaussianSumUtilities<N>::v2Draw_ = 2;
-template <unsigned int N> GaussianSumUtilities<N>* GaussianSumUtilities<N>::instance_ = 0;
-#endif
 

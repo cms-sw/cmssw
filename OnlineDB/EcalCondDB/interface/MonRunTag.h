@@ -24,7 +24,7 @@ class MonRunTag : public ITag {
   void setGeneralTag(std::string tag);
 
   MonVersionDef getMonVersionDef() const;
-  void setMonVersionDef(MonVersionDef ver);
+  void setMonVersionDef(const MonVersionDef& ver);
 
   // Methods using ID
   int fetchID() throw(std::runtime_error);

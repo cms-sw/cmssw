@@ -3,7 +3,6 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: TriggerNamesService.cc,v 1.9 2007/06/15 18:41:47 wdd Exp $
 //
 
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -11,6 +10,8 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 
 namespace edm {
@@ -19,16 +20,16 @@ namespace edm {
     TriggerNamesService::TriggerNamesService(const ParameterSet& pset) {
 
       trigger_pset_ = 
-	pset.getUntrackedParameter<ParameterSet>("@trigger_paths");
+	pset.getParameterSet("@trigger_paths");
 
       trignames_ = trigger_pset_.getParameter<Strings>("@trigger_paths");
       end_names_ = pset.getParameter<Strings>("@end_paths");
 
       ParameterSet defopts;
-      ParameterSet opts = 
-	pset.getUntrackedParameter<ParameterSet>("options", defopts);
+      ParameterSet const& opts = 
+	pset.getUntrackedParameterSet("options", defopts);
       wantSummary_ =
-	opts.getUntrackedParameter("wantSummary",false);
+	opts.getUntrackedParameter("wantSummary", false);
 
       process_name_ = pset.getParameter<std::string>("@process_name");
 
@@ -36,13 +37,12 @@ namespace edm {
       loadPosMap(end_pos_,end_names_);
 
       const unsigned int n(trignames_.size());
-      for(unsigned int i=0;i!=n;++i) {
+      for(unsigned int i = 0; i != n; ++i) {
         modulenames_.push_back(pset.getParameter<Strings>(trignames_[i]));
       }
-    }
-
-    TriggerNamesService::~TriggerNamesService()
-    {
+      for(unsigned int i = 0; i != end_names_.size(); ++i) {
+        end_modulenames_.push_back(pset.getParameter<Strings>(end_names_[i]));
+      }
     }
 
     bool
@@ -52,22 +52,19 @@ namespace edm {
 
       // Get the parameter set containing the trigger names from the parameter set registry
       // using the ID from TriggerResults as the key used to find it.
-      ParameterSet pset;
-      pset::Registry* psetRegistry = pset::Registry::instance();
-      if (psetRegistry->getMapped(triggerResults.parameterSetID(),
-                                  pset)) {
+      ParameterSet const* pset = nullptr;
+      pset::Registry const* psetRegistry = pset::Registry::instance();
+      if (nullptr != (pset = psetRegistry->getMapped(triggerResults.parameterSetID()))) {
 
         // Check to make sure the parameter set contains
         // a Strings parameter named "trigger_paths".
         // We do not want to throw an exception if it is not there
         // for reasons of backward compatibility
-        Strings psetNames = pset.getParameterNamesForType<Strings>();
+        Strings const& psetNames = pset->getParameterNamesForType<Strings>();
         std::string name("@trigger_paths");
-        Strings::const_iterator iter = std::find(psetNames.begin(), psetNames.end(), name);
-        if (iter != psetNames.end()) {
-
+	if (search_all(psetNames, name)) {
           // It is there, get it
-          trigPaths = pset.getParameter<Strings>("@trigger_paths");
+          trigPaths = pset->getParameter<Strings>("@trigger_paths");
 
           // This should never happen
           if (trigPaths.size() != triggerResults.size()) {

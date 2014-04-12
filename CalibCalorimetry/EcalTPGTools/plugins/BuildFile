@@ -1,4 +1,0 @@
-<use name=CalibCalorimetry/EcalTPGTools>
-<library file="*.cc" name=CalibCalorimetryEcalTPGToolsPlugins>
-<flags EDM_PLUGIN=1>
-</library>

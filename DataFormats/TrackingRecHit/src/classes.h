@@ -4,12 +4,11 @@
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h" 
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h" 
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
-  namespace {
+namespace DataFormats_TrackingRecHit {
+  struct dictionary {
     AlgebraicSymMatrix as;
 
     std::vector<TrackingRecHit*> v1;
@@ -25,5 +24,5 @@ namespace {
                              edm::ClonePolicy<TrackingRecHit> >::const_iterator> pr1;    
     std::auto_ptr<TrackingRecHitRef> ap1;
     edm::Wrapper<TrackingRecHitCollection> w1;
-  }
+  };
 }

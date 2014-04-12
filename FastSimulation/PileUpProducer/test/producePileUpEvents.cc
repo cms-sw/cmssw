@@ -1,5 +1,5 @@
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -8,16 +8,17 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
-#include "FastSimulation/Event/interface/FSimVertex.h"
+//#include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimDataFormats/PileUpEvents/interface/PUEvent.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <vector>
 #include <string>
@@ -31,8 +32,8 @@ public :
   explicit producePileUpEvents(const edm::ParameterSet&);
   ~producePileUpEvents();
 
-  virtual void produce(edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void produce(edm::Event&, const edm::EventSetup& ) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const& ) override;
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -129,8 +130,9 @@ producePileUpEvents::~producePileUpEvents()
   //  delete mySimEvent;
 }
 
-void producePileUpEvents::beginJob(const edm::EventSetup & es)
+void producePileUpEvents::beginRun(edm::Run const&, edm::EventSetup const& es)
 {
+
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
@@ -153,14 +155,15 @@ producePileUpEvents::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
   std::vector< edm::Handle< edm::HepMCProduct> > evts; 
   iEvent.getManyByType(evts);
   for ( unsigned i=0; i<evts.size(); ++i ) 
-    if ( evts[i].provenance()->moduleLabel()=="source" ) evtSource = evts[i];
+    if ( evts[i].provenance()->moduleLabel()=="generator" ) evtSource = evts[i];
   
   // Take the VtxSmeared if it exists, the source otherwise
   // (The vertex smearing is done in Famos only in the latter case)
   const HepMC::GenEvent* myGenEvent = evtSource->GetEvent();
-  edm::EventID id(1,totalPU);
+  edm::EventID id(1,1,totalPU);
 
-  mySimEvent->fill(*myGenEvent,id);
+  RandomEngineAndDistribution random(iEvent.streamID());
+  mySimEvent->fill(*myGenEvent,id, &random);
   
   //  mySimEvent->print();
   
@@ -216,5 +219,5 @@ producePileUpEvents::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(producePileUpEvents);
+
+DEFINE_FWK_MODULE(producePileUpEvents);

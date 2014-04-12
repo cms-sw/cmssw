@@ -29,6 +29,7 @@
       IF (GENMOD.EQ.0) PRINT*,'        (no events are generated)'
       IF (GENMOD.EQ.1) PRINT*,'        (events are unweighted)'
       IF (GENMOD.EQ.2) PRINT*,'        (events are weighted)'
+      IF (GENMOD.EQ.3) PRINT*,'        (events weighted, mars)' 
       IF (GENMOD.EQ.2) THEN
         F_FRAC = REAL(N_READ)/REAL(F1N_EV)*100.
         PRINT*,'        processed',F_FRAC,'% of all events'
@@ -45,6 +46,7 @@
       PRINT*,'        maximal energy generated:',EG_MAX,' GeV'
       PRINT*,' '
       SUM_BS = REAL(LHC_B1+LHC_B2) ! sum of beams
+      if( genmod .eq. 3 ) sum_bs = sum_bs/nprime
       RT_MUP = REAL(R_MU_P)*SUM_BS ! mu+ rate [Hz]
       PRINT*,'        rate of generated mu+:',RT_MUP,' Hz'
       RT_MUM = REAL(R_MU_M)*SUM_BS ! mu- rate [Hz]
@@ -74,7 +76,7 @@
       PRINT*,'*********************************************************'
 
       IF (GENMOD.EQ.2) CLOSE(22)
-
+      IF (GENMOD.EQ.3) CLOSE(22)
       RETURN
       
       END

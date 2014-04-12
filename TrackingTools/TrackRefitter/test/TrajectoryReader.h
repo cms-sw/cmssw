@@ -4,14 +4,12 @@
 /** \class TrajectoryReader
  *  No description available.
  *
- *  $Date: 2006/11/22 18:37:21 $
- *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 namespace edm {
@@ -45,7 +43,7 @@ class TrajectoryReader: public edm::EDAnalyzer {
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   // Operations
-  void beginJob(const edm::EventSetup&);
+  void beginJob();
   void endJob();
   
 protected:
@@ -60,5 +58,8 @@ protected:
   
   TH1F *hDPtIn;
   TH1F *hDPtOut;
+  TH1F *hSuccess; 
+  TH1F *hNHitLost;
+  TH1F *hFractionHitLost;
 };
 #endif

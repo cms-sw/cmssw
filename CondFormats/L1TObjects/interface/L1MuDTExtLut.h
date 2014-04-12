@@ -5,8 +5,8 @@
  *   Look-up tables for extrapolation
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
+ *   $Date: 2008/04/09 15:22:31 $
+ *   $Revision: 1.4 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -41,6 +41,15 @@ class L1MuDTExtLut {
 
   public:
 
+    /// helper class for look-up tables
+    class LUT {
+      public:
+        typedef std::map<short, short, std::less<short> > LUTmap;
+
+        LUTmap low;
+        LUTmap high;
+    };
+
     /// constructor
     L1MuDTExtLut();
 
@@ -69,16 +78,7 @@ class L1MuDTExtLut {
     
   private:
 
-    /// helper class for look-up tables
-    class LUT {
-      public:
-        typedef std::map<int, int, std::less<int> > LUTmap;
-
-        LUTmap low;
-        LUTmap high;
-    };
-
-    std::vector<LUT*> ext_lut;
+    std::vector<LUT> ext_lut;
 
     unsigned short int nbit_phi;
     unsigned short int nbit_phib;

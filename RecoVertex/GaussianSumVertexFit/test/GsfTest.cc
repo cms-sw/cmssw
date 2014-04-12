@@ -4,7 +4,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,7 +13,6 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexFitter.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
@@ -26,14 +24,16 @@ using namespace edm;
 using namespace std;
 
 GsfTest::GsfTest(const edm::ParameterSet& iConfig)
-  : theConfig(iConfig)
+  : theConfig(iConfig), associatorForParamAtPca(0), tree(0)
 {
-  trackLabel_ = iConfig.getParameter<std::string>("TrackLabel");
+  token_tracks = consumes<TrackCollection>(iConfig.getParameter<string>("TrackLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
   gsfPSet = iConfig.getParameter<edm::ParameterSet>("GsfParameters");
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
   edm::LogInfo("RecoVertex/GsfTest") 
     << "Initializing KVF TEST analyser  - Output file: " << outputFile_ <<"\n";
+//   token_TrackTruth = consumes<TrackingParticleCollection>(edm::InputTag("trackingtruth", "TrackTruth"));
+  token_VertexTruth = consumes<TrackingVertexCollection>(edm::InputTag("trackingtruth", "VertexTruth"));
 }
 
 
@@ -41,12 +41,7 @@ GsfTest::~GsfTest() {
   delete rootFile_;
 }
 
-void GsfTest::beginJob(edm::EventSetup const& setup){
-  edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-  associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
-
-  tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+void GsfTest::beginJob(){
 }
 
 
@@ -62,6 +57,13 @@ void
 GsfTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  if ( associatorForParamAtPca==0 ) {
+    edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
+    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
+    associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
+    
+    tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+  }
 
 
   try {
@@ -70,8 +72,8 @@ GsfTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     // get RECO tracks from the event
     // `tks` can be used as a ptr to a reco::TrackCollection
-    edm::Handle<reco::GsfTrackCollection> tks;
-    iEvent.getByLabel(trackLabel_, tks);
+    edm::Handle<edm::View<reco::Track> > tks;
+    iEvent.getByToken(token_tracks, tks);
 
     edm::LogInfo("RecoVertex/GsfTest") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
@@ -92,8 +94,8 @@ GsfTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (t_tks.size() > 1) {
       //      KalmanVertexFitter kvf(kvfPSet);
       // For the analysis: compare to your SimVertex
-      TrackingVertex sv = getSimVertex(iEvent);
-      std::cout << "SimV Position: " << Vertex::Point(sv.position()) << "\n";
+//       TrackingVertex sv = getSimVertex(iEvent);
+//       std::cout << "SimV Position: " << Vertex::Point(sv.position()) << "\n";
 
       KalmanVertexFitter kvf;
       TransientVertex tv2 = kvf.vertex(t_tks);
@@ -105,14 +107,14 @@ GsfTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  iEvent.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
-  const TrackingParticleCollection tPC = *(TPCollectionH.product());
+//   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
+//   iEvent.getByToken(token_TrackTruth, TPCollectionH);
+//   const TrackingParticleCollection tPC = *(TPCollectionH.product());
 //       reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
 // 									      TPCollectionH,
 // 									      &iEvent);
 
-      tree->fill(tv, &sv, 0, 0.0);
+//       tree->fill(tv, &sv, 0, 0.0);
     }
     
   }
@@ -132,7 +134,7 @@ TrackingVertex GsfTest::getSimVertex(const edm::Event& iEvent) const
 {
    // get the simulated vertices
   edm::Handle<TrackingVertexCollection>  TVCollectionH ;
-  iEvent.getByLabel("trackingtruth","VertexTruth",TVCollectionH);
+  iEvent.getByToken(token_VertexTruth,TVCollectionH);
   const TrackingVertexCollection tPC = *(TVCollectionH.product());
 
 //    Handle<edm::SimVertexContainer> simVtcs;

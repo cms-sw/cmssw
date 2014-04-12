@@ -1,10 +1,10 @@
 #ifndef TkNavigation_CosmicNavigationSchool_H
 #define TkNavigation_CosmicNavigationSchool_H
 
-//#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/TkNavigation/interface/FakeDetLayer.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
 
@@ -16,17 +16,39 @@
 
 class CosmicNavigationSchool : public SimpleNavigationSchool {
 public:
-  
   CosmicNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
+  ~CosmicNavigationSchool(){ cleanMemory();}
+
+  class CosmicNavigationSchoolConfiguration{
+  public:
+    CosmicNavigationSchoolConfiguration() : noPXB(false), noPXF(false), noTOB(false), noTIB(false), noTEC(false), noTID(false) , self(false), allSelf(false) {}
+    CosmicNavigationSchoolConfiguration(const edm::ParameterSet& conf);
+    bool noPXB;
+    bool noPXF;
+    bool noTOB;
+    bool noTIB;
+    bool noTEC;
+    bool noTID;
+    
+    bool self;
+    bool allSelf;
+  };
+
+  void build(const GeometricSearchTracker* theTracker,
+	     const MagneticField* field,
+	     const CosmicNavigationSchoolConfiguration conf);
  
-  ~CosmicNavigationSchool();
+protected:
+  CosmicNavigationSchool(){}
 private:
-  FakeDetLayer* theFakeDetLayer;
+
+  //FakeDetLayer* theFakeDetLayer;
   void linkBarrelLayers( SymmetricLayerFinder& symFinder);
-  void linkToAllRegularBarrelLayer(BDLC&);
-  void establishInverseRelations();
-  void linkNextBarrelLayer( ForwardDetLayer* fl, BDLC& reachableBL); 
+  //void linkForwardLayers( SymmetricLayerFinder& symFinder); 
+  void establishInverseRelations( SymmetricLayerFinder& symFinder );
+  void buildAdditionalBarrelLinks();
+  void buildAdditionalForwardLinks(SymmetricLayerFinder& symFinder);
 };
 
 #endif // CosmicNavigationSchool_H

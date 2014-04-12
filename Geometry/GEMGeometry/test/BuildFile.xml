@@ -1,0 +1,7 @@
+<use   name="Geometry/GEMGeometry"/>
+<use   name="Geometry/GEMGeometryBuilder"/>
+<use   name="Geometry/Records"/>
+<use   name="FWCore/Framework"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="GEMGeometryAnalyzer.cc" name="testGeometryGEMGeometry">
+</library>

@@ -11,9 +11,8 @@
  *                 (used for energy loss acc. to Bethe-Bloch)
  */
 class MediumProperties {
-  
- public:
-  
+public:
+  MediumProperties() : theRadLen(0), theXi(0) {}
   MediumProperties(float aRadLen, float aXi) :
     theRadLen(aRadLen), theXi(aXi) {}
   ~MediumProperties() {}
@@ -30,7 +29,9 @@ class MediumProperties {
     return theXi;
   }
   
- private:
+  bool isValid() const { return theRadLen!=0 || theXi!=0;}
+  
+private:
   float theRadLen;
   float theXi;
   

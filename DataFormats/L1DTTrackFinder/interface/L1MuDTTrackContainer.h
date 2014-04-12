@@ -15,7 +15,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackCand.h"
 
 //----------------------
 // Base Class Headers --
@@ -35,7 +35,7 @@ class L1MuDTTrackContainer {
 
  public:
 
-  typedef std::vector<L1MuRegionalCand>   TrackContainer;
+  typedef std::vector<L1MuDTTrackCand>    TrackContainer;
   typedef TrackContainer::const_iterator  Trackiterator;
   typedef TrackContainer::iterator        TrackIterator;
 
@@ -45,13 +45,18 @@ class L1MuDTTrackContainer {
   //  Destructor
   ~L1MuDTTrackContainer();
 
-  void setContainer(TrackContainer inputTracks);
+  void setContainer(const TrackContainer& inputTracks);
 
-  TrackContainer* getContainer() const;
+  TrackContainer const* getContainer() const;
 
   bool bxEmpty(int step) const;
 
   int bxSize(int step1, int step2) const;
+
+  L1MuDTTrackCand const* dtTrackCand1(int wheel, int sect, int bx) const;
+
+  L1MuDTTrackCand const* dtTrackCand2(int wheel, int sect, int bx) const;
+
 
  private:
 

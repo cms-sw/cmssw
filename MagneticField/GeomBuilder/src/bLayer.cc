@@ -3,8 +3,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/03 16:19:08 $
- *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -56,16 +54,17 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
     if (MagGeoBuilderFromDDD::debug) std::cout <<"      Sector is just one volume." << std::endl;
 
   } else if (size==12 || // In this case, each volume is a sector.
-      ((*secBegin)->shape()!=ddtrap) && (*secBegin)->shape()!=ddbox) {
+	     (((*secBegin)->shape()!=ddtrap) && (*secBegin)->shape()!=ddbox)) {
     secEnd = secBegin+size/12;
 
   }  else { // there are more than one volume per sector.
+    float tolerance = 0.025; // 250 micron
     do {
       if (MagGeoBuilderFromDDD::debug) std::cout << (*secBegin)->name 
 				 << " " << (*secBegin)->copyno << std::endl;
       ++secBegin;
     } while ((secBegin != theVolumes.end()) &&
-	     (*secBegin)->sameSurface(refSurf,outer)); // This works only if outer surface is a plane, otherwise sameSurface returns always true!
+	     (*secBegin)->sameSurface(refSurf,outer, tolerance)); // This works only if outer surface is a plane, otherwise sameSurface returns always true!
     
     secEnd = secBegin;
     secBegin = theVolumes.begin()+bin((secEnd-theVolumes.begin())-size/12);;
@@ -79,8 +78,11 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
 
     // Test it is correct...
     if (!((*secBegin)->sameSurface((*(secEnd-1))->surface(outer),
-				   outer))) {
-      std::cout << "*** ERROR: Big mess while looking for sectors" << std::endl;
+				   outer, tolerance))) {
+      std::cout << "*** ERROR: Big mess while looking for sectors "
+		<< (*secBegin)->name << " " << (*secBegin)->copyno << " "
+		<< (*(secEnd-1))->name << " " << (*(secEnd-1))->copyno
+		<< std::endl;
     }
   }
 

@@ -16,7 +16,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
+// $Id: CastorNumberingScheme.h,v 1.5 2009/09/02 20:41:25 sunanda Exp $
 //
  
 // system include files
@@ -25,6 +25,7 @@
 
 
 #include "G4Step.hh"
+#include "G4LogicalVolume.hh"
 #include <boost/cstdint.hpp>
 
 class CastorNumberingScheme {
@@ -45,18 +46,24 @@ public:
    Bits 28-31: subdetector   <br>
    *  (+z=1,-z=2);  sector=1..16, zmodule=1..18;
    */
-  static uint32_t packIndex(int det, int z, int sector, int zmodule);
-  static void   unpackIndex(const uint32_t& idx, int& det, int& z, 
-			    int& sector, int& zmodule);
+  //  static uint32_t packIndex(int det, int z, int sector, int zmodule);
+  //  static void   unpackIndex(const uint32_t& idx, int& det, int& z, int& sector, int& zmodule);
 
-  // Utilities to get detector levels during a step
-  int  detectorLevel(const G4Step*) const;
-  void detectorLevel(const G4Step*, int&, int*, G4String*) const;
+
+  static uint32_t packIndex(int z, int sector, int zmodule);
+  static void   unpackIndex(const uint32_t& idx, int& z, int& sector, int& zmodule);
 
 private:
 
-  int zsideScale;
-  int sectorScale;
+  typedef G4LogicalVolume* lvp;
+
+  // Utilities to get detector levels during a step
+  void detectorLevel(const G4Step*, int&, int*, lvp*) const;
+
+  lvp lvCASTFar, lvCASTNear, lvCAST, lvCAES, lvCEDS, lvCAHS, lvCHDS, lvCAER, lvCEDR;
+  lvp lvCAHR, lvCHDR, lvC3EF, lvC3HF, lvC4EF, lvC4HF;
+  
+  int copyNoToSector[17];
 
 };
 

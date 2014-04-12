@@ -2,7 +2,7 @@
 #define FWCore_Framework_LuminosityBlockPrincipal_h
 
 /*----------------------------------------------------------------------
-  
+
 LuminosityBlockPrincipal: This is the class responsible for management of
 per luminosity block EDProducts. It is not seen by reconstruction code;
 such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPrincipal.
@@ -10,55 +10,57 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.21 2007/07/30 04:16:53 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Framework/interface/Principal.h"
 
+#include "boost/shared_ptr.hpp"
+
+#include <vector>
+
 namespace edm {
+
+  class HistoryAppender;
+  class ModuleCallingContext;
+  class ProcessHistoryRegistry;
   class RunPrincipal;
   class UnscheduledHandler;
-  class LuminosityBlockPrincipal : private Principal {
-  typedef Principal Base;
-  public:
-    LuminosityBlockPrincipal(LuminosityBlockNumber_t const& id,
-        Timestamp const& beginTm,
-        Timestamp const& endTm,
-	boost::shared_ptr<ProductRegistry const> reg,
-        boost::shared_ptr<RunPrincipal> rp,
-        ProcessConfiguration const& pc,
-	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
-    LuminosityBlockPrincipal(LuminosityBlockNumber_t const& id,
-        Timestamp const& beginTm,
-        Timestamp const& endTm,
-	boost::shared_ptr<ProductRegistry const> reg,
-        RunNumber_t run,
+  class LuminosityBlockPrincipal : public Principal {
+  public:
+    typedef LuminosityBlockAuxiliary Auxiliary;
+    typedef Principal Base;
+    LuminosityBlockPrincipal(
+        boost::shared_ptr<LuminosityBlockAuxiliary> aux,
+        boost::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
-	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        HistoryAppender* historyAppender,
+        unsigned int index);
 
     ~LuminosityBlockPrincipal() {}
+
+    void fillLuminosityBlockPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = 0);
 
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
     }
 
-    RunPrincipal & runPrincipal() {
+    RunPrincipal& runPrincipal() {
       return *runPrincipal_;
     }
 
-    boost::shared_ptr<RunPrincipal>
-    runPrincipalSharedPtr() {
-      return runPrincipal_;
+    void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {
+      runPrincipal_ = rp;
     }
 
+    LuminosityBlockIndex index() const {
+      return index_;
+    }
+    
     LuminosityBlockID id() const {
       return aux().id();
     }
@@ -72,7 +74,7 @@ namespace edm {
     }
 
     void setEndTime(Timestamp const& time) {
-      aux_.setEndTime(time);
+      aux_->setEndTime(time);
     }
 
     LuminosityBlockNumber_t luminosityBlock() const {
@@ -80,44 +82,47 @@ namespace edm {
     }
 
     LuminosityBlockAuxiliary const& aux() const {
-      aux_.processHistoryID_ = processHistoryID();
-      return aux_;
+      return *aux_;
     }
 
-    RunNumber_t runNumber() const {
+    RunNumber_t run() const {
       return aux().run();
     }
 
-    using Base::addGroup;
-    using Base::addToProcessHistory;
-    using Base::getAllProvenance;
-    using Base::getByLabel;
-    using Base::get;
-    using Base::getBySelector;
-    using Base::getByType;
-    using Base::getIt;
-    using Base::getForOutput;
-    using Base::getMany;
-    using Base::getManyByType;
-    using Base::getProvenance;
-    using Base::groupGetter;
-    using Base::numEDProducts;
-    using Base::processConfiguration;
-    using Base::processHistory;
-    using Base::processHistoryID;
-    using Base::prodGetter;
-    using Base::productRegistry;
-    using Base::put;
-    using Base::size;
-    using Base::store;
+    void mergeAuxiliary(LuminosityBlockAuxiliary const& aux) {
+      return aux_->mergeAuxiliary(aux);
+    }
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
+    void put(
+        BranchDescription const& bd,
+        WrapperOwningHolder const& edp);
+
+    void readImmediate() const;
+
+    void setComplete() {
+      complete_ = true;
+    }
+
   private:
-    virtual bool unscheduledFill(Provenance const&) const {return false;}
+
+    virtual bool isComplete_() const override {return complete_;}
+
+    virtual bool unscheduledFill(std::string const&,
+                                 ModuleCallingContext const* mcc) const override {return false;}
+
+    virtual unsigned int transitionIndex_() const override;
+
+    void resolveProductImmediate(ProductHolderBase const& phb) const;
 
     boost::shared_ptr<RunPrincipal> runPrincipal_;
-    LuminosityBlockAuxiliary aux_;
+
+    boost::shared_ptr<LuminosityBlockAuxiliary> aux_;
+
+    LuminosityBlockIndex index_;
+    
+    bool complete_;
   };
 }
 #endif

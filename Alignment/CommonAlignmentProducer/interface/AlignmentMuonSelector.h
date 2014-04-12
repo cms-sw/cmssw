@@ -9,15 +9,14 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.4 $
  *
- * $Id: AlignmentMuonSelector.h,v 1.0 2007/03/22 12:22:11 jfernan2 Exp $
+ * $Id: AlignmentMuonSelector.h,v 1.4 2009/03/08 02:12:37 dlange Exp $
  *
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "PhysicsTools/RecoAlgos/interface/MuonSelector.h"
+#include "CommonTools/RecoAlgos/interface/MuonSelector.h"
 #include <vector>
 
 namespace edm { class Event; }
@@ -60,7 +59,7 @@ class AlignmentMuonSelector
   /// private data members
   bool applyBasicCuts,applyNHighestPt,applyMultiplicityFilter,applyMassPairFilter;
   int nHighestPt,minMultiplicity;
-  double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax;
+  double pMin,pMax,ptMin,ptMax,etaMin,etaMax,phiMin,phiMax;
   double nHitMinSA,nHitMaxSA,chi2nMaxSA;
   double nHitMinGB,nHitMaxGB,chi2nMaxGB;
   double nHitMinTO,nHitMaxTO,chi2nMaxTO;

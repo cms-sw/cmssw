@@ -1,7 +1,0 @@
-<use name=DataFormats/DetId>
-<use name=rootrflx>
-<export>
-  <use name=DataFormats/DetId>
-  <lib name=DataFormatsSiPixelDetId>
-</export>
-

@@ -1,139 +1,132 @@
-/*--------------------------------------------------------------*/
-/* DCC TCC BLOCK CLASS                                          */
-/*                                                              */
-/* Author : N.Almeida (LIP)  Date   : 30/05/2005                */
-/*--------------------------------------------------------------*/
+#include "EventFilter/EcalRawToDigi/interface/DCCTCCBlock.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
+#include "EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h"
+#include "EventFilter/EcalRawToDigi/interface/DCCEventBlock.h"
 
-#include "DCCTCCBlock.h"
+DCCTCCBlock::DCCTCCBlock ( DCCDataUnpacker  * u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack) : 
+DCCDataBlockPrototype(u,m,e,unpack){}
 
-/*-------------------------------------------------*/
-/* DCCTCCBlock::DCCTCCBlock                        */
-/* class constructor                               */
-/*-------------------------------------------------*/
-DCCTCCBlock::DCCTCCBlock(
-	DCCEventBlock * dccBlock,
-	DCCDataParser * parser, 
-	ulong * buffer, 
-	ulong numbBytes,  
-	ulong wordsToEnd,
-	ulong wordEventOffset,
-	ulong expectedId) : 
-  DCCBlockPrototype(parser,"TCC", buffer, numbBytes, wordsToEnd, wordEventOffset),dccBlock_(dccBlock), expectedId_(expectedId){
-
-  //Reset error counters
-  errors_["TCC::HEADER"]  = 0;
-  errors_["TCC::BLOCKID"] = 0;
-	
-  //Get data fields from the mapper and retrieve data 
-  if(      parser_->numbTTs() == 68){ mapperFields_ = parser_->mapper()->tcc68Fields();}
-  else if( parser_->numbTTs() == 32){ mapperFields_ = parser_->mapper()->tcc32Fields();}	
-  else if( parser_->numbTTs() == 16){ mapperFields_ = parser_->mapper()->tcc16Fields();}
-  
-  parseData();
-  
-  // check internal data 
-  if(parser_->debug())
-    dataCheck();
-}
  
-/*---------------------------------------------------*/
-/* DCCTCCBlock::dataCheck                            */
-/* check data with data fields                       */
-/*---------------------------------------------------*/
-void DCCTCCBlock::dataCheck(){
-  pair <bool,string> res;            //check result
-  string checkErrors("");            //error string
+int DCCTCCBlock::unpack(const uint64_t ** data, unsigned int * dwToEnd, short tccChId){ 
+ 
+  dwToEnd_    = dwToEnd;  
+  datap_      = data;
+  data_       = *data;
+  
+  // Need at least 1 dw to findout if pseudo-strips readout is enabled
+  if(*dwToEnd == 1){
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogWarning("IncorrectEvent")
+        <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
+        <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\n Only 8 bytes are available until the end of event ..."
+        <<"\n => Skipping to next fed block...";
+     }
+    
+    //todo : add this to error colection
+    
+    return STOP_EVENT_UNPACKING;
+  }
 
-  //check BX(LOCAL) field (1st word bit 16)
-  res = checkDataField("BX", BXMASK & (dccBlock_->getDataField("BX")));
-  if(!res.first){ 
-    checkErrors += res.second; 
-    (errors_["TCC::HEADER"])++; 
+  blockLength_ = getLength();
+  
+  
+  if( (*dwToEnd_)<blockLength_ ){
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogWarning("IncorrectEvent")
+        <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
+        <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available until the end of event while "<<(blockLength_*8)<<" are needed!"
+        <<"\n => Skipping to next fed block...";
+     }
+    
+    //todo : add this to error colection
+    
+    return STOP_EVENT_UNPACKING;
   }
   
-  //check LV1(LOCAL) field (1st word bit 32)
-  res = checkDataField("LV1", L1MASK & (dccBlock_->getDataField("LV1"))); 
-  if(!res.first){ 
-    checkErrors += res.second; 
-    (errors_["TCC::HEADER"])++; 
-  }
-  
-  //check TCC ID field (1st word bit 0)
-  res = checkDataField("TCC ID",expectedId_); 
-  if(!res.first){ 
-    checkErrors += res.second; 
-    (errors_["TCC::HEADER"])++; 
-  } 
   
   
-  if(checkErrors!=""){
-  	 blockError_=true;
-    errorString_ +="\n ======================================================================\n"; 
-	 errorString_ += string(" ") + name_ + string("( ID = ")+parser_->getDecString((ulong)(expectedId_))+string(" ) errors : ") ;
-	 errorString_ += checkErrors ;
-	 errorString_ += "\n ======================================================================";
-  }
+  if(unpackInternalData_){ 
   
+    //  Go to the begining of the tcc block
+    data_++;
   
-}
+    tccId_    = ( *data_ )           & TCC_ID_MASK;
+    ps_       = ( *data_>>TCC_PS_B ) & B_MASK;      
+    bx_       = ( *data_>>TCC_BX_B ) & TCC_BX_MASK;
+    l1_       = ( *data_>>TCC_L1_B ) & TCC_L1_MASK;
+    nTTs_     = ( *data_>>TCC_TT_B ) & TCC_TT_MASK;
+    nTSamples_= ( *data_>>TCC_TS_B ) & TCC_TS_MASK;
+        
+    event_->setTCCSyncNumbers(l1_,bx_,tccChId);
 
-
-/*--------------------------------------------------*/
-/* DCCTCCBlock::increment                           */
-/* increment a TCC block                            */
-/*--------------------------------------------------*/
-
-void  DCCTCCBlock::increment(ulong numb){
-  //if no debug is required increments the number of blocks
-  //otherwise checks if block id is really B'011'=3
-  if(!parser_->debug()){ 
-    DCCBlockPrototype::increment(numb); 
-  }
-  else {
-    for(ulong counter=0; counter<numb; counter++, dataP_++, wordCounter_++){
-      ulong blockID = (*dataP_) >> BPOSITION_BLOCKID;
-      if( blockID != BLOCKID ){
-	(errors_["TCC::BLOCKID"])++;
-	//errorString_ += string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);
-	//errorString  += string(", while ")+parser_->getDecString(BLOCKID)+string(" is expected");
+    if ( ! checkTccIdAndNumbTTs() ){
+          updateEventPointers();
+          return SKIP_BLOCK_UNPACKING;
+        }  
+  
+    // Check synchronization
+    if(sync_){
+      const unsigned int dccBx = (event_->bx())  & TCC_BX_MASK;
+      const unsigned int dccL1 = (event_->l1A()) & TCC_L1_MASK;
+      const unsigned int fov   = ( event_->fov() ) & H_FOV_MASK;
+      
+      if (! isSynced(dccBx, bx_, dccL1, l1_, TCC_SRP, fov)) {
+        if( ! DCCDataUnpacker::silentMode_ ){
+          edm::LogWarning("IncorrectBlock")
+            << "Synchronization error for TCC block"
+            << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << ")\n"
+            << "  dccBx = " << dccBx << " bx_ = " << bx_ << " dccL1 = " << dccL1 << " l1_ = " << l1_ << "\n"
+            << "  => TCC block skipped";
+        }
+        
+        //Note : add to error collection ?        
+        updateEventPointers();
+        return SKIP_BLOCK_UNPACKING;
+        
       }
     }
-  }
+    
+    //check numb of samples
+   /*  
+    unsigned int expTriggerTSamples(mapper_->numbTriggerTSamples());
+    
+    if( nTSamples_ != expTriggerTSamples ){
+      edm::LogWarning("IncorrectBlock")
+        <<"Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\n Number of time samples is "<<nTSamples_<<" while "<<expTriggerTSamples<<" is expected"
+        <<"\n TCC block skipped..."<<endl;
+                
+       //Note : add to error collection ?
+           updateEventPointers();                 
+      return SKIP_BLOCK_UNPACKING;
+    }
+    */         
+  
+    // debugging
+    // display(cout);
+
+    addTriggerPrimitivesToCollection();
+
+  } 
+
+  updateEventPointers();
+  return BLOCK_UNPACKED;        
   
 }
 
 
 
-vector< pair<int,bool> > DCCTCCBlock::triggerSamples() {
-  vector< pair<int,bool> > data;
+void DCCTCCBlock::display(std::ostream& o){
 
-  for(unsigned int i=1;i <= parser_->numbTTs();i++){
-    string name = string("TPG#") + parser_->getDecString(i);
-    int tpgValue = getDataField( name ) ;
-                 pair<int,bool> tpg( tpgValue&ETMASK, bool(tpgValue>>BPOSITION_FGVB));
-    data.push_back (tpg);
-     
-  }
-
-  return data;
-}
-
-
-
-
-vector<int> DCCTCCBlock::triggerFlags() {
-  vector<int> data;
-
-  for(unsigned int i=1;i <= parser_->numbTTs();i++){
-    string name = string("TTF#") + parser_->getDecString(i);
+  o<<"\n Unpacked Info for DCC TCC Block"
+   <<"\n DW1 ============================="
+   <<"\n TCC Id "<<tccId_
+   <<"\n Bx "<<bx_
+   <<"\n L1 "<<l1_
+   <<"\n Numb TT "<<nTTs_
+   <<"\n Numb Samp "<<nTSamples_;  
+} 
     
-    data.push_back ( getDataField( name )  );
-     
-  }
-
-  return data;
-}
-
-
-
-

@@ -1,13 +1,14 @@
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/VertexRecoManager.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
 namespace {
   void errorNoReconstructor( const string & finder )
   {
-    cout << "[ConfigurableVertexReconstructor] got no reconstructor for \""
-         << finder << "\"" << endl;
+    edm::LogError ( "ConfigurableVertexReconstructor") << "got no reconstructor for \""
+         << finder << "\"";
     map < string, AbstractConfReconstructor * > valid = 
       VertexRecoManager::Instance().get();
     cout << "  Valid reconstructors are:";
@@ -51,6 +52,20 @@ ConfigurableVertexReconstructor * ConfigurableVertexReconstructor::clone() const
   return new ConfigurableVertexReconstructor ( *this );
 }
 
+vector < TransientVertex > ConfigurableVertexReconstructor::vertices ( 
+    const std::vector < reco::TransientTrack > & prims,
+    const std::vector < reco::TransientTrack > & secs,
+    const reco::BeamSpot & s ) const
+{
+  return theRector->vertices ( prims, secs, s );
+}
+
+vector < TransientVertex > ConfigurableVertexReconstructor::vertices ( 
+    const std::vector < reco::TransientTrack > & t,
+    const reco::BeamSpot & s ) const
+{
+  return theRector->vertices ( t, s );
+}
 
 vector < TransientVertex > ConfigurableVertexReconstructor::vertices ( 
     const std::vector < reco::TransientTrack > & t ) const

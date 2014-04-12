@@ -1,0 +1,22 @@
+#!/bin/tcsh
+
+## $1 is the final iteration number
+## $2 is output directory
+## $3 is a list of data files
+
+echo "Creating sandbox..."
+rm -r scripts/outputDirTracker
+rm -r scripts/outputDirSubdets
+mkdir scripts/outputDirTracker
+mkdir scripts/outputDirSubdets
+cd test/
+echo "Creating ROOT geometry..."
+cmsRun intoNtuplesCSA08.cfg
+echo "Comparison 1..."
+cmsRun compareCSA08_commonTracker.cfg
+echo "Comparison 2..."
+cmsRun compareCSA08_commonSubdets.cfg
+
+
+
+

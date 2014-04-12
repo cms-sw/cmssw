@@ -1,230 +1,352 @@
-// File: SiStripRecHitConverterAlgorithm.cc
-// Description:  Converts clusters into rechits
-// Author:  C.Genta
-// Creation Date:  OGU Aug. 1, 2005   
-
-#include <vector>
-#include <algorithm>
-#include <iostream>
-
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverterAlgorithm.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
+#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
-//DataFormats
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-//Geometry
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 
-//messagelogger
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(SiStripRecHitMatcher);
 
-using namespace std;
 
-SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
-}
+SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf) : 
+  useQuality(conf.getParameter<bool>("useSiStripQuality")),
+  maskBad128StripBlocks( conf.existsAs<bool>("MaskBadAPVFibers") && conf.getParameter<bool>("MaskBadAPVFibers")),
+  tracker_cache_id(0),
+  cpe_cache_id(0),
+  quality_cache_id(0),
+  cpeTag(conf.getParameter<edm::ESInputTag>("StripCPE")),
+  matcherTag(conf.getParameter<edm::ESInputTag>("Matcher")),
+  qualityTag(conf.getParameter<edm::ESInputTag>("siStripQualityLabel"))
+{}
 
-SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
-}
-
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher)
+void SiStripRecHitConverterAlgorithm::
+initialize(const edm::EventSetup& es) 
 {
-  run(input, outmatched,outrphi,outstereo,tracker,parameterestimator,matcher,LocalVector(0.,0.,0.));
+  uint32_t tk_cache_id = es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
+  uint32_t c_cache_id = es.get<TkStripCPERecord>().cacheIdentifier();
+  uint32_t q_cache_id = es.get<SiStripQualityRcd>().cacheIdentifier();
+
+  if(tk_cache_id != tracker_cache_id) {
+    es.get<TrackerDigiGeometryRecord>().get(tracker);
+    tracker_cache_id = tk_cache_id;
+  }
+  if(c_cache_id != cpe_cache_id) {
+    es.get<TkStripCPERecord>().get(matcherTag, matcher);
+    es.get<TkStripCPERecord>().get(cpeTag, parameterestimator); 
+    cpe_cache_id = c_cache_id;
+  }
+  if( useQuality && q_cache_id!=quality_cache_id) {
+    es.get<SiStripQualityRcd>().get(qualityTag, quality);
+    quality_cache_id = q_cache_id;
+  }
+}
+
+void SiStripRecHitConverterAlgorithm::
+run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output) 
+{ run(input, output, LocalVector(0.,0.,0.)); }
+
+
+/*
+namespace {
+  float sigmaPitch(LocalPoint const& pos, LocalError err, 
+		   GeomDetUnit const & stripdet) {
+    const StripTopology& topol=(const StripTopology&)stripdet.topology();
+    
+    HelpertRecHit2DLocalPos::updateWithAPE(err,stripdet);
+    MeasurementError error=topol.measurementError(pos,err);
+    auto pitch=topol.localPitch(pos);
+    return error.uu()*pitch*pitch;
+  }
+}
+*/
+
+void SiStripRecHitConverterAlgorithm::
+run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& output, LocalVector trackdirection)
+{
+
+  edmNew::DetSetVector<SiStripCluster>::const_iterator dse = inputhandle->end();
+  for (edmNew::DetSetVector<SiStripCluster>::const_iterator 
+	 DS = inputhandle->begin(); DS != dse; ++DS ) {     
+    edmNew::det_id_type id = (*DS).id();
+    if(!useModule(id)) continue;
+
+    Collector collector = StripSubdetector(id).stereo()  
+      ? Collector(*output.stereo, id) 
+      : Collector(*output.rphi,   id);
+
+    bool bad128StripBlocks[6]; fillBad128StripBlocks( id, bad128StripBlocks);
+    
+    GeomDetUnit const & du = *(tracker->idToDetUnit(id));
+    edmNew::DetSet<SiStripCluster>::const_iterator cle = (*DS).end();
+    for(edmNew::DetSet<SiStripCluster>::const_iterator 
+	  cluster = (*DS).begin();  cluster != cle; ++cluster ) {     
+
+      if(isMasked(*cluster,bad128StripBlocks)) continue;
+
+      StripClusterParameterEstimator::LocalValues parameters = 	parameterestimator->localParameters(*cluster,du);
+      collector.push_back(SiStripRecHit2D( parameters.first, parameters.second, du, edmNew::makeRefTo(inputhandle,cluster) ));
+    }
+
+    if (collector.empty()) collector.abort();
+  }
+  match(output,trackdirection);
 }
 
 
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripCluster> > inputhandle,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher,LocalVector trackdirection)
-{
+namespace {
 
-  int nmono=0;
-  int nstereo=0;
+  struct CollectorHelper {
+    size_t nmatch;
+    
+    
+    typedef edm::OwnVector<SiStripMatchedRecHit2D> CollectorMatched;
+    typedef SiStripMatchedRecHit2DCollection::FastFiller Collector;
+    
+    Collector & m_collector;
+    CollectorMatched & m_collectorMatched;
+    SiStripRecHit2DCollection::FastFiller & m_fillerRphiUnm;
+    std::vector<SiStripRecHit2D::ClusterRef::key_type>         & m_matchedSteroClusters;
+    
+    static inline SiStripRecHit2D const & stereoHit(edmNew::DetSet<SiStripRecHit2D>::const_iterator iter) {
+      return *iter;
+    }
+    
+    static inline SiStripRecHit2D const & monoHit(edmNew::DetSet<SiStripRecHit2D>::const_iterator iter) {
+      return *iter;
+    }
+    
+    struct Add {
+      Add(CollectorHelper& ih) : h(ih){}
+      CollectorHelper& h;
+      void operator()(SiStripMatchedRecHit2D const & rh) { h.m_collectorMatched.push_back(rh);}
+    };
 
-  for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=inputhandle->begin(); DSViter!=inputhandle->end();DSViter++ ) {//loop over detectors
- 
-    unsigned int id = DSViter->id;
+    CollectorHelper & collector() {
+      return *this;
+    }
 
-    edm::OwnVector<SiStripRecHit2D> collectorrphi; 
-    edm::OwnVector<SiStripRecHit2D> collectorstereo; 
-    //    if(id!=999999999){ //if is valid detector
-      DetId detId(id);
-      //get geometry 
-      const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker.idToDetUnit(detId);
-      if(stripdet==0)edm::LogWarning("SiStripRecHitConverter")<<"Detid="<<id<<" not found, trying next one";
-      else{
-        edm::DetSet<SiStripCluster>::const_iterator begin=DSViter->data.begin();
-        edm::DetSet<SiStripCluster>::const_iterator end  =DSViter->data.end();
-        
-        StripSubdetector specDetId=StripSubdetector(id);
-        for(edm::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter){//loop over the clusters of the detector
+   void operator()(SiStripMatchedRecHit2D const & rh) {m_collectorMatched.push_back(rh);}
 
-          //calculate the position and error in local coordinates
-          StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter,*stripdet);
 
-//           GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(parameters.first);
-//           GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
-//           LocalVector trackdir=(stripdet->surface()).toLocal(gtrackdirection);
-//           const  LocalTrajectoryParameters trackparam=LocalTrajectoryParameters( parameters.first, trackdir,0);
-//           parameters=parameterestimator.localParameters(*iter,*stripdet,trackparam);
-
-          //store the ref to the cluster
-          edm::Ref< edm::DetSetVector <SiStripCluster>,SiStripCluster > const & cluster=edm::makeRefTo(inputhandle,id,iter);
-
-          if(!specDetId.stereo()){ //if the cluster is in a mono det
-            collectorrphi.push_back(new SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
-            nmono++;
-          }
-          else{                    //if the cluster in in stereo det
-            collectorstereo.push_back(new SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
-            nstereo++;
-          }
-        }
-        if (collectorrphi.size() > 0) {
-          outrphi.put(detId,collectorrphi.begin(),collectorrphi.end());
-        }
-        if (collectorstereo.size() > 0) {
-          outstereo.put(detId, collectorstereo.begin(),collectorstereo.end());
-        }
+    CollectorHelper(
+		    Collector & i_collector,
+		    CollectorMatched & i_collectorMatched,
+		    SiStripRecHit2DCollection::FastFiller & i_fillerRphiUnm,
+		    std::vector<SiStripRecHit2D::ClusterRef::key_type> & i_matchedSteroClusters
+		    ) : nmatch(0), 
+			m_collector(i_collector),
+			m_collectorMatched(i_collectorMatched),
+			m_fillerRphiUnm(i_fillerRphiUnm),
+			m_matchedSteroClusters(i_matchedSteroClusters)    {}
+    
+    void closure(edmNew::DetSet<SiStripRecHit2D>::const_iterator it) {
+      if (!m_collectorMatched.empty()){
+	nmatch+=m_collectorMatched.size();
+	for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator itm = m_collectorMatched.begin(),
+	       edm = m_collectorMatched.end();
+	     itm != edm; 
+	     ++itm) {
+	  m_collector.push_back(*itm);
+	  // mark the stereo hit cluster as used, so that the hit won't go in the unmatched stereo ones
+	    m_matchedSteroClusters.push_back(itm->stereoClusterRef().key()); 
+	}
+	m_collectorMatched.clear();
+      } else {
+	// store a copy of this rphi hit as an unmatched rphi hit
+	m_fillerRphiUnm.push_back(*it);
       }
     }
+  };
+}
+
+
+void SiStripRecHitConverterAlgorithm::
+match(products& output, LocalVector trackdirection) const 
+{
+  int nmatch=0;
+  edm::OwnVector<SiStripMatchedRecHit2D> collectorMatched; // gp/FIXME: avoid this
   
-  edm::LogInfo("SiStripRecHitConverter") 
-    << "found\n"				 
-    << nmono 			 
-    << "  clusters in mono detectors\n"                            
-    << nstereo  
-    << "  clusters in partners stereo detectors\n";
+  // Remember the ends of the collections, as we will use them a lot
+  SiStripRecHit2DCollection::const_iterator edStereoDet = output.stereo->end();
+  SiStripRecHit2DCollection::const_iterator edRPhiDet   = output.rphi->end();
+  
+  // two work vectors for bookeeping clusters used by the stereo part of the matched hits
+  std::vector<SiStripRecHit2D::ClusterRef::key_type>         matchedSteroClusters;
+  
+  for (SiStripRecHit2DCollection::const_iterator itRPhiDet = output.rphi->begin(); itRPhiDet != edRPhiDet; ++itRPhiDet) {
+    edmNew::DetSet<SiStripRecHit2D> rphiHits = *itRPhiDet;
+    StripSubdetector specDetId(rphiHits.detId());
+    uint32_t partnerId = specDetId.partnerDetId();
+    
+    // if not part of a glued pair
+    if (partnerId == 0) { 
+      // I must copy these as unmatched 
+      if (!rphiHits.empty()) {
+	SiStripRecHit2DCollection::FastFiller filler(*output.rphiUnmatched, rphiHits.detId());
+	filler.resize(rphiHits.size());
+	std::copy(rphiHits.begin(), rphiHits.end(), filler.begin());
+      }
+      continue;
+    }
+    
+    SiStripRecHit2DCollection::const_iterator itStereoDet = output.stereo->find(partnerId);
+    
+    // if the partner is not found (which probably can happen if it's empty)
+    if (itStereoDet == edStereoDet) {
+      // I must copy these as unmatched 
+      if (!rphiHits.empty()) {
+	SiStripRecHit2DCollection::FastFiller filler(*output.rphiUnmatched, rphiHits.detId());
+	filler.resize(rphiHits.size());
+	std::copy(rphiHits.begin(), rphiHits.end(), filler.begin());
+      }
+      continue;
+    }
+    
+    edmNew::DetSet<SiStripRecHit2D> stereoHits = *itStereoDet;
+    
+     
+    // Get ready for making glued hits
+    const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker->idToDet(DetId(specDetId.glued()));
+    typedef SiStripMatchedRecHit2DCollection::FastFiller Collector;
+    Collector collector(*output.matched, specDetId.glued());
+    
+    // Prepare also the list for unmatched rphi hits
+    SiStripRecHit2DCollection::FastFiller fillerRphiUnm(*output.rphiUnmatched, rphiHits.detId());
+    
+    // a list of clusters used by the matched part of the stereo hits in this detector
+    matchedSteroClusters.clear();          // at the beginning, empty
 
-  // Match the clusters
-  match(outmatched,outrphi,outstereo,tracker,matcher,trackdirection);
-}
+#ifdef DOUBLE_MATCH
+    CollectorHelper chelper(collector, collectorMatched,
+		    fillerRphiUnm,
+		    matchedSteroClusters
+		    );
+    matcher->doubleMatch(rphiHits.begin(), rphiHits.end(), 
+			 stereoHits.begin(),stereoHits.end(),gluedDet,trackdirection,chelper);
+    nmatch+=chelper.nmatch;
+#else 
+   // Make simple collection of this (gp:FIXME: why do we need it?)
+    SiStripRecHitMatcher::SimpleHitCollection stereoSimpleHits;
+    // gp:FIXME: use std::transform 
+    stereoSimpleHits.reserve(stereoHits.size());
+    for (edmNew::DetSet<SiStripRecHit2D>::const_iterator it = stereoHits.begin(), ed = stereoHits.end(); it != ed; ++it) {
+      stereoSimpleHits.push_back(&*it);
+    }
 
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::SiStripRefGetter<SiStripCluster> >  inputhandle,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher)
-{
- 
-  int nmono=0;
-  int nstereo=0;
-  edm::OwnVector<SiStripRecHit2D> collectorrphi; 
-  edm::OwnVector<SiStripRecHit2D> collectorstereo;
- 
-  edm::SiStripRefGetter<SiStripCluster>::const_iterator iregion = inputhandle->begin();
-  for(;iregion!=inputhandle->end();++iregion) {
-    vector<SiStripCluster>::const_iterator icluster = iregion->begin();
-    for (;icluster!=iregion->end();icluster++) {
-
-      DetId detId(icluster->geographicalId());
-      const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker.idToDetUnit(detId);
-      if(stripdet==0)
-	edm::LogWarning("SiStripRecHitConverter")
-	  <<"Detid="
-	  <<icluster->geographicalId()
-	  <<" not found";
-      else{
-        
-        StripSubdetector specDetId=StripSubdetector(icluster->geographicalId());
-	StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*icluster,*stripdet);
-	edm::SiStripRefGetter<SiStripCluster>::value_ref cluster = edm::makeRefToSiStripRefGetter(inputhandle,icluster);
-       
-	if(!specDetId.stereo()){ 
-	  collectorrphi.push_back(new SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
-	  nmono++;
+    for (edmNew::DetSet<SiStripRecHit2D>::const_iterator it = rphiHits.begin(), ed = rphiHits.end(); it != ed; ++it) {
+      matcher->match(&(*it),stereoSimpleHits.begin(),stereoSimpleHits.end(),collectorMatched,gluedDet,trackdirection);
+      if (collectorMatched.size()>0){
+	nmatch+=collectorMatched.size();
+	for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator itm = collectorMatched.begin(),
+	       edm = collectorMatched.end();
+	     itm != edm; 
+	     ++itm) {
+	  collector.push_back(*itm);
+	  // mark the stereo hit cluster as used, so that the hit won't go in the unmatched stereo ones
+	    matchedSteroClusters.push_back(itm->stereoClusterRef().key());
 	}
-	else{           
-	  collectorstereo.push_back(new SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
-	  nstereo++;
-	}
-
-	//If last cluster in det store clusters and clear OwnVector
-	if (((icluster+1 )==iregion->end())
-	    || ((icluster+1)->geographicalId() != icluster->geographicalId())) {
-
-	  if (collectorrphi.size() > 0) {
-	    outrphi.put(detId,collectorrphi.begin(),collectorrphi.end());
-	    collectorrphi.clear();
-	  }
-	  
-	  if (collectorstereo.size() > 0) {
-	    outstereo.put(detId, collectorstereo.begin(),collectorstereo.end());
-	    collectorstereo.clear();
-	  }	  
-	}
+	collectorMatched.clear();
+      } else {
+	// store a copy of this rphi hit as an unmatched rphi hit
+	fillerRphiUnm.push_back(*it);
       }
     }
+    
+#endif
+
+
+    // discard matched hits if the collection is empty
+    if (collector.empty()) collector.abort();
+    
+    // discard unmatched rphi hits if there are none
+    if (fillerRphiUnm.empty()) fillerRphiUnm.abort();
+    
+    // now look for unmatched stereo hits    
+    SiStripRecHit2DCollection::FastFiller fillerStereoUnm(*output.stereoUnmatched, stereoHits.detId());
+      std::sort(matchedSteroClusters.begin(), matchedSteroClusters.end());
+      for (edmNew::DetSet<SiStripRecHit2D>::const_iterator it = stereoHits.begin(), ed = stereoHits.end(); it != ed; ++it) {
+	if (!std::binary_search(matchedSteroClusters.begin(), matchedSteroClusters.end(), it->cluster().key())) {
+	  fillerStereoUnm.push_back(*it);
+	}
+      }
+    if (fillerStereoUnm.empty()) fillerStereoUnm.abort(); 
+    
+    
   }
   
-  edm::LogInfo("SiStripRecHitConverter") 
-    << "found\n"				 
-    << nmono 			 
-    << "  clusters in mono detectors\n"                            
-    << nstereo  
-    << "  clusters in partners stereo detectors\n";
-					
-
-  match(outmatched,outrphi,outstereo,tracker,matcher,LocalVector(0.,0.,0.));
-  
-}
-
-
-void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker, const SiStripRecHitMatcher & matcher,LocalVector trackdirection) const {
-  
-  int nmatch=0;
-  int nunmatch=0;
-  
-  const std::vector<DetId> rphidetIDs = outrphi.ids();
-  const std::vector<DetId> stereodetIDs = outstereo.ids();
-  for ( std::vector<DetId>::const_iterator detunit_iterator = rphidetIDs.begin(); detunit_iterator != rphidetIDs.end(); detunit_iterator++ ) {//loop over detectors
-    edm::OwnVector<SiStripMatchedRecHit2D> collectorMatched; 
-    SiStripRecHit2DCollection::range monoRecHitRange = outrphi.get((*detunit_iterator));
-    SiStripRecHit2DCollection::const_iterator rhRangeIteratorBegin = monoRecHitRange.first;
-    SiStripRecHit2DCollection::const_iterator rhRangeIteratorEnd   = monoRecHitRange.second;
-    SiStripRecHit2DCollection::const_iterator iter;
-    
-    unsigned int id = 0;
-    for(iter=rhRangeIteratorBegin;iter!=rhRangeIteratorEnd;++iter){//loop over the mono RH
-      edm::OwnVector<SiStripMatchedRecHit2D> collectorMatchedSingleHit; 
-      StripSubdetector specDetId(*detunit_iterator);
-      id = specDetId.partnerDetId();
-      const DetId theId(id);
-      
-      //find if the detid of the stereo is in the list of stereo RH
-      std::vector<DetId>::const_iterator partnerdetiter=std::find(stereodetIDs.begin(),stereodetIDs.end(),theId);
-      if(partnerdetiter==stereodetIDs.end()) id=0;	
-      
-      const SiStripRecHit2DCollection::range rhpartnerRange = outstereo.get(theId);
-      SiStripRecHit2DCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
-      SiStripRecHit2DCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
-      
-      if (id>0){ //if the detector has a stereo det associated and at least an hit in the stereo detector
-	
-	const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(DetId(specDetId.glued()));
-	
-	// perform the matchin looping over the hit on the stereo dets
-	collectorMatchedSingleHit=matcher.match(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,gluedDet,trackdirection);
-	
-	if (collectorMatchedSingleHit.size() > 0) { //if a matched is found add the hit to the temporary collection
-	  nmatch++;
-	  for (edm::OwnVector<SiStripMatchedRecHit2D>::iterator itt = collectorMatchedSingleHit.begin();  itt != collectorMatchedSingleHit.end() ; itt++)
-	    collectorMatched.push_back(new SiStripMatchedRecHit2D(*itt));
-	}
-	else{
-	  nunmatch++;
-	}
+  for (SiStripRecHit2DCollection::const_iterator itStereoDet = output.stereo->begin(); itStereoDet != edStereoDet; ++itStereoDet) {
+    edmNew::DetSet<SiStripRecHit2D> stereoHits = *itStereoDet;
+    StripSubdetector specDetId(stereoHits.detId());
+    uint32_t partnerId = specDetId.partnerDetId();
+    if (partnerId == 0) continue;
+    SiStripRecHit2DCollection::const_iterator itRPhiDet = output.rphi->find(partnerId);
+    if (itRPhiDet == edRPhiDet) {
+      if (!stereoHits.empty()) {
+	SiStripRecHit2DCollection::FastFiller filler(*output.stereoUnmatched, stereoHits.detId());
+	filler.resize(stereoHits.size());
+	std::copy(stereoHits.begin(), stereoHits.end(), filler.begin());
       }
-    }
-    if (collectorMatched.size()>0){
-      StripSubdetector stripDetId(*detunit_iterator);
-      outmatched.put(DetId(stripDetId.glued()),collectorMatched.begin(),collectorMatched.end());
     }
   }
   
   edm::LogInfo("SiStripRecHitConverter") 
     << "found\n"	 
     << nmatch 
-    << "  matched RecHit\n"
-    << nunmatch 
-    << "  unmatched clusters";
+    << "  matched RecHits\n";
+}
+
+void SiStripRecHitConverterAlgorithm::
+fillBad128StripBlocks(const uint32_t detid, bool bad128StripBlocks[6] ) const 
+{
+  if(maskBad128StripBlocks) {
+    short badApvs   = quality->getBadApvs(detid);
+    short badFibers = quality->getBadFibers(detid);
+    for (int j = 0; j < 6; j++) {
+      bad128StripBlocks[j] = (badApvs & (1 << j));
+    }
+    for (int j = 0; j < 3; j++) {
+      if (badFibers & (1 << j)) {
+	bad128StripBlocks[2*j+0] = true;
+	bad128StripBlocks[2*j+1] = true;
+      }
+    }
+  }
+}
+
+inline
+bool SiStripRecHitConverterAlgorithm::
+isMasked(const SiStripCluster &cluster, bool bad128StripBlocks[6]) const 
+{
+  if(maskBad128StripBlocks) {
+    if ( bad128StripBlocks[cluster.firstStrip() >> 7] ) {
+      if ( bad128StripBlocks[(cluster.firstStrip()+cluster.amplitudes().size())  >> 7] ||
+	   bad128StripBlocks[static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7] ) {
+	return true;
+      }
+    } else {
+      if ( bad128StripBlocks[(cluster.firstStrip()+cluster.amplitudes().size())  >> 7] &&
+	   bad128StripBlocks[static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7] ) {
+	return true;
+      }
+    }
+  }
+  return false;
+}
+
+inline
+bool SiStripRecHitConverterAlgorithm::
+useModule(const uint32_t id) const
+{
+  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker->idToDetUnit(id);
+  if(stripdet==0) edm::LogWarning("SiStripRecHitConverter") << "Detid=" << id << " not found";
+  return stripdet!=0 && (!useQuality || quality->IsModuleUsable(id));
 }

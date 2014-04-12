@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TH1F.h"
 #include "TFile.h"
@@ -15,6 +16,17 @@
 #include <map>
 #include <set>
 
+#include "TTree.h"
+#include "TMath.h"
+#include <vector>
+#include "TROOT.h"
+
+#include <Math/GenVector/PxPyPzE4D.h>
+#include <Math/GenVector/PxPyPzM4D.h>
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include <cmath>
+
+
 class TrackAssociatorBase;
 class VertexAssociatorBase;
 
@@ -23,7 +35,7 @@ class testVertexAssociator : public edm::EDAnalyzer {
  public:
   testVertexAssociator(const edm::ParameterSet& conf);
   virtual ~testVertexAssociator();
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
@@ -31,28 +43,50 @@ class testVertexAssociator : public edm::EDAnalyzer {
   TrackAssociatorBase*  associatorByChi2;
   TrackAssociatorBase*  associatorByHits;
   VertexAssociatorBase* associatorByTracks;
-  TFile* rootFile;
-  TH1F*  xMiss;
-  TH1F*  yMiss;
-  TH1F*  zMiss;
-  TH1F*  rMiss;
 
-  TH1F*  zVert;
-  TH1F*  zTrue;
-  TH1F*  nReco;
-  TH1F*  nTrue;
+  edm::ParameterSet theConfig_;
+  edm::InputTag vertexCollection_;
 
-  TH1F*  sr_xMiss;
-  TH1F*  sr_yMiss;
-  TH1F*  sr_zMiss;
-  TH1F*  sr_rMiss;
+  int n_event_;
+  int n_rs_vertices_;
+  int n_rs_vtxassocs_;
+  int n_sr_vertices_;
+  int n_sr_vtxassocs_;
 
-  TH1F*  sr_zVert;
-  TH1F*  sr_zTrue;
-  TH1F*  sr_nReco;
-  TH1F*  sr_nTrue;
-  TH1F*  sr_qual;
+  //--------- RecoToSim Histos -----
+ 
+  TH1F*  rs_resx;
+  TH1F*  rs_resy;
+  TH1F*  rs_resz;  
+  TH1F*  rs_pullx;
+  TH1F*  rs_pully;
+  TH1F*  rs_pullz; 
+  TH1F*  rs_dist;
+  TH1F*  rs_simz;
+  TH1F*  rs_recz;
+  TH1F*  rs_nrectrk;
+  TH1F*  rs_nsimtrk;
   TH1F*  rs_qual;
+  TH1F*  rs_chi2norm;
+  TH1F*  rs_chi2prob;
+
+  //--------- SimToReco Histos -----
+
+  TH1F*  sr_resx;
+  TH1F*  sr_resy;
+  TH1F*  sr_resz;  
+  TH1F*  sr_pullx;
+  TH1F*  sr_pully;
+  TH1F*  sr_pullz; 
+  TH1F*  sr_dist;
+  TH1F*  sr_simz;
+  TH1F*  sr_recz;
+  TH1F*  sr_nrectrk;
+  TH1F*  sr_nsimtrk;
+  TH1F*  sr_qual;
+  TH1F*  sr_chi2norm;
+  TH1F*  sr_chi2prob;
+
 };
 
 #endif

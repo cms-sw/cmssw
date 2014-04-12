@@ -1,99 +1,152 @@
-/** \class HLTPrescaler
- *
- *  
- *  See header file for documentation.
- *
- *  $Date: 2007/08/02 21:52:06 $
- *  $Revision: 1.2 $
- *
- *  \author Martin Grunewald
- *
- */
+///////////////////////////////////////////////////////////////////////////////
+//
+// HLTPrescaler
+// ------------
+//
+//           04/25/2008 Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
+///////////////////////////////////////////////////////////////////////////////
 
-#include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
 
-HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps) :
-  b_(ps.getParameter<bool>("makeFilterObject")),
-  n_(ps.getParameter<unsigned int>("prescaleFactor")),
-  o_(ps.getParameter<unsigned int>("eventOffset")),
-  count_(0), 
-  ps_(0),
-  moduleLabel_(ps.getParameter<std::string>("@module_label"))
+///////////////////////////////////////////////////////////////////////////////
+// initialize static member variables
+///////////////////////////////////////////////////////////////////////////////
+
+const unsigned int HLTPrescaler::prescaleSeed_ = 65537;
+
+///////////////////////////////////////////////////////////////////////////////
+// construction/destruction
+///////////////////////////////////////////////////////////////////////////////
+
+//_____________________________________________________________________________
+HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig, const trigger::Efficiency* efficiency) :
+  prescaleSet_(0)
+  , prescaleFactor_(1)
+  , eventCount_(0)
+  , acceptCount_(0)
+  , offsetCount_(0)
+  , offsetPhase_(iConfig.getParameter<unsigned int>("offset"))
+  , prescaleService_(0)
+  , newLumi_(true)
+  , gtDigiTag_ (iConfig.getParameter<edm::InputTag>("L1GtReadoutRecordTag"))
+  , gtDigiToken_ (consumes<L1GlobalTriggerReadoutRecord>(gtDigiTag_))
 {
-  if (b_) produces<reco::HLTFilterObjectBase>();
-  if (n_==0) n_=1; // accept all!
-  count_ = o_;     // event offset
-
-  // get prescale service
-  try {
-    if(edm::Service<edm::service::PrescaleService>().isAvailable()) {
-      ps_ = edm::Service<edm::service::PrescaleService>().operator->();
-    } else {
-      LogDebug("HLTPrescaler ") << "non available service edm::service::PrescaleService.";
-    }
-  }
-  catch(...) {
-    LogDebug("HLTPrescaler ") << "exception getting service edm::service::PrescaleService.";
-  }
-
-  if (ps_==0) {
-    LogDebug("HLTPrescaler ") << "prescale service pointer == 0 - using module config default.";
-  } else {
-    LogDebug("HLTPrescaler ") << "prescale service pointer != 0 - using prescale service.";
-  }
-
+  if(edm::Service<edm::service::PrescaleService>().isAvailable())
+    prescaleService_ = edm::Service<edm::service::PrescaleService>().operator->();
+  else 
+    LogDebug("NoPrescaleService")<<"PrescaleService unavailable, prescaleFactor=1!";
 }
-    
+
+//_____________________________________________________________________________    
 HLTPrescaler::~HLTPrescaler()
 {
+  
 }
 
-bool HLTPrescaler::beginLuminosityBlock(edm::LuminosityBlock & lb, edm::EventSetup const& es)
-{
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
+////////////////////////////////////////////////////////////////////////////////
+// implementation of member functions
+////////////////////////////////////////////////////////////////////////////////
 
-  LogDebug("HLTPrescaler") << "New LumiBlock: " <<lb.id().luminosityBlock();
-  if (ps_) {
-    // get prescale value from service 
-//  int newPrescale(ps_->getPrescale(lb.id().luminosityBlock(),moduleLabel_));
-    int newPrescale(ps_->getPrescale(moduleLabel_));
-    LogDebug("HLTPrescaler") << "Returned value: " << newPrescale;
-    if (newPrescale < 0 ) {
-      LogDebug("HLTPrescaler") << "PrescaleService: no info for module - using module value: " << n_ ;
-    } else {
-      n_=newPrescale;
-      if (n_==0) n_=1; // accept all!
-      count_ = o_;     // event offset
+void HLTPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<unsigned int>("offset",0);
+  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("hltGtDigis"));
+  descriptions.add("hltPrescaler", desc);
+}
+
+//______________________________________________________________________________
+void HLTPrescaler::beginLuminosityBlock(edm::LuminosityBlock const& lb,
+					edm::EventSetup const& iSetup)
+{
+  newLumi_ = true;
+}
+
+
+//_____________________________________________________________________________
+bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
+{
+  // during the first event of a LumiSection, read from the GT the prescale index for this
+  // LumiSection and get the corresponding prescale factor from the PrescaleService
+  if (newLumi_) {
+    newLumi_ = false;
+
+    bool needsInit (eventCount_==0);
+
+    if (prescaleService_) {
+      std::string const & pathName = iEvent.moduleCallingContext()->placeInPathContext()->pathContext()->pathName();
+      const unsigned int oldSet(prescaleSet_);
+      const unsigned int oldPrescale(prescaleFactor_);
+
+      edm::Handle<L1GlobalTriggerReadoutRecord> handle;
+      iEvent.getByToken(gtDigiToken_,handle);
+      if (handle.isValid()) {
+        prescaleSet_ = handle->gtFdlWord().gtPrescaleFactorIndexAlgo();
+        // gtPrescaleFactorIndexTech() is also available
+        // by construction, they should always return the same index
+        prescaleFactor_ = prescaleService_->getPrescale(prescaleSet_, pathName);
+      } else {
+        edm::LogWarning("HLT") << "Cannot read prescale column index from GT data: using default as defined by configuration or DAQ";
+        prescaleFactor_ = prescaleService_->getPrescale(pathName);
+      }
+
+      if (prescaleSet_ != oldSet) {
+        edm::LogInfo("ChangedPrescale")
+          << "lumiBlockNb = " << iEvent.getLuminosityBlock().id().luminosityBlock()
+	  << ", set = " << prescaleSet_ << " [" << oldSet <<"]" 
+          << ", path = "<< pathName
+	  << ": " << prescaleFactor_ << " [" <<oldPrescale<<"]";
+        // reset the prescale counter
+        needsInit = true;
+      }
+    }
+
+    if (needsInit && (prescaleFactor_ != 0)) {
+      // initialize the prescale counter to the first event number multiplied by a big "seed"
+      offsetCount_ = ((uint64_t) (iEvent.id().event() + offsetPhase_) * prescaleSeed_) % prescaleFactor_;
     }
   }
 
-  return true;
+  const bool result ( (prescaleFactor_ == 0) ? 
+		      false : ((eventCount_ + offsetCount_) % prescaleFactor_ == 0) );
+
+  ++eventCount_;
+  if (result) ++acceptCount_;
+  return result;
 }
 
-bool HLTPrescaler::filter(edm::Event & e, const edm::EventSetup & es)
+
+//_____________________________________________________________________________
+void HLTPrescaler::endStream()
 {
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
-
-  // prescaler decision
-  ++count_;
-  const bool accept(count_%n_ == 0);
-
-  // construct and place filter object if requested
-  if (b_) {
-    auto_ptr<HLTFilterObjectBase> 
-      filterproduct (new HLTFilterObjectBase(path(),module()));
-    e.put(filterproduct);
-  }
-
-  return accept;
-
+  //since these are std::atomic, it is safe to increment them
+  // even if multiple endStreams are being called.
+  globalCache()->eventCount_ += eventCount_;
+  globalCache()->acceptCount_ += acceptCount_; 
+  return;
 }
+
+//_____________________________________________________________________________
+void HLTPrescaler::globalEndJob(const trigger::Efficiency* efficiency)
+{
+  unsigned int accept(efficiency->acceptCount_);
+  unsigned int event (efficiency->eventCount_);
+  edm::LogInfo("PrescaleSummary")
+    << accept << "/" << event
+    << " ("
+    << 100.*accept/static_cast<double>(std::max(1u,event))
+    << "% of events accepted).";
+  return;
+}
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTPrescaler);

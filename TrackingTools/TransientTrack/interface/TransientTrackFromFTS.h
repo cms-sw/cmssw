@@ -7,6 +7,7 @@
    */
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
@@ -57,6 +58,8 @@ namespace reco {
     const MagneticField* field() const {return theField;}
 
     const Track & track() const;
+
+    TrackBaseRef trackBaseRef() const { return TrackBaseRef();}
 
     TrajectoryStateClosestToBeamLine stateAtBeamLine() const;
 

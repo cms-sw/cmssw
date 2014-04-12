@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:52:01 EDT 2005
-// $Id: DummyService.cc,v 1.2 2005/09/10 02:08:49 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // constants, enums and typedefs
@@ -24,6 +25,16 @@ using namespace testserviceregistry;
 //
 // static data member definitions
 //
+
+void
+DummyService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+    edm::ParameterSetDescription desc;
+
+    desc.add<int>("value");
+
+    descriptions.addDefault(desc);
+}
 
 //
 // constructors and destructor

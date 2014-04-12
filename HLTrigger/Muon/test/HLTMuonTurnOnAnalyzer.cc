@@ -14,12 +14,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,6 +29,8 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
+using namespace trigger;
+using namespace l1extra;
 
 /// Constructor
 HLTMuonTurnOnAnalyzer::HLTMuonTurnOnAnalyzer(const ParameterSet& pset)
@@ -37,6 +39,11 @@ HLTMuonTurnOnAnalyzer::HLTMuonTurnOnAnalyzer(const ParameterSet& pset)
   useMuonFromGenerator = pset.getUntrackedParameter<bool>("UseMuonFromGenerator");
   theL1CollectionLabel = pset.getUntrackedParameter<InputTag>("L1CollectionLabel");
   theHLTCollectionLabels = pset.getUntrackedParameter<std::vector<InputTag> >("HLTCollectionLabels");
+  theGenToken = consumes<edm::HepMCProduct>(theGenLabel);
+  theL1CollectionToken = consumes<trigger::TriggerFilterObjectWithRefs>(theL1CollectionLabel);
+  for (unsigned int i=0; i<theHLTCollectionLabels.size(); ++i) {
+    theHLTCollectionTokens.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(theHLTCollectionLabels[i]));
+  }
   theReferenceThreshold = pset.getUntrackedParameter<double>("ReferenceThreshold");
 
   thePtMin = pset.getUntrackedParameter<double>("PtMin");
@@ -52,7 +59,7 @@ HLTMuonTurnOnAnalyzer::HLTMuonTurnOnAnalyzer(const ParameterSet& pset)
 HLTMuonTurnOnAnalyzer::~HLTMuonTurnOnAnalyzer(){
 }
 
-void HLTMuonTurnOnAnalyzer::beginJob(const EventSetup& eventSetup){
+void HLTMuonTurnOnAnalyzer::beginJob(){
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
@@ -109,7 +116,7 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
   // Get the HepMC product
   double this_event_weight=1.;
   Handle<HepMCProduct> genProduct;
-  event.getByLabel(theGenLabel,genProduct);
+  event.getByToken(theGenToken,genProduct);
 
   const HepMC::GenEvent* evt = genProduct->GetEvent();
   HepMC::WeightContainer weights = evt->weights();
@@ -117,16 +124,16 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
   theNumberOfEvents += this_event_weight;
 
   // Get the L1 collection
-  Handle<HLTFilterObjectWithRefs> l1cands;
-  event.getByLabel(theL1CollectionLabel, l1cands);
+  Handle<TriggerFilterObjectWithRefs> l1cands;
+  event.getByToken(theL1CollectionToken, l1cands);
 
   // Get the HLT collections
-  std::vector<Handle<HLTFilterObjectWithRefs> > hltcands;
-  hltcands.reserve(theHLTCollectionLabels.size());
+  std::vector<Handle<TriggerFilterObjectWithRefs> > hltcands(theHLTCollectionLabels.size());
 
   unsigned int modules_in_this_event = 0;
   for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
+      event.getByToken(theHLTCollectionTokens[i], hltcands[i]);
+      if (hltcands[i].failedToGet()) break;
       modules_in_this_event++;
   }
 
@@ -147,8 +154,10 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
       }
   } else {
       unsigned int i=modules_in_this_event-1;
-      for (unsigned int k=0; k<hltcands[i]->size(); k++) {
-            RefToBase<Candidate> candref = hltcands[i]->getParticleRef(k);
+      vector<RecoChargedCandidateRef> vref;
+      hltcands[i]->getObjects(TriggerMuon,vref);
+      for (unsigned int k=0; k<vref.size(); k++) {
+	RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[k]);
             TrackRef tk = candref->get<TrackRef>();
             double pt = tk->pt();
             if (pt>ptuse) {
@@ -168,8 +177,10 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
   // Fix L1 thresholds to obtain the efficiecy plot
   unsigned int nL1FoundRef = 0;
   double epsilon = 0.001;
-  for (unsigned int k=0; k<l1cands->size(); k++) {
-      RefToBase<Candidate> candref = l1cands->getParticleRef(k);
+  vector<L1MuonParticleRef> l1mu;
+  l1cands->getObjects(TriggerL1Mu,l1mu);
+  for (unsigned int k=0; k<l1mu.size(); k++) {
+      L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
       // L1 PTs are "quantized" due to LUTs. 
       // Their meaning: true_pt > ptLUT more than 90% pof the times
       double ptLUT = candref->pt();
@@ -185,8 +196,10 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
   for (unsigned int i=0; i<=last_module; i++) {
       double ptcut = theReferenceThreshold;
       unsigned nFound = 0;
-      for (unsigned int k=0; k<hltcands[i]->size(); k++) {
-            RefToBase<Candidate> candref = hltcands[i]->getParticleRef(k);
+      vector<RecoChargedCandidateRef> vref;
+      hltcands[i]->getObjects(TriggerMuon,vref);
+      for (unsigned int k=0; k<vref.size(); k++) {
+            RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[k]);
             TrackRef tk = candref->get<TrackRef>();
             double pt = tk->pt();
             if (pt>ptcut) nFound++;

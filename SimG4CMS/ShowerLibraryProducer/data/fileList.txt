@@ -1,0 +1,4 @@
+#####################################################################
+# fileNameandLocation Type Momentum
+#####################################################################
+SimG4CMS/ShowerLibraryProducer/test/hfShowerLibSimu_100GeVElec.root electron 100

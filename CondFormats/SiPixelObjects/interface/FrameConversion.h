@@ -11,6 +11,7 @@ namespace sipixelobjects {
 
 class FrameConversion {
 public:
+  FrameConversion(){}
   FrameConversion( const PixelEndcapName & name, int rocIdInDetUnit);
   FrameConversion( const PixelBarrelName & name, int rocIdInDetUnit);
   FrameConversion( int rowOffset, int rowSlopeSign, int colOffset, int colSlopeSign)

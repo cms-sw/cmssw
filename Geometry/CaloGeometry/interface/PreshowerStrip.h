@@ -15,8 +15,7 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Date: 2006/10/26 08:57:10 $
-$Revision: 1.2 $
+$Revision: 1.12 $
 \author F. Cossutti
    
 */
@@ -26,35 +25,44 @@ class PreshowerStrip : public CaloCellGeometry
 {
 public:
 
+  typedef CaloCellGeometry::CCGFloat CCGFloat ;
+  typedef CaloCellGeometry::Pt3D     Pt3D     ;
+  typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+  typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
   PreshowerStrip() ;
 
-  PreshowerStrip(double dx, double dy, double dz);
+  PreshowerStrip( const PreshowerStrip& tr ) ;
 
-  virtual ~PreshowerStrip(){};
+  PreshowerStrip& operator=( const PreshowerStrip& tr ) ;
 
-  //! Inside the volume?
-  virtual bool inside(const GlobalPoint & point) const;  
-  
-  //! Access to data
-  virtual const std::vector<GlobalPoint> & getCorners() const;  
+  PreshowerStrip( const GlobalPoint& po   ,
+		  const CornersMgr*  mgr  ,
+		  const CCGFloat*    parm  ) :
+    CaloCellGeometry ( po , mgr, parm ) {initSpan();}
 
-  /** Transform (e.g. move or rotate) this box.
-      Transforms the corner points and the reference point.
-  */
-  void hepTransform(const HepTransform3D &transformation);
+  virtual ~PreshowerStrip();
 
-protected:
-  
-  //! Keep corners info
-  std::vector<GlobalPoint> corners;
+  virtual const CornersVec& getCorners() const ;
 
- private:
+  CCGFloat dx() const { return param()[0] ; }
+  CCGFloat dy() const { return param()[1] ; }
+  CCGFloat dz() const { return param()[2] ; }
+  CCGFloat tilt() const { return param()[3] ; }
 
-  double dx_;
-  double dy_;
-  double dz_;
+  virtual void vocalCorners( Pt3DVec&        vec ,
+			     const CCGFloat* pv  ,
+			     Pt3D&           ref  ) const 
+    { localCorners( vec, pv, ref ) ; }
 
+  static void localCorners( Pt3DVec&        vec ,
+			    const CCGFloat* pv  , 
+			    Pt3D&           ref  ) ;
+
+  virtual Tr3D getTransform( Pt3DVec* /*lptr*/ ) const
+    { return Tr3D() ; }
 };
 
-std::ostream& operator<<(std::ostream& s,const PreshowerStrip& cell);
+std::ostream& operator<<( std::ostream& s , const PreshowerStrip& cell) ;
+
 #endif

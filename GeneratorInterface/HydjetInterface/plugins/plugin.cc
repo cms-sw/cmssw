@@ -1,10 +1,7 @@
 //
-// $Id:$
 //
 
-#include "FWCore/Framework/interface/InputSourceMacros.h"
-#include "GeneratorInterface/HydjetInterface/interface/HydjetSource.h"
-
-using edm::HydjetSource;
-
-DEFINE_FWK_INPUT_SOURCE(HydjetSource);
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "GeneratorInterface/HydjetInterface/interface/HydjetGeneratorFilter.h"
+using gen::HydjetGeneratorFilter;
+DEFINE_FWK_MODULE(HydjetGeneratorFilter);

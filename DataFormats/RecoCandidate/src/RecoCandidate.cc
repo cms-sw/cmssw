@@ -1,10 +1,14 @@
-// $Id: RecoCandidate.cc,v 1.11 2007/01/11 14:01:59 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace reco;
 
 RecoCandidate::~RecoCandidate() { }
+
+RecoCandidate * RecoCandidate::clone() const {
+   throw cms::Exception("LogicError", "reco::RecoCandidate is abstract, so it's clone() method can't be implemented.\n");
+}
 
 TrackRef RecoCandidate::track() const {
   return TrackRef();
@@ -48,8 +52,24 @@ const Track * RecoCandidate::bestTrack() const {
   GsfTrackRef gsfTrkRef = gsfTrack();
   if ( gsfTrkRef.isNonnull() )
     return gsfTrkRef.get();
+  TrackRef staRef = standAloneMuon(); 
+  if ( staRef.isNonnull() ) 
+    return staRef.get(); 
   return 0;
 }
+
+TrackBaseRef RecoCandidate::bestTrackRef() const {
+  TrackRef muRef = combinedMuon();
+  if( muRef.isNonnull() ) return TrackBaseRef(muRef);
+  TrackRef trkRef = track();
+  if ( trkRef.isNonnull() ) return TrackBaseRef(trkRef);
+  GsfTrackRef gsfTrkRef = gsfTrack();
+  if ( gsfTrkRef.isNonnull() ) return TrackBaseRef(gsfTrkRef);
+  TrackRef staRef = standAloneMuon(); 
+  if ( staRef.isNonnull() ) return TrackBaseRef(staRef); 
+  return TrackBaseRef();
+}
+
 
 RecoCandidate::TrackType RecoCandidate::bestTrackType() const {
   if( combinedMuon().isNonnull() ) 

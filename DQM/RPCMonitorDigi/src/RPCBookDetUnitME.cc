@@ -1,180 +1,432 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <map>
-
-
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h>
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
+#include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <DQM/RPCMonitorDigi/interface/utils.h>
+#include <iomanip>
 
+void RPCMonitorDigi::bookRollME(DQMStore::IBooker & ibooker, RPCDetId & detId, const edm::EventSetup & iSetup, const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap) {
+ 
+  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
+  std::string folder = subsystemFolder_+ "/"+ recHitType +"/"+folderStr->folderStructure(detId);
 
-/// Booking of MonitoringElemnt for one RPCDetId (= roll)
-
-std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId) {
- 
- 
- std::map<std::string, MonitorElement*> meMap;
- 
- std::string regionName;
- std::string ringType;
- if(detId.region() ==  0) {
- 	regionName="Barrel";
- 	ringType="Wheel";
- }else{
-        ringType="Disk";
- 	if(detId.region() == -1) regionName="Encap-";
- 	if(detId.region() ==  1) regionName="Encap+";
- }
- 
- char  folder[120];
- sprintf(folder,"RPC/RecHits/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
- 				detId.ring(),detId.station(),detId.sector());
- 
- dbe->setCurrentFolder(folder);
-
- /// Name components common to current RPDDetId  
- char detUnitLabel[128];
- char layerLabel[128];
- sprintf(detUnitLabel ,"%d",detId());
- sprintf(layerLabel ,"layer%d_subsector%d_roll%d",detId.layer(),detId.subsector(),detId.roll());
-
- char meId [128];
- char meTitle [128];
+  ibooker.setCurrentFolder(folder);
   
- /// BEgin booking
- sprintf(meId,"Occupancy_%s",detUnitLabel);
- sprintf(meTitle,"Occupancy_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
+  //get number of strips in current roll
+  int nstrips = this->stripsInRoll(detId, iSetup);
+  if (nstrips == 0 ){ nstrips = 1;}
 
- sprintf(meId,"BXN_%s",detUnitLabel);
- sprintf(meTitle,"BXN_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 11, -10.5, 10.5);
+  /// Name components common to current RPCDetId  
+  RPCGeomServ RPCname(detId);
+  std::string nameRoll = "";
  
- sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
- sprintf(meTitle,"BXN_vs_strip_for_%s",layerLabel);
- meMap[meId] = dbe->book2D(meId, meTitle,  100, 0.5, 100.5, 11, -10.5, 10.5);
- 
- sprintf(meId,"ClusterSize_%s",detUnitLabel);
- sprintf(meTitle,"ClusterSize_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 21, 0.5, 20.5);
- 
- sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
- sprintf(meTitle,"NumberOfClusters_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 10, 0.5, 10.5);
- 
- sprintf(meId,"ClusterSize_vs_LowerStrip%s",detUnitLabel);
- sprintf(meTitle,"ClusterSize_vs_LowerStrip_for_%s",layerLabel);
- meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,11, 0.5, 11.5);
- 
- sprintf(meId,"ClusterSize_vs_HigherStrip%s",detUnitLabel);
- sprintf(meTitle,"ClusterSize_vs_HigherStrip_for_%s",layerLabel);
- meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,11, 0.5, 11.5);
- 
- sprintf(meId,"ClusterSize_vs_Strip%s",detUnitLabel);
- sprintf(meTitle,"ClusterSize_vs_Strip_for_%s",layerLabel);
- meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,11, 0.5, 11.5);
- 
- sprintf(meId,"ClusterSize_vs_CentralStrip%s",detUnitLabel);
- sprintf(meTitle,"ClusterSize_vs_CentralStrip_for_%s",layerLabel);
- meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,11, 0.5, 11.5);
- 
- sprintf(meId,"NumberOfDigi_%s",detUnitLabel);
- sprintf(meTitle,"NumberOfDigi_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 10, 0.5, 10.5);
- 
- sprintf(meId,"CrossTalkLow_%s",detUnitLabel);
- sprintf(meTitle,"CrossTalkLow_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
- 
- sprintf(meId,"CrossTalkHigh_%s",detUnitLabel);
- sprintf(meTitle,"CrossTalkHigh_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
- 
- sprintf(meId,"BXWithData_%s",detUnitLabel);
- sprintf(meTitle,"NumberOfBXsWithData_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 5, 0.5, 5.5);
- 
- 
- /// RPCRecHits
- sprintf(meId,"MissingHits_%s",detUnitLabel);
- sprintf(meTitle,"MissingHits__for_%s",layerLabel);
- meMap[meId] = dbe->book2D(meId, meTitle, 100, 0, 100, 2, 0.,2.);
+  if (RPCMonitorDigi::useRollInfo_) {
+    nameRoll = RPCname.name();
+  }else{
+    nameRoll = RPCname.chambername();
+  
+    if(detId.region() != 0 || //Endcaps
+       (abs(detId.ring()) == 2 && detId.station()== 2 && detId.layer() != 1) ||  //Wheel -/+2 RB2out
+       (abs(detId.ring()) != 2 && detId.station()== 2 && detId.layer() == 1)){nstrips *= 3;} //Wheel -1,0,+1 RB2in
+    else {
+      nstrips *= 2;
+    }
+    
+  }
 
- sprintf(meId,"RecHitXPosition_%s",detUnitLabel);
- sprintf(meTitle,"RecHit_Xposition_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 80, -120, 120);
- 
- sprintf(meId,"RecHitDX_%s",detUnitLabel);
- sprintf(meTitle,"RecHit_DX_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 30, -10, 10);
- 
- sprintf(meId,"RecHitX_vs_dx_%s",detUnitLabel);
- sprintf(meTitle,"RecHit_Xposition_vs_Error_%s",layerLabel);
- meMap[meId] = dbe->book2D(meId, meTitle, 30, -100, 100,30,10,10);
- 
- sprintf(meId,"RecHitCounter_%s",detUnitLabel);
- sprintf(meTitle,"RecHitCounter_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle,101,-0.5,100.5);
- 
 
-// sprintf(meId,"RecHitYPosition_%s",detUnitLabel);
-// sprintf(meTitle,"RecHit_Yposition_for_%s",layerLabel);
-// meMap[meId] = dbe->book1D(meId, meTitle, 40, -100, 100);
- 
-// sprintf(meId,"RecHitDY_%s",detUnitLabel);
-// sprintf(meTitle,"RecHit_DY_for_%s",layerLabel);
-// meMap[meId] = dbe->book1D(meId, meTitle, 30, -10, 10);
- 
-// sprintf(meId,"RecHitDXDY_%s",detUnitLabel);
-// sprintf(meTitle,"RecHit_DXDY_for_%s",layerLabel);
-// meMap[meId] = dbe->book1D(meId, meTitle, 30, -10, 10);
+  std::stringstream os;
+  os.str("");
+  os<<"Occupancy_"<<nameRoll;
+  meMap[os.str()] = ibooker.book1D(os.str(), os.str(), nstrips, 0.5, nstrips+0.5);
+  ibooker.tag( meMap[os.str()],  rpcdqm::OCCUPANCY);
 
-// sprintf(meId,"RecHitY_vs_dY_%s",detUnitLabel);
-// sprintf(meTitle,"RecHit_Yposition_vs_Error_%s",layerLabel);
-// meMap[meId] = dbe->book2D(meId, meTitle, 30, -100, 100,30,10,10);
+  os.str("");
+  os<<"BXDistribution_"<<nameRoll;
+  meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 7, -3.5, 3.5);
+  ibooker.tag( meMap[os.str()],  rpcdqm::BX);
+
+  if(detId.region() == 0){
+    os.str("");
+    os<<"ClusterSize_"<<nameRoll;
+    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 15, 0.5, 15.5);
+    ibooker.tag( meMap[os.str()],  rpcdqm::CLUSTERSIZE);
+    
+    os.str("");
+    os<<"Multiplicity_"<<nameRoll;
+    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 30, 0.5, 30.5);
+    ibooker.tag( meMap[os.str()],  rpcdqm::MULTIPLICITY);
+
+  }else{
+    os.str("");
+    os<<"ClusterSize_"<<nameRoll;
+    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 10, 0.5, 10.5);
+    ibooker.tag( meMap[os.str()],  rpcdqm::CLUSTERSIZE);
+    
+    os.str("");
+    os<<"Multiplicity_"<<nameRoll;
+    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 15, 0.5, 15.5);
+    ibooker.tag( meMap[os.str()],  rpcdqm::MULTIPLICITY);
+  }
+
+  
+  os.str("");
+  os<<"NumberOfClusters_"<<nameRoll;
+  meMap[os.str()] = ibooker.book1D(os.str(), os.str(),10,0.5,10.5);
+  
+
+  delete folderStr;
+  //  return meMap;
+}
+
+
+void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::string &recHitType, std::map<std::string, MonitorElement*> & meMap) {  
+  //std::map<std::string, MonitorElement*> RPCMonitorDigi::bookSectorRingME(std::string recHitType) {  
+
+  //  std::map<std::string, MonitorElement*> meMap;  
+  std::stringstream os;
  
+  for(int wheel = -2 ; wheel <= 2; wheel++){
+      os.str("");     
+      os<< subsystemFolder_<< "/"<<recHitType<<"/Barrel/Wheel_"<<wheel<<"/SummaryBySectors";
+      ibooker.setCurrentFolder(os.str());
+      
+      for (int sector = 1 ; sector <= 12 ; sector++){
 	
-	return meMap;
+	os.str("");
+	os<<"Occupancy_Wheel_"<<wheel<<"_Sector_"<<sector;
+    
+	if (sector==9 || sector==11)
+	  meMap[os.str()] = ibooker.book2D(os.str(), os.str(),  90, 0.5,  90.5, 15, 0.5, 15.5);
+	else  if (sector==4) 
+	  meMap[os.str()] = ibooker.book2D(os.str(), os.str(),  90, 0.5,  90.5, 21, 0.5, 21.5);
+	else
+	  meMap[os.str()] = ibooker.book2D(os.str(), os.str(),  90, 0.5,  90.5, 17, 0.5, 17.5);
+	
+	meMap[os.str()]->setAxisTitle("strip", 1);
+	rpcdqm::utils rpcUtils;
+	rpcUtils.labelYAxisRoll( meMap[os.str()], 0, wheel, true);
+	
+// 	os.str("");
+// 	os<<"BxDistribution_Wheel_"<<wheel<<"_Sector_"<<sector;
+// 	meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 11, -5.5, 5.5);
+
+      }
+  }
+
+
+  for (int region = -1 ; region <= 1; region++){
+    if( region == 0 ) continue;
+
+    std::string regionName = "Endcap-";
+    if(region == 1) regionName = "Endcap+";
+
+    for (int disk = 1; disk <=  RPCMonitorDigi::numberOfDisks_; disk++) {
+      os.str("");
+      os<< subsystemFolder_<< "/"<<recHitType<<"/"<<regionName<<"/Disk_"<<(region * disk)<<"/SummaryByRings/";
+     
+      ibooker.setCurrentFolder(os.str());
+
+      for (int ring = RPCMonitorDigi::numberOfInnerRings_  ; ring <= 3; ring ++) {
+
+	os.str("");
+	os<<"Occupancy_Disk_"<<(region * disk)<<"_Ring_"<<ring<<"_CH01-CH18";
+
+	meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 96, 0.5, 96.5, 18 , 0.5,  18.5);
+	meMap[os.str()]->setAxisTitle("strip", 1);
+
+	std::stringstream yLabel;
+	for (int i = 1 ; i<=18; i++) {
+	  yLabel.str("");
+	  yLabel<<"R"<<ring<<"_CH"<<std::setw(2)<<std::setfill('0')<<i;
+	  meMap[os.str()]->setBinLabel(i, yLabel.str(), 2);
+	}
+      
+      
+	for(int i = 1; i <= 96 ; i++) {
+	  if (i ==1) meMap[os.str()]->setBinLabel(i, "1", 1);
+	  else if (i==16) meMap[os.str()]->setBinLabel(i, "RollA", 1);
+	  else if (i==32) meMap[os.str()]->setBinLabel(i, "32", 1);
+	  else if (i==33) meMap[os.str()]->setBinLabel(i, "1", 1);
+	  else if (i==48) meMap[os.str()]->setBinLabel(i, "RollB", 1);
+	  else if (i==64) meMap[os.str()]->setBinLabel(i, "32", 1);
+	  else if (i==65) meMap[os.str()]->setBinLabel(i, "1", 1);
+	  else if (i==80) meMap[os.str()]->setBinLabel(i, "RollC", 1);
+	  else if (i==96) meMap[os.str()]->setBinLabel(i, "32", 1);
+	  else  meMap[os.str()]->setBinLabel(i, "", 1);
+	}
+  
+
+	os.str("");
+	os<<"Occupancy_Disk_"<<(region * disk)<<"_Ring_"<<ring<<"_CH19-CH36";
+
+	meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 96, 0.5, 96.5, 18 , 18.5,  36.5);
+	meMap[os.str()]->setAxisTitle("strip", 1);
+	
+	for (int i = 1 ; i<= 18; i++) {
+	  yLabel.str("");
+	  yLabel<<"R"<<ring<<"_CH"<<i+18;
+	  meMap[os.str()]->setBinLabel(i, yLabel.str(), 2);
+	}
+	
+	
+	for(int i = 1; i <= 96 ; i++) {
+	  if (i ==1) meMap[os.str()]->setBinLabel(i, "1", 1);
+	  else if (i==16) meMap[os.str()]->setBinLabel(i, "RollA", 1);
+	  else if (i==32) meMap[os.str()]->setBinLabel(i, "32", 1);
+	  else if (i==33) meMap[os.str()]->setBinLabel(i, "1", 1);
+	  else if (i==48) meMap[os.str()]->setBinLabel(i, "RollB", 1);
+	  else if (i==64) meMap[os.str()]->setBinLabel(i, "32", 1);
+	  else if (i==65) meMap[os.str()]->setBinLabel(i, "1", 1);
+	  else if (i==80) meMap[os.str()]->setBinLabel(i, "RollC", 1);
+	  else if (i==96) meMap[os.str()]->setBinLabel(i, "32", 1);
+	  else  meMap[os.str()]->setBinLabel(i, "", 1);
+	}
+   
+        
+// 	os.str("");
+// 	os<<"BxDistribution_Disk_"<<(region * disk)<<"_Ring_"<<ring;
+// 	meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 11, -5.5, 5.5);
+	
+      }  //loop ring
+    } //loop disk
+  } //loop region
+
+  // return meMap;
+} 
+
+
+void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker & ibooker,const std::string &recHitType, std::map<std::string, MonitorElement*> &meMap) {  
+  //std::map<std::string, MonitorElement*> RPCMonitorDigi::bookWheelDiskME(std::string recHitType) {  
+
+  //  std::map<std::string, MonitorElement*> meMap;  
+  ibooker.setCurrentFolder(subsystemFolder_ +"/"+recHitType+"/"+ globalFolder_);
+
+  std::stringstream os, label, name, title ;
+  rpcdqm::utils rpcUtils;
+
+  for (int wheel = -2 ; wheel<= 2; wheel++ ) {//Loop on wheel
+
+    //    os<<"OccupancyXY_"<<ringType<<"_"<<ring;
+    //    meMap[os.str()] = ibooker.book2D(os.str(), os.str(),63, -800, 800, 63, -800, 800);
+    //    meMap[os.str()] = ibooker.book2D(os.str(), os.str(),1000, -800, 800, 1000, -800, 800);
+    
+    
+    os.str("");
+    os<<"1DOccupancy_Wheel_"<<wheel;
+    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 12, 0.5, 12.5);
+    for(int i=1; i<12; i++) {
+      label.str("");
+      label<<"Sec"<<i;
+      meMap[os.str()] ->setBinLabel(i, label.str(), 1); 
+    }
+    
+    os.str("");
+    os<<"Occupancy_Roll_vs_Sector_Wheel_"<<wheel;                                   
+    meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 12, 0.5,12.5, 21, 0.5, 21.5);
+    rpcUtils.labelXAxisSector(meMap[os.str()]);
+    rpcUtils.labelYAxisRoll( meMap[os.str()], 0, wheel, true);
+
+    os.str("");
+    os<<"BxDistribution_Wheel_"<<wheel;
+    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 9, -4.5, 4.5);
+    
+
+    for(int layer = 1 ; layer <= 6 ; layer ++){
+      name.str("");
+      title.str("");
+      name<<"ClusterSize_Wheel_"<<wheel<<"_Layer"<< layer;
+      title<< "ClusterSize - Wheel "<<wheel<<" Layer"<<layer;
+      meMap[name.str()] = ibooker.book1D(name.str(), title.str(),  16, 0.5, 16.5);
+    }
+
+
+    
+  }//end loop on wheel 
+
+
+  for (int disk = - RPCMonitorDigi::numberOfDisks_; disk <=  RPCMonitorDigi::numberOfDisks_; disk++){
+    
+    if(disk == 0) continue;
+  
+
+    os.str("");
+    os<<"Occupancy_Ring_vs_Segment_Disk_"<<disk;                                  
+    meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 36, 0.5,36.5, 6, 0.5, 6.5);
+    
+    rpcUtils.labelXAxisSegment(meMap[os.str()]);
+    rpcUtils.labelYAxisRing(meMap[os.str()], 2, true);
+
+    os.str("");
+    os<<"BxDistribution_Disk_"<<disk;
+    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 9, -4.5, 4.5);
+
+
+    for(int ring = RPCMonitorDigi::numberOfInnerRings_  ; ring <= 3 ; ring ++){
+    
+      name.str("");
+      title.str("");
+      name<<"ClusterSize_Disk_"<<disk<<"_Ring"<< ring;
+      title<< "ClusterSize - Disk"<<disk<<" Ring"<<ring;
+      meMap[name.str()] = ibooker.book1D(name.str(), title.str(),  16, 0.5, 16.5);
+      
+    }
+    
+  }
+
+   for(int ring = RPCMonitorDigi::numberOfInnerRings_  ; ring <= 3 ; ring ++){
+     os.str("");
+     os<<"1DOccupancy_Ring_"<<ring;
+     meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 6 , 0.5, 6.5);
+     for(int xbin= 1 ; xbin<= 6 ; xbin++) {
+       label.str("");
+       if (xbin < 4) label<<"Disk "<< (xbin - 4);
+       else label<<"Disk "<< (xbin - 3);
+       meMap[os.str()] ->setBinLabel(xbin, label.str(), 1); 
+     }
+   }
+
+
+
+      
+  //  return meMap; 
 }
 
 
 
+//returns the number of strips in each roll
+int  RPCMonitorDigi::stripsInRoll(RPCDetId & id, const edm::EventSetup & iSetup) {
+  edm::ESHandle<RPCGeometry> rpcgeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcgeo);
 
+  const RPCRoll * rpcRoll = rpcgeo->roll(id);
 
+  if (!rpcRoll) return 1;
 
+  return  rpcRoll->nstrips();
 
-
-
-
-std::map<std::string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring) {
-
- std::map<std::string, MonitorElement*> meMap;
- 
- std::string ringType = (region ==  0)?"Wheel":"Disk";
- 
- dbe->setCurrentFolder(GlobalHistogramsFolder);
-
- char meId [128];
- char meTitle [128];
- 
- sprintf(meId,"GlobalRecHitXYCoordinates_%s_%d_%d",ringType.c_str(),region,ring);
- sprintf(meTitle,"GlobalRecHitXYCoordinates_for_%s_%d_%d",ringType.c_str(),region,ring);
-   meMap[meId] = dbe->book2D(meId, meTitle, 1000, -800, 800, 1000, -800, 800);
- 
- return meMap;
+  
 
 }
 
 
+void RPCMonitorDigi::bookRegionME(DQMStore::IBooker &ibooker,const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap) {
+  //std::map<std::string, MonitorElement*>   RPCMonitorDigi::bookRegionME(std::string recHitType) {
+
+  //  std::map<std::string, MonitorElement*> meMap;  
+
+  std::string currentFolder = subsystemFolder_ +"/"+recHitType+"/"+ globalFolder_;
+  ibooker.setCurrentFolder(currentFolder);  
+  
+  std::stringstream name;
+  std::stringstream title;
+  for(int r = 0; r < 3; r++){ //RPC regions are E-, B, and E+
+    
+    std::string regionName = RPCMonitorDigi::regionNames_[r];
+    //Cluster size
+    name.str("");
+    title.str("");
+    name<<"ClusterSize_"<< regionName;
+    title<< "ClusterSize - "<<regionName;
+    meMap[name.str()] = ibooker.book1D(name.str(), title.str(),  16, 0.5, 16.5);
+    
+ 
+  }
+ 
+
+  //Number of Cluster
+  name.str("");
+  title.str("");
+  name<<"NumberOfClusters_Barrel";
+  title<< "Number of Clusters per Event - Barrel";
+  meMap[name.str()]  = ibooker.book1D(name.str(), title.str(),  30, 0.5, 30.5);
+
+  name.str("");
+  title.str("");
+  name<<"NumberOfClusters_Endcap+";
+  title<< "Number of Clusters per Event - Endcap+";
+  meMap[name.str()]  = ibooker.book1D(name.str(), title.str(),  15, 0.5, 15.5);
+ 
+  name.str("");
+  title.str("");
+  name<<"NumberOfClusters_Endcap-";
+  title<< "Number of Clusters per Event - Endcap-";
+   meMap[name.str()]  = ibooker.book1D(name.str(), title.str(),  15, 0.5, 15.5);
+
+  //Number of Digis
+  name.str("");
+  title.str("");
+  name<<"Multiplicity_Barrel";
+  title<< "Multiplicity per Event per Roll - Barrel";
+   meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 50, 0.5, 50.5);   
+  
+  
+  name.str("");
+  title.str("");
+  name<<"Multiplicity_Endcap+";
+  title<< "Multiplicity per Event per Roll - Endcap+";
+   meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 32, 0.5, 32.5);  
+  
+  name.str("");
+  title.str("");
+  name<<"Multiplicity_Endcap-";
+  title<< "Multiplicity per Event per Roll - Endcap-";
+   meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 32, 0.5, 32.5);  
+
+  
+  for(int layer = 1 ; layer <= 6 ; layer ++){
+    
+    name.str("");
+    title.str("");
+    name<<"ClusterSize_Layer"<< layer;
+    title<< "ClusterSize - Layer"<<layer;
+      meMap[name.str()] = ibooker.book1D(name.str(), title.str(),  16, 0.5, 16.5);
+  }
+
+  for(int ring = RPCMonitorDigi::numberOfInnerRings_  ; ring <= 3 ; ring ++){
+    
+    name.str("");
+    title.str("");
+    name<<"ClusterSize_Ring"<< ring;
+    title<< "ClusterSize - Ring"<<ring;
+      meMap[name.str()] = ibooker.book1D(name.str(), title.str(),  16, 0.5, 16.5);
+  
+  }
 
 
+   meMap["Occupancy_for_Endcap"] = ibooker.book2D("Occupancy_for_Endcap", "Occupancy Endcap", 6, 0.5, 6.5, 2, 1.5, 3.5);
+  meMap["Occupancy_for_Endcap"] ->setAxisTitle("Disk", 1);
+  meMap["Occupancy_for_Endcap"] ->setAxisTitle("Ring", 2);
 
+  std::stringstream binlabel;
+  for (int bin = 1 ; bin <= 6 ; bin++){
+    binlabel.str("");
+    if(bin<4) {//negative endcap
+      binlabel<<(bin-4); 
+    }else{//positive endcaps
+      binlabel<<(bin-3); 
+    }
+    meMap["Occupancy_for_Endcap"]->setBinLabel( bin , binlabel.str(), 1);
+  }
 
+  meMap["Occupancy_for_Endcap"]->setBinLabel( 1 , "2", 2);
+  meMap["Occupancy_for_Endcap"]->setBinLabel( 2 , "3", 2);
 
+  meMap["Occupancy_for_Barrel"]  = ibooker.book2D("Occupancy_for_Barrel", "Occupancy Barrel", 12, 0.5 , 12.5, 5, -2.5, 2.5 );
+  meMap["Occupancy_for_Barrel"] ->setAxisTitle("Sec", 1);
+  meMap["Occupancy_for_Barrel"] ->setAxisTitle("Wheel", 2);
+  
+  for (int bin = 1 ; bin <= 12 ; bin++){
+    binlabel.str("");
+    binlabel<<bin;
+    meMap["Occupancy_for_Barrel"]->setBinLabel( bin , binlabel.str(), 1);
+    if(bin <= 5 ){
+      binlabel.str("");
+      binlabel<< (bin - 3);
+     meMap["Occupancy_for_Barrel"]->setBinLabel( bin , binlabel.str(), 2);
+    }
+  }
+  //  return meMap; 
 
-
-
-
-
-
+}

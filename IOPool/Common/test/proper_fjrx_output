@@ -1,0 +1,95 @@
+<FrameworkJobReport>
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<Catalog></Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestOtherThings_AOtherThing_testUserTag_TESTPROD.</Branch>
+  <Branch>edmtestOtherThings_OtherThing_testUserTag_TESTPROD.</Branch>
+  <Branch>edmtestOtherThings_ZOtherThing_testUserTag_TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<InputType>primaryFiles</InputType>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>10</EventsRead>
+<Runs>
+<Run ID="100">
+   <LumiSection ID="1"/>
+</Run>
+
+</Runs>
+</InputFile>
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<Catalog></Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<InputType>primaryFiles</InputType>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>15</EventsRead>
+<Runs>
+<Run ID="200">
+   <LumiSection ID="1"/>
+</Run>
+
+</Runs>
+</InputFile>
+
+<File>
+<State  Value="closed"/>
+<LFN></LFN>
+<Catalog></Catalog>
+<ModuleLabel>output</ModuleLabel>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestOtherThings_AOtherThing_testUserTag_TESTPROD.</Branch>
+  <Branch>edmtestOtherThings_OtherThing_testUserTag_TESTPROD.</Branch>
+  <Branch>edmtestOtherThings_ZOtherThing_testUserTag_TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<OutputModuleClass>PoolOutputModule</OutputModuleClass>
+<TotalEvents>25</TotalEvents>
+
+<DataType>MC</DataType>
+
+<BranchHash>424c4c69ba38c3dbfb10d247e72f522e</BranchHash>
+
+<Runs>
+<Run ID="100">
+   <LumiSection ID="1"/>
+</Run>
+
+<Run ID="200">
+   <LumiSection ID="1"/>
+</Run>
+
+</Runs>
+
+<Inputs>
+<Input>
+  <LFN></LFN>
+  <FastCopying>1</FastCopying>
+</Input>
+<Input>
+  <LFN></LFN>
+  <FastCopying>1</FastCopying>
+</Input>
+</Inputs>
+</File>
+<ReadBranches>
+<Branch Name="edmTriggerResults_TriggerResults__TESTPROD." ReadCount="35" />
+<Branch Name="edmtestOtherThings_AOtherThing_testUserTag_TESTPROD." ReadCount="10" />
+<Branch Name="edmtestOtherThings_OtherThing_testUserTag_TESTPROD." ReadCount="10" />
+<Branch Name="edmtestOtherThings_ZOtherThing_testUserTag_TESTPROD." ReadCount="10" />
+<Branch Name="edmtestThings_Thing__TESTPROD." ReadCount="35" />
+</ReadBranches>
+
+</FrameworkJobReport>

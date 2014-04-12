@@ -2,26 +2,34 @@
 #define FWCore_Framework_DelayedReader_h
 
 /*----------------------------------------------------------------------
-  
-DelayedReader: The abstract interface through which the EventPrincipal
-uses input sources to retrieve EDProducts from external storage.
 
-$Id: DelayedReader.h,v 1.5 2007/05/10 12:27:03 wmtan Exp $
+DelayedReader: The abstract interface through which the Principal
+uses input sources to retrieve EDProducts from external storage.
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
+
 #include <memory>
-#include "DataFormats/Provenance/interface/ProvenanceDelayedReader.h"
 
 namespace edm {
-  class BranchKey;
-  class EDProduct;
+  struct BranchKey;
   class EDProductGetter;
-  class DelayedReader : public ProvenanceDelayedReader {
+  class WrapperInterfaceBase;
+  class DelayedReader {
   public:
     virtual ~DelayedReader();
-
-    virtual std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* ep) const = 0;
+    WrapperOwningHolder getProduct(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) {
+      return getProduct_(k, interface, ep);
+    }
+    void mergeReaders(DelayedReader* other) {mergeReaders_(other);}
+    void reset() {reset_();}
+  private:
+    virtual WrapperOwningHolder getProduct_(BranchKey const& k,
+                                            WrapperInterfaceBase const* interface,
+                                            EDProductGetter const* ep) const = 0;
+    virtual void mergeReaders_(DelayedReader*) = 0;
+    virtual void reset_() = 0;
   };
 }
 

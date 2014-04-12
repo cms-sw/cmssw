@@ -1,0 +1,2 @@
+USER_LLVM_CHECKERS "-disable-checker unix -disable-checker threadsafety.MutableMember -disable-checker threadsafety.StaticLocal  -disable-checker threadsafety.ConstCast  -disable-checker threadsafety.ConstCastAway  -disable-checker threadsafety.GlobalStatic -disable-checker core -disable-checker security -disable-checker deadcode "
+

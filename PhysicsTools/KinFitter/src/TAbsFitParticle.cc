@@ -10,15 +10,12 @@
 // Abstract base class for particles to be used with kinematic fitter
 //
 
-
-using namespace std;
-
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
 #include "TClass.h"
 
-ClassImp(TAbsFitParticle)
 
 TAbsFitParticle::TAbsFitParticle():
   TNamed("NoName","NoTitle")
@@ -61,31 +58,48 @@ TAbsFitParticle::~TAbsFitParticle() {
 
 }
 
+TString
+TAbsFitParticle::getInfoString() {
+  // Collect information to be used for printout
+
+  std::stringstream info;
+  info << std::scientific << std::setprecision(6);
+
+  info << "__________________________" << std::endl
+       << std::endl;
+
+  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
+
+  info << std::setw(22) << "initial parameters:"  << std::setw(5) << " " << std::setw(20) << "current parameters:" << std::endl;
+  for (int i = 0; i< _nPar ;i++){
+    info << "par[" << i << "] = "
+	 << std::setw(18) << (*getParIni())(i,0) 
+	 << std::setw(20) << (*getParCurr())(i,0) << std::endl;
+  }
+
+  info << std::setw(22) << "initial 4vector:" << std::setw(5) << " " << std::setw(20) << "current 4vector:" << std::endl;
+  for (int i = 0; i< 4 ;i++){
+    info << "p[" << i << "] = "
+	 << std::setw(20) << (*getIni4Vec())[i] 
+	 << std::setw(20) << (*getCurr4Vec())[i] << std::endl;
+   }
+  info << "mass = " 
+       << std::setw(20) << (*getIni4Vec()).M() 
+       << std::setw(20) << (*getCurr4Vec()).M() << std::endl;
+
+   info << "u1  = " << _u1.X() << ", " << _u1.Y() << ", " << _u1.Z() << std::endl;
+   info << "u2  = " << _u2.X() << ", " << _u2.Y() << ", " << _u2.Z() << std::endl;
+   info << "u3  = " << _u3.X() << ", " << _u3.Y() << ", " << _u3.Z() << std::endl;
+
+   return info.str();
+
+}
+
 void 
 TAbsFitParticle::print() {
   // Print particle contents
 
-  cout << "__________________________" << endl << endl;
-  cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
-
-  cout << setw(22)<< "initial parameters:"  << setw(5)<<" " << setw(20)<< "current parameters:" << endl;
-  for (int i = 0; i< _nPar ;i++){
-    cout << "par[" << i << "] = " << setprecision(6) << setw(18)<< (*getParIni())(i,0) 
-	 << setw(20) << setprecision(6)<< (*getParCurr())(i,0) <<endl;
-  }
-
-  cout << setw(22)<<"initial 4vector:" << setw(5)<<" " << setw(20) <<"current 4vector:"<< endl;
-   for (int i = 0; i< 4 ;i++){
-    cout << "p[" << i << "] = "<< setprecision(6) << setw(20) << (*getIni4Vec())[i] 
-	 << setw(20)<< setprecision(6) << (*getCurr4Vec())[i] << endl;
-   }
-   cout <<  "mass = " << setprecision(6) << setw(20) << (*getIni4Vec()).M() 
-	<< setw(20)<< setprecision(6)<< (*getCurr4Vec()).M()<< endl;
-
-   cout << "u1  = " << _u1.X() << ", " << _u1.Y() << ", " << _u1.Z() << endl;
-   cout << "u2  = " << _u2.X() << ", " << _u2.Y() << ", " << _u2.Z() << endl;
-   cout << "u3  = " << _u3.X() << ", " << _u3.Y() << ", " << _u3.Z() << endl;
-
+  edm::LogVerbatim("KinFitter") << this->getInfoString();
 
 }
 
@@ -109,7 +123,9 @@ void TAbsFitParticle::setCovMatrix(const TMatrixD* theCovMatrix) {
   } else if (theCovMatrix->GetNcols() ==_nPar && theCovMatrix->GetNrows() ==_nPar) {
     _covMatrix = (*theCovMatrix);
   } else {
-    cout <<"Something is wrong with the definition of the covariance matrix"<<endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::setCovMatrix - Covariance matrix needs to be a "
+      << _nPar << "x" << _nPar << " matrix.";
   }
 
 }
@@ -124,7 +140,9 @@ void TAbsFitParticle::setCovMatrixFit(const TMatrixD* theCovMatrixFit) {
   } else if (theCovMatrixFit->GetNcols() ==_nPar && theCovMatrixFit->GetNrows() ==_nPar) {
     _covMatrixFit = (*theCovMatrixFit);
   } else {
-    cout <<"Something is wrong with the definition of the fit covariance matrix"<<endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::setCovMatrixFit - Fitted covariance matrix needs to be a "
+      << _nPar << "x" << _nPar << " matrix.";
   }
 
 }
@@ -137,16 +155,14 @@ void TAbsFitParticle::calcCovMatrixDeltaY() {
   if(_covMatrixFit.GetNrows() == _nPar && _covMatrixFit.GetNcols() == _nPar)
     _covMatrixDeltaY -= _covMatrixFit;
   else 
-    cout << "_covMatrixFit probably not set" <<endl;  
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::calcCovMatrixDeltaY - _covMatrixFit probably not set.";
 }
-
-
 
 const TMatrixD* TAbsFitParticle::getPull() {
   // Calculates the pull (y_fit - y_meas) / sigma
   // with sigma = Sqrt( sigma[y_meas]^2 - V[y_fit]^2 )
   // for all parameters
-
 
   _pull.ResizeTo( _nPar, 1 );
   _pull = _parameters;
@@ -155,7 +171,7 @@ const TMatrixD* TAbsFitParticle::getPull() {
   for (int i = 0; i<_nPar; i++) {
     Double_t sigmaDeltaY = _covMatrixDeltaY(i, i);
     if (sigmaDeltaY < 0) {
-      cout << "V[deltaY] has negative diagonal element." << endl;
+      edm::LogWarning ("NegativeDiagonalElem") << "V[deltaY] has a negative diagonal element.";
       _pull.Zero();
       return &_pull;
     } else {
@@ -190,7 +206,8 @@ void TAbsFitParticle::setParIni(const TMatrixD* parini) {
 	   && parini->GetNcols() == _iniparameters.GetNcols() )
     _iniparameters = (*parini) ;
   else {
-    cout << "TAbsFitParticle::setParIni : Matrices don't fit"<< endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::setParIni - Matrices don't fit.";
     return;
       }
 }

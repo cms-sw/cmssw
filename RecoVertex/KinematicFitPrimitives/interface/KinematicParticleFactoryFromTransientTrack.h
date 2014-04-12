@@ -44,6 +44,18 @@ class KinematicParticleFactoryFromTransientTrack
 				       float chiSquared, 
 				       float degreesOfFr, 
                                        float& m_sigma) const;
+                                       
+/**
+ * Particle constructed out of corresponding TransientTrack,
+ * mass guess and sigma, chi2 and ndf. KinematicState 
+ * is created from the given FreeTrajectoryState
+ */
+  RefCountedKinematicParticle particle(const reco::TransientTrack& initialTrack, 
+                                       const ParticleMass& massGuess,
+                                       float chiSquared, 
+                                       float degreesOfFr, 
+                                       float& m_sigma,
+                                       const FreeTrajectoryState &freestate) const;                                       
 
 /**
  * Particle is constructed out of corresponding TransientTrack,

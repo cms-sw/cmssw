@@ -1,5 +1,6 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include <iostream>
+#include <algorithm>
 
 void PixelDigiCollection::put(Range input, unsigned int detID) {
   // put in Digis of detID

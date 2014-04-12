@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Mar 30 15:48:37 EST 2006
-// $Id: GenericHandle.cc,v 1.4 2006/10/27 20:55:14 wmtan Exp $
 //
 
 // system include files
@@ -17,70 +16,67 @@
 #include "FWCore/Framework/interface/GenericHandle.h"
 
 namespace edm {
-void convert_handle(BasicHandle const& orig,
+void convert_handle(BasicHandle && orig,
                     Handle<GenericObject>& result)
 {
-  using namespace ROOT::Reflex;
-  EDProduct const* originalWrap = orig.wrapper();
-  if (originalWrap == 0)
-    throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
+  if(orig.failedToGet()) {
+    result.setWhyFailedFactory(orig.whyFailedFactory());
+    return;
+  }
+  WrapperHolder originalWrap = orig.wrapperHolder();
+  if(!originalWrap.isValid()) {
+    throw Exception(errors::InvalidReference,"NullPointer")
       << "edm::BasicHandle has null pointer to Wrapper";
+  }
   
-  //Since a pointer to an EDProduct is not necessarily the same as a pointer to the actual type
-  // (compilers are allowed to offset the two) we must get our object via a two step process
-  Object edproductObject(Type::ByTypeInfo(typeid(EDProduct)), const_cast<EDProduct*>(originalWrap));
-  assert(edproductObject != Object());
+  ObjectWithDict wrap(originalWrap.wrappedTypeInfo(), const_cast<void*>(originalWrap.wrapper()));
+  assert(bool(wrap));
   
-  Object wrap(edproductObject.CastObject(edproductObject.DynamicType()));
-  assert(wrap != Object());
-  
-  Object product(wrap.Get("obj"));
+  ObjectWithDict product(wrap.get("obj"));
   if(!product){
-    throw edm::Exception(edm::errors::LogicError)<<"GenericObject could not find 'obj' member";
+    throw Exception(errors::LogicError)<<"GenericObject could not find 'obj' member";
   }
-  if(product.TypeOf().IsTypedef()){
-    //For a 'Reflex::Typedef' the 'ToType' method returns the actual type
-    // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
-    // only for a 'real' class
-    product = Object(product.TypeOf().ToType(), product.Address());
-    assert(!product.TypeOf().IsTypedef());
-  }
-  //NOTE: comparing on type doesn't seem to always work! The problem appears to be if we have a typedef
-  if(product.TypeOf()!=result.type() &&
-     !product.TypeOf().IsEquivalentTo(result.type()) &&
-     product.TypeOf().TypeInfo()!= result.type().TypeInfo()){
-    throw edm::Exception(edm::errors::LogicError)<<"GenericObject asked for "<<result.type().Name()
-    <<" but was given a "<<product.TypeOf().Name();
+  if(product.typeOf() != result.type()) {
+    throw Exception(errors::LogicError) << "GenericObject asked for " << result.type().name()
+      << " but was given a " << product.typeOf().name();
   }
   
-  Handle<GenericObject> h(product, orig.provenance());
+  Handle<GenericObject> h(product, orig.provenance(), orig.id());
   h.swap(result);
 }
 
 ///Specialize the getByLabel method to work with a Handle<GenericObject>
 template<>
-void
-edm::DataViewImpl::getByLabel<GenericObject>(std::string const& label,
-                                      const std::string& productInstanceName,
+bool
+edm::Event::getByLabel<GenericObject>(std::string const& label,
+                                      std::string const& productInstanceName,
                                       Handle<GenericObject>& result) const
 {
-  BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName);
-  gotProductIDs_.push_back(bh.id());
-  convert_handle(bh, result);  // throws on conversion error
+  BasicHandle bh = provRecorder_.getByLabel_(TypeID(result.type().typeInfo()), label, productInstanceName, std::string(), moduleCallingContext_);
+  convert_handle(std::move(bh), result);  // throws on conversion error
+  if(!result.failedToGet()) {
+    addToGotBranchIDs(*bh.provenance());
+    return true;
+  }
+  return false;
 }
 
 template<>
-void
-edm::DataViewImpl::getByLabel<GenericObject>(edm::InputTag const& tag,
+bool
+edm::Event::getByLabel<GenericObject>(edm::InputTag const& tag,
                                              Handle<GenericObject>& result) const
 {
   if (tag.process().empty()) {
-    this->getByLabel(tag.label(), tag.instance(), result);
+    return this->getByLabel(tag.label(), tag.instance(), result);
   } else {
-    BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), tag.label(), tag.instance(),tag.process());
-    gotProductIDs_.push_back(bh.id());
-    convert_handle(bh, result);  // throws on conversion error
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(result.type().typeInfo()), tag.label(), tag.instance(),tag.process(), moduleCallingContext_);
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if(!result.failedToGet()) {
+      addToGotBranchIDs(*bh.provenance());
+      return true;
+    }
   }
+  return false;
 }
 
 }

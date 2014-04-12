@@ -9,20 +9,14 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTT0Write.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
-#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 
 #include <string>
 #include <map>
@@ -77,7 +71,8 @@ namespace edmtest {
                   >> cel
                   >> t0m
                   >> rms ) {
-      status = t0->setCellT0( whe, sta, sec, qua, lay, cel, t0m, rms );
+      status = t0->set( whe, sta, sec, qua, lay, cel, t0m, rms,
+                        DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "
@@ -91,7 +86,8 @@ namespace edmtest {
 
     if( dbservice->isNewTagRequest("DTT0Rcd") ){
       dbservice->createNewIOV<DTT0>(
-                 t0,dbservice->endOfTime(),"DTT0Rcd");
+                 t0,dbservice->beginOfTime(),
+                    dbservice->endOfTime(),"DTT0Rcd");
     }
     else{
       std::cout << "already present tag" << std::endl;

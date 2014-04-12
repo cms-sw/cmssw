@@ -13,16 +13,10 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: IPAnalyzer.cc,v 1.2 2007/05/10 22:05:04 arizzi Exp $
 //
 //
 
 
-// system include files
-#include <memory>
-#include <string>
-#include <iostream>
-using namespace std;
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,13 +24,13 @@ using namespace std;
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -44,7 +38,13 @@ using namespace std;
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
+// system include files
+#include <string>
+#include <iostream>
+
+using namespace std;
 using namespace reco;
 
 //
@@ -59,9 +59,9 @@ class IPAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
    private:
-     edm::InputTag m_ipassoc;
      edm::InputTag m_assoc;
      edm::InputTag m_jets;
+     edm::EDGetTokenT<reco::TrackIPTagInfoCollection> token_ipassoc;
 };
 
 //
@@ -71,7 +71,7 @@ IPAnalyzer::IPAnalyzer(const edm::ParameterSet& iConfig)
 {
   m_jets  = iConfig.getParameter<edm::InputTag>("jets");
   m_assoc = iConfig.getParameter<edm::InputTag>("association");
-  m_ipassoc = iConfig.getParameter<edm::InputTag>("ipassociation");
+  token_ipassoc = consumes<reco::TrackIPTagInfoCollection>(iConfig.getParameter<edm::InputTag>("ipassociation"));
 }
 
 void
@@ -81,7 +81,7 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace reco;
 
   Handle<TrackIPTagInfoCollection> ipHandle;
-  iEvent.getByLabel(m_ipassoc, ipHandle);
+  iEvent.getByToken(token_ipassoc, ipHandle);
   const TrackIPTagInfoCollection & ip = *(ipHandle.product());
   cout << "Found " << ip.size() << " TagInfo" << endl;
 
@@ -99,16 +99,27 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TrackRefVector selTracks=it->selectedTracks();
       int n=selTracks.size();
       cout << "Sel tracks: " << n << endl; 
-      cout << " Pt  \t d len \t jet dist \t p3d \t p2d\t ip3d \t ip2d " << endl; 
-      for(int j=0;j< n;j++)
+// false      cout << " Pt  \t d len \t jet dist \t p3d \t p2d\t ip3d \t ip2d " << endl; 
+               GlobalPoint pv(it->primaryVertex()->position().x(),it->primaryVertex()->position().y(),it->primaryVertex()->position().z());
+  cout << pv << " vs " << it->primaryVertex()->position()   << endl;
+   for(int j=0;j< n;j++)
       {
+        TrackIPTagInfo::TrackIPData data = it->impactParameterData()[j];  
         cout << selTracks[j]->pt() << "\t";
-        cout << it->decayLengths()[j].value() << "\t";
-        cout << it->jetDistances()[j].value() << "\t";
-        cout << it->probabilities(0)[j]<< "\t";
-        cout << it->probabilities(1)[j]<< "\t";
-        cout << it->impactParameters(0)[j].significance() << "\t";
-        cout << it->impactParameters(1)[j].significance() << endl;
+        cout << it->probabilities(0)[j] << "\t";
+        cout << it->probabilities(1)[j] << "\t";
+        cout << data.ip3d.value() << "\t";
+        cout << data.ip3d.significance() << "\t";
+        cout << data.distanceToJetAxis.value() << "\t";
+        cout << data.distanceToJetAxis.significance() << "\t";
+        cout << data.distanceToGhostTrack.value() << "\t";
+        cout << data.distanceToGhostTrack.significance() << "\t";
+        cout << data.closestToJetAxis << "\t";
+        cout << (data.closestToJetAxis - pv).mag() << "\t";
+        cout << data.closestToGhostTrack << "\t";
+        cout << (data.closestToGhostTrack - pv).mag() << "\t";
+        cout << data.ip2d.value() << "\t";
+        cout << data.ip2d.significance() <<  endl;     
       }
 
   }

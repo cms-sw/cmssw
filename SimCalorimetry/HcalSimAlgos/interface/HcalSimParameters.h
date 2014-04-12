@@ -5,10 +5,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
+typedef std::vector<std::pair<double,double> > HcalTimeSmearSettings;
+
 class HcalSimParameters : public CaloSimParameters
 {
 public:
-  HcalSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
+  HcalSimParameters(double simHitToPhotoelectrons, const std::vector<double> & photoelectronsToAnalog,
                  double samplingFactor, double timePhase,
                  int readoutFrameSize, int binOfMaximum,
                  bool doPhotostatistics, bool syncPhase,
@@ -20,6 +22,7 @@ public:
   void setDbService(const HcalDbService * service) {theDbService = service;}
 
   virtual double simHitToPhotoelectrons(const DetId & detId) const;
+  virtual double photoelectronsToAnalog(const DetId & detId) const;
 
   double fCtoGeV(const DetId & detId) const;
 
@@ -27,11 +30,25 @@ public:
   /// in the SimHit
   virtual double samplingFactor(const DetId & detId) const;
 
+  bool doTimeSmear() const { return doTimeSmear_; }
+
+  double timeSmearRMS(double ampl) const;
+
+  int pixels() const {return thePixels;}
+  bool doSiPMSmearing() const { return theSiPMSmearing; }
+
+  friend class HcalSimParameterMap;
 
 private:
+  void defaultTimeSmearing();
   const HcalDbService * theDbService;
   int theFirstRing;
   std::vector<double> theSamplingFactors;
+  std::vector<double> thePE2fCByRing;
+  int thePixels;
+  bool theSiPMSmearing;
+  bool doTimeSmear_;
+  HcalTimeSmearSettings theSmearSettings;
 };
 
 #endif

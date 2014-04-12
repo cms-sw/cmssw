@@ -1,0 +1,121 @@
+
+/*!
+
+\page Geometry_CSCGeometry Package Geometry/CSCGeometry
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Geometry/CSCGeometry/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Geometry/CSCGeometry/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+Provides the geometrical model of the endcap muon CSC system as a container of CSCs (CSChamber objects). <br>
+A CSCChamber is a concrete implementation of the GeomDet interface for a CSC. <br>
+A CSCChamber is composed of 6 CSCLayer objects, each of which is a concrete implementation of a GeomDetUnit. <br>
+Each CSCLayer contains concrete implementations of Topology objects to describe the wire and strip planes
+in a layer of a CSC.
+
+\subsection interface Primary public interface
+
+- CSCGeometry
+The entire model of the CSC endcap muon system. <br>
+This isa TrackingGeometry. Basically a vector<CSCChamber*>.
+- CSCChamber
+Represents one CSC in the system. <br>
+A CSC is composed of 6 layers so a CSCChamber is composed of 6 CSCLayer objects.
+Basically a vector<CSCLayer*>. <br>
+A CSCChamber can transform between local and global coordinates.
+- CSCLayer
+Represents one layer (gas+strip plane+wire plane) of a CSC. <br>
+A CSCLayer can transform between local and global coordinates.
+
+\subsection secint Secondary public interface
+Mainly used by the above classes, but sometimes by other packages.
+
+- CSCChamberSpecs
+General properties of a CSC, e.g. dimensions. <br>
+There are 10 types of chamber in the CSC system, corresponding to the combinations MEi/j
+where i labels station 1-4, and j labels ring 1-3 (We have ME1/1, ME1/2, ME1/3, ME2/1, ME2/2, ME3/1, ME3/2, ME4/1, ME4/2).<br>
+Within the software we also form a virtual ring j=4 to describe the inner region of ME1/1, which is known in the hardware
+as ME1/1a. We then presume i=1, j=1 labels the outer region, which is known in hardware as ME1/1b.) <br>
+BEWARE that sometimes there is optimization of the i, j labels in the 
+software so one should always access them through the appropriate interfaces rather than attempting to decode
+values stored internally in the objects. (Such relabelling is done, e.g., to optimize  DetLayer geometry access during 
+muon track reconstruction.)<br>
+The -z and +z endcaps are symmetric so only 10 CSCChamberSpecs objects in total are used, one per chamber type.
+
+- CSCLayerGeometry
+General properties of a CSC layer. <br>
+Encapsulates the geometry of the strips in a CSCStripTopology and the geometry of the wires
+in a CSCWireTopology. <br>
+All values are in local coordinates. <br>
+There are separate objects for odd and even layers in the 6 layers
+of a CSC, and separate objects for the -z and +z endcaps, so there are 10 x 2 x 2 = 40 CSCLayerGeometry objects.
+
+- CSCStripTopology
+General properties of a strip plane. <br>
+An OffsetRadialStripTopology matched to a CSC plane of strips.
+
+- OffsetRadialStripTopology
+A standard RadialStripTopology in which there is an angular offset between the plane of strips and the local coordinate 
+system of the underlying DetUnit.
+
+- CSCWireTopology
+A WireTopology matched to a CSC plane of wires. <br>
+Basically a WireTopology containing a CSCWireGeometry* and a CSCWireGrouping*.
+
+- WireTopology
+An abstract base class for detector planes of wires rather than strips. A Topology.
+
+- CSCWireGeometry
+Abstract class dealing with the spacing and angles of wires in a wire plane.
+
+- nint
+A nearest int function for floats and doubles. This was originally a CMS-wide function.
+
+- CSCGattiFunction
+Represents the expected functional form of the charge distribution on strips in a MWPC. <br>
+This is required for
+distributing simulated charge over strips during simulation. Although it is not strictly geometrical, 
+it was not clear where else to package it.
+
+\subsection other Classes not in public interface
+
+- CSCNonslantedWireGeometry
+- CSCSlantedWireGeometry
+
+- CSCUngangedStripTopology
+
+- CSCWireGrouping
+Abstract class describing the wire group structure of a CSC wire plane - how the wires are grouped into readout channels.
+- CSCGangedWireGrouping
+- CSCUngangedWireGrouping
+- CSCWireGroupPackage
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+I don't even know what a 'module' is, so I don't think there are any.
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+
+No cppunit tests left since they were never properly supported or particularly useful. 
+But there are 7 types of stand-alone test program in the test directory which are extremely useful
+for examining what's in the CSCGeometry hierarchy.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+
+Completed. Stable. (But tests will continue to be developed as appropriate.)
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

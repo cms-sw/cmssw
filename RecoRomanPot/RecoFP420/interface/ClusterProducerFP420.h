@@ -3,8 +3,8 @@
 
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 
-#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
-#include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
+#include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
+#include "DataFormats/FP420Digi/interface/HDigiFP420.h"
 
 #include <vector>
 #include <algorithm>
@@ -26,11 +26,11 @@ public:
   std::vector<ClusterFP420> clusterizeDetUnit(HDigiFP420Iter begin, HDigiFP420Iter end,
 						unsigned int detid, const ElectrodNoiseVector& vnoise);
   std::vector<ClusterFP420> clusterizeDetUnitPixels(HDigiFP420Iter begin, HDigiFP420Iter end,
-						    unsigned int detid, const ElectrodNoiseVector& vnoise, unsigned int zside);
+						    unsigned int detid, const ElectrodNoiseVector& vnoise, unsigned int xytype, int verb);
   
-  int difNarr(unsigned int zside, HDigiFP420Iter ichannel,
+  int difNarr(unsigned int xytype, HDigiFP420Iter ichannel,
 				  HDigiFP420Iter jchannel);
-  int difWide(unsigned int zside, HDigiFP420Iter ichannel,
+  int difWide(unsigned int xytype, HDigiFP420Iter ichannel,
 				  HDigiFP420Iter jchannel);
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
@@ -50,11 +50,12 @@ private:
 
 class AboveSeed {
  public:
-  AboveSeed(float aseed,const ElectrodNoiseVector& vnoise) : seed(aseed), vnoise_(vnoise) {};
+  AboveSeed(float aseed,const ElectrodNoiseVector& vnoise) : verb(0), seed(aseed), vnoise_(vnoise) {};
 
   bool operator()(const HDigiFP420& digi) { return ( !vnoise_[digi.channel()].getDisable() && 
                                                digi.adc() >= seed * vnoise_[digi.channel()].getNoise()) ;}
 private:
+  int verb;
   float seed;
   const ElectrodNoiseVector& vnoise_;
 };

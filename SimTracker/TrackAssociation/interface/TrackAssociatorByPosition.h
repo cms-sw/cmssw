@@ -4,8 +4,6 @@
 /** \class TrackAssociatorByPosition
  *  Class that performs the association of reco::Tracks and TrackingParticles based on position in muon detector
  *
- *  $Date: 2007/07/11 19:41:52 $
- *  $Revision: 1.1 $
  *  \author vlimant
  */
 
@@ -21,6 +19,8 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
+
+#include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 
 #include<map>
 
@@ -40,6 +40,7 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
      theMinIfNoMatch = iConfig.getParameter<bool>("MinIfNoMatch");
      theQminCut = iConfig.getParameter<double>("QminCut");
      theQCut = iConfig.getParameter<double>("QCut");
+     thePositionMinimumDistance = iConfig.getParameter<double>("positionMinimumDistance");
      std::string  meth= iConfig.getParameter<std::string>("method");
      if (meth=="chi2"){ theMethod =0; }
      else if (meth=="dist"){theMethod =1;}
@@ -47,6 +48,9 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
      else if (meth=="posdr"){theMethod = 3;}
      else{
        edm::LogError("TrackAssociatorByPosition")<<meth<<" mothed not recognized. Use dr or chi2.";     }
+
+     theConsiderAllSimHits = iConfig.getParameter<bool>("ConsiderAllSimHits");
+     _simHitTpMapTag = iConfig.getParameter<edm::InputTag>("simHitTpMapTag");
    };
 
 
@@ -56,14 +60,18 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
 
 
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
-						edm::Handle<TrackingParticleCollection>&, 
-						const edm::Event * event = 0) const;
+  virtual
+  reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
+					       const edm::RefVector<TrackingParticleCollection>&,
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0 ) const override;
 
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
-						edm::Handle<TrackingParticleCollection>& ,
-						const edm::Event * event = 0) const;
+  virtual
+  reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
+					       const edm::RefVector<TrackingParticleCollection>&,
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0 ) const override;
 
   double quality(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface &)const;
 
@@ -71,14 +79,16 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
 
   const TrackingGeometry * theGeometry;
   const Propagator * thePropagator;
-  uint theMethod;
+  unsigned int theMethod;
   double theQminCut;
   double theQCut;
   bool theMinIfNoMatch;
-
+  double thePositionMinimumDistance;
+  bool theConsiderAllSimHits;
+  
   FreeTrajectoryState getState(const reco::Track &) const;
-  TrajectoryStateOnSurface getState(const TrackingParticle &)const;
-
+  TrajectoryStateOnSurface getState(const TrackingParticleRef&, const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc)const;
+  edm::InputTag _simHitTpMapTag;
 };
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/FedCablingAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/FedCablingAnalysis.h"
 
 template<>
 class SummaryPlotFactory<FedCablingAnalysis*> : public SummaryPlotFactoryBase {

@@ -3,8 +3,6 @@
  
 /** \class EcalDeadChannelRecoveryAlgos
   *
-  *  $Date: 2007/05/03 17:21:06 $
-  *  $Revision: 1.2 $
   */
  
 
@@ -28,27 +26,24 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <string>
-using namespace cms;
-using namespace std;
 
 
 
 
 class EcalDeadChannelRecoveryAlgos  {
    public:
-  EcalDeadChannelRecoveryAlgos(const CaloTopology theCaloTopology);
+  EcalDeadChannelRecoveryAlgos(const CaloTopology * theCaloTopology);
   EcalDeadChannelRecoveryAlgos();
   ~EcalDeadChannelRecoveryAlgos();
  
-  EcalRecHit Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut);
+  EcalRecHit Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, std::string algo_, double Sum8Cut);
+  EcalRecHit correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, std::string algo_, double Sum8Cut);
   
  private:
   
   
-  CaloTopology calotopo;
-  double MakeNxNMatrice(EBDetId itID,const EcalRecHitCollection* hit_collection, double *MNxN);
-  
-
+  const CaloTopology * calotopo;
+  double MakeNxNMatrice(EBDetId itID,const EcalRecHitCollection* hit_collection, int *IndDeadChannel, double *MNxN);
   
   // ----------member data ---------------------------
   

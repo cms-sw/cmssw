@@ -1,7 +1,7 @@
 #include<string>
 //#include<vector>
 #include <sstream>
-string IntToString(int num)
+std::string IntToString(int num)
  {
    std::ostringstream myStream; //creates an ostringstream object
    myStream << num << std::flush;
@@ -20,9 +20,7 @@ string IntToString(int num)
 /*! \class H4Geom
  * \brief A helper class with geometry information of the super module
  *
- * $Date: 2005/08/15 08:51:10 $
- * $Author: ghezzi $
- *
+ * Author: Giovanni Franzoni
  * Crystal numbering schemes during automn 2004 (SM10):
  * - <b>Conventions</b>
  *   SM Crystal Number range is [1, 1700]
@@ -186,6 +184,7 @@ string IntToString(int num)
 #include "./Geom.h"
 #include <iostream>
 
+using namespace std;
 
 const int H4Geom::crystalChannelMap[5][5] = {
   { 4, 5, 14, 15, 24},

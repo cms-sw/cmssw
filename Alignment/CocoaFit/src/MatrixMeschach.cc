@@ -4,12 +4,13 @@
 //
 //   History: v1.0 
 //   Pedro Arce
+#include <iomanip>
+#include <cmath>  
+
 
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaFit/interface/MatrixMeschach.h"
 
-#include <iomanip>
-#include <math.h>
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 MatrixMeschach::MatrixMeschach()
@@ -50,10 +51,10 @@ MatrixMeschach::MatrixMeschach( const MatrixMeschach& mat )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void MatrixMeschach::copy( const MatrixMeschach& mat) 
 {
-  if( ALIUtils::debug >= 5) std::cout <<  "copy matrix" << mat._Mat << " " << _Mat << " L " << mat.NoLines() << " C " << mat.NoColumns() << " l " <<  mat.Mat()->m << " c " << mat.Mat()->n <<std::endl;
+  //  if( ALIUtils::debug >= 5) std::cout <<  "copy matrix" << mat._Mat << " " << _Mat << " L " << mat.NoLines() << " C " << mat.NoColumns() << " l " <<  mat.Mat()->m << " c " << mat.Mat()->n <<std::endl;
 
-  for( uint lin=0; lin < _NoLines; lin++ ) {
-    for( uint col=0;  col < _NoColumns; col++ ) {
+  for( ALIint lin=0; lin < _NoLines; lin++ ) {
+    for( ALIint col=0;  col < _NoColumns; col++ ) {
       _Mat->me[lin][col] = mat.MatNonConst()->me[lin][col];
     } 
   }
@@ -124,8 +125,8 @@ void MatrixMeschach::operator+=( const MatrixMeschach& mat )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void MatrixMeschach::operator*=( const ALIdouble num )
 {
-  for (uint ii=0; ii<_Mat->m; ii++) {
-      for (uint jj=0; jj<_Mat->n; jj++) {
+  for (ALIuint ii=0; ii<_Mat->m; ii++) {
+      for (ALIuint jj=0; jj<_Mat->n; jj++) {
 	  _Mat->me[ii][jj] *= num;
       }
   }
@@ -144,10 +145,16 @@ MatrixMeschach operator*( const MatrixMeschach& mat1, const MatrixMeschach& mat2
   mat1copy.setNoColumns( mat2.NoColumns() );
 
   MAT* tempmat = m_get( mat1copy.NoColumns(), mat1copy.NoLines() );
-  m_transp( mat1copy.MatNonConst(), tempmat); 
+  m_transp( mat1copy.MatNonConst(), tempmat);
+ 
   //M_FREE( _Mat );
   mat1copy.setMat( m_get( mat1copy.NoLines(), mat2.NoColumns() ) );
   mtrm_mlt( tempmat, mat2.MatNonConst(), mat1copy.MatNonConst());
+
+  free(tempmat);
+
+  return mat1copy;
+
 
   MatrixMeschach* matout = new MatrixMeschach( mat1copy );
 
@@ -232,8 +239,8 @@ void MatrixMeschach::transpose()
   M_FREE( _Mat );
   _Mat = m_get(_NoColumns, _NoLines);
   //- std::cout << "transposed"  <<_NoLines<<_NoColumns;
-  for( uint lin=0; lin < _NoColumns; lin++ ) {
-    for( uint col=0;  col < _NoLines; col++ ) {
+  for( ALIint lin=0; lin < _NoColumns; lin++ ) {
+    for( ALIint col=0;  col < _NoLines; col++ ) {
       //-  std::cout << "setting mat "  << lin << " " << col << std::endl;
       _Mat->me[lin][col] = tempmat->me[lin][col];
     }
@@ -367,8 +374,8 @@ void MatrixMeschach::ostrDump( std::ostream& fout, const ALIstring& mtext )
   fout << "DUMPM@@@@@    " << mtext << "    @@@@@" << std::endl;
   fout << "Matrix is (_Mat)" << _Mat->m << "x" << _Mat->n << std::endl;
   fout << "Matrix is " << _NoLines << "x" << _NoColumns << std::endl;
-  for (uint ii=0; ii<_Mat->m; ii++) {
-    for (uint jj=0; jj<_Mat->n; jj++) {
+  for (ALIuint ii=0; ii<_Mat->m; ii++) {
+    for (ALIuint jj=0; jj<_Mat->n; jj++) {
       fout << std::setw(8) << _Mat->me[ii][jj] << " ";
     }
     fout << std::endl;

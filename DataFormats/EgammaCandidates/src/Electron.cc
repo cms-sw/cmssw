@@ -1,4 +1,3 @@
-// $Id: ElectronCandidate.cc,v 1.5 2006/05/31 12:57:40 llista Exp $
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 
 using namespace reco;
@@ -13,6 +12,10 @@ TrackRef Electron::track() const {
   return track_;
 }
 
+GsfTrackRef Electron::gsfTrack() const {
+  return gsfTrack_;
+}
+
 SuperClusterRef Electron::superCluster() const {
   return superCluster_;
 }
@@ -24,4 +27,8 @@ bool Electron::overlap( const Candidate & c ) const {
 	     checkOverlap( superCluster(), o->superCluster() ) ) 
 	   );
   return false;
+}
+
+bool Electron::isElectron() const {
+  return true;
 }

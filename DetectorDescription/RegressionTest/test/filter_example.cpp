@@ -14,9 +14,6 @@
 // Please have a look to all the commentary therein.
 #include "DetectorDescription/Core/src/tutorial.h"
 
-#include "Utilities/Notification/interface/TimingReport.h"
-#include "Utilities/Notification/interface/TimerProxy.h"
-
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -24,7 +21,6 @@ int main(int argc, char *argv[])
    static TimerProxy timer_("main()");
    TimeMe t(timer_,false);
 
-  //DDAlgoInit();
 try { // DDD Prototype can throw DDException defined in DetectorDescription/Core/interface/DDException.h
   
   // Initialize a DDL Schema aware parser for DDL-documents

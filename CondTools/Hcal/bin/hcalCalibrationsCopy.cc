@@ -161,7 +161,7 @@ void fillDefaults (HcalQIEData*& fObject) {
 	  HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	  if (topology.valid(cell)) {
 	    HcalQIECoder item = HcalDbHardcode::makeQIECoder (cell); 
-	    fObject->addCoder (cell, item);
+	    fObject->addCoder (item);
 	  }
 	}
       }
@@ -183,7 +183,7 @@ void fillDefaults (HcalCalibrationQIEData*& fObject) {
 	  HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	  if (topology.valid(cell)) {
 	    HcalCalibrationQIECoder item = HcalDbHardcode::makeCalibrationQIECoder (cell); 
-	    fObject->addCoder (cell, item);
+	    fObject->addCoder (item);
 	  }
 	}
       }

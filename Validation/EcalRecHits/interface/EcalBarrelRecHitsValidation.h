@@ -4,7 +4,6 @@
 /*
  * \file EcalBarrelRecHitsValidation.h
  *
- * $Date: 2006/10/17 09:56:12 $
  * \author C. Rovelli
  *
 */
@@ -19,8 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
@@ -34,6 +32,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EcalBarrelRecHitsValidation: public edm::EDAnalyzer{
 
@@ -51,7 +50,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob();
 
 // EndJob
 void endJob(void);
@@ -60,10 +59,11 @@ private:
 
  bool verbose_;
  
- DaqMonitorBEInterface* dbe_;
+ DQMStore* dbe_;
 
- edm::InputTag EBdigiCollection_;
- edm::InputTag EBuncalibrechitCollection_;
+ // fix for consumes
+ edm::EDGetTokenT< EBDigiCollection > EBdigiCollection_token_;
+ edm::EDGetTokenT< EBUncalibratedRecHitCollection > EBuncalibrechitCollection_token_;
 
  MonitorElement* meEBUncalibRecHitsOccupancy_;     
  MonitorElement* meEBUncalibRecHitsAmplitude_;    

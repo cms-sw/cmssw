@@ -4,8 +4,6 @@
 /** \class RPCRecHitCollection
  *  Collection of RPCRecHit for storage in the event
  *
- *  $Date: 2006/04/10 11:41:11 $
- *  $Revision: 1.1 $
  *  \author M. Maggi - INFN Bari
  */
 

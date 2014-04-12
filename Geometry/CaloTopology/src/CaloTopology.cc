@@ -5,6 +5,15 @@
 CaloTopology::CaloTopology() {
 }
 
+CaloTopology::~CaloTopology() 
+{
+   for( TopMap::iterator i ( theTopologies_.begin() ) ;
+	i != theTopologies_.end() ; ++i )
+   {
+      delete i->second ;
+   }
+}
+
 int CaloTopology::makeIndex(DetId::Detector det, int subdet) const {
   return (int(det)<<4) | (subdet&0xF);
 }

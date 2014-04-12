@@ -16,7 +16,6 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Wed Jul 19 14:41:13 CEST 2006
-// $Id: HepPDTAnalyzer.h,v 1.1 2006/07/21 12:25:04 fmoortga Exp $
 //
 //
 
@@ -25,8 +24,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 namespace edm {
   class ParameterSet;
@@ -39,6 +39,10 @@ public:
   
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+  void printInfo(const ParticleData* & part);
+
+  void printBanner(); 
 private:
   std::string particleName_;
 };

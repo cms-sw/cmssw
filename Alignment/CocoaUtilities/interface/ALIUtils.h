@@ -27,8 +27,8 @@ public:
   ~ALIUtils(){};
 
   static int IsNumber( const ALIstring& str);
-  static void dump3v( const Hep3Vector& vec, const std::string& msg);
-  static void dumprm( const HepRotation& rm, const std::string& msg, std::ostream& out = std::cout );
+  static void dump3v( const CLHEP::Hep3Vector& vec, const std::string& msg);
+  static void dumprm( const CLHEP::HepRotation& rm, const std::string& msg, std::ostream& out = std::cout );
 
  // public static DATA MEMBERS 
   static ALIint report;
@@ -148,7 +148,7 @@ ALIuint FindItemInVector( const T* item, const std::vector<T*>& item_vector )
 
 }
 */
-//std::ostream& operator << (std::ostream& os, const HepRotation& c);
+//std::ostream& operator << (std::ostream& os, const CLHEP::HepRotation& c);
 
 #endif 
 

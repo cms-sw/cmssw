@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.20 2007/04/02 13:35:15 llista Exp $
  *
  */
 
@@ -17,7 +16,7 @@ namespace reco {
   class FitQuality {
   public:
     /// default constructor
-    FitQuality() { }
+    FitQuality() : chi2_(0), ndof_(0) { }
     /// constructor form values
     FitQuality( double chi2, double ndof ) :
       chi2_( chi2 ), ndof_( ndof ) { }

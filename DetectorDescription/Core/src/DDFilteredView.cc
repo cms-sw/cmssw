@@ -1,8 +1,5 @@
-//#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-
-#include "SealUtil/SealTimer.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -106,8 +103,6 @@ void DDFilteredView::clearScope()
 
 bool DDFilteredView::next()
 {
-   static seal::SealTimer tfvn("DDFilteredView::next()", false);
-
    bool result = false;
    int i=0;
    //epv_.scope_.clear();
@@ -290,7 +285,7 @@ DDFilteredView::nav_type DDFilteredView::copyNumbers() const
 }
 
 
-bool DDFilteredView::goTo(const DDFilteredView::nav_type & n)
+bool DDFilteredView::goTo(const DDFilteredView::nav_type & /*n*/)
 {
  // WARNING!!!!!!!!!!
  // NOT IMPLEMENTED!!!!!!!

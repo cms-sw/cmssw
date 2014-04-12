@@ -31,25 +31,26 @@ void KinematicTree::addParticle(RefCountedKinematicVertex prodVtx,
  treeGraph.addEdge(prodVtx,decVtx,part);
  empt = false;
  movePointerToTheTop();
+ prodVtx->setTreePointer(this);
+ decVtx->setTreePointer(this);
 }
 
-vector<RefCountedKinematicParticle> KinematicTree::finalStateParticles() const
+std::vector<RefCountedKinematicParticle> KinematicTree::finalStateParticles() const
 {
  if(isEmpty() || !(isConsistent()))
  {
   throw VertexException("KinematicTree::finalStateParticles; tree is empty or not consistent");
  }else{
   RefCountedKinematicParticle initial = currentParticle();
-  vector<RefCountedKinematicParticle> rs;
+  std::vector<RefCountedKinematicParticle> rs;
   movePointerToTheTop();
   if(!(leftFinalParticle()))
   {
-   cout<<"top particle has no daughters, empty vector returned"<<endl;
+   std::cout<<"top particle has no daughters, empty vector returned"<<std::endl;
   }else{
 //now pointer is at the  most left final particle
    rs.push_back(currentParticle()); 
    bool next_right = true; 
-   bool down = true;   
    bool up = true;
    do
    {
@@ -58,7 +59,7 @@ vector<RefCountedKinematicParticle> KinematicTree::finalStateParticles() const
     {
 //if there's a way to the right,
 //we go right and down possible    
-     down = leftFinalParticle();
+     leftFinalParticle();
      rs.push_back(currentParticle()); 
     }else{
 //once there's no way to right anymore
@@ -109,13 +110,13 @@ bool KinematicTree::leftFinalParticle() const
    return treeWalker->current().first;
  }
  
- pair<bool,RefCountedKinematicParticle>  KinematicTree::motherParticle() const
+ std::pair<bool,RefCountedKinematicParticle>  KinematicTree::motherParticle() const
  {
   if(isEmpty()) throw VertexException("KinematicTree::motherParticle; tree is empty!");
   bool top = currentProductionVertex()->vertexIsValid();
    RefCountedKinematicParticle cr  = treeWalker->current().second;
    bool up = treeWalker->parent();
-   pair<bool,RefCountedKinematicParticle> res; 
+   std::pair<bool,RefCountedKinematicParticle> res; 
    if(up && top){
     RefCountedKinematicParticle pr = treeWalker->current().second;
     
@@ -129,18 +130,18 @@ bool KinematicTree::leftFinalParticle() const
       if(!nx) throw VertexException("KinematicTree::motherParticle; tree is incorrect!");
      }while(*(treeWalker->current().second) != *cr);
     }
-    res = pair<bool,RefCountedKinematicParticle>(true,pr);
+    res = std::pair<bool,RefCountedKinematicParticle>(true,pr);
     return res;
    }else{
     RefCountedKinematicParticle fk;
-    return pair<bool,RefCountedKinematicParticle>(false,fk);
+    return std::pair<bool,RefCountedKinematicParticle>(false,fk);
    }
  }
  
- vector<RefCountedKinematicParticle>  KinematicTree::daughterParticles() const
+ std::vector<RefCountedKinematicParticle>  KinematicTree::daughterParticles() const
  {
   if(isEmpty()) throw VertexException("KinematicTree::daughterParticles; tree is empty!");
-  vector<RefCountedKinematicParticle> sResult;
+  std::vector<RefCountedKinematicParticle> sResult;
   RefCountedKinematicParticle initial = currentParticle();
   bool down  = treeWalker->firstChild();
   if(down)
@@ -194,7 +195,7 @@ RefCountedKinematicVertex KinematicTree::currentProductionVertex() const
 //_down_ variable is always TRUE here, if
 //the tree is valid.
   if(down){
-   if(*initial == *treeWalker->current().second)
+   if(initial == treeWalker->current().second)
    {
     return res;
    }else{
@@ -202,7 +203,7 @@ RefCountedKinematicVertex KinematicTree::currentProductionVertex() const
     do
     {
      next = treeWalker->nextSibling();
-     if(*treeWalker->current().second == *initial) next = false;
+     if(treeWalker->current().second == initial) next = false;
     }while(next);
     return res;
    }
@@ -252,7 +253,7 @@ bool KinematicTree::movePointerToTheNextChild() const
  return res;
 }
 
-bool KinematicTree::findParticle(RefCountedKinematicParticle part) const
+bool KinematicTree::findParticle(const RefCountedKinematicParticle part) const
 {
  if(isEmpty() || !(isConsistent()))
  {
@@ -260,7 +261,7 @@ bool KinematicTree::findParticle(RefCountedKinematicParticle part) const
  }else{
   bool res = false;
   movePointerToTheTop();
-  if(*(currentParticle()) == *part)
+  if(currentParticle() == part)
   {
    res = true;
   }else if(leftBranchSearch(part)){
@@ -278,7 +279,7 @@ bool KinematicTree::findParticle(RefCountedKinematicParticle part) const
      found = leftBranchSearch(part);
     }else{
      up = movePointerToTheMother();
-     if(*(currentParticle()) == *part) found = true;
+     if(currentParticle() == part) found = true;
     }
    }while(up && !found);
    res = found;
@@ -292,14 +293,14 @@ bool KinematicTree::leftBranchSearch(RefCountedKinematicParticle part) const
 {
  bool found = false;
  bool next = true;
- if(*(currentParticle()) == *part)
+ if(currentParticle() == part)
  {
   found = true;
  }else{
   do
   {
    next = movePointerToTheFirstChild();
-   if(*(currentParticle()) == *part)
+   if(currentParticle() == part)
    {
     found = true;
    }
@@ -308,7 +309,7 @@ bool KinematicTree::leftBranchSearch(RefCountedKinematicParticle part) const
  return found;
 }
 
-bool KinematicTree::findDecayVertex(RefCountedKinematicVertex vert)const
+bool KinematicTree::findDecayVertex(const RefCountedKinematicVertex vert)const
 {
  if(isEmpty() || !(isConsistent()))
  {
@@ -316,7 +317,7 @@ bool KinematicTree::findDecayVertex(RefCountedKinematicVertex vert)const
  }else{
  bool res = false;
  movePointerToTheTop();
- if(*(currentDecayVertex()) == *vert)
+ if(currentDecayVertex() == vert)
  {
   res = true;
  }else if(leftBranchVertexSearch(vert)){
@@ -331,7 +332,7 @@ bool KinematicTree::findDecayVertex(RefCountedKinematicVertex vert)const
     fnd = leftBranchVertexSearch(vert);
    }else{
     up=movePointerToTheMother();
-    if(*(currentDecayVertex()) == *vert) fnd = true;
+    if(currentDecayVertex() == vert) fnd = true;
    }   
   }while(up && !fnd);
   res = fnd;
@@ -340,10 +341,43 @@ bool KinematicTree::findDecayVertex(RefCountedKinematicVertex vert)const
  }
 }
 
+bool KinematicTree::findDecayVertex(KinematicVertex *vert)const
+{
+ if(isEmpty() || !(isConsistent()))
+ {
+  throw VertexException("KinematicTree::findParticle; tree is empty or not consistent");
+ }else{
+ bool res = false;
+ movePointerToTheTop();
+ if(*currentDecayVertex() == vert)
+ {
+  res = true;
+ }else if(leftBranchVertexSearch(vert)){
+  res = true;
+ }else{
+  bool up = true;
+  bool fnd = false;
+  do
+  {
+   if(movePointerToTheNextChild())
+   {
+    fnd = leftBranchVertexSearch(vert);
+   }else{
+    up=movePointerToTheMother();
+    if(currentDecayVertex() == vert) fnd = true;
+   }   
+  }while(up && !fnd);
+  res = fnd;
+ }
+ return res;
+ }
+}
+
+
 bool KinematicTree::leftBranchVertexSearch(RefCountedKinematicVertex vtx) const
 {
  bool found = false;
- if(*(currentDecayVertex()) == *vtx)
+ if(currentDecayVertex() == vtx)
  {
   found = true;
  }else{
@@ -352,7 +386,7 @@ bool KinematicTree::leftBranchVertexSearch(RefCountedKinematicVertex vtx) const
   do
   {
    next = movePointerToTheFirstChild();
-   if(*(currentDecayVertex()) == *vtx) res = true;
+   if(currentDecayVertex() == vtx) res = true;
   }while(next && !res); 
   found  = res;
  }

@@ -1,17 +1,49 @@
-#ifndef RPCTechnicalTrigger_RBCId_h
-#define RPCTechnicalTrigger_RBCId_h
+#ifndef RBCID_H 
+#define RBCID_H 1
 
-class RBCId
-{
- public:
-  RBCId();
-  RBCId(int wheel, int sector);
-  virtual ~RBCId();
-  int wheel() const;
-  int sector() const;
- private:
-  int w;
-  int s;
+// Include files
+#include <iostream>
 
+/** @class RBCId RBCId.h
+ *  
+ *
+ *  @author Andres Osorio
+ *
+ *  email: aosorio@uniandes.edu.co
+ *
+ *  @date   2008-10-12
+ */
+class RBCId {
+public: 
+  /// Standard constructor
+  RBCId( ); 
+
+  RBCId(int , int * );
+  
+  RBCId(const RBCId &);
+  
+  virtual ~RBCId( ); ///< Destructor
+  
+  int wheel() const { return m_wheel;};
+  
+  int wheelIdx() const { return (m_wheel+2);}; // wheel index starts from 0
+  
+  int sector( int _sec ) const { return m_sector[_sec]; };
+  
+  void setid ( int _wh, int *_sec) { 
+    m_wheel = _wh;
+    m_sector[0] = _sec[0];
+    m_sector[1] = _sec[1];
+  };
+  
+  void printinfo();
+    
+protected:
+  
+private:
+  
+  int m_wheel;
+  int m_sector[2];
+  
 };
-#endif
+#endif // RBCID_H

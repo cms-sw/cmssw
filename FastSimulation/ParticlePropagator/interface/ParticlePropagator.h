@@ -21,7 +21,8 @@
 
 class TrackerLayer;
 class FSimTrack;
-class RandomEngine;
+class RandomEngineAndDistribution;
+class MagneticFieldMap;
 
 class ParticlePropagator : public BaseParticlePropagator {
   
@@ -33,32 +34,39 @@ public:
       half-height and magnetic field defining the cylinder for which 
       propagation is to be performed */
   ParticlePropagator(const RawParticle& myPart, 
-		     double R, double Z, double B,
-		     const RandomEngine* engine);
+		     double R, double Z,
+		     const MagneticFieldMap* aFieldMap,
+		     const RandomEngineAndDistribution* engine);
   
   /** Constructor with only a RawParticle as argument for subsequent 
       propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const RawParticle& myPart,
-		     const RandomEngine* engine);
+		     const MagneticFieldMap* aFieldMap,
+		     const RandomEngineAndDistribution* engine);
 
   /** Constructor with two LorentzVector (momentum and vertex (in cm)) and 
       an electric charge propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const XYZTLorentzVector& p, 
-		     const XYZTLorentzVector& v, float q);
+		     const XYZTLorentzVector& v, 
+		     float q,
+		     const MagneticFieldMap* aFieldMap);
 
   /** Constructor with a LorentzVector (momentum), a Hep3Vector (vertex in cm)
       and an electric charge propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const XYZTLorentzVector& p, 
-		     const XYZVector& v, float q);
+		     const XYZVector& v, float q,
+		     const MagneticFieldMap* aFieldMap);
 
   /** Constructor with a FSimTrack from the FSimEvent*/
   ParticlePropagator(const FSimTrack& simTrack,
-		     const RandomEngine* engine);
+		     const MagneticFieldMap* aFieldMap,
+		     const RandomEngineAndDistribution* engine);
 
   /** Constructor with a (Base)ParticlePropagator*/
   ParticlePropagator(const ParticlePropagator& myPropPart);
   //  ParticlePropagator(BaseParticlePropagator myPropPart);
-  ParticlePropagator(const BaseParticlePropagator &myPropPart);
+  ParticlePropagator(const BaseParticlePropagator &myPropPart,
+		     const MagneticFieldMap* aFieldMap);
 
   /**Initialize the proper decay time of the particle*/
   void initProperDecayTime();
@@ -71,7 +79,7 @@ public:
       Z axis, to the preshower layer 1 & 2, to the ECAL entrance, to the 
       HCAL entrance, the HCAL 2nd and 3rd layer (not coded yet), the VFCAL 
       entrance, or any BoundSurface(disk or cylinder)*/
-  bool propagateToClosestApproach(bool first=true);
+  bool propagateToClosestApproach(double x0=0., double y0=0., bool first=true);
   bool propagateToNominalVertex(const XYZTLorentzVector& hit2=
 			              XYZTLorentzVector(0.,0.,0.,0.));
 
@@ -85,7 +93,8 @@ public:
 
 private:
 
-  const RandomEngine* random;
+  const MagneticFieldMap* theFieldMap;
+  const RandomEngineAndDistribution* random;
 
 };
 

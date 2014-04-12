@@ -19,9 +19,10 @@
 //
 
 // system include files
-#include <vector>
-#include <set>
 #include <map>
+#include <set>
+#include <string>
+#include <vector>
 #include "boost/shared_ptr.hpp"
 
 // user include files
@@ -33,6 +34,7 @@
 namespace edm {
    class ValidityInterval;
    class ParameterSet;
+   class ConfigurationDescriptions;
    namespace eventsetup {
       class DataProxy;
       
@@ -58,6 +60,9 @@ class DataProxyProvider
       
       const ComponentDescription& description() const { return description_;}
       // ---------- static member functions --------------------
+      /**Used to add parameters available to all inheriting classes
+      */
+      static void prevalidate(ConfigurationDescriptions&);
 
       // ---------- member functions ---------------------------
       
@@ -75,6 +80,7 @@ class DataProxyProvider
       void setAppendToDataLabel(const edm::ParameterSet&);
       
       void resetProxies(const EventSetupRecordKey& iRecordType);
+      void resetProxiesIfTransient(const EventSetupRecordKey& iRecordType);
 
    protected:
       template< class T>

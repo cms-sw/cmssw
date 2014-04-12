@@ -8,11 +8,11 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:13 EST 2005
-// $Id: DataKey.cc,v 1.5 2006/09/01 18:16:42 wmtan Exp $
 //
 
 // system include files
 #include <memory>
+#include <cstring>
 
 // user include files
 #include "FWCore/Framework/interface/DataKey.h"
@@ -21,6 +21,9 @@
 //
 // constants, enums and typedefs
 //
+
+static const char kBlank[] = {'\0'};
+
 namespace edm {
    namespace eventsetup {
 //
@@ -46,7 +49,7 @@ DataKey::DataKey(): type_(), name_(), ownMemory_(false)
 //
 // assignment operators
 //
-const DataKey& DataKey::operator=(const DataKey& rhs)
+DataKey& DataKey::operator=(const DataKey& rhs)
 {
    //An exception safe implementation is
    DataKey temp(rhs);
@@ -69,21 +72,40 @@ DataKey::swap(DataKey& iOther)
    swap(name_, iOther.name_);
 }
 
+      namespace {
+         //used for exception safety
+         class ArrayHolder {
+         public:
+            ArrayHolder():ptr_(nullptr){}
+            
+            void swap(ArrayHolder& iOther) {
+               const char* t = iOther.ptr_;
+               iOther.ptr_ = ptr_;
+               ptr_ = t;
+            }
+            ArrayHolder(const char* iPtr): ptr_(iPtr) {}
+            ~ArrayHolder() { delete [] ptr_; }
+            void release() { ptr_=0;}
+         private:
+            const char* ptr_;
+         };
+      }
 void 
 DataKey::makeCopyOfMemory()
 {
    //empty string is the most common case, so handle it special
-   static const char kBlank = '\0';
    
-   char* pName = const_cast<char*>(&kBlank);
+   char* pName = const_cast<char*>(kBlank);
    //NOTE: if in the future additional tags are added then 
    // I should make sure that pName gets deleted in the case
    // where an exception is thrown
-   std::auto_ptr<char> pNameHolder;
-   if(kBlank != name().value()[0]) {
-      pName = new char[ std::strlen(name().value()) + 1];
-      pNameHolder = std::auto_ptr<char>(pName);
-      std::strcpy(pName, name().value());
+   ArrayHolder pNameHolder;
+   if(kBlank[0] != name().value()[0]) {
+      size_t const nBytes = std::strlen(name().value()) + 1;
+      pName = new char[nBytes];
+      ArrayHolder t(pName);
+      pNameHolder.swap(t);
+      std::strncpy(pName, name().value(), nBytes);
    }
    name_ = NameTag(pName);
    ownMemory_ = true;
@@ -93,9 +115,7 @@ DataKey::makeCopyOfMemory()
 void
 DataKey::deleteMemory()
 {
-   static const char kBlank = '\0';
-   
-   if(kBlank != name().value()[0]) {
+   if(kBlank[0] != name().value()[0]) {
       delete [] const_cast<char*>(name().value());
    }
 }
@@ -131,6 +151,3 @@ DataKey::operator<(const DataKey& iRHS) const
 //
    }
 }
-
-#include "FWCore/Framework/interface/HCTypeTag.icc"
-template class edm::eventsetup::heterocontainer::HCTypeTag<edm::eventsetup::DataKey>;

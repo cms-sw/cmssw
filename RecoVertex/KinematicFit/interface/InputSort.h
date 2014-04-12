@@ -18,10 +18,10 @@ public:
  InputSort(){}
  ~InputSort(){}
  
- pair<vector<RefCountedKinematicParticle>, vector<FreeTrajectoryState> > 
-                          sort(vector<RefCountedKinematicParticle> particles) const;
+ std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectoryState> > 
+                          sort(const std::vector<RefCountedKinematicParticle> &particles) const;
 
- vector<RefCountedKinematicParticle> sort(vector<RefCountedKinematicTree> trees) const;
+ std::vector<RefCountedKinematicParticle> sort(const std::vector<RefCountedKinematicTree> &trees) const;
  
 private:
 

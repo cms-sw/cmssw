@@ -1,4 +1,3 @@
-/* $Id: TwoTrackMinimumDistanceLineLine.h,v 1.2 2007/03/08 10:18:41 speer Exp $ */
 #ifndef _Tracker_TwoTrackMinimumDistanceLineLine_H_
 #define _Tracker_TwoTrackMinimumDistanceLineLine_H_
 
@@ -6,8 +5,6 @@
 #include <string>
 #include <sstream>
 #include <utility>
-
-using namespace std;
 
 /** \class TwoTrackMinimumDistanceLineLine
  *  This is a helper class for TwoTrackMinimumDistance.
@@ -32,8 +29,8 @@ public:
   bool calculate( const GlobalTrajectoryParameters &,
       const GlobalTrajectoryParameters &); // retval=true? error occured.
 
-  pair <GlobalPoint, GlobalPoint> points() const;
-  pair <double, double> pathLength() const;
+  std::pair <GlobalPoint, GlobalPoint> points() const;
+  std::pair <double, double> pathLength() const;
 
   double firstAngle() const {return phiG;}
   double secondAngle() const {return phiH;}

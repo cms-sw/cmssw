@@ -6,8 +6,6 @@
  *  and errors in the measurement frame. The RecHits are treated as
  *  1-dimensional, the second coordinate is ignored. Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:11:43 $
- *  $Revision: 1.2.2.1 $
  *  \author todorov, cerati
  */
 
@@ -27,7 +25,7 @@ private:
 
 public:
 
-  Strip1DMeasurementTransformator(const TSOS& aTsos, const TransientTrackingRecHit& aHit);
+  Strip1DMeasurementTransformator(const TSOS& aTsos, const TrackingRecHit& aHit);
   
   ~Strip1DMeasurementTransformator() {}
 
@@ -39,15 +37,18 @@ public:
   double projectedTrajectoryError() const;
   AM15 projectionMatrix() const;
 
-  const TransientTrackingRecHit& hit() const {return theRecHit;}
+  const TrackingRecHit& hit() const {return theRecHit;}
   const TSOS& state() const {return theState;}
+  /// return ideal topology, as if the sensor were flat
+  const StripTopology* idealTopology() const {return theIdealTopology;}
+  /// return real topology, taking sensor deformations into account
   const StripTopology* topology() const {return theTopology;}
 
 private:
 
-  const TransientTrackingRecHit& theRecHit;
+  const TrackingRecHit& theRecHit;
   TSOS theState;
-  const StripTopology* theTopology;
+  const StripTopology *theTopology, *theIdealTopology;
 
   void init();
 };

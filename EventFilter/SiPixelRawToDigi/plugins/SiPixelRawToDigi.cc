@@ -1,55 +1,86 @@
+// Include parameter driven interface to SiPixelQuality for study purposes
+// exclude ROC(raw) based on bad ROC list in SiPixelQuality
+// enabled by: process.siPixelDigis.UseQualityInfo = True
+// 20-10-2010 Andrew York (Tennessee)
+
 #include "SiPixelRawToDigi.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+
 #include "EventFilter/SiPixelRawToDigi/interface/R2DTimerObserver.h"
+#include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "TH1D.h"
 #include "TFile.h"
-#include "TROOT.h"
 
 using namespace std;
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
-  : eventCounter_(0), 
-    config_(conf),
-    fedCablingMap_(0),
-    hCPU(0), hDigi(0), rootFile(0),
-    theTimer(0)
+  : config_(conf), 
+    cabling_(0), 
+    badPixelInfo_(0),
+    regions_(0),
+    hCPU(0), hDigi(0), theTimer(0)
 {
-  edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
-  bool timing = config_.getUntrackedParameter<bool>("Timing",false);
-  includeErrors = config_.getUntrackedParameter<bool>("IncludeErrors",false);
+
+  includeErrors = config_.getParameter<bool>("IncludeErrors");
+  useQuality = config_.getParameter<bool>("UseQualityInfo");
+  useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
+  if (config_.exists("ErrorList")) {
+    tkerrorlist = config_.getParameter<std::vector<int> > ("ErrorList");
+  }
+  if (config_.exists("UserErrorList")) {
+    usererrorlist = config_.getParameter<std::vector<int> > ("UserErrorList");
+  }
+  tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
+
+  //start counters
+  ndigis = 0;
+  nwords = 0;
+
   // Products
   produces< edm::DetSetVector<PixelDigi> >();
-  if(includeErrors) produces< edm::DetSetVector<SiPixelRawDataError> >();
+  if(includeErrors){
+    produces< edm::DetSetVector<SiPixelRawDataError> >();
+    produces<DetIdCollection>();
+    produces<DetIdCollection>("UserErrorModules");
+  }
+
+  // regions
+  if (config_.exists("Regions")) {
+    if(config_.getParameter<edm::ParameterSet>("Regions").getParameterNames().size() > 0)
+    {
+      regions_ = new PixelUnpackingRegions(config_, consumesCollector());
+    }
+  }
+
   // Timing
+  bool timing = config_.getUntrackedParameter<bool>("Timing",false);
   if (timing) {
     theTimer = new R2DTimerObserver("**** MY TIMING REPORT ***");
-    rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
-    hCPU = new TH1D ("hCPU","hCPU",60,0.,0.030);
+    hCPU = new TH1D ("hCPU","hCPU",100,0.,0.050);
     hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
   }
 }
@@ -59,94 +90,162 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 SiPixelRawToDigi::~SiPixelRawToDigi() {
   edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
 
+  if (useCablingTree_) delete cabling_;
+  if (regions_) delete regions_;
+
   if (theTimer) {
-    rootFile->Write();
+    TFile rootFile("analysis.root", "RECREATE", "my histograms");
+    hCPU->Write();
+    hDigi->Write();
     delete theTimer;
   }
 
-  cout << " end.."<<endl;
 }
 
 
 // -----------------------------------------------------------------------------
-void SiPixelRawToDigi::beginJob(const edm::EventSetup& c) 
-{
-}
+
 
 // -----------------------------------------------------------------------------
 void SiPixelRawToDigi::produce( edm::Event& ev,
                               const edm::EventSetup& es) 
 {
+  const uint32_t dummydetid = 0xffffffff;
+  debug = edm::MessageDrop::instance()->debugEnabled;
 
-  edm::ESHandle<SiPixelFedCablingMap> map;
-  es.get<SiPixelFedCablingMapRcd>().get( map );
-  LogDebug("map version:")<< map->version();
+// initialize cabling map or update if necessary
+  if (recordWatcher.check( es )) {
+    // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
+    if (useCablingTree_) {
+      delete cabling_;
+      // we are going to make our own copy so safe to let the map be deleted early
+      edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
+      es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
+      fedIds   = cablingMap->fedIds();
+      cabling_ = cablingMap->cablingTree();
+    } else {
+      // we are going to hold the pointer so we need the map to stick around
+      edm::ESHandle<SiPixelFedCablingMap> cablingMap;
+      es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
+      fedIds   = cablingMap->fedIds();
+      cabling_ = cablingMap.product();
+    }
+    LogDebug("map version:")<< cabling_->version();
+  }
+// initialize quality record or update if necessary
+  if (qualityWatcher.check( es )&&useQuality) {
+    // quality info for dead pixel modules or ROCs
+    edm::ESHandle<SiPixelQuality> qualityInfo;
+    es.get<SiPixelQualityRcd>().get( qualityInfo );
+    badPixelInfo_ = qualityInfo.product();
+    if (!badPixelInfo_) {
+      edm::LogError("SiPixelQualityNotPresent")<<" Configured to use SiPixelQuality, but SiPixelQuality not present"<<endl;
+    }
+  }
 
   edm::Handle<FEDRawDataCollection> buffers;
-  static string label = config_.getUntrackedParameter<string>("InputLabel","source");
-  static string instance = config_.getUntrackedParameter<string>("InputInstance","");
-  ev.getByLabel( label, instance, buffers);
+  label = config_.getParameter<edm::InputTag>("InputLabel");
+  ev.getByToken(tFEDRawDataCollection, buffers);
 
 // create product (digis & errors)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
+  // collection->reserve(8*1024);
   std::auto_ptr< edm::DetSetVector<SiPixelRawDataError> > errorcollection( new edm::DetSetVector<SiPixelRawDataError> );
-  static int ndigis = 0;
-  static int nwords = 0;
+  std::auto_ptr< DetIdCollection > tkerror_detidcollection(new DetIdCollection());
+  std::auto_ptr< DetIdCollection > usererror_detidcollection(new DetIdCollection());
 
-  PixelDataFormatter formatter(map.product());
+  PixelDataFormatter formatter(cabling_);
+  formatter.setErrorStatus(includeErrors);
+
+  if (useQuality) formatter.setQualityStatus(useQuality, badPixelInfo_);
 
   if (theTimer) theTimer->start();
+  bool errorsInEvent = false;
+  PixelDataFormatter::DetErrors nodeterrors;
 
-  FEDNumbering fednum;
-  pair<int,int> fedIds = fednum.getSiPixelFEDIds();
-  fedIds.first = 0;
-  fedIds.second = 39; //  temporary FIX !!!!
-  
-  for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
-    LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
-    PixelDataFormatter::Digis digis;
+  if (regions_) {
+    regions_->run(ev, es);
+    formatter.setModulesToUnpack(regions_->modulesToUnpack());
+    LogDebug("SiPixelRawToDigi") << "region2unpack #feds (BPIX,EPIX,total): "<<regions_->nBarrelFEDs()<<" "<<regions_->nForwardFEDs()<<" "<<regions_->nFEDs();
+    LogDebug("SiPixelRawToDigi") << "region2unpack #modules (BPIX,EPIX,total): "<<regions_->nBarrelModules()<<" "<<regions_->nForwardModules()<<" "<<regions_->nModules();
+  }
+
+  for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
+    int fedId = *aFed;
+
+    if (regions_ && !regions_->mayUnpackFED(fedId)) continue;
+
+    if(debug) LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
+
     PixelDataFormatter::Errors errors;
-     
+
     //get event data for this fed
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
     //convert data to digi and strip off errors
-    formatter.interpretRawData( fedId, fedRawData, digis, includeErrors, errors);
+    formatter.interpretRawData( errorsInEvent, fedId, fedRawData, *collection, errors);
 
-    //pack digi into collection
-    typedef PixelDataFormatter::Digis::iterator ID;
-    for (ID it = digis.begin(); it != digis.end(); it++) {
-//      uint32_t detid = it->id;
-      uint32_t detid = it->first;
-      edm::DetSet<PixelDigi>& detSet = collection->find_or_insert(detid);
-//      detSet.data = it->data;
-      detSet.data = it->second;
-    } 
     //pack errors into collection
     if(includeErrors) {
       typedef PixelDataFormatter::Errors::iterator IE;
       for (IE is = errors.begin(); is != errors.end(); is++) {
-	//      uint32_t errordetid = is->id;
 	uint32_t errordetid = is->first;
-	edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
-	//      detSet.data = is->data;
-	errorDetSet.data = is->second;
-      } 
+	if (errordetid==dummydetid) {           // errors given dummy detId must be sorted by Fed
+	  nodeterrors.insert( nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end() );
+	} else {
+	  edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
+	  errorDetSet.data.insert(errorDetSet.data.end(), is->second.begin(), is->second.end());
+	  // Fill detid of the detectors where there is error AND the error number is listed
+	  // in the configurable error list in the job option cfi.
+	  // Code needs to be here, because there can be a set of errors for each 
+	  // entry in the for loop over PixelDataFormatter::Errors
+	  if(!tkerrorlist.empty() || !usererrorlist.empty()){
+	    DetId errorDetId(errordetid);
+	    edm::DetSet<SiPixelRawDataError>::const_iterator itPixelError=errorDetSet.begin();
+            for(; itPixelError!=errorDetSet.end(); ++itPixelError){
+              // fill list of detIds to be turned off by tracking
+              if(!tkerrorlist.empty()) {
+	        std::vector<int>::iterator it_find = find(tkerrorlist.begin(), tkerrorlist.end(), itPixelError->getType());
+	        if(it_find != tkerrorlist.end()){
+		  tkerror_detidcollection->push_back(errordetid);
+	        }
+	      }
+              // fill list of detIds with errors to be studied
+              if(!usererrorlist.empty()) {
+	        std::vector<int>::iterator it_find = find(usererrorlist.begin(), usererrorlist.end(), itPixelError->getType());
+	        if(it_find != usererrorlist.end()){
+		  usererror_detidcollection->push_back(errordetid);
+	        }
+	      }
+	    }
+	  }
+	}
+      }
     }
   }
 
+  if(includeErrors) {
+    edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(dummydetid);
+    errorDetSet.data = nodeterrors;
+  }
+  if (errorsInEvent) LogDebug("SiPixelRawToDigi") << "Error words were stored in this event";
+
   if (theTimer) {
     theTimer->stop();
-    cout << "TIMING IS: (real)" << theTimer->lastMeasurement().real() << endl;
+    LogDebug("SiPixelRawToDigi") << "TIMING IS: (real)" << theTimer->lastMeasurement().real() ;
     ndigis += formatter.nDigis();
     nwords += formatter.nWords();
-    cout << " (Words/Digis) this ev: "<<formatter.nWords()<<"/"<<formatter.nDigis()
-         << "--- all :"<<nwords<<"/"<<ndigis<<endl;
+    LogDebug("SiPixelRawToDigi") << " (Words/Digis) this ev: "
+         <<formatter.nWords()<<"/"<<formatter.nDigis() << "--- all :"<<nwords<<"/"<<ndigis;
     hCPU->Fill( theTimer->lastMeasurement().real() ); 
     hDigi->Fill(formatter.nDigis());
   }
 
   //send digis and errors back to framework 
   ev.put( collection );
-  if(includeErrors) ev.put( errorcollection );
+  if(includeErrors){
+    ev.put( errorcollection );
+    ev.put( tkerror_detidcollection );
+    ev.put( usererror_detidcollection, "UserErrorModules" );
+  }
 }

@@ -1,7 +1,5 @@
 /** \file
  *
- * $Date: 2007/08/02 05:35:47 $
- * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -18,13 +16,18 @@ using namespace std;
 
 
 /* static member definition */
-bool DTRecSegment2D::isInitialized(false);
 
-AlgebraicMatrix DTRecSegment2D::theProjectionMatrix;
+//This function is only used to initialize theProjectionMatrix at load time
+static AlgebraicMatrix initTheProjectionMatrix() {
+  AlgebraicMatrix theProjectionMatrix( 2, 5, 0);
+  theProjectionMatrix[0][1]=1;
+  theProjectionMatrix[1][3]=1;
+  return theProjectionMatrix;
+}
+const AlgebraicMatrix DTRecSegment2D::theProjectionMatrix{initTheProjectionMatrix()};
 
 /* Operations */ 
-AlgebraicSymMatrix DTRecSegment2D::parError( const LocalError& lp, 
-					     const LocalError& lv) const {
+AlgebraicSymMatrix DTRecSegment2D::parametersError() const {
   AlgebraicSymMatrix m(2);
   /// mat[0][0]=sigma (dx/dz)
   /// mat[1][1]=sigma (x)
@@ -37,17 +40,22 @@ AlgebraicSymMatrix DTRecSegment2D::parError( const LocalError& lp,
   //   m[0][1] = 0.;
   //   m[1][1] = lp.xx()+lape.xx();
   // } else {
-    m[0][0] = lv.xx();
-    m[0][1] = 0.;
-    m[1][1] = lp.xx();
+    m[0][0] = theCovMatrix[0][0];
+    m[0][1] = theCovMatrix[0][1];
+    m[1][1] = theCovMatrix[1][1];
   //};
+
+    //cout << "theCovMatrix elements " << theCovMatrix[0][0] << " , " << theCovMatrix[0][1] <<
+    //        " , " << theCovMatrix[1][0] << " , " << theCovMatrix[1][1] << endl;
+
   return m;
 
 }
 
+DTRecSegment2D::~DTRecSegment2D(){}
 
 DTRecSegment2D::DTRecSegment2D(DetId id, const vector<DTRecHit1D>& hits) :
-  RecSegment(id), theChi2(0.0), theT0(0.), theHits(hits){
+  RecSegment(id), theChi2(0.0), theT0(0.), theVdrift(0.), theHits(hits){
 }
 
 DTRecSegment2D::DTRecSegment2D(DetId id, 
@@ -55,7 +63,7 @@ DTRecSegment2D::DTRecSegment2D(DetId id,
 	       AlgebraicSymMatrix & covMatrix, double chi2, 
 	       std::vector<DTRecHit1D> &hits1D):
  RecSegment(id), thePosition(position),theDirection(direction),
-  theCovMatrix(covMatrix),theChi2(chi2),theT0(0.),theHits(hits1D){}
+  theCovMatrix(covMatrix),theChi2(chi2),theT0(0.),theVdrift(0.),theHits(hits1D){}
 
 /* Operations */ 
 LocalError DTRecSegment2D::localPositionError() const {
@@ -125,4 +133,8 @@ void DTRecSegment2D::setChi2(const double& chi2) {
 
 void DTRecSegment2D::setT0(const double& t0){
   theT0=t0;
+}
+
+void DTRecSegment2D::setVdrift(const double& vdrift){
+  theVdrift=vdrift;
 }

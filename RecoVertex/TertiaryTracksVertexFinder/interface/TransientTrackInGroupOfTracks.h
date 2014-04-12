@@ -15,7 +15,7 @@ public:
   ~TransientTrackInGroupOfTracks() {}
   
   static bool isInGroup ( const reco::TransientTrack & aTrack , 
-    const std::vector<reco::TransientTrack> groupOfTracks ) {
+    const std::vector<reco::TransientTrack> &groupOfTracks ) {
     bool trackFound = false;
     for( std::vector<reco::TransientTrack>::const_iterator itT = groupOfTracks.begin() ; 
       itT != groupOfTracks.end() ; itT++ ) {

@@ -5,12 +5,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 EgammaBasicClusters::EgammaBasicClusters( const edm::ParameterSet& ps )
 {
 	outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
-	CMSSW_Version_ = ps.getUntrackedParameter<std::string>("CMSSW_Version", "");
+	//CMSSW_Version_ = ps.getUntrackedParameter<std::string>("CMSSW_Version", "");
 
 	verboseDBE_ = ps.getUntrackedParameter<bool>("verboseDBE", false);
 
@@ -34,16 +34,19 @@ EgammaBasicClusters::EgammaBasicClusters( const edm::ParameterSet& ps )
 	hist_max_Phi_ = ps.getParameter<double>("hist_max_Phi");
 	hist_bins_Phi_ = ps.getParameter<int>   ("hist_bins_Phi");
 
-	hybridBarrelBasicClusterCollection_ = ps.getParameter<edm::InputTag>("hybridBarrelBasicClusterCollection");
- 	islandBarrelBasicClusterCollection_ = ps.getParameter<edm::InputTag>("islandBarrelBasicClusterCollection");
- 	islandEndcapBasicClusterCollection_ = ps.getParameter<edm::InputTag>("islandEndcapBasicClusterCollection");
+	hist_min_R_ = ps.getParameter<double>("hist_min_R");
+	hist_max_R_ = ps.getParameter<double>("hist_max_R");
+	hist_bins_R_ = ps.getParameter<int>   ("hist_bins_R");
+
+	barrelBasicClusterCollection_ = consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("barrelBasicClusterCollection"));
+ 	endcapBasicClusterCollection_ = consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("endcapBasicClusterCollection"));
 }
 
 EgammaBasicClusters::~EgammaBasicClusters() {}
 
-void EgammaBasicClusters::beginJob(edm::EventSetup const&) 
+void EgammaBasicClusters::beginJob() 
 {
-  	dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();                   
+  	dbe_ = edm::Service<DQMStore>().operator->();                   
 
   	if ( verboseDBE_ )
 	{
@@ -53,128 +56,123 @@ void EgammaBasicClusters::beginJob(edm::EventSetup const&)
 	else 
 		dbe_->setVerbose(0);
 
-	dbe_->setCurrentFolder("CMSSW_"+CMSSW_Version_+"/EcalClusters/BasicClusters/");
+	//dbe_->setCurrentFolder("Ecal/CMSSW_"+CMSSW_Version_+"/EcalClusters/BasicClusters/");
+	dbe_->setCurrentFolder("EcalClusterV/EcalBasicClusters/");
 
-	hist_HybridEB_BC_Size_ 
-		= dbe_->book1D("hist_HybridEB_BC_Size_","# Basic Clusters from Hybrid in Barrel",
+	hist_EB_BC_Size_ 
+		= dbe_->book1D("hist_EB_BC_Size_","# Basic Clusters in Barrel",
 			hist_bins_Size_,hist_min_Size_,hist_max_Size_);
-  	hist_IslandEB_BC_Size_ 
-		= dbe_->book1D("hist_IslandEB_BC_Size_","# Basic Clusters from Island in Barrel",
-			hist_bins_Size_,hist_min_Size_,hist_max_Size_);
-  	hist_IslandEE_BC_Size_ 
-		= dbe_->book1D("hist_IslandEE_BC_Size_","# Basic Clusters from Island in Endcap",
+  	hist_EE_BC_Size_ 
+		= dbe_->book1D("hist_EE_BC_Size_","# Basic Clusters in Endcap",
 			hist_bins_Size_,hist_min_Size_,hist_max_Size_);
 
-	hist_HybridEB_BC_NumRecHits_ 
-		= dbe_->book1D("hist_HybridEB_BC_NumRecHits_","# of RecHits in Basic Clusters from Hybrid in Barrel",
+	hist_EB_BC_NumRecHits_ 
+		= dbe_->book1D("hist_EB_BC_NumRecHits_","# of RecHits in Basic Clusters in Barrel",
 			hist_bins_NumRecHits_,hist_min_NumRecHits_,hist_max_NumRecHits_);
-  	hist_IslandEB_BC_NumRecHits_ 
-		= dbe_->book1D("hist_IslandEB_BC_NumRecHits_","# of RecHits in Basic Clusters from Island in Barrel",
-			hist_bins_NumRecHits_,hist_min_NumRecHits_,hist_max_NumRecHits_);
-  	hist_IslandEE_BC_NumRecHits_ 
-		= dbe_->book1D("hist_IslandEE_BC_NumRecHits_","# of RecHits in Basic Clusters from Island in Endcap",
+  	hist_EE_BC_NumRecHits_ 
+		= dbe_->book1D("hist_EE_BC_NumRecHits_","# of RecHits in Basic Clusters in Endcap",
 			hist_bins_NumRecHits_,hist_min_NumRecHits_,hist_max_NumRecHits_);
 
-  	hist_HybridEB_BC_ET_ 
-		= dbe_->book1D("hist_HybridEB_BC_ET_","ET of Basic Clusters with Hybrid in Barrel",
+  	hist_EB_BC_ET_ 
+		= dbe_->book1D("hist_EB_BC_ET_","ET of Basic Clusters in Barrel",
 			hist_bins_ET_,hist_min_ET_,hist_max_ET_);
-  	hist_IslandEB_BC_ET_ 
-		= dbe_->book1D("hist_IslandEB_BC_ET_","ET of Basic Clusters with Island in Barrel",
-			hist_bins_ET_,hist_min_ET_,hist_max_ET_);
-  	hist_IslandEE_BC_ET_ 
-		= dbe_->book1D("hist_IslandEE_BC_ET_","ET of Basic Clusters with Island in Endcap",
+  	hist_EE_BC_ET_ 
+		= dbe_->book1D("hist_EE_BC_ET_","ET of Basic Clusters in Endcap",
 			hist_bins_ET_,hist_min_ET_,hist_max_ET_);
 
-  	hist_HybridEB_BC_Eta_ 
-		= dbe_->book1D("hist_HybridEB_BC_Eta_","Eta of Basic Clusters with Hybrid in Barrel",
+  	hist_EB_BC_Eta_ 
+		= dbe_->book1D("hist_EB_BC_Eta_","Eta of Basic Clusters in Barrel",
 			hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
-  	hist_IslandEB_BC_Eta_ 
-		= dbe_->book1D("hist_IslandEB_BC_Eta_","Eta of Basic Clusters with Island in Barrel",
-			hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
-  	hist_IslandEE_BC_Eta_ 
-		= dbe_->book1D("hist_IslandEE_BC_Eta_","Eta of Basic Clusters with Island in Endcap",
+  	hist_EE_BC_Eta_ 
+		= dbe_->book1D("hist_EE_BC_Eta_","Eta of Basic Clusters in Endcap",
 			hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
 
-  	hist_HybridEB_BC_Phi_
-		= dbe_->book1D("hist_HybridEB_BC_Phi_","Phi of Basic Clusters with Hybrid in Barrel",
+  	hist_EB_BC_Phi_
+		= dbe_->book1D("hist_EB_BC_Phi_","Phi of Basic Clusters in Barrel",
 			hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
-  	hist_IslandEB_BC_Phi_ 
-		= dbe_->book1D("hist_IslandEB_BC_Phi_","Phi of Basic Clusters with Island in Barrel",
+  	hist_EE_BC_Phi_ 
+		= dbe_->book1D("hist_EE_BC_Phi_","Phi of Basic Clusters in Endcap",
 			hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
-  	hist_IslandEE_BC_Phi_ 
-		= dbe_->book1D("hist_IslandEE_BC_Phi_","Phi of Basic Clusters with Island in Endcap",
-			hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
+
+	
+	hist_EB_BC_ET_vs_Eta_ = dbe_->book2D( "hist_EB_BC_ET_vs_Eta_", "Basic Cluster ET versus Eta in Barrel", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_ );
+
+	hist_EB_BC_ET_vs_Phi_ = dbe_->book2D( "hist_EB_BC_ET_vs_Phi_", "Basic Cluster ET versus Phi in Barrel", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_ );
+
+	hist_EE_BC_ET_vs_Eta_ = dbe_->book2D( "hist_EE_BC_ET_vs_Eta_", "Basic Cluster ET versus Eta in Endcap", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_ );
+
+	hist_EE_BC_ET_vs_Phi_ = dbe_->book2D( "hist_EE_BC_ET_vs_Phi_", "Basic Cluster ET versus Phi in Endcap", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_ );
+
+	hist_EE_BC_ET_vs_R_ = dbe_->book2D( "hist_EE_BC_ET_vs_R_", "Basic Cluster ET versus Radius in Endcap", 
+					      hist_bins_ET_, hist_min_ET_, hist_max_ET_,
+					      hist_bins_R_,hist_min_R_,hist_max_R_ );
+
+
+
 }
 
 void EgammaBasicClusters::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
-  	edm::Handle<reco::BasicClusterCollection> pHybridBarrelBasicClusters;
-	try
-	{
-		evt.getByLabel(hybridBarrelBasicClusterCollection_, pHybridBarrelBasicClusters);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
-			<< hybridBarrelBasicClusterCollection_.label();
-  	}
+  	edm::Handle<reco::BasicClusterCollection> pBarrelBasicClusters;
+	evt.getByToken(barrelBasicClusterCollection_, pBarrelBasicClusters);
+	if (!pBarrelBasicClusters.isValid()) {
 
-  	const reco::BasicClusterCollection* hybridBarrelBasicClusters = pHybridBarrelBasicClusters.product();
-  	hist_HybridEB_BC_Size_->Fill(hybridBarrelBasicClusters->size());
+	  Labels l;
+	  labelsForToken(barrelBasicClusterCollection_,l);
+	  edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
+					       << l.module;
+	}
 
-  	for(reco::BasicClusterCollection::const_iterator aClus = hybridBarrelBasicClusters->begin(); 
-		aClus != hybridBarrelBasicClusters->end(); aClus++)
-	{
-		hist_HybridEB_BC_NumRecHits_->Fill(aClus->getHitsByDetId().size());
-    		hist_HybridEB_BC_ET_->Fill(aClus->energy()*aClus->position().theta());
-		hist_HybridEB_BC_Eta_->Fill(aClus->position().eta());
-		hist_HybridEB_BC_Phi_->Fill(aClus->position().phi());
-  	}
+  	const reco::BasicClusterCollection* barrelBasicClusters = pBarrelBasicClusters.product();
+  	hist_EB_BC_Size_->Fill(barrelBasicClusters->size());
 
-  	edm::Handle<reco::BasicClusterCollection> pIslandBarrelBasicClusters;
- 	try
+  	for(reco::BasicClusterCollection::const_iterator aClus = barrelBasicClusters->begin(); 
+		aClus != barrelBasicClusters->end(); aClus++)
 	{
-		evt.getByLabel(islandBarrelBasicClusterCollection_, pIslandBarrelBasicClusters);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
-			<< islandBarrelBasicClusterCollection_.label();
+		hist_EB_BC_NumRecHits_->Fill(aClus->size());
+    		hist_EB_BC_ET_->Fill(aClus->energy()/std::cosh(aClus->position().eta()));
+		hist_EB_BC_Eta_->Fill(aClus->position().eta());
+		hist_EB_BC_Phi_->Fill(aClus->position().phi());
+		
+		hist_EB_BC_ET_vs_Eta_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), aClus->eta() );
+		hist_EB_BC_ET_vs_Phi_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), aClus->phi() );
   	}
 
-  	const reco::BasicClusterCollection* islandBarrelBasicClusters = pIslandBarrelBasicClusters.product();
-  	hist_IslandEB_BC_Size_->Fill(islandBarrelBasicClusters->size());
+  	edm::Handle<reco::BasicClusterCollection> pEndcapBasicClusters;
 
-  	for(reco::BasicClusterCollection::const_iterator aClus = islandBarrelBasicClusters->begin(); 
-		aClus != islandBarrelBasicClusters->end(); aClus++)
-	{
-		hist_IslandEB_BC_NumRecHits_->Fill(aClus->getHitsByDetId().size());
-    		hist_IslandEB_BC_ET_->Fill(aClus->energy()*aClus->position().theta());
-		hist_IslandEB_BC_Eta_->Fill(aClus->position().eta());
-		hist_IslandEB_BC_Phi_->Fill(aClus->position().phi());
+	evt.getByToken(endcapBasicClusterCollection_, pEndcapBasicClusters);
+	if (!pEndcapBasicClusters.isValid()) {
+
+	  Labels l;
+	  labelsForToken(endcapBasicClusterCollection_,l);
+	  edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
+					       << l.module;
   	}
 
-  	edm::Handle<reco::BasicClusterCollection> pIslandEndcapBasicClusters;
-  	try
-	{
-		evt.getByLabel(islandEndcapBasicClusterCollection_, pIslandEndcapBasicClusters);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
-			<< islandEndcapBasicClusterCollection_.label();
-  	}
+  	const reco::BasicClusterCollection* endcapBasicClusters = pEndcapBasicClusters.product();
+  	hist_EE_BC_Size_->Fill(endcapBasicClusters->size());
 
-  	const reco::BasicClusterCollection* islandEndcapBasicClusters = pIslandEndcapBasicClusters.product();
-  	hist_IslandEE_BC_Size_->Fill(islandEndcapBasicClusters->size());
-
-  	for(reco::BasicClusterCollection::const_iterator aClus = islandEndcapBasicClusters->begin(); 
-		aClus != islandEndcapBasicClusters->end(); aClus++)
+  	for(reco::BasicClusterCollection::const_iterator aClus = endcapBasicClusters->begin(); 
+		aClus != endcapBasicClusters->end(); aClus++)
 	{
-		hist_IslandEE_BC_NumRecHits_->Fill(aClus->getHitsByDetId().size());
-    		hist_IslandEE_BC_ET_->Fill(aClus->energy()*aClus->position().theta());
-		hist_IslandEE_BC_Eta_->Fill(aClus->position().eta());
-		hist_IslandEE_BC_Phi_->Fill(aClus->position().phi());
+		hist_EE_BC_NumRecHits_->Fill(aClus->size());
+    		hist_EE_BC_ET_->Fill(aClus->energy()/std::cosh(aClus->position().eta()));
+		hist_EE_BC_Eta_->Fill(aClus->position().eta());
+		hist_EE_BC_Phi_->Fill(aClus->position().phi());
+
+		hist_EE_BC_ET_vs_Eta_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), aClus->eta() );
+		hist_EE_BC_ET_vs_Phi_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), aClus->phi() );
+		hist_EE_BC_ET_vs_R_->Fill( aClus->energy()/std::cosh(aClus->position().eta()), 
+					   std::sqrt( std::pow(aClus->x(),2) + std::pow(aClus->y(),2) ) );
+
   	}
 }
 

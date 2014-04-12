@@ -7,8 +7,6 @@
  *  This class contains the KFTrajectorySmoother and takes care
  *  to update the it whenever the propagator change.
  *
- *  $Date: 2006/09/13 10:42:22 $
- *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

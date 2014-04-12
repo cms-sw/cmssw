@@ -1,46 +1,48 @@
-#!/usr/bin/perl
-# $Id: valgrindMemcheckParser.pl,v 1.2 2007/06/13 09:04:20 rahatlou Exp $
+#!/usr/bin/env perl
 # Created: June 2007
 # Author: Giovanni Petrucciani, INFN Pisa
 #
 use strict;
 use warnings;
 use Data::Dumper;
-use CGI;
 use Date::Format;
 use Getopt::Long;
 
 my $mstart = qr/^==\d+== (\S.*? bytes) in \S+ blocks are (.*?) in loss (record \S+ of \S+)/;
-my $mstartuni = qr/^==\d+== ()(\S.*uninitialised.*)()/;
+my $mstartuni = qr/^==\d+== ()(\S.*uninitiali[sz]ed.*|Invalid (?:read|write).*)()/;
+my $mstartfree = qr/^==\d+== ()(\S.*free\(\).*)()/;
 my $mtrace = qr/^==\d+== \s+(?:at|by)\s.*?:\s+(.*?)\s\((.*)\)/;
-my $version = "CMSSW_1_5_0_pre3";
-my @showstoppers = qq(libFWCoreFramework);
+my $version = undef; #"CMSSW_1_5_0_pre3";
+my @showstoppers = qq();
 
 my %presets = (
     'trash' => [ '__static_initialization_and_destruction_0', 'G__exec_statement', 'dlopen\@\@GLIBC_2', '_dl_lookup_symbol_x' ],
     'fwk' => [ qw(EventSetup  ESProd  castor  ROOT  Pool  Reflex  PluginManager  RFIO  xerces  G_) ],
     'tom'  =>  [ qw(EventSetup ESProd castor ROOT Pool Reflex PluginManager RFIO xerces G_ libGraf createES),
                  qw(Streamer python static MessageLogger ServiceRegistry) ],
-    'prod' => [ '::produce\(\s*edm::Event\s*&' ],
+    'prod' => [ '::(produce|filter)\(\s*edm::Event\s*&' , '::analyze\(\s*(?:const\s+)?edm::Event(?:\s+const)?\s*&' ],
     'prod1' => [ '::produce\(\s*\w+(?:\s+const)?\s*&\w*\s*\)' ],
+    'prod1+' => [ '::produce\(\s*\w+(?:\s+const)?\s*&\w*\s*\)', 'edm::eventsetup::DataProxyTemplate<' ],
 );
 my $preset_names = join(', ', sort(keys(%presets)));
 
 my @trace = (); my @libs = (); my @presets = (); my @dump_presets = ();
-my $help = '';  my $all = ''; my $onecolumn = ''; my $uninitialised = undef;
+my $help = '';  my $all = ''; my $onecolumn = ''; my $uninitialized = undef; my $free = undef;
 
 GetOptions(
         'rel|release|r=s' => \$version,
         'libs|l=s' => \@libs,
         'trace|t=s' => \@trace,
-        'stopper|showstopper'=> \@showstoppers,
+        'stopper|showstopper=s'=> \@showstoppers,
         'onecolumn|1' => \$onecolumn,
         'all|a' => \$all,
         'preset=s'   => \@presets,
         'dump-preset=s'   => \@dump_presets,
-        'uninitialised|u' => \$uninitialised,
+        'uninitialized|u' => \$uninitialized,
+        'free|f' => \$free,
         'help|h|?' => \$help);
-if ($uninitialised) { $mstart = $mstartuni; print STDERR "Hunting for uninitialised stuff\n"; }
+if ($uninitialized) { $mstart = $mstartuni; print STDERR "Hunting for uninitialized stuff\n"; }
+if ($free) { $mstart = $mstartfree; print STDERR "Hunting for free stuff\n"; }
 if ($help) {
         print <<_END;
    Usage: valgrindMemcheckParser.pl [ --rel RELEASE ] 
@@ -50,6 +52,7 @@ if ($help) {
                  [ --preset name,name,-name,+name,... ]
                  [ --all ]
                  [ --onecolumn ]
+                 [ --uninitialized | --free ]
                  logfile [ logfile2 logfile3 ... ]
         
   It will output a XHTML file to standard output.
@@ -82,6 +85,9 @@ if ($help) {
     --all: show all leaks, skipping any filter
              Abbreviation is "-a" 
 
+    --uninitialized (-u): look for uses of uninitialized memory instead of leaks
+    --free (-f): look for bad calls to free() instead of memory leaks
+
     Note: you can use PERL regexps in "libs", "trace" 
 
   HTML & LINKING OPTIONS
@@ -110,11 +116,11 @@ if (@dump_presets) {
     exit;
 }
 
-if ($version eq 'nightly') { $version = time2str('%Y-%m-%d',time()); }
+#if ($version eq 'nightly') { $version = time2str('%Y-%m-%d',time()); }
 @libs = split(/,/, join(',',@libs));
 @trace = split(/,/, join(',',@trace));
 @presets = split(/,/, join(',',@presets));
-@showstoppers= split(/,/, join(',',@showstoppers));
+@showstoppers= split(/,/, join(',',@showstoppers,'libFWCoreFramework'));
 if (grep($_ eq 'none', @showstoppers)) { @showstoppers = (); }
 my @trace_in  = map (qr($_), grep ( $_ !~ m/^-/, @trace ));
 my @trace_out = map (qr($_), grep ( s/^-//g, @trace ));
@@ -159,10 +165,19 @@ sub realsize {
         return eval($num);
 }
 sub fformat {
-        my $func = CGI::escapeHTML($_[0]);
-        $func =~ s!(\b[A-Z]\w\w\w\w+)!<a class='obj' href='http://cmslxr.fnal.gov/lxr/ident?v=$version;i=$1'>$1</a>!g;
-        $func =~ s!::(\w+)\(!::<a class='func' href='http://cmslxr.fnal.gov/lxr/ident?v=$version;i=$1'>$1</a>(!g;
+        my $vstring = (defined($version) ? "v=$version;" : "");
+        my $func = &escapeHTML($_[0]);
+        $func =~ s!(\b[A-Z]\w\w\w\w+)!<a class='obj' href='http://cmssdt.cern.ch/SDT/lxr/ident?${vstring}i=$1'>$1</a>!g;
+        $func =~ s!::(\w+)\(!::<a class='func' href='http://cmssdt.cern.ch/SDT/lxr/ident?${vstring}i=$1'>$1</a>(!g;
         return $func;
+}
+sub escapeHTML {
+        my $data=$_[0];
+        $data =~ s!&!&amp;!g;
+        $data =~ s!<!&lt;!g;
+        $data =~ s!>!&gt;!g;
+        $data =~ s!"!&quot;!g;
+        return $data;
 }
 
 while (<>) {
@@ -208,7 +223,8 @@ my $idx = 0;
 foreach my $l (@sleaks) {
         my %L = %{$l}; $idx++;
         my $colspan = ($onecolumn ? 1 : 2);
-        print "<tr class='header'><th class='header' colspan='$colspan'>Leak $idx: $L{size} $L{status} ($L{record})</th></tr>\n";
+        my $aname = sprintf("L%04d", $idx);
+        print "<tr class='header'><th class='header' colspan='$colspan'><a name=\"$aname\">Leak $idx</a>: $L{size} $L{status} ($L{record}) <a href=\"#$aname\">[href]</a></th></tr>\n";
         foreach my $sf (@{$L{'trace'}}) {
                 print "<tr class='trace'><td class='func'>"  . fformat($sf->[0]) . "</td>";
                 print "<td class='lib'>" . $sf->[1]. "</td>" unless $onecolumn;

@@ -14,7 +14,6 @@
 //
 // Original Author:  
 //         Created:  Thu Sun 21 10:14:34 CEST 2006
-// $Id$
 //
   
 // system include files
@@ -25,8 +24,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include <TH1D.h>
+#include <TH2D.h>
 
 class HcalTB02Histo {
    
@@ -49,9 +48,9 @@ private:
   std::string                   fileName;
   bool                          verbose;
 
-  DaqMonitorBEInterface        *dbe_;
-  MonitorElement               *rt_tbTimes, *rt_TransProf;
-  std::vector<MonitorElement *> rt_histoProf;
+  TH1D                          *rt_tbTimes;
+  TH2D                          *rt_TransProf;
+  std::vector<TH1D *>           rt_histoProf;
 };
  
 #endif

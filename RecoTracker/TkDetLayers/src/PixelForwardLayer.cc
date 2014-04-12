@@ -1,27 +1,27 @@
-#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
+#include "PixelForwardLayer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
-#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/simple_stat.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing2Order.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
 
-#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "LayerCrossingSide.h"
+#include "DetGroupMerger.h"
+#include "CompatibleDetToGroupAdder.h"
 
 using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
+  ForwardDetLayer(true),
   theComps(blades.begin(),blades.end())
 {
   for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
@@ -74,16 +74,15 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const {
-  vector<DetGroup> closestResult;
+  std::vector<DetGroup> closestResult;
   SubTurbineCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());
-  }
-  catch(DetLayerException& err){
-    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in PixelForwardLayer::groupedCompatibleDets:" 
-    //	 << err.what() ;
+
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if (!crossings.isValid){
+    //edm::LogInfo("TkDetLayers") << "computeCrossings returns invalid in PixelForwardLayer::groupedCompatibleDets:";
     return;
   }
+
   typedef CompatibleDetToGroupAdder Adder;
   Adder::add( *theComps[theBinFinder.binIndex(crossings.closestIndex)], 
 	     tsos, prop, est, closestResult);
@@ -97,29 +96,33 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
-  float detWidth = closestGel.det()->surface().bounds().width();
-  if (crossings.nextDistance < detWidth + window) {
-    vector<DetGroup> nextResult;
-    if (Adder::add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
-		   tsos, prop, est, nextResult)) {
-      int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
-      int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.closestIndex)],
+  //float detWidth = closestGel.det()->surface().bounds().width();
+  //if (crossings.nextDistance < detWidth + window) {
+  vector<DetGroup> nextResult;
+  if (Adder::add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
+		  tsos, prop, est, nextResult)) {
+    int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
+    int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.closestIndex)],
 					theComps[theBinFinder.binIndex(crossings.nextIndex)] );
-      DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
-					      theHelicity, crossingSide);
-    }
-    else {
-      result.swap(closestResult);
-    }
+    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
+					    theHelicity, crossingSide);
   }
   else {
     result.swap(closestResult);
   }
+  
+  /*
+  }
+  else {
+    result.swap(closestResult);
+  }
+  */
 
-  // only loop over neighbors (other than closest and next) if window is BIG
-  if (window > 0.5*detWidth) {
-    searchNeighbors( tsos, prop, est, crossings, window, result);
-  } 
+  // --- THIS lines may speed up the reconstruction. But it reduces slightly the efficiency.
+  // only loop over neighbors (other than closest and next) if window is BIG  
+  //if (window > 0.5*detWidth) {
+  searchNeighbors( tsos, prop, est, crossings, window, result);
+  //} 
 }
 
 
@@ -132,7 +135,7 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				    float window, 
 				    vector<DetGroup>& result) const
 {
-   typedef CompatibleDetToGroupAdder Adder;
+  typedef CompatibleDetToGroupAdder Adder;
   int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
   typedef DetGroupMerger Merger;
 
@@ -141,39 +144,38 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   int quarter = theComps.size()/4;
  
-  vector<DetGroup> tmp;
-  vector<DetGroup> newResult;
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
-    tmp.clear();
-    newResult.clear();
+    std::vector<DetGroup> tmp1;
     const GeometricSearchDet* neighbor = theComps[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
+    if (!Adder::add( *neighbor, tsos, prop, est, tmp1)) break;
     int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet)],
 				      theComps[theBinFinder.binIndex(idet+1)] );
-    Merger::orderAndMergeTwoLevels( tmp, result, newResult, theHelicity, crossingSide);
+    std::vector<DetGroup> tmp2; tmp2.swap(result);
+    std::vector<DetGroup> newResult;
+    Merger::orderAndMergeTwoLevels( std::move(tmp1), std::move(tmp2), newResult, theHelicity, crossingSide);
     result.swap(newResult);
   }
   for (int idet=posStart; idet < posStart + quarter-1; idet++) {
-    tmp.clear();
-    newResult.clear();
+    vector<DetGroup> tmp1;
     const GeometricSearchDet* neighbor = theComps[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
+    if (!Adder::add( *neighbor, tsos, prop, est, tmp1)) break;
     int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet-1)],
 				      theComps[theBinFinder.binIndex(idet)] );
-    Merger::orderAndMergeTwoLevels( result, tmp, newResult, theHelicity, crossingSide);
+    std::vector<DetGroup> tmp2; tmp2.swap(result);
+    std::vector<DetGroup> newResult;
+    Merger::orderAndMergeTwoLevels(std::move(tmp2), std::move(tmp1), newResult, theHelicity, crossingSide);
     result.swap(newResult);
   }
 }
 
 int 
-PixelForwardLayer::computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const
+PixelForwardLayer::computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade)
 {  
-  if( fabs(firstBlade->position().z()) < fabs(secondBlade->position().z()) ) return 0;
-  return 1;
+  return std::abs(firstBlade->position().z()) < std::abs(secondBlade->position().z()) ? 0 : 1;
 }
 
 PixelForwardLayer::SubTurbineCrossings 
@@ -184,7 +186,8 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   HelixPlaneCrossing::PositionType startPos( startingState.globalPosition());
   HelixPlaneCrossing::DirectionType startDir( startingState.globalMomentum());
-  float rho( startingState.transverseCurvature());
+  
+  auto rho = startingState.transverseCurvature();
 
   HelixArbitraryPlaneCrossing turbineCrossing( startPos, startDir, rho,
 					       propDir);
@@ -192,16 +195,16 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   pair<bool,double> thePath = turbineCrossing.pathLength( specificSurface() );
   
   if (!thePath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in PixelForwardLayer: disk not crossed by track" ;
-    throw DetLayerException("PixelForwardLayer: disk not crossed by track");
+    //edm::LogInfo("TkDetLayers") << "ERROR in PixelForwardLayer: disk not crossed by track" ;
+    return SubTurbineCrossings();
   }
 
   HelixPlaneCrossing::PositionType  turbinePoint( turbineCrossing.position(thePath.second));
   HelixPlaneCrossing::DirectionType turbineDir( turbineCrossing.direction(thePath.second));
-  int closestIndex = theBinFinder.binIndex(turbinePoint.phi());
 
-  const BoundPlane& closestPlane( dynamic_cast<const BoundPlane&>( 
-    theComps[closestIndex]->surface()));
+  int closestIndex = theBinFinder.binIndex(turbinePoint.barePhi());
+
+  const Plane& closestPlane( static_cast<const Plane&>(theComps[closestIndex]->surface()));
 
 
   HelixArbitraryPlaneCrossing2Order theBladeCrossing(turbinePoint, turbineDir, rho);
@@ -209,21 +212,22 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   pair<bool,double> theClosestBladePath = theBladeCrossing.pathLength( closestPlane );
   LocalPoint closestPos = closestPlane.toLocal(GlobalPoint(theBladeCrossing.position(theClosestBladePath.second)) );
     
-  float closestDist = closestPos.x(); // use fact that local X perp to global Y
+  auto closestDist = closestPos.x(); // use fact that local X perp to global Y
 
   //int next = turbinePoint.phi() - closestPlane.position().phi() > 0 ? closest+1 : closest-1;
-  int nextIndex = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ? 
+
+  int nextIndex = PhiLess()( closestPlane.phi(), turbinePoint.barePhi()) ? 
     closestIndex+1 : closestIndex-1;
 
-  const BoundPlane& nextPlane( dynamic_cast<const BoundPlane&>( 
+  const Plane& nextPlane( static_cast<const Plane&>( 
     theComps[ theBinFinder.binIndex(nextIndex)]->surface()));
 
   pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
   LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );
 
-  float nextDist = nextPos.x();
+  auto nextDist = nextPos.x();
 
-  if (fabs(closestDist) < fabs(nextDist)) {
+  if ( std::abs(closestDist) < std::abs(nextDist)) {
     return SubTurbineCrossings( closestIndex, nextIndex, nextDist);
   }
   else {
@@ -234,8 +238,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
 float 
 PixelForwardLayer::computeWindowSize( const GeomDet* det, 
 				      const TrajectoryStateOnSurface& tsos, 
-				      const MeasurementEstimator& est) const
-{
+				      const MeasurementEstimator& est) {
   return est.maximalLocalDisplacement(tsos, det->surface()).x();
 }
 

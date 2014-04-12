@@ -8,7 +8,7 @@ using namespace HepMC;
 
 JetFlavourFilter::JetFlavourFilter(const edm::ParameterSet& iConfig)
 {
-  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("source"));
+  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("generator"));
   jetType = iConfig.getParameter< int >("jetType");
   if ((jetType>=1)&&(jetType<=3)) jetType=1;
 
@@ -22,7 +22,7 @@ JetFlavourFilter::~JetFlavourFilter()
 }
 
 
-HepMC::GenParticle * JetFlavourFilter::findParticle(const GenPartVect genPartVect,
+HepMC::GenParticle * JetFlavourFilter::findParticle(const GenPartVect& genPartVect,
 	const int requested_id)
 {
   for (GenPartVectIt p = genPartVect.begin(); p != genPartVect.end(); p++)
@@ -44,7 +44,8 @@ JetFlavourFilter::printHisto(const HepMC::GenEvent::particle_iterator start,
       //vector< GenParticle * > parents = (*p)->listParents();
       vector< GenParticle * > parents;
       HepMC::GenVertex* inVertex = (*p)->production_vertex();
-      for(std::set<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
+      for(std::vector<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
+      // for(GenVertex::particles_in_const_iterator iter = inVertex->particles_in_const_begin();
 	  iter != inVertex->particles_in_const_end();iter++)
 	parents.push_back(*iter);
       
@@ -56,7 +57,7 @@ JetFlavourFilter::printHisto(const HepMC::GenEvent::particle_iterator start,
       //vector< GenParticle * > child = (*p)->listChildren();
       vector< GenParticle * > child;
       HepMC::GenVertex* outVertex = (*p)->end_vertex();
-      for(std::set<GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
+      for(GenVertex::particles_in_const_iterator iter = outVertex->particles_in_const_begin();
 	  iter != outVertex->particles_in_const_end();iter++)
 	child.push_back(*iter);
       
@@ -74,19 +75,19 @@ bool JetFlavourFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HepMCProduct> evt;
   iEvent.getByLabel(label_, evt);
   
-  HepMC::GenEvent * generated_event = new HepMC::GenEvent(*(evt->GetEvent()));
+  const HepMC::GenEvent * generated_event = evt->GetEvent();
 
   bool event_passed = false;
 
   vector<int> foundQ;
-  HepMC::GenEvent::particle_iterator p;
+  HepMC::GenEvent::particle_const_iterator p;
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++) {
     if (((*p)->pdg_id() < 1) && ((*p)->pdg_id() > -10)) { // We have an anti-quark
 //       cout << "antiQ "<< (*p)->pdg_id();
       //vector< GenParticle * > parents = (*p)->listParents();
       vector< GenParticle * > parents;
       HepMC::GenVertex* inVertex = (*p)->production_vertex();
-      for(std::set<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
+      for(GenVertex::particles_in_const_iterator iter = inVertex->particles_in_const_begin();
 	  iter != inVertex->particles_in_const_end();iter++)
 	parents.push_back(*iter);
       
@@ -94,7 +95,7 @@ bool JetFlavourFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	vector< GenParticle * > child;
 	HepMC::GenVertex* outVertex = (*z)->end_vertex();
-	for(std::set<GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
+	for(GenVertex::particles_in_const_iterator iter = outVertex->particles_in_const_begin();
 	    iter != outVertex->particles_in_const_end();iter++)
 	  child.push_back(*iter);
 	

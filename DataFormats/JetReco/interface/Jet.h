@@ -12,15 +12,15 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.16 2007/05/30 22:06:42 fedor Exp $
  ************************************************************/
 #include <string>
-#include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
+#include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 
 namespace reco {
-  class Jet : public CompositeRefCandidate {
+  class Jet : public CompositePtrCandidate {
   public:
-    typedef std::vector<reco::CandidateRef> Constituents;
+    typedef edm::Ptr<Candidate> Constituent;
+    typedef std::vector<Constituent>  Constituents;
 
     /// record to store eta-phi first and second moments
     class EtaPhiMoments {
@@ -35,6 +35,7 @@ namespace reco {
     /// Default constructor
     Jet () : mJetArea (0), mPileupEnergy (0), mPassNumber (0) {}
     /// Initiator
+    Jet (const LorentzVector& fP4, const Point& fVertex);
     Jet (const LorentzVector& fP4, const Point& fVertex, const Constituents& fConstituents);
     /// Destructor
     virtual ~Jet () {}
@@ -63,20 +64,40 @@ namespace reco {
     /// # of constituents
     virtual int nConstituents () const {return numberOfDaughters();}
 
-    /// Physics Eta (use jet Z and kinematics only)
-    virtual float physicsEtaQuick (float fZVertex) const;
+    /// static function to convert detector eta to physics eta
+    static float physicsEta (float fZVertex, float fDetectorEta);
 
-    /// Physics Eta (loop over constituents)
-    virtual float physicsEtaDetailed (float fZVertex) const;
+    /// static function to convert physics eta to detector eta
+    static float detectorEta (float fZVertex, float fPhysicsEta);
+
+    static Candidate::LorentzVector physicsP4 (const Candidate::Point &newVertex, const Candidate &inParticle,const Candidate::Point &oldVertex=Candidate::Point(0,0,0));
+
+    static Candidate::LorentzVector detectorP4 (const Candidate::Point &vertex, const Candidate &inParticle);
 
     /// list of constituents
-    Constituents getJetConstituents () const;
+    virtual Constituents getJetConstituents () const;
 
     /// quick list of constituents
-    std::vector<const reco::Candidate*> getJetConstituentsQuick () const;
+    virtual std::vector<const reco::Candidate*> getJetConstituentsQuick () const;
+
+
+    // jet structure variables:
+    // constituentPtDistribution is the pT distribution among the jet constituents
+    // (ptDistribution = 1 if jet made by one constituent carrying all its momentum,
+    //  ptDistribution = 0 if jet made by infinite constituents carrying an infinitesimal fraction of pt):
+    float constituentPtDistribution() const;
+
+    // rmsCand is the rms of the eta-phi spread of the jet's constituents wrt the jet axis:
+    float constituentEtaPhiSpread() const;
+
+
+
 
     /// Print object
     virtual std::string print () const;
+
+    /// scale energy of the jet
+    virtual void scaleEnergy (double fScale);
     
     /// set jet area
     virtual void setJetArea (float fArea) {mJetArea = fArea;}
@@ -92,21 +113,10 @@ namespace reco {
     virtual void setNPasses (int fPasses) {mPassNumber = fPasses;}
     ///  number of passes taken by algorithm
     virtual int nPasses () const {return mPassNumber;}
-    
-    /// temporary fix for cached valuse
-    double massUncached() const {return p4().M();}
-    double massSqrUncached() const {return p4().M2();}
-    double mtUncached() const {return p4().Mt();}
-    double mtSqrUncached() const {return p4().Mt2();}
-    double ptUncached() const {return p4().Pt();}
-    double phiUncached() const {return p4().Phi();}
-    double etaUncached() const {return p4().Eta();}
-    double rapidityUncached() const {return p4().Rapidity();}
-    double yUncached() const {return p4().Rapidity();}
 
+    bool isJet() const;
+    
   private:
-    // disallow constituents modifications
-    void addDaughter( const CandidateRef & fRef) {CompositeRefCandidate::addDaughter (fRef);}
     float mJetArea;
     float mPileupEnergy;
     int mPassNumber;

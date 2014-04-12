@@ -1,6 +1,5 @@
 // BasicJet.cc
 // Fedor Ratnikov, UMd
-// $Id: BasicJet.cc,v 1.2 2006/12/06 22:43:24 fedor Exp $
 
 #include <sstream>
 
@@ -8,6 +7,10 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 
 using namespace reco;
+
+BasicJet::BasicJet (const LorentzVector& fP4, const Point& fVertex) 
+  : Jet (fP4, fVertex)
+{}
 
 BasicJet::BasicJet (const LorentzVector& fP4, const Point& fVertex, const Jet::Constituents& fConstituents) 
   : Jet (fP4, fVertex, fConstituents)

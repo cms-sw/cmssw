@@ -16,6 +16,10 @@ L1RCTRegion::L1RCTRegion() : totalRegionEt(36),
 {
 }
 
+
+L1RCTRegion::~L1RCTRegion()
+{}
+
 //So the whole point of the following two functions is that they provide
 //an interface to the "real" 4x4 region 7 bit energies and h/e||fg bits
 //that are used in electron finding.  
@@ -26,7 +30,7 @@ L1RCTRegion::L1RCTRegion() : totalRegionEt(36),
 //
 //As a reminder i is row and j is column, just like matrices.
 //row -1 is the northern neighbors and column -1 is the western neighbors
-unsigned short L1RCTRegion::getEtIn7Bits(int i, int j){
+unsigned short L1RCTRegion::getEtIn7Bits(int i, int j) const{
   //i & j run 0-3
   return totalRegionEt.at(6*(i+1) + j+1);
 }
@@ -40,7 +44,7 @@ void L1RCTRegion::setEtIn7Bits(int i, int j,unsigned short energy){
 }
 
 
-unsigned short L1RCTRegion::getHE_FGBit(int i, int j){
+unsigned short L1RCTRegion::getHE_FGBit(int i, int j) const{
   return totalRegionHE_FG.at(6*(i+1)+j+1);
 }
 
@@ -52,7 +56,7 @@ void L1RCTRegion::setHE_FGBit(int i, int j, unsigned short HE_FG){
 //The rest of the data stored in a region only works if i and j are
 //in the 0-3 range.  The arrays truly are 4x4 and will signal an error
 //if misused thanks to the vector function .at
-unsigned short L1RCTRegion::getEtIn9Bits(int i, int j){
+unsigned short L1RCTRegion::getEtIn9Bits(int i, int j) const{
   return etIn9Bits.at(4*i + j);
 }
 
@@ -63,11 +67,11 @@ void L1RCTRegion::setEtIn9Bits(int i, int j,unsigned short energy){
     etIn9Bits.at(4*i+j) = 511;
 }
 
-unsigned short L1RCTRegion::getMuonBit(int i, int j){
+unsigned short L1RCTRegion::getMuonBit(int i, int j) const{
   return muonBit.at(4*i+j);
 }
 
-void L1RCTRegion::setMuonBit(int i, int j,unsigned short muon){
+void L1RCTRegion::setMuonBit(int i, int j,unsigned short muon) {
   muonBit.at(4*i+j) = muon;
 }
 
@@ -75,7 +79,7 @@ void L1RCTRegion::setActivityBit(int i, int j, unsigned short activity){
   activityBit.at(4*i+j) = activity;
 }
 
-unsigned short L1RCTRegion::getActivityBit(int i, int j){
+unsigned short L1RCTRegion::getActivityBit(int i, int j) const{
   return activityBit.at(4*i+j);
 }
 
@@ -90,101 +94,101 @@ unsigned short L1RCTRegion::getActivityBit(int i, int j){
 //That's why it's give insted of get.  It doesn't return the region's
 //northern neighbor information, it returns what would be its southern
 //neighbor's northern neighbor information.
-vector<unsigned short> L1RCTRegion::giveNorthEt(){
-  vector<unsigned short> north(4);
+vector<unsigned short> L1RCTRegion::giveNorthEt() const{
+  std::vector<unsigned short> north(4);
   for(int i = 0; i<4;i++)
     north.at(i) = getEtIn7Bits(3,i);
   return north;
 }
-void L1RCTRegion::setNorthEt(vector<unsigned short> north){
+void L1RCTRegion::setNorthEt(const std::vector<unsigned short>& north) {
   for(int i = 0; i<4; i++)
     totalRegionEt.at(i+1) = north.at(i);
 }
-vector<unsigned short> L1RCTRegion::giveNorthHE_FG(){
-  vector<unsigned short> north(4);
+vector<unsigned short> L1RCTRegion::giveNorthHE_FG() const{
+  std::vector<unsigned short> north(4);
   for(int i = 0; i<4; i++)
     north.at(i) = getHE_FGBit(3,i);
   return north;
 }
-void L1RCTRegion::setNorthHE_FG(vector<unsigned short> north){
+void L1RCTRegion::setNorthHE_FG(const std::vector<unsigned short>& north){
   for(int i = 0; i<4; i++)
     totalRegionHE_FG.at(i+1) = north.at(i);
 }
 
-vector<unsigned short> L1RCTRegion::giveSouthEt(){
-  vector<unsigned short> south(4);
+vector<unsigned short> L1RCTRegion::giveSouthEt() const{
+  std::vector<unsigned short> south(4);
   for(int i = 0; i<4; i++)
     south.at(i) = getEtIn7Bits(0,i);
   return south;
 }
-void L1RCTRegion::setSouthEt(vector<unsigned short> south){
+void L1RCTRegion::setSouthEt(const std::vector<unsigned short>& south){
   for(int i = 0; i<4; i++)
     totalRegionEt.at(31+i) = south.at(i);
 }
 
-vector<unsigned short> L1RCTRegion::giveSouthHE_FG(){
-  vector<unsigned short> south(4);
+vector<unsigned short> L1RCTRegion::giveSouthHE_FG() const{
+  std::vector<unsigned short> south(4);
   for(int i = 0; i<4; i++)
     south.at(i) = getHE_FGBit(0,i);
   return south;
 }
-void L1RCTRegion::setSouthHE_FG(vector<unsigned short> south){
+void L1RCTRegion::setSouthHE_FG(const std::vector<unsigned short>& south){
   for(int i=0; i<4; i++)
     totalRegionHE_FG.at(31+i) = south.at(i);
 }
 
-vector<unsigned short> L1RCTRegion::giveWestEt(){
-  vector<unsigned short> west(4);
+vector<unsigned short> L1RCTRegion::giveWestEt() const{
+  std::vector<unsigned short> west(4);
   for(int i =0; i<4; i++)
     west.at(i) = getEtIn7Bits(i,3);
   return west;
 }
-void L1RCTRegion::setWestEt(vector<unsigned short> west){
+void L1RCTRegion::setWestEt(const std::vector<unsigned short>& west){
   for(int i = 0; i<4; i++)
     totalRegionEt.at(6*(i+1)) = west.at(i);
 }
 
-vector<unsigned short> L1RCTRegion::giveWestHE_FG(){
-  vector<unsigned short> west(4);
+vector<unsigned short> L1RCTRegion::giveWestHE_FG() const{
+  std::vector<unsigned short> west(4);
   for(int i = 0; i<4; i++)
     west.at(i) = getHE_FGBit(i,3);
   return west;
 }
-void L1RCTRegion::setWestHE_FG(vector<unsigned short> west){
+void L1RCTRegion::setWestHE_FG(const std::vector<unsigned short>& west){
   for(int i = 0; i<4; i++)
     totalRegionHE_FG.at(6*(i+1)) = west.at(i);
 }
 
-vector<unsigned short> L1RCTRegion::giveEastEt(){
-  vector<unsigned short> east(4);
+vector<unsigned short> L1RCTRegion::giveEastEt() const{
+  std::vector<unsigned short> east(4);
   for(int i = 0; i<4; i++)
     east.at(i) = getEtIn7Bits(i,0);
   return east;
 }
-void L1RCTRegion::setEastEt(vector<unsigned short> east){
+void L1RCTRegion::setEastEt(const std::vector<unsigned short>& east){
   for(int i = 0; i<4; i++)
     totalRegionEt.at(6*(i+1) + 5) = east.at(i);
 }
 
-vector<unsigned short> L1RCTRegion::giveEastHE_FG(){
-  vector<unsigned short> east(4);
+vector<unsigned short> L1RCTRegion::giveEastHE_FG() const{
+  std::vector<unsigned short> east(4);
   for(int i = 0; i<4; i++)
     east.at(i) = getHE_FGBit(i,0);
   return east;
 }
-void L1RCTRegion::setEastHE_FG(vector<unsigned short> east){
+void L1RCTRegion::setEastHE_FG(const std::vector<unsigned short>& east){
   for(int i = 0; i<4; i++)
     totalRegionHE_FG.at(6*(i+1) + 5) = east.at(i);
 }
 
-unsigned short L1RCTRegion::giveNEEt(){
+unsigned short L1RCTRegion::giveNEEt() const{
   unsigned short et = getEtIn7Bits(3,0);
   if(et > 7)
     return 7;
   else
     return et;
 }
-unsigned short L1RCTRegion::giveNEHE_FG(){
+unsigned short L1RCTRegion::giveNEHE_FG() const{
   return getHE_FGBit(3,0);
 }
 void L1RCTRegion::setNEEt(unsigned short ne){
@@ -194,14 +198,14 @@ void L1RCTRegion::setNEHE_FG(unsigned short ne){
   totalRegionHE_FG.at(5) = ne;
 }
 
-unsigned short L1RCTRegion::giveNWEt(){
+unsigned short L1RCTRegion::giveNWEt() const{
   unsigned short et = getEtIn7Bits(3,3);
   if(et > 7)
     return 7;
   else 
     return et;
 }
-unsigned short L1RCTRegion::giveNWHE_FG(){
+unsigned short L1RCTRegion::giveNWHE_FG() const{
   return getHE_FGBit(3,3);
 }
 void L1RCTRegion::setNWEt(unsigned short nw){
@@ -211,14 +215,14 @@ void L1RCTRegion::setNWHE_FG(unsigned short nw){
   totalRegionHE_FG.at(0) = nw;
 }
 
-unsigned short L1RCTRegion::giveSWEt(){
+unsigned short L1RCTRegion::giveSWEt() const{
   unsigned short et = getEtIn7Bits(0,3);
   if(et > 7)
     return 7;
   else
     return et;
 }
-unsigned short L1RCTRegion::giveSWHE_FG(){
+unsigned short L1RCTRegion::giveSWHE_FG() const{
   return getHE_FGBit(0,3);
 }
 void L1RCTRegion::setSWEt(unsigned short sw){
@@ -228,81 +232,81 @@ void L1RCTRegion::setSWHE_FG(unsigned short sw){
   totalRegionHE_FG.at(30) = sw;
 }
 
-unsigned short L1RCTRegion::giveSEEt(){
+unsigned short L1RCTRegion::giveSEEt() const{
   unsigned short et = getEtIn7Bits(0,0);
   if(et > 7)
     return 7;
   else
     return et;
 }
-unsigned short L1RCTRegion::giveSEHE_FG(){
+unsigned short L1RCTRegion::giveSEHE_FG() const{
   return getHE_FGBit(0,0);
 }
-void L1RCTRegion::setSEEt(unsigned short se){
+void L1RCTRegion::setSEEt(unsigned short se) {
   totalRegionEt.at(35) = se;
 }
-void L1RCTRegion::setSEHE_FG(unsigned short se){
+void L1RCTRegion::setSEHE_FG(unsigned short se) {
   totalRegionHE_FG.at(35) = se;
 }
 
 void L1RCTRegion::print() {
   
-  cout << " 7 Bit Energies ";
+  std::cout << " 7 Bit Energies ";
   for(int i = 0; i<4; i++){
-    cout << endl;
+    std::cout << std::endl;
     for(int j = 0; j<4; j++){
-      cout << " " << getEtIn7Bits(i,j) << " ";
+      std::cout << " " << getEtIn7Bits(i,j) << " ";
     }
   }
 
-  cout << endl << endl;
-  cout << " 9 Bit Energies ";
+  std::cout << std::endl << std::endl;
+  std::cout << " 9 Bit Energies ";
   for(int i = 0; i<4; i++){
-    cout << endl;
+    std::cout << std::endl;
     for(int j = 0; j<4; j++){
-      cout << " " << getEtIn9Bits(i,j) << " ";
+      std::cout << " " << getEtIn9Bits(i,j) << " ";
     }
   }
   
-  cout << endl << endl;
-  cout << " HE || FG bit ";
+  std::cout << std::endl << std::endl;
+  std::cout << " HE || FG bit ";
   for(int i = 0; i<4; i++){
-    cout << endl;
+    std::cout << std::endl;
     for(int j = 0; j<4; j++){
-      cout << " " << getHE_FGBit(i,j) << " ";
+      std::cout << " " << getHE_FGBit(i,j) << " ";
     }
   }
 
-  cout << endl << endl;
-  cout << " Muon Bit ";
+  std::cout << std::endl << std::endl;
+  std::cout << " Muon Bit ";
   for(int i = 0; i<4; i++){
-    cout << endl;
+    std::cout << std::endl;
     for(int j = 0; j<4; j++){
-      cout << " " << getMuonBit(i,j) << " ";
+      std::cout << " " << getMuonBit(i,j) << " ";
     }
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 void L1RCTRegion::printEdges(){
-  cout << "North" << endl;
+  std::cout << "North" << std::endl;
   for(int i=0; i<4;i++)
-    cout << totalRegionEt.at(i+1) << endl;
+    std::cout << totalRegionEt.at(i+1) << std::endl;
   
-  cout << "West" << endl;
+  std::cout << "West" << std::endl;
   for(int i=0; i<4;i++)
-    cout << totalRegionEt.at(6*(i+1)) << endl;
+    std::cout << totalRegionEt.at(6*(i+1)) << std::endl;
 
-  cout << "East" << endl;
+  std::cout << "East" << std::endl;
   for(int i=0; i<4;i++)
-    cout << totalRegionEt.at(6*(i+1)+5) << endl;
+    std::cout << totalRegionEt.at(6*(i+1)+5) << std::endl;
   
-  cout << "South" << endl;
+  std::cout << "South" << std::endl;
   for(int i=0; i<4;i++)
-    cout << totalRegionEt.at(31+i) << endl;
+    std::cout << totalRegionEt.at(31+i) << std::endl;
  
-  cout << "NE " << totalRegionEt.at(5) << endl;
-  cout << "SE " << totalRegionEt.at(35) << endl;
-  cout << "NW " << totalRegionEt.at(0) << endl;
-  cout << "SW " << totalRegionEt.at(30) << endl;
+  std::cout << "NE " << totalRegionEt.at(5) << std::endl;
+  std::cout << "SE " << totalRegionEt.at(35) << std::endl;
+  std::cout << "NW " << totalRegionEt.at(0) << std::endl;
+  std::cout << "SW " << totalRegionEt.at(30) << std::endl;
 }

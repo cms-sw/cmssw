@@ -7,55 +7,49 @@
 #include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
-#include <boost/cstdint.hpp>
 
 CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf) 
-: theSize(0), boardNumber_(number), theNumberOfSamples(0) 
-{
+  : theSize(0), boardNumber_(number), theNumberOfSamples(0) {
   // I may be grabbing too many words, but that's OK
   // parse for time slices
   unsigned pos = 0;
   // to be set later
   unsigned maxSamples = 8;
   theSliceStarts.reserve(8);
-  while(theNumberOfSamples < maxSamples) 
-    {
-
-      // first see if it's a bad slice
-      CSCBadCFEBTimeSlice * badSlice
-	= reinterpret_cast<CSCBadCFEBTimeSlice *>(buf+pos);
-      if(badSlice->check()) 
-	{
-	  //show that a bad slice starts here
-	  theSliceStarts.push_back(std::pair<int, bool>(pos, false));
-	  pos += badSlice->sizeInWords();
-	  //store bad word for status digis
-	  bWords.push_back(badSlice->word(1).data()); //all 4 words are assumed identical so saving #1 only  
-	} 
-      else 
-	{
-	  // OK.  Maybe it's good.
-	  CSCCFEBTimeSlice * goodSlice 
-	    = reinterpret_cast<CSCCFEBTimeSlice *>(buf+pos);
-	  if(goodSlice->check()) 
-	    {
-	      // show that a good slice starts here
-	      theSliceStarts.push_back(std::pair<int, bool>(pos, true));
-	      // it will just be an array of CSCCFEBTimeSlices, so we'll
-	      // grab the number of time slices from the first good one
-	      maxSamples =   goodSlice->sixteenSamples() ? 16 : 8;
-	      pos += goodSlice->sizeInWords();
-	    } 
-	  else 
-	    {
-	      edm::LogError ("CSCCFEBData") << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex 
-					    << " " << *(buf+pos) << " " << *(buf+pos+1) << " " 
-					    << *(buf+pos+2) << std::dec;
-	      return;
-	    }
-	}
-      ++theNumberOfSamples;
+  while(theNumberOfSamples < maxSamples) {
+    // first see if it's a bad slice
+    CSCBadCFEBTimeSlice * badSlice
+      = reinterpret_cast<CSCBadCFEBTimeSlice *>(buf+pos);
+    if(badSlice->check()) {
+      //show that a bad slice starts here
+      theSliceStarts.push_back(std::pair<int, bool>(pos, false));
+      pos += badSlice->sizeInWords();
+      //store bad word for status digis
+      bWords.push_back(badSlice->word(1).data()); //all 4 words are assumed identical so saving #1 only  
+    } 
+    else {
+      // OK.  Maybe it's good.
+      CSCCFEBTimeSlice * goodSlice 
+	= reinterpret_cast<CSCCFEBTimeSlice *>(buf+pos);
+      if(goodSlice->check()) {
+	// show that a good slice starts here
+	theSliceStarts.push_back(std::pair<int, bool>(pos, true));
+	// it will just be an array of CSCCFEBTimeSlices, so we'll
+	// grab the number of time slices from the first good one
+	maxSamples =   goodSlice->sixteenSamples() ? 16 : 8;
+	pos += goodSlice->sizeInWords();
+      } 
+      else {
+	LogTrace ("CSCCFEBData|CSCRawToDigi") 
+	  << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex << " " 
+	  << *(buf+pos+3) << " " << *(buf+pos+2) << " "  << *(buf+pos+1) << " "<< *(buf+pos);
+	//ok slice is bad but try another one at 100 words after it
+        theSliceStarts.push_back(std::pair<int, bool>(pos, false));
+	pos += 100;
+      }
     }
+    ++theNumberOfSamples;
+  }
   theSize = pos;
   memcpy(theData, buf, theSize*2);
 }
@@ -94,6 +88,8 @@ void CSCCFEBData::add(const CSCStripDigi & digi, int layer)
       const CSCCFEBTimeSlice * slice = timeSlice(itime);
       assert(slice != 0);
       slice->timeSample(layer, channel)->adcCounts = value;
+      /// =VB= Set CRC value for simulated data
+      ((CSCCFEBTimeSlice *)slice)->setCRC();
     }
 }
 
@@ -131,12 +127,20 @@ unsigned CSCCFEBData::adcOverflow(unsigned layer, unsigned channel, unsigned tim
   if(slice) result = slice->timeSample(layer, channel)->adcOverflow;
   return result;
 }
-unsigned CSCCFEBData::controllerData(unsigned layer, unsigned channel, unsigned timeBin) const 
+
+unsigned CSCCFEBData::controllerData(unsigned uglay, unsigned ugchan, unsigned timeBin) const 
 {
+
+// The argument notation is
+// uglay = un-Gray Coded layer index 1-6
+// ugchan = un-Gray Coded channel index 1-16
+// The point being that the SCAC is serially encoded directly in the data stream (without Gray Coding)
+// so the layer and channel indexes here are just the direct ordering into the data stream.
+
   unsigned result = 0;
   const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
   // zero is returned for bad slices
-  if(slice) result = slice->timeSample(layer, channel)->controllerData;
+  if(slice) result = slice->timeSample( (ugchan-1)*6+uglay-1 )->controllerData;
   return result;
 }
 
@@ -169,7 +173,7 @@ CSCCFEBStatusDigi CSCCFEBData::statusDigi() const
 
   if (nTimeSamples()==0) 
     {
-      edm::LogError("CSCCFEBData") << "TimeSamples is Zero - CFEB Data Corrupt!";
+      LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples is zero - CFEB data corrupt?";
     }
   else
     {
@@ -199,22 +203,42 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 {
   
   // assert(layer>0 && layer <= 6);
+
+  LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples in CSCCFEBData::digis = " << nTimeSamples();
+  if (nTimeSamples()==0) {
+     LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples is zero - CFEB data corrupt?";
+     return;
+  }
+
   result.reserve(16);
+
   std::vector<int> sca(nTimeSamples());
   std::vector<uint16_t> overflow(nTimeSamples());
   std::vector<uint16_t> overlap(nTimeSamples());
   std::vector<uint16_t> errorfl(nTimeSamples());
 
   bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
+  bool zplus = (CSCDetId::endcap(idlayer) == 1); 
+  bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
+  
   unsigned layer = CSCDetId::layer(idlayer);
+
+  std::vector<uint16_t> l1a_phase(nTimeSamples());
+  for(unsigned itime = 0; itime < nTimeSamples(); ++itime) {
+    l1a_phase[itime] = controllerData(layer, 13, itime); // will be zero if timeslice bad
+    LogTrace("CSCCFEBData|CSCRawToDigi") << CSCDetId(idlayer) << " time sample " << itime+1 << " l1a_phase = " << controllerData(layer, 13, itime);
+    LogTrace("CSCCFEBData|CSCRawToDigi") << CSCDetId(idlayer) << " time sample " << itime+1 << " lct_phase = " << controllerData(layer, 14, itime);
+    LogTrace("CSCCFEBData|CSCRawToDigi") << CSCDetId(idlayer) << " time sample " << itime+1 << " # samples = " << controllerData(layer, 16, itime);
+  };
 
   for(unsigned ichannel = 1; ichannel <= 16; ++ichannel)
     {
-      if (nTimeSamples()==0)
-	{
-	  edm::LogError("CSCCFEBData") << "TimeSamples is Zero - CFEB Data Corrupt!";
-	  break;
-	}
+      // What is the point of testing here? Move it outside this loop
+      //      if (nTimeSamples()==0)
+      //	{
+      //	  LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples is zero - CFEB data corrupt?";
+      //	  break;
+      //	}
       
       for(unsigned itime = 0; itime < nTimeSamples(); ++itime)
 	{
@@ -229,17 +253,24 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 		  overflow[itime] = word->adcOverflow;
 		  overlap[itime] = word->overlappedSampleFlag;
 		  errorfl[itime] = word->errorstat;
+
+		  // Stick the l1a_phase bit into 'overlap' too (so we can store it in CSCStripDigi
+		  // without changing CSCStripDigi format). 
+		  // Put it in the 9th bit of the overlap word which is only 1-bit anyway.
+                  overlap[itime] = (( l1a_phase[itime] & 0x1 ) << 8 ) | ( word->overlappedSampleFlag & 0x1 );
 		}
 	    }
 	}
       if (sca.empty())
 	{
-	  edm::LogError("CSCCFEBData") << "ADC counts are empty - CFEB Data Corrupt!";
+	  LogTrace("CSCCFEBData|CSCRawToDigi") << "ADC counts empty - CFEB data corrupt?";
 	  break;
 	}
       int strip = ichannel + 16*boardNumber_;
-      if ( me1a ) strip = strip%64; // reset 65-80 to 1-16 digi(strip, sca, overflow, overlap, errorfl);
-      result.push_back(CSCStripDigi(strip, sca, overflow, overlap, errorfl));
+      if ( me1a ) strip = strip%64; // reset 65-80 to 1-16 digi
+      if ( me1a && zplus ) { strip = 17-strip; } // 1-16 -> 16-1 
+      if ( me1b && !zplus) { strip = 65 - strip;} // 1-64 -> 64-1 ...
+      result.emplace_back(strip, sca, overflow, overlap, errorfl);
     } 
 }
 
@@ -266,7 +297,6 @@ bool CSCCFEBData::check() const
     }
   return result;
 }
-
 
 std::ostream & operator<<(std::ostream & os, const CSCCFEBData & data) 
 {

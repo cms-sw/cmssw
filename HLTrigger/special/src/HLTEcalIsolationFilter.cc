@@ -1,66 +1,69 @@
 #include "HLTrigger/special/interface/HLTEcalIsolationFilter.h"
 
-#include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-
-HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig)
+HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
-  candTag_ = iConfig.getUntrackedParameter<edm::InputTag> ("EcalIsolatedParticleSource");
-  minen = iConfig.getParameter<double> ("MinEnergy");
-  maxennearby  = iConfig.getParameter<double> ("MaxEnergyNearby");
-
-  //register your products
-  produces<reco::HLTFilterObjectWithRefs>();
+  candTag_ = iConfig.getParameter<edm::InputTag> ("EcalIsolatedParticleSource");
+  maxhitout = iConfig.getParameter<int> ("MaxNhitOuterCone");
+  maxhitin  = iConfig.getParameter<int> ("MaxNhitInnerCone");
+  maxenin = iConfig.getParameter<double> ("MaxEnergyInnerCone");
+  maxenout = iConfig.getParameter<double> ("MaxEnergyOuterCone");
+  maxetacand = iConfig.getParameter<double> ("MaxEtaCandidate");
+  candToken_ = consumes<reco::IsolatedPixelTrackCandidateCollection>(candTag_);
 }
 
 HLTEcalIsolationFilter::~HLTEcalIsolationFilter(){}
 
-bool HLTEcalIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void
+HLTEcalIsolationFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("EcalIsolatedParticleSource",edm::InputTag("ecalIsolPartProd"));
+  desc.add<int>("MaxNhitInnerCone",1000);
+  desc.add<int>("MaxNhitOuterCone",0);
+  desc.add<double>("MaxEnergyOuterCone",10000.);
+  desc.add<double>("MaxEnergyInnerCone",10000.);
+  desc.add<double>("MaxEtaCandidate",1.3);
+  descriptions.add("hltEcalIsolationFilter",desc);
+}
+
+bool HLTEcalIsolationFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
-  // The Filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
-
   // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> candref;
+  edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref;
 
   // get hold of filtered candidates
-  edm::Handle<reco::EcalIsolatedParticleCandidateCollection> ecIsolCands;
-  iEvent.getByLabel(candTag_,ecIsolCands);
-
-  reco::EcalIsolatedParticleCandidateCollection::const_iterator cands_it;
-  reco::EcalIsolatedParticleCandidateCollection::const_iterator cands_beg=ecIsolCands->begin();
-  reco::EcalIsolatedParticleCandidateCollection::const_iterator cands_end=ecIsolCands->end();
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> ecIsolCands;
+  iEvent.getByToken(candToken_,ecIsolCands);
 
   //Filtering
 
   unsigned int n=0;
-
-  for (cands_it=cands_beg; cands_it<cands_end; cands_it++)
+  for (unsigned int i=0; i<ecIsolCands->size(); i++)
     {
-      candref=edm::RefToBase<reco::Candidate>(reco::EcalIsolatedParticleCandidateRef(ecIsolCands,distance(cands_beg,cands_it)));
-
-      if ((cands_it->enMaxNear()<maxennearby)&&
-	  (cands_it->energy()>minen))
+      candref = edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(ecIsolCands, i);
+	
+      if ((candref->nHitIn()<=maxhitin)&&(candref->nHitOut()<=maxhitout)&&(candref->energyOut()<maxenout)&&(candref->energyIn()<maxenin)&&fabs(candref->eta())<maxetacand)
 	{
-	  filterproduct->putParticle(candref);
+	  filterproduct.addObject(trigger::TriggerTrack, candref);
 	  n++;
 	}
     }
-  
-  
+
+
   bool accept(n>0);
 
-  iEvent.put(filterproduct);
-
   return accept;
+
 }
-	  
+	

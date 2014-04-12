@@ -3,17 +3,16 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/FedCablingSummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/FedCablingAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/FedCablingAnalysis.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
 
-class FedCablingHistograms : public CommissioningHistograms {
+class DQMStore;
+
+class FedCablingHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  FedCablingHistograms( MonitorUserInterface* );
-  FedCablingHistograms( DaqMonitorBEInterface* );
+  FedCablingHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~FedCablingHistograms();
   
   typedef SummaryPlotFactory<FedCablingAnalysis*> Factory;
@@ -23,11 +22,14 @@ class FedCablingHistograms : public CommissioningHistograms {
   void histoAnalysis( bool debug );
 
   /** */
+  void printAnalyses();
+  
+  /** */
   void createSummaryHisto( const sistrip::Monitorable&,
 			   const sistrip::Presentation&,
 			   const std::string& top_level_dir,
 			   const sistrip::Granularity& );
-
+  
  protected: 
   
   Analyses data_;

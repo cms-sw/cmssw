@@ -1,0 +1,18 @@
+<library   name="PFClusterAnalyzer" file="PFClusterAnalyzer.cc">
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   name="PFClusterComparator" file="PFClusterComparator.cc">
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="CommonTools/UtilAlgos"/> 
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="root"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

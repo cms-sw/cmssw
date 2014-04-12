@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Tue Mar 29 16:15:11 EST 2005
-// $Id: EventSetupRecordIntervalFinder.h,v 1.8 2006/08/31 23:26:24 wmtan Exp $
 //
 
 // system include files
@@ -71,6 +70,8 @@ private:
 
       const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&); // stop default
 
+      /** override this method if you need to delay setting what records you will be using until after all modules are loaded*/
+      virtual void delaySettingRecords();
       // ---------- member data --------------------------------
       typedef  std::map<eventsetup::EventSetupRecordKey,ValidityInterval> Intervals;
       Intervals intervals_;

@@ -1,5 +1,3 @@
-#include <vector>
-#include <algorithm>
 #include "CommonTools/Statistics/interface/SequentialPartitionGenerator.h"
 
 SequentialPartitionGenerator::SequentialPartitionGenerator( int n, int k, int pmin ) :
@@ -30,7 +28,7 @@ bool SequentialPartitionGenerator::first_part(
     return (n<=pmax && p[0]>=pmin);
   case 2:
     for (int i=std::min(pmax,n-1);i>=pmin;i--) {
-      if (done=(i>=n-i && n-i>=pmin)) {p[0]=i;p[1]=n-i;}
+      if ((done=(i>=n-i && n-i>=pmin))) {p[0]=i;p[1]=n-i;}
       return done;
     }
   default:

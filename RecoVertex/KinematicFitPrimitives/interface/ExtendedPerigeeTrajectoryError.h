@@ -2,6 +2,7 @@
 #define ExtendedPerigeeTrajectoryError_H
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class ExtendedPerigeeTrajectoryError
 { 
@@ -9,7 +10,7 @@ public:
  ExtendedPerigeeTrajectoryError(): weightAvailable(false),vl(false)
  {}
 
- ExtendedPerigeeTrajectoryError(const AlgebraicSymMatrix& covariance):
+ ExtendedPerigeeTrajectoryError(const AlgebraicSymMatrix66& covariance):
                                cov(covariance),weightAvailable(false),
 			       vl(true)
  {}
@@ -25,27 +26,24 @@ public:
  bool weightIsAvailable() const
  {return weightAvailable;}
 
- const AlgebraicSymMatrix & covarianceMatrix()const
+ const AlgebraicSymMatrix66 & covarianceMatrix()const
  {return cov;}
  
- const AlgebraicSymMatrix & weightMatrix()const
+ const AlgebraicSymMatrix66 & weightMatrix(int & error)const
  {
-  if(! weightIsAvailable())
-  {
-   int ifail;
-//   cout<<"weight is requested for covariance:"<<cov<<endl;
-   weight = cov.inverse(ifail);
-   if(ifail != 0) throw VertexException("ExtendedPerigeeTrajectoryError::unable to invert covariance matrix"); 
+  error = 0;
+  if(! weightIsAvailable()) {
+    weight = cov.Inverse(error);
+   if(error != 0) LogDebug("RecoVertex/ExtendedPerigeeTrajectoryError") 
+       << "unable to invert covariance matrix\n";
    weightAvailable = true;
   }
-  
-//  cout<<"and the weight is: "<< weight<<endl;
   return weight;
  }
  
 private:
- AlgebraicSymMatrix cov;
- mutable AlgebraicSymMatrix weight;
+ AlgebraicSymMatrix66 cov;
+ mutable AlgebraicSymMatrix66 weight;
  mutable bool weightAvailable;
  mutable bool vl;
 };

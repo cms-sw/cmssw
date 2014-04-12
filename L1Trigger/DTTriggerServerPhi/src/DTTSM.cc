@@ -22,7 +22,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondFormats/L1TObjects/interface/DTConfigTSPhi.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTTSCand.h"
 
 //---------------
@@ -35,7 +35,7 @@
 // Constructors --
 //----------------
 // DBSM-doubleTSM
-DTTSM::DTTSM(DTConfigTSPhi* config, int n) : _config(config), _n(n), _ignoreSecondTrack(0) {
+DTTSM::DTTSM(int n) : _n(n), _ignoreSecondTrack(0) {
   // reserve the appropriate amount of space for vectors
   _incand[0].reserve(DTConfigTSPhi::NTSSTSM);
   _incand[1].reserve(DTConfigTSPhi::NTSSTSM);
@@ -237,8 +237,8 @@ DTTSM::sortTSM2(int bkmod) {
          (curr->tssNumber()==best->tssNumber() &&
           curr->TcPos()==best->TcPos()) ) { // same correlator of 1st track
         if(config()->TsmGhost2Flag()==2 ||    // do not look to corr bit of 1st
-           (!best->isCorr() ) &&  config()->TsmGhost2Flag()!=4 || // skip if best is not corr
-           (!best->isCorr() ) &&  best->isInner() && config()->TsmGhost2Flag()==4 )   // skip only if best is inner and not corr
+           ( (!best->isCorr() ) &&  config()->TsmGhost2Flag()!=4 ) || // skip if best is not corr
+           ( (!best->isCorr() ) &&  best->isInner() && config()->TsmGhost2Flag()==4) )   // skip only if best is inner and not corr
 	  {                 
 	    continue;                             // skip track
 	  }

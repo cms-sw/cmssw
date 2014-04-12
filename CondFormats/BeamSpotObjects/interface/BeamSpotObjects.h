@@ -7,20 +7,30 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpotObjects.h,v 1.2 2007/03/30 03:44:05 yumiceva Exp $
+ * \version $Id: BeamSpotObjects.h,v 1.9 2009/03/26 18:39:42 yumiceva Exp $
  *
  */
 
 #include <math.h>
 #include <sstream>
-
+#include <cstring>
 
 class BeamSpotObjects {
 	
   public:
 
 	/// default constructor
-	BeamSpotObjects(){}
+	BeamSpotObjects(): sigmaZ_(0), beamwidthX_(0), beamwidthY_(0),
+		dxdz_(0), dydz_(0), type_(-1) {
+
+		beamwidthXError_ = 0;
+		beamwidthYError_ = 0;
+		emittanceX_ = 0;
+		emittanceY_ = 0;
+		betaStar_ = 0;
+		std::memset(position_, 0, sizeof position_);
+		std::memset(covariance_, 0, sizeof covariance_);
+	}
 	
 	virtual ~BeamSpotObjects(){}
 
@@ -36,13 +46,27 @@ class BeamSpotObjects {
 	void Setdxdz(double val) { dxdz_ = val; }
 	/// set dydz slope, crossing angle in XZ
 	void Setdydz(double val) { dydz_ = val; }
-	/// set average transverse beam width in YZ
-	void SetBeamWidth(double val) { beamwidth_ = val; }
+	/// set average transverse beam width X
+	void SetBeamWidthX(double val) { beamwidthX_ = val; }
+    /// set average transverse beam width Y
+	void SetBeamWidthY(double val) { beamwidthY_ = val; }
+	/// set beam width X error
+	void SetBeamWidthXError(double val) { beamwidthXError_ = val; }
+	/// set beam width Y error
+	void SetBeamWidthYError(double val) { beamwidthYError_ = val; }
 	/// set i,j element of the full covariance matrix 7x7
 	void SetCovariance(int i, int j, double val) {
 		covariance_[i][j] = val;
 	}
-
+	/// set beam type
+	void SetType(int type) { type_ = type; }
+	/// set emittance
+	void SetEmittanceX(double val) { emittanceX_ = val;}
+	/// set emittance
+	void SetEmittanceY(double val) { emittanceY_ = val;}
+	/// set beta star
+	void SetBetaStar(double val) { betaStar_ = val;}
+	
 	/// get X beam position
 	double GetX() const { return position_[0]; }
 	/// get Y beam position
@@ -52,7 +76,9 @@ class BeamSpotObjects {
 	/// get sigma Z, RMS bunch length
 	double GetSigmaZ() const { return sigmaZ_; }
 	/// get average transverse beam width
-	double GetBeamWidth() const { return beamwidth_; }
+	double GetBeamWidthX() const { return beamwidthX_; }
+	/// get average transverse beam width
+	double GetBeamWidthY() const { return beamwidthY_; }
 	/// get dxdz slope, crossing angle in XZ
 	double Getdxdz() const { return dxdz_; }
 	/// get dydz slope, crossing angle in YZ
@@ -67,12 +93,23 @@ class BeamSpotObjects {
 	double GetZError() const { return sqrt(covariance_[2][2]); }
 	/// get sigma Z, RMS bunch length Error
 	double GetSigmaZError() const { return sqrt(covariance_[3][3]); }
-	/// get average transverse beam width
-	double GetBeamWidthError() const { return sqrt(covariance_[6][6]); }
+	/// get average transverse beam width error ASSUME the same for X and Y
+	double GetBeamWidthXError() const { return sqrt(covariance_[6][6]); }
+    /// get average transverse beam width error X = Y
+	double GetBeamWidthYError() const { return sqrt(covariance_[6][6]); }
 	/// get dxdz slope, crossing angle in XZ Error
 	double GetdxdzError() const { return sqrt(covariance_[4][4]); }
 	/// get dydz slope, crossing angle in YZ Error
 	double GetdydzError() const { return sqrt(covariance_[5][5]); }
+	/// get beam type
+	int GetBeamType() const { return type_; }
+	/// get emittance
+	double GetEmittanceX() const { return emittanceX_; }
+	/// get emittance
+	double GetEmittanceY() const { return emittanceY_; }
+	/// get beta star
+	double GetBetaStar() const { return betaStar_; }
+	
 	/// print beam spot parameters
 	void print(std::stringstream& ss) const;
 
@@ -80,10 +117,17 @@ class BeamSpotObjects {
 
 	double position_[3];
 	double sigmaZ_;
-	double beamwidth_;
+	double beamwidthX_;
+	double beamwidthY_;
+	double beamwidthXError_;
+	double beamwidthYError_;
 	double dxdz_;
 	double dydz_;
 	double covariance_[7][7];
+	int type_;
+	double emittanceX_;
+	double emittanceY_;
+	double betaStar_;
 	
 };
 

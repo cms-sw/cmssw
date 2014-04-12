@@ -10,9 +10,9 @@ Basic3DVector<double> UniformMomentumGenerator::operator()() const
     double thetaMin = 0;
     double thetaMax = Geom::pi();
 
-  double aPhi = RandFlat::shoot(phiMin,phiMax);
-  double aTheta = RandFlat::shoot(thetaMin,thetaMax);
-  double aP = RandFlat::shoot(thePmin,thePmax);
+  double aPhi = CLHEP::RandFlat::shoot(phiMin,phiMax);
+  double aTheta = CLHEP::RandFlat::shoot(thetaMin,thetaMax);
+  double aP = CLHEP::RandFlat::shoot(thePmin,thePmax);
     
 //   cout << "UniformMomentumGenerator: P= " << aP
 //        << " theta= " << aTheta << " phi= " << aPhi << endl;

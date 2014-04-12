@@ -29,12 +29,12 @@ public:
   ALIdouble angleX() const { return theAngleX; }
   ALIdouble angleY() const { return theAngleY; }
   ALIdouble angleZ() const { return theAngleZ; }
-  HepRotation rm() const { return theRm; }
+  CLHEP::HepRotation rm() const { return theRm; }
   ALIstring dataFilled() const { return theDataFilled; }
 
  // private DATA MEMBERS
 private:
-  HepRotation theRm;
+  CLHEP::HepRotation theRm;
   ALIdouble theAngleX, theAngleY, theAngleZ;
   ALIstring theDataFilled;
 };

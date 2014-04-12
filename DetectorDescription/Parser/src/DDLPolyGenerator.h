@@ -24,18 +24,17 @@
 
 class DDLPolyGenerator : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
-  DDLPolyGenerator();
+  DDLPolyGenerator( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLPolyGenerator();
+  ~DDLPolyGenerator( void );
 
-  void processElement (const std::string& name, const std::string& nmspace); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 
-  void preProcessElement (const std::string& name, const std::string& nmspace); 
-
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 
 #endif

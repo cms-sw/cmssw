@@ -14,10 +14,11 @@
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -28,8 +29,8 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <cmath>
 #include <iostream>
 #include <iomanip>
@@ -152,7 +153,7 @@ void SimG4HcalValidation::init() {
 void SimG4HcalValidation::update(const BeginOfJob * job) {
 
   // Numbering From DDD
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
   (*job)()->get<IdealGeometryRecord>().get(pDD);
   edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialise "
 			    << "HcalNumberingFromDDD for " << names[0];
@@ -207,8 +208,8 @@ void SimG4HcalValidation::update(const BeginOfEvent * evt) {
   clear();
 
   int iev = (*evt)()->GetEventID();
-  edm::LogInfo("ValidHcal") << "SimG4HcalValidation: =====> Begin of event = "
-			    << iev;
+  LogDebug("ValidHcal") << "SimG4HcalValidation: =====> Begin of event = "
+			<< iev;
 }
 
 //=================================================================== each STEP
@@ -276,7 +277,7 @@ void SimG4HcalValidation::update(const EndOfEvent * evt) {
 
   // Fill hits cache for jetfinding etc.
   fill(evt);
-  edm::LogInfo("ValidHcal") << "SimG4HcalValidation:: ---  after Fill ";
+  LogDebug("ValidHcal") << "SimG4HcalValidation:: ---  after Fill ";
 }
 
 //---------------------------------------------------
@@ -304,7 +305,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       double e        = aHit->getEnergyDeposit()/GeV;
       double time     = aHit->getTimeSlice();
       
-      Hep3Vector pos  = aHit->getPosition();
+      math::XYZPoint pos  = aHit->getPosition();
       double theta    = pos.theta();
       double   eta    = -log(tan(theta * 0.5));
       double   phi    = pos.phi();
@@ -318,11 +319,16 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       std::string det =  "HB";
       if (subdet == static_cast<int>(HcalForward)) {
 	det = "HF";
-	if (layer > 0) {
-	  vhithc += e;
-	} else {
-	  vhitec += e;
-	}
+	uint16_t depth = aHit->getDepth();
+	if (depth != 0) { layer += 2; lay += 2; }
+	if      (layer == 1) vhithc += e;
+	else if (layer == 0) vhitec += e;
+	else
+	  edm::LogInfo("ValidHcal") << "SimG4HcalValidation::HitPMT " 
+				    << subdet << " " << (2*zside-1)*etaIndex 
+				    << " " << phiIndex << " " << layer+1 
+				    << " R " << pos.rho() << " Phi " << phi/deg
+				    << " Edep " << e << " Time " << time;
       } else if (subdet == static_cast<int>(HcalEndcap)) {
 	if (etaIndex <= 20) {
 	  det  = "HES";
@@ -351,7 +357,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       }    
     }
   }
-  edm::LogInfo("ValidHcal") << "SimG4HcalValidation:: HCAL hits : " << nhc;
+  LogDebug("ValidHcal") << "SimG4HcalValidation:: HCAL hits : " << nhc;
 
   if (!hcalOnly) { //--------------------------  ECAL hits --------------------
     int ndets = names.size();
@@ -375,7 +381,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
 	  double e        = aHit->getEnergyDeposit()/GeV;
 	  double time     = aHit->getTimeSlice();
       
-	  Hep3Vector pos  = aHit->getPosition();
+	  math::XYZPoint pos  = aHit->getPosition();
 	  double theta    = pos.theta();
 	  double   eta    = -log(tan(theta/2.));
 	  double   phi    = pos.phi();
@@ -482,7 +488,6 @@ void SimG4HcalValidation::nxNAnalysis(PHcalValidInfoNxN& product) {
     
     // NxN calulation
     
-    int save_i = 0;
     if (fabs(eta0-eta) <= dEta[max-1] && fabs(phi0-phi) <= dPhi[max-1]) {
       etot += e;
       if (type == 10 || type == 11 || type == 12)  ee += e;
@@ -504,7 +509,6 @@ void SimG4HcalValidation::nxNAnalysis(PHcalValidInfoNxN& product) {
 				  << phi;
 
 	    product.fillTProfileNxN(e, i, t);  
-	    save_i = i;
 	    break;
 	  }
 	}
@@ -658,8 +662,8 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
 //---------------------------------------------------
 void SimG4HcalValidation::fetchHits(PHcalValidInfoLayer& product) {
 
-  edm::LogInfo("ValidHcal") << "Enter SimG4HcalValidation::fetchHits with "
-			    << hitcache.size() << " hits";
+  LogDebug("ValidHcal") << "Enter SimG4HcalValidation::fetchHits with "
+			<< hitcache.size() << " hits";
   int nHit = hitcache.size();
   int hit  = 0;
   int i;

@@ -13,3 +13,8 @@ const OrderedHitTriplets & HitTripletGenerator::run(
   return theTriplets;
 }
 
+void HitTripletGenerator::clear() 
+{
+  theTriplets.clear();
+}
+

@@ -18,7 +18,7 @@
 class CaloGeometryHelper;
 class CrystalWindowMap;
 class Histos;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class FSimTrack;
 
 class EcalHitMaker: public CaloHitMaker
@@ -36,7 +36,7 @@ class EcalHitMaker: public CaloHitMaker
 	       int onEcal,
 	       unsigned size,
 	       unsigned showertype,
-	       const RandomEngine* engine);
+	       const RandomEngineAndDistribution* engine);
 
   ~EcalHitMaker();
 
@@ -63,6 +63,9 @@ class EcalHitMaker: public CaloHitMaker
   
   /// total number of X0 in the PS (Layer2). 
   inline double ps2TotalX0() const {return X0PS2_;}
+
+  // number of X0 between PS2 and EE
+  inline double ps2eeTotalX0() const {return X0PS2EE_;}
   
   /// in the ECAL 
   inline double ecalTotalX0() const {return X0ECAL_;}
@@ -76,8 +79,11 @@ class EcalHitMaker: public CaloHitMaker
   /// total number of L0 in the PS (Layer1). 
   inline double ps1TotalL0() const {return L0PS1_;}
   
-  /// total number of L0 in the PS (Layer1). 
+  /// total number of L0 in the PS (Layer2). 
   inline double ps2TotalL0() const {return L0PS2_;}
+
+  // number of X0 between PS2 and EE
+  inline double ps2eeTotalL0() const {return L0PS2EE_;}
   
   /// in the ECAL 
   inline double ecalTotalL0() const {return L0ECAL_;}
@@ -95,9 +101,10 @@ class EcalHitMaker: public CaloHitMaker
 
   // The following methods are EM showers specific
   
-  /// computes the crystals-plan intersection at depth (in X0)
+  /// computes the crystals-plan intersection at depth (in X0 or L0 depending on the
+  ///shower type)
   /// if it is not possible to go at such a depth, the result is false
-  bool getPads(double depth) ;
+  bool getPads(double depth,bool inCm=false) ;
 
   inline double getX0back() const {return maxX0_;}
 
@@ -105,14 +112,14 @@ class EcalHitMaker: public CaloHitMaker
    
   bool addHit(double r,double phi,unsigned layer=0) ;
 
-  unsigned fastInsideCell(const Hep2Vector & point,double & sp,bool debug=false) ;
+  unsigned fastInsideCell(const CLHEP::Hep2Vector & point,double & sp,bool debug=false) ;
 
   inline void setSpotEnergy(double e) { spotEnergy=e;}
   
    /// get the map of the stored hits. Triggers the calculation of the grid if it has
   /// not been done. 
     
-  const std::map<uint32_t,float>& getHits() ;
+  const std::map<CaloHitID,float>& getHits() ;
  
   /// To retrieve the track
   const FSimTrack* getFSimTrack() const {return myTrack_;}
@@ -125,6 +132,9 @@ class EcalHitMaker: public CaloHitMaker
   inline void setPulledPadSurvivalProbability(double val) {pulledPadProbability_ = val;};
 
   inline void setCrackPadSurvivalProbability(double val ) {crackPadProbability_ = val ;};
+
+ // set preshower
+ inline void setPreshowerPresent(bool ps) {simulatePreshower_=ps;};
 
   /// for debugging
   inline const std::vector<Crystal>& getCrystals() const {return regionOfInterest_;}
@@ -166,10 +176,10 @@ class EcalHitMaker: public CaloHitMaker
 
  // retrieves the coordinates of a corner belonging to the neighbour
  typedef std::pair<CaloDirection,unsigned > neighbour;
- Hep2Vector & correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) ;
+ CLHEP::Hep2Vector & correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) ;
 
  // almost the same
- bool diagonalEdge(unsigned myPad, CaloDirection dir,Hep2Vector & point);
+ bool diagonalEdge(unsigned myPad, CaloDirection dir,CLHEP::Hep2Vector & point);
 
  // check if there is an unbalanced direction in the input vertor. If the result is true, 
  // the cooresponding directions are returned dir1+dir2=unb
@@ -180,6 +190,7 @@ class EcalHitMaker: public CaloHitMaker
 
  // creates a crack
  void cracksPads(std::vector<neighbour> & cracks, unsigned iq);
+
 
  private:
 
@@ -194,11 +205,13 @@ class EcalHitMaker: public CaloHitMaker
   double X0depthoffset_;
   double X0PS1_;
   double X0PS2_;
+  double X0PS2EE_;
   double X0ECAL_;
   double X0EHGAP_;
   double X0HCAL_;
   double L0PS1_;
   double L0PS2_;
+  double L0PS2EE_;
   double L0ECAL_;
   double L0HCAL_;
   double L0EHGAP_;
@@ -252,6 +265,8 @@ class EcalHitMaker: public CaloHitMaker
   double currentdepth_;
   // magnetic field correction factor
   double bfactor_;
+  // simulate preshower
+  bool simulatePreshower_;
   
   // pads-depth specific quantities 
   unsigned ncrackpadsatdepth_;
@@ -282,12 +297,10 @@ class EcalHitMaker: public CaloHitMaker
   bool hitmaphasbeencalculated_ ;
 
   // A local vector of corners, to avoid reserving, newing and mallocing
-  std::vector<Hep2Vector> mycorners;
+  std::vector<CLHEP::Hep2Vector> mycorners;
   std::vector<XYZPoint> corners;
 
-
-  const RandomEngine* random;
-
+  const RandomEngineAndDistribution* random;
 
 #ifdef FAMOSDEBUG
   Histos * myHistos;

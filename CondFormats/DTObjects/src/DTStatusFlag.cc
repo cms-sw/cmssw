@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/22 12:46:52 $
- *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,23 +13,28 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <sstream>
 
 //----------------
 // Constructors --
 //----------------
 DTStatusFlag::DTStatusFlag():
-  dataVersion( " " ) {
+  dataVersion( " " ),
+  dBuf(new DTBufferTree<int,int>) {
+  dataList.reserve( 1000 );
 }
 
 
 DTStatusFlag::DTStatusFlag( const std::string& version ):
-  dataVersion( version ) {
+  dataVersion( version ),
+  dBuf(new DTBufferTree<int,int>) {
+  dataList.reserve( 1000 );
 }
 
 
@@ -73,83 +76,66 @@ DTStatusFlagData::~DTStatusFlagData() {
 //--------------
 // Operations --
 //--------------
-bool DTStatusFlagCompare::operator()( const DTStatusFlagId& idl,
-                                      const DTStatusFlagId& idr ) const {
-  if ( idl.  wheelId < idr.  wheelId ) return true;
-  if ( idl.  wheelId > idr.  wheelId ) return false;
-  if ( idl.stationId < idr.stationId ) return true;
-  if ( idl.stationId > idr.stationId ) return false;
-  if ( idl. sectorId < idr. sectorId ) return true;
-  if ( idl. sectorId > idr. sectorId ) return false;
-  if ( idl.     slId < idr.     slId ) return true;
-  if ( idl.     slId > idr.     slId ) return false;
-  if ( idl.  layerId < idr.  layerId ) return true;
-  if ( idl.  layerId > idr.  layerId ) return false;
-  if ( idl.   cellId < idr.   cellId ) return true;
-  if ( idl.   cellId > idr.   cellId ) return false;
-  return false;
-}
+int DTStatusFlag::get( int   wheelId,
+                       int stationId,
+                       int  sectorId,
+                       int      slId,
+                       int   layerId,
+                       int    cellId,
+                       bool& noiseFlag,
+                       bool&    feMask,
+                       bool&   tdcMask,
+                       bool&  trigMask,
+                       bool&  deadFlag,
+                       bool&  nohvFlag ) const {
 
-
-int DTStatusFlag::cellStatus( int   wheelId,
-                              int stationId,
-                              int  sectorId,
-                              int      slId,
-                              int   layerId,
-                              int    cellId,
-                              bool& noiseFlag,
-                              bool&    feMask,
-                              bool&   tdcMask,
-                              bool&  trigMask,
-                              bool&  deadFlag,
-                              bool&  nohvFlag ) const {
-
-  noiseFlag = false;
-     feMask = false;
-    tdcMask = false;
-   deadFlag = false;
+  noiseFlag =
+     feMask =
+    tdcMask =
+   trigMask =
+   deadFlag =
    nohvFlag = false;
 
-  DTStatusFlagId key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
-  key.  layerId =   layerId;
-  key.   cellId =    cellId;
-  std::map<DTStatusFlagId,
-           DTStatusFlagData,
-           DTStatusFlagCompare>::const_iterator iter = cellData.find( key );
-
-  if ( iter != cellData.end() ) {
-    const DTStatusFlagData& data = iter->second;
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  if ( !searchStatus ) {
+    const DTStatusFlagData& data( dataList[ientry].second );
     noiseFlag = data.noiseFlag;
        feMask = data.   feMask;
       tdcMask = data.  tdcMask;
+     trigMask = data. trigMask;
      deadFlag = data. deadFlag;
      nohvFlag = data. nohvFlag;
-    return 0;
   }
-  return 1;
+
+  return searchStatus;
 
 }
 
 
-int DTStatusFlag::cellStatus( const DTWireId& id,
-                              bool& noiseFlag,
-                              bool&    feMask,
-                              bool&   tdcMask,
-                              bool&  trigMask,
-                              bool&  deadFlag,
-                              bool&  nohvFlag ) const {
-  return cellStatus( id.wheel(),
-                     id.station(),
-                     id.sector(),
-                     id.superLayer(),
-                     id.layer(),
-                     id.wire(),
-                     noiseFlag,   feMask,  tdcMask,
-                      trigMask, deadFlag, nohvFlag );
+int DTStatusFlag::get( const DTWireId& id,
+                       bool& noiseFlag,
+                       bool&    feMask,
+                       bool&   tdcMask,
+                       bool&  trigMask,
+                       bool&  deadFlag,
+                       bool&  nohvFlag ) const {
+  return get( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              id.layer(),
+              id.wire(),
+              noiseFlag,   feMask,  tdcMask,
+               trigMask, deadFlag, nohvFlag );
 }
 
 
@@ -165,37 +151,38 @@ std::string& DTStatusFlag::version() {
 
 
 void DTStatusFlag::clear() {
-  cellData.clear();
+  dataList.clear();
+  initialize();
   return;
 }
 
 
-int DTStatusFlag::setCellStatus( int   wheelId,
-                                 int stationId,
-                                 int  sectorId,
-                                 int      slId,
-                                 int   layerId,
-                                 int    cellId,
-                                 bool noiseFlag,
-                                 bool    feMask,
-                                 bool   tdcMask,
-                                 bool  trigMask,
-                                 bool  deadFlag,
-                                 bool  nohvFlag ) {
+int DTStatusFlag::set( int   wheelId,
+                       int stationId,
+                       int  sectorId,
+                       int      slId,
+                       int   layerId,
+                       int    cellId,
+                       bool noiseFlag,
+                       bool    feMask,
+                       bool   tdcMask,
+                       bool  trigMask,
+                       bool  deadFlag,
+                       bool  nohvFlag ) {
 
-  DTStatusFlagId key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
-  key.  layerId =   layerId;
-  key.   cellId =    cellId;
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
 
-  std::map<DTStatusFlagId,
-           DTStatusFlagData,
-           DTStatusFlagCompare>::iterator iter = cellData.find( key );
-  if ( iter != cellData.end() ) {
-    DTStatusFlagData& data = iter->second;
+  if ( !searchStatus ) {
+    DTStatusFlagData& data( dataList[ientry].second );
     data.noiseFlag = noiseFlag;
     data.   feMask =    feMask;
     data.  tdcMask =   tdcMask;
@@ -205,6 +192,13 @@ int DTStatusFlag::setCellStatus( int   wheelId,
     return -1;
   }
   else {
+    DTStatusFlagId key;
+    key.  wheelId =   wheelId;
+    key.stationId = stationId;
+    key. sectorId =  sectorId;
+    key.     slId =      slId;
+    key.  layerId =   layerId;
+    key.   cellId =    cellId;
     DTStatusFlagData data;
     data.noiseFlag = noiseFlag;
     data.   feMask =    feMask;
@@ -212,8 +206,10 @@ int DTStatusFlag::setCellStatus( int   wheelId,
     data. trigMask =  trigMask;
     data. deadFlag =  deadFlag;
     data. nohvFlag =  nohvFlag;
-    cellData.insert( std::pair<const DTStatusFlagId,
-                                     DTStatusFlagData>( key, data ) );
+    ientry = dataList.size();
+    dataList.push_back( std::pair<const DTStatusFlagId,
+                                        DTStatusFlagData>( key, data ) );
+    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }
 
@@ -222,21 +218,21 @@ int DTStatusFlag::setCellStatus( int   wheelId,
 }
 
 
-int DTStatusFlag::setCellStatus( const DTWireId& id,
-                                 bool noiseFlag,
-                                 bool    feMask,
-                                 bool   tdcMask,
-                                 bool  trigMask,
-                                 bool  deadFlag,
-                                 bool  nohvFlag  ) {
-  return setCellStatus( id.wheel(),
-                        id.station(),
-                        id.sector(),
-                        id.superLayer(),
-                        id.layer(),
-                        id.wire(),
-                        noiseFlag,   feMask,  tdcMask,
-                         trigMask, deadFlag, nohvFlag );
+int DTStatusFlag::set( const DTWireId& id,
+                       bool noiseFlag,
+                       bool    feMask,
+                       bool   tdcMask,
+                       bool  trigMask,
+                       bool  deadFlag,
+                       bool  nohvFlag  ) {
+  return set( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              id.layer(),
+              id.wire(),
+              noiseFlag,   feMask,  tdcMask,
+              trigMask, deadFlag, nohvFlag );
 }
 
 
@@ -254,30 +250,30 @@ int DTStatusFlag::setCellNoise( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                      flag,
-                    feMask,
-                   tdcMask,
-                  trigMask,
-                  deadFlag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+            flag,
+          feMask,
+         tdcMask,
+        trigMask,
+        deadFlag,
+        nohvFlag );
   return status;
 
 }
@@ -309,30 +305,30 @@ int DTStatusFlag::setCellFEMask( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                      mask,
-                   tdcMask,
-                  trigMask,
-                  deadFlag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+            mask,
+         tdcMask,
+        trigMask,
+        deadFlag,
+        nohvFlag );
   return status;
 
 }
@@ -364,30 +360,30 @@ int DTStatusFlag::setCellTDCMask( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                    feMask,
-                      mask,
-                  trigMask,
-                  deadFlag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+          feMask,
+            mask,
+        trigMask,
+        deadFlag,
+        nohvFlag );
   return status;
 
 }
@@ -419,30 +415,30 @@ int DTStatusFlag::setCellTrigMask( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                    feMask,
-                   tdcMask,
-                      mask,
-                  deadFlag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+          feMask,
+         tdcMask,
+            mask,
+        deadFlag,
+        nohvFlag );
   return status;
 
 }
@@ -474,30 +470,30 @@ int DTStatusFlag::setCellDead( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                    feMask,
-                   tdcMask,
-                  trigMask,
-                      flag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+          feMask,
+         tdcMask,
+        trigMask,
+            flag,
+        nohvFlag );
   return status;
 
 }
@@ -529,30 +525,30 @@ int DTStatusFlag::setCellNoHV( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                    feMask,
-                   tdcMask,
-                  trigMask,
-                  deadFlag,
-                      flag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+          feMask,
+         tdcMask,
+        trigMask,
+        deadFlag,
+            flag );
   return status;
 
 }
@@ -571,12 +567,46 @@ int DTStatusFlag::setCellNoHV( const DTWireId& id,
 
 
 DTStatusFlag::const_iterator DTStatusFlag::begin() const {
-  return cellData.begin();
+  return dataList.begin();
 }
 
 
 DTStatusFlag::const_iterator DTStatusFlag::end() const {
-  return cellData.end();
+  return dataList.end();
 }
 
+
+std::string DTStatusFlag::mapName() const {
+  std::stringstream name;
+  name << dataVersion << "_map_StatusFlag" << this;
+  return name.str();
+}
+
+
+void DTStatusFlag::initialize() {
+
+  dBuf->clear();
+
+  int entryNum = 0;
+  int entryMax = dataList.size();
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
+  while ( entryNum < entryMax ) {
+
+    const DTStatusFlagId& chan = dataList[entryNum].first;
+
+    chanKey.clear();
+    chanKey.push_back( chan.  wheelId );
+    chanKey.push_back( chan.stationId );
+    chanKey.push_back( chan. sectorId );
+    chanKey.push_back( chan.     slId );
+    chanKey.push_back( chan.  layerId );
+    chanKey.push_back( chan.   cellId );
+    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
+
+  }
+
+  return;
+
+}
 

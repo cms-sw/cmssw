@@ -18,7 +18,7 @@ class TkCommonMode {
   virtual void setTopology(TkCommonModeTopology* in) {myTkCommonModeTopology = in;}
   
   /** Set the independent CM values in the APV */
-  void setCommonMode(std::vector<float> in) {theCommonMode = in;}
+  void setCommonMode(const std::vector<float>& in) {theCommonMode = in;}
   /** Return vector containing all the independent CM values in the APV. */
   std::vector<float> returnAsVector() const {return theCommonMode;}
   /** Return vector of dimension 128, with CM value on each strip */

@@ -1,4 +1,5 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include <cassert>
 
 std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int& northSouthSize, const int& eastWestSize) const
 {

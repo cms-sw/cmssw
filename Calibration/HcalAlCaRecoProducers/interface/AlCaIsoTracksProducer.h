@@ -41,63 +41,70 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
 #include "TH1F.h"
+class TFile;
 
 //
 // class declaration
 //
 
 class AlCaIsoTracksProducer : public edm::EDProducer {
-   public:
-      explicit AlCaIsoTracksProducer(const edm::ParameterSet&);
-      ~AlCaIsoTracksProducer();
+public:
+  explicit AlCaIsoTracksProducer(const edm::ParameterSet&);
+  ~AlCaIsoTracksProducer();
+  
+  virtual void produce(edm::Event &, const edm::EventSetup&);
+  void endJob(void);
 
-      virtual void produce(edm::Event &, const edm::EventSetup&);
-      void endJob(void);
+private:
+  
+  TrackDetectorAssociator trackAssociator_;
+  TrackAssociatorParameters parameters_;
+  
+  
+  const CaloGeometry* geo;
+  std::vector<edm::InputTag> ecalLabels_;
 
-   private:
-      
-   TrackDetectorAssociator trackAssociator_;
-   TrackAssociatorParameters parameters_;
-      
-      
-      const CaloGeometry* geo;
-      edm::InputTag hoLabel_;
-      edm::InputTag hbheLabel_;
-      std::vector<edm::InputTag> ecalLabels_;
-      bool allowMissingInputs_;
-      
-      std::string m_inputTrackLabel;
-      
-      double m_dvCut;
-      double m_ddirCut;
-      double m_pCut;
-      double m_ptCut;
-      double m_ecalCut;
-      int m_histoFlag;
-      TFile* m_Hfile;
-      struct{
-        TH1F* Ntrk;
-        TH1F* vx;
-        TH1F* vy;
-        TH1F* vz;
-        TH1F* vr;
-        TH1F* eta;
-        TH1F* phi;
-        TH1F* p;
-        TH1F* pt;
-        TH1F* Dvertx;
-        TH1F* Dverty;
-        TH1F* Dvertz;
-        TH1F* Dvert;
-        TH1F* Dtheta;
-        TH1F* Dphi;
-        TH1F* Ddir;
-        TH1F* Nisotr;
-        TH1F* Dering;
-        TH1F* eecal;
-        TH1F* ehcal;
-      } IsoHists;
+  int nHitsMinCore_;
+  int nHitsMinIso_;  
+  double m_dvCut;
+  double m_ddirCut;
+  bool useConeCorr_;
+  double m_pCut;
+  double m_ptCut;
+  double m_ecalCut;
+
+  double taECALCone_;
+  double taHCALCone_;
+
+  bool skipNeutrals_;
+  bool checkHLTMatch_;
+  std::vector<std::string> hltFiltTag_;
+  double hltMatchingCone_;
+
+  double isolE_;
+  double etaMax_;
+  double cluRad_;
+  double ringOutRad_;
+  double ringInnRad_;
+
+  bool useECALCluMatrix_;
+  int matrixSize_;
+  int matrixInnerSize_;
+  int matrixOuterSize_;
+  
+  std::string l1FilterTag_;
+  double l1jetVetoCone_;
+
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<reco::TrackCollection> tok_track_;
+  edm::EDGetTokenT<trigger::TriggerEvent> tok_hlt_;
+
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_ps_;
 
 };
 

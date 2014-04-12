@@ -8,14 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:35 EDT 2005
-// $Id: IOVSyncValue.cc,v 1.4 2006/09/01 18:16:42 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //
 // constants, enums and typedefs
@@ -79,24 +79,29 @@ haveID_(true), haveTime_(true)
 //
 // const member functions
 //
+void 
+IOVSyncValue::throwInvalidComparison() const {
+  throw cms::Exception("InvalidIOVSyncValueComparison")
+    <<"Attempted to compare a time-only and a run/lumi/event-only IOVSyncValue. Please report this error to the framework experts.";
+}
 
 //
 // static member functions
 //
 const IOVSyncValue&
 IOVSyncValue::invalidIOVSyncValue() {
-   static IOVSyncValue s_invalid;
+   static const IOVSyncValue s_invalid;
    return s_invalid;
 }
 const IOVSyncValue&
 IOVSyncValue::endOfTime() {
-   static IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, EventID::maxEventNumber()),
+   static IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                                    Timestamp::endOfTime());
    return s_endOfTime;
 }
 const IOVSyncValue&
 IOVSyncValue::beginOfTime() {
-   static IOVSyncValue s_beginOfTime(EventID(1,0), Timestamp::beginOfTime());
+   static IOVSyncValue s_beginOfTime(EventID(1,0,0), Timestamp::beginOfTime());
    return s_beginOfTime;
 }
 }

@@ -1,10 +1,8 @@
 #ifndef LinearizedTrackStateFactory_H
 #define LinearizedTrackStateFactory_H
 
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
-#include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexTools/interface/AbstractLTSFactory.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 /**
  *  Concrete class to encapsulate the creation of a RefCountedLinearizedTrack,
@@ -13,7 +11,7 @@
  *  so that the reference-counting mechanism works well.
  */
 
-class LinearizedTrackStateFactory : public AbstractLTSFactory {
+class LinearizedTrackStateFactory : public AbstractLTSFactory<5> {
 
 public:
 
@@ -25,7 +23,7 @@ public:
     	const TrajectoryStateOnSurface& tsos) const;
 
   RefCountedLinearizedTrackState
-    linearizedTrackState(LinearizedTrackState * lts) const;
+    linearizedTrackState(LinearizedTrackState<5> * lts) const;
 
   const LinearizedTrackStateFactory * clone() const;
 

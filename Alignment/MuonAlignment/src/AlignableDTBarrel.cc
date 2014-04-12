@@ -1,17 +1,21 @@
 /** \file
  *
- *  $Date: 2006/08/04 20:18:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.7 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
 
 #include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
+#include "CondFormats/Alignment/interface/Alignments.h" 
+#include "CondFormats/Alignment/interface/AlignmentErrors.h" 
+#include "CondFormats/Alignment/interface/AlignmentSorter.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 /// The constructor simply copies the vector of wheels and computes the surface from them
-AlignableDTBarrel::AlignableDTBarrel( const std::vector<AlignableDTWheel*> dtWheels ) 
+AlignableDTBarrel::AlignableDTBarrel( const std::vector<AlignableDTWheel*>& dtWheels ) 
+   : AlignableComposite(dtWheels[0]->id(), align::AlignableDTBarrel)
 {
 
   theDTWheels.insert( theDTWheels.end(), dtWheels.begin(), dtWheels.end() );
@@ -92,11 +96,11 @@ std::ostream &operator << (std::ostream& os, const AlignableDTBarrel& b )
 
 
 /// Recursive printout of whole Half Barrel structure
-void AlignableDTBarrel::dump( void )
+void AlignableDTBarrel::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableDTWheel*>::iterator iWheel = theDTWheels.begin();
+  for ( std::vector<AlignableDTWheel*>::const_iterator iWheel = theDTWheels.begin();
 		iWheel != theDTWheels.end(); iWheel++ )
 	(*iWheel)->dump();
 

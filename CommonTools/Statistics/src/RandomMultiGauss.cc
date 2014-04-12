@@ -75,7 +75,7 @@ AlgebraicVector RandomMultiGauss::fire() {
   AlgebraicVector vRandom(theSize,0);
   for ( int i=0; i<theSize; i++ ) {
     if ( theTriangle[i][i]!=0 ) 
-      vRandom[i] = RandGauss::shoot();
+      vRandom[i] = CLHEP::RandGauss::shoot();
   }
   return theTriangle*vRandom+theMeans;
 }

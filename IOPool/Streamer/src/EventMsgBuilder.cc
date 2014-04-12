@@ -1,17 +1,26 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include <cassert>
+#include <cstring>
+
+#define MAX_HOSTNAME_LEN 25
 
 EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
                                  uint32 run, uint32 event, uint32 lumi,
+                                 uint32 outModId, uint32 droppedEventsCount,
                                  std::vector<bool>& l1_bits,
-                                 uint8* hlt_bits, uint32 hlt_bit_count):
+                                 uint8* hlt_bits, uint32 hlt_bit_count, 
+                                 uint32 adler_chksum, const char* host_name):
   buf_((uint8*)buf),size_(size)
 {
   EventHeader* h = (EventHeader*)buf_;
+  h->protocolVersion_ = 10;
   convert(run,h->run_);
   convert(event,h->event_);
   convert(lumi,h->lumi_);
+  convert(outModId,h->outModId_);
+  convert(droppedEventsCount,h->droppedEventsCount_);
   uint8* pos = buf_ + sizeof(EventHeader);
 
   // l1 count
@@ -40,14 +49,41 @@ EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
 
   // copy the hlt bits over
   pos = std::copy(hlt_bits, hlt_bits+hlt_sz, pos);
+
+  // adler32 check sum of data blob
+  convert(adler_chksum, pos);
+  pos = pos + sizeof(uint32);
+
+  // put host name (Length and then Name) right after check sum
+  //uint32 host_name_len = strlen(host_name);
+  // actually make the host_name a fixed length as the event header size appears in the
+  // Init message and only one goes to a file whereas events can come from any node
+  // We want the max length to be determined inside this Event Message Builder
+  uint32 host_name_len = MAX_HOSTNAME_LEN;
+  assert(host_name_len < 0x00ff);
+  //Put host_name_len
+  *pos++ = host_name_len;
+
+  //Put host_name
+  uint32 real_len = strlen(host_name);
+  if(real_len < host_name_len) {
+    char hostname_2use[MAX_HOSTNAME_LEN];
+    memset(hostname_2use,'\0',host_name_len);
+    memcpy(hostname_2use,host_name,real_len);
+    memcpy(pos,hostname_2use,host_name_len);
+  } else {
+    memcpy(pos,host_name,host_name_len);
+  }
+  pos += host_name_len;
+
   event_addr_ = pos + sizeof(char_uint32);
   setEventLength(0);
 }
 
-void EventMsgBuilder::setReserved(uint32 value)
+void EventMsgBuilder::setOrigDataSize(uint32 value)
 {
   EventHeader* h = (EventHeader*)buf_;
-  convert(value,h->reserved_);
+  convert(value,h->origDataSize_);
 }
 
 void EventMsgBuilder::setEventLength(uint32 len)

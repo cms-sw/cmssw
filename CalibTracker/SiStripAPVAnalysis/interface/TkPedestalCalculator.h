@@ -9,7 +9,7 @@
 class TkPedestalCalculator{
  public:
   
-  
+  virtual ~TkPedestalCalculator() {}
   /** Return reconstructed pedestals */
   //  virtual ApvAnalysis::PedestalType pedestal() const = 0 ;
   virtual ApvAnalysis::PedestalType pedestal() const =0;
@@ -20,6 +20,8 @@ class TkPedestalCalculator{
   
   virtual void resetPedestals() = 0;
   virtual void setPedestals (ApvAnalysis::PedestalType&) = 0;
+
+  virtual void setNoise( ApvAnalysis::PedestalType &) {}
   
   /** Request that status flag be updated */
   virtual void updateStatus() = 0 ;

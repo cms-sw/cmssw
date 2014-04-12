@@ -3,17 +3,17 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
-//DEFINE STATICS
-const unsigned L1GctJet::RAWSUM_BITWIDTH = 10;
 
 
-L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet, bool tauVeto) :
-  m_rawsum(rawsum),
+L1GctJet::L1GctJet(const uint16_t rawsum, const unsigned eta, const unsigned phi, const bool overFlow,
+                   const bool forwardJet, const bool tauVeto, const int16_t bx) :
+  m_rawsum(rawsum & kRawsumMaxValue),
   m_id(eta, phi),
+  m_overFlow(overFlow || (rawsum>kRawsumMaxValue)),
   m_forwardJet(forwardJet),
-  m_tauVeto(tauVeto)
+  m_tauVeto(tauVeto || forwardJet),
+  m_bx(bx)
 {
-
 }
 
 L1GctJet::~L1GctJet()
@@ -24,6 +24,7 @@ std::ostream& operator << (std::ostream& os, const L1GctJet& cand)
 {
   os << "L1 Gct jet";
   os << " energy sum " << cand.m_rawsum;
+  if (cand.overFlow()) { os << ", overflow bit set;"; }
   os << " Eta " << cand.globalEta();
   os << " Phi " << cand.globalPhi();
   if (cand.isForwardJet()) { os << ", Forward jet"; }
@@ -39,6 +40,7 @@ bool L1GctJet::operator== (const L1GctJet& cand) const
 {
   bool result=true;
   result &= (this->rawsum()==cand.rawsum());
+  result &= (this->overFlow()==cand.overFlow());
   result &= (this->isForwardJet()==cand.isForwardJet());
   result &= (this->tauVeto()==cand.tauVeto());
   result &= (this->globalEta()==cand.globalEta());
@@ -52,6 +54,7 @@ bool L1GctJet::operator!= (const L1GctJet& cand) const
 {
   bool result=false;
   result |= !(this->rawsum()==cand.rawsum());
+  result |= !(this->overFlow()==cand.overFlow());
   result |= !(this->isForwardJet()==cand.isForwardJet());
   result |= !(this->tauVeto()==cand.tauVeto());
   result |= !(this->globalEta()==cand.globalEta());
@@ -60,13 +63,16 @@ bool L1GctJet::operator!= (const L1GctJet& cand) const
   return result;
 }
   
-void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet, bool tauVeto)
+void L1GctJet::setupJet(const uint16_t rawsum, const unsigned eta, const unsigned phi, const bool overFlow,
+                        const bool forwardJet, const bool tauVeto, const int16_t bx)
 {
   L1CaloRegionDetId temp(eta, phi);
-  m_rawsum = rawsum;
+  m_rawsum = rawsum & kRawsumMaxValue;
   m_id = temp;
+  m_overFlow = (overFlow || rawsum>kRawsumMaxValue);
   m_forwardJet = forwardJet;
-  m_tauVeto = tauVeto;
+  m_tauVeto = tauVeto || forwardJet;
+  m_bx = bx;
 }
 
 /// eta value as encoded in hardware at the GCT output
@@ -85,29 +91,45 @@ unsigned L1GctJet::hwPhi() const
 }
 
 /// Function to convert from internal format to external jet candidates at the output of the jetFinder 
-L1GctJetCand L1GctJet::jetCand(const L1GctJetEtCalibrationLut* lut) const
+L1GctJetCand L1GctJet::jetCand(const lutPtr lut) const
 {
-  return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet());
+  return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet(), (uint16_t) 0, (uint16_t) 0, m_bx);
+}
+
+/// Function to convert from internal format to external jet candidates at the output of the jetFinder 
+L1GctJetCand L1GctJet::jetCand(const std::vector<lutPtr>& luts) const
+{
+  L1GctJetCand result;
+  if (rctEta() < luts.size()) result = jetCand(luts.at(rctEta()));
+  return result;
 }
 
 /// The two separate Lut outputs
-uint16_t L1GctJet::rank(const L1GctJetEtCalibrationLut* lut) const
+uint16_t L1GctJet::rank(const lutPtr lut) const
 {
-  return lutValue(lut) >> L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH; 
+  return lutValue(lut); 
 }
 
-unsigned L1GctJet::calibratedEt(const L1GctJetEtCalibrationLut* lut) const
+unsigned L1GctJet::calibratedEt(const lutPtr lut) const
 {
-  return lutValue(lut) & ((1 << L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH) - 1);
+  return m_rawsum;
 }
 
 // internal function to find the lut contents for a jet
-uint16_t L1GctJet::lutValue(const L1GctJetEtCalibrationLut* lut) const
+uint16_t L1GctJet::lutValue(const lutPtr lut) const
 {
-  unsigned addrBits = m_rawsum | (rctEta() << L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH);
-  if (!m_tauVeto) {
-    addrBits |= 1 << (L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH+4);
+  uint16_t result; 
+  if (m_overFlow) { 
+    // Set output values to maximum 
+    result = 0x3f; 
+  } else { 
+    unsigned addrBits = m_rawsum;
+    // Set the MSB for tau jets
+    if (!m_tauVeto && !m_forwardJet) {
+      addrBits |= 1 << (L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH);
+    }
+    uint16_t address = static_cast<uint16_t>(addrBits);
+    result = lut->lutValue(address);
   }
-  uint16_t address = static_cast<uint16_t>(addrBits);
-  return lut->lutValue(address);
+  return result;
 }

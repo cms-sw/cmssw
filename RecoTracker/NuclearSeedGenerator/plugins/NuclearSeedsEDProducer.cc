@@ -1,7 +1,7 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearSeedsEDProducer.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -16,10 +16,13 @@ using namespace reco;
 // constructors and destructor
 //
 NuclearSeedsEDProducer::NuclearSeedsEDProducer(const edm::ParameterSet& iConfig) : conf_(iConfig),
-improveSeeds(iConfig.getParameter<bool>("improveSeeds"))
+improveSeeds(iConfig.getParameter<bool>("improveSeeds")),
+producer_(iConfig.getParameter<std::string>("producer"))
 {
    produces<TrajectorySeedCollection>();
    produces<TrajectoryToSeedsMap>();
+
+
 }
 
 
@@ -38,18 +41,19 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    typedef TrajectoryMeasurement TM;
 
-   edm::Handle<reco::TrackCollection> m_TrackCollection;
-   iEvent.getByLabel( "TrackRefitter", m_TrackCollection );
    edm::Handle< TrajectoryCollection > m_TrajectoryCollection;
-   iEvent.getByLabel( "TrackRefitter", m_TrajectoryCollection );
+   iEvent.getByLabel( producer_, m_TrajectoryCollection );
 
    LogDebug("NuclearSeedGenerator") << "Number of trajectory in event :" << m_TrajectoryCollection->size() << "\n";
 
    std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
    std::auto_ptr<TrajectoryToSeedsMap> outAssoc(new TrajectoryToSeedsMap);
 
-   // Update the measurement
-   theNuclearInteractionFinder->setEvent(iEvent);
+   
+   edm::Handle<MeasurementTrackerEvent> data;
+   iEvent.getByLabel(edm::InputTag("MeasurementTrackerEvent"), data);
+
+   NavigationSetter setter( *(theNuclearInteractionFinder->nav()) );
 
    std::vector<std::pair<int, int> > assocPair;
    int i=0;
@@ -57,10 +61,10 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    for(std::vector<Trajectory>::const_iterator iTraj = m_TrajectoryCollection->begin(); iTraj != m_TrajectoryCollection->end(); iTraj++,i++) {
 
          // run the finder
-         theNuclearInteractionFinder->run( *iTraj );
+         theNuclearInteractionFinder->run( *iTraj, *data );
 
          // improve seeds
-         if( improveSeeds == true ) theNuclearInteractionFinder->improveSeeds();
+         if( improveSeeds == true ) theNuclearInteractionFinder->improveSeeds( *data );
 
          // push back the new persistent seeds in output
          std::auto_ptr<TrajectorySeedCollection> newSeeds(theNuclearInteractionFinder->getPersistentSeeds());
@@ -84,9 +88,10 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-NuclearSeedsEDProducer::beginJob(const edm::EventSetup& es)
+NuclearSeedsEDProducer::beginRun(edm::Run const& run, const edm::EventSetup& es)
 {
    theNuclearInteractionFinder = std::auto_ptr<NuclearInteractionFinder>(new NuclearInteractionFinder(es, conf_));
+
 }
 
 void  NuclearSeedsEDProducer::endJob() {}

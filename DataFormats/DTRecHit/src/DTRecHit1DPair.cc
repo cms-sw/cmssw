@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2006/04/05 16:43:55 $
- *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -71,8 +69,8 @@ vector<const TrackingRecHit*> DTRecHit1DPair::recHits() const {
 // Non-const access to component RecHits.
 vector<TrackingRecHit*> DTRecHit1DPair::recHits() {
   vector<TrackingRecHit*> result;
-  result.push_back(const_cast<DTRecHit1D*>(componentRecHit(Left)));
-  result.push_back(const_cast<DTRecHit1D*>(componentRecHit(Right)));
+  result.push_back(componentRecHit(Left));
+  result.push_back(componentRecHit(Right));
   return result;
 }
 
@@ -135,9 +133,9 @@ void DTRecHit1DPair::setPositionAndError(DTCellSide lrside,
 // Return the left/right DTRecHit1D
 const DTRecHit1D* DTRecHit1DPair::componentRecHit(DTCellSide lrSide) const {
   if(lrSide == Left) {
-    return const_cast<const DTRecHit1D*>(&theLeftHit);
+    return &theLeftHit;
   } else if(lrSide == Right) {
-    return const_cast<const DTRecHit1D*>(&theRightHit);
+    return &theRightHit;
   } else {
     throw cms::Exception("DTRecHit1DPair::recHit with undefined LR");
   }

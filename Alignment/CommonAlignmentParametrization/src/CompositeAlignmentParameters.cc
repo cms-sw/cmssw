@@ -1,18 +1,24 @@
+///  $Date: 2007/10/08 15:56:00 $
+///  $Revision: 1.12 $
+/// (last update by $Author: cklae $)
+
+#include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentDerivativesExtractor.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
 
 //__________________________________________________________________________________________________
 CompositeAlignmentParameters::
 CompositeAlignmentParameters(const AlgebraicVector& par, const AlgebraicSymMatrix& cov,
 			     const Components& comp) :
-  AlignmentParameters(0,par,cov) ,
+  theData(DataContainer(new AlignmentParametersData(par, cov))),
   theComponents(comp) 
 {}
 
@@ -22,7 +28,7 @@ CompositeAlignmentParameters::
 CompositeAlignmentParameters(const AlgebraicVector& par, const AlgebraicSymMatrix& cov,
 			     const Components& comp, const AlignableDetToAlignableMap& alimap,
 			     const Aliposmap& aliposmap, const Alilenmap& alilenmap) :
-  AlignmentParameters(0,par,cov) ,
+  theData(DataContainer(new AlignmentParametersData(par, cov))),
   theComponents(comp) ,
   theAlignableDetToAlignableMap(alimap),
   theAliposmap(aliposmap),
@@ -35,7 +41,7 @@ CompositeAlignmentParameters::
 CompositeAlignmentParameters(const DataContainer& data,
 			     const Components& comp, const AlignableDetToAlignableMap& alimap,
 			     const Aliposmap& aliposmap, const Alilenmap& alilenmap) :
-  AlignmentParameters(0,data) ,
+  theData(data),
   theComponents(comp) ,
   theAlignableDetToAlignableMap(alimap),
   theAliposmap(aliposmap),
@@ -56,21 +62,8 @@ CompositeAlignmentParameters::clone( const AlgebraicVector& par,
   CompositeAlignmentParameters* cap = 
     new CompositeAlignmentParameters(par,cov,components());
 
-  if ( userVariables() )
-    cap->setUserVariables(userVariables()->clone());
-
   return cap;
 }
-
-
-//__________________________________________________________________________________________________
-CompositeAlignmentParameters* 
-CompositeAlignmentParameters::cloneFromSelected( const AlgebraicVector& par, 
-						 const AlgebraicSymMatrix& cov) const
-{
-  return clone(par,cov);
-}
-
 
 //__________________________________________________________________________________________________
 CompositeAlignmentParameters* 
@@ -83,24 +76,8 @@ CompositeAlignmentParameters::clone( const AlgebraicVector& par,
   CompositeAlignmentParameters* cap = 
     new CompositeAlignmentParameters(par,cov,components(),alimap,aliposmap,alilenmap);
 
-  if ( userVariables() )
-    cap->setUserVariables(userVariables()->clone());
-
   return cap;
 }
-
-
-//__________________________________________________________________________________________________
-CompositeAlignmentParameters* 
-CompositeAlignmentParameters::cloneFromSelected( const AlgebraicVector& par, 
-						 const AlgebraicSymMatrix& cov, 
-						 const AlignableDetToAlignableMap& alimap, 
-						 const Aliposmap& aliposmap,
-						 const Alilenmap& alilenmap) const
-{
-  return clone(par,cov,alimap,aliposmap,alilenmap);
-}
-
 
 //__________________________________________________________________________________________________
 CompositeAlignmentParameters::Components 
@@ -281,7 +258,7 @@ CompositeAlignmentParameters::selectedDerivativesLegacy( const TrajectoryStateOn
 //__________________________________________________________________________________________________
 // finds Alignable corresponding to AlignableDet
 Alignable* 
-CompositeAlignmentParameters::alignableFromAlignableDet(AlignableDetOrUnitPtr adet) const
+CompositeAlignmentParameters::alignableFromAlignableDet(const AlignableDetOrUnitPtr& adet) const
 {
 
   AlignableDetToAlignableMap::const_iterator iali =

@@ -8,17 +8,16 @@
 
 #include "Alignment/CocoaModel/interface/MeasurementSensor2D.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/ALIVisLightPath.h"
 #endif
-#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ calculate the simulated value propagating the light ray through the OptO that take part in the Measurement
@@ -28,7 +27,7 @@ void MeasurementSensor2D::calculateSimulatedValue( ALIbool firstTime )
  
   if( ALIUtils::debug >= 2) printStartCalculateSimulatedValue( this ); // important
   //---------- Create light ray
-  LightRay lightray;
+  LightRay* lightray = new LightRay;
 
   int isec = 0;  //security variable to check OptOList().size()
 
@@ -61,18 +60,18 @@ void MeasurementSensor2D::calculateSimulatedValue( ALIbool firstTime )
     ALIstring behav = getMeasuringBehaviour(vocite);
 
     //---------- Check that last object is a Sensor (that makes measuremnt and kill the lightray)
-    if( &lightray ) {
-      (*vocite)->participateInMeasurement( lightray, *this, behav );
+    if( lightray ) {
+      (*vocite)->participateInMeasurement( *lightray, *this, behav );
 
 #ifdef COCOA_VIS
       if( ALIUtils::getFirstTime() ) {
 	GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
 	if(gomgr->GlobalOptions()["VisWriteVRML"] > 1) {
-	  ALIVRMLMgr::getInstance().addLightPoint( lightray.point() );
-	  if(ALIUtils::debug >= 5)std::cout << "ALIVRMLMg  addLightPoint " << lightray.point() << (*vocite)->name() << std::endl;
+	  ALIVRMLMgr::getInstance().addLightPoint( lightray->point() );
+	  if(ALIUtils::debug >= 5)std::cout << "ALIVRMLMg  addLightPoint " << lightray->point() << (*vocite)->name() << std::endl;
 	}
 	if(gomgr->GlobalOptions()["VisWriteIguana"] > 1) {
-	  vispath->addLightPoint( lightray.point(), (*vocite) );
+	  vispath->addLightPoint( lightray->point(), (*vocite) );
 	}
       }
 #endif
@@ -84,14 +83,14 @@ void MeasurementSensor2D::calculateSimulatedValue( ALIbool firstTime )
     }
 
     vocite++;
-    if ( isec > OptOList().size() ) {
+    if ( isec > ALIint(OptOList().size()) ) {
       std::cerr << "ERROR DE PROGRAMACION EN GetSimulatedValue" << std::endl;
       exit(5);
     }
     //-    lightray.normalizeDirection();
   }
 
-  //  delete lightray;
+  delete lightray;
  
   if(ALIUtils::debug >= 9) std::cout << "end calculateSimulatedValue" <<std::endl;
   

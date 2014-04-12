@@ -1,6 +1,7 @@
 #include "Alignment/CocoaModel/interface/OpticalObjectMgr.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaModel/interface/Model.h"
+#include <cstdlib>
 
 OpticalObjectMgr* OpticalObjectMgr::theInstance = 0;
   
@@ -9,7 +10,7 @@ OpticalObjectMgr* OpticalObjectMgr::getInstance()
 {
   if( !theInstance ) {
     theInstance = new OpticalObjectMgr;
-    theInstance->theLastCmsSwID = 0;
+    theInstance->theLastCmsSwID = 1;
     //    theInstance->verbose = ALIUtils::verbosity();
   }
   return theInstance;
@@ -81,7 +82,7 @@ void OpticalObjectMgr::dumpOptOs( std::ostream& out ) const
 
 
 //-----------------------------------------------------------------------
-uint32_t OpticalObjectMgr::buildCmsSwID()
+ALIuint OpticalObjectMgr::buildCmsSwID()
 {
   return theLastCmsSwID++;
 }

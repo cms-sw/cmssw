@@ -1,5 +1,5 @@
-#ifndef Framework_ESProducts_h
-#define Framework_ESProducts_h
+#ifndef FWCore_Framework_ESProducts_h
+#define FWCore_Framework_ESProducts_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -18,10 +18,10 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 17:30:46 EDT 2005
-// $Id: ESProducts.h,v 1.9 2006/08/16 13:53:10 chrjones Exp $
 //
 
 // system include files
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/produce_helpers.h"
@@ -171,13 +171,14 @@ namespace edm {
    }
    template<typename T1, typename T2 = eventsetup::produce::Null, typename T3 = eventsetup::produce::Null >
    struct ESProducts : public eventsetup::produce::ProductHolder<T1, T2, T3> {
+      typedef eventsetup::produce::ProductHolder<T1, T2, T3> parent_type;
       template<typename S1, typename S2, typename S3>
       ESProducts(const ESProducts<S1, S2, S3>& iProducts) {
-         setAllValues(const_cast<ESProducts<S1, S2, S3>&>(iProducts));
+        parent_type::setAllValues(const_cast<ESProducts<S1, S2, S3>&>(iProducts));
       }
       template<typename T>
       /*explicit*/ ESProducts(const T& iValues) {
-         setAllValues(const_cast<T&>(iValues));
+        parent_type::setAllValues(const_cast<T&>(iValues));
       }
    };
 

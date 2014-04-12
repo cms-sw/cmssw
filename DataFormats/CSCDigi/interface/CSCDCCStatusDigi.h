@@ -5,40 +5,42 @@
  *
  *  Digi for CSC DCC info available in DDU
  *  
- *  $Date: 2007/05/23 18:02:50 $
- *  $Revision: 1.3 $
  *
  */
 
 #include <vector>
+#include <iosfwd>
+#include <stdint.h>
 
 class CSCDCCStatusDigi{
 
 public:
 
   /// Constructor for all variables 
-  CSCDCCStatusDigi (const uint16_t * header, const uint16_t * trailer );
-
+  CSCDCCStatusDigi (const uint16_t * header, const uint16_t * trailer, 
+		    const uint32_t & error, short unsigned tts);
+  CSCDCCStatusDigi (const uint32_t & error, short unsigned tts) {errorFlag_=error;} //tts_ = tts;}
+  
   /// Default constructor.
   CSCDCCStatusDigi () {}
 
   ///data accessors
   const uint16_t * header() const {return header_;} 
   const uint16_t * trailer() const {return trailer_;}
+  const uint32_t errorFlag() const {return errorFlag_;}
+  const uint16_t getDCCTTS() const;
+
+  /// Print the content of CSCDCCStatusDigi
+ void print() const;
 
 private:
 
   uint16_t header_[8];
   uint16_t trailer_[8];
+  uint32_t errorFlag_;
+  short unsigned tts_; /// Variable to access TTS
 };
 
-#include<iostream>
-/// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const CSCDCCStatusDigi& digi) {
-  o << " "; 
-  o <<"\n";
- 
-  return o;
-}
+std::ostream & operator<<(std::ostream & o, const CSCDCCStatusDigi& digi);
 
 #endif

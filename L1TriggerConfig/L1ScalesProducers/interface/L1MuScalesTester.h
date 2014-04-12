@@ -23,7 +23,7 @@ class L1MuScalesTester : public edm::EDAnalyzer {
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-      void printScale(L1MuScale*);
+      void printScale(const L1MuScale*);
 
    private:
       // ----------member data ---------------------------

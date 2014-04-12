@@ -4,7 +4,6 @@
 // 
 // \short association of Isolation to a RecoEcalCandidate
 // 
-// $Id: RecoEcalCandidateIsolation.h,v 1.1 2006/10/20 13:08:08 rahatlou Exp $
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h" 

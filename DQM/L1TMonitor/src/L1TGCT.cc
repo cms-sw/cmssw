@@ -1,80 +1,58 @@
-/*
- * \file L1TGCT.cc
- *
- * $Date: 2007/02/20 22:49:00 $
- * $Revision: 1.5 $
- * \author J. Berryhill
- *
- *  Initial version largely stolen from GCTMonitor (wittich 2/07)
- *
- * $Log: L1TGCT.cc,v $
- * Revision 1.5  2007/02/20 22:49:00  wittich
- * - change from getByType to getByLabel in ECAL TPG,
- *   and make it configurable.
- * - fix problem in the GCT with incorrect labels. Not the ultimate
- *   solution - will probably have to go to many labels.
- *
- * Revision 1.4  2007/02/19 22:49:54  wittich
- * - Add RCT monitor
- *
- * Revision 1.3  2007/02/19 22:07:26  wittich
- * - Added three monitorables to the ECAL TPG monitoring (from GCTMonitor)
- * - other minor tweaks in GCT, etc
- *
- * Revision 1.2  2007/02/19 21:11:23  wittich
- * - Updates for integrating GCT monitor.
- *   + Adapted right now only the L1E elements thereof.
- *   + added DataFormats/L1Trigger to build file.
- *
- *
- *
- */
-
 #include "DQM/L1TMonitor/interface/L1TGCT.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 // Trigger Headers
 
 // GCT and RCT data formats
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
-
-// L1Extra
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
-using namespace l1extra;
-
 
 // Define statics for bins etc.
-const unsigned int ETABINS = 22;
-const float ETAMIN = -0.5;
-const float ETAMAX = 21.5;
+const unsigned int JETETABINS = 22;
+const float JETETAMIN = -0.5;
+const float JETETAMAX = 21.5;
+
+const unsigned int EMETABINS = 22;
+const float EMETAMIN = -0.5;
+const float EMETAMAX = 21.5;
 
 const unsigned int METPHIBINS = 72;
 const float METPHIMIN = -0.5;
 const float METPHIMAX = 71.5;
 
+const unsigned int MHTPHIBINS = 18;
+const float MHTPHIMIN = -0.5;
+const float MHTPHIMAX = 17.5;
+
 const unsigned int PHIBINS = 18;
 const float PHIMIN = -0.5;
 const float PHIMAX = 17.5;
 
+const unsigned int OFBINS = 2;
+const float OFMIN = -0.5;
+const float OFMAX = 1.5;
 
-const unsigned int L1EETABINS = 22;
-const float L1EETAMIN = -5;
-const float L1EETAMAX = 5;
+const unsigned int BXBINS = 5;
+const float BXMIN = -2.5;
+const float BXMAX = 2.5;
 
-const unsigned int L1EPHIBINS = 18;
-const float L1EPHIMIN = -M_PI;
-const float L1EPHIMAX = M_PI;
-
-// Ranks 6, 10 and 12 bits
+// Bins for 3, 5, 6, 7, 10 and 12 bits
+const unsigned int R3BINS = 8;
+const float R3MIN = -0.5;
+const float R3MAX = 7.5;
+const unsigned int R5BINS = 32;
+const float R5MIN = -0.5;
+const float R5MAX = 31.5;
 const unsigned int R6BINS = 64;
 const float R6MIN = -0.5;
 const float R6MAX = 63.5;
+const unsigned int R7BINS = 128;
+const float R7MIN = -0.5;
+const float R7MAX = 127.5;
 const unsigned int R10BINS = 1024;
 const float R10MIN = -0.5;
 const float R10MAX = 1023.5;
@@ -82,164 +60,191 @@ const unsigned int R12BINS = 4096;
 const float R12MIN = -0.5;
 const float R12MAX = 4095.5;
 
-// Physical bins 1 Gev - 1 TeV in 1 GeV steps
-const unsigned int TEVBINS = 1001;
-const float TEVMIN = -0.5;
-const float TEVMAX = 1000.5;
-
-
 L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
-  gctSource_(ps.getParameter<edm::InputTag>("gctSource"))
+  gctCenJetsSource_(ps.getParameter<edm::InputTag>("gctCentralJetsSource")),
+  gctForJetsSource_(ps.getParameter<edm::InputTag>("gctForwardJetsSource")),
+  gctTauJetsSource_(ps.getParameter<edm::InputTag>("gctTauJetsSource")),
+  gctEnergySumsSource_(ps.getParameter<edm::InputTag>("gctEnergySumsSource")),
+  gctIsoEmSource_(ps.getParameter<edm::InputTag>("gctIsoEmSource")),
+  gctNonIsoEmSource_(ps.getParameter<edm::InputTag>("gctNonIsoEmSource")),
+  filterTriggerType_ (ps.getParameter< int >("filterTriggerType"))
 {
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter < bool > ("verbose", false);
 
   if (verbose_)
-    std::cout << "L1TGCT: constructor...." << std::endl;
+    edm::LogInfo("L1TGCT") << "L1TGCT: constructor...." << std::endl;
 
-  logFile_.open("L1TGCT.log");
 
   dbe = NULL;
-  if (ps.getUntrackedParameter < bool > ("DaqMonitorBEInterface", false)) {
-    dbe = edm::Service < DaqMonitorBEInterface > ().operator->();
+  if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
+    dbe = edm::Service < DQMStore > ().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if (ps.getUntrackedParameter < bool > ("MonitorDaemon", false)) {
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "");
   if (outputFile_.size() != 0) {
-    std::cout << "L1T Monitoring histograms will be saved to "
-	      << outputFile_ << std::endl;
-  }
-  else {
-    outputFile_ = "L1TDQM.root";
+    edm::LogInfo("L1TGCT") << "L1T Monitoring histograms will be saved to "
+                           << outputFile_ << std::endl;
   }
 
-  bool disable =
-      ps.getUntrackedParameter < bool > ("disableROOToutput", false);
-  if (disable) {
-    outputFile_ = "";
+  bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
+  if(disable){
+    outputFile_="";
   }
 
 
   if (dbe != NULL) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGCT");
+    dbe->setCurrentFolder("L1T/L1TGCT");
   }
 
-
+  //set Token(-s)
+  gctIsoEmSourceToken_ = consumes<L1GctEmCandCollection>(ps.getParameter<edm::InputTag>("gctIsoEmSource"));
+  gctNonIsoEmSourceToken_ = consumes<L1GctEmCandCollection>(ps.getParameter<edm::InputTag>("gctNonIsoEmSource"));
+  gctCenJetsSourceToken_ = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctCentralJetsSource"));
+  gctForJetsSourceToken_ = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctForwardJetsSource"));
+  gctTauJetsSourceToken_ = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctTauJetsSource"));
+  gctEnergySumsSourceToken_ = consumes<L1GctHFRingEtSumsCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1HFCountsToken_ = consumes<L1GctHFBitCountsCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1EtMissToken_ = consumes<L1GctEtMissCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1HtMissToken_ = consumes<L1GctHtMissCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1EtHadToken_ = consumes<L1GctEtHadCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1EtTotalToken_ = consumes<L1GctEtTotalCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
 }
 
 L1TGCT::~L1TGCT()
 {
 }
 
-void L1TGCT::beginJob(const edm::EventSetup & c)
+void L1TGCT::beginJob(void)
 {
 
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface *dbe = 0;
-  dbe = edm::Service < DaqMonitorBEInterface > ().operator->();
+  DQMStore *dbe = 0;
+  dbe = edm::Service < DQMStore > ().operator->();
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGCT");
-    dbe->rmdir("L1TMonitor/L1TGCT");
+    dbe->setCurrentFolder("L1T/L1TGCT");
+    dbe->rmdir("L1T/L1TGCT");
   }
 
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGCT");
 
-    // Book L1Extra histograms
-    //dbe->setCurrentFolder("L1Extra"); // Add subfolder
+    dbe->setCurrentFolder("L1T/L1TGCT");
 
-    l1ExtraCenJetsEtEtaPhi_ =
-	dbe->book2D("L1ExtraCenJetsEtEtaPhi", "CENTRAL JET E_{T}",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraForJetsEtEtaPhi_ =
-	dbe->book2D("L1ExtraForJetsEtEtaPhi", "FORWARD JET E_{T}",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraTauJetsEtEtaPhi_ =
-	dbe->book2D("L1ExtraTauJetsEtEtaPhi", "TAU JET E_{T}", L1EPHIBINS,
-		    L1EPHIMIN, L1EPHIMAX, L1EETABINS, L1EETAMIN,
-		    L1EETAMAX);
-    l1ExtraIsoEmEtEtaPhi_ =
-	dbe->book2D("L1ExtraIsoEmEtEtaPhi", "ISO EM E_{T}", L1EPHIBINS,
-		    L1EPHIMIN, L1EPHIMAX, L1EETABINS, L1EETAMIN,
-		    L1EETAMAX);
-    l1ExtraNonIsoEmEtEtaPhi_ =
-	dbe->book2D("L1ExtraNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
+    triggerType_ =
+      dbe->book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 
-    l1ExtraCenJetsOccEtaPhi_ =
-	dbe->book2D("L1ExtraCenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraForJetsOccEtaPhi_ =
-	dbe->book2D("L1ExtraForJetsOccEtaPhi", "FORWARD JET OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraTauJetsOccEtaPhi_ =
-	dbe->book2D("L1ExtraTauJetsOccEtaPhi", "TAU JET OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraIsoEmOccEtaPhi_ =
-	dbe->book2D("L1ExtraIsoEmOccEtaPhi", "ISO EM OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraNonIsoEmOccEtaPhi_ =
-	dbe->book2D("L1ExtraNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
+    l1GctAllJetsEtEtaPhi_ = dbe->book2D("AllJetsEtEtaPhi", "CENTRAL AND FORWARD JET E_{T}",
+					JETETABINS, JETETAMIN, JETETAMAX,
+                                        PHIBINS, PHIMIN, PHIMAX);
+    l1GctCenJetsEtEtaPhi_ = dbe->book2D("CenJetsEtEtaPhi", "CENTRAL JET E_{T}",
+					JETETABINS, JETETAMIN, JETETAMAX,
+                                        PHIBINS, PHIMIN, PHIMAX); 
+    l1GctForJetsEtEtaPhi_ = dbe->book2D("ForJetsEtEtaPhi", "FORWARD JET E_{T}",
+					JETETABINS, JETETAMIN, JETETAMAX,
+					PHIBINS, PHIMIN, PHIMAX); 
+    l1GctTauJetsEtEtaPhi_ = dbe->book2D("TauJetsEtEtaPhi", "TAU JET E_{T}", 
+					EMETABINS, EMETAMIN, EMETAMAX,
+					PHIBINS, PHIMIN, PHIMAX); 
+    l1GctIsoEmRankEtaPhi_ = dbe->book2D("IsoEmRankEtaPhi", "ISO EM E_{T}", 
+					EMETABINS, EMETAMIN, EMETAMAX,
+                                        PHIBINS, PHIMIN, PHIMAX); 		    
+    l1GctNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhi", "NON-ISO EM E_{T}",
+                                           EMETABINS, EMETAMIN, EMETAMAX,
+                                           PHIBINS, PHIMIN, PHIMAX); 
+    l1GctAllJetsOccEtaPhi_ = dbe->book2D("AllJetsOccEtaPhi", "CENTRAL AND FORWARD JET OCCUPANCY",
+					JETETABINS, JETETAMIN, JETETAMAX,
+                                        PHIBINS, PHIMIN, PHIMAX);
+    l1GctCenJetsOccEtaPhi_ = dbe->book2D("CenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY",
+					 JETETABINS, JETETAMIN, JETETAMAX,
+                                         PHIBINS, PHIMIN, PHIMAX); 
+    l1GctForJetsOccEtaPhi_ = dbe->book2D("ForJetsOccEtaPhi", "FORWARD JET OCCUPANCY",
+					 JETETABINS, JETETAMIN, JETETAMAX,
+					 PHIBINS, PHIMIN, PHIMAX);
+    l1GctTauJetsOccEtaPhi_ = dbe->book2D("TauJetsOccEtaPhi", "TAU JET OCCUPANCY",
+                                         EMETABINS, EMETAMIN, EMETAMAX,
+					 PHIBINS, PHIMIN, PHIMAX); 
+    l1GctIsoEmOccEtaPhi_ = dbe->book2D("IsoEmOccEtaPhi", "ISO EM OCCUPANCY",
+                                       EMETABINS, EMETAMIN, EMETAMAX,
+				       PHIBINS, PHIMIN, PHIMAX); 
+    l1GctNonIsoEmOccEtaPhi_ = dbe->book2D("NonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
+                                          EMETABINS, EMETAMIN, EMETAMAX,
+					  PHIBINS, PHIMIN, PHIMAX); 
+  
+    l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 E_{T} CORRELATION +/-  #eta",
+                                            R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX); 
+    l1GctHFRing2PosEtaNegEta_ = dbe->book2D("HFRing2Corr", "HF RING2 E_{T} CORRELATION +/-  #eta",
+                                            R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION +/-  #eta",
+                                                      R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountPosEtaNegEta_ = dbe->book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION +/-  #eta",
+                                                      R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
 
-    l1ExtraCenJetsRank_ =
-	dbe->book1D("L1ExtraCenJetsRank", "CENTRAL JET RANK", TEVBINS,
-		    TEVMIN, TEVMAX);
-    l1ExtraForJetsRank_ =
-	dbe->book1D("L1ExtraForJetsRank", "FORWARD JET RANK", TEVBINS,
-		    TEVMIN, TEVMAX);
-    l1ExtraTauJetsRank_ =
-	dbe->book1D("L1ExtraTauJetsRank", "TAU JET RANK", TEVBINS, TEVMIN,
-		    TEVMAX);
-    l1ExtraIsoEmRank_ =
-	dbe->book1D("L1ExtraIsoEmRank", "ISO EM RANK", TEVBINS, TEVMIN,
-		    TEVMAX);
-    l1ExtraNonIsoEmRank_ =
-	dbe->book1D("L1ExtraNonIsoEmRank", "NON-ISO EM RANK", TEVBINS,
-		    TEVMIN, TEVMAX);
+    //HF Ring stuff
+    l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "HF RING1 TOWER COUNT  #eta  +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1TowerCountNegEta_ = dbe->book1D("HFRing1TowerCountNegEta", "HF RING1 TOWER COUNT  #eta  -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountPosEta_ = dbe->book1D("HFRing2TowerCountPosEta", "HF RING2 TOWER COUNT  #eta  +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountNegEta_ = dbe->book1D("HFRing2TowerCountNegEta", "HF RING2 TOWER COUNT  #eta  -", R3BINS, R3MIN, R3MAX);
 
-    l1ExtraEtMiss_ =
-	dbe->book1D("L1ExtraEtMiss", "MISSING E_{T}", TEVBINS, TEVMIN,
-		    TEVMAX);
-    l1ExtraEtMissPhi_ =
-	dbe->book1D("L1ExtraEtMissPhi", "MISSING E_{T} #phi", METPHIBINS,
-		    L1EPHIMIN, L1EPHIMAX);
-    l1ExtraEtTotal_ =
-	dbe->book1D("L1ExtraEtTotal", "TOTAL E_{T}", TEVBINS, TEVMIN,
-		    TEVMAX);
-    l1ExtraEtHad_ =
-	dbe->book1D("L1ExtraEtHad", "TOTAL HAD E_{T}", TEVBINS, TEVMIN,
-		    TEVMAX);
+    l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "HF RING1 E_{T}  #eta  +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "HF RING1 E_{T}  #eta  -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumPosEta_ = dbe->book1D("HFRing2ETSumPosEta", "HF RING2 E_{T}  #eta  +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "HF RING2 E_{T}  #eta  -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "HF RING E_{T} RATIO  #eta  +", R5BINS, R5MIN, R5MAX);
+    l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "HF RING E_{T} RATIO  #eta  -", R5BINS, R5MIN, R5MAX);
+
+    l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HF RING TOWER COUNT PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
+    l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HF RING E_{T} PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
+    
+    // Rank histograms
+    l1GctCenJetsRank_  = dbe->book1D("CenJetsRank", "CENTRAL JET E_{T}", R6BINS, R6MIN, R6MAX);
+    l1GctForJetsRank_  = dbe->book1D("ForJetsRank", "FORWARD JET E_{T}", R6BINS, R6MIN, R6MAX);
+    l1GctTauJetsRank_  = dbe->book1D("TauJetsRank", "TAU JET E_{T}", R6BINS, R6MIN, R6MAX);
+    l1GctIsoEmRank_    = dbe->book1D("IsoEmRank", "ISO EM E_{T}", R6BINS, R6MIN, R6MAX);
+    l1GctNonIsoEmRank_ = dbe->book1D("NonIsoEmRank", "NON-ISO EM E_{T}", R6BINS, R6MIN, R6MAX);
+
+    l1GctAllJetsOccRankBx_ = dbe->book2D("AllJetsOccRankBx","ALL JETS E_{T} PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
+    l1GctAllEmOccRankBx_   = dbe->book2D("AllEmOccRankBx","ALL EM E_{T} PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
+
+    // Energy sums
+    l1GctEtMiss_    = dbe->book1D("EtMiss", "MET", R12BINS, R12MIN, R12MAX);
+    l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MET  #phi", METPHIBINS, METPHIMIN, METPHIMAX);
+    l1GctEtMissOf_  = dbe->book1D("EtMissOf", "MET OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctEtMissOccBx_ = dbe->book2D("EtMissOccBx","MET PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+    l1GctHtMiss_    = dbe->book1D("HtMiss", "MHT", R7BINS, R7MIN, R7MAX);
+    l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MHT  #phi", MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
+    l1GctHtMissOf_  = dbe->book1D("HtMissOf", "MHT OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctHtMissOccBx_ = dbe->book2D("HtMissOccBx","MHT PER BX",BXBINS,BXMIN,BXMAX,R7BINS,R7MIN,R7MAX);
+    l1GctEtMissHtMissCorr_ = dbe->book2D("EtMissHtMissCorr", "MET MHT CORRELATION",
+                                         R6BINS, R12MIN, R12MAX,
+                                         R6BINS, R7MIN, R7MAX); 
+    l1GctEtMissHtMissCorrPhi_ = dbe->book2D("EtMissHtMissPhiCorr", "MET MHT  #phi  CORRELATION",
+                                            METPHIBINS, METPHIMIN, METPHIMAX,
+                                            MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
+    l1GctEtTotal_   = dbe->book1D("EtTotal", "SUM E_{T}", R12BINS, R12MIN, R12MAX);
+    l1GctEtTotalOf_ = dbe->book1D("EtTotalOf", "SUM E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctEtTotalOccBx_ = dbe->book2D("EtTotalOccBx","SUM E_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+    l1GctEtHad_     = dbe->book1D("EtHad", "H_{T}", R12BINS, R12MIN, R12MAX);
+    l1GctEtHadOf_   = dbe->book1D("EtHadOf", "H_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctEtHadOccBx_ = dbe->book2D("EtHadOccBx","H_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+    l1GctEtTotalEtHadCorr_ = dbe->book2D("EtTotalEtHadCorr", "Sum E_{T} H_{T} CORRELATION",
+                                         R6BINS, R12MIN, R12MAX,
+                                         R6BINS, R12MIN, R12MAX); 
   }
+
 }
 
 
 void L1TGCT::endJob(void)
 {
   if (verbose_)
-    std::cout << "L1TGCT: end job...." << std::endl;
-  edm::LogInfo("L1TGCT") << "analyzed " << nev_ << " events";
+    edm::LogInfo("L1TGCT") << "L1TGCT: end job...." << std::endl;
+  edm::LogInfo("EndJob") << "analyzed " << nev_ << " events";
 
   if (outputFile_.size() != 0 && dbe) {
     dbe->save(outputFile_);
@@ -252,85 +257,311 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 {
   nev_++;
   if (verbose_) {
-    std::cout << "L1TGCT: analyze...." << std::endl;
+    edm::LogInfo("L1TGCT") << "L1TGCT: analyze...." << std::endl;
   }
 
-  // L1 Extra information - these are in physics quantities
-  // get the L1Extra collections
-  edm::Handle < L1EmParticleCollection > l1eIsoEm;
-  edm::Handle < L1EmParticleCollection > l1eNonIsoEm;
-  edm::Handle < L1JetParticleCollection > l1eCenJets;
-  edm::Handle < L1JetParticleCollection > l1eForJets;
-  edm::Handle < L1JetParticleCollection > l1eTauJets;
-  edm::Handle < L1EtMissParticle > l1eEtMiss;
+  
+  // filter according trigger type
+  //  enum ExperimentType {
+  //        Undefined          =  0,
+  //        PhysicsTrigger     =  1,
+  //        CalibrationTrigger =  2,
+  //        RandomTrigger      =  3,
+  //        Reserved           =  4,
+  //        TracedEvent        =  5,
+  //        TestTrigger        =  6,
+  //        ErrorTrigger       = 15
 
-  // should get rid of this try/catch?
-  try {
-    e.getByLabel(gctSource_.label(), "Isolated", l1eIsoEm);
-    e.getByLabel(gctSource_.label(), "NonIsolated", l1eNonIsoEm);
-    e.getByLabel(gctSource_.label(), "Central", l1eCenJets);
-    e.getByLabel(gctSource_.label(), "Forward", l1eForJets);
-    e.getByLabel(gctSource_.label(), "Tau", l1eTauJets);
+  // fill a histogram with the trigger type, for normalization fill also last bin
+  // ErrorTrigger + 1
+  double triggerType = static_cast<double> (e.experimentType()) + 0.001;
+  double triggerTypeLast = static_cast<double> (edm::EventAuxiliary::ExperimentType::ErrorTrigger)
+                          + 0.001;
+  triggerType_->Fill(triggerType);
+  triggerType_->Fill(triggerTypeLast + 1);
 
-    e.getByLabel(gctSource_, l1eEtMiss);
+  // filter only if trigger type is greater than 0, negative values disable filtering
+  if (filterTriggerType_ >= 0) {
+
+      // now filter, for real data only
+      if (e.isRealData()) {
+          if (!(e.experimentType() == filterTriggerType_)) {
+
+              edm::LogInfo("L1TGCT") << "\n Event of TriggerType "
+                      << e.experimentType() << " rejected" << std::endl;
+              return;
+
+          }
+      }
+
   }
-  catch (...) {
-    std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;
-    return;
-  }
 
+  // Get all the collections
+  edm::Handle < L1GctEmCandCollection > l1IsoEm;
+  edm::Handle < L1GctEmCandCollection > l1NonIsoEm;
+  edm::Handle < L1GctJetCandCollection > l1CenJets;
+  edm::Handle < L1GctJetCandCollection > l1ForJets;
+  edm::Handle < L1GctJetCandCollection > l1TauJets;
+  edm::Handle < L1GctHFRingEtSumsCollection > l1HFSums; 
+  edm::Handle < L1GctHFBitCountsCollection > l1HFCounts;
+  edm::Handle < L1GctEtMissCollection >  l1EtMiss;
+  edm::Handle < L1GctHtMissCollection >  l1HtMiss;
+  edm::Handle < L1GctEtHadCollection >   l1EtHad;
+  edm::Handle < L1GctEtTotalCollection > l1EtTotal;
 
-  // Fill the L1Extra histograms
+  e.getByToken(gctIsoEmSourceToken_, l1IsoEm);
+  e.getByToken(gctNonIsoEmSourceToken_, l1NonIsoEm);
+  e.getByToken(gctCenJetsSourceToken_, l1CenJets);
+  e.getByToken(gctForJetsSourceToken_, l1ForJets);
+  e.getByToken(gctTauJetsSourceToken_, l1TauJets);
+  e.getByToken(gctEnergySumsSourceToken_, l1HFSums);
+  e.getByToken(l1HFCountsToken_, l1HFCounts);
+  e.getByToken(l1EtMissToken_, l1EtMiss);
+  e.getByToken(l1HtMissToken_, l1HtMiss);
+  e.getByToken(l1EtHadToken_, l1EtHad);
+  e.getByToken(l1EtTotalToken_, l1EtTotal);
+
+  // Fill histograms
 
   // Central jets
-  for (L1JetParticleCollection::const_iterator cj = l1eCenJets->begin();
-       cj != l1eCenJets->end(); cj++) {
-    l1ExtraCenJetsEtEtaPhi_->Fill(cj->phi(), cj->eta(), cj->et());
-    l1ExtraCenJetsOccEtaPhi_->Fill(cj->phi(), cj->eta());
-    l1ExtraCenJetsRank_->Fill(cj->et());
+  if (l1CenJets.isValid()) {
+    for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();cj != l1CenJets->end(); cj++) {
+      // only plot central BX
+      if (cj->bx()==0) {
+        l1GctCenJetsRank_->Fill(cj->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (cj->rank()) {
+          l1GctAllJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
+          l1GctAllJetsOccEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi());
+          l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
+          l1GctCenJetsOccEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi());
+        }
+      }
+      if (cj->rank()) l1GctAllJetsOccRankBx_->Fill(cj->bx(),cj->rank()); // for all BX
+    }
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1CenJets label was " << gctCenJetsSource_ ;
   }
 
   // Forward jets
-  for (L1JetParticleCollection::const_iterator fj = l1eForJets->begin();
-       fj != l1eForJets->end(); fj++) {
-    l1ExtraForJetsEtEtaPhi_->Fill(fj->phi(), fj->eta(), fj->et());
-    l1ExtraForJetsOccEtaPhi_->Fill(fj->phi(), fj->eta());
-    l1ExtraForJetsRank_->Fill(fj->et());
+  if (l1ForJets.isValid()) {
+    for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin(); fj != l1ForJets->end(); fj++) {
+      // only plot central BX
+      if (fj->bx()==0) {
+        l1GctForJetsRank_->Fill(fj->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (fj->rank()) {
+          l1GctAllJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
+          l1GctAllJetsOccEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi());
+          l1GctForJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
+          l1GctForJetsOccEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi());    
+        }
+      }
+      if (fj->rank()) l1GctAllJetsOccRankBx_->Fill(fj->bx(),fj->rank()); // for all BX
+    }
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1ForJets label was " << gctForJetsSource_ ;
   }
 
   // Tau jets
-  for (L1JetParticleCollection::const_iterator tj = l1eTauJets->begin();
-       tj != l1eTauJets->end(); tj++) {
-    l1ExtraTauJetsEtEtaPhi_->Fill(tj->phi(), tj->eta(), tj->et());
-    l1ExtraTauJetsOccEtaPhi_->Fill(tj->phi(), tj->eta());
-    l1ExtraTauJetsRank_->Fill(tj->et());
+  if (l1TauJets.isValid()) {
+    for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin(); tj != l1TauJets->end(); tj++) {
+      // only plot central BX
+      if (tj->bx()==0) {
+        l1GctTauJetsRank_->Fill(tj->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (tj->rank()) {
+          l1GctTauJetsEtEtaPhi_->Fill(tj->regionId().ieta(),tj->regionId().iphi(),tj->rank());
+          l1GctTauJetsOccEtaPhi_->Fill(tj->regionId().ieta(),tj->regionId().iphi());
+        }
+      }
+      if (tj->rank()) l1GctAllJetsOccRankBx_->Fill(tj->bx(),tj->rank()); // for all BX
+    }
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1TauJets label was " << gctTauJetsSource_ ;
   }
 
-  // Isolated EM
-  for (L1EmParticleCollection::const_iterator ie = l1eIsoEm->begin();
-       ie != l1eIsoEm->end(); ie++) {
-    l1ExtraIsoEmEtEtaPhi_->Fill(ie->phi(), ie->eta(), ie->et());
-    l1ExtraIsoEmOccEtaPhi_->Fill(ie->phi(), ie->eta());
-    l1ExtraIsoEmRank_->Fill(ie->et());
+  // Missing ET
+  if (l1EtMiss.isValid()) { 
+    for (L1GctEtMissCollection::const_iterator met = l1EtMiss->begin(); met != l1EtMiss->end(); met++) {
+      // only plot central BX
+      if (met->bx()==0) {
+        if (met->overFlow() == 0 && met->et() > 0) {
+          //Avoid problems with met=0 candidates affecting MET_PHI plots
+          l1GctEtMiss_->Fill(met->et());
+          l1GctEtMissPhi_->Fill(met->phi());
+        }
+        l1GctEtMissOf_->Fill(met->overFlow());
+      }
+      if (met->overFlow() == 0 && met->et() > 0) l1GctEtMissOccBx_->Fill(met->bx(),met->et()); // for all BX
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtMiss label was " << gctEnergySumsSource_ ;    
   }
+
+  // Missing HT
+  if (l1HtMiss.isValid()) { 
+    for (L1GctHtMissCollection::const_iterator mht = l1HtMiss->begin(); mht != l1HtMiss->end(); mht++) {
+      // only plot central BX
+      if (mht->bx()==0) {
+        if (mht->overFlow() == 0 && mht->et() > 0) {
+          //Avoid problems with mht=0 candidates affecting MHT_PHI plots
+          l1GctHtMiss_->Fill(mht->et());
+          l1GctHtMissPhi_->Fill(mht->phi());
+        }
+        l1GctHtMissOf_->Fill(mht->overFlow());
+      }
+      if (mht->overFlow() == 0 && mht->et() > 0) l1GctHtMissOccBx_->Fill(mht->bx(),mht->et()); // for all BX
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1HtMiss label was " << gctEnergySumsSource_ ;    
+  }
+
+  // Missing ET HT correlations
+  if (l1HtMiss.isValid() && l1EtMiss.isValid()) { 
+    if (l1HtMiss->size() == l1EtMiss->size()) {
+      for (unsigned i=0; i<l1HtMiss->size(); i++) {
+        if (l1HtMiss->at(i).overFlow() == 0 && l1EtMiss->at(i).overFlow() == 0 && 
+            l1HtMiss->at(i).bx() == 0 && l1EtMiss->at(i).bx() == 0) {
+          // Avoid problems overflows and only plot central BX
+          l1GctEtMissHtMissCorr_->Fill(l1EtMiss->at(i).et(),l1HtMiss->at(i).et());
+          if (l1HtMiss->at(i).et() && l1EtMiss->at(i).et()){ // Don't plot phi if one or other is zero
+            l1GctEtMissHtMissCorrPhi_->Fill(l1EtMiss->at(i).phi(),l1HtMiss->at(i).phi());
+          }
+        }
+      }
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtMiss or l1HtMiss label was " << gctEnergySumsSource_ ;    
+  }
+
+  // HT 
+  if (l1EtHad.isValid()) {
+    for (L1GctEtHadCollection::const_iterator ht = l1EtHad->begin(); ht != l1EtHad->end(); ht++) {
+      // only plot central BX
+      if (ht->bx()==0) {
+        l1GctEtHad_->Fill(ht->et());
+        l1GctEtHadOf_->Fill(ht->overFlow());
+      }
+      l1GctEtHadOccBx_->Fill(ht->bx(),ht->et()); // for all BX
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtHad label was " << gctEnergySumsSource_ ;    
+  }
+
+  // Total ET
+  if (l1EtTotal.isValid()) {
+    for (L1GctEtTotalCollection::const_iterator et = l1EtTotal->begin(); et != l1EtTotal->end(); et++) {
+      // only plot central BX
+      if (et->bx()==0) {
+        l1GctEtTotal_->Fill(et->et());
+        l1GctEtTotalOf_->Fill(et->overFlow());
+      }
+      l1GctEtTotalOccBx_->Fill(et->bx(),et->et()); // for all BX
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtTotal label was " << gctEnergySumsSource_ ;    
+  }
+
+  // Total ET HT correlations
+  if (l1EtTotal.isValid() && l1EtHad.isValid()) { 
+    if (l1EtTotal->size() == l1EtHad->size()) {
+      for (unsigned i=0; i<l1EtHad->size(); i++) {
+        if (l1EtHad->at(i).overFlow() == 0 && l1EtTotal->at(i).overFlow() == 0 && 
+            l1EtHad->at(i).bx() == 0 && l1EtTotal->at(i).bx() == 0) {
+          // Avoid problems overflows and only plot central BX
+          l1GctEtTotalEtHadCorr_->Fill(l1EtTotal->at(i).et(),l1EtHad->at(i).et());
+        }
+      }
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtTotal or l1EtHad label was " << gctEnergySumsSource_ ;    
+  }
+
+  //HF Ring Et Sums
+  if (l1HFSums.isValid()) {
+    for (L1GctHFRingEtSumsCollection::const_iterator hfs=l1HFSums->begin(); hfs!=l1HFSums->end(); hfs++){ 
+      // only plot central BX
+      if (hfs->bx()==0) {
+        // Individual ring Et sums
+        l1GctHFRing1ETSumPosEta_->Fill(hfs->etSum(0));
+        l1GctHFRing1ETSumNegEta_->Fill(hfs->etSum(1));
+        l1GctHFRing2ETSumPosEta_->Fill(hfs->etSum(2));
+        l1GctHFRing2ETSumNegEta_->Fill(hfs->etSum(3));
+        // Ratio of ring Et sums
+        if (hfs->etSum(2)!=0) l1GctHFRingRatioPosEta_->Fill((hfs->etSum(0))/(hfs->etSum(2)));
+        if (hfs->etSum(3)!=0) l1GctHFRingRatioNegEta_->Fill((hfs->etSum(1))/(hfs->etSum(3)));
+        // Correlate positive and neagative eta
+        l1GctHFRing1PosEtaNegEta_->Fill(hfs->etSum(0),hfs->etSum(1));
+        l1GctHFRing2PosEtaNegEta_->Fill(hfs->etSum(2),hfs->etSum(3));
+      }
+      // Occupancy vs BX
+      for (unsigned i=0; i<4; i++){
+        l1GctHFRingETSumOccBx_->Fill(hfs->bx(),hfs->etSum(i));
+      }
+    }
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1HFSums label was " << gctEnergySumsSource_ ;
+  }
+
+  // HF Ring Counts
+  if (l1HFCounts.isValid()) {
+    for (L1GctHFBitCountsCollection::const_iterator hfc=l1HFCounts->begin(); hfc!=l1HFCounts->end(); hfc++){ 
+      // only plot central BX
+      if (hfc->bx()==0) {
+        // Individual ring counts
+        l1GctHFRing1TowerCountPosEta_->Fill(hfc->bitCount(0));
+        l1GctHFRing1TowerCountNegEta_->Fill(hfc->bitCount(1));
+        l1GctHFRing2TowerCountPosEta_->Fill(hfc->bitCount(2));
+        l1GctHFRing2TowerCountNegEta_->Fill(hfc->bitCount(3));
+        // Correlate positive and negative eta
+        l1GctHFRing1TowerCountPosEtaNegEta_->Fill(hfc->bitCount(0),hfc->bitCount(1));
+        l1GctHFRing2TowerCountPosEtaNegEta_->Fill(hfc->bitCount(2),hfc->bitCount(3));
+      }
+      // Occupancy vs BX
+      for (unsigned i=0; i<4; i++){
+        l1GctHFRingTowerCountOccBx_->Fill(hfc->bx(),hfc->bitCount(i));
+      }
+    }
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1HFCounts label was " << gctEnergySumsSource_ ;
+  }
+  
+  // Isolated EM
+  if (l1IsoEm.isValid()) {
+    for (L1GctEmCandCollection::const_iterator ie=l1IsoEm->begin(); ie!=l1IsoEm->end(); ie++) {
+      // only plot central BX
+      if (ie->bx()==0) {
+        l1GctIsoEmRank_->Fill(ie->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (ie->rank()){ 
+          l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().ieta(),ie->regionId().iphi(),ie->rank());
+          l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().ieta(),ie->regionId().iphi());
+        }
+      }
+      if (ie->rank()) l1GctAllEmOccRankBx_->Fill(ie->bx(),ie->rank()); // for all BX
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1IsoEm label was " << gctIsoEmSource_ ;
+  } 
 
   // Non-isolated EM
-  for (L1EmParticleCollection::const_iterator ne = l1eNonIsoEm->begin();
-       ne != l1eNonIsoEm->end(); ne++) {
-    l1ExtraNonIsoEmEtEtaPhi_->Fill(ne->phi(), ne->eta(), ne->et());
-    l1ExtraNonIsoEmOccEtaPhi_->Fill(ne->phi(), ne->eta());
-    l1ExtraNonIsoEmRank_->Fill(ne->et());
-  }
-
-  // Energy sums
-  l1ExtraEtMiss_->Fill(l1eEtMiss->et());
-  l1ExtraEtMissPhi_->Fill(l1eEtMiss->phi());
-  l1ExtraEtTotal_->Fill(l1eEtMiss->etTotal());
-  l1ExtraEtHad_->Fill(l1eEtMiss->etHad());
-
-
-
-
-
-
+  if (l1NonIsoEm.isValid()) { 
+    for (L1GctEmCandCollection::const_iterator ne=l1NonIsoEm->begin(); ne!=l1NonIsoEm->end(); ne++) {
+      // only plot central BX
+      if (ne->bx()==0) {
+        l1GctNonIsoEmRank_->Fill(ne->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (ne->rank()){ 
+          l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().ieta(),ne->regionId().iphi(),ne->rank());
+          l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().ieta(),ne->regionId().iphi());
+        }
+      }
+      if (ne->rank()) l1GctAllEmOccRankBx_->Fill(ne->bx(),ne->rank()); // for all BX
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1NonIsoEm label was " << gctNonIsoEmSource_ ;
+  }     
 }
+
+  

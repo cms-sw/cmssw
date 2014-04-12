@@ -1,5 +1,4 @@
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -14,15 +13,12 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/Utilities/interface/Histos.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
-#include "TH2.h"
-#include "TFile.h"
-#include "TCanvas.h"
 
 class testEvent : public edm::EDAnalyzer {
 public :
@@ -30,7 +26,7 @@ public :
   ~testEvent();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&  );
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -39,7 +35,7 @@ private:
   std::vector<FSimEvent*> mySimEvent;
 
   // Histograms
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   std::vector<MonitorElement*> PIDs;
   std::vector<MonitorElement*> Energies;
 
@@ -60,7 +56,7 @@ testEvent::testEvent(const edm::ParameterSet& p) :
   // For the fast sim
   mySimEvent[1] = new FSimEvent(particleFilter_);
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   PIDs[0] = dbe->book1D("PIDFull", "Particle ID distribution (full)",6000,-6000.,6000.);
   PIDs[1] = dbe->book1D("PIDFast", "Particle ID distribution (fast)",6000,-6000.,6000.);
   Energies[0] = dbe->book1D("EneFull", "Energy distribution (full)",20,0.,20.);
@@ -73,7 +69,7 @@ testEvent::~testEvent()
   dbe->save("testEvent.root");
 }
 
-void testEvent::beginJob(const edm::EventSetup & es)
+void testEvent::beginRun(edm::Run const&, edm::EventSetup const& es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
@@ -111,8 +107,8 @@ testEvent::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   for ( unsigned ievt=0; ievt<2; ++ievt ) {
 
     if ( isGeant || ievt == 1 ) { 
-      //if ( isGeant ) std::cout << "Event number " << ievt << std::endl;
-      //mySimEvent[ievt]->print();
+      if ( isGeant ) std::cout << "Event number " << ievt << std::endl;
+      mySimEvent[ievt]->print();
 
 
       for ( unsigned fsimi=0; fsimi < mySimEvent[ievt]->nTracks(); ++fsimi ) {
@@ -156,5 +152,5 @@ testEvent::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testEvent);
+
+DEFINE_FWK_MODULE(testEvent);

@@ -20,9 +20,9 @@
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
 
-using namespace std;
-using namespace edm;
-using namespace reco;
+
+
+
 
 const int PFChargedHadrCand_codenumber=1;
 const int PFNeutrHadrCand_codenumber=5;

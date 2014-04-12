@@ -16,10 +16,8 @@
 //#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
 #include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"
 
-class XERCES_CPP_NAMESPACE::DOMNode;
+namespace XERCES_CPP_NAMESPACE { class DOMNode; }
 
-using namespace std;
-using namespace XERCES_CPP_NAMESPACE;
 
 
 //template <class T,class CO> class   CalibrationInterface;
@@ -40,6 +38,8 @@ template <class T,class CO> class AlgorithmCalibration : public CalibrationInter
 {
 // friend class CalibrationInterface<T,CO>; 
   public:
+    typedef XERCES_CPP_NAMESPACE::DOMElement DOMElement;
+    typedef XERCES_CPP_NAMESPACE::DOMNode DOMNode;
 
   /**
    * Create an AlgorithmCalibration class and load from fileName the
@@ -84,13 +84,13 @@ template <class T,class CO> class AlgorithmCalibration : public CalibrationInter
     }
 
   private:
-    string m_filename;
+    std::string m_filename;
     CalibrationXML *m_xml;
 };
 
 
 template <class T,class CO> 
-AlgorithmCalibration<T,CO>::AlgorithmCalibration(const string & filename) : m_filename(filename), m_xml(0)
+AlgorithmCalibration<T,CO>::AlgorithmCalibration(const std::string & filename) : m_filename(filename), m_xml(0)
 {
  readCategories();
  if(m_xml) {
@@ -119,7 +119,7 @@ bool AlgorithmCalibration<T,CO>::readCategories()
 	  CO * obj =readObject(n1->getFirstChild());
           if(obj) 
            {
-                addEntry(*cat,*obj);  
+                this->addEntry(*cat,*obj);  
                 delete obj;  
            }
           delete cat;

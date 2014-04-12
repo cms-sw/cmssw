@@ -5,8 +5,6 @@
 //   Description: Sector Processor
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -59,7 +57,7 @@ L1MuDTSectorProcessor::L1MuDTSectorProcessor(const L1MuDTTrackFinder& tf,
       m_DataBuffer(new L1MuDTDataBuffer(*this)),
       m_EU(new L1MuDTExtrapolationUnit(*this)),
       m_TA(new L1MuDTTrackAssembler(*this)), 
-      m_AUs(), m_TrackCands() {
+      m_AUs(), m_TrackCands(), m_TracKCands() {
 
   // 2 assignment units
   m_AUs.reserve(2);
@@ -70,6 +68,10 @@ L1MuDTSectorProcessor::L1MuDTSectorProcessor(const L1MuDTTrackFinder& tf,
   m_TrackCands.reserve(2);
   m_TrackCands.push_back(new L1MuDTTrack(m_spid) );
   m_TrackCands.push_back(new L1MuDTTrack(m_spid) );
+
+  m_TracKCands.reserve(2);
+  m_TracKCands.push_back(new L1MuDTTrack(m_spid) );
+  m_TracKCands.push_back(new L1MuDTTrack(m_spid) );
   
 }
 
@@ -88,6 +90,8 @@ L1MuDTSectorProcessor::~L1MuDTSectorProcessor() {
   delete m_AUs[1];
   delete m_TrackCands[0];
   delete m_TrackCands[1];
+  delete m_TracKCands[0];
+  delete m_TracKCands[1];
 
 }
 
@@ -101,7 +105,7 @@ L1MuDTSectorProcessor::~L1MuDTSectorProcessor() {
 void L1MuDTSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
   // receive data and store them into the data buffer
-  if ( m_SectorReceiver ) m_SectorReceiver->run(bx, e);
+  if ( m_SectorReceiver ) m_SectorReceiver->run(bx, e, c);
 
   // check content of data buffer
   if ( m_DataBuffer ) {
@@ -135,6 +139,40 @@ void L1MuDTSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSet
   if ( m_AUs[0] && !m_TA->isEmpty(0) ) m_AUs[0]->run(c);
   if ( m_AUs[1] && !m_TA->isEmpty(1) ) m_AUs[1]->run(c);
 
+  if ( m_spid.wheel() == -1 ) {
+    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(2)>3 && m_TrackCands[0]->address(2)<6 ) m_TrackCands[0]->reset();
+    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(3)>3 && m_TrackCands[0]->address(3)<6 ) m_TrackCands[0]->reset();
+    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(4)>3 && m_TrackCands[0]->address(4)<6 ) m_TrackCands[0]->reset();
+
+    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(2)>3 && m_TracKCands[0]->address(2)<6 ) m_TracKCands[0]->reset();
+    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(3)>3 && m_TracKCands[0]->address(3)<6 ) m_TracKCands[0]->reset();
+    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(4)>3 && m_TracKCands[0]->address(4)<6 ) m_TracKCands[0]->reset();
+
+    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(2)>3 && m_TrackCands[1]->address(2)<6 ) m_TrackCands[1]->reset();
+    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(3)>3 && m_TrackCands[1]->address(3)<6 ) m_TrackCands[1]->reset();
+    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(4)>3 && m_TrackCands[1]->address(4)<6 ) m_TrackCands[1]->reset();
+
+    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(2)>3 && m_TracKCands[1]->address(2)<6 ) m_TracKCands[1]->reset();
+    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(3)>3 && m_TracKCands[1]->address(3)<6 ) m_TracKCands[1]->reset();
+    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(4)>3 && m_TracKCands[1]->address(4)<6 ) m_TracKCands[1]->reset();
+
+    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(2)>7 && m_TrackCands[0]->address(2)<10 ) m_TrackCands[0]->reset();
+    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(3)>7 && m_TrackCands[0]->address(3)<10 ) m_TrackCands[0]->reset();
+    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(4)>7 && m_TrackCands[0]->address(4)<10 ) m_TrackCands[0]->reset();
+
+    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(2)>7 && m_TracKCands[0]->address(2)<10 ) m_TracKCands[0]->reset();
+    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(3)>7 && m_TracKCands[0]->address(3)<10 ) m_TracKCands[0]->reset();
+    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(4)>7 && m_TracKCands[0]->address(4)<10 ) m_TracKCands[0]->reset();
+
+    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(2)>7 && m_TrackCands[1]->address(2)<10 ) m_TrackCands[1]->reset();
+    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(3)>7 && m_TrackCands[1]->address(3)<10 ) m_TrackCands[1]->reset();
+    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(4)>7 && m_TrackCands[1]->address(4)<10 ) m_TrackCands[1]->reset();
+
+    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(2)>7 && m_TracKCands[1]->address(2)<10 ) m_TracKCands[1]->reset();
+    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(3)>7 && m_TracKCands[1]->address(3)<10 ) m_TracKCands[1]->reset();
+    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(4)>7 && m_TracKCands[1]->address(4)<10 ) m_TracKCands[1]->reset();
+  }
+
 } 
 
 
@@ -151,6 +189,8 @@ void L1MuDTSectorProcessor::reset() {
   if ( m_AUs[1] ) m_AUs[1]->reset();
   if ( m_TrackCands[0] ) m_TrackCands[0]->reset();
   if ( m_TrackCands[1] ) m_TrackCands[1]->reset();
+  if ( m_TracKCands[0] ) m_TracKCands[0]->reset();
+  if ( m_TracKCands[1] ) m_TracKCands[1]->reset();
 
 } 
 
@@ -182,10 +222,10 @@ const L1MuDTSectorProcessor* L1MuDTSectorProcessor::neighbour() const {
 
   // the neighbour is in the same wedge with the following definition:
   // current SP  -3  -2  -1  +1  +2  +3
-  // neighbour   -2  -1   0  -1  +1  +2
+  // neighbour   -2  -1  +1   0  +1  +2
 
-  if ( wheel == -1) return 0;
-  wheel = (wheel == 1) ? -1 : (wheel/abs(wheel)) * (abs(wheel)-1);
+  if ( wheel == 1) return 0;
+  wheel = (wheel == -1) ? 1 : (wheel/abs(wheel)) * (abs(wheel)-1);
 
   const L1MuDTSecProcId id(wheel,sector);
 

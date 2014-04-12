@@ -7,8 +7,8 @@ class PixelRecoPointRZ {
 public:
   PixelRecoPointRZ() { }
   PixelRecoPointRZ(float r,float z) : theR(r), theZ(z) { }
-  const float & r() const { return theR; }
-  const float & z() const { return theZ; }
+  float r() const { return theR; }
+  float z() const { return theZ; }
 private:
   float theR, theZ;
 };

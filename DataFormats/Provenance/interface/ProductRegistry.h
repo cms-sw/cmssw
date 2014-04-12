@@ -1,99 +1,87 @@
 #ifndef DataFormats_Provenance_ProductRegistry_h
 #define DataFormats_Provenance_ProductRegistry_h
 
-/**
-   \file
-   Implementation of ProductRegistry
-
-   \original author Stefano ARGIRO
-   \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.4 2007/05/26 18:55:11 wmtan Exp $
-   \date 19 Jul 2005
-*/
-
-#include <map>
-#include <iosfwd>
-#include <string>
-#include <vector>
-
-#include "DataFormats/Provenance/interface/BranchKey.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-
-#include "Reflex/Type.h"
-
-namespace edm {
-
-  /**
-     \class ProductRegistry ProductRegistry.h "edm/ProductRegistry.h"
-
-     \brief
+/** \class edm::ProductRegistry
 
      \original author Stefano ARGIRO
      \current author Bill Tanenbaum
      \date 19 Jul 2005
-  */
+*/
+
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+
+#include "boost/array.hpp"
+#include "boost/shared_ptr.hpp"
+
+#include <iosfwd>
+#include <map>
+#include <string>
+#include <vector>
+
+namespace edm {
+  class ProductHolderIndexHelper;
+
   class ProductRegistry {
 
   public:
-    ProductRegistry() : 
-      productList_(),
-      nextID_(1),
-      maxID_(0),
-      frozen_(false),
-      constProductList_(),
-      productLookup_(),
-      elementLookup_() {}
+    typedef std::map<BranchKey, BranchDescription> ProductList;
+
+    ProductRegistry();
+
+    // A constructor from the persistent data memebers from another product registry.
+    // saves time by not copying the transient components.
+    // The constructed registry will be frozen by default.
+    explicit ProductRegistry(ProductList const& productList, bool toBeFrozen = true);
 
     virtual ~ProductRegistry() {}
 
-    typedef std::map<BranchKey, BranchDescription> ProductList;
+    typedef std::map<BranchKey, BranchDescription const> ConstProductList;
 
-    typedef std::map<BranchKey, ConstBranchDescription> ConstProductList;
-    
-    // Used for indices to find product IDs by type and process
-    typedef std::map<std::string, std::vector<ProductID> > ProcessLookup;
-    typedef std::map<std::string, ProcessLookup> TypeLookup;
+    void addProduct(BranchDescription const& productdesc, bool iFromListener = false);
 
-    void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
+    void addLabelAlias(BranchDescription const& productdesc, std::string const& labelAlias, std::string const& instanceAlias);
 
     void copyProduct(BranchDescription const& productdesc);
 
-    void setProductIDs();
-
-    void setFrozen() const;
+    void setFrozen(bool initializeLookupInfo = true);
 
     std::string merge(ProductRegistry const& other,
-	std::string const& fileName,
-	BranchDescription::MatchMode m);
+        std::string const& fileName,
+        BranchDescription::MatchMode branchesMustMatch = BranchDescription::Permissive);
+
+    void updateFromInput(ProductList const& other);
+
+    void updateFromInput(std::vector<BranchDescription> const& other);
 
     ProductList const& productList() const {
-      throwIfNotFrozen();
+      //throwIfNotFrozen();
       return productList_;
     }
 
-    ConstProductList const& constProductList() const {
-      throwIfNotFrozen();
-      return constProductList_;
+    ProductList& productListUpdator() {
+      throwIfFrozen();
+      return productList_;
     }
 
-    unsigned int nextID() const {return nextID_;}
+    // Return all the branch names currently known to *this.  This
+    // does a return-by-value of the vector so that it may be used in
+    // a colon-initialization list.
+    std::vector<std::string> allBranchNames() const;
 
-    void setNextID(unsigned int next) {nextID_ = next;}
+    // Return pointers to (const) BranchDescriptions for all the
+    // BranchDescriptions known to *this.  This does a
+    // return-by-value of the vector so that it may be used in a
+    // colon-initialization list.
+    std::vector<BranchDescription const*> allBranchDescriptions() const;
 
-    unsigned int maxID() const {return maxID_;}
-
-    const TypeLookup& productLookup() const {
-      return productLookup_;
-    }
-    const TypeLookup& elementLookup() const {
-      return elementLookup_;
-    }
-
-    //NOTE: this is not const since we only want items that have non-const access to this class to be 
+    //NOTE: this is not const since we only want items that have non-const access to this class to be
     // able to call this internal iteration
-    template<class T>
-    void callForEachBranch(const T& iFunc)  {
+    template<typename T>
+    void callForEachBranch(T const& iFunc)  {
       //NOTE: If implementation changes from a map, need to check that iterators are still valid
       // after an insert with the new container, else need to copy the container and iterate over the copy
       for(ProductRegistry::ProductList::const_iterator itEntry = productList_.begin(),
@@ -106,35 +94,81 @@ namespace edm {
 
     void print(std::ostream& os) const;
 
+    bool anyProducts(BranchType const brType) const;
+
+    ConstProductList& constProductList() {
+       //throwIfNotFrozen();
+       return transient_.constProductList_;
+    }
+
+    boost::shared_ptr<ProductHolderIndexHelper> const& productLookup(BranchType branchType) const;
+
+    // returns the appropriate ProductHolderIndex else ProductHolderIndexInvalid if no BranchID is available
+    ProductHolderIndex indexFrom(BranchID const& iID) const;
+
+    bool productProduced(BranchType branchType) const {return transient_.productProduced_[branchType];}
+    bool anyProductProduced() const {return transient_.anyProductProduced_;}
+
+    std::vector<std::string> const& missingDictionaries() const {
+      return transient_.missingDictionaries_;
+    }
+
+    std::vector<std::string>& missingDictionariesForUpdate() {
+      return transient_.missingDictionaries_;
+    }
+
+    ProductHolderIndex const& getNextIndexValue(BranchType branchType) const;
+
+    void initializeTransients() {transient_.reset();}
+
+    bool frozen() const {return transient_.frozen_;}
+
+    struct Transients {
+      Transients();
+      void reset();
+      bool frozen_;
+      ConstProductList constProductList_;
+      // Is at least one (run), (lumi), (event) product produced this process?
+      boost::array<bool, NumBranchTypes> productProduced_;
+      bool anyProductProduced_;
+
+      boost::shared_ptr<ProductHolderIndexHelper> eventProductLookup_;
+      boost::shared_ptr<ProductHolderIndexHelper> lumiProductLookup_;
+      boost::shared_ptr<ProductHolderIndexHelper> runProductLookup_;
+
+      ProductHolderIndex eventNextIndexValue_;
+      ProductHolderIndex lumiNextIndexValue_;
+      ProductHolderIndex runNextIndexValue_;
+
+      std::map<BranchID, ProductHolderIndex> branchIDToIndex_;
+
+      std::vector<std::string> missingDictionaries_;
+    };
+
   private:
-    
-    void initializeTransients() const;
+    void setProductProduced(BranchType branchType) {
+      transient_.productProduced_[branchType] = true;
+      transient_.anyProductProduced_ = true;
+    }
+
+    void freezeIt(bool frozen = true) {transient_.frozen_ = frozen;}
+
+    void updateConstProductRegistry();
+    void initializeLookupTables();
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
-    void fillElementLookup(const ROOT::Reflex::Type & type,
-                           const ProductID& slotNumber,
-                           const BranchKey& bk) const;
-    
+
+    ProductHolderIndex& nextIndexValue(BranchType branchType);
+
     ProductList productList_;
-    unsigned int nextID_;
-    mutable unsigned int maxID_;
-    mutable bool frozen_;
-    mutable ConstProductList constProductList_;
-    
-    // indices used to quickly find a group in the vector groups_
-    // by type, first one by the type of the EDProduct and the
-    // second by the type of object contained in a sequence in
-    // an EDProduct
-    mutable TypeLookup productLookup_; // 1->many
-    mutable TypeLookup elementLookup_; // 1->many
-    
+    Transients transient_;
   };
 
   inline
   bool
   operator==(ProductRegistry const& a, ProductRegistry const& b) {
-    return a.nextID() == b.nextID() && a.productList() == b.productList();
+    return a.productList() == b.productList();
   }
 
   inline
@@ -147,10 +181,9 @@ namespace edm {
   std::ostream&
   operator<<(std::ostream& os, ProductRegistry const& pr) {
     pr.print(os);
-    return os;    
+    return os;
   }
 
 } // edm
-
 
 #endif

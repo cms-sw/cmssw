@@ -20,6 +20,8 @@ public:
   typedef typename BasicVectorType::Cylindrical     Cylindrical;
   typedef typename BasicVectorType::Spherical       Spherical;
   typedef typename BasicVectorType::Polar           Polar;
+  typedef typename BasicVectorType::MathVector  MathVector;
+
 
   /** default constructor uses default constructor of T to initialize the 
    *  components. For built-in floating-point types this means initialization 
@@ -52,7 +54,11 @@ public:
    *  are too restrictive (preferably never). 
    */
   const BasicVectorType& basicVector() const { return theVector;}
-  
+#ifndef __REFLEX__
+  MathVector const & mathVector() const { return theVector.v;}
+  MathVector & mathVector() { return theVector.v;}
+#endif  
+
   T x() const { return basicVector().x();}
   T y() const { return basicVector().y();}
   T z() const { return basicVector().z();}
@@ -75,7 +81,7 @@ protected:
 
 template <class T, class PV, class F>
 inline std::ostream & operator<<( std::ostream& s, const PV3DBase<T,PV,F>& v) {
-  return s << " (" << v.x() << ',' << v.y() << ',' << v.z() << ") ";
+  return s << v.basicVector();
 } 
 
 #endif // GeometryVector_PV3DBase_h

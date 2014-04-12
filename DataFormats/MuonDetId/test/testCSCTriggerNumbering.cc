@@ -3,7 +3,6 @@
    test file for CSCTriggerNumbering
 
    \author Lindsey GRAY
-   \version $Id: testCSCTriggerNumbering.cc,v 1.2 2006/02/22 23:28:18 lgray Exp $
    \date 27 Jul 2005
 */
 

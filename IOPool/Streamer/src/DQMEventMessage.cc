@@ -28,7 +28,7 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
     }
 
   // verify that the message has a protocol that we support
-  if (this->protocolVersion() != 1)
+  if (this->protocolVersion() != 3)
     {
       throw cms::Exception("MessageDecoding", "DQMEventMsgView")
         << "Unsupport protocol version (" << this->protocolVersion() << ").\n";
@@ -40,26 +40,20 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
   // determine the release tag
   len = convert32(bufPtr);
   bufPtr += sizeof(uint32);
-  if (len >= 0)
-    {
-      if (len <= MAX_STRING_SIZE) // prevent something totally crazy
-        {
-          releaseTag_.append((char *) bufPtr, len);
-        }
-      bufPtr += len;
-    }
+  if (len <= MAX_STRING_SIZE) // prevent something totally crazy // len >= 0, since len is unsigned.
+  {
+    releaseTag_.append((char *) bufPtr, len);
+  }
+  bufPtr += len;
 
   // determine the top-level folder name
   len = convert32(bufPtr);
   bufPtr += sizeof(uint32);
-  if (len >= 0)
-    {
-      if (len <= MAX_STRING_SIZE) // prevent something totally crazy
-        {
-          folderName_.append((char *) bufPtr, len);
-        }
-      bufPtr += len;
-    }
+  if (len <= MAX_STRING_SIZE) // prevent something totally crazy // len >= 0, since len is unsigned.
+  {
+    folderName_.append((char *) bufPtr, len);
+  }
+  bufPtr += len;
 
   // determine the number of subfolders
   subFolderCount_ = convert32(bufPtr);
@@ -78,18 +72,22 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
       std::string subFolderName = "Subfolder " + idx;
       uint32 nameLen = convert32(bufPtr);
       bufPtr += sizeof(uint32);
-      if (nameLen >= 0)
-        {
-          if (nameLen <= MAX_STRING_SIZE) // prevent something totally crazy
-            {
-              subFolderName.clear();
-              subFolderName.append((char *) bufPtr, nameLen);
-            }
-          bufPtr += nameLen;
-        }
+      if (nameLen <= MAX_STRING_SIZE) // prevent something totally crazy // nameLen >= 0, since nameLen is unsigned.
+      {
+        subFolderName.clear();
+        subFolderName.append((char *) bufPtr, nameLen);
+      }
+      bufPtr += nameLen;
       nameListPtr_->push_back(subFolderName);
       subFolderIndexTable_[subFolderName] = idx;
     }
+  adler32_chksum_ = convert32(bufPtr);
+  bufPtr += sizeof(uint32);
+
+  host_name_len_ = *bufPtr;
+  bufPtr += sizeof(uint8);
+  host_name_start_ = bufPtr;
+  bufPtr += host_name_len_;
 
   // determine the event length and address
   eventLen_ = convert32(bufPtr);
@@ -234,12 +232,30 @@ uint32 DQMEventMsgView::compressionFlag() const
 }
 
 /**
- * Returns the reserved word associated with the DQM Event.
+ * Returns the process ID of the filter unit that created this update.
  */
-uint32 DQMEventMsgView::reserved() const
+uint32 DQMEventMsgView::fuProcessId() const
 {
   DQMEventHeader* h = (DQMEventHeader*)buf_;
-  return convert32(h->reserved_);
+  return convert32(h->fuProcessId_);
+}
+
+/**
+ * Returns the GUID of the filter unit that created this update.
+ */
+uint32 DQMEventMsgView::fuGuid() const
+{
+  DQMEventHeader* h = (DQMEventHeader*)buf_;
+  return convert32(h->fuGuid_);
+}
+
+/**
+ * Returns the number of merges
+ */
+uint32 DQMEventMsgView::mergeCount() const
+{
+  DQMEventHeader* h = (DQMEventHeader*)buf_;
+  return convert32(h->mergeCount_);
 }
 
 //uint64 DQMEventMsgView::timeStamp() const
@@ -247,5 +263,10 @@ edm::Timestamp DQMEventMsgView::timeStamp() const
 {
   DQMEventHeader* h = (DQMEventHeader*)buf_;
   return edm::Timestamp(convert64(h->timeStamp_));
+}
+
+std::string DQMEventMsgView::hostName() const
+{
+   return std::string(reinterpret_cast<char *>(host_name_start_),host_name_len_);
 }
 

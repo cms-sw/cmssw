@@ -7,8 +7,6 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/04/30 13:49:00 $
- *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -19,6 +17,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+//DQM services
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+
+
 //#include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/MakerMacros.h" 
@@ -47,7 +52,6 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -59,10 +63,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -82,8 +82,6 @@
 // silicon pixel info
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
@@ -100,7 +98,8 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Validation/GlobalRecHits/interface/DTHitQualityUtils.h"
+//#include "Validation/GlobalRecHits/interface/DTHitQualityUtils.h"
+#include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 
 // muon CSC info
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
@@ -120,7 +119,7 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 
 // event info
-#include "SimDataFormats/GlobalRecHitValidation/interface/PGlobalRecHit.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -133,8 +132,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
 
 // helper files
-#include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
+//#include <CLHEP/Vector/LorentzVector.h>
+//#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <stdlib.h>
@@ -160,7 +159,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   explicit GlobalRecHitsProducer(const edm::ParameterSet&);
   virtual ~GlobalRecHitsProducer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
@@ -205,6 +204,14 @@ class GlobalRecHitsProducer : public edm::EDProducer
   edm::InputTag ECalEESrc_;
   edm::InputTag ECalUncalEESrc_;
   edm::InputTag ECalESSrc_;
+  edm::EDGetTokenT<EBRecHitCollection> ECalEBSrc_Token_;
+  edm::EDGetTokenT<EERecHitCollection> ECalEESrc_Token_;
+  edm::EDGetTokenT<ESRecHitCollection> ECalESSrc_Token_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> ECalUncalEBSrc_Token_;
+  edm::EDGetTokenT<EEUncalibratedRecHitCollection> ECalUncalEESrc_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
 
   // HCal info
 
@@ -225,6 +232,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
   FloatVector HFCalSHE;
 
   edm::InputTag HCalSrc_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> HCalSrc_Token_;
 
   // Tracker info
   // SiStrip
@@ -254,6 +262,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
     TECW8SY;
 
   edm::InputTag SiStripSrc_;
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> SiStripSrc_Token_;
 
   std::vector<PSimHit> matched;
   std::pair<LocalPoint,LocalVector> 
@@ -275,6 +284,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
   FloatVector FWD1pSY, FWD1nSY, FWD2pSY, FWD2nSY;
 
   edm::InputTag SiPxlSrc_;
+  edm::EDGetTokenT<SiPixelRecHitCollection> SiPxlSrc_Token_;
 
   // Muon info
   // DT
@@ -284,6 +294,8 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   edm::InputTag MuDTSrc_;
   edm::InputTag MuDTSimSrc_;
+  edm::EDGetTokenT<DTRecHitCollection> MuDTSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuDTSimSrc_Token_;
 
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
@@ -311,8 +323,8 @@ class GlobalRecHitsProducer : public edm::EDProducer
   // Does the real job
   template  <typename type>
     int compute(const DTGeometry *dtGeom,
-		 std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire,
-		 std::map<DTWireId, std::vector<type> > recHitsPerWire,
+		 const std::map<DTWireId, std::vector<PSimHit> >& simHitsPerWire,
+		 const std::map<DTWireId, std::vector<type> >& recHitsPerWire,
 		 int step);
 
   // CSC
@@ -322,6 +334,8 @@ class GlobalRecHitsProducer : public edm::EDProducer
   FloatVector CSCSHPHI;
 
   edm::InputTag MuCSCSrc_;
+  edm::EDGetTokenT<CSCRecHit2DCollection> MuCSCSrc_Token_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit>> MuCSCHits_Token_;
 
   std::map<int, edm::PSimHitContainer> theMap;
   void plotResolution(const PSimHit &simHit, const CSCRecHit2D &recHit,
@@ -334,11 +348,18 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   edm::InputTag MuRPCSrc_;
   edm::InputTag MuRPCSimSrc_;
+  edm::EDGetTokenT<RPCRecHitCollection> MuRPCSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuRPCSimSrc_Token_;
 
   // private statistics information
   unsigned int count;
 
 }; // end class declaration
+
+#endif
+
+#ifndef GlobalHitMap
+#define GlobalHitMap
 
 // geometry mapping
 static const int dTrk             = 1;

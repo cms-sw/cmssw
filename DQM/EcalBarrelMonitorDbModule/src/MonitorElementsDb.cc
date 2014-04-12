@@ -1,11 +1,7 @@
-// $Id: MonitorElementsDb.cc,v 1.5 2006/10/16 18:29:44 dellaric Exp $
-
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
-  \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2006/10/16 18:29:44 $
+  \author B. Gobbo
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -14,107 +10,97 @@
 #include <fstream>
 #include <cmath>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "SealKernel/Context.h"
-#include "SealKernel/ComponentLoader.h"
-#include "SealKernel/Exception.h"
-#include "SealKernel/IMessageService.h"
-#include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/IConnectionServiceConfiguration.h"
-
-#include "RelationalAccess/ITableDataEditor.h"
-#include "RelationalAccess/TableDescription.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ITable.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
 
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
-#include "CoralBase/AttributeSpecification.h"
 
-#include "TROOT.h"
+#include "TCanvas.h"
 #include "TStyle.h"
-#include "TPaveStats.h"
 
-#include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
 
+#include "DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h"
 
-MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string xmlFile ){
+MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& xmlFile ){
 
   xmlFile_ = xmlFile;
 
-  // get hold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( dbe_ ) {
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-    dbe_->setCurrentFolder("EcalBarrel/MonitorElementsDb");
+  if ( dqmStore_ ) {
 
-    //meTemp_ = dbe_->book2D("TEMP", "TEMP", 17, -0.5, 16.5, 10, -0.5, 9.5);
+    dqmStore_->setCurrentFolder( prefixME_ );
 
     parser_ = new MonitorXMLParser( xmlFile_ );
     try {
       parser_->load();
     } catch( const std::runtime_error e ) {
+      delete parser_;
+      parser_ = 0;
       std::cerr << "Error loading parser: " << e.what() << std::endl;
     }
 
-    MEinfo_ = parser_->getDB_ME();
+    if(parser_) MEinfo_ = parser_->getDB_ME();
 
     for( unsigned int i=0; i< MEinfo_.size(); i++ ) {
-      
+
       MonitorElement* tmp;
       tmp = 0;
-      if( MEinfo_[i].type == "th1d" ) {
-	tmp = dbe_->book1D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto );
+      if( strcmp(MEinfo_[i].type.c_str(), "th1d") == 0 ) {
+        tmp = dqmStore_->book1D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto );
       }
-      else if( MEinfo_[i].type == "th2d" ) {
-	tmp = dbe_->book2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
-			    MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
+      else if( strcmp(MEinfo_[i].type.c_str(), "th2d") == 0 ) {
+        tmp = dqmStore_->book2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
+        		    MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
       }
-      else if( MEinfo_[i].type == "tprofile" ) {
-      tmp = dbe_->bookProfile( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
-			       MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
+      else if( strcmp(MEinfo_[i].type.c_str(), "tprofile") == 0 ) {
+      tmp = dqmStore_->bookProfile( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
+        		       MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
       }
-      else if( MEinfo_[i].type == "tprofile2d" ) {
-	tmp = dbe_->bookProfile2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
-				   MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto, 
-				   MEinfo_[i].zbins, MEinfo_[i].zfrom, MEinfo_[i].zto );
+      else if( strcmp(MEinfo_[i].type.c_str(), "tprofile2d") == 0 ) {
+        tmp = dqmStore_->bookProfile2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
+        			   MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto,
+        			   MEinfo_[i].zbins, MEinfo_[i].zfrom, MEinfo_[i].zto );
       }
-      
+
       MEs_.push_back( tmp );
     }
 
   }
 
+  ievt_ = 0;
+
 }
 
 MonitorElementsDb::~MonitorElementsDb(){
 
+  delete parser_;
+
 }
 
-void MonitorElementsDb::beginJob(const edm::EventSetup& c){
+void MonitorElementsDb::beginJob( void ){
 
   ievt_ = 0;
-    
+
 }
 
 void MonitorElementsDb::endJob( void ){
 
   std::cout << "MonitorElementsDb: analyzed " << ievt_ << " events" << std::endl;
   for( unsigned int i = 0; i<MEs_.size(); i++ ) {
-    if( MEs_[i] != 0 ) dbe_->removeElement( MEs_[i]->getName() );
+    if( MEs_[i] != 0 ) dqmStore_->removeElement( MEs_[i]->getName() );
   }
 
 }
@@ -136,91 +122,80 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 
       if( MEs_[i] != 0 && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
 
-        MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(MEs_[i]) );
-        if( ob ) ob->Reset();
+        MEs_[i]->Reset();
 
-	vars.clear();
+        vars.clear();
 
-	try {
+        try {
 
-	  atLeastAQuery = true;
+          atLeastAQuery = true;
 
-	  session->transaction().start(true);
+          session->transaction().start(true);
 
-	  coral::ISchema& schema = session->nominalSchema();
+          coral::ISchema& schema = session->nominalSchema();
 
-	  coral::IQuery* query = schema.newQuery();
+          coral::IQuery* query = schema.newQuery();
 
-	  for( unsigned int j=0; j<MEinfo_[i].queries.size(); j++ ) {
-	    if( MEinfo_[i].queries[j].query == "addToTableList" ) {
-	      query->addToTableList( MEinfo_[i].queries[j].arg );
-	    }
-	    else if( MEinfo_[i].queries[j].query == "addToOutputList" ) {
-	      query->addToOutputList( MEinfo_[i].queries[j].arg, MEinfo_[i].queries[j].alias );
-	      vars.push_back( MEinfo_[i].queries[j].alias );
-	    }
-	    else if( MEinfo_[i].queries[j].query == "setCondition" ) {
-	      query->setCondition( MEinfo_[i].queries[j].arg, coral::AttributeList() );
-	    }
-	    else if( MEinfo_[i].queries[j].query == "addToOrderList" ) {
-	      query->addToOrderList( MEinfo_[i].queries[j].arg );
-	    }
-	  }
-	  
-	  coral::ICursor& cursor = query->execute();
+          for( unsigned int j=0; j<MEinfo_[i].queries.size(); j++ ) {
+            if( strcmp(MEinfo_[i].queries[j].query.c_str(), "addToTableList") == 0 ) {
+              query->addToTableList( MEinfo_[i].queries[j].arg );
+            }
+            else if( strcmp(MEinfo_[i].queries[j].query.c_str(), "addToOutputList") == 0 ) {
+              query->addToOutputList( MEinfo_[i].queries[j].arg, MEinfo_[i].queries[j].alias );
+              vars.push_back( MEinfo_[i].queries[j].alias );
+            }
+            else if( strcmp(MEinfo_[i].queries[j].query.c_str(), "setCondition") == 0 ) {
+              query->setCondition( MEinfo_[i].queries[j].arg, coral::AttributeList() );
+            }
+            else if( strcmp(MEinfo_[i].queries[j].query.c_str(), "addToOrderList") == 0 ) {
+              query->addToOrderList( MEinfo_[i].queries[j].arg );
+            }
+          }
 
-	  // pause the shipping of monitoring elements
-	  if ( dbe_ ) dbe_->lock();
-	  
-	  unsigned int k = 0;
-	
-	  while ( cursor.next() && k < MEinfo_[i].loop ) {
-	    //while ( cursor.next() ) {
-	  
-	    const coral::AttributeList& row = cursor.currentRow();
-	    
-	    std::vector<float> vvars;
+          coral::ICursor& cursor = query->execute();
+
+          unsigned int k = 0;
+
+          while ( cursor.next() && k < MEinfo_[i].loop ) {
+            //while ( cursor.next() ) {
+
+            const coral::AttributeList& row = cursor.currentRow();
+
+            std::vector<float> vvars;
             vvars.clear();
-	    for( unsigned int l=0; l<vars.size(); l++ ) {
-	      if( !vars[l].empty() ) {
-		vvars.push_back( row[vars[l].c_str()].data<float>() );  
-	      }
-	    }
-	    if( vvars.size() == 2 ) {
-	      //std::cout << k << " -- " << vvars[0] << " -- " << vvars[1] << std::endl;
-	      MEs_[i]->Fill( vvars[0], vvars[1] );
-	    }
-	    else if( vvars.size() == 3 ) {
-	      //std::cout << k << " -- " << vvars[0] << " -- " << vvars[1] << " -- " << vvars[2] << std::endl;
-	      MEs_[i]->Fill( vvars[0], vvars[1], vvars[2] );
-	    }
-	    else if( vvars.size() == 4 ) {
-	      //std::cout << k << " -- " << vvars[0] << " -- " << vvars[1] << " -- " << vvars[2] << " -- " << vvars[3] << std::endl;
-	      MEs_[i]->Fill( vvars[0], vvars[1], vvars[2], vvars[3] );
-	    }
-	    else{
-	      std::cerr << "Too many variables to plot..." << std::endl;
-	      exit(1);
-	    }
-	    	  
-	    k++;
-	    
-	  }
-	  
-	  // resume the shipping of monitoring elements
-	  if ( dbe_ ) dbe_->unlock();
-	  
-	  delete query;
-	  
-	} catch (coral::Exception& se) {
-	  std::cerr << "CORAL Exception : " << se.what() << std::endl;
-	} catch (std::exception& e) {
-	  std::cerr << "Standard C++ exception : " << e.what() << std::endl;
-	} catch (...) {
-	  std::cerr << "Exception caught (...)" << std::endl;
-	}
+            for( unsigned int l=0; l<vars.size(); l++ ) {
+              if( !vars[l].empty() ) {
+        	vvars.push_back( row[vars[l].c_str()].data<float>() );
+              }
+            }
+            if( vvars.size() == 2 ) {
+              //std::cout << k << " -- " << vvars[0] << " -- " << vvars[1] << std::endl;
+              MEs_[i]->Fill( vvars[0], vvars[1] );
+            }
+            else if( vvars.size() == 3 ) {
+              //std::cout << k << " -- " << vvars[0] << " -- " << vvars[1] << " -- " << vvars[2] << std::endl;
+              MEs_[i]->Fill( vvars[0], vvars[1], vvars[2] );
+            }
+            else if( vvars.size() == 4 ) {
+              //std::cout << k << " -- " << vvars[0] << " -- " << vvars[1] << " -- " << vvars[2] << " -- " << vvars[3] << std::endl;
+              MEs_[i]->Fill( vvars[0], vvars[1], vvars[2], vvars[3] );
+            }
+            else{
+              std::cerr << "Too many variables to plot..." << std::endl;
+              exit(1);
+            }
 
+            k++;
 
+          }
+
+          delete query;
+
+        } catch ( coral::Exception& e ) {
+          std::cerr << "CORAL Exception : " << e.what() << std::endl;
+        } catch ( std::exception& e ) {
+          std::cerr << "Standard C++ exception : " << e.what() << std::endl;
+        }
       }
 
     }
@@ -231,60 +206,60 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 
 }
 
-void MonitorElementsDb::htmlOutput(std::string htmlDir){
+void MonitorElementsDb::htmlOutput(std::string& htmlDir){
 
   gStyle->SetOptStat(0);
   gStyle->SetOptFit();
   gStyle->SetPalette(1,0);
-  
+
   for( unsigned int i=0; i<MEinfo_.size(); i++ ) {
 
     if( MEs_[i] != 0 && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
 
       TCanvas* c1;
       int n = MEinfo_[i].xbins > MEinfo_[i].ybins ? int( round( float( MEinfo_[i].xbins ) / float( MEinfo_[i].ybins ) ) ) :
-	int( round( float( MEinfo_[i].ybins ) / float( MEinfo_[i].xbins ) ) );
+        int( round( float( MEinfo_[i].ybins ) / float( MEinfo_[i].xbins ) ) );
       if( MEinfo_[i].xbins > MEinfo_[i].ybins ) {
-	c1 = new TCanvas( "c1", "dummy", 400*n, 400 );
+        c1 = new TCanvas( "c1", "dummy", 400*n, 400 );
       }
       else {
-	c1 = new TCanvas( "c1", "dummy", 400, 400*n );
+        c1 = new TCanvas( "c1", "dummy", 400, 400*n );
       }
       c1->SetGrid();
       c1->cd();
-    
+
       const double histMax = 1.e15;
 
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (MEs_[i]);
+      TObject* ob = const_cast<MonitorElement*>(MEs_[i])->getRootObject();
       if ( ob ) {
-	if( dynamic_cast<TH1F*>( ob->operator->()) ) {
-	  TH1F* h = dynamic_cast<TH1F*> (ob->operator->());
-	  h->Draw( );
-	}
-	else if( dynamic_cast<TH2F*>( ob->operator->()) ) {
-	  TH2F* h = dynamic_cast<TH2F*>( ob->operator->() );
-	  if( h->GetMaximum(histMax) > 1.e4 ) {
-	    gPad->SetLogz(1);
-	  } else {
-	    gPad->SetLogz(0);
-	  }
-	  h->Draw( "colz" );
-	}
-	else if( dynamic_cast<TProfile*>( ob->operator->()) ) {
-	  TProfile* h = dynamic_cast<TProfile*>( ob->operator->() );
-	  if( h->GetMaximum(histMax) > 1.e4 ) {
-	    gPad->SetLogz(1);
-	  } else {
-	    gPad->SetLogz(0);
-	  }
-	  h->Draw( "colz" );
-	}
+        if( dynamic_cast<TH1F*>( ob ) ) {
+          TH1F* h = dynamic_cast<TH1F*> ( ob );
+          h->Draw( );
+        }
+        else if( dynamic_cast<TH2F*>( ob ) ) {
+          TH2F* h = dynamic_cast<TH2F*>( ob );
+          if( h->GetMaximum(histMax) > 1.e4 ) {
+            gPad->SetLogz(1);
+          } else {
+            gPad->SetLogz(0);
+          }
+          h->Draw( "colz" );
+        }
+        else if( dynamic_cast<TProfile*>( ob ) ) {
+          TProfile* h = dynamic_cast<TProfile*>( ob );
+          if( h->GetMaximum(histMax) > 1.e4 ) {
+            gPad->SetLogz(1);
+          } else {
+            gPad->SetLogz(0);
+          }
+          h->Draw( "colz" );
+        }
       }
 
       c1->Update();
-      std::string name = htmlDir + "/" + MEinfo_[i].title + ".png"; 
+      std::string name = htmlDir + "/" + MEinfo_[i].title + ".png";
       c1->SaveAs( name.c_str() );
-  
+
       delete c1;
 
     }

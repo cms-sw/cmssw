@@ -36,18 +36,19 @@ class SeedGeneratorForCosmics{
 
 
   void  run(TrajectorySeedCollection &,const edm::EventSetup& c);
-  void  seeds(TrajectorySeedCollection &output,
+  bool  seeds(TrajectorySeedCollection &output,
 	      const edm::EventSetup& c,
 	      const TrackingRegion& region);
  
  private:
   edm::ParameterSet conf_;
+  int32_t           maxSeeds_;
   GlobalTrackingRegion region;
   CosmicHitPairGenerator* thePairGenerator;
   CosmicHitTripletGenerator* theTripletGenerator; 
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> tracker;
-  TrajectoryStateTransform transformer;
+  
   KFUpdator *theUpdator;
   PropagatorWithMaterial  *thePropagatorAl;
   PropagatorWithMaterial  *thePropagatorOp;
@@ -58,6 +59,11 @@ class SeedGeneratorForCosmics{
   float seedpt;
   OrderedHitPairs HitPairs;
   OrderedHitTriplets HitTriplets;
+
+  //***top-bottom
+  bool positiveYOnly;
+  bool negativeYOnly;
+  //***
 };
 #endif
 

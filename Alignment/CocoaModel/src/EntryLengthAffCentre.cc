@@ -104,4 +104,5 @@ ALIdouble EntryLengthAffCentre::valueDisplaced() const
 
   if ( ALIUtils::debug >= 5 ) std::cout << name() << " in OptO " << OptOCurrent()->name() << " valueDisplaced: " << vdisp << std::endl;
 
+  return 0.; // to avoid warning
 }

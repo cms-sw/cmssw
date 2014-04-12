@@ -1,8 +1,7 @@
 #include "DQM/SiStripCommissioningSources/interface/FastFedCablingTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 #include <sstream>
@@ -12,7 +11,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-FastFedCablingTask::FastFedCablingTask( DaqMonitorBEInterface* dqm,
+FastFedCablingTask::FastFedCablingTask( DQMStore* dqm,
 					const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FastFedCablingTask" ),
   histo_()
@@ -35,9 +34,9 @@ void FastFedCablingTask::book() {
 					 connection().lldChannel() ).title();
   
   uint16_t nbins = 34;
-  histo_.histo_ = dqm()->bookProfile( title, title, 
-				      nbins, -0.5, nbins*1.-0.5,
-				      1025, 0., 1025. );
+  histo_.histo( dqm()->bookProfile( title, title, 
+				    nbins, -0.5, nbins*1.-0.5,
+				    1025, 0., 1025. ) );
   
   histo_.vNumOfEntries_.resize(nbins,0);
   histo_.vSumOfContents_.resize(nbins,0);
@@ -49,9 +48,6 @@ void FastFedCablingTask::book() {
 //
 void FastFedCablingTask::fill( const SiStripEventSummary& summary,
 			       const edm::DetSet<SiStripRawDigi>& digis ) {
-//   LogTrace(mlDqmSource_)
-//     << "[FastFedCablingTask::" << __func__ << "]"
-//     " key: " << fedKey(); 
 
   if ( digis.data.empty() ) {
     edm::LogWarning(mlDqmSource_)

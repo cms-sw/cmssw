@@ -2,10 +2,7 @@
 #define ECALTESTDEVDB_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
@@ -13,6 +10,8 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
+#include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -38,8 +37,6 @@ namespace edm {
   class EventSetup;
 }
 
-using namespace std;
-
 class  EcalTestDevDB : public edm::EDAnalyzer {
  public:
   explicit  EcalTestDevDB(const edm::ParameterSet& iConfig );
@@ -51,21 +48,17 @@ class  EcalTestDevDB : public edm::EDAnalyzer {
   EcalPedestals* generateEcalPedestals();
   EcalADCToGeVConstant* generateEcalADCToGeVConstant();
   EcalIntercalibConstants* generateEcalIntercalibConstants();
+  EcalLinearCorrections* generateEcalLinearCorrections();
   EcalGainRatios* generateEcalGainRatios();
   EcalWeightXtalGroups* generateEcalWeightXtalGroups();
   EcalTBWeights* generateEcalTBWeights();
-  EcalLaserAPDPNRatios* generateEcalLaserAPDPNRatios();
+  EcalLaserAPDPNRatios* generateEcalLaserAPDPNRatios(uint32_t i_run);
   EcalLaserAlphas* generateEcalLaserAlphas();
   EcalLaserAPDPNRatiosRef* generateEcalLaserAPDPNRatiosRef();
   
 
  private:
  
-  //  EcalWeightXtalGroups* generateEcalWeightXtalGroups();
-  // EcalTBWeights* generateEcalTBWeights();
-  // EcalADCToGeVConstant* generateEcalADCToGeVConstant();
-  // EcalIntercalibConstants* generateEcalIntercalibConstants();
-  // EcalGainRatios* generateEcalGainRatios();
   std::string m_timetype;
   std::map<std::string, unsigned long long> m_cacheIDs;
   std::map<std::string, std::string> m_records;

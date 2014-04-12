@@ -16,63 +16,93 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.8 2007/07/24 20:19:40 jbrooke Exp $
 //
 //
-
 
 // system include files
 #include <memory>
+#include <ostream>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockUnpacker.h"
+#include "EventFilter/GctRawToDigi/src/GctUnpackCollections.h"
+#include "EventFilter/GctRawToDigi/src/GctFormatTranslateBase.h"
 
-//
-// class decleration
-//
 
-class GctRawToDigi : public edm::EDProducer {
- public:
+// *******************************************************************
+// ***  THE UNPACK PROCESS MUST NEVER THROW ANY KIND OF EXCEPTION! *** 
+// *******************************************************************
+
+class GctRawToDigi : public edm::one::EDProducer<edm::one::SharedResources>
+{
+public:
+
   explicit GctRawToDigi(const edm::ParameterSet&);
   ~GctRawToDigi();
+
   
- private: // methods
-  virtual void beginJob(const edm::EventSetup&) ;
+private: // methods
+
+  virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   
-  void unpack(const FEDRawData& d, edm::Event& e);
+  /// Unpacks the raw data
+  /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
+  void unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollections * const colls);
 
- private: // members
+  /// Looks at the firmware version header in the S-Link packet and instantiates relevant format translator.
+  /*! Returns false if it fails to instantiate a Format Translator */
+  bool autoDetectRequiredFormatTranslator(const unsigned char * data);
 
-  static unsigned MAX_EXCESS;
-  static unsigned MAX_BLOCKS;
+  /// check block headers for consistency
+  void checkHeaders();
 
-  bool verbose_;         // print out for each event
+  /// Prints out a list of blocks and the various numbers of trigger objects that have been unpacked from them.
+  void doVerboseOutput(const GctBlockHeaderCollection& bHdrs, const GctUnpackCollections * const colls) const;
 
-  edm::InputTag inputLabel_;  // FED collection label
+  // add an error to the error collection
+  void addError(const unsigned code);
 
-  int fedId_;            // GCT FED ID
-  int nDebugSamples_;    // number of samples per block in debug mode
-  
+  /// method called at job end - use to print summary report
+  virtual void endJob();
+
+
+private: // members
+
+  /// The maximum number of blocks we will try to unpack before thinking something is wrong
+  static const unsigned MAX_BLOCKS = 256;
+
   // unpacking options
-  bool doEm_;
-  bool doJets_;
-  bool doEtSums_;
-  bool doInternEm_;
-  bool doFibres_;
+  edm::InputTag inputLabel_;  ///< FED collection label.
+  int fedId_;                 ///< GCT FED ID.
 
+  const bool hltMode_;        ///< If true, only outputs the GCT data sent to the GT (number of BXs defined by numberOfGctSamplesToUnpack_)
+  const unsigned numberOfGctSamplesToUnpack_; ///< Number of BXs of GCT data to unpack (assuming they are in the raw data)
+  const unsigned numberOfRctSamplesToUnpack_; ///< Number of BXs of RCT data to unpack (assuming they are in the raw data)
+  const bool unpackSharedRegions_;  ///< Commissioning option: if true, where applicable the shared RCT calo regions will also be unpacked.
+  const unsigned formatVersion_;  ///< Defines unpacker verison to be used (e.g.: "Auto-detect", "MCLegacy", "V35", etc).
+  const bool checkHeaders_;  ///< If true, check block headers for synchronisation
+  const bool verbose_;       ///< If true, then debug print out for each event.
 
-  // Block to Digi converter
-  GctBlockUnpacker blockUnpacker_;
+  // format translator
+  GctFormatTranslateBase * formatTranslator_;  ///< pointer to the block-to-digi converter
+
+  // vector of unpacked block headers, for verbostity and/or sync checks
+  GctBlockHeaderCollection blockHeaders_;
+
+  // error handling
+  static const unsigned MAX_ERR_CODE = 6;
+  L1TriggerErrorCollection * errors_;    ///< pointer to error collection
+  std::vector<unsigned> errorCounters_;  ///< Counts number of errors for each code (index)
+  unsigned unpackFailures_;  ///< To count the total number of GCT unpack failures.  
 
 };
 

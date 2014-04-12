@@ -1,24 +1,18 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.14 2007/01/23 00:25:53 wmtan Exp $
  *  CMSSW
- *
  */
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/TestHandle.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include <algorithm>
 #include <cassert>
-//#include <iostream>
 #include <iterator>
 #include <ostream>
 #include <stdexcept>
 #include <vector>
-
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-#if ! GCC_PREREQUISITE(3,4,4)
-#include "DataFormats/Common/interface/traits.h"
-#endif
 
 using namespace edm;
 
@@ -28,9 +22,8 @@ using namespace edm;
 
 struct Empty { };
 
-template <class BASE>
-class ValueT : public BASE
-{
+template<typename BASE>
+class ValueT : public BASE {
  public:
   // VALUES must be default constructible
   ValueT() : d_(0.0) {}
@@ -38,9 +31,6 @@ class ValueT : public BASE
   // This constructor is used for testing; it is not required by the
   // concept VALUE.
   explicit ValueT(double d) : d_(d) {}
-
-  // The compiler-generated copy c'tor seems to do the wrong thing!
-  ValueT(ValueT const& other) : d_(other.d_) {}
 
   // This access function is used for testing; it is not required by
   // the concept VALUE.
@@ -51,7 +41,7 @@ class ValueT : public BASE
 
 
   // VALUES must be LessThanComparable
-  bool operator< (ValueT const& other) const {return d_ < other.d_;}
+  bool operator<(ValueT const& other) const {return d_ < other.d_;}
 
   // The private stuff below is all implementation detail, and not
   // required by the concept VALUE.
@@ -61,10 +51,9 @@ class ValueT : public BASE
 
 typedef edm::DoNotSortUponInsertion DNS;
 
-template <>
+template<>
 bool
-ValueT<DNS>::operator< (ValueT<DNS> const& other) const
-{
+ValueT<DNS>::operator<(ValueT<DNS> const& /*other*/) const {
   throw std::logic_error("You can't sort me!");
 }
 
@@ -84,10 +73,9 @@ typedef ValueT<Empty> Value;
 //
 //------------------------------------------------------
 
-template <class BASE>
+template<typename BASE>
 std::ostream&
-operator<< (std::ostream& os, ValueT<BASE> const& v)
-{
+operator<<(std::ostream& os, ValueT<BASE> const& v) {
   os << " val: " << v.val();
   return os;
 }
@@ -96,32 +84,28 @@ operator<< (std::ostream& os, ValueT<BASE> const& v)
 typedef edm::DetSetVector<Value> coll_type;
 typedef coll_type::detset        detset;
 
-void check_outer_collection_order(coll_type const& c)
-{
-  if (c.size() < 2) return;
+void check_outer_collection_order(coll_type const& c) {
+  if(c.size() < 2) return;
   coll_type::const_iterator i = c.begin();
   coll_type::const_iterator e = c.end();
   // Invariant: sequence from prev to i is correctly ordered
   coll_type::const_iterator prev(i);
   ++i;
-  for (; i != e; ++i, ++prev)
-    {
+  for(; i != e; ++i, ++prev) {
       // We don't use CPPUNIT_ASSERT because it gives us grossly
       // insufficient context if a failure occurs.
       assert(prev->id < i->id);
     }
 }
 
-void check_inner_collection_order(detset const& d)
-{
-  if (d.data.size() < 2) return;
+void check_inner_collection_order(detset const& d) {
+  if(d.data.size() < 2) return;
   detset::const_iterator i = d.data.begin();
   detset::const_iterator e = d.data.end();
   // Invariant: sequence from prev to i is correctly ordered
   detset::const_iterator prev(i);
   ++i;
-  for (; i != e; ++i, ++prev)
-    {
+  for(; i != e; ++i, ++prev) {
       // We don't use CPPUNIT_ASSERT because it gives us grossly
       // insufficient context if a failure occurs.
       //
@@ -131,35 +115,30 @@ void check_inner_collection_order(detset const& d)
     }
 }
 
-void printDetSet(detset const& ds, std::ostream& os)
-{
+void printDetSet(detset const& ds, std::ostream& os) {
   os << "size: " << ds.data.size() << '\n'
      << "values: ";
   std::copy(ds.data.begin(), ds.data.end(),
-	    std::ostream_iterator<detset::value_type>(os, " "));
+            std::ostream_iterator<detset::value_type>(os, " "));
 }
 
 
-void sanity_check(coll_type const& c)
-{
+void sanity_check(coll_type const& c) {
   check_outer_collection_order(c);
-  for (coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i)
-    {
+  for(coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i) {
 //       printDetSet(*i, std::cerr);
 //       std::cerr << '\n';
       check_inner_collection_order(*i);
     }
 }
 
-void check_ids(coll_type const& c)
-{
+void check_ids(coll_type const& c) {
   // Long way to get all ids...
   std::vector<det_id_type> all_ids;
-  for (coll_type::const_iterator i = c.begin(),
-	 e = c.end();
+  for(coll_type::const_iterator i = c.begin(),
+       e = c.end();
        i !=  e;
-       ++i)
-    {
+       ++i) {
       all_ids.push_back(i->id);
     }
   assert(c.size() == all_ids.size());
@@ -170,8 +149,7 @@ void check_ids(coll_type const& c)
 }
 
 
-void detsetTest()
-{
+void detsetTest() {
   //std::cerr << "\nStart DetSetVector_t detsetTest()\n";
   detset d;
   Value v1(1.1);
@@ -184,40 +162,20 @@ void detsetTest()
   //std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
 }
 
-#if ! GCC_PREREQUISITE(3,4,4)
-void traitsTest()
-{
-  //std::cerr << "\nStart DetSetVector_t traitsTest()\n";
-  assert(edm::has_postinsert_trait<int>::value == false);
-  assert(edm::has_postinsert_trait<coll_type>::value == true);
-  //std::cerr << "\nEnd DetSetVector_t traitsTest()\n";
-}
-#endif
-
-namespace
-{
-  template<class T>
-  struct DSVGetter : edm::EDProductGetter
-  {
+namespace {
+  template<typename T>
+  struct DSVGetter : edm::EDProductGetter {
     DSVGetter() : edm::EDProductGetter(), prod_(0) {}
-    virtual EDProduct const*
-    getIt(ProductID const&) const { return prod_; }
+    virtual WrapperHolder
+    getIt(ProductID const&) const override {return WrapperHolder(prod_, prod_->getInterface());}
+    virtual unsigned int
+    transitionIndex_() const override {return 0U;}
+
     edm::Wrapper<T> const* prod_;
   };
-  template<class T>
-  struct MyHandle
-  {
-    typedef T element_type;
-    MyHandle(const T* iProd) : prod_(iProd) { }
-    ProductID id() const {return ProductID(1);}
-    const T* product() const {return prod_;}
-    const T* prod_;
-    const T* operator->() const {return prod_;}
-  };
 }
 
-void refTest()
-{
+void refTest() {
   coll_type c;
   detset d3;
   Value v1(1.1);
@@ -244,27 +202,27 @@ void refTest()
   typedef edm::Ref<coll_type,Value> RefDet;
 
   {
-    RefDetSet refSet(edm::ProductID(1),0,&theGetter);
+    RefDetSet refSet(edm::ProductID(1, 1),0,&theGetter);
     assert(!(d1 <*refSet) && !(*refSet < d1));
   }
   {
-    RefDetSet refSet(edm::ProductID(1),1,&theGetter);
+    RefDetSet refSet(edm::ProductID(1, 1),1,&theGetter);
     assert(!(d3 <*refSet) && !(*refSet < d3));
   }
   {
-    RefDet refDet(edm::ProductID(1),RefDet::key_type(3,0),&theGetter);
+    RefDet refDet(edm::ProductID(1, 1),RefDet::key_type(3,0),&theGetter);
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
 
   {
-    MyHandle<coll_type> pc2(&c);
+    TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
 
   try {
     //bad detid
-    MyHandle<coll_type> pc2(&c);
+    TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(12),c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);
@@ -277,7 +235,7 @@ void refTest()
 
   try {
     //bad iterator
-    MyHandle<coll_type> pc2(&c);
+    TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(1),c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);
@@ -290,12 +248,8 @@ void refTest()
 
 }
 
-void work()
-{
+void work() {
   detsetTest();
-#if ! GCC_PREREQUISITE(3,4,4)
-  traitsTest();
-#endif
   refTest();
 
   coll_type c1;
@@ -426,7 +380,7 @@ void work()
     coll_type::reference r = c.find_or_insert(edm::det_id_type(17));
     coll_type::size_type newsize = c.size();
     assert(newsize > oldsize);
-    assert(newsize = (oldsize+1));
+    assert(newsize == (oldsize+1));
     assert(r.id == edm::det_id_type(17));
     assert(r.data.size() == 0);
     r.data.push_back(Value(10.1));
@@ -438,17 +392,15 @@ void work()
   }
   {
     // Make sure we can swap in a vector.
-    const unsigned int numDetSets = 20;
-    const unsigned int detSetSize = 14;
+    unsigned int const numDetSets = 20;
+    unsigned int const detSetSize = 14;
     std::vector<detset> v;
-    for (unsigned int i = 0; i < numDetSets; ++i)
-      {
-	detset    d(i);
-	for (unsigned int j = 0; j < detSetSize; ++j)
-	  {
-	    d.data.push_back(Value(100*i + 1.0/j));
-	  }
-	v.push_back(d);
+    for(unsigned int i = 0; i < numDetSets; ++i) {
+        detset    d(i);
+        for(unsigned int j = 0; j < detSetSize; ++j) {
+            d.data.push_back(Value(100*i + 1.0/j));
+        }
+        v.push_back(d);
       }
     assert(v.size() == numDetSets);
     coll_type c3(v);
@@ -467,10 +419,7 @@ void work()
   }
 }
 
-
-
-int main()
-{
+int main() {
   int rc = -1;
   try {
       work();

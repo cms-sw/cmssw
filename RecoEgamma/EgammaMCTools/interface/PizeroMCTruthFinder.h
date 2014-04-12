@@ -21,11 +21,11 @@ class PizeroMCTruthFinder {
 
     virtual ~PizeroMCTruthFinder(); 
 
-    std::vector<PizeroMCTruth> find(std::vector<SimTrack> simTracks, std::vector<SimVertex> simVertices);
+    std::vector<PizeroMCTruth> find(const std::vector<SimTrack>& simTracks, const std::vector<SimVertex>& simVertices);
 
   private:
 
-    void fill(std::vector<SimTrack>& theSimTracks, std::vector<SimVertex>& theSimVertices);
+    void fill(const std::vector<SimTrack>& theSimTracks, const std::vector<SimVertex>& theSimVertices);
 
     std::map<unsigned, unsigned> geantToIndex_;
     PhotonMCTruthFinder* thePhotonMCTruthFinder_;

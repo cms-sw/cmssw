@@ -1,15 +1,15 @@
 
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
-//#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <list>
 
 using std::list;
 using std::pair;
 
-MaterialEffectsSimulator:: MaterialEffectsSimulator(const RandomEngine* engine)
+MaterialEffectsSimulator:: MaterialEffectsSimulator(double A, double Z,
+						    double density, double radLen) :
+  A(A), Z(Z), density(density), radLen(radLen)
 { 
-  random = engine;
   _theUpdatedState.clear(); 
 }
 
@@ -19,13 +19,15 @@ MaterialEffectsSimulator::~MaterialEffectsSimulator() {
 }
 
 void MaterialEffectsSimulator::updateState(ParticlePropagator & Particle,
-					   double radlen)
+					   double radlen,
+                                           RandomEngineAndDistribution const* random)
 {
 
   _theUpdatedState.clear();
+  theClosestChargedDaughterId = -1;
 
   radLengths = radlen;
-  if ( radLengths > 0. ) compute(Particle);
+  if ( radLengths > 0. ) compute(Particle, random);
 
 }
 

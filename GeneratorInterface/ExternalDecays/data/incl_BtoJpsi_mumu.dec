@@ -1,0 +1,412 @@
+#
+# This is the decay file for B -> Jpsi ( -> mu mu ) X
+#
+# EventType: 12442000
+#
+# Descriptor: {[B => (J/psi(1S) -> mu+ mu- {,gamma} {,gamma}) X]cc]
+#
+# NickName: 
+#
+# Physics: 
+#
+# Tested: Yes
+# By: Keith Ulmer (keith.ulmer@colorado.edu)
+#     Giordano Cerizza (gcerizza@utk.edu)
+# Date: 2/27/10
+#
+
+Define Hp 0.49
+Define Hz 0.775
+Define Hm 0.4
+Define pHp 2.50
+Define pHz 0.0
+Define pHm -0.17
+
+Alias      MyB0   B0
+Alias      Myanti-B0   anti-B0
+ChargeConj Myanti-B0   MyB0 
+
+Alias      MyB+   B+
+Alias      MyB-   B-
+ChargeConj MyB-   MyB+
+
+Alias      MyB_s0   B_s0
+Alias      Myanti-B_s0   anti-B_s0
+ChargeConj Myanti-B_s0   MyB_s0 
+
+Alias      MyLambda_b0   Lambda_b0
+Alias      Myanti-Lambda_b0   anti-Lambda_b0
+ChargeConj Myanti-Lambda_b0   MyLambda_b0 
+
+Alias MyJ/psi J/psi
+ChargeConj MyJ/psi MyJ/psi
+
+Alias Mychi_c0 chi_c0
+ChargeConj Mychi_c0 Mychi_c0
+
+Alias Mychi_c1 chi_c1
+ChargeConj Mychi_c1 Mychi_c1
+
+Alias Mychi_c2 chi_c2
+ChargeConj Mychi_c2 Mychi_c2
+
+Alias Myh_c h_c
+ChargeConj Myh_c Myh_c
+
+Alias Mypsi(2S) psi(2S)
+ChargeConj Mypsi(2S) Mypsi(2S) 
+
+Alias Mypsi(3770) psi(3770)
+ChargeConj Mypsi(3770) Mypsi(3770)
+
+Decay MyJ/psi
+ 1.0000  mu+        mu-                    PHOTOS VLL ;
+Enddecay
+
+Decay Mychi_c0
+ 1.0000  gamma      MyJ/psi                PHSP ;
+Enddecay
+
+Decay Mychi_c1
+ 1.0000  MyJ/psi    gamma                  VVP 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ;
+Enddecay
+
+Decay Mychi_c2
+ 1.0000  gamma      MyJ/psi                PHSP ;
+Enddecay
+
+Decay Myh_c
+ 1.0000  MyJ/psi    pi0                    PHSP ;
+Enddecay
+
+Decay Mypsi(2S)
+ 0.4762  MyJ/psi    pi+        pi-         VVPIPI ;
+ 0.2346  MyJ/psi    pi0        pi0         VVPIPI ;
+ 0.1741  mu+        mu-                    PHOTOS VLL ;
+ 0.0517  gamma      Mychi_c1               PHSP ;
+ 0.0306  MyJ/psi    eta                    PARTWAVE 0.0 0.0 1.0 0.0 0.0 0.0 ;
+ 0.0281  gamma      Mychi_c2               PHSP ;
+ 0.0028  gamma      Mychi_c0               PHSP ;
+ 0.0018  MyJ/psi    pi0                    PARTWAVE 0.0 0.0 1.0 0.0 0.0 0.0 ;
+ 0.0000  Myh_c      pi0                    PHSP ;
+Enddecay
+
+Decay Mypsi(3770)
+ 1.0000  MyJ/psi    pi+        pi-         PHSP ;
+Enddecay
+
+Decay MyB+
+#Measured BF from PDG (KU 2-26-10)
+ 0.1739  MyJ/psi    K_1+                 SVV_HELAMP 0.5 0.0 1.0 0.0 0.5 0.0 ;
+ 0.1382  MyJ/psi    K*+                  SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.1082  Mypsi(2S)  K+         pi-  pi+  PHSP ;
+ 0.1034  MyJ/psi    K+         pi-  pi+  PHSP;
+ 0.0972  MyJ/psi    K+                   SVS ;
+ 0.0382  Mypsi(2S)  K*+                  SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0369  Mypsi(2S)  K+                   SVS ;
+ 0.0338  MyJ/psi    omega      K+        PHSP;
+ 0.0168  Mychi_c1   K+                   SVS ;
+ 0.0119  Mychi_c1   K*+                  SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0104  MyJ/psi    eta        K+        PHSP;
+ 0.0050  MyJ/psi    phi        K+        PHSP;
+ 0.0048  MyJ/psi    rho+                 SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0047  MyJ/psi    pi+                  SVS ;
+ 0.0013  Mypsi(2S)  pi+                  SVS;
+ 0.0008  Mychi_c1   pi+                  SVS ;
+#Some guesses for additional unmeasured channels (KU 2-26-10)
+ 0.0452  MyJ/psi    K_2*+                PHSP ; 
+ 0.0295  Mypsi(2S)  K_1+                 PHSP ;
+ 0.0194  Mychi_c1   K+         pi-        pi+         PHSP ;
+ 0.0185  Mypsi(2S)  K+         pi0         PHSP ;
+ 0.0185  Mypsi(2S)  K0       pi+         PHSP ;
+ 0.0121  MyJ/psi    K+         pi0         PHSP ;
+ 0.0121  MyJ/psi    K0       pi+         PHSP ;
+ 0.0119  MyJ/psi    K'_1+                SVV_HELAMP 0.5 0.0 1.0 0.0 0.5 0.0 ;
+ 0.0097  Mychi_c1   K+         pi0         PHSP ;
+ 0.0097  Mychi_c1   K0       pi+         PHSP ;
+ 0.0093  Mypsi(2S)  K+         pi0        pi0         PHSP ;
+ 0.0051  Mychi_c2   K+         pi-        pi+         PHSP ;
+ 0.0046  Mypsi(2S)  K0       pi+        pi0         PHSP ;
+ 0.0026  Mychi_c2   K+         pi0         PHSP ;
+ 0.0026  Mychi_c2   K0       pi+         PHSP ;
+ 0.0008  Mychi_c0   K+                     PHSP ;
+ 0.0007  K*+        Mychi_c0            SVS ;
+ 0.0005  Mychi_c0   K+         pi-        pi+         PHSP ;
+ 0.0005  Mychi_c2   K+                     STS ;
+ 0.0003  Mychi_c2   K*+                  PHSP ;
+ 0.0002  Mychi_c0   K+         pi0         PHSP ;
+ 0.0002  Mychi_c0   K0       pi+         PHSP ;
+ 0.0002  Mypsi(3770) K+                     SVS ;
+ 0.0002  Mypsi(3770) K*+                  PHSP ;
+ 0.0001  Mypsi(3770) K+         pi0         PHSP ;
+Enddecay
+
+Decay MyB-
+#Measured BF from PDG (KU 2-26-10)
+ 0.1739  MyJ/psi    K_1-                 SVV_HELAMP 0.5 0.0 1.0 0.0 0.5 0.0 ;
+ 0.1382  MyJ/psi    K*-                  SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.1082  Mypsi(2S)  K-         pi-  pi+  PHSP ;
+ 0.1034  MyJ/psi    K-         pi-  pi+  PHSP;
+ 0.0972  MyJ/psi    K-                   SVS ;
+ 0.0382  Mypsi(2S)  K*-                  SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0369  Mypsi(2S)  K-                   SVS ;
+ 0.0338  MyJ/psi    omega      K-        PHSP;
+ 0.0168  Mychi_c1   K-                   SVS ;
+ 0.0119  Mychi_c1   K*-                  SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0104  MyJ/psi    eta        K-        PHSP;
+ 0.0050  MyJ/psi    phi        K-        PHSP;
+ 0.0048  MyJ/psi    rho-                 SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0047  MyJ/psi    pi-                  SVS ;
+ 0.0013  Mypsi(2S)  pi-                  SVS;
+ 0.0008  Mychi_c1   pi-                  SVS ;
+#Some guesses for additional unmeasured channels (KU 2-26-10)
+ 0.0452  MyJ/psi    K_2*-                PHSP ; 
+ 0.0295  Mypsi(2S)  K_1-                 PHSP ;
+ 0.0194  Mychi_c1   K-         pi-        pi+         PHSP ;
+ 0.0185  Mypsi(2S)  K-         pi0         PHSP ;
+ 0.0185  Mypsi(2S)  anti-K0       pi-         PHSP ;
+ 0.0121  MyJ/psi    K-         pi0         PHSP ;
+ 0.0121  MyJ/psi    anti-K0       pi-         PHSP ;
+ 0.0119  MyJ/psi    K'_1-                SVV_HELAMP 0.5 0.0 1.0 0.0 0.5 0.0 ;
+ 0.0097  Mychi_c1   K-         pi0         PHSP ;
+ 0.0097  Mychi_c1   anti-K0       pi-         PHSP ;
+ 0.0093  Mypsi(2S)  K-         pi0        pi0         PHSP ;
+ 0.0051  Mychi_c2   K-         pi-        pi+         PHSP ;
+ 0.0046  Mypsi(2S)  anti-K0       pi-        pi0         PHSP ;
+ 0.0026  Mychi_c2   K-         pi0         PHSP ;
+ 0.0026  Mychi_c2   anti-K0       pi-         PHSP ;
+ 0.0008  Mychi_c0   K-                     PHSP ;
+ 0.0007  K*-        Mychi_c0               SVS ;
+ 0.0005  Mychi_c0   K-         pi-        pi+         PHSP ;
+ 0.0005  Mychi_c2   K-                     STS ;
+ 0.0003  Mychi_c2   K*-                  PHSP ;
+ 0.0002  Mychi_c0   K-         pi0         PHSP ;
+ 0.0002  Mychi_c0   anti-K0       pi-         PHSP ;
+ 0.0002  Mypsi(3770) K-                     SVS ;
+ 0.0002  Mypsi(3770) K*-                  PHSP ;
+ 0.0001  Mypsi(3770) K-         pi0         PHSP ;
+Enddecay
+
+Decay MyB0
+#Measured BF from PDG (KU 2-26-10)
+ 0.1441  MyJ/psi    K*0                  SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.1408  MyJ/psi    K_10                 SVV_HELAMP 0.5 0.0 1.0 0.0 0.5 0.0 ;
+ 0.0943  MyJ/psi    K0                   SVS ;
+ 0.0867  MyJ/psi    K*+     pi-        PHSP ;
+ 0.0715  MyJ/psi    K*0    pi+     pi-        PHSP ; 
+ 0.0460  Mypsi(2S)  K*0                  SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0396  Mypsi(2S)  K0                   SVS ;
+ 0.0336  MyJ/psi    omega      K0        PHSP ; 
+ 0.0141  Mychi_c1   K+         pi-         PHSP ;
+ 0.0217  MyJ/psi    K0   pi+     pi-        PHSP ; 
+ 0.0173  MyJ/psi    eta      K0        PHSP ; 
+ 0.0144  Mychi_c1   K0                   SVS ;
+ 0.0102  MyJ/psi    phi      K0        PHSP ;
+ 0.0074  Mychi_c1   K*0                  SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0029  rho0       MyJ/psi              SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0021  MyJ/psi    pi+     pi-        PHSP ;
+ 0.0019  MyJ/psi    pi0                   SVS ;
+ 0.0011  MyJ/psi    eta                   SVS ;
+ 0.0004  Mychi_c1   pi0         PHSP ;
+ 0.0002  K*0        Mychi_c0          SVS ;
+#Some guesses for additional unmeasured channels (KU 2-26-10)
+ 0.0575  MyJ/psi    K_2*0                PHSP ;
+ 0.0416  Mypsi(2S)  K+         pi-         PHSP ;
+ 0.0326  Mypsi(2S)  K_10                   PHSP ;
+ 0.0271  MyJ/psi    K+         pi-         PHSP ;
+ 0.0133  MyJ/psi    K'_10                SVV_HELAMP 0.5 0.0 1.0 0.0 0.5 0.0 ;
+ 0.0109  Mychi_c1   K+         pi-        pi0         PHSP ;
+ 0.0104  Mypsi(2S)  K0       pi0         PHSP ;
+ 0.0104  Mypsi(2S)  K0       pi-        pi+         PHSP ;
+ 0.0104  Mypsi(2S)  K+         pi-        pi0         PHSP ;
+ 0.0068  MyJ/psi    K0       pi0         PHSP ;
+ 0.0058  Mychi_c2   K+         pi-         PHSP ;
+ 0.0055  Mychi_c1   K0       pi0         PHSP ;
+ 0.0052  Mypsi(2S)  K0       pi0        pi0         PHSP ;
+ 0.0040  MyJ/psi    omega                SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus ;
+ 0.0029  Mychi_c2   K+         pi-        pi0         PHSP ;
+ 0.0014  Mychi_c2   K_S0                   STS ;
+ 0.0014  Mychi_c2   K0       pi0         PHSP ;
+ 0.0007  Mychi_c2   K*0                  PHSP ;
+ 0.0006  Mychi_c0   K+         pi-         PHSP ;
+ 0.0005  Mychi_c0   K_S0                   PHSP ;
+ 0.0003  Mychi_c0   K+         pi-        pi0         PHSP ;
+ 0.0002  Mychi_c0   K0       pi0         PHSP ;
+ 0.0002  Mypsi(3770) K_S0                   SVS ;
+Enddecay
+
+Decay Myanti-B0
+#Measured BF from PDG (KU 2-26-10)
+ 0.1441  MyJ/psi    anti-K*0                  SVV_HELAMP PKHminus PKphHminus PKHzero PKphHzero PKHplus PKphHplus ;
+ 0.1408  MyJ/psi    anti-K_10                 SVV_HELAMP 0.5 0.0 1.0 0.0 0.5 0.0 ;
+ 0.0943  MyJ/psi    anti-K0                   SVS ;
+ 0.0867  MyJ/psi    K*+     pi-        PHSP ;
+ 0.0715  MyJ/psi    anti-K*0    pi+     pi-        PHSP ; 
+ 0.0460  Mypsi(2S)  anti-K*0                  SVV_HELAMP PKHminus PKphHminus PKHzero PKphHzero PKHplus PKphHplus ;
+ 0.0396  Mypsi(2S)  anti-K0                   SVS ;
+ 0.0336  MyJ/psi    omega      anti-K0        PHSP ; 
+ 0.0141  Mychi_c1   K+         pi-            PHSP ;
+ 0.0217  MyJ/psi    anti-K0   pi+     pi-     PHSP ; 
+ 0.0173  MyJ/psi    eta      anti-K0          PHSP ; 
+ 0.0144  Mychi_c1   anti-K0                   SVS ;
+ 0.0102  MyJ/psi    phi      anti-K0          PHSP ;
+ 0.0074  Mychi_c1   anti-K*0                  SVV_HELAMP PKHminus PKphHminus PKHzero PKphHzero PKHplus PKphHplus ;
+ 0.0029  rho0       MyJ/psi                   SVV_HELAMP PKHminus PKphHminus PKHzero PKphHzero PKHplus PKphHplus ;
+ 0.0021  MyJ/psi    pi+     pi-        PHSP ;
+ 0.0019  MyJ/psi    pi0                   SVS ;
+ 0.0011  MyJ/psi    eta                   SVS ;
+ 0.0004  Mychi_c1   pi0         PHSP ;
+ 0.0002  anti-K*0   Mychi_c0             SVS ;
+#Some guesses for additional unmeasured channels (KU 2-26-10)
+ 0.0575  MyJ/psi    anti-K_2*0                PHSP ;
+ 0.0416  Mypsi(2S)  K+         pi-         PHSP ;
+ 0.0326  Mypsi(2S)  anti-K_10                   PHSP ;
+ 0.0271  MyJ/psi    K+         pi-         PHSP ;
+ 0.0133  MyJ/psi    anti-K'_10                SVV_HELAMP 0.5 0.0 1.0 0.0 0.5 0.0 ;
+ 0.0109  Mychi_c1   K+         pi-        pi0         PHSP ;
+ 0.0104  Mypsi(2S)  anti-K0       pi0         PHSP ;
+ 0.0104  Mypsi(2S)  anti-K0       pi-        pi+         PHSP ;
+ 0.0104  Mypsi(2S)  K+         pi-        pi0         PHSP ;
+ 0.0068  MyJ/psi    anti-K0       pi0         PHSP ;
+ 0.0058  Mychi_c2   K+         pi-         PHSP ;
+ 0.0055  Mychi_c1   anti-K0       pi0         PHSP ;
+ 0.0052  Mypsi(2S)  anti-K0       pi0        pi0         PHSP ;
+ 0.0040  MyJ/psi    omega                        SVV_HELAMP PKHminus PKphHminus PKHzero PKphHzero PKHplus PKphHplus ;
+ 0.0029  Mychi_c2   K+         pi-        pi0         PHSP ;
+ 0.0014  Mychi_c2   anti-K0                   STS ;
+ 0.0014  Mychi_c2   anti-K0       pi0         PHSP ;
+ 0.0007  Mychi_c2   anti-K*0                  PHSP ;
+ 0.0006  Mychi_c0   K+         pi-         PHSP ;
+ 0.0005  Mychi_c0   anti-K0                   PHSP ;
+ 0.0003  Mychi_c0   K+         pi-        pi0         PHSP ;
+ 0.0002  Mychi_c0   anti-K0       pi0         PHSP ;
+ 0.0002  Mypsi(3770) anti-K0                   SVS ;
+Enddecay
+
+Decay MyB_s0
+#Only PsiPhi is measured (KU 2-26-10)
+ 0.1547  MyJ/psi     phi        PVV_CPLH 0.02 1 Hp pHp Hz pHz Hm pHm;
+#Some guesses for additional unmeasured channels (KU 2-26-10)
+ 0.0809  MyJ/psi    K-         K+          PHSP ;
+ 0.0809  MyJ/psi    K-         K+         pi0         PHSP ;
+ 0.0708  Mypsi(2S)     phi        PVV_CPLH 0.02 1 Hp pHp Hz pHz Hm pHm;
+ 0.0475  MyJ/psi    eta'                 SVS ;
+ 0.0435  Mychi_c1   phi                  SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0 ;
+ 0.0405  MyJ/psi    K0       K-         pi+         PHSP ;
+ 0.0297  MyJ/psi    eta'     pi+        pi-         PHSP ;
+ 0.0295  MyJ/psi    phi      pi+        pi-         PHSP ;
+ 0.0295  MyJ/psi    phi      pi0        pi0         PHSP ;
+ 0.0271  Mypsi(2S)  K-         K+         pi0         PHSP ;
+ 0.0271  Mypsi(2S)  K-         K+          PHSP ;
+ 0.0270  Mypsi(2S)  eta'                 SVS ;
+ 0.0247  MyJ/psi    eta                  SVS ;
+ 0.0232  Mypsi(2S)  eta'     pi+        pi-         PHSP ;
+ 0.0231  MyJ/psi    pi+        pi-         PHSP ;
+ 0.0213  Mychi_c1   eta'                 SVS ;
+ 0.0202  MyJ/psi    anti-K0  K0        PHSP ;
+ 0.0201  Mypsi(2S)  phi      pi+        pi-         PHSP ;
+ 0.0201  Mypsi(2S)  phi      pi0        pi0         PHSP ;
+ 0.0181  Mypsi(2S)  pi+        pi-         PHSP ;
+ 0.0181  Mypsi(2S)  pi0        pi0         PHSP ;
+ 0.0154  MyJ/psi    eta      pi+        pi-         PHSP ;
+ 0.0141  Mypsi(2S)  eta                  SVS ;
+ 0.0135  Mypsi(2S)  K0       K-         pi+         PHSP ;
+ 0.0123  Mychi_c1   K-         K+          PHSP ;
+ 0.0123  Mychi_c1   K-         K+         pi0         PHSP ;
+ 0.0120  Mypsi(2S)  eta      pi+        pi-         PHSP ;
+ 0.0095  Mychi_c1   eta                  SVS ;
+ 0.0075  Mychi_c2   eta'                 STS ;
+ 0.0067  Mypsi(2S)  anti-K0  K0        PHSP ;
+ 0.0046  MyJ/psi    K0                   SVS ;
+ 0.0040  Mychi_c2   K-         K+          PHSP ;
+ 0.0040  Mychi_c2   K-         K+         pi0         PHSP ;
+ 0.0039  Mychi_c2   eta                  STS ;
+ 0.0008  Myh_c      phi                  SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0 ;
+ 0.0004  Myh_c      eta'                 SVS ;
+ 0.0003  phi      Mychi_c0               SVS ;
+ 0.0002  Myh_c      K-         K+         pi0         PHSP ;
+ 0.0002  Myh_c      K-         K+          PHSP ;
+ 0.0002  Myh_c      eta                  SVS ;
+ 0.0002  Mychi_c0   eta'                 PHSP ;
+ 0.0001  Mychi_c0   eta                  PHSP ;
+ 0.0001  Mychi_c0   K-         K+         pi0         PHSP ;
+ 0.0001  Mychi_c0   K-         K+          PHSP ;
+Enddecay
+
+Decay Myanti-B_s0
+#Only PsiPhi is measured (KU 2-26-10)
+ 0.1547  MyJ/psi     phi        PVV_CPLH 0.02 1 Hp pHp Hz pHz Hm pHm;
+#Some guesses for additional unmeasured channels (KU 2-26-10)
+ 0.0809  MyJ/psi    K-         K+          PHSP ;
+ 0.0809  MyJ/psi    K-         K+         pi0         PHSP ;
+ 0.0708  Mypsi(2S)     phi        PVV_CPLH 0.02 1 Hp pHp Hz pHz Hm pHm;
+ 0.0475  MyJ/psi    eta'                 SVS ;
+ 0.0435  Mychi_c1   phi                  SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0 ;
+ 0.0405  MyJ/psi    anti-K0  K+         pi-         PHSP ;
+ 0.0297  MyJ/psi    eta'     pi+        pi-         PHSP ;
+ 0.0295  MyJ/psi    phi      pi+        pi-         PHSP ;
+ 0.0295  MyJ/psi    phi      pi0        pi0         PHSP ;
+ 0.0271  Mypsi(2S)  K-         K+         pi0         PHSP ;
+ 0.0271  Mypsi(2S)  K-         K+          PHSP ;
+ 0.0270  Mypsi(2S)  eta'                 SVS ;
+ 0.0247  MyJ/psi    eta                  SVS ;
+ 0.0232  Mypsi(2S)  eta'     pi+        pi-         PHSP ;
+ 0.0231  MyJ/psi    pi+        pi-         PHSP ;
+ 0.0213  Mychi_c1   eta'                 SVS ;
+ 0.0202  MyJ/psi    anti-K0  K0        PHSP ;
+ 0.0201  Mypsi(2S)  phi      pi+        pi-         PHSP ;
+ 0.0201  Mypsi(2S)  phi      pi0        pi0         PHSP ;
+ 0.0181  Mypsi(2S)  pi+        pi-         PHSP ;
+ 0.0181  Mypsi(2S)  pi0        pi0         PHSP ;
+ 0.0154  MyJ/psi    eta      pi+        pi-         PHSP ;
+ 0.0141  Mypsi(2S)  eta                  SVS ;
+ 0.0135  Mypsi(2S)  anti-K0  K+         pi-         PHSP ;
+ 0.0123  Mychi_c1   K-         K+          PHSP ;
+ 0.0123  Mychi_c1   K-         K+         pi0         PHSP ;
+ 0.0120  Mypsi(2S)  eta      pi+        pi-         PHSP ;
+ 0.0095  Mychi_c1   eta                  SVS ;
+ 0.0075  Mychi_c2   eta'                 STS ;
+ 0.0067  Mypsi(2S)  anti-K0  K0        PHSP ;
+ 0.0046  MyJ/psi    K0                   SVS ;
+ 0.0040  Mychi_c2   K-         K+          PHSP ;
+ 0.0040  Mychi_c2   K-         K+         pi0         PHSP ;
+ 0.0039  Mychi_c2   eta                  STS ;
+ 0.0008  Myh_c      phi                  SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0 ;
+ 0.0004  Myh_c      eta'                 SVS ;
+ 0.0003  phi      Mychi_c0               SVS ;
+ 0.0002  Myh_c      K-         K+         pi0         PHSP ;
+ 0.0002  Myh_c      K-         K+          PHSP ;
+ 0.0002  Myh_c      eta                  SVS ;
+ 0.0002  Mychi_c0   eta'                 PHSP ;
+ 0.0001  Mychi_c0   eta                  PHSP ;
+ 0.0001  Mychi_c0   K-         K+         pi0         PHSP ;
+ 0.0001  Mychi_c0   K-         K+          PHSP ;
+Enddecay
+
+Decay MyLambda_b0
+#Only PsiLambda0 is measured (KU 2-26-10)
+ 0.168  MyJ/psi       Lambda0                  PHSP ;
+#Some guesses for additional unmeasured channels (KU 2-26-10)
+ 0.188  MyJ/psi       Lambda(1670)0            PHSP ;
+ 0.175  MyJ/psi       K-       p+              PHSP ;
+ 0.145  MyJ/psi       Lambda0  pi+  pi-        PHSP ;
+ 0.116  MyJ/psi       K*-      p+              PHSP ;
+ 0.096  MyJ/psi       Lambda(1520)0  pi+  pi-  PHSP ;
+ 0.059  Mypsi(2S)     Lambda(1520)0            PHSP ;
+ 0.053  Mypsi(2S)     Lambda0                  PHSP ;
+Enddecay
+
+Decay Myanti-Lambda_b0
+#Only PsiLambda0 is measured (KU 2-26-10)
+ 0.168  MyJ/psi       anti-Lambda0                  PHSP ;
+#Some guesses for additional unmeasured channels (KU 2-26-10)
+ 0.188  MyJ/psi       anti-Lambda(1670)0            PHSP ;
+ 0.175  MyJ/psi       K+       anti-p-              PHSP ;
+ 0.145  MyJ/psi       anti-Lambda0  pi+  pi-        PHSP ;
+ 0.116  MyJ/psi       K*+      anti-p-              PHSP ;
+ 0.096  MyJ/psi       anti-Lambda(1520)0  pi+  pi-  PHSP ;
+ 0.059  Mypsi(2S)     anti-Lambda(1520)0            PHSP ;
+ 0.053  Mypsi(2S)     anti-Lambda0                  PHSP ;
+Enddecay
+
+End

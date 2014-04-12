@@ -6,12 +6,10 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/OptOLens.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <cstdlib>
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #ifdef COCOA_VIS
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"

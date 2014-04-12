@@ -1,12 +1,6 @@
 #ifndef DataFormats_Common_IDVectorMap_h
 #define DataFormats_Common_IDVectorMap_h
-// $Id: IDVectorMap.h,v 1.9 2007/01/23 00:25:52 wmtan Exp $
 #include <map>
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-#if ! GCC_PREREQUISITE(3,4,4)
-#include "DataFormats/Common/interface/traits.h"
-#endif
 
 namespace edm {
 
@@ -167,7 +161,8 @@ namespace edm {
     id_iterator id_begin() const { return id_iterator(map_.begin()); }
     id_iterator id_end() const { return id_iterator(map_.end()); }
     size_t id_size() const { return map_.size(); }
-    void swap (IDVectorMap<ID, C, P> & other);
+    void swap (IDVectorMap & other);
+    IDVectorMap& operator=(IDVectorMap const& rhs);
   private:
     C collection_;
     map map_;
@@ -181,6 +176,15 @@ namespace edm {
     map_.swap(other.map_);
   }
 
+  template <typename ID, typename C, typename P>
+  inline
+  IDVectorMap<ID, C, P>&
+  IDVectorMap<ID, C, P>::operator=(IDVectorMap<ID, C, P> const& rhs) {
+    IDVectorMap<ID, C, P> temp(rhs);
+    this->swap(temp);
+    return *this;
+  }
+
   // free swap function
   template <typename ID, typename C, typename P>
   inline
@@ -188,14 +192,6 @@ namespace edm {
   swap(IDVectorMap<ID, C, P> & a, IDVectorMap<ID, C, P> & b) {
     a.swap(b);
   }
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  // has swap function
-  template <typename ID, typename C, typename P>
-  struct has_swap<edm::IDVectorMap<ID, C, P> > {
-    static bool const value = true;
-  };
-#endif
 
 }
 

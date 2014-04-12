@@ -1,6 +1,4 @@
 #include "DetectorDescription/Core/src/DDCheck.h"
-
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -8,10 +6,6 @@
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include<iostream>
-
-//#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 bool DDCheckLP(const DDLogicalPart & lp, std::ostream & os)
 {
@@ -45,7 +39,7 @@ bool DDCheckLP(const DDLogicalPart & lp, std::ostream & os)
 
 // checks PosData* if it contains sensfull stuff ...
 //:void DDCheckPD(const DDLogicalPart & lp, graph_type::neighbour_type & nb, std::ostream & os)
-bool DDCheckPD(const DDLogicalPart & lp, graph_type::edge_range nb, const graph_type & g, std::ostream & os)
+bool DDCheckPD(const DDLogicalPart & lp, DDCompactView::graph_type::edge_range nb, const DDCompactView::graph_type & g, std::ostream & os)
 {
    bool result = false;
    if (nb.first != nb.second) {
@@ -79,20 +73,21 @@ bool DDCheckConnect(const DDCompactView & cpv, std::ostream & os)
   
   // Pass 1:
   std::map<DDLogicalPart,bool> visited;
-  walker_type wkr = DDCompactView().walker();
+  //  walker_type wkr = DDCompactView().walker();
+  walker_type wkr = cpv.walker();
   visited[wkr.current().first]=true;
   while(wkr.next()) {
-    //LogDebug ("DDCheck") << "   " << wkr.current().first;
+    //    std::cout << "DDCheck" << "   " << wkr.current().first << std::endl;
     visited[wkr.current().first]=true;
   }
   os << " CompactView has " << visited.size() 
      << " (multiple-)connected LogicalParts with root=" << cpv.root().ddname() << std::endl;
   
   // Pass 2:
-  graph_type & g = const_cast<graph_type&>(cpv.graph());
+  DDCompactView::graph_type & g = const_cast<DDCompactView::graph_type&>(cpv.graph());
 
   int uc = 0;
-  graph_type::adj_list::size_type it = 0;
+  DDCompactView::graph_type::adj_list::size_type it = 0;
   
   for(; it < g.size(); ++it) { 
     if (! visited[g.nodeData(it)] ) {
@@ -121,12 +116,12 @@ bool DDCheckAll(const DDCompactView & cpv, std::ostream & os)
 {
    bool result = false;
    // const_cast because graph_type does not provide const_iterators!
-   graph_type & g = const_cast<graph_type&>(cpv.graph());
+   DDCompactView::graph_type & g = const_cast<DDCompactView::graph_type&>(cpv.graph());
    
    // basic debuggger
    std::map< std::pair<std::string,std::string>, int > lp_names;
    
-   graph_type::adj_list::size_type it = 0;
+   DDCompactView::graph_type::adj_list::size_type it = 0;
    for(; it < g.size(); ++it) { 
      const DDLogicalPart & lp = g.nodeData(it);
      lp_names[std::make_pair(lp.name().ns(),lp.name().name())]++;
@@ -171,7 +166,35 @@ bool DDCheck(std::ostream&os)
    DDCompactView cpv; // THE one and only (prototype restriction) CompactView
    DDExpandedView exv(cpv);
    
-   result |= DDCheckMaterials(os);
+   //   result |= DDCheckMaterials(os);
+   //DDCheckLP(exv.logicalPart(),os);
+   result |=  DDCheckAll(cpv,os);
+   
+   // done
+   os << "DDCore: end of comprehensive checking" << std::endl;
+   
+   if (result) { // at least one error found
+     edm::LogError("DDCheck") << std::endl << "DDD:DDCore:DDCheck: found inconsistency problems!" << std::endl;
+//      edm::LogError("DDCheck") << "To continue press 'y' ... " << std::endl;
+//      char c;
+//      cin >> c;
+//      if (c != 'y') {
+//        edm::LogError("DDCheck") << " terminating ..." << std::endl; exit(1);
+// (Mike Case) should we throw instead? OR is an if (DDCheck) the best way?
+//     throw(DDException(std::string("DDD:DDCore:DDCheck: found inconsistency problems!"));
+   }
+     	  
+   return result;
+}
+
+bool DDCheck(const DDCompactView& cpv, std::ostream&os)
+{
+   bool result = false;
+   os << "DDCore: start comprehensive checking" << std::endl;
+   //   DDCompactView cpv; // THE one and only (prototype restriction) CompactView
+   DDExpandedView exv(cpv);
+   
+   //   result |= DDCheckMaterials(os);
    //DDCheckLP(exv.logicalPart(),os);
    result |=  DDCheckAll(cpv,os);
    

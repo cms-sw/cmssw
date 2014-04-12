@@ -20,17 +20,23 @@ class RunIOV : public IIOV {
   // Methods for user data
   void setRunNumber(run_t run);
   run_t getRunNumber() const;
-  void setRunStart(Tm start);
+  void setRunStart(const Tm& start);
   Tm getRunStart() const;
-  void setRunEnd(Tm end);
+  void setRunEnd(const Tm& end);
   Tm getRunEnd() const;
-  void setRunTag(RunTag tag);
+  void setRunTag(const RunTag& tag);
   RunTag getRunTag() const;
   void setID(int id);
 
+  void setDBInsertionTime(const Tm& dbtime){m_dbtime=dbtime;}
+  Tm getDBInsertionTime(){return m_dbtime;}
+ 
 
   // Methods from IUniqueDBObject
+  int getID(){ return m_ID;} ;
+
   int fetchID() throw(std::runtime_error);
+  int fetchIDByRunAndTag() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
   // operators
@@ -50,11 +56,15 @@ class RunIOV : public IIOV {
   Tm m_runStart;
   Tm m_runEnd;
   RunTag m_runTag;
+  Tm m_dbtime;
 
   int writeDB() throw(std::runtime_error);
+  int updateEndTimeDB() throw(std::runtime_error);
+  int updateStartTimeDB() throw(std::runtime_error);
 
   void setByRun(RunTag* tag, run_t run) throw(std::runtime_error);
   void setByRun(std::string location, run_t run) throw(std::runtime_error);
+  void setByTime(std::string location, const Tm &t) throw(std::runtime_error);
   void setByRecentData(std::string dataTable, RunTag* tag, run_t run = (unsigned int)-1) throw(std::runtime_error);
   void setByRecentData(std::string dataTable, std::string location, run_t run) throw(std::runtime_error);
 

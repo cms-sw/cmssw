@@ -1,64 +1,35 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
-#include "DetectorDescription/Core/interface/DDPath.h"
-#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDCompactViewImpl::DDCompactViewImpl(const DDLogicalPart & rootnodedata)
-  :  root_(rootnodedata)//, rootWalker_(0)
+  :  root_(rootnodedata)
 {
-  //  edm::LogInfo("DDCompactViewImpl") << "Root node data = " << rootnodedata << std::endl;
-   //buildTree(rootnodedata,root_);
-   //buildGraph();
+  LogDebug("DDCompactViewImpl") << "Root node data = " << rootnodedata << std::endl;
 }
-
-
-DDCompactViewImpl::DDCompactViewImpl()
- : root_("")
-{
-
-}
-
 
 DDCompactViewImpl::~DDCompactViewImpl() 
 {  
    GraphNav::adj_list::size_type it = 0;
-   for (; it < graph_.size() ; ++it) {
-     GraphNav::edge_range erange = graph_.edges(it); //it->second.begin();
-     for(; erange.first != erange.second; ++(erange.first)) {
-       DDPosData * pd = graph_.edgeData(erange.first->second);
-       delete pd;
-       pd=0;
-     }  
+   if ( graph_.size() == 0 ) {
+     LogDebug("DDCompactViewImpl") << "In destructor, graph is empty.  Root:" << root_ << std::endl;
+   } else {
+     LogDebug("DDCompactViewImpl") << "In destructor, graph is NOT empty.  Root:" << root_ << " graph_.size() = " << graph_.size() << std::endl;
+     for (; it < graph_.size() ; ++it) {
+       GraphNav::edge_range erange = graph_.edges(it); //it->second.begin();
+       for(; erange.first != erange.second; ++(erange.first)) {
+	 DDPosData * pd = graph_.edgeData(erange.first->second);
+	 delete pd;
+	 pd=0;
+       }  
+     }
    }
    edm::LogInfo("DDCompactViewImpl") << std::endl << "DDD transient representation has been destructed." << std::endl << std::endl;   
 }
-
-
-// deprecated
-void DDCompactViewImpl::buildPaths()
-{
-  //paths_ = new GraphNavPaths(graph_,root_); // good luck!
-}
-
-
-/*
-std::pair<bool,DDPhysicalPart> DDCompactViewImpl::goTo(const DDPartSelector & path) const
-{
-  std::pair<bool,DDPhysicalPart> result(std::make_pair(false,DDPhysicalPart()));
-  DDPhysicalPart & pp(result.second);
-  DDTranslation trans;
-  DDRotationMatrix rot;
-  return result;
-}
-
-*/
 
 graphwalker<DDLogicalPart,DDPosData*> DDCompactViewImpl::walker() const
 {
@@ -123,13 +94,20 @@ double DDCompactViewImpl::weight(const DDLogicalPart & aPart) const
    
 }
 
-/*
-expnode_t * DDCompactViewImpl::expand(const DDPartSelector & path) const
+void DDCompactViewImpl::position (const DDLogicalPart & self,
+			      const DDLogicalPart & parent,
+			      int copyno,
+			      const DDTranslation & trans,
+			      const DDRotation & rot,
+			      const DDDivision * div)
 {
-   //FIXME: DDCompactViewImpl::expand - add?? isUnique(path) ??...
-   expnode_t * result = 0;
-   return result;
-    
+  DDPosData * pd = new DDPosData(trans,rot,copyno,div);
+  graph_.addEdge(parent,self,pd);
 }
 
-*/
+
+void DDCompactViewImpl::swap( DDCompactViewImpl& implToSwap ) {
+  graph_.swap(implToSwap.graph_);
+}
+
+DDCompactViewImpl::DDCompactViewImpl() { }

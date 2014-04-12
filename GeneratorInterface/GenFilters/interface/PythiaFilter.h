@@ -15,7 +15,6 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Mon Jan 23 14:57:54 CET 2006
-// $Id: PythiaFilter.h,v 1.6 2006/08/11 15:40:46 fmoortga Exp $
 //
 //
 
@@ -33,9 +32,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-using namespace edm;
-using namespace std;
-
 //
 // class decleration
 //
@@ -46,18 +42,25 @@ class PythiaFilter : public edm::EDFilter {
       ~PythiaFilter();
 
 
-      virtual bool filter(Event&, const EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
       
        std::string label_;
        int particleID;
+       double minpcut;
+       double maxpcut;
        double minptcut;
        double maxptcut;
        double minetacut;
        double maxetacut;
+       double minrapcut;
+       double maxrapcut;
        double minphicut;
        double maxphicut;
+
+       double rapidity;
+
        int status; 
        int motherID;   
        int processID;    

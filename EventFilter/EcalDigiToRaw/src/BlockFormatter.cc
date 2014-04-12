@@ -1,5 +1,4 @@
 #include <memory>
-#include <iostream>
 
 // user include files
 
@@ -13,8 +12,6 @@
 using namespace std;
 
 BlockFormatter::BlockFormatter() {
-
-  EcalFEDIds=FEDNumbering::getEcalFEDIds();
 }
 
 BlockFormatter::~BlockFormatter() {
@@ -31,6 +28,7 @@ void BlockFormatter::SetParam(EcalDigiToRaw* base) {
  prunnumber_ = (base -> GetRunNumber());
  doBarrel_ = base -> GetDoBarrel();
  doEndCap_ = base -> GetDoEndCap();
+ plistDCCId_ = base -> GetListDCCId();
  doTCC_ = base -> GetDoTCC();
  doSR_ = base -> GetDoSR();
  doTower_ = base -> GetDoTower();
@@ -54,7 +52,7 @@ void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
 	if ( (! doEndCap_) && 
              (idcc <= EcalElectronicsId::MAX_DCCID_EEM || idcc >= EcalElectronicsId::MIN_DCCID_EEP)) continue;
  
-	int FEDid = EcalFEDIds.first + idcc;
+	int FEDid = FEDNumbering::MINECALFEDID + idcc;
 	FEDRawData& rawdata = productRawData -> FEDData(FEDid);
         unsigned char * pData;
         short int DCC_ERRORS = 0;
@@ -132,11 +130,17 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
         if ( (! doBarrel_) && (id >= 9 && id <= 44)) continue;
         if ( (! doEndCap_) && (id <= 8 || id >= 45)) continue;
 
-
-        int FEDid = EcalFEDIds.first + id +1;
+        int FEDid = FEDNumbering::MINECALFEDID + id +1;
         FEDRawData& rawdata = productRawData -> FEDData(FEDid);
 
-	// ---- Add the trailer word
+        // ---- if raw need not be made for a given fed, set its size to empty and return 
+        if ( find( (*plistDCCId_).begin(), (*plistDCCId_).end(), (id+1) ) == (*plistDCCId_).end() )
+        {
+            rawdata.resize( 0 );
+            continue;
+        }
+
+        // ---- Add the trailer word
 	int lastline = rawdata.size();
 	rawdata.resize( lastline + 8);
 	unsigned char * pData = rawdata.data(); 
@@ -204,7 +208,7 @@ void BlockFormatter::PrintSizes(FEDRawDataCollection* productRawData) {
         // if ( (! doEndCap_) && (id <= 8 || id >= 45)) continue;
 
 
-        int FEDid = EcalFEDIds.first + id;
+        int FEDid = FEDNumbering::MINECALFEDID + id;
         FEDRawData& rawdata = productRawData -> FEDData(FEDid);
         if (rawdata.size() > 0)
 	cout << "Size of FED id " << dec << FEDid << " is : " << dec << rawdata.size() << endl;

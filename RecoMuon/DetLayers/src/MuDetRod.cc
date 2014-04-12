@@ -1,14 +1,12 @@
 /** \file
  *
- *  $Date: 2006/10/19 14:42:16 $
- *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
 #include "RecoMuon/DetLayers/interface/MuDetRod.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -40,7 +38,7 @@ MuDetRod::components() const {
 
   // FIXME dummy impl.
   cout << "temporary dummy implementation of MuDetRod::components()!!" << endl;
-  static vector<const GeometricSearchDet*> result;
+  static const vector<const GeometricSearchDet*> result;
   return result;
 }
 

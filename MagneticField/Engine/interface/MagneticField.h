@@ -5,32 +5,65 @@
  *
  *  Base class for the different implementation of magnetic field engines.
  *
- *  $Date: 2006/05/31 13:42:30 $
- *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
+#include <atomic>
 
 class MagneticField
 {
  public:
-  MagneticField() {;}
-  virtual ~MagneticField() {;}
+  MagneticField();
+  MagneticField(const MagneticField& orig);
+  virtual ~MagneticField();
 
+  /// Derived classes can implement cloning without ownership of the 
+  /// underlying engines.
+  virtual MagneticField* clone() const {
+    return 0;
+  }
+  
   /// Field value ad specified global point, in Tesla
   virtual GlobalVector inTesla (const GlobalPoint& gp) const = 0;
 
   /// Field value ad specified global point, in KGauss
-  virtual GlobalVector inKGauss(const GlobalPoint& gp) const {
-    return inTesla(gp) * 10.;
+  GlobalVector inKGauss(const GlobalPoint& gp) const  {
+    return inTesla(gp) * 10.F;
   }
 
   /// Field value ad specified global point, in 1/Gev
-  virtual GlobalVector inInverseGeV(const GlobalPoint& gp) const {
-    return inTesla(gp) * 2.99792458e-3;
+  GlobalVector inInverseGeV(const GlobalPoint& gp) const {
+    return inTesla(gp) * 2.99792458e-3F;
   }
+
+  /// True if the point is within the region where the concrete field
+  // engine is defined.
+  virtual bool isDefined(const GlobalPoint& gp) const {
+    return true;
+  }
+  
+  /// Optional implementation that derived classes can implement to provide faster query
+  /// by skipping the check to isDefined.
+  virtual GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const {
+    return inTesla(gp);  // default dummy implementation
+  }
+  
+  /// The nominal field value for this map in kGauss
+  int nominalValue() const {  
+     if(kSet==nominalValueCompiuted.load()) return theNominalValue;
+     return computeNominalValue();
+  }     
+
+private:
+  //nominal field value 
+  virtual int computeNominalValue() const;
+  mutable std::atomic<char> nominalValueCompiuted;
+  [[cms::thread_guard("nominalValueCompiuted")]] mutable int theNominalValue;
+  enum FooStates {kUnset, kSetting, kSet};
 };
 
 #endif

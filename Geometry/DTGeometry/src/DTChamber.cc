@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2006/06/22 14:40:11 $
- *  $Revision: 1.4 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  */
 
@@ -21,16 +19,16 @@
 DTChamber::DTChamber(DTChamberId id, const ReferenceCountingPointer<BoundPlane>& plane) :
   GeomDet(plane), 
   theId(id) {
+  setDetId(id);
 }
 
 /* Destructor */ 
 DTChamber::~DTChamber() {
+  for (std::vector<const DTSuperLayer*>::const_iterator isl=theSLs.begin();
+       isl!=theSLs.end(); ++isl) delete (*isl);
 }
 
 /* Operations */ 
-DetId DTChamber::geographicalId() const {
-  return theId;
-}
 
 DTChamberId DTChamber::id() const {
   return theId;

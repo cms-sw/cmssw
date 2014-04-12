@@ -2,7 +2,7 @@
 #include "DetectorDescription/RegressionTest/src/TinyDomTest2.h"
 #include "DetectorDescription/RegressionTest/src/StrX.h"
 
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <fstream>
@@ -49,7 +49,7 @@ int main(int argC, char* argV[])
     // Initialize the XML4C2 system
     try
     {
-        XMLPlatformUtils::Initialize();
+        cms::concurrency::xercesInitialize();
     }
 
     catch (const XMLException& toCatch)
@@ -63,7 +63,7 @@ int main(int argC, char* argV[])
     if (argC < 2)
     {
         usage2();
-        XMLPlatformUtils::Terminate();
+        cms::concurrency::xercesTerminate();
         return 1;
     }
 
@@ -87,7 +87,7 @@ int main(int argC, char* argV[])
         if (!strcmp(argV[argInd], "-?"))
         {
             usage2();
-            XMLPlatformUtils::Terminate();
+            cms::concurrency::xercesTerminate();
             return 2;
         }
          else if (!strncmp(argV[argInd], "-v=", 3)
@@ -104,7 +104,7 @@ int main(int argC, char* argV[])
             else
             {
                 cerr << "Unknown -v= value: " << parm << endl;
-                XMLPlatformUtils::Terminate();
+                cms::concurrency::xercesTerminate();
                 return 2;
             }
         }
@@ -155,7 +155,7 @@ int main(int argC, char* argV[])
     if (argInd != argC - 1)
     {
         usage2();
-        XMLPlatformUtils::Terminate();
+        cms::concurrency::xercesTerminate();
         return 1;
     }
 
@@ -313,7 +313,7 @@ int main(int argC, char* argV[])
     delete parser;
 
     // And call the termination method
-    XMLPlatformUtils::Terminate();
+    cms::concurrency::xercesTerminate();
 
     if (errorOccurred)
         return 4;

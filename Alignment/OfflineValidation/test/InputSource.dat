@@ -1,0 +1,15 @@
+jobname PVValidation
+isda False
+applybows True
+applycorrs False
+datasetpath PVValidation_Example_cff
+maxevents 20000
+globaltag GR_E_V25::All
+alignobj frontier://PromptProd/CMS_COND_31X_ALIGNMENT
+taggeom TrackerAlignment_2009_v1_express
+bowsobj frontier://PromptProd/CMS_COND_310X_ALIGN
+tagbows TrackerSurafceDeformations_v1_express
+apeobj frontier://PromptProd/CMS_COND_31X_ALIGNMENT
+tagape TrackerAlignmentErr_2009_v2_express
+tracktype ALCARECOTkAlMinBias
+outfile PVValidation.root

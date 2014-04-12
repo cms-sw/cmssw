@@ -1,4 +1,3 @@
-// Last commit: $Id: test_SiStripFedKey.cc,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFedKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -16,24 +15,24 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripFedKey::test_SiStripFedKey( const edm::ParameterSet& pset ) 
+testSiStripFedKey::testSiStripFedKey( const edm::ParameterSet& pset ) 
 {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripFedKey::" << __func__ << "]"
+    << "[testSiStripFedKey::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripFedKey::~test_SiStripFedKey() {
+testSiStripFedKey::~testSiStripFedKey() {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripFedKey::" << __func__ << "]"
+    << "[testSiStripFedKey::" << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripFedKey::beginJob( const edm::EventSetup& setup ) {
+void testSiStripFedKey::beginJob() {
   
   uint32_t cntr = 0;
   uint32_t start = time(NULL);
@@ -88,13 +87,14 @@ void test_SiStripFedKey::beginJob( const edm::EventSetup& setup ) {
 	  SiStripFedKey tmp4 = SiStripFedKey( tmp1 );
 	  SiStripFedKey tmp5; tmp5 = tmp1;
 	  
-	  ss << ">>> original:" << std::endl << tmp1 << std::endl
-	     << ">>> from FED key:" << std::endl << tmp2 << std::endl
-	     << ">>> from directory:" << std::endl << tmp3 << std::endl
-	     << ">>> isValid:   " << tmp1.isValid()
+	  ss << ">>> original       : "; tmp1.terse(ss); ss << std::endl;
+	  ss << ">>> from FED key   : "; tmp2.terse(ss); ss << std::endl;
+	  ss << ">>> from directory : "; tmp3.terse(ss); ss << std::endl;
+	  ss << ">>> directory      : " << tmp1.path() << std::endl;
+	  ss << ">>> isValid        : " << tmp1.isValid()
 	     << " " << tmp1.isValid( tmp1.granularity() )
 	     << " " << tmp1.isValid( sistrip::FED_APV ) << std::endl
-	     << ">>> isInvalid: " << tmp1.isInvalid()
+	     << ">>> isInvalid      : " << tmp1.isInvalid()
 	     << " " << tmp1.isInvalid( tmp1.granularity() )
 	     << " " << tmp1.isInvalid( sistrip::FED_APV );
 	  LogTrace(mlDqmCommon_) << ss.str();
@@ -167,7 +167,7 @@ void test_SiStripFedKey::beginJob( const edm::EventSetup& setup ) {
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripFedKey::analyze( const edm::Event& event, 
+void testSiStripFedKey::analyze( const edm::Event& event, 
 				  const edm::EventSetup& setup ) {
   LogTrace(mlDqmCommon_) 
     << "[SiStripFedKey::" << __func__ << "]"

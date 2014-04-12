@@ -28,11 +28,11 @@
  *
  * \author Fedor Ratnikov, UMd
  *
- * \version   $Id: JetTrackMatch.h,v 1.4 2006/12/08 21:15:11 fedor Exp $
  ************************************************************/
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
   template <typename JetC>

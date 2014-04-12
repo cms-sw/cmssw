@@ -1,0 +1,8 @@
+<use   name="DetectorDescription/Parser"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/Watcher"/>
+<use   name="SimG4Core/Geometry"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="boost"/>
+<flags   EDM_PLUGIN="1"/>

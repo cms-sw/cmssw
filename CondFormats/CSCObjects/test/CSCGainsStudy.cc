@@ -6,25 +6,17 @@
 
 #include <memory>
 #include <iostream>
-#include <map>
-#include <vector>
 #include <stdexcept>
-#include <string>
 
 // user include files
 #include <CondFormats/CSCObjects/test/CSCGainsStudy.h>
 
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/CSCObjects/interface/CSCGains.h"
-#include "CondFormats/DataRecord/interface/CSCGainsRcd.h"
 
 #include "TFile.h"
 

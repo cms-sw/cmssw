@@ -4,7 +4,8 @@
  *  \authors: S. Stoynev  - NU
  *            I. Bloch    - FNAL
  *            E. James    - FNAL
- *            D. Fortin   - UC Riverside
+ *
+ * ported by  D. Fortin   - UCR
  *
  * See header file for description.
  */
@@ -28,8 +29,8 @@
  *
  */
 CSCSegAlgoPreClustering::CSCSegAlgoPreClustering(const edm::ParameterSet& ps) {
-  dXclusBoxMax           = ps.getUntrackedParameter<double>("dXclusBoxMax");
-  dYclusBoxMax           = ps.getUntrackedParameter<double>("dYclusBoxMax");
+  dXclusBoxMax           = ps.getParameter<double>("dXclusBoxMax");
+  dYclusBoxMax           = ps.getParameter<double>("dYclusBoxMax");
   debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
 }
 
@@ -46,15 +47,14 @@ CSCSegAlgoPreClustering::~CSCSegAlgoPreClustering(){
  *
  */
 std::vector< std::vector<const CSCRecHit2D*> > 
-CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, ChamberHitContainer rechits, 
-                                      std::vector<CSCSegment> testSegments) {
+CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
 
   theChamber = aChamber;
 
   std::vector<ChamberHitContainer> rechits_clusters; // this is a collection of groups of rechits
 
-  float dXclus = 0.0;
-  float dYclus = 0.0;
+  //float dXclus = 0.0;
+  //float dYclus = 0.0;
   float dXclus_box = 0.0;
   float dYclus_box = 0.0;
 
@@ -96,17 +96,17 @@ CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, ChamberHitCont
     
     // merge clusters that are too close
     // measure distance between final "running mean"
-      for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+      for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
 	
-	for(uint MMM = NNN+1; MMM < seeds.size(); ++MMM) {
+	for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
 	  if(running_meanX[MMM] == 999999. || running_meanX[NNN] == 999999. ) {
 	    std::cout<<"We should never see this line now!!!"<<std::endl;
 	    continue; //skip seeds that have been used 
 	  }
 	  
 	  // calculate cut criteria for simple running mean distance cut:
-	  dXclus = fabs(running_meanX[NNN] - running_meanX[MMM]);
-	  dYclus = fabs(running_meanY[NNN] - running_meanY[MMM]);
+	  //dXclus = fabs(running_meanX[NNN] - running_meanX[MMM]);
+	  //dYclus = fabs(running_meanY[NNN] - running_meanY[MMM]);
 
 	  // calculate minmal distance between precluster boxes containing the hits:
 	  if ( running_meanX[NNN] > running_meanX[MMM] ) dXclus_box = seed_minX[NNN] - seed_maxX[MMM];
@@ -146,7 +146,7 @@ CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, ChamberHitCont
       // hand over the final seeds to the output
       // would be more elegant if we could do the above step with 
       // erasing the merged ones, rather than the 
-      for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+      for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
 	if (running_meanX[NNN] == 999999.) continue; //skip seeds that have been marked as used up in merging
 	rechits_clusters.push_back(seeds[NNN]);
         mean_x = running_meanX[NNN];
@@ -154,88 +154,7 @@ CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, ChamberHitCont
         err_x  = (seed_maxX[NNN]-seed_minX[NNN])/3.464101615; // use box size divided by sqrt(12) as position error estimate
         err_y  = (seed_maxY[NNN]-seed_minY[NNN])/3.464101615; // use box size divided by sqrt(12) as position error estimate
 
-        testSegments.push_back(leastSquares(seeds[NNN]));
       }
 
   return rechits_clusters; 
 }
-
-
-
-CSCSegment CSCSegAlgoPreClustering::leastSquares(ChamberHitContainer proto_segment) {
-  
-  // Initialize parameters needed for Least Square fit:      
-
-  float sz = 0.0; 
-  float sx = 0.0; 
-  float sy = 0.0; 
-  float sz2 = 0.0; 
-  float szx = 0.0; 
-  float szy = 0.0; 
-
-  int ns = proto_segment.size();
-  
-  for (ChamberHitContainer::const_iterator it = proto_segment.begin(); it != proto_segment.end(); it++ ) {
-    const CSCRecHit2D& hit = (**it);
-    const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp         = layer->toGlobal(hit.localPosition());
-    LocalPoint  lp         = theChamber->toLocal(gp);
-
-    float z = lp.z();
-    float x = lp.x();
-    float y = lp.y();
-
-    sz  += z;
-    sz2 += z*z;
-    sx  += x;
-    sy  += y;
-    szy += z*y;
-    szy += z*y;
-  }
-  
-  float denominator = (ns * sz2) - (sz * sz);
-  float theX = 0.;
-  float theY = 0.;
-  float slopeX = 0.;
-  float slopeY = 0.;  
-
-  if ( denominator != 0. ) {
-    theX   = ( (sx * sz2) - (sz * szx) ) / denominator;
-    theY   = ( (sy * sz2) - (sz * szy) ) / denominator;
-    slopeX = ( (ns * szx) - (sx * sz ) ) / denominator;
-    slopeY = ( (ns * szy) - (sy * sz ) ) / denominator;
-  } else {
-    theX = mean_x;
-    theY = mean_y;
-    slopeX = 0.;
-    slopeY = 0.;  
-  }
-
-  LocalPoint origin( theX, theY, 0. );
-
-  // Local direction
-  double dz   = 1./sqrt(1. + slopeX*slopeX + slopeY*slopeY);
-  double dx   = dz * slopeX;
-  double dy   = dz * slopeY;
-  LocalVector localDir(dx,dy,dz);
-  // localDir may need sign flip to ensure it points outward from IP  
-  double globalZpos     = ( theChamber->toGlobal( origin ) ).z();
-  double globalZdir     = ( theChamber->toGlobal( localDir ) ).z();
-  double directionSign  = globalZpos * globalZdir;
-  LocalVector direction = (directionSign * localDir).unit();
-  
-  if (debug) {
-    std::cout << "Test Segment properties: " << std::endl;
-    std::cout << "AVG_X: " << mean_x << "  LSF_X: " << theX << std::endl;
-    std::cout << "AVG_Y: " << mean_y << "  LSF_Y: " << theY << std::endl;
-  }
- 
-  AlgebraicSymMatrix errors;
-
-  double chi2 = 1.00;
-
-  CSCSegment seg(proto_segment, origin, direction, errors, chi2);
-
-  return seg;
-}
-

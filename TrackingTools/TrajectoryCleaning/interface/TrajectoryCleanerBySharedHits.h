@@ -19,11 +19,27 @@ class TrajectoryCleanerBySharedHits : public TrajectoryCleaner {
 
   typedef std::vector<Trajectory*> 	TrajectoryPointerContainer;
 
-  TrajectoryCleanerBySharedHits(){};
+  TrajectoryCleanerBySharedHits() :
+    theFraction(0.19),
+    validHitBonus_(5.0),
+    missingHitPenalty_(20.0),
+    allowSharedFirstHit(true){}
+  TrajectoryCleanerBySharedHits(const edm::ParameterSet & iConfig) :
+    theFraction(iConfig.getParameter<double>("fractionShared")),
+    validHitBonus_(iConfig.getParameter<double>("ValidHitBonus")),
+    missingHitPenalty_(iConfig.getParameter<double>("MissingHitPenalty")),
+    allowSharedFirstHit(iConfig.getParameter<bool>("allowSharedFirstHit")){}
+
   virtual ~TrajectoryCleanerBySharedHits(){};
 
   using TrajectoryCleaner::clean;
   virtual void clean( TrajectoryPointerContainer&) const;
+
+ private:
+  double theFraction;
+  double validHitBonus_;
+  double missingHitPenalty_;
+  bool allowSharedFirstHit;
 
 };
 

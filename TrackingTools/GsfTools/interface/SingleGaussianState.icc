@@ -1,11 +1,11 @@
+#include "DataFormats/Math/interface/invertPosDefMatrix.h"
 template <unsigned int N>
 const typename SingleGaussianState<N>::Matrix&
 SingleGaussianState<N>::weightMatrix () const {
   if ( !theHasWeightMatrix ) {
-    theWeightMatrix = theCovariance;
-    theWeightMatrix.Invert();
+      invertPosDefMatrix(theCovariance,theWeightMatrix);
     theHasWeightMatrix = true;
-//     ++constructsWeightMatrix_;
   }
-  return theWeightMatrix;
+    //     ++constructsWeightMatrix_;
+    return theWeightMatrix;
 }

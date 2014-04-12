@@ -1,10 +1,6 @@
 #include "Calibration/EcalTBTools/interface/TB06RecoH2.h"
 
 /* 
-    $Date: 2006/08/15 10:21:24 $
-    $Revision: 1.2 $
-    $Id: TB06RecoH2.cc,v 1.2 2006/08/15 10:21:24 govoni Exp $ 
-    $Author: govoni $
 */
 
 //FIXME ClassImp (TB06RecoH2)

@@ -1,0 +1,1118 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="gemf.xml" eval="true">
+  <Constant name="dzTot" value="50.820*cm"/>
+  <Constant name="rPos"  value="(1338*mm+[dzTot])"/>
+  <Constant name="dzS"   value="4.74448*cm"/>
+  <Constant name="dzGap" value="0.2500*cm"/>
+  <Constant name="dzIn"  value="(10*[dzS]+9*[dzGap])"/>
+  <Constant name="z010"  value="([dzIn]-[dzS])"/> 
+  <Constant name="z020"  value="([z010]-[dzS]-2*[dzGap]-[dzS])"/> 
+  <Constant name="z030"  value="([z020]-[dzS]-2*[dzGap]-[dzS])"/> 
+  <Constant name="z040"  value="([z030]-[dzS]-2*[dzGap]-[dzS])"/> 
+  <Constant name="z050"  value="([z040]-[dzS]-2*[dzGap]-[dzS])"/> 
+  <Constant name="z060"  value="([z050]-[dzS]-2*[dzGap]-[dzS])"/> 
+  <Constant name="z070"  value="([z060]-[dzS]-2*[dzGap]-[dzS])"/> 
+  <Constant name="z080"  value="([z070]-[dzS]-2*[dzGap]-[dzS])"/> 
+  <Constant name="z090"  value="([z080]-[dzS]-2*[dzGap]-[dzS])"/> 
+  <Constant name="z100"  value="([z090]-[dzS]-2*[dzGap]-[dzS])"/> 
+  <Constant name="dxBot" value="12.698*cm"/>
+  <Constant name="dxTop" value="21.215*cm"/>
+  <Constant name="slope" value="([dxTop]-[dxBot])/(2*[dzIn])"/>
+  <Constant name="dx011" value="([dxTop]-[slope]*([dzIn]-[z010]+[dzS]))"/>
+  <Constant name="dx012" value="([dxTop]-[slope]*([dzIn]-[z010]-[dzS]))"/>
+  <Constant name="dx021" value="([dxTop]-[slope]*([dzIn]-[z020]+[dzS]))"/>
+  <Constant name="dx022" value="([dxTop]-[slope]*([dzIn]-[z020]-[dzS]))"/>
+  <Constant name="dx031" value="([dxTop]-[slope]*([dzIn]-[z030]+[dzS]))"/>
+  <Constant name="dx032" value="([dxTop]-[slope]*([dzIn]-[z030]-[dzS]))"/>
+  <Constant name="dx041" value="([dxTop]-[slope]*([dzIn]-[z040]+[dzS]))"/>
+  <Constant name="dx042" value="([dxTop]-[slope]*([dzIn]-[z040]-[dzS]))"/>
+  <Constant name="dx051" value="([dxTop]-[slope]*([dzIn]-[z050]+[dzS]))"/>
+  <Constant name="dx052" value="([dxTop]-[slope]*([dzIn]-[z050]-[dzS]))"/>
+  <Constant name="dx061" value="([dxTop]-[slope]*([dzIn]-[z060]+[dzS]))"/>
+  <Constant name="dx062" value="([dxTop]-[slope]*([dzIn]-[z060]-[dzS]))"/>
+  <Constant name="dx071" value="([dxTop]-[slope]*([dzIn]-[z070]+[dzS]))"/>
+  <Constant name="dx072" value="([dxTop]-[slope]*([dzIn]-[z070]-[dzS]))"/>
+  <Constant name="dx081" value="([dxTop]-[slope]*([dzIn]-[z080]+[dzS]))"/>
+  <Constant name="dx082" value="([dxTop]-[slope]*([dzIn]-[z080]-[dzS]))"/>
+  <Constant name="dx091" value="([dxTop]-[slope]*([dzIn]-[z090]+[dzS]))"/>
+  <Constant name="dx092" value="([dxTop]-[slope]*([dzIn]-[z090]-[dzS]))"/>
+  <Constant name="dx101" value="([dxTop]-[slope]*([dzIn]-[z100]+[dzS]))"/>
+  <Constant name="dx102" value="([dxTop]-[slope]*([dzIn]-[z100]-[dzS]))"/>
+</ConstantsSection>
+
+<MaterialSection label="gemf.xml">
+  <CompositeMaterial name="M_Rdout_Brd" density="1.79*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.98667">
+    <rMaterial name="materials:G10"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.01333">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_Kapton_Cu" density="1.24*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.9836">
+    <rMaterial name="materials:Kapton"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0164">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_GEM_Gas" density="1.8*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.60">
+    <rMaterial name="materials:Argon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.083">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.145">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.172">
+    <rMaterial name="materials:Fluorine"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_GEM_Foil" density="1.74*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.6565">
+    <rMaterial name="materials:Kapton"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1013">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.2422">
+    <rMaterial name="gemf:M_GEM_Gas"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+<SolidSection label="gemf.xml">
+  <Tubs name="GE11" rMin="1.3*m  " rMax="2.51*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="GA11" dz="52.850*cm" dy1="4.500*mm" dy2="4.500*mm" dx1=" 9.411*cm" dx2="15.573*cm" />
+  <Trd1 name="GAAX" dz="52.850*cm" dy1="4.000*mm" dy2="4.000*mm" dx1=" 8.910*cm" dx2="15.072*cm" />
+  <Trd1 name="GB11" dz="52.850*cm" dy1="7.600*mm" dy2="7.600*mm" dx1="17.227*cm" dx2="26.483*cm" />
+  <Trd1 name="GTAX" dz="52.850*cm" dy1="0.500*mm" dy2="0.500*mm" dx1=" 8.910*cm" dx2="15.072*cm" />
+  <Trd1 name="GMAX" dz="51.976*cm" dy1="5.500*mm" dy2="5.500*mm" dx1="16.312*cm" dx2="25.390*cm"  />
+  <Trd1 name="GRAX" dz="50.182*cm" dy1="1.500*mm" dy2="1.500*mm" dx1="13.569*cm" dx2="22.350*cm" />
+  <Trd1 name="GIAX" dz="50.182*cm" dy1="1.050*mm" dy2="1.050*mm" dx1="13.569*cm" dx2="22.350*cm" />
+  <Trd1 name="GJAX" dz="50.182*cm" dy1="0.500*mm" dy2="0.500*mm" dx1="13.569*cm" dx2="22.350*cm" />
+  <Trd1 name="GKAX" dz="48.482*cm" dy1="0.025*mm" dy2="0.025*mm" dx1="12.514*cm" dx2="20.997*cm" />
+  <Trd1 name="GSAX" dz="50.182*cm" dy1="1.600*mm" dy2="1.600*mm" dx1="13.569*cm" dx2="22.350*cm" />
+  <Trd1 name="GDAX" dz="48.882*cm" dy1="0.125*mm" dy2="0.125*mm" dx1="12.880*cm" dx2="21.433*cm" />
+  <Trd1 name="GFA01" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx011]" dx2="[dx012]" />
+  <Trd1 name="GFA02" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx021]" dx2="[dx022]" />
+  <Trd1 name="GFA03" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx031]" dx2="[dx032]" />
+  <Trd1 name="GFA04" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx041]" dx2="[dx042]" />
+  <Trd1 name="GFA05" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx051]" dx2="[dx052]" />
+  <Trd1 name="GFA06" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx061]" dx2="[dx062]" />
+  <Trd1 name="GFA07" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx071]" dx2="[dx072]" />
+  <Trd1 name="GFA08" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx081]" dx2="[dx082]" />
+  <Trd1 name="GFA09" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx091]" dx2="[dx092]" />
+  <Trd1 name="GFA10" dz="[dzS]" dy1="1.050*mm" dy2="1.050*mm" dx1="[dx101]" dx2="[dx102]" />
+  <Box  name="GCA01" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Box  name="GCA02" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Box  name="GCA03" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Box  name="GCA04" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Box  name="GCA05" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Box  name="GCA06" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Box  name="GCA07" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Box  name="GCA08" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Box  name="GCA09" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Box  name="GCA10" dz="[dzS]"  dy ="1.050*mm" dx =" 0.500*mm" />
+  <Trd1 name="GGA01" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx011]" dx2="[dx012]" />
+  <Trd1 name="GGA02" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx021]" dx2="[dx022]" />
+  <Trd1 name="GGA03" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx031]" dx2="[dx032]" />
+  <Trd1 name="GGA04" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx041]" dx2="[dx042]" />
+  <Trd1 name="GGA05" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx051]" dx2="[dx052]" />
+  <Trd1 name="GGA06" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx061]" dx2="[dx062]" />
+  <Trd1 name="GGA07" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx071]" dx2="[dx072]" />
+  <Trd1 name="GGA08" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx081]" dx2="[dx082]" />
+  <Trd1 name="GGA09" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx091]" dx2="[dx092]" />
+  <Trd1 name="GGA10" dz="[dzS]" dy1="0.500*mm" dy2="0.500*mm" dx1="[dx101]" dx2="[dx102]" />
+  <Box  name="GDA01" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Box  name="GDA02" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Box  name="GDA03" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Box  name="GDA04" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Box  name="GDA05" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Box  name="GDA06" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Box  name="GDA07" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Box  name="GDA08" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Box  name="GDA09" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Box  name="GDA10" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
+  <Trd1 name="GHA1" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx011]" dx2="[dx012]" />
+  <Trd1 name="GHA2" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx021]" dx2="[dx022]" />
+  <Trd1 name="GHA3" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx031]" dx2="[dx032]" />
+  <Trd1 name="GHA4" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx041]" dx2="[dx042]" />
+  <Trd1 name="GHA5" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx051]" dx2="[dx052]" />
+  <Trd1 name="GHA6" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx061]" dx2="[dx062]" />
+  <Trd1 name="GHA7" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx071]" dx2="[dx072]" />
+  <Trd1 name="GHA8" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx081]" dx2="[dx082]" />
+  <Trd1 name="GHA9" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx091]" dx2="[dx092]" />
+  <Trd1 name="GHA10" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx101]" dx2="[dx102]" />
+  <Box  name="GEA01" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Box  name="GEA02" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Box  name="GEA03" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Box  name="GEA04" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Box  name="GEA05" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Box  name="GEA06" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Box  name="GEA07" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Box  name="GEA08" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Box  name="GEA09" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Box  name="GEA10" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
+  <Tubs name="RT2D" rMin="1.97*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
+  <Trd1 name="RFDX" dz="61.55*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="35.159*cm " dx2="56.847*cm " />
+  <Trd1 name="RHDX" dz="61.5*cm " dy1="5*mm " dy2="5*mm " dx1="35.109*cm " dx2="56.797*cm " />
+  <Trd1 name="RED1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
+  <Trd1 name="RED2" dz="16.8*cm " dy1="1*mm " dy2="1*mm " dx1="45.033*cm " dx2="50.957*cm " />
+  <Trd1 name="RED3" dz="14.55*cm " dy1="1*mm " dy2="1*mm " dx1="39.725*cm " dx2="44.857*cm " />
+  <Trd1 name="RED4" dz="12.6*cm " dy1="1*mm " dy2="1*mm " dx1="35.106*cm " dx2="39.549*cm " />
+</SolidSection>
+
+<LogicalPartSection label="gemf.xml">
+  <LogicalPart name="GE11P" category="unspecified">
+    <rSolid name="GE11"/>
+    <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="GE11N" category="unspecified">
+    <rSolid name="GE11"/>
+    <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="GA11" category="unspecified">
+    <rSolid name="GA11"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="GAAX" category="unspecified">
+    <rSolid name="GAAX"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="GB11" category="unspecified">
+    <rSolid name="GB11"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="GTAX" category="unspecified">
+    <rSolid name="GTAX"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="GMAX" category="unspecified">
+    <rSolid name="GMAX"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="GRAX" category="unspecified">
+    <rSolid name="GRAX"/>
+    <rMaterial name="gemf:M_Rdout_Brd"/>
+  </LogicalPart>
+  <LogicalPart name="GIAX" category="unspecified">
+    <rSolid name="GIAX"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GFA01" category="unspecified">
+    <rSolid name="GFA01"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA02" category="unspecified">
+    <rSolid name="GFA02"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA03" category="unspecified">
+    <rSolid name="GFA03"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA04" category="unspecified">
+    <rSolid name="GFA04"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA05" category="unspecified">
+    <rSolid name="GFA05"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA06" category="unspecified">
+    <rSolid name="GFA06"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA07" category="unspecified">
+    <rSolid name="GFA07"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA08" category="unspecified">
+    <rSolid name="GFA08"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA09" category="unspecified">
+    <rSolid name="GFA09"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA10" category="unspecified">
+    <rSolid name="GFA10"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+
+  <LogicalPart name="GCA01" category="unspecified">
+    <rSolid name="GCA01"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GCA02" category="unspecified">
+    <rSolid name="GCA02"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GCA03" category="unspecified">
+    <rSolid name="GCA03"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GCA04" category="unspecified">
+    <rSolid name="GCA04"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GCA05" category="unspecified">
+    <rSolid name="GCA05"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GCA06" category="unspecified">
+    <rSolid name="GCA06"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GCA07" category="unspecified">
+    <rSolid name="GCA07"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GCA08" category="unspecified">
+    <rSolid name="GCA08"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GCA09" category="unspecified">
+    <rSolid name="GCA09"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GCA10" category="unspecified">
+    <rSolid name="GCA10"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+
+  <LogicalPart name="GJAX" category="unspecified">
+    <rSolid name="GJAX"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GGA01" category="unspecified">
+    <rSolid name="GGA01"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA02" category="unspecified">
+    <rSolid name="GGA02"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA03" category="unspecified">
+    <rSolid name="GGA03"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA04" category="unspecified">
+    <rSolid name="GGA04"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA05" category="unspecified">
+    <rSolid name="GGA05"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA06" category="unspecified">
+    <rSolid name="GGA06"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA07" category="unspecified">
+    <rSolid name="GGA07"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA08" category="unspecified">
+    <rSolid name="GGA08"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA09" category="unspecified">
+    <rSolid name="GGA09"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA10" category="unspecified">
+    <rSolid name="GGA10"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+
+  <LogicalPart name="GDA01" category="unspecified">
+    <rSolid name="GDA01"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDA02" category="unspecified">
+    <rSolid name="GDA02"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDA03" category="unspecified">
+    <rSolid name="GDA03"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDA04" category="unspecified">
+    <rSolid name="GDA04"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDA05" category="unspecified">
+    <rSolid name="GDA05"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDA06" category="unspecified">
+    <rSolid name="GDA06"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDA07" category="unspecified">
+    <rSolid name="GDA07"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDA08" category="unspecified">
+    <rSolid name="GDA08"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDA09" category="unspecified">
+    <rSolid name="GDA09"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDA10" category="unspecified">
+    <rSolid name="GDA10"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+
+  <LogicalPart name="GKAX" category="unspecified">
+    <rSolid name="GKAX"/>
+    <rMaterial name="gemf:M_GEM_Foil"/>
+  </LogicalPart>
+  <LogicalPart name="GSAX" category="unspecified">
+    <rSolid name="GSAX"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GHA1" category="unspecified">
+    <rSolid name="GHA1"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA2" category="unspecified">
+    <rSolid name="GHA2"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA3" category="unspecified">
+    <rSolid name="GHA3"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA4" category="unspecified">
+    <rSolid name="GHA4"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA5" category="unspecified">
+    <rSolid name="GHA5"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA6" category="unspecified">
+    <rSolid name="GHA6"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA7" category="unspecified">
+    <rSolid name="GHA7"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA8" category="unspecified">
+    <rSolid name="GHA8"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA9" category="unspecified">
+    <rSolid name="GHA9"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA10" category="unspecified">
+    <rSolid name="GHA10"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+
+  <LogicalPart name="GEA01" category="unspecified">
+    <rSolid name="GEA01"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GEA02" category="unspecified">
+    <rSolid name="GEA02"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GEA03" category="unspecified">
+    <rSolid name="GEA03"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GEA04" category="unspecified">
+    <rSolid name="GEA04"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GEA05" category="unspecified">
+    <rSolid name="GEA05"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GEA06" category="unspecified">
+    <rSolid name="GEA06"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GEA07" category="unspecified">
+    <rSolid name="GEA07"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GEA08" category="unspecified">
+    <rSolid name="GEA08"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GEA09" category="unspecified">
+    <rSolid name="GEA09"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GEA10" category="unspecified">
+    <rSolid name="GEA10"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="GDAX" category="unspecified">
+    <rSolid name="GDAX"/>
+    <rMaterial name="gemf:M_Kapton_Cu"/>
+  </LogicalPart>
+
+  <LogicalPart name="RT2D" category="unspecified">
+    <rSolid name="RT2D"/>
+    <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="RFDX" category="unspecified">
+    <rSolid name="RFDX"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RHDX" category="unspecified">
+    <rSolid name="RHDX"/>
+    <rMaterial name="materials:Bakelite"/>
+  </LogicalPart>
+  <LogicalPart name="RED1" category="unspecified">
+    <rSolid name="RED1"/>
+    <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="RED2" category="unspecified">
+    <rSolid name="RED2"/>
+    <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="RED3" category="unspecified">
+    <rSolid name="RED3"/>
+    <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="RED4" category="unspecified">
+    <rSolid name="RED4"/>
+    <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+ </LogicalPartSection>
+
+ <PosPartSection label="gemf.xml">
+  <PosPart copyNumber="1">
+    <rParent name="mf:ME1RingP"/>
+    <rChild name="gemf:GE11P"/>
+    <Translation x="0*fm" y="0*fm" z="5.686*m" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="mf:ME1RingN"/>
+    <rChild name="gemf:GE11N"/>
+    <Translation x="0*fm" y="0*fm" z="5.686*m" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GA11"/>
+    <rChild name="gemf:GAAX"/>
+    <Translation x="0*fm" y="-0.5*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GB11"/>
+    <rChild name="gemf:GTAX"/>
+    <Translation x="0*fm" y="7.1*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GB11"/>
+    <rChild name="gemf:GMAX"/>
+    <Translation x="0*fm" y="1.1*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GDAX"/>
+    <Translation x="0*fm" y="-5.375*mm " z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GSAX"/>
+    <Translation x="0*fm" y="-3.650*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GKAX"/>
+    <Translation x="0*fm" y="-2.025*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GJAX"/>
+    <Translation x="0*fm" y="-1.500*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GKAX"/>
+    <Translation x="0*fm" y="-0.975*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GIAX"/>
+    <Translation x="0*fm" y="+0.100*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GKAX"/>
+    <Translation x="0*fm" y="+1.175*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GJAX"/>
+    <Translation x="0*fm" y="+1.700*mm" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GMAX"/>
+    <rChild name="gemf:GRAX"/>
+    <Translation x="0*fm" y="+3.700*mm" z="0*fm" />
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA01"/>
+    <Translation x="0*fm" y="0*fm" z="[z010]" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA02"/>
+    <Translation x="0*fm" y="0*fm" z="[z020]" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA03"/>
+    <Translation x="0*fm" y="0*fm" z="[z030]" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA04"/>
+    <Translation x="0*fm" y="0*fm" z="[z040]" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA05"/>
+    <Translation x="0*fm" y="0*fm" z="[z050]" />
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA06"/>
+    <Translation x="0*fm" y="0*fm" z="[z060]" />
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA07"/>
+    <Translation x="0*fm" y="0*fm" z="[z070]" />
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA08"/>
+    <Translation x="0*fm" y="0*fm" z="[z080]" />
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA09"/>
+    <Translation x="0*fm" y="0*fm" z="[z090]" />
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="gemf:GIAX"/>
+    <rChild name="gemf:GFA10"/>
+    <Translation x="0*fm" y="0*fm" z="[z100]" />
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA01"/>
+    <rChild name="gemf:GCA01"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA02"/>
+    <rChild name="gemf:GCA02"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA03"/>
+    <rChild name="gemf:GCA03"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA04"/>
+    <rChild name="gemf:GCA04"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA05"/>
+    <rChild name="gemf:GCA05"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA06"/>
+    <rChild name="gemf:GCA06"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA07"/>
+    <rChild name="gemf:GCA07"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA08"/>
+    <rChild name="gemf:GCA08"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA09"/>
+    <rChild name="gemf:GCA09"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GFA10"/>
+    <rChild name="gemf:GCA10"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA01"/>
+    <Translation x="0*fm" y="0*fm" z="[z010]" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA02"/>
+    <Translation x="0*fm" y="0*fm" z="[z020]" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA03"/>
+    <Translation x="0*fm" y="0*fm" z="[z030]" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA04"/>
+    <Translation x="0*fm" y="0*fm" z="[z040]" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA05"/>
+    <Translation x="0*fm" y="0*fm" z="[z050]" />
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA06"/>
+    <Translation x="0*fm" y="0*fm" z="[z060]" />
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA07"/>
+    <Translation x="0*fm" y="0*fm" z="[z070]" />
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA08"/>
+    <Translation x="0*fm" y="0*fm" z="[z080]" />
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA09"/>
+    <Translation x="0*fm" y="0*fm" z="[z090]" />
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="gemf:GJAX"/>
+    <rChild name="gemf:GGA10"/>
+    <Translation x="0*fm" y="0*fm" z="[z100]" />
+  </PosPart>
+
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA01"/>
+    <rChild name="gemf:GDA01"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA02"/>
+    <rChild name="gemf:GDA02"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA03"/>
+    <rChild name="gemf:GDA03"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA04"/>
+    <rChild name="gemf:GDA04"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA05"/>
+    <rChild name="gemf:GDA05"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA06"/>
+    <rChild name="gemf:GDA06"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA07"/>
+    <rChild name="gemf:GDA07"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA08"/>
+    <rChild name="gemf:GDA08"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA09"/>
+    <rChild name="gemf:GDA09"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GGA10"/>
+    <rChild name="gemf:GDA10"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA1"/>
+    <Translation x="0*fm" y="0*fm" z="[z010]" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA2"/>
+    <Translation x="0*fm" y="0*fm" z="[z020]" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA3"/>
+    <Translation x="0*fm" y="0*fm" z="[z030]" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA4"/>
+    <Translation x="0*fm" y="0*fm" z="[z040]" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA5"/>
+    <Translation x="0*fm" y="0*fm" z="[z050]" />
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA6"/>
+    <Translation x="0*fm" y="0*fm" z="[z060]" />
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA7"/>
+    <Translation x="0*fm" y="0*fm" z="[z070]" />
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA8"/>
+    <Translation x="0*fm" y="0*fm" z="[z080]" />
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA9"/>
+    <Translation x="0*fm" y="0*fm" z="[z090]" />
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="gemf:GSAX"/>
+    <rChild name="gemf:GHA10"/>
+    <Translation x="0*fm" y="0*fm" z="[z100]" />
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA1"/>
+    <rChild name="gemf:GEA01"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA2"/>
+    <rChild name="gemf:GEA02"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA3"/>
+    <rChild name="gemf:GEA03"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA4"/>
+    <rChild name="gemf:GEA04"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA5"/>
+    <rChild name="gemf:GEA05"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA6"/>
+    <rChild name="gemf:GEA06"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA7"/>
+    <rChild name="gemf:GEA07"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA8"/>
+    <rChild name="gemf:GEA08"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA9"/>
+    <rChild name="gemf:GEA09"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:GHA10"/>
+    <rChild name="gemf:GEA10"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="gemf:RT2D"/>
+    <rChild name="gemf:RFDX"/>
+    <rRotation name="rotations:90XD"/>
+    <Translation x="2.606*m  " y="0*fm " z="0*fm " />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:RFDX"/>
+    <rChild name="gemf:RHDX"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:RHDX"/>
+    <rChild name="gemf:RED1"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm " y="0*fm " z="45.45*cm " />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:RHDX"/>
+    <rChild name="gemf:RED2"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm " y="0*fm " z="11.6*cm " />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:RHDX"/>
+    <rChild name="gemf:RED3"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm " y="0*fm " z="-20.75*cm " />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="gemf:RHDX"/>
+    <rChild name="gemf:RED4"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm " y="0*fm " z="-48.9*cm " />
+  </PosPart>
+ </PosPartSection>
+
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11P"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+34.80*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11P"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+22.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11P"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" -8.60*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11P"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-20.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11P"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" +8.60*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11P"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+20.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11P"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-34.80*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11P"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-22.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+34.80*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+22.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" -8.60*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-20.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" +8.60*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+20.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-34.80*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-22.70*mm"/>
+</Algorithm>
+
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="mf:RR2X"/>
+    <String name="ChildName" value="RT2D"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="zoffset"     value="-2.2*cm"/>
+</Algorithm>
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="mf:RR2X"/>
+    <String name="ChildName" value="RT2D"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="20*deg"/>
+    <Numeric name="zoffset"     value="2.2*cm"/>
+</Algorithm>
+
+</DDDefinition>

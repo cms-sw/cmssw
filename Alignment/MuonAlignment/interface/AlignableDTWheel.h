@@ -4,21 +4,18 @@
 /** \class AlignableDTWheel
  *  The alignable muon DT wheel.
  *
- *  $Date: 2006/08/04 20:18:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/15 16:05:53 $
+ *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 
@@ -34,7 +31,7 @@ class AlignableDTWheel : public AlignableComposite
 
  public:
 
-  AlignableDTWheel( const std::vector<AlignableDTStation*> dtStations );
+  AlignableDTWheel( const std::vector<AlignableDTStation*>& dtStations );
 
   ~AlignableDTWheel();
   
@@ -47,9 +44,6 @@ class AlignableDTWheel : public AlignableComposite
 
   }
   
-  typedef GlobalPoint           PositionType;
-  typedef TkRotation<float>     RotationType;
-
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;
   // get the global orientation
@@ -59,14 +53,11 @@ class AlignableDTWheel : public AlignableComposite
 
   AlignableDTStation &station(int i);  
   
-  /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTWheel; }
-
   /// Printout muon DT wheel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTWheel& );
 
   /// Recursive printout of the muon DT wheel structure
-  void dump( void );
+  void dump( void ) const;
 
 
 private:

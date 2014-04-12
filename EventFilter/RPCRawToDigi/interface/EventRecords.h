@@ -1,47 +1,55 @@
 #ifndef EventFilter_RPCRawToDigi_EventRecords_H
 #define EventFilter_RPCRawToDigi_EventRecords_H
 
-#include "EventFilter/RPCRawToDigi/interface/DataRecord.h" 
-#include "EventFilter/RPCRawToDigi/interface/BXRecord.h" 
-#include "EventFilter/RPCRawToDigi/interface/LBRecord.h" 
-#include "EventFilter/RPCRawToDigi/interface/TBRecord.h" 
+#include "DataFormats/RPCDigi/interface/DataRecord.h" 
+#include "DataFormats/RPCDigi/interface/RecordBX.h" 
+#include "DataFormats/RPCDigi/interface/RecordCD.h" 
+#include "DataFormats/RPCDigi/interface/RecordSLD.h" 
 #include <vector>
 
 namespace rpcrawtodigi {
 class EventRecords {
 public:
 
-  EventRecords(int bx=0) 
-    : theTriggerBX(bx), 
-      theValidBX(false), theValidTB(false), theValidLB(false)
+  EventRecords(int triggerbx=0) 
+    : theTriggerBX(triggerbx), 
+      theValidBX(false), theValidLN(false), theValidCD(false)
   {}
 
-  EventRecords(int bx, const BXRecord & bxr, const TBRecord & tbr, const LBRecord & lbr)
+  EventRecords(int bx, const RecordBX & bxr, const RecordSLD & tbr, const RecordCD & lbr)
     : theTriggerBX(bx),
-      theValidBX(true), theValidTB(true), theValidLB(true),
-      theBXRecord(bxr), theTBRecord(tbr), theLBRecord(lbr)
+      theValidBX(true), theValidLN(true), theValidCD(true),
+      theRecordBX(bxr), theRecordSLD(tbr), theRecordCD(lbr)
   {}
 
   void add(const DataRecord & record);
 
   int triggerBx() const { return theTriggerBX;}
 
-  bool complete() const { return theValidBX && theValidTB && theValidLB; }
+  int dataToTriggerDelay() const; 
+
+  bool complete() const { return theValidBX && theValidLN && theValidCD; }
+
+  bool hasErrors() const { return (theErrors.size()>0); }
 
   bool samePartition(const EventRecords & r) const;
 
-  const BXRecord & bxRecord() const { return theBXRecord; }
-  const TBRecord & tbRecord() const { return theTBRecord; }
-  const LBRecord & lbRecord() const { return theLBRecord; }
+  const RecordBX & recordBX() const { return theRecordBX; }
+  const RecordSLD & recordSLD() const { return theRecordSLD; }
+  const RecordCD & recordCD() const { return theRecordCD; }
+  const std::vector<DataRecord> & errors() const { return theErrors; }
 
   static std::vector<EventRecords> mergeRecords(const std::vector<EventRecords> & r); 
 
+  std::string print(const DataRecord::DataRecordType& type) const;
+
 private:
   int theTriggerBX;
-  bool theValidBX, theValidTB, theValidLB; 
-  BXRecord theBXRecord; 
-  TBRecord theTBRecord;
-  LBRecord theLBRecord;
+  bool theValidBX, theValidLN, theValidCD; 
+  RecordBX theRecordBX; 
+  RecordSLD theRecordSLD;
+  RecordCD theRecordCD;
+  std::vector<DataRecord> theErrors;
 };
 }
 #endif

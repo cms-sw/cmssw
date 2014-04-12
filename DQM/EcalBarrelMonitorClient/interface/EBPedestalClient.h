@@ -4,8 +4,6 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2007/05/29 16:56:51 $
- * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,14 +18,15 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
+
+class MonitorElement;
+class DQMStore;
+#ifdef WITH_ECAL_COND_DB
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
+#endif
 
 class EBPedestalClient : public EBClient {
 
@@ -41,19 +40,11 @@ EBPedestalClient(const edm::ParameterSet& ps);
 /// Destructor
 virtual ~EBPedestalClient();
 
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
-
-/// softReset
-void softReset(void);
-
 /// Analyze
 void analyze(void);
 
 // BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 // EndJob
 void endJob(void);
@@ -70,11 +61,10 @@ void setup(void);
 // Cleanup
 void cleanup(void);
 
-// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
-
+#ifdef WITH_ECAL_COND_DB
 // WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -85,38 +75,20 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
+bool debug_;
 
-bool enableMonitorDaemon_;
+std::string prefixME_;
 
-string prefixME_;
+bool enableCleanup_;
 
-vector<int> superModules_;
+std::vector<int> superModules_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
-MonitorUserInterface* mui_;
-
-CollateMonitorElement* me_h01_[36];
-CollateMonitorElement* me_h02_[36];
-CollateMonitorElement* me_h03_[36];
-
-MEContentsProf2DWithinRangeROOT* qth01_[36];
-MEContentsProf2DWithinRangeROOT* qth02_[36];
-MEContentsProf2DWithinRangeROOT* qth03_[36];
-
-MEContentsProf2DWithinRangeROOT* qth04_[36];
-MEContentsProf2DWithinRangeROOT* qth05_[36];
-
-CollateMonitorElement* me_j01_[36];
-CollateMonitorElement* me_j02_[36];
-CollateMonitorElement* me_j03_[36];
-
-CollateMonitorElement* me_k01_[36];
-CollateMonitorElement* me_k02_[36];
-CollateMonitorElement* me_k03_[36];
+DQMStore* dqmStore_;
 
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];
@@ -156,11 +128,8 @@ MonitorElement* met01_[36];
 MonitorElement* met02_[36];
 MonitorElement* met03_[36];
 
-CollateMonitorElement* me_i01_[36];
-CollateMonitorElement* me_i02_[36];
-
-TProfile2D* i01_[36];
-TProfile2D* i02_[36];
+TProfile* i01_[36];
+TProfile* i02_[36];
 
 // Quality check on crystals, one per each gain
 
@@ -173,13 +142,6 @@ float RMSThreshold_[3];
 float expectedMeanPn_[2];
 float discrepancyMeanPn_[2];
 float RMSThresholdPn_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-MEContentsTH2FWithinRangeROOT* qtg02_[36];
-MEContentsTH2FWithinRangeROOT* qtg03_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg04_[36];
-MEContentsTH2FWithinRangeROOT* qtg05_[36];
 
 };
 

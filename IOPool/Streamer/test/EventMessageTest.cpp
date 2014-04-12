@@ -18,13 +18,13 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/DumpTools.h"
+#include "zlib.h"
 
-using namespace std;
-
-int main()
-{ 
-  typedef vector<uint8> Buffer;
+int main() try {
+  typedef std::vector<uint8> Buffer;
   Buffer buf(2024);
   Buffer buf2(2024);
 
@@ -48,16 +48,24 @@ int main()
   l1_names.push_back("t18");  l1_names.push_back("t19");
   l1_names.push_back("t20");
 
-  char reltag[]="CMSSW_0_6_0_pre45";
+  char reltag[]="CMSSW_0_8_0_pre7";
   std::string processName = "HLT";
+  std::string outputModuleLabel = "HLTOutput";
+
+  uLong crc = crc32(0L, Z_NULL, 0);
+  Bytef* crcbuf = (Bytef*) outputModuleLabel.data();
+  crc = crc32(crc, crcbuf, outputModuleLabel.length());
+
+  uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(4,(const uint8*)psetid),(const char*)reltag,
-		      processName.c_str(),
-                      hlt_names,l1_names);
+                      Version((const uint8*)psetid),(const char*)reltag,
+		      processName.c_str(),outputModuleLabel.c_str(), crc,
+                      hlt_names,hlt_names,l1_names,
+                      adler32_chksum);
 
 
-  init.setDescLength(sizeof(test_value));
+  init.setDataLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             init.dataAddress());
 
@@ -69,21 +77,24 @@ int main()
   view.hltTriggerNames(hlt2);
   view.l1TriggerNames(l12);
 
+  uint32 adler32_2 = view.adler32_chksum();
+
+
   InitMsgBuilder init2(&buf2[0],buf2.size(),
                        view.run(),
-                       Version(view.protocolVersion(),
-                               (const uint8*)psetid2),
+                       Version((const uint8*)psetid2),
                        view.releaseTag().c_str(),
-			processName.c_str(),
-                       hlt2,l12);
+                       processName.c_str(),outputModuleLabel.c_str(), crc,
+                       hlt2,hlt2,l12,
+                       adler32_2);
 
-  init2.setDescLength(view.descLength());
+  init2.setDataLength(view.descLength());
   std::copy(view.descData(),view.descData()+view.size(),
             init2.dataAddress());
 
   if(equal(&buf[0],&buf[0]+view.size(),buf2.begin())==false)
     {
-      cerr << "Init buffers not the same!\n";
+      std::cerr << "Init buffers not the same!\n";
       dumpInit(&buf[0]);
       dumpInit(&buf2[0]);
       abort();
@@ -100,10 +111,13 @@ int main()
   l1bit[2]=false;  l1bit[6]=true;  l1bit[10]=true;  l1bit[14]=false;
   l1bit[3]=false;  l1bit[7]=false;  l1bit[11]=true;  l1bit[15]=true;
 
-  EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,
-                      l1bit,hltbits,hltsize);
+  adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+  std::string host_name = "mytestnode.cms";
 
-  emb.setReserved(78);
+  EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,0xdeadbeef,3,
+                      l1bit,hltbits,hltsize, adler32_chksum, host_name.c_str());
+
+  emb.setOrigDataSize(78);
   emb.setEventLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             emb.eventAddr());
@@ -116,24 +130,30 @@ int main()
   uint8 hlt_out[10];
   eview.l1TriggerBits(l1_out);
   eview.hltTriggerBits(hlt_out);
+  adler32_2 = eview.adler32_chksum();
+  std::string host_name2 = eview.hostName();
 
   EventMsgBuilder emb2(&buf2[0],buf.size(),
                        eview.run(),
                        eview.event(),
                        eview.lumi(),
+                       eview.outModId(),
+                       eview.droppedEventsCount(),
                        l1_out,
                        hlt_out,
-                       hltsize);
+                       hltsize,
+                       adler32_2,
+                       host_name2.c_str());
 
-  emb2.setReserved(eview.reserved());
+  emb2.setOrigDataSize(eview.origDataSize());
   emb2.setEventLength(eview.eventLength());
   std::copy(eview.eventData(),eview.eventData()+eview.eventLength(),
             emb2.eventAddr());
 
   if(equal(&buf[0],&buf[0]+emb.size(),buf2.begin())==false)
     {
-      cerr << "event messages not the same\n";
-      cerr << "size 1st=" << emb.size() << "\n"
+      std::cerr << "event messages not the same\n";
+      std::cerr << "size 1st=" << emb.size() << "\n"
            << "size 2nd=" << emb2.size() << "\n";
 
       dumpEvent(&buf[0]);
@@ -141,6 +161,7 @@ int main()
       abort();
     }
   return 0;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
 }
-
-

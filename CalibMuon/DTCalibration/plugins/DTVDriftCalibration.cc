@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/12 17:02:29 $
- *  $Revision: 1.12 $
  *  \author M. Giunta
  */
 
@@ -13,6 +11,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -46,13 +45,17 @@ using namespace edm;
 using namespace dttmaxenums;
 
 
-DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
-  // the root file which will contain the histos
+DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset) {
+
+  // The name of the 4D rec hits collection
+  theRecHits4DLabel = pset.getParameter<InputTag>("recHits4DLabel");
+
+  // The root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
-  debug = pset.getUntrackedParameter<bool>("debug", "false");
+  debug = pset.getUntrackedParameter<bool>("debug", false);
 
   theFitter = new DTMeanTimerFitter(theFile);
   if(debug)
@@ -64,39 +67,29 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
   h4DSegmAllCh = new h4DSegm("AllCh");
   bookHistos();
 
-  findVDriftAndT0 = pset.getUntrackedParameter<bool>("fitAndWrite", "false");
+  findVDriftAndT0 = pset.getUntrackedParameter<bool>("fitAndWrite", false);
 
   // Chamber/s to calibrate
   theCalibChamber =  pset.getUntrackedParameter<string>("calibChamber", "All");
- 
-  // the name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getUntrackedParameter<string>("recHits4DLabel");
-  
+
   // the txt file which will contain the calibrated constants
   theVDriftOutputFile = pset.getUntrackedParameter<string>("vDriftFileName");
 
-  //get the switch to check the noisy channels
-  checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
-
- // Get the synchronizer
-  theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
-					      pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
+  // Get the synchronizer
+  theSync = DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
+                                              pset.getParameter<ParameterSet>("tTrigModeConfig"));
 
   // get parameter set for DTCalibrationMap constructor
   theCalibFilePar =  pset.getUntrackedParameter<ParameterSet>("calibFileConfig");
 
-  // get maximum chi2 value 
-  theMaxChi2 =  pset.getParameter<double>("maxChi2");
-
-  // Maximum incidence angle for Phi SL 
-  theMaxPhiAngle =  pset.getParameter<double>("maxAnglePhi");
-
-  // Maximum incidence angle for Theta SL 
-  theMaxZAngle =  pset.getParameter<double>("maxAngleZ");
-  
   // the granularity to be used for tMax
   string tMaxGranularity = pset.getUntrackedParameter<string>("tMaxGranularity","bySL");
-   
+
+  // Enforce it to be by SL since rest is not implemented
+  if(tMaxGranularity != "bySL"){
+     LogError("Calibration") << "[DTVDriftCalibration] tMaxGranularity will be fixed to bySL.";
+     tMaxGranularity = "bySL";
+  }
   // Initialize correctly the enum which specify the granularity for the calibration
   if(tMaxGranularity == "bySL") {
     theGranularity = bySL;
@@ -104,27 +97,22 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
     theGranularity = byChamber;
   } else if(tMaxGranularity== "byPartition") {
     theGranularity = byPartition;
-  } else {
-    cout << "[DTVDriftCalibration]###Warning: Check parameter tMaxGranularity: "
-	 << tMaxGranularity << " options not available!" << endl;
-  }
+  } else throw cms::Exception("Configuration") << "[DTVDriftCalibration] Check parameter tMaxGranularity: "
+	                                       << tMaxGranularity << " option not available";
+  
 
-  if(debug)
-    cout << "[DTVDriftCalibration]Constructor called!" << endl;
+  LogVerbatim("Calibration") << "[DTVDriftCalibration]Constructor called!";
 }
 
 DTVDriftCalibration::~DTVDriftCalibration(){
   theFile->Close();
   delete theFitter;
-  if(debug) 
-    cout << "[DTVDriftCalibration]Destructor called!" << endl;
+  LogVerbatim("Calibration") << "[DTVDriftCalibration]Destructor called!";
 }
 
-
-
 void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSetup) {
-  cout << endl<<"--- [DTVDriftCalibration] Event analysed #Run: " << event.id().run()
-       << " #Event: " << event.id().event() << endl;
+  LogTrace("Calibration") << "--- [DTVDriftCalibration] Event analysed #Run: " << event.id().run()
+                          << " #Event: " << event.id().event();
   theFile->cd();
   DTChamberId chosenChamberId;
 
@@ -134,7 +122,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
     linestr << theCalibChamber;
     linestr >> selWheel >> selStation >> selSector;
     chosenChamberId = DTChamberId(selWheel, selStation, selSector);
-    cout << "chosen chamber " << chosenChamberId << endl;
+    LogTrace("Calibration") << "chosen chamber " << chosenChamberId;
   }
 
   // Get the DT Geometry
@@ -144,14 +132,14 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
   // Get the rechit collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel, all4DSegments); 
-  
-  // Get the map of noisy channels
-   ESHandle<DTStatusFlag> statusMap;
-  if(checkNoisyChannels) {
-   eventSetup.get<DTStatusFlagRcd>().get(statusMap);
-  }
 
- // Set the event setup in the Synchronizer 
+  // Get the map of noisy channels
+  /*ESHandle<DTStatusFlag> statusMap;
+  if(checkNoisyChannels) {
+    eventSetup.get<DTStatusFlagRcd>().get(statusMap);
+  }*/
+
+  // Set the event setup in the Synchronizer 
   theSync->setES(eventSetup);
 
   // Loop over segments by chamber
@@ -159,164 +147,126 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
   for (chamberIdIt = all4DSegments->id_begin();
        chamberIdIt != all4DSegments->id_end();
        ++chamberIdIt){
-    
+
     // Get the chamber from the setup
     const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
-    if(debug)
-      cout << "Chamber Id: " << *chamberIdIt << endl;
-
+    LogTrace("Calibration") << "Chamber Id: " << *chamberIdIt;
 
     // Calibrate just the chosen chamber/s    
     if((theCalibChamber != "All") && ((*chamberIdIt) != chosenChamberId)) 
       continue;
-    
+
     // Get the range for the corresponding ChamberId
     DTRecSegment4DCollection::range  range = all4DSegments->get((*chamberIdIt));
-    
+
     // Loop over the rechits of this DetUnit
     for (DTRecSegment4DCollection::const_iterator segment = range.first;
-	 segment!=range.second; ++segment){
-    
-	if(debug) {
-	cout << "Segment local pos (in chamber RF): " << (*segment).localPosition() << endl;
-	cout << "Segment global pos: " << chamber->toGlobal((*segment).localPosition()) << endl;;
-      }
+         segment!=range.second; ++segment){
 
-      //get the segment chi2
-      double chiSquare = ((*segment).chi2()/(*segment).degreesOfFreedom());
-      // cut on the segment chi2 
-      if(chiSquare > theMaxChi2) continue;
+      if( !(*segment).hasZed() && !(*segment).hasPhi() ){
+         LogError("Calibration") << "4D segment without Z and Phi segments";
+         continue;   
+      } 
 
-     // get the Phi 2D segment and plot the angle in the chamber RF
-      const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();  // phiSeg lives in the chamber RF
-      LocalPoint phiSeg2DPosInCham = phiSeg->localPosition();  
-      LocalVector phiSeg2DDirInCham = phiSeg->localDirection();
+      LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
+                              << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
 
-      bool segmNoisy = false;
-      vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
+      if( !select_(*segment, event, eventSetup) ) continue;
+
+      LocalPoint phiSeg2DPosInCham;  
+      LocalVector phiSeg2DDirInCham;
       map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
-      for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
-	  hit != phiHits.end(); ++hit) {
-	DTWireId wireId = (*hit).wireId();
-	DTSuperLayerId slId =  wireId.superlayerId();
-	hitsBySLMap[slId].push_back(*hit); 
-
-	// Check for noisy channels to skip them
-	if(checkNoisyChannels) {
-	  bool isNoisy = false;
-	  bool isFEMasked = false;
-	  bool isTDCMasked = false;
-	  bool isTrigMask = false;
-	  bool isDead = false;
-	  bool isNohv = false;
-	  statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-	  if(isNoisy) {
-	    if(debug)
-	      cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
-	    segmNoisy = true;
-	  }      
-	}
+      if((*segment).hasPhi()){
+        const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();  // phiSeg lives in the chamber RF
+        phiSeg2DPosInCham = phiSeg->localPosition();  
+        phiSeg2DDirInCham = phiSeg->localDirection();
+        vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
+        for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
+            hit != phiHits.end(); ++hit) {
+          DTWireId wireId = (*hit).wireId();
+          DTSuperLayerId slId =  wireId.superlayerId();
+          hitsBySLMap[slId].push_back(*hit); 
+        }
       }
-
-      // get the Theta 2D segment and plot the angle in the chamber RF
+      // Get the Theta 2D segment and plot the angle in the chamber RF
       LocalVector zSeg2DDirInCham;
       LocalPoint zSeg2DPosInCham;
       if((*segment).hasZed()) {
-	const DTSLRecSegment2D* zSeg = (*segment).zSegment();  // zSeg lives in the SL RF
-	const DTSuperLayer* sl = chamber->superLayer(zSeg->superLayerId());
-	zSeg2DPosInCham = chamber->toLocal(sl->toGlobal((*zSeg).localPosition())); 
-	zSeg2DDirInCham = chamber->toLocal(sl->toGlobal((*zSeg).localDirection()));
-	hitsBySLMap[zSeg->superLayerId()] = zSeg->specificRecHits();
+        const DTSLRecSegment2D* zSeg = (*segment).zSegment();  // zSeg lives in the SL RF
+        const DTSuperLayer* sl = chamber->superLayer(zSeg->superLayerId());
+        zSeg2DPosInCham = chamber->toLocal(sl->toGlobal((*zSeg).localPosition())); 
+        zSeg2DDirInCham = chamber->toLocal(sl->toGlobal((*zSeg).localDirection()));
+        hitsBySLMap[zSeg->superLayerId()] = zSeg->specificRecHits();
+      } 
 
- 	// Check for noisy channels to skip them
-	vector<DTRecHit1D> zHits = zSeg->specificRecHits();
-    	for(vector<DTRecHit1D>::const_iterator hit = zHits.begin();
-	    hit != zHits.end(); ++hit) {
-	  DTWireId wireId = (*hit).wireId();
-	  if(checkNoisyChannels) {
-	    bool isNoisy = false;
-	    bool isFEMasked = false;
-	    bool isTDCMasked = false;
-	    bool isTrigMask = false;
-	    bool isDead = false;
-	    bool isNohv = false;
-	    statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-	    if(isNoisy) {
-	      if(debug)
-		cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
-	      segmNoisy = true;
-	    }      
-	  }
-	}
-       } 
-
-      if (segmNoisy) continue;
-    
       LocalPoint segment4DLocalPos = (*segment).localPosition();
       LocalVector segment4DLocalDir = (*segment).localDirection();
-      if(fabs(atan(segment4DLocalDir.y()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxZAngle) continue; // cut on the angle
-      if(fabs(atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxPhiAngle) continue; // cut on the angle
-    
-      hChi2->Fill(chiSquare);
-      h2DSegmRPhi->Fill(phiSeg2DPosInCham.x(), phiSeg2DDirInCham.x()/phiSeg2DDirInCham.z());
-      if((*segment).hasZed())
-	  h2DSegmRZ->Fill(zSeg2DPosInCham.y(), zSeg2DDirInCham.y()/zSeg2DDirInCham.z());
+      double chiSquare = ((*segment).chi2()/(*segment).degreesOfFreedom());
 
-      if((*segment).hasZed()) 
-       h4DSegmAllCh->Fill(segment4DLocalPos.x(), 
-			  segment4DLocalPos.y(),
-			  atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi(),
-			  atan(segment4DLocalDir.y()/segment4DLocalDir.z())* 180./Geom::pi(),
-			  180 - segment4DLocalDir.theta()* 180./Geom::pi());
-     else h4DSegmAllCh->Fill(segment4DLocalPos.x(), 
-			     atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi());
+      hChi2->Fill(chiSquare);
+      if((*segment).hasPhi())
+        h2DSegmRPhi->Fill(phiSeg2DPosInCham.x(), phiSeg2DDirInCham.x()/phiSeg2DDirInCham.z());
+      if((*segment).hasZed())
+        h2DSegmRZ->Fill(zSeg2DPosInCham.y(), zSeg2DDirInCham.y()/zSeg2DDirInCham.z());
+
+      if((*segment).hasZed() && (*segment).hasPhi()) 
+        h4DSegmAllCh->Fill(segment4DLocalPos.x(), 
+                           segment4DLocalPos.y(),
+                           atan(segment4DLocalDir.x()/segment4DLocalDir.z())*180./Geom::pi(),
+                           atan(segment4DLocalDir.y()/segment4DLocalDir.z())*180./Geom::pi(),
+                           180 - segment4DLocalDir.theta()*180./Geom::pi());
+      else if((*segment).hasPhi())
+        h4DSegmAllCh->Fill(segment4DLocalPos.x(), 
+                           atan(segment4DLocalDir.x()/segment4DLocalDir.z())*180./Geom::pi());
+      else if((*segment).hasZed())
+        LogWarning("Calibration") << "4d segment with only Z";
 
       //loop over the segments 
       for(map<DTSuperLayerId,vector<DTRecHit1D> >::const_iterator slIdAndHits = hitsBySLMap.begin(); slIdAndHits != hitsBySLMap.end();  ++slIdAndHits) {
-	if (slIdAndHits->second.size() < 3) continue;
-	DTSuperLayerId slId =  slIdAndHits->first;
+        if (slIdAndHits->second.size() < 3) continue;
+        DTSuperLayerId slId = slIdAndHits->first;
 
-	// Create the DTTMax, that computes the 4 TMax
-	DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), theSync);
+        // Create the DTTMax, that computes the 4 TMax
+        DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), theSync);
 
-	if(theGranularity == bySL) {
-	  vector<const TMax*> tMaxes = slSeg.getTMax(slId);
-	  DTWireId wireId(slId, 0, 0);
-	  theFile->cd();
-	  cellInfo* cell = theWireIdAndCellMap[wireId];
-	  if (cell==0) {
-	    TString name = (((((TString) "TMax"+(long) slId.wheel()) +(long) slId.station())
-			     +(long) slId.sector())+(long) slId.superLayer());
-	    cell = new cellInfo(name);
-	    theWireIdAndCellMap[wireId] = cell;
-	  }
-	  cell->add(tMaxes);
-	  cell->update(); // FIXME to reset the counter to avoid triple counting, which actually is not used...
-	}
-	else {
-	  cout << "[DTVDriftCalibration]###Warning: the chosen granularity is not implemented yet, only bySL available!" << endl;
-	}
-	// to be implemented: granularity different from bySL
+        if(theGranularity == bySL) {
+          vector<const TMax*> tMaxes = slSeg.getTMax(slId);
+          DTWireId wireId(slId, 0, 0);
+          theFile->cd();
+          cellInfo* cell = theWireIdAndCellMap[wireId];
+          if (cell==0) {
+            TString name = (((((TString) "TMax"+(long) slId.wheel()) +(long) slId.station())
+                             +(long) slId.sector())+(long) slId.superLayer());
+            cell = new cellInfo(name);
+            theWireIdAndCellMap[wireId] = cell;
+          }
+          cell->add(tMaxes);
+          cell->update(); // FIXME to reset the counter to avoid triple counting, which actually is not used...
+        }
+        else {
+          LogWarning("Calibration") << "[DTVDriftCalibration] ###Warning: the chosen granularity is not implemented yet, only bySL available!";
+        }
+        // to be implemented: granularity different from bySL
 
-	//       else if (theGranularity == byPartition) {
-	// 	// Use the custom granularity defined by partition(); 
-	// 	// in this case, add() should be called once for each Tmax of each layer 
-	// 	// and triple counting should be avoided within add()
-	// 	vector<cellInfo*> cells;
-	// 	for (int i=1; i<=4; i++) {
-	// 	  const DTTMax::InfoLayer* iLayer = slSeg.getInfoLayer(i);
-	// 	  if(iLayer == 0) continue;
-	// 	  cellInfo * cell = partition(iLayer->idWire); 
-	// 	  cells.push_back(cell);
-	// 	  vector<const TMax*> tMaxes = slSeg.getTMax(iLayer->idWire);
-	// 	  cell->add(tMaxes);
-	// 	}
-	// 	//reset the counter to avoid triple counting
-	// 	for (vector<cellInfo*>::const_iterator i = cells.begin();
-	// 	     i!= cells.end(); i++) {
-	// 	  (*i)->update();
-	// 	}
-	//       } 
+        //       else if (theGranularity == byPartition) {
+        // 	// Use the custom granularity defined by partition(); 
+        // 	// in this case, add() should be called once for each Tmax of each layer 
+        // 	// and triple counting should be avoided within add()
+        // 	vector<cellInfo*> cells;
+        // 	for (int i=1; i<=4; i++) {
+        // 	  const DTTMax::InfoLayer* iLayer = slSeg.getInfoLayer(i);
+        // 	  if(iLayer == 0) continue;
+        // 	  cellInfo * cell = partition(iLayer->idWire); 
+        // 	  cells.push_back(cell);
+        // 	  vector<const TMax*> tMaxes = slSeg.getTMax(iLayer->idWire);
+        // 	  cell->add(tMaxes);
+        // 	}
+        // 	//reset the counter to avoid triple counting
+        // 	for (vector<cellInfo*>::const_iterator i = cells.begin();
+        // 	     i!= cells.end(); i++) {
+        // 	  (*i)->update();
+        // 	}
+        //       } 
       }
     }
   }
@@ -333,11 +283,11 @@ void DTVDriftCalibration::endJob() {
   DTCalibrationMap calibValuesFile(theCalibFilePar);  
   // Create the object to be written to DB
   DTMtime* mTime = new DTMtime();
-  
+
   // write the TMax histograms of each SL to the root file
   if(theGranularity == bySL) {
     for(map<DTWireId, cellInfo*>::const_iterator  wireCell = theWireIdAndCellMap.begin();
-	wireCell != theWireIdAndCellMap.end(); wireCell++) {
+        wireCell != theWireIdAndCellMap.end(); wireCell++) {
       cellInfo* cell= theWireIdAndCellMap[(*wireCell).first];
       hTMaxCell* cellHists = cell->getHists();
       theFile->cd();
@@ -357,7 +307,9 @@ void DTVDriftCalibration::endJob() {
 	if(oldConstants != 0) {
 	  newConstants.push_back((*oldConstants)[0]);
 	  newConstants.push_back((*oldConstants)[1]);
+	  newConstants.push_back((*oldConstants)[2]);
 	} else {
+	  newConstants.push_back(-1);
 	  newConstants.push_back(-1);
 	  newConstants.push_back(-1);
 	}
@@ -369,15 +321,14 @@ void DTVDriftCalibration::endJob() {
 
 	calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
 
-	mTime->setSLMtime((wireId.layerId()).superlayerId(),
-			  vDriftAndReso[0],
-			  vDriftAndReso[1],
-			  DTTimeUnits::ns);
-    	if(debug) {
-	  cout << " SL: " << (wireId.layerId()).superlayerId()
-	       << " vDrift = " << vDriftAndReso[0]
-	       << " reso = " << vDriftAndReso[1] << endl;
-	}
+        // vdrift is cm/ns , resolution is cm
+	mTime->set((wireId.layerId()).superlayerId(),
+		   vDriftAndReso[0],
+		   vDriftAndReso[1],
+		   DTVelocityUnits::cm_per_ns);
+    	LogTrace("Calibration") << " SL: " << (wireId.layerId()).superlayerId()
+	                        << " vDrift = " << vDriftAndReso[0]
+	                        << " reso = " << vDriftAndReso[1];
       }
     }
   }
@@ -386,7 +337,7 @@ void DTVDriftCalibration::endJob() {
 
   //   if(theGranularity == "byChamber") {
   //     const vector<DTChamber*> chambers = dMap.chambers();
-    
+
   //     // Loop over all chambers
   //     for(vector<MuBarChamber*>::const_iterator chamber = chambers.begin();
   // 	chamber != chambers.end(); chamber ++) {
@@ -413,20 +364,16 @@ void DTVDriftCalibration::endJob() {
   //     }
   //   }
 
-  //write values to a table  
+  // Write values to a table  
   calibValuesFile.writeConsts(theVDriftOutputFile);
 
-  if(debug) 
-   cout << "[DTVDriftCalibration]Writing vdrift object to DB!" << endl;
+  LogVerbatim("Calibration") << "[DTVDriftCalibration]Writing vdrift object to DB!";
 
   // Write the vdrift object to DB
   string record = "DTMtimeRcd";
   DTCalibDBUtils::writeToDB<DTMtime>(record, mTime);
-
 }
 
-
-   
 // to be implemented: granularity different from bySL
 
 // // Create partitions 
@@ -447,7 +394,8 @@ void DTVDriftCalibration::endJob() {
 //}
 
 
-void DTVDriftCalibration::cellInfo::add(vector<const TMax*> tMaxes) {
+void DTVDriftCalibration::cellInfo::add(const vector<const TMax*>& _tMaxes) {
+  vector<const TMax*> tMaxes = _tMaxes;
   float tmax123 = -1.;
   float tmax124 = -1.;
   float tmax134 = -1.;  
@@ -458,7 +406,7 @@ void DTVDriftCalibration::cellInfo::add(vector<const TMax*> tMaxes) {
   unsigned t0_124 = 0;
   unsigned t0_134 = 0;
   unsigned t0_234 = 0;
-  unsigned hSubGroup;
+  unsigned hSubGroup = 0;
   for (vector<const TMax*>::const_iterator it=tMaxes.begin(); it!=tMaxes.end();
        ++it) {
     if(*it == 0) {
@@ -467,9 +415,9 @@ void DTVDriftCalibration::cellInfo::add(vector<const TMax*> tMaxes) {
     else { 
       //FIXME check cached,
       if (addedCells.size()==4 || 
-	  find(addedCells.begin(), addedCells.end(), (*it)->cells) 
-	  != addedCells.end()) {
-	continue;
+          find(addedCells.begin(), addedCells.end(), (*it)->cells) 
+          != addedCells.end()) {
+        continue;
       }
       addedCells.push_back((*it)->cells);    
       SigmaFactor sigma = (*it)->sigma;
@@ -489,5 +437,5 @@ void DTVDriftCalibration::cellInfo::add(vector<const TMax*> tMaxes) {
   }
   //add entries to the TMax histograms
   histos->Fill(tmax123, tmax124, tmax134, tmax234, s124, s134, t0_123, 
-	       t0_124, t0_134, t0_234, hSubGroup); 
+               t0_124, t0_134, t0_234, hSubGroup); 
 }

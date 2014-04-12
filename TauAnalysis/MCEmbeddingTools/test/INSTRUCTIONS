@@ -1,0 +1,14 @@
+# For event generation:
+cmsDriver.py Configuration/Generator/python/DYToLL_M_50_TuneZ2star_8TeV_pythia6_tauola_cff.py -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT --conditions auto:mc --datatier GEN-SIM-RAW --eventcontent RAWSIM -n 25
+
+# For reconstruction
+cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO --filein=file:DYToLL_M_50_TuneZ2star_8TeV_pythia6_tauola_cff_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root --fileout DYToLL_M_50_TuneZ2star_8TeV_pythia6_tauola_cff_py_RECO.root --conditions auto:mc
+
+# For skimming:
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/ZmumuStandaloneSelection_cff --filein=file:DYToLL_M_50_TuneZ2star_8TeV_pythia6_tauola_cff_py_RECO.root -s NONE  --conditions FrontierConditions_GlobalTag,START70_V1::All --fileout=skimmed.root --eventcontent=RECOSIM --python_filename=skim.py --customise=TauAnalysis/MCEmbeddingTools/ZmumuStandaloneSelectionAll -n 25
+
+# For embedding:
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO  --conditions=FrontierConditions_GlobalTag,START70_V1::All --filein=file:skimmed.root --fileout=embedded.root --python_filename=embed.py --customise=TauAnalysis/MCEmbeddingTools/embeddingCustomizeAll -n 25
+
+# For running TauSpinner (note that since CMSSW_7_0_x the spin weights are already computed in the embedding step).
+cmsRun addSpinWeight.py

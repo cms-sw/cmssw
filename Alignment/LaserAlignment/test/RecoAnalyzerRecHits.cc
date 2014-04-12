@@ -1,15 +1,32 @@
 /** \file RecoAnalyzerRecHits.cc
 *  plots for RecHits
   *
-  *  $Date: 2007/06/18 08:57:41 $
-  *  $Revision: 1.6 $
+  *  $Date: 2012/12/26 20:35:50 $
+  *  $Revision: 1.11 $
   *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/test/RecoAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "FWCore/Framework/interface/EventSetup.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h" 
+#include "DataFormats/DetId/interface/DetId.h" 
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 
   void RecoAnalyzer::trackerRecHits(edm::Event const& theEvent, edm::EventSetup const& theSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  theSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
   // access the Tracker
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   theSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
@@ -29,16 +46,13 @@
   const SiStripRecHit2DCollection * theRPhiRecHitCollection = rechitsRPhiHandle.product();
   const SiStripRecHit2DCollection * theStereoRecHitCollection = rechitsStereoHandle.product();
 
-  // get the detIds
-  const std::vector<DetId> rhMatchedIds = theMatchedRecHitCollection->ids();
-  const std::vector<DetId> rhRPhiIds = theRPhiRecHitCollection->ids();
-  const std::vector<DetId> rhStereoIds = theStereoRecHitCollection->ids();
-
   // loop over the detIds for each RecHit Collection
-  for ( std::vector<DetId>::const_iterator detId_iter = rhMatchedIds.begin(); detId_iter != rhMatchedIds.end(); detId_iter++ )
-  {
+  for ( SiStripMatchedRecHit2DCollection::const_iterator det_iter = theMatchedRecHitCollection->begin(), det_end = theMatchedRecHitCollection->end();
+        det_iter != det_end; ++det_iter) {
+    SiStripMatchedRecHit2DCollection::DetSet rechitRange = *det_iter;
+    DetId detid(rechitRange.detId());
       // get the DetUnit
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet((*detId_iter)));
+    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(detid));
 
       // some variables we need later on in the program
     int theBeam     = 0;
@@ -49,30 +63,30 @@
     int theTECWheel = 0;
     int theTOBStereoDet = 0;
 
-    switch ((*detId_iter).subdetId())
+    switch (detid.subdetId())
     {
       case StripSubdetector::TIB:
       {
-        TIBDetId theTIBDetId((*detId_iter).rawId());
+        
         thePart = "TIB";
-        theTIBLayer = theTIBDetId.layer();
+        theTIBLayer = tTopo->tibLayer(detid.rawId);
         break;
       }
       case StripSubdetector::TOB:
       {
-        TOBDetId theTOBDetId((*detId_iter).rawId());
+        
         thePart = "TOB";
-        theTOBLayer = theTOBDetId.layer();
-        theTOBStereoDet = theTOBDetId.stereo();
+        theTOBLayer = tTopo->tobLayer(detid.rawId);
+        theTOBStereoDet = tTopo->tobStereo(detid.rawId);
         break;
       }
       case StripSubdetector::TEC:
       {
-        TECDetId theTECDetId((*detId_iter).rawId());
+        
 
       // is this module in TEC+ or TEC-?
-        if (theTECDetId.side() == 1) { thePart = "TEC-"; }
-        else if (theTECDetId.side() == 2) { thePart = "TEC+"; }
+        if (tTopo->tecSide(detid.rawId) == 1) { thePart = "TEC-"; }
+        else if (tTopo->tecSide(detid.rawId) == 2) { thePart = "TEC+"; }
 
       // in which ring is this module?
         if ( theStripDet->surface().position().perp() > 55.0 && theStripDet->surface().position().perp() < 59.0 )
@@ -83,7 +97,7 @@
           { theRing = -1; } // probably not a Laser Hit!
 
       // on which disk is this module
-        theTECWheel = theTECDetId.wheel();
+        theTECWheel = tTopo->tecWheel(detid.rawId);
         break;
       }
     }
@@ -191,10 +205,9 @@
 
 
       // get the RecHits
-    SiStripMatchedRecHit2DCollection::range rechitRange = theMatchedRecHitCollection->get((*detId_iter));
-    SiStripMatchedRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-    SiStripMatchedRecHit2DCollection::const_iterator rechitRangeIteratorEnd = rechitRange.second;
-    SiStripMatchedRecHit2DCollection::const_iterator iRecHit = rechitRangeIteratorBegin;
+    SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = rechitRange.begin();
+    SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd = rechitRange.end();
+    SiStripMatchedRecHit2DCollection::DetSet::const_iterator iRecHit = rechitRangeIteratorBegin;
       // loop on the RecHits
     for (; iRecHit != rechitRangeIteratorEnd; iRecHit++)
     {
@@ -217,10 +230,12 @@
     }
   }
 
-  for ( std::vector<DetId>::const_iterator detId_iter = rhRPhiIds.begin(); detId_iter != rhRPhiIds.end(); detId_iter++ )
-  {
+  for ( SiStripRecHit2DCollection::const_iterator det_iter = theRPhiRecHitCollection->begin(), det_end = theRPhiRecHitCollection->end();
+        det_iter != det_end; ++det_iter) {
+    SiStripRecHit2DCollection::DetSet rechitRange = *det_iter;
+    DetId detid(rechitRange.detId());
       // get the DetUnit
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet((*detId_iter)));
+    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(detid));
 
         // some variables we need later on in the program
       int theBeam     = 0;
@@ -231,30 +246,30 @@
       int theTECWheel = 0;
       int theTOBStereoDet = 0;
 
-      switch ((*detId_iter).subdetId())
+      switch (detid.subdetId())
       {
         case StripSubdetector::TIB:
         {
-          TIBDetId theTIBDetId((*detId_iter).rawId());
+          
           thePart = "TIB";
-          theTIBLayer = theTIBDetId.layer();
+          theTIBLayer = tTopo->tibLayer(detid.rawId);
           break;
         }
         case StripSubdetector::TOB:
         {
-          TOBDetId theTOBDetId((*detId_iter).rawId());
+          
           thePart = "TOB";
-          theTOBLayer = theTOBDetId.layer();
-          theTOBStereoDet = theTOBDetId.stereo();
+          theTOBLayer = tTopo->tobLayer(detid.rawId);
+          theTOBStereoDet = tTopo->tobStereo(detid.rawId);
           break;
         }
         case StripSubdetector::TEC:
         {
-          TECDetId theTECDetId((*detId_iter).rawId());
+          
 
         // is this module in TEC+ or TEC-?
-          if (theTECDetId.side() == 1) { thePart = "TEC-"; }
-          else if (theTECDetId.side() == 2) { thePart = "TEC+"; }
+          if (tTopo->tecSide(detid.rawId) == 1) { thePart = "TEC-"; }
+          else if (tTopo->tecSide(detid.rawId) == 2) { thePart = "TEC+"; }
 
         // in which ring is this module?
           if ( theStripDet->surface().position().perp() > 55.0 && theStripDet->surface().position().perp() < 59.0 )
@@ -265,7 +280,7 @@
             { theRing = -1; } // probably not a Laser Hit!
 
         // on which disk is this module
-          theTECWheel = theTECDetId.wheel();
+          theTECWheel = tTopo->tecWheel(detid.rawId);
           break;
         }
       }
@@ -372,10 +387,9 @@
       }
 
       // get the RecHits
-    SiStripRecHit2DCollection::range rechitRange = theRPhiRecHitCollection->get((*detId_iter));
-    SiStripRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-    SiStripRecHit2DCollection::const_iterator rechitRangeIteratorEnd = rechitRange.second;
-    SiStripRecHit2DCollection::const_iterator iRecHit = rechitRangeIteratorBegin;
+    SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = rechitRange.begin();
+    SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd = rechitRange.end();
+    SiStripRecHit2DCollection::DetSet::const_iterator iRecHit = rechitRangeIteratorBegin;
       // loop on the RecHits
     for (; iRecHit != rechitRangeIteratorEnd; iRecHit++)
     {
@@ -399,10 +413,12 @@
     }
   }
 
-  for ( std::vector<DetId>::const_iterator detId_iter = rhStereoIds.begin(); detId_iter != rhStereoIds.end(); detId_iter++ )
-  {
+  for ( SiStripRecHit2DCollection::const_iterator det_iter = theStereoRecHitCollection->begin(), det_end = theStereoRecHitCollection->end();
+        det_iter != det_end; ++det_iter) {
+    SiStripRecHit2DCollection::DetSet rechitRange = *det_iter;
+    DetId detid(rechitRange.detId());
       // get the DetUnit
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet((*detId_iter)));
+    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(detid));
 
         // some variables we need later on in the program
       int theBeam     = 0;
@@ -413,30 +429,30 @@
       int theTECWheel = 0;
       int theTOBStereoDet = 0;
 
-      switch ((*detId_iter).subdetId())
+      switch (detid.subdetId())
       {
         case StripSubdetector::TIB:
         {
-          TIBDetId theTIBDetId((*detId_iter).rawId());
+          
           thePart = "TIB";
-          theTIBLayer = theTIBDetId.layer();
+          theTIBLayer = tTopo->tibLayer(detid.rawId);
           break;
         }
         case StripSubdetector::TOB:
         {
-          TOBDetId theTOBDetId((*detId_iter).rawId());
+          
           thePart = "TOB";
-          theTOBLayer = theTOBDetId.layer();
-          theTOBStereoDet = theTOBDetId.stereo();
+          theTOBLayer = tTopo->tobLayer(detid.rawId);
+          theTOBStereoDet = tTopo->tobStereo(detid.rawId);
           break;
         }
         case StripSubdetector::TEC:
         {
-          TECDetId theTECDetId((*detId_iter).rawId());
+          
 
         // is this module in TEC+ or TEC-?
-          if (theTECDetId.side() == 1) { thePart = "TEC-"; }
-          else if (theTECDetId.side() == 2) { thePart = "TEC+"; }
+          if (tTopo->tecSide(detid.rawId) == 1) { thePart = "TEC-"; }
+          else if (tTopo->tecSide(detid.rawId) == 2) { thePart = "TEC+"; }
 
         // in which ring is this module?
           if ( theStripDet->surface().position().perp() > 55.0 && theStripDet->surface().position().perp() < 59.0 )
@@ -447,7 +463,7 @@
             { theRing = -1; } // probably not a Laser Hit!
 
         // on which disk is this module
-          theTECWheel = theTECDetId.wheel();
+          theTECWheel = tTopo->tecWheel(detid.rawId);
           break;
         }
       }
@@ -554,10 +570,9 @@
       }
 
       // get the RecHits
-    SiStripRecHit2DCollection::range rechitRange = theStereoRecHitCollection->get((*detId_iter));
-    SiStripRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-    SiStripRecHit2DCollection::const_iterator rechitRangeIteratorEnd = rechitRange.second;
-    SiStripRecHit2DCollection::const_iterator iRecHit = rechitRangeIteratorBegin;
+    SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = rechitRange.begin();
+    SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd = rechitRange.end();
+    SiStripRecHit2DCollection::DetSet::const_iterator iRecHit = rechitRangeIteratorBegin;
       // loop on the RecHits
     for (; iRecHit != rechitRangeIteratorEnd; iRecHit++)
     {

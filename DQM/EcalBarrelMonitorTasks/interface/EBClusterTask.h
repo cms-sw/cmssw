@@ -4,8 +4,6 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.9 $
  * \author G. Della Ricca
  *
  */
@@ -13,7 +11,16 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "DataFormats/Common/interface/View.h"
+
+class MonitorElement;
+class DQMStore;
 
 class EBClusterTask: public edm::EDAnalyzer{
 
@@ -31,10 +38,19 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -46,39 +62,55 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
-edm::InputTag islandBarrelBasicClusterCollection_;
-edm::InputTag islandBarrelSuperClusterCollection_;
+bool mergeRuns_;
 
-edm::InputTag hybridSuperClusterCollection_;
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+ edm::EDGetTokenT<edm::View<reco::CaloCluster> > BasicClusterCollection_;
+edm::EDGetTokenT<reco::SuperClusterCollection> SuperClusterCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
 
-edm::InputTag hybridBarrelClusterShapeAssociation_;
+MonitorElement* meBCEne_;
+MonitorElement* meBCNum_;
+MonitorElement* meBCSiz_;
 
-MonitorElement* meIslBEne_;
-MonitorElement* meIslBNum_;
-MonitorElement* meIslBCry_;
+MonitorElement* meBCEneMap_, *meBCEneMapProjEta_, *meBCEneMapProjPhi_;
+MonitorElement* meBCNumMap_, *meBCNumMapProjEta_, *meBCNumMapProjPhi_;
+MonitorElement* meBCETMap_, *meBCETMapProjEta_, *meBCETMapProjPhi_;
+MonitorElement* meBCSizMap_, *meBCSizMapProjEta_, *meBCSizMapProjPhi_;
 
-MonitorElement* meIslBEneMap_;
-MonitorElement* meIslBNumMap_;
-MonitorElement* meIslBETMap_;
-MonitorElement* meIslBCryMap_;
+MonitorElement* meSCEne_;
+MonitorElement* meSCNum_;
+MonitorElement* meSCSiz_;
 
-MonitorElement* meIslSEne_;
-MonitorElement* meIslSNum_;
-MonitorElement* meIslSSiz_;
+MonitorElement* meSCCrystalSiz_;
+MonitorElement* meSCSeedEne_;
+MonitorElement* meSCEne2_;
+MonitorElement* meSCEneVsEMax_;
+MonitorElement* meSCEneLowScale_;
+MonitorElement* meSCSeedMapOcc_;
+MonitorElement* meSCMapSingleCrystal_;
 
-MonitorElement* meIslSEneMap_;
-MonitorElement* meIslSNumMap_;
-MonitorElement* meIslSETMap_;
-MonitorElement* meIslSSizMap_;
-
-MonitorElement* meHybS1toE_;
-MonitorElement* meInvMass_;
+MonitorElement* mes1s9_;
+MonitorElement* mes1s9thr_;
+MonitorElement* mes9s25_;
+MonitorElement* meInvMassPi0_;
+MonitorElement* meInvMassJPsi_;
+MonitorElement* meInvMassZ0_;
+MonitorElement* meInvMassHigh_;
+MonitorElement* meInvMassPi0Sel_;
+MonitorElement* meInvMassJPsiSel_;
+MonitorElement* meInvMassZ0Sel_;
+MonitorElement* meInvMassHighSel_;
 
 bool init_;
+
+float thrS4S9_, thrClusEt_, thrCandEt_;
 
 };
 

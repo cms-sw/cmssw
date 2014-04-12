@@ -18,51 +18,30 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
-#include <TCanvas.h>
-#include <TVirtualPad.h>
-#include <TStyle.h>
-#include <TROOT.h>
-#include <TH2F.h>
 #include <TH3F.h>
-#include <TText.h>
-#include <TFile.h>
-#include <TArrow.h>
-#include <TBox.h>
 #include <TPolyLine3D.h>
 #include <TMarker.h>
 #include <iostream>
@@ -83,7 +62,7 @@ public:
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
-  void testpoint(const XYZPoint& , std::string name, bool barrel);
+  void testpoint(const XYZPoint& , std::string name, bool barrel, RandomEngineAndDistribution const*);
   void checkSM();
   void checkSC();
   void testBorderCrossing();
@@ -91,9 +70,6 @@ private:
 
   Histos * myHistos;
   CaloGeometryHelper myGeometry;
-
-  const RandomEngine* random;
-
 };
 
 //
@@ -129,36 +105,28 @@ void
 testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
    using namespace edm;
-   
-  // Initialize the random number generator service
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable() ) {
-    throw cms::Exception("Configuration")
-      << "prod requires the RandomGeneratorService\n"
-         "which is not present in the configuration file.\n"
-         "You must add the service in the configuration file\n"
-         "or remove the module that requires it";
-  }
-  random = new RandomEngine(&(*rng));
+
+   RandomEngineAndDistribution random(iEvent.streamID());
 
    edm::ESHandle<CaloTopology> theCaloTopology;
    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);     
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
 
 
 
    // Setup the tools
+   double bField000 = 4.;
    myGeometry.setupGeometry(*pG);
    myGeometry.setupTopology(*theCaloTopology);
-   myGeometry.initialize();
+   myGeometry.initialize(bField000);
    
    // Take a point in the barrel
    XYZPoint p1(129,0.,-50);
-   testpoint(p1,"barrel",true);
+   testpoint(p1,"barrel",true,&random);
    XYZPoint p2(60,60,-317);
-   testpoint(p1,"endcap",false);
+   testpoint(p1,"endcap",false,&random);
 
    checkSM();
    checkSC();
@@ -167,7 +135,7 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
 void testCaloGeometryTools::checkSM()
 {
-  std::vector<DetId> vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
+  const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();
   for(unsigned ic=0;ic<size;++ic)
     {
@@ -189,7 +157,7 @@ void testCaloGeometryTools::checkSM()
 
 void testCaloGeometryTools::checkSC()
 {
-  std::vector<DetId> vec(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
+  const std::vector<DetId>& vec(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
   unsigned size=vec.size();
   for(unsigned ic=0;ic<size;++ic)
     {
@@ -213,7 +181,8 @@ void testCaloGeometryTools::checkSC()
 
 
 
-void testCaloGeometryTools::testpoint(const XYZPoint& point, std::string name, bool barrel)
+void testCaloGeometryTools::testpoint(const XYZPoint& point, std::string name, bool barrel,
+                                      RandomEngineAndDistribution const* random)
 {
    DetId myCell = myGeometry.getClosestCell(point,true,barrel);
    EcalHitMaker myGrid(&myGeometry,point,myCell,1,7,0,random);
@@ -256,7 +225,7 @@ void testCaloGeometryTools::testpoint(const XYZPoint& point, std::string name, b
 void testCaloGeometryTools::testBorderCrossing()
 {
   // Barrel 
-  std::vector<DetId> vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
+  const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();
   unsigned counter=0;
   for(unsigned ic=0;ic<size;++ic)
@@ -283,18 +252,18 @@ void testCaloGeometryTools::testBorderCrossing()
     }
   
   // Endcap 
-  vec=myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap);
-  size=vec.size();
+  const std::vector<DetId>& vec2(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
+  size=vec2.size();
   counter=0;
   for(unsigned ic=0;ic<size;++ic)
     {
-      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec[ic]);
+      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec2[ic]);
       for(unsigned in=0;in<8;++in)
 	{
 	  if(neighbours[in].null()) continue;
-	  if(myGeometry.borderCrossing(vec[ic],neighbours[in]))
+	  if(myGeometry.borderCrossing(vec2[ic],neighbours[in]))
 	    {
-	      const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
+	      const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec2[ic]);
 	      GlobalPoint p1=geom->getPosition();
 	      XYZPoint pp1(p1.x(),p1.y(),p1.z());
 	      geom=myGeometry.getEcalEndcapGeometry()->getGeometry(neighbours[in]);
@@ -317,5 +286,5 @@ void testCaloGeometryTools::testBorderCrossing()
 
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testCaloGeometryTools);
+
+DEFINE_FWK_MODULE(testCaloGeometryTools);

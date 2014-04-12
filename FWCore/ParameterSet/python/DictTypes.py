@@ -17,6 +17,11 @@ class SortedKeysDict(dict):
                 self.list = list(args[0].iterkeys())
             return
         self.list = list(super(SortedKeysDict,self).iterkeys())
+
+    def __repr__(self):
+        meat = ', '.join([ '%s: %s' % (repr(key), repr(val)) for key,val in self.iteritems() ])
+        return '{' + meat + '}'
+
     def __iter__(self):
         for key in self.list:
             yield key
@@ -28,7 +33,7 @@ class SortedKeysDict(dict):
         dict.__delitem__(self, key)
         self.list.remove(key)
     def items(self):
-        return [ dict.__getitem__(self, key) for key in self.list]
+        return [(key, dict.__getitem__(self, key)) for key in self.list]
     def iteritems(self):
         for key in self.list:
             yield key, dict.__getitem__(self, key)

@@ -1,32 +1,18 @@
-//<<<<<< INCLUDES                                                       >>>>>>
+#include "Utilities/StorageFactory/test/Test.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "SealBase/Storage.h"
-#include "SealBase/DebugAids.h"
-#include "SealBase/Signal.h"
-#include <iostream>
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
-using namespace seal;
-int main (int, char **argv)
+int main (int, char **/*argv*/) try
 {
-    Signal::handleFatal (argv [0]);
+  initTest();
 
-    bool	exists = StorageFactory::get ()->check ("/etc/issuex");
-
-    std::cout << "exists = " << exists << "\n";
-
-    std::cerr << "stats:\n" << StorageAccount::summaryText ();
-    return EXIT_SUCCESS;
+  bool exists = StorageFactory::get ()->check ("/etc/passwdx");
+  std::cout << "exists = " << exists << "\n";
+  std::cout << "stats:\n" << StorageAccount::summaryText () << std::endl;
+  return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
 }

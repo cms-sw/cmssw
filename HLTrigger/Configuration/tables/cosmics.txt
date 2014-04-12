@@ -1,0 +1,69 @@
+# cosmics menu
+#HLT_L1SingleJet36_v*										# removed sr128706
+HLT_JetE30_NoBPTX_v*
+#HLT_JetE30_NoBPTX_NoHalo_v*									# removed sr128706
+HLT_JetE30_NoBPTX3BX_NoHalo_v*
+HLT_JetE50_NoBPTX3BX_NoHalo_v*									# added sr128706
+HLT_JetE70_NoBPTX3BX_NoHalo_v*									# added sr128706
+HLT_L2Mu20_eta2p1_NoVertex_v*									# added sr128706
+HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*								# added sr128706
+#HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*							# added sr128706, removed in sr129063
+#HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*							# added sr128706, removed in sr129063
+HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*							# added sr129063
+HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*							# added sr129063
+HLT_L1SingleMuOpen_v*
+HLT_L1SingleMuOpen_DT_v*
+HLT_L1SingleMu12_v*
+#HLT_L1SingleEG5_v*										# removed sr128706
+#HLT_L1SingleEG12_v*										# removed sr128706
+#HLT_BeamGas_HF_v*										# removed sr128706
+HLT_BeamGas_HF_Beam1_v*
+HLT_BeamGas_HF_Beam2_v*
+HLT_BeamHalo_v*
+#HLT_L1_PreCollisions_v*									# removed sr128706
+#HLT_L1_Interbunch_BSC_v*									# removed sr128706
+HLT_HcalPhiSym_v*
+HLT_HcalNZS_v*
+HLT_GlobalRunHPDNoise_v*
+HLT_L1Tech_HBHEHO_totalOR_v*
+HLT_L1Tech_HCAL_HF_single_channel_v*
+#HLT_L1Tech_CASTOR_HaloMuon_v*									# removed sr128706
+HLT_L1Tech_DT_GlobalOR_v*
+HLT_ZeroBias_v*
+HLT_Physics_v*
+DST_Physics_v*
+HLT_DTCalibration_v*
+HLT_EcalCalibration_v*
+HLT_HcalCalibration_v*
+HLT_TrackerCalibration_v*
+HLT_Random_v*
+HLT_L1SingleMuOpen_AntiBPTX_v*
+HLT_L1TrackerCosmics_v*
+#HLT_RegionalCosmicTracking_v*                                                                 # removed sr #127068
+#HLT_L3MuonsCosmicTracking_v*                                                                  # removed sr #127068
+HLT_LogMonitor_v*
+HLT_DTErrors_v*
+AlCa_EcalPi0EBonly_v*
+AlCa_EcalPi0EEonly_v*
+AlCa_EcalEtaEBonly_v*
+AlCa_EcalEtaEEonly_v*
+AlCa_EcalPhiSym_v*
+AlCa_RPCMuonNoTriggers_v*
+AlCa_RPCMuonNoHits_v*
+AlCa_RPCMuonNormalisation_v*
+DQM_FEDIntegrity_v*
+HLTriggerFirstPath										# added sr128706
+HLTriggerFinalPath
+AOutput
+ALCAP0Output
+ALCAPHISYMOutput
+CalibrationOutput
+DQMOutput                                                                                       # reintroduced in the 7e33 v2 May 10th bugfix menu (sr #128571)
+EcalCalibrationOutput
+ExpressForCosmicsOutput
+HLTDQMOutput
+HLTDQMResultsOutput
+HLTMONOutput
+NanoDSTOutput
+RPCMONOutput
+TrackerCalibrationOutput

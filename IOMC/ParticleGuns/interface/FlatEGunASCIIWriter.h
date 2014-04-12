@@ -23,9 +23,8 @@
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "HepMC/GenEvent.h"
-#include "HepMC/IO_Ascii.h"
+#include "HepMC/IO_GenEvent.h"
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -44,8 +43,9 @@ namespace edm
      
      virtual ~FlatEGunASCIIWriter() ;
      
-     virtual void analyze(  const edm::Event&, const edm::EventSetup& );
-	 virtual void beginJob( const EventSetup& ) ;
+     virtual void analyze(  const edm::Event&, const edm::EventSetup&) override;
+	 virtual void beginJob() ;
+	 virtual void beginRun(const edm::Run&, const EventSetup&) override;
      
    private:
      
@@ -67,7 +67,7 @@ namespace edm
      ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
 	 
      std::string    fOutFileName;
-     HepMC::IO_Ascii * fOutStream ;
+     HepMC::IO_GenEvent * fOutStream ;
      
      int            fCurrentEvent ; // event counter - untill I learn how to get it
 	                                // from edm::Event ) EventID ??? or what ?)

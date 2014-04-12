@@ -3,21 +3,16 @@
 
 #include <utility>
 #include <string>
-#include <stdexcept>
 #include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Base/interface/rep_type.h"
 
-
-
 /**
-  your comment here
+   your comment here
 */
 template <class N, class C>
 class DDBase
 {
-
 public:
   template <class D>
   class iterator
@@ -27,8 +22,7 @@ public:
     typedef D value_type;
 
     explicit iterator( const typename DDI::Store<N,C>::iterator & it) : it_(it) { }
-    
-    
+        
     iterator() : it_(StoreT::instance().begin()) {  }
   
     value_type& operator*() const {
@@ -41,24 +35,24 @@ public:
       return &d_;
     }
   
-    bool operator==(const iterator & i) {
+    bool operator==(const iterator & i) const {
       return i.it_ == it_;
     }
     
-    bool operator!=(const iterator & i) {
+    bool operator!=(const iterator & i) const {
       return i.it_ != it_;
     }
     
-    bool operator<(const iterator & i) {
+    bool operator<(const iterator & i) const {
       return it_ < i.it_;
     }
     
-    bool operator>(const iterator & i) {
+    bool operator>(const iterator & i) const {
       return it_ > i.it_;
     }
     
     void operator++() {
-       ++it_;
+      ++it_;
     }
     
     void end() const {
@@ -89,8 +83,9 @@ public:
   
   const N & ddname() const { return prep_->name(); }
   
-  std::string toString() const { return prep_->name(); }
+  std::string toString() const { return prep_->name().fullname(); }
     
+
   const typename DDI::rep_traits<N,C>::reference rep() const 
     { return *(prep_->second); }
   
@@ -98,18 +93,18 @@ public:
     { return *(prep_->second); }
     
   const typename DDI::rep_traits<N,C>::reference val() const
-    { if (!isValid()) throw DDException(std::string("undefined: ") + std::string(name())); 
+   { if (!isValid()) throw cms::Exception("DDException") << "undefined: " << name(); 
       return rep();
     };  
 
   const typename DDI::rep_traits<N,C>::reference val() 
-    { if (!isValid()) throw DDException(std::string("undefined: ") + std::string(name())); 
+   { if (!isValid()) throw cms::Exception("DDException") << "undefined: " << name(); 
       return rep();
     };  
   
   bool operator==(const DDBase & b) const { return prep_ == b.prep_; }
   // true, if registered or defined
-  operator bool() const { return prep_ ? prep_->second : false; }
+  operator bool() const { return isValid(); }
   
   bool operator<(const DDBase & b) const { return prep_ < b.prep_; }
   bool operator>(const DDBase & b) const { return prep_ > b.prep_; }
@@ -118,19 +113,19 @@ public:
   // (name*,false) if registered but not defined
   // (0,false) if not there at all
   def_type isDefined() const 
-   {
-     return prep_ ?
-                    std::make_pair(&(prep_->name()), bool(prep_->second))
-		  :
-		    std::make_pair((const N *)0,false);  
-   } 
+    {
+      return prep_ ?
+	std::make_pair(&(prep_->name()), bool(prep_->second))
+	:
+	std::make_pair((const N *)0,false);  
+    } 
    
   //! true, if the  wrapped pointer is valid
   bool isValid() const
-  {
-     return prep_ ? bool(prep_->second)
-                  : false;
-  } 
+    {
+      return prep_ ? bool(prep_->second)
+	: false;
+    } 
   
 protected: 
   prep_type prep_; 

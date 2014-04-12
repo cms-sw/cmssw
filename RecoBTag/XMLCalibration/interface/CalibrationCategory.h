@@ -7,9 +7,7 @@
 #include <stdlib.h>
 #include "CalibrationXML.h"
 
-using namespace XERCES_CPP_NAMESPACE;
 
-using namespace std;
 
 class CalibratedObject ;
 
@@ -24,6 +22,8 @@ template <class CI>
 class CalibrationCategory
 {
   public:
+
+    typedef XERCES_CPP_NAMESPACE::DOMElement DOMElement;
     typedef  CI Input;
 
     CalibrationCategory();
@@ -35,7 +35,7 @@ class CalibrationCategory
 */
     virtual bool match(const CI & calibrationInput) const = 0; //Not implemented here
    
-    virtual string name(){return "BaseCalibrationCategory";} //Set it to pure virtual?
+    virtual std::string name(){return "BaseCalibrationCategory";} //Set it to pure virtual?
     
   protected:
 /** Read category parameters from XML

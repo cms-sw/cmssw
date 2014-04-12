@@ -8,8 +8,6 @@
  *  A chamber is a GeomDet.
  *  The chamber is composed by 2 or 3 Roll (GeomDetUnit).
  *
- *  $Date: 2006/09/21 15:33:47 $
- *  $Revision: 1.1 $
  *  \author R. Trentadue
  */
 
@@ -19,28 +17,25 @@
 class RPCRoll;
 
 class RPCChamber : public GeomDet {
- public:
+public:
   /// Constructor
   RPCChamber(RPCDetId id, const ReferenceCountingPointer<BoundPlane>& plane);
   /// Destructor
   virtual ~RPCChamber();
 
-  /// Return the DetId of this chamber
-  virtual DetId geographicalId() const;
-
   /// Return the RPCChamberId of this chamber
   RPCDetId id() const;
 
-    // Which subdetector
+  // Which subdetector
   virtual SubDetector subDetector() const {return GeomDetEnumerators::RPCBarrel;}
 
   /// equal if the id is the same
   bool operator==(const RPCChamber& ch) const;
 
-    /// Add Roll to the chamber which takes ownership
+  /// Add Roll to the chamber which takes ownership
   void add(RPCRoll* rl);
 
-    /// Return the rolls in the chamber
+  /// Return the rolls in the chamber
   virtual std::vector< const GeomDet*> components() const;
 
   /// Return the sub-component (roll) with a given id in this chamber
@@ -55,14 +50,14 @@ class RPCChamber : public GeomDet {
   const std::vector<const RPCRoll*>& rolls() const;
 
   /// Retunr numbers of rolls
-  const int nrolls() const;
+  int nrolls() const;
 
-  private:
+private:
 
-    RPCDetId theId;
+  RPCDetId theId;
 
-    // The chamber owns its Rolls
-    std::vector<const RPCRoll*> theRolls;
+  // The chamber owns its Rolls
+  std::vector<const RPCRoll*> theRolls;
 
 };
 #endif

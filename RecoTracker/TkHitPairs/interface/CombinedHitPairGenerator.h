@@ -5,14 +5,16 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 
 class TrackingRegion;
 class OrderedHitPairs;
 class HitPairGeneratorFromLayerPair;
-namespace ctfseeding { class SeedingLayer;}
+class SeedingLayerSetsHits;
 namespace edm { class Event; class EventSetup; }
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
+#include <memory>
 
 /** \class CombinedHitPairGenerator
  * Hides set of HitPairGeneratorFromLayerPair generators.
@@ -23,15 +25,10 @@ public:
   typedef LayerHitMapCache LayerCacheType;
 
 public:
-  CombinedHitPairGenerator(const edm::ParameterSet & cfg);
-
-  CombinedHitPairGenerator(const ctfseeding::SeedingLayerSets & layerSets);
-
-
+  CombinedHitPairGenerator(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
   virtual ~CombinedHitPairGenerator();
 
-  void  add(const ctfseeding::SeedingLayer & inner, 
-	      const ctfseeding::SeedingLayer & outer);
+  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) override;
 
   /// form base class
   virtual void hitPairs( const TrackingRegion& reg, 
@@ -42,16 +39,13 @@ public:
     { return new CombinedHitPairGenerator(*this); }
 
 private:
-  void init(const ctfseeding::SeedingLayerSets & layerSets);
-  void init(const edm::ParameterSet & cfg, const edm::EventSetup& es);
+  CombinedHitPairGenerator(const CombinedHitPairGenerator & cb); 
 
-  mutable bool initialised;
-  edm::ParameterSet theConfig;
+  edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
   LayerCacheType   theLayerCache;
 
-  typedef std::vector<HitPairGeneratorFromLayerPair *>   Container;
-  Container        theGenerators;
+  std::unique_ptr<HitPairGeneratorFromLayerPair> theGenerator;
 
 };
 #endif

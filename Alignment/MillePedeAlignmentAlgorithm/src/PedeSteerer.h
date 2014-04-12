@@ -8,9 +8,9 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2007/06/21 17:01:30 $
- * $Revision: 1.10 $
- * (last update by $Author: flucke $)
+ * $Date: 2013/06/18 13:31:29 $
+ * $Revision: 1.29 $
+ * (last update by $Author: jbehr $)
  */
 
 #include <vector>
@@ -25,42 +25,39 @@
 class Alignable;
 class AlignableTracker;
 class AlignableMuon;
+class AlignableExtras;
 class AlignmentParameterStore;
+class PedeLabelerBase;
+class PedeSteererWeakModeConstraints;
 
 /***************************************
 ****************************************/
 class PedeSteerer
 {
  public:
-  /// constructor from e.g. AlignableTracker/AlignableMuon and the AlignmentParameterStore
-  PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
-	      AlignmentParameterStore *store, const edm::ParameterSet &config,
-	      const std::string &defaultDir = "");
-  /** non-virtual destructor: do not inherit from this class */
+  /// constructor from AlignableTracker/AlignableMuon, their AlignmentParameterStore and the labeler
+  /// (NOTE: The latter two must live longer than the constructed PedeSteerer!)
+  PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras,
+	      AlignmentParameterStore *store,
+	      const PedeLabelerBase *labels, const edm::ParameterSet &config,
+	      const std::string &defaultDir, bool noSteerFiles);
+  /** non-virtual destructor: do not inherit from this class **/
   ~PedeSteerer();
     
-  /// uniqueId of Alignable, 0 if alignable not known
-  /// between this ID and the next there is enough 'space' to add parameter
-  /// numbers 0...nPar-1 to make unique IDs for the labels of active parameters
-  unsigned int alignableLabel(Alignable *alignable) const;
-  unsigned int parameterLabel(unsigned int aliLabel, unsigned int parNum) const;
-  
-  /// parameter number, 0 <= .. < theMaxNumParam, belonging to unique parameter label
-  unsigned int paramNumFromLabel(unsigned int paramLabel) const;
-  /// alignable label from parameter label (works also for alignable label...)
-  unsigned int alignableLabelFromLabel(unsigned int label) const;
-  /// alignable from alignable or parameter label
-  Alignable* alignableFromLabel(unsigned int label) const;
   /// True if 'ali' was deselected from hierarchy and any ancestor (e.g. mother) has parameters.
   bool isNoHiera(const Alignable* ali) const;
 
+  /// construct steering files about hierarchy, fixing etc. an keep track of their names
+  void buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras);
   /// construct (and return name of) master steering file from config, binaryFiles etc.
   std::string buildMasterSteer(const std::vector<std::string> &binaryFiles);
   /// run pede, masterSteer should be as returned from buildMasterSteer(...)
-  bool runPede(const std::string &masterSteer) const;
+  int runPede(const std::string &masterSteer) const;
   /// If reference alignables have been configured, shift everything such that mean
   /// position and orientation of dets in these alignables are zero.
   void correctToReferenceSystem();
+  bool isCorrectToRefSystem(const std::vector<Alignable*> &coordDefiners) const;
+
 
   double cmsToPedeFactor(unsigned int parNum) const;
   /// results from pede (and start values for pede) might need a sign flip
@@ -69,13 +66,11 @@ class PedeSteerer
   const std::string& directory() const { return myDirectory;}
 
  private:
-  typedef std::map <Alignable*, unsigned int> AlignableToIdMap;
-  typedef AlignableToIdMap::value_type AlignableToIdPair;
-  typedef std::map <unsigned int, Alignable*> IdToAlignableMap;
   typedef std::map<const Alignable*,std::vector<float> > AlignablePresigmasMap;
 
-  unsigned int buildMap(Alignable *highestLevelAli1, Alignable *highestLevelAli2);
-  unsigned int buildReverseMap();
+  /// Checks whether SelectionUserVariables that might be attached to alis' AlignmentParameters
+  /// (these must exist) are all known.
+  bool checkParameterChoices(const std::vector<Alignable*> &alis) const;
   /// Store Alignables that have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate removal from hierarchy, i.e. make it 'top level'.
   unsigned int buildNoHierarchyCollection(const std::vector<Alignable*> &alis);
@@ -88,7 +83,8 @@ class PedeSteerer
   /// If 'selector' means fixing, create corresponding steering file line in file pointed to
   /// by 'filePtr'. If 'filePtr == 0' create file with name 'fileName'
   /// (and return pointer via reference).
-  int fixParameter(Alignable *ali, unsigned int iParam, char selector, std::ofstream* &filePtr,
+  int fixParameter(Alignable *ali, unsigned int iRunRange,
+		   unsigned int iParam, char selector, std::ofstream* &filePtr,
 		   const std::string &fileName);
   /// Return 'alignables' that have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate a definition of a coordinate system.
@@ -106,7 +102,7 @@ class PedeSteerer
   /// interprete content of presigma VPSet 'cffPresi' and call presigmasFile
   unsigned int presigmas(const std::vector<edm::ParameterSet> &cffPresi,
 			 const std::string &fileName, const std::vector<Alignable*> &alis,
-			 AlignableTracker *aliTracker, AlignableMuon *aliMuon);
+			 AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras);
   /// look for active 'alis' in map of presigma values and create steering file 
   unsigned int presigmasFile(const std::string &fileName, const std::vector<Alignable*> &alis,
 			     const AlignablePresigmasMap &aliPresisMap); 
@@ -116,21 +112,22 @@ class PedeSteerer
   std::ofstream* createSteerFile(const std::string &name, bool addToList);
 
   // data members
-  const AlignmentParameterStore *myParameterStore;
+  const AlignmentParameterStore *myParameterStore; /// not the owner!
+  const PedeLabelerBase         *myLabels; /// pointer to labeler (not the owner)
+
   edm::ParameterSet myConfig;
   std::string myDirectory; /// directory of all files
+  bool myNoSteerFiles; /// flag to write steering files to /dev/null
+  bool myIsSteerFileDebug; /// whether or not to fill pede steering files with debug info
   int myParameterSign; /// old pede versions (before May '07) need a sign flip...
+  double theMinHieraConstrCoeff; /// min absolute value of coefficients in hierarchy constraints
+  unsigned int theMinHieraParPerConstr; /// hierarchy constraints with less params are ignored
 
   std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files
-  AlignableToIdMap  myAlignableToIdMap; /// providing unique ID for alignable, space for param IDs
-  IdToAlignableMap  myIdToAlignableMap; /// reverse map
 
   std::set<const Alignable*> myNoHieraCollection; /// Alignables deselected for hierarchy constr.
   Alignable *theCoordMaster;                      /// master coordinates, must (?) be global frame
   std::vector<Alignable*> theCoordDefiners;      /// Alignables selected to define coordinates
-  
-  static const unsigned int theMaxNumParam;
-  static const unsigned int theMinLabel;
 };
 
 #endif

@@ -13,10 +13,9 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.6 2007/06/17 14:31:35 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.7 2009/02/09 17:01:38 chinhan Exp $
 //
 
-// No BitInfos for release versions
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
 
@@ -42,16 +41,6 @@ FastL1Region::FastL1Region()
       EMCrystalEnergy[i][j] = 0. ; // 16x25 Crystals
     }
   }
-
-  /*
-  BitInfo.eta = -9999.;
-  BitInfo.phi = -9999.;
-  BitInfo.TauVeto = false;
-  BitInfo.EmTauVeto = false;
-  BitInfo.HadTauVeto = false;
-  BitInfo.SumEtBelowThres = false;
-  BitInfo.IsolationVeto = false;
-  */
 
   // default values
   Config.EMSeedEnThreshold = 2.;
@@ -85,6 +74,7 @@ FastL1Region::FastL1Region()
   Config.TowerHBScale = 1.0;
   Config.TowerHEScale = 1.0;
 
+
   //Config.EmInputs;
   //Config.xTowerInput;
 
@@ -97,7 +87,7 @@ FastL1Region::~FastL1Region()
 
 
 void
-FastL1Region::SetParameters(FastL1Config iconfig) 
+FastL1Region::SetParameters(const L1Config& iconfig) 
 { 
   Config = iconfig;
 }
@@ -127,21 +117,13 @@ FastL1Region::SetTowerBits()
 
 //
 void
-FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL1RegionMap* m_RMap) 
+FastL1Region::FillEMCrystals(const CaloTowerConstituentsMap* theTowerConstituentsMap,
+			     const CaloTopology* calotopo,
+			     const CaloGeometry* cGeom,
+			     const EcalRecHitCollection* ec0,
+			     const EcalRecHitCollection* ec1,
+			     FastL1RegionMap* m_RMap) 
 {
-  edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  c.get<IdealGeometryRecord>().get(cttopo);
-  const CaloTowerConstituentsMap* theTowerConstituentsMap = cttopo.product();
-
-  edm::ESHandle<CaloTopology> calotopo;
-  c.get<CaloTopologyRecord>().get(calotopo);
-
-  edm::ESHandle<CaloGeometry> cGeom; 
-  c.get<IdealGeometryRecord>().get(cGeom);    
-
-  edm::Handle<EcalRecHitCollection> ec;
-
-
   //std::vector< std::pair <std::string,std::string> > la;
   //la.resize(2);
   //// Barrel
@@ -156,16 +138,27 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 
   // EB
   //e.getByLabel(la[0].first,la[0].second,ec);
-  e.getByLabel(Config.EmInputs.at(0),ec);
+  //e.getByLabel(Config.EmInputs.at(0),ec);
 
   ethres = Config.CrystalEBThreshold;
-  for(EcalRecHitCollection::const_iterator ecItr = ec->begin();
-      ecItr != ec->end(); ++ecItr) {
-    CaloRecHit recHit = (CaloRecHit)(*ecItr);
-    if (recHit.energy()<ethres) continue;
+  for(EcalRecHitCollection::const_iterator ecItr = ec0->begin();
+      ecItr != ec0->end(); ++ecItr) {
+    //CaloRecHit recHit = (CaloRecHit)(*ecItr);
+    if (ecItr->energy()<ethres) continue;
 
-    EBDetId detId = recHit.detid();
+    EBDetId detId = ecItr->detid();
 
+    //int hiphi = detId.tower_iphi();
+    int hieta = detId.tower_ieta();
+    int eieta = detId.ieta();
+    int eiphi = detId.iphi();
+    int crIeta = 999;
+    if (hieta>0)
+      crIeta = (eieta-1)%5;
+    else
+      crIeta = 4 + (eieta+1)%5;
+    int crIphi = (eiphi - 1)%5;
+    
     //const GlobalPoint gP = cGeom->getPosition(detId);
 
     //CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
@@ -174,15 +167,8 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
       //int hiphi = m_RMap->convertFromECal_to_HCal_iphi(detId.tower_iphi());
       //int hiphi = m_RMap->convertFromHCal_to_ECal_iphi(detId.tower_iphi());
       int hiphi = detId.tower_iphi();
-      if (Towers[i].id().iphi()==hiphi && 
-	  Towers[i].id().ieta()==detId.tower_ieta() ) {
-	int crIeta = 999;
-	if (detId.ieta()>0) crIeta = (detId.ieta()-1)%5;
-	else crIeta = 4 + (detId.ieta()+1)%5;
-	int crIphi = (detId.iphi() - 1)%5;
-	
-	EMCrystalEnergy[i][crIeta + 5*crIphi] = recHit.energy();
-      }
+      if ( !Towers[i].id().iphi()==hiphi ||  !Towers[i].id().ieta()==hieta ) continue;
+      EMCrystalEnergy[i][crIeta + 5*crIphi] = ecItr->energy();
     }  
   }
   
@@ -195,7 +181,7 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
   if (GetiEta()==4 || GetiEta()==5 ||  GetiEta()==6 ||  
       GetiEta()==15 || GetiEta()==16 || GetiEta()==17 ) {
     
-    e.getByLabel(Config.EmInputs.at(1),ec);
+    //e.getByLabel(Config.EmInputs.at(1),ec);
     ethres = Config.CrystalEEThreshold;
     double towerEnergy[16];
     // loop over towers
@@ -222,38 +208,43 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 	continue;
       }
       
-      CaloRecHit maxRecHit;
-      CaloRecHit maxRecHit2;
+      //CaloRecHit maxRecHit;
+      //CaloRecHit maxRecHit2;
+      double maxRecHit=-1.;
+      double maxRecHit2=-1.;
+      DetId maxDetId;
+
       double max2En = 0.;
       
-      for(EcalRecHitCollection::const_iterator ecItr = ec->begin();
-	  ecItr != ec->end(); ++ecItr) {
-	CaloRecHit recHit = (CaloRecHit)(*ecItr);
-	if (recHit.energy()<ethres) continue;
+      for(EcalRecHitCollection::const_iterator ecItr = ec1->begin();
+	  ecItr != ec1->end(); ++ecItr) {
+	//CaloRecHit recHit = (CaloRecHit)(*ecItr);
+	if (ecItr->energy()<ethres) continue;
 	
-	EEDetId detId = recHit.detid();
+	EEDetId detId = ecItr->detid();
 	
 	CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
 	//int hiphi = m_RMap->convertFromECal_to_HCal_iphi(towerDetId.iphi());
 	int hiphi = towerDetId.iphi();
 	if (Towers[i].id().iphi()==hiphi && 
 	    Towers[i].id().ieta()==towerDetId.ieta() ) {	
-	  if (maxRecHit.energy()<recHit.energy()) {
-	    maxRecHit = recHit;
+	  if (maxRecHit<ecItr->energy()) {
+	    maxRecHit = ecItr->energy();
+	    maxDetId = detId;
 	  }	
 	}
       } 
 
-      std::vector<DetId> westV = calotopo->west(maxRecHit.detid());
-      std::vector<DetId> eastV = calotopo->east(maxRecHit.detid());
-      std::vector<DetId> southV = calotopo->south(maxRecHit.detid());
-      std::vector<DetId> northV = calotopo->north(maxRecHit.detid());
-      for(EcalRecHitCollection::const_iterator ecItr = ec->begin();
-	  ecItr != ec->end(); ++ecItr) {
-	CaloRecHit recHit = (CaloRecHit)(*ecItr);
-	if (recHit.energy()<ethres) continue;
+      std::vector<DetId> westV = calotopo->west(maxDetId);
+      std::vector<DetId> eastV = calotopo->east(maxDetId);
+      std::vector<DetId> southV = calotopo->south(maxDetId);
+      std::vector<DetId> northV = calotopo->north(maxDetId);
+      for(EcalRecHitCollection::const_iterator ecItr = ec1->begin();
+	  ecItr != ec1->end(); ++ecItr) {
+	//CaloRecHit recHit = (CaloRecHit)(*ecItr);
+	if (ecItr->energy()<ethres) continue;
 	
-	EEDetId detId = recHit.detid();
+	EEDetId detId = ecItr->detid();
 	
 	CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
 	//int hiphi = m_RMap->convertFromECal_to_HCal_iphi(towerDetId.iphi());
@@ -261,22 +252,22 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 	if (Towers[i].id().iphi()==hiphi && 
 	    Towers[i].id().ieta()==towerDetId.ieta() ) {
 	  if ( 
-	      (!westV.empty() && recHit.detid()==westV[0]) || 
-	      (!eastV.empty() && recHit.detid()==eastV[0]) || 
-	      (!northV.empty() && recHit.detid()==northV[0]) || 
-	      (!southV.empty() && recHit.detid()==southV[0]) 
+	      (!westV.empty() && detId==westV[0]) || 
+	      (!eastV.empty() && detId==eastV[0]) || 
+	      (!northV.empty() && detId==northV[0]) || 
+	      (!southV.empty() && detId==southV[0]) 
 	      ) {
-	    if (maxRecHit2.energy()<recHit.energy()) {
-	      maxRecHit2 = recHit;
+	    if (maxRecHit2<ecItr->energy()) {
+	      maxRecHit2 = ecItr->energy();
 	    }	
-	    max2En += recHit.energy();
+	    max2En += ecItr->energy();
 	  }
 	}
       }  
       
       double eeThres = Config.FGEEThreshold;
       //double totE = maxRecHit.energy() + max2En;
-      double totE = maxRecHit.energy() + maxRecHit2.energy();
+      double totE = maxRecHit + maxRecHit2;
       if (towerEnergy[i]>(Config.TowerEEThreshold)) {
 	//double totE = maxRecHit.energy() + maxRecHit2.energy();
 	//if (totE/towerEnergy[i]<Config.FGEBThreshold) fgBit[i] = true;    
@@ -294,17 +285,18 @@ void
 FastL1Region::FillTowerZero(const CaloTower& t, int& tid) 
 {
   Towers[tid] = CaloTower(t);
+  //std::cout<<"--- "<<Towers[tid].emEt()<<" "<<Towers[tid].hadEt()<<std::endl;
 }
 
 void
-FastL1Region::FillTower(const CaloTower& t, int& tid) 
+FastL1Region::FillTower(const CaloTower& t, int& tid, edm::ESHandle<CaloGeometry> &cGeom) 
 {
   double EThres = 0.;
   double HThres = 0.;
   double EBthres = Config.TowerEBThreshold;
   double HBthres = Config.TowerHBThreshold;
-  double EEthres = Config.TowerEBThreshold;
-  double HEthres = Config.TowerEEThreshold;
+  double EEthres = Config.TowerEEThreshold;
+  double HEthres = Config.TowerHEThreshold;
   
   if(std::abs(t.eta())<2.322) {
     EThres = EBthres;
@@ -318,31 +310,35 @@ FastL1Region::FillTower(const CaloTower& t, int& tid)
   }
 
   double upperThres = 1024.;
-  double emet = RCTEnergyTrunc(emet,Config.TowerEMLSB,upperThres);
-  double hadet = RCTEnergyTrunc(hadet,Config.TowerHadLSB,upperThres);
-  double eme = RCTEnergyTrunc(eme,Config.TowerEMLSB,upperThres);
-  double hade = RCTEnergyTrunc(hade,Config.TowerHadLSB,upperThres);
+  double emet = RCTEnergyTrunc(t.emEt(),Config.TowerEMLSB,upperThres);
+  double hadet = RCTEnergyTrunc(t.hadEt(),Config.TowerHadLSB,upperThres);
+  //double eme = RCTEnergyTrunc(t.emEnergy(),Config.TowerEMLSB,upperThres);
+  //double hade = RCTEnergyTrunc(t.hadEnergy(),Config.TowerHadLSB,upperThres);
 
   if ( emet<EThres) emet = 0.;
   if ( hadet<HThres) hadet = 0.;
   //if ( eme<EThres) emet = 0.;
   //if ( hade<HThres) hadet = 0.;
  
+  GlobalPoint gP = cGeom->getPosition(t.id());
+  math::XYZTLorentzVector lvec(t.px(),t.py(),t.px(),t.energy());
   //Towers[tid] = CaloTower(t);
-  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
+  //Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
+  Towers[tid] = CaloTower(t.id(),emet,hadet,t.outerEt(),0,0,lvec,gP,gP);
 }
 
 
 //
 void
-FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid) 
+FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid, bool doRCTTrunc,edm::ESHandle<CaloGeometry> &cGeom) 
 {
+
   double EThres = 0.;
   double HThres = 0.;
   double EBthres = Config.TowerEBThreshold;
   double HBthres = Config.TowerHBThreshold;
-  double EEthres = Config.TowerEBThreshold;
-  double HEthres = Config.TowerEEThreshold;
+  double EEthres = Config.TowerEEThreshold;
+  double HEthres = Config.TowerHEThreshold;
   
   if(std::abs(t.eta())<2.322) {
     EThres = EBthres;
@@ -373,20 +369,39 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid)
   double eme = emScale * t.emEnergy();
   double hade = hadScale * t.hadEnergy();
 
-  double upperThres = 1024.;
-  emet = RCTEnergyTrunc(emet,Config.TowerEMLSB,upperThres);
-  hadet = RCTEnergyTrunc(hadet,Config.TowerHadLSB,upperThres);
-  eme = RCTEnergyTrunc(eme,Config.TowerEMLSB,upperThres);
-  hade = RCTEnergyTrunc(hade,Config.TowerHadLSB,upperThres);
-
+  if (doRCTTrunc) {
+    double upperThres = 1024.;
+    emet = RCTEnergyTrunc(emet,Config.TowerEMLSB,upperThres);
+    hadet = RCTEnergyTrunc(hadet,Config.TowerHadLSB,upperThres);
+    eme = RCTEnergyTrunc(eme,Config.TowerEMLSB,upperThres);
+    hade = RCTEnergyTrunc(hade,Config.TowerHadLSB,upperThres);
+  }
   if ( emet<EThres) emet = 0.;
   if ( hadet<HThres) hadet = 0.;
   //if ( eme<EThres) emet = 0.;
   //if ( hade<HThres) hadet = 0.;
- 
+
+  /* 
+  if (t.emEt()>0. || t.hadEt()>0.) {
+    std::cout<<"+++ "
+	     <<t.emEt()<<" "<<t.hadEt()<<" "
+	     <<t.eta()<<" "<<t.phi()<<" "
+	     <<std::endl;
+  }
+  */
+
   //Towers[tid] = CaloTower(t);
-  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
+  //Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,0.,0,0);
+  //edm::ESHandle<CaloGeometry> cGeom; 
+  //c.get<CaloGeometryRecord>().get(cGeom);    
+  GlobalPoint gP = cGeom->getPosition(t.id());
+  math::XYZTLorentzVector lvec(t.px(),t.py(),t.px(),t.energy());
+  //Towers[tid] = CaloTower(t);
+  //Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
+  Towers[tid] = CaloTower(t.id(),emet,hadet,t.outerEt(),0,0,lvec,gP,gP);
   
+  //std::cout<<tid<<"  "<<Towers[tid].emEt()<< " " <<Towers[tid].hadEt()<< std::endl;
+
 }
 
 void 
@@ -430,6 +445,22 @@ FastL1Region::SetMIPBit()
       return;
     }
   }
+}
+
+void 
+FastL1Region::SetFGBit(int twrid,bool FGBIT)
+{
+  fgBit[twrid] = FGBIT;
+}
+void 
+FastL1Region::SetHCFGBit(int twrid,bool FGBIT)
+{
+  ;
+}
+void 
+FastL1Region::SetHOEBit(int twrid,bool FGBIT)
+{
+  hOeBit[twrid] = FGBIT;
 }
 
 void 
@@ -493,12 +524,22 @@ FastL1Region::SetFGBit()
   
 }
 
+// Patterns with two or less contiguous bits set are passed
+  // rest are vetoed; 5=0101;7=0111;9=1001;10=1010;11=1011;13=1101;14=1110;15=1111
+  //  --- Alternate patterns
+  //  --- 9=1001;15=1111
+static const std::vector<unsigned> vetoPatterns = { 5, 7, 9, 10,11,13,14,15};
 
 void 
 FastL1Region::SetTauBit(edm::Event const& iEvent)
 {
   float emThres = Config.EMActiveLevel;
   float hadThres = Config.HadActiveLevel;
+
+  if (doBitInfo) BitInfo.setIsolationVeto(false);	
+  if (doBitInfo) BitInfo.setTauVeto(false);	
+  if (doBitInfo) BitInfo.setEmTauVeto(false);	
+  if (doBitInfo) BitInfo.setHadTauVeto(false);	
 
   // init pattern containers
   unsigned emEtaPat = 0;
@@ -522,57 +563,82 @@ FastL1Region::SetTauBit(edm::Event const& iEvent)
 
   }
 
-  // Patterns with two or less contiguous bits set are passed
-  // rest are vetoed; 5=0101;7=0111;9=1001;10=1010;11=1011;13=1101;14=1110;15=1111
-  //  --- Alternate patterns
-  //  --- 9=1001;15=1111
-  static std::vector<unsigned> vetoPatterns;
-  if(vetoPatterns.size() == 0) {
-    vetoPatterns.push_back(5);
-    vetoPatterns.push_back(7);
-    vetoPatterns.push_back(9);
-    vetoPatterns.push_back(10);
-    vetoPatterns.push_back(11);
-    vetoPatterns.push_back(13);
-    vetoPatterns.push_back(14);
-    vetoPatterns.push_back(15);
-  }
-
-
-  for(std::vector<unsigned>::iterator i = vetoPatterns.begin();
+  for(std::vector<unsigned>::const_iterator i = vetoPatterns.begin();
       i != vetoPatterns.end();  i++) {
     unsigned etaPattern = emEtaPat | hadEtaPat;
     unsigned phiPattern = emPhiPat | hadPhiPat;
 
-    /*
     //  em pattern
     if(emEtaPat == *i || emPhiPat == *i) {
-      BitInfo.EmTauVeto = true;
+      if (doBitInfo) BitInfo.setEmTauVeto(true);
     }
     //  had pattern
     if(hadEtaPat == *i || hadPhiPat == *i) {
-      BitInfo.HadTauVeto = true;
+      if (doBitInfo) BitInfo.setHadTauVeto(true);
     }
-    */
 
     if(etaPattern == *i || phiPattern == *i) // combined pattern
       //if(emEtaPat == *i || emPhiPat == *i || hadEtaPat == *i || hadPhiPat == *i)
       {
 	tauBit = true;
-	//BitInfo.TauVeto = true;
-
-	
+	if (doBitInfo) BitInfo.setTauVeto(true);	
 	return;
       }  
-    
   }
-
+  
   tauBit = false;
   
 }
 
 
+int 
+FastL1Region::HighestEtTowerID()
+{
+  int hid = -1;
+  double tmpet=0.;
+  for (int i=0; i<16; i++) {
+    if ( (Towers[i].emEt()+Towers[i].hadEt()) > tmpet) {
+      tmpet = (Towers[i].emEt()+Towers[i].hadEt());
+      hid = i;
+    }
+  }
 
+  if (doBitInfo) BitInfo.setHighestEtTowerID (hid); 	 
+
+  return hid;
+}
+
+int 
+FastL1Region::HighestEmEtTowerID()
+{
+  int hid = -1;
+  double tmpet=0.;
+  for (int i=0; i<16; i++) {
+    if ( (Towers[i].emEt()) > tmpet) {
+      tmpet = (Towers[i].emEt());
+      hid = i;
+    }
+  }
+
+  if (doBitInfo) BitInfo.setHighestEmEtTowerID (hid); 	 
+  return hid;
+}
+
+int 
+FastL1Region::HighestHadEtTowerID()
+{
+  int hid = -1;
+  double tmpet=0.;
+  for (int i=0; i<16; i++) {
+    if ( (Towers[i].hadEt()) > tmpet) {
+      tmpet = (Towers[i].hadEt());
+      hid = i;
+    }
+  }
+
+  if (doBitInfo) BitInfo.setHighestHadEtTowerID (hid); 	 
+  return hid;
+}
 
 double 
 FastL1Region::CalcSumEt()
@@ -580,6 +646,28 @@ FastL1Region::CalcSumEt()
   double sumet=0;
   for (int i=0; i<16; i++) {
     sumet += Towers[i].emEt();
+    sumet += Towers[i].hadEt();
+  }
+
+  return sumet;
+}
+
+double 
+FastL1Region::CalcSumEmEt()
+{
+  double sumet=0;
+  for (int i=0; i<16; i++) {
+    sumet += Towers[i].emEt();
+  }
+
+  return sumet;
+}
+
+double 
+FastL1Region::CalcSumHadEt()
+{
+  double sumet=0;
+  for (int i=0; i<16; i++) {
     sumet += Towers[i].hadEt();
   }
 
@@ -598,12 +686,33 @@ FastL1Region::CalcSumE()
   return sume;
 }
 
+double 
+FastL1Region::CalcSumEmE()
+{
+  double sume=0;
+  for (int i=0; i<16; i++) {
+    sume += Towers[i].emEnergy();
+  }
+  return sume;
+}
+
+double 
+FastL1Region::CalcSumHadE()
+{
+  double sume=0;
+  for (int i=0; i<16; i++) {
+    sume += Towers[i].hadEnergy();
+  }
+  return sume;
+}
+
 
 std::pair<double, double>
 FastL1Region::getRegionCenterEtaPhi(const edm::EventSetup& c)
 {
   edm::ESHandle<CaloGeometry> cGeom; 
-  c.get<IdealGeometryRecord>().get(cGeom);    
+  //c.get<IdealGeometryRecord>().get(cGeom);    
+  c.get<CaloGeometryRecord>().get(cGeom);    
 
   const GlobalPoint gP1 = cGeom->getPosition(Towers[5].id());
   //const GlobalPoint gP2 = cGeom->getPosition(Towers[6].id());
@@ -866,26 +975,37 @@ corrJetEt1(double et, double eta)
 
 // EM correction from ORCA for cmsim 133
 double 
-corrEmEt(double et, double eta) {
+//corrEmEt(double et, double eta) {
+corrEmEt(double et, int eta) {
 
-  const int nscales = 26;
 
-  double etalimit[nscales] = { 0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,
+  const int nscales = 32;
+  /*
+  const int nscales = 27;
+  double etalimit[nscales] = { 0.0,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,
 			  1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,
 			  2.043,2.172,2.322,2.500};
-  
+  */
+
   double scfactor[nscales] = { 
     1.00,1.01,1.02,1.02,1.02,1.06,1.04,1.04,1.05,1.09,1.10,1.10,1.15,
-    1.20,1.27,1.29,1.32,1.52,1.52,1.48,1.40,1.32,1.26,1.21,1.17,1.15};
+    1.20,1.27,1.29,1.32,1.52,1.52,1.48,1.40,1.32,1.26,1.21,1.17,1.15, 
+    1.15,1.15,1.15,1.15,1.15,1.15};
 
+  /*
   double scale=1.;
   for (int i=0;i<nscales;i++) {
     if (std::abs(eta)<etalimit[i]) {
       scale = scfactor[i];
     }
   }
+    return (scale*et);
+  */
 
-  return (scale*et);
+  if (eta>=0 && eta <=28)
+    return (scfactor[eta]*et);
+  else
+    return et;
 }
 
 
@@ -893,11 +1013,13 @@ corrEmEt(double et, double eta) {
 double 
 RCTEnergyTrunc(double et, double LSB, double thres) {
 
+  //return et;
   if (et>=thres) return thres;
 
-  double ret = (int)(et / LSB) * LSB + LSB;
-  //double ret = (int)(et / LSB) * LSB;
-
+  //et += LSB/2.;
+  //double ret = (int)(et / LSB) * LSB + LSB;
+  int iEt = (int)(et / LSB);
+  double ret =  (double)iEt * LSB;
 
   return ret;
 }
@@ -906,9 +1028,12 @@ RCTEnergyTrunc(double et, double LSB, double thres) {
 double 
 GCTEnergyTrunc(double et, double LSB, bool doEM) {
 
-  double L1CaloEmEtScaleLSB = LSB;
-  double L1CaloRegionEtScaleLSB = LSB;
+  //return et;
 
+  //double L1CaloEmEtScaleLSB = LSB;
+  //double L1CaloRegionEtScaleLSB = LSB;
+
+  //if (et>0.) et += LSB/2.; // round up
 
   double L1CaloEmThresholds[64] = { 
     0.,     1.,     2.,     3.,     4.,     5.,     6.,     7.,     8.,     9., 
@@ -945,8 +1070,26 @@ GCTEnergyTrunc(double et, double LSB, bool doEM) {
   double ret = 0.;
   for (int i=63;i>0;i--) {
     if (et>=(L1CaloThresholds[i])) {
-      if (i==63) ret = L1CaloThresholds[63]+L1CaloThresholds[63]-L1CaloThresholds[62];
-      else ret = L1CaloThresholds[i+1];
+      if (i==63) {
+	ret = L1CaloThresholds[63];
+      } else {
+	/*
+	double minL = std::abs(et - L1CaloThresholds[i]); 
+	double minU = std::abs(et - L1CaloThresholds[i+1]); 
+	if (minL<minU)
+	  ret = L1CaloThresholds[i];
+	else
+	  ret = L1CaloThresholds[i+1];
+	*/
+	/*
+	if (doEM) {
+	  ret = L1CaloThresholds[i];
+	} else {
+	  ret = L1CaloThresholds[i+1];
+	}
+	*/
+	ret = L1CaloThresholds[i];
+      }
       break;
     }
   }

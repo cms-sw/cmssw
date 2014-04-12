@@ -4,6 +4,9 @@
 #include "G4ChordFinder.hh"
 #include "G4Track.hh"
 
+#include "G4PhysicalConstants.hh"
+#include "G4SystemOfUnits.hh"
+
 #include <iostream>
 
 using namespace sim;

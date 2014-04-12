@@ -9,13 +9,13 @@
 // Auxiliary run information that is persistent.
 // Obsolete format, used for backward compatibility only.
 
-namespace edm
-{
-  struct RunAuxiliary;
-  struct RunAux {
+namespace edm {
+  class RunAuxiliary;
+  class RunAux {
+  public:
     RunAux() : processHistoryID_(), id_() {}
     ~RunAux() {}
-    mutable ProcessHistoryID processHistoryID_;
+    ProcessHistoryID processHistoryID_;
     RunNumber_t id_;
   };
   void conversion(RunAux const& from, RunAuxiliary & to);

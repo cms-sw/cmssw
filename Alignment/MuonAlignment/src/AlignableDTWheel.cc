@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/8/4 10:10:07 $
- *  $Revision: 1.0 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -12,7 +12,8 @@
 
 
 /// The constructor simply copies the vector of stations and computes the surface from them
-AlignableDTWheel::AlignableDTWheel( const std::vector<AlignableDTStation*> dtStations ) 
+AlignableDTWheel::AlignableDTWheel( const std::vector<AlignableDTStation*>& dtStations ) 
+   : AlignableComposite(dtStations[0]->id(), align::AlignableDTWheel)
 {
 
   theDTStations.insert( theDTStations.end(), dtStations.begin(), dtStations.end() );
@@ -92,11 +93,11 @@ std::ostream &operator << (std::ostream& os, const AlignableDTWheel& b )
 
 
 /// Recursive printout of whole DT Wheel structure
-void AlignableDTWheel::dump( void )
+void AlignableDTWheel::dump( void ) const 
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableDTStation*>::iterator iStation = theDTStations.begin();
+  for ( std::vector<AlignableDTStation*>::const_iterator iStation = theDTStations.begin();
 		iStation != theDTStations.end(); iStation++ )
 	(*iStation)->dump();
 

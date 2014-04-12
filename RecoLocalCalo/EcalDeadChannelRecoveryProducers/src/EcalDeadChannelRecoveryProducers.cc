@@ -13,7 +13,6 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:01:03 CEST 2007
-// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.1 2007/05/03 12:42:17 gdaskal Exp $
 //
 //
 
@@ -38,6 +37,8 @@
 
 
 #include <string>
+#include <cstdio>
+
 using namespace cms;
 using namespace std;
 
@@ -105,16 +106,16 @@ EcalDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup
   // create an auto_ptr to a EcalRecHitCollection, copy the RecHits into it and put it in the Event:
   std::auto_ptr< EcalRecHitCollection > redCollection(new EcalRecHitCollection);
   
-  EcalDeadChannelRecoveryAlgos *DeadChannelCorrector = new EcalDeadChannelRecoveryAlgos(*theCaloTopology);
+  EcalDeadChannelRecoveryAlgos *DeadChannelCorrector = new EcalDeadChannelRecoveryAlgos(theCaloTopology.product());
   
   //Dead Cells are read from a text file
-  vector<EBDetId>::const_iterator DeadCell;
+  std::vector<EBDetId>::const_iterator DeadCell;
 
   //
   //This should work only if we REMOVE the DC RecHit from the reduced RecHit collection 
   //
   for(EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {     
-    vector<EBDetId>::const_iterator CheckDead = ChannelsDeadID.begin();
+    std::vector<EBDetId>::const_iterator CheckDead = ChannelsDeadID.begin();
     bool OverADeadRecHit=false;
     while(CheckDead<ChannelsDeadID.end()){
       if(it->detid()==*CheckDead){OverADeadRecHit=true;break;}
@@ -140,7 +141,7 @@ EcalDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalDeadChannelRecoveryProducers::beginJob(const edm::EventSetup&)
+EcalDeadChannelRecoveryProducers::beginJob()
 {
     FILE* DeadCha;
     printf("Dead Channels FILE: %s\n",DeadChannelFileName_.c_str());
@@ -151,13 +152,13 @@ EcalDeadChannelRecoveryProducers::beginJob(const edm::EventSetup&)
     int iphi=-10000;
     while(fileStatus != EOF) {
     fileStatus = fscanf(DeadCha,"%d %d\n",&ieta,&iphi);
-    //    cout<<" ieta "<<ieta<<" iphi "<<iphi<<endl;
+    //    std::cout<<" ieta "<<ieta<<" iphi "<<iphi<<std::endl;
     if(ieta==-10000||iphi==-10000){std::cout << "Problem reading Dead Channels file "<<std::endl;break;}
     EBDetId cell(ieta,iphi);
     ChannelsDeadID.push_back(cell);
     } //end while	    
     fclose(DeadCha);
-  std::cout<<" Read "<<ChannelsDeadID.size()<<" dead channels "<<std::endl;
+    //  std::cout<<" Read "<<ChannelsDeadID.size()<<" dead channels "<<std::endl;
   
 }
 

@@ -1,6 +1,5 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalTextCalibrations.h,v 1.1 2005/12/05 00:25:31 fedor Exp $
 //
 //
 #include <map>
@@ -10,15 +9,8 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
 class ParameterSet;
-
-class HcalPedestals;
-class HcalPedestalWidths;
-class HcalGains;
-class HcalGainWidths;
-class HcalQIEData;
-class HcalChannelQuality;
-class HcalElectronicsMap;
 
 class HcalPedestalsRcd;
 class HcalPedestalWidthsRcd;
@@ -27,6 +19,23 @@ class HcalGainWidthsRcd;
 class HcalQIEDataRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
+class HcalRespCorrsRcd;
+class HcalTimeCorrsRcd;
+class HcalLUTCorrsRcd;
+class HcalPFCorrsRcd;
+class HcalZSThresholdsRcd;
+class HcalL1TriggerObjectsRcd;
+class HcalValidationCorrsRcd;
+class HcalLutMetadataRcd;
+class HcalDcsRcd;
+class HcalDcsMapRcd;
+class HcalCholeskyMatricesRcd;
+class HcalCovarianceMatricesRcd;
+class HcalRecoParamsRcd;
+class HcalLongRecoParamsRcd;
+class HcalMCParamsRcd;
+class HcalFlagHFDigiTimeParamsRcd;
+class HcalTimingParamsRcd;
 
 class HcalTextCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -50,6 +59,26 @@ protected:
   std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
 
+  std::auto_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
+  std::auto_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);
+  std::auto_ptr<HcalL1TriggerObjects> produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd);
+  std::auto_ptr<HcalTimeCorrs> produceTimeCorrs (const HcalTimeCorrsRcd& rcd);
+  std::auto_ptr<HcalLUTCorrs> produceLUTCorrs (const HcalLUTCorrsRcd& rcd);
+  std::auto_ptr<HcalPFCorrs> producePFCorrs (const HcalPFCorrsRcd& rcd);
+
+  std::auto_ptr<HcalRecoParams> produceRecoParams (const HcalRecoParamsRcd& rcd);
+  std::auto_ptr<HcalLongRecoParams> produceLongRecoParams (const HcalLongRecoParamsRcd& rcd);
+  std::auto_ptr<HcalMCParams> produceMCParams (const HcalMCParamsRcd& rcd);
+  std::auto_ptr<HcalFlagHFDigiTimeParams> produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd);
+
+  std::auto_ptr<HcalValidationCorrs> produceValidationCorrs (const HcalValidationCorrsRcd& rcd);
+  std::auto_ptr<HcalLutMetadata> produceLutMetadata (const HcalLutMetadataRcd& rcd);
+  std::auto_ptr<HcalDcsValues> produceDcsValues (HcalDcsRcd const & rcd);
+  std::auto_ptr<HcalDcsMap> produceDcsMap (const HcalDcsMapRcd& rcd);
+  std::auto_ptr<HcalCholeskyMatrices> produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rcd);
+  std::auto_ptr<HcalCovarianceMatrices> produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd);
+  
+  std::auto_ptr<HcalTimingParams> produceTimingParams (const HcalTimingParamsRcd& rcd);
  private:
   std::map <std::string, std::string> mInputs;
 };

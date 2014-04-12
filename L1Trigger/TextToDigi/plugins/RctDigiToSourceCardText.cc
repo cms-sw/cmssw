@@ -11,7 +11,6 @@ Description: Input RCT digis and output GCT text file to be loaded into the sour
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Feb 16 14:52:19 CET 2007
-// $Id: RctDigiToSourceCardText.cc,v 1.1 2007/04/19 22:27:20 tapper Exp $
 //
 //
 
@@ -23,7 +22,7 @@ using namespace edm;
 using namespace std;
 
 // Set constant
-const static unsigned NUM_RCT_CRATES = 18;
+const static int NUM_RCT_CRATES = 18;
 
 RctDigiToSourceCardText::RctDigiToSourceCardText(const edm::ParameterSet& iConfig):
   m_rctInputLabel(iConfig.getParameter<edm::InputTag>("RctInputLabel")),
@@ -31,13 +30,13 @@ RctDigiToSourceCardText::RctDigiToSourceCardText(const edm::ParameterSet& iConfi
   m_nevt(0)
 {
   // Open the output file
-  m_file.open(m_textFileName.c_str(),ios::out);
+  m_file.open(m_textFileName.c_str(),std::ios::out);
 
   if(!m_file.good())
     {
       throw cms::Exception("RctDigiToSourceCardTextFileOpenError")
 	<< "RctDigiToSourceCardText::RctDigiToSourceCardText : "
-	<< " couldn't open the file " << m_textFileName << " for writing" << endl;
+	<< " couldn't open the file " << m_textFileName << " for writing" << std::endl;
     }
 
   // Make a SC routing object
@@ -64,7 +63,7 @@ void RctDigiToSourceCardText::analyze(const edm::Event& iEvent, const edm::Event
   // General variables
   int RoutingMode;
   unsigned short logicalCardID;
-  string dataString;
+  std::string dataString;
 
   // Arrays to hold electron variables
   unsigned short eIsoRank[18][4]={{0}};

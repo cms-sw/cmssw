@@ -1,14 +1,21 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <iostream>
-const int EcalScDetId::QuadColLimits[EcalScDetId::nCols+1] = { 0, 8,17,27,36,45,54,62,70,76,79 };
-const int EcalScDetId::iYoffset[EcalScDetId::nCols+1]      = { 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+#include <ostream>
+#include <cassert>
+#include <mutex>
+
+short EcalScDetId::xyz2HashedIndex[EcalScDetId::IX_MAX][EcalScDetId::IY_MAX][EcalScDetId::nEndcaps];
+
+EcalScDetId EcalScDetId::hashedIndex2DetId[kSizeForDenseIndexing];
+
 
 EcalScDetId::EcalScDetId() : DetId() {
 }
+
 EcalScDetId::EcalScDetId(uint32_t rawid) : DetId(rawid) {
 }
+
 EcalScDetId::EcalScDetId(int ix, int iy, int iz) : DetId(Ecal,EcalEndcap) 
 {
   if(!validDetId(ix,iy,iz))
@@ -36,76 +43,22 @@ EcalScDetId& EcalScDetId::operator=(const DetId& gen) {
   return *this;
 }
   
-int EcalScDetId::hashedIndex() const {
-  return ((zside()>0)?(IX_MAX*IY_MAX):(0))+(iy()-1)*IX_MAX+(ix()-1);
-}
-
-int EcalScDetId::ixQuadrantOne() const
-{ 
-  int iQuadrant = iquadrant();
-  if ( iQuadrant == 1 || iQuadrant == 4)
-    return (ix() - 10);
-  else if ( iQuadrant == 2 || iQuadrant == 3)
-    return (11 - ix());
-  //Should never be reached
-  return -1;
-}
-
-int EcalScDetId::iyQuadrantOne() const
-{ 
-  int iQuadrant = iquadrant();
-  if ( iQuadrant == 1 || iQuadrant == 2)
-    return (iy() - 10);
-  else if ( iQuadrant == 3 || iQuadrant == 4)
-    return 11 - iy();
-  //Should never be reached
-  return -1;
-}
-
 int EcalScDetId::iquadrant() const {
-  if (ix()>10)
-    {
-      if(iy()>10)
-	return 1;
-      else
-	return 4;
-    }
-  else
-    {
-      if(iy()>10)
-	return 2;
-      else
-	return 3;
-    }
+  const int xMiddle = IX_MAX/2; //y = 0 between xMiddle and xMiddle+1
+  const int yMiddle = IY_MAX/2; //x = 0 between yMiddle and yMiddle+1
+  if (iy()>yMiddle){// y>0
+    if(ix()>xMiddle)   //             A y	     
+      return 1;        //             |		     
+    else	       //      Q2     |    Q1	     
+      return 2;        //             |		     
+  } else{// y<0	       //   ----------o---------> x   
+    if(ix()>xMiddle)   //             |		      
+      return 4;        //      Q3     |    Q4	    
+    else	       //             |               
+      return 3;
+  }
   //Should never be reached
   return -1;
-}  
-
-int EcalScDetId::isc() const 
-{
-  /*
-   *  Return SC number from (x,y) coordinates.
-   *
-   *  Copied from code originally written by B W Kennedy
-   */
-  
-  int iCol = ix();
-  int iRow = iy();
-  int nSCinQuadrant = QuadColLimits[nCols];
-  int iSC;
-  
-  if (iRow <= iYoffset[iCol]) 
-    return -1;
-  else 
-    iSC = QuadColLimits[iCol-1] + iRow - iYoffset[iCol];
-
-  if (iSC > QuadColLimits[iCol]) 
-    return -2;
-  
-  if (iSC>0) 
-      iSC += nSCinQuadrant*(iquadrant()-1);
-  
-  return iSC;
 }  
 
 bool EcalScDetId::validDetId(int iX, int iY, int iZ) {
@@ -136,4 +89,24 @@ bool EcalScDetId::validDetId(int iX, int iY, int iZ) {
 
 std::ostream& operator<<(std::ostream& s,const EcalScDetId& id) {
   return s << "(EE iz " << ((id.zside()>0)?("+ "):("- ")) << " ix " << id.ix() << " , iy " << id.iy() << ')';
+}
+
+//NOTE: When looping is possible in constexpr, this should be changed to one
+static std::once_flag initializedFlag;
+void EcalScDetId::checkHashedIndexMap(){
+  std::call_once(initializedFlag, []() 
+  {
+    int hashedIndex = -1;
+    for(int iZ = -1; iZ <= +1; iZ+=2){
+      for(int iY = IY_MIN; iY <= IY_MAX; ++iY){
+	for(int iX = IX_MIN; iX <= IX_MAX; ++iX){
+	  if(validDetId(iX,iY,iZ)){
+	    xyz2HashedIndex[iX-IX_MIN][iY-IY_MIN][iZ>0?1:0] = ++hashedIndex;
+	    assert((unsigned)hashedIndex < sizeof(hashedIndex2DetId)/sizeof(hashedIndex2DetId[0]));
+	    hashedIndex2DetId[hashedIndex] = EcalScDetId(iX, iY, iZ);
+	  }
+	}
+      }
+    }
+  });
 }

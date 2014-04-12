@@ -2,11 +2,11 @@
 #define DetPositioner_H
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 /* A base class for classes which modify the positions/orientations of GeomDets.
- * The derived classes can call the methods moveGeomDet, rotateGeomDet, setGeomDetPosition and
- * setAlignmentPositionError to change the position, orientation etc.
+ * The derived classes can call the methods moveGeomDet, rotateGeomDet, setGeomDetPosition,
+ * setAlignmentPositionError and setSurfaceDeformation to change the position, orientation etc.
  */
 
 class DetPositioner {
@@ -43,11 +43,18 @@ protected:
    *  +=,-=  methods of the AlignmentPositionError
    *  Does not affect the AlignmentPositionError of components (if any).
    */
-  void setAlignmentPositionError (GeomDet& det, 
+  bool setAlignmentPositionError (GeomDet& det, 
 				  const AlignmentPositionError& ape) {
-    det.setAlignmentPositionError( ape);
+    return det.setAlignmentPositionError( ape);
   }
 
+  /** set the SurfaceDeformation for this DetUnit.
+   *  Does not affect the SurfaceDeformation of components (if any).
+   */
+  void setSurfaceDeformation (GeomDetUnit& detUnit, 
+			      const SurfaceDeformation* deformation) {
+    detUnit.setSurfaceDeformation( deformation );
+  }
 
 };
 

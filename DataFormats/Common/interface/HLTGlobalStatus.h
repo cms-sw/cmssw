@@ -1,5 +1,5 @@
-#ifndef Common_HLTGlobalStatus_h
-#define Common_HLTGlobalStatus_h
+#ifndef DataFormats_Common_HLTGlobalStatus_h
+#define DataFormats_Common_HLTGlobalStatus_h
 
 /** \class edm::HLTGlobalStatus
  *
@@ -10,8 +10,6 @@
  *  If the user wants map-like indexing of HLT triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2007/01/23 00:00:03 $
- *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -75,6 +73,14 @@ namespace edm
     unsigned int  index(const unsigned int i) const { return at(i).index(); }
     /// Reset the ith path
     void reset(const unsigned int i) { at(i).reset(); }
+    /// swap function
+    void swap(HLTGlobalStatus& other) { paths_.swap(other.paths_); }
+    /// copy assignment implemented with swap()
+    HLTGlobalStatus& operator=(HLTGlobalStatus const& rhs) {
+      HLTGlobalStatus temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
 
   private:
 
@@ -98,6 +104,13 @@ namespace edm
 
   };
 
+  /// Free swap function
+  inline
+  void
+  swap(HLTGlobalStatus& lhs, HLTGlobalStatus& rhs) {
+    lhs.swap(rhs);
+  }
+
   /// Formatted printout of trigger tbale
   inline std::ostream& operator <<(std::ostream& ost, const HLTGlobalStatus& hlt) {
     std::vector<std::string> text(4); text[0]="n"; text[1]="1"; text[2]="0"; text[3]="e";
@@ -108,4 +121,17 @@ namespace edm
 
 }
 
-#endif // Common_HLTGlobalStatus_h
+// The standard allows us to specialize std::swap for non-templates.
+// This ensures that HLTGlobalStatus::swap() will be used in algorithms.
+
+namespace std {
+  template <> inline void swap(edm::HLTGlobalStatus& lhs, edm::HLTGlobalStatus& rhs) {
+    lhs.swap(rhs);
+  }
+}
+
+#endif // DataFormats_Common_HLTGlobalStatus_h
+
+
+
+

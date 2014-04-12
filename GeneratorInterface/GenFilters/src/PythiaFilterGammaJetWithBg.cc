@@ -1,5 +1,5 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJetWithBg.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -38,7 +38,7 @@ namespace{
 
 
 PythiaFilterGammaJetWithBg::PythiaFilterGammaJetWithBg(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 etaMax(iConfig.getUntrackedParameter<double>("MaxPhotonEta", 2.8)),
 ptSeed(iConfig.getUntrackedParameter<double>("PhotonSeedPt", 5.)),
 ptMin(iConfig.getUntrackedParameter<double>("MinPhotonPt")),
@@ -61,6 +61,12 @@ PythiaFilterGammaJetWithBg::~PythiaFilterGammaJetWithBg(){}
 // ------------ method called to produce the data  ------------
 bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
+// <<<<<<< PythiaFilterGammaJetWithBg.cc
+//  if(theNumberOfSelected>=maxnumberofeventsinrun)   {
+//    throw cms::Exception("endJob")<<"we have reached the maximum number of events ";
+//  }
+// =======
+// >>>>>>> 1.4
 
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
@@ -113,11 +119,9 @@ bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetu
     //***
 
     int jetline=8;
-    int photonline = 7; 
     if(dphi7>dphi) {
       dphi=dphi7;
       jetline=7;
-      photonline = 8; 
     }
     
 //    std::cout<<" Dphi "<<dphi<<" "<<dphiMin<<std::endl;
@@ -206,12 +210,12 @@ bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetu
     }
     //isolation cuts
 
-    double isocut1 = 5+etPhoton/20-etPhoton*etPhoton/1e4;
+//    double isocut1 = 5+etPhoton/20-etPhoton*etPhoton/1e4;
     double isocut2 = 3+etPhoton/20-etPhoton*etPhoton*etPhoton/1e6;
     double isocut3 = 4.5+etPhoton/40;
     if (etPhoton>165.)
     {
-      isocut1 = 5.+165./20.-165.*165./1e4;
+//     isocut1 = 5.+165./20.-165.*165./1e4;
       isocut2 = 3.+165./20.-165.*165.*165./1e6;
       isocut3 = 4.5+165./40.;
     }

@@ -5,10 +5,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 
 #include <string>
 #include <iostream>
@@ -16,8 +19,11 @@
 #include <numeric>
 #include <iterator>
 
-using namespace std;
 using namespace edm;
+
+namespace edm {
+  class ModuleCallingContext;
+}
 
 namespace edmtest
 {
@@ -28,17 +34,17 @@ namespace edmtest
     explicit TestResultAnalyzer(edm::ParameterSet const&);
     virtual ~TestResultAnalyzer();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    void endJob();
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void endJob() override;
 
   private:
     int    passed_;
     int    failed_;
     bool   dump_;
-    string name_;
+    std::string name_;
     int    numbits_;
-    string expected_pathname_; // if empty, we don't know
-    string expected_modulelabel_; // if empty, we don't know
+    std::string expected_pathname_; // if empty, we don't know
+    std::string expected_modulelabel_; // if empty, we don't know
   };
 
   // -------
@@ -49,8 +55,8 @@ namespace edmtest
     explicit TestFilterModule(edm::ParameterSet const&);
     virtual ~TestFilterModule();
 
-    virtual bool filter(edm::Event& e, edm::EventSetup const& c);
-    void endJob();
+    virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
+    void endJob() override;
 
   private:
     int count_;
@@ -67,12 +73,12 @@ namespace edmtest
     virtual ~SewerModule();
 
   private:
-    virtual void write(edm::EventPrincipal const& e);
-    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&){}
-    virtual void endRun(edm::RunPrincipal const&){}
-    virtual void endJob();
+    virtual void write(edm::EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void writeRun(edm::RunPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void endJob() override;
 
-    string name_;
+    std::string name_;
     int num_pass_;
     int total_;
   };
@@ -83,11 +89,12 @@ namespace edmtest
     passed_(),
     failed_(),
     dump_(ps.getUntrackedParameter<bool>("dump",false)),
-    name_(ps.getUntrackedParameter<string>("name","DEFAULT")),
+    name_(ps.getUntrackedParameter<std::string>("name","DEFAULT")),
     numbits_(ps.getUntrackedParameter<int>("numbits",-1)),
-    expected_pathname_(ps.getUntrackedParameter<string>("pathname", "")),
-    expected_modulelabel_(ps.getUntrackedParameter<string>("modlabel", ""))
+    expected_pathname_(ps.getUntrackedParameter<std::string>("pathname", "")),
+    expected_modulelabel_(ps.getUntrackedParameter<std::string>("modlabel", ""))
   {
+    consumesMany<edm::TriggerResults>();
   }
     
   TestResultAnalyzer::~TestResultAnalyzer()
@@ -99,23 +106,21 @@ namespace edmtest
     typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
     Trig prod;
     e.getManyByType(prod);
-    
-    edm::CurrentProcessingContext const* cpc = currentContext();
-    assert( cpc != 0 );
-    assert( cpc->moduleDescription() != 0 );
 
-    if ( !expected_pathname_.empty() )
-      assert( expected_pathname_ == *(cpc->pathName()) );
+    assert(e.moduleCallingContext()->moduleDescription()->moduleLabel() == moduleDescription().moduleLabel());
 
-    if ( !expected_modulelabel_.empty() )
-      {
-	assert(expected_modulelabel_ == *(cpc->moduleLabel()) );
-      }
+    if( !expected_pathname_.empty() ) {
+      assert( expected_pathname_ == e.moduleCallingContext()->placeInPathContext()->pathContext()->pathName());
+    }
+
+    if( !expected_modulelabel_.empty() ) {
+      assert(expected_modulelabel_ == moduleDescription().moduleLabel());
+    }
 
     if(prod.size() == 0) return;
     if(prod.size() > 1) {
-      cerr << "More than one trigger result in the event, using first one"
-	   << endl;
+      std::cerr << "More than one trigger result in the event, using first one"
+	   << std::endl;
     }
 
     if (prod[0]->accept()) ++passed_; else ++failed_;
@@ -124,7 +129,7 @@ namespace edmtest
 
     unsigned int numbits = numbits_;
     if(numbits != prod[0]->size()) {
-      cerr << "TestResultAnalyzer named: " << name_
+      std::cerr << "TestResultAnalyzer named: " << name_
 	   << " should have " << numbits
 	   << ", got " << prod[0]->size() << " in TriggerResults\n";
       abort();
@@ -133,7 +138,7 @@ namespace edmtest
 
   void TestResultAnalyzer::endJob()
   {
-    cerr << "TESTRESULTANALYZER " << name_ << ": "
+    std::cerr << "TESTRESULTANALYZER " << name_ << ": "
 	 << "passed=" << passed_ << " failed=" << failed_ << "\n";
   }
 
@@ -150,10 +155,11 @@ namespace edmtest
   {
   }
 
-  bool TestFilterModule::filter(edm::Event&, edm::EventSetup const&)
+  bool TestFilterModule::filter(edm::Event& e, edm::EventSetup const&)
   {
+    assert(e.moduleCallingContext()->moduleDescription()->moduleLabel() == moduleDescription().moduleLabel());
+
     ++count_;
-    assert( currentContext() != 0 );
     if(onlyOne_)
       return count_ % accept_rate_ ==0;
     else
@@ -162,14 +168,13 @@ namespace edmtest
 
   void TestFilterModule::endJob()
   {
-    assert(currentContext() == 0);
   }
 
   // ---------
 
   SewerModule::SewerModule(edm::ParameterSet const& ps):
     edm::OutputModule(ps),
-    name_(ps.getParameter<string>("name")),
+    name_(ps.getParameter<std::string>("name")),
     num_pass_(ps.getParameter<int>("shouldPass")),
     total_()
   {
@@ -179,21 +184,19 @@ namespace edmtest
   {
   }
 
-  void SewerModule::write(edm::EventPrincipal const&)
+  void SewerModule::write(edm::EventPrincipal const&, ModuleCallingContext const*)
   {
     ++total_;
-    assert(currentContext() != 0);
   }
 
   void SewerModule::endJob()
   {
-    assert( currentContext() == 0 );
-    cerr << "SEWERMODULE " << name_ << ": should pass " << num_pass_
+    std::cerr << "SEWERMODULE " << name_ << ": should pass " << num_pass_
 	 << ", did pass " << total_ << "\n";
 
     if(total_!=num_pass_)
       {
-	cerr << "number passed should be " << num_pass_
+	std::cerr << "number passed should be " << num_pass_
 	     << ", but got " << total_ << "\n";
 	abort();
       }

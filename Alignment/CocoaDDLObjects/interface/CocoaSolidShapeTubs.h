@@ -9,7 +9,7 @@
 
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 class CocoaSolidShapeTubs : public CocoaSolidShape
 {

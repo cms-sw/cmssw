@@ -13,8 +13,8 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <cmath>
 #include <iostream>
@@ -117,34 +117,51 @@ void CheckSecondary::update(const BeginOfEvent * evt) {
 
 void CheckSecondary::update(const BeginOfTrack * trk) {
 
-  treatSecondary->initTrack((*trk)());
+  const G4Track * thTk = (*trk)();
+  treatSecondary->initTrack(thTk);
+  if (thTk->GetParentID() <= 0) storeIt = true;
+  else                          storeIt = false;
   nHad  = 0;
+  LogDebug("CheckSecondary") << "CheckSecondary:: Track " << thTk->GetTrackID()
+			     << " Parent " << thTk->GetParentID() << " Flag "
+			     << storeIt;
 }
 
 void CheckSecondary::update(const G4Step * aStep) {
 
-  std::string name;
-  int         procID;
-  bool        hadrInt;
-  double      deltaE;
+  std::string      name;
+  int              procID;
+  bool             hadrInt;
+  double           deltaE;
+  std::vector<int> charge;
   std::vector<math::XYZTLorentzVector> tracks = treatSecondary->tracks(aStep,
 								       name,
 								       procID,
 								       hadrInt,
-								       deltaE);
-  if (hadrInt) {
+								       deltaE,
+								       charge);
+  if (storeIt && hadrInt) {
+    double pInit = (aStep->GetPreStepPoint()->GetMomentum()).mag();
+    double pEnd  = (aStep->GetPostStepPoint()->GetMomentum()).mag();
     nHad++;
     int  sec = (int)(tracks.size());
+    LogDebug("CheckSecondary") << "CheckSecondary:: Hadronic Interaction "
+			       << nHad << " of type " << name << " ID "
+			       << procID << " with " << sec << " secondaries "
+			       << " and Momentum (MeV/c) at start " << pInit
+			       << " and at end " << pEnd;
     (*nsec).push_back(sec);
     (*procs).push_back(name);
     (*procids).push_back(procID);
     (*deltae).push_back(deltaE);
     if (nHad == 1) {
       for (int i=0; i<sec; i++) {
+	double m = tracks[i].M();
+	if (charge[i]<0) m = -m;
 	(*px).push_back(tracks[i].Px());
 	(*py).push_back(tracks[i].Py());
 	(*pz).push_back(tracks[i].Pz());
-	(*mass).push_back(tracks[i].M());
+	(*mass).push_back(m);
       }
     }
   }
@@ -166,7 +183,7 @@ void CheckSecondary::update(const EndOfEvent * evt) {
   for (unsigned int i= 0; i < (*mass).size(); i++) 
     LogDebug("CheckSecondary") << "Secondary " << i << " (" << (*px)[i] << ", "
 			       << (*py)[i] << ", " << (*pz)[i] << ", " 
-			       << (*mass)[i];
+			       << (*mass)[i] << ")";
 
   if (saveToTree) tree->Fill();
 }

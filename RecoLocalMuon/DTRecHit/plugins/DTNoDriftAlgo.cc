@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/06 14:02:05 $
- *  $Revision: 1.1 $
  *  \author Martijn Mulders - CERN (martijn.mulders@cern.ch)
  *  based on DTLinearDriftAlgo
  */
@@ -18,19 +16,13 @@ using namespace std;
 using namespace edm;
 
 DTNoDriftAlgo::DTNoDriftAlgo(const ParameterSet& config) :
-  DTRecHitBaseAlgo(config) {
-
-    minTime = config.getParameter<double>("minTime");
-
-    maxTime = config.getParameter<double>("maxTime"); 
-
-    fixedDrift = config.getParameter<double>("fixedDrift");
-
-    hitResolution = config.getParameter<double>("hitResolution"); // Set to size of (half)cell 
-    // Set verbose output
-    debug = config.getUntrackedParameter<bool>("debug");
-    
-  }
+  DTRecHitBaseAlgo(config),
+  fixedDrift(config.getParameter<double>("fixedDrift")),
+  hitResolution(config.getParameter<double>("hitResolution")), // Set to size of (half)cell 
+  minTime(config.getParameter<double>("minTime")),
+  maxTime(config.getParameter<double>("maxTime")),
+  debug(config.getUntrackedParameter<bool>("debug")) // Set verbose output
+ {}
 
 
 
@@ -105,6 +97,7 @@ bool DTNoDriftAlgo::compute(const DTLayer* layer,
   const DTWireId wireId(layerId, digi.wire());
 
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(digi.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
   const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
   
@@ -167,6 +160,7 @@ bool DTNoDriftAlgo::compute(const DTLayer* layer,
   float drift = fixedDrift;
 
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(wireId.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
   //Build the two possible points and the error on the position
   leftPoint  = LocalPoint(locWirePos.x()-drift,
@@ -233,18 +227,3 @@ bool DTNoDriftAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-
-float DTNoDriftAlgo::fixedDrift;
-
-  
-float DTNoDriftAlgo::hitResolution;
-
-  
-float DTNoDriftAlgo::minTime;
-
-  
-float DTNoDriftAlgo::maxTime;
-
-  
-bool DTNoDriftAlgo::debug;

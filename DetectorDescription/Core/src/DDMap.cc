@@ -1,10 +1,4 @@
 #include "DetectorDescription/Core/interface/DDMap.h"
-//#include "DetectorDescription/Base/interface/DDException.h"
-
-// Evaluator 
-//#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
-
 
 DDMap::DDMap() : DDBase<DDName,dd_map_type*>() { }
 

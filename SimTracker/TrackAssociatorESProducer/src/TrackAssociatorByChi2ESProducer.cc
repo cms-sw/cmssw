@@ -29,7 +29,8 @@ TrackAssociatorByChi2ESProducer::TrackAssociatorByChi2ESProducer(const edm::Para
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this,"TrackAssociatorByChi2");
+   std::string myName=iConfig.getParameter<std::string>("ComponentName");
+   setWhatProduced(this,myName);
 
    //now do what ever other initialization is needed
    conf_=iConfig;

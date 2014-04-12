@@ -1,25 +1,37 @@
+// #include "Math/GenVector/Rotation3D.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
 align::EulerAngles align::toAngles(const RotationType& rot)
 {
+  const Scalar one = 1; // to ensure same precison is used in comparison
+
   EulerAngles angles(3);
 
-  if ( std::abs( rot.zx() ) < static_cast<Scalar>(1) )
+  if (std::abs( rot.zx() ) > one)
+  {
+    edm::LogWarning("Alignment") << "Rounding errors in\n" << rot;
+  }
+
+  if (std::abs( rot.zx() ) < one)
   {
     angles(1) = -std::atan2( rot.zy(), rot.zz() );
     angles(2) =  std::asin( rot.zx() );
     angles(3) = -std::atan2( rot.yx(), rot.xx() );
   }
-  else
+  else if (rot.zx() >= one)
   {
-    edm::LogWarning("Alignment") << "Rounding errors in\n" << rot;
-
-    angles(1) = std::atan2( .5 * ( rot.xy() + rot.yz() ),
-			    .5 * ( rot.yy() - rot.xz() ) );
-    angles(2) = std::asin( rot.zx() > 0. ? 1. : -1. );
-    angles(3) = 0.;
+    angles(1) = std::atan2(rot.xy() + rot.yz(), rot.yy() - rot.xz() );
+    angles(2) = std::asin(one);
+    angles(3) = 0;
+  }
+  else if (rot.zx() <= -one)
+  {
+    angles(1) = std::atan2(rot.xy() - rot.yz(), rot.yy() + rot.xz() );
+    angles(2) = std::asin(-one);
+    angles(3) = 0;
   }
 
   return angles;
@@ -88,7 +100,7 @@ align::RotationType align::diffRot(const GlobalVectors& current,
 // This is because dr = -r and r * dr is all zero.
 // This is not a problem since we are dealing with small angles in alignment.
 
-  static const double tolerance = 1e-8;
+  static const double tolerance = 1e-12;
 
   RotationType rot; // rotation from nominal to current; init to identity
 
@@ -103,7 +115,6 @@ align::RotationType align::diffRot(const GlobalVectors& current,
   for (unsigned int j = 0; j < nPoints; ++j)
   {
     const GlobalVector& r = nominal[j];
-
   // Inertial tensor: I_ij = delta_ij * r^2 - r_i * r_j (sum over points)
 
     I.fast(1, 1) += r.y() * r.y() + r.z() * r.z();
@@ -113,7 +124,7 @@ align::RotationType align::diffRot(const GlobalVectors& current,
     I.fast(3, 1) -= r.x() * r.z();
     I.fast(3, 2) -= r.y() * r.z();
   }
-
+ int count=0;
   while (true)
   {
     AlgebraicVector rhs(3); // sum of dr * r
@@ -132,9 +143,14 @@ align::RotationType align::diffRot(const GlobalVectors& current,
 
     EulerAngles dOmega = CLHEP::solve(I, rhs);
 
-    if (dOmega.normsq() < tolerance) break; // converges, so exit loop
-
     rot *= toMatrix(dOmega); // add to rotation
+
+    if (dOmega.normsq() < tolerance) break; // converges, so exit loop
+    count++;
+    if(count>100000){
+       std::cout<<"diffRot infinite loop: dOmega is "<<dOmega.normsq()<<"\n";
+       break;
+    }
 
   // Not yet converge; move current vectors to new positions and find dr
 
@@ -147,7 +163,50 @@ align::RotationType align::diffRot(const GlobalVectors& current,
   return rot;
 }
 
+align::GlobalVector align::diffR(const GlobalVectors& current,
+				 const GlobalVectors& nominal)
+{
+  GlobalVector nCM(0,0,0);
+  GlobalVector cCM(0,0,0);
+
+  unsigned int nPoints = nominal.size();
+
+  for (unsigned int j = 0; j < nPoints; ++j)
+  {
+    nCM += nominal[j];
+    cCM += current[j];
+  }
+
+  nCM -= cCM;
+
+  return nCM /= static_cast<Scalar>(nPoints);
+}
+
+align::GlobalVector align::centerOfMass(const GlobalVectors& theVs)
+{
+  unsigned int nPoints = theVs.size();
+
+  GlobalVector CM(0,0,0);
+
+  for (unsigned int j = 0; j < nPoints; ++j) CM += theVs[j];
+
+  return CM /= static_cast<Scalar>(nPoints);
+}
+
 void align::rectify(RotationType& rot)
 {
-  rot = toMatrix( toAngles(rot) );
+// Use ROOT for better numerical precision but slower.
+
+//   ROOT::Math::Rotation3D temp( rot.xx(), rot.xy(), rot.xz(),
+//                                rot.yx(), rot.yy(), rot.yz(),
+//                                rot.zx(), rot.zy(), rot.zz() );
+// 
+//   temp.Rectify();
+// 
+//   Scalar elems[9];
+// 
+//   temp.GetComponents(elems);
+//   rot = RotationType(elems);
+
+  rot = toMatrix( toAngles(rot) ); // fast rectification but less precise
 }

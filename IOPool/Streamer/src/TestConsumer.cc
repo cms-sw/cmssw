@@ -1,8 +1,7 @@
 
 #include "IOPool/Streamer/src/TestConsumer.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "boost/shared_ptr.hpp"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <string>
 #include <cstring>
@@ -30,7 +29,7 @@ namespace edmtest
 
     if(!(*p))
       {
-	throw cms::Exception("Configuration","TestConsumer")
+	throw edm::Exception(errors::Configuration,"TestConsumer")
 	  << "cannot open file " << name;
       }
 
@@ -105,7 +104,6 @@ namespace edmtest
   
   TestConsumer::~TestConsumer()
   {
-    delete worker_;
   }
   
   void TestConsumer::bufferReady()

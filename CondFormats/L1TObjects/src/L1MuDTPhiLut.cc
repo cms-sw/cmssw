@@ -5,8 +5,8 @@
 //   Description: Look-up tables for phi assignment 
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.3 $
+//   $Date: 2010/05/12 23:03:43 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -24,16 +24,18 @@
 // C++ Headers --
 //---------------
 
+#include <iostream>
 #include <ostream>
 #include <iomanip>
 #include <string>
+#include <cstdlib>
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/DTTFBitArray.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 
 using namespace std;
@@ -50,9 +52,9 @@ L1MuDTPhiLut::L1MuDTPhiLut() {
 
   phi_lut.reserve(2);
   setPrecision();
-  if ( load() != 0 ) {
-    cout << "Can not open files to load phi-assignment look-up tables for DTTrackFinder!" << endl;
-  }
+  //  if ( load() != 0 ) {
+  //    cout << "Can not open files to load phi-assignment look-up tables for DTTrackFinder!" << endl;
+  //  }
 
   //  if ( L1MuDTTFConfig::Debug(6) ) print();
 
@@ -65,13 +67,12 @@ L1MuDTPhiLut::L1MuDTPhiLut() {
 
 L1MuDTPhiLut::~L1MuDTPhiLut() {
 
-  vector<LUT*>::iterator iter;
+  vector<LUT>::iterator iter;
   for ( iter = phi_lut.begin(); iter != phi_lut.end(); iter++ ) {
-    if ( *iter != 0 ) {
-      delete *iter;
-      *iter = 0;
-    }
+    (*iter).clear();
   }
+
+  phi_lut.clear();
 
 }
 
@@ -96,7 +97,7 @@ void L1MuDTPhiLut::reset() {
 int L1MuDTPhiLut::load() {
 
   // get directory name
-  string defaultPath(getenv("DTTF_DATA_PATH"));
+  string defaultPath = "L1TriggerConfig/DTTrackFinder/parameters/";
   string phi_dir = "L1TriggerData/DTTrackFinder/Ass/";
   string phi_str = "";
 
@@ -123,8 +124,7 @@ int L1MuDTPhiLut::load() {
     //    if ( L1MuDTTFConfig::Debug(1) ) cout << "Reading file : " 
     //                                         << file.getName() << endl; 
 
-    LUT* tmplut = new LUT;
-    phi_lut.push_back(tmplut);
+    LUT tmplut;
 
     int number = -1;
     int adr_old = -512 >> sh_phib;
@@ -139,7 +139,8 @@ int L1MuDTPhiLut::load() {
       number++;
 
       if ( adr != adr_old ) {
-        tmplut->insert(make_pair( adr_old, ((sum_phi/number) >> sh_phi) ));
+        assert(number);
+        tmplut.insert(make_pair( adr_old, ((sum_phi/number) >> sh_phi) ));
 
         adr_old = adr;
         number = 0;
@@ -153,6 +154,7 @@ int L1MuDTPhiLut::load() {
     }
 
     file.close();
+    phi_lut.push_back(tmplut);
   } 
   return 0;
 
@@ -187,13 +189,13 @@ void L1MuDTPhiLut::print() const {
     for ( int i = 0; i < nbit_phi + nbit_phib; i++ ) cout << '-';
     cout << "----------------------" << endl;
 
-    LUT::const_iterator iter = phi_lut[idx]->begin();
-    while ( iter != phi_lut[idx]->end() ) {
+    LUT::const_iterator iter = phi_lut[idx].begin();
+    while ( iter != phi_lut[idx].end() ) {
       int address = (*iter).first;
       int value   = (*iter).second;
 
-      BitArray<10> b_address(static_cast<unsigned>(abs(address)));
-      BitArray<12> b_value(static_cast<unsigned>(abs(value)));
+      DTTFBitArray<10> b_address(static_cast<unsigned>(abs(address)));
+      DTTFBitArray<12> b_value(static_cast<unsigned>(abs(value)));
 
       if ( address < 0 ) b_address.twoComplement();
       if ( value < 0 ) b_value.twoComplement();
@@ -220,8 +222,8 @@ void L1MuDTPhiLut::print() const {
 //
 int L1MuDTPhiLut::getDeltaPhi(int idx, int address) const {
 
-  LUT::const_iterator iter = phi_lut[idx]->find(address);
-  if ( iter != phi_lut[idx]->end() ) {
+  LUT::const_iterator iter = phi_lut[idx].find(address);
+  if ( iter != phi_lut[idx].end() ) {
     return (*iter).second;
   }
   else {

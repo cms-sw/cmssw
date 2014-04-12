@@ -1,8 +1,4 @@
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Calibration/Tools/interface/CalibrationCluster.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include<vector>
-#include<map>
 #include <iostream>
 #include <string>
 
@@ -17,7 +13,7 @@ CalibrationCluster::~CalibrationCluster(){
 
 ///////////////////////////////////////////////////////////////////////
 
-vector<EBDetId> CalibrationCluster::get5x5Id(EBDetId const & maxHitId){
+std::vector<EBDetId> CalibrationCluster::get5x5Id(EBDetId const & maxHitId){
 
 
    Xtals5x5.clear();
@@ -54,7 +50,7 @@ vector<EBDetId> CalibrationCluster::get5x5Id(EBDetId const & maxHitId){
 
 ///////////////////////////////////////////////////////////////////////
 
-vector<EBDetId> CalibrationCluster::get3x3Id(EBDetId const & maxHitId){
+std::vector<EBDetId> CalibrationCluster::get3x3Id(EBDetId const & maxHitId){
 
     Xtals3x3.clear();
 
@@ -111,11 +107,11 @@ CalibrationCluster::CalibMap CalibrationCluster::getMap(int minEta, int maxEta, 
 ///////////////////////////////////////////////////////////////////////
 
 
-vector<float> CalibrationCluster::getEnergyVector(const EBRecHitCollection*
-hits, CalibMap & ReducedMap, vector<EBDetId> & XstalsNxN, float & outBoundEnergy, int & nXtalsOut){
+std::vector<float> CalibrationCluster::getEnergyVector(const EBRecHitCollection*
+hits, CalibMap & ReducedMap, std::vector<EBDetId> & XstalsNxN, float & outBoundEnergy, int & nXtalsOut){
 
  energyVector.clear();
- vector<EBDetId>::iterator it;
+ std::vector<EBDetId>::iterator it;
 
 // std::cout << "Reduced Map Size =" << ReducedMap.size() << std::endl;
 // std::cout << "XstalsNxN Size =" << XstalsNxN.size() << std::endl;

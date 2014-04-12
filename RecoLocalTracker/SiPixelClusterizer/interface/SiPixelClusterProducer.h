@@ -35,9 +35,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -47,11 +47,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 
 
 namespace cms
 {
+
   class SiPixelClusterProducer : public edm::EDProducer {
   public:
     //--- Constructor, virtual destructor (just in case)
@@ -61,24 +63,28 @@ namespace cms
     void setupClusterizer();
 
     // Begin Job
-    virtual void beginJob( const edm::EventSetup& );
+    virtual void beginJob( ) override;
 
     //--- The top-level event method.
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     //--- Execute the algorithm(s).
-    void run(const edm::DetSetVector<PixelDigi> & input,
-	     edm::ESHandle<TrackerGeometry>     & geom);
+    void run(const edm::DetSetVector<PixelDigi>   & input,
+	     edm::ESHandle<TrackerGeometry>       & geom,
+             edmNew::DetSetVector<SiPixelCluster> & output);
 
   private:
     edm::ParameterSet conf_;
+    edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
     // TO DO: maybe allow a map of pointers?
-    SiPixelGainCalibrationService theSiPixelGainCalibration_;
+    SiPixelGainCalibrationServiceBase * theSiPixelGainCalibration_;
     std::string clusterMode_;               // user's choice of the clusterizer
     PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
     edm::InputTag src_;
-    std::vector<edm::DetSet<SiPixelCluster> > theClusterVector; // cache to hold all clusters
+
+    //! Optional limit on the total number of clusters
+    int32_t maxTotalClusters_;
   };
 }
 

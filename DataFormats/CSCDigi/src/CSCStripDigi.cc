@@ -1,44 +1,12 @@
 /** \file
- * 
- *  $Date: 2007/05/03 23:27:45 $
- *  $Revision: 1.12 $
+ *
  *
  * \author M.Schmitt, Northwestern
  */
-#include <DataFormats/CSCDigi/interface/CSCStripDigi.h>
-#include <bitset>
+#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include <iostream>
+#include <cstdint>
 
-using namespace std;
-
-// Constructors
-CSCStripDigi::CSCStripDigi (const int & istrip, const vector<int> & vADCCounts, const vector<uint16_t> & vADCOverflow,
-			    const vector<uint16_t> & vOverlap, const vector<uint16_t> & vErrorstat ):
-  strip(istrip),
-  ADCCounts(vADCCounts),
-  ADCOverflow(vADCOverflow),
-  OverlappedSample(vOverlap),
-  Errorstat(vErrorstat)
-{
-}
-
-CSCStripDigi::CSCStripDigi (const int & istrip, const vector<int> & vADCCounts):
-  strip(istrip),
-  ADCCounts(vADCCounts),
-  ADCOverflow(8,0),
-  OverlappedSample(8,0),
-  Errorstat(8,0)
-{
-}
-
-
-CSCStripDigi::CSCStripDigi ():
-  strip(0),
-  ADCCounts(8,0),
-  ADCOverflow(8,0),
-  OverlappedSample(8,0),
-  Errorstat(8,0)
-{
-}
 
 // Comparison
 bool
@@ -49,16 +17,9 @@ CSCStripDigi::operator == (const CSCStripDigi& digi) const {
   return true;
 }
 
-// Getters
-int CSCStripDigi::getStrip() const { return strip; }
-std::vector<int> CSCStripDigi::getADCCounts() const { return ADCCounts; }
 
 
-// Setters
-void CSCStripDigi::setStrip(int istrip) {
-  strip = istrip;
-}
-void CSCStripDigi::setADCCounts(vector<int>vADCCounts) {
+void CSCStripDigi::setADCCounts(const std::vector<int>&vADCCounts) {
   bool badVal = false;
   for (int i=0; i<(int)vADCCounts.size(); i++) {
     if (vADCCounts[i] < 1) badVal = true;
@@ -66,7 +27,7 @@ void CSCStripDigi::setADCCounts(vector<int>vADCCounts) {
   if ( !badVal ) {
     ADCCounts = vADCCounts;
   } else {
-    vector<int> ZeroCounts(8,0);
+    std::vector<int> ZeroCounts(8,0);
     ADCCounts = ZeroCounts;
   }
 }
@@ -74,11 +35,31 @@ void CSCStripDigi::setADCCounts(vector<int>vADCCounts) {
 // Debug
 void
 CSCStripDigi::print() const {
-  cout << "CSC Strip: " << getStrip() << "  ADC Counts: ";
-  for (int i=0; i<(int)getADCCounts().size(); i++) {cout << getADCCounts()[i] << " ";}
-  cout << "\n";
+  std::cout << "CSC Strip: " << getStrip() << "  ADC Counts: ";
+  for (int i=0; i<(int)getADCCounts().size(); i++) {std::cout << getADCCounts()[i] << " ";}
+  std::cout << "\n";
+  std::cout << "            " << "  ADCOverflow: ";
+  for (int i=0; i<(int)getADCOverflow().size(); i++) {std::cout << getADCOverflow()[i] << " ";}
+  std::cout << "\n";
+  std::cout << "            " << "  OverflappedSample: ";
+  for (int i=0; i<(int)getOverlappedSample().size(); i++) {
+  //if(getOverlappedSample()[i]!=1)
+  std::cout << getOverlappedSample()[i] << " ";}
+  std::cout << "\n";
+  std::cout << "            " << "  L1APhases: ";
+  for(int i=0; i<(int)getL1APhase().size(); i++){
+     std::cout << getL1APhase()[i] << " ";
+  }
+  std::cout << "\n";
 }
 
+std::ostream & operator<<(std::ostream & o, const CSCStripDigi& digi) {
+  o << " " << digi.getStrip();
+  for (size_t i = 0; i<digi.getADCCounts().size(); ++i ){
+    o <<" " <<(digi.getADCCounts())[i]; }
+  return o;
+
+}
 
 
 

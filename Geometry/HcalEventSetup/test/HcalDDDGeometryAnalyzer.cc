@@ -29,7 +29,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -84,24 +84,27 @@ void HcalDDDGeometryAnalyzer::analyze(const edm::Event& ,
   LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer::analyze at pass " << pass_;
 
   edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<IdealGeometryRecord>().get(geometry);     
+  iSetup.get<CaloGeometryRecord>().get(geometry);     
   //
   // get the ecal & hcal geometry
   //
   if (pass_==0) {
-    std::vector<DetId> hbCells = geometry->getValidDetIds(DetId::Hcal, 
-							  HcalBarrel);
-    std::vector<DetId> heCells = geometry->getValidDetIds(DetId::Hcal, 
-							  HcalEndcap);
-    std::vector<DetId> hoCells = geometry->getValidDetIds(DetId::Hcal,
-							  HcalOuter);
-    std::vector<DetId> hfCells = geometry->getValidDetIds(DetId::Hcal,
-							  HcalForward);
-    LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer:: Hcal Barrel with "
-			 << hbCells.size() << " valid cells; Hcal Endcap with "
-			 << heCells.size() << " valid cells; Hcal Outer with "
-			 << hoCells.size() << " valid cells; and Hcal Forward "
-			 << " with " << hfCells.size() << " valid cells";
+     const std::vector<DetId>& hbCells = geometry->getValidDetIds(DetId::Hcal, 
+								  HcalBarrel);
+     const std::vector<DetId>& heCells = geometry->getValidDetIds(DetId::Hcal, 
+								  HcalEndcap);
+     const std::vector<DetId>& hoCells = geometry->getValidDetIds(DetId::Hcal,
+								  HcalOuter);
+     const std::vector<DetId>& hfCells = geometry->getValidDetIds(DetId::Hcal,
+								  HcalForward);
+    LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer:: Hcal Barrel ("
+			 << HcalBarrel << ") with " << hbCells.size() 
+			 << " valid cells; Hcal Endcap (" << HcalEndcap
+			 << ") with " << heCells.size() << " valid cells; "
+			 << "Hcal Outer (" << HcalOuter << ") with "
+			 << hoCells.size() << " valid cells; and Hcal Forward"
+			 << " (" << HcalForward << ") with " << hfCells.size() 
+			 << " valid cells";
   }
 
   pass_++;
@@ -109,5 +112,5 @@ void HcalDDDGeometryAnalyzer::analyze(const edm::Event& ,
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalDDDGeometryAnalyzer);
+
+DEFINE_FWK_MODULE(HcalDDDGeometryAnalyzer);

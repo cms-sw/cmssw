@@ -1,46 +1,28 @@
 #ifndef STORAGE_FACTORY_STORAGE_MAKER_H
 # define STORAGE_FACTORY_STORAGE_MAKER_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
-# include "SealBase/sysapi/IOTypes.h"
+# include "Utilities/StorageFactory/interface/IOTypes.h"
 # include <string>
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-
-namespace seal { class Storage; }
-
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
+class Storage;
 class StorageMaker
 {
 public:
-    virtual ~StorageMaker (void);
-    // implicit copy constructor
-    // implicit assignment operator
+  StorageMaker(void);
+  virtual ~StorageMaker (void);
+  // implicit copy constructor
+  // implicit assignment operator
 
-    seal::Storage *open (const std::string &proto,
-		    		 const std::string &path,
-				 int mode,
-				 const std::string &tmpdir);
-    bool	check   (const std::string &proto,
-		    		 const std::string &path,
-				 seal::IOOffset *size = 0) {return doCheck(proto, path, size);}
-protected:
-    virtual seal::Storage *doOpen (const std::string &proto,
-		    		 const std::string &path,
-				 int mode,
-				 const std::string &tmpdir) = 0;
-    virtual bool	doCheck   (const std::string &proto,
-		    		 const std::string &path,
-				 seal::IOOffset *size = 0);
+  virtual void		stagein (const std::string &proto,
+				 const std::string &path);
+  virtual Storage *	open (const std::string &proto,
+			      const std::string &path,
+			      int mode) = 0;
+  virtual bool		check (const std::string &proto,
+			       const std::string &path,
+			       IOOffset *size = 0);
+  virtual void		setTimeout (unsigned int timeout);
+  virtual void          setDebugLevel (unsigned int debugLevel);
 };
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // STORAGE_FACTORY_STORAGE_MAKER_H

@@ -9,7 +9,7 @@
 #include <xercesc/dom/DOMWriter.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -28,28 +28,29 @@ CalibrationXML::~CalibrationXML()
 {
 //TODO: delete!!!!	
 if(errHandler) delete errHandler;
-if(parser) delete parser;
-
-	XMLPlatformUtils::Terminate();
+if(parser)  { 
+              delete parser;
+              cms::concurrency::xercesTerminate();
+            }
 }
 
 void CalibrationXML::openFile(const std::string & xmlFileName) 
 {
 if(errHandler) delete errHandler;
-if(parser) delete parser;
+if(parser) { delete parser; cms::concurrency::xercesTerminate(); }
 
  m_xmlFileName = xmlFileName;
-// cout << "Opening.." << endl;
+// std::cout << "Opening.." << std::endl;
 	// Initialize the XML4C2 system
 	try
         {
-	        XMLPlatformUtils::Initialize();
+	        cms::concurrency::xercesInitialize();
         }
 	catch(const XMLException& toCatch)
 	{
 		std::cerr << "Error during Xerces-c Initialization.\n"
 		     << "  Exception message:"
-		     << XMLString::transcode(toCatch.getMessage()) << endl;
+		     << XMLString::transcode(toCatch.getMessage()) << std::endl;
    abort();
 //FIXME		throw GenTerminate("Error during Xerces-c Initialization.");
 	}
@@ -65,26 +66,21 @@ if(parser) delete parser;
 	bool errorsOccured = false;
 	try
 	{
-		  edm::LogInfo("XMLCalibration") << "Calibration XML: parsing " << m_xmlFileName.c_str() << endl;
+		  edm::LogInfo("XMLCalibration") << "Calibration XML: parsing " << m_xmlFileName.c_str() << std::endl;
 		parser->parse(m_xmlFileName.c_str());
 		int errorCount = parser->getErrorCount();
 		if (errorCount > 0) errorsOccured = true;
 	}
 	catch (const XMLException& e)
 	{
-		cerr << "A DOM error occured during parsing\n   DOMException code: "
-		     << (long unsigned int)e.getCode() << endl;
-		errorsOccured = true;
-	}
-	catch (...)
-	{
-		cerr << "An unknown error occured during parsing\n " << endl;
+		std::cerr << "A DOM error occured during parsing\n   DOMException code: "
+		     << (long unsigned int)e.getCode() << std::endl;
 		errorsOccured = true;
 	}
 	// If the parse was successful, build the structure we want to have
 	if(errorsOccured) { 
-		cerr << "An error occured during parsing\n"
-		     <<	"Please check your input with SAXCount or a similar tool.\n Exiting!\n" << endl; 
+		std::cerr << "An error occured during parsing\n"
+		     <<	"Please check your input with SAXCount or a similar tool.\n Exiting!\n" << std::endl; 
 abort();
 //FIXME		throw GenTerminate("An error occured during parsing\n Please check your input with SAXCount or a similar tool.\n Exiting!\n");
 	}

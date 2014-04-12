@@ -3,9 +3,6 @@
 
 #include <iostream>
 
-using std::cout;
-using std::endl;
-
 G4Allocator<TrackInformation> TrackInformationAllocator;
 
 void TrackInformation::Print() const {

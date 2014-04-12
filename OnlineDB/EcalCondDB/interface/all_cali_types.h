@@ -3,3 +3,5 @@
 #include "OnlineDB/EcalCondDB/interface/CaliGeneralDat.h"
 #include "OnlineDB/EcalCondDB/interface/CaliCrystalIntercalDat.h"
 #include "OnlineDB/EcalCondDB/interface/CaliHVScanRatioDat.h"
+#include "OnlineDB/EcalCondDB/interface/CaliGainRatioDat.h"
+#include "OnlineDB/EcalCondDB/interface/CaliTempDat.h"

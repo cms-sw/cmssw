@@ -11,29 +11,15 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLLogicalPart.h"
 
-
-// DDL Parser components
-#include "DDLElementRegistry.h"
-#include "DDLLogicalPart.h"
-#include "DDXMLElement.h"
-
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 
-// CLHEP dependencies
-#include "CLHEP/Units/SystemOfUnits.h"
-
-#include <string>
-
-// Default constructor
-DDLLogicalPart::DDLLogicalPart()
+DDLLogicalPart::DDLLogicalPart(  DDLElementRegistry* myreg )
+  : DDXMLElement( myreg )
 {
   // initialize category map
   catMap_["sensitive"]   = DDEnums::sensitive;
@@ -44,16 +30,15 @@ DDLLogicalPart::DDLLogicalPart()
   catMap_["unspecified"] = DDEnums::unspecified;
 }
 
-// Default destructor
-DDLLogicalPart::~DDLLogicalPart()
-{
-}
+DDLLogicalPart::~DDLLogicalPart( void )
+{}
 
 // upon initialization, we want to clear rMaterial and rSolid.
-void DDLLogicalPart::preProcessElement (const std::string& type, const std::string& nmspace)
+void
+DDLLogicalPart::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DDLElementRegistry::getElement("rMaterial")->clear();
-  DDLElementRegistry::getElement("rSolid")->clear();
+  myRegistry_->getElement( "rMaterial" )->clear();
+  myRegistry_->getElement( "rSolid" )->clear();
 }
 
 // Upon encountering the end of the LogicalPart element, retrieve all 
@@ -68,13 +53,14 @@ void DDLLogicalPart::preProcessElement (const std::string& type, const std::stri
 // by retrieving the rMaterial and the rSolid it actually will be handling
 // Material and Solid subelements as well.
 
-void DDLLogicalPart::processElement (const std::string& type, const std::string& nmspace)
+void
+DDLLogicalPart::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   DCOUT_V('P', "DDLLogicalPart::processElement started");
 
   // rMaterial and rSolid  
-  DDXMLElement* myrMaterial = DDLElementRegistry::getElement("rMaterial"); // get Material reference child
-  DDXMLElement* myrSolid = DDLElementRegistry::getElement("rSolid"); // get Solid reference child
+  DDXMLElement* myrMaterial = myRegistry_->getElement("rMaterial"); // get Material reference child
+  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid"); // get Solid reference child
 
   DDXMLAttribute atts = getAttributeSet();
 
@@ -98,7 +84,7 @@ void DDLLogicalPart::processElement (const std::string& type, const std::string&
   else
     cat = catMap_["unspecified"];
 
-  DDLogicalPart lp(getDDName(nmspace), myMaterial, mySolid, cat);
+  DDLogicalPart lp( getDDName( nmspace ), myMaterial, mySolid, cat );
 
   // clear all "children" and attributes
   myrMaterial->clear();

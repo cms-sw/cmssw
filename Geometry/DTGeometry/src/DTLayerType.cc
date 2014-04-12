@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Revision: 1.1 $
- *  $date   : 23/01/2006 18:24:56 CET $
  *  \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -20,7 +18,7 @@ DTLayerType::DTLayerType() :
 
 /* Operations */ 
 const Topology& DTLayerType::topology() const {
-  static DTTopology result(0,0,0.);
+  static const DTTopology result(0,0,0.);
   return result;
 }
 

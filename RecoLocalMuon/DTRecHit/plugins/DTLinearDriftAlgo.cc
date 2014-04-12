@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/19 11:08:17 $
- *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -18,20 +16,16 @@ using namespace std;
 using namespace edm;
 
 DTLinearDriftAlgo::DTLinearDriftAlgo(const ParameterSet& config) :
-  DTRecHitBaseAlgo(config) {
-    // Get the Drift Velocity from parameter set. 
-    vDrift = config.getParameter<double>("driftVelocity"); // FIXME: Default was 0.00543 cm/ns
-    // vDriftMB1W1 = config.getParameter<double>("driftVelocityMB1W1"); // FIXME: Default was 0.00543 cm/ns
-
-    minTime = config.getParameter<double>("minTime"); // FIXME: Default was -3 ns
-
-    maxTime = config.getParameter<double>("maxTime"); // FIXME: Default was 415 ns
-
-    hitResolution = config.getParameter<double>("hitResolution"); // FIXME: Default is 
-    // Set verbose output
-    debug = config.getUntrackedParameter<bool>("debug");
-    
-  }
+  DTRecHitBaseAlgo(config),
+  // Get the Drift Velocity from parameter set. 
+  vDrift(config.getParameter<double>("driftVelocity")), // FIXME: Default was 0.00543 cm/ns
+  hitResolution(config.getParameter<double>("hitResolution")), // FIXME: Default is 
+  // vDriftMB1W1(config.getParameter<double>("driftVelocityMB1W1")), // FIXME: Default was 0.00543 cm/ns
+  minTime(config.getParameter<double>("minTime")), // FIXME: Default was -3 ns
+  maxTime(config.getParameter<double>("maxTime")), // FIXME: Default was 415 ns
+  // Set verbose output
+  debug(config.getUntrackedParameter<bool>("debug"))
+ {}
 
 
 
@@ -56,6 +50,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   const DTWireId wireId(layerId, digi.wire());
 
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(digi.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
   const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
   
@@ -124,6 +119,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   float drift = driftTime * vd;
 
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(wireId.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
   //Build the two possible points and the error on the position
   leftPoint  = LocalPoint(locWirePos.x()-drift,
@@ -197,19 +193,3 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-
-float DTLinearDriftAlgo::vDrift;
-//float DTLinearDriftAlgo::vDriftMB1W1;
-
-  
-float DTLinearDriftAlgo::hitResolution;
-
-  
-float DTLinearDriftAlgo::minTime;
-
-  
-float DTLinearDriftAlgo::maxTime;
-
-  
-bool DTLinearDriftAlgo::debug;

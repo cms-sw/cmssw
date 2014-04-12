@@ -8,7 +8,6 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyESSource.cc,v 1.4 2007/01/12 14:51:55 chrjones Exp $
 //
 
 // system include files
@@ -34,7 +33,7 @@ public:
        setInterval(edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
                                          edm::IOVSyncValue::endOfTime()));
      } else {
-       setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(startRun,0)),
+       setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(startRun,0,0)),
                                          edm::IOVSyncValue::endOfTime()));
        
      }

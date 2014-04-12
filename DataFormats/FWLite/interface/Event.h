@@ -4,178 +4,201 @@
 //
 // Package:     FWLite
 // Class  :     Event
-// 
+//
 /**\class Event Event.h DataFormats/FWLite/interface/Event.h
 
- Description: <one line class summary>
+   Description: Provide event data access in FWLite
 
- Usage:
-    <usage>
+   Usage:
+   This class is meant to allow one to loop over all events in a TFile and then
+ read the data in an Event in a manner analogous to how data is read in the full framework.
+ A typical use would be
+ \code
+ TFile f("foo.root");
+ fwlite::Event ev(&f);
+ for(ev.toBeing(); ! ev.atEnd(); ++ev) {
+    fwlite::Handle<std::vector<Foo> > foos;
+    foos.getByLabel(ev, "myFoos");
+ }
+ \endcode
+ The above example will work for both CINT and compiled code. However, it is possible to exactly
+ match the full framework if you only intend to compile your code.  In that case the access
+ would look like
+
+ \code
+ TFile f("foo.root");
+ fwlite::Event ev(&f);
+
+ edm::InputTag fooTag("myFoos");
+ for(ev.toBeing(); ! ev.atEnd(); ++ev) {
+    edm::Handle<std::vector<Foo> > foos;
+    ev.getByLabel(fooTag, foos);
+ }
+ \endcode
 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.6 2007/06/28 23:32:45 wmtan Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <typeinfo>
 #include <map>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include <memory>
+#include <cstring>
+#include <string>
+#include "boost/shared_ptr.hpp"
 
-#include "TBranch.h"
 #include "Rtypes.h"
-#include "Reflex/Object.h"
 
 // user include files
-#include "FWCore/Utilities/interface/TypeID.h"
+#include "DataFormats/FWLite/interface/EventBase.h"
+#include "DataFormats/FWLite/interface/EntryFinder.h"
+#include "DataFormats/FWLite/interface/LuminosityBlock.h"
+#include "DataFormats/FWLite/interface/Run.h"
+#include "DataFormats/FWLite/interface/InternalDataKey.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 // forward declarations
 namespace edm {
-  class EDProduct;
-  class ProductRegistry;
-  class BranchDescription;
-  class EDProductGetter;
-  class EventAux;
+   class WrapperHolder;
+   class ProductRegistry;
+   class BranchDescription;
+   class EDProductGetter;
+   class EventAux;
+   class Timestamp;
+   class TriggerResults;
+   class TriggerNames;
+   class TriggerResultsByName;
 }
+class TCut;
 
 namespace fwlite {
-  namespace internal {
-  class DataKey {
-public:
-    //NOTE: Do not take ownership of strings.  This is done to avoid
-    // doing 'new's and string copies when we just want to lookup the data
-    // This means something else is responsible for the pointers remaining
-    // valid for the time for which the pointers are still in use
-    DataKey(const edm::TypeID& iType,
-            const char* iModule,
-            const char* iProduct,
-            const char* iProcess) :
-    type_(iType),
-    module_(iModule!=0? iModule:kEmpty),
-    product_(iProduct!=0?iProduct:kEmpty),
-    process_(iProcess!=0?iProcess:kEmpty) {}
-    
-    ~DataKey() {
-    }
+   class BranchMapReader;
+   class HistoryGetterBase;
+   class DataGetterHelper;
+   class RunFactory;
+   class Event : public EventBase
+   {
 
-    bool operator<( const DataKey& iRHS) const {
-      if( type_ < iRHS.type_) {
-        return true;
-      }
-      if( iRHS.type_ < type_ ) {
-        return false;
-      }
-      int comp = std::strcmp(module_,iRHS.module_);
-      if( 0!= comp) {
-        return comp <0;
-      }
-      comp = std::strcmp(product_,iRHS.product_);
-      if( 0!= comp) {
-        return comp <0;
-      }
-      comp = std::strcmp(process_,iRHS.process_);
-      return comp <0;
-    }
-    static const char* const kEmpty;
-    const  char* module() const {return module_;}
-    const char* product() const {return product_;}
-    const char* process() const {return process_;}
-    const edm::TypeID& typeID() const {return type_;}
-    
-private:
-    edm::TypeID type_;
-    const char* module_;
-    const char* product_;
-    const char* process_;
-  };
-  
-  struct Data {
-    TBranch* branch_;
-    Long64_t lastEvent_;
-    ROOT::Reflex::Object obj_;
-    void * pObj_; //ROOT requires the address of the pointer be stable
-    edm::EDProduct* pProd_;
-    
-    ~Data() {
-      obj_.Destruct();
-    }
-  };
-  
-  class ProductGetter;
-  }
-class Event
-{
+      public:
+         // NOTE: Does NOT take ownership so iFile must remain around
+         // at least as long as Event
+         Event(TFile* iFile);
+         virtual ~Event();
 
-   public:
-      /**NOTE: Does NOT take ownership so iFile must remain around at least as long as Event
-  */
-      Event(TFile* iFile);
-      virtual ~Event();
+         ///Advance to next event in the TFile
+         Event const& operator++();
 
-      const Event& operator++();
+         ///Find index of given event-id
+         Long64_t indexFromEventId(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
-      ///Go to the event at index iIndex
-      const Event& to(Long64_t iIndex);
-      
-      /** Go to the very first Event*/
-      const Event& toBegin();
-      
-      // ---------- const member functions ---------------------
-      /** This function should only be called by fwlite::Handle<>*/
-      void getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
-      //void getByBranchName(const std::type_info&, const char*, void*&) const;
+         ///Go to the event at index iIndex
+         bool to (Long64_t iIndex);
 
-      bool isValid() const;
-      operator bool () const;
-      bool atEnd() const;
-      
-      Long64_t size() const;
-      // ---------- static member functions --------------------
-      static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
+         ///Go to event by Run & Event number
+         bool to(const edm::EventID &id);
+         bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+         bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
-      // ---------- member functions ---------------------------
+         /// Go to the very first Event.
+         Event const& toBegin();
 
-   private:
-        friend class internal::ProductGetter;
-      
-      Event(const Event&); // stop default
+         // ---------- const member functions ---------------------
+         ///Return the branch name in the TFile which contains the data
+         virtual std::string const getBranchNameFor(std::type_info const&,
+                                                    char const* iModuleLabel,
+                                                    char const* iProductInstanceLabel,
+                                                    char const* iProcessName) const;
 
-      const Event& operator=(const Event&); // stop default
+         using fwlite::EventBase::getByLabel;
+         /// This function should only be called by fwlite::Handle<>
+         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
+         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
+         //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
-      const edm::ProcessHistory& history() const;
-      
-      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
-      // ---------- member data --------------------------------
-      TFile* file_;
-      TTree* eventTree_;
-      Long64_t eventIndex_;
+         ///Properly setup for edm::Ref, etc and then call TTree method
+         void       draw(Option_t* opt);
+         Long64_t   draw(char const* varexp, const TCut& selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
+         Long64_t   draw(char const* varexp, char const* selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
+         Long64_t   scan(char const* varexp = "", char const* selection = "", Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
 
-      typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
-      mutable KeyToDataMap data_;
-      //takes ownership of the strings used by the DataKey keys in data_
-      mutable std::vector<const char*> labels_;
-      mutable edm::ProcessHistoryMap historyMap_;
-      mutable edm::EventAuxiliary aux_;
-      edm::EventAuxiliary* pAux_;
-      edm::EventAux* pOldAux_;
-      TBranch* auxBranch_;
-      int fileVersion_;
-      
-      //references data in data_;
-      mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_; 
-      mutable edm::ProductRegistry* prodReg_;
-      //references branch descriptions in prodReg_;
-      mutable std::map<edm::ProductID,const edm::BranchDescription*> idToBD_;
-      
-      std::auto_ptr<edm::EDProductGetter> getter_;
-};
+         bool isValid() const;
+         operator bool () const;
+         virtual bool atEnd() const;
+
+         ///Returns number of events in the file
+         Long64_t size() const;
+
+         virtual edm::EventAuxiliary const& eventAuxiliary() const;
+
+         std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
+            return branchMap_.getBranchDescriptions();
+         }
+         std::vector<std::string> const& getProcessHistory() const;
+         TFile* getTFile() const {
+            return branchMap_.getFile();
+         }
+
+         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+
+         virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
+
+         virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
+
+         virtual edm::ProcessHistory const& processHistory() const {return history();}
+
+         fwlite::LuminosityBlock const& getLuminosityBlock() const;
+         fwlite::Run             const& getRun() const;
+
+         // ---------- static member functions --------------------
+         static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
+
+
+      private:
+         friend class internal::ProductGetter;
+         friend class ChainEvent;
+         friend class EventHistoryGetter;
+
+         Event(Event const&); // stop default
+
+         Event const& operator=(Event const&); // stop default
+
+         edm::ProcessHistory const& history() const;
+         void updateAux(Long_t eventIndex) const;
+         void fillParameterSetRegistry() const;
+         void setGetter(boost::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}
+
+         // ---------- member data --------------------------------
+         TFile* file_;
+         // TTree* eventTree_;
+         TTree* eventHistoryTree_;
+         // Long64_t eventIndex_;
+         mutable boost::shared_ptr<fwlite::LuminosityBlock>  lumi_;
+         mutable boost::shared_ptr<fwlite::Run>  run_;
+         mutable fwlite::BranchMapReader branchMap_;
+
+         //takes ownership of the strings used by the DataKey keys in data_
+         mutable std::vector<char const*> labels_;
+         mutable edm::ProcessHistoryMap historyMap_;
+         mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
+         mutable std::vector<std::string> procHistoryNames_;
+         mutable edm::EventAuxiliary aux_;
+         mutable EntryFinder entryFinder_;
+         edm::EventAuxiliary* pAux_;
+         edm::EventAux* pOldAux_;
+         TBranch* auxBranch_;
+         int fileVersion_;
+         mutable bool parameterSetRegistryFilled_;
+
+         fwlite::DataGetterHelper dataHelper_;
+         mutable boost::shared_ptr<RunFactory> runFactory_;
+   };
 
 }
 #endif /*__CINT__ */

@@ -1,4 +1,3 @@
-// $Id: Tm.h,v 1.1 2006/03/01 23:39:51 egeland Exp $
 
 #ifndef TM_HH
 #define TM_HH
@@ -8,11 +7,13 @@
 #include <iostream>
 #include <time.h>
 #include <stdint.h>
+#include <limits.h>
 
 // Wrapper class for time.h tm struct
 class Tm {
   static const uint64_t NEG_INF_MICROS = 0;
-  static const uint64_t PLUS_INF_MICROS = (uint64_t)-1;
+  // GO: maximum UNIX time
+  static const uint64_t PLUS_INF_MICROS = (uint64_t)INT_MAX * 1000000;
 
  public:
   // Default constructor makes a null Tm
@@ -59,9 +60,16 @@ class Tm {
   std::string str() const;
 
   /*
-   *  return number of microseconds since Jan 1 1970
+   *  return number of microseconds since Jan 1 1970 and the epoch
    */
+  uint64_t unixTime() const;
+  uint64_t epoch() const { return unixTime(); };
   uint64_t microsTime() const;
+
+  /*
+   *  return the number of nanoseconds packed as a CMS time
+   */
+  uint64_t cmsNanoSeconds() const;
 
   /*
    *  Set self to current time
@@ -76,9 +84,10 @@ class Tm {
   void setToGMTime( time_t t );
 
   /*
-   *  Set using microseconds
+   *  Set using microseconds and CMS times
    */
   void setToMicrosTime(uint64_t micros);
+  void setToCmsNanoTime(uint64_t nanos);
 
   /*
    *  Set to string of format YYYY-MM-DD HH:MM:SS
@@ -86,6 +95,16 @@ class Tm {
   void setToString(const std::string s) throw(std::runtime_error);
 
   void dumpTm();
+
+  inline bool operator<(const Tm &t) const 
+    {
+      return microsTime() < t.microsTime();
+    }
+
+  inline bool operator<=(const Tm &t) const 
+    {
+      return microsTime() <= t.microsTime();
+    }
 
   inline bool operator==(const Tm &t) const
     {   return (m_tm.tm_hour  == t.m_tm.tm_hour &&
@@ -100,6 +119,24 @@ class Tm {
     }
 				    
   inline bool operator!=(const Tm &t) const { return !(t == *this); }
+
+  Tm& operator-=(int seconds) {
+    setToMicrosTime(microsTime() - seconds * 1e6);
+    return *this;
+  }
+
+  Tm& operator+=(int seconds) {
+    setToMicrosTime(microsTime() + seconds * 1e6);
+    return *this;
+  }
+
+  const Tm operator+(int seconds) {
+    Tm ret = *this;
+    ret += seconds;
+    return ret;
+  }
+
+  friend std::ostream& operator<< (std::ostream &out, const Tm &t);
 
  private:
   struct tm m_tm;

@@ -1,53 +1,40 @@
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-#include "SealBase/Storage.h"
-#include "SealBase/DebugAids.h"
-#include "SealBase/Signal.h"
-#include <iostream>
-#include <vector>
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Utilities/StorageFactory/test/Test.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
 #include <boost/thread/thread.hpp>
+#include <vector>
 
-using namespace seal;
+static void dump()
+{
+  std::vector<char> buf(10000,'1');
+  Storage *s = StorageFactory::get ()->open
+    ("/dev/null", IOFlags::OpenWrite|IOFlags::OpenAppend);
 
-namespace {
-  
-  void dump() {
-    
-    std::vector<char> buf(10000,'1');
-    
-    Storage	*s = StorageFactory::get ()->open ("/dev/null", 
-						   IOFlags::OpenWrite|IOFlags::OpenAppend);
+  for (int i = 0; i < 10000; ++i)
+    s->write(&buf[0], buf.size());
 
-
-
-    for (int i=0;i<10000;i++)
-      s->write(&buf[0],buf.size());
-    delete s;
-    
-  }
-  
+  s->close();
+  delete s;
 }
 
-
-int main (int argc, char **argv)
+int main (int, char **) try
 {
+  initTest();
 
-  Signal::handleFatal (argv [0]);
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
-  StorageFactory::get ()->enableAccounting(true);
-  
-  std::cerr << "start StorageFactory thread test"  << std::endl;
+  std::cout << "start StorageFactory thread test\n";
 
-
-  const int NUMTHREADS=10;
+  static const int NUMTHREADS = 10;
   boost::thread_group threads;
-  for (int i=0; i<NUMTHREADS; ++i)
+  for (int i = 0; i < NUMTHREADS; ++i)
     threads.create_thread(&dump);
   threads.join_all();
-  
-  std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
-  return EXIT_SUCCESS;
-}
 
+  std::cout << StorageAccount::summaryXML () << std::endl;
+  return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
+}

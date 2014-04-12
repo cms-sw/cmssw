@@ -1,16 +1,13 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.5 2006/10/07 01:17:08 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.9 2008/11/10 10:13:28 rofierzy Exp $
 //
 #include <vector>
 #include <string>
 #include <fstream>
 #include <sstream>
 
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 
@@ -24,8 +21,8 @@
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMWriter.hpp>
-#include <xercesc/util/XMLString.hpp>
 
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include "CondTools/Hcal/interface/StreamOutFormatTarget.h"
 
 #include "CondTools/Hcal/interface/HcalDbXml.h"
@@ -101,7 +98,7 @@ private:
   XMLDocument::XMLDocument () 
     : mDoc (0)
   {
-    XMLPlatformUtils::Initialize();
+    cms::concurrency::xercesInitialize();
     mDom =  DOMImplementationRegistry::getDOMImplementation (transcode ("Core"));
     mDoc = mDom->createDocument(
 				0,                    // root element namespace URI.
@@ -358,17 +355,18 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 			    const HcalPedestals& fObject) {
   float dummyError = 0.0001;
   std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
-  HcalPedestalWidths widths;
+  HcalPedestalWidths widths(fObject.topo(), fObject.isADC() );
   std::vector<DetId> channels = fObject.getAllChannels ();
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    HcalPedestalWidth* item = widths.setWidth (*channel);
+
+    HcalPedestalWidth item(*channel);
     for (int iCapId = 0; iCapId < 4; iCapId++) {
-      item->setSigma (iCapId, iCapId, dummyError*dummyError);
+      item.setSigma (iCapId, iCapId, dummyError*dummyError);
     }
+    widths.addValues(item);
   }
-  widths.sort ();
   return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fObject, widths);
 }
 
@@ -381,14 +379,13 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
 			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 			    const HcalGains& fObject) {
-  HcalGainWidths widths;
+  HcalGainWidths widths(fObject.topo());
   std::vector<DetId> channels = fObject.getAllChannels ();
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       channel++) {
-    widths.addValue (*channel, 0, 0, 0, 0); // no error
-  }
-  widths.sort ();
+  for (std::vector<DetId>::iterator channel = channels.begin (); channel !=  channels.end (); channel++) 
+    {
+      HcalGainWidth item(*channel,0,0,0,0);
+      widths.addValues(item); // no error
+    }
   return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fObject, widths);
 }
 

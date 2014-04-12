@@ -7,7 +7,6 @@
  *  Simple container for Hodoscope reconstructed informations 
  *
  *
- *  $Id: $
  */
 
 

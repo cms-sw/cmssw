@@ -1,8 +1,6 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2007/04/08 03:59:13 $
- *  $Revision: 1.8 $
  *  \authors: R. Bellan
  */
 
@@ -116,6 +114,14 @@ void  DTDigiAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 		   path , path_x, 
 		   partType, hit->processType(),
 		  hit->pabs());
+
+    if( hit->timeOfFlight() > 1e4){
+      cout<<"PID: "<<hit->particleType()
+	  <<" TOF: "<<hit->timeOfFlight()
+	  <<" Proc Type: "<<hit->processType() 
+	  <<" p: " << hit->pabs() <<endl;
+      hAllHits.FillTOF(hit->timeOfFlight());
+    }
   }
   
   DTDigiCollection::DigiRangeIterator detUnitIt;
@@ -143,14 +149,21 @@ void  DTDigiAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
       float theta = 0;
       
       for(vector<const PSimHit*>::iterator hit = wireMap[wireId].begin();
-	  hit != wireMap[wireId].end(); hit++)
+	  hit != wireMap[wireId].end(); hit++){
+	cout<<"momentum x: "<<(*hit)->momentumAtEntry().x()<<endl
+	    <<"momentum z: "<<(*hit)->momentumAtEntry().z()<<endl;
 	if( abs((*hit)->particleType()) == 13){
 	  theta = atan( (*hit)->momentumAtEntry().x()/ (-(*hit)->momentumAtEntry().z()) )*180/M_PI;
-	  cout<<"momentum x: "<<(*hit)->momentumAtEntry().x()<<endl
-	      <<"momentum z: "<<(*hit)->momentumAtEntry().z()<<endl
-	      <<"atan: "<<theta<<endl;
+	  cout<<"atan: "<<theta<<endl;
 	  mu++;
 	}
+	else{
+	  // 	  cout<<"PID: "<<(*hit)->particleType()
+	  // 	      <<" TOF: "<<(*hit)->timeOfFlight()
+	  // 	      <<" Proc Type: "<<(*hit)->processType() 
+	  // 	      <<" p: " << (*hit)->pabs() <<endl;
+	}
+      }
       if(mu && theta){
 	hDigis_global.Fill((*digiIt).time(),theta,id.superlayer());
 	//filling digi histos for wheel and for RZ and RPhi

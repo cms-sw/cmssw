@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:48 EDT 2005
-// $Id: LoadAllDictionaries.cc,v 1.7 2007/04/09 22:44:41 chrjones Exp $
 //
 
 // system include files
@@ -19,6 +18,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // constants, enums and typedefs
@@ -33,7 +34,7 @@
 //
 edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& iConfig)
 {
-   bool doLoad(iConfig.getUntrackedParameter("doLoad",true));
+   bool doLoad(iConfig.getUntrackedParameter<bool>("doLoad"));
    if(doLoad) {
      ROOT::Cintex::Cintex::Enable();
 
@@ -47,7 +48,6 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
        return;
      }
      std::string lastClass;
-     const std::string cPrefix("LCGReflex/");
      const std::string mystring("edm::Wrapper");
 
      for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
@@ -65,5 +65,12 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
        //NOTE: since we have the library already, we could be more efficient if we just load it ourselves
      }
    }
+}
+
+void edm::service::LoadAllDictionaries::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("doLoad", true)->setComment("Only if 'true' do we load all dictionaries");
+  descriptions.add("LoadAllDictionaries", desc);
+  descriptions.setComment("This service allows you to force all known dictionaries to be loaded at the beginning of the job");
 }
 

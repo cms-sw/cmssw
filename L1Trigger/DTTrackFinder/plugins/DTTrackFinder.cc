@@ -5,8 +5,6 @@
 //   L1 DT Track Finder EDProducer
 //
 //
-//   $Date: 2007/04/01 10:05:05 $
-//   $Revision: 1.8 $
 //
 //   Author :
 //   J. Troconiz              UAM Madrid
@@ -38,7 +36,7 @@ DTTrackFinder::DTTrackFinder(const edm::ParameterSet & pset) {
   produces<vector<L1MuRegionalCand> >("DT");
 
   setup1 = new L1MuDTTFSetup(pset);
-
+  usesResource("DTTrackFinder");
 }
 
 DTTrackFinder::~DTTrackFinder() {
@@ -64,9 +62,10 @@ void DTTrackFinder::produce(edm::Event& e, const edm::EventSetup& c) {
   auto_ptr<vector<L1MuRegionalCand> >
                                  vec_product(new vector<L1MuRegionalCand>);
 
-  vector<L1MuRegionalCand>& dtTracks = dtbx->getcache();
+  vector<L1MuDTTrackCand>&  dtTracks = dtbx->getcache0();
   tra_product->setContainer(dtTracks);
-  *vec_product = dtTracks; 
+  vector<L1MuRegionalCand>& DTTracks = dtbx->getcache();
+  *vec_product = DTTracks;
 
   e.put(tra_product,"DTTF");
   e.put(vec_product,"DT");

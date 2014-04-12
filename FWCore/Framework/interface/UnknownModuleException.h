@@ -6,11 +6,12 @@
    Declaration
 
    \author Stefano ARGIRO
-   \version $Id: UnknownModuleException.h,v 1.6 2007/05/08 03:18:38 wmtan Exp $
    \date 02 Jun 2005
 */
 
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <string>
 
 namespace edm {
 

@@ -12,7 +12,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 14:28:43 EDT 2006
-// $Id: L1ParticleMapFwd.h,v 1.1 2006/07/26 20:41:30 wsun Exp $
 //
 
 // system include files

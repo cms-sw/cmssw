@@ -6,6 +6,6 @@
 #include "L1Trigger/GlobalCaloTrigger/test/FakeGctInputTester.h"
 
 DEFINE_FWK_MODULE(L1GctTest);
-DEFINE_ANOTHER_FWK_MODULE(L1GctTestAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(FakeGctInputProducer);
-DEFINE_ANOTHER_FWK_MODULE(FakeGctInputTester);
+DEFINE_FWK_MODULE(L1GctTestAnalyzer);
+DEFINE_FWK_MODULE(FakeGctInputProducer);
+DEFINE_FWK_MODULE(FakeGctInputTester);

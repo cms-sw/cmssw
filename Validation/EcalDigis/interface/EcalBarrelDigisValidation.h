@@ -4,8 +4,6 @@
 /*
  * \file EcalBarrelDigisValidation.h
  *
- * $Date: 2006/10/26 08:30:31 $
- * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -21,8 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
@@ -32,6 +29,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EcalBarrelDigisValidation: public edm::EDAnalyzer{
 
@@ -48,25 +46,25 @@ EcalBarrelDigisValidation(const edm::ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(edm::Event const & e, edm::EventSetup const & c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginRun(edm::Run const &, edm::EventSetup const & c);
 
 // EndJob
 void endJob(void);
 
-void checkCalibrations(const edm::EventSetup & c);
+void checkCalibrations(edm::EventSetup const & c);
 
 private:
 
  bool verbose_;
  
- DaqMonitorBEInterface* dbe_;
+ DQMStore* dbe_;
  
  std::string outputFile_;
 
- edm::InputTag EBdigiCollection_;
+ edm::EDGetTokenT<EBDigiCollection> EBdigiCollection_;
  
  std::map<int, double, std::less<int> > gainConv_;
 

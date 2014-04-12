@@ -146,7 +146,7 @@
   h_ele_PoPtrue->GetXaxis()->SetTitle("p_{rec}/p_{true}");  
   h_ele_PoPtrue->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/PoPtrue.%s",outDir,suffix);
+    snprintf(str, 128,"%s/PoPtrue.%s",outDir,suffix);
     gPad->Print(str);
   }
  
@@ -156,7 +156,7 @@
   h_ele_EtaMnEtaTrue->GetXaxis()->SetTitle("#eta_{rec}-#eta_{true}");  
   h_ele_EtaMnEtaTrue->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/EtaMnEtaTrue.%s",outDir,suffix);
+    snprintf(str, 128,"%s/EtaMnEtaTrue.%s",outDir,suffix);
     gPad->Print(str);
   }
  
@@ -166,7 +166,7 @@
   h_ele_PhiMnPhiTrue->GetXaxis()->SetTitle("#phi_{rec}-#phi_{true}");  
   h_ele_PhiMnPhiTrue->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/PhiMnPhiTrue.%s",outDir,suffix);
+    snprintf(str, 128,"%s/PhiMnPhiTrue.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -176,7 +176,7 @@
   h_ele_vertexP->GetXaxis()->SetTitle("p_{vertex}");  
   h_ele_vertexP->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/vertexP.%s",outDir,suffix);
+    snprintf(str, 128,"%s/vertexP.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -186,7 +186,7 @@
   h_ele_vertexPt->GetXaxis()->SetTitle("p_{T} from vertex");  
   h_ele_vertexPt->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/vertexPt.%s",outDir,suffix);
+    snprintf(str, 128,"%s/vertexPt.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -196,7 +196,7 @@
   h_ele_outerP_mode->GetXaxis()->SetTitle("p from out, mode");  
   h_ele_outerP_mode->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/outerP_mode.%s",outDir,suffix);
+    snprintf(str, 128,"%s/outerP_mode.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -206,7 +206,7 @@
   h_ele_outerPt_mode->GetXaxis()->SetTitle("p_{T} from out, mode");  
   h_ele_outerPt_mode->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/outerPt_mode.%s",outDir,suffix);
+    snprintf(str, 128,"%s/outerPt_mode.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -216,7 +216,7 @@
   h_ele_vertexZ->GetXaxis()->SetTitle("z_{rec}");  
   h_ele_vertexZ->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/vertexZ.%s",outDir,suffix);
+    snprintf(str, 128,"%s/vertexZ.%s",outDir,suffix);
     gPad->Print(str);
   }
   if (pause) c_vertexZ->WaitPrimitive();  
@@ -246,7 +246,7 @@
   h_ele_absetaEff->GetXaxis()->SetTitle("|#eta|");  
   h_ele_absetaEff->GetYaxis()->SetTitle("Efficiency");  
   if (out) {
-    sprintf(str,"%s/absetaEff.%s",outDir,suffix);
+    snprintf(str, 128,"%s/absetaEff.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -259,7 +259,7 @@
   h_ele_etaEff->GetXaxis()->SetTitle("#eta");  
   h_ele_etaEff->GetYaxis()->SetTitle("Efficiency");  
   if (out) {
-    sprintf(str,"%s/etaEff.%s",outDir,suffix);
+    snprintf(str, 128,"%s/etaEff.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -272,7 +272,7 @@
   h_ele_ptEff->GetXaxis()->SetTitle("p_{T} (GeV/c)");  
   h_ele_ptEff->GetYaxis()->SetTitle("Efficiency");  
   if (out) {
-    sprintf(str,"%s/ptEff.%s",outDir,suffix);
+    snprintf(str, 128,"%s/ptEff.%s",outDir,suffix);
     gPad->Print(str);
   }
   if (pause) c_ptEff->WaitPrimitive();  
@@ -280,10 +280,14 @@
   // match
   TH1F *h_ele_EoP   = (TH1F*)hist.Get("h_ele_EoP"); 
   TH1F *h_ele_EoPout   = (TH1F*)hist.Get("h_ele_EoPout"); 
+  TH1F *h_ele_EseedOP   = (TH1F*)hist.Get("h_ele_EseedOP"); 
+  TH1F *h_ele_EeleOPout   = (TH1F*)hist.Get("h_ele_EeleOPout"); 
   TH1F *h_ele_dEtaCl_propOut   = (TH1F*)hist.Get("h_ele_dEtaCl_propOut"); 
   TH1F *h_ele_dEtaSc_propVtx   = (TH1F*)hist.Get("h_ele_dEtaSc_propVtx"); 
   TH1F *h_ele_dPhiCl_propOut   = (TH1F*)hist.Get("h_ele_dPhiCl_propOut"); 
   TH1F *h_ele_dPhiSc_propVtx   = (TH1F*)hist.Get("h_ele_dPhiSc_propVtx"); 
+  TH1F *h_ele_dEtaEleCl_propOut   = (TH1F*)hist.Get("h_ele_dEtaEleCl_propOut"); 
+  TH1F *h_ele_dPhiEleCl_propOut   = (TH1F*)hist.Get("h_ele_dPhiEleCl_propOut"); 
   TH1F *h_ele_HoE   = (TH1F*)hist.Get("h_ele_HoE"); 
   
   TCanvas *c_EoP = new TCanvas("EoP","EoP");
@@ -292,7 +296,7 @@
   h_ele_EoP->GetXaxis()->SetTitle("E/p");  
   h_ele_EoP->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/EoP.%s",outDir,suffix);
+    snprintf(str, 128,"%s/EoP.%s",outDir,suffix);
     gPad->Print(str);
   }
   
@@ -302,17 +306,47 @@
   h_ele_EoP->GetXaxis()->SetTitle("E_{seed}/p_{pout}");  
   h_ele_EoP->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/EoPout.%s",outDir,suffix);
+    snprintf(str, 128,"%s/EoPout.%s",outDir,suffix);
     gPad->Print(str);
   }
    
+  TCanvas *c_EeleOPout = new TCanvas("EeleOPout","EeleOPout");
+  c_EeleOPout->cd();
+  h_ele_EeleOPout->Draw(); 
+  h_ele_EeleOPout->GetXaxis()->SetTitle("E_{ele}/p_{pout}");  
+  h_ele_EeleoPout->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    snprintf(str, 128,"%s/EeleOPout.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+   
+  TCanvas *c_EseedOP = new TCanvas("EseedOP","EseedOP");
+  c_EseedOP->cd();
+  h_ele_EseedOP->Draw(); 
+  h_ele_EseedoP->GetXaxis()->SetTitle("E_{seed}/p");  
+  h_ele_EseedOP->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    snprintf(str, 128,"%s/EseedOP.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+  
   TCanvas *c_dEtaCl_propOut = new TCanvas("dEtaCl_propOut","dEtaCl_propOut");
   c_dEtaCl_propOut->cd();
   h_ele_dEtaCl_propOut->Draw(); 
   h_ele_dEtaCl_propOut->GetXaxis()->SetTitle("#eta_{seed}-#eta_{tk, extrp. from out}");  
   h_ele_dEtaCl_propOut->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/dEtaCl_propOut.%s",outDir,suffix);
+    snprintf(str, 128,"%s/dEtaCl_propOut.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+   
+  TCanvas *c_dEtaEleCl_propOut = new TCanvas("dEtaEleCl_propOut","dEtaEleCl_propOut");
+  c_dEtaEleCl_propOut->cd();
+  h_ele_dEtaEleCl_propOut->Draw(); 
+  h_ele_dEtaEleCl_propOut->GetXaxis()->SetTitle("#eta_{ele}-#eta_{tk, extrp. from out}");  
+  h_ele_dEtaEleCl_propOut->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    snprintf(str, 128,"%s/dEtaEleCl_propOut.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -322,7 +356,7 @@
   h_ele_dEtaSc_propVtx->GetXaxis()->SetTitle("#eta_{sc}-#eta_{tk, extrp. from vtx}");  
   h_ele_dEtaSc_propVtx->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/dEtaSc_propVtx.%s",outDir,suffix);
+    snprintf(str, 128,"%s/dEtaSc_propVtx.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -332,7 +366,17 @@
   h_ele_dPhiCl_propOut->GetXaxis()->SetTitle("#phi_{seed}-#phi_{tk, extrp. from out}");  
   h_ele_dPhiCl_propOut->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/dPhiCl_propOut.%s",outDir,suffix);
+    snprintf(str, 128,"%s/dPhiCl_propOut.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+   
+  TCanvas *c_dPhiEleCl_propOut = new TCanvas("dPhiEleCl_propOut","dPhiEleCl_propOut");
+  c_dPhiEleCl_propOut->cd();
+  h_ele_dPhiEleCl_propOut->Draw(); 
+  h_ele_dPhiEleCl_propOut->GetXaxis()->SetTitle("#phi_{ele}-#phi_{tk, extrp. from out}");  
+  h_ele_dPhiEleCl_propOut->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    snprintf(str, 128,"%s/dPhiEleCl_propOut.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -342,7 +386,7 @@
   h_ele_dPhiSc_propVtx->GetXaxis()->SetTitle("#phi_{sc}-#phi_{tk, extrp. from vtx}");  
   h_ele_dPhiSc_propVtx->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/dPhiSc_propVtx.%s",outDir,suffix);
+    snprintf(str, 128,"%s/dPhiSc_propVtx.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -352,7 +396,7 @@
   h_ele_HoE->GetXaxis()->SetTitle("H/E");  
   h_ele_HoE->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/HoE.%s",outDir,suffix);
+    snprintf(str, 128,"%s/HoE.%s",outDir,suffix);
     gPad->Print(str);
   }
   if (pause) c_HoE->WaitPrimitive();  
@@ -361,6 +405,7 @@
   TH1F *h_ele_chi2   = (TH1F*)hist.Get("h_ele_chi2"); 
   TH1F *h_ele_foundHits   = (TH1F*)hist.Get("h_ele_foundHits"); 
   TH1F *h_ele_lostHits   = (TH1F*)hist.Get("h_ele_lostHits"); 
+  TH1F *h_ele_ambiguousTracks   = (TH1F*)hist.Get("h_ele_ambiguousTracks"); 
   
   TCanvas *c_chi2 = new TCanvas("chi2","chi2");
   c_chi2->cd();
@@ -368,7 +413,7 @@
   h_ele_chi2->GetXaxis()->SetTitle("track #Chi^{2}");  
   h_ele_chi2->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/chi2.%s",outDir,suffix);
+    snprintf(str, 128,"%s/chi2.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -378,7 +423,7 @@
   h_ele_foundHits->GetXaxis()->SetTitle("# hits");  
   h_ele_foundHits->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/foundHits.%s",outDir,suffix);
+    snprintf(str, 128,"%s/foundHits.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -388,9 +433,19 @@
   h_ele_lostHits->GetXaxis()->SetTitle("# lost hits");  
   h_ele_lostHits->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/lostHits.%s",outDir,suffix);
+    snprintf(str, 128,"%s/lostHits.%s",outDir,suffix);
     gPad->Print(str);
   }
+  TCanvas *c_ambiguousTracks = new TCanvas("ambiguousTracks","ambiguousTracks");
+  c_ambiguousTracks->cd();
+  h_ele_ambiguousTracks->Draw(); 
+  h_ele_ambiguousTracks->GetXaxis()->SetTitle("# ambiguous tracks");  
+  h_ele_ambiguousTracks->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    snprintf(str, 128,"%s/ambiguousTracks.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+   
   if (pause) c_lostHits->WaitPrimitive();  
      
   // classes
@@ -407,7 +462,7 @@
   h_ele_PinMnPout_mode->GetXaxis()->SetTitle("P_{in} - p_{out} (GeV/c)");  
   h_ele_PinMnPout_mode->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/PinMnPout_mode.%s",outDir,suffix);
+    snprintf(str, 128,"%s/PinMnPout_mode.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -417,7 +472,7 @@
   h_ele_classes->GetXaxis()->SetTitle("Class id");  
   h_ele_classes->GetYaxis()->SetTitle("Events");  
   if (out) {
-    sprintf(str,"%s/classes.%s",outDir,suffix);
+    snprintf(str, 128,"%s/classes.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -427,7 +482,7 @@
   h_ele_eta_bbremFrac->GetXaxis()->SetTitle("|#eta|");  
   h_ele_eta_bbremFrac->GetYaxis()->SetTitle("Fraction of bbrem");  
   if (out) {
-    sprintf(str,"%s/eta_bbremFrac.%s",outDir,suffix);
+    snprintf(str, 128,"%s/eta_bbremFrac.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -437,7 +492,7 @@
   h_ele_eta_goldenFrac->GetXaxis()->SetTitle("|#eta|");  
   h_ele_eta_goldenFrac->GetYaxis()->SetTitle("Fraction of golden");  
   if (out) {
-    sprintf(str,"%s/eta_goldenFrac.%s",outDir,suffix);
+    snprintf(str, 128,"%s/eta_goldenFrac.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -447,7 +502,7 @@
   h_ele_eta_narrowFrac->GetXaxis()->SetTitle("|#eta|");  
   h_ele_eta_narrowFrac->GetYaxis()->SetTitle("Fraction of narrow");  
   if (out) {
-    sprintf(str,"%s/eta_narrowFrac.%s",outDir,suffix);
+    snprintf(str, 128,"%s/eta_narrowFrac.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -457,7 +512,7 @@
   h_ele_eta_showerFrac->GetXaxis()->SetTitle("|#eta|");  
   h_ele_eta_showerFrac->GetYaxis()->SetTitle("Fraction of showering");  
   if (out) {
-    sprintf(str,"%s/eta_showerFrac.%s",outDir,suffix);
+    snprintf(str, 128,"%s/eta_showerFrac.%s",outDir,suffix);
     gPad->Print(str);
   }
    

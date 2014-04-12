@@ -12,8 +12,6 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna 
  * 
- * $Date$
- * $Revision$
  *
  */
 
@@ -30,7 +28,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // forward declarations
 
@@ -49,7 +47,7 @@ public:
 private:
 
     /// beginning of job stuff
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
 
     /// clean the text file, if needed
     virtual void cleanTextFile();

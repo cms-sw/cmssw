@@ -1,16 +1,2 @@
 <FrameworkJobReport>
-
-<Message>This message should appear in 
-the framework job report</Message>
-<Message>This message should appear in 
-the framework job report</Message>
-<StorageStatistics>
-
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: ; tfile/read=?/?/0MB/?ms/?ms/?ms; tfile/write=?/?/0MB/?ms/?ms/?ms
-
-</StorageStatistics>
-
-<GeneratorInfo>
-</GeneratorInfo>
 </FrameworkJobReport>

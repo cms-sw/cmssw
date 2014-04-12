@@ -1,25 +1,45 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 
-SiStripMatchedRecHit2D::SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err,
-								const DetId& id , const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo): BaseSiTrackerRecHit2DLocalPos(pos, err, id), componentMono_(*rMono),componentStereo_(*rStereo){}
 
 bool 
 SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other, 
 				     SharedInputType what) const
 {
-  if (geographicalId() != other->geographicalId()) return false;
-  
-  const SiStripMatchedRecHit2D* otherMatched = 
-    dynamic_cast<const SiStripMatchedRecHit2D*>(other);
-  if ( otherMatched == 0 )  return false;
+  if (what==all && (geographicalId() != other->geographicalId())) return false;
+ 
+  if (!sameDetModule(*other)) return false;
 
-  if ( what == all) {
-    return (monoHit()->sharesInput( otherMatched->monoHit(),what) && 
-	    stereoHit()->sharesInput( otherMatched->stereoHit(),what));
+  if (trackerHitRTTI::isMatched(*other) ) {
+    const SiStripMatchedRecHit2D* otherMatched = static_cast<const SiStripMatchedRecHit2D*>(other);
+    return sharesClusters(*this, *otherMatched,what);
   }
-  else {
-    return (monoHit()->sharesInput( otherMatched->monoHit(),what) || 
-	    stereoHit()->sharesInput( otherMatched->stereoHit(),what));
-  }
+   
+  if (what==all)  return false;
+  // what about multi???
+  auto const & otherClus = reinterpret_cast<const BaseTrackerRecHit *>(other)->firstClusterRef();
+  return (otherClus==stereoClusterRef())  ||  (otherClus==monoClusterRef());
+  
+  
 }
+
+
+
+bool SiStripMatchedRecHit2D::sharesInput(TrackerSingleRecHit const & other) const {
+  return other.sameCluster(monoClusterRef()) || other.sameCluster(stereoClusterRef());
+}
+
+// it does not have components anymore...
+std::vector<const TrackingRecHit*>
+SiStripMatchedRecHit2D::recHits()const {
+  std::vector<const TrackingRecHit*> rechits;
+  return rechits;
+}
+
+std::vector<TrackingRecHit*>
+SiStripMatchedRecHit2D::recHits() {
+  std::vector<TrackingRecHit*> rechits;
+  return rechits;
+}
+
+

@@ -5,8 +5,6 @@
  * \file testChannel.h
  * \class testChannel
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date:  $
- * $Revision:  $
  * \author P. Govoni (testChannel.govoni@cernNOSPAM.ch)
  *
 */
@@ -15,7 +13,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/EDProduct.h" 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedResult.h"
@@ -24,23 +21,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-//#include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
-//#include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
-//#include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
-
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
-
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonPNPedDat.h"
-
 #include "TROOT.h"
 #include "TStyle.h"
+
+#include "TH2.h"
+#include "TProfile.h"
 
 #include <memory>
 #include <iostream>
@@ -48,16 +33,13 @@
 #include <vector>
 #include <string>
 
-using namespace cms ;
-using namespace edm ;
-
 class testChannel: public edm::EDAnalyzer
 {
 
   public:
     
     //! Constructor
-    testChannel (const ParameterSet& ps) ;
+    testChannel (const edm::ParameterSet& ps) ;
     
     //! Destructor
     virtual ~testChannel () ;
@@ -68,10 +50,10 @@ class testChannel: public edm::EDAnalyzer
     void unsubscribe (void) ;
     
     ///! Analyze
-    void analyze (Event const& event, EventSetup const& eventSetup) ;
+    void analyze (edm::Event const& event, edm::EventSetup const& eventSetup) ;
     
     //! BeginJob
-    void beginJob (EventSetup const& eventSetup) ;
+    void beginJob () ;
     
     //! EndJob
     void endJob (void) ;

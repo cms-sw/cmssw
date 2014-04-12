@@ -4,7 +4,7 @@
  *
  */
 #include "PhysicsTools/IsolationUtils/interface/PtIsolationAlgo.h"
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace reco {

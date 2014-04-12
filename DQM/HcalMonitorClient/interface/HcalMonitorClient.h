@@ -1,80 +1,63 @@
-#ifndef HcalMonitorClient_H
-#define HcalMonitorClient_H
+#ifndef HcalMonitorClient_GUARD_H
+#define HcalMonitorClient_GUARD_H
 
+/*
+ * \file HcalMonitorClient.h
+ * 
+ * \author J. Temple
+ * 
+ */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-          
-#include <DQM/HcalMonitorClient/interface/HcalTBClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
-#include <DQM/HcalMonitorClient/interface/HcalDataFormatClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalDigiClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
-#include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
 
-#include "TROOT.h"
-#include "TTree.h"
-#include "TGaxis.h"
+#include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
+#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <sys/time.h>
+class DQMStore;
+class HcalChannelQuality;
+class HcalSummaryClient;
 
-using namespace cms;
-using namespace std;
+class HcalMonitorClient: public edm::EDAnalyzer
+{
 
-class HcalMonitorClient: public EDAnalyzer{
-  
 public:
-  
-  /// Constructor
-  HcalMonitorClient();
-  HcalMonitorClient(const ParameterSet& ps);
-  HcalMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui);
-  
-  /// Destructor
-  ~HcalMonitorClient();
-  
-  /// Subscribe/Unsubscribe to Monitoring Elements
-  void subscribe(void);
-  void subscribeNew(void);
-  void unsubscribe(void);
-  
-  // Initialize
-  void initialize(const ParameterSet& ps);
-  void offlineSetup();
 
-  /// Analyze
-  void analyze(const Event& evt, const EventSetup& es);
+  // Constructor
+  HcalMonitorClient(const edm::ParameterSet & ps);
+  
+  // Destructor
+  virtual ~HcalMonitorClient();
+
+ /// Analyze
+  void analyze(int LS=-1);
+  void analyze(const edm::Event & e, const edm::EventSetup & c);
   
   /// BeginJob
-  void beginJob(const EventSetup& c);
+  void beginJob(void);
   
   /// EndJob
   void endJob(void);
   
   /// BeginRun
-  void beginRun(void);
+  void beginRun();
+  void beginRun(const edm::Run & r, const edm::EventSetup & c);
   
   /// EndRun
-  void endRun(void);
+  void endRun();
+  void endRun(const edm::Run & r, const edm::EventSetup & c);
+  
+  /// BeginLumiBlock
+  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+  
+  /// EndLumiBlock
+  void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+  
+  /// Reset
+  void reset(void);
   
   /// Setup
   void setup(void);
@@ -82,78 +65,66 @@ public:
   /// Cleanup
   void cleanup(void);
   
-  /// HtmlOutput
-  void htmlOutput(void);
-
-  /// Create reports
-  void report(bool update);
+  /// SoftReset
+  void softReset(bool flag);
+ 
+  // Write channelStatus info
+  void writeChannelStatus();
   
-  /// Create tests
-  void createTests(void);
+  // Write html output
+  void writeHtml();
 
-  /// reset all monitor elements
-  void resetAllME(void);
-
-  //Offline output functions
-  void loadHistograms(TFile* infile, const char* fname);
-  void dumpHistograms(int& runNum, vector<TH1F*> &hist1d, vector<TH2F*> &hist2d);
-  
-  void labelBins(TH1F* hist);
-
+  void PlotPedestalValues(const HcalDbService& cond);
 
 private:
-  void removeAll();
-  
-  DaqMonitorBEInterface* m_dbe;
-  MonitorUserInterface* mui_;
-
-  int ievt_;
-  int mon_evt_;
-  int last_mon_evt_;
-  int hostPort_;  
+  // Event counters
+  int ievt_; // all events
+  int jevt_; // events in current run
   int run_;
-  int nTimeouts_;
-  int last_update_;
-  int last_reset_Evts_;
-  int resetUpdate_;
-  int resetEvents_;
-  int resetTime_;
-  int nUpdateEvents_;
-  int timeoutThresh_;
+  int evt_;
+  bool begin_run_;
+  bool end_run_;
 
-  bool collateSources_;
+  // parameter set inputs
+  int debug_;
+  std::string inputFile_;
+  bool mergeRuns_;
   bool cloneME_;
-  bool offline_;
-  bool subscribed_;
-  bool verbose_;
-  bool begin_run_done_;
-  bool end_run_done_;
-  bool forced_begin_run_;
-  bool forced_end_run_;
-  bool enableExit_;
+  int prescaleFactor_;
+  std::string prefixME_;
+  bool enableCleanup_;
+  std::vector<std::string > enabledClients_;
 
-  string clientName_;
-  string hostName_;  
-  string outputFile_;
-  string inputFile_;
-  string baseHtmlDir_;
-  string process_;
-  string location_;
-  string runtype_;
-  string status_;
+  int updateTime_; // update time for updating histograms 
+  std::string baseHtmlDir_;
+  int htmlUpdateTime_; //update time for updating histograms
+  std::string databasedir_;
+  int databaseUpdateTime_; //update time for dumping db info (offset by 10 minutes, so that always dump after 10 minutes)
+  int databaseFirstUpdate_; // first update time (in minutes)
+  int htmlFirstUpdate_; // first update for html
+  
+  int htmlcounter_;
 
-  TH1F* trigger_;
+  bool saveByLumiSection_;  //produces separate LS certification values when enabled
+  bool Online_;  // fix to April 2011 problem where online DQM client crashes in endJob.  Is endRun perhaps not called?
 
-  timeval startTime_,updateTime_;
+  // time parameters
+  time_t current_time_;
+  time_t last_time_update_;
+  time_t last_time_html_;
+  time_t last_time_db_;
 
+  std::vector<HcalBaseDQClient*> clients_;  
 
-  HcalDataFormatClient* dataformat_client_;
-  HcalDigiClient* digi_client_;
-  HcalRecHitClient* rechit_client_;
-  HcalPedestalClient* pedestal_client_;
-  HcalLEDClient* led_client_;
-  HcalTBClient* tb_client_;
-  HcalHotCellClient* hot_client_;
+  DQMStore* dqmStore_;
+  HcalChannelQuality* chanquality_;
+
+  HcalSummaryClient* summaryClient_;
+  EtaPhiHists* ChannelStatus;
+  EtaPhiHists* ADC_PedestalFromDBByDepth;
+  EtaPhiHists* ADC_WidthFromDBByDepth;
+  EtaPhiHists* fC_PedestalFromDBByDepth;
+  EtaPhiHists* fC_WidthFromDBByDepth;
 
 };
 

@@ -4,27 +4,26 @@
 //C++ Headers
 
 FSimEvent::FSimEvent(const edm::ParameterSet& kine) 
-    : FBaseSimEvent(kine), id_(edm::EventID(0,0)), weight_(0)
+    : FBaseSimEvent(kine), id_(edm::EventID(0,0,0)), weight_(0)
 {}
  
 FSimEvent::FSimEvent(const edm::ParameterSet& vtx,
-		     const edm::ParameterSet& kine,
-		     const RandomEngine* engine) 
-    : FBaseSimEvent(vtx,kine,engine), id_(edm::EventID(0,0)), weight_(0)
+		     const edm::ParameterSet& kine)
+    : FBaseSimEvent(vtx,kine), id_(edm::EventID(0,0,0)), weight_(0)
 {}
  
 FSimEvent::~FSimEvent()
 {}
 
 void 
-FSimEvent::fill(const reco::CandidateCollection& parts, edm::EventID& Id) { 
-  FBaseSimEvent::fill(parts); 
+FSimEvent::fill(const reco::GenParticleCollection& parts, edm::EventID& Id, RandomEngineAndDistribution const* random) {
+  FBaseSimEvent::fill(parts, random);
   id_ = Id;
 }
     
 void 
-FSimEvent::fill(const HepMC::GenEvent& hev, edm::EventID& Id) { 
-  FBaseSimEvent::fill(hev); 
+FSimEvent::fill(const HepMC::GenEvent& hev, edm::EventID& Id, RandomEngineAndDistribution const* random) {
+  FBaseSimEvent::fill(hev, random);
   id_ = Id;
 }
     
@@ -71,7 +70,14 @@ FSimEvent::load(edm::SimTrackContainer & c, edm::SimTrackContainer & m) const
     if ( abs(t.type()) == 13 && 
 	 t.momentum().perp2() > 1.0 &&
 	 fabs(t.momentum().eta()) < 3.0 &&
-	 track(i).noEndVertex() ) m.push_back(t);
+	 track(i).noEndVertex() ) {
+      // Actually save the muon mother (and the attached muon) in case
+      if ( !track(i).noMother() && track(i).mother().closestDaughterId() == (int)i ) {
+	const SimTrack& T = embdTrack(track(i).mother().id());
+	m.push_back(T);
+      } 
+      m.push_back(t);
+    }
   }
 }
 
@@ -85,6 +91,14 @@ FSimEvent::load(edm::SimVertexContainer & c) const
 }
 
 
+void 
+FSimEvent::load(FSimVertexTypeCollection & c) const
+{
+
+  for (unsigned int i=0; i<nVertices(); ++i) {
+    c.push_back(embdVertexType(i));
+  }
+}
 
 
 

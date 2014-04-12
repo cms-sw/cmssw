@@ -1,7 +1,6 @@
 #ifndef FWCore_ParameterSet_FileInPath_h
 #define FWCore_ParameterSet_FileInPath_h
 
-/// $Id: FileInPath.h,v 1.8 2007/05/17 20:10:47 wmtan Exp $
 ///
 
 /// Find a non-event-data file, given a relative path.
@@ -87,6 +86,7 @@ namespace edm
 
     FileInPath(FileInPath const& other);
     FileInPath& operator=( FileInPath const& other);
+    ~FileInPath();
     void swap(FileInPath& other);
 
     /// Return a string containing the canonical form of the
@@ -96,9 +96,6 @@ namespace edm
 
     /// Where was the file found?
     LocationCode location() const;
-
-    /// Was the file found under the "local" area?
-    bool isLocal() const;
 
     /// Return a string that can be used to open the referenced
     /// file. 
@@ -118,6 +115,7 @@ namespace edm
     /// Reading errors are reflected in the state of the stream.
     void read(std::istream& is);
 
+    void readFromParameterSetBlob(std::istream& is);
   private:
     std::string    relativePath_;
     std::string    canonicalFilename_;

@@ -1,76 +1,77 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
+#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include <algorithm>
 using namespace reco;
 
-struct vT_find
-{
-  bool operator()(const CachingVertex & v, const RefCountedVertexTrack t)
-  {
-//initial tracks  
-    vector<RefCountedVertexTrack> tracks = v.tracks();
-    vector<RefCountedVertexTrack>::iterator pos 
-      = find_if(tracks.begin(), tracks.end(), VertexTrackEqual(t));
-    return (pos != tracks.end());
-  }
-}; 
- 
- 
-float 
-KalmanVertexTrackCompatibilityEstimator::estimate(const CachingVertex & vertex,
-			 const RefCountedVertexTrack tr) const
+
+template <unsigned int N>
+typename KalmanVertexTrackCompatibilityEstimator<N>::BDpair
+KalmanVertexTrackCompatibilityEstimator<N>::estimate(const CachingVertex<N> & vertex,
+						     const RefCountedVertexTrack tr,
+						     unsigned int hint) const
 {
 //checking if the track passed really belongs to the vertex
-  vector<RefCountedVertexTrack> tracks = vertex.tracks();
-  vector<RefCountedVertexTrack>::iterator pos 
-    = find_if(tracks.begin(), tracks.end(), VertexTrackEqual(tr));
- if(pos != tracks.end()) {
-   return estimateFittedTrack(vertex,*pos);
- } else {
+
+  const std::vector<RefCountedVertexTrack> &tracks = vertex.tracksRef();
+
+  if ( tracks.size()==0)
    return estimateNFittedTrack(vertex,tr);
- }
+
+  if (hint<tracks.size() ) {
+    VertexTrackEqual<N> d(tr);
+    if ( d(tracks[hint]))
+      return estimateFittedTrack(vertex,tracks[hint]);
+  }
+
+  typename std::vector<RefCountedVertexTrack>::const_iterator pos 
+    = find_if(tracks.begin(), tracks.end(), VertexTrackEqual<N>(tr));
+  if(pos != tracks.end()) {
+    return estimateFittedTrack(vertex,*pos);
+  } else {
+    return estimateNFittedTrack(vertex,tr);
+  }
 } 
 
 
-float
-KalmanVertexTrackCompatibilityEstimator::estimate(const CachingVertex & vertex, 
-			 const RefCountedLinearizedTrackState track) const
+template <unsigned int N>
+typename KalmanVertexTrackCompatibilityEstimator<N>::BDpair
+KalmanVertexTrackCompatibilityEstimator<N>::estimate(const CachingVertex<N> & vertex, 
+						     const RefCountedLinearizedTrackState track,
+						     unsigned int hint) const
 {
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(track,
  						 vertex.vertexState());
-  return estimate(vertex, vertexTrack);
+  return estimate(vertex, vertexTrack,hint);
 }
 
 
-float
-KalmanVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex, 
+template <unsigned int N>
+typename KalmanVertexTrackCompatibilityEstimator<N>::BDpair
+KalmanVertexTrackCompatibilityEstimator<N>::estimate(const reco::Vertex & vertex, 
 			 const reco::TransientTrack & track) const
 { 	
 //   GlobalPoint linP(vertex.position().x(), vertex.position().z(),vertex.position().z());
     GlobalPoint linP(Basic3DVector<float> (vertex.position()));
 
+  LinearizedTrackStateFactory lTrackFactory;
   RefCountedLinearizedTrackState linTrack = 
   			lTrackFactory.linearizedTrackState(linP, track);
-  GlobalError err(RecoVertex::convertError(vertex.covariance()));
+  GlobalError err(vertex.covariance());
   VertexState vState(linP, err);
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
 
-  vector<RefCountedVertexTrack> initialTracks(1, vertexTrack);
-  CachingVertex cachingVertex(linP, err, initialTracks,
+  std::vector<RefCountedVertexTrack> initialTracks(1, vertexTrack);
+  CachingVertex<N> cachingVertex(linP, err, initialTracks,
   			    vertex.chi2());
   // FIXME: this should work also for tracks without a persistent ref.
-  return estimateNFittedTrack(cachingVertex, vertexTrack);
-  /*
-  const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>(track.basicTransientTrack());
-  if ((ttt!=0) && 
-  	(find(vertex.tracks_begin(), vertex.tracks_end(), ttt->persistentTrackRef()) != vertex.tracks_end()))
+//   return estimateNFittedTrack(cachingVertex, vertexTrack);
+  if (find(vertex.tracks_begin(), vertex.tracks_end(), track.trackBaseRef()) != vertex.tracks_end())
   {
     return estimateFittedTrack(cachingVertex, vertexTrack);
   } else {
     return estimateNFittedTrack(cachingVertex, vertexTrack);
   }
-  */
 }
 
 
@@ -78,34 +79,45 @@ KalmanVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
 // methods to calculate track<-->vertex compatibility
 // with the track belonging to the vertex
 
-float 
-KalmanVertexTrackCompatibilityEstimator::estimateFittedTrack
-		(const CachingVertex & v, const RefCountedVertexTrack track) const
+template <unsigned int N>
+typename KalmanVertexTrackCompatibilityEstimator<N>::BDpair
+KalmanVertexTrackCompatibilityEstimator<N>::estimateFittedTrack
+		(const CachingVertex<N> & v, const RefCountedVertexTrack track) const
 {
   //remove track from the vertex using the vertex updator
   // Using the update instead of the remove methode, we can specify a weight which
   // is different than then one which the vertex track has been defined with.
-  CachingVertex rVert = updator.remove(v, track);
+  //CachingVertex rVert = updator.remove(v, track);
   RefCountedVertexTrack newSmoothedTrack = trackUpdator.update(v, track);
-  return estimateDifference(v,rVert,newSmoothedTrack);
+//   std::cout << newSmoothedTrack->smoothedChi2()<<" "<<estimateDifference(v,rVert,newSmoothedTrack)<<std::endl;
+//   return estimateDifference(v,rVert,newSmoothedTrack);
+  return BDpair(true, newSmoothedTrack->smoothedChi2());
 }
 
 // method calculating track<-->vertex compatibility
 //with the track not belonging to vertex
-float KalmanVertexTrackCompatibilityEstimator::estimateNFittedTrack
- 	(const CachingVertex & v, const RefCountedVertexTrack track) const
+template <unsigned int N>
+typename KalmanVertexTrackCompatibilityEstimator<N>::BDpair
+KalmanVertexTrackCompatibilityEstimator<N>::estimateNFittedTrack
+ 	(const CachingVertex<N> & v, const RefCountedVertexTrack track) const
 {
   // Using the update instead of the add methode, we can specify a weight which
   // is different than then one which the vertex track has been defined with.
-  CachingVertex rVert = updator.add(v, track);
-  return (rVert.totalChiSquared()-v.totalChiSquared());
+  CachingVertex<N> rVert = updator.add(v, track);
+  if (!rVert.isValid()) return BDpair(false,-1.);
+  return BDpair(true, rVert.totalChiSquared()-v.totalChiSquared());
 }   
 
 
 
-float KalmanVertexTrackCompatibilityEstimator::estimateDifference
-	(const CachingVertex & more, const CachingVertex & less, 
+template <unsigned int N>
+typename KalmanVertexTrackCompatibilityEstimator<N>::BDpair
+KalmanVertexTrackCompatibilityEstimator<N>::estimateDifference
+	(const CachingVertex<N> & more, const CachingVertex<N> & less, 
          const RefCountedVertexTrack track) const
 {
-  return helper.vertexChi2(less, more) + helper.trackParameterChi2(track);
+  BDpair trackRes = helper.trackParameterChi2(track);
+  return BDpair(trackRes.first, trackRes.second + helper.vertexChi2(less, more)) ;
 }
+
+template class KalmanVertexTrackCompatibilityEstimator<5>;

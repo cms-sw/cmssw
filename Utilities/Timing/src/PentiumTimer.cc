@@ -1,5 +1,3 @@
-#ifdef __linux__
-
 #include "Utilities/Timing/interface/PentiumTimer.h"
 #include <iostream>
 #include <fstream>
@@ -11,7 +9,10 @@
 PentiumTime::OneTick::~OneTick(){}
 
 PentiumTime::OneTick::OneTick() {
-  
+#ifdef __APPLE__
+  // FIXME: PentiumTime not supported on mac.
+  abort(); 
+#else
   std::string input; 
   {
     std::ifstream cpuinfo("/proc/cpuinfo");
@@ -28,5 +29,5 @@ PentiumTime::OneTick::OneTick() {
   }
   i = input.find(":",i);  
   one = 1.e-6/atof(input.substr(i+1,input.find("/n",i)-i).c_str());
-}
 #endif
+}

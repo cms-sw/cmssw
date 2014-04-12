@@ -20,7 +20,7 @@
  *  The track-to-track covariance matrix calculation is not yet done.
  */
 
-class GsfVertexSmoother : public VertexSmoother {
+class GsfVertexSmoother : public VertexSmoother<5> {
 
 public:
 
@@ -41,24 +41,30 @@ public:
    *	last update.
    *  \return the final vertex estimate, with all the supplementary information
    */
-  virtual CachingVertex smooth(const CachingVertex & vertex) const;
+  virtual CachingVertex<5> smooth(const CachingVertex<5> & vertex) const;
 
   /**
    *  Access methods
    */
 
-  const VertexUpdator * vertexUpdator() const
+  const VertexUpdator<5> * vertexUpdator() const
   {return &theUpdator;}
 
   /**
    * Clone method 
    */
-  virtual GsfVertexSmoother * clone() const 
+  virtual VertexSmoother<5> * clone() const 
   {
     return new GsfVertexSmoother(* this);
   }
   
 private:
+
+  typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+  typedef VertexTrack<5>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
+  typedef VertexTrack<5>::AlgebraicMatrix3M AlgebraicMatrix3M;
+  typedef VertexTrack<5>::AlgebraicSymMatrixOO AlgebraicSymMatrixOO;
 
   typedef std::vector<VertexState> VSC;
   typedef std::vector<RefCountedLinearizedTrackState> LTC;
@@ -77,7 +83,7 @@ private:
 	 const RefCountedLinearizedTrackState linTrack, float weight) const;
 
   TrackChi2Pair assembleTrackComponents(
-	const vector<RefittedTrackComponent> & trackComponents,
+	const std::vector<RefittedTrackComponent> & trackComponents,
 	const GlobalPoint & referencePosition) const;
 
   /**
@@ -93,12 +99,12 @@ private:
   bool limitComponents;
   DeepCopyPointerByClone<GsfVertexMerger> theMerger;
   GsfVertexUpdator theUpdator;
-  KalmanVertexUpdator kalmanVertexUpdator;
-  KalmanSmoothedVertexChi2Estimator smoothedChi2Estimator;
-  KalmanVertexTrackUpdator theVertexTrackUpdator;       
+  KalmanVertexUpdator<5> kalmanVertexUpdator;
+  KalmanSmoothedVertexChi2Estimator<5> smoothedChi2Estimator;
+  KalmanVertexTrackUpdator<5> theVertexTrackUpdator;       
   GsfVertexWeightCalculator theWeightCalculator;
-  VertexTrackFactory theVTFactory;
-  KVFHelper helper;
+  VertexTrackFactory<5> theVTFactory;
+  KVFHelper<5> helper;
 };
 
 #endif

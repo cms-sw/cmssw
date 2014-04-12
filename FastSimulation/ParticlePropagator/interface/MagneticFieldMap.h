@@ -19,6 +19,10 @@ class MagneticFieldMap {
 
 public:
 
+  // Constructor from a TrackerInteractionGeometry*
+  MagneticFieldMap(const MagneticField* pmF,
+		   const TrackerInteractionGeometry* myGeo);
+
   const GlobalVector inTesla( const GlobalPoint& ) const;
   const GlobalVector inKGauss( const GlobalPoint& ) const;
   const GlobalVector inInverseGeV( const GlobalPoint& ) const;
@@ -30,15 +34,7 @@ public:
 
   const MagneticField& magneticField() const {return *pMF_;}
 
-  static MagneticFieldMap* instance(const MagneticField* pMF,
-				    TrackerInteractionGeometry* myGeo);
-
-  static MagneticFieldMap* instance() ;
-
 private:
-
-  MagneticFieldMap(const MagneticField* pMF,
-		   TrackerInteractionGeometry* myGeo);
 
   void initialize();
 
@@ -48,10 +44,9 @@ private:
   const std::vector<double>* theFieldBarrelHisto(unsigned layer) const
     { return &(fieldBarrelHistos[layer]); } 
 
-  static MagneticFieldMap* myself;
   const MagneticField* pMF_;
-  TrackerInteractionGeometry* geometry_;
-  int bins;
+  const TrackerInteractionGeometry* geometry_;
+  unsigned bins;
   std::vector<std::vector<double> > fieldBarrelHistos;
   std::vector<std::vector<double> > fieldEndcapHistos;
   std::vector<double> fieldBarrelBinWidth;

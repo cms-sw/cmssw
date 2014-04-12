@@ -1,4 +1,4 @@
-#include "MagneticField/Interpolation/src/binary_ofstream.h"
+#include "binary_ofstream.h"
 
 #include <cstdio>
 #include <iostream>
@@ -64,7 +64,7 @@ binary_ofstream& binary_ofstream::operator<<( bool n) {
 }
 
 binary_ofstream& binary_ofstream::operator<<( const std::string& s) {
-  (*this) << s.size();
+  (*this) << (uint32_t) s.size(); // Use uint32 for backward compatibilty of binary files that were generated on 32-bit machines.
   fwrite( s.data(), 1, s.size(), file_);
   return *this;
 }

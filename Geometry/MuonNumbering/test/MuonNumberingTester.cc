@@ -13,7 +13,6 @@
 //
 // Original Author:  Michael Case
 //         Created:  Mon 2006/10/02
-// $Id: MuonNumberingTester.cc,v 1.1 2006/10/09 18:25:36 case Exp $
 //
 //
 
@@ -29,6 +28,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -40,7 +40,6 @@
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
-#include "DataSvc/RefException.h"
 #include "CoralBase/Exception.h"
 
 //
@@ -94,7 +93,7 @@ MuonNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    std::cout << "Here I am " << std::endl;
 
    edm::ESHandle<MuonDDDConstants> pMNDC;
-   edm::ESHandle<DDCompactView> pDD;
+   edm::ESTransientHandle<DDCompactView> pDD;
    iSetup.get<IdealGeometryRecord>().get( pDD );
    iSetup.get<MuonNumberingRecord>().get( pMNDC );
 
@@ -107,12 +106,6 @@ MuonNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    } catch (const coral::Exception& e) {
       throw cms::Exception("Geometry")
 	<<"DDORAReader::readDB caught coral::Exception: \""<<e.what()<<"\"";
-   } catch( const pool::RefException& er){
-      throw cms::Exception("Geometry")
-	<<"DDORAReader::readDB caught pool::RefException: \""<<er.what()<<"\"";
-   } catch ( pool::Exception& e ) {
-     throw cms::Exception("Geometry")
-       << "DDORAReader::readDB caught pool::Exception: \"" << e.what() << "\"";
    } catch ( std::exception& e ) {
      throw cms::Exception("Geometry")
        <<  "DDORAReader::readDB caught std::exception: \"" << e.what() << "\"";

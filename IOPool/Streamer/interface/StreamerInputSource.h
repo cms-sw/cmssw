@@ -1,5 +1,5 @@
-#ifndef StreamerInputSource_h
-#define StreamerInputSource_h
+#ifndef IOPool_Streamer_StreamerInputSource_h
+#define IOPool_Streamer_StreamerInputSource_h
 
 /**
  * StreamerInputSource.h
@@ -8,39 +8,39 @@
  * framework objects (e.g. ProductRegistry and EventPrincipal)
  */
 
-#include "boost/shared_ptr.hpp"
+
+#include "TBufferFile.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Sources/interface/RawInputSource.h"
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "TBuffer.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
+
+#include <memory>
 #include <vector>
 
 class InitMsgView;
 class EventMsgView;
 
 namespace edm {
-  class StreamerInputSource : public InputSource {
+  class BranchIDListHelper;
+  class ParameterSetDescription;
+  class StreamerInputSource : public RawInputSource {
   public:  
     explicit StreamerInputSource(ParameterSet const& pset,
                  InputSourceDescription const& desc);
     virtual ~StreamerInputSource();
+    static void fillDescription(ParameterSetDescription& description);
 
-    static
     std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
 
-    std::auto_ptr<EventPrincipal> deserializeEvent(EventMsgView const& eventView);
+    void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent = false);
 
-    void mergeWithRegistry(SendDescs const& descs);
+    void deserializeEvent(EventMsgView const& eventView);
 
-    static void mergeIntoRegistry(SendDescs const& descs, ProductRegistry&);
-
-    void
-    setProcessHistoryID(ProcessHistoryID phid) {
-      processHistoryID_ = phid;
-    }
+    static
+    void mergeIntoRegistry(SendJobHeader const& header, ProductRegistry&, BranchIDListHelper&, bool subsequent);
 
     /**
      * Uncompresses the data in the specified input buffer into the
@@ -50,38 +50,48 @@ namespace edm {
      * Returns the actual size of the uncompressed data.
      * Errors are reported by throwing exceptions.
      */
-    static unsigned int uncompressBuffer(unsigned char *inputBuffer,
+    static unsigned int uncompressBuffer(unsigned char* inputBuffer,
                                          unsigned int inputSize,
-                                         std::vector<unsigned char> &outputBuffer,
+                                         std::vector<unsigned char>& outputBuffer,
                                          unsigned int expectedFullSize);
   protected:
-    void declareStreamers(SendDescs const& descs);
-    void buildClassCache(SendDescs const& descs);
-    void saveTriggerNames(InitMsgView const* header);
+    static void declareStreamers(SendDescs const& descs);
+    static void buildClassCache(SendDescs const& descs);
+    void resetAfterEndRun();
 
   private:
-    virtual std::auto_ptr<EventPrincipal> read() = 0;
 
-    virtual boost::shared_ptr<RunPrincipal> readRun_();
+    class EventPrincipalHolder : public EDProductGetter {
+    public:
+      EventPrincipalHolder();
+      virtual ~EventPrincipalHolder();
 
-    virtual boost::shared_ptr<LuminosityBlockPrincipal>
-    readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
+      virtual WrapperHolder getIt(edm::ProductID const& id) const override;
+ 
+      virtual unsigned int transitionIndex_() const override;
 
-    virtual std::auto_ptr<EventPrincipal>
-    readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+      void setEventPrincipal(EventPrincipal* ep);
 
-    std::auto_ptr<EventPrincipal> holder_;
-    boost::shared_ptr<LuminosityBlockPrincipal> lbp_;
-    boost::shared_ptr<RunPrincipal> rp_;
+    private:
+      // We don't own the principal.  The lifetime must be managed externally.
+      EventPrincipal const* eventPrincipal_;
+    };
 
-    ProcessHistoryID processHistoryID_;
+    virtual void read(EventPrincipal& eventPrincipal);
+
+    virtual void setRun(RunNumber_t r);
+
+    virtual std::unique_ptr<FileBlock> readFile_();
+
     TClass* tc_;
     std::vector<unsigned char> dest_;
-    TBuffer xbuf_;
+    TBufferFile xbuf_;
+    std::unique_ptr<SendEvent> sendEvent_;
+    EventPrincipalHolder eventPrincipalHolder_;
+    bool adjustEventToNewProductRegistry_;
 
-    //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 
-    static std::string processName_;
-    static unsigned int protocolVersion_;
+    std::string processName_;
+    unsigned int protocolVersion_;
   }; //end-of-class-def
 } // end of namespace-edm
   

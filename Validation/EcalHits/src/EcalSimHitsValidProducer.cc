@@ -6,7 +6,8 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "SimDataFormats/EcalValidation/interface/PEcalValidInfo.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "G4Step.hh"
 #include "G4SDManager.hh"
@@ -224,10 +225,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
              float y0 = avertex->GetY0();
              float z0 = avertex->GetZ0();
              float t0 = avertex->GetT0();
-             theVertex[0] = x0;
-             theVertex[0] = y0;
-             theVertex[0] = z0;
-             theVertex[0] = t0; 
+             theVertex.SetCoordinates(x0,y0,z0,t0);
     
              int npart = avertex->GetNumberOfParticle();
              if ( npart == 0)
@@ -241,28 +239,24 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
      }
 
    // the direction of momentum of primary particles
-    double etaInit =0, phiInit =0, pInit =0;
+    double pInit =0; // etaInit =0, phiInit =0, // UNUSED
      if ( thePrim != 0){
           double  px = thePrim -> GetPx();
           double  py = thePrim -> GetPy();
           double  pz = thePrim -> GetPz();
-          theMomentum[0] = px;
-          theMomentum[1] = py;
-          theMomentum[2] = pz;
-          theMomentum[3] = 0.0;
+          theMomentum.SetCoordinates(px,py,pz,0.);
 
           pInit =sqrt( pow(px,2.) + pow(py,2.) + pow(pz,2.));
           if ( pInit == 0)
                   edm::LogWarning("EcalSimHitsValidProducer") 
                   <<" Primary has p = 0 ; ";
           else {
-                  theMomentum[3]= pInit;
-                  double costheta  = pz/pInit;
-                  double theta = acos(std::min(std::max(costheta, -1.),1.));
-                  etaInit = -log(tan(theta/2));
+                  theMomentum.SetE(pInit);
+                  // double costheta  = pz/pInit; // UNUSED
+                  // double theta = acos(std::min(std::max(costheta, -1.),1.)); // UNUSED
+                  // etaInit = -log(tan(theta/2)); // UNUSED
 
-                  if ( px != 0 || py != 0)
-                          phiInit = atan2(py,px);
+                  // if ( px != 0 || py != 0) phiInit = atan2(py,px); // UNUSED
           }
 
           thePID = thePrim->GetPDGcode();
@@ -295,7 +289,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
     float he     = aHit->getEnergyDeposit();
     float htime  = aHit->getTimeSlice();
                                                                                                                              
-    Hep3Vector hpos = aHit->getEntry();
+    math::XYZPoint hpos = aHit->getEntry();
     float htheta    = hpos.theta();
     float heta    = -log(tan(htheta * 0.5));
     float hphi    = hpos.phi();
@@ -319,7 +313,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
     float he     = aHit->getEnergyDeposit();
     float htime  = aHit->getTimeSlice();
 
-    Hep3Vector hpos = aHit->getEntry();
+    math::XYZPoint hpos = aHit->getEntry();
     float htheta    = hpos.theta();
     float heta    = -log(tan(htheta * 0.5));
     float hphi    = hpos.phi();
@@ -435,7 +429,7 @@ EcalSimHitsValidProducer::update(const G4Step* aStep){
   float Edeposit =  aStep->GetTotalEnergyDeposit();
   if ( crystal == "EFRY"&& Edeposit > 0.0){
           float z = hitPoint.z();
-          float detz = fabs(fabs(z)-3170);
+          float detz = fabs(fabs(z)-3200);
           int x0 = (int)floor( detz/8.9 );
           if ( x0< 26){ 
             eEX0[x0] += Edeposit;
@@ -467,10 +461,12 @@ bool  EcalSimHitsValidProducer::fillEEMatrix(int nCellInEta, int nCellInPhi,
 
       for( int iphi = startPhi; iphi < startPhi + nCellInPhi; iphi++ ) {
         uint32_t index;
-        try {
+
+	if (EEDetId::validDetId(ieta, iphi,CentralZ)) {
           index = EEDetId( ieta, iphi,CentralZ).rawId();
-        } catch (  cms::Exception &e  ) { continue; } // } catch (std::runtime_error &e ) { continue; }
-          fillmap[i++] = themap[index];
+        } else { continue; }
+	
+	fillmap[i++] = themap[index];
       }
    }
    uint32_t  centerid = getUnitWithMaxEnergy(themap);
@@ -568,9 +564,10 @@ float EcalSimHitsValidProducer::energyInEEMatrix(int nCellInX, int nCellInY,
     for (int iy=startY; iy<startY+nCellInY; iy++) {
 
       uint32_t index ;
-      try {
+      if (EEDetId::validDetId(ix, iy,centralZ)) {
         index = EEDetId(ix,iy,centralZ).rawId();
-      } catch (  cms::Exception &e  ) { continue; } //} catch ( std::runtime_error &e ) { continue ; }
+      } else { continue; }
+
       totalEnergy   += themap[index];
       ncristals     += 1;
 

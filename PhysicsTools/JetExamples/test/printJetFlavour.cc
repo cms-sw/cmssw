@@ -1,14 +1,4 @@
-// system include files
-#include <memory>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <Math/VectorUtil.h>
-#include <TMath.h>
-#include <TFile.h>
-#include <TH1.h>
-
-// user include files
+	// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,174 +7,144 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
-
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/getRef.h"
 
-#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
-#include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
+#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 
-#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
-
-using namespace std;
-using namespace reco;
-using namespace edm;
-using namespace JetMCTagUtils;
-using namespace CandMCTagUtils;
-using namespace ROOT::Math::VectorUtil;
+// system include files
+#include <memory>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <Math/VectorUtil.h>
+#include <TMath.h>
 
 class printJetFlavour : public edm::EDAnalyzer {
   public:
     explicit printJetFlavour(const edm::ParameterSet & );
     ~printJetFlavour() {};
-    void beginJob(const edm::EventSetup& iSetup) ;
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-    void endJob() ;
-     
+
   private:
-
-    edm::InputTag JetPartonMap_;
-    edm::InputTag theJetTagHandle_;
-    string fOutputFileName_;   
-    double ptMinHepMCjet;
-
-    edm::Handle<reco::CandMatchMap>        theJetPartonMap;
-    edm::Handle<reco::JetTagCollection>    theJetTagHandle;
-    edm::Handle<reco::CandidateCollection> particles;
-    edm::ESHandle<ParticleDataTable> pdt_;
-
-    JetFlavourIdentifier theHepMCJetId;
-
-    TFile*      hOutputFile ;
-    TH1F*       hDeltaR;
-    TH1F*       hEtCand;
-    TH1F*       hEtHepMC;
-    TH1F*       hDeltaFla;
-    TH1F*       hDeltaFlaHepMCFlavNoZero;
+    edm::InputTag sourcePartons_;
+    edm::EDGetTokenT<reco::JetMatchedPartonsCollection> sourceByReferToken_;
+    edm::EDGetTokenT<reco::JetFlavourMatchingCollection> sourceByValueToken_;
+    edm::Handle<reco::JetMatchedPartonsCollection> theTagByRef;
+    edm::Handle<reco::JetFlavourMatchingCollection> theTagByValue;
 };
+
+using namespace std;
+using namespace reco;
+using namespace edm;
+using namespace ROOT::Math::VectorUtil;
 
 printJetFlavour::printJetFlavour(const edm::ParameterSet& iConfig)
 {
-  JetPartonMap_       = iConfig.getParameter<InputTag> ("JetPartonMap"    );
-  theJetTagHandle_    = iConfig.getParameter<InputTag> ("theJetTagHandle" );
-  ptMinHepMCjet       = iConfig.getParameter<double>   ("ptMin");
-  theHepMCJetId       = JetFlavourIdentifier(iConfig.getParameter<edm::ParameterSet>("theHepMCJetId"));
-  fOutputFileName_    = iConfig.getUntrackedParameter<string>("HistOutFile",std::string("myPlots.root"));
-}
-
-void printJetFlavour::beginJob( const edm::EventSetup& iSetup)
-{
- 
-   hOutputFile              = new TFile( fOutputFileName_.c_str(), "RECREATE" ) ;
-   hDeltaR                  = new TH1F( "hDeltaR", "DeltaR", 100, 0., 0.5 );
-   hEtCand                  = new TH1F( "hEtCand", "EtCand", 100, 0., 500. );  
-   hEtHepMC                 = new TH1F( "hEtHepMC", "EtHepMC", 100, 0., 500. ); 
-   hDeltaFla                = new TH1F( "hDeltaFla","Delta Flavour", 100, -30, 30 );
-   hDeltaFlaHepMCFlavNoZero = new TH1F( "hDeltaFlaHepMCFlavNoZero","Delta Flavour HepMC Flaf != 0", 100, -30, 30 );
-   return ;
-}
-
-void printJetFlavour::endJob()
-{      
-   hOutputFile->Write() ;
-   hOutputFile->Close() ;  
-   return ;
+  sourceByReferToken_ = consumes<reco::JetMatchedPartonsCollection>(iConfig.getParameter<InputTag> ("srcByReference"));
+  sourceByValueToken_ = consumes<reco::JetFlavourMatchingCollection>(iConfig.getParameter<InputTag> ("srcByValue"));
 }
 
 void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   cout << "[printJetFlavour] analysing event " << iEvent.id() << endl;
-  
   try {
-    iEvent.getByLabel (JetPartonMap_,theJetPartonMap);
-    iEvent.getByLabel (theJetTagHandle_,theJetTagHandle);
-    iEvent.getByLabel ("genParticleCandidates", particles );
-
-    theHepMCJetId.readEvent(iEvent);
-
-    iSetup.getData( pdt_ );
-
+    iEvent.getByToken (sourceByReferToken_ , theTagByRef   );
+    iEvent.getByToken (sourceByValueToken_ , theTagByValue );
   } catch(std::exception& ce) {
-    cerr << "[printFlavJet] caught std::exception " << ce.what() << endl;
+    cerr << "[printJetFlavour] caught std::exception " << ce.what() << endl;
     return;
   }
 
-  cout << "*******************************" << endl;
-  cout << "* the Jet Flavour (Candidate) *" << endl;
-  cout << "*******************************" << endl;
-
-  for( CandMatchMap::const_iterator f  = theJetPartonMap->begin();
-                                    f != theJetPartonMap->end();
-                                    f++) {
-
-      const Candidate *theJet     = &*(f->key);
-      const Candidate *theParton  = &*(f->val);
-
-      hEtCand->Fill( theJet->et() );
-
-      printf("[GenJetTest] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | parton = %7.3f %6.3f %6.3f | %2d\n",
-	     theJet->et(),
-	     theJet->eta(),
-	     theJet->phi(), 
-	     theParton->et(), 
-	     theParton->eta(),
-	     theParton->phi(), 
-             theParton->pdgId()
-	     );
-      
-  }
-
-  cout << endl;
-  cout << "*******************************" << endl;
-  cout << "* the Jet Flavour (HepMC)      *" << endl;
-  cout << "*******************************" << endl;
-
-  const reco::JetTagCollection & tagColl = *(theJetTagHandle.product());
-
-  bool notMatch = false;
-  for (unsigned int i = 0; i != tagColl.size(); ++i) {
-    JetFlavour jetFlavour = theHepMCJetId.identifyBasedOnPartons(* tagColl[i].jet());
-    if(tagColl[i].jet()->pt() < ptMinHepMCjet) continue;
-
-    hEtHepMC->Fill( tagColl[i].jet()->et() );
-    printf("[HepMC   ] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | parton = %7.3f %6.3f %6.3f | %2d\n",
-             tagColl[i].jet()->et(),
-             tagColl[i].jet()->eta(),
-             tagColl[i].jet()->phi(),
-             jetFlavour.underlyingParton4Vec().Et(),
-             jetFlavour.underlyingParton4Vec().eta(),
-             jetFlavour.underlyingParton4Vec().phi(),
-             jetFlavour.flavour() 
+  cout << "-------------------- Jet Flavour by Ref From Partons--------------" << endl;
+  for ( JetMatchedPartonsCollection::const_iterator j  = theTagByRef->begin();
+                                     j != theTagByRef->end();
+                                     j ++ ) {
+    const Jet *aJet       = (*j).first.get();
+    const MatchedPartons aMatch = (*j).second;
+    printf("[printJetFlavour] (pt,eta,phi) jet = %7.2f %6.3f %6.3f \n",
+             aJet->et(),
+             aJet->eta(),
+             aJet->phi()
           );
-    
-    bool matched = false;
-    for( CandMatchMap::const_iterator f  = theJetPartonMap->begin();
-                                      f != theJetPartonMap->end();
-                                      f++) {
-
-      const Candidate *theJetInTheMatchMap = &*(f->key);    
-      const Candidate *theMatchedParton    = &*(f->val);
-
-      if( theJetInTheMatchMap->et() == tagColl[i].jet()->et() ) {
-        matched = true;
-        double myDist = DeltaR( theMatchedParton->p4(), jetFlavour.underlyingParton4Vec() );
-        float myDeltaFla = abs( jetFlavour.flavour() ) - abs( theMatchedParton->pdgId() );
-        hDeltaR->Fill(myDist);
-        hDeltaFla->Fill(myDeltaFla);
-        if( myDeltaFla != 0 ) {
-          notMatch=true;
-          if( abs(jetFlavour.flavour()) == 4 || abs(jetFlavour.flavour()) == 5 ) cout << "-------> Heavy HepMT not matched" << endl; 
-          if( abs(theMatchedParton->pdgId()) == 4 || abs(theMatchedParton->pdgId()) == 5 ) cout << "------> Heavy Cand not matched" << endl;
-        }
-        if( jetFlavour.flavour() !=0 ) hDeltaFlaHepMCFlavNoZero->Fill(myDeltaFla);
-      } 
+    const GenParticleRef theHeaviest = aMatch.heaviest() ;
+    if(theHeaviest.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), theHeaviest.get()->p4() );
+      cout << setprecision(2) << setw(6) << fixed <<
+              "                           theHeaviest flav (pt,eta,phi)=" << theHeaviest.get()->pdgId()
+                                                                  << " (" << theHeaviest.get()->et()
+                                                                  << ","  << theHeaviest.get()->eta()
+                                                                  << ","  << theHeaviest.get()->phi()
+                                                                  << ") Dr=" << dist << endl;
+    }
+    const GenParticleRef theNearest2 = aMatch.nearest_status2() ;
+    if(theNearest2.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), theNearest2.get()->p4() );
+      cout << "                      theNearest Stat2 flav (pt,eta,phi)=" << theNearest2.get()->pdgId()
+                                                                  << " (" << theNearest2.get()->et()
+                                                                  << ","  << theNearest2.get()->eta()
+                                                                  << ","  << theNearest2.get()->phi()
+                                                                  << ") Dr=" << dist << endl;
+    }
+    const GenParticleRef theNearest3 = aMatch.nearest_status3() ;
+    if(theNearest3.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), theNearest3.get()->p4() );
+      cout << "                      theNearest Stat3 flav (pt,eta,phi)=" << theNearest3.get()->pdgId()
+                                                                  << " (" << theNearest3.get()->et()
+                                                                  << ","  << theNearest3.get()->eta()
+                                                                  << ","  << theNearest3.get()->phi()
+                                                                  << ") Dr=" << dist << endl;
+    }
+    const GenParticleRef thePhyDef = aMatch.physicsDefinitionParton() ;
+    if(thePhyDef.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), thePhyDef.get()->p4() );
+      cout << "                     thePhysDefinition flav (pt,eta,phi)=" << thePhyDef.get()->pdgId()
+                                                                  << " (" << thePhyDef.get()->et()
+                                                                  << ","  << thePhyDef.get()->eta()
+                                                                  << ","  << thePhyDef.get()->phi()
+                                                                  << ") Dr=" << dist << endl;
+    }
+    const GenParticleRef theAlgDef = aMatch.algoDefinitionParton() ;
+    if(theAlgDef.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), theAlgDef.get()->p4() );
+      cout << "                     theAlgoDefinition flav (pt,eta,phi)=" << theAlgDef.get()->pdgId()
+                                                                  << " (" << theAlgDef.get()->et()
+                                                                  << ","  << theAlgDef.get()->eta()
+                                                                  << ","  << theAlgDef.get()->phi()
+                                                                  << ") Dr=" << dist << endl;
     }
   }
+
+
+  cout << "-------------------- Jet Flavour by Value ------------------------" << endl;
+  for ( JetFlavourMatchingCollection::const_iterator j  = theTagByValue->begin();
+                                                     j != theTagByValue->end();
+                                                     j ++ ) {
+    RefToBase<Jet> aJet  = (*j).first;
+    const JetFlavour aFlav = (*j).second;
+
+    printf("[printJetFlavour] (pt,eta,phi) jet = %7.2f %6.3f %6.3f | parton = %7.2f %6.3f %6.3f | %4d\n",
+             aJet.get()->et(),
+             aJet.get()->eta(),
+             aJet.get()->phi(),
+             aFlav.getLorentzVector().pt(),
+             aFlav.getLorentzVector().eta(),
+             aFlav.getLorentzVector().phi(),
+             aFlav.getFlavour()
+          );
+  }
+
 }
 
 DEFINE_FWK_MODULE( printJetFlavour );

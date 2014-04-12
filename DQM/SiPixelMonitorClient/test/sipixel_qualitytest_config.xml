@@ -1,349 +1,322 @@
 <TESTSCONFIGURATION> 
-<!--
-<QTEST name="XrangeWithin:0-255" activate="true"> 
-     <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.95</PARAM> 
-     <PARAM name="warning">0.99</PARAM> 
-     <PARAM name="xmin">0.0</PARAM> 
-     <PARAM name="xmax">255.0</PARAM> 
-</QTEST> -->
-<QTEST name="MeanWithinExpected:adcRange" activate="true"> 
-     <TYPE>MeanWithinExpected</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="mean">100.0</PARAM> 
-     <PARAM name="useRMS">0</PARAM> 
-     <PARAM name="useSigma">0</PARAM>
-     <PARAM name="useRange">1</PARAM> 
-     <PARAM name="xmin">75.0</PARAM> 
-     <PARAM name="xmax">130.0</PARAM> 
-</QTEST>
-<QTEST name="MeanWithinExpected:ndigisRange" activate="true"> 
-     <TYPE>MeanWithinExpected</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="mean">1.4</PARAM> 
-     <PARAM name="useRMS">0</PARAM> 
-     <PARAM name="useSigma">0</PARAM>
-     <PARAM name="useRange">1</PARAM> 
-     <PARAM name="xmin">1.0</PARAM> 
-     <PARAM name="xmax">13.0</PARAM> 
-</QTEST>
-
-
-<!-- adc in PixelBarrel & Shells: -->
-<QTEST name="YrangeWithin:85-105" activate="true"> 
+<!-- MODIFIED VERSION: reordered, only all active tests, with computed band limits (ROBERTO) -->
+<!-- QTESTS for PIXEL DETECTOR: -->
+<!-- YRange for relative FED occupancy: -->
+<QTEST name="Yrange:FEDs:average_ndigis" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">85.0</PARAM> 
-     <PARAM name="ymax">105.0</PARAM> 
+     <PARAM name="useEmptyBins">1</PARAM>
+     <PARAM name="error">0.98</PARAM> 
+     <PARAM name="warning">0.98</PARAM> 
+     <PARAM name="ymin">0.6</PARAM> 
+     <PARAM name="ymax">1.6</PARAM> 
 </QTEST>
-<!-- ndigis in PixelBarrel & Shells: -->
-<QTEST name="YrangeWithin:2.5-12" activate="true"> 
+<!-- QTESTS for BARREL: -->
+<!-- YRange in BARREL: -->
+<!-- adc in PixelBarrel: -->
+<QTEST name="Yrange:Barrel:adc" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">2.5</PARAM> 
-     <PARAM name="ymax">12.0</PARAM> 
+     <PARAM name="ymin">80.</PARAM> 
+     <PARAM name="ymax">115.</PARAM> 
 </QTEST>
-<!-- adc in Layer_1: -->
-<QTEST name="YrangeWithin:90-103" activate="true"> 
+<!-- ndigis in PixelBarrel: -->
+<QTEST name="Yrange:Barrel:ndigis" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">90.0</PARAM> 
-     <PARAM name="ymax">103.0</PARAM> 
+     <PARAM name="ymin">4.5</PARAM> 
+     <PARAM name="ymax">14.5</PARAM> 
 </QTEST>
-<!-- ndigis in Layer_1: -->
-<QTEST name="YrangeWithin:2.5-13" activate="true"> 
+<!-- ncluster in PixelBarrel: -->
+<QTEST name="Yrange:Barrel:ncluster" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">2.5</PARAM> 
-     <PARAM name="ymax">13.0</PARAM> 
-</QTEST>
-<!-- adc in Layer_2: -->
-<QTEST name="YrangeWithin:89-104" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">89.0</PARAM> 
-     <PARAM name="ymax">104.0</PARAM> 
-</QTEST>
-<!-- ndigis in Layer_2: -->
-<QTEST name="YrangeWithin:2-9" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">2.0</PARAM> 
-     <PARAM name="ymax">9.0</PARAM> 
-</QTEST>
-<!-- adc in Layer_3: -->
-<QTEST name="YrangeWithin:83-108" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">83.0</PARAM> 
-     <PARAM name="ymax">108.0</PARAM> 
-</QTEST>
-<!-- ndigis in Layer_3: -->
-<QTEST name="YrangeWithin:2-8" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">2.0</PARAM> 
-     <PARAM name="ymax">8.0</PARAM> 
-</QTEST>
-<!-- adc in Ladders in Layer_1: -->
-<QTEST name="YrangeWithin:88-105" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">88.0</PARAM> 
-     <PARAM name="ymax">105.0</PARAM> 
-</QTEST>
-<!-- ndigis in Ladders in Layer_1: -->
-<QTEST name="YrangeWithin:2-13.5" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">2.0</PARAM> 
-     <PARAM name="ymax">13.5</PARAM> 
-</QTEST>
-<!-- adc in Ladders in Layer_2: -->
-<QTEST name="YrangeWithin:87-106" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">87.0</PARAM> 
-     <PARAM name="ymax">106.0</PARAM> 
-</QTEST>
-<!-- ndigis in Ladders in Layer_2: -->
-<QTEST name="YrangeWithin:1.5-9.5" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.5</PARAM> 
-     <PARAM name="ymax">9.5</PARAM> 
+     <PARAM name="ymax">4.8</PARAM> 
 </QTEST>
-<!-- adc in Ladders in Layer_3: -->
-<QTEST name="YrangeWithin:81-110" activate="true"> 
+<!-- size in PixelBarrel: -->
+<QTEST name="Yrange:Barrel:size" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">81.0</PARAM> 
-     <PARAM name="ymax">110.0</PARAM> 
-</QTEST>
-<!-- ndigis in Ladders in Layer_3: -->
-<QTEST name="YrangeWithin:1.5-8.5" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.5</PARAM> 
+     <PARAM name="ymin">2.5</PARAM> 
      <PARAM name="ymax">8.5</PARAM> 
 </QTEST>
-<!-- adc in PixelEndcap: -->
-<QTEST name="YrangeWithin:75-130" activate="true"> 
+<!-- charge in PixelBarrel: -->
+<QTEST name="Yrange:Barrel:charge" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">40.</PARAM> 
+     <PARAM name="ymax">95.</PARAM> 
+</QTEST>
+<!-- MeanWithInExpected in LADDER: -->
+<!-- adc in Ladder: -->
+<QTEST name="MeanExp:Ladder:adc" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">75.0</PARAM> 
-     <PARAM name="ymax">130.0</PARAM> 
+     <PARAM name="mean">108.3</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">90.</PARAM> 
+     <PARAM name="xmax">135.</PARAM> 
+</QTEST>
+<!-- ndigis in Ladder: -->
+<QTEST name="MeanExp:Ladder:ndigis" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="mean">2.8</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">1.</PARAM> 
+     <PARAM name="xmax">4.</PARAM> 
+</QTEST>
+<!-- nclusters in Ladder: -->
+<QTEST name="MeanExp:Ladder:nclusters" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="mean">1.15</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">0.5</PARAM> 
+     <PARAM name="xmax">2.3</PARAM> 
+</QTEST>
+<!-- charge in Ladder: -->
+<QTEST name="MeanExp:Ladder:charge" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="mean">24.6</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">20.</PARAM> 
+     <PARAM name="xmax">50.</PARAM> 
+</QTEST>
+<!-- size in Ladder: -->
+<QTEST name="MeanExp:Ladder:size" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="mean">2.3</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">1.</PARAM> 
+     <PARAM name="xmax">4.</PARAM> 
+</QTEST>
+<!-- QTESTS for ENDCAP: -->
+<!-- YRange in ENDCAP: -->
+<!-- adc in PixelEndcap: -->
+<QTEST name="Yrange:Endcap:adc" activate="true"> 
+     <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">95.</PARAM> 
+     <PARAM name="ymax">130.</PARAM> 
 </QTEST>
 <!-- ndigis in PixelEndcap: -->
-<QTEST name="YrangeWithin:1.4-4" activate="true"> 
+<QTEST name="Yrange:Endcap:ndigis" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.4</PARAM> 
-     <PARAM name="ymax">4.0</PARAM> 
+     <PARAM name="ymin">2.7</PARAM> 
+     <PARAM name="ymax">4.8</PARAM> 
 </QTEST>
-<!-- adc in HalfCylinders: -->
-<QTEST name="YrangeWithin:80-130" activate="true"> 
+<!-- nclusters in PixelEndcap: -->
+<QTEST name="Yrange:Endcap:nclusters" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">80.0</PARAM> 
-     <PARAM name="ymax">130.0</PARAM> 
+     <PARAM name="ymin">1.2</PARAM> 
+     <PARAM name="ymax">2.4</PARAM> 
 </QTEST>
-<!-- ndigis in HalfCylinders: -->
-<QTEST name="YrangeWithin:1.4-3.4" activate="true"> 
+<!-- size in PixelEndcap: -->
+<QTEST name="Yrange:Endcap:size" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.4</PARAM> 
-     <PARAM name="ymax">3.4</PARAM> 
-</QTEST>
-<!-- adc in Disk_1: -->
-<QTEST name="YrangeWithin:85-120" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">85.0</PARAM> 
-     <PARAM name="ymax">120.0</PARAM> 
-</QTEST>
-<!-- ndigis in Disk_1: -->
-<QTEST name="YrangeWithin:1.8-3.3" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.8</PARAM> 
-     <PARAM name="ymax">3.3</PARAM> 
+     <PARAM name="ymax">2.9</PARAM> 
 </QTEST>
-<!-- adc in Disk_2: -->
-<QTEST name="YrangeWithin:85-125" activate="true"> 
+<!-- charge in PixelEndcap: -->
+<QTEST name="Yrange:Endcap:charge" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.50</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">25.</PARAM> 
+     <PARAM name="ymax">40.</PARAM> 
+</QTEST>
+<!-- YRange in DISK: -->
+<!-- size in Disk: -->
+<QTEST name="Yrange:Disk:size" activate="false"> 
+     <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">85.0</PARAM> 
-     <PARAM name="ymax">125.0</PARAM> 
+     <PARAM name="ymin">0.045</PARAM> 
+     <PARAM name="ymax">11.3</PARAM> 
 </QTEST>
-<!-- ndigis in Disk_2: -->
-<QTEST name="YrangeWithin:1.6-3.2" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
+<!-- MeanWithInExpected in BLADE: -->
+<!-- adc in Blade: -->
+<QTEST name="MeanExp:Blade:adc" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.6</PARAM> 
-     <PARAM name="ymax">3.2</PARAM> 
+     <PARAM name="mean">108.7</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">2.05</PARAM> 
+     <PARAM name="xmax">206.0</PARAM> 
 </QTEST>
-<!-- adc in Blades & Panels in Disk_1: -->
-<QTEST name="YrangeWithin:83-122" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
+<!-- ndigis in Blade: -->
+<QTEST name="MeanExp:Blade:ndigis" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">83.0</PARAM> 
-     <PARAM name="ymax">122.0</PARAM> 
+     <PARAM name="mean">4.4</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">0.18</PARAM> 
+     <PARAM name="xmax">8.8</PARAM> 
 </QTEST>
-<!-- ndigis in Blades & Panels in Disk_1: -->
-<QTEST name="YrangeWithin:1.6-3.5" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
+<!-- nclusters in Blade: -->
+<QTEST name="MeanExp:Blade:nclusters" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.6</PARAM> 
-     <PARAM name="ymax">3.5</PARAM> 
+     <PARAM name="mean">1.17</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">0.02</PARAM> 
+     <PARAM name="xmax">2.0</PARAM> 
 </QTEST>
-<!-- adc in Blades & Panels in Disk_2: -->
-<QTEST name="YrangeWithin:83-127" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
+<!-- size in Blade: -->
+<QTEST name="MeanExp:Blade:size" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">83.0</PARAM> 
-     <PARAM name="ymax">127.0</PARAM> 
+     <PARAM name="mean">4.0</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">0.17</PARAM> 
+     <PARAM name="xmax">7.82</PARAM> 
 </QTEST>
-<!-- ndigis in Blades & Panels in Disk_2: -->
-<QTEST name="YrangeWithin:1.4-3.4" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
+<!-- charge in Blade: -->
+<QTEST name="MeanExp:Blade:charge" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.4</PARAM> 
-     <PARAM name="ymax">3.4</PARAM> 
+     <PARAM name="mean">39.1</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">1.2</PARAM> 
+     <PARAM name="xmax">7.82</PARAM> 
 </QTEST>
-
-
-<LINK name="*adc_siPixelDigis_*"> 
-  <TestName activate="true">MeanWithinExpected:adcRange</TestName> 
+<!-- size in Blade: -->
+<QTEST name="MeanExp:Blade:size" activate="false"> 
+     <TYPE>MeanWithinExpected</TYPE> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="mean">4.0</PARAM> 
+     <PARAM name="useRMS">0</PARAM> 
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM> 
+     <PARAM name="xmin">0.04</PARAM> 
+     <PARAM name="xmax">11.3</PARAM> 
+</QTEST>
+<!-- LINKS between Quality Tests and Monitoring Elements: -->
+<!-- LINKS for PIXEL DETECTOR: -->
+<LINK name="*ixel/averageDigiOccupancy"> 
+  <TestName activate="true">Yrange:FEDs:average_ndigis</TestName> 
 </LINK>
-<LINK name="*ndigis_siPixelDigis_*"> 
-  <TestName activate="true">MeanWithinExpected:ndigisRange</TestName> 
+<!-- LINKS for BARREL: -->
+<!-- YRange in BARREL: -->
+<LINK name="*Barrel/SUMDIG_adc_*"> 
+  <TestName activate="true">Yrange:Barrel:adc</TestName> 
 </LINK>
-
-
-
-<LINK name="*Summary_adc_in_PixelBarrel*"> 
-  <TestName activate="true">YrangeWithin:85-105</TestName> 
+<LINK name="*Barrel/SUMDIG_ndigis_*"> 
+  <TestName activate="true">Yrange:Barrel:ndigis</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_PixelBarrel*"> 
-  <TestName activate="true">YrangeWithin:2.5-12</TestName> 
+<LINK name="*Barrel/SUMCLU_nclusters_*"> 
+  <TestName activate="true">Yrange:Barrel:ncluster</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Shell*"> 
-  <TestName activate="true">YrangeWithin:85-105</TestName> 
+<LINK name="*Barrel/SUMCLU_size_*"> 
+  <TestName activate="true">Yrange:Barrel:size</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Shell*"> 
-  <TestName activate="true">YrangeWithin:2.5-12</TestName> 
+<LINK name="*Barrel/SUMCLU_charge_*"> 
+  <TestName activate="true">Yrange:Barrel:charge</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Layer_1*"> 
-  <TestName activate="true">YrangeWithin:90-103</TestName> 
+<!-- MeanWithInExpected in LADDER: -->
+<LINK name="*Ladder*/adc_*"> 
+  <TestName activate="false">MeanExp:Ladder:adc</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Layer_1*"> 
-  <TestName activate="true">YrangeWithin:2.5-13</TestName> 
+<LINK name="*Ladder*/ndigis_*"> 
+  <TestName activate="false">MeanExp:Ladder:ndigis</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Layer_2*"> 
-  <TestName activate="true">YrangeWithin:89-104</TestName> 
+<LINK name="*Ladder*/nclusters_*"> 
+  <TestName activate="false">MeanExp:Ladder:nclusters</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Layer_2*"> 
-  <TestName activate="true">YrangeWithin:2-9</TestName> 
+<LINK name="*Ladder*/charge_*"> 
+  <TestName activate="false">MeanExp:Ladder:charge</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Layer_3*"> 
-  <TestName activate="true">YrangeWithin:83-108</TestName> 
+<LINK name="*Ladder*/size_*"> 
+  <TestName activate="false">MeanExp:Ladder:size</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Layer_3*"> 
-  <TestName activate="true">YrangeWithin:2-8</TestName> 
+<!-- LINKS for ENDCAP: -->
+<!-- YRange in ENDCAP: -->
+<LINK name="*Endcap/SUMDIG_adc_*"> 
+  <TestName activate="true">Yrange:Endcap:adc</TestName> 
 </LINK>
-<LINK name="*Layer_1/Summary_adc_in_Ladder*"> 
-  <TestName activate="true">YrangeWithin:88-105</TestName> 
+<LINK name="*Endcap/SUMDIG_ndigis_*"> 
+  <TestName activate="true">Yrange:Endcap:ndigis</TestName> 
 </LINK>
-<LINK name="*Layer_1/Summary_ndigis_in_Ladder*"> 
-  <TestName activate="true">YrangeWithin:2-13.5</TestName> 
+<LINK name="*Endcap/SUMCLU_nclusters_*"> 
+  <TestName activate="true">Yrange:Endcap:nclusters</TestName> 
 </LINK>
-<LINK name="*Layer_2/Summary_adc_in_Ladder*"> 
-  <TestName activate="true">YrangeWithin:87-106</TestName> 
+<LINK name="*Endcap/SUMCLU_size_*"> 
+  <TestName activate="true">Yrange:Endcap:size</TestName> 
 </LINK>
-<LINK name="*Layer_2/Summary_ndigis_in_Ladder*"> 
-  <TestName activate="true">YrangeWithin:1.5-9.5</TestName> 
+<LINK name="*Endcap/SUMCLU_charge_*"> 
+  <TestName activate="true">Yrange:Endcap:charge</TestName> 
 </LINK>
-<LINK name="*Layer_3/Summary_adc_in_Ladder*"> 
-  <TestName activate="true">YrangeWithin:81-110</TestName> 
+<!-- MeanWithinExpected in BLADE: -->
+<LINK name="*Blade*/adc_*"> 
+  <TestName activate="false">MeanExp:Blade:adc</TestName> 
 </LINK>
-<LINK name="*Layer_3/Summary_ndigis_in_Ladder*"> 
-  <TestName activate="true">YrangeWithin:1.5-8.5</TestName> 
+<LINK name="*Blade*/ndigis_*"> 
+  <TestName activate="false">MeanExp:Blade:ndigis</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_PixelEndcap*"> 
-  <TestName activate="true">YrangeWithin:75-130</TestName> 
+<LINK name="*Blade*/nclusters_*"> 
+  <TestName activate="false">MeanExp:Blade:nclusters</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_PixelEndcap*"> 
-  <TestName activate="true">YrangeWithin:1.4-4</TestName> 
+<LINK name="*Blade*/charge_*"> 
+  <TestName activate="false">MeanExp:Blade:charge</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_HalfCylinder*"> 
-  <TestName activate="true">YrangeWithin:80-130</TestName> 
-</LINK>
-<LINK name="*Summary_ndigis_in_HalfCylinder*"> 
-  <TestName activate="true">YrangeWithin:1.4-3.4</TestName> 
-</LINK>
-<LINK name="*Summary_adc_in_Disk_1*"> 
-  <TestName activate="true">YrangeWithin:85-120</TestName> 
-</LINK>
-<LINK name="*Summary_ndigis_in_Disk_1*"> 
-  <TestName activate="true">YrangeWithin:1.8-3.3</TestName> 
-</LINK>
-<LINK name="*Summary_adc_in_Disk_2*"> 
-  <TestName activate="true">YrangeWithin:85-125</TestName> 
-</LINK>
-<LINK name="*Summary_ndigis_in_Disk_2*"> 
-  <TestName activate="true">YrangeWithin:1.6-3.2</TestName> 
-</LINK>
-<LINK name="*Disk_1/Summary_adc_in_Blade*"> 
-  <TestName activate="true">YrangeWithin:83-122</TestName> 
-</LINK>
-<LINK name="*Disk_1/Summary_ndigis_in_Blade*"> 
-  <TestName activate="true">YrangeWithin:1.6-3.5</TestName> 
-</LINK>
-<LINK name="*Disk_2/Summary_adc_in_Blade*"> 
-  <TestName activate="true">YrangeWithin:83-127</TestName> 
-</LINK>
-<LINK name="*Disk_2/Summary_ndigis_in_Blade*"> 
-  <TestName activate="true">YrangeWithin:1.4-3.4</TestName> 
-</LINK>
-<LINK name="*Disk_1/Blade*/Summary_adc_in_Panel*"> 
-  <TestName activate="true">YrangeWithin:83-122</TestName> 
-</LINK>
-<LINK name="*Disk_1/Blade*/Summary_ndigis_in_Panel*"> 
-  <TestName activate="true">YrangeWithin:1.6-3.5</TestName> 
-</LINK>
-<LINK name="*Disk_2/Blade*/Summary_adc_in_Panel*"> 
-  <TestName activate="true">YrangeWithin:83-127</TestName> 
-</LINK>
-<LINK name="*Disk_2/Blade*/Summary_ndigis_in_Panel*"> 
-  <TestName activate="true">YrangeWithin:1.4-3.4</TestName> 
+<LINK name="*Blade*/size_*"> 
+  <TestName activate="false">MeanExp:Blade:size</TestName> 
 </LINK>
 </TESTSCONFIGURATION>

@@ -2,75 +2,106 @@
 #define FWCore_ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: Registry.h,v 1.10 2007/03/04 05:45:42 wmtan Exp $
-//
 // Declaration for pset::Registry. This is an implementation detail of
 // the ParameterSet library.
 //
 // A Registry is used to keep track of the persistent form of all
 // ParameterSets used a given program, so that they may be retrieved by
 // ParameterSetID, and so they may be written to persistent storage.
+// Note that this registry is *not* directly persistable. The contents
+// are persisted, but not the container.
 // ----------------------------------------------------------------------
 
+#include <iosfwd>
 #include <map>
+#include "tbb/concurrent_unordered_map.h"
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 
+namespace edm {
+  namespace pset {
 
-
-namespace edm
-{
-  namespace pset
-  {
-
-    class ProcessParameterSetIDCache
-    {
+    class Registry {
     public:
-      ProcessParameterSetIDCache() : id_() { }
-      edm::ParameterSetID id() const { return id_; }
-      void setID(ParameterSetID const& id) { id_ = id; }
-    private:
-      edm::ParameterSetID id_;      
-    };
+      typedef edm::ParameterSetID key_type;
+      typedef edm::ParameterSet   value_type;
 
-    typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID,
-    					    edm::ParameterSet,
-					    ProcessParameterSetIDCache>
-                                            Registry;
+      static Registry* instance();
+
+      /// Retrieve the value_type object with the given key.
+      /// If we return 'true', then 'result' carries the
+      /// value_type object.
+      /// If we return 'false, no matching key was found, and
+      /// the value of 'result' is undefined.
+      bool getMapped(key_type const& k, value_type& result) const;
+
+      /** Retrieve a pointer to the value_type object with the given key.
+       If there is no object associated with the given key 0 is returned.
+       */
+      value_type const* getMapped(key_type const& k) const;
+
+      /// Insert the given value_type object into the
+      /// registry. If there was already a value_type object
+      /// with the same key, we don't change it. This should be OK,
+      /// since it should have the same contents if the key is the
+      /// same.  Return 'true' if we really added the new
+      /// value_type object, and 'false' if the
+      /// value_type object was already present.
+      bool insertMapped(value_type const& v);
+
+      ///Not thread safe
+      void clear();
+
+      struct key_hash {
+        std::size_t operator()(key_type const& iKey) const{
+          return iKey.smallHash();
+        }
+      };
+      typedef tbb::concurrent_unordered_map<key_type,value_type,key_hash> map_type;
+      typedef map_type::const_iterator const_iterator;
+
+      const_iterator begin() const {
+        return m_map.begin();
+      }
+
+      const_iterator end() const {
+        return m_map.end();
+      }
+
+      bool empty() const {
+        return m_map.empty();
+      }
+
+      size_t size() const {
+        return m_map.size();
+      }
+
+      /// Fill the given map with the persistent form of each
+      /// ParameterSet in the registry.
+      typedef std::map<ParameterSetID, ParameterSetBlob> regmap_type;
+      void fillMap(regmap_type& fillme) const;
+
+      void print(std::ostream& os) const;
+
+    private:
+      map_type m_map;
+    };
 
     /// Associated free functions.
 
-    /// Insert the *tracked parts* of the given ParameterSet into the
-    /// Registry. If there was already a ParameterSet with the same
-    /// ID, we don't change itw. This should be OK, since it should
-    /// have the same contents if the ID is the same.
-    /// Return 'true' if we really added the new ParameterSet, and
-    /// 'false' if the ParameterSet was already present.
+    /// Save the ParameterSetID of the top-level ParameterSet.
+    void setProcessParameterSetID(ParameterSetID const& id);
 
-    bool insertParameterSetIntoRegistry(Registry* reg,
-					edm::ParameterSet const& p);
-
-    void loadAllNestedParameterSets(Registry* reg,
-				    edm::ParameterSet const& main);
-
-
-    /// Return the ParameterSetID of the top-level ParameterSet stored
-    /// in the given Registry. Note the the returned ParameterSetID may
-    /// be invalid; this will happen if the Registry has not yet been
-    /// filled.
-    edm::ParameterSetID getProcessParameterSetID(Registry const* reg);
-
-    /// Fill the given map with the persistent form of each
-    /// ParameterSet in the given registry.
-    typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> regmap_type;
-    void fill(Registry* reg, regmap_type& fillme);
-
+    /// Return the ParameterSetID of the top-level ParameterSet.
+    /// Note the the returned ParameterSetID may be invalid;
+    /// this will happen if the Registry has not yet been filled.
+    ParameterSetID const& getProcessParameterSetID();
   }  // namespace pset
 
-}  // namespace edm
+  ParameterSet const& getProcessParameterSet();
 
+}  // namespace edm
 
 #endif

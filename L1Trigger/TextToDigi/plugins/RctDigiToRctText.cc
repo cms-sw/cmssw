@@ -24,7 +24,7 @@ RctDigiToRctText::RctDigiToRctText(const edm::ParameterSet& iConfig) :
     if(!m_file[i].good()) {
       throw cms::Exception("RctDigiToRctTextTextFileOpenError")
 	<< "RctDigiToRctText::RctDigiToRctText : "
-	<< " couldn't create the file " << fileName << endl;
+	<< " couldn't create the file " << fileName << std::endl;
     }
   }
 
@@ -83,7 +83,7 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     /// debug
     if(crate>17 || id > 7)
       throw cms::Exception("RctDigiToRctTextElectronIndexOutBounds") 
-	<< "out of bounds indices  crate:" << crate << "id:" << id << endl;
+	<< "out of bounds indices  crate:" << crate << "id:" << id << std::endl;
     if(ldebug&&data!=0) 
       debug_NOTEMPTY[crate] = true;
     dstrm.str("");
@@ -93,7 +93,7 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  << " iso:"     << iso
 	  << " raw:"     << data
 	  << " \t cand:" << *iem;
-    if(debug_NOTEMPTY[crate]) fdebug << dstrm.str() << endl;
+    if(debug_NOTEMPTY[crate]) fdebug << dstrm.str() << std::endl;
   }
   
 
@@ -151,7 +151,7 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     << " bx:"    << nevt 
 	     << " crate:" << crate
 	     << "\t";
-      fdebug << dstrm.str() << endl;
+      fdebug << dstrm.str() << std::endl;
     }
   }
   
@@ -168,18 +168,18 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for (unsigned crate=0; crate<NUM_RCT_CRATES; crate++){
    
     sstrm.str("");
-    sstrm << "Crossing " << nevt << endl;
+    sstrm << "Crossing " << nevt << std::endl;
 
     for(int j=0; j<8; j++) {
       sstrm << setw(3) << setfill('0') << hex << (CAND[crate][j] & 0x3ff);
       if(j<7) sstrm << " ";
     }
     sstrm << setfill(' ') << dec;
-    m_file[crate] << sstrm.str() << endl;
+    m_file[crate] << sstrm.str() << std::endl;
 
     // debug
-    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << endl;
-    if(ldebug) LogDebug("Electrons") << sstrm.str() << endl;
+    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << std::endl;
+    if(ldebug) LogDebug("Electrons") << sstrm.str() << std::endl;
     
   }
 
@@ -195,8 +195,8 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	sstrm << " " << MIPbits[crate][card][j];
       }
     }
-    m_file[crate] << sstrm.str() << endl;
-    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << endl; //debug
+    m_file[crate] << sstrm.str() << std::endl;
+    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << std::endl; //debug
     
     /// quiet bits
     sstrm.str("");
@@ -205,8 +205,8 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	sstrm << " " << QIEbits[crate][card][j];
       }
     }
-    m_file[crate] << sstrm.str() << endl;
-    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << endl; //debug
+    m_file[crate] << sstrm.str() << std::endl;
+    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << std::endl; //debug
 
     /// region info
     sstrm.str("");
@@ -222,8 +222,8 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       }
     }
-    m_file[crate] << sstrm.str() << endl;
-    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << endl << endl; //debug
+    m_file[crate] << sstrm.str() << std::endl;
+    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << std::endl << std::endl; //debug
 
     
     /// HF
@@ -234,8 +234,8 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	sstrm << " " << setw(2) << setfill('0') << hex << et;
       }
     }
-    m_file[crate] << sstrm.str() << endl;
-    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << endl; //debug
+    m_file[crate] << sstrm.str() << std::endl;
+    if(debug_NOTEMPTY[crate]) fdebug << sstrm.str() << std::endl; //debug
     sstrm << setfill(' ') << dec;
 
   }// end crate loop 

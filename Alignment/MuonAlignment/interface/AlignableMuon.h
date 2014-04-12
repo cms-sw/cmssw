@@ -4,35 +4,19 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2007/03/02 15:46:12 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/04/25 21:23:15 $
+ *  $Revision: 1.21 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
-#include <vector>
-
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
-#include <Geometry/DTGeometry/interface/DTLayer.h>
-#include <Geometry/DTGeometry/interface/DTSuperLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
+class CSCGeometry;
 
 // Classes that will be used to construct the muon
 class AlignableDTBarrel;
@@ -41,13 +25,13 @@ class AlignableDTStation;
 class AlignableDTChamber;
 class AlignableCSCEndcap;
 class AlignableCSCStation;
+class AlignableCSCRing;
 class AlignableCSCChamber;
 
 
 
 
 /// Constructor of the full muon geometry.
-/// This object is stored to the EventSetup for further retrieval
 
 class AlignableMuon: public AlignableComposite 
 {
@@ -60,29 +44,25 @@ public:
   /// Destructor
   ~AlignableMuon();
   
-public:
 
-  // Some typdefs to simplify notation
-  typedef GlobalPoint           _PositionType;
-  typedef TkRotation<float>     _RotationType;
-
-  
   /// Return all components
-  virtual std::vector<Alignable*> components() const { return theMuonComponents; }
+  virtual align::Alignables components() const { return theMuonComponents; }
 
   /// Alignable tracker has no mother
   virtual Alignable* mother() { return 0; }
 
   // Methods to return specific of components
-  std::vector<Alignable*> DTSuperLayers();
-  std::vector<Alignable*> DTChambers();
-  std::vector<Alignable*> DTStations();
-  std::vector<Alignable*> DTWheels();
-  std::vector<Alignable*> DTBarrel();
-  std::vector<Alignable*> CSCLayers();
-  std::vector<Alignable*> CSCChambers();
-  std::vector<Alignable*> CSCStations();
-  std::vector<Alignable*> CSCEndcaps();
+  align::Alignables DTLayers();
+  align::Alignables DTSuperLayers();
+  align::Alignables DTChambers();
+  align::Alignables DTStations();
+  align::Alignables DTWheels();
+  align::Alignables DTBarrel();
+  align::Alignables CSCLayers();
+  align::Alignables CSCChambers();
+  align::Alignables CSCStations();
+  align::Alignables CSCRings();
+  align::Alignables CSCEndcaps();
 
   // Get DT alignments sorted by DetId
   Alignments* dtAlignments();
@@ -108,9 +88,6 @@ private:
 
   // Get the Surface
   AlignableSurface computeSurface();
-
-  // Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableMuon; }
 
   // Get alignments sorted by DetId
   Alignments* alignments() const;
@@ -141,14 +118,12 @@ private:
   
   std::vector<AlignableCSCChamber*>  theCSCChambers;
   std::vector<AlignableCSCStation*>  theCSCStations;
+  std::vector<AlignableCSCRing*>     theCSCRings;
   std::vector<AlignableCSCEndcap*>   theCSCEndcaps;
 
-  std::vector<Alignable*> theMuonComponents;
+  align::Alignables theMuonComponents;
 
 };
 
 #endif //AlignableMuon_H
-
-
-
 

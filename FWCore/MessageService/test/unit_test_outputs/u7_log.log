@@ -1,15 +1,11 @@
-%MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1st record. Run 1, Event 1
-%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
 %MSG-w cat_A:  UnitTestClient_D:sendSomeMessages Run: 1 Event: 1
 This message should not appear in the framework job report
 %MSG
 %MSG-w special:  UnitTestClient_D:sendSomeMessages Run: 1 Event: 1
 This message should appear in restrict but the others should not
 %MSG
-%MSG-i FwkReport:  main_input:source Run: 1 Event: 1
-Begin processing the 2nd record. Run 1, Event 2
-%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
 %MSG-w cat_A:  UnitTestClient_D:sendSomeMessages Run: 1 Event: 2
 This message should not appear in the framework job report
 %MSG

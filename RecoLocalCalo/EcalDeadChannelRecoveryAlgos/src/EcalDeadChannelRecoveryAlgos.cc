@@ -13,7 +13,6 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:02:06 CEST 2007
-// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.3 2007/05/09 14:29:12 gdaskal Exp $
 //
 // May 4th 2007 S. Beauceron : modification of MakeNxNMatrice in order to use vectors
 //
@@ -48,7 +47,7 @@ using namespace cms;
 using namespace std;
 
 
-EcalDeadChannelRecoveryAlgos::EcalDeadChannelRecoveryAlgos(const CaloTopology theCaloTopology)
+EcalDeadChannelRecoveryAlgos::EcalDeadChannelRecoveryAlgos(const CaloTopology  * theCaloTopology)
 //EcalDeadChannelRecoveryAlgos::EcalDeadChannelRecoveryAlgos(const edm::ESHandle<CaloTopology> & theCaloTopology)
 {
   //now do what ever initialization is needed
@@ -70,30 +69,46 @@ EcalDeadChannelRecoveryAlgos::~EcalDeadChannelRecoveryAlgos()
 //
 
 // ------------ method called to for each event  ------------
-EcalRecHit EcalDeadChannelRecoveryAlgos::Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut)
+EcalRecHit EcalDeadChannelRecoveryAlgos::correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, std::string algo_, double Sum8Cut)
 {
   double NewEnergy=0.0;
   
   double MNxN[121];
+  int IndDeadChannel[1]={-1};
+
+  double sum8 = MakeNxNMatrice(Id,hit_collection,IndDeadChannel,MNxN);
 
   if(algo_=="Spline"){
      
-    if(MakeNxNMatrice(Id,hit_collection,MNxN)>Sum8Cut){
-      NewEnergy = CorrectDeadChannelsClassic(MNxN,Id.ieta());
+    if(sum8>Sum8Cut){
+      if(IndDeadChannel[0]>0)NewEnergy = CorrectDeadChannelsClassic(MNxN,Id.ieta());
     }
   }else if(algo_=="NeuralNetworks"){
-   
-    if(MakeNxNMatrice(Id,hit_collection,MNxN)>Sum8Cut){
-      NewEnergy = CorrectDeadChannelsNN(MNxN);
+    if(sum8>Sum8Cut){
+      if(IndDeadChannel[0]>0)NewEnergy = CorrectDeadChannelsNN(MNxN);
     }
   }
   
+  // protect against non physical high values
+  // < sum(energy in neighbours) > = 0.8 * xtal with maximum energy
+  // => can choose 5 as highest possible energy to be assigned to 
+  //    the dead channel
+  uint32_t flag = 0;
+  if ( NewEnergy > 5. * sum8 ) {
+          NewEnergy = 0;
+          //flag = EcalRecHit::kDead;
+  }
 
-  EcalRecHit NewHit(Id,NewEnergy,0);
+  EcalRecHit NewHit(Id,NewEnergy,0, flag);
   return NewHit;
 
 }
 
+// FIXME -- temporary backward compatibility
+EcalRecHit EcalDeadChannelRecoveryAlgos::Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, std::string algo_, double Sum8Cut)
+{
+        return correct(Id, hit_collection, algo_, Sum8Cut);
+}
 
 //==============================================================================================================
 //==============================================================================================================
@@ -102,23 +117,24 @@ EcalRecHit EcalDeadChannelRecoveryAlgos::Correct(const EBDetId Id, const EcalRec
 
 
 
-double EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHitCollection* hit_collection, double *MNxN){
+double EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHitCollection* hit_collection, int *IndDeadChannel, double *MNxN){
 
-
+  //  std::cout<<" In MakeNxNMatrice "<<std::endl;
 
   //Build NxN around a given cristal
   for(int i=0; i<121;i++)MNxN[i]=0.0;
   
-  //cout<<"===================================================================="<<endl;
-  //cout<<" Dead Cell CENTRAL  eta = "<< itID.ieta()<<" ,  phi = "<< itID.iphi()<<endl;
+//   std::cout<<"===================================================================="<<std::endl;
+//   std::cout<<" Dead Cell CENTRAL  eta = "<< itID.ieta()<<" ,  phi = "<< itID.iphi()<<std::endl;
 
-  const CaloSubdetectorTopology* topology=calotopo.getSubdetectorTopology(DetId::Ecal,EcalBarrel);
+  const CaloSubdetectorTopology* topology=calotopo->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
   int size =5;
   std::vector<DetId> NxNaroundDC = topology->getWindow(itID,size,size);
+  //  std::cout<<"===================================================================="<<std::endl;
   
   
-  //cout<<"NxNaroundDC size is = "<<NxNaroundDC.size()<<endl;
-  vector<DetId>::const_iterator theCells;
+  //  std::cout<<"NxNaroundDC size is = "<<NxNaroundDC.size()<<std::endl;
+  std::vector<DetId>::const_iterator theCells;
   
   EBDetId EBCellMax = itID;
   double EnergyMax = 0.0;
@@ -134,8 +150,8 @@ double EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHi
       continue; 
     }
   } 
-  if(EBCellMax.null()){cout<<" Error No maximum found around dead channel, no corrections applied"<<endl;return 0;}
-  //cout << " Max Cont Crystal eta phi E = " << EBCellMax.ieta() <<" "<< EBCellMax.iphi() <<" "<< EnergyMax<<endl;
+  if(EBCellMax.null()){/*cout<<" Error No maximum found around dead channel, no corrections applied"<<std::endl;*/return 0;}
+  //  std::cout << " Max Cont Crystal eta phi E = " << EBCellMax.ieta() <<" "<< EBCellMax.iphi() <<" "<< EnergyMax<<std::endl;
 
 
   
@@ -150,7 +166,7 @@ double EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHi
   double ESUMis=0.0;
   int theIndex=0;
 
-  vector<DetId>::const_iterator itCells;
+  std::vector<DetId>::const_iterator itCells;
   for(itCells=NxNaroundMaxCont.begin();itCells<NxNaroundMaxCont.end();itCells++){
     EBDetId EBitCell = EBDetId(*itCells);
     int CReta = EBitCell.ieta();
@@ -162,7 +178,7 @@ double EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHi
       if( goS_it !=  hit_collection->end() ) Energy=goS_it->energy();
     }
 
-    //cout<<"Around DC we have eta,phi,E "<<CReta<<" "<<CRphi<<" "<<Energy<<endl;
+    //    std::cout<<"Around DC we have eta,phi,E "<<CReta<<" "<<CRphi<<" "<<Energy<<std::endl;
 
     //============
     int ietaCorr = 0;
@@ -179,7 +195,8 @@ double EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHi
     int MIndex = ieta+iphi*FixedSize;
     if(abs(CReta)<=85)
     MNxN[MIndex]=Energy;
-    
+    if(EBitCell == itID)IndDeadChannel[0]= MIndex;
+
     
     //============
 
@@ -187,14 +204,15 @@ double EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHi
 
     
     //We add up the energy in 5x5 around the MaxCont to decide if we will correct for DCs
-    if(theIndex>=36 && theIndex<=40)ESUMis +=  Energy;
-    if(theIndex>=47 && theIndex<=51)ESUMis +=  Energy;
-    if(theIndex>=58 && theIndex<=62)ESUMis +=  Energy;
-    if(theIndex>=69 && theIndex<=73)ESUMis +=  Energy;
-    if(theIndex>=80 && theIndex<=84)ESUMis +=  Energy;
+    //  if(theIndex>=36 && theIndex<=40)ESUMis +=  Energy;
+    //SB: Modify to sum8 only
+    if(theIndex>=48 && theIndex<=50)ESUMis +=  Energy;
+    if(theIndex>=59 && theIndex<=61)ESUMis +=  Energy;
+    if(theIndex>=70 && theIndex<=72)ESUMis +=  Energy;
+    //    if(theIndex>=80 && theIndex<=84)ESUMis +=  Energy;
     theIndex++;
   }
-  //cout<<"Around MaxCont Collected Energy in 5x5 is =  "<< ESUMis  <<endl;
+  //  std::cout<<"Around MaxCont Collected Energy in 5x5 is =  "<< ESUMis  <<std::endl;
   //So now, we have a vector which is ordered around the Maximum containement and which contains a dead channel as:
     //Filling of the vector : NxNaroundDC with N==11 Typo are possible...
     // 000 is Maximum containement which is in +/- 5 from DC

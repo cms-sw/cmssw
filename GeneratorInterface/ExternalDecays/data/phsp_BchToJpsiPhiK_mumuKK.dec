@@ -1,0 +1,38 @@
+#
+# This is the decay file for B+ -> Jpsi ( -> mu mu ) Phi ( -> K K ) K+ (and c.c.) 
+#
+# Physics : pure phase space
+#
+# By: Alexis Pompili (pompili@ba.infn.it)
+# 
+# Date: 2/27/10
+#
+################################################################################
+#
+Alias      MyB+   B+
+Alias      MyB-   B-
+ChargeConj MyB-   MyB+ 
+#
+Alias      MyJpsi J/psi
+ChargeConj MyJpsi MyJpsi
+#
+Alias      MyPhi phi
+ChargeConj MyPhi MyPhi
+#
+Decay MyJpsi
+1.000  mu+       mu-                     PHOTOS VLL;
+Enddecay
+#
+Decay MyPhi
+1.000  K+        K-                      VSS;
+Enddecay
+#
+Decay MyB+
+1.000     MyJpsi  MyPhi  K+         PHSP;
+Enddecay
+#
+Decay MyB-
+1.000     MyJpsi  MyPhi  K-         PHSP;
+Enddecay
+#
+End

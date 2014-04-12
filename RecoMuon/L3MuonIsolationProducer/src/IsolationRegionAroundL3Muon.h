@@ -4,22 +4,27 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 
 class IsolationRegionAroundL3Muon : public TrackingRegionProducer {
 
 public:
 
-  IsolationRegionAroundL3Muon(const edm::ParameterSet& cfg) { 
+  IsolationRegionAroundL3Muon(const edm::ParameterSet& cfg,
+	edm::ConsumesCollector && iC) { 
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
-    theVertexSrc   = regionPSet.getParameter<std::string>("vertexSrc");
-    theInputTrkSrc = regionPSet.getParameter<edm::InputTag>("TrkSrc");
+    theVertexSrc   = regionPSet.getParameter<edm::InputTag>("vertexSrc");
+    if (theVertexSrc.label().length()>1) theVertexToken   = iC.consumes<reco::VertexCollection>(theVertexSrc);
+    theInputTrkToken = iC.consumes<reco::TrackCollection>(regionPSet.getParameter<edm::InputTag>("TrkSrc"));
 
     thePtMin              = regionPSet.getParameter<double>("ptMin");
     theOriginRadius       = regionPSet.getParameter<double>("originRadius");
@@ -29,6 +34,7 @@ public:
 
     theDeltaEta = regionPSet.getParameter<double>("deltaEtaRegion");
     theDeltaPhi =  regionPSet.getParameter<double>("deltaPhiRegion");
+    theMeasurementTrackerToken = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<std::string>("measurementTrackerName"));
   }   
 
   virtual ~IsolationRegionAroundL3Muon(){}
@@ -42,9 +48,9 @@ public:
     // get highest Pt pixel vertex (if existing)
     double deltaZVertex =  theOriginHalfLength;
     double originz = theOriginZPos;
-    if (theVertexSrc.length()>1) {
+    if (theVertexSrc.label().length()>1) {
       edm::Handle<reco::VertexCollection> vertices;
-      ev.getByLabel(theVertexSrc,vertices);
+      ev.getByToken(theVertexToken,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
       if (vertCollection.size()>0) {
@@ -56,14 +62,20 @@ public:
     }
 
     edm::Handle<reco::TrackCollection> trks;
-    ev.getByLabel(theInputTrkSrc, trks);
+    ev.getByToken(theInputTrkToken, trks);
+
+    edm::Handle<MeasurementTrackerEvent> hmte;
+    ev.getByToken(theMeasurementTrackerToken, hmte);
+    const MeasurementTrackerEvent *measurementTrackerEvent = hmte.product();
 
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
-      double vz = (theVertexZconstrained) ? vz = iTrk->dz() : originz;
+      double vz = (theVertexZconstrained) ? iTrk->dz() : originz;
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
       result.push_back( 
           new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(vz)), 
-          thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi) );
+					       thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
+					       RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips,
+                                               true,measurementTrackerEvent) );
     }
 
     return result;
@@ -71,8 +83,9 @@ public:
 
 private:
 
-  std::string theVertexSrc;
-  edm::InputTag theInputTrkSrc;
+  edm::InputTag theVertexSrc;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexToken;
+  edm::EDGetTokenT<reco::TrackCollection> theInputTrkToken;
 
   double thePtMin; 
   double theOriginRadius; 
@@ -82,6 +95,7 @@ private:
 
   double theDeltaEta; 
   double theDeltaPhi;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerToken;
 };
 
 #endif 

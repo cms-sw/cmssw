@@ -5,8 +5,6 @@
  *  Fit the Tmax histograms with a gaussian 
  *  returning the mean values and the sigmas.
  *
- *  $Date: 2006/11/28 14:08:41 $
- *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include <vector> 
@@ -27,7 +25,7 @@ public:
   virtual ~DTMeanTimerFitter();
 
   /// Fit the TMax histos and evaluate VDrift and resolution
-  std::vector<float> evaluateVDriftAndReso (TString N);
+  std::vector<float> evaluateVDriftAndReso (const TString& N);
 
   /// Set the verbosity of the output: 0 = silent, 1 = info, 2 = debug
   void setVerbosity(unsigned int lvl) {

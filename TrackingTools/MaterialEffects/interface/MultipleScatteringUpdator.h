@@ -6,53 +6,38 @@
  *  to a trajectory state. Uses radiation length from medium properties.
  *  Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:21:30 $
- *  $Revision: 1.2.2.1 $
  *  \author todorov, cerati
  */
 
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
-class MultipleScatteringUpdator : public MaterialEffectsUpdator 
+class MultipleScatteringUpdator GCC11_FINAL : public MaterialEffectsUpdator 
 {
-#ifndef CMS_NO_RELAXED_RETURN_TYPE
-  virtual MultipleScatteringUpdator* clone() const
-#else
-  virtual MaterialEffectsUpdator* clone() const
-#endif
-  {
+  virtual dso_export MultipleScatteringUpdator* clone() const {
     return new MultipleScatteringUpdator(*this);
   }
 
 public:
-  MultipleScatteringUpdator( float mass ) :
+  /// Specify assumed mass of particle for material effects.
+  /// If ptMin > 0, then the rms muliple scattering angle will be calculated taking into account the uncertainty
+  /// in the reconstructed track momentum. (By default, it is neglected). However, a lower limit on the possible
+  /// value of the track Pt will be applied at ptMin, to avoid the rms multiple scattering becoming too big.
+  MultipleScatteringUpdator(double mass, double ptMin=-1. ) :
     MaterialEffectsUpdator(mass),
-    theLastDz(0.),
-    theLastP(0.),
-    theLastPropDir(alongMomentum),
-    theLastRadLength(0.) {}
+    thePtMin(ptMin) {}
   /// destructor
   ~MultipleScatteringUpdator() {}
-  /// reimplementation of deltaP (since always 0)
-  virtual double deltaP (const TrajectoryStateOnSurface&, const PropagationDirection) const {
-    return 0.;
-  }
 
-private:
+
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const;
 
-protected:
-  // check of arguments for use with cached values
-  virtual bool newArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const;
-  // storage of arguments for later use of 
-  virtual void storeArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const;
 
 private:  
-  mutable float theLastDz;
-  mutable float theLastP;
-  mutable PropagationDirection theLastPropDir;
-  mutable float theLastRadLength;
+
+  double thePtMin;
+
 };
 
 #endif

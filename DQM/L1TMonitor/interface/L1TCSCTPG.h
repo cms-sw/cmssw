@@ -4,8 +4,6 @@
 /*
  * \file L1TCSCTPG.h
  *
- * $Date: 2007/02/19 19:24:08 $
- * $Revision: 1.1 $
  * \author J. Berryhill
  *
 */
@@ -23,8 +21,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -54,14 +52,18 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
+
+// BeginRun
+ void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
+
 
 // EndJob
 void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   MonitorElement* csctpgpattern;
   MonitorElement* csctpgquality;
@@ -75,8 +77,9 @@ private:
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
-  ofstream logFile_;
+  std::ofstream logFile_;
   edm::InputTag csctpgSource_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> csctpgSource_token_;
 };
 
 #endif

@@ -1,6 +1,3 @@
-// Last commit: $Id: $
-// Latest tag:  $Name:  $
-// Location:    $Source: $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,7 +13,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-void test_PedestalsBuilder::beginJob( const edm::EventSetup& setup ) {
+void test_PedestalsBuilder::analyze( const edm::Event& event, const edm::EventSetup& setup ) {
   
   LogTrace(mlCabling_) 
     << "[test_PedestalsBuilder::" << __func__ << "]"
@@ -52,9 +49,7 @@ void test_PedestalsBuilder::beginJob( const edm::EventSetup& setup ) {
 
     // Extract peds and low/high thresholds
     for ( uint16_t istrip = 0; istrip < nstrips; istrip++ ) {
-      ss << peds->getPed( istrip, range ) << "/"
-	 << peds->getLowTh( istrip, range ) << "/"
-	 << peds->getHighTh( istrip, range ) << ", ";
+      ss << peds->getPed( istrip, range ) << ", ";
     }
 
     LogTrace(mlCabling_) << ss.str();

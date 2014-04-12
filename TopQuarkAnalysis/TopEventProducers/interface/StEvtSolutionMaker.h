@@ -10,34 +10,33 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitterEtEtaPhi.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitterEtThetaPhi.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitterEMom.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitter.h"
 //#include "TopQuarkAnalysis/TopJetCombination/interface/TtJetCombinationProbability.h"
 
 class StEvtSolutionMaker : public edm::EDProducer {
-   public:
-      explicit StEvtSolutionMaker(const edm::ParameterSet&);
-      ~StEvtSolutionMaker();
+ public:
 
+  explicit StEvtSolutionMaker(const edm::ParameterSet&);
+  ~StEvtSolutionMaker();
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      StKinFitterEtThetaPhi * myKinFitterEtThetaPhi;
-      StKinFitterEtEtaPhi   * myKinFitterEtEtaPhi;
-      StKinFitterEMom       * myKinFitterEMom;
-      //std::vector<TtJetCombinationProbability> jetCombProbs;
-      edm::InputTag electronSrc_;
-      edm::InputTag muonSrc_;
-      edm::InputTag metSrc_;
-      edm::InputTag lJetSrc_;
-      edm::InputTag bJetSrc_;
-      std::string leptonFlavour_;
-  //      std::string jetInput_;
-  //      bool addJetCombProb_, 
-      bool addLRJetComb_, doKinFit_, matchToGenEvt_;
-      int maxNrIter_;
-      double maxDeltaS_, maxF_;
-      int param_;
-      std::vector<int> constraints_;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+
+ private:
+
+  StKinFitter * myKinFitter;
+  //std::vector<TtJetCombinationProbability> jetCombProbs;
+  edm::EDGetTokenT<std::vector<pat::Electron> > electronSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::Muon> > muonSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::MET> > metSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetSrcToken_;
+  edm::EDGetTokenT<StGenEvent> genEvtSrcToken_;
+  std::string leptonFlavour_;
+  int jetCorrScheme_;
+  // std::string jetInput_;
+  // bool addJetCombProb_,
+  bool addLRJetComb_, doKinFit_, matchToGenEvt_;
+  int maxNrIter_;
+  double maxDeltaS_, maxF_;
+  int jetParam_, lepParam_, metParam_;
+  std::vector<int> constraints_;
 };

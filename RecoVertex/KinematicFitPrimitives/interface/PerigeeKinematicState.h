@@ -41,7 +41,7 @@ public:
  bool isValid() const
  {return vl;}
 
- const KinematicState theState() const
+ const KinematicState & theState() const
  {
   if(!isValid()) throw VertexException("PerigeeKinematicState::initial state is requested for the invalid state");
   return inState;

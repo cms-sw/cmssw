@@ -3,23 +3,31 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-//#include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h" 
+#include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
+#include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
 
 #include <iostream>
 
-ESRawToDigi::ESRawToDigi(ParameterSet const& ps) 
+ESRawToDigi::ESRawToDigi(edm::ParameterSet const& ps) 
 {
-
-  label_ = ps.getParameter<string>("Label");
-  instanceName_ = ps.getParameter<string>("InstanceES");
-  ESdigiCollection_ = ps.getParameter<string>("ESdigiCollection");
-  debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
+   
+  edm::InputTag sourceTag = ps.getParameter<edm::InputTag>("sourceTag");
+  ESdigiCollection_ = ps.getParameter<std::string>("ESdigiCollection");
+  regional_         = ps.getUntrackedParameter<bool>("DoRegional",false);
+  edm::InputTag fedsListLabel     
+      = ps.getUntrackedParameter<edm::InputTag>("ESFedsListLabel", edm::InputTag(":esfedslist"));
+  debug_            = ps.getUntrackedParameter<bool>("debugMode", false);
 
   ESUnpacker_ = new ESUnpacker(ps);
 
-  //produces<ESRawDataCollection>();
+  produces<ESRawDataCollection>();
+  produces<ESLocalRawDataCollection>();
   produces<ESDigiCollection>();
+  dataToken_=consumes<FEDRawDataCollection>(sourceTag);
+  if (regional_){
+      fedsToken_=consumes<ESListOfFEDS>(fedsListLabel);
+  }
 }
 
 ESRawToDigi::~ESRawToDigi(){
@@ -30,30 +38,47 @@ ESRawToDigi::~ESRawToDigi(){
 
 void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
-  pair<int,int> ESFEDIds = FEDNumbering::getPreShowerFEDIds();
-
   // Input
-  Handle<FEDRawDataCollection> rawdata;
-  try {
-    e.getByLabel(label_, instanceName_, rawdata);
-  } catch ( cms::Exception &e ) { 
+  edm::Handle<FEDRawDataCollection> rawdata;
+  e.getByToken(dataToken_, rawdata);
+  if (!rawdata.isValid()) {
     LogDebug("") << "ESRawToDigi : Error! can't get rawdata!" << std::endl;
   }
   
+  std::vector<int> esFeds_to_unpack;
+  if (regional_) {
+    edm::Handle<ESListOfFEDS> fedslist;
+    e.getByToken(fedsToken_, fedslist);
+    esFeds_to_unpack = fedslist->GetList();
+  }
+
   // Output
-  //auto_ptr<ESRawDataCollection> productDCC(new ESRawDataCollection);
-  auto_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
+  std::auto_ptr<ESRawDataCollection> productDCC(new ESRawDataCollection);
+  std::auto_ptr<ESLocalRawDataCollection> productKCHIP(new ESLocalRawDataCollection);
+  std::auto_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
   
   ESDigiCollection digis;
 
-  for (int fedId=ESFEDIds.first; fedId<=ESFEDIds.second; ++fedId) {
+  if (regional_) {
+    for (unsigned int i=0; i<esFeds_to_unpack.size(); ++i) {
+      
+      const FEDRawData& fedRawData = rawdata->FEDData(esFeds_to_unpack[i]);
+      ESUnpacker_->interpretRawData(esFeds_to_unpack[i], fedRawData, *productDCC, *productKCHIP, *productDigis);
+      
+      if (debug_) std::cout<<"FED : "<<esFeds_to_unpack[i]<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<std::endl;
+    }   
+  } else {
+    for (int fedId=FEDNumbering::MINPreShowerFEDID; fedId<=FEDNumbering::MAXPreShowerFEDID; ++fedId) {
+      
+      const FEDRawData& fedRawData = rawdata->FEDData(fedId);
+      ESUnpacker_->interpretRawData(fedId, fedRawData, *productDCC, *productKCHIP, *productDigis);
+      
+      if (debug_) std::cout<<"FED : "<<fedId<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<std::endl;
+    }   
+  }
 
-    const FEDRawData& fedRawData = rawdata->FEDData(fedId);
-    ESUnpacker_->interpretRawData(fedId, fedRawData, *productDigis);
-
-    if (debug_) cout<<"FED : "<<fedId<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<endl;
-  }   
-   
-  //e.put(productDCC);
+  e.put(productDCC);
+  e.put(productKCHIP);
   e.put(productDigis, ESdigiCollection_);
 }
+

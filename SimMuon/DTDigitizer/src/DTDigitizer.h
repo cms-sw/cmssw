@@ -6,19 +6,22 @@
  *  The parametrisation function in DTDriftTimeParametrization 
  *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
  *
- *  $Date: 2006/06/01 09:08:32 $
- *  $Revision: 1.7 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include <vector>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class DTLayer;
 class PSimHit;
@@ -58,13 +61,14 @@ class DTDigitizer : public edm::EDProducer {
   // if status flag == false, hit has to be discarded.
   std::pair<float,bool> computeTime(const DTLayer* layer,const DTWireId &wireId, 
 				    const PSimHit *hit, 
-				    const LocalVector &BLoc); //FIXME?? 
+				    const LocalVector &BLoc,
+                                    CLHEP::HepRandomEngine*); //FIXME??
   
   // Calculate the drift time using the GARFIELD cell parametrization,
   // taking care of all conversions from CMSSW local coordinates
   // to the conventions used for the parametrization.
   std::pair<float,bool> driftTimeFromParametrization(float x, float alpha, float By,
-						     float Bz) const;
+						     float Bz, CLHEP::HepRandomEngine*) const;
   
   // Calculate the drift time for the cases where it is not possible
   // to use the GARFIELD cell parametrization.
@@ -80,13 +84,13 @@ class DTDigitizer : public edm::EDProducer {
   //FiXME put alias for the map.
   void storeDigis(DTWireId &wireId, 
 		  TDContainer &hits,
-		  DTDigiCollection &output);
+		  DTDigiCollection &output, DTDigiSimLinkCollection &outputLinks);
   
   // Debug output
   void dumpHit(const PSimHit * hit, float xEntry, float xExit, const DTTopology &topo);
   
   // Double half-gaussian smearing.
-  float asymGausSmear(double mean, double sigmaLeft, double sigmaRight) const;
+  float asymGausSmear(double mean, double sigmaLeft, double sigmaRight, CLHEP::HepRandomEngine*) const;
   
   // Allow debugging and testing.
   friend class DTDigitizerAnalysis;
@@ -102,8 +106,19 @@ class DTDigitizer : public edm::EDProducer {
   std::string syncName;
   DTDigiSyncBase *theSync;
 
+  std::string geometryType;
+
   // Ideal model. Used for debug
   bool IdealModel;
   float theConstVDrift;  
+
+  // to configure the creation of Digi-Sim links
+  bool MultipleLinks;
+  float LinksTimeWindow;
+  
+  //Name of Collection use for create the XF 
+  std::string mix_;
+  std::string collection_for_XF;
+
 };
 #endif

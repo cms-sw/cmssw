@@ -32,8 +32,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
-#include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 //
 // class declaration
@@ -41,17 +41,31 @@
 
 class DTConfigTrivialProducer : public edm::ESProducer {
 public:
-  DTConfigTrivialProducer(const edm::ParameterSet&);
-  ~DTConfigTrivialProducer();
   
-  std::auto_ptr<DTConfigManager> produce (const DTConfigManagerRcd&);
+  //! Constructor
+  DTConfigTrivialProducer(const edm::ParameterSet&);
 
-  void buildManager();
+  //! destructor
+  ~DTConfigTrivialProducer();
+
+  //! ES produce method
+  std::auto_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
 
 private:
-  // ----------member data ---------------------------
+
+  //! Build Config Manager
+  void buildManager();
+
+  //! Build Config Pedestals
+  DTConfigPedestals buildTrivialPedestals();
+
+  std::string mapEntryName(const DTChamberId & chambid) const;
+
+  bool m_debug;
   edm::ParameterSet m_ps;
   DTConfigManager* m_manager;
+  DTTPGParameters* m_tpgParams;
+
 };
 
 #endif

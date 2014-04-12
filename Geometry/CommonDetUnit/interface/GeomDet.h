@@ -4,19 +4,17 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2006/07/25 09:45:00 $
- *  $Revision: 1.10 $
  */
 
 
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
 #include <vector>
@@ -27,17 +25,17 @@ class GeomDet {
 public:
   typedef GeomDetEnumerators::SubDetector SubDetector;
 
-  explicit GeomDet(BoundPlane* plane);
+  explicit GeomDet(Plane* plane);
 
-  explicit GeomDet(const ReferenceCountingPointer<BoundPlane>& plane);
+  explicit GeomDet(const ReferenceCountingPointer<Plane>& plane);
 
   virtual ~GeomDet();
 
   /// The nominal surface of the GeomDet
-  virtual const BoundPlane& surface() const {return *thePlane;}
+  const Plane& surface() const {return *thePlane;}
 
   /// Same as surface(), kept for backward compatibility
-  virtual const BoundPlane& specificSurface() const {return *thePlane;}
+  const Plane& specificSurface() const {return *thePlane;}
   
   /// The position (origin of the R.F.)
   const Surface::PositionType& position() const {return surface().position();} 
@@ -71,27 +69,42 @@ public:
   } 
 
   /// The label of this GeomDet
-  virtual DetId geographicalId() const = 0;
+  DetId geographicalId() const { return m_detId; }
 
   /// Which subdetector
   virtual SubDetector subDetector() const = 0;  
 
-  /// Return pointer to alignment errors. 
-  /// Defaults to "null" if not reimplemented in the derived classes.
-  virtual AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
+  /// Return local alligment error
+  LocalError const & localAlignmentError() const { return theLocalAlignmentError;}
 
   /// Returns direct components, if any
   virtual std::vector< const GeomDet*> components() const = 0;
 
   /// Returns a component GeomDet given its DetId, if existing
   // FIXME: must become pure virtual
-  virtual const GeomDet* component(DetId id) const {return 0;}
+  virtual const GeomDet* component(DetId /*id*/) const {return 0;}
 
+  /// Return pointer to alignment errors. 
+  AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
+
+
+  // specific unix index in a given subdetector (such as Tracker)
+  int index() const { return m_index;}
+  void setIndex(int i) { m_index=i;}
+
+  protected:
+
+    void setDetId(DetId id) {
+      m_detId = id;
+    }
 
 private:
 
-  ReferenceCountingPointer<BoundPlane>  thePlane;
+  ReferenceCountingPointer<Plane>  thePlane;
   AlignmentPositionError*               theAlignmentPositionError;
+  LocalError                            theLocalAlignmentError;
+  DetId m_detId;
+  int m_index;
 
   /// Alignment part of interface, available only to friend 
   friend class DetPositioner;
@@ -111,12 +124,10 @@ private:
   void setPosition( const Surface::PositionType& position, 
 		    const Surface::RotationType& rotation);
 
-  /// create the AlignmentPositionError for this Det if not existing yet,
-  /// or replace the existing one by the given one. For adding, use the
-  /// +=,-=  methods of the AlignmentPositionError
+  /// set the LocalAlignmentError properly trasforming the ape 
   /// Does not affect the AlignmentPositionError of components (if any).
   
-  virtual void setAlignmentPositionError (const AlignmentPositionError& ape); 
+  bool setAlignmentPositionError (const AlignmentPositionError& ape); 
 
 };
   

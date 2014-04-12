@@ -9,12 +9,9 @@
  *  are implemented in this class,
  *  but some methods are left abstract.
  *
- *  $Date:  $
- *  $Revision: $
  */
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
@@ -26,35 +23,37 @@
 class BarrelDetLayer : public DetLayer {
  public:
 
-  BarrelDetLayer() : 
+  BarrelDetLayer(bool doHaveGroup) : DetLayer(doHaveGroup,true),
     theCylinder(0){}
   
   virtual ~BarrelDetLayer();
 
   /// GeometricSearchDet interface
-  virtual const BoundSurface&  surface() const { return *theCylinder;}
+  virtual const BoundSurface&  surface() const  GCC11_FINAL { return *theCylinder;}
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+	      const MeasurementEstimator&) const GCC11_FINAL;
 
   /// DetLayer interface
-  virtual Location location()   const {return GeomDetEnumerators::barrel;}
+  virtual Location location() const GCC11_FINAL {return GeomDetEnumerators::barrel;}
 
 
   /// Extension of the interface
-  virtual const BoundCylinder&  specificSurface() const { return *theCylinder;}
+  virtual const BoundCylinder&  specificSurface() const GCC11_FINAL { return *theCylinder;}
 
   bool contains( const Local3DPoint& p) const;
 
 
 
 protected:
-  void setSurface( BoundCylinder* cp);
 
   virtual void initialize();
 
+  void setSurface( BoundCylinder* cp);
   virtual BoundCylinder* computeSurface();
+
+  SimpleCylinderBounds const & bounds() const { return static_cast<SimpleCylinderBounds const &>(theCylinder->bounds());} 
 
 
 private:

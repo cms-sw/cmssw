@@ -1,5 +1,6 @@
 #include "Utilities/General/interface/ClassName.h"
 #include <cxxabi.h>
+#include <cstring>
 
 Demangle::Demangle(const char * sc) : demangle(0) {
   if (sc==0) return;

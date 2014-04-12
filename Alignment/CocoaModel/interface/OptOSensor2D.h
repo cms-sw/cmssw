@@ -39,7 +39,7 @@ public:
   virtual void fillExtraEntry( std::vector<ALIstring>& wordlist );
 
   // Get intersection in local coordinates
-  ALIdouble* convertPointToLocalCoordinates( const Hep3Vector& point);
+  ALIdouble* convertPointToLocalCoordinates( const CLHEP::Hep3Vector& point);
 
 #ifdef COCOA_VIS
   virtual void fillVRML();

@@ -16,7 +16,6 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: TotemSD.h,v 1.1 2006/05/17 16:18:57 sunanda Exp $
 //
  
 // system include files
@@ -69,12 +68,12 @@ private:
 
 private:
 
-  G4ThreeVector  SetToLocal(G4ThreeVector globalPoint);
+  G4ThreeVector  SetToLocal(const G4ThreeVector& globalPoint);
   void           GetStepInfo(G4Step* aStep);
   bool           HitExists();
   void           CreateNewHit();
   void           CreateNewHitEvo();
-  G4ThreeVector  PosizioEvo(G4ThreeVector,double ,double ,double, double,int&);
+  G4ThreeVector  PosizioEvo(const G4ThreeVector&,double ,double ,double, double,int&);
   void           UpdateHit();
   void           StoreHit(TotemG4Hit*);
   void           ResetForNewPrimary();

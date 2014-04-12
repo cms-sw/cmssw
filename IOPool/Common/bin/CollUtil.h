@@ -1,26 +1,24 @@
 #ifndef Modules_CollUtil_h
 #define Modules_CollUtil_h
 
-#include <vector>
+#include "Rtypes.h"
+
 #include <string>
 
-#include "TTree.h"
+class TFile;
+class TTree;
 
 namespace edm {
   
   TFile* openFileHdl(const std::string& fname) ;
   void printTrees(TFile *hdl);
-  void printBranchNames(TTree *tree);
   Long64_t numEntries(TFile *hdl, const std::string& trname);
-  void showEvents(TFile *hdl, const std::string& trname, const Long64_t& firstEv, const Long64_t& lastEv);
-/*   void showEventsAndEntries(TFile *hdl, const std::string& trname, const int firstEv, const int lastEv); */
+  void printBranchNames(TTree *tree);
   void longBranchPrint(TTree *tr);
+  std::string getUuid(TTree *uuidTree);
   void printUuids(TTree *uuidTree);
-  void printEventLists(std::string remainingEvents, int numevents, TFile *tfl, bool displayEntries);
-  //  void showEvents(TFile *hdl, const std::string& trname, const std::string& evtstr);
-
+  void printEventLists(TFile *tfl);
+  void printEventsInLumis(TFile* tfl);
 }
 
 #endif
-
-    

@@ -4,9 +4,6 @@
 /** \class EcalRecHitAbsAlgo
   *  Template algorithm to make rechits from uncalibrated rechits
   *
-  *  $Id: $
-  *  $Date:  $
-  *  $Revision: $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -22,12 +19,12 @@ class EcalRecHitAbsAlgo
   //EcalRecHitAbsAlgo() { };
 
   /// Destructor
-  //virtual ~EcalRecHitAbsAlgo() { };
+  virtual ~EcalRecHitAbsAlgo() { };
 
   /// make rechits from dataframes
 
   virtual void setADCToGeVConstant(const float& value) = 0;
-  virtual EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH, const float& intercalib) const = 0;
+  virtual EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH, const float& intercalib, const float& timecalib, const uint32_t &flags) const = 0;
 
 };
 #endif

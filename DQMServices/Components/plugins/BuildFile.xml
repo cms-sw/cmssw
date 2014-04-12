@@ -1,0 +1,13 @@
+<use   name="DQMServices/Core"/>
+<use   name="DQMServices/Components"/>
+<use   name="DataFormats/Histograms"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/Version"/>
+<use   name="DataFormats/Luminosity"/>
+<use   name="boost"/>
+<library   file="*.cc" name="DQMServicesComponentsPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

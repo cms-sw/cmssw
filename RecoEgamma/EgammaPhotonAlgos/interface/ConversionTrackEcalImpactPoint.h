@@ -20,13 +20,14 @@
 //
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackSuperClusterAssociation.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 //
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-
-
+//
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -44,8 +45,17 @@ public:
 
   ~ConversionTrackEcalImpactPoint();
 
-  std::vector<math::XYZPoint> find( const std::vector<reco::TransientTrack>& tracks ) ;
- private:
+  std::vector<math::XYZPointF> find( const std::vector<reco::TransientTrack>& tracks, 
+				    const edm::Handle<edm::View<reco::CaloCluster> >&  bcHandle );
+
+  std::vector<reco::CaloClusterPtr> matchingBC() const {return matchingBC_;}
+  void setMagneticField ( const MagneticField* mf ) { theMF_=mf;}
+ 
+
+ 
+
+ 
+private:
   
   const MagneticField* theMF_;
 
@@ -53,8 +63,8 @@ public:
 
   mutable PropagatorWithMaterial*    forwardPropagator_ ;
   PropagationDirection       dir_;
+  std::vector<reco::CaloClusterPtr> matchingBC_;
 
-  
 
 
 /** Hard-wired numbers defining the surfaces on which the crystal front faces lie. */

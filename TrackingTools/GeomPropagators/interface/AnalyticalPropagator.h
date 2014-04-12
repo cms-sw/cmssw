@@ -3,6 +3,7 @@
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include <cmath>
 #include <cfloat>
@@ -19,17 +20,18 @@ class MagneticField;
  *  (currently: propagation to arbitrary plane).
  */
 
-class AnalyticalPropagator : public Propagator {
+class AnalyticalPropagator GCC11_FINAL : public Propagator {
 
 public:
 
   AnalyticalPropagator( const MagneticField* field,
 		        PropagationDirection dir = alongMomentum,
-			float maxDPhi = 1.6) :
+			float maxDPhi = 1.6,bool isOld=true) :
     Propagator(dir),
     theMaxDPhi2(maxDPhi*maxDPhi),
     theMaxDBzRatio(0.5),
-    theField(field) {}
+    theField(field),
+    isOldPropagationType(isOld) {}
 
   ~AnalyticalPropagator() {}
   //
@@ -93,31 +95,31 @@ private:
   propagatedStateWithPath (const FreeTrajectoryState& fts, 
 			   const Surface& surface, 
 			   const GlobalTrajectoryParameters& gtp, 
-			   const double& s) const;
+			   const double& s) const dso_internal;
 
   /// parameter propagation to cylinder (returns position, momentum and path length)
   bool propagateParametersOnCylinder(const FreeTrajectoryState& fts, 
 				     const Cylinder& cylinder, 
 				     GlobalPoint& x, 
 				     GlobalVector& p, 
-				     double& s) const;
+				     double& s) const dso_internal;
 
   /// parameter propagation to plane (returns position, momentum and path length)
   bool propagateParametersOnPlane(const FreeTrajectoryState& fts, 
 				  const Plane& plane, 
 				  GlobalPoint& x, 
 				  GlobalVector& p, 
-				  double& s) const;
+				  double& s) const dso_internal;
   
   /// straight line parameter propagation to a plane
   bool propagateWithLineCrossing(const GlobalPoint&, const GlobalVector&, 
-				 const Plane&, GlobalPoint&, double&) const;
+				 const Plane&, GlobalPoint&, double&) const dso_internal;
   /// straight line parameter propagation to a cylinder
   bool propagateWithLineCrossing(const GlobalPoint&, const GlobalVector&, 
-				 const Cylinder&, GlobalPoint&, double&) const;
+				 const Cylinder&, GlobalPoint&, double&) const dso_internal;
   /// helix parameter propagation to a plane using HelixPlaneCrossing
   bool propagateWithHelixCrossing(HelixPlaneCrossing&, const Plane&, const float,
-				  GlobalPoint&, GlobalVector&, double& s) const;
+				  GlobalPoint&, GlobalVector&, double& s) const dso_internal;
 
   virtual const MagneticField* magneticField() const {return theField;}
 
@@ -126,6 +128,7 @@ private:
   float theMaxDPhi2;
   float theMaxDBzRatio;
   const MagneticField* theField;
+  bool isOldPropagationType;
 };
 
 #endif

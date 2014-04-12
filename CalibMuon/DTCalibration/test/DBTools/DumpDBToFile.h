@@ -6,8 +6,6 @@
  *  a txt file of the same format of ORCA MuBarDigiParameters
  *  (see DTCalibrationMap for details)
  *
- *  $Date: 2006/07/05 09:14:26 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -20,8 +18,10 @@ class DTMtime;
 class DTTtrig;
 class DTT0;
 class DTStatusFlag;
+class DTDeadFlag;
 class DTCalibrationMap;
 class DTReadOutMapping;
+class DTRecoUncertainties;
 
 class DumpDBToFile : public edm::EDAnalyzer {
 public:
@@ -32,8 +32,7 @@ public:
   virtual ~DumpDBToFile();
 
   // Operations
-
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
 
@@ -46,13 +45,16 @@ private:
   const DTTtrig *tTrigMap;
   const DTT0 *tZeroMap;
   const DTStatusFlag *statusMap;
+  const DTDeadFlag *deadMap;
   const DTReadOutMapping *channelsMap;
+  const DTRecoUncertainties *uncertMap;
 
   DTCalibrationMap *theCalibFile;
 
   std::string theOutputFileName;
 
   std::string dbToDump;
+  std::string dbLabel;
 
 };
 #endif

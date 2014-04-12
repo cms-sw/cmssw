@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : November 2006
-///  $Revision: 1.2 $
-///  $Date: 2006/11/30 10:34:04 $
+///  $Revision: 1.3 $
+///  $Date: 2007/03/16 17:03:02 $
 ///  (last update by $Author: flucke $)
 
 
@@ -63,7 +63,7 @@ class MillePedeVariablesIORoot : public AlignmentIORootBase, public AlignmentUse
 
  private:
   // variables for ROOT tree
-  enum {kMaxNumPar = 10}; // far above rigid body limit (RigidBodyAlignmentParameters::N_PARAM)
+  enum {kMaxNumPar = 20}; // slighly above 'two bowed surfaces' limit
 
   unsigned int myId;
   int          myObjId;

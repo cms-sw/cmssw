@@ -1,0 +1,154 @@
+How EventSelector::AcceptEvent() decides whether to accept an event for output:
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+Some Terminology:
+----------------
+Trigger names (in code, often triggernames or fullTriggerList) -
+
+  A collection of strings 
+
+Trigger path specifications (in code, often pathspecs) - 
+
+
+Pasted Path(s)
+
+
+
+
+
+The user has supplied criteria, to be checked against the values of triggers in
+a list of triggers.  If the event is accepted on the basis of any criterion,
+it is accepted; otherwise it is rejected (acceptEvent retursns false).
+
+There are 3 relevant cases of types of criteria, excluding the probing 
+of 
+
+A single or multiple positive criterion ("HLTx1", "HLT*", "*") will set
+appropriate bit checking in the decision bits, and the trigger will pass
+if any such matching triggers are PASS or EXCEPTION.  [A criterion that
+matches no triggers at all is detected and causes a throw.]
+
+A single negative criterion ("!HLTx1") or a wildcarded negative criterion 
+that happens to match only one trigger in the trigger list ("!HLTx*" if the 
+list has no other triggers starting with HLTx) will set, with an expectation 
+of FALSE, appropriate bit checking in the decision bits, and the trigger will 
+pass if any such matching triggers are FAIL or EXCEPTION. 
+
+A wildcarded negative criterion that matches more than one trigger in the 
+trigger list  ("!*", "!HLTx*" if it matches 2 triggers or more) will accept
+the event if all the matching triggers are FAIL.  It will reject the event
+if any of the triggers are PASS or EXCEPTION (this matches the behavior of
+"!*" before the partial wildcard feature was incorporated).  Triggers which
+are in the READY state are completely ignored.  (READY should never be 
+returned since the trigger paths have been run, but the state exists so we
+define the behavior).  If all triggers are READY, the negative crieriion will
+lead to accepting the event (this again matches the behavior of "!*" before 
+the partial wildcard feature was incorporated).
+
+The per-event "cost" of each negative criterion with multiple relevant 
+triggers is about the same as !* was in the past, which in turn is
+about the same as the decision_bits_ based set of positive criteria.
+ 
+------
+
+The behavior for EXCEPTION is expected to change (any day now, as of February
+8, 2008) because the above behavior makes it impossible or difficult to create
+an "exceptions only" stream.  This fiel will be modified when that happens.
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+  A Proposal For EventSelector Regarding EXCEPTION and READY trigger states
+  ---------------------------------------------------------------------------
+  
+The pre-1.8 version of EventSelector makes it awkward or impossible to 
+control selection based on some or all of the trigger bits being in the
+EXCEPTION state (edm::hlt::HLTState = Exception).  Since it is very 
+practical to want to create exception-free streams of events, or streams
+of events that had exceptions in some or all trigger bits, people (2) have
+implied that some such control would be desirable.
+
+The proposed enhancement must meet the following requirements:
+
+(A) The behavior of a given selection path must be well-defined and easy to
+    clearly describe, given various combinations of Pass, Fail, Ready, and
+    Exception states on the relevant triggers.
+
+(B) All situations not involving Exception or Ready bits must give identical
+    results to the pre-enhancement version of EventSelector.
+    
+(C) It must be straightforward to express at least the following potentially
+    desirable criteria:
+    
+    1) A stream of all events which had Exceptions on a trigger or some set of
+       triggers.
+       
+    2) A stream of all events which had NO Exceptions on some specific 
+       trigger.
+       
+    3) A stream of all events which had no Exceptions on any trigger.
+    
+    4) A stream of events which had either Pass or Exception on some trigger.
+       (This is what you would currently get by just specifying that trigger.) 
+    
+(D) We do not wish to stray from the simplifying principle of not supporting
+    AND's of different criteria.
+    
+Proposal 1 will obey these, but would leave certain combinations of criteria
+awkward.  For example, if I wanted to create a stream of all events containing
+an exception in HLTx1 or CALIBy2 triggers, that would be difficult.
+
+(The documentation says that AND's are not provided because you can do this by
+suitable trigger path definitions.  This is, to the best of my knowledge, not
+the case if the distinction is by whether an Exception state is present.)
+
+Proposal 2 would give additional flexibility but will not meet the simplicity
+requirement (D).   
+
+The syntax I choose for each proposal is perhaps not the most concise, but has
+the virture of reducing or eliminating the potential for conflicts with
+currently valid criteria.
+
+-----------
+Proposal 1:
+-----------
+
+Add to the syntax the ability to preface a trigger specification with the
+string "exception:", as in these examples:
+
+  "exception:HLTx1" -- select if the HLTx1 trigger bit is Exception
+  "exception:*"     -- select if ANY trigger bit is Exception
+  "exception:HLT*"  -- select if any bit starting with HLT is Exception
+  "exception:!HLTx1"-- select if the HLTx1 trigger bit is not Exception
+  "exception:!*"    -- select if NO bits are Exception
+  "exception:!HLT*" -- select if no bit starting with HLT is Exception
+  
+To achieve ability (4) you would do
+
+  {"HLTx1", "exception:HLTx1"}
+  
+The Ready state matches neither Pass, Fail, nor Exception, and is treated as 
+if that trigger did not exist for the purposes of accepting or rejecting this
+event.  This makes it possible to have no existing triggers (a situation which
+absent Ready would be impossible because if no valid triggers are specified,
+that would be caught when initializing the selector).  If no triggers exist,
+the event will be rejected unless the criterion was a ! criterion involving
+multiple triggers, in which cse it will be accepted.  This matches today's
+behavior.  I would not worry too much about Ready since I am told that this
+shoudl never be the state when selecting for output.
+
+The Exception state behaves the same as Ready, except, or course, for 
+criteria that mention "exception:".  This devaites from the current 
+behavior (but that is the main intention of this proposal!).
+
+-----------
+Proposal 2:
+-----------
+
+To Proposal 1, add the syntax of connecting criteria with "&&", as in:
+  
+  "exception:!HLTx1 && exception:!CALIBy2"
+
+This makes both parsing and explaining the behavior more difficult. 
+

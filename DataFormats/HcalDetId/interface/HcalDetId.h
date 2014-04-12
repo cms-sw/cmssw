@@ -1,7 +1,7 @@
 #ifndef DATAFORMATS_HCALDETID_HCALDETID_H
 #define DATAFORMATS_HCALDETID_HCALDETID_H 1
 
-#include <ostream>
+#include <iosfwd>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -9,9 +9,9 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2006/08/08 16:13:48 $
- *  $Revision: 1.9 $
  *  \author J. Mans - Minnesota
+ *
+ *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
  */
 class HcalDetId : public DetId {
 public:
@@ -37,7 +37,7 @@ public:
   /// get the cell iphi
   int iphi() const { return id_&0x7F; }
   /// get the tower depth
-  int depth() const { return (id_>>14)&0x7; }
+  int depth() const { return (id_>>14)&0x1F; }
   /// get the smallest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_ieta_low() const { return ((ieta()-zside())*5)+zside(); }
   /// get the largest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)

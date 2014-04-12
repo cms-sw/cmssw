@@ -39,6 +39,7 @@ public :
   virtual void applyDeltaAlpha(TMatrixD* corrMatrix);
   const TMatrixD* getParCurr(){ return &_parameters; }
 
+  virtual TString getInfoString();
   virtual void print(); 
   virtual void reset();
 
@@ -54,7 +55,6 @@ protected :
   TMatrixD _iniparameters;  // initialized parameters (parameters values before the fit)
   TMatrixD _parameters;     // fitted parameters
 
-  ClassDef(TAbsFitConstraint, 1)   // Abstract base class for fit constraints
 
 };
 

@@ -1,6 +1,5 @@
 #include "VolumeGridTester.h"
 #include "MagneticField/Interpolation/interface/MFGrid.h"
-#include "MagneticField/Interpolation/interface/MFGrid3D.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include <iostream>
 #include <string>
@@ -17,7 +16,8 @@ bool VolumeGridTester::testInside() const
 //   if (lastName == volume_->name) return true; // skip multiple calls
 //   else lastName = volume_->name;
 
-  const MFGrid3D* grid = dynamic_cast<const MFGrid3D*>(magProvider_);
+
+  const MFGrid * grid = dynamic_cast<const MFGrid *>(magProvider_);
   if (grid == 0) {
     cout << "VolumeGridTester: magProvider is not a MFGrid3D, cannot test it..." << endl
 	 << "expected ";
@@ -31,14 +31,14 @@ bool VolumeGridTester::testInside() const
   cout << "Is the volume position inside the volume? " 
        << volume_->inside( volume_->position(), tolerance) <<endl;
 
-  vector<int> sizes = grid->dimensions();
-  cout << "Grid has " << sizes.size() << " dimensions " 
-       << " number of nodes is " << sizes[0] << " " << sizes[1] << " " << sizes[2] << endl;
+  Dimensions sizes = grid->dimensions();
+  cout << "Grid has " << 3 << " dimensions " 
+       << " number of nodes is " << sizes.w << " " << sizes.h << " " << sizes.d << endl;
 
-  int dumpCount = 0;
-  for (int j=0; j < sizes[1]; j++) {
-    for (int k=0; k < sizes[2]; k++) {
-      for (int i=0; i < sizes[0]; i++) {
+  size_t dumpCount = 0;
+  for (int j=0; j < sizes.h; j++) {
+    for (int k=0; k < sizes.d; k++) {
+      for (int i=0; i < sizes.w; i++) {
 	MFGrid::LocalPoint lp = grid->nodePosition( i, j, k);
 	if (! volume_->inside(lp, tolerance)) {
 	  result = false;
@@ -58,7 +58,7 @@ void VolumeGridTester::dumpProblem( const MFGrid::LocalPoint& lp, double toleran
        << gp << " (global) " << gp.perp() << " " << gp.phi()
        << " (R,phi global) not in volume!" << endl;
 
-  vector<VolumeSide> faces = volume_->faces();
+  const vector<VolumeSide>& faces = volume_->faces();
   for (vector<VolumeSide>::const_iterator v=faces.begin(); v!=faces.end(); v++) {
     cout << "Volume face has position " << v->surface().position() 
  	 << " side " << (int) v->surfaceSide() << " rotation " << endl

@@ -12,7 +12,7 @@ class hEff2DHit;
 class hEff4DHit;
 
 void plotHitEff();
-void plotWWWHitEff();
+void plotWWWHitEff(TString dirBase = "");
 void plot1DEffVsPos(HEff1DHit *hS1, HEff1DHit *hS2, HEff1DHit *hS3, bool ThreeIn1);
 void plot1DEffVsEta(HEff1DHit *hS1, HEff1DHit *hS2, HEff1DHit *hS3, bool ThreeIn1);
 void plot1DEffVsPhi(HEff1DHit *hS1, HEff1DHit *hS2, HEff1DHit *hS3, bool ThreeIn1);
@@ -23,7 +23,7 @@ bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, b
 void plotHitEff(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle();
@@ -71,10 +71,10 @@ void plotHitEff(){
 }
 
 
-void plotWWWHitEff() {
+void plotWWWHitEff(TString dirBase) {
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
   
   // Get the style
   TStyle * style = getStyle();
@@ -112,8 +112,8 @@ void plotWWWHitEff() {
   TString nameS;
   cin >> nameS;
 
-  //gSystem->MakeDirectory("/afs/cern.ch/user/c/cerminar/www/DTLocalRecoQualityTest/"+nameS);
-  gSystem->ChangeDirectory("/afs/cern.ch/user/c/cerminar/www/DTLocalRecoQualityTest/"+nameS);
+  //gSystem->MakeDirectory(dirBase+nameS);
+  gSystem->ChangeDirectory(dirBase+nameS);
 
 
   printCanvases("gif");

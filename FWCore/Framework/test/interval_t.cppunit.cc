@@ -4,13 +4,12 @@
  *
  *  Created by Chris Jones on 3/30/05.
  *  Changed by Viji Sundararajan on 29-Jun-05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
  *
  */
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 using edm::Timestamp;
 using edm::IOVSyncValue;

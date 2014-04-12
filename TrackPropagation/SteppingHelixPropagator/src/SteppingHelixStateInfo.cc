@@ -1,15 +1,12 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/06/12 22:45:01 $
- *  $Revision: 1.9 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.9 2007/06/12 22:45:01 slava77 Exp $
 //
 //
 
@@ -19,6 +16,8 @@
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 
@@ -32,7 +31,7 @@ const std::string SteppingHelixStateInfo::ResultName[MAX_RESULT] = {
 };
 
 SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts): 
-  path_(0), radPath(0), dir(0), magVol(0), field(0), dEdx(0), dEdXPrime(0), radX0(1e12),
+  path_(0), radPath_(0), dir(0), magVol(0), field(0), dEdx(0), dEdXPrime(0), radX0(1e12),
   status_(UNDEFINED)
 {
   p3.set(fts.momentum().x(), fts.momentum().y(), fts.momentum().z());
@@ -40,30 +39,44 @@ SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts):
   q = fts.charge();
 
   if (fts.hasError()){
-    cov = fts.cartesianError().matrix();
+    covCurv = fts.curvilinearError().matrix();
     hasErrorPropagated_ = true;
   } else {
-    cov = AlgebraicSymMatrix66();
+    covCurv = AlgebraicSymMatrix55();
     hasErrorPropagated_ = false;
   }
+  static const std::string metname = "SteppingHelixPropagator";
+  if (fts.hasError()){ 
+    LogTrace(metname)<<"Created SHPStateInfo from FTS\n"<<fts;
+    //    LogTrace(metname)<<"and cartesian error of\n"<<fts.cartesianError().matrix();
+  }
+  else LogTrace(metname)<<"Created SHPStateInfo from FTS without errors";
 
   isComplete = false;
   isValid_ = true;
 }
 
 TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface& surf, bool returnTangentPlane) const {
+  static const std::string metname = "SteppingHelixPropagator";
+  if (! isValid()) LogTrace(metname)<<"Return TSOS is invalid";
+  else LogTrace(metname)<<"Return TSOS is valid";
   if (! isValid()) return TrajectoryStateOnSurface();
   GlobalVector p3GV(p3.x(), p3.y(), p3.z());
   GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
   GlobalTrajectoryParameters tPars(r3GP, p3GV, q, field);
-  CartesianTrajectoryError tCov(cov);
+  //  CartesianTrajectoryError tCov(cov);
 
-  CurvilinearTrajectoryError tCCov(ROOT::Math::Similarity(JacobianCartesianToCurvilinear(tPars).jacobian(), cov));
+  //  CurvilinearTrajectoryError tCCov(ROOT::Math::Similarity(JacobianCartesianToCurvilinear(tPars).jacobian(), cov));
+  CurvilinearTrajectoryError tCCov(covCurv);
 
-  FreeTrajectoryState fts(tPars, tCov, tCCov);
+  FreeTrajectoryState fts(tPars, tCCov);
   if (! hasErrorPropagated_) fts = FreeTrajectoryState(tPars);
 
-  return TrajectoryStateOnSurface(fts, returnTangentPlane ? *surf.tangentPlane(fts.position()) : surf);
+
+  SurfaceSideDefinition::SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface;
+  if ( dir > 0 ) side =  SurfaceSideDefinition::beforeSurface;
+  if ( dir < 0 ) side =  SurfaceSideDefinition::afterSurface;
+  return TrajectoryStateOnSurface(fts, returnTangentPlane ? *surf.tangentPlane(fts.position()) : surf, side);
 }
 
 
@@ -72,10 +85,13 @@ void SteppingHelixStateInfo::getFreeState(FreeTrajectoryState& fts) const {
     GlobalVector p3GV(p3.x(), p3.y(), p3.z());
     GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
     GlobalTrajectoryParameters tPars(r3GP, p3GV, q, field);
-    CartesianTrajectoryError tCov(cov);
+    //    CartesianTrajectoryError tCov(cov);
+    //    CurvilinearTrajectoryError tCCov(ROOT::Math::Similarity(JacobianCartesianToCurvilinear(tPars).jacobian(), cov));
+    CurvilinearTrajectoryError tCCov(covCurv);
     
     fts = (hasErrorPropagated_ ) 
-      ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars);
-    if (fts.hasError()) fts.curvilinearError(); //call it so it gets created
+      ? FreeTrajectoryState(tPars, tCCov) : FreeTrajectoryState(tPars);
+    //      ? FreeTrajectoryState(tPars, tCov, tCCov) : FreeTrajectoryState(tPars);
+    //    if (fts.hasError()) fts.curvilinearError(); //call it so it gets created
   }
 }

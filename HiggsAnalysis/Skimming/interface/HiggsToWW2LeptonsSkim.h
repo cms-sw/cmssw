@@ -3,11 +3,9 @@
 
 /** \class HWWFilter
  *
- *  
+ *
  *  This class is an EDFilter choosing reconstructed di-tracks
  *
- *  $Date: 2007/05/31 16:52:02 $
- *  $Revision: 1.1 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -25,10 +23,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-using namespace edm;
-using namespace std;
-
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 class HiggsToWW2LeptonsSkim : public edm::EDFilter {
     public:
@@ -36,7 +32,7 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
        ~HiggsToWW2LeptonsSkim();
        virtual void endJob() ;
 
-       virtual bool filter(Event&, const EventSetup&);
+       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
       double singleTrackPtMin_;
@@ -47,12 +43,11 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
       unsigned int nAccepted_;
 
   // Reco samples
-  edm::InputTag recTrackLabel;
-  edm::InputTag theGLBMuonLabel;
-  edm::InputTag thePixelGsfELabel;
+  edm::EDGetTokenT<reco::TrackCollection> theGLBMuonToken;
+  edm::EDGetTokenT<reco::GsfElectronCollection> theGsfEToken;
 
 };
 #endif
 
 
-   
+

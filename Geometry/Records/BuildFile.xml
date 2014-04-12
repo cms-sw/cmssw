@@ -1,0 +1,7 @@
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/Framework"/>
+<use   name="CondFormats/AlignmentRecord"/>
+<use   name="boost"/>
+<export>
+  <lib   name="1"/>
+</export>

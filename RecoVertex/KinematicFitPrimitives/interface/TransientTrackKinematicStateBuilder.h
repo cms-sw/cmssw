@@ -33,9 +33,9 @@ public:
  * Operator creating a KinematicState directly out of 
  * 7 state parameters and their covariance matrix
  */ 
-  KinematicState operator()(const KinematicParameters& par,
-	const KinematicParametersError& er, const TrackCharge& ch,
-	const MagneticField* field) const;
+//  KinematicState operator()(const KinematicParameters& par,
+//	const KinematicParametersError& er, const TrackCharge& ch,
+//	const MagneticField* field) const;
  
 /**
  * Operator creating a KinematicState out of a RecObj
@@ -44,7 +44,15 @@ public:
  */ 
  KinematicState operator()(const reco::TransientTrack& track, const GlobalPoint& point, const ParticleMass& m,
                                                                              float m_sigma) const; 
-									     
+
+/**
+ * Operator to create a particle state at point
+ * using the FreeTrajectoryState, charge and mass guess for the particle. The state will be
+ * created with the reference point taken from the FTS
+ */ 
+ KinematicState operator()(const FreeTrajectoryState& state, const ParticleMass& mass,
+                           float m_sigma) const;                                                                             
+                                                                             
 /**
  * Operator to create a particle state at point
  * using the FreeTrajectoryState, charge and mass guess for the particle. The state will be

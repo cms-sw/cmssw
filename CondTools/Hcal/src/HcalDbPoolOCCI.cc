@@ -1,12 +1,13 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbPoolOCCI.cc,v 1.1 2006/02/08 20:25:55 fedor Exp $
+// $Id: HcalDbPoolOCCI.cc,v 1.6 2009/12/04 03:42:53 elmer Exp $
 //
 #include <string>
 #include <iostream>
+#include <cstdio>
 
-#include "occi.h" 
+#include "OnlineDB/Oracle/interface/Oracle.h" 
 
 #include "CondTools/Hcal/interface/HcalDbPoolOCCI.h"
 
@@ -14,11 +15,11 @@ const bool debug = false;
 
 namespace {
   long getObjectId (const std::string& fToken) {
-    unsigned ipos = fToken.find ("OID=");
+    size_t ipos = fToken.find ("OID=");
     if (ipos != std::string::npos) {
       ipos = fToken.find ('-', ipos);
       if (ipos != std::string::npos) {
-        unsigned ipos2 = fToken.find (']', ipos);
+        size_t ipos2 = fToken.find (']', ipos);
 	if (ipos2 != std::string::npos) {
 	  while (fToken [++ipos] != '0');
 	  std::string id (fToken, ipos, ipos2-ipos);
@@ -40,8 +41,8 @@ HcalDbPoolOCCI::HcalDbPoolOCCI (const std::string& fDb)
 {
   mEnvironment = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::OBJECT);
   // decode connect string
-  unsigned ipass = fDb.find ('/');
-  unsigned ihost = fDb.find ('@');
+  size_t ipass = fDb.find ('/');
+  size_t ihost = fDb.find ('@');
   
   if (ipass == std::string::npos || ihost == std::string::npos) {
     std::cerr << "HcalDbPoolOCCI::HcalDbPoolOCCI-> Error in connection string format: " << fDb
@@ -69,11 +70,13 @@ HcalDbPoolOCCI::~HcalDbPoolOCCI () {
 }
 
 bool HcalDbPoolOCCI::getObject (HcalPedestals* fObject, const std::string& fTag, unsigned long fRun) {
-  return getObjectGeneric (fObject, fTag, fRun);
+  HcalPedestal* myped(0);
+  return getObjectGeneric (fObject, myped, fTag, fRun);
 }
 
 bool HcalDbPoolOCCI::getObject (HcalGains* fObject, const std::string& fTag, unsigned long fRun) {
-  return getObjectGeneric (fObject, fTag, fRun);
+  HcalGain* mygain(0);
+  return getObjectGeneric (fObject, mygain, fTag, fRun);
 }
 
 bool HcalDbPoolOCCI::getObject (HcalElectronicsMap* fObject, const std::string& fTag, unsigned long fRun) {
@@ -134,8 +137,8 @@ std::string HcalDbPoolOCCI::getDataToken (const std::string& fIov, unsigned long
   return result;
 }
 
-template <class T>
-bool HcalDbPoolOCCI::getObjectGeneric (T* fObject, const std::string& fTag, unsigned long fRun) {
+template <class T, class S>
+bool HcalDbPoolOCCI::getObjectGeneric (T* fObject, S* fCondObject, const std::string& fTag, unsigned long fRun) {
   std::string mdToken = getMetadataToken (fTag);
    if (debug) std::cout << "HcalDbPoolOCCI::getObjectGeneric-> tag/token: " << fTag << '/' << mdToken << std::endl;
   if (mdToken.empty ()) return false;
@@ -157,12 +160,14 @@ bool HcalDbPoolOCCI::getObjectGeneric (T* fObject, const std::string& fTag, unsi
 	unsigned long hcalId = rset->getUInt (1);
 	float values [4];
 	for (int i = 0; i < 4; i++) values [i] = rset->getFloat (i+2);
-	fObject->addValue (DetId (hcalId), values);
+
+	fCondObject = new S(DetId (hcalId), values[0], values[1], values[2], values[3]);
+	fObject->addValues (*fCondObject);
+	delete fCondObject;
 	//	 if (debug) std::cout << "new entry: " << hcalId << '/' << values [0] << '/' << values [1] << '/' 
 	//	  << values [2] << '/' << values [3] << std::endl;
       }
       delete rset;
-      fObject->sort ();
       return true;
     }
     catch (oracle::occi::SQLException& sqlExcp) {

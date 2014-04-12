@@ -33,14 +33,13 @@
 // ~ErrorObj()
 // set( const ELseverityLevel & sev, const ELstring & id )
 // clear()
-// setProcess   ( const ELstring & proc )
 // setModule    ( const ELstring & module )
 // setSubroutine( const ELstring & subroutine )
-// emit( const ELstring & txt )
-// operator<<( void (* f)(ErrorLog &) )
+// emitToken( const ELstring & txt )
 //
 // ----------------------------------------------------------------------
 
+#include <atomic>
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
@@ -68,7 +67,9 @@ namespace edm
 // Class static and class-wide parameter:
 // ----------------------------------------------------------------------
 
-int  ErrorObj::ourSerial(  0 );
+  // ---  class-wide serial number stamper:
+  //
+[[cms::thread_safe]] static std::atomic<int>  ourSerial(  0 );
 const unsigned int  maxIDlength( 200 );		// changed 4/28/06 from 20
 
 
@@ -117,6 +118,26 @@ ErrorObj::~ErrorObj()  {
 
 }  // ~ErrorObj()
 
+ErrorObj& ErrorObj::operator=( const ErrorObj & other ) {
+  ErrorObj temp(other);
+  this->swap(temp);
+  return *this;
+}
+
+void ErrorObj::swap( ErrorObj& other ) {
+  std::swap(mySerial, other.mySerial);
+  std::swap(myXid, other.myXid);
+  myIdOverflow.swap(other.myIdOverflow);
+  std::swap(myTimestamp, other.myTimestamp);
+  myItems.swap(other.myItems);
+  std::swap(myReactedTo, other.myReactedTo);
+  myContext.swap(other.myContext);
+  std::string temp(other.myOs.str());
+  other.myOs.str(myOs.str());
+  myOs.str(temp);
+  emptyString.swap(other.emptyString);
+  std::swap(verbatim, other.verbatim);
+}
 
 // ----------------------------------------------------------------------
 // Accessors:
@@ -151,8 +172,8 @@ ELstring ErrorObj::fullText() const  {
 // ----------------------------------------------------------------------
 
 void ErrorObj::setSeverity( const ELseverityLevel & sev )  {
-  myXid.severity = (sev <= ELzeroSeverity   ) ? (ELseverityLevel)ELincidental
-                 : (sev >= ELhighestSeverity) ? (ELseverityLevel)ELfatal
+  myXid.severity = (sev <= ELzeroSeverity   ) ? (ELseverityLevel)ELdebug
+                 : (sev >= ELhighestSeverity) ? (ELseverityLevel)ELsevere
                  :                              sev
                  ;
 }
@@ -180,13 +201,6 @@ void ErrorObj::setSubroutine( const ELstring & subroutine )  {
 }
 
 
-void ErrorObj::setProcess( const ELstring & proc )  {
-  myXid.process = proc;
-  #if 0
-    std::cerr << "ErrorObj process set to \"" << proc << "\"\n";
-  #endif
-}
-
 void ErrorObj::setReactedTo( bool r )  {
   myReactedTo = r;
 }
@@ -197,15 +211,15 @@ void ErrorObj::setReactedTo( bool r )  {
 #endif
 
 
-ErrorObj & ErrorObj::emit( const ELstring & s )  {
+ErrorObj & ErrorObj::emitToken( const ELstring & s )  {
 
   #ifdef ErrorObj_EMIT_TRACE
-    std::cerr << "=:=:=: ErrorObj::emit ( " << s << " )\n";
+    std::cerr << "=:=:=: ErrorObj::emitToken( " << s << " )\n";
   #endif
 
   #ifdef ErrorObj_SUB_TRACE
     if ( subN > 0 )  {
-      std::cerr << "=:=:=: subN ErrorObj::emit ( " << s << " )\n";
+      std::cerr << "=:=:=: subN ErrorObj::emitToken( " << s << " )\n";
       subN--;
     }
   #endif
@@ -223,7 +237,7 @@ ErrorObj & ErrorObj::emit( const ELstring & s )  {
 
   return * this;
 
-}  // emit()
+}  // emitToken()
 
 
 void ErrorObj::set( const ELseverityLevel & sev, const ELstring & id )  {
@@ -260,13 +274,13 @@ ErrorObj::opltlt ( const char s[] ) {
 #ifdef OLD_STYLE_AUTOMATIC_SPACES
   if ( ! myOs.str().empty() ) {
     if ( !verbatim ) {
-      emit( myOs.str() + ' ' );
+      emitToken( myOs.str() + ' ' );
     } else {
-       emit( myOs.str() );
+       emitToken( myOs.str() );
     }
   }
 #else
-  if ( ! myOs.str().empty() ) emit( myOs.str() );
+  if ( ! myOs.str().empty() ) emitToken( myOs.str() );
 #endif
   return *this;
 }

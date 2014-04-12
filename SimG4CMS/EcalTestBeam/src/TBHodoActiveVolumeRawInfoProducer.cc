@@ -1,7 +1,6 @@
 /*
  * \file TBHodoActiveVolumeRawInfoProducer.cc
  *
- * $Id: TBHodoActiveVolumeRawInfoProducer.cc,v 1.3 2006/10/26 08:01:06 fabiocos Exp $
  *
  */
 
@@ -32,12 +31,12 @@ TBHodoActiveVolumeRawInfoProducer::~TBHodoActiveVolumeRawInfoProducer() {
   // caloHit container
   edm::Handle<edm::PCaloHitContainer> pCaloHit;
   const edm::PCaloHitContainer* caloHits =0;
-  try {
-    event.getByLabel( "g4SimHits", "EcalTBH4BeamHits", pCaloHit);   
+  event.getByLabel( "g4SimHits", "EcalTBH4BeamHits", pCaloHit);   
+  if (pCaloHit.isValid()){ 
     caloHits = pCaloHit.product();                 
-    LogDebug("EcalCaloHitInfo") << "total # caloHits: " << caloHits->size() ;
-  } catch ( std::exception& ex ) {
-    edm::LogError("EcalCaloHitError") << "Error! can't get the caloHitContainer " ;
+    LogDebug("EcalTBHodo") << "total # caloHits: " << caloHits->size() ;
+  } else {
+    edm::LogError("EcalTBHodo") << "Error! can't get the caloHitContainer " ;
   }  
   if (!caloHits){ return; }
 

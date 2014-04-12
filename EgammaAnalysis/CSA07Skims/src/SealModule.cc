@@ -4,5 +4,5 @@
 #include <EgammaAnalysis/CSA07Skims/interface/EgammaProbeSelector.h>
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(EgammaProbeSelector);
+
+DEFINE_FWK_MODULE(EgammaProbeSelector);

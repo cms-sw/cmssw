@@ -1,46 +1,53 @@
 /*----------------------------------------------------------------------
-  
-$Id: TypeID.cc,v 1.1 2007/03/04 04:40:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/
+#include <cassert>
+#include <map>
 #include <ostream>
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "Reflex/Type.h"
-#include "boost/thread/tss.hpp"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 namespace edm {
   void
   TypeID::print(std::ostream& os) const {
-    os << className();
+    try {
+      os << className();
+    } catch (cms::Exception const& e) {
+      os << typeInfo().name();
+    }
   }
 
-  static 
-  std::string typeToClassName(const std::type_info& iType) {
-    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(iType);
-    if (!bool(t)) {
-      throw edm::Exception(errors::ProductNotFound,"NoMatch")
-      << "TypeID::className: No dictionary for class " << iType.name() << '\n';
+namespace {
+
+  TypeID const nullTypeID;
+
+  std::string typeToClassName(std::type_info const& iType) {
+    try {
+      return typeDemangle(iType.name());
+    } catch (cms::Exception const& e) {
+      cms::Exception theError("Name Demangling Error");
+      theError << "TypeID::typeToClassName: can't demangle " << iType.name() << '\n';
+      theError.append(e);
+      throw theError;
     }
-    return t.Name(ROOT::Reflex::SCOPED);
   }
-  
-  std::string
+}
+
+  std::string const&
   TypeID::className() const {
-    typedef std::map<edm::TypeIDBase, std::string> Map;
-    static boost::thread_specific_ptr<Map> s_typeToName;
-    if(0 == s_typeToName.get()){
-      s_typeToName.reset(new Map);
-    }
-    Map::const_iterator itFound = s_typeToName->find(*this);
-    if(s_typeToName->end()==itFound) {
-      itFound = s_typeToName->insert(Map::value_type(*this, typeToClassName(typeInfo()))).first;
+    typedef std::map<edm::TypeID, std::string> Map;
+    static thread_local Map s_typeToName;
+
+    auto itFound = s_typeToName.find(*this);
+    if(s_typeToName.end() == itFound) {
+      itFound = s_typeToName.insert(Map::value_type(*this, typeToClassName(typeInfo()))).first;
     }
     return itFound->second;
   }
-  
-  std::string 
+
+  std::string
   TypeID::userClassName() const {
     std::string theName = className();
     if (theName.find("edm::Wrapper") == 0) {
@@ -49,13 +56,13 @@ namespace edm {
     return theName;
   }
 
-  std::string 
+  std::string
   TypeID::friendlyClassName() const {
     return friendlyname::friendlyName(className());
   }
 
   bool
-  TypeID::stripTemplate(std::string& theName) {
+  stripTemplate(std::string& theName) {
     std::string const spec("<,>");
     char const space = ' ';
     std::string::size_type idx = theName.find_first_of(spec);
@@ -79,19 +86,42 @@ namespace edm {
     return true;
   }
 
-  bool
-  TypeID::stripNamespace(std::string& theName) {
-    std::string::size_type idx = theName.rfind(':');
-    bool ret = (idx != std::string::npos);
-    if (ret) {
-      ++idx;
-      theName = theName.substr(idx);
+  std::string
+  stripNamespace(std::string const& theName) {
+    // Find last colon
+    std::string::size_type colonIndex = theName.rfind(':');
+    if(colonIndex == std::string::npos) {
+      // No colons, so no namespace to strip
+      return theName;
     }
-    return ret;
+    std::string::size_type bracketIndex = theName.rfind('>');
+    if(bracketIndex == std::string::npos || bracketIndex < colonIndex) {
+      // No '>' after last colon.  Strip up to and including last colon.
+      return theName.substr(colonIndex+1);
+    }
+    // There is a '>' after the last colon.
+    int depth = 1;
+    for(size_t index = bracketIndex; index != 0; --index) {
+      char c = theName[index - 1]; 
+      if(c == '>') {
+        ++depth;
+      } else if(c == '<') {
+        --depth;
+        assert(depth >= 0);
+      } else if(depth == 0 && c == ':') {
+        return theName.substr(index);
+      }
+    }
+    return theName;
   }
 
+  TypeID::operator bool() const {
+    return !(*this == nullTypeID);
+  }
+
+
   std::ostream&
-  operator<<(std::ostream& os, const TypeID& id) {
+  operator<<(std::ostream& os, TypeID const& id) {
     id.print(os);
     return os;
   }

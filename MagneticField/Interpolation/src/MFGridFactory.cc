@@ -1,13 +1,13 @@
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
+#include "binary_ifstream.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
-#include "MagneticField/Interpolation/src/RectangularCartesianMFGrid.h"
-#include "MagneticField/Interpolation/src/RectangularCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/src/TrapezoidalCartesianMFGrid.h"
-#include "MagneticField/Interpolation/src/TrapezoidalCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/src/SpecialCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/src/CylinderFromSectorMFGrid.h"
+#include "RectangularCartesianMFGrid.h"
+#include "RectangularCylindricalMFGrid.h"
+#include "TrapezoidalCartesianMFGrid.h"
+#include "TrapezoidalCylindricalMFGrid.h"
+#include "SpecialCylindricalMFGrid.h"
+#include "CylinderFromSectorMFGrid.h"
 
 #include <iostream>
 
@@ -30,17 +30,17 @@ MFGrid* MFGridFactory::build(const string& name, const GloballyPositioned<float>
     result = new RectangularCylindricalMFGrid(inFile, vol);
     break;
   case 4:
-//    inFile.close();
-//    result = new GlobalGridWrapper(vol, name);
     result = new TrapezoidalCylindricalMFGrid(inFile, vol);
     break;
   case 5:
-    result = new SpecialCylindricalMFGrid(inFile, vol);
-    //    inFile.close();
-    //    result = new GlobalGridWrapper(vol, name);
+    result = new SpecialCylindricalMFGrid(inFile, vol, gridType);
+    break;
+  case 6:
+    result = new SpecialCylindricalMFGrid(inFile, vol, gridType);
     break;
   default:
-    cout << "Grid type unknown" << endl;
+    cout << "ERROR Grid type unknown: " << gridType << endl;
+    //    result = new GlobalGridWrapper(vol, name);
     result = 0;
     break;
   }

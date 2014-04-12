@@ -4,7 +4,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 
-class RKPropagatorInR : public Propagator {
+class RKPropagatorInR GCC11_FINAL : public Propagator {
 public:
 
   RKPropagatorInR( const MagVolume& vol, PropagationDirection dir = alongMomentum) : 

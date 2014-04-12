@@ -5,7 +5,6 @@
  *
  * Trigger from DT chamber
  *  
- *  $Date: 2006/09/06 18:26:07 $
  *
  * \author FRC
  *
@@ -19,7 +18,7 @@ public:
 
 
   /// Constructor
-  explicit DTLocalTrigger (int bx, int data);
+  explicit DTLocalTrigger (int eventBx, int bx, int data);
 
 
   /// Default construction.
@@ -29,6 +28,7 @@ public:
   bool operator==(const DTLocalTrigger& trig) const;
 
 
+  uint16_t eventBx() const;
   uint16_t bx() const;
   uint16_t quality() const;
   uint16_t trTheta() const;
@@ -42,6 +42,7 @@ public:
 
  private:
 
+  uint16_t theEventBX;
   uint16_t theBX;
   uint16_t theData;
 };

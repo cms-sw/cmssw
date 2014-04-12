@@ -5,19 +5,20 @@
 
 RootDelayedReader.h // used by ROOT input sources
 
-$Id: RootDelayedReader.h,v 1.9 2007/05/29 19:34:09 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <map>
-#include <string>
-#include "boost/shared_ptr.hpp"
-
+#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "Inputfwd.h"
+#include "FWCore/Utilities/interface/InputType.h"
+#include "RootTree.h"
+
+#include <map>
+#include <memory>
+#include <string>
 
 namespace edm {
+  class InputFile;
+  class RootTree;
 
   //------------------------------------------------------------
   // Class RootDelayedReader: pretends to support file reading.
@@ -25,21 +26,36 @@ namespace edm {
 
   class RootDelayedReader : public DelayedReader {
   public:
-    typedef input::BranchMap BranchMap;
-    typedef input::EntryNumber EntryNumber;
-    RootDelayedReader(EntryNumber const& entry,
-	 boost::shared_ptr<BranchMap const> bMap,
-	 boost::shared_ptr<TFile const> filePtr);
+    typedef roottree::BranchInfo BranchInfo;
+    typedef roottree::BranchMap BranchMap;
+    typedef roottree::BranchMap::const_iterator iterator;
+    typedef roottree::EntryNumber EntryNumber;
+    RootDelayedReader(
+      RootTree const& tree,
+      boost::shared_ptr<InputFile> filePtr,
+      InputType inputType);
+
     virtual ~RootDelayedReader();
+
+    RootDelayedReader(RootDelayedReader const&) = delete; // Disallow copying and moving
+    RootDelayedReader& operator=(RootDelayedReader const&) = delete; // Disallow copying and moving
+
   private:
-    RootDelayedReader(RootDelayedReader const&); // disable copy construction
-    RootDelayedReader & operator=(RootDelayedReader const&); // disable assignment
-    virtual std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* ep) const;
-    virtual std::auto_ptr<BranchEntryDescription> getProvenance(BranchKey const& k) const;
-    BranchMap const& branches() const {return *branches_;}
-    EntryNumber const entryNumber_;
-    boost::shared_ptr<BranchMap const> branches_;
-    boost::shared_ptr<TFile const> filePtr_;
+    virtual WrapperOwningHolder getProduct_(BranchKey const& k, 
+                                            WrapperInterfaceBase const* interface,
+                                            EDProductGetter const* ep) const override;
+    virtual void mergeReaders_(DelayedReader* other) {nextReader_ = other;}
+    virtual void reset_() {nextReader_ = 0;}
+    BranchMap const& branches() const {return tree_.branches();}
+    iterator branchIter(BranchKey const& k) const {return branches().find(k);}
+    bool found(iterator const& iter) const {return iter != branches().end();}
+    BranchInfo const& getBranchInfo(iterator const& iter) const {return iter->second; }
+    // NOTE: filePtr_ appears to be unused, but is needed to prevent
+    // the file containing the branch from being reclaimed.
+    RootTree const& tree_;
+    boost::shared_ptr<InputFile> filePtr_;
+    DelayedReader* nextReader_;
+    InputType inputType_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
 }

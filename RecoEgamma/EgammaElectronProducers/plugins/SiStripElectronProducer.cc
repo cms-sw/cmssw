@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.12 2007/03/27 19:32:54 futyand Exp $
 //
 
 // system include files
@@ -18,7 +17,6 @@
 // user include files
 #include "SiStripElectronProducer.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -61,6 +59,15 @@ SiStripElectronProducer::SiStripElectronProducer(const edm::ParameterSet& iConfi
    superClusterProducer_ = iConfig.getParameter<std::string>("superClusterProducer");
    superClusterCollection_ = iConfig.getParameter<std::string>("superClusterCollection");
    
+   rphi_sistrips2dtag_ = 
+     consumes<SiStripRecHit2DCollection>(edm::InputTag(siHitProducer_,siRphiHitCollection_));
+   stereo_sistrips2dtag_ = 
+     consumes<SiStripRecHit2DCollection>(edm::InputTag(siHitProducer_,siStereoHitCollection_));
+   matched_sistrips2dtag_ = 
+     consumes<SiStripMatchedRecHit2DCollection>(edm::InputTag(siHitProducer_,siMatchedHitCollection_));
+   superClustertag_ = 
+     consumes<reco::SuperClusterCollection>(edm::InputTag(superClusterProducer_,superClusterCollection_));
+
    algo_p = new SiStripElectronAlgo(
       iConfig.getParameter<int32_t>("maxHitsOnDetId"),
       iConfig.getParameter<double>("originUncertainty"),
@@ -111,19 +118,19 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
 
    edm::Handle<SiStripRecHit2DCollection> rphiHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
+   iEvent.getByToken(rphi_sistrips2dtag_, rphiHitsHandle);
 
    edm::Handle<SiStripRecHit2DCollection> stereoHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
+   iEvent.getByToken(stereo_sistrips2dtag_, stereoHitsHandle);
 
    edm::Handle<SiStripMatchedRecHit2DCollection> matchedHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siMatchedHitCollection_, matchedHitsHandle);
+   iEvent.getByToken(matched_sistrips2dtag_, matchedHitsHandle);
 
    edm::ESHandle<MagneticField> magneticFieldHandle;
    iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
 
    edm::Handle<reco::SuperClusterCollection> superClusterHandle;
-   iEvent.getByLabel(superClusterProducer_, superClusterCollection_, superClusterHandle);
+   iEvent.getByToken(superClustertag_, superClusterHandle);
 
    // Set up SiStripElectronAlgo for this event
    algo_p->prepareEvent(trackerHandle, rphiHitsHandle, stereoHitsHandle, matchedHitsHandle, magneticFieldHandle);
@@ -131,6 +138,11 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    // Prepare the output electron candidates and clouds to be filled
    std::auto_ptr<reco::SiStripElectronCollection> electronOut(new reco::SiStripElectronCollection);
    std::auto_ptr<TrackCandidateCollection> trackCandidateOut(new TrackCandidateCollection);
+
+   //Retrieve tracker topology from geometry
+   edm::ESHandle<TrackerTopology> tTopoHand;
+   iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+   const TrackerTopology *tTopo=tTopoHand.product();
 
    // counter for electron candidates
    int siStripElectCands = 0 ;
@@ -144,7 +156,7 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       const reco::SuperCluster* sc = &(*reco::SuperClusterRef(superClusterHandle, i));
       double energy = sc->energy();
 
-      if (algo_p->findElectron(*electronOut, *trackCandidateOut, reco::SuperClusterRef(superClusterHandle, i))) {
+      if (algo_p->findElectron(*electronOut, *trackCandidateOut, reco::SuperClusterRef(superClusterHandle, i),tTopo)) {
 	str << "Supercluster energy: " << energy << ", FOUND an electron." << "\n" << std::endl;
 	 ++siStripElectCands ;
       }

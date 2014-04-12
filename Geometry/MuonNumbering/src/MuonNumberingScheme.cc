@@ -3,6 +3,6 @@
 
 //#define LOCAL_DEBUG
 
-int MuonNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber) {
+int MuonNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber&) {
   return 0;  
 }

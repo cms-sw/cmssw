@@ -1,0 +1,34 @@
+{
+   "data" : [
+      {
+         "name" : "Processed",
+         "operation" : "sum",
+         "type" : "integer"
+      },
+      {
+         "name" : "Accepted",
+         "operation" : "sum",
+         "type" : "integer"
+      },
+      {
+         "name" : "ErrorEvents",
+         "operation" : "sum",
+         "type" : "integer"
+      },
+      {
+         "name" : "ReturnCodeMask",
+         "operation" : "binaryOr",
+         "type" : "integer"
+      },
+      {
+         "name" : "Filelist",
+         "operation" : "merge",
+         "type" : "string"
+      },
+      {
+         "name" : "InputFiles",
+         "operation" : "cat",
+         "type" : "string"
+      }
+   ]
+}

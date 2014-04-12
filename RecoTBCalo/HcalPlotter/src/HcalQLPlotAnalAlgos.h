@@ -17,7 +17,7 @@
 class HcalQLPlotAnalAlgos {
 public:
   HcalQLPlotAnalAlgos(const char *outputFilename,
-		   edm::ParameterSet histoParams);
+		   const edm::ParameterSet& histoParams);
 
   void end(void);
   void SetEventType(const HcalTBTriggerData& trigd) ;

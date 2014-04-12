@@ -31,71 +31,88 @@
  * (not FED headers or trailer, which are treated elsewhere).
  */
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
+#include "FWCore/Utilities/interface/typedefs.h"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 #include <map>
+#include <set>
 
 class FEDRawData;
-
-class SiPixelFedCablingMap;
+class SiPixelFedCabling;
+class SiPixelQuality;
 class SiPixelFrameConverter;
+class SiPixelFrameReverter;
 
 class PixelDataFormatter {
 
 public:
 
-  typedef std::vector<PixelDigi> DetDigis;
-  typedef std::map<uint32_t, DetDigis> Digis;
-//  typedef std::vector< edm::DetSet<PixelDigi> > Digis;
-  typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range;
-  
-  typedef std::vector<SiPixelRawDataError> DetErrors;
-  typedef std::map<uint32_t, DetErrors> Errors;
+  typedef edm::DetSetVector<PixelDigi> Collection;
 
-  PixelDataFormatter(const SiPixelFedCablingMap * map);
+  typedef std::map<int, FEDRawData> RawData;
+  typedef std::vector<PixelDigi> DetDigis;
+  typedef std::map<cms_uint32_t, DetDigis> Digis;
+  typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range; 
+  typedef std::vector<SiPixelRawDataError> DetErrors;
+  typedef std::map<cms_uint32_t, DetErrors> Errors;
+
+  typedef cms_uint32_t Word32;
+  typedef cms_uint64_t Word64;
+
+  PixelDataFormatter(const SiPixelFedCabling* map);
+
+  void setErrorStatus(bool ErrorStatus);
+  void setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo);
+  void setModulesToUnpack(const std::set<unsigned int> * moduleIds);
+  void passFrameReverter(const SiPixelFrameReverter* reverter);
 
   int nDigis() const { return theDigiCounter; }
   int nWords() const { return theWordCounter; }
 
-  void interpretRawData(int fedId,  const FEDRawData & data, Digis & digis, bool includeErrors, Errors & errors);
+  void interpretRawData(bool& errorsInEvent, int fedId,  const FEDRawData & data, Collection & digis, Errors & errors);
 
-  FEDRawData * formatData( int fedId, const Digis & digis);
+  void formatRawData( unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis);
 
 private:
   mutable int theDigiCounter;
   mutable int theWordCounter;
 
-  const SiPixelFedCablingMap * theCablingMap;
+  const SiPixelFedCabling* theCablingTree;
+  const SiPixelFrameReverter* theFrameReverter;
+  const SiPixelQuality* badPixelInfo;
+  const std::set<unsigned int> * modulesToUnpack;
 
-  typedef unsigned int Word32;
-  typedef long long Word64;
-//  typedef uint32_t Word32;
-//  typedef uint64_t Word64;
+  bool includeErrors;
+  bool useQualityInfo;
+  bool debug;
+  int allDetDigis;
+  int hasDetDigis;
+  ErrorChecker errorcheck;
 
   int checkError(const Word32& data) const;
 
-  int digi2word( const SiPixelFrameConverter* converter,
-                  uint32_t detId, const PixelDigi& digi,
-                  std::vector<Word32> & words) const;
+  int digi2word(  cms_uint32_t detId, const PixelDigi& digi,
+                  std::map<int, std::vector<Word32> > & words) const;
 
-  int word2digi( const SiPixelFrameConverter* converter, 
-		    const bool includeError,
-		    const Word32& word, 
-                    Digis & digis) const;
+  int word2digi(  const int fedId,
+                  const SiPixelFrameConverter* converter,
+		  const bool includeError,
+		  const bool useQuality,
+		  const Word32& word, 
+                  Digis & digis) const;
 
   std::string print(const PixelDigi & digi) const;
   std::string print(const Word64    & word) const;
 
-  uint32_t errorDetId(const SiPixelFrameConverter* converter, 
+  cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, 
 		      int fedId, int errorType, const Word32 & word) const;
 
-  static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits;
-  static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift;
-  static const uint32_t dummyDetId;
 };
 
 #endif

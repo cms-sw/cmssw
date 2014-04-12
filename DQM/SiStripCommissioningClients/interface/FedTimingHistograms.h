@@ -3,15 +3,14 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/FedTimingSummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/FedTimingAnalysis.h"
 
-class MonitorUserInterface;
 
 class FedTimingHistograms : public CommissioningHistograms {
 
  public:
   
-  FedTimingHistograms( MonitorUserInterface* );
+  FedTimingHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~FedTimingHistograms();
 
   typedef SummaryHistogramFactory<FedTimingAnalysis> Factory;

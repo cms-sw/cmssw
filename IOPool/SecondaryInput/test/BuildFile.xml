@@ -1,0 +1,14 @@
+<environment>
+  <use   name="boost"/>
+  <bin   file="TestSecondaryInput.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/SecondaryInput/test TestSecondaryInput.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+  <library   file="SecondaryProducer.cc" name="SecondaryProducer">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="DataFormats/Provenance"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/Sources"/>
+    <use   name="FWCore/Utilities"/>
+  </library>
+</environment>

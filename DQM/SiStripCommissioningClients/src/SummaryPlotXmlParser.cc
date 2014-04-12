@@ -22,7 +22,7 @@ const std::string SummaryPlotXmlParser::granularityAttr_ = "granularity";
 //
 SummaryPlotXmlParser::SummaryPlotXmlParser() {
   plots_.clear();
-  try { XMLPlatformUtils::Initialize(); }
+  try { cms::concurrency::xercesInitialize(); }
   catch ( const XMLException &f ) {
     throw( std::runtime_error("Standard pool exception : Fatal Error on pool::TrivialFileCatalog") );
   }
@@ -55,7 +55,7 @@ void SummaryPlotXmlParser::parseXML( const std::string& f ) {
     getDocument(f);
     
     // Retrieve root element
-    DOMElement* root = this->doc->getDocumentElement();
+    DOMElement* root = this->doc()->getDocumentElement();
     if( !root ) { 
       std::stringstream ss;
       ss << "[SummaryPlotXmlParser::" << __func__ << "]"

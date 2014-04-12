@@ -7,7 +7,7 @@
  * 
  * \author Tim Cox
  *
- * There are only a small finite number (9) of distinct chamber types 
+ * There are only a small finite number (9, or 10 incl. ME1A as separate) of distinct chamber types 
  * in the hardware, according to physical dimensions and properties. 
  * The individual types currently correspond to each (Station,Ring) pair.
  *
@@ -20,17 +20,17 @@
  *
  * \warning Disclaimer:
  * The mess of methods was supposed to be a temporary hack until it was decided
- * how to handle such spec pars... but no decision has yet come! <BR>
+ * how to handle such spec pars... but there's still nothing better. <BR>
  *
  */
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 #include <cmath>
-#include <map>
 #include <string>
 #include <vector>
 
+class CSCGeometry;
 class CSCLayerGeometry;
 class CSCWireGroupPackage;
 class Topology; //@@ Can go once GeomDetType has it removed.
@@ -46,7 +46,7 @@ public:
   CSCChamberSpecs();
 
   /// Usual ctor from supplied params
-  CSCChamberSpecs( int iChamberType , 
+  CSCChamberSpecs( const CSCGeometry* geom, int iChamberType, 
 		   const TrapezoidalPlaneBounds& mediaShape,
                    const CSCSpecsParcel& fupar,
                    const CSCWireGroupPackage& wg 
@@ -59,14 +59,16 @@ public:
   bool operator!=( const CSCChamberSpecs& specs ) const;
   bool operator==( const CSCChamberSpecs& specs ) const;
 
-  //@@ Will be moved from GeomDetType interface (good, so we're no longer forced to pick something)
+  //@@ Topology() will be removed from GeomDetType interface (good, so we're no longer forced to pick something)
+  //@@ But still there as of Aug-2007. So much for design.
+
   /// Returns StripTopology of the odd-layer, positive-z geometry
   virtual const Topology& topology() const;
 
   /// Accessors for LayerGeometry's
-  const CSCLayerGeometry* const oddLayerGeometry( int iendcap ) const 
+  const CSCLayerGeometry* oddLayerGeometry( int iendcap ) const 
    { return (iendcap==1? poszOddLayerGeometry:negzOddLayerGeometry);}
-  const CSCLayerGeometry* const evenLayerGeometry( int iendcap ) const 
+  const CSCLayerGeometry* evenLayerGeometry( int iendcap ) const 
    { return (iendcap==1? poszEvenLayerGeometry:negzEvenLayerGeometry);}
 
    /**
@@ -189,79 +191,32 @@ public:
   //@@ The following is nonsense to be fixed at some stage
   //  float adcThreshold()        const {return 9.99;}  
 
+  /**
+   * Are strips ganged?
+   */
+   bool gangedStrips() const { return gangedStrips_; }
 
-
-
-
-  // STATIC FUNCTIONS
+  // STATIC FUNCTION
 
   /**
    * The usual integer label for 'chamber type' of this ring and station
    */
   static int whatChamberType( int istation, int iring );
 
-  /**
-   * Return the CSCChamberSpecs* for given chamber type
-   * if it exists, or 0 if it has not been created.
-   */
-  static CSCChamberSpecs* lookUp( int iChamberType );
-
-  /**
-   * Build CSCChamberSpecs for given chamber type.
-   *
-   * @@ This method is probably a good candidate to be replaced
-   * by a factory.
-   */
-  static CSCChamberSpecs* build( int iChamberType,
-          const std::vector<float>& fpar, 
-          const std::vector<float>& fupar,
-	  const CSCWireGroupPackage& wg );
-
-  static void setGangedStripsInME1a(bool gs)  { gangedstripsME1a = gs; }
-  static void setOnlyWiresInME1a(bool ow)     { onlywiresME1a = ow; }
-  static void setUseRealWireGeometry(bool wg) { useRealWireGeometry = wg; }
-  static void setUseCentreTIOffsets(bool cti) { useCentreTIOffsets = cti; }
-
-  /**
-   * Ganged strips in ME1a
-   */
-  static bool gangedStrips() { return gangedstripsME1a; }
-
-  /**
-   * Wires only in ME1a
-   */
-  static bool wiresOnly() { return onlywiresME1a; }
-
-  /**
-   * Wire geometry modelled as real hardware (complex
-   * groupings of wires and dead regions) or as a 'pseudo'
-   * geometry with just one wire grouping per chamber type
-   * (as was done in ORCA versions up to and including ORCA_8_8_1.)
-   */
-  static bool realWireGeometry() { return useRealWireGeometry; }
-
-  /**
-   * Use the backed-out offsets for theCentreToIntersection in
-   * CSCLayerGeometry
-   */
-  static bool centreTIOffsets() { return useCentreTIOffsets; }
-
  private:
 
   /// Accessor to chamber specs values
-  float specsValue( int index ) const;
+  float specsValue( int index ) const {
+    return theSpecsValues[ index ];  
+  }
 
-  /// Dump parameters for overall strip and wire modelling
-  static void whatModelling();
-
-
-// A ChamberSpecs has 4 associated LayerGeometry's
+  // A ChamberSpecs has 4 associated LayerGeometry's
   CSCLayerGeometry* poszOddLayerGeometry;
   CSCLayerGeometry* poszEvenLayerGeometry;
   CSCLayerGeometry* negzOddLayerGeometry;
   CSCLayerGeometry* negzEvenLayerGeometry;
 
-//  theChamberType is a unique integer 1-10 for a station, ring pair.
+  //  theChamberType is a unique integer 1-10 for a station, ring pair.
 
   //  The type value is defined as <br>
   //        1           for S = 1  and R=A=4 split strips in ME11 <br>
@@ -280,21 +235,13 @@ public:
   float stripDeltaPhi;   // Delta-phi width of strip in this chamber type (in mrad)
   float centreToIntersectionOffset; // Possible correction to whereStripsMeet
 
-  // Store pointers to Specs objects as we build them.
-  static std::map<int, CSCChamberSpecs*, std::less<int> > specsMap;
+  bool gangedStrips_;
 
   // Names of chamber types
   static const std::string theName[10];
 
   // Name of this class 
   static const std::string myName;
-
-  // Parameters controlling modelling of geometry _within_ all DetUnit's
-  static bool theFirstCall;
-  static bool gangedstripsME1a;
-  static bool onlywiresME1a;
-  static bool useRealWireGeometry;
-  static bool useCentreTIOffsets;
 
 };
 

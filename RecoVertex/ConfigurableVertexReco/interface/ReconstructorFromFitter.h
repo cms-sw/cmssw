@@ -17,6 +17,8 @@ class ReconstructorFromFitter : public AbstractConfReconstructor
     void configure(const edm::ParameterSet&);
     edm::ParameterSet defaults() const;
     std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > & ) const;
+    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > &,
+        const reco::BeamSpot & ) const;
 
     ReconstructorFromFitter * clone () const;
 

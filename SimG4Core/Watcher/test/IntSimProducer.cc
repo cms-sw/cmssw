@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 29 11:33:37 EST 2005
-// $Id: IntSimProducer.cc,v 1.2 2007/04/08 03:52:26 wmtan Exp $
 //
 
 // system include files

@@ -91,8 +91,8 @@ ContentViewer.getContentViewerRequestURL = function()
                                                                                      
   if (open.value != "")                                                              
   {                                                                                  
-    url = url + "/Request";                                                          
-    url = url + "?RequestID=ContentsOpen";                                           
+    //url = url + "/Request?";                                                          
+    url = url + "RequestID=ContentsOpen";                                           
     url = url + "&" + "Current=" + ContentViewer.contentViewer_current;                            
     url = url + "&" + "Open=" + open.value;                                          
   }                                                                                  

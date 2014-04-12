@@ -1,0 +1,42 @@
+[CRAB]
+
+jobtype     = cmssw
+scheduler   = caf
+server_name = None
+
+[CMSSW]
+
+datasetpath  = /Cosmics/Commissioning08_CRAFT_ALL_V9_225-v2/RECO
+runselection = 70036
+
+pset = SiStripDQMOfflineGlobalRunCAF_cfg.py
+
+total_number_of_events = 10000
+number_of_jobs         =    10
+
+# use this for output from DQM saver:
+# output_file = DQM_V0001_SiStrip_R000070036.root
+# use this for output from ME2EDM converter:
+output_file = ./SiStripDQMOfflineGlobalRunCAF.root
+
+[USER]
+
+eMail          = volker.adler@cern.ch
+# eMail          = volker.adler@cern.ch,volker.adler@gmx.net # FIXME Is a list allowed here? To be tested.
+thresholdLevel = 100
+
+# ui_working_dir = /full/path/Name_of_Directory # FIXME Not used here, but in the template.
+
+return_data = 0
+# outputdir = /full/path/yourOutDir
+# logdir    = /full/path/yourLogDir
+
+copy_data       = 1
+storage_element = srm.cern.ch
+storage_pool    = None
+storage_path    = /castor/cern.ch
+user_remote_dir = user/u/user
+
+# publish_data            = 0
+# publish_data_name       = yourDataName
+# dbs_url_for_publication = http://cmssrv17.fnal.gov:8989/DBS108LOC1/servlet/DBSServlet # FIXME Do I need to adjust this?

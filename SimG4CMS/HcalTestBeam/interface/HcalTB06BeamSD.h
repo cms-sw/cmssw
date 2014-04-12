@@ -36,7 +36,7 @@ private:
   bool                  isItWireChamber(G4String);
 
   bool                  useBirk;
-  double                birk1, birk2;
+  double                birk1, birk2, birk3;
   std::vector<G4String> wcNames;
   G4String              matName;
 

@@ -4,11 +4,8 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 // #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
-#include "Alignment/CommonAlignment/interface/SurveyDet.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyOutput.h"
-
-using namespace align;
 
 SurveyOutput::SurveyOutput(const std::vector<Alignable*>& alignables,
 			   const std::string& fileName):
@@ -25,19 +22,15 @@ void SurveyOutput::write(unsigned int iter)
 
   TNtuple* nt = new TNtuple(o.str().c_str(), "", "x:y:z:a:b:g");
 
-  int N = theAlignables.size();
+  unsigned int N = theAlignables.size();
 
-  for (int i = 0; i < N; ++i)
+  for (unsigned int i = 0; i < N; ++i)
   {
-    Alignable* ali = theAlignables[i];
+    const Alignable* ali = theAlignables[i];
 
-    const PositionType& pos0 = ali->survey()->position();
-    const PositionType& pos1 = ali->globalPosition();
-    const RotationType& rot0 = ali->survey()->rotation();
-    const RotationType& rot1 = ali->globalRotation();
+    align::GlobalVector shifts = ali->displacement() * 1e4; // cm to um
 
-    align::GlobalVector shifts = pos1 - pos0;
-    EulerAngles angles = toAngles( rot0.multiplyInverse(rot1) );
+    align::EulerAngles angles = align::toAngles( ali->rotation() ) * 1e3; // to mrad
 
     nt->Fill( shifts.x(), shifts.y(), shifts.z(),
 	      angles(1), angles(2), angles(3) );

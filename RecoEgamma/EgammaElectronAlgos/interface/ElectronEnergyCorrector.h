@@ -1,40 +1,41 @@
+
 #ifndef ElectronEnergyCorrector_H
 #define ElectronEnergyCorrector_H
 
-//===================================================================
-// Author: Federico Ferri - INFN Milano, Bicocca university 
-//         Ivica Puljak - FESB, Split 
-// 12/2005
-//adapted to CMSSW by U.Berthon, dec 2006
-//===================================================================
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-/*! \file ElectronEnergyCorrector.h
-  Egamma class for Correction of electrons energy. 
-*/
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+class EcalClusterFunctionBaseClass ;
 
 class ElectronEnergyCorrector
-{
- public:
-  
-  ElectronEnergyCorrector(){newEnergy_=0.;}
+ {
+  public:
 
-  float getCorrectedEnergy() const {return newEnergy_;}
+    ElectronEnergyCorrector( EcalClusterFunctionBaseClass * crackCorrectionFunction )
+     : crackCorrectionFunction_(crackCorrectionFunction) {}
 
-  virtual void correct(reco::PixelMatchGsfElectron &);
+    void classBasedParameterizationEnergy( reco::GsfElectron &, const reco::BeamSpot & bs ) ;
+    void classBasedParameterizationUncertainty( reco::GsfElectron & ) ;
+    void simpleParameterizationUncertainty( reco::GsfElectron & ) ;
 
- private:
+  private:
 
-  void setNewEnergy(const reco::PixelMatchGsfElectron &);
+    double fEtaBarrelBad( double scEta ) const ;
+    double fEtaBarrelGood( double scEta ) const ;
+    double fEtaEndcapBad( double scEta ) const ;
+    double fEtaEndcapGood( double scEta ) const ;
 
-  double fEtaBarrelBad(double scEta) const;
-  double fEtaBarrelGood(double scEta) const;
-  double fEtaEndcapBad(double scEta) const;
-  double fEtaEndcapGood(double scEta) const;
+    // new corrections (N. Chanon et al.)
+    float fEta  (float energy, float eta, int algorithm) const ;
+    //float fBrem (float e,  float eta, int algorithm) const ;
+    //float fEtEta(float et, float eta, int algorithm) const ;
+    float fBremEta(float sigmaPhiSigmaEta, float eta, int algorithm, reco::GsfElectron::Classification cl ) const ;
+    float fEt(float et, int algorithm, reco::GsfElectron::Classification cl ) const ;
+    float fEnergy(float e, int algorithm, reco::GsfElectron::Classification cl ) const ;
 
-  float newEnergy_;
+    EcalClusterFunctionBaseClass * crackCorrectionFunction_ ;
 
-};
+ } ;
 
 #endif
 

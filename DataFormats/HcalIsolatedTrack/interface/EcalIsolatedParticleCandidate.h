@@ -4,71 +4,69 @@
  *
  *
  */
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Candidate/interface/OverlapChecker.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidateFwd.h"
 
 namespace reco {
   
-  class EcalIsolatedParticleCandidate: public RecoCandidate {
+  class EcalIsolatedParticleCandidate: public LeafCandidate {
     
   public:
     
     // default constructor
-    EcalIsolatedParticleCandidate() : RecoCandidate() { }
-      // constructor from a superCluster
-      EcalIsolatedParticleCandidate(const reco::SuperClusterRef& sc,double etacl, double phicl,  double encl, double enmnear, double ensnear): 
-	//     EcalIsolatedParticleCandidate(double etacl, double phicl,  double encl, double eSC, double eBC):
-	RecoCandidate( 0, LorentzVector() ),
-	superClu_(sc), eta_(etacl),phi_(phicl),energy_(encl), enMaxNear_(enmnear), enSumNear_(ensnear) {}
-	
-	//constructor with null candidate
-	EcalIsolatedParticleCandidate(double etacl, double phicl,  double encl, double enmnear, double ensnear):
-	  RecoCandidate( 0, LorentzVector() ), eta_(etacl),phi_(phicl),energy_(encl), enMaxNear_(enmnear), enSumNear_(ensnear) {} 
-	  /// destructor
-	virtual ~EcalIsolatedParticleCandidate();
-	/// returns a clone of the candidate
-	virtual EcalIsolatedParticleCandidate * clone() const;
-	
-	/// reference to a BasicCluster
-	virtual reco::SuperClusterRef superCluster() const;
+    EcalIsolatedParticleCandidate() : LeafCandidate() { }
+      // constructor from a tau jet
+    EcalIsolatedParticleCandidate(const l1extra::L1JetParticleRef& l1tau, double etatau, double phitau,  double enIn, double enOut, int nhitIn, int nhitOut): 
+      LeafCandidate( 0, PtEtaPhiMass(0.,etatau, phitau, 0.) )
+      ,l1tau_(l1tau), enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), nhitOut_(nhitOut){}
+    
+    //constructor with null candidate
+    EcalIsolatedParticleCandidate(double etatau, double phitau,  double enIn, double enOut, int nhitIn, int nhitOut):
+      LeafCandidate( 0, PtEtaPhiMass(0.,etatau, phitau, 0.) )
+      ,enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), nhitOut_(nhitOut) {} 
 
-	double eta() const {return eta_; }
-	
-	double phi() const {return phi_; }
-
-	double energy() const {return energy_; }
-
-	/// total ecal energy in smaller cone around the candidate
-	double enMaxNear() const {return enMaxNear_;}
-	/// total ecal energy in bigger cone around the candidate
-	double enSumNear() const {return enSumNear_;}
-	
-	/// set refrence to BasicCluster component
-	void setSuperCluster( const SuperClusterRef & sc ) { superClu_ = sc; }
-	
-
+    /// destructor
+    virtual ~EcalIsolatedParticleCandidate();
+    /// returns a clone of the candidate
+    virtual EcalIsolatedParticleCandidate * clone() const;
+    
+    /// reference to a tau jet
+    virtual l1extra::L1JetParticleRef l1TauJet() const;
+    
+    /// ECAL energy in the inner cone around tau jet
+    double energyIn() const {return enIn_; }
+    
+    /// ECAL energy in the outer cone around tau jet
+    double energyOut() const {return enOut_;}
+    
+    /// number of ECAL hits in the inner cone around tau jet
+    int nHitIn() const {return nhitIn_;}
+    
+    /// number of ECAL hits in the outer cone around tau jet
+    int nHitOut() const {return nhitOut_;}
+    
+    /// set reference to l1 tau jet
+    void setL1TauJet( const l1extra::L1JetParticleRef & l1tau ) { l1tau_ = l1tau; }
+    
+    
   private:
-    /// check overlap with another candidate
-    virtual bool overlap( const reco::Candidate & ) const;
-    /// reference to a superCluster
-    reco::SuperClusterRef superClu_;
-    /// eta of super cluster
-    double eta_;
-    /// phi of super cluster
-    double phi_;
-    /// energy of super cluster 
-    double energy_;
-    /// total ecal energy in smaller cone around the candidate
-    double enMaxNear_;
-    /// total ecal energy in bigger cone around the candidate
-    double enSumNear_;
+    /// reference to a L1 tau jet
+    l1extra::L1JetParticleRef l1tau_;
+    /// energy in inner cone around L1 tau jet
+    double enIn_;
+    /// energy in outer cone around L1 tau jet
+    double enOut_;
+    /// number of hits in inner cone
+    int nhitIn_;
+    /// number of hits in inner cone
+    int nhitOut_;
 
   };
 
 
 }
 
-#endif
+#endif // HcalIsolatedTrack_EcalIsolatedParticleCandidate_h

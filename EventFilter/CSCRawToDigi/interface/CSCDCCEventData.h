@@ -8,13 +8,14 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 
 class CSCDCCEventData {
 public:
   CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a);
   /// buf may need to stay pinned in memory as long
   /// as this data is used.  Not sure
-  explicit CSCDCCEventData(unsigned short *buf);
+  explicit CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner=NULL);
 
   ~CSCDCCEventData();
 
@@ -37,14 +38,16 @@ public:
   /// from the header or trailer
   int sizeInWords() const {return theSizeInWords;}
 
+  void addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID);
+
   ///packs data into bits
   boost::dynamic_bitset<> pack();  
 
-  static bool debug;
+  static std::atomic<bool> debug;
 
 
 protected:
-  void unpack_data(unsigned short * buf);
+  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=NULL);
   CSCDCCHeader theDCCHeader;
   // DDUData is unpacked and stored in this vector
   std::vector<CSCDDUEventData> theDDUData;

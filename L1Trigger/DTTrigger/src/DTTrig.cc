@@ -20,19 +20,23 @@
 #include "L1Trigger/DTTrigger/interface/DTTrig.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <string>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -43,21 +47,18 @@
 // Constructors --
 //----------------
 
-// DTTrig::DTTrig()
-
-
-DTTrig::DTTrig(const DTConfigManager * conf) :
-_conf_manager(conf) {
-
+DTTrig::DTTrig(const  edm::ParameterSet &params) :
+ _inputexist(1) ,  _configid(0) , _geomid(0) {
 
   // Set configuration parameters
-  _debug = _conf_manager->getDTTPGDebug();
+  _debug = params.getUntrackedParameter<bool>("debug");
 
   if(_debug){
     std::cout << std::endl;
     std::cout << "**** Initialization of DTTrigger ****" << std::endl;
-    std::cout << std::endl;
   }
+
+  _digitag   = params.getParameter<edm::InputTag>("digiTag");
 
 }
 
@@ -86,20 +87,8 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
 	std::cout << "DTTrig::createTUs: Sector Collector unit already exists"<<std::endl;
 	continue;
       }    
-      // add a sector collector to the map
-//       SCConf_iterator scit = _scconf.find(scid);
-      //edm::ParameterSet sc_pset = _conf_pset.getParameter<edm::ParameterSet>("SectCollParameters");
       DTSectColl* sc;
-      //sc = new DTSectColl(sc_pset);
-      sc = new DTSectColl(_conf_manager,scid);
-
-      //  if ( scit != _scconf.end()){
-      // 	sc = new DTSectColl( (*scit).second);
-      //       }
-      //       else {
-      // 	std::cout << "DTTrig::createTUs: SC config file does not exist. Using default one";
-      // 	sc = new DTSectColl(config());
-      //       }
+      sc = new DTSectColl(scid);
       if(_debug){
 	std::cout << " DTTrig::createTUs new SC sc = " << sc  
 		  << " at scid.sector() " << scid.sector() 
@@ -110,9 +99,9 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
     }
   }
   
-  edm::ESHandle<DTGeometry>pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
-  for (std::vector<DTChamber*>::const_iterator ich=pDD->chambers().begin(); ich!=pDD->chambers().end();ich++){
+  edm::ESHandle<DTGeometry>dtGeom;
+  iSetup.get<MuonGeometryRecord>().get(dtGeom);
+  for (std::vector<DTChamber*>::const_iterator ich=dtGeom->chambers().begin(); ich!=dtGeom->chambers().end();ich++){
        
     DTChamber* chamb = (*ich);
     DTChamberId chid = chamb->id();
@@ -120,19 +109,9 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
     if ( it != _cache.end()) {
       std::cout << "DTTrig::init: Trigger unit already exists" << std::endl;
       continue;
-    }    
-    //    Conf_iterator cit = _truconf.find(chid);
-    //       if ( cit == _truconf.end()) {
-    // 	std::cout << "DTTrig::init: Local Config File not found using default config" << std::endl;
-    // 	DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,config());
-    // 	_cache[chid] = tru;
-    // 	continue;
-    //       }
+    }
 
-    // add a trigger unit to the map with a link to the station
-    //edm::ParameterSet tu_pset = _conf_pset.getParameter<edm::ParameterSet>("TUParameters");
-    //DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,tu_pset);
-    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,_conf_manager);
+    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb);
     _cache[chid] = tru;
     
     //----------- add TU to corresponding SC
@@ -154,7 +133,8 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
 	std::cout << "DTTrig::init:  adding TU in SC << " 
 		  << " sector = " << scid.sector() 
 		  << " wheel = " << scid.wheel() 
-		  << std::endl;}
+		  << std::endl;
+      }
       sc->addTU(tru);    
     }
     else {
@@ -168,56 +148,35 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
 
 void 
 DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+ 
+  updateES(iSetup);
+  if (!_inputexist) return;
+
   DTDigiMap digiMap;
   //Sort digis by chamber so they can be used by BTIs
   edm::Handle<DTDigiCollection> dtDigis;
-  iEvent.getByLabel("muonDTDigis", dtDigis);   
+  iEvent.getByLabel(_digitag, dtDigis);
+
+  if (!dtDigis.isValid()) {
+    LogDebug("DTTrig")
+      << "DTTrig::triggerReco DTDigiCollection  with input tag " << _digitag
+      << "requested in configuration, but not found in the event." << std::endl;
+    _inputexist = false;
+    return;
+  }
+   
   DTDigiCollection::DigiRangeIterator detUnitIt;
   
   for (detUnitIt=dtDigis->begin();
        detUnitIt!=dtDigis->end();
        ++detUnitIt){
+
     const DTLayerId& layId = (*detUnitIt).first;
     const DTChamberId chambId=layId.superlayerId().chamberId();
-    const DTDigiCollection::Range& range = (*detUnitIt).second;
-    //    DTDigiCollection tmpDTDigiColl;
-    //tmpDTDigiColl.put(range,layId); 
+    const DTDigiCollection::Range& range = (*detUnitIt).second; 
     digiMap[chambId].put(range,layId); 
-//     const DTDigiCollection::Range& range = (*detUnitIt).second;
-//     for (DTDigiCollection::const_iterator digiIt = range.first;
-// 	 digiIt!=range.second;
-// 	 ++digiIt){
-//       DTDigiCollection tmp;
-      
-//       digiMap[chambId].push_back((*digiIt));
-//     }
-  }
 
-  // CB the commented because we don't use config()->debug() anymore in future will probably be possible to avoid the digis sorting  
-//   if(config()->debug()>2){
-//     std::cout << "----------DTDigis ordered by chamber:" << std::endl;
-//     for (DTDigiMap_const_iterator digiMapIt=digiMap.begin();
-// 	 digiMapIt!=digiMap.end();
-// 	 digiMapIt++){
-//       DTChamberId chambId = (*digiMapIt).first;
-//       DTDigiCollection digis = (*digiMapIt).second;
-//       std::cout << "Chamber id   " << chambId << std::endl;
-//       DTDigiCollection::DigiRangeIterator RangeIt;
-//       for (RangeIt=digis.begin();
-// 	   RangeIt!=digis.end();
-// 	   RangeIt++){
-// 	std::cout << "Digi's layer   " << (*RangeIt).first << std::endl;
-// 	const DTDigiCollection::Range& range = (*RangeIt).second;
-// 	for (DTDigiCollection::const_iterator digiIt = range.first;
-// 	     digiIt!=range.second;
-// 	     ++digiIt){
-// 	  std::cout << "Digi's data   " << (*digiIt) << std::endl; 
-// 	}
-	
-	
-//       }
-//     }
-//   }
+  }
   
   //Run reconstruct for single trigger subsystem (Bti, Traco TS)
   for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
@@ -268,6 +227,46 @@ DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
 }
+
+void
+DTTrig::updateES(const edm::EventSetup& iSetup){
+
+  // Check for updatets in config
+  edm::ESHandle<DTConfigManager> confHandle;
+  edm::ESHandle<DTGeometry> geomHandle;
+
+  if (iSetup.get<DTConfigManagerRcd>().cacheIdentifier()!=_configid) {
+    
+    if (_debug)
+      std::cout << "DTTrig::updateES updating DTTPG configuration" << std::endl;
+    
+    _configid = iSetup.get<DTConfigManagerRcd>().cacheIdentifier();
+    iSetup.get<DTConfigManagerRcd>().get(confHandle);
+    _conf_manager = confHandle.product();
+    for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
+      (*it).second->setConfig(_conf_manager);
+    }
+    for (SC_iterator it=_cache1.begin();it!=_cache1.end();it++){
+      (*it).second->setConfig(_conf_manager);
+    }
+
+  }
+
+  if (iSetup.get<MuonGeometryRecord>().cacheIdentifier()!=_configid) {
+
+    if (_debug)
+      std::cout << "DTTrig::updateES updating muon geometry" << std::endl;
+
+    _geomid = iSetup.get<MuonGeometryRecord>().cacheIdentifier();
+    iSetup.get<MuonGeometryRecord>().get(geomHandle);
+    for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
+      (*it).second->setGeom(geomHandle->chamber((*it).second->statId()));
+    }
+
+  }
+
+} 
+
 
 void
 DTTrig::clear() {
@@ -463,6 +462,25 @@ DTTrig::dumpGeom() {
   for (TU_const_iterator it=_cache.begin();it!=_cache.end();it++){
     ((*it).second)->dumpGeom();
   }
+}
+
+void 
+DTTrig::dumpLuts(short int lut_btic, const DTConfigManager *conf) {
+  for (TU_const_iterator it=_cache.begin();it!=_cache.end();it++){
+
+    DTSCTrigUnit* thisTU = (*it).second;
+
+    // dump lut command file from geometry
+    thisTU->dumpLUT(lut_btic);
+
+    // dump lut command file from parameters (DB or CMSSW)
+    DTChamberId chid = thisTU->statId();
+    conf->dumpLUTParam(chid);
+
+  }
+ 
+  return;
+
 }
 
 std::vector<DTBtiTrigData> 

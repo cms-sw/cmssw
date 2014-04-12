@@ -6,8 +6,6 @@
  *  The two public methods act as an interface for the parametrization converting the reference frame
  *  and the units accordingly to CMSSW convention.
  *
- *  $Date: 2006/05/17 13:47:17 $
- *  $Revision: 1.2 $
  *  \author  Pablo Garcia-Abia and Jesus Puerta (CIEMAT, Madrid)
  */
 

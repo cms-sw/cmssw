@@ -1,58 +1,37 @@
-//<<<<<< INCLUDES                                                       >>>>>>
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Utilities/StorageFactory/test/Test.h"
+#include "Utilities/StorageFactory/interface/File.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
+#include <string>
 
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-#include "SealBase/DebugAids.h"
-#include "SealBase/Signal.h"
-#include "SealBase/Error.h"
-#include "SealBase/File.h"
-#include <iostream>
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
-using namespace seal;
-int main (int, char **argv)
+int main (int argc, char *argv[]) try
 {
-    Signal::handleFatal (argv [0]);
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  initTest();
 
-    try
-    {
-	std::string	user (UserInfo::self ()->id ());
-	std::string	path (std::string ("rfio:/castor/cern.ch/user/")
-		       	      + user[0] + "/" + user + "/rfiotest");
-	std::cout << "copying /etc/profile to " << path << "\n";
-
-	IOSize		bytes;
-	unsigned char	buf [4096];
-	File		input ("/etc/profile");
-    	Storage		*s = StorageFactory::get ()->open (path.c_str (),
-							   IOFlags::OpenWrite
-							   | IOFlags::OpenCreate
-							   | IOFlags::OpenTruncate);
-
-	while ((bytes = input.read (buf, sizeof (buf))))
-	    s->write (buf, bytes);
-
-	input.close ();
-	s->close ();
+    std::string	path ("rfio:/castor/cern.ch/cms/test/IBTestFiles/rfiotestwrite");
+    if (argc > 1) {
+      path = std::string ("rfio:") + argv[1];
     }
-    catch (Error &e)
-    {
-	std::cerr << e.explain () << std::endl;
-	return EXIT_FAILURE;
-    }
+    std::cout << "copying /etc/profile to " << path << "\n";
 
-    std::cerr << "stats:\n" << StorageAccount::summaryText ();
-    return EXIT_SUCCESS;
+    IOSize		bytes;
+    unsigned char	buf [4096];
+    File		input ("/etc/profile");
+    Storage		*s = StorageFactory::get ()->open
+      (path.c_str (), IOFlags::OpenWrite|IOFlags::OpenCreate|IOFlags::OpenTruncate);
+
+    while ((bytes = input.read (buf, sizeof (buf))))
+        s->write (buf, bytes);
+
+    input.close ();
+    s->close ();
+
+  std::cout << StorageAccount::summaryXML() << std::endl;
+  return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
 }

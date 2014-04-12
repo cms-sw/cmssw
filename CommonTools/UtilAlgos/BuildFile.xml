@@ -1,0 +1,11 @@
+<use   name="CommonTools/Utils"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="DataFormats/DetId"/>
+<use   name="roothistmatrix"/>
+<export>
+  <lib   name="1"/>
+</export>

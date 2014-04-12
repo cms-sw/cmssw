@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCaloTowerCandidate.h,v 1.3 2006/04/26 07:56:20 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -19,6 +18,9 @@ namespace reco {
     RecoCaloTowerCandidate() : RecoCandidate() { }
     /// constructor from values
     RecoCaloTowerCandidate( Charge q , const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
+      RecoCandidate( q, p4, vtx ) { }
+    /// constructor from values
+    RecoCaloTowerCandidate( Charge q , const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
       RecoCandidate( q, p4, vtx ) { }
     /// destructor
     virtual ~RecoCaloTowerCandidate();

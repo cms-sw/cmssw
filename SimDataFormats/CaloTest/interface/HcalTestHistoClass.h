@@ -23,11 +23,11 @@ public:
 
   void setCounters();
   void fillLayers (double el[], double ho, double hbhe, double muxy[]);
-  void fillHits   (std::vector<CaloHit>);
+  void fillHits   (std::vector<CaloHit>&);
   void fillQie    (int id, double esimtot, double eqietot, int nGroup,
-		   std::vector<double> longs,  std::vector<double> longq,
-		   int nTower, std::vector<double> latphi, 
-		   std::vector<double> latfs, std::vector<double> latfq);
+		   const std::vector<double>& longs,  const std::vector<double>& longq,
+		   int nTower, const std::vector<double>& latphi, 
+		   const std::vector<double>& latfs, const std::vector<double>& latfq);
 
   struct Layer {
     Layer() {}

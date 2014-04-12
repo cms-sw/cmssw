@@ -57,7 +57,7 @@ public:
   void pv(OpticalObject * opto);
   void newSectPost_pv(std::string name);
   void newSectPre_ro(std::string name);
-  void ro(const HepRotation& ro, int n);
+  void ro(const CLHEP::HepRotation& ro, int n);
   void newSectPost_ro(std::string name);
   void newSectPre_specPar(std::string name);
   void specPar(OpticalObject * opto);
@@ -77,7 +77,7 @@ private:
   std::string filename_;
 
   std::vector<CocoaMaterialElementary*> theMaterialList;
-  std::vector<HepRotation> theRotationList;
+  std::vector<CLHEP::HepRotation> theRotationList;
 
 };
 #endif

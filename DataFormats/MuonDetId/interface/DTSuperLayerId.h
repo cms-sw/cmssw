@@ -4,8 +4,6 @@
 /** \class DTSuperLayerId
  *  DetUnit identifier for DT SuperLayers (SL)
  *
- *  $Date: 2006/03/29 19:00:56 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 

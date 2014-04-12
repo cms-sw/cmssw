@@ -3,19 +3,24 @@
 //
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 
-#include "HLTrigger/HLTanalyzers/interface/L1TrigReport.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
 
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTBitAnalyzer.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTGetDigi.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTGetRaw.h"
 
-DEFINE_SEAL_MODULE();
+DEFINE_FWK_MODULE(HLTrigReport);
 
-DEFINE_ANOTHER_FWK_MODULE(L1TrigReport);
-DEFINE_ANOTHER_FWK_MODULE(HLTrigReport);
-
-DEFINE_ANOTHER_FWK_MODULE(HLTAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(HLTGetDigi);
-DEFINE_ANOTHER_FWK_MODULE(HLTGetRaw);
+DEFINE_FWK_MODULE(HLTAnalyzer);
+DEFINE_FWK_MODULE(HLTBitAnalyzer);
+DEFINE_FWK_MODULE(HLTGetDigi);
+DEFINE_FWK_MODULE(HLTGetRaw);

@@ -1,7 +1,6 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.9 2007/03/26 11:28:25 fabiocos Exp $
  *
 */
 
@@ -11,24 +10,26 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/Math/interface/Point3D.h"
+
 using namespace std;
 using namespace cms;
 
-EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) : flatDistribution_(0) {
-  
+EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
+
   produces<PEcalTBInfo>();
 
   edm::FileInPath CrystalMapFile = ps.getParameter<edm::FileInPath>("CrystalMapFile");
   GenVtxLabel = ps.getUntrackedParameter<string>("moduleLabelVtx","source");
-  double fMinEta = ps.getUntrackedParameter<double>("MinEta");
-  double fMaxEta = ps.getUntrackedParameter<double>("MaxEta");
-  double fMinPhi = ps.getUntrackedParameter<double>("MinPhi");
-  double fMaxPhi = ps.getUntrackedParameter<double>("MaxPhi");
+  double fMinEta = ps.getParameter<double>("MinEta");
+  double fMaxEta = ps.getParameter<double>("MaxEta");
+  double fMinPhi = ps.getParameter<double>("MinPhi");
+  double fMaxPhi = ps.getParameter<double>("MaxPhi");
   beamEta = (fMaxEta+fMinEta)/2.;
   beamPhi = (fMaxPhi+fMinPhi)/2.;
   beamTheta = 2.0*atan(exp(-beamEta));
-  beamXoff = ps.getUntrackedParameter<double>("BeamMeanX",0.0);
-  beamYoff = ps.getUntrackedParameter<double>("BeamMeanX",0.0);
+  beamXoff = ps.getParameter<double>("BeamMeanX");
+  beamYoff = ps.getParameter<double>("BeamMeanX");
    
   string fullMapName = CrystalMapFile.fullPath();
   theTestMap = new EcalTBCrystalMap(fullMapName);
@@ -71,8 +72,6 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) : flatDi
 
   // rotation matrix to move from the CMS reference frame to the test beam one
 
-  fromCMStoTB = new HepRotation();
-
   double xx = -cos(beamTheta)*cos(beamPhi);
   double xy = -cos(beamTheta)*sin(beamPhi);
   double xz = sin(beamTheta);
@@ -85,33 +84,27 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) : flatDi
   double zy = sin(beamTheta)*sin(beamPhi);
   double zz = cos(beamTheta);
 
-  const HepRep3x3 mCMStoTB(xx, xy, xz, yx, yy, yz, zx, zy, zz);
-
-  fromCMStoTB->set(mCMStoTB);
-
+  fromCMStoTB = new ROOT::Math::Rotation3D(xx, xy, xz, yx, yy, yz, zx, zy, zz);
 
   // random number
   edm::Service<edm::RandomNumberGenerator> rng;
-   if ( ! rng.isAvailable()) {
+  if ( ! rng.isAvailable()) {
      throw cms::Exception("Configuration")
        << "EcalTBMCInfoProducer requires the RandomNumberGeneratorService\n"
           "which is not present in the configuration file.  You must add the service\n"
           "in the configuration file or remove the modules that require it.";
    }
-   CLHEP::HepRandomEngine& engine = rng->getEngine();
-   flatDistribution_ = new CLHEP::RandFlat(engine);
-
 }
  
 EcalTBMCInfoProducer::~EcalTBMCInfoProducer() {
-
-  delete flatDistribution_;
   delete theTestMap;
-  
 }
 
  void EcalTBMCInfoProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
 {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(event.streamID());
+
   auto_ptr<PEcalTBInfo> product(new PEcalTBInfo());
 
   // Fill the run information
@@ -132,16 +125,16 @@ EcalTBMCInfoProducer::~EcalTBMCInfoProducer() {
   const HepMC::GenEvent* Evt = GenEvt->GetEvent() ;
   HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin();
 
-  Hep3Vector eventCMSVertex = Hep3Vector((*Vtx)->position().x(),
-                                         (*Vtx)->position().y(),
-                                         (*Vtx)->position().z());
+  math::XYZPoint eventCMSVertex((*Vtx)->position().x(),
+                                (*Vtx)->position().y(),
+                                (*Vtx)->position().z());
   
   LogDebug("EcalTBInfo") << "Generated vertex position = " 
                          << eventCMSVertex.x() << " " 
                          << eventCMSVertex.y() << " " 
                          << eventCMSVertex.z();
 
-  Hep3Vector & eventTBVertex = eventCMSVertex.transform((*fromCMStoTB));
+  math::XYZPoint eventTBVertex = (*fromCMStoTB)*eventCMSVertex;
 
   LogDebug("EcalTBInfo") << "Rotated vertex position   = "
                          << eventTBVertex.x() << " " 
@@ -154,7 +147,7 @@ EcalTBMCInfoProducer::~EcalTBMCInfoProducer() {
   product->setBeamPosition(partXhodo, partYhodo);
 
   // Asynchronous phase shift
-  double thisPhaseShift = flatDistribution_->fire();
+  double thisPhaseShift = CLHEP::RandFlat::shoot(engine);
 
   product->setPhaseShift(thisPhaseShift);
   LogDebug("EcalTBInfo") << "Asynchronous Phaseshift = " << thisPhaseShift;
@@ -163,5 +156,3 @@ EcalTBMCInfoProducer::~EcalTBMCInfoProducer() {
 
   event.put(product);
 }
-
-

@@ -1,5 +1,5 @@
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
 
-EVENTSETUP_DATA_REG(CaloTPGTranscoder);
+TYPELOOKUP_DATA_REG(CaloTPGTranscoder);

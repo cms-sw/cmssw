@@ -4,22 +4,23 @@
 
 // needed for the debugging
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
 #include "FastSimulation/CaloGeometryTools/interface/DistanceToCell.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
-#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
-#include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <algorithm>
 
 CaloGeometryHelper::CaloGeometryHelper():Calorimeter()
 {
@@ -35,16 +36,24 @@ CaloGeometryHelper::CaloGeometryHelper(const edm::ParameterSet& fastCalo):Calori
   psLayer2Z_ = 307;
 }
 
-void CaloGeometryHelper::initialize()
+void CaloGeometryHelper::initialize(double bField)
 {
   buildCrystalArray();
   buildNeighbourArray();
-  bfield_ = MagneticFieldMap::instance()->inTesla(GlobalPoint(0.,0.,0.)).z();
-  ESDetId cps1(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,303.),1));
-  psLayer1Z_ = getEcalPreshowerGeometry()->getGeometry(cps1)->getPosition().z();
-  ESDetId cps2(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,307.),2));
-  psLayer2Z_ = getEcalPreshowerGeometry()->getGeometry(cps2)->getPosition().z();
-  LogDebug("CaloGeometryTools")  << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
+  bfield_ = bField;
+  preshowerPresent_=(getEcalPreshowerGeometry()!=0);
+    
+  if(preshowerPresent_)
+    {
+      ESDetId cps1(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,303.),1));
+      psLayer1Z_ = getEcalPreshowerGeometry()->getGeometry(cps1)->getPosition().z();
+      ESDetId cps2(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,307.),2));
+      psLayer2Z_ = getEcalPreshowerGeometry()->getGeometry(cps2)->getPosition().z();
+      LogDebug("CaloGeometryTools")  << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
+    }
+  else
+    LogDebug("CaloGeometryTools")  << " No preshower present" << std::endl;
+
   //  std::cout << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
 
 }
@@ -90,6 +99,47 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
   else
     {
       result=HcalGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
+      HcalDetId myDetId(result);
+
+      // special patch for HF
+      if ( myDetId.subdetId() == HcalForward ) {
+	int mylayer;
+	if ( fabs(point.Z()) > 1132. ) {
+	  mylayer = 2;
+	} else {
+	  mylayer = 1;
+	}
+	HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(),myDetId.ieta(),myDetId.iphi(),mylayer);
+	result = myDetId2;
+	return result;
+      }
+
+
+      if(result.subdetId()!=HcalEndcap) return result;
+      // Special patch to correct the HCAL geometry
+      if(myDetId.depth()==3) return result;
+
+      int ieta=myDetId.ietaAbs();
+      float azmin=400.458;         /// in sync with BaseParticlePropagator 
+
+      if(ieta<=17) 
+        return result;
+      else if(ieta>=18 && ieta<=26) 
+        azmin += 35.0;    // don't consider ieta=18 nose separately
+      else if(ieta>=27)
+        azmin += 21.0;
+
+      HcalDetId first(HcalEndcap,myDetId.ieta(),myDetId.iphi(),1);
+      bool layer2=(fabs(point.Z())>azmin);
+      if(!layer2)
+        {
+          return first;
+        }
+      else
+        {
+          HcalDetId second(HcalEndcap,myDetId.ieta(),myDetId.iphi(),2);
+	  if(second!=HcalDetId()) result=second;
+	}
 #ifdef DEBUGGCC
       if(result.null()) 
 	{
@@ -114,7 +164,6 @@ void CaloGeometryHelper::getWindow(const DetId& pivot,int s1,int s2,std::vector<
   // currently the getWindow method is the same for EcalBarrelTopology and EndcapTopology
   // (implemented in CaloSubDetectorTopology)
   // optimized versions are foreseen 
-
   vec=getEcalTopology(pivot.subdetId())->getWindow(pivot,s1,s2);
   DistanceToCell distance(getEcalGeometry(pivot.subdetId()),pivot);
   sort(vec.begin(),vec.end(),distance);
@@ -141,13 +190,13 @@ void CaloGeometryHelper::buildNeighbourArray()
   static const CaloDirection orderedDir[8]={SOUTHWEST,SOUTH,SOUTHEAST,WEST,EAST,NORTHWEST,NORTH,
 					    NORTHEAST};
 
-  const unsigned nbarrel = 62000;
+  const unsigned nbarrel = EBDetId::kSizeForDenseIndexing;
   // Barrel first. The hashed index runs from 0 to 61199
   barrelNeighbours_.resize(nbarrel);
   
   //std::cout << " Building the array of neighbours (barrel) " ;
 
-  std::vector<DetId> vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
+  const std::vector<DetId>&  vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
   for(unsigned ic=0; ic<size; ++ic) 
     {
@@ -200,21 +249,21 @@ void CaloGeometryHelper::buildNeighbourArray()
   //  std::cout << " done " << size << std::endl;
   //  std::cout << " Building the array of neighbours (endcap) " ;
 
-  vec.clear();
-  vec=EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
-  size=vec.size();    
+
+  const std::vector<DetId> & vece(EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap));
+  size=vece.size();    
   // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
   // of crystals
-  const unsigned nendcap=19960;
+  const unsigned nendcap=EEDetId::kSizeForDenseIndexing;
 
   endcapNeighbours_.resize(nendcap);
   for(unsigned ic=0; ic<size; ++ic) 
     {
       // We get the 9 cells in a square. 
-      std::vector<DetId> neighbours(EcalEndcapTopology_->getWindow(vec[ic],3,3));
+      std::vector<DetId> neighbours(EcalEndcapTopology_->getWindow(vece[ic],3,3));
       unsigned nneighbours=neighbours.size();
       // remove the centre
-      unsigned hashedindex=EEDetId(vec[ic]).hashedIndex();
+      unsigned hashedindex=EEDetId(vece[ic]).hashedIndex();
       
       if(hashedindex>=nendcap)
 	{
@@ -227,7 +276,7 @@ void CaloGeometryHelper::buildNeighbourArray()
 	  for(unsigned in=0;in<nneighbours;++in)
 	    {	  
 	      // remove the centre
-	      if(neighbours[in]!=vec[ic]) 
+	      if(neighbours[in]!=vece[ic]) 
 		{
 		  endcapNeighbours_[hashedindex].push_back(neighbours[in]);
 		}
@@ -235,7 +284,7 @@ void CaloGeometryHelper::buildNeighbourArray()
 	}
       else
 	{
-	  DetId central(vec[ic]);
+	  DetId central(vece[ic]);
 	  endcapNeighbours_[hashedindex].resize(8,DetId(0));
 	  for(unsigned idir=0;idir<8;++idir)
 	    {
@@ -399,12 +448,12 @@ if(c1.subdetId()==EcalEndcap)
 
 void CaloGeometryHelper::buildCrystalArray()
 {
-  const unsigned nbarrel = 62000;
+  const unsigned nbarrel = EBDetId::kSizeForDenseIndexing;
   // Barrel first. The hashed index runs from 0 to 61199
   barrelCrystals_.resize(nbarrel,BaseCrystal());
 
   //std::cout << " Building the array of crystals (barrel) " ;
-  std::vector<DetId> vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
+  const std::vector<DetId>&  vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
   const CaloCellGeometry * geom=0;
   for(unsigned ic=0; ic<size; ++ic) 
@@ -419,19 +468,19 @@ void CaloGeometryHelper::buildCrystalArray()
   //  std::cout << " done " << size << std::endl;
   //  std::cout << " Building the array of crystals (endcap) " ;
   
-  vec.clear();
-  vec=EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
-  size=vec.size();    
+
+  const std::vector<DetId>&  vece(EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap));
+  size=vece.size();    
   // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
   // of crystals
-  const unsigned nendcap=19960;
+  const unsigned nendcap=EEDetId::kSizeForDenseIndexing;
 
   endcapCrystals_.resize(nendcap,BaseCrystal());
   for(unsigned ic=0; ic<size; ++ic) 
     {
-      unsigned hashedindex=EEDetId(vec[ic]).hashedIndex();
-      geom = EcalEndcapGeometry_->getGeometry(vec[ic]);
-      BaseCrystal xtal(vec[ic]);
+      unsigned hashedindex=EEDetId(vece[ic]).hashedIndex();
+      geom = EcalEndcapGeometry_->getGeometry(vece[ic]);
+      BaseCrystal xtal(vece[ic]);
       xtal.setCorners(geom->getCorners(),geom->getPosition());
       endcapCrystals_[hashedindex]=xtal;
     }

@@ -18,7 +18,6 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:18:35 CEST 2006
-// $Id: EgammaHLTHcalIsolationDoubleCone.h,v 1.1 2007/05/31 19:38:50 mpieri Exp $
 //
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"

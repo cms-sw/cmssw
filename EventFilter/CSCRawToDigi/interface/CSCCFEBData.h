@@ -25,7 +25,7 @@ class CSCCFEBData {
 
   unsigned adcCounts(unsigned layer, unsigned channel, unsigned timeBin) const;
   unsigned adcOverflow(unsigned layer, unsigned channel, unsigned timeBin) const;
-  unsigned controllerData(unsigned layer, unsigned channel, unsigned timeBin) const;
+  unsigned controllerData(unsigned uglay, unsigned ugchan, unsigned timeBin) const;
   unsigned overlappedSampleFlag(unsigned layer, unsigned channel, unsigned timeBin) const;
   unsigned errorstat(unsigned layer, unsigned channel, unsigned timeBin) const;
   
@@ -46,13 +46,14 @@ class CSCCFEBData {
   unsigned short * data() {return theData;}
   unsigned sizeInWords() const {return theSize;} 
   unsigned boardNumber() const {return boardNumber_;}
-
+  void setBoardNumber(int cfeb) {boardNumber_=cfeb;}
+  
   friend std::ostream & operator<<(std::ostream & os, const CSCCFEBData &);
   static void selfTest();
 
   /// makes sure each time slice has a trailer
   bool check() const;
-
+  
  private:
   unsigned short theData[1600];
   /// Shows where in theData the words start.  A bad slice will 

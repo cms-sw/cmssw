@@ -55,13 +55,12 @@
  */
 
 /*
- * $Id: DOMCount.cpp,v 1.1 2006/03/20 10:49:52 case Exp $
  */
 
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/parsers/AbstractDOMParser.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMImplementationLS.hpp>
@@ -78,7 +77,6 @@
 #include <string>
 #include <cstdlib>
 #include <fstream>
-#include <iostream>
 
 namespace std { } using namespace std;
 
@@ -100,7 +98,6 @@ static void usage()
             "    -n          Enable namespace processing. Defaults to off.\n"
             "    -s          Enable schema processing. Defaults to off.\n"
             "    -f          Enable full schema constraint checking. Defaults to off.\n"
-            "    -locale=ll_CC specify the locale, default: en_US.\n"
             "    -p          Print out names of elements and attributes encountered.\n"
 		    "    -?          Show this help.\n\n"
             "  * = Default if not provided explicitly.\n"
@@ -182,8 +179,6 @@ int main(int argC, char* argV[])
     bool                       errorOccurred = false;
     bool                       recognizeNEL = false;
     bool                       printOutEncounteredEles = false;
-    char                       localeStr[64];
-    memset(localeStr, 0, sizeof localeStr);
 
     int argInd;
     for (argInd = 1; argInd < argC; ++argInd)
@@ -249,12 +244,7 @@ int main(int argC, char* argV[])
         {
             printOutEncounteredEles = true;
         }
-         else if (!strncmp(argV[argInd], "-locale=", 8))
-        {
-             // Get out the end of line
-             strcpy(localeStr, &(argV[argInd][8]));
-        }			
-         else
+        else
         {
             cerr << "Unknown option '" << argV[argInd]
                  << "', ignoring it\n" << endl;
@@ -274,14 +264,7 @@ int main(int argC, char* argV[])
     // Initialize the XML4C system
     try
     {
-        if (strlen(localeStr))
-        {
-            XMLPlatformUtils::Initialize(localeStr);
-        }
-        else
-        {
-            XMLPlatformUtils::Initialize();
-        }
+        cms::concurrency::xercesInitialize();
 
         if (recognizeNEL)
         {
@@ -329,7 +312,7 @@ int main(int argC, char* argV[])
     //  Get the starting time and kick off the parse of the indicated
     //  file. Catch any exceptions that might propogate out of it.
     //
-    unsigned long duration;
+    //unsigned long duration;
 
     bool more = true;
     ifstream fin;
@@ -377,10 +360,10 @@ int main(int argC, char* argV[])
             // reset document pool
             parser->resetDocumentPool();
 
-            const unsigned long startMillis = XMLPlatformUtils::getCurrentMillis();
+            //const unsigned long startMillis = XMLPlatformUtils::getCurrentMillis();
             doc = parser->parseURI(xmlFile);
-            const unsigned long endMillis = XMLPlatformUtils::getCurrentMillis();
-            duration = endMillis - startMillis;
+            //const unsigned long endMillis = XMLPlatformUtils::getCurrentMillis();
+            //duration = endMillis - startMillis;
         }
 
         catch (const XMLException& toCatch)
@@ -435,8 +418,7 @@ int main(int argC, char* argV[])
             }
 
             // Print out the stats that we collected and time taken.
-            cout << xmlFile << ": " << duration << " ms ("
-                 << elementCount << " elems)." << endl;
+            cout << xmlFile << ": " << elementCount << " elems." << endl;
         }
     }
 
@@ -446,7 +428,7 @@ int main(int argC, char* argV[])
     parser->release();
 
     // And call the termination method
-    XMLPlatformUtils::Terminate();
+    cms::concurrency::xercesTerminate();
 
     if (doList)
         fin.close();

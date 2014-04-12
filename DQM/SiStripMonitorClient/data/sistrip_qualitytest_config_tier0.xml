@@ -1,0 +1,165 @@
+<TESTSCONFIGURATION> 
+<QTEST name="MeanWithinExpectedRange:nFEDErrors" activate="true">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="minEntries">0</PARAM> 
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">10.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:nBadChannelStatusBits" activate="true">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="minEntries">0</PARAM> 
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">380.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:nBadActiveChannelStatusBits" activate="true">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="minEntries">0</PARAM> 
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">380.0</PARAM>
+</QTEST>
+<QTEST name="ContentsWithinExpected:TkHistoFedError" activate="true">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="minMean">0.0</PARAM>
+        <PARAM name="maxMean">0.2</PARAM>
+        <PARAM name="minRMS">0</PARAM>
+        <PARAM name="maxRMS">0</PARAM>
+        <PARAM name="toleranceMean">-1</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="minEntries">1000</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+<QTEST name="CompareToMedian:TkHistoNumberOfCluster" activate="true">
+	<TYPE>CompareToMedian</TYPE>
+        <PARAM name="minEntries">0</PARAM> 
+	<PARAM name="MinRel">0.1</PARAM>
+        <PARAM name="MaxRel">5.</PARAM>
+        <PARAM name="UseEmptyBins">0</PARAM>
+        <PARAM name="MinAbs">0.001</PARAM>
+        <PARAM name="MaxAbs">20.</PARAM> 
+	<PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+        <PARAM name="StatCut">100</PARAM>
+</QTEST>
+<QTEST name="CompareToMedian:TkHistoNumberOfDigi" activate="true">
+        <TYPE>CompareToMedian</TYPE>
+        <PARAM name="minEntries">0</PARAM> 
+        <PARAM name="MinRel">0.1</PARAM>
+        <PARAM name="MaxRel">5.</PARAM>
+        <PARAM name="UseEmptyBins">0</PARAM>
+        <PARAM name="MinAbs">0.01</PARAM>
+        <PARAM name="MaxAbs">45.</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+        <PARAM name="StatCut">200</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:StoNTIB" activate="true">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">0</PARAM>
+      <PARAM name="xmin">15.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:StoNTOB" activate="true">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">0</PARAM>
+      <PARAM name="xmin">15.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:StoNTEC" activate="true">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">0</PARAM>
+      <PARAM name="xmin">15.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:StoNTID" activate="true">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">0</PARAM>
+      <PARAM name="xmin">15.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
+</QTEST>
+<QTEST name="XrangeWithin:0-10.0" activate="false"> 
+     <TYPE>ContentsXRange</TYPE> 
+     <PARAM name="error">0.2</PARAM> 
+     <PARAM name="warning">0.4</PARAM> 
+     <PARAM name="xmin">0</PARAM> 
+     <PARAM name="xmax">10.0</PARAM> 
+</QTEST>
+<LINK name="*nFEDErrors">
+  <TestName activate="true">MeanWithinExpectedRange:nFEDErrors</TestName>
+</LINK>
+<LINK name="*nBadChannelStatusBits">
+  <TestName activate="true">MeanWithinExpectedRange:nBadChannelStatusBits</TestName>
+</LINK>
+<LINK name="*nBadActiveChannelStatusBits">
+  <TestName activate="true">MeanWithinExpectedRange:nBadActiveChannelStatusBits</TestName>
+</LINK>
+<LINK name="*TkHMap_FractionOfBadChannels_*">
+  <TestName activate="true">ContentsWithinExpected:TkHistoFedError</TestName>
+</LINK>
+<LINK name="*TkHMap_NumberOfCluster*">
+        <TestName activate="true">CompareToMedian:TkHistoNumberOfCluster</TestName>
+</LINK>
+<LINK name="*TkHMap_NumberOfDigi*">
+        <TestName activate="true">CompareToMedian:TkHistoNumberOfDigi</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TIB__layer__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTIB</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TOB__layer__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTOB</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TEC__MINUS__wheel__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTEC</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TEC__PLUS__wheel__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTEC</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__MINUS__wheel__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__PLUS__wheel__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
+</LINK>
+</TESTSCONFIGURATION>

@@ -7,6 +7,8 @@
 #include <iostream>
 #include <cmath>
 
+#include<tuple>
+
 template <typename T> 
 inline T sqr(const T& t) {return t*t;}
 
@@ -14,7 +16,7 @@ HelixBarrelCylinderCrossing::
 HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
 			     const GlobalVector& startingDir,
 			     double rho, PropagationDirection propDir, 
-			     const Cylinder& cyl)
+			     const Cylinder& cyl, Solution sol)
 {
   // assumes the cylinder is centered at 0,0
   double R = cyl.radius();
@@ -75,34 +77,80 @@ HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
     d2 = Point( E-F*eq.second, eq.second);
   }
   
-  chooseSolution(d1, d2, startingPos, startingDir, propDir);
+  Vector         theD;
+  int            theActualDir;
+
+
+  std::tie(theD,theActualDir) = chooseSolution(d1, d2, startingPos, startingDir, propDir);
   if (!theSolExists) return;
 
-  double pabs = startingDir.mag();
-  double sinTheta = pt / pabs;
-  double cosTheta = startingDir.z() / pabs;
+  float ipabs = 1.f/startingDir.mag();
+  float sinTheta = float(pt) * ipabs;
+  float cosTheta = startingDir.z() * ipabs;
 
-  double dMag = theD.mag();
-  theS = theActualDir * 2.* asin( dMag*rho/2.) / (rho*sinTheta);
+
+
+  // -------
+
+  auto dMag = theD.mag();
+  float tmp = 0.5f * float(dMag * rho);
+  if (std::abs(tmp)>1.f) tmp = std::copysign(1.f,tmp);
+  theS = theActualDir * 2.f* std::asin( tmp ) / (float(rho)*sinTheta);
   thePos =  GlobalPoint( startingPos.x() + theD.x(),
 			 startingPos.y() + theD.y(),
 			 startingPos.z() + theS*cosTheta);
 
-  double tmp = 0.5 * dMag * rho;
+  if (sol==onlyPos) return;
+
   if (theS < 0) tmp = -tmp;
-  double sinPhi = 2.*tmp*sqrt(1.-tmp*tmp);
-  double cosPhi = 1.-2.*tmp*tmp;
+  auto sinPhi = 2.f*tmp*sqrt(1.f-tmp*tmp);
+  auto cosPhi = 1.f-2.f*tmp*tmp;
   theDir = DirectionType(startingDir.x()*cosPhi-startingDir.y()*sinPhi,
 			 startingDir.x()*sinPhi+startingDir.y()*cosPhi,
 			 startingDir.z());
+
+  if (sol!=bothSol) return;
+
+
+  //-----  BM  
+  //double momProj1 = startingDir.x()*d1.x() + startingDir.y()*d1.y();
+  //double momProj2 = startingDir.x()*d2.x() + startingDir.y()*d2.y();
+
+ 
+  int theActualDir1 = propDir==alongMomentum ? 1 : -1;
+  int theActualDir2 = propDir==alongMomentum ? 1 : -1;
+
+
+  auto dMag1 = d1.mag();
+  auto tmp1 = 0.5f * dMag1 * float(rho);
+  if (std::abs(tmp1)>1.f) tmp1 = ::copysign(1.f,tmp1);
+  auto theS1 = theActualDir1 * 2.f* std::asin( tmp1 ) / (rho*sinTheta);
+  thePos1 =  GlobalPoint( startingPos.x() + d1.x(),
+			  startingPos.y() + d1.y(),
+			  startingPos.z() + theS1*cosTheta);
+
+
+  auto dMag2 = d2.mag();
+  auto tmp2 = 0.5f * dMag2 * float(rho);
+  if (std::abs(tmp2)>1.f) tmp2 = ::copysign(1.,tmp2);
+  auto theS2 = theActualDir2 * 2.f* std::asin( tmp2 ) / (float(rho)*sinTheta);
+  thePos2 =  GlobalPoint( startingPos.x() + d2.x(),
+			  startingPos.y() + d2.y(),
+			  startingPos.z() + theS2*cosTheta);	
+
 }
-void HelixBarrelCylinderCrossing::chooseSolution( const Vector& d1, const Vector& d2,
+
+std::pair<HelixBarrelCylinderCrossing::Vector,int> HelixBarrelCylinderCrossing::chooseSolution( const Vector& d1, const Vector& d2,
 						  const PositionType& startingPos,
 						  const DirectionType& startingDir, 
 						  PropagationDirection propDir)
 {
-  double momProj1 = startingDir.x()*d1.x() + startingDir.y()*d1.y();
-  double momProj2 = startingDir.x()*d2.x() + startingDir.y()*d2.y();
+
+  Vector         theD;
+  int            theActualDir;
+
+  auto momProj1 = startingDir.x()*d1.x() + startingDir.y()*d1.y();
+  auto momProj2 = startingDir.x()*d2.x() + startingDir.y()*d2.y();
 
   if ( propDir == anyDirection ) {
     theSolExists = true;
@@ -131,5 +179,7 @@ void HelixBarrelCylinderCrossing::chooseSolution( const Vector& d1, const Vector
     }
     else theSolExists = false;
   }
+
+  return std::pair<Vector,int>(theD,theActualDir);
 }
 

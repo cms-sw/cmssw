@@ -9,7 +9,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSpdfsFcn.h,v 1.0 2006/09/19 17:13:31 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -20,14 +19,11 @@ ________________________________________________________________**/
 #include <iostream>
 #include <string>
 
-using namespace ROOT::Minuit2;
-
-
-class BSpdfsFcn : public FCNBase {
+class BSpdfsFcn : public ROOT::Minuit2::FCNBase {
 	
   public:
 	// cache the current data
-	void SetData(std::vector < BSTrkParameters > a_BSvector){
+	void SetData(const std::vector < BSTrkParameters > &a_BSvector){
 		
 		fBSvector = a_BSvector;
 		

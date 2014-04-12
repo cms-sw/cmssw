@@ -16,13 +16,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TH1D.h"
 #include "TH1I.h"
-
-using namespace edm;
-using namespace std;
 
 class PythiaFilterGammaGamma : public edm::EDFilter {
  public:
@@ -31,7 +28,7 @@ class PythiaFilterGammaGamma : public edm::EDFilter {
   
   //void writeFile();
   
-  virtual bool filter(Event&, const EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
  private:
 
   const HepMC::GenEvent *myGenEvent;

@@ -16,12 +16,15 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiStripFolderOrganizer.h,v 1.2 2006/04/11 10:22:31 dkcira Exp $
-//
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
+//
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+
 #include <string>
 
+class DQMStore;
+class TrackerTopology;
 class SiStripFolderOrganizer
 {
 
@@ -32,6 +35,7 @@ class SiStripFolderOrganizer
       virtual ~SiStripFolderOrganizer();
 
       // top folder
+      void setSiStripFolderName(std::string name);
       std::string getSiStripFolder();
       void setSiStripFolder();
 
@@ -55,19 +59,25 @@ class SiStripFolderOrganizer
               // unsigned short i2c
       );
 
+      std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid, const TrackerTopology* tTopo, bool ring_flag = 0);
       // detector folders
-      void setDetectorFolder(uint32_t rawdetid=0);
+      void setDetectorFolder(uint32_t rawdetid, const TrackerTopology* tTopo);
+      void getFolderName(int32_t rawdetid, const TrackerTopology* tTopo, std::string& lokal_folder);
+      void getFolderName(int32_t rawdetid, std::string& lokal_folder);  // deprecated version, still needed for now
 
+      // layer folders
+      void setLayerFolder(uint32_t rawdetid,const TrackerTopology* tTopo,int32_t layer=0,bool ring_flag = 0);
+      void getLayerFolderName(std::stringstream& ss, uint32_t rawdetid, const TrackerTopology* tTopo, bool ring_flag = 0);
+      void getSubDetLayerFolderName(std::stringstream& ss, SiStripDetId::SubDetector subDet, uint32_t layer, uint32_t side=0);
+      // SubDetector Folder
+      void getSubDetFolder(const uint32_t& detid, const TrackerTopology* tTopo, std::string& folder_name);
+      std::pair<std::string, std::string> getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo);
    private:
       SiStripFolderOrganizer(const SiStripFolderOrganizer&); // stop default
       const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&); // stop default
 
    private:
       std::string TopFolderName;
-      std::string MechanicalFolderName;
-      std::string ReadoutFolderName;
-      std::string ControlFolderName;
-      std::string sep;
-      DaqMonitorBEInterface* dbe_;
+      DQMStore* dbe_;
 };
 #endif

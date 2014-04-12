@@ -8,7 +8,6 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: TrackInfo.h,v 1.6 2007/04/16 13:25:06 genta Exp $
  *
  */
 

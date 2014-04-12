@@ -4,31 +4,24 @@
 /** \class MuonScenarioBuilder
  *  The misalignment scenario builder.
  *
- *  $Date: 2007/01/12 09:47:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/15 17:09:58 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 #include "Alignment/CommonAlignment/interface/MisalignmentScenarioBuilder.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 /// Builds a scenario from configuration and applies it to the alignable Muon.
 
 class MuonScenarioBuilder : public MisalignmentScenarioBuilder
 {
 
 public:
-
-  typedef GlobalPoint           PositionType;
-  typedef TkRotation<float>     RotationType;
-
 
   /// Constructor
   explicit MuonScenarioBuilder( Alignable* alignable );
@@ -48,16 +41,14 @@ public:
   /// this special method allows to move the complete muon system by a same amount
   void moveMuon( const edm::ParameterSet& scenario );
   
-  std::vector<float> extractParameters( const edm::ParameterSet& , char* );
+  align::Scalars extractParameters( const edm::ParameterSet& , const char* );
 
-  void moveChamberInSector( Alignable *, std::vector<float>, std::vector<float>, std::vector<float> , std::vector<float> );
+  void moveChamberInSector( Alignable *, const align::Scalars&, const align::Scalars&, const align::Scalars&, const align::Scalars& );
 private: // Members
 
   AlignableMuon* theAlignableMuon;   ///< Pointer to alignable Muon object
   
   AlignableModifier theMuonModifier; 
 };
-
-
 
 #endif

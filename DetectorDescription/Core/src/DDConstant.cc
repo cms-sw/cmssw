@@ -1,6 +1,4 @@
-
 #include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 
 // Evaluator 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
@@ -35,13 +33,13 @@ std::ostream & operator<<(std::ostream & os, const DDConstant & cons)
 
 void DDConstant::createConstantsFromEvaluator()
 {
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);
   if (eval){
     const std::vector<std::string> & vars = eval->variables();
     const std::vector<std::string> & vals = eval->values();
     if (vars.size() != vals.size()) {
-      throw DDException("DDConstants::createConstansFromEvaluator(): different size of variable names & values!") ;
+      throw cms::Exception("DDException") << "DDConstants::createConstansFromEvaluator(): different size of variable names & values!";
     }
     size_t i(0), s(vars.size());
     for (; i<s; ++i) {
@@ -55,7 +53,7 @@ void DDConstant::createConstantsFromEvaluator()
     }  
   }
   else {
-    throw DDException("DDConstants::createConstansFromEvaluator(): expression-evaluator is not a ClhepEvaluator-implementation!");
+    throw cms::Exception("DDException") << "DDConstants::createConstansFromEvaluator(): expression-evaluator is not a ClhepEvaluator-implementation!";
   }
 }
 

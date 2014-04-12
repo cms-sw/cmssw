@@ -14,7 +14,7 @@ class FedCablingTask : public CommissioningTask {
 
  public:
   
-  FedCablingTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  FedCablingTask( DQMStore*, const FedChannelConnection& );
   virtual ~FedCablingTask();
   
  private:

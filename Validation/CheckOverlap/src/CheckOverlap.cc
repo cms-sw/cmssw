@@ -5,10 +5,11 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "G4Run.hh"
-#include "G4PhysicalVolumeStore.hh"
+#include "G4LogicalVolumeStore.hh"
 #include "G4PVPlacement.hh"
 #include "G4PVParameterised.hh"
 #include "G4LogicalVolume.hh"
@@ -18,43 +19,52 @@
 #include <set>
 
 CheckOverlap::CheckOverlap(const edm::ParameterSet &p) : topLV(0) {
-  nodeName = p.getUntrackedParameter<std::string>("NodeName", "");
-  nPoints  = p.getUntrackedParameter<int>("Resolution", 1000);
-  std::cout << "CheckOverlap:: initialised with Node Name " << " " << nodeName
-	    << " and Resolution " << nPoints << std::endl;
+  std::vector<std::string> defNames;
+  nodeNames = p.getUntrackedParameter<std::vector<std::string> >("NodeNames", defNames);
+  nPoints   = p.getUntrackedParameter<int>("Resolution", 1000);
+  edm::LogInfo("G4cout") << "CheckOverlap:: initialised with " 
+			 << nodeNames.size() << " Node Names and Resolution " 
+			 << nPoints << " the names are:"; 
+  for (unsigned int ii=0; ii<nodeNames.size(); ii++)
+    edm::LogInfo("G4cout") << "CheckOverlap:: Node[" << ii << "] : " << nodeNames[ii]; 
 }
  
 CheckOverlap::~CheckOverlap() {}
   
 void CheckOverlap::update(const BeginOfRun * run) {
   
-  std::cout << "Node Name " << nodeName << std::endl;
-  if (nodeName != "") {
-    const G4PhysicalVolumeStore * pvs = G4PhysicalVolumeStore::GetInstance();
-    std::vector<G4VPhysicalVolume *>::const_iterator pvcite;
+  if (nodeNames.size() > 0) {
+    const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
+    std::vector<G4LogicalVolume *>::const_iterator lvcite;
     int i = 0;
-    for (pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
-      std::cout << "Name of node " << (++i) << " : " << (*pvcite)->GetName()
-		<< std::endl;
-      if ((*pvcite)->GetName() == (G4String)(nodeName)) {
-	topLV = (*pvcite)->GetLogicalVolume();
-	break;
+    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+      for (unsigned int ii=0; ii<nodeNames.size(); ii++) {
+	if ((*lvcite)->GetName() == (G4String)(nodeNames[ii])) {
+	  topLV.push_back((*lvcite));
+	  break;
+	}
       }
+      edm::LogInfo("G4cout") << "Name of node " << (++i) << " : " 
+			     << (*lvcite)->GetName();
+      if (topLV.size() == nodeNames.size()) break;
     }
   } else {
     G4VPhysicalVolume * theTopPV = getTopPV();
-    topLV = theTopPV->GetLogicalVolume();
+    topLV.push_back(theTopPV->GetLogicalVolume());
   }
-  std::cout << "Top LV " << topLV;
-  if (topLV != 0) std::cout << " Name " << topLV->GetName();
-  std::cout << std::endl;
-  //---------- Check all PV's
-  if (topLV) 
-    checkHierarchyLeafPVLV(topLV, 0);
+
+  if (topLV.size() == 0) {
+    edm::LogInfo("G4cout") << "No Top LV Found";
+  } else {
+    for (unsigned int ii=0; ii<topLV.size(); ii++) {
+      edm::LogInfo("G4cout") << "Top LV Name " << topLV[ii]->GetName();
+      checkHierarchyLeafPVLV(topLV[ii], 0);
+    }
+  }
 }
 
 void CheckOverlap::checkHierarchyLeafPVLV(G4LogicalVolume * lv, 
-					  uint leafDepth) {
+					  unsigned int leafDepth) {
 
   //----- Get LV daughters from list of PV daughters
   mmlvpv lvpvDaughters;
@@ -80,7 +90,7 @@ void CheckOverlap::checkHierarchyLeafPVLV(G4LogicalVolume * lv,
   }
 }
 
-void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
+void CheckOverlap::checkPV(G4VPhysicalVolume * pv, unsigned int leafDepth) {
 
   //----- PV info
 #ifndef G4V7
@@ -89,13 +99,18 @@ void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
   if (!pv->IsReplicated()) {
     G4PVPlacement* pvplace = dynamic_cast<G4PVPlacement* >(pv);
     G4bool ok = pvplace->CheckOverlaps(nPoints);
-    std::cout << "Placed PV " << pvplace->GetName() << " Number "
-	      << pvplace->GetCopyNo() << " in mother " << mother 
-	      << " at depth " << leafDepth << " Status " << ok << std::endl;
+    edm::LogInfo("G4cout") << "Placed PV " << pvplace->GetName() 
+			   << " Number " << pvplace->GetCopyNo() 
+			   << " in mother " << mother << " at depth " 
+			   << leafDepth << " Status " << ok;
     if (ok) {
-      std::cout << "Translation " << pv->GetTranslation();
-      if(pv->GetRotation() == 0) std::cout << " with no rotation" << std::endl;
-      else std::cout << " with rotation " << *(pv->GetRotation()) << std::endl;
+      if(pv->GetRotation() == 0) {
+	edm::LogInfo("G4cout") << "Translation " << pv->GetTranslation()
+			       << " and with no rotation";
+      } else {
+	edm::LogInfo("G4cout") << "Translation " << pv->GetTranslation()
+			       << " and with rotation "<< *(pv->GetRotation());
+      }
       G4LogicalVolume* lv = pv->GetLogicalVolume();
       dumpLV(lv, "Self");
       if (pv->GetMotherLogical()) {
@@ -107,9 +122,9 @@ void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
     if (pv->GetParameterisation() != 0) {
       G4PVParameterised* pvparam = dynamic_cast<G4PVParameterised* >(pv);
       G4bool ok = pvparam->CheckOverlaps(nPoints);
-      std::cout << "Parametrized PV " << pvparam->GetName() << " in mother "
-		<< mother << " at depth " << leafDepth << " Status "	<< ok 
-		<< std::endl;
+      edm::LogInfo("G4cout") << "Parametrized PV " << pvparam->GetName()
+			     << " in mother " << mother << " at depth "
+			     << leafDepth << " Status "	<< ok;
     }
   }
 #endif
@@ -121,9 +136,10 @@ G4VPhysicalVolume * CheckOverlap::getTopPV() {
 }
 
 void CheckOverlap::dumpLV(G4LogicalVolume* lv, std::string str) {
-  std::cout << "Dump of " << str << " Logical Volume " << lv->GetName()
-            << "  Solid: " << lv->GetSolid()->GetName() << "  Material: "
-            << lv->GetMaterial()->GetName() << std::endl;
-  std::cout << *(lv->GetSolid()) << std::endl;
+  edm::LogInfo("G4cout") << "Dump of " << str << " Logical Volume " 
+			 << lv->GetName() << "  Solid: " 
+			 << lv->GetSolid()->GetName() << "  Material: "
+			 << lv->GetMaterial()->GetName();
+  edm::LogInfo("G4cout") << *(lv->GetSolid());
 }
 

@@ -1,13 +1,13 @@
-#ifndef Common_DATAFRAMEContainer_H
-#define Common_DATAFRAMEContainer_H
+#ifndef DataFormats_Common_DataFrameContainer_h
+#define DataFormats_Common_DataFrameContainer_h
 
 #include "DataFormats/Common/interface/DataFrame.h"
 
-#include <boost/iterator_adaptors.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 
 #include<vector>
+#include<algorithm>
 
 namespace edm {
 
@@ -50,7 +50,9 @@ namespace edm {
     
     typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;
     
-    DataFrameContainer(){}
+    DataFrameContainer() :
+      m_subdetId(0), m_stride(0),
+      m_ids(), m_data(){}
     
     explicit DataFrameContainer(size_t istride, int isubdet=0, size_t isize=0) :
       m_subdetId(isubdet), m_stride(istride),
@@ -59,13 +61,19 @@ namespace edm {
     void swap(DataFrameContainer & rh) {
       std::swap(m_subdetId,rh.m_subdetId);
       std::swap(m_stride,rh.m_stride);
-      std::swap(m_ids,rh.m_ids);
-      std::swap(m_data,rh.m_data);
+      m_ids.swap(rh.m_ids);
+      m_data.swap(rh.m_data);
     }
     
+    DataFrameContainer& operator=(DataFrameContainer const& rhs) {
+      DataFrameContainer temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
+
     void swap(IdContainer & iic, DataContainer & idc) {
-      std::swap(m_ids,iic);
-      std::swap(m_data,idc);
+      m_ids.swap(iic);
+      m_data.swap(idc);
     }
     
     void reserve(size_t isize) {
@@ -199,7 +207,22 @@ namespace edm {
     m_size=icont.stride();
   }
   
+  // Free swap function
+  inline
+  void
+  swap(DataFrameContainer& lhs, DataFrameContainer& rhs) {
+    lhs.swap(rhs);
+  }
+
 }
 
-#endif // Common_DataFrameContainer
-  
+// The standard allows us to specialize std::swap for non-templates.
+// This ensures that DataFrameContainer::swap() will be used in algorithms.
+
+namespace std {
+  template <> inline void swap(edm::DataFrameContainer& lhs, edm::DataFrameContainer& rhs) {  
+    lhs.swap(rhs);
+  }
+}
+
+#endif // DataFormats_Common_DataFrameContainer_h

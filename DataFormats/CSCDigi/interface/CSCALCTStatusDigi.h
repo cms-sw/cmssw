@@ -5,12 +5,12 @@
  *
  *  Digi for CSC ALCT info available in DDU
  *  
- *  $Date: 2007/05/23 18:02:50 $
- *  $Revision: 1.3 $
  *
  */
 
 #include <vector>
+#include <iosfwd>
+#include <stdint.h>
 
 class CSCALCTStatusDigi{
 
@@ -30,17 +30,10 @@ public:
 
 private:
 
-  uint16_t header_[8];
+  uint16_t header_[116]; ///maximum header size is 116 words
   uint16_t trailer_[4];
 };
 
-#include<iostream>
-/// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const CSCALCTStatusDigi& digi) {
-  o << " "; 
-  o <<"\n";
- 
-  return o;
-}
+std::ostream & operator<<(std::ostream & o, const CSCALCTStatusDigi& digi);
 
 #endif

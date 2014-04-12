@@ -6,9 +6,6 @@
 #include <iostream>
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
-//#include <boost/spirit.hpp>
-
-
 class DDLogicalPart;
 
 enum ddselection_type { ddunknown,   //   ->    (should never appear!)
@@ -20,8 +17,6 @@ enum ddselection_type { ddunknown,   //   ->    (should never appear!)
 	                ddchildposp  //   ->    /NameOfLogicalPart[copyno]
 	               };
 
-//typedef DDRedirect<DDLogicalPartImpl> lpredir_type; // logical-part-redirection_type
-
 struct DDPartSelRegExpLevel
 {
   DDPartSelRegExpLevel(const std::string & ns, const std::string & nm, int cpn, ddselection_type t, bool isRegex=false)
@@ -32,7 +27,6 @@ struct DDPartSelRegExpLevel
   bool isRegex_;
 };
 
-
 struct DDPartSelectionLevel
 {
   DDPartSelectionLevel(const DDLogicalPart &, int, ddselection_type);
@@ -41,30 +35,16 @@ struct DDPartSelectionLevel
   ddselection_type selectionType_;
 };
 
-
 class DDPartSelection : public std::vector<DDPartSelectionLevel>
 {
 public:
   DDPartSelection() : std::vector<DDPartSelectionLevel>() { }
 };
-/*
-class DDPartSelection : public std::vector<DDPartSelectionLevel>
-{
-public:
-  DDPartSelection() { }; // to use it in stl-containers
-  DDPartSelection(const std::string & selectionString);
-  
-  ~DDPartSelection() { }
-  
-};
-*/
-
 
 std::ostream & operator<<(std::ostream &, const DDPartSelection &);
 std::ostream & operator<<(std::ostream &, const std::vector<DDPartSelection> &);
 
 void DDTokenize2(const std::string & selectionString, std::vector<DDPartSelRegExpLevel> & result);
-void DDTokenize(const std::string & selectionString, std::vector<DDPartSelRegExpLevel> & result);
 std::ostream & operator<<(std::ostream &, const DDPartSelection &);
 
 #endif

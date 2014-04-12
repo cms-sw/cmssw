@@ -1,4 +1,5 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 #include <string>
@@ -34,13 +35,15 @@ FedChannelConnection::FedChannelConnection( const uint16_t& fec_crate,
   dcuId_(dcu_id), 
   detId_(det_id), 
   nApvPairs_(pairs), 
+  fedCrate_(sistrip::invalid_),
+  fedSlot_(sistrip::invalid_),
   fedId_(fed_id), 
   fedCh_(fed_ch), 
   length_(length),
   dcu0x00_(dcu), 
   mux0x43_(mux), 
   pll0x44_(pll), 
-  lld0x60_(lld) 
+  lld0x60_(lld)
 {;}
 
 // -----------------------------------------------------------------------------
@@ -56,14 +59,24 @@ FedChannelConnection::FedChannelConnection() :
   dcuId_(sistrip::invalid32_), 
   detId_(sistrip::invalid32_), 
   nApvPairs_(sistrip::invalid_), 
+  fedCrate_(sistrip::invalid_),
+  fedSlot_(sistrip::invalid_),
   fedId_(sistrip::invalid_), 
   fedCh_(sistrip::invalid_), 
   length_(sistrip::invalid_),
   dcu0x00_(false), 
   mux0x43_(false), 
   pll0x44_(false), 
-  lld0x60_(false) 
+  lld0x60_(false)
 {;}
+
+// -----------------------------------------------------------------------------
+//
+bool operator< ( const FedChannelConnection& conn1, const FedChannelConnection& conn2 ) { 
+  if ( conn1.fedId() < conn2.fedId() ) { return true; }
+  else if ( conn1.fedId() == conn2.fedId() ) { return ( conn1.fedCh() < conn2.fedCh() ? true : false ); }
+  else { return false; }
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -71,9 +84,11 @@ const uint16_t& FedChannelConnection::i2cAddr( const uint16_t& apv ) const {
   if      ( apv == 0 ) { return apv0_; }
   else if ( apv == 1 ) { return apv1_; }
   else {
-    edm::LogWarning(mlCabling_)
-      << "[FedChannelConnection::" << __func__ << "]"
-      << " Unexpected APV I2C address!" << apv;
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlCabling_)
+	<< "[FedChannelConnection::" << __func__ << "]"
+	<< " Unexpected APV I2C address!" << apv;
+    }
     static const uint16_t i2c_addr = 0;
     return i2c_addr;
   }
@@ -87,13 +102,15 @@ uint16_t FedChannelConnection::lldChannel() const {
   else if ( apv0_ == 36 || apv1_ == 37 ) { return 3; }
   else if ( apv0_ != sistrip::invalid_ ||
 	    apv1_ != sistrip::invalid_ ) {
-    edm::LogWarning(mlCabling_)
-      << "[FedChannelConnection::" << __func__ << "]"
-      << " Unexpected APV I2C addresses!" 
-      << " Apv0: " << apv0_
-      << " Apv1: " << apv1_;
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlCabling_)
+	<< "[FedChannelConnection::" << __func__ << "]"
+	<< " Unexpected APV I2C addresses!" 
+	<< " Apv0: " << apv0_
+	<< " Apv1: " << apv1_;
+    }
   }
-  return 0; //@@ sistrip::invalid_
+  return sistrip::invalid_;
 }
 
 // -----------------------------------------------------------------------------
@@ -103,68 +120,106 @@ uint16_t FedChannelConnection::apvPairNumber() const {
     if      ( apv0_ == 32 || apv1_ == 33 ) { return 0; }
     else if ( apv0_ == 36 || apv1_ == 37 ) { return 1; }
     else { 
-      edm::LogWarning(mlCabling_)
-	<< "[FedChannelConnection::" << __func__ << "]"
-	<< " APV I2C addresses (" 
-	<< apv0_ << "/" << apv1_
-	<< ") are incompatible with"
-	<< " number of APV pairs (" 
-	<< nApvPairs_ << ") found for this module!";
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlCabling_)
+	  << "[FedChannelConnection::" << __func__ << "]"
+	  << " APV I2C addresses (" 
+	  << apv0_ << "/" << apv1_
+	  << ") are incompatible with"
+	  << " number of APV pairs (" 
+	  << nApvPairs_ << ") found for this module!";
+      }
     }
   } else if ( nApvPairs_ == 3 ) {
     if      ( apv0_ == 32 || apv1_ == 33 ) { return 0; }
     else if ( apv0_ == 34 || apv1_ == 35 ) { return 1; }
     else if ( apv0_ == 36 || apv1_ == 37 ) { return 2; }
     else { 
-      edm::LogWarning(mlCabling_)
-	<< "[FedChannelConnection::" << __func__ << "]"
-	<< " APV I2C addresses (" 
-	<< apv0_ << "/" << apv1_
-	<< ") are incompatible with"
-	<< " number of APV pairs (" 
-	<< nApvPairs_ << ") found for this module!";
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlCabling_)
+	  << "[FedChannelConnection::" << __func__ << "]"
+	  << " APV I2C addresses (" 
+	  << apv0_ << "/" << apv1_
+	  << ") are incompatible with"
+	  << " number of APV pairs (" 
+	  << nApvPairs_ << ") found for this module!";
+      }
     }
-  } else {
-    edm::LogWarning(mlCabling_) 
-      << "[FedChannelConnection::" << __func__ << "]"
-      << " Unexpected number of APV pairs: " << nApvPairs_;
+  } else { 
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlCabling_) 
+	<< "[FedChannelConnection::" << __func__ << "]"
+	<< " Unexpected number of APV pairs: " << nApvPairs_;
+    }
   }
-  return 0;
+  return sistrip::invalid_;
 }
 
 // -----------------------------------------------------------------------------
 // 
 void FedChannelConnection::print( std::stringstream& ss ) const {
   ss << " [FedChannelConnection::" << __func__ << "]" << std::endl
-     << " FedId/FedCh               : "
+     << " FedCrate/FedSlot/FedId/FeUnit/FeChan/FedCh : "
+     << fedCrate() << "/"
+     << fedSlot() << "/"
      << fedId() << "/"
+     << SiStripFedKey::feUnit( fedCh() ) << "/" 
+     << SiStripFedKey::feChan( fedCh() ) << "/" 
      << fedCh() << std::endl
-     << " Crate/FEC/Ring/CCU/Module : "
+     << " FecCrate/FecSlot/FecRing/CcuAddr/CcuChan   : "
      << fecCrate() << "/"
      << fecSlot() << "/"
      << fecRing() << "/"
      << ccuAddr() << "/"
      << ccuChan() << std::endl
-     << " DcuId/DetId               : "
+     << " DcuId/DetId                                : "
      << std::hex
      << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
      << "0x" << std::setfill('0') << std::setw(8) << detId() << std::endl
      << std::dec
-     << " LldChan/APV0/APV1         : "
+     << " LldChan/APV0/APV1                          : "
      << lldChannel() << "/" 
      << i2cAddr(0) << "/"
      << i2cAddr(1) << std::endl
-     << " pairNumber/nPairs/nStrips : "
+     << " pairNumber/nPairs/nStrips                  : "
      << apvPairNumber() << "/"
      << nApvPairs() << "/"
      << 256*nApvPairs() << std::endl
-     << " DCU/MUX/PLL/LLD found     : "
+     << " DCU/MUX/PLL/LLD found                      : "
      << std::boolalpha
      << dcu() << "/"
      << mux() << "/"
      << pll() << "/"
      << lld()
      << std::noboolalpha;
+}
+
+// -----------------------------------------------------------------------------
+// 
+void FedChannelConnection::terse( std::stringstream& ss ) const {
+  ss << " FED:cr/sl/id/fe/ch/chan=" 
+     << fedCrate() << "/" 
+     << fedSlot() << "/" 
+     << fedId() << "/" 
+     << SiStripFedKey::feUnit( fedCh() ) << "/" 
+     << SiStripFedKey::feChan( fedCh() ) << "/" 
+     << fedCh() << "," 
+     << " FEC:cr/sl/ring/ccu/mod="
+     << fecCrate() << "/"
+     << fecSlot() << "/" 
+     << fecRing() << "/"
+     << ccuAddr() << "/" 
+     << ccuChan() << ","
+     << " apvs=" 
+     << i2cAddr(0) << "/" 
+     << i2cAddr(1) << "," 
+     << " pair=" << apvPairNumber()+1
+     << " (from " << nApvPairs() << "),"
+     << " dcu/detid=" 
+     << std::hex
+     << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
+     << "0x" << std::setfill('0') << std::setw(8) << detId() 
+     << std::dec;
 }
 
 // -----------------------------------------------------------------------------

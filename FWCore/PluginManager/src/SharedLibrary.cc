@@ -8,12 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 15:30:15 EDT 2007
-// $Id: SharedLibrary.cc,v 1.1.2.2 2007/04/09 18:46:51 chrjones Exp $
 //
 
 // system include files
 #include <string> /*needed by the following include*/
-#include "Reflex/SharedLibrary.h"
+#include <dlfcn.h>
+#include <errno.h>
 
 // user include files
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
@@ -32,14 +32,16 @@ namespace edmplugin {
 // constructors and destructor
 //
   SharedLibrary::SharedLibrary(const boost::filesystem::path& iName) :
-  library_(0),
+  libraryHandle_(::dlopen(iName.string().c_str(), RTLD_LAZY | RTLD_GLOBAL)),
   path_(iName)
 {
-    std::auto_ptr<ROOT::Reflex::SharedLibrary> lib(new ROOT::Reflex::SharedLibrary(iName.native_file_string()));
-    if( !lib->Load() ) {
-      throw cms::Exception("PluginLibraryLoadError")<<"unable to load "<<iName.native_file_string()<<" because "<<lib->Error();
+    if(libraryHandle_ == nullptr) {
+      char const* err = dlerror();
+      if(err == nullptr) {
+        throw cms::Exception("PluginLibraryLoadError") << "unable to load " << iName.string();
+      }
+      throw cms::Exception("PluginLibraryLoadError") << "unable to load " << iName.string() << " because " << err;
     }
-    library_ = lib.release();
 }
 
 // SharedLibrary::SharedLibrary(const SharedLibrary& rhs)
@@ -49,7 +51,6 @@ namespace edmplugin {
 
 SharedLibrary::~SharedLibrary()
 {
-  delete library_;
 }
 
 //
@@ -72,9 +73,13 @@ SharedLibrary::~SharedLibrary()
 // const member functions
 //
 bool 
-SharedLibrary::symbol(const std::string& iSymbolName, void* & iSymbol) const
+SharedLibrary::symbol(const std::string& iSymbolName, void*& iSymbol) const
 {
-  return library_->Symbol(iSymbolName,iSymbol);
+  if(libraryHandle_ == nullptr) {
+    return false;
+  }
+  iSymbol = dlsym(libraryHandle_, iSymbolName.c_str());
+  return (iSymbol != nullptr);
 }
 
 //

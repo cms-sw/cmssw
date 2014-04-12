@@ -5,8 +5,6 @@
 //   Description: GMT Sort Rank Unit
 //
 //
-//   $Date $
-//   $Revision $
 //
 //   Author :
 //   H. Sakulin                   HEPHY Vienna

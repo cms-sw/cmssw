@@ -1,0 +1,17 @@
+<use   name="root"/>
+<use   name="Alignment/CommonAlignment"/>
+<use   name="Alignment/SurveyAnalysis"/>
+<use   name="CondFormats/Alignment"/>
+<use   name="CondFormats/AlignmentRecord"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<library   name="AlignmentSurveyAnalysisTest" file="*.cc">
+  <use   name="Alignment/TrackerAlignment"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   name="AlignmentSurveyAnalysisTest2" file="*.cpp">
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

@@ -2,7 +2,7 @@
 #define _TRACKER_LOCALTRAJECTORYERROR_H_
 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -20,18 +20,28 @@
 
 class LocalTrajectoryError {
 public:
-// construct
-  LocalTrajectoryError() {}
+  // construct
+  LocalTrajectoryError(){}
+  LocalTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-99999.e10;}
+  // destruct
+  ~LocalTrajectoryError(){}
+
+  bool invalid() const { return theCovarianceMatrix(0,0)<-1.e10;}
+  bool valid() const { return !invalid();}
+
+  // not really full check of posdef
+  bool posDef() const { 
+    return (theCovarianceMatrix(0,0)>=0) && (theCovarianceMatrix(1,1)>=0) && 
+      (theCovarianceMatrix(2,2)>=0) && (theCovarianceMatrix(3,3)>=0) && (theCovarianceMatrix(4,4)>=0);
+  }
+
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
 
-  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
+  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix):
     theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() { }
-  LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
-    theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)), theWeightMatrixPtr() {}
-
 
   /** Constructing class from standard deviations of the individual parameters, making
    *  the covariance matrix diagonal. The sequence of the input parameters is sigma(x), sigma(y),
@@ -51,31 +61,18 @@ public:
     return theCovarianceMatrix;
   }
 
-  /** Returns the covariance matrix.
+  /** Returns the inverse of covariance matrix.
    */
-
-  const AlgebraicSymMatrix matrix_old() const {
-    return asHepMatrix(theCovarianceMatrix);
-  }
-
-  const AlgebraicSymMatrix55 &weightMatrix() const {
-        if (theWeightMatrixPtr.get() == 0) {
-                int ifail;
-                boost::shared_ptr<AlgebraicSymMatrix55> inv(
-                          new AlgebraicSymMatrix55(theCovarianceMatrix.Inverse(ifail))
-                );
-                theWeightMatrixPtr = inv;
-        }
-        return *theWeightMatrixPtr;
-  }
+ const AlgebraicSymMatrix55 &weightMatrix() const;
 
 
   /** Enables the multiplication of the covariance matrix with the scalar "factor".
    */
 
-  void operator *= (double factor) {
+  LocalTrajectoryError & operator *= (double factor) {
     theCovarianceMatrix *= factor;
     if ((theWeightMatrixPtr.get() != 0) && (factor != 0.0)) { (*theWeightMatrixPtr) /= factor; } 
+    return *this;
   }
 
   /** Returns the two-by-two submatrix of the covariance matrix which yields the local

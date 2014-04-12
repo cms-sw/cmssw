@@ -8,6 +8,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 class HFShowerPhoton {
 
@@ -36,5 +37,8 @@ private:
 
 };
 
+typedef std::vector<HFShowerPhoton> HFShowerPhotonCollection;
+
 std::ostream& operator<<(std::ostream&, const HFShowerPhoton&);
+
 #endif

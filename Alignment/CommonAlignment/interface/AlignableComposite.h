@@ -7,7 +7,7 @@
 /// The AlignableComposite is itself Alignable.
 /// Apart from providing an interface to access components,
 /// the AlignableComposite provides a convenient way of (mis)aligning
-/// a droup of detectors as one rigid body.
+/// a group of detectors as one rigid body.
 /// The components of a Composite can themselves be composite,
 /// providing a hierarchical view of the detector for alignment.
 ///
@@ -17,8 +17,8 @@
 /// in various structures, while the GeomDet hierarchy is
 /// optimised for pattern recognition.
 ///
-/// Misalignment can be de-/reactivated (forwarded to components).
-///
+/// Note that AlignableComposite owns (and deletes in its destructor)
+/// all its component which are added by addComponent. 
 
 class GeomDet;
 
@@ -26,21 +26,19 @@ class AlignableComposite : public Alignable
 {
 
 public:
-
-  /// Constructor from GeomDet
-  explicit AlignableComposite( const GeomDet* geomDet );
-
   /// Constructor for a composite with given rotation.
-  /// Position is found from average of daughters' positions later.
-  /// Default arguments for backward compatibility with empty constructor.
-  AlignableComposite( uint32_t id = 0,
-		      AlignableObjectIdType = AlignableObjectId::invalid,
-		      const RotationType& = RotationType() );
+  /// Position can be found from average of daughters' positions later,
+  /// using addComponent(Alignable*).
+  AlignableComposite( align::ID id,
+		      StructureType aType,
+		      const RotationType& rot = RotationType() );
 
+  /// deleting its components
   virtual ~AlignableComposite();
 
   /// Add a component and set its mother to this alignable.
-  /// Also find average position of this alignable.
+  /// (Note: The component will be adopted, e.g. later deleted.)
+  /// Also find average position of this composite from its modules' positions.
   virtual void addComponent( Alignable* component );
 
   /// Return vector of direct components
@@ -61,20 +59,31 @@ public:
   /// Rotation interpreted in global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation );
 
-  /// Set the AlignmentPositionError to all the components of the composite
-  virtual void setAlignmentPositionError( const AlignmentPositionError& ape );
+  /// Set the AlignmentPositionError (if this Alignable is a Det) and,
+  /// if (propagateDown), to all the components of the composite
+  virtual void setAlignmentPositionError( const AlignmentPositionError& ape, bool propagateDown );
 
-  /// Add the AlignmentPositionError to all the components of the composite
-  virtual void addAlignmentPositionError( const AlignmentPositionError& ape );
+  /// Add the AlignmentPositionError (if this Alignable is a Det) and,
+  /// if (propagateDown), add to all the components of the composite
+  virtual void addAlignmentPositionError( const AlignmentPositionError& ape, bool propagateDown );
 
-  /// Add position error to all components as resulting from global rotation
-  virtual void addAlignmentPositionErrorFromRotation( const RotationType& rotation );
+  /// Add the AlignmentPositionError resulting from global rotation (if this Alignable is a Det) and,
+  /// if (propagateDown), add to all the components of the composite
+  virtual void addAlignmentPositionErrorFromRotation( const RotationType& rotation, bool propagateDown );
 
-  /// Add position error to all components as resulting from given local rotation
-  virtual void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation );
+  /// Add the AlignmentPositionError resulting from local rotation (if this Alignable is a Det) and,
+  /// if (propagateDown), add to all the components of the composite
+  virtual void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation, bool propagateDown );
+
+  /// Set the surface deformation parameters - if (!propagateDown) do not affect daughters
+  virtual void setSurfaceDeformation(const SurfaceDeformation *deformation, bool propagateDown);
+
+  /// Add the surface deformation parameters to the existing ones,
+  /// if (!propagateDown) do not affect daughters.
+  virtual void addSurfaceDeformation(const SurfaceDeformation *deformation, bool propagateDown);
 
   /// Return the alignable type identifier
-  virtual int alignableObjectId() const { return static_cast<int>(theStructureType); }
+  virtual StructureType alignableObjectId() const { return theStructureType; }
 
   /// Recursive printout of alignable structure
   virtual void dump() const;
@@ -85,15 +94,22 @@ public:
   /// Return vector of alignment errors
   virtual AlignmentErrors* alignmentErrors() const;
 
+  /// Return surface deformations
+  virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const;
+
 protected:
+  /// Constructor from GeomDet, only for use in AlignableDet
+  explicit AlignableComposite( const GeomDet* geomDet );
+
   void setSurface( const AlignableSurface& s) { theSurface = s; }
   
+  StructureType theStructureType;
+
 private:
+  /// default constructor hidden
+  AlignableComposite() : Alignable (0, RotationType()) {};
 
-  AlignableObjectIdType theStructureType;
-
-  Alignables theComponents;
-
+  Alignables theComponents; // direct daughters
 };
 
 #endif

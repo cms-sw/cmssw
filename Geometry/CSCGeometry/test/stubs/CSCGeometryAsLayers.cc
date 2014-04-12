@@ -1,11 +1,9 @@
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
+#include <DataFormats/GeometryVector/interface/Pi.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
@@ -48,21 +46,22 @@ CSCGeometryAsLayers::~CSCGeometryAsLayers()
 void
  CSCGeometryAsLayers::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   const double dPi = 3.14159265358;
-   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
+   const double dPi = Geom::pi();
+   const double radToDeg = 180. / dPi;
 
    std::cout << myName() << ": Analyzer..." << std::endl;
    std::cout << "start " << dashedLine_ << std::endl;
+   std::cout << "pi = " << dPi << ", radToDeg = " << radToDeg << std::endl;
 
-   edm::ESHandle<CSCGeometry> pDD;
-   iSetup.get<MuonGeometryRecord>().get( pDD );     
-   std::cout << " Geometry node for CSCGeom is  " << &(*pDD) << std::endl;   
-   std::cout << " I have "<<pDD->dets().size() << " detectors" << std::endl;
-   std::cout << " I have "<<pDD->detTypes().size() << " types" << "\n" << std::endl;
+   edm::ESHandle<CSCGeometry> pgeom;
+   iSetup.get<MuonGeometryRecord>().get( pgeom );     
+   std::cout << " Geometry node for CSCGeom is  " << &(*pgeom) << std::endl;   
+   std::cout << " I have "<<pgeom->dets().size() << " detectors" << std::endl;
+   std::cout << " I have "<<pgeom->detTypes().size() << " types" << "\n" << std::endl;
 
    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
 
-   std::vector<CSCLayer*> vl = pDD->layers();
+   std::vector<CSCLayer*> vl = pgeom->layers();
    std::cout << "No. of layers stored = " << vl.size() << std::endl;
 
    std::cout << "\n  #     id(dec)      id(oct)                   "
@@ -74,8 +73,6 @@ void
    int icount = 0;
 
    for( std::vector<CSCLayer*>::const_iterator it = vl.begin(); it != vl.end(); ++it ){
-
-     // Do we really have a CSC layer?
 
       const CSCLayer* layer = *it;
      
@@ -102,7 +99,7 @@ void
 	// What's its surface?
 	// The surface knows how to transform local <-> global
 
-	const BoundSurface& bSurface = layer->surface();
+	const Surface& bSurface = layer->surface();
 
 	// Check global coordinates of centre of CSCLayer, and how
 	// local z direction relates to global z direction
@@ -147,18 +144,19 @@ void
         double cphiDeg = gCentre.phi().degrees();
 
 	// I want to display in range 0 to 360
-        if ( cphiDeg < 0. ) {
+
+        // Handle some occasional ugly precision problems around zero
+        if ( fabs(cphiDeg) < 1.e-06 ) {
+          cphiDeg = 0.;
+	}
+        else if ( cphiDeg < 0. ) {
           cphiDeg += 360.;
 	}
-
-	// Clean up occasional bizarreness
-        if ( cphiDeg >= 360. ) {
-	  // std::cout << "WARNING: resetting phi= " << cphiDeg << " to zero." << std::endl;
+        else if ( cphiDeg >= 360. ) {
+	  std::cout << "WARNING: resetting phi= " << cphiDeg << " to zero." << std::endl;
           cphiDeg = 0.;
 	}
 
-        // Handle some occasional ugly precision problems around zero
-        if ( fabs(cphiDeg) < 1.e-06 ) cphiDeg = 0.;
 	//        int iphiDeg = static_cast<int>( cphiDeg );
 	//	std::cout << "phi(0,0,0) = " << iphiDeg << " degrees" << std::endl;
 
@@ -180,14 +178,15 @@ void
         double phiwid_check = phidif/double(nStrips-1);
 
 	// Clean up some stupid floating decimal aesthetics
-        cstrip1 = cstrip1 * radToDeg;
-        if ( cstrip1 < 0. ) cstrip1 = cstrip1 + 360.;
-        if ( fabs( cstrip1 ) < 1.e-06 ) cstrip1 = 0.;
-        cstripN = cstripN * radToDeg;
-        if ( cstripN < 0. ) cstripN = cstrip1 + 360.;
-        if ( fabs( cstripN ) < 1.e-06 ) cstripN = 0.;
+	cstrip1 = cstrip1 * radToDeg;
+	if ( fabs( cstrip1 ) < 1.e-06 ) cstrip1 = 0.;
+	else if ( cstrip1 < 0. ) cstrip1 += 360.;
 
-        if ( fabs( stripoff ) < 1.e-06 ) stripoff = 0.;
+	cstripN = cstripN * radToDeg;
+	if ( fabs( cstripN ) < 1.e-06 ) cstripN = 0.;
+	else if ( cstripN < 0. ) cstripN += 360.;
+
+	if ( fabs( stripoff ) < 1.e-06 ) stripoff = 0.;
 
 	now = 9;
 	nop = 4;
@@ -203,7 +202,7 @@ void
 
         // Layer geometry:  layer corner phi's...
 
-	std::vector<float> parameters = layer->geometry()->parameters();
+	std::array<const float, 4> const & parameters = layer->geometry()->parameters();
         // these parameters are half-lengths, due to GEANT
         float hBottomEdge = parameters[0];
         float hTopEdge    = parameters[1];
@@ -240,7 +239,7 @@ void
   
     }
     else {
-      std::cout << "Could not dynamic_cast to a CSCLayer* " << std::endl;
+      std::cout << "WEIRD ERROR: a null CSCLayer* " << std::endl;
     }
   }	
 

@@ -1,9 +1,8 @@
 #include "Alignment/CocoaToDDL/interface/UnitConverter.h"
 #include "Alignment/CocoaToDDL/interface/CocoaUnitsTable.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <sstream>
 #include <strstream>
-#include <string>
 
 /*
 UnitConverter::UnitConverter(const G4BestUnit & bu)

@@ -61,3 +61,18 @@ CREATE OR REPLACE TRIGGER mon_run_iov_tg
   CALL update_subrun_iov_dates('mon_run_iov', 'subrun_start', 'subrun_end', :newiov.subrun_start, :newiov.subrun_end, :newiov.tag_id, :newiov.run_iov_id)
 /
 SHOW ERRORS;
+
+
+CREATE TABLE mon_task_def (
+  def_id		NUMBER(10) NOT NULL,
+  task_code		VARCHAR2(3) NOT NULL,
+  task_bit		number(10) NOT NULL,
+  task_name             varchar2(30) not null,
+  task_description      varchar2(100) not null
+);
+
+CREATE SEQUENCE mon_task_def_sq INCREMENT BY 1 START WITH 1;
+
+ALTER TABLE mon_task_def ADD CONSTRAINT mon_task_def_pk PRIMARY KEY (def_id);
+ALTER TABLE mon_task_def ADD CONSTRAINT mon_task_def_uk UNIQUE (task_code);
+ALTER TABLE mon_task_def ADD CONSTRAINT mon_task_def_uk2 UNIQUE (task_bit);

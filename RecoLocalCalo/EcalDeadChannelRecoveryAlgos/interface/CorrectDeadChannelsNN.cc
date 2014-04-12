@@ -14,7 +14,7 @@
 #include "getopt.h"
 #include <map>
 #include <iostream>
-#include "string.h"
+#include <cstring>
 #include <sstream>
 #include <unistd.h>
 #include <iomanip>
@@ -66,7 +66,7 @@ double CorrectDeadChannelsNN(double *M5x5Input){
   M5x5[2]=M5x5Input[49];
   M5x5[3]=M5x5Input[61];
   M5x5[4]=M5x5Input[72];
-  M5x5[5]=M5x5Input[51];
+  M5x5[5]=M5x5Input[50];
   M5x5[6]=M5x5Input[59];
   M5x5[7]=M5x5Input[70];
   M5x5[8]=M5x5Input[48];
@@ -104,29 +104,26 @@ double CorrectDeadChannelsNN(double *M5x5Input){
   double SUM8=-1;
   double logX8=-1;
   double logY8=-1;
-  double logX24=-1;
-  double logY24=-1;
   double SUM24=-1;
-  double MAXE=-1;
 
   //First Find the position of the Dead Channel in 3x3 matrix
   int IndDeadCha=-1;
   for(int i =0 ; i< 9;i++){
-    if(fabs(M5x5[i])<epsilon && IndDeadCha >0){cout<<" Problem 2 dead channels in sum9! Can not correct "<<endl; return 0.0;}
+    if(fabs(M5x5[i])<epsilon && IndDeadCha >0){/*cout<<" Problem 2 dead channels in sum9! Can not correct "<<std::endl;*/ return 0.0;}
     if(fabs(M5x5[i])<epsilon && IndDeadCha==-1)IndDeadCha=i;
   }
 
 
 
-//   cout<<" THE DEAD CHANNEL IS : " << IndDeadCha <<endl;
+//   std::cout<<" THE DEAD CHANNEL IS : " << IndDeadCha <<std::endl;
 
-//   cout<<"========================="<<endl;
-//   cout<<M5x5[22]<<" "<<M5x5[10]<<" "<<M5x5[9] <<" "<<M5x5[11]<<" "<<M5x5[17]<<endl;
-//   cout<<M5x5[21]<<" "<<M5x5[4] <<" "<<M5x5[1] <<" "<<M5x5[7] <<" "<<M5x5[16]<<endl;
-//   cout<<M5x5[20]<<" "<<M5x5[3] <<" "<<M5x5[0] <<" "<<M5x5[6] <<" "<<M5x5[15]<<endl;
-//   cout<<M5x5[23]<<" "<<M5x5[5] <<" "<<M5x5[2] <<" "<<M5x5[8] <<" "<<M5x5[18]<<endl;
-//   cout<<M5x5[24]<<" "<<M5x5[13]<<" "<<M5x5[12]<<" "<<M5x5[14]<<" "<<M5x5[19]<<endl;
-//   cout<<"========================="<<endl;
+//   std::cout<<"========================="<<std::endl;
+//   std::cout<<M5x5[22]<<" "<<M5x5[10]<<" "<<M5x5[9] <<" "<<M5x5[11]<<" "<<M5x5[17]<<std::endl;
+//   std::cout<<M5x5[21]<<" "<<M5x5[4] <<" "<<M5x5[1] <<" "<<M5x5[7] <<" "<<M5x5[16]<<std::endl;
+//   std::cout<<M5x5[20]<<" "<<M5x5[3] <<" "<<M5x5[0] <<" "<<M5x5[6] <<" "<<M5x5[15]<<std::endl;
+//   std::cout<<M5x5[23]<<" "<<M5x5[5] <<" "<<M5x5[2] <<" "<<M5x5[8] <<" "<<M5x5[18]<<std::endl;
+//   std::cout<<M5x5[24]<<" "<<M5x5[13]<<" "<<M5x5[12]<<" "<<M5x5[14]<<" "<<M5x5[19]<<std::endl;
+//   std::cout<<"========================="<<std::endl;
 
 
 //  int isOK; isOK=0;
@@ -206,7 +203,7 @@ double CorrectDeadChannelsNN(double *M5x5Input){
     voisin1=6;voisin2=2;voisin3=18;voisin4=14;
     break;
   default:
-    cout<<" Error, Dead Channel to far from main containement one, no correction is applied"<<endl;
+    //    std::cout<<" Error, Dead Channel to far from main containement one, no correction is applied"<<std::endl;
     return 0.0;
     break;
   }//end switch
@@ -228,10 +225,7 @@ double CorrectDeadChannelsNN(double *M5x5Input){
   SUM8 =0;
   for(int j=0;j<9;j++)if(j!=IndDeadCha)SUM8+=M5x5[j];
 
-  float XL24=XL8+M5x5[10]+M5x5[13]+M5x5[20]+M5x5[21]+M5x5[23]+M5x5[24]+M5x5[22];
   float XR24=XR8+M5x5[11]+M5x5[14]+M5x5[15]+M5x5[16]+M5x5[17]+M5x5[18]+M5x5[19];
-
-  float YL24=YL8+M5x5[21]+M5x5[16]+M5x5[22]+M5x5[10]+M5x5[9]+M5x5[11]+M5x5[17];
   float YR24=YR8+M5x5[18]+M5x5[23]+M5x5[24]+M5x5[13]+M5x5[12]+M5x5[14]+M5x5[19];
 
   float sum24 = 0.;
@@ -240,8 +234,6 @@ double CorrectDeadChannelsNN(double *M5x5Input){
   if(XR8 > 0 && XL8>0 && YL8 >0 && YR8>0 && SUM8>0 && XR24>0 &&YR24>0){
     logX8=TMath::Log(XL8/XR8);
     logY8=TMath::Log(YL8/YR8);
-    logX24=TMath::Log((XL24/XR24));
-    logY24=TMath::Log((YL24/YR24));
     SUM24=sum24;
     //Added 15 Janvier 2007 to get ride of energy dependance!
     SUM24 = SUM8/SUM24;
@@ -272,7 +264,6 @@ double CorrectDeadChannelsNN(double *M5x5Input){
 	if(M5x5[j] > Secmaxi){IndSecMax=j;Secmaxi=M5x5[j];}
       }
     }
-    MAXE=maxi/SUM8;
 
     in[0]=logX8;
     in[1]=logY8;

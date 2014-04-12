@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.18 2007/03/25 12:20:46 mansj Exp $
 //
 //
 
@@ -128,12 +127,11 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::cout << "HcalDbAnalyzer::analyze-> got HcalDbRecord: " << std::endl;
   std::cout << "HcalDbAnalyzer::analyze-> getting information for HB channel eta=1, phi=1, depth=1..." << std::endl;
   HcalDetId cell (HcalBarrel, 1, 1, 1);
-  HcalCalibrations calibrations;
-  pSetup->makeHcalCalibration (cell, &calibrations);
-  HcalCalibrationWidths widths;
-  pSetup->makeHcalCalibrationWidth (cell, &widths);
+  
+  const HcalCalibrations& calibrations=pSetup->getHcalCalibrations(cell);
+  const HcalCalibrationWidths widths = pSetup->getHcalCalibrationWidths(cell);
   const HcalQIECoder* coder = pSetup->getHcalCoder (cell);
-  const HcalQIEShape* shape = pSetup->getHcalShape ();
+  const HcalQIEShape* shape = pSetup->getHcalShape (cell);
   
   std::cout << "Values-> pedestals: " 
 	    << calibrations.pedestal (0) << '/'
@@ -141,10 +139,10 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    << calibrations.pedestal (2) << '/'
 	    << calibrations.pedestal (3)
 	    << ",  gains: "
-	    << calibrations.gain (0) << '/'
-	    << calibrations.gain (1) << '/'
-	    << calibrations.gain (2) << '/'
-	    << calibrations.gain (3)
+	    << calibrations.rawgain (0) << '/'
+	    << calibrations.rawgain (1) << '/'
+	    << calibrations.rawgain (2) << '/'
+	    << calibrations.rawgain (3)
 	    << std::endl;
   std::cout << "Widths. pedestals: " 
 	    << widths.pedestal (0) << '/'

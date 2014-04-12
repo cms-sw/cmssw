@@ -12,30 +12,39 @@
 */
 //
 // Original Author:  Michele Pioppi-INFN perugia
+//   Modifications: Freya Blekman - Cornell University
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.26 2007/03/09 08:12:40 dkotlins Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <set>
+
 // user include files
-#include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizer.h"
-#include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizerAlgorithm.h"
+#include "SiPixelDigitizer.h"
+#include "SiPixelDigitizerAlgorithm.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -49,16 +58,22 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
+
+//Random Number
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 
 //
 // constants, enums and typedefs
@@ -76,94 +91,159 @@
 
 namespace cms
 {
-  SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig):
-    conf_(iConfig),
-    _pixeldigialgo(iConfig) 
+  SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC):
+    first(true),
+    _pixeldigialgo(),
+    hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
+    trackerContainers(iConfig.getParameter<std::vector<std::string> >("ROUList")),
+    geometryType(iConfig.getParameter<std::string>("GeometryType"))
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
-    std::string alias ( iConfig.getParameter<std::string>("@module_label") ); 
+    const std::string alias ("simSiPixelDigis"); 
+    
+    mixMod.produces<edm::DetSetVector<PixelDigi> >().setBranchAlias(alias);
+    mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias(alias + "siPixelDigiSimLink");
+    for(auto const& trackerContainer : trackerContainers) {
+      edm::InputTag tag(hitsProducer, trackerContainer);
+      iC.consumes<std::vector<PSimHit> >(edm::InputTag(hitsProducer, trackerContainer));
+    }
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if ( ! rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+        << "SiPixelDigitizer requires the RandomNumberGeneratorService\n"
+        "which is not present in the configuration file.  You must add the service\n"
+        "in the configuration file or remove the modules that require it.";
+    }
 
-    produces<edm::DetSetVector<PixelDigi> >().setBranchAlias( alias );
-    produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias ( alias + "siPixelDigiSimLink");
-    trackerContainers.clear();
-    trackerContainers = iConfig.getParameter<std::vector<std::string> >("ROUList");
+    _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
   }
-
   
-  SiPixelDigitizer::~SiPixelDigitizer()
-  {  edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";}
+  SiPixelDigitizer::~SiPixelDigitizer(){  
+    edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";
+  }
 
 
   //
   // member functions
   //
-  
-  // ------------ method called to produce the data  ------------
+
   void
-  SiPixelDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-  {
-    // Step A: Get Inputs
-    edm::Handle<CrossingFrame> cf;
-    iEvent.getByType(cf);
-
-    std::auto_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
-
-    edm::ESHandle<TrackerGeometry> pDD;
-    
-    iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
- 
-    edm::ESHandle<MagneticField> pSetup;
+  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits, CLHEP::HepRandomEngine* engine) {
+    if(hSimHits.isValid()) {
+       std::set<unsigned int> detIds;
+       std::vector<PSimHit> const& simHits = *hSimHits.product();
+       for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it) {
+         unsigned int detId = (*it).detUnitId();
+         if(detIds.insert(detId).second) {
+           // The insert succeeded, so this detector element has not yet been processed.
+           unsigned int isub = DetId(detId).subdetId();
+           if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
+             PixelGeomDetUnit* pixdet = detectorUnits[detId];
+             //access to magnetic field in global coordinates
+             GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
+             LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
+                                          << pSetup->inTesla(pixdet->surface().position());
+             _pixeldigialgo->accumulateSimHits(it, itEnd, pixdet, bfield, engine);
+           }
+         }
+       }
+    }
+  }
+  
+  void
+  SiPixelDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
+    if(first){
+      _pixeldigialgo->init(iSetup);
+      first = false;
+    }
+    _pixeldigialgo->initializeEvent();
+    iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
 
-    //Loop on PSimHit
-    SimHitMap.clear();
-
-    MixCollection<PSimHit>::iterator isim;
-    for (isim=allPixelTrackerHits->begin(); isim!= allPixelTrackerHits->end();isim++) {
-      DetId detid=DetId((*isim).detUnitId());
-      unsigned int subid=detid.subdetId();
-      if ((subid==  PixelSubdetector::PixelBarrel) || (subid== PixelSubdetector::PixelEndcap)) {
-	SimHitMap[(*isim).detUnitId()].push_back((*isim));
+    // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
+    if(true) { // Replace with ESWatcher 
+      detectorUnits.clear();
+      for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
+        unsigned int detId = (*iu)->geographicalId().rawId();
+        DetId idet=DetId(detId);
+        unsigned int isub=idet.subdetId();
+        if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
+          PixelGeomDetUnit* pixdet = dynamic_cast<PixelGeomDetUnit*>((*iu));
+          assert(pixdet != 0);
+          detectorUnits.insert(std::make_pair(detId, pixdet));
+        }
       }
     }
+  }
 
-    // Step B: LOOP on PixelGeomDetUnit //
+  void
+  SiPixelDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+    // Step A: Get Inputs
+    for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+      edm::Handle<std::vector<PSimHit> > simHits;
+      edm::InputTag tag(hitsProducer, *i);
+
+      iEvent.getByLabel(tag, simHits);
+      accumulatePixelHits(simHits, randomEngine(iEvent.streamID()));
+    }
+  }
+
+  void
+  SiPixelDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup, edm::StreamID const& streamID) {
+    // Step A: Get Inputs
+    for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+      edm::Handle<std::vector<PSimHit> > simHits;
+      edm::InputTag tag(hitsProducer, *i);
+
+      iEvent.getByLabel(tag, simHits);
+      accumulatePixelHits(simHits, randomEngine(streamID));
+    }
+  }
+
+  // ------------ method called to produce the data  ------------
+  void
+  SiPixelDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    const TrackerTopology *tTopo=tTopoHand.product();
+
+    std::vector<edm::DetSet<PixelDigi> > theDigiVector;
+    std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
+ 
+    PileupInfo_ = getEventPileupInfo();
+    _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
+
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       DetId idet=DetId((*iu)->geographicalId().rawId());
-       unsigned int isub=idet.subdetId();
-       
-       
-      if  ((isub==  PixelSubdetector::PixelBarrel) || (isub== PixelSubdetector::PixelEndcap)) {  
-  
- 
-	//access to magnetic field in global coordinates
-	GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-	LogDebug ("PixelDigitizer ") << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
-				     << pSetup->inTesla((*iu)->surface().position());
+      unsigned int isub=idet.subdetId();
+      
+      if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
+
 	//
 
-	edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
-	edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
-	
-	
- 	collector.data=
- 	  _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
- 			     dynamic_cast<PixelGeomDetUnit*>((*iu)),
- 			     bfield);
-	if (collector.data.size()>0){
-	  theDigiVector.push_back(collector);
-
-	  //digisimlink
-	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    linkcollector.data=_pixeldigialgo.make_link();
-	    if (linkcollector.data.size()>0) theDigiLinkVector.push_back(linkcollector);
-       	  }
-	
-	}
+        edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
+        edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
+        
+        
+        _pixeldigialgo->digitize(dynamic_cast<PixelGeomDetUnit*>((*iu)),
+                                 collector.data,
+                                 linkcollector.data,
+				 tTopo,
+                                 engine);
+        if(collector.data.size() > 0) {
+          theDigiVector.push_back(std::move(collector));
+        }
+        if(linkcollector.data.size() > 0) {
+          theDigiLinkVector.push_back(std::move(linkcollector));
+        }
       }
-
     }
+    
     // Step C: create collection with the cache vector of DetSet 
     std::auto_ptr<edm::DetSetVector<PixelDigi> > 
       output(new edm::DetSetVector<PixelDigi>(theDigiVector) );
@@ -174,6 +254,20 @@ namespace cms
     iEvent.put(output);
     iEvent.put(outputlink);
   }
-}
 
+  CLHEP::HepRandomEngine* SiPixelDigitizer::randomEngine(edm::StreamID const& streamID) {
+    unsigned int index = streamID.value();
+    if(index >= randomEngines_.size()) {
+      randomEngines_.resize(index + 1, nullptr);
+    }
+    CLHEP::HepRandomEngine* ptr = randomEngines_[index];
+    if(!ptr) {
+      edm::Service<edm::RandomNumberGenerator> rng;
+      ptr = &rng->getEngine(streamID);
+      randomEngines_[index] = ptr;
+    }
+    return ptr;
+  }
+
+}// end namespace cms::
 

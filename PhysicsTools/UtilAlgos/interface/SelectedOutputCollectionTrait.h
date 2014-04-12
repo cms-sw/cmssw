@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/View.h"
 
@@ -18,9 +19,14 @@ namespace helper {
     typedef InputCollection type;
   };
 
-  template<typename R, typename C>
-  struct SelectedOutputCollectionTrait<edm::AssociationVector<R, C> > {
-    typedef typename R::product_type type;
+  template<typename K, typename C>
+  struct SelectedOutputCollectionTrait<edm::AssociationVector<edm::RefProd<K>, C> > {
+    typedef typename edm::RefProd<K>::product_type type;
+  };
+
+  template<typename T, typename C>
+  struct SelectedOutputCollectionTrait<edm::AssociationVector<edm::RefToBaseProd<T>, C> > {
+    typedef typename edm::RefToBaseVector<T> type;
   };
 
   template<typename T>

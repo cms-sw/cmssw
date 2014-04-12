@@ -2,10 +2,11 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit2DPosConstraint_H
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 class GeomDetUnit;
 
-class TRecHit2DPosConstraint : public TransientTrackingRecHit {
+class TRecHit2DPosConstraint GCC11_FINAL : public TransientTrackingRecHit {
 public:
 
   virtual ~TRecHit2DPosConstraint() {}
@@ -40,32 +41,36 @@ public:
   virtual LocalError localPositionError() const {return err_;}
 
   virtual const TrackingRecHit * hit() const {return 0;}//fixme return invalid
-
-  virtual std::vector<const TrackingRecHit*> recHits() const {
-    return hit()->recHits();
-  }
-  virtual std::vector<TrackingRecHit*> recHits() {
-    return std::vector<TrackingRecHit*>();
-  }
+  virtual TrackingRecHit * cloneHit() const { return 0;}
+  
+  virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
+  virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
+  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
 
   virtual bool canImproveWithTrack() const {return false;}
 
   virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return clone();}
 
   virtual const GeomDetUnit* detUnit() const {return 0;}
-  virtual const GeomDet* det() const {return 0;}
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const Surface* surface) {
     return RecHitPointer( new TRecHit2DPosConstraint( pos, err, surface));
   }
 
-  virtual const Surface * surface() const {return surface_;}
+  virtual const Surface * surface() const {return &(*surface_);}
+
+  virtual GlobalPoint globalPosition() const { return  surface()->toGlobal(localPosition());}
+  virtual GlobalError globalPositionError() const { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  virtual float errorGlobalR() const { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  virtual float errorGlobalZ() const { return std::sqrt(globalPositionError().czz()); }
+  virtual float errorGlobalRPhi() const { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+
 
 private:
-  const LocalPoint& pos_;
-  const LocalError& err_;
-  const Surface* surface_;
+  const LocalPoint pos_;
+  const LocalError err_;
+  ConstReferenceCountingPointer<Surface> surface_;
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TRecHit2DPosConstraint(const LocalPoint& pos,
 			 const LocalError& err,

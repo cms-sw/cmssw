@@ -4,21 +4,18 @@
 /** \class LaserDQM
  *  DQM Monitor Elements for the Laser Alignment System
  *
- *  $Date: Mon Mar 19 12:33:24 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/01 13:22:57 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 // DQM
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 
@@ -35,7 +32,7 @@ class LaserDQM : public edm::EDAnalyzer
   /// this method will do the user analysis 
   virtual void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup);
   /// begin job
-  virtual void beginJob(const edm::EventSetup& theSetup);
+  virtual void beginJob();
 	/// end job
   virtual void endJob(void);
     
@@ -64,7 +61,7 @@ class LaserDQM : public edm::EDAnalyzer
   std::string theDQMFileName;
 
   // DQM Backend Interface
-  DaqMonitorBEInterface * theDaqMonitorBEI;
+  DQMStore * theDaqMonitorBEI;
 
   // DQM Monitor Elements
 

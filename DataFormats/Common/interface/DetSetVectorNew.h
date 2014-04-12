@@ -1,6 +1,8 @@
-#ifndef Common_DetSetVectorNew_H
-#define Common_DetSetVectorNew_H
+#ifndef DataFormats_Common_DetSetVectorNew_h
+#define DataFormats_Common_DetSetVectorNew_h
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+// #include "DataFormats/Common/interface/DetSet.h"  // to get det_id_type
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/traits.h"
 
@@ -8,13 +10,18 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/any.hpp>
-#include <boost/shared_ptr.hpp>
+#include "boost/shared_ptr.hpp"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 
 #include<vector>
+#include <cassert>
+
+namespace edm { namespace refhelper { template<typename T> struct FindForNewDetSetVector; } }
 
 //FIXME remove New when ready
 namespace edmNew {
+  typedef uint32_t det_id_type;
 
   namespace dslv {
     template< typename T> class LazyGetter;
@@ -29,11 +36,18 @@ namespace edmNew {
       bool filling;
       boost::any getter;
 
+
+      void swap(DetSetVectorTrans& rh) {
+	std::swap(filling,rh.filling);
+	std::swap(getter,rh.getter);
+      }
+
       typedef unsigned int size_type; // for persistency
       typedef unsigned int id_type;
 
       struct Item {
 	Item(id_type i=0, int io=-1, size_type is=0) : id(i), offset(io), size(is){}
+	bool isValid() const { return offset>=0;}
 	id_type id;
 	int offset;
 	size_type size;
@@ -42,6 +56,7 @@ namespace edmNew {
       };
 
     };
+
     void errorFilling();
     void errorIdExists(det_id_type iid);
     void throw_range(det_id_type iid);
@@ -65,8 +80,8 @@ namespace edmNew {
     typedef unsigned int size_type; // for persistency
     typedef unsigned int id_type;
     typedef T data_type;
-    typedef DetSetVector<T> self;
-    typedef DetSet<T> DetSet;
+    typedef edmNew::DetSetVector<T> self;
+    typedef edmNew::DetSet<T> DetSet;
     typedef dslv::LazyGetter<T> Getter;
     // FIXME not sure make sense....
     typedef DetSet value_type;
@@ -82,18 +97,22 @@ namespace edmNew {
     typedef typename std::vector<data_type>::const_iterator const_DataIter;
     typedef std::pair<const_IdIter,const_DataIter> const_IterPair;
 
+    typedef typename edm::refhelper::FindForNewDetSetVector<data_type>  RefFinder;
     
     struct IterHelp {
       typedef DetSet result_type;
-      IterHelp(DetSetVector<T> const & iv) : v(&iv){}
+      //      IterHelp() : v(0),update(true){}
+      IterHelp() : v(0),update(false){}
+      IterHelp(DetSetVector<T> const & iv, bool iup) : v(&iv), update(iup){}
       
-       result_type & operator()(Item const& item) const {
-	detset.set(*v,item);
+      result_type & operator()(Item const& item) const {
+	detset.set(*v,item,update);
 	return detset;
       } 
     private:
       DetSetVector<T> const * v;
       mutable result_type detset;
+      bool update;
     };
     
     typedef boost::transform_iterator<IterHelp,const_IdIter> const_iterator;
@@ -153,6 +172,14 @@ namespace edmNew {
 	v.m_data.push_back(d);
 	item.size++;
       }
+#ifndef CMS_NOCXX11
+      void push_back(data_type && d) {
+        v.m_data.push_back(std::move(d));
+        item.size++;
+      }
+#endif
+
+      data_type & back() { return v.m_data.back();}
       
     private:
       DetSetVector<T> & v;
@@ -160,6 +187,15 @@ namespace edmNew {
       bool saveEmpty;
     };
     friend class FastFiller;
+
+    class FindForDetSetVector : public std::binary_function<const edmNew::DetSetVector<T>&, unsigned int, const T*> {
+    public:
+        typedef FindForDetSetVector self;
+        typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex) {
+            return &(iContainer.m_data[iIndex]);
+        }
+    };
+    friend class FindForDetSetVector;
 
     explicit DetSetVector(int isubdet=0) :
       m_subdetId(isubdet) {}
@@ -172,7 +208,11 @@ namespace edmNew {
       // delete content if T is pointer...
     }
     
+
+    bool onDemand() const { return !getter.empty();}
+
     void swap(DetSetVector & rh) {
+      DetSetVectorTrans::swap(rh);
       std::swap(m_subdetId,rh.m_subdetId);
       std::swap(m_ids,rh.m_ids);
       std::swap(m_data,rh.m_data);
@@ -198,13 +238,13 @@ namespace edmNew {
       Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
       std::copy(idata,idata+isize,m_data.begin()+item.offset);
-     return DetSet(*this,item);
+      return DetSet(*this,item,false);
     }
     //make space for it
     DetSet insert(id_type iid, size_type isize) {
       Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
-      return DetSet(*this,item);
+      return DetSet(*this,item,false);
     }
 
     // to be used with a FastFiller
@@ -262,15 +302,16 @@ namespace edmNew {
     DetSet operator[](id_type i) const {
       const_IdIter p = findItem(i);
       if (p==m_ids.end()) dstvdetails::throw_range(i);
-      return DetSet(*this,*p);
+      return DetSet(*this,*p,true);
     }
     
     // slow interface
-    const_iterator find(id_type i) const {
+    //    const_iterator find(id_type i, bool update=true) const {
+    const_iterator find(id_type i, bool update=false) const {
       const_IdIter p = findItem(i);
       return (p==m_ids.end()) ? end() :
 	boost::make_transform_iterator(p,
-				       IterHelp(*this));
+				       IterHelp(*this,update));
     }
 
     // slow interface
@@ -280,24 +321,27 @@ namespace edmNew {
       return (p.first!=p.second) ? p.first : m_ids.end();
     }
     
-    const_iterator begin() const {
+    //    const_iterator begin(bool update=true) const {
+    const_iterator begin(bool update=false) const {
       return  boost::make_transform_iterator(m_ids.begin(),
-					     IterHelp(*this));
+					     IterHelp(*this,update));
     }
 
-    const_iterator end() const {
+    //    const_iterator end(bool update=true) const {
+    const_iterator end(bool update=false) const {
       return  boost::make_transform_iterator(m_ids.end(),
-					     IterHelp(*this));
+					     IterHelp(*this,update));
     }
     
 
     // return an iterator range (implemented here to avoid dereference of detset)
     template<typename CMP>
-    Range equal_range(id_type i, CMP cmp) const {
+      //    Range equal_range(id_type i, CMP cmp, bool update=true) const {
+    Range equal_range(id_type i, CMP cmp, bool update=false) const {
       std::pair<const_IdIter,const_IdIter> p =
 	std::equal_range(m_ids.begin(),m_ids.end(),i,cmp);
-      return  Range(boost::make_transform_iterator(p.first,IterHelp(*this)),
-		    boost::make_transform_iterator(p.second,IterHelp(*this))
+      return  Range(boost::make_transform_iterator(p.first,IterHelp(*this,update)),
+		    boost::make_transform_iterator(p.second,IterHelp(*this,update))
 		    );
     }
     
@@ -332,7 +376,7 @@ namespace edmNew {
 
     //------------------------------
 
-    // IdContainer const & ids() const { return m_ids;}
+    IdContainer const & ids() const { return m_ids;}
     DataContainer const & data() const { return  m_data;}
 
 
@@ -340,6 +384,9 @@ namespace edmNew {
       const_cast<self*>(this)->updateImpl(const_cast<Item&>(item));
     }
    
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
+
   private:
 
     void updateImpl(Item & item);
@@ -366,7 +413,7 @@ namespace edmNew {
     
 
   template<typename T>
-  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, 
+  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<Getter> iGetter, 
 				       const std::vector<det_id_type>& iDets,
 				       int isubdet):  
     m_subdetId(isubdet) {
@@ -386,32 +433,92 @@ namespace edmNew {
   template<typename T>
   inline void DetSetVector<T>::updateImpl(Item & item)  {
     // no getter or already updated
-    if (getter.empty() || item.offset!=-1) return;
+    if (getter.empty()) assert(item.offset>=0);
+    if (item.offset!=-1 || getter.empty() ) return;
     item.offset = int(m_data.size());
-    FastFiller ff(*this,item);
+    FastFiller ff(*this,item,true);
     (*boost::any_cast<boost::shared_ptr<Getter> >(&getter))->fill(ff);
   }
 
 
-  template<typename T>
-  inline DetSet<T>::DetSet(DetSetVector<T> const & icont,
-			   typename DetSetVector<T>::Item const & item ) :
-    m_id(0), m_data(0), m_size(0){
-    icont.update(item);
-    set(icont,item);
-  }
-  
+ 
   
   template<typename T>
   inline void DetSet<T>::set(DetSetVector<T> const & icont,
-			     typename Container::Item const & item) {
-    icont.update(item);
+			     typename Container::Item const & item, bool update) {
+    if (update) {
+      icont.update(item);
+      assert(item.offset>=0);
+    }
     m_id=item.id; 
-    m_data=&icont.data()[item.offset]; 
+    m_data=&icont.data();
+    m_offset = item.offset; 
     m_size=item.size;
   }
   
 }
 
-#endif // Common_DataFrameContainer
+#include "DataFormats/Common/interface/Ref.h"
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_same.hpp>
+
+//specialize behavior of edm::Ref to get access to the 'Det'
+namespace edm {
+    /* Reference to an item inside a new DetSetVector ... */
+    namespace refhelper {
+        template<typename T>
+            struct FindTrait<typename edmNew::DetSetVector<T>,T> {
+                typedef typename edmNew::DetSetVector<T>::FindForDetSetVector value;
+            };
+    }
+    /* ... as there was one for the original DetSetVector*/
+
+    /* Probably this one is not that useful .... */
+    namespace refhelper {
+        template<typename T>
+            struct FindSetForNewDetSetVector : public std::binary_function<const edmNew::DetSetVector<T>&, unsigned int, edmNew::DetSet<T> > {
+                typedef FindSetForNewDetSetVector<T> self;
+                typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex) {
+                    return &(iContainer[iIndex]);
+                }
+            };
+
+        template<typename T>
+            struct FindTrait<edmNew::DetSetVector<T>, edmNew::DetSet<T> > {
+                typedef FindSetForNewDetSetVector<T> value;
+            };
+    }
+    /* ... implementation is provided, just in case it's needed */
+}
+
+namespace edmNew {
+   //helper function to make it easier to create a edm::Ref to a new DSV
+  template<class HandleT>
+  edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
+  makeRefTo(const HandleT& iHandle,
+             typename HandleT::element_type::value_type::const_iterator itIter) {
+    BOOST_MPL_ASSERT((boost::is_same<typename HandleT::element_type, DetSetVector<typename HandleT::element_type::value_type::value_type> >));
+    typename HandleT::element_type::size_type index = (itIter - &*iHandle->data().begin()); 
+    return edm::Ref<typename HandleT::element_type,
+	       typename HandleT::element_type::value_type::value_type>
+	      (iHandle,index);
+  }
+}
+
+#include "DataFormats/Common/interface/ContainerMaskTraits.h"
+
+namespace edm {
+   template<typename T>
+   class ContainerMaskTraits<edmNew::DetSetVector<T> > {
+     public:
+        typedef T value_type;
+
+        static size_t size(const edmNew::DetSetVector<T>* iContainer) { return iContainer->dataSize();}
+        static unsigned int indexFor(const value_type* iElement, const edmNew::DetSetVector<T>* iContainer) {
+           return iElement-&(iContainer->data().front());
+        }
+   };
+}
+
+#endif
   

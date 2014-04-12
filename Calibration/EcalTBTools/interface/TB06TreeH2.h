@@ -4,10 +4,6 @@
 // includes
 #include <string>
 
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TFile.h"
-#include "TTree.h"
 #include "TClonesArray.h"
 
 class TFile ;

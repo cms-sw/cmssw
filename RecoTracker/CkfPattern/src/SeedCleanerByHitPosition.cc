@@ -10,10 +10,10 @@ void SeedCleanerByHitPosition::done() {
         trajectories = 0; 
 }
 bool SeedCleanerByHitPosition::good(const TrajectorySeed *seed) {
-    static RecHitComparatorByPosition comp;
-    typedef BasicTrajectorySeed::const_iterator SI;
+    const RecHitComparatorByPosition comp;
+    typedef TrajectorySeed::const_iterator SI;
     typedef Trajectory::RecHitContainer::const_iterator TI;
-    BasicTrajectorySeed::range range = seed->recHits();
+    TrajectorySeed::range range = seed->recHits();
     SI first = range.first, curr = range.first, last = range.second;
     //calls_++;
     for (std::vector<Trajectory>::const_iterator trj = trajectories->begin(),

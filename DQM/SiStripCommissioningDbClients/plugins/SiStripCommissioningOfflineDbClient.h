@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.2 2007/06/19 12:30:36 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 #define DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
@@ -20,24 +19,24 @@ class SiStripCommissioningOfflineDbClient : public SiStripCommissioningOfflineCl
  public:
   
   SiStripCommissioningOfflineDbClient( const edm::ParameterSet& );
+
   virtual ~SiStripCommissioningOfflineDbClient();
   
  protected:
   
-  void createCommissioningHistograms();
-  void testUploadToDb();
-  void uploadToDb();
-
- private:
-
-  bool uploadToDb_;
-
-  bool test_;
-
-  bool uploadFecSettings_;
-
-  bool uploadFedSettings_;
+  void createHistos( const edm::ParameterSet&, const edm::EventSetup& );
   
+  void uploadToConfigDb();
+  
+ private:
+  
+  bool uploadToDb_;
+  
+  bool uploadAnal_;
+  
+  bool uploadConf_;
+  
+
 };
 
 #endif // DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H

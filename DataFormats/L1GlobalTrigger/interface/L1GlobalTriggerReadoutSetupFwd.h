@@ -3,28 +3,29 @@
 
 /**
  * \class L1GlobalTriggerReadoutSetup
- * 
- * 
- * Description: group typedefs for GT readout record.  
+ *
+ *
+ * Description: group typedefs for GT readout record.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
- * $Date$
- * $Revision$
+ *
  *
  */
 
 // system include files
-#include <string>
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
 // user include files
+#include "FWCore/Utilities/interface/typedefs.h"
+
 //   base class
+//
+//   for compatibility reasons; L1GtObject moved to separate file
+#include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
+
 // forward declarations
 
 /// typedefs
@@ -43,21 +44,14 @@ typedef std::vector<bool> TechnicalTriggerWord;
 typedef unsigned MuonDataWord;
 
 // e-gamma, jet objects
-typedef boost::uint16_t CaloDataWord;
+typedef cms_uint16_t CaloDataWord;
 
 // missing Et
-typedef boost::uint32_t CaloMissingEtWord;
+typedef cms_uint32_t CaloMissingEtWord;
 
 // twelve jet counts, encoded in five bits per count; six jets per 32-bit word
 // code jet count = 31 indicate overflow condition
 typedef std::vector<unsigned> CaloJetCountsWord;
 
-// hardware-related stuff
-
-/// board types in GT
-enum GtBoardType {GTFE, FDL, PSB, GMT, TCS, TIM};
-
-enum L1GtCaloQuad { NoIsoEGQ, IsoEGQ, CenJetQ, ForJetQ, TauJetQ, ESumsQ, JetCountsQ };
-enum L1GtObject { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
 
 #endif /*L1GlobalTrigger_L1GlobalTriggerReadoutSetupFwd_h*/

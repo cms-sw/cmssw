@@ -2,27 +2,21 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include <iostream>
+#include <cstdio>
 
 using namespace std;
 
-/*$Date: 2007/03/09 11:40:54 $
-version 3.1 02-13-07 
+/*version 3.1 02-13-07 
 
 author Kevin Klapoetke - Minnesota*/
-
-
-
-
 
 class HcalCableMapper : public edm::EDAnalyzer {
 public:
   explicit HcalCableMapper(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void endJob ();
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  virtual void endJob () override;
   //std::string sourceDigi_;
 private:
   typedef std::vector<HcalQIESample> SampleSet;
@@ -37,7 +31,9 @@ private:
 
   std::map<HcalDetId,std::vector<SampleSet> > fullHistory_;
   IdMap IdSet;
-  edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
 
   template <class DigiCollection>
   void record(const DigiCollection& digis) {
@@ -59,14 +55,14 @@ private:
 };
 
 
-HcalCableMapper::HcalCableMapper(edm::ParameterSet const& conf) :
-  hbheLabel_(conf.getParameter<edm::InputTag>("hbheLabel")),
-  hoLabel_(conf.getParameter<edm::InputTag>("hoLabel")),
-  hfLabel_(conf.getParameter<edm::InputTag>("hfLabel")){
+HcalCableMapper::HcalCableMapper(edm::ParameterSet const& conf) {
+  tok_hbhe_ = consumes<HBHEDigiCollection>(conf.getParameter<edm::InputTag>("hbheLabel"));
+  tok_ho_ = consumes<HODigiCollection>(conf.getParameter<edm::InputTag>("hoLabel"));
+  tok_hf_ = consumes<HFDigiCollection>(conf.getParameter<edm::InputTag>("hfLabel"));
   
 }
 
-static const char* det_names[] = {"Zero","HcalBarrel","HcalEndcap","HcalForward","HcalOuter"};
+constexpr char const* det_names[] = {"Zero","HcalBarrel","HcalEndcap","HcalForward","HcalOuter"};
 
 
 
@@ -165,12 +161,12 @@ void HcalCableMapper::process(const PathSet& ps, const IdMap& im){
 void HcalCableMapper::analyze(edm::Event const& e, edm::EventSetup const& c) {
    
   edm::Handle<HBHEDigiCollection> hbhe;
-  e.getByLabel(hbheLabel_,hbhe);
+  e.getByToken(tok_hbhe_,hbhe);
 
   edm::Handle<HFDigiCollection> hf;
-  e.getByLabel(hfLabel_,hf);
+  e.getByToken(tok_hf_,hf);
   edm::Handle<HODigiCollection> ho;
-  e.getByLabel(hoLabel_,ho);
+  e.getByToken(tok_ho_,ho);
   
    
   record(*hbhe);
@@ -187,7 +183,7 @@ void HcalCableMapper::endJob(){
   std::vector<SampleSet>::iterator j; 
   int c [128];
   int k,ii,kk;
-  int c_max=0,c_next=0;
+  int c_max=0;
   
   std::map<HcalDetId,std::vector<SampleSet> >::iterator i;
   
@@ -209,16 +205,12 @@ void HcalCableMapper::endJob(){
       //sort c-array
       for (kk=0;kk<128;kk++){  
 	if (c[kk]>c[c_max]){
-	  c_next=c_max;
 	  c_max = kk;
 	}
-      }//std::cout<<"c_max:"<<c_max << " " << c[c_max] <<", c_next:"<<c_next<< " " << c[c_next]<<std::endl;
-    
+      }    
       
       s.push_back(((c_max&0x7F)));
 
-
-      c_next=0;
       c_max=0;
     }//k-loop    
   consensus[i->first]=s;
@@ -239,6 +231,6 @@ void HcalCableMapper::endJob(){
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalCableMapper);
+
+DEFINE_FWK_MODULE(HcalCableMapper);
 

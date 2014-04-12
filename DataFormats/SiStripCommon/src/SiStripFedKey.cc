@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.10 2007/06/29 10:12:43 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
@@ -7,7 +6,6 @@
 #include "DataFormats/SiStripCommon/interface/ConstantsForView.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
-#include <sstream>
 
 // -----------------------------------------------------------------------------
 // 
@@ -83,8 +81,7 @@ SiStripFedKey::SiStripFedKey( const SiStripKey& input ) :
   feChan_(sistrip::invalid_),
   fedApv_(sistrip::invalid_)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(input);
-  SiStripFedKey& fed_key = dynamic_cast<SiStripFedKey&>(temp);
+  const SiStripFedKey& fed_key = dynamic_cast<const SiStripFedKey&>(input);
   if ( (&fed_key) ) {
     key(fed_key.key());
     path(fed_key.path());
@@ -150,8 +147,7 @@ uint32_t SiStripFedKey::fedIndex( const uint16_t& fed_id,
 // -----------------------------------------------------------------------------
 // 
 bool SiStripFedKey::isEqual( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripFedKey& input = dynamic_cast<SiStripFedKey&>(temp);
+  const SiStripFedKey& input = dynamic_cast<const SiStripFedKey&>(key);
   if ( !(&input) ) { return false; }
   if ( fedId_ == input.fedId() &&
        feUnit_ == input.feUnit() &&
@@ -164,8 +160,7 @@ bool SiStripFedKey::isEqual( const SiStripKey& key ) const {
 // -----------------------------------------------------------------------------
 // 
 bool SiStripFedKey::isConsistent( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripFedKey& input = dynamic_cast<SiStripFedKey&>(temp);
+  const SiStripFedKey& input = dynamic_cast<const SiStripFedKey&>(key);
   if ( !(&input) ) { return false; }
   if ( isEqual(input) ) { return true; }
   else if ( ( fedId_ == 0 || input.fedId() == 0 ) &&
@@ -381,11 +376,11 @@ void SiStripFedKey::initFromPath() {
     // Check if root is found
     if ( path().find( sistrip::root_ ) == std::string::npos ) {
       std::string temp = path();
-      path( sistrip::root_ + sistrip::dir_ + temp );
+      path( std::string(sistrip::root_) + sistrip::dir_ + temp );
     }
     
-    uint32_t curr = 0; // current string position
-    uint32_t next = 0; // next string position
+    size_t curr = 0; // current string position
+    size_t next = 0; // next string position
     next = path().find( sistrip::readoutView_, curr );
     
     // Extract view 
@@ -393,16 +388,16 @@ void SiStripFedKey::initFromPath() {
     if ( curr != std::string::npos ) { 
       next = path().find( sistrip::feDriver_, curr );
       std::string readout_view( path(), 
-				curr+sistrip::readoutView_.size(), 
-				(next-sistrip::dir_.size())-curr );
+				curr+(sizeof(sistrip::readoutView_) - 1), 
+				(next-(sizeof(sistrip::dir_) - 1))-curr );
       
       // Extract FED id
       curr = next;
       if ( curr != std::string::npos ) { 
 	next = path().find( sistrip::feUnit_, curr );
 	std::string fed_id( path(), 
-			    curr+sistrip::feDriver_.size(), 
-			    (next-sistrip::dir_.size())-curr );
+			    curr+(sizeof(sistrip::feDriver_) - 1), 
+			    (next-(sizeof(sistrip::dir_) - 1))-curr );
 	fedId_ = atoi( fed_id.c_str() );
 	
 	// Extract FE unit
@@ -410,7 +405,7 @@ void SiStripFedKey::initFromPath() {
 	if ( curr != std::string::npos ) { 
 	  next = path().find( sistrip::feChan_, curr );
 	  std::string fe_unit( path(), 
-			       curr+sistrip::feUnit_.size(), 
+			       curr+(sizeof(sistrip::feUnit_) - 1), 
 			       next-curr );
 	  feUnit_ = atoi( fe_unit.c_str() );
 	  
@@ -419,7 +414,7 @@ void SiStripFedKey::initFromPath() {
 	  if ( curr != std::string::npos ) { 
 	    next = path().find( sistrip::fedApv_, curr );
 	    std::string fe_chan( path(), 
-				 curr+sistrip::feChan_.size(), 
+				 curr+(sizeof(sistrip::feChan_) - 1), 
 				 next-curr );
 	    feChan_ = atoi( fe_chan.c_str() );
 	    
@@ -428,7 +423,7 @@ void SiStripFedKey::initFromPath() {
 	    if ( curr != std::string::npos ) { 
 	      next = std::string::npos;
 	      std::string fed_apv( path(), 
-				   curr+sistrip::fedApv_.size(), 
+				   curr+(sizeof(sistrip::fedApv_) - 1), 
 				   next-curr );
 	      fedApv_ = atoi( fed_apv.c_str() );
 	    }
@@ -487,24 +482,57 @@ void SiStripFedKey::initGranularity() {
 
 // -----------------------------------------------------------------------------
 //
+void SiStripFedKey::terse( std::stringstream& ss ) const {
+  ss << "FED:crate/slot/id/unit/chan/apv= "
+     << "-" << "/"
+     << "-" << "/"
+     << fedId() << "/"
+     << feUnit() << "/"
+     << feChan() << "/"
+     << fedApv();
+//   ss << " FedKey"
+//     //<<"=0x" 
+//     //<< std::hex
+//     //<< std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
+//     //<< std::dec
+//     //<< ", " << ( isValid() ? "Valid" : "Invalid" )
+//     //<< ", FedCrate=" << fedCrate()
+//     //<< ", FedSlot=" << fedSlot()
+//      << ", FedId=" << fedId()
+//      << ", FeUnit=" << feUnit()
+//      << ", FeChan=" << feChan()
+//     //<< ", FedChannel=" << fedChannel()
+//      << ", FedApv=" << fedApv();
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripFedKey::print( std::stringstream& ss ) const {
+  ss << " [SiStripFedKey::print]" << std::endl
+     << std::hex
+     << " FED key         : 0x" 
+     << std::setfill('0') 
+     << std::setw(8) << key() << std::endl
+     << std::setfill(' ') 
+     << std::dec
+     << " FED id          : " << fedId() << std::endl
+     << " Front-End unit  : " << feUnit() << std::endl 
+     << " Front-End chan  : " << feChan() << std::endl
+     << " (internal chan) : " 
+     << "(" << fedChannel() << ")" << std::endl
+     << " FED APV         : " << fedApv() << std::endl
+     << " Directory       : " << path() << std::endl
+     << " Granularity     : "
+     << SiStripEnumsAndStrings::granularity( granularity() ) << std::endl
+     << " Channel         : " << channel() << std::endl
+     << " isValid         : " << isValid();
+}
+
+// -----------------------------------------------------------------------------
+//
 std::ostream& operator<< ( std::ostream& os, const SiStripFedKey& input ) {
-  return os << std::endl
-	    << " [SiStripFedKey::print]" << std::endl
-	    << std::hex
-	    << " FED key         : 0x" 
-	    << std::setfill('0') 
-	    << std::setw(8) << input.key() << std::endl
-	    << std::setfill(' ') 
-	    << std::dec
-	    << " FED id          : " << input.fedId() << std::endl
-	    << " Front-End unit  : " << input.feUnit() << std::endl 
-	    << " Front-End chan  : " << input.feChan() << std::endl
-	    << " (internal chan) : " 
-	    << "(" << input.fedChannel() << ")" << std::endl
-	    << " FED APV         : " << input.fedApv() << std::endl
-	    << " Directory       : " << input.path() << std::endl
-	    << " Granularity     : "
-	    << SiStripEnumsAndStrings::granularity( input.granularity() ) << std::endl
- 	    << " Channel         : " << input.channel() << std::endl
-	    << " isValid         : " << input.isValid();
+  std::stringstream ss;
+  input.print(ss);
+  os << ss.str();
+  return os;
 }

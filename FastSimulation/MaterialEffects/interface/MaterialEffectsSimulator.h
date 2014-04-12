@@ -7,6 +7,8 @@
 
 #include <vector>
 
+class RandomEngineAndDistribution;
+
 /** 
  * This is the generic class for Material Effects in the tracker material, 
  * from which FamosPairProductionSimulator, FamosBremsstrahlungSimulator, 
@@ -26,7 +28,11 @@ class MaterialEffectsSimulator
 
   typedef std::vector<RawParticle>::const_iterator RHEP_const_iter;
 
-  MaterialEffectsSimulator(const RandomEngine* engine);
+  // Constructor : default values are for Silicon
+  MaterialEffectsSimulator(double A = 28.0855,
+			   double Z = 14.0000,
+			   double density = 2.329,
+			   double radLen = 9.360);
 
   virtual ~MaterialEffectsSimulator();
 
@@ -34,13 +40,13 @@ class MaterialEffectsSimulator
   /// Here the tracker material is assumed to be 100% Silicon
 
   /// A
-  inline double theA() const { return 28.0855; }
+  inline double theA() const { return A; }
   /// Z
-  inline double theZ() const { return 14.0000; }
+  inline double theZ() const { return Z; }
   ///Density in g/cm3
-  inline double rho() const { return 2.329; }
+  inline double rho() const { return density; }
   ///One radiation length in cm
-  inline double radLenIncm() const { return 9.360; }
+  inline double radLenIncm() const { return radLen; }
   ///Mean excitation energy (in GeV)
   inline double excitE() const { return 12.5E-9*theZ(); }
   ///Electron mass in GeV/c2
@@ -48,7 +54,7 @@ class MaterialEffectsSimulator
 
 
   /// Compute the material effect (calls the sub class)
-  void updateState(ParticlePropagator& myTrack, double radlen);
+  void updateState(ParticlePropagator& myTrack, double radlen, RandomEngineAndDistribution const*);
   
   /// Returns const iterator to the beginning of the daughters list
   inline RHEP_const_iter beginDaughters() const {return _theUpdatedState.begin();}
@@ -65,10 +71,13 @@ class MaterialEffectsSimulator
   /// A vector orthogonal to another one (because it's not in XYZTLorentzVector)
   XYZVector orthogonal(const XYZVector&) const; 
 
+  /// The id of the closest charged daughter (filled for nuclear interactions only)
+  inline int closestDaughterId() { return theClosestChargedDaughterId; } 
+
  private:
 
   /// Overloaded in all material effects updtators
-  virtual void compute(ParticlePropagator& Particle ) = 0;
+  virtual void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) = 0;
 
   /// Returns the fraction of radiation lengths traversed
   inline double radiationLength() const {return radLengths;}
@@ -80,9 +89,15 @@ class MaterialEffectsSimulator
 
   double radLengths;
 
+  // Material properties
+  double A;
+  double Z;
+  double density;
+  double radLen;
+
   GlobalVector theNormalVector;
 
-  const RandomEngine* random;
+  int theClosestChargedDaughterId;
 
 };
 

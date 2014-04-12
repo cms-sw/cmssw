@@ -9,8 +9,14 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
-// class decleration
+// class declaration
 //
 
 class HLTEgammaEtFilter : public HLTFilter {
@@ -18,12 +24,18 @@ class HLTEgammaEtFilter : public HLTFilter {
    public:
       explicit HLTEgammaEtFilter(const edm::ParameterSet&);
       ~HLTEgammaEtFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag inputTag_; // input tag identifying product contains egammas
-      double etcut_;           // Et threshold in GeV 
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken_;
+      double etcutEB_;           // Barrel Et threshold in GeV
+      double etcutEE_;           // Endcap Et threshold in GeV
       int    ncandcut_;        // number of egammas required
+      bool   relaxed_;
+      edm::InputTag L1IsoCollTag_;
+      edm::InputTag L1NonIsoCollTag_;
 };
 
 #endif //HLTEgammaEtFilter_h

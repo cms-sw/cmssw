@@ -1,16 +1,14 @@
 /**
  * \class L1GlobalTriggerEvmReadoutRecord
- * 
- * 
- * Description: see header file.  
+ *
+ *
+ * Description: see header file.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
- * $Date$
- * $Revision$
+ *
  *
  */
 
@@ -18,20 +16,12 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 // system include files
-#include <iostream>
 #include <iomanip>
 #include <bitset>
-#include <boost/cstdint.hpp>
-
+#include <stdint.h>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,7 +35,6 @@ L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord()
 
     // reserve just one L1GtFdlWord
     m_gtFdlWord.reserve(1);
-    m_gtFdlWord.assign(1, L1GtFdlWord());
 
 }
 
@@ -70,6 +59,25 @@ L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord(int NumberBxInE
     }
 
 }
+
+L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord(
+    const int numberBxInEvent,
+    const int numberFdlBoards)
+{
+
+    // GTFE board
+    m_gtfeWord = L1GtfeExtWord();
+
+    // TCS board
+    m_tcsWord  = L1TcsWord();
+
+    // FDL board
+    if (numberFdlBoards > 0) {
+        m_gtFdlWord.reserve(numberBxInEvent);
+    }
+
+}
+
 
 // copy constructor
 L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord(
@@ -424,8 +432,8 @@ void L1GlobalTriggerEvmReadoutRecord::setGtFdlWord(
 void L1GlobalTriggerEvmReadoutRecord::setGtFdlWord(const L1GtFdlWord& gtFdlWordValue)
 {
 
-    int bxInEventL1Accept = 0;
-    setGtFdlWord(gtFdlWordValue, bxInEventL1Accept);
+    // just push back the new FDL block
+    m_gtFdlWord.push_back(gtFdlWordValue);
 
 }
 

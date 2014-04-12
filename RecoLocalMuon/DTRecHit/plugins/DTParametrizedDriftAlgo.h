@@ -6,8 +6,6 @@
  *  Compute drift distance using the CIEMAT (by P.Garcia Abia and J. Puerta)
  *  parametrization of the cell behavior obtained with GARFIELD
  *
- *  $Date: 2006/05/17 13:47:17 $
- *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -70,13 +68,13 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
 
  private:
   // Interpolate parametrization function
-  static bool interpolate;
+  const bool interpolate;
 
   // Times below MinTime (ns) are considered as coming from previous BXs.
-  static float minTime;
+  const float minTime;
   
   // Times above MaxTime (ns) are considered as coming from following BXs
-  static float maxTime;
+  const float maxTime;
   
   // Do the actual work.
   virtual bool compute(const DTLayer* layer,
@@ -99,7 +97,7 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
 		       int step) const;
 
   // Switch on/off the verbosity
-  static bool debug;
+  const bool debug;
 
 
   // Pointer to the magnetic field (read from ES once per event)

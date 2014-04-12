@@ -1,7 +1,7 @@
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <iostream>
+#include <ostream>
 
 
 EcalTriggerElectronicsId::EcalTriggerElectronicsId() {

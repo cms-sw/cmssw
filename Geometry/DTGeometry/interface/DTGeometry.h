@@ -8,8 +8,6 @@
  *  The geometry owns the DTChamber s; these own their DTSuperLayer s which 
  *  in turn own their DTLayer s.
  *
- *  $Date: 2006/03/21 17:13:57 $
- *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -84,6 +82,7 @@ class DTGeometry : public TrackingGeometry {
   private:
   
     friend class DTGeometryBuilderFromDDD;
+    friend class DTGeometryBuilderFromCondDB;
 
     friend class GeometryAligner;
 
@@ -116,7 +115,11 @@ class DTGeometry : public TrackingGeometry {
     DetUnitContainer  theDetUnits;       // all layers
     DetContainer      theDets;           // all chambers, SL, layers
 
-
+    // Replace local static with mutable members
+    // to allow lazy evaluation if (ever) needed.
+    DetTypeContainer  theDetTypes;
+    DetIdContainer    theDetUnitIds;
+    DetIdContainer    theDetIds;
 };
 
 #endif

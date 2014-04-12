@@ -1,4 +1,5 @@
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentSensor.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,25 +16,23 @@ SurveyAlignmentAlgorithm::SurveyAlignmentAlgorithm(const edm::ParameterSet& cfg)
 void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
 					  AlignableTracker*,
 					  AlignableMuon*,
+					  AlignableExtras*,
 					  AlignmentParameterStore* store)
 {
-  AlignableObjectId dummy;
-
-  std::vector<Alignable::AlignableObjectIdType> levels;
+  std::vector<align::StructureType> levels;
 
   for (unsigned int l = 0; l < theLevels.size(); ++l)
   {
-    levels.push_back(dummy.nameToType(theLevels[l]));
+    levels.push_back(AlignableObjectId::stringToId(theLevels[l].c_str()));
   }
 
   SurveyAlignmentSensor align(store->alignables(), levels);
 
-  align.iterate(theIterations, theOutfile);
+  align.iterate(theIterations, theOutfile, true);
 }
 
 // Plug in to framework
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory, SurveyAlignmentAlgorithm, "SurveyAlignmentAlgorithm");

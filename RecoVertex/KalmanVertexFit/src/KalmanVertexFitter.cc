@@ -22,21 +22,21 @@ KalmanVertexFitter::KalmanVertexFitter(const edm::ParameterSet& pSet,  bool useS
 void KalmanVertexFitter::setup(const edm::ParameterSet& pSet,  bool useSmoothing )
 {
   if (useSmoothing) {
-    KalmanVertexTrackUpdator vtu;
-    KalmanSmoothedVertexChi2Estimator vse;
-    KalmanTrackToTrackCovCalculator covCalc;
-    SequentialVertexSmoother smoother(vtu, vse, covCalc);
+    KalmanVertexTrackUpdator<5> vtu;
+    KalmanSmoothedVertexChi2Estimator<5> vse;
+    KalmanTrackToTrackCovCalculator<5> covCalc;
+    SequentialVertexSmoother<5> smoother(vtu, vse, covCalc);
     theSequentialFitter 
-      = new SequentialVertexFitter(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
-				   KalmanVertexUpdator(), 
-				   smoother);
+      = new SequentialVertexFitter<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
+				   KalmanVertexUpdator<5>(), 
+				   smoother, LinearizedTrackStateFactory());
   }
   else {
-    DummyVertexSmoother smoother;
+    DummyVertexSmoother<5> smoother;
     theSequentialFitter 
-      = new SequentialVertexFitter(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
-				   KalmanVertexUpdator(), 
-				   smoother);
+      = new SequentialVertexFitter<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
+				   KalmanVertexUpdator<5>(), 
+				   smoother, LinearizedTrackStateFactory());
   }
 }
 

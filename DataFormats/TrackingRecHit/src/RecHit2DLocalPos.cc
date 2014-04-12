@@ -1,14 +1,5 @@
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
 
-void RecHit2DLocalPos::initialize() const
-{
-  theProjectionMatrix = AlgebraicMatrix( 2, 5, 0);
-  theProjectionMatrix[0][3] = 1;
-  theProjectionMatrix[1][4] = 1;
-
-  isInitialized = true;
-}
-
 AlgebraicVector RecHit2DLocalPos::parameters() const 
 {
   AlgebraicVector result(2);
@@ -38,9 +29,12 @@ std::vector<TrackingRecHit*> RecHit2DLocalPos::recHits() {
   return nullvector; 
 }
 
-
-
 // static member definition
-
-bool RecHit2DLocalPos::isInitialized( false);
-AlgebraicMatrix RecHit2DLocalPos::theProjectionMatrix;
+static const AlgebraicMatrix initializeMatrix()
+{
+  AlgebraicMatrix aMatrix( 2, 5, 0);
+  aMatrix[0][3] = 1;
+  aMatrix[1][4] = 1;
+  return aMatrix;
+}
+const AlgebraicMatrix RecHit2DLocalPos::theProjectionMatrix{initializeMatrix()};

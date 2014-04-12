@@ -21,16 +21,15 @@ MultiVertexStateCombiner::combine(const VSC & theMixture) const
   }
 
 
-  AlgebraicVector meanPosition(3,0);
+  AlgebraicVector3 meanPosition;
   double weightSum = 0.;
-  double vtxWeight;
-  AlgebraicSymMatrix measCovar1(3,0), measCovar2(3,0);
+  AlgebraicSymMatrix33 measCovar1, measCovar2;
   for (VSC::const_iterator mixtureIter1 = theMixture.begin();
   	mixtureIter1 != theMixture.end(); mixtureIter1++ ) {
-    vtxWeight = mixtureIter1->weightInMixture();
+    double vtxWeight = mixtureIter1->weightInMixture();
 
     GlobalPoint vertexPosition = mixtureIter1->position();
-    AlgebraicVector vertexCoord1(3);
+    AlgebraicVector3 vertexCoord1;
     vertexCoord1[0] = vertexPosition.x();
     vertexCoord1[1] = vertexPosition.y();
     vertexCoord1[2] = vertexPosition.z();
@@ -43,18 +42,18 @@ MultiVertexStateCombiner::combine(const VSC & theMixture) const
     for (VSC::const_iterator mixtureIter2 = mixtureIter1+1;
   	mixtureIter2 != theMixture.end(); mixtureIter2++ ) {
       GlobalPoint vertexPosition2 = mixtureIter2->position();
-      AlgebraicVector vertexCoord2(3);
+      AlgebraicVector3 vertexCoord2;
       vertexCoord2[0] = vertexPosition2.x();
       vertexCoord2[1] = vertexPosition2.y();
       vertexCoord2[2] = vertexPosition2.z();
-      AlgebraicVector posDiff = vertexCoord1 - vertexCoord2;
-      AlgebraicSymMatrix s(1,1); //stupid trick to make CLHEP work decently
-      measCovar2 +=vtxWeight * mixtureIter2->weightInMixture() * 
-      				s.similarity(posDiff.T().T());
+      AlgebraicVector3 posDiff = vertexCoord1 - vertexCoord2;
+      AlgebraicMatrix13 tmp; tmp.Place_in_row(posDiff,0,0);
+      AlgebraicSymMatrix11 s = AlgebraicMatrixID(); 
+      measCovar2 +=vtxWeight * mixtureIter2->weightInMixture() * ROOT::Math::SimilarityT(tmp,s);
     }
   }
   meanPosition /= weightSum;
-  AlgebraicSymMatrix measCovar = measCovar1/weightSum + measCovar2/weightSum/weightSum;
+  AlgebraicSymMatrix33 measCovar = measCovar1/weightSum + measCovar2/weightSum/weightSum;
 
   GlobalPoint newPos(meanPosition[0], meanPosition[1], meanPosition[2]);
 

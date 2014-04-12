@@ -1,7 +1,5 @@
-#ifndef Input_MCFileSource_h
-#define Input_MCFileSource_h
-
-// $Id: MCFileSource.h,v 1.4 2007/05/29 21:00:22 weng Exp $
+#ifndef IOMC_Input_MCFileSource_h
+#define IOMC_Input_MCFileSource_h
 
 /** \class MCFileSource
  *
@@ -9,8 +7,7 @@
  * Joanna Weng & Filip Moortgat 08/2005 
  ***************************************/
 
-#include "FWCore/Sources/interface/ExternalInputSource.h"
-
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 
 class HepMCFileReader;
 
@@ -18,20 +15,21 @@ namespace HepMC{
   class GenEvent;
 }
 
-
-namespace edm
-{
+namespace edm {
   class Event;
+  class EventID;
+  struct InputSourceDescription;
   class ParameterSet;
-  class InputSourceDescription;
+  class Timestamp;
 
-  class MCFileSource : public ExternalInputSource {
+  class MCFileSource : public ProducerSourceFromFiles {
   public:
     MCFileSource(const ParameterSet& pset, const InputSourceDescription& desc);
     virtual ~MCFileSource();
 
   private:
-    virtual bool produce(Event &e);
+    virtual bool setRunAndEventInfo(EventID&, TimeValue_t& time);
+    virtual void produce(Event &e);
     void clear();
     
     HepMCFileReader *reader_;

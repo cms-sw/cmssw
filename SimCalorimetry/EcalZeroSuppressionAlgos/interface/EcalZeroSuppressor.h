@@ -4,14 +4,11 @@
 /*
  * \file EcalZeroSuppressor.h
  *
- * $Date: 2006/10/26 07:48:27 $
- * $Revision: 1.2 $
  * \author F. Cossutti
  *
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,8 +24,6 @@
 #include "SimCalorimetry/EcalZeroSuppressionAlgos/interface/TrivialAmplitudeAlgo.h"
 
 #include <vector>
-
-class EcalPedestals;
 
 template<class C> class EcalZeroSuppressor 
 {

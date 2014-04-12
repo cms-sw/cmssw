@@ -5,9 +5,7 @@
 *                                                                              *
 *******************************************************************************/
 #include "L1Trigger/RPCTrigger/interface/RPCPacTrigger.h"
-#ifdef _GRAB_MUONS
-#include "PactAnalysis/L1RpcMuonsGrabber.h"
-#endif
+#include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
 
 RPCPacTrigger::RPCPacTrigger(RPCTriggerConfiguration* triggerConfig):
   m_FinalSorter(triggerConfig),
@@ -21,14 +19,12 @@ RPCPacTrigger::RPCPacTrigger(RPCTriggerConfiguration* triggerConfig):
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec) {
+L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec, edm::ESHandle<L1RPCHsbConfig> hsbConf) {
   m_GBFinalMuons.clear();
 
  if (m_TrigCnfg->getDebugLevel()!=0){
 #ifdef _STAND_ALONE
    std::cout << "---TBMuons in new event" << std::endl;
-#else
-   LogDebug("RPCHwDebug") << "---TBMuons in new event";
 #endif // _STAND_ALONE
  }
   for(unsigned int iLC = 0; iLC < logConesVec.size(); iLC++) {
@@ -51,15 +47,18 @@ L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec) {
               <<tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel()) 
               << std::endl;
 #else
-	  LogDebug("RPCHwDebug") << "GB 2 " << iTB << " "
-                           <<tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
+	 // LogDebug("RPCHwDebug") << "GB 2 " << iTB << " "
+         //                  <<tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
+         MuonsGrabber::Instance().addMuon(tcsMuonsVec2[iTC][iTB], 2, -1, -1, iTB);  
+
+          
 #endif // _STAND_ALONE
         }
     }
   }
 
   // It would be fine, if half sorters would just modify tcsMuonsVec2
-  L1RpcTBMuonsVec2 halfMuons = m_HalfSorters.run(tcsMuonsVec2);
+  L1RpcTBMuonsVec2 halfMuons = m_HalfSorters.run(tcsMuonsVec2, hsbConf);
   m_GBFinalMuons = m_FinalSorter.run(halfMuons);
 
 #ifdef GETCONES

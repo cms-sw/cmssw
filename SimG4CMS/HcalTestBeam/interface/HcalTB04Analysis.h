@@ -14,7 +14,6 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
-// $Id: HcalTB04Analysis.h,v 1.3 2006/05/23 10:53:29 sunanda Exp $
 //
   
 // system include files
@@ -45,6 +44,10 @@ class EndOfEvent;
 
 class PHcalTB04Info;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HcalTB04Analysis : public SimProducer,
 			 public Observer<const BeginOfRun *>,
 			 public Observer<const BeginOfEvent *>,
@@ -73,8 +76,8 @@ private:
 
   //User methods
   void fillBuffer(const EndOfEvent * evt);
-  void qieAnalysis();
-  void xtalAnalysis();
+  void qieAnalysis(CLHEP::HepRandomEngine*);
+  void xtalAnalysis(CLHEP::HepRandomEngine*);
   void finalAnalysis();
   void fillEvent(PHcalTB04Info&);
 

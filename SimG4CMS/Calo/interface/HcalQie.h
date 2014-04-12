@@ -11,6 +11,10 @@
 
 #include <vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HcalQie {
 
 public:
@@ -18,8 +22,8 @@ public:
   HcalQie(edm::ParameterSet const & p);
   virtual ~HcalQie();
 
-  std::vector<int>     getCode(int, std::vector<CaloHit>);
-  double               getEnergy(std::vector<int>);
+  std::vector<int>     getCode(int, const std::vector<CaloHit>&, CLHEP::HepRandomEngine*);
+  double               getEnergy(const std::vector<int>&);
 
 private:
   

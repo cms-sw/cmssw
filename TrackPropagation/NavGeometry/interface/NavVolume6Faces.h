@@ -10,7 +10,7 @@ class Bounds;
 class Plane;
 class TrajectoryStateOnSurface;
 
-class NavVolume6Faces : public NavVolume {
+class NavVolume6Faces GCC11_FINAL : public NavVolume {
 public:
 
     NavVolume6Faces( const PositionType& pos, const RotationType& rot, 
@@ -36,7 +36,7 @@ public:
 						     const Propagator& prop) const;
 
     /// Access to volume faces
-    std::vector<VolumeSide> faces() const { return theFaces; }
+    virtual const std::vector<VolumeSide>& faces() const { return theFaces; }
 
     /// Access to Iron/Air information:
     bool isIron() const { return isThisIron; }

@@ -3,32 +3,25 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edmtest {
 
   class OtherThingAnalyzer : public edm::EDAnalyzer {
   public:
 
-    // The following is not yet used, but will be the primary
-    // constructor when the parameter set system is available.
-    //
-    explicit OtherThingAnalyzer(edm::ParameterSet const&) {}
+    explicit OtherThingAnalyzer(edm::ParameterSet const& pset);
 
     virtual ~OtherThingAnalyzer() {}
 
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& c);
+    void doit(edm::Event const& event, std::string const& label);
 
-    virtual void endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& c);
-
-    virtual void beginRun(edm::Run const& r, edm::EventSetup const& c);
-
-    virtual void endRun(edm::Run const& r, edm::EventSetup const& c);
-
-    void doit(edm::DataViewImpl const& dv, std::string const& label);
-
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
+    bool thingWasDropped_;
+    edm::InputTag otherTag_;
   };
 
 }

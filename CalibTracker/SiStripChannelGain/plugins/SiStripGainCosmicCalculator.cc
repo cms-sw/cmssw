@@ -1,145 +1,96 @@
 // -*- C++ -*-
 // Package:    SiStripChannelGain
 // Class:      SiStripGainCosmicCalculator
-// Original Author:  G. Bruno
+// Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.4 2007/06/13 14:03:35 gbruno Exp $
-
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
-#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
-
-//#include "CalibTracker/SiStripChannelGain/interface/SiStripApvGainCalculator.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-
-//#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 //#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 
-#include "TFile.h"
-#include "TF1.h"
-#include "TString.h"
-#include <fstream>
-#include <sstream>
-
-using namespace cms;
-using namespace std;
-
-
-SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig){
-
-  
+//---------------------------------------------------------------------------------------------------------
+SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig){
   edm::LogInfo("SiStripGainCosmicCalculator::SiStripGainCosmicCalculator");
+  ExpectedChargeDeposition = 200.;
+  edm::LogInfo("SiStripApvGainCalculator::SiStripApvGainCalculator")<<"ExpectedChargeDeposition="<<ExpectedChargeDeposition;
 
+  TrackProducer =  iConfig.getParameter<std::string>("TrackProducer");
+  TrackLabel    =  iConfig.getParameter<std::string>("TrackLabel");
 
-   ExpectedChargeDeposition = 200.;
-   edm::LogInfo("SiStripApvGainCalculator::SiStripApvGainCalculator")<<"ExpectedChargeDeposition="<<ExpectedChargeDeposition;
+  detModulesToBeExcluded.clear(); detModulesToBeExcluded = iConfig.getParameter< std::vector<unsigned> >("detModulesToBeExcluded");
+  MinNrEntries = iConfig.getUntrackedParameter<unsigned>("minNrEntries", 20);
+  MaxChi2OverNDF = iConfig.getUntrackedParameter<double>("maxChi2OverNDF", 5.);
 
-   TrackProducer =  iConfig.getParameter<std::string>("TrackProducer");
-   TrackLabel    =  iConfig.getParameter<std::string>("TrackLabel");
+  outputHistogramsInRootFile = iConfig.getParameter<bool>("OutputHistogramsInRootFile");
+  outputFileName = iConfig.getParameter<std::string>("OutputFileName");
 
-   detModulesToBeExcluded.clear();
-   detModulesToBeExcluded = iConfig.getParameter< std::vector<unsigned> >("detModulesToBeExcluded");
-   MinNrEntries = iConfig.getUntrackedParameter<unsigned>("minNrEntries", 20);
-   MaxChi2OverNDF = iConfig.getUntrackedParameter<double>("maxChi2OverNDF", 5.);
-
-   outputHistogramsInRootFile = iConfig.getParameter<bool>("OutputHistogramsInRootFile");
-   outputFileName = iConfig.getParameter<std::string>("OutputFileName");
-
-
-   edm::LogInfo("SiStripApvGainCalculator")<<"Clusters from "<<detModulesToBeExcluded.size()<<" modules will be ignored in the calibration:";
-   edm::LogInfo("SiStripApvGainCalculator")<<"The calibration for these DetIds will be set to a default value";
-   for( std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin(); imod != detModulesToBeExcluded.end(); imod++){
-     edm::LogInfo("SiStripApvGainCalculator")<<"exclude detid = "<< *imod;
-   }
-
-
-//   std::string Mode=iConfig.getParameter<std::string>("Mode");
-//   if (Mode==std::string("Gaussian")) GaussianMode_=true;
-//   else if (IOVMode==std::string("Constant")) ConstantMode_=true;
-//   else  edm::LogError("SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(): ERROR - unknown generation mode...will not store anything on the DB") << std::endl;
-//   detid_apvs_.clear();
-//   meanGain_=iConfig.getParameter<double>("MeanGain");
-//   sigmaGain_=iConfig.getParameter<double>("SigmaGain");
-//   minimumPosValue_=iConfig.getParameter<double>("MinPositiveGain");
-
+  edm::LogInfo("SiStripApvGainCalculator")<<"Clusters from "<<detModulesToBeExcluded.size()<<" modules will be ignored in the calibration:";
+  edm::LogInfo("SiStripApvGainCalculator")<<"The calibration for these DetIds will be set to a default value";
+  for( std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin(); imod != detModulesToBeExcluded.end(); imod++){
+    edm::LogInfo("SiStripApvGainCalculator")<<"exclude detid = "<< *imod;
+  }
 
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
-
-
+  tTopo = nullptr;
 }
 
 
 SiStripGainCosmicCalculator::~SiStripGainCosmicCalculator(){
-
-   edm::LogInfo("SiStripGainCosmicCalculator::~SiStripGainCosmicCalculator");
-
-
-
-
+  edm::LogInfo("SiStripGainCosmicCalculator::~SiStripGainCosmicCalculator");
 }
 
+void SiStripGainCosmicCalculator::algoEndJob(){
+}
 
-void SiStripGainCosmicCalculator::bookHistos(const edm::EventSetup& iSetup)
+void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
 {
+   //Retrieve tracker topology from geometry
+   edm::ESHandle<TrackerTopology> tTopoHandle;
+   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+   tTopo = tTopoHandle.product();
+ 
    eventSetupCopy_ = &iSetup;
-   std::cout<<"SiStripGainCosmicCalculator::beginJob called"<<std::endl;
+   std::cout<<"SiStripGainCosmicCalculator::algoBeginJob called"<<std::endl;
    total_nr_of_events = 0;
-   
-   HlistAPVPairs = new TObjArray();
-   HlistOtherHistos = new TObjArray();
+   HlistAPVPairs = new TObjArray(); HlistOtherHistos = new TObjArray();
    //
-   std::ostringstream oshistoid; TString histoid;
-   oshistoid.str(""); oshistoid << "APVPairCorrections";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
-   oshistoid.str(""); oshistoid << "APVPairCorrectionsTIB1mono";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
-   oshistoid.str(""); oshistoid << "APVPairCorrectionsTIB1stereo";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
-   oshistoid.str(""); oshistoid << "APVPairCorrectionsTIB2";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
-   oshistoid.str(""); oshistoid << "APVPairCorrectionsTOB1";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
-   oshistoid.str(""); oshistoid << "APVPairCorrectionsTOB2";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
-   oshistoid.str(""); oshistoid << "LocalAngle";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,70,-0.1,3.4));
-   oshistoid.str(""); oshistoid << "LocalAngleAbsoluteCosine";   histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,48,-0.1,1.1));
-   oshistoid.str(""); oshistoid << "LocalPosition_cm";     histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,100,-5.,5.));
-   oshistoid.str(""); oshistoid << "LocalPosition_normalized";     histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,100,-1.1,1.1));
-   //
-   oshistoid.str(""); oshistoid << "SiStripRecHitType"; histoid=oshistoid.str();
-   TH1F * local_histo = new TH1F(histoid,histoid,2,0.5,2.5); HlistOtherHistos->Add(local_histo);
+   HlistOtherHistos->Add(new TH1F( Form("APVPairCorrections"), Form("APVPairCorrections"), 50,-1.,4.));
+   HlistOtherHistos->Add(new TH1F(Form("APVPairCorrectionsTIB1mono"),Form("APVPairCorrectionsTIB1mono"),50,-1.,4.));
+   HlistOtherHistos->Add(new TH1F(Form("APVPairCorrectionsTIB1stereo"),Form("APVPairCorrectionsTIB1stereo"),50,-1.,4.));
+   HlistOtherHistos->Add(new TH1F(Form("APVPairCorrectionsTIB2"),Form("APVPairCorrectionsTIB2"),50,-1.,4.));
+   HlistOtherHistos->Add(new TH1F(Form("APVPairCorrectionsTOB1"),Form("APVPairCorrectionsTOB1"),50,-1.,4.));
+   HlistOtherHistos->Add(new TH1F(Form("APVPairCorrectionsTOB2"),Form("APVPairCorrectionsTOB2"),50,-1.,4.));
+   HlistOtherHistos->Add(new TH1F(Form("LocalAngle"),Form("LocalAngle"),70,-0.1,3.4));
+   HlistOtherHistos->Add(new TH1F(Form("LocalAngleAbsoluteCosine"),Form("LocalAngleAbsoluteCosine"),48,-0.1,1.1));
+   HlistOtherHistos->Add(new TH1F(Form("LocalPosition_cm"),Form("LocalPosition_cm"),100,-5.,5.));
+   HlistOtherHistos->Add(new TH1F(Form("LocalPosition_normalized"),Form("LocalPosition_normalized"),100,-1.1,1.1));
+   TH1F* local_histo = new TH1F(Form("SiStripRecHitType"),Form("SiStripRecHitType"),2,0.5,2.5); HlistOtherHistos->Add(local_histo);
    local_histo->GetXaxis()->SetBinLabel(1,"simple"); local_histo->GetXaxis()->SetBinLabel(2,"matched");
-   //
 
    // get cabling and find out list of active detectors
    edm::ESHandle<SiStripDetCabling> siStripDetCabling; iSetup.get<SiStripDetCablingRcd>().get(siStripDetCabling);
@@ -155,7 +106,7 @@ void SiStripGainCosmicCalculator::bookHistos(const edm::EventSetup& iSetup)
    edm::ESHandle<TrackerGeometry> tkGeom; iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );     
    for(TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end(); it++){ // loop over detector modules
      if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
-       uint32_t detid=((*it)->geographicalId()).rawId();
+       uint32_t detid= ((*it)->geographicalId()).rawId();
        // get thickness for all detector modules, not just for active, this is strange 
        double module_thickness = (*it)->surface().bounds().thickness(); // get thickness of detector from GeomDet (DetContainer == vector<GeomDet*>)
        thickness_map.insert(std::make_pair(detid,module_thickness));
@@ -182,25 +133,17 @@ void SiStripGainCosmicCalculator::bookHistos(const edm::EventSetup& iSetup)
            exit(1);
          }
          for(int iapp = 0; iapp<NAPVPairs; iapp++){
-           oshistoid.str(""); oshistoid << "ChargeAPVPair_" << detid << "_" << iapp; histoid = oshistoid.str();
-//           HlistAPVPairs->Add(new TH1F(histoid,histoid,45,0.,450.));
-           HlistAPVPairs->Add(new TH1F(histoid,histoid,45,0.,1350.)); // multiply by 3 to take into account division by width
+           TString hid = Form("ChargeAPVPair_%i_%i",detid,iapp);
+           HlistAPVPairs->Add(new TH1F(hid,hid,45,0.,1350.)); // multiply by 3 to take into account division by width
          }
        }
      }
    }
 }
 
-
-
-
-
-
-void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup){
-
-
+//---------------------------------------------------------------------------------------------------------
+void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const edm::EventSetup& iSetup){
   using namespace edm;
-
   total_nr_of_events++;
 
   //TO BE RESTORED
@@ -208,11 +151,12 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & event, const ed
 
 
   // get seeds
-  edm::Handle<TrajectorySeedCollection> seedcoll;
-  event.getByType(seedcoll);
+//  edm::Handle<TrajectorySeedCollection> seedcoll;
+//  event.getByType(seedcoll);
   // get tracks
-  Handle<reco::TrackCollection> trackCollection; event.getByLabel(TrackProducer, TrackLabel, trackCollection);
+  Handle<reco::TrackCollection> trackCollection; iEvent.getByLabel(TrackProducer, TrackLabel, trackCollection);
   const reco::TrackCollection *tracks=trackCollection.product();
+
 //  // get magnetic field
 //  edm::ESHandle<MagneticField> esmagfield;
 //  es.get<IdealMagneticFieldRecord>().get(esmagfield);
@@ -223,7 +167,6 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & event, const ed
     //TO BE RESTORED
     //    std::vector<std::pair<const TrackingRecHit *,float> >hitangle =anglefinder_->findtrackangle((*(*seedcoll).begin()),*itr);
     std::vector<std::pair<const TrackingRecHit *,float> >hitangle;// =anglefinder_->findtrackangle((*(*seedcoll).begin()),*itr);
-
 
     for(std::vector<std::pair<const TrackingRecHit *,float> >::const_iterator hitangle_iter=hitangle.begin();hitangle_iter!=hitangle.end();hitangle_iter++){
       const TrackingRecHit * trechit = hitangle_iter->first;
@@ -236,17 +179,17 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & event, const ed
       ((TH1F*) HlistOtherHistos->FindObject("LocalAngleAbsoluteCosine"))->Fill(fabs(cos(local_angle)));
       if(sistripsimplehit){
         ((TH1F*) HlistOtherHistos->FindObject("SiStripRecHitType"))->Fill(1.);
-        const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=sistripsimplehit->cluster();
-        const std::vector<uint16_t>& ampls = cluster->amplitudes();
-        uint32_t thedetid  = cluster->geographicalId();
+        const SiStripRecHit2D::ClusterRef & cluster=sistripsimplehit->cluster();
+        const std::vector<uint8_t>& ampls = cluster->amplitudes();
+//        const std::vector<uint16_t>& ampls = cluster->amplitudes();
+        uint32_t thedetid  = 0; // is zero since long time cluster->geographicalId();
         double module_width = moduleWidth(thedetid, &iSetup);
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_cm"))->Fill(local_position.x());
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_normalized"))->Fill(local_position.x()/module_width);
         double module_thickness = moduleThickness(thedetid, &iSetup);
         int ifirststrip= cluster->firstStrip();
         int theapvpairid = int(float(ifirststrip)/256.);
-        std::ostringstream oshistoid; oshistoid.str(""); oshistoid << "ChargeAPVPair_" << thedetid << "_" << theapvpairid; TString histoid = oshistoid.str();
-        TH1F* histopointer = (TH1F*) HlistAPVPairs->FindObject(histoid);
+        TH1F* histopointer = (TH1F*) HlistAPVPairs->FindObject(Form("ChargeAPVPair_%i_%i",thedetid,theapvpairid));
         if( histopointer ){
           short cCharge = 0;
           for(unsigned int iampl = 0; iampl<ampls.size(); iampl++){
@@ -260,13 +203,11 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & event, const ed
       }
     }
   }
-
-
 }
 
 
-//-------- automated fitting with finding of the appropriate nr. of ADCs
-std::pair<double,double> SiStripGainCosmicCalculator::getPeakOfLandau( TH1F * inputHisto){
+//---------------------------------------------------------------------------------------------------------
+std::pair<double,double> SiStripGainCosmicCalculator::getPeakOfLandau( TH1F * inputHisto){ // automated fitting with finding of the appropriate nr. of ADCs
   // set some default dummy value and return if no entries
   double adcs = -0.5; double error = 0.; double nr_of_entries = inputHisto->GetEntries();
   if(nr_of_entries < MinNrEntries){
@@ -308,9 +249,9 @@ std::pair<double,double> SiStripGainCosmicCalculator::getPeakOfLandau( TH1F * in
   return std::make_pair(adcs,error);
 }
 
-//-------- get width of the module detid
-double SiStripGainCosmicCalculator::moduleWidth(const uint32_t detid, const edm::EventSetup* iSetup)
-{ //dk: copied from A. Giammanco and hacked
+//---------------------------------------------------------------------------------------------------------
+double SiStripGainCosmicCalculator::moduleWidth(const uint32_t detid, const edm::EventSetup* iSetup) // get width of the module detid
+{ //dk: copied from A. Giammanco and hacked,  module_width values : 10.49 12.03 6.144 7.14 9.3696
   edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );     
   double module_width=0.;
   const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
@@ -320,17 +261,10 @@ double SiStripGainCosmicCalculator::moduleWidth(const uint32_t detid, const edm:
     module_width = it->surface().bounds().width();
   }
   return module_width;
-/*
-     module_width=10.49
-     module_width=12.03
-     module_width=6.144
-     module_width=7.14
-     module_width=9.3696
-*/
 }
 
-//-------- get thickness of the module detid
-double SiStripGainCosmicCalculator::moduleThickness(const uint32_t detid, const edm::EventSetup* iSetup)
+//---------------------------------------------------------------------------------------------------------
+double SiStripGainCosmicCalculator::moduleThickness(const uint32_t detid, const edm::EventSetup* iSetup) // get thickness of the module detid
 { //dk: copied from A. Giammanco and hacked
   edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );
   double module_thickness=0.;
@@ -343,13 +277,9 @@ double SiStripGainCosmicCalculator::moduleThickness(const uint32_t detid, const 
   return module_thickness;
 }
 
-
-
+//---------------------------------------------------------------------------------------------------------
 SiStripApvGain * SiStripGainCosmicCalculator::getNewObject() {
-
   std::cout<<"SiStripGainCosmicCalculator::getNewObject called"<<std::endl;
-
-
 
   std::cout<<"total_nr_of_events="<<total_nr_of_events<<std::endl;
   // book some more histograms
@@ -419,20 +349,20 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
        CorrectionOfEachAPVPair->SetBinError(ibin, local_error_correction);
        ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrections"))->Fill(local_correction);
        DetId thedetId = DetId(extracted_detid);
-       uint generalized_layer = 0;
+       unsigned int generalized_layer = 0;
        // calculate generalized_layer:  31,32 = TIB1, 33 = TIB2, 33 = TIB3, 51 = TOB1, 52 = TOB2, 60 = TEC
        if(thedetId.subdetId()==StripSubdetector::TIB){
-          TIBDetId ptib = TIBDetId(thedetId.rawId());
-          generalized_layer = 10*thedetId.subdetId() + ptib.layer() + ptib.stereo();
-  	  if(ptib.layer()==2){
+          
+          generalized_layer = 10*thedetId.subdetId() + tTopo->tibLayer(thedetId.rawId()) + tTopo->tibStereo(thedetId.rawId());
+  	  if(tTopo->tibLayer(thedetId.rawId())==2){
   	    generalized_layer++;
-  	    if (ptib.glued()) edm::LogError("ClusterMTCCFilter")<<"WRONGGGG"<<endl;
+  	    if (tTopo->tibGlued(thedetId.rawId())) edm::LogError("ClusterMTCCFilter")<<"WRONGGGG"<<std::endl;
   	  }
         }else{
           generalized_layer = 10*thedetId.subdetId();
   	  if(thedetId.subdetId()==StripSubdetector::TOB){
-  	    TOBDetId ptob = TOBDetId(thedetId.rawId());
-  	    generalized_layer += ptob.layer();
+  	    
+  	    generalized_layer += tTopo->tobLayer(thedetId.rawId());
   	  }
         }
        if(generalized_layer==31){
@@ -465,15 +395,15 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
        CorrectionOfEachAPVPairControlView->SetBinError(ibin2, local_error_correction);
        // thickness of each module
        double module_thickness = moduleThickness(extracted_detid, eventSetupCopy_);
-       if( abs(module_thickness - 0.032)<0.001 ) ModuleThickness->Fill(1);
-       if( abs(module_thickness - 0.05)<0.001 )  ModuleThickness->Fill(2);
+       if( fabs(module_thickness - 0.032)<0.001 ) ModuleThickness->Fill(1);
+       if( fabs(module_thickness - 0.05)<0.001 )  ModuleThickness->Fill(2);
        // width of each module     
        double module_width = moduleWidth(extracted_detid, eventSetupCopy_);
-       if(abs(module_width-6.144)<0.01) ModuleWidth->Fill(1);
-       if(abs(module_width-7.14)<0.01) ModuleWidth->Fill(2);
-       if(abs(module_width-9.3696)<0.01) ModuleWidth->Fill(3);
-       if(abs(module_width-10.49)<0.01) ModuleWidth->Fill(4);
-       if(abs(module_width-12.03)<0.01) ModuleWidth->Fill(5);
+       if(fabs(module_width-6.144)<0.01) ModuleWidth->Fill(1);
+       if(fabs(module_width-7.14)<0.01) ModuleWidth->Fill(2);
+       if(fabs(module_width-9.3696)<0.01) ModuleWidth->Fill(3);
+       if(fabs(module_width-10.49)<0.01) ModuleWidth->Fill(4);
+       if(fabs(module_width-12.03)<0.01) ModuleWidth->Fill(5);
      }
   }
   HlistOtherHistos->Add(CorrectionOfEachAPVPair);
@@ -491,17 +421,7 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
     outputfile->Close();
   }
 
-
-
-
-
-
-
-  //  bei_->save();
-
   SiStripApvGain * obj = new SiStripApvGain();
-
-
 
 //   for(std::map<uint32_t,OptoScanAnalysis*>::const_iterator it = analyses.begin(); it != analyses.end(); it++){
 //     //Generate Gain for det detid
@@ -511,7 +431,7 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
 
 //       //      if(sigmaGain_/meanGain_ < 0.00001) gain = meanGain_;
 //       //      else{
-//       gain = RandGauss::shoot(meanGain_, sigmaGain_);
+//       gain = CLHEP::RandGauss::shoot(meanGain_, sigmaGain_);
 //       if(gain<=minimumPosValue_) gain=minimumPosValue_;
 //       //      }
 
@@ -528,7 +448,5 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
 //   }
   
   return obj;
-
 }
-
 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+function die { echo Failure $1: status $2 ; exit $2 ; }
+
 echo "LOCAL_TEST_DIR = $LOCAL_TEST_DIR"
 echo "LOCAL_TMP_DIR = $LOCAL_TMP_DIR"
 
@@ -11,12 +13,12 @@ PREFIX=results_${USER}${P}
 OUTDIR=${LOCAL_TMP_DIR}/${PREFIX}
 
 mkdir ${OUTDIR}
-cp *.cfg ${OUTDIR}
+cp *_cfg.py ${OUTDIR}
 cd ${OUTDIR}
 
-cmsRun --parameter-set NewStreamOut.cfg > out 2>&1
-cmsRun --parameter-set NewStreamIn.cfg  > in  2>&1
-cmsRun --parameter-set NewStreamCopy.cfg  > copy  2>&1
+cmsRun --parameter-set NewStreamOut_cfg.py > out 2>&1 || die "cmsRun NewStreamOut_cfg.py" $?
+cmsRun --parameter-set NewStreamIn_cfg.py  > in  2>&1 || die "cmsRun NewStreamIn_cfg.py" $?
+cmsRun --parameter-set NewStreamCopy_cfg.py  > copy  2>&1 || die "cmsRun NewStreamCopy_cfg.py" $?
 
 # echo "CHECKSUM = 1" > out
 # echo "CHECKSUM = 1" > in

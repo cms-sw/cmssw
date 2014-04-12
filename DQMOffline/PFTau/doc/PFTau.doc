@@ -1,0 +1,69 @@
+
+/*!
+
+\page DQMOffline_PFTau Package DQMOffline/PFTau
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQMOffline/PFTau/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQMOffline/PFTau/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- Benchmark
+- CandidateBenchmark
+- METBenchmark
+- MatchCandidateBenchmark
+- MatchMETBenchmark
+- Matchers
+- PFCandidateBenchmark
+- PFCandidateManager
+- PFCandidateMonitor
+- PFJetMonitor
+- PFMETMonitor
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+- BenchmarkAnalyzer
+- CandidateBenchmarkAnalyzer
+- METBenchmarkAnalyzer
+- MatchMETBenchmarkAnalyzer
+- PFCandidateBenchmarkAnalyzer
+- PFCandidateDQMAnalyzer
+- PFCandidateManagerAnalyzer
+- PFClient
+- PFDQMEventSelector
+- PFJetDQMAnalyzer
+- PFMETDQMAnalyzer
+
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

@@ -5,8 +5,6 @@
  *
  * Algo for reconstructing 4d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/04/28 15:21:52 $
- * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -35,6 +33,7 @@ class DTSegmentUpdator;
 // ====================================================================== 
 class DTSegmentCand;
 class DTCombinatorialPatternReco;
+class DTHitPairForFit;
 
 // Class DTCombinatorialPatternReco4D Interface 
 
@@ -46,7 +45,7 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
   DTCombinatorialPatternReco4D(const edm::ParameterSet& pset) ;
   
   /// Destructor
-  virtual ~DTCombinatorialPatternReco4D(){};
+  virtual ~DTCombinatorialPatternReco4D();
     
   /// Operations  
   virtual edm::OwnVector<DTRecSegment4D> reconstruct();
@@ -62,7 +61,8 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
  protected:
 
  private:
-  std::vector<DTSegmentCand*> buildPhiSuperSegmentsCandidates();
+  std::vector<DTSegmentCand*> buildPhiSuperSegmentsCandidates(std::vector<std::shared_ptr<DTHitPairForFit>> &pairPhiOwned);
+  DTRecSegment4D* segmentSpecialZed(const DTRecSegment4D* seg);
 
   std::string theAlgoName;
 
@@ -83,6 +83,8 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
 
   //the input type
   bool allDTRecHits;
+  bool applyT0corr;
+  bool computeT0corr;
 
   //  std::vector<DTRecHit1D> the1DPhiHits;
   std::vector<DTSLRecSegment2D> theSegments2DTheta; 

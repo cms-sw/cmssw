@@ -16,20 +16,12 @@
 // Please have a look to all the commentary therein.
 //#include "DetectorDescription/Core/src/tutorial.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
-//#include "Utilities/Timing/interface/TimerProxy.h"
-
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-  //   static TimerProxy timer_("main()");
-  //   TimeMe t(timer_,false);
-  TimeMe t("main()");
 
   //DDAlgoInit();
-try { // DDD Prototype can throw DDException defined in DetectorDescription/Core/interface/DDException.h
-  
   // Initialize a DDL Schema aware parser for DDL-documents
   // (DDL ... Detector Description Language)
   cout << "initialize DDL parser" << endl;
@@ -78,9 +70,9 @@ try { // DDD Prototype can throw DDException defined in DetectorDescription/Core
     //cout << "parent=" << parent.str() << " child=" << child.str() << endl;
     const DDRotationMatrix & rot = epv.rotation();
     const DDTranslation & trans = epv.translation();
-//     Hep3Vector xv = rot.colX();
-//     Hep3Vector yv = rot.colY();
-//     Hep3Vector zv = rot.colZ();
+//     CLHEP::Hep3Vector xv = rot.colX();
+//     CLHEP::Hep3Vector yv = rot.colY();
+//     CLHEP::Hep3Vector zv = rot.colZ();
     DD3Vector xv,yv,zv;
     rot.GetComponents(xv,yv,zv);
     bool reflection = false;
@@ -118,15 +110,8 @@ try { // DDD Prototype can throw DDException defined in DetectorDescription/Core
   cout << "id=" << id << " mapsize=" << idMap.size() << endl;
   nominal_placements.close();
   phys_parts_tree.close();
-  TimingReport* tr = TimingReport::current();
-  tr->dump(cout);    
   return 0;
   
 }
-catch (DDException& e) // DDD-Exceptions are simple string for the Prototype
-{
-   cerr << "DDD-PROBLEM:" << endl 
-        << e << endl;
-}  
 
 }

@@ -1,7 +1,7 @@
 
 #include "GeneratorInterface/GenFilters/interface/MCSingleParticleFilter.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 
 using namespace edm;
@@ -9,7 +9,7 @@ using namespace std;
 
 
 MCSingleParticleFilter::MCSingleParticleFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))
 {
    //here do whatever other initialization is needed
    vector<int> defpid ;
@@ -31,10 +31,10 @@ label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))
 
 
     // check for same size
-    if (ptMin.size() > 1 &&  particleID.size() != ptMin.size() 
-     || etaMin.size() > 1 && particleID.size() != etaMin.size() 
-     || etaMax.size() > 1 && particleID.size() != etaMax.size()
-     || status.size() > 1 && particleID.size() != status.size() ) {
+    if ( (ptMin.size() > 1 &&  particleID.size() != ptMin.size()) 
+     ||  (etaMin.size() > 1 && particleID.size() != etaMin.size()) 
+     ||  (etaMax.size() > 1 && particleID.size() != etaMax.size())
+     ||  (status.size() > 1 && particleID.size() != status.size()) ) {
       cout << "WARNING: MCPROCESSFILTER : size of MinPthat and/or MaxPthat not matching with ProcessID size!!" << endl;
     }
 
@@ -85,31 +85,28 @@ bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
    Handle<HepMCProduct> evt;
    iEvent.getByLabel(label_, evt);
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
      
    
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	  p != myGenEvent->particles_end(); ++p ) {
-
+   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	 p != myGenEvent->particles_end(); ++p ) {
+     
     
-    for (unsigned int i = 0; i < particleID.size(); i++){
-    if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
+     for (unsigned int i = 0; i < particleID.size(); i++){
+       if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
     
-      if ( (*p)->momentum().perp() > ptMin[i] && (*p)->momentum().eta() > etaMin[i] 
-       && (*p)->momentum().eta() < etaMax[i] && ((*p)->status() == status[i] || status[i] == 0)) { 
+	 if ( (*p)->momentum().perp() > ptMin[i] && (*p)->momentum().eta() > etaMin[i] 
+	      && (*p)->momentum().eta() < etaMax[i] && ((*p)->status() == status[i] || status[i] == 0)) { 
           accepted = true; 
-      }  
+	 }  
+	 
+       } 
+     }
+     
 
-    } 
-    }
-
-
-    }
-
-    delete myGenEvent; 
-
-
+   }
+   
    if (accepted){ return true; } else {return false;}
-
+   
 }
 

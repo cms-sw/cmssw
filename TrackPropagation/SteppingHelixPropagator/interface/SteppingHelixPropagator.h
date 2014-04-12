@@ -9,15 +9,12 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/05/11 04:51:09 $
- *  $Revision: 1.22 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.22 2007/05/11 04:51:09 slava77 Exp $
 //
 //
 
@@ -28,6 +25,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"
@@ -40,10 +38,10 @@ class MagneticField;
 class VolumeBasedMagneticField;
 class MagVolume;
 
-class SteppingHelixPropagator : public Propagator {
+class SteppingHelixPropagator GCC11_FINAL : public Propagator {
  public:
-  typedef Hep3Vector Vector;
-  typedef Hep3Vector  Point;
+  typedef CLHEP::Hep3Vector Vector;
+  typedef CLHEP::Hep3Vector  Point;
 
   typedef SteppingHelixStateInfo StateInfo;
   typedef SteppingHelixStateInfo::Result Result;
@@ -104,6 +102,10 @@ class SteppingHelixPropagator : public Propagator {
   virtual FreeTrajectoryState 
     propagate(const FreeTrajectoryState& ftsStart, 
 	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+  //! Propagate to PCA to a line determined by BeamSpot position and slope given a starting point 
+  virtual FreeTrajectoryState 
+    propagate(const FreeTrajectoryState& ftsStart, 
+	      const reco::BeamSpot& beamSpot) const;
 
   //! Propagate to Plane given a starting point: return final 
   //! TrajectoryState and path length from start to this point
@@ -120,6 +122,10 @@ class SteppingHelixPropagator : public Propagator {
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
 		      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+  //! Propagate to PCA to a line (given by beamSpot position and slope) given a starting point 
+  virtual std::pair<FreeTrajectoryState, double> 
+    propagateWithPath(const FreeTrajectoryState& ftsStart, 
+		      const reco::BeamSpot& beamSpot) const;
     
     
   //! Propagate to Plane given a starting point
@@ -174,6 +180,19 @@ class SteppingHelixPropagator : public Propagator {
   //! use this in hope of a speed-up
   void setUseTuningForL2Speed(bool val){ useTuningForL2Speed_ = val;}
 
+  //! set VolumBasedField pointer
+  //! allows to have geometry description in uniformField scenario
+  //! only important/relevant in the barrel region
+  void setVBFPointer(const VolumeBasedMagneticField* val) { vbField_ = val;}
+
+  //! force getting field value from MagneticField, not the geometric one
+  void setUseInTeslaFromMagField(bool val) { useInTeslaFromMagField_ = val;}
+
+  //! set shifts in Z for endcap pieces (includes EE, HE, ME, YE)
+  void setEndcapShiftsInZPosNeg(double valPos, double valNeg){
+    ecShiftPos_ = valPos; ecShiftNeg_ = valNeg;
+  }
+
  protected:
   typedef SteppingHelixStateInfo::VolumeBounds MatBounds;
   //! (Internals) Init starting point
@@ -190,7 +209,8 @@ class SteppingHelixPropagator : public Propagator {
   void loadState(SteppingHelixPropagator::StateInfo& svCurrent, 
 		 const SteppingHelixPropagator::Vector& p3, 
 		 const SteppingHelixPropagator::Point& r3, int charge,
-		 const AlgebraicSymMatrix66& cov, PropagationDirection dir) const;
+		 PropagationDirection dir,
+		 const AlgebraicSymMatrix55& covCurv) const;
 
   //! (Internals) compute transients for current point (increments step counter).
   //!  Called by makeAtomStep
@@ -199,7 +219,7 @@ class SteppingHelixPropagator : public Propagator {
 		    double dP, 
 		    const SteppingHelixPropagator::Vector& tau, const SteppingHelixPropagator::Vector& drVec, 
 		    double dS, double dX0,
-		    const AlgebraicMatrix66& dCov) const;
+		    const AlgebraicMatrix55& dCovCurv) const;
   
   //! Set/compute basis vectors for local coordinates at current step (called by incrementState)
   void setRep(SteppingHelixPropagator::Basis& rep,
@@ -229,7 +249,7 @@ class SteppingHelixPropagator : public Propagator {
   Result refToMagVolume(const SteppingHelixPropagator::StateInfo& sv,
 			PropagationDirection dir,
 			double& dist, double& tanDist,
-			double fastSkipDist = 1e12, bool expectNewMagVolume = false) const;
+			double fastSkipDist = 1e12, bool expectNewMagVolume = false, double maxStep = 1e12) const;
 
   Result refToMatVolume(const SteppingHelixPropagator::StateInfo& sv,
 			PropagationDirection dir,
@@ -244,18 +264,15 @@ class SteppingHelixPropagator : public Propagator {
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
   typedef std::pair<FreeTrajectoryState, double> FtsPP;
   static const int MAX_STEPS = 10000;
-  static const int MAX_POINTS = 50;
+  static const int MAX_POINTS = 7;
   mutable int nPoints_;
   mutable StateInfo svBuf_[MAX_POINTS+1];
 
   StateInfo invalidState_;
 
-  mutable AlgebraicMatrix66 covRot_;
-  mutable AlgebraicMatrix66 dCTransform_;
-
   const MagneticField* field_;
   const VolumeBasedMagneticField* vbField_;
-  const AlgebraicSymMatrix66 unit66_;
+  const AlgebraicSymMatrix55 unit55_;
   bool debug_;
   bool noMaterialMode_;
   bool noErrorPropagation_;
@@ -263,11 +280,15 @@ class SteppingHelixPropagator : public Propagator {
   bool useMagVolumes_;
   bool useIsYokeFlag_;
   bool useMatVolumes_;
+  bool useInTeslaFromMagField_;
   bool returnTangentPlane_;
   bool sendLogWarning_;
   bool useTuningForL2Speed_;
 
   double defaultStep_;
+
+  double ecShiftPos_;
+  double ecShiftNeg_;
 };
 
 #endif

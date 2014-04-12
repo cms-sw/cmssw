@@ -10,16 +10,16 @@
 #define Validation_RecoTrack_SiPixelTrackingRecHitsValid_h
 
 //DQM services for histogram
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -34,6 +34,8 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 //#include "Validation/RecoTrack/interface/TrackLocalAngle.h"
 #include <TROOT.h>
 #include <TTree.h>
@@ -65,7 +67,7 @@
 class TTree;
 class TFile;
 
-class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
+class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
 {
  public:
   
@@ -74,7 +76,8 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   virtual ~SiPixelTrackingRecHitsValid();
 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginJob(const edm::EventSetup& es);
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
+  virtual void beginJob();
   virtual void endJob();
 
   //xt std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,const BoundPlane& plane);
@@ -84,10 +87,13 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
 
   edm::ParameterSet conf_;
   //TrackLocalAngle *anglefinder_;
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
+  bool runStandalone;
   std::string outputFile_;
-  std::string src_;
+  std::string debugNtuple_;
   std::string builderName_;
+  edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitCollectionToken_;
+  edm::EDGetTokenT<reco::TrackCollection> recoTrackCollectionToken_;
   bool MTCCtrack_;
 
   bool checkType_; // do we check that the simHit associated with recHit is of the expected particle type ?

@@ -32,7 +32,7 @@ MonRunDat::~MonRunDat()
 
 
 void MonRunDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -43,28 +43,28 @@ void MonRunDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":num_events, :run_outcome_id, :rootfile_name, :task_list, :task_outcome) ");
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MonRunDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MonRunDat::writeDB(const EcalLogicID* ecid, const MonRunDat* item, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonRunDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonRunDat::writeDB:  IOV not in DB")); }
 
   MonRunOutcomeDef monRunOutcomeDef = item->getMonRunOutcomeDef(); // XXX object copy every row!
   monRunOutcomeDef.setConnection(m_env, m_conn);
   int outcomeID = monRunOutcomeDef.fetchID();
-  if (!outcomeID) { throw(runtime_error("MonRunDat::writeDB:  Outcome Definition not in DB")); }
+  if (!outcomeID) { throw(std::runtime_error("MonRunDat::writeDB:  Outcome Definition not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MonRunDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MonRunDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -77,14 +77,14 @@ void MonRunDat::writeDB(const EcalLogicID* ecid, const MonRunDat* item, MonRunIO
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonRunDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void MonRunDat::fetchData(map< EcalLogicID, MonRunDat >* fillMap, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -92,7 +92,7 @@ void MonRunDat::fetchData(map< EcalLogicID, MonRunDat >* fillMap, MonRunIOV* iov
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MonRunDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MonRunDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -129,6 +129,6 @@ void MonRunDat::fetchData(map< EcalLogicID, MonRunDat >* fillMap, MonRunIOV* iov
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("MonRunDat::fetchData():  "+e.getMessage()));
   }
 }

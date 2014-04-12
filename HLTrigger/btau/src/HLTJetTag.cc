@@ -1,108 +1,134 @@
 /** \class HLTJetTag
  *
-  * See header file for documentation
+ *  This class is an HLTFilter (a spcialized EDFilter) implementing
+ *  tagged multi-jet trigger for b and tau.
+ *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2007/05/10 13:12:40 $
- *  $Revision: 1.4 $
  *
  *  \author Arnaud Gay, Ian Tomalin
+ *  \maintainer Andrea Bocci
  *
  */
 
-#include "HLTrigger/btau/interface/HLTJetTag.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "HLTJetTag.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include<vector>
+#include<string>
+#include<typeinfo>
 
 //
 // constructors and destructor
 //
-HLTJetTag::HLTJetTag(const edm::ParameterSet& iConfig) :
-  jetTag_  (iConfig.getParameter<edm::InputTag> ("JetTag")),
-  min_Tag_ (iConfig.getParameter<double>        ("MinTag")),
-  max_Tag_ (iConfig.getParameter<double>        ("MaxTag")),
-  min_N_   (iConfig.getParameter<int>           ("MinN")),
-  label_   (iConfig.getParameter<std::string>   ("@module_label"))
+
+template<typename T>
+HLTJetTag<T>::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
+  m_Jets   (config.getParameter<edm::InputTag>("Jets") ),
+  m_JetTags(config.getParameter<edm::InputTag>("JetTags") ),
+  m_MinTag (config.getParameter<double>        ("MinTag") ),
+  m_MaxTag (config.getParameter<double>        ("MaxTag") ),
+  m_MinJets(config.getParameter<int>           ("MinJets") ),
+  m_TriggerType(config.getParameter<int>       ("TriggerType") )
 {
+  m_JetsToken = consumes<std::vector<T> >(m_Jets),
+  m_JetTagsToken = consumes<reco::JetTagCollection>(m_JetTags),
 
-  edm::LogInfo("") << " TRIGGER CUTS: " << label_ << std::endl
-                    << " Type of tagged jets used: " << jetTag_.encode() << std::endl
-    		<< " Min/Max tag value [" << min_Tag_ << "--" << max_Tag_ << "]" << std::endl
-    		<< " Min no. tagged jets = " << min_N_ << std::endl;
-
-  //register your products
-  produces<reco::HLTFilterObjectWithRefs>();
+  edm::LogInfo("") << " (HLTJetTag) trigger cuts: " << std::endl
+                   << "\ttype of        jets used: " << m_Jets.encode() << std::endl
+                   << "\ttype of tagged jets used: " << m_JetTags.encode() << std::endl
+                   << "\tmin/max tag value: [" << m_MinTag << ".." << m_MaxTag << "]" << std::endl
+                   << "\tmin no. tagged jets: " << m_MinJets
+		   << "\tTriggerType: " << m_TriggerType << std::endl;
 }
 
-HLTJetTag::~HLTJetTag()
+template<typename T>
+HLTJetTag<T>::~HLTJetTag()
 {
-  edm::LogInfo("") << "Destroyed !";
+}
+
+template<typename T>
+void
+HLTJetTag<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("Jets",edm::InputTag("hltJetCollection"));
+  desc.add<edm::InputTag>("JetTags",edm::InputTag("hltJetTagCollection"));
+  desc.add<double>("MinTag",2.0);
+  desc.add<double>("MaxTag",999999.0);
+  desc.add<int>("MinJets",1);
+  desc.add<int>("TriggerType",0);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetTag<T>).name()),desc);
 }
 
 //
 // member functions
 //
 
+
 // ------------ method called to produce the data  ------------
+template<typename T>
 bool
-HLTJetTag::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
 
-  //  edm::LogInfo("") << "Start at event="<<iEvent.id().event();
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
 
-  // Needed to store jets used for triggering.
-  auto_ptr<HLTFilterObjectWithRefs>
-    filterproduct (new HLTFilterObjectWithRefs(path(),module()));
-  // Ref to Candidate object to be recorded in filter object
-  RefToBase<Candidate> ref;
+  edm::Handle<TCollection> h_Jets;
+  event.getByToken(m_JetsToken, h_Jets);
+  if (saveTags()) filterproduct.addCollectionTag(m_Jets);
 
-  Handle<JetTagCollection> jetsHandle;
-  iEvent.getByLabel(jetTag_, jetsHandle);
+  edm::Handle<JetTagCollection> h_JetTags;
+  event.getByToken(m_JetTagsToken, h_JetTags);
 
-  const JetTagCollection & jets = *(jetsHandle.product());
+  // check if the product this one depends on is available
+  auto const & handle = h_JetTags;
+  auto const & dependent = handle->keyProduct();
+  if (not dependent.isNull() and not dependent.hasCache()) {
+    // only an empty AssociationVector can have a invalid dependent collection
+    edm::Provenance const & dependent_provenance = event.getProvenance(dependent.id());
+    if (dependent_provenance.constBranchDescription().dropped())
+      // FIXME the error message should be made prettier
+      throw edm::Exception(edm::errors::ProductNotFound) << "Product " << handle.provenance()->branchName() << " requires product " << dependent_provenance.branchName() << ", which has been dropped";
+  }
+
+  TRef jetRef;
 
   // Look at all jets in decreasing order of Et.
-  int nJet(0);
-  int nTag(0);
-  JetTagCollection::const_iterator jet;
-  for (jet = jets.begin(); jet != jets.end(); jet++) {
-    edm::LogInfo("") << "Jet " << nJet
-	   	     << " : Et = " << jet->jet()->et()
-		     << " , No. of tracks = " << jet->tracks().size()
-		     << " , tag value = " << jet->discriminator();
-    nJet++;
-    //  Check if jet is tagged.
-    if ( (min_Tag_ <= jet->discriminator()) && 
-	 (jet->discriminator() <= max_Tag_) ) {
-      nTag++;
+  int nJet = 0;
+  int nTag = 0;
+  for (JetTagCollection::const_iterator jet = h_JetTags->begin(); jet != h_JetTags->end(); ++jet) {
+    jetRef = TRef(h_Jets,jet->first.key());
+    LogTrace("") << "Jet " << nJet
+                 << " : Et = " << jet->first->et()
+                 << " , tag value = " << jet->second;
+    ++nJet;
+    // Check if jet is tagged.
+    if ( (m_MinTag <= jet->second) and (jet->second <= m_MaxTag) ) {
+      ++nTag;
 
-      // Store (ref to) jets which passed tagging cuts
-      ref=CandidateBaseRef(jet->jet() );
-      filterproduct->putParticle(ref);
-      if (nTag==1) { // also store ProductID of Product containing AssociationMap
-	ProductID pid( (jet->jet()).id() );
-	filterproduct->putPID(pid);
-      }
+      // Store a reference to the jets which passed tagging cuts
+      filterproduct.addObject(m_TriggerType,jetRef);
     }
   }
 
   // filter decision
-  bool accept (nTag >= min_N_);
+  bool accept = (nTag >= m_MinJets);
 
-  // put filter object into the Event
-  iEvent.put(filterproduct);
-
-  edm::LogInfo("") <<  label_ << " trigger accept ? = " << accept
-	           << " nTag/nJet = " << nTag << "/" << nJet << std::endl;
+  edm::LogInfo("") << " trigger accept ? = " << accept
+                   << " nTag/nJet = " << nTag << "/" << nJet << std::endl;
 
   return accept;
 }

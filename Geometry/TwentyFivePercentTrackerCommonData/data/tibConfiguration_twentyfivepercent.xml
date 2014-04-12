@@ -1,47 +1,47 @@
 <?xml version="1.0"?>
-<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Configuration xmlns="http://www.cern.ch/cms/CDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="CMSConfiguration" version="0" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/CDLSchema.xsd">
  <Include name="test">
-  <File name="Geometry/CMSCommonData/data/materials.xml"        url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibmaterial.xml"      url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibmodpar.xml"        url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibmodule0.xml"       url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibmodule0a.xml"      url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibmodule0b.xml"      url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibmodule2.xml"       url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstringpar.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstringds.xml"      url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring0c.xml"      url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring0ll.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring0lr.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring0ul.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring0ur.xml"     url="."/>
+  <File name="Geometry/CMSCommonData/data/materials.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibmaterial.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibmodpar.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibmodule0.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibmodule0a.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibmodule0b.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibmodule2.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstringpar.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstringds.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring0c.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring0ll.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring0lr.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring0ul.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring0ur.xml" url="."/>
   <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tibstring0_twentyfivepercent.xml" url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring1c.xml"      url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring1ll.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring1lr.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring1ul.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring1ur.xml"     url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring1c.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring1ll.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring1lr.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring1ul.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring1ur.xml" url="."/>
   <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tibstring1_twentyfivepercent.xml" url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstringss.xml"      url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring2c.xml"      url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring2ll.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring2lr.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring2ul.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring2ur.xml"     url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstringss.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring2c.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring2ll.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring2lr.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring2ul.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring2ur.xml" url="."/>
   <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tibstring2_twentyfivepercent.xml" url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring3c.xml"      url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring3ll.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring3lr.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring3ul.xml"     url="."/>
-  <File name="Geometry/TrackerCommonData/data/tibstring3ur.xml"     url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring3c.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring3ll.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring3lr.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring3ul.xml" url="."/>
+  <File name="Geometry/TrackerCommonData/data/tibstring3ur.xml" url="."/>
   <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tibstring3_twentyfivepercent.xml" url="."/>
-  <File name="Geometry/TrackerCommonData/data/tiblayerpar.xml"      url="."/>
-  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tiblayer0_twentyfivepercent.xml"        url="."/>
-  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tiblayer1_twentyfivepercent.xml"        url="."/>
-  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tiblayer2_twentyfivepercent.xml"        url="."/>
-  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tiblayer3_twentyfivepercent.xml"        url="."/>
-  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tib_twentyfivepercent.xml"              url="."/>
-  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/trackertib_twentyfivepercent.xml"       url="."/>
+  <File name="Geometry/TrackerCommonData/data/tiblayerpar.xml" url="."/>
+  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tiblayer0_twentyfivepercent.xml" url="."/>
+  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tiblayer1_twentyfivepercent.xml" url="."/>
+  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tiblayer2_twentyfivepercent.xml" url="."/>
+  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tiblayer3_twentyfivepercent.xml" url="."/>
+  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/tib_twentyfivepercent.xml" url="."/>
+  <File name="Geometry/TwentyFivePercentTrackerCommonData/data/trackertib_twentyfivepercent.xml" url="."/>
  </Include>
- <Root fileName="trackertib.xml"  logicalPartName="Tracker"/>
+ <Root fileName="trackertib.xml" logicalPartName="Tracker"/>
 </Configuration>

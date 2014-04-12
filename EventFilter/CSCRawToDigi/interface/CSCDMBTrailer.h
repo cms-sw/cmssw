@@ -9,7 +9,7 @@ public:
   CSCDMBTrailer()
     {
       bzero(this, sizeInWords()*2);
-      ddu_code_1 = ddu_code_2 = ddu_code_2 = ddu_code_4 = 0xF;
+      ddu_code_1 = ddu_code_2 = ddu_code_3 = ddu_code_4 = 0xF;
       ddu_code_5 = ddu_code_6 = ddu_code_7 = ddu_code_8 = 0xE;
     }
   
@@ -23,6 +23,7 @@ public:
   void setEventInformation(const CSCDMBHeader &) {};
 
   unsigned short * data() {return (unsigned short *) this;}
+  unsigned short * data() const {return (unsigned short *) this;}
 
   unsigned L1a_counter   : 8;
   unsigned dmb_bxn       : 4;  

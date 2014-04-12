@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/11/27 12:26:32 $
- *  $Revision: 1.0 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -10,13 +8,13 @@
 //#include "CalibMuon/DTCalibration/src/vDriftHistos.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 #include <string>
+#include <cmath>
 
 #include "TFile.h"
 #include "TCanvas.h"
-#include "TROOT.h"
 #include "TCollection.h"
 #include "TSystem.h"
 #include "TF1.h"
@@ -68,17 +66,15 @@ TString DTMeanTimerPlotter::getHistoNameSuffix(int wheel, int station, int secto
 
 void DTMeanTimerPlotter::plotHistos(vector<TH1D*> hTMaxes, TString& name, const TString& drawOptions){
 
-  TCanvas *c ;
   TLegend *leg = new TLegend(0.5,0.6,0.7,0.8);;
   if(!drawOptions.Contains("same")){
-     c = new TCanvas(name,"Fit of Tmax histo");
+     new TCanvas(name,"Fit of Tmax histo");
      hTMaxes[0]->Draw();
    }
 
   for(vector<TH1D*>::const_iterator ith = hTMaxes.begin();
       ith != hTMaxes.end(); ith++) {
    color++;     
-   //c->cd();
 
    (*ith)->Rebin(theRebinning);
    (*ith)->SetLineColor(color);
@@ -94,7 +90,6 @@ void DTMeanTimerPlotter::plotHistos(vector<TH1D*> hTMaxes, TString& name, const 
    for(vector<TF1*>::const_iterator funct = functions.begin();
        funct != functions.end(); funct++) {
      //     color++;     
-     //c->cd();
      (*funct)->SetLineColor(hTMaxes[i]->GetLineColor());
      (*funct)->Draw("same");
      i++;
@@ -167,16 +162,15 @@ vector<TF1*>  DTMeanTimerPlotter::fitTMaxes(vector<TH1D*> hTMaxes){
 
       // Fit each Tmax (*ith)gram with a Gaussian in a restricted interval
       TF1 *rGaus = new TF1("rGaus","gaus",peak-range,peak+range);
+      rGaus->SetMarkerSize(); //to stop gcc complain about unused var
       (*ith)->Fit("rGaus","R0");
       functions.push_back((*ith)->GetFunction("rGaus"));
       
       // Get mean, sigma and number of entries of each histogram
-      if(theVerbosityLevel >= 0){
       cout<<"Histo name "<<(*ith)->GetName()<<": "<<endl;
       cout<<"mean  "<<(((*ith)->GetFunction("rGaus"))->GetParameter(1))<<endl;
       cout<<"sigma "<<(((*ith)->GetFunction("rGaus"))->GetParameter(2))<<endl; 
       cout<<"count "<<((*ith)->GetEntries())<<endl<<endl;  
-    }  
    }
    return functions;
  }

@@ -6,27 +6,28 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 
 class CSCBaseValidation {
 public:
-  CSCBaseValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag);
+  CSCBaseValidation(DQMStore* dbe,
+                    const edm::InputTag & inputTag);
   virtual ~CSCBaseValidation() {}
- 
+
   void setGeometry(const CSCGeometry * geom) {theCSCGeometry = geom;}
   void setSimHitMap(const  PSimHitMap * simHitMap) {theSimHitMap = simHitMap;}
 
   virtual void analyze(const edm::Event&e, const edm::EventSetup& eventSetup) = 0;
 
- protected:
+protected:
   const CSCLayer * findLayer(int detId) const;
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   edm::InputTag theInputTag;
   const PSimHitMap * theSimHitMap;
   const CSCGeometry * theCSCGeometry;

@@ -1,0 +1,23 @@
+<use name="DQMOffline/EGamma"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="DataFormats/MuonReco"/>
+<use name="RecoEcal/EgammaCoreTools"/>
+<use name="DataFormats/Math"/>
+<use name="RecoEgamma/EgammaIsolationAlgos"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="DQMServices/Components"/>
+<use name="DQMServices/Core"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="clhep"/>
+<use name="CommonTools/Statistics"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="root"/>
+<use name="roofit"/>
+<use name="boost"/>
+<library name="DQMOfflineEGammaPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>
+

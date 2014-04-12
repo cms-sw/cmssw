@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/19 11:45:21 $
- *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -26,20 +24,22 @@ using namespace std;
 using namespace edm;
 
 
-DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
-  debug = config.getUntrackedParameter<bool>("debug");
-  // The ttrig is defined as mean + kFactor * sigma
-  kFactor = config.getParameter<double>("kFactor");
+DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config)
+:  debug(config.getUntrackedParameter<bool>("debug")),
   // The velocity of signal propagation along the wire (cm/ns)
-  theVPropWire = config.getParameter<double>("vPropWire");
+  theVPropWire(config.getParameter<double>("vPropWire")),
   // Switch on/off the T0 correction from pulses
-  doT0Correction = config.getParameter<bool>("doT0Correction");
+  doT0Correction(config.getParameter<bool>("doT0Correction")),
   // Switch on/off the TOF correction for particles from IP
-  doTOFCorrection = config.getParameter<bool>("doTOFCorrection");
-  theTOFCorrType = config.getParameter<int>("tofCorrType");
+  doTOFCorrection(config.getParameter<bool>("doTOFCorrection")),
+  theTOFCorrType(config.getParameter<int>("tofCorrType")),
   // Switch on/off the correction for the signal propagation along the wire
-  doWirePropCorrection = config.getParameter<bool>("doWirePropCorrection");
-  theWirePropCorrType = config.getParameter<int>("wirePropCorrType");
+  doWirePropCorrection(config.getParameter<bool>("doWirePropCorrection")),
+  theWirePropCorrType(config.getParameter<int>("wirePropCorrType")),
+  // spacing of BX in ns
+  theBXspace(config.getUntrackedParameter<double>("bxSpace", 25.)),
+  thetTrigLabel(config.getParameter<string>("tTrigLabel"))
+{
 }
 
 
@@ -62,7 +62,7 @@ void DTTTrigSyncFromDB::setES(const EventSetup& setup) {
 
   // Get the map of ttrig from the Setup
   ESHandle<DTTtrig> ttrigHandle;
-  setup.get<DTTtrigRcd>().get(ttrigHandle);
+  setup.get<DTTtrigRcd>().get(thetTrigLabel,ttrigHandle);
   tTrigMap = &*ttrigHandle;
     if(debug) {
       cout << "[DTTTrigSyncFromDB] ttrig version: " << tTrigMap->version() << endl;
@@ -173,22 +173,62 @@ double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
   if(doT0Correction)
     {
       // Read the t0 from pulses for this wire (ns)
-        tZeroMap->cellT0(wireId,
-		       t0,
-		       t0rms,
-		       DTTimeUnits::ns);
+       tZeroMap->get(wireId,
+		     t0,
+		     t0rms,
+	             DTTimeUnits::ns);
+
     }
 
   // Read the ttrig for this wire
   float ttrigMean = 0;
-  float ttrigSigma = 0;//FIXME: should use this!
-  tTrigMap->slTtrig(wireId.superlayerId(),
-		    ttrigMean,
-		    ttrigSigma,
-		    DTTimeUnits::ns);
- return t0 + ttrigMean + kFactor * ttrigSigma;
+  float ttrigSigma = 0;
+  float kFactor = 0;
+  // FIXME: should check the return value of the DTTtrigRcd::get(..) method
+  if(tTrigMap->get(wireId.superlayerId(),
+		   ttrigMean,
+		   ttrigSigma,
+		   kFactor,
+		   DTTimeUnits::ns) != 0) {
+    cout << "[DTTTrigSyncFromDB]*Error: ttrig not found for SL: " << wireId.superlayerId() << endl;
+//     FIXME: LogError.....
+  }
+  
+  return t0 + ttrigMean + kFactor * ttrigSigma;
+
 }
 
+double DTTTrigSyncFromDB::emulatorOffset(const DTWireId& wireId,
+					 double &tTrig,
+					 double &t0cell) {
+  float t0 = 0;
+  float t0rms = 0;
+  if(doT0Correction)
+    {
+      // Read the t0 from pulses for this wire (ns)
+       tZeroMap->get(wireId,
+		     t0,
+		     t0rms,
+	             DTTimeUnits::ns);
 
-// Set the verbosity level
-bool DTTTrigSyncFromDB::debug = false;
+    }
+
+  // Read the ttrig for this wire
+  float ttrigMean = 0;
+  float ttrigSigma = 0;
+  float kFactor = 0;
+  // FIXME: should check the return value of the DTTtrigRcd::get(..) method
+  if(tTrigMap->get(wireId.superlayerId(),
+		   ttrigMean,
+		   ttrigSigma,
+		   kFactor,
+		   DTTimeUnits::ns) != 0) {
+    cout << "[DTTTrigSyncFromDB]*Error: ttrig not found for SL: " << wireId.superlayerId() << endl;
+//     FIXME: LogError.....
+  }
+  
+  tTrig = ttrigMean + kFactor * ttrigSigma;
+  t0cell = t0;
+
+  return int(tTrig/theBXspace)*theBXspace + t0cell;
+}

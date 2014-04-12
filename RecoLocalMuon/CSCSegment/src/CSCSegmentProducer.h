@@ -4,16 +4,16 @@
 /** \class CSCSegmentProducer 
  * Produces a collection of CSCSegment's in endcap muon CSCs. 
  *
- * $Date: 2006/05/08 17:45:31 $
- * $Revision: 1.3 $
  * \author M. Sani
  */
 
+#include <FWCore/Framework/interface/ConsumesCollector.h>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 
 class CSCSegmentBuilder; 
 
@@ -28,8 +28,8 @@ public:
 
 private:
     int iev; // events through
-    edm::InputTag inputObjectsTag; // input tag labelling rechits for input
     CSCSegmentBuilder* segmentBuilder_;
+    edm::EDGetTokenT<CSCRecHit2DCollection> m_token;
 };
 
 #endif

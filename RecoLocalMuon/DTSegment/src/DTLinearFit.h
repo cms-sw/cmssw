@@ -7,8 +7,6 @@
  *  
  * detailed description
  *
- * $Date: 2006/03/30 16:53:17 $
- * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -19,6 +17,7 @@
 
 /* C++ Headers */
 #include <vector>
+#include <iostream>
 
 /* ====================================================================== */
 
@@ -41,9 +40,50 @@ class DTLinearFit{
              const std::vector<float> & sigy,
              float& slope,
              float& intercept, 
+             double& chi2,
              float& covss,
              float& covii,
              float& covsi) const;
+
+    // General function for performing a 2, 3 or 4 parameter fit
+    void fitNpar( const int npar,
+                  const std::vector<float>& xfit,
+                  const std::vector<float>& yfit,
+                  const std::vector<int>& lfit,
+                  const std::vector<double>& tfit,
+                  const std::vector<float> & sigy, 
+                  float& aminf,
+                  float& bminf,
+                  float& cminf,
+                  float& vminf,
+                  double& chi2fit,
+                  const bool debug) const; 
+
+    // wrapper for the 3 parameter fit
+    void fit3par( const std::vector<float>& xfit,
+                           const std::vector<float>& yfit,
+                           const std::vector<int>& lfit,
+                           const int nptfit,
+                           const std::vector<float> & sigy, 
+                           float& aminf,
+                           float& bminf,
+                           float& cminf,
+                           double& chi2fit,
+                           const bool debug) const; 
+
+
+    void fit4Var( const std::vector<float>& xfit,
+                  const std::vector<float>& yfit,
+                  const std::vector<int>& lfit,
+                  const std::vector<double>& tfit,
+                  const int nptfit,
+                  float& aminf,
+                  float& bminf,
+                  float& cminf,
+                  float& vminf,
+                  double& chi2fit,
+                  const bool vdrift_4parfit,
+                  const bool debug) const; 
 
   protected:
 

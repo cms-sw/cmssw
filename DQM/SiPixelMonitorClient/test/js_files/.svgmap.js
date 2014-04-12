@@ -41,7 +41,7 @@
    var stype 	   = obj.options[obj.selectedIndex].value;
    var queryString = "RequestID=periodicTrackerMapUpdate";
    var url	   = WebLib.getApplicationURL2();
-   url    	  += "/Request?";
+//   url    	  += "/Request?";
    url    	  += queryString;   
    url    	  += '&MEName='    + selME;
    url 		  += '&TKMapType=' + stype;
@@ -84,6 +84,7 @@
      var doc        = WebLib.http_request.responseXML;
      var root       = doc.documentElement;
      var dets       = root.getElementsByTagName("DetInfo") ;
+   //alert("dets = " + dets);
      var minEntries = 9999999999 ;
      var maxEntries = 0 ;
      var theMinId  ;
@@ -94,12 +95,16 @@
      var theMaxID  ;
      for (var i = 0; i < dets.length; i++) 
      {
+   //alert("loop index = " + i);
       var detId      = dets[i].getAttribute("DetId") ;
+      //var detId = 302057988;
       var red	     = dets[i].getAttribute("red"  ) ;
       var green      = dets[i].getAttribute("green") ;
       var blue       = dets[i].getAttribute("blue" ) ;
-      var thePolygon = document.getElementById(detId) ;
       var rgb	     = "rgb(" + red + "," + green + "," + blue + ")" ;
+    //alert("detId = "+detId +" , rgb = "+rgb);
+      var thePolygon = document.getElementById(detId) ;
+    //alert("thePolygon = " + thePolygon);
       thePolygon.setAttribute("fill",rgb) ;
       var entries    = parseInt(dets[i].getAttribute("entries" )) ;
       var opacity    = parseFloat(entries) / 100 + .1 ;
@@ -214,71 +219,73 @@
  }
  
  //____________________________________________________________________________
+ SvgMap.processImage = function (ajax)
+ {
+   var myTrackerPlot ;
+   var destURL;
+   var theRFrame = top.right.frames ;
+   var theMEList = top.opener.document.getElementById("monitoring_element_list") ;
+   myTrackerPlot = top.right.document.getElementById(destURL);
+   var selME	 = theMEList.options[theMEList.selectedIndex].value;
+   var doc       = ajax.responseXML ;
+   var pathList  = doc.getElementsByTagName('pathElement') ;
+   var url_serv  = WebLib.getApplicationURL2();
+   var destId    = 0 ;
+   for( var i=0; i<pathList.length; i++)
+   {
+    var path    = pathList[i].getAttribute('path') ;
+    var MENames = path.split(/\//) ;
+    var MEName  = MENames[MENames.length-1].match(/(.+)?_siPixel/) ;
+    if( MEName[1] == selME )
+    {
+     destURL = "baseImage0" ;
+     myTrackerPlot = top.right.document.getElementById(destURL);
+    } else {
+     destURL = "baseImage" + ++destId;
+     myTrackerPlot = theRFrame[0].document.getElementById(destURL);
+    }
+    var url  = url_serv + "RequestID=getIMGCPlot&Path=" + path ;
+    myTrackerPlot.setAttribute("src", url);
+   }
+ }
+ 
+ //____________________________________________________________________________
  SvgMap.showData = function (evt)
  {
   var xlinkns = "http://www.w3.org/1999/xlink"; 
   var currentMEList = new Array() ;
   var currentMESrc  = new Array() ;
-  SvgMap.where  = evt.currentTarget;
+  SvgMap.where      = evt.currentTarget;
 
   if (evt.type == "click") //   <-------------------------------- C l i c k -------
   {
    SvgMap.drawMarker("black") ;
-   var leftDoc  = top.left.document ;  
-   var rightDoc = top.right.document ; // Fetch a pointer to the right frame
+//   var leftDoc  = top.left.document ;  
+//   var rightDoc = top.right.document ; // Fetch a pointer to the right frame
       
-   var theImages                  = new Array() ;
-   var theRightInnerFrame         = top.right.frames ;
-   var theRightInnerFrameElements = theRightInnerFrame[0].document.getElementsByTagName("div") ;
+//   var theImages                  = new Array() ;
+//   var theRightInnerFrame         = top.right.frames ;
+//   var theRightInnerFrameElements = theRightInnerFrame[0].document.getElementsByTagName("div") ;
 
-   var myPoly   = evt.currentTarget;
-   var moduleId = myPoly.getAttribute("detid"); 
-   try
-   {
-    var destURL;
-    var theMEList = top.opener.document.getElementById("monitoring_element_list") ;
-    var selME     =  theMEList.options[theMEList.selectedIndex].value;
-    var destId    = 0 ;
-    for( var i=0; i < theMEList.length; i++)
-    {
-      var myTrackerPlot ;
-      if( theMEList[i].value == selME ) 
-      {
-       destURL = "baseImage0" ;
-       myTrackerPlot = top.right.document.getElementById(destURL);
-      } else {
-       destURL = "baseImage" + ++destId;
-       myTrackerPlot = theRightInnerFrame[0].document.getElementById(destURL);
-      }
-      var url_serv      = "http://serverHost:1972/urn:xdaq-application:lid=15/Request?";
-      var queryString   = "RequestID=PlotTkMapHistogram";
-      queryString      += "&ModId="  + moduleId;
-      queryString      += "&MEName=" + theMEList[i].value;
-      var url1          = url_serv   + queryString;
-      myTrackerPlot.setAttribute("src", url1);
-//      SvgMap.smallDelay(3000);
-//      queryString       = "RequestID=UpdateTkMapPlot" ;
-//      queryString      += "&ModId="  + moduleId;
-//      queryString      += "&MEName=" + theMEList[i].value;
-//      var url2          = url_serv   + queryString;
-//      myTrackerPlot.setAttribute("src", url2);  
-      currentMEList[i] = "ME: " + theMEList[i].value + " Id: " + moduleId ;
-      currentMESrc[i]  = myTrackerPlot.getAttribute("src") ;
-    }
-   } catch(error) {
-    alert("[SvgMap.js::"+arguments.callee.name+"] Fatal: "+error.message) ;
-   }
+   var moduleId     = evt.currentTarget.getAttribute("detid"); 
+   var theMEList    = top.opener.document.getElementById("monitoring_element_list") ;
+   var selME	    =  theMEList.options[theMEList.selectedIndex].value;
+   var destId	    = 0 ;
+   var url_serv     = WebLib.getApplicationURL2();
+   var parea  = parent.plotArea;
+   var canvas = parea.IMGC;
+   var queryString  = "RequestID=PlotTkMapHistogram";
+       queryString += "&ModId=" + moduleId;
+       queryString += "&width=800&height=600" ;
+   url_serv	   += queryString;
 
-   SvgMap.theSelectedText.setAttribute("value",SvgMap.where.getAttribute("POS")) ;
-   
-   var innerPlots = currentMEList.length - 1 ; // Last one is the summary plot
+   var makePlots = new parent.plotArea.Ajax.Request(url_serv,                    
+ 	 		            {			     
+ 	 		             method:	 'get',      
+ 			             parameters: '', 
+ 			             onComplete: canvas.processImageURLs // <-- call-back function
+ 			            });
 
-   // Push the list of ME names into the combobox in the right frame
-   var theMEListSelectors = top.right.document.forms['MEListForm'].MEListCB ;
-   for( var i=0; i < currentMEList.length; i++)
-   {
-    theMEListSelectors.options[i] = new Option(currentMEList[i],currentMESrc[i]);
-   }
   }
 
   if (evt.type == "mouseover") //   <----------------------------------------------- 

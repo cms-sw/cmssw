@@ -20,6 +20,7 @@
 //              good behavior for handle recovery.
 //  6/23/03 mf  changeFile(), flush()
 //  5/18/06 mf  setInterval
+//  6/19/08 mf  summaryForJobReport()
 // ----------------------------------------------------------------------
 
 
@@ -40,27 +41,27 @@ namespace service {
 // ----------------------------------------------------------------------
 
 
-ELdestControl::ELdestControl( ELdestination * dest )
+ELdestControl::ELdestControl( boost::shared_ptr<ELdestination> dest )
 : d ( dest )
 {
   #ifdef ELdestinationCONSTRUCTOR_TRACE
-    cerr << "Constructor for ELdestControl\n";
+    std::cerr << "Constructor for ELdestControl\n";
   #endif
 }  // ELdestControl()
 
 
 ELdestControl::ELdestControl( )
-: d ( 0 )
+: d ( )
 {
   #ifdef ELdestinationCONSTRUCTOR_TRACE
-    cerr << "Default Constructor for ELdestControl\n";
+    std::cerr << "Default Constructor for ELdestControl\n";
   #endif
 }  // ELdestControl()
 
 
 ELdestControl::~ELdestControl()  {
   #ifdef ELdestinationCONSTRUCTOR_TRACE
-    cerr << "Destructor for ELdestControl\n";
+    std::cerr << "Destructor for ELdestControl\n";
   #endif
 }  // ~ELdestControl()
 
@@ -202,22 +203,26 @@ ELdestControl & ELdestControl::setNewline( const ELstring & newline )  {
 
 // *** Active methods invoked by the framework ***
 
-void ELdestControl::summary( ELdestControl & dest, char * title )  {
+void ELdestControl::summary( ELdestControl & dest, const char * title )  {
   if (d) d->summary( dest, title );
 }
 
 
-void ELdestControl::summary( std::ostream & os, char * title )  {
+void ELdestControl::summary( std::ostream & os, const char * title )  {
   if (d) d->summary( os, title );
 }
 
 
-void ELdestControl::summary( ELstring & s, char * title )  {
+void ELdestControl::summary( ELstring & s, const char * title )  {
   if (d) d->summary( s, title );
 }
 
 void ELdestControl::summary( )  {
   if (d) d->summary( );
+}
+
+void ELdestControl::summaryForJobReport( std::map<std::string, double> & sm)  {
+  if (d) d->summaryForJobReport(sm);
 }
 
 

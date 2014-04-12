@@ -7,6 +7,8 @@
 #                                                                                            #
 # Author: Ian Tomalin                                                                        #
 # Date  : 3rd April 2006                                                                     #
+# Update: Mantas Stankevicius                                                                #
+# Date  : 2013 June 7                                                                        #
 ##############################################################################################
 
 # Check that we are in the doc/ directory
@@ -45,14 +47,6 @@ cat > $fileName <<@EOF
 
 \page ${projectName}_${packageName} Package ${projectName}/${packageName}
 
-<center>
-<small>
-
-<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
-<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/${projectName}/${packageName}/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
-<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/${projectName}/${packageName}/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
-</small>
-</center>
 
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
@@ -71,6 +65,21 @@ ls -1 ../interface/*.h | awk -F/interface/ '{print $2}' | awk -F. '{print "- " $
 
 cat >> $fileName <<@EOF
 
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+@EOF
+
+# Include list of plugins classes here, stripping of directory name and .h 
+ls -1 ../plugins/*.h | awk -F/plugins/ '{print $2}' | awk -F. '{print "- " $1}' >> $fileName
+
+# Remainder of .doc file.
+
+cat >> $fileName <<@EOF
+
+
+
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
@@ -78,9 +87,7 @@ cat >> $fileName <<@EOF
 
 #Include list of modules here, stripping DEFINE_FWK_MODULE keyword.
 grep -h '^DEFINE_FWK_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print "- " $1}' >> $fileName
-grep -h '^DEFINE_ANOTHER_FWK_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print "- " $1}' >> $fileName
 grep -h '^DEFINE_FWK_EVENTSETUP_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print "- " $1}' >> $fileName
-grep -h '^DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print "- " $1}' >> $fileName
 
 # Remainder of .doc file.
 

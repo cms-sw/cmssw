@@ -1,4 +1,5 @@
-#include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
+#include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
+#include <iostream>
 
 namespace csc {
 
@@ -17,8 +18,15 @@ namespace csc {
     me3_id = 0;
     me4_id = 0;
     mb1_id = 0;
+    m_me1Tbin = 0;
+    m_me2Tbin = 0;
+    m_me3Tbin = 0;
+    m_me4Tbin = 0;
+    m_mbTbin  = 0;
     m_output_link = 0;
     m_winner = false;
+    m_fr=0;
+    m_se=true; m_bx0=true; m_bc0=true;
   }
 
   L1Track::L1Track(const csc::L1Track& rhs) : L1MuRegionalCand(rhs.type_idx(),rhs.phi_packed(),rhs.eta_packed(),
@@ -27,6 +35,17 @@ namespace csc {
 						      rhs.quality_packed(),rhs.bx()),
 					      m_name(rhs.m_name)
   {
+	this->setBx(rhs.bx());
+	this->setDataWord(rhs.getDataWord());
+	m_name    = rhs.m_name;
+	this->setType(rhs.type_idx());
+	this->setPhiPacked(rhs.phi_packed());
+	this->setEtaPacked(rhs.eta_packed());
+	this->setPtPacked(rhs.pt_packed());
+	this->setChargePacked(rhs.charge_packed());
+	this->setChargeValidPacked(rhs.charge_valid_packed());
+	this->setFineHaloPacked(rhs.finehalo_packed());
+	this->setQualityPacked(rhs.quality_packed());
     m_empty = rhs.m_empty;
     m_lphi = rhs.m_lphi;
     m_endcap = rhs.m_endcap;
@@ -38,8 +57,17 @@ namespace csc {
     me3_id = rhs.me3_id;
     me4_id = rhs.me4_id;
     mb1_id = rhs.mb1_id;
+    m_me1Tbin = rhs.m_me1Tbin;
+    m_me2Tbin = rhs.m_me2Tbin;
+    m_me3Tbin = rhs.m_me3Tbin;
+    m_me4Tbin = rhs.m_me4Tbin;
+    m_mbTbin  = rhs.m_mbTbin;
     m_output_link = rhs.m_output_link;
     m_winner = rhs.m_winner;
+    m_fr=rhs.m_fr;
+    m_se=rhs.m_se;
+    m_bx0=rhs.m_bx0;
+    m_bc0=rhs.m_bc0;
   }
 
   L1Track::~L1Track()
@@ -50,6 +78,10 @@ namespace csc {
   {
     if(this != &rhs)
       {
+        m_fr=rhs.m_fr;
+        m_se=rhs.m_se;
+        m_bx0=rhs.m_bx0;
+        m_bc0=rhs.m_bc0;
 	m_empty = rhs.m_empty;
 	this->setBx(rhs.bx());
 	this->setDataWord(rhs.getDataWord());
@@ -72,8 +104,13 @@ namespace csc {
 	me3_id = rhs.me3_id;
 	me4_id = rhs.me4_id;
 	mb1_id = rhs.mb1_id;
+	m_me1Tbin = rhs.m_me1Tbin;
+	m_me2Tbin = rhs.m_me2Tbin;
+	m_me3Tbin = rhs.m_me3Tbin;
+	m_me4Tbin = rhs.m_me4Tbin;
+	m_mbTbin  = rhs.m_mbTbin;
 	m_output_link = rhs.m_output_link;
-    m_winner = rhs.m_winner;
+        m_winner = rhs.m_winner;
 	  }
     return *this;
   }
@@ -171,5 +208,19 @@ namespace csc {
           << " Winner: "   << " " << winner()
 		  << std::endl;
       }
+  }
+
+  unsigned L1Track::modeExtended(void) const
+  {
+    unsigned modeExt = mode(); 
+    unsigned fr = (m_ptAddress>>21)&0x1;
+
+    if (modeExt ==11 && fr==1)
+	modeExt = 17;
+    else if (modeExt==12 && fr==1)
+	modeExt = 18;
+    else if (modeExt==14 && fr==1)
+	modeExt = 16;
+    return modeExt;
   }
 }

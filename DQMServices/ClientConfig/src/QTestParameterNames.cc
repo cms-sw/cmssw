@@ -2,24 +2,34 @@
  *
  *  Implementation of QTestParameterNames 
  *
- *  $Date: 2006/11/20 09:33:41 $
- *  $Revision: 1.2 $
  *  \author Ilaria Segoni
  */
  
-#include<iostream>
-
+#include <iostream>
+#include <cstring>
 #include "DQMServices/ClientConfig/interface/QTestParameterNames.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
+#include "DQMServices/Core/interface/QTest.h"
 
 QTestParameterNames::QTestParameterNames(){
 	
 	this->constructMap(ContentsXRangeROOT::getAlgoName(), "xmin", "xmax");
-	this->constructMap(ContentsYRangeROOT::getAlgoName(), "ymin", "ymax");
+	this->constructMap(ContentsYRangeROOT::getAlgoName(), "ymin", "ymax","useEmptyBins");
 	this->constructMap(DeadChannelROOT::getAlgoName(),   "threshold");
 	this->constructMap(NoisyChannelROOT::getAlgoName(),  "tolerance", "neighbours");
 	this->constructMap(MeanWithinExpectedROOT::getAlgoName(), "mean","useRMS","useSigma","useRange","xmin","xmax");
-        this->constructMap(MostProbableLandauROOT::getAlgoName(), "xmin", "xmax","normalization", "mostprobable", "sigma");
+
+	//======================== new quality tests in the parser =====================//
+        this->constructMap(Comp2RefEqualHROOT::getAlgoName(), "testparam");
+        this->constructMap(Comp2RefChi2ROOT::getAlgoName(), "testparam");
+        this->constructMap(Comp2RefKolmogorovROOT::getAlgoName(), "testparam");
+
+//        this->constructMap(MostProbableLandauROOT::getAlgoName(), "xmin", "xmax","normalization", "mostprobable", "sigma");
+        this->constructMap(ContentsWithinExpectedROOT::getAlgoName(), "minMean", "maxMean", "minRMS", "maxRMS", "toleranceMean", "minEntries", "useEmptyBins");
+        //this->constructMap(ContentsWithinExpectedASROOT::getAlgoName(), "minCont", "maxCont"); 
+
+	this->constructMap(CompareToMedianROOT::getAlgoName(), "MinRel", "MaxRel", "UseEmptyBins", "MinAbs", "MaxAbs");
+	this->constructMap(CompareLastFilledBinROOT::getAlgoName(), "AvVal", "MinVal", "MaxVal");
+	this->constructMap(CheckVarianceROOT::getAlgoName());
 }
   
 

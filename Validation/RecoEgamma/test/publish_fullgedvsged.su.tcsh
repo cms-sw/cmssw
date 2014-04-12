@@ -1,0 +1,7 @@
+#!/bin/tcsh
+oval run publish.ValgedvsgedFullPt10Startup_UP15_gedGsfE
+oval run publish.ValgedvsgedFullPt1000Startup_UP15_gedGsfE
+oval run publish.ValgedvsgedFullPt35Startup_UP15_gedGsfE
+oval run publish.ValgedvsgedFullTTbarStartup_13_gedGsfE
+oval run publish.ValgedvsgedFullZEEStartup_13_gedGsfE
+oval run publish.ValgedvsgedFullQcdPt80Pt120Startup_13_gedGsfE

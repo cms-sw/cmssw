@@ -1,7 +1,6 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Thu Aug 10 16:21:22 CEST 2006
-// $Id: IsTBH4Type.cc,v 1.1 2006/08/15 09:32:35 govoni Exp $
 //
 //
 
@@ -38,7 +37,7 @@ IsTBH4Type::IsTBH4Type(const edm::ParameterSet& iConfig)
    eventHeaderCollection_ = iConfig.getParameter<std::string> ("eventHeaderCollection") ;
    eventHeaderProducer_   = iConfig.getParameter<std::string> ("eventHeaderProducer") ;
    typeToFlag_            = iConfig.getParameter<std::string> ("typeToFlag") ;
-   notFound_              = iConfig.getUntrackedParameter<bool> ("ifHeaderNotFound","false") ;
+   notFound_              = iConfig.getUntrackedParameter<bool> ("ifHeaderNotFound",false) ;
 }
 
 
@@ -62,12 +61,13 @@ IsTBH4Type::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    Handle<EcalTBEventHeader> pEventHeader ;
    const EcalTBEventHeader* evtHeader=0 ;
-   try {
-     iEvent.getByLabel ( eventHeaderProducer_ , pEventHeader ) ;
-     evtHeader = pEventHeader.product () ; // get a ptr to the product
-   } catch ( std::exception& ex ) {
+   iEvent.getByLabel ( eventHeaderProducer_ , pEventHeader ) ;
+   if (!pEventHeader.isValid()) {
      edm::LogError("IsTBH4Type") << "Event Header collection not found" ;
+   } else {
+     evtHeader = pEventHeader.product () ; // get a ptr to the product
    }
+
    if (!evtHeader) return notFound_ ;
 //   std::cout << "PIETRO " << evtHeader->eventType () << std::endl ;
 //   std::cout << "PIETRO " << (evtHeader->eventType () != typeToFlag_) << std::endl ;

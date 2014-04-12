@@ -1,12 +1,13 @@
 /** \file LaserOpticalPhysicsList.cc
  *  
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/10 12:52:52 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserOpticalPhysicsList.h"
+#include "G4ProcessManager.hh" 
 
 #include "G4Cerenkov.hh" 
 #include "G4Scintillation.hh" 
@@ -39,7 +40,7 @@ LaserOpticalPhysicsList::~LaserOpticalPhysicsList()
   if ( theBoundaryProcess != 0 )    { delete theBoundaryProcess; }
   if ( theRayleighScattering != 0 ) { delete theRayleighScattering; }
   if ( theAbsorptionProcess != 0 )  { delete theAbsorptionProcess; }
-  if ( theCerenkovProcess != 0 )    { delete theCerenkovProcess; }
+//  if ( theCerenkovProcess != 0 )    { delete theCerenkovProcess; }
   if ( theScintProcess != 0 )       { delete theScintProcess; }
   if (verboseLevel > 0)
     std::cout << " done " << std::endl;
@@ -60,7 +61,7 @@ void LaserOpticalPhysicsList::ConstructProcess()
     std::cout << "<LaserOpticalPhysicsList::ConstructProcess()>: constructing the physics ... " << std::endl;
 
   theScintProcess = new G4Scintillation();
-  theCerenkovProcess=new G4Cerenkov();
+//  theCerenkovProcess=new G4Cerenkov();
   theAbsorptionProcess=new G4OpAbsorption();
   theRayleighScattering=new G4OpRayleigh();
   theBoundaryProcess=new G4OpBoundaryProcess("OpBoundary");
@@ -75,7 +76,7 @@ void LaserOpticalPhysicsList::ConstructProcess()
   pManager = G4OpticalPhoton::OpticalPhoton()->GetProcessManager();
   pManager->AddDiscreteProcess(theAbsorptionProcess);
   pManager->AddDiscreteProcess(theRayleighScattering);
-  theBoundaryProcess->SetModel(unified);
+  //theBoundaryProcess->SetModel(unified);
   pManager->AddDiscreteProcess(theBoundaryProcess);
   pManager->AddDiscreteProcess(theWLSProcess);
   
@@ -83,15 +84,15 @@ void LaserOpticalPhysicsList::ConstructProcess()
   theScintProcess->SetScintillationExcitationRatio(0.0);
   theScintProcess->SetTrackSecondariesFirst(true);
   
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() )
+  aParticleIterator->reset();
+  while( (*aParticleIterator)() )
     {
-      G4ParticleDefinition* particle = theParticleIterator->value();
+      G4ParticleDefinition* particle = aParticleIterator->value();
       pManager = particle->GetProcessManager();
-      if(theCerenkovProcess->IsApplicable(*particle))
-	{
-	  pManager->AddContinuousProcess(theCerenkovProcess);
-	}
+//      if(theCerenkovProcess->IsApplicable(*particle))
+//	{
+//	  pManager->AddContinuousProcess(theCerenkovProcess);
+//	}
       if(theScintProcess->IsApplicable(*particle))
 	{
 	  pManager->AddProcess(theScintProcess);

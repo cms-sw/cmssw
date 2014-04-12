@@ -15,7 +15,6 @@
 //
 // Original Author:  Luca Lista
 //         Created:  Fri Mar 10 15:58:18 CET 2006
-// $Id: HepPDTESSource.h,v 1.2 2006/07/18 15:00:07 fmoortga Exp $
 //
 #include <memory>
 #include <fstream>

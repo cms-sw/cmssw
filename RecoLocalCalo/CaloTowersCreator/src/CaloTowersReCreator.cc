@@ -1,27 +1,26 @@
 #include "RecoLocalCalo/CaloTowersCreator/src/CaloTowersReCreator.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoLocalCalo/CaloTowersCreator/interface/ctEScales.h"
 
 CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) : 
-  algo_(0.,0.,0.,0.,0.,0.,0.,0.,0., // thresholds cannot be reapplied
-        conf.getUntrackedParameter<std::vector<double> >("EBGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("EBWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("EEGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("EEWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HBGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HBWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HESGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HESWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HEDGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HEDWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HOGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HOWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF1Grid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF1Weights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF2Grid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF2Weights",std::vector<double>(10,0.)),
+  algo_(0.,0., false, false, false, false, 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0., // thresholds cannot be reapplied
+        conf.getParameter<std::vector<double> >("EBGrid"),
+        conf.getParameter<std::vector<double> >("EBWeights"),
+        conf.getParameter<std::vector<double> >("EEGrid"),
+        conf.getParameter<std::vector<double> >("EEWeights"),
+        conf.getParameter<std::vector<double> >("HBGrid"),
+        conf.getParameter<std::vector<double> >("HBWeights"),
+        conf.getParameter<std::vector<double> >("HESGrid"),
+        conf.getParameter<std::vector<double> >("HESWeights"),
+        conf.getParameter<std::vector<double> >("HEDGrid"),
+        conf.getParameter<std::vector<double> >("HEDWeights"),
+        conf.getParameter<std::vector<double> >("HOGrid"),
+        conf.getParameter<std::vector<double> >("HOWeights"),
+        conf.getParameter<std::vector<double> >("HF1Grid"),
+        conf.getParameter<std::vector<double> >("HF1Weights"),
+        conf.getParameter<std::vector<double> >("HF2Grid"),
+        conf.getParameter<std::vector<double> >("HF2Weights"),
         conf.getParameter<double>("EBWeight"),
         conf.getParameter<double>("EEWeight"),
         conf.getParameter<double>("HBWeight"),
@@ -30,20 +29,31 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("HOWeight"),
         conf.getParameter<double>("HF1Weight"),
         conf.getParameter<double>("HF2Weight"),
-        0.,0.,0.,true),
-  caloLabel_(conf.getParameter<edm::InputTag>("caloLabel")),
+        0.,0.,0.,
+        conf.getParameter<bool>("UseHO"),
+        // (these have no effect on recreation: here for compatibility)
+        conf.getParameter<int>("MomConstrMethod"),
+        conf.getParameter<double>("MomHBDepth"),
+        conf.getParameter<double>("MomHEDepth"),
+        conf.getParameter<double>("MomEBDepth"),
+        conf.getParameter<double>("MomEEDepth")
+
+        ),
   allowMissingInputs_(false)
 {
-  EBEScale=ctEScales.EBScale; 
-  EEEScale=ctEScales.EEScale; 
-  HBEScale=ctEScales.HBScale; 
-  HESEScale=ctEScales.HESScale; 
-  HEDEScale=ctEScales.HEDScale; 
-  HOEScale=ctEScales.HOScale; 
-  HF1EScale=ctEScales.HF1Scale; 
-  HF2EScale=ctEScales.HF2Scale; 
-  if (ctEScales.instanceLabel=="") produces<CaloTowerCollection>();
-  else produces<CaloTowerCollection>(ctEScales.instanceLabel);
+  tok_calo_ = consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("caloLabel"));
+
+  EBEScale=conf.getParameter<double>("EBEScale");
+  EEEScale=conf.getParameter<double>("EEEScale");
+  HBEScale=conf.getParameter<double>("HBEScale");
+  HESEScale=conf.getParameter<double>("HESEScale");
+  HEDEScale=conf.getParameter<double>("HEDEScale");
+  HOEScale=conf.getParameter<double>("HOEScale");
+  HF1EScale=conf.getParameter<double>("HF1EScale");
+  HF2EScale=conf.getParameter<double>("HF2EScale");
+  //  two notes:
+  //  1) all this could go in a pset
+  //  2) not clear the instanceLabel thing
 }
 
 void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -51,7 +61,7 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::ESHandle<CaloGeometry> pG;
   edm::ESHandle<HcalTopology> htopo;
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  c.get<IdealGeometryRecord>().get(pG);
+  c.get<CaloGeometryRecord>().get(pG);
   c.get<IdealGeometryRecord>().get(htopo);
   c.get<IdealGeometryRecord>().get(cttopo);
  
@@ -68,22 +78,27 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.begin(); // clear the internal buffer
   
   // Step A/C: Get Inputs and process (repeatedly)
-  try {
-    edm::Handle<CaloTowerCollection> calt;
-    e.getByLabel(caloLabel_,calt);
-    algo_.process(*calt);
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
+  edm::Handle<CaloTowerCollection> calt;
+  e.getByToken(tok_calo_,calt);
+
+
+  // modified to rescale the CaloTowers directly
+  // without going through metatowers
+  // required for the algorithms that make use of individual
+  // crystal information
+
+  if (!calt.isValid()) {
+    // can't find it!
+    if (!allowMissingInputs_) {
+      *calt;  // will throw the proper exception
+    }
+  } else {
+    // Step B: Create empty output
+    std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
+
+    // step C: rescale (without going threough metataowers)
+    algo_.rescaleTowers(*calt, *prod);
+
   }
-
-  // Step B: Create empty output
-  std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
-
-  // Step C: Process
-  algo_.finish(*prod);
-
-  // Step D: Put into the event
-  if (ctEScales.instanceLabel=="") e.put(prod);
-  else e.put(prod,ctEScales.instanceLabel);
 }
 

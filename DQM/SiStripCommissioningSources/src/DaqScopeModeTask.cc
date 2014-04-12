@@ -1,19 +1,18 @@
 #include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-DaqScopeModeTask::DaqScopeModeTask( DaqMonitorBEInterface* dqm,
+DaqScopeModeTask::DaqScopeModeTask( DQMStore* dqm,
 				    const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "DaqScopeModeTask" ),
   scope_(),
-  nBins_(sistrip::maximum_) // ADC range (0->1023)
+  nBins_(256) //@@ number of strips per FED channel
 {}
 
 // -----------------------------------------------------------------------------
@@ -33,13 +32,13 @@ void DaqScopeModeTask::book() {
 					 sistrip::LLD_CHAN, 
 					 connection().lldChannel() ).title();
 
-  scope_.histo_ = dqm()->book1D( title, title, 
-				 nBins_, -0.5, nBins_-0.5 );
-  
+  scope_.histo( dqm()->book1D( title, title, 
+			       nBins_, -0.5, nBins_-0.5 ) );
+		
   scope_.vNumOfEntries_.resize(nBins_,0);
   scope_.vSumOfContents_.resize(nBins_,0);
   scope_.vSumOfSquares_.resize(nBins_,0);
-  scope_.isProfile_ = false; //@@ simple 1D histo
+  scope_.isProfile_ = false; 
   
 }
 
@@ -47,16 +46,22 @@ void DaqScopeModeTask::book() {
 //
 void DaqScopeModeTask::fill( const SiStripEventSummary& summary,
 			     const edm::DetSet<SiStripRawDigi>& digis ) {
-
-  if ( digis.data.size() == 0 ) { //@@ check scope mode length?  
+  
+  // Only fill every 'N' events 
+  if ( !updateFreq() || fillCntr()%updateFreq() ) { return; }
+  
+  if ( digis.data.size() != nBins_ ) { //@@ check scope mode length?  
     edm::LogWarning(mlDqmSource_)
       << "[DaqScopeModeTask::" << __func__ << "]"
-      << " Unexpected number of digis! " 
-      << digis.data.size(); 
-  } else {
-    for ( uint16_t ibin = 0; ibin < digis.data.size(); ibin++ ) {
-      updateHistoSet( scope_, digis.data[ibin].adc() );
-    }
+      << " Unexpected number of digis (" 
+      << digis.data.size()
+      << ") wrt number of histogram bins ("
+      << nBins_ << ")!";
+  }
+  
+  uint16_t bins = digis.data.size() < nBins_ ? digis.data.size() : nBins_;
+  for ( uint16_t ibin = 0; ibin < bins; ibin++ ) {
+      updateHistoSet( scope_, ibin, digis.data[ibin].adc() ); 
   }
   
 }

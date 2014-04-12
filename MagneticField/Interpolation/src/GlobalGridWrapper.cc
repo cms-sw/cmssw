@@ -1,8 +1,6 @@
-#include "MagneticField/Interpolation/src/GlobalGridWrapper.h"
-#include "MagneticField/Interpolation/src/MagneticFieldGrid.h"
+#include "GlobalGridWrapper.h"
+#include "MagneticFieldGrid.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
-
-// #include "Utilities/Notification/interface/TimingReport.h"
 
 using namespace std;
 
@@ -16,8 +14,6 @@ GlobalGridWrapper::GlobalGridWrapper( const GloballyPositioned<float>& vol,
 
 MFGrid::LocalVector GlobalGridWrapper::valueInTesla( const LocalPoint& p) const
 {
-//   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(GlobalGridWrapper)"];
-//   TimeMe t(timer,false);
 
   GlobalPoint gp = frame().toGlobal(p);
   float bx, by, bz;
@@ -52,10 +48,10 @@ MFGrid::LocalPoint GlobalGridWrapper::fromGridFrame( double a, double b, double 
   return LocalPoint( 0, 0, 0);
 }
 
-vector<int> GlobalGridWrapper::dimensions() const
+Dimensions GlobalGridWrapper::dimensions() const
 {
   throw MagLogicError ("GlobalGridWrapper::dimensions not implemented yet");
-  return vector<int>();
+  return Dimensions();
 }
 
 MFGrid::LocalPoint GlobalGridWrapper::nodePosition( int i, int j, int k) const

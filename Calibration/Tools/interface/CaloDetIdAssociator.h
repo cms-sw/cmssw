@@ -43,7 +43,7 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
    
    virtual std::set<DetId> getASetOfValidDetIds(){
       std::set<DetId> setOfValidIds;
-      std::vector<DetId> vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
+      const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
          setOfValidIds.insert(*it);
 
@@ -58,7 +58,8 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
 	 if(! geometry_->getSubdetectorGeometry(id)->getGeometry(id)) {
 	    LogDebug("CaloDetIdAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
 	 } else {
-	    points = geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners();
+	    const CaloCellGeometry::CornersVec& cor ( geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners() );
+	    points.assign( cor.begin(), cor.end() ) ;
 	    points.push_back(getPosition(id));
 	 }
       }

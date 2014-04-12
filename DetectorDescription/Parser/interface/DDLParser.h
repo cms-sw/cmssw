@@ -9,7 +9,8 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
 
 // Xerces C++ dependencies
-#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XercesDefs.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax/SAXException.hpp>
@@ -41,7 +42,7 @@ class DDLDocumentProvider;
  *  the parser during run-time.
  *
  *  There is an interface to parse just one file.  If one uses this method
- *  and does not use the default DDLDocumentProvider (DDLConfiguration) the
+ *  and does not use the default DDLDocumentProvider 
  *  user is responsible for also setting the DDRootDef.
  *  
  *  Modification:
@@ -53,28 +54,30 @@ class DDLDocumentProvider;
  *         to "get" the files.
  *   2005-11-13:  Michael Case
  *         removed some of the un-necessary methods that were deprecated.
- *
+ *   2010-01 to 2010-04 sometime: Michael Case
+ *         removed singleton-ness.  MUST have a DDCompactView to refer to
+ *         and no more default constructor at the moment.
+ *   2010-07-29:  removed DDLConfiguration; use FIPConfiguration, it is easier.
+ *         for CMSSW Framework example see XMLIdealGeometryESSource (different
+ *         DDLDocumentProvider completely
  */
 class DDLParser 
 
 {
  public:
-  typedef xercesc_2_7::SAX2XMLReader SAX2XMLReader;
+  typedef XERCES_CPP_NAMESPACE::SAX2XMLReader SAX2XMLReader;
 
   typedef std::map< int, std::pair<std::string, std::string> > FileNameHolder;
-  static DDLParser* instance();
+  
+  DDLParser ( DDCompactView& cpv );
 
-  // MEC: EDMProto temporary? But we need it for 
-  static void setInstance( DDLParser* p );
-
-  /// unique (and default) constructor
  protected:
-  DDLParser();//seal::Context* ic=0);
-
+  DDLParser( );
+  
  public:
   ~DDLParser();
 
-  /// Parse all files. FIX - After deprecated stuff removed, make this void
+  /// Parse all files. Return is meaningless.
   int parse( const DDLDocumentProvider& dp );
 
   /// Process a single files.
@@ -100,25 +103,15 @@ class DDLParser
    **/
   bool parseOneFile(const std::string& filename);
 
+  // I ASSUME I take ownership of this blob
+  //  void parse( std::vector<unsigned char>* ablob, unsigned int bsize ) ;
+  //old way  void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
+  void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
+
   /// Return list of files
   std::vector<std::string> getFileList();
 
-  /// Print out the list of files.
-  void dumpFileList();
-  void dumpFileList(std::ostream& co);
-
-  /// Report which file currently being processed (or last processed).
-  std::string getCurrFileName();
-
   /// Get the SAX2Parser from the DDLParser.  USE WITH CAUTION.  Set your own handler, etc.
-  /**
-   *  I wanted to do this for the DDLConfiguration to do the parsing separately.
-   *  Since these two classes are so connected I wonder if I should remove this, make
-   *  DDLConfiguration a friend of this guy and let it access the SAX2XMLReader directly.
-   *  FIX:  Maybe Configuration should handle its own parser?  Maybe I should
-   *  destroy the parser and remake it as needed, this way validation can be
-   *  turned on for the DDL after the CDL says what should be done.
-   */
   SAX2XMLReader* getXMLParser();
 
   /// To get the parent this class allows access to the handler.
@@ -133,14 +126,24 @@ class DDLParser
   /// Is the file already parsed?
   bool isParsed(const std::string& filename);
 
+  /// Clear the file list - see Warning!
+  /**
+   *  This could result in mangled geometry if the Core has not been cleared.
+   **/
+  void clearFiles () ;
+
+  std::string extractFileName(std::string fullname);
+  std::string getNameSpace(const std::string& fname);
+
  protected:
   
   /// Parse File.  Just to hold some common looking code.
   void parseFile (const int& numtoproc);
 
  private:
-  /// For Singleton behavior.
-  static DDLParser* instance_;
+
+  /// reference to storage
+  DDCompactView& cpv_;
 
   /// List of files to be processed, obtained from the DDLDocumentProvider.
   FileNameHolder fileNames_;
@@ -150,9 +153,6 @@ class DDLParser
 
   /// Number of files + 1.
   int nFiles_;
-
-  /// Configuration file name.  Only necessary until deprecated methods removed.
-  std::string configFileName_;
 
   /// Which file is currently being processed.
   std::string currFileName_;

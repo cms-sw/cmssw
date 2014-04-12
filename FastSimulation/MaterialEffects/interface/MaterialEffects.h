@@ -10,7 +10,8 @@
  *  - Bremsstrahlung
  *  - Energy loss by ionization
  *  - Multiple scattering
- *
+ *  - Muon Bremsstrahlung
+
  * but no synchrotron radiation (well, this is not really a material 
  * effect, but might be dealt with here as well), no nuclear interactions, 
  * no delta-rays.
@@ -21,7 +22,7 @@
  * electron and one for the positron, with the same parent vertex.
  *
  * \author: Stephan Wynhoff, Florian Beaudette, Patrick Janot
- * $Date: Last modification (after severe clean-up). 08-Jan-2004
+ * $Date: Last modification (after severe clean-up). 27-Fev-2011- Sandro Fonseca and Andre Sznajder  (UERJ/Brazil)
  */
 
 //Framework Headers
@@ -30,15 +31,17 @@
 // Geometry Headers
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
+#include <vector>
 class FSimEvent;
 class TrackerLayer;
 class ParticlePropagator;
 class PairProductionSimulator;
-class MultipleScatteringSimulator;
 class BremsstrahlungSimulator;
 class EnergyLossSimulator;
 class NuclearInteractionSimulator;
-class RandomEngine;
+class MultipleScatteringSimulator;
+class MuonBremsstrahlungSimulator;
+class RandomEngineAndDistribution;
 
 namespace edm {
   class ParameterSet;
@@ -50,8 +53,7 @@ class MaterialEffects
  public:
 
   /// Constructor
-  MaterialEffects(const edm::ParameterSet& matEff,
-		  const RandomEngine* engine);
+  MaterialEffects(const edm::ParameterSet& matEff);
 
   /// Default destructor
   ~MaterialEffects();
@@ -61,7 +63,8 @@ class MaterialEffects
   void interact(FSimEvent& simEvent,
 		const TrackerLayer& layer,
 		ParticlePropagator& PP,
-		unsigned i);
+		unsigned i,
+                RandomEngineAndDistribution const*);
 
   /// Save nuclear interaction information
   void save();
@@ -72,6 +75,20 @@ class MaterialEffects
   /// Return the energy loss by ionization in the current layer
   inline double energyLoss() const { return theEnergyLoss; }
 
+  /// Return the Multiple Scattering engine
+  inline MultipleScatteringSimulator* multipleScatteringSimulator() const { 
+    return MultipleScattering;
+  }
+
+  /// Return the Energy Loss engine
+  inline EnergyLossSimulator* energyLossSimulator() const { 
+    return EnergyLoss;
+  }
+
+/// Return the Muon Bremsstrahlung engine
+  inline MuonBremsstrahlungSimulator* muonBremsstrahlungSimulator() const {
+    return MuonBremsstrahlung;
+  }
 
  private:
 
@@ -87,20 +104,23 @@ class MaterialEffects
 
   PairProductionSimulator* PairProduction;
   BremsstrahlungSimulator* Bremsstrahlung;
+////// Muon Brem
+  MuonBremsstrahlungSimulator* MuonBremsstrahlung;
   MultipleScatteringSimulator* MultipleScattering;
   EnergyLossSimulator* EnergyLoss;
   NuclearInteractionSimulator* NuclearInteraction;
 
+  // Cuts for material effects
   double pTmin;
   GlobalVector theNormalVector;
   double theThickness;
   double theEnergyLoss;
+  double theTECFudgeFactor;
 
   // debugging
   //  double myEta;
 
-  // The random engine
-  const RandomEngine* random;
+  bool use_hardcoded;
 
 };
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjReader.h,v 1.3 2006/10/20 12:51:18 chiochia Exp $
+// $Id: SiPixelCondObjReader.h,v 1.8 2009/05/28 22:12:55 dlange Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,7 +27,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -43,7 +43,7 @@ public:
   explicit SiPixelCondObjReader( const edm::ParameterSet& iConfig);
 
   ~SiPixelCondObjReader(){};
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
 
@@ -56,8 +56,21 @@ private:
 
   std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
   std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
-  std::string filename_;
-  TFile* fFile;
+  std::map< uint32_t, double >  _deadfrac_m;
+  std::map< uint32_t, double >  _noisyfrac_m;
+
+  TH1F *_TH1F_Dead_sum;
+  TH1F *_TH1F_Noisy_sum;
+  TH1F *_TH1F_Gains_sum;
+  TH1F *_TH1F_Pedestals_sum; 
+  TH1F *_TH1F_Dead_all; 
+  TH1F *_TH1F_Noisy_all;
+  TH1F *_TH1F_Gains_all;
+  TH1F *_TH1F_Pedestals_all;
+  TH1F *_TH1F_Gains_bpix;
+  TH1F *_TH1F_Gains_fpix;
+  TH1F *_TH1F_Pedestals_bpix;
+  TH1F *_TH1F_Pedestals_fpix;
 
 };
 }

@@ -42,6 +42,8 @@
          stop
       endif
 
+cc JVY : "local" fix - set default value to avoid compiler's complain of uninit variable
+      c = -1.d0
       if (ipom.eq.1) then ! pomeron
         if (ifit.eq.1) then ! fit a
           a0 = 1.1182d0 

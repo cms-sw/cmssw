@@ -1,5 +1,5 @@
-#ifndef Stream_DQM_Deserializer_h
-#define Stream_DQM_Deserializer_h
+#ifndef IOPool_Streamer_StreamDQMDeserializer_h
+#define IOPool_Streamer_StreamDQMDeserializer_h
 
 /**
  * StreamDQMDeserializer.h
@@ -8,8 +8,10 @@
  * DQM objects (monitor elements)
  */
 
+
+#include "TBufferFile.h"
+
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
-#include "TBuffer.h"
 #include <vector>
 
 namespace edm {
@@ -24,7 +26,7 @@ namespace edm {
 
   private:
     std::vector<unsigned char> decompressBuffer_;
-    TBuffer workTBuffer_;
+    TBufferFile workTBuffer_;
   };
 
 }

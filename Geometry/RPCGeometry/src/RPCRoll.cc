@@ -1,13 +1,13 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-#include "Geometry/RPCGeometry/interface/RPCChamber.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 
 RPCRoll::RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs) :
   GeomDetUnit(bp), _id(id),_rrs(rrs)
-{}
+{
+  setDetId(id);
+}
 
 RPCRoll::~RPCRoll()
 {
@@ -18,12 +18,6 @@ const  RPCRollSpecs*
 RPCRoll::specs() const
 {
   return _rrs;
-}
-
-DetId
-RPCRoll::geographicalId() const
-{
-  return _id;
 }
 
 RPCDetId

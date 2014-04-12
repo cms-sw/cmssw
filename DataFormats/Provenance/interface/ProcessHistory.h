@@ -1,12 +1,13 @@
 #ifndef DataFormats_Provenance_ProcessHistory_h
 #define DataFormats_Provenance_ProcessHistory_h
 
-#include <iosfwd>
-#include <string>
-#include <vector>
-
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+
+#include <iosfwd>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace edm {
   class ProcessHistory {
@@ -25,12 +26,18 @@ namespace edm {
 
     typedef collection_type::size_type size_type;
 
-    ProcessHistory() : data_(), id_() {}
-    explicit ProcessHistory(size_type n) : data_(n), id_() {}
-    explicit ProcessHistory(collection_type const& vec) : data_(vec), id_() {}
+    ProcessHistory() : data_(), transient_() {}
+    explicit ProcessHistory(size_type n) : data_(n), transient_() {}
+    explicit ProcessHistory(collection_type const& vec) : data_(vec), transient_() {}
 
-    void push_back(const_reference t) {data_.push_back(t); id_=ProcessHistoryID();}
-    void swap(ProcessHistory& other) {data_.swap(other.data_); id_.swap(other.id_);}
+#ifndef __GCCXML__
+    template<typename... Args>
+    void emplace_back(Args&&... args) {data_.emplace_back(std::forward<Args>(args)...); phid() = ProcessHistoryID();}
+#endif
+
+    void push_front(const_reference t) {data_.insert(data_.begin(), t); phid() = ProcessHistoryID();}
+    void push_back(const_reference t) {data_.push_back(t); phid() = ProcessHistoryID();}
+    void swap(ProcessHistory& other) {data_.swap(other.data_); phid().swap(other.phid());}
     bool empty() const {return data_.empty();}
     size_type size() const {return data_.size();}
     size_type capacity() const {return data_.capacity();}
@@ -56,17 +63,39 @@ namespace edm {
 
     collection_type const& data() const {return data_;}
     ProcessHistoryID id() const;
+    ProcessHistoryID setProcessHistoryID();
+
+    // Return true, and fill in config appropriately, if the a process
+    // with the given name is recorded in this ProcessHistory. Return
+    // false, and do not modify config, if process with the given name
+    // is not found.
+    bool getConfigurationForProcess(std::string const& name, ProcessConfiguration& config) const;
+
+    void clear() {
+      data_.clear();
+      phid() = ProcessHistoryID();
+    }
+
+    ProcessHistory& reduce();
+
+    void initializeTransients() {transient_.reset();}
+
+    struct Transients {
+      Transients() : phid_() {}
+      void reset() {phid_.reset();}
+      ProcessHistoryID phid_;
+    };
 
   private:
+    ProcessHistoryID& phid() {return transient_.phid_;}
     collection_type data_;
-    mutable ProcessHistoryID id_;
+    Transients transient_;
   };
 
   // Free swap function
   inline
   void
-  swap(ProcessHistory& a, ProcessHistory& b) 
-  {
+  swap(ProcessHistory& a, ProcessHistory& b) {
     a.swap(b);
   }
 
@@ -80,6 +109,15 @@ namespace edm {
   bool
   operator!=(ProcessHistory const& a, ProcessHistory const& b) {
     return !(a==b);
+  }
+
+  bool
+  isAncestor(ProcessHistory const& a, ProcessHistory const& b);
+
+  inline
+  bool
+  isDescendant(ProcessHistory const& a, ProcessHistory const& b) {
+    return isAncestor(b, a);
   }
 
   std::ostream& operator<<(std::ostream& ost, ProcessHistory const& ph);

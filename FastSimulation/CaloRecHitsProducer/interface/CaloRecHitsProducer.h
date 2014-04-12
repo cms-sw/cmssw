@@ -7,6 +7,7 @@
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 
@@ -14,8 +15,6 @@ class HcalRecHitsMaker;
 class EcalBarrelRecHitsMaker;
 class EcalEndcapRecHitsMaker;
 class EcalPreshowerRecHitsMaker;
-class RandomEngine;
-class CaloGeometryHelper;
 class ParameterSet;
 class Event;
 class EventSetup;
@@ -27,26 +26,21 @@ class CaloRecHitsProducer : public edm::EDProducer
 
   explicit CaloRecHitsProducer(edm::ParameterSet const & p);
   virtual ~CaloRecHitsProducer();
-  virtual void beginJob(const edm::EventSetup & c);
-  virtual void endJob();
-  virtual void produce(edm::Event & e, const edm::EventSetup & c);
+  virtual void beginRun(const edm::Run & run, const edm::EventSetup & es) override;
+  virtual void endJob() override;
+  virtual void produce(edm::Event & e, const edm::EventSetup & c) override;
 
  private:
   bool doDigis_;
   bool doMiscalib_;
   
-  HcalRecHitsMaker * HcalRecHitsMaker_;
+  EcalPreshowerRecHitsMaker * EcalPreshowerRecHitsMaker_;
   EcalBarrelRecHitsMaker * EcalBarrelRecHitsMaker_;
   EcalEndcapRecHitsMaker * EcalEndcapRecHitsMaker_;
-  EcalPreshowerRecHitsMaker * EcalPreshowerRecHitsMaker_;
-  std::string EBrechitCollection_;
-  std::string EErechitCollection_;
-  std::string ESrechitCollection_;
+  HcalRecHitsMaker * HcalRecHitsMaker_;
 
-   // The random engine
-  const RandomEngine* random;
-  
-  CaloGeometryHelper* myCaloGeometryHelper_ ;
+  std::vector<std::string> theOutputRecHitCollections; 
+  std::vector<unsigned int> theInputRecHitCollectionTypes;
 };
 
 #endif

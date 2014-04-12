@@ -3,8 +3,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/18 19:05:39 $
- *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -17,7 +15,7 @@
 
 using namespace std;
 
-MagBSlab::MagBSlab(vector<MagVolume*> volumes, double zMin) :
+MagBSlab::MagBSlab(const vector<MagVolume*>& volumes, double zMin) :
   theVolumes(volumes),
   theZMin(zMin)
 {}
@@ -36,7 +34,7 @@ MagVolume* MagBSlab::findVolume(const GlobalPoint & gp, double tolerance) const 
     // FIXME : use a binfinder
     // TOFIX
     if (verbose::debugOut) cout << "        Trying volume "
-			       << (static_cast<MagVolume6Faces*>(*ivol))->name << endl;
+			       << (static_cast<MagVolume6Faces*>(*ivol))->volumeNo << endl;
     if ( (*ivol)->inside(gp,tolerance) ) return (*ivol);
   }
 

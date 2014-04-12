@@ -4,8 +4,6 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2007/07/09 15:23:37 $
- * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,21 +15,20 @@
 #include "TROOT.h"
 #include "TProfile2D.h"
 #include "TH1F.h"
+#include "TH2F.h"
+#include "TH3F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
-class MonitorUserInterface;
+class MonitorElement;
+class DQMStore;
+#ifdef WITH_ECAL_COND_DB
 class EcalCondDBInterface;
+class RunIOV;
 class MonRunIOV;
+#endif
 
 class EETriggerTowerClient : public EEClient {
 
@@ -45,19 +42,11 @@ EETriggerTowerClient(const edm::ParameterSet& ps);
 /// Destructor
 virtual ~EETriggerTowerClient();
 
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
-
-/// softReset
-void softReset(void);
-
 /// Analyze
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -74,11 +63,10 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
-
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -89,40 +77,29 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
+bool debug_;
 
-bool enableMonitorDaemon_;
+std::string prefixME_;
 
-string prefixME_;
+bool enableCleanup_;
 
-vector<int> superModules_;
+std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
+DQMStore* dqmStore_;
 
-CollateMonitorElement* me_h01_[18];
-CollateMonitorElement* me_i01_[18];
-CollateMonitorElement* me_j01_[18];
+MonitorElement* mel01_[18];
+MonitorElement* mel02_[18];
+MonitorElement* meo01_[18];
 
-MonitorElement* meh01_[18];
-MonitorElement* mei01_[18];
-MonitorElement* mej01_[18];
+TH2F* l01_[18];
+TH2F* l02_[18];
+TH3F* o01_[18];
 
-TProfile2D* h01_[18];
-TH3F* i01_[18];
-TH3F* j01_[18];
-
-CollateMonitorElement* me_k01_[18][68];
-CollateMonitorElement* me_k02_[18][68];
-
-MonitorElement* mek01_[18][68];
-MonitorElement* mek02_[18][68];
-
-TH1F* k01_[18][68];
-TH1F* k02_[18][68];
+MonitorElement* me_o01_[18];
+MonitorElement* me_o02_[18];
 
 };
 

@@ -1,51 +1,41 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<ConstantsSection label="tibmodule2.xml" eval="true">
- <Constant name="zero"       value="0.0*fm"/>
-</ConstantsSection>
-
-<SolidSection label="tibemptymodule2_mtcc.xml">
- <Box name="TIBLedge2"       dx="[tibmodpar:LedgeDx]" dy="[tibmodpar:LedgeDy]"
-                             dz="[tibmodule2:LedgeDz]"/>
-</SolidSection>
-
-<LogicalPartSection label="tibemptymodule2_mtcc.xml">
- <LogicalPart name="TIBModule2" category="unspecified">
-  <rSolid name="tibmodpar:TIBModule"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="TIBLedge2" category="unspecified">
-  <rSolid name="tibemptymodule2_mtcc:TIBLedge2"/>
-  <rMaterial name="tibmaterial:TIB_ledge_bss"/>
- </LogicalPart>
-</LogicalPartSection>
-
-<PosPartSection label="tibemptymodule2_mtcc.xml">
- <PosPart copyNumber="1">
-   <rParent name="tibemptymodule2_mtcc:TIBModule2"/>
-   <rChild name="tibemptymodule2_mtcc:TIBLedge2"/>
-  <Translation x="[zero]"                  y="[tibmodule2:LedgeY]" 
-               z="[tibmodule2:LedgeZ]"  />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tibemptymodule2_mtcc:TIBModule2"/>
-   <rChild name="tibmodpar:TIBModCoolTop"/>
-  <Translation x="[tibmodpar:ModCool1X]"   y="[tibmodule2:ModCoolY]" 
-               z="-[tibmodpar:ModCool1Z]" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tibemptymodule2_mtcc:TIBModule2"/>
-   <rChild name="tibmodpar:TIBModCoolSide"/>
-  <Translation x="-[tibmodpar:ModCool2X]"  y="[tibmodule2:ModCoolY]" 
-               z="-[tibmodpar:ModCool2Z]" />
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="tibemptymodule2_mtcc:TIBModule2"/>
-   <rChild name="tibmodpar:TIBModCoolSide"/>
-  <Translation x="[tibmodpar:ModCool2X]"   y="[tibmodule2:ModCoolY]" 
-               z="-[tibmodpar:ModCool2Z]" />
- </PosPart>
-</PosPartSection>
-
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tibmodule2.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+	</ConstantsSection>
+	<SolidSection label="tibemptymodule2_mtcc.xml">
+		<Box name="TIBLedge2" dx="[tibmodpar:LedgeDx]" dy="[tibmodpar:LedgeDy]" dz="[tibmodule2:LedgeDz]"/>
+	</SolidSection>
+	<LogicalPartSection label="tibemptymodule2_mtcc.xml">
+		<LogicalPart name="TIBModule2" category="unspecified">
+			<rSolid name="tibmodpar:TIBModule"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TIBLedge2" category="unspecified">
+			<rSolid name="tibemptymodule2_mtcc:TIBLedge2"/>
+			<rMaterial name="tibmaterial:TIB_ledge_bss"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tibemptymodule2_mtcc.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tibemptymodule2_mtcc:TIBModule2"/>
+			<rChild name="tibemptymodule2_mtcc:TIBLedge2"/>
+			<Translation x="[zero]" y="[tibmodule2:LedgeY]" z="[tibmodule2:LedgeZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibemptymodule2_mtcc:TIBModule2"/>
+			<rChild name="tibmodpar:TIBModCoolTop"/>
+			<Translation x="[tibmodpar:ModCool1X]" y="[tibmodule2:ModCoolY]" z="-[tibmodpar:ModCool1Z]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibemptymodule2_mtcc:TIBModule2"/>
+			<rChild name="tibmodpar:TIBModCoolSide"/>
+			<Translation x="-[tibmodpar:ModCool2X]" y="[tibmodule2:ModCoolY]" z="-[tibmodpar:ModCool2Z]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tibemptymodule2_mtcc:TIBModule2"/>
+			<rChild name="tibmodpar:TIBModCoolSide"/>
+			<Translation x="[tibmodpar:ModCool2X]" y="[tibmodule2:ModCoolY]" z="-[tibmodpar:ModCool2Z]"/>
+		</PosPart>
+	</PosPartSection>
 </DDDefinition>

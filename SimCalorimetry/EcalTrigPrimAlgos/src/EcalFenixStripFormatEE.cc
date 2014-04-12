@@ -1,12 +1,14 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEE.h>
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+#include <CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h>
+#include <CondFormats/EcalObjects/interface/EcalTPGStripStatus.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 
 
 //-----------------------------------------------------------------------------------------
-EcalFenixStripFormatEE::EcalFenixStripFormatEE(const EcalTPParameters * ecaltpp) 
-  : ecaltpp_(ecaltpp), shift_(0)
+EcalFenixStripFormatEE::EcalFenixStripFormatEE() 
+  : shift_(0)
 {
 }
 //------------------------------------------------------------------------------------------
@@ -26,13 +28,18 @@ int EcalFenixStripFormatEE::setInput(int input, int inputPeak, int fgvb ) {
 //-----------------------------------------------------------------------------------------
   
 int EcalFenixStripFormatEE::process(){
-  if(inputPeak_==0) return 0;
-  buffer_=input_>>shift_;
+  // Bad strip - zero everything
+  if(stripStatus_ != 0) return 0;
+
+  // Peak not found - only return fgvb
+  if(inputPeak_==0) return ((fgvb_ & 0x1) << 12);
     
-  int output=buffer_;
+  int output=input_>>shift_;
+
   //barrel saturates at 12 bits, endcap at 10!
-  if(output>0X3FF) output=0X3FF; 
-  output=output|(fgvb_<<10); //FIXME
+  // Pascal: finally no,endcap has 12 bits as in EB (bug in FENIX!!!!)
+  if(output>0XFFF) output=0XFFF; 
+  output=output|((fgvb_ & 0x1) << 12); //Pascal (was 10)
 
   return output;    
 } 
@@ -52,9 +59,22 @@ void EcalFenixStripFormatEE::process(std::vector<int> &fgvbout,std::vector<int> 
 }
 //-----------------------------------------------------------------------------------------
 
-void EcalFenixStripFormatEE::setParameters(int sector, int towerInSector, int stripInTower){
-  std::vector<unsigned int> const *params;
-  params= ecaltpp_->getStripParameters(sector, towerInSector, stripInTower) ;
-  shift_ = (*params)[0] ;
+void EcalFenixStripFormatEE::setParameters(uint32_t id,const EcalTPGSlidingWindow*& slWin,const EcalTPGStripStatus *stripStatus){
+
+  const EcalTPGSlidingWindowMap &slwinmap = slWin -> getMap();
+  EcalTPGSlidingWindowMapIterator it=slwinmap.find(id);
+  if (it!=slwinmap.end()) shift_=(*it).second;
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGSlidingWindowMap entry for "<<id;
+
+  const EcalTPGStripStatusMap &statusMap = stripStatus->getMap();
+  EcalTPGStripStatusMapIterator sit = statusMap.find(id);
+  if(sit != statusMap.end())
+  {
+    stripStatus_ = (*sit).second;
+  }
+  else
+  {
+    stripStatus_ = 0; // Assume strip OK
+  }
 }
 //-----------------------------------------------------------------------------------------

@@ -37,7 +37,10 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
- class CompareHitY {
+#ifndef TrajectoryBuilder_CompareHitY
+#define TrajectoryBuilder_CompareHitY
+
+class CompareHitY {
  public:
    CompareHitY(const TrackerGeometry& tracker):_tracker(tracker){}
    bool operator()( const TrackingRecHit *rh1,
@@ -49,8 +52,9 @@
  private:
    //   edm::ESHandle<TrackerGeometry> _tracker;
    const TrackerGeometry& _tracker;
- };
- class CompareHitY_plus {
+};
+ 
+class CompareHitY_plus {
  public:
    CompareHitY_plus(const TrackerGeometry& tracker):_tracker(tracker){}
    bool operator()( const TrackingRecHit *rh1,
@@ -62,7 +66,10 @@
  private:
    //   edm::ESHandle<TrackerGeometry> _tracker;
    const TrackerGeometry& _tracker;
- };
+};
+ 
+#endif
+
 class CosmicTrajectoryBuilder 
 {
 
@@ -87,6 +94,10 @@ class CosmicTrajectoryBuilder
 
     void init(const edm::EventSetup& es,bool);
     Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+
+    const TransientTrackingRecHitBuilder * hitBuilder() const {return RHBuilder;}
+
+
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
  
@@ -103,17 +114,16 @@ class CosmicTrajectoryBuilder
 			   const TransientTrackingRecHit& hit) const;
     
     void AddHit(Trajectory &traj,
-		std::vector<const TrackingRecHit*>Hits);
+		const std::vector<const TrackingRecHit*>&Hits);
     //		edm::OwnVector<TransientTrackingRecHit> hits);
-    bool qualityFilter(Trajectory traj);
+    bool qualityFilter(const Trajectory& traj);
 
 
- 
  private:
    edm::ESHandle<MagneticField> magfield;
    edm::ESHandle<TrackerGeometry> tracker;
    edm::ParameterSet conf_;
-   TrajectoryStateTransform tsTransform;
+   
    PropagatorWithMaterial  *thePropagator;
    PropagatorWithMaterial  *thePropagatorOp;
    KFUpdator *theUpdator;

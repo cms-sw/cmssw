@@ -7,7 +7,7 @@ GetLineCovMatrix::GetLineCovMatrix(GlobalPoint pointOne, GlobalPoint pointTwo, G
   PointOne = pointOne;
   PointTwo = pointTwo;
 
-  CombinedErrorMatrix = HepMatrix(6, 6, 0);
+  CombinedErrorMatrix = CLHEP::HepMatrix(6, 6, 0);
  
   CombinedErrorMatrix[0][0] = ErrorOne.cxx();
   CombinedErrorMatrix[1][0] = ErrorOne.cyx(); 
@@ -29,7 +29,7 @@ GetLineCovMatrix::GetLineCovMatrix(GlobalPoint pointOne, GlobalPoint pointTwo, G
   CombinedErrorMatrix[4][5] = ErrorTwo.czy(); 
   CombinedErrorMatrix[5][5] = ErrorTwo.czz();
 
-  B = HepMatrix(3, 6, 0);  
+  B = CLHEP::HepMatrix(3, 6, 0);  
 }
 
 
@@ -59,7 +59,7 @@ GlobalError GetLineCovMatrix::GetMatrix(GlobalPoint PointThree)
   B[2][2] = 1-s;  
   B[2][5] = s;
 
-  HepMatrix Result = B * CombinedErrorMatrix * B.T();
+  CLHEP::HepMatrix Result = B * CombinedErrorMatrix * B.T();
   
   GlobalError TheGlobalError( Result[0][0],  Result[1][0],  Result[1][1], Result[2][0],  Result[2][1],  Result[2][2] );
   return TheGlobalError;

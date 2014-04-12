@@ -6,16 +6,15 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/OptODistancemeter.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 

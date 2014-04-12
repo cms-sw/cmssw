@@ -1,4 +1,7 @@
 #include "DQM/SiStripCommissioningClients/interface/FedTimingHistograms.h"
+#include "CondFormats/SiStripObjects/interface/FedTimingAnalysis.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include <iostream>
 #include <sstream>
@@ -8,8 +11,11 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 /** */
-FedTimingHistograms::FedTimingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::FED_TIMING ),
+FedTimingHistograms::FedTimingHistograms( const edm::ParameterSet& pset,
+                                          DQMStore* bei )
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FedTimingParameters"),
+                             bei,
+                             sistrip::FED_TIMING ),
     factory_( new Factory ),
     optimumSamplingPoint_(15.),
     minDelay_(sistrip::invalid_),
@@ -55,13 +61,15 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
 //     std::vector<TH1*> profs;
 //     Collations::const_iterator ihis = iter->second.begin(); 
 //     for ( ; ihis != iter->second.end(); ihis++ ) {
+// OBSOLETE!!!
 //       TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( ihis->first ) );
 //       if ( prof ) { profs.push_back(prof); }
 //     } 
     
 //     // Perform histo analysis
 //     FedTimingAnalysis anal( iter->first );
-//     anal.analysis( profs );
+//     FedTimingAlgorithm algo( &anal );
+//     algo.analysis( profs );
 //     data_[iter->first] = anal; 
     
 //     // Check tick height is valid

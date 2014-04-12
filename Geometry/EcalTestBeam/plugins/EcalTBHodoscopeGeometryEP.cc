@@ -12,13 +12,11 @@
 */
 //
 
-// $Id: EcalTBHodoscopeGeometryEP.cc,v 1.1 2007/03/19 15:57:10 fabiocos Exp $
 //
 //
 
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryEP.h"
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryLoaderFromDDD.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <iostream>
 //
@@ -56,9 +54,8 @@ EcalTBHodoscopeGeometryEP::~EcalTBHodoscopeGeometryEP()
 EcalTBHodoscopeGeometryEP::ReturnType
 EcalTBHodoscopeGeometryEP::produce(const IdealGeometryRecord& iRecord)
 {
-   using namespace edm::es;
 
-   edm::ESHandle<DDCompactView> cpv;
+   edm::ESTransientHandle<DDCompactView> cpv;
    iRecord.get( cpv );
    
    std::cout << "[EcalTBHodoscopeGeometryEP]::Constructing EcalTBHodoscopeGeometry" <<  std::endl;

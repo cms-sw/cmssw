@@ -3,9 +3,15 @@
 
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- #include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
-#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+
+#include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
+#include "DataFormats/FP420Digi/interface/HDigiFP420.h"
+
+//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
 #include "SimRomanPot/SimFP420/interface/ChargeDrifterFP420.h"
 #include "SimRomanPot/SimFP420/interface/CDividerFP420.h"
 #include "SimRomanPot/SimFP420/interface/ChargeDividerFP420.h"
@@ -20,14 +26,14 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
+
 
   ////////////////////////////////////////////////////////////////////
 class FP420DigiMain { 
   //       interface   interface    interface:
 public:
 
-  typedef map< int, float, less<int> > hit_map_type;
+  typedef std::map<int, float, std::less<int> > hit_map_type;
   typedef float Amplitude;
 
   typedef  DConverterFP420::DigitalMapType DigitalMapType;
@@ -39,17 +45,18 @@ public:
 
 
   // Runs the algorithm
-  //  void run(const std::vector<FP420G4Hit*> &input, DigiCollectionFP420 &output,StripGeomDetUnit *det,GlobalVector);
-  vector <HDigiFP420>  run(const std::vector<FP420G4Hit> &input, G4ThreeVector, unsigned int, int);
+  //  void run(const std::vector<PSimHit*> &input, DigiCollectionFP420 &output,StripGeomDetUnit *det,GlobalVector);
+  std::vector <HDigiFP420>  run(const std::vector<PSimHit> &input, const G4ThreeVector&, unsigned int);
+  //vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int, int);
 
  private:
   int ndigis; 
-  vector<short int> adcVec;
+  std::vector<short int> adcVec;
 
   edm::ParameterSet conf_;
   // Const Parameters needed by:
   //-- primary ionization
-  int    NumberOfSegments, verbosity; // 
+  int    NumberOfSegments, verbosity, xytype; // 
   // go from Geant energy GeV to number of electrons
 
   //-- drift
@@ -70,10 +77,13 @@ public:
   float theNoiseInElectrons;   // Noise (RMS) in units of electrons.  = 500
   float theStripThreshold;     // Strip threshold in units of noise.  = 5
   float theStripThresholdInE;  // Strip noise in electorns.  = 2500
-  bool peakMode; //  = false;
+  //  bool peakMode; //  = false;
   bool noNoise; //  = false; 
   bool addNoisyPixels;//  = true ;
-  float tofCut;             // Cut on the particle TOF   = 100 or 50
+  bool theApplyTofCut;
+
+  float elossCut;            
+  double tofCut;             
   float theThreshold;          // ADC threshold   = 2
 
   double pitchX;          // pitchX
@@ -159,7 +169,7 @@ public:
   //  int numStripsMax;    // max number of strips in the module
   float moduleThickness; // plate thickness 
 
-    FP420NumberingScheme * theFP420NumberingScheme;
+  FP420NumberingScheme * theFP420NumberingScheme;
 
   void push_digis(const DigitalMapType&,
                   const HitToDigisMapType&,
@@ -180,7 +190,7 @@ public:
   // The eloss fluctuation class from G4. Is the right place?
   LandauFP420 fluctuate; //
   GaussNoiseProducerFP420* theNoiser; //
-  std::vector<const FP420G4Hit*> ss;  // ss - pointers to hit info of FP420G4Hit
+  std::vector<const PSimHit*> ss;  // ss - pointers to hit info of PSimHit
                                                                                                   
   void fluctuateEloss(int particleId, float momentum, float eloss,
                       float length, int NumberOfSegments,
@@ -193,7 +203,7 @@ public:
 
 
 //  std::vector<HDigiFP420> digitize(StripGeomDetUnit *det);    // AZ
-                                                                                                  
+//  int rn0,pn0,sn0;                                                                                          
                                                                                                   
 };
                                                                                                   

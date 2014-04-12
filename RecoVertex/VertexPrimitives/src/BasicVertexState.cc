@@ -3,8 +3,8 @@
 
 std::vector<VertexState> 
 BasicVertexState::components() const {
-  std::vector<VertexState> result; result.reserve(1);
-  result.push_back( const_cast<BasicVertexState*>(this));
+  std::vector<VertexState> result;
+  result.emplace_back( const_cast<BasicVertexState*>(this));
   return result;
 }
 

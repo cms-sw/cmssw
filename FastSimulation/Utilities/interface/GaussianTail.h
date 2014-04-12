@@ -5,13 +5,12 @@
 // 11/09/06 
 // Gaussian tail generator. Copied from the GNU Scientific library
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class GaussianTail
 {
  public:
-  GaussianTail(const RandomEngine* engine, 
-	       double sigma=1., double threshold=2.);  
+  GaussianTail(double sigma=1., double threshold=2.);
   ~GaussianTail();
   inline void setParameters(double sigma, double threshold) 
     {
@@ -20,11 +19,9 @@ class GaussianTail
       s_=threshold_/sigma_;
       ssquare_ = s_ * s_;
     };
-  double shoot() const;
+  double shoot(RandomEngineAndDistribution const*) const;
 
  private:
-
-  const RandomEngine* random;
 
   double sigma_;
   double threshold_;

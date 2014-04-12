@@ -3,8 +3,8 @@
 
 #include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h" 
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 namespace reco {
  
@@ -13,10 +13,10 @@ class TrackProbabilityTagInfo : public JTATagInfo
   public:
 
  TrackProbabilityTagInfo(
-   std::vector<double> probability2d,
-   std::vector<double> probability3d,
-   std::vector<int> trackOrder2d,
-   std::vector<int> trackOrder3d,const JetTracksAssociationRef & jtaRef) : JTATagInfo(jtaRef),
+   const std::vector<double>& probability2d,
+   const std::vector<double>& probability3d,
+   const std::vector<int>& trackOrder2d,
+   const std::vector<int>& trackOrder3d,const JetTracksAssociationRef & jtaRef) : JTATagInfo(jtaRef),
      m_probability2d(probability2d),
      m_probability3d(probability3d),
      m_trackOrder2d(trackOrder2d),
@@ -127,10 +127,10 @@ int factorial(int n) const
   virtual TrackProbabilityTagInfo* clone() const { return new TrackProbabilityTagInfo( * this ); }
   
   private:
-   std::vector<double> m_probability2d;  //create a smarter container instead of 
-   std::vector<double> m_probability3d;  //create a smarter container instead of 
-   std::vector<int> m_trackOrder2d;       // this  pair of vectors. 
-   std::vector<int> m_trackOrder3d;       // this  pair of vectors. 
+   std::vector<double> m_probability2d;     //
+   std::vector<double> m_probability3d;     // create a smarter container instead of 
+   std::vector<int> m_trackOrder2d;         // this pair of vectors. 
+   std::vector<int> m_trackOrder3d;         //
  };
 
 //typedef edm::ExtCollection< TrackProbabilityTagInfo,JetTagCollection> TrackProbabilityExtCollection;

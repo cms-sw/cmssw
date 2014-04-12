@@ -27,15 +27,18 @@
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace edm {       
-namespace service {       
 
 
 // ----------------------------------------------------------------------
 // prerequisite classes:
 // ----------------------------------------------------------------------
 
-class edm::ErrorObj;
+class ErrorObj;
+namespace service {       
+
 class ELdestControl;
 
 
@@ -84,7 +87,7 @@ protected:
   // ---  Internal Methods -- Users should not invoke these:
   //
 protected:
-  virtual void emit( const ELstring & s, bool nl=false );
+  virtual void emitToken( const ELstring & s, bool nl=false );
 
   virtual void suppressTime();        virtual void includeTime();
   virtual void suppressModule();      virtual void includeModule();
@@ -107,10 +110,9 @@ protected:
 protected:
   // --- member data:
   //
-  std::ostream *       os;
-  bool                 osIsOwned;
-  int                  charsOnLine;
-  edm::ELextendedID    xid;
+  boost::shared_ptr<std::ostream> os;
+  int                             charsOnLine;
+  edm::ELextendedID               xid;
 
   bool wantTimestamp
   ,    wantModule

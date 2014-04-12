@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:24 EDT 2005
-// $Id: IOVSyncValue.h,v 1.5 2006/02/07 07:51:41 wmtan Exp $
 //
 
 // system include files
@@ -37,17 +36,18 @@ class IOVSyncValue
       //virtual ~IOVSyncValue();
       explicit IOVSyncValue(const EventID& iID);
       explicit IOVSyncValue(const Timestamp& iTime);
-      IOVSyncValue(const EventID& iID, const Timestamp& iID);
+      IOVSyncValue(const EventID& iID, const Timestamp& iTime);
 
       // ---------- const member functions ---------------------
       const EventID& eventID() const { return eventID_;}
+      LuminosityBlockNumber_t luminosityBlockNumber() const { return eventID_.luminosityBlock();}
       const Timestamp& time() const {return time_; }
       
       bool operator==(const IOVSyncValue& iRHS) const {
-         return doOp<std::equal_to>(iRHS);
+	 return comparable(iRHS) && doOp<std::equal_to>(iRHS);
       }
       bool operator!=(const IOVSyncValue& iRHS) const {
-         return doOp<std::not_equal_to>(iRHS);
+	return (!comparable(iRHS)) || doOp<std::not_equal_to>(iRHS);
       }
       
       bool operator<(const IOVSyncValue& iRHS) const {
@@ -63,6 +63,13 @@ class IOVSyncValue
          return doOp<std::greater_equal>(iRHS);
       }
       
+      /** returns true if comparison operations are possible. Comparisons only fail if
+	  a time only value is compared to a run/lumi/event only value.
+       */
+      bool comparable(const IOVSyncValue& iOther) const {
+	return (haveID_==iOther.haveID_) || (haveTime_==iOther.haveTime_);
+      }
+
       // ---------- static member functions --------------------
       static const IOVSyncValue& invalidIOVSyncValue();
       static const IOVSyncValue& endOfTime();
@@ -74,17 +81,30 @@ class IOVSyncValue
       //IOVSyncValue(const IOVSyncValue&); // stop default
 
       //const IOVSyncValue& operator=(const IOVSyncValue&); // stop default
+      void throwInvalidComparison() const;
       template< template <typename> class Op >
          bool doOp(const IOVSyncValue& iRHS) const {
             bool returnValue = false;
             if(haveID_ && iRHS.haveID_) {
-               Op<EventID> op;
-               returnValue = op(eventID_, iRHS.eventID_);
+               if(luminosityBlockNumber()==0 || iRHS.luminosityBlockNumber()==0 || luminosityBlockNumber()==iRHS.luminosityBlockNumber()) {
+                  Op<EventID> op;
+                  returnValue = op(eventID_, iRHS.eventID_);
+               } else {
+                  if(iRHS.eventID_.run() == eventID_.run()) {
+                     Op<LuminosityBlockNumber_t> op;
+                     returnValue = op(luminosityBlockNumber(), iRHS.luminosityBlockNumber());
+                  } else {
+                     Op<RunNumber_t> op;
+                     returnValue = op(eventID_.run(), iRHS.eventID_.run());
+                  }
+               }
+
             } else if (haveTime_ && iRHS.haveTime_) {
                Op<Timestamp> op;
                returnValue = op(time_, iRHS.time_);
             } else {
                //error
+ 	       throwInvalidComparison();
             }
             return returnValue;
          }

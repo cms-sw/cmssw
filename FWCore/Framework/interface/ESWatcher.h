@@ -16,10 +16,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 22 18:19:24 EDT 2006
-// $Id$
 //
 
 // system include files
+#include <boost/bind.hpp>
 #include <boost/function.hpp>
 
 // user include files
@@ -44,7 +44,7 @@ namespace edm {
     ESWatcher(TFunc iFunctor):callback_(iFunctor),cacheId_(0) {}
     
     template <class TObj, class TMemFunc>
-    ESWatcher(TObj& iObj, TMemFunc iFunc):
+    ESWatcher(TObj const& iObj, TMemFunc iFunc):
     callback_(boost::bind(iFunc,iObj,_1)),
     cacheId_(0)
      {}

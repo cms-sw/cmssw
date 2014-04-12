@@ -1,14 +1,19 @@
 #include "L1Trigger/GlobalCaloTrigger/test/produceTrivialCalibrationLut.h"
 
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+
 #include <math.h>
+#include <cassert>
 
 produceTrivialCalibrationLut::produceTrivialCalibrationLut() :
-  m_htScaleLSB(1.0),
-  m_threshold(5.0),
-  m_jetCalibFunc(L1GctJetEtCalibrationFunction::NUMBER_ETA_VALUES),
-  m_tauCalibFunc(L1GctJetEtCalibrationFunction::N_CENTRAL_ETA_VALUES),
+  m_htScaleLSB(0.5),
+  m_jetCalibFunc(L1GctJetFinderParams::NUMBER_ETA_VALUES),
+  m_tauCalibFunc(L1GctJetFinderParams::N_CENTRAL_ETA_VALUES),
   m_jetEtScaleInputLsb(0.5),
-  m_corrFunType(L1GctJetEtCalibrationFunction::POWER_SERIES_CORRECTION)
+  m_corrFunType(1),
+  m_jfPars(new L1GctJetFinderParams())
 {
   const double jetThresholds[64]={
 	0.,	10.,	12.,	14.,	15.,	18.,	20.,	22.,	24.,	25.,
@@ -22,6 +27,9 @@ produceTrivialCalibrationLut::produceTrivialCalibrationLut() :
   for (unsigned i=0; i<64; i++) {
     m_jetEtThresholds.push_back(jetThresholds[i]);
   }
+
+  setupJfPars();
+
 }
 
 produceTrivialCalibrationLut::~produceTrivialCalibrationLut()
@@ -30,13 +38,14 @@ produceTrivialCalibrationLut::~produceTrivialCalibrationLut()
 
 void produceTrivialCalibrationLut::setPowerSeriesCorrectionType()
 {
-  m_corrFunType = L1GctJetEtCalibrationFunction::POWER_SERIES_CORRECTION;
+  m_corrFunType = 1;
   for (unsigned i=0; i<m_jetCalibFunc.size(); i++) {
     m_jetCalibFunc.at(i).clear();
   }
   for (unsigned i=0; i<m_tauCalibFunc.size(); i++) {
     m_tauCalibFunc.at(i).clear();
   }
+  setupJfPars();
 }
 
 void produceTrivialCalibrationLut::setOrcaStyleCorrectionType()
@@ -57,7 +66,7 @@ void produceTrivialCalibrationLut::setOrcaStyleCorrectionType()
                                14.03E-5, 6.88E-5, 7.26E-5,48.90E-5,341.8E-5
                      };
   
-  m_corrFunType = L1GctJetEtCalibrationFunction::ORCA_STYLE_CORRECTION;
+  m_corrFunType = 2;
   for (unsigned i=0; i<m_jetCalibFunc.size(); i++) {
     m_jetCalibFunc.at(i).clear();
     m_jetCalibFunc.at(i).push_back(y[i]);
@@ -73,30 +82,37 @@ void produceTrivialCalibrationLut::setOrcaStyleCorrectionType()
     m_tauCalibFunc.at(i).push_back(C[i]);
   }
   setOrcaStyleParams();
+  setupJfPars();
 }
 
-void produceTrivialCalibrationLut::setOldOrcaStyleCorrectionType()
-{
-  m_corrFunType = L1GctJetEtCalibrationFunction::OLD_ORCA_STYLE_CORRECTION;
-}
-
-L1GctJetEtCalibrationLut* produceTrivialCalibrationLut::produce()
+const produceTrivialCalibrationLut::lutPtrVector produceTrivialCalibrationLut::produce() const
 {
   L1CaloEtScale* jetScale = new L1CaloEtScale(m_jetEtScaleInputLsb, m_jetEtThresholds);
-  L1GctJetEtCalibrationFunction* calibFun = new L1GctJetEtCalibrationFunction();
 
-  calibFun->setParams(m_htScaleLSB, m_threshold,
-                      m_jetCalibFunc,
-                      m_tauCalibFunc);
+  lutPtrVector lutVector;
+  lutPtr nextLut( new L1GctJetEtCalibrationLut() );
 
-  calibFun->setCorrectionFunctionType(m_corrFunType);
+  for (unsigned ieta=0; ieta<L1GctJetFinderParams::NUMBER_ETA_VALUES; ieta++) {
+    nextLut->setEtaBin(ieta);
+    nextLut->setFunction(m_jfPars);
+    nextLut->setOutputEtScale(jetScale);
+    lutVector.push_back(nextLut);
+    nextLut.reset ( new L1GctJetEtCalibrationLut() );
+  }
 
-  L1GctJetEtCalibrationLut* lut = new L1GctJetEtCalibrationLut();
-  lut->setFunction(calibFun);
-  lut->setOutputEtScale(jetScale);
+  return lutVector;
+}
 
+void produceTrivialCalibrationLut::setupJfPars() {
 
-  return lut;
+  m_jfPars->setRegionEtLsb(m_jetEtScaleInputLsb);
+
+  m_jfPars->setJetEtCalibrationParams(m_corrFunType,
+				      m_jetCalibFunc,
+				      m_tauCalibFunc);
+
+  m_jfPars->setHtSumParams(m_htScaleLSB, 0.0, 0.0);
+
 }
 
 //--------------------------------------------------------------------------
@@ -134,7 +150,7 @@ void produceTrivialCalibrationLut::setOrcaStyleParamsForBin(std::vector<double>&
 
   double y2 = 2*(x2-A)/(B + sqrt(B*B - 4*(A-x2)*C));
 
-  double y1 = m_threshold;
+  double y1 = 5.0; // This was zero suppresion threshold parameter, but such a parameter is no longer defined
   double g = (y1 - (A + y1*(B+y1*C)))/(pow((y2-y1),2));
   A = A + g*y2*y2;
   B = B - 2.0*g*y2;

@@ -1,0 +1,629 @@
+
+Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 1 ***
+	readRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 2 ***
+	readRun 2
+	beginRun 2
+    *** nextItemType: Lumi 1 ***
+	readLuminosityBlock 1
+	beginLumi 2/1
+    *** nextItemType: File 0 ***
+	endLumi 2/1
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 1 ***
+	readRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 2 ***
+	readRun 2
+	beginRun 2
+    *** nextItemType: Lumi 1 ***
+	readLuminosityBlock 1
+    *** nextItemType: File 0 ***
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndLumis
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 1 ***
+	readRun 1
+    *** nextItemType: File 0 ***
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 2 ***
+	readRun 2
+    *** nextItemType: Lumi 1 ***
+	readLuminosityBlock 1
+    *** nextItemType: File 0 ***
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 1 ***
+	readRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 2 ***
+	readRun 2
+	beginRun 2
+    *** nextItemType: Lumi 1 ***
+	readLuminosityBlock 1
+	beginLumi 2/1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	endLumi 2/1
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 1 ***
+	readRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 2 ***
+	readRun 2
+	beginRun 2
+    *** nextItemType: Lumi 1 ***
+	readLuminosityBlock 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndLumis
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 1 ***
+	readRun 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Run 2 ***
+	readRun 2
+    *** nextItemType: Lumi 1 ***
+	readLuminosityBlock 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated

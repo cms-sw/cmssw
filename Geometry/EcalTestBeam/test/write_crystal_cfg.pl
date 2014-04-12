@@ -1,5 +1,3 @@
-#! /usr/bin/perl -w
-
 # build the cff file for all the crystals corresponding to
 # their nominal maximum reference point as stored in the table                                                                                
 # F. Cossutti - 23-Aug-2006 15:19
@@ -24,18 +22,21 @@ if (! open(INPUT,"<$file") ) {
 
         ($crystal,$eta,$phi) = split(' ', $line, 3); 
 
-        my $filename = "crystal".$crystal.".cff";
+        my $filename = "crystal".$crystal."_cff.py";
 
         open(OUTFILE, ">$filename");
-        print OUTFILE "block common_beam_direction_parameters = {\n";
-        print OUTFILE "  untracked double MinEta = ".$eta,"\n";
-        print OUTFILE "  untracked double MaxEta = ".$eta,"\n";
-        print OUTFILE "  untracked double MaxPhi = ".$phi,"\n";
-        print OUTFILE "  untracked double MinPhi = ".$phi,"\n";
-        print OUTFILE "  untracked double BeamMeanX = 0.\n";
-        print OUTFILE "  untracked double BeamMeanY = 0.\n";
-        print OUTFILE "  untracked double BeamPosition = 0.\n";
-        print OUTFILE "}\n";
+        print OUTFILE "import FWCore.ParameterSet.Config as cms\n";
+        print OUTFILE "                                        \n";   
+        print OUTFILE "common_beam_direction_parameters = cms.PSet(\n";
+        print OUTFILE "    MinEta = cms.double(".$eta,"),\n";
+        print OUTFILE "    MaxEta = cms.double(".$eta,"),\n";
+        print OUTFILE "    MinPhi = cms.double(".$phi,"),\n";
+        print OUTFILE "    MaxPhi = cms.double(".$phi,"),\n";
+        print OUTFILE "    Psi    = cms.double(999.9),\n";
+        print OUTFILE "    BeamMeanX = cms.double(0.0),\n";
+        print OUTFILE "    BeamMeanY = cms.double(0.0),\n";
+        print OUTFILE "    BeamPosition = cms.double(-26733.5)\n";
+        print OUTFILE ")\n";
  
     }
     close(INPUT);

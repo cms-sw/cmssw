@@ -2,7 +2,6 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRawInfo.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -22,7 +21,7 @@ EcalTBHodoscopeRawInfoDumper::~EcalTBHodoscopeRawInfoDumper() {
 
 //========================================================================
 void
-EcalTBHodoscopeRawInfoDumper::beginJob(edm::EventSetup const&) {
+EcalTBHodoscopeRawInfoDumper::beginJob() {
 //========================================================================
 
   char histoName[100];
@@ -64,12 +63,12 @@ void EcalTBHodoscopeRawInfoDumper::analyze(const edm::Event& e, const edm::Event
   // Get input
    edm::Handle<EcalTBHodoscopeRawInfo> ecalRawHodoscope;  
    const EcalTBHodoscopeRawInfo* hodoscopeRawInfo = 0;
-   try {
-     //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-     e.getByLabel( rawInfoProducer_, ecalRawHodoscope);
-     hodoscopeRawInfo = ecalRawHodoscope.product();
-   } catch ( std::exception& ex ) {
+   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
+   e.getByLabel( rawInfoProducer_, ecalRawHodoscope);
+   if (!ecalRawHodoscope.isValid()) {
      edm::LogError("EcalTBHodoscopeRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
+   } else {
+     hodoscopeRawInfo = ecalRawHodoscope.product();
    }
 
    if (hodoscopeRawInfo)

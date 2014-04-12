@@ -6,8 +6,6 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2007/02/03 16:18:13 $
- *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -18,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 class Surface;
 class MagBLayer;
@@ -25,16 +24,26 @@ class MagESector;
 class MagVolume6Faces;
 namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer;
+  class AutoMagneticFieldESProducer;
+
+  typedef std::map<unsigned, std::pair<std::string, int> > TableFileMap;
 }
 
 
 class MagGeoBuilderFromDDD  {
 public:
-  /// Constructor
-  MagGeoBuilderFromDDD(bool debug=false);
+  /// Constructor. 
+  MagGeoBuilderFromDDD(std::string tableSet_, int geometryVersion, bool debug=false);
 
   /// Destructor
   virtual ~MagGeoBuilderFromDDD();
+
+  ///  Set scaling factors for individual volumes. 
+  /// "keys" is a vector of 100*volume number + sector (sector 0 = all sectors)
+  /// "values" are the corresponding scaling factors 
+  void setScaling(const std::vector<int>& keys, const std::vector<double>& values);
+
+  void setGridFiles(const std::auto_ptr<magneticfield::TableFileMap> gridFiles);
 
   /// Get barrel layers
   std::vector<MagBLayer*> barrelLayers() const;
@@ -42,17 +51,24 @@ public:
   /// Get endcap layers
   std::vector<MagESector*> endcapSectors() const;
 
+  float maxR() const;
+
+  float maxZ() const;  
+
 private:
   typedef ConstReferenceCountingPointer<Surface> RCPS;
 
   // Build the geometry. 
   //virtual void build();
-  virtual void build(const DDCompactView & cpv) ;
+  virtual void build(const DDCompactView & cpv);
+
 
   // FIXME: only for temporary tests and debug, to be removed
   friend class TestMagVolume;
   friend class MagGeometry;
   friend class magneticfield::VolumeBasedMagneticFieldESProducer;
+  friend class magneticfield::AutoMagneticFieldESProducer;
+
 
   std::vector<MagVolume6Faces*> barrelVolumes() const;  
   std::vector<MagVolume6Faces*> endcapVolumes() const;
@@ -106,6 +122,12 @@ private:
 
   std::vector<MagBLayer*> mBLayers; // Finally built barrel geometry
   std::vector<MagESector*> mESectors; // Finally built barrel geometry
+
+  std::string tableSet; // Version of the data files to be used
+  int geometryVersion;  // Version of MF geometry 
+
+  std::map<int, double> theScalingFactors;
+  std::auto_ptr<magneticfield::TableFileMap> theGridFiles;
 
   static bool debug;
 

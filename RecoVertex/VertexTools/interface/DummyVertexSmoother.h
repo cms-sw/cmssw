@@ -1,16 +1,16 @@
 #ifndef _DummyVertexSmoother_H_
 #define _DummyVertexSmoother_H_
 
-#include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexSmoother.h"
 
 /**
  *  A dummy vertex smoother. Input = Output.
  */
 
-class DummyVertexSmoother : public VertexSmoother {
+template <unsigned int N>
+class DummyVertexSmoother : public VertexSmoother<N> {
 public:
-  CachingVertex smooth(const CachingVertex & ) const;
+  CachingVertex<N> smooth(const CachingVertex<N> & ) const;
   DummyVertexSmoother * clone() const;
 };
 

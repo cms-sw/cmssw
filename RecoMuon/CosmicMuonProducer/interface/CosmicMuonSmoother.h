@@ -3,8 +3,6 @@
 
 /** \file CosmicMuonSmoother
  *
- *  $Date: 2007/03/02 13:19:37 $
- *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -41,7 +39,11 @@ public:
   CosmicMuonSmoother(const edm::ParameterSet&,const MuonServiceProxy* service);
   virtual ~CosmicMuonSmoother();
 
-  virtual std::vector<Trajectory> trajectories(const Trajectory&) const;
+  Trajectory trajectory(const Trajectory&) const;
+
+  virtual TrajectoryContainer trajectories(const Trajectory& traj) const {
+     return TrajectorySmoother::trajectories(traj);
+  }
 
   virtual CosmicMuonSmoother* clone() const {
     return new CosmicMuonSmoother(*this);
@@ -53,22 +55,28 @@ public:
 				             const TrajectoryStateOnSurface& firstPredTsos) const;
 
 
-  const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
+  const Propagator* propagatorAlong() const {return &*theService->propagator(thePropagatorAlongName);}
 
-  KFUpdator* updator() const {return theUpdator;}
+  const Propagator* propagatorOpposite() const {return &*theService->propagator(thePropagatorOppositeName);}
 
-  CosmicMuonUtilities* utilities() const {return theUtilities; } 
+  const KFUpdator* updator() const {return theUpdator;}
 
-  Chi2MeasurementEstimator* estimator() const {return theEstimator;}
+  const CosmicMuonUtilities* utilities() const {return theUtilities; } 
 
-private:
+  const Chi2MeasurementEstimator* estimator() const {return theEstimator;}
 
   std::vector<Trajectory> fit(const Trajectory&) const;
   std::vector<Trajectory> fit(const TrajectorySeed& seed,
                               const ConstRecHitContainer& hits,
                               const TrajectoryStateOnSurface& firstPredTsos) const;
+
+private:
   std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;
   std::vector<Trajectory> smooth(const Trajectory&) const;
+
+  TrajectoryStateOnSurface initialState(const Trajectory&) const;
+
+  void sortHitsAlongMom(ConstRecHitContainer& hits, const TrajectoryStateOnSurface&) const;
 
   KFUpdator* theUpdator;
   Chi2MeasurementEstimator* theEstimator;
@@ -76,7 +84,10 @@ private:
 
   const MuonServiceProxy* theService;
 
-  std::string thePropagatorName;
+  std::string thePropagatorAlongName;
+  std::string thePropagatorOppositeName;
+  double theErrorRescaling;
+  std::string category_;
   
 };
 #endif

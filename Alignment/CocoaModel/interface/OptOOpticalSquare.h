@@ -44,8 +44,8 @@ public:
   void calculateFaces( ALIbool isDetailed );
 
   //---------- Centre points and normal std::vector of each of the four pentaprism faces the light ray may touch
-  Hep3Vector faceP[5];
-  Hep3Vector faceV[5]; 
+  CLHEP::Hep3Vector faceP[5];
+  CLHEP::Hep3Vector faceV[5]; 
 
 
 };

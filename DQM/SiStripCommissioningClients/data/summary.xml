@@ -7,12 +7,11 @@
 <SummaryPlot monitorable="HighLightLevel" presentation="Histo1D" level="SiStrip/ReadoutView" granularity=""/>
 <SummaryPlot monitorable="LowLightLevel" presentation="Histo1D" level="SiStrip/ReadoutView" granularity=""/>
 
-<SummaryPlot monitorable="HighLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
-<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
-<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+<SummaryPlot monitorable="HighLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
 
-<SummaryPlot monitorable="HighLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
-<SummaryPlot monitorable="LowLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+<SummaryPlot monitorable="HighLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
 
 <SummaryPlot monitorable="ConnectionsPerFed" presentation="Histo2DSum" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
 
@@ -43,7 +42,7 @@
 <SummaryPlot monitorable="LinkNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="BaselineLiftOff" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="LaserThreshold" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="TickMarkHeight" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="TickHeight" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 
 <SummaryPlot monitorable="ZeroLightLevel" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuAddr"/>
 
@@ -65,14 +64,120 @@
 
 <SummaryPlot monitorable="StripPedestals" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="StripNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NoiseMin" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NoiseMax" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
 <SummaryPlot monitorable="NumOfDeadStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="NumOfNoisyStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 
 <SummaryPlot monitorable="StripPedestals" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
 <SummaryPlot monitorable="StripNoise" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
 
-<SummaryPlot monitorable="StripPedestals" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuAddr"/>
-<SummaryPlot monitorable="StripNoise" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuAddr"/>
+<SummaryPlot monitorable="StripPedestals" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="StripNoise" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+</RunType>
+
+<RunType name="PedsOnly">
+
+<SummaryPlot monitorable="StripPedestals" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="StripNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NoiseMin" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NoiseMax" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
+<SummaryPlot monitorable="StripPedestals" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="StripNoise" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+<SummaryPlot monitorable="StripPedestals" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="StripNoise" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+</RunType>
+
+<RunType name="PedsFullNoise">
+
+<SummaryPlot monitorable="StripPedestals" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="StripNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NoiseMin" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NoiseMax" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
+<SummaryPlot monitorable="NumOfDeadStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NumOfNoisyStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
+<SummaryPlot monitorable="StripPedestals" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="StripNoise" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+<SummaryPlot monitorable="StripPedestals" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="StripNoise" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+<SummaryPlot monitorable="StripNoiseKS" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
+<SummaryPlot monitorable="StripNoiseGaus" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
+<SummaryPlot monitorable="StripNoiseBin84" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
+<SummaryPlot monitorable="StripNoiseRMS" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
+<SummaryPlot monitorable="StripNoiseChi2" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
+<SummaryPlot monitorable="StripNoiseSignif" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
+<SummaryPlot monitorable="NoiseRmsSpread" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
+</RunType>
+
+<RunType name="Noise">
+
+<SummaryPlot monitorable="StripPedestals" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="StripNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NoiseMin" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NoiseMax" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
+<SummaryPlot monitorable="NumOfDeadStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NumOfNoisyStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
+<SummaryPlot monitorable="StripPedestals" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="StripNoise" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+<SummaryPlot monitorable="StripPedestals" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="StripNoise" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+</RunType>
+
+<RunType name="CalibrationPeak">
+
+<SummaryPlot monitorable="CalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTail" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTimeConstant" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationSmearing" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationChi2" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTail" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTimeConstant" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationSmearing" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationChi2" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+
+</RunType>
+
+<RunType name="CalibrationDeco">
+
+<SummaryPlot monitorable="CalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTail" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTimeConstant" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationSmearing" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationChi2" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTail" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTimeConstant" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationSmearing" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationChi2" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+
+</RunType>
+
+<RunType name="CalibrationScanPeak">
+
+<SummaryPlot monitorable="CalibrationTail" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 
 </RunType>
 

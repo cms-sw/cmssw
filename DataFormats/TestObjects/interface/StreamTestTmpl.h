@@ -1,8 +1,7 @@
-#ifndef TestObjects_StreamTestTmpl_h
-#define TestObjects_StreamTestTmpl_h
+#ifndef DataFormats_TestObjects_StreamTestTmpl_h
+#define DataFormats_TestObjects_StreamTestTmpl_h
 
 #include <vector>
-#include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/TestObjects/interface/StreamTestSimple.h"
 
 namespace edmtestprod

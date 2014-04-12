@@ -13,11 +13,11 @@
 class GeometricSearchTrackerBuilder {
  public:
 
-  GeometricSearchTrackerBuilder() {};
-  ~GeometricSearchTrackerBuilder() {}; 
+  GeometricSearchTrackerBuilder() {}
+  ~GeometricSearchTrackerBuilder() {}
   
   GeometricSearchTracker* build(const GeometricDet* theGeometricTracker,
-				const TrackerGeometry* theGeomDetGeometry);
+				const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
 };
 
 

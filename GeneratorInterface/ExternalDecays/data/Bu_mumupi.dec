@@ -1,0 +1,13 @@
+#
+# This is the decay file for the decay BU -> MU+ MU- PI
+#
+Alias      MyB+        B+
+Alias      MyB-        B-
+ChargeConj MyB-        MyB+
+#
+Decay MyB+
+1.000        pi+    mu+     mu-   PHOTOS  BTOSLLALI;
+Enddecay
+CDecay MyB-
+#
+End

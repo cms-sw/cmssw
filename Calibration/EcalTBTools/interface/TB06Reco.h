@@ -3,10 +3,6 @@
 
 /** \class TB06Reco
     compact reco dataset for ECAL TB 2006 data
-    $Date: 2006/08/01 09:45:13 $
-    $Revision: 1.1 $
-    $Id: TB06Reco.h,v 1.1 2006/08/01 09:45:13 govoni Exp $ 
-    \author $Author: govoni $
 */
 
 #include "TObject.h"

@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/05/28 10:32:24 $
- *  $Revision: 1.7 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -15,20 +13,12 @@
 #include <DetectorDescription/Core/interface/DDSolid.h>
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-
-#include <DetectorDescription/Core/interface/DDFilter.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSolid.h>
-
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-
 
 #include <string>
 
@@ -43,52 +33,38 @@ DTGeometryBuilderFromDDD::DTGeometryBuilderFromDDD() {}
 DTGeometryBuilderFromDDD::~DTGeometryBuilderFromDDD(){}
 
 
-DTGeometry* DTGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants){
+void DTGeometryBuilderFromDDD::build(boost::shared_ptr<DTGeometry> theGeometry,
+                                     const DDCompactView* cview,
+                                     const MuonDDDConstants& muonConstants){
+  //  cout << "DTGeometryBuilderFromDDD::build" << endl;
   //   static const string t0 = "DTGeometryBuilderFromDDD::build";
   //   TimeMe timer(t0,true);
 
-  try {
-    std::string attribute = "MuStructure"; 
-    std::string value     = "MuonBarrelDT";
-    DDValue val(attribute, value, 0.0);
+  std::string attribute = "MuStructure"; 
+  std::string value     = "MuonBarrelDT";
+  DDValue val(attribute, value, 0.0);
 
-    // Asking only for the Muon DTs
-    DDSpecificsFilter filter;
-    filter.setCriteria(val,  // name & value of a variable 
-		       DDSpecificsFilter::matches,
-		       DDSpecificsFilter::AND, 
-		       true, // compare strings otherwise doubles
-		       true  // use merged-specifics or simple-specifics
-		       );
-    DDFilteredView fview(*cview);
-    fview.addFilter(filter);
-
-    return buildGeometry(fview, muonConstants);
-  }
-  catch (const DDException & e ) {
-    std::cerr << "DTGeometryBuilderFromDDD::build() : DDD Exception: something went wrong during XML parsing!" << std::endl
-	      << "  Message: " << e << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    throw;
-  }
-  catch (const exception & e) {
-    std::cerr << "DTGeometryBuilderFromDDD::build() : an unexpected exception occured: " << e.what() << std::endl; 
-    throw;
-  }
-  catch (...) {
-    std::cerr << "DTGeometryBuilderFromDDD::build() : An unexpected exception occured!" << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    std::unexpected();           
-  }
+  // Asking only for the Muon DTs
+  DDSpecificsFilter filter;
+  filter.setCriteria(val,  // name & value of a variable 
+		     DDSpecificsFilter::matches,
+		     DDSpecificsFilter::AND, 
+		     true, // compare strings otherwise doubles
+		     true  // use merged-specifics or simple-specifics
+		     );
+  DDFilteredView fview(*cview);
+  fview.addFilter(filter);
+  buildGeometry(theGeometry, fview, muonConstants);
 }
 
 
-DTGeometry* DTGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv
-						    , const MuonDDDConstants& muonConstants) const {
+void DTGeometryBuilderFromDDD::buildGeometry(boost::shared_ptr<DTGeometry> theGeometry,
+                                             DDFilteredView& fv,
+                                             const MuonDDDConstants& muonConstants) const {
   // static const string t0 = "DTGeometryBuilderFromDDD::buildGeometry";
   // TimeMe timer(t0,true);
 
-  DTGeometry* theGeometry = new DTGeometry;
+  //DTGeometry* theGeometry = new DTGeometry;
 
   bool doChamber = fv.firstChild();
 
@@ -134,7 +110,6 @@ DTGeometry* DTGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv
     fv.parent();
     doChamber = fv.nextSibling(); // go to next chamber
   } // chambers
-  return theGeometry;
 }
 
 DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
@@ -156,9 +131,8 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
   // width is along local X
   // length is along local Y
   // thickness is long local Z
-  RectangularPlaneBounds bound(width, length, thickness);
 
-  RCPPlane surf(plane(fv,bound));
+  RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
 
   DTChamber* chamber = new DTChamber(detId, surf);
 
@@ -182,10 +156,8 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   float length = par[1]/cm;    // z      dimension - constant 126.8 cm
   float thickness = par[2]/cm; // radial thickness - almost constant about 20 cm
 
-  RectangularPlaneBounds bound(width, length, thickness);
-
   // Ok this is the slayer position...
-  RCPPlane surf(plane(fv,bound));
+  RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
@@ -214,10 +186,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   float length = par[1]/cm;    // z      dimension - constant 126.8 cm
   float thickness = par[2]/cm; // radial thickness - almost constant about 20 cm
 
-  // define Bounds
-  RectangularPlaneBounds bound(width, length, thickness);
-
-  RCPPlane surf(plane(fv,bound));
+  RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
 
   // Loop on wires
   bool doWire = fv.firstChild();
@@ -259,7 +228,7 @@ DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
 
 DTGeometryBuilderFromDDD::RCPPlane 
 DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
-                                const Bounds& bounds) const {
+                                Bounds * bounds) const {
   // extract the position
   const DDTranslation & trans(fv.translation());
 
@@ -293,5 +262,5 @@ DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
 // 	    << ty.X() << ", " << ty.Y() << ", " << ty.Z() << std::endl
 // 	    << tz.X() << ", " << tz.Y() << ", " << tz.Z() << std::endl;
 
-  return RCPPlane( new BoundPlane( posResult, rotResult, bounds));
+  return RCPPlane( new Plane( posResult, rotResult, bounds));
 }

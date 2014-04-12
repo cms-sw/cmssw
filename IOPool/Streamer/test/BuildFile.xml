@@ -1,0 +1,39 @@
+<environment>
+  <use   name="boost"/>
+  <use   name="FWCore/Framework"/>
+  <bin   file="RunThat_t.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test TestMultiprocess.sh"/>
+  </bin>
+  <bin   file="EventMessageTest.cpp">
+    <use   name="IOPool/Streamer"/>
+  </bin>
+  <bin   file="ReadStreamerFile.cpp">
+    <use   name="IOPool/Streamer"/>
+    <flags   TEST_RUNNER_ARGS=" bin/bash teststreamfile.dat"/>
+  </bin>
+  <bin   file="WriteStreamerFile.cpp">
+    <use   name="IOPool/Streamer"/>
+  </bin>
+  <bin   file="TestOtherMessage.cpp">
+  </bin>
+  <bin   file="WriteDQMToFile.cpp">
+    <use   name="IOPool/Streamer"/>
+  </bin>
+  <bin   file="EventBuffer_t.cpp">
+    <flags   TEST_RUNNER_ARGS=" 10 10 100 "/>
+    <use   name="IOPool/Streamer"/>
+  </bin>
+  <bin   file="Eventmsg_t.cppunit.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="RunThis_t.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunSimple_NewStreamer.sh"/>
+  </bin>
+  <library   file="StreamThingProducer.cc" name="StreamThingProducer">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="DataFormats/TestObjects"/>
+  </library>
+  <library   file="StreamThingAnalyzer.cc" name="StreamThingAnalyzer">
+    <flags   EDM_PLUGIN="1"/>
+  </library>
+</environment>

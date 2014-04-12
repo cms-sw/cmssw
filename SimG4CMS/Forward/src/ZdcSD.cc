@@ -6,48 +6,188 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
-
 #include "G4ios.hh"
-#include "G4Poisson.hh"
 #include "G4Cerenkov.hh"
-
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Random/Randomize.h"
+#include "G4ParticleTable.hh"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "Randomize.hh"
+#include "G4Poisson.hh"
 
 ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
 	     SensitiveDetectorCatalog & clg, 
 	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
+  useShowerLibrary = m_ZdcSD.getParameter<bool>("UseShowerLibrary");
+  useShowerHits    = m_ZdcSD.getParameter<bool>("UseShowerHits");
+  zdcHitEnergyCut  = m_ZdcSD.getParameter<double>("ZdcHitEnergyCut")*GeV;
   verbosity  = m_ZdcSD.getParameter<int>("Verbosity");
   int verbn  = verbosity/10;
   verbosity %= 10;
-  setNumberingScheme(new ZdcNumberingScheme(verbn));
-
+  ZdcNumberingScheme* scheme;
+  scheme = new ZdcNumberingScheme(verbn);
+  setNumberingScheme(scheme);
+  
   edm::LogInfo("ForwardSim")
     << "***************************************************\n"
     << "*                                                 *\n"
-    << "* Constructing a ZdcSD  with name " << name << "\n"
+    << "* Constructing a ZdcSD  with name " << name <<"   *\n"
     << "*                                                 *\n"
     << "***************************************************";
+
+  edm::LogInfo("ForwardSim")
+     << "\nUse of shower library is set to " 
+     << useShowerLibrary 
+     << "\nUse of Shower hits method is set to "
+     << useShowerHits; 			
+ 
+  edm::LogInfo("ForwardSim")
+     << "\nEnergy Threshold Cut set to " 
+     << zdcHitEnergyCut/GeV
+     <<" (GeV)";
+  
+  if(useShowerLibrary){
+    showerLibrary = new ZdcShowerLibrary(name, cpv, p);
+  }
 }
 
-ZdcSD::~ZdcSD() {}
+ZdcSD::~ZdcSD() {
+  
+  if(numberingScheme) delete numberingScheme;
+  if(showerLibrary)delete showerLibrary;
+
+  edm::LogInfo("ForwardSim") 
+    <<"end of ZdcSD\n";
+}
+
+void ZdcSD::initRun(){
+  if(useShowerLibrary){
+    G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
+    showerLibrary->initRun(theParticleTable); 
+  }
+  hits.clear();  
+}
+
+bool ZdcSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
+
+  NaNTrap( aStep ) ;
+
+  if (aStep == NULL) {
+    return true;
+  } else {
+    if(useShowerLibrary){
+      getFromLibrary(aStep);
+    }
+    if(useShowerHits){
+      if (getStepInfo(aStep)) {
+	if (hitExists() == false && edepositEM+edepositHAD>0.)
+	  currentHit = CaloSD::createNewHit();
+      }
+    }
+  }
+  return true;
+}
+
+void ZdcSD::getFromLibrary (G4Step* aStep) {
+  bool ok = true;
+
+  preStepPoint  = aStep->GetPreStepPoint(); 
+  theTrack      = aStep->GetTrack();   
+
+  double etrack    = preStepPoint->GetKineticEnergy();
+  int primaryID = setTrackID(aStep);  
+
+  hits.clear();
+
+  /*
+    if (etrack >= zdcHitEnergyCut) {
+    primaryID    = theTrack->GetTrackID();
+    } else {
+    primaryID    = theTrack->GetParentID();
+    if (primaryID == 0) primaryID = theTrack->GetTrackID();
+    }
+  */
+    
+  // Reset entry point for new primary
+  posGlobal = preStepPoint->GetPosition();
+  resetForNewPrimary(posGlobal, etrack);
+
+  if (etrack >= zdcHitEnergyCut){
+    // create hits only if above threshold
+
+    LogDebug("ForwardSim")
+      //std::cout
+      <<"----------------New track------------------------------\n"
+      <<"Incident EnergyTrack: "<<etrack<< " MeV \n"
+      <<"Zdc Cut Energy for Hits: "<<zdcHitEnergyCut<<" MeV \n"
+      << "ZdcSD::getFromLibrary " <<hits.size() <<" hits for "
+      << GetName() << " of " << primaryID << " with " 
+      << theTrack->GetDefinition()->GetParticleName() << " of " 
+      << preStepPoint->GetKineticEnergy()<< " MeV\n"; 
+    
+    hits.swap(showerLibrary->getHits(aStep, ok));    
+  }
+ 
+  entrancePoint = preStepPoint->GetPosition();
+  for (unsigned int i=0; i<hits.size(); i++) {
+    posGlobal           = hits[i].position;
+    entranceLocal       = hits[i].entryLocal;
+    double time         = hits[i].time;
+    unsigned int unitID = hits[i].detID;
+    edepositHAD         = hits[i].DeHad;
+    edepositEM          = hits[i].DeEM;
+    currentID.setID(unitID, time, primaryID);
+      
+    // check if it is in the same unit and timeslice as the previous on    
+    if (currentID == previousID) {
+      updateHit(currentHit);	
+    } else {
+      currentHit = createNewHit();
+    }
+      
+    //  currentHit->setPosition(hitPoint.x(),hitPoint.y(),hitPoint.z());
+    //  currentHit->setEM(eEM);
+    //   currentHit->setHadr(eHAD);
+    currentHit->setIncidentEnergy(etrack);
+    //  currentHit->setEntryLocal(hitEntry.x(),hitEntry.y(),hitEntry.z());
+      
+    LogDebug("ForwardSim") << "ZdcSD: Final Hit number:"<<i<<"-->"
+			   <<"New HitID: "<<currentHit->getUnitID()
+			   <<" New Hit trackID: "<<currentHit->getTrackID()
+			   <<" New EM Energy: "<<currentHit->getEM()/GeV
+			   <<" New HAD Energy: "<<currentHit->getHadr()/GeV
+			   <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
+			   <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()/GeV
+			   <<" New HitPosition: "<<posGlobal;
+  }
+  
+  //Now kill the current track
+  if (ok) {
+    theTrack->SetTrackStatus(fStopAndKill);
+    G4TrackVector tv = *(aStep->GetSecondary());
+    for (unsigned int kk=0; kk<tv.size(); kk++) {
+      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume())
+	tv[kk]->SetTrackStatus(fStopAndKill);
+    }
+  }
+}
 
 double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 
   float NCherPhot = 0.;
+  //std::cout<<"I go through here"<<std::endl;
 
   if (aStep == NULL) {
     LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit: aStep is NULL!";
     return 0;
-  }
-  else {
+  } else {
     // preStepPoint information
     G4SteppingControl  stepControlFlag = aStep->GetControlFlag();
     G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
@@ -101,9 +241,7 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
       << primaryID;
 
     float bThreshold = 0.67;
-    int status = 0;
     if ((beta > bThreshold) && (charge != 0) && (nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber")) {
-      status = 1;
       LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit:  pass "; 
 
       float nMedium = 1.4925;
@@ -168,18 +306,15 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
       // if (d > (r+a))
       if (DelFibPart > (thFullReflRad + thcher) ) {
         variant = 0.; d_qz = 0.;
-      }
-      else {
+      } else {
         // if ((DelFibPart + thcher) < thFullReflRad )  [(d+r) < a]
 	if ((th + thcher) < (thFibDirRad+thFullReflRad) && (th - thcher) > (thFibDirRad-thFullReflRad) ) {
 	  variant = 1.; d_qz = 1.;
-	}
-	else {
+	} else {
           // if ((thcher - DelFibPart ) > thFullReflRad )  [(r-d) > a]
 	  if ((thFibDirRad + thFullReflRad) < (th + thcher) && (thFibDirRad - thFullReflRad) > (th - thcher) ) {
             variant = 2.; d_qz = 0.;
-	  }
-          else {
+	  } else {
             // if ((thcher + DelFibPart ) > thFullReflRad && thcher < (DelFibPart+thFullReflRad) ) {  [(r+d) > a && (r-d) < a)]
             variant = 3.; // d_qz is calculated below
 
@@ -201,6 +336,7 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
       }
 
       //  std::cout<< std::endl;
+
       double meanNCherPhot = 0.;
       G4int poissNCherPhot = 0;
       if (d_qz > 0) {
@@ -208,8 +344,6 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 
 	// dLamdX:  meanNCherPhot = (2.*pi/137.)*charge*charge* 
 	//                          ( 1. - 1./(nMedium*nMedium*beta*beta) ) * photEnSpectrDL * stepL;
-
-	// Poisson:  long poissNCherPhot = RandPoisson::shoot(meanNCherPhot);
 	poissNCherPhot = (G4int) G4Poisson(meanNCherPhot);
 
 	if (poissNCherPhot < 0) poissNCherPhot = 0; 
@@ -257,10 +391,8 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
       // << "," << rad
       // << "," << mat
 
-    }
-    else {
+    } else {
       // determine failure mode: beta, charge, and/or nameVolume
-      status = 0;
       if (beta <= bThreshold)
         LogDebug("ForwardSim") 
 	  << "ZdcSD::  getEnergyDeposit: fail beta=" << beta;
@@ -271,7 +403,6 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
         LogDebug("ForwardSim") 
 	  << "ZdcSD::  getEnergyDeposit: fail nv=" << nameVolume;
     }
-
 
     return NCherPhot;
   } 
@@ -293,5 +424,19 @@ void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
   }
 }
 
-
-
+int ZdcSD::setTrackID (G4Step* aStep) {
+  theTrack     = aStep->GetTrack();
+  double etrack = preStepPoint->GetKineticEnergy();
+  TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
+  int primaryID = trkInfo->getIDonCaloSurface();
+  if (primaryID == 0) {
+#ifdef DebugLog
+    LogDebug("ZdcSD") << "ZdcSD: Problem with primaryID **** set by force "
+			<< "to TkID **** " << theTrack->GetTrackID();
+#endif
+    primaryID = theTrack->GetTrackID();
+    }
+  if (primaryID != previousID.trackID())
+      resetForNewPrimary(preStepPoint->GetPosition(), etrack); 
+  return primaryID;
+}

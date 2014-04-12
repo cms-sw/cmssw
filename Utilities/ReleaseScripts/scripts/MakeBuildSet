@@ -1,0 +1,338 @@
+#! /usr/bin/env python
+#pylint: disable-msg=W0403
+"""
+MakeBuildSet - utilizes dependency discovery mechanism for Partial Releases.
+
+1 July 2008   - with -n option (test mode) does not reuse or save cached data
+              - products dependencies are now taken into consideration
+"""
+
+__revision__ = "$Id: MakeBuildSet,v 1.8 2009/07/02 16:39:24 muzaffar Exp $"
+__version__  = "$Revision: 1.8 $"
+
+import os
+import sys
+import getopt
+import re
+
+__version__ = __version__.replace("$","").replace("Revision: ","")
+programPath = os.path.dirname( os.path.realpath(sys.argv[0] ) ) 
+programName = os.path.basename( sys.argv[0] )
+
+packageListInFile     = ""
+dependencyAnalysisDir = ""
+outputFormats         = ["packages", "lcg", "tools"]
+outputFormat          = "packages"
+dependencyTypes       = ["binary", "source", "combined"]
+dependencyType        = "binary"
+dropPluginDeps        = 0
+dropAllPluginDeps     = 0
+dropTests             = 1
+
+##############################################################
+# Internal utility functions:
+
+def usage():
+    """
+    Prints out usage help
+    """
+    # Require minimum arguments and use options only to
+    # override the defaults
+    print """
+USAGE:
+    """ + programName + """ -d <dir> [OPTIONS] [<package>]+
+OPTIONS:
+   -d <dir>     - Required: get dependency information from directory <dir>,
+		  There should be at least dependencies.txt and products.txt
+		  files exist under this directory
+   -f <file>    - Optional: read list of packages from <file>.
+   -o <format>  - Optional: <format> = [ """ + " | ".join(outputFormats) + """ | all ]
+		  Default value is '""" + outputFormats[0] + """'.
+   -D <dependency>
+                - Optional: <dependency> = [ """ + " | ".join(dependencyTypes) + """ ]
+		  Default value is '""" + dependencyTypes[0] + """'
+   -p           - Optional: drop products generated from plugins directories
+   -P           - Optional: drop all plugins even generated from
+                  <subsystem>/<package>/[src|bin|test] directories
+   -T           - Optional: do not drop products generated from test directories.
+                  NOTE: if -P is used then plugins generated from test area
+		  will be excluded
+   -h           - Optional: print this help and exit.
+   -v           - Optional: display version number.
+"""
+
+def usageError ( message, programName) :
+    """
+    usageError:
+      Call it to quit in case of usage error
+    """
+    print "Usage error: ", message, \
+          "\nTry \'" + programName + " -h\' for help"
+    sys.exit ( 2 )
+
+    
+##############################################################
+# Interface functions:
+def readPackageFromFile(pkfile):
+    cache = {}
+    f = open(pkfile)
+    blankLine = re.compile('^\s*(#.*|)$')
+    for line in f.readlines():
+        line = line.strip()
+	if blankLine.match(line):
+	    continue
+	else:
+	    cache[line]=1
+    f.close()
+    return cache
+	
+def readProductsInfo(productFile):
+    cache = {}
+    prods=open(productFile)
+    comment= re.compile("^\s*(#.*|)$")
+    parts  = re.compile("^([^:]+):([^:]+):([^:]+):([^:]+)$")
+    for line in prods.readlines():
+        line = line.strip()
+	if comment.match(line):
+	    continue
+	result = parts.match(line)
+	if result:
+	    prodFrom = result.group(1)
+	    typeName = result.group(2)
+	    dirPath  = result.group(3)
+	    prodName = result.group(4)
+	    cache[prodName]={}
+	    cache[prodName]["FROM"] = prodFrom
+	    cache[prodName]["TYPE"] = typeName
+	    cache[prodName]["PATH"] = dirPath
+    prods.close()
+    return cache
+
+def excludeProducts(lookup,match,cache,maps):
+    for p in cache.keys():
+        if cache[p][lookup] == match:
+	    maps[p]=1
+	    
+def addDependencies(packages, dependencies):
+    cache              = {}
+    for t in outputFormats:
+        cache[t] = {}
+    for p in packages.keys():
+        addDependency(p,"packages",dependencies,cache)
+    return cache
+
+def addDependency(p,scope,dependencies,cache):
+    if cache[scope].has_key(p):
+        return
+    cache[scope][p]=1
+    if dependencies[scope].has_key(p):
+	for d in dependencies[scope][p].keys():
+	    if dependencies["tools"].has_key(d):
+	        cache["tools"][d]=1
+		continue
+	    xscope = "lcg"
+	    if not dependencies[xscope].has_key(d):
+		xscope = "packages"
+	    addDependency(d,xscope,dependencies,cache)
+	    
+def readIgnominyDependencyDB(igFile,droppedProducts,packages):
+    dependencies = {}
+    for t in outputFormats:
+        dependencies[t] = {}
+    inBlock    = 0
+    inPackage  = 0
+    skipProduct = 0
+    pname          = re.compile("^(.*?)_(.*)")
+    beginBlock     = re.compile("^# Direct\s+" + dependencyType + "\s+dependencies")
+    endBlock       = re.compile('^############################*')
+    packageEntry   = re.compile('^(\S+)(\s+.+|):')
+    requiresEntry  = re.compile('^\s+(\S+)\s*$')
+    tools          = re.compile('^(tools|System)/(.+)\s*$',re.IGNORECASE)
+    lcgProject     = re.compile('^((CORAL|SEAL|POOL)/([^/]+))(/src|)',re.IGNORECASE)
+    extraEntry     = re.compile('^(.+)/(plugins|test|bin)\s*')
+    f = open(igFile)
+    for line in f.readlines():
+        if inBlock:
+            if endBlock.match(line):
+                inBlock = 0
+		return dependencies
+            else:
+                if inPackage:
+                    result=requiresEntry.match(line)
+                    if result:
+		        if not skipProduct:
+		            requires=result.group(0).strip()
+			    if pname.match(requires):
+			        continue
+			    if dependencyType != "binary" and extraEntry.match(requires):
+			        continue
+			    lcg = ""
+			    res = lcgProject.match (requires)
+			    if res:
+			        lcg = res.group(2).lower()
+				requires = res.group(1)
+				dependencies["tools"][lcg]=1
+			    else:
+			        res = tools.match (requires)
+			        if res:
+			            requires = res.group(2).lower()
+			            dependencies["tools"][requires]=1
+		            if dependencies["packages"].has_key(currentPackage):
+			        dependencies["packages"][currentPackage][requires]=1
+				if lcg:
+				    dependencies["packages"][currentPackage][lcg]=1
+			    else:
+			        dependencies["lcg"][currentPackage][requires]=1
+                    else:
+                        inPackage=0
+                else:
+                    result = packageEntry.match(line)
+                    if result:
+		        inPackage = 1
+		        skipProduct = 0
+		        currentPackage = result.group(1)
+			if currentPackage == "(UNKNOWN)":
+		            skipProduct = 1
+			    continue
+			res = lcgProject.match(currentPackage)
+		        if res:
+			    dependencies["tools"][res.group(2).lower()]=1
+			    currentPackage = res.group(1)
+			    if not dependencies["lcg"].has_key(currentPackage):
+			        dependencies["lcg"][currentPackage]={}
+			    continue
+		        res = tools.match (currentPackage)
+		        if res:
+		            currentPackage = res.group(2).lower()
+			    dependencies["tools"][currentPackage]=1
+			    skipProduct = 1
+			    continue
+			prodname=currentPackage.replace("/","")
+		        pkg = 1
+			res = pname.match(currentPackage)
+		        if res:
+		            pkg = 0
+			    currentPackage = res.group(1)
+			    prodname = res.group(2)       
+			elif dependencyType != "binary":
+			    res = extraEntry.match(currentPackage)
+			    if res:
+				if res.group(2) == "test" and dropTests:
+				    skipProduct = 1
+				    continue
+			        elif res.group(2) == "plugins" and dropPluginDeps:
+				    skipProduct = 1
+				    continue
+				else:
+				    pkg = 0
+				    currentPackage = res.group(1)
+				    prodname = currentPackage.replace("/","")
+			if not pkg or not packages.has_key(currentPackage):
+			    if droppedProducts.has_key(prodname):
+			        skipProduct = 1
+			        continue
+		        if not dependencies["packages"].has_key(currentPackage):
+			    dependencies["packages"][currentPackage]={}
+        else:
+            if beginBlock.match(line):
+                inBlock = 1
+    f.close()
+    return dependencies
+        
+###############################################################
+# Here real action starts:
+
+# Handle options and arguments:
+try:
+    opts, args = getopt.getopt( sys.argv[1:], "hpPTvf:D:d:o:" )
+
+except getopt.error:
+    usageError( sys.exc_info()[1], programName)
+
+# process verbosity options separately before anything else. 
+
+for o, a in opts:
+    if o == "-v":
+        print __version__
+        sys.exit()
+    if o == "-h":
+        usage()
+        sys.exit()
+    if o == "-f":
+        packageListInFile = a
+        if not os.path.isfile(a):
+            usageError( "file '" + a + "' does not exist!", programName)
+    if o == "-o":
+        outputFormat = a
+        if a != "all" and not a in outputFormats:
+            usageError( "unknown output format: '" + a + "'.", programName)        
+    if o == "-D":
+        dependencyType = a
+        if not a in dependencyTypes:
+            usageError( "unknown ignominy generated dependency type: '" + a + "'.", programName)        
+    if o == "-d":
+        if not os.path.isdir(a):
+	    usageError( "directory '" + a + "' does not exist!", programName)
+        dependencyAnalysisDir = a
+    if o == "-p":
+        dropPluginDeps = 1
+    if o == "-P":
+        dropAllPluginDeps = 1
+	dropPluginDeps = 1
+    if o == "-T":
+        dropTests = 0
+
+if dependencyAnalysisDir == "":
+     usageError( "missing ignominy analysis directory which should contain at least products.txt and dependencies.txt files.", programName)
+
+# Add packages from file: 
+packages = {}
+if (packageListInFile):
+    packages = readPackageFromFile(packageListInFile)
+# Add extra packages passed via command-line
+for p in args[0:]:
+    packages[p]=1
+    
+if not len(packages.keys()):
+    print """
+ERROR: You should use either '-f <file>' command-line option
+       to provide the list of packages to look for OR provide
+       a <space> separated list of package at the end of command-line
+"""
+    sys.exit(2)
+
+# Read Product information dumped by ignominy in products.txt file
+productCache = readProductsInfo(os.path.join(dependencyAnalysisDir, "products.txt"))
+
+# Exclude test and plugins products if requested via command-line
+droppedProducts={}
+if dropTests:
+    excludeProducts("FROM","TEST",productCache,droppedProducts)
+if dropAllPluginDeps:
+    excludeProducts("FROM","PLUGINS",productCache,droppedProducts)
+    excludeProducts("TYPE","PLUGINS",productCache,droppedProducts)
+elif dropPluginDeps:
+    excludeProducts("FROM","PLUGINS",productCache,droppedProducts)
+
+# Get dependency info:
+dependencies = readIgnominyDependencyDB(os.path.join(dependencyAnalysisDir,"dependencies.txt"),droppedProducts,packages)
+
+# Cleanup, this information is not needed after this
+droppedProducts={}
+
+myPackages = addDependencies(packages, dependencies)
+
+# Cleanup, no more needed dependencies information
+dependencies = {}
+
+# Print output and finish:
+pitems = []
+if outputFormat != "all":
+    outputFormats = [outputFormat]
+for item in outputFormats:
+    pkg = myPackages[item].keys()
+    pkg.sort()
+    for p in pkg:
+        print p
+
+sys.exit()

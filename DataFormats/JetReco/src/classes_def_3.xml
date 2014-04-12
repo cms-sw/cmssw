@@ -1,0 +1,117 @@
+<lcgdict>
+  <class name="reco::TrackJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="3049495721"/>
+  </class>
+  <class name="std::vector<reco::TrackJet>"/>
+  <class name="edm::RefVector<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
+  <class name="edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::TrackJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::TrackJet> >"/>
+  <class name="edm::Wrapper<reco::TrackJetRefVector>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::TrackJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
+  <class name="reco::TrackJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::TrackJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::TrackJet>"/>
+  <class name="reco::TrackJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::TrackJetFwdPtrVector>"/>
+
+  <class name="reco::PFClusterJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="3410834730"/>
+  </class>
+  <class name="std::vector<reco::PFClusterJet>"/>
+  <class name="edm::RefVector<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
+  <class name="edm::Ref<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFClusterJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::PFClusterJet> >"/>
+  <class name="edm::Wrapper<reco::PFClusterJetRefVector>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::PFClusterJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
+  <class name="reco::PFClusterJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::PFClusterJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::PFClusterJet>"/>
+  <class name="reco::PFClusterJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::PFClusterJetFwdPtrVector>"/>
+
+  <class name="StoredPileupJetIdentifier"/>
+  <class name="std::vector<StoredPileupJetIdentifier>"/>
+  <class name="edm::ValueMap<StoredPileupJetIdentifier>"/>
+  <class name="edm::Wrapper<edm::ValueMap<StoredPileupJetIdentifier> >"/>
+  
+  <class pattern="edm::AssociationVector<*>">
+    <field name="transientVector_" transient="true"/>
+  </class>
+
+  <class name="edm::Wrapper<reco::JetFloatAssociation::Container>" />
+  <!--commented out because the typedef resolves to simply std::vector<float>-->
+  <!--class name="reco::JetFloatAssociation::Values"/-->
+  <class name="reco::JetFloatAssociation::value_type"/>
+  <class name="reco::JetFloatAssociation::transient_vector_type"/>
+  <class name="reco::JetFloatAssociation::Ref"/>
+  <class name="reco::JetFloatAssociation::RefProd"/>
+  <class name="reco::JetFloatAssociation::RefVector"/>
+  <function name="reco::JetFloatAssociation::setValue"/>
+  <function name="reco::JetFloatAssociation::getValue"/>
+  <function name="reco::JetFloatAssociation::allJets"/>
+  <function name="reco::JetFloatAssociation::hasJet"/>
+
+  <class name="edm::Wrapper<reco::JetTracksAssociation::Container>" />
+  <!--commented out because the dictionary is in DataFormats/TrackReco-->
+  <!--<class name="reco::JetTracksAssociation::Values"/-->
+  <class name="reco::JetTracksAssociation::value_type"/>
+  <class name="reco::JetTracksAssociation::transient_vector_type"/>
+  <class name="reco::JetTracksAssociation::Ref"/>
+  <class name="reco::JetTracksAssociation::RefProd"/>
+  <class name="reco::JetTracksAssociation::RefVector"/>
+  <function name="reco::JetTracksAssociation::tracksNumber"/>
+  <function name="reco::JetTracksAssociation::tracksP4"/>
+  <function name="reco::JetTracksAssociation::setValue"/>
+  <function name="reco::JetTracksAssociation::getValue"/>
+  <function name="reco::JetTracksAssociation::allJets"/>
+  <function name="reco::JetTracksAssociation::hasJet"/>
+
+  <class name="edm::Wrapper<reco::JetExtendedAssociation::Container>" />
+  <class name="reco::JetExtendedAssociation::JetExtendedData" ClassVersion="10">
+   <version ClassVersion="10" checksum="2863467760"/>
+  </class>
+  <class name="reco::JetExtendedAssociation::Values"/>
+  <class name="reco::JetExtendedAssociation::value_type"/>
+  <class name="reco::JetExtendedAssociation::transient_vector_type"/>
+  <class name="reco::JetExtendedAssociation::Ref"/>
+  <class name="reco::JetExtendedAssociation::RefProd"/>
+  <class name="reco::JetExtendedAssociation::RefVector"/>
+  <function name="reco::JetExtendedAssociation::tracksAtVertexNumber"/>
+  <function name="reco::JetExtendedAssociation::tracksAtVertexP4"/>
+  <function name="reco::JetExtendedAssociation::tracksAtCaloNumber"/>
+  <function name="reco::JetExtendedAssociation::tracksAtCaloP4"/>
+  <function name="reco::JetExtendedAssociation::setValue"/>
+  <function name="reco::JetExtendedAssociation::getValue"/>
+  <function name="reco::JetExtendedAssociation::allJets"/>
+  <function name="reco::JetExtendedAssociation::hasJet"/>
+  
+  <class name="edm::RefToBaseProd<reco::Jet>" >
+     <!-- <field name="view_" transient="true" /> -->
+  </class>
+  <class name="edm::RefToBase<reco::Jet>" />
+  <class name="edm::reftobase::BaseHolder<reco::Jet>" />
+  <class name="edm::reftobase::IndirectHolder<reco::Jet>" />
+  <class name="edm::reftobase::IndirectVectorHolder<reco::Jet>" />
+  <class name="edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> > "/>
+  <class name="edm::RefToBaseVector<reco::Jet>"/>
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::Jet> >"/>
+  <class name="edm::reftobase::BaseVectorHolder<reco::Jet>"/>
+  <class name="edm::reftobase::Holder<reco::Jet, reco::CaloJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::CaloJetRef>" />
+  <class name="edm::reftobase::Holder<reco::Jet, reco::GenJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::GenJetRef>" />
+  <class name="edm::reftobase::Holder<reco::Jet, reco::PFJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PFJetRef>" />
+  <class name="edm::reftobase::Holder<reco::Jet, reco::TrackJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::TrackJetRef>" />
+  <class name="edm::reftobase::Holder<reco::Jet, reco::PFClusterJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PFClusterJetRef>" />
+  <class name="edm::reftobase::Holder<reco::Jet, reco::JPTJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::JPTJetRef>" />
+</lcgdict>

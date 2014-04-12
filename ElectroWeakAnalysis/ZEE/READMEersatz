@@ -1,0 +1,203 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% README for Ersatz MET code     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+-------------------------------------------------------------------------------------------------
+Contents
+-------------------------------------------------------------------------------------------------
+
+Introduction
+What the Ersatz MET code does
+Structure of the Ersatz MET code
+How to run the Ersatz MET code
+Contact
+
+-------------------------------------------------------------------------------------------------
+Introduction
+-------------------------------------------------------------------------------------------------
+
+Ersatz MET is a data-driven method for background subtraction in the W cross-section measurement. 
+The code is designed to estimate the missing transverse energy (MET) distribution for Wenu events 
+in data.
+
+
+-------------------------------------------------------------------------------------------------
+What the Ersatz MET code does
+-------------------------------------------------------------------------------------------------
+
+The idea is to use Zee events from data to estimate the missing transverse energy (MET) 
+distribution in data from Wenu events. The MET distribution of Wenu events is modelled using the 
+ET distribution of the second electron in Zee after requiring that the first passes the W 
+electron selection. The code does the following. 
+
+1. Find electrons (tags) which pass the W electron selection in Zee event.
+2. Find another electron (probe) which, when combined with the first, gives an invariant mass 
+   around the Z mass (71 < mee < 111 GeV).
+3. Add the ersatz neutrino MET to the MET in the event to get the MET expected in a Wenu event. 
+
+Particularly in early data, the measurement of missing energy is marred by poorly understood 
+detector effects. By using Zee events from data, unknown detector effects are taken into account.
+
+Various corrections are applied to get the Ersatz MET distribution.
+
+Mass Correction: due to the difference in mass between the W and Z bosons. This is applied by 
+boosting into the Z rest frame, multiplying by mW/mZ and boosting back into the Lab frame.
+
+Supercluster Energy Corrections: due to energy loss and radiation in the tracker. This includes 
+standard supercluster corrections such as f(eta), f(brem) and f(Et,eta). 
+
+Acceptance Correction: In Zee events both electrons are required to be within |eta| < 2.5, while 
+the neutrino in a Wenu event is unconstrained. This correction is applied using a Wenu Monte 
+Carlo. The correction is done separately for each MET bin. The correction is: 
+Ersatz MET corrected = Ersatz MET x (1 + MC W MET out / MC W MET in).
+
+Once these corrections have been applied we have the Ersatz MET distribution. f and fprime are 
+the quantities needed for the W cross section measurement; they are the ratio of the number of 
+events passing the cuts to the number failing in the cases where the electron passes/fails the 
+track isolation cut. These are extracted from the Ersatz MET distribution.
+
+
+-------------------------------------------------------------------------------------------------
+Structure of the Ersatz MET code
+-------------------------------------------------------------------------------------------------
+
+The Ersatz MET code is in three parts:
+
+1. Ersatz MET code: Takes Zee data and gives Ersatz MET distribution and lots of other variables 
+relating to electron, ersatz neutrino, Monte Carlo particles etc. in a ROOT ntuple.  The W 
+electron selection is loosened off at this stage with the intention to apply it later so that the 
+analysis does not have to be rerun to change the selection. The mass correction and the 
+supercluster energy corrections are all applied.
+
+2. AnalysisErsatz code: Takes W Monte Carlo, applies W selection (which is again loose) and 
+outputs various variables including calo MET to a ROOT ntuple. This is only needed for the 
+acceptance correction.
+
+3. f extraction code: This is a ROOT macro. It takes the ROOT ntuples of the previous two stages, 
+applies the W electron selection and some probe selection correcting for probe selection 
+efficiency, applies acceptance correction and calculates f, fprime and errors. 
+
+Source Files:
+src/
+AnalysisErsatz.cc ErsatzMEt.cc
+
+Interface Files:
+interface/
+AnalysisErsatz.h CaloVectors.h ElectronSelector.h ErsatzMEt.h SCEnergyCorrections.h 
+UniqueElectrons.h
+
+Python Configuration Files:
+test/
+analysisersatz_cfg.py ersatzmet_cfg.py ersatzmet_cfi.py Zersatzmet_cfg.py
+
+ROOT macros:
+macros/
+EtaWeights.txt PerformAnalysis.cpp StabilityPlots.cpp
+
+
+-------------------------------------------------------------------------------------------------
+How to run the Ersatz MET code
+-------------------------------------------------------------------------------------------------
+
+I'll assume you are using lxplus.
+
+Create a CMSSW_3_1_4 project area:
+
+> cmsrel CMSSW_3_1_4
+
+Set CMS environment:
+
+> cd CMSSW_3_1_4/src
+> cmsenv
+
+Checkout the Ersatz MET code from CVS:
+
+> cvs co ElectroWeakAnalysis/ZEE
+
+Enter the analysis module:
+
+> cd ElectroWeakAnalysis/ZEE
+
+Create a python directory and put the parameter file ersatzmet_cfi.py in it so that it is seen in 
+the python path.
+
+> mkdir python
+> cp test/ersatzmet_cfi.py python/
+
+Build:
+
+> scramv1 b -j3
+
+Run locally:
+
+Set the data location in the config file Zersatzmet_cfg.py.
+
+> cd ElectroWeakAnalysis/ZEE/test
+> cmsRun Zersatzmet_cfg.py
+
+or Run on the GRID using CRAB:
+
+Set up GRID:
+> source /afs/cern.ch/project/gd/LCG-share/current/etc/profile.d/grid_env.sh
+Set up CMS environment:
+> cmsenv
+Set up CRAB:
+> source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
+
+You can write a script to do the 3 setup tasks above so you don't have to type them in every time.
+
+> cd ElectroWeakAnalysis/ZEE
+
+Create a CRAB config file (crab.cfg). Zersatzmet_cfg.py in test/ folder is the config file to run 
+if you are using Monte Carlo Zee events, otherwise run ersatzmet_cfg.py.
+
+Create and submit CRAB jobs to the GRID:
+
+> crab -create -submit
+
+Also run the ErsatzAnalysis code in a similar way on W Monte Carlo data using the 
+analysisersatz_cfg.py config file. You will need to uncomment AnalysisErsatz.cc and comment out 
+ErsatzMEt.cc (or move it elsewhere) and rebuild.
+
+Once you have successfully run the code copy the output ROOT files to a /tmp/[username] directory. 
+You will need to hadd the root files first if there is more than one.
+
+Setup ROOT environment:
+> export ROOTSYS=/afs/cern.ch/sw/lcg/external/root/5.21.02/slc4_ia32_gcc34/root
+> export PATH=$PATH:$ROOTSYS/bin
+> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib
+
+Once again you can write a script to do this so you don't have to type it in every time.
+
+PerformAnalysis.cpp is the Macro to run. You must also have the EtaWeights.txt file available. 
+
+Start ROOT, compile and run macro:
+> root -l
+[0] .L PerformAnalysis.cpp+
+[1] PerformAnalysis([process], [weight], [datapath])
+
+[process]Plots.root is the name of the output file.
+[weight] is the event weight.
+[datapath] is the data path e.g. if data is in /tmp/rnandi/ [datapath] = "/tmp/rnandi/"
+
+This creates a root file [process].root with plots and outputs interesting ones to png files. 
+It also outputs f, fprime, efficiency, efficiencyprime, A, B, C, D and errors to screen.
+
+You can also run StabilityPlots.cpp:
+> root -l
+[0] .L StabilityPlots.cpp+
+[1] StabilityPlots()   
+
+This takes [process]Plots.root and outputs plots of f and fprime as a function of MET cut in png 
+files.
+
+
+-------------------------------------------------------------------------------------------------
+Contact
+-------------------------------------------------------------------------------------------------
+
+Robin Nandi
+
+Robin.James.Nandi@Cern.ch
+
+8 December 2009

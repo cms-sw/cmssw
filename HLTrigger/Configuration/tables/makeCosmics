@@ -1,0 +1,11 @@
+#! /bin/bash
+#
+# generate HLT tables from master table in ConfDB
+#
+
+MASTER="/dev/CMSSW_5_2_1/HLT"                       # no version, take the latest one
+TARGET="/online/cosmics/2012/7e33/v2.3/HLT"         # where to store the online-compliant menu
+TABLES="cosmics"
+
+source subtables.sh
+createSubtables "hltdev" "$MASTER" "$TARGET" "$TABLES"

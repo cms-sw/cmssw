@@ -1,11 +1,10 @@
 /*
- * $Id$
  */
 
 #ifndef EcalDigis_CollHandle_h
 #define EcalDigis_CollHandle_h
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,10 +30,12 @@ public:
    * in the event must be considered as an error. See read() method.
    */
   CollHandle(const edm::InputTag& tag,
-	     bool failIfNotFound = true): tag_(tag),
-					  currentColl_(&emptyColl_),
-					  notFoundAlreadyWarned_(false),
-					  failIfNotFound_(failIfNotFound){}
+	     bool failIfNotFound = true,
+	     bool notFoundWarn = true): tag_(tag),
+					currentColl_(&emptyColl_),
+					notFoundAlreadyWarned_(false),
+					failIfNotFound_(failIfNotFound),
+					notFoundWarn_(notFoundWarn){}
   
   //method(s)
 public:
@@ -47,22 +48,28 @@ public:
    * @param event the EDM event the collection must be retrieved from.
    */
   void read(const edm::Event& event){
-    try{
-      edm::Handle<T> hColl;
-      event.getByLabel(tag_, hColl);
-      currentColl_ = &(*hColl);
-    } catch(edm::Exception& e){//ignores the product-not-found exceptions
-      if(failIfNotFound_
-	 || (e.categoryCode() != edm::errors::ProductNotFound)){
-	throw;
-      }
-      if(!notFoundAlreadyWarned_){//warning logged only once
-	edm::LogWarning("ProductNoFound") << tag_ << " product was not found!";
+    //    try{
+    edm::Handle<T> hColl;
+    event.getByLabel(tag_, hColl);
+  
+    //If we must be tolerant to product absence, then
+    //we must check validaty before calling Handle::operator*
+    //to prevent exception throw:
+    if(!failIfNotFound_     // product-not-found tolerant mode
+       && !hColl.isValid()){// and the product was not found
+      if(notFoundWarn_
+	 && !notFoundAlreadyWarned_){//warning logged only once
+	edm::LogWarning("ProductNotFound") << tag_
+					   << " product "
+          "of type '" << typeid(T).name() << "' was not found!";
 	notFoundAlreadyWarned_ = true;
       }
       currentColl_ = &emptyColl_;
+    } else {
+      currentColl_ = &(*hColl);
     }
   }
+
   
   /** Accessor to a member of the collection retrieved by read method().
    * Considering h a CollHandle instance, h->f() is equivalent to (*h).f().
@@ -74,6 +81,8 @@ public:
    */
   const T& operator*() const { return *currentColl_;}
 
+  edm::InputTag tag() const { return tag_; }
+  
 private:
 
   //attribute(s)
@@ -99,6 +108,10 @@ private:
   /** Switch for collection absence toleration.
    */
   bool failIfNotFound_;
+
+  /** Switch for the warning in case of not found collection
+   */
+  bool notFoundWarn_;
 };
 
 #endif

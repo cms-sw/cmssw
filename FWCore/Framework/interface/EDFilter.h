@@ -8,56 +8,89 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.13 2006/11/03 17:57:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
-namespace edm {
+#include <string>
+#include <vector>
 
-  class EDFilter : public ProducerBase {
+namespace edm {
+  namespace maker {
+    template<typename T> class ModuleHolderT;
+  }
+
+  class ModuleCallingContext;
+  class PreallocationConfiguration;
+
+  class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
-    friend class FilterWorker;
+    template <typename T> friend class maker::ModuleHolderT;
+    template <typename T> friend class WorkerT;
     typedef EDFilter ModuleType;
     
-    EDFilter() : ProducerBase() , moduleDescription_(), current_context_(0) {}
+     EDFilter() : ProducerBase() , moduleDescription_(),
+     previousParentage_(), previousParentageId_() {
+    }
     virtual ~EDFilter();
-    bool doFilter(Event& e, EventSetup const& c,
-		  CurrentProcessingContext const* cpc);
-    void doBeginJob(EventSetup const&);
-    void doEndJob();
-    bool doBeginRun(Run & r, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    bool doEndRun(Run & r, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+    static void prevalidate(ConfigurationDescriptions& );
 
-  protected:
-    // The returned pointer will be null unless the this is currently
-    // executing its event loop function ('filter').
-    CurrentProcessingContext const* currentContext() const;
+    static const std::string& baseType();
+
+    // Warning: the returned moduleDescription will be invalid during construction
+    ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
   private:    
-    virtual bool filter(Event&, EventSetup const&) = 0;
-    virtual void beginJob(EventSetup const&){}
-    virtual void endJob(){}
-    virtual bool beginRun(Run &, EventSetup const&){return true;}
-    virtual bool endRun(Run &, EventSetup const&){return true;}
-    virtual bool beginLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
-    virtual bool endLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
+    bool doEvent(EventPrincipal& ep, EventSetup const& c,
+                 ModuleCallingContext const* mcc);
+    void doPreallocate(PreallocationConfiguration const&) {}
+    void doBeginJob();
+    void doEndJob();    
+    void doBeginRun(RunPrincipal& rp, EventSetup const& c,
+                    ModuleCallingContext const* mcc);
+    void doEndRun(RunPrincipal& rp, EventSetup const& c,
+                  ModuleCallingContext const* mcc);
+    void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                                ModuleCallingContext const* mcc);
+    void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                              ModuleCallingContext const* mcc);
+    void doRespondToOpenInputFile(FileBlock const& fb);
+    void doRespondToCloseInputFile(FileBlock const& fb);
+    void doPreForkReleaseResources();
+    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
+    void registerProductsAndCallbacks(EDFilter* module, ProductRegistry* reg) {
+      registerProducts(module, reg, moduleDescription_);
+    }
+
+    std::string workerType() const {return "WorkerT<EDFilter>";}
+
+    virtual bool filter(Event&, EventSetup const&) = 0;
+    virtual void beginJob(){}
+    virtual void endJob(){}
+
+    virtual void beginRun(Run const& iR, EventSetup const& iE){ }
+    virtual void endRun(Run const& iR, EventSetup const& iE){}
+    virtual void beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE){}
+    virtual void endLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE){}
+    virtual void respondToOpenInputFile(FileBlock const&) {}
+    virtual void respondToCloseInputFile(FileBlock const&) {}
+    virtual void preForkReleaseResources() {}
+    virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
+     
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
     ModuleDescription moduleDescription_;
-    CurrentProcessingContext const* current_context_;
+    std::vector<BranchID> previousParentage_;
+    ParentageID previousParentageId_;
   };
 }
 

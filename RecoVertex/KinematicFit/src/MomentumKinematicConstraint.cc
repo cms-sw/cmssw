@@ -15,7 +15,7 @@ MomentumKinematicConstraint::MomentumKinematicConstraint(const AlgebraicVector& 
  dd = dev_l;
 }
 
-pair<AlgebraicVector,AlgebraicVector> MomentumKinematicConstraint::value(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicVector,AlgebraicVector> MomentumKinematicConstraint::value(const AlgebraicVector& exPoint) const
 {
  if(exPoint.num_row() ==0 ) throw VertexException("MomentumKinematicConstraint::value requested for zero Linearization point");
 
@@ -29,10 +29,10 @@ pair<AlgebraicVector,AlgebraicVector> MomentumKinematicConstraint::value(const A
  vl(1) = pr(4) - mm(1);
  vl(2) = pr(5) - mm(2);
  vl(3) = pr(6) - mm(3);
- return pair<AlgebraicVector,AlgebraicVector>(vl,pr); 
+ return std::pair<AlgebraicVector,AlgebraicVector>(vl,pr); 
 }
 
-pair<AlgebraicMatrix, AlgebraicVector> MomentumKinematicConstraint::derivative(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicMatrix, AlgebraicVector> MomentumKinematicConstraint::derivative(const AlgebraicVector& exPoint) const
 {
  if(exPoint.num_row() ==0 ) throw VertexException("MomentumKinematicConstraint::derivative requested for zero Linearization point");
 
@@ -47,33 +47,33 @@ pair<AlgebraicMatrix, AlgebraicVector> MomentumKinematicConstraint::derivative(c
  dr(1,4) = 1.;
  dr(2,5) = 1.;
  dr(3,6) = 1.;
- return pair<AlgebraicMatrix,AlgebraicVector>(dr,pr);
+ return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,pr);
 }
 
-pair<AlgebraicVector, AlgebraicVector> MomentumKinematicConstraint::value(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicVector, AlgebraicVector> MomentumKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> &par) const
 {
  int nStates = par.size(); 
  if(nStates == 0) throw VertexException("MomentumKinematicConstraint::Empty vector of particles passed");
  if(nStates != 1) throw VertexException("MomentumKinematicConstraint::Multistate refit is not foreseen for this constraint");  
- AlgebraicVector point = par.front()->currentState().kinematicParameters().vector();
+ AlgebraicVector point = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  AlgebraicVector vl(3,0);
  vl(1) = point(4) - mm(1);
  vl(2) = point(5) - mm(2);
  vl(3) = point(6) - mm(3);
- return pair<AlgebraicVector,AlgebraicVector>(vl,point);
+ return std::pair<AlgebraicVector,AlgebraicVector>(vl,point);
 }
 
-pair<AlgebraicMatrix, AlgebraicVector> MomentumKinematicConstraint::derivative(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicMatrix, AlgebraicVector> MomentumKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> &par) const
 {
  int nStates = par.size();
  if(nStates == 0) throw VertexException("MomentumKinematicConstraint::Empty vector of particles passed");
  if(nStates != 1) throw VertexException("MomentumKinematicConstraint::Multistate refit is not foreseen for this constraint");
- AlgebraicVector point = par.front()->currentState().kinematicParameters().vector();
+ AlgebraicVector point = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  AlgebraicMatrix dr(3,7,0);
  dr(1,4) = 1.;
  dr(2,5) = 1.;
  dr(3,6) = 1.;
- return pair<AlgebraicMatrix,AlgebraicVector>(dr,point);
+ return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,point);
 }
 
 AlgebraicVector MomentumKinematicConstraint::deviations(int nStates) const

@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.4.2.3 $
-///  $Date: 2007/07/12 15:30:54 $
+///  $Revision: 1.14 $
+///  $Date: 2010/10/26 20:52:23 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -29,6 +29,8 @@ class TH2;
 class TDirectory;
 class Trajectory;
 
+class TrackerTopology;
+
 namespace reco {
   class Track;
 }
@@ -43,8 +45,8 @@ class MillePedeMonitor
 {
  public:
   // book histograms in constructor
-  MillePedeMonitor(const char *rootFile = "trackMonitor.root");
-  MillePedeMonitor(TDirectory *rootDir);
+  MillePedeMonitor(const TrackerTopology* tTopo,const char *rootFile = "trackMonitor.root");
+  MillePedeMonitor(TDirectory *rootDir, const TrackerTopology* tTopo);
   // writes histograms in destructor
   ~MillePedeMonitor(); // non-virtual destructor: not intended to be parent class
 
@@ -52,12 +54,17 @@ class MillePedeMonitor
   void fillUsedTrack(const reco::Track *track, unsigned int nHitX, unsigned int nHitY);//, const Trajectory *traj);
   void fillRefTrajectory(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
   void fillDerivatives(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
-		       const std::vector<float> &localDerivs,
-		       const std::vector<float> &globalDerivs, bool isY);
+		       const float *localDerivs, unsigned int nLocal,
+		       const float *globalDerivs, unsigned int nGlobal, const int *labels);
   void fillResiduals(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
 		     const TrajectoryStateOnSurface &tsos, unsigned int nHit,
 		     float residuum, float sigma, bool isY);
   void fillFrameToFrame(const AlignableDetOrUnitPtr &aliDet, const Alignable *ali);
+
+  void fillCorrelations2D(float corr, const TransientTrackingRecHit::ConstRecHitPointer &hit);
+  
+  void fillPxbSurveyHistsChi2(const float &chi2);
+  void fillPxbSurveyHistsLocalPars(const float &a0, const float &a1, const float &S, const float &phi);
 
  private:
   bool init(TDirectory *directory);
@@ -74,6 +81,8 @@ class MillePedeMonitor
   template <class OBJECT_TYPE>  
   std::vector<OBJECT_TYPE*> cloneHists(const std::vector<OBJECT_TYPE*> &orgs,
 				       const TString &namAd, const TString &titAd) const;
+  template <class OBJECT_TYPE>  
+  void addToDirectory(const std::vector<OBJECT_TYPE*> &objs, TDirectory *dir) const;
 
   TDirectory *myRootDir;
   bool        myDeleteDir; 
@@ -91,7 +100,10 @@ class MillePedeMonitor
   std::vector<TH1*> myResidHitHists1DX;
   std::vector<TH1*> myResidHitHists1DY;
   std::vector<TH2*> myFrame2FrameHists2D;
+  std::vector<TH1*> myCorrHists; // correlations
+  std::vector<TH1*> myPxbSurveyHists; // correlations
 
+  const TrackerTopology* trackerTopology;
 };
 
 template <class OBJECT_TYPE>  
@@ -124,4 +136,17 @@ std::vector<OBJECT_TYPE*> MillePedeMonitor::cloneHists(const std::vector<OBJECT_
   
   return result;
 }
+
+
+template <class OBJECT_TYPE>  
+void MillePedeMonitor::addToDirectory(const std::vector<OBJECT_TYPE*> &obs,
+					   TDirectory *dir) const
+{
+  // OBJECT_TYPE is required to have method SetDirectory(TDirectory *dir)
+  for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = obs.begin(), iterEnd = obs.end();
+       iter != iterEnd; ++iter) {
+    if (*iter) (*iter)->SetDirectory(dir);
+  }
+}
+
 #endif

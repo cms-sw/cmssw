@@ -56,6 +56,8 @@
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace edm {       
 namespace service {       
 
@@ -64,12 +66,9 @@ namespace service {
 // Prerequisite classes:
 // ----------------------------------------------------------------------
 
-class ELcontextSupplier;
 class ELdestination;
-class ELadminDestroyer;
-class ErrorLog;
-class ELtsErrorLog;
 class ELcout;
+class MessageLoggerScribe;
 
 
 // ----------------------------------------------------------------------
@@ -78,34 +77,24 @@ class ELcout;
 
 class ELadministrator  {	// *** Destructable Singleton Pattern ***
 
-  friend class ELadminDestroyer;	// proper ELadministrator cleanup
-  friend class ErrorLog;		// ELadministrator user behavior
+  friend class MessageLoggerScribe;	// proper ELadministrator cleanup
+  friend class ThreadSafeLogMessageLoggerScribe;	// proper ELadministrator cleanup
   friend class ELcout;			// ELcout behavior
-  friend class ELtsErrorLog;		// which walks sink list
 
 // *** Error Logger Functionality ***
 
 public:
+  
+  ~ELadministrator();
 
-  // ---  birth via a surrogate:
-  //
-  static ELadministrator * instance(); 		// *** Singleton Pattern
 
-  // ---  get/set fundamental properties:
-  //
-  void setProcess( const ELstring & process );
-  ELstring swapProcess( const ELstring & process );
-  void setContextSupplier( const ELcontextSupplier & supplier );
-  const ELcontextSupplier & getContextSupplier() const;
-  ELcontextSupplier & swapContextSupplier( ELcontextSupplier & cs );
-  void setAbortThreshold( const ELseverityLevel & sev );
-  void setExitThreshold ( const ELseverityLevel & sev );
-
+  //Replaces ErrorLog which is no longer needed
+  void log(edm::ErrorObj & msg);
+  
   // ---  furnish/recall destinations:
   //
   ELdestControl attach( const ELdestination & sink );
   ELdestControl attach( const ELdestination & sink, const ELstring & name );
-  bool getELdestControl ( const ELstring & name, ELdestControl & theControl );
 
   // ---  handle severity information:
   //
@@ -133,70 +122,28 @@ public:
 protected:
   // ---  member data accessors:
   //
-  const ELstring              & process() const;
-  ELcontextSupplier           & context() const;
   const ELseverityLevel       & abortThreshold() const;
   const ELseverityLevel       &  exitThreshold() const;
-  std::list<ELdestination *>  & sinks();
+  std::list<boost::shared_ptr<ELdestination> >  & sinks();
   const ELseverityLevel       & highSeverity() const;
   int                           severityCounts( int lev ) const;
-
-  // ---  actions on messages:
-  //
-  void finishMsg();
-  void clearMsg();
 
 protected:
   // ---  traditional birth/death, but disallowed to users:
   //
   ELadministrator();
-  virtual ~ELadministrator();
 
 private:
-  // ---  reach the actual (single) ELadministrator's instantiation
-  // ---  (the instance() method records the ELadminDestroyer object):
-  //
-  static ELadministrator * instance_;
 
   // ---  traditional member data:
   //
-  ELstring                   process_;	     
-  ELcontextSupplier *        context_;	     
-  ELseverityLevel            abortThreshold_; 
-  ELseverityLevel            exitThreshold_; 
-  std::list<ELdestination *> sinks_;		
+  std::list<boost::shared_ptr<ELdestination> > sinks_;		
   ELseverityLevel            highSeverity_;
   int                        severityCounts_[ ELseverityLevel::nLevels ];
-  edm::ErrorObj              msg;
-  bool                       msgIsActive;
 
-  std::map < ELstring, ELdestination* > attachedDestinations;
+  std::map < ELstring, boost::shared_ptr<ELdestination> > attachedDestinations_;
 
 };  // ELadministrator
-
-
-// ----------------------------------------------------------------------
-// ELadminDestroyer:
-// ----------------------------------------------------------------------
-
-class ELadminDestroyer  {
-
-public:
-  // ---  birth/death:
-  //
-  ELadminDestroyer( ELadministrator * ad = 0 );
- ~ELadminDestroyer();
-
-  // ---  record our (single) self:
-  //
-  void setELadmin( ELadministrator * ad );
-
-private:
-  // ---  member data:
-  //
-  ELadministrator * admin_;	// keep track of our (single) self
-
-};  // ELadminDestroyer
 
 
 // ----------------------------------------------------------------------

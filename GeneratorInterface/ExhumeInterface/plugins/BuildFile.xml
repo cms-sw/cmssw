@@ -1,0 +1,7 @@
+<use   name="GeneratorInterface/ExhumeInterface"/>
+<use   name="pydata"/>
+<library   file="ExhumeGeneratorFilter.cc" name="GeneratorInterfaceExhumeFilter">
+  <use   name="GeneratorInterface/Core"/>
+  <use   name="GeneratorInterface/ExternalDecays"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

@@ -4,77 +4,166 @@
 // Original Author:  Gavril Giurgiu (JHU)
 // Created:          Fri May  4 17:48:24 CDT 2007
 
-#include <memory>
-#include <string>
 #include <iostream>
-#include <TMath.h>
 #include "CalibTracker/SiPixelErrorEstimation/interface/SiPixelErrorEstimation.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
-#include <TTree.h>
-#include <TFile.h>
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 using namespace std;
 using namespace edm;
 
-SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(0), ttree_all_hits_(0), ttree_track_hits_(0) 
+SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(0), ttree_all_hits_(0), 
+									    ttree_track_hits_(0), ttree_track_hits_strip_(0) 
 {
   //Read config file
   outputFile_ = ps.getUntrackedParameter<string>( "outputFile", "SiPixelErrorEstimation_Ntuple.root" );
-  src_ = ps.getUntrackedParameter<std::string>( "src", "ctfWithMaterialTracks" );
+  
+  // Replace  "ctfWithMaterialTracks" with "generalTracks"
+  //src_ = ps.getUntrackedParameter<std::string>( "src", "ctfWithMaterialTracks" );
+  src_ = ps.getUntrackedParameter<std::string>( "src", "generalTracks" );
+
   checkType_ = ps.getParameter<bool>( "checkType" );
   genType_ = ps.getParameter<int>( "genType" );
   include_trk_hits_ = ps.getParameter<bool>( "include_trk_hits" );
+
+  tTrajectory = consumes<std::vector<Trajectory>> (src_);
+  tPixRecHitCollection = consumes<SiPixelRecHitCollection>(edm::InputTag( "siPixelRecHits"));
+  tSimTrackContainer = consumes <edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+  tTrackCollection = consumes<reco::TrackCollection>(src_);
+
 }
 
 SiPixelErrorEstimation::~SiPixelErrorEstimation()
 {}
 
-void SiPixelErrorEstimation::beginJob(const edm::EventSetup& es)
+void SiPixelErrorEstimation::beginJob()
 {
-  int bufsize = 64000;
+   int bufsize = 64000;
 
-  if ( include_trk_hits_ )
-    {
-      //tfile_ = new TFile ("SiPixelErrorEstimation_Ntuple.root" , "RECREATE");
-      //const char* tmp_name = outputFile_.c_str();
-      tfile_ = new TFile ( outputFile_.c_str() , "RECREATE");
-      
-      ttree_track_hits_ = new TTree("TrackHitNtuple", "TrackHitNtuple");
-      
+
+  tfile_ = new TFile ( outputFile_.c_str() , "RECREATE");
+
+  
+  ttree_track_hits_strip_ = new TTree("TrackHitNtupleStrip", "TrackHitNtupleStrip");
+  
+  ttree_track_hits_strip_->Branch("strip_rechitx", &strip_rechitx, "strip_rechitx/F"    , bufsize);
+  ttree_track_hits_strip_->Branch("strip_rechity", &strip_rechity, "strip_rechity/F"    , bufsize);
+  ttree_track_hits_strip_->Branch("strip_rechitz", &strip_rechitz, "strip_rechitz/F"    , bufsize);
+  
+  ttree_track_hits_strip_->Branch("strip_rechiterrx", &strip_rechiterrx, "strip_rechiterrx/F" , bufsize);
+  ttree_track_hits_strip_->Branch("strip_rechiterry", &strip_rechiterry, "strip_rechiterry/F" , bufsize);
+
+  ttree_track_hits_strip_->Branch("strip_rechitresx", &strip_rechitresx, "strip_rechitresx/F" , bufsize);
+  
+  ttree_track_hits_strip_->Branch("strip_rechitresx2", &strip_rechitresx2, "strip_rechitresx2/F" , bufsize);
+
+
+  ttree_track_hits_strip_->Branch("strip_rechitresy", &strip_rechitresy, "strip_rechitresy/F" , bufsize);
+  
+  ttree_track_hits_strip_->Branch("strip_rechitpullx", &strip_rechitpullx, "strip_rechitpullx/F", bufsize);
+  ttree_track_hits_strip_->Branch("strip_rechitpully", &strip_rechitpully, "strip_rechitpully/F", bufsize);
+
+  ttree_track_hits_strip_->Branch("strip_is_stereo", &strip_is_stereo, "strip_is_stereo/I", bufsize);
+  ttree_track_hits_strip_->Branch("strip_hit_type" , &strip_hit_type , "strip_hit_type/I" , bufsize);
+  ttree_track_hits_strip_->Branch("detector_type"  , &detector_type  , "detector_type/I"  , bufsize);
+
+  ttree_track_hits_strip_->Branch("strip_trk_pt"   , &strip_trk_pt   , "strip_trk_pt/F"   , bufsize);
+  ttree_track_hits_strip_->Branch("strip_cotalpha" , &strip_cotalpha , "strip_cotalpha/F" , bufsize);
+  ttree_track_hits_strip_->Branch("strip_cotbeta"  , &strip_cotbeta  , "strip_cotbeta/F"  , bufsize);
+  ttree_track_hits_strip_->Branch("strip_locbx"    , &strip_locbx    , "strip_locbx/F"    , bufsize);
+  ttree_track_hits_strip_->Branch("strip_locby"    , &strip_locby    , "strip_locby/F"    , bufsize);
+  ttree_track_hits_strip_->Branch("strip_locbz"    , &strip_locbz    , "strip_locbz/F"    , bufsize);
+  ttree_track_hits_strip_->Branch("strip_charge"   , &strip_charge   , "strip_charge/F"   , bufsize);
+  ttree_track_hits_strip_->Branch("strip_size"     , &strip_size     , "strip_size/I"     , bufsize);
+
+  
+  ttree_track_hits_strip_->Branch("strip_edge"   , &strip_edge   , "strip_edge/I"    , bufsize);
+  ttree_track_hits_strip_->Branch("strip_nsimhit", &strip_nsimhit, "strip_nsimhit/I" , bufsize);
+  ttree_track_hits_strip_->Branch("strip_pidhit" , &strip_pidhit , "strip_pidhit/I"  , bufsize);
+  ttree_track_hits_strip_->Branch("strip_simproc", &strip_simproc, "strip_simproc/I" , bufsize);
+
+
+ttree_track_hits_strip_->Branch("strip_subdet_id"             , &strip_subdet_id             , "strip_subdet_id/I"            , bufsize);
+ 
+ttree_track_hits_strip_->Branch("strip_tib_layer"             , &strip_tib_layer             , "strip_tib_layer/I"            , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_module"            , &strip_tib_module            , "strip_tib_module/I"           , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_order"             , &strip_tib_order             , "strip_tib_order/I"            , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_side"              , &strip_tib_side              , "strip_tib_side/I"             , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_is_double_side"    , &strip_tib_is_double_side    , "strip_tib_is_double_side/I"   , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_is_z_plus_side"    , &strip_tib_is_z_plus_side    , "strip_tib_is_z_plus_side/I"   , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_is_z_minus_side"   , &strip_tib_is_z_minus_side   , "strip_tib_is_z_minus_side/I"  , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_layer_number"      , &strip_tib_layer_number      , "strip_tib_layer_number/I"     , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_string_number"     , &strip_tib_string_number     , "strip_tib_string_number/I"    , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_module_number"     , &strip_tib_module_number     ,"strip_tib_module_number/I"     , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_is_internal_string", &strip_tib_is_internal_string,"strip_tib_is_internal_string/I", bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_is_external_string", &strip_tib_is_external_string,"strip_tib_is_external_string/I", bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_is_rphi"           , &strip_tib_is_rphi           , "strip_tib_is_rphi/I"          , bufsize);
+ttree_track_hits_strip_->Branch("strip_tib_is_stereo"         , &strip_tib_is_stereo         , "strip_tib_is_stereo/I"        , bufsize);
+ttree_track_hits_strip_->Branch("strip_tob_layer"             , &strip_tob_layer             , "strip_tob_layer/I"            , bufsize);
+ttree_track_hits_strip_->Branch("strip_tob_module"            , &strip_tob_module            , "strip_tob_module/I"           , bufsize);
+ttree_track_hits_strip_->Branch("strip_tob_side"              , &strip_tob_side              , "strip_tob_side/I"             , bufsize);
+ttree_track_hits_strip_->Branch("strip_tob_is_double_side"    , &strip_tob_is_double_side    , "strip_tob_is_double_side/I"   , bufsize);
+ttree_track_hits_strip_->Branch("strip_tob_is_z_plus_side"    , &strip_tob_is_z_plus_side    , "strip_tob_is_z_plus_side/I"   , bufsize);
+ttree_track_hits_strip_->Branch("strip_tob_is_z_minus_side"   , &strip_tob_is_z_minus_side   , "strip_tob_is_z_minus_side/I"  , bufsize);
+ttree_track_hits_strip_->Branch("strip_tob_layer_number"      , &strip_tob_layer_number      , "strip_tob_layer_number/I"     , bufsize);
+ttree_track_hits_strip_->Branch("strip_tob_rod_number"        , &strip_tob_rod_number        , "strip_tob_rod_number/I"       , bufsize);
+ttree_track_hits_strip_->Branch("strip_tob_module_number"     , &strip_tob_module_number     , "strip_tob_module_number/I"    , bufsize);
+
+
+ttree_track_hits_strip_->Branch("strip_prob", &strip_prob, "strip_prob/F"   , bufsize);
+ttree_track_hits_strip_->Branch("strip_qbin", &strip_qbin, "strip_qbin/I", bufsize);
+
+ttree_track_hits_strip_->Branch("strip_nprm", &strip_nprm, "strip_nprm/I", bufsize);
+
+ttree_track_hits_strip_->Branch("strip_pidhit1" , &strip_pidhit1 , "strip_pidhit1/I"  , bufsize);
+ttree_track_hits_strip_->Branch("strip_simproc1", &strip_simproc1, "strip_simproc1/I" , bufsize);
+
+ttree_track_hits_strip_->Branch("strip_pidhit2" , &strip_pidhit2 , "strip_pidhit2/I"  , bufsize);
+ttree_track_hits_strip_->Branch("strip_simproc2", &strip_simproc2, "strip_simproc2/I" , bufsize);
+
+ttree_track_hits_strip_->Branch("strip_pidhit3" , &strip_pidhit3 , "strip_pidhit3/I"  , bufsize);
+ttree_track_hits_strip_->Branch("strip_simproc3", &strip_simproc3, "strip_simproc3/I" , bufsize);
+
+ttree_track_hits_strip_->Branch("strip_pidhit4" , &strip_pidhit4 , "strip_pidhit4/I"  , bufsize);
+ttree_track_hits_strip_->Branch("strip_simproc4", &strip_simproc4, "strip_simproc4/I" , bufsize);
+
+ttree_track_hits_strip_->Branch("strip_pidhit5" , &strip_pidhit5 , "strip_pidhit5/I"  , bufsize);
+ttree_track_hits_strip_->Branch("strip_simproc5", &strip_simproc5, "strip_simproc5/I" , bufsize);
+
+ttree_track_hits_strip_->Branch("strip_split", &strip_split, "strip_split/I" , bufsize);
+
+ttree_track_hits_strip_->Branch("strip_clst_err_x", &strip_clst_err_x, "strip_clst_err_x/F"   , bufsize);
+ttree_track_hits_strip_->Branch("strip_clst_err_y", &strip_clst_err_y, "strip_clst_err_y/F"   , bufsize);
+
+ if ( include_trk_hits_ )
+   {
+     //tfile_ = new TFile ("SiPixelErrorEstimation_Ntuple.root" , "RECREATE");
+     //const char* tmp_name = outputFile_.c_str();
+     
+     
+     ttree_track_hits_ = new TTree("TrackHitNtuple", "TrackHitNtuple");
+     
       ttree_track_hits_->Branch("evt", &evt, "evt/I", bufsize);
       ttree_track_hits_->Branch("run", &run, "run/I", bufsize);
       
@@ -105,6 +194,7 @@ void SiPixelErrorEstimation::beginJob(const edm::EventSetup& es)
       
       ttree_track_hits_->Branch("rechitpullx", &rechitpullx, "rechitpullx/F", bufsize);
       ttree_track_hits_->Branch("rechitpully", &rechitpully, "rechitpully/F", bufsize);
+
       
       ttree_track_hits_->Branch("npix"  , &npix  , "npix/I"  , bufsize);
       ttree_track_hits_->Branch("nxpix" , &nxpix , "nxpix/I" , bufsize);
@@ -132,6 +222,12 @@ void SiPixelErrorEstimation::beginJob(const edm::EventSetup& es)
       ttree_track_hits_->Branch("nsimhit", &nsimhit, "nsimhit/I", bufsize);
       ttree_track_hits_->Branch("pidhit" , &pidhit , "pidhit/I" , bufsize);
       ttree_track_hits_->Branch("simproc", &simproc, "simproc/I", bufsize);
+      
+      ttree_track_hits_->Branch("pixel_split", &pixel_split, "pixel_split/I", bufsize);
+
+      ttree_track_hits_->Branch("pixel_clst_err_x", &pixel_clst_err_x, "pixel_clst_err_x/F"   , bufsize);
+      ttree_track_hits_->Branch("pixel_clst_err_y", &pixel_clst_err_y, "pixel_clst_err_y/F"   , bufsize);
+
     } // if ( include_trk_hits_ )
 
   // ----------------------------------------------------------------------
@@ -258,6 +354,11 @@ void SiPixelErrorEstimation::beginJob(const edm::EventSetup& es)
   ttree_all_hits_->Branch("hit_probx", &all_hit_probx, "hit_probx/F" , bufsize);
   ttree_all_hits_->Branch("hit_proby", &all_hit_proby, "hit_proby/F" , bufsize);
 
+  ttree_all_hits_->Branch("all_pixel_split", &all_pixel_split, "all_pixel_split/I" , bufsize);
+
+  ttree_all_hits_->Branch("all_pixel_clst_err_x", &all_pixel_clst_err_x, "all_pixel_clst_err_x/F"   , bufsize);
+  ttree_all_hits_->Branch("all_pixel_clst_err_y", &all_pixel_clst_err_y, "all_pixel_clst_err_y/F"   , bufsize);
+
 }
 
 void SiPixelErrorEstimation::endJob() 
@@ -269,6 +370,11 @@ void SiPixelErrorEstimation::endJob()
 void
 SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   using namespace edm;
   
   run = e.id().run();
@@ -280,8 +386,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   float math_pi = 3.14159265;
   float radtodeg = 180.0 / math_pi;
     
-  DetId detId;
-
   LocalPoint position;
   LocalError error;
   float mindist = 999999.9;
@@ -292,23 +396,543 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry* tracker = &(* pDD);
-        
+  
+
+  //cout << "...1..." << endl;
+
+
+  edm::ESHandle<MagneticField> magneticField;
+  es.get<IdealMagneticFieldRecord>().get( magneticField );
+  //const MagneticField* magField_ = magFieldHandle.product();
+
+  edm::FileInPath FileInPath_;
+    
+
+
+  // Strip hits ==============================================================================================================
+
+
+  edm::Handle<vector<Trajectory> > trajCollectionHandle;
+  
+  e.getByToken( tTrajectory, trajCollectionHandle);
+  //e.getByLabel( "generalTracks", trajCollectionHandle);
+
+  for ( vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end(); ++it )
+    {
+      
+      vector<TrajectoryMeasurement> tmColl = it->measurements();
+      for ( vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); ++itTraj )
+	{
+	  
+	  if ( !itTraj->updatedState().isValid() ) 
+	    continue;
+       
+	  strip_rechitx     = -9999999.9;
+	  strip_rechity     = -9999999.9;
+	  strip_rechitz     = -9999999.9;
+	  strip_rechiterrx  = -9999999.9;
+	  strip_rechiterry  = -9999999.9;
+	  strip_rechitresx  = -9999999.9;
+	  strip_rechitresx2  = -9999999.9;
+	  
+
+	  strip_rechitresy  = -9999999.9;
+	  strip_rechitpullx = -9999999.9;
+	  strip_rechitpully = -9999999.9;
+	  strip_is_stereo   = -9999999  ;
+	  strip_hit_type    = -9999999  ;
+	  detector_type     = -9999999  ;
+	  
+	  strip_trk_pt    = -9999999.9;
+	  strip_cotalpha  = -9999999.9;
+	  strip_cotbeta   = -9999999.9;
+	  strip_locbx     = -9999999.9;
+	  strip_locby     = -9999999.9;
+	  strip_locbz     = -9999999.9;
+	  strip_charge    = -9999999.9;
+	  strip_size        = -9999999  ;
+
+	  strip_edge        = -9999999  ;
+	  strip_nsimhit     = -9999999  ;
+	  strip_pidhit      = -9999999  ;
+	  strip_simproc     = -9999999  ;
+
+
+	  strip_subdet_id = -9999999;
+ 
+	  strip_tib_layer             = -9999999;
+	  strip_tib_module            = -9999999;
+	  strip_tib_order             = -9999999;
+	  strip_tib_side              = -9999999;
+	  strip_tib_is_double_side    = -9999999;
+	  strip_tib_is_z_plus_side    = -9999999;
+	  strip_tib_is_z_minus_side   = -9999999;
+	  strip_tib_layer_number      = -9999999;
+	  strip_tib_string_number     = -9999999;
+	  strip_tib_module_number     = -9999999;
+	  strip_tib_is_internal_string= -9999999;
+	  strip_tib_is_external_string= -9999999;
+	  strip_tib_is_rphi           = -9999999;
+	  strip_tib_is_stereo         = -9999999;          
+	  
+	  strip_tob_layer             = -9999999;
+	  strip_tob_module            = -9999999;
+	  strip_tob_side              = -9999999;
+	  strip_tob_is_double_side    = -9999999;
+	  strip_tob_is_z_plus_side    = -9999999;
+	  strip_tob_is_z_minus_side   = -9999999;
+	  strip_tob_layer_number      = -9999999;
+	  strip_tob_rod_number        = -9999999;
+	  strip_tob_module_number     = -9999999;
+	  	  
+	  strip_tob_is_rphi           = -9999999;
+	  strip_tob_is_stereo         = -9999999;     
+
+	  strip_prob                  = -9999999.9;
+	  strip_qbin                  = -9999999;
+
+	  strip_nprm                  = -9999999;
+	  
+	  strip_pidhit1      = -9999999  ;
+	  strip_simproc1     = -9999999  ;
+	  
+	  strip_pidhit2      = -9999999  ;
+	  strip_simproc2     = -9999999  ;
+	  
+	  strip_pidhit3      = -9999999  ;
+	  strip_simproc3     = -9999999  ;
+	  
+	  strip_pidhit4      = -9999999  ;
+	  strip_simproc4     = -9999999  ;
+
+	  strip_pidhit5      = -9999999  ;
+	  strip_simproc5     = -9999999  ;
+
+	  strip_split        = -9999999;   
+	  strip_clst_err_x   = -9999999.9;
+	  strip_clst_err_y   = -9999999.9;
+
+	  const TransientTrackingRecHit::ConstRecHitPointer trans_trk_rec_hit_point = itTraj->recHit();
+	 
+	  if ( trans_trk_rec_hit_point == NULL )
+	    continue;
+
+	  const TrackingRecHit *trk_rec_hit = (*trans_trk_rec_hit_point).hit();
+
+	  if ( trk_rec_hit == NULL )
+	    continue;
+
+	  DetId detid = (trk_rec_hit)->geographicalId();
+
+	  strip_subdet_id = (int)detid.subdetId();
+	  
+	  if ( (int)detid.subdetId() != (int)(StripSubdetector::TIB) && (int)detid.subdetId() != (int)(StripSubdetector::TOB) )
+	    continue;
+
+	  const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>( (*trans_trk_rec_hit_point).hit() );
+	  const SiStripRecHit2D       * hit2d      = dynamic_cast<const SiStripRecHit2D       *>( (*trans_trk_rec_hit_point).hit() );
+	  const SiStripRecHit1D       * hit1d      = dynamic_cast<const SiStripRecHit1D       *>( (*trans_trk_rec_hit_point).hit() );
+	  
+	  if ( !matchedhit && !hit2d && !hit1d )
+	    continue;
+	  
+	  position = (trk_rec_hit)->localPosition(); 
+	  error = (trk_rec_hit)->localPositionError();
+	  
+	  strip_rechitx = position.x();
+	  strip_rechity = position.y();
+	  strip_rechitz = position.z();
+	  strip_rechiterrx = sqrt( error.xx() );
+	  strip_rechiterry = sqrt( error.yy() );
+	  
+	  
+	  //cout << "strip_rechitx = " << strip_rechitx << endl;	      
+	  //cout << "strip_rechity = " << strip_rechity << endl;
+	  //cout << "strip_rechitz = " << strip_rechitz << endl;
+	  
+	  //cout << "strip_rechiterrx = " << strip_rechiterrx << endl;
+	  //cout << "strip_rechiterry = " << strip_rechiterry << endl;
+	  
+	  TrajectoryStateOnSurface tsos = itTraj->updatedState(); 
+	  
+	  strip_trk_pt = tsos.globalMomentum().perp();
+	  
+	  LocalTrajectoryParameters ltp = tsos.localParameters();
+	  
+	  LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
+	  
+	  float locx = localDir.x();
+	  float locy = localDir.y();
+	  float locz = localDir.z();
+	  
+	  //alpha_ = atan2( locz, locx );
+	  //beta_  = atan2( locz, locy );
+	  
+	  strip_cotalpha = locx/locz;
+	  strip_cotbeta  = locy/locz;
+	      
+
+	  StripSubdetector StripSubdet = (StripSubdetector)detid;
+
+	  if ( StripSubdet.stereo() == 0 )
+	    strip_is_stereo = 0;
+	  else
+	    strip_is_stereo = 1;
+
+
+	  SiStripDetId si_strip_det_id = SiStripDetId( detid );
+	  
+	  //const StripGeomDetUnit* strip_geom_det_unit = dynamic_cast<const StripGeomDetUnit*> ( tracker->idToDet( detid ) );
+	  const StripGeomDetUnit* strip_geom_det_unit = (const StripGeomDetUnit*)tracker->idToDetUnit( detid );
+	  
+	  if ( strip_geom_det_unit != NULL )
+	    {
+	      LocalVector lbfield 
+		= (strip_geom_det_unit->surface()).toLocal( (*magneticField).inTesla( strip_geom_det_unit->surface().position() ) ); 
+	      
+	      strip_locbx = lbfield.x();
+	      strip_locby = lbfield.y();
+	      strip_locbz = lbfield.z();
+	    }
+	  
+
+	  //enum ModuleGeometry {UNKNOWNGEOMETRY, IB1, IB2, OB1, OB2, W1A, W2A, W3A, W1B, W2B, W3B, W4, W5, W6, W7};
+	  
+	  if ( si_strip_det_id.moduleGeometry() == 1 )
+	    {
+	      detector_type = 1;
+	      //cout << "si_strip_det_id.moduleGeometry() = IB1" << endl;
+	      //cout << "si_strip_det_id.moduleGeometry() = " << si_strip_det_id.moduleGeometry() << endl;
+	    }
+	  else if ( si_strip_det_id.moduleGeometry() == 2 )
+	    {
+	      detector_type = 2;
+	      //cout << "si_strip_det_id.moduleGeometry() = IB2" << endl;
+	      //cout << "si_strip_det_id.moduleGeometry() = " << si_strip_det_id.moduleGeometry() << endl;
+	    }
+	  else if ( si_strip_det_id.moduleGeometry() == 3 )
+	    {
+	      detector_type = 3;
+	      //cout << "si_strip_det_id.moduleGeometry() = OB1" << endl;
+	      //cout << "si_strip_det_id.moduleGeometry() = " << si_strip_det_id.moduleGeometry() << endl;
+	    }
+	  else if ( si_strip_det_id.moduleGeometry() == 4 )
+	    {
+	      detector_type = 4;
+	      //cout << "si_strip_det_id.moduleGeometry() = OB2" << endl;
+	      //cout << "si_strip_det_id.moduleGeometry() = " << si_strip_det_id.moduleGeometry() << endl;
+	    }
+	  
+
+	  // Store ntuple variables 
+	  
+	  if ( (int)detid.subdetId() == int(StripSubdetector::TIB) )
+	    {
+	      
+	      
+	      
+	      strip_tib_layer              = (int)tTopo->tibLayer( detid );
+	      strip_tib_module             = (int)tTopo->tibModule( detid ); 
+	      strip_tib_order              = (int)tTopo->tibOrder( detid );
+	      strip_tib_side               = (int)tTopo->tibSide( detid );
+	      strip_tib_is_double_side     = (int)tTopo->tibIsDoubleSide( detid );
+	      strip_tib_is_z_plus_side     = (int)tTopo->tibIsZPlusSide( detid );
+	      strip_tib_is_z_minus_side    = (int)tTopo->tibIsZMinusSide( detid );
+	      strip_tib_layer_number       = (int)tTopo->tibLayer( detid );
+	      strip_tib_string_number      = (int)tTopo->tibString( detid ) ;
+	      strip_tib_module_number      = (int)tTopo->tibModule( detid );
+	      strip_tib_is_internal_string = (int)tTopo->tibIsInternalString( detid );
+	      strip_tib_is_external_string = (int)tTopo->tibIsExternalString( detid );
+	      strip_tib_is_rphi            = (int)tTopo->tibIsRPhi( detid );
+	      strip_tib_is_stereo          = (int)tTopo->tibIsStereo( detid );
+	    }
+	  
+	  
+	  if ( (int)detid.subdetId() == int(StripSubdetector::TOB) )
+	    {
+	      
+	      
+	      
+	      strip_tob_layer              = (int)tTopo->tobLayer( detid );
+	      strip_tob_module             = (int)tTopo->tobModule( detid );
+	      
+	      strip_tob_side               = (int)tTopo->tobSide( detid );
+	      strip_tob_is_double_side     = (int)tTopo->tobIsDoubleSide( detid );
+	      strip_tob_is_z_plus_side     = (int)tTopo->tobIsZPlusSide( detid );
+	      strip_tob_is_z_minus_side    = (int)tTopo->tobIsZMinusSide( detid );
+	      strip_tob_layer_number       = (int)tTopo->tobLayer( detid );
+	      strip_tob_rod_number         = (int)tTopo->tobRod( detid );
+	      strip_tob_module_number      = (int)tTopo->tobModule( detid );
+	      
+	      
+	      strip_tob_is_rphi            = (int)tTopo->tobIsRPhi( detid );
+	      strip_tob_is_stereo          = (int)tTopo->tobIsStereo( detid );
+	          
+	    }
+	 
+	 
+	  if ( matchedhit ) 
+	    {
+	      //cout << endl << endl << endl;
+	      //cout << "Found a SiStripMatchedRecHit2D !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endl;
+	      //cout << endl << endl << endl;
+	      strip_hit_type = 0;
+
+	    } //  if ( matchedhit )
+
+   
+	  if ( hit1d )
+	    {
+	      strip_hit_type = 1;
+
+	      const SiStripRecHit1D::ClusterRef & cluster = hit1d->cluster();
+
+	      if ( cluster->getSplitClusterError()  > 0.0 )
+		strip_split = 1;
+	      else 
+		strip_split = 0;
+	      
+	      strip_clst_err_x = cluster->getSplitClusterError();
+	      //strip_clst_err_y = ... 
+
+	      // Get cluster total charge
+	      const std::vector<uint8_t>& stripCharges = cluster->amplitudes();
+	      uint16_t charge = 0;
+	      for (unsigned int i = 0; i < stripCharges.size(); ++i) 
+		{
+		  charge += stripCharges.at(i);
+		}
+	      
+	      strip_charge = (float)charge;
+	      strip_size = (int)( (cluster->amplitudes()).size() );
+
+
+	      // Association of the rechit to the simhit
+	      float mindist = 999999.9;
+	      matched.clear();  
+	      
+	      matched = associate.associateHit(*hit1d);
+
+	      strip_nsimhit = (int)matched.size();
+	      
+	      if ( !matched.empty()) 
+		{
+		  PSimHit closest;
+		  
+		  // Get the closest simhit
+		  
+		  int strip_nprimaries = 0; 
+		  int current_index = 0;
+		 
+		  for ( vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); ++m)
+		    {
+		      ++current_index;
+		      
+		      if ( (*m).processType() == 2 )
+			++strip_nprimaries;
+
+		      if ( current_index == 1 )
+			{
+			  strip_pidhit1 = (*m).particleType();
+			  strip_simproc1 = (*m).processType();
+			}
+		      else if ( current_index == 2 )
+			{
+			  strip_pidhit2 = (*m).particleType();
+			  strip_simproc2 = (*m).processType();
+			}
+		      else if ( current_index == 3 )
+			{
+			  strip_pidhit3 = (*m).particleType();
+			  strip_simproc3 = (*m).processType();
+			}
+		      else if ( current_index == 4 )
+			{
+			  strip_pidhit4 = (*m).particleType();
+			  strip_simproc4 = (*m).processType();
+			}
+		      else if ( current_index == 5 )
+			{
+			  strip_pidhit5 = (*m).particleType();
+			  strip_simproc5 = (*m).processType();
+			}
+
+
+		      float dist = abs( (hit1d)->localPosition().x() - (*m).localPosition().x() );
+		      
+		      if ( dist<mindist )
+			{
+			  mindist = dist;
+			  closest = (*m);
+			}
+		    
+		    } // for ( vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); ++m)
+		  
+		  strip_nprm = strip_nprimaries;
+
+		  strip_rechitresx = strip_rechitx - closest.localPosition().x();
+		  strip_rechitresy = strip_rechity - closest.localPosition().y();
+ 
+		  strip_rechitresx2 = strip_rechitx - matched[0].localPosition().x();
+
+		  strip_rechitpullx = strip_rechitresx / strip_rechiterrx;
+		  strip_rechitpully = strip_rechitresy / strip_rechiterry;
+
+		  strip_pidhit = closest.particleType();
+		  strip_simproc = closest.processType();
+
+		  
+		} //   if( !matched.empty()) 
+		  
+
+	      //strip_prob = (hit1d)->getTemplProb();
+	      //strip_qbin = (hit1d)->getTemplQbin();
+
+	      //cout << endl;
+	      //cout << "SiPixelErrorEstimation 1d hit: " << endl;
+	      //cout << "prob 1d = " << strip_prob << endl;
+	      //cout << "qbin 1d = " << strip_qbin << endl;
+	      //cout << endl;
+
+	      
+	      // Is the cluster on edge ?
+	      /*
+		SiStripDetInfoFileReader* reader;
+		
+		FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+		
+		reader = new SiStripDetInfoFileReader( FileInPath_.fullPath() );
+		
+		uint16_t firstStrip = cluster->firstStrip();
+		uint16_t lastStrip = firstStrip + (cluster->amplitudes()).size() -1;
+		unsigned short Nstrips;
+		Nstrips = reader->getNumberOfApvsAndStripLength(id1).first*128;
+		
+		if ( firstStrip == 0 || lastStrip == (Nstrips-1) ) 
+		strip_edge = 1;
+		else
+		strip_edge = 0;
+	      */
+
+	    } // if ( hit1d )
+
+
+	  if ( hit2d )
+	    {
+	      strip_hit_type = 2;
+	      
+	      const SiStripRecHit1D::ClusterRef & cluster = hit2d->cluster();
+	      
+	      //if ( cluster->getSplitClusterError()  > 0.0 )
+	      //strip_split = 1;
+	      //else 
+	      //strip_split = 0;
+
+	      //strip_clst_err_x = cluster->getSplitClusterError();
+	      //strip_clst_err_y = ... 
+
+	      // Get cluster total charge
+	      const std::vector<uint8_t>& stripCharges = cluster->amplitudes();
+	      uint16_t charge = 0;
+	      for (unsigned int i = 0; i < stripCharges.size(); ++i) 
+		{
+		  charge += stripCharges.at(i);
+		}
+	      
+	      strip_charge = (float)charge;
+	      strip_size = (int)( (cluster->amplitudes()).size() );
+	     
+	      // Association of the rechit to the simhit
+	      float mindist = 999999.9;
+	      matched.clear();  
+	      
+	      matched = associate.associateHit(*hit2d);
+
+	      strip_nsimhit = (int)matched.size();
+	      
+	      if ( !matched.empty()) 
+		{
+		  PSimHit closest;
+		  
+		  // Get the closest simhit
+		  
+		  for ( vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); ++m)
+		    {
+		      float dist = abs( (hit2d)->localPosition().x() - (*m).localPosition().x() );
+		      
+		      if ( dist<mindist )
+			{
+			  mindist = dist;
+			  closest = (*m);
+			}
+		    }
+		  
+		  strip_rechitresx = strip_rechitx - closest.localPosition().x();
+		  strip_rechitresy = strip_rechity - closest.localPosition().y();
+ 
+		  strip_rechitpullx = strip_rechitresx / strip_rechiterrx;
+		  strip_rechitpully = strip_rechitresy / strip_rechiterry;
+
+		  strip_pidhit = closest.particleType();
+		  strip_simproc = closest.processType();
+
+		  
+		} //   if( !matched.empty()) 
+		  
+
+	      //strip_prob = (hit2d)->getTemplProb();
+	      //strip_qbin = (hit2d)->getTemplQbin();
+
+	      //cout << endl;
+	      //cout << "SiPixelErrorEstimation 2d hit: " << endl;
+	      //cout << "prob 2d = " << strip_prob << endl;
+	      //cout << "qbin 2d = " << strip_qbin << endl;
+	      //cout << endl;
+		  
+	      
+	    } // if ( hit2d )
+
+
+	  ttree_track_hits_strip_->Fill();
+
+
+	} // for ( vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); ++itTraj )
+
+    } // for( vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end(); ++it)
+
+
+
+
+
+
+
+
+  //cout << "...2..." << endl;
+
+
+
+
+
+
   // --------------------------------------- all hits -----------------------------------------------------------
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  e.getByLabel( "siPixelRecHits", recHitColl);
+  e.getByToken(tPixRecHitCollection, recHitColl);
 
   Handle<edm::SimTrackContainer> simtracks;
-  e.getByLabel("g4SimHits", simtracks);
+  e.getByToken(tSimTrackContainer, simtracks);
 
   //-----Iterate over detunits
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) 
     {
       DetId detId = ((*it)->geographicalId());
       
-      SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(detId);
-      SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
-      SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
-      SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+      SiPixelRecHitCollection::const_iterator dsmatch = recHitColl->find(detId);
+      if (dsmatch == recHitColl->end()) continue;
+
+      SiPixelRecHitCollection::DetSet pixelrechitRange = *dsmatch;
+      SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+      SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.end();
+      SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
       std::vector<PSimHit> matched;
       
       //----Loop over rechits for this detId
@@ -449,12 +1073,19 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 
 	  all_hit_probx = -9999;
 	  all_hit_proby = -9999;
-	  
+	  all_hit_cprob0 = -9999;
+	  all_hit_cprob1 = -9999;
+	  all_hit_cprob2 = -9999;
+
+	  all_pixel_split = -9999;
+	  all_pixel_clst_err_x = -9999.9;
+	  all_pixel_clst_err_y = -9999.9;
+
 	  all_nsimhit = (int)matched.size();
 	  
 	  all_subdetid = (int)detId.subdetId();
 	  // only consider rechits in pixel barrel and pixel forward 
-	  if ( !(all_subdetid==1 || all_subdetid==2) ) 
+	  if ( !(all_subdetid==1 || all_subdetid==2) )
 	    {
 	      cout << "SiPixelErrorEstimation::analyze: Not in a pixel detector !!!!!" << endl; 
 	      continue;
@@ -463,13 +1094,32 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  const PixelGeomDetUnit* theGeomDet 
 	    = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
 	  
-	  const RectangularPixelTopology* topol = 
-	    dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	  const PixelTopology* topol = &(theGeomDet->specificTopology());
+
+	  if ( pixeliter->cluster()->getSplitClusterErrorX()  > 0.0 && 
+	       pixeliter->cluster()->getSplitClusterErrorY()  > 0.0 )
+	    {
+	      all_pixel_split = 1;
+	    }
+	  else
+	    {
+	      all_pixel_split = 0;
+	    }
+	
+	  all_pixel_clst_err_x = pixeliter->cluster()->getSplitClusterErrorX();
+	  all_pixel_clst_err_y = pixeliter->cluster()->getSplitClusterErrorY();
+
 
 	  const int maxPixelCol = pixeliter->cluster()->maxPixelCol();
 	  const int maxPixelRow = pixeliter->cluster()->maxPixelRow();
 	  const int minPixelCol = pixeliter->cluster()->minPixelCol();
 	  const int minPixelRow = pixeliter->cluster()->minPixelRow();
+	  
+	  //all_hit_probx  = (float)pixeliter->probabilityX();
+	  //all_hit_proby  = (float)pixeliter->probabilityY();
+	  all_hit_cprob0 = (float)pixeliter->clusterProbability(0);
+	  all_hit_cprob1 = (float)pixeliter->clusterProbability(1);
+	  all_hit_cprob2 = (float)pixeliter->clusterProbability(2);
 	  
 	  // check whether the cluster is at the module edge 
 	  if ( topol->isItEdgePixelInX( minPixelRow ) || 
@@ -497,10 +1147,10 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  
 	  if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel ) 
 	    {
-	      PXBDetId bdetid(detId);
-	      all_layer = bdetid.layer();
-	      all_ladder = bdetid.ladder();
-	      all_mod = bdetid.module();
+	      
+	      all_layer = tTopo->pxbLayer(detId);
+	      all_ladder = tTopo->pxbLadder(detId);
+	      all_mod = tTopo->pxbModule(detId);
 	      
 	      int tmp_nrows = theGeomDet->specificTopology().nrows();
 	      if ( tmp_nrows == 80 ) 
@@ -520,12 +1170,12 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	    }
 	  else if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelEndcap )
 	    {
-	      PXFDetId fdetid(detId);
-	      all_side  = fdetid.side();
-	      all_disk  = fdetid.disk();
-	      all_blade = fdetid.blade();
-	      all_panel = fdetid.panel();
-	      all_plaq  = fdetid.module(); // also known as plaquette
+	      
+	      all_side  = tTopo->pxfSide(detId);
+	      all_disk  = tTopo->pxfDisk(detId);
+	      all_blade = tTopo->pxfBlade(detId);
+	      all_panel = tTopo->pxfPanel(detId);
+	      all_plaq  = tTopo->pxfModule(detId); // also known as plaquette
 	      
 	    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
 	  else std::cout << "We are not in the pixel detector" << (int)detId.subdetId() << endl;
@@ -622,7 +1272,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  all_rechitpullx = all_rechitresx / all_rechiterrx;
 	  all_rechitpully = all_rechitresy / all_rechiterry;
 	  
-	  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = pixeliter->cluster();
+	  SiPixelRecHit::ClusterRef const& clust = pixeliter->cluster();
 	  
 	  all_npix = clust->size();
 	  all_nxpix = clust->sizeX();
@@ -642,7 +1292,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  all_clust_minpixcol = clust->minPixelCol();
 	  all_clust_minpixrow = clust->minPixelRow();
 	  
-	  all_clust_geoid = clust->geographicalId();
+	  all_clust_geoid = 0;  // never set!
   
 	  all_simpx  = (*closest_simhit).momentumAtEntry().x();
 	  all_simpy  = (*closest_simhit).momentumAtEntry().y();
@@ -690,22 +1340,28 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      all_pixgy[i]= GP.y();
 	      all_pixgz[i]= GP.z();
 	    }
-	  
+
 	  ttree_all_hits_->Fill();
 	  
-	} // for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) 
+	} // for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter)
+
     } // for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) 
  
   // ------------------------------------------------ all hits ---------------------------------------------------------------
-  
+
+
+  //cout << "...3..." << endl;
+
 
   // ------------------------------------------------ track hits only -------------------------------------------------------- 
+
+  
   
   if ( include_trk_hits_ )
     {
       // Get tracks
       edm::Handle<reco::TrackCollection> trackCollection;
-      e.getByLabel(src_, trackCollection);
+      e.getByToken(tTrackCollection, trackCollection);
       const reco::TrackCollection *tracks = trackCollection.product();
       reco::TrackCollection::const_iterator tciter;
       
@@ -717,9 +1373,9 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      // First loop on hits: find matched hits
 	      for ( trackingRecHit_iterator it = tciter->recHitsBegin(); it != tciter->recHitsEnd(); ++it) 
 		{
-		  const TrackingRecHit &thit = **it;
+		  const TrackingRecHit &trk_rec_hit = **it;
 		  // Is it a matched hit?
-		  const SiPixelRecHit* matchedhit = dynamic_cast<const SiPixelRecHit*>(&thit);
+		  const SiPixelRecHit* matchedhit = dynamic_cast<const SiPixelRecHit*>(&trk_rec_hit);
 		  
 		  if ( matchedhit ) 
 		    {
@@ -770,6 +1426,17 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 		      
 		      simhitx = -9999.9;
 		      simhity = -9999.9;
+
+		      hit_probx = -9999.9;
+		      hit_proby = -9999.9;
+		      hit_cprob0 = -9999.9;
+		      hit_cprob1 = -9999.9;
+		      hit_cprob2 = -9999.9;
+  
+		      pixel_split = -9999;
+
+		      pixel_clst_err_x = -9999.9;
+		      pixel_clst_err_y = -9999.9;
 		      
 		      position = (*it)->localPosition();
 		      error = (*it)->localPositionError();
@@ -784,6 +1451,22 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 		      nxpix = matchedhit->cluster()->sizeX();
 		      nypix = matchedhit->cluster()->sizeY();
 		      charge = matchedhit->cluster()->charge();
+
+		      if ( matchedhit->cluster()->getSplitClusterErrorX() > 0.0 && 
+			   matchedhit->cluster()->getSplitClusterErrorY() > 0.0 )
+			pixel_split = 1;
+		      else
+			pixel_split = 0;
+		      
+		      pixel_clst_err_x = matchedhit->cluster()->getSplitClusterErrorX();
+		      pixel_clst_err_y = matchedhit->cluster()->getSplitClusterErrorY();
+
+		      //hit_probx  = (float)matchedhit->probabilityX();
+		      //hit_proby  = (float)matchedhit->probabilityY();
+		      hit_cprob0 = (float)matchedhit->clusterProbability(0);
+		      hit_cprob1 = (float)matchedhit->clusterProbability(1);
+		      hit_cprob2 = (float)matchedhit->clusterProbability(2);
+		      
 		      
 		      //Association of the rechit to the simhit
 		      matched.clear();
@@ -833,17 +1516,16 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			  
 			  //if ( n_assoc_muon > 1 )
 			  //{
-			  //  cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
-			  //  cout << "evt = " << evt << endl;
+			  //  // cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
+			  //  // cout << "evt = " << evt << endl;
 			  //}
 			  
-			  detId = (*it)->geographicalId();
+			  DetId detId = (*it)->geographicalId();
 
 			  const PixelGeomDetUnit* theGeomDet =
 			    dynamic_cast<const PixelGeomDetUnit*> ((*tracker).idToDet(detId) );
 			  
-			  const RectangularPixelTopology* theTopol = 
-			    dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+			  const PixelTopology* theTopol = &(theGeomDet->specificTopology());
 
 			  pidhit = (*closestit).particleType();
 			  simproc = (int)(*closestit).processType();
@@ -921,12 +1603,8 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			  subdetId = (int)detId.subdetId();
 			  
 			  if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel ) 
-			    {
-			      //const PixelGeomDetUnit* theGeomDet 
-			      //= dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
-			      //const RectangularPixelTopology * topol 
-			      //= dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
-			      
+			    { 
+	  
 			      int tmp_nrows = theGeomDet->specificTopology().nrows();
 			      if ( tmp_nrows == 80 ) 
 				half = 1;
@@ -943,19 +1621,19 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			      else 
 				flipped = 0;
 			      
-			      PXBDetId  bdetid(detId);
-			      layer  = bdetid.layer();   // Layer: 1,2,3.
-			      ladder = bdetid.ladder();  // Ladder: 1-20, 32, 44. 
-			      mod   = bdetid.module();  // Mod: 1-8.
+			      
+			      layer  = tTopo->pxbLayer(detId);   // Layer: 1,2,3.
+			      ladder = tTopo->pxbLadder(detId);  // Ladder: 1-20, 32, 44. 
+			      mod   = tTopo->pxbModule(detId);  // Mod: 1-8.
 			    }			  
 			  else if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelEndcap )
 			    {
-			      PXFDetId fdetid(detId);
-			      side  = fdetid.side();
-			      disk  = fdetid.disk();
-			      blade = fdetid.blade();
-			      panel = fdetid.panel();
-			      plaq  = fdetid.module(); // also known as plaquette
+			      
+			      side  = tTopo->pxfSide(detId);
+			      disk  = tTopo->pxfDisk(detId);
+			      blade = tTopo->pxfBlade(detId);
+			      panel = tTopo->pxfPanel(detId);
+			      plaq  = tTopo->pxfModule(detId); // also known as plaquette
 			      
 			      float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
 			      float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
@@ -966,7 +1644,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 				flipped = 0;
 			      
 			    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
-			  //else std::cout << "We are not in the pixel detector. detId.subdetId() = " << (int)detId.subdetId() << endl;
+			  //else std::// cout << "We are not in the pixel detector. detId.subdetId() = " << (int)detId.subdetId() << endl;
 			  
 			  ttree_track_hits_->Fill();
 			  
@@ -983,6 +1661,8 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	} // tracks > 0.
      
     } // if ( include_trk_hits_ )
+
+ 
 
   // ----------------------------------------------- track hits only -----------------------------------------------------------
   
@@ -1001,8 +1681,7 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
       assert(0);
     }
 
-  const RectangularPixelTopology* theTopol = 
-    dynamic_cast<const RectangularPixelTopology*>(&(theDet->specificTopology()));
+  const PixelTopology* theTopol = &(theDet->specificTopology());
 
   // get cluster center of gravity (of charge)
   float xcenter = cl.x();

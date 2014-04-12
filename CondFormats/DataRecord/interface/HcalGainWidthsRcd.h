@@ -2,6 +2,7 @@
 // name: ratnikov, date: Mon Sep 26 17:02:44 CDT 2005
 #ifndef HcalGainWidthsRcd_H
 #define HcalGainWidthsRcd_H
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-class HcalGainWidthsRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalGainWidthsRcd> {};
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+class HcalGainWidthsRcd : public edm::eventsetup::DependentRecordImplementation<HcalGainWidthsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
 #endif

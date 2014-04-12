@@ -5,8 +5,6 @@
  *   L1 DT Track Finder Raw-to-Digi
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
- *   $Revision: 1.1 $
  *
  *   J. Troconiz  UAM Madrid
  *   E. Delmeire  UAM Madrid
@@ -22,6 +20,7 @@
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 #include <string>
 
@@ -46,6 +45,10 @@ class DTTFFEDReader : public edm::EDProducer {
 
  private:
   
+  edm::InputTag DTTFInputTag;
+
+  bool verbose_;
+
   // Operations
 
   // access data
@@ -64,12 +67,19 @@ class DTTFFEDReader : public edm::EDProducer {
   // process data
   void process(edm::Event& e);
 
+  // Match PHTF - ETTF tracks
+  void match();
+
   // data containers
   L1MuDTChambPhContainer::Phi_Container phiSegments;
 
   L1MuDTChambThContainer::The_Container theSegments;
 
   L1MuDTTrackContainer::TrackContainer  dtTracks;
+
+  unsigned int etTrack[3][12][6][2];
+
+  unsigned int efTrack[3][12][6][2];
 
   // utilities
   int channel(int wheel, int sector, int bx);
@@ -80,7 +90,9 @@ class DTTFFEDReader : public edm::EDProducer {
 
   int wheel(int channel);
 
-  void calcCRC(long myD1, long myD2, int &myC);
+  void calcCRC(int myD1, int myD2, int &myC);
+
+  edm::InputTag getDTTFInputTag() { return DTTFInputTag; }
 
 };
 #endif

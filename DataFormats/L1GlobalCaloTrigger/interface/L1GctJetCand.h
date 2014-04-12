@@ -1,7 +1,6 @@
 #ifndef L1GCTJETCAND_H
 #define L1GCTJETCAND_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <string>
 
@@ -22,10 +21,10 @@ public:
   L1GctJetCand();
 
   /// construct from raw data - used in GT
-  L1GctJetCand(uint16_t data, bool isTau, bool isFor);
+  L1GctJetCand(uint16_t rawData, bool isTau, bool isFor);
 
   /// construct from raw data with source - uesd in GCT unpacker
-  L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
+  L1GctJetCand(uint16_t rawData, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
 
   /// construct from rank, eta, phi, isolation - used in GCT emulator
   /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
@@ -45,13 +44,13 @@ public:
   std::string name() const;
 
   /// was an object really found?
-  bool empty() const;
+  bool empty() const  { return (rank() == 0); }
 
   /// get the raw data
   uint16_t raw() const { return m_data; }
   
   /// get rank bits
-  unsigned rank() const { return m_data & 0x3f; }
+  unsigned rank() const  { return m_data & 0x3f; }
 
   /// get eta index (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
   unsigned etaIndex() const { return (m_data>>6) & 0xf; }
@@ -60,7 +59,7 @@ public:
   unsigned etaSign() const { return (m_data>>9) & 0x1; }
   
   /// get phi index (0-17)
-  unsigned phiIndex() const { return (m_data>>10) & 0x1f; }
+  unsigned phiIndex() const  { return (m_data>>10) & 0x1f; }
 
   /// check if this is a central jet
   bool isCentral() const { return (!m_isTau) && (!m_isFor); }
@@ -72,13 +71,13 @@ public:
   bool isForward() const { return m_isFor; }
 
   /// which capture block did this come from
-  unsigned capBlock() const { return (m_source>>9) & 0x7f; }
+  unsigned capBlock() const { return m_captureBlock; }
 
   /// what index within capture block
-  unsigned capIndex() const { return m_source&0x1ff; }
+  unsigned capIndex() const { return m_captureIndex; }
 
   /// get bunch-crossing index
-  int bx() const { return m_bx; }
+  int16_t bx() const { return m_bx; }
 
   /// equality operator
   int operator==(const L1GctJetCand& c) const { return ((m_data==c.raw() && 
@@ -86,16 +85,15 @@ public:
                                                  || (this->empty() && c.empty())); }
 
    /// inequality operator
-  int operator!=(const L1GctJetCand& c) const { return ((m_data!=c.raw() || 
-                                                m_isTau!=c.isTau() || m_isFor!=c.isForward())
-                                                && (!this->empty() || !c.empty())); }
+  int operator!=(const L1GctJetCand& c) const { return !(*this == c); }
 
 private:
 
   uint16_t m_data;
   bool m_isTau;
   bool m_isFor;
-  uint16_t m_source;
+  uint16_t m_captureBlock;
+  uint8_t m_captureIndex;
   int16_t m_bx;
 
  };

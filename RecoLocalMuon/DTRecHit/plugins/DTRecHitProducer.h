@@ -6,12 +6,11 @@
  *  is specified with the parameter "recAlgo" and must be configured with the
  *  "recAlgoConfig" parameter set.
  *
- *  $Date: 2006/03/14 13:06:15 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
   class ParameterSet;
@@ -34,9 +33,9 @@ public:
 
 private:
   // Switch on verbosity
-  static bool debug;
+  const bool debug;
   // The label to be used to retrieve DT digis from the event
-  std::string theDTDigiLabel;
+  edm::InputTag theDTDigiLabel;
   // The reconstruction algorithm
   DTRecHitBaseAlgo *theAlgo;
 //   static string theAlgoName;

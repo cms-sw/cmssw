@@ -6,8 +6,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/03/30 16:10:06 $
- *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -20,9 +18,10 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
@@ -51,7 +50,10 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  /// Analyze
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -62,21 +64,39 @@ protected:
   /// book the new ME
   void bookHistos(const DTLayerId & ch, int firstWire, int lastWire);
 
+  /// book the summary histograms
+  void bookHistos(int wh);
+
   /// Get the ME name
   std::string getMEName(std::string histoTag, const DTLayerId & lID);
+
+  
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+
+  /// DQM Client Diagnostic
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
 
 
 private:
 
   int nevents;
+  unsigned int nLumiSegs;
+  int prescaleFactor;
+  int run;
+  int percentual;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
 
-  std::map< std::string , MonitorElement* > EfficiencyHistos;
-  std::map< std::string , MonitorElement* > UnassEfficiencyHistos;
+  std::map< DTLayerId , MonitorElement* > EfficiencyHistos;
+  std::map< DTLayerId , MonitorElement* > UnassEfficiencyHistos;
+
+  // wheel summary histograms  
+  std::map< int, MonitorElement* > wheelHistos;  
+  std::map< int, MonitorElement* > wheelUnassHistos;
   
 };
 

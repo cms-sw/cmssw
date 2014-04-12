@@ -5,16 +5,16 @@
  * 
  *  ESProducer for DTGeometry in MuonGeometryRecord
  *
- *  $Date: 2007/04/19 14:55:52 $
- *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
 #include <FWCore/Framework/interface/ESProducer.h>
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <boost/shared_ptr.hpp>
+
+#include <string>
 
 class DTGeometryESModule : public edm::ESProducer {
 public:
@@ -25,14 +25,17 @@ public:
   virtual ~DTGeometryESModule();
 
   /// Produce DTGeometry.
-  boost::shared_ptr<DTGeometry>  produce(const MuonGeometryRecord & record);
+  boost::shared_ptr<DTGeometry> produce(const MuonGeometryRecord& record);
 
 private:  
-  /// Called when geometry description changes
-  void geometryCallback_( const MuonNumberingRecord& );
+  void geometryCallback_( const MuonNumberingRecord& record ) ;
+  void dbGeometryCallback_( const DTRecoGeometryRcd& record ) ;
   boost::shared_ptr<DTGeometry> _dtGeometry;
-  bool applyAlignment_; // Switch to apply alignment corrections
 
+  bool applyAlignment_; // Switch to apply alignment corrections
+  const std::string alignmentsLabel_;
+  const std::string myLabel_;
+  bool fromDDD_;
 };
 #endif
 

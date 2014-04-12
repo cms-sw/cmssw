@@ -1,10 +1,7 @@
-#include "MagneticField/Interpolation/src/TrapezoidalCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
-#include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
+#include "TrapezoidalCylindricalMFGrid.h"
+#include "binary_ifstream.h"
+#include "LinearGridInterpolator3D.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
-
-// #include "Utilities/Notification/interface/TimingReport.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
 
 #include <iostream>
 
@@ -14,6 +11,22 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
 							const GloballyPositioned<float>& vol)
   : MFGrid3D(vol)
 {
+  // The parameters read from the data files are given in global coordinates.
+  // In version 85l, local frame has the same orientation of global frame for the reference
+  // volume, i.e. the r.f. transformation is only a translation.
+  // There is therefore no need to convert the field values to local coordinates.
+  // Check this assumption: 
+  GlobalVector localXDir(frame().toGlobal(LocalVector(1,0,0)));
+  GlobalVector localYDir(frame().toGlobal(LocalVector(0,1,0)));
+
+  if (localXDir.dot(GlobalVector(1,0,0)) > 0.999999 &&
+      localYDir.dot(GlobalVector(0,1,0)) > 0.999999) {
+    // "null" rotation - requires no conversion...
+  } else {
+    cout << "ERROR: TrapezoidalCylindricalMFGrid: unexpected orientation: x: " 
+	 << localXDir << " y: " << localYDir << endl;
+  }
+
   int n1, n2, n3;
   inFile >> n1 >> n2 >> n3;
   double xref, yref, zref;
@@ -36,6 +49,7 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
   vector<BVector> fieldValues;
   float Bx, By, Bz;
   int nLines = n1*n2*n3;
+  fieldValues.reserve(nLines);
   for (int iLine=0; iLine<nLines; ++iLine){
     inFile >> Bx >> By >> Bz;
     fieldValues.push_back(BVector(Bx,By,Bz));
@@ -44,7 +58,7 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
   string lastEntry;
   inFile >> lastEntry;
   if (lastEntry != "complete") {
-    cout << "error during file reading: file is not complete" << endl;
+    cout << "ERROR during file reading: file is not complete" << endl;
   }
 
 #ifdef DEBUG_GRID
@@ -86,9 +100,9 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
 #endif
 
   double baMinus1 = BasicDistance1[0][2]*(n3-1) / stepx;
-  if (abs(baMinus1) > 0.000001) {
+  if (std::abs(baMinus1) > 0.000001) {
     double b_over_a = 1 + baMinus1;
-    double a1 = abs(baMinus1) > 0.000001 ? delta / baMinus1 : a/2;
+    double a1 = std::abs(baMinus1) > 0.000001 ? delta / baMinus1 : a/2;
 #ifdef DEBUG_GRID
    cout << "a1 = " << a1 << endl;
 #endif
@@ -104,9 +118,9 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
   double xrec, yrec;
   mapping_.rectangle( lrefp.perp(), lrefp.z(), xrec, yrec);
 
-  Grid1D<double> gridX( xrec, xrec + (a+b)/2., n1);
-  Grid1D<double> gridY( yref, yref + stepy*(n2-1), n2);
-  Grid1D<double> gridZ( yrec, yrec + h, n3);
+  Grid1D gridX( xrec, xrec + (a+b)/2., n1);
+  Grid1D gridY( yref, yref + stepy*(n2-1), n2);
+  Grid1D gridZ( yrec, yrec + h, n3);
   grid_ = GridType( gridX, gridY, gridZ, fieldValues);
     
   // Activate/deactivate timers
@@ -123,10 +137,10 @@ TrapezoidalCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(TrapezoidalCylindricalMFGrid)"];
 //   TimeMe t(timer,false);
 
-  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
+  LinearGridInterpolator3D interpol( grid_);
   double a, b, c;
   toGridFrame( p, a, b, c);
-  GlobalVector gv( interpol( a, b, c)); // grid in global frame
+  GlobalVector gv( interpol.interpolate( a, b, c)); // grid in global frame
   return frame().toLocal(gv);           // must return a local vector
 }
 
@@ -134,7 +148,9 @@ void TrapezoidalCylindricalMFGrid::toGridFrame( const LocalPoint& p,
 					      double& a, double& b, double& c) const
 {
   mapping_.rectangle( p.perp(), p.z(), a, c);
-  b = Geom::pi() - p.phi();
+  // FIXME: "OLD" convention of phi.
+  //  b = Geom::pi() - p.phi();
+  b = p.phi();
 }
 
 MFGrid::LocalPoint 
@@ -142,5 +158,7 @@ TrapezoidalCylindricalMFGrid::fromGridFrame( double a, double b, double c) const
 {
   double rtrap, ztrap;
   mapping_.trapezoid( a, c, rtrap, ztrap);
-  return LocalPoint(LocalPoint::Cylindrical(rtrap, Geom::pi() - b, ztrap));
+  // FIXME: "OLD" convention of phi.
+  //  return LocalPoint(LocalPoint::Cylindrical(rtrap, Geom::pi() - b, ztrap));
+  return LocalPoint(LocalPoint::Cylindrical(rtrap, b, ztrap));
 }

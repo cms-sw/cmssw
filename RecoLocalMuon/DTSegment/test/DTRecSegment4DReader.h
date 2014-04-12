@@ -7,8 +7,6 @@
  *  
  * detailed description
  *
- * $Date: 2006/05/04 12:19:17 $
- * $Revision: 1.1 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */

@@ -14,6 +14,11 @@ public:
   BaseTagInfo(void) { }
 
   virtual ~BaseTagInfo(void) { }
+
+  /// clone
+  virtual BaseTagInfo * clone(void) const {
+    return new BaseTagInfo(*this);
+  }
   
   /// returns a polymorphic reference to the tagged jet
   virtual edm::RefToBase<Jet> jet(void) const { 

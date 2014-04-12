@@ -21,7 +21,6 @@ called by the dynamic loading code.
 //
 // Original Author:  
 //         Created:  Tue Nov 22 15:35:11 EST 2005
-// $Id$
 //
 
 // system include files

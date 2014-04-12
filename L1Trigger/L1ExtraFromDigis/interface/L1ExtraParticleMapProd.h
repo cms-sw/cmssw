@@ -12,7 +12,6 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:14:00 EDT 2006
-// $Id: L1ExtraParticleMapProd.h,v 1.7 2007/08/01 18:54:13 jbrooke Exp $
 //
 
 // system include files
@@ -23,12 +22,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 // forward declarations
@@ -152,6 +154,7 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
       edm::InputTag forJetSource_ ;
       edm::InputTag tauJetSource_ ;
       edm::InputTag etMissSource_ ;
+      edm::InputTag htMissSource_ ;
 
       double singleThresholds_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ];
       int prescales_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ] ;

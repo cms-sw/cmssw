@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CaloRecHitCandidate.h,v 1.1 2006/11/14 10:38:06 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -22,6 +21,9 @@ namespace reco {
     CaloRecHitCandidate() : LeafCandidate() { }
     /// constructor from values
     CaloRecHitCandidate( const LorentzVector & p4, Charge q = 0, const Point & vtx = Point( 0, 0, 0 ) ) :
+      LeafCandidate( q, p4, vtx ) { }
+    /// constructor from values
+    CaloRecHitCandidate( const PolarLorentzVector & p4, Charge q = 0, const Point & vtx = Point( 0, 0, 0 ) ) :
       LeafCandidate( q, p4, vtx ) { }
     /// destructor
     virtual ~CaloRecHitCandidate();

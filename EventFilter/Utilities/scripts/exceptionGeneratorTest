@@ -1,0 +1,72 @@
+#!/usr/bin/env perl
+
+################################################################################
+#
+# exceptionGeneratorTest
+# ----------
+#
+# Run Exception generator tests on FU EventFilter Processor
+#
+#                          05/16/2012 Srecko Morovic
+################################################################################
+
+my $usage =
+  "USAGE:\nexceptionGeneratorTest - run tests on ExceptionGenerator in slave EP's         \n\n" .
+  "\t-help                (print this                                           )\n" .
+  "\t-host                (host to run on               [default: local host   ])\n" .
+  "\t-port                (port to connect to           [default: 40002        ])\n" .
+  "\t-mask                (mask of slave slots to test  [default: 0xffffffff   ])\n" .
+  "\t-lid                 (EP local id                  [default: 50           ])\n" .
+  "\t-action              (Exception action id          [default: 8 (segv)     ])\n" .
+  "\t-qualifier           (parameter to action id       [default: 0            ])\n" .
+  "\n";
+die $usage if($ARGV[0] eq "-help");
+die $usage if($ARGV[0] eq "");
+
+print "\n============================================================";
+print "\nexceptionGeneratorTest...";
+print "\n============================================================\n";
+
+# set variables
+my $hostname = `hostname -f`;
+chop($hostname);
+my $EPport = 40002;
+my $EPappname = "evf::FUEventProcessor";
+my $EPid=50;
+
+my $mask=0xffffffff;
+my $testtype=8;
+my $testqual=0;
+
+foreach $param (@ARGV) {
+    if    ($param eq "-host")        { $hostname="fillme";}
+    elsif ($hostname eq "fillme")    { $hostname=$param;  }
+    elsif ($param eq "-port")        { $EPport="fillme";}
+    elsif ($EPport eq "fillme")      { $EPport=$param;  }
+    elsif ($param eq "-mask")        { $mask="fillme";}
+    elsif ($mask eq "fillme")        { $mask=hex($param);  }
+    elsif ($param eq "-lid")         { $EPid="fillme";}
+    elsif ($EPid eq "fillme")        { $EPid=$param;  }
+    elsif ($param eq "-action")      { $testtype="fillme";}
+    elsif ($testtype eq "fillme")    { $testtype=$param;  }
+    elsif ($param eq "-qualifier")   { $testqual="fillme";}
+    elsif ($testqual eq "fillme")    { $testqual=$param;  }
+} 
+
+my $EPs = "http://$hostname:$EPport/urn:xdaq-application:lid=$EPid/getSlavePids";
+my $pids = `curl -s $EPs`;
+print "\ngot slave EP pids: $pids ...\n\n";
+@tokens = split(/,/,$pids);
+
+my $EPx = "http://$hostname:$EPport/urn:xdaq-application:lid=$EPid/SubWeb?process=";
+my $count = 0;
+
+foreach my $token (@tokens) {
+   if ((1<<$count) & $mask) {
+    my $cmd = $EPx.$token."&method=moduleWeb&module=ExceptionGenerator&exceptionType=$testtype"."&qualifier=$testqual";
+     print "calling exception for http://".$hostname.":".$EPport."/urn:xdaq-application:lid=$EPid test $testtype qualifier:$testqual \n";
+    `curl -s "$cmd"`;
+   }
+   $count = $count+1;
+}
+

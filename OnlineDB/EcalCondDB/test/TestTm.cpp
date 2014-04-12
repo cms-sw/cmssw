@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
+#include <time.h>
 
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
+
 
 
 using namespace std;
@@ -50,6 +52,29 @@ int main (int argc, char* argv[])
   Tm t_inf_p( t_inf.microsTime() );
   cout << "t_inf_p:          " << t_inf_p.str() << endl;
   cout << "t_inf_p: micros:  " << t_inf_p.microsTime() << endl << endl;
+
+  // daylight saving time
+  Tm t_nodst(1249083000ULL * 1000000);
+  cout << "t_nodst.dumpTm(): " << endl;
+  t_nodst.dumpTm();
+  cout << "t_nodst:             " << t_nodst.str() << endl;
+  cout << "t_nodst micros:      " << t_nodst.microsTime() << endl;
+
+  Tm t_nodst_p( t_nodst.microsTime() );
+  cout << "t_nodst_p:           " << t_nodst_p.str() << endl;
+  cout << "t_nodst_p micros:    " << t_nodst_p.microsTime() << endl << endl;
+  
+  struct tm tm_isdst = t_nodst.c_tm();
+  mktime(&tm_isdst);
+  Tm t_isdst(&tm_isdst);
+  cout << "t_isdst.dumpTm(): " << endl;
+  t_isdst.dumpTm();
+  cout << "t_isdst:             " << t_isdst.str() << endl;
+  cout << "t_isdst micros:      " << t_isdst.microsTime() << endl;
+
+  Tm t_isdst_p( t_isdst.microsTime() );
+  cout << "t_isdst_p:           " << t_isdst_p.str() << endl;
+  cout << "t_isdst_p micros:    " << t_isdst_p.microsTime() << endl << endl;
 
   return 0;
 }

@@ -8,17 +8,17 @@ SurveyDet::SurveyDet(const AlignableSurface& surface,
   const align::Scalar W3 = surface.width()  / 3.;
   const align::Scalar L3 = surface.length() / 3.;
 
-  thePoints.reserve(9); // 9 survey points
+  thePoints.reserve(4); // 4 survey points
 
-  thePoints.push_back( align::LocalPoint( 0.,  0., 0.) );
+//   thePoints.push_back( align::LocalPoint( 0.,  0., 0.) );
   thePoints.push_back( align::LocalPoint( W3,  0., 0.) );
-  thePoints.push_back( align::LocalPoint( W3,  L3, 0.) );
+//   thePoints.push_back( align::LocalPoint( W3,  L3, 0.) );
   thePoints.push_back( align::LocalPoint( 0.,  L3, 0.) );
-  thePoints.push_back( align::LocalPoint(-W3,  L3, 0.) );
+//   thePoints.push_back( align::LocalPoint(-W3,  L3, 0.) );
   thePoints.push_back( align::LocalPoint(-W3,  0., 0.) );
-  thePoints.push_back( align::LocalPoint(-W3, -L3, 0.) );
+//   thePoints.push_back( align::LocalPoint(-W3, -L3, 0.) );
   thePoints.push_back( align::LocalPoint( 0., -L3, 0.) );
-  thePoints.push_back( align::LocalPoint( W3, -L3, 0.) );
+//   thePoints.push_back( align::LocalPoint( W3, -L3, 0.) );
 }
 
 AlgebraicMatrix SurveyDet::derivatives(unsigned int index) const

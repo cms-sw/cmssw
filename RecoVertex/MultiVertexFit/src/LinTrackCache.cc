@@ -5,7 +5,7 @@ using namespace std;
 
 namespace
 {
-  int verbose()
+  inline int verbose()
   {
     static const int ret = 0; /* SimpleConfigurable<int>
       (0, "LinTrackCache:Debug").value(); */
@@ -22,7 +22,7 @@ namespace
   }
 }
 
-RefCountedLinearizedTrackState LinTrackCache::linTrack
+LinTrackCache::RefCountedLinearizedTrackState LinTrackCache::linTrack
     ( const GlobalPoint & pos, const reco::TransientTrack & rt )
 {
   if ( theHasLinTrack[pos][rt] )

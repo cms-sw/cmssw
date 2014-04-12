@@ -2,7 +2,6 @@
 #define _CSC_FAKE_CROSSTALK_MAP
 
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
 class CSCFakeCrosstalkMap{
  public:
@@ -22,7 +21,6 @@ class CSCFakeCrosstalkMap{
   long int theM;
   
   CSCcrosstalk *cncrosstalk ;
-  const CSCGeometry *geometry;
   
 };
 

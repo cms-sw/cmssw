@@ -80,24 +80,24 @@ void test()
 
 	MVAComputer *computer = new MVAComputer(calib);
 
-	test[0].value = 2;
-	test[1].value = 2;
+	test[0].setValue(2);
+	test[1].setValue(2);
 	std::cout << "at (+2.0, +2.0): " << computer->eval(test) << std::endl;
 
-	test[0].value = 0.1;
-	test[1].value = 0.1;
+	test[0].setValue(0.1);
+	test[1].setValue(0.1);
 	std::cout << "at (+0.1, +0.1): " << computer->eval(test) << std::endl;
 
-	test[0].value = 0;
-	test[1].value = 0;
-	std::cout << "at (+2.0, +2.0): " << computer->eval(test) << std::endl;
+	test[0].setValue(0);
+	test[1].setValue(0);
+	std::cout << "at (+0.0, +0.0): " << computer->eval(test) << std::endl;
 
-	test[0].value = -0.1;
-	test[1].value = -0.1;
+	test[0].setValue(-0.1);
+	test[1].setValue(-0.1);
 	std::cout << "at (-0.1, -0.1): " << computer->eval(test) << std::endl;
 
-	test[0].value = -2;
-	test[1].value = -2;
+	test[0].setValue(-2);
+	test[1].setValue(-2);
 	std::cout << "at (-2.0, -2.0): " << computer->eval(test) << std::endl;
 
 	delete computer;

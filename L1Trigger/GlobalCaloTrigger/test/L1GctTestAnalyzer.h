@@ -13,7 +13,6 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 16:45:23 CEST 2006
-// $Id: L1GctTestAnalyzer.h,v 1.7 2007/03/02 15:49:18 jbrooke Exp $
 //
 //
 
@@ -24,7 +23,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
 #include <fstream>
@@ -44,6 +43,7 @@ public:
   void doInternEM(const edm::Event&, edm::InputTag label);
   void doEM(const edm::Event&, edm::InputTag label);
   void doJets(const edm::Event&, edm::InputTag label);
+  void doEnergySums(const edm::Event&, edm::InputTag label);
   
 private:
   // ----------member data ---------------------------
@@ -59,6 +59,7 @@ private:
   bool doInternEM_;
   bool doEM_;
   bool doJets_;
+  bool doEnergySums_;
 
   unsigned rctEmMinRank_;
   

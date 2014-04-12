@@ -35,7 +35,7 @@ int ALIUtils::IsNumber( const ALIstring& str)
 {
   int isnum = 1;
   int numE = 0;
-  for(uint ii=0; ii<str.length(); ii++){
+  for(ALIuint ii=0; ii<str.length(); ii++){
     if(!isdigit(str[ii]) && str[ii]!='.' && str[ii]!='-' && str[ii]!='+') {
       //--- check for E(xponential)
       if(str[ii] == 'E' || str[ii] == 'e' ) {
@@ -58,7 +58,7 @@ int ALIUtils::IsNumber( const ALIstring& str)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Dump a Hep3DVector with the chosen precision
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void ALIUtils::dump3v( const Hep3Vector& vec, const std::string& msg) 
+void ALIUtils::dump3v( const CLHEP::Hep3Vector& vec, const std::string& msg) 
 {
   //  double phicyl = atan( vec.y()/vec.x() );
   std::cout << msg << std::setprecision(8) << vec;
@@ -74,7 +74,7 @@ void ALIUtils::dump3v( const Hep3Vector& vec, const std::string& msg)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void ALIUtils::dumprm( const HepRotation& rm, const std::string& msg, std::ostream& out) 
+void ALIUtils::dumprm( const CLHEP::HepRotation& rm, const std::string& msg, std::ostream& out) 
 {
 
   out << msg << " xx=" << rm.xx() << " xy=" << rm.xy() << " xz=" << rm.xz() << std::endl;
@@ -425,7 +425,7 @@ int ALIUtils::getInt( const ALIstring& str )
     //----- Check that it is not a float, no decimal or E-n
     bool isFloat = 0;
     int ch = str.find('.');
-    uint ii = 0;
+    ALIuint ii = 0;
     if(ch != -1 ) {
       for( ii = ch+1; ii < str.size(); ii++) {
 	if( str[ii] != '0' ) isFloat = 1;
@@ -501,8 +501,8 @@ ALIstring ALIUtils::subQuotes( const ALIstring& str )
 void ALIUtils::dumpVS( const std::vector<ALIstring>& wl , const std::string& msg, std::ostream& outs ) 
 {
   outs << msg << std::endl;
-  uint siz = wl.size();
-  for( uint ii=0; ii< siz; ii++ ){
+  ALIuint siz = wl.size();
+  for( ALIuint ii=0; ii< siz; ii++ ){
     outs << wl[ii] << " ";
     /*  ostream_iterator<ALIstring> os(outs," ");
 	copy(wl.begin(), wl.end(), os);*/
@@ -559,7 +559,7 @@ ALIdouble ALIUtils::getDimensionValue( const ALIstring& dim, const ALIstring& di
 
 /*
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-std::ostream& operator << (std::ostream& os, const HepRotation& rm)
+std::ostream& operator << (std::ostream& os, const CLHEP::HepRotation& rm)
 {
 
   return os << " xx=" << rm.xx() << " xy=" << rm.xy() << " xz=" << rm.xz() << std::endl
@@ -574,7 +574,7 @@ std::string ALIUtils::changeName( const std::string& oldName, const std::string&
 {
 
   std::string newName = oldName;
-  int il = oldName.find( subsstr1, il );
+  int il = oldName.find( subsstr1 );
   //  std::cout << " il " << il << " oldname " << oldName << " " << subsstr1 << std::endl;
   while( il >= 0 ) {
     newName = newName.substr( 0, il ) + subsstr2 +  newName.substr( il+subsstr1.length(), newName.length() );
@@ -757,7 +757,7 @@ double ALIUtils::diff2pi( double ang1, double ang2 )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 bool ALIUtils::eq2ang( double ang1, double ang2 ) 
 {
-  bool beq;
+  bool beq = true;
 
   double pii = acos(0.)*2;
   double diff = diff2pi( ang1, ang2 );

@@ -4,8 +4,6 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +11,19 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
+class MonitorElement;
+class DQMStore;
 
 class EETimingTask: public edm::EDAnalyzer{
 
@@ -25,16 +35,27 @@ EETimingTask(const edm::ParameterSet& ps);
 /// Destructor
 virtual ~EETimingTask();
 
+static const float shiftProf2D;
+
 protected:
 
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -46,16 +67,39 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
-edm::InputTag EcalUncalibratedRecHitCollection_;
+bool mergeRuns_;
 
+float energyThreshold_;
+
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
+edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> L1GtEvmReadoutRecord_;
+
+MonitorElement* meTime_[18];
 MonitorElement* meTimeMap_[18];
+MonitorElement* meTimeAmpli_[18];
+
+MonitorElement* meTimeAmpliSummary_[2];
+MonitorElement* meTimeSummary1D_[2];
+ MonitorElement* meTimeSummaryMap_[2];
+MonitorElement* meTimeDelta_, *meTimeDelta2D_;
+
+edm::ESHandle<CaloGeometry> pGeometry_;
 
 bool init_;
+bool initCaloGeometry_;
+
+bool useBeamStatus_;
+bool stableBeamsDeclared_;
 
 };
+
+const float EETimingTask::shiftProf2D = 50.;
 
 #endif

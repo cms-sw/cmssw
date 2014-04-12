@@ -14,12 +14,11 @@
 #include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
 
-using namespace edm;
-using namespace std;
+
+
 
 namespace reco { 
   class PFCombinedTauTagInfo : public BaseTagInfo{

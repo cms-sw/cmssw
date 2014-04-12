@@ -1,4 +1,5 @@
 #include "OnlineDB/EcalCondDB/interface/DCUTag.h"
+#include "OnlineDB/EcalCondDB/interface/DCUCCSDat.h"
 #include "OnlineDB/EcalCondDB/interface/DCUIOV.h"
 #include "OnlineDB/EcalCondDB/interface/DCUCapsuleTempDat.h"
 #include "OnlineDB/EcalCondDB/interface/DCUCapsuleTempRawDat.h"

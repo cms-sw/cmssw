@@ -1,215 +1,161 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.34 2007/06/29 03:43:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
-
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "FWCore/Framework/src/CPCSentry.h"
 
-using std::vector;
-using std::string;
-
+#include <cassert>
+#include <iostream>
 
 namespace edm {
-  // This grotesque little function exists just to allow calling of
-  // ConstProductRegistry::allBranchDescriptions in the context of
-  // OutputModule's initialization list, rather than in the body of
-  // the constructor.
-
-  vector<edm::BranchDescription const*>
-  getAllBranchDescriptions() {
-    edm::Service<edm::ConstProductRegistry> reg;
-    return reg->allBranchDescriptions();
-  }
-
-  vector<string> const& getAllTriggerNames() {
-    edm::Service<edm::service::TriggerNamesService> tns;
-    return tns->getTrigPaths();
-  }
-}
-
-
-namespace
-{
-  //--------------------------------------------------------
-  // Remove whitespace (spaces and tabs) from a string.
-  void remove_whitespace(string& s) {
-    s.erase(remove(s.begin(), s.end(), ' '), s.end());
-    s.erase(remove(s.begin(), s.end(), '\t'), s.end());
-  }
-
-  void test_remove_whitespace() {
-    string a("noblanks");
-    string b("\t   no   blanks    \t");
-
-    remove_whitespace(b);
-    assert(a == b);
-  }
-
-  //--------------------------------------------------------
-  // Given a path-spec (string of the form "a:b", where the ":b" is
-  // optional), return a parsed_path_spec_t containing "a" and "b".
-
-  typedef std::pair<string,string> parsed_path_spec_t;
-  void parse_path_spec(string const& path_spec, 
-		       parsed_path_spec_t& output) {
-    string trimmed_path_spec(path_spec);
-    remove_whitespace(trimmed_path_spec);
-    
-    string::size_type colon = trimmed_path_spec.find(":");
-    if (colon == string::npos) {
-	output.first = trimmed_path_spec;
-    } else {
-	output.first  = trimmed_path_spec.substr(0, colon);
-	output.second = trimmed_path_spec.substr(colon+1, 
-						 trimmed_path_spec.size());
-    }
-  }
-
-  void test_parse_path_spec() {
-    vector<string> paths;
-    paths.push_back("a:p1");
-    paths.push_back("b:p2");
-    paths.push_back("  c");
-    paths.push_back("ddd\t:p3");
-    paths.push_back("eee:  p4  ");
-    
-    vector<parsed_path_spec_t> parsed(paths.size());
-    for (size_t i = 0; i < paths.size(); ++i)
-      parse_path_spec(paths[i], parsed[i]);
-
-    assert(parsed[0].first  == "a");
-    assert(parsed[0].second == "p1");
-    assert(parsed[1].first  == "b");
-    assert(parsed[1].second == "p2");
-    assert(parsed[2].first  == "c");
-    assert(parsed[2].second == "");
-    assert(parsed[3].first  == "ddd");
-    assert(parsed[3].second == "p3");
-    assert(parsed[4].first  == "eee");
-    assert(parsed[4].second == "p4");
-  }
-}
-
-
-namespace edm {
-  namespace test {
-    void run_all_output_module_tests() {
-      test_remove_whitespace();
-      test_parse_path_spec();
-    }
-  }
-
 
   // -------------------------------------------------------
-  OutputModule::OutputModule(ParameterSet const& pset) : 
-    nextID_(),
-    descVec_(),
-    droppedVec_(),
+  OutputModule::OutputModule(ParameterSet const& pset) :
+    maxEvents_(-1),
+    remainingEvents_(maxEvents_),
+    keptProducts_(),
     hasNewlyDroppedBranch_(),
     process_name_(),
-    groupSelector_(pset),
-    //eventSelectors_(),
-    //selectResult_("*"),  // use the most recent process name
+    productSelectorRules_(pset, "outputCommands", "OutputModule"),
+    productSelector_(),
     moduleDescription_(),
-    current_context_(0),
-    //prods_(),
-    prodsValid_(false),
-    current_md_(0),
     wantAllEvents_(false),
     selectors_(),
-    eventCount_(0)
-  {
-    hasNewlyDroppedBranch_.assign(false);
+    selector_config_id_(),
+    droppedBranchIDToKeptBranchID_(),
+    branchIDLists_(new BranchIDLists),
+    origBranchIDLists_(nullptr),
+    branchParents_(),
+    branchChildren_() {
 
-    edm::Service<edm::service::TriggerNamesService> tns;
+    hasNewlyDroppedBranch_.fill(false);
+
+    Service<service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =
-      pset.getUntrackedParameter("SelectEvents", ParameterSet());
+      pset.getUntrackedParameterSet("SelectEvents", ParameterSet());
 
+    selectevents.registerIt(); // Just in case this PSet is not registered
 
-    // If selectevents is an emtpy ParameterSet, then we are to write
-    // all events, or one which contains a vstrig 'SelectEvents' that
-    // is empty, we are to write all events. We have no need for any
-    // EventSelectors.
-    if (selectevents.empty()) {
-	wantAllEvents_ = true;
-	selectors_.setupDefault(getAllTriggerNames());
-	return;
-    }
-
-    vector<string> path_specs = 
-      selectevents.getParameter<vector<string> >("SelectEvents");
-
-    if (path_specs.empty()) {
-	wantAllEvents_ = true;
-	selectors_.setupDefault(getAllTriggerNames());
-	return;
-    }
-
-    // If we get here, we have the possibility of having to deal with
-    // path_specs that look at more than one process.
-    vector<parsed_path_spec_t> parsed_paths(path_specs.size());
-    for (size_t i = 0; i < path_specs.size(); ++i)
-      parse_path_spec(path_specs[i], parsed_paths[i]);
-
-    selectors_.setup(parsed_paths, getAllTriggerNames(), process_name_);
+    selector_config_id_ = selectevents.id();
+    wantAllEvents_ = detail::configureEventSelector(selectevents,
+                                                    process_name_,
+                                                    getAllTriggerNames(),
+                                                    selectors_);
   }
 
-  void OutputModule::selectProducts() {
-    if (groupSelector_.initialized()) return;
-    groupSelector_.initialize(getAllBranchDescriptions());
-    Service<ConstProductRegistry> reg;
-    nextID_ = reg->nextID();
+  void OutputModule::configure(OutputModuleDescription const& desc) {
+    remainingEvents_ = maxEvents_ = desc.maxEvents_;
+    origBranchIDLists_ = desc.branchIDLists_;
+  }
 
-    // TODO: See if we can collapse descVec_ and groupSelector_ into a
-    // single object. See the notes in the header for GroupSelector
+  void OutputModule::selectProducts(ProductRegistry const& preg) {
+    if(productSelector_.initialized()) return;
+    productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
+
+    // TODO: See if we can collapse keptProducts_ and productSelector_ into a
+    // single object. See the notes in the header for ProductSelector
     // for more information.
 
-    ProductRegistry::ProductList::const_iterator it  = 
-      reg->productList().begin();
-    ProductRegistry::ProductList::const_iterator end = 
-      reg->productList().end();
+    std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
 
-    for (; it != end; ++it) {
-      BranchDescription const& desc = it->second;
-      if(!desc.provenancePresent() & !desc.produced()) {
-	// If the branch containing the provenance has been previously dropped,
-	// and the product has not been produced again, output nothing
-	continue;
-      } else if(desc.transient()) {
-	// else if the class of the branch is marked transient, drop the product branch
-	droppedVec_[desc.branchType()].push_back(&desc);
-      } else if(!desc.present() & !desc.produced()) {
-	// else if the branch containing the product has been previously dropped,
-	// and the product has not been produced again, drop the product branch again.
-	droppedVec_[desc.branchType()].push_back(&desc);
-      } else if (selected(desc)) {
-	// else if the branch has been selected, put it in the list of selected branches
-	descVec_[desc.branchType()].push_back(&desc);
+    for(auto const& it : preg.productList()) {
+      BranchDescription const& desc = it.second;
+      if(desc.transient()) {
+        // if the class of the branch is marked transient, output nothing
+      } else if(!desc.present() && !desc.produced()) {
+        // else if the branch containing the product has been previously dropped,
+        // output nothing
+      } else if(selected(desc)) {
+        // else if the branch has been selected, put it in the list of selected branches.
+        if(desc.produced()) {
+          // First we check if an equivalent branch has already been selected due to an EDAlias.
+          // We only need the check for products produced in this process.
+          BranchID const& trueBranchID = desc.originalBranchID();
+          std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(trueBranchID);
+          if(iter != trueBranchIDToKeptBranchDesc.end()) {
+             throw edm::Exception(errors::Configuration, "Duplicate Output Selection")
+               << "Two (or more) equivalent branches have been selected for output.\n"
+               << "#1: " << BranchKey(desc) << "\n" 
+               << "#2: " << BranchKey(*iter->second) << "\n" 
+               << "Please drop at least one of them.\n";
+          }
+          trueBranchIDToKeptBranchDesc.insert(std::make_pair(trueBranchID, &desc));
+        }
+        switch (desc.branchType()) {
+          case InEvent:
+          {
+            consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                     InputTag{desc.moduleLabel(),
+                              desc.productInstanceName(),
+                       desc.processName()});
+            break;
+          }
+          case InLumi:
+          {
+            consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                             InputTag(desc.moduleLabel(),
+                                      desc.productInstanceName(),
+                                      desc.processName()));
+            break;
+          }
+          case InRun:
+          {
+            consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                            InputTag(desc.moduleLabel(),
+                                     desc.productInstanceName(),
+                                     desc.processName()));
+            break;
+          }
+          default:
+            assert(false);
+            break;
+        }
+        // Now put it in the list of selected branches.
+        keptProducts_[desc.branchType()].push_back(&desc);
       } else {
-	// otherwise, drop the product branch.
-	droppedVec_[desc.branchType()].push_back(&desc);
-	// mark the fact that there is a newly dropped branch of this type.
-	hasNewlyDroppedBranch_[desc.branchType()] = true;
+        // otherwise, output nothing,
+        // and mark the fact that there is a newly dropped branch of this type.
+        hasNewlyDroppedBranch_[desc.branchType()] = true;
+      }
+    }
+    // Now fill in a mapping needed in the case that a branch was dropped while its EDAlias was kept.
+    for(auto const& it : preg.productList()) {
+      BranchDescription const& desc = it.second;
+      if(!desc.produced() || desc.isAlias()) continue;
+      BranchID const& branchID = desc.branchID();
+      std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(branchID);
+      if(iter != trueBranchIDToKeptBranchDesc.end()) {
+        // This branch, produced in this process, or an alias of it, was persisted.
+        BranchID const& keptBranchID = iter->second->branchID();
+        if(keptBranchID != branchID) {
+          // An EDAlias branch was persisted.
+          droppedBranchIDToKeptBranchID_.insert(std::make_pair(branchID.id(), keptBranchID.id()));
+        }
       }
     }
   }
 
   OutputModule::~OutputModule() { }
 
-  void OutputModule::doBeginJob(EventSetup const& c) {
-    beginJob(c);
+  void OutputModule::doBeginJob() {
+    this->beginJob();
   }
 
   void OutputModule::doEndJob() {
@@ -217,61 +163,31 @@ namespace edm {
   }
 
 
-  Trig OutputModule::getTriggerResults(Event const& ev) const {
-    return selectors_.getOneTriggerResults(ev);
+  Trig OutputModule::getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
+    return selectors_.getOneTriggerResults(ep, mcc);  }
+
+  namespace {
   }
 
-  Trig OutputModule::getTriggerResults(EventPrincipal const& ep) const {
-    // This is bad, because we're returning handles into an Event that
-    // is destructed before the return. It might not fail, because the
-    // actual EventPrincipal is not destroyed, but it still needs to
-    // be cleaned up.
-    Event ev(const_cast<EventPrincipal&>(ep), 
-	     *current_context_->moduleDescription());
-    return getTriggerResults(ev);
-  }
-
-   namespace {
-     class  PVSentry {
-     public:
-       PVSentry (detail::CachedProducts& prods, bool& valid) : p(prods), v(valid) {}
-       ~PVSentry() { p.clear(); v=false; }
-     private:
-       detail::CachedProducts& p;
-       bool&           v;
-
-       PVSentry(PVSentry const&);  // not implemented
-       PVSentry& operator=(PVSentry const&); // not implemented
-     };
-   }
-
-  void OutputModule::writeEvent(EventPrincipal const& ep,
-				ModuleDescription const& md,
-				CurrentProcessingContext const* c)
-  {
-    detail::CPCSentry sentry(current_context_, c);
-    PVSentry          products_sentry(selectors_, prodsValid_);
-
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert(current_md_ == c->moduleDescription());
+  bool
+  OutputModule::doEvent(EventPrincipal const& ep,
+                        EventSetup const&,
+                        ModuleCallingContext const* mcc) {
+    detail::TRBESSentry products_sentry(selectors_);
 
     FDEBUG(2) << "writeEvent called\n";
 
-    // This ugly little bit is here to prevent making the Event if
-    // don't need it.
-    if (wantAllEvents_) {
-      write(ep); 
-      ++eventCount_;
-    } else {
-      // use module description and const_cast unless interface to
-      // event is changed to just take a const EventPrincipal
-      Event e(const_cast<EventPrincipal&>(ep), *c->moduleDescription());
-      if (selectors_.wantEvent(e)) {
-	write(ep);
-        ++eventCount_;
+    if(!wantAllEvents_) {
+      if(!selectors_.wantEvent(ep, mcc)) {
+        return true;
       }
     }
+    write(ep, mcc);
+    updateBranchParents(ep);
+    if(remainingEvents_ > 0) {
+      --remainingEvents_;
+    }
+    return true;
   }
 
 //   bool OutputModule::wantEvent(Event const& ev)
@@ -279,78 +195,198 @@ namespace edm {
 //     getTriggerResults(ev);
 //     bool eventAccepted = false;
 
-//     typedef vector<NamedEventSelector>::const_iterator iter;
-//     for (iter i = selectResult_.begin(), e = selectResult_.end();
-// 	 !eventAccepted && i!=e; ++i) 
+//     typedef std::vector<NamedEventSelector>::const_iterator iter;
+//     for(iter i = selectResult_.begin(), e = selectResult_.end();
+//          !eventAccepted && i != e; ++i)
 //       {
-// 	eventAccepted = i->acceptEvent(*prods_);
+//         eventAccepted = i->acceptEvent(*prods_);
 //       }
 
 //     FDEBUG(2) << "Accept event " << ep.id() << " " << eventAccepted << "\n";
 //     return eventAccepted;
 //   }
 
-  void OutputModule::doBeginRun(RunPrincipal const& rp,
-				ModuleDescription const& md,
-				CurrentProcessingContext const* c)
-  {
-    detail::CPCSentry sentry(current_context_, c);
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert (current_md_ == c->moduleDescription());
+  bool
+  OutputModule::doBeginRun(RunPrincipal const& rp,
+                           EventSetup const&,
+                           ModuleCallingContext const* mcc) {
     FDEBUG(2) << "beginRun called\n";
-    beginRun(rp);
+    beginRun(rp, mcc);
+    return true;
   }
 
-  void OutputModule::doEndRun(RunPrincipal const& rp,
-			      ModuleDescription const& md,
-			      CurrentProcessingContext const* c)
-  {
-    detail::CPCSentry sentry(current_context_, c);
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert (current_md_ == c->moduleDescription());
+  bool
+  OutputModule::doEndRun(RunPrincipal const& rp,
+                         EventSetup const&,
+                         ModuleCallingContext const* mcc) {
     FDEBUG(2) << "endRun called\n";
-    endRun(rp);
+    endRun(rp, mcc);
+    return true;
   }
 
-  void OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-					    ModuleDescription const& md,
-					    CurrentProcessingContext const* c)
-  {
-    detail::CPCSentry sentry(current_context_, c);
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert (current_md_ == c->moduleDescription());
+  void
+  OutputModule::doWriteRun(RunPrincipal const& rp,
+                           ModuleCallingContext const* mcc) {
+    FDEBUG(2) << "writeRun called\n";
+    writeRun(rp, mcc);
+  }
+
+  bool
+  OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                       EventSetup const&,
+                                       ModuleCallingContext const* mcc) {
     FDEBUG(2) << "beginLuminosityBlock called\n";
-    beginLuminosityBlock(lbp);
+    beginLuminosityBlock(lbp, mcc);
+    return true;
   }
 
-  void OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-					  ModuleDescription const& md,
-					  CurrentProcessingContext const* c)
-  {
-    detail::CPCSentry sentry(current_context_, c);
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert (current_md_ == c->moduleDescription());
+  bool
+  OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                     EventSetup const&,
+                                     ModuleCallingContext const* mcc) {
     FDEBUG(2) << "endLuminosityBlock called\n";
-    endLuminosityBlock(lbp);
+    endLuminosityBlock(lbp, mcc);
+    return true;
   }
 
-  CurrentProcessingContext const*
-  OutputModule::currentContext() const
-  {
-    return current_context_;
+  void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                            ModuleCallingContext const* mcc) {
+    FDEBUG(2) << "writeLuminosityBlock called\n";
+    writeLuminosityBlock(lbp, mcc);
   }
 
-  bool OutputModule::selected(BranchDescription const& desc) const
-  {
-    return groupSelector_.selected(desc);
+  void OutputModule::doOpenFile(FileBlock const& fb) {
+    openFile(fb);
   }
 
-  unsigned int OutputModule::nextID() const 
-  {
-    return nextID_;
+  void OutputModule::doRespondToOpenInputFile(FileBlock const& fb) {
+    respondToOpenInputFile(fb);
+  }
+
+  void OutputModule::doRespondToCloseInputFile(FileBlock const& fb) {
+    respondToCloseInputFile(fb);
+  }
+
+  void
+  OutputModule::doPreForkReleaseResources() {
+    preForkReleaseResources();
+  }
+
+  void
+  OutputModule::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReacquireResources(iChildIndex, iNumberOfChildren);
+  }
+
+  void OutputModule::maybeOpenFile() {
+    if(!isFileOpen()) reallyOpenFile();
+  }
+
+  void OutputModule::doCloseFile() {
+    if(isFileOpen()) {
+      fillDependencyGraph();
+      reallyCloseFile();
+      branchParents_.clear();
+      branchChildren_.clear();
+    }
+  }
+
+  void OutputModule::reallyCloseFile() {
+  }
+
+  BranchIDLists const*
+  OutputModule::branchIDLists() const {
+    if(!droppedBranchIDToKeptBranchID_.empty()) {
+      // Make a private copy of the BranchIDLists.
+      *branchIDLists_ = *origBranchIDLists_;
+      // Check for branches dropped while an EDAlias was kept.
+      for(BranchIDList& branchIDList : *branchIDLists_) {
+        for(BranchID::value_type& branchID : branchIDList) {
+          // Replace BranchID of each dropped branch with that of the kept alias, so the alias branch will have the product ID of the original branch.
+          std::map<BranchID::value_type, BranchID::value_type>::const_iterator iter = droppedBranchIDToKeptBranchID_.find(branchID);
+          if(iter != droppedBranchIDToKeptBranchID_.end()) {
+            branchID = iter->second;
+          }
+        }
+      }
+      return branchIDLists_.get();
+    }
+    return origBranchIDLists_;
+  }
+
+  ModuleDescription const&
+  OutputModule::description() const {
+    return moduleDescription_;
+  }
+
+  bool
+  OutputModule::selected(BranchDescription const& desc) const {
+    return productSelector_.selected(desc);
+  }
+
+  void
+  OutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.setUnknown();
+    descriptions.addDefault(desc);
+  }
+  
+  void
+  OutputModule::fillDescription(ParameterSetDescription& desc) {
+    ProductSelectorRules::fillDescription(desc, "outputCommands");
+    EventSelector::fillDescription(desc);
+  }
+  
+  void
+  OutputModule::prevalidate(ConfigurationDescriptions& ) {
+  }
+  
+
+  static const std::string kBaseType("OutputModule");
+  const std::string&
+  OutputModule::baseType() {
+    return kBaseType;
+  }
+  
+  void
+  OutputModule::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
+                                      bool anyProductProduced) {
+    selector_config_id_ = detail::registerProperSelectionInfo(getParameterSet(selector_config_id_),
+                                      description().moduleLabel(),
+                                                      outputModulePathPositions,
+                                                      anyProductProduced);
+  }
+
+  void
+  OutputModule::updateBranchParents(EventPrincipal const& ep) {
+    for(EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
+      if((*i) && (*i)->productProvenancePtr() != 0) {
+        BranchID const& bid = (*i)->branchDescription().branchID();
+        BranchParents::iterator it = branchParents_.find(bid);
+        if(it == branchParents_.end()) {
+          it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
+        }
+        it->second.insert((*i)->productProvenancePtr()->parentageID());
+        branchChildren_.insertEmpty(bid);
+      }
+    }
+  }
+
+  void
+  OutputModule::fillDependencyGraph() {
+    for(BranchParents::const_iterator i = branchParents_.begin(), iEnd = branchParents_.end();
+        i != iEnd; ++i) {
+      BranchID const& child = i->first;
+      std::set<ParentageID> const& eIds = i->second;
+      for(std::set<ParentageID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
+          it != itEnd; ++it) {
+        Parentage entryDesc;
+        ParentageRegistry::instance()->getMapped(*it, entryDesc);
+        std::vector<BranchID> const& parents = entryDesc.parents();
+        for(std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
+          j != jEnd; ++j) {
+          branchChildren_.insertChild(*j, child);
+        }
+      }
+    }
   }
 }

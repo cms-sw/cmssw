@@ -1,0 +1,32 @@
+<use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="root"/>
+<library   file="stubs/CSCGeometryAnalyzer.cc" name="testCSCGeometry">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCGeometryAsChambers.cc" name="testCSCGeometryAsChambers">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCGeometryAsLayers.cc" name="testCSCGeometryAsLayers">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCGeometryOfWires.cc" name="testCSCGeometryOfWires">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCGeometryOfStrips.cc" name="testCSCGeometryOfStrips">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCLayerGeometryInside.cc" name="testCSCLayerGeometryInside">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCGACwithB.cc" name="testCSCGACwithB">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+

@@ -7,6 +7,7 @@
 
 #include "Alignment/CocoaModel/interface/OptOSensor2D.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/Entry.h"
@@ -22,7 +23,9 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <cstdlib>
 
+using namespace CLHEP;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Make measurement as distance to previous object 'screen'
@@ -43,11 +46,11 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
     OptOList().end() - vocite != 1) {
     std::cerr << " last and not only one Optical Object should be 'sensor2D' (unless you specify (:T)raverse) " <<
     OptOList().end() - vocite << " size " <<OptOList().size() << std::endl;
-    DumpBadOrderOptOs();          
+    DumpBadOrderOptOs(); 
     }*/
 
   //---------- Get simulated value 
-  //---------- Get intersection 
+  //---------- Get intersection
   CLHEP::Hep3Vector ZAxis(0.,0,1.);
   CLHEP::HepRotation rmt = rmGlob();
   ZAxis = rmt * ZAxis;
@@ -105,6 +108,8 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
   // store the lightray position and direction
   meas.setLightRayPosition( lightray.point() );
   meas.setLightRayDirection( lightray.direction() );
+
+  delete[] interslc;
 }
 
 
@@ -117,14 +122,6 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: FAST TRAVERSES SENSOR2D  " << name() << std::endl;
 
   //---------- Shift and Deviate
-  ALIdouble shiftX = findExtraEntryValue("shiftX");
-  ALIdouble shiftY = findExtraEntryValue("shiftY");
-  ALIdouble shift;
-  ALIbool bb = findExtraEntryValueIfExists("shift", shift);
-  if( bb ) {
-    shiftX = shift;
-    shiftY = shift;
-  }
 
   //---------- Get intersection 
   CLHEP::Hep3Vector ZAxis(0.,0,1.);
@@ -144,7 +141,7 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
     }
     //--------- get measurement value of the current sensor
     std::vector< Measurement* >& measv = Model::MeasurementList();
-    uint ii;
+    unsigned int ii;
     Measurement *omeas = 0;
     for( ii = 0; ii < measv.size(); ii++ ) {
       //-   std::cout << " sensor2d finding meas " <<  measv[ii]->sensorName() << " " << name() << std::endl;
@@ -214,7 +211,7 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
       deviY = entryDeviY->value();
 
     } else {
-      bb = findExtraEntryValueIfExists("devi", devi);
+      ALIbool bb = findExtraEntryValueIfExists("devi", devi);
       if( bb ) {
 	deviX = devi;
 	deviY = devi;
@@ -227,7 +224,6 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 
   lightray.setPoint( inters );
 
-  //  lightray.shiftAndDeviateWhileTraversing( this, shiftX, shiftY, 0., deviX, deviY, 0.);
   lightray.shiftAndDeviateWhileTraversing( this, 'T' );
   if (ALIUtils::debug >= 2) {
     lightray.dumpData("Shifted and Deviated");
@@ -325,7 +321,6 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
     if(ALIUtils::debug >= 5 ) std::cout << "deviFromFile " << deviFromFile << std::endl; 
     //----- Read header
     ALIstring sensor1_name, sensor2_name;
-    ALIint sensor1_side, sensor2_side;
     ALIdouble sensor_dist;
     ALIdouble prec_deviX,prec_deviY;
 
@@ -335,14 +330,10 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
     sensor2_name = wl[1];
     sensor_dist = atof( wl[2].c_str() );
     // 'c' means that light is traversing the glass
-    sensor1_side = 1;
     if(sensor1_name[sensor1_name.size()-2] == 'c') {
-      sensor1_side = 2;
       sensor1_name = sensor1_name.substr(0,sensor1_name.size()-1);
     }
-    sensor2_side = 1;
     if(sensor2_name[sensor2_name.size()-2] == 'c') {
-      sensor2_side = 2;
       sensor2_name = sensor2_name.substr(0,sensor2_name.size()-1);
     }
     if(ALIUtils::debug >= 5) std::cout << "sensor1_name " << sensor1_name << " sensor2_name " << sensor2_name  << " sensor_dist " << sensor_dist << " unknown " << wl[3] << std::endl;
@@ -393,7 +384,7 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIdouble* OptOSensor2D::convertPointToLocalCoordinates( const CLHEP::Hep3Vector& point)
 {
-  ALIdouble interslc[2];
+  ALIdouble* interslc = new ALIdouble[2];
   
   //----- X value
   CLHEP::HepRotation rmt = rmGlob();

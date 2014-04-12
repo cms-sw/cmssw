@@ -1,0 +1,139 @@
+
+[oval run] =================================================
+[oval run] USER : chamont
+[oval run] HOST : lxcmsf2.cern.ch
+[oval run] TEST_RAW_FILE = QCD_Pt_80_120_Raw.root
+[oval run] TEST_RECO_FILE = QCD_Pt_80_120.root
+[oval run] run tool: scram
+[oval run] final instruction: cmsDriver.py QCD_Pt_80_120.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,IDEAL_31X::All --python_filename=QCD_Pt_80_120_Raw.py --fileout=$TEST_RAW_FILE
+[oval run] =================================================
+
+     MSTU(12)       changed from              0 to          12345
+     MSTJ(11)       changed from              4 to              3
+     MSTJ(22)       changed from              1 to              2
+     PARJ(71)       changed from       10.00000 to       10.00000
+     MSTP(2)        changed from              1 to              1
+     MSTP(33)       changed from              0 to              0
+     MSTP(51)       changed from              7 to          10042
+     MSTP(52)       changed from              1 to              2
+     MSTP(81)       changed from              1 to              1
+     MSTP(82)       changed from              4 to              4
+     MSTU(21)       changed from              2 to              1
+     PARP(82)       changed from        2.00000 to        1.83870
+     PARP(89)       changed from     1800.00000 to     1960.00000
+     PARP(83)       changed from        0.50000 to        0.50000
+     PARP(84)       changed from        0.40000 to        0.40000
+     PARP(90)       changed from        0.16000 to        0.16000
+     PARP(67)       changed from        4.00000 to        2.50000
+     PARP(85)       changed from        0.90000 to        1.00000
+     PARP(86)       changed from        0.95000 to        1.00000
+     PARP(62)       changed from        1.00000 to        1.25000
+     PARP(64)       changed from        1.00000 to        0.20000
+     MSTP(91)       changed from              1 to              1
+     PARP(91)       changed from        2.00000 to        2.10000
+     PARP(93)       changed from        5.00000 to       15.00000
+     MSEL           changed from              1 to              1
+     CKIN(3)        changed from        0.00000 to       80.00000
+     CKIN(4)        changed from       -1.00000 to      120.00000
+1****************** PYINIT: initialization of PYTHIA routines *****************
+ ==== PYTHIA WILL USE LHAPDF ====
+ *************************************
+ *       LHAPDF Version 5.6.0        *
+ *************************************
+
+ >>>>>> PDF description: <<<<<<
+ CTEQ6L1 - LO with LO alpha_s                                    
+ Reference:                                                      
+ J. Pumplin, D.R. Stump, J. Huston, H.L. Lai, P. Nadolsky,       
+ W.K. Tung                                                       
+ hep-ph/0201195                                                  
+ >>>>>>                   <<<<<<
+
+ Parametrization: CTEQ6           
+
+ ==============================================
+ PDFset name /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/lhapdf/5.6.0-cms/share/lhapdf/PDFs
+ with          1 members
+ ====  initialized. ===========================
+ Strong coupling at Mz for PDF is:  0.12978
+
+ ==============================================================================
+ I                                                                            I
+ I              PYTHIA will be initialized for a p on p collider              I
+ I                  at  10000.000 GeV center-of-mass energy                   I
+ I                                                                            I
+ ==============================================================================
+
+ ******** PYMAXI: summary of differential cross-section maximum search ********
+
+           ==========================================================
+           I                                      I                 I
+           I  ISUB  Subprocess name               I  Maximum value  I
+           I                                      I                 I
+           ==========================================================
+           I                                      I                 I
+           I   11   f + f' -> f + f' (QCD)        I    4.3735E-04   I
+           I   12   f + fbar -> f' + fbar'        I    7.5594E-06   I
+           I   13   f + fbar -> g + g             I    5.7056E-06   I
+           I   28   f + g -> f + g                I    3.1661E-03   I
+           I   53   g + g -> f + fbar             I    9.3756E-05   I
+           I   68   g + g -> g + g                I    2.6626E-03   I
+           I   96   Semihard QCD 2 -> 2           I    1.1412E+04   I
+           I                                      I                 I
+           ==========================================================
+
+ ****** PYMULT: initialization of multiple interactions for MSTP(82) = 4 ******
+        pT0 = 2.39 GeV gives sigma(parton-parton) = 7.09E+02 mb: accepted
+
+ ****** PYMIGN: initialization of multiple interactions for MSTP(82) = 4 ******
+        pT0 = 2.39 GeV gives sigma(parton-parton) = 2.82E+02 mb: accepted
+
+ ********************** PYINIT: initialization completed **********************
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 29-Apr-2009 13:59:39 CEST
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at 29-Apr-2009 14:02:35 CEST
+Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 at 29-Apr-2009 14:05:36 CEST
+Begin processing the 4th record. Run 1, Event 4, LumiSection 1 at 29-Apr-2009 14:08:13 CEST
+Begin processing the 5th record. Run 1, Event 5, LumiSection 1 at 29-Apr-2009 14:10:28 CEST
+Begin processing the 6th record. Run 1, Event 6, LumiSection 1 at 29-Apr-2009 14:12:51 CEST
+Begin processing the 7th record. Run 1, Event 7, LumiSection 1 at 29-Apr-2009 14:15:23 CEST
+Begin processing the 8th record. Run 1, Event 8, LumiSection 1 at 29-Apr-2009 14:18:29 CEST
+Begin processing the 9th record. Run 1, Event 9, LumiSection 1 at 29-Apr-2009 14:20:16 CEST
+Begin processing the 10th record. Run 1, Event 10, LumiSection 1 at 29-Apr-2009 14:23:00 CEST
+
+=============================================
+
+MessageLogger Summary
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+1********* PYSTAT:  Statistics on Number of Events and Cross-sections *********
+
+ ==============================================================================
+ I                                  I                            I            I
+ I            Subprocess            I      Number of points      I    Sigma   I
+ I                                  I                            I            I
+ I----------------------------------I----------------------------I    (mb)    I
+ I                                  I                            I            I
+ I N:o Type                         I    Generated         Tried I            I
+ I                                  I                            I            I
+ ==============================================================================
+ I                                  I                            I            I
+ I   0 All included subprocesses    I           10            53 I  1.665E-03 I
+ I  11 f + f' -> f + f' (QCD)       I            1             3 I  1.422E-04 I
+ I  12 f + fbar -> f' + fbar'       I            0             0 I  0.000E+00 I
+ I  13 f + fbar -> g + g            I            0             0 I  0.000E+00 I
+ I  28 f + g -> f + g               I            6            32 I  7.527E-04 I
+ I  53 g + g -> f + fbar            I            0             1 I  2.879E-05 I
+ I  68 g + g -> g + g               I            3            17 I  7.414E-04 I
+ I                                  I                            I            I
+ ==============================================================================
+
+ ********* Total number of errors, excluding junctions =        0 *************
+ ********* Total number of errors, including junctions =        0 *************
+ ********* Total number of warnings =                           0 *************
+ ********* Fraction of events that fail fragmentation cuts =  0.00000 *********
+
+[oval run] ==========================================
+[oval run] result: OK
+[oval run] ==========================================
+

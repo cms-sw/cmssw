@@ -1,7 +1,8 @@
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 
 #include <vector>
-namespace { namespace {
-}}
+namespace DataFormats_Streamer {
+  struct dictionary {
+  };
+}
 

@@ -18,9 +18,9 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
                  const GlobalVector & direction, const  Vertex & vertex)
  const {
 
-  double theValue;
+  double theValue=0.;
   double theError=0.;
-  bool   theIsValid;
+  bool   theIsValid=false;
 
   TrajectoryStateOnSurface TSOS = transientTrack.impactPointState();
   
@@ -29,7 +29,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
     return pair<bool,Measurement1D>(theIsValid,Measurement1D(0.,0.)) ;
    }
   
-  FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
+  const FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
 
   GlobalVector JetDirection(direction);
   
@@ -120,7 +120,7 @@ pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const Tr
     return pair<double,Measurement1D> (theDistanceAlongJetAxis,Measurement1D(theDistanceToJetAxis,theLDist_err));
   }
   
-  FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
+  const FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
 
   GlobalVector jetDirection(direction);
 
@@ -170,7 +170,7 @@ pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const Tr
 
     GlobalVector H((jetVector.cross(dir).unit()));
     
-    HepVector Hh(3);
+    CLHEP::HepVector Hh(3);
     Hh[0] = H.x();
     Hh[1] = H.y();
     Hh[2] = H.z();

@@ -4,13 +4,7 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-class EcalPreshowerNavigator : public CaloNavigator<ESDetId> {
- public:
-  EcalPreshowerNavigator(const ESDetId& home,const CaloSubdetectorTopology* esTopology) :
-    CaloNavigator<ESDetId>(home,esTopology)
-    {
-    };
-};
+using EcalPreshowerNavigator = CaloNavigator<ESDetId>;
 
 #endif
 

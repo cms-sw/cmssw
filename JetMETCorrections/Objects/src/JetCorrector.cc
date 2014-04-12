@@ -1,6 +1,5 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: JetCorrector.cc,v 1.2 2007/01/05 01:50:37 fedor Exp $
 //
 // Generic interface for JetCorrection services
 //
@@ -12,16 +11,37 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-double JetCorrector::correction (const LorentzVector& fJet) const {
-  edm::LogError ("Missing Jet Correction Method") << "Undefined eventless Jet Correction method is called" << std::endl; 
-  return 0;
+double JetCorrector::correction (const reco::Jet& fJet,
+				 const edm::Event& fEvent,
+				 const edm::EventSetup& fSetup) const {
+  if (eventRequired () && !refRequired()) {
+    edm::LogError ("Missing Jet Correction Method") 
+      << "Undefined Jet Correction method requiring event data is called" << std::endl;
+    return 0;
+  }
+  return correction (fJet);
 }
 
 double JetCorrector::correction (const reco::Jet& fJet, 
-				 const edm::Event& fEvent, 
+				 const edm::RefToBase<reco::Jet>& fJetRef,
+				 const edm::Event& fEvent,
 				 const edm::EventSetup& fSetup) const {
-  if (eventRequired ()) {
-    edm::LogError ("Missing Jet Correction Method") << "Undefined Jet Correction method requiring event data is called" << std::endl;
+  if (eventRequired () && refRequired()) {
+    edm::LogError ("Missing Jet Correction Method") 
+      << "Undefined Jet Correction method requiring event data and jet reference is called" << std::endl;
+    return 0;
+  }
+  return correction (fJet);
+}
+
+double JetCorrector::correction (const reco::Jet& fJet, 
+				 const edm::RefToBase<reco::Jet>& fJetRef,
+				 const edm::Event& fEvent, 
+				 const edm::EventSetup& fSetup,
+				 LorentzVector& corrected ) const {
+  if ( vectorialCorrection() ) {
+    edm::LogError ("Missing Jet Correction Method") 
+      << "Undefined Jet (vectorial) correction method requiring event data is called" << std::endl;
     return 0;
   }
   return correction (fJet);

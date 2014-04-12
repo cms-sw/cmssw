@@ -2,50 +2,57 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 BasicSingleVertexState::BasicSingleVertexState()
-  : thePos(GlobalPoint(0, 0, 0)), thePosAvailable(false),
-    theErr(AlgebraicSymMatrix(3, 0)), theErrAvailable(false),
-    theWeight(AlgebraicSymMatrix(3, 0)), theWeightAvailable(false),
-    theWeightTimesPos(3, 0), theWeightTimesPosAvailable(false),
-    isValid(false), theWeightInMix(0.)
+  : thePos(GlobalPoint(0, 0, 0)), 
+    theErr(AlgebraicSymMatrix33()),  
+    theWeight(AlgebraicSymMatrix33()), 
+    theWeightTimesPos(AlgebraicVector3()), theWeightInMix(0.) , 
+    thePosAvailable(false), theErrAvailable(false),theWeightAvailable(false), theWeightTimesPosAvailable(false),
+    valid(false)
 {}
 
 
 BasicSingleVertexState::BasicSingleVertexState(const GlobalPoint & pos,
 			     const GlobalError & posErr,
 			     const double & weightInMix)
-  : thePos(pos), thePosAvailable(true),
-    theErr(posErr), theErrAvailable(true),
-    theWeight(AlgebraicSymMatrix(3, 0)), theWeightAvailable(false),
-    theWeightTimesPos(3, 0), theWeightTimesPosAvailable(false),
-    isValid(true), theWeightInMix(weightInMix)
+  : thePos(pos), 
+    theErr(posErr), 
+    theWeight(AlgebraicSymMatrix33()), 
+    theWeightTimesPos(AlgebraicVector3()),
+    theWeightInMix(weightInMix),
+    thePosAvailable(true), theErrAvailable(true),theWeightAvailable(false), theWeightTimesPosAvailable(false),
+    valid(true)
 {}
 
 
 BasicSingleVertexState::BasicSingleVertexState(const GlobalPoint & pos,
 			     const GlobalWeight & posWeight,
 			     const double & weightInMix)
-  : thePos(pos), thePosAvailable(true),
-    theErr(AlgebraicSymMatrix(3, 0)), theErrAvailable(false),
-    theWeight(posWeight), theWeightAvailable(true),
-    theWeightTimesPos(3, 0), theWeightTimesPosAvailable(false),
-    isValid(true), theWeightInMix(weightInMix)
+  : thePos(pos),
+    theErr(AlgebraicSymMatrix33()),
+    theWeight(posWeight),
+    theWeightTimesPos(AlgebraicVector3()), 
+    theWeightInMix(weightInMix),
+    thePosAvailable(true), theErrAvailable(false),theWeightAvailable(true), theWeightTimesPosAvailable(false),
+    valid(true)
 {}
 
 
-BasicSingleVertexState::BasicSingleVertexState(const AlgebraicVector & weightTimesPosition,
+BasicSingleVertexState::BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition,
 			     const GlobalWeight & posWeight,
 			     const double & weightInMix)
-  : thePos(GlobalPoint(0, 0, 0)), thePosAvailable(false),
-    theErr(AlgebraicSymMatrix(3, 0)), theErrAvailable(false),
-    theWeight(posWeight), theWeightAvailable(true),
-    theWeightTimesPos(weightTimesPosition), theWeightTimesPosAvailable(true),
-    isValid(true), theWeightInMix(weightInMix)
-{//cout <<"BasicSingleVertexState ctor\n";
-}
+  : thePos(GlobalPoint(0, 0, 0)),
+    theErr(AlgebraicSymMatrix33()), 
+    theWeight(posWeight), 
+    theWeightTimesPos(weightTimesPosition), 
+    theWeightInMix(weightInMix),
+    thePosAvailable(false), theErrAvailable(false),theWeightAvailable(true), theWeightTimesPosAvailable(true),
+    valid(true)
+{}
+   
 
 GlobalPoint BasicSingleVertexState::position() const
 {
-  if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   if (!thePosAvailable) computePosition();
   return thePos;
 }
@@ -53,7 +60,7 @@ GlobalPoint BasicSingleVertexState::position() const
 
 GlobalError BasicSingleVertexState::error() const
 {
-  if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   if (!theErrAvailable) computeError();
   return theErr;
 }
@@ -61,15 +68,15 @@ GlobalError BasicSingleVertexState::error() const
 
 GlobalWeight BasicSingleVertexState::weight() const
 {
-  if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   if (!theWeightAvailable) computeWeight();
   return theWeight;
 }
 
 
-AlgebraicVector BasicSingleVertexState::weightTimesPosition() const
+AlgebraicVector3 BasicSingleVertexState::weightTimesPosition() const
 {
-  if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   if (!theWeightTimesPosAvailable) computeWeightTimesPos();
   return theWeightTimesPos;
 }
@@ -77,7 +84,7 @@ AlgebraicVector BasicSingleVertexState::weightTimesPosition() const
 
 double BasicSingleVertexState::weightInMixture() const 
 {
-  if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   return theWeightInMix;
 }
 // RefCountedVertexSeed BasicSingleVertexState::seedWithoutTracks() const
@@ -90,8 +97,8 @@ double BasicSingleVertexState::weightInMixture() const
 
 void BasicSingleVertexState::computePosition() const
 {
-  if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
-  AlgebraicVector pos = error().matrix()*weightTimesPosition();
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
+  AlgebraicVector3 pos = error().matrix_new()*weightTimesPosition();
   thePos = GlobalPoint(pos[0], pos[1], pos[2]);
   thePosAvailable = true;
 }
@@ -99,9 +106,9 @@ void BasicSingleVertexState::computePosition() const
 
 void BasicSingleVertexState::computeError() const
 {
-  if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   int ifail;
-  theErr = weight().matrix().inverse(ifail);
+  theErr = weight().matrix().Inverse(ifail);
   if (ifail != 0) throw VertexException("BasicSingleVertexState::could not invert weight matrix");
   theErrAvailable = true;
 }
@@ -109,9 +116,9 @@ void BasicSingleVertexState::computeError() const
 
 void BasicSingleVertexState::computeWeight() const
 {
-  if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   int ifail;
-  theWeight = error().matrix().inverse(ifail);
+  theWeight = error().matrix().Inverse(ifail);
   if (ifail != 0) throw VertexException("BasicSingleVertexState::could not invert error matrix");
   theWeightAvailable = true;
 }
@@ -119,10 +126,10 @@ void BasicSingleVertexState::computeWeight() const
 
 void BasicSingleVertexState::computeWeightTimesPos() const
 {
-  if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
-  AlgebraicVector pos(3); pos[0] = position().x();
-  pos[1] = position().y(); pos[2] = position().z();
-  theWeightTimesPos = weight().matrix()*pos;
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
+  AlgebraicVector3 pos; pos(0) = position().x();
+  pos(1) = position().y(); pos(2) = position().z();
+  theWeightTimesPos = weight().matrix_new()*pos;
   theWeightTimesPosAvailable = true;
 }
 

@@ -10,7 +10,7 @@
  * Some data is calculated on demand to improve performance.
  */
 
-class BasicSingleVertexState : public BasicVertexState {
+class BasicSingleVertexState GCC11_FINAL : public BasicVertexState {
 
 public:
 
@@ -21,7 +21,7 @@ public:
   		const double & weightInMix = 1.0);
   BasicSingleVertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
   		const double & weightInMix = 1.0);
-  BasicSingleVertexState(const AlgebraicVector & weightTimesPosition,
+  BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition,
 		const GlobalWeight & posWeight,
   		const double & weightInMix = 1.0);
 
@@ -35,12 +35,13 @@ public:
   GlobalPoint position() const;
   GlobalError error() const;
   GlobalWeight weight() const;
-  AlgebraicVector weightTimesPosition() const;
+  AlgebraicVector3 weightTimesPosition() const;
   double weightInMixture() const;
 
-  /** conversion to VertexSeed
+  /**
+   * The validity of the vertex
    */
-//   RefCountedVertexSeed seedWithoutTracks() const;
+  bool isValid() const {return valid;}
 
 private:
 
@@ -50,16 +51,17 @@ private:
   void computeWeightTimesPos() const;
 
   mutable GlobalPoint thePos;
-  mutable bool thePosAvailable;
   mutable GlobalError theErr;
-  mutable bool theErrAvailable;
   mutable GlobalWeight theWeight;
+  mutable AlgebraicVector3 theWeightTimesPos;
+  double theWeightInMix;
+
+  mutable bool thePosAvailable;
+  mutable bool theErrAvailable;
   mutable bool theWeightAvailable;
-  mutable AlgebraicVector theWeightTimesPos;
   mutable bool theWeightTimesPosAvailable;
 
-  bool isValid;
-  double theWeightInMix;
+  bool valid;
 };
 
 #endif

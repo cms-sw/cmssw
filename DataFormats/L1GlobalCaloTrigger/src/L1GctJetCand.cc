@@ -2,7 +2,6 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
-#include <ostream>
 
 using std::ostream;
 using std::string;
@@ -13,28 +12,31 @@ L1GctJetCand::L1GctJetCand() :
   m_data(0),
   m_isTau(false),
   m_isFor(false),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(0)
 {
 
 }
 
 //constructor for GT
-L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor) :
-  m_data(data),
+L1GctJetCand::L1GctJetCand(uint16_t rawData, bool isTau, bool isFor) :
+  m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(0)
 {
 }
 
 //constructor for GCT unpacker
-L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx) : 
-  m_data(data),
+L1GctJetCand::L1GctJetCand(uint16_t rawData, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx) : 
+  m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+  m_captureBlock(block&0xfff),
+  m_captureIndex(index&0xff),
   m_bx(bx)
 {
 }
@@ -45,7 +47,8 @@ L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau
   m_data(0), // overridden below
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(0)
 { 
   m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10); 
@@ -57,7 +60,8 @@ L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau
   m_data(0), // overridden below
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+  m_captureBlock(block&0xfff),
+  m_captureIndex(index&0xff),
   m_bx(bx)
 { 
   m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10); 
@@ -72,26 +76,21 @@ string L1GctJetCand::name() const {
   else { return "central jet"; }
 }
 
-// return whether an object was found
-bool L1GctJetCand::empty() const {
-  return (rank() == 0);
-}
 
 // pretty print
 ostream& operator<<(ostream& s, const L1GctJetCand& cand) {
   if (cand.empty()) {
     s << "L1GctJetCand empty jet";
   } else {
-    s << "L1GctJetCand : " << hex;
+    s << "L1GctJetCand : ";
     s << "rank=" << cand.rank();
-    s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0x7) << ", phi=" << cand.phiIndex() << dec;
+    s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0x7) << ", phi=" << cand.phiIndex();
     s << " type=";
     if (cand.isTau()) { s << "tau"; }
     else if (cand.isForward()) { s << "forward"; }
     else { s << "central"; }
   }
-  s << hex << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
-  s << std::endl;
+  s << hex << " cap block=" << cand.capBlock() << dec << ", index=" << cand.capIndex() << ", BX=" << cand.bx();
   return s;
 }
 
@@ -109,4 +108,5 @@ L1CaloRegionDetId L1GctJetCand::regionId() const {
   return L1CaloRegionDetId(eta, phiIndex());
 
 }
+
 

@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Sun 21 10:14:34 CEST 2006
-// $Id: HcalTB02HcalNumberingScheme.cc,v 1.1 2006/06/04 13:59:38 sunanda Exp $
 //
   
 // system include files
@@ -16,6 +15,8 @@
 // user include files
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "G4SystemOfUnits.hh"
 
 using namespace std;
 

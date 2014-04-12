@@ -5,8 +5,6 @@
 //   Description: Look-up table for GMT Phi Projection Unit
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 

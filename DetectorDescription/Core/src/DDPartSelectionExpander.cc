@@ -1,7 +1,6 @@
 
 
 #include "DetectorDescription/Core/interface/DDPartSelectionExpander.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <iostream>
 #include <cassert>
@@ -12,7 +11,7 @@ DDPartSelectionExpander::DDPartSelectionExpander(const DDCompactView & cpv)
  { }
  
  
-size_t DDPartSelectionExpander::expand(const DDPartSelection & input, PartSelectionTree & result) const
+size_t DDPartSelectionExpander::expand(const DDPartSelection & /*input*/, PartSelectionTree & /*result*/) const
 {
    //assert(input.size()>0);
    typedef DDCompactView::walker_type walker_type;

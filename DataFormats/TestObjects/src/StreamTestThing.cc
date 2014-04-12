@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <cstdlib>
 
-using namespace std;
-
 namespace {
   struct Setter {
     ~Setter() { }

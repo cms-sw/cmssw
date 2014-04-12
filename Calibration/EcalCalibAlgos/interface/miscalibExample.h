@@ -9,7 +9,6 @@
      \\\author: Lorenzo Agostino, September 2006
 */
 //
-// $Id: miscalibExample.h,v 0.0 2006/09/18 18:21:12 lorenzo Exp $
 //
 
 
@@ -40,7 +39,7 @@ class miscalibExample : public edm::EDAnalyzer {
       ~miscalibExample();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
    private:
 

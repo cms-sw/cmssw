@@ -22,15 +22,11 @@
 // corresponding to the measured momentum and mass.
 //
 
-
-using namespace std;
-
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleMomDev.h"
-#include "TLorentzVector.h"
 #include "TMath.h"
 
-ClassImp(TFitParticleMomDev)
 
 //----------------
 // Constructor --
@@ -73,7 +69,7 @@ TFitParticleMomDev::TFitParticleMomDev(const TString &name, const TString &title
   init(pini, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleMomDev::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleMomDev::clone( const TString& newname ) const {
   // Returns a copy of itself
   
   TAbsFitParticle* myclone = new TFitParticleMomDev( *this );
@@ -151,7 +147,8 @@ TLorentzVector* TFitParticleMomDev::calc4Vec( const TMatrixD* params ) {
   }
 
   if ( params->GetNcols() != 1 || params->GetNrows() !=_nPar ) {
-    cout << "Parameter matrix has wrong size." << endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::calc4Vec - Parameter matrix has wrong size.";
     return 0;
   }
 

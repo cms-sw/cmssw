@@ -45,7 +45,7 @@ class RPCGeometryAnalyzer : public edm::EDAnalyzer {
   std::ofstream ofos;
 };
 
-RPCGeometryAnalyzer::RPCGeometryAnalyzer( const edm::ParameterSet& iConfig )
+RPCGeometryAnalyzer::RPCGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
   : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
     myName_( "RPCGeometryAnalyzer" ) 
 { 
@@ -61,7 +61,7 @@ RPCGeometryAnalyzer::~RPCGeometryAnalyzer()
 }
 
 void
-RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+RPCGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
   edm::ESHandle<RPCGeometry> pDD;
   iSetup.get<MuonGeometryRecord>().get( pDD );     

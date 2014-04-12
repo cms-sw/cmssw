@@ -1,0 +1,10 @@
+<environment>
+  <bin   file="TestIOPoolCommon.cpp" name="TestEdmFastMerge">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Common/test TestEdmFastMerge.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+  <bin   file="TestIOPoolCommon.cpp" name="TestEdmConfigDump">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Common/test run_TestEdmConfigDump.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>

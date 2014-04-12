@@ -6,8 +6,6 @@
  *
  * Implementation:
  *
- * $Date: 2006/10/19 20:24:06 $
- * $Revision: 1.12 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -27,7 +25,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonTrajectoryBuilder.h"
@@ -35,30 +32,38 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
+using namespace edm;
+
 //
 // constructors and destructor
 //
-CosmicMuonProducer::CosmicMuonProducer(const edm::ParameterSet& iConfig)
+CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig)
 {
-  edm::ParameterSet tbpar = iConfig.getParameter<edm::ParameterSet>("TrajectoryBuilderParameters");
-  theSeedCollectionLabel = iConfig.getUntrackedParameter<std::string>("MuonSeedCollectionLabel");
+  ParameterSet tbpar = iConfig.getParameter<ParameterSet>("TrajectoryBuilderParameters");
+
+  theSeedCollectionToken =consumes<edm::View<TrajectorySeed> >( iConfig.getParameter<std::string>("MuonSeedCollectionLabel"));
 
   // service parameters
-  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
+  ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   
   // TrackLoader parameters
-  edm::ParameterSet trackLoaderParameters = iConfig.getParameter<edm::ParameterSet>("TrackLoaderParameters");
+  ParameterSet trackLoaderParameters = iConfig.getParameter<ParameterSet>("TrackLoaderParameters");
   
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
 
-  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar,theService),
-				       new MuonTrackLoader(trackLoaderParameters, theService));
+  edm::ConsumesCollector iC = consumesCollector();
+  
+  theService = new MuonServiceProxy(serviceParameters);
+  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar,theService,iC),
+				       new MuonTrackLoader(trackLoaderParameters,iC, theService));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
   produces<std::vector<Trajectory> >();
+  produces<TrajTrackAssociationCollection>();
 
 }
 
@@ -72,15 +77,14 @@ CosmicMuonProducer::~CosmicMuonProducer()
 
 // ------------ method called to produce the data  ------------
 void
-CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+CosmicMuonProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-  edm::LogInfo("CosmicMuonProducer") << "Analyzing event number: " << iEvent.id();
+  LogInfo("CosmicMuonProducer") << "Analyzing event number: " << iEvent.id();
 
-  edm::Handle<TrajectorySeedCollection> seeds; 
-  iEvent.getByLabel(theSeedCollectionLabel,seeds);
-
+  Handle<View<TrajectorySeed> > seeds; 
+  iEvent.getByToken(theSeedCollectionToken,seeds);
+  
   // Update the services
   theService->update(iSetup);
   theTrackFinder->reconstruct(seeds,iEvent);
-
 }

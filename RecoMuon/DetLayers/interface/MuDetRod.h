@@ -5,8 +5,6 @@
  *  A rod of aligned equal-sized non-overlapping detectors.  
  *  Designed for barrel muon DT/RPC chambers.
  *
- *  $Date: 2006/06/02 15:19:39 $
- *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -48,8 +46,6 @@ class MuDetRod : public DetRodOneR {
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
 
-
-  virtual bool hasGroups() const {return false;}
 
  private:
   //typedef PeriodicBinFinderInZ<float>   BinFinderType;

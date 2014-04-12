@@ -16,7 +16,6 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.14 2007/03/07 10:57:01 uberthon Exp $
 //
 
 // system include files
@@ -28,6 +27,7 @@
 // forward declarations
 
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -50,10 +50,10 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+
+class TrackerTopology;
 
 class SiStripElectronAlgo
 {
@@ -84,7 +84,8 @@ class SiStripElectronAlgo
       // and inserts SiStripElectron and trackCandidate into electronOut and trackCandidateOut
       bool findElectron(reco::SiStripElectronCollection& electronOut,
 			TrackCandidateCollection& trackCandidateOut,
-			const reco::SuperClusterRef& superclusterIn);
+			const reco::SuperClusterRef& superclusterIn,
+			const TrackerTopology *tTopo);
 
    private:
       SiStripElectronAlgo(const SiStripElectronAlgo&); // stop default
@@ -96,6 +97,7 @@ class SiStripElectronAlgo
       // selects from stereo if stereo == true, rphi otherwise
       // selects from TID or TEC if endcap == true, TIB or TOB otherwise
       void coarseHitSelection(std::vector<const SiStripRecHit2D*>& hitPointersOut,
+			      const TrackerTopology *tTopo,
 			      bool stereo, bool endcap);
       void coarseBarrelMonoHitSelection(std::vector<const SiStripRecHit2D*>& monoHitPointersOut );
       void coarseEndcapMonoHitSelection(std::vector<const SiStripRecHit2D*>& monoHitPointersOut );
@@ -105,7 +107,9 @@ class SiStripElectronAlgo
       // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
       // fills *_pos_ or *_neg_ member data with the results
       // returns true iff the electron/positron passes cuts
-      bool projectPhiBand(float chargeHypothesis, const reco::SuperClusterRef& superclusterIn);
+      bool projectPhiBand(float chargeHypothesis, 
+			  const reco::SuperClusterRef& superclusterIn,
+			  const TrackerTopology *tTopo);
 
       double unwrapPhi(double phi) const {
 	 while (phi > M_PI) { phi -= 2.*M_PI; }
@@ -148,9 +152,9 @@ class SiStripElectronAlgo
       GlobalVector momentum_pos_;
       const SiStripRecHit2D* innerhit_pos_;
       std::vector<const TrackingRecHit*> outputHits_pos_;
-      edm::RefVector<SiStripRecHit2DCollection> outputRphiHits_pos_;
-      edm::RefVector<SiStripRecHit2DCollection> outputStereoHits_pos_;
-      edm::RefVector<SiStripRecHit2DCollection> outputMatchedHits_neg_;
+      std::vector<SiStripRecHit2D> outputRphiHits_pos_;
+      std::vector<SiStripRecHit2D> outputStereoHits_pos_;
+      std::vector<SiStripRecHit2D> outputMatchedHits_neg_;
 
       double phiVsRSlope_pos_;
       double slope_pos_;
@@ -170,8 +174,8 @@ class SiStripElectronAlgo
       GlobalVector momentum_neg_;
       const SiStripRecHit2D* innerhit_neg_;
       std::vector<const TrackingRecHit*> outputHits_neg_;
-      edm::RefVector<SiStripRecHit2DCollection> outputRphiHits_neg_;
-      edm::RefVector<SiStripRecHit2DCollection> outputStereoHits_neg_;
+      std::vector<SiStripRecHit2D> outputRphiHits_neg_;
+      std::vector<SiStripRecHit2D> outputStereoHits_neg_;
       double phiVsRSlope_neg_;
       double slope_neg_;
       double intercept_neg_;

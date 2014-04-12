@@ -6,7 +6,6 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.10 2007/08/04 09:00:34 elmer Exp $
 
 ________________________________________________________________**/
 
@@ -20,17 +19,12 @@ ________________________________________________________________**/
 #include "TH3.h"
 #include "TString.h"
 
-#include "RecoBTag/Analysis/interface/BaseBTagPlotter.h"
-
-#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "RecoBTag/Analysis/interface/TrackCountingTagPlotter.h"
-#include "RecoBTag/Analysis/interface/TrackProbabilityTagPlotter.h"
-#include "RecoBTag/Analysis/interface/SoftLeptonTagPlotter.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "Validation/RecoB/interface/HistoCompare.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
 // constructors and destructor
@@ -48,18 +42,6 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) {
 	histogramList_ = iConfig.getParameter<vstring>( "histogramList" );
 	referenceFilename_ = iConfig.getParameter<std::string>( "referenceFilename" );
 	doCompare_ = iConfig.getParameter<bool>( "compareHistograms");
-	doAnalysis_ = iConfig.getParameter<bool>( "doAnalysis");
-					
-	if (doAnalysis_) {
-		if (algorithm_ == "TrackCounting") 
-			petBase_ = new BTagPABase< TrackCountingTagPlotter>(iConfig);
-		else if (algorithm_ == "TrackProbability")
-			petBase_ = new BTagPABase< TrackProbabilityTagPlotter>(iConfig);
-		else if (algorithm_ == "SoftLepton")
-			petBase_ = new BTagPABase< SoftLeptonTagPlotter>(iConfig);
-		else 
-			throw cms::Exception("UnknownAlgorithm") << algorithm_ << " possible options are TrackCounting, TrackProbability and SoftLepton. ";
-	}
 }
 
 
@@ -75,16 +57,12 @@ BTagValidator::~BTagValidator() {
 // ------------ method called to for each event  ------------
 void
 BTagValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-	if(doAnalysis_) petBase_->analyze(iEvent, iSetup);
-}
+{ }
 
 
 void 
 BTagValidator::endJob() 
 {
-	if ( doAnalysis_ ) petBase_->endJob();
-
 	// Validation section
 	TObject * tObject ;
 
@@ -102,9 +80,9 @@ BTagValidator::endJob()
 	file->cd();
 
 	// get hold of back-end interface
-	DaqMonitorBEInterface * dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+	DQMStore * dbe = edm::Service<DQMStore>().operator->();
 	
-	dbe->setCurrentFolder( algorithm_ );
+	dbe->setCurrentFolder( "RecoBV/"+algorithm_ );
    
 	for (std::size_t i=0; i<histogramList_.size(); ++i) {
 		
@@ -131,6 +109,10 @@ BTagValidator::endJob()
 				histogram->GetXaxis()->GetXmin(),
 				histogram->GetXaxis()->GetXmax()
 				);
+
+			monElement->setAxisTitle( std::string ( histogram->GetXaxis()->GetTitle()) , 1);
+			monElement->setAxisTitle( std::string ( histogram->GetYaxis()->GetTitle()) , 2);
+
 
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++) {
 			  monElement->setBinContent ( x, histogram->GetBinContent( x ) ) ;
@@ -168,6 +150,9 @@ BTagValidator::endJob()
 				histogram->GetYaxis()->GetXmax()	  
 				);
 
+			monElement->setAxisTitle( std::string ( histogram->GetXaxis()->GetTitle()) , 1);
+			monElement->setAxisTitle( std::string ( histogram->GetYaxis()->GetTitle()) , 2);
+			
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++)
 				for(Int_t y=0; y<histogram->GetYaxis()->GetNbins(); y++) {
 					monElement->setBinContent ( x, y, histogram->GetBinContent( x, y ) ) ;                 
@@ -192,6 +177,9 @@ BTagValidator::endJob()
 				histogram->GetZaxis()->GetXmax()	  
 				);
 
+			monElement->setAxisTitle( std::string ( histogram->GetXaxis()->GetTitle()) , 1);
+			monElement->setAxisTitle( std::string ( histogram->GetYaxis()->GetTitle()) , 2);
+			
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++)
 				for(Int_t y=0; y<histogram->GetYaxis()->GetNbins(); y++)
 					for(Int_t z=0; z<histogram->GetZaxis()->GetNbins(); z++) {

@@ -1,6 +1,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
+
+#include <algorithm>
 
 bool SiStripBadStrip::put(const uint32_t& DetId, Range input) {
   // put in SiStripBadStrip::v_badstrips of DetId
@@ -21,14 +23,27 @@ bool SiStripBadStrip::put(const uint32_t& DetId, Range input) {
   return true;
 }
 
-const SiStripBadStrip::Range SiStripBadStrip::getRange(const uint32_t& DetId) const {
+const SiStripBadStrip::Range SiStripBadStrip::getRange(const uint32_t DetId) const {
   // get SiStripBadStrip Range of DetId
   
   RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripBadStrip::StrictWeakOrdering());
   if (p==indexes.end()|| p->detid!=DetId) 
     return SiStripBadStrip::Range(v_badstrips.end(),v_badstrips.end()); 
-  else 
+  else {
+    __builtin_prefetch((&v_badstrips.front())+p->ibegin);
+    __builtin_prefetch((&v_badstrips.front())+p->ibegin+24);
+    __builtin_prefetch((&v_badstrips.front())+p->iend-24);
     return SiStripBadStrip::Range(v_badstrips.begin()+p->ibegin,v_badstrips.begin()+p->iend);
+  }
+}
+
+SiStripBadStrip::Range SiStripBadStrip::getRangeByPos(unsigned short pos) const {
+  if (pos>indexes.size()) return Range(v_badstrips.end(),v_badstrips.end()); 
+  auto p = indexes.begin()+pos;
+  __builtin_prefetch((&v_badstrips.front())+p->ibegin);
+  __builtin_prefetch((&v_badstrips.front())+p->ibegin+24);
+  __builtin_prefetch((&v_badstrips.front())+p->iend-24);
+  return Range(v_badstrips.begin()+p->ibegin,v_badstrips.begin()+p->iend);
 }
 
 
@@ -41,7 +56,32 @@ void SiStripBadStrip::getDetIds(std::vector<uint32_t>& DetIds_) const {
   }
 }
 
- int SiStripBadStrip::getBadStrips(const Range& range) const {
-   return (*range.first);
- }
+void SiStripBadStrip::printSummary(std::stringstream & ss) const {
+  SiStripDetSummary summaryBadModules;
+  SiStripDetSummary summaryBadStrips;
 
+  // Loop on the vector<DetRegistry> and take the bad modules and bad strips
+  Registry::const_iterator it = indexes.begin();
+  for( ; it!=indexes.end(); ++it ) {
+    summaryBadModules.add(it->detid);
+    summaryBadStrips.add(it->iend - it->ibegin);
+  }
+  ss << "Summary of bad modules in detector:" << std::endl;
+  summaryBadModules.print(ss, false);
+  ss << "Summary of bad strip in detectors:" << std::endl;
+  summaryBadStrips.print(ss, false);
+}
+
+void SiStripBadStrip::printDebug(std::stringstream & ss) const {
+  ss << "Printing all bad strips for all DetIds" << std::endl;
+  // Loop on the vector<DetRegistry> and take the bad modules and bad strips
+  Registry::const_iterator it = indexes.begin();
+  for( ; it!=indexes.end(); ++it ) {
+//    ss << "For DetId = " << it->detid << std::endl;
+    SiStripBadStrip::Range range(getRange(it->detid));
+    for( std::vector<unsigned int>::const_iterator badStrip = range.first;
+         badStrip != range.second; ++badStrip ) {
+      ss << "DetId="<<it->detid << " Strip=" << decode(*badStrip).firstStrip <<":"<<decode(*badStrip).range << " flag="<< decode(*badStrip).flag << std::endl;
+    }
+  }
+}

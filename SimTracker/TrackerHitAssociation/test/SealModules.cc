@@ -7,8 +7,8 @@
 #include "SimTracker/TrackerHitAssociation/test/myTrackAnalyzer.h"
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TestAssociator);
-DEFINE_ANOTHER_FWK_MODULE(myTrackAnalyzer);
+
+DEFINE_FWK_MODULE(TestAssociator);
+DEFINE_FWK_MODULE(myTrackAnalyzer);
 
 

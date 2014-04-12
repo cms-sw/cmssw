@@ -15,16 +15,11 @@
 // E(fit) =  Sqrt( |p|^2 + m^2 )
 //
 
-
-
-using namespace std;
-
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleMCPInvSpher.h"
-#include "TLorentzVector.h"
 #include "TMath.h"
 
-ClassImp(TFitParticleMCPInvSpher)
 
 //----------------
 // Constructor --
@@ -67,7 +62,7 @@ TFitParticleMCPInvSpher::TFitParticleMCPInvSpher(const TString &name, const TStr
   init(p, M, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleMCPInvSpher::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleMCPInvSpher::clone( const TString& newname ) const {
   // Returns a copy of itself
   
   TAbsFitParticle* myclone = new TFitParticleMCPInvSpher( *this );
@@ -104,7 +99,8 @@ TLorentzVector* TFitParticleMCPInvSpher::calc4Vec( const TMatrixD* params ) {
   }
 
   if ( params->GetNcols() != 1 || params->GetNrows() !=_nPar ) {
-    cout << "Parameter matrix has wrong size." << endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::calc4Vec - Parameter matrix has wrong size.";
     return 0;
   }
   

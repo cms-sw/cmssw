@@ -3,25 +3,18 @@
 // Class:      SiStripGainRandomCalculator
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainRandomCalculator.cc,v 1.3 2007/05/10 16:27:07 gbruno Exp $
 
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainRandomCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
 
@@ -29,7 +22,7 @@ using namespace cms;
 using namespace std;
 
 
-SiStripGainRandomCalculator::SiStripGainRandomCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig), m_cacheID_(0){
+SiStripGainRandomCalculator::SiStripGainRandomCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig), m_cacheID_(0){
 
   
   edm::LogInfo("SiStripGainRandomCalculator::SiStripGainRandomCalculator");
@@ -110,7 +103,7 @@ SiStripApvGain * SiStripGainRandomCalculator::getNewObject() {
 
       //      if(sigmaGain_/meanGain_ < 0.00001) gain = meanGain_;
       //      else{
-      gain = RandGauss::shoot(meanGain_, sigmaGain_);
+      gain = CLHEP::RandGauss::shoot(meanGain_, sigmaGain_);
       if(gain<=minimumPosValue_) gain=minimumPosValue_;
       //      }
 

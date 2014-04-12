@@ -9,8 +9,6 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna 
  * 
- * $Date$
- * $Revision$
  *
  */
 
@@ -20,38 +18,22 @@
 // system include files
 #include <vector>
 #include <iostream>
-#include <fstream>
 #include <iomanip>
-
-#include <boost/cstdint.hpp>
 
 // user include files
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "DataFormats/Common/interface/RefProd.h"
 
-#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+
+#include "FWCore/Utilities/interface/typedefs.h"
 
 
 // constructor(s)
@@ -82,7 +64,7 @@ L1GtTextToRaw::L1GtTextToRaw(const edm::ParameterSet& pSet)
     // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
     // default value: assume the DAQ record is the last GT record 
     m_daqGtFedId = pSet.getUntrackedParameter<int>(
-                       "DaqGtFedId", FEDNumbering::getTriggerGTPFEDIds().second);
+                       "DaqGtFedId", FEDNumbering::MAXTriggerGTPFEDID);
 
     LogDebug("L1GtTextToRaw")
     << "\nFED Id for DAQ GT record: "
@@ -113,7 +95,7 @@ L1GtTextToRaw::~L1GtTextToRaw()
 // member functions
 
 // beginning of job stuff
-void L1GtTextToRaw::beginJob(const edm::EventSetup& evSetup)
+void L1GtTextToRaw::beginJob()
 {
 
     cleanTextFile();
@@ -188,7 +170,7 @@ void L1GtTextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     
     std::string lineString;
 
-    boost::uint64_t lineInt = 0ULL;
+    cms_uint64_t lineInt = 0ULL;
     int sizeL = sizeof(lineInt);
 
     int fedBlockSize = 8; // block size in bits for FedRawData

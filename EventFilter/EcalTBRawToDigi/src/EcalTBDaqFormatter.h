@@ -2,8 +2,6 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2006/09/21 15:22:16 $
- *  $Revision: 1.14 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -25,7 +23,7 @@
 
 
 class FEDRawData;
-class DCCDataParser;
+class DCCTBDataParser;
 class EcalTBDaqFormatter   {
 
  public:
@@ -35,10 +33,10 @@ class EcalTBDaqFormatter   {
 
   void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection ,
 			  EcalRawDataCollection& DCCheaderCollection,
-			  EBDetIdCollection & dccsizecollection ,
-			  EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
+			  EBDetIdCollection & dccsizecollection,
+			  EcalElectronicsIdCollection & ttidcollection , EcalElectronicsIdCollection & blocksizecollection,
 			  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection ,
-			  EBDetIdCollection & gainswitchcollection , EBDetIdCollection & gainswitchstaycollection,
+			  EBDetIdCollection & gainswitchcollection , 
 			  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 			  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection,
 			  EcalTrigPrimDigiCollection &tpcollection);
@@ -46,7 +44,7 @@ class EcalTBDaqFormatter   {
 
  private:
   
-  void  DecodeMEM( DCCTowerBlock *  towerblock, EcalPnDiodeDigiCollection & pndigicollection ,
+  void  DecodeMEM( DCCTBTowerBlock *  towerblock, EcalPnDiodeDigiCollection & pndigicollection ,
 		   EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 		   EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection);
   
@@ -56,7 +54,7 @@ class EcalTBDaqFormatter   {
   bool rightTower(int tower) const ;
 
  private:
-  DCCDataParser* theParser_;
+  DCCTBDataParser* theParser_;
 
   enum SMGeom_t {
      kModules = 4,           // Number of modules per supermodule

@@ -15,7 +15,7 @@ class HcalNumberingScheme : public CaloNumberingScheme {
 public:
   HcalNumberingScheme();
   virtual ~HcalNumberingScheme();
-  virtual uint32_t getUnitID(const HcalNumberingFromDDD::HcalID id);
+  virtual uint32_t getUnitID(const HcalNumberingFromDDD::HcalID& id);
 
 };
 

@@ -3,7 +3,7 @@
 
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 #include "RecoTracker/DebugTools/interface/CkfDebugger.h"
-#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 
 class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
@@ -14,9 +14,8 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
                        const Propagator*                     propagatorAlong,
                        const Propagator*                     propagatorOpposite,
                        const Chi2MeasurementEstimatorBase*   estimator,
-                       const TransientTrackingRecHitBuilder* RecHitBuilder,
-                       const MeasurementTracker*             measurementTracker) : 
-    CkfTrajectoryBuilder( conf,updator,propagatorAlong,propagatorOpposite,estimator,RecHitBuilder,measurementTracker) 
+                       const TransientTrackingRecHitBuilder* RecHitBuilder) : 
+    CkfTrajectoryBuilder( conf,updator,propagatorAlong,propagatorOpposite,estimator,RecHitBuilder,0) 
     {    
       //edm::LogVerbatim("CkfDebugger") <<"CkfDebugTrajectoryBuilder::CkfDebugTrajectoryBuilder";
     }
@@ -26,13 +25,13 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
 
  private:
   mutable CkfDebugger * theDbg;
-  bool analyzeMeasurementsDebugger(TempTrajectory& traj, std::vector<TM> meas,
+  bool analyzeMeasurementsDebugger(TempTrajectory& traj, const std::vector<TM>& meas,
 				   const MeasurementTracker* theMeasurementTracker, const Propagator* theForwardPropagator, 
 				   const Chi2MeasurementEstimatorBase* theEstimator, 
 				   const TransientTrackingRecHitBuilder * theTTRHBuilder) const { 
     return theDbg->analyseCompatibleMeasurements(traj.toTrajectory(),meas,theMeasurementTracker,theForwardPropagator,theEstimator,theTTRHBuilder);
   };
-  bool analyzeMeasurementsDebugger(Trajectory& traj, std::vector<TM> meas,
+  bool analyzeMeasurementsDebugger(Trajectory& traj, const std::vector<TM>& meas,
 				   const MeasurementTracker* theMeasurementTracker, const Propagator* theForwardPropagator, 
 				   const Chi2MeasurementEstimatorBase* theEstimator, 
 				   const TransientTrackingRecHitBuilder * theTTRHBuilder) const { 

@@ -1,7 +1,7 @@
 #ifndef RecoParticleFlow_PFAlgo_PFBlock_h
 #define RecoParticleFlow_PFAlgo_PFBlock_h 
 
-#include <set>
+#include <map>
 #include <iostream>
 
 /* #include "boost/graph/adjacency_matrix.hpp" */
@@ -26,16 +26,31 @@ namespace reco {
     - a set of topologically connected elements.
     - a set of links between these elements
   */
-
+  
   class PFBlock {
 
 
   public:
 
+    struct Link {
+      Link()   : distance(-1), test(0) {}
+      Link(float d, char t) : distance(d), test(t) {}
+      float distance;
+      char test;
+    };
+
     typedef edm::OwnVector< reco::PFBlockElement >::const_iterator IE;
-/*     typedef std::vector< reco::PFBlockLink >::const_iterator IL; */
+    /*     typedef std::vector< reco::PFBlockLink >::const_iterator IL; */
     
+    // typedef std::vector< std::vector<double> > LinkData;
+    typedef std::map< unsigned int,  Link >  LinkData;
     
+    enum LinkTest {
+      LINKTEST_RECHIT,
+      LINKTEST_NLINKTEST,
+      LINKTEST_ALL
+    };
+
     PFBlock() {}
     // PFBlock(const PFBlock& other);
 
@@ -49,31 +64,59 @@ namespace reco {
     /// the 1D vector which is the most compact way to store the matrix
     bool matrix2vector(unsigned i, unsigned j, unsigned& index) const;
 
-    /// set a link between elements of indices i1 and i2, of "distance" chi2
+    /// set a link between elements of indices i1 and i2, of "distance" dist
     /// the link is set in the linkData vector provided as an argument.
-    void setLink(unsigned i1, unsigned i2, double chi2, 
-		 std::vector<double>& linkData ) const;
-
+    /// As indicated by the 'const' statement, 'this' is not modified.
+    void setLink(unsigned i1, 
+		 unsigned i2, 
+		 double dist, 
+                 LinkData& linkData, 
+		 LinkTest  test=LINKTEST_RECHIT ) const;
 
     /// lock an element ( unlink it from the others )
-    void lock(unsigned i, std::vector<double>& linkData ) const;
+    /// Colin: this function is misleading
+    /// void lock(unsigned i, LinkData& linkData ) const;
 
 
-    /// \return chi2 of link
-    double chi2( unsigned ie1, unsigned ie2, 
-		 const std::vector<double>& linkData ) const;
+    /// fills a map with the elements associated to element i.
+    /// elements are sorted by increasing distance.
+    /// if specified, only the elements of type "type" will be considered
+    /// if specified, only the link calculated from a certain "test" will 
+    /// be considered: distance test, etc..
+    void associatedElements( unsigned i,
+                             const LinkData& linkData, 
+                             std::multimap<double, unsigned>& sortedAssociates,
+                             reco::PFBlockElement::Type type = PFBlockElement::NONE,
+			     LinkTest test=LINKTEST_RECHIT ) const; 
+      
+
+    /// \return distance of link
+    double dist(unsigned ie1, 
+		unsigned ie2, 
+		const LinkData& linkData, 
+		LinkTest  test ) const {
+      return dist(ie1,ie2,linkData);
+    }
+
+    /// \return distance of link
+    double dist( unsigned ie1, 
+		 unsigned ie2, 
+                 const LinkData& linkData) const;
 
     /// \return elements
-    const edm::OwnVector< reco::PFBlockElement >& elements() const 
-      {return elements_;}
+    const edm::OwnVector< reco::PFBlockElement >& elements() const {
+      return elements_;
+    }
 
     /// \return link data
-    const std::vector< double >& linkData() const 
-      {return linkData_;}
+    const LinkData& linkData() const {
+      return linkData_;
+    }
 
     /// \return link data
-    std::vector< double >& linkData()  
-      {return linkData_;}
+    LinkData& linkData() {
+      return linkData_;
+    }
 
     friend std::ostream& operator<<( std::ostream& out, const PFBlock& co );
 
@@ -83,7 +126,7 @@ namespace reco {
     unsigned linkDataSize() const;
     
     /// link data (permanent)
-    std::vector< double >                           linkData_;
+    LinkData                                        linkData_;
      
     /// all elements 
     edm::OwnVector< reco::PFBlockElement >          elements_;

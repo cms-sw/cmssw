@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 29 12:26:42 EST 2005
-// $Id$
 //
 
 // system include files

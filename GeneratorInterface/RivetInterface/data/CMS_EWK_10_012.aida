@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE aida SYSTEM "http://aida.freehep.org/schemas/3.3/aida.dtd">
+<aida version="3.3">
+  <implementation version="1.1" package="FreeHEP"/>
+
+<dataPointSet name="d01-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="SIG IN PB">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="2.336928e-03" value="1.328232e-01" errorMinus="2.336928e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.086189e-03" value="2.584242e-02" errorMinus="1.086189e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="4.086068e-04" value="3.236305e-03" errorMinus="4.086068e-04"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="4.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.750377e-04" value="5.601718e-04" errorMinus="1.750377e-04"/>
+    </dataPoint>
+</dataPointSet>
+
+<dataPointSet name="d02-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="SIG(Q=1)/SIG(Q=0)">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="2.336928e-03" value="1.328232e-01" errorMinus="2.336928e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="7.296728e-03" value="1.945626e-01" errorMinus="7.296728e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.468532e-02" value="1.252323e-01" errorMinus="1.468532e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="4.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="4.890442e-02" value="1.730899e-01" errorMinus="4.890442e-02"/>
+    </dataPoint>
+</dataPointSet>
+
+<dataPointSet name="d03-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="SIG IN PB">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="7.183820e-03" value="1.358872e-01" errorMinus="7.183820e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.869307e-03" value="2.582181e-02" errorMinus="1.869307e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="4.571615e-04" value="4.142435e-03" errorMinus="4.571615e-04"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="4.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.672041e-04" value="5.946653e-04" errorMinus="1.672041e-04"/>
+    </dataPoint>
+</dataPointSet>
+<dataPointSet name="d04-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="SIG(Q=1)/SIG(Q=0)">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="7.183820e-03" value="1.358872e-01" errorMinus="7.183820e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.421718e-02" value="1.900239e-01" errorMinus="1.421718e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.789086e-02" value="1.604239e-01" errorMinus="1.789086e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="4.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="3.723930e-02" value="1.435545e-01" errorMinus="3.723930e-02"/>
+    </dataPoint>
+</dataPointSet>
+<dataPointSet name="d05-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="SIG IN PB">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="6.452748e-03" value="1.507635e-01" errorMinus="6.452748e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="2.861133e-03" value="2.784701e-02" errorMinus="2.861133e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="8.574098e-04" value="3.854648e-03" errorMinus="8.574098e-04"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="4.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="3.591647e-04" value="6.976087e-04" errorMinus="3.591647e-04"/>
+    </dataPoint>
+</dataPointSet>
+<dataPointSet name="d06-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="SIG(Q=1)/SIG(Q=0)">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="6.452748e-03" value="1.507635e-01" errorMinus="6.452748e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.729468e-02" value="1.847066e-01" errorMinus="1.729468e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="2.983842e-02" value="1.384224e-01" errorMinus="2.983842e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="4.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="8.459960e-02" value="1.809786e-01" errorMinus="8.459960e-02"/>
+    </dataPoint>
+</dataPointSet>
+<dataPointSet name="d07-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="SIG IN PB">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.076390e-02" value="1.485898e-01" errorMinus="1.076390e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="3.514391e-03" value="2.667870e-02" errorMinus="3.514391e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.198699e-03" value="4.227180e-03" errorMinus="1.198699e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="4.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="5.599258e-04" value="8.743219e-04" errorMinus="5.599258e-04"/>
+    </dataPoint>
+</dataPointSet>
+<dataPointSet name="d08-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="SIG(Q=1)/SIG(Q=0)">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.076390e-02" value="1.485898e-01" errorMinus="1.076390e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="2.349070e-02" value="1.795459e-01" errorMinus="2.349070e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="4.251172e-02" value="1.584477e-01" errorMinus="4.251172e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="4.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.170749e-01" value="2.068334e-01" errorMinus="1.170749e-01"/>
+    </dataPoint>
+</dataPointSet>
+<dataPointSet name="d09-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="WENU(PLUS)/WENU(MINUS)">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="0.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="6.850547e-03" value="2.170000e-01" errorMinus="6.850547e-03"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.176435e-02" value="1.790000e-01" errorMinus="1.176435e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="2.692582e-02" value="1.600000e-01" errorMinus="2.692582e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.016071e-01" value="1.700000e-01" errorMinus="1.016071e-01"/>
+    </dataPoint>
+</dataPointSet>
+<dataPointSet name="d10-x01-y01" dimension="2" path="/REF/CMS_EWK_10_012" title="SIG(Q=1)/SIG(Q=0)">
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="0.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.000000e-02" value="2.230000e-01" errorMinus="1.000000e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="1.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="1.500000e-02" value="1.750000e-01" errorMinus="1.500000e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="2.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="4.000000e-02" value="1.800000e-01" errorMinus="4.000000e-02"/>
+    </dataPoint>
+    <dataPoint>
+      <measurement errorPlus="5.000000e-01" value="3.000000e+00" errorMinus="5.000000e-01"/>
+      <measurement errorPlus="7.000000e-02" value="2.200000e-01" errorMinus="7.000000e-02"/>
+    </dataPoint>
+</dataPointSet>
+</aida>

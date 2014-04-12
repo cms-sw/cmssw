@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>
-#include <memory>
 #include <set>
+
+#include <boost/thread.hpp>
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 
@@ -14,20 +16,20 @@ namespace { // anonymous
 
 	class IdCache {
 	    public:
-		IdCache();
 		~IdCache();
 
 		inline const char *findOrInsert(const char *string) throw();
 
 	    private:
-		std::multiset<const char *, StringLess>	idSet;
-		static std::allocator<char>		stringAllocator;
+		typedef std::multiset<const char *, StringLess> IdSet;
+
+		IdSet				idSet;
+		static std::allocator<char>	stringAllocator;
+		mutable boost::mutex		mutex;
 	};
 } // anonymous namespace
 
-IdCache::IdCache()
-{
-}
+std::allocator<char> IdCache::stringAllocator;
 
 IdCache::~IdCache()
 {
@@ -39,8 +41,9 @@ IdCache::~IdCache()
 
 const char *IdCache::findOrInsert(const char *string) throw()
 {
-	std::multiset<const char*, StringLess>::iterator pos =
-						idSet.lower_bound(string);
+	boost::mutex::scoped_lock scoped_lock(mutex);
+
+	IdSet::iterator pos = idSet.lower_bound(string);
 	if (pos != idSet.end() && std::strcmp(*pos, string) == 0)
 		return *pos;
 
@@ -55,12 +58,16 @@ const char *IdCache::findOrInsert(const char *string) throw()
 
 namespace PhysicsTools {
 
-static IdCache atomicIdCache;
+static IdCache &getAtomicIdCache()
+{
+	static IdCache atomicIdCache;
+	return atomicIdCache;
+}
 
 const char *AtomicId::lookup(const char *string) throw()
 {
 	if (string)
-		return atomicIdCache.findOrInsert(string);
+		return getAtomicIdCache().findOrInsert(string);
 
 	return 0;
 }

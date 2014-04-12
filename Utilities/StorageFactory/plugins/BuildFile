@@ -1,5 +1,0 @@
-<use name=Utilities/StorageFactory>
-<library file=module.cc name=UtilitiesStorageFactoryPlugins>
-<flags EDM_PLUGIN=1>
-</library>
-

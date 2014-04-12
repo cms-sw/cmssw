@@ -1,5 +1,7 @@
 #ifndef ServiceRegistry_TypeInfoHolder_h
 #define ServiceRegistry_TypeInfoHolder_h
+
+#include <typeinfo>
 // -*- C++ -*-
 //
 // Package:     ServiceRegistry
@@ -16,7 +18,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 14:38:42 EDT 2005
-// $Id: TypeInfoHolder.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
 //
 
 // system include files

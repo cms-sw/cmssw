@@ -6,13 +6,10 @@
  * linear interpolation of a field (3D) in space (3D)
  *
  * \author : <Volker.Drollinger@cern.ch>
- * $date   : 04/08/2003 14:46:10 CET $
  *
  * Modifications:
  * droll: change from float to double
- * $date   : 08/09/2003 18:35:10 CET $
  * droll: rename methods according to CMS coding rules
- * $date   : 22/09/2003 11:15:38 CET $
  *
  */
 

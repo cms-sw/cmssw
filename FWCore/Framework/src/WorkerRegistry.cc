@@ -3,85 +3,58 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.16 2007/06/14 17:52:18 wmtan Exp $
    \date 18 May 2005
 */
-
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.16 2007/06/14 17:52:18 wmtan Exp $";
-
-
+#include <memory>
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/ModuleHolder.h"
+#include "FWCore/Framework/src/MakeModuleParams.h"
+#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
-#include <sstream>
-
-using namespace edm;
-
-WorkerRegistry::WorkerRegistry() :
-  m_workerMap(),
-  act_reg_(new ActivityRegistry)
-{
-}
-
-WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg) :
-  m_workerMap(),
-  act_reg_(areg)
-{
-}
-
-WorkerRegistry:: ~WorkerRegistry() {
-  m_workerMap.clear();
-}
-
-void WorkerRegistry::clear() {
-  m_workerMap.clear();
-}
-
-Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
-
-  std::string workerid =
-    mangleWorkerParameters(*p.pset_, p.processName_,
-			   p.releaseVersion_,p.passID_);
-
-  WorkerMap::iterator workerIt = m_workerMap.find(workerid);
+namespace edm {
   
-  // if the woker is not there, make it
-  if (workerIt == m_workerMap.end()){
-    
-    std::auto_ptr<Worker> workerPtr=
-      Factory::get()->makeWorker(p,act_reg_->preModuleConstructionSignal_,
-                                 act_reg_->postModuleConstructionSignal_);
-    
-    workerPtr->connect(act_reg_->preModuleSignal_,act_reg_->postModuleSignal_,
-                       act_reg_->preModuleBeginJobSignal_,act_reg_->postModuleBeginJobSignal_,
-                       act_reg_->preModuleEndJobSignal_,act_reg_->postModuleEndJobSignal_);
-
-    // Transfer ownership of worker to the registry 
-    m_workerMap[workerid] = boost::shared_ptr<Worker>(workerPtr.release());
-    return m_workerMap[workerid].get();
-    
-  } 
+  WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg) :
+    modRegistry_(new ModuleRegistry),
+    m_workerMap(),
+    actReg_(areg)
+  {
+  }
   
-  return  (workerIt->second.get());
+  WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg,
+                                 boost::shared_ptr<ModuleRegistry> modReg):
+  modRegistry_(modReg),
+  m_workerMap(),
+  actReg_(areg)
+  {
+  }
 
+  WorkerRegistry:: ~WorkerRegistry() {
+  }
+
+  void WorkerRegistry::clear() {
+    m_workerMap.clear();
+  }
+
+  Worker* WorkerRegistry::getWorker(WorkerParams const& p, std::string const& moduleLabel) {
+
+    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
+  
+    // if the worker is not there, make it
+    if (workerIt == m_workerMap.end()){
+      MakeModuleParams mmp(p.pset_,*p.reg_,p.preallocate_,p.processConfiguration_);
+      auto modulePtr = modRegistry_->getModule(mmp,moduleLabel,
+                                               actReg_->preModuleConstructionSignal_,
+                                               actReg_->postModuleConstructionSignal_);
+      auto workerPtr= modulePtr->makeWorker(p.actions_);
+    
+      workerPtr->setActivityRegistry(actReg_);
+
+      // Transfer ownership of worker to the registry
+      m_workerMap[moduleLabel].reset(workerPtr.release());
+      return m_workerMap[moduleLabel].get(); 
+    } 
+    return (workerIt->second.get());
+  }
 }
-
-
-std::string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameterSet,
-					      std::string const& processName,
-					      ReleaseVersion const& releaseVersion,
-					      PassID const& passID) {
-
-  std::stringstream mangled_parameters;
-  mangled_parameters<< parameterSet.toString()
-                    << processName
-                    << releaseVersion
-                    << passID;
-
-  return mangled_parameters.str();
-
-}
-
-
-

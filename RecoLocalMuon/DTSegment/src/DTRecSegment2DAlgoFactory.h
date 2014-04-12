@@ -6,8 +6,6 @@
  *  Factory of seal plugins for DT 2D segments reconstruction algorithms.
  *  The plugins are concrete implementations of DTRecSegment2DBaseAlgo base class.
  *
- * $Date: 2007/04/10 23:14:36 $
- * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */

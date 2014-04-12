@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/8/4 10:10:07 $
- *  $Revision: 1.0 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -12,7 +12,8 @@
 
 
 /// The constructor simply copies the vector of DT Chambers and computes the surface from them
-AlignableDTStation::AlignableDTStation( const std::vector<AlignableDTChamber*> dtChambers ) 
+AlignableDTStation::AlignableDTStation( const std::vector<AlignableDTChamber*>& dtChambers ) 
+   : AlignableComposite(dtChambers[0]->id(), align::AlignableDTStation)
 {
 
   theDTChambers.insert( theDTChambers.end(), dtChambers.begin(), dtChambers.end() );
@@ -93,11 +94,11 @@ std::ostream &operator << (std::ostream& os, const AlignableDTStation& b )
 
 
 /// Recursive printout of whole DT Station structure
-void AlignableDTStation::dump( void )
+void AlignableDTStation::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableDTChamber*>::iterator iChamber = theDTChambers.begin();
+  for ( std::vector<AlignableDTChamber*>::const_iterator iChamber = theDTChambers.begin();
 		iChamber != theDTChambers.end(); iChamber++ )
 	edm::LogInfo("AlignableDump") << (**iChamber);
 

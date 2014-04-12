@@ -1,16 +1,14 @@
 /**
  * \class L1GtFdlWord
- * 
- * 
- * Description: see header file.  
+ *
+ *
+ * Description: see header file.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
- * $Date$
- * $Revision$
+ *
  *
  */
 
@@ -22,11 +20,8 @@
 #include <iomanip>
 #include <vector>
 #include <string>
-#include <boost/cstdint.hpp>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -60,39 +55,47 @@ L1GtFdlWord::L1GtFdlWord()
     m_gtDecisionWordExtended.assign(
         L1GlobalTriggerReadoutSetup::NumberPhysTriggersExtended, false);
 
+    m_physicsDeclared = 0;
+    m_gtPrescaleFactorIndexTech = 0;
+    m_gtPrescaleFactorIndexAlgo = 0;
+
     m_noAlgo = 0;
 
     m_finalOR = 0;
+
+
+    m_orbitNr = 0;
+    m_lumiSegmentNr = 0;
     m_localBxNr = 0;
 
 }
 
 // constructor from unpacked values;
-L1GtFdlWord::L1GtFdlWord(
-    boost::uint16_t boardIdValue,
-    int bxInEventValue,
-    boost::uint16_t bxNrValue,
-    boost::uint32_t eventNrValue,
-    TechnicalTriggerWord gtTechnicalTriggerWordValue,
-    DecisionWord gtDecisionWordValue,
-    DecisionWordExtended gtDecisionWordExtendedValue,
-    boost::uint16_t noAlgoValue,
-    boost::uint16_t finalORValue,
-    boost::uint16_t localBxNrValue
-)
+L1GtFdlWord::L1GtFdlWord(cms_uint16_t boardIdValue, int bxInEventValue,
+        cms_uint16_t bxNrValue, cms_uint32_t eventNrValue,
+        const TechnicalTriggerWord& gtTechnicalTriggerWordValue,
+        const DecisionWord& gtDecisionWordValue,
+        const DecisionWordExtended& gtDecisionWordExtendedValue,
+        cms_uint16_t gtPrescaleFactorIndexTechValue,
+        cms_uint16_t gtPrescaleFactorIndexAlgoValue,
+        cms_uint16_t noAlgoValue, cms_uint16_t finalORValue,
+        cms_uint32_t orbitNrValue, cms_uint16_t lumiSegmentNrValue,
+        cms_uint16_t localBxNrValue) :
+    m_boardId(boardIdValue), m_bxInEvent(bxInEventValue), m_bxNr(bxNrValue),
+            m_eventNr(eventNrValue),
+            m_gtTechnicalTriggerWord(gtTechnicalTriggerWordValue),
+            m_gtDecisionWord(gtDecisionWordValue),
+            m_gtDecisionWordExtended(gtDecisionWordExtendedValue),
+            m_gtPrescaleFactorIndexTech(gtPrescaleFactorIndexTechValue),
+            m_gtPrescaleFactorIndexAlgo(gtPrescaleFactorIndexAlgoValue),
+            m_noAlgo(noAlgoValue), m_finalOR(finalORValue),
+            m_orbitNr(orbitNrValue), m_lumiSegmentNr(lumiSegmentNrValue),
+            m_localBxNr(localBxNrValue)
+
 {
+    m_physicsDeclared = 0;
 
-    m_boardId = boardIdValue;
-    m_bxInEvent = bxInEventValue;
-    m_bxNr = bxNrValue;
-    m_eventNr = eventNrValue;
-    m_gtTechnicalTriggerWord = gtTechnicalTriggerWordValue;
-    m_gtDecisionWord = gtDecisionWordValue;
-    m_gtDecisionWordExtended = gtDecisionWordExtendedValue;
-    m_noAlgo = noAlgoValue;
-    m_finalOR = finalORValue;
-    m_localBxNr = localBxNrValue;
-
+    // the rest done in initialization list
 }
 
 // destructor
@@ -133,11 +136,31 @@ bool L1GtFdlWord::operator==(const L1GtFdlWord& result) const
         return false;
     }
 
+    if (m_physicsDeclared != result.m_physicsDeclared) {
+        return false;
+    }
+
+    if (m_gtPrescaleFactorIndexTech != result.m_gtPrescaleFactorIndexTech) {
+        return false;
+    }
+
+    if (m_gtPrescaleFactorIndexAlgo != result.m_gtPrescaleFactorIndexAlgo) {
+        return false;
+    }
+
     if (m_noAlgo                != result.m_noAlgo) {
         return false;
     }
 
     if (m_finalOR               != result.m_finalOR) {
+        return false;
+    }
+
+    if (m_orbitNr != result.m_orbitNr) {
+        return false;
+    }
+
+    if (m_lumiSegmentNr != result.m_lumiSegmentNr) {
         return false;
     }
 
@@ -162,7 +185,7 @@ bool L1GtFdlWord::operator!=(const L1GtFdlWord& result) const
 // methods
 
 // set the BoardId value from a 64-bits word
-void L1GtFdlWord::setBoardId(const boost::uint64_t& word64)
+void L1GtFdlWord::setBoardId(const cms_uint64_t& word64)
 {
     m_boardId = (word64 & BoardIdMask) >> BoardIdShift;
 
@@ -170,18 +193,18 @@ void L1GtFdlWord::setBoardId(const boost::uint64_t& word64)
 
 // set the BoardId value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtFdlWord::setBoardIdWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setBoardIdWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == BoardIdWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_boardId) << BoardIdShift);
+        word64 = word64 | (static_cast<cms_uint64_t> (m_boardId) << BoardIdShift);
     }
 
 }
 
 
 // set the BxInEvent value from a 64-bits word
-void L1GtFdlWord::setBxInEvent(const boost::uint64_t& word64)
+void L1GtFdlWord::setBxInEvent(const cms_uint64_t& word64)
 {
     int baseValue = 16; // using hexadecimal values;
     int hexBxInEvent = (word64 & BxInEventMask) >> BxInEventShift;
@@ -191,13 +214,13 @@ void L1GtFdlWord::setBxInEvent(const boost::uint64_t& word64)
 
 // set the BxInEvent value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtFdlWord::setBxInEventWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setBxInEventWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == BxInEventWord) {
         int baseValue = 16; // using hexadecimal values;
         int hexBxInEvent = (m_bxInEvent + baseValue)%baseValue;
-        word64 = word64 | (static_cast<boost::uint64_t> (hexBxInEvent)
+        word64 = word64 | (static_cast<cms_uint64_t> (hexBxInEvent)
                            << BxInEventShift);
     }
 
@@ -205,7 +228,7 @@ void L1GtFdlWord::setBxInEventWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the BxNr value from a 64-bits word
-void L1GtFdlWord::setBxNr(const boost::uint64_t& word64)
+void L1GtFdlWord::setBxNr(const cms_uint64_t& word64)
 {
     m_bxNr = (word64 & BxNrMask) >> BxNrShift;
 
@@ -213,18 +236,18 @@ void L1GtFdlWord::setBxNr(const boost::uint64_t& word64)
 
 // set the BxNr value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtFdlWord::setBxNrWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setBxNrWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == BxNrWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_bxNr) << BxNrShift);
+        word64 = word64 | (static_cast<cms_uint64_t> (m_bxNr) << BxNrShift);
     }
 
 }
 
 
 // set the EventNr value from a 64-bits word
-void L1GtFdlWord::setEventNr(const boost::uint64_t& word64)
+void L1GtFdlWord::setEventNr(const cms_uint64_t& word64)
 {
     m_eventNr = (word64 & EventNrMask) >> EventNrShift;
 
@@ -232,11 +255,11 @@ void L1GtFdlWord::setEventNr(const boost::uint64_t& word64)
 
 // set the EventNr value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtFdlWord::setEventNrWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setEventNrWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == EventNrWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_eventNr) << EventNrShift);
+        word64 = word64 | (static_cast<cms_uint64_t> (m_eventNr) << EventNrShift);
     }
 
 }
@@ -269,14 +292,14 @@ void L1GtFdlWord::printGtTechnicalTriggerWord(std::ostream& myCout) const
 }
 
 // set the GtTechnicalTriggerWord value from a 64-bits word
-void L1GtFdlWord::setGtTechnicalTriggerWord(const boost::uint64_t& word64)
+void L1GtFdlWord::setGtTechnicalTriggerWord(const cms_uint64_t& word64)
 {
 
     int word64Size = sizeof(word64)*8;
-    boost::uint64_t wordTT = (word64 & GtTechnicalTriggerWordMask)
+    cms_uint64_t wordTT = (word64 & GtTechnicalTriggerWordMask)
                              >> GtTechnicalTriggerWordShift;
 
-    boost::uint64_t one64 = 1ULL;
+    cms_uint64_t one64 = 1ULL;
     for (int iBit = 0; iBit < word64Size; ++iBit) {
         m_gtTechnicalTriggerWord.at(iBit) = wordTT & (one64 << iBit);
     }
@@ -285,21 +308,21 @@ void L1GtFdlWord::setGtTechnicalTriggerWord(const boost::uint64_t& word64)
 
 // set the GtTechnicalTriggerWord value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtFdlWord::setGtTechnicalTriggerWordWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setGtTechnicalTriggerWordWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == GtTechnicalTriggerWordWord) {
 
         int word64Size = sizeof(word64)*8;
-        boost::uint64_t wordTT = 0x0000000000000000ULL;
+        cms_uint64_t wordTT = 0x0000000000000000ULL;
 
         int iBit = 0;
-        boost::uint64_t iDecision = 0ULL;
+        cms_uint64_t iDecision = 0ULL;
 
         for (std::vector<bool>::const_iterator itBit = m_gtTechnicalTriggerWord.begin();
                 itBit != m_gtTechnicalTriggerWord.end(); ++itBit) {
 
-            iDecision = static_cast<boost::uint64_t> (*itBit);//(*itBit ? 1 : 0);
+            iDecision = static_cast<cms_uint64_t> (*itBit);//(*itBit ? 1 : 0);
             wordTT = wordTT | (iDecision << iBit);
 
             iBit++;
@@ -372,13 +395,13 @@ void L1GtFdlWord::printGtDecisionWord(std::ostream& myCout) const
 
 // set the GtDecisionWord value from a 64-bits word
 // WordA: bits 0 - 63
-void L1GtFdlWord::setGtDecisionWordA(const boost::uint64_t& word64)
+void L1GtFdlWord::setGtDecisionWordA(const cms_uint64_t& word64)
 {
 
     int word64Size = sizeof(word64)*8; // well, it should be 64, if not...  :-)
-    boost::uint64_t wordA = (word64 & GtDecisionWordAMask) >> GtDecisionWordAShift;
+    cms_uint64_t wordA = (word64 & GtDecisionWordAMask) >> GtDecisionWordAShift;
 
-    boost::uint64_t one64 = 1ULL;
+    cms_uint64_t one64 = 1ULL;
 
     for (int iBit = 0; iBit < word64Size; ++iBit) {
         m_gtDecisionWord.at(iBit) = wordA & (one64 << iBit);
@@ -388,13 +411,13 @@ void L1GtFdlWord::setGtDecisionWordA(const boost::uint64_t& word64)
 
 // set the GtDecisionWord value from a 64-bits word
 // WordB: bits 64 - 127
-void L1GtFdlWord::setGtDecisionWordB(const boost::uint64_t& word64)
+void L1GtFdlWord::setGtDecisionWordB(const cms_uint64_t& word64)
 {
 
     int word64Size = sizeof(word64)*8;
-    boost::uint64_t wordB = (word64 & GtDecisionWordBMask) >> GtDecisionWordBShift;
+    cms_uint64_t wordB = (word64 & GtDecisionWordBMask) >> GtDecisionWordBShift;
 
-    boost::uint64_t one64 = 1ULL;
+    cms_uint64_t one64 = 1ULL;
 
     for (int iBit = 0; iBit < word64Size; ++iBit) {
         m_gtDecisionWord.at(iBit + word64Size) = wordB & (one64 << iBit);
@@ -409,21 +432,21 @@ void L1GtFdlWord::setGtDecisionWordB(const boost::uint64_t& word64)
 // WordA: bits 0 - 63
 
 // a bit forced: assumes wordSize64 = 64, but also take word shift
-void L1GtFdlWord::setGtDecisionWordAWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setGtDecisionWordAWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == GtDecisionWordAWord) {
 
         int word64Size = sizeof(word64)*8;
-        boost::uint64_t wordA = 0x0000000000000000ULL;
+        cms_uint64_t wordA = 0x0000000000000000ULL;
 
         int iBit = 0;
-        boost::uint64_t iDecision = 0ULL;
+        cms_uint64_t iDecision = 0ULL;
 
         for (std::vector<bool>::const_iterator itBit = m_gtDecisionWord.begin();
                 itBit != m_gtDecisionWord.end(); ++itBit) {
 
-            iDecision = static_cast<boost::uint64_t> (*itBit);//(*itBit ? 1 : 0);
+            iDecision = static_cast<cms_uint64_t> (*itBit);//(*itBit ? 1 : 0);
             wordA = wordA | (iDecision << iBit);
 
             iBit++;
@@ -445,23 +468,23 @@ void L1GtFdlWord::setGtDecisionWordAWord64(boost::uint64_t& word64, int iWord)
 // WordB: bits 64 - 127
 
 // a bit forced: assumes wordSize64 = 64, but also take word shift
-void L1GtFdlWord::setGtDecisionWordBWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setGtDecisionWordBWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == GtDecisionWordBWord) {
 
         int word64Size = sizeof(word64)*8;
-        boost::uint64_t wordB = 0x0000000000000000ULL;
+        cms_uint64_t wordB = 0x0000000000000000ULL;
 
         int iBit = 0;
-        boost::uint64_t iDecision = 0ULL;
+        cms_uint64_t iDecision = 0ULL;
 
         for (std::vector<bool>::const_iterator itBit = m_gtDecisionWord.begin();
                 itBit != m_gtDecisionWord.end(); ++itBit) {
 
             if (iBit >= word64Size) {
                 // skip first word64Size bits, they go in wordA
-                iDecision = static_cast<boost::uint64_t> (*itBit);//(*itBit ? 1 : 0);
+                iDecision = static_cast<cms_uint64_t> (*itBit);//(*itBit ? 1 : 0);
                 wordB = wordB | ( iDecision << (iBit - word64Size) );
             }
 
@@ -501,14 +524,14 @@ void L1GtFdlWord::printGtDecisionWordExtended(std::ostream& myCout) const
 }
 
 // set the GtDecisionWordExtended value from a 64-bits word
-void L1GtFdlWord::setGtDecisionWordExtended(const boost::uint64_t& word64)
+void L1GtFdlWord::setGtDecisionWordExtended(const cms_uint64_t& word64)
 {
 
     int word64Size = sizeof(word64)*8;
-    boost::uint64_t wordE = (word64 & GtDecisionWordExtendedMask)
+    cms_uint64_t wordE = (word64 & GtDecisionWordExtendedMask)
                             >> GtDecisionWordExtendedShift;
 
-    boost::uint64_t one64 = 1ULL;
+    cms_uint64_t one64 = 1ULL;
 
     for (int iBit = 0; iBit < word64Size; ++iBit) {
         m_gtDecisionWordExtended.at(iBit) = wordE & (one64 << iBit);
@@ -519,21 +542,21 @@ void L1GtFdlWord::setGtDecisionWordExtended(const boost::uint64_t& word64)
 
 // set the GtDecisionWordExtended value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtFdlWord::setGtDecisionWordExtendedWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setGtDecisionWordExtendedWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == GtDecisionWordExtendedWord) {
 
         int word64Size = sizeof(word64)*8;
-        boost::uint64_t wordE = 0x0000000000000000ULL;
+        cms_uint64_t wordE = 0x0000000000000000ULL;
 
         int iBit = 0;
-        boost::uint64_t iDecision = 0ULL;
+        cms_uint64_t iDecision = 0ULL;
 
         for (std::vector<bool>::const_iterator itBit = m_gtDecisionWordExtended.begin();
                 itBit != m_gtDecisionWordExtended.end(); ++itBit) {
 
-            iDecision = static_cast<boost::uint64_t> (*itBit);//(*itBit ? 1 : 0);
+            iDecision = static_cast<cms_uint64_t> (*itBit);//(*itBit ? 1 : 0);
             wordE = wordE | (iDecision << iBit);
 
             iBit++;
@@ -550,20 +573,77 @@ void L1GtFdlWord::setGtDecisionWordExtendedWord64(boost::uint64_t& word64, int i
 }
 
 
+// set the "physics declared" bit value from a 64-bits word
+void L1GtFdlWord::setPhysicsDeclared(const cms_uint64_t& word64)
+{
+    m_physicsDeclared = (word64 & PhysicsDeclaredMask) >> PhysicsDeclaredShift;
+}
+
+// set the "physics declared" bit value in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtFdlWord::setPhysicsDeclaredWord64(cms_uint64_t& word64, const int iWord)
+{
+
+    if (iWord == PhysicsDeclaredWord) {
+        word64 = word64 | (static_cast<cms_uint64_t> (m_physicsDeclared)
+                           << PhysicsDeclaredShift);
+    }
+
+}
+
+
+// set the GtPrescaleFactorIndexTech from a 64-bits word
+void L1GtFdlWord::setGtPrescaleFactorIndexTech(const cms_uint64_t& word64) {
+    m_gtPrescaleFactorIndexTech = (word64 & GtPrescaleFactorIndexTechMask)
+            >> GtPrescaleFactorIndexTechShift;
+}
+
+// set the GtPrescaleFactorIndexTech bits in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtFdlWord::setGtPrescaleFactorIndexTechWord64(cms_uint64_t& word64,
+        const int iWord) {
+
+    if (iWord == GtPrescaleFactorIndexTechWord) {
+        word64 = word64
+                | (static_cast<cms_uint64_t> (m_gtPrescaleFactorIndexTech)
+                        << GtPrescaleFactorIndexTechShift);
+    }
+
+}
+
+
+// set the GtPrescaleFactorIndexAlgo from a 64-bits word
+void L1GtFdlWord::setGtPrescaleFactorIndexAlgo(const cms_uint64_t& word64) {
+    m_gtPrescaleFactorIndexAlgo = (word64 & GtPrescaleFactorIndexAlgoMask)
+            >> GtPrescaleFactorIndexAlgoShift;
+}
+
+// set the GtPrescaleFactorIndexAlgo bits in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtFdlWord::setGtPrescaleFactorIndexAlgoWord64(cms_uint64_t& word64,
+        const int iWord) {
+
+    if (iWord == GtPrescaleFactorIndexAlgoWord) {
+        word64 = word64
+                | (static_cast<cms_uint64_t> (m_gtPrescaleFactorIndexAlgo)
+                        << GtPrescaleFactorIndexAlgoShift);
+    }
+
+}
 
 // set the NoAlgo value from a 64-bits word
-void L1GtFdlWord::setNoAlgo(const boost::uint64_t& word64)
+void L1GtFdlWord::setNoAlgo(const cms_uint64_t& word64)
 {
     m_noAlgo = (word64 & NoAlgoMask) >> NoAlgoShift;
 }
 
 // set the NoAlgo value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtFdlWord::setNoAlgoWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setNoAlgoWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == NoAlgoWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_noAlgo)
+        word64 = word64 | (static_cast<cms_uint64_t> (m_noAlgo)
                            << NoAlgoShift);
     }
 
@@ -573,7 +653,7 @@ void L1GtFdlWord::setNoAlgoWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the FinalOR value from a 64-bits word
-void L1GtFdlWord::setFinalOR(const boost::uint64_t& word64)
+void L1GtFdlWord::setFinalOR(const cms_uint64_t& word64)
 {
     m_finalOR = (word64 & FinalORMask) >> FinalORShift;
 
@@ -581,30 +661,66 @@ void L1GtFdlWord::setFinalOR(const boost::uint64_t& word64)
 
 // set the FinalOR value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtFdlWord::setFinalORWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setFinalORWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == FinalORWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_finalOR)
+        word64 = word64 | (static_cast<cms_uint64_t> (m_finalOR)
                            << FinalORShift);
     }
 
 }
 
 
+// set the orbit number bits from a 64-bits word
+void L1GtFdlWord::setOrbitNr(const cms_uint64_t& word64) {
+    m_orbitNr = (word64 & OrbitNrMask) >> OrbitNrShift;
+}
+
+// set the orbit number bits in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtFdlWord::setOrbitNrWord64(cms_uint64_t& word64, const int iWord) {
+
+    if (iWord == OrbitNrWord) {
+        word64 = word64 | (static_cast<cms_uint64_t> (m_orbitNr)
+                << OrbitNrShift);
+    }
+
+}
+
+
+
+// set the luminosity segment number bits from a 64-bits word
+void L1GtFdlWord::setLumiSegmentNr(const cms_uint64_t& word64) {
+    m_lumiSegmentNr = (word64 & LumiSegmentNrMask) >> LumiSegmentNrShift;
+}
+
+// set the luminosity segment number bits in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtFdlWord::setLumiSegmentNrWord64(cms_uint64_t& word64,
+        const int iWord) {
+
+    if (iWord == LumiSegmentNrWord) {
+        word64 = word64 | (static_cast<cms_uint64_t> (m_lumiSegmentNr)
+                << LumiSegmentNrShift);
+    }
+
+}
+
+
 // set the LocalBxNr value from a 64-bits word
-void L1GtFdlWord::setLocalBxNr(const boost::uint64_t& word64)
+void L1GtFdlWord::setLocalBxNr(const cms_uint64_t& word64)
 {
     m_localBxNr = (word64 & LocalBxNrMask) >> LocalBxNrShift;
 }
 
 // set the LocalBxNr value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtFdlWord::setLocalBxNrWord64(boost::uint64_t& word64, int iWord)
+void L1GtFdlWord::setLocalBxNrWord64(cms_uint64_t& word64, const int iWord)
 {
 
     if (iWord == LocalBxNrWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_localBxNr)
+        word64 = word64 | (static_cast<cms_uint64_t> (m_localBxNr)
                            << LocalBxNrShift);
     }
 
@@ -633,9 +749,15 @@ void L1GtFdlWord::reset()
     m_gtDecisionWordExtended.assign(
         L1GlobalTriggerReadoutSetup::NumberPhysTriggersExtended, false);
 
+    m_physicsDeclared = 0;
+    m_gtPrescaleFactorIndexTech = 0;
+    m_gtPrescaleFactorIndexAlgo = 0;
+
     m_noAlgo = 0;
     m_finalOR = 0;
 
+    m_orbitNr = 0;
+    m_lumiSegmentNr = 0;
     m_localBxNr = 0;
 
 }
@@ -708,13 +830,34 @@ void L1GtFdlWord::print(std::ostream& myCout) const
     iWord++;
     myCout << "\n Word " << iWord << std::endl;
 
-    myCout << "  NoAlgo:           "
+    myCout << "  PhysicsDeclared:           "
+    << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0')
+    << m_physicsDeclared
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_physicsDeclared
+    << std::endl;
+
+    myCout << "  GtPrescaleFactorIndexTech: "
+    << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0')
+    << m_gtPrescaleFactorIndexTech
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_gtPrescaleFactorIndexTech
+    << std::endl;
+
+    myCout << "  GtPrescaleFactorIndexAlgo: "
+    << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0')
+    << m_gtPrescaleFactorIndexAlgo
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_gtPrescaleFactorIndexAlgo
+    << std::endl;
+
+    myCout << "  NoAlgo:                    "
     << std::hex << " hex: "  << "       " << std::setw(1) << std::setfill('0') << m_noAlgo
     << std::setfill(' ')
     << std::dec << " dec: " << m_noAlgo
     << std::endl;
 
-    myCout << "  FinalOR:          "
+    myCout << "  FinalOR:                   "
     << std::hex << " hex: "  << "      " << std::setw(2) << std::setfill('0') << m_finalOR
     << std::setfill(' ')
     << std::dec << " dec: " << m_finalOR
@@ -722,6 +865,18 @@ void L1GtFdlWord::print(std::ostream& myCout) const
 
     iWord++;
     myCout << "\n Word " << iWord << std::endl;
+
+    myCout << "  OrbitNr:          "
+    << std::hex << " hex: "  << "" << std::setw(8) << std::setfill('0') << m_orbitNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_orbitNr
+    << std::endl;
+
+    myCout << "  LumiSegmentNr:    "
+    << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0') << m_lumiSegmentNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_lumiSegmentNr
+    << std::endl;
 
     myCout << "  LocalBxNr:        "
     << std::hex << " hex: "  << "     " << std::setw(3) << std::setfill('0') << m_localBxNr
@@ -739,8 +894,8 @@ void L1GtFdlWord::unpack(const unsigned char* fdlPtr)
     << "\nUnpacking FDL block.\n"
     << std::endl;
 
-    const boost::uint64_t* payload =
-        reinterpret_cast<boost::uint64_t*>(const_cast<unsigned char*>(fdlPtr));
+    const cms_uint64_t* payload =
+        reinterpret_cast<cms_uint64_t*>(const_cast<unsigned char*>(fdlPtr));
 
     setBoardId(payload[BoardIdWord]);
     setBxInEvent(payload[BxInEventWord]);
@@ -755,9 +910,14 @@ void L1GtFdlWord::unpack(const unsigned char* fdlPtr)
 
     setGtDecisionWordExtended(payload[GtDecisionWordExtendedWord]);
 
+    setPhysicsDeclared(payload[PhysicsDeclaredWord]);
+    setGtPrescaleFactorIndexTech(payload[GtPrescaleFactorIndexTechWord]);
+    setGtPrescaleFactorIndexAlgo(payload[GtPrescaleFactorIndexAlgoWord]);
     setNoAlgo(payload[NoAlgoWord]);
     setFinalOR(payload[FinalORWord]);
 
+    setOrbitNr(payload[OrbitNrWord]);
+    setLumiSegmentNr(payload[LumiSegmentNrWord]);
     setLocalBxNr(payload[LocalBxNrWord]);
 
     if ( edm::isDebugEnabled() ) {
@@ -792,10 +952,10 @@ const int L1GtFdlWord::BxNrWord = 0;
 const int L1GtFdlWord::EventNrWord = 0;
 
 // mask to get the 64-bit-value from the corresponding word in the FDL block
-const boost::uint64_t L1GtFdlWord::BoardIdMask =   0xFFFF000000000000ULL;
-const boost::uint64_t L1GtFdlWord::BxInEventMask = 0x0000F00000000000ULL;
-const boost::uint64_t L1GtFdlWord::BxNrMask =      0x00000FFF00000000ULL;
-const boost::uint64_t L1GtFdlWord::EventNrMask =   0x0000000000FFFFFFULL;
+const cms_uint64_t L1GtFdlWord::BoardIdMask =   0xFFFF000000000000ULL;
+const cms_uint64_t L1GtFdlWord::BxInEventMask = 0x0000F00000000000ULL;
+const cms_uint64_t L1GtFdlWord::BxNrMask =      0x00000FFF00000000ULL;
+const cms_uint64_t L1GtFdlWord::EventNrMask =   0x0000000000FFFFFFULL;
 
 // shift to the right to get the value from the "64-bit-value"
 const int L1GtFdlWord::BoardIdShift = 48;
@@ -806,39 +966,56 @@ const int L1GtFdlWord::EventNrShift = 0;
 // word 1
 
 const int L1GtFdlWord::GtTechnicalTriggerWordWord = 1;
-const boost::uint64_t L1GtFdlWord::GtTechnicalTriggerWordMask = 0xFFFFFFFFFFFFFFFFULL;
+const cms_uint64_t L1GtFdlWord::GtTechnicalTriggerWordMask = 0xFFFFFFFFFFFFFFFFULL;
 const int L1GtFdlWord::GtTechnicalTriggerWordShift = 0;
 
 // word 2 - WordA: bits 0-63
 
 const int L1GtFdlWord::GtDecisionWordAWord = 2;
-const boost::uint64_t L1GtFdlWord::GtDecisionWordAMask = 0xFFFFFFFFFFFFFFFFULL;
+const cms_uint64_t L1GtFdlWord::GtDecisionWordAMask = 0xFFFFFFFFFFFFFFFFULL;
 const int L1GtFdlWord::GtDecisionWordAShift = 0;
 
 // word 3 - WordB: bits 64-128
 
 const int L1GtFdlWord::GtDecisionWordBWord = 3;
-const boost::uint64_t L1GtFdlWord::GtDecisionWordBMask = 0xFFFFFFFFFFFFFFFFULL;
+const cms_uint64_t L1GtFdlWord::GtDecisionWordBMask = 0xFFFFFFFFFFFFFFFFULL;
 const int L1GtFdlWord::GtDecisionWordBShift = 0;
 
 
 // word 4
 const int L1GtFdlWord::GtDecisionWordExtendedWord = 4;
-const boost::uint64_t L1GtFdlWord::GtDecisionWordExtendedMask = 0xFFFFFFFFFFFFFFFFULL;
+const cms_uint64_t L1GtFdlWord::GtDecisionWordExtendedMask = 0xFFFFFFFFFFFFFFFFULL;
 const int L1GtFdlWord::GtDecisionWordExtendedShift = 0;
 
 // word 5
+const int L1GtFdlWord::PhysicsDeclaredWord = 5;
+const int L1GtFdlWord::GtPrescaleFactorIndexTechWord = 5;
+const int L1GtFdlWord::GtPrescaleFactorIndexAlgoWord = 5;
 const int L1GtFdlWord::NoAlgoWord = 5;
 const int L1GtFdlWord::FinalORWord = 5;
 
-const boost::uint64_t L1GtFdlWord::NoAlgoMask =  0x0000000000000100ULL;
-const boost::uint64_t L1GtFdlWord::FinalORMask = 0x00000000000000FFULL;
+const cms_uint64_t L1GtFdlWord::PhysicsDeclaredMask =           0x8000000000000000ULL;
+const cms_uint64_t L1GtFdlWord::GtPrescaleFactorIndexTechMask = 0x00FF000000000000ULL;
+const cms_uint64_t L1GtFdlWord::GtPrescaleFactorIndexAlgoMask = 0x000000FF00000000ULL;
+const cms_uint64_t L1GtFdlWord::NoAlgoMask =  0x0000000000000100ULL;
+const cms_uint64_t L1GtFdlWord::FinalORMask = 0x00000000000000FFULL;
 
+const int L1GtFdlWord::PhysicsDeclaredShift = 63;
+const int L1GtFdlWord::GtPrescaleFactorIndexTechShift = 48;
+const int L1GtFdlWord::GtPrescaleFactorIndexAlgoShift = 32;
 const int L1GtFdlWord::NoAlgoShift = 8;
 const int L1GtFdlWord::FinalORShift = 0;
 
 // word 6
+const int L1GtFdlWord::OrbitNrWord = 6;
+const int L1GtFdlWord::LumiSegmentNrWord = 6;
 const int L1GtFdlWord::LocalBxNrWord = 6;
-const boost::uint64_t L1GtFdlWord::LocalBxNrMask =  0x0000000000000FFFULL;
+
+const cms_uint64_t L1GtFdlWord::OrbitNrMask =        0xFFFFFFFF00000000ULL;
+const cms_uint64_t L1GtFdlWord::LumiSegmentNrMask =  0x00000000FFFF0000ULL;
+const cms_uint64_t L1GtFdlWord::LocalBxNrMask =      0x0000000000000FFFULL;
+
+const int L1GtFdlWord::OrbitNrShift = 32;
+const int L1GtFdlWord::LumiSegmentNrShift = 16;
 const int L1GtFdlWord::LocalBxNrShift = 0;
 

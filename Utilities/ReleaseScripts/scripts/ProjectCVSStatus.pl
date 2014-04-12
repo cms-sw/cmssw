@@ -1,13 +1,12 @@
-#!/usr/bin/perl 
+#!/usr/bin/env perl
 #____________________________________________________________________ 
 # File: ProjectCVSStatus.pl
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-11 14:46:41+0200
-# Revision: $Id: ProjectCVSStatus.pl,v 1.2 2006/04/27 13:47:58 sashby Exp $ 
 #
-# Copyright: 2006 (C) Shaun ASHBY
+# Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use Cwd;
@@ -26,7 +25,7 @@ my $cvs = '/usr/bin/cvs';
 ###### testing ############
 my $project = 'CMSSW';
 # If CVSROOT is set, use it, otherwise use this default:
-my $cvsroot=':kserver:cmscvs.cern.ch:/cvs_server/repositories/CMSSW';
+my $cvsroot=':gserver:cmscvs.cern.ch:/cvs_server/repositories/CMSSW';
 my $rv;
 
 if ($ENV{CVSROOT})
@@ -269,11 +268,9 @@ sub getReferenceTags()
    # --no-check-certificate needed for 1.10 and above:
    my $wgetver = (`wget --version` =~ /^GNU Wget 1\.1.*?/);
    my $options = ""; $options = "--no-check-certificate", if ($wgetver == 1);
-   my $user="cmstcreader";
-   my $pass="CmsTC";
    my $gotpacks=0;
    
-   open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'https://$user:$pass\@cmstags.cern.ch/cgi-bin/CmsTC/CreateTagList?release=$basereleaseid' |");
+   open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'https://cmstags.cern.ch/tc/public/CreateTagList?release=$basereleaseid' |");
    
    my %tags;
    while ( <CMSTCQUERY> )

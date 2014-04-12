@@ -17,7 +17,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <functional>
 #include <algorithm>
@@ -30,6 +30,9 @@ SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* the
 					       const MagneticField* field) : 
   theBarrelLength(0),theField(field), theTracker(theInputTracker)
 {
+
+  theAllDetLayersInSystem=&theInputTracker->allLayers();
+
   // Get barrel layers
   vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
   for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
@@ -53,6 +56,20 @@ SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* the
   linkBarrelLayers( symFinder);
   linkForwardLayers( symFinder);
   establishInverseRelations();
+}
+
+void SimpleNavigationSchool::cleanMemory(){
+  // free the memory allocated to the SimpleNavigableLayers
+  for ( vector< SimpleBarrelNavigableLayer*>::const_iterator
+          ib = theBarrelNLC.begin(); ib != theBarrelNLC.end(); ib++) {
+    delete (*ib);
+  }
+  theBarrelNLC.clear();
+  for ( vector< SimpleForwardNavigableLayer*>::const_iterator 
+	  ifl = theForwardNLC.begin(); ifl != theForwardNLC.end(); ifl++) {
+    delete (*ifl);
+  }
+  theForwardNLC.clear();
 }
 
 SimpleNavigationSchool::StateType 

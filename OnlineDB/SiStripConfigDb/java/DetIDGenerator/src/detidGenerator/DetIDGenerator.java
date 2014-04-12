@@ -13,9 +13,7 @@ import java.sql.*;
 **/
 
 /*
-  $Date: 2007/06/21 08:19:37 $
   
-  $Log: DetIDGenerator.java,v $
   Revision 1.8  2007/06/21 08:19:37  gbaulieu
   The length of the fibers is in meters
 

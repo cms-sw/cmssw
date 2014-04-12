@@ -17,6 +17,8 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
+#include "G4SystemOfUnits.hh"
+
 EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
 			       SensitiveDetectorCatalog & clg, 
 			       edm::ParameterSet const & p, 
@@ -26,7 +28,8 @@ EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_EcalTBH4BeamSD = p.getParameter<edm::ParameterSet>("EcalTBH4BeamSD");
   useBirk= m_EcalTBH4BeamSD.getParameter<bool>("UseBirkLaw");
   birk1  = m_EcalTBH4BeamSD.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2  = m_EcalTBH4BeamSD.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  birk2  = m_EcalTBH4BeamSD.getParameter<double>("BirkC2");
+  birk3  = m_EcalTBH4BeamSD.getParameter<double>("BirkC3");
 
   EcalNumberingScheme* scheme=0;
   if     (name == "EcalTBH4BeamHits") { 
@@ -35,20 +38,12 @@ EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
   else {edm::LogWarning("EcalTBSim") << "EcalTBH4BeamSD: ReadoutName not supported\n";}
 
   if (scheme)  setNumberingScheme(scheme);
-  LogDebug("EcalTBSim") 
-    << "***************************************************" 
-    << "\n"
-    << "*                                                 *" 
-    << "\n"
-    << "* Constructing a EcalTBH4BeamSD  with name " << GetName()
-    << "\n"
-    << "*                                                 *"
-    << "\n"
-    << "***************************************************" ;
-  edm::LogInfo("EcalTBSim")  << "EcalTBH4BeamSD:: Use of Birks law is set to      " 
-			   << useBirk << "        with the two constants C1 = "
-			   << birk1 << ", C2 = " << birk2;
-
+  edm::LogInfo("EcalTBSim") << "Constructing a EcalTBH4BeamSD  with name " 
+			    << GetName();
+  edm::LogInfo("EcalTBSim") << "EcalTBH4BeamSD:: Use of Birks law is set to  " 
+			    << useBirk << "        with three constants kB = "
+			    << birk1 << ", C1 = " << birk2 << ", C2 = " 
+			    << birk3;
 }
 
 EcalTBH4BeamSD::~EcalTBH4BeamSD() {
@@ -65,7 +60,7 @@ double EcalTBH4BeamSD::getEnergyDeposit(G4Step * aStep) {
 
     // take into account light collection curve for crystals
     double weight = 1.;
-    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2);
+    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
     double edep   = aStep->GetTotalEnergyDeposit() * weight;
     LogDebug("EcalTBSim") << "EcalTBH4BeamSD:: " << nameVolume
 			<<" Light Collection Efficiency " << weight 
@@ -75,7 +70,8 @@ double EcalTBH4BeamSD::getEnergyDeposit(G4Step * aStep) {
 }
 
 uint32_t EcalTBH4BeamSD::setDetUnitId(G4Step * aStep) { 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(getBaseNumber(aStep)));
+  getBaseNumber(aStep);
+  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(theBaseNumber));
 }
 
 void EcalTBH4BeamSD::setNumberingScheme(EcalNumberingScheme* scheme) {
@@ -88,19 +84,19 @@ void EcalTBH4BeamSD::setNumberingScheme(EcalNumberingScheme* scheme) {
 }
 
 
-EcalBaseNumber EcalTBH4BeamSD::getBaseNumber(const G4Step* aStep) const {
+void EcalTBH4BeamSD::getBaseNumber(const G4Step* aStep) {
 
-  EcalBaseNumber aBaseNumber;
+  theBaseNumber.reset();
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  //aBaseNumber.setSize(touch->GetHistoryDepth()+1);
+  int theSize = touch->GetHistoryDepth()+1;
+  if ( theBaseNumber.getCapacity() < theSize ) theBaseNumber.setSize(theSize);
   //Get name and copy numbers
-  if (touch->GetHistoryDepth() > 0) {
-    for (int ii = 0; ii <= touch->GetHistoryDepth() ; ii++) {
-      aBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),touch->GetReplicaNumber(ii));
+  if ( theSize > 1 ) {
+    for (int ii = 0; ii < theSize ; ii++) {
+      theBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),touch->GetReplicaNumber(ii));
       LogDebug("EcalTBSim") << "EcalTBH4BeamSD::getBaseNumber(): Adding level " << ii 
-			  << ": " << touch->GetVolume(ii)->GetName() << "[" 
-			  << touch->GetReplicaNumber(ii) << "]";
+                            << ": " << touch->GetVolume(ii)->GetName() << "["
+                            << touch->GetReplicaNumber(ii) << "]";
     }
   }
-  return aBaseNumber;
 }

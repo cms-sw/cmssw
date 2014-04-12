@@ -1,9 +1,10 @@
 #ifndef bstream_iterator_H
 #define bstream_iterator_H
 
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
-#include "MagneticField/Interpolation/src/binary_ofstream.h"
+#include "binary_ifstream.h"
+#include "binary_ofstream.h"
 #include <iterator>
+#include "FWCore/Utilities/interface/Visibility.h"
 
 template <typename T>
 class bistream_iterator : 
@@ -55,7 +56,7 @@ private:
 };
 
 template <typename T> 
-class bostream_iterator :
+class dso_internal bostream_iterator :
     public std::iterator<std::output_iterator_tag,void,void,void,void> {
 public:
 

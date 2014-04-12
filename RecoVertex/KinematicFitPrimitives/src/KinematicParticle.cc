@@ -1,5 +1,8 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicConstraint.h"
 
+KinematicParticle::~KinematicParticle() { delete lConstraint;} 
 
 bool KinematicParticle::operator<(const KinematicParticle& other)const
 {
@@ -31,3 +34,9 @@ float KinematicParticle::degreesOfFreedom()const
 
 void KinematicParticle::setTreePointer(KinematicTree * tr)const
 {tree = tr;}
+
+reco::TransientTrack KinematicParticle::refittedTransientTrack() const
+{
+  TransientTrackFromFTSFactory factory;
+  return factory.build(currentState().freeTrajectoryState());
+}

@@ -1,8 +1,5 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
- 
-#include "FWCore/Utilities/interface/Exception.h"  
 
-#include <iostream>
 using namespace std;
 
 //DEFINE STATICS
@@ -43,9 +40,11 @@ void L1GctTdrJetFinder::fetchInput()
 
 void L1GctTdrJetFinder::process() 
 {
-  findJets();
-  sortJets();
-  doEnergySums();
+  if (setupOk()) {
+    findJets();
+    sortJets();
+    doEnergySums();
+  }
 }
 
 /// HERE IS THE JETFINDER CODE
@@ -66,29 +65,32 @@ void L1GctTdrJetFinder::findJets()
       bool heBoundary = (row == COL_OFFSET-5);
 
       //debug checks for improper input indices
-      assert(centreIndex % COL_OFFSET != 0);  //Don't want the 4 regions from other half of detector
-      assert(centreIndex >= COL_OFFSET);  //Don't want the shared column to left of jet finding area
-      assert(centreIndex < (MAX_REGIONS_IN - COL_OFFSET)); //Don't want column to the right either
+      if ((centreIndex % COL_OFFSET != 0)  //Don't want the 4 regions from other half of detector
+	  && (centreIndex >= COL_OFFSET)  //Don't want the shared column to left of jet finding area
+	  && (centreIndex < (MAX_REGIONS_IN - COL_OFFSET))) { //Don't want column to the right either
                         
-      if(detectJet(centreIndex, hfBoundary))
-      {
-        assert(jetNum < MAX_JETS_OUT);
+	if(detectJet(centreIndex, hfBoundary))
+	  {
+	    if (jetNum < MAX_JETS_OUT) {
             
-        m_outputJets.at(jetNum).setRawsum(calcJetEnergy(centreIndex, hfBoundary));
-        m_outputJets.at(jetNum).setDetId(calcJetPosition(centreIndex));
-        if(row < COL_OFFSET-4)  //if we are not in the HF, perform tauVeto analysis
-        {
-          m_outputJets.at(jetNum).setForward(false);
-          m_outputJets.at(jetNum).setTauVeto(calcJetTauVeto(centreIndex,heBoundary));
-        }
-        else //can't be a tau jet because we are in the HF
-        {
-          m_outputJets.at(jetNum).setForward(true);
-          m_outputJets.at(jetNum).setTauVeto(true);
-        }
-        ++jetNum;
+	      m_outputJets.at(jetNum).setRawsum(calcJetEnergy(centreIndex, hfBoundary));
+	      m_outputJets.at(jetNum).setDetId(calcJetPosition(centreIndex));
+	      m_outputJets.at(jetNum).setBx(m_inputRegions.at(centreIndex).bx());
+	      if(row < COL_OFFSET-4)  //if we are not in the HF, perform tauVeto analysis
+		{
+		  m_outputJets.at(jetNum).setForward(false);
+		  m_outputJets.at(jetNum).setTauVeto(calcJetTauVeto(centreIndex,heBoundary));
+		}
+	      else //can't be a tau jet because we are in the HF
+		{
+		  m_outputJets.at(jetNum).setForward(true);
+		  m_outputJets.at(jetNum).setTauVeto(true);
+		}
+	      ++jetNum;
+	    }
+	  }
+	++centreIndex;
       }
-      ++centreIndex;
     }
   }
 }

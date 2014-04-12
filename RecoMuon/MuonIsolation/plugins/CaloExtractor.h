@@ -3,9 +3,11 @@
 
 #include <string>
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -15,24 +17,24 @@
 
 namespace muonisolation {
 
-class CaloExtractor : public MuIsoExtractor {
+class CaloExtractor : public reco::isodeposit::IsoDepositExtractor {
 
 public:
 
   CaloExtractor(){};
-  CaloExtractor(const edm::ParameterSet& par);
+  CaloExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
   virtual ~CaloExtractor(){}
 
   virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
-  virtual reco::MuIsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
+  virtual reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
   /// Extrapolate muons to calorimeter-object positions
   static GlobalPoint MuonAtCaloPosition(const reco::Track& muon, const double bz, const GlobalPoint& endpos, bool fixVxy=false, bool fixVz=false);
-  
+
 private:
   // CaloTower Collection Label
-  edm::InputTag theCaloTowerCollectionLabel;
+  edm::EDGetTokenT<CaloTowerCollection> theCaloTowerCollectionToken;
 
   // Label of deposit
   std::string theDepositLabel;
@@ -54,12 +56,6 @@ private:
   // Determine noise for HCAL and ECAL (take some defaults for the time being)
   double noiseEcal(const CaloTower& tower) const;
   double noiseHcal(const CaloTower& tower) const;
-
-  // Function to ensure that phi and theta are in range
-  static double PhiInRange(const double& phi);
-
-  // DeltaR function
-  template <class T, class U> static double deltaR(const T& t, const U& u);
 };
 
 }

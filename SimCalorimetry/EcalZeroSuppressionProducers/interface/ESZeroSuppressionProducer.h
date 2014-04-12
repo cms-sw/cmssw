@@ -2,7 +2,6 @@
 #define ESZEROSUPPRESSIONPRODUCER_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,9 +11,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/ESRecHitSimAlgo.h"
+#include "CondFormats/ESObjects/interface/ESThresholds.h"
+#include "CondFormats/DataRecord/interface/ESThresholdsRcd.h"
+#include "CondFormats/ESObjects/interface/ESPedestals.h"
+#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 
 class ESZeroSuppressionProducer : public edm::EDProducer
 {
@@ -29,24 +29,12 @@ class ESZeroSuppressionProducer : public edm::EDProducer
   
  private:
 
-  void checkGeometry(const edm::EventSetup & eventSetup);
-  void updateGeometry();
- 
-  const CaloGeometry * theGeometry;
-
   std::string digiProducer_;
   std::string ESdigiCollection_;
   std::string ESZSdigiCollection_;
 
-  ESRecHitSimAlgo *algo_;
-
-  int ESGain;
-  int ESBaseline;
-  double ESMIPADC;
-  double ESMIPkeV;
-  double ESNoiseSigma;
-  double ESThreshold;
-
+  edm::ESHandle<ESThresholds> esthresholds_;
+  edm::ESHandle<ESPedestals> espeds_;
 };
 
 #endif 

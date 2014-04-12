@@ -1,6 +1,5 @@
 #include "DetectorDescription/Core/interface/DDStreamer.h"
 
-//#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Base/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -11,18 +10,12 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/Core/interface/DDPath.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
-
-#include "SealUtil/SealTimer.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include<iostream>
 #include<iomanip>
 
 DDStreamer::DDStreamer()
@@ -37,7 +30,7 @@ DDStreamer::DDStreamer(std::ostream & os)
     o_ = &os;
   }
   else {
-    throw DDException("DDStreamer::DDStreamer(std::ostream&): not valid std::ostream");
+    throw cms::Exception("DDException") << "DDStreamer::DDStreamer(std::ostream&): not valid std::ostream";
   }
 }
 
@@ -48,7 +41,7 @@ DDStreamer::DDStreamer(std::istream & is)
     i_ = &is;
   }
   else {
-    throw DDException("DDStreamer::DDStreamer(std::ostream&): not valid std::ostream");
+    throw cms::Exception("DDException") << "DDStreamer::DDStreamer(std::ostream&): not valid std::ostream";
   }
 }
 
@@ -120,7 +113,7 @@ void DDStreamer::write()
      write(*o_);
    }
    else {
-     throw DDException("DDStreamer::write(): bad std::ostream");
+     throw cms::Exception("DDException") << "DDStreamer::write(): bad std::ostream";
    }
 }
 
@@ -130,66 +123,47 @@ void DDStreamer::read()
     read(*i_);
    }
    else {
-     throw DDException("DDStreamer::read(): bad std::istream");
+     throw cms::Exception("DDException") << "DDStreamer::read(): bad std::istream";
    }
 }
 
 void DDStreamer::write(std::ostream & os)
 {
-  static seal::SealTimer tdstreamwrite("DDStreamer::write(...)", false);
-
   o_=&os;
   std::streamsize prec(os.precision());
-  try {
-    os << std::setprecision(26) << std::scientific;
-    names_write();
-    vars_write();  
-    
-    materials_write();
-    solids_write();
-    parts_write();
-
-    pos_write();
-    specs_write();
-
-    rots_write();    
-    //os << DDI::Singleton<DDName::IdToName>::instance().size() << std::endl;
-    //names_write();
-    os << resetiosflags((std::ios_base::fmtflags)0);
-    os << std::setprecision(prec);
-  }
-  catch(...) {
-    edm::LogError("DDStreamer") << "DDStreamer::write() - unexpected exception!" << std::endl;
-    os << resetiosflags((std::ios_base::fmtflags)0);
-    os << std::setprecision(prec);
-  }
+  os << std::setprecision(26) << std::scientific;
+  names_write();
+  vars_write();  
+  
+  materials_write();
+  solids_write();
+  parts_write();
+  
+  pos_write();
+  specs_write();
+  
+  rots_write();    
+  //os << DDI::Singleton<DDName::IdToName>::instance().size() << std::endl;
+  //names_write();
+  os << resetiosflags((std::ios_base::fmtflags)0);
+  os << std::setprecision(prec);
 }
 
 
 void DDStreamer::read(std::istream & is)
 {
-  static seal::SealTimer tddstrread("DDStreamer::read(...)", false);
 
   i_=&is;
-  try {
-     names_read();
-     vars_read();
-
-     materials_read();
-     solids_read();
-     parts_read();
-    
-      pos_read();
-      specs_read();
-     rots_read();        
-  }
-  catch(const DDException & e) {
-    edm::LogError("DDStreamer") << "DDStreamer::read() - something went wrong:" << std::endl << e << std::endl;
-    throw e;
-  }
-  catch(...) {
-    edm::LogError("DDStreamer") << "DDStreamer::read() - unexpected exception!" << std::endl;  
-  }
+  names_read();
+  vars_read();
+  
+  materials_read();
+  solids_read();
+  parts_read();
+  
+  pos_read();
+  specs_read();
+  rots_read();        
 }
 
 
@@ -237,7 +211,7 @@ void DDStreamer::names_read()
 
 
 template<class T> 
-size_t dd_count(const T & dummy)
+size_t dd_count(const T & /*dummy*/)
 {
   size_t result(0);
   typename T::template iterator<T> it(T::begin()), ed(T::end());
@@ -344,7 +318,7 @@ void DDStreamer::materials_read()
   }
 }
 
-void dd_stream_booleans(std::ostream& os, DDSolid s, DDSolidShape sh)
+void dd_stream_booleans(std::ostream& os, DDSolid s, DDSolidShape /*sh*/)
 {
   DDBooleanSolid b(s);
   DDRotation temprot = b.rotation();
@@ -416,7 +390,7 @@ void dd_get_boolean_params(std::istream & is, DDRotation & r, DDTranslation & t,
    B x,y,z;
    char cr = is.get();
    if(cr != ' ') 
-      throw DDException("DDStreamer::get_boolean_param(): inconsistent sequence! no blank delimiter before trans!");
+      throw cms::Exception("DDException") << "DDStreamer::get_boolean_param(): inconsistent sequence! no blank delimiter before trans!";
    is >> x;
    is >> y;
    is >> z;
@@ -462,7 +436,7 @@ void DDStreamer::solids_read()
         DDSolidFactory::subtraction(dn,a,b,t,r);
 	break;	
       default:
-        throw DDException("DDStreamer::solids_read(): messed up in boolean solid reading!");	
+        throw cms::Exception("DDException") << "DDStreamer::solids_read(): messed up in boolean solid reading!";	
       }
     }
     
@@ -493,7 +467,7 @@ void DDStreamer::solids_read()
         c = is.get();
         if (c != ' ') {
 	   edm::LogError("DDStreamer") << "delimiter: " << c << std::endl;
-          throw DDException("DDStreamer::solids_read(): wrong separator in atomic for atomic solids parameters");
+          throw cms::Exception("DDException") << "DDStreamer::solids_read(): wrong separator in atomic for atomic solids parameters";
 	}
         is.read((char*)&(*(p.begin())),npars*sizeof(double));	
         /*
@@ -510,7 +484,7 @@ void DDStreamer::solids_read()
     }
     else {
       edm::LogError("DDStreamer") << "wrong solid enum: " << shape << std::endl;
-      throw DDException("Error in DDStreamer::solids_read(), wrong shape-enum!");
+      throw cms::Exception("DDException") << "Error in DDStreamer::solids_read(), wrong shape-enum!";
     }
   }
 }
@@ -622,7 +596,7 @@ void DDStreamer::rots_read()
     DDName dn = dd_get_name(is);
     char c = is.get();
     if (c != ' ') { 
-      throw DDException("DDStreamer::rots_read(): inconsitency! no blank separator found!");
+      throw cms::Exception("DDException") << "DDStreamer::rots_read(): inconsitency! no blank separator found!";
     }
  
     DDRotationMatrix * rm = new DDRotationMatrix();
@@ -636,9 +610,9 @@ void DDStreamer::pos_write()
 {
   DCOUT('Y', "DDStreamer::pos_write()");
   DDCompactView cpv;
-  const graph_type & g = cpv.graph();
-  graph_type::const_iterator it = g.begin_iter();
-  graph_type::const_iterator ed = g.end_iter();
+  const DDCompactView::graph_type & g = cpv.graph();
+  DDCompactView::graph_type::const_iterator it = g.begin_iter();
+  DDCompactView::graph_type::const_iterator ed = g.end_iter();
   std::ostream & os = *o_;
   // first the root
   DDLogicalPart rt = DDRootDef::instance().root();
@@ -646,8 +620,8 @@ void DDStreamer::pos_write()
   nameout(os,rt.name());
   os << std::endl;
   //os << g.edge_size() << std::endl;
-  graph_type::const_iterator iit = g.begin_iter();
-  graph_type::const_iterator eed = g.end_iter();
+  DDCompactView::graph_type::const_iterator iit = g.begin_iter();
+  DDCompactView::graph_type::const_iterator eed = g.end_iter();
   size_t count(0);
   for(; iit != eed; ++iit) {
     ++count;
@@ -711,13 +685,14 @@ void DDStreamer::pos_read()
   is >> n;
   size_t i=0;
   DDCompactView cpv;
-  graph_type & g = const_cast<graph_type&>(cpv.graph());
+  DDCompactView::graph_type & g = const_cast<DDCompactView::graph_type&>(cpv.graph());
+  //  DDPositioner pos_(&cpv);
   //LogDebug << "===== GRAPH SIZE = " << g.size() << " ======" << std::endl << std::endl;
   if (g.size()) {
     edm::LogWarning("DDStreamer") << std::endl;
     edm::LogWarning("DDStreamer") << "DDStreamer::pos_read(): The CompactView already contains some position information." << std::endl
          << "                        It may cause an inconsistent geometry representation!" << std::endl << std::endl;
-    throw DDException("DDStreamer::pos_read() failed; CompactView has already been populated by another data source");	 
+    throw cms::Exception("DDException") << "DDStreamer::pos_read() failed; CompactView has already been populated by another data source";	 
   }
   for (; i < n; ++i) { // Positions
     is.ignore(1000,'@');
@@ -726,7 +701,7 @@ void DDStreamer::pos_read()
     std::string cp;
     is >> cp;
     char cr = is.get();
-    if (cr != ' ') throw DDException("DDStreamer::pos_read(): inconsistent sequence! no blank delimiter found!");
+    if (cr != ' ') throw cms::Exception("DDException") << "DDStreamer::pos_read(): inconsistent sequence! no blank delimiter found!";
     //double x,y,z;
     B x,y,z;
     is >> x;
@@ -752,10 +727,10 @@ void DDStreamer::pos_read()
         break;
       default:
         std::string message = "DDStreamer::pos_read(): could not determine type of rotation\n";
-        throw(DDException(message));
+        throw cms::Exception("DDException") << message;
       }	              	               
     //DDName rot(dd_get_name(is));
-    DDpos(DDLogicalPart(to),DDLogicalPart(from),cp,t,rot); 
+    cpv.position(DDLogicalPart(to),DDLogicalPart(from),cp,t,rot); 
     DCOUT('y', " pos-read: f=" << from << " to=" << to << " t=" << t << " r=" << rot);
   }
 }
@@ -912,13 +887,13 @@ void DDStreamer::specs_read()
 void DDStreamer::vars_write()
 {
   std::ostream & os = *o_;
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);
   if (eval){
     const std::vector<std::string> & vars = eval->variables();
     const std::vector<std::string> & vals = eval->values();
     if (vars.size() != vals.size()) {
-      throw DDException("DDStreamer::vars_write(): different size of variable names & values!") ;
+      throw cms::Exception("DDException") << "DDStreamer::vars_write(): different size of variable names & values!";
     }
     size_t i(0), s(vars.size());
     os << s << std::endl;
@@ -928,7 +903,7 @@ void DDStreamer::vars_write()
     }  
   }
   else {
-    throw DDException("DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!");
+    throw cms::Exception("DDException") << "DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!";
   }
 }
 
@@ -937,7 +912,7 @@ void DDStreamer::vars_read()
 {
   DCOUT('Y', "DDStreamer::vars_read()");
   std::istream & is = *i_;
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);
   if (eval){
     size_t n(0);
@@ -951,7 +926,7 @@ void DDStreamer::vars_read()
     }
   }
   else {
-    throw DDException("DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!");  
+    throw cms::Exception("DDException") << "DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!";  
   }
   DDConstant::createConstantsFromEvaluator();
 }

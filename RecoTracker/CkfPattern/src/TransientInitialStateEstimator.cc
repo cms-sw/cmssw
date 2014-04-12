@@ -21,28 +21,49 @@ using namespace std;
 TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::EventSetup& es,
 								const edm::ParameterSet& conf)
 {
-  std::string propagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
-  std::string propagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
+  thePropagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
+  thePropagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
+  theNumberMeasurementsForFit = conf.getParameter<int32_t>("numberMeasurementsForFit");   
 
-  es.get<TrackingComponentsRecord>().get(propagatorAlongName,thePropagatorAlong);
-  es.get<TrackingComponentsRecord>().get(propagatorOppositeName,thePropagatorOpposite);
+
+  // let's avoid breaking compatibility now
+  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
+  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
 }
 
+void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) {
+  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
+  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
+}
 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
-TransientInitialStateEstimator::innerState( const Trajectory& traj) const
+TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackFit) const
 {
-  int lastFitted = 4;
-  int nhits = traj.foundHits();
-  if (nhits < lastFitted+1) lastFitted = nhits-1;
+  if (!doBackFit && traj.firstMeasurement().forwardPredictedState().isValid()){
+    LogDebug("TransientInitialStateEstimator")
+      <<"a backward fit will not be done. assuming that the state on first measurement is OK";
+    TSOS firstStateFromForward = traj.firstMeasurement().forwardPredictedState();
+    firstStateFromForward.rescaleError(100.);    
+    return std::pair<TrajectoryStateOnSurface, const GeomDet*>( std::move(firstStateFromForward), 
+								traj.firstMeasurement().recHit()->det());
+  }
+  if (!doBackFit){
+    LogDebug("TransientInitialStateEstimator")
+      <<"told to not do a back fit, but the forward state of the first measurement is not valid. doing a back fit.";
+  }
 
-  std::vector<TrajectoryMeasurement> measvec = traj.measurements();
+  int nMeas = traj.measurements().size();
+  int lastFitted = theNumberMeasurementsForFit >=0 ? theNumberMeasurementsForFit : nMeas; 
+  if (nMeas-1 < lastFitted) lastFitted = nMeas-1;
+
+  auto const & measvec = traj.measurements();
   TransientTrackingRecHit::ConstRecHitContainer firstHits;
 
   bool foundLast = false;
   int actualLast = -99;
+
   for (int i=lastFitted; i >= 0; i--) {
-    if(measvec[i].recHit()->isValid()){
+    if(measvec[i].recHit()->det()){
       if(!foundLast){
 	actualLast = i; 
 	foundLast = true;
@@ -50,45 +71,59 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
       firstHits.push_back( measvec[i].recHit());
     }
   }
-  TSOS unscaledState = measvec[actualLast].updatedState();
-  AlgebraicSymMatrix C(5,1);
-  // C *= 100.;
+  TSOS startingState = measvec[actualLast].updatedState();
+  startingState.rescaleError(100.);
 
-  TSOS startingState( unscaledState.localParameters(), LocalTrajectoryError(C),
-		      unscaledState.surface(),
-		      thePropagatorAlong->magneticField());
-
-  // cout << endl << "FitTester starts with state " << startingState << endl;
-
-  KFTrajectoryFitter backFitter( *thePropagatorAlong,
-				 KFUpdator(),
-				 Chi2MeasurementEstimator( 100., 3));
+  // avoid cloning...
+  KFUpdator const aKFUpdator;
+  Chi2MeasurementEstimator const aChi2MeasurementEstimator( 100., 3);
+  KFTrajectoryFitter backFitter( thePropagatorAlong.product(),
+				 &aKFUpdator,
+				 &aChi2MeasurementEstimator,
+				 firstHits.size());
 
   PropagationDirection backFitDirection = traj.direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
 
   // only direction matters in this contest
-  TrajectorySeed fakeSeed = TrajectorySeed(PTrajectoryStateOnDet() , 
-					   edm::OwnVector<TrackingRecHit>(),
-					   backFitDirection);
+  TrajectorySeed fakeSeed (PTrajectoryStateOnDet() , 
+		           edm::OwnVector<TrackingRecHit>(),
+		           backFitDirection);
 
-  vector<Trajectory> fitres = backFitter.fit( fakeSeed, firstHits, startingState);
+  Trajectory && fitres = backFitter.fitOne( fakeSeed, firstHits, startingState, traj.nLoops()>0 ?  TrajectoryFitter::looper : TrajectoryFitter::standard);
+  
+  LogDebug("TransientInitialStateEstimator")
+    <<"using a backward fit of :"<<firstHits.size()<<" hits, starting from:\n"<<startingState
+    <<" to get the estimate of the initial state of the track.";
 
-  if (fitres.size() != 1) {
-    // cout << "FitTester: first hits fit failed!" << endl;
+  if (!fitres.isValid()) {
+        LogDebug("TransientInitialStateEstimator")
+	  << "FitTester: first hits fit failed!";
     return std::pair<TrajectoryStateOnSurface, const GeomDet*>();
   }
 
-  TrajectoryMeasurement firstMeas = fitres[0].lastMeasurement();
-  TSOS firstState = firstMeas.updatedState();
+  TrajectoryMeasurement const & firstMeas = fitres.lastMeasurement();
 
-  //  cout << "FitTester: Fitted first state " << firstState << endl;
-  //cout << "FitTester: chi2 = " << fitres[0].chiSquared() << endl;
+  // magnetic field can be different!
+  TSOS firstState(firstMeas.updatedState().localParameters(),
+		  firstMeas.updatedState().localError(),
+  		  firstMeas.updatedState().surface(),
+  		  thePropagatorAlong->magneticField());
+  
+ 
+  // TSOS & firstState = const_cast<TSOS&>(firstMeas.updatedState());
 
-  TSOS initialState( firstState.localParameters(), LocalTrajectoryError(C),
-		     firstState.surface(),
-		     thePropagatorAlong->magneticField());
+  // this fails in case of zero field? (for sure for beamhalo reconstruction)
+  // assert(thePropagatorAlong->magneticField()==firstState.magneticField());
 
-  return std::pair<TrajectoryStateOnSurface, const GeomDet*>( initialState, 
+  firstState.rescaleError(100.);
+
+  LogDebug("TransientInitialStateEstimator")
+    <<"the initial state is found to be:\n:"<<firstState
+    <<"\n it's field pointer is: "<<firstState.magneticField()
+    <<"\n the pointer from the state of the back fit was: "<<firstMeas.updatedState().magneticField();
+
+
+  return std::pair<TrajectoryStateOnSurface, const GeomDet*>( std::move(firstState), 
 							      firstMeas.recHit()->det());
 }
 

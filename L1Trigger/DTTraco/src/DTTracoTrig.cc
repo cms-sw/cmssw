@@ -79,7 +79,7 @@ DTTracoTrig::operator == (const DTTracoTrig& tt) const {
 
   if ( !(  isFirst()     == tt.isFirst())     ||
        !(  pvK()         == tt.pvK())         ||
-        (  fmod(double(pvCode()),8.)==0 ^ fmod(double(tt.pvCode()),8.)==0 )  ||
+       (  (fmod(double(pvCode()),8.)==0) ^ (fmod(double(tt.pvCode()),8.)==0) )  ||
        !(  pvCorr()      == tt.pvCorr())      ||
        !(  psiR()        == tt.psiR())        ||
        !(  DeltaPsiR()   == tt.DeltaPsiR())   ||

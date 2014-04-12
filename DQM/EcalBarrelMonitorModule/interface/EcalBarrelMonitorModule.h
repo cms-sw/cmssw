@@ -4,20 +4,21 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/04/05 14:53:54 $
- * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
-
-#include <string>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+class MonitorElement;
+class DQMStore;
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 class EcalBarrelMonitorModule: public edm::EDAnalyzer{
 
@@ -35,10 +36,19 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 // EndJob
 void endJob(void);
+
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -48,30 +58,37 @@ void cleanup(void);
 
 private:
 
-int runType_;
-int evtType_;
-
 int runNumber_;
 int evtNumber_;
 
+int runType_;
+int evtType_;
+
 bool fixedRunNumber_;
+
+bool fixedRunType_;
+
+bool isPhysics_;
 
 int ievt_;
 
-edm::InputTag EcalTBEventHeader_;
-edm::InputTag EcalRawDataCollection_;
-edm::InputTag EBDigiCollection_;
-edm::InputTag EcalUncalibratedRecHitCollection_;
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<EBDigiCollection> EBDigiCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
+edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcalTrigPrimDigiCollection_;
 
 bool verbose_;
-
-bool enableMonitorDaemon_;
+bool debug_;
 
 bool enableEventDisplay_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
+
+bool mergeRuns_;
 
 MonitorElement* meStatus_;
 
@@ -83,14 +100,13 @@ MonitorElement* meEvtType_;
 
 MonitorElement* meEBDCC_;
 
-MonitorElement* meEBdigi_;
-MonitorElement* meEBhits_;
+MonitorElement* meEBdigis_[2];
+MonitorElement* meEBhits_[2];
+MonitorElement* meEBtpdigis_[2];
 
 MonitorElement* meEvent_[36];
 
 bool init_;
-
-std::string outputFile_;
 
 };
 

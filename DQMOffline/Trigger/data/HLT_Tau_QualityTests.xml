@@ -1,0 +1,108 @@
+<!--
+find doc and examles in
+DQMServices/ClientConfig/test 
+https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
+-->
+
+<TESTSCONFIGURATION>
+
+<QTEST name="efficiencyCheckL1">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.1</PARAM>
+        <PARAM name="ymax">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+<QTEST name="efficiencyCheckL2Iso">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.1</PARAM>
+        <PARAM name="ymax">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+
+<QTEST name="resolutionCheckL1">
+        <TYPE>ContentsXRange</TYPE>
+        <PARAM name="xmin">-1</PARAM>
+        <PARAM name="xmax">0</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+<QTEST name="resolutionCheckL2">
+        <TYPE>ContentsXRange</TYPE>
+        <PARAM name="xmin">-0.6</PARAM>
+        <PARAM name="xmax">0.2</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+
+<QTEST name="histoMatching">
+<TYPE>Comp2RefKolmogorov</TYPE>
+<PARAM name="testparam">0</PARAM>
+<PARAM name="error">0.01</PARAM>
+<PARAM name="warning">0.20</PARAM>
+</QTEST>
+
+
+
+<QTEST name="efficiencyCheckDoubleTauHigh">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.85</PARAM>
+        <PARAM name="ymax">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+<QTEST name="efficiencyCheckDoubleTauLow">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.25</PARAM>
+        <PARAM name="ymax">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+<QTEST name="efficiencyCheckSingleTauHigh">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.90</PARAM>
+        <PARAM name="ymax">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+<QTEST name="efficiencyCheckSingleTauLow">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.33</PARAM>
+        <PARAM name="ymax">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+
+<QTEST name="hasEntries">
+<TYPE>DeadChannel</TYPE>
+<PARAM name="threshold">1</PARAM>
+<PARAM name="error">0.3</PARAM>
+<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<LINK name="HLT/TauOffline/Inclusive/DoubleTau/EventsPerFilter">
+      <TestName activate="true">hasEntries</TestName>
+</LINK>
+<LINK name="HLT/TauOffline/Inclusive/TauMET/EventsPerFilter">
+      <TestName activate="true">hasEntries</TestName>
+</LINK>
+
+</TESTSCONFIGURATION>

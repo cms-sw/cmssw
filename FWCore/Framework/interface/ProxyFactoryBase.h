@@ -16,11 +16,11 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:50:36 CDT 2005
-// $Id: ProxyFactoryBase.h,v 1.4 2005/09/01 05:08:06 wmtan Exp $
 //
 
 // system include files
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/DataKey.h"

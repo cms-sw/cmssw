@@ -4,25 +4,23 @@
 /*
  * \file EcalBarrelMonitorDbModule.h
  *
- * $Date: 2006/06/07 10:59:25 $
- * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <string>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
+#include "RelationalAccess/ISessionProxy.h"
 
-#include <string>
+class DQMStore;
+
+class MonitorElementsDb;
 
 class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
 
@@ -40,7 +38,7 @@ class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
   void analyze( const edm::Event& e, const edm::EventSetup& c );
 
   // BeginJob
-  void beginJob( const edm::EventSetup& c );
+  void beginJob( void );
 
   // EndJob
   void endJob( void );
@@ -49,9 +47,9 @@ class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
   
   int icycle_;
  
-  bool enableMonitorDaemon_;
+  DQMStore* dqmStore_;
 
-  DaqMonitorBEInterface* dbe_;
+  std::string prefixME_;
 
   std::string htmlDir_;
 

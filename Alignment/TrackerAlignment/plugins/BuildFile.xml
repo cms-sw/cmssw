@@ -1,0 +1,14 @@
+<use   name="FWCore/Framework"/>
+
+<library   name="AlignmentTrackerAlignmentPlugin" file="*Misalign*.cc">
+  <use   name="Alignment/TrackerAlignment"/>
+  <use   name="CondFormats/Alignment"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="AlignmentTrackerAlignmentSkimPlugin" file="AlignmentPrescaler.cc,TkAlCaSkimTreeMerger.cc,TkAlCaOverlapTagger.cc">
+  <use   name="DataFormats/TrackerRecHit2D"/>
+  <use   name="DataFormats/Alignment"/>
+  <use   name="RecoTracker/TransientTrackingRecHit"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

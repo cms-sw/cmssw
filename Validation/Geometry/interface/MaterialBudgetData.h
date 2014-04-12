@@ -202,6 +202,9 @@ public:
   float getStepInitialGamma( int is) {
     return theStepInitialGamma[is];
   }
+  float getStepInitialMass( int is) {
+    return theStepInitialMass[is];
+  }
   float getStepFinalPt( int is) {
     return theStepFinalPt[is];
   }
@@ -229,8 +232,14 @@ public:
   float getStepFinalGamma( int is) {
     return theStepFinalGamma[is];
   }
-  int getStepProcess( int is) {
-    return theStepProcess[is];
+  float getStepFinalMass( int is) {
+    return theStepFinalMass[is];
+  }
+  int getStepPreProcess( int is) {
+    return theStepPreProcess[is];
+  }
+  int getStepPostProcess( int is) {
+    return theStepPostProcess[is];
   }
   // rr
   int getStepVolumeID( int is ) {
@@ -251,14 +260,14 @@ public:
   float getStepVolumeZ( int is ) {
     return theVolumeZ[is];
   }
-  HepLorentzVector getStepVolumeXaxis( int is ) {
-    return HepLorentzVector(theVolumeXaxis1[is],theVolumeXaxis2[is],theVolumeXaxis3[is]);
+  CLHEP::HepLorentzVector getStepVolumeXaxis( int is ) {
+    return CLHEP::HepLorentzVector(theVolumeXaxis1[is],theVolumeXaxis2[is],theVolumeXaxis3[is]);
   }
-  HepLorentzVector getStepVolumeYaxis( int is ) {
-    return HepLorentzVector(theVolumeYaxis1[is],theVolumeYaxis2[is],theVolumeYaxis3[is]);
+  CLHEP::HepLorentzVector getStepVolumeYaxis( int is ) {
+    return CLHEP::HepLorentzVector(theVolumeYaxis1[is],theVolumeYaxis2[is],theVolumeYaxis3[is]);
   }
-  HepLorentzVector getStepVolumeZaxis( int is ) {
-    return HepLorentzVector(theVolumeZaxis1[is],theVolumeZaxis2[is],theVolumeZaxis3[is]);
+  CLHEP::HepLorentzVector getStepVolumeZaxis( int is ) {
+    return CLHEP::HepLorentzVector(theVolumeZaxis1[is],theVolumeZaxis2[is],theVolumeZaxis3[is]);
   }
   int getStepMaterialID( int is ) {
     return theMaterialID[is];
@@ -336,6 +345,7 @@ public:
   float* theStepInitialPz;
   float* theStepInitialBeta;
   float* theStepInitialGamma;
+  float* theStepInitialMass;
   float* theStepFinalPt;
   float* theStepFinalEta;
   float* theStepFinalPhi;
@@ -345,7 +355,9 @@ public:
   float* theStepFinalPz;
   float* theStepFinalBeta;
   float* theStepFinalGamma;
-  int*   theStepProcess;
+  float* theStepFinalMass;
+  int*   theStepPreProcess;
+  int*   theStepPostProcess;
   // rr
   float theTrkLen;
   std::string thePVname;

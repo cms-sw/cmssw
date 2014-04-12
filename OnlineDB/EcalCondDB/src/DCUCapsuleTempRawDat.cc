@@ -29,7 +29,7 @@ DCUCapsuleTempRawDat::~DCUCapsuleTempRawDat()
 
 
 void DCUCapsuleTempRawDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -40,23 +40,23 @@ void DCUCapsuleTempRawDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4)");
   } catch (SQLException &e) {
-    throw(runtime_error("DCUCapsuleTempRawDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("DCUCapsuleTempRawDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void DCUCapsuleTempRawDat::writeDB(const EcalLogicID* ecid, const DCUCapsuleTempRawDat* item, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("DCUCapsuleTempRawDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("DCUCapsuleTempRawDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("DCUCapsuleTempRawDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("DCUCapsuleTempRawDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -67,14 +67,14 @@ void DCUCapsuleTempRawDat::writeDB(const EcalLogicID* ecid, const DCUCapsuleTemp
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("DCUCapsuleTempRawDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("DCUCapsuleTempRawDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void DCUCapsuleTempRawDat::fetchData(std::map< EcalLogicID, DCUCapsuleTempRawDat >* fillMap, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -82,7 +82,7 @@ void DCUCapsuleTempRawDat::fetchData(std::map< EcalLogicID, DCUCapsuleTempRawDat
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("DCUCapsuleTempRawDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("DCUCapsuleTempRawDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -113,18 +113,18 @@ void DCUCapsuleTempRawDat::fetchData(std::map< EcalLogicID, DCUCapsuleTempRawDat
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("DCUCapsuleTempRawDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("DCUCapsuleTempRawDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void DCUCapsuleTempRawDat::writeArrayDB(const std::map< EcalLogicID, DCUCapsuleTempRawDat >* data, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("DCUCapsuleTempRawDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("DCUCapsuleTempRawDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -146,7 +146,7 @@ void DCUCapsuleTempRawDat::writeArrayDB(const std::map< EcalLogicID, DCUCapsuleT
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("DCUCapsuleTempRawDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("DCUCapsuleTempRawDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -189,6 +189,6 @@ void DCUCapsuleTempRawDat::writeArrayDB(const std::map< EcalLogicID, DCUCapsuleT
     delete [] y_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("DCUCapsuleTempRawDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("DCUCapsuleTempRawDat::writeArrayDB():  "+e.getMessage()));
   }
 }

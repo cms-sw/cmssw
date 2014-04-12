@@ -5,9 +5,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
 #include <vector>
 
@@ -16,7 +17,7 @@ class MultiTrajectoryStateMerger;
 /** A GSF fitter, similar to KFTrajectoryFitter.
  */
 
-class GsfTrajectoryFitter : public TrajectoryFitter {
+class GsfTrajectoryFitter  GCC11_FINAL  : public TrajectoryFitter {
 
 private:
   typedef TrajectoryStateOnSurface TSOS;
@@ -30,25 +31,34 @@ public:
   GsfTrajectoryFitter(const Propagator& aPropagator,
 		      const TrajectoryStateUpdator& aUpdator,
 		      const MeasurementEstimator& aEstimator,
-		      const MultiTrajectoryStateMerger& aMerger);
-  
-  virtual ~GsfTrajectoryFitter(); 
-  
-  virtual std::vector<Trajectory> fit(const Trajectory& aTraj) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				      const RecHitContainer& hits) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				      const RecHitContainer& hits, 
-				      const TSOS& firstPredTsos) const;
+		      const MultiTrajectoryStateMerger& aMerger,
+		      const DetLayerGeometry* detLayerGeometry=0);
+
+  virtual ~GsfTrajectoryFitter();
+
+  Trajectory fitOne(const Trajectory& t, fitType type) const;
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits,
+		    const TrajectoryStateOnSurface& firstPredTsos, fitType type) const;
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits, fitType type) const;
+
+
+
 
   const Propagator* propagator() const {return thePropagator;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
   const MultiTrajectoryStateMerger* merger() const {return theMerger;}
-  
-  virtual GsfTrajectoryFitter* clone() const
+
+  virtual std::unique_ptr<TrajectoryFitter> clone() const override
   {
-    return new GsfTrajectoryFitter(*thePropagator,*theUpdator,*theEstimator,*theMerger);
+    return std::unique_ptr<TrajectoryFitter>(
+        new GsfTrajectoryFitter(*thePropagator,
+                                *theUpdator,
+                                *theEstimator,
+                                *theMerger,
+                                theGeometry));
   }
 
 private:
@@ -56,6 +66,8 @@ private:
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   const MultiTrajectoryStateMerger* theMerger;
+  const DetLayerGeometry dummyGeometry;
+  const DetLayerGeometry* theGeometry;
 
   bool theTiming;
 };

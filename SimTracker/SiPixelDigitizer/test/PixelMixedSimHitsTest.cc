@@ -14,7 +14,6 @@
 //
 // Original Author:  V.Chiochia
 //         Created:   CET 2006
-// $Id: PixelMixedSimHitsTest.cc,v 1.3 2006/10/24 09:50:40 dkotlins Exp $
 //
 //
 // system include files
@@ -28,7 +27,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,7 +45,8 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //#include "Geometry/Surface/interface/Surface.h"
 
 // For ROOT
@@ -68,7 +68,7 @@ class PixelMixedSimHitsTest : public edm::EDAnalyzer {
 public:
   explicit PixelMixedSimHitsTest(const edm::ParameterSet&);
   ~PixelMixedSimHitsTest();
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(); 
 
@@ -130,7 +130,7 @@ PixelMixedSimHitsTest::~PixelMixedSimHitsTest() {
 }
 
 // ------------ method called at the begining   ------------
-void PixelMixedSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
+void PixelMixedSimHitsTest::beginJob() {
 
    using namespace edm;
    cout << "Initialize PixelSimHitsTest " <<endl;
@@ -270,6 +270,11 @@ void PixelMixedSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
 // ------------ method called to produce the data  ------------
 void PixelMixedSimHitsTest::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup) {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   const double PI = 3.142;
 
   using namespace edm;
@@ -349,10 +354,10 @@ void PixelMixedSimHitsTest::analyze(const edm::Event& iEvent,
 		   <<detLength<<" "<<detWidth<<" "<<cols<<" "<<rows
 		   <<endl;
 
-     PXBDetId pdetId = PXBDetId(detId.rawId());
-     unsigned int layer=pdetId.layer();
-     unsigned int ladder=pdetId.ladder();
-     unsigned int zindex=pdetId.module();
+     
+     unsigned int layer=tTopo->pxbLayer(detId.rawId);
+     unsigned int ladder=tTopo->pxbLadder(detId.rawId);
+     unsigned int zindex=tTopo->pxbModule(detId.rawId);
      if(PRINT) cout<<"det id "<<detId.rawId()<<" "
 		   <<detid<<" "<<subid<<" "<<layer<<" "
 		   <<ladder<<" "<<zindex<<endl;

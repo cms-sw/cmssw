@@ -1,0 +1,111 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+
+<library   name="AlignmentMonitorTemplate" file="AlignmentMonitorTemplate.cc">
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <use   name="TrackingTools/TrackFitters"/>
+  <use   name="rootcore"/>
+  <use   name="roothistmatrix"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="AlignmentMonitorGeneric" file="AlignmentMonitorGeneric.cc">
+  <use   name="Alignment/CommonAlignment"/>
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <use   name="TrackingTools/TrackFitters"/>
+  <use   name="DataFormats/GeometrySurface"/>
+  <use   name="rootcore"/>
+  <use   name="roothistmatrix"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="AlignmentMonitorMuonResiduals" file="AlignmentMonitorMuonResiduals.cc">
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <use   name="TrackingTools/TrackFitters"/>
+  <use   name="Alignment/MuonAlignment"/>
+  <use   name="DataFormats/MuonDetId"/>
+  <use   name="rootcore"/>
+  <use   name="roothistmatrix"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="AlignmentMonitorSegmentDifferences" file="AlignmentMonitorSegmentDifferences.cc">
+  <use   name="Alignment/MuonAlignmentAlgorithms"/>
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <use   name="Geometry/CommonDetUnit"/>
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="AlignmentMonitorMuonVsCurvature" file="AlignmentMonitorMuonVsCurvature.cc">
+  <use   name="Alignment/MuonAlignmentAlgorithms"/>
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <use   name="Geometry/CommonDetUnit"/>
+  <use   name="Geometry/Records"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="AlignmentMonitorMuonSystemMap1D" file="AlignmentMonitorMuonSystemMap1D.cc">
+  <use   name="Alignment/MuonAlignmentAlgorithms"/>
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <use   name="Geometry/CommonDetUnit"/>
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="AlignmentMonitorSurvey" file="AlignmentMonitorSurvey.cc">
+  <use   name="Alignment/CommonAlignment"/>
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="AlignmentMonitorAsAnalyzer" file="AlignmentMonitorAsAnalyzer.cc">
+  <use   name="Alignment/CommonAlignment"/>
+  <use   name="Alignment/CommonAlignmentAlgorithm"/>
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <use   name="Alignment/MuonAlignment"/>
+  <use   name="CondFormats/AlignmentRecord"/>
+  <use   name="CondFormats/Alignment"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="TrackerToMuonPropagator" file="TrackerToMuonPropagator.cc">
+  <use   name="TrackingTools/PatternTools"/>
+  <use   name="TrackingTools/GeomPropagators"/>
+  <use   name="TrackingTools/TrajectoryState"/>
+  <use   name="TrackingTools/TrackRefitter"/>
+  <use   name="TrackingTools/Records"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/MuonDetId"/>
+  <use   name="DataFormats/CSCRecHit"/>
+  <use   name="DataFormats/DTRecHit"/>
+  <use   name="DataFormats/TrackingRecHit"/>
+  <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="Geometry/DTGeometry"/>
+  <use   name="Geometry/CSCGeometry"/>
+  <use   name="Geometry/CommonDetUnit"/>
+  <use   name="Geometry/Records"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <use   name="RecoMuon/TransientTrackingRecHit"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="AlignmentStats" file="AlignmentStats.cc">
+  <use   name="FWCore/Utilities"/>
+  <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="Geometry/Records"/>
+  <use   name="Alignment/CommonAlignment"/>
+  <use   name="Alignment/TrackerAlignment"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/SiPixelDetId"/>
+  <use   name="DataFormats/SiStripDetId"/>
+  <use   name="DataFormats/Alignment"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/TrackerRecHit2D"/>
+  <use   name="rootcore"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

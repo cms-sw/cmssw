@@ -1,142 +1,117 @@
-// $Id: UtilsClient.h,v 1.2 2007/06/11 12:41:18 dellaric Exp $
+#ifndef UtilsClient_H
+#define UtilsClient_H
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2007/06/11 12:41:18 $
 */
-
-#ifndef UtilsClient_H
-#define UtilsClient_H
-
-#include <vector>
-#include <string>
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
-
-#include "TH1.h"
 
 /*! \class UtilsClient
     \brief Utilities for Ecal Monitor Client 
  */
 
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "TObject.h"
+
+class TH1;
+class TProfile;
+class TProfile2D;
+class TClass;
+
 class UtilsClient {
 
  public:
 
-  /*! \fn template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret )
+  /*! \fn template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0 )
       \brief Returns the histogram contained by the Monitor Element
-      \param me Monitor Element.
-      \param clone (boolean) if true clone the histogram. 
-      \param ret in case of clonation delete the histogram first.
+      \param me Monitor Element
+      \param clone (boolean) if true clone the histogram 
+      \param ret in case of clonation delete the histogram first
    */
-  template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0) {
-    if( me ) {
-      // std::cout << "Found '" << me->getName() <<"'" << std::endl;
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
-      if( ob ) { 
-	if( clone ) {
-	  if( ret ) {
-	    delete ret;
-	  }
-	  std::string s = "ME " + me->getName();
-	  ret = dynamic_cast<T>((ob->operator->())->Clone(s.c_str())); 
-	  if( ret ) {
-	    ret->SetDirectory(0);
-	  }
-	} else {
-	  ret = dynamic_cast<T>(ob->operator->()); 
-	}
-      } else {
-	ret = 0;
-      }
-    } else {
-      if( !clone ) {
-	ret = 0;
-      }
-    }
-    return ret;
-  }
+  template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0);
 
-  /*! \fn static void resetHisto( const MonitorElement* me )
-      \brief Reset the ROOT object contained by the monitoring element
-      \param me input Monitor Element.
+  /*! \fn static void printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = false )
+      \brief Print the bad channels
+      \param me monitor element
+      \param hi histogram
+      \param positive_only enable logging of channels with positive content, only
    */
-  static void resetHisto( const MonitorElement* me );
+  static void printBadChannels( const MonitorElement* me, TH1* hi, bool positive_only = false );
 
-  /*! \fn template<class T> static void printBadChannels( const T* qth )
-      \brief Print the bad channels associated to the quality test
-      \param qth input QCriterionRoot.
-   */
-  template<class T> static void printBadChannels( const T* qth ) {
-    std::vector<dqm::me_util::Channel> badChannels;
-    if ( qth ) badChannels = qth->getBadChannels();
-    if ( ! badChannels.empty() ) {
-      std::cout << std::endl;
-      std::cout << " Channels that failed \""
-		<< qth->getName() << "\" "
-		<< "(Algorithm: "
-		<< (const_cast<T*>(qth))->getAlgoName()
-		<< ")" << std::endl;
-      std::cout << std::endl;
-      for ( std::vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-	std::cout << " (" << it->getBinX()
-		  << ", " << it->getBinY()
-		  << ", " << it->getBinZ()
-		  << ") = " << it->getContents()
-		  << " +- " << it->getRMS()
-		  << std::endl;
-      }
-      std::cout << std::endl;
-    }
-  }
-
-  /*! \fn template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
+  /*! \fn static bool getBinStatistics( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
       \brief Returns true if the bin contains good statistical data
-      \param histo input ROOT histogram.
-      \param (ix, iy) input histogram's bin.
-      \param num bin's entries.
-      \param mean bins' mean.
-      \param rms bin's rms.
+      \param histo input ROOT histogram
+      \param (ix, iy) input histogram's bin
+      \param num bin's entries
+      \param mean bins' mean
+      \param rms bin's rms
    */
-  template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms ) {
-    num  = -1.; mean = -1.; rms  = -1.;
-    float percent = 0.01; float n_min_bin = 10.;
+  static bool getBinStatistics( TH1* histo, const int ix, const int iy, float& num, float& mean, float& rms, float minEntries = 1. );
 
-    if ( histo ) {
-      float n_min_tot = percent * n_min_bin * histo->GetNbinsX() * histo->GetNbinsY();
-      if ( histo->GetEntries() >= n_min_tot ) {
-	num = histo->GetBinEntries(histo->GetBin(ix, iy));
-	if ( num >= n_min_bin ) {
-	  mean = histo->GetBinContent(ix, iy);
-	  rms  = histo->GetBinError(ix, iy);
-	  return true;
-	}
-      } 
-    }
-    return false;
-  }
-
-  /*! \fn template<class T> static bool getBinQual( const T* histo, const int ix, const int iy )
+  /*! \fn static bool getBinQuality( const MonitorElement* me, const int ix, const int iy )
       \brief Returns true if the bin quality is good or masked
-      \param histo input ROOT histogram.
+      \param me input histogram
       \param (ix, iy) input histogram's bins
    */
-  template<class T> static bool getBinQual( const T* histo, const int ix, const int iy ) {
-    if ( histo ) {
-      float val = histo->getBinContent(ix, iy);
-      if ( val == 0. || val == 2 ) return false;
-      if ( val == 1. || val >= 3 ) return true;
-    }
-    return false;
-  }
+  static bool getBinQuality( const MonitorElement* me, const int ix, const int iy );
 
- protected:
-  UtilsClient() {}
+  /*! \fn static bool getBinStatus( const MonitorElement* me, const int ix, const int iy )
+      \brief Returns true if the bin status is red/dark red
+      \param me input histogram
+      \param (ix, iy) input histogram's bins
+   */
+  static bool getBinStatus( const MonitorElement* me, const int ix, const int iy );
+
+  /*! static void maskBinContent( const MonitorElement* me, const int ix, const int iy )
+      \brief Mask the bin content
+      \param histo input histogram
+      \param (ix, iy) input histogram's bins
+   */
+  static void maskBinContent( const MonitorElement* me, const int ix, const int iy );
+
+  /*! static int getFirstNonEmptyChannel( const TProfile2D* histo )
+      \brief Find the first non empty bin
+      \param histo input ROOT histogram
+   */
+  static int getFirstNonEmptyChannel( const TProfile2D* histo );
+
+ private:
+
+  UtilsClient() {}; // Hidden to force static use
+  ~UtilsClient() {}; // Hidden to force static use
 
 };
+
+template<class T>
+inline
+T
+UtilsClient::getHisto( const MonitorElement* me, bool clone, T ret)
+{
+  if( me ) {
+    TObject* ob = const_cast<MonitorElement*>(me)->getRootObject();
+    if( ob ) { 
+      if( clone ) {
+	if( ret ) {
+	  delete ret;
+	}
+	std::string s = "ME " + me->getName();
+	ret = dynamic_cast<T>(ob->Clone(s.c_str())); 
+	if( ret ) {
+	  ret->SetDirectory(0);
+	}
+      } else {
+	ret = dynamic_cast<T>(ob); 
+      }
+    } else {
+      ret = 0;
+    }
+  } else {
+    if( !clone ) {
+      ret = 0;
+    }
+  }
+  return ret;
+}
 
 #endif

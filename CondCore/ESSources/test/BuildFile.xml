@@ -1,0 +1,18 @@
+<use   name="FWCore/ParameterSet"/>
+<use   name="CondFormats/Calibration"/>
+<use   name="FWCore/Framework"/>
+<use   name="CondFormats/DataRecord"/>
+<library   file="stubs/PedestalsAnalyzer.cc" name="PedestalsAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/PedestalsByLabelAnalyzer.cc" name="PedestalsByLabelAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripTest/noiseanalyzer.cc" name="NoisesAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/EfficiencyByLabelAnalyzer.cc" name="ExEfficiencyByLabelAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+

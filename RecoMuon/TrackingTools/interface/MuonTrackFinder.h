@@ -4,8 +4,6 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2007/01/17 16:18:05 $
- *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -31,26 +29,30 @@ class MuonTrackFinder {
 
     typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
     typedef MuonCandidate::CandidateContainer CandidateContainer;
-  
+    typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;  
+
   public:
   
-    /// constructor, for the STA reconstruction the trackLoader must have the propagator.
+    /// Constructor, with default cleaner. For the STA reconstruction the trackLoader must have the propagator.
     MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
 		    MuonTrackLoader *trackLoader);
+
+    /// Constructor, with user-defined cleaner. For the STA reconstruction the trackLoader must have the propagator.
+    MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
+		    MuonTrackLoader *trackLoader,
+		    MuonTrajectoryCleaner* cleaner);
     
     /// destructor
     virtual ~MuonTrackFinder();
   
     /// reconstruct standalone tracks starting from a collection of seeds
-    edm::OrphanHandle<reco::TrackCollection> reconstruct(const edm::Handle<TrajectorySeedCollection>&,
+    edm::OrphanHandle<reco::TrackCollection> reconstruct(const edm::Handle<edm::View<TrajectorySeed> >&,
 							 edm::Event&);
 
     /// reconstruct global tracks starting from a collection of
     /// standalone tracks and one of trakectories. If the latter
     /// is invalid, trajectories are refitted.
-    void reconstruct(const edm::Handle<reco::TrackCollection>&,  
-		     const edm::Handle<std::vector<Trajectory> >&,  
-		     edm::Event&);
+    void reconstruct(const std::vector<TrackCand>&, edm::Event&);
     
  private:
     

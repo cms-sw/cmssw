@@ -20,7 +20,7 @@ class MeasurementCOPS : public Measurement
 public:
   MeasurementCOPS( const ALIint measdim, ALIstring& type, ALIstring& name )
 : Measurement( measdim, type, name ){
-    for(uint ii=0; ii<4; ii++) theXlaserLine[ii] = -1; 
+    for(unsigned int ii=0; ii<4; ii++) theXlaserLine[ii] = -1; 
   };
   MeasurementCOPS(){ };   
   ~MeasurementCOPS(){ };
@@ -33,10 +33,10 @@ public:
 
   //---------- Convert from V to rad
   virtual void setConversionFactor( const std::vector<ALIstring>& wordlist );
-  virtual int xlaserLine( uint ii) {
+  virtual int xlaserLine( unsigned int ii) {
     return theXlaserLine[ii];
   }
-  virtual void setXlaserLine( uint ii, int val) {
+  virtual void setXlaserLine( unsigned int ii, int val) {
     theXlaserLine[ii] = val;};
 
  private:

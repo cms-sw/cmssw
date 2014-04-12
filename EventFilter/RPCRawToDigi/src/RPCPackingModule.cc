@@ -1,28 +1,27 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCPackingModule.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
-#include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
+#include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
+#include "DataFormats/RPCDigi/interface/EmptyWord.h"
 
-#include <vector>
 #include <string>
 #include <sstream>
 
@@ -33,20 +32,20 @@ using namespace rpcrawtodigi;
 
 typedef uint64_t Word64;
 
-RPCPackingModule::RPCPackingModule( const ParameterSet& pset ) :
-//  digiLabel_(""),
-  eventCounter_(0)
+RPCPackingModule::RPCPackingModule( const ParameterSet& pset ) 
+  : eventCounter_(0)
 {
-
-  // Set some private data members
-//  digiLabel_ = pset.getParameter<InputTag>("DigiProducer");
-
-  // Define EDProduct type
+  
+  dataLabel_ = consumes<RPCDigiCollection>(pset.getParameter<edm::InputTag>("InputLabel"));
+  theCabling = new RPCReadOutMapping("");
   produces<FEDRawDataCollection>();
 
 }
 
-RPCPackingModule::~RPCPackingModule(){}
+RPCPackingModule::~RPCPackingModule() 
+{
+  delete theCabling;
+}
 
 
 void RPCPackingModule::produce( edm::Event& ev,
@@ -57,10 +56,18 @@ void RPCPackingModule::produce( edm::Event& ev,
                               << "event counter: " << eventCounter_;
 
   Handle< RPCDigiCollection > digiCollection;
-  ev.getByType(digiCollection);
+  ev.getByToken(dataLabel_,digiCollection);
+  LogDebug("") << DebugDigisPrintout()(digiCollection.product());
 
-  ESHandle<RPCReadOutMapping> readoutMapping;
-  es.get<RPCReadOutMappingRcd>().get(readoutMapping);
+  static edm::ESWatcher<RPCEMapRcd> recordWatcher; 
+  if(recordWatcher.check(es)) {
+    delete theCabling;
+    LogTrace("") << "record has CHANGED!!, initialise readout map!";
+    ESHandle<RPCEMap> readoutMapping;
+    es.get<RPCEMapRcd>().get(readoutMapping);
+    theCabling = readoutMapping->convert();
+    LogTrace("") <<" READOUT MAP VERSION: " << theCabling->version() << endl; 
+  }
 
   auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
@@ -68,18 +75,19 @@ void RPCPackingModule::produce( edm::Event& ev,
   pair<int,int> rpcFEDS(790,792);
   for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
 
-    RPCRecordFormatter formatter(id, readoutMapping.product()) ;
-
-    FEDRawData *  rawData =  RPCPackingModule::rawData(id, digiCollection.product(), formatter);
+    RPCRecordFormatter formatter(id, theCabling) ;
+    unsigned int lvl1_ID = ev.id().event();
+    FEDRawData* rawData =  RPCPackingModule::rawData(id, lvl1_ID, digiCollection.product(), formatter);
     FEDRawData& fedRawData = buffers->FEDData(id);
 
     fedRawData = *rawData;
+    delete rawData;
   }
   ev.put( buffers );  
 }
 
 
-FEDRawData * RPCPackingModule::rawData( int fedId, const RPCDigiCollection * digis, const RPCRecordFormatter & formatter)
+FEDRawData * RPCPackingModule::rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection * digis, const RPCRecordFormatter & formatter)
 {
   //
   // get merged records
@@ -91,11 +99,11 @@ FEDRawData * RPCPackingModule::rawData( int fedId, const RPCDigiCollection * dig
   // create data words
   //
   vector<Word64> dataWords;
-  DataRecord empty;
+  EmptyWord empty;
   typedef vector<EventRecords>::const_iterator IR;
   for (IR ir = merged.begin(), irEnd =  merged.end() ; ir != irEnd; ++ir) {
-    Word64 w = ( ( (Word64(ir->bxRecord().data()) << 16) | ir->tbRecord().data() ) << 16
-                    | ir->lbRecord().data() ) << 16 | empty.data();
+    Word64 w = ( ( (Word64(ir->recordBX().data()) << 16) | ir->recordSLD().data() ) << 16
+                    | ir->recordCD().data() ) << 16 | empty.data();
     dataWords.push_back(w);
   }
 
@@ -112,7 +120,6 @@ FEDRawData * RPCPackingModule::rawData( int fedId, const RPCDigiCollection * dig
   //
   unsigned char *pHeader  = raw->data();
   int evt_ty = 3;
-  int lvl1_ID = 100; // FIXME - increase/set event by event
   int source_ID = fedId;
   FEDHeader::set(pHeader, evt_ty, lvl1_ID, trigger_BX, source_ID);
 

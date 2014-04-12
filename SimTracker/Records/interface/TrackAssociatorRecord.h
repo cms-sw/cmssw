@@ -4,8 +4,6 @@
 /** \class TrackAssociatorRecord
  *  Record of Tracs Associators
  *
- *  $Date: 2007/03/26 15:41:52 $
- *  $Revision: 1.2 $
  *  \author cerati
  */
 

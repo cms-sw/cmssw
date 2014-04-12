@@ -5,8 +5,6 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2007/04/02 15:45:38 $
-//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -35,6 +33,7 @@
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTReg.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTEtaLUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFCOUDeltaEtaLUT.h"
@@ -62,6 +61,9 @@
 
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
+
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -77,6 +79,12 @@ using namespace std;
 L1MuGMTConfig::L1MuGMTConfig(const edm::ParameterSet& ps) {
 
   m_ps = &ps;
+
+  m_DTInputTag   = m_ps->getParameter<edm::InputTag>("DTCandidates");
+  m_CSCInputTag  = m_ps->getParameter<edm::InputTag>("CSCCandidates");
+  m_RPCbInputTag = m_ps->getParameter<edm::InputTag>("RPCbCandidates");
+  m_RPCfInputTag = m_ps->getParameter<edm::InputTag>("RPCfCandidates");
+  m_MipIsoInputTag = m_ps->getParameter<edm::InputTag>("MipIsoData");
 
   m_debug = true;
   m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug",0);
@@ -123,6 +131,11 @@ void L1MuGMTConfig::setDefaults() {
   
   m_DoOvlRpcAnd = m_GMTParams->getDoOvlRpcAnd();
 
+  m_PropagatePhi = m_GMTParams->getPropagatePhi();
+  
+  m_VersionSortRankEtaQLUT = m_GMTParams->getVersionSortRankEtaQLUT();
+  m_VersionLUTs = m_GMTParams->getVersionLUTs();
+
   if ( Debug(1) ) {
     stringstream stdss;
     stdss
@@ -132,6 +145,10 @@ void L1MuGMTConfig::setDefaults() {
         << "*******************************************" << endl
         << endl
 
+        << "L1 Global Muon Trigger : DTCandidates : " << m_DTInputTag << endl
+        << "L1 Global Muon Trigger : CSCCandidates : " << m_CSCInputTag << endl
+        << "L1 Global Muon Trigger : RPCbCandidates : " << m_RPCbInputTag << endl
+        << "L1 Global Muon Trigger : RPCfCandidates : " << m_RPCfInputTag << endl
         << "L1 Global Muon Trigger : debug level : " << m_dbgLevel << endl
         << "L1 Global Muon Trigger : minimal bunch-crossing : " << m_BxMin << endl
         << "L1 Global Muon Trigger : maximal bunch-crossing : " << m_BxMax << endl
@@ -147,11 +164,15 @@ void L1MuGMTConfig::setDefaults() {
         << "L1 Global Muon Trigger : calorimeter trigger : " << m_CaloTrigger << endl
         << "L1 Global Muon Trigger : muon isolation cell size (eta) : " << m_IsolationCellSizeEta << endl
         << "L1 Global Muon Trigger : muon isolation cell size (phi) : " << m_IsolationCellSizePhi << endl
-        << "L1 Global Muon Trigger : require confirmation by RPC in overlap region : " << m_DoOvlRpcAnd << endl;
+        << "L1 Global Muon Trigger : require confirmation by RPC in overlap region : " << m_DoOvlRpcAnd << endl
+        << "L1 Global Muon Trigger : propagate phi to vertex : " << m_PropagatePhi << endl
+        << "L1 Global Muon Trigger : version of low quality assignment LUT : " << m_VersionSortRankEtaQLUT << endl
+        << "L1 Global Muon Trigger : general LUTs version : " << m_VersionLUTs << endl;
     edm::LogVerbatim("GMT_Config_info") << stdss.str();
   }
+}
 
-  m_PropagatePhi = m_GMTParams->getPropagatePhi();
+void L1MuGMTConfig::createLUTsRegs() {
 
   // create Registers
   m_RegCDLConfig = new L1MuGMTRegCDLConfig();
@@ -189,6 +210,44 @@ void L1MuGMTConfig::setDefaults() {
   m_MIAUPhiPro2LUT = new L1MuGMTMIAUPhiPro2LUT();
   m_PhiLUT = new L1MuGMTPhiLUT();
 
+}
+
+void L1MuGMTConfig::clearLUTsRegs() {
+  // delete Registers
+  delete m_RegCDLConfig;
+  delete m_RegMMConfigPhi;
+  delete m_RegMMConfigEta;
+  delete m_RegMMConfigPt;
+  delete m_RegMMConfigCharge;
+  delete m_RegMMConfigMIP;
+  delete m_RegMMConfigISO;
+  delete m_RegMMConfigSRK;
+  delete m_RegSortRankOffset;
+
+  // delete LUTs
+  delete m_EtaLUT;
+  delete m_LFCOUDeltaEtaLUT;
+  delete m_LFDeltaEtaLUT;
+  delete m_LFDisableHotLUT;
+  delete m_LFEtaConvLUT;
+  delete m_LFMatchQualLUT;
+  delete m_LFMergeRankCombineLUT;
+  delete m_LFMergeRankEtaPhiLUT;
+  delete m_LFMergeRankEtaQLUT;
+  delete m_LFMergeRankPtQLUT;
+  delete m_LFOvlEtaConvLUT;
+  delete m_LFPhiProEtaConvLUT;
+  delete m_LFPhiProLUT;
+  delete m_LFPtMixLUT;
+  delete m_LFSortRankCombineLUT;
+  delete m_LFSortRankEtaPhiLUT;
+  delete m_LFSortRankEtaQLUT;
+  delete m_LFSortRankPtQLUT;
+  delete m_MIAUEtaConvLUT;
+  delete m_MIAUEtaProLUT;
+  delete m_MIAUPhiPro1LUT;
+  delete m_MIAUPhiPro2LUT;
+  delete m_PhiLUT;
 }
 
 void L1MuGMTConfig::dumpLUTs(std::string dir) {
@@ -266,6 +325,11 @@ void L1MuGMTConfig::dumpRegs(std::string dir) {
 
 const edm::ParameterSet* L1MuGMTConfig::m_ps=0;
 
+edm::InputTag L1MuGMTConfig::m_DTInputTag = edm::InputTag();
+edm::InputTag L1MuGMTConfig::m_CSCInputTag = edm::InputTag();
+edm::InputTag L1MuGMTConfig::m_RPCbInputTag = edm::InputTag();
+edm::InputTag L1MuGMTConfig::m_RPCfInputTag = edm::InputTag();
+edm::InputTag L1MuGMTConfig::m_MipIsoInputTag = edm::InputTag();
 int   L1MuGMTConfig::m_dbgLevel = 0;
 bool  L1MuGMTConfig::m_debug = false;
 int   L1MuGMTConfig::m_BxMin = -4;
@@ -287,6 +351,8 @@ int   L1MuGMTConfig::m_IsolationCellSizePhi = 2;
 bool  L1MuGMTConfig::m_DoOvlRpcAnd = false;
 
 bool  L1MuGMTConfig::m_PropagatePhi = false;
+unsigned L1MuGMTConfig::m_VersionSortRankEtaQLUT = 2;
+unsigned L1MuGMTConfig::m_VersionLUTs = 0;
 
 L1MuGMTRegCDLConfig* L1MuGMTConfig::m_RegCDLConfig=0;
 L1MuGMTRegMMConfigPhi* L1MuGMTConfig::m_RegMMConfigPhi=0;
@@ -324,4 +390,8 @@ L1MuGMTPhiLUT* L1MuGMTConfig::m_PhiLUT=0;
 
 const L1MuGMTScales* L1MuGMTConfig::m_GMTScales=0;
 const L1MuTriggerScales* L1MuGMTConfig::m_TriggerScales=0;
+const L1MuTriggerPtScale* L1MuGMTConfig::m_TriggerPtScale=0;
 const L1MuGMTParameters* L1MuGMTConfig::m_GMTParams=0;
+const L1MuGMTChannelMask* L1MuGMTConfig::m_GMTChanMask=0;
+
+const L1CaloGeometry* L1MuGMTConfig::m_caloGeom = 0 ;

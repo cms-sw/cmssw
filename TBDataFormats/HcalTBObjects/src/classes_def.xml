@@ -1,10 +1,22 @@
 <lcgdict>
-   <class name="HcalTBTriggerData"/>
-   <class name="HcalTBRunData"/>
-   <class name="HcalTBEventPosition"/>
-   <class name="HcalTBTiming"/>
-   <class name="HcalTBBeamCounters"/>
-   <class name="HcalTBParticleId"/>
+   <class name="HcalTBTriggerData" ClassVersion="10">
+    <version ClassVersion="10" checksum="2056781115"/>
+   </class>
+   <class name="HcalTBRunData" ClassVersion="10">
+    <version ClassVersion="10" checksum="999402897"/>
+   </class>
+   <class name="HcalTBEventPosition" ClassVersion="10">
+    <version ClassVersion="10" checksum="3739969485"/>
+   </class>
+   <class name="HcalTBTiming" ClassVersion="10">
+    <version ClassVersion="10" checksum="976419967"/>
+   </class>
+   <class name="HcalTBBeamCounters" ClassVersion="10">
+    <version ClassVersion="10" checksum="559750594"/>
+   </class>
+   <class name="HcalTBParticleId" ClassVersion="10">
+    <version ClassVersion="10" checksum="3439943138"/>
+   </class>
    <class name="edm::Wrapper<HcalTBTriggerData>"/>
    <class name="edm::Wrapper<HcalTBRunData>"/>
    <class name="edm::Wrapper<HcalTBEventPosition>"/>

@@ -2,21 +2,15 @@
 #define TR_FastHelix_H_
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-// You don't really want to know why the rest does not compile on Sun 
-// whthout this method, and why it compiles with it. 
-inline GlobalPoint sun_bullshit( const GlobalPoint point) {
-  return point;
-}
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /**
    Generation of track parameters at a vertex using two hits and a vertex.
    It is used e.g. by a seed generator.
 
+   24.01.2012: introduced Maxpt cut. changed algo of "FastLine" to use vertex
    21.02.2001: Old FastHelix is now called FastHelixFit. Replace FastLineFit
                by FastLine (z0, dz/drphi calculated without vertex and errors)
    14.02.2001: Replace general Circle by FastCircle.
@@ -28,41 +22,74 @@ inline GlobalPoint sun_bullshit( const GlobalPoint point) {
 	                         straightLineStateAtVertex()
  */
 
+class MagneticField;
 class FastHelix {
-
-private:
-  
-  typedef FreeTrajectoryState FTS;
-
 public:
 
-  FastHelix(const GlobalPoint& outerHit, 
-	    const GlobalPoint& middleHit,
+  //Original constructor (no basis vertex)
+  FastHelix(const GlobalPoint& oHit,
+	    const GlobalPoint& mHit,
 	    const GlobalPoint& aVertex,
-	    const edm::EventSetup& iSetup);
-  
+	    double nomField, MagneticField const * ibField) :
+    bField(ibField),
+    theCircle(oHit,
+	      mHit,
+	      aVertex) {
+    tesla0=0.1*nomField;
+    maxRho = maxPt/(0.01 * 0.3*tesla0);
+    useBasisVertex = false;
+    compute();
+  }
+
+  //New constructor (with basis vertex)
+  FastHelix(const GlobalPoint& oHit,
+	    const GlobalPoint& mHit,
+	    const GlobalPoint& aVertex,
+	    double nomField, MagneticField const * ibField,
+	    const GlobalPoint& bVertex) : 
+    bField(ibField),
+    basisVertex(bVertex),
+    theCircle(oHit,
+	      mHit,
+	      aVertex) {
+    tesla0=0.1*nomField;
+    maxRho = maxPt/(0.01 * 0.3*tesla0);
+    useBasisVertex = true;
+    compute();
+  }
+
   ~FastHelix() {}
   
   bool isValid() const {return theCircle.isValid();}
 
-  FTS stateAtVertex() const;
+  GlobalTrajectoryParameters stateAtVertex() const { return atVertex; }
 
-  FTS helixStateAtVertex() const;
-
-  FTS straightLineStateAtVertex() const;
+  const FastCircle & circle() const { return theCircle; }
 
 private:
-  
-  GlobalPoint theOuterHit;
-  GlobalPoint theMiddleHit;
-  GlobalPoint theVertex;
+
+  GlobalPoint const & outerHit() const { return theCircle.outerPoint();} 
+  GlobalPoint const & middleHit() const { return theCircle.innerPoint();} 
+  GlobalPoint const & vertex() const { return theCircle.vertexPoint();} 
+
+
+  void compute();
+  void helixStateAtVertex() dso_hidden;
+  void straightLineStateAtVertex() dso_hidden;
+
+
+private:
+
+  static constexpr float maxPt = 10000; // 10Tev
+
+  MagneticField const * bField; // needed to construct GlobalTrajectoryParameters
+  GlobalTrajectoryParameters atVertex;
+  GlobalPoint basisVertex;
   FastCircle theCircle;
-  edm::ESHandle<MagneticField> pSetup;
-  GlobalVector tesla0;
+  float tesla0;
+  float maxRho;
+  bool useBasisVertex;
 };
 
 #endif //TR_FastHelix_H_
-
-
-
 

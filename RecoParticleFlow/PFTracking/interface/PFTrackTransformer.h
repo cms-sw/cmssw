@@ -1,16 +1,22 @@
 #ifndef PFTrackTransformer_H
 #define PFTrackTransformer_H
 
-#include "RecoParticleFlow/PFBlockAlgo/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
+
 
 
 /// \brief Abstract
@@ -26,69 +32,41 @@
  Evaluate the surface corresponding to the maximum shower
 */
 
-class MagneticField;
-class Trajectory;
-class AnalyticalPropagator;
-class TrajectoryStateOnSurface;
-class Propagator;
-class StraightLinePropagator;
 
+class Trajectory;
 class PFTrackTransformer{
 
-  typedef TrajectoryStateOnSurface TSOS;
+
 
  public:
-  PFTrackTransformer(const MagneticField * magField);
+  PFTrackTransformer(const math::XYZVector&);
   ~PFTrackTransformer();
 
- 
-
-/*   ///Produce PfRecTrack from a pair GsfTrack-Trajectory */
-/*   reco::PFRecTrack  producePFTrack(reco::PFRecTrack& pftrack, */
-/* 				   Trajectory * traj, */
-/* 				   const reco::Track& track, */
-/* 				   reco::PFRecTrack::AlgoType_t, */
-/* 				   int index); */
-
-
-/*   reco::PFRecTrack  producePFTrack(reco::PFRecTrack& pftrack, */
-/* 				   Trajectory * traj, */
-/* 				   const reco::TrackRef& trackref, */
-/* 				   reco::PFRecTrack::AlgoType_t, */
-/* 				   int index); */
 
   /// Add points to a PFTrack. return false if a TSOS is invalid
   bool addPoints(reco::PFRecTrack& pftrack, 
 		 const reco::Track& track,
-		 const Trajectory& traj ) const; 
+		 const Trajectory& traj,
+		 bool msgwarning = true) const; 
+  
+  bool addPointsAndBrems(reco::GsfPFRecTrack& pftrack, 
+			 const reco::Track& track,
+			 const Trajectory& traj,
+			 const bool& GetMode) const; 
+  
+  bool addPointsAndBrems(reco::GsfPFRecTrack& pftrack, 
+			 const reco::GsfTrack& track,
+			 const MultiTrajectoryStateTransform& mtjstate) const; 
 
-
-  ///Utility for getting the TSOS in all the surface defined in PFGeometry
-  TrajectoryStateOnSurface 
-    getStateOnSurface(PFGeometry::Surface_t iSurf, 
-		      const TrajectoryStateOnSurface& tsos, 
-		      const Propagator* propagator, int& side) const;
-
-  ///Surface corresponding to the expected mazimum shower of the electron 
-  ReferenceCountingPointer<Surface> showerMaxSurface(float, 
-						     bool,
-						     TSOS,
-						     int) const;
-
-  std::pair<float,float> showerDimension(float ,math::XYZPoint ,bool)const;
+  void OnlyProp(){
+    onlyprop_=true;
+  }
+  bool  onlyprop_;
+  
  private:
-
-  ///Forward analytical Propagator
-  const AnalyticalPropagator *fwdPropagator_;
-
-  ///Backward analytical Propagator
-  const AnalyticalPropagator *bkwdPropagator_;
-
-  ///StraightLinePropagator to propagate the Trajectory from
-  ///ECAL to the max shower surface
-  StraightLinePropagator *maxShPropagator_;
-
-
+  ///B field
+   math::XYZVector B_;
+   const MultiTrajectoryStateMode *mtsMode_;
 };
 
 #endif

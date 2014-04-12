@@ -1,16 +1,15 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayEstimator.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayDerivatives.h"
-
+#include "FWCore/Utilities/interface/isFinite.h"
 //#include "DataFormats/CLHEP/interface/Migration.h"
 
-using namespace std;
-
-
 TwoBodyDecayEstimator::TwoBodyDecayEstimator( const edm::ParameterSet & config )
+  :theNdf(0)
 {
   const edm::ParameterSet & estimatorConfig = config.getParameter< edm::ParameterSet >( "EstimatorParameters" );
 
@@ -99,7 +98,7 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate( const std::vector< RefCountedLinea
 
   theNdf = matA.num_row() - matA.num_col();
 
-  return TwoBodyDecay( TwoBodyDecayParameters( vecEstimate, invAtGPrimeA ), chi2, isValid );
+  return TwoBodyDecay( TwoBodyDecayParameters( vecEstimate, invAtGPrimeA ), chi2, isValid, vm );
 }
 
 
@@ -112,8 +111,10 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   PerigeeLinearizedTrackState* linTrack1 = dynamic_cast<PerigeeLinearizedTrackState*>( linTracks[0].get() );
   PerigeeLinearizedTrackState* linTrack2 = dynamic_cast<PerigeeLinearizedTrackState*>( linTracks[1].get() );
 
-  AlgebraicVector trackParam1 = linTrack1->predictedStateParameters();
-  AlgebraicVector trackParam2 = linTrack2->predictedStateParameters();
+  if (!linTrack1 || !linTrack2) return false;
+
+  AlgebraicVector trackParam1 = asHepVector( linTrack1->predictedStateParameters() );
+  AlgebraicVector trackParam2 = asHepVector( linTrack2->predictedStateParameters() );
 
   if ( checkValues( trackParam1 ) || checkValues( trackParam2 ) || checkValues( linearizationPoint.parameters() ) ) return false;
 
@@ -125,17 +126,17 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   int checkInversion = 0;
 
   TwoBodyDecayDerivatives tpeDerivatives( linearizationPoint[TwoBodyDecayParameters::mass], vm.secondaryMass() );
-  pair< AlgebraicMatrix, AlgebraicMatrix > derivatives = tpeDerivatives.derivatives( linearizationPoint );
+  std::pair< AlgebraicMatrix, AlgebraicMatrix > derivatives = tpeDerivatives.derivatives( linearizationPoint );
 
   TwoBodyDecayModel decayModel( linearizationPoint[TwoBodyDecayParameters::mass], vm.secondaryMass() );
-  pair< AlgebraicVector, AlgebraicVector > linCartMomenta = decayModel.cartesianSecondaryMomenta( linearizationPoint );
+  std::pair< AlgebraicVector, AlgebraicVector > linCartMomenta = decayModel.cartesianSecondaryMomenta( linearizationPoint );
 
   // first track
-  AlgebraicMatrix matA1 = linTrack1->positionJacobian();
-  AlgebraicMatrix matB1 = linTrack1->momentumJacobian();
-  AlgebraicVector vecC1 = linTrack1->constantTerm();
+  AlgebraicMatrix matA1 = asHepMatrix( linTrack1->positionJacobian() );
+  AlgebraicMatrix matB1 = asHepMatrix( linTrack1->momentumJacobian() );
+  AlgebraicVector vecC1 = asHepVector( linTrack1->constantTerm() );
 
-  AlgebraicVector curvMomentum1 = linTrack1->predictedStateMomentumParameters();
+  AlgebraicVector curvMomentum1 = asHepVector( linTrack1->predictedStateMomentumParameters() );
   AlgebraicMatrix curv2cart1 = decayModel.curvilinearToCartesianJacobian( curvMomentum1, zMagField );
 
   AlgebraicVector cartMomentum1 = decayModel.convertCurvilinearToCartesian( curvMomentum1, zMagField );
@@ -145,7 +146,7 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   AlgebraicMatrix matF1 = derivatives.first;
   AlgebraicVector vecD1 = linCartMomenta.first - matF1*vecLinParam;
   AlgebraicVector vecM1 = trackParam1 - vecC1 - matB1*vecD1;
-  AlgebraicSymMatrix covM1 = linTrack1->predictedStateError();
+  AlgebraicSymMatrix covM1 = asHepMatrix( linTrack1->predictedStateError() );
 
 
   AlgebraicSymMatrix matG1 = covM1.inverse( checkInversion );
@@ -160,11 +161,11 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
    AlgebraicMatrix matU1 = diagonalize( &matG1 ).T();
 
   // second track
-  AlgebraicMatrix matA2 = linTrack2->positionJacobian();
-  AlgebraicMatrix matB2 = linTrack2->momentumJacobian();
-  AlgebraicVector vecC2 = linTrack2->constantTerm();
+  AlgebraicMatrix matA2 = asHepMatrix( linTrack2->positionJacobian() );
+  AlgebraicMatrix matB2 = asHepMatrix( linTrack2->momentumJacobian() );
+  AlgebraicVector vecC2 = asHepVector( linTrack2->constantTerm() );
 
-  AlgebraicVector curvMomentum2 = linTrack2->predictedStateMomentumParameters();
+  AlgebraicVector curvMomentum2 = asHepVector( linTrack2->predictedStateMomentumParameters() );
   AlgebraicMatrix curv2cart2 = decayModel.curvilinearToCartesianJacobian( curvMomentum2, zMagField );
 
   AlgebraicVector cartMomentum2 = decayModel.convertCurvilinearToCartesian( curvMomentum2, zMagField );
@@ -174,7 +175,7 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   AlgebraicMatrix matF2 = derivatives.second;
   AlgebraicVector vecD2 = linCartMomenta.second - matF2*vecLinParam;
   AlgebraicVector vecM2 = trackParam2 - vecC2 - matB2*vecD2;
-  AlgebraicSymMatrix covM2 = linTrack2->predictedStateError();
+  AlgebraicSymMatrix covM2 = asHepMatrix( linTrack2->predictedStateError() );
 
   AlgebraicSymMatrix matG2 = covM2.inverse( checkInversion );
   if ( checkInversion != 0 )
@@ -194,7 +195,7 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   // virtual measurement of the primary mass
   vecM( 11 ) = vm.primaryMass();
   // virtual measurement of the beam spot
-  vecM.sub( 12, vm.beamSpot() );
+  vecM.sub( 12, vm.beamSpotPosition() );
 
   // full weight matrix
   matG = AlgebraicSymMatrix( 14, 0 );
@@ -222,14 +223,10 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
 
 bool TwoBodyDecayEstimator::checkValues( const AlgebraicVector & vec ) const
 {
-  bool isNan = false;
-  bool isInf = false;
+  bool isNotFinite = false;
 
   for ( int i = 0; i < vec.num_col(); ++i )
-  {
-    isNan = isNan || isnan( vec[i] );
-    isInf = isInf || isinf( vec[i] );
-  }
+    isNotFinite |= edm::isNotFinite( vec[i] );
 
-  return ( isNan || isInf );
+  return isNotFinite;
 }

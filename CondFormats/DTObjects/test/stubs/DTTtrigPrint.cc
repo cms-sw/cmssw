@@ -9,13 +9,9 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTTtrigPrint.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
@@ -42,6 +38,44 @@ namespace edmtest {
     context.get<DTTtrigRcd>().get(tTrig);
     std::cout << tTrig->version() << std::endl;
     std::cout << std::distance( tTrig->begin(), tTrig->end() ) << " data in the container" << std::endl;
+    DTTtrig::const_iterator iter = tTrig->begin();
+    DTTtrig::const_iterator iend = tTrig->end();
+    while ( iter != iend ) {
+      const DTTtrigId&   trigId   = iter->first;
+      const DTTtrigData& trigData = iter->second;
+      float trigTime;
+      float trigTrms;
+      float trigKfac;
+      float trigComp;
+      tTrig->get( trigId.wheelId,
+                  trigId.stationId,
+                  trigId.sectorId,
+                  trigId.slId,
+                  trigId.layerId,
+                  trigId.cellId,
+                  trigTime, trigTrms, trigKfac, DTTimeUnits::counts );
+      tTrig->get( trigId.wheelId,
+                  trigId.stationId,
+                  trigId.sectorId,
+                  trigId.slId,
+                  trigId.layerId,
+                  trigId.cellId,
+                  trigComp, DTTimeUnits::counts );
+      std::cout << trigId.wheelId   << " "
+                << trigId.stationId << " "
+                << trigId.sectorId  << " "
+                << trigId.slId      << " "
+                << trigId.layerId   << " "
+                << trigId.cellId    << " -> "
+                << trigData.tTrig    << " "
+                << trigData.tTrms    << " "
+                << trigData.kFact    << " -> "
+                << trigTime          << " "
+                << trigTrms          << " "
+                << trigKfac          << " -> "
+                << trigComp          << std::endl;
+      iter++;
+    }
   }
   DEFINE_FWK_MODULE(DTTtrigPrint);
 }

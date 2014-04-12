@@ -17,6 +17,7 @@ class FBaseSimEvent;
 
 namespace HepMC {
   class GenParticle;
+  class GenVertex;
 }
 
 /** A class that mimics SimTrack, with enhanced features.
@@ -32,7 +33,7 @@ class FSimTrack : public SimTrack {
   FSimTrack();
   
   /// Constructor from the EmmbSimTrack index in the FBaseSimEvent
-  FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom);
+  FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom, double dt=-1.);
   
   /// Destructor
   virtual ~FSimTrack();
@@ -108,6 +109,16 @@ class FSimTrack : public SimTrack {
   /// 2 : on the EndCaps (No VFCAL Barrel); 3 : no propagation possible
   /// 0 : not yet propagated
   inline int onVFcal() const { return vfcal; }
+  
+  /// The particle was propagated to the HCAL back face
+  /// 1 : on the barrel; 2 : on the EndCaps; 3 : no propagation possible
+  /// 0 : not yet propagated
+  inline int outHcal() const { return hcalexit; }
+
+  //The particle was propagated to the HO front face
+  /// 1 : on the barrel; 2 : on the EndCaps; 3 : no propagation possible
+  /// 0 : not yet propagated
+  inline int onHO() const { return hoentr; }
 
   /// The particle was tentatively propagated to calorimeters
   inline bool propagated() const { return prop; }
@@ -126,6 +137,12 @@ class FSimTrack : public SimTrack {
 
   /// The particle at VFCAL entrance
   inline const RawParticle& vfcalEntrance() const { return VFCAL_Entrance; }
+
+  /// The particle at HCAL exir
+  inline const RawParticle& hcalExit() const { return HCAL_Exit; }
+
+  /// The particle at HCAL exir
+  inline const RawParticle& hoEntrance() const { return HO_Entrance; }
 
   /// Set the end vertex
   inline void setEndVertex(int endv) { endv_ = endv; } 
@@ -148,6 +165,12 @@ class FSimTrack : public SimTrack {
   /// Set the hcal variables
   void setVFcal(const RawParticle& pp, int success);
 
+  /// Set the hcal exit variables
+  void setHcalExit(const RawParticle& pp, int success);
+
+  /// Set the ho variables
+  void setHO(const RawParticle& pp, int success);
+
   /// Add a RecHit for a track on a layer
   //  void addRecHit(const FamosBasicRecHit* hit, unsigned layer);
 
@@ -157,11 +180,23 @@ class FSimTrack : public SimTrack {
   /// Update the vactors of daughter's id
   inline void addDaughter(int i) { daugh_.push_back(i); }
 
-  /// Temporary (until move of SimTrack to Mathcore)
+  /// Set the index of the closest charged daughter
+  inline void setClosestDaughterId(int id) { closestDaughterId_ = id; }
+
+  /// Get the index of the closest charged daughter
+  inline int closestDaughterId() const { return closestDaughterId_; }
+
+  /// Temporary (until move of SimTrack to Mathcore) - No! Actually very useful
   const XYZTLorentzVector& momentum() const { return momentum_; }
+
+  /// Reset the momentum (to be used with care)
+  inline void setMomentum(const math::XYZTLorentzVector& newMomentum) {momentum_ = newMomentum; }
 
   /// Simply returns the SimTrack
   inline const SimTrack& simTrack() const { return *this; }
+
+  /// Return the pre-defined decay time
+  inline double decayTime() const { return properDecayTime; }
 
  private:
 
@@ -178,6 +213,9 @@ class FSimTrack : public SimTrack {
   int ecal;  // 1 if the particle was propagated to ECAL/HCAL barrel
   int hcal;  // 2 if the particle was propagated to ECAL/HCAL endcap 
   int vfcal; // 1 if the particle was propagated to VFCAL 
+  int hcalexit;  // 2 if the particle was propagated to HCAL Exit point
+  int hoentr; // 1 if the particle was propagated to HO 
+
 
   bool prop;     // true if the propagation to the calorimeters was done
 
@@ -186,12 +224,18 @@ class FSimTrack : public SimTrack {
   RawParticle ECAL_Entrance;   // the particle at ECAL entrance
   RawParticle HCAL_Entrance;   // the particle at HCAL entrance
   RawParticle VFCAL_Entrance;  // the particle at VFCAL entrance
+  RawParticle HCAL_Exit;       // the particle at HCAL ezit point
+  RawParticle HO_Entrance;     // the particle at HO entrance
+
 
   std::vector<int> daugh_; // The indices of the daughters in FSimTrack
+  int closestDaughterId_; // The index of the closest daughter id
 
   const HepPDT::ParticleData* info_; // The PDG info
 
   XYZTLorentzVector momentum_;
+
+  double properDecayTime; // The proper decay time  (default is -1)
 
 };
 

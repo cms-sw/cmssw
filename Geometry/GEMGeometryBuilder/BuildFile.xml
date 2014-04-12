@@ -1,0 +1,7 @@
+<use name="Geometry/MuonNumbering"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="DetectorDescription/Core"/>
+<export>
+ <lib name="1"/>
+</export>
+

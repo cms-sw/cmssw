@@ -1,14 +1,14 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.16 2006/11/21 03:39:09 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.21 2010/11/29 20:41:57 wmtan Exp $
 //
 #include <limits>
 #include <string>
 #include <iostream>
 #include <sstream>
 
-#include "occi.h" 
+#include "OnlineDB/Oracle/interface/Oracle.h" 
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
@@ -29,8 +29,8 @@ HcalDbOnline::HcalDbOnline (const std::string& fDb, bool fVerbose)
 {
   mEnvironment = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::OBJECT);
   // decode connect string
-  unsigned ipass = fDb.find ('/');
-  unsigned ihost = fDb.find ('@');
+  size_t ipass = fDb.find ('/');
+  size_t ihost = fDb.find ('@');
   
   if (ipass == std::string::npos || ihost == std::string::npos) {
     std::cerr << "HcalDbOnline::HcalDbOnline-> Error in connection string format: " << fDb
@@ -253,7 +253,10 @@ bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag, IOV
 	  }
 	}
 	
-	HcalQIECoder coder;
+	HcalSubdetector sub = hcalSubdet (subdet);
+	HcalDetId id (sub, z * eta, phi, depth);
+
+	HcalQIECoder coder(id.rawId());
 	for (int capId = 0; capId < 4; capId++) {
 	  for (int range = 0; range < 4; range++) {
 	    coder.setOffset (capId, range, offset [capId][range]);
@@ -261,10 +264,7 @@ bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag, IOV
 	  }
 	}
 	
-	HcalSubdetector sub = hcalSubdet (subdet);
-	HcalDetId id (sub, z * eta, phi, depth);
-	
-	fObject->addCoder (id, coder);
+	fObject->addCoder (coder);
       }
       delete rset;
     }
@@ -394,13 +394,13 @@ bool HcalDbOnline::getObject (HcalCalibrationQIEData* fObject, const std::string
 	float values [32];
 	for (unsigned bin = 0; bin < 32; bin++) values [bin] = rset->getFloat (index++);
 	
-	HcalCalibrationQIECoder coder;
-	coder.setMinCharges (values);
-	
 	HcalSubdetector sub = hcalSubdet (subdet);
 	HcalDetId id (sub, z * eta, phi, depth);
+
+	HcalCalibrationQIECoder coder(id.rawId());
+	coder.setMinCharges (values);
 	
-	fObject->addCoder (id, coder);
+	fObject->addCoder (coder);
       }
       delete rset;
     }
@@ -455,26 +455,24 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
       HcalDetId id (sub, z * eta, phi, depth);
       
       if (fObject) {
-	fObject->sort ();
-	try {
-	  fObject->getValues (id);
-	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
-	}
-	catch (cms::Exception& e) {
-	  fObject->addValue (id, values);
-	}
+	  if (fObject->exists(id) )
+	    std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
+	  else
+	    {
+	      HcalPedestal myped(id,values[0],values[1],values[2],values[3]);
+	      fObject->addValues(myped);
+	    }
       }
       if (fWidths) {
-	fWidths->sort ();
-	try {
-	  fWidths->getValues (id);
+	if (fWidths->exists(id) )
 	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
-	}
-	catch (cms::Exception& e) {
-	  HcalPedestalWidth* width = fWidths->setWidth (id);
-	  for (int i = 0; i < 4; i++) 
-	    for (int j = i; j < 4; j++) width->setSigma (i, j, widths [i][j]);
-	}
+	else
+	  {
+	    HcalPedestalWidth mywidth(id);
+	    for (int i = 0; i < 4; i++) 
+	      for (int j = i; j < 4; j++) mywidth.setSigma (i, j, widths [i][j]);
+	    fWidths->addValues(mywidth);
+	  }
       }
     }
     delete rset;
@@ -482,8 +480,8 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
   catch (oracle::occi::SQLException& sqlExcp) {
     std::cerr << "HcalDbOnline::getObject exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
   }
-  if (fObject) fObject->sort ();
-  if (fWidths) fWidths->sort ();
+  //  if (fObject) fObject->sort ();
+  //  if (fWidths) fWidths->sort ();
   return true;
 }
 
@@ -524,9 +522,8 @@ bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const
       std::string subdet = rset->getString (index++);
 
       float values [4];
-      float widths [4];
       for (int i = 0; i < 4; i++) values[i] = rset->getFloat (index++);
-      for (int i = 0; i < 4; i++) widths [i] = rset->getFloat (index++);
+      for (int i = 0; i < 4; i++) rset->getFloat (index++);
 //       unsigned long run = rset->getNumber (index++);
 //       unsigned long iovBegin = rset->getNumber (index++);
 //       unsigned long iovEnd = rset->getNumber (index++);
@@ -535,24 +532,22 @@ bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const
       HcalDetId id (sub, z * eta, phi, depth);
 
       if (fObject) {
-	fObject->sort ();
-	try {
-	  fObject->getValues (id);
+	if (fObject->exists(id) )
 	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
-	}
-	catch (cms::Exception& e) {
-	  fObject->addValue (id, values);
-	}
+	else
+	  {
+	    HcalGain mygain(id,values[0],values[1],values[2],values[3]);
+	    fObject->addValues (mygain);
+	  }
       }
       if (fWidths) {
-	fWidths->sort ();
-	try {
-	  fWidths->getValues (id);
+	if (fWidths->exists(id) )
 	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
-	}
-	catch (cms::Exception& e) {
-	  fWidths->addValue (id, values);
-	}
+	else
+	  {
+	    HcalGainWidth mywid(id,values[0],values[1],values[2],values[3]);
+	    fWidths->addValues(mywid);
+	  }
       }
     }
     delete rset;
@@ -560,8 +555,8 @@ bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const
   catch (oracle::occi::SQLException& sqlExcp) {
     std::cerr << "HcalDbOnline::getObject exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
   }
-  if (fObject) fObject->sort ();
-  if (fWidths) fWidths->sort ();
+  //  if (fObject) fObject->sort ();
+  //  if (fWidths) fWidths->sort ();
   return true;
 }
 

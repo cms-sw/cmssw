@@ -31,7 +31,7 @@ MonLaserRedDat::~MonLaserRedDat()
 
 
 void MonLaserRedDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -42,23 +42,23 @@ void MonLaserRedDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":apd_mean, :apd_rms, :apd_over_pn_mean, :apd_over_pn_rms, :task_status)");
   } catch (SQLException &e) {
-    throw(runtime_error("MonLaserRedDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MonLaserRedDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MonLaserRedDat::writeDB(const EcalLogicID* ecid, const MonLaserRedDat* item, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonLaserRedDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonLaserRedDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MonLaserRedDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MonLaserRedDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -72,14 +72,14 @@ void MonLaserRedDat::writeDB(const EcalLogicID* ecid, const MonLaserRedDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MonLaserRedDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonLaserRedDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void MonLaserRedDat::fetchData(std::map< EcalLogicID, MonLaserRedDat >* fillMap, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -88,7 +88,7 @@ void MonLaserRedDat::fetchData(std::map< EcalLogicID, MonLaserRedDat >* fillMap,
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MonLaserRedDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MonLaserRedDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -123,18 +123,18 @@ void MonLaserRedDat::fetchData(std::map< EcalLogicID, MonLaserRedDat >* fillMap,
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonLaserRedDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("MonLaserRedDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void MonLaserRedDat::writeArrayDB(const std::map< EcalLogicID, MonLaserRedDat >* data, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonLaserRedDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonLaserRedDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -161,7 +161,7 @@ void MonLaserRedDat::writeArrayDB(const std::map< EcalLogicID, MonLaserRedDat >*
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("MonLaserRedDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("MonLaserRedDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -226,6 +226,6 @@ void MonLaserRedDat::writeArrayDB(const std::map< EcalLogicID, MonLaserRedDat >*
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonLaserRedDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonLaserRedDat::writeArrayDB():  "+e.getMessage()));
   }
 }

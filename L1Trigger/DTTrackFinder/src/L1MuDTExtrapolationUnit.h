@@ -13,8 +13,6 @@
  *   in the adjacent wheel (next wheel neighbour)
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -35,21 +33,23 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessorc.h"
+#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
+#include <FWCore/Framework/interface/ESHandle.h>
 class L1MuDTSectorProcessor;
 class L1MuDTSEU;
+class L1MuDTTFParameters;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTExtrapolationUnit : public L1AbstractProcessorc {
+class L1MuDTExtrapolationUnit : public L1AbstractProcessor {
 
   public:
 
@@ -97,6 +97,8 @@ class L1MuDTExtrapolationUnit : public L1AbstractProcessorc {
     const L1MuDTSectorProcessor& m_sp;   // reference to Sector Processor
 
     mutable SEUmap m_SEUs;               // Single Extrapolation Units
+
+    edm::ESHandle< L1MuDTTFParameters > pars;
  
 };
 

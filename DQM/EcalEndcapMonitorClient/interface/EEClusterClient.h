@@ -4,8 +4,6 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2007/05/24 17:10:53 $
- * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -21,14 +19,15 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+class MonitorElement;
+class DQMStore;
+#ifdef WITH_ECAL_COND_DB
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
+#endif
 
 class EEClusterClient : public EEClient {
 
@@ -42,19 +41,11 @@ EEClusterClient(const edm::ParameterSet& ps);
 /// Destructor
 virtual ~EEClusterClient();
 
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
-
-/// softReset
-void softReset(void);
-
 /// Analyze
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -71,11 +62,10 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
-
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -86,48 +76,28 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
+bool debug_;
 
-bool enableMonitorDaemon_;
+std::string prefixME_;
 
-string prefixME_;
+bool enableCleanup_;
 
-vector<int> superModules_;
+std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
+DQMStore* dqmStore_;
 
-CollateMonitorElement* me_allEEBasic_[3];
-CollateMonitorElement* me_eneEEBasic_[2];
-CollateMonitorElement* me_numEEBasic_[2];
-CollateMonitorElement* me_enePolarEEBasic_[2];
-CollateMonitorElement* me_numPolarEEBasic_[2];
-
-CollateMonitorElement* me_allEE_[3];
-CollateMonitorElement* me_eneEE_[2];
-CollateMonitorElement* me_numEE_[2];
-CollateMonitorElement* me_enePolarEE_[2];
-CollateMonitorElement* me_numPolarEE_[2];
-
-CollateMonitorElement* me_s_;
-
-TH1F* allEEBasic_[3];
-TProfile2D* eneEEBasic_[2];
-TH2F* numEEBasic_[2];
-TProfile2D* enePolarEEBasic_[2];
-TH2F* numPolarEEBasic_[2];
-
-TH1F* allEE_[3];
-TProfile2D* eneEE_[2];
-TH2F* numEE_[2];
-TProfile2D* enePolarEE_[2];
-TH2F* numPolarEE_[2];
-
-TH1F* s_;
-
+TH1F* h01_[3];
+TProfile2D* h04_[3][2];
+TProfile* h02ProjEta_[3][2];
+TProfile* h02ProjPhi_[3][2];
+TH2F* h03_[2];
+TH1F* h03ProjEta_[2];
+TH1F* h03ProjPhi_[2];
+TH1F* i01_[3]; 
+TH1F* s01_[3];
 
 };
 

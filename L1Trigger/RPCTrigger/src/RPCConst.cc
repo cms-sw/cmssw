@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream> 
 #include <sstream> 
+#include <cstdio>
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include "L1Trigger/RPCTrigger/interface/RPCException.h"
 

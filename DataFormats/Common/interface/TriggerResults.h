@@ -1,11 +1,10 @@
-#ifndef Common_TriggerResults_h
-#define Common_TriggerResults_h
+#ifndef DataFormats_Common_TriggerResults_h
+#define DataFormats_Common_TriggerResults_h
 
 /** \class edm::TriggerResults
  *
  *  Original Authors: Jim Kowalkowski 13-01-06
  *                    Martin Grunewald
- *  $Id: TriggerResults.h,v 1.7 2007/06/15 18:41:50 wdd Exp $
  *
  *  The trigger path results are maintained here as a sequence of
  *  entries, one per trigger path.  They are assigned in the order
@@ -26,14 +25,16 @@
  */
 
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
+#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+
 
 #include <string>
 #include <vector>
 
 namespace edm
 {
-  class TriggerResults : public HLTGlobalStatus {
+  class TriggerResults : public HLTGlobalStatus, public DoNotRecordParents  {
 
     typedef std::vector<std::string> Strings;
 
@@ -60,6 +61,21 @@ namespace edm
     /// Get stored parameter set id
     const ParameterSetID& parameterSetID() const { return psetid_; }
 
+    /// swap function
+    void swap(TriggerResults& other) {
+      this->HLTGlobalStatus::swap(other);
+      psetid_.swap(other.psetid_);
+      // next line not used any more
+      names_.swap(other.names_);
+    }
+
+    /// Copy assignment using swap.
+    TriggerResults& operator=(TriggerResults const& rhs) {
+      TriggerResults temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
+
     // The next three functions are OBSOLETE and should only be used for backward
     // compatibility to older data.  The names_ vector is always empty in new data.
 
@@ -76,6 +92,13 @@ namespace edm
       return n;
     }
   };
+
+  // Free swap function
+  inline
+  void
+  swap(TriggerResults& lhs, TriggerResults& rhs) {
+    lhs.swap(rhs);
+  }
 }
 
 #endif

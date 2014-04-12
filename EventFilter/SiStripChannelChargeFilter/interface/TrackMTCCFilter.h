@@ -25,7 +25,7 @@ namespace cms
   private:
    std::string TrackProducer;
    std::string TrackLabel;
-   uint MinNrOfTracks;
+   unsigned int MinNrOfTracks;
   };
 }
 #endif

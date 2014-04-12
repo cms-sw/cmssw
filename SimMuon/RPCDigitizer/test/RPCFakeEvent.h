@@ -14,7 +14,7 @@ class RPCFakeEvent : public edm::EDProducer {
  public:
   RPCFakeEvent(const edm::ParameterSet& config);
   ~RPCFakeEvent(){}
-  void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   std::vector<std::string> filesed;

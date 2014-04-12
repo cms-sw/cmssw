@@ -111,10 +111,10 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
   
   //  virtual ~G4PVDivision();
 
-  const DDAxes axis() const;
-  const int nReplicas() const;
-  const double width() const;
-  const double offset() const;
+  DDAxes axis() const;
+  int nReplicas() const;
+  double width() const;
+  double offset() const;
   const DDLogicalPart & parent() const;
  
 
@@ -125,5 +125,5 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
 // left this analogy out for now (mec) : pair<bool,std::string> DDIsValid(const std::string & ns, const std::string & name, std::vector<DDDivision> & result,bool doRegex=true);
 // std::maps name to std::vector of namespaces
 typedef DDI::Singleton<std::map<std::string,std::vector<DDName> > > DIVNAMES;
-void DD_NDC(const DDName &);
+//void DD_NDC(const DDName &);
 #endif

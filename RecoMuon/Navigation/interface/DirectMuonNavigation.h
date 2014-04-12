@@ -5,8 +5,6 @@
  *  do a straight line extrapolation to
  *  find out compatible DetLayers with a given FTS 
  *
- *  $Date: 2006/10/18 17:06:46 $
- *  $Revision: 1.3 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -17,13 +15,16 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DirectMuonNavigation{
 
   public:
 
     /* Constructor */ 
-    DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>);
+    DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>&);
+
+    DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>&, const edm::ParameterSet&);
 
     DirectMuonNavigation* clone() const {
       return new DirectMuonNavigation(*this);
@@ -56,8 +57,10 @@ class DirectMuonNavigation{
     bool checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer*) const;
     bool outward(const FreeTrajectoryState& fts) const;
 
-    float epsilon_;
     edm::ESHandle<MuonDetLayerGeometry> theMuonDetLayerGeometry;
+    float epsilon_;
+    bool theEndcapFlag;
+    bool theBarrelFlag;
 
 };
 #endif

@@ -10,14 +10,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 
-
 std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() 
 {
   std::vector<SeedLayerPairs::LayerPair> result;
 
   if (_geometry=="STANDARD"){
-    result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[1], &TIBLayerWithHits[0]));
-    result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[2], &TIBLayerWithHits[0]));
+//      result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[1], &TIBLayerWithHits[0]));
+//      result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[2], &TIBLayerWithHits[0]));
 
     result.push_back( SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[5]));
     result.push_back( SeedLayerPairs::LayerPair(&TOBLayerWithHits[4], &TOBLayerWithHits[5]));
@@ -46,7 +45,82 @@ std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()()
 
     result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[1]));
 
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[7], &TECMinusLayerWithHits[8]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[8]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[7]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[7]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[6]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[6]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[5]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[5]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[4]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[4]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[3]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[3]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[2]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[2]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[1]));
+
+
   } 
+  else if(_geometry=="TECPAIRS_TOBTRIPLETS"){
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[7], &TECPlusLayerWithHits[8]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[8]));
+    
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[7]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[7]));
+    
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[6]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[6]));
+    
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[5]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[5]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[4]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[4]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[3]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[3]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[2]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[2]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[1]));
+
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[7], &TECMinusLayerWithHits[8]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[8]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[7]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[7]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[6]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[6]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[5]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[5]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[4]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[4]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[3]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[3]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[2]));
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[2]));
+
+    result.push_back( SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[1]));
+    
+
+  }
   else if (_geometry=="MTCC"){
     result.push_back( SeedLayerPairs::LayerPair(&MTCCLayerWithHits[1],&MTCCLayerWithHits[0]));
     result.push_back( SeedLayerPairs::LayerPair(&MTCCLayerWithHits[2],&MTCCLayerWithHits[3]));
@@ -56,10 +130,21 @@ std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()()
     result.push_back( SeedLayerPairs::LayerPair(&MTCCLayerWithHits[1],&MTCCLayerWithHits[1]));	
   } 
   else if (_geometry=="CRACK"){
+    //TODO: clean all this. Now this is a random choice of layers
     result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[1],&CRACKLayerWithHits[0]));
-    //     result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2],&CRACKLayerWithHits[0]));
-    //     result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2],&CRACKLayerWithHits[1]));
-    
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2],&CRACKLayerWithHits[0]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2],&CRACKLayerWithHits[1]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[3],&CRACKLayerWithHits[2]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[5],&CRACKLayerWithHits[4]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[6],&CRACKLayerWithHits[4]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[6],&CRACKLayerWithHits[5]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[7],&CRACKLayerWithHits[6]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[8],&CRACKLayerWithHits[5]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[9],&CRACKLayerWithHits[5]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[10],&CRACKLayerWithHits[5]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[11],&CRACKLayerWithHits[5]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[12],&CRACKLayerWithHits[5]));
+    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[13],&CRACKLayerWithHits[5]));
   } 
   else if (_geometry=="TIBD+"){
     result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[1],&TIBLayerWithHits[0]));
@@ -194,9 +279,20 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
 	return;
     }
     if (_geometry=="CRACK"){
-	CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collmatched, 7)));
-	CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collrphi, 6)));
-	CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collmatched, 4)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collmatched, 7)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collmatched, 6)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collmatched, 4)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collmatched, 3)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collrphi, 7)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collrphi, 6)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collrphi, 4)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collrphi, 3)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[4], selectTOBHit(collrphi, 5)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[1], selectTOBHit(collrphi, 2)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[0], selectTOBHit(collrphi, 1)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[4], selectTOBHit(collmatched, 5)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[1], selectTOBHit(collmatched, 2)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[0], selectTOBHit(collmatched, 1)));
 	return;
     }	
     	
@@ -267,11 +363,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTECHit(const SiStripR
 								int disk){
 	std::vector<const TrackingRecHit*> theChoosedHits;
   	TrackerLayerIdAccessor acc;
-	//std::cout << "in selectTECHit" << std::endl;	
-	SiStripRecHit2DCollection::range range = collrphi.get(acc.stripTECDisk(side,disk));
-	for(SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
-		theChoosedHits.push_back( &(*it) );	
-	}
+        edmNew::copyDetSetRange(collrphi, theChoosedHits, acc.stripTECDisk(side,disk));
 	return theChoosedHits;
 	
 }
@@ -281,10 +373,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripR
 	std::vector<const TrackingRecHit*> theChoosedHits;
 	TrackerLayerIdAccessor acc; 
         //std::cout << "in selectTIBHit" << std::endl;
-        SiStripRecHit2DCollection::range range = collrphi.get(acc.stripTIBLayer(layer));
-        for(SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
-                theChoosedHits.push_back( &(*it) );
-        }
+        edmNew::copyDetSetRange(collrphi,theChoosedHits,acc.stripTIBLayer(layer));
         return theChoosedHits;
 
 }
@@ -294,10 +383,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTOBHit(const SiStripR
 	std::vector<const TrackingRecHit*> theChoosedHits;
 	TrackerLayerIdAccessor acc;
         //std::cout << "in selectTOBHit" << std::endl;
-        SiStripRecHit2DCollection::range range = collrphi.get(acc.stripTOBLayer(layer));
-	for(SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
-                theChoosedHits.push_back( &(*it) );
-        }
+        edmNew::copyDetSetRange(collrphi,theChoosedHits,acc.stripTOBLayer(layer));
         return theChoosedHits;
 }
 
@@ -307,10 +393,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTECHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTECHit" << std::endl;
-        SiStripMatchedRecHit2DCollection::range range = collmatch.get(acc.stripTECDisk(side,disk));
-        for(SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
-                theChoosedHits.push_back( &(*it) );
-        }
+        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTECDisk(side,disk));
         return theChoosedHits;
 
 }
@@ -320,10 +403,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTIBHit" << std::endl;
-        SiStripMatchedRecHit2DCollection::range range = collmatch.get(acc.stripTIBLayer(layer));
-        for(SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
-                theChoosedHits.push_back( &(*it) );
-        }
+        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTIBLayer(layer));
         return theChoosedHits;
 
 }
@@ -333,9 +413,6 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTOBHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTOBHit" << std::endl;
-        SiStripMatchedRecHit2DCollection::range range = collmatch.get(acc.stripTOBLayer(layer));
-        for(SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
-                theChoosedHits.push_back( &(*it) );
-        }
+        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTOBLayer(layer));
         return theChoosedHits;
 }

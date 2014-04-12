@@ -1,0 +1,80 @@
+#
+# This is a validation decay file 
+#
+# 
+#
+Define Hp 0.49
+Define Hz 0.775
+Define Hm 0.4
+Define pHp 2.50
+Define pHz 0.0
+Define pHm -0.17
+#
+Alias      MyB_s0   B_s0
+Alias      Myanti-B_s0   anti-B_s0
+ChargeConj Myanti-B_s0   MyB_s0 
+Alias      MyJ/psi  J/psi
+Alias      MyPhi    phi
+ChargeConj MyJ/psi  MyJ/psi
+ChargeConj MyPhi    MyPhi
+Alias      MyB0        B0
+Alias      Myanti-B0   anti-B0
+ChargeConj MyB0        Myanti-B0
+Alias      MyK*0       K*0
+Alias      MyK*0bar    anti-K*0
+ChargeConj MyK*0       MyK*0bar
+Alias      MyD_s+     D_s+
+Alias      MyD_s-     D_s-
+ChargeConj MyD_s-   MyD_s+
+
+Decay MyB0
+  1.000        MyK*0     mu+     mu-    BTOSLLBALL;
+  1.000        K_S0     MyJ/psi         SSD_CP 0.502e12 0.0 1.0 -0.775 1.0 0. 1.0 0.;
+  0.333        D*-    e+   nu_e         PHOTOS  HQET 0.77 1.33 0.92;
+  0.333        D*-    mu+  nu_mu        PHOTOS  HQET 0.77 1.33 0.92;
+  0.333        D*-    tau+ nu_tau       ISGW2;
+Enddecay
+Decay Myanti-B0
+  1.000        MyK*0bar  mu+     mu-    BTOSLLBALL;
+  1.000        K_S0     MyJ/psi         SSD_CP 0.502e12 0.0 1.0 -0.775 1.0 0. 1.0 0.;
+  0.333        D*+    e-   anti-nu_e         PHOTOS  HQET 0.77 1.33 0.92;
+  0.333        D*+    mu-  anti-nu_mu        PHOTOS  HQET 0.77 1.33 0.92;
+  0.333        D*+    tau- anti-nu_tau       ISGW2;
+Enddecay
+#
+Decay MyK*0
+  1.000        K+        pi-                    VSS;
+Enddecay
+Decay MyK*0bar
+  1.000        K-        pi+                    VSS;
+Enddecay 
+#
+Decay MyB_s0
+  1.000         MyJ/psi     MyPhi        PVV_CPLH 0.02 1 Hp pHp Hz pHz Hm pHm;
+  0.500         MyD_s-     e+    nu_e      PHOTOS  ISGW2;
+  0.500         MyD_s-     mu+   nu_mu     PHOTOS  ISGW2;
+#
+Enddecay
+Decay Myanti-B_s0
+  1.000         MyJ/psi     MyPhi        PVV_CPLH 0.02 1 Hp pHp Hz pHz Hm pHm;
+  0.500         MyD_s+     e-    anti-nu_e   PHOTOS  ISGW2;
+  0.500         MyD_s+     mu-    anti-nu_mu   PHOTOS  ISGW2;
+Enddecay
+#
+Decay MyJ/psi
+  1.000         mu+         mu-          PHOTOS VLL;
+Enddecay
+#
+Decay MyPhi
+  1.000         K+          K-           VSS;
+Enddecay
+#
+Decay MyD_s+
+  1.000        MyPhi           pi+                 SVS;
+Enddecay
+Decay MyD_s-
+  1.000        MyPhi          pi-                 SVS;
+Enddecay 
+#
+End
+

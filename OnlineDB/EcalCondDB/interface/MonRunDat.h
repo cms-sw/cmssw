@@ -21,7 +21,7 @@ class MonRunDat : public IDataItem {
   inline void setNumEvents(int num) { m_numEvents = num; }
   inline int getNumEvents() const { return m_numEvents; }
 
-  inline void setMonRunOutcomeDef(MonRunOutcomeDef outcomeDef) { m_outcomeDef = outcomeDef; }
+  inline void setMonRunOutcomeDef(const MonRunOutcomeDef& outcomeDef) { m_outcomeDef = outcomeDef; }
   inline MonRunOutcomeDef getMonRunOutcomeDef() const { return m_outcomeDef; }
 
   inline void setRootfileName(std::string name) { m_rootfileName = name; }

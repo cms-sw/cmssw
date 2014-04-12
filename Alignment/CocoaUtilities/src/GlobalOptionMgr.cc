@@ -11,6 +11,7 @@
 #include <iomanip>
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
+#include <cstdlib>
 
 GlobalOptionMgr* GlobalOptionMgr::theInstance = 0;
 
@@ -67,6 +68,8 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("fitQualityCut") ] = 0.1;
   theGlobalOptions[ ALIstring("relativeFitQualityCut") ] = 1.E-6;
 
+  theGlobalOptions[ ALIstring("maxEvents") ] = 1.E6;
+
   //dimension factor to multiply the values in the files that give you the deviatin when traversing an ALMY. Files have numbers in microns, so it has to be 1 if 'length_value_dimension 2', 0.001 if 'length_value_dimension 1' (the same for angles)
   theGlobalOptions[ ALIstring("deviffValDimf") ] = 1.;
   theGlobalOptions[ ALIstring("deviffAngDimf") ] = 1.;
@@ -81,6 +84,9 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("calParamInyfMatrix") ] = 0;
   theGlobalOptions[ ALIstring("writeXML") ] = 0;
   theGlobalOptions[ ALIstring("dumpInAllFrames") ] = 0;
+  theGlobalOptions[ ALIstring("rootResults") ] = 0;
+  theGlobalOptions[ ALIstring("writeDBAlign") ] = 0;
+  theGlobalOptions[ ALIstring("writeDBOptAlign") ] = 0;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -136,22 +142,10 @@ ALIint GlobalOptionMgr::getGlobalOptionValue( const ALIstring& sstr, ALIdouble& 
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void GlobalOptionMgr::setGlobalOption( const ALIstring& gopt, const ALIdouble val, ALIFileIn& filein )
+void GlobalOptionMgr::setGlobalOption( const ALIstring gopt, const ALIdouble val, ALIFileIn& filein )
 {
 
-  //----- If global option exists: set it to value read
-  if ( GlobalOptions().find( gopt ) != GlobalOptions().end() ){
-    theGlobalOptions[ gopt ] = val;
-    //------ Verbosity global options change static data
-    if( gopt == "report_verbose") {
-      ALIUtils::setReportVerbosity( ALIint(val) );
-    }
-    if( gopt == "debug_verbose" ) {
-      ALIUtils::setDebugVerbosity( ALIint(val) );
-    }
-    
-    //----- if global option does not exist: error
-  } else {
+  if( !setGlobalOption( gopt, val, 0 ) ){
     filein.ErrorInLine();
     std::cerr << "!!! global option not found: " << gopt << std::endl;
     if ( ALIUtils::debug >= 3 ) {
@@ -163,6 +157,32 @@ void GlobalOptionMgr::setGlobalOption( const ALIstring& gopt, const ALIdouble va
       }
     }
     exit(2);
+  }
+
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+bool GlobalOptionMgr::setGlobalOption( const ALIstring gopt, const ALIdouble val, bool bExit )
+{
+  //----- If global option exists: set it to value read
+  if ( GlobalOptions().find( gopt ) != GlobalOptions().end() ){
+    theGlobalOptions[ gopt ] = val;
+    //------ Verbosity global options change static data
+    if( gopt == "report_verbose") {
+      ALIUtils::setReportVerbosity( ALIint(val) );
+    }
+    if( gopt == "debug_verbose" ) {
+      ALIUtils::setDebugVerbosity( ALIint(val) );
+    }
+    
+    return 1;
+    //----- if global option does not exist: error
+  } else {
+    if( bExit ) {
+      std::cerr << "!!! global option not found: " << gopt << std::endl;
+      exit(2);
+    }
+    return 0;
   }
   
 }

@@ -1,0 +1,50 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("TEST")
+process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+process.EcalTrivialConditionRetriever.TotLumi = cms.untracked.double(3000.0)
+process.EcalTrivialConditionRetriever.InstLumi = cms.untracked.double(5.0e+34)
+process.EcalTrivialConditionRetriever.intercalibConstantsFile = cms.untracked.string("EcalIntercalibConstants_2011_V3_Bon_start_mc.xml") 
+process.EcalTrivialConditionRetriever.intercalibConstantsMCFile = cms.untracked.string("EcalIntercalibConstantsMC_digi_2011_V3_Bon_mc.xml") 
+
+
+
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
+process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
+#process.CondDBCommon.connect = 'sqlite_file:DB.db'
+
+process.MessageLogger = cms.Service("MessageLogger",
+    debugModules = cms.untracked.vstring('*'),
+    destinations = cms.untracked.vstring('cout')
+)
+
+process.source = cms.Source("EmptyIOVSource",
+    firstValue = cms.uint64(1),
+    lastValue = cms.uint64(1),
+    timetype = cms.string('runnumber'),
+    interval = cms.uint64(1)
+)
+
+process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+    process.CondDBCommon,
+    toPut = cms.VPSet(                      cms.PSet(
+            record = cms.string('EcalIntercalibConstantsRcd'),
+            tag = cms.string('EcalIntercalibConstants_TL3000_IL5E34_mc')
+        ) 
+                      )
+)
+
+process.dbCopy = cms.EDAnalyzer("EcalDBCopy",
+    timetype = cms.string('runnumber'),
+    toCopy = cms.VPSet(
+                       cms.PSet(
+            record = cms.string('EcalIntercalibConstantsRcd'),
+            container = cms.string('EcalIntercalibConstants')
+        ))
+)
+
+
+
+process.p = cms.Path(process.dbCopy)
+

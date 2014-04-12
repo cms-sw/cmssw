@@ -11,10 +11,14 @@ namespace edmtest
 
 
 void
-  UnitTestClient_G::analyze( edm::Event      const & e
+  UnitTestClient_G::analyze( edm::Event      const & /*unused*/
                            , edm::EventSetup const & /*unused*/
                               )
 {
+  if (!edm::isMessageProcessingSetUp()) {
+    std::cerr << "??? It appears that Message Processing is not Set Up???\n\n";
+  }
+
   double d = 3.14159265357989;
   edm::LogWarning("cat_A")   << "Test of std::setprecision(p):"
   			     << " Pi with precision 12 is " 

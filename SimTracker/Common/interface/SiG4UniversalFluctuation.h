@@ -20,8 +20,7 @@
 // * statement, and all its terms.                                    *
 // ********************************************************************
 //
-// $Id: SiG4UniversalFluctuation.h,v 1.2 2006/02/28 18:17:14 pioppi Exp $
-// GEANT4 tag $Name:  $
+// GEANT4 tag $Name: CMSSW_4_2_3 $
 //
 // -------------------------------------------------------------------
 //
@@ -57,9 +56,6 @@
 
 namespace CLHEP{
   class HepRandomEngine;
-  class RandPoisson;
-  class RandGaussQ;
-  class RandFlat;
 }
 
 //#include "G4VEmFluctuationModel.hh"
@@ -67,7 +63,7 @@ namespace CLHEP{
 class SiG4UniversalFluctuation {
 public:
 
-  SiG4UniversalFluctuation(CLHEP::HepRandomEngine&);
+  SiG4UniversalFluctuation();
 
   ~SiG4UniversalFluctuation();
 
@@ -77,7 +73,8 @@ public:
                             const double mass,
                             double& tmax,
                             const double length,
-                            const double meanLoss);
+                            const double meanLoss,
+                            CLHEP::HepRandomEngine*);
    
   //G4double SampleFluctuations(const G4Material*,
   //                      const G4DynamicParticle*,
@@ -95,10 +92,6 @@ protected:
 
 private:
 
-  CLHEP::HepRandomEngine& rndEngine;
-  CLHEP::RandGaussQ* gaussQDistribution;
-  CLHEP::RandPoisson* poissonDistribution;
-  CLHEP::RandFlat* flatDistribution;
   // hide assignment operator
   //SiG4UniversalFluctuation & operator=(const  SiG4UniversalFluctuation &right);
   //SiG4UniversalFluctuation(const  SiG4UniversalFluctuation&);

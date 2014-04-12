@@ -1,60 +1,49 @@
 #ifndef SiStripRecHit2D_H
 #define SiStripRecHit2D_H
 
-#include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
+#include "TkCloner.h"
 
-class SiStripRecHit2D : public  BaseSiTrackerRecHit2DLocalPos{
+
+class SiStripRecHit2D GCC11_FINAL : public TrackerSingleRecHit {
 public:
 
-  SiStripRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),cluster_(),clusterRegional_(),
-		     sigmaPitch_(-1.){}
+  SiStripRecHit2D() {}
 
   ~SiStripRecHit2D() {} 
 
-  SiStripRecHit2D( const LocalPoint&, const LocalError&,
-		   const DetId&, 
-		   edm::Ref< edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  > const&  cluster); 
+  typedef OmniClusterRef::ClusterStripRef         ClusterRef;
 
-  SiStripRecHit2D( const LocalPoint&, const LocalError&,
-		   const DetId&, 
-		   edm::SiStripRefGetter<SiStripCluster>::value_ref const& ); 
-  
+  // no position (as in persistent)
+  SiStripRecHit2D(const DetId& id,
+		  OmniClusterRef const& clus) : 
+    TrackerSingleRecHit(id, clus){}
+
+  template<typename CluRef>
+  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
+		   GeomDet const & idet,
+		   CluRef const& clus) : 
+    TrackerSingleRecHit(pos,err, idet, clus) {}
+ 
+				
+  ClusterRef cluster()  const { return cluster_strip() ; }
+  void setClusterRef(ClusterRef const & ref)  {setClusterStripRef(ref);}
+
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
   
-  edm::SiStripRefGetter<SiStripCluster>::value_ref const&  cluster_regional()  const { return clusterRegional_;}
+  virtual int dimension() const {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
 
-  edm::Ref<edm::DetSetVector<SiStripCluster> ,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > const&  cluster()  const { return cluster_;}
+  virtual bool canImproveWithTrack() const {return true;}
+private:
+  // double dispatch
+  virtual SiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
+ 
   
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
-  
-  double sigmaPitch() const { return sigmaPitch_;}
-  void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
-
- private:
-
-  // DetSetVector ref
-  edm::Ref<edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  cluster_;
-
-
-  // SiStripRefGetter ref.
-  edm::SiStripRefGetter<SiStripCluster>::value_ref clusterRegional_;
-
-  /// cache for the matcher....
-  mutable double sigmaPitch_;  // transient....
+private:
  
 };
-
-// Comparison operators
-inline bool operator<( const SiStripRecHit2D& one, const SiStripRecHit2D& other) {
-  if ( one.geographicalId() < other.geographicalId() ) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
 #endif

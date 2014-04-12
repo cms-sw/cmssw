@@ -14,7 +14,6 @@
 */
 //
 // Original Author:  Paolo Meridiani
-// $Id: MCZll.h,v 1.1 2006/09/25 17:15:52 meridian Exp $
 //
 //
 
@@ -32,9 +31,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-using namespace edm;
-using namespace std;
-
 //
 // class decleration
 //
@@ -45,7 +41,7 @@ class MCZll : public edm::EDFilter {
       ~MCZll();
       virtual void endJob() ;
 
-      virtual bool filter(Event&, const EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
       std::string label_;

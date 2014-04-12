@@ -16,25 +16,20 @@
 #include <TRotMatrix.h>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
-#include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
+#include <Geometry/Records/interface/MuonGeometryRecord.h> 
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/DTGeometry/interface/DTChamber.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCChamber.h"
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 
@@ -112,7 +107,7 @@ TestTranslation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   // Build alignable muon geometry from event setup
   //
-  edm::ESHandle<DDCompactView> cpv;
+  edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
 
   DTGeometryBuilderFromDDD  DTGeometryBuilder;
@@ -168,21 +163,21 @@ void TestTranslation::apply( Alignable* it )
 	  std::cout << "------------------------" << std::endl
 		    << " BEFORE TRANSLATION " << std::endl;
 
-	  GlobalPoint  pos_i  = (it)->globalPosition() ;
+	  align::GlobalPoint  pos_i  = (it)->globalPosition() ;
 //          RotationType dir_i  = (it)->globalRotation();
 
 	  std::cout << "x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl; 
 
-	  float dx = 1.0;
-          float dy = 2.0;
-          float dz = 3.0;
-          GlobalVector dr( dx, dy, dz );
+	  double dx = 1.0;
+          double dy = 2.0;
+          double dz = 3.0;
+          align::GlobalVector dr( dx, dy, dz );
 	  it->move( dr );
 
 	  std::cout << "------------------------" << std::endl
 		    << " AFTER TRANSLATION " << std::endl;
 
-          GlobalPoint  pos_f  = (it)->globalPosition() ;
+	  align::GlobalPoint  pos_f  = (it)->globalPosition() ;
 //          RotationType dir_f = (it)->globalRotation();
 
           std::cout << "x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z()  << std::endl ;

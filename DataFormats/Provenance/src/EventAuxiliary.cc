@@ -3,8 +3,6 @@
 
 /*----------------------------------------------------------------------
 
-$Id: EventAuxiliary.cc,v 1.2 2007/07/18 13:22:38 marafino Exp $
-
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -13,6 +11,18 @@ namespace edm {
     os << "Process History ID = " <<  processHistoryID_ << std::endl;
     os << id_ << std::endl;
     //os << "TimeStamp = " << time_ << std::endl;
-    os << "LuminosityBlockNumber_t = " << luminosityBlock_ << std::endl;
+  }
+
+  bool
+  isSameEvent(EventAuxiliary const& a, EventAuxiliary const& b) {
+    return
+      a.id() == b.id() &&
+      a.processGUID() == b.processGUID() &&
+      a.luminosityBlock() == b.luminosityBlock() &&
+      a.time() == b.time() &&
+      a.isRealData() == b.isRealData() &&
+      a.experimentType() == b.experimentType() &&
+      a.bunchCrossing() == b.bunchCrossing() &&
+      a.storeNumber() == b.storeNumber();
   }
 }

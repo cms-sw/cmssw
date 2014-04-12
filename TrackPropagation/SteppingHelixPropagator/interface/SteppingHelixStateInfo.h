@@ -6,15 +6,12 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/05/13 03:28:44 $
- *  $Revision: 1.12 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.12 2007/05/13 03:28:44 slava77 Exp $
 //
 //
 
@@ -35,8 +32,8 @@ class FreeTrajectoryState;
 class SteppingHelixStateInfo {
   friend class SteppingHelixPropagator;
  public:
-  typedef Hep3Vector Vector;
-  typedef Hep3Vector  Point;
+  typedef CLHEP::Hep3Vector Vector;
+  typedef CLHEP::Hep3Vector  Point;
   
   enum Result {
     OK=0,
@@ -53,7 +50,7 @@ class SteppingHelixStateInfo {
   static const std::string ResultName[MAX_RESULT];
 
   SteppingHelixStateInfo(): 
-    path_(0), radPath(0), dir(0), magVol(0), field(0), dEdx(0), dEdXPrime(0), radX0(1e12),
+    path_(0), radPath_(0), dir(0), magVol(0), field(0), dEdx(0), dEdXPrime(0), radX0(1e12),
     isComplete(0), isValid_(0), hasErrorPropagated_(0), status_(UNDEFINED) {}
   SteppingHelixStateInfo(const FreeTrajectoryState& fts);
 
@@ -66,6 +63,7 @@ class SteppingHelixStateInfo {
   GlobalVector momentum() const {return GlobalVector(p3.x(), p3.y(), p3.z());}
   int charge() const {return q;}
   double path() const {return isValid_ ? path_ : 0;}
+  double radPath() const {return isValid_ ? radPath_ : 0;}
 
   bool isValid() const {return isValid_;}
   bool hasErrorPropagated() const {return hasErrorPropagated_;}
@@ -91,10 +89,10 @@ class SteppingHelixStateInfo {
   int q;
   Vector p3;
   Point r3;
-  AlgebraicSymMatrix66 cov;
-  AlgebraicSymMatrix66 matDCov;
+  AlgebraicSymMatrix55 covCurv;
+  AlgebraicSymMatrix55 matDCovCurv;
   double path_;
-  double radPath;
+  double radPath_;
   double dir;
   Vector bf;
   Vector bfGradLoc;

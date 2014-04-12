@@ -33,7 +33,7 @@ MonPedestalsDat::~MonPedestalsDat()
 
 
 void MonPedestalsDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -46,23 +46,23 @@ void MonPedestalsDat::prepareWrite()
 		      ":ped_mean_g1, :ped_mean_g6, :ped_mean_g12, "
 		      ":ped_rms_g1, :ped_rms_g6, :ped_rms_g12, :task_status)");
   } catch (SQLException &e) {
-    throw(runtime_error("MonPedestalsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MonPedestalsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MonPedestalsDat::writeDB(const EcalLogicID* ecid, const MonPedestalsDat* item, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonPedestalsDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonPedestalsDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MonPedestalsDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MonPedestalsDat::writeDB:  Bad EcalLogicID")); }
  
   try {
     m_writeStmt->setInt(1, iovID);
@@ -77,14 +77,14 @@ void MonPedestalsDat::writeDB(const EcalLogicID* ecid, const MonPedestalsDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MonPedestalsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonPedestalsDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void MonPedestalsDat::fetchData(map< EcalLogicID, MonPedestalsDat >* fillMap, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -92,7 +92,7 @@ void MonPedestalsDat::fetchData(map< EcalLogicID, MonPedestalsDat >* fillMap, Mo
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MonPedestalsDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MonPedestalsDat::writeDB:  IOV not in DB")); 
     return;
   }
   
@@ -129,18 +129,18 @@ void MonPedestalsDat::fetchData(map< EcalLogicID, MonPedestalsDat >* fillMap, Mo
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonPedestalsDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error("MonPedestalsDat::fetchData:  "+e.getMessage()));
   }
 }
 
 void MonPedestalsDat::writeArrayDB(const std::map< EcalLogicID, MonPedestalsDat >* data, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonPedestalsDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonPedestalsDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -171,7 +171,7 @@ void MonPedestalsDat::writeArrayDB(const std::map< EcalLogicID, MonPedestalsDat 
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("MonPedestalsDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("MonPedestalsDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -248,6 +248,6 @@ void MonPedestalsDat::writeArrayDB(const std::map< EcalLogicID, MonPedestalsDat 
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

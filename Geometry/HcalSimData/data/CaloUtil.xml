@@ -1,83 +1,75 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<SpecParSection label="caloutil.xml" eval="true">
+ <SpecParSection label="caloutil.xml" eval="true">
   <SpecPar name="calo">
-   <PartSelector path="//CALO" />
+   <PartSelector path="//CALO"/>
    <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
    <Parameter name="ReadOutName" value="CaloHitsTk" eval="false"/>
-   <Parameter name="Calorimeter" value="CALO"       eval="false"/>
-   <Parameter name="Calorimeter" value="VCAL"       eval="false"/>
-   <Parameter name="Calorimeter" value="MBAT"       eval="false"/>
-   <Parameter name="Calorimeter" value="MBBT"       eval="false"/>
-   <Parameter name="Levels"      value="3"          eval="true"/>
-   <Parameter name="Levels"      value="3"          eval="true"/>
-   <Parameter name="Levels"      value="6"          eval="true"/>
-   <Parameter name="Levels"      value="6"          eval="true"/>
-   <Parameter name="Neighbours"  value="4"          eval="true"/>
-   <Parameter name="Neighbours"  value="3"          eval="true"/>
-   <Parameter name="Neighbours"  value="1"          eval="true"/>
-   <Parameter name="Neighbours"  value="1"          eval="true"/>
-   <Parameter name="Inside"      value="BEAM"       eval="false"/>
-   <Parameter name="Inside"      value="Tracker"    eval="false"/>
-   <Parameter name="Inside"      value="MUON"       eval="false"/>
-   <Parameter name="Inside"      value="NotFound"   eval="false"/>
-   <Parameter name="Inside"      value="BEAM"       eval="false"/>
-   <Parameter name="Inside"      value="MUON"       eval="false"/>
-   <Parameter name="Inside"      value="NotFound"   eval="false"/>
-   <Parameter name="Inside"      value="MB"         eval="false"/>
-   <Parameter name="Inside"      value="MB"         eval="false"/>
-   <Parameter name="InsideLevel" value="3"          eval="true"/>
-   <Parameter name="InsideLevel" value="3"          eval="true"/>
-   <Parameter name="InsideLevel" value="3"          eval="true"/>
-   <Parameter name="InsideLevel" value="3"          eval="true"/>
-   <Parameter name="InsideLevel" value="3"          eval="true"/>
-   <Parameter name="InsideLevel" value="3"          eval="true"/>
-   <Parameter name="InsideLevel" value="3"          eval="true"/>
-   <Parameter name="InsideLevel" value="4"          eval="true"/>
-   <Parameter name="InsideLevel" value="4"          eval="true"/>
-  </SpecPar>  
-  <SpecPar name="hf">
-   <PartSelector path="//HVQF" />
-   <PartSelector path="//HVQX" />
-   <Parameter name="Volume" value="HF" eval="false"/>
-   <Parameter name="attl"     value="0.8096535E-03/cm"/>
-   <Parameter name="attl"     value="0.7130018E-03/cm"/>
-   <Parameter name="attl"     value="0.6549183E-03/cm"/>
-   <Parameter name="attl"     value="0.6027666E-03/cm"/>
-   <Parameter name="attl"     value="0.5662951E-03/cm"/>
-   <Parameter name="attl"     value="0.5416475E-03/cm"/>
-   <Parameter name="attl"     value="0.5161745E-03/cm"/>
-   <Parameter name="attl"     value="0.5025120E-03/cm"/>
-   <Parameter name="attl"     value="0.5042249E-03/cm"/>
-   <Parameter name="attl"     value="0.5062117E-03/cm"/>
-   <Parameter name="attl"     value="0.5062750E-03/cm"/>
-   <Parameter name="attl"     value="0.4876212E-03/cm"/>
-   <Parameter name="attl"     value="0.4730343E-03/cm"/>
-   <Parameter name="attl"     value="0.4540021E-03/cm"/>
-   <Parameter name="attl"     value="0.4423832E-03/cm"/>
-   <Parameter name="attl"     value="0.4410428E-03/cm"/>
-   <Parameter name="attl"     value="0.4436095E-03/cm"/>
-   <Parameter name="attl"     value="0.4331241E-03/cm"/>
-   <Parameter name="attl"     value="0.4401879E-03/cm"/>
-   <Parameter name="attl"     value="0.4352570E-03/cm"/>
-   <Parameter name="attl"     value="0.4392237E-03/cm"/>
-   <Parameter name="attl"     value="0.4313847E-03/cm"/>
-   <Parameter name="attl"     value="0.4170704E-03/cm"/>
-   <Parameter name="attl"     value="0.4156771E-03/cm"/>
-   <Parameter name="attl"     value="0.4083890E-03/cm"/>
-   <Parameter name="attl"     value="0.4002930E-03/cm"/>
-   <Parameter name="attl"     value="0.4009888E-03/cm"/>
-   <Parameter name="attl"     value="0.3954170E-03/cm"/>
-   <Parameter name="attl"     value="0.3893599E-03/cm"/>
-   <Parameter name="attl"     value="0.3839422E-03/cm"/>
-   <Parameter name="lambLim"  value="300.0"/>
-   <Parameter name="lambLim"  value="600.0"/>
-  </SpecPar>  
-  <SpecPar name="hffibre">
-   <PartSelector path="//HFFibre.*" />
-   <Parameter name="Volume" value="HFFibre" eval="false"/>
-  </SpecPar>  
-</SpecParSection>
-
+   <Parameter name="Calorimeter" value="CALO" eval="false"/>
+   <Parameter name="Calorimeter" value="VCAL" eval="false"/>
+   <Parameter name="Calorimeter" value="MBAT" eval="false"/>
+   <Parameter name="Calorimeter" value="MBBT" eval="false"/>
+   <Parameter name="Calorimeter" value="MBBTC" eval="false"/>
+   <Parameter name="Calorimeter" value="MBBT_R1P" eval="false"/>
+   <Parameter name="Calorimeter" value="MBBT_R1M" eval="false"/>
+   <Parameter name="Calorimeter" value="CAST" eval="false"/>
+   <Parameter name="Calorimeter" value="ZDC" eval="false"/>
+   <Parameter name="Levels" value="3" eval="true"/>
+   <Parameter name="Levels" value="3" eval="true"/>
+   <Parameter name="Levels" value="6" eval="true"/>
+   <Parameter name="Levels" value="6" eval="true"/>
+   <Parameter name="Levels" value="6" eval="true"/>
+   <Parameter name="Levels" value="6" eval="true"/>
+   <Parameter name="Levels" value="6" eval="true"/>
+   <Parameter name="Levels" value="4" eval="true"/>
+   <Parameter name="Levels" value="3" eval="true"/>
+   <Parameter name="Neighbours" value="4" eval="true"/>
+   <Parameter name="Neighbours" value="3" eval="true"/>
+   <Parameter name="Neighbours" value="1" eval="true"/>
+   <Parameter name="Neighbours" value="1" eval="true"/>
+   <Parameter name="Neighbours" value="1" eval="true"/>
+   <Parameter name="Neighbours" value="1" eval="true"/>
+   <Parameter name="Neighbours" value="1" eval="true"/>
+   <Parameter name="Neighbours" value="6" eval="true"/>
+   <Parameter name="Neighbours" value="1" eval="true"/>
+   <Parameter name="Inside" value="BEAM" eval="false"/>
+   <Parameter name="Inside" value="Tracker" eval="false"/>
+   <Parameter name="Inside" value="MUON" eval="false"/>
+   <Parameter name="Inside" value="NotFound" eval="false"/>
+   <Parameter name="Inside" value="BEAM2" eval="false"/>
+   <Parameter name="Inside" value="MUON" eval="false"/>
+   <Parameter name="Inside" value="NotFound" eval="false"/>
+   <Parameter name="Inside" value="MB" eval="false"/>
+   <Parameter name="Inside" value="MB" eval="false"/>
+   <Parameter name="Inside" value="MB" eval="false"/>
+   <Parameter name="Inside" value="MB" eval="false"/>
+   <Parameter name="Inside" value="MB" eval="false"/>
+   <Parameter name="Inside" value="BEAM2" eval="false"/>
+   <Parameter name="Inside" value="BSC2" eval="false"/>
+   <Parameter name="Inside" value="OQUA" eval="false"/>
+   <Parameter name="Inside" value="CastorF" eval="false"/>
+   <Parameter name="Inside" value="CastorB" eval="false"/>
+   <Parameter name="Inside" value="NotFound" eval="false"/>
+   <Parameter name="Inside" value="NotFound" eval="false"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="4" eval="true"/>
+   <Parameter name="InsideLevel" value="4" eval="true"/>
+   <Parameter name="InsideLevel" value="4" eval="true"/>
+   <Parameter name="InsideLevel" value="4" eval="true"/>
+   <Parameter name="InsideLevel" value="4" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+  </SpecPar>
+ </SpecParSection>
 </DDDefinition>

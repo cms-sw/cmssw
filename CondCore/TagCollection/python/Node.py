@@ -2,15 +2,14 @@ class Node(object):
     def __init__( self ):
         """__init__
         """
-        self.__dict__.setdefault('isLeaf',False)
         self.__dict__.setdefault('nodeid',0)
         self.__dict__.setdefault('nodelabel','ROOT')
         self.__dict__.setdefault('lft',0)
         self.__dict__.setdefault('rgt',0)
         self.__dict__.setdefault('parentid',0)
-        self.__dict__.setdefault('globalSince',0)
-        self.__dict__.setdefault('globalTill',0)
-       # self.__dict__.setdefault('comment','')
+        self.__dict__.setdefault('globalsince',0)
+        self.__dict__.setdefault('globaltill',0)
+        self.__dict__.setdefault('tagid',0)
     def __repr__( self ):
         """__repr__
         """
@@ -23,6 +22,10 @@ class Node(object):
         if not name in self.__dict__:
             raise AttributeError("Unknown attribute "+name)
         return self.__dict__[name]
+    def empty( self ):
+        if self.__dict__['nodelabel']=='':
+            return True
+        return False
 class LeafNode(Node):
     """The leaf node
     """
@@ -30,15 +33,13 @@ class LeafNode(Node):
         """__init__
         """
         super(Node,self).__init__()
-        super(Node,self).__setattr__( 'isLeaf',True )
-        self.__dict__.setdefault('tagid',0)
+        super(Node,self).__setattr__( 'tagid',0 )
         self.__dict__.setdefault('tagname','')
-        self.__dict__.setdefault('payloadname','')
-        self.__dict__.setdefault('provenanceDB','')
-        self.__dict__.setdefault('provenanceCatalog','')
-        self.__dict__.setdefault('eventSetupRecord','')
-        self.__dict__.setdefault('useBlob',False)
-        self.__dict__.setdefault('comment','')
+        #self.__dict__.setdefault('tagid',0)
+        self.__dict__.setdefault('pfn','')
+        self.__dict__.setdefault('recordname','')
+        self.__dict__.setdefault('objectname','')
+        self.__dict__.setdefault('labelname','')
     def __repr__( self ):
         """__repr__
         """
@@ -59,5 +60,5 @@ if __name__ == "__main__":
         print 'unexpected error'
         print str(er)
     leaf=LeafNode()
-    print leaf.__class__.__name__,'isLeaf',str(leaf.isLeaf)
-    print node.__class__.__name__,'isLeaf',str(node.isLeaf)
+    print leaf.__class__.__name__,'isLeaf',str(leaf.tagid)
+    print node.__class__.__name__,'isLeaf',str(node.tagid)

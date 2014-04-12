@@ -32,31 +32,26 @@
 //----------------
 // Constructors --
 //----------------
-DTSCTrigUnit::DTSCTrigUnit(DTChamber* stat, const DTConfigManager * _conf_manager) {
+DTSCTrigUnit::DTSCTrigUnit(DTChamber *stat) {
 
-  //bool geom_debug = tu_pset.getUntrackedParameter<bool>("Debug");
-  //edm::ParameterSet bti_conf     = tu_pset.getParameter<edm::ParameterSet>("BtiParameters");
-  //edm::ParameterSet traco_conf   = tu_pset.getParameter<edm::ParameterSet>("TracoParameters");
-  //edm::ParameterSet tstheta_conf = tu_pset.getParameter<edm::ParameterSet>("TSThetaParameters");
-  //edm::ParameterSet tsphi_conf   = tu_pset.getParameter<edm::ParameterSet>("TSPhiParameters");
-
-  DTChamberId chambid = stat->id();
-  bool geom_debug = _conf_manager->getDTConfigTrigUnit(chambid)->debug();
+  // DTChamberId chambid = stat->id();
+  // bool geom_debug = conf_manager->getDTConfigTrigUnit(chambid)->debug();
 
   // create the geometry from the station
-  _geom = new DTTrigGeom(stat, geom_debug);
+  //_geom = new DTTrigGeom(stat, geom_debug);
+  _geom = new DTTrigGeom(stat, false); // CB FIXME: update when debug will be read via PSet
 
   // create BTI
-  _theBTIs = new DTBtiCard(_geom, _conf_manager);
+  _theBTIs = new DTBtiCard(_geom);
 
   // create TSTheta
-  _theTSTheta = new DTTSTheta(_geom,_theBTIs, _conf_manager);
+  _theTSTheta = new DTTSTheta(_geom, _theBTIs);
 
   // create TRACO
-  _theTRACOs = new DTTracoCard(_geom,_theBTIs,_theTSTheta, _conf_manager);
+  _theTRACOs = new DTTracoCard(_geom, _theBTIs, _theTSTheta);
 
   // create TSPhi
-  _theTSPhi = new DTTSPhi(_geom,_theTRACOs, _conf_manager);
+  _theTSPhi = new DTTSPhi(_geom, _theTRACOs);
 
 }
 
@@ -87,6 +82,14 @@ DTSCTrigUnit::GeomSupplier(const DTTrigData* trig) const {
     return 0;
   }
 
+void DTSCTrigUnit::setConfig(const DTConfigManager *conf){
+
+  _theBTIs->setConfig(conf);
+  _theTSTheta->setConfig(conf);
+  _theTRACOs->setConfig(conf);
+  _theTSPhi->setConfig(conf);
+
+}  
 
 
 

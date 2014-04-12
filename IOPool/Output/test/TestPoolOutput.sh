@@ -2,123 +2,37 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-rm -f ${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml
-rm -f ${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml.BAK
-rm -f ${LOCAL_TMP_DIR}/PoolOutputTest.root
-rm -f ${LOCAL_TMP_DIR}/PoolOutputTest.cfg
-rm -f ${LOCAL_TMP_DIR}/PoolOutputRead.cfg
-rm -f ${LOCAL_TMP_DIR}/PoolDropTest.root
-rm -f ${LOCAL_TMP_DIR}/PoolDropTest.cfg
-rm -f ${LOCAL_TMP_DIR}/PoolDropRead.cfg
-rm -f ${LOCAL_TMP_DIR}/PoolMissingTest.root
-rm -f ${LOCAL_TMP_DIR}/PoolMissingTest.cfg
-rm -f ${LOCAL_TMP_DIR}/PoolMissingRead.cfg
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py' $?
 
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolParallelOutputCopy_cfg.py || die 'Failure using PoolParallelOutputCopy_cfg.py' $?
 
-cat > ${LOCAL_TMP_DIR}/PoolOutputTest.cfg << !
-# Configuration file for PoolOutputTest
-process TESTOUTPUT = {
-	untracked PSet maxEvents = {untracked int32 input = 20}
-	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
-	path p = {Thing, OtherThing}
-	module Thing = ThingProducer {untracked int32 debugLevel = 1}
-	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
-	module output = PoolOutputModule {
-		untracked string fileName = '${LOCAL_TMP_DIR}/PoolOutputTest.root'
-		untracked string catalog = '${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml'
-		untracked string logicalFileName = 'PoolOutputTest.root'
-		untracked int32 maxSize = 100000
-	}
-	source = EmptySource {}
-	endpath ep = {output}
-}
-!
-cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolOutputTest.cfg || die 'Failure using PoolOutputTest.cfg' $?
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolDropTest_cfg.py || die 'Failure using PoolDropTest_cfg.py' $?
 
-cat > ${LOCAL_TMP_DIR}/PoolDropTest.cfg << !
-# Configuration file for PoolDropTest
-process TESTDROP = {
-	untracked PSet maxEvents = {untracked int32 input = 20}
-	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
-	path p = {Thing, OtherThing}
-	module Thing = ThingProducer {untracked int32 debugLevel = 1}
-	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
-	module output = PoolOutputModule {
-		untracked string fileName = '${LOCAL_TMP_DIR}/PoolDropTest.root'
-		untracked string catalog = '${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml'
-		untracked string logicalFileName = 'PoolDropTest.root'
-		untracked int32 maxSize = 100000
-		untracked vstring outputCommands = {'drop *',
-		    'keep *_dummy_*_*'
-		    }
-	}
-	source = EmptySource {}
-	endpath ep = {output}
-}
-!
-cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolDropTest.cfg || die 'Failure using PoolDropTest.cfg' $?
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolMissingTest_cfg.py || die 'Failure using PoolMissingTest_cfg.py' $?
 
-cat > ${LOCAL_TMP_DIR}/PoolMissingTest.cfg << !
-# Configuration file for PoolMissingTest
-process TESTMISSING = {
-	untracked PSet maxEvents = {untracked int32 input = 20}
-	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
-	path p = {Thing}
-	module Thing = ThingProducer {untracked bool noPut = true}
-	module output = PoolOutputModule {
-		untracked string fileName = '${LOCAL_TMP_DIR}/PoolMissingTest.root'
-		untracked string catalog = '${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml'
-		untracked string logicalFileName = 'PoolMissingTest.root'
-		untracked int32 maxSize = 100000
-	}
-	source = EmptySource {}
-	endpath ep = {output}
-}
-!
-cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolMissingTest.cfg || die 'Failure using PoolMissingTest.cfg' $?
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolOutputRead_cfg.py || die 'Failure using PoolOutputRead_cfg.py' $?
 
-cat > ${LOCAL_TMP_DIR}/PoolOutputRead.cfg << !
-# Configuration file for PoolOutputRead
-process TESTOUTPUTREAD = {
-        untracked PSet maxEvents = {untracked int32 input = -1}
-        include "FWCore/Framework/test/cmsExceptionsFatal.cff"
-        source = PoolSource {
-                untracked vstring fileNames = {
-                        'file:${LOCAL_TMP_DIR}/PoolOutputTest.root'
-                }
-                untracked string catalog = '${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml'
-        }
-}
-!
-cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolOutputRead.cfg || die 'Failure using PoolOutputRead.cfg' $?
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolDropRead_cfg.py || die 'Failure using PoolDropRead_cfg.py' $?
 
-cat > ${LOCAL_TMP_DIR}/PoolDropRead.cfg << !
-# Configuration file for PoolDropRead
-process TESTDROPREAD = {
-        untracked PSet maxEvents = {untracked int32 input = -1}
-        include "FWCore/Framework/test/cmsExceptionsFatal.cff"
-        source = PoolSource {
-                untracked vstring fileNames = {
-                        'file:${LOCAL_TMP_DIR}/PoolDropTest.root'
-                }
-                untracked string catalog = '${LOCAL_TMP_DIR}/PoolDropTestCatalog.xml'
-        }
-}
-!
-cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolDropRead.cfg || die 'Failure using PoolDropRead.cfg' $?
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolMissingRead_cfg.py || die 'Failure using PoolMissingRead_cfg.py' $?
 
-cat > ${LOCAL_TMP_DIR}/PoolMissingRead.cfg << !
-# Configuration file for PoolMissingRead
-process TESTDROPREAD = {
-        untracked PSet maxEvents = {untracked int32 input = -1}
-        include "FWCore/Framework/test/cmsExceptionsFatal.cff"
-        source = PoolSource {
-                untracked vstring fileNames = {
-                        'file:${LOCAL_TMP_DIR}/PoolMissingTest.root'
-                }
-                untracked string catalog = '${LOCAL_TMP_DIR}/PoolMissingTestCatalog.xml'
-        }
-}
-!
-cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolMissingRead.cfg || die 'Failure using PoolMissingRead.cfg' $?
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolTransientTest_cfg.py || die 'Failure using PoolTransientTest_cfg.py' $?
 
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolTransientRead_cfg.py || die 'Failure using PoolTransientRead_cfg.py' $?
+
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolParallelOutputTest_cfg.py || die 'Failure using PoolParallelOutputTest_cfg.py' $?
+
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolParallelOutputRead_cfg.py || die 'Failure using PoolParallelOutputRead_cfg.py' $?
+
+cmsRun ${LOCAL_TEST_DIR}/PoolOutputEmptyEventsTest_cfg.py || die 'Failure using PoolOutputEmptyEventsTest_cfg.py' $?
+#reads file from above and from PoolOutputTest_cfg.py
+cmsRun ${LOCAL_TEST_DIR}/PoolOutputMergeWithEmptyFile_cfg.py || die 'Failure using PoolOutputMergeWithEmptyFile_cfg.py' $? 
+
+cmsRun ${LOCAL_TEST_DIR}/TestProvA_cfg.py || die 'Failure using TestProvA_cfg.py' $?
+#reads file from above
+cmsRun ${LOCAL_TEST_DIR}/TestProvB_cfg.py || die 'Failure using TestProvB_cfg.py' $?
+#reads file from above
+cmsRun ${LOCAL_TEST_DIR}/TestProvC_cfg.py || die 'Failure using TestProvC_cfg.py' $?
+
+cmsRun ${LOCAL_TEST_DIR}/PoolOutputTestUnscheduled_cfg.py || die 'Failure using PoolOutputTestUnscheduled_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolOutputTestUnscheduledRead_cfg.py || die 'Failure using PoolOutputTestUnscheduledRead_cfg.py' $?

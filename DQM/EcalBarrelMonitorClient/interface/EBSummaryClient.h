@@ -4,30 +4,27 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/07/18 09:37:55 $
- * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
 
 #include <vector>
 #include <string>
-#include <fstream>
 
 #include "TROOT.h"
 #include "TProfile2D.h"
-#include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
+
+class MonitorElement;
+class DQMStore;
+#ifdef WITH_ECAL_COND_DB
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
+#endif
 
 class EBSummaryClient : public EBClient {
 
@@ -39,19 +36,11 @@ EBSummaryClient(const edm::ParameterSet& ps);
 /// Destructor
 virtual ~EBSummaryClient();
 
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
-
-/// softReset
-void softReset(void);
-
 /// Analyze
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -68,63 +57,126 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
-
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
 inline int getEvtPerRun() { return jevt_; }
 
 /// Set Clients
-inline void setFriends(vector<EBClient*> clients) { clients_ = clients; }
+inline void setFriends(const std::vector<EBClient*>& clients) { clients_ = clients; }
 
 private:
-
-void writeMap( std::ofstream& hf, std::string mapname );
 
 int ievt_;
 int jevt_;
 
-bool collateSources_;
+float synchErrorThreshold_;
+
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
+bool debug_;
 
-bool enableMonitorDaemon_;
+std::string prefixME_;
 
-string prefixME_;
+ std::string subfolder_;
 
-vector<int> superModules_;
+bool enableCleanup_;
 
-vector<EBClient*> clients_;
+ bool produceReports_;
 
-MonitorUserInterface* mui_;
+ bool reducedReports_;
+
+std::vector<int> superModules_;
+std::vector<int> laserWavelengths_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
+
+std::vector<EBClient*> clients_;
+
+DQMStore* dqmStore_;
 
 MonitorElement* meIntegrity_;
+MonitorElement* meIntegrityPN_;
+MonitorElement* meIntegrityErr_;
+MonitorElement* meStatusFlags_;
+MonitorElement* meStatusFlagsErr_;
 MonitorElement* meOccupancy_;
+MonitorElement* meOccupancyPN_;
+MonitorElement* meOccupancy1D_;
 MonitorElement* mePedestalOnline_;
+MonitorElement* mePedestalOnlineErr_;
+MonitorElement* mePedestalOnlineMean_;
+MonitorElement* mePedestalOnlineRMS_;
+MonitorElement* mePedestalOnlineRMSMap_;
 MonitorElement* meLaserL1_;
+MonitorElement* meLaserL1Err_;
+MonitorElement* meLaserL1Ampl_;
+MonitorElement* meLaserL1Timing_;
+MonitorElement* meLaserL1AmplOverPN_;
 MonitorElement* meLaserL1PN_;
-MonitorElement* mePedestal_;
-MonitorElement* mePedestalPN_;
-MonitorElement* meTestPulse_;
-MonitorElement* meTestPulsePN_;
+MonitorElement* meLaserL1PNErr_;
+MonitorElement* meLaserL2_;
+MonitorElement* meLaserL2Err_;
+MonitorElement* meLaserL2Ampl_;
+MonitorElement* meLaserL2Timing_;
+MonitorElement* meLaserL2AmplOverPN_;
+MonitorElement* meLaserL2PN_;
+MonitorElement* meLaserL2PNErr_;
+MonitorElement* meLaserL3_;
+MonitorElement* meLaserL3Err_;
+MonitorElement* meLaserL3Ampl_;
+MonitorElement* meLaserL3Timing_;
+MonitorElement* meLaserL3AmplOverPN_;
+MonitorElement* meLaserL3PN_;
+MonitorElement* meLaserL3PNErr_;
+MonitorElement* meLaserL4_;
+MonitorElement* meLaserL4Err_;
+MonitorElement* meLaserL4Ampl_;
+MonitorElement* meLaserL4Timing_;
+MonitorElement* meLaserL4AmplOverPN_;
+MonitorElement* meLaserL4PN_;
+MonitorElement* meLaserL4PNErr_;
+MonitorElement* mePedestalG01_;
+MonitorElement* mePedestalG06_;
+MonitorElement* mePedestalG12_;
+MonitorElement* mePedestalPNG01_;
+MonitorElement* mePedestalPNG16_;
+MonitorElement* meTestPulseG01_;
+MonitorElement* meTestPulseG06_;
+MonitorElement* meTestPulseG12_;
+MonitorElement* meTestPulsePNG01_;
+MonitorElement* meTestPulsePNG16_;
+MonitorElement* meTestPulseAmplG01_;
+MonitorElement* meTestPulseAmplG06_;
+MonitorElement* meTestPulseAmplG12_;
+
+MonitorElement* meRecHitEnergy_;
+MonitorElement* meTiming_;
+MonitorElement* meTimingMean1D_;
+MonitorElement* meTimingRMS1D_;
+MonitorElement* meTimingMean_;
+MonitorElement* meTimingRMS_;
+MonitorElement* meTriggerTowerEt_;
+MonitorElement* meTriggerTowerEmulError_;
+MonitorElement* meTriggerTowerTiming_;
+MonitorElement* meTriggerTowerNonSingleTiming_;
+
 MonitorElement* meGlobalSummary_;
 
-MEContentsTH2FWithinRangeROOT* qtg01_;
-MEContentsTH2FWithinRangeROOT* qtg02_;
-MEContentsTH2FWithinRangeROOT* qtg03_;
-MEContentsTH2FWithinRangeROOT* qtg04_;
-MEContentsTH2FWithinRangeROOT* qtg04PN_;
-MEContentsTH2FWithinRangeROOT* qtg05_;
-MEContentsTH2FWithinRangeROOT* qtg05PN_;
-MEContentsTH2FWithinRangeROOT* qtg06_;
-MEContentsTH2FWithinRangeROOT* qtg06PN_;
-MEContentsTH2FWithinRangeROOT* qtg07_;
+ MonitorElement* meSummaryErr_;
+
+TProfile2D* hot01_[36];
+TProfile2D* hpot01_[36];
+TProfile2D* httt01_[36];
+TProfile2D* htmt01_[36];
+TH1F* norm01_, *synch01_;
+
+ int timingNHitThreshold_;
 
 };
 

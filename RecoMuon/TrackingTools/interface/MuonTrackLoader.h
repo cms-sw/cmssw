@@ -5,18 +5,22 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2007/05/28 13:22:20 $
- *  $Revision: 1.19 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
-#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {class Event; class EventSetup; class ParameterSet;}
 
@@ -25,6 +29,8 @@ class Propagator;
 class MuonServiceProxy;
 class MuonUpdatorAtVertex;
 class TrajectorySmoother;
+class ForwardDetLayer;
+class BarrelDetLayer;
 
 class MuonTrackLoader {
   public:
@@ -33,17 +39,26 @@ class MuonTrackLoader {
     typedef MuonCandidate::CandidateContainer CandidateContainer;
 
     /// Constructor for the STA reco the args must be specify!
-    MuonTrackLoader(edm::ParameterSet &parameterSet, const MuonServiceProxy *service =0);
+    MuonTrackLoader(edm::ParameterSet &parameterSet,edm::ConsumesCollector& iC,  const MuonServiceProxy *service =0);
 
     /// Destructor
     virtual ~MuonTrackLoader();
    
     /// Convert the trajectories into tracks and load the tracks in the event
-/*     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&,  */
-/*                                                         edm::Event&); */
-
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
                                                         edm::Event&,const std::string& = "", 
+							bool = true);
+
+    /// Convert the trajectories into tracks and load the tracks in the event
+    edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
+                                                        edm::Event&, std::vector<bool>&,
+							const std::string& = "", 
+							bool = true);
+
+    /// Convert the trajectories into tracks and load the tracks in the event
+    edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
+                                                        edm::Event&,const std::vector<std::pair<Trajectory*, reco::TrackRef> >&, 
+							const std::string& = "", 
 							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
@@ -53,15 +68,13 @@ class MuonTrackLoader {
   private:
  
     /// Build a track at the PCA WITHOUT any vertex constriant
-    std::pair<bool,reco::Track> buildTrackAtPCA(const Trajectory& trajectory) const;
+    std::pair<bool,reco::Track> buildTrackAtPCA(const Trajectory& trajectory, const reco::BeamSpot &) const;
 
     /// Takes a track at the PCA and applies the vertex constriant
-    reco::Track buildTrackUpdatedAtPCA(const reco::Track& trackAtPCA) const;
+    std::pair<bool,reco::Track> buildTrackUpdatedAtPCA(const reco::Track& trackAtPCA, const reco::BeamSpot &) const;
 
     reco::TrackExtra buildTrackExtra(const Trajectory&) const;
 
-    double computeNDOF(const Trajectory& trajectory) const;
-  
     const MuonServiceProxy *theService;
 
     bool theUpdatingAtVtx;
@@ -72,6 +85,9 @@ class MuonTrackLoader {
     bool theSmoothingStep;
     std::string theSmootherName;
     edm::ESHandle<TrajectorySmoother> theSmoother;
+
+    edm::InputTag theBeamSpotInputTag; 
+    edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
 
     /// Label for L2SeededTracks
     std::string theL2SeededTkLabel; 

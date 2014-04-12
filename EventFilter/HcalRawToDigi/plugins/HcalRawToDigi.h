@@ -24,6 +24,8 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDataFrameFilter.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 class HcalRawToDigi : public edm::EDProducer
 {
 public:
@@ -31,13 +33,24 @@ public:
   virtual ~HcalRawToDigi();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
-  edm::InputTag dataTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
   HcalUnpacker unpacker_;
   HcalDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;
   int firstFED_;
-  bool unpackCalib_, unpackZDC_;
-  bool complainEmptyData_;
+  bool unpackCalib_, unpackZDC_, unpackTTP_;
+  bool silent_,complainEmptyData_;
+  int unpackerMode_,expectedOrbitMessageTime_;
+
+  struct Statistics {
+    int max_hbhe, ave_hbhe;
+    int max_ho, ave_ho;
+    int max_hf, ave_hf;
+    int max_tp, ave_tp;
+    int max_tpho, ave_tpho;
+    int max_calib, ave_calib;
+    uint64_t n;
+  } stats_;
 };
 
 #endif

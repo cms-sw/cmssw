@@ -45,8 +45,11 @@ public:
 
   inline void addDaughter(int i) { daugh_.push_back(i); }
 
-  /// Temporary (until CMSSW moves to Mathcore)
+  /// Temporary (until CMSSW moves to Mathcore) - No  ! Actually very useful
   inline const math::XYZTLorentzVector& position() const { return position_; }
+
+  /// Reset the position (to be used with care)
+  inline void setPosition(const math::XYZTLorentzVector& newPosition) {position_ = newPosition; }
 
   /// Simply returns the SimVertex
   inline const SimVertex& simVertex() const { return *this; }

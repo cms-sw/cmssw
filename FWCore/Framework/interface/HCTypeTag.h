@@ -4,96 +4,88 @@
 //
 // Package:     HeteroContainer
 // Module:      HCTypeTag
-// 
+//
 // Description: Base class for Tags that can specify a class Type.
 //
 // Usage:
-//    This class is used in conjunction with HCTypeTagTemplate to specify
-//    the class Type of another class.
-//    To build a TypeTag you must initialize the correct HCTypeTagTemplate
+//    This class is used to specify the class Type of another class.
+//    To build a TypeTag you must call the method TypeTag::make<T>()
 //
 //    Example
 //       //Make a TypeTag for class Foo
-//       HCTypeTag< MyGroup > fooTag = HCTypeTagTemplate< Foo, MyGroup >(); 
+//       HCTypeTag fooTag = HCTypeTag::make< Foo>();
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:05:10 EDT 1998
-// $Id: HCTypeTag.h,v 1.4 2005/09/01 23:30:48 wmtan Exp $
 //
 //
-
-// system include files
-#include <string>
 
 // user include files
 #include "FWCore/Utilities/interface/TypeIDBase.h"
+#include "FWCore/Utilities/interface/typelookup.h"
+
+// system include files
+#include <string>
+#include <typeinfo>
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
-template< class Group >
-class HCTypeTag : public TypeIDBase
-{
-      // ---------- friend classes and functions ---------------
 
-   public:
-      // ---------- constants, enums and typedefs --------------
+         using typelookup::className;
 
-      // ---------- Constructors and destructor ----------------
-      HCTypeTag() : m_name(0) {}
-      //virtual ~HCTypeTag();  
+         class HCTypeTag : public TypeIDBase {
+            // ---------- friend classes and functions ---------------
+         public:
+            // ---------- constants, enums and typedefs --------------
 
-      // ---------- member functions ---------------------------
+            // ---------- Constructors and destructor ----------------
+            HCTypeTag() : m_name("") {}
+            //virtual ~HCTypeTag();
 
-      // ---------- const member functions ---------------------
-      const std::type_info& value() const { return typeInfo(); }
-      const char*  name() const { return m_name; }
+            // ---------- member functions ---------------------------
 
-   /*
-      bool operator==(const HCTypeTag< Group >& iRHS) const {
-	 return m_value == iRHS.m_value; }
-      bool operator!=(const HCTypeTag< Group >& iRHS) const {
-	 return m_value != iRHS.m_value; }
-      bool operator<(const HCTypeTag< Group >& iRHS) const {
-	 return m_value < iRHS.m_value; }
-      bool operator<=(const HCTypeTag< Group >& iRHS) const {
-	 return m_value <= iRHS.m_value; }
-      bool operator>(const HCTypeTag< Group >& iRHS) const {
-	 return m_value > iRHS.m_value; }
-      bool operator>=(const HCTypeTag< Group >& iRHS) const {
-	 return m_value >= iRHS.m_value; }
-*/
-      ///find a type based on the types name, if not found will return default HCTypeTag
-      static HCTypeTag<Group> findType(const std::string& iTypeName);
-   protected:
-      // ---------- protected member functions -----------------
-      HCTypeTag(const std::type_info& iValue, const char* iName) :
-	 TypeIDBase(iValue), m_name(iName) {}
+            // ---------- const member functions ---------------------
+            std::type_info const& value() const { return typeInfo(); }
+            char const* name() const { return m_name; }
 
-      HCTypeTag(const TypeIDBase& iValue, const char* iName) :
-         TypeIDBase(iValue), m_name(iName) {}
+            ///find a type based on the types name, if not found will return default HCTypeTag
+            static HCTypeTag findType(char const* iTypeName);
+            static HCTypeTag findType(std::string const& iTypeName);
 
-      // ---------- protected const member functions -----------
+            template <typename T>
+            static HCTypeTag make() {
+               return HCTypeTag(typelookup::classTypeInfo<T>(),typelookup::className<T>());
+            }
 
-      // ---------- protected static member functions ----------
-      static void registerName(const char* iTypeName,const std::type_info& iInfo);
+         protected:
+            // ---------- protected member functions -----------------
+            HCTypeTag(std::type_info const& iValue, char const* iName) :
+            TypeIDBase(iValue), m_name(iName) {}
 
-   private:
-      // ---------- Constructors and destructor ----------------
-      //HCTypeTag(const HCTypeTag&); // use default
+            HCTypeTag(TypeIDBase const& iValue, const char* iName) :
+            TypeIDBase(iValue), m_name(iName) {}
 
-      // ---------- assignment operator(s) ---------------------
-      //const HCTypeTag& operator=(const HCTypeTag&); // use default
+            // ---------- protected const member functions -----------
+
+            // ---------- protected static member functions ----------
+
+         private:
+            // ---------- Constructors and destructor ----------------
+            //HCTypeTag(HCTypeTag const&); // use default
+
+            // ---------- assignment operator(s) ---------------------
+            //HCTypeTag const& operator=(HCTypeTag const&); // use default
 
 
-      // ---------- data members -------------------------------
-      const char*  m_name;
-
-
-};
-
+            // ---------- data members -------------------------------
+            char const* m_name;
+         };
       }
    }
 }
+#define HCTYPETAG_HELPER_METHODS(_dataclass_) TYPELOOKUP_METHODS(_dataclass_)
+
+#define DEFINE_HCTYPETAG_REGISTRATION(type) DEFINE_TYPELOOKUP_REGISTRATION(type)
 #endif

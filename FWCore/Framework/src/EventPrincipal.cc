@@ -1,36 +1,288 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/UnscheduledHandler.h"
+
+#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Common/interface/Provenance.h"
+#include "FWCore/Framework/interface/DelayedReader.h"
+#include "FWCore/Framework/interface/ProductHolder.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/UnscheduledHandler.h"
+#include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 #include <algorithm>
+#include <memory>
 
 namespace edm {
-  EventPrincipal::EventPrincipal(EventID const& id,
-	Timestamp const& time,
-	boost::shared_ptr<ProductRegistry const> reg,
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
-	ProcessConfiguration const& pc,
-        bool isReal,
-        EventAuxiliary::ExperimentType eType,
-	int bunchXing,
-	int storeNumber,
-	ProcessHistoryID const& hist,
-	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lbp->luminosityBlock(), isReal, eType, bunchXing, storeNumber),
-	  luminosityBlockPrincipal_(lbp),
-	  unscheduledHandler_() {
-	  }
+  EventPrincipal::EventPrincipal(
+        boost::shared_ptr<ProductRegistry const> reg,
+        boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
+        ProcessConfiguration const& pc,
+        HistoryAppender* historyAppender,
+        unsigned int streamIndex) :
+    Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
+          aux_(),
+          luminosityBlockPrincipal_(),
+          provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
+          unscheduledHandler_(),
+          moduleLabelsRunning_(),
+          eventSelectionIDs_(),
+          branchIDListHelper_(branchIDListHelper),
+          branchListIndexes_(),
+          branchListIndexToProcessIndex_(),
+          streamID_(streamIndex){}
+
+  void
+  EventPrincipal::clearEventPrincipal() {
+    clearPrincipal();
+    aux_ = EventAuxiliary();
+    luminosityBlockPrincipal_.reset();
+    provRetrieverPtr_->reset();
+    unscheduledHandler_.reset();
+    moduleLabelsRunning_.clear();
+    branchListIndexToProcessIndex_.clear();
+  }
+
+  void
+  EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
+        ProcessHistoryRegistry const& processHistoryRegistry,
+        EventSelectionIDVector&& eventSelectionIDs,
+        BranchListIndexes&& branchListIndexes,
+        ProductProvenanceRetriever& provRetriever,
+        DelayedReader* reader) {
+    eventSelectionIDs_ = eventSelectionIDs;
+    provRetrieverPtr_->deepSwap(provRetriever);
+    branchListIndexes_ = branchListIndexes;
+    if(branchIDListHelper_->hasProducedProducts()) {
+      // Add index into BranchIDListRegistry for products produced this process
+      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+    }
+    fillEventPrincipal(aux,processHistoryRegistry,reader);
+  }
+
+  void
+  EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
+                                     ProcessHistoryRegistry const& processHistoryRegistry,
+                                     EventSelectionIDVector&& eventSelectionIDs,
+                                     BranchListIndexes&& branchListIndexes) {
+    eventSelectionIDs_ = eventSelectionIDs;
+    branchListIndexes_ = branchListIndexes;
+    if(branchIDListHelper_->hasProducedProducts()) {
+      // Add index into BranchIDListRegistry for products produced this process
+      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+    }
+    fillEventPrincipal(aux,processHistoryRegistry,nullptr);
+  }
+
+  void
+  EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
+                                     ProcessHistoryRegistry const& processHistoryRegistry,
+                                     DelayedReader* reader) {
+    fillPrincipal(aux.processHistoryID(), processHistoryRegistry, reader);
+    aux_ = aux;
+    aux_.setProcessHistoryID(processHistoryID());
+    
+    if(branchListIndexes_.empty() and branchIDListHelper_->hasProducedProducts()) {
+      // Add index into BranchIDListRegistry for products produced this process
+      //  if it hasn't already been filled in by the other fillEventPrincipal or by an earlier call to this function
+      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+    }
+
+    // Fill in helper map for Branch to ProductID mapping
+    ProcessIndex pix = 0;
+    for(auto const& blindex : branchListIndexes_) {
+      branchListIndexToProcessIndex_.insert(std::make_pair(blindex, pix));
+      ++pix;
+    }
+
+    // Fill in the product ID's in the product holders.
+    for(auto const& prod : *this) {
+      if (prod->singleProduct()) {
+        prod->setProvenance(productProvenanceRetrieverPtr(), processHistory(), branchIDToProductID(prod->branchDescription().branchID()));
+      }
+    }
+  }
+
+  void
+  EventPrincipal::setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> const& lbp) {
+    luminosityBlockPrincipal_ = lbp;
+  }
+
+  void 
+  EventPrincipal::setRunAndLumiNumber(RunNumber_t run, LuminosityBlockNumber_t lumi) {
+    assert(run == luminosityBlockPrincipal_->run());
+    assert(lumi == luminosityBlockPrincipal_->luminosityBlock());
+    EventNumber_t event = aux_.id().event();
+    aux_.id() = EventID(run, lumi, event);
+  }
 
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {
     return luminosityBlockPrincipal().runPrincipal();
   }
 
-  RunPrincipal &
-  EventPrincipal::runPrincipal() {
-    return luminosityBlockPrincipal().runPrincipal();
+  void
+  EventPrincipal::put(
+        BranchDescription const& bd,
+        WrapperOwningHolder const& edp,
+        ProductProvenance const& productProvenance) {
+
+    // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
+    //assert(produced());
+    if(!edp.isValid()) {
+      throw Exception(errors::InsertFailure, "Null Pointer")
+        << "put: Cannot put because ptr to product is null."
+        << "\n";
+    }
+    productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
+    ProductHolderBase* phb = getExistingProduct(bd.branchID());
+    assert(phb);
+    checkUniquenessAndType(edp, phb);
+    // ProductHolder assumes ownership
+    phb->putProduct(edp, productProvenance);
+  }
+
+  void
+  EventPrincipal::putOnRead(
+        BranchDescription const& bd,
+        void const* product,
+        ProductProvenance const& productProvenance) {
+
+    assert(!bd.produced());
+    productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
+    ProductHolderBase* phb = getExistingProduct(bd.branchID());
+    assert(phb);
+    WrapperOwningHolder const edp(product, phb->productData().getInterface());
+    checkUniquenessAndType(edp, phb);
+    // ProductHolder assumes ownership
+    phb->putProduct(edp, productProvenance);
+  }
+
+   void
+  EventPrincipal::readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
+    if(phb.branchDescription().produced()) return; // nothing to do.
+    if(phb.product()) return; // nothing to do.
+    if(phb.productUnavailable()) return; // nothing to do.
+    if(!reader()) return; // nothing to do.
+    
+    // must attempt to load from persistent store
+    BranchKey const bk = BranchKey(phb.branchDescription());
+    {
+      if(mcc) {
+        preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      }
+      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
+        if(mcc) {
+          postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+        }
+      });
+      
+      WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
+      
+      // Now fix up the ProductHolder
+      checkUniquenessAndType(edp, &phb);
+      phb.putProduct(edp);
+    }
+  }
+
+  BranchID
+  EventPrincipal::pidToBid(ProductID const& pid) const {
+    if(!pid.isValid()) {
+      throw Exception(errors::ProductNotFound, "InvalidID")
+        << "get by product ID: invalid ProductID supplied\n";
+    }
+    return productIDToBranchID(pid, branchIDListHelper_->branchIDLists(), branchListIndexes_);
+  }
+
+  ProductID
+  EventPrincipal::branchIDToProductID(BranchID const& bid) const {
+    if(!bid.isValid()) {
+      throw Exception(errors::NotFound, "InvalidID")
+        << "branchIDToProductID: invalid BranchID supplied\n";
+    }
+    typedef BranchIDListHelper::BranchIDToIndexMap BIDToIndexMap;
+    typedef BIDToIndexMap::const_iterator Iter;
+    typedef std::pair<Iter, Iter> IndexRange;
+
+    IndexRange range = branchIDListHelper_->branchIDToIndexMap().equal_range(bid);
+    for(Iter it = range.first; it != range.second; ++it) {
+      BranchListIndex blix = it->second.first;
+      std::map<BranchListIndex, ProcessIndex>::const_iterator i = branchListIndexToProcessIndex_.find(blix);
+      if(i != branchListIndexToProcessIndex_.end()) {
+        ProductIndex productIndex = it->second.second;
+        ProcessIndex processIndex = i->second;
+        return ProductID(processIndex+1, productIndex+1);
+      }
+    }
+    // cannot throw, because some products may legitimately not have product ID's (e.g. pile-up).
+    return ProductID();
+  }
+
+  unsigned int
+  EventPrincipal::transitionIndex_() const {
+    return streamID_.value();
+  }
+
+  static void throwProductDeletedException(ProductID const& pid, edm::EventPrincipal::ConstProductHolderPtr const phb) {
+    ProductDeletedException exception;
+    exception<<"get by product ID: The product with given id: "<<pid
+    <<"\ntype: "<<phb->productType()
+    <<"\nproduct instance name: "<<phb->productInstanceName()
+    <<"\nprocess name: "<<phb->processName()
+    <<"\nwas already deleted. This is a configuration error. Please change the configuration of the module which caused this exception to state it reads this data.";
+    throw exception;    
+  }
+  
+  BasicHandle
+  EventPrincipal::getByProductID(ProductID const& pid) const {
+    BranchID bid = pidToBid(pid);
+    ConstProductHolderPtr const phb = getProductHolder(bid);
+    if(phb == nullptr) {
+      return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
+        std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
+        *whyFailed
+        << "get by product ID: no product with given id: " << pid << "\n";
+        return whyFailed;
+      }));
+    }
+
+    // Was this already deleted?
+    if(phb->productWasDeleted()) {
+      throwProductDeletedException(pid, phb);
+    }
+    // Check for case where we tried on demand production and
+    // it failed to produce the object
+    if(phb->onDemand()) {
+      return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
+        std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
+        *whyFailed
+        << "get by ProductID: could not get product with id: " << pid << "\n"
+        << "Unscheduled execution not allowed to get via ProductID.\n";
+        return whyFailed;
+      }));
+    }
+    ProductHolderBase::ResolveStatus status;
+    phb->resolveProduct(status,false,nullptr);
+
+    return BasicHandle(phb->productData());
+  }
+
+  WrapperHolder
+  EventPrincipal::getIt(ProductID const& pid) const {
+    return getByProductID(pid).wrapperHolder();
+  }
+
+  Provenance
+  EventPrincipal::getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const {
+    BranchID bid = pidToBid(pid);
+    return getProvenance(bid, mcc);
   }
 
   void
@@ -38,8 +290,24 @@ namespace edm {
     unscheduledHandler_ = iHandler;
   }
 
+  boost::shared_ptr<UnscheduledHandler>
+  EventPrincipal::unscheduledHandler() const {
+     return unscheduledHandler_;
+  }
+
+  EventSelectionIDVector const&
+  EventPrincipal::eventSelectionIDs() const {
+    return eventSelectionIDs_;
+  }
+
+  BranchListIndexes const&
+  EventPrincipal::branchListIndexes() const {
+    return branchListIndexes_;
+  }
+
   bool
-  EventPrincipal::unscheduledFill(Provenance const& prov) const {
+  EventPrincipal::unscheduledFill(std::string const& moduleLabel, 
+                                  ModuleCallingContext const* mcc) const {
 
     // If it is a module already currently running in unscheduled
     // mode, then there is a circular dependency related to which
@@ -47,26 +315,34 @@ namespace edm {
     // to recover from this.  Here we check for this problem and throw
     // an exception.
     std::vector<std::string>::const_iterator i =
-      std::find(moduleLabelsRunning_.begin(),
-                moduleLabelsRunning_.end(),
-                prov.moduleLabel());
+      find_in_all(moduleLabelsRunning_, moduleLabel);
 
-    if (i != moduleLabelsRunning_.end()) {
-      throw edm::Exception(errors::LogicError)
+    if(i != moduleLabelsRunning_.end()) {
+      throw Exception(errors::LogicError)
         << "Hit circular dependency while trying to run an unscheduled module.\n"
-        << "Current implementation of unscheduled execution cannot always determine\n"
-        << "the proper order for module execution.  It is also possible the modules\n"
-        << "have a built in circular dependence that will not work with any order.\n"
-        << "In the first case, scheduling some or all required modules in paths will help.\n"
-        << "In the second case, the modules themselves will have to be fixed.\n";
+        << "The last module on the stack shown above requested data from the\n"
+        << "module with label: '" << moduleLabel << "'.\n"
+        << "This is illegal because this module is already running (it is in the\n"
+        << "stack shown above, it might or might not be asking for data from itself).\n"
+        << "More information related to resolving circular dependences can be found here:\n"
+        << "https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideUnscheduledExecution#Circular_Dependence_Errors.";
     }
 
-    moduleLabelsRunning_.push_back(prov.moduleLabel());
+    UnscheduledSentry sentry(&moduleLabelsRunning_, moduleLabel);
 
-    if (unscheduledHandler_) {
-      unscheduledHandler_->tryToFill(prov, *const_cast<EventPrincipal *>(this));
+    if(unscheduledHandler_) {
+      if(mcc == nullptr) {
+        throw Exception(errors::LogicError)
+          << "EventPrincipal::unscheduledFill, Attempting to run unscheduled production\n"
+          << "with a null pointer to the ModuleCalling Context. This should never happen.\n"
+          << "Contact a Framework developer";
+      }
+      preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
+        postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      });
+      unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
     }
-    moduleLabelsRunning_.pop_back();
     return true;
   }
 }

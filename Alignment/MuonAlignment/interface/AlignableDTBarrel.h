@@ -4,25 +4,19 @@
 /** \class AlignableDTBarrel
  *  The alignable muon DT barrel.
  *
- *  $Date: 2006/10/16 14:39:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/15 16:05:53 $
+ *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 
@@ -38,7 +32,7 @@ class AlignableDTBarrel : public AlignableComposite
 
  public:
 
-  AlignableDTBarrel( const std::vector<AlignableDTWheel*> dtWheels );
+  AlignableDTBarrel( const std::vector<AlignableDTWheel*>& dtWheels );
 
   ~AlignableDTBarrel();
   
@@ -51,9 +45,6 @@ class AlignableDTBarrel : public AlignableComposite
 
   }
   
-  typedef GlobalPoint           PositionType;
-  typedef TkRotation<float>     RotationType;
-
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;
   // get the global orientation
@@ -63,14 +54,11 @@ class AlignableDTBarrel : public AlignableComposite
 
   AlignableDTWheel &wheel(int i);  
   
-  /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTBarrel; }
-
   /// Printout muon Barrel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTBarrel& );
 
   /// Recursive printout of the muon Barrel structure
-  void dump( void );
+  void dump( void ) const;
 
 
   // Get alignments sorted by DetId

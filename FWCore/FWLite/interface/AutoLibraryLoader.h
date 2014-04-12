@@ -7,17 +7,13 @@
  *
  * \author Chris Jones, Cornell
  *
- * $Id: AutoLibraryLoader.h,v 1.5 2006/12/16 13:33:29 wmtan Exp $
  *
  */
-#include "TObject.h"
 class DummyClassToStopCompilerWarning;
 
-class AutoLibraryLoader: public TObject {
+class AutoLibraryLoader {
   friend class DummyClassToStopCompilerWarning;
 public:
-  /// interface for TClass generators
-  ClassDef(AutoLibraryLoader,2);
   /// enable automatic library loading  
   static void enable();
   
@@ -25,6 +21,7 @@ public:
   static void loadAll();
 
 private:
+  static bool enabled_;
   AutoLibraryLoader();
   AutoLibraryLoader(const AutoLibraryLoader&); // stop default
   const AutoLibraryLoader& operator=(const AutoLibraryLoader&); // stop default

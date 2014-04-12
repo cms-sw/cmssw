@@ -4,26 +4,24 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.7 2007/03/26 22:16:46 nancy Exp $ 
- **  $Date: 2007/03/26 22:16:46 $ 
- **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/Common/interface/View.h"
 
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
-
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include <string>
 #include <vector>
@@ -36,41 +34,41 @@ class TrajectoryStateOnSurface;
 class TrajectoryMeasurement;
 
 class InOutConversionSeedFinder : public ConversionSeedFinder {
-
-
+  
+  
  private:
- 
+  
   typedef FreeTrajectoryState FTS;
   typedef TrajectoryStateOnSurface TSOS;
-
-
+  
+  
   public :
     
-  
-  
-  InOutConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
-
     
-     
+    
+    InOutConversionSeedFinder( const edm::ParameterSet& config );
+  
+  
+  
   virtual ~InOutConversionSeedFinder();
-    
-
-  virtual void  makeSeeds( const reco::BasicClusterCollection& allBc) const;
- 
-
-  //  void setTracks(std::vector<Trajectory> in) { inputTracks_.clear(); inputTracks_ = in;}
-  void setTracks(std::vector<Trajectory> in) { theOutInTracks_.clear(); theOutInTracks_ = in;}
- 
-
+  
+  
+  virtual void  makeSeeds(  const edm::Handle<edm::View<reco::CaloCluster> > & allBc) const;
+  
+  
+  
+  void setTracks(std::vector<Trajectory> const & in) { theOutInTracks_ = in;}
+  
+  
   private :
 
-
+  edm::ParameterSet conf_;
   virtual void fillClusterSeeds(  ) const ;
-  void startSeed(FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int layer) const ;
+  void startSeed(const FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int layer) const ;
   virtual void findSeeds(const TrajectoryStateOnSurface & startingState,
 			 float signedpt, unsigned int startingLayer) const ;
-   
-  std::vector<const reco::BasicCluster*> getSecondBasicClusters(const GlobalPoint & conversionPosition, float charge) const;
+  
+  std::vector<const reco::CaloCluster*> getSecondCaloClusters(const GlobalPoint & conversionPosition, float charge) const;
   void completeSeed(const TrajectoryMeasurement & m1,FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const;
   void createSeed(const TrajectoryMeasurement & m1,  const TrajectoryMeasurement & m2) const ;
 
@@ -84,17 +82,15 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   mutable int nSeedsPerInputTrack_;
   int maxNumberOfInOutSeedsPerInputTrack_;
      
-  const TrackingGeometry* theTrackerGeom_;
 
-  
-  std::vector<Trajectory> inputTracks_;
-  std::vector<Trajectory> theOutInTracks_;
+  mutable TrajectoryMeasurement* myPointer;
+
+  mutable std::vector<Trajectory> inputTracks_;
+  mutable std::vector<Trajectory> theOutInTracks_;
   mutable std::vector<TrajectoryMeasurement> theFirstMeasurements_;
-  
-  const LayerMeasurements*      theLayerMeasurements_;
-  mutable reco::BasicCluster theSecondBC_;
-  mutable reco::BasicClusterCollection  bcCollection_;
-  
+
+  mutable reco::CaloCluster theSecondBC_;
+  mutable edm::Handle<edm::View<reco::CaloCluster> >  bcCollection_;
 
   
 };

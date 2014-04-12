@@ -10,15 +10,20 @@ class SiTrivialDigitalConverter: public SiDigitalConverter{
 
   SiTrivialDigitalConverter(float in);
   
-  DigitalVecType    convert(const signal_map_type&,  edm::ESHandle<SiStripGain>& ,unsigned int);    
-  DigitalRawVecType convertRaw(const signal_map_type&,  edm::ESHandle<SiStripGain>& ,unsigned int);    
+  DigitalVecType    convert(const std::vector<float>&,  edm::ESHandle<SiStripGain>& ,unsigned int detid);
+  DigitalRawVecType convertRaw(const std::vector<float>&,  edm::ESHandle<SiStripGain>& ,unsigned int detid);  
 
  private:
 
   int convert(float in){return truncate(in/electronperADC);}
-  int truncate(float in_adc);
+  int convertRaw(float in){return truncateRaw(in/electronperADC);}
+  int truncate(float in_adc) const;
+  int truncateRaw(float in_adc) const;
   
-  float electronperADC;
+  const float electronperADC;
+  SiDigitalConverter::DigitalVecType _temp;
+  SiDigitalConverter::DigitalRawVecType _tempRaw;
+
 };
  
 #endif

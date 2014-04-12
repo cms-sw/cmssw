@@ -19,6 +19,13 @@
 #define DEBUG_TYPE_MASK 0xE00000
 #define DEBUG_TYPE_SHIFT 21
 #define DEBUG_MESSAGE_MASK 0x7FFF
+#define CEROS_ID_CEROS_STATUS_MASK 0x1F0000
+#define CEROS_ID_CEROS_STATUS_SHIFT 16
+#define EV_ID_CEROS_STATUS_MASK 0xFC0
+#define EV_ID_CEROS_STATUS_SHIFT 6
+#define DONTREAD_CEROS_STATUS_MASK 0x3F
+#define CEROS_ID_ROS_STATUS_MASK 0x3F
+
 
 #define TTC_EVENT_COUNTER_MASK 0xFFFFFF
 
@@ -26,18 +33,15 @@
 #define TFF_SHIFT 23
 #define TPX_MASK 0x400000
 #define TPX_SHIFT 22
-#define ECHO_MASK 0x300000
-#define ECHO_SHIFT 20
-#define ECLO_MASK 0xC0000
-#define ECLO_SHIFT 18
-#define BCO_MASK 0x30000
-#define BCO_SHIFT 16
+#define L1A_FIFO_OCC_MASK 0x3F0000
+#define L1A_FIFO_OCC_SHIFT 16
 #define EVENT_WORD_COUNT_MASK 0xFFFF
 
 #define ERROR_TYPE_MASK 0xE00000
 #define ERROR_TYPE_SHIFT 21
 #define ERROR_ROB_ID_MASK 0x1F0000
 #define ERROR_ROB_ID_SHIFT 16
+#define ERROR_CEROS_ID_MASK 0x3F
 
 #define ROB_ID_MASK 0x1F000000 
 #define EVENT_ID_MASK 0xFFF000
@@ -85,8 +89,6 @@
 /** \class DTROSWordType
  *  Enumeration of DT Read Out Sector (ROS) word types.
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSWordType {
@@ -201,8 +203,6 @@ private:
  *  DT ROS Header interpreter. 
  *  It interprets the TTC Event counter (24 bits).
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSHeaderWord {
@@ -244,13 +244,9 @@ private:
  *  Information interpreted: 
  *  - TFF: L1 FIFO is full (1 bit)
  *  - TPX: Transmitter parity (1 bit)
- *  - ECHO: Event Counter High FIFO occupancy (2 bits)
- *  - ECLO: Event COunter Low FIFO occupancy (2 bits)
- *  - BCO: Bunch Counter FIFO occupancy (2 bits)
+ *  - L1A FIFO occupancy  (6 bits)
  *  - Event Word count (16 bits)
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSTrailerWord {
@@ -270,17 +266,13 @@ public:
 
   int TFF() const { return (word_ & TFF_MASK) >> TFF_SHIFT; }
   int TPX() const { return (word_ & TPX_MASK) >> TPX_SHIFT; }
-  int ECHO() const { return (word_ & ECHO_MASK) >> ECHO_SHIFT; }
-  int ECLO() const { return (word_ & ECLO_MASK) >> ECLO_SHIFT; }
-  int BCO() const { return (word_ & BCO_MASK) >> BCO_SHIFT; }
+  int l1AFifoOccupancy() const { return (word_ & L1A_FIFO_OCC_MASK) >> L1A_FIFO_OCC_SHIFT; }
   int EventWordCount() const { return word_ & EVENT_WORD_COUNT_MASK; }
 
   static void set(uint32_t &word,
 		  int tff,
 		  int tpx,
-		  int echo,
-		  int eclo,
-		  int bco,
+		  int l1a_fifo_occ,
 		  int event_word_count) {
     
     word = 
@@ -288,9 +280,7 @@ public:
       DTROSWordType::rosTypeWord << WORDTYPESHIFT |
       tff << TFF_SHIFT |
       tpx << TPX_SHIFT |
-      echo << ECHO_SHIFT |
-      eclo << ECLO_SHIFT |
-      bco << BCO_SHIFT |
+      l1a_fifo_occ << L1A_FIFO_OCC_SHIFT |
       event_word_count;
   }
 
@@ -304,10 +294,8 @@ private:
 
 /** \class DTROSErrorWord
  *  DT ROS Error interpreter. 
- *  It interprets the Error type and the ROB_ID (2 bits) 
+ *  It interprets the Error type, the ROB_ID (2 bits) and the CEROS ID (6 bits)
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSErrorWord {
@@ -326,7 +314,8 @@ public:
   virtual ~DTROSErrorWord() {}
 
   int errorType() const { return (word_ & ERROR_TYPE_MASK) >> ERROR_TYPE_SHIFT;} 
-  int robID() const { return (word_ & ERROR_ROB_ID_MASK) >> ERROR_ROB_ID_SHIFT;} 
+  int robID() const { return (word_ & ERROR_ROB_ID_MASK) >> ERROR_ROB_ID_SHIFT;}
+  int cerosID() const {return errorType()==4 ? (word_ & ERROR_CEROS_ID_MASK) : 0;}
 
   static void set(uint32_t &word,
 		  int error_type,
@@ -352,8 +341,6 @@ private:
  *  It interprets the Debug type (3 bits) and the debug message 
  *  (in the first 15 bits) 
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSDebugWord {
@@ -373,8 +360,12 @@ public:
 
   int debugType() const { return (word_ & DEBUG_TYPE_MASK) >> DEBUG_TYPE_SHIFT;} 
   int debugMessage() const { return (word_ & DEBUG_MESSAGE_MASK) ;} 
+  int cerosIdCerosStatus() const { return debugType()==3 ? (word_ & CEROS_ID_CEROS_STATUS_MASK) >> CEROS_ID_CEROS_STATUS_SHIFT : 0;} 
+  int evIdMis() const { return debugType()==3 ? (word_ & EV_ID_CEROS_STATUS_MASK) >> EV_ID_CEROS_STATUS_SHIFT : 0;} 
+  int dontRead() const { return debugType()==3 ? (word_ & DONTREAD_CEROS_STATUS_MASK) : 0;} 
+  int cerosIdRosStatus() const { return debugType()==4 ? (word_ & CEROS_ID_ROS_STATUS_MASK) : 0;} 
 
-  static void set(uint32_t &word,
+  static void set(uint32_t &word,                                 //CB FIXME do we need setters for DEBUG Types 3 and 4? 
 		  int debug_type) {
     
     word = 
@@ -382,6 +373,18 @@ public:
       DTROSWordType::rosTypeWord << WORDTYPESHIFT |
       debug_type << DEBUG_TYPE_SHIFT |
       504 << 15; // TEMPORARY
+  }
+
+  static void set(uint32_t &word,                                 
+		  int debug_type,
+		  int ceros_id) {
+    
+    word = 
+      DTROSWordType::debugControlWord << WORDCONTROLSHIFT |
+      DTROSWordType::rosTypeWord << WORDTYPESHIFT |
+      debug_type << DEBUG_TYPE_SHIFT |
+      ceros_id << CEROS_ID_CEROS_STATUS_SHIFT |
+      1 << 15;
   }
 
 private:
@@ -396,8 +399,6 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Bunch ID (12 bits).
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBHeaderWord {
@@ -445,8 +446,6 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Word ID (12 bits).
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBTrailerWord {
@@ -494,8 +493,6 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Bunch ID (12 bits).
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCHeaderWord {
@@ -550,8 +547,6 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Word ID (12 bits).
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCTrailerWord {
@@ -605,8 +600,6 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the TDC channel (5 bits), and the TDC time (19 bits)
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCMeasurementWord {
@@ -663,8 +656,6 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits) and the TDC error flag (15 bits)
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCErrorWord {
@@ -715,8 +706,6 @@ private:
  *  DT Sector Collector header interpreter. 
  *  It interprets ROS event ID (12 bits) and the Sector Collector FIFO occupancy (8 bits)
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerHeaderWord {
@@ -759,8 +748,6 @@ private:
  *  DT Sector Collector trailer interpreter. 
  *  It interprets the word count (16 bits)
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerTrailerWord {
@@ -800,8 +787,6 @@ private:
  *  DT Sector Collector data interpreter. 
  *  It interprets the Sector Collector data (16 bits)
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerDataWord {
@@ -850,8 +835,6 @@ private:
  *  DT DDU status 1 interpreter (8 bits word). 
  *  It interprets the error messages from each DDU channel
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUFirstStatusWord {
@@ -890,8 +873,6 @@ private:
  *  It interprets the (16 bits)
  *  WARNING!! : It interprets the second part of a 64 bits word!
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUSecondStatusWord {
@@ -918,6 +899,10 @@ public:
   int outputFifoFull() const { return (word_ & 0x4000) >> 14; }
   int outputFifoAlmostFull() const { return (word_ & 0x8000) >> 15; }
   int rosList() const {return (word_ & 0xFFF0000) >> 16; }
+  int warningROSPAF() const {return (word_ & 0x10000000) >> 28; }
+  int busyROSPAF() const {return (word_ & 0x20000000) >> 29; }
+  int outOfSynchROSError() const {return (word_ & 0x40000000) >> 30; }
+  
 
 //   int fifoAlmostEmpty() const { return (word_ & 0x1C000) >> 14; }
 //   int inputFifoAlmostEmpty() const { return (word_ & 0xE0000) >> 17; }
@@ -936,8 +921,6 @@ private:
  *  It interprets Latency measured by SC-Latency Timer Unit (still testing!)
  *  and the number of 16-bit words following this header sent by the Sector Collector
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author R. Travaglini - INFN Bologna
  */
 class DTLocalTriggerSectorCollectorHeaderWord {
@@ -981,8 +964,6 @@ private:
  *  It interprets local SC bunch Counter and delay (3-bit) between trigger used to stop spying and
  *  effective bx stop
  *
- *  $Date: 2007/02/14 15:52:01 $
- *  $Revision: 1.9 $
  * \author R. Travaglini - INFN Bologna
  */
 class DTLocalTriggerSectorCollectorSubHeaderWord {

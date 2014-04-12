@@ -3,25 +3,12 @@
 /**
  * Author: Vladlen Timciuc, Caltech, Pasadena, USA
  * Created: 15 May 2007
- * $Id: EcalLaserAlphas.h,v 1.2 2007/05/15 12:28:34 vladlen Exp $
+ * $Id: EcalLaserAlphas.h,v 1.4 2007/09/27 09:42:55 ferriff Exp $
  **/
-#include <map>
-#include <boost/cstdint.hpp>
+#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
-
-class EcalLaserAlphas {
-  public:
-   typedef float EcalLaserAlpha;
-   typedef std::map<uint32_t, EcalLaserAlpha> EcalLaserAlphaMap;
-   typedef std::map<uint32_t, EcalLaserAlpha>::const_iterator EcalLaserAlphaMapIterator;
-
-    EcalLaserAlphas();
-    ~EcalLaserAlphas();
-    void  setValue(const uint32_t& id, const EcalLaserAlpha& value);
-    const EcalLaserAlphaMap& getMap() const { return map_; }
-
-  private:
-    EcalLaserAlphaMap map_;
-};
+typedef float EcalLaserAlpha;
+typedef EcalFloatCondObjectContainer EcalLaserAlphaMap;
+typedef EcalLaserAlphaMap EcalLaserAlphas;
 
 #endif

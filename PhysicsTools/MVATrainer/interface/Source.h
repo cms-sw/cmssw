@@ -23,16 +23,16 @@ class Source {
 
 	inline bool isTrained() const { return trained; }
 
+	inline const SourceVariableSet &getInputs() const { return inputs; }
+	inline const SourceVariableSet &getOutputs() const { return outputs; }
+
     protected:
 	friend class MVATrainer;
 
 	inline SourceVariableSet &getInputs() { return inputs; }
-	inline const SourceVariableSet &getInputs() const { return inputs; }
-
 	inline SourceVariableSet &getOutputs() { return outputs; }
-	inline const SourceVariableSet &getOutputs() const { return outputs; }
 
-	bool				trained;
+	bool			trained;
 
     private:
 	AtomicId		name;

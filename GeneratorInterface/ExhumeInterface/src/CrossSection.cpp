@@ -6,9 +6,11 @@
 #include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
 #include "GeneratorInterface/ExhumeInterface/interface/PythiaRecord.h"
 
-#include "HepMC/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_4.h"
 //#include "CLHEP/HepMC/ConvertHEPEVT.h"
 //#include "CLHEP/HepMC/CBhepevt.h"
+#include <cstdio>
+#include <memory>
 
 // External Fortran routines to link to:
 double dsimps_(double*, double*, double*, int*);
@@ -53,30 +55,11 @@ extern struct {
 #define pydat2 pydat2_
 */
 
+
 /////////////////////////////////////////////////////////////////////////////
 
-Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
-	B(pset.getParameter<double>("B")),
-	LambdaQCD(pset.getParameter<double>("LambdaQCD")),
-	Rg(pset.getParameter<double>("Rg")),
-	Survive(pset.getParameter<double>("Survive")),
-	PDF(pset.getParameter<double>("PDF")),
-	MinQt2(pset.getParameter<double>("MinQt2")),
-	AlphaEw(pset.getParameter<double>("AlphaEw")),
-	HiggsVev(pset.getParameter<double>("HiggsVev")),
-	BottomMass(pset.getParameter<double>("BottomMass")),
-        CharmMass(pset.getParameter<double>("CharmMass")),
-        StrangeMass(pset.getParameter<double>("StrangeMass")),
-	TopMass(pset.getParameter<double>("TopMass")),
-	MuonMass(pset.getParameter<double>("MuonMass")),
-	TauMass(pset.getParameter<double>("TauMass")),
-	HiggsMass(pset.getParameter<double>("HiggsMass")),
-	WMass(pset.getParameter<double>("WMass")),
-	ZMass(pset.getParameter<double>("ZMass")),
-	FNAL_or_LHC(pset.getParameter<int>("FNAL_or_LHC")),
-	root_s(pset.getParameter<double>("root_s"))
+Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset)
 {
-  
   
   std::cout<<std::endl<<
    " ........................................................................."
@@ -92,13 +75,33 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
 	    <<std::endl;
   std::cout<<std::endl<<"  = Initialising CrossSection ="<<std::endl;
 
+  edm::ParameterSet paramsPSet = pset.getParameter<edm::ParameterSet>("ExhumeParameters");
+  B = paramsPSet.getParameter<double>("B");
+  LambdaQCD = paramsPSet.getParameter<double>("LambdaQCD");
+  Rg = paramsPSet.getParameter<double>("Rg");
+  Survive = paramsPSet.getParameter<double>("Survive");
+  PDF = paramsPSet.getParameter<double>("PDF");
+  MinQt2 = paramsPSet.getParameter<double>("MinQt2");
+  AlphaEw = paramsPSet.getParameter<double>("AlphaEw");
+  HiggsVev = paramsPSet.getParameter<double>("HiggsVev");
+  BottomMass = paramsPSet.getParameter<double>("BottomMass");
+  CharmMass = paramsPSet.getParameter<double>("CharmMass");
+  StrangeMass = paramsPSet.getParameter<double>("StrangeMass");
+  TopMass = paramsPSet.getParameter<double>("TopMass");
+  MuonMass = paramsPSet.getParameter<double>("MuonMass");
+  TauMass = paramsPSet.getParameter<double>("TauMass");
+  HiggsMass = paramsPSet.getParameter<double>("HiggsMass");
+  WMass = paramsPSet.getParameter<double>("WMass");
+  ZMass = paramsPSet.getParameter<double>("ZMass");
 
+  FNAL_or_LHC = -1;
+  root_s = pset.getParameter<double>("comEnergy");
 
   //Put data types into a map and pair with a string
   //for formating in/output.
-  TypeMap.insert(PCharPair(typeid(double*).name(),"%lf"));
+  /*TypeMap.insert(PCharPair(typeid(double*).name(),"%lf"));
   TypeMap.insert(PCharPair(typeid(float*).name(),"%f"));
-  TypeMap.insert(PCharPair(typeid(int*).name(),"%d"));
+  TypeMap.insert(PCharPair(typeid(int*).name(),"%d"));*/
   
   //Associate each variable with a string
 
@@ -130,7 +133,7 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
   //(Re-)Compute rest of parameters
   Freeze = sqrt(MinQt2);
   
-  if(FNAL_or_LHC == 0){
+  /*if(FNAL_or_LHC == 0){
     Survive = 0.045;
     Rg = 1.4;
     root_s = 1960;
@@ -138,7 +141,7 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
     Survive = 0.03;
     Rg = 1.2;
     root_s = 14000;
-  }
+  }*/
 
   s = root_s * root_s;
   Invs = 1.0/s;
@@ -158,10 +161,10 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
 
     if(typeid(double*).name()==(ii->second).first){
       if(strlen((ii->first).c_str())<6){
-	printf("  %s\t\t\t%17lg\n",
+	printf("  %s\t\t\t%17g\n",
 	       (ii->first).c_str(),*(double*)((ii->second).second));
       }else{
-	printf("  %s\t\t%17lg\n",
+	printf("  %s\t\t%17g\n",
 	       (ii->first).c_str(),*(double*)((ii->second).second));
       }
     }
@@ -203,13 +206,14 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
 	     <<std::endl;
   //...........................................................................
 
-  double smass=0.0;//for now
+  //double smass=0.0;//for now
   my_pythia_init();
   //pydata();
   //initpydata();
   pyinre();
   Proton1Id = 2212;
-  Proton2Id = (FNAL_or_LHC==0)?-2212:2212;
+  //Proton2Id = (FNAL_or_LHC==0)?-2212:2212;
+  Proton2Id = 2212;
 
   pydat2.pmas[0][24] = HiggsMass;
   pydat2.pmas[0][22] = ZMass;
@@ -253,7 +257,8 @@ double Exhume::CrossSection::AlphaS(const double &scale_){
 /////////////////////////////////////////////////////////////////////////////
 double Exhume::CrossSection::Rg1Rg2(const double &scale_){
 
-  double Rg1, Rg2;
+  double Rg1 = 0.;
+  double Rg2 = 0.;
 
   if(RgBegin){
 
@@ -472,7 +477,7 @@ SetKinematics(const double &SqrtsHat_, const double &y_,
   x1 = x1x2 * ey;
   x2 = x1x2 / ey;
 
-  HepLorentzVector Glu1, Glu2;
+  CLHEP::HepLorentzVector Glu1, Glu2;
   
   Glu1.setE(x1 * P1In.e());
   Glu2.setE(x2 * P2In.e());
@@ -501,10 +506,11 @@ SetKinematics(const double &SqrtsHat_, const double &y_,
 /////////////////////////////////////////////////////////////////////////////
 void Exhume::CrossSection::Hadronise(){
   
-  int one = 1;
+  //int one = 1;
   int njoin = Partons.size();
 
-  int *ijoin = (int*) calloc(njoin, sizeof(int) );
+  //NOTE: all values initialized in for loop below
+  std::unique_ptr<int[]> ijoin( new int[njoin] );
 
   double e_, theta_, phi_;
   int id, nn, nnc;
@@ -559,11 +565,11 @@ void Exhume::CrossSection::Hadronise(){
     ijoin[i] = nn;
   }
 
-  if(njoin > 1){
-    pyjoin(njoin, ijoin);
+  if((njoin > 1)&&(Name != "di-photon")){
+    pyjoin(njoin, ijoin.get());
     int ip1 =3; 
     int ip2 =4;
-    HepLorentzVector b_COM = Partons[0].p.boost(CentralVector.findBoostToCM());
+    CLHEP::HepLorentzVector b_COM = Partons[0].p.boost(CentralVector.findBoostToCM());
     //HepLorentzVector bb_COM = Partons[1].p.boost(CentralVector.findBoostToCM());
     //std::cout<<b_COM.perp()<<"\t"<<bb_COM.perp()<<std::endl;
     ps_scale = 2*b_COM.et(); //Q^2 = 4pt^2 for final state parton showering
@@ -1127,26 +1133,26 @@ double Exhume::CrossSection::Txg(const double &Qt2_, const double &x_){
 
 }*/
 /////////////////////////////////////////////////////////////////////////////
-complex<double> Exhume::CrossSection::Fsf(const double &Tau_){
+std::complex<double> Exhume::CrossSection::Fsf(const double &Tau_){
     double InvTau = 1.0/Tau_;
     return(InvTau*(1.0+(1.0-InvTau)*f(Tau_)));
 }
 //////////////////////////////////////////////////////////////////////////////
-complex<double> Exhume::CrossSection::F0(const double &Tau_){
+std::complex<double> Exhume::CrossSection::F0(const double &Tau_){
     double InvTau = 1.0/Tau_;
     return(InvTau*(-1.0 + InvTau*f(Tau_)));
 }
 //////////////////////////////////////////////////////////////////////////////
-complex<double> Exhume::CrossSection::f(const double &Tau_){
-    complex<double> Sqrtf;
-    complex<double> f;
+std::complex<double> Exhume::CrossSection::f(const double &Tau_){
+    std::complex<double> Sqrtf;
+    std::complex<double> f;
 
     if(Tau_<=1.0){
         Sqrtf = asin(sqrt(Tau_));
         f = Sqrtf*Sqrtf;
     }
     if(Tau_>1.0){
-        complex<double> SqrtTau = sqrt(Tau_),
+        std::complex<double> SqrtTau = sqrt(Tau_),
             SqrtTau_1 = sqrt(Tau_-1.0);
         Sqrtf = log((SqrtTau + SqrtTau_1)/
                     (SqrtTau - SqrtTau_1)) - I*PI;

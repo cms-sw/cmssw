@@ -1,5 +1,5 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterEMJet.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 #include<list>
 #include<map>
@@ -11,7 +11,7 @@ using namespace std;
 
 namespace{
 
-  double deltaR2(double eta0, double phi0, double eta, double phi){
+  inline double deltaR2(double eta0, double phi0, double eta, double phi){
     double dphi=phi-phi0;
     if(dphi>M_PI) dphi-=2*M_PI;
     else if(dphi<=-M_PI) dphi+=2*M_PI;
@@ -36,7 +36,7 @@ namespace{
 
 
 PythiaFilterEMJet::PythiaFilterEMJet(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 etaMin(iConfig.getUntrackedParameter<double>("MinEMEta", 0)),
 eTSumMin(iConfig.getUntrackedParameter<double>("ETSumMin", 50.)),
 pTMin(iConfig.getUntrackedParameter<double>("MinEMpT", 5.)),
@@ -89,7 +89,6 @@ bool PythiaFilterEMJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
   int particle_id = 1;
-  int EM_id = -1;
 
   //select e+/e-/gamma particles in the events
   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();  
@@ -97,14 +96,13 @@ bool PythiaFilterEMJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 						 ++p ) {
    
 			  
-    if (    (abs((*p)->pdg_id()==11) || (*p)->pdg_id()==22)  
+    if ( (abs((*p)->pdg_id())==11 || (*p)->pdg_id()==22)  
 	 && (*p)->status()==1
 	 && (*p)->momentum().perp() > pTMin
 	 && (*p)->momentum().perp() < pTMax 
 	 && fabs((*p)->momentum().eta()) < etaMax  
 	 && fabs((*p)->momentum().eta()) > etaMin ) {
-          EM_id = particle_id;
-	  EM_seeds.push_back(*p);
+      EM_seeds.push_back(*p);
     }
     particle_id++;
   }

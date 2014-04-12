@@ -8,7 +8,7 @@ using namespace HepMC;
 
 BdecayFilter::BdecayFilter(const edm::ParameterSet& iConfig)
 {
-  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("source"));
+  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("generator"));
   motherParticle = iConfig.getParameter< int >("motherParticle");
 
   firstDaughter.type = iConfig.getParameter< int >("firstDaughter");
@@ -49,7 +49,9 @@ HepMC::GenParticle * BdecayFilter::findParticle(const GenPartVect genPartVect,
 HepMC::GenParticle * BdecayFilter::findParticle(HepMC::GenVertex* vertex, 
 						   const int requested_id)
 {
-  for(std::set<GenParticle*>::const_iterator p = vertex->particles_out_const_begin(); p != vertex->particles_out_const_end(); p++)
+  // for(std::set<GenParticle*>::const_iterator p = vertex->particles_out_const_begin(); 
+  for(GenVertex::particles_out_const_iterator  p = vertex->particles_out_const_begin(); 
+      p != vertex->particles_out_const_end(); p++)
     {
       int event_particle_id = abs( (*p)->pdg_id() );
       cout << "particle Id: "<<event_particle_id<<"\n";
@@ -58,9 +60,9 @@ HepMC::GenParticle * BdecayFilter::findParticle(HepMC::GenVertex* vertex,
   return 0;
 }
 
-HepMC::GenEvent::particle_iterator BdecayFilter::getNextBs(const HepMC::GenEvent::particle_iterator start, const HepMC::GenEvent::particle_iterator end)
+HepMC::GenEvent::particle_const_iterator BdecayFilter::getNextBs(const HepMC::GenEvent::particle_const_iterator start, const HepMC::GenEvent::particle_const_iterator end)
 {
-  HepMC::GenEvent::particle_iterator p;
+  HepMC::GenEvent::particle_const_iterator p;
   for (p = start; p != end; p++) 
     {
       int event_particle_id = abs( (*p)->pdg_id() );
@@ -76,11 +78,11 @@ bool BdecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HepMCProduct> evt;
   iEvent.getByLabel(label_, evt);
   
-  HepMC::GenEvent * generated_event = new HepMC::GenEvent(*(evt->GetEvent()));
-  cout << "Start\n";
+  const HepMC::GenEvent * generated_event = evt->GetEvent();
+  //cout << "Start\n";
 
   bool event_passed = false;
-  HepMC::GenEvent::particle_iterator bs = getNextBs(generated_event->particles_begin(), generated_event->particles_end());
+  HepMC::GenEvent::particle_const_iterator bs = getNextBs(generated_event->particles_begin(), generated_event->particles_end());
   while (bs!=  generated_event->particles_end() ) {
 
     // vector< GenParticle * > bsChild = (*bs)->listChildren();
@@ -107,7 +109,7 @@ bool BdecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( (numChildren==2) && ((jpsi = findParticle(outVertex, firstDaughter.type))!=0) && 
 	((phi = findParticle(outVertex, secondDaughter.type))!=0)) {
       
-      cout << jpsi->momentum()<<" "<<jpsi->momentum().eta() <<" "<<phi->momentum()<<" "<<phi->momentum().eta()<<endl;
+      cout << jpsi->momentum().rho() <<" "<<jpsi->momentum().eta() <<" "<<phi->momentum().rho()<<" "<<phi->momentum().eta()<<endl;
       //cout <<"bs dec trouve"<<endl;
       if (cuts(phi, secondDaughter) && cuts(jpsi, firstDaughter)) {
         cout <<"decay found"<<endl;
@@ -127,17 +129,19 @@ bool BdecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-bool BdecayFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
+bool BdecayFilter::cuts(const GenParticle * jpsi, const CutStruct& cut)
 {
 	cout << "start cuts" << endl;
   HepMC::GenVertex* myVertex = jpsi->end_vertex();
   int numChildren = myVertex->particles_out_size();
+  int numDecProd = cut.decayProduct.size();
   std::vector<HepMC::GenParticle*> psiChild;
-  for(std::set<GenParticle*>::const_iterator p = myVertex->particles_out_const_begin();
+  // for(std::set<GenParticle*>::const_iterator p = myVertex->particles_out_const_begin();
+  for(GenVertex::particles_out_const_iterator p = myVertex->particles_out_const_begin();
       p != myVertex->particles_out_const_end(); p++) 
     psiChild.push_back((*p));
 
-  if (numChildren!=cut.decayProduct.size()) return false;
+  if (numChildren!=numDecProd) return false;
     cout << psiChild[0]->pdg_id()<<" "<<psiChild[1]->pdg_id()<<endl;
 
   for (int i=0; i<numChildren; ++i) {

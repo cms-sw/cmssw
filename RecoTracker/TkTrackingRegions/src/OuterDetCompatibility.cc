@@ -1,4 +1,4 @@
-#include "RecoTracker/TkTrackingRegions/interface/OuterDetCompatibility.h"
+#include "OuterDetCompatibility.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeRPhi.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
@@ -26,11 +26,11 @@ bool OuterDetCompatibility::checkPhi(
 { return rangesIntersect(detPhiRange, hitDetPhiRange, PhiLess()); }
 
 bool OuterDetCompatibility::checkR(
-    const HitRZConstraint::Range & detRRange) const
+    const Range & detRRange) const
 { return rangesIntersect(detRRange, hitDetRRange); }
 
 bool OuterDetCompatibility::checkZ(
-    const HitRZConstraint::Range & detZRange) const
+    const Range & detZRange) const
 { return rangesIntersect(detZRange, hitDetZRange); }
 
 

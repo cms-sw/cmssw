@@ -1,5 +1,5 @@
-#ifndef Common_NewPolicy_h
-#define Common_NewPolicy_h
+#ifndef DataFormats_Common_NewPolicy_h
+#define DataFormats_Common_NewPolicy_h
 
 namespace edm {
   template<typename T>

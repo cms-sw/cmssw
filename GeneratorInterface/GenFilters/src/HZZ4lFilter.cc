@@ -13,7 +13,6 @@
 //
 // Original Author:  Puljak Ivica
 //         Created:  Wed Apr 18 12:52:31 CEST 2007
-// $Id$
 //
 //
 
@@ -31,11 +30,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 
 HZZ4lFilter::HZZ4lFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 minPtElectronMuon(iConfig.getUntrackedParameter("MinPtElectronMuon", 0.)),
 maxEtaElectronMuon(iConfig.getUntrackedParameter("MaxEtaElectronMuon", 10.))
 {
@@ -69,7 +68,7 @@ HZZ4lFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle< HepMCProduct > evt;
    iEvent.getByLabel(label_, evt);
    
-   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
    
    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();   p != myGenEvent->particles_end(); ++p ) {
     
@@ -97,10 +96,6 @@ HZZ4lFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 /*
 // ------------ method called once each job just before starting event loop  ------------
-void 
-HZZ4lFilter::beginJob(const edm::EventSetup&)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

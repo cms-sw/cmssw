@@ -6,17 +6,17 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 // Auxiliary event data that is persistent
 // Obsolete format, used for backward compatibility only.
 
 namespace edm {
-  struct EventAuxiliary;
-  struct EventAux {
+  class EventAuxiliary;
+  class EventAux {
+  public:
     EventAux() : processHistoryID_(), id_(), time_(), luminosityBlockID_() {}
     ~EventAux() {}
-    mutable ProcessHistoryID processHistoryID_;
+    ProcessHistoryID processHistoryID_;
     EventID id_;
     Timestamp time_;
     LuminosityBlockNumber_t luminosityBlockID_;

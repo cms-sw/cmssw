@@ -9,7 +9,7 @@
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 /// C++ functors for output and conversion of CLHEP and ROOT::Math
 
@@ -17,7 +17,7 @@ class HepRotOutput {
  public:
   HepRotOutput() { }
   ~HepRotOutput() { }
-  void operator() ( const HepRotation& r ) {
+  void operator() ( const CLHEP::HepRotation& r ) {
     std::cout << "[ " << std::setw(12) << std::fixed << std::setprecision(5) << r.xx();
     std::cout << ", " << std::setw(12) << std::fixed << std::setprecision(5) << r.xy();
     std::cout << ", " << std::setw(12) << std::fixed << std::setprecision(5) << r.xz() << " ]" << std::endl;
@@ -31,7 +31,7 @@ class HepRotOutput {
 };
 
 
-/* void hepSetAxes( Hep3Vector& x, Hep3Vector& y, Hep3Vector& z */
+/* void hepSetAxes( CLHEP::Hep3Vector& x, CLHEP::Hep3Vector& y, CLHEP::Hep3Vector& z */
 /* 		 , double thetaX, double phiX */
 /* 		 , double thetaY, double phiY */
 /* 		 , double thetaZ, double phiZ ) { */
@@ -46,7 +46,7 @@ class HepRotOutput {
 /*   z[2] = cos(thetaZ); */
 /* } */
 
-/* void hepOutVecs( const Hep3Vector& x, const Hep3Vector& y, const Hep3Vector& z ) { */
+/* void hepOutVecs( const CLHEP::Hep3Vector& x, const CLHEP::Hep3Vector& y, const CLHEP::Hep3Vector& z ) { */
 /*   std::cout << "Vectors used in construction:" << std::endl; */
 /*   std::cout << "x vector = " << std::setw(12) << std::fixed << std::setprecision(5) << x[0] */
 /*        << ", " << std::setw(12) << std::fixed << std::setprecision(5) << y[0] */
@@ -124,40 +124,40 @@ class DDRotOutput {
 /*   // Examples from DD XML */
 /*   // <ReflectionRotation name="180R" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg" /> */
 /* {   */
-/*   Hep3Vector x,y,z; */
+/*   CLHEP::Hep3Vector x,y,z; */
 /*   hepSetAxes ( x, y, z, 90*deg, 0*deg, 90*deg, 90*deg, 180*deg, 0*deg ); */
-/*   HepRotation R; */
+/*   CLHEP::HepRotation R; */
 /*   R.rotateAxes(x, y, z);       */
-/*   HepRotation ddr(R); */
+/*   CLHEP::HepRotation ddr(R); */
 /*   std::cout << "   *** REFLECTION *** " << std::endl; */
 /*   checkNorm((x.cross(y))*z); */
 /*   hepOutVecs (x, y, z); */
 /*   std::cout << "Matrix output built up from vectors:" << std::endl; */
 /*   hrmOut(ddr); */
-/*   std::cout << "Matrix build from HepRep3x3 to preserve left-handedness:" << std::endl; */
-/*   HepRep3x3 temp(x.x(),y.x(),z.x(), */
+/*   std::cout << "Matrix build from CLHEP::HepRep3x3 to preserve left-handedness:" << std::endl; */
+/*   CLHEP::HepRep3x3 temp(x.x(),y.x(),z.x(), */
 /*                  x.y(),y.y(),z.y(), */
 /*                  x.z(),y.z(),z.z()); //matrix representation */
-/*   HepRotation ddr2(temp); */
+/*   CLHEP::HepRotation ddr2(temp); */
 /*   hrmOut(ddr2); */
 /* } */
 /*   // <Rotation name="RM1509" thetaX="90*deg" phiX="-51.39999*deg" thetaY="90*deg" phiY="38.60001*deg" thetaZ="0*deg" phiZ="0*deg" /> */
 /* {   */
-/*   Hep3Vector x,y,z; */
+/*   CLHEP::Hep3Vector x,y,z; */
 /*   hepSetAxes ( x, y, z, 90*deg, -51.39999*deg, 90*deg, 38.60001*deg, 0*deg, 0*deg ); */
-/*   HepRotation R; */
+/*   CLHEP::HepRotation R; */
 /*   R.rotateAxes(x, y, z); */
-/*   HepRotation ddr(R); */
+/*   CLHEP::HepRotation ddr(R); */
 /*   std::cout << "   *** ROTATION *** " << std::endl; */
 /*   checkNorm((x.cross(y))*z); */
 /*   hepOutVecs (x, y, z); */
 /*   std::cout << "Matrix output built up from vectors:" << std::endl; */
 /*   hrmOut(ddr); */
-/*   std::cout << "Matrix build from HepRep3x3 to preserve left-handedness:" << std::endl; */
-/*   HepRep3x3 temp(x.x(),y.x(),z.x(), */
+/*   std::cout << "Matrix build from CLHEP::HepRep3x3 to preserve left-handedness:" << std::endl; */
+/*   CLHEP::HepRep3x3 temp(x.x(),y.x(),z.x(), */
 /*                  x.y(),y.y(),z.y(), */
 /*                  x.z(),y.z(),z.z()); //matrix representation */
-/*   HepRotation ddr2(temp); */
+/*   CLHEP::HepRotation ddr2(temp); */
 /*   hrmOut(ddr2); */
 /* } */
 

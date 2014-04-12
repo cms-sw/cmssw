@@ -12,7 +12,7 @@ setenv WWWDIR $WWWDIRObj
 mkdir $WWWDIR/eps
 mkdir $WWWDIR/gif
 
-mv *.eps $WWWDIR/eps
-mv *.gif $WWWDIR/gif
+mv ctf*.eps.gz $WWWDIR/eps
+mv ctf*.gif $WWWDIR/gif
 
 

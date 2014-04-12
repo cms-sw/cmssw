@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr  6 15:26:46 EDT 2007
-// $Id: DummyFactory.cc,v 1.2 2007/04/12 12:51:13 wmtan Exp $
 //
 
 // system include files

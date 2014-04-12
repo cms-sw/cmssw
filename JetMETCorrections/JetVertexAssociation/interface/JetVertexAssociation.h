@@ -2,7 +2,9 @@
 #define JetVertexAssociation_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "JetMETCorrections/JetVertexAssociation/interface/JetVertexMain.h"
 
@@ -23,7 +25,7 @@ namespace edm {
 namespace cms{
 
   class JetVertexAssociation : public edm::EDProducer{
-  
+
   public:
 
    JetVertexAssociation (const edm::ParameterSet& ps);
@@ -37,9 +39,9 @@ namespace cms{
     typedef std::vector<bool> ResultCollection2;
 
     JetVertexMain m_algo;
-    std::string jet_algo;
-    std::string track_algo;
-    std::string vertex_algo;
+    edm::EDGetTokenT<reco::CaloJetCollection> jet_token;
+    edm::EDGetTokenT<reco::TrackCollection> track_token;
+    edm::EDGetTokenT<reco::VertexCollection> vertex_token;
 
   };
 }

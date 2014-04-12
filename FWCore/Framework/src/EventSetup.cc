@@ -16,6 +16,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 namespace edm {
 //
@@ -75,6 +76,13 @@ EventSetup::clear()
 {
    recordMap_.clear();
 }
+   
+void 
+EventSetup::add(const eventsetup::EventSetupRecord& iRecord) 
+{
+   insert(iRecord.key(), &iRecord);
+}
+   
 //
 // const member functions
 //
@@ -87,6 +95,20 @@ EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
       return 0;
    }
    return itFind->second;
+}
+
+void 
+EventSetup::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const
+{
+  oToFill.clear();
+  oToFill.reserve(recordMap_.size());
+  
+  typedef std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> KeyToRecordMap;
+  for(KeyToRecordMap::const_iterator it = recordMap_.begin(), itEnd=recordMap_.end();
+      it != itEnd;
+      ++it) {
+    oToFill.push_back(it->first);
+  }
 }
 
 //

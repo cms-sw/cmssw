@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 12:10:23 EDT 2007
-// $Id: PluginFactory.h,v 1.4 2007/04/17 22:15:45 wmtan Exp $
 //
 
 // system include files
@@ -25,192 +24,74 @@
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 // forward declarations
 
 namespace edmplugin {
-  template< class T> class PluginFactory;
+template< class T> class PluginFactory;
   class DummyFriend;
   
-template<class R>
-class PluginFactory<R * (void)> : public PluginFactoryBase
+template<typename R, typename... Args>
+class PluginFactory<R*(Args...)> : public PluginFactoryBase
 {
       friend class DummyFriend;
    public:
+      typedef R* TemplateArgType(Args...);
+
       struct PMakerBase {
-        virtual R* create(void) const = 0;
+        virtual R* create(Args...) const = 0;
         virtual ~PMakerBase() {}
       };
       template<class TPlug>
       struct PMaker : public PMakerBase {
         PMaker(const std::string& iName) {
-          PluginFactory<R*(void)>::get()->registerPMaker(this,iName);
+          PluginFactory<R*(Args...)>::get()->registerPMaker(this,iName);
         }
-        virtual R* create() const {
-          return new TPlug();
+        virtual R* create(Args... args) const {
+          return new TPlug(std::forward<Args>(args)...);
         }
       };
-      typedef std::vector<std::pair<PMakerBase*, std::string> > PMakers;
-      typedef std::map<std::string, PMakers > Plugins;
 
       // ---------- const member functions ---------------------
-      virtual std::vector<PluginInfo> available() const {
-        std::vector<PluginInfo> returnValue;
-        returnValue.reserve(m_plugins.size());
-        fillAvailable(m_plugins.begin(),
-                      m_plugins.end(),
-                      returnValue);
-        return returnValue;
-      }
       virtual const std::string& category() const ;
       
-      R* create(const std::string& iName) const {
-        return PluginFactoryBase::findPMaker(iName,m_plugins)->second.front().first->create();
+      R* create(const std::string& iName, Args... args) const {
+        return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName))->create(std::forward<Args>(args)...);
+      }
+
+      ///like above but returns 0 if iName is unknown
+      R* tryToCreate(const std::string& iName, Args... args) const {
+        auto found = PluginFactoryBase::tryToFindPMaker(iName);
+        if(found ==nullptr) {
+          return nullptr;
+        }
+        return reinterpret_cast<PMakerBase*>(found)->create(args...);
       }
       // ---------- static member functions --------------------
 
-      static PluginFactory<R*(void)>* get();
+      static PluginFactory<R*(Args...)>* get();
       // ---------- member functions ---------------------------
       void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-        m_plugins[iName].push_back(std::pair<PMakerBase*,std::string>(iPMaker,PluginManager::loadingFile()));
-        newPlugin(iName);
+        PluginFactoryBase::registerPMaker(iPMaker, iName);
       }
 
    private:
       PluginFactory() {
         finishedConstruction();
       }
-      PluginFactory(const PluginFactory&); // stop default
+      PluginFactory(const PluginFactory&) = delete; // stop default
 
-      const PluginFactory& operator=(const PluginFactory&); // stop default
-
-      // ---------- member data --------------------------------
-      Plugins m_plugins;
+      const PluginFactory& operator=(const PluginFactory&) = delete; // stop default
 
 };
-
-template<class R, class Arg>
-class PluginFactory<R * (Arg)> : public PluginFactoryBase
-{
-  friend class DummyFriend;
-public:
-  struct PMakerBase {
-    virtual R* create(Arg) const = 0;
-    virtual ~PMakerBase() {}
-  };
-  template<class TPlug>
-    struct PMaker : public PMakerBase {
-      PMaker(const std::string& iName) {
-        PluginFactory<R*(Arg)>::get()->registerPMaker(this,iName);
-      }
-      virtual R* create(Arg iArg) const {
-        return new TPlug(iArg);
-      }
-    };
-  typedef std::vector<std::pair<PMakerBase*, std::string> > PMakers;
-  typedef std::map<std::string, PMakers > Plugins;
-  
-  // ---------- const member functions ---------------------
-  virtual std::vector<PluginInfo> available() const {
-    std::vector<PluginInfo> returnValue;
-    returnValue.reserve(m_plugins.size());
-    fillAvailable(m_plugins.begin(),
-                  m_plugins.end(),
-                  returnValue);
-    return returnValue;
-  }
-  virtual const std::string& category() const ;
-  
-  R* create(const std::string& iName, Arg iArg) const {
-    return PluginFactoryBase::findPMaker(iName,m_plugins)->second.front().first->create(iArg);
-  }
-  // ---------- static member functions --------------------
-  
-  static PluginFactory<R*(Arg)>* get();
-  // ---------- member functions ---------------------------
-  void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-    m_plugins[iName].push_back(std::pair<PMakerBase*,std::string>(iPMaker,PluginManager::loadingFile()));
-    newPlugin(iName);
-  }
-  
-private:
-    PluginFactory() {
-      finishedConstruction();
-    }
-  PluginFactory(const PluginFactory&); // stop default
-  
-  const PluginFactory& operator=(const PluginFactory&); // stop default
-  
-  // ---------- member data --------------------------------
-  Plugins m_plugins;
-  
-};
-
-template<class R, class Arg1, class Arg2>
-class PluginFactory<R * (Arg1, Arg2)> : public PluginFactoryBase
-{
-  friend class DummyFriend;
-public:
-  struct PMakerBase {
-    virtual R* create(Arg1, Arg2) const = 0;
-    virtual ~PMakerBase() {}
-  };
-  template<class TPlug>
-    struct PMaker : public PMakerBase {
-      PMaker(const std::string& iName) {
-        PluginFactory<R*(Arg1,Arg2)>::get()->registerPMaker(this,iName);
-      }
-      virtual R* create(Arg1 iArg1, Arg2 iArg2) const {
-        return new TPlug(iArg1, iArg2);
-      }
-    };
-  typedef std::vector<std::pair<PMakerBase*, std::string> > PMakers;
-  typedef std::map<std::string, PMakers > Plugins;
-  
-  // ---------- const member functions ---------------------
-  virtual std::vector<PluginInfo> available() const {
-    std::vector<PluginInfo> returnValue;
-    returnValue.reserve(m_plugins.size());
-    fillAvailable(m_plugins.begin(),
-                  m_plugins.end(),
-                  returnValue);
-    return returnValue;
-  }
-  virtual const std::string& category() const ;
-  
-  R* create(const std::string& iName, Arg1 iArg1, Arg2 iArg2) const {
-    return PluginFactoryBase::findPMaker(iName,m_plugins)->second.front().first->create(iArg1, iArg2);
-  }
-  // ---------- static member functions --------------------
-  
-  static PluginFactory<R*(Arg1,Arg2)>* get();
-  // ---------- member functions ---------------------------
-  void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-    m_plugins[iName].push_back(std::pair<PMakerBase*,std::string>(iPMaker,PluginManager::loadingFile()));
-    newPlugin(iName);
-  }
-  
-private:
-    PluginFactory() {
-      finishedConstruction();
-    }
-  PluginFactory(const PluginFactory&); // stop default
-  
-  const PluginFactory& operator=(const PluginFactory&); // stop default
-  
-  // ---------- member data --------------------------------
-  Plugins m_plugins;
-};
-
 }
 #define CONCATENATE_HIDDEN(a,b) a ## b 
 #define CONCATENATE(a,b) CONCATENATE_HIDDEN(a,b)
 #define EDM_REGISTER_PLUGINFACTORY(_factory_,_category_) \
 namespace edmplugin {\
-  template<> _factory_* _factory_::get() { static _factory_ s_instance; return &s_instance;}\
-  template<> const std::string& _factory_::category() const { static std::string s_cat(_category_);  return s_cat;}\
-} enum {CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__)}
+  template<> edmplugin::PluginFactory<_factory_::TemplateArgType>* edmplugin::PluginFactory<_factory_::TemplateArgType>::get() { [[cms::thread_safe]] static edmplugin::PluginFactory<_factory_::TemplateArgType> s_instance; return &s_instance;}\
+  template<> const std::string& edmplugin::PluginFactory<_factory_::TemplateArgType>::category() const { static const std::string s_cat(_category_);  return s_cat;}\
+  } enum {CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__)}
 
 #endif
 
@@ -218,7 +99,5 @@ namespace edmplugin {\
 #define EDM_PLUGIN_SYM2(x,y) x ## y
 
 #define DEFINE_EDM_PLUGIN(factory,type,name) \
-static factory::PMaker<type> EDM_PLUGIN_SYM(s_maker , __LINE__ ) (name)
+static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker , __LINE__ ) (name)
 
-//for backwards compatiblity
-#include "FWCore/PluginManager/interface/ModuleDef.h"

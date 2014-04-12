@@ -8,8 +8,6 @@
 
 /** \class HcalTriggerPrimitiveDigi
     
-$Date: 2006/07/15 02:28:36 $
-$Revision: 1.7 $
 \author J. Mans - Minnesota
 */
 class HcalTriggerPrimitiveDigi {
@@ -20,14 +18,21 @@ public:
   explicit HcalTriggerPrimitiveDigi(const HcalTrigTowerDetId& id);
   
   const HcalTrigTowerDetId& id() const { return id_; }
-  int size() const { return size_; }
-  int presamples() const { return hcalPresamples_; }
-  
+  int size() const { return (size_&0xF); }
+  int presamples() const { return hcalPresamples_&0xF; }
+
+   /// was ZS MarkAndPass?
+  bool zsMarkAndPass() const { return (hcalPresamples_&0x10); }
+  /// was ZS unsuppressed?
+  bool zsUnsuppressed() const { return (hcalPresamples_&0x20); }
+
+  void setZSInfo(bool unsuppressed, bool markAndPass);
+
   const HcalTriggerPrimitiveSample& operator[](int i) const { return data_[i]; }
   const HcalTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
 
   /// Full "Sample of Interest"
-  const HcalTriggerPrimitiveSample& t0() const { return data_[hcalPresamples_]; }  
+  const HcalTriggerPrimitiveSample& t0() const { return data_[presamples()]; }  
   /// Fine-grain bit for the "Sample of Interest"
   bool SOI_fineGrain() const { return t0().fineGrain(); }
   /// Compressed ET for the "Sample of Interest"

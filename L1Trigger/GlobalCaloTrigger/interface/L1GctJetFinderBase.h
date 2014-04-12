@@ -1,19 +1,25 @@
 #ifndef L1GCTJETFINDERBASE_H_
 #define L1GCTJETFINDERBASE_H_
 
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEtSum.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternHtMiss.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
 #include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
 
+class L1GctInternJetData;
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
+class L1GctChannelMask;
+class L1CaloRegion;
 
 
 /*! \class L1GctJetFinderBase
@@ -47,14 +53,68 @@ public:
   //Typedefs
   typedef unsigned long int ULong;
   typedef unsigned short int UShort;
-  typedef std::vector<L1CaloRegion> RegionsVector;
+  typedef std::vector<L1GctRegion>  RegionsVector;
   typedef std::vector<L1GctJet>     RawJetVector;
   typedef std::vector<L1GctJetCand> JetVector;
+  typedef Pipeline<L1GctJet>        RawJetPipeline;
+  typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etTotalType;
+  typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etHadType;
+  typedef L1GctTwosComplement<  L1GctInternEtSum::kJetMissEtNBits > etCompInternJfType;
+  typedef L1GctTwosComplement< L1GctInternHtMiss::kJetMissHtNBits > htCompInternJfType;
+
+  enum maxValues {
+    etTotalMaxValue = L1GctInternEtSum::kTotEtOrHtMaxValue,
+    htTotalMaxValue = L1GctInternEtSum::kTotEtOrHtMaxValue
+  };
+
+
+  // For HF-based triggers we sum the Et in the two "inner" (large eta) rings;
+  // and count towers over threshold based on the "fineGrain" bit from the RCT.
+  // Define a data type to transfer the result of all calculations.
+  // The results are defined as L1GctJetCount types since they don't have
+  // a separate overFlow bit. An overflow condition gives value=max.
+
+  struct hfTowerSumsType {
+
+    enum numberOfBits {
+      kHfEtSumBits = 8,
+      kHfCountBits = 5
+    };
+
+    L1GctJetCount< kHfEtSumBits > etSum0;
+    L1GctJetCount< kHfEtSumBits > etSum1;
+    L1GctJetCount< kHfCountBits > nOverThreshold0;
+    L1GctJetCount< kHfCountBits > nOverThreshold1;
+
+    // Define some constructors and an addition operator for our data type
+    hfTowerSumsType() : etSum0(0), etSum1(0), nOverThreshold0(0), nOverThreshold1(0) {}
+    hfTowerSumsType(unsigned e0, unsigned e1, unsigned n0, unsigned n1) : 
+      etSum0(e0), etSum1(e1), nOverThreshold0(n0), nOverThreshold1(n1) {}
+    hfTowerSumsType(L1GctJetCount< kHfEtSumBits > e0,
+                    L1GctJetCount< kHfEtSumBits > e1,
+                    L1GctJetCount< kHfCountBits > n0,
+                    L1GctJetCount< kHfCountBits > n1) : etSum0(e0), etSum1(e1), nOverThreshold0(n0), nOverThreshold1(n1) {}
+
+    void reset() { etSum0.reset(); etSum1.reset(); nOverThreshold0.reset(); nOverThreshold1.reset(); }
+
+    hfTowerSumsType operator+(const hfTowerSumsType& rhs) const {
+      hfTowerSumsType temp( (this->etSum0+rhs.etSum0),
+                            (this->etSum1+rhs.etSum1),
+                            (this->nOverThreshold0+rhs.nOverThreshold0),
+                            (this->nOverThreshold1+rhs.nOverThreshold1) );
+      return temp;
+    } 
+
+  };
+
+  typedef L1GctJet::lutPtr lutPtr;
+  typedef std::vector<lutPtr> lutPtrVector;
 
   //Statics
   static const unsigned int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area.
   static const unsigned int COL_OFFSET;  ///< The index offset between columns
   static const unsigned int N_JF_PER_WHEEL; ///< No of jetFinders per Wheel
+  static const unsigned int N_EXTRA_REGIONS_ETA00; ///< Number of additional regions to process on the "wrong" side of eta=0 (determines COL_OFFSET) 
     
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
   L1GctJetFinderBase(int id);
@@ -62,24 +122,32 @@ public:
   ~L1GctJetFinderBase();
    
   /// Set pointers to neighbours - needed to complete the setup
-  void setNeighbourJetFinders(std::vector<L1GctJetFinderBase*> neighbours);
+  void setNeighbourJetFinders(const std::vector<L1GctJetFinderBase*>& neighbours);
 
   /// Set pointer to parameters - needed to complete the setup
   void setJetFinderParams(const L1GctJetFinderParams* jfpars);
 
   /// Set pointer to calibration Lut - needed to complete the setup
-  void setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut);
+  void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
+
+  /// Set masks for energy summing
+  void setEnergySumMasks(const L1GctChannelMask* chmask);
+
+  /// Setup the tau algorithm parameters
+  void setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation) {
+    m_useImprovedTauAlgo            = useImprovedAlgo;
+    m_ignoreTauVetoBitsForIsolation = ignoreVetoBitsForIsolation;
+  }
 
   /// Check setup is Ok
-  bool setupOk() const { return m_gotNeighbourPointers
-                             && m_gotJetFinderParams
-                             && (m_jetEtCalLut != 0); }
+  bool setupOk() const { return m_idInRange
+			   && m_gotNeighbourPointers
+			   && m_gotJetFinderParams
+			   && m_gotJetEtCalLuts
+                           && m_gotChannelMask; }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
-
-  /// clear internal buffers
-  virtual void reset();
 
   /// get input data from sources; to be filled in by derived jetFinders
   virtual void fetchInput() = 0;
@@ -88,7 +156,7 @@ public:
   virtual void process() = 0;
 
   /// Set input data
-  void setInputRegion(L1CaloRegion region);
+  void setInputRegion(const L1CaloRegion& region);
     
   /// Return input data   
   RegionsVector getInputRegions() const { return m_inputRegions; }
@@ -103,24 +171,47 @@ public:
   RegionsVector getKeptProtoJets() const { return m_keptProtoJets; }
 
   /// get output jets in raw format
-  RawJetVector getRawJets() const { return m_outputJets; } 
+  RawJetVector getRawJets() const { return m_outputJetsPipe.contents; } 
 
-  /// Return pointer to calibration LUT
-  const L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
+  /// get output jets in raw format - to be stored in the event
+  std::vector< L1GctInternJetData > getInternalJets() const;
+
+  /// get et sums in raw format - to be stored in the event
+  std::vector< L1GctInternEtSum  > getInternalEtSums() const;
+  std::vector< L1GctInternHtMiss > getInternalHtMiss() const;
+
+  /// Return pointers to calibration LUTs
+  const lutPtrVector getJetEtCalLuts() const { return m_jetEtCalLuts; }
 
   // The hardware output quantities
-  JetVector getJets() const { return m_sortedJets; } ///< Get the located jets. 
-  L1GctUnsignedInt<12> getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
-  L1GctUnsignedInt<12> getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
-  L1GctUnsignedInt<12> getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
+  JetVector getJets() const { return m_sortedJets; } ///< Get the located jets.
+  // The hardware output quantities - refactored
+  etTotalType        getEtSum() const { return m_outputEtSum; }  ///< Get the scalar sum of Et summed over the input regions
+  etCompInternJfType getExSum() const { return m_outputExSum; }  ///< Get the x component of vector Et summed over the input regions
+  etCompInternJfType getEySum() const { return m_outputEySum; }  ///< Get the y component of vector Et summed over the input regions
+  etHadType          getHtSum() const { return m_outputHtSum; }  ///< Get the scalar sum of Ht summed over jets above threshold
+  htCompInternJfType getHxSum() const { return m_outputHxSum; }  ///< Get the x component of vector Ht summed over jets above threshold
+  htCompInternJfType getHySum() const { return m_outputHySum; }  ///< Get the y component of vector Ht summed over jets above threshold
 
-  // comparison operator for sorting jets in the Wheel Fpga, JetFinder, and JetFinalStage
-  struct rankGreaterThan : public std::binary_function<L1GctJetCand, L1GctJetCand, bool> 
-  {
-    bool operator()(const L1GctJetCand& x, const L1GctJetCand& y) {
-      return ( x.rank() > y.rank() ) ;
-    }
-  };
+  hfTowerSumsType getHfSums() const { return m_outputHfSums; }  ///< Get the Hf tower Et sums and tower-over-threshold counts
+
+  // Access to threshold and cut values
+  unsigned getCenJetSeed() const { return m_CenJetSeed; }
+  unsigned getFwdJetSeed() const { return m_FwdJetSeed; }
+  unsigned getTauJetSeed() const { return m_TauJetSeed; }
+  unsigned getEtaBoundry() const { return m_EtaBoundry; }
+  unsigned getTauIsolationThreshold() const { return m_tauIsolationThreshold; }
+  unsigned getHttSumJetThreshold() const { return m_HttSumJetThreshold; }
+  unsigned getHtmSumJetThreshold() const { return m_HtmSumJetThreshold; }
+
+ protected:
+
+  /// Separate reset methods for the processor itself and any data stored in pipelines
+  virtual void resetProcessor();
+  virtual void resetPipelines();
+
+  /// Initialise inputs with null objects for the correct bunch crossing if required
+  virtual void setupObjects();
 
  protected:
 
@@ -133,21 +224,76 @@ public:
   /// Store neighbour pointers
   std::vector<L1GctJetFinderBase*> m_neighbourJetFinders;
   
+  /// Remember whether range check on the input ID was ok
+  bool m_idInRange;
+  
   /// Remember whether the neighbour pointers have been stored
   bool m_gotNeighbourPointers;
 
   /// Remember whether jetfinder parameters have been stored
   bool m_gotJetFinderParams;
 
+  /// Remember whether jet Et calibration Lut pointers have been stored
+  bool m_gotJetEtCalLuts;
+
+  /// Remember whether channel mask have been stored
+  bool m_gotChannelMask;
+
+  ///
+  /// *** Geometry parameters ***
+  ///
+  /// Positive/negative eta flag
+  bool m_positiveEtaWheel;
+
+  /// parameter to determine which Regions belong in our acceptance
+  unsigned m_minColThisJf;
+  ///
+  ///---------------------------------------------------------------------------------------
+  ///
+  /// *** Setup parameters for this jetfinder instance ***
+  ///
   /// jetFinder parameters (from EventSetup)
   unsigned m_CenJetSeed;
   unsigned m_FwdJetSeed;
   unsigned m_TauJetSeed;
   unsigned m_EtaBoundry;
 
-  /// Jet Et Converstion LUT pointer
-  const L1GctJetEtCalibrationLut* m_jetEtCalLut;
+  /// Jet Et Conversion LUT pointer
+  lutPtrVector m_jetEtCalLuts;
+
+  /// Setup parameters for the tau jet algorithm
+  // If the following parameter is set to false, the tau identification
+  // is just based on the RCT tau veto bits from the nine regions
+  bool m_useImprovedTauAlgo;
+
+  // If useImprovedTauAlgo is true, these two parameters affect
+  // the operation of the algorithm.
+
+  // We can require the tau veto bits to be off in all nine regions,
+  // or just in the central region.
+  bool m_ignoreTauVetoBitsForIsolation;
     
+  // In the improved tau algorithm, we require no more than one tower energy to be 
+  // above the isolation threshold, in the eight regions surrounding the central one. 
+  unsigned m_tauIsolationThreshold;
+
+  // Thresholds on individual jet energies used in HTT and HTM summing
+  unsigned m_HttSumJetThreshold;
+  unsigned m_HtmSumJetThreshold;
+
+  // Masks for restricting the eta range of energy sums
+  bool m_EttMask[11];
+  bool m_EtmMask[11];
+  bool m_HttMask[11];
+  bool m_HtmMask[11];
+
+  ///
+  /// *** End of setup parameters ***
+  ///
+  ///---------------------------------------------------------------------------------------
+  ///
+  /// *** Start of event data ***
+  ///
   /// input data required for jet finding
   RegionsVector m_inputRegions;
 
@@ -162,11 +308,20 @@ public:
   RawJetVector m_outputJets;
   JetVector m_sortedJets;
 
-  /// output Et strip sums and Ht
-  L1GctUnsignedInt<12> m_outputEtStrip0;
-  L1GctUnsignedInt<12> m_outputEtStrip1;
-  L1GctUnsignedInt<12> m_outputHt;
+  /// output Et strip sums and Ht - refactored
+  etTotalType        m_outputEtSum;
+  etCompInternJfType m_outputExSum;
+  etCompInternJfType m_outputEySum;
+  etHadType          m_outputHtSum;
+  htCompInternJfType m_outputHxSum;
+  htCompInternJfType m_outputHySum;
+
+  hfTowerSumsType m_outputHfSums;
     
+  ///
+  /// *** End of event data ***
+  ///
+  ///---------------------------------------------------------------------------------------
   //PROTECTED METHODS
   // Return the values of constants that might be changed by different jetFinders.
   // Each jetFinder must define the constants as private and copy the
@@ -184,13 +339,19 @@ public:
   void doEnergySums();
     
   /// Calculates total (raw) energy in a phi strip
-  L1GctUnsignedInt<12> calcEtStrip(const UShort strip) const;
+  etTotalType calcEtStrip(const UShort strip) const;
 
   /// Calculates total calibrated energy in jets (Ht) sum
-  L1GctUnsignedInt<12> calcHt() const;
+  etTotalType calcHtStrip(const UShort strip) const;
   
-  /// parameter to determine which Regions belong in our acceptance
-  unsigned m_minColThisJf;
+  /// Calculates scalar and vector sum of Et over input regions
+  void doEtSums() ;
+  
+  /// Calculates scalar and vector sum of Ht over calibrated jets
+  void doHtSums() ;
+  
+  /// Calculates Et sum and number of towers over threshold in Hf
+  hfTowerSumsType calcHfSums() const;
 
  private:
 
@@ -198,6 +359,25 @@ public:
   static const unsigned int MAX_REGIONS_IN; ///< Dependent on number of rows and columns.
   static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
+
+  /// Output jets "pipeline memory" for checking
+  RawJetPipeline m_outputJetsPipe;
+
+  /// "Pipeline memories" for energy sums
+  Pipeline< etTotalType        > m_outputEtSumPipe;
+  Pipeline< etCompInternJfType > m_outputExSumPipe;
+  Pipeline< etCompInternJfType > m_outputEySumPipe;
+  Pipeline< etHadType          > m_outputHtSumPipe;
+  Pipeline< htCompInternJfType > m_outputHxSumPipe;
+  Pipeline< htCompInternJfType > m_outputHySumPipe;
+
+  /// Private method for calculating MEt and MHt components
+  template <int kBitsInput, int kBitsOutput>
+    L1GctTwosComplement<kBitsOutput>
+    etComponentForJetFinder(const L1GctUnsignedInt<kBitsInput>& etStrip0, const unsigned& fact0,
+			    const L1GctUnsignedInt<kBitsInput>& etStrip1, const unsigned& fact1);
+
+
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);

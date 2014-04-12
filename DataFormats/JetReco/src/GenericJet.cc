@@ -1,6 +1,5 @@
 // GenericJet.cc
 // Fedor Ratnikov, UMd
-// $Id: GenericJet.cc,v 1.2 2007/03/26 22:05:41 fedor Exp $
 
 #include <sstream>
 

@@ -2,13 +2,9 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-
-EcalRecHit::EcalRecHit() : CaloRecHit() {
-}
-
-EcalRecHit::EcalRecHit(const DetId& id, float energy, float time) :
-  CaloRecHit(id,energy,time) {
-}
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cassert>
+#include <math.h>
 
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit) {
   if (hit.detid().det() == DetId::Ecal && hit.detid().subdetId() == EcalBarrel) 
@@ -20,4 +16,5 @@ std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit) {
   else
     return s << "EcalRecHit undefined subdetector" ;
 }
+
 

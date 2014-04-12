@@ -5,13 +5,12 @@
  * Generate event vertices according to a Flat distribution. 
  * Attention: All values are assumed to be cm!
  *
- * $Id: FlatEvtVtxGenerator.h,v 1.3 2007/03/22 02:28:46 yarba Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 
 namespace CLHEP {
-   class RandFlat;
+  class HepRandomEngine;
 }
 
 class FlatEvtVtxGenerator : public BaseEvtVtxGenerator 
@@ -22,12 +21,13 @@ public:
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
-  virtual HepMC::FourVector* newVertex() ;
+  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
 
   virtual TMatrixD* GetInvLorentzBoost() {
 	  return 0;
   }
-  
+
+    
   /// set min in X in cm
   void minX(double m=0.0);
   /// set min in Y in cm
@@ -50,7 +50,7 @@ private:
 private:
   double fMinX, fMinY, fMinZ;
   double fMaxX, fMaxY, fMaxZ;
-  CLHEP::RandFlat*  fRandom ; 
+  double fTimeOffset;
 };
 
 #endif

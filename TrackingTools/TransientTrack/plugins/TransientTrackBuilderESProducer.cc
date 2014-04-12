@@ -1,12 +1,10 @@
 #include "TransientTrackBuilderESProducer.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "boost/mpl/vector.hpp" 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
 
 #include <string>
 #include <memory>

@@ -31,7 +31,7 @@ namespace {
     return ret;
   }
 
-  int verbose()
+  inline int verbose()
   {
     return 0;
   }
@@ -48,7 +48,7 @@ namespace {
     return a;
   }
 
-  bool element ( const reco::TransientTrack & rt, const TransientVertex & rv )
+  inline bool element ( const reco::TransientTrack & rt, const TransientVertex & rv )
   {
     const vector < reco::TransientTrack > trks = rv.originalTracks();
     for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); i!=trks.end() ; ++i )
@@ -128,15 +128,17 @@ namespace {
     for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); 
           i!=trks.end() ; ++i )
     {
-      pair < GlobalPoint, GlobalPoint > pt = 
-        ttmd.points ( axis,*( i->impactPointState().freeState() ) );
-      double d = ( pt.first - pt.second ).mag();
-      double w = 1. / ( 0.002 + d ); // hard coded weights
-      double s = ( pt.first - axis.position() ).mag();
-      Measurement1D ms ( s, 1.0 );
-      vector < const reco::TransientTrack * > trk;
-      trk.push_back ( &(*i) );
-      pts.push_back ( Cluster1D < reco::TransientTrack > ( ms, trk, w ) );
+      bool status = ttmd.calculate( axis,*( i->impactPointState().freeState() ) );
+      if (status) {
+        pair < GlobalPoint, GlobalPoint > pt = ttmd.points();
+        double d = ( pt.first - pt.second ).mag();
+        double w = 1. / ( 0.002 + d ); // hard coded weights
+        double s = ( pt.first - axis.position() ).mag();
+        Measurement1D ms ( s, 1.0 );
+        vector < const reco::TransientTrack * > trk;
+        trk.push_back ( &(*i) );
+        pts.push_back ( Cluster1D < reco::TransientTrack > ( ms, trk, w ) );
+      }
     }
     /*
     #ifdef MVBS_DEBUG
@@ -149,7 +151,7 @@ namespace {
     return pts;
   }
 
-  GlobalPoint computePos ( const GlobalTrajectoryParameters & jet,
+  inline GlobalPoint computePos ( const GlobalTrajectoryParameters & jet,
       double s )
   {
     GlobalPoint ret = jet.position();
@@ -168,12 +170,8 @@ namespace {
     GlobalError ge;
     if ( kalmanfit )
     {
-      try {
         TransientVertex v = KalmanVertexFitter().vertex ( trks );
         gp=v.position();
-      } catch ( ... ) {
-        edm::LogWarning("MultiVertexBSeeder") << "pseudo vtx fit failed.";
-      };
     }
     TransientVertex ret = TransientVertex ( gp, ge, trks, -1. );
     TransientVertex::TransientTrackToFloatMap mp;
@@ -193,11 +191,9 @@ namespace {
   /* TransientVertex kalmanVertexFit ( const Cluster1D < reco::TransientTrack > & src )
   {
     KalmanVertexFitter fitter;
-    try {
       vector < const reco::TransientTrack * > trkptrs=src.tracks();
       vector < reco::TransientTrack > trks = convert ( trkptrs );
       return fitter.vertex ( trks );
-    } catch ( ... ) {};
     return TransientVertex();
   }*/
 }

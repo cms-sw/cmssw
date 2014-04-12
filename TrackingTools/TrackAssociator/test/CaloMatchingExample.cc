@@ -11,7 +11,6 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloMatchingExample.cc,v 1.6 2007/04/13 03:09:28 dmytro Exp $
 //
 //
 
@@ -50,7 +49,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 // calorimeter info
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -147,7 +146,7 @@ class CaloMatchingExample : public edm::EDAnalyzer {
 
 CaloMatchingExample::CaloMatchingExample(const edm::ParameterSet& iConfig)
 {
-   HepRandom::createInstance();
+   CLHEP::HepRandom::createInstance();
    file_ = new TFile( iConfig.getParameter<std::string>("outputfile").c_str(), "recreate");
    tree_ = new TTree( "calomatch","calomatch" );
    tree_->Branch("nTracks",&nTracks_,"nTracks/I");
@@ -224,8 +223,8 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
    
    // calo geometry
    edm::ESHandle<CaloGeometry> geometry;
-   iSetup.get<IdealGeometryRecord>().get(geometry);
-   if (! geometry.isValid()) throw cms::Exception("FatalError") << "Unable to find IdealGeometryRecord in event!\n";
+   iSetup.get<CaloGeometryRecord>().get(geometry);
+   if (! geometry.isValid()) throw cms::Exception("FatalError") << "Unable to find CaloGeometryRecord in event!\n";
 
    nTracks_ = 0;
    
@@ -255,7 +254,7 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       LogTrace("TrackAssociator") << "===========================================================================\nDetails:\n" ;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *recoTrack, parameters_);
       // get some noise info (random direction)
-      ROOT::Math::RhoEtaPhiVector randomVector(10,(HepRandom::getTheEngine()->flat()-0.5)*6,(HepRandom::getTheEngine()->flat()-0.5)*2*M_PI);
+      ROOT::Math::RhoEtaPhiVector randomVector(10,(CLHEP::HepRandom::getTheEngine()->flat()-0.5)*6,(CLHEP::HepRandom::getTheEngine()->flat()-0.5)*2*M_PI);
       TrackDetMatchInfo infoRandom = trackAssociator_.associate(iEvent, iSetup,      
 								GlobalVector(randomVector.x(),randomVector.y(),randomVector.z()),
 								GlobalPoint(0,0,0),

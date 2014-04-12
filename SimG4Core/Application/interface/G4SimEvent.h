@@ -8,7 +8,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "HepMC/GenEvent.h"
-#include "CLHEP/Vector/LorentzVector.h"
+// #include "CLHEP/Vector/LorentzVector.h"
 
 #include <vector>
 
@@ -26,11 +26,11 @@ public:
     const HepMC::GenEvent * hepEvent() const { return hepMCEvent; }
     void weight(float w) { weight_ = w; }
     const float weight() const { return weight_; }
-    void collisionPoint(HepLorentzVector v) { collisionPoint_ = v; }
-    const HepLorentzVector collisionPoint() const { return collisionPoint_; }
+    void collisionPoint( const math::XYZTLorentzVectorD& v ) { collisionPoint_ = v ; }
+    const math::XYZTLorentzVectorD& collisionPoint() const { return collisionPoint_; }
     void nparam(int n) { nparam_ = n; }
     const int nparam() const { return nparam_; }
-    void param(std::vector<float> p) { param_ = p; }
+    void param(const std::vector<float>& p) { param_ = p; }
     const std::vector<float> & param() const { return param_; }
     void add(G4SimTrack * t) { g4tracks.push_back(t); }
     void add(G4SimVertex * v) { g4vertices.push_back(v); }
@@ -39,7 +39,7 @@ public:
 protected:
     const HepMC::GenEvent * hepMCEvent;  
     float weight_;
-    HepLorentzVector collisionPoint_;
+    math::XYZTLorentzVectorD collisionPoint_;
     int nparam_;
     std::vector<float> param_;
     std::vector<G4SimTrack *> g4tracks;

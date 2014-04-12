@@ -31,15 +31,13 @@
 // of the pixel algorithm.
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
-// Already defined in the base class
-//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-//#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-//#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-//#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-//#include "Geometry/Surface/interface/GloballyPositioned.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+// The template header files
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+
 
 #include <utility>
 #include <vector>
@@ -57,49 +55,42 @@ class PixelCPEGeneric : public PixelCPEBase
 {
  public:
   // PixelCPEGeneric( const DetUnit& det );
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField*);
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
+		  const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, 
+		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
   ~PixelCPEGeneric() {;}
 
-  LocalPoint localPosition (const SiPixelCluster& cluster, const GeomDetUnit & det) const; 
-  
-  // However, we do need to implement localError().
-  LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const;
-  
-  MeasurementPoint measurementPosition ( const SiPixelCluster&, 
-					 const GeomDetUnit & det) const;
-/*   MeasurementError measurementError    ( const SiPixelCluster&,  */
-/* 					  const GeomDetUnit & det) const; */
 
+ 
+private:
+  LocalPoint localPosition (const SiPixelCluster& cluster) const; 
+  LocalError localError   (const SiPixelCluster& cl) const;
 
- private:
   //--------------------------------------------------------------------
   //  Methods.
   //------------------------------------------------------------------
-  double
-    generic_position_formula( int size,                //!< Size of this projection.
-			      double Q_f,              //!< Charge in the first pixel.
-			      double Q_l,              //!< Charge in the last pixel.
-			      double upper_edge_first_pix, //!< As the name says.
-			      double lower_edge_last_pix,  //!< As the name says.
-			      double half_lorentz_shift,   //!< L-shift at half thickness
-			      double cot_angle,            //!< cot of alpha_ or beta_
-			      double pitch,            //!< thePitchX or thePitchY
-			      bool first_is_big,       //!< true if the first is big
-			      bool last_is_big,        //!< true if the last is big
-			      double eff_charge_cut_low, //!< Use edge if > W_eff (in pix) &&&
-			      double eff_charge_cut_high,//!< Use edge if < W_eff (in pix) &&&
-			      double size_cut,           //!< Use edge when size == cuts
-			      float & cot_angle_from_length  //!< Aux output: angle from len
-			      ) const;
-
+  float
+  generic_position_formula( int size,                //!< Size of this projection.
+			    float Q_f,              //!< Charge in the first pixel.
+			    float Q_l,              //!< Charge in the last pixel.
+			    float upper_edge_first_pix, //!< As the name says.
+			    float lower_edge_last_pix,  //!< As the name says.
+			    float lorentz_shift,   //!< L-width
+			    float cot_angle,            //!< cot of alpha_ or beta_
+			    float pitch,            //!< thePitchX or thePitchY
+			    bool first_is_big,       //!< true if the first is big
+			    bool last_is_big,        //!< true if the last is big
+			    float eff_charge_cut_low, //!< Use edge if > W_eff (in pix) &&&
+			    float eff_charge_cut_high,//!< Use edge if < W_eff (in pix) &&&
+			    float size_cut           //!< Use edge when size == cuts
+			    ) const;
+  
   void
     collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 			 float & Q_f_X,              //!< output, Q first  in X 
 			 float & Q_l_X,              //!< output, Q last   in X
-			 float & Q_m_X,              //!< output, Q middle in X
 			 float & Q_f_Y,              //!< output, Q first  in Y 
-			 float & Q_l_Y,              //!< output, Q last   in Y
-			 float & Q_m_Y               //!< output, Q middle in Y
+			 float & Q_l_Y               //!< output, Q last   in Y
 			 ) const;
   
   
@@ -107,11 +98,62 @@ class PixelCPEGeneric : public PixelCPEBase
   float err2X(bool&, int&) const;
   float err2Y(bool&, int&) const;
 
- protected:
-  //--- These functions are no longer needed, yet they are declared 
-  //--- pure virtual in the base class.
-  float xpos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
-  float ypos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
+  //--- Cuts made externally settable
+  float the_eff_charge_cut_lowX;
+  float the_eff_charge_cut_lowY;
+  float the_eff_charge_cut_highX;
+  float the_eff_charge_cut_highY;
+  float the_size_cutX;
+  float the_size_cutY;
+
+  bool inflate_errors;
+  bool inflate_all_errors_no_trk_angle;
+
+  bool UseErrorsFromTemplates_;
+  bool DoCosmics_;
+  bool LoadTemplatesFromDB_;
+  bool TruncatePixelCharge_;
+  bool IrradiationBiasCorrection_;
+  bool isUpgrade_;
+
+  float EdgeClusterErrorX_;
+  float EdgeClusterErrorY_;
+
+  std::vector<float> xerr_barrel_l1_,yerr_barrel_l1_,xerr_barrel_ln_;
+  std::vector<float> yerr_barrel_ln_,xerr_endcap_,yerr_endcap_;
+  float xerr_barrel_l1_def_, yerr_barrel_l1_def_,xerr_barrel_ln_def_;
+  float yerr_barrel_ln_def_, xerr_endcap_def_, yerr_endcap_def_;
+
+
+  //--- DB Error Parametrization object
+  SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
+
+  mutable SiPixelTemplate templ_;
+  mutable int templID_; 
+
+  // The truncation value pix_maximum is an angle-dependent cutoff on the
+  // individual pixel signals. It should be applied to all pixels in the
+  // cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
+  // sums are made. Morris
+  mutable float pixmx;
+  
+  // These are errors predicted by PIXELAV
+  mutable float sigmay; // CPE Generic y-error for multi-pixel cluster
+  mutable float sigmax; // CPE Generic x-error for multi-pixel cluster
+  mutable float sy1   ; // CPE Generic y-error for single single-pixel
+  mutable float sy2   ; // CPE Generic y-error for single double-pixel cluster
+  mutable float sx1   ; // CPE Generic x-error for single single-pixel cluster
+  mutable float sx2   ; // CPE Generic x-error for single double-pixel cluster
+  
+  // These are irradiation bias corrections
+  mutable float deltay; // CPE Generic y-bias for multi-pixel cluster
+  mutable float deltax; // CPE Generic x-bias for multi-pixel cluster
+  mutable float dy1   ; // CPE Generic y-bias for single single-pixel cluster
+  mutable float dy2   ; // CPE Generic y-bias for single double-pixel cluster
+  mutable float dx1   ; // CPE Generic x-bias for single single-pixel cluster
+  mutable float dx2   ; // CPE Generic x-bias for single double-pixel cluster
+
+	 
 
 };
 

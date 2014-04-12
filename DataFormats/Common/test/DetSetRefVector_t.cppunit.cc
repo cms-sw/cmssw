@@ -1,6 +1,7 @@
-// $Id: DetSetRefVector_t.cppunit.cc,v 1.3 2007/01/19 04:29:07 wmtan Exp $
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/DetSetRefVector.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 
 
 class testDetSetRefVector : public CppUnit::TestFixture {
@@ -27,9 +28,6 @@ public:
     // concept VALUE.
     explicit Value(double d) : d_(d) { }
 
-    // The compiler-generated copy c'tor seems to do the wrong thing!
-    Value(Value const& other) : d_(other.d_) { }
-
     // This access function is used for testing; it is not required by
     // the concept VALUE.
     double val() const { return d_; }
@@ -47,16 +45,6 @@ public:
 private:
     double        d_;
   };
-
-  template<class T>
-    struct MyHandle {
-      typedef T element_type;
-      MyHandle(const T* iProd) : prod_(iProd) {}
-      edm::ProductID id() const {return edm::ProductID(1);}
-      const T* product() const {return prod_;}
-      const T* prod_;
-      const T* operator->() const {return prod_;}
-    };
 
 }
 
@@ -84,7 +72,7 @@ testDetSetRefVector::checkConstruction()
   c.insert(d1);
   c.post_insert();
 
-  MyHandle<dsv_type> pc2(&c);
+  edm::TestHandle<dsv_type> pc2(&c, edm::ProductID(1, 1));
 
   {
     std::vector<edm::det_id_type> ids;
@@ -143,7 +131,7 @@ testDetSetRefVector::checkFind()
   c.insert(d1);
   c.post_insert();
 
-  MyHandle<dsv_type> pc2(&c);
+  edm::TestHandle<dsv_type> pc2(&c, edm::ProductID(1, 1));
 
   {
     std::vector<edm::det_id_type> ids;

@@ -7,18 +7,18 @@
 #include "DCCTCCBlock.h"
 
 /*-------------------------------------------------*/
-/* DCCTCCBlock::DCCTCCBlock                        */
+/* DCCTBTCCBlock::DCCTBTCCBlock                        */
 /* class constructor                               */
 /*-------------------------------------------------*/
-DCCTCCBlock::DCCTCCBlock(
-	DCCEventBlock * dccBlock,
-	DCCDataParser * parser, 
-	ulong * buffer, 
-	ulong numbBytes,  
-	ulong wordsToEnd,
-	ulong wordEventOffset,
-	ulong expectedId) : 
-  DCCBlockPrototype(parser,"TCC", buffer, numbBytes, wordsToEnd, wordEventOffset),dccBlock_(dccBlock), expectedId_(expectedId){
+DCCTBTCCBlock::DCCTBTCCBlock(
+	DCCTBEventBlock * dccBlock,
+	DCCTBDataParser * parser, 
+	uint32_t * buffer, 
+	uint32_t numbBytes,  
+	uint32_t wordsToEnd,
+	uint32_t wordEventOffset,
+	uint32_t expectedId) : 
+  DCCTBBlockPrototype(parser,"TCC", buffer, numbBytes, wordsToEnd, wordEventOffset),dccBlock_(dccBlock), expectedId_(expectedId){
 
   //Reset error counters
   errors_["TCC::HEADER"]  = 0;
@@ -37,10 +37,10 @@ DCCTCCBlock::DCCTCCBlock(
 }
  
 /*---------------------------------------------------*/
-/* DCCTCCBlock::dataCheck                            */
+/* DCCTBTCCBlock::dataCheck                            */
 /* check data with data fields                       */
 /*---------------------------------------------------*/
-void DCCTCCBlock::dataCheck(){
+void DCCTBTCCBlock::dataCheck(){
   std::pair <bool,std::string> res;            //check result
   std::string checkErrors("");            //error string
 
@@ -69,7 +69,7 @@ void DCCTCCBlock::dataCheck(){
   if(checkErrors!=""){
   	 blockError_=true;
     errorString_ +="\n ======================================================================\n"; 
-	 errorString_ += std::string(" ") + name_ + std::string("( ID = ")+parser_->getDecString((ulong)(expectedId_))+std::string(" ) errors : ") ;
+	 errorString_ += std::string(" ") + name_ + std::string("( ID = ")+parser_->getDecString((uint32_t)(expectedId_))+std::string(" ) errors : ") ;
 	 errorString_ += checkErrors ;
 	 errorString_ += "\n ======================================================================";
   }
@@ -79,19 +79,19 @@ void DCCTCCBlock::dataCheck(){
 
 
 /*--------------------------------------------------*/
-/* DCCTCCBlock::increment                           */
+/* DCCTBTCCBlock::increment                           */
 /* increment a TCC block                            */
 /*--------------------------------------------------*/
 
-void  DCCTCCBlock::increment(ulong numb){
+void  DCCTBTCCBlock::increment(uint32_t numb){
   //if no debug is required increments the number of blocks
   //otherwise checks if block id is really B'011'=3
   if(!parser_->debug()){ 
-    DCCBlockPrototype::increment(numb); 
+    DCCTBBlockPrototype::increment(numb); 
   }
   else {
-    for(ulong counter=0; counter<numb; counter++, dataP_++, wordCounter_++){
-      ulong blockID = (*dataP_) >> BPOSITION_BLOCKID;
+    for(uint32_t counter=0; counter<numb; counter++, dataP_++, wordCounter_++){
+      uint32_t blockID = (*dataP_) >> BPOSITION_BLOCKID;
       if( blockID != BLOCKID ){
 	(errors_["TCC::BLOCKID"])++;
 	//errorString_ += std::string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);
@@ -104,7 +104,7 @@ void  DCCTCCBlock::increment(ulong numb){
 
 
 
-std::vector< std::pair<int,bool> > DCCTCCBlock::triggerSamples() {
+std::vector< std::pair<int,bool> > DCCTBTCCBlock::triggerSamples() {
   std::vector< std::pair<int,bool> > data;
 
   for(unsigned int i=1;i <= parser_->numbTTs();i++){
@@ -121,7 +121,7 @@ std::vector< std::pair<int,bool> > DCCTCCBlock::triggerSamples() {
 
 
 
-std::vector<int> DCCTCCBlock::triggerFlags() {
+std::vector<int> DCCTBTCCBlock::triggerFlags() {
   std::vector<int> data;
 
   for(unsigned int i=1; i<= parser_->numbTTs();i++){

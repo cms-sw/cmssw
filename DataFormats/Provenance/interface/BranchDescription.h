@@ -2,22 +2,23 @@
 #define DataFormats_Provenance_BranchDescription_h
 
 /*----------------------------------------------------------------------
-  
+
 BranchDescription: The full description of a Branch.
-This description also applies to every product instance on the branch.  
+This description also applies to every product instance on the branch.
 
-$Id: BranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 ----------------------------------------------------------------------*/
-#include <iosfwd>
-#include <string>
-#include <set>
-
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+
+#include <iosfwd>
+#include <map>
+#include <set>
+#include <string>
 
 /*
   BranchDescription
@@ -28,37 +29,42 @@ $Id: BranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 */
 
 namespace edm {
-  struct BranchDescription {
-
+  class WrapperInterfaceBase;
+  class BranchDescription {
+  public:
+    static int const invalidSplitLevel = -1;
+    static int const invalidBasketSize = 0;
     enum MatchMode { Strict = 0,
-		     Permissive };
+                     Permissive };
 
     BranchDescription();
 
     BranchDescription(BranchType const& branchType,
-		      std::string const& mdLabel, 
-		      std::string const& procName, 
-		      std::string const& name, 
-		      std::string const& fName, 
-		      std::string const& pin, 
-		      ModuleDescription const& modDesc,
-		      std::set<std::string> const& aliases = std::set<std::string>());
+                      std::string const& moduleLabel,
+                      std::string const& processName,
+                      std::string const& className,
+                      std::string const& friendlyClassName,
+                      std::string const& productInstanceName,
+                      std::string const& moduleName,
+                      ParameterSetID const& parameterSetID,
+                      TypeWithDict const& theTypeWithDict,
+                      bool produced = true,
+                      std::set<std::string> const& aliases = std::set<std::string>());
 
-
-    BranchDescription(BranchType const& branchType,
-		      std::string const& mdLabel, 
-		      std::string const& procName, 
-		      std::string const& name, 
-		      std::string const& fName, 
-		      std::string const& pin, 
-		      ModuleDescriptionID const& mdID, // = ModuleDescriptionID(),
-		      std::set<ParameterSetID> const& psIDs, // = std::set<ParameterSetID>(),
-		      std::set<ProcessConfigurationID> const& procConfigIDs, // = std::set<ProcessConfigurationID>(),
-		      std::set<std::string> const& aliases = std::set<std::string>());
+    BranchDescription(BranchDescription const& aliasForBranch,
+                      std::string const& moduleLabelAlias,
+                      std::string const& poruductInstanceAlias);
 
     ~BranchDescription() {}
 
-    void init() const;
+    void init() {
+      initBranchName();
+      initFromDictionary();
+    }
+
+    void initBranchName();
+
+    void initFromDictionary();
 
     void write(std::ostream& os) const;
 
@@ -66,30 +72,108 @@ namespace edm {
 
     std::string const& moduleLabel() const {return moduleLabel_;}
     std::string const& processName() const {return processName_;}
-    ProductID const& productID() const {return productID_;}
+    BranchID const& branchID() const {return branchID_;}
+    BranchID const& aliasForBranchID() const {return aliasForBranchID_;}
+    bool isAlias() const {return aliasForBranchID_.isValid() && produced();}
+    BranchID const& originalBranchID() const {return aliasForBranchID_.isValid() ? aliasForBranchID_ : branchID_;}
     std::string const& fullClassName() const {return fullClassName_;}
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
-    std::string const& productInstanceName() const {return productInstanceName_;} 
-    bool const& produced() const {return produced_;}
-    bool const& present() const {return present_;}
-    bool const& provenancePresent() const {return provenancePresent_;}
-    bool const& transient() const {return transient_;}
+    std::string const& productInstanceName() const {return productInstanceName_;}
+    bool produced() const {return transient_.produced_;}
+    void setProduced(bool isProduced) {transient_.produced_ = isProduced;}
+    bool present() const {return !transient_.dropped_;}
+    bool dropped() const {return transient_.dropped_;}
+    void setDropped(bool isDropped) {transient_.dropped_ = isDropped;}
+    bool onDemand() const {return transient_.onDemand_;}
+    void setOnDemand(bool isOnDemand) {transient_.onDemand_ = isOnDemand;}
+    bool transient() const {return transient_.transient_;}
+    void setTransient(bool isTransient) {transient_.transient_ = isTransient;}
+    TypeWithDict const& wrappedType() const {return transient_.wrappedType_;}
+    void setWrappedType(TypeWithDict const& type) {transient_.wrappedType_ = type;}
+    TypeWithDict const& unwrappedType() const {return transient_.unwrappedType_;}
+    void setUnwrappedType(TypeWithDict const& type) {transient_.unwrappedType_ = type;}
+    TypeID wrappedTypeID() const {return TypeID(transient_.wrappedType_.typeInfo());}
+    TypeID unwrappedTypeID() const {return TypeID(transient_.unwrappedType_.typeInfo());}
+    int splitLevel() const {return transient_.splitLevel_;}
+    void setSplitLevel(int level) {transient_.splitLevel_ = level;}
+    int basketSize() const {return transient_.basketSize_;}
+    void setBasketSize(int size) {transient_.basketSize_ = size;}
 
-    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
-    std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
-    ParameterSetID const& psetID() const;
-    bool isPsetIDUnique() const {return psetIDs().size() == 1;}
-    std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
+    ParameterSetID const& parameterSetID() const {return transient_.parameterSetID_;}
+    std::string const& moduleName() const {return transient_.moduleName_;}
+
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
-    std::string const& branchName() const {return branchName_;}
+    void insertBranchAlias(std::string const& alias) {
+      branchAliases_.insert(alias);
+    }
+    std::string const& branchName() const {return transient_.branchName_;}
+    void clearBranchName() {transient_.branchName_.clear();}
     BranchType const& branchType() const {return branchType_;}
+    std::string const& wrappedName() const {return transient_.wrappedName_;}
+    void setWrappedName(std::string const& name) {transient_.wrappedName_ = name;}
+    WrapperInterfaceBase*& wrapperInterfaceBase() {return transient_.wrapperInterfaceBase_;}
+
+    WrapperInterfaceBase const* getInterface() const;
+    void updateFriendlyClassName();
+
+    void initializeTransients() {transient_.reset();}
+
+    struct Transients {
+      Transients();
+
+      void reset();
+
+      // The parameter set id of the producer.
+      // This is set if and only if produced_ is true.
+      ParameterSetID parameterSetID_;
+
+      // The module name of the producer.
+      // This is set if and only if produced_ is true.
+      std::string moduleName_;
+
+      // The branch name, which is currently derivable fron the other attributes.
+      std::string branchName_;
+
+      // The wrapped class name, which is currently derivable fron the other attributes.
+      std::string wrappedName_;
+
+      // Was this branch produced in this process rather than in a previous process
+      bool produced_;
+
+      // Was this branch produced in this current process and by unscheduled production
+      // This item is set only in the framework, not by FWLite.
+      bool onDemand_;
+
+      // Has the branch been dropped from the product tree in this file
+      // (or if this is a merged product registry, in the first file).
+      // This item is set only in the framework, not by FWLite.
+      bool dropped_;
+
+      // Is the class of the branch marked as transient
+      // in the data dictionary
+      bool transient_;
+
+      // A TypeWithDict object for the wrapped object
+      TypeWithDict wrappedType_;
+
+      // A TypeWithDict object for the unwrapped object
+      TypeWithDict unwrappedType_;
+
+      // A pointer to a polymorphic object to obtain typed Wrapper.
+      WrapperInterfaceBase* wrapperInterfaceBase_;
+
+      // The split level of the branch, as marked
+      // in the data dictionary.
+      int splitLevel_;
+
+      // The basket size of the branch, as marked
+      // in the data dictionary.
+      int basketSize_;
+    };
 
   private:
     void throwIfInvalid_() const;
-
-  //TODO: Make all the data private!
-  public:
 
     // What tree is the branch in?
     BranchType branchType_;
@@ -102,7 +186,7 @@ namespace edm {
     std::string processName_;
 
     // An ID uniquely identifying the branch
-    ProductID productID_;
+    BranchID branchID_;
 
     // the full name of the type of product this is
     std::string fullClassName_;
@@ -114,44 +198,17 @@ namespace edm {
     // that are produced by the same producer
     std::string productInstanceName_;
 
-    // The module description id of the producer (transient).
-    // This is only valid if produced_ is true.
-    // This is just used as a cache, and is not logically
-    // part of the branch description.
-    mutable ModuleDescriptionID moduleDescriptionID_;
-
-    // ID's of parameter set of the creators of products
-    // on this branch
-    std::set<ParameterSetID> psetIDs_;
-
-    // ID's of process configurations for products
-    // on this branch
-    std::set<ProcessConfigurationID> processConfigurationIDs_;
-
     // The branch ROOT alias(es), which are settable by the user.
     std::set<std::string> branchAliases_;
 
-    // The branch name (transient), which is currently derivable fron the other
-    // attributes.
-    mutable std::string branchName_;
+    // If this branch *is* an EDAlias, this field is the BranchID
+    // of the branch for which this branch is an alias.
+    // If this branch is not an EDAlias, the normal case, this field is 0.
+    BranchID aliasForBranchID_;
 
-    // Was this branch produced in this process
-    // rather than in a previous process
-    bool produced_;
-
-    // Is the branch present in the product tree
-    // in the input file (or any of the input files)
-    mutable bool present_;
-
-    // Is the branch present in the provenance tree
-    // in the input file (or any of the input files)
-    mutable bool provenancePresent_;
-
-    // Is the class of the branch marked as transient
-    // in the data dictionary
-    mutable bool transient_;
+    Transients transient_;
   };
-  
+
   inline
   std::ostream&
   operator<<(std::ostream& os, BranchDescription const& p) {
@@ -163,9 +220,10 @@ namespace edm {
 
   bool operator==(BranchDescription const& a, BranchDescription const& b);
 
+  bool combinable(BranchDescription const& a, BranchDescription const& b);
+
   std::string match(BranchDescription const& a,
-	BranchDescription const& b,
-	std::string const& fileName,
-	BranchDescription::MatchMode m);
+        BranchDescription const& b,
+        std::string const& fileName);
 }
 #endif

@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Utilities/interface/EDMException.h"

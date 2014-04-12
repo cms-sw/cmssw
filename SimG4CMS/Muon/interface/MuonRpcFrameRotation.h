@@ -22,7 +22,7 @@ class MuonRpcFrameRotation : public MuonFrameRotation {
  public:
   MuonRpcFrameRotation( const DDCompactView& cpv );
   virtual ~MuonRpcFrameRotation();
-  virtual Local3DPoint transformPoint(Local3DPoint &,G4Step *) const;
+  virtual Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const;
  private:
   MuonG4Numbering* g4numbering;
   int theRegion;

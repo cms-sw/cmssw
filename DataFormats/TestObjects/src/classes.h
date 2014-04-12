@@ -6,15 +6,24 @@
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "DataFormats/TestObjects/interface/Thing.h"
+#include "DataFormats/TestObjects/interface/ThingWithMerge.h"
+#include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 
 #include "DataFormats/TestObjects/interface/StreamTestSimple.h"
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"
 #include "DataFormats/TestObjects/interface/StreamTestTmpl.h"
 
-namespace {
+#include "DataFormats/TestObjects/interface/DeleteEarly.h"
+
+#include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+
+namespace DataFormats_TestObjects {
 struct dictionary {
   edm::Wrapper<edmtest::DummyProduct> dummyw12;
   edm::Wrapper<edmtest::IntProduct> dummyw13;
+  edm::Wrapper<edmtest::TransientIntProduct> dummyw13t;
   edm::Wrapper<edmtest::DoubleProduct> dummyw14;
   edm::Wrapper<edmtest::StringProduct> dummyw15;
   edm::Wrapper<edmtest::SCSimpleProduct> dummyw16;
@@ -25,6 +34,12 @@ struct dictionary {
   edm::Wrapper<edmtest::DSVWeirdProduct> dummyw20;
   edm::Wrapper<edmtest::DSTVSimpleProduct> dummyw21;
   edm::Wrapper<edmtest::DSTVSimpleDerivedProduct> dummyw22;
+  edm::Wrapper<edmtest::Int16_tProduct> dummyw23;
+  edm::Wrapper<edmtest::Prodigal> dummyw24;
+
+  edm::Wrapper<edmtest::Thing> dummy105;
+  edm::Wrapper<edmtest::ThingWithMerge> dummy104;
+  edm::Wrapper<edmtest::ThingWithIsEqual> dummy103;
 
   edmtest::ThingCollection dummy1;
   edmtest::OtherThingCollection dummy2;
@@ -36,6 +51,7 @@ struct dictionary {
   edm::Wrapper<edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > > dummy22;
   std::vector<edmtestprod::Simple> dummy23;
   std::vector<edmtest::Simple> dummy231;
+  edm::Wrapper<std::vector<edmtest::Simple> > dummy231w;
   edm::RefProd<std::vector<edmtest::Simple> > dummy232;
   edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > dummy24;
   edm::Wrapper<edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > > dummy25;
@@ -46,6 +62,12 @@ struct dictionary {
   std::vector<edmtest::Sortable> x3;
   std::vector<edmtest::Unsortable> x4;
 
- 
+  edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing> > > bhThing;
+  edm::RefToBaseProd<edmtest::Thing> rtbpThing;
+  
+  edm::Ptr<edmtest::Thing> ptrThing;
+  edm::PtrVector<edmtest::Thing> ptrVecThing;
+  
+  edm::Wrapper<edmtest::DeleteEarly> wrapperDeleteEarly;
 };
 }

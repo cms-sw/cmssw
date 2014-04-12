@@ -42,7 +42,7 @@ class CaloGeometryHelper:public Calorimeter
   // the Crystal constructor
   void buildCrystal(const DetId& id,Crystal&) const;
 
-  void initialize();  
+  void initialize(double bField);  
 
   // get the <=8 neighbours
   const std::vector<DetId> & getNeighbours(const DetId& det) const ;
@@ -53,6 +53,8 @@ class CaloGeometryHelper:public Calorimeter
   bool borderCrossing(const DetId&, const DetId&) const ;
 
   bool move(DetId& cell, const CaloDirection& dir,bool fast=true) const;
+
+  inline bool preshowerPresent() const {return preshowerPresent_;};
 
  private:
   void buildNeighbourArray();
@@ -75,5 +77,6 @@ class CaloGeometryHelper:public Calorimeter
   
   //mag field at 0,0,0
   double bfield_;
+  bool preshowerPresent_;
 };
 #endif

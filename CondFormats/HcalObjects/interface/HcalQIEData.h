@@ -3,47 +3,53 @@
 
 /** 
 \class HcalQIEData
-\author Fedor Ratnikov (UMd)
+\author Fedor Ratnikov (UMd), with changes by Radek Ofierzynski 
+   (preserve backwards compatibility of methods for this release)
 POOL object to store QIE parameters
 $Author: ratnikov
-$Date: 2006/05/06 00:33:29 $
-$Revision: 1.4 $
+$Date: 2012/11/02 14:13:11 $
+$Revision: 1.13 $
 */
 
 #include <vector>
 #include <algorithm>
 
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 
-// 
-class HcalQIEData {
+class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
+{
  public:
-   
-  HcalQIEData();
-  HcalQIEData(const HcalQIEData&);
-   ~HcalQIEData();
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalQIEData():HcalCondObjectContainer<HcalQIECoder>(0) {setupShape();}
+#endif
+  // constructor, destructor, and all methods stay the same
+  HcalQIEData(const HcalTopology* topo):HcalCondObjectContainer<HcalQIECoder>(topo) {setupShape();}
 
-   /// get basic shape
-   //   const HcalQIEShape& getShape () const {return mShape;}
-   const HcalQIEShape& getShape () const;
-   /// get QIE parameters
-   const HcalQIECoder* getCoder (DetId fId) const;
-   // get list of all available channels
-   std::vector<DetId> getAllChannels () const;
-   // check if data are sorted
-   bool sorted () const {return mSorted;}
-   // fill values [capid][range]
-   bool addCoder (DetId fId, const HcalQIECoder& fCoder);
-   // sort values by channelId  
-   void sort ();
-  typedef HcalQIECoder Item;
-  typedef std::vector <Item> Container;
+  void setupShape();  
+  /// get basic shape
+  //   const HcalQIEShape& getShape () const {return mShape;}
+   const HcalQIEShape& getShape (DetId fId) const { return mShape[getCoder(fId)->qieIndex()];}
+   const HcalQIEShape& getShape (const HcalQIECoder* coder) const { return mShape[coder->qieIndex()];}
+  /// get QIE parameters
+  const HcalQIECoder* getCoder (DetId fId) const { return getValues(fId); }
+  // check if data are sorted - remove in the next version
+  bool sorted () const { return true; }
+  // fill values [capid][range]
+  bool addCoder (const HcalQIECoder& fCoder) { return addValues(fCoder); }
+  // sort values by channelId - remove in the next version  
+  void sort () {}
+  
+  std::string myname() const {return (std::string)"HcalQIEData";}
+
+  //not needed/not used  HcalQIEData(const HcalQIEData&);
+
  private:
-   Container mItems;
-   bool mSorted;
+  HcalQIEShape mShape[2];
+
 };
 
 #endif

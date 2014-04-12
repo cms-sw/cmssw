@@ -16,6 +16,10 @@
 class IDataItem : public IDBObject {
 
  public:
+  IDataItem()
+  : m_writeStmt(0),
+    m_readStmt(0)
+  {}
 
   virtual std::string getTable() =0;
   
@@ -38,7 +42,7 @@ class IDataItem : public IDBObject {
     if (m_writeStmt != NULL) {
       m_conn->terminateStatement(m_writeStmt);
     } else {
-      cout << "Warning from IDataItem: statement was aleady closed"<< endl;
+      std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
     }
   }
 
@@ -61,7 +65,7 @@ class IDataItem : public IDBObject {
     if (m_readStmt != NULL) {
       m_conn->terminateStatement(m_readStmt);
     } else {
-      cout << "Warning from IDataItem: statement was aleady closed"<< endl;
+      std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
     }
   }
 
@@ -70,6 +74,8 @@ class IDataItem : public IDBObject {
   // Prepare a statement for writing operations
   virtual void prepareWrite() 
     throw(std::runtime_error) =0;
+
+
 };
 
 #endif

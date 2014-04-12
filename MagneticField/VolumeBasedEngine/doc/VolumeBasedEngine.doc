@@ -35,7 +35,7 @@ The internal implementation is based on the following classes:
 To use this engine you should include in the cfi:
 
 <pre>
-include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
+include "Configuration/StandardSequences/data/MagneticField.cff"
 </pre>
 
 \subsection tests Unit tests and examples

@@ -13,7 +13,6 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.2 2005/10/04 17:46:29 mansj Exp $
 //
 //
 
@@ -53,12 +52,14 @@ CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP()
 
 // ------------ method called to produce the data  ------------
 CaloTowerHardcodeGeometryEP::ReturnType
-CaloTowerHardcodeGeometryEP::produce(const IdealGeometryRecord& iRecord)
+CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord)
 {
-   using namespace edm::es;
-   std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load()) ;
+  edm::ESHandle<HcalTopology> hcalTopology;
+  iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
+  
+  std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry( loader_->load( &*hcalTopology ));
 
-   return pCaloSubdetectorGeometry ;
+  return pCaloSubdetectorGeometry ;
 }
 
 

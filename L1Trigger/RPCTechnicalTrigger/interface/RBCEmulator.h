@@ -1,74 +1,84 @@
-#ifndef RPCTechnicalTrigger_RBCEmulator_h
-#define RPCTechnicalTrigger_RBCEmulator_h
+#ifndef RBCEMULATOR_H 
+#define RBCEMULATOR_H 1
 
-/**  \class RBCEmulator
+// Include files
+#include "L1Trigger/RPCTechnicalTrigger/interface/LogicTool.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCId.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCConfiguration.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RPCInputSignal.h"
+
+#include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
+
+/** @class RBCEmulator RBCEmulator.h
+ *  
  *
- *  \author M. Maggi, C. Viviani, D. Pagano - University of Pavia & INFN Pavia*
+ *  @author Andres Osorio, Flavio Loddo, Marcello Maggi
  *
+ *  email: aosorio@uniandes.edu.co
+ *
+ *  @date   2008-10-10
  */
 
-
-#include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/RPCDigi/interface/RPCDigi.h"
-
-#include "TFile.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "L1Trigger/RPCTechnicalTrigger/src/RBCLogic.h"
-#include "L1Trigger/RPCTechnicalTrigger/interface/RBCPolicy.h"
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
-
-/*
-  class PSimHit;
-  class RPCRoll;
-  class RPCCluster;
-  class RPCGeometry;
-*/
-
-class RBCLogic;
-class RBCPolicy;
-class RBCOutputSignalContainer;
 class RBCEmulator {
-//: public edm::EDAnalyzer{
+public: 
+  /// Standard constructor
+  RBCEmulator( ); 
   
-  
- public:
-  
-  RBCEmulator(const edm::Event & event, const edm::EventSetup& eventSetup);
-  virtual ~RBCEmulator();
-  void emulate(RBCPolicy* policy);
-  RBCOutputSignalContainer triggers();
-  
- private:
-  
-  RBCLogic* l;
-  char  poly;
+  RBCEmulator( const char * ); 
 
-  bool neighbours; 
-  int BX;
-  int  majority;
-  std::string digiLabel;
+  RBCEmulator( const char * , const char * ); 
   
+  RBCEmulator( const char * , const char * , int, int *); 
+  
+  virtual ~RBCEmulator( ); ///< Destructor
+
+  void setSpecifications( const RBCBoardSpecs * );
     
+  bool initialise();
   
+  void setid( int , int * );
+  
+  void emulate();
+
+  void emulate( RBCInput * );
+
+  void reset();
+  
+  std::bitset<6> * getlayersignal( int idx ) { return m_layersignal[idx];};
+
+  bool getdecision( int idx ) { return m_decision[idx];};
+    
+  void printinfo();
+  
+  void printlayerinfo();
+  
+  RBCId          * m_rbcinfo;
+  
+protected:
+  
+private:
+  
+  ProcessInputSignal * m_signal;
+  
+  RBCConfiguration   * m_rbcconf;
+  
+  RBCInput           * m_input;
+  
+  std::bitset<6> * m_layersignal[2];
+  
+  std::bitset<2> m_decision;
+  
+  std::vector< std::bitset<6> *> m_layersignalVec;
+  
+  //...
+  
+  int m_bx;
+  
+  std::string m_logtype;
+
+  bool m_debug;
+    
 };
-#endif
+#endif // RBCEMULATOR_H

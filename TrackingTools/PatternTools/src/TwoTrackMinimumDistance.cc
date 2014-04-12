@@ -1,13 +1,15 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+using namespace std;
 
 namespace {
   inline GlobalPoint mean ( pair<GlobalPoint, GlobalPoint> pr ) {
-    return GlobalPoint ( (pr.first.x() + pr.second.x() ) / 2. ,
-        (pr.first.y() + pr.second.y() ) / 2. ,
-        (pr.first.z() + pr.second.z() ) / 2. );
+    return GlobalPoint ( 0.5*(pr.first.basicVector() + pr.second.basicVector()) );
   }
 
   inline double dist ( pair<GlobalPoint, GlobalPoint> pr ) {
@@ -17,160 +19,176 @@ namespace {
 
 double TwoTrackMinimumDistance::firstAngle() const
 {
+  if (!status_)
+    throw cms::Exception("TrackingTools/PatternTools","TwoTrackMinimumDistance::could not compute track crossing. Check status before calling this method!");
   switch ( theCharge ) {
    case (hh): return theTTMDhh.firstAngle(); break;
    case (hl): return theTTMDhl.firstAngle(); break;
    case (ll): return theTTMDll.firstAngle(); break;
-   default : throw cms::Exception ("TrackingTools/PatternTools","TwoTrackMinimumDistance failed");
   }
+  return 0;
 }
 
 double TwoTrackMinimumDistance::secondAngle() const
 {
+  if (!status_)
+    throw cms::Exception("TrackingTools/PatternTools","TwoTrackMinimumDistance::could not compute track crossing. Check status before calling this method!");
   switch ( theCharge ) {
    case (hh): return theTTMDhh.secondAngle(); break;
    case (hl): return theTTMDhl.secondAngle(); break;
    case (ll): return theTTMDll.secondAngle(); break;
-   default : throw cms::Exception ("TrackingTools/PatternTools","TwoTrackMinimumDistance failed");
   }
+  return 0;
 }
 
 
 pair <double, double> TwoTrackMinimumDistance::pathLength() const
 {
+  if (!status_)
+    throw cms::Exception("TrackingTools/PatternTools","TwoTrackMinimumDistance::could not compute track crossing. Check status before calling this method!");
   switch ( theCharge ) {
    case (hh): return theTTMDhh.pathLength(); break;
    case (hl): return theTTMDhl.pathLength(); break;
    case (ll): return theTTMDll.pathLength(); break;
-   default : throw cms::Exception ("TrackingTools/PatternTools","TwoTrackMinimumDistance failed");
   }
+  return std::pair<double,double>(0,0);
 }
 
-
-pair<GlobalPoint, GlobalPoint> 
-TwoTrackMinimumDistance::points(const TrajectoryStateOnSurface & sta, 
-                                const TrajectoryStateOnSurface & stb) const 
+pair<GlobalPoint, GlobalPoint> TwoTrackMinimumDistance::points() const
 {
-  return points ( sta.globalParameters(), stb.globalParameters() );
+  if (!status_)
+    throw cms::Exception("TrackingTools/PatternTools","TwoTrackMinimumDistance::could not compute track crossing. Check status before calling this method!");
+  return points_;
+}
+
+bool
+TwoTrackMinimumDistance::calculate(const TrajectoryStateOnSurface & sta, 
+                                const TrajectoryStateOnSurface & stb) 
+{
+  return calculate ( sta.globalParameters(), stb.globalParameters() );
 }
 
 
-pair<GlobalPoint, GlobalPoint> 
-TwoTrackMinimumDistance::points(const FreeTrajectoryState & sta, 
-                                const FreeTrajectoryState & stb) const 
+bool
+TwoTrackMinimumDistance::calculate(const FreeTrajectoryState & sta, 
+                                const FreeTrajectoryState & stb) 
 {
 //  pair<GlobalPoint, GlobalPoint> ret  = theIniAlgo.points ( sta, stb );
-  return points ( sta.parameters(), stb.parameters() );
+  return calculate ( sta.parameters(), stb.parameters() );
 }
 
-pair<GlobalPoint, GlobalPoint> 
-TwoTrackMinimumDistance::points(const GlobalTrajectoryParameters & sta,
-                                const GlobalTrajectoryParameters & stb) const
+bool
+TwoTrackMinimumDistance::calculate(const GlobalTrajectoryParameters & sta,
+                                const GlobalTrajectoryParameters & stb)
 {
-  if ( sta.charge() != 0. && stb.charge() != 0. ) {
-    return pointsHelixHelix(sta, stb);
-  } else if ( sta.charge() == 0. && stb.charge() == 0. ) {
-    return pointsLineLine(sta, stb);
+  bool isHelixA = (sta.magneticField().inTesla(sta.position()).z() != 0.)
+    && sta.charge() != 0.;
+  bool isHelixB = (stb.magneticField().inTesla(stb.position()).z() != 0.)
+    && stb.charge() != 0.;
+  if (! isHelixA && ! isHelixB) {
+    status_ = pointsLineLine(sta, stb);
+  } else if ( isHelixA && isHelixB ) {
+    status_ = pointsHelixHelix(sta, stb);
   } else {
-    return pointsHelixLine(sta, stb);
+    status_ = pointsHelixLine(sta, stb);
   }
-  
+  return status_;
 }
 
-pair<GlobalPoint, GlobalPoint> 
+bool
 TwoTrackMinimumDistance::pointsLineLine(const GlobalTrajectoryParameters & sta,
-                                const GlobalTrajectoryParameters & stb) const
+                                const GlobalTrajectoryParameters & stb)
 {
   theCharge = ll;
-  if (theTTMDll.calculate(sta, stb))
-    throw cms::Exception("TrackingTools/PatternTools", "TwoTrackMinimumDistanceLineLine failed");
-  return theTTMDll.points();
+  if (theTTMDll.calculate(sta, stb)) return false;
+  points_ = theTTMDll.points();
+  return true;
 }
 
-pair<GlobalPoint, GlobalPoint> 
+bool
 TwoTrackMinimumDistance::pointsHelixLine(const GlobalTrajectoryParameters & sta,
-                                const GlobalTrajectoryParameters & stb) const
+                                const GlobalTrajectoryParameters & stb)
 {
   theCharge = hl;
- if (theTTMDhl.calculate(sta, stb,0.000001))
-    throw cms::Exception ("TrackingTools/PatternTools", "TwoTrackMinimumDistanceHelixLine failed");
-  return theTTMDhl.points();
+  if (theTTMDhl.calculate(sta, stb, 0.000001)) return false;
+  points_ = theTTMDhl.points();
+  return true;
 }
 
-pair<GlobalPoint, GlobalPoint> 
+bool
 TwoTrackMinimumDistance::pointsHelixHelix(const GlobalTrajectoryParameters & sta,
-                                const GlobalTrajectoryParameters & stb) const
+                                const GlobalTrajectoryParameters & stb)
 {
-  if ( ( sta.position() - stb.position() ).mag() < 1e-7 &&
-       ( sta.momentum() - stb.momentum() ).mag() < 1e-7 )
+  if ( ( sta.position() - stb.position() ).mag2() < 1e-7f &&
+       ( sta.momentum() - stb.momentum() ).mag2() < 1e-7f &&
+       sta.charge()==stb.charge()
+       )
   {
     edm::LogWarning ( "TwoTrackMinimumDistance") << "comparing track with itself!";
   };
+
   theCharge = hh;
   if ( theModus == FastMode )
   {
     // first we try directly - in FastMode only ...
     if ( !(theTTMDhh.calculate ( sta, stb, .0001 )) )
     {
-      return theTTMDhh.points();
+      points_ = theTTMDhh.points();
+      return true;
     };
   };
 
   // okay. did not work. so we use CAIR, and then TTMD again.
-  pair<GlobalTrajectoryParameters, GlobalTrajectoryParameters > ini;
-  try {
-    ini = theIniAlgo.trajectoryParameters ( sta, stb );
-  }
-  catch (...) { // yes. this may fail.
+  bool cairStat = theIniAlgo.calculate ( sta, stb );
+  
+  if (!cairStat) { // yes. CAIR may fail.
     edm::LogWarning ( "TwoTrackMinimumDistance" ) << "Computation HelixHelix::CAIR failed.";
     if ( theModus == SlowMode ) { // we can still try ttmd here.
-      if ( !(theTTMDhh.calculate ( sta, stb, .0001 )) ) return theTTMDhh.points();
+      if ( !(theTTMDhh.calculate ( sta, stb, .0001 )) ) {
+	points_ = theTTMDhh.points();
+        return true;
+      }
     };
     // we can try with more sloppy settings
-    if ( !(theTTMDhh.calculate ( sta, stb, .1 )) ) return theTTMDhh.points();
-    throw cms::Exception ("TrackingTools/PatternTools", "TwoTrackMinimumDistanceHelixHelix failed");
+    if ( !(theTTMDhh.calculate ( sta, stb, .1 )) ) {
+	points_ = theTTMDhh.points();
+        return true;
+      }
+    return false;
+    edm::LogWarning ( "TwoTrackMinimumDistance" ) << "TwoTrackMinimumDistanceHelixHelix failed";
   };
+
+  pair<GlobalTrajectoryParameters, GlobalTrajectoryParameters >
+	ini = theIniAlgo.trajectoryParameters();
 
   pair<GlobalPoint, GlobalPoint> inip ( ini.first.position(), 
       ini.second.position() );
-  pair<GlobalPoint, GlobalPoint> ret;
-  if ( theTTMDhh.calculate ( ini.first, ini.second, .0001 ) ) {
-    ret=inip;
+  bool isFirstALine = ini.first.charge() == 0. || ini.first.magneticField().inTesla(ini.first.position()).z() == 0.;
+  bool isSecondALine = ini.second.charge() == 0. || ini.second.magneticField().inTesla(ini.second.position()).z() == 0.;
+  bool gotDist = false;
+  if (!isFirstALine && !isSecondALine) gotDist = theTTMDhh.calculate ( ini.first, ini.second, .0001 );
+  else if ( isFirstALine && isSecondALine) gotDist = theTTMDll.calculate ( ini.first, ini.second );
+  else gotDist = theTTMDhl.calculate ( ini.first, ini.second, .0001 );
+  if ( gotDist ) {
+    points_ = inip;
   } else {
-    ret=theTTMDhh.points();
+    if (!isFirstALine && !isSecondALine) points_ = theTTMDhh.points ();
+    else if ( isFirstALine && isSecondALine) points_ = theTTMDll.points ();
+    else points_ = theTTMDhl.points ();
     // if we are still worse than CAIR, we use CAIR results.
-    if ( dist ( ret ) > dist ( inip ) ) ret=inip;
+    if ( dist ( points_ ) > dist ( inip ) ) points_ = inip;
   };
-  return ret;
-}
-
-GlobalPoint
-TwoTrackMinimumDistance::crossingPoint(
-  const TrajectoryStateOnSurface & sta, const TrajectoryStateOnSurface & stb)
-const
-{
-  return mean ( points ( sta, stb ) );
+  return true;
 }
 
 
-GlobalPoint 
-TwoTrackMinimumDistance::crossingPoint(const FreeTrajectoryState & sta,
-                                       const FreeTrajectoryState & stb) const
+GlobalPoint TwoTrackMinimumDistance::crossingPoint() const
 {
-  return mean ( points ( sta, stb ) );
+  return mean ( points_ );
 }
 
 
-float
-TwoTrackMinimumDistance::distance(const TrajectoryStateOnSurface & sta,
-                                  const TrajectoryStateOnSurface & stb) const
+float TwoTrackMinimumDistance::distance() const
 {
-  return dist ( points ( sta, stb ) );
-}
-
-
-float TwoTrackMinimumDistance::distance(const FreeTrajectoryState & sta,
-                                        const FreeTrajectoryState & stb) const
-{
-  return dist ( points ( sta, stb ) );
+  return dist ( points_ );
 }

@@ -1,14 +1,12 @@
 /** \file
  * 
- *  $Date: 2006/12/14 22:34:11 $
- *  $Revision: 1.3 $
  *
  * \author N.Terentiev, CMU
  */
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
-#include <bitset>
 
-using namespace std;
+#include <iostream>
+#include <stdint.h>
 
             /// Shift and select
 int CSCCFEBStatusDigi::ShiftSel(int nmb,int nshift,int nsel) const {
@@ -97,29 +95,73 @@ std::vector<int> CSCCFEBStatusDigi::getTRIG_TIME() const {
 
             /// Debug
 void CSCCFEBStatusDigi::print() const {
-    cout << "CSC CFEB # : " << getCFEBNmb() <<"\n";
+    std::cout << "CSC CFEB # : " << getCFEBNmb() <<"\n";
+    std::cout << " SCAFullCond: ";
+    if(getSCAFullCond().size()!=0){
     for (size_t i = 0; i<4; ++i ){
-        cout <<" " <<(getSCAFullCond())[i]; }
-    cout<<"\n";
+        std::cout <<" " <<(getSCAFullCond())[i]; }
+	}
+    else {
+    std::cout << " " <<"BWORD is not valied";
+    }	
+    std::cout << "\n";
+    std::cout << " CRC: ";
     for (size_t i = 0; i<getCRC().size(); ++i ){
-        cout <<" " <<(getCRC())[i]; }
-    cout<<"\n";
+        std::cout <<" " <<(getCRC())[i]; }
+    std::cout<<"\n";
+    std::cout << " TS_FLAG: ";
     for (size_t i = 0; i<getTS_FLAG().size(); ++i ){
-        cout <<" " <<(getTS_FLAG())[i]; }
-    cout<<"\n";
+        std::cout <<" " <<(getTS_FLAG())[i]; }
+    std::cout<<"\n";
+    std::cout << " SCA_FULL: ";
     for (size_t i = 0; i<getSCA_FULL().size(); ++i ){
-        cout <<" " <<(getSCA_FULL())[i]; }
-    cout<<"\n";
+        std::cout <<" " <<(getSCA_FULL())[i]; }
+    std::cout<<"\n";
+    std::cout << " LCT_PHASE: ";
     for (size_t i = 0; i<getLCT_PHASE().size(); ++i ){
-        cout <<" " <<(getLCT_PHASE())[i]; }
-    cout<<"\n";
+        std::cout <<" " <<(getLCT_PHASE())[i]; }
+    std::cout<<"\n";
+    std::cout << " L1A_PHASE: ";
     for (size_t i = 0; i<getL1A_PHASE().size(); ++i ){
-        cout <<" " <<(getL1A_PHASE())[i]; }
-    cout<<"\n";
+        std::cout <<" " <<(getL1A_PHASE())[i]; }
+    std::cout<<"\n";
+    std::cout << " SCA_BLK: ";
     for (size_t i = 0; i<getSCA_BLK().size(); ++i ){
-        cout <<" " <<(getSCA_BLK())[i]; }
-    cout<<"\n";
+        std::cout <<" " <<(getSCA_BLK())[i]; }
+    std::cout<<"\n";
+    std::cout << " TRIG_TIME: ";
     for (size_t i = 0; i<getTRIG_TIME().size(); ++i ){
-        cout <<" " <<(getTRIG_TIME())[i]; }
-    cout<<"\n";
+        std::cout <<" " <<(getTRIG_TIME())[i]; }
+    std::cout<<"\n";
 }
+
+std::ostream & operator<<(std::ostream & o, const CSCCFEBStatusDigi& digi) {
+  o << " " << digi.getCFEBNmb()<<"\n";
+  for (size_t i = 0; i<4; ++i ){
+        o <<" " <<(digi.getSCAFullCond())[i]; }
+  o <<"\n";
+  for (size_t i = 0; i<digi.getCRC().size(); ++i ){
+    o <<" " <<(digi.getCRC())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getTS_FLAG().size(); ++i ){
+    o <<" " <<(digi.getTS_FLAG())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getSCA_FULL().size(); ++i ){
+    o <<" " <<(digi.getSCA_FULL())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getLCT_PHASE().size(); ++i ){
+    o <<" " <<(digi.getLCT_PHASE())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getL1A_PHASE().size(); ++i ){
+    o <<" " <<(digi.getL1A_PHASE())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getSCA_BLK().size(); ++i ){
+    o <<" " <<(digi.getSCA_BLK())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getTRIG_TIME().size(); ++i ){
+    o <<" " <<(digi.getTRIG_TIME())[i]; }
+  o<<"\n";
+
+  return o;
+}
+

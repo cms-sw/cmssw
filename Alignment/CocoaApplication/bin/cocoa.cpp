@@ -3,15 +3,12 @@
 #include <assert.h>
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaFit/interface/Fit.h"
-#include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 //#include "Analysis/FittedEntriesRoot/interface/FERootDump.h"
 #include "Alignment/CocoaToDDL/interface/CocoaToDDLMgr.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 #include <time.h>
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 int main( int argc, char** argv ) 
 {
@@ -44,7 +41,9 @@ int main( int argc, char** argv )
   }
 
   //---------- Build the Model out of the system description text file
-  Model& model = Model::getInstance();
+  GlobalOptionMgr::getInstance()->setDefaultGlobalOptions();
+
+  Model::getInstance();
 
   time_t now, time_start;
   now = clock();

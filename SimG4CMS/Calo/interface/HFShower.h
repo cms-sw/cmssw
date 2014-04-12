@@ -10,40 +10,52 @@
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 
+#include "G4ThreeVector.hh"
 #include "G4String.hh"
 
 class DDCompactView;    
 class G4Step;
 
-#include <map>
 #include <vector>
  
 class HFShower {
 
 public:    
 
-  HFShower(const DDCompactView & cpv, edm::ParameterSet const & p);
+  HFShower(std::string & name, const DDCompactView & cpv, 
+	     edm::ParameterSet const & p, int chk=0);
   virtual ~HFShower();
-  int                        getHits(G4Step * aStep);
-  double                     getTSlice(int i);
+
+public:
+
+  struct Hit {
+    Hit() {}
+    int               depth;
+    double            time;
+    double            wavelength;
+    double            momentum;
+    G4ThreeVector     position;
+  };
+
+  void                initRun(G4ParticleTable *);
+  std::vector<Hit>    getHits(G4Step * aStep, double weight);
+  std::vector<Hit>    getHits(G4Step * aStep, bool forLibrary);
+  std::vector<Hit>    getHits(G4Step * aStep, bool forLibraryProducer, double zoffset);
+
 
 private:    
 
-  double                     fibreLength(G4String);
-  void                       clearHits();
+  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &, int &);
+  bool                applyFidCut;
 
 private:    
 
-  HFCherenkov*               cherenkov;
-  HFFibre*                   fibre;
+  HFCherenkov*        cherenkov;
+  HFFibre*            fibre;
 
-  double                     cFibre;
-  double                     probMax;
-  std::map<G4String,double>  fibreDz2;
-
-  int                        nHit;
-  std::vector<double>        wlHit;
-  std::vector<double>        timHit;
+  int                 chkFibre;
+  double              probMax;
+  std::vector<double> gpar;
 
 };
 

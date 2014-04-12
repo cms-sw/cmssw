@@ -21,7 +21,7 @@ class ClusterNoiseFP420 {
   class ElectrodData {
   public:
 
-    ElectrodNoise   getNoise()   const {return static_cast<ElectrodNoise> (abs(Data)/10.0);}
+    ElectrodNoise   getNoise()   const {return static_cast<ElectrodNoise> (std::abs(Data)/10.0);}
     ElectrodDisable getDisable() const {return ( (Data>0) ? false : true );}// if Data <=0 then electrode is disable
     void setData(short data){Data=data;}
     void setData(float noise_,bool disable_){

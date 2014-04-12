@@ -26,8 +26,16 @@ public:
   typedef Vector3DBase<T,GlobalTag>     GlobalVector;
   typedef Vector3DBase<T,LocalTag>      LocalVector;
 
+  static T iniPhi() {
+    return 999.9978;
+  }
+  static T iniEta() {
+    return 999.9978;
+  }
+
+  GloballyPositioned(){}
   GloballyPositioned( const PositionType& pos, const RotationType& rot) :
-    thePos(pos), theRot(rot) {cache();}
+    thePos(pos), theRot(rot) {resetCache();}
 
   virtual ~GloballyPositioned() {}
 
@@ -35,9 +43,47 @@ public:
 
   const RotationType& rotation() const { return theRot;}
 
-  T phi() const { return thePhi;}
-  T eta() const { return theEta;}
+  T phi() const {
+    if (thePhi==iniPhi()) thePhi = thePos.barePhi();
+    return thePhi;
+  }
+  T eta() const { 
+    if (theEta==iniEta()) theEta = thePos.eta();
+    return theEta;
+  }
 
+
+  // multiply inverse is faster
+  class ToLocal {
+  public:
+    ToLocal(GloballyPositioned const & frame) :
+      thePos(frame.position()), theRot(frame.rotation().transposed()){}
+    
+    LocalPoint operator()(const GlobalPoint& gp) const {
+         return toLocal(gp);
+    }
+
+    LocalVector operator()(const GlobalVector& gv) const {
+       	 return	toLocal(gv);
+    }
+
+    LocalPoint toLocal( const GlobalPoint& gp) const {
+      return LocalPoint( theRot.multiplyInverse( gp.basicVector() -
+			 thePos.basicVector()) 
+                       );
+    }
+    
+    LocalVector toLocal( const GlobalVector& gv) const {
+      return LocalVector(theRot.multiplyInverse(gv.basicVector()));
+    } 
+    
+  // private:
+    PositionType  thePos;
+    RotationType  theRot;
+    
+  };
+
+  
 
   /** Transform a local point (i.e. a point with coordinates in the
    *  local frame) to the global frame
@@ -51,14 +97,12 @@ public:
    *  one of the reference frame, and return a global point with the
    *  same precision as the input one.
    */
-#ifndef CMS_NO_TEMPLATE_MEMBERS
   template <class U>
   Point3DBase< U, GlobalTag>
   toGlobal( const Point3DBase< U, LocalTag>& lp) const {
     return Point3DBase< U, GlobalTag>( rotation().multiplyInverse( lp.basicVector()) +
 				       position().basicVector());
   }
-#endif    
 
   /** Transform a local vector (i.e. a vector with coordinates in the
    *  local frame) to the global frame
@@ -71,13 +115,11 @@ public:
    *  one of the reference frame, and return a global vector with the
    *  same precision as the input one.
    */
-#ifndef CMS_NO_TEMPLATE_MEMBERS
   template <class U>
   Vector3DBase< U, GlobalTag>
   toGlobal( const Vector3DBase< U, LocalTag>& lv) const {
     return Vector3DBase< U, GlobalTag>( rotation().multiplyInverse( lv.basicVector()));
   }
-#endif    
 
   /** Transform a global point (i.e. a point with coordinates in the
    *  global frame) to the local frame
@@ -90,14 +132,12 @@ public:
    *  one of the reference frame, and return a local point with the
    *  same precision as the input one.
    */
-#ifndef CMS_NO_TEMPLATE_MEMBERS
   template <class U>
   Point3DBase< U, LocalTag>
   toLocal( const Point3DBase< U, GlobalTag>& gp) const {
     return Point3DBase< U, LocalTag>( rotation() * 
 				      (gp.basicVector()-position().basicVector()));
   }
-#endif    
 
   /** Transform a global vector (i.e. a vector with coordinates in the
    *  global frame) to the local frame
@@ -110,20 +150,18 @@ public:
    *  one of the reference frame, and return a local vector with the
    *  same precision as the input one.
    */
-#ifndef CMS_NO_TEMPLATE_MEMBERS
   template <class U>
   Vector3DBase< U, LocalTag>
   toLocal( const Vector3DBase< U, GlobalTag>& gv) const {
     return Vector3DBase< U, LocalTag>( rotation() * gv.basicVector());
   }
-#endif 
 
   /** Move the position of the frame in the global frame.  
    *  Useful e.g. for alignment.
    */
   void move( const GlobalVector& displacement) {
     thePos += displacement;
-    cache();
+    resetCache();
   }
 
   /** Rotate the frame in the global frame.
@@ -131,7 +169,7 @@ public:
    */
   void rotate( const RotationType& rotation) {
     theRot *= rotation;
-    cache();
+    resetCache();
   }
 
 private:
@@ -139,15 +177,28 @@ private:
   PositionType  thePos;
   RotationType  theRot;
 
-  void cache() {
-    thePhi = thePos.barePhi();
-    theEta = thePos.eta();
+
+  void resetCache() {
+    if ((thePos.x() == 0.) && (thePos.y() == 0.)) {
+      thePhi = theEta = 0.; // avoid FPE
+    } else {
+      thePhi = iniPhi();
+      theEta = iniEta();
+    }
+  }
+
+
+  void setCache() {
+    if ((thePos.x() == 0.) && (thePos.y() == 0.)) {
+      thePhi = theEta = 0.; // avoid FPE
+    } else {
+      thePhi = thePos.barePhi();
+      theEta = thePos.eta();
+    }
   }
   
-  T thePhi;
-  T theEta;
-
-
+  mutable T thePhi;
+  mutable T theEta;
 
 };
   

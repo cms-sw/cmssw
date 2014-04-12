@@ -16,7 +16,7 @@ public :
   TFitParticleMCCart(const TString &name, const TString &title, 
 		 TVector3* p, Double_t M, const TMatrixD* theCovMatrix);
   virtual ~TFitParticleMCCart();
-  virtual TAbsFitParticle* clone( TString newname = "" ) const;
+  virtual TAbsFitParticle* clone( const TString& newname = TString("") ) const;
 
   // returns derivative dP/dy with P=(p,E) and y=(r, theta, phi, ...) 
   // the free parameters of the fit. The columns of the matrix contain 
@@ -31,7 +31,6 @@ protected :
 
   void init(TVector3* p, Double_t M, const TMatrixD* theCovMatrix);
 
-  ClassDef(TFitParticleMCCart, 1)    // Particle with cartesian 4vector parametrization and constrained mass
   
 private:
 };

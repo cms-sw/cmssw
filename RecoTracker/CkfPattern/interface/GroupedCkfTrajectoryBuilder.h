@@ -5,33 +5,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 #include <vector>
 
-class Propagator;
-class TrajectoryStateUpdator;
-class Chi2MeasurementEstimatorBase;
-class MeasurementEstimator;
-class NavigationSchool;
-class Trajectory;
-class TrajectorySeed;
-class TrajectoryContainer;
-class TrajectoryStateOnSurface;
-class FreeTrajectoryState;
-class TrajectoryMeasurement;
-class TrajectoryFilter;
-class TrackingRegion;
-class TrajectoryMeasurementGroup;
-class MeasurementTracker;
-class LayerMeasurements;
-class DetGroup;
-//B.M. class RecHitEqualByChannels;
-class TrajectoryFitter;
-class TransientTrackingRecHitBuilder;
+
+#include "FWCore/Utilities/interface/Visibility.h"
 
 
 /** A highly configurable trajectory builder that allows full
@@ -39,15 +21,7 @@ class TransientTrackingRecHitBuilder;
  *  and provides efficient ways of trimming the combinatorial tree.
  */
 
-class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
-
- protected:
-  // short names
-  typedef FreeTrajectoryState         FTS;
-  typedef TrajectoryStateOnSurface    TSOS;
-  typedef TrajectoryMeasurement       TM;
-  typedef std::vector<Trajectory>     TrajectoryContainer;
-  typedef std::vector<TempTrajectory> TempTrajectoryContainer;
+class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   
  public:
   /// constructor from ParameterSet
@@ -57,22 +31,52 @@ class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
 			      const Propagator*                     propagatorOpposite,
 			      const Chi2MeasurementEstimatorBase*   estimator,
 			      const TransientTrackingRecHitBuilder* RecHitBuilder,
-			      const MeasurementTracker*             measurementTracker);
+			      const TrajectoryFilter*               filter,
+			      const TrajectoryFilter*               inOutFilter);
+
+  virtual GroupedCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const ;
 
   /// destructor
-  virtual ~GroupedCkfTrajectoryBuilder();
+  virtual ~GroupedCkfTrajectoryBuilder(){}
 
   /// set Event for the internal MeasurementTracker data member
-  virtual void setEvent(const edm::Event& event) const;
+  //  virtual void setEvent(const edm::Event& event) const;
 
   /// trajectories building starting from a seed
   TrajectoryContainer trajectories(const TrajectorySeed&) const;
 
+  /// trajectories building starting from a seed, return in an already allocated vector
+  void trajectories(const TrajectorySeed&, TrajectoryContainer &ret) const;
+
   /// trajectories building starting from a seed with a region
   TrajectoryContainer trajectories(const TrajectorySeed&, const TrackingRegion&) const;
 
+  /// trajectories building starting from a seed with a region
+  void trajectories(const TrajectorySeed&, TrajectoryContainer &ret, const TrackingRegion&) const;
+
+  /// common part of both public trajectory building methods
+  // also new interface returning the start Trajectory...
+  TempTrajectory buildTrajectories (const TrajectorySeed&seed,
+				    TrajectoryContainer &ret,
+				    const TrajectoryFilter*) const;
+
+
+
+  /** trajectories re-building in the seeding region.
+      It looks for additional measurements in the seeding region of the 
+      intial trajectories.
+      Only valid trajectories are returned. Invalid ones are dropped from the input
+      collection.
+  **/
+  void  rebuildSeedingRegion(const TrajectorySeed&,
+			     TrajectoryContainer& result) const ;
+ 
+  // same as above using the precomputed startingTraj..
+  void  rebuildTrajectories(TempTrajectory const & startingTraj, const TrajectorySeed&,
+			     TrajectoryContainer& result) const ;  
+
+
   // Access to lower level components
-  //B.M. const Propagator&           propagator() const {return *thePropagator;}
   const TrajectoryStateUpdator&  updator() const    {return *theUpdator;}
   const Chi2MeasurementEstimatorBase&    estimator() const  {return *theEstimator;}
 
@@ -84,11 +88,6 @@ class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
   /** Maximum number of trajectory candidates to propagate to the next layer. */
   int 		maxCand()		{return theMaxCand;}
 
-  /** Maximum number of lost hits per trajectory candidate. */
-  int 		maxLostHit()		{return theMaxLostHit;}
-
-  /** Maximum number of consecutive lost hits per trajectory candidate. */
-  int 		maxConsecLostHit()	{return theMaxConsecLostHit;}
 
   /** Chi**2 Penalty for each lost hit. */
   float 	lostHitPenalty()	{return theLostHitPenalty;}
@@ -111,94 +110,65 @@ protected:
   virtual void analyseResult( const TrajectoryContainer& result) const {}
 
 private :
-  /// no copy constructor
-  GroupedCkfTrajectoryBuilder (const GroupedCkfTrajectoryBuilder&);
+//  /// no copy constructor
+//  GroupedCkfTrajectoryBuilder (const GroupedCkfTrajectoryBuilder&)  = default;
+//
+//  /// no assignment operator
+//  GroupedCkfTrajectoryBuilder& operator= (const GroupedCkfTrajectoryBuilder&)  dso_internal;
 
-  /// no assignment operator
-  GroupedCkfTrajectoryBuilder& operator= (const GroupedCkfTrajectoryBuilder&);
-
-  /// common part of both public trajectory building methods
-  TrajectoryContainer buildTrajectories (const TrajectorySeed&,
-					 const TrajectoryFilter*) const;
-
-  TempTrajectory createStartingTrajectory( const TrajectorySeed&) const;
-
-  std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
-
-  void addToResult( TempTrajectory& traj, TrajectoryContainer& result) const;
   
-  bool qualityFilter( const TempTrajectory& traj) const;
-  bool toBeContinued( const TempTrajectory& traj, const TrajectoryFilter* regionalCondition) const;
-
-  //B.M.TrajectoryContainer intermediaryClean(TrajectoryContainer& theTrajectories);
-  // to be ported later
-
-  inline bool tkxor(bool a, bool b) const {return (a||b) && !(a&&b);}
+  inline bool tkxor(bool a, bool b) const  dso_internal {return (a||b) && !(a&&b);}
   // to be ported later
 
   bool advanceOneLayer( TempTrajectory& traj, 
 			const TrajectoryFilter* regionalCondition,
 			const Propagator* propagator, 
+                        bool inOut,
 			TempTrajectoryContainer& newCand, 
-			TrajectoryContainer& result) const;
+			TempTrajectoryContainer& result) const  dso_internal;
 
-  void groupedLimitedCandidates( TempTrajectory& startingTraj, 
+  void groupedLimitedCandidates( TempTrajectory const& startingTraj, 
 				 const TrajectoryFilter* regionalCondition,
 				 const Propagator* propagator, 
-				 TrajectoryContainer& result) const;
+                                 bool inOut,
+				 TempTrajectoryContainer& result) const  dso_internal;
 
   /// try to find additional hits in seeding region
-  void rebuildSeedingRegion (TempTrajectory& startingTraj,
-			     TrajectoryContainer& result) const ;
+  void rebuildSeedingRegion (const TrajectorySeed&seed,
+			     TempTrajectory const& startingTraj,
+			     TempTrajectoryContainer& result) const  dso_internal;
 
    //** try to find additional hits in seeding region for a candidate
    //* (returns number of trajectories added) *
-  int rebuildSeedingRegion (const std::vector<const TrackingRecHit*>& seedHits,
+  int rebuildSeedingRegion (const TrajectorySeed&seed,
+			    const std::vector<const TrackingRecHit*>& seedHits,
 			    TempTrajectory& candidate,
-			    TrajectoryContainer& result) const ;
+			    TempTrajectoryContainer& result) const  dso_internal;
 
-  // ** Backward fit of trajectory candidate except seed. Fit result and
-  // *  remaining hits are returned in fittedTracks and remainingHits.
-  // *  FittedTracks is empty if no fit was done. *
-  void backwardFit (Trajectory& candidate, unsigned int nSeed,
-		    const TrajectoryFitter& fitter,
-		    TempTrajectoryContainer& fittedTracks,
-		    std::vector<const TrackingRecHit*>& remainingHits) const;
+  // ** Backward fit of trajectory candidate except seed. Fit result is returned. invalid if fit failed
+  // *  remaining hits are returned  remainingHits.
+  TempTrajectory backwardFit (TempTrajectory& candidate, unsigned int nSeed,
+			      const TrajectoryFitter& fitter,
+			      std::vector<const TrackingRecHit*>& remainingHits) const  dso_internal;
 
   /// Verifies presence of a RecHits in a range of TrajectoryMeasurements.
-  bool verifyHits (std::vector<TM>::const_iterator tmBegin,
-		   std::vector<TM>::const_iterator tmEnd,
-		   const std::vector<const TrackingRecHit*>& hits) const;
+  bool verifyHits (TempTrajectory::DataContainer::const_iterator rbegin,
+		   size_t maxDepth,
+		   const std::vector<const TrackingRecHit*>& hits) const  dso_internal;
 
   /// intermediate cleaning in the case of grouped measurements
-  void groupedIntermediaryClean(TempTrajectoryContainer& theTrajectories) const ;
+  void groupedIntermediaryClean(TempTrajectoryContainer& theTrajectories) const  dso_internal;
 
-  /// list of layers from a container of TrajectoryMeasurements
-  std::vector<const DetLayer*> layers (const TempTrajectory::DataContainer& measurements) const;
 
   /// change of propagation direction
-  inline PropagationDirection oppositeDirection (PropagationDirection dir) const {
+  static inline PropagationDirection oppositeDirection (PropagationDirection dir) {
     if ( dir==alongMomentum )  return oppositeToMomentum;
-    else if ( dir==oppositeToMomentum )  return alongMomentum;
+    if ( dir==oppositeToMomentum )  return alongMomentum;
     return dir;
   }
 
 
 private:
-  const TrajectoryStateUpdator*         theUpdator;
-  const Propagator*                     thePropagatorAlong;
-  const Propagator*                     thePropagatorOpposite;
-  const Chi2MeasurementEstimatorBase*   theEstimator;
-  const TransientTrackingRecHitBuilder* theTTRHBuilder;
-  const MeasurementTracker*             theMeasurementTracker;
-  const LayerMeasurements*              theLayerMeasurements;
-
-  // these may change from seed to seed
-  mutable const Propagator*             theForwardPropagator;
-  mutable const Propagator*             theBackwardPropagator;
-
-  TrajectoryFilter*              theMinPtCondition;
-  TrajectoryFilter*              theMaxHitsCondition;
   TrajectoryFilter*              theConfigurableCondition;
 
   //   typedef deque< const TrajectoryFilter*>   StopCondContainer;
@@ -212,15 +182,12 @@ private:
 
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */
-  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
-  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits 
-                                     per trajectory candidate. */
   float theLostHitPenalty;      /**< Chi**2 Penalty for each lost hit. */
   float theFoundHitBonus;       /**< Chi**2 bonus for each found hit (favours candidates with
 				     more measurements) */
   bool theIntermediateCleaning;	/**< Tells whether an intermediary cleaning stage 
                                      should take place during TB. */
-  int theMinHits;               /**< Minimum number of hits for a trajectory to be returned.*/
+
   bool theAlwaysUseInvalid;
 
   bool theLockHits;             /**< Lock hits when building segments in a layer */
@@ -233,6 +200,17 @@ private:
                                      If ==0 the seeding part will remain untouched. */
   unsigned int theMinNrOf2dHitsForRebuild;   
                                 /**< Minimum nr. of non-seed 2D hits required for rebuild. */
+  bool theKeepOriginalIfRebuildFails;   
+                                /**< Keep original trajectory if rebuilding fails. */
+
+  /** If the value is greater than zero, the reconstructions for looper is turned on for
+      candidates with pt greater than maxPtForLooperReconstruction */
+  float maxPt2ForLooperReconstruction;
+
+  float maxDPhiForLooperReconstruction;
+
+  mutable TempTrajectoryContainer work_; // Better here than alloc every time
+  enum work_MaxSize_Size_ { work_MaxSize_ = 50 };  // if it grows above this number, it is forced to resize to half this amount when cleared
 };
 
 #endif

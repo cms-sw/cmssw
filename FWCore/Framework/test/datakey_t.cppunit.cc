@@ -6,10 +6,10 @@
  *  Changed by Viji Sundararajan on 24-Jun-2005.
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include <cstring>
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 
 using namespace edm;
 using namespace edm::eventsetup;
@@ -87,17 +87,8 @@ namespace datakey_t {
 using datakey_t::Dummy;
 using datakey_t::Dummy2;
 
-template<>
-const char*
-edm::eventsetup::heterocontainer::HCTypeTagTemplate<Dummy, edm::eventsetup::DataKey>::className() {
-   return "Dummy";
-}
-
-template<>
-const char*
-edm::eventsetup::heterocontainer::HCTypeTagTemplate<Dummy2, edm::eventsetup::DataKey>::className() {
-   return "Dummy2";
-}
+HCTYPETAG_HELPER_METHODS(Dummy)
+HCTYPETAG_HELPER_METHODS(Dummy2)
 
 void testDataKey::ConstructionTest()
 {

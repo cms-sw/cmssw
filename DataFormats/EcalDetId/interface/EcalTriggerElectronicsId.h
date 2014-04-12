@@ -2,6 +2,7 @@
 #define DATAFORMATS_ECALDETID_ECALTRIGGERELECTRONICSID_H 1
 
 #include <ostream>
+#include <stdint.h>
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 

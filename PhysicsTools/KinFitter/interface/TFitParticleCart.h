@@ -18,7 +18,7 @@ public :
 	       TLorentzVector* pini,
 	       const TMatrixD* theCovMatrix);
   virtual ~TFitParticleCart();
-  virtual TAbsFitParticle* clone( TString newname = "" ) const;
+  virtual TAbsFitParticle* clone( const TString& newname = TString("") ) const;
 
   // returns derivative dP/dy with P=(p,E) and y=(r, theta, phi, ...) 
   // the free parameters of the fit. The columns of the matrix contain 
@@ -32,7 +32,6 @@ protected :
 
   void init(TLorentzVector* pini, const TMatrixD* theCovMatrix);
 
-  ClassDef(TFitParticleCart, 1)  // Particle with cartesian 4vector parametrization
 
 private:
   

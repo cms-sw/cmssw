@@ -18,7 +18,7 @@ HcalTestNumberingScheme::~HcalTestNumberingScheme() {
   edm::LogInfo("HcalSim") << "Deleting HcalTestNumberingScheme";
 }
 
-uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID 
+uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& 
 					    id) {
 
   //pack it into an integer
@@ -28,7 +28,7 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID
     int etaR  = id.etaR;
     int phi   = id.phis;
     HcalSubdetector subdet =  (HcalSubdetector)(id.subdet);
-    if (phi > 4) { // HB2 
+    if (subdet == HcalBarrel && phi > 4) { // HB2 
       if (etaR > 4 && etaR < 10)
 	index = HcalDetId(subdet,id.lay,id.phis,1).rawId();
     } else { // HB1
@@ -37,13 +37,13 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID
   } else {
     // Test case
     index = HcalTestNumbering::packHcalIndex(id.subdet, id.zside, id.depth, 
-					     id.etaR, id.phi, id.lay);
+					     id.etaR, id.phis, id.lay);
   }
 
   LogDebug("HcalSim") << "HcalTestNumberingScheme det = " << id.subdet 
 		      << " depth/lay = " << id.depth << "/" << id.lay 
 		      << " zside = " << id.zside << " eta/R = " << id.etaR 
-		      << " phi = " << id.phi << " packed index = 0x" 
+		      << " phi = " << id.phis << " packed index = 0x" 
 		      << std::hex << index << std::dec;
 
   return index;

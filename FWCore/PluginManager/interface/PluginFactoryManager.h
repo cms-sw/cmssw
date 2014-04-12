@@ -16,13 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 12:49:41 EDT 2007
-// $Id: PluginFactoryManager.h,v 1.1.2.2 2007/04/09 18:46:49 chrjones Exp $
 //
 
 // system include files
 #include <string>
 #include <vector>
-#include "sigc++/signal.h"
+#include "FWCore/Utilities/interface/Signal.h"
 
 // user include files
 
@@ -48,7 +47,7 @@ class PluginFactoryManager
 
       // ---------- member functions ---------------------------
       void addFactory(const PluginFactoryBase*);
-      sigc::signal<void,const PluginFactoryBase*> newFactory_;
+      edm::signalslot::Signal<void(const PluginFactoryBase*)> newFactory_;
       
    private:
       PluginFactoryManager();

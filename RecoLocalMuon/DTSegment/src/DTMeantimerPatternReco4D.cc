@@ -1,7 +1,5 @@
 /** \file
  *
- * $Date: 2006/05/04 16:31:48 $
- * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -34,22 +32,34 @@ using namespace edm;
 DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset):
   DTRecSegment4DBaseAlgo(pset), theAlgoName("DTMeantimerPatternReco4D"){
 
-  // debug parameter
-  debug = pset.getUntrackedParameter<bool>("debug");
-  
-  // the updator
-  theUpdator = new DTSegmentUpdator(pset);
+    // debug parameter
+    debug = pset.getUntrackedParameter<bool>("debug");
 
-  // the input type. 
-  // If true the instructions in setDTRecSegment2DContainer will be schipped and the 
-  // theta segment will be recomputed from the 1D rechits
-  // If false the theta segment will be taken from the Event. Caveat: in this case the
-  // event must contain the 2D segments!
-  allDTRecHits = pset.getParameter<bool>("AllDTRecHits");
- 
-  // Get the concrete 2D-segments reconstruction algo from the factory
-  // For the 2D reco I use this reconstructor!
-  the2DAlgo = new DTMeantimerPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+    //do you want the T0 correction?
+    applyT0corr = pset.getParameter<bool>("performT0SegCorrection");
+
+    computeT0corr = pset.existsAs<bool>("computeT0Seg") ?
+      pset.getParameter<bool>("computeT0Seg") : true;
+
+    // the updator
+    theUpdator = new DTSegmentUpdator(pset);
+
+    // the input type. 
+    // If true the instructions in setDTRecSegment2DContainer will be schipped and the 
+    // theta segment will be recomputed from the 1D rechits
+    // If false the theta segment will be taken from the Event. Caveat: in this case the
+    // event must contain the 2D segments!
+    allDTRecHits = pset.getParameter<bool>("AllDTRecHits");
+
+    // Get the concrete 2D-segments reconstruction algo from the factory
+    // For the 2D reco I use this reconstructor!
+    the2DAlgo = new DTMeantimerPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+}
+
+
+DTMeantimerPatternReco4D::~DTMeantimerPatternReco4D(){
+  delete the2DAlgo;
+  delete theUpdator;
 }
 
 void DTMeantimerPatternReco4D::setES(const EventSetup& setup){
@@ -77,15 +87,15 @@ void DTMeantimerPatternReco4D::setDTRecHit1DContainer(Handle<DTRecHitCollection>
   vector<DTRecHit1DPair> hitsFromPhi2(rangeHitsFromPhi2.first,rangeHitsFromPhi2.second);
   if(debug)
     cout<< "Number of DTRecHit1DPair in the SL 1 (Phi 1): " << hitsFromPhi1.size()<<endl
-	<< "Number of DTRecHit1DPair in the SL 3 (Phi 2): " << hitsFromPhi2.size()<<endl;
-  
+                                                               << "Number of DTRecHit1DPair in the SL 3 (Phi 2): " << hitsFromPhi2.size()<<endl;
+
   theHitsFromPhi1 = hitsFromPhi1;
   theHitsFromPhi2 = hitsFromPhi2;
 
   if(allDTRecHits){
     DTRecHitCollection::range rangeHitsFromTheta = 
       all1DHits->get(DTRangeMapAccessor::layersBySuperLayer( DTSuperLayerId(theChamber->id(),2) ) );
-    
+
     vector<DTRecHit1DPair> hitsFromTheta(rangeHitsFromTheta.first,rangeHitsFromTheta.second);
     if(debug)
       cout<< "Number of DTRecHit1DPair in the SL 2 (Theta): " << hitsFromTheta.size()<<endl;
@@ -102,10 +112,10 @@ void DTMeantimerPatternReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DC
     //Extract the DTRecSegment2DCollection range for the theta SL
     DTRecSegment2DCollection::range rangeTheta = 
       all2DSegments->get(DTSuperLayerId(theChamber->id(),2));
-    
+
     // Fill the DTRecSegment2D container for the theta SL
     vector<DTSLRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
-    
+
     if(debug)
       cout << "Number of 2D-segments in the second SL (Theta): " << segments2DTheta.size() << endl;
     theSegments2DTheta = segments2DTheta;
@@ -113,20 +123,22 @@ void DTMeantimerPatternReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DC
 
 }
 
-  
+
 OwnVector<DTRecSegment4D>
 DTMeantimerPatternReco4D::reconstruct(){
 
   OwnVector<DTRecSegment4D> result;
-  
+
   if (debug){ 
     cout << "Segments in " << theChamber->id() << endl;
     cout << "Reconstructing Phi segments"<<endl;
   }
-  vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates();
-  
+
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhiOwned;
+  vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates(pairPhiOwned);
+
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
-  
+
   if (allDTRecHits){
     // take the theta SL of this chamber
     const DTSuperLayer* sl = theChamber->superLayer(2);
@@ -139,87 +151,111 @@ DTMeantimerPatternReco4D::reconstruct(){
       theSegments2DTheta = segments2DTheta;
     }
   }
-  
+
   bool hasZed=false;
-  
+
   // has this chamber the Z-superlayer?
   if (theSegments2DTheta.size()){
     hasZed = theSegments2DTheta.size()>0;
     if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
-    if (debug) cout << "No Theta SL" << endl;
+    if (debug) cout << "No Theta candidates." << endl;
   }
 
   // Now I want to build the concrete DTRecSegment4D.
-  if(debug) cout<<"Building the concrete DTRecSegment4D"<<endl;
+  if(debug) cout << "Building the concrete DTRecSegment4D" << endl;
   if (resultPhi.size()) {
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
-      
-      DTChamberRecSegment2D* superPhi = (**phi);
-      
-      theUpdator->update(superPhi);
-      
+
+      std::auto_ptr<DTChamberRecSegment2D> superPhi(**phi);
+
+      theUpdator->update(superPhi.get());
+      if(debug) cout << "superPhi: " << *superPhi << endl;
+
       if (hasZed) {
 
-	// Create all the 4D-segment combining the Z view with the Phi one
-	// loop over the Z segments
-	for(vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
-	    zed != theSegments2DTheta.end(); ++zed){
-	  
-	  // Important!!
-	  DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
-	  
-	  const LocalPoint posZInCh  = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
-	  const LocalVector dirZInCh = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
-	
+        // Create all the 4D-segment combining the Z view with the Phi one
+        // loop over the Z segments
+        for(vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
+            zed != theSegments2DTheta.end(); ++zed){
+
+          // Important!!
+          DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
+
+	  // Put the theta segment poistion in its 3D place.
+	  // note: (superPhi is in the CHAMBER local frame)
+	  const DTSuperLayer* zSL = theChamber->superLayer(ZedSegSLId);
+
+	  // FIXME: should rather extrapolate for Y!
+	  LocalPoint zPos(zed->localPosition().x(), 
+			 (zSL->toLocal(theChamber->toGlobal(superPhi->localPosition()))).y(),
+			 0.);
+
+          const LocalPoint posZInCh  = theChamber->toLocal( zSL->toGlobal(zPos));
+	  // FIXME: zed->localDirection() is in 2D. Should add the phi direction in the orthogonal plane as well!!
+          const LocalVector dirZInCh = theChamber->toLocal( zSL->toGlobal(zed->localDirection()));
+
           DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,posZInCh,dirZInCh);
-	  //<<
-  
+
           /// 4d segment: I have the pos along the wire => further update!
           theUpdator->update(newSeg);
-          if (debug) cout << "Created a 4D seg " << endl;
-	  result.push_back(newSeg);
+          if (debug) cout << "Created a 4D seg " << *newSeg << endl;
+
+          //update the segment with the t0 and possibly vdrift correction
+          if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
+          if(applyT0corr) theUpdator->update(newSeg,true);
+
+          result.push_back(newSeg);
         }
       } else {
         // Only phi
         DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi);
-	
+
         if (debug) cout << "Created a 4D segment using only the 2D Phi segment" << endl;
-	result.push_back(newSeg);
+
+        //update the segment with the t0 and possibly vdrift correction
+        if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
+        if(applyT0corr) theUpdator->update(newSeg,true);
+
+        result.push_back(newSeg);
       }
     }
   } else { 
     // DTRecSegment4D from zed projection only (unlikely, not so useful, but...)
     if (hasZed) {
       for(vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
-	  zed != theSegments2DTheta.end(); ++zed){
-        
-	// Important!!
-	DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
-	  
-	const LocalPoint posZInCh  = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
-	const LocalVector dirZInCh = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
-	
+          zed != theSegments2DTheta.end(); ++zed){
+
+        // Important!!
+        DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
+
+        const LocalPoint posZInCh  = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
+        const LocalVector dirZInCh = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
+
         DTRecSegment4D* newSeg = new DTRecSegment4D( *zed,posZInCh,dirZInCh);
-	// <<
-	
+        // <<
+
         if (debug) cout << "Created a 4D segment using only the 2D Theta segment" << endl;
-	result.push_back(newSeg);
+
+        if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
+        if(applyT0corr) theUpdator->update(newSeg,true);
+
+        result.push_back(newSeg);
       }
     }
   }
   // finally delete the candidates!
   for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
        phi!=resultPhi.end(); ++phi) delete *phi;
-  
+
   return result;
 }
 
 
 
-vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates(){
-  
+vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates(vector<std::shared_ptr<DTHitPairForFit>> &pairPhiOwned){
+
   DTSuperLayerId slId;
 
   if(theHitsFromPhi1.size())
@@ -229,18 +265,19 @@ vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates
       slId = theHitsFromPhi2.front().wireId().superlayerId();
     else{
       if(debug) cout<<"DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates: "
-		    <<"No Hits in the two Phi SL"<<endl;
+        <<"No Hits in the two Phi SL"<<endl;
       return vector<DTSegmentCand*>();
     }
 
   const DTSuperLayer *sl = theDTGeometry->superLayer(slId);
-  
-  vector<DTHitPairForFit*> pairPhi1 = the2DAlgo->initHits(sl,theHitsFromPhi1);
+
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhi1 = the2DAlgo->initHits(sl,theHitsFromPhi1);
   // same sl!! Since the fit will be in the sl phi 1!
-  vector<DTHitPairForFit*> pairPhi2 = the2DAlgo->initHits(sl,theHitsFromPhi2);
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhi2 = the2DAlgo->initHits(sl,theHitsFromPhi2);
   // copy the pairPhi2 in the pairPhi1 vector 
   copy(pairPhi2.begin(),pairPhi2.end(),back_inserter(pairPhi1));
 
+  pairPhiOwned.swap(pairPhi1);
   // Build the segment candidate
-  return the2DAlgo->buildSegments(sl,pairPhi1);
+  return the2DAlgo->buildSegments(sl,pairPhiOwned);
 }

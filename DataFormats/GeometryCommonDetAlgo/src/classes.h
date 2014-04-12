@@ -1,5 +1,12 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-namespace {
-namespace {
-}
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1DFloat.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+
+namespace DataFormats_GeometryCommonDetAlgo {
+  struct dictionary {
+    Measurement1D m;
+    Measurement1DFloat f;
+    edm::Wrapper<edm::ValueMap<Measurement1DFloat> > wvmf;
+  };
 }

@@ -7,8 +7,6 @@ class CaloTPGTranscoder;
 
 /** \class EcalTPGCompressor
   *  
-  * $Date: $
-  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class EcalTPGCompressor {

@@ -5,8 +5,8 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
-namespace {
-  namespace {
+namespace DataFormats_CLHEP {
+  struct dictionary {
     std::vector<CLHEP::HepLorentzVector> dummy0;
-  }
+  };
 }

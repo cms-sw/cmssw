@@ -6,10 +6,11 @@
  *
  */
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "CondFormats/DataRecord/interface/ElectronLikelihoodPdfsRcd.h"
+#include "boost/mpl/vector.hpp"
 
-class ElectronLikelihoodRcd :
-public edm::eventsetup::EventSetupRecordImplementation<ElectronLikelihoodRcd> {
-};
+class ElectronLikelihoodRcd : public edm::eventsetup::DependentRecordImplementation<ElectronLikelihoodRcd, 
+		boost::mpl::vector<ElectronLikelihoodPdfsRcd > > {};
 
 #endif

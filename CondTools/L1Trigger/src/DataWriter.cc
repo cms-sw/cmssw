@@ -1,117 +1,209 @@
-#include "CondTools/L1Trigger/src/DataWriter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+#include "CondTools/L1Trigger/interface/DataWriter.h"
+#include "CondTools/L1Trigger/interface/Exception.h"
+#include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/IOVService/interface/IOVProxy.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 
 #include <utility>
 
 namespace l1t
 {
+  DataWriter::DataWriter(){}
+  DataWriter::~DataWriter(){}
 
-DataWriter::DataWriter (const std::string & connect, const std::string & catalog)
+
+
+std::string
+DataWriter::writePayload( const edm::EventSetup& setup,
+			  const std::string& recordType )
 {
-    // Initialize session used with this object
-    session = new cond::DBSession ();
-    session->sessionConfiguration ().setAuthenticationMethod (cond::Env);
-//    session->sessionConfiguration ().setMessageLevel (cond::Info);
-    session->connectionConfiguration ().enableConnectionSharing ();
-    session->connectionConfiguration ().enableReadOnlySessionOnUpdateConnections ();
+  WriterFactory* factory = WriterFactory::get();
+  std::auto_ptr<WriterProxy> writer(factory->create( recordType + "@Writer" )) ;
+  if( writer.get() == 0 )
+    {
+      throw cond::Exception( "DataWriter: could not create WriterProxy with name "
+			     + recordType + "@Writer" ) ;
+    }
 
-    // create Coral connection and pool. This ones should be connected on required basis
-    coral = new cond::RelationalStorageManager (connect, session);
-    pool = new cond::PoolStorageManager (connect, catalog, session);
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if (!poolDb.isAvailable())
+    {
+      throw cond::Exception( "DataWriter: PoolDBOutputService not available."
+			     ) ;
+    }
 
-    // and data object
-    metadata = new cond::MetaData (*coral);
+  // 2010-02-16: Move session and transaction to WriterProxy::save().  Otherwise, if another transaction is
+  // started while WriterProxy::save() is called (e.g. in a ESProducer like L1ConfigOnlineProdBase), the
+  // transaction here will become read-only.
+//   cond::DbSession session = poolDb->session();
+//   cond::DbScopedTransaction tr(session);
+//   // if throw transaction will unroll
+//   tr.start(false);
+
+  // update key to have new payload registered for record-type pair.
+  //  std::string payloadToken = writer->save( setup, session ) ;
+  std::string payloadToken = writer->save( setup ) ;
+
+  edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
+			       << payloadToken ;
+
+//   tr.commit ();
+
+  return payloadToken ;
 }
 
-
-DataWriter::~DataWriter ()
+void
+DataWriter::writeKeyList( L1TriggerKeyList* keyList,
+			  edm::RunNumber_t sinceRun,
+			  bool logTransactions )
 {
-    // detele all in reverse direction
-    // closing and comminting may be a good idea here
-    // in case we have exception in some other part between connect/close pairs
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if( !poolDb.isAvailable() )
+    {
+      throw cond::Exception( "DataWriter: PoolDBOutputService not available."
+			     ) ;
+    }
 
-    delete metadata;
-    delete pool;
-    delete coral;
-    delete session;
+  cond::persistency::Session session = poolDb->session();
+  cond::persistency::TransactionScope tr(session.transaction());
+  tr.start( false );
+
+  // Write L1TriggerKeyList payload and save payload token before committing
+  boost::shared_ptr<L1TriggerKeyList> pointer(keyList);
+  std::string payloadToken = session.storePayload(*pointer );
+			
+  // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
+  // confused.
+  tr.commit ();
+  
+  // Set L1TriggerKeyList IOV
+  updateIOV( "L1TriggerKeyListRcd",
+	     payloadToken,
+	     sinceRun,
+	     logTransactions ) ;
 }
 
-/* Data writting functions */
-
-std::string DataWriter::findTokenForTag (const std::string & tag)
+bool
+DataWriter::updateIOV( const std::string& esRecordName,
+		       const std::string& payloadToken,
+		       edm::RunNumber_t sinceRun,
+		       bool logTransactions )
 {
-    // fast check in cashe
-    TagToToken::const_iterator found = tagToToken.find (tag);
-    if (found != tagToToken.end ())
-        return found->second;
+  edm::LogVerbatim( "L1-O2O" ) << esRecordName
+			       << " PAYLOAD TOKEN " << payloadToken ;
 
-    // else slow way, also we may need to create db
-    coral->connect (cond::ReadWriteCreate);
-    coral->startTransaction (false);
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if (!poolDb.isAvailable())
+    {
+      throw cond::Exception( "DataWriter: PoolDBOutputService not available."
+			     ) ;
+    }
 
-    std::string tagToken;
-    if (metadata->hasTag (tag))
-        tagToken = metadata->getToken (tag);
+  bool iovUpdated = true ;
 
-    coral->commit ();
-    coral->disconnect ();
+  if( poolDb->isNewTagRequest( esRecordName ) )
+    {
+      sinceRun = poolDb->beginOfTime() ;
+      poolDb->createNewIOV( payloadToken,
+			    sinceRun,
+			    poolDb->endOfTime(),
+			    esRecordName,
+			    logTransactions ) ;
+    }
+  else
+    {	
+      cond::TagInfo tagInfo ;
+      poolDb->tagInfo( esRecordName, tagInfo ) ;
 
-    // if not found empty string is returned
-    return tagToken;
+      if( sinceRun == 0 ) // find last since and add 1
+	{
+	  sinceRun = tagInfo.lastInterval.first ;
+	  ++sinceRun ;
+	}
+
+      if( tagInfo.lastPayloadToken != payloadToken )
+	{
+	  poolDb->appendSinceTime( payloadToken,
+				   sinceRun,
+				   esRecordName,
+				   logTransactions ) ;
+	}
+      else
+	{
+	  iovUpdated = false ;
+	  edm::LogVerbatim( "L1-O2O" ) << "IOV already up to date." ;
+	}
+    }
+
+  if( iovUpdated )
+    {
+      edm::LogVerbatim( "L1-O2O" ) << esRecordName << " "
+				   << poolDb->tag( esRecordName )
+				   << " SINCE " << sinceRun ;
+    }
+
+  return iovUpdated ;
 }
 
-void DataWriter::writeKey (L1TriggerKey * key, const std::string & tag, const int sinceRun)
+std::string
+DataWriter::payloadToken( const std::string& recordName,
+			  edm::RunNumber_t runNumber )
 {
-    // writting key as bit more complicated. At this time we have to worry
-    // about such things if the key already exists or not
-    // Also we need to get IOVToken for given tag if key exist
-    // if it does not, then we need to addMapping in the end
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if( !poolDb.isAvailable() )
+    {
+      throw cond::Exception( "DataWriter: PoolDBOutputService not available."
+			     ) ;
+    }
 
-    // Bad part - get TagTokent for given tag.
-    // We use layzy cash to save all tag adn tokens, in case we save key with same tag
-    std::string tagToken = findTokenForTag (tag);
-    bool requireMapping = tagToken.empty ();
+  // Get tag corresponding to EventSetup record name.
+  std::string iovTag = poolDb->tag( recordName ) ;
 
-    // work with pool db
-    pool->connect ();
-    pool->startTransaction (false);
+  // Get IOV token for tag.
+  cond::persistency::Session session = poolDb->session();
+  cond::persistency::IOVProxy iov = session.readIov( iovTag );
+  session.transaction().start();
 
-    cond::Ref<L1TriggerKey> ref (*pool, key);
-    ref.markWrite ("L1TriggerKeyRcd");
-
-    cond::IOVService iov (*pool);
-
-    // Create editor, with or wothoug TagToken
-    cond::IOVEditor * editor;
-    editor = iov.newIOVEditor (tagToken);
-
-    // finally insert new IOV
-    editor->insert (sinceRun, ref.token ());
-    tagToken = editor->token ();
-    delete editor;
-
-    pool->commit ();
-    pool->disconnect ();
-
-    if (tagToToken.find (tag) != tagToToken.end ())
-        tagToToken.insert (std::make_pair (tag, tagToken));
-
-    // Assign payload token with IOV value
-    if (requireMapping)
-        addMappings (tag, tagToken);
+  std::string payloadToken("");
+  auto iP = iov.find( runNumber );
+  if( iP != iov.end() ){
+    payloadToken = (*iP).payloadId; 
+  }
+  session.transaction().commit() ;
+  return payloadToken ;
 }
 
-void DataWriter::addMappings (const std::string tag, const std::string iovToken)
+std::string
+DataWriter::lastPayloadToken( const std::string& recordName )
 {
-    coral->connect (cond::ReadWriteCreate);
-    coral->startTransaction (false);
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if( !poolDb.isAvailable() )
+    {
+      throw cond::Exception( "DataWriter: PoolDBOutputService not available."
+			     ) ;
+    }
 
-    metadata->addMapping (tag, iovToken);
+  cond::TagInfo tagInfo ;
+  poolDb->tagInfo( recordName, tagInfo ) ;
+  return tagInfo.lastPayloadToken ;
+}
 
-    coral->commit ();
-    coral->disconnect ();
+bool
+DataWriter::fillLastTriggerKeyList( L1TriggerKeyList& output )
+{
+  std::string keyListToken =
+    lastPayloadToken( "L1TriggerKeyListRcd" ) ;
+  if( keyListToken.empty() )
+    {
+      return false ;
+    }
+  else
+    {
+      readObject( keyListToken, output ) ;
+      return true ;
+    }
 }
 
 } // ns

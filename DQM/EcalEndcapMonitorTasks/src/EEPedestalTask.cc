@@ -1,64 +1,67 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/06/12 18:18:07 $
- * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
-#include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEPedestalTask.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+#include "DQM/EcalEndcapMonitorTasks/interface/EEPedestalTask.h"
 
-EEPedestalTask::EEPedestalTask(const ParameterSet& ps){
+// #define COMMON_NOISE_ANALYSIS
 
-  Numbers::maxSM = 18;
+EEPedestalTask::EEPedestalTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
-  for (int i = 0; i < 18 ; i++) {
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EEDigiCollection_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEDigiCollection"));
+  EcalPnDiodeDigiCollection_ = consumes<EcalPnDiodeDigiCollection>(ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection"));
+
+  MGPAGains_.reserve(3);
+  for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
+  MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
+
+  MGPAGainsPN_.reserve(2);
+  for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
+  MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
+
+  for (int i = 0; i < 18; i++) {
     mePedMapG01_[i] = 0;
     mePedMapG06_[i] = 0;
     mePedMapG12_[i] = 0;
+#ifdef COMMON_NOISE_ANALYSIS
     mePed3SumMapG01_[i] = 0;
     mePed3SumMapG06_[i] = 0;
     mePed3SumMapG12_[i] = 0;
     mePed5SumMapG01_[i] = 0;
     mePed5SumMapG06_[i] = 0;
     mePed5SumMapG12_[i] = 0;
+#endif
     mePnPedMapG01_[i] = 0;
     mePnPedMapG16_[i] = 0;
   }
@@ -69,13 +72,55 @@ EEPedestalTask::~EEPedestalTask(){
 
 }
 
-void EEPedestalTask::beginJob(const EventSetup& c){
+void EEPedestalTask::beginJob(void){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask");
-    dbe_->rmdir("EcalEndcap/EEPedestalTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask");
+    dqmStore_->rmdir(prefixME_ + "/EEPedestalTask");
+  }
+
+}
+
+void EEPedestalTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEPedestalTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+}
+
+void EEPedestalTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+      if ( mePedMapG01_[i] ) mePedMapG01_[i]->Reset();
+    }
+    if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+      if ( mePedMapG06_[i] ) mePedMapG06_[i]->Reset();
+    }
+    if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+      if ( mePedMapG12_[i] ) mePedMapG12_[i]->Reset();
+    }
+#ifdef COMMON_NOISE_ANALYSIS
+    if ( mePed3SumMapG01_[i] ) mePed3SumMapG01_[i]->Reset();
+    if ( mePed3SumMapG06_[i] ) mePed3SumMapG06_[i]->Reset();
+    if ( mePed3SumMapG12_[i] ) mePed3SumMapG12_[i]->Reset();
+    if ( mePed5SumMapG01_[i] ) mePed5SumMapG01_[i]->Reset();
+    if ( mePed5SumMapG06_[i] ) mePed5SumMapG06_[i]->Reset();
+    if ( mePed5SumMapG12_[i] ) mePed5SumMapG12_[i]->Reset();
+#endif
+    if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+      if ( mePnPedMapG01_[i] ) mePnPedMapG01_[i]->Reset();
+    }
+    if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+      if ( mePnPedMapG16_[i] ) mePnPedMapG16_[i]->Reset();
+    }
   }
 
 }
@@ -84,64 +129,153 @@ void EEPedestalTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  std::string name;
+  std::stringstream GainN, GN;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPT pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePedMapG01_[i], i+1);
-      sprintf(histo, "EEPT pedestal 3sum %s G01", Numbers::sEE(i+1).c_str());
-      mePed3SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePed3SumMapG01_[i], i+1);
-      sprintf(histo, "EEPT pedestal 5sum %s G01", Numbers::sEE(i+1).c_str());
-      mePed5SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePed5SumMapG01_[i], i+1);
+    if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 1;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/" + GainN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EEPT pedestal " + Numbers::sEE(i+1) + " " + GN.str();
+        mePedMapG01_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+        mePedMapG01_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG01_[i]->setAxisTitle("101-ix", 1);
+        mePedMapG01_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(mePedMapG01_[i], i+1);
+
+#ifdef COMMON_NOISE_ANALYSIS
+	name = "EEPT pedestal 3sum " + Numbers::sEE(i+1) + " " + GN.str();
+        mePed3SumMapG01_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+        mePed3SumMapG01_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed3SumMapG01_[i]->setAxisTitle("101-ix", 1);
+        mePed3SumMapG01_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(mePed3SumMapG01_[i], i+1);
+
+	name = "EEPT pedestal 5sum " + Numbers::sEE(i+1) + " " + GN.str();
+        mePed5SumMapG01_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+        mePed5SumMapG01_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed5SumMapG01_[i]->setAxisTitle("101-ix", 1);
+        mePed5SumMapG01_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(mePed5SumMapG01_[i], i+1);
+#endif
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain06");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPT pedestal %s G06", Numbers::sEE(i+1).c_str());
-      mePedMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePedMapG06_[i], i+1);
-      sprintf(histo, "EEPT pedestal 3sum %s G06", Numbers::sEE(i+1).c_str());
-      mePed3SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePed3SumMapG06_[i], i+1);
-      sprintf(histo, "EEPT pedestal 5sum %s G06", Numbers::sEE(i+1).c_str());
-      mePed5SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePed5SumMapG06_[i], i+1);
+    if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 6;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 6;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/" + GainN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EEPT pedestal " + Numbers::sEE(i+1) + " " + GN.str();
+        mePedMapG06_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+        mePedMapG06_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG06_[i]->setAxisTitle("101-ix", 1);
+        mePedMapG06_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(mePedMapG06_[i], i+1);
+
+#ifdef COMMON_NOISE_ANALYSIS
+	name = "EEPT pedestal 3sum " + Numbers::sEE(i+1) + " " + GN.str();
+        mePed3SumMapG06_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+        mePed3SumMapG06_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed3SumMapG06_[i]->setAxisTitle("101-ix", 1);
+        mePed3SumMapG06_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(mePed3SumMapG06_[i], i+1);
+
+	name = "EEPT pedestal 5sum " + Numbers::sEE(i+1) + " " + GN.str();
+        mePed5SumMapG06_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+        mePed5SumMapG06_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed5SumMapG06_[i]->setAxisTitle("101-ix", 1);
+        mePed5SumMapG06_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(mePed5SumMapG06_[i], i+1);
+#endif
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain12");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPT pedestal %s G12", Numbers::sEE(i+1).c_str());
-      mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePedMapG12_[i], i+1);
-      sprintf(histo, "EEPT pedestal 3sum %s G12", Numbers::sEE(i+1).c_str());
-      mePed3SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePed3SumMapG12_[i], i+1);
-      sprintf(histo, "EEPT pedestal 5sum %s G12", Numbers::sEE(i+1).c_str());
-      mePed5SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePed5SumMapG12_[i], i+1);
+    if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 12;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 12;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/" + GainN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EEPT pedestal " + Numbers::sEE(i+1) + " " + GN.str();
+        mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+        mePedMapG12_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG12_[i]->setAxisTitle("101-ix", 1);
+        mePedMapG12_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(mePedMapG12_[i], i+1);
+
+#ifdef COMMON_NOISE_ANALYSIS
+	name = "EEPT pedestal 3sum " + Numbers::sEE(i+1) + " " + GN.str();
+        mePed3SumMapG12_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+        mePed3SumMapG12_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed3SumMapG12_[i]->setAxisTitle("101-ix", 1);
+        mePed3SumMapG12_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(mePed3SumMapG12_[i], i+1);
+
+	name = "EEPT pedestal 5sum " + Numbers::sEE(i+1) + " " + GN.str();
+        mePed5SumMapG12_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+        mePed5SumMapG12_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed5SumMapG12_[i]->setAxisTitle("101-ix", 1);
+        mePed5SumMapG12_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(mePed5SumMapG12_[i], i+1);
+#endif
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG01_[i], i+1);
+    if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 1;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN/" + GainN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EEPDT PNs pedestal " + Numbers::sEE(i+1) + " " + GN.str();
+	mePnPedMapG01_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG01_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG01_[i], i+1);
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG16_[i], i+1);
+    if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 16;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 16;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN/" + GainN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EEPDT PNs pedestal " + Numbers::sEE(i+1) + " " + GN.str();
+	mePnPedMapG16_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG16_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG16_[i], i+1);
+      }
+
     }
 
   }
@@ -150,53 +284,79 @@ void EEPedestalTask::setup(void){
 
 void EEPedestalTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain01");
-    for ( int i = 0; i < 18; i++ ) {
-      if ( mePedMapG01_[i] ) dbe_->removeElement( mePedMapG01_[i]->getName() );
-      mePedMapG01_[i] = 0;
-      if ( mePed3SumMapG01_[i] ) dbe_->removeElement( mePed3SumMapG01_[i]->getName() );
-      mePed3SumMapG01_[i] = 0;
-      if ( mePed5SumMapG01_[i] ) dbe_->removeElement( mePed5SumMapG01_[i]->getName() );
-      mePed5SumMapG01_[i] = 0;
+    if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/Gain01");
+      for ( int i = 0; i < 18; i++ ) {
+        if ( mePedMapG01_[i] ) dqmStore_->removeElement( mePedMapG01_[i]->getName() );
+        mePedMapG01_[i] = 0;
+#ifdef COMMON_NOISE_ANALYSIS
+        if ( mePed3SumMapG01_[i] ) dqmStore_->removeElement( mePed3SumMapG01_[i]->getName() );
+        mePed3SumMapG01_[i] = 0;
+        if ( mePed5SumMapG01_[i] ) dqmStore_->removeElement( mePed5SumMapG01_[i]->getName() );
+        mePed5SumMapG01_[i] = 0;
+#endif
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain06");
-    for ( int i = 0; i < 18; i++ ) {
-      if ( mePedMapG06_[i] ) dbe_->removeElement( mePedMapG06_[i]->getName() );
-      mePedMapG06_[i] = 0;
-      if ( mePed3SumMapG06_[i] ) dbe_->removeElement( mePed3SumMapG06_[i]->getName() );
-      mePed3SumMapG06_[i] = 0;
-      if ( mePed5SumMapG06_[i] ) dbe_->removeElement( mePed5SumMapG06_[i]->getName() );
-      mePed5SumMapG06_[i] = 0;
+    if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/Gain06");
+      for ( int i = 0; i < 18; i++ ) {
+        if ( mePedMapG06_[i] ) dqmStore_->removeElement( mePedMapG06_[i]->getName() );
+        mePedMapG06_[i] = 0;
+#ifdef COMMON_NOISE_ANALYSIS
+        if ( mePed3SumMapG06_[i] ) dqmStore_->removeElement( mePed3SumMapG06_[i]->getName() );
+        mePed3SumMapG06_[i] = 0;
+        if ( mePed5SumMapG06_[i] ) dqmStore_->removeElement( mePed5SumMapG06_[i]->getName() );
+        mePed5SumMapG06_[i] = 0;
+#endif
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain12");
-    for ( int i = 0; i < 18; i++ ) {
-      if ( mePedMapG12_[i] ) dbe_->removeElement( mePedMapG12_[i]->getName() );
-      mePedMapG12_[i] = 0;
-      if ( mePed3SumMapG12_[i] ) dbe_->removeElement( mePed3SumMapG12_[i]->getName() );
-      mePed3SumMapG12_[i] = 0;
-      if ( mePed5SumMapG12_[i] ) dbe_->removeElement( mePed5SumMapG12_[i]->getName() );
-      mePed5SumMapG12_[i] = 0;
+    if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/Gain12");
+      for ( int i = 0; i < 18; i++ ) {
+        if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
+        mePedMapG12_[i] = 0;
+#ifdef COMMON_NOISE_ANALYSIS
+        if ( mePed3SumMapG12_[i] ) dqmStore_->removeElement( mePed3SumMapG12_[i]->getName() );
+        mePed3SumMapG12_[i] = 0;
+        if ( mePed5SumMapG12_[i] ) dqmStore_->removeElement( mePed5SumMapG12_[i]->getName() );
+        mePed5SumMapG12_[i] = 0;
+#endif
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain01");
-    for ( int i = 0; i < 18; i++ ) {
-      if ( mePnPedMapG01_[i]) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
-      mePnPedMapG01_[i] = 0;
+    if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN/Gain01");
+      for ( int i = 0; i < 18; i++ ) {
+        if ( mePnPedMapG01_[i]) dqmStore_->removeElement( mePnPedMapG01_[i]->getName() );
+        mePnPedMapG01_[i] = 0;
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain16");
-    for ( int i = 0; i < 18; i++ ) {
-      if ( mePnPedMapG16_[i]) dbe_->removeElement( mePnPedMapG16_[i]->getName() );
-      mePnPedMapG16_[i] = 0;
+    if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN/Gain16");
+      for ( int i = 0; i < 18; i++ ) {
+        if ( mePnPedMapG16_[i]) dqmStore_->removeElement( mePnPedMapG16_[i]->getName() );
+        mePnPedMapG16_[i] = 0;
+      }
+
     }
 
   }
@@ -207,41 +367,38 @@ void EEPedestalTask::cleanup(void){
 
 void EEPedestalTask::endJob(void){
 
-  LogInfo("EEPedestalTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EEPedestalTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
+void EEPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[18];
+  for (int i=0; i<18; i++) runType[i] = -1;
 
-  try {
+  edm::Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( dcch ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
+      runType[ism-1] = dcchItr->getRunType();
 
-      dccMap[ ism ] = dcch;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EEPedestalTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EEPedestalTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -251,94 +408,96 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  edm::Handle<EEDigiCollection> digis;
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  if ( e.getByToken(EEDigiCollection_, digis) ) {
 
-    int nebd = digis->size();
-    LogDebug("EEPedestalTask") << "event " << ievt_ << " digi collection size " << nebd;
+    int need = digis->size();
+    LogDebug("EEPedestalTask") << "event " << ievt_ << " digi collection size " << need;
 
-    float xmap01[18][85][20];
-    float xmap06[18][85][20];
-    float xmap12[18][85][20];
+    float xmap01[18][50][50];
+    float xmap06[18][50][50];
+    float xmap12[18][50][50];
 
     for ( int ism = 1; ism <= 18; ism++ ) {
-      for ( int ie = 1; ie <= 85; ie++ ) {
-        for ( int ip = 1; ip <= 20; ip++ ) {
+      for ( int ix = 1; ix <= 50; ix++ ) {
+        for ( int iy = 1; iy <= 50; iy++ ) {
 
-          xmap01[ism-1][ie-1][ip-1] = 0.;
-          xmap06[ism-1][ie-1][ip-1] = 0.;
-          xmap12[ism-1][ie-1][ip-1] = 0.;
+          xmap01[ism-1][ix-1][iy-1] = 0.;
+          xmap06[ism-1][ix-1][iy-1] = 0.;
+          xmap12[ism-1][ix-1][iy-1] = 0.;
 
         }
       }
     }
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EEDetId id = digiItr->id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
-      LogDebug("EEPedestalTask") << " det id = " << id;
-      LogDebug("EEPedestalTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      EEDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 10; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
+        int adc = dataframe.sample(i).adc();
 
         MonitorElement* mePedMap = 0;
 
-        if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
-        if ( sample.gainId() == 2 ) mePedMap = mePedMapG06_[ism-1];
-        if ( sample.gainId() == 3 ) mePedMap = mePedMapG01_[ism-1];
+        if ( dataframe.sample(i).gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
+        if ( dataframe.sample(i).gainId() == 2 ) mePedMap = mePedMapG06_[ism-1];
+        if ( dataframe.sample(i).gainId() == 3 ) mePedMap = mePedMapG01_[ism-1];
 
         float xval = float(adc);
 
-        if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
+        if ( mePedMap ) mePedMap->Fill(xix, xiy, xval);
 
-        if ( sample.gainId() == 1 ) xmap12[ism-1][ie-1][ip-1] = xmap12[ism-1][ie-1][ip-1] + xval;
-        if ( sample.gainId() == 2 ) xmap06[ism-1][ie-1][ip-1] = xmap06[ism-1][ie-1][ip-1] + xval;
-        if ( sample.gainId() == 3 ) xmap01[ism-1][ie-1][ip-1] = xmap01[ism-1][ie-1][ip-1] + xval;
+        if ( dataframe.sample(i).gainId() == 1 ) xmap12[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] = xmap12[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] + xval;
+        if ( dataframe.sample(i).gainId() == 2 ) xmap06[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] = xmap06[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] + xval;
+        if ( dataframe.sample(i).gainId() == 3 ) xmap01[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] = xmap01[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] + xval;
 
       }
 
-      xmap12[ism-1][ie-1][ip-1]=xmap12[ism-1][ie-1][ip-1]/10.;
-      xmap06[ism-1][ie-1][ip-1]=xmap06[ism-1][ie-1][ip-1]/10.;
-      xmap01[ism-1][ie-1][ip-1]=xmap01[ism-1][ie-1][ip-1]/10.;
+      xmap12[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]=xmap12[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]/10.;
+      xmap06[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]=xmap06[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]/10.;
+      xmap01[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]=xmap01[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]/10.;
 
     }
 
     // to be re-done using the 3x3 & 5x5 Selectors (if faster)
 
+#ifdef COMMON_NOISE_ANALYSIS
     for ( int ism = 1; ism <= 18; ism++ ) {
-      for ( int ie = 1; ie <= 85; ie++ ) {
-        for ( int ip = 1; ip <= 20; ip++ ) {
+      for ( int ix = 1; ix <= 50; ix++ ) {
+        for ( int iy = 1; iy <= 50; iy++ ) {
 
-          float xie = ie - 0.5;
-          float xip = ip - 0.5;
+          int xix = ix + Numbers::ix0EE(ism);
+          int xiy = iy + Numbers::iy0EE(ism);
+
+          if ( ism >= 1 && ism <= 9 ) xix = 101 - xix;
+
+          if ( ! Numbers::validEE(ism, xix, xiy) ) continue;
+
+          float xix = ix - 0.5;
+          float xiy = iy - 0.5;
 
           float x3val01;
           float x3val06;
           float x3val12;
 
-          if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
+          if ( ix >= 2 && ix <= 49 && iy >= 2 && iy <= 49 ) {
 
             x3val01 = 0.;
             x3val06 = 0.;
@@ -346,18 +505,18 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
             for ( int i = -1; i <= +1; i++ ) {
               for ( int j = -1; j <= +1; j++ ) {
 
-                x3val01 = x3val01 + xmap01[ism-1][ie-1+i][ip-1+j];
-                x3val06 = x3val06 + xmap06[ism-1][ie-1+i][ip-1+j];
-                x3val12 = x3val12 + xmap12[ism-1][ie-1+i][ip-1+j];
+                x3val01 = x3val01 + xmap01[ism-1][ix-1+i][iy-1+j];
+                x3val06 = x3val06 + xmap06[ism-1][ix-1+i][iy-1+j];
+                x3val12 = x3val12 + xmap12[ism-1][ix-1+i][iy-1+j];
 
               }
             }
             x3val01 = x3val01 / 9.;
             x3val06 = x3val06 / 9.;
             x3val12 = x3val12 / 9.;
-            if ( mePed3SumMapG01_[ism-1] && x3val01 != 0. ) mePed3SumMapG01_[ism-1]->Fill(xie, xip, x3val01);
-            if ( mePed3SumMapG06_[ism-1] && x3val06 != 0. ) mePed3SumMapG06_[ism-1]->Fill(xie, xip, x3val06);
-            if ( mePed3SumMapG12_[ism-1] && x3val12 != 0. ) mePed3SumMapG12_[ism-1]->Fill(xie, xip, x3val12);
+            if ( mePed3SumMapG01_[ism-1] && x3val01 != 0. ) mePed3SumMapG01_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x3val01);
+            if ( mePed3SumMapG06_[ism-1] && x3val06 != 0. ) mePed3SumMapG06_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x3val06);
+            if ( mePed3SumMapG12_[ism-1] && x3val12 != 0. ) mePed3SumMapG12_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x3val12);
 
           }
 
@@ -365,7 +524,7 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
           float x5val06;
           float x5val12;
 
-          if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
+          if ( ix >= 3 && ix <= 48 && iy >= 3 && iy <= 48 ) {
 
             x5val01 = 0.;
             x5val06 = 0.;
@@ -373,78 +532,70 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
             for ( int i = -2; i <= +2; i++ ) {
               for ( int j = -2; j <= +2; j++ ) {
 
-                x5val01 = x5val01 + xmap01[ism-1][ie-1+i][ip-1+j];
-                x5val06 = x5val06 + xmap06[ism-1][ie-1+i][ip-1+j];
-                x5val12 = x5val12 + xmap12[ism-1][ie-1+i][ip-1+j];
+                x5val01 = x5val01 + xmap01[ism-1][ix-1+i][iy-1+j];
+                x5val06 = x5val06 + xmap06[ism-1][ix-1+i][iy-1+j];
+                x5val12 = x5val12 + xmap12[ism-1][ix-1+i][iy-1+j];
 
               }
             }
             x5val01 = x5val01 / 25.;
             x5val06 = x5val06 / 25.;
             x5val12 = x5val12 / 25.;
-            if ( mePed5SumMapG01_[ism-1] && x5val01 != 0. ) mePed5SumMapG01_[ism-1]->Fill(xie, xip, x5val01);
-            if ( mePed5SumMapG06_[ism-1] && x5val06 != 0. ) mePed5SumMapG06_[ism-1]->Fill(xie, xip, x5val06);
-            if ( mePed5SumMapG12_[ism-1] && x5val12 != 0. ) mePed5SumMapG12_[ism-1]->Fill(xie, xip, x5val12);
+            if ( mePed5SumMapG01_[ism-1] && x5val01 != 0. ) mePed5SumMapG01_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x5val01);
+            if ( mePed5SumMapG06_[ism-1] && x5val06 != 0. ) mePed5SumMapG06_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x5val06);
+            if ( mePed5SumMapG12_[ism-1] && x5val12 != 0. ) mePed5SumMapG12_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x5val12);
 
           }
 
         }
       }
     }
+#endif
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EEPedestalTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EEPedestalTask") << "EEDigiCollection not available";
 
   }
 
-  try {
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
-    Handle<EcalPnDiodeDigiCollection> pns;
-    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+  if ( e.getByToken(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EEPedestalTask") << "event " << ievt_ << " pns collection size " << nep;
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
-      EcalPnDiodeDigi pn = (*pnItr);
-      EcalPnDiodeDetId id = pn.id();
+      if ( Numbers::subDet( pnItr->id() ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( pnItr->id() );
 
-      int num = id.iPnId();
+      int num = pnItr->id().iPnId();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
-
-      LogDebug("EEPedestalTask") << " det id = " << id;
-      LogDebug("EEPedestalTask") << " sm, num " << ism << " " << num;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
       for (int i = 0; i < 50; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         MonitorElement* mePNPed = 0;
 
-        if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
-        if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
+        if ( pnItr->sample(i).gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+        if ( pnItr->sample(i).gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, xval);
 
       }
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EEPedestalTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EEPedestalTask") << "EcalPnDiodeDigiCollection not available";
 
   }
 

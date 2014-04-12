@@ -19,10 +19,8 @@
 #include <cmath>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,13 +30,12 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //
 // class decleration
@@ -55,13 +52,13 @@ class EcalTBHodoscopeGeometryAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn);
 
-  HepRotation * fromCMStoTB( const double & myEta , const double & myPhi ) const;
+  CLHEP::HepRotation * fromCMStoTB( const double & myEta , const double & myPhi ) const;
 
   int pass_;
 
   double eta_;
   double phi_;
-  HepRotation * fromCMStoTB_;
+  CLHEP::HepRotation * fromCMStoTB_;
 
 };
 
@@ -85,16 +82,14 @@ EcalTBHodoscopeGeometryAnalyzer::EcalTBHodoscopeGeometryAnalyzer( const edm::Par
   phi_ = iConfig.getUntrackedParameter<double>("phi",0.115052);
 
   fromCMStoTB_ = fromCMStoTB( eta_ , phi_ );
-
 }
 
 
 EcalTBHodoscopeGeometryAnalyzer::~EcalTBHodoscopeGeometryAnalyzer()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+  delete fromCMStoTB_;
 }
 
 
@@ -102,8 +97,8 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
   
   int n=0;
-  std::vector<DetId> ids=geom->getValidDetIds(det,subdetn);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+  const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
+  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
     n++;
     const CaloCellGeometry* cell=geom->getGeometry(*i);
     if (det == DetId::Ecal)
@@ -111,8 +106,8 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
         if (subdetn == EcalLaserPnDiode) 
           {
 
-            Hep3Vector thisCellPos( cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z() );
-            Hep3Vector rotCellPos = (*fromCMStoTB_)*thisCellPos;
+            CLHEP::Hep3Vector thisCellPos( cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z() );
+            CLHEP::Hep3Vector rotCellPos = (*fromCMStoTB_)*thisCellPos;
 
             edm::LogInfo("EcalTBGeom") << "Fiber DetId = " << HodoscopeDetId(*i) << " position =  " <<rotCellPos;
           }
@@ -127,12 +122,10 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
 void
 EcalTBHodoscopeGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
-   
    std::cout << "Here I am " << std::endl;
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
    //
    // get the ecal & hcal geometry
    //
@@ -146,21 +139,21 @@ EcalTBHodoscopeGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::E
 }
 
 
-HepRotation * EcalTBHodoscopeGeometryAnalyzer::fromCMStoTB( const double & myEta , const double & myPhi ) const
+CLHEP::HepRotation * EcalTBHodoscopeGeometryAnalyzer::fromCMStoTB( const double & myEta , const double & myPhi ) const
 {
 
   double myTheta = 2.0*atan(exp(-myEta));
 
   // rotation matrix to move from the CMS reference frame to the test beam one
   
-  HepRotation * CMStoTB = new HepRotation();
+  CLHEP::HepRotation * CMStoTB = new CLHEP::HepRotation();
   
   double angle1 = 90.*deg - myPhi;
-  HepRotationZ * r1 = new HepRotationZ(angle1);
+  CLHEP::HepRotationZ * r1 = new CLHEP::HepRotationZ(angle1);
   double angle2 = myTheta;
-  HepRotationX * r2 = new HepRotationX(angle2);
+  CLHEP::HepRotationX * r2 = new CLHEP::HepRotationX(angle2);
   double angle3 = 90.*deg;
-  HepRotationZ * r3 = new HepRotationZ(angle3);
+  CLHEP::HepRotationZ * r3 = new CLHEP::HepRotationZ(angle3);
   (*CMStoTB) *= (*r3);
   (*CMStoTB) *= (*r2);
   (*CMStoTB) *= (*r1);
@@ -171,5 +164,5 @@ HepRotation * EcalTBHodoscopeGeometryAnalyzer::fromCMStoTB( const double & myEta
 
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(EcalTBHodoscopeGeometryAnalyzer);
+
+DEFINE_FWK_MODULE(EcalTBHodoscopeGeometryAnalyzer);

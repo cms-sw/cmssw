@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjBuilder.h,v 1.6 2007/03/13 13:42:19 chiochia Exp $
+// $Id: SiPixelCondObjBuilder.h,v 1.9 2009/05/28 22:12:54 dlange Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
 #include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 #include <string>
 
@@ -37,7 +37,7 @@ public:
   explicit SiPixelCondObjBuilder( const edm::ParameterSet& iConfig);
 
   ~SiPixelCondObjBuilder(){};
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
   bool loadFromFile();
@@ -54,6 +54,8 @@ private:
   double rmsPed_;
   double meanGain_;
   double rmsGain_;
+  double secondRocRowGainOffset_;
+  double secondRocRowPedOffset_;
   int numberOfModules_;
   bool fromFile_;
   std::string fileName_; 

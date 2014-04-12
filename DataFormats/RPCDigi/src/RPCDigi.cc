@@ -1,13 +1,12 @@
 /** \file
  * 
- *  $Date: 2006/05/03 23:51:58 $
- *  $Revision: 1.6 $
  *
  * \author Ilaria Segoni
  */
 
 
-#include <DataFormats/RPCDigi/interface/RPCDigi.h>
+#include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include <iostream>
 
 RPCDigi::RPCDigi (int strip, int bx) :
   strip_(strip),
@@ -38,6 +37,10 @@ RPCDigi::operator<(const RPCDigi& digi) const{
     return digi.bx()<this->bx();
 }
 
+std::ostream & operator<<(std::ostream & o, const RPCDigi& digi) {
+  return o << " " << digi.strip()
+           << " " << digi.bx();
+}
 
 int RPCDigi::strip() const { return strip_; }
 

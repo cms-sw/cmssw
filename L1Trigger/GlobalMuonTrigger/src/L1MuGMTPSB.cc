@@ -5,8 +5,6 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2007/04/10 09:59:19 $
-//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -36,6 +34,8 @@
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
 
 #include "L1Trigger/GlobalMuonTrigger/interface/L1MuGlobalMuonTrigger.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -84,52 +84,99 @@ L1MuGMTPSB::~L1MuGMTPSB() {
 // receive data
 //
 void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
-  ////////////////////////////////////////
 
-  std::vector<edm::Handle<std::vector<L1MuRegionalCand> > > alldata;
-  e.getManyByType(alldata);
+  ////////////////////////////////////
 
-  std::vector<edm::Handle<std::vector<L1MuRegionalCand> > >::iterator it;
-  for(it=alldata.begin(); it!=alldata.end(); it++) {
-    edm::Provenance const* prov = it->provenance();
-    if(prov->productInstanceName() == "DT")  getDTBX(it->product(),bx);
-    if(prov->productInstanceName() == "dt")  getDTBX(it->product(),bx);
-    if(prov->productInstanceName() == "CSC")  getCSC(it->product(),bx);
-    if(prov->productInstanceName() == "RPCb")  getRPCb(it->product(),bx);
-    if(prov->productInstanceName() == "RPCf")  getRPCf(it->product(),bx);
+  edm::Handle<std::vector<L1MuRegionalCand> > rc_handle;
+
+  const L1MuGMTChannelMask* theChannelMask = L1MuGMTConfig::getGMTChanMask();
+  unsigned mask = theChannelMask->getSubsystemMask();
+  
+  if((L1MuGMTConfig::getDTInputTag()).label() != "none" && !(mask&1) ) {
+    e.getByLabel(L1MuGMTConfig::getDTInputTag(),rc_handle);
+    if(rc_handle.isValid()) {
+      getDTBX(rc_handle.product(),bx);
+    } else {
+      if( L1MuGMTConfig::Debug(1) ) {
+        edm::LogWarning("GlobalMuonTrigger")
+        << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getDTInputTag()
+        << "\nrequested, but not found in the event." << std::endl;      
+      }
+    }
+  }
+  if((L1MuGMTConfig::getCSCInputTag()).label() != "none" && !(mask&4) ) {
+    e.getByLabel(L1MuGMTConfig::getCSCInputTag(),rc_handle);
+    if(rc_handle.isValid()) {
+      getCSC(rc_handle.product(),bx);
+    } else {
+      if( L1MuGMTConfig::Debug(1) ) {
+        edm::LogWarning("GlobalMuonTrigger")
+        << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getCSCInputTag()
+        << "\nrequested, but not found in the event." << std::endl;      
+      }
+    }
+  }
+  if((L1MuGMTConfig::getRPCbInputTag()).label() != "none" && !(mask&2) ) {
+    e.getByLabel(L1MuGMTConfig::getRPCbInputTag(),rc_handle);
+    if(rc_handle.isValid()) {
+      getRPCb(rc_handle.product(),bx);
+    } else {
+      if( L1MuGMTConfig::Debug(1) ) {
+        edm::LogWarning("GlobalMuonTrigger")
+        << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getRPCbInputTag()
+        << "\nrequested, but not found in the event." << std::endl;      
+      }
+    }
+  }
+  if((L1MuGMTConfig::getRPCfInputTag()).label() != "none" && !(mask&8) ) {
+    e.getByLabel(L1MuGMTConfig::getRPCfInputTag(),rc_handle);
+    if(rc_handle.isValid()) {
+      getRPCf(rc_handle.product(),bx);
+    } else {
+      if( L1MuGMTConfig::Debug(1) ) {
+        edm::LogWarning("GlobalMuonTrigger")
+        << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getRPCfInputTag()
+        << "\nrequested, but not found in the event." << std::endl;      
+      }
+    }
   }
 
   ////////////////////////////////////
 
   const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+  const L1MuTriggerPtScale* theTriggerPtScale = L1MuGMTConfig::getTriggerPtScale();
 
   // store data in readout record
   for (int i=0; i<4; i++) {
     L1MuRegionalCand* cand = &(m_DtbxMuons[i]);
     cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
     cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
-    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    cand->setPtValue( theTriggerPtScale->getPtScale()->getLowEdge(cand->pt_packed()) );
+    // cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
     m_gmt.currentReadoutRecord()->setInputCand ( i, *cand );
   }
   for (int i=0; i<4; i++) {
     L1MuRegionalCand* cand = &(m_RpcMuons[i]);
     cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
     cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
-    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    cand->setPtValue( theTriggerPtScale->getPtScale()->getLowEdge(cand->pt_packed()) );
+    // cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
     m_gmt.currentReadoutRecord()->setInputCand ( i+4, *cand );
   }
   for (int i=0; i<4; i++) {
     L1MuRegionalCand* cand = &(m_CscMuons[i]);
     cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
     cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
-    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    cand->setPtValue( theTriggerPtScale->getPtScale()->getLowEdge(cand->pt_packed()) );
+    // cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
     m_gmt.currentReadoutRecord()->setInputCand ( i+8, *cand );
   }
   for (int i=0; i<4; i++) {
     L1MuRegionalCand* cand = &(m_RpcMuons[i+4]);
     cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
     cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
-    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    cand->setPtValue( theTriggerPtScale->getPtScale()->getLowEdge(cand->pt_packed()) );
+    // cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
     m_gmt.currentReadoutRecord()->setInputCand ( i+12, *cand );
   }
 
@@ -404,10 +451,10 @@ void L1MuGMTPSB::printCSC() const {
 //
 void L1MuGMTPSB::getCalo(edm::Event& e) {
   
-  try {
-    edm::Handle<L1CaloRegionCollection> calocoll_h;
-    //  e.getByLabel("L1RCTRegionSumsEmCands",calocoll_h);
-    e.getByType(calocoll_h);
+  edm::Handle<L1CaloRegionCollection> calocoll_h;
+  e.getByLabel(L1MuGMTConfig::getMipIsoInputTag(),calocoll_h);
+  if(calocoll_h.isValid())
+  {
     L1CaloRegionCollection const* regions = calocoll_h.product();
     L1CaloRegionCollection::const_iterator iter;
 
@@ -429,8 +476,12 @@ void L1MuGMTPSB::getCalo(edm::Event& e) {
       //                                     << (*iter).quiet() << " "
       //                                     << (*iter).mip();
     }
-  } catch (...) {
-    edm::LogVerbatim("GMT_PSB_info") << " Calorimeter MIP/QUIET bits not found in the Event ";
+  } else {
+    if( L1MuGMTConfig::Debug(1) ) {
+      edm::LogWarning("GlobalMuonTrigger")
+      << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getMipIsoInputTag()
+      << "\nrequested, but not found in the event." << std::endl;
+    }
   }
-  
+
 }

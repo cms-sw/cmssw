@@ -4,9 +4,11 @@ using namespace reco;
 GsfTrackExtra::GsfTrackExtra( const std::vector<GsfComponent5D>& outerStates, 
 			      const double& outerLocalPzSign,
 			      const std::vector<GsfComponent5D>& innerStates, 
-			      const double& innerLocalPzSign)  :
+			      const double& innerLocalPzSign,
+			      const std::vector<GsfTangent>& tangents)  :
   outerStates_(outerStates), positiveOuterStatePz_(outerLocalPzSign>0.),
-  innerStates_(innerStates), positiveInnerStatePz_(innerLocalPzSign>0.) {}
+  innerStates_(innerStates), positiveInnerStatePz_(innerLocalPzSign>0.),
+  tangents_(tangents) {}
                                                                                                             
 std::vector<double> 
 GsfTrackExtra::weights (const std::vector<GsfComponent5D>& states) const

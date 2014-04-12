@@ -8,24 +8,25 @@
 
 #include "Alignment/CocoaModel/interface/Model.h"
 
-//#include <algorithm>
+#include <algorithm>
 #include <iomanip> 
 #include <iostream>
-#include <algo.h>
+#include <iterator>
+//#include <algo.h>
+#include <cstdlib>
 
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
-#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
-#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaModel/interface/ParameterMgr.h"
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h"
+#include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 
 
 ALIdouble Measurement::cameraScaleFactor = 1.;
@@ -80,7 +81,7 @@ void Measurement::construct()
 
 
   //---------- Read the data 
-  for ( uint ii=0; ii<dim(); ii++){
+  for ( unsigned int ii=0; ii<dim(); ii++){
     filein.getWordsInLine( wordlist );
     fillData( ii, wordlist );
   }
@@ -91,30 +92,30 @@ void Measurement::construct()
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo ) 
+void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo) 
 {
   //---- Build wordlist to build object name list
   std::vector<std::string> objNames = measInfo.measObjectNames_;
   std::vector<std::string>::const_iterator site;
   std::vector<ALIstring> wordlist;
+  //--- Fill the list of names of OptOs that take part in this measurement ( names only )
   for( site = objNames.begin(); site != objNames.end(); site++) {
     if( site != objNames.begin() ) wordlist.push_back("&");
     wordlist.push_back(*site);
   }
-  //--- Fill the list of names of OptOs that take part in this measurement ( names only )
   buildOptONamesList( wordlist );
-  
+
   if(ALIUtils::debug >= 3) {
     std::cout << "@@@@ Reading Measurement " << name() << " TYPE= " << type() << " " << measInfo << std::endl
 	      << " MEASURED OPTO NAMES: ";
-    std::ostream_iterator<ALIstring> outs(std::cout," ");
-    copy(wordlist.begin(), wordlist.end(), outs);
+    for( size_t ii = 0; ii < _OptONameList.size(); ii++ ){
+      std::cout << _OptONameList[ii] << " ";
+    }
     std::cout << std::endl;
   }
 
-
   //---------- No data, set to simulated_value
-  for ( uint ii=0; ii<dim(); ii++){
+  for ( unsigned int ii=0; ii<dim(); ii++){
     wordlist.clear();
     wordlist.push_back( (measInfo.values_)[ii].name_ );
     char ctmp[20];
@@ -147,6 +148,7 @@ void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo )
   postConstruct();
 
 }
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Measurement::postConstruct()
@@ -198,7 +200,7 @@ void Measurement::buildOptONamesList( const std::vector<ALIstring>& wl )
 void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist) 
 {
   if ( ALIUtils::debug >= 3 ) {
-    std::cout << "@@ Reading coordinate " << coor << std::endl ;
+    std::cout << "@@ Filling coordinate " << coor << std::endl ;
     //-   ostream_iterator<ALIstring> outs(std::cout," ");
     //-  copy(wordlist.begin(), wordlist.end(), outs);
   }
@@ -270,6 +272,43 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
 
 }
 
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Measurement::fillData( ALIuint coor, OpticalAlignParam* oaParam) 
+{
+  if ( ALIUtils::debug >= 3 ) {
+    std::cout << "@@ Filling coordinate " << coor << std::endl ;
+  }
+  
+  //  ParameterMgr* parmgr = ParameterMgr::getInstance();
+
+  //---------- check coor value
+  if (coor >= theDim ) {
+    std::cerr << "Trying to fill Measurement coordinate No "
+	 << coor << " but the dimension is " << theDim << std::endl; 
+    exit(2);
+  }
+
+  //---------- set data members 
+  //----- Set value (translate it if a PARAMETER is used)
+  ALIdouble val = 0.;
+  theValueIsSimulated[coor] = 0;
+  val = oaParam->value();
+  val *= valueDimensionFactor();
+  theValue[coor] = val;
+  if( ALIUtils::debug >= 3 ) std::cout << "Meas VALUE= " << val << " (ValueDimensionFactor= " << valueDimensionFactor() <<std::endl;
+
+  ALIbool sigmaFF = GlobalOptionMgr::getInstance()->GlobalOptions()["measurementErrorFromFile"];
+  if( sigmaFF ) {
+    //----- Set sigma (translate it if a PARAMETER is used)
+    ALIdouble sig = 0.;
+    sig = oaParam->sigma(); // it is in mm always
+    sig *= sigmaDimensionFactor();
+    theSigma[coor] = sig;
+    if( ALIUtils::debug >= 3) std::cout << "SIGMA= " << sig << " (SigmaDimensionFactor= " << sigmaDimensionFactor() <<std::endl;
+   
+  }
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Once the complete list of OptOs is read, convert OptO names to pointers
@@ -404,7 +443,7 @@ void Measurement::Substitute2p( ALIstring& ref, const ALIstring& firstref, int N
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Measurement::printStartCalculateSimulatedValue( const Measurement* meas) 
 {
-  std::cout << std::endl << "@@@@ Start calculation of simulated value of " << meas->type() << " Measurement " << meas->name() << std::endl;
+  std::cout << std::endl << "@@@ Start calculation of simulated value of " << meas->type() << " Measurement " << meas->name() << std::endl;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -469,11 +508,10 @@ void Measurement::DumpBadOrderOptOs()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIdouble* Measurement::DerivativeRespectEntry( Entry* entry )
+std::vector<ALIdouble> Measurement::DerivativeRespectEntry( Entry* entry )
 {
   //---------- std::vector of derivatives to return
-  ALIdouble* deriv; 
-  deriv = new ALIdouble[theDim];
+  std::vector<ALIdouble> deriv;
   ALIdouble sumderiv;
   
   //---------- displacement to start with 
@@ -519,7 +557,7 @@ ALIdouble* Measurement::DerivativeRespectEntry( Entry* entry )
   
   //---------- Enough precision reached: pass result
   for ( ALIuint ii = 0; ii < theDim; ii++) {
-    deriv[ii] = ( theValueSimulated[ii] - theValueSimulated_orig[ii] ) / displacement;
+    deriv.push_back( ( theValueSimulated[ii] - theValueSimulated_orig[ii] ) / displacement );
     //----- change it to entry sigma dimensions
     //     deriv[ii] /= entry->SigmaDimensionFactor();
     if( ALIUtils::debug >= 1) std::cout << name() << ": " <<  entry->OptOCurrent()->name() << " " <<  entry->name() << " " << ii << "### DERIVATIVE: " << deriv[ii] <<  std::endl;
@@ -621,7 +659,7 @@ void Measurement::copyMeas( Measurement* meas, const std::string& subsstr1, cons
   theValue = const_cast<ALIdouble*>(meas->value());
   theSigma = const_cast<ALIdouble*>(meas->sigma());
 
-  uint ii;
+  unsigned int ii;
   for(ii = 0; ii < theDim; ii++) {
     theValueSimulated[ii] = meas->valueSimulated( ii );
     theValueSimulated_orig[ii] = meas->valueSimulated_orig( ii );
@@ -631,7 +669,7 @@ void Measurement::copyMeas( Measurement* meas, const std::string& subsstr1, cons
   //--------- Fill the list of names of OptOs that take part in this measurement ( names only )
 
   std::vector<std::string> wordlist;
-  std::vector<OpticalObject*>& optolist = meas->OptOList();
+  auto &optolist = meas->OptOList();
   ALIuint nOptos = optolist.size();
   for ( ALIuint ii = 0; ii < nOptos; ii++ ) {
     wordlist.push_back( ALIUtils::changeName( optolist[ii]->longName(), subsstr1, subsstr2) );

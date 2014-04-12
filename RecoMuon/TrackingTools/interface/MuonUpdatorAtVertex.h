@@ -21,14 +21,11 @@
  *  BeamSpotPositionErrors[2] = sigma(z)
  *
  *
- *  $Date: 2007/03/06 14:31:27 $
- *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 class TrajectoryStateOnSurface;
 class FreeTrajectoryState;
-class SteppingHelixPropagator;
 class MuonServiceProxy;
 
 #include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
@@ -37,7 +34,7 @@ class MuonServiceProxy;
 
 #include <string>
 
-namespace edm {class ParameterSet;}
+namespace edm {class ParameterSet; class Event;}
 
 class MuonUpdatorAtVertex {
 public:
@@ -49,59 +46,45 @@ public:
 
   // Operations
   
-  /// Propagate the state to the 3D-PCA
-  std::pair<bool,FreeTrajectoryState>
-    propagate(const TrajectoryStateOnSurface &tsos, 
-	      const GlobalPoint &vtxPosition);
-  
   /// Propagate the state to the 2D-PCA
   std::pair<bool,FreeTrajectoryState>
-    propagate(const TrajectoryStateOnSurface &tsos);
+    propagate(const TrajectoryStateOnSurface &tsos, const reco::BeamSpot & beamSpot) const;
 
   /// Applies the vertex constraint
   std::pair<bool,FreeTrajectoryState> 
-    update(const reco::TransientTrack &track);
+    update(const reco::TransientTrack &track, const reco::BeamSpot & beamSpot) const;
   
   /// Applies the vertex constraint
   std::pair<bool,FreeTrajectoryState>
-    update(const FreeTrajectoryState& ftsAtVtx);
+    update(const FreeTrajectoryState& ftsAtVtx, const reco::BeamSpot & beamSpot) const;
 
-  /// Propagate to the 3D-PCA and apply the vertex constraint
-  std::pair<bool,FreeTrajectoryState>
-    propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
-			const GlobalPoint &vtxPosition);
-  
   /// Propagate to the 2D-PCA and apply the vertex constraint
   std::pair<bool,FreeTrajectoryState>
-    propagateWithUpdate(const TrajectoryStateOnSurface &tsos);
+    propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
+			const reco::BeamSpot & beamSpot) const;
+
+  /// Propagate the state to the 2D-PCA (nominal CMS axis)
+  std::pair<bool,FreeTrajectoryState>
+    propagateToNominalLine(const TrajectoryStateOnSurface &tsos) const;
+
+  /// Propagate the state to the 2D-PCA (nominal CMS axis) - DEPRECATED -
+  std::pair<bool,FreeTrajectoryState>
+    propagate(const TrajectoryStateOnSurface &tsos) const __attribute__((deprecated));
+
+  
 
 protected:
 
 private:
 
   const MuonServiceProxy *theService;
-
-  // FIXME
-  // The SteppingHelixPropagator must be used explicitly since the method propagate(TSOS,GlobalPoint)
-  // is only in its specific interface. Once the interface of the Propagator base class  will be
-  // updated, then thePropagator will become generic. 
-  SteppingHelixPropagator *thePropagator;
   std::string thePropagatorName;
-
-  // FIXME
-  // remove the flag as the Propagator base class will gains the propagate(TSOS,Position) method
-  bool theFirstTime;
-  
-  // FIXME
-  // remove this method as the Propagator will gains the propagate(TSOS,Position) method
-  void setPropagator();
-
+ 
   TransientTrackFromFTSFactory theTransientTrackFactory;
   SingleTrackVertexConstraint theConstrictor;
   double theChi2Cut;
 
   GlobalError thePositionErrors;
-  GlobalPoint thePosition;
 };
 #endif
 

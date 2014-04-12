@@ -18,14 +18,17 @@ class CaliIOV : public IIOV {
   ~CaliIOV();
 
   // Methods for user data
-  void setSince(Tm since);
+
+  
+  void setSince(const Tm& since);
   Tm getSince() const;
-  void setTill(Tm till);
+  void setTill(const Tm& till);
   Tm getTill() const;
-  void setCaliTag(CaliTag tag);
+  void setCaliTag(const CaliTag& tag);
   CaliTag getCaliTag() const;
 
   // Methods from IUniqueDBObject
+  int getID(){ return m_ID;} ;
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
@@ -47,7 +50,7 @@ class CaliIOV : public IIOV {
   CaliTag m_caliTag;
 
   int writeDB() throw(std::runtime_error);
-  void setByTm(CaliTag* tag, Tm time) throw(std::runtime_error);
+  void setByTm(CaliTag* tag, const Tm& time) throw(std::runtime_error);
 };
 
 #endif

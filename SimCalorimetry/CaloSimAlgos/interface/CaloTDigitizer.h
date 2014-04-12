@@ -3,14 +3,20 @@
 
 /** Turns hits into digis.  Assumes that 
     there's an ElectroncsSim class with the
-    interface analogToDigital(const CaloSamples &, Digi &);
+    interface analogToDigital(CLHEP::HepRandomEngine*, const CaloSamples &, Digi &);
 
 */
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseHitGenerator.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include <cassert>
+#include <vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 template<class Traits>
 class CaloTDigitizer
@@ -26,6 +32,7 @@ public:
   CaloTDigitizer(CaloHitResponse * hitResponse, ElectronicsSim * electronicsSim, bool addNoise)
   :  theHitResponse(hitResponse),
      theNoiseHitGenerator(0),
+     theNoiseSignalGenerator(0),
      theElectronicsSim(electronicsSim),
      theDetIds(0),
      addNoise_(addNoise)
@@ -37,30 +44,54 @@ public:
   ~CaloTDigitizer() {}
 
   /// tell the digitizer which cells exist
-  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = detIds;}
+  const std::vector<DetId>&  detIds() const {assert( 0 != theDetIds ) ; return *theDetIds;}
+  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = &detIds;}
 
   void setNoiseHitGenerator(CaloVNoiseHitGenerator * generator) 
   {
     theNoiseHitGenerator = generator;
   }
 
+  void setNoiseSignalGenerator(CaloVNoiseSignalGenerator * generator)
+  {
+    theNoiseSignalGenerator = generator;
+  }
+
+  void add(const std::vector<PCaloHit> & hits, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
+    if(theHitResponse->withinBunchRange(bunchCrossing)) {
+      for(std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
+        theHitResponse->add(*it, engine);
+      }
+    }
+  }
+
+  void initializeHits() {
+     theHitResponse->initializeHits();
+  }
+
   /// turns hits into digis
-  void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
-    assert(theDetIds.size() != 0);
+  void run(MixCollection<PCaloHit> &, DigiCollection &) {
+    assert(0);
+  }
 
-    theHitResponse->run(input);
+  /// Collects the digis
+  void run(DigiCollection & output, CLHEP::HepRandomEngine* engine) {
+    theHitResponse->finalizeHits(engine);
 
-    if(theNoiseHitGenerator != 0) addNoiseHits();
+    assert(theDetIds->size() != 0);
 
-    theElectronicsSim->newEvent();
+    if(theNoiseHitGenerator != 0) addNoiseHits(engine);
+    if(theNoiseSignalGenerator != 0) addNoiseSignals(engine);
+
+    theElectronicsSim->newEvent(engine);
 
     // reserve space for how many digis we expect
-    int nDigisExpected = addNoise_ ? theDetIds.size() : theHitResponse->nSignals();
+    int nDigisExpected = addNoise_ ? theDetIds->size() : theHitResponse->nSignals();
     output.reserve(nDigisExpected);
 
     // make a raw digi for evey cell
-    for(std::vector<DetId>::const_iterator idItr = theDetIds.begin();
-        idItr != theDetIds.end(); ++idItr)
+    for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
+        idItr != theDetIds->end(); ++idItr)
     {
        Digi digi(*idItr);
        CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
@@ -73,8 +104,8 @@ public:
          needToDeleteSignal = true;
        }
        if(analogSignal != 0) { 
-         theElectronicsSim->analogToDigital(*analogSignal , digi);
-         output.push_back(digi);
+         theElectronicsSim->analogToDigital(engine, *analogSignal , digi);
+         output.push_back(std::move(digi));
          if(needToDeleteSignal) delete analogSignal;
       }
     }
@@ -84,23 +115,36 @@ public:
   }
 
 
-  void addNoiseHits()
+  void addNoiseHits(CLHEP::HepRandomEngine* engine)
   {
     std::vector<PCaloHit> noiseHits;
     theNoiseHitGenerator->getNoiseHits(noiseHits);
     for(std::vector<PCaloHit>::const_iterator hitItr = noiseHits.begin(),
         hitEnd = noiseHits.end(); hitItr != hitEnd; ++hitItr)
     {
-      theHitResponse->add(*hitItr);
+      theHitResponse->add(*hitItr, engine);
     }
   }
 
+  void addNoiseSignals(CLHEP::HepRandomEngine* engine)
+  {
+    std::vector<CaloSamples> noiseSignals;
+    // noise signals need to be in units of photoelectrons.  Fractional is OK
+    theNoiseSignalGenerator->fillEvent(engine);
+    theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
+    for(std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(),
+        signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
+    {
+      theHitResponse->add(*signalItr);
+    }
+  }
 
 private:
   CaloHitResponse * theHitResponse;
   CaloVNoiseHitGenerator * theNoiseHitGenerator;
+  CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   ElectronicsSim * theElectronicsSim;
-  std::vector<DetId> theDetIds;
+  const std::vector<DetId>* theDetIds;
   bool addNoise_;
 };
 

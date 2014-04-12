@@ -1,11 +1,9 @@
 #ifndef L1GCTINTERNEMCAND_H
 #define L1GCTINTERNEMCAND_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <string>
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 
@@ -50,25 +48,25 @@ public:
   unsigned rank() const { return m_data & 0x3f; }
 
   /// get eta index -  Barrel 1:4, Endcap  5:7, HF  8:11
-  unsigned etaIndex() const { return (m_data>>6) & 0xf; }
+  unsigned etaIndex() const { return (m_data>>6) & 0x1f; }
 
   /// get eta sign (1 for -ve Z, 0 for +ve Z)
-  unsigned etaSign() const { return (m_data>>9) & 0x1; }
+  unsigned etaSign() const { return (m_data>>10) & 0x1; } 
 
   /// get phi index (0-17)
-  unsigned phiIndex() const { return (m_data>>10) & 0x1f; }
+  unsigned phiIndex() const { return (m_data>>11) & 0x1f; }
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }
 
   /// which capture block did this come from
-  unsigned capBlock() const { return (m_source>>9) & 0x7f; }
+  unsigned capBlock() const { return m_captureBlock; } 
 
   /// what index within capture block
-  unsigned capIndex() const { return m_source&0x1ff; }
+  unsigned capIndex() const { return m_captureIndex; }
 
   /// get bunch-crossing index
-  int bx() const { return m_bx; }
+  int16_t bx() const { return m_bx; }
     
   /// equality operator
   int operator==(const L1GctInternEmCand& c) const { return ((m_data==c.raw() && m_iso==c.isolated())
@@ -86,7 +84,8 @@ public:
  private:
 
   uint16_t m_data;
-  uint16_t m_source;
+  uint16_t m_captureBlock;
+  uint8_t m_captureIndex;
   bool m_iso;
   int16_t m_bx;
 

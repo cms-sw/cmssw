@@ -16,7 +16,6 @@
 //
 // Original Author:  chiochia
 //         Created:  Wed Feb 22 16:07:51 CET 2006
-// $Id: SiPixelHistogramId.h,v 1.1 2006/03/08 12:55:11 chiochia Exp $
 //
 
 #include <string>

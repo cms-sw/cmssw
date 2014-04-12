@@ -1,14 +1,9 @@
-
-//
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.11 2006/07/29 00:17:58 fedor Exp $
+// Modified by S. Won 6 May 2008
 //
 #include <vector>
 #include <string>
 
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 
@@ -23,9 +18,9 @@ namespace {
   }
 
   void dumpRun (std::ostream& fOutput, unsigned fRun) {
-    fOutput << "<RUN>";
-    fOutput << "<RUN_TYPE>" << "HcalDbXml" << "</RUN_TYPE>";
-    fOutput << "<RUN_NUMBER>" << fRun << "</RUN_NUMBER>";
+    fOutput << "<RUN>"<< std::endl;
+    fOutput << "   <RUN_TYPE>" << "HcalDbXml" << "</RUN_TYPE>"<< std::endl;
+    fOutput << "   <RUN_NUMBER>" << fRun << "</RUN_NUMBER>"<< std::endl;
     fOutput << "</RUN>" << std::endl;
   }
 
@@ -45,56 +40,53 @@ namespace {
 
   void dumpChannelId (std::ostream& fOutput, DetId fChannel) {
     HcalText2DetIdConverter converter (fChannel);
-    fOutput << "      ";
-    fOutput << "<CHANNEL> ";
-    fOutput << "<EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME> ";
-    fOutput << "<ETA>" << abs (converter.getField (1)) << "</ETA>";
-    fOutput << "<PHI>" << converter.getField (2) << "</PHI> ";
-    fOutput << "<DEPTH>" << converter.getField (3) << "</DEPTH> ";
-    fOutput << "<Z>" << (converter.getField (1) > 0 > 0 ? "1" : "-1") << "</Z> ";
-    fOutput << "<DETECTOR_NAME>" << converter.getFlavor () << "</DETECTOR_NAME> ";
-    fOutput << "<HCAL_CHANNEL_ID>" << converter.getId().rawId () << "</HCAL_CHANNEL_ID> ";
-    fOutput << "</CHANNEL>";
+    fOutput << "<CHANNEL> "<< std::endl;
+    fOutput << "   <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME> "<< std::endl;
+    fOutput << "   <ETA>" << abs (converter.getField (1)) << "</ETA>"<< std::endl;
+    fOutput << "   <PHI>" << converter.getField (2) << "</PHI> "<< std::endl;
+    fOutput << "   <DEPTH>" << converter.getField (3) << "</DEPTH> "<< std::endl;
+    fOutput << "   <Z>" << (converter.getField (1) > 0 ? "1" : "-1") << "</Z> "<< std::endl;
+    fOutput << "   <DETECTOR_NAME>" << converter.getFlavor () << "</DETECTOR_NAME> "<< std::endl;
+    fOutput << "   <HCAL_CHANNEL_ID>" << converter.getId().rawId () << "</HCAL_CHANNEL_ID> "<< std::endl;
+    fOutput << "</CHANNEL>"<< std::endl;
     fOutput << std::endl;
   }
 
   void dumpData (std::ostream& fOutput, const float* fValues, const HcalPedestalWidth& fErrors) {
-    fOutput << "      ";
-    fOutput << "<DATA> ";
-    fOutput << "<CAPACITOR_0_VALUE>" << fValues [0] << "</CAPACITOR_0_VALUE> ";
-    fOutput << "<CAPACITOR_1_VALUE>" << fValues [1] << "</CAPACITOR_1_VALUE> ";
-    fOutput << "<CAPACITOR_2_VALUE>" << fValues [2] << "</CAPACITOR_2_VALUE> ";	
-    fOutput << "<CAPACITOR_3_VALUE>" << fValues [3] << "</CAPACITOR_3_VALUE> ";
-    fOutput << "<SIGMA_0_0>" << fErrors.getSigma (0,0) << "</SIGMA_0_0> ";	
-    fOutput << "<SIGMA_1_1>" << fErrors.getSigma (1,1) << "</SIGMA_1_1> ";	
-    fOutput << "<SIGMA_2_2>" << fErrors.getSigma (2,2) << "</SIGMA_2_2> ";	
-    fOutput << "<SIGMA_3_3>" << fErrors.getSigma (3,3) << "</SIGMA_3_3> ";	
-    fOutput << "<SIGMA_0_1>" << fErrors.getSigma (1,0) << "</SIGMA_0_1> ";	
-    fOutput << "<SIGMA_0_2>" << fErrors.getSigma (2,0) << "</SIGMA_0_2> ";	
-    fOutput << "<SIGMA_0_3>" << fErrors.getSigma (3,0) << "</SIGMA_0_3> ";	
-    fOutput << "<SIGMA_1_2>" << fErrors.getSigma (2,1) << "</SIGMA_1_2> ";	
-    fOutput << "<SIGMA_1_3>" << fErrors.getSigma (3,1) << "</SIGMA_1_3> ";	
-    fOutput << "<SIGMA_2_3>" << fErrors.getSigma (3,2) << "</SIGMA_2_3> ";	
+    fOutput << "<DATA> "<< std::endl;
+    fOutput << "   <CAPACITOR_0_VALUE>" << fValues [0] << "</CAPACITOR_0_VALUE> "<< std::endl;
+    fOutput << "   <CAPACITOR_1_VALUE>" << fValues [1] << "</CAPACITOR_1_VALUE> "<< std::endl;
+    fOutput << "   <CAPACITOR_2_VALUE>" << fValues [2] << "</CAPACITOR_2_VALUE> "<< std::endl;	
+    fOutput << "   <CAPACITOR_3_VALUE>" << fValues [3] << "</CAPACITOR_3_VALUE> "<< std::endl;
+    fOutput << "   <SIGMA_0_0>" << fErrors.getSigma (0,0) << "</SIGMA_0_0> "<< std::endl;	
+    fOutput << "   <SIGMA_1_1>" << fErrors.getSigma (1,1) << "</SIGMA_1_1> "<< std::endl;	
+    fOutput << "   <SIGMA_2_2>" << fErrors.getSigma (2,2) << "</SIGMA_2_2> "<< std::endl;	
+    fOutput << "   <SIGMA_3_3>" << fErrors.getSigma (3,3) << "</SIGMA_3_3> "<< std::endl;	
+    fOutput << "   <SIGMA_0_1>" << fErrors.getSigma (1,0) << "</SIGMA_0_1> "<< std::endl;	
+    fOutput << "   <SIGMA_0_2>" << fErrors.getSigma (2,0) << "</SIGMA_0_2> "<< std::endl;	
+    fOutput << "   <SIGMA_0_3>" << fErrors.getSigma (3,0) << "</SIGMA_0_3> "<< std::endl;	
+    fOutput << "   <SIGMA_1_2>" << fErrors.getSigma (2,1) << "</SIGMA_1_2> "<< std::endl;	
+    fOutput << "   <SIGMA_1_3>" << fErrors.getSigma (3,1) << "</SIGMA_1_3> "<< std::endl;	
+    fOutput << "   <SIGMA_2_3>" << fErrors.getSigma (3,2) << "</SIGMA_2_3> "<< std::endl;	
     fOutput << "</DATA> " << std::endl;
   }
 
   void dumpData (std::ostream& fOutput, const float* fValues, const float* fErrors) {
-    fOutput << "      ";
-    fOutput << "<DATA> ";
-    fOutput << "<CAPACITOR_0_VALUE>" << fValues [0] << "</CAPACITOR_0_VALUE> ";
-    fOutput << "<CAPACITOR_1_VALUE>" << fValues [1] << "</CAPACITOR_1_VALUE> ";
-    fOutput << "<CAPACITOR_2_VALUE>" << fValues [2] << "</CAPACITOR_2_VALUE> ";	
-    fOutput << "<CAPACITOR_3_VALUE>" << fValues [3] << "</CAPACITOR_3_VALUE> ";
-    fOutput << "<CAPACITOR_0_ERROR>" << fErrors [0] << "</CAPACITOR_0_ERROR> ";
-    fOutput << "<CAPACITOR_1_ERROR>" << fErrors [1] << "</CAPACITOR_1_ERROR> ";
-    fOutput << "<CAPACITOR_2_ERROR>" << fErrors [2] << "</CAPACITOR_2_ERROR> ";	
-    fOutput << "<CAPACITOR_3_ERROR>" << fErrors [3] << "</CAPACITOR_3_ERROR> ";
+    fOutput << "<DATA> "<< std::endl;
+    fOutput << "   <CAPACITOR_0_VALUE>" << fValues [0] << "</CAPACITOR_0_VALUE> "<< std::endl;
+    fOutput << "   <CAPACITOR_1_VALUE>" << fValues [1] << "</CAPACITOR_1_VALUE> "<< std::endl;
+    fOutput << "   <CAPACITOR_2_VALUE>" << fValues [2] << "</CAPACITOR_2_VALUE> "<< std::endl;
+    fOutput << "   <CAPACITOR_3_VALUE>" << fValues [3] << "</CAPACITOR_3_VALUE> "<< std::endl;
+    fOutput << "   <CAPACITOR_0_ERROR>" << fErrors [0] << "</CAPACITOR_0_ERROR> "<< std::endl;
+    fOutput << "   <CAPACITOR_1_ERROR>" << fErrors [1] << "</CAPACITOR_1_ERROR> "<< std::endl;
+    fOutput << "   <CAPACITOR_2_ERROR>" << fErrors [2] << "</CAPACITOR_2_ERROR> "<< std::endl;
+    fOutput << "   <CAPACITOR_3_ERROR>" << fErrors [3] << "</CAPACITOR_3_ERROR> "<< std::endl;
     fOutput << "</DATA> " << std::endl;
   }
 
   void dumpDataset (std::ostream& fOutput, unsigned fVersion = 0, const std::string& fFileName = "", const std::string& fDescription = "") {
-    fOutput << "    <DATA_SET>" << std::endl;
-    fOutput << "      <VERSION>" << fVersion << "</VERSION>" << std::endl;
+    fOutput << "<DATA_SET>" << std::endl;
+    fOutput << "   <VERSION>" << fVersion << "</VERSION>" << std::endl;
     if (!fFileName.empty ()) 
       fOutput << "      <DATA_FILE_NAME>" << fFileName << "</DATA_FILE_NAME>" << std::endl;
     if (!fDescription.empty ())
@@ -102,7 +94,7 @@ namespace {
   }
 
   void endDataset (std::ostream& fOutput) {
-    fOutput << "    </DATA_SET>" << std::endl;
+    fOutput << "</DATA_SET>" << std::endl;
   }
 
   void dumpMapping (std::ostream& fOutput, unsigned fRun, const std::string& fKind, 
@@ -112,8 +104,9 @@ namespace {
     const std::string TAG_ID = "TAG_ID";
     fOutput << "<ELEMENTS>" << std::endl;
     // set channels affected
-    int i = fChannels.size ();
-    while (--i >= 0) {
+    unsigned int i = fChannels.size ();
+    unsigned int iend = 0;
+    while (--i >= iend) {
       fOutput << "<DATA_SET id=\"" << i << "\">" << std::endl;
       dumpRun (fOutput, fRun);
       fOutput << "<KIND_OF_CONDITION><NAME>" << fKind << "</NAME></KIND_OF_CONDITION>" << std::endl;
@@ -123,14 +116,14 @@ namespace {
     }
     // set IOV
     fOutput << "<IOV id=\"" << IOV_ID << "\">";
-    fOutput << "<INTERVAL_OF_VALIDITY_BEGIN>" << fGMTIOVBegin << "</INTERVAL_OF_VALIDITY_BEGIN>";
-    fOutput << "<INTERVAL_OF_VALIDITY_END>" << fGMTIOVEnd << "</INTERVAL_OF_VALIDITY_END>";
+    fOutput << "   <INTERVAL_OF_VALIDITY_BEGIN>" << fGMTIOVBegin << "</INTERVAL_OF_VALIDITY_BEGIN>"<< std::endl;
+    fOutput << "   <INTERVAL_OF_VALIDITY_END>" << fGMTIOVEnd << "</INTERVAL_OF_VALIDITY_END>"<< std::endl;
     fOutput << "</IOV>" << std::endl;
     // set TAG
-    fOutput << "<TAG id=\"" << TAG_ID << "\" mode=\"create\">";
-    fOutput << "<TAG_NAME>" << fTag << "</TAG_NAME>";
-    fOutput << "<DETECTOR_NAME>HCAL</DETECTOR_NAME>";
-    fOutput << "<COMMENT_DESCRIPTION>Automatically created by HcalDbXml</COMMENT_DESCRIPTION>" << std::endl;
+    fOutput << "<TAG id=\"" << TAG_ID << "\" mode=\"create\">"<< std::endl;
+    fOutput << "   <TAG_NAME>" << fTag << "</TAG_NAME>"<< std::endl;
+    fOutput << "   <DETECTOR_NAME>HCAL</DETECTOR_NAME>"<< std::endl;
+    fOutput << "   <COMMENT_DESCRIPTION>Automatically created by HcalDbXml</COMMENT_DESCRIPTION>" << std::endl;
     fOutput << "</TAG>" << std::endl;
 
     fOutput << "</ELEMENTS>" << std::endl;
@@ -140,7 +133,7 @@ namespace {
     fOutput << "<TAG idref=\"" << TAG_ID << "\">" << std::endl;
     fOutput << "<IOV idref=\"" << IOV_ID << "\">" << std::endl;
     i = fChannels.size ();
-    while (--i >= 0) {
+    while (--i >= iend) {
       fOutput << "<DATA_SET idref=\"" << i << "\"/>" << std::endl;
     }
     fOutput << "</IOV>" << std::endl;
@@ -156,17 +149,19 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 			    const HcalPedestals& fObject) {
   float dummyError = 0.0001;
   std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
-  HcalPedestalWidths widths;
+  HcalPedestalWidths widths(fObject.topo(),fObject.isADC() );
   std::vector<DetId> channels = fObject.getAllChannels ();
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    HcalPedestalWidth* item = widths.setWidth (*channel);
+
+    HcalPedestalWidth item(*channel);
     for (int iCapId = 1; iCapId <= 4; iCapId++) {
-      item->setSigma (iCapId, iCapId, dummyError*dummyError);
+      item.setSigma (iCapId, iCapId, dummyError*dummyError);
     }
+    widths.addValues(item);
+
   }
-  widths.sort ();
   return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, fObject, widths);
 }
 
@@ -209,14 +204,15 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 			    const HcalGains& fObject) {
   float dummyErrors [4] = {0., 0., 0., 0.};
   std::cout << "HcalDbXml::dumpObject-> set default errors: 4 x 0.0" << std::endl;
-  HcalGainWidths widths;
+
+  HcalGainWidths widths(fObject.topo());
   std::vector<DetId> channels = fObject.getAllChannels ();
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       channel++) {
-    widths.addValue (*channel, dummyErrors);
-  }
-  widths.sort ();
+  for (std::vector<DetId>::iterator channel = channels.begin (); channel !=  channels.end (); channel++) 
+    {
+      HcalGainWidth item(*channel,dummyErrors[0],dummyErrors[1],dummyErrors[2],dummyErrors[3]);
+      widths.addValues(item);
+    }
+
   return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, fObject, widths);
 }
 

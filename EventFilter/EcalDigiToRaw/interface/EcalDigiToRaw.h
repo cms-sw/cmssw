@@ -15,7 +15,6 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.h,v 1.4 2007/06/05 14:49:48 eperez Exp $
 //
 //
 
@@ -40,6 +39,8 @@
 #include "EventFilter/EcalDigiToRaw/interface/BlockFormatter.h"
 #include "EventFilter/EcalDigiToRaw/interface/SRBlockFormatter.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalSrFlag.h"
 
 
 //
@@ -51,7 +52,7 @@ class EcalDigiToRaw : public edm::EDProducer {
        EcalDigiToRaw(const edm::ParameterSet& pset);
        virtual ~EcalDigiToRaw();
 
-      void beginJob(const edm::EventSetup& c) ;
+      void beginJob();
       void produce(edm::Event& e, const edm::EventSetup& c);
       void endJob() ;
 
@@ -70,6 +71,8 @@ class EcalDigiToRaw : public edm::EDProducer {
 	bool GetDoTower() {return doTower_ ;}
 	bool GetDoTCC() {return doTCC_ ;}
 
+        std::vector<int32_t>* GetListDCCId() {return &listDCCId_ ;}
+    
 	static const int BXMAX = 2808;
 
 
@@ -89,13 +92,17 @@ class EcalDigiToRaw : public edm::EDProducer {
 	bool doSR_;
 	bool doTower_;
 
-	edm::InputTag labelTT_ ;
-	edm::InputTag labelEBSR_ ;
-	edm::InputTag labelEESR_ ;
+	edm::EDGetTokenT<EcalTrigPrimDigiCollection> labelTT_ ;
+	edm::EDGetTokenT<EBSrFlagCollection> labelEBSR_ ;
+	edm::EDGetTokenT<EESrFlagCollection> labelEESR_ ;
+	edm::EDGetTokenT<EBDigiCollection> EBDigiToken_ ;
+	edm::EDGetTokenT<EEDigiCollection> EEDigiToken_;
 
 	bool doBarrel_;
 	bool doEndCap_;
 
+        std::vector<int32_t> listDCCId_;
+    
 	std::string label_;
 	std::string instanceNameEB_;
 	std::string instanceNameEE_;

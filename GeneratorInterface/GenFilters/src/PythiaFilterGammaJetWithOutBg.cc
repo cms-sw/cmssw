@@ -1,5 +1,5 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJetWithOutBg.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -38,7 +38,7 @@ namespace{
 
 
 PythiaFilterGammaJetWithOutBg::PythiaFilterGammaJetWithOutBg(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 etaMax(iConfig.getUntrackedParameter<double>("MaxPhotonEta", 2.8)),
 ptSeed(iConfig.getUntrackedParameter<double>("PhotonSeedPt", 5.)),
 ptMin(iConfig.getUntrackedParameter<double>("MinPhotonPt")),
@@ -61,6 +61,12 @@ PythiaFilterGammaJetWithOutBg::~PythiaFilterGammaJetWithOutBg(){}
 // ------------ method called to produce the data  ------------
 bool PythiaFilterGammaJetWithOutBg::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
+// <<<<<<< PythiaFilterGammaJetWithOutBg.cc
+//  if(theNumberOfSelected>=maxnumberofeventsinrun)   {
+//    throw cms::Exception("endJob")<<"we have reached the maximum number of events ";
+//  }
+// =======
+// >>>>>>> 1.4
 
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
@@ -111,11 +117,9 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::Event& iEvent, const edm::EventS
 				  particle8->momentum().phi()));
 
     int jetline=8;
-    int photonline = 7; 
     if(dphi7>dphi) {
       dphi=dphi7;
       jetline=7;
-      photonline = 8; 
     }
 
 //    std::cout<<" Dphi "<<dphi<<" "<<dphiMin<<std::endl;

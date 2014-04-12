@@ -1,0 +1,23 @@
+<use   name="FWCore/Framework"/>
+<use   name="DQMServices/Core"/>
+<use   name="DQMServices/Components"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="DataFormats/DTDigi"/>
+<use   name="DataFormats/L1DTTrackFinder"/>
+<use   name="DataFormats/L1GlobalMuonTrigger"/>
+<use   name="L1TriggerConfig/DTTPGConfig"/>
+<use   name="CondFormats/DTObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/DTGeometry"/>
+<use   name="DataFormats/DTRecHit"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="CalibMuon/DTDigiSync"/>
+<use   name="RecoMuon/MeasurementDet"/>
+<use   name="RecoMuon/TrackingTools"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="boost"/>
+<use   name="rootgraphics"/>
+<export>
+  <lib   name="1"/>
+</export>

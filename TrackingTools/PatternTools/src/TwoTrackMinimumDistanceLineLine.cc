@@ -1,17 +1,25 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceLineLine.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 
 bool TwoTrackMinimumDistanceLineLine::calculate(
     const GlobalTrajectoryParameters & theG,
     const GlobalTrajectoryParameters & theH)
 {
-  if ( theH.charge() != 0. || theG.charge() != 0. )
+  GlobalPoint gOrig = theG.position();
+  GlobalPoint hOrig = theH.position();
+  bool isLineG = theG.magneticField().inTesla(gOrig).z() == 0 || theG.charge() == 0;
+  bool isLineH = theH.magneticField().inTesla(hOrig).z() == 0 || theH.charge() == 0;
+  if ( ! (isLineG && isLineH) )
   {
-    cout << "[TwoTrackMinimumDistanceImplementation] Error: "
-         << "charge of input track is not zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceLineLine")
+      << "charge of input track is not zero or field non zero"
+      << "\n positions: "<<gOrig<<" , "<<hOrig
+      << "\n Bz fields: "<<theG.magneticField().inTesla(gOrig).z()<<" , "<<theH.magneticField().inTesla(hOrig).z()
+      << "\n charges: "<<theG.charge()<<" , "<<theH.charge();
     return true;
   };
 
@@ -22,8 +30,8 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
 
   if ( gMag == 0. || hMag == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceImplementation] Error: "
-         << "momentum of input trajectory is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceLineLine")
+      << "momentum of input trajectory is zero.";
     return true;
   };
 
@@ -35,13 +43,11 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
 
   if ( norm == 0 )
   {
-    cout << "[TwoTrackMinimumDistanceImplementation] Error: "
-         << "Tracks are parallel." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceLineLine")
+      << "Tracks are parallel.";
     return true;
   }
 
-  GlobalPoint gOrig = theG.position();
-  GlobalPoint hOrig = theH.position();
   GlobalVector posDiff = gOrig - hOrig;
 
   double tG = (posDiff.dot(gVec) * hMag2 - gVec_Dot_hVec * posDiff.dot(hVec))/ norm;
@@ -56,12 +62,12 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
   return false;
 }
 
-pair <GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceLineLine::points() const
+std::pair<GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceLineLine::points() const
 {
-  return pair <GlobalPoint, GlobalPoint > ( gPos, hPos );
+  return std::pair<GlobalPoint, GlobalPoint > ( gPos, hPos );
 }
 
-pair <double, double> TwoTrackMinimumDistanceLineLine::pathLength() const
+std::pair<double, double> TwoTrackMinimumDistanceLineLine::pathLength() const
 {
-  return pair <double, double> ( pathG, pathH);
+  return std::pair<double, double> ( pathG, pathH);
 }

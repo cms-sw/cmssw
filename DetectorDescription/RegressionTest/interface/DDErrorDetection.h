@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include <DetectorDescription/Core/interface/DDCompactView.h>
 
 //=================
 #include "DetectorDescription/Base/interface/Singleton.h"
@@ -18,6 +19,7 @@ typedef DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >    ma_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDSolid> > >       so_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDRotation> > >    ro_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >   sp_err;
+
 //==================
 //*********************************************************************************************************************************
 
@@ -93,7 +95,7 @@ bool findNameSpaces(T dummy, ns_nm_type & m)
      result = it->isDefined().second;
      if (!result) 
        DDI::Singleton<std::map<std::string,std::set<T> > >::instance()[it->name().ns()].insert(*it);
-     m[it->name().ns()].insert(it->name());
+     m[it->name().ns()].insert(it->name().name());
    }
    return result;
 }
@@ -116,15 +118,16 @@ template <class C> const std::map<std::string, std::set<C> > & dd_error_scan(con
 class DDErrorDetection
 {
 public:
-  DDErrorDetection();    
-  //void scan();
-  void scan();
+  DDErrorDetection(const DDCompactView& cpv);    
+  ~DDErrorDetection();
+
+  void scan( const DDCompactView& cpv);
   
   void errors();
   
   void warnings();
   
-  const std::map<std::string, std::set<DDLogicalPart> > & lp_cpv();
+  const std::map<std::string, std::set<DDLogicalPart> > & lp_cpv(const DDCompactView& cpv);
   const std::map<DDMaterial, std::set<DDLogicalPart> > & ma_lp();
   const std::map<DDSolid, std::set<DDLogicalPart> > & so_lp();
   const std::map<DDSolid, std::set<DDSolid> > & so();
@@ -133,7 +136,12 @@ public:
   
   const std::vector<std::pair<std::string,DDName> > &  ma();
 
-  void report(std::ostream &); 
+  void report(const DDCompactView& cpv, std::ostream & o); 
+
+  bool noErrorsInTheReport(const DDCompactView& cpv);
+
+ private:
+  DDErrorDetection() { };
 
 };
 

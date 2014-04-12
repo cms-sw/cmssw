@@ -1,88 +1,154 @@
 #include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSelectiveReadoutProducer.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
+//#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
+
+#include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSRCondTools.h"
+
 #include <memory>
+#include <fstream>
+#include <atomic>
 
-#include <fstream> //used for debugging
-
-#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
   : params_(params)
 {
-  //sets up parameters:
-   digiProducer_ = params.getParameter<string>("digiProducer");
-   ebdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
-   eedigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
-   ebSRPdigiCollection_ = params.getParameter<std::string>("EBSRPdigiCollection");
-   eeSRPdigiCollection_ = params.getParameter<std::string>("EESRPdigiCollection");
-   ebSrFlagCollection_ = params.getParameter<std::string>("EBSrFlagCollection");
-   eeSrFlagCollection_ = params.getParameter<std::string>("EESrFlagCollection");
-   trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
-   trigPrimCollection_ = params.getParameter<string>("trigPrimCollection");
-   trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
-   dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
-   writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags",false);
-   //instantiates the selective readout algorithm:
-   suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
-   //declares the products made by this producer:
-   produces<EBDigiCollection>(ebSRPdigiCollection_);
-   produces<EEDigiCollection>(eeSRPdigiCollection_);
+  //settings:
+  //  settings which are only in python config files:
+  digiProducer_ = params.getParameter<string>("digiProducer");
+  ebdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
+  eedigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
+  ebSRPdigiCollection_ = params.getParameter<std::string>("EBSRPdigiCollection");
+  eeSRPdigiCollection_ = params.getParameter<std::string>("EESRPdigiCollection");
+  ebSrFlagCollection_ = params.getParameter<std::string>("EBSrFlagCollection");
+  eeSrFlagCollection_ = params.getParameter<std::string>("EESrFlagCollection");
+  trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
+  trigPrimCollection_ = params.getParameter<string>("trigPrimCollection");
+  trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
+  trigPrimBypassMode_ = params.getParameter<int>("trigPrimBypassMode");
+  dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
+  writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags", false);
+  produceDigis_ = params.getUntrackedParameter<bool>("produceDigis", true);
+  //   settings which can come from either condition database or python configuration file:
+  useCondDb_ = false;
+  try{
+    if(params.getParameter<bool>("configFromCondDB")){
+      useCondDb_ = true;
+    }
+  } catch(cms::Exception){
+    /* pameter not found */
+    edm::LogWarning("EcalSelectiveReadout") << "Parameter configFromCondDB of EcalSelectiveReadout module not found. "
+      "Selective readout configuration will be read from python file.";
+  }
+  if(!useCondDb_){
+    settingsFromFile_ = auto_ptr<EcalSRSettings>(new EcalSRSettings());
+    EcalSRCondTools::importParameterSet(*settingsFromFile_, params);
+    settings_ = settingsFromFile_.get();
+  }
 
-   if ( writeSrFlags_ ) {
-     produces<EBSrFlagCollection>(ebSrFlagCollection_);
-     produces<EESrFlagCollection>(eeSrFlagCollection_);
-   }
+  //declares the products made by this producer:
+  if(produceDigis_){
+    produces<EBDigiCollection>(ebSRPdigiCollection_);
+    produces<EEDigiCollection>(eeSRPdigiCollection_);
+  }
 
-   theGeometry = 0;
-   theTriggerTowerMap = 0;
-   
+  if (writeSrFlags_) {
+    produces<EBSrFlagCollection>(ebSrFlagCollection_);
+    produces<EESrFlagCollection>(eeSrFlagCollection_);
+  }
+
+  useFullReadout_ = false;
+  useFullReadout_ = params.getParameter<bool>("UseFullReadout");
+
+  theGeometry = 0;
+  theTriggerTowerMap = 0;
+  theElecMap = 0;
 }
 
 
 
-EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer() 
+EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer()
 { }
 
 
 void
-EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
+EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  // check that everything is up-to-date
-  checkGeometry(eventSetup);
-  checkTriggerMap(eventSetup);
+  if(useCondDb_){
+    //getting selective readout configuration:
+    edm::ESHandle<EcalSRSettings> hSr;
 
+    if(useFullReadout_){
+      eventSetup.get<EcalSRSettingsRcd>().get("fullReadout",hSr);
+    }
+    else{
+      eventSetup.get<EcalSRSettingsRcd>().get(hSr);
+    }
+    settings_ = hSr.product();
+  }
+  
   //gets the trigger primitives:
   EcalTrigPrimDigiCollection emptyTPColl;
   const EcalTrigPrimDigiCollection* trigPrims =
-    trigPrimBypass_?&emptyTPColl:getTrigPrims(event);
+    (trigPrimBypass_ && trigPrimBypassMode_==0)?&emptyTPColl:getTrigPrims(event);
 
-  
+
   //gets the digis from the events:
-  const EBDigiCollection* ebDigis = getEBDigis(event);
-  const EEDigiCollection* eeDigis = getEEDigis(event);
-  
-  //runs the selective readout algorithm:
-  auto_ptr<EBDigiCollection> selectedEBDigis(new EBDigiCollection);
-  auto_ptr<EEDigiCollection> selectedEEDigis(new EEDigiCollection);
-  auto_ptr<EBSrFlagCollection> ebSrFlags(new EBSrFlagCollection);
-  auto_ptr<EESrFlagCollection> eeSrFlags(new EESrFlagCollection);
+  EBDigiCollection dummyEbDigiColl;
+  EEDigiCollection dummyEeDigiColl;
 
+  const EBDigiCollection* ebDigis = produceDigis_?getEBDigis(event)
+    :&dummyEbDigiColl;
+  const EEDigiCollection* eeDigis = produceDigis_?getEEDigis(event)
+    :&dummyEeDigiColl;
+
+  //runs the selective readout algorithm:
+  auto_ptr<EBDigiCollection> selectedEBDigis;
+  auto_ptr<EEDigiCollection> selectedEEDigis;
+  auto_ptr<EBSrFlagCollection> ebSrFlags;
+  auto_ptr<EESrFlagCollection> eeSrFlags;
+
+  if(produceDigis_){
+    selectedEBDigis = auto_ptr<EBDigiCollection>(new EBDigiCollection);
+    selectedEEDigis = auto_ptr<EEDigiCollection>(new EEDigiCollection);
+  }
+
+  if(writeSrFlags_){
+    ebSrFlags = auto_ptr<EBSrFlagCollection>(new EBSrFlagCollection);
+    eeSrFlags = auto_ptr<EESrFlagCollection>(new EESrFlagCollection);
+  }
+
+  if(suppressor_.get() == 0){
+    //Check the validity of EcalSRSettings
+    checkValidity(*settings_);
+    
+    //instantiates the selective readout algorithm:
+    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params_, settings_));
+
+    // check that everything is up-to-date
+    checkGeometry(eventSetup);
+    checkTriggerMap(eventSetup);
+    checkElecMap(eventSetup);
+  }
+  
   suppressor_->run(eventSetup, *trigPrims, *ebDigis, *eeDigis,
-		   *selectedEBDigis, *selectedEEDigis,
-		   *ebSrFlags, *eeSrFlags);
+		   selectedEBDigis.get(), selectedEEDigis.get(),
+		   ebSrFlags.get(), eeSrFlags.get());
 
   static int iEvent = 1;
   if(dumpFlags_>=iEvent){
     ofstream ttfFile("TTF.txt", (iEvent==1?ios::trunc:ios::app));
     suppressor_->printTTFlags(ttfFile, iEvent,
 			      iEvent==1?true:false);
-  
+
     ofstream srfFile("SRF.txt", (iEvent==1?ios::trunc:ios::app));
     if(iEvent==1){
       suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
@@ -95,44 +161,52 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent,
 		 iEvent==1?true:false);
   }
-  
+
   ++iEvent; //event counter
-  
-  //puts the selected digis into the event:
-  event.put(selectedEBDigis, ebSRPdigiCollection_);
-  event.put(selectedEEDigis, eeSRPdigiCollection_);
-  
+
+  if(produceDigis_){
+    //puts the selected digis into the event:
+    event.put(selectedEBDigis, ebSRPdigiCollection_);
+    event.put(selectedEEDigis, eeSRPdigiCollection_);
+  }
+
   //puts the SR flags into the event:
-  if ( writeSrFlags_ ) {
+  if(writeSrFlags_) {
     event.put(ebSrFlags, ebSrFlagCollection_);
-    event.put(eeSrFlags, eeSrFlagCollection_);  
+    event.put(eeSrFlags, eeSrFlagCollection_);
   }
 }
 
 const EBDigiCollection*
 EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event) const
 {
-  edm::Handle< EBDigiCollection > hEBDigis;
+  edm::Handle<EBDigiCollection> hEBDigis;
   event.getByLabel(digiProducer_, ebdigiCollection_, hEBDigis);
+  //product() method is called before id() in order to get an exception
+  //if the handle is not available (check not done by id() method).
+  const EBDigiCollection* result = hEBDigis.product();
   static bool firstCall= true;
   if(firstCall){
     checkWeights(event, hEBDigis.id());
     firstCall = false;
   }
-  return hEBDigis.product();
+  return result;
 }
 
 const EEDigiCollection*
 EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event) const
 {
-  edm::Handle< EEDigiCollection > hEEDigis;
+  edm::Handle<EEDigiCollection> hEEDigis;
   event.getByLabel(digiProducer_, eedigiCollection_, hEEDigis);
+  //product() method is called before id() in order to get an exception
+  //if the handle is not available (check not done by id() method).
+  const EEDigiCollection* result = hEEDigis.product();
   static bool firstCall = true;
   if(firstCall){
     checkWeights(event, hEEDigis.id());
     firstCall = false;
   }
-  return hEEDigis.product();
+  return result;
 }
 
 const EcalTrigPrimDigiCollection*
@@ -143,11 +217,11 @@ EcalSelectiveReadoutProducer::getTrigPrims(edm::Event& event) const
   return hTPDigis.product();
 }
 
-  
+
 void EcalSelectiveReadoutProducer::checkGeometry(const edm::EventSetup & eventSetup)
 {
   edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<IdealGeometryRecord>().get(hGeometry);
+  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
 
   const CaloGeometry * pGeometry = &*hGeometry;
 
@@ -166,11 +240,27 @@ void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup & event
    eventSetup.get<IdealGeometryRecord>().get(eTTmap);
 
    const EcalTrigTowerConstituentsMap * pMap = &*eTTmap;
-  
+
   // see if we need to update
   if(pMap!= theTriggerTowerMap) {
     theTriggerTowerMap = pMap;
     suppressor_->setTriggerMap(theTriggerTowerMap);
+  }
+}
+
+
+void EcalSelectiveReadoutProducer::checkElecMap(const edm::EventSetup & eventSetup)
+{
+
+   edm::ESHandle<EcalElectronicsMapping> eElecmap;
+   eventSetup.get<EcalMappingRcd>().get(eElecmap);
+
+   const EcalElectronicsMapping * pMap = &*eElecmap;
+
+  // see if we need to update
+  if(pMap!= theElecMap) {
+    theElecMap = pMap;
+    suppressor_->setElecMap(theElecMap);
   }
 }
 
@@ -191,7 +281,7 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
     "#                    " << tccFlagMarker[4+1] << ": 1xx forced readout (Hw error)\n"
     "#\n";
   //}
-  
+
   vector<vector<int> > ttf(nEta, vector<int>(nPhi, -1));
   for(EcalTrigPrimDigiCollection::const_iterator it = tp.begin();
       it != tp.end(); ++it){
@@ -213,17 +303,17 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
 
 void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
 						const edm::ProductID& noZsDigiId) const{
-  const vector<double> & weights = params_.getParameter<vector<double> >("dccNormalizedWeights");
+  const vector<float> & weights = settings_->dccNormalizedWeights_[0]; //params_.getParameter<vector<double> >("dccNormalizedWeights");
   int nFIRTaps = EcalSelectiveReadoutSuppressor::getFIRTapCount();
-  static bool warnWeightCnt = true;
-  if((int)weights.size() > nFIRTaps && warnWeightCnt){
+  static std::atomic<bool> warnWeightCnt{true};
+  bool expected = true;
+  if((int)weights.size() > nFIRTaps && warnWeightCnt.compare_exchange_strong(expected,false,std::memory_order_acq_rel)){
       edm::LogWarning("Configuration") << "The list of DCC zero suppression FIR "
 	"weights given in parameter dccNormalizedWeights is longer "
 	"than the expected depth of the FIR filter :(" << nFIRTaps << "). "
 	"The last weights will be discarded.";
-      warnWeightCnt = false; //it's not needed to repeat the warning.
   }
-  
+
   if(weights.size()>0){
     int iMaxWeight = 0;
     double maxWeight = weights[iMaxWeight];
@@ -236,13 +326,13 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
     }
 
     //position of time sample whose maximum weight is applied:
-    int maxWeightBin = params_.getParameter<int>("ecalDccZs1stSample")
+    int maxWeightBin = settings_->ecalDccZs1stSample_[0] //params_.getParameter<int>("ecalDccZs1stSample")
       + iMaxWeight;
     
     //gets the bin of maximum (in case of raw data it will not exist)
     int binOfMax = 0;
     bool rc = getBinOfMax(evt, noZsDigiId, binOfMax);
-    
+
     if(rc && maxWeightBin!=binOfMax){
       edm::LogWarning("Configuration")
 	<< "The maximum weight of DCC zero suppression FIR filter is not "
@@ -260,7 +350,7 @@ EcalSelectiveReadoutProducer::getBinOfMax(const edm::Event& evt,
 					  int& binOfMax) const{
   bool rc;
   const edm::Provenance p=evt.getProvenance(noZsDigiId);
-  edm::ParameterSet result = getParameterSet(p.psetID());
+  const edm::ParameterSet& result = parameterSet(p);
   vector<string> ebDigiParamList = result.getParameterNames();
   string bofm("binOfMaximum");
   if(find(ebDigiParamList.begin(), ebDigiParamList.end(), bofm)
@@ -290,7 +380,7 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
       "# |         " << srpFlagMarker[1] << ": ZS 1\n"
       "# |         " << srpFlagMarker[2] << ": ZS 2\n"
       "# V Eta/X   " << srpFlagMarker[3] << ": full readout\n"
-      "#\n";    
+      "#\n";
   }
 
   //EE-,EB,EE+ map wil be written onto file in following format:
@@ -352,7 +442,7 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
   for(size_t i=0; i<sizeof(ebSrf)/sizeof(int); ((int*)ebSrf)[i++] = -1){};
   for(EBSrFlagCollection::const_iterator it = ebSrFlags.begin();
       it != ebSrFlags.end(); ++it){
-    
+
     const EBSrFlag& flag = *it;
     int iEta = flag.id().ieta();
     int iEta0 = iEta + nTtEta/2 - (iEta>=0?1:0); //0->55 from eta=-3 to eta=3
@@ -362,15 +452,15 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
     assert(iPhi0>=0 && iPhi0<nTtPhi);
 
 //     cout << __FILE__ << ":" << __LINE__ << ": "
-// 	 <<  iEta << "\t" << flag.id().iphi() << " -> "
-// 	 << iEbEta0 << "\t" << iPhi0
-// 	 << "... Flag: " << flag.value() << "\n";
+//	 <<  iEta << "\t" << flag.id().iphi() << " -> "
+//	 << iEbEta0 << "\t" << iPhi0
+//	 << "... Flag: " << flag.value() << "\n";
 
-    
+
     ebSrf[iEbEta0][iPhi0] = flag.value();
   }
-  
-  
+
+
   //print flags:
 
   //EE-
@@ -383,7 +473,7 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
     }
     os << "\n"; //one Y supercystal column per line
   } //next supercrystal X-index
-   
+
   //EB
   for(int iEta0 = 0;
       iEta0 < nEbTtEta;
@@ -391,12 +481,12 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
     for(int iPhi0 = 0; iPhi0 < nTtPhi; ++iPhi0){
       int srFlag = ebSrf[iEta0][iPhi0];
       assert(srFlag>=-1
-	     && srFlag<(int)(sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0]))); 
+	     && srFlag<(int)(sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0])));
       os << (srFlag==-1?'?':srpFlagMarker[srFlag]);
     }
     os << "\n"; //one phi per line
   }
-   
+
   //EE+
   for(int iX0=0; iX0<nScX; ++iX0){
     for(int iY0=0; iY0<nScY; ++iY0){
@@ -407,7 +497,31 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
     }
     os << "\n"; //one Y supercystal column per line
   } //next supercrystal X-index
-  
+
   //event trailer:
   os << "\n";
+}
+
+void EcalSelectiveReadoutProducer::checkValidity(const EcalSRSettings& settings){
+  if(settings.dccNormalizedWeights_.size() != 1){
+    throw cms::Exception("Configuration") << "Selective readout emulator, EcalSelectiveReadout, supports only single set of ZS weights. "
+      "while the configuration contains " << settings.dccNormalizedWeights_.size() << " set(s)\n";
+  }
+  
+//   if(settings.dccNormalizedWeights_.size() != 1
+//      && settings.dccNormalizedWeights_.size() != 2
+//      && settings.dccNormalizedWeights_.size() != 54
+//      && settings.dccNormalizedWeights_.size() != 75848){
+//     throw cms::Exception("Configuration") << "Invalid number of DCC weight set (" << settings.dccNormalizedWeights_.size()
+// 					  << ") in condition object EcalSRSetting::dccNormalizedWeights_. "
+// 					  << "Valid counts are: 1 (single set), 2 (EB and EE), 54 (one per DCC) and 75848 "
+//       "(one per crystal)\n";
+//   }
+  
+  if(settings.dccNormalizedWeights_.size() != settings.ecalDccZs1stSample_.size()){
+    throw cms::Exception("Configuration") << "Inconsistency between number of weigth sets ("
+					  << settings.dccNormalizedWeights_.size() << ") and "
+					  << "number of ecalDccZs1Sample values ("
+					  << settings.ecalDccZs1stSample_.size() << ").";
+  }  
 }

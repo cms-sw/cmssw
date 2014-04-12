@@ -16,15 +16,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 30 09:35:20 EDT 2005
-// $Id: es_Label.h,v 1.1 2005/09/30 20:35:12 chrjones Exp $
 //
 
 // system include files
 #include "boost/shared_ptr.hpp"
 #include <string>
+#include <vector>
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 // forward declarations
 
@@ -37,7 +38,6 @@ namespace edm {
          L() : product_() {}
          explicit L(boost::shared_ptr<T> iP) : product_(iP) {}
          explicit L(T* iP) : product_(iP) {}
-         L(const L<T,ILabel>& iOther) : product_(iOther.product_) {}
          
          T& operator*() { return *product_;}
          T* operator->() { return product_.get(); }
@@ -60,14 +60,15 @@ namespace edm {
                labels_.push_back(iString);
             } else if(iIndex > labels_.size()) {
                std::vector<std::string> temp(iIndex+1,def());
-               std::copy(labels_.begin(),labels_.end(), temp.begin());
+               copy_all(labels_, temp.begin());
                labels_.swap(temp);
             } else {
                if( labels_[iIndex] != def() ) {
-                  throw edm::Exception(errors::Configuration,"Duplicate Label")
-                  <<"The index "<<iIndex<<" was previously assigned the label \""
-                  <<labels_[iIndex]<<"\" and then was later assigned \""
-                  <<iString<<"\"";
+                  Exception e(errors::Configuration,"Duplicate Label");
+                  e <<"The index "<<iIndex<<" was previously assigned the label \""
+                    <<labels_[iIndex]<<"\" and then was later assigned \""
+                    <<iString<<"\"";
+                  e.raise();
                }
                labels_[iIndex] = iString;
             }

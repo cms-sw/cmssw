@@ -3,8 +3,6 @@
 /**  \class DTTSTheta
  *    Implementation of TS Theta L1Trigger algorithm
  *
- *   $Date: 2007/04/04 10:44:37 $
- *   $Revision: 1.4 $
  *
  *   \author C.Grandi
  */
@@ -24,10 +22,10 @@ class DTTrigGeom;
 // Base Class Headers --
 //----------------------
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTChambThSegm.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTSTheta.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSTheta.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -49,13 +47,16 @@ class DTTSTheta : public DTTSThetaManager, public DTGeomSupplier {
 
     ///  Constructor
     //DTTSTheta(DTTrigGeom*, DTBtiCard*, edm::ParameterSet&);
-    DTTSTheta(DTTrigGeom*, DTBtiCard*, const DTConfigManager *);
+    DTTSTheta(DTTrigGeom*, DTBtiCard*);
 
     ///  Destructor 
     ~DTTSTheta();
 
     /// Return configuration
-    inline DTConfigTSTheta* config() const { return _config; }
+    inline const DTConfigTSTheta* config() const { return _config; }
+
+    /// Set configuration
+    void setConfig(const DTConfigManager *conf);
 
     /// Return number of TStheta segments (just 1)
     int nSegm(int step);
@@ -105,7 +106,7 @@ class DTTSTheta : public DTTSThetaManager, public DTGeomSupplier {
 
     DTBtiCard* _bticard;
 
-    DTConfigTSTheta* _config;
+    const DTConfigTSTheta* _config;
 
     // Input data
     BitArray<DTConfigTSTheta::NCELLTH> _trig[DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1];

@@ -1,17 +1,35 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "Geometry/CSCGeometry/interface/CSCChamber.h"
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
+#include <string>
 
-CSCGeometry::CSCGeometry(){}
+CSCGeometry::CSCGeometry():  debugV_(false), gangedstripsME1a_(true), 
+   onlywiresME1a_(false), realWireGeometry_(true), useCentreTIOffsets_(false) {
+   if ( debugV_ ) queryModelling();
+}
 
+CSCGeometry::CSCGeometry( bool dbgv, bool gangedstripsME1a, bool onlywiresME1a, bool realWireGeometry, bool useCentreTIOffsets ) :  
+   debugV_(dbgv), gangedstripsME1a_( gangedstripsME1a ), onlywiresME1a_( onlywiresME1a ), 
+   realWireGeometry_( realWireGeometry ), useCentreTIOffsets_( useCentreTIOffsets ) {
+   if ( debugV_ ) queryModelling();
+}
 
 CSCGeometry::~CSCGeometry(){
-  // delete all the chambers (which will delete the SL which will delete the
-  // layers)
+
+  // delete all the chambers (which will delete the layers)
   for (ChamberContainer::const_iterator ich=theChambers.begin();
        ich!=theChambers.end(); ++ich) delete (*ich);
+
+  // delete specs
+  for ( CSCSpecsContainer::const_iterator it =
+	   specsContainer.begin(); it!=specsContainer.end(); ++it) {
+    delete (*it).second; // they are never shared per chamber type so should be no possible double deletion.
+  }
+
 }  
 
 
@@ -93,11 +111,6 @@ const CSCGeometry::ChamberContainer& CSCGeometry::chambers() const
 
 const CSCGeometry::LayerContainer& CSCGeometry::layers() const
 {
-//   for( DetUnitContainer::const_iterator it = theDetUnits.begin();
-//        it != theDetUnits.end(); ++it ) {
-//     CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
-//     if ( layer ) theLayers.push_back( layer );
-//   }
   return theLayers;
 }
 
@@ -110,4 +123,64 @@ const CSCChamber* CSCGeometry::chamber(CSCDetId id) const {
 
 const CSCLayer* CSCGeometry::layer(CSCDetId id) const {
   return dynamic_cast<const CSCLayer*>(idToDetUnit(id));
+}
+
+void CSCGeometry::queryModelling() const {
+  // Dump user-selected overall modelling parameters.
+  // Only requires calling once per job.
+
+  LogTrace("CSCGeometry|CSC")  << "CSCGeometry::queryModelling entered...";
+
+  edm::LogInfo("CSC") << "CSCGeometry version 18-Oct-2012 queryModelling...\n";
+
+  std::string gs = " ";
+  if ( gangedstripsME1a_ )
+    gs = "GANGED";
+  else
+    gs = "UNGANGED";
+
+  edm::LogInfo("CSC") << "CSCGeometry: in ME1a use " << gs << " strips" << "\n";
+
+  std::string wo = " ";
+  if ( onlywiresME1a_ )
+    wo = "WIRES ONLY";
+  else
+    wo = "WIRES & STRIPS";
+
+  edm::LogInfo("CSC") << "CSCGeometry: in ME1a use  " << wo << "\n";
+
+  std::string wg = " ";
+  if ( realWireGeometry_ )
+    wg = "REAL";
+  else
+    wg = "PSEUDO";
+
+  edm::LogInfo("CSC") << "CSCGeometry: wires are modelled using " << wg << " wire geometry " << "\n";
+
+  std::string cti = " ";
+  if ( useCentreTIOffsets_ )
+    cti = "WITH";
+  else
+    cti = "WITHOUT";
+
+  edm::LogInfo("CSC") << "CSCGeometry: strip plane centre-to-intersection ideal " << cti << " corrections " << "\n";
+}
+
+const CSCChamberSpecs* CSCGeometry::findSpecs( int iChamberType ) {
+  const CSCChamberSpecs* aSpecs = 0;
+  CSCSpecsContainer::const_iterator it = specsContainer.find( iChamberType );
+  if (  it != specsContainer.end() )  aSpecs = (*it).second;
+  return aSpecs;
+} 
+
+const CSCChamberSpecs* CSCGeometry::buildSpecs( int iChamberType,
+					 const std::vector<float>& fpar,
+					 const std::vector<float>& fupar,
+					 const CSCWireGroupPackage& wg ) {
+
+  // Note arg list order is hbot, htop, apothem, hthickness
+  TrapezoidalPlaneBounds bounds( fpar[0], fpar[1], fpar[3], fpar[2] );
+  const CSCChamberSpecs* aSpecs = new CSCChamberSpecs( this, iChamberType, bounds, fupar, wg );
+  specsContainer[ iChamberType ] = aSpecs;
+  return aSpecs;
 }

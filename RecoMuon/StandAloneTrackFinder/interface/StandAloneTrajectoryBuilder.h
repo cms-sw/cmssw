@@ -4,25 +4,21 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2007/01/17 16:18:04 $
- *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 
 class TrajectorySeed;
-class StandAloneMuonRefitter;
+class StandAloneMuonFilter;
 class StandAloneMuonBackwardFilter;
-class StandAloneMuonSmoother;
+class StandAloneMuonRefitter;
 class MuonServiceProxy;
+class SeedTransformer;
 
 namespace edm {class ParameterSet;}
 
@@ -33,7 +29,7 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
   
  public:
   /// Constructor with Parameter set and MuonServiceProxy
-  StandAloneMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
+  StandAloneMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*,edm::ConsumesCollector& iC);
 
   /// Destructor
   virtual ~StandAloneMuonTrajectoryBuilder();
@@ -45,11 +41,14 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
   /// dummy implementation, unused in this class
   virtual CandidateContainer trajectories(const TrackCand&) {return CandidateContainer();}
 
+  /// pre-filter
+  StandAloneMuonFilter* filter() const {return theFilter;}
+
+  /// actual filter
+  StandAloneMuonFilter* bwfilter() const {return theBWFilter;}
+
+  /// refitter of the hits container
   StandAloneMuonRefitter* refitter() const {return theRefitter;}
-  //FIXME
-  //  StandAloneMuonBackwardFilter* bwfilter() const {return theBWFilter;}
-  StandAloneMuonRefitter* bwfilter() const {return theBWFilter;}
-  StandAloneMuonSmoother* smoother() const {return theSmoother;}
 
   /// Pass the Event to the algo at each event
   virtual void setEvent(const edm::Event& event);
@@ -58,7 +57,7 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 
  private:
   
-  DetLayerWithState propagateTheSeedTSOS(const TrajectorySeed& seed);
+  DetLayerWithState propagateTheSeedTSOS(TrajectoryStateOnSurface& aTSOS, DetId& aDetId);
 
  private:
 
@@ -71,20 +70,18 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
   /// Propagator for the seed extrapolation
   std::string theSeedPropagatorName;
   
-  StandAloneMuonRefitter* theRefitter;
-  StandAloneMuonRefitter* theBWFilter;
+  StandAloneMuonFilter* theFilter;
+  StandAloneMuonFilter* theBWFilter;
   // FIXME
   //  StandAloneMuonBackwardFilter* theBWFilter;
-  StandAloneMuonSmoother* theSmoother;
+  StandAloneMuonRefitter* theRefitter;
+  SeedTransformer* theSeedTransformer;
 
-  bool doBackwardRefit;
-  bool doSmoothing;
+  bool doBackwardFilter;
+  bool doRefit;
+  bool doSeedRefit;
   std::string theBWSeedType;
 
   const MuonServiceProxy *theService;
-
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  edm::ESHandle<MagneticField> theMGField;
-  edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
 };
 #endif

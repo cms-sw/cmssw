@@ -2,7 +2,7 @@ void SiPixelRecHitsCompare()
 {
    gROOT->Reset();
    char* sfilename = "pixelrechitshisto.root";
-   char* rfilename = "../data/pixelrechitshisto.root";
+   char* rfilename = "../pixelrechitshisto.root";
    
    //char* rfilename = "/uscms/home/ggiurgiu/work/CMSSW_1_2_0_pre4/src/Validation/TrackerRecHits/test/pixelrechitshisto_test34.root";
    //char* sfilename = "/uscms/home/ggiurgiu/work/CMSSW_1_2_0_pre4/src/Validation/TrackerRecHits/test/pixelrechitshisto_test56.root";
@@ -13,12 +13,73 @@ void SiPixelRecHitsCompare()
 
    TText * te = new TText();
    TFile * rfile = new TFile(rfilename);
+   TDirectory * rdir=gDirectory; 
    TFile * sfile = new TFile(sfilename);
+   TDirectory * sdir=gDirectory;
 
-   rfile->cd("DQMData/TrackerRecHits/Strip");
-   sfile->cd("DQMData/TrackerRecHits/Strip");
+ if(rfile->cd("DQMData/Run 1/TrackerRecHitsV"))rfile->cd("DQMData/Run 1/TrackerRecHitsV/Run summary/TrackerRecHits/Pixel");
+ else rfile->cd("DQMData/TrackerRecHitsV/TrackerRecHits/Pixel");
+ rdir=gDirectory;
 
-   gROOT->ProcessLine(".x HistoCompare.C");    
+ if(sfile->cd("DQMData/Run 1/TrackerRecHitsV"))sfile->cd("DQMData/Run 1/TrackerRecHitsV/Run summary/TrackerRecHits/Pixel");
+ else sfile->cd("DQMData/TrackerRecHitsV/TrackerRecHits/Pixel");
+ sdir=gDirectory; 
+ 
+
+
+  TLegend leg(0.3, 0.80, 0.55, 0.90);
+ //Get list of Keys from the Reference file.
+  TList* ref_list = rfile->GetListOfKeys() ;
+  if (!ref_list) {
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in the Reference file."<<std::endl;
+      exit(1) ;
+   }
+
+  //Get list of Keys from the New file.
+  TList* new_list = sfile->GetListOfKeys() ;
+  if (!new_list) {
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in New file."<<std::endl;
+      exit(1) ;
+   }
+
+
+  //Iterate on the List of Keys of the  Reference file.
+  TIter     refkey_iter( ref_list) ;
+  TKey*     ref_key ;
+  TObject*  ref_obj ;
+
+  char rver[50];
+  char cver[50];
+  while ( ref_key = (TKey*) refkey_iter() ) {
+      ref_obj = ref_key->ReadObj() ;
+      if (strcmp(ref_obj->IsA()->GetName(),"TObjString")==0) {
+
+         TObjString * rversion = dynamic_cast< TObjString*> (ref_obj);
+         sprintf(rver, "%s", rversion->GetName());
+         std::cout<<" Ref. version =" << rver<<std::endl;
+         break;
+      }
+  }
+
+  //Iterate on the List of Keys of the  Reference file.
+  TIter     newkey_iter( new_list) ;
+  TKey*     new_key ;
+  TObject*  new_obj ;
+  while ( new_key = (TKey*) newkey_iter() ) {
+      new_obj = new_key->ReadObj() ;
+      if (strcmp(new_obj->IsA()->GetName(),"TObjString")==0) {
+
+         TObjString * cversion = dynamic_cast< TObjString*> (new_obj);
+         sprintf(cver, "%s", cversion->GetName());
+         std::cout<<" Cur version =" << cver<<std::endl;
+         break;
+
+      }
+  }
+
+ 
+
+  gROOT->ProcessLine(".x HistoCompare.C");    
    HistoCompare * myPV = new HistoCompare();
 
    Char_t histo[200];
@@ -80,9 +141,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<8; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_y_size_Module%d", i+1);
-	   rfile->GetObject(histo, clustYSizeModule_[i]);
-	   sfile->GetObject(histo, newclustYSizeModule_[i]);
+	   sprintf(histo, "clustBPIX/Clust_y_size_Module%d", i+1);
+	   rdir->GetObject(histo, clustYSizeModule_[i]);
+	   sdir->GetObject(histo, newclustYSizeModule_[i]);
 	   Pixel0->cd(i+1);
 	   gPad->SetLogy();
 	   clustYSizeModule_[i]->SetLineColor(2);
@@ -97,6 +158,10 @@ void SiPixelRecHitsCompare()
 	   newclustYSizeModule_[i]->SetLineStyle(2);
 	   newclustYSizeModule_[i]->Draw("sameh");
 	   myPV->PVCompute(clustYSizeModule_[i], newclustYSizeModule_[i], te);
+    leg.Clear();
+   leg.AddEntry(clustYSizeModule_[i],rver , "l");
+   leg.AddEntry(newclustYSizeModule_[i],cver , "l");
+   leg.Draw();
 	 }
        Pixel0->Print("Clust_y_size_by_module.eps");   
      }
@@ -113,9 +178,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<3; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_x_size_Layer%d", i+1);
-	   rfile->GetObject(histo, clustXSizeLayer_[i]);
-	   sfile->GetObject(histo, newclustXSizeLayer_[i]);
+	   sprintf(histo, "clustBPIX/Clust_x_size_Layer%d", i+1);
+	   rdir->GetObject(histo, clustXSizeLayer_[i]);
+	   sdir->GetObject(histo, newclustXSizeLayer_[i]);
 	   Pixel1->cd(i+1);
 	   gPad->SetLogy();
 	   clustXSizeLayer_[i]->SetLineColor(2);
@@ -130,6 +195,10 @@ void SiPixelRecHitsCompare()
 	   newclustXSizeLayer_[i]->SetLineStyle(2);
 	   newclustXSizeLayer_[i]->Draw("sameh");
 	   myPV->PVCompute(clustXSizeLayer_[i], newclustXSizeLayer_[i], te);
+    leg.Clear();
+   leg.AddEntry(clustXSizeLayer_[i],rver , "l");
+   leg.AddEntry(newclustXSizeLayer_[i],cver , "l");
+   leg.Draw();
 	 }
        Pixel1->Print("Clust_x_size_by_layer.eps");   
      }
@@ -146,9 +215,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<8; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_charge_Layer1_Module%d", i+1);
-	   rfile->GetObject(histo, clustChargeLayer1Modules_[i]);
-	   sfile->GetObject(histo, newclustChargeLayer1Modules_[i]);
+	   sprintf(histo, "clustBPIX/Clust_charge_Layer1_Module%d", i+1);
+	   rdir->GetObject(histo, clustChargeLayer1Modules_[i]);
+	   sdir->GetObject(histo, newclustChargeLayer1Modules_[i]);
 	   Pixel2->cd(i+1);
 	   gPad->SetLogy();
 	   clustChargeLayer1Modules_[i]->SetLineColor(2);
@@ -163,6 +232,10 @@ void SiPixelRecHitsCompare()
 	   newclustChargeLayer1Modules_[i]->SetLineStyle(2);
 	   newclustChargeLayer1Modules_[i]->Draw("sameh");
 	   myPV->PVCompute(clustChargeLayer1Modules_[i], newclustChargeLayer1Modules_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(clustChargeLayer1Modules_[i],rver , "l");
+	   leg.AddEntry(newclustChargeLayer1Modules_[i],cver , "l");
+	   leg.Draw();
 	 }
        Pixel2->Print("Clust_charge_layer1_modules.eps");   
      }
@@ -179,9 +252,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<8; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_charge_Layer2_Module%d", i+1);
-	   rfile->GetObject(histo, clustChargeLayer2Modules_[i]);
-	   sfile->GetObject(histo, newclustChargeLayer2Modules_[i]);
+	   sprintf(histo, "clustBPIX/Clust_charge_Layer2_Module%d", i+1);
+	   rdir->GetObject(histo, clustChargeLayer2Modules_[i]);
+	   sdir->GetObject(histo, newclustChargeLayer2Modules_[i]);
 	   Pixel3->cd(i+1);
 	   gPad->SetLogy();
 	   clustChargeLayer2Modules_[i]->SetLineColor(2);
@@ -196,6 +269,10 @@ void SiPixelRecHitsCompare()
 	   newclustChargeLayer2Modules_[i]->SetLineStyle(2);
 	   newclustChargeLayer2Modules_[i]->Draw("sameh");
 	   myPV->PVCompute(clustChargeLayer2Modules_[i], newclustChargeLayer2Modules_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(clustChargeLayer2Modules_[i],rver , "l");
+	   leg.AddEntry(newclustChargeLayer2Modules_[i],cver , "l");
+	   leg.Draw();
 	 }
        Pixel3->Print("Clust_charge_layer2_modules.eps");   
      }
@@ -212,9 +289,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<8; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_charge_Layer3_Module%d", i+1);
-	   rfile->GetObject(histo, clustChargeLayer3Modules_[i]);
-	   sfile->GetObject(histo, newclustChargeLayer3Modules_[i]);
+	   sprintf(histo, "clustBPIX/Clust_charge_Layer3_Module%d", i+1);
+	   rdir->GetObject(histo, clustChargeLayer3Modules_[i]);
+	   sdir->GetObject(histo, newclustChargeLayer3Modules_[i]);
 	   Pixel4->cd(i+1);
 	   gPad->SetLogy();
 	   clustChargeLayer3Modules_[i]->SetLineColor(2);
@@ -229,6 +306,10 @@ void SiPixelRecHitsCompare()
 	   newclustChargeLayer3Modules_[i]->SetLineStyle(2);
 	   newclustChargeLayer3Modules_[i]->Draw("sameh");
 	   myPV->PVCompute(clustChargeLayer3Modules_[i], newclustChargeLayer3Modules_[i], te);
+    leg.Clear();
+   leg.AddEntry(clustChargeLayer3Modules_[i],rver , "l");
+   leg.AddEntry(newclustChargeLayer3Modules_[i],cver , "l");
+   leg.Draw();
 	 }
        Pixel4->Print("Clust_charge_layer3_modules.eps");   
      }
@@ -249,9 +330,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_x_size_Disk1_Plaquette%d", i+1);
-	   rfile->GetObject(histo, clustXSizeDisk1Plaquettes_[i]);
-	   sfile->GetObject(histo, newclustXSizeDisk1Plaquettes_[i]);
+	   sprintf(histo, "clustFPIX/Clust_x_size_Disk1_Plaquette%d", i+1);
+	   rdir->GetObject(histo, clustXSizeDisk1Plaquettes_[i]);
+	   sdir->GetObject(histo, newclustXSizeDisk1Plaquettes_[i]);
 	   Pixel5->cd(i+1);
 	   gPad->SetLogy();
 	   clustXSizeDisk1Plaquettes_[i]->SetLineColor(2);
@@ -266,6 +347,10 @@ void SiPixelRecHitsCompare()
 	   newclustXSizeDisk1Plaquettes_[i]->SetLineStyle(2);
 	   newclustXSizeDisk1Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(clustXSizeDisk1Plaquettes_[i], newclustXSizeDisk1Plaquettes_[i], te);
+    leg.Clear();
+   leg.AddEntry(clustXSizeDisk1Plaquettes_[i],rver , "l");
+   leg.AddEntry(newclustXSizeDisk1Plaquettes_[i],cver , "l");
+   leg.Draw();
 	 }
        Pixel5->Print("Clust_xsize_disk1_plaquettes.eps");   
      }
@@ -282,9 +367,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_x_size_Disk2_Plaquette%d", i+1);
-	   rfile->GetObject(histo, clustXSizeDisk2Plaquettes_[i]);
-	   sfile->GetObject(histo, newclustXSizeDisk2Plaquettes_[i]);
+	   sprintf(histo, "clustFPIX/Clust_x_size_Disk2_Plaquette%d", i+1);
+	   rdir->GetObject(histo, clustXSizeDisk2Plaquettes_[i]);
+	   sdir->GetObject(histo, newclustXSizeDisk2Plaquettes_[i]);
 	   Pixel6->cd(i+1);
 	   gPad->SetLogy();
 	   clustXSizeDisk2Plaquettes_[i]->SetLineColor(2);
@@ -299,6 +384,10 @@ void SiPixelRecHitsCompare()
 	   newclustXSizeDisk2Plaquettes_[i]->SetLineStyle(2);
 	   newclustXSizeDisk2Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(clustXSizeDisk2Plaquettes_[i], newclustXSizeDisk2Plaquettes_[i], te);
+    leg.Clear();
+   leg.AddEntry(clustXSizeDisk2Plaquettes_[i],rver , "l");
+   leg.AddEntry(newclustXSizeDisk2Plaquettes_[i],cver , "l");
+   leg.Draw();
 	 }
        Pixel6->Print("Clust_xsize_disk2_plaquettes.eps");   
      }
@@ -316,9 +405,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_y_size_Disk1_Plaquette%d", i+1);
-	   rfile->GetObject(histo, clustYSizeDisk1Plaquettes_[i]);
-	   sfile->GetObject(histo, newclustYSizeDisk1Plaquettes_[i]);
+	   sprintf(histo, "clustFPIX/Clust_y_size_Disk1_Plaquette%d", i+1);
+	   rdir->GetObject(histo, clustYSizeDisk1Plaquettes_[i]);
+	   sdir->GetObject(histo, newclustYSizeDisk1Plaquettes_[i]);
 	   Pixel7->cd(i+1);
 	   gPad->SetLogy();
 	   clustYSizeDisk1Plaquettes_[i]->SetLineColor(2);
@@ -333,6 +422,10 @@ void SiPixelRecHitsCompare()
 	   newclustYSizeDisk1Plaquettes_[i]->SetLineStyle(2);
 	   newclustYSizeDisk1Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(clustYSizeDisk1Plaquettes_[i], newclustYSizeDisk1Plaquettes_[i], te);
+    leg.Clear();
+   leg.AddEntry(clustYSizeDisk1Plaquettes_[i],rver , "l");
+   leg.AddEntry(newclustYSizeDisk1Plaquettes_[i],cver , "l");
+   leg.Draw();
 	 }
        Pixel7->Print("Clust_ysize_disk1_plaquettes.eps");   
      }
@@ -349,9 +442,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_y_size_Disk2_Plaquette%d", i+1);
-	   rfile->GetObject(histo, clustYSizeDisk2Plaquettes_[i]);
-	   sfile->GetObject(histo, newclustYSizeDisk2Plaquettes_[i]);
+	   sprintf(histo, "clustFPIX/Clust_y_size_Disk2_Plaquette%d", i+1);
+	   rdir->GetObject(histo, clustYSizeDisk2Plaquettes_[i]);
+	   sdir->GetObject(histo, newclustYSizeDisk2Plaquettes_[i]);
 	   Pixel8->cd(i+1);
 	   gPad->SetLogy();
 	   clustYSizeDisk2Plaquettes_[i]->SetLineColor(2);
@@ -366,6 +459,10 @@ void SiPixelRecHitsCompare()
 	   newclustYSizeDisk2Plaquettes_[i]->SetLineStyle(2);
 	   newclustYSizeDisk2Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(clustYSizeDisk2Plaquettes_[i], newclustYSizeDisk2Plaquettes_[i], te);
+    leg.Clear();
+   leg.AddEntry(clustYSizeDisk2Plaquettes_[i],rver , "l");
+   leg.AddEntry(newclustYSizeDisk2Plaquettes_[i],cver , "l");
+   leg.Draw();
 	}
        Pixel8->Print("Clust_ysize_disk2_plaquettes.eps");   
      }
@@ -383,9 +480,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_charge_Disk1_Plaquette%d", i+1);
-	   rfile->GetObject(histo, clustChargeDisk1Plaquettes_[i]);
-	   sfile->GetObject(histo, newclustChargeDisk1Plaquettes_[i]);
+	   sprintf(histo, "clustFPIX/Clust_charge_Disk1_Plaquette%d", i+1);
+	   rdir->GetObject(histo, clustChargeDisk1Plaquettes_[i]);
+	   sdir->GetObject(histo, newclustChargeDisk1Plaquettes_[i]);
 	   Pixel9->cd(i+1);
 	   gPad->SetLogy();
 	   clustChargeDisk1Plaquettes_[i]->SetLineColor(2);
@@ -400,6 +497,10 @@ void SiPixelRecHitsCompare()
 	   newclustChargeDisk1Plaquettes_[i]->SetLineStyle(2);
 	   newclustChargeDisk1Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(clustChargeDisk1Plaquettes_[i], newclustChargeDisk1Plaquettes_[i], te);
+    leg.Clear();
+   leg.AddEntry(clustChargeDisk1Plaquettes_[i],rver , "l");
+   leg.AddEntry(newclustChargeDisk1Plaquettes_[i],cver , "l");
+   leg.Draw();
 	 }
        Pixel9->Print("Clust_charge_disk1_plaquettes.eps");   
      }
@@ -416,9 +517,9 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_charge_Disk2_Plaquette%d", i+1);
-	   rfile->GetObject(histo, clustChargeDisk2Plaquettes_[i]);
-	   sfile->GetObject(histo, newclustChargeDisk2Plaquettes_[i]);
+	   sprintf(histo, "clustFPIX/Clust_charge_Disk2_Plaquette%d", i+1);
+	   rdir->GetObject(histo, clustChargeDisk2Plaquettes_[i]);
+	   sdir->GetObject(histo, newclustChargeDisk2Plaquettes_[i]);
 	   Pixel10->cd(i+1);
 	   gPad->SetLogy();
 	   clustChargeDisk2Plaquettes_[i]->SetLineColor(2);
@@ -433,6 +534,10 @@ void SiPixelRecHitsCompare()
 	   newclustChargeDisk2Plaquettes_[i]->SetLineStyle(2);
 	   newclustChargeDisk2Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(clustChargeDisk2Plaquettes_[i], newclustChargeDisk2Plaquettes_[i], te);
+    leg.Clear();
+   leg.AddEntry(clustChargeDisk2Plaquettes_[i],rver , "l");
+   leg.AddEntry(newclustChargeDisk2Plaquettes_[i],cver , "l");
+   leg.Draw();
 	}
        Pixel10->Print("Clust_charge_disk2_plaquettes.eps");   
      }
@@ -450,9 +555,9 @@ void SiPixelRecHitsCompare()
        TH1* recHitXFullModules_;
        TH1* newrecHitXFullModules_;
        
-       sprintf (histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_x_FullModules");
-       rfile->GetObject(histo, recHitXFullModules_);
-       sfile->GetObject(histo, newrecHitXFullModules_);
+       sprintf (histo, "recHitBPIX/RecHit_x_FullModules");
+       rdir->GetObject(histo, recHitXFullModules_);
+       sdir->GetObject(histo, newrecHitXFullModules_);
        
        gPad->SetLogy();
        recHitXFullModules_->SetLineColor(2);
@@ -467,6 +572,10 @@ void SiPixelRecHitsCompare()
        newrecHitXFullModules_->SetLineStyle(2);
        newrecHitXFullModules_->Draw("sameh");
        myPV->PVCompute(recHitXFullModules_, newrecHitXFullModules_, te);
+       leg.Clear();
+       leg.AddEntry(recHitXFullModules_,rver , "l");
+       leg.AddEntry(newrecHitXFullModules_,cver , "l");
+       leg.Draw();
        
        Pixel11->Print("RecHit_XDist_FullModules.eps");
        
@@ -476,9 +585,9 @@ void SiPixelRecHitsCompare()
        TH1* recHitXHalfModules_;
        TH1* newrecHitXHalfModules_;
        
-       sprintf (histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_x_HalfModules");
-       rfile->GetObject(histo, recHitXHalfModules_);
-       sfile->GetObject(histo, newrecHitXHalfModules_);
+       sprintf (histo, "recHitBPIX/RecHit_x_HalfModules");
+       rdir->GetObject(histo, recHitXHalfModules_);
+       sdir->GetObject(histo, newrecHitXHalfModules_);
        
        gPad->SetLogy();
        recHitXHalfModules_->SetLineColor(2);
@@ -493,6 +602,10 @@ void SiPixelRecHitsCompare()
        newrecHitXHalfModules_->SetLineStyle(2);
        newrecHitXHalfModules_->Draw("sameh");
        myPV->PVCompute(recHitXHalfModules_, newrecHitXHalfModules_, te);
+       leg.Clear();
+       leg.AddEntry(recHitXHalfModules_,rver , "l");
+       leg.AddEntry(newrecHitXHalfModules_,cver , "l");
+       leg.Draw();
        
        Pixel12->Print("RecHit_XDist_HalfModules.eps");
        
@@ -502,9 +615,9 @@ void SiPixelRecHitsCompare()
        TH1* recHitYAllModules_;
        TH1* newrecHitYAllModules_;
        
-       sprintf (histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_y_AllModules");
-       rfile->GetObject(histo, recHitYAllModules_);
-       sfile->GetObject(histo, newrecHitYAllModules_);
+       sprintf (histo, "recHitBPIX/RecHit_y_AllModules");
+       rdir->GetObject(histo, recHitYAllModules_);
+       sdir->GetObject(histo, newrecHitYAllModules_);
        
        gPad->SetLogy();
        recHitYAllModules_->SetLineColor(2);
@@ -519,6 +632,10 @@ void SiPixelRecHitsCompare()
        newrecHitYAllModules_->SetLineStyle(2);
        newrecHitYAllModules_->Draw("sameh");
        myPV->PVCompute(recHitYAllModules_, newrecHitYAllModules_, te);
+       leg.Clear();
+       leg.AddEntry(recHitYAllModules_,rver , "l");
+       leg.AddEntry(newrecHitYAllModules_,cver , "l");
+       leg.Draw();
        
        Pixel13->Print("RecHit_YDist_AllModules.eps");
      }
@@ -534,9 +651,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit XRes Flipped ladders by layer
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_XRes_FlippedLadder_Layer%d", i+1);
-	   rfile->GetObject(histo, recHitXResFlippedLadderLayers_[i]);
-	   sfile->GetObject(histo, newrecHitXResFlippedLadderLayers_[i]);
+	   sprintf(histo, "recHitBPIX/RecHit_XRes_FlippedLadder_Layer%d", i+1);
+	   rdir->GetObject(histo, recHitXResFlippedLadderLayers_[i]);
+	   sdir->GetObject(histo, newrecHitXResFlippedLadderLayers_[i]);
 	   
 	   Pixel14->cd(i+1);
 	   gPad->SetLogy();
@@ -552,6 +669,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitXResFlippedLadderLayers_[i]->SetLineStyle(2);
 	   newrecHitXResFlippedLadderLayers_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitXResFlippedLadderLayers_[i], newrecHitXResFlippedLadderLayers_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitXResFlippedLadderLayers_[i],rver , "l");
+	   leg.AddEntry(newrecHitXResFlippedLadderLayers_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel14->Print("RecHit_XRes_FlippedLadder_Layers.eps");
@@ -568,9 +689,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit XRes unflipped ladders by layer
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_XRes_UnFlippedLadder_Layer%d", i+1);
-	   rfile->GetObject(histo, recHitXResUnFlippedLadderLayers_[i]);
-	   sfile->GetObject(histo, newrecHitXResUnFlippedLadderLayers_[i]);
+	   sprintf(histo, "recHitBPIX/RecHit_XRes_UnFlippedLadder_Layer%d", i+1);
+	   rdir->GetObject(histo, recHitXResUnFlippedLadderLayers_[i]);
+	   sdir->GetObject(histo, newrecHitXResUnFlippedLadderLayers_[i]);
 	   
 	   Pixel15->cd(i+1);
 	   gPad->SetLogy();
@@ -586,6 +707,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitXResUnFlippedLadderLayers_[i]->SetLineStyle(2);
 	   newrecHitXResUnFlippedLadderLayers_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitXResUnFlippedLadderLayers_[i], newrecHitXResUnFlippedLadderLayers_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitXResUnFlippedLadderLayers_[i],rver , "l");
+	   leg.AddEntry(newrecHitXResUnFlippedLadderLayers_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel15->Print("RecHit_XRes_UnFlippedLadder_Layers.eps");
@@ -602,9 +727,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y resolution by module for layer 1
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_YRes_Layer1_Module%d", i+1);
-	   rfile->GetObject(histo, recHitYResLayer1Modules_[i]);
-	   sfile->GetObject(histo, newrecHitYResLayer1Modules_[i]);
+	   sprintf(histo, "recHitBPIX/RecHit_YRes_Layer1_Module%d", i+1);
+	   rdir->GetObject(histo, recHitYResLayer1Modules_[i]);
+	   sdir->GetObject(histo, newrecHitYResLayer1Modules_[i]);
 
 	   Pixel16->cd(i+1);
 	   gPad->SetLogy();
@@ -620,6 +745,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitYResLayer1Modules_[i]->SetLineStyle(2);
 	   newrecHitYResLayer1Modules_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitYResLayer1Modules_[i], newrecHitYResLayer1Modules_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitYResLayer1Modules_[i],rver , "l");
+	   leg.AddEntry(newrecHitYResLayer1Modules_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel16->Print("RecHit_YRes_Layer1_Modules.eps");
@@ -636,9 +765,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y resolution by module for layer 2
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_YRes_Layer2_Module%d", i+1);
-	   rfile->GetObject(histo, recHitYResLayer2Modules_[i]);
-	   sfile->GetObject(histo, newrecHitYResLayer2Modules_[i]);
+	   sprintf(histo, "recHitBPIX/RecHit_YRes_Layer2_Module%d", i+1);
+	   rdir->GetObject(histo, recHitYResLayer2Modules_[i]);
+	   sdir->GetObject(histo, newrecHitYResLayer2Modules_[i]);
 
 	   Pixel17->cd(i+1);
 	   gPad->SetLogy();
@@ -654,6 +783,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitYResLayer2Modules_[i]->SetLineStyle(2);
 	   newrecHitYResLayer2Modules_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitYResLayer2Modules_[i], newrecHitYResLayer2Modules_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitYResLayer2Modules_[i],rver , "l");
+	   leg.AddEntry(newrecHitYResLayer2Modules_[i],cver , "l");
+	   leg.Draw();
 	   
 	}
        Pixel17->Print("RecHit_YRes_Layer2_Modules.eps");
@@ -670,9 +803,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y resolution by module for layer 3
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_YRes_Layer3_Module%d", i+1);
-	   rfile->GetObject(histo, recHitYResLayer3Modules_[i]);
-	   sfile->GetObject(histo, newrecHitYResLayer3Modules_[i]);
+	   sprintf(histo, "recHitBPIX/RecHit_YRes_Layer3_Module%d", i+1);
+	   rdir->GetObject(histo, recHitYResLayer3Modules_[i]);
+	   sdir->GetObject(histo, newrecHitYResLayer3Modules_[i]);
 
 	   Pixel18->cd(i+1);
 	   gPad->SetLogy();
@@ -688,6 +821,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitYResLayer3Modules_[i]->SetLineStyle(2);
 	   newrecHitYResLayer3Modules_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitYResLayer3Modules_[i], newrecHitYResLayer3Modules_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitYResLayer3Modules_[i],rver , "l");
+	   leg.AddEntry(newrecHitYResLayer3Modules_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel18->Print("RecHit_YRes_Layer3_Modules.eps");
@@ -706,9 +843,9 @@ void SiPixelRecHitsCompare()
        TH1* recHitXPlaquetteXSize1_;
        TH1* newrecHitXPlaquetteXSize1_;
        
-       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_x_Plaquette_xsize1");
-       rfile->GetObject(histo, recHitXPlaquetteXSize1_);
-       sfile->GetObject(histo, newrecHitXPlaquetteXSize1_);
+       sprintf(histo, "recHitFPIX/RecHit_x_Plaquette_xsize1");
+       rdir->GetObject(histo, recHitXPlaquetteXSize1_);
+       sdir->GetObject(histo, newrecHitXPlaquetteXSize1_);
        
        gPad->SetLogy();
        recHitXPlaquetteXSize1_->SetLineColor(2);
@@ -723,6 +860,10 @@ void SiPixelRecHitsCompare()
        newrecHitXPlaquetteXSize1_->SetLineStyle(2);
        newrecHitXPlaquetteXSize1_->Draw("sameh");
        myPV->PVCompute(recHitXPlaquetteXSize1_, newrecHitXPlaquetteXSize1_, te);
+       leg.Clear();
+       leg.AddEntry(recHitXPlaquetteXSize1_,rver , "l");
+       leg.AddEntry(newrecHitXPlaquetteXSize1_,cver , "l");
+       leg.Draw();
        
        Pixel19->Print("RecHit_X_Plaquette_xsize1.eps");
        
@@ -733,9 +874,9 @@ void SiPixelRecHitsCompare()
        TH1* recHitXPlaquetteXSize2_;
        TH1* newrecHitXPlaquetteXSize2_;
        
-       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_x_Plaquette_xsize2");
-       rfile->GetObject(histo, recHitXPlaquetteXSize2_);
-       sfile->GetObject(histo, newrecHitXPlaquetteXSize2_);
+       sprintf(histo, "recHitFPIX/RecHit_x_Plaquette_xsize2");
+       rdir->GetObject(histo, recHitXPlaquetteXSize2_);
+       sdir->GetObject(histo, newrecHitXPlaquetteXSize2_);
        
        gPad->SetLogy();
        recHitXPlaquetteXSize2_->SetLineColor(2);
@@ -750,6 +891,10 @@ void SiPixelRecHitsCompare()
        newrecHitXPlaquetteXSize2_->SetLineStyle(2);
        newrecHitXPlaquetteXSize2_->Draw("sameh");
        myPV->PVCompute(recHitXPlaquetteXSize2_, newrecHitXPlaquetteXSize2_, te);
+       leg.Clear();
+       leg.AddEntry(recHitXPlaquetteXSize2_,rver , "l");
+       leg.AddEntry(newrecHitXPlaquetteXSize2_,cver , "l");
+       leg.Draw();
        
        Pixel20->Print("RecHit_X_Plaquette_xsize2.eps");
        
@@ -760,9 +905,9 @@ void SiPixelRecHitsCompare()
        TH1* recHitYPlaquetteYSize2_;
        TH1* newrecHitYPlaquetteYSize2_;
        
-       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_y_Plaquette_ysize2");
-       rfile->GetObject(histo, recHitYPlaquetteYSize2_);
-       sfile->GetObject(histo, newrecHitYPlaquetteYSize2_);
+       sprintf(histo, "recHitFPIX/RecHit_y_Plaquette_ysize2");
+       rdir->GetObject(histo, recHitYPlaquetteYSize2_);
+       sdir->GetObject(histo, newrecHitYPlaquetteYSize2_);
        
        gPad->SetLogy();
        recHitYPlaquetteYSize2_->SetLineColor(2);
@@ -777,6 +922,10 @@ void SiPixelRecHitsCompare()
        newrecHitYPlaquetteYSize2_->SetLineStyle(2);
        newrecHitYPlaquetteYSize2_->Draw("sameh");
        myPV->PVCompute(recHitYPlaquetteYSize2_, newrecHitYPlaquetteYSize2_, te);
+       leg.Clear();
+       leg.AddEntry(recHitYPlaquetteYSize2_,rver , "l");
+       leg.AddEntry(newrecHitYPlaquetteYSize2_,cver , "l");
+       leg.Draw();
        
        Pixel21->Print("RecHit_Y_Plaquette_ysize2.eps");
        
@@ -787,9 +936,9 @@ void SiPixelRecHitsCompare()
        TH1* recHitYPlaquetteYSize3_;
        TH1* newrecHitYPlaquetteYSize3_;
        
-       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_y_Plaquette_ysize3");
-       rfile->GetObject(histo, recHitYPlaquetteYSize3_);
-       sfile->GetObject(histo, newrecHitYPlaquetteYSize3_);
+       sprintf(histo, "recHitFPIX/RecHit_y_Plaquette_ysize3");
+       rdir->GetObject(histo, recHitYPlaquetteYSize3_);
+       sdir->GetObject(histo, newrecHitYPlaquetteYSize3_);
        
        gPad->SetLogy();
        recHitYPlaquetteYSize3_->SetLineColor(2);
@@ -804,6 +953,10 @@ void SiPixelRecHitsCompare()
        newrecHitYPlaquetteYSize3_->SetLineStyle(2);
        newrecHitYPlaquetteYSize3_->Draw("sameh");
        myPV->PVCompute(recHitYPlaquetteYSize3_, newrecHitYPlaquetteYSize3_, te);
+       leg.Clear();
+       leg.AddEntry(recHitYPlaquetteYSize3_,rver , "l");
+       leg.AddEntry(newrecHitYPlaquetteYSize3_,cver , "l");
+       leg.Draw();
        
        Pixel22->Print("RecHit_Y_Plaquette_ysize3.eps");
        
@@ -814,9 +967,9 @@ void SiPixelRecHitsCompare()
        TH1* recHitYPlaquetteYSize4_;
        TH1* newrecHitYPlaquetteYSize4_;
        
-       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_y_Plaquette_ysize4");
-       rfile->GetObject(histo, recHitYPlaquetteYSize4_);
-       sfile->GetObject(histo, newrecHitYPlaquetteYSize4_);
+       sprintf(histo, "recHitFPIX/RecHit_y_Plaquette_ysize4");
+       rdir->GetObject(histo, recHitYPlaquetteYSize4_);
+       sdir->GetObject(histo, newrecHitYPlaquetteYSize4_);
        
        gPad->SetLogy();
        recHitYPlaquetteYSize4_->SetLineColor(2);
@@ -831,6 +984,10 @@ void SiPixelRecHitsCompare()
        newrecHitYPlaquetteYSize4_->SetLineStyle(2);
        newrecHitYPlaquetteYSize4_->Draw("sameh");
        myPV->PVCompute(recHitYPlaquetteYSize4_, newrecHitYPlaquetteYSize4_, te);
+       leg.Clear();
+       leg.AddEntry(recHitYPlaquetteYSize4_,rver , "l");
+       leg.AddEntry(newrecHitYPlaquetteYSize4_,cver , "l");
+       leg.Draw();
        
        Pixel23->Print("RecHit_Y_Plaquette_ysize4.eps");
        
@@ -841,9 +998,9 @@ void SiPixelRecHitsCompare()
        TH1* recHitYPlaquetteYSize5_;
        TH1* newrecHitYPlaquetteYSize5_;
        
-       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_y_Plaquette_ysize5");
-       rfile->GetObject(histo, recHitYPlaquetteYSize5_);
-       sfile->GetObject(histo, newrecHitYPlaquetteYSize5_);
+       sprintf(histo, "recHitFPIX/RecHit_y_Plaquette_ysize5");
+       rdir->GetObject(histo, recHitYPlaquetteYSize5_);
+       sdir->GetObject(histo, newrecHitYPlaquetteYSize5_);
        
        gPad->SetLogy();
        recHitYPlaquetteYSize5_->SetLineColor(2);
@@ -858,6 +1015,10 @@ void SiPixelRecHitsCompare()
        newrecHitYPlaquetteYSize5_->SetLineStyle(2);
        newrecHitYPlaquetteYSize5_->Draw("sameh");
        myPV->PVCompute(recHitYPlaquetteYSize5_, newrecHitYPlaquetteYSize5_, te);
+       leg.Clear();
+       leg.AddEntry(recHitYPlaquetteYSize5_,rver , "l");
+       leg.AddEntry(newrecHitYPlaquetteYSize5_,cver , "l");
+       leg.Draw();
        
        Pixel24->Print("RecHit_Y_Plaquette_ysize5.eps");
      }
@@ -873,9 +1034,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X resolution by plaquette for Disk1
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_XRes_Disk1_Plaquette%d", i+1);
-	   rfile->GetObject(histo, recHitXResDisk1Plaquettes_[i]);
-	   sfile->GetObject(histo, newrecHitXResDisk1Plaquettes_[i]);
+	   sprintf(histo, "recHitFPIX/RecHit_XRes_Disk1_Plaquette%d", i+1);
+	   rdir->GetObject(histo, recHitXResDisk1Plaquettes_[i]);
+	   sdir->GetObject(histo, newrecHitXResDisk1Plaquettes_[i]);
 
 	   Pixel25->cd(i+1);
 	   gPad->SetLogy();
@@ -891,6 +1052,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitXResDisk1Plaquettes_[i]->SetLineStyle(2);
 	   newrecHitXResDisk1Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitXResDisk1Plaquettes_[i], newrecHitXResDisk1Plaquettes_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitXResDisk1Plaquettes_[i],rver , "l");
+	   leg.AddEntry(newrecHitXResDisk1Plaquettes_[i],cver , "l");
+	   leg.Draw();
 	   
 	}
        Pixel25->Print("RecHit_XRes_disk1_plaquettes.eps");
@@ -907,9 +1072,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X resolution by plaquette for Disk2
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_XRes_Disk2_Plaquette%d", i+1);
-	   rfile->GetObject(histo, recHitXResDisk2Plaquettes_[i]);
-	   sfile->GetObject(histo, newrecHitXResDisk2Plaquettes_[i]);
+	   sprintf(histo, "recHitFPIX/RecHit_XRes_Disk2_Plaquette%d", i+1);
+	   rdir->GetObject(histo, recHitXResDisk2Plaquettes_[i]);
+	   sdir->GetObject(histo, newrecHitXResDisk2Plaquettes_[i]);
 
 	   Pixel26->cd(i+1);
 	   gPad->SetLogy();
@@ -925,6 +1090,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitXResDisk2Plaquettes_[i]->SetLineStyle(2);
 	   newrecHitXResDisk2Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitXResDisk2Plaquettes_[i], newrecHitXResDisk2Plaquettes_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitXResDisk2Plaquettes_[i],rver , "l");
+	   leg.AddEntry(newrecHitXResDisk2Plaquettes_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel26->Print("RecHit_XRes_disk2_plaquettes.eps");
@@ -941,9 +1110,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y resolution by plaquette for Disk1
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_YRes_Disk1_Plaquette%d", i+1);
-	   rfile->GetObject(histo, recHitYResDisk1Plaquettes_[i]);
-	   sfile->GetObject(histo, newrecHitYResDisk1Plaquettes_[i]);
+	   sprintf(histo, "recHitFPIX/RecHit_YRes_Disk1_Plaquette%d", i+1);
+	   rdir->GetObject(histo, recHitYResDisk1Plaquettes_[i]);
+	   sdir->GetObject(histo, newrecHitYResDisk1Plaquettes_[i]);
 
 	   Pixel27->cd(i+1);
 	   gPad->SetLogy();
@@ -959,6 +1128,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitYResDisk1Plaquettes_[i]->SetLineStyle(2);
 	   newrecHitYResDisk1Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitYResDisk1Plaquettes_[i], newrecHitYResDisk1Plaquettes_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitYResDisk1Plaquettes_[i],rver , "l");
+	   leg.AddEntry(newrecHitYResDisk1Plaquettes_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel27->Print("RecHit_YRes_disk1_plaquettes.eps");
@@ -975,9 +1148,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X resolution by plaquette for Disk2
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_YRes_Disk2_Plaquette%d", i+1);
-	   rfile->GetObject(histo, recHitYResDisk2Plaquettes_[i]);
-	   sfile->GetObject(histo, newrecHitYResDisk2Plaquettes_[i]);
+	   sprintf(histo, "recHitFPIX/RecHit_YRes_Disk2_Plaquette%d", i+1);
+	   rdir->GetObject(histo, recHitYResDisk2Plaquettes_[i]);
+	   sdir->GetObject(histo, newrecHitYResDisk2Plaquettes_[i]);
 
 	   Pixel28->cd(i+1);
 	   gPad->SetLogy();
@@ -993,6 +1166,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitYResDisk2Plaquettes_[i]->SetLineStyle(2);
 	   newrecHitYResDisk2Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitYResDisk2Plaquettes_[i], newrecHitYResDisk2Plaquettes_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitYResDisk2Plaquettes_[i],rver , "l");
+	   leg.AddEntry(newrecHitYResDisk2Plaquettes_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel28->Print("RecHit_YRes_disk2_plaquettes.eps");
@@ -1014,9 +1191,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit XPull Flipped ladders by layer
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_XPull_FlippedLadder_Layer%d", i+1);
-	   rfile->GetObject(histo, recHitXPullFlippedLadderLayers_[i]);
-	   sfile->GetObject(histo, newrecHitXPullFlippedLadderLayers_[i]);
+	   sprintf(histo, "recHitPullsBPIX/RecHit_XPull_FlippedLadder_Layer%d", i+1);
+	   rdir->GetObject(histo, recHitXPullFlippedLadderLayers_[i]);
+	   sdir->GetObject(histo, newrecHitXPullFlippedLadderLayers_[i]);
 
 	   Pixel29->cd(i+1);
 	   //gPad->SetLogy();
@@ -1032,6 +1209,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitXPullFlippedLadderLayers_[i]->SetLineStyle(2);
 	   newrecHitXPullFlippedLadderLayers_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitXPullFlippedLadderLayers_[i], newrecHitXPullFlippedLadderLayers_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitXPullFlippedLadderLayers_[i],rver , "l");
+	   leg.AddEntry(newrecHitXPullFlippedLadderLayers_[i],cver , "l");
+	   leg.Draw();
 	   
 	}
        Pixel29->Print("RecHit_XPull_FlippedLadder_Layers.eps");
@@ -1048,9 +1229,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit XPull unflipped ladders by layer
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_XPull_UnFlippedLadder_Layer%d", i+1);
-	   rfile->GetObject(histo, recHitXPullUnFlippedLadderLayers_[i]);
-	   sfile->GetObject(histo, newrecHitXPullUnFlippedLadderLayers_[i]);
+	   sprintf(histo, "recHitPullsBPIX/RecHit_XPull_UnFlippedLadder_Layer%d", i+1);
+	   rdir->GetObject(histo, recHitXPullUnFlippedLadderLayers_[i]);
+	   sdir->GetObject(histo, newrecHitXPullUnFlippedLadderLayers_[i]);
 
 	   Pixel30->cd(i+1);
 	   //gPad->SetLogy();
@@ -1066,6 +1247,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitXPullUnFlippedLadderLayers_[i]->SetLineStyle(2);
 	   newrecHitXPullUnFlippedLadderLayers_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitXPullUnFlippedLadderLayers_[i], newrecHitXPullUnFlippedLadderLayers_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitXPullUnFlippedLadderLayers_[i],rver , "l");
+	   leg.AddEntry(newrecHitXPullUnFlippedLadderLayers_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel30->Print("RecHit_XPull_UnFlippedLadder_Layers.eps");
@@ -1082,9 +1267,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y pullolution by module for layer 1
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_YPull_Layer1_Module%d", i+1);
-	   rfile->GetObject(histo, recHitPullYPullLayer1Modules_[i]);
-	   sfile->GetObject(histo, newrecHitPullYPullLayer1Modules_[i]);
+	   sprintf(histo, "recHitPullsBPIX/RecHit_YPull_Layer1_Module%d", i+1);
+	   rdir->GetObject(histo, recHitPullYPullLayer1Modules_[i]);
+	   sdir->GetObject(histo, newrecHitPullYPullLayer1Modules_[i]);
 
 	   Pixel31->cd(i+1);
 	   //gPad->SetLogy();
@@ -1100,6 +1285,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitPullYPullLayer1Modules_[i]->SetLineStyle(2);
 	   newrecHitPullYPullLayer1Modules_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitPullYPullLayer1Modules_[i], newrecHitPullYPullLayer1Modules_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitPullYPullLayer1Modules_[i],rver , "l");
+	   leg.AddEntry(newrecHitPullYPullLayer1Modules_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel31->Print("RecHit_YPull_Layer1_Modules.eps");
@@ -1116,9 +1305,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y pullolution by module for layer 2
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_YPull_Layer2_Module%d", i+1);
-	   rfile->GetObject(histo, recHitPullYPullLayer2Modules_[i]);
-	   sfile->GetObject(histo, newrecHitPullYPullLayer2Modules_[i]);
+	   sprintf(histo, "recHitPullsBPIX/RecHit_YPull_Layer2_Module%d", i+1);
+	   rdir->GetObject(histo, recHitPullYPullLayer2Modules_[i]);
+	   sdir->GetObject(histo, newrecHitPullYPullLayer2Modules_[i]);
 	   
 	   Pixel32->cd(i+1);
 	   // gPad->SetLogy();
@@ -1134,6 +1323,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitPullYPullLayer2Modules_[i]->SetLineStyle(2);
 	   newrecHitPullYPullLayer2Modules_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitPullYPullLayer2Modules_[i], newrecHitPullYPullLayer2Modules_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitPullYPullLayer2Modules_[i],rver , "l");
+	   leg.AddEntry(newrecHitPullYPullLayer2Modules_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel32->Print("RecHit_YPull_Layer2_Modules.eps");
@@ -1150,9 +1343,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y pullolution by module for layer 3
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_YPull_Layer3_Module%d", i+1);
-	   rfile->GetObject(histo, recHitPullYPullLayer3Modules_[i]);
-	   sfile->GetObject(histo, newrecHitPullYPullLayer3Modules_[i]);
+	   sprintf(histo, "recHitPullsBPIX/RecHit_YPull_Layer3_Module%d", i+1);
+	   rdir->GetObject(histo, recHitPullYPullLayer3Modules_[i]);
+	   sdir->GetObject(histo, newrecHitPullYPullLayer3Modules_[i]);
 
 	   Pixel33->cd(i+1);
 	   // gPad->SetLogy();
@@ -1168,6 +1361,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitPullYPullLayer3Modules_[i]->SetLineStyle(2);
 	   newrecHitPullYPullLayer3Modules_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitPullYPullLayer3Modules_[i], newrecHitPullYPullLayer3Modules_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitPullYPullLayer3Modules_[i],rver , "l");
+	   leg.AddEntry(newrecHitPullYPullLayer3Modules_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel33->Print("RecHit_YPull_Layer3_Modules.eps");
@@ -1189,9 +1386,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X pullolution by plaquette for Disk1
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsFPIX/RecHit_XPull_Disk1_Plaquette%d", i+1);
-	   rfile->GetObject(histo, recHitXPullDisk1Plaquettes_[i]);
-	   sfile->GetObject(histo, newrecHitXPullDisk1Plaquettes_[i]);
+	   sprintf(histo, "recHitPullsFPIX/RecHit_XPull_Disk1_Plaquette%d", i+1);
+	   rdir->GetObject(histo, recHitXPullDisk1Plaquettes_[i]);
+	   sdir->GetObject(histo, newrecHitXPullDisk1Plaquettes_[i]);
 
 	   Pixel34->cd(i+1);
 	   //gPad->SetLogy();
@@ -1207,6 +1404,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitXPullDisk1Plaquettes_[i]->SetLineStyle(2);
 	   newrecHitXPullDisk1Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitXPullDisk1Plaquettes_[i], newrecHitXPullDisk1Plaquettes_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitXPullDisk1Plaquettes_[i],rver , "l");
+	   leg.AddEntry(newrecHitXPullDisk1Plaquettes_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel34->Print("RecHit_XPull_disk1_plaquettes.eps");
@@ -1223,9 +1424,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X pullolution by plaquette for Disk2
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsFPIX/RecHit_XPull_Disk2_Plaquette%d", i+1);
-	   rfile->GetObject(histo, recHitXPullDisk2Plaquettes_[i]);
-	   sfile->GetObject(histo, newrecHitXPullDisk2Plaquettes_[i]);
+	   sprintf(histo, "recHitPullsFPIX/RecHit_XPull_Disk2_Plaquette%d", i+1);
+	   rdir->GetObject(histo, recHitXPullDisk2Plaquettes_[i]);
+	   sdir->GetObject(histo, newrecHitXPullDisk2Plaquettes_[i]);
 
 	   Pixel35->cd(i+1);
 	   //gPad->SetLogy();
@@ -1241,6 +1442,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitXPullDisk2Plaquettes_[i]->SetLineStyle(2);
 	   newrecHitXPullDisk2Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitXPullDisk2Plaquettes_[i], newrecHitXPullDisk2Plaquettes_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitXPullDisk2Plaquettes_[i],rver , "l");
+	   leg.AddEntry(newrecHitXPullDisk2Plaquettes_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel35->Print("RecHit_XPull_disk2_plaquettes.eps");
@@ -1257,9 +1462,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y pullolution by plaquette for Disk1
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsFPIX/RecHit_YPull_Disk1_Plaquette%d", i+1);
-	   rfile->GetObject(histo, recHitPullYPullDisk1Plaquettes_[i]);
-	   sfile->GetObject(histo, newrecHitPullYPullDisk1Plaquettes_[i]);
+	   sprintf(histo, "recHitPullsFPIX/RecHit_YPull_Disk1_Plaquette%d", i+1);
+	   rdir->GetObject(histo, recHitPullYPullDisk1Plaquettes_[i]);
+	   sdir->GetObject(histo, newrecHitPullYPullDisk1Plaquettes_[i]);
 	   
 	   Pixel36->cd(i+1);
 	   //gPad->SetLogy();
@@ -1275,6 +1480,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitPullYPullDisk1Plaquettes_[i]->SetLineStyle(2);
 	   newrecHitPullYPullDisk1Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitPullYPullDisk1Plaquettes_[i], newrecHitPullYPullDisk1Plaquettes_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitPullYPullDisk1Plaquettes_[i],rver , "l");
+	   leg.AddEntry(newrecHitPullYPullDisk1Plaquettes_[i],cver , "l");
+	   leg.Draw();
 	   
 	 }
        Pixel36->Print("RecHit_YPull_disk1_plaquettes.eps");
@@ -1291,9 +1500,9 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X pullolution by plaquette for Disk2
 	   
-	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsFPIX/RecHit_YPull_Disk2_Plaquette%d", i+1);
-	   rfile->GetObject(histo, recHitPullYPullDisk2Plaquettes_[i]);
-	   sfile->GetObject(histo, newrecHitPullYPullDisk2Plaquettes_[i]);
+	   sprintf(histo, "recHitPullsFPIX/RecHit_YPull_Disk2_Plaquette%d", i+1);
+	   rdir->GetObject(histo, recHitPullYPullDisk2Plaquettes_[i]);
+	   sdir->GetObject(histo, newrecHitPullYPullDisk2Plaquettes_[i]);
 
 	   Pixel37->cd(i+1);
 	   //gPad->SetLogy();
@@ -1309,6 +1518,10 @@ void SiPixelRecHitsCompare()
 	   newrecHitPullYPullDisk2Plaquettes_[i]->SetLineStyle(2);
 	   newrecHitPullYPullDisk2Plaquettes_[i]->Draw("sameh");
 	   myPV->PVCompute(recHitPullYPullDisk2Plaquettes_[i], newrecHitPullYPullDisk2Plaquettes_[i], te);
+	   leg.Clear();
+	   leg.AddEntry(recHitPullYPullDisk2Plaquettes_[i],rver , "l");
+	   leg.AddEntry(newrecHitPullYPullDisk2Plaquettes_[i],cver , "l");
+	   leg.Draw();
 	   
 	}
        Pixel37->Print("RecHit_YPull_disk2_plaquettes.eps");

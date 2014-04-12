@@ -5,10 +5,10 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
-namespace {
-  namespace {
+namespace DataFormats_TrackingSeed {
+  struct dictionary {
     edm::Wrapper<TrackingSeedCollection> trackingSeedCollectionWrapper;
-  }
+  };
 }
 
 #endif // TRACKINGSEED_CLASSES_H

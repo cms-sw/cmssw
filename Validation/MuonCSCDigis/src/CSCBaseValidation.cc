@@ -1,6 +1,7 @@
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-CSCBaseValidation::CSCBaseValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
+CSCBaseValidation::CSCBaseValidation(DQMStore* dbe, const edm::InputTag & inputTag)
 : dbe_(dbe),
   theInputTag(inputTag),
   theSimHitMap(0),

@@ -12,7 +12,7 @@ double JetCharge::charge(const LorentzVector &lv, const reco::TrackRefVector &ve
     return chargeFromRef<reco::TrackRef,reco::TrackRefVector>(lv, vec);
 }
 
-double JetCharge::charge(const reco::CompositeCandidate &parent) const {
+double JetCharge::charge(const reco::Candidate &parent) const {
     return chargeFromValIterator<reco::Candidate,reco::Candidate::const_iterator>(parent.p4(),parent.begin(),parent.end()); 
 }
 

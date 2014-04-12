@@ -31,13 +31,12 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorModule.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -58,18 +57,32 @@
        typedef edm::DetSet<SiPixelRawDataError>::const_iterator    ErrorIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
+       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs();
 
     private:
        edm::ParameterSet conf_;
-       edm::InputTag src_;
+       edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError> > src_;
+       bool saveFile;
+       bool isPIB;
+       bool slowDown;
+       bool reducedSet;
+       bool modOn;
+       bool ladOn;
+       bool bladeOn;
+       bool isUpgrade;
        int eventNo;
-       DaqMonitorBEInterface* theDMBE;
+       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;
+       std::map<uint32_t,SiPixelRawDataErrorModule*> theFEDStructure;
+       bool firstRun;
+       MonitorElement* byLumiErrors; 
+       MonitorElement* errorRate;
+       
  };
 
 #endif

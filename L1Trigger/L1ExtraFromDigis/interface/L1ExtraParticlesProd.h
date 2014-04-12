@@ -13,7 +13,6 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id: L1ExtraParticlesProd.h,v 1.2 2007/04/02 08:03:14 wsun Exp $
 //
 
 // system include files
@@ -23,12 +22,18 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1HFRings.h"
+#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
 
 // forward declarations
 class L1CaloGeometry ;
@@ -39,14 +44,13 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       ~L1ExtraParticlesProd();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-      math::XYZTLorentzVector gctLorentzVector( const double& et,
-						const L1GctCand& cand,
-						const L1CaloGeometry* geom,
-						bool central ) ;
+      //      math::XYZTLorentzVector gctLorentzVector( const double& et,
+      math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,
+						     const L1GctCand& cand,
+						     const L1CaloGeometry* geom,
+						     bool central ) ;
       
       // ----------member data ---------------------------
       bool produceMuonParticles_ ;
@@ -61,8 +65,17 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       edm::InputTag etTotSource_ ;
       edm::InputTag etHadSource_ ;
       edm::InputTag etMissSource_ ;
+      edm::InputTag htMissSource_ ;
+      edm::InputTag hfRingEtSumsSource_ ;
+      edm::InputTag hfRingBitCountsSource_ ;
 
-      static double muonMassGeV_ ;
+      static const double muonMassGeV_ ;
+
+      bool centralBxOnly_ ;
+
+      // Set this to true when rerunning on RAW data where the GCT did not
+      // produce a L1GctHtMiss record.
+      bool ignoreHtMiss_ ;
 };
 
 #endif

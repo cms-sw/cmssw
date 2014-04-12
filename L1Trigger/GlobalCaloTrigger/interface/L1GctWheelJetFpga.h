@@ -15,12 +15,14 @@
 */ 
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
+
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+
+class L1GctJetSorter;
 
 #include <vector>
 
@@ -28,6 +30,8 @@ class L1GctWheelJetFpga : public L1GctProcessor
 {
 public:
   typedef std::vector<L1GctJetCand> JetVector;
+  typedef L1GctTwosComplement< L1GctInternHtMiss::kMissHxOrHyNBits > htComponentType;
+  typedef L1GctJetLeafCard::hfTowerSumsType hfTowerSumsType;
 
   /// Max number of jets of each type we output.
   static const int MAX_JETS_OUT;
@@ -38,26 +42,15 @@ public:
   /// Max number of jets input from each leaf card
   static const unsigned int MAX_JETS_PER_LEAF;
 
-  /// Number of jet counters
-  static const unsigned int N_JET_COUNTERS;
-
   /// id must be 0 / 1 for -ve/+ve eta halves of CMS
   L1GctWheelJetFpga(int id,
-		    std::vector<L1GctJetLeafCard*> inputLeafCards,
-		    std::vector<L1GctJetCounterLut*> jetCounterLuts);
-
-  /// id must be 0 / 1 for -ve/+ve eta halves of CMS
-  L1GctWheelJetFpga(int id,
-		    std::vector<L1GctJetLeafCard*> inputLeafCards);
+		    const std::vector<L1GctJetLeafCard*>& inputLeafCards);
 
   /// destructor
   ~L1GctWheelJetFpga();
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);
-
-  /// clear internal buffers
-  virtual void reset();
 
   /// get input data from sources
   virtual void fetchInput();
@@ -66,15 +59,18 @@ public:
   virtual void process();
 
   /// set input data      
-  void setInputJet(int i, L1GctJetCand jet); 
-  void setInputHt (int i, unsigned ht);
+  void setInputJet(int i, const L1GctJetCand& jet); 
     
   /// get the input jets. Jets 0-5 from leaf card 0, jetfinderA.  Jets 6-11 from leaf card 0, jetfinder B... etc.
   JetVector getInputJets() const { return m_inputJets; }
     
-  /// get the input Ht
-  L1GctUnsignedInt<12> inputHt(unsigned leafnum) const { return m_inputHt.at(leafnum); }
+  /// get the input Ht components
+  htComponentType inputHx(unsigned leafnum) const { return m_inputHx.at(leafnum); }
+  htComponentType inputHy(unsigned leafnum) const { return m_inputHy.at(leafnum); }
     
+  /// get the input Hf Sums
+  hfTowerSumsType inputHfSums(unsigned leafnum) const { return m_inputHfSums.at(leafnum); }
+
   /// get the output jets
   JetVector getCentralJets() const { return m_centralJets; }
 
@@ -83,22 +79,32 @@ public:
 
   /// get the output jets
   JetVector getTauJets() const { return m_tauJets; }
-    
-  /// get the output Ht
-  L1GctUnsignedInt<12> getOutputHt() const { return m_outputHt; }
 
-  /// get the output jet counts
-  L1GctJetCount<3> getOutputJc(unsigned jcnum) const { return m_outputJc.at(jcnum); }
+  /// get the output Ht components
+  htComponentType getOutputHx() const { return m_outputHx; }
+  htComponentType getOutputHy() const { return m_outputHy; }
 
-  /// Get the jet counters
-  L1GctJetCounter* getJetCounter(unsigned jcnum) const { return m_jetCounters.at(jcnum); }
+  /// get the output Hf Sums
+  hfTowerSumsType getOutputHfSums() const { return m_outputHfSums; }
+
+  /// Public access to setup check
+  bool setupOk() const { return checkSetup(); }
+
+  /// get the Et sums in internal component format
+  std::vector< L1GctInternHtMiss > getInternalHtMiss() const;
+
+ protected:
+
+  /// Separate reset methods for the processor itself and any data stored in pipelines
+  virtual void resetProcessor();
+  virtual void resetPipelines();
+
+  /// Initialise inputs with null objects for the correct bunch crossing if required
+  virtual void setupObjects();
 
 private:
 
   static const int MAX_JETS_IN;    ///< Maximum number of jets we can have as input
-  static const int MAX_RAW_CJETS;  ///< Max. possible central jets to sort over
-  static const int MAX_RAW_FJETS;  ///< Max. possible forward jets to sort over
-  static const int MAX_RAW_TJETS;  ///< Max. possible tau jets to sort over
     
   /// algo ID
   int m_id;
@@ -106,9 +112,11 @@ private:
   /// the jet leaf cards
   std::vector<L1GctJetLeafCard*> m_inputLeafCards;
 
-  /// the jet counters
-  std::vector<L1GctJetCounter*> m_jetCounters;
-    
+  /// Jet sorters
+  L1GctJetSorter* m_centralJetSorter;
+  L1GctJetSorter* m_forwardJetSorter;
+  L1GctJetSorter* m_tauJetSorter;
+
   /// input data. Jets 0-5 from leaf card 0, jetfinderA.  Jets 6-11 from leaf card 0, jetfinder B... etc.
   JetVector m_inputJets;
     
@@ -117,8 +125,12 @@ private:
   JetVector m_rawForwardJets; 
   JetVector m_rawTauJets; 
 
-  // input Ht sums from each leaf card
-  std::vector< L1GctUnsignedInt<12> > m_inputHt;
+  // input Ht component sums from each leaf card
+  std::vector< htComponentType > m_inputHx;
+  std::vector< htComponentType > m_inputHy;
+
+  // input Hf Et sums from each leaf card
+  std::vector< hfTowerSumsType > m_inputHfSums;
 
   // output data
   JetVector m_centralJets;
@@ -126,18 +138,22 @@ private:
   JetVector m_tauJets;
     
   // data sent to GlobalEnergyAlgos
-  L1GctUnsignedInt<12> m_outputHt;
-  std::vector< L1GctJetCount<3> > m_outputJc;
+  htComponentType m_outputHx;
+  htComponentType m_outputHy;
+  hfTowerSumsType m_outputHfSums;
       
+  Pipeline< htComponentType > m_outputHxPipe;
+  Pipeline< htComponentType > m_outputHyPipe;
+
   //PRIVATE METHODS
   /// Check the setup, independently of how we have been constructed
-  void checkSetup();
+  bool checkSetup() const;
   /// Puts the output from a jetfinder into the correct index range of the m_inputJets array. 
-  void storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset);
-  /// Classifies jets into central, forward or tau, and re-addresses them using global co-ords.
+  void storeJets(const JetVector& jets, unsigned short iLeaf, unsigned short offset);
+  /// Classifies jets into central, forward or tau.
   void classifyJets();
-  /// Sizes the m_rawTauJetsVec, and then sets all tauVeto bits to false.
-  void setupRawTauJetsVec();
+  /// Initialises all the jet vectors with jets of the correct type.
+  void setupJetsVectors(const int16_t bx);
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);

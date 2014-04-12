@@ -7,12 +7,12 @@
 #include <iostream>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "CondFormats/HcalObjects/interface/AllClasses.h"
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 /**
    \brief IO for XML instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbXml.h,v 1.2 2006/10/04 17:01:00 fedor Exp $
+   $Id: HcalDbXml.h,v 1.4 2007/10/22 19:09:59 fedor Exp $
    
 */
 namespace HcalDbXml {
@@ -34,16 +34,16 @@ namespace HcalDbXml {
   bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalRawGains& fObject);
-  bool dumpObject (std::ostream& fOutput, 
+  inline bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalGainWidths& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput, 
+  inline bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalElectronicsMap& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput, 
+  inline bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalQIEData& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput, 
+  inline bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalCalibrationQIEData& fObject) {return false;}
 } 

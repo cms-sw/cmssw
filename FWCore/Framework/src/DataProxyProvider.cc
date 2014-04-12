@@ -11,11 +11,14 @@
 //
 
 // system include files
+#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include <cassert>
 
 namespace edm {
    namespace eventsetup {
@@ -83,7 +86,20 @@ DataProxyProvider::resetProxies(const EventSetupRecordKey& iRecordKey)
 {
   invalidateProxies(iRecordKey);
 }
-
+      
+void 
+DataProxyProvider::resetProxiesIfTransient(const EventSetupRecordKey& iRecordKey) 
+{
+   KeyedProxies& proxyList((*(recordProxies_.find(iRecordKey))).second) ;
+   KeyedProxies::iterator finished(proxyList.end()) ;
+   for (KeyedProxies::iterator keyedProxy(proxyList.begin()) ;
+        keyedProxy != finished ;
+        ++keyedProxy) {
+      (*((*keyedProxy).second)).resetIfTransient() ;
+   }
+   
+}
+      
 void
 DataProxyProvider::setAppendToDataLabel(const edm::ParameterSet& iToAppend)
 {
@@ -115,7 +131,7 @@ DataProxyProvider::usingRecords() const
         ++itRecProxies) {
       returnValue.insert(returnValue.end(), itRecProxies->first);
    }
-   //std::copy(keys_.begin(), keys_.end(), std::inserter(returnValue, returnValue.end()));
+   //copy_all(keys_, std::inserter(returnValue, returnValue.end()));
    return returnValue;
 }   
 
@@ -154,6 +170,23 @@ DataProxyProvider::keyedProxies(const EventSetupRecordKey& iRecordKey) const
 //
 // static member functions
 //
+static const std::string kAppendToDataLabel("appendToDataLabel");
+
+void
+DataProxyProvider::prevalidate(ConfigurationDescriptions& iDesc)
+{
+   if(iDesc.defaultDescription()) {
+     if (iDesc.defaultDescription()->isLabelUnused(kAppendToDataLabel)) {
+       iDesc.defaultDescription()->add<std::string>(kAppendToDataLabel, std::string(""));
+     }
+   }
+   for(auto& v: iDesc) {
+     if (v.second.isLabelUnused(kAppendToDataLabel)) {
+       v.second.add<std::string>(kAppendToDataLabel, std::string(""));
+     }
+   }
+}
+
    }
 }
 

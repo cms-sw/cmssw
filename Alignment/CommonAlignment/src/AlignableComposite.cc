@@ -5,21 +5,23 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
 
 //__________________________________________________________________________________________________
 AlignableComposite::AlignableComposite( const GeomDet* geomDet ) : 
-  Alignable(geomDet)
+  Alignable( geomDet->geographicalId().rawId(), geomDet->surface() ),
+  theStructureType(align::AlignableDet)
 {
 }
 
-AlignableComposite::AlignableComposite(uint32_t id,
-				       AlignableObjectIdType structureType,
+AlignableComposite::AlignableComposite(align::ID id,
+				       StructureType type,
 				       const RotationType& rot):
   Alignable(id, rot),
-  theStructureType(structureType)
+  theStructureType(type)
 {
 }
 
@@ -30,11 +32,16 @@ AlignableComposite::~AlignableComposite()
 
 void AlignableComposite::addComponent(Alignable* ali)
 {
+  const Alignables& newComps = ali->deepComponents();
+
+  theDeepComponents.insert( theDeepComponents.end(), newComps.begin(), newComps.end() );
+
+  Scalar k = static_cast<Scalar>( newComps.size() ) / theDeepComponents.size();
+
+  theSurface.move( ( ali->globalPosition() - globalPosition() ) * k );
+
   ali->setMother(this);
   theComponents.push_back(ali);
-
-  theSurface.move( ( ali->globalPosition() - globalPosition() ) /
-		   static_cast<Scalar>( theComponents.size() ) );
 }
 
 //__________________________________________________________________________________________________
@@ -42,8 +49,10 @@ void AlignableComposite::recursiveComponents(Alignables &result) const
 {
 
   Alignables components = this->components();
-  if (components.size() <= 1) return; // Non-glued AlignableDets contain themselves
-
+  if (this->alignableObjectId() == align::AlignableDet 
+      && components.size() <= 1) { // Non-glued AlignableDets (still) contain themselves
+    return; // (would be better to implement AlignableDet::recursiveComponents!)
+  }
   for (Alignables::const_iterator iter = components.begin();
        iter != components.end(); ++iter) {
     result.push_back(*iter); // could use std::copy(..), but here we build a real hierarchy
@@ -99,7 +108,7 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
   
   Alignables comp = this->components();
   
-  GlobalPoint  myPosition = this->globalPosition();
+  PositionType myPosition = this->globalPosition();
   
   for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
@@ -142,30 +151,36 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 
 
 //__________________________________________________________________________________________________
-/// Set the alignment position error of all components to given error
-void AlignableComposite::setAlignmentPositionError( const AlignmentPositionError& ape )
+void AlignableComposite::setAlignmentPositionError( const AlignmentPositionError& ape,
+						    bool propagateDown )
 {
 
   // Since no geomDet is attached, alignable composites do not have an APE
   // The APE is, therefore, just propagated down
-  Alignables comp = this->components();
-  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++) 
-    {
-      (*i)->setAlignmentPositionError(ape);
-    }
+  if (!propagateDown) return;
 
+  Alignables comp = this->components();
+  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
+    (*i)->setAlignmentPositionError(ape, propagateDown);
+  }
 }
 
 
 //__________________________________________________________________________________________________
 void 
-AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape )
+AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape,
+					       bool propagateDown )
 {
 
-  Alignables comp = this->components();
-  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++) 
-    (*i)->addAlignmentPositionError(ape);
+  // Since no geomDet is attached, alignable composites do not have an APE
+  // The APE is, therefore, just propagated down
+  if (!propagateDown) return;
 
+  Alignables comp = this->components();
+  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
+    (*i)->addAlignmentPositionError(ape, propagateDown);
+  }
+  
 }
 
 
@@ -173,12 +188,14 @@ AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape
 /// Adds the AlignmentPositionError (in x,y,z coordinates) that would result
 /// on the various components from a possible Rotation of a composite the 
 /// rotation matrix is in interpreted in GLOBAL coordinates
-void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationType& rotation )
+void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationType& rotation,
+								bool propagateDown )
 {
 
-  Alignables comp = this->components();
+  if (!propagateDown) return;
 
-  GlobalPoint  myPosition=this->globalPosition();
+  Alignables comp = this->components();
+  PositionType myPosition=this->globalPosition();
 
   for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++ )
     {
@@ -195,8 +212,8 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
       GlobalVector moveVector( rotation.multiplyInverse(lpvgf) - lpvgf );    
       
       AlignmentPositionError ape( moveVector.x(), moveVector.y(), moveVector.z() );
-      (*i)->addAlignmentPositionError( ape );
-      (*i)->addAlignmentPositionErrorFromRotation( rotation );
+      (*i)->addAlignmentPositionError( ape, propagateDown );
+      (*i)->addAlignmentPositionErrorFromRotation( rotation, propagateDown );
 	  
     }
 
@@ -207,12 +224,44 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
 /// Adds the AlignmentPositionError (in x,y,z coordinates) that would result
 /// on the various components from a possible Rotation of a composite the 
 /// rotation matrix is in interpreted in LOCAL  coordinates of the composite
-void AlignableComposite::addAlignmentPositionErrorFromLocalRotation( const RotationType& rot )
+void AlignableComposite::addAlignmentPositionErrorFromLocalRotation( const RotationType& rot,
+								     bool propagateDown )
 {
+  // if (!propagateDown) return; // No! Cannot yet jump out since
+  // addAlignmentPositionErrorFromRotation(..) below might be overwritten in derived
+  // classes to do something on 'this' (and in fact does so in AlignableDet).
 
   RotationType globalRot = globalRotation().multiplyInverse(rot*globalRotation());
-  this->addAlignmentPositionErrorFromRotation(globalRot);
+  this->addAlignmentPositionErrorFromRotation(globalRot, propagateDown);
 
+}
+
+//__________________________________________________________________________________________________
+void AlignableComposite::setSurfaceDeformation(const SurfaceDeformation *deformation,
+					       bool propagateDown)
+{
+  // Only DetUnits have surface deformations.
+  // The parameters are, therefore, just propagated down.
+  if (!propagateDown) return;
+
+  Alignables comp(this->components());
+  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
+    (*i)->setSurfaceDeformation(deformation, propagateDown);
+  }
+}
+
+//__________________________________________________________________________________________________
+void AlignableComposite::addSurfaceDeformation(const SurfaceDeformation *deformation,
+					       bool propagateDown)
+{
+  // Only DetUnits have surface deformations.
+  // The parameters are, therefore, just propagated down.
+  if (!propagateDown) return;
+
+  Alignables comp(this->components());
+  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
+    (*i)->addSurfaceDeformation(deformation, propagateDown);
+  }
 }
 
 //__________________________________________________________________________________________________
@@ -282,5 +331,23 @@ AlignmentErrors* AlignableComposite::alignmentErrors( void ) const
 
   
   return m_alignmentErrors;
+
+}
+
+
+//__________________________________________________________________________________________________
+int AlignableComposite::surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > & result) const
+{
+
+  Alignables comp = this->components();
+
+  int count = 0;
+
+  // Add components recursively
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i) {
+    count += (*i)->surfaceDeformationIdPairs(result);
+  }
+  
+  return count;
 
 }

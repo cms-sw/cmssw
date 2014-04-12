@@ -1,32 +1,27 @@
-#include "RefStreamer.h"
 #include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/RefCoreStreamer.h"
+#include "TROOT.h"
+#include <cassert>
+#include <ostream>
+
 class TBuffer;
 
 namespace fwlite {
-  void 
-  RefStreamer::operator()(TBuffer &R__b, void *objp) {
-    using edm::RefCore;
-    if (R__b.IsReading()) {
-      cl_->ReadBuffer(R__b, objp);
-      RefCore* obj = static_cast<RefCore *>(objp);
-      obj->setProductGetter(prodGetter_);
-      obj->setProductPointer(0);
-    } else {
-      cl_->WriteBuffer(R__b, objp);
-    }
-  }
-
   edm::EDProductGetter const* setRefStreamer(edm::EDProductGetter const* ep) {
-    using namespace edm;
-    static TClass *cl = gROOT->GetClass("edm::RefCore");
-    assert(cl);
-    RefStreamer *st = static_cast<RefStreamer *>(cl->GetStreamer());
-    edm::EDProductGetter const* pOld = 0;
-    if (st == 0) {
-      cl->AdoptStreamer(new RefStreamer(ep));
-    } else {
-      pOld = st->setProductGetter(ep);
+    {
+      TClass* cl = gROOT->GetClass("edm::RefCore");
+      TClassStreamer* st = cl->GetStreamer();
+      if (st == 0) {
+        cl->AdoptStreamer(new edm::RefCoreStreamer());
+      }
     }
-    return pOld;
+    {
+      TClass* cl = gROOT->GetClass("edm::RefCoreWithIndex");
+      TClassStreamer* st = cl->GetStreamer();
+      if (st == 0) {
+        cl->AdoptStreamer(new edm::RefCoreWithIndexStreamer());
+      }
+    }
+    return edm::EDProductGetter::switchProductGetter(ep);
   }
 }

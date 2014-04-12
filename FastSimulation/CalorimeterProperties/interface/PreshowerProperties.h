@@ -44,10 +44,10 @@ class PreshowerProperties : public CalorimeterProperties
   inline double interactionLength() const { return 17.1; }
   
   /// Fraction of energy collected on sensitive detectors
-  inline virtual double sensitiveFraction() const=0;
+  virtual double sensitiveFraction() const=0;
 
   /// Number of Mips/GeV on sensitive detectors
-  inline virtual double mipsPerGeV() const=0;
+  virtual double mipsPerGeV() const=0;
 
  protected:
 

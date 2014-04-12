@@ -1,0 +1,19 @@
+<library   file="*.cc" name="RecoTauTagTauTagToolsPlugins">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CommonTools/Utils"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="TrackingTools/TransientTrack"/>
+  <use   name="RecoVertex/VertexPrimitives"/>
+  <use   name="PhysicsTools/IsolationUtils"/>
+  <use   name="PhysicsTools/MVAComputer"/>
+  <use   name="PhysicsTools/MVATrainer"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="DataFormats/TauReco"/>
+  <use   name="CommonTools/CandUtils"/>
+  <use   name="RecoTauTag/TauTagTools"/>
+  <use   name="RecoTauTag/RecoTau"/>
+</library>

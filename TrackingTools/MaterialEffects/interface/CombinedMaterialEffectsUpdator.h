@@ -7,37 +7,33 @@
  *  and energy loss (via EnergyLossUpdator).
  *  Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:21:30 $
- *  $Revision: 1.2.2.1 $
  *  \author todorov, cerati
  */
 
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
-class CombinedMaterialEffectsUpdator : public MaterialEffectsUpdator
+class CombinedMaterialEffectsUpdator GCC11_FINAL : public MaterialEffectsUpdator
 {  
  public:
-#ifndef CMS_NO_RELAXED_RETURN_TYPE
-  virtual CombinedMaterialEffectsUpdator* clone() const
-#else
-  virtual MaterialEffectsUpdator* clone() const
-#endif
-  {
+ virtual CombinedMaterialEffectsUpdator* clone() const {
     return new CombinedMaterialEffectsUpdator(*this);
-  }
+ }
 
 public:
-  /// constructor with explicit mass value
-  CombinedMaterialEffectsUpdator( float mass ) :
+  /// Specify assumed mass of particle for material effects.
+  /// If ptMin > 0, then the rms muliple scattering angle will be calculated taking into account the uncertainty
+  /// in the reconstructed track momentum. (By default, it is neglected). However, a lower limit on the possible
+  /// value of the track Pt will be applied at ptMin, to avoid the rms multiple scattering becoming too big.
+  CombinedMaterialEffectsUpdator(double mass, double ptMin = -1. ) :
     MaterialEffectsUpdator(mass),
-    theMSUpdator(mass),
+    theMSUpdator(mass, ptMin),
     theELUpdator(mass) {}
 
- private:
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const;
   
  private:
   // objects used for calculations of multiple scattering and energy loss

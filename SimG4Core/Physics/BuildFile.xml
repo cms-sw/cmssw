@@ -1,0 +1,10 @@
+<export>
+  <lib   name="1"/>
+</export>
+<use   name="DetectorDescription/Core"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="geant4core"/>
+<use   name="heppdt"/>
+<use   name="boost"/>
+<use   name="sigcpp"/>
+<use   name="expat"/>

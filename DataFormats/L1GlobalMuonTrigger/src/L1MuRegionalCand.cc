@@ -4,8 +4,6 @@
  *  A regional muon trigger candidate as received by the GMT
 */
 //
-//   $Date: 2007/03/23 18:52:18 $
-//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin                    HEPHY Vienna
@@ -101,17 +99,33 @@ float L1MuRegionalCand::ptValue() const {
 
 void L1MuRegionalCand::print() const {
   if ( !empty() ) {
-    edm::LogVerbatim("GMT_Input_info")
-         << setiosflags(ios::showpoint | ios::fixed | ios::right | ios::adjustfield)
-	 << "pt = " << setw(5) << setprecision(1) << ptValue() << " GeV  "
-	 << "charge = " << setw(2) << chargeValue() << " "
-	 << "eta = " << setw(6) << setprecision(3) << etaValue() << "  "
-	 << "phi = " << setw(5) << setprecision(3) << phiValue() << " rad  "
-	 << "quality = " << setw(1) << quality() << "  "
-	 << "charge_valid = " << setw(1) << chargeValid() << "  "
-	 << "fine_halo = " << setw(1) << isFineHalo() << "  "
-	 << "bx = " << setw(3) << bx() << "  " 
-	 << "type_idx = " << setw(1) << type_idx();
+    if(m_phiValue == m_invalidValue ||
+       m_etaValue == m_invalidValue ||
+       m_ptValue == m_invalidValue) {
+      edm::LogVerbatim("GMT_Input_info")
+           << setiosflags(ios::showpoint | ios::fixed | ios::right | ios::adjustfield)
+       << "pt(index) = " << setw(2) << setprecision(1) << pt_packed() << "  "
+       << "charge = " << setw(2) << chargeValue() << "  "
+       << "eta(index) = " << setw(2) << eta_packed() << "  "
+       << "phi(index) = " << setw(3) << phi_packed() << "  "
+       << "quality = " << setw(1) << quality() << "  "
+       << "charge_valid = " << setw(1) << chargeValid() << "  "
+       << "fine_halo = " << setw(1) << isFineHalo() << "  "
+       << "bx = " << setw(3) << bx() << "  " 
+       << "type_idx = " << setw(1) << type_idx();
+    } else {
+      edm::LogVerbatim("GMT_Input_info")
+           << setiosflags(ios::showpoint | ios::fixed | ios::right | ios::adjustfield)
+	   << "pt = " << setw(5) << setprecision(1) << ptValue() << " GeV  "
+	   << "charge = " << setw(2) << chargeValue() << " "
+	   << "eta = " << setw(6) << setprecision(3) << etaValue() << "  "
+	   << "phi = " << setw(5) << setprecision(3) << phiValue() << " rad  "
+	   << "quality = " << setw(1) << quality() << "  "
+	   << "charge_valid = " << setw(1) << chargeValid() << "  "
+	   << "fine_halo = " << setw(1) << isFineHalo() << "  "
+	   << "bx = " << setw(3) << bx() << "  " 
+	   << "type_idx = " << setw(1) << type_idx();
+    }
   }
 }
 
@@ -122,7 +136,7 @@ unsigned L1MuRegionalCand::readDataField(unsigned start, unsigned count) const {
 }
 
 void L1MuRegionalCand::writeDataField(unsigned start, unsigned count, unsigned value) {
-  if ( value < (unsigned)0 || value >= (unsigned)( 1 << count ) ) edm::LogWarning("ValueOutOfRange") 
+  if ( value >= ( 1U << count ) ) edm::LogWarning("ValueOutOfRange") // value >= 0, since value is unsigned
          << "L1MuRegionalCand::writeDataField(): value " << value  
 	 << " out of range for data field with bit width "  << count;
 

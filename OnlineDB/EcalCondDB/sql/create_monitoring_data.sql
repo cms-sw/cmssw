@@ -496,23 +496,228 @@ ALTER TABLE mon_laser_pulse_dat ADD CONSTRAINT mon_laser_pulse_dat_pk PRIMARY KE
 ALTER TABLE mon_laser_pulse_dat ADD CONSTRAINT mon_laser_pulse_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
 
 
-CREATE TABLE mon_crystal_timing_dat (
+CREATE TABLE mon_timing_crystal_dat (
   iov_id		NUMBER(10),
   logic_id		NUMBER(10), -- xt
   timing_mean		BINARY_FLOAT,
   timing_rms		BINARY_FLOAT
+  task_status           CHAR(1)
 );
 
-ALTER TABLE mon_crystal_timing_dat ADD CONSTRAINT mon_crystal_timing_dat_pk PRIMARY KEY (iov_id, logic_id);
-ALTER TABLE mon_crystal_timing_dat ADD CONSTRAINT mon_crystal_timing_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+ALTER TABLE mon_timing_crystal_dat ADD CONSTRAINT mon_timing_crystal_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_crystal_dat ADD CONSTRAINT mon_timing_crystal_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
 
-CREATE TABLE mon_tt_timing_dat (
+CREATE TABLE mon_timing_tt_dat (
   iov_id		NUMBER(10),
   logic_id		NUMBER(10), -- tt
   timing_mean		BINARY_FLOAT,
   timing_rms		BINARY_FLOAT
+  task_status           CHAR(1)
 );
 
-ALTER TABLE mon_tt_timing_dat ADD CONSTRAINT mon_tt_timing_dat_pk PRIMARY KEY (iov_id, logic_id);
-ALTER TABLE mon_tt_timing_dat ADD CONSTRAINT mon_tt_timing_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+ALTER TABLE mon_timing_tt_dat ADD CONSTRAINT mon_timing_tt_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_tt_dat ADD CONSTRAINT mon_timing_tt_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
+CREATE TABLE mon_LED1_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- crystal
+  vpt_mean		BINARY_FLOAT,
+  vpt_rms		BINARY_FLOAT,
+  vpt_over_pn_mean	BINARY_FLOAT,
+  vpt_over_pn_rms	BINARY_FLOAT,
+  task_status		CHAR(1)
+);
+
+ALTER TABLE mon_led1_dat ADD CONSTRAINT mon_led1_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_led1_dat ADD CONSTRAINT mon_led1_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
+CREATE TABLE mon_LED2_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- crystal
+  vpt_mean		BINARY_FLOAT,
+  vpt_rms		BINARY_FLOAT,
+  vpt_over_pn_mean	BINARY_FLOAT,
+  vpt_over_pn_rms	BINARY_FLOAT,
+  task_status		CHAR(1)
+);
+
+ALTER TABLE mon_led2_dat ADD CONSTRAINT mon_led2_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_led2_dat ADD CONSTRAINT mon_led2_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
+
+CREATE TABLE mon_pn_led1_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- PN diode
+  adc_mean_g1		BINARY_FLOAT,
+  adc_rms_g1		BINARY_FLOAT,
+  adc_mean_g16		BINARY_FLOAT,
+  adc_rms_g16		BINARY_FLOAT,
+  ped_mean_g1		BINARY_FLOAT,
+  ped_rms_g1		BINARY_FLOAT,
+  ped_mean_g16		BINARY_FLOAT,
+  ped_rms_g16		BINARY_FLOAT,
+  task_status		CHAR(1)
+);
+
+ALTER TABLE mon_pn_led1_dat ADD CONSTRAINT mon_pn_led1_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_pn_led1_dat ADD CONSTRAINT mon_pn_led1_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
+
+CREATE TABLE mon_pn_led2_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- PN diode
+  adc_mean_g1		BINARY_FLOAT,
+  adc_rms_g1		BINARY_FLOAT,
+  adc_mean_g16		BINARY_FLOAT,
+  adc_rms_g16		BINARY_FLOAT,
+  ped_mean_g1		BINARY_FLOAT,
+  ped_rms_g1		BINARY_FLOAT,
+  ped_mean_g16		BINARY_FLOAT,
+  ped_rms_g16		BINARY_FLOAT,
+  task_status		CHAR(1)
+);
+
+ALTER TABLE mon_pn_led2_dat ADD CONSTRAINT mon_pn_led2_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_pn_led2_dat ADD CONSTRAINT mon_pn_led2_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
+CREATE TABLE mon_timing_xtal_lb_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_xtal_lb_dat ADD CONSTRAINT mon_timing_xtal_lb_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_xtal_lb_dat ADD CONSTRAINT mon_timing_xtal_lb_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_xtal_lg_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_xtal_lg_dat ADD CONSTRAINT mon_timing_xtal_lg_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_xtal_lg_dat ADD CONSTRAINT mon_timing_xtal_lg_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_xtal_lr_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_xtal_lr_dat ADD CONSTRAINT mon_timing_xtal_lr_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_xtal_lr_dat ADD CONSTRAINT mon_timing_xtal_lr_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_xtal_li_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_xtal_li_dat ADD CONSTRAINT mon_timing_xtal_li_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_xtal_li_dat ADD CONSTRAINT mon_timing_xtal_li_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_xtal_l1_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_xtal_l1_dat ADD CONSTRAINT mon_timing_xtal_l1_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_xtal_l1_dat ADD CONSTRAINT mon_timing_xtal_l1_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_xtal_l2_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_xtal_l2_dat ADD CONSTRAINT mon_timing_xtal_l2_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_xtal_l2_dat ADD CONSTRAINT mon_timing_xtal_l2_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
+
+CREATE TABLE mon_timing_TT_lb_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_TT_lb_dat ADD CONSTRAINT mon_timing_TT_lb_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_TT_lb_dat ADD CONSTRAINT mon_timing_TT_lb_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_TT_lg_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_TT_lg_dat ADD CONSTRAINT mon_timing_TT_lg_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_TT_lg_dat ADD CONSTRAINT mon_timing_TT_lg_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_TT_lr_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_TT_lr_dat ADD CONSTRAINT mon_timing_TT_lr_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_TT_lr_dat ADD CONSTRAINT mon_timing_TT_lr_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_TT_li_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_TT_li_dat ADD CONSTRAINT mon_timing_TT_li_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_TT_li_dat ADD CONSTRAINT mon_timing_TT_li_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_TT_l1_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_TT_l1_dat ADD CONSTRAINT mon_timing_TT_l1_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_TT_l1_dat ADD CONSTRAINT mon_timing_TT_l1_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+CREATE TABLE mon_timing_TT_l2_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- xt
+  timing_mean		BINARY_FLOAT,
+  timing_rms		BINARY_FLOAT,
+  task_status           CHAR(1)
+);
+
+ALTER TABLE mon_timing_TT_l2_dat ADD CONSTRAINT mon_timing_TT_l2_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_timing_TT_l2_dat ADD CONSTRAINT mon_timing_TT_l2_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
 

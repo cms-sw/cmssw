@@ -1,12 +1,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
+
 #include "writeBlob.h"
+
 typedef boost::minstd_rand base_generator_type;
 writeBlob::writeBlob(const edm::ParameterSet& iConfig):
   m_StripRecordName("mySiStripNoisesRcd")
@@ -33,35 +33,29 @@ writeBlob::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
   try{
     mySiStripNoises* me = new mySiStripNoises;
     unsigned int detidseed=1234;
-    unsigned int bsize=10;
-    unsigned int nstrips=5;
+    unsigned int bsize=100;
     unsigned int nAPV=2;
     for (uint32_t detid=detidseed;detid<(detidseed+bsize);detid++){
       //Generate Noise for det detid
-      mySiStripNoises::SiStripNoiseVector theSiStripVector;
-      mySiStripNoises::SiStripData theSiStripData;
-      for(unsigned short j=0; j<nAPV; ++j){
-	for(unsigned int strip=0; strip<nstrips; ++strip){
-	  float noiseValue=uni();
-	  std::cout<<"\t encoding noise value "<<noiseValue<<std::endl;
-	  theSiStripData.setData(noiseValue,false);
-	  theSiStripVector.push_back(theSiStripData.Data);
-	  std::cout<<"\t encoding noise as short "<<theSiStripData.Data<<std::endl;
-	}
+      std::vector<short> theSiStripVector;
+      for(unsigned int strip=0; strip<128*nAPV; ++strip){
+	float noise = uni();;      
+	me->setData(noise,theSiStripVector);
       }
-      mySiStripNoises::Range range(theSiStripVector.begin(),theSiStripVector.end());
-      me->put(detid,range);
+      me->put(detid,theSiStripVector);
     }
-    if( mydbservice->isNewTagRequest(m_StripRecordName) ){
-      mydbservice->createNewIOV<mySiStripNoises>(me,mydbservice->endOfTime(),m_StripRecordName);
-    }else{
-      mydbservice->appendSinceTime<mySiStripNoises>(me,mydbservice->currentTime(),m_StripRecordName);
-    }
-  }catch(const std::exception& er){
+
+    mydbservice->writeOne(me,mydbservice->currentTime(),m_StripRecordName);
+  }catch(const cond::Exception& er){
+    throw cms::Exception("DBOutputServiceUnitTestFailure","failed writeBlob",er);
+    //std::cout<<er.what()<<std::endl;
+  }catch(const cms::Exception& er){
+    throw cms::Exception("DBOutputServiceUnitTestFailure","failed writeBlob",er);
+  }/*catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
   }catch(...){
     std::cout<<"Funny error"<<std::endl;
-  }
+    }*/
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeBlob);

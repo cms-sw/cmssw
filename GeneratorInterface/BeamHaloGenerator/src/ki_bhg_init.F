@@ -14,8 +14,19 @@ cc #include "kine/kicdes/bhgctrl.inc"
 #include "GeneratorInterface/BeamHaloGenerator/interface/bhgcons.inc"
 #include "GeneratorInterface/BeamHaloGenerator/interface/bhgctrl.inc"
 #include "GeneratorInterface/BeamHaloGenerator/interface/bhgrhists.inc"
-
+#include "GeneratorInterface/BeamHaloGenerator/interface/bhgp_info.inc"
       INTEGER SEED,K1,K2
+
+      INTEGER NI,M15_ID,IORIG,KORIG,COUNT,ID_PDG
+      REAL    EF,W,X,Y,DCX,DCY,TOFF,PRIMEHITZ,
+     &        ZORIG,XORIG,YORIG,EORIG,WORIG
+
+      INTEGER IDCONVERT(40)
+      DATA IDCONVERT/2212,2112,211,-211,321,-321,-13,13,22,11,-11,
+     &              -2212,111,1,6,-104,-102,14,-14,12,-12,130,310,
+     &               311,-311,3122,-3122,3222,3212,3112,-2112,3322,
+     &               3312,3334,5112,5212,5222,-3322,-5132,-5332/
+
 
       PRINT*,' '
       PRINT*,'*********************************************************'
@@ -28,7 +39,7 @@ cc #include "kine/kicdes/bhgctrl.inc"
       PRINT*,' '
 
       ! check some input parameters
-      IF (GENMOD.LT.0.OR.GENMOD.GT.2) THEN
+      IF (GENMOD.LT.0.OR.GENMOD.GT.3) THEN
         PRINT*,'bad choice of parameter GENMOD'
         STOP
       ENDIF
@@ -336,6 +347,45 @@ c      SEED = MRPY(1)
 
       ! open input file
       IF (GENMOD.EQ.2) OPEN(22,FILE=F1NAME,STATUS='UNKNOWN')
+
+      IF (GENMOD.EQ.3) THEN
+         MAXLINE=0
+         OPEN(22,FILE=G3FNAME,STATUS='UNKNOWN')
+         READ(22,*) MAXLINE
+         NPRIME = 0.0
+         NSTACK = 0.0
+         COUNT = 0
+         DO WHILE( COUNT .LT. OFFSET )
+            READ(22,*) NI,M15_ID,EF,W,X,Y,DCX,DCY,TOFF,PRIMEHITZ,
+     &                 ZORIG,XORIG,YORIG,EORIG,WORIG,IORIG,KORIG
+
+            ID_PDG = IDCONVERT(M15_ID)
+            IF (IW_MUO.EQ.1) THEN
+               IF (EF.GT.EMUMIN.AND.EF.LT.EMUMAX) THEN
+                  IF (ID_PDG.EQ. -13) COUNT = COUNT + 1 ! accept mu+
+                  IF (ID_PDG.EQ.  13) COUNT = COUNT + 1 ! accept mu-
+               ENDIF
+            ENDIF
+            IF (IW_HAD.EQ.1) THEN
+               IF (EF.GT.EPIMIN.AND.EF.LT.EPIMAX) THEN
+                  IF (ID_PDG.EQ. 211) COUNT = COUNT + 1 ! accept pi+
+                  IF (ID_PDG.EQ.-211) COUNT = COUNT + 1 ! accept pi-
+               ENDIF
+               IF (EF.GT.EKAMIN.AND.EF.LT.EKAMAX) THEN
+                  IF (ID_PDG.EQ. 321) COUNT = COUNT + 1 ! accept K+
+                  IF (ID_PDG.EQ.-321) COUNT = COUNT + 1 ! accept K-
+               ENDIF
+               IF (EF.GT.EPRMIN.AND.EF.LT.EPRMAX) THEN
+                  IF (ID_PDG.EQ.2212) COUNT = COUNT + 1 ! accept p+
+               ENDIF
+               IF (EF.GT.ENEMIN.AND.EF.LT.ENEMAX) THEN
+                  IF (ID_PDG.EQ.2112) COUNT = COUNT + 1 ! accept n0
+               ENDIF
+            ENDIF
+         ENDDO
+         
+      ENDIF
+
 
       RETURN
 

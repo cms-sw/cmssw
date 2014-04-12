@@ -1,0 +1,395 @@
+#!/usr/bin/env python
+
+from DQMServices.Components.HTTP import RequestManager
+from DQMServices.Components.X509 import SSLOptions
+from optparse import OptionParser
+from time import strptime, time
+import sys, re, cjson, pycurl, urllib
+
+DIR = 0
+FILE = 1
+ANY = 2
+
+ident = "DQMAccess/1.0 python/%s.%s.%s" % sys.version_info[:3]
+url_content = "/%(section)s/%(run)d%(dataset)s%(path)s"
+ssl_opts = None
+reqman = None
+nreq = 0
+found = []
+
+#-------------------------------------------------------------------------------
+class filter:
+  type = FILE
+  recurse = False
+  pattern = ""
+  rx = None
+
+  def __repr__(self):
+    return "(filter pattern='%s' type=%s recurse=%s)" \
+      % (self.pattern, self.type, self.recurse)
+
+#-------------------------------------------------------------------------------
+def pattern_to_filter(pattern):
+  """Converts a search pattern into a search filter.
+
+  The pattern must be of the form of path with '*' wild card pattern, for
+  example "/*/EventInfo/*Summary". A single star matches any string except
+  slashes, i.e. matching within a single directory. A double star matches
+  directories recursively.
+
+  A name with trailing slash matches directory. A name without the trailing
+  slash matches non-directories. A triple star will match either directory
+  or non-directory.
+
+  The patterns match against the full path, and therefore must always start
+  with a slash. If you want to search entire tree, use "/**/Name*".
+
+  The pattern "/*/EventInfo/" matches folders named 'EventInfo' one level
+  down from the top; it will not recurse further down in the tree as it is
+  known matches deeper inside are not possible.  "/*/EventInfo/**/*Summary"
+  pattern matches any non-directory object name ending in "Summary" anywhere
+  inside "EventInfo" one level down from the top.
+
+  Returns a list of `filter` expressions representing the pattern, each of
+  which represents one or more levels of matching/recursion.
+  """
+  filters = []
+
+  # Check the pattern starts with '/'
+  if not pattern.startswith("/"):
+    raise ValueError("pattern must start with slash")
+
+  # Process pattern as directory search specs, but collapse
+  # repeated slashes into one slash first.
+  for part in re.sub("/+", "/", pattern).split('/')[1:]:
+    if filters and filters[-1].type == FILE:
+      filters[-1].type = DIR
+    f = filter()
+    filters.append(f)
+    for term in re.split("([*]+)", part):
+      if term == "***":
+        f.pattern += ".*"
+        f.recurse = True
+        f.type = ANY
+      elif term == "**":
+        f.pattern += ".*"
+        f.recurse = True
+        f.type = DIR
+      elif term == "*":
+        f.pattern += "[^/]*"
+        f.type = FILE
+      elif term:
+        f.pattern += re.escape(term)
+        f.type = FILE
+    if f.pattern != ".*":
+      f.pattern = "^%s$" % f.pattern
+    f.rx = re.compile(f.pattern)
+
+  last = filters[-1]
+  if last.type == FILE and not last.recurse and last.pattern == "^$":
+    filters.pop()
+
+  print filters
+
+  return filters
+
+#-------------------------------------------------------------------------------
+def should_process_sample(s, expr):
+  """Evaluate sample predicate expression `expr` against sample `s`.
+  Returns True if the sample should be processed, False otherwise."""
+  try:
+    s['match'] = lambda rx, str: re.match(rx, str)
+    s['run'] = int(s['run'])
+    val = eval(expr, {}, s)
+    del s['match']
+    return val
+  except:
+    return False
+
+#-------------------------------------------------------------------------------
+def find_matching_samples(options):
+  """Generator which returns all samples at target sever which
+  match the requested predicate expression."""
+  all_samples = {}
+
+  def req_error(c, url, errmsg, errno):
+    print >> sys.stderr, "%s: failed to retrieve samples: %s (%d)" \
+      % (options.server, errmsg, errno)
+    sys.exit(1)
+
+  def req_done(c):
+    all_samples['result'] = cjson.decode(c.buffer.getvalue())
+
+  reqman = RequestManager(ssl_opts = ssl_opts,
+                          user_agent = ident,
+                          request_respond = req_done,
+                          request_error = req_error)
+  print options.server + "/samples"
+  reqman.put((options.server + "/samples",))
+  reqman.process()
+
+  if not all_samples:
+    print >> sys.stderr, "%s: no samples" % options.server
+    sys.exit(1)
+
+  for sample_type in all_samples['result']['samples']:
+    for sample in sample_type['items']:
+      if should_process_sample(sample, options.sample_expr):
+        yield sample
+
+#-------------------------------------------------------------------------------
+def fetch_tstreamerinfo(options, dataset):
+  topdir = {}
+
+  def req_error(c, url, errmsg, errno):
+    print >> sys.stderr, "%s: failed to retrieve TStreamerInfo: %s (%d)" \
+      % (options.server, errmsg, errno)
+    sys.exit(1)
+
+  def req_done(c):
+    topdir["contents"] = cjson.decode(c.buffer.getvalue())['contents']
+
+  reqman = RequestManager(ssl_opts = ssl_opts,
+                          user_agent = ident,
+                          request_respond = req_done,
+                          request_error = req_error)
+
+  reqman.put((options.server + "/archive/" + dataset + "?rootcontent=1",))
+  reqman.process()
+
+  return topdir["contents"][0]["streamerinfo"]
+
+#-------------------------------------------------------------------------------
+def request_init(c, options, sample, path, filterspec):
+  sample.update(path = path)
+  c.url = options.server + urllib.quote(url_content % sample)
+  if options.fetch_root:
+    c.url+="?rootcontent=1"
+  c.setopt(pycurl.URL, c.url)
+  if False and options.verbose:
+    print c.url
+
+#-------------------------------------------------------------------------------
+def report_error(c, task, errmsg, errno):
+  print >> sys.stderr, "FAILED to retrieve %s: %s (%d)" % (task, errmsg, errno)
+
+#-------------------------------------------------------------------------------
+def match_filters(item, filters, poslist):
+  newposlist = []
+  descend = False
+  matched = False
+  name = None
+
+  for idx in poslist:
+    assert idx < len(filters)
+    f = filters[idx]
+    fmatched = False
+    if 'subdir' in item \
+       and (f.type == DIR or f.type == ANY) \
+       and f.rx.match(item['subdir']):
+      fmatched = descend = True
+      name = item['subdir']
+    elif 'obj' in item \
+         and (f.type == FILE or f.type == ANY) \
+         and f.rx.match(item['obj']):
+      fmatched = True
+      name = item['obj']
+
+    if fmatched:
+      if idx == len(filters)-1:
+        matched = True
+      if f.recurse:
+        newposlist.append(idx)
+      if idx < len(filters) - 1:
+        newposlist.append(idx+1)
+
+  return name, matched, descend, newposlist
+
+#-------------------------------------------------------------------------------
+def process(c):
+  global found, nreq
+  options, sample, path, filterspec = c.task
+
+  nreq += 1
+  if options.verbose and nreq % 10 == 0:
+    sys.stdout.write(".")
+    sys.stdout.flush()
+    if nreq % 750 == 0:
+      print
+
+  reply = c.buffer.getvalue()
+  reply = re.sub(r'("value": ")"([A-Za-z0-9_]+")"', r'\1\2', reply)
+  reply = re.sub(r'("(?:mean|rms|min|max)":) nan,', r'\1 "NaN",', reply)
+  reply = re.sub(r'("(?:mean|rms|min|max|nentries)":) inf,', r'\1 "float(\'inf\')",', reply)
+  reply = re.sub(r'("(?:mean|rms|min|max|nentries)":) -inf,', r'\1 "-float(\'inf\')",', reply)
+  reply = cjson.decode(reply)
+
+  newreq = {}
+  for item in reply['contents']:
+    for filters, pos in filterspec:
+      name, match, descend, newpos = match_filters(item, filters, pos)
+      if match and (not found or found[-1][0] != path + name):
+        found.append((path + name, item))
+      if descend:
+        newpath = path + name + "/"
+        if newpath not in newreq:
+          newreq[newpath] = []
+        newreq[newpath].append((filters, newpos))
+
+  for path, filterspec in newreq.iteritems():
+    reqman.put((options, sample, path, filterspec))
+
+#-------------------------------------------------------------------------------
+op = OptionParser()
+op.add_option("-v", "--verbose", dest = "verbose",
+              action = "store_true", default = False,
+              help = "Show verbose scan information")
+op.add_option("-c", dest = "dqmCompliant",
+              action = "store_true", default = False,
+              help = "Fetch DQM compliant root content")
+op.add_option("-d", "--debug", dest = "debug",
+              action = "store_true", default = False,
+              help = "Show debug information")
+op.add_option("-k", "--debug-streamers", dest = "debug_streamers",
+              action = "store_true", default = False,
+              help = "Show debug information on StreamerInfo objects")
+op.add_option("-l", dest = "long_listing",
+              action = "store_true", default = False,
+              help = "Enable long listing")
+op.add_option("-r", dest = "fetch_root",
+              action = "store_true", default = False,
+              help = "Fetch root content!")
+op.add_option("-w", dest = "write",
+              action = "store_true", default = False,
+              help = "Write fetched root objects on disk")
+op.add_option("-n", "--connections", dest = "connections",
+              type = "int", action = "store", metavar = "NUM",
+              default = 10, help = "Use NUM concurrent connections")
+op.add_option("-s", "--server", dest = "server",
+              type = "string", action = "store", metavar = "SERVER",
+              default = "https://cmsweb.cern.ch/dqm/relval/data/json",
+              help = "Pull content from SERVER")
+op.add_option("-e", "--samples", dest = "sample_expr", metavar = "EXPR",
+              help = "Evaluate EXPR to decide which samples to scan")
+op.add_option("-f", "--filter", dest = "glob",
+              type = "string", action = "append", metavar = "GLOB",
+              default = [],
+              help = "Filter monitor elements matching GLOB pattern")
+options, args = op.parse_args()
+if args:
+  print >> sys.stderr, "Too many arguments"
+  sys.exit(1)
+if not options.sample_expr:
+  print >> sys.stderr, "Sample predicate expression required"
+  sys.exit(1)
+if not options.glob:
+  print >> sys.stderr, "Monitor element filter expression(s) required"
+  sys.exit(1)
+if not options.server:
+  print >> sys.stderr, "Server contact string required"
+  sys.exit(1)
+
+# Adjust options
+if options.debug:
+  options.verbose = True
+
+if options.write:
+  options.fetch_root = True
+  from ROOT import TFile
+  from DQMServices.Components.ROOTData import *
+
+ssl_opts = SSLOptions()
+if options.verbose:
+  print "Using SSL cert dir", ssl_opts.ca_path
+  print "Using SSL private key", ssl_opts.key_file
+  print "Using SSL public key", ssl_opts.cert_file
+
+# Convert each glob pattern into a filter expression.
+filter_sets = map(lambda glob: pattern_to_filter(glob), options.glob)
+
+# Start a request manager.
+reqman = RequestManager(num_connections = options.connections,
+                        ssl_opts = ssl_opts,
+                        user_agent = ident,
+                        request_init = request_init,
+                        request_respond = process,
+                        request_error = report_error)
+
+# Process all samples matching the predicate.
+ntotreq = 0
+nfound = 0
+start = time()
+for sample in find_matching_samples(options):
+  tstreamerinfo = None
+  if options.write:
+    tstreamerinfo = fetch_tstreamerinfo(options, "%(run)d%(dataset)s" % sample)
+    literal2root(tstreamerinfo, "TStreamerInfo", options.debug_streamers)
+
+  nreq = 0
+  found = []
+  sample['section'] = 'archive'
+  if options.verbose:
+    print "Scanning %s" % sample
+  reqman.put((options, sample, "/", map(lambda f: (f, [0]), filter_sets)))
+  reqman.process()
+  if options.verbose:
+    print
+  if found:
+    print "%(section)s/%(run)d%(dataset)s:" % sample
+    found.sort()
+    cwd = None
+
+    if options.dqmCompliant:
+      fname = "DQM_V0001_R%09d" % sample['run'] \
+              + ("_%(dataset)s.root" % sample)[1:].replace("/", "__")
+    else:
+      fname = ("%(dataset)s__run%(run)s.root" % sample)[1:].replace("/", "__")
+
+    # If writing, create output file with directories
+    ofile = None
+    if options.write:
+      ofile = TFile(fname, "RECREATE")
+      ofile.cd()
+
+    for path, item in found:
+      if options.dqmCompliant:
+          path = "DQMData/Run %d" % sample['run'] \
+          + re.sub("^/"+path.split('/')[1],
+                   "/" + path.split('/')[1] + "/Run summary",
+                   path)
+
+      # We are treating a directory
+      if 'subdir' in item:
+        print " %s/%s" % (path, (options.long_listing and " = directory") or "")
+        if options.write:
+          tfile_cd(path,ofile)
+
+      # We are treating an int/double/string
+      elif 'value' in item:
+        print " %s%s" % (path, (options.long_listing and " = %s" % item['value']) or "")
+
+      # We have a TObject: histo, graph, profile...; maybe write to a file.
+      else:
+        message = " %s" % path
+        if options.long_listing:
+          message += " = [%s # %d]" % (item['properties']['type'], item['nentries'])
+        if options.debug:
+          message += " %s" % item['rootobj']
+        print message
+        if options.write:
+          indir = path.rsplit("/", 1)[0]
+          if cwd != indir:
+            tfile_cd(indir, ofile)
+            cwd = indir
+          obj = literal2root(item['rootobj'], item['properties']['type'])
+          obj.Write()
+
+    if options.write and ofile:
+      ofile.Close()
+
+  nfound += len(found)
+  ntotreq += nreq
+end = time()
+
+if options.verbose:
+  print "\nFound %d objects in %d directories in %.3f seconds" % (nfound, ntotreq, end - start)

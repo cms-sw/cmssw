@@ -7,12 +7,12 @@ ElectronMCTruth::ElectronMCTruth() {
 }
 
 
-ElectronMCTruth::ElectronMCTruth( HepLorentzVector& v, 
+ElectronMCTruth::ElectronMCTruth( CLHEP::HepLorentzVector& v, 
 				  int vertIndex,
-				  std::vector<Hep3Vector>& bremPos, 
-				  std::vector<HepLorentzVector>& pBrem, 
+				  std::vector<CLHEP::Hep3Vector>& bremPos, 
+				  std::vector<CLHEP::HepLorentzVector>& pBrem, 
 				  std::vector<float>& xBrem, 
-				  HepLorentzVector& pV,  
+				  CLHEP::HepLorentzVector& pV,  
 				  SimTrack& eTrack ) :
   
   theElectron_(v), 

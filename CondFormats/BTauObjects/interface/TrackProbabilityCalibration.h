@@ -2,7 +2,8 @@
 #define TrackProbabilityCalibration_h
 
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCategoryData.h"
-#include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
+
 #include <vector>
 
 struct TrackProbabilityCalibration
@@ -10,7 +11,7 @@ struct TrackProbabilityCalibration
   struct Entry
   {
    TrackProbabilityCategoryData category;
-   CalibratedHistogram histogram;
+    PhysicsTools::Calibration::HistogramF histogram;
   };
 
  std::vector<Entry> data;

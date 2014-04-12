@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/05/11 14:43:48 $
- *  $Revision: 1.25 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -13,6 +11,7 @@
 
 //Random generator
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Random/RandFlat.h>
 
@@ -69,8 +68,10 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   
   //register the Producer with a label
   //produces<DTDigiCollection>("MuonDTDigis"); // FIXME: Do I pass it by ParameterSet?
-  produces<DTDigiCollection>(); // FIXME: Do I pass it by ParameterSet?  
-
+  produces<DTDigiCollection>(); // FIXME: Do I pass it by ParameterSet?
+  //  produces<DTDigiSimLinkCollection>("MuonDTDigiSimLinks");
+  produces<DTDigiSimLinkCollection>();
+  
   //Parameters:
 
   // build digis only for mu hits (for debug purposes) 
@@ -104,13 +105,37 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
     theConstVDrift = conf_.getParameter<double>("IdealModelConstantDriftVelocity"); // 55 um/ns
   else theConstVDrift = 55.;
 
+  // get random engine
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "RandomNumberGeneratorService for DTDigitizer missing in cfg file";
+  }
+
+  // MultipleLinks=false ==> one-to-one correspondence between digis and SimHits 
+  MultipleLinks = conf_.getParameter<bool>("MultipleLinks");
+  // MultipleLinks=true ==> association of SimHits within a time window LinksTimeWindow 
+  // (of the order of the resolution)
+  LinksTimeWindow = conf_.getParameter<double>("LinksTimeWindow"); // (10 ns)
+
+  //Name of Collection used for create the XF 
+  mix_ = conf_.getParameter<std::string>("mixLabel");
+  collection_for_XF = conf_.getParameter<std::string>("InputCollection");
+
+  //String to choice between ideal (the deafult) and (mis)aligned geometry for the digitization step 
+  geometryType = conf_.getParameter<std::string>("GeometryType");
 }
 
 // Destructor
-DTDigitizer::~DTDigitizer(){}
+DTDigitizer::~DTDigitizer(){
+}
 
 // method called to produce the data
 void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+
   if(debug)
     cout << "--- Run: " << iEvent.id().run()
 	 << " Event: " << iEvent.id().event() << endl;
@@ -121,20 +146,20 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   //  iEvent.getByLabel("g4SimHits","MuonDTHits",simHits);
     
   // use MixCollection instead of the previous
-  Handle<CrossingFrame> xFrame;
-  iEvent.getByType(xFrame);
+  Handle<CrossingFrame<PSimHit> > xFrame;
+  iEvent.getByLabel(mix_,collection_for_XF,xFrame);
   
   auto_ptr<MixCollection<PSimHit> > 
-    simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits"));
-  //simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits",pair<int,int>(-1,2)));
-  
+    simHits( new MixCollection<PSimHit>(xFrame.product()) );
 
    // create the pointer to the Digi container
   auto_ptr<DTDigiCollection> output(new DTDigiCollection());
+   // pointer to the DigiSimLink container
+  auto_ptr<DTDigiSimLinkCollection> outputLinks(new DTDigiSimLinkCollection());
   
   // Muon Geometry
   ESHandle<DTGeometry> muonGeom;
-  iSetup.get<MuonGeometryRecord>().get(muonGeom);
+  iSetup.get<MuonGeometryRecord>().get(geometryType,muonGeom);
 
   // Magnetic Field  
   ESHandle<MagneticField> magnField;
@@ -180,7 +205,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 
 	const LocalVector BLoc=layer->surface().toLocal(magnField->inTesla(layer->surface().toGlobal(locPos)));
 
-	time = computeTime(layer, wireId, *hit, BLoc); 
+	time = computeTime(layer, wireId, *hit, BLoc, engine);
 
 	//************ 6 ***************
 	if (time.second) {
@@ -195,7 +220,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
       // the loading must be done by layer but
       // the digitization must be done by wire (in order to take into account the dead time)
 
-      storeDigis(wireId,tdCont,*output);
+      storeDigis(wireId,tdCont,*output,*outputLinks);
     }
     
   }
@@ -204,12 +229,14 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   // Load the Digi Container in the Event
   //iEvent.put(output,"MuonDTDigis");
   iEvent.put(output);
+  iEvent.put(outputLinks);
 
 }
 
 pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &wireId, 
-					  const PSimHit *hit, const LocalVector &BLoc){ 
- 
+                                          const PSimHit *hit, const LocalVector &BLoc,
+                                          CLHEP::HepRandomEngine* engine){
+
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
@@ -326,7 +353,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
     }
 
     if(IdealModel) return make_pair(fabs(x)/theConstVDrift,true);
-    else driftTime = driftTimeFromParametrization(x, theta, By, Bz);
+    else driftTime = driftTimeFromParametrization(x, theta, By, Bz, engine);
 
   }
 
@@ -347,7 +374,8 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
 
 //************ 5A ***************
 
-pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta, float By, float Bz) const {
+pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta, float By, float Bz,
+                                                           CLHEP::HepRandomEngine* engine) const {
 
   // Convert from CMSSW frame/units r.f. to parametrization ones.
   x *= 10.;  //cm -> mm 
@@ -386,7 +414,7 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   }
 
   DTDriftTimeParametrization::drift_time DT;
-  static DTDriftTimeParametrization par;
+  static const DTDriftTimeParametrization par;
   unsigned short flag = par.MB_DT_drift_time (x, theta_par, By_par, Bz_par, 0, &DT, interpolate);
 
   if (debug) {
@@ -402,21 +430,15 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   }
 
   // Double half-gaussian smearing
-  float time = asymGausSmear(DT.t_drift, DT.t_width_m, DT.t_width_p);
+  float time = asymGausSmear(DT.t_drift, DT.t_width_m, DT.t_width_p, engine);
 
   // Do not allow the smearing to lead to negative values
   time = max(time,0.f);
 
   // Apply a Gaussian smearing to account for electronic effects (cf. 2004 TB analysis)
   // The width of the Gaussian can be configured with the "Smearing" parameter
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RandomNumberGeneratorService for DTDigitizer missing in cfg file";
-  }
-  CLHEP::RandGauss gaussDistribution(rng->getEngine()); 
 
-  double u = gaussDistribution.shoot(0.,smearing);
+  double u = CLHEP::RandGaussQ::shoot(engine, 0., smearing);
   time += u;
 
   if (debug) cout << "  drift time = " << time << endl;
@@ -424,24 +446,17 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   return pair<float,bool>(time,true); 
 }
 
-float DTDigitizer::asymGausSmear(double mean, double sigmaLeft, double sigmaRight) const {
+float DTDigitizer::asymGausSmear(double mean, double sigmaLeft, double sigmaRight,
+                                 CLHEP::HepRandomEngine* engine) const {
 
   double f = sigmaLeft/(sigmaLeft+sigmaRight);
   double t;
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RandomNumberGeneratorService for DTDigitizer missing in cfg file";
-  }
-  CLHEP::RandFlat flatDistribution(rng->getEngine(), 0, 1); 
-  CLHEP::RandGauss gaussDistribution(rng->getEngine()); 
-
-  if (flatDistribution.fire() <= f) {
-    t = gaussDistribution.shoot(mean,sigmaLeft);
+  if (CLHEP::RandFlat::shoot(engine) <= f) {
+    t = CLHEP::RandGaussQ::shoot(engine, mean, sigmaLeft);
     t = mean - fabs(t - mean);
   } else {
-    t = gaussDistribution.shoot(mean,sigmaRight);
+    t = CLHEP::RandGaussQ::shoot(engine, mean, sigmaRight);
     t = mean + fabs(t - mean);
   }
   return static_cast<float>(t);
@@ -490,7 +505,7 @@ float DTDigitizer::externalDelays(const DTLayer* layer,
 
 void DTDigitizer::storeDigis(DTWireId &wireId, 
 			     TDContainer &hits,
-			     DTDigiCollection &output){
+			     DTDigiCollection &output, DTDigiSimLinkCollection &outputLinks){
 
   //************ 7A ***************
 
@@ -500,7 +515,9 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
   //************ 7B ***************
 
   float wakeTime = -999999.0;
-  int digiN = 0; // Digi identifier within the cell (for multiple digis)
+  float resolTime = -999999.0;
+  int digiN = -1; // Digi identifier within the cell (for multiple digis)
+  DTDigi digi;
 
   // loop over signal times and drop signals inside dead time
   for ( TDContainer::const_iterator hit = hits.begin() ; hit != hits.end() ; 
@@ -513,31 +530,48 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
     float time = (*hit).second;
     if ( time > wakeTime ) {
       // Note that digi is constructed with a float value (in ns)
-      DTDigi digi(wireId.wire(), time, digiN);
-      
-      if(debug){
-	cout<<"--------------"<<endl;
-	cout << "Digi time " << digi.time() << endl;
-	cout<<"id: "<<wireId<<endl;
-      }
-
-      // FIXME- not yet ported in CMSSW
+      int wireN = wireId.wire();
+      digiN++;
+      digi = DTDigi(wireN, time, digiN);
 
       // Add association between THIS digi and the corresponding SimTrack
-      // FIXME: still, several hits in this cell may have the same
-      // SimTrack ID (eg. those coming from secondaries), so the association 
-      // is not univoque.
-      // stat->det().simDet()->addLink(Digi.channel(),
-      // (*hit).first->packedTrackId(),1.);
-      // int localId = wireId.wire();
-      // theAssociationMap.createLinks(localId, stat->det().simDet());
+      unsigned int SimTrackId = (*hit).first->trackId();
+      EncodedEventId evId = (*hit).first->eventId();
+      DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId);
+
+      if(debug) {
+	cout<<endl<<"---- DTDigitizer ----"<<endl;
+	cout<<"wireId: "<<wireId<<endl;
+	cout<<"sim. time = "<<time<<endl;
+	cout<<"digi number = "<< digi.number()<<", digi time = "<<digi.time()
+	    <<", linked to SimTrack Id = "<<SimTrackId<<endl;
+      }
 
       //************ 7D ***************
+      if(digi.countsTDC() < pow(2.,16)){
+	DTLayerId layerID = wireId.layerId();  //taking the layer in which reside the wire
+        output.insertDigi(layerID, digi); // ordering Digis by layer
+        outputLinks.insertDigi(layerID, digisimLink);
+	wakeTime = time + deadTime;
+	resolTime = time + LinksTimeWindow;
+      } 
+      else {
+	digiN--;
+      }
+    }
+    else if (MultipleLinks && time < resolTime){
+      int wireN = wireId.wire();
+      unsigned int SimTrackId = (*hit).first->trackId();
+      EncodedEventId evId = (*hit).first->eventId();
+      DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId);
+      DTLayerId layerID = wireId.layerId(); 
+      outputLinks.insertDigi(layerID, digisimLink);
 
-      DTLayerId layerID = wireId.layerId();  //taking the layer in which reside the wire
-      output.insertDigi(layerID, digi); // ordering Digis by layer
-      digiN++;
-      wakeTime = time + deadTime;
+      if(debug) { 
+	cout<<"\nAdded multiple link: \n"
+	    <<"digi number = "<<digi.number()<<", digi time = "<<digi.time()<<" (sim. time = "<<time<<")"
+	    <<", linked to SimTrack Id = "<<SimTrackId<<endl;
+      }
     }
   }
   

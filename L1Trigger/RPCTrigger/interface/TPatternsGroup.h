@@ -13,7 +13,7 @@
     <usage>
 
 */
-#include "CondFormats/RPCObjects/interface/RPCPattern.h"
+#include "CondFormats/L1TObjects/interface/RPCPattern.h"
 #include "L1Trigger/RPCTrigger/interface/RPCLogCone.h"
   /** \class TPatternsGroup
  * Basic class for storing grouped patterns inside Pac.

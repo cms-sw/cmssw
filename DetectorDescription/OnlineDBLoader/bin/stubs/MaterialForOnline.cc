@@ -1,6 +1,5 @@
 // Original Author:  Jie Chen
 //         Created:  Thu Apr  5 10:36:22 CDT 2007
-// $Id$
 //
 //
 
@@ -9,31 +8,18 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <DetectorDescription/Core/interface/DDCompactView.h>
-#include <DetectorDescription/Core/interface/DDValue.h>
-#include <DetectorDescription/Core/interface/DDsvalues.h>
-#include <DetectorDescription/Core/interface/DDExpandedView.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/OfflineDBLoader/interface/ReadWriteORA.h"
-#include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
-#include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
 #include <istream>
@@ -50,9 +36,9 @@ class MaterialForOnline : public edm::EDAnalyzer {
    public:
       explicit MaterialForOnline(const edm::ParameterSet&);
       ~MaterialForOnline();
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
    private:
 
@@ -101,9 +87,9 @@ MaterialForOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MaterialForOnline::beginJob(const edm::EventSetup& iSetup)
+MaterialForOnline::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 {
-  std::string materialFileName("MATERIAL.dat");
+  std::string materialFileName("MATERIALS.dat");
   std::string elementaryMaterialFileName("ELEMENTARYMATERIALS.dat");
   std::string compositeMaterialFileName("COMPOSITEMATERIALS.dat");
   std::string materialFractionFileName("MATERIALFRACTIONS.dat");
@@ -115,7 +101,7 @@ MaterialForOnline::beginJob(const edm::EventSetup& iSetup)
 
 
   std::cout << "MaterialForOnline Analyzer..." << std::endl;
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
 
   iSetup.get<IdealGeometryRecord>().get( "", pDD );
 

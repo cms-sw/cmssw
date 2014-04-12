@@ -11,51 +11,34 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLSolid.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLSolid.h"
-#include "DDLElementRegistry.h"
-#include "DDLLogicalPart.h"
-
-// DDCore dependencies
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+DDLSolid::DDLSolid( DDLElementRegistry* myreg )
+  : DDXMLElement( myreg )
+{}
 
-//#include <strstream>
-#include <string>
+DDLSolid::~DDLSolid( void )
+{}
 
-// Default constructor
-DDLSolid::DDLSolid()
-{
-}
-
-// Default desctructor
-DDLSolid::~DDLSolid()
-{
-}
-
-void DDLSolid::setReference (const std::string& nmspace)
+void
+DDLSolid::setReference( const std::string& nmspace, DDCompactView& cpv )
 {
   // in case it was a BooleanSolid or a ReflectionSolid, clear rSolid.
-  DDXMLElement* myrSolid = DDLElementRegistry::getElement("rSolid");
+  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid");
   myrSolid->clear();
 
   // Make sure Solid elements are in LogicalPart elements.
   if (parent() == "LogicalPart")
-    {
-      DDXMLElement* refsol = DDLElementRegistry::getElement("rSolid");
-      std::vector<std::string> names;
-      std::vector<std::string> values;
-      names.push_back("name");
-      values.push_back(getAttributeSet().find("name")->second);
-      refsol->loadAttributes("rSolid", names, values, nmspace);
-    }
+  {
+    DDXMLElement* refsol = myRegistry_->getElement("rSolid");
+    std::vector<std::string> names;
+    std::vector<std::string> values;
+    names.push_back("name");
+    values.push_back(getAttributeSet().find("name")->second);
+    refsol->loadAttributes("rSolid", names, values, nmspace, cpv);
+  }
 
   // clear THIS solid's values.
   clear();

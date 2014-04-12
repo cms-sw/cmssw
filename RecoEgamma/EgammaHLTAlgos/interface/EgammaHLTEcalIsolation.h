@@ -13,7 +13,6 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:18:22 CEST 2006
-// $Id: EgammaHLTEcalIsolation.h,v 1.1 2006/06/20 11:27:27 monicava Exp $
 //
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -30,8 +29,8 @@ class EgammaHLTEcalIsolation
    public:
 
   //EgammaHLTEcalIsolation(float egEcalIso_Photon_EtMin = 0., float egEcalIso_Photon_ConeSize = 0.3) : 
-  EgammaHLTEcalIsolation(double egEcalIso_EtMin, double egEcalIso_ConeSize) : 
-    etMin(egEcalIso_EtMin), conesize(egEcalIso_ConeSize) {
+  EgammaHLTEcalIsolation(double egEcalIso_EtMin, double egEcalIso_ConeSize, int SC_algo_type) : 
+    etMin(egEcalIso_EtMin), conesize(egEcalIso_ConeSize), algoType_(SC_algo_type) {
       /*
       std::cout << "EgammaHLTEcalIsolation instance:"
       << " ptMin=" << etMin
@@ -42,8 +41,8 @@ class EgammaHLTEcalIsolation
     }
   
   float isolPtSum(const reco::RecoCandidate *recocandidate, 
-		  const std::vector<const reco::SuperCluster*> sclusters,
-		  const std::vector<const reco::BasicCluster*> bclusters);
+		  const std::vector<const reco::SuperCluster*>& sclusters,
+		  const std::vector<const reco::BasicCluster*>& bclusters);
 
   /// Get Et cut for ecal hits
   float getetMin() { return etMin; }
@@ -58,6 +57,7 @@ class EgammaHLTEcalIsolation
   // Photon case
   double etMin;
   double conesize;
+  int algoType_;
 
 };
 

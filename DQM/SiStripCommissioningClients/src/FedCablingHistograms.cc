@@ -1,29 +1,26 @@
 #include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
+#include "CondFormats/SiStripObjects/interface/FedCablingAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/FedCablingAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include "TProfile.h"
 
 using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FedCablingHistograms::FedCablingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::FED_CABLING ),
-    factory_( new Factory )
-{
-  LogTrace(mlDqmClient_) 
-       << "[FedCablingHistograms::" << __func__ << "]"
-       << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-FedCablingHistograms::FedCablingHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::FED_CABLING ),
+FedCablingHistograms::FedCablingHistograms( const edm::ParameterSet& pset,
+                                            DQMStore* bei ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FedCablingParameters"),
+                             bei,
+                             sistrip::FED_CABLING ),
     factory_( new Factory )
 {
   LogTrace(mlDqmClient_) 
@@ -46,8 +43,8 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     << "[FedCablingHistograms::" << __func__ << "]";
 
   uint16_t valid = 0;
-  HistosMap::const_iterator iter = 0;
-  Analyses::iterator ianal = 0;
+  HistosMap::const_iterator iter;
+  Analyses::iterator ianal;
   
   // Clear map holding analysis objects
   for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
@@ -77,15 +74,10 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     FedCablingAnalysis* anal = new FedCablingAnalysis( iter->first );
-    anal->analysis( profs );
+    FedCablingAlgorithm algo( this->pset(), anal );
+    algo.analysis( profs );
     data_[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
-    if ( debug ) {
-      std::stringstream ss;
-      anal->print( ss ); 
-      if ( anal->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
-      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-    }
     
   }
   
@@ -102,6 +94,21 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
       << " No histograms to analyze!";
   }
   
+}
+
+// -----------------------------------------------------------------------------	 
+/** */	 
+void FedCablingHistograms::printAnalyses() {
+  Analyses::iterator ianal = data_.begin();
+  Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { 
+    if ( ianal->second ) { 
+      std::stringstream ss;
+      ianal->second->print( ss ); 
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------

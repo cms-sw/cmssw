@@ -8,48 +8,57 @@
  */
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TripletFilter.h"
+
 class TrackerGeometry;
+class TripletFilter;
 
 #include <vector>
 
 class   PixelTripletLowPtGenerator :
  public HitTripletGeneratorFromPairAndLayers {
 
- typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 
  public:
-   PixelTripletLowPtGenerator ( const edm::ParameterSet& cfg) 
-    : theConfig(cfg), thePairGenerator(0), theLayerCache(0) { theTracker = 0; }
+   PixelTripletLowPtGenerator( const edm::ParameterSet& cfg) 
+     : theTracker(0), theFilter(0), ps(cfg), thePairGenerator(0), theLayerCache(0)
+   {  }
 
-   virtual ~PixelTripletLowPtGenerator() { delete thePairGenerator; }
+   virtual ~PixelTripletLowPtGenerator() { delete thePairGenerator; delete theFilter; }
 
-   virtual void init( const HitPairGenerator & pairs,
-      const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
+  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
+
+  void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) override;
 
    virtual void hitTriplets(const TrackingRegion& region, OrderedHitTriplets & trs,  const edm::Event & ev, const edm::EventSetup& es);
 
    const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
-   const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
 
  private:
-   void getTracker (const edm::EventSetup& es);
-   GlobalPoint getGlobalPosition(const TrackingRecHit* recHit);
+  void getTracker (const edm::EventSetup& es);
+  GlobalPoint getGlobalPosition(const TrackingRecHit* recHit);
 
-   const TrackerGeometry* theTracker;
+  const TrackerGeometry * theTracker;
+  TripletFilter * theFilter;
 
-   edm::ParameterSet         theConfig;
-   HitPairGenerator * thePairGenerator;
-   std::vector<ctfseeding::SeedingLayer> theLayers;
-   LayerCacheType * theLayerCache;
+  edm::ParameterSet         ps;
+  HitPairGenerator * thePairGenerator;
+  std::vector<SeedingLayerSetsHits::SeedingLayer> theLayers;
+  LayerCacheType * theLayerCache;
 
-  bool useClusterShape;
+  double nSigMultipleScattering;
+  double rzTolerance;
+  double maxAngleRatio;
+
+  std::string builderName;
+  bool checkMultipleScattering;
+  bool checkClusterShape;
+ 
 };
 
 #endif

@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/19 10:20:52 $
- *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -11,34 +9,22 @@
 #include <DQM/DTMonitorClient/src/DTCreateSummaryHistos.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/DTGeometry/interface/DTTopology.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 
-#include "TH1F.h"
-#include "TH2F.h"
 #include "TCanvas.h"
 #include "TFile.h"
-#include "TPostScript.h"
 #include "TProfile.h"
 
 using namespace edm;
@@ -80,11 +66,16 @@ DTCreateSummaryHistos::~DTCreateSummaryHistos(){
 }
 
 
-void DTCreateSummaryHistos::beginJob(const edm::EventSetup& context){
+void DTCreateSummaryHistos::beginJob(){
 
   edm::LogVerbatim ("histos") << "[DTCreateSummaryHistos]: BeginJob";
 
   nevents = 0;
+
+}
+
+void DTCreateSummaryHistos::beginRun(const edm::Run& run, const edm::EventSetup& context){
+
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
@@ -163,8 +154,6 @@ void DTCreateSummaryHistos::endJob(){
       // Loop over the SLs
       for(; sl_it != sl_end; ++sl_it) {
 	DTSuperLayerId sl = (*sl_it)->id();
-	vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
-	vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
 	stringstream superLayer; superLayer << sl.superlayer();
 	
 	string digiFolder = MainFolder + "DTDigiTask/Wheel" + wheel.str();
@@ -596,7 +585,7 @@ void DTCreateSummaryHistos::endJob(){
       stringstream sector; sector << ch.sector();
       
       string triggerFolder = MainFolder + "DTLocalTriggerTask/Wheel" + wheel.str();
-      string histo_name = triggerFolder + "/Sector" + sector.str() + "/Station" + station.str() + "/LocalTriggerTheta/DDU_ThetaBXvsQual_W" +  wheel.str() + "_Sec" + sector.str() + "_St" + station.str();    
+      string histo_name = triggerFolder + "/Sector" + sector.str() + "/Station" + station.str() + "/LocalTriggerTheta/DDU_ThetaBXvsQual_W" +  wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
       TH1F *histo = (TH1F*) theFile -> Get(histo_name.c_str());
       if(histo){
 	c1.cd(ch.station());
@@ -618,7 +607,7 @@ void DTCreateSummaryHistos::endJob(){
       stringstream sector; sector << ch.sector();
       
       string triggerFolder = MainFolder + "Tests/DTLocalTrigger/Wheel" + wheel.str();
-      string histo_Name = triggerFolder + "/Sector" + sector.str() + "/LocalTriggerPhi/CorrFraction_Phi_W" +  wheel.str() + "_Sec8";
+      string histo_Name = triggerFolder + "/Sector" + sector.str() + "/LocalTriggerPhi/CorrFraction_Phi_W" +  wheel.str() + "_Sec" + sector.str();
       TH1F *Histo1 = (TH1F*) theFile -> Get(histo_Name.c_str());
       if(Histo1 && counter1==0){
 	counter1++;
@@ -650,14 +639,20 @@ void DTCreateSummaryHistos::endJob(){
       string triggerFolder = MainFolder + "Tests/DTLocalTrigger/Wheel" + wheel.str();
       string histo_name = triggerFolder + "/Sector" + sector.str() + "/Station" + station.str() + "/TrigEffPos_Phi_W" +  wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
       TH1F *histo = (TH1F*) theFile -> Get(histo_name.c_str());
+      string histo_nameHHHL = triggerFolder + "/Sector" + sector.str() + "/Station" + station.str() + "/TrigEffPosHHHL_Phi_W" +  wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+      TH1F *histoHHHL = (TH1F*) theFile -> Get(histo_nameHHHL.c_str());
       if(histo){
 	c1.cd(ch.station());
+	histo->GetYaxis()->SetRangeUser(0,1.1);
 	histo->Draw();
+	if(histoHHHL){
+		histoHHHL->Draw("same");
+	}
       }
     }
     c1.Update();
     psFile.NewPage();
-    
+
     c1.Clear();
     c1.Divide(2,2);
     // Loop over all the chambers
@@ -670,9 +665,56 @@ void DTCreateSummaryHistos::endJob(){
       stringstream sector; sector << ch.sector();
       
       string triggerFolder = MainFolder + "Tests/DTLocalTrigger/Wheel" + wheel.str();
+      string histo_name = triggerFolder + "/Sector" + sector.str() + "/Station" + station.str() + "/TrigEffAngle_Phi_W" +  wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+      TH1F *histo = (TH1F*) theFile -> Get(histo_name.c_str());
+      if(histo){
+	c1.cd(ch.station());
+	histo->GetYaxis()->SetRangeUser(0,1.1);
+	histo->Draw();
+      }
+    }
+    c1.Update();
+    psFile.NewPage();
+    
+    c1.Clear();
+    c1.Divide(2,2);
+    // Loop over all the chambers
+    vector<DTChamber*>::const_iterator ch_trigger6_it = muonGeom->chambers().begin();
+    vector<DTChamber*>::const_iterator ch_trigger6_end = muonGeom->chambers().end();
+    for (; ch_trigger6_it != ch_trigger6_end; ++ch_trigger6_it) {
+      DTChamberId ch = (*ch_trigger6_it)->id();
+      stringstream wheel; wheel << ch.wheel();
+      stringstream station; station << ch.station();
+      stringstream sector; sector << ch.sector();
+      
+      string triggerFolder = MainFolder + "Tests/DTLocalTrigger/Wheel" + wheel.str();
       string histo_name = triggerFolder + "/Sector" + sector.str() + "/Station" + station.str() + "/TrigEffPos_Theta_W" +  wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
       TH1F *histo = (TH1F*) theFile -> Get(histo_name.c_str());
       if(histo){
+	c1.cd(ch.station());
+	histo->GetYaxis()->SetRangeUser(0,1.1);
+	histo->Draw();
+      }
+    }
+    c1.Update();
+    psFile.NewPage();
+
+    c1.Clear();
+    c1.Divide(2,2);
+    // Loop over all the chambers
+    vector<DTChamber*>::const_iterator ch_trigger7_it = muonGeom->chambers().begin();
+    vector<DTChamber*>::const_iterator ch_trigger7_end = muonGeom->chambers().end();
+    for (; ch_trigger7_it != ch_trigger7_end; ++ch_trigger7_it) {
+      DTChamberId ch = (*ch_trigger7_it)->id();
+      stringstream wheel; wheel << ch.wheel();
+      stringstream station; station << ch.station();
+      stringstream sector; sector << ch.sector();
+      
+      string triggerFolder = MainFolder + "Tests/DTLocalTrigger/Wheel" + wheel.str();
+      string histo_name = triggerFolder + "/Sector" + sector.str() + "/Station" + station.str() + "/TrigEffAngle_Theta_W" +  wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+      TH1F *histo = (TH1F*) theFile -> Get(histo_name.c_str());
+      if(histo){
+	histo->GetYaxis()->SetRangeUser(0,1.1);
 	c1.cd(ch.station());
 	histo->Draw();
       }

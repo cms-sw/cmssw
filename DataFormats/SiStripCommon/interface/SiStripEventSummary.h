@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripEventSummary.h,v 1.3 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
@@ -32,8 +31,20 @@ class SiStripEventSummary {
   /** Default destructor. */
   ~SiStripEventSummary() {;}
   
-  // ---------- Run and event-related info ----------
+  // ---------- General information ----------
+  
+  /** Identifies if commissioning info is valid or not (when using
+      global trigger to understand if HW config is being changed). */
+  inline bool valid() const;
+  
+  /** Identifier of trigger FED (null value means not found). */
+  inline uint16_t triggerFed() const;
 
+  /** Flag to identify if commissioning info already set. */
+  inline bool isSet() const;
+  
+  // ---------- Run and event-related info ----------
+  
   /** Returns run type. */ 
   inline const sistrip::RunType& runType() const;
 
@@ -89,6 +100,12 @@ class SiStripEventSummary {
   /** Returns APV calibration timing (CSEL). */
   inline const uint32_t& calSel() const;
   
+  /** Returns APV ISHA. */
+  inline const uint32_t& isha() const;
+  
+  /** Returns APV VFS. */
+  inline const uint32_t& vfs() const;
+  
   /** Returns TTCrx delay setting. */
   inline const uint32_t& ttcrx() const;
   
@@ -116,11 +133,24 @@ class SiStripEventSummary {
   /** Returns DCU id. */
   inline const uint32_t& dcuId() const;
   
+  /** Returns the layer mask for fine delay runs */
+  inline const uint32_t& layerScanned() const;
+
   // ---------- Setter methods ----------
   
   /** Sets commissioning-related information. */
   void commissioningInfo( const uint32_t* const buffer,
 			  const uint32_t& event );
+
+  /** Sets DAQ register information. */
+  void commissioningInfo( const uint32_t& daq_register1,
+			  const uint32_t& daq_register2 );
+  
+  /** Sets trigger FED number. */
+  inline void triggerFed( const int16_t& );
+  
+  /** Sets FED readout mode. */
+  void fedReadoutMode( const uint16_t& );
   
   /** Sets event number. */
   inline void event( const uint32_t& );
@@ -134,6 +164,15 @@ class SiStripEventSummary {
   inline void nApvsErrors( uint32_t& napvs_with_errors );
   
  private:
+
+  // ---------- General info ----------
+
+  /** Flag to signify if trigger FED information is valid. */
+  bool valid_;
+
+  /** */
+  uint16_t triggerFed_;
+
 
   // ---------- Run- and event-related info ----------
   
@@ -151,7 +190,7 @@ class SiStripEventSummary {
 
   /** Number of DataSenders (c.f. ReadoutUnits). */
   uint32_t nDataSenders_;
-
+  
   // ---------- Hardware-related info ----------
 
   /** FED readout mode. */
@@ -179,6 +218,10 @@ class SiStripEventSummary {
 
 // ---------- inline methods ----------
 
+bool SiStripEventSummary::valid() const { return valid_; }
+uint16_t SiStripEventSummary::triggerFed() const { return triggerFed_; }
+bool SiStripEventSummary::isSet() const { return ( /* triggerFed_ > 0 && */ runType_ != sistrip::UNDEFINED_RUN_TYPE ); }  
+
 const sistrip::RunType& SiStripEventSummary::runType() const { return runType_; }
 const uint32_t& SiStripEventSummary::event() const { return event_; }
 const uint32_t& SiStripEventSummary::bx() const { return bx_; }
@@ -199,7 +242,9 @@ const uint32_t& SiStripEventSummary::pllFine() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::latency() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::calChan() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::calSel() const { return params_[2]; }
-const uint32_t& SiStripEventSummary::ttcrx() const { return params_[0]; }
+const uint32_t& SiStripEventSummary::isha() const { return params_[3]; }
+const uint32_t& SiStripEventSummary::vfs() const { return params_[4]; }
+const uint32_t& SiStripEventSummary::ttcrx() const { return params_[2]; }
 const uint32_t& SiStripEventSummary::vpsp() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::vpspCcuChan() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::lldGain() const { return params_[0]; }
@@ -208,7 +253,9 @@ const uint32_t& SiStripEventSummary::deviceId() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::processId() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::processIp() const { return params_[2]; }
 const uint32_t& SiStripEventSummary::dcuId() const { return params_[3]; }
-  
+const uint32_t& SiStripEventSummary::layerScanned() const { return params_[3]; }
+
+void SiStripEventSummary::triggerFed( const int16_t& fed ) { fed < 0 ? triggerFed_ = 0 : triggerFed_ = fed; }
 void SiStripEventSummary::event( const uint32_t& event ) { event_ = event; }
 void SiStripEventSummary::bx( const uint32_t& bx ) { bx_ = bx; }
 

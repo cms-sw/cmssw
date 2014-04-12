@@ -3,44 +3,26 @@
 
 /** 
 \class HcalGainWidths
-\author Fedor Ratnikov (UMd)
+\author Radek Ofierzynski
 POOL container to store GainWidth values 4xCapId
-$Author: ratnikov
-$Date: 2006/04/13 22:40:41 $
-$Revision: 1.6 $
 */
 
-#include <vector>
-#include <algorithm>
-
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
-// 
-class HcalGainWidths {
+//typedef HcalCondObjectContainer<HcalGainWidth> HcalGainWidths;
+
+class HcalGainWidths: public HcalCondObjectContainer<HcalGainWidth>
+{
  public:
-  HcalGainWidths();
-  ~HcalGainWidths();
-  /// get array of values for 4 capIds
-  const HcalGainWidth* getValues (DetId fId) const;
-  /// get value for given capId = 0..3
-  float getValue (DetId fId, int fCapId) const;
-  /// get list of all available channels
-  std::vector<DetId> getAllChannels () const;
-  /// check if data are sorted
-  bool sorted () const {return mSorted;}
-  /// fill values
-  bool addValue (DetId fId, const float fValues [4]);
-  /// fill values
-  bool addValue (DetId fId, float fValue0, float fValue1, float fValue2, float fValue3);
-  /// sort values by channelId  
-  void sort ();
-  // helper typedefs
-  typedef HcalGainWidth Item;
-  typedef std::vector <Item> Container;
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalGainWidths():HcalCondObjectContainer<HcalGainWidth>(0) {}
+#endif
+  HcalGainWidths(const HcalTopology* topo):HcalCondObjectContainer<HcalGainWidth>(topo) {}
+
+  std::string myname() const {return (std::string)"HcalGainWidths";}
+
  private:
-  Container mItems;
-  bool mSorted;
 };
 
 #endif

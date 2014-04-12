@@ -1,0 +1,41 @@
+#
+# This is the decay file for the decay B0 -> PSI(-> MU+ MU-) K0S(-> PI+ PI-)
+#
+# EventType: 11144102
+#
+# Descriptor: [B0 -> KS0 (J/psi(1S) -> mu+ mu- {,gamma} {,gamma}) ]cc
+#
+# NickName: Bd_JpsiKS,mm=CPV
+#
+# Physics: CP violation
+#
+# Tested: No
+# By: 
+# Date: 
+#
+# Parameters are:
+# P(1) = deltaM = 0.502e12
+# P(2) = dg/g = 0
+# P(3) = |q/p| = 1
+# P(4) = arg(q/p) = -0.775
+# P(5) = |Af| = 1.0
+# P(6) = arg(Af) = 0.
+# P(7) = |Abarf| = 1.0
+# P(8) = arg(Abarf) = 0.
+#
+Alias      MyB0     B0
+Alias      Myanti-B0     anti-B0
+ChargeConj MyB0     Myanti-B0
+Alias      MyJ/psi  J/psi
+ChargeConj MyJ/psi  MyJ/psi
+#
+Decay MyB0
+  1.000    K_S0     MyJ/psi   SSD_CP 0.502e12 0.0 1.0 -0.775 1.0 0. 1.0 0.;
+Enddecay
+CDecay Myanti-B0
+#
+Decay MyJ/psi
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+End
+

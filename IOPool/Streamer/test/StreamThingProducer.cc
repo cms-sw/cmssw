@@ -16,7 +16,6 @@ typedef edmtestprod::IntArray WriteThis;
 
 #include <sstream>
 
-using namespace std;
 using namespace edmtestprod;
 
 
@@ -32,7 +31,7 @@ namespace edmtest_thing
     bit_mask_(ps.getUntrackedParameter<uint32_t>("bit_mask",0))
   {
     for(int i=0;i<inst_count_;++i) {
-	ostringstream ost;
+	std::ostringstream ost;
 	ost << (i+start_count_);
 	names_.push_back(ost.str());
 	produces<WriteThis>(ost.str());

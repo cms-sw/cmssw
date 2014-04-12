@@ -25,10 +25,16 @@ L1RpcTBMuonsVec RPCTCGhostBusterSorter::run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
           //muon from next TB is on negative edge (first m_tower of this TB):
           if(tbMuonsVec2[iTB+1][iMuN].getEtaAddr() == 0) {  
             if( abs(tbMuonsVec2[iTB][iMu].getPhiAddr() - tbMuonsVec2[iTB+1][iMuN].getPhiAddr()) <= 1)
+            {
               if(tbMuonsVec2[iTB][iMu].getCode() < tbMuonsVec2[iTB+1][iMuN].getCode())
+              {
                 tbMuonsVec2[iTB][iMu].kill();
+              }
               else
+              {
                 tbMuonsVec2[iTB+1][iMuN].kill();
+              }
+            }
           }
         }
       }

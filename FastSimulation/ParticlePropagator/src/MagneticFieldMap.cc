@@ -3,29 +3,9 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
 #include <iostream>
-#include <string>
-
-MagneticFieldMap*
-MagneticFieldMap::myself=0; 
-
-MagneticFieldMap* 
-MagneticFieldMap::instance(const MagneticField* pMF,
-			   TrackerInteractionGeometry* myGeo)
-{
-  if (!myself) { 
-    myself = new MagneticFieldMap(pMF,myGeo);
-    myself->initialize();
-  }
-  return myself;
-}
-
-MagneticFieldMap* 
-MagneticFieldMap::instance() {
-  return myself;
-}
 
 MagneticFieldMap::MagneticFieldMap(const MagneticField* pMF,
-				   TrackerInteractionGeometry* myGeo) : 
+				   const TrackerInteractionGeometry* myGeo) : 
   pMF_(pMF), 
   geometry_(myGeo),
   bins(101), 
@@ -37,18 +17,15 @@ MagneticFieldMap::MagneticFieldMap(const MagneticField* pMF,
   fieldBarrelZMin(200,static_cast<double>(0.)),
   fieldEndcapBinWidth(200,static_cast<double>(0.)),
   fieldEndcapRMin(200,static_cast<double>(0.))
-{;}
 
-void
-MagneticFieldMap::initialize()
 {
   
-  std::list<TrackerLayer>::iterator cyliter;
-  std::list<TrackerLayer>::iterator cylitBeg=geometry_->cylinderBegin();
-  std::list<TrackerLayer>::iterator cylitEnd=geometry_->cylinderEnd();
+  std::list<TrackerLayer>::const_iterator cyliter;
+  std::list<TrackerLayer>::const_iterator cylitBeg=geometry_->cylinderBegin();
+  std::list<TrackerLayer>::const_iterator cylitEnd=geometry_->cylinderEnd();
   
   // Prepare the histograms
-  std::cout << "Prepare magnetic field local database for FAMOS speed-up" << std::endl;
+  // std::cout << "Prepare magnetic field local database for FAMOS speed-up" << std::endl;
   for ( cyliter=cylitBeg; cyliter != cylitEnd; ++cyliter ) {
     int layer = cyliter->layerNumber();
     //    cout << " Fill Histogram " << hist << endl;
@@ -100,7 +77,7 @@ MagneticFieldMap::initialize()
 const GlobalVector
 MagneticFieldMap::inTesla( const GlobalPoint& gp) const {
 
-  if (!instance()) {
+  if (!pMF_) {
     return GlobalVector( 0., 0., 4.);
   } else {
     return pMF_->inTesla(gp);
@@ -111,7 +88,7 @@ MagneticFieldMap::inTesla( const GlobalPoint& gp) const {
 const GlobalVector
 MagneticFieldMap::inTesla(const TrackerLayer& aLayer, double coord, int success) const {
 
-  if (!instance()) {
+  if (!pMF_) {
     return GlobalVector( 0., 0., 4.);
   } else {
     return GlobalVector(0.,0.,inTeslaZ(aLayer,coord,success));
@@ -136,7 +113,7 @@ MagneticFieldMap::inInverseGeV( const GlobalPoint& gp) const {
 double 
 MagneticFieldMap::inTeslaZ(const GlobalPoint& gp) const {
 
-    return instance() ? pMF_->inTesla(gp).z() : 4.0;
+    return pMF_ ? pMF_->inTesla(gp).z() : 4.0;
 
 }
 
@@ -144,7 +121,7 @@ double
 MagneticFieldMap::inTeslaZ(const TrackerLayer& aLayer, double coord, int success) const 
 {
 
-  if (!myself) {
+  if (!pMF_) {
     return 4.;
   } else {
     // Find the relevant histo
@@ -166,6 +143,7 @@ MagneticFieldMap::inTeslaZ(const TrackerLayer& aLayer, double coord, int success
     // Find the relevant bin
     double x = fabs(coord);
     unsigned bin = (unsigned) ((x-theXMin)/theBinWidth);
+    if ( bin+1 == (unsigned)bins ) bin -= 1; // Add a protection against coordinates near the layer edge
     double x1 = theXMin + (bin-0.5)*theBinWidth;
     double x2 = x1+theBinWidth;      
 

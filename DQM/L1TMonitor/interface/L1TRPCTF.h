@@ -4,8 +4,6 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
  * \author J. Berryhill
  *
 */
@@ -23,16 +21,19 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <set>
 
 //
 // class decleration
@@ -53,38 +54,59 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 // EndJob
 void endJob(void);
 
+void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                          const edm::EventSetup& context);
+void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                        const edm::EventSetup& c);
+                        
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+
 private:
+
+  
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * m_dbe;
 
-  MonitorElement* rpctfbetavalue;
-  MonitorElement* rpctfbphivalue;
-  MonitorElement* rpctfbptvalue;
-  MonitorElement* rpctfbptpacked;
-  MonitorElement* rpctfbquality;
-  MonitorElement* rpctfbchargevalue;
-  MonitorElement* rpctfbntrack;
+  MonitorElement* rpctfetavalue[3];
+  MonitorElement* rpctfphivalue[3];
+  MonitorElement* rpctfptvalue[3];
+  MonitorElement* rpctfchargevalue[3];
+  MonitorElement* rpctfquality[3];
+  MonitorElement* rpctfntrack_b[3];
+  MonitorElement* rpctfntrack_e[3];
+  MonitorElement* rpctfbx;
+  MonitorElement* m_qualVsEta[3];
+  MonitorElement* m_muonsEtaPhi[3];
+  //MonitorElement* m_phipacked;
+  
+  MonitorElement* m_bxDiff;
+  MonitorElement* rpctfcratesynchro[12];
+  std::set<unsigned long long int>  m_globBX;
+  
+  
 
-  MonitorElement* rpctffetavalue;
-  MonitorElement* rpctffphivalue;
-  MonitorElement* rpctffptvalue;
-  MonitorElement* rpctffptpacked;
-  MonitorElement* rpctffquality;
-  MonitorElement* rpctffchargevalue;
-  MonitorElement* rpctffntrack;
+
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_ ;
 
   int nev_; // Number of events processed
+  int nevRPC_; // Number of events processed where muon was found by rpc trigger
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
-  ofstream logFile_;
-  edm::InputTag rpctfbSource_;
-  edm::InputTag rpctffSource_;
+  //bool m_rpcDigiFine;
+  //bool m_useRpcDigi;
+
+  long long int m_lastUsedBxInBxdiff;
+  std::string output_dir_;
+  struct BxDelays { int bx, eta_t, phi_p; };  
+
+
 };
 
 #endif

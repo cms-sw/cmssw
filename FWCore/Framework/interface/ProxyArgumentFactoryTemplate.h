@@ -16,10 +16,11 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 11 16:20:52 CDT 2005
-// $Id: ProxyArgumentFactoryTemplate.h,v 1.4 2005/09/01 05:08:50 wmtan Exp $
 //
 
 // system include files
+#include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/ProxyFactoryBase.h"

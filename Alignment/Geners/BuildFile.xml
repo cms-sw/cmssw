@@ -1,0 +1,9 @@
+<use   name="FWCore/Utilities"/>
+<use   name="zlib"/>
+<use   name="bz2lib"/>
+<export>
+   <use   name="FWCore/Utilities"/>
+   <use   name="zlib"/>
+   <use   name="bz2lib"/>
+   <lib   name="1"/>
+</export>

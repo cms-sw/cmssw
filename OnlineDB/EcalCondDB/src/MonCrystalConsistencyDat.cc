@@ -31,7 +31,7 @@ MonCrystalConsistencyDat::~MonCrystalConsistencyDat()
 
 
 void MonCrystalConsistencyDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -42,23 +42,23 @@ void MonCrystalConsistencyDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8)");
   } catch (SQLException &e) {
-    throw(runtime_error("MonCrystalConsistencyDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MonCrystalConsistencyDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MonCrystalConsistencyDat::writeDB(const EcalLogicID* ecid, const MonCrystalConsistencyDat* item, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonCrystalConsistencyDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonCrystalConsistencyDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MonCrystalConsistencyDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MonCrystalConsistencyDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -72,12 +72,12 @@ void MonCrystalConsistencyDat::writeDB(const EcalLogicID* ecid, const MonCrystal
     m_writeStmt->setInt(8, item->getTaskStatus() );
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MonCrystalConsistencyDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonCrystalConsistencyDat::writeDB():  "+e.getMessage()));
   }
 }
 
 void MonCrystalConsistencyDat::fetchData(std::map< EcalLogicID, MonCrystalConsistencyDat >* fillMap, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -85,7 +85,7 @@ void MonCrystalConsistencyDat::fetchData(std::map< EcalLogicID, MonCrystalConsis
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MonCrystalConsistencyDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MonCrystalConsistencyDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -121,18 +121,18 @@ void MonCrystalConsistencyDat::fetchData(std::map< EcalLogicID, MonCrystalConsis
     }
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonCrystalConsistencyDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("MonCrystalConsistencyDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void MonCrystalConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonCrystalConsistencyDat >* data, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonCrystalConsistencyDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonCrystalConsistencyDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -161,7 +161,7 @@ void MonCrystalConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonCrys
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("MonCrystalConsistencyDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("MonCrystalConsistencyDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -232,6 +232,6 @@ void MonCrystalConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonCrys
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonCrystalConsistencyDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonCrystalConsistencyDat::writeArrayDB():  "+e.getMessage()));
   }
 }

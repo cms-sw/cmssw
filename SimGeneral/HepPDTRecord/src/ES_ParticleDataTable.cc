@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-EVENTSETUP_DATA_REG( HepPDT::ParticleDataTable );
+TYPELOOKUP_DATA_REG( HepPDT::ParticleDataTable );

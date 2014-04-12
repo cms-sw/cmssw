@@ -9,12 +9,11 @@
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <boost/shared_ptr.hpp>
 #include <string>
 
 class DDCompactView;
-class DDFilteredView;
 class CSCGeometry;
-class CSCWireGroupPackage;
 class MuonDDDConstants;
 
 class CSCGeometryBuilderFromDDD {
@@ -26,25 +25,11 @@ public:
   virtual ~CSCGeometryBuilderFromDDD();
 
   /// Build the geometry
-  CSCGeometry* build(const DDCompactView* fv, const MuonDDDConstants& muonConstants);
+  void build(boost::shared_ptr<CSCGeometry> geom, const DDCompactView* fv, const MuonDDDConstants& muonConstants);
 
 protected:
 
 private:
-
-  /// Build endcap CSCs
-  CSCGeometry* buildEndcaps( DDFilteredView* fv, const MuonDDDConstants& muonConstants );
-
-  /// Build one CSC chamber, and its component layers, and add them to the geometry
-  void buildChamber (  
-	CSCGeometry* theGeometry,        // the geometry container
-	CSCDetId chamberId,              // the DetId of this chamber
-        const std::vector<float>& fpar,  // volume parameters
-        const std::vector<float>& fupar, // user parameters
-        const std::vector<float>& gtran, // translation vector
-        const std::vector<float>& grmat, // rotation matrix
-        const CSCWireGroupPackage& wg   // wire group info
-	);
 
   const std::string myName;
 

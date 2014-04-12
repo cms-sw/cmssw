@@ -22,6 +22,8 @@ namespace reco {
 
   /// iterator over a vector of reference to IsolatedPixelTrackCandidate objects
   typedef IsolatedPixelTrackCandidateRefVector::iterator IsolatedPixelTrackCandidateIterator;
+
+  typedef std::vector<reco::IsolatedPixelTrackCandidateRef> IsolatedPixelTrackCandidateSimpleRefVector;
 }
 
 #endif

@@ -4,7 +4,6 @@
  *
  */
 
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 #include <string>
 #include <iostream>
@@ -20,9 +19,11 @@
 #include <TBranch.h>
 #include <TH1.h>
 #include <TCanvas.h>
-#include <Riostream.h>
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include <utility>
+
+#include "TBufferFile.h"
+
 using namespace std;
 
 static const char * const kHelpOpt = "help";
@@ -92,7 +93,7 @@ size_type GetBasketSize( TBranch * b, bool verbose ) {
 }
 
 size_type GetTotalSize( TBranch * br, bool verbose ) {
-  TBuffer buf( TBuffer::kWrite, 10000 );
+  TBufferFile buf( TBuffer::kWrite, 10000 );
   TBranch::Class()->WriteBuffer( buf, br );
   size_type size = GetBasketSize( br, verbose );
   if ( br->GetZipBytes() > 0 )
@@ -113,7 +114,7 @@ size_type GetTotalSize( TObjArray * branches, bool verbose ) {
 
 size_type GetTotalSize( TTree *t ) {
   size_t total = t->GetTotBytes();
-  TBuffer b(TBuffer::kWrite, 10000);
+  TBufferFile b(TBuffer::kWrite, 10000);
   TTree::Class()->WriteBuffer(b, t);
   total += b.Length();
   return make_pair( total, t->GetZipBytes() );

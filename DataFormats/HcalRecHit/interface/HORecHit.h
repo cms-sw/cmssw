@@ -7,8 +7,6 @@
 
 /** \class HORecHit
  *    
- * $Date: 2005/09/26 14:10:28 $
- * $Revision: 1.3 $
  * \author J. Mans - Minnesota
  */
 class HORecHit : public CaloRecHit {

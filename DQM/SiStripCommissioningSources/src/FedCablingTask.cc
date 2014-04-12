@@ -1,8 +1,7 @@
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 #include <sstream>
@@ -12,7 +11,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-FedCablingTask::FedCablingTask( DaqMonitorBEInterface* dqm,
+FedCablingTask::FedCablingTask( DQMStore* dqm,
 				const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FedCablingTask" ),
   histos_()
@@ -51,9 +50,9 @@ void FedCablingTask::book() {
 			       connection().lldChannel(),
 			       extra_info ).title();
       
-    histos_[iter].histo_ = dqm()->bookProfile( title, title, 
-					      nbins, -0.5, nbins*1.-0.5,
-					      1025, 0., 1025. );
+    histos_[iter].histo( dqm()->bookProfile( title, title, 
+					     nbins, -0.5, nbins*1.-0.5,
+					     1025, 0., 1025. ) );
       
     histos_[iter].vNumOfEntries_.resize(nbins,0);
     histos_[iter].vSumOfContents_.resize(nbins,0);

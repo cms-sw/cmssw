@@ -2,7 +2,6 @@
  *
  *
  * \author : Stefano Lacaprara - INFN LNL <stefano.lacaprara@pd.infn.it>
- * $date   : 06/12/2006 14:30:37 CET $
  *
  * Modification:
  *

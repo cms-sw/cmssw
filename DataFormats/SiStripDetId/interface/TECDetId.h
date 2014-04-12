@@ -60,10 +60,13 @@ class TECDetId : public SiStripDetId {
    */
   std::vector<unsigned int> petal() const
     { std::vector<unsigned int> num;
-    num.push_back(((id_>>petal_fw_bwStartBit_) & petal_fw_bwMask_));
-    num.push_back(((id_>>petalStartBit_) & petalMask_));
-    return num ;}
+      num.push_back(order());
+      num.push_back(petalNumber());
+      return num ;}
   
+  unsigned int order() const
+  { return ((id_>>petal_fw_bwStartBit_) & petal_fw_bwMask_);}
+
   /// ring id
   unsigned int ring() const
     { return ((id_>>ringStartBit_) & ringMask_) ;}
@@ -71,8 +74,51 @@ class TECDetId : public SiStripDetId {
   /// det id
   unsigned int module() const
     { return ((id_>>moduleStartBit_) & moduleMask_);}
-
- private:
+  
+  /** Returns true if the module is a double side = rphi + stereo */
+  bool isDoubleSide() const;
+  
+  /** Returns true if the module is in TEC+ (z>0 side) */
+  bool isZPlusSide() const
+  { return (!isZMinusSide());}
+  
+  /** Returns true if the module is in TEC- (z<0 side) */
+  bool isZMinusSide() const
+  { return (side()==1);}
+  
+  /** Returns the wheel number */
+  unsigned int wheelNumber() const
+  { return wheel();}
+  
+  /** Returns the petal number */
+  unsigned int petalNumber() const
+  { return ((id_>>petalStartBit_) & petalMask_);}
+  
+  /** Returns the ring number */
+  unsigned int ringNumber() const
+  { return ring();}
+  
+  /** Returns the module number */
+  unsigned int moduleNumber() const
+  { return module();}
+  
+  /** Returns true if the petal is mounted on the wheel back (not facing impact point) */
+  bool isBackPetal() const
+  { return (order()==1);}
+  
+  /** Returns true if the petal is mounted on the wheel front (facing impact point) */
+  bool isFrontPetal() const
+  { return (!isBackPetal());}
+  
+  /** Returns true if the module is rphi */
+  bool isRPhi()
+  { return (stereo() == 0 && !isDoubleSide());}
+  
+  /** Returns true if the module is stereo */
+  bool isStereo()
+  { return (stereo() != 0 && !isDoubleSide());}
+  
+private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int sideStartBit_=           18;
   static const unsigned int wheelStartBit_=          14;  
@@ -90,6 +136,23 @@ class TECDetId : public SiStripDetId {
   static const unsigned int moduleMask_=        0x7;
   static const unsigned int sterMask_=          0x3;
 };
+
+
+inline
+TECDetId::TECDetId() : SiStripDetId() {
+}
+inline
+TECDetId::TECDetId(uint32_t rawid) : SiStripDetId(rawid) {
+}
+inline
+TECDetId::TECDetId(const DetId& id) : SiStripDetId(id.rawId()){
+}
+
+inline
+bool TECDetId::isDoubleSide() const {
+  // Double Side: only rings 1, 2 and 5
+  return this->glued() == 0 && ( this->ring() == 1 || this->ring() == 2 || this->ring() == 5 ) ;
+}
 
 
 #endif

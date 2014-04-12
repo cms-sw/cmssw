@@ -21,7 +21,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondFormats/L1TObjects/interface/DTConfigTSPhi.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
 
 //---------------
 // C++ Headers --

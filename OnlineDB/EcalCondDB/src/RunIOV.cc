@@ -49,7 +49,7 @@ run_t RunIOV::getRunNumber() const
 
 
 
-void RunIOV::setRunStart(Tm start)
+void RunIOV::setRunStart(const Tm& start)
 {
   if (start != m_runStart) {
     m_ID = 0;
@@ -66,7 +66,7 @@ Tm RunIOV::getRunStart() const
 
 
 
-void RunIOV::setRunEnd(Tm end)
+void RunIOV::setRunEnd(const Tm& end)
 {
   if (end != m_runEnd) {
     m_ID = 0;
@@ -83,7 +83,7 @@ Tm RunIOV::getRunEnd() const
 
 
 
-void RunIOV::setRunTag(RunTag tag)
+void RunIOV::setRunTag(const RunTag& tag)
 {
   if (tag != m_runTag) {
     m_ID = 0;
@@ -101,7 +101,7 @@ RunTag RunIOV::getRunTag() const
 
 
 int RunIOV::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -127,12 +127,10 @@ int RunIOV::fetchID()
     stmt->setSQL("SELECT iov_id FROM run_iov "
 		 "WHERE tag_id = :tag_id AND "
 		 "run_num = :run_num AND "
-		 "run_start = :run_start AND "
-		 "run_end = :run_end");
+		 "run_start = :run_start  " );
     stmt->setInt(1, tagID);
     stmt->setInt(2, m_runNum);
     stmt->setDate(3, dh.tmToDate(m_runStart));
-    stmt->setDate(4, dh.tmToDate(m_runEnd));
   
     ResultSet* rset = stmt->executeQuery();
 
@@ -143,7 +141,7 @@ int RunIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -178,19 +176,19 @@ void RunIOV::setByID(int id)
        m_runTag.setByID(tagID);
        m_ID = id;
      } else {
-       throw(runtime_error("RunIOV::setByID:  Given tag_id is not in the database"));
+       throw(std::runtime_error("RunIOV::setByID:  Given tag_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("RunIOV::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("RunIOV::setByID:  "+e.getMessage()));
    }
 }
 
 
 
 int RunIOV::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -199,8 +197,6 @@ int RunIOV::writeDB()
     return m_ID;
   }
   
-  
-
   m_runTag.setConnection(m_env, m_conn);
   int tagID = m_runTag.writeDB();
   
@@ -208,7 +204,7 @@ int RunIOV::writeDB()
   DateHandler dh(m_env, m_conn);
 
   if (m_runStart.isNull()) {
-    throw(runtime_error("RunIOV::writeDB:  Must setRunStart before writing"));
+    throw(std::runtime_error("RunIOV::writeDB:  Must setRunStart before writing"));
   }
   
   if (m_runEnd.isNull()) {
@@ -229,12 +225,147 @@ int RunIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("RunIOV::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("RunIOV::writeDB:  Failed to write"));
+    throw(std::runtime_error("RunIOV::writeDB:  Failed to write"));
+  }
+  
+  return m_ID;
+}
+
+
+int RunIOV::updateEndTimeDB()
+  throw(std::runtime_error)
+{
+  this->checkConnection();
+
+  // Check if this IOV has already been written
+  if(!this->fetchID()){
+    this->writeDB();
+  }
+
+
+  m_runTag.setConnection(m_env, m_conn);
+  //  int tagID = m_runTag.writeDB();
+  
+  // Validate the data, use infinity-till convention
+  DateHandler dh(m_env, m_conn);
+
+  // we only update the run end here   
+  if (m_runEnd.isNull()) {
+    m_runEnd = dh.getPlusInfTm();
+  }
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    
+    stmt->setSQL("UPDATE run_iov set run_end=:1 where iov_id=:2 " );
+    stmt->setDate(1, dh.tmToDate(m_runEnd));
+    stmt->setInt(2, m_ID);
+
+    stmt->executeUpdate();
+
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(std::runtime_error("RunIOV::writeDB:  "+e.getMessage()));
+  }
+
+  // Now get the ID
+  if (!this->fetchID()) {
+    throw(std::runtime_error("RunIOV::writeDB:  Failed to write"));
+  }
+  
+  return m_ID;
+}
+
+int RunIOV::fetchIDByRunAndTag()
+  throw(std::runtime_error)
+{
+  // Return from memory if available
+  if (m_ID) {
+    return m_ID;
+  }
+
+  this->checkConnection();
+
+  m_runTag.setConnection(m_env, m_conn);
+  int tagID = m_runTag.fetchID();
+  if (!tagID) { 
+    return 0;
+  }
+
+  DateHandler dh(m_env, m_conn);
+
+  if (m_runEnd.isNull()) {
+    m_runEnd = dh.getPlusInfTm();
+  }
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    stmt->setSQL("SELECT iov_id FROM run_iov "
+		 "WHERE tag_id = :tag_id AND "
+		 "run_num = :run_num " );
+    stmt->setInt(1, tagID);
+    stmt->setInt(2, m_runNum);
+  
+    ResultSet* rset = stmt->executeQuery();
+
+    if (rset->next()) {
+      m_ID = rset->getInt(1);
+    } else {
+      m_ID = 0;
+    }
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+  }
+
+  return m_ID;
+}
+
+
+int RunIOV::updateStartTimeDB()
+  throw(std::runtime_error)
+{
+  this->checkConnection();
+
+  // Check if this IOV has already been written
+  if(!this->fetchIDByRunAndTag()){
+    this->writeDB();
+  }
+
+
+  //  m_runTag.setConnection(m_env, m_conn);
+  // int tagID = m_runTag.writeDB();
+  
+  // Validate the data, use infinity-till convention
+  DateHandler dh(m_env, m_conn);
+
+  // we only update the run start here   
+  if (m_runEnd.isNull()) {
+    m_runEnd = dh.getPlusInfTm();
+  }
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    
+    stmt->setSQL("UPDATE run_iov set run_start=:1 where iov_id=:2 " );
+    stmt->setDate(1, dh.tmToDate(m_runStart));
+    stmt->setInt(2, m_ID);
+
+    stmt->executeUpdate();
+
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(std::runtime_error("RunIOV::writeDB:  "+e.getMessage()));
+  }
+
+  // Now get the ID
+  if (!this->fetchID()) {
+    throw(std::runtime_error("RunIOV::writeDB:  Failed to write"));
   }
   
   return m_ID;
@@ -250,7 +381,7 @@ void RunIOV::setByRun(RunTag* tag, run_t run)
    tag->setConnection(m_env, m_conn);
    int tagID = tag->fetchID();
    if (!tagID) {
-     throw(runtime_error("RunIOV::setByRun:  Given tag is not in the database"));
+     throw(std::runtime_error("RunIOV::setByRun:  Given tag is not in the database"));
    }
    
    DateHandler dh(m_env, m_conn);
@@ -274,16 +405,55 @@ void RunIOV::setByRun(RunTag* tag, run_t run)
        m_runStart = dh.dateToTm( startDate );
        m_runEnd = dh.dateToTm( endDate );
      } else {
-       throw(runtime_error("RunIOV::setByRun:  Given run is not in the database"));
+       throw(std::runtime_error("RunIOV::setByRun:  Given run is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("RunIOV::setByRun:  "+e.getMessage()));
+     throw(std::runtime_error("RunIOV::setByRun:  "+e.getMessage()));
    }
 }
 
+void RunIOV::setByTime(std::string location, const Tm &t) 
+  throw(std::runtime_error)
+{
+  this->checkConnection();
+   
+  DateHandler dh(m_env, m_conn);
 
+   try {
+     Statement* stmt = m_conn->createStatement();
+
+     stmt->setSQL("SELECT iov_id FROM (SELECT iov_id FROM run_iov riov "
+		  "JOIN run_tag rtag ON riov.tag_id = rtag.tag_id "
+		  "JOIN location_def loc ON rtag.location_id = loc.def_id "
+		  "WHERE loc.location = :1 AND "
+		  "run_start <= to_date(:2, 'YYYY-MM-DD HH24:MI:SS') AND "
+		  "run_end >= to_date(:3, 'YYYY-MM-DD HH24:MI:SS') "
+		  "AND rtag.gen_tag != 'INVALID' ORDER BY iov_id DESC) "
+		  "where ROWNUM <=1");
+     stmt->setString(1, location);
+     stmt->setString(2, t.str());
+     stmt->setString(3, t.str());
+     
+     ResultSet* rset = stmt->executeQuery();
+     if (rset->next()) {
+       int id = rset->getInt(1);
+       this->setByID(id);
+     } else {
+       throw(std::runtime_error("RunIOV::setByTime(loc, run):  Given run is not in the database"));
+     }
+     
+     // Check for uniqueness of run
+     if (rset->next()) {
+       throw(std::runtime_error("RunIOV::setByTime(loc, run):  Run is nonunique for given location."));
+     }
+
+     m_conn->terminateStatement(stmt);
+   } catch (SQLException &e) {
+     throw(std::runtime_error("RunIOV::setByTime(loc, run):  " + e.getMessage()));
+   }
+}
 
 void RunIOV::setByRun(std::string location, run_t run) 
   throw(std::runtime_error)
@@ -298,7 +468,8 @@ void RunIOV::setByRun(std::string location, run_t run)
      stmt->setSQL("SELECT iov_id FROM run_iov riov "
 		  "JOIN run_tag rtag ON riov.tag_id = rtag.tag_id "
 		  "JOIN location_def loc ON rtag.location_id = loc.def_id "
-		  "WHERE loc.location = :1 AND riov.run_num = :2");
+		  "WHERE loc.location = :1 AND riov.run_num = :2 "
+		  "AND rtag.gen_tag != 'INVALID'");
      stmt->setString(1, location);
      stmt->setInt(2, run);
      
@@ -307,17 +478,17 @@ void RunIOV::setByRun(std::string location, run_t run)
        int id = rset->getInt(1);
        this->setByID(id);
      } else {
-       throw(runtime_error("RunIOV::setByRun(loc, run):  Given run is not in the database"));
+       throw(std::runtime_error("RunIOV::setByRun(loc, run):  Given run is not in the database"));
      }
      
      // Check for uniqueness of run
      if (rset->next()) {
-       throw(runtime_error("RunIOV::setByRun(loc, run):  Run is nonunique for given location."));
+       throw(std::runtime_error("RunIOV::setByRun(loc, run):  Run is nonunique for given location."));
      }
 
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("RunIOV::setByRun(loc, run):  "+e.getMessage()));
+     throw(std::runtime_error("RunIOV::setByRun(loc, run):  "+e.getMessage()));
    }
 }
 
@@ -330,7 +501,7 @@ void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run)
    tag->setConnection(m_env, m_conn);
    int tagID = tag->fetchID();
    if (!tagID) {
-     throw(runtime_error("RunIOV::setByRecentData:  Given tag is not in the database"));
+     throw(std::runtime_error("RunIOV::setByRecentData:  Given tag is not in the database"));
    }
    
    DateHandler dh(m_env, m_conn);
@@ -358,12 +529,12 @@ void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run)
        m_runStart = dh.dateToTm( startDate );
        m_runEnd = dh.dateToTm( endDate );
      } else {
-       throw(runtime_error("RunIOV::setByRecentData:  No data exists for given tag and run"));
+       throw(std::runtime_error("RunIOV::setByRecentData:  No data exists for given tag and run"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("RunIOV::setByRecentData:  "+e.getMessage()));
+     throw(std::runtime_error("RunIOV::setByRecentData:  "+e.getMessage()));
    }
 }
 
@@ -399,13 +570,13 @@ void RunIOV::setByRecentData(std::string dataTable, std::string location, run_t 
        int id = rset->getInt(1);
        this->setByID(id);
      } else {
-       throw(runtime_error("RunIOV::setByRecentData(datatable, loc, run):  Given run is not in the database"));
+       throw(std::runtime_error("RunIOV::setByRecentData(datatable, loc, run):  Given run is not in the database"));
      }
 
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("RunIOV::setByRecentData:  "+e.getMessage()));
+     throw(std::runtime_error("RunIOV::setByRecentData:  "+e.getMessage()));
    }
 }
 

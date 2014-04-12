@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <iosfwd>
+#include <cassert>
 
 //TODO remove
 #include <iostream>
@@ -111,6 +112,8 @@ public:
     return theBinValues[i];
   }
 
+  /// the time when the signal peaks
+  float peakTime() const;
   unsigned size() const {return theBinValues.size();}
 
 private:

@@ -1,9 +1,7 @@
 // H4Geom.h
 //
 // Class which manages geometry information of the super-module
-//
-// last change : $Date: 2006/01/16 18:17:32 $
-// by          : $Author: franzoni $
+// Author: Giovanni Franzoni
 //
 
 #ifndef H4Geom_H
@@ -11,7 +9,6 @@
 
 
 #include <string>
-using namespace std;
 
 class H4Geom
 {

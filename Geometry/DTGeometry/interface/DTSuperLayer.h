@@ -7,8 +7,6 @@
  *  
  *  A superlayer is composed by 4 staggered DTLayer s.
  *
- *  $date   : 13/01/2006 11:47:03 CET $
- *  $Revision: 1.4 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -37,9 +35,6 @@ class DTSuperLayer : public GeomDet {
     virtual ~DTSuperLayer() ;
 
 /* Operations */ 
-    // Return the DetId of this SL
-    virtual DetId geographicalId() const;
-
     /// Return the DetId of this SL
     DTSuperLayerId id() const;
 

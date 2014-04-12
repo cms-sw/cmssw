@@ -1,12 +1,21 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
+#include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include <cassert>
+#include <cstring>
+#include <cstdint>
+#include <unistd.h>
 
 InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
                                uint32 run, const Version& v,
                                const char* release_tag,
-			       const char* process_name,		       
+                               const char* process_name,		       
+                               const char* output_module_label,
+                               uint32 output_module_id,
                                const Strings& hlt_names,
-                               const Strings& l1_names):
+                               const Strings& hlt_selections,
+                               const Strings& l1_names,
+                               uint32 adler_chksum):
   buf_((uint8*)buf),size_(size)
 {
   InitHeader* h = (InitHeader*)buf_;
@@ -31,49 +40,57 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   memcpy(pos,process_name,process_name_len);
   pos += process_name_len;
 
-  pos = fillNames(hlt_names,pos);
-  pos = fillNames(l1_names,pos);
+  // output module label next
+  uint32 outmod_label_len = strlen(output_module_label);
+  assert(outmod_label_len < 0x00ff);
+  *pos++ = outmod_label_len;
+  memcpy(pos,output_module_label,outmod_label_len);
+  pos += outmod_label_len;
 
-  desc_addr_ = pos + sizeof(char_uint32);
-  setDescLength(0);
+  // output module ID next
+  convert(output_module_id, pos);
+  pos += sizeof(char_uint32);
+
+  pos = MsgTools::fillNames(hlt_names,pos);
+  pos = MsgTools::fillNames(hlt_selections,pos);
+  pos = MsgTools::fillNames(l1_names,pos);
+
+  // adler32 check sum of data blob
+  convert(adler_chksum, pos);
+  pos = pos + sizeof(uint32);
+
+  data_addr_ = pos + sizeof(char_uint32);
+  setDataLength(0);
 
   // Two news fileds added to InitMsg in Proto V3 init_header_size, and event_header_size.
   //Set the size of Init Header Start of buf to Start of desc.
-  convert((uint32)(desc_addr_-buf_), h->init_header_size_);
+  convert((uint32)(data_addr_ - buf_), h->init_header_size_);
 
-  uint32 hlt_sz = hlt_names.size();
-  if (hlt_sz != 0) hlt_sz = 1+ ((hlt_sz-1)/4);
-
-  uint32 l1_sz = l1_names.size();
-  if (l1_sz != 0) l1_sz = 1 + ((l1_sz-1)/8);
+  // 18-Apr-2008, KAB:  create a dummy event message so that we can
+  // determine the expected event header size.  (Previously, the event
+  // header size was hard-coded.)
+  std::vector<bool> dummyL1Bits(l1_names.size());
+  std::vector<char> dummyHLTBits(hlt_names.size());
+  const uint32 TEMP_BUFFER_SIZE = 256;
+  char msgBuff[TEMP_BUFFER_SIZE];  // not large enough for a real event!
+  uint32_t adler32 = 0;
+  char host_name[255];
+  int got_host = gethostname(host_name, 255);
+  if(got_host != 0) strcpy(host_name, "noHostNameFoundOrTooLong");
+  EventMsgBuilder dummyMsg(&msgBuff[0], TEMP_BUFFER_SIZE, 0, 0, 0, 0, 0,
+                           dummyL1Bits, (uint8*) &dummyHLTBits[0],
+                           hlt_names.size(), adler32, host_name);
 
   //Size of Event Header
-  uint32 eventHeaderSize = 1+ (8*4) + hlt_sz + l1_sz;
+  uint32 eventHeaderSize = dummyMsg.headerSize();
   convert(eventHeaderSize, h->event_header_size_);
 }
 
-uint8* InitMsgBuilder::fillNames(const Strings& names, uint8* pos)
+void InitMsgBuilder::setDataLength(uint32 len)
 {
-  uint32 sz = names.size();
-  convert(sz,pos); // save number of strings
-  uint8* len_pos = pos + sizeof(char_uint32); // area for length
-  pos = len_pos + sizeof(char_uint32); // area for full string of names
-  bool first = true;
-
-  for(Strings::const_iterator beg = names.begin(), begEnd = names.end(); beg != begEnd; ++beg) {
-      if(first) first = false; else *pos++ = ' ';
-      pos = std::copy(beg->begin(),beg->end(),pos);
-  }
-  convert((uint32)(pos-len_pos-sizeof(char_uint32)),len_pos);
-  return pos;
-}
-
-
-void InitMsgBuilder::setDescLength(uint32 len)
-{
-  convert(len,desc_addr_-sizeof(char_uint32));
+  convert(len,data_addr_-sizeof(char_uint32));
   InitHeader* h = (InitHeader*)buf_;
-  new (&h->header_) Header(Header::INIT,desc_addr_-buf_+len);
+  new (&h->header_) Header(Header::INIT, data_addr_ - buf_ + len);
 }
 
 

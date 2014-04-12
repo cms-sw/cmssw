@@ -13,12 +13,18 @@ typedef class local_phi_address
   unsigned int spare        : 2;
   unsigned int zero         : 13;
 
-  local_phi_address() {};
+  local_phi_address(): strip(0), 
+                       clct_pattern(0), 
+                       pattern_type(0), 
+                       quality(0), 
+                       lr(0), 
+                       spare(0), 
+                       zero(0) {};
   local_phi_address(const unsigned& u) { this->operator=(u); }
-
+    
   local_phi_address& operator=(const unsigned& u);
   unsigned toint() const;
-
+    
 } lclphiadd;
 
 typedef class global_phi_address
@@ -29,7 +35,10 @@ typedef class global_phi_address
   unsigned int cscid        : 4;
   unsigned int zero         : 13;
   
-  global_phi_address() {};
+  global_phi_address(): phi_local(0), 
+                        wire_group(0), 
+                        cscid(0), 
+                        zero(0) {};
   global_phi_address(const unsigned& u) { this->operator=(u); }
 
   global_phi_address& operator=(const unsigned& u);
@@ -46,7 +55,11 @@ typedef class global_eta_address
   unsigned int cscid        : 4;
   unsigned int zero         : 13;
 
-  global_eta_address() {};
+  global_eta_address(): phi_bend(0), 
+                        phi_local(0), 
+                        wire_group(0), 
+                        cscid(0), 
+                        zero(0) {};
   global_eta_address(const unsigned& u) { this->operator=(u); }
 
   global_eta_address& operator=(const unsigned& u);
@@ -64,7 +77,12 @@ typedef class pt_address
   unsigned int delta_phi_sign : 1;
   unsigned int track_fr       : 1;
 
-  pt_address() {};
+  pt_address(): delta_phi_12(0),
+                delta_phi_23(0), 
+                track_eta(0), 
+                track_mode(0), 
+                delta_phi_sign(0), 
+                track_fr(0)   {};
   pt_address(const unsigned& us) { this->operator=(us); }
 
   pt_address& operator=(const unsigned&);
@@ -80,7 +98,8 @@ typedef class local_phi_data
   unsigned short phi_local      : 10;
   unsigned short phi_bend_local : 6;
 
-  local_phi_data() {};
+  local_phi_data(): phi_local(0),
+                    phi_bend_local(0) {};
   local_phi_data(const unsigned short& us) { this->operator=(us); }
 
   local_phi_data& operator=(const unsigned short& us);
@@ -94,7 +113,8 @@ typedef class global_phi_data
   unsigned short global_phi : 12;
   unsigned short spare      : 4;
   
-  global_phi_data() {};
+  global_phi_data(): global_phi(0),
+                     spare(0) {};  
   global_phi_data(const unsigned short& us) { this->operator=(us); }
 
   global_phi_data& operator=(const unsigned short& us);
@@ -109,7 +129,9 @@ typedef class global_eta_data
   unsigned short global_bend : 5;
   unsigned short spare       : 4;
   
-  global_eta_data() {};
+  global_eta_data(): global_eta(0),
+                     global_bend(0),
+                     spare(0) {};
   global_eta_data(const unsigned short& us) { this->operator=(us); }
 
   global_eta_data& operator=(const unsigned short& us);
@@ -126,7 +148,10 @@ typedef class pt_data
   unsigned short rear_rank          : 7;
   unsigned short charge_valid_rear  : 1;
   
-  pt_data() {};
+  pt_data(): front_rank(0),
+             charge_valid_front(0),
+             rear_rank(0),
+             charge_valid_rear(0) {};
   pt_data(const unsigned short& us) { this->operator=(us); }
 
   pt_data& operator=(const unsigned short&);

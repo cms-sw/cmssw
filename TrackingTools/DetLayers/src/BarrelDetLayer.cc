@@ -1,8 +1,9 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
-#include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
   for ( vector< const GeomDet*>::const_iterator deti = comps.begin(); 
 	deti != comps.end(); deti++) {
     vector<GlobalPoint> corners = 
-      BoundingBox().corners( dynamic_cast<const BoundPlane&>((*deti)->surface()));
+      BoundingBox().corners( dynamic_cast<const Plane&>((*deti)->surface()));
     for (vector<GlobalPoint>::const_iterator ic = corners.begin();
 	 ic != corners.end(); ic++) {
       float r = ic->perp();
@@ -63,37 +64,39 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
   PositionType pos(0.,0.,0.);
   RotationType rot;
 
-  return new BoundCylinder( pos, rot, 
-			    SimpleCylinderBounds( theRmin, theRmax, 
-						  theZmin, theZmax));
+  auto scp = new SimpleCylinderBounds( theRmin, theRmax,
+                                       theZmin, theZmax);
+  return new Cylinder(Cylinder::computeRadius(*scp), pos, rot, scp);
 }  
 
 
 pair<bool, TrajectoryStateOnSurface>
 BarrelDetLayer::compatible( const TrajectoryStateOnSurface& ts, 
 			    const Propagator& prop, 
-			    const MeasurementEstimator& est) const
+			    const MeasurementEstimator&) const
 {
-  if(theCylinder == 0)  edm::LogError("DetLayers") 
+  if unlikely(theCylinder == 0)  edm::LogError("DetLayers") 
     << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized" ;
   // throw an exception? which one?
 
   TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
-  if ( !myState.isValid()) return make_pair( false, myState);
+  if unlikely(!myState.isValid()) return make_pair( false, myState);
+  
+
+  // check z assuming symmetric bounds around position().z()
+  auto z0 = std::abs(myState.globalPosition().z()-specificSurface().position().z());
+  auto deltaZ = 0.5f*bounds().length();
+  if (z0<deltaZ) return make_pair( true, myState);
 
   // take into account the thickness of the layer
-  float deltaZ = surface().bounds().thickness()/2. / 
-    fabs( tan( myState.globalDirection().theta()));
+  deltaZ += 0.5f*bounds().thickness() *
+    std::abs(myState.globalDirection().z())/myState.globalDirection().perp();
 
-  // take into account the error on the predicted state
+  // take also into account the error on the predicted state
   const float nSigma = 3.;
-  if (myState.hasError()) {
+  if (myState.hasError())
     deltaZ += nSigma * sqrt( myState.cartesianError().position().czz());
-  }
   //
-  // check z assuming symmetric bounds around position().z()
-  //
-  deltaZ += surface().bounds().length()/2;
-  return make_pair(fabs(myState.globalPosition().z()-surface().position().z())<deltaZ,
-		   myState);  
+  //  check z again
+  return make_pair(z0<deltaZ, myState);
 }

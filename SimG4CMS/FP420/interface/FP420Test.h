@@ -14,7 +14,6 @@
 
 // necessary objects:
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 //
 //
@@ -36,8 +35,6 @@
 #include "G4VTouchable.hh"
 #include <map>
 #include <cmath>
-#include <CLHEP/Vector/ThreeVector.h>
-#include <CLHEP/Vector/LorentzVector.h>
 #include <CLHEP/Random/Randomize.h> 
 // #include <fstream>
 
@@ -67,16 +64,16 @@
 class Fp420AnalysisHistManager : public TNamed {
         public:
 
-                Fp420AnalysisHistManager(TString managername);
+                Fp420AnalysisHistManager(const TString& managername);
                 ~Fp420AnalysisHistManager();
 
                 TH1F* GetHisto(Int_t Number);
-                TH1F* GetHisto(const TObjString histname);
+                TH1F* GetHisto(const TObjString& histname);
 
                 TH2F* GetHisto2(Int_t Number);
-                TH2F* GetHisto2(const TObjString histname);
+                TH2F* GetHisto2(const TObjString& histname);
 
-                void WriteToFile(TString fOutputFile,TString fRecreateFile);
+                void WriteToFile(const TString& fOutputFile,const TString& fRecreateFile);
 
         private:
 
@@ -220,7 +217,12 @@ private:
 
 
  // z:
- double z1, z2, z3, z4; 
+ double z1, z2, z3, z4, zD2, zD3; 
+ int sn0, dn0, pn0, rn0;
+ int rn00;
+ double	ZSiDet, z420;
+ double	ZGapLDet, ZBoundDet, ZSiStep, ZSiPlane, zinibeg;
+ double	 zBlade, gapBlade;
 
 private:
 

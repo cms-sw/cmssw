@@ -1,5 +1,6 @@
 
 #include <algorithm>
+#include <atomic>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -13,6 +14,8 @@
 #include <unistd.h>
 
 #include "VertexTracker.h"
+
+//#include "FWCore/Utilities/interface/Algorithms.h"
 
 #if 0
 extern "C" {
@@ -36,10 +39,10 @@ struct PathTracker
   void setID() const { id_=next_id_++; }
   void incTotal() const { ++total_; }
 
-  static unsigned int next_id_;
+  static std::atomic<unsigned int> next_id_;
 };
 
-unsigned int PathTracker::next_id_ = 0;
+std::atomic<unsigned int> PathTracker::next_id_{0U};
 
 bool PathTracker::operator<(const PathTracker& a) const
 {
@@ -154,7 +157,6 @@ std::string make_name(Dl_info const& info, void* where,
   return oss.str();
 }
 
-
 void writeProfileData(int fd, const std::string& prefix)
 {
   std::string output_tree(prefix+"_paths");
@@ -177,6 +179,8 @@ void writeProfileData(int fd, const std::string& prefix)
   VoidVec v;
   int len=0;
   int total=0;
+  int total_failed=0;
+  int total_missing=0;
   //  int failure_count=0;
   Sym last_none_entry;
   Sym last_good_entry;
@@ -214,10 +218,12 @@ void writeProfileData(int fd, const std::string& prefix)
 
 	      entry = &last_good_entry;
 	  } else { // dladdr has failed
-	      std::cerr << "sample " << total
+	      /*
+                std::cerr << "sample " << total
 		   << ": dladdr failed for address: " << *c
 		   << std::endl;
-
+	      */
+              ++total_failed;
 	      std::ostringstream oss;
 	      oss << "lookup_failure_" << addr;
 	      last_none_entry.name_    = oss.str();
@@ -267,10 +273,11 @@ void writeProfileData(int fd, const std::string& prefix)
 
   // ------ calculate samples for parents and percentages in vertices ------
 
-  sort(vsyms.begin(),vsyms.end(),idSort);
+  //edm::sort_all(vsyms,idSort);
+  std::sort(vsyms.begin(), vsyms.end(), idSort);
   //Viter::iterator Vib(vsyms.begin()),Vie(vsyms.end());
-  //cout << "sorted table --------------" << std::endl;
-  //while(Vib!=Vie) { cout << "    " << *(*Vib) << std::endl; ++Vib; }
+  //std::cout << "sorted table --------------" << std::endl;
+  //while(Vib!=Vie) { std::cout << "    " << *(*Vib) << std::endl; ++Vib; }
 
   PathSet::const_iterator pat_it_beg(pathset.begin()),
     pat_it_end(pathset.end());
@@ -278,7 +285,8 @@ void writeProfileData(int fd, const std::string& prefix)
   while(pat_it_beg!=pat_it_end) {
       // get set of unique IDs from the path
       ULVec pathcopy(pat_it_beg->tree_);
-      sort(pathcopy.begin(),pathcopy.end());
+      //edm::sort_all(pathcopy);
+      std::sort(pathcopy.begin(), pathcopy.end());
       ULVec::iterator iter = unique(pathcopy.begin(),pathcopy.end());
       ULVec::iterator cop_beg(pathcopy.begin());
       //cout << "length of unique = " << distance(cop_beg,iter) << std::endl;
@@ -287,8 +295,11 @@ void writeProfileData(int fd, const std::string& prefix)
 	  Viter::iterator sym_iter = upper_bound(vsyms.begin(),vsyms.end(),
 						 *cop_beg,idComp);
 	  if(sym_iter==vsyms.begin()) {
+              ++total_missing;
+              /*
 	      std::cerr << "found a missing sym entry for address " << *cop_beg
 		   << std::endl;
+              */
 	  } else {
 	      --sym_iter;
 	      //cout << " symiter " << *(*sym_iter) << std::endl;
@@ -301,16 +312,18 @@ void writeProfileData(int fd, const std::string& prefix)
   }
 
   VertexSet::iterator ver_iter(symset.begin()),ver_iter_end(symset.end());
+  float ftotal = (total != 0 ? (float)total : 1.0); // Avoids possible divide by zero.
   while(ver_iter != ver_iter_end) {
-      ver_iter->percent_leaf_ = (float)ver_iter->total_as_leaf_ / (float)total;
-      ver_iter->percent_path_ = (float)ver_iter->in_path_ / (float)total;
+      ver_iter->percent_leaf_ = (float)ver_iter->total_as_leaf_ / ftotal;
+      ver_iter->percent_path_ = (float)ver_iter->in_path_ / ftotal;
       ++ver_iter;
   }
 
   // -------------- write out the vertices ----------------
 
 
-  sort(vsyms.begin(),vsyms.end(),symSort);
+  //edm::sort_all(vsyms,symSort);
+  std::sort(vsyms.begin(), vsyms.end(), symSort);
   Viter::reverse_iterator vvi(vsyms.rbegin()),vve(vsyms.rend());
   while(vvi != vve) {
       nost << *(*vvi) << "\n";
@@ -330,7 +343,9 @@ void writeProfileData(int fd, const std::string& prefix)
       ++ipath;
   }
 
-  sort(vpaths.begin(),vpaths.end(),pathSort);
+  //edm::sort_all(vpaths,pathSort);
+  std::sort(vpaths.begin(),vpaths.end(),pathSort);
+
   Piter::reverse_iterator ppi(vpaths.rbegin()),ppe(vpaths.rend());
   while(ppi != ppe) {
       tost << *(*ppi) << "\n";
@@ -341,7 +356,18 @@ void writeProfileData(int fd, const std::string& prefix)
   sost << "total_samples " << total << "\n"
        << "total_functions " << setsize << "\n"
        << "total_paths " << pathsize << "\n"
-       << "total_edges " << edgesize << std::endl;
+       << "total_edges " << edgesize << std::endl
+       << "total_failed_lookups " << total_failed << std::endl
+       << "total_missing_sym_entries " << total_missing << std::endl;
 
 }
+
+extern "C" {
+  void writeProfileDataC(int fd, const std::string& prefix)
+  {
+    writeProfileData(fd,prefix);
+  }
+}
+
+
 

@@ -1,42 +1,25 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.6 2007/06/19 12:30:37 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
+#include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
-					      const DbParams& params )
-  : VpspScanHistograms( mui ),
-    CommissioningHistosUsingDb( params )
-{
-  LogTrace(mlDqmClient_) 
-    << "[VpspScanHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
-					      SiStripConfigDb* const db ) 
-  : VpspScanHistograms( mui ),
-    CommissioningHistosUsingDb( db )
-{
-  LogTrace(mlDqmClient_) 
-    << "[VpspScanHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( DaqMonitorBEInterface* bei,
-					      SiStripConfigDb* const db ) 
-  : VpspScanHistograms( bei ),
-    CommissioningHistosUsingDb( db )
+VpspScanHistosUsingDb::VpspScanHistosUsingDb( const edm::ParameterSet & pset,
+                                              DQMStore* bei,
+                                              SiStripConfigDb* const db ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
+                             bei,
+                             sistrip::VPSP_SCAN ),
+    CommissioningHistosUsingDb( db,
+                                sistrip::VPSP_SCAN ),
+    VpspScanHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
+                        bei )
 {
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"
@@ -53,10 +36,12 @@ VpspScanHistosUsingDb::~VpspScanHistosUsingDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void VpspScanHistosUsingDb::uploadToConfigDb() {
+void VpspScanHistosUsingDb::uploadConfigurations() {
+  LogTrace(mlDqmClient_) 
+    << "[VpspScanHistosUsingDb::" << __func__ << "]";
   
-  if ( !db_ ) {
-    edm::LogWarning(mlDqmClient_) 
+  if ( !db() ) {
+    edm::LogError(mlDqmClient_) 
       << "[VpspScanHistosUsingDb::" << __func__ << "]"
       << " NULL pointer to SiStripConfigDb interface!"
       << " Aborting upload...";
@@ -64,14 +49,16 @@ void VpspScanHistosUsingDb::uploadToConfigDb() {
   }
   
   // Update all APV device descriptions with new VPSP settings
-  db_->resetDeviceDescriptions();
-  const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions();
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
-  if ( !test_ ) { 
-    LogTrace(mlDqmClient_) 
+  SiStripConfigDb::DeviceDescriptionsRange devices = db()->getDeviceDescriptions();
+  update( devices );
+  if ( doUploadConf() ) { 
+    edm::LogVerbatim(mlDqmClient_) 
       << "[VpspScanHistosUsingDb::" << __func__ << "]"
       << " Uploading VPSP settings to DB...";
-    db_->uploadDeviceDescriptions(true); 
+    db()->uploadDeviceDescriptions(); 
+    edm::LogVerbatim(mlDqmClient_) 
+      << "[VpspScanHistosUsingDb::" << __func__ << "]"
+      << " Uploaded VPSP settings to DB!";
   } else {
     edm::LogWarning(mlDqmClient_) 
       << "[VpspScanHistosUsingDb::" << __func__ << "]"
@@ -85,10 +72,10 @@ void VpspScanHistosUsingDb::uploadToConfigDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
+void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devices ) {
   
   // Iterate through devices and update device descriptions
-  SiStripConfigDb::DeviceDescriptions::iterator idevice;
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     
     // Check device type
@@ -99,76 +86,115 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
     if ( !desc ) { continue; }
     
     // Retrieve device addresses from device description
-    const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*desc);
-    SiStripFecKey fec_path;
+    const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*desc);
     
     // Retrieve LLD channel and APV numbers
     uint16_t ichan = ( desc->getAddress() - 0x20 ) / 2;
     uint16_t iapv  = ( desc->getAddress() - 0x20 ) % 2;
     
     // Construct key from device description
-    uint32_t fec_key = SiStripFecKey( addr.fecCrate_, 
-				      addr.fecSlot_, 
-				      addr.fecRing_, 
-				      addr.ccuAddr_, 
-				      addr.ccuChan_,
-				      ichan+1 ).key();
-    fec_path = SiStripFecKey( fec_key );
+    SiStripFecKey fec_key( addr.fecCrate_, 
+			   addr.fecSlot_, 
+			   addr.fecRing_, 
+			   addr.ccuAddr_, 
+			   addr.ccuChan_,
+			   ichan+1 );
       
     // Iterate through all channels and extract LLD settings 
-    map<uint32_t,VpspScanAnalysis*>::const_iterator iter = data_.find( fec_key );
-    if ( iter != data_.end() ) {
-      if ( iter->second->isValid() ) {
-	std::stringstream ss;
-	ss << "[VpspScanHistosUsingDb::" << __func__ << "]"
-	   << " Updating VPSP setting for crate/FEC/slot/ring/CCU/LLD/APV " 
-	   << fec_path.fecCrate() << "/"
-	   << fec_path.fecSlot() << "/"
-	   << fec_path.fecRing() << "/"
-	   << fec_path.ccuAddr() << "/"
-	   << fec_path.ccuChan() << "/"
-	   << fec_path.channel() 
-	   << iapv
-	   << " from "
-	   << static_cast<uint16_t>(desc->getVpsp());
-	if ( iapv == 0 ) { desc->setVpsp( iter->second->vpsp()[0] ); }
-	if ( iapv == 1 ) { desc->setVpsp( iter->second->vpsp()[1] ); }
-	ss << " to "
-	   << static_cast<uint16_t>(desc->getVpsp());
-	LogTrace(mlDqmClient_) << ss.str();
-      } else {
-	std::stringstream ss;
-	ss << "[VpspScanHistosUsingDb::" << __func__ << "]"
-	   << " Invalid analysis!" << std::endl; 
-	iter->second->print( ss, 1 );
-	iter->second->print( ss, 2 );
-	edm::LogWarning(mlDqmClient_) << ss.str(); 
+    Analyses::const_iterator iter = data().find( fec_key.key() );
+    if ( iter != data().end() ) {
+
+      VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>( iter->second );
+      if ( !anal ) { 
+	edm::LogError(mlDqmClient_)
+	  << "[VpspScanHistosUsingDb::" << __func__ << "]"
+	  << " NULL pointer to analysis object!";
+	continue; 
       }
       
+      std::stringstream ss;
+      ss << "[VpspScanHistosUsingDb::" << __func__ << "]"
+	 << " Updating VPSP setting for crate/FEC/slot/ring/CCU/LLD/APV " 
+	 << fec_key.fecCrate() << "/"
+	 << fec_key.fecSlot() << "/"
+	 << fec_key.fecRing() << "/"
+	 << fec_key.ccuAddr() << "/"
+	 << fec_key.ccuChan() << "/"
+	 << fec_key.channel() 
+	 << iapv
+	 << " from "
+	 << static_cast<uint16_t>(desc->getVpsp());
+      if ( iapv == 0 ) { desc->setVpsp( anal->vpsp()[0] ); }
+      if ( iapv == 1 ) { desc->setVpsp( anal->vpsp()[1] ); }
+      ss << " to " << static_cast<uint16_t>(desc->getVpsp());
+      LogTrace(mlDqmClient_) << ss.str();
+      
     } else {
-      LogTrace(mlDqmClient_) 
-	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
-	<< " Unable to find FEC key with params FEC/slot/ring/CCU/LLDchan/APV: " 
-	<< fec_path.fecCrate() << "/"
-	<< fec_path.fecSlot() << "/"
-	<< fec_path.fecRing() << "/"
-	<< fec_path.ccuAddr() << "/"
-	<< fec_path.ccuChan() << "/"
-	<< fec_path.channel() << "/" 
-	<< iapv+1;
-
+      if ( deviceIsPresent(fec_key) ) {
+	edm::LogWarning(mlDqmClient_) 
+	  << "[VpspScanHistosUsingDb::" << __func__ << "]"
+	  << " Unable to find FEC key with params FEC/slot/ring/CCU/LLDchan/APV: " 
+	  << fec_key.fecCrate() << "/"
+	  << fec_key.fecSlot() << "/"
+	  << fec_key.fecRing() << "/"
+	  << fec_key.ccuAddr() << "/"
+	  << fec_key.ccuChan() << "/"
+	  << fec_key.channel() << "/" 
+	  << iapv+1;
+      }
     }
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void VpspScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
+				    Analysis analysis ) {
+
+  VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>( analysis->second );
+  if ( !anal ) { return; }
+  
+  SiStripFecKey fec_key( anal->fecKey() ); 
+  SiStripFedKey fed_key( anal->fedKey() );
+  
+  for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
+
+    // Create description
+    VpspScanAnalysisDescription* tmp;
+    tmp = new VpspScanAnalysisDescription( anal->vpsp()[iapv],
+					   anal->adcLevel()[iapv],
+					   anal->fraction()[iapv],
+					   anal->topEdge()[iapv],
+					   anal->bottomEdge()[iapv],
+					   anal->topLevel()[iapv],
+					   anal->bottomLevel()[iapv],
+					   fec_key.fecCrate(),
+					   fec_key.fecSlot(),
+					   fec_key.fecRing(),
+					   fec_key.ccuAddr(),
+					   fec_key.ccuChan(),
+					   SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
+					   db()->dbParams().partitions().begin()->second.partitionName(),
+					   db()->dbParams().partitions().begin()->second.runNumber(),
+					   anal->isValid(),
+					   "",
+					   fed_key.fedId(),
+					   fed_key.feUnit(),
+					   fed_key.feChan(),
+					   fed_key.fedApv() );
+    
+    // Add comments
+    typedef std::vector<std::string> Strings;
+    Strings errors = anal->getErrorCodes();
+    Strings::const_iterator istr = errors.begin();
+    Strings::const_iterator jstr = errors.end();
+    for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
+
+    // Store description
+    desc.push_back( tmp );
       
   }
 
 }
-
-
-
-
-
-
-
-
-  
 

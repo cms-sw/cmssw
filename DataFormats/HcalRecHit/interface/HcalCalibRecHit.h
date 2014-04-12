@@ -5,8 +5,6 @@
 
 /** \class HcalCalibRecHit
  *  
- * $Date: 2006/06/26 18:52:00 $
- * $Revision: 1.1 $
  *\author J. Mans - Minnesota
  */
 class HcalCalibRecHit {

@@ -3,7 +3,6 @@
  * plot.php
  * 
  * Plot selection and display page
- * $Id: plot.php,v 1.2 2006/07/23 16:47:58 egeland Exp $
  */
 
 

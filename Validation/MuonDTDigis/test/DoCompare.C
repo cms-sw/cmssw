@@ -12,8 +12,7 @@ void DoCompare( ){
 
  TText* te = new TText();
  te->SetTextSize(0.1);
- TPaveStats* st; 
- TPaveStats* stat2;
+ TPaveStats* st_1, st_2; 
  
   gROOT->ProcessLine(".x HistoCompare.C");
   HistoCompare * myPV = new HistoCompare();
@@ -85,12 +84,39 @@ void DoCompare( ){
    leg.AddEntry(htemp2[i], "New ", "l");
 
    htemp2[i]->Draw();
+   gStyle->SetOptStat(1111);
+   st_2 = (TPaveStats*)htemp2[i]->GetListOfFunctions()->FindObject("stats");
 
-   htemp1[i]->Draw("Same"); 
-   leg.Draw();
-   myPV->PVCompute(htemp1[i],htemp2[i], te);
-   sprintf(title,"%s%s", label[i],".eps");
-   c1.Print(title);
+    htemp1[i]->Draw();
+    gStyle->SetOptStat(1111);
+    st_1 = (TPaveStats*)htemp1[i]->GetListOfFunctions()->FindObject("stats");
+
+    TPaveStats* sta_1= (TPaveStats*)st_1->Clone();
+
+    sta_1->SetTextColor(2);
+    sta_1->SetX1NDC(.80);
+    sta_1->SetX2NDC(0.95);
+    sta_1->SetY1NDC(0.70);
+    sta_1->SetY2NDC(0.85);
+
+    TPaveStats* sta_2= (TPaveStats*)st_2->Clone();
+    
+    sta_2->SetTextColor(4);
+    sta_2->SetX1NDC(.80);
+    sta_2->SetX2NDC(0.95);
+    sta_2->SetY1NDC(0.85);
+    sta_2->SetY2NDC(1.0);
+
+    gStyle->SetOptStat(000000);
+    htemp2[i]->Draw();
+    gStyle->SetOptStat(000000);
+    htemp1[i]->Draw("Same"); 
+    sta_2->Draw("Same");
+    sta_1->Draw("Same"); 
+    leg.Draw();
+    myPV->PVCompute(htemp1[i],htemp2[i], te);
+    sprintf(title,"%s%s", label[i],".eps");
+    c1.Print(title);
  }
 
 

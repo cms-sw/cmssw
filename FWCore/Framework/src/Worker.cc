@@ -1,174 +1,205 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.23 2007/06/05 04:02:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 namespace edm {
   namespace {
-    class CallPrePostBeginJob {
+    class ModuleBeginJobSignalSentry {
 public:
-      CallPrePostBeginJob(Worker::Sigs& s, ModuleDescription& md):s_(&s),md_(&md) {
-        (*(s_->preModuleBeginJobSignal))(*md_);
+      ModuleBeginJobSignalSentry(ActivityRegistry* a, ModuleDescription const& md):a_(a), md_(&md) {
+        if(a_) a_->preModuleBeginJobSignal_(*md_);
       }
-      ~CallPrePostBeginJob() {
-        (*(s_->postModuleBeginJobSignal))(*md_);
+      ~ModuleBeginJobSignalSentry() {
+        if(a_) a_->postModuleBeginJobSignal_(*md_);
       }
 private:
-      Worker::Sigs* s_;
-      ModuleDescription* md_;
+      ActivityRegistry* a_;
+      ModuleDescription const* md_;
     };
 
-    class CallPrePostEndJob {
+    class ModuleEndJobSignalSentry {
 public:
-      CallPrePostEndJob(Worker::Sigs& s, ModuleDescription& md):s_(&s),md_(&md) {
-        (*(s_->preModuleEndJobSignal))(*md_);
+      ModuleEndJobSignalSentry(ActivityRegistry* a, ModuleDescription const& md):a_(a), md_(&md) {
+        if(a_) a_->preModuleEndJobSignal_(*md_);
       }
-      ~CallPrePostEndJob() {
-        (*(s_->postModuleEndJobSignal))(*md_);
+      ~ModuleEndJobSignalSentry() {
+        if(a_) a_->postModuleEndJobSignal_(*md_);
       }
 private:
-      Worker::Sigs* s_;
-      ModuleDescription* md_;
+      ActivityRegistry* a_;
+      ModuleDescription const* md_;
     };
-    
+
+    class ModuleBeginStreamSignalSentry {
+    public:
+      ModuleBeginStreamSignalSentry(ActivityRegistry* a,
+                                    StreamContext const& sc,
+                                    ModuleCallingContext const& mcc) : a_(a), sc_(sc), mcc_(mcc) {
+        if(a_) a_->preModuleBeginStreamSignal_(sc_, mcc_);
+      }
+      ~ModuleBeginStreamSignalSentry() {
+        if(a_) a_->postModuleBeginStreamSignal_(sc_, mcc_);
+      }
+    private:
+      ActivityRegistry* a_;
+      StreamContext const& sc_;
+      ModuleCallingContext const& mcc_;
+    };
+
+    class ModuleEndStreamSignalSentry {
+    public:
+      ModuleEndStreamSignalSentry(ActivityRegistry* a,
+                                  StreamContext const& sc,
+                                  ModuleCallingContext const& mcc) : a_(a), sc_(sc), mcc_(mcc) {
+        if(a_) a_->preModuleEndStreamSignal_(sc_, mcc_);
+      }
+      ~ModuleEndStreamSignalSentry() {
+        if(a_) a_->postModuleEndStreamSignal_(sc_, mcc_);
+      }
+    private:
+      ActivityRegistry* a_;
+      StreamContext const& sc_;
+      ModuleCallingContext const& mcc_;
+    };
+
+    inline cms::Exception& exceptionContext(ModuleDescription const& iMD,
+                                     cms::Exception& iEx) {
+      iEx << iMD.moduleName() << "/" << iMD.moduleLabel() << "\n";
+      return iEx;
+    }
+
   }
 
-  static ActivityRegistry::PreModule defaultPreModuleSignal;
-  static ActivityRegistry::PostModule defaultPostModuleSignal;
-  static ActivityRegistry::PreModuleBeginJob defaultPreModuleBeginJobSignal;
-  static ActivityRegistry::PostModuleBeginJob defaultPostModuleBeginJobSignal;
-  static ActivityRegistry::PreModuleEndJob defaultPreModuleEndJobSignal;
-  static ActivityRegistry::PostModuleEndJob defaultPostModuleEndJobSignal;
-  
-  Worker::Sigs::Sigs() : preModuleSignal( &defaultPreModuleSignal ),
-    postModuleSignal( &defaultPostModuleSignal ),
-    preModuleBeginJobSignal(&defaultPreModuleBeginJobSignal),
-    postModuleBeginJobSignal(&defaultPostModuleBeginJobSignal),
-    preModuleEndJobSignal(&defaultPreModuleEndJobSignal),
-    postModuleEndJobSignal(&defaultPostModuleEndJobSignal){}
-  
   Worker::Worker(ModuleDescription const& iMD, 
-		 WorkerParams const& iWP):
-    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
+		 ExceptionToActionTable const* iActions) :
+    stopwatch_(),
     timesRun_(),
     timesVisited_(),
     timesPassed_(),
     timesFailed_(),
     timesExcept_(),
     state_(Ready),
-    md_(iMD),
-    actions_(iWP.actions_),
+    moduleCallingContext_(&iMD),
+    actions_(iActions),
     cached_exception_(),
-    sigs_()
+    actReg_(),
+    earlyDeleteHelper_(nullptr)
   {
   }
 
   Worker::~Worker() {
   }
 
-  void Worker::connect(ActivityRegistry::PreModule& pre,
-		       ActivityRegistry::PostModule& post,
-                       ActivityRegistry::PreModuleBeginJob& preBJ,
-                       ActivityRegistry::PostModuleBeginJob& postBJ,
-                       ActivityRegistry::PreModuleEndJob& preEJ,
-                       ActivityRegistry::PostModuleEndJob& postEJ) {
-    sigs_.preModuleSignal= &pre;
-    sigs_.postModuleSignal= &post;
-    sigs_.preModuleBeginJobSignal = &preBJ;
-    sigs_.postModuleBeginJobSignal = &postBJ;
-    sigs_.preModuleEndJobSignal = &preEJ;
-    sigs_.postModuleEndJobSignal = &postEJ;
+  void Worker::setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg) {
+    actReg_ = areg;
   }
 
-  void Worker::beginJob(EventSetup const& es) {
-    
+  void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) {
+    earlyDeleteHelper_=iHelper;
+  }
+  
+  void Worker::resetModuleDescription(ModuleDescription const* iDesc) {
+    ModuleCallingContext temp(iDesc,moduleCallingContext_.state(),moduleCallingContext_.parent(),
+                              moduleCallingContext_.previousModuleOnThread());
+    moduleCallingContext_ = temp;
+  }
+
+  void Worker::beginJob() {
     try {
-        CallPrePostBeginJob cpp(sigs_,md_);
-	implBeginJob(es);
+      convertException::wrap([&]() {
+        ModuleBeginJobSignalSentry cpp(actReg_.get(), description());
+        implBeginJob();
+      });
     }
-    catch(cms::Exception& e) {
-	// should event id be included?
-	LogError("BeginJob")
-	  << "A cms::Exception is going through "<< workerType()<<":\n";
-
-	e << "A cms::Exception is going through "<< workerType()<<":\n"
-	  << description();
-	throw;
-    }
-    catch(std::exception& e) {
-	LogError("BeginJob")
-	  << "An std::exception is going through "<< workerType()<<":\n"
-	  << description() << "\n";
-	throw;
-    }
-    catch(std::string& s) {
-	LogError("BeginJob") 
-	  << "module caught an std::string during beginJob\n";
-
-	throw cms::Exception("BadExceptionType","std::string") 
-	  << "string = " << s << "\n"
-	  << description() << "\n" ;
-    }
-    catch(char const* c) {
-	LogError("BeginJob") 
-	  << "module caught an const char* during beginJob\n";
-
-	throw cms::Exception("BadExceptionType","const char*") 
-	  << "cstring = " << c << "\n"
-	  << description() ;
-    }
-    catch(...) {
-	LogError("BeginJob")
-	  << "An unknown Exception occured in\n" << description() << "\n";
-	throw;
+    catch(cms::Exception& ex) {
+      state_ = Exception;
+      std::ostringstream ost;
+      ost << "Calling beginJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ex.addContext(ost.str());
+      throw;
     }
   }
   
   void Worker::endJob() {
-    using namespace std;
-    
     try {
-        CallPrePostEndJob cpp(sigs_,md_);
-	implEndJob();
+      convertException::wrap([&]() {
+        ModuleEndJobSignalSentry cpp(actReg_.get(), description());
+        implEndJob();
+      });
     }
-    catch(cms::Exception& e) {
-	LogError("EndJob")
-	  << "A cms::Exception is going through "<< workerType()<<":\n";
+    catch(cms::Exception& ex) {
+      state_ = Exception;
+      std::ostringstream ost;
+      ost << "Calling endJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ex.addContext(ost.str());
+      throw;
+    }
+  }
 
-	// should event id be included?
-	e << "A cms::Exception is going through "<< workerType()<<":\n"
-	  << description();
-	throw;
+  void Worker::beginStream(StreamID id, StreamContext& streamContext) {
+    try {
+      convertException::wrap([&]() {
+        streamContext.setTransition(StreamContext::Transition::kBeginStream);
+        streamContext.setEventID(EventID(0, 0, 0));
+        streamContext.setRunIndex(RunIndex::invalidRunIndex());
+        streamContext.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
+        streamContext.setTimestamp(Timestamp());
+        ParentContext parentContext(&streamContext);
+        ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+        moduleCallingContext_.setState(ModuleCallingContext::State::kRunning);
+        ModuleBeginStreamSignalSentry beginSentry(actReg_.get(), streamContext, moduleCallingContext_);
+        implBeginStream(id);
+      });
     }
-    catch(std::exception& e) {
-	LogError("EndJob")
-	  << "An std::exception is going through "<< workerType()<<":\n"
-	  << description() << "\n";
-	throw;
-    }
-    catch(std::string& s) {
-	LogError("EndJob") 
-	  << "module caught an std::string during endJob\n";
-
-	throw cms::Exception("BadExceptionType","std::string") 
-	  << "string = " << s << "\n"
-	  << description() << "\n";
-    }
-    catch(char const* c) {
-	LogError("EndJob") 
-	  << "module caught an const char* during endJob\n";
-
-	throw cms::Exception("BadExceptionType","const char*") 
-	  << "cstring = " << c << "\n"
-	  << description() << "\n";
-    }
-    catch(...) {
-	LogError("EndJob")
-	  << "An unknown Exception occured in\n" << description() << "\n";
-	throw;
+    catch(cms::Exception& ex) {
+      state_ = Exception;
+      std::ostringstream ost;
+      ost << "Calling beginStream for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ex.addContext(ost.str());
+      throw;
     }
   }
   
+  void Worker::endStream(StreamID id, StreamContext& streamContext) {
+    try {
+      convertException::wrap([&]() {
+        streamContext.setTransition(StreamContext::Transition::kEndStream);
+        streamContext.setEventID(EventID(0, 0, 0));
+        streamContext.setRunIndex(RunIndex::invalidRunIndex());
+        streamContext.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
+        streamContext.setTimestamp(Timestamp());
+        ParentContext parentContext(&streamContext);
+        ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+        moduleCallingContext_.setState(ModuleCallingContext::State::kRunning);
+        ModuleEndStreamSignalSentry endSentry(actReg_.get(), streamContext, moduleCallingContext_);
+        implEndStream(id);
+      });
+    }
+    catch(cms::Exception& ex) {
+      state_ = Exception;
+      std::ostringstream ost;
+      ost << "Calling endStream for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ex.addContext(ost.str());
+      throw;
+    }
+  }
+
+  void Worker::useStopwatch(){
+    stopwatch_.reset(new RunStopwatch::StopwatchPointer::element_type);
+  }
+  
+  void Worker::pathFinished(EventPrincipal& iEvent) {
+    if(earlyDeleteHelper_) {
+      earlyDeleteHelper_->pathFinished(iEvent);
+    }
+  }
+  void Worker::postDoEvent(EventPrincipal& iEvent) {
+    if(earlyDeleteHelper_) {
+      earlyDeleteHelper_->moduleRan(iEvent);
+    }
+  }
 }

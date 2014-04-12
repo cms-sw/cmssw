@@ -1,15 +1,12 @@
 #include "DQMServices/ClientConfig/interface/QTestConfigurationParser.h"
-#include "DQMServices/ClientConfig/interface/QTestNames.h"
 #include "DQMServices/ClientConfig/interface/QTestParameterNames.h"
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
-
+#include <cstring>
 #include <stdexcept>         
 /** \file
  *
  *  Implementation of QTestConfigurationParser
  *
- *  $Date: 2006/07/20 16:04:59 $
- *  $Revision: 1.2 $
  *  \author Ilaria Segoni
  */
 using namespace xercesc;
@@ -23,7 +20,7 @@ QTestConfigurationParser::QTestConfigurationParser(){
 
 	try { 
 		if (s_numberOfInstances==0) 
-		XMLPlatformUtils::Initialize();  
+		cms::concurrency::xercesInitialize();  
 	}
 	catch (const XMLException& e) {
 		throw(std::runtime_error("Standard pool exception : Fatal Error on pool::TrivialFileCatalog"));
@@ -52,12 +49,12 @@ bool QTestConfigurationParser::qtestsConfig(){
 	std::string testActivationOFF="false";
 
 	unsigned int qtestTagsNum  = 
- 	   doc->getElementsByTagName(qtxml::_toDOMS("QTEST"))->getLength();
+	  doc()->getElementsByTagName(qtxml::_toDOMS("QTEST"))->getLength();
 
 	for (unsigned int i=0; i<qtestTagsNum; ++i){
 		/// Get Node
 		DOMNode* qtestNode = 
-			doc->getElementsByTagName(qtxml::_toDOMS("QTEST"))->item(i);
+		  doc()->getElementsByTagName(qtxml::_toDOMS("QTEST"))->item(i);
 	
 	
 		///Get QTEST name
@@ -103,7 +100,7 @@ bool QTestConfigurationParser::qtestsConfig(){
 std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElement* qtestElement, std::string qtestType){
 	
 	std::map<std::string, std::string> paramNamesValues;
-	paramNamesValues[dqm::qtest_config::type]=qtestType;
+	paramNamesValues["type"]=qtestType;
 	
 	DOMNodeList *arguments = qtestElement->getElementsByTagName (qtxml::_toDOMS ("PARAM"));
 	
@@ -126,10 +123,12 @@ std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElemen
 bool QTestConfigurationParser::checkParameters(std::string qtestName, std::string qtestType){
 	
 	std::vector<std::string> paramNames=qtestParamNames->getTestParamNames(qtestType);
-	if(paramNames.size() == 0) {
+        // commenting out as does not seem to be logical SDutta 22/3/2013 
+	/*if(paramNames.size() == 0) {
 
 		return true;
-	}
+		}*/
+
 	paramNames.push_back("error");
 	paramNames.push_back("warning");
 	
@@ -150,13 +149,13 @@ bool QTestConfigurationParser::monitorElementTestsMap(){
 	std::string testOFF="false";
 	
 	unsigned int linkTagsNum  = 
- 	   doc->getElementsByTagName(qtxml::_toDOMS("LINK"))->getLength();
+	  doc()->getElementsByTagName(qtxml::_toDOMS("LINK"))->getLength();
 
 
 	for (unsigned int i=0; i<linkTagsNum; ++i){
 	
 		DOMNode* linkNode = 
-			doc->getElementsByTagName(qtxml::_toDOMS("LINK"))->item(i);
+		  doc()->getElementsByTagName(qtxml::_toDOMS("LINK"))->item(i);
 		///Get ME name
 		if (! linkNode){
 			return true;

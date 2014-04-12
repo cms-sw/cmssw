@@ -5,8 +5,6 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/05/22 07:15:56 $
- *  $Revision: 1.2 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -19,9 +17,10 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <memory>
@@ -50,10 +49,10 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
-  void beginRun(const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -64,15 +63,29 @@ protected:
   /// book the new ME
   void bookHistos(const DTChamberId & ch);
 
+  /// book the summary histograms
+  void bookHistos(const DTChamberId & ch, int wh);
+
   /// Get the ME name
   std::string getMEName(const DTSuperLayerId & slID);
+
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+
+  /// DQM Client Diagnostic
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
+
 
 
 private:
 
   int nevents;
+  unsigned int nLumiSegs;
+  int prescaleFactor;
+  int run;
+  int percentual;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
@@ -82,6 +95,9 @@ private:
 
   // histograms: < detRawID, Histogram >
   std::map<  uint32_t , MonitorElement* > histos;
+
+  // wheel summary histograms  
+  std::map< int, MonitorElement* > wheelHistos;
 
 };
 

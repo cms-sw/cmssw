@@ -4,33 +4,215 @@
       lang     = "en"> 
 
  <head>
-  <title>SiPixel DQM Viewer</title>
+  <title>Pixel DQM Viewer</title>
   <meta http-equiv = "content-type" 
         content    = "text/html; charset=utf-8" />
   <meta name       = "keywords" 
         content    = "css, stylesheets, form" />
   <link rel = "stylesheet" type = "text/css" href = "css_files/Online.css"             />
-  <link rel = "stylesheet" type = "text/css" href = "css_files/tab-view.css"           />
+  <link rel = "stylesheet" type = "text/css" href = "css_files/tab-view.css"	       />
   <link rel = "stylesheet" type = "text/css" href = "css_files/context-menu.css"       />
   <link rel = "stylesheet" type = "text/css" href = "css_files/folder-tree-static.css" />
-  <link rel = "stylesheet" type = "text/css" href = "css_files/IMGC.css"               />
+  <link rel = "stylesheet" type = "text/css" href = "css_files/IMGC.css"	       />
+<!--  <link rel = "stylesheet" type = "text/css" href = "../../TrackerCommon/test/css_files/tab-view.css"           />
+  <link rel = "stylesheet" type = "text/css" href = "../../TrackerCommon/test/css_files/context-menu.css"       />
+  <link rel = "stylesheet" type = "text/css" href = "../../TrackerCommon/test/css_files/folder-tree-static.css" />
+  <link rel = "stylesheet" type = "text/css" href = "../../TrackerCommon/test/css_files/IMGC.css"               />
+-->
   <script type = "text/javascript" src = "WebLib.js">                                  </script> 
-  <script type = "text/javascript" src = "js_files/tab-view.js">                       </script>
+  <script type = "text/javascript" src = "js_files/tab-view.js">		       </script>
   <script type = "text/javascript" src = "js_files/scriptaculous/lib/prototype.js">    </script>
   <script type = "text/javascript" src = "js_files/scriptaculous/src/scriptaculous.js"></script>
   <script type = "text/javascript" src = "js_files/scriptaculous/lib/moo.fx.js">       </script>
-  <script type = "text/javascript" src = "js_files/IMGC.js">                           </script>
+  <script type = "text/javascript" src = "js_files/IMGC.js">			       </script>
+  <script type = "text/javascript" src = "js_files/SlideShow.js">		       </script>
+<!--  <script type = "text/javascript" src = "../../TrackerCommon/test/js_files/tab-view.js">                       </script>
+  <script type = "text/javascript" src = "../../TrackerCommon/test/js_files/scriptaculous/lib/prototype.js">    </script>
+  <script type = "text/javascript" src = "../../TrackerCommon/test/js_files/scriptaculous/src/scriptaculous.js"></script>
+  <script type = "text/javascript" src = "../../TrackerCommon/test/js_files/scriptaculous/lib/moo.fx.js">       </script>
+  <script type = "text/javascript" src = "../../TrackerCommon/test/js_files/IMGC.js">                           </script>
+  <script type = "text/javascript" src = "../../TrackerCommon/test/js_files/SlideShow.js">                      </script>
+-->
   <script type = "text/javascript">
    function CloseUpperWindow()
    {
-    var frameSet = parent.document.getElementsByTagName("frameset") ;
-    frameSet[0].setAttribute("rows","0,100%") ;
+    var url = WebLib.getApplicationURL2();
+    var s0          = (url.lastIndexOf(".ch:")+4);
+    var s1          = url.lastIndexOf("/urn:");
+    var port_number = url.substring(s0, s1);
+    if (port_number == "1972") {
+      var frameSet = parent.document.getElementsByTagName("frameset") ;
+      frameSet[0].setAttribute("rows","0,100%") ;
+    }
+   }
+   function ShowTabs(option) 
+   {
+     var obj = document.getElementById("dhtmlgoodies_tabView1");
+     if (obj == null) return;
+     obj.style.visibility = option; // "visible" or "hidden"
+   }
+   function ShowButtons(option) 
+   {
+     var obj;
+     obj = document.getElementById("collate_me");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("create_summary");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("check_qtest_result");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("create_tkmap");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("pixel_summary_overview_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("barrel_summary_overview_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("endcap_summary_overview_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("structure_for_overview");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("errorOverview_slideShow");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("errorOverview_plot_creation");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("errorOverview_plot_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("summary_plot_creation");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("update_slideshow");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("save_to_file");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("start_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("previous_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("play_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("stop_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("next_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("end_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("list_ME_command");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("refreshInterval");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("create_tkmap");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("list_module");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("TKMapContentType");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("structure_for_module");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("clearSingleModuleViewTree");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("list_summary");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("structure_name");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("clearSingleModuleViewTree");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("read_alarm");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("structure_for_alarm");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("clearAlarmViewTree");
+     if (obj != null ) obj.disabled=option;
+   }
+   function ShowProgress (option) 
+   {
+     var progress = document.getElementById("progressIcon");
+     if (progress == null) return;
+   
+     var label = document.getElementById("progress_message");
+     if (label == null) return;
+   
+     var args = arguments[1];
+     if (args != null && args.length > 0) {
+       label.innerHTML = args;
+     }
+     progress.style.visibility = option; // "visible" or "hidden"
+   }
+   function RequestReadyState() 
+   {
+     var queryString;
+     var url = WebLib.getApplicationURL2();
+     queryString = "RequestID=IsReady";
+     url += queryString;
+     WebLib.makeRequest(url, FillReadyState);
+   }
+   function FillReadyState() 
+   {
+     if (WebLib.http_request.readyState == 4) {
+       if (WebLib.http_request.status == 200) {
+         try {
+           var callAgain = false;
+           var doc = WebLib.http_request.responseXML;
+           var root = doc.documentElement;
+           var hrows = root.getElementsByTagName('LName');
+           if (hrows.length < 1) {
+             callAgain = true; 
+           } 
+           else {
+
+             for (var i = 0; i < hrows.length; i++) {
+               var l_name  = hrows[i].childNodes[0].nodeValue;
+	       var slideName = l_name + ".png";
+               ErrorListFiles.push(slideName); 
+	       slideName = "Plot=" + slideName + "&Folder=" + l_name;
+               ErrorListTitles.push(slideName); 
+
+               var MErows = root.getElementsByTagName('LMEName');
+               for (var j = 0; j < MErows.length; j++) {
+                 var lME_name = MErows[j].childNodes[0].nodeValue;
+                 if( lME_name.match(l_name) ){ 
+		   slideName = lME_name + ".png";
+                   slideListFiles.push(slideName); 
+		   if(l_name.match("Barrel")) BarrelListFiles.push(slideName); 
+		   if(l_name.match("Endcap")) EndcapListFiles.push(slideName); 
+		   slideName = "Plot=" + slideName + "&Folder=" + l_name;
+                   slideListTitles.push(slideName); 
+		   if(l_name.match("Barrel")) BarrelListTitles.push(slideName); 
+		   if(l_name.match("Endcap")) EndcapListTitles.push(slideName); 
+                 }
+               }
+
+             }
+             nSlides = slideListFiles.length;
+
+       	     ShowButtons(false);
+             ShowTabs('visible');
+             ShowProgress('hidden');
+
+           }
+           if (callAgain){
+             setTimeout('RequestReadyState()',20000);
+           }
+         } 
+         catch (err) {
+           alert ("Error detail: " + err.message); 
+         }
+       }
+     }
+   }
+
+   function Onload()
+   {
+     try{
+       CloseUpperWindow();
+       ShowProgress("visible","&nbsp Histograms from Collector");
+       RequestReadyState();
+     }catch(e){
+       alert(e.message);
+     }
    }
   </script> 
  </head>
  
  <body onresize = "IMGC.repaintUponResize()"
-       onload   = "CloseUpperWindow()">
+       onload   = "Onload(); CloseUpperWindow()">
   <form id     = "theWholeForm"
   	action = "javascript:void%200">
 
@@ -41,120 +223,24 @@
   	style = "width:  70%  ; 
 	         height: 100% ; 
 		 float:  left ;">
-    <fieldset id    = "theCanvasField"
-              style = "background: #225587;
-	               width:      95%;
-		       height:     100%;">
-     <legend id    = "theLegend"
-             style = "background: #225587;
-	              font-family: Verdana, Arial;
-		      font-size:  12px;
-		      color:      #ffb400;">
-      &nbsp; Drawing Canvas &nbsp;
-     </legend>
-     <div id	= "mainContainer"
-          align = "center">
+     <fieldset style = "background:#DDEFFF;"> 
+         <div id = "progressIcon">	 
+          <h3>
+           <img id  = "progress_icon"
+	        src = "images/loading.gif" 
+		border = "0" /> 
+                &nbsp; Please, wait, loading...
+           </img>
+           <label class = "label"
+                  id    = "progress_message"
+                  style = "text-align:left;">
+           </label>
+          </h3>
+         </div>
+     </fieldset>
+   </div> 
 
-      <!-- The canvas control buttons -->
-      <div  id    = "controls">
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "normalSize"
-               value   = "=">=
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "smallerSize"
-               value   = "-">-
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "firstPage"
-               value   = "<<">&lt;&lt;
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "previousPage"
-               value   = "<">&lt;
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "nextPage"
-               alt     = "Next page"
-               value   = ">">&gt;
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "lastPage"
-               value   = ">>">&gt;&gt;
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "largerSize"
-               value   = "+">+
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "maximizeSize"
-               value   = "M">M
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "fourXfour"
-               value   = "4x4">4x4
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "twoXtwo"
-               value   = "2x2">2x2
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "twoXone"
-               value   = "2x1">2x1
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "oneXone"
-               value   = "1x1">1x1
-       </button>
-      </div>
-      <p/>
-
-      <!-- Where the ME provenance (folder and name) is displayed when the user moves the mouse around -->
-      <div id	= "imgTitleDiv">
-       <input id    = "imgTitle"
-              class = "inputText"
-              type  = "text"
-              value = ""/>
-      </div>
-      <p/>
-
-      <!-- The actual canvas where ME plots are displayed -->
-      <div  id    = "canvasBorder">
-       <div id    = "imageCanvas"
-            style = "position: relative">
-       </div>
-      </div>
-      
-     </div>
-
-    </fieldset>
-   </div>
-
-   <!-- The right frame: the DQM controls -->
-   
+   <!-- The right frame: the DQM controls -->   
    <div class = "dqmControls"
         id    = "dqmControls"
         style = "width:  30%   ; 
@@ -170,76 +256,47 @@
     		      color:	  black;">
       &nbsp; Client Controls &nbsp; 
      </legend>
-      <div class="bloc"  id="bloc2_1" style="background:#C093FF;">
-       <div    id = "dhtmlgoodies_tabView1" 
-            style = "float:  right;
-                     width:  300px;">
+      <div class = "bloc"  
+           id    = "bloc2_1" 
+	   style = "background:#C093FF;">
+       <div  id    = "dhtmlgoodies_tabView1" 
+             style = "float:  right;
+                      width:  300px;">
         <div class = "dhtmlgoodies_aTab">
          <div class = "bloc" 
-              id    = "bloc2_2">
-               <!-- These are the non-expert action buttons: -->
-           <input name    = "summary"
-            	  id	  = "create_summary"
-            	  class   = "controlButton"
-            	  value   = "Update Summary"
-            	  onClick = "ClientActions.CreateSummary()"
-            	  type    = "submit">
-           </input>
-           <input name    = "QtestResult"
-            	  id	  = "check_qtest_result"
-            	  class   = "controlButton"
-            	  value   = "Update QTests"
-            	  onClick = "ClientActions.CheckQualityTestResults()"
-            	  type    = "submit">
-           </input>
-         </div>
-        </div>
-        <div class = "dhtmlgoodies_aTab">
-         <div class = "bloc" 
-              id    = "bloc2_3">
-          <!-- These are the expert action buttons: -->
-          <input name	 = "subscribe"
-           	 id	 = "subscribe_all"
-           	 class   = "controlButton"
-           	 value   = "Subscribe All"
-           	 onClick = "ClientActions.SubscribeAll()"
-           	 type	 = "submit">
+              id    = "bloc2_2"
+          <!-- These are the Summary Canvas buttons: -->
+          <label id	 = "summary_canvas"
+          	 style   = "margin-left:2%">
+              Status Summary:
+          </label>
+           <!-- <input name	 = "PixelSummaryOverviewShow" 
+          	 id	 = "pixel_summary_overview_show"
+          	 class   = "controlButton"
+          	 value   = "testing" 
+          	 onClick = "IMGC.plotFromPath('Pixel/Barrel/Shell_mI/Layer_1/Ladder_01H/Module_1')"
+          	 type	 = "submit">
+          </input> -->
+          <input name	 = "BarrelSummaryOverviewShow" 
+          	 id	 = "barrel_summary_overview_show"
+          	 class   = "controlButton"
+          	 value   = "Barrel" 
+          	 onClick = "IMGC.plotFromPath('Pixel/Barrel')"
+          	 type	 = "submit">
           </input>
-          <input name	 = "collate"
-           	 id	 = "collate_me"
-           	 class   = "controlButton"
-           	 value   = "Collate MEs"
-           	 onClick = "ClientActions.CollateME()"
-           	 type	 = "submit">
-          </input>
-          <input name	 = "summary"
-           	 id	 = "create_summary"
-           	 class   = "controlButton"
-           	 value   = "Update Summary"
-           	 onClick = "ClientActions.CreateSummary()"
-           	 type	 = "submit">
-          </input>
-          <input name	 = "QtestResult"
-           	 id	 = "check_qtest_result"
-           	 class   = "controlButton"
-           	 value   = "Update QTests"
-           	 onClick = "ClientActions.CheckQualityTestResults()"
-           	 type	 = "submit">
-          </input>
-          <input name	 = "save"
-           	 id	 = "save_to_file"
-           	 class   = "controlButton"
-           	 value   = "Save All"
-           	 onClick = "ClientActions.SaveToFile()"
-           	 type	 = "submit">
+          <input name	 = "EndcapSummaryOverviewShow" 
+          	 id	 = "endcap_summary_overview_show"
+          	 class   = "controlButton"
+          	 value   = "Endcap" 
+          	 onClick = "IMGC.plotFromPath('Pixel/Endcap')"
+          	 type	 = "submit">
           </input>
          </div>
         </div>
        
-        <fieldset>
-         <legend>
-	  Tracker Map Controls
-	 </legend>
+        <div class = "dhtmlgoodies_aTab">
+         <div class = "bloc" 
+              id    = "bloc2_3">
          <input name	= "listMECommand"
          	id	= "list_ME_command"
          	class	= "controlButton"
@@ -292,34 +349,64 @@
             <option	     value = "Alarms"	>Alarms  </option>
             <option	     value = "Entries"  >Entries </option>
          </select>
-
-         <div id = "progressIcon">	 
-          <h3>
-           <img src="images/loading.gif" border="0" /> 
-           &nbsp; Please, wait, loading...
-          </h3>
-
-         </div>
-        </fieldset>
-       </div>
+        </div> 
       </div>
+        <div class = "dhtmlgoodies_aTab">
+         <div class = "bloc" 
+              id    = "bloc2_4"
+          <!-- These are the expert action buttons: -->
+          <input name	 = "subscribe"
+           	 id	 = "subscribe_all"
+           	 class   = "controlButton"
+           	 value   = "Subscribe All"
+           	 onClick = "ClientActions.SubscribeAll()"
+           	 type	 = "submit">
+          </input>
+          <input name	 = "dump"
+           	 id	 = "dump_modIds"
+           	 class   = "controlButton"
+           	 value   = "Dump IDs"
+           	 onClick = "ClientActions.DumpModIds()"
+           	 type	 = "submit">
+          </input>
+          <input name	 = "summary"
+           	 id	 = "create_summary"
+           	 class   = "controlButton"
+           	 value   = "Update Summary"
+           	 onClick = "ClientActions.CreateSummary()"
+           	 type	 = "submit">
+          </input>
+          <input name	 = "QtestResult"
+           	 id	 = "check_qtest_result"
+           	 class   = "controlButton"
+           	 value   = "Update QTests"
+           	 onClick = "ClientActions.CheckQualityTestResults()"
+           	 type	 = "submit">
+          </input>
+          <!-- <input name	 = "save"
+           	 id	 = "save_to_file"
+           	 class   = "controlButton"
+           	 value   = "Save All"
+           	 onClick = "ClientActions.SaveToFile()"
+           	 type	 = "submit">
+          </input> -->
+         </div>
+        </div>
      </fieldset>
-    
+
      <!-- Following is the area to display the trees: -->
      <fieldset style = "background:#DDEFFF;">
 
-      <label>
-       Detector Trees
-      </label>
+      <label>Detector Trees</label>
       
       <div id = "dhtmlgoodies_tabView2" 
            style = "float:  right;
         	    width:  300px;">
        <div class = "dhtmlgoodies_aTab">
         <div class = "bloc" 
-             id    = "bloc2_4">
+             id    = "bloc2_5">
          <div class = "bloc" 
-              id    = "bloc2_4_1">
+              id    = "bloc2_5_1">
           <label id    = "structures"
                  style = "margin-left:1%">
            Sub-Detectors:
@@ -327,19 +414,19 @@
           <select name  = "struc_name"
           	  id	= "structure_for_module"
           	  class = "selector">
-             <option value = "Tracker" 							  > ALL PIXELS	               </option>
-             <option value = "Tracker/PixelBarrel"					  > BPIX        	       </option>
-             <option value = "Tracker/PixelEndcap"					  > FPIX        	       </option>
-             <option value = "Tracker/PixelBarrel/Shell_mI" 		SELECTED	  > BPIX/Shell_mI	       </option>
-             <option value = "Tracker/PixelBarrel/Shell_mO"				  > BPIX/Shell_mO              </option>
-             <option value = "Tracker/PixelBarrel/Shell_pI"				  > BPIX/Shell_pI              </option>
-             <option value = "Tracker/PixelBarrel/Shell_pO"				  > BPIX/Shell_pO              </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_mI"			  > FPIX/HalfCylinder_mI       </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_mO"			  > FPIX/HalfCylinder_mO       </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_pI"			  > FPIX/HalfCylinder_pI       </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_pO"			  > FPIX/HalfCylinder_pO       </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_1</option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_2</option>
+             <option value = "Pixel" 							  > ALL PIXELS	               </option>
+             <option value = "Pixel/Barrel"					  > Barrel        	       </option>
+             <option value = "Pixel/Endcap"					  > Endcap        	       </option>
+             <option value = "Pixel/Barrel/Shell_mI" 		SELECTED	  > Barrel/Shell_mI		   </option>
+             <option value = "Pixel/Barrel/Shell_mO"				  > Barrel/Shell_mO		   </option>
+             <option value = "Pixel/Barrel/Shell_pI"				  > Barrel/Shell_pI		   </option>
+             <option value = "Pixel/Barrel/Shell_pO"				  > Barrel/Shell_pO		   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_mI"			  > Endcap/HalfCylinder_mI	   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_mO"			  > Endcap/HalfCylinder_mO	   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_pI"			  > Endcap/HalfCylinder_pI	   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_pO"			  > Endcap/HalfCylinder_pO	   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> Endcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1</option>
+             <option value = "Pixel/Endcap/HalfCylinder_pO/Disk_2/Blade_01/Panel_1"> Endcap/HalfCylinder_pO/Disk_2/Blade_01/Panel_1</option>
           </select>
           <p />
           <input name	 = "listmodule"
@@ -367,9 +454,9 @@
              
        <div class = "dhtmlgoodies_aTab">
         <div class = "bloc" 
-             id	   = "bloc2_5">
+             id	   = "bloc2_6">
          <div class = "bloc" 
-              id    = "bloc2_5_1">
+              id    = "bloc2_6_1">
           <label id    = "structures"
                  class = "label">
            Sub-Detectors:
@@ -377,10 +464,18 @@
            <select name  = "struc_name"
            	   id	 = "structure_name"
            	   class = "selector">
-              <option value = "Tracker"		            				   > ALL PIXELS 		</option>
-              <option value = "Tracker/PixelBarrel" SELECTED				   > BPIX			</option>
-              <option value = "Tracker/PixelEndcap"         				   > FPIX			</option>
-              <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_2</option>
+              <option value = "Pixel"	            				   > ALL PIXELS 		</option>
+              <option value = "Pixel/Barrel" SELECTED				   > Barrel			</option>
+              <option value = "Pixel/Endcap"         				   > Endcap			</option>
+              <option value = "Pixel/Barrel/Shell_mI"> Barrel/Shell_mI</option>
+              <option value = "Pixel/Barrel/Shell_mO"> Barrel/Shell_mO</option>
+              <option value = "Pixel/Barrel/Shell_pI"> Barrel/Shell_pI</option>
+              <option value = "Pixel/Barrel/Shell_pO"> Barrel/Shell_pO</option>
+              <option value = "Pixel/Endcap/HalfCylinder_mI"> Endcap/HalfCylinder_mI</option>
+              <option value = "Pixel/Endcap/HalfCylinder_mO"> Endcap/HalfCylinder_mO</option>
+              <option value = "Pixel/Endcap/HalfCylinder_pI"> Endcap/HalfCylinder_pI</option>
+              <option value = "Pixel/Endcap/HalfCylinder_pO"> Endcap/HalfCylinder_pO</option>
+              <option value = "Pixel/Endcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> Endcap/HalfCylinder_pO/Disk_2</option>
            </select>
            <p />
            <input name    = "listsummary"
@@ -408,9 +503,9 @@
 
        <div class = "dhtmlgoodies_aTab">
         <div class = "bloc" 
-           id	 = "bloc2_6">
+           id	 = "bloc2_7">
          <div class = "bloc" 
-            id    = "bloc2_6_1">
+            id    = "bloc2_7_1">
           <label id    = "alarm_structures"
                  class = "label">
            Sub-Detectors:
@@ -418,9 +513,9 @@
           <select name  = "struc_alarm"
           	  id	= "structure_for_alarm"
           	  class = "selector">
-             <option value = "Tracker"> ALL PIXELS		  </option>
-             <option value = "Tracker/PixelBarrel" SELECTED> BPIX </option>
-             <option value = "Tracker/PixelEndcap"> FPIX	  </option>
+             <option value = "Pixel"> ALL PIXELS		  </option>
+             <option value = "Pixel/Barrel" SELECTED> Barrel </option>
+             <option value = "Pixel/Endcap"> Endcap	  </option>
           </select> 
           <p />
           <input name	 = "listalarm"
@@ -454,7 +549,7 @@
   </form>
   
   <script type="text/javascript">
-   initTabs('dhtmlgoodies_tabView1', Array('Non-expert Actions','Expert Actions'), 0, '99.5%','100%');
+   initTabs('dhtmlgoodies_tabView1', Array('Summary Slides','TrackerMaps','Expert Actions'), 0, '99.5%','100%');
    initTabs('dhtmlgoodies_tabView2', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
   </script>
   

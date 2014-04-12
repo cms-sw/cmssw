@@ -1,5 +1,4 @@
-// $Id: testRangeMap.cc,v 1.13 2007/01/22 23:56:59 wmtan Exp $
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
 
@@ -18,7 +17,6 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testRangeMap);
 
 #include <iostream>
-using namespace std;
 
 struct MatchOddId {
   bool operator()(int i) const { return i % 2 == 1; }

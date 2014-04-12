@@ -28,8 +28,8 @@ DCSPTMTempList::~DCSPTMTempList()
 }
 
 
-void DCSPTMTempList::fetchValuesForECID(EcalLogicID ecid)
-  throw(runtime_error)
+void DCSPTMTempList::fetchValuesForECID(const EcalLogicID& ecid)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -87,14 +87,14 @@ void DCSPTMTempList::fetchValuesForECID(EcalLogicID ecid)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("DCSPTMTempList:  "+e.getMessage()));
+    throw(std::runtime_error("DCSPTMTempList:  "+e.getMessage()));
   }
 
 
 }
 
-void DCSPTMTempList::fetchValuesForECIDAndTime(EcalLogicID ecid, Tm start, Tm end)
-  throw(runtime_error)
+void DCSPTMTempList::fetchValuesForECIDAndTime(const EcalLogicID& ecid, const Tm& start, const Tm& end)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -163,7 +163,7 @@ void DCSPTMTempList::fetchValuesForECIDAndTime(EcalLogicID ecid, Tm start, Tm en
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("DCSPTMTempList:  "+e.getMessage()));
+    throw(std::runtime_error("DCSPTMTempList:  "+e.getMessage()));
   }
 
 

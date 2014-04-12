@@ -13,13 +13,12 @@ class InduceChargeFP420: public IChargeFP420{
   virtual ~InduceChargeFP420() {}
 //
 //
-  IChargeFP420::hit_map_type induce(CDrifterFP420::collection_type, int, double, int, double, int);
-
+  IChargeFP420::hit_map_type induce(const CDrifterFP420::collection_type&, int numStrips, double localPitch, int numStripsW, double localPitchW, int xytype, int verbosity);
 //
 //
  private:
 
-  vector<float> signalCoupling; 
+  std::vector<float> signalCoupling; 
 
   double clusterWidth;
   double geVperElectron;

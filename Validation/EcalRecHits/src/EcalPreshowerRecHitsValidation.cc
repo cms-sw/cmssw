@@ -1,7 +1,6 @@
 /*
  * \file EcalPreshowerRecHitsValidation.cc
  *
- * $Date: 2006/10/17 09:56:12 $
  * \author C. Rovelli
  *
  */
@@ -9,6 +8,7 @@
 #include <Validation/EcalRecHits/interface/EcalPreshowerRecHitsValidation.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -19,26 +19,19 @@ EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(const ParameterSe
 
 
   // ----------------------
-  EEuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
-  EErechitCollection_        = ps.getParameter<edm::InputTag>("EErechitCollection");
-  ESrechitCollection_        = ps.getParameter<edm::InputTag>("ESrechitCollection");
+  EEuncalibrechitCollection_token_ = consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
+  EErechitCollection_token_        = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"));
+  ESrechitCollection_token_        = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
 
 
   // ---------------------- 
   // verbosity switch 
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
   
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
-
-
   // ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();                   
+  dbe_ = Service<DQMStore>().operator->();                   
   if ( dbe_ ) {
     if ( verbose_ ) {
       dbe_->setVerbose(1);
@@ -78,22 +71,22 @@ EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(const ParameterSe
   Char_t histo[200];
   if ( dbe_ ) 
     {
-      dbe_->setCurrentFolder("EcalPreshowerRecHitsTask");
+      dbe_->setCurrentFolder("EcalRecHitsV/EcalPreshowerRecHitsTask");
 
       sprintf (histo, "ES Energy" );
-      meESRecHitsEnergy_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
       
       sprintf (histo, "ES Energy Plane1 Side+" );
-      meESRecHitsEnergy_zp1st_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_zp1st_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
 
       sprintf (histo, "ES Energy Plane2 Side+");
-      meESRecHitsEnergy_zp2nd_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_zp2nd_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
      
       sprintf (histo, "ES Energy Plane1 Side-");
-      meESRecHitsEnergy_zm1st_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_zm1st_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
 
       sprintf (histo, "ES Energy Plane2 Side-");
-      meESRecHitsEnergy_zm2nd_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_zm2nd_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
 
       sprintf (histo, "ES Multiplicity" );
       meESRecHitsMultip_ = dbe_->book1D(histo, histo, 100, 0., 700.);
@@ -111,10 +104,10 @@ EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(const ParameterSe
       meESRecHitsMultip_zm2nd_ = dbe_->book1D(histo, histo, 100, 0., 700.);
 
       sprintf (histo, "Preshower EE vs ES energy Side+");
-      meESEERecHitsEnergy_zp_ = dbe_->book2D(histo, histo, 100, 0., 0.1, 100, 0., 40.);
+      meESEERecHitsEnergy_zp_ = dbe_->book2D(histo, histo, 100, 0., 0.2, 100, 0., 150.);
 
       sprintf (histo, "Preshower EE vs ES energy Side-");
-      meESEERecHitsEnergy_zm_ = dbe_->book2D(histo, histo, 100, 0., 0.1, 100, 0., 40.);
+      meESEERecHitsEnergy_zm_ = dbe_->book2D(histo, histo, 100, 0., 0.2, 100, 0., 150.);
 
       for (int kk=0; kk<32; kk++)
 	{ 
@@ -137,7 +130,7 @@ EcalPreshowerRecHitsValidation::~EcalPreshowerRecHitsValidation(){
 
 }
 
-void EcalPreshowerRecHitsValidation::beginJob(const EventSetup& c){  
+void EcalPreshowerRecHitsValidation::beginJob(){  
 
 }
 
@@ -146,36 +139,39 @@ void EcalPreshowerRecHitsValidation::endJob(){
 }
 
 void EcalPreshowerRecHitsValidation::analyze(const Event& e, const EventSetup& c){
-  
+
+  const ESRecHitCollection *ESRecHit = 0;
   Handle<ESRecHitCollection> EcalRecHitES;
-  try {
-    e.getByLabel( ESrechitCollection_, EcalRecHitES);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalPreshowerRecHitTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
+  e.getByToken( ESrechitCollection_token_, EcalRecHitES);
+  if (EcalRecHitES.isValid()) {
+    ESRecHit = EcalRecHitES.product ();
+  } else {
+    return;
   }
 
+  bool skipEE = false;
+  const EERecHitCollection *EERecHit = 0;
   Handle<EERecHitCollection> EcalRecHitEE;
-  try {
-    e.getByLabel( EErechitCollection_, EcalRecHitEE);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
+  e.getByToken( EErechitCollection_token_, EcalRecHitEE);
+  if (EcalRecHitEE.isValid()){   
+    EERecHit = EcalRecHitEE.product ();  
+  } else {
+    skipEE = true;
   }
-  
+
+  const EEUncalibratedRecHitCollection *EEUncalibRecHit = 0;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  try {
-    e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
+  e.getByToken( EEuncalibrechitCollection_token_, EcalUncalibRecHitEE);
+  if (EcalUncalibRecHitEE.isValid()) {
+    EEUncalibRecHit = EcalUncalibRecHitEE.product() ;
+  } else {
+    skipEE = true;
   }
 
 
 
   // ---------------------- 
   // loop over RecHits
-  const ESRecHitCollection *ESRecHit = EcalRecHitES.product ();
-  const EERecHitCollection *EERecHit = EcalRecHitEE.product ();
-  const EEUncalibratedRecHitCollection *EEUncalibRecHit = EcalUncalibRecHitEE.product() ;
-
   // multiplicities
   int mult_tot       = 0;
   int mult_zp1st     = 0;
@@ -251,21 +247,23 @@ void EcalPreshowerRecHitsValidation::analyze(const Event& e, const EventSetup& c
   // EE
   double zpEE = 0.;
   double zmEE = 0.;
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end() ; ++uncalibRecHit)
-    {
-      EEDetId EEid = EEDetId(uncalibRecHit->id());
-      int mySide = EEid.zside();
-      
-      // Find corresponding recHit
-      EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
-      
-      if (myRecHit != EERecHit->end() )
-	{
-	  if (mySide > 0) { zpEE = zpEE + myRecHit->energy(); }
-	  if (mySide < 0) { zmEE = zmEE + myRecHit->energy(); }
-	}
-    } 
-  
+  if ( ! skipEE ) {
+    
+    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end() ; ++uncalibRecHit)
+      {
+        EEDetId EEid = EEDetId(uncalibRecHit->id());
+        int mySide = EEid.zside();
+        
+        // Find corresponding recHit
+        EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
+        
+        if (myRecHit != EERecHit->end() )
+          {
+            if (mySide > 0) { zpEE = zpEE + myRecHit->energy(); }
+            if (mySide < 0) { zmEE = zmEE + myRecHit->energy(); }
+          }
+      } 
+  }
   
 
   // filling histos

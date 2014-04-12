@@ -2,128 +2,289 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/07/12 08:50:56 $
- *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
+#include <vector>
+#include <string>
+#include <iostream>
+#include <iomanip>
+#include <boost/foreach.hpp>
 
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <cassert>
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+
+// needed for trigger bits from EventSetup as in ALCARECO paths
+#include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
+#include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
+
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
 //
 // constructors and destructor
 //
 HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
-  inputTag_ (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
-  triggerNames_(),
-  andOr_    (iConfig.getParameter<bool> ("andOr" )),
-  n_        (0)
-
+  inputTag_     (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
+  inputToken_   (consumes<edm::TriggerResults>(inputTag_)),
+  triggerNamesID_ (),
+  andOr_        (iConfig.getParameter<bool> ("andOr")),
+  throw_        (iConfig.getParameter<bool> ("throw")),
+  eventSetupPathsKey_(iConfig.getParameter<std::string>("eventSetupPathsKey")),
+  watchAlCaRecoTriggerBitsRcd_(0),
+  HLTPatterns_  (iConfig.getParameter<std::vector<std::string> >("HLTPaths")),
+  HLTPathsByName_(),
+  HLTPathsByIndex_()
 {
-  // get names from module parameters, then derive slot numbers
-  HLTPathsByName_= iConfig.getParameter<std::vector<std::string > >("HLTPaths");
-  n_=HLTPathsByName_.size();
-  HLTPathsByIndex_.resize(n_);
+  // names and slot numbers are computed during the event loop, 
+  // as they need to access the TriggerNames object via the TriggerResults
 
-  // this is a user/analysis filter: it places no product into the event!
-
+  if (eventSetupPathsKey_.size()) {
+    // If paths come from eventsetup, we must watch for IOV changes.
+    if (!HLTPatterns_.empty()) {
+      // We do not want double trigger path setting, so throw!
+      throw cms::Exception("Configuration")
+        << " HLTHighLevel instance: "<< iConfig.getParameter<std::string>("@module_label")
+        << "\n configured with " << HLTPatterns_.size()	<< " HLTPaths and\n"
+        << " eventSetupPathsKey " << eventSetupPathsKey_ << ", choose either of them.";
+    }
+    watchAlCaRecoTriggerBitsRcd_ = new edm::ESWatcher<AlCaRecoTriggerBitsRcd>;
+  }
 }
 
 HLTHighLevel::~HLTHighLevel()
 {
+  delete watchAlCaRecoTriggerBitsRcd_; // safe on null pointer...
 }
 
 //
 // member functions
 //
 
+void
+HLTHighLevel::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("TriggerResultsTag",edm::InputTag("TriggerResults","","HLT"));
+  std::vector<std::string> hltPaths(0);
+  // # provide list of HLT paths (or patterns) you want
+  desc.add<std::vector<std::string> >("HLTPaths",hltPaths);
+  // # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+  desc.add<std::string>("eventSetupPathsKey","");
+  // # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+  desc.add<bool>("andOr",true);
+  // # throw exception on unknown path names
+  desc.add<bool>("throw",true);
+  descriptions.add("hltHighLevel", desc);
+}
+
+// Initialize the internal trigger path representation (names and indices) from the 
+// patterns specified in the configuration.
+// This needs to be called once at startup, whenever the trigger table has changed
+// or in case of paths from eventsetup and IOV changed
+void HLTHighLevel::init(const edm::TriggerResults & result,
+                        const edm::Event &event,
+                        const edm::EventSetup& iSetup,
+                        const edm::TriggerNames & triggerNames )
+{
+  unsigned int n;
+
+  // clean up old data
+  HLTPathsByName_.clear();
+  HLTPathsByIndex_.clear();
+
+  // Overwrite paths from EventSetup via AlCaRecoTriggerBitsRcd if configured:
+  if (eventSetupPathsKey_.size()) {
+    HLTPatterns_ = this->pathsFromSetup(eventSetupPathsKey_, event, iSetup);
+  }
+
+  if (HLTPatterns_.empty()) {
+    // for empty input vector, default to all HLT trigger paths
+    n = result.size();
+    HLTPathsByName_.resize(n);
+    HLTPathsByIndex_.resize(n);
+    for (unsigned int i = 0; i < n; ++i) {
+      HLTPathsByName_[i] = triggerNames.triggerName(i);
+      HLTPathsByIndex_[i] = i;
+    }
+  } else {
+    // otherwise, expand wildcards in trigger names...
+    BOOST_FOREACH(const std::string & pattern, HLTPatterns_) {
+      if (edm::is_glob(pattern)) {
+        // found a glob pattern, expand it
+        std::vector< std::vector<std::string>::const_iterator > matches = edm::regexMatch(triggerNames.triggerNames(), pattern);
+        if (matches.empty()) {
+          // pattern does not match any trigger paths
+          if (throw_)
+            throw cms::Exception("Configuration") << "requested pattern \"" << pattern <<  "\" does not match any HLT paths";
+          else
+            edm::LogInfo("Configuration") << "requested pattern \"" << pattern <<  "\" does not match any HLT paths";
+        } else {
+          // store the matching patterns
+          BOOST_FOREACH(std::vector<std::string>::const_iterator match, matches)
+            HLTPathsByName_.push_back(*match);
+        }
+      } else {
+        // found a trigger name, just copy it
+        HLTPathsByName_.push_back(pattern);
+      }
+    }
+    n = HLTPathsByName_.size();
+
+    // ...and get hold of trigger indices
+    bool valid = false;
+    HLTPathsByIndex_.resize(n);
+    for (unsigned int i = 0; i < HLTPathsByName_.size(); i++) {
+      HLTPathsByIndex_[i] = triggerNames.triggerIndex(HLTPathsByName_[i]);
+      if (HLTPathsByIndex_[i] < result.size()) {
+        valid = true;
+      } else {
+        // trigger path not found
+        HLTPathsByIndex_[i] = (unsigned int) -1;
+        if (throw_)
+          throw cms::Exception("Configuration") << "requested HLT path \"" << HLTPathsByName_[i] << "\" does not exist";
+        else
+          edm::LogInfo("Configuration") << "requested HLT path \"" << HLTPathsByName_[i] << "\" does not exist";
+      }
+    }
+    
+    if (not valid) {
+      // no point in throwing - if requested, it should have already happened
+      edm::LogWarning("Configuration") << "none of the requested paths and pattern match any HLT path - no events will be selected";
+    }
+    
+  }
+
+  // report on what is finally used
+  LogDebug("HLTHighLevel") << "HLT trigger paths: " + inputTag_.encode()
+    << " - Number of paths: " << n
+    << " - andOr mode: " << andOr_
+    << " - throw mode: " << throw_;
+
+  LogTrace("HLTHighLevel") << "The HLT trigger paths (# index name):";
+  for (unsigned int i = 0; i < n; ++i)
+    if (HLTPathsByIndex_[i] == (unsigned int) -1)
+      LogTrace("HLTHighLevel") << "    n/a   " << HLTPathsByName_[i];
+    else
+      LogTrace("HLTHighLevel") << "    " << std::setw(4) << HLTPathsByIndex_[i] << "  " << HLTPathsByName_[i];
+
+}
+
+// ------------ getting paths from EventSetup  ------------
+std::vector<std::string>
+HLTHighLevel::pathsFromSetup(const std::string &key, const edm::Event &event, const edm::EventSetup &iSetup) const
+{
+  // Get map of strings to concatenated list of names of HLT paths from EventSetup:
+  edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
+  iSetup.get<AlCaRecoTriggerBitsRcd>().get(triggerBits);
+  typedef std::map<std::string, std::string> TriggerMap;
+  const TriggerMap &triggerMap = triggerBits->m_alcarecoToTrig;
+
+  TriggerMap::const_iterator listIter = triggerMap.find(key);
+  if (listIter == triggerMap.end()) {
+    throw cms::Exception("Configuration")
+      << " HLTHighLevel [instance: " << moduleLabel() << " - path: " << pathName(event)
+      << "]: No triggerList with key " << key << " in AlCaRecoTriggerBitsRcd";
+  }
+
+  // We must avoid a map<string,vector<string> > in DB for performance reason,
+  // so the paths are mapped into one string that we have to decompose:
+  return triggerBits->decompose(listIter->second);
+}
+
 // ------------ method called to produce the data  ------------
-bool
+  bool
 HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace std;
-   using namespace edm;
-   using namespace reco;
+  using namespace std;
+  using namespace edm;
 
-   const string invalid("@@invalid@@");
+  // get hold of TriggerResults Object
+  Handle<TriggerResults> trh;
+  iEvent.getByToken(inputToken_, trh);
+  if (trh.isValid()) {
+    LogDebug("HLTHighLevel") << "TriggerResults found, number of HLT paths: " << trh->size();
+  } else {
+    LogError("HLTHighLevel") << "TriggerResults product " << inputTag_.encode() << " not found - returning result=false!";
+    return false;
+  }
 
-   // get hold of TriggerResults Object
-   Handle<TriggerResults> trh;
-   try {iEvent.getByLabel(inputTag_,trh);} catch(...) {;}
-   if (trh.isValid()) {
-     LogDebug("") << "TriggerResults found, number of HLT paths: " << trh->size();
-   } else {
-     LogDebug("") << "TriggerResults product not found - returning result=false!";
-     return false;
-   }
+  // init the TriggerNames with the TriggerResults
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trh);
+  bool config_changed = false;
+  if (triggerNamesID_ != triggerNames.parameterSetID()) {
+    triggerNamesID_ = triggerNames.parameterSetID();
+    config_changed = true;
+  }
 
-   // get hold of trigger names - based on TriggerResults object!
-   triggerNames_.init(*trh);
+  // (re)run the initialization stuff if 
+  // - this is the first event 
+  // - or the HLT table has changed 
+  // - or selected trigger bits come from AlCaRecoTriggerBitsRcd and these changed
+  if (config_changed or (watchAlCaRecoTriggerBitsRcd_ and watchAlCaRecoTriggerBitsRcd_->check(iSetup))) {
+    this->init(*trh, iEvent, iSetup, triggerNames);  
+  }
+  unsigned int n     = HLTPathsByName_.size();
+  unsigned int nbad  = 0;
+  unsigned int fired = 0;
 
-   unsigned int n(n_);
-   for (unsigned int i=0; i!=n; i++) {
-     HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]);
-   }
-   
-   // for empty input vectors (n==0), default to all HLT trigger paths!
-   if (n==0) {
-     n=trh->size();
-     HLTPathsByName_.resize(n);
-     HLTPathsByIndex_.resize(n);
-     for (unsigned int i=0; i!=n; i++) {
-       HLTPathsByName_[i]=triggerNames_.triggerName(i);
-       HLTPathsByIndex_[i]=i;
-     }
-   }
+  // count invalid and fired triggers
+  for (unsigned int i = 0; i < n; i++)
+    if (HLTPathsByIndex_[i] == (unsigned int) -1)
+      ++nbad;
+    else if (trh->accept(HLTPathsByIndex_[i]))
+      ++fired;
 
-   // report on what is finally used
-   LogDebug("") << "HLT trigger paths: " + inputTag_.encode()
-		<< " - Number requested: " << n
-		<< " - andOr mode: " << andOr_;
-   if (n>0) {
-     LogDebug("") << "  HLT trigger paths requested: index, name and valididty:";
-     for (unsigned int i=0; i!=n; i++) {
-       bool validity ( (HLTPathsByIndex_[i]<trh->size()) && (HLTPathsByName_[i]!=invalid) );
+  if ((nbad > 0) and (config_changed or throw_)) {
+    // only generate the error message if it's actually going to be used
+    std::string message;
 
-       LogTrace("") << " " << HLTPathsByIndex_[i]
-		    << " " << HLTPathsByName_[i]
-		    << " " << validity;
+    for (unsigned int i = 0; i < n; i++)
+      if (HLTPathsByIndex_[i] == (unsigned int) -1)
+        message += HLTPathsByName_[i] + " ";
 
-       if (!validity) throw cms::Exception("Configuration")
-	 << " HLTHighLevel [instance: " << *moduleLabel()
-	 << " - path: " << *pathName()
-	 << "] configured with unknown HLT path name "
-	 << i << " " << HLTPathsByName_[i] <<"\n";
-     }
-   }
+    if (config_changed) {
+      LogTrace("HLTHighLevel")
+        << " HLTHighLevel [instance: " << moduleLabel()
+        << " - path: " << pathName(iEvent)
+        << "] configured with " << nbad
+        << "/" << n
+        << " unknown HLT path names: " << message;
+    }
 
-   // count number of requested HLT paths which have fired
-   unsigned int fired(0);
-   for (unsigned int i=0; i!=n; i++) {
-     if (HLTPathsByIndex_[i]<trh->size()) {
-       if (trh->accept(HLTPathsByIndex_[i])) {
-	 fired++;
-       }
-     }
-   }
+    if (throw_) {
+      throw cms::Exception("Configuration")
+        << " HLTHighLevel [instance: " << moduleLabel()
+        << " - path: " << pathName(iEvent)
+        << "] configured with " << nbad
+        << "/" << n
+        << " unknown HLT path names: " << message;
+    }
+  }
 
-   // Boolean filter result
-   const bool accept( ((!andOr_) && (fired==n)) ||
-		      (( andOr_) && (fired!=0)) );
-   LogDebug("") << "Accept = " << accept;
+  // Boolean filter result (always at least one trigger)
+  const bool accept( (fired > 0) and ( andOr_ or (fired == n-nbad) ) );
+  LogDebug("HLTHighLevel") << "Accept = " << std::boolalpha << accept;
 
-   return accept;
+  return accept;
+}
 
+
+std::string const & HLTHighLevel::pathName(const edm::Event &event) const {
+  return event.moduleCallingContext()->placeInPathContext()->pathContext()->pathName();
+}
+
+std::string const & HLTHighLevel::moduleLabel() const {
+  return moduleDescription().moduleLabel();
 }

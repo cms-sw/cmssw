@@ -16,10 +16,13 @@
 class CSCDetectorHit;
 class CSCComparatorDigi;
 class CSCCrosstalkGenerator;
-class CSCScaNoiseGenerator;
 class CSCStripConditions;
 #include <vector>
 #include <string>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CSCStripElectronicsSim : public CSCBaseElectronicsSim
 {
@@ -30,10 +33,18 @@ public:
   virtual ~CSCStripElectronicsSim();
 
   void fillDigis(CSCStripDigiCollection & digis,
-                 CSCComparatorDigiCollection & comparators);
+                 CSCComparatorDigiCollection & comparators,
+                 CLHEP::HepRandomEngine*);
+
+  void fillMissingLayer(const CSCLayer * layer, const CSCComparatorDigiCollection & comparators, 
+                        CSCStripDigiCollection & digis, CLHEP::HepRandomEngine*);
 
   void setStripConditions(CSCStripConditions * cond) {theStripConditions = cond;}
 
+  CSCAnalogSignal makeNoiseSignal(int element, CLHEP::HepRandomEngine*) override;
+
+  void createDigi(int istrip, const CSCAnalogSignal & signal, std::vector<CSCStripDigi> & result, CLHEP::HepRandomEngine*);
+ 
 private:
   /// initialization for each layer
   void initParameters();
@@ -43,15 +54,11 @@ private:
   float calculateAmpResponse(float t) const;
   CSCStripAmpResponse theAmpResponse;
 
-  std::vector<CSCComparatorDigi> runComparator();
+  void runComparator(std::vector<CSCComparatorDigi> & result, CLHEP::HepRandomEngine*);
 
   /// calculates the comparator reading, including saturation and offsets
-  float comparatorReading(const CSCAnalogSignal & signal, float time) const;
+  float comparatorReading(const CSCAnalogSignal & signal, float time, CLHEP::HepRandomEngine*) const;
 
-  CSCAnalogSignal makeNoiseSignal(int element);
-
-  virtual float signalDelay(int element, float pos) const;
-  
   // tells which strips to read out around the input strip
   void getReadoutRange(int inputStrip, 
                        int & minStrip, int & maxStrip);
@@ -60,19 +67,24 @@ private:
   std::list<int>
   getKeyStrips(const std::vector<CSCComparatorDigi> & comparators) const;
 
+  /// get ths strips that have detector hits
+  std::list<int>
+  getKeyStripsFromMC() const;
   /// finds what strips to read.  Will either take 5 strips around
   /// the keystrip, or the whole CFEB, based on doSuppression_
   std::list<int>
-  channelsToRead(const std::list<int> & keyStrips) const;
+  channelsToRead(const std::list<int> & keyStrips, int window) const;
 
-  void addCrosstalk();
+  void fillStripDigis(const std::list<int> & keyStrips,
+                      CSCStripDigiCollection & digis,
+                      CLHEP::HepRandomEngine*);
+
+  void addCrosstalk(CLHEP::HepRandomEngine*);
   void addCrosstalk(const CSCAnalogSignal & signal,
-                    int thisStrip, int otherStrip);
+                    int thisStrip, int otherStrip, CLHEP::HepRandomEngine*);
 
 
   void selfTest() const;
-
-  CSCStripDigi createDigi(int istrip, float startTime);
 
   // saturation of the 12-bit ADC.  Max reading is 4095
   void doSaturation(CSCStripDigi & digi);
@@ -104,7 +116,14 @@ private:
   int   sca_peak_bin;
   // which time bin the trigger crossing goes in
   double theComparatorTimeBinOffset;
-
+  // to center comparator signals
+  double theComparatorTimeOffset;
+  double theComparatorSamplingTime;
+  // tweaks the timing of the SCA
+  std::vector<double> theSCATimingOffsets;
+  // remeber toe TOF correction in comparators,
+  // so we can undo it for SCA
+  float theAverageTimeOfFlight;
 };
 
 #endif

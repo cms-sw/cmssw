@@ -6,8 +6,6 @@
  *   Internally uses DTBtiHit to store muon digis
  *
  *
- *   $Date: 2007/04/04 10:44:30 $
- *   $Revision: 1.4 $
  *
  *   \author S. Vanini
  */
@@ -31,10 +29,10 @@ class DTDigi;
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/MuonDetId/interface/DTBtiId.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
-#include "CondFormats/L1TObjects/interface/DTConfig.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
-#include "CondFormats/L1TObjects/interface/DTConfigBti.h"
-
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigBti.h"
+#include "L1Trigger/DTBti/interface/DTBtiCard.h"
 
 //---------------
 // C++ Headers --
@@ -53,7 +51,7 @@ class DTBtiChip {
   //DTBtiChip(DTTrigGeom* geom, int supl, int n);
 
   //! new constructor with configuration 
-  DTBtiChip(DTTrigGeom* geom, int supl, int n, DTConfigBti* _config );
+  DTBtiChip(DTBtiCard* card, DTTrigGeom* geom, int supl, int n, DTConfigBti* _config );
 
   //! Copy constructor
   DTBtiChip(const DTBtiChip& bti);
@@ -165,7 +163,10 @@ class DTBtiChip {
 
  private:
 
-  DTTrigGeom* _geom;
+  // parent card
+  DTBtiCard* _card;
+
+  DTTrigGeom*  _geom;
   DTConfigBti* _config;
 
   DTBtiId _id;

@@ -1,0 +1,122 @@
+<lcgdict>
+  <class name="reco::Jet" ClassVersion="10">
+   <version ClassVersion="10" checksum="1996172778"/>
+  </class>
+  <class name="reco::Jet::EtaPhiMoments" ClassVersion="10">
+   <version ClassVersion="10" checksum="1092387980"/>
+  </class>
+
+  <class name="reco::CaloJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="715843310"/>
+  </class>
+  <class name="reco::CaloJet::Specific" ClassVersion="10">
+   <version ClassVersion="10" checksum="2617452651"/>
+  </class>
+  <class name="std::vector<reco::CaloJet>"/>
+  <class name="edm::RefProd<std::vector<reco::CaloJet> >"/>
+  <class name="edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >"/>
+  <class name="edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::CaloJet> >"/>
+  <class name="edm::Wrapper<reco::CaloJetRefVector>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::CaloJet> >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<reco::CaloJetCollection, std::vector<reco::Track>, unsigned int> >">
+      <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::helpers::Key<edm::RefProd<reco::CaloJetCollection > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
+  <class name="edm::FwdRef<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
+  <class name="reco::CaloJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::CaloJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::CaloJet>"/>
+  <class name="reco::CaloJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::CaloJetFwdPtrVector>"/>
+  <class name="std::vector<reco::CaloJetRefVector>"/>
+  <class name="edm::Wrapper<std::vector<reco::CaloJetRefVector> >"/>
+
+  <class name="reco::JPTJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="456342263"/>
+  </class>
+  <class name="reco::JPTJet::Specific" ClassVersion="10">
+   <version ClassVersion="10" checksum="3095396018"/>
+  </class>
+  <class name="std::vector<reco::JPTJet>"/>
+  <class name="edm::RefProd<std::vector<reco::JPTJet> >"/>
+  <class name="edm::RefVector<std::vector<reco::JPTJet>,reco::JPTJet,edm::refhelper::FindUsingAdvance<std::vector<reco::JPTJet>,reco::JPTJet> >"/>
+  <class name="edm::Ref<std::vector<reco::JPTJet>,reco::JPTJet,edm::refhelper::FindUsingAdvance<std::vector<reco::JPTJet>,reco::JPTJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::JPTJet> >"/>
+  <class name="edm::Wrapper<reco::JPTJetRefVector>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::JPTJet>,reco::JPTJet,edm::refhelper::FindUsingAdvance<std::vector<reco::JPTJet>,reco::JPTJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::JPTJet> >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<reco::JPTJetCollection, std::vector<reco::Track>, unsigned int> >">
+      <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::helpers::KeyVal<edm::RefProd<reco::JPTJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
+
+  <class name="reco::PFJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="3657319332"/>
+  </class>
+  <class name="reco::PFJet::Specific" ClassVersion="10">
+   <version ClassVersion="10" checksum="3345092571"/>
+  </class>
+  <class name="std::vector<reco::PFJet>"/>
+  <class name="edm::RefVector<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
+  <class name="edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::PFJet> >"/>
+  <class name="edm::Wrapper<reco::PFJetRefVector>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::PFJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
+  <class name="reco::PFJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::PFJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::PFJet>"/>
+  <class name="reco::PFJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::PFJetFwdPtrVector>"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> > >"/>
+  <class name="std::vector<reco::PFJetRefVector>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFJetRefVector> >"/>
+  <class name="edm::reftobase::RefVectorHolder<reco::PFJetRefVector>"/>
+
+  <class name="reco::GenJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="1136403928"/>
+  </class>
+  <class name="reco::GenJet::Specific" ClassVersion="10">
+   <version ClassVersion="10" checksum="3126154868"/>
+  </class>
+  <class name="std::vector<reco::GenJet>"/>
+  <class name="edm::RefVector<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> >"/>
+  <class name="edm::Ref<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::GenJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::GenJet> >"/>
+  <class name="edm::Wrapper<reco::GenJetRefVector>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::GenJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> >"/>
+  <class name="reco::GenJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::GenJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::GenJet>"/>
+  <class name="reco::GenJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::GenJetFwdPtrVector>"/>
+
+  <class name="reco::BasicJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="2049228932"/>
+  </class>
+  <class name="std::vector<reco::BasicJet>"/>
+  <class name="edm::RefVector<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> >"/>
+  <class name="edm::Ref<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::BasicJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::BasicJet> >"/>
+  <class name="edm::Wrapper<reco::BasicJetRefVector>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::BasicJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> >"/>
+  <class name="reco::BasicJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::BasicJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::BasicJet>"/>
+  <class name="reco::BasicJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::BasicJetFwdPtrVector>"/>
+  <class name="edm::reftobase::Holder<reco::Jet, reco::BasicJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::BasicJetRef>" />
+</lcgdict>

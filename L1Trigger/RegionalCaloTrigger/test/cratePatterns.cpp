@@ -19,6 +19,7 @@ int main (){
   std::vector<double> eGammaHCalScaleFactors(32, 1.0);
   std::vector<double> jetMETECalScaleFactors(32, 1.0);
   std::vector<double> jetMETHCalScaleFactors(32, 1.0);
+  std::vector<double> c,d,e,f,g,h;
   L1RCTParameters* rctParameters = 
     new L1RCTParameters(1.0,                       // eGammaLSB
 			1.0,                       // jetMETLSB
@@ -27,31 +28,47 @@ int main (){
 			0.5,                       // hOeCut
 			1.0,                       // eMinForHoECut
 			50.0,                      // eMaxForHoECut
+			1.0,                       // hMinForHoECut
 			2.0,                       // eActivityCut
 			3.0,                       // hActivityCut
+			3,                         // eicIsolationThreshold
+                        3,                         // jscQuietThresholdBarrel
+                        3,                         // jscQuietThresholdEndcap
+			false,                     // noiseVetoHB
+			false,                     // noiseVetoHEplus
+			false,                     // noiseVetoHEminus
+			false,                     // use Lindsey
 			eGammaECalScaleFactors,
 			eGammaHCalScaleFactors,
 			jetMETECalScaleFactors,
-			jetMETHCalScaleFactors
+			jetMETHCalScaleFactors,
+			c,
+			d,
+			e,
+			f,
+			g,
+			h
 			);
   L1RCTLookupTables* lut = new L1RCTLookupTables();
   lut->setRCTParameters(rctParameters);  // transcoder and etScale are not used
   L1RCT rct(lut);
-  vector<int> data(4);
-  vector<int> location(3);
+  std::vector<int> data(4);
+  std::vector<int> location(3);
   unsigned long lookupValue;
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,
-                                            vector<unsigned short>(64)));
+  std::vector<std::vector<unsigned short> > hf(18,std::vector<unsigned short>(8));
+  std::vector<std::vector<std::vector<unsigned short> > > barrel(18,std::vector<std::vector<unsigned short> >(7,
+                                            std::vector<unsigned short>(64)));
 
   char throwaway[2000];
   //Now we pull in the data from the crate.input file
-  fstream input("crate.input",ios::in);
-  fstream output("lut.out",ios::out);
-  fstream rctoutput("rct.out",ios::out);
+  fstream input("crate.input",std::ios::in);
+  if ( ! input.is_open() ) return 0;
+
+  fstream output("lut.out",std::ios::out);
+  fstream rctoutput("rct.out",std::ios::out);
   input.getline(throwaway,2000);
   L1RCTORCAMap theMap;
-  output << "Eta    Phi    Ecal    Hcal    Lookup" << endl;
+  output << "Eta    Phi    Ecal    Hcal    Lookup" << std::endl;
   while(!input.eof()){
     for(int i=0;i<4;i++){
       input >> data.at(i);
@@ -62,7 +79,7 @@ int main (){
       barrel.at(location.at(0)).at(location.at(1)).at(location.at(2)+32) = data.at(3);
       lookupValue = lut->lookup(data.at(2)&255,data.at(3)&255,(data.at(2)<<8)&1,
 				location.at(0), location.at(1), location.at(2));
-      output << lookupValue << endl;
+      output << lookupValue << std::endl;
   }
   rct.input(barrel,hf);
   rct.processEvent();

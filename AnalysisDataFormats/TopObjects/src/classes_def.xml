@@ -1,75 +1,71 @@
 <lcgdict>
-
-   <class name="std::pair<int, double>" />
-   <class name="std::vector<std::pair<int, double> > " />
-   <class name="std::vector<std::vector<std::pair<int, double> > >" />
-   <class name="JetRejObs" />
-   <class name="std::vector<JetRejObs>" />
-   <class name="edm::Wrapper<std::vector<JetRejObs> >" />
-   <class name="JetRejObsRef" />
-
-
-  <class name="std::vector<std::pair<double, double> >" />
-  <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
-  <class name="std::vector<std::pair<std::string, double> >" />
-  <class name="std::vector<std::pair<std::string, reco::JetTagRef> >" />
-  <class name="std::pair<std::string, reco::JetTagRef>" />
-  <class name="std::vector<std::pair<unsigned int, double> >" />
-  <class name="std::pair<unsigned int, double>" />
-
-  <class name="TopObject<TopElectronType>" />
-  <class name="TopObject<TopTauType>" />
-  <class name="TopObject<TopMuonType>" />
-  <class name="TopObject<TopJetType>" />
-  <class name="TopObject<TopMETType>" />
-  <class name="TopObject<TopParticleType>" />
-  <class name="TopElectron" />
-  <class name="TopTau" />
-  <class name="TopMuon" />
-  <class name="TopJet" />
-  <class name="TopMET" />
-  <class name="TopParticle" />
-  <class name="std::vector<TopElectron>" />
-  <class name="std::vector<TopTau>" />
-  <class name="std::vector<TopMuon>" />
-  <class name="std::vector<TopJet>" />
-  <class name="std::vector<TopMET>" />
-  <class name="std::vector<TopParticle>" />
-  <class name="edm::Wrapper<std::vector<TopElectron> >" />
-  <class name="edm::Wrapper<std::vector<TopTau> >" />
-  <class name="edm::Wrapper<std::vector<TopMuon> >" />
-  <class name="edm::Wrapper<std::vector<TopJet> >" />
-  <class name="edm::Wrapper<std::vector<TopMET> >" />
-  <class name="edm::Wrapper<std::vector<TopParticle> >" />
-  <class name="TopElectronRef" />
-  <class name="TopTauRef" />
-  <class name="TopMuonRef" />
-  <class name="TopJetRef" />
-  <class name="TopMETRef" />
-  <class name="TopParticleRef" />
-
-  <class name="TtGenEvent" />
-  <class name="StGenEvent" />
-  <class name="TopGenEvent" />
+  <class name="TtGenEvent"  ClassVersion="11">
+   <version ClassVersion="11" checksum="3979818069"/>
+   <version ClassVersion="10" checksum="2353612425"/>
+  </class>
+  <class name="StGenEvent"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3161795320"/>
+  </class>
+  <class name="TopGenEvent"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4112324732"/>
+  </class>
+  <class name="TtEvent"  ClassVersion="11">
+   <version ClassVersion="11" checksum="1688727696"/>
+  </class>
+  <class name="TtFullLeptonicEvent"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1854988496"/>
+  </class>
+  <class name="TtSemiLeptonicEvent"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4150310883"/>
+  </class>
+  <class name="TtFullHadronicEvent"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3848919223"/>
+  </class>
   <class name="edm::Wrapper<TtGenEvent>" />
   <class name="edm::Wrapper<StGenEvent>" />
   <class name="edm::Wrapper<TopGenEvent>" />
+  <class name="edm::Wrapper<TtFullLeptonicEvent>" />
+  <class name="edm::Wrapper<TtSemiLeptonicEvent>" />
+  <class name="edm::Wrapper<TtFullHadronicEvent>" />
+  <class name="edm::Wrapper<reco::CompositeCandidate>" />
+
   <class name="edm::RefProd<TtGenEvent>" />
   <class name="edm::RefProd<StGenEvent>" />
   <class name="edm::RefProd<TopGenEvent>" />
-  <class name="std::vector<const reco::Candidate*>" />
-  <class name="edm::Wrapper<std::vector<const reco::Candidate*> >" />
+  <class name="edm::RefProd<TtFullLeptonicEvent>" />
+  <class name="edm::RefProd<TtSemiLeptonicEvent>" />
+  <class name="edm::RefProd<TtFullHadronicEvent>" />
 
-  <class name="TtDilepEvtSolution" />
-  <class name="TtSemiEvtSolution" />
-  <class name="TtSemiMassSolution" />
-  <class name="StEvtSolution" />
+  <class name="std::pair<WDecay::LeptonType, WDecay::LeptonType>" />
+  <class name="std::pair<reco::CompositeCandidate, std::vector<int> >" />
+  <class name="std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >" />
+  <class name="edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
+
+  <class name="std::map<TtEvent::HypoClassKey, int>" />
+  <class name="std::map<TtEvent::HypoClassKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
+
+  <class name="TtDilepEvtSolution"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3903965368"/>
+  </class>
+  <class name="TtSemiEvtSolution"  ClassVersion="10">
+   <version ClassVersion="10" checksum="702702553"/>
+  </class>
+  <class name="TtHadEvtSolution"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4003976374"/>
+  </class>
+  <class name="StEvtSolution"  ClassVersion="10">
+   <version ClassVersion="10" checksum="520926643"/>
+  </class>
   <class name="std::vector<TtDilepEvtSolution>" />
   <class name="std::vector<TtSemiEvtSolution>" />
+  <class name="std::vector<TtHadEvtSolution>" />
   <class name="std::vector<StEvtSolution>" />
   <class name="edm::Wrapper<std::vector<TtDilepEvtSolution> >" />
   <class name="edm::Wrapper<std::vector<TtSemiEvtSolution> >" />
+  <class name="edm::Wrapper<std::vector<TtHadEvtSolution> >" />
   <class name="edm::Wrapper<std::vector<StEvtSolution> >" />
+
+
 
 </lcgdict>
 

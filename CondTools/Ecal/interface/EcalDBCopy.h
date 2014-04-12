@@ -2,10 +2,7 @@
 #define ECALDBCOPY_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
@@ -17,8 +14,6 @@ namespace edm {
   class Event;
   class EventSetup;
 }
-
-using namespace std;
 
 class  EcalDBCopy : public edm::EDAnalyzer {
  public:

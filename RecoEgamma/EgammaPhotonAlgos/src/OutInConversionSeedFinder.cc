@@ -1,6 +1,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionBarrelEstimator.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // Field
@@ -8,33 +9,45 @@
 //
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 //
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 //
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h" 
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 //
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Geometry/Vector3D.h" 
+ #include "CLHEP/Geometry/Transform3D.h"  
 #include <cfloat>
 
+namespace {
+  inline double ptFast( const double energy, 
+			const math::XYZPoint& position,
+			const math::XYZPoint& origin ) {
+    const auto v = position - origin;
+    return energy*std::sqrt(v.perp2()/v.mag2());
+  }
+}
 
-OutInConversionSeedFinder::OutInConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker ) : ConversionSeedFinder( field, theInputMeasurementTracker)  {
+
+OutInConversionSeedFinder::OutInConversionSeedFinder( const edm::ParameterSet& conf ): ConversionSeedFinder( conf ), conf_(conf)  
+{
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
-  theLayerMeasurements_ =  new LayerMeasurements(theInputMeasurementTracker );
 
-  //the2ndHitdphi_ = 0.01; 
+  maxNumberOfOutInSeedsPerBC_ =  conf_.getParameter<int>("maxNumOfSeedsOutIn");
+  bcEtcut_ =  conf_.getParameter<double>("bcEtCut");
+  bcEcut_ =  conf_.getParameter<double>("bcECut");
+  useEtCut_ =  conf_.getParameter<bool>("useEtCut");
+   //the2ndHitdphi_ = 0.01; 
   the2ndHitdphi_ = 0.03; 
   the2ndHitdzConst_ = 5.;
   the2ndHitdznSigma_ = 2.;
-  maxNumberOfOutInSeedsPerBC_=50;    
+
    
     
 }
@@ -44,65 +57,71 @@ OutInConversionSeedFinder::OutInConversionSeedFinder( const MagneticField* field
 
 OutInConversionSeedFinder::~OutInConversionSeedFinder() {
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder DTOR " << "\n";
-  delete theLayerMeasurements_;
  
 }
 
 
-// Return a vector of seeds 
-void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& allBC )  const  {
 
-  LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() " << "\n";
+void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > &  allBC )  const  {
+
   theSeeds_.clear();
+  
+  //  std::cout  << "  OutInConversionSeedFinder::makeSeeds() " << "\n";
 
-  theSCPosition_= GlobalPoint ( theSC_->x(), theSC_->y(), theSC_->z() );      
   // debug  
-
-  LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() SC position " << theSCPosition_.x() << " " << theSCPosition_.y() << " " << theSCPosition_.z() << "\n";
-  LogDebug("OutInConversionSeedFinder") << " SC eta  " <<  theSCPosition_.eta() <<  " SC phi  " <<  theSCPosition_.phi() << "\n";  
-  LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() SC energy " << theSC_->energy()  << "\n";  
+  //  std::cout << "  OutInConversionSeedFinder::makeSeeds() SC position " << theSCPosition_.x() << " " << theSCPosition_.y() << " " << theSCPosition_.z() << "\n";
+  // std::cout << " SC eta  " <<  theSCPosition_.eta() <<  " SC phi  " <<  theSCPosition_.phi() << "\n";  
+  // std::cout << "  OutInConversionSeedFinder::makeSeeds() SC energy " << theSCenergy_  << "\n";  
   //
 
   findLayers();
 
   
-
-  LogDebug("OutInConversionSeedFinder") << " Check Basic cluster collection size " << allBC.size() << "\n";
+  //  std::cout  << " Check Calo cluster collection size " << allBC->size() << "\n";
   
   float  theSCPhi=theSCPosition_.phi();
   float  theSCEta=theSCPosition_.eta();
 
   
 
-  //  Loop over the Basic Clusters  in the event looking for seeds 
-  reco::BasicClusterCollection::const_iterator bcItr;
+  //  Loop over the Calo Clusters  in the event looking for seeds 
+  reco::CaloClusterCollection::const_iterator bcItr;
   LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() All BC in the event " << "\n";
-
-  for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
+  for (unsigned i = 0; i < allBC->size(); ++i ) {
+  
+    //for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
     nSeedsPerBC_=0;
 
-    theBCEnergy_=bcItr->energy();
-    theBCPosition_ = GlobalPoint(bcItr->position().x(), bcItr->position().y(), bcItr->position().z() ) ;
+    const reco::CaloCluster& theBC = allBC->at(i);
+    const math::XYZPoint& rawBCpos = theBC.position();
+
+    theBCPosition_ = GlobalPoint( rawBCpos.x(), rawBCpos.y(), rawBCpos.z() ) ;
     float theBcEta=  theBCPosition_.eta();
     float theBcPhi=  theBCPosition_.phi();
-    float  dPhi= theBcPhi-theSCPhi;
+    //    float  dPhi= theBcPhi-theSCPhi;
+    theBCEnergy_=theBC.energy();        
 
-    LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << " dPhi " << fabs(theBcPhi-theSCPhi) << " dEta " <<  fabs(theBcEta-theSCEta) << "\n";
-    
-    if ( theBCEnergy_ < 1.5 ) continue;
+    float EtOrECut = bcEcut_;
+    if ( useEtCut_ ) {
+      theBCEnergy_= ptFast(theBCEnergy_,rawBCpos,math::XYZPoint(0,0,0));
+      EtOrECut = bcEtcut_;
+    }   
+
+    if ( theBCEnergy_ < EtOrECut ) continue;
+    // std::cout << "  OutInConversionSeedFinder::makeSeeds() BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC transverse energy " << theBCEnergy_ << " dPhi " << fabs(theBcPhi-theSCPhi) << " dEta " <<  fabs(theBcEta-theSCEta) << "\n";
 
     LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() Passing the >=1.5 GeV cut  BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << "\n";
 
-    if (  fabs(theBcEta-theSCEta) < 0.015  && fabs(theBcPhi-theSCPhi) < 0.25 ) { 
+    if (  fabs(theBcEta-theSCEta) < 0.015  && reco::deltaPhi(theBcPhi,theSCPhi) < 0.3 ) { 
       LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() in et and phi range passed to the analysis " << "\n";
-      fillClusterSeeds( &(*bcItr) );
+      fillClusterSeeds( allBC->ptrAt(i)  );
     }
     
 
   }
 
 
-  LogDebug("OutInConversionSeedFinder") << "Built vector of seeds of size  " << theSeeds_.size() <<  "\n" ;
+  //  std::cout << "Built vector of seeds of size  " << theSeeds_.size() <<  "\n" ;
   
   ///// This part is only for local debugging: will be trhown away when no longer needed
   /*
@@ -142,10 +161,39 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
   
 }
 
+
+
+void OutInConversionSeedFinder::makeSeeds( const reco::CaloClusterPtr&  aBC )  const  {
+
+  theSeeds_.clear();
+
+  findLayers();
+
+  float  theSCPhi=theSCPosition_.phi();
+  float  theSCEta=theSCPosition_.eta();
+
+  nSeedsPerBC_=0;
+
+  // theBCEnergy_=aBC->energy();
+  theBCEnergy_= ptFast(aBC->energy(),aBC->position(),math::XYZPoint(0,0,0));
+  theBCPosition_ = GlobalPoint(aBC->position().x(), aBC->position().y(), aBC->position().z() ) ;
+  float theBcEta=  theBCPosition_.eta();
+  float theBcPhi=  theBCPosition_.phi();
+  //  float  dPhi= theBcPhi-theSCPhi;
+
+  if ( theBCEnergy_ <  bcEtcut_ ) return;
+
+  if (  fabs(theBcEta-theSCEta) < 0.015  && fabs(theBcPhi-theSCPhi) < 0.25 ) {
+    fillClusterSeeds( aBC);
+  }
+
+}
+
+
  
 
 
-void OutInConversionSeedFinder::fillClusterSeeds(const reco::BasicCluster* bc) const {
+void OutInConversionSeedFinder::fillClusterSeeds(const reco::CaloClusterPtr& bc) const {
 
   
   theFirstMeasurements_.clear();
@@ -162,7 +210,7 @@ void OutInConversionSeedFinder::fillClusterSeeds(const reco::BasicCluster* bc) c
     fts = makeTrackState(1).first;
     startSeed(fts);
   }
-
+  theFirstMeasurements_.clear();
 }
 
 
@@ -173,15 +221,16 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
   result.second=false;
  
 
-  LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder:makeTrackState " << "\n";
+  //std::cout << "  OutInConversionSeedFinder:makeTrackState " << "\n";
 
 
   //  Old GlobalPoint gpOrigine(theBCPosition_.x()*0.3, theBCPosition_.y()*0.3, theBCPosition_.z()*0.3) ;
+ //  GlobalPoint gpOrigine(0.,0.,0.);
 
-  GlobalPoint gpOrigine(0.,0.,0.);
+  GlobalPoint  gpOrigine(theBeamSpot_.position().x(),theBeamSpot_.position().y(),theBeamSpot_.position().z()); 
   GlobalVector gvBcRadius = theBCPosition_ - gpOrigine ;
-  HepPoint3D radiusBc(gvBcRadius.x(),gvBcRadius.y(),gvBcRadius.z()) ;
-  HepPoint3D momentumWithoutCurvature = radiusBc.unit() * theBCEnergy_ ;
+  HepGeom::Point3D<double>  radiusBc(gvBcRadius.x(),gvBcRadius.y(),gvBcRadius.z()) ;
+  HepGeom::Point3D<double>  momentumWithoutCurvature = radiusBc.unit() * theBCEnergy_ ;
 
   // compute momentum direction at calo
   double curvature = theMF_->inTesla(theBCPosition_).z() * c_light * 1.e-3 / momentumWithoutCurvature.perp() ;
@@ -208,13 +257,13 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState charge " << charge << " R " << R << " u/R " << u/R << " asin(0.5*u/R) " << asin(sinAlpha) << "\n";
 
-  HepTransform3D rotation =  HepRotate3D(newdphi, HepVector3D(0., 0. ,1.));
+  HepGeom::Transform3D rotation =  HepGeom::Rotate3D(newdphi, HepGeom::Vector3D<double> (0., 0. ,1.));
 
 
-  HepPoint3D momentumInTracker = momentumWithoutCurvature.transform(rotation) ;
+  HepGeom::Point3D<double>  momentumInTracker = momentumWithoutCurvature.transform(rotation) ;
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState  R " << R << " r " << r << " rho " << rho  << " d " << d  << " u " << u << " newdphi " << newdphi << " momentumInTracker " <<  momentumInTracker << "\n";
 
-  HepPoint3D hepStartingPoint(gpOrigine.x(), gpOrigine.y(), gpOrigine.z()) ;
+  HepGeom::Point3D<double>  hepStartingPoint(gpOrigine.x(), gpOrigine.y(), gpOrigine.z()) ;
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState hepStartingPoint " << hepStartingPoint << "\n";
 
@@ -224,13 +273,13 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState startingPoint " << startingPoint << " calo position " << theBCPosition_ << "\n";
   GlobalVector gvTracker(momentumInTracker.x(), momentumInTracker.y(), momentumInTracker.z());
-  GlobalTrajectoryParameters gtp(startingPoint, gvTracker, charge, theMF_);
+  GlobalTrajectoryParameters gtp(startingPoint, gvTracker, charge, &(*theMF_) );
   // error matrix
   AlgebraicSymMatrix55 m = AlgebraicMatrixID();
   m(0,0) = 0.1; m(1,1) = 0.1 ; m(2,2) = 0.1 ;
   m(3,3) = 0.1 ; m(4,4) = 0.1;
   
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState " <<  FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) << "\n";
+  //  std::cout << "OutInConversionSeedFinder::makeTrackState " <<  FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) << "\n";
    
   result.first= FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) ;
   return result;
@@ -241,8 +290,8 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
 void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const {
 
 
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed layer list " << this->layerList().size() <<  "\n";
-  LogDebug("OutInConversionSeedFinder") << " fts " << fts <<  "\n";  
+  //  std::cout << "OutInConversionSeedFinder::startSeed layer list " << this->layerList().size() <<  "\n";
+  //std::cout << "OutInConversionSeedFinder::startSeed  fts " << fts <<  "\n";  
 
   std::vector<const DetLayer*> myLayers=layerList();
   if ( myLayers.size() > 3 ) {
@@ -258,18 +307,17 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 
       MeasurementEstimator * newEstimator = makeEstimator(layer, dphi);
 
-
-      thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
      
-      LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed propagationDirection  " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";       
+      //std::cout << "OutInSeedFinder::startSeed propagationDirection  " << int(thePropagatorAlongMomentum_->propagationDirection() ) << "\n";       
       
       TSOS tsos(fts, layer->surface() );
       
       LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed  after  TSOS tsos(fts, layer->surface() ) " << "\n";
+       
+      LayerMeasurements theLayerMeasurements_( *this->getMeasurementTracker(), *theTrackerData_ );
+      theFirstMeasurements_ = theLayerMeasurements_.measurements( *layer, tsos, *thePropagatorAlongMomentum_, *newEstimator);
       
-      theFirstMeasurements_ = theLayerMeasurements_->measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
-      
-      LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed  after  theFirstMeasurements_   " << "\n";
+      //std::cout << "OutInSeedFinder::startSeed  after  theFirstMeasurements_   " << theFirstMeasurements_.size() <<  "\n";
       
       if(theFirstMeasurements_.size() > 1) // always a dummy returned, too
 	LogDebug("OutInConversionSeedFinder") <<  " Found " << theFirstMeasurements_.size()-1 << " 1st hits in seed" << "\n";
@@ -289,18 +337,16 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 
 	  
 	  FreeTrajectoryState newfts = trackStateFromClusters(fts.charge(), hitPoint, alongMomentum, 0.8);
+	  //std::cout << "OutInConversionSeedFinder::startSeed  newfts " << newfts << "\n";
 	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed  newfts " << newfts << "\n";
-	   
-	  thePropagatorWithMaterial_.setPropagationDirection(oppositeToMomentum); 
-
- 
-	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";        
+	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n";        
+	  //  std::cout << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n";        
 
        
-	  completeSeed(m1, newfts, &thePropagatorWithMaterial_, ilayer-1);
+	  completeSeed(m1, newfts, thePropagatorOppositeToMomentum_, ilayer-1);
 	  // skip a layer, if you haven't already skipped the first layer
 	  if(ilayer == myLayers.size()-1) {
-	    completeSeed(m1, newfts, &thePropagatorWithMaterial_, ilayer-2);
+	    completeSeed(m1, newfts, thePropagatorOppositeToMomentum_, ilayer-2);
 	  }
 	}
       }
@@ -317,7 +363,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 
 MeasurementEstimator * OutInConversionSeedFinder::makeEstimator(const DetLayer * layer, float dphi) const {
  
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeEstimator  " << "\n";
+  //std::cout  << "OutInConversionSeedFinder::makeEstimator  " << "\n";
 
   MeasurementEstimator * newEstimator=0;
 
@@ -357,7 +403,7 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 					     FreeTrajectoryState & fts, 
 					     const Propagator* propagator, int ilayer) const {
 
-  LogDebug("OutInConversionSeedFinder") <<  "OutInConversionSeedFinder::completeSeed ilayer " << ilayer << "\n";
+  //std::cout <<  "OutInConversionSeedFinder::completeSeed ilayer " << ilayer << "\n";
 
   MeasurementEstimator * newEstimator=0;
   const DetLayer * layer = theLayerList_[ilayer];
@@ -389,8 +435,10 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
   TSOS tsos(fts, layer->surface() );
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::completeSeed propagationDirection  " << int(propagator->propagationDirection() ) << "\n";               
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::completeSeed pointer to estimator " << newEstimator << "\n";
-  std::vector<TrajectoryMeasurement> measurements = theLayerMeasurements_->measurements( *layer, tsos, *propagator, *newEstimator);
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " << "\n";
+
+  LayerMeasurements theLayerMeasurements_( *this->getMeasurementTracker(), *theTrackerData_ );
+  std::vector<TrajectoryMeasurement> measurements = theLayerMeasurements_.measurements( *layer, tsos, *propagator, *newEstimator);
+  //std::cout << "OutInConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " << "\n";
   delete newEstimator;
 
   for(unsigned int i = 0; i < measurements.size(); ++i) {
@@ -409,17 +457,21 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1, 
 					   const TrajectoryMeasurement & m2) const {
 
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed  from hit1 " << m1.recHit()->globalPosition() << " r1 " << m1.recHit()->globalPosition().perp() << " and hit2 " << m2.recHit()->globalPosition() << " r2 " << m2.recHit()->globalPosition().perp() << "\n";
+  //std::cout  << "OutInConversionSeedFinder::createSeed  from hit1 " << m1.recHit()->globalPosition() << " r1 " << m1.recHit()->globalPosition().perp() << " and hit2 " << m2.recHit()->globalPosition() << " r2 " << m2.recHit()->globalPosition().perp() << "\n";
   
 
   FreeTrajectoryState fts = createSeedFTS(m1, m2);
 
 
+  //std::cout << "OutInConversionSeedFinder::createSeed First point errors " <<m1.recHit()->parametersError() << "\n";
+  // std::cout << "original cluster FTS " << fts <<"\n";
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed First point errors " <<m1.recHit()->parametersError() << "\n";
   LogDebug("OutInConversionSeedFinder") << "original cluster FTS " << fts <<"\n";
 
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed propagation dir " << int( thePropagatorWithMaterial_.propagationDirection() ) << "\n"; 
-  TrajectoryStateOnSurface state1 = thePropagatorWithMaterial_.propagate(fts,  m1.recHit()->det()->surface());
+
+
+  //std::cout  << "OutInConversionSeedFinder::createSeed propagation dir " << int( thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n"; 
+  TrajectoryStateOnSurface state1 = thePropagatorOppositeToMomentum_->propagate(fts,  m1.recHit()->det()->surface());
 
   // LogDebug("OutInConversionSeedFinder") << "hit surface " << h1.det().surface().position() << endl;
   // LogDebug("OutInConversionSeedFinder") << "prop to " << typeid(h1.det().surface()).name() << endl;
@@ -430,7 +482,7 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
     TrajectoryStateOnSurface updatedState1 = theUpdator_.update(state1,  *m1.recHit() );
 
     if ( updatedState1.isValid() ) {
-      TrajectoryStateOnSurface state2 = thePropagatorWithMaterial_.propagate(*updatedState1.freeTrajectoryState(),  m2.recHit()->det()->surface());
+      TrajectoryStateOnSurface state2 = thePropagatorOppositeToMomentum_->propagate(*updatedState1.freeTrajectoryState(),  m2.recHit()->det()->surface());
 
       if ( state2.isValid() ) {
 
@@ -444,19 +496,18 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 
         if ( nSeedsPerBC_ >= maxNumberOfOutInSeedsPerBC_ ) return;
    
-	TrajectoryStateTransform tsTransform;
-	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
+	
+	PTrajectoryStateOnDet  ptsod= trajectoryStateTransform::persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
 
 	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  from state " << state2.globalPosition()  <<  "\n";
-	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  ptsod " <<  ptsod->parameters().position() << " R " << ptsod->parameters().position().perp() << " phi " << ptsod->parameters().position().phi() << " eta " << ptsod->parameters().position().eta() << "\n" ;
+	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  ptsod " <<  ptsod.parameters().position() << " R " 
+                                              << ptsod.parameters().position().perp() << " phi " << ptsod.parameters().position().phi() << " eta " 
+                                              << ptsod.parameters().position().eta() << "\n";
 	
 
 
-	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, oppositeToMomentum ));
+	theSeeds_.push_back(TrajectorySeed( ptsod, myHits, oppositeToMomentum ));
         nSeedsPerBC_++;
- 
-        delete ptsod;  
-        
 
       }
     }
@@ -475,13 +526,16 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 FreeTrajectoryState OutInConversionSeedFinder::createSeedFTS(const TrajectoryMeasurement & m1,
 							     const TrajectoryMeasurement & m2) const {
 
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeedFTS " << "\n";
+
 
   GlobalPoint xmeas = fixPointRadius(m1);
   GlobalPoint xvert = fixPointRadius(m2);
 
-  float pt = theSC_->energy() * sin(theSCPosition_.theta());
-  float pz = theSC_->energy() * cos(theSCPosition_.theta());
+
+  float pt = theSCenergy_ * sin(theSCPosition_.theta());
+  float pz = theSCenergy_ * cos(theSCPosition_.theta());
+
+
 
   // doesn't work at all for endcap, where r is badly measured
   //float dphidr = (p1.phi()-p2.phi())/(p1.perp()-p2.perp());
@@ -502,11 +556,12 @@ FreeTrajectoryState OutInConversionSeedFinder::createSeedFTS(const TrajectoryMea
   double pyNew =  -sa*pxOld + ca*pyOld;
   GlobalVector pNew(pxNew, pyNew, pz);
 
-  GlobalTrajectoryParameters gp(xmeas, pNew, charge, theMF_);
+  GlobalTrajectoryParameters gp(xmeas, pNew, charge, &(*theMF_) );
 
   AlgebraicSymMatrix55 m = AlgebraicMatrixID();
   m(0,0) = 0.05; m(1,1) = 0.02 ; m(2,2) = 0.007 ;
   m(3,3) = 10. ; m(4,4) = 10. ;
+  //std::cout  << "OutInConversionSeedFinder::createSeedFTS " <<  FreeTrajectoryState(gp, CurvilinearTrajectoryError(m))  << "\n";
   return FreeTrajectoryState(gp, CurvilinearTrajectoryError(m));
 
 

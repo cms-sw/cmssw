@@ -1,5 +1,5 @@
 #ifndef FWCore_Framework_InputSourceFactory_h
-#define FWCOre_Framework_InputSourceFactory_h
+#define FWCore_Framework_InputSourceFactory_h
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/Framework/interface/InputSource.h"
@@ -17,7 +17,7 @@ namespace edm {
   public:
     ~InputSourceFactory();
 
-    static InputSourceFactory* get();
+    static InputSourceFactory const* get();
 
     std::auto_ptr<InputSource>
       makeInputSource(ParameterSet const&,
@@ -26,7 +26,7 @@ namespace edm {
 
   private:
     InputSourceFactory();
-    static InputSourceFactory singleInstance_;
+    static InputSourceFactory const singleInstance_;
   };
 
 }

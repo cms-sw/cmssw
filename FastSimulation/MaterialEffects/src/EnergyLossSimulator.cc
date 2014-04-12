@@ -4,12 +4,10 @@
 
 #include <cmath>
 
-EnergyLossSimulator::EnergyLossSimulator(const RandomEngine* engine) :
-    MaterialEffectsSimulator(engine) 
+EnergyLossSimulator::EnergyLossSimulator(double A, double Z, double density, double radLen) :
+    MaterialEffectsSimulator(A,Z,density,radLen)
 {
-
-  theGenerator = new LandauFluctuationGenerator(engine);
-
+  theGenerator = new LandauFluctuationGenerator();
 }
 
 EnergyLossSimulator::~EnergyLossSimulator() {
@@ -19,13 +17,13 @@ EnergyLossSimulator::~EnergyLossSimulator() {
 }
 
 void 
-EnergyLossSimulator::compute(ParticlePropagator &Particle)
+EnergyLossSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDistribution const* random)
 {
 
   //  FamosHistos* myHistos = FamosHistos::instance();
 
-  double gamma_e = 0.577215664901532861;  // Euler constant
-
+  // double gamma_e = 0.577215664901532861;  // Euler constant
+  
   // The thickness in cm
   double thick = radLengths * radLenIncm();
   
@@ -34,6 +32,11 @@ EnergyLossSimulator::compute(ParticlePropagator &Particle)
   // Author : Patrick Janot - 8-Jan-2004
 
   double p2  = Particle.Vect().Mag2();
+  double verySmallP2 = 0.0001;
+  if (p2<=verySmallP2) {
+    deltaP.SetXYZT(0.,0.,0.,0.);
+    return;
+  }
   double m2  = Particle.mass() * Particle.mass();
   double e2  = p2+m2;
 
@@ -44,21 +47,28 @@ EnergyLossSimulator::compute(ParticlePropagator &Particle)
   
   // Energy loss spread in GeV
   double eSpread  = 0.1536E-3*charge2*(theZ()/theA())*rho()*thick/beta2;
-  
+ 
   // Most probable energy loss (from the integrated Bethe-Bloch equation)
-  double mostProbableLoss = 
-    eSpread * ( log ( 2.*eMass()*beta2*gama2*eSpread/thick
-		      / (excitE()*excitE()) )
-		- beta2 + 1. - gamma_e );
-  
+  mostProbableLoss = eSpread * ( log ( 2.*eMass()*beta2*gama2*eSpread
+		                     / (excitE()*excitE()) )
+                                 - beta2 + 0.200 );
+
+  // This one can be needed on output (but is not used internally)
+  // meanEnergyLoss = 2.*eSpread * ( log ( 2.*eMass()*beta2*gama2 /excitE() ) - beta2 );
+
   // Generate the energy loss with Landau fluctuations
-  double dedx = mostProbableLoss + eSpread * theGenerator->landau();
+  double dedx = mostProbableLoss + eSpread * theGenerator->landau(random);
 
   // Compute the new energy and momentum
-  double newE = std::max(Particle.mass(),Particle.e()-dedx);
+  double aBitAboveMass = Particle.mass()*1.0001;
+  double newE = std::max(aBitAboveMass,Particle.e()-dedx);
+  //  double newE = std::max(Particle.mass(),Particle.e()-dedx);
   double fac  = std::sqrt((newE*newE-m2)/p2);
+
   
   // Update the momentum
+  deltaP.SetXYZT(Particle.Px()*(1.-fac),Particle.Py()*(1.-fac),
+		 Particle.Pz()*(1.-fac),Particle.E()-newE);
   Particle.SetXYZT(Particle.Px()*fac,Particle.Py()*fac, 
 		   Particle.Pz()*fac,newE);
   

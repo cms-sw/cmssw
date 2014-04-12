@@ -10,8 +10,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
+#include "RecoTracker/SingleTrackPattern/interface/CRackTrajectoryBuilder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
@@ -23,9 +23,9 @@ namespace cms
     bool operator()(Trajectory *t1,
 		    Trajectory *t2){
       AnalHits(t1->recHits());
-      uint alay=nlay;
+      unsigned int alay=nlay;
       AnalHits(t2->recHits());
-      uint blay=nlay;
+      unsigned int blay=nlay;
       if (alay!=blay) return alay > blay;
       if (t1->foundHits() != t2->foundHits()) 
 	return t1->foundHits()> t2->foundHits();
@@ -33,12 +33,12 @@ namespace cms
       // std::cout<<"chi "<<t1.chiSquared()<<" "<<t2.chiSquared()<<std::endl;
       // return false;
     }
-    void  AnalHits(std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits){
+    void  AnalHits(const std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >& hits){
       ltob1=false; ltob2=false; ltib1=false; ltib2=false;
       std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
       //     ConstRecHitIterator hit;
       for(hit=hits.begin();hit!=hits.end();hit++){
-	uint iid=(*hit)->hit()->geographicalId().rawId();
+	unsigned int iid=(*hit)->hit()->geographicalId().rawId();
 	
 	int sub=(iid>>25)&0x7 ;
 	int lay=(iid>>16) & 0xF;
@@ -53,7 +53,7 @@ namespace cms
     
   private:
     bool ltib1,ltib2,ltob1,ltob2;
-    uint nlay;
+    unsigned int nlay;
     
   };
   class CompareTrajChi {
@@ -79,9 +79,11 @@ namespace cms
 
   private:
     CosmicTrajectoryBuilder cosmicTrajectoryBuilder_;
+    CRackTrajectoryBuilder  crackTrajectoryBuilder_;
     edm::ParameterSet conf_;
     std::string geometry;
     bool trinevents;
+    bool useHitsSplitting_;
   };
 }
 

@@ -11,12 +11,16 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
-#include <CLHEP/Vector/LorentzVector.h>
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 class BeginOfEvent;
 class G4Step;
 class EndOfEvent;
 class PEcalValidInfo;
+
+namespace edm {
+    class ParameterSet;
+}
 
 class EcalSimHitsValidProducer : public SimProducer,
                          public Observer<const BeginOfEvent*>,
@@ -132,8 +136,8 @@ private:
   FloatVector  tOfESCaloG4Hit;
   FloatVector  eOfESCaloG4Hit;
 
-  HepLorentzVector theMomentum;
-  HepLorentzVector theVertex;
+  math::XYZTLorentzVector theMomentum;
+  math::XYZTLorentzVector theVertex;
 
   int     thePID; 
   std::string  label;

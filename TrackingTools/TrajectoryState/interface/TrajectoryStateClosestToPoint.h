@@ -1,22 +1,18 @@
 #ifndef TrajectoryStateClosestToPoint_H
 #define TrajectoryStateClosestToPoint_H
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
-#include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "DataFormats/Math/interface/Vector.h"
-#include "DataFormats/Math/interface/Error.h"
 
 /**
  * Trajectory state defined at a given point on the helix, which is 
  * the point of closest approach to the reference point.
  * In addition to the FreeTrajectoryState at that point, it also 
  * gives the perigee parameters.
+ * This state can also be invalid, e.g. in case the propagation was not successful.
  */
 
 class TrajectoryStateClosestToPoint
@@ -28,26 +24,31 @@ class TrajectoryStateClosestToPoint
 public:
 
   TrajectoryStateClosestToPoint():
-    theFTSavailable(false), errorIsAvailable(false) {}
+    valid(false), theFTSavailable(false), errorIsAvailable(false) {}
 
   /**
    * Public constructor, which is used to convert perigee 
    * parameters to a FreeTrajectoryState. For the case where
    * no error is provided.
    */
-
   TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
-				const GlobalPoint& referencePoint, const MagneticField* field);
+				const GlobalPoint& referencePoint, const MagneticField* field):
+    theField(field), theRefPoint(referencePoint), 
+    theParameters(perigeeParameters), thePt( pt ), 
+    valid(true),  theFTSavailable(false), errorIsAvailable(false)
+  {}
 
   /**
    * Public constructor, which is used to convert perigee 
    * parameters to a FreeTrajectoryState. For the case where
    * an error is provided.
    */
-
   TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
-    const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint,
-    const MagneticField* field);
+				const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint,
+				const MagneticField* field):
+    theField(field),  theRefPoint(referencePoint),
+    theParameters(perigeeParameters), thePt( pt ), thePerigeeError(perigeeError),
+    valid(true), theFTSavailable(false), errorIsAvailable(true){}
 
 
   /**
@@ -55,8 +56,7 @@ public:
    * It is thus the point with respect to which the impact parameters
    * are defined.
    */ 
-
-  const GlobalPoint referencePoint() const {
+  const GlobalPoint & referencePoint() const {
     return theRefPoint;
   }
 
@@ -65,25 +65,22 @@ public:
    * returns the perigee parameters at the p.c.a. to the reference 
    *  point.
    */
-
   const PerigeeTrajectoryParameters & perigeeParameters() const {
-    return theParameters;
+     return theParameters;
   }
 
   /**
    * returns the transverse momentum magnitude
    */
-
-  double pt() const { return thePt; }
+  double pt() const {
+    return thePt;
+  }
 
   /**
    * returns the error of the perigee parameters if it is 
    * available
    */
-
   const PerigeeTrajectoryError & perigeeError() const {
-    if (!errorIsAvailable) throw TrajectoryStateException(
-      "TrajectoryStateClosestToPoint: attempt to access errors when none available");
     return thePerigeeError;
   }
 
@@ -91,14 +88,13 @@ public:
    * returns the state defined at the point of closest approach to the
    * reference point.
    */
-
   GlobalPoint position() const {
-    return perigeeConversions.positionFromPerigee(theParameters, theRefPoint);
+     return PerigeeConversions::positionFromPerigee(theParameters, theRefPoint);
   }
 
 
   GlobalVector momentum() const {
-    return perigeeConversions.momentumFromPerigee(theParameters, thePt, theRefPoint);
+    return PerigeeConversions::momentumFromPerigee(theParameters, thePt, theRefPoint);
   }
 
 
@@ -117,16 +113,20 @@ public:
    * tells whether the error of the perigee parameters 
    * is available.
    */
-
   bool hasError() const {
     return errorIsAvailable;
   }
 
+  /**
+   * Tells whether the state is valid or not
+   */
+  bool isValid() const {
+    return valid;
+  }
 
-private:
+
 
   friend class TrajectoryStateClosestToPointBuilder;
-  friend class PerigeeConversions;
 
   /**
    * Use the appropriate TrajectoryStateClosestToPointBuilder to
@@ -137,17 +137,19 @@ private:
 
   void calculateFTS() const;
 
+private:
+
   const MagneticField* theField;
 
   mutable FTS theFTS;
-  mutable bool theFTSavailable;
   
   GlobalPoint theRefPoint;
   PerigeeTrajectoryParameters theParameters;
   double thePt;
   PerigeeTrajectoryError thePerigeeError;
+  bool valid;
+  mutable bool theFTSavailable;
   bool errorIsAvailable;
-  PerigeeConversions perigeeConversions;
-  
+ 
 };
 #endif

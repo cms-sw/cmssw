@@ -3,20 +3,20 @@
 
 /** \class HLTSinglet
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a basic HLT
  *  trigger for single objects of the same physics type, cutting on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2006/10/04 16:02:42 $
- *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<vector>
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 //
 // class declaration
@@ -26,16 +26,20 @@ template<typename T>
 class HLTSinglet : public HLTFilter {
 
    public:
-
       explicit HLTSinglet(const edm::ParameterSet&);
       ~HLTSinglet();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
-      edm::InputTag inputTag_; // input tag identifying product
-      double min_Pt_;          // pt threshold in GeV 
-      double max_Eta_;         // eta range (symmetric)
-      int    min_N_;           // number of objects passing cuts required
+      const edm::InputTag                    inputTag_;     // input tag identifying product
+      const edm::EDGetTokenT<std::vector<T>> inputToken_;   // token identifying product
+      const int    triggerType_ ;                           // triggerType configured
+      const int    min_N_;                                  // number of objects passing cuts required
+      const double min_E_;                                  // energy threshold in GeV
+      const double min_Pt_;                                 // pt threshold in GeV
+      const double min_Mass_;                               // mass threshold in GeV
+      const double max_Eta_;                                // eta range (symmetric)
 };
 
-#endif //HLTSinglet_h
+#endif // HLTSinglet_h

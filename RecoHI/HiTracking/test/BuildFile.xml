@@ -1,0 +1,7 @@
+<use   name="root"/>
+<use   name="RecoHI/HiTracking"/>
+<use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
+<use   name="CommonTools/UtilAlgos"/>
+<library   file="*.cc" name="RecoHIHiTrackingTest">
+  <flags   EDM_PLUGIN="1"/>
+</library>

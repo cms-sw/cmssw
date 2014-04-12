@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/19 11:08:17 $
- *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -28,17 +26,13 @@ using namespace edm;
 
 
 DTParametrizedDriftAlgo::DTParametrizedDriftAlgo(const ParameterSet& config) :
-  DTRecHitBaseAlgo(config) {
-    interpolate = config.getParameter<bool>("interpolate");
-
-    minTime = config.getParameter<double>("minTime"); // FIXME: Default was -3 ns
-
-    maxTime = config.getParameter<double>("maxTime"); // FIXME: Default was 415 ns
-
-    // Set verbose output
-    debug = config.getUntrackedParameter<bool>("debug","false");
-    
-  }
+  DTRecHitBaseAlgo(config),
+  interpolate(config.getParameter<bool>("interpolate")),
+  minTime(config.getParameter<double>("minTime")), // FIXME: Default was -3 ns
+  maxTime(config.getParameter<double>("maxTime")), // FIXME: Default was 415 ns
+  // Set verbose output
+  debug(config.getUntrackedParameter<bool>("debug","false"))
+ {}
 
 
 
@@ -67,6 +61,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   const DTWireId wireId(layerId, digi.wire());
   
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(wireId.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
   const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
   
@@ -97,6 +92,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   const DTWireId wireId = recHit1D.wireId();
   
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(wireId.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
   const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
 
@@ -160,7 +156,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   // Calculate the drift distance and the resolution from the parametrization
   
   DTTime2DriftParametrization::drift_distance DX;
-  static DTTime2DriftParametrization par;
+  static const DTTime2DriftParametrization par;
 
   bool parStatus =
     par.computeDriftDistance_mean(driftTime, angle, By, Bz, interpolate, &DX);
@@ -281,6 +277,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   error = LocalError(reso*reso,0.,0.);
 
   // Get Wire position
+  if(!layer->specificTopology().isWireValid(wireId.wire())) return false;
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
 
   //Build the two possible points and the error on the position
@@ -364,15 +361,3 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-
-bool DTParametrizedDriftAlgo::interpolate;
-
-
-float DTParametrizedDriftAlgo::minTime;
-
-  
-float DTParametrizedDriftAlgo::maxTime;
-
-  
-bool DTParametrizedDriftAlgo::debug;

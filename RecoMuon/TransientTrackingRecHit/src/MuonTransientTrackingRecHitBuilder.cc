@@ -4,8 +4,6 @@
  *  Description:
  *
  *
- *  $Date: 2006/11/23 11:54:19 $
- *  $Revision: 1.5 $
  *
  *  Authors :
  *  A. Everett               Purdue University
@@ -41,7 +39,7 @@ MuonTransientTrackingRecHitBuilder::build(const TrackingRecHit * p) const {
 }
 
 MuonTransientTrackingRecHitBuilder::ConstRecHitContainer 
-MuonTransientTrackingRecHitBuilder::build(const trackingRecHit_iterator start, const trackingRecHit_iterator stop) const {
+MuonTransientTrackingRecHitBuilder::build(const trackingRecHit_iterator& start, const trackingRecHit_iterator& stop) const {
  
   ConstRecHitContainer result;
   for(trackingRecHit_iterator hit = start; hit != stop; ++hit )

@@ -14,7 +14,7 @@
 class VolumeMaterialEffectsEstimate;
 class VolumeMediumProperties;
 
-class VolumeMultipleScatteringEstimator : public VolumeMaterialEffectsEstimator
+class VolumeMultipleScatteringEstimator GCC11_FINAL : public VolumeMaterialEffectsEstimator
 {  
 public:
   /// Constructor with explicit mass hypothesis

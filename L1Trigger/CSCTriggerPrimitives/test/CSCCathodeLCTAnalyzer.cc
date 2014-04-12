@@ -4,8 +4,6 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2007/03/07 09:41:21 $
- * $Revision: 1.7 $
  *
  */
 
@@ -26,6 +24,8 @@ using namespace std;
 //-----------------
 
 bool CSCCathodeLCTAnalyzer::debug = true;
+bool CSCCathodeLCTAnalyzer::isTMB07 = true;
+bool CSCCathodeLCTAnalyzer::doME1A = false;
 
 vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(
       const CSCCLCTDigi& clct, const CSCDetId& clctId,
@@ -44,12 +44,13 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(
       << "+++ Number of CSCCathodeLayerInfo objects, " << clctInfo.size()
       << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
-  if (clctInfo.size() != (unsigned)clct.getQuality()) {
-    edm::LogWarning("CSCCathodeLCTAnalyzer")
-      << "+++ Warning: mismatch between CLCT quality, " << clct.getQuality()
-      << ", and the number of layers with digis, " << clctInfo.size()
-      << ", in clctInfo! +++\n";
-  }
+  //  not a good check for high PU
+  //if (clctInfo.size() != (unsigned)clct.getQuality()) {
+  //  edm::LogWarning("L1CSCTPEmulatorWrongValues")
+  //    << "+++ Warning: mismatch between CLCT quality, " << clct.getQuality()
+  //    << ", and the number of layers with digis, " << clctInfo.size()
+  //    << ", in clctInfo! +++\n";
+  //}
 
   // Find the closest SimHit to each Digi.
   vector<CSCCathodeLayerInfo>::iterator pcli;
@@ -69,17 +70,11 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
   // digis themselves.
   int hfstripDigis[CSCConstants::NUM_HALF_STRIPS];
   int distripDigis[CSCConstants::NUM_HALF_STRIPS];
-  int time[CSCConstants::MAX_NUM_STRIPS], triad[CSCConstants::MAX_NUM_STRIPS];
+  int time[CSCConstants::MAX_NUM_STRIPS], comp[CSCConstants::MAX_NUM_STRIPS];
   int digiNum[CSCConstants::MAX_NUM_STRIPS];
   int digiId = -999;
   CSCCathodeLayerInfo tempInfo;
   vector<CSCCathodeLayerInfo> vectInfo;
-
-  // Parameters defining time window for accepting hits; should come from
-  // configuration file eventually.
-  const int fifo_tbins  = 16;
-  const int bx_width    = 6;
-  const int drift_delay = 2;
 
   // Inquire the clct for its key half-strip, strip type and pattern number.
   int clct_keystrip  = clct.getKeyStrip();
@@ -99,6 +94,13 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
       << ", ring " << clctId.ring() << ", chamber " << clctId.chamber();
   }
 
+  // 'Staggering' for key layer.  Needed for TMB07 version.
+  const int key_layer = 3; // counting from 1.
+  CSCDetId layerId(clctId.endcap(), clctId.station(), clctId.ring(),
+		   clctId.chamber(), key_layer);
+  const CSCLayer* csclayer = geom_->layer(layerId);
+  int key_stagger = (csclayer->geometry()->stagger()+1)/2;
+
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     // Clear tempInfo values every iteration before using.
     tempInfo.clear();
@@ -113,7 +115,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     }
     for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
       time[i_strip]    = -999;
-      triad[i_strip]   =    0;
+      comp[i_strip]    =    0;
       digiNum[i_strip] = -999;
     }
 
@@ -123,72 +125,49 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     CSCDetId layerId(clctId.endcap(), clctId.station(), clctId.ring(),
 		     clctId.chamber(), i_layer+1);
 
-    // 'Staggering' for this layer.
-    const CSCLayer* csclayer = geom_->layer(layerId);
-    int stagger = (csclayer->geometry()->stagger()+1)/2;
-
     // Preselection of Digis: right layer and bx.
-    const CSCComparatorDigiCollection::Range rcompd = compdc->get(layerId);
-    for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first;
-         digiIt != rcompd.second; ++digiIt) {
-      if (debug) LogDebug("lctDigis")
-	<< "Comparator digi: layer " << i_layer
-	<< " strip/comparator/time =" << (*digiIt);
+    digi_num += preselectDigis(clct_bx, layerId, compdc, digiMap,
+			       hfstripDigis, distripDigis,
+			       time, comp, digiNum);
 
-      if ((*digiIt).getComparator() == 0 || (*digiIt).getComparator() == 1) {
-	int bx_time = (*digiIt).getTimeBin();
-	if (bx_time >= 0 && bx_time < fifo_tbins) {
-
-	  // Do not use digis which could not have contributed to a given CLCT.
-	  int latch_bx = clct_bx + drift_delay;
-	  if (bx_time <= latch_bx-bx_width || bx_time > latch_bx) {
-	    if (debug) LogDebug("lctDigis")
-	      << "Late comparator digi: layer " << i_layer
-	      << " strip/comparator/time =" << (*digiIt) << " skipping...";
-	    continue;
-	  }
-	    
-	  // If there is more than one digi on the same strip, pick the one
-	  // which occurred earlier.
-	  int i_strip = (*digiIt).getStrip() - 1; // starting from 0
-	  if (time[i_strip] <= 0 || time[i_strip] > bx_time) {
- 
-	    // @ Switch to maps; check for match in time.
-	    int i_hfstrip = 2*i_strip + (*digiIt).getComparator() + stagger;
-	    hfstripDigis[i_hfstrip] = digi_num;
-
-	    // Arrays for distrip stagger
-	    triad[i_strip]   = (*digiIt).getComparator();
-	    time[i_strip]    = bx_time;
-	    digiNum[i_strip] = digi_num;
-
-	    if (debug) LogDebug("lctDigis")
-	      << "digi_num = " << digi_num << " half-strip = " << i_hfstrip
-	      << " strip = " << i_strip;
-	  }
-	}
-      }
-      digiMap.push_back(*digiIt);
-      digi_num++;
-    }
-
-    // Loop for di-strips, including stagger
-    for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
-      if (time[i_strip] >= 0) {
-	int i_distrip = i_strip/2;
-	if (i_strip%2 && triad[i_strip] == 1 && stagger == 1)
-	  CSCCathodeLCTProcessor::distripStagger(triad, time, digiNum,
-						 i_strip);
-	distripDigis[i_distrip] = digiNum[i_strip];
+    // In case of ME1/1, one can also look for digis in ME1/A.
+    // Skip them for now since the resolution of CLCTs in ME1/A is
+    // terrible (strips are ganged; channel numbers translated to be
+    // in CFEB=4).
+    if (doME1A) {
+      if (clctId.station() == 1 && clctId.ring() == 1) {
+	CSCDetId layerId_me1a(clctId.endcap(), clctId.station(), 4,
+			      clctId.chamber(), i_layer+1);
+	digi_num += preselectDigis(clct_bx, layerId_me1a, compdc, digiMap,
+				   hfstripDigis, distripDigis,
+				   time, comp, digiNum);
       }
     }
 
     // Loop over all the strips in a pattern.
-    for (int i_strip = 0; i_strip < CSCCathodeLCTProcessor::NUM_PATTERN_STRIPS;
-	 i_strip++) {
-      if (CSCCathodeLCTProcessor::pattern[clct_pattern][i_strip] == i_layer) {
-	int strip = clct_keystrip +
-	  CSCCathodeLCTProcessor::pre_hit_pattern[1][i_strip];
+    int max_pattern_strips, layer, strip;
+    if (!isTMB07) {
+      max_pattern_strips = CSCCathodeLCTProcessor::NUM_PATTERN_STRIPS;
+    }
+    else {
+      max_pattern_strips = CSCCathodeLCTProcessor::NUM_PATTERN_HALFSTRIPS;
+    }
+    for (int i_strip = 0; i_strip < max_pattern_strips; i_strip++) {
+      if (!isTMB07) {
+	layer = CSCCathodeLCTProcessor::pattern[clct_pattern][i_strip];
+      }
+      else {
+	layer = CSCCathodeLCTProcessor::pattern2007[clct_pattern][i_strip];
+      }
+      if (layer == i_layer) {
+	if (!isTMB07) {
+	  strip = clct_keystrip +
+	    CSCCathodeLCTProcessor::pre_hit_pattern[1][i_strip];
+	}
+	else {
+	  strip = clct_keystrip + key_stagger +
+	    CSCCathodeLCTProcessor::pattern2007_offset[i_strip];
+	}
 	if (strip >= 0 && strip < CSCConstants::NUM_HALF_STRIPS) {
 	  // stripType=0 corresponds to distrips, stripType=1 for halfstrips.
 	  if (clct_stripType == 0)
@@ -201,7 +180,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
 	  if (digiId >= 0) {
 	    tempInfo.setId(layerId); // store the layer of this object
 	    tempInfo.addComponent(digiMap[digiId]); // and the RecDigi
-	    if (debug) LogDebug("lctDigis")
+	    if (debug) LogTrace("lctDigis")
 	      << " Digi on CLCT: strip/comp/time " << digiMap[digiId];
 	  }
 	}
@@ -216,6 +195,94 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
   return vectInfo;
 }
 
+int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
+      const CSCDetId& layerId,
+      const CSCComparatorDigiCollection* compdc,
+      vector<CSCComparatorDigi>& digiMap,
+      int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
+      int distripDigis[CSCConstants::NUM_HALF_STRIPS],
+      int time[CSCConstants::MAX_NUM_STRIPS],
+      int comp[CSCConstants::MAX_NUM_STRIPS],
+      int digiNum[CSCConstants::MAX_NUM_STRIPS]) {
+  // Preselection of Digis: right layer and bx.
+  int digi_num = 0;
+
+  // Parameters defining time window for accepting hits; should come from
+  // configuration file eventually.
+  const int fifo_tbins  = 12;
+  const int hit_persist = 4;
+  const int drift_delay = 2;
+
+  // 'Staggering' for this layer.
+  const CSCLayer* csclayer = geom_->layer(layerId);
+  int stagger = (csclayer->geometry()->stagger()+1)/2;
+
+  bool me1a = (layerId.station() == 1) && (layerId.ring() == 4);
+
+  const CSCComparatorDigiCollection::Range rcompd = compdc->get(layerId);
+  for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first;
+       digiIt != rcompd.second; ++digiIt) {
+    if (debug) LogDebug("lctDigis")
+      << "Comparator digi: layer " << layerId.layer()-1
+      << " strip/comparator/time =" << (*digiIt);
+
+    if ((*digiIt).getComparator() == 0 || (*digiIt).getComparator() == 1) {
+      int bx_time = (*digiIt).getTimeBin();
+      if (bx_time >= 0 && bx_time < fifo_tbins) {
+
+	// Do not use digis which could not have contributed to a given CLCT.
+	int latch_bx = clct_bx + drift_delay;
+	if (bx_time <= latch_bx-hit_persist || bx_time > latch_bx) {
+	  if (debug) LogDebug("lctDigis")
+	    << "Late comparator digi: layer " << layerId.layer()-1
+	    << " strip/comparator/time =" << (*digiIt) << " skipping...";
+	  continue;
+	}
+
+	// If there is more than one digi on the same strip, pick the one
+	// which occurred earlier.
+	int i_strip = (*digiIt).getStrip() - 1; // starting from 0
+	if (me1a && i_strip < 16) {
+	  // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
+	  // been done already.
+	  i_strip += 64;
+	}
+
+	if (time[i_strip] <= 0 || time[i_strip] > bx_time) {
+ 
+	  // @ Switch to maps; check for match in time.
+	  int i_hfstrip = 2*i_strip + (*digiIt).getComparator() + stagger;
+	  hfstripDigis[i_hfstrip] = digi_num;
+
+	  // Arrays for distrip stagger
+	  comp[i_strip]    = (*digiIt).getComparator();
+	  time[i_strip]    = bx_time;
+	  digiNum[i_strip] = digi_num;
+
+	  if (debug) LogDebug("lctDigis")
+	    << "digi_num = " << digi_num << " half-strip = " << i_hfstrip
+	    << " strip = " << i_strip;
+	}
+      }
+    }
+    digiMap.push_back(*digiIt);
+    digi_num++;
+  }
+
+  // Loop for di-strips, including stagger
+  for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
+    if (time[i_strip] >= 0) {
+      int i_distrip = i_strip/2;
+      if (i_strip%2 && comp[i_strip] == 1 && stagger == 1)
+	CSCCathodeLCTProcessor::distripStagger(comp, time, digiNum,
+					       i_strip);
+      distripDigis[i_distrip] = digiNum[i_strip];
+    }
+  }
+
+  return digi_num;
+}
+
 void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
 				     const edm::PSimHitContainer* allSimHits) {
   // This routine matches up the closest simHit to every digi on a given layer.
@@ -227,6 +294,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
   vector<CSCComparatorDigi> thisLayerDigis = info.getRecDigis();
   if (!thisLayerDigis.empty()) {
     CSCDetId layerId = info.getId();
+    bool me11 = (layerId.station() == 1) && (layerId.ring() == 1);
 
     // Get simHits in this layer.
     for (edm::PSimHitContainer::const_iterator simHitIt = allSimHits->begin();
@@ -236,13 +304,19 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
       CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
       if (hitId == layerId)
 	simHits.push_back(*simHitIt);
+      if (me11) {
+	CSCDetId layerId_me1a(layerId.endcap(), layerId.station(), 4,
+			      layerId.chamber(), layerId.layer());
+	if (hitId == layerId_me1a)
+	  simHits.push_back(*simHitIt);
+      }
     }
 
     if (!simHits.empty()) {
       ostringstream strstrm;
       if (debug) {
 	strstrm << "\nLayer " << layerId.layer()
-		<< " has " << simHits.size() << " SimHit(s); eta value(s) = ";
+		<< " has " << simHits.size() << " SimHit(s); phi value(s) = ";
       }
 
       // Get the strip number for every digi and convert to phi.
@@ -290,7 +364,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
 	info.addComponent(*bestHit);
       }
       if (debug) {
-	LogDebug("digiSimHitAssociator") << strstrm.str();
+	LogTrace("digiSimHitAssociator") << strstrm.str();
       }
     }
   }
@@ -308,21 +382,22 @@ int CSCCathodeLCTAnalyzer::nearestHS(
   PSimHit matchedHit;
   bool hit_found = false;
   CSCDetId layerId;
+  static const int key_layer = isTMB07 ?
+    CSCConstants::KEY_CLCT_LAYER : CSCConstants::KEY_CLCT_LAYER_PRE_TMB07;
 
   vector<CSCCathodeLayerInfo>::const_iterator pli;
   for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {
-    if (pli->getId().layer() == CSCConstants::KEY_CLCT_LAYER) {
+    if (pli->getId().layer() == key_layer) {
       vector<PSimHit> thisLayerHits = pli->getSimHits();
       if (thisLayerHits.size() > 0) {
 	// There can be one RecDigi (and therefore only one SimHit)
 	// in a keylayer.
 	if (thisLayerHits.size() != 1) {
-	  edm::LogWarning("nearestWG")
+	  edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	    << "+++ Warning: " << thisLayerHits.size()
-	    << " SimHits in key layer " << CSCConstants::KEY_CLCT_LAYER
-	    << "! +++ \n";
+	    << " SimHits in key layer " << key_layer << "! +++ \n";
 	  for (unsigned i = 0; i < thisLayerHits.size(); i++) {
-	    edm::LogWarning("nearestWG")
+	    edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	      << " SimHit # " << i << thisLayerHits[i] << "\n";
 	  }
 	}
@@ -364,7 +439,7 @@ int CSCCathodeLCTAnalyzer::nearestHS(
     // strip = nearestStrip = MAX_STRIPS; do not know how to handle them.
     int nearestStrip = static_cast<int>(strip);
     if (nearestStrip < 0 || nearestStrip >= CSCConstants::MAX_NUM_STRIPS) {
-      edm::LogWarning("nearestStrip")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: nearest strip, " << nearestStrip
 	<< ", is not in [0-" << CSCConstants::MAX_NUM_STRIPS
 	<< ") interval; strip = " << strip << " +++\n";
@@ -403,7 +478,7 @@ double CSCCathodeLCTAnalyzer::getStripPhi(const CSCDetId& layerId,
 					  const float strip) {
   // Returns phi position of a given strip.
   if (strip < 0. || strip >= CSCConstants::MAX_NUM_STRIPS) {
-    edm::LogWarning("getStripPhi")
+    edm::LogWarning("L1CSCTPEmulatorWrongInput")
       << "+++ Warning: strip, " << strip
       << ", is not in [0-" << CSCConstants::MAX_NUM_STRIPS
       << ") interval +++\n";

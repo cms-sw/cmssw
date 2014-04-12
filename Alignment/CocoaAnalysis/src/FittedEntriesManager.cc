@@ -6,11 +6,10 @@
 //   Pedro Arce
 #include <map>
 #include <fstream>
-
-#include "Alignment/CocoaAnalysis/interface/FittedEntriesManager.h"
-#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
 #include <iostream>
 #include <iomanip>
+
+#include "Alignment/CocoaAnalysis/interface/FittedEntriesManager.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
@@ -144,7 +143,7 @@ void FittedEntriesManager::GetDifferentBetweenLasers()
     lite2 = lite1; lite2++;
     for( ; lite2 != lrays.end(); lite2++ ){
       if( lite1 == lite2 ) continue;
-      Hep3Vector dirdiff = ((*lite1).second->direction() - (*lite2).second->direction());
+      CLHEP::Hep3Vector dirdiff = ((*lite1).second->direction() - (*lite2).second->direction());
       if(ALIUtils::debug >= 0) {
         std::cout << "LASER DIFF " << (*lite1).first << " & " << (*lite2).first << " " << dirdiff.mag()*180./M_PI << "o " << dirdiff.mag() << " rad " << dirdiff << std::endl;
       

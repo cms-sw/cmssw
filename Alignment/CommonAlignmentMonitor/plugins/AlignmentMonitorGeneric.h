@@ -20,9 +20,10 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorGeneric.h,v 1.1 2007/07/09 17:09:52 cklae Exp $
+// $Id: AlignmentMonitorGeneric.h,v 1.3 2007/12/04 23:29:26 ratnik Exp $
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
+#include "TH1.h" 
 
 class AlignmentMonitorGeneric:
   public AlignmentMonitorBase
@@ -37,7 +38,7 @@ class AlignmentMonitorGeneric:
 
   virtual void book();
 
-  virtual void event(
+  virtual void event(const edm::Event&,
 		     const edm::EventSetup&,
 		     const ConstTrajTrackPairCollection&
 		     );

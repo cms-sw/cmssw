@@ -17,7 +17,7 @@
 
   std::vector<reco::Track> trackCollection;
 
-  TBranch *branch = tree->GetBranch("recoTracks_ctfWithMaterialTracks__RecoTracks.obj");
+  TBranch *branch = tree->GetBranch("recoTracks_generalTracks__RECO.obj");
   branch->SetAddress(&trackCollection);
 
   for ( unsigned int index = 0; index < tree->GetEntries(); ++index ) {

@@ -1,10 +1,6 @@
-#include "MagneticField/Interpolation/src/RectangularCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
-#include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
-
-// #include "Utilities/Notification/interface/TimingReport.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
-
+#include "RectangularCylindricalMFGrid.h"
+#include "binary_ifstream.h"
+#include "LinearGridInterpolator3D.h"
 #include <iostream>
 
 using namespace std;
@@ -13,6 +9,22 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
 							    const GloballyPositioned<float>& vol)
   : MFGrid3D(vol)
 {
+  // The parameters read from the data files are given in global coordinates.
+  // In version 85l, local frame has the same orientation of global frame for the reference
+  // volume, i.e. the r.f. transformation is only a translation.
+  // There is therefore no need to convert the field values to local coordinates.
+  // Check this assumption: 
+  GlobalVector localXDir(frame().toGlobal(LocalVector(1,0,0)));
+  GlobalVector localYDir(frame().toGlobal(LocalVector(0,1,0)));
+
+  if (localXDir.dot(GlobalVector(1,0,0)) > 0.999999 &&
+      localYDir.dot(GlobalVector(0,1,0)) > 0.999999) {
+    // "null" rotation - requires no conversion...
+  } else {
+    cout << "ERROR: RectangularCylindricalMFGrid: unexpected orientation: x: " 
+	 << localXDir << " y: " << localYDir << endl;
+  }
+
   int n1, n2, n3;
   inFile >> n1 >> n2 >> n3;
   double xref, yref, zref;
@@ -23,6 +35,7 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
   vector<BVector> fieldValues;
   float Bx, By, Bz;
   int nLines = n1*n2*n3;
+  fieldValues.reserve(nLines);
   for (int iLine=0; iLine<nLines; ++iLine){
     inFile >> Bx >> By >> Bz;
     fieldValues.push_back(BVector(Bx,By,Bz));
@@ -31,7 +44,7 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
   string lastEntry;
   inFile >> lastEntry;
   if (lastEntry != "complete"){
-    cout << "error during file reading: file is not complete" << endl;
+    cout << "ERROR during file reading: file is not complete" << endl;
   }
 
   GlobalPoint grefp( GlobalPoint::Cylindrical( xref, yref, zref));
@@ -44,16 +57,13 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
   cout << "steps " << stepx << "," <<  stepy << "," << stepz << endl;
 #endif
 
-  Grid1D<double> gridX( lrefp.perp(), lrefp.perp() + stepx*(n1-1), n1);
-  //Grid1D<double> gridY( lrefp.phi(), lrefp.phi() + stepy*(n2-1), n2); // wrong: gives zero
-  Grid1D<double> gridY( yref, yref + stepy*(n2-1), n2);
-  Grid1D<double> gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);
+  Grid1D gridX( lrefp.perp(), lrefp.perp() + stepx*(n1-1), n1);
+  //Grid1D gridY( lrefp.phi(), lrefp.phi() + stepy*(n2-1), n2); // wrong: gives zero
+  Grid1D gridY( yref, yref + stepy*(n2-1), n2);
+  Grid1D gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);
 
   grid_ = GridType( gridX, gridY, gridZ, fieldValues);
   
-  // Activate/deactivate timers
-//   static SimpleConfigurable<bool> timerOn(false,"MFGrid:timing");
-//   (*TimingReport::current()).switchOn("MagneticFieldProvider::uncheckedValueInTesla(RectangularCylindricalMFGrid)",timerOn);
 }
 
 void RectangularCylindricalMFGrid::dump() const
@@ -75,11 +85,7 @@ void RectangularCylindricalMFGrid::dump() const
 
 MFGrid::LocalVector RectangularCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 {
-//   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::uncheckedValueInTesla(RectangularCylindricalMFGrid)"];
-//   TimeMe t(timer,false);
-
   const float minimalSignificantR = 1e-6; // [cm], points below this radius are treated as zero radius
-  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
   float R = p.perp();
   if (R < minimalSignificantR) {
     if (grid_.grida().lower() < minimalSignificantR) {
@@ -89,7 +95,11 @@ MFGrid::LocalVector RectangularCylindricalMFGrid::uncheckedValueInTesla( const L
       return result;
     }
   }
-  GridType::ValueType value = interpol( R, Geom::pi() - p.phi(), p.z());
+  
+  LinearGridInterpolator3D interpol( grid_);
+  // FIXME: "OLD" convention of phi.
+  // GridType::ValueType value = interpol( R, Geom::pi() - p.phi(), p.z());
+  GridType::ReturnType value = interpol.interpolate( R, p.phi(), p.z());
   return LocalVector(value);
 }
 
@@ -97,11 +107,16 @@ void RectangularCylindricalMFGrid::toGridFrame( const LocalPoint& p,
 					      double& a, double& b, double& c) const
 {
   a = p.perp();
-  b = Geom::pi() - p.phi();
+  // FIXME: "OLD" convention of phi.
+  //  b = Geom::pi() - p.phi();
+  b = p.phi();
   c = p.z();
 }
  
 MFGrid::LocalPoint RectangularCylindricalMFGrid::fromGridFrame( double a, double b, double c) const
 {
-  return LocalPoint( LocalPoint::Cylindrical(a, Geom::pi() - b, c));
+
+  // FIXME: "OLD" convention of phi.
+  //  return LocalPoint( LocalPoint::Cylindrical(a, Geom::pi() - b, c));
+  return LocalPoint( LocalPoint::Cylindrical(a, b, c));
 }

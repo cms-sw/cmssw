@@ -1,0 +1,29 @@
+#
+# This is the decay file for the decay Bd -> D0star+pi- -> K pi pi
+#
+Alias      MyB0   B0
+Alias      Myanti-B0   anti-B0
+ChargeConj MyB0   Myanti-B0 
+Alias      MyD*+  D*+
+Alias      MyD*-  D*-
+ChargeConj MyD*+  MyD*- 
+Alias      MyD0   D0
+Alias      Myanti-D0   anti-D0
+ChargeConj MyD0   Myanti-D0 
+#
+Decay MyB0
+1.000      D*-     pi+                    SVS;
+Enddecay
+CDecay Myanti-B0
+#
+Decay MyD*+
+1.000      D0  pi+                        VSS;
+Enddecay
+CDecay MyD*-
+#
+Decay MyD0
+1.000      K-  pi+                        PHSP;
+Enddecay
+CDecay Myanti-D0
+#
+End

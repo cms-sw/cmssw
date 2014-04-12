@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
-#include "TH1F.h"
+#include <math.h>
 #include "TH2F.h"
 #include "TProfile.h"
 
@@ -221,6 +221,9 @@ void SummaryGenerator::printMap() {
     }
     ss << std::endl;
   }
+  
+  ss << " Max value: " << max_ << std::endl
+     << " Min value: " << min_ << std::endl;
 
   LogTrace(mlSummaryPlots_) << ss.str();
   
@@ -234,13 +237,14 @@ void SummaryGenerator::fillMap( const std::string& top_level_dir,
 				const float& value,
 				const float& error ) {
   
-  // Calculate maximum and minimum values in std::map
-  if ( value < 1. * sistrip::valid_ ) { 
-    if ( value > max_ ) { max_ = value; }
-    if ( value < min_ ) { min_ = value; }
-  }
+  // Check if value is valid
+  if ( value > 1. * sistrip::valid_ ) { return; }
   
-  // Fill map if value (and error) are valid
+  // Calculate maximum and minimum values in std::map
+  if ( value > max_ ) { max_ = value; }
+  if ( value < min_ ) { min_ = value; }
+  
+  // Check if error is valid
   if ( error < 1. * sistrip::valid_ ) { 
     fill( top_level_dir, gran, device_key, value, error );
   } else { 
@@ -284,32 +288,18 @@ void SummaryGenerator::histo1D( TH1& his ) {
   }
   
   // Calculate bin range
-  float high = ceil(max_);
-  float low  = ceil( fabs(min_) );
-  if ( min_ < 0. ) { low *= -1.; }
-  float diff = high - low;
-  if ( diff < 20 ) {
-    high += (20-diff) / 2.;
-    low  -= (20-diff) / 2.;
-  } else {
-    high *= 1.2;
-    low  *= 1.2;
-  }
-  if ( low > 0. && low < 20. ) { low = 0.; }
-  high = rint(high);
-  low  = rint(low);
-  high = high > 1024. ? 1100. : high;
-  low = low < -1024. ? -1100. : low;
+  int32_t high  = static_cast<int32_t>( fabs(max_) > 20. ? max_ + 0.05 * fabs(max_) : max_ + 1. );
+  int32_t low   = static_cast<int32_t>( fabs(min_) > 20. ? min_ - 0.05 * fabs(min_) : min_ - 1. );
+  int32_t range = high - low;
 
-  // Calculate binning range 
-  int32_t range = static_cast<int32_t>( high-low );
-  // Use finer binning if noise or timing data 
-  if ( 0 ) { range *= 10; }
-  // Check range 
-  if ( range < 20 ) { range = 20; } 
-  if ( range > 1024 ) { range = 1024; }
+  // increase number of bins for floats
+//   if ( max_ - static_cast<int32_t>(max_) > 1.e-6 && 
+//        min_ - static_cast<int32_t>(min_) > 1.e-6 ) {
+//     range = 100 * range; 
+//   }
+  
   // Set histogram binning
-  histo->SetBins( range, low, high ); 
+  histo->SetBins( range, static_cast<float>(low), static_cast<float>(high) );
   
   // Iterate through std::map, set bin labels and fill histogram
   entries_ = 0.;

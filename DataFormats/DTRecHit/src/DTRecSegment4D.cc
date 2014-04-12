@@ -1,7 +1,5 @@
 /** \file
  *
- * $Date: 2007/02/13 13:25:12 $
- * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -13,7 +11,6 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 /* C++ Headers */
-#include <iosfwd>
 
 
 
@@ -145,28 +142,36 @@ AlgebraicSymMatrix DTRecSegment4D::parametersError() const {
   return result;
 }
 
+//These methods are only used to initialize the const static values
+// used by projectionMatrix().
+static AlgebraicMatrix initThe4DProjectionMatrix() {
+  AlgebraicMatrix the4DProjectionMatrix(4, 5, 0); 
+  the4DProjectionMatrix[0][1] = 1;
+  the4DProjectionMatrix[1][2] = 1;
+  the4DProjectionMatrix[2][3] = 1;
+  the4DProjectionMatrix[3][4] = 1;
+  return the4DProjectionMatrix;
+}
+static const AlgebraicMatrix the4DProjectionMatrix{initThe4DProjectionMatrix()}; 
+
+static AlgebraicMatrix initThe2DPhiProjMatrix() {
+  AlgebraicMatrix the2DPhiProjMatrix(2, 5, 0);
+  the2DPhiProjMatrix[0][1] = 1;
+  the2DPhiProjMatrix[1][3] = 1;
+  return the2DPhiProjMatrix;
+}
+static const AlgebraicMatrix the2DPhiProjMatrix{initThe2DPhiProjMatrix()};
+
+static AlgebraicMatrix initThe2DZProjMatrix() {
+  AlgebraicMatrix the2DZProjMatrix(2, 5, 0);
+  the2DZProjMatrix[0][2] = 1;
+  the2DZProjMatrix[1][4] = 1;
+  return the2DZProjMatrix;
+}
+static const AlgebraicMatrix the2DZProjMatrix{initThe2DZProjMatrix()};
+
 
 AlgebraicMatrix DTRecSegment4D::projectionMatrix() const {
-  static bool isInitialized=false;
-  static AlgebraicMatrix the4DProjectionMatrix(4, 5, 0); 
-  static AlgebraicMatrix the2DPhiProjMatrix(2, 5, 0);
-  static AlgebraicMatrix the2DZProjMatrix(2, 5, 0);
-
-  if (!isInitialized) {
-    the4DProjectionMatrix[0][1] = 1;
-    the4DProjectionMatrix[1][2] = 1;
-    the4DProjectionMatrix[2][3] = 1;
-    the4DProjectionMatrix[3][4] = 1;
-
-    the2DPhiProjMatrix[0][1] = 1;
-    the2DPhiProjMatrix[1][3] = 1;
-
-    the2DZProjMatrix[0][2] = 1;
-    the2DZProjMatrix[1][4] = 1;
-
-    isInitialized= true;
-  }
-
   if (dimension()==4) { 
     return the4DProjectionMatrix;
   } else if (theProjection==phi) {
@@ -231,9 +236,9 @@ void DTRecSegment4D::setCovMatrixForZed(const LocalPoint& posZInCh){
   //   theZedSeg.parametersError()[1][1] << " + " << 
   //   2*posZInCh.z() << "*" << theZedSeg.parametersError()[0][1] ;
   theCovMatrix[3][3] =
-    (posZInCh.z()*posZInCh.z())*theZedSeg.parametersError()[0][0] +
+    2.*(posZInCh.z()*posZInCh.z())*theZedSeg.parametersError()[0][0] +
     theZedSeg.parametersError()[1][1] +
-    2*posZInCh.z()*theZedSeg.parametersError()[0][1];
+    2.*posZInCh.z()*theZedSeg.parametersError()[0][1];
   // cout << " = " << theCovMatrix[3][3] << endl;
 }
 
@@ -241,7 +246,12 @@ std::ostream& operator<<(std::ostream& os, const DTRecSegment4D& seg) {
   os << "Pos " << seg.localPosition() << 
     " Dir: " << seg.localDirection() <<
     " dim: " << seg.dimension() <<
-    " chi2/ndof: " << seg.chi2() << "/" << seg.degreesOfFreedom() ;
+    " chi2/ndof: " << seg.chi2() << "/" << seg.degreesOfFreedom() << " :";
+  if (seg.hasPhi()) os << seg.phiSegment()->recHits().size();
+  else os << 0;
+  os << ":";
+  if (seg.hasZed()) os << seg.zSegment()->recHits().size();
+  else os << 0;
   return os;
 }
 

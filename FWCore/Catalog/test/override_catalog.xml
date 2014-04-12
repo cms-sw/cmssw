@@ -1,0 +1,8 @@
+<storage-mapping>
+  <lfn-to-pfn 
+    path-match="/store/unmerged/relval/CMSSW_3_8_0_pre3/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V2-v1/0666/80EC0BCD-D279-DF11-B1DB-0030487C90EE.root" 
+    protocol="override" 
+    result="/FULL_PATH_TO_THE_FIRST_STEP_ROOT_FILE/80EC0BCD-D279-DF11-B1DB-0030487C90EE.root"
+  />
+</storage-mapping>
+

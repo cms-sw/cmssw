@@ -25,14 +25,14 @@ L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber,int cardNumber, const L1RCT
 L1RCTReceiverCard::~L1RCTReceiverCard(){}
 
 void L1RCTReceiverCard::randomInput(){
-  vector<unsigned short> input(64);
+  std::vector<unsigned short> input(64);
   for(int i = 0; i<64;i++)
     input.at(i) = rand()&511;
   fillInput(input);
 }
 
 void L1RCTReceiverCard::fileInput(char* filename){
-  vector<unsigned short> input(64);
+  std::vector<unsigned short> input(64);
   unsigned short x;
   std::ifstream instream(filename);
   if(instream){
@@ -50,40 +50,41 @@ void L1RCTReceiverCard::fileInput(char* filename){
 //First layer is ecal the second is hcal.
 //goes in order of (for crate 0,card 0)
 // (Region 1)   (Region 0)
+// 28 24 20 16 12 08 04 00
 // 29 25 21 17 13 09 05 01
 // 30 26 22 18 14 10 06 02
-// 31 27 23 19 15 11 07 03
-// 32 28 24 20 16 12 08 04 
+// 31 27 23 19 15 11 07 03 
 //
 // For card 6 of crate 0 it would look like 
 //
+// 12 08 04 00
 // 13 09 05 01
 // 14 10 06 02
 // 15 11 07 03
-// 16 12 08 04
+// 16 20 24 28
 // 17 21 25 29
 // 18 22 26 30
 // 19 23 27 31
-// 20 24 28 32
 
-void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
+
+void L1RCTReceiverCard::fillInput(const std::vector<unsigned short>& input){
   
-  vector<unsigned short> ecalInput(32);
-  vector<unsigned short> ecalFG(32);
-  vector<unsigned short> hcalInput(32);
-  vector<unsigned short> hcalMuon(32);
+  std::vector<unsigned short> ecalInput(32);
+  std::vector<unsigned short> ecalFG(32);
+  std::vector<unsigned short> hcalInput(32);
+  std::vector<unsigned short> hcalMuon(32);
 
   for(int i = 0; i<32; i++){
     ecalInput.at(i) = input.at(i)/2;
     ecalFG.at(i) = input.at(i) & 1;
     hcalInput.at(i) = input.at(i+32)/2;
     hcalMuon.at(i) = input.at(i+32) & 1;
-    unsigned long lookup = rctLookupTables_->lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i),crtNo, cardNo, i+1);
+    unsigned long lookup = rctLookupTables_->lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i),crtNo, cardNo, i); // tower number 0-31 now
     unsigned short etIn7Bits = lookup&127;
     unsigned short etIn9Bits = (lookup >> 8)&511;
     unsigned short HE_FGBit = (lookup>>7)&1;
     unsigned short activityBit = (lookup>>17)&1;
-    vector<unsigned short> indices = towerToRegionMap(i);
+    std::vector<unsigned short> indices = towerToRegionMap(i);
     unsigned short r = indices.at(0);
     unsigned short row = indices.at(1);
     unsigned short col = indices.at(2);
@@ -98,7 +99,7 @@ void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
 
 
 vector<unsigned short> L1RCTReceiverCard::towerToRegionMap(int towernum){
-  vector<unsigned short> returnVec(3);
+  std::vector<unsigned short> returnVec(3);
   unsigned short region;
   unsigned short towerrow;
   unsigned short towercol;
@@ -204,7 +205,7 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
   else {
     answer = true;
   }
-  // cout << "Tau veto set to " << answer << endl;
+  // std::cout << "Tau veto set to " << answer << std::endl;
   return answer;
 }
 
@@ -220,7 +221,11 @@ unsigned short L1RCTReceiverCard::calcRegionSum(L1RCTRegion region){
   unsigned short overflow = 0;
   for(int i = 0; i<4; i++){
     for(int j = 0; j<4; j++){
-      sum = sum + region.getEtIn9Bits(i,j);
+      unsigned short towerEt = region.getEtIn9Bits(i,j);
+      // If tower is saturated, peg the region to max value
+      //if(towerEt == 0x1FF) sum = 0x3FF;  // HARDWARE DOESN'T DO THIS!!
+      //else 
+      sum = sum + towerEt;
     }
   }
   if(sum > 1023){
@@ -248,13 +253,13 @@ unsigned short L1RCTReceiverCard::calcMuonBit(L1RCTRegion region){
 }
 
 void L1RCTReceiverCard::print(){
-  cout <<"Receiver Card " << cardNo << " in Crate " << crtNo <<endl;
+  std::cout <<"Receiver Card " << cardNo << " in Crate " << crtNo <<std::endl;
 
   for(int i=0;i<2;i++){
-    cout << "Region " << i << " information" << endl;
+    std::cout << "Region " << i << " information" << std::endl;
     regions.at(i).print();
-    cout << "Region Et sum " << etIn10Bits.at(i) << endl;
-    cout << "Tau Veto Bit " << tauBits.at(i) << endl;
-    cout << "Muon Bit " << muonBits.at(i) << endl;
+    std::cout << "Region Et sum " << etIn10Bits.at(i) << std::endl;
+    std::cout << "Tau Veto Bit " << tauBits.at(i) << std::endl;
+    std::cout << "Muon Bit " << muonBits.at(i) << std::endl;
   }
 }

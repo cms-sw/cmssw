@@ -1,5 +1,12 @@
-#ifndef MagneticFieldProvider_H
-#define MagneticFieldProvider_H
+#ifndef MagneticFieldProvider_h
+#define MagneticFieldProvider_h
+
+/** \class MagneticFieldProvider
+ *
+ *  Virtual interface for the field provider for an individual field volume.
+ *
+ *  \author T. Todorov
+ */
 
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometryVector/interface/Vector3DBase.h"
@@ -14,6 +21,9 @@ public:
   typedef Point3DBase<T,LocalTag>       LocalPointType;
   typedef Vector3DBase<T,GlobalTag>     GlobalVectorType;
   typedef Vector3DBase<T,LocalTag>      LocalVectorType;
+
+
+  virtual ~MagneticFieldProvider(){}
 
   /** Returns the field vector in the local frame, at local position p
    */

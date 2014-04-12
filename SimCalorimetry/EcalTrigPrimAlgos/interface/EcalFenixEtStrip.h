@@ -2,11 +2,6 @@
 #define ECAL_FENIX_ET_STRIP_H
 #include <vector>
 
-
-// global type definitions for header defined by Tag entries in ArgoUML
-// Result: typedef <typedef_global_header> <tag_value>;
-
-
   /** 
      \class EcalFenixEtStrip
 

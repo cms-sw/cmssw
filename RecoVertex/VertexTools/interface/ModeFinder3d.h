@@ -5,19 +5,17 @@
 #include <vector>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-using namespace std;
-
 /**  \class ModeFinder3d
  *
  *   A ModeFinder returns a GlobalPoint, given a vector of ( GlobalPoint plus
  *   weight ). [ weight := distance of the points of closest Approach ].
  */
 
-class ModeFinder3d : public unary_function <
-   vector< pair < GlobalPoint , float > > , GlobalPoint > {
+class ModeFinder3d : public std::unary_function <
+   std::vector< std::pair < GlobalPoint , float > > , GlobalPoint > {
 public:
-  typedef pair < GlobalPoint, float > PointAndDistance;
-  virtual GlobalPoint operator () ( const vector< PointAndDistance > & ) const=0;
+  typedef std::pair < GlobalPoint, float > PointAndDistance;
+  virtual GlobalPoint operator () ( const std::vector< PointAndDistance > & ) const=0;
 
   virtual ~ModeFinder3d() {};
   virtual ModeFinder3d * clone () const =0;

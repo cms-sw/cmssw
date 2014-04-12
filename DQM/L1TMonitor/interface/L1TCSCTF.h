@@ -4,8 +4,6 @@
 /*
  * \file L1TCSCTF.h
  *
- * $Date: 2007/02/22 19:43:52 $
- * $Revision: 1.2 $
  * \author J. Berryhill
  *
 */
@@ -23,13 +21,30 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
+// Sector Receiver LUT class to transform wire/strip numbers to eta/phi observables
+#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
+
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
+ 
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -40,55 +55,82 @@
 
 class L1TCSCTF : public edm::EDAnalyzer {
 
-public:
+ public:
 
-// Constructor
-L1TCSCTF(const edm::ParameterSet& ps);
+  // Constructor
+  L1TCSCTF(const edm::ParameterSet& ps);
 
-// Destructor
-virtual ~L1TCSCTF();
+  // Destructor
+  virtual ~L1TCSCTF();
 
-protected:
-// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+ protected:
+  // Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+  // BeginJob
+  void beginJob(void);
 
-// EndJob
-void endJob(void);
+  // EndJob
+  void endJob(void);
 
-private:
+ private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
-  MonitorElement* csctfetavalue;
-  MonitorElement* csctfphivalue;
-  MonitorElement* csctfptvalue;
-  MonitorElement* csctfptpacked;
-  MonitorElement* csctfquality;
-  MonitorElement* csctfchargevalue;
   MonitorElement* csctfntrack;
-///KK
-  // Type of input data for the DQM
-  bool emulation;
+  MonitorElement* csctfbx;
+  MonitorElement* csctfbx_H;
 
-  // geometry may not be properly set in CSC TF hardware (and in data respectively)
-  // make an artificial assignment of each of 12 SPs (slots 6-11 and 16-21) to 12 sectors (1-12, 0-not assigned)
-  std::vector<int> slot2sector;
+  MonitorElement* csctferrors;
+  MonitorElement* csctfoccupancies;
+  MonitorElement* csctfoccupancies_H;
+  
+  //MonitorElement* haloDelEta112;
+  //MonitorElement* haloDelEta12;
+  //MonitorElement* haloDelEta113;
+  //MonitorElement* haloDelEta13;
+  
+  MonitorElement* csctfChamberOccupancies;
+  MonitorElement* csctfTrackPhi; //all tracks but halo
+  MonitorElement* csctfTrackEta; //all tracks but halo
+  MonitorElement* csctfTrackEtaLowQ;  //all tracks but halo
+  MonitorElement* csctfTrackEtaHighQ; //all tracks but halo
+  MonitorElement* csctfTrackPhi_H; //halo tracks only
+  MonitorElement* csctfTrackEta_H; //halo tracks only
+  MonitorElement* cscTrackStubNumbers;
+  MonitorElement* csctfTrackM;
+  MonitorElement* trackModeVsQ;
+  MonitorElement* csctfAFerror;
 
-  // following arrays are indexed by sector # (1-12)
-  //   and have one spare element [0] for unknown SP board ID (in case of corrupted data)
-  MonitorElement* cscsp_fmm_status[13]; // FMM status for each SP
-  MonitorElement* cscsp_errors[13];     // Logical 'OR' of various data errors that SP can detect
-  MonitorElement* csctf_errors;         // Cumulative errors for the whole TF crate
-///
+  // 1-> 6 plus endcap
+  // 7->12 minus endcap
+  MonitorElement* DTstubsTimeTrackMenTimeArrival[12];
+  int BxInEvent_; //bx of the CSC muon candidate
+  bool isCSCcand_;//does GMT readout window have a CSC cand?
+
+  int L1ABXN;
+
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
-  ofstream logFile_;
-  edm::InputTag csctfSource_;
+  std::ofstream logFile_;
+  edm::InputTag gmtProducer, lctProducer, trackProducer, statusProducer, mbProducer;
+
+  CSCSectorReceiverLUT *srLUTs_[5];
+
+  const L1MuTriggerScales  *ts;
+  const L1MuTriggerPtScale *tpts;
+  unsigned long long m_scalesCacheID ;
+  unsigned long long m_ptScaleCacheID ;
+
+  //define Token(-s)
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtProducerToken_;
+  edm::EDGetTokenT<L1CSCStatusDigiCollection> statusToken_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> corrlctsToken_;
+  edm::EDGetTokenT<L1CSCTrackCollection> tracksToken_;
+  edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > dtStubsToken_;
+  edm::EDGetTokenT<L1CSCTrackCollection> mbtracksToken_;
 };
 
 #endif

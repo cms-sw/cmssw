@@ -1,17 +1,15 @@
 /**
  * \class L1GTDigiToRaw
- * 
- * 
- * Description: generate raw data from digis.  
+ *
+ *
+ * Description: generate raw data from digis.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
- * 
- * $Date$
- * $Revision$
+ *
  *
  */
 
@@ -23,80 +21,70 @@
 #include <iostream>
 #include <iomanip>
 
-#include <boost/cstdint.hpp>
 
 // user include files
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "DataFormats/Common/interface/RefProd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
 // constructor(s)
-L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
+L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet) :
+
+    m_daqGtFedId(pSet.getUntrackedParameter<int> (
+            "DaqGtFedId", FEDNumbering::MAXTriggerGTPFEDID)),
+    m_daqGtInputTag(pSet.getParameter<edm::InputTag> ("DaqGtInputTag")),
+    m_muGmtInputTag(pSet.getParameter<edm::InputTag> ("MuGmtInputTag")),
+    m_activeBoardsMaskGt(pSet.getParameter<unsigned int> ("ActiveBoardsMask")),
+    m_totalBxInEvent(0),
+    m_minBxInEvent(0), m_maxBxInEvent(),
+    m_verbosity(pSet.getUntrackedParameter<int> ("Verbosity", 0)),
+    m_isDebugEnabled(edm::isDebugEnabled())
+
 {
 
-    // FED Id for GT DAQ record
-    // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    // default value: assume the DAQ record is the last GT record 
-    m_daqGtFedId = pSet.getUntrackedParameter<int>(
-                       "DaqGtFedId", FEDNumbering::getTriggerGTPFEDIds().second);
-
-    LogDebug("L1GTDigiToRaw")
-    << "\nFED Id for DAQ GT record: "
-    << m_daqGtFedId << " \n"
-    << std::endl;
-
-    // input tag for DAQ GT record
-    m_daqGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
-                          "DaqGtInputTag", edm::InputTag("L1GtEmul"));
-
-    LogDebug("L1GTDigiToRaw")
-    << "\nInput tag for DAQ GT record: "
-    << m_daqGtInputTag.label() << " \n"
-    << std::endl;
-
-    // input tag for GMT record
-    m_muGmtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
-                          "MuGmtInputTag", edm::InputTag("gmt"));
-
-    LogDebug("L1GTDigiToRaw")
-    << "\nInput tag for GMT record: "
-    << m_muGmtInputTag.label() << " \n"
-    << std::endl;
-
-    // mask for active boards
-    m_activeBoardsMaskGt = pSet.getParameter<unsigned int>("ActiveBoardsMask");
-
-    LogDebug("L1GTDigiToRaw")
-    << "\nMask for active boards (hex format): "
-    << std::hex << std::setw(sizeof(m_activeBoardsMaskGt)*2) << std::setfill('0')
-    << m_activeBoardsMaskGt
-    << std::dec << std::setfill(' ') << " \n"
-    << std::endl;
+    if (m_verbosity && m_isDebugEnabled) {
+        LogDebug("L1GTDigiToRaw")
+                << "\nFED Id for DAQ GT record: " << m_daqGtFedId << " \n"
+                << "\nInput tag for DAQ GT record: " << m_daqGtInputTag << " \n"
+                << "\nInput tag for GMT record: " << m_muGmtInputTag << " \n"
+                << "\nMask for active boards (hex format): " << std::hex
+                << std::setw(sizeof(m_activeBoardsMaskGt) * 2) << std::setfill('0')
+                << m_activeBoardsMaskGt
+                << std::dec << std::setfill(' ') << " \n"
+                << std::endl;
+    }
 
     //
-    produces<FEDRawDataCollection>();
+    produces<FEDRawDataCollection> ();
 
 }
 
@@ -111,7 +99,7 @@ L1GTDigiToRaw::~L1GTDigiToRaw()
 // member functions
 
 // beginning of job stuff
-void L1GTDigiToRaw::beginJob(const edm::EventSetup& evSetup)
+void L1GTDigiToRaw::beginJob()
 {
 
     // empty now
@@ -123,95 +111,99 @@ void L1GTDigiToRaw::beginJob(const edm::EventSetup& evSetup)
 void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
-    // get L1GlobalTriggerReadoutRecord
-    edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(m_daqGtInputTag.label(), gtReadoutRecord);
+    // define new FEDRawDataCollection
+    // it contains ALL FEDs in an event
+    std::auto_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
 
-    if ( edm::isDebugEnabled() ) {
-        std::ostringstream myCoutStream;
-        gtReadoutRecord->print(myCoutStream);
-        LogTrace("L1GTDigiToRaw")
-        << "\n The following L1 GT DAQ readout record will be packed.\n"
-        << " Some boards could be disabled before packing,"
-        << " see detailed board packing.\n"
-        << myCoutStream.str() << "\n"
-        << std::endl;
-    }
+    FEDRawData& gtRawData = allFedRawData->FEDData(m_daqGtFedId);
 
-    //
-    L1GlobalTriggerReadoutSetup tmpGtSetup; // TODO FIXME temporary event setup
-    std::map<int, L1GlobalTriggerReadoutSetup::GtBoard> recordMap =
-        tmpGtSetup.GtDaqRecordMap;
+    // get records from EventSetup
 
-    typedef std::map<int, L1GlobalTriggerReadoutSetup::GtBoard>::const_iterator CItRecord;
+    //  board maps
+    edm::ESHandle< L1GtBoardMaps > l1GtBM;
+    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
 
-    // get GTFE block
-    L1GtfeWord gtfeBlock = gtReadoutRecord->gtfeWord();
+    const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
+    int boardMapsSize = boardMaps.size();
 
-    // set the number of Bx in the event
-    m_totalBxInEvent = gtfeBlock.recordLength();
+    typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
 
-    m_minBxInEvent = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent;
-    m_maxBxInEvent = (m_totalBxInEvent + 1)/2 - 1;
+    // create an ordered vector for the GT DAQ record
+    // header (pos 0 in record) and trailer (last position in record)
+    // not included, as they are not in board list
+    std::vector<L1GtBoard> gtRecordMap;
+    gtRecordMap.reserve(boardMapsSize);
 
-    LogDebug("L1GTDigiToRaw")
-    << "\nNumber of bunch crosses in the record: "
-    << m_totalBxInEvent << " = " << "["
-    << m_minBxInEvent << ", " << m_maxBxInEvent << "] BX\n"
-    << std::endl;
+    for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
+        for (CItBoardMaps itBoard = boardMaps.begin(); itBoard
+                != boardMaps.end(); ++itBoard) {
 
-    // GTFE is not in the list of active boards, need separate treatment
-    int gtfeKey = -1; // negative integer for GTFE key
-
-    for (CItRecord itRecord = recordMap.begin();
-            itRecord != recordMap.end(); ++itRecord) {
-
-        if (itRecord->second.boardType == GTFE) {
-
-            gtfeKey = itRecord->first;
-            break; // there is only one GTFE block
+            if (itBoard->gtPositionDaqRecord() == iPos) {
+                gtRecordMap.push_back(*itBoard);
+                break;
+            }
 
         }
     }
 
-    // throw exception if no GTFE found (action for NotFound: SkipEvent)
-    if (gtfeKey < 0 ) {
 
-        throw cms::Exception("NotFound")
-        << "\nError: GTFE block not requested to be written in raw data.\n"
-        << "Can not find afterwards the record length (BxInEvent) and the active boards!\n"
-        << std::endl;
+    // get L1GlobalTriggerReadoutRecord
+    edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
+    iEvent.getByLabel(m_daqGtInputTag, gtReadoutRecord);
+
+    if (!gtReadoutRecord.isValid()) {
+        if (m_verbosity) {
+            edm::LogWarning("L1GTDigiToRaw")
+                    << "\nWarning: L1GlobalTriggerReadoutRecord with input tag " << m_daqGtInputTag
+                    << "\nrequested in configuration, but not found in the event."
+                    << "\nQuit packing this event" << std::endl;
+        }
+
+        // put the raw data in the event
+        iEvent.put(allFedRawData);
+
+        return;
     }
 
+    if (m_verbosity && m_isDebugEnabled) {
+        std::ostringstream myCoutStream;
+        gtReadoutRecord->print(myCoutStream);
+        LogTrace("L1GTDigiToRaw")
+                << "\n The following L1 GT DAQ readout record will be packed.\n"
+                << " Some boards could be disabled before packing,"
+                << " see detailed board packing.\n" << myCoutStream.str() << "\n"
+                << std::endl;
+    }
 
-    // get list of active blocks from the GTFE block
-    // and mask some blocks, if required
-    // blocks not active are not written to the record
+    // get GTFE block
+    L1GtfeWord gtfeBlock = gtReadoutRecord->gtfeWord();
 
-    boost::uint16_t activeBoardsGtInitial = gtfeBlock.activeBoards();
+    // get the number of Bx in the event for alternative 0 and alternative 1
+    cms_uint16_t recordLength0 = gtfeBlock.recordLength();
+    cms_uint16_t recordLength1 = gtfeBlock.recordLength1();
 
-    LogDebug("L1GTDigiToRaw")
-    << "\nActive boards before masking(hex format): "
-    << std::hex << std::setw(sizeof(activeBoardsGtInitial)*2) << std::setfill('0')
-    << activeBoardsGtInitial
-    << std::dec << std::setfill(' ')
-    << std::endl;
+
+    // get list of active boards from the GTFE payload
+    // and mask some boards, if required
+    // boards not active are not written to the record
+
+    cms_uint16_t activeBoardsGtInitial = gtfeBlock.activeBoards();
+    cms_uint16_t altNrBxBoardInitial = gtfeBlock.altNrBxBoard();
 
     // mask some boards, if needed
 
-    boost::uint16_t activeBoardsGt = activeBoardsGtInitial & m_activeBoardsMaskGt;
+    cms_uint16_t activeBoardsGt = activeBoardsGtInitial & m_activeBoardsMaskGt;
 
-    LogTrace("L1GTDigiToRaw")
-    << "Active boards after masking(hex format):  "
-    << std::hex << std::setw(sizeof(activeBoardsGt)*2) << std::setfill('0')
-    << activeBoardsGt
-    << std::dec << std::setfill(' ') << " \n"
-    << std::endl;
-
-    std::map<L1GlobalTriggerReadoutSetup::GtBoard, int> activeBoardsMap =
-        tmpGtSetup.GtDaqActiveBoardsMap;
-    typedef std::map<L1GlobalTriggerReadoutSetup::GtBoard, int>::const_iterator CItActive;
-
+    if (m_verbosity && m_isDebugEnabled) {
+        LogDebug("L1GTDigiToRaw")
+                << "\nActive boards before masking(hex format): " << std::hex
+                << std::setw(sizeof ( activeBoardsGtInitial ) * 2) << std::setfill('0')
+                << activeBoardsGtInitial << std::dec << std::setfill(' ')
+                << "Active boards after masking(hex format):  " << std::hex
+                << std::setw(sizeof ( activeBoardsGt ) * 2) << std::setfill('0') << activeBoardsGt
+                << std::dec << std::setfill(' ') << " \n"
+                << std::endl;
+    }
 
     // get the size of the record
 
@@ -220,119 +212,143 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     unsigned int headerSize = 8;
     gtDataSize += headerSize;
 
-    for (CItRecord itRecord = recordMap.begin();
-            itRecord != recordMap.end(); ++itRecord) {
+    for (CItBoardMaps
+            itBoard = boardMaps.begin();
+            itBoard != boardMaps.end(); ++itBoard) {
 
-        if (itRecord->first == gtfeKey) {
+        if (itBoard->gtBoardType() == GTFE) {
             gtDataSize += gtfeBlock.getSize();
             continue;
         }
 
-        // size of modules other than GTFE
 
-        // skip if the board is not active
-        bool activeBoard = false;
+        int iActiveBit = itBoard->gtBitDaqActiveBoards();
+        bool activeBoardToPack = false;
 
-        CItActive itBoard = activeBoardsMap.find(itRecord->second);
-        if (itBoard != activeBoardsMap.end()) {
-            activeBoard = activeBoardsGt & (1 << (itBoard->second));
+        int altNrBxBoardVal = -1;
+
+        if (iActiveBit >= 0) {
+            activeBoardToPack = activeBoardsGt & (1 << iActiveBit);
+
+            altNrBxBoardVal = (altNrBxBoardInitial & ( 1 << iActiveBit )) >> iActiveBit;
+
+            if (altNrBxBoardVal == 1) {
+                m_totalBxInEvent = recordLength1;
+            } else if (altNrBxBoardVal == 0) {
+                m_totalBxInEvent = recordLength0;
+            } else {
+                if (m_verbosity) {
+                    edm::LogWarning("L1GTDigiToRaw")
+                    << "\n\nWARNING: Wrong value altNrBxBoardVal = " << altNrBxBoardVal
+                    << " for board " << std::hex << ( itBoard->gtBoardId() ) << std::dec
+                    << "\n  iActiveBit =            " << iActiveBit
+                    << "\n  altNrBxBoardInitial = 0x" << std::hex << altNrBxBoardInitial <<  std::dec
+                    << "\n  activeBoardsGt =      0x" << std::hex << activeBoardsGt <<  std::dec
+                    << "\n  activeBoardToPack =   " << activeBoardToPack
+                    << "\n Set altNrBxBoardVal tentatively to "
+                    << recordLength0 << "\n Job may crash or produce wrong results!\n\n"
+                    << std::endl;
+                }
+
+                m_totalBxInEvent = recordLength0;
+            }
+
+
         } else {
-
-            // board not found in the map
-            LogDebug("L1GTDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
-            << " not found in the activeBoardsMap\n"
-            << std::endl;
-
+            // board not in the ActiveBoards for the record
             continue;
         }
 
-        if ( !activeBoard ) {
+        if (activeBoardToPack) {
 
-            LogDebug("L1GTDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
-            << " not active (from activeBoardsMap)\n"
-            << std::endl;
+            switch (itBoard->gtBoardType()) {
+                case GTFE: {
+                        // size already added;
+                    }
 
-            continue;
-        }
+                    break;
+                case FDL: {
+                        L1GtFdlWord fdlBlock;
+                        gtDataSize += m_totalBxInEvent*fdlBlock.getSize();
+                    }
 
-        // active board, add its size
-        switch (itRecord->second.boardType) {
+                    break;
+                case PSB: {
+                        L1GtPsbWord psbBlock;
+                        gtDataSize += m_totalBxInEvent*psbBlock.getSize();
+                    }
 
-            case FDL: {
-                    L1GtFdlWord fdlBlock;
-                    gtDataSize += m_totalBxInEvent*fdlBlock.getSize();
-                }
-                break;
-            case PSB: {
-                    L1GtPsbWord psbBlock;
-                    gtDataSize += m_totalBxInEvent*psbBlock.getSize();
-                }
-                break;
-            case GMT: {
-                    // 17*64/8 TODO FIXME ask Ivan for a getSize() function for GMT record
-                    unsigned int gmtRecordSize = 136;
-                    unsigned int gmtCollSize = m_totalBxInEvent*gmtRecordSize;
-                    gtDataSize += gmtCollSize;
-                }
-                break;
-            default: {
+                    break;
+                case GMT: {
+                        // 17*64/8 TODO FIXME ask Ivan for a getSize() function for GMT record
+                        unsigned int gmtRecordSize = 136;
+                        unsigned int gmtCollSize = m_totalBxInEvent*gmtRecordSize;
+                        gtDataSize += gmtCollSize;
+                    }
 
-                    // do nothing, all blocks are given in GtBoardType enum
-                }
-                break;
+                    break;
+                case TCS: {
+                        L1TcsWord tcsBlock;
+                        gtDataSize += tcsBlock.getSize();
+                    }
+
+                    break;
+                case TIM: {
+                        // not considered
+                    }
+
+                    break;
+                default: {
+                        // do nothing, all blocks are given in GtBoardType enum
+                    }
+
+                    break;
+            }
         }
 
     }
 
+
     unsigned int trailerSize = 8;
     gtDataSize += trailerSize;
 
-    // define new FEDRawDataCollection
-    // it contains ALL FEDs in an event
-    std::auto_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
 
-    // ptrGt: pointer to the beginning of GT record in the raw data
-
-    FEDRawData& gtRawData = allFedRawData->FEDData(m_daqGtFedId);
-    
     // resize, GT raw data record has variable length,
     // depending on active boards (read in GTFE)
     gtRawData.resize(gtDataSize);
 
 
+    // ptrGt: pointer to the beginning of GT record in the raw data
+
     unsigned char* ptrGt = gtRawData.data();
+    unsigned char* ptrGtBegin = gtRawData.data();
 
-    LogDebug("L1GTDigiToRaw")
-    << "\n Size of raw data: " << gtRawData.size() << "\n"
-    << std::endl;
-
+    if (m_verbosity && m_isDebugEnabled) {
+        LogDebug("L1GTDigiToRaw") << "\n Size of raw data: " << gtRawData.size() << "\n"
+                << std::endl;
+    }
 
     // ------- pack boards -------
 
     // pack header
-    packHeader(ptrGt);
+    packHeader(ptrGt, iEvent);
     ptrGt += headerSize; // advance with header size
 
     // loop over other blocks in the raw record, if they are active
 
-    for (CItRecord itRecord = recordMap.begin();
-            itRecord != recordMap.end(); ++itRecord) {
+    for (CItBoardMaps
+            itBoard = gtRecordMap.begin();
+            itBoard != gtRecordMap.end(); ++itBoard) {
 
-        if (itRecord->first == gtfeKey) {
+        if (itBoard->gtBoardType() == GTFE) {
 
             packGTFE(evSetup, ptrGt, gtfeBlock, activeBoardsGt);
 
-            if ( edm::isDebugEnabled() ) {
+            if (m_verbosity && m_isDebugEnabled) {
 
                 std::ostringstream myCoutStream;
                 gtfeBlock.print(myCoutStream);
-                LogTrace("L1GTDigiToRaw")
-                << myCoutStream.str() << "\n"
-                << std::endl;
+                LogTrace("L1GTDigiToRaw") << myCoutStream.str() << "\n" << std::endl;
             }
 
             ptrGt += gtfeBlock.getSize(); // advance with GTFE block size
@@ -340,100 +356,132 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
             continue;
         }
 
-        // pack modules other than GTFE
 
-        // skip if the board is not active
-        bool activeBoard = false;
+        // pack modules other than GTFE if they are active
 
-        CItActive itBoard = activeBoardsMap.find(itRecord->second);
-        if (itBoard != activeBoardsMap.end()) {
-            activeBoard = activeBoardsGt & (1 << (itBoard->second));
+        int iActiveBit = itBoard->gtBitDaqActiveBoards();
+        bool activeBoardToPack = false;
+
+        int altNrBxBoardVal = -1;
+
+        if (iActiveBit >= 0) {
+            activeBoardToPack = activeBoardsGt & (1 << iActiveBit);
+
+            altNrBxBoardVal = (altNrBxBoardInitial & ( 1 << iActiveBit )) >> iActiveBit;
+
+            if (altNrBxBoardVal == 1) {
+                m_totalBxInEvent = recordLength1;
+            } else if (altNrBxBoardVal == 0) {
+                m_totalBxInEvent = recordLength0;
+            } else {
+                if (m_verbosity) {
+                    edm::LogWarning("L1GTDigiToRaw")
+                    << "\n\nWARNING: Wrong value altNrBxBoardVal = " << altNrBxBoardVal
+                    << " for board " << std::hex << ( itBoard->gtBoardId() ) << std::dec
+                    << "\n  iActiveBit =            " << iActiveBit
+                    << "\n  altNrBxBoardInitial = 0x" << std::hex << altNrBxBoardInitial <<  std::dec
+                    << "\n  activeBoardsGt =      0x" << std::hex << activeBoardsGt <<  std::dec
+                    << "\n  activeBoardToPack =   " << activeBoardToPack
+                    << "\n Set altNrBxBoardVal tentatively to "
+                    << recordLength0 << "\n Job may crash or produce wrong results!\n\n"
+                    << std::endl;
+                }
+
+                m_totalBxInEvent = recordLength0;
+            }
+
+            m_minBxInEvent = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent;
+            m_maxBxInEvent = (m_totalBxInEvent + 1)/2 - 1;
+
+
         } else {
-            // board not found in the map
-
-            LogDebug("L1GTDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
-            << " not found in the activeBoardsMap\n"
-            << std::endl;
-
+            // board not in the ActiveBoards for the record
             continue;
         }
 
-        if ( !activeBoard ) {
+        if (activeBoardToPack) {
 
-            LogDebug("L1GTDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
-            << " not active (from activeBoardsMap)\n"
-            << std::endl;
+            if (m_verbosity && m_isDebugEnabled) {
+                LogDebug("L1GTDigiToRaw")
+                        << "\nBoard " << std::hex << "0x" << ( itBoard->gtBoardId() ) << std::dec
+                        << "\n  Number of bunch crosses in the record: " << m_totalBxInEvent
+                        << " = " << "[" << m_minBxInEvent << ", " << m_maxBxInEvent
+                        << "] BX\n"
+                        << std::endl;
+            }
 
-            continue;
-        }
+            // active board, pack it
+            switch (itBoard->gtBoardType()) {
 
-        // active board, pack it
-        switch (itRecord->second.boardType) {
+                case FDL: {
 
-            case FDL: {
-
-                    for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent;
-                            ++iBxInEvent) {
+                    for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent; ++iBxInEvent) {
 
                         L1GtFdlWord fdlBlock = gtReadoutRecord->gtFdlWord(iBxInEvent);
                         packFDL(evSetup, ptrGt, fdlBlock);
 
-                        if ( edm::isDebugEnabled() ) {
+                        if (m_verbosity && m_isDebugEnabled) {
 
                             std::ostringstream myCoutStream;
                             fdlBlock.print(myCoutStream);
-                            LogTrace("L1GTDigiToRaw")
-                            << myCoutStream.str() << "\n"
-                            << std::endl;
+                            LogTrace("L1GTDigiToRaw") << myCoutStream.str() << "\n" << std::endl;
                         }
 
                         ptrGt += fdlBlock.getSize(); // advance with FDL block size
                     }
 
                 }
-                break;
-            case PSB: {
+                    break;
+                case PSB: {
 
-                    boost::uint16_t boardIdValue = itRecord->second.boardId();
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogDebug("L1GTDigiToRaw") << "\nBoard of type " << itBoard->gtBoardName()
+                                << " with index " << itBoard->gtBoardIndex() << " and boardId "
+                                << std::hex << itBoard->gtBoardId() << std::dec << "\n"
+                                << std::endl;
+                    }
 
-                    LogDebug("L1GTDigiToRaw")
-                    << "\nBoard of type " << itRecord->second.boardType
-                    << " with index "  << itRecord->second.boardIndex
-                    << " has the boardId " << std::hex << boardIdValue << std::dec << "\n"
-                    << std::endl;
+                    for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent; ++iBxInEvent) {
 
-                    for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent;
-                            ++iBxInEvent) {
-
-                        L1GtPsbWord psbBlock =
-                            gtReadoutRecord->gtPsbWord(boardIdValue, iBxInEvent);
+                        L1GtPsbWord psbBlock = gtReadoutRecord->gtPsbWord(
+                                itBoard->gtBoardId(), iBxInEvent);
 
                         packPSB(evSetup, ptrGt, psbBlock);
 
-                        if ( edm::isDebugEnabled() ) {
+                        if (m_verbosity && m_isDebugEnabled) {
 
                             std::ostringstream myCoutStream;
                             psbBlock.print(myCoutStream);
-                            LogTrace("L1GTDigiToRaw")
-                            << myCoutStream.str() << "\n"
-                            << std::endl;
+                            LogTrace("L1GTDigiToRaw") << myCoutStream.str() << "\n" << std::endl;
                         }
-
 
                         ptrGt += psbBlock.getSize(); // advance with PSB block size
                     }
 
                 }
-                break;
-            case GMT: {
+                    break;
+                case GMT: {
 
                     // get GMT record TODO separate GMT record or via RefProd from GT record
                     edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
-                    iEvent.getByLabel(m_muGmtInputTag.label(), gmtrc_handle);
+                    iEvent.getByLabel(m_muGmtInputTag, gmtrc_handle);
+                    if (!gmtrc_handle.isValid()) {
+                        if (m_verbosity) {
+                            edm::LogWarning("L1GTDigiToRaw")
+                                    << "\nWarning: L1MuGMTReadoutCollection with input tag "
+                                    << m_muGmtInputTag
+                                    << "\nrequested in configuration, but not found in the event."
+                                    << "\nQuit packing this event" << std::endl;
+                        }
+
+                        std::auto_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
+
+                        // put the raw data in the event
+                        iEvent.put(allFedRawData);
+
+                        return;
+                    }
+
                     L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
 
                     // pack the GMT record
@@ -443,39 +491,48 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
                     ptrGt += gmtCollSize; // advance with GMT collection size
 
                 }
-                break;
-            default: {
+                    break;
+                default: {
 
                     // do nothing, all blocks are given in GtBoardType enum
                     break;
                 }
-        }
+            }
 
+        }
     }
 
     // pack trailer
-    //    FEDTrailer cmsTrailerGt = gtReadoutRecord.cmsTrailer();
-    packTrailer(ptrGt, gtDataSize);
+    packTrailer(ptrGt, ptrGtBegin, gtDataSize);
 
     // put the raw data in the event
-
     iEvent.put(allFedRawData);
 }
 
 
 // pack header
-void L1GTDigiToRaw::packHeader(unsigned char* ptrGt)
-{
+void L1GTDigiToRaw::packHeader(unsigned char* ptrGt, edm::Event& iEvent) {
     // TODO FIXME where from to get all numbers?
 
     // Event Trigger type identifier
     int triggerTypeVal = 0;
 
     // Level-1 event number generated by the TTC system
-    int lvl1IdVal = 0;
+    int lvl1IdVal = iEvent.id().event();
 
     // The bunch crossing number
-    int bxIdVal = 0;
+    int bxCross = iEvent.bunchCrossing();
+    cms_uint16_t bxCrossHw = 0;
+    if ( ( bxCross & 0xFFF ) == bxCross) {
+        bxCrossHw = static_cast<cms_uint16_t> (bxCross);
+    } else {
+        bxCrossHw = 0; // Bx number too large, set to 0!
+        if (m_verbosity && m_isDebugEnabled) {
+            LogDebug("L1GTDigiToRaw") << "\nBunch cross number [hex] = " << std::hex << bxCross
+                    << "\n  larger than 12 bits. Set to 0! \n" << std::dec << std::endl;
+        }
+    }
+    int bxIdVal = bxCrossHw;
 
     // Identifier of the FED
     int sourceIdVal = m_daqGtFedId;
@@ -488,30 +545,27 @@ void L1GTDigiToRaw::packHeader(unsigned char* ptrGt)
     // (always 1 for ECAL)
     bool moreHeadersVal = false;
 
+    FEDHeader gtFEDHeader(ptrGt);
 
-    FEDHeader::set(ptrGt,
-                   triggerTypeVal, lvl1IdVal, bxIdVal, sourceIdVal, versionVal,
-                   moreHeadersVal);
+    gtFEDHeader.set(
+            ptrGt, triggerTypeVal, lvl1IdVal, bxIdVal, sourceIdVal, versionVal, moreHeadersVal);
 
 }
 
 // pack the GTFE block
 void L1GTDigiToRaw::packGTFE(
-    const edm::EventSetup& evSetup,
-    unsigned char* ptrGt,
-    L1GtfeWord& gtfeBlock,
-    boost::uint16_t activeBoardsGtValue)
-{
+        const edm::EventSetup& evSetup, unsigned char* ptrGt, L1GtfeWord& gtfeBlock,
+        cms_uint16_t activeBoardsGtValue) {
 
-    LogDebug("L1GTDigiToRaw")
-    << "\nPacking GTFE \n"
-    << std::endl;
+    if (m_verbosity && m_isDebugEnabled) {
+        LogDebug("L1GTDigiToRaw") << "\nPacking GTFE \n" << std::endl;
+    }
 
     int uLength = L1GlobalTriggerReadoutSetup::UnitLength;
 
     // initialize the required number of word64
-    int nrWord64 = gtfeBlock.getSize()/uLength;
-    std::vector<boost::uint64_t> tmpWord64;
+    int nrWord64 = gtfeBlock.getSize() / uLength;
+    std::vector<cms_uint64_t> tmpWord64;
     tmpWord64.resize(nrWord64);
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
@@ -522,51 +576,50 @@ void L1GTDigiToRaw::packGTFE(
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
 
         gtfeBlock.setBoardIdWord64(tmpWord64[iWord], iWord);
+        gtfeBlock.setRecordLength1Word64(tmpWord64[iWord], iWord);
         gtfeBlock.setRecordLengthWord64(tmpWord64[iWord], iWord);
         gtfeBlock.setBxNrWord64(tmpWord64[iWord], iWord);
         gtfeBlock.setSetupVersionWord64(tmpWord64[iWord], iWord);
         gtfeBlock.setActiveBoardsWord64(tmpWord64[iWord], iWord, activeBoardsGtValue);
+        gtfeBlock.setAltNrBxBoardWord64(tmpWord64[iWord], iWord);
         gtfeBlock.setTotalTriggerNrWord64(tmpWord64[iWord], iWord);
 
     }
 
     // put the words in the FED record
 
-    boost::uint64_t* pw =
-        reinterpret_cast<boost::uint64_t*>(const_cast<unsigned char*>(ptrGt));
+    cms_uint64_t* pw = reinterpret_cast<cms_uint64_t*> (const_cast<unsigned char*> (ptrGt));
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
 
         *pw++ = tmpWord64[iWord];
 
-        LogTrace("L1GTDigiToRaw")
-        << std::setw(4) << iWord << "  "
-        << std::hex << std::setfill('0')
-        << std::setw(16) << tmpWord64[iWord]
-        << std::dec << std::setfill(' ')
-        << std::endl;
+        if (m_verbosity && m_isDebugEnabled) {
+            LogTrace("L1GTDigiToRaw")
+                    << std::setw(4) << iWord << "  "
+                    << std::hex << std::setfill('0') << std::setw(16) << tmpWord64[iWord] << std::dec
+                    << std::setfill(' ')
+                    << std::endl;
+        }
     }
-
 
 }
 
 
 // pack the FDL block
 void L1GTDigiToRaw::packFDL(
-    const edm::EventSetup& evSetup,
-    unsigned char* ptrGt,
-    L1GtFdlWord& fdlBlock)
-{
+        const edm::EventSetup& evSetup, unsigned char* ptrGt, L1GtFdlWord& fdlBlock) {
 
-    LogDebug("L1GTDigiToRaw")
-    << "\nPacking FDL \n"
-    << std::endl;
+    if (m_verbosity && m_isDebugEnabled) {
+
+        LogDebug("L1GTDigiToRaw") << "\nPacking FDL \n" << std::endl;
+    }
 
     int uLength = L1GlobalTriggerReadoutSetup::UnitLength;
 
     // initialize the required number of word64
-    int nrWord64 = fdlBlock.getSize()/uLength;
-    std::vector<boost::uint64_t> tmpWord64;
+    int nrWord64 = fdlBlock.getSize() / uLength;
+    std::vector<cms_uint64_t> tmpWord64;
     tmpWord64.resize(nrWord64);
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
@@ -588,48 +641,51 @@ void L1GTDigiToRaw::packFDL(
 
         fdlBlock.setGtDecisionWordExtendedWord64(tmpWord64[iWord], iWord);
 
+        fdlBlock.setPhysicsDeclaredWord64(tmpWord64[iWord], iWord);
+        fdlBlock.setGtPrescaleFactorIndexTechWord64(tmpWord64[iWord], iWord);
+        fdlBlock.setGtPrescaleFactorIndexAlgoWord64(tmpWord64[iWord], iWord);
         fdlBlock.setNoAlgoWord64(tmpWord64[iWord], iWord);
         fdlBlock.setFinalORWord64(tmpWord64[iWord], iWord);
 
+        fdlBlock.setOrbitNrWord64(tmpWord64[iWord], iWord);
+        fdlBlock.setLumiSegmentNrWord64(tmpWord64[iWord], iWord);
         fdlBlock.setLocalBxNrWord64(tmpWord64[iWord], iWord);
 
     }
 
     // put the words in the FED record
 
-    boost::uint64_t* pw =
-        reinterpret_cast<boost::uint64_t*>(const_cast<unsigned char*>(ptrGt));
+    cms_uint64_t* pw = reinterpret_cast<cms_uint64_t*> (const_cast<unsigned char*> (ptrGt));
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
 
         *pw++ = tmpWord64[iWord];
 
-        LogTrace("L1GTDigiToRaw")
-        << std::setw(4) << iWord << "  "
-        << std::hex << std::setfill('0')
-        << std::setw(16) << tmpWord64[iWord]
-        << std::dec << std::setfill(' ')
-        << std::endl;
+        if (m_verbosity && m_isDebugEnabled) {
+
+            LogTrace("L1GTDigiToRaw")
+                    << std::setw(4) << iWord << "  "
+                    << std::hex << std::setfill('0') << std::setw(16) << tmpWord64[iWord] << std::dec
+                    << std::setfill(' ')
+                    << std::endl;
+        }
     }
 
 }
 
 // pack the PSB block
 void L1GTDigiToRaw::packPSB(
-    const edm::EventSetup& evSetup,
-    unsigned char* ptrGt,
-    L1GtPsbWord& psbBlock)
-{
+        const edm::EventSetup& evSetup, unsigned char* ptrGt, L1GtPsbWord& psbBlock) {
+    if (m_verbosity && m_isDebugEnabled) {
 
-    LogDebug("L1GTDigiToRaw")
-    << "\nPacking PSB \n"
-    << std::endl;
+        LogDebug("L1GTDigiToRaw") << "\nPacking PSB \n" << std::endl;
+    }
 
     int uLength = L1GlobalTriggerReadoutSetup::UnitLength;
 
     // initialize the required number of word64
-    int nrWord64 = psbBlock.getSize()/uLength;
-    std::vector<boost::uint64_t> tmpWord64;
+    int nrWord64 = psbBlock.getSize() / uLength;
+    std::vector<cms_uint64_t> tmpWord64;
     tmpWord64.resize(nrWord64);
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
@@ -653,19 +709,20 @@ void L1GTDigiToRaw::packPSB(
 
     // put the words in the FED record
 
-    boost::uint64_t* pw =
-        reinterpret_cast<boost::uint64_t*>(const_cast<unsigned char*>(ptrGt));
+    cms_uint64_t* pw = reinterpret_cast<cms_uint64_t*> (const_cast<unsigned char*> (ptrGt));
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
 
         *pw++ = tmpWord64[iWord];
 
-        LogTrace("L1GTDigiToRaw")
-        << std::setw(4) << iWord << "  "
-        << std::hex << std::setfill('0')
-        << std::setw(16) << tmpWord64[iWord]
-        << std::dec << std::setfill(' ')
-        << std::endl;
+        if (m_verbosity && m_isDebugEnabled) {
+
+            LogTrace("L1GTDigiToRaw")
+                    << std::setw(4) << iWord << "  "
+                    << std::hex << std::setfill('0') << std::setw(16) << tmpWord64[iWord] << std::dec
+                    << std::setfill(' ')
+                    << std::endl;
+        }
     }
 
 }
@@ -676,9 +733,9 @@ unsigned int L1GTDigiToRaw::packGmtCollection(
     L1MuGMTReadoutCollection const* digis)
 {
 
-    LogDebug("L1GTDigiToRaw")
-    << "\nPacking GMT collection \n"
-    << std::endl;
+    if (m_verbosity && m_isDebugEnabled) {
+        LogDebug("L1GTDigiToRaw") << "\nPacking GMT collection \n" << std::endl;
+    }
 
     unsigned gmtsize = 0;
 
@@ -740,7 +797,7 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
         *pp++ = (*irc).getDataWord();
     }
     p+=4;
-    
+
     // the regional candidates are written to the record with inverted Pt and qual bits
     pp = p-16;
     for(int i=0; i<16; i++) {
@@ -791,21 +848,21 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
     return SIZE;
 }
 
-unsigned int L1GTDigiToRaw::flipPtQ(unsigned int w) {
+unsigned int L1GTDigiToRaw::flipPtQ(unsigned int w)
+{
     return ( (w&0xffff00ff) | ((~w)&0x0000ff00) );
 }
 
 // pack trailer
-void L1GTDigiToRaw::packTrailer(unsigned char* ptrGt, int dataSize)
-{
+void L1GTDigiToRaw::packTrailer(unsigned char* ptrGt, unsigned char* ptrGtBegin, int dataSize) {
 
     // TODO FIXME where from to get all numbers?
 
     // The length of the event fragment counted in 64-bit words including header and trailer
-    int lengthVal = dataSize/8;
+    int lengthVal = dataSize / 8;
 
     // Cyclic Redundancy Code of the event fragment including header and trailer
-    int crcVal = 0;
+    int crcVal = evf::compute_crc(ptrGtBegin, dataSize);
 
     // Event fragment status information
     int evtStatusVal = 0;
@@ -818,10 +875,8 @@ void L1GTDigiToRaw::packTrailer(unsigned char* ptrGt, int dataSize)
     // (always 0 for ECAL)
     bool moreTrailersVal = false;
 
-
-    FEDTrailer::set(ptrGt,
-                    lengthVal, crcVal, evtStatusVal, ttsBitsVal,
-                    moreTrailersVal);
+    FEDTrailer gtFEDTrailer(ptrGt);
+    gtFEDTrailer.set(ptrGt, lengthVal, crcVal, evtStatusVal, ttsBitsVal, moreTrailersVal);
 
 }
 

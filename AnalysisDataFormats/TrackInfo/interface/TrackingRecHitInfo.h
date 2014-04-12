@@ -8,7 +8,6 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: TrackingRecHitInfo.h,v 1.3 2007/04/16 13:25:06 genta Exp $
  *
  */
 

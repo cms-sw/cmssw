@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/27 15:44:46 $
- *  $Revision: 1.3 $
  *  \author S. Bolognesi
  */
 
@@ -40,7 +38,7 @@ using namespace edm;
 // Constructor
 DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
   // get selected debug option
-  debug = pset.getUntrackedParameter<bool>("debug", "false");
+  debug = pset.getUntrackedParameter<bool>("debug",false);
 
   // Open the root file which contains the histos
   theRootInputFile = pset.getUntrackedParameter<string>("rootFileName");
@@ -49,6 +47,12 @@ DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
   theFitter = new DTTimeBoxFitter();
   if(debug)
     theFitter->setVerbosity(1);
+
+  double sigmaFit = pset.getUntrackedParameter<double>("sigmaTTrigFit",10.);
+  theFitter->setFitSigma(sigmaFit);
+
+  // the kfactor to be uploaded in the ttrig DB
+  kFactor = pset.getUntrackedParameter<double>("kFactor",-0.7);
 
   // Create the object to be written to DB
   tTrig = new DTTtrig();
@@ -93,10 +97,11 @@ void DTTTrigWriter::analyze(const Event & event, const EventSetup& eventSetup) {
       pair<double, double> meanAndSigma = theFitter->fitTimeBox(histo);
 
       // Write them in DB object
-      tTrig->setSLTtrig(slId,
-			meanAndSigma.first,
-			meanAndSigma.second,
-			DTTimeUnits::ns);
+      tTrig->set(slId,
+		 meanAndSigma.first,
+		 meanAndSigma.second,
+                 kFactor,
+		 DTTimeUnits::ns);
       if(debug) {
 	cout << " SL: " << slId
 	     << " mean = " << meanAndSigma.first

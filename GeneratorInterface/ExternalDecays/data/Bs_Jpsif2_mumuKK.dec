@@ -1,0 +1,39 @@
+# This is the decay file for the decay BS0 -> PSI(-> MU+ MU-) F'2(-> K+ K-)
+#
+# Descriptor: [B_s0 -> (J/psi(1S) -> mu+ mu-) (f'2(1525) -> K+ K-)]
+#
+# NickName: Bs_Jpsif2
+#
+# Physics: Currently using phase space for Bs decay
+#
+# Tested: Yes
+# By: Alberto Hernandez Almada,Eduard de la Cruz Burelo
+# Date: 17 Feb 2012
+#
+#
+Alias      MyB_s0   B_s0
+Alias      Myanti-B_s0   anti-B_s0
+ChargeConj Myanti-B_s0   MyB_s0 
+Alias      MyJ/psi  J/psi
+Alias      Myf'_2    f'_2
+ChargeConj MyJ/psi  MyJ/psi
+ChargeConj Myf'_2    Myf'_2
+#
+Decay MyB_s0
+  1.000         MyJ/psi     Myf'_2         PHSP;
+Enddecay
+#
+Decay Myanti-B_s0
+  1.000         MyJ/psi     Myf'_2         PHSP;
+Enddecay
+#
+Decay MyJ/psi
+  1.000         mu+         mu-           PHOTOS VLL;
+Enddecay
+#
+Decay Myf'_2
+  1.000         K+          K-          PHSP;
+Enddecay
+#
+End
+

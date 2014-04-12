@@ -9,7 +9,8 @@ int main()
   std::vector<double> eGammaECalScaleFactors(32, 1.0);
   std::vector<double> eGammaHCalScaleFactors(32, 1.0);
   std::vector<double> jetMETECalScaleFactors(32, 1.0);
-  std::vector<double> jetMETHCalScaleFactors(32, 1.0);
+  std::vector<double> jetMETHCalScaleFactors(32, 1.0);  
+  std::vector<double> c,d,e,f,g,h;
   L1RCTParameters* rctParameters = 
     new L1RCTParameters(1.0,                       // eGammaLSB
 			1.0,                       // jetMETLSB
@@ -18,13 +19,27 @@ int main()
 			0.5,                       // hOeCut
 			1.0,                       // eMinForHoECut
 			50.0,                      // eMaxForHoECut
+			1.0,                       // hMinForHoECut
 			2.0,                       // eActivityCut
 			3.0,                       // hActivityCut
+			3,                         // eicIsolationThreshold
+                        3,                         // jscQuietThresholdBarrel
+                        3,                         // jscQuietThresholdEndcap
+			false,                     // noiseVetoHB
+			false,                     // noiseVetoHEplus
+			false,                     // noiseVetoHEminus
+			false,                     // use Lindsey
 			eGammaECalScaleFactors,
 			eGammaHCalScaleFactors,
 			jetMETECalScaleFactors,
-			jetMETHCalScaleFactors
-			);
+			jetMETHCalScaleFactors,
+			c,
+			d,
+			e,
+			f,
+			g,
+			h
+			);  
   const unsigned short iPhiMax = 72;
   const short iAbsEtaMax = 32;
   for(unsigned short iPhi = 0; iPhi < iPhiMax; iPhi++)
@@ -69,7 +84,7 @@ int main()
     {
       for(unsigned short iCard = 0; iCard < 7; iCard++)
 	{
-	  for(unsigned short iTower = 1; iTower <= 32; iTower++)
+	  for(unsigned short iTower = 0; iTower < 32; iTower++)
 	    {
 	      short iEta = rctParameters->calcIEta(iCrate, iCard, iTower);
 	      unsigned short iPhi = rctParameters->calcIPhi(iCrate, iCard, iTower);

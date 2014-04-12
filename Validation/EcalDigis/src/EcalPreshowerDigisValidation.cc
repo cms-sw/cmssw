@@ -1,35 +1,23 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2007/05/28 17:08:56 $
- * $Revision: 1.9 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalPreshowerDigisValidation.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& ps):
-  ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection"))
+EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const edm::ParameterSet& ps):
+  ESdigiCollectionToken_( consumes<ESDigiCollection>( ps.getParameter<edm::InputTag>( "ESdigiCollection" ) ) )
 {
   
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
- 
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
-                                                                                                                                          
+                                                                                                                                           
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -52,7 +40,7 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
   Char_t histo[200];
  
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigiTask");
+    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
 
     sprintf (histo, "EcalDigiTask Preshower digis multiplicity" ) ;
     meESDigiMultiplicity_ = dbe_->book1D(histo, histo, 1000, 0., 137728);
@@ -67,25 +55,16 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
  
 }
 
-EcalPreshowerDigisValidation::~EcalPreshowerDigisValidation(){
- 
-}
-
-void EcalPreshowerDigisValidation::beginJob(const EventSetup& c){
-
-}
-
-void EcalPreshowerDigisValidation::endJob(){
-
-}
-
-void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
+void EcalPreshowerDigisValidation::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
-  Handle<ESDigiCollection> EcalDigiES;
+  edm::Handle<ESDigiCollection> EcalDigiES;
 
-  e.getByLabel( ESdigiCollection_ , EcalDigiES );
+  e.getByToken( ESdigiCollectionToken_ , EcalDigiES );
+
+  // Return if no preshower data
+  if( !EcalDigiES.isValid() ) return;
 
   // PRESHOWER
   

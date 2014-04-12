@@ -1,69 +1,52 @@
 #include "DQM/SiStripCommissioningSummary/interface/ApvTimingSummaryFactory.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <sstream>
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-uint32_t SummaryPlotFactory<ApvTimingAnalysis*>::init( const sistrip::Monitorable& mon, 
-						       const sistrip::Presentation& pres,
-						       const sistrip::View& view, 
-						       const std::string& level, 
-						       const sistrip::Granularity& gran,
-						       const std::map<uint32_t,ApvTimingAnalysis*>& data ) {
+void ApvTimingSummaryFactory::extract( Iterator iter ) {
   
-  // Some initialisation
-  SummaryPlotFactoryBase::init( mon, pres, view, level, gran );
-
-  // Check if generator object exists
-  if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
+  ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( iter->second );
+  if ( !anal ) { return; }
+    
+  float value = 1. * sistrip::invalid_;
   
-  // Extract monitorable and fill map
-  std::map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data.begin();
-  for ( ; iter != data.end(); iter++ ) {
-    if ( !iter->second ) { continue; }
-    float value = 1. * sistrip::invalid_;
-    float error = 1. * sistrip::invalid_;
-    if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_TIME ) { 
-      value = iter->second->time(); 
-      error = iter->second->error();
-    } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_MAX_TIME ) { value = iter->second->refTime(); }
-    else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_DELAY ) { value = iter->second->delay(); }
-    else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_BASE ) { value = iter->second->base(); }
-    else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_PEAK ) { value = iter->second->peak(); }
-    else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_HEIGHT ) { value = iter->second->height(); }
-    else { 
-      edm::LogWarning(mlSummaryPlots_)
-	<< "[SummaryPlotFactory::" << __func__ << "]" 
-	<< " Unexpected monitorable: "
-	<< SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
-      continue; 
-    }
-
-    SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
-						 SummaryPlotFactoryBase::gran_, 
-						 iter->first, 
-						 value );
+  if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_TIME ) { 
+    value = anal->time(); 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_MAX_TIME ) { 
+    value = anal->refTime(); 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_DELAY ) { 
+    value = anal->delay(); 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_BASE ) { 
+    value = anal->base(); 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_PEAK ) { 
+    value = anal->peak(); 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_HEIGHT ) { 
+    value = anal->height(); 
+  } else { 
+    edm::LogWarning(mlSummaryPlots_)
+      << "[SummaryPlotFactory::" << __func__ << "]" 
+      << " Unexpected monitorable: "
+      << SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
+    return; 
   }
   
-  return SummaryPlotFactoryBase::generator_->nBins();
+  SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+					       SummaryPlotFactoryBase::gran_, 
+					       iter->first, 
+					       value );
   
 }
 
-//------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 //
-void SummaryPlotFactory<ApvTimingAnalysis*>::fill( TH1& summary_histo ) {
-
-  // Histogram filling and formating
-  SummaryPlotFactoryBase::fill( summary_histo );
-
-  // Check if generator object exists
-  if ( !SummaryPlotFactoryBase::generator_ ) { return; }
-
-  // Histogram formatting
+void ApvTimingSummaryFactory::format() {
+  
   if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_TIME ) {
     SummaryPlotFactoryBase::generator_->axisLabel( "Timing delay [ns]" );
   } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_MAX_TIME ) { 
@@ -80,8 +63,3 @@ void SummaryPlotFactory<ApvTimingAnalysis*>::fill( TH1& summary_histo ) {
   } 
   
 }
-
-// -----------------------------------------------------------------------------
-//
-template class SummaryPlotFactory<ApvTimingAnalysis*>;
-

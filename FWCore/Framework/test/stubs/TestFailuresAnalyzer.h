@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 14:17:17 EDT 2005
-// $Id: TestFailuresAnalyzer.h,v 1.1 2005/09/02 19:26:08 chrjones Exp $
 //
 
 // system include files
@@ -32,12 +31,13 @@ public:
    
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
    
-   virtual void beginJob(const edm::EventSetup&);
+   virtual void beginJob();
    virtual void endJob();
    
 private:
       // ----------member data ---------------------------
       int whichFailure_;
+      unsigned eventToThrow_;
 };
 
 

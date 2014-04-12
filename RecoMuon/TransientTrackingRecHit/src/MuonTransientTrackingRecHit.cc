@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/07/03 10:08:58 $
- *  $Revision: 1.13 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -58,9 +56,8 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
   
   AlgebraicSymMatrix err = GenericTransientTrackingRecHit::parametersError();
  
-  if (det()->alignmentPositionError() != 0) {
-
-    LocalError lape = ErrorFrameTransformer().transform(det()->alignmentPositionError()->globalError(), det()->surface());
+    LocalError lape = det()->localAlignmentError();
+    if (lape.valid()) {
 
     // Just for speed up the code, the "else" branch can handle also the case of dim = 1.
     if(err.num_row() == 1) err[0][0] += lape.xx();
@@ -170,4 +167,31 @@ TransientTrackingRecHit::ConstRecHitContainer MuonTransientTrackingRecHit::trans
   }
   return theSubTransientRecHits;
 
+}
+
+
+void MuonTransientTrackingRecHit::invalidateHit(){ 
+  setType(bad); trackingRecHit_->setType(bad); 
+
+
+  if (isDT()){
+    if(dimension() > 1){ // MB4s have 2D, but formatted in 4D segments 
+      std::vector<TrackingRecHit*> seg2D = recHits(); // 4D --> 2D
+      // load 1D hits (2D --> 1D)
+      for(std::vector<TrackingRecHit*>::iterator it = seg2D.begin(); it != seg2D.end(); ++it){
+	std::vector<TrackingRecHit*> hits1D =  (*it)->recHits();
+	(*it)->setType(bad);
+	for(std::vector<TrackingRecHit*>::iterator it2 = hits1D.begin(); it2 != hits1D.end(); ++it2)
+	  (*it2)->setType(bad);
+      }
+    }
+  }
+  else if(isCSC())
+    if(dimension() == 4){
+      std::vector<TrackingRecHit*>  hits = recHits(); // load 2D hits (4D --> 1D)
+      for(std::vector<TrackingRecHit*>::iterator it = hits.begin(); it != hits.end(); ++it)
+	(*it)->setType(bad);
+    }
+  
+  
 }

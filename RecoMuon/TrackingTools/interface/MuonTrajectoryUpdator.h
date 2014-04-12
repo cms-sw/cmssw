@@ -10,8 +10,6 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2007/01/18 13:26:52 $
- *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -151,6 +149,12 @@ class MuonTrajectoryUpdator {
   bool theFirstTSOSFlag;
   bool theRescaleErrorFlag;
   double theRescaleFactor;
+
+  // parameter to use the "bad hits"
+  bool useInvalidHits;
+  // exclude RPC from the fit (but allows to keep it in the muon signal confirmation)
+  bool theRPCExFlag;
+
 };
 #endif
 

@@ -5,8 +5,6 @@
  *  
  *  Collection of DTRecSegment4D. See \ref DTRecSegment4DCollection.h for details
  *
- *  $Date: 2006/06/20 17:27:50 $
- *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -22,6 +20,9 @@
 
 
 typedef edm::RangeMap<DTChamberId, edm::OwnVector<DTRecSegment4D> > DTRecSegment4DCollection;
+
+#include "DataFormats/Common/interface/Ref.h"
+typedef edm::Ref<DTRecSegment4DCollection> DTRecSegment4DRef;
 
 #endif
 

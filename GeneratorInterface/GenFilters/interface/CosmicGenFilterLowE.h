@@ -13,8 +13,6 @@
 #include "TMath.h"
 
 
-using namespace cms;
-
 class CosmicGenFilterLowE : public edm::EDFilter {
  public:
   explicit CosmicGenFilterLowE(const edm::ParameterSet& conf);

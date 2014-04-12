@@ -1,5 +1,9 @@
-#ifndef Common_DetSetNew_H
-#define Common_DetSetNew_H
+#ifndef DataFormats_Common_DetSetNew_h
+#define DataFormats_Common_DetSetNew_h
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include <vector>
+#include <cassert>
 
 namespace edmNew {
   //  FIXME move it elsewhere....
@@ -21,6 +25,7 @@ namespace edmNew {
     typedef unsigned int id_type;
     typedef T data_type;
 
+    typedef std::vector<data_type> DataContainer;
     typedef data_type * iterator;
     typedef data_type const * const_iterator;
 
@@ -29,19 +34,25 @@ namespace edmNew {
     
     
     inline
-    DetSet() : m_id(0), m_data(0), m_size(0){}
+    DetSet() : m_id(0), m_data(0), m_offset(-1), m_size(0){}
     inline
-    DetSet(id_type i, data_type const * idata, size_type isize) :
-      m_id(i), m_data(idata), m_size(isize) {}
+    DetSet(id_type i, DataContainer const & idata, size_type ioffset, size_type isize) :
+      m_id(i), m_data(&idata), m_offset(ioffset), m_size(isize) {}
     
-   inline
+    inline
     DetSet(Container const & icont,
-	   typename Container::Item const & item);
+	   typename Container::Item const & item, bool update) :
+      m_id(0), m_data(0), m_offset(-1), m_size(0){
+      set(icont,item, update);
+    }
 
     //FIXME (it may confuse users as size_type is same type as id_type...)
     inline
     void set(Container const & icont,
-	     typename Container::Item const & item);
+	     typename Container::Item const & item, bool update=true);
+
+    bool isValid() const { return m_offset>=0;}
+
     inline
     data_type & operator[](size_type i) {
       return data()[i];
@@ -69,21 +80,30 @@ namespace edmNew {
     id_type id() const { return m_id;}
     
     inline
+    id_type detId() const { return m_id;}
+    
+    inline
     size_type size() const { return m_size; }
+
+    inline
+    bool empty() const { return m_size==0;}
     
   private:
     data_type const * data() const {
-      return m_data;
+      if(m_offset|m_size) assert(m_data);
+      return m_data ? (&((*m_data)[m_offset])) : 0;
     }
 
    data_type * data() {
-      return const_cast<data_type *>(m_data);
+     assert(m_data);
+     return const_cast<data_type *>(&((*m_data)[m_offset]));
     }
     
     id_type m_id;
-    data_type const * m_data;
+    DataContainer const * m_data;
+    int m_offset;
     size_type m_size;
   };
 }
 
-#endif // Common_DetSet_H
+#endif // DataFormats_Common_DetSet_h

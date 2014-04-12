@@ -1,16 +1,23 @@
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-CaloTowerConstituentsMap::CaloTowerConstituentsMap() :
+#include <memory>
+
+CaloTowerConstituentsMap::~CaloTowerConstituentsMap() {
+  delete m_reverseItems;
+  m_reverseItems = nullptr;
+}
+CaloTowerConstituentsMap::CaloTowerConstituentsMap(const HcalTopology * topology) :
+  m_topology(topology),
   standardHB_(false),
   standardHE_(false),
   standardHF_(false),
   standardHO_(false),
-  standardEB_(false)
+  standardEB_(false),
+  m_reverseItems(nullptr)
 {
 }
 
@@ -23,11 +30,11 @@ CaloTowerDetId CaloTowerConstituentsMap::towerOf(const DetId& id) const {
   if (tid.null()) {
     if (id.det()==DetId::Hcal) { 
       HcalDetId hid(id);
-      if (hid.subdet()==HcalBarrel && standardHB_ ||
-	  hid.subdet()==HcalEndcap && standardHE_ ||
-	  hid.subdet()==HcalOuter && standardHO_ ||
-	  hid.subdet()==HcalForward && standardHF_) {
-	if (hid.subdet()==HcalForward && hid.ietaAbs()==29)  // special handling for tower 29
+      if ( (hid.subdet()==HcalBarrel && standardHB_ )  ||
+	   (hid.subdet()==HcalEndcap && standardHE_ )  ||
+	   (hid.subdet()==HcalOuter  && standardHO_ )  ||
+	   (hid.subdet()==HcalForward && standardHF_) ) {
+	if ((hid.subdet()==HcalForward) && hid.ietaAbs()==29)  // special handling for tower 29
 	  tid=CaloTowerDetId(30*hid.zside(),hid.iphi());
 	else 
 	  tid=CaloTowerDetId(hid.ieta(),hid.iphi());
@@ -53,64 +60,84 @@ void CaloTowerConstituentsMap::assign(const DetId& cell, const CaloTowerDetId& t
 
 void CaloTowerConstituentsMap::sort() {
   m_items.sort();
+  
+//  for (auto const & it : m_items)
+//    std::cout << std::hex << it.cell.rawId() << " " << it.tower.rawId() << std::dec << std::endl;
+
 }
 
 std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId& id) const {
   std::vector<DetId> items;
 
   // build reverse map if needed
-  if (!m_items.empty() && m_reverseItems.empty()) {
-    for (edm::SortedCollection<MapItem>::const_iterator i=m_items.begin(); i!=m_items.end(); i++)
-      m_reverseItems.insert(std::pair<CaloTowerDetId,DetId>(i->tower,i->cell));
+  if(!m_reverseItems.load(std::memory_order_acquire)) {
+      std::unique_ptr<std::multimap<CaloTowerDetId,DetId>> ptr{new std::multimap<CaloTowerDetId,DetId>};
+      for (auto i=m_items.begin(); i!=m_items.end(); i++)
+          ptr->insert(std::pair<CaloTowerDetId,DetId>(i->tower,i->cell));
+      std::multimap<CaloTowerDetId,DetId>* expected = nullptr;
+      if(m_reverseItems.compare_exchange_strong(expected, ptr.get(), std::memory_order_acq_rel)) {
+          ptr.release();
+      }
   }
 
   /// copy from the items map
   std::multimap<CaloTowerDetId,DetId>::const_iterator j;
-  std::pair<std::multimap<CaloTowerDetId,DetId>::const_iterator,std::multimap<CaloTowerDetId,DetId>::const_iterator> range=m_reverseItems.equal_range(id);
+  auto range=(*m_reverseItems.load(std::memory_order_acquire)).equal_range(id);
   for (j=range.first; j!=range.second; j++)
     items.push_back(j->second);
 
   // dealing with topo dependency...
-  static HcalTopology htopo;
   int nd, sd;
 
   if (standardHB_) {
-    if (id.ietaAbs()<=htopo.lastHBRing()) {
-      htopo.depthBinInformation(HcalBarrel,id.ietaAbs(),nd,sd);
+    if (id.ietaAbs()<=m_topology->lastHBRing()) {
+      m_topology->depthBinInformation(HcalBarrel,id.ietaAbs(),nd,sd);
       for (int i=0; i<nd; i++)
 	items.push_back(HcalDetId(HcalBarrel,id.ieta(),id.iphi(),i+sd));
     }
   }
   if (standardHO_) {
-    if (id.ietaAbs()<=htopo.lastHORing()) {
-      htopo.depthBinInformation(HcalOuter,id.ietaAbs(),nd,sd);
+    if (id.ietaAbs()<=m_topology->lastHORing()) {
+      m_topology->depthBinInformation(HcalOuter,id.ietaAbs(),nd,sd);
       for (int i=0; i<nd; i++)
 	items.push_back(HcalDetId(HcalOuter,id.ieta(),id.iphi(),i+sd));
     }
   }
   if (standardHE_) {
-    if (id.ietaAbs()>=htopo.firstHERing() && id.ietaAbs()<=htopo.lastHERing()) {
-      htopo.depthBinInformation(HcalEndcap,id.ietaAbs(),nd,sd);
+    if (id.ietaAbs()>=m_topology->firstHERing() && id.ietaAbs()<=m_topology->lastHERing()) {
+      m_topology->depthBinInformation(HcalEndcap,id.ietaAbs(),nd,sd);
       for (int i=0; i<nd; i++)
 	items.push_back(HcalDetId(HcalEndcap,id.ieta(),id.iphi(),i+sd));
     }
   }
   if (standardHF_) {
-    if (id.ietaAbs()>=htopo.firstHFRing() && id.ietaAbs()<=htopo.lastHFRing()) { 
+    if (id.ietaAbs()>m_topology->firstHFRing() && id.ietaAbs()<=m_topology->lastHFRing()) { 
       int ieta=id.ieta();
-      if (id.ietaAbs()==29) ieta=id.zside()*30;
-      htopo.depthBinInformation(HcalForward,id.ietaAbs(),nd,sd);
+      m_topology->depthBinInformation(HcalForward,id.ietaAbs(),nd,sd);
       for (int i=0; i<nd; i++)
 	items.push_back(HcalDetId(HcalForward,ieta,id.iphi(),i+sd));
+       if (id.ietaAbs() == 30) {
+       ieta = 29*id.zside();
+       m_topology->depthBinInformation(HcalForward,ieta,nd,sd);
+       for (int i=0; i<nd; i++)
+         items.push_back(HcalDetId(HcalForward,ieta,id.iphi(),i+sd));
+       }
     }
   }
-  if (standardEB_ && id.ietaAbs()<EBDetId::MAX_IETA/5) {
+  if (standardEB_ && id.ietaAbs()<=EBDetId::MAX_IETA/5) {
     HcalDetId hid(HcalBarrel,id.ieta(),id.iphi(),1); // for the limits
-    for (int ie=hid.crystal_ieta_low(); ie<=hid.crystal_ieta_high(); ie++)
+    int etaMin, etaMax;
+    if (hid.zside() == -1) {
+      etaMin = hid.crystal_ieta_high();
+      etaMax = hid.crystal_ieta_low();
+    } else {
+      etaMin = hid.crystal_ieta_low();
+      etaMax = hid.crystal_ieta_high();
+    }
+    for (int ie=etaMin; ie<=etaMax; ie++)
       for (int ip=hid.crystal_iphi_low(); ip<=hid.crystal_iphi_high(); ip++)
 	items.push_back(EBDetId(ie,ip));
   }
-
   return items;
 }
 

@@ -8,7 +8,7 @@ using namespace HepMC;
 
 BsJpsiPhiFilter::BsJpsiPhiFilter(const edm::ParameterSet& iConfig)
 {
-  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("source"));
+  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("generator"));
   hadronCuts.type = iConfig.getParameter< int >("hadronType");
   hadronCuts.etaMin = iConfig.getParameter<double>("hadronEtaMin");
   hadronCuts.etaMax = iConfig.getParameter<double>("hadronEtaMax");
@@ -44,7 +44,7 @@ HepMC::GenParticle * BsJpsiPhiFilter::findParticle(const GenPartVect genPartVect
 HepMC::GenParticle * BsJpsiPhiFilter::findParticle(HepMC::GenVertex* vertex, 
 						   const int requested_id)
 {
-  for(std::set<GenParticle*>::const_iterator p = vertex->particles_out_const_begin();
+  for(std::vector<GenParticle*>::const_iterator p = vertex->particles_out_const_begin();
       p != vertex->particles_out_const_end(); p++)
     {
       int event_particle_id = abs( (*p)->pdg_id() );
@@ -54,11 +54,11 @@ HepMC::GenParticle * BsJpsiPhiFilter::findParticle(HepMC::GenVertex* vertex,
   return 0;
 }
 
-HepMC::GenEvent::particle_iterator 
-BsJpsiPhiFilter::getNextBs(const HepMC::GenEvent::particle_iterator start, 
-			       const HepMC::GenEvent::particle_iterator end)
+HepMC::GenEvent::particle_const_iterator 
+BsJpsiPhiFilter::getNextBs(const HepMC::GenEvent::particle_const_iterator start, 
+			   const HepMC::GenEvent::particle_const_iterator end)
 {
-  HepMC::GenEvent::particle_iterator p;
+  HepMC::GenEvent::particle_const_iterator p;
   for (p = start; p != end; p++) 
     {
       int event_particle_id = abs( (*p)->pdg_id() );
@@ -74,11 +74,11 @@ bool BsJpsiPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HepMCProduct> evt;
   iEvent.getByLabel(label_, evt);
   
-  HepMC::GenEvent * generated_event = new HepMC::GenEvent(*(evt->GetEvent()));
-  cout << "Start\n";
+  const HepMC::GenEvent * generated_event = evt->GetEvent();
+  //cout << "Start\n";
 
   bool event_passed = false;
-  HepMC::GenEvent::particle_iterator bs = getNextBs(generated_event->particles_begin(), 
+  HepMC::GenEvent::particle_const_iterator bs = getNextBs(generated_event->particles_begin(), 
 				  		    generated_event->particles_end());
   while (bs!=  generated_event->particles_end() ) {
 
@@ -106,8 +106,8 @@ bool BsJpsiPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( (numChildren==2) && ((jpsi = findParticle(outVertex, 443))!=0) && 
 	((phi = findParticle(outVertex, 333))!=0)) {
       
-      cout << jpsi->momentum()<<" "<<jpsi->momentum().eta()
-	   <<" "<<phi->momentum()<<" "<<phi->momentum().eta()<<endl;
+      cout << jpsi->momentum().rho()<<" "<<jpsi->momentum().eta()
+	   <<" "<<phi->momentum().rho() <<" "<<phi->momentum().eta()<<endl;
       cout <<"bs dec trouve"<<endl;
       if (cuts(phi, hadronCuts) && cuts(jpsi, leptonCuts)) {
         cout <<"OK trouve"<<endl;
@@ -145,12 +145,12 @@ bool BsJpsiPhiFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
 }
 */
 
-bool BsJpsiPhiFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
+bool BsJpsiPhiFilter::cuts(const GenParticle * jpsi, const CutStruct& cut)
 {
   HepMC::GenVertex* myVertex = jpsi->end_vertex();
   int numChildren = myVertex->particles_out_size();
   std::vector<HepMC::GenParticle*> psiChild;
-  for(std::set<GenParticle*>::const_iterator p = myVertex->particles_out_const_begin();
+  for(std::vector<GenParticle*>::const_iterator p = myVertex->particles_out_const_begin();
       p != myVertex->particles_out_const_end(); p++) 
     psiChild.push_back((*p));
   
@@ -160,8 +160,8 @@ bool BsJpsiPhiFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
     if (psiChild.size()==2 && (abs(psiChild[0]->pdg_id()) == cut.type) &&
 	(abs(psiChild[1]->pdg_id()) == cut.type))
       {
-	cout << psiChild[0]->momentum()<<" "<<psiChild[0]->momentum().eta()
-	     <<" "<<psiChild[1]->momentum()<<" "<<psiChild[1]->momentum().eta()<<endl;
+	cout << psiChild[0]->momentum().rho()<<" "<<psiChild[0]->momentum().eta()
+	     <<" "<<psiChild[1]->momentum().rho()<<" "<<psiChild[1]->momentum().eta()<<endl;
 	return ( (etaInRange(psiChild[0]->momentum().eta(), cut.etaMin, cut.etaMax)) &&
 		 (etaInRange(psiChild[1]->momentum().eta(), cut.etaMin, cut.etaMax)) &&
 		 (psiChild[0]->momentum().perp()> cut.ptMin) &&

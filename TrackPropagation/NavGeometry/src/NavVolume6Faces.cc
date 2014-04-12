@@ -230,7 +230,7 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
 	std::pair<bool,double> dist = i->surface().distanceAlongLine( gpos, gdir);
 	if (dist.first) { 
-	  if ( &(i->surface().surface()) == NotThisSurfaceP || !surfaceMatched && dist.second < epsilon) 
+	  if ( &(i->surface().surface()) == NotThisSurfaceP || (!surfaceMatched && dist.second < epsilon)) 
 	    verycloseSurfaces.push_back(*i);
 	  else sortedSurfaces[dist.second] = *i;
 	}

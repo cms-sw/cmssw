@@ -8,16 +8,14 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.7 2007/01/23 00:25:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-#if ! GCC_PREREQUISITE(3,4,4)
-#include "DataFormats/Common/interface/traits.h"
-#endif
+#include <stdint.h>
+#include <stddef.h>
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   typedef uint32_t det_id_type;
@@ -40,6 +38,24 @@ namespace edm {
     /// constructor by detector identifier
     explicit DetSet(det_id_type i) : id(i), data() { }
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+    DetSet(DetSet<T> const & rh) : id(rh.id), data(rh.data){}
+
+    DetSet<T> & operator=(DetSet<T> const & rh)  {
+      id = rh.id;
+      data = rh.data;
+      return * this;
+    }
+
+    DetSet(DetSet<T> && rh) noexcept : id(rh.id), data(std::move(rh.data)){}
+    
+    DetSet<T> & operator=(DetSet<T> && rh)  noexcept {
+      id = rh.id;
+      data = std::move(rh.data);
+      return * this;
+    }
+#endif
+
     iterator begin() { return data.begin(); }
     iterator end() { return data.end(); }
     const_iterator begin() const { return data.begin(); }
@@ -51,9 +67,12 @@ namespace edm {
     void reserve(size_t s) { data.reserve(s); }
     void push_back(const T & t) { data.push_back(t); }
     void clear() { data.clear(); }
-    void swap(DetSet<T> & other);
+    void swap(DetSet<T> & other) noexcept;
 
     det_id_type detId() const { return id; }
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
     det_id_type      id;
     collection_type  data;
@@ -89,7 +108,7 @@ namespace edm {
   template <class T>
   inline
   void
-  DetSet<T>::swap(DetSet<T> & other) {
+  DetSet<T>::swap(DetSet<T> & other) noexcept {
     data.swap(other.data);
     std::swap(id, other.id);
   }
@@ -100,14 +119,6 @@ namespace edm {
   swap(DetSet<T> & a, DetSet<T> & b) {
     a.swap(b);
   }
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  //has swap function
-  template <class T>
-  struct has_swap<edm::DetSet<T> > {
-    static bool const value = true;
-  };
-#endif
 
 } // namespace edm;
 

@@ -4,9 +4,9 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "GeneratorInterface/ExhumeInterface/interface/Event.h"
-
+#include "CLHEP/Random/RandomEngine.h"
 //////////////////////////////////////////////////////////////////////////////
-Exhume::Event::Event(CrossSection &Process_, const unsigned int &Seed_){
+Exhume::Event::Event(CrossSection &Process_, CLHEP::HepRandomEngine* engine){
 
   Process = &Process_;
   Setx1Max(1.0);
@@ -29,8 +29,10 @@ Exhume::Event::Event(CrossSection &Process_, const unsigned int &Seed_){
   InvBlnB = InvB * log(B);
   Root_s = Process->GetRoot_s();
   InvRoot_s = 1.0/Root_s;
-  std::cout<<"   ++ Random number seed   "<<Seed_<<" ++"<<std::endl<<std::endl;
-  srand(Seed_);
+  randomEngine = engine;
+  std::cout<<"   ++ Random number seed   "<< randomEngine->getSeed() <<" ++"<<std::endl<<std::endl;
+  Process->SetRandomEngine(engine);
+  //srand(Seed_);
 
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -78,7 +80,8 @@ void Exhume::Event::Generate(){
        for(std::map<double, double>::iterator kk = FuncMap_.begin();
 	   kk !=FuncMap_.end();
 	   kk++){
-	 fprintf(dat,"%le\t%le\n",kk->first, kk->second);
+	 //fprintf(dat,"%le\t%le\n",kk->first, kk->second);
+         fprintf(dat,"%e\t%e\n",kk->first, kk->second);
        }
 
        fclose(dat);
@@ -88,7 +91,8 @@ void Exhume::Event::Generate(){
        for(std::map<double, double>::iterator kk = LineShape_.begin();
 	   kk!=LineShape_.end();
 	   kk++){
-	 fprintf(dat, "%le\t%le\n",kk->first, kk->second);
+	 //fprintf(dat, "%le\t%le\n",kk->first, kk->second);
+         fprintf(dat, "%e\t%e\n",kk->first, kk->second);
        }
        fclose(dat);
 
@@ -121,18 +125,18 @@ void Exhume::Event::Generate(){
 //////////////////////////////////////////////////////////////////////////////
 void Exhume::Event::SelectValues(){
 
-  double MRand = double(rand())/double(RAND_MAX);
+  double MRand = randomEngine->flat();
 
   SqrtsHat = GetValue(MRand);
   
-  double tt1 = (double(rand()) / double(RAND_MAX)) * (tt1max-tt1min) + tt1min;
-  double tt2 = (double(rand()) / double(RAND_MAX)) * (tt2max-tt2min) + tt2min;
+  double tt1 = randomEngine->flat() * (tt1max-tt1min) + tt1min;
+  double tt2 = randomEngine->flat() * (tt2max-tt2min) + tt2min;
 
   t1 = InvB * log(tt1) + InvBlnB;
   t2 = InvB * log(tt2) + InvBlnB;
 
-  Phi1 = TwoPI * double(rand()) / double(RAND_MAX);
-  Phi2 = TwoPI * double(rand()) / double(RAND_MAX);
+  Phi1 = TwoPI * randomEngine->flat();
+  Phi2 = TwoPI * randomEngine->flat();
 
   // y = 0.5 log(x1/x2) and at t1 = t2 = 0 x1x2 = sHat/s
   // so the max kinematically allowed value of x1 is
@@ -146,9 +150,9 @@ void Exhume::Event::SelectValues(){
 
   yRange += (yymax - yymin);
 
-  Eta = (yymax - yymin) * double(rand()) / double(RAND_MAX) + yymin;
+  Eta = (yymax - yymin) * randomEngine->flat() + yymin;
 
-  VonNeu = double(rand())/double(RAND_MAX);
+  VonNeu = randomEngine->flat();
 
   return;
 }

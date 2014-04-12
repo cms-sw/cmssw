@@ -1,9 +1,6 @@
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "Calibration/Tools/interface/Pi0CalibXMLwriter.h"
-#include <iostream>
 #include <string>
-
+#include <cstdio>
 
 Pi0CalibXMLwriter::Pi0CalibXMLwriter(EcalSubdetector subdet) : subdet_(subdet)
 {

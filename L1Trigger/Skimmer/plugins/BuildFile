@@ -1,4 +1,0 @@
-<use name=L1Trigger/Skimmer>
-<library file="*.cc" name=L1TriggerSkimmerPlugins>
-      <flags EDM_PLUGIN=1>
-</library>

@@ -6,7 +6,6 @@
  * Send a file to the browser, forcing a download dialogue
  * Credit given below
  *
- * $Id$
  */
 
 /*

@@ -1,12 +1,14 @@
 #include "CondFormats/CSCObjects/interface/CSCPedestals.h"
+#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 CSCPedestals::CSCPedestals(){}
 CSCPedestals::~CSCPedestals(){}
 
-const CSCPedestals::Item & CSCPedestals::item(int cscId, int strip) const
+const CSCPedestals::Item & CSCPedestals::item(const CSCDetId & cscId, int strip) const
 {
-  PedestalMap::const_iterator mapItr = pedestals.find(cscId);
+  CSCIndexer indexer;
+  PedestalMap::const_iterator mapItr = pedestals.find( indexer.dbIndex(cscId,strip) );
   if(mapItr == pedestals.end())
   {
     throw cms::Exception("CSCPedestals")

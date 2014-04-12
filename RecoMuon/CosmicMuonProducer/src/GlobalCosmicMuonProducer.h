@@ -6,13 +6,13 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon 
  *  tracks
  *
- *  $Date: 2006/09/20 00:09:09 $
- *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class MuonTrackFinder;
 class MuonServiceProxy;
@@ -26,7 +26,7 @@ public:
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
 private:
-  edm::InputTag theTrackCollectionLabel;
+  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
   MuonTrackFinder* theTrackFinder;
 
   /// the event setup proxy, it takes care the services update

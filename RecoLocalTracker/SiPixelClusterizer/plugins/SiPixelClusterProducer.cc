@@ -24,6 +24,11 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+// Database payloads
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
+
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,30 +51,45 @@ namespace cms
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
     conf_(conf),
-    theSiPixelGainCalibration_(conf),
+    theSiPixelGainCalibration_(0), 
     clusterMode_("None"),     // bogus
     clusterizer_(0),          // the default, in case we fail to make one
     readyToCluster_(false),   // since we obviously aren't
-    src_( conf.getParameter<edm::InputTag>( "src" ) )
+    src_( conf.getParameter<edm::InputTag>( "src" ) ),
+    maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
   {
+    tPixelDigi = consumes<edm::DetSetVector<PixelDigi>>(src_);
     //--- Declare to the EDM what kind of collections we will be making.
-    produces<SiPixelClusterCollection>(); 
+    produces<SiPixelClusterCollectionNew>(); 
+
+    std::string payloadType = conf.getParameter<std::string>( "payloadType" );
+
+    if (strcmp(payloadType.c_str(), "HLT") == 0)
+       theSiPixelGainCalibration_ = new SiPixelGainCalibrationForHLTService(conf);
+    else if (strcmp(payloadType.c_str(), "Offline") == 0)
+       theSiPixelGainCalibration_ = new SiPixelGainCalibrationOfflineService(conf);
+    else if (strcmp(payloadType.c_str(), "Full") == 0)
+       theSiPixelGainCalibration_ = new SiPixelGainCalibrationService(conf);
 
     //--- Make the algorithm(s) according to what the user specified
     //--- in the ParameterSet.
     setupClusterizer();
+
   }
 
   // Destructor
   SiPixelClusterProducer::~SiPixelClusterProducer() { 
     delete clusterizer_;
+    delete theSiPixelGainCalibration_;
   }  
 
-  void SiPixelClusterProducer::beginJob( const edm::EventSetup& es ) {
+  //void SiPixelClusterProducer::beginJob( const edm::EventSetup& es ) 
+  void SiPixelClusterProducer::beginJob( ) 
+  {
     edm::LogInfo("SiPixelClusterizer") << "[SiPixelClusterizer::beginJob]";
-    clusterizer_->setSiPixelGainCalibrationService(& theSiPixelGainCalibration_);
+    clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_);
   }
-
+  
   //---------------------------------------------------------------------------
   //! The "Event" entrypoint: gets called by framework for every event
   //---------------------------------------------------------------------------
@@ -77,25 +97,24 @@ namespace cms
   {
 
     //Setup gain calibration service
-    theSiPixelGainCalibration_.setESObjects( es );
+    theSiPixelGainCalibration_->setESObjects( es );
 
    // Step A.1: get input data
     //edm::Handle<PixelDigiCollection> pixDigis;
     edm::Handle< edm::DetSetVector<PixelDigi> >  input;
-    e.getByLabel( src_, input);
+    e.getByToken(tPixelDigi, input);
 
     // Step A.2: get event setup
     edm::ESHandle<TrackerGeometry> geom;
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
-    // Step B: Iterate over DetIds and invoke the pixel clusterizer algorithm
+    // Step B: create the final output collection
+    std::auto_ptr<SiPixelClusterCollectionNew> output( new SiPixelClusterCollectionNew() );
+    //FIXME: put a reserve() here
+
+    // Step C: Iterate over DetIds and invoke the pixel clusterizer algorithm
     // on each DetUnit
-    run(*input, geom );
-
-    // Step C: create the final output collection
-    std::auto_ptr< SiPixelClusterCollection > 
-      output( new SiPixelClusterCollection (theClusterVector));
-
+    run(*input, geom, *output );
 
     // Step D: write output to file
     e.put( output );
@@ -127,8 +146,9 @@ namespace cms
   //---------------------------------------------------------------------------
   //!  Iterate over DetUnits, and invoke the PixelClusterizer on each.
   //---------------------------------------------------------------------------
-  void SiPixelClusterProducer::run(const edm::DetSetVector<PixelDigi>& input, 
-				   edm::ESHandle<TrackerGeometry> & geom) {
+  void SiPixelClusterProducer::run(const edm::DetSetVector<PixelDigi>   & input, 
+				   edm::ESHandle<TrackerGeometry>       & geom,
+                                   edmNew::DetSetVector<SiPixelCluster> & output) {
     if ( ! readyToCluster_ ) {
       edm::LogError("SiPixelClusterProducer")
 		<<" at least one clusterizer is not ready -- can't run!" ;
@@ -148,7 +168,7 @@ namespace cms
       //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << DSViter->id;
 
       std::vector<short> badChannels; 
-      DetId detIdObject(DSViter->id);
+      DetId detIdObject(DSViter->detId());
       
       // Comment: At the moment the clusterizer depends on geometry
       // to access information as the pixel topology (number of columns
@@ -163,14 +183,20 @@ namespace cms
       }
       // Produce clusters for this DetUnit and store them in 
       // a DetSet
-      edm::DetSet<SiPixelCluster> spc(DSViter->id);
+      edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(output, DSViter->detId());
       clusterizer_->clusterizeDetUnit(*DSViter, pixDet, badChannels, spc);
-      if( spc.data.size() > 0) {
-	//output.insert( spc );  // very slow
-	theClusterVector.push_back( spc );  // fill the cache
-	numberOfClusters += spc.data.size();
+      if ( spc.empty() ) {
+        spc.abort();
+      } else {
+	numberOfClusters += spc.size();
       }
 
+      if ((maxTotalClusters_ >= 0) && (numberOfClusters > maxTotalClusters_)) {
+        edm::LogError("TooManyClusters") <<  "Limit on the number of clusters exceeded. An empty cluster collection will be produced instead.\n";
+        edmNew::DetSetVector<SiPixelCluster> empty;
+        empty.swap(output);
+        break;
+      }
     } // end of DetUnit loop
     
     //LogDebug ("SiPixelClusterProducer") << " Executing " 

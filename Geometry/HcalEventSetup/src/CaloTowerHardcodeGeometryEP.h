@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTowerGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerHardcodeGeometryLoader.h"
 
@@ -25,7 +25,7 @@ class CaloTowerHardcodeGeometryEP : public edm::ESProducer {
 
       typedef std::auto_ptr<CaloSubdetectorGeometry> ReturnType;
 
-      ReturnType produce(const IdealGeometryRecord&);
+      ReturnType produce(const CaloTowerGeometryRecord&);
 private:
       // ----------member data ---------------------------
   CaloTowerHardcodeGeometryLoader* loader_;

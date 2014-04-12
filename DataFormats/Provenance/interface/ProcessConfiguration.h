@@ -1,38 +1,70 @@
 #ifndef DataFormats_Provenance_ProcessConfiguration_h
 #define DataFormats_Provenance_ProcessConfiguration_h
 
-#include <string>
-#include <iosfwd>
-
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/PassID.h"
-#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
+#include "DataFormats/Provenance/interface/ReleaseVersion.h"
+
+#include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace edm {
-  struct ProcessConfiguration {
-    ProcessConfiguration() : processName_(), parameterSetID_(), releaseVersion_(), passID_() {}
+  class ProcessConfiguration {
+  public:
+    ProcessConfiguration();
     ProcessConfiguration(std::string const& procName,
-			 ParameterSetID const& pSetID,
-			 ReleaseVersion const& relVersion,
-			 PassID const& pass) :
-      processName_(procName),
-      parameterSetID_(pSetID),
-      releaseVersion_(relVersion),
-      passID_(pass) { }
-    
+                         ReleaseVersion const& relVersion,
+                         PassID const& pass);
+
+    ProcessConfiguration(std::string const& procName,
+                         ParameterSetID const& pSetID,
+                         ReleaseVersion const& relVersion,
+                         PassID const& pass);
+
     std::string const& processName() const {return processName_;}
-    ParameterSetID const& parameterSetID() const {return parameterSetID_;}
+    ParameterSetID const& parameterSetID() const;
+    bool isParameterSetValid() const {return parameterSetID_.isValid();}
     ReleaseVersion const& releaseVersion() const {return releaseVersion_;}
     PassID const& passID() const {return passID_;}
+    ProcessConfigurationID id() const;
+
+    void setParameterSetID(ParameterSetID const& pSetID);
+
+    ProcessConfigurationID setProcessConfigurationID();
+
+    void reduce();
+
+    void initializeTransients() {transient_.reset();}
+
+    struct Transients {
+      Transients() : pcid_(), isCurrentProcess_(false) {}
+      explicit Transients(bool current) : pcid_(), isCurrentProcess_(current) {}
+      void reset() {
+        pcid_.reset();
+        isCurrentProcess_ = false;
+      }
+      ProcessConfigurationID pcid_;
+      bool isCurrentProcess_;
+    };
+
+  private:
+    void setPCID(ProcessConfigurationID const& pcid) {transient_.pcid_ = pcid;}
+    bool isCurrentProcess() const {return transient_.isCurrentProcess_;}
+    void setCurrentProcess() {transient_.isCurrentProcess_ = true;}
 
     std::string processName_;
     ParameterSetID parameterSetID_;
-    ReleaseVersion releaseVersion_; 
+    ReleaseVersion releaseVersion_;
     PassID passID_;
-
-    ProcessConfigurationID id() const;
+    Transients transient_;
   };
+
+  typedef std::vector<ProcessConfiguration> ProcessConfigurationVector;
+
+  bool
+  operator<(ProcessConfiguration const& a, ProcessConfiguration const& b);
 
   inline
   bool
@@ -50,7 +82,7 @@ namespace edm {
   }
 
   std::ostream&
-  operator<< (std::ostream& os, ProcessConfiguration const& pc);
+  operator<<(std::ostream& os, ProcessConfiguration const& pc);
 }
 
 #endif

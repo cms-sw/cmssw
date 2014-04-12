@@ -1,20 +1,7 @@
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaGammaJetProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
 using namespace std;
@@ -27,16 +14,35 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig)
 {
    // Take input 
    
-   hbheLabel_= iConfig.getParameter<edm::InputTag>("hbheInput");
-   hoLabel_=iConfig.getParameter<edm::InputTag>("hoInput");
-   hfLabel_=iConfig.getParameter<edm::InputTag>("hfInput");
+   tok_hbhe_= consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+   tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+   tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
+
    mInputCalo = iConfig.getParameter<std::vector<edm::InputTag> >("srcCalo");
    ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
-   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
+
+   unsigned nLabels = mInputCalo.size();
+   for ( unsigned i=0; i != nLabels; i++ ) 
+      toks_calo_.push_back( consumes<reco::CaloJetCollection>( mInputCalo[i] ) );
+
+   nLabels = ecalLabels_.size();
+   for ( unsigned i=0; i != nLabels; i++ )
+      toks_ecal_.push_back( consumes<EcalRecHitCollection>( ecalLabels_[i] ) );
+
+
+   tok_inputTrack_ =  consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<std::string>("inputTrackLabel","generalTracks"));
    correctedIslandBarrelSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedIslandBarrelSuperClusterCollection");
    correctedIslandBarrelSuperClusterProducer_   = iConfig.getParameter<std::string>("correctedIslandBarrelSuperClusterProducer");
+    tok_EBSC_ = consumes<reco::SuperClusterCollection>(
+    	edm::InputTag(correctedIslandBarrelSuperClusterProducer_,
+	correctedIslandBarrelSuperClusterCollection_)); 
+
    correctedIslandEndcapSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedIslandEndcapSuperClusterCollection");
    correctedIslandEndcapSuperClusterProducer_   = iConfig.getParameter<std::string>("correctedIslandEndcapSuperClusterProducer");  
+   tok_EESC_ = consumes<reco::SuperClusterCollection>(
+	edm::InputTag(correctedIslandEndcapSuperClusterProducer_,
+	correctedIslandEndcapSuperClusterCollection_));
+
    allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",true);
    
     
@@ -52,12 +58,8 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig)
     
    
 }
-void AlCaGammaJetProducer::beginJob( const edm::EventSetup& iSetup)
+void AlCaGammaJetProducer::beginJob()
 {
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
-   geo = pG.product();
-
 }
 
 AlCaGammaJetProducer::~AlCaGammaJetProducer()
@@ -73,6 +75,11 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    using namespace std;
+
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<CaloGeometryRecord>().get(pG);
+   geo = pG.product();
+
 // Produced collections 
   
   std::auto_ptr<reco::SuperClusterCollection> result (new reco::SuperClusterCollection); //Corrected jets
@@ -91,64 +98,65 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   reco::SuperClusterCollection::const_iterator maxclusendcap;
 
   double vetmax = -100.;
-   try {
-   
   Handle<reco::SuperClusterCollection> pCorrectedIslandBarrelSuperClusters;
-  iEvent.getByLabel(correctedIslandBarrelSuperClusterProducer_, 
-                    correctedIslandBarrelSuperClusterCollection_, 
+  iEvent.getByToken(tok_EBSC_,
 		    pCorrectedIslandBarrelSuperClusters);  
-  const reco::SuperClusterCollection* correctedIslandBarrelSuperClusters = pCorrectedIslandBarrelSuperClusters.product();
-  
-  // loop over the super clusters and find the highest
-  maxclusbarrel = correctedIslandBarrelSuperClusters->begin();
-  for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
-                                                           aClus != correctedIslandBarrelSuperClusters->end(); aClus++) {
-    double vet = aClus->energy()/cosh(aClus->eta());
-//    cout<<" Barrel supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
-    if(vet>20.) {
-       if(vet > vetmax)
-       {
-          vetmax = vet;
-	  maxclusbarrel = aClus;
-	  nclusb = 1;
-       }
+  if (!pCorrectedIslandBarrelSuperClusters.isValid()) {
+    // can't find it!
+    if (!allowMissingInputs_) {
+      *pCorrectedIslandBarrelSuperClusters;  // will throw the proper exception
     }
-  }
-  } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
+  } else {
+    const reco::SuperClusterCollection* correctedIslandBarrelSuperClusters = pCorrectedIslandBarrelSuperClusters.product();
+    
+    // loop over the super clusters and find the highest
+    maxclusbarrel = correctedIslandBarrelSuperClusters->begin();
+    for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
+	aClus != correctedIslandBarrelSuperClusters->end(); aClus++) {
+      double vet = aClus->energy()/cosh(aClus->eta());
+          cout<<" Barrel supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
+      if(vet>20.) {
+	if(vet > vetmax)
+	  {
+	    vetmax = vet;
+	    maxclusbarrel = aClus;
+	    nclusb = 1;
+	  }
+      }
+    }
+    
   }
 
-
-   try {
-   
   Handle<reco::SuperClusterCollection> pCorrectedIslandEndcapSuperClusters;
-  iEvent.getByLabel(correctedIslandEndcapSuperClusterProducer_, 
-                    correctedIslandEndcapSuperClusterCollection_, 
+  iEvent.getByToken(tok_EESC_,
 		    pCorrectedIslandEndcapSuperClusters);  
-  const reco::SuperClusterCollection* correctedIslandEndcapSuperClusters = pCorrectedIslandEndcapSuperClusters.product();
-  
-  // loop over the super clusters and find the highest
-  maxclusendcap = correctedIslandEndcapSuperClusters->end();
-  double vetmaxe = vetmax;
-  for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandEndcapSuperClusters->begin();
-                                                           aClus != correctedIslandEndcapSuperClusters->end(); aClus++) {
-    double vet = aClus->energy()/cosh(aClus->eta());
- //   cout<<" Endcap supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
-    if(vet>20.) {
-       if(vet > vetmaxe)
-       {
-          vetmaxe = vet;
-	  maxclusendcap = aClus;
-	  ncluse = 1;
-       }
+  if (!pCorrectedIslandEndcapSuperClusters.isValid()) {
+    // can't find it!
+    if (!allowMissingInputs_) {
+      *pCorrectedIslandEndcapSuperClusters;  // will throw the proper exception
+    }
+  } else {
+    const reco::SuperClusterCollection* correctedIslandEndcapSuperClusters = pCorrectedIslandEndcapSuperClusters.product();
+    
+    // loop over the super clusters and find the highest
+    maxclusendcap = correctedIslandEndcapSuperClusters->end();
+    double vetmaxe = vetmax;
+    for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandEndcapSuperClusters->begin();
+	aClus != correctedIslandEndcapSuperClusters->end(); aClus++) {
+      double vet = aClus->energy()/cosh(aClus->eta());
+      //   cout<<" Endcap supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
+      if(vet>20.) {
+	if(vet > vetmaxe)
+	  {
+	    vetmaxe = vet;
+	    maxclusendcap = aClus;
+	    ncluse = 1;
+	  }
+      }
     }
   }
-  } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-  }
-
    
-  //cout<<" Number of gammas "<<nclusb<<" "<<ncluse<<endl;  
+  cout<<" Number of gammas "<<nclusb<<" "<<ncluse<<endl;  
   
   if( nclusb == 0 && ncluse == 0 ) {
    
@@ -190,13 +198,17 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double phijet0 =  -100.;
     double etajet0 = -100.;
     
-    std::vector<edm::InputTag>::const_iterator ic;
-    for (ic=mInputCalo.begin(); ic!=mInputCalo.end(); ic++) {
+    std::vector<edm::EDGetTokenT<reco::CaloJetCollection> >::const_iterator ic;
+    for (ic=toks_calo_.begin(); ic!=toks_calo_.end(); ic++) {
 
-
-     try {
-       edm::Handle<reco::CaloJetCollection> jets;
-       iEvent.getByLabel(*ic, jets);
+      edm::Handle<reco::CaloJetCollection> jets;
+      iEvent.getByToken(*ic, jets);
+      if (!jets.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  *jets;  // will throw the proper exception
+	}
+      } else {
        reco::CaloJetCollection::const_iterator jet = jets->begin ();
 
  //      cout<<" Size of jets "<<jets->size()<<endl;
@@ -215,7 +227,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            numjet++;
            if(numjet > 3) break;
 
-  //         cout<<" phi,eta "<< phigamma<<" "<< etagamma<<" "<<phijet0<<" "<<etajet0<<endl;
+           cout<<" phi,eta "<< phigamma<<" "<< etagamma<<" "<<phijet0<<" "<<etajet0<<endl;
 
 // Find jet back to gamma
  	   
@@ -236,11 +248,8 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   } // dphi
          } //jet collection
          if(iejet == 0) resultjet->clear(); 
-       } 
-	catch (cms::Exception& e) { // can't find it!
-            if (!allowMissingInputs_) throw e;
-       }
-     } // Jet collection
+      }
+    } // Jet collection
      
      if( resultjet->size() == 0 ) {
 
@@ -262,173 +271,179 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // Load EcalRecHits
 
     
-    std::vector<edm::InputTag>::const_iterator i;
-    for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-    try {
-      
+    std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
+    for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) {
       edm::Handle<EcalRecHitCollection> ec;
-      iEvent.getByLabel(*i,ec);
-
-       for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
-                                                recHit != (*ec).end(); ++recHit)
-       {
+      iEvent.getByToken(*i,ec);
+      if (!ec.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) { 
+	  cout<<" No ECAL input "<<endl;
+	  *ec;  // will throw the proper exception
+	}
+      } else {
+	for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
+	    recHit != (*ec).end(); ++recHit)
+	  {
 // EcalBarrel = 1, EcalEndcap = 2
-           GlobalPoint pos = geo->getPosition(recHit->detid());
-           double phihit = pos.phi();
-           double etahit = pos.eta();
-	   
-	   double dphi = fabs(phigamma - phihit); 
-	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	   double deta = fabs(etagamma - etahit); 
-           double dr = sqrt(dphi*dphi + deta*deta);
-           if(dr<1.)  miniEcalRecHitCollection->push_back(*recHit);
-	   
-	   dphi = fabs(phijet - phihit); 
-	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	   deta = fabs(etajet - etahit); 
-           dr = sqrt(dphi*dphi + deta*deta);
-           if(dr<1.4)  miniEcalRecHitCollection->push_back(*recHit);
-   
-       }
-
-    } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) { 
-         cout<<" No ECAL input "<<endl;
-         throw e;
-	 }
-    }
+	    GlobalPoint pos = geo->getPosition(recHit->detid());
+	    double phihit = pos.phi();
+	    double etahit = pos.eta();
+	    
+	    double dphi = fabs(phigamma - phihit); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    double deta = fabs(etagamma - etahit); 
+	    double dr = sqrt(dphi*dphi + deta*deta);
+	    if(dr<1.)  miniEcalRecHitCollection->push_back(*recHit);
+	    
+	    dphi = fabs(phijet - phihit); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    deta = fabs(etajet - etahit); 
+	    dr = sqrt(dphi*dphi + deta*deta);
+	    if(dr<1.4)  miniEcalRecHitCollection->push_back(*recHit);
+	    
+	  }
+      }
     }
 
 //   cout<<" Ecal is done "<<endl; 
 
-    try {
-
       edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(hbheLabel_,hbhe);
-      const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
-        {
-           GlobalPoint pos = geo->getPosition(hbheItr->detid());
-           double phihit = pos.phi();
-           double etahit = pos.eta();
-	   
-	   double dphi = fabs(phigamma - phihit); 
-	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	   double deta = fabs(etagamma - etahit); 
-           double dr = sqrt(dphi*dphi + deta*deta);
-	
-	
-         if(dr<1.)  miniHBHERecHitCollection->push_back(*hbheItr);
-	   dphi = fabs(phijet - phihit); 
-	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	   deta = fabs(etajet - etahit); 
-           dr = sqrt(dphi*dphi + deta*deta);
-           if(dr<1.4)  miniHBHERecHitCollection->push_back(*hbheItr);
-	 
-	 
-	 
-        }
-  } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-  }
+      iEvent.getByToken(tok_hbhe_,hbhe);
+      if (!hbhe.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  *hbhe;  // will throw the proper exception
+	}
+      } else {
+	const HBHERecHitCollection Hithbhe = *(hbhe.product());
+	for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
+	  {
+	    GlobalPoint pos = geo->getPosition(hbheItr->detid());
+	    double phihit = pos.phi();
+	    double etahit = pos.eta();
+	    
+	    double dphi = fabs(phigamma - phihit); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    double deta = fabs(etagamma - etahit); 
+	    double dr = sqrt(dphi*dphi + deta*deta);
+	    
+	    
+	    if(dr<1.)  miniHBHERecHitCollection->push_back(*hbheItr);
+	    dphi = fabs(phijet - phihit); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    deta = fabs(etajet - etahit); 
+	    dr = sqrt(dphi*dphi + deta*deta);
+	    if(dr<1.4)  miniHBHERecHitCollection->push_back(*hbheItr);
+	  }
+      }
+
 //   cout<<" HBHE is done "<<endl; 
 	
-    try {
       edm::Handle<HORecHitCollection> ho;
-      iEvent.getByLabel(hoLabel_,ho);
-      const HORecHitCollection Hitho = *(ho.product());
-  for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
-        {
-           GlobalPoint pos = geo->getPosition(hoItr->detid());
-           double phihit = pos.phi();
-           double etahit = pos.eta();
-	   
-	   double dphi = fabs(phigamma - phihit); 
-	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	   double deta = fabs(etagamma - etahit); 
-           double dr = sqrt(dphi*dphi + deta*deta);
-	
-         if(dr<1.)  miniHORecHitCollection->push_back(*hoItr);
-	   dphi = fabs(phijet - phihit); 
-	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	   deta = fabs(etajet - etahit); 
-           dr = sqrt(dphi*dphi + deta*deta);
-           if(dr<1.4)  miniHORecHitCollection->push_back(*hoItr);
-	 
-	 
-        }
-  } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-  }
+      iEvent.getByToken(tok_ho_,ho);
+      if (!ho.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  *ho;  // will throw the proper exception
+	}
+      } else {
+	const HORecHitCollection Hitho = *(ho.product());
+	for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
+	  {
+	    GlobalPoint pos = geo->getPosition(hoItr->detid());
+	    double phihit = pos.phi();
+	    double etahit = pos.eta();
+	    
+	    double dphi = fabs(phigamma - phihit); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    double deta = fabs(etagamma - etahit); 
+	    double dr = sqrt(dphi*dphi + deta*deta);
+	    
+	    if(dr<1.)  miniHORecHitCollection->push_back(*hoItr);
+	    dphi = fabs(phijet - phihit); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    deta = fabs(etajet - etahit); 
+	    dr = sqrt(dphi*dphi + deta*deta);
+	    if(dr<1.4)  miniHORecHitCollection->push_back(*hoItr);
+	    
+	  }
+      }
+
  //  cout<<" HO is done "<<endl; 
    
-  try {
-  edm::Handle<HFRecHitCollection> hf;
-  iEvent.getByLabel(hfLabel_,hf);
-  const HFRecHitCollection Hithf = *(hf.product());
-//  cout<<" Size of HF collection "<<Hithf.size()<<endl;
-  for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
-      {
-          GlobalPoint pos = geo->getPosition(hfItr->detid());
-
-           double phihit = pos.phi();
-           double etahit = pos.eta();
-	   
-	   double dphi = fabs(phigamma - phihit); 
-	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	   double deta = fabs(etagamma - etahit); 
-           double dr = sqrt(dphi*dphi + deta*deta);
-	
-         if(dr<1.)  miniHFRecHitCollection->push_back(*hfItr);
-	   dphi = fabs(phijet - phihit); 
-	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	   deta = fabs(etajet - etahit); 
-           dr = sqrt(dphi*dphi + deta*deta);
-
-         if( dr < 1.4 )  miniHFRecHitCollection->push_back(*hfItr);
+      edm::Handle<HFRecHitCollection> hf;
+      iEvent.getByToken(tok_hf_,hf);
+      if (!hf.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  *hf;  // will throw the proper exception
+	}
+      } else {
+	const HFRecHitCollection Hithf = *(hf.product());
+	//  cout<<" Size of HF collection "<<Hithf.size()<<endl;
+	for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
+	  {
+	    GlobalPoint pos = geo->getPosition(hfItr->detid());
+	    
+	    double phihit = pos.phi();
+	    double etahit = pos.eta();
+	    
+	    double dphi = fabs(phigamma - phihit); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    double deta = fabs(etagamma - etahit); 
+	    double dr = sqrt(dphi*dphi + deta*deta);
+	    
+	    if(dr<1.)  miniHFRecHitCollection->push_back(*hfItr);
+	    dphi = fabs(phijet - phihit); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    deta = fabs(etajet - etahit); 
+	    dr = sqrt(dphi*dphi + deta*deta);
+	    
+	    if( dr < 1.4 )  miniHFRecHitCollection->push_back(*hfItr);
+	  }
       }
-    } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-    }
+
  //  cout<<" Size of mini HF collection "<<miniHFRecHitCollection->size()<<endl;
      
 
 // Track Collection   
-try{
-    
-   edm::Handle<reco::TrackCollection> trackCollection;
-   iEvent.getByLabel(m_inputTrackLabel,trackCollection);
-   const reco::TrackCollection tC = *(trackCollection.product());
+      edm::Handle<reco::TrackCollection> trackCollection;
+      iEvent.getByToken(tok_inputTrack_,trackCollection);
+      if (!trackCollection.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  *trackCollection;  // will throw the proper exception
+	}
+      } else {
+	const reco::TrackCollection tC = *(trackCollection.product());
   
-   //Create empty output collections
+	//Create empty output collections
 
 
-   for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++)
-   {
-               
-               double deta = track->momentum().eta() - etagamma; 
-	        
-               double dphi = fabs(track->momentum().phi() - phigamma);
-	       
-               if (dphi > atan(1.)*4.) dphi = 8.*atan(1.) - dphi;
-               double ddir1 = sqrt(deta*deta+dphi*dphi);
-	       
-	       
-	       
-               deta = track->momentum().eta() - etajet;
-               dphi = fabs(track->momentum().phi() - phijet);
-               if (dphi > atan(1.)*4.) dphi = 8.*atan(1.) - dphi;
-               double ddir2 = sqrt(deta*deta+dphi*dphi);
-
-      if( ddir1 < 1.4  || ddir2 < 1.4)      
-      {
-         outputTColl->push_back(*track);
-      } 
-   }
-       }
-        catch (cms::Exception& e) { // can't find it!
-            if (!allowMissingInputs_) throw e;
-       }
+	for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++)
+	  {
+	    
+	    double deta = track->momentum().eta() - etagamma; 
+	    
+	    double dphi = fabs(track->momentum().phi() - phigamma);
+	    
+	    if (dphi > atan(1.)*4.) dphi = 8.*atan(1.) - dphi;
+	    double ddir1 = sqrt(deta*deta+dphi*dphi);
+	    
+	    
+	    
+	    deta = track->momentum().eta() - etajet;
+	    dphi = fabs(track->momentum().phi() - phijet);
+	    if (dphi > atan(1.)*4.) dphi = 8.*atan(1.) - dphi;
+	    double ddir2 = sqrt(deta*deta+dphi*dphi);
+	    
+	    if( ddir1 < 1.4  || ddir2 < 1.4)      
+	      {
+		outputTColl->push_back(*track);
+	      } 
+	  }
+      }
    
   //Put selected information in the event
   

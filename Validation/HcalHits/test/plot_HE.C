@@ -1,7 +1,7 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
-void plot_HE(TString  inputfile="HE_ref.root",
+void plot_HE(TString  inputfile="simevent_HE.root",
 	     TString outputfile="HE_histo.root",
-	     Int_t drawmode = 0,
+	     Int_t drawmode = 2,
              TString    reffile="../data/HE_ref.root"){
  
   // Option to no-action(0)/draw(1)/save(2) (default = 0) histograms in gif.
@@ -165,8 +165,8 @@ void plot_HE(TString  inputfile="HE_ref.root",
       if(i == 11) h1[i] = new TH1F(hname,label1[i],100,-5.,5.);   
       if(i == 12) h1[i] = new TH1F(hname,label1[i],72,-3.1415926,3.1415926);   
       if(i == 7 || i == 8) h1[i] = new TH1F(hname,label1[i],100,-0.1,0.1);  
-      if( i == 4)          h1[i] = new TH1F(hname,label1[i],60,0.,60.);  
-      if( i == 6)          h1[i] = new TH1F(hname,label1[i],40,0.,200.);
+      if( i == 4)          h1[i] = new TH1F(hname,label1[i],50,0.,100.);  
+      if( i == 6)          h1[i] = new TH1F(hname,label1[i],50,0.,100.);
     }
     else { 
       h1[i] = new TH1F(hname,label1[i],100,1.,0.);  
@@ -186,7 +186,7 @@ void plot_HE(TString  inputfile="HE_ref.root",
   // Special : Longitudinal profile
   h1[45] = new TH1F("h45",label1[45],20,0.,20.);
   // Etot HCAL
-  TH1F *h1[46] = new TH1F("h46",label1[46],30,0.,1.5);
+  TH1F *h1[46] = new TH1F("h46",label1[46],50,0.,1.0);
   
   for (int i = 0; i < Nhist1; i++) {
     if(i != 39)  h1[i]->Sumw2();
@@ -196,7 +196,7 @@ void plot_HE(TString  inputfile="HE_ref.root",
   for (int i = 0; i < Nhist2; i++) {
     char hname[3]; 
     sprintf(hname,"D%d",i);
-    h2[i] = new TH2F(hname,label2[i],150,0.,150.,150,0.,150.);
+    h2[i] = new TH2F(hname,label2[i],100,0.,100.,100,0.,100.);
   }
   //  h[i]->Sumw2();         // to get errors properly calculated
 
@@ -240,9 +240,12 @@ void plot_HE(TString  inputfile="HE_ref.root",
     int nJetHits =  infoJets.njethit();
     //cout << "nJetHits = " << nJetHits << endl; 
 
-    std::vector<float> rJetHits = infoJets.jethitr();
-    std::vector<float> tJetHits = infoJets.jethitt();
-    std::vector<float> eJetHits = infoJets.jethite();
+    std::vector<float> rJetHits(nJetHits);
+    rJetHits = infoJets.jethitr();
+    std::vector<float> tJetHits(nJetHits);
+    tJetHits = infoJets.jethitt();
+    std::vector<float> eJetHits(nJetHits);
+    eJetHits = infoJets.jethite();
 
     float ecalJet = infoJets.ecaljet();
     float hcalJet = infoJets.hcaljet();
@@ -278,9 +281,12 @@ void plot_HE(TString  inputfile="HE_ref.root",
     // All Jets 
 
     int                nJets  = infoJets.njet();
-    std::vector<float> jetE   = infoJets.jete();
-    std::vector<float> jetEta = infoJets.jeteta();
-    std::vector<float> jetPhi = infoJets.jetphi();
+    std::vector<float> jetE  (nJets);
+    jetE   = infoJets.jete();
+    std::vector<float> jetEta(nJets);
+    jetEta = infoJets.jeteta();
+    std::vector<float> jetPhi(nJets);
+    jetPhi = infoJets.jetphi();
 
   
     for (int j = 0; j < nJets; j++) {
@@ -315,12 +321,18 @@ void plot_HE(TString  inputfile="HE_ref.root",
     // CaloHits from PHcalValidInfoLayer  
     
     int                    nHits = infoLayer.nHit();
-    std::vector<float>    idHits = infoLayer.idHit();
-    std::vector<float>   phiHits = infoLayer.phiHit();
-    std::vector<float>   etaHits = infoLayer.etaHit();
-    std::vector<float> layerHits = infoLayer.layerHit();
-    std::vector<float>     eHits = infoLayer.eHit();
-    std::vector<float>     tHits = infoLayer.tHit();
+    std::vector<float>    idHits(nHits);
+    idHits = infoLayer.idHit();
+    std::vector<float>   phiHits(nHits);
+    phiHits = infoLayer.phiHit();
+    std::vector<float>   etaHits(nHits); 
+    etaHits = infoLayer.etaHit();
+    std::vector<float> layerHits(nHits); 
+    layerHits = infoLayer.layerHit();
+    std::vector<float>     eHits(nHits); 
+    eHits = infoLayer.eHit();
+    std::vector<float>     tHits(nHits); 
+    tHits = infoLayer.tHit();
 
     int ne = 0, nh = 0; 
     for (int j = 0; j < nHits; j++) {
@@ -361,10 +373,13 @@ void plot_HE(TString  inputfile="HE_ref.root",
     // NxN  PHcalValidInfoNxN 
     //    cout << " nIxI = " << nIxI << endl;
     int                    nIxI = infoNxN.nnxn();
-    std::vector<float>    idIxI = infoNxN.idnxn();
-    std::vector<float>     eIxI = infoNxN.enxn();
-    std::vector<float>     tIxI = infoNxN.tnxn();
- 
+    std::vector<float>    idIxI(nIxI);  
+    idIxI = infoNxN.idnxn();
+    std::vector<float>     eIxI(nIxI); 
+    eIxI  = infoNxN.enxn();
+    std::vector<float>     tIxI(nIxI); 
+    tIxI  = infoNxN.tnxn();
+    
     for (int j = 0; j < nIxI ; j++) {   // NB !!! j < nIxI
       h1[29]->Fill(eIxI[j]);
       h1[30]->Fill(tIxI[j]);
@@ -375,8 +390,10 @@ void plot_HE(TString  inputfile="HE_ref.root",
 
     // Layers and depths PHcalValidInfoLayer
     
-    std::vector<float> eLayer = infoLayer.elayer();
-    std::vector<float> eDepth = infoLayer.edepth();
+    std::vector<float> eLayer(nLayersMAX);
+    eLayer = infoLayer.elayer();
+    std::vector<float> eDepth(nDepthsMAX);
+    eDepth = infoLayer.edepth();
     
     float eTot = 0.;
 

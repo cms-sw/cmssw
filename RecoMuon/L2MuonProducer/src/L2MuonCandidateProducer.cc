@@ -26,9 +26,8 @@
 #include "RecoMuon/L2MuonProducer/src/L2MuonCandidateProducer.h"
 
 // Input and output collections
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include <string>
 
@@ -42,7 +41,7 @@ L2MuonCandidateProducer::L2MuonCandidateProducer(const ParameterSet& parameterSe
 
   // StandAlone Collection Label
   theSACollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-
+  tracksToken = consumes<reco::TrackCollection>(theSACollectionLabel);
   produces<RecoChargedCandidateCollection>();
 }
   
@@ -59,7 +58,7 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   // Take the SA container
   LogTrace(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel;
   Handle<TrackCollection> tracks; 
-  event.getByLabel(theSACollectionLabel,tracks);
+  event.getByToken(tracksToken,tracks);
 
   // Create a RecoChargedCandidate collection
   LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
@@ -70,7 +69,10 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
       Particle::Charge q = tkref->charge();
       Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
       Particle::Point vtx(tkref->vx(),tkref->vy(), tkref->vz());
-      RecoChargedCandidate cand(q, p4, vtx);
+      int pid = 13;
+      if(abs(q)==1) pid = q < 0 ? 13 : -13;
+      else LogWarning(metname) << "L2MuonCandidate has charge = "<<q;
+      RecoChargedCandidate cand(q, p4, vtx, pid);
       cand.setTrack(tkref);
       candidates->push_back(cand);
   }

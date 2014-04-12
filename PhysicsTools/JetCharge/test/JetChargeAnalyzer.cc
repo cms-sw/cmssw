@@ -4,46 +4,62 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
+#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 
-#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+
+
+//#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include <TH1.h>
 #include <string>
 
 class JetChargeAnalyzer : public edm::EDAnalyzer {
     public:
-        typedef reco::JetToFloatAssociation::Container JetChargeCollection;
+  struct JetRefCompare :
+       public std::binary_function<edm::RefToBase<reco::Jet>, edm::RefToBase<reco::Jet>, bool> {
+    inline bool operator () (const edm::RefToBase<reco::Jet> &j1,
+                             const edm::RefToBase<reco::Jet> &j2) const
+    { return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key()); }
+  };
+
+
+
+        typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
+        typedef reco::JetFloatAssociation::Container JetChargeCollection;
 
         explicit JetChargeAnalyzer(const edm::ParameterSet&);
         ~JetChargeAnalyzer() {}
 
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-        virtual void beginJob(const edm::EventSetup& iSetup);
         virtual void endJob(const edm::EventSetup& iSetup);
     private:
         // physics stuff
-        edm::InputTag         src_;
+        edm::EDGetTokenT<JetChargeCollection>         srcToken_;
+        edm::EDGetTokenT<reco::JetFlavourMatchingCollection>         jetMCSrcToken_;
         double                minET_;
-        JetFlavourIdentifier  jfi_;
         // plot stuff
         std::string           dir_;
         TH1D *charge_[12];
-        
+
+
+
+
 };
 
 const int   pdgIds[12] = {  0 ,  1 ,  -1 ,  2 ,  -2 ,  3 ,  -3 ,  4 ,  -4 ,  5 ,  -5 , 21  };
 const char* pdgs  [12] = { "?", "u", "-u", "d", "-d", "s", "-s", "c", "-c", "b", "-b", "g" };
 
 JetChargeAnalyzer::JetChargeAnalyzer(const edm::ParameterSet &iConfig) :
-        src_(iConfig.getParameter<edm::InputTag>("src")),
+        srcToken_(consumes<JetChargeCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+	jetMCSrcToken_(consumes<reco::JetFlavourMatchingCollection>(iConfig.getParameter<edm::InputTag>("jetFlavour"))),
         minET_(iConfig.getParameter<double>("minET")),
-        jfi_(iConfig.getParameter<edm::ParameterSet>("jetIdParameters")),
         dir_(iConfig.getParameter<std::string>("dir")) {
     edm::Service<TFileService> fs;
     TFileDirectory cwd = fs->mkdir(dir_.c_str());
@@ -56,26 +72,40 @@ JetChargeAnalyzer::JetChargeAnalyzer(const edm::ParameterSet &iConfig) :
 }
 
 void JetChargeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    using namespace edm; using namespace reco;
-    
-    Handle<JetChargeCollection> hJC;
-    iEvent.getByLabel(src_, hJC);
-    jfi_.readEvent(iEvent);
-    for (JetChargeCollection::const_iterator it = hJC->begin(), ed = hJC->end(); it != ed; ++it) {
-        const Jet &jet = *(it->first);
-        if (jet.et() < minET_) continue;
-        int id = jfi_.identifyBasedOnPartons(jet).mainFlavour();
-        int k;
-        for (k = 0; k < 12; k++) { if (id == pdgIds[k]) break; }
-        if (k == 12) {
-                std::cerr << "Error: jet with flavour " << id << ". !??" << std::endl;
-                continue;
-        }
-        charge_[k]->Fill(it->second);
+  using namespace edm; using namespace reco;
+
+  Handle<JetChargeCollection> hJC;
+  iEvent.getByToken(srcToken_, hJC);
+  //
+  // get jet flavour via genparticles
+  //
+  edm::Handle<JetFlavourMatchingCollection> jetMC;
+  FlavourMap flavours;
+
+  iEvent.getByToken(jetMCSrcToken_, jetMC);
+  for (JetFlavourMatchingCollection::const_iterator iter = jetMC->begin();
+       iter != jetMC->end(); iter++) {
+    unsigned int fl = abs(iter->second.getFlavour());
+    flavours.insert(FlavourMap::value_type(iter->first, fl));
+  }
+  //          for (JetChargeCollection::const_iterator it = hJC->begin(), ed = hJC->end(); it != ed; ++it) {
+  for (unsigned int i =0; i< hJC->size(); ++i){
+
+    const Jet &jet = *(hJC->key(i));
+    if (jet.et() < minET_) continue;
+    //        int id = jf_.identifyBasedOnPartons(jet).mainFlavour();
+
+    edm::RefToBase<reco::Jet> jetr = hJC->key(i);
+    int id = flavours[jetr];
+    int k;
+    for (k = 0; k < 12; k++) { if (id == pdgIds[k]) break; }
+    if (k == 12) {
+      std::cerr << "Error: jet with flavour " << id << ". !??" << std::endl;
+      continue;
     }
-    
-}
-void JetChargeAnalyzer::beginJob(const edm::EventSetup& iSetup) {
+    charge_[k]->Fill(hJC->value(i));
+  }
+
 }
 void JetChargeAnalyzer::endJob(const edm::EventSetup& iSetup) {
 }

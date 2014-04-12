@@ -4,9 +4,9 @@
 //
 
 #include "Alignment/CocoaModel/interface/ErrorCorrelationMgr.h"
-#include "Alignment/CocoaModel/interface/ErrorCorrelation.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include <cstdlib>
 
 //----------------------------------------------------------------------------
 ErrorCorrelationMgr* ErrorCorrelationMgr::theInstance = 0;

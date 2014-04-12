@@ -3,7 +3,6 @@
    Test Modules for testProductRegistry
 
    \author Stefano ARGIRO
-   \version $Id: TestPRegisterModule1.cc,v 1.6 2007/01/12 21:07:59 wmtan Exp $
    \date 19 May 2005
 */
 
@@ -17,7 +16,6 @@
 
 using namespace edm;
 
-static const char CVSId[] = "$Id: TestPRegisterModule1.cc,v 1.6 2007/01/12 21:07:59 wmtan Exp $";
 
 TestPRegisterModule1::TestPRegisterModule1(edm::ParameterSet const& p):pset_(p){
    produces<edmtest::StringProduct>();

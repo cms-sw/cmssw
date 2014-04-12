@@ -4,14 +4,12 @@
 
 /** \class DTChamberEfficiencyTask
  *  DQM Analysis of 4D DT segments, it produces plots about: <br>
- *      - single chamber efficiency 
+ *      - single chamber efficiency
  *  All histos are produced per Chamber
  *
  *  Class based on the code written by S. Lacaprara :
  *  RecoLocalMuon / DTSegment / test / DTEffAnalyzer.h
  *
- *  $Date: 2007/03/27 16:13:45 $
- *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -21,6 +19,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -31,7 +30,7 @@
 #include <map>
 #include <vector>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 
 
@@ -44,7 +43,13 @@ public:
   virtual ~DTChamberEfficiencyTask();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+
+  /// To reset the MEs
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// Endjob
   void endJob();
@@ -64,18 +69,20 @@ private:
   LocalPoint interpolate(const DTRecSegment4D& seg1,
 			 const DTRecSegment4D& seg3,
 			 const DTChamberId& MB2) const;
-  void bookHistos(DTChamberId chId); 
+  void bookHistos(DTChamberId chId);
 
 
-  DaqMonitorBEInterface* theDbe;
-  
+  DQMStore* theDbe;
+
   // Switch for verbosity
   bool debug;
-  std::string theRootFileName;
-  bool writeHisto;
-  
+  // The running mode
+  bool onlineMonitor;
+  // The analysis mode
+  bool detailedAnalysis;
+
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   edm::ParameterSet parameters;
 
@@ -90,3 +97,8 @@ private:
 
 };
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

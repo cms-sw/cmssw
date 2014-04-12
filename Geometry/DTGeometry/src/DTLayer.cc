@@ -1,7 +1,5 @@
 /** \file
  *
- *  $date   : 13/01/2006 16:43:13 CET $
- *  $Revision: $
  *  \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -25,6 +23,7 @@ DTLayer::DTLayer(DTLayerId id,
                  const DTLayerType& type,
                  const DTSuperLayer* sl) :
   GeomDetUnit(*&plane), theId(id) , theTopo(topo), theType(type) , theSL(sl){
+      setDetId(id);
 }
 
 /* Destructor */ 
@@ -42,10 +41,6 @@ const GeomDetType& DTLayer::type() const{
 
 const DTTopology& DTLayer::specificTopology() const {
   return theTopo;
-}
-
-DetId DTLayer::geographicalId() const {
-  return theId;
 }
 
 DTLayerId DTLayer::id() const {

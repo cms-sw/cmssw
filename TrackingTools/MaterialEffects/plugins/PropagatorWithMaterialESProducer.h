@@ -4,8 +4,6 @@
 /** \class PropagatorWithMaterialESProducer
  *  ESProducer for PropagatorWithMaterial.
  *
- *  $Date$
- *  $Revision$
  *  \author cerati
  */
 

@@ -1,5 +1,5 @@
-#ifndef Common_DetSetVector_h
-#define Common_DetSetVector_h
+#ifndef DataFormats_Common_DetSetVector_h
+#define DataFormats_Common_DetSetVector_h
 
 /*----------------------------------------------------------------------
 
@@ -23,7 +23,15 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.18 2007/05/24 16:35:46 paterno Exp $
+Since CMSSW 2_0_0_pre4, it is possible to skip the automatic sorting
+when creating a DetSetVector<T> from an already sorted vector<DetSet<T>>.
+If the DSV is not modified afterwards, it will no longer be sorted when
+it is inserted in the event.
+ONE NOTE OF CAUTION: it is not sufficient to to say that the vector is 
+sorted already.  In addition the sorting must have been done with the same
+criteria and obey the rules of "strict weak ordering" as will be used to
+find things in the collection.  Not insuring this leads to undefined
+behavior (usually a core dump).
 
 ----------------------------------------------------------------------*/
 
@@ -32,46 +40,26 @@ $Id: DetSetVector.h,v 1.18 2007/05/24 16:35:46 paterno Exp $
 #include <vector>
 
 #include "boost/concept_check.hpp"
-#include "boost/lambda/bind.hpp"
-#include "boost/lambda/lambda.hpp"
 #include "boost/mpl/if.hpp"
-#include "boost/type_traits.hpp"
+#include "boost/bind.hpp"
 
-#include "DataFormats/Provenance/interface/ProductID.h"
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+#include "DataFormats/Common/interface/BoolCache.h"
 
 namespace edm {
+  class ProductID;
 
   //------------------------------------------------------------
   // Forward declarations
   template <class T> class DetSetVector;
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  //------------------------------------------------------------
-  // The following template partial specialization can be removed
-  // when we move to GCC 3.4.x
-  //------------------------------------------------------------
-
-  // Partial specialization of has_postinsert_trait template for any
-  // DetSetVector<T>, regardless of T; all DetSetVector classes have
-  // post_insert.
-
-  template <class T>
-  struct has_postinsert_trait<edm::DetSetVector<T> > 
-  {
-    static bool const value = 
-      ! boost::is_base_of<edm::DoNotSortUponInsertion,T>::value;
-  };
-#endif
 
   //------------------------------------------------------------
   // Helper function, to regularize throwing of exceptions.
@@ -81,9 +69,8 @@ namespace edm {
     // Throw an edm::Exception with an appropriate message
     inline
     void _throw_range(det_id_type i) {
-      throw edm::Exception(errors::InvalidReference)
-	<< "DetSetVector::operator[] called with index not in collection;\n"
-	<< "index value: " << i;
+      Exception::throwThis(errors::InvalidReference,
+        "DetSetVector::operator[] called with index not in collection;\nindex value: ", i);
     }
   }
 
@@ -129,7 +116,14 @@ namespace edm {
     /// and then sorting the contents.
     /// N.B.: Swapping in the vector *destructively modifies the input*.
     /// Using swap here allows us to avoid copying the data.
-    explicit DetSetVector(std::vector<DetSet<T> > & input);
+    /// N.B. 2: if you set alreadySorted to true, data *must* be sorted, 
+    /// (the vector<DetSet<T>> must be ordered by detid, and each DetSet
+    /// must be ordered according to the natural "strict weak ordering" of Ts.
+    /// You *must not* modify the contents after this DSV after creation,
+    /// or you might get an undefined behavior / a core dump.
+    /// (there are some checks to assure alreadySorted is resetted if you try
+    /// to modify the DSV, but you should not count on them)
+    explicit DetSetVector(std::vector<DetSet<T> > & input, bool alreadySorted=false);
 
 
     void swap(DetSetVector& other);
@@ -153,6 +147,9 @@ namespace edm {
 
     /// Return the number of contained DetSets
     size_type size() const;
+
+   // reserve...
+   void reserve(size_t s) { _sets.reserve(s);}
 
     // Do we need a short-hand method to return the number of T
     // instances? If so, do we optimize for size (calculate on the
@@ -189,8 +186,12 @@ namespace edm {
 		  std::vector<void const*>& pointers,
 		  helper_vector& helpers) const;
 
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
+
   private:
     collection_type   _sets;
+    edm::BoolCache    _alreadySorted; 
 
     /// Sort the DetSet in order of increasing DetId.
     void _sort();
@@ -205,11 +206,11 @@ namespace edm {
 
   template <class T>
   inline
-  DetSetVector<T>::DetSetVector(std::vector<DetSet<T> > & input) :
-    _sets()
+  DetSetVector<T>::DetSetVector(std::vector<DetSet<T> > & input, bool alreadySorted) :
+    _sets(), _alreadySorted(alreadySorted)
   {
     _sets.swap(input);
-    _sort();
+    if (!alreadySorted) _sort();
   }
 
   template <class T>
@@ -217,6 +218,7 @@ namespace edm {
   void
   DetSetVector<T>::swap(DetSetVector<T>& other) {
     _sets.swap(other._sets);
+    bool tmp = _alreadySorted; _alreadySorted = other._alreadySorted; other._alreadySorted = tmp;
   }
 
   template <class T>
@@ -233,6 +235,7 @@ namespace edm {
   inline
   void
   DetSetVector<T>::insert(detset const& t) {
+    _alreadySorted = false; // we don't know if the DetSet we're adding is already sorted
     // Implementation provided by the Performance Task Force.
     _sets.insert(std::lower_bound(_sets.begin(),
 				  _sets.end(),
@@ -251,6 +254,8 @@ namespace edm {
   inline
   typename DetSetVector<T>::reference
   DetSetVector<T>::find_or_insert(det_id_type id) {
+    // NOTE: we don't have to clear _alreadySorted: the new DS is empty, 
+    //       and gets inserted in the correct place
     std::pair<iterator,iterator> p =
       std::equal_range(_sets.begin(), _sets.end(), id);
 
@@ -260,7 +265,11 @@ namespace edm {
 
     // Insert the right thing, in the right place, and return a
     // reference to the newly inserted thing.
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+    return *(_sets.emplace(p.first, id));
+#else
     return *(_sets.insert(p.first, detset(id)));
+#endif
   }
 
   template <class T>
@@ -281,6 +290,7 @@ namespace edm {
   inline
   typename DetSetVector<T>::iterator
   DetSetVector<T>::find(det_id_type id) {
+    _alreadySorted = false; // it's non const 
     std::pair<iterator,iterator> p =
       std::equal_range(_sets.begin(), _sets.end(), id);
     if (p.first == p.second) return _sets.end();
@@ -313,6 +323,7 @@ namespace edm {
   inline
   typename DetSetVector<T>::reference
   DetSetVector<T>::operator[](det_id_type i) {
+    _alreadySorted = false; // it's non const 
     // Find the right DetSet, and return a reference to it.  Throw if
     // there is none.
     iterator it = this->find(i);
@@ -335,6 +346,7 @@ namespace edm {
   inline
   typename DetSetVector<T>::iterator
   DetSetVector<T>::begin() {
+    _alreadySorted = false; // it's non const 
     return _sets.begin();
   }
 
@@ -349,6 +361,7 @@ namespace edm {
   inline
   typename DetSetVector<T>::iterator
   DetSetVector<T>::end() {
+    _alreadySorted = false; // it's non const 
     return _sets.end();
   }
 
@@ -367,14 +380,14 @@ namespace edm {
   {
     std::transform(this->begin(), this->end(),
 		   std::back_inserter(result),
-		   boost::lambda::bind(&DetSet<T>::id, 
-				       boost::lambda::_1));
+		   boost::bind(&DetSet<T>::id,_1));
   }
 
   template <class T>
   inline
   void
   DetSetVector<T>::post_insert() {
+    if (_alreadySorted) return; 
     typename collection_type::iterator i = _sets.begin();
     typename collection_type::iterator e = _sets.end();
     // For each DetSet...
@@ -430,14 +443,6 @@ namespace edm {
     a.swap(b);
   }
 
-#if ! GCC_PREREQUISITE(3,4,4)
-  // has swap function
-  template <class T>
-  struct has_swap<edm::DetSetVector<T> > {
-    static bool const value = true;
-  };
-#endif
-
 }
 
 
@@ -446,7 +451,8 @@ namespace edm {
 
   namespace refhelper {
     template<typename T>
-    struct FindForDetSetVector : public std::binary_function<const DetSetVector<T>&, std::pair<det_id_type, typename DetSet<T>::collection_type::size_type>, const T*> {
+    class FindForDetSetVector : public std::binary_function<const DetSetVector<T>&, std::pair<det_id_type, typename DetSet<T>::collection_type::size_type>, const T*> {
+    public:
       typedef FindForDetSetVector<T> self;
       typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex) {
         return &(*(iContainer.find(iIndex.first)->data.begin()+iIndex.second));
@@ -470,13 +476,13 @@ namespace edm {
     typename Vec::value_type::collection_type::size_type index=0;
     typename Vec::const_iterator itFound = iHandle->find(iDetID);
     if(itFound == iHandle->end()) {
-      throw edm::Exception(errors::InvalidReference) 
-      <<"an edm::Ref to an edm::DetSetVector was given a DetId, "<<iDetID<<", that is not in the DetSetVector";
+      Exception::throwThis(errors::InvalidReference,
+        "an edm::Ref to an edm::DetSetVector was given a DetId, ", iDetID, ", that is not in the DetSetVector");
     }
     index += (itIter- itFound->data.begin());
     if(index >= itFound->data.size()) {
-      throw edm::Exception(errors::InvalidReference) 
-      <<"an edm::Ref to a edm::DetSetVector is being made with an interator that is not part of the edm::DetSet itself";
+      Exception::throwThis(errors::InvalidReference,
+        "an edm::Ref to a edm::DetSetVector is being made with an interator that is not part of the edm::DetSet itself");
     }
     return Ref<typename HandleT::element_type,
 	       typename HandleT::element_type::value_type::value_type>

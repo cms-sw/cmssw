@@ -1,11 +1,9 @@
-#ifndef Common_EDProductfwd_h
-#define Common_EDProductfwd_h
+#ifndef DataFormats_Common_EDProductfwd_h
+#define DataFormats_Common_EDProductfwd_h
 
 /*----------------------------------------------------------------------
   
 Forward declarations of types in the EDM.
-
-$Id: EDProductfwd.h,v 1.13 2007/06/20 15:52:50 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include "boost/shared_ptr.hpp"
@@ -13,15 +11,16 @@ $Id: EDProductfwd.h,v 1.13 2007/06/20 15:52:50 paterno Exp $
 namespace edm 
 {
   class BasicHandle;
-  class EDProduct;
+  class WrapperHolder;
+  class WrapperOwningHolder;
   class EDProductGetter;
   class ProductID;
+  class OutputHandle;
   class RefCore;
 
   template <typename C, typename T, typename F> class Ref;
   template <typename T> class RefToBase;
   template <typename K> class RefBase;
-  template <typename K> class RefItem;
   template <typename T> class RefProd;
   template <typename C, typename T, typename F> class RefVector;
   template <class T> class RefToBaseVector;

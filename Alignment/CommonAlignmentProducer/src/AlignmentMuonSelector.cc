@@ -1,6 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
 
 #include "TLorentzVector.h"
 
@@ -13,6 +14,8 @@ AlignmentMuonSelector::AlignmentMuonSelector(const edm::ParameterSet & cfg) :
   applyMassPairFilter( cfg.getParameter<bool>( "applyMassPairFilter" ) ),
   nHighestPt( cfg.getParameter<int>( "nHighestPt" ) ),
   minMultiplicity ( cfg.getParameter<int>( "minMultiplicity" ) ),
+  pMin( cfg.getParameter<double>( "pMin" ) ),
+  pMax( cfg.getParameter<double>( "pMax" ) ),
   ptMin( cfg.getParameter<double>( "ptMin" ) ),
   ptMax( cfg.getParameter<double>( "ptMax" ) ),
   etaMin( cfg.getParameter<double>( "etaMin" ) ),
@@ -35,6 +38,7 @@ AlignmentMuonSelector::AlignmentMuonSelector(const edm::ParameterSet & cfg) :
   if (applyBasicCuts)
 	edm::LogInfo("AlignmentMuonSelector") 
 	  << "applying basic muon cuts ..."
+          << "\npmin,pmax:           " << pMin   << "," << pMax
 	  << "\nptmin,ptmax:         " << ptMin   << "," << ptMax 
 	  << "\netamin,etamax:       " << etaMin  << "," << etaMax
 	  << "\nphimin,phimax:       " << phiMin  << "," << phiMax
@@ -105,20 +109,31 @@ AlignmentMuonSelector::basicCuts(const Muons& muons) const
   for(Muons::const_iterator it=muons.begin();
       it!=muons.end();it++) {
     const reco::Muon* muonp=*it;
+    float p=muonp->p();
     float pt=muonp->pt();
     float eta=muonp->eta();
     float phi=muonp->phi();
-    int nhitSA = muonp->standAloneMuon()->recHitsSize();  	// standAlone Muon
-    float chi2nSA = muonp->standAloneMuon()->normalizedChi2();  // standAlone Muon
-    int nhitGB = muonp->combinedMuon()->recHitsSize(); 		// global Muon
-    float chi2nGB = muonp->combinedMuon()->normalizedChi2();	// global Muon
-    int nhitTO = muonp->track()->recHitsSize(); 		// Tracker Only
-    float chi2nTO = muonp->track()->normalizedChi2();		// Tracker Only
 
+    int nhitSA=0;float chi2nSA=9999.;
+    if(muonp->isStandAloneMuon()){
+    nhitSA = muonp->standAloneMuon()->numberOfValidHits();// standAlone Muon
+    chi2nSA = muonp->standAloneMuon()->normalizedChi2();  // standAlone Muon
+    }
+    int nhitGB=0;float chi2nGB=9999.;
+    if(muonp->isGlobalMuon()){
+    nhitGB = muonp->combinedMuon()->numberOfValidHits();// global Muon
+    chi2nGB = muonp->combinedMuon()->normalizedChi2();	// global Muon
+    }
+	int nhitTO=0;float chi2nTO=9999.;
+    if(muonp->isTrackerMuon()){
+    nhitTO = muonp->track()->numberOfValidHits(); 	// Tracker Only
+    chi2nTO = muonp->track()->normalizedChi2();		// Tracker Only
+    }
     edm::LogInfo("AlignmentMuonSelector") << " pt,eta,phi,nhitSA,chi2nSA,nhitGB,chi2nGB,nhitTO,chi2nTO: "
       <<pt<<","<<eta<<","<<phi<<","<<nhitSA<< ","<<chi2nSA<<","<<nhitGB<< ","<<chi2nGB<<","<<nhitTO<< ","<<chi2nTO;
 
-    if (pt>ptMin && pt<ptMax 
+    if (p>pMin && p<pMax
+       && pt>ptMin && pt<ptMax 
        && eta>etaMin && eta<etaMax 
        && phi>phiMin && phi<phiMax 
        && nhitSA>=nHitMinSA && nhitSA<=nHitMaxSA

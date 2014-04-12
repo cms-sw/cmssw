@@ -9,14 +9,13 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.3 2007/05/25 16:37:58 saout Exp $
 //
 
 #include <algorithm>
 #include <vector>
 
 #include "PhysicsTools/MVAComputer/interface/ProcessRegistry.h"
-#include "PhysicsTools/MVAComputer/interface/Calibration.h"
+#include "PhysicsTools/MVAComputer/interface/CalibrationFwd.h"
 #include "PhysicsTools/MVAComputer/interface/Variable.h"
 #include "PhysicsTools/MVAComputer/interface/BitSet.h"
 
@@ -68,9 +67,7 @@ class VarProcessor :
 
 		struct Context { virtual ~Context() {} };
 
-		ConfigCtx(unsigned int nVars) :
-			configs(nVars, Config(Variable::FLAG_ALL, 1)),
-			loop(0), ctx(0) {}
+		ConfigCtx(const std::vector<Variable::Flags>& flags);
 		~ConfigCtx() { delete ctx; }
 
 		inline size_type size() const { return configs.size(); }
@@ -104,12 +101,21 @@ class VarProcessor :
 		eval(iter, nInputVars);
 	}
 
+	/// run the processor evaluation pass on this processor and compute derivatives
+	void deriv(double *input, int *conf, double *output, int *outConf,
+	           int *loop, unsigned int offset, unsigned int in,
+	           unsigned int out, std::vector<double> &deriv) const;
+
 	enum LoopStatus { kStop, kNext, kReset, kSkip };
 
 	virtual LoopStatus loop(double *output, int *outConf,
 	                        unsigned int nOutput,
 	                        unsigned int &nOffset) const
 	{ return kStop; }
+
+   //used to create a PluginFactory
+	struct Dummy {};
+   typedef Dummy* PluginFunctionPrototype();
 
     protected:
 	/** \class ConfIterator
@@ -138,6 +144,10 @@ class VarProcessor :
 		/// add a new output variable that inherits values from \a origin
 		ConfIterator &operator << (const ConfIterator &origin)
 		{ return *this << Config(config[origin.cur()].mask, origin.cur()); }
+
+		/// return the current input variable flags
+		Variable::Flags operator * () const
+		{ return config[cur()].mask; }
 
 		/// test for end of iterator
 		inline operator bool() const { return cur; }
@@ -176,6 +186,9 @@ class VarProcessor :
 
 		/// end of value array for current input variable
 		inline double *end() const { return values + size(); }
+
+		/// checks for existence of values for current input variable
+		inline bool empty() const { return begin() == end(); }
 
 		/// the (first or only) value for the current input variable
 		inline double operator * ()
@@ -273,6 +286,11 @@ class VarProcessor :
 	/// virtual evaluation method, implemented in actual processor
 	virtual void eval(ValueIterator iter, unsigned int n) const = 0;
 
+	/// virtual derivative evaluation method, implemented in actual processor
+	virtual std::vector<double> deriv(ValueIterator iter,
+	                                  unsigned int n) const
+	{ return std::vector<double>(); }
+
     protected:
 	const MVAComputer	*computer;
 
@@ -282,6 +300,12 @@ class VarProcessor :
 	unsigned int		nInputVars;
 };
 
+template<>
+VarProcessor *ProcessRegistry<VarProcessor, Calibration::VarProcessor,
+                              const MVAComputer>::Factory::create(
+	const char*, const Calibration::VarProcessor*, const MVAComputer*);
+
 } // namespace PhysicsTools
+
 
 #endif // PhysicsTools_MVAComputer_VarProcessor_h

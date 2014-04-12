@@ -6,8 +6,11 @@
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdator.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 /// Abstract base class for updators for the KalmanAlignmentAlgorithm.
 
+class MagneticField;
 
 class KalmanAlignmentUpdator
 {
@@ -24,7 +27,8 @@ public:
   virtual void process( const ReferenceTrajectoryPtr & trajectory,
 			AlignmentParameterStore* store,
 			AlignableNavigator* navigator,
-			KalmanAlignmentMetricsUpdator* metrics ) = 0;
+			KalmanAlignmentMetricsUpdator* metrics,
+			const MagneticField* magField = 0 ) = 0;
 
   virtual KalmanAlignmentUpdator* clone( void ) const = 0;
 
@@ -35,8 +39,11 @@ protected:
 
   /// Returns the Alignables associated with the AlignableDets. If two or more AlignableDets are assiocated
   /// to the same Alignable, the Alignable is returned only once.
-  const std::vector< Alignable* > alignablesFromAlignableDets( const std::vector< AlignableDetOrUnitPtr >& alignableDets,
-							       AlignmentParameterStore* store ) const;
+  virtual const std::vector< Alignable* >
+  alignablesFromAlignableDets( std::vector< AlignableDetOrUnitPtr >& alignableDets,
+			       AlignmentParameterStore* store ) const;
+
+  unsigned int nDifferentAlignables( const std::vector<Alignable*>& ali ) const;
 
 };
 

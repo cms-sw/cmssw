@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/05/07 16:16:39 $
- *  $Revision: 1.3 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 060906
  */
@@ -18,33 +16,47 @@
 #include <EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h>
 #include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
 
 using namespace std;
+using namespace edm;
 
-DTDDUUnpacker::DTDDUUnpacker(const edm::ParameterSet& ps) : pset(ps) { 
+DTDDUUnpacker::DTDDUUnpacker(const edm::ParameterSet& ps) : dduPSet(ps) { 
   
-  ros25Unpacker = new DTROS25Unpacker(ps);
+  // the ROS unpacker
+  ros25Unpacker = new DTROS25Unpacker(dduPSet.getParameter<edm::ParameterSet>("rosParameters"));
+  
+  // parameters
+  localDAQ = dduPSet.getUntrackedParameter<bool>("localDAQ",false);
+  performDataIntegrityMonitor = dduPSet.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
+  debug = dduPSet.getUntrackedParameter<bool>("debug",false);
 
-  if(pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)){
-    dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
+  // enable DQM if Service is available
+  if(performDataIntegrityMonitor) {
+    if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
+      dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
+    } else {
+      LogWarning("DTRawToDigi|DTDDUUnpacker") << 
+	"[DTDDUUnpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
+      performDataIntegrityMonitor = false;
+    }
   }
-
-  debug = pset.getUntrackedParameter<bool>("debugMode",false);
 
 }
 
+
 DTDDUUnpacker::~DTDDUUnpacker() {
   delete ros25Unpacker;
-  
 }
 
 
 void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 				     int dduID,
 				     edm::ESHandle<DTReadOutMapping>& mapping, 
-				     std::auto_ptr<DTDigiCollection>& product,
-				     std::auto_ptr<DTLocalTriggerCollection>& product2,
+				     std::auto_ptr<DTDigiCollection>& detectorProduct,
+				     std::auto_ptr<DTLocalTriggerCollection>& triggerProduct,
 				     uint16_t rosList) {
 
   // Definitions
@@ -52,7 +64,6 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   const int wordSize_64 = 8;
 
   int numberOf32Words = datasize/wordSize_32;
-//  int numberOf64Words = datasize/wordSize_64;
 
   const unsigned char* index8 = reinterpret_cast<const unsigned char*>(index32);
 
@@ -63,32 +74,37 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 
   // DDU header
   FEDHeader dduHeader(index8);
-  if (debug) {  
-    cout<<"[DTDDUUnpacker]: FED Header candidate. Is header? "<< dduHeader.check();
-    if (dduHeader.check())
-      cout <<". BXID: "<<dduHeader.bxID()
-	   <<" L1ID: "<<dduHeader.lvl1ID()<<endl;
-    else cout<<" WARNING!, this is not a DDU Header"<<endl;
+  if (dduHeader.check()) {
+    if(debug) cout << "[DTDDUUnpacker] FED Header. BXID: "<<dduHeader.bxID()
+		   << " L1ID: "<<dduHeader.lvl1ID() <<endl;
+  } else {
+    LogWarning("DTRawToDigi|DTDDUUnpacker") << "[DTDDUUnpacker] WARNING!, this is not a DDU Header, FED ID: "
+					    << dduID << endl;
   }
 
   // DDU trailer
   // [BITS] stop before FED trailer := 8 bytes
   FEDTrailer dduTrailer(index8 + datasize - 1*wordSize_64); 
-  if (debug)  {
-    cout<<"[DTDDUUnpacker]: FED Trailer candidate. Is trailer? "<<dduTrailer.check();
-    if (dduTrailer.check()) 
-      cout<<". Lenght of the DT event: "<<dduTrailer.lenght()<<endl;
-    else cout<<" WARNING!, this is not a DDU Trailer"<<endl;
+
+  if (dduTrailer.check()) {
+    if(debug) cout << "[DTDDUUnpacker] FED Trailer. Lenght of the DT event: "
+		   << dduTrailer.lenght() << endl;
+  } else {
+    LogWarning("DTRawToDigi|DTDDUUnpacker") << "[DTDDUUnpacker] WARNING!, this is not a DDU Trailer, FED ID: "
+					    << dduID << endl;
   }
+
 
   // Control DDU data
   DTDDUData controlData(dduHeader,dduTrailer);
+  // check the CRC set in the FED trailer (FCRC errors)
+  controlData.checkCRCBit(index8 + datasize - 1*wordSize_64);
 
   // Check Status Words 
   vector<DTDDUFirstStatusWord> rosStatusWords;
   // [BITS] 3 words of 8 bytes + "rosId" bytes
   // In the case we are reading from DMA, the status word are swapped as the ROS data
-  if (pset.getUntrackedParameter<bool>("isRaw",false)) {
+  if (localDAQ) {
     // DDU channels from 1 to 4
     for (int rosId = 0; rosId < 4; rosId++ ) {
       int wordIndex8 = numberOf32Words*wordSize_32 - 3*wordSize_64 + wordSize_32 + rosId; 
@@ -115,7 +131,7 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   int theROSList;
   // [BITS] 2 words of 8 bytes + 4 bytes (half 64 bit word)
   // In the case we are reading from DMA, the status word are swapped as the ROS data
-  if (pset.getUntrackedParameter<bool>("isRaw",false)) {
+  if (localDAQ) {
     DTDDUSecondStatusWord dduStatusWord(index32[numberOf32Words - 2*wordSize_64/wordSize_32]);
     controlData.addDDUStatusWord(dduStatusWord);
     theROSList =  dduStatusWord.rosList();
@@ -140,10 +156,10 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   datasize -= 4*wordSize_64; 
 
   // unpacking the ROS payload
-  ros25Unpacker->interpretRawData(index32, datasize, dduID, mapping, product, product2, theROSList);
+  ros25Unpacker->interpretRawData(index32, datasize, dduID, mapping, detectorProduct, triggerProduct, theROSList);
 
-  // Perform dqm if requested
-  if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
+  // Perform DQM if requested
+  if (performDataIntegrityMonitor) 
     dataMonitor->processFED(controlData, ros25Unpacker->getROSsControlData(),dduID);  
   
 }

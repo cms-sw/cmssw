@@ -17,9 +17,9 @@ PropagationDirectionChooser::operator() (const FreeTrajectoryState& fts,
   // understand the surface type (expect cylinder/plane)
   // unfortunately dynamic_cast on Sun is broken -- cannot deal with const
   // so here we get rid of const
-  Surface* sur = (Surface*)&surface;
-  const Cylinder* bc = dynamic_cast<Cylinder*>(sur);
-  const Plane* bp = dynamic_cast<Plane*>(sur);
+  const Surface* sur = (const Surface*)&surface;
+  const Cylinder* bc = dynamic_cast<const Cylinder*>(sur);
+  const Plane* bp = dynamic_cast<const Plane*>(sur);
   if (bc != 0) {
     //
     // cylinder

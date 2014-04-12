@@ -6,7 +6,6 @@
  * Declaration of class MuonDigiCollection
  *
  * \author Stefano ARGIRO
- * \version $Id: MuonDigiCollection.h,v 1.3 2005/12/02 09:27:32 argiro Exp $
  * \date 05 Aug 2005
  */
 
@@ -14,6 +13,8 @@
 #include <vector>
 #include <map>
 #include <iterator>
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 
 /**
  * \class DigiContainerIteratorAdaptor MuonDigiCollection.h "/MuonDigiCollection.h"
@@ -68,6 +69,7 @@ template <typename IndexType, typename DigiType>
 					   base_->second.end()));
     }
 
+
   private:
     BaseIterator base_;
   };
@@ -96,12 +98,14 @@ template <typename IndexType, typename DigiType>
 
 template <typename IndexType, 
 	  typename DigiType>
-
 class MuonDigiCollection {
   
 public:
 
   MuonDigiCollection(){}
+
+//  void swap(MuonDigiCollection<IndexType,DigiType> & rh) { std::swap(data_,rh.data_);}
+  void swap(MuonDigiCollection & rh) { std::swap(data_,rh.data_);}
 
   typedef typename std::vector<DigiType>::const_iterator const_iterator;
   typedef typename std::pair<const_iterator,const_iterator> Range;
@@ -121,12 +125,23 @@ public:
     
   }
  
+#ifndef CMS_NOCXX11
+  /// insert a range of digis for a  given DetUnit
+  template<typename IRange>
+  void move(IRange range, const IndexType& index){
+    std::vector<DigiType> &digis = data_[index];
+    digis.reserve (digis.size () + (range.second - range.first));
+    digis.insert(digis.end(),std::make_move_iterator(range.first), std::make_move_iterator(range.second));    
+  }
+#endif
+
+
   /// return the digis for a given DetUnit 
   Range get(const IndexType& index) const{
     typename container::const_iterator it = data_.find(index);
     if (it==data_.end()) {
       // if data_ is empty there is no other way to get an empty range
-      static std::vector<DigiType> empty;
+      static const std::vector<DigiType> empty;
       return std::make_pair(empty.end(),empty.end());
     } 
     const std::vector<DigiType>& digis = (*it).second;
@@ -150,7 +165,11 @@ private:
 
 }; // MuonDigiCollection
 
-
+template <typename IndexType,
+          typename DigiType>
+inline
+void swap(MuonDigiCollection<IndexType,DigiType> & rh,
+          MuonDigiCollection<IndexType,DigiType> & lh){ rh.swap(lh);}
 
 #endif
 

@@ -13,11 +13,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 //DataFormats
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"    
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 //RecoTracker
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
@@ -35,6 +33,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 //Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 #include <map>
 
@@ -48,24 +47,25 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
 
   virtual ~CtfSpecialSeedGenerator();//{};
 
-  virtual void beginJob(const edm::EventSetup& c);	
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;	
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;	
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   
-  void  run(const edm::EventSetup& c, 
+  bool run(const edm::EventSetup& c, 
 	    const edm::Event& e, 
             TrajectorySeedCollection& output);
 
-  void buildSeeds(const edm::EventSetup& iSetup,
+  bool buildSeeds(const edm::EventSetup& iSetup,
                   const edm::Event& e,
 		  const OrderedSeedingHits& osh,
 		  const NavigationDirection& navdir,
                   const PropagationDirection& dir,
                   TrajectorySeedCollection& output);
   //checks that the hits used are at positive y and are on different layers
-  bool preliminaryCheck(const SeedingHitSet& shs);
+  bool preliminaryCheck(const SeedingHitSet& shs, const edm::EventSetup& es);
   //We can check if the seed  points in a region covered by scintillators. To be used only in noB case
   //because it uses StraightLinePropagation
   bool postCheck(const TrajectorySeed& seed);
@@ -82,7 +82,7 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
   //PropagationDirection outInPropagationDirection;
   //GenericPairOrTripletGenerator* hitsGeneratorOutIn;
   //GenericPairOrTripletGenerator* hitsGeneratorInOut;	
-  std::vector<OrderedHitsGenerator*> theGenerators;
+  std::vector<std::unique_ptr<OrderedHitsGenerator> > theGenerators;
   std::vector<PropagationDirection> thePropDirs;
   std::vector<NavigationDirection>  theNavDirs; 
   TrackingRegionProducer* theRegionProducer;	
@@ -91,6 +91,9 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
   bool useScintillatorsConstraint;
   BoundPlane::BoundPlanePointer upperScintillator;
   BoundPlane::BoundPlanePointer lowerScintillator;
+  bool requireBOFF;
+  int32_t theMaxSeeds;
+  ClusterChecker check;
 };
 #endif
 

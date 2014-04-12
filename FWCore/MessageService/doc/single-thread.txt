@@ -1,0 +1,105 @@
+		Single-threaded MessageLogger design plan
+		-----------------------------------------
+
+		
+The key points of change are on either side of the queue:
+
+On the left:
+------------
+
+MessageLoggerQ needs to change every time it does b.commit() to a call
+to something in the scribe.  Clearly, it needs to know whetehter this is single
+or multiple threaded to make this choice.
+
+The change is to substitute runCommand(opcode, operand) for the sequence
+of creating, filling and committing the buffer for the SingleConsuerQ.
+
+There will be some commands with other slight changes as well.
+
+On the right:
+-------------
+
+MessageLoggerScribe::run()  
+
+do  {
+    MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
+
+has to become something that gets invoked directly,
+and when the break happens, the code needs to return to the 
+calling routine.  The way to do this is to break off the meat
+of that internal do loop, into a call to runCommand(opcode, operand).
+
+The remainder of changes on the "right" of the fence are in particulars
+of the specific commands.
+
+B) Notify_all() is now not going to be needed in the case of single-threaded.
+   That implies that the scribe ought to know whether it is single-treaded or 
+   not.
+
+
+On the fence:
+-------------
+
+The issue is that one must not create a separate message logger thread if
+single-thread is desired.
+
+We first have to find out which option is wanted:  Here, we "parse" the command
+line directly, because the setup of the boost parser allows for an exception,
+which we want handled by the logger.
+
+We create a SingleThreadMSPresence to substitute for the MessageServicePresence.
+
+That has been tested with the plug-in mechanism, by making it identical to the
+service it replaces, and using it against the unit tests.  Note that I had to 
+include the new one in FWCore/MessageService/plugins/Module.cc also.
+
+
+
+At this point I have started changing SingleThreadMSPresence but am at a snag:
+MessageLoggerQ wants to call MessageLoggerScribe::runCommand, but that would
+introduce a dependency of MessageLogger on MessageService.
+
+
+Resolution of the snag:
+
+When SingleThreadMSPresence is created, it was going to have to instantiate a
+MessageLoggerScribe.  However, now MessageLoggerScribe puhlicly inherits from
+AbstractMessageLoggerScribe, which is defined in the MessageLogger pacakge.
+A pointer to that AbstractMessageLoggerScribe, which has a virtual method
+runCommand(opcode, operand) is provided to MessageLoggerQ.  So now, we
+can do scribePointer->runCommand(opcode, operand) an in the implementation
+level, it is actually pointing to a true MessageLoggerScribe!
+
+
+TODO:
+
+SingleThreadMSPresence ctor
+  OK	create the (concrete) MessageLoggerScribe(true)
+  OK	supply the pointer as an AbstractMLscribe to MessageLoggerQ
+  OK	Determine if we need to instantiate MessageLoggerQ early in the 
+	    initializer list -- I don't think so, but...
+
+MessageLoggerQ
+  OK	Have place for the mlscribe_ptr
+  OK	Obtain mlscribe_ptr
+	change commit sequence to mlscribe-ptr->runCommand
+	change each of the specialized handshake commands (in tandem with MLS)
+	
+MessageLoggerScribe
+	Deal with wind-down issues - may not need code changes, but...
+	change each of the specialized handshake commands (in tandem with MLQ)
+
+MessageDrop
+	Inform MessageDrop about singleThread status
+	When single thread, don't use thread-specific singletons.
+	
+Testing
+
+
+Do we need to pre-instantiate MessageLoggerQ early in the SingleThreadMSPresence
+initializer list?  No, because before it is ever used, it will be instantiated
+by the code trying to use it.  There is no worry about interthread coherence
+in the single-thread mode. 
+
+MessageDrop is also going to have to change, since it is a thread-specific
+static.  This in turn means it needsto be invformed and so forth.

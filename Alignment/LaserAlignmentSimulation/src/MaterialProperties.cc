@@ -1,8 +1,8 @@
 /** \file MaterialProperties.cc
  *  
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/11 14:44:29 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -10,6 +10,8 @@
 #include "G4LogicalVolumeStore.hh" 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "G4SystemOfUnits.hh"
 
 	MaterialProperties::MaterialProperties(int DebugLevel, double SiAbsLengthScale) 
 	: theMaterialTable(), theMPDebugLevel(0), 
@@ -101,9 +103,8 @@ void MaterialProperties::setMaterialProperties()
 		G4double RefractiveIndexGeneral[nEntries] = { 1.0, 1.0, 1.0 };
 
 	// Absorption Length
-	G4double AbsorptionLengthSi[nEntries] = { 198.8 * micrometer, 
-		198.8 * micrometer, 
-		198.8 * micrometer };
+	// G4double AbsorptionLengthSi[nEntries] = { 198.8 * micrometer, 198.8 * micrometer, 198.8 * micrometer }; ///////////////////////////////////
+	G4double AbsorptionLengthSi[nEntries] = { 1136 * micrometer, 1136 * micrometer, 1136 * micrometer };
 
 	G4double AbsorptionLengthSiBarrel[nEntries] = { 0.1 * fermi, 
 		0.1 * fermi, 

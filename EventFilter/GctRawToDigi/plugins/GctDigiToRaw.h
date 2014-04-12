@@ -16,7 +16,6 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctDigiToRaw.h,v 1.3 2007/07/11 19:46:13 jbrooke Exp $
 //
 //
 
@@ -29,11 +28,11 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockPacker.h"
+#include "EventFilter/GctRawToDigi/src/GctFormatTranslateMCLegacy.h"
 
 //
 // class decleration
@@ -45,7 +44,7 @@ class GctDigiToRaw : public edm::EDProducer {
   ~GctDigiToRaw();
   
  private: // methods
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -53,21 +52,25 @@ class GctDigiToRaw : public edm::EDProducer {
 
  private:  // members
 
-  // print out for each event
-  bool verbose_;
-
   // input tags
   edm::InputTag rctInputLabel_;
   edm::InputTag gctInputLabel_;
 
+  // pack flags
+  bool packRctEm_;
+  bool packRctCalo_;
+
   // FED numbers
   int fedId_;            
+
+  // print out for each event
+  bool verbose_;
 
   // counter events
   int counter_;          
   
   // digi to block converter
-  GctBlockPacker blockPacker_;
+  GctFormatTranslateMCLegacy formatTranslator_;
 
 };
 

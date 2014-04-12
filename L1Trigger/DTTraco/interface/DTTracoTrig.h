@@ -7,8 +7,6 @@
  *   which allow algorithm debugging
  *
  *
- *   $Date: 2004/07/09 17:14:41 $
- *   $Revision: 1.11 $
  *
  *   \author C. Grandi, S. Vanini
  */

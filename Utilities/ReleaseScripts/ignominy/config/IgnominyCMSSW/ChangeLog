@@ -1,0 +1,18 @@
+2006-04-18  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* path.conf: reject the searching/parsing of the files in Documentation
+	directory.
+
+2006-04-18  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* path.conf: reject the searching/parsing of the files in test or bin
+	directories.
+
+2005-08-17  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* searchPath: Fixed for CLASS tyep test and BINARY to generate unique
+	names.
+
+2005-06-03  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* newly added package for CMSSW project.

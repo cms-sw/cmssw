@@ -5,8 +5,6 @@
 //   Description: DTTrackFinder parameters for L1MuDTTrackFinder
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -60,7 +58,10 @@ L1MuDTTFConfig::~L1MuDTTFConfig() {}
 //--------------
 
 void L1MuDTTFConfig::setDefaults() {
-  
+
+  m_DTDigiInputTag = m_ps->getParameter<edm::InputTag>("DTDigi_Source");
+  m_CSCTrSInputTag = m_ps->getParameter<edm::InputTag>("CSCStub_Source");
+
   m_debug = true;
   m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug",0);
 
@@ -73,11 +74,17 @@ void L1MuDTTFConfig::setDefaults() {
   // set Filter for Extrapolator
   m_extTSFilter = m_ps->getUntrackedParameter<int>("Extrapolation_Filter",1);
 
+  // set switch for open LUTs usage
+  m_openLUTs = m_ps->getUntrackedParameter<bool>("Open_LUTs",false);
+
   // set switch for EX21 usage
   m_useEX21 = m_ps->getUntrackedParameter<bool>("Extrapolation_21",false);
 
   // set switch for eta track finder usage
   m_etaTF = m_ps->getUntrackedParameter<bool>("EtaTrackFinder",true);
+
+  // set switch for etaFlag cancellation of CSC segments
+  m_etacanc = m_ps->getUntrackedParameter<bool>("CSC_Eta_Cancellation",false);
 
   // set Filter for Out-of-time Track Segments
   m_TSOutOfTimeFilter = m_ps->getUntrackedParameter<bool>("OutOfTime_Filter",false);
@@ -92,7 +99,7 @@ void L1MuDTTFConfig::setDefaults() {
   m_NbitsPtaPhib = m_ps->getUntrackedParameter<int>("PT_Assignment_nbits_PhiB",10);
 
   // set precision for phi-assignment look-up tables
-  m_NbitsPhiPhi  = m_ps->getUntrackedParameter<int>("PHI_Assignment_nbits_Phi", 12);
+  m_NbitsPhiPhi  = m_ps->getUntrackedParameter<int>("PHI_Assignment_nbits_Phi", 10);
   m_NbitsPhiPhib = m_ps->getUntrackedParameter<int>("PHI_Assignment_nbits_PhiB",10);
 
   if ( Debug(1) ) cout << endl;
@@ -101,6 +108,10 @@ void L1MuDTTFConfig::setDefaults() {
   if ( Debug(1) ) cout << "*******************************************" << endl;
   if ( Debug(1) ) cout << endl;
   
+  if ( Debug(1) ) cout << "L1 barrel Track Finder : DT Digi Source:  " <<  m_DTDigiInputTag << endl;
+  if ( Debug(1) ) cout << "L1 barrel Track Finder : CSC Stub Source: " <<  m_CSCTrSInputTag << endl;
+  if ( Debug(1) ) cout << endl;
+
   if ( Debug(1) ) cout << "L1 barrel Track Finder : debug level: " << m_dbgLevel << endl;
 
   if ( Debug(1) && m_overlap ) {
@@ -115,6 +126,13 @@ void L1MuDTTFConfig::setDefaults() {
 
   if ( Debug(1) ) cout << "L1 barrel Track Finder : Extrapolation Filter : " << m_extTSFilter << endl;
 
+  if ( Debug(1) && m_openLUTs) {
+    cout << "L1 barrel Track Finder : use open LUTs : on" << endl;
+  }
+  if ( Debug(1) && !m_openLUTs) {
+    cout << "L1 barrel Track Finder : use open LUTs : off" << endl;
+  }
+
   if ( Debug(1) && m_useEX21 ) {
     cout << "L1 barrel Track Finder : use EX21 extrapolations : on" << endl;
   }
@@ -127,6 +145,13 @@ void L1MuDTTFConfig::setDefaults() {
   }
   if ( Debug(1) && !m_etaTF ) {
     cout << "L1 barrel Track Finder : Eta Track Finder : off" << endl;
+  }
+
+  if ( Debug(1) && m_etacanc ) {
+    cout << "L1 barrel Track Finder : CSC etaFlag cancellation : on" << endl;
+  }
+  if ( Debug(1) && !m_etacanc ) {
+    cout << "L1 barrel Track Finder : CSC etaFlag cancellation : off" << endl;
   }
 
   if ( Debug(1) && m_TSOutOfTimeFilter ) {
@@ -149,19 +174,24 @@ void L1MuDTTFConfig::setDefaults() {
 
 // static data members
 
+edm::InputTag L1MuDTTFConfig::m_DTDigiInputTag = edm::InputTag();
+edm::InputTag L1MuDTTFConfig::m_CSCTrSInputTag = edm::InputTag();
+
 bool L1MuDTTFConfig::m_debug = false;
-int L1MuDTTFConfig::m_dbgLevel = -1;
+int  L1MuDTTFConfig::m_dbgLevel = -1;
 bool L1MuDTTFConfig::m_overlap = true;
-int L1MuDTTFConfig::m_BxMin = -9;
-int L1MuDTTFConfig::m_BxMax =  7;
-int L1MuDTTFConfig::m_extTSFilter  = 1;
+int  L1MuDTTFConfig::m_BxMin = -9;
+int  L1MuDTTFConfig::m_BxMax =  7;
+int  L1MuDTTFConfig::m_extTSFilter  = 1;
+bool L1MuDTTFConfig::m_openLUTs  = false;
 bool L1MuDTTFConfig::m_useEX21 = false;
 bool L1MuDTTFConfig::m_etaTF = true;
+bool L1MuDTTFConfig::m_etacanc = false;
 bool L1MuDTTFConfig::m_TSOutOfTimeFilter = false;
-int L1MuDTTFConfig::m_TSOutOfTimeWindow = 1;
-int L1MuDTTFConfig::m_NbitsExtPhi  = 8; 
-int L1MuDTTFConfig::m_NbitsExtPhib = 8;
-int L1MuDTTFConfig::m_NbitsPtaPhi  = 12; 
-int L1MuDTTFConfig::m_NbitsPtaPhib = 10;
-int L1MuDTTFConfig::m_NbitsPhiPhi  = 12; 
-int L1MuDTTFConfig::m_NbitsPhiPhib = 10;
+int  L1MuDTTFConfig::m_TSOutOfTimeWindow = 1;
+int  L1MuDTTFConfig::m_NbitsExtPhi  = 8; 
+int  L1MuDTTFConfig::m_NbitsExtPhib = 8;
+int  L1MuDTTFConfig::m_NbitsPtaPhi  = 12; 
+int  L1MuDTTFConfig::m_NbitsPtaPhib = 10;
+int  L1MuDTTFConfig::m_NbitsPhiPhi  = 10; 
+int  L1MuDTTFConfig::m_NbitsPhiPhib = 10;

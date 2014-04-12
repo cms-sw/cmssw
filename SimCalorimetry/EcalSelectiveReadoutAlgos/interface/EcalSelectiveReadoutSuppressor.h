@@ -6,17 +6,21 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+
 #include <memory>
 
 class EcalSelectiveReadoutSuppressor{
 public:
   /** Construtor.
-   * @param params configuration
+   * @param params configuration from python file
+   * @param settings configuration from condition DB
    */
-  EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params);
+  EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params, const EcalSRSettings* settings);
   
   enum {BARREL, ENDCAP};
 
@@ -30,6 +34,12 @@ public:
    */
   void setTriggerMap(const EcalTrigTowerConstituentsMap * map);
 
+  /** Set the ECAL electronics mapping
+   * @param map the ECAL electronics map
+   */
+  void setElecMap(const EcalElectronicsMapping * map);
+
+  
   /** Sets the geometry of the calorimeters
    */
   void setGeometry(const CaloGeometry * caloGeometry);
@@ -51,19 +61,23 @@ public:
    * @param trigPrims the ECAL trigger primitives used as input to the SR.
    * @param barrelDigis the input EB digi collection
    * @param endcapDigis the input EE digi collection
-   * @param selectedBarrelDigis [out] the EB digi passing the SR
-   * @param selectedEndcapDigis [out] the EE digi passing the SR
-   * @param ebSrFlags [out] the computed SR flags for EB
-   * @param eeSrFlags [out] the computed SR flags for EE
+   * @param selectedBarrelDigis [out] the EB digi passing the SR. Pointer to
+   *        the collection to fill. If null, no collection is filled.
+   * @param selectedEndcapDigis [out] the EE digi passing the SR. Pointer to
+   *        the collection to fill. If null, no collection is filled.
+   * @param ebSrFlags [out] the computed SR flags for EB. Pointer to
+   *        the collection to fill. If null, no collection is filled.
+   * @param eeSrFlags [out] the computed SR flags for EE. Pointer to
+   *        the collection to fill. If null, no collection is filled.
    */
   void run(const edm::EventSetup& eventSetup,
 	   const EcalTrigPrimDigiCollection & trigPrims,
            const EBDigiCollection & barrelDigis,
            const EEDigiCollection & endcapDigis,
-           EBDigiCollection & selectedBarrelDigis,
-           EEDigiCollection & selectedEndcapDigis,
-	   EBSrFlagCollection& ebSrFlags,
-	   EESrFlagCollection& eeSrFlags);
+           EBDigiCollection* selectedBarrelDigis,
+           EEDigiCollection* selectedEndcapDigis,
+	   EBSrFlagCollection* ebSrFlags,
+	   EESrFlagCollection* eeSrFlags);
 
   /** For debugging purposes.
    */
@@ -177,14 +191,14 @@ public:
   double frame2Energy(const T& frame, int timeOffset = 0) const;
 
 
-  /** Help function to get SR flag from ZS threshold using min/max convention
-   * for SUPPRESS and FULL_READOUT: see zsThreshold.
-   * @param thr ZS threshold in thrUnit
-   * @param flag for Zero suppression: EcalSrFlag::SRF_ZS1 or
-   * EcalSrFlag::SRF_ZS2
-   * @return the SR flag
-   */
-  int thr2Srf(int thr, int zsFlag) const;
+//   /** Help function to get SR flag from ZS threshold using min/max convention
+//    * for SUPPRESS and FULL_READOUT: see zsThreshold.
+//    * @param thr ZS threshold in thrUnit
+//    * @param flag for Zero suppression: EcalSrFlag::SRF_ZS1 or
+//    * EcalSrFlag::SRF_ZS2
+//    * @return the SR flag
+//    */
+//   int thr2Srf(int thr, int zsFlag) const;
   
   /** Number of endcap, obviously two.
    */
@@ -234,7 +248,11 @@ public:
 
   /** DCC zero suppression FIR filter uncalibrated normalized weigths
    */
-  std::vector<double> weights;
+  std::vector<float> weights;
+
+  /** Flag to use a symetric zero suppression (cut on absolute value)
+   */
+  bool symetricZS;
   
   /** Zero suppresion threshold for the ECAL expressed in ebThrUnit and
    * eeThrUnit. Set to numeric_limits<int>::min() for FULL READOUT and
@@ -242,7 +260,7 @@ public:
    * First index: 0 for barrel, 1 for endcap
    * 2nd index: channel interest (see EcalSelectiveReadout::towerInterest_t
    */
-  int zsThreshold[2][4];
+  int zsThreshold[2][8];
 
   /** Internal unit for Zero Suppression threshold (1/4th ADC count) used by
    * the FIR.
@@ -254,6 +272,24 @@ public:
    */
   bool trigPrimBypass_;
 
+  /** Mode selection for "Trig bypass" mode
+   * 0: TT thresholds applied on sum of crystal Et's
+   * 1: TT thresholds applies on compressed Et from Trigger primitive
+   * @see trigPrimByPass_ switch
+   */
+  int trigPrimBypassMode_;
+
+  /** SR flag (low interest/single/neighbor/center) to action flag
+   * (suppress, ZS1, ZS2, FRO) map.
+   */
+  std::vector<int> actions_;
+  
+  /** Switch to applies trigPrimBypassLTH_ and trigPrimBypassHTH_ thresholds
+   * on TPG compressed ET instead of using flags from TPG: trig prim bypass mode
+   * 1.
+   */
+  bool ttThresOnCompressedEt_;
+  
   /** When in trigger primitive simulation module bypass debug mode,
    * switch to enable Peak finder effect simulation
    */
@@ -269,11 +305,21 @@ public:
    */
   double trigPrimBypassHTH_;
 
+
   /** Maps RU interest flag (low interest, single neighbour, center) to
    * Selective readout action flag (type of readout).
    * 1st index: 0 for barrel, 1 for endcap
-   * 2nd index: RU interest (low, single, neighbour, center)
+   * 2nd index: RU interest (low, single, neighbour, center,
+   *                         forced low, forced single...)
    */
-  int srFlags[2][4];
+  int srFlags[2][8];
+
+  /** Default TTF to substitute if absent from the trigger primitive collection
+   */
+  EcalSelectiveReadout::ttFlag_t defaultTtf_;
+
+  /** Number of produced events
+   */
+  int ievt_;
 };
 #endif

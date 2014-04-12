@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/22 12:46:52 $
- *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,12 +13,13 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <sstream>
 
 //-------------------
 // Initializations --
@@ -31,12 +30,18 @@
 // Constructors --
 //----------------
 DTPerformance::DTPerformance():
-  dataVersion( " " ) {
+  dataVersion( " " ),
+  nsPerCount(0.0),
+  dBuf(new DTBufferTree<int,int>) {
+  dataList.reserve( 1000 );
 }
 
 
 DTPerformance::DTPerformance( const std::string& version ):
-  dataVersion( version ) {
+  dataVersion( version ),
+  nsPerCount(0.0),
+  dBuf(new DTBufferTree<int,int>)  {
+  dataList.reserve( 1000 );
 }
 
 
@@ -77,52 +82,37 @@ DTPerformanceId::~DTPerformanceId() {
 //--------------
 // Operations --
 //--------------
-bool DTPerformanceCompare::operator()( const DTPerformanceId& idl,
-                                       const DTPerformanceId& idr ) const {
-  if ( idl.  wheelId < idr.  wheelId ) return true;
-  if ( idl.  wheelId > idr.  wheelId ) return false;
-  if ( idl.stationId < idr.stationId ) return true;
-  if ( idl.stationId > idr.stationId ) return false;
-  if ( idl. sectorId < idr. sectorId ) return true;
-  if ( idl. sectorId > idr. sectorId ) return false;
-  if ( idl.     slId < idr.     slId ) return true;
-  if ( idl.     slId > idr.     slId ) return false;
-  return false;
-}
+int DTPerformance::get( int   wheelId,
+                        int stationId,
+                        int  sectorId,
+                        int      slId,
+                        float& meanT0,
+                        float& meanTtrig,
+                        float& meanMtime,
+                        float& meanNoise,
+                        float& meanAfterPulse,
+                        float& meanResolution,
+                        float& meanEfficiency,
+                        DTTimeUnits::type unit ) const {
 
-
-int DTPerformance::slPerformance( int   wheelId,
-                                  int stationId,
-                                  int  sectorId,
-                                  int      slId,
-                                  float& meanT0,
-                                  float& meanTtrig,
-                                  float& meanMtime,
-                                  float& meanNoise,
-                                  float& meanAfterPulse,
-                                  float& meanResolution,
-                                  float& meanEfficiency,
-                                  DTTimeUnits::type unit ) const {
-
-  meanT0         = 0.0;
-  meanTtrig      = 0.0;
-  meanMtime      = 0.0;
-  meanNoise      = 0.0;
-  meanAfterPulse = 0.0;
-  meanResolution = 0.0;
+  meanT0         =
+  meanTtrig      =
+  meanMtime      =
+  meanNoise      =
+  meanAfterPulse =
+  meanResolution =
   meanEfficiency = 0.0;
 
-  DTPerformanceId key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
-  std::map<DTPerformanceId,
-           DTPerformanceData,
-           DTPerformanceCompare>::const_iterator iter = slData.find( key );
-
-  if ( iter != slData.end() ) {
-    const DTPerformanceData& data = iter->second;
+  std::vector<int> chanKey;
+  chanKey.reserve(4);
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  if ( !searchStatus ) {
+    const DTPerformanceData& data( dataList[ientry].second );
     meanT0         = data.meanT0;
     meanTtrig      = data.meanTtrig;
     meanMtime      = data.meanMtime;
@@ -135,34 +125,34 @@ int DTPerformance::slPerformance( int   wheelId,
       meanTtrig *= nsPerCount;
       meanMtime *= nsPerCount;
     }
-    return 0;
   }
-  return 1;
+
+  return searchStatus;
 
 }
 
 
-int DTPerformance::slPerformance( const DTSuperLayerId& id,
-                                  float& meanT0,
-                                  float& meanTtrig,
-                                  float& meanMtime,
-                                  float& meanNoise,
-                                  float& meanAfterPulse,
-                                  float& meanResolution,
-                                  float& meanEfficiency,
-                                  DTTimeUnits::type unit ) const {
-  return slPerformance( id.wheel(),
-                        id.station(),
-                        id.sector(),
-                        id.superLayer(),
-                        meanT0,
-                        meanTtrig,
-                        meanMtime,
-                        meanNoise,
-                        meanAfterPulse,
-                        meanResolution,
-                        meanEfficiency,
-                        unit );
+int DTPerformance::get( const DTSuperLayerId& id,
+                        float& meanT0,
+                        float& meanTtrig,
+                        float& meanMtime,
+                        float& meanNoise,
+                        float& meanAfterPulse,
+                        float& meanResolution,
+                        float& meanEfficiency,
+                        DTTimeUnits::type unit ) const {
+  return get( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              meanT0,
+              meanTtrig,
+              meanMtime,
+              meanNoise,
+              meanAfterPulse,
+              meanResolution,
+              meanEfficiency,
+              unit );
 }
 
 
@@ -183,23 +173,24 @@ std::string& DTPerformance::version() {
 
 
 void DTPerformance::clear() {
-  slData.clear();
+  dataList.clear();
+  initialize();
   return;
 }
 
 
-int DTPerformance::setSLPerformance( int   wheelId,
-                                     int stationId,
-                                     int  sectorId,
-                                     int      slId,
-                                     float meanT0,
-                                     float meanTtrig,
-                                     float meanMtime,
-                                     float meanNoise,
-                                     float meanAfterPulse,
-                                     float meanResolution,
-                                     float meanEfficiency,
-                                     DTTimeUnits::type unit ) {
+int DTPerformance::set( int   wheelId,
+                        int stationId,
+                        int  sectorId,
+                        int      slId,
+                        float meanT0,
+                        float meanTtrig,
+                        float meanMtime,
+                        float meanNoise,
+                        float meanAfterPulse,
+                        float meanResolution,
+                        float meanEfficiency,
+                        DTTimeUnits::type unit ) {
 
   if ( unit == DTTimeUnits::ns ) {
     meanT0    /= nsPerCount;
@@ -207,17 +198,20 @@ int DTPerformance::setSLPerformance( int   wheelId,
     meanMtime /= nsPerCount;
   }
 
-  DTPerformanceId key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
+  std::vector<int> chanKey;
+  chanKey.reserve(4);
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
 
-  std::map<DTPerformanceId,
-           DTPerformanceData,
-           DTPerformanceCompare>::iterator iter = slData.find( key );
-  if ( iter != slData.end() ) {
-    DTPerformanceData& data = iter->second;
+  if ( !searchStatus ) {
+    DTPerformanceData& data( dataList[ientry].second );
+    data.meanT0         = meanT0;
+    data.meanTtrig      = meanTtrig;
+    data.meanMtime      = meanMtime;
     data.meanNoise      = meanNoise;
     data.meanAfterPulse = meanAfterPulse;
     data.meanResolution = meanResolution;
@@ -225,12 +219,23 @@ int DTPerformance::setSLPerformance( int   wheelId,
     return -1;
   }
   else {
+    DTPerformanceId key;
+    key.  wheelId =   wheelId;
+    key.stationId = stationId;
+    key. sectorId =  sectorId;
+    key.     slId =      slId;
     DTPerformanceData data;
+    data.meanT0         = meanT0;
+    data.meanTtrig      = meanTtrig;
+    data.meanMtime      = meanMtime;
     data.meanNoise      = meanNoise;
     data.meanAfterPulse = meanAfterPulse;
     data.meanResolution = meanResolution;
     data.meanEfficiency = meanEfficiency;
-    slData.insert( std::pair<const DTPerformanceId,DTPerformanceData>( key, data ) );
+    ientry = dataList.size();
+    dataList.push_back( std::pair<DTPerformanceId,DTPerformanceData>(
+                        key, data ) );
+    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }
 
@@ -239,27 +244,27 @@ int DTPerformance::setSLPerformance( int   wheelId,
 }
 
 
-int DTPerformance::setSLPerformance( const DTSuperLayerId& id,
-                                     float meanT0,
-                                     float meanTtrig,
-                                     float meanMtime,
-                                     float meanNoise,
-                                     float meanAfterPulse,
-                                     float meanResolution,
-                                     float meanEfficiency,
-                                     DTTimeUnits::type unit ) {
-  return setSLPerformance( id.wheel(),
-                           id.station(),
-                           id.sector(),
-                           id.superLayer(),
-                           meanT0,
-                           meanTtrig,
-                           meanMtime,
-                           meanNoise,
-                           meanAfterPulse,
-                           meanResolution,
-                           meanEfficiency,
-                           unit );
+int DTPerformance::set( const DTSuperLayerId& id,
+                        float meanT0,
+                        float meanTtrig,
+                        float meanMtime,
+                        float meanNoise,
+                        float meanAfterPulse,
+                        float meanResolution,
+                        float meanEfficiency,
+                        DTTimeUnits::type unit ) {
+  return set( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              meanT0,
+              meanTtrig,
+              meanMtime,
+              meanNoise,
+              meanAfterPulse,
+              meanResolution,
+              meanEfficiency,
+              unit );
 }
 
 
@@ -269,12 +274,40 @@ void DTPerformance::setUnit( float unit ) {
 
 
 DTPerformance::const_iterator DTPerformance::begin() const {
-  return slData.begin();
+  return dataList.begin();
 }
 
 
 DTPerformance::const_iterator DTPerformance::end() const {
-  return slData.end();
+  return dataList.end();
 }
 
 
+std::string DTPerformance::mapName() const {
+  std::stringstream name;
+  name << dataVersion << "_map_Performance" << this;
+  return name.str();
+}
+
+
+void DTPerformance::initialize() {
+
+  dBuf->clear();
+
+  int entryNum = 0;
+  int entryMax = dataList.size();
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
+  while ( entryNum < entryMax ) {
+
+    const DTPerformanceId& chan = dataList[entryNum].first;
+
+    chanKey.clear();
+    chanKey.push_back( chan.  wheelId );
+    chanKey.push_back( chan.stationId );
+    chanKey.push_back( chan. sectorId );
+    chanKey.push_back( chan.     slId );
+    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
+  }
+  return;
+}

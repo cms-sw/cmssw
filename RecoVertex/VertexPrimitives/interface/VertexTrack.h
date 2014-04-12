@@ -1,41 +1,52 @@
 #ifndef VertexTrack_H
 #define VertexTrack_H
 
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
+#include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
+#include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "Math/SMatrix.h"
 
 /** Track information relative to a track-to-vertex association. 
  *  The track weight corresponds to the distance 
  *  of the track to the seed position. 
  */
 
-class VertexTrack : public ReferenceCounted {
+template <unsigned int N>
+class VertexTrack GCC11_FINAL : public ReferenceCounted {
 
 public:
 
+  typedef ROOT::Math::SVector<double,N> AlgebraicVectorN;
+  typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepStd<double,N-2,N-2> > AlgebraicMatrixMM;
+  typedef ROOT::Math::SMatrix<double,3,N-2,ROOT::Math::MatRepStd<double,3,N-2> > AlgebraicMatrix3M;
+  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepSym<double,N+1> > AlgebraicSymMatrixOO;
+
+  //typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
+  typedef ReferenceCountingPointer<LinearizedTrackState<N> > RefCountedLinearizedTrackState;
+  typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
+
   /** Constructor with the linearized track data, vertex seed and weight
    */     
-  VertexTrack(const RefCountedLinearizedTrackState lt, 
-	      const VertexState v, 
+  VertexTrack(RefCountedLinearizedTrackState lt, 
+	      VertexState v, 
 	      float weight);
 
   /** Constructor with the linearized track data, vertex seed and weight
    *  and state at vertex, constrained by vertex
    */     
-  VertexTrack(const RefCountedLinearizedTrackState lt, 
-	      const VertexState v, 
+  VertexTrack(RefCountedLinearizedTrackState lt, 
+	      VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
 	      float smoothedChi2);
 
   /** Constructor with the linearized track data, vertex seed and weight
    *  and state and covariance at vertex, constrained by vertex
    */     
-  VertexTrack(const RefCountedLinearizedTrackState lt, 
-	      const VertexState v, 
+  VertexTrack(RefCountedLinearizedTrackState lt, 
+	      VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
-	      float smoothedChi2, const AlgebraicMatrix & tVCov);
+	      float smoothedChi2, const AlgebraicSymMatrixOO & fullCov);
 
   /** Access methods
    */ 
@@ -44,6 +55,7 @@ public:
   float weight() const { return theWeight; }
   bool refittedStateAvailable() const { return stAvailable; }
   bool tkToVertexCovarianceAvailable() const { return covAvailable; }
+  bool fullCovarianceAvailable() const { return covAvailable; }
 
   /**
    * The smoother track-chi2 (can be used to test the track-vertex compatibility).
@@ -63,26 +75,30 @@ public:
     return theRefittedState;
   }
 
+//   /** Track to vertex covariance 
+//    */   
+//   AlgebraicMatrix3M tkToVtxCovariance() const;
+
   /** Track to vertex covariance 
    */   
-  AlgebraicMatrix tkToVtxCovariance() const {
+  AlgebraicSymMatrixOO fullCovariance() const {
     if (!tkToVertexCovarianceAvailable()) {
       throw VertexException("VertexTrack::track to vertex covariance not available"); 
     }
-    return tkTVCovariance;
+    return fullCovariance_;
   }
 
   /** Equality for finding a VertexTrack in a container
    *  Compares the RecTrack addresses
    */
-  bool operator==(const VertexTrack & data) const
+  bool operator==(const VertexTrack<N> & data) const
   {
     return ((*data.linearizedTrack()) == (*linearizedTrack()));
   }
 
   /** Method helping Kalman vertex fit
    */
-  AlgebraicVector refittedParamFromEquation() const;
+  AlgebraicVectorN refittedParamFromEquation() const;
  
 
 private:
@@ -93,8 +109,20 @@ private:
   bool stAvailable;
   bool covAvailable;
   RefCountedRefittedTrackState theRefittedState;
-  AlgebraicMatrix  tkTVCovariance;
+  AlgebraicSymMatrixOO  fullCovariance_;
+  ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> > b6;
+  ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> > b7;
   float smoothedChi2_;
+};
+
+template <unsigned int N>
+class VertexTrackEqual {
+  public:
+    typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
+    VertexTrackEqual( const RefCountedVertexTrack & t) : track_( t ) { }
+    bool operator()( const RefCountedVertexTrack & t ) const { return t->operator==(*track_);}
+  private:
+    const RefCountedVertexTrack & track_;
 };
 
 #endif

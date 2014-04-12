@@ -23,7 +23,7 @@ namespace DDI {
     
     ~PseudoTrap(){ }
     
-    double volume() { return -1; }
+    double volume() const { return -1; }
     
     void stream(std::ostream & os) const;
   };

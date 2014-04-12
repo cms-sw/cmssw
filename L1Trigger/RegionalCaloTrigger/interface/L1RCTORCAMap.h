@@ -12,15 +12,15 @@ class L1RCTORCAMap {
   std::vector<std::vector<std::vector<unsigned short> > > giveBarrel();
   std::vector<std::vector<unsigned short> > giveHF();
 
-  void readData(std::vector<unsigned> emet, std::vector<unsigned>  hdet,
-		std::vector<bool> emfg, std::vector<bool> hdfg,
-		std::vector<unsigned> hfet);
+  void readData(const std::vector<unsigned>& emet, const std::vector<unsigned>&  hdet,
+		const std::vector<bool>& emfg, const std::vector<bool>& hdfg,
+		const std::vector<unsigned>& hfet);
 
   std::vector<int> orcamap(int eta, int phi);
 
   unsigned short combine(unsigned short et, unsigned short fg);
-  std::vector<unsigned short> combVec(std::vector<unsigned short> et,
-				 std::vector<unsigned short> fg);
+  std::vector<unsigned short> combVec(const std::vector<unsigned short>& et,
+				 const std::vector<unsigned short>& fg);
   
   void makeBarrelData();
   void makeHFData();

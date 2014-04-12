@@ -1,0 +1,123 @@
+
+What should we do next?
+(0) process the next event
+(1) will stop the loop because this is the first event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+
+What should we do next?
+(0) process the next event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+Which run?
+Which luminosity block?
+Which event?
+
+What should we do next?
+(0) process the next event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+
+What should we do next?
+(0) process the next event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+
+What should we do next?
+(0) process the next event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+Which run?
+Which luminosity block?
+Which event?
+
+What should we do next?
+(0) will stop the loop because this is the last event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+Which run?
+Which luminosity block?
+Which event?
+
+What should we do next?
+(0) process the next event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+
+What should we do next?
+(0) process the next event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+
+What should we do next?
+(0) process the next event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+Please enter numeric characters only. The value must be in the range 0 to 4 (inclusive). Please try again.
+Which run?
+Please enter numeric characters only. Please try again.
+Which luminosity block?
+Please enter numeric characters only. Please try again.
+Which event?
+Please enter numeric characters only. Please try again.
+
+What should we do next?
+(0) process the next event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+Which run?
+Which luminosity block?
+Which event?
+Event could not be found. Nothing done. Try again.
+
+What should we do next?
+(0) process the next event
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+Ending loop
+
+What should we do next?
+(0) process the next event
+(1) will stop the loop because this is the first event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+Which run?
+Which luminosity block?
+Which event?
+
+What should we do next?
+(0) process the next event if it exists (at last event in the open file. there are more files)
+(1) process the previous event
+(2) process a specific event
+(3) stop loop
+(4) stop process
+
+What should we do next?
+(0) process the next event
+(1) process the previous event if there are any (at first event in the open file. there are previous files)
+(2) process a specific event
+(3) stop loop
+(4) stop process
+Ending loop

@@ -1,4 +1,5 @@
 #include "RecoVertex/ConfigurableVertexReco/interface/ReconstructorFromFitter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -9,21 +10,30 @@ ReconstructorFromFitter::ReconstructorFromFitter ( const AbstractConfFitter & f 
 vector < TransientVertex > ReconstructorFromFitter::vertices
   ( const vector < reco::TransientTrack > & t )  const
 {
-  int verbose=1;
+  vector < TransientVertex > ret;
+  // cout << "[ReconstructorFromFitter] debug: fitting without bs!" << endl; 
+  try {
+    CachingVertex<5> tmp = theFitter->vertex ( t );
+    if ( tmp.isValid() ) ret.push_back ( tmp );
+  } catch ( VertexException & e ) {
+    edm::LogWarning("ReconstructorFromFitter") << "exception caught: " << e.what();
+  }
+  return ret;
+}
+
+vector < TransientVertex > ReconstructorFromFitter::vertices
+  ( const vector < reco::TransientTrack > & t, const reco::BeamSpot & s )  const
+{
   vector < TransientVertex > ret;
   try {
-    CachingVertex tmp = theFitter->vertex ( t );
-    ret.push_back ( tmp );
-  } catch ( exception & e ) {
-    if ( verbose )
-    {
-      cout << "[ReconstructorFromFitter] exception caught: " << e.what() << endl;
-    }
-  } catch ( ... ) {
-    if ( verbose )
-    {
-      cout << "[ReconstructorFromFitter] unidentified exception caught." << endl;
-    }
+    /*
+    cout << "[ReconstructorFromFitter] debug: fitting with s: " << s.BeamWidth() 
+         << " sz=" << s.sigmaZ() << endl;
+         */
+    CachingVertex<5> tmp = theFitter->vertex ( t, s );
+    if ( tmp.isValid() ) ret.push_back ( tmp );
+  } catch ( VertexException & e ) {
+    edm::LogWarning("ReconstructorFromFitter") << "exception caught: " << e.what();
   }
   return ret;
 }

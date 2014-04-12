@@ -16,8 +16,8 @@ public:
   void update(const BeginOfTrack * trk);
 
 private:
-  bool   suppress;
-  double pmaxIon, pmaxNeutron, pmaxProton;
+  bool   killHeavy;
+  double kmaxIon, kmaxNeutron, kmaxProton;
 };
 
 #endif

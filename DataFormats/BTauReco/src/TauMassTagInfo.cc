@@ -1,7 +1,7 @@
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/Common/interface/RefVector.h"
 
 using namespace edm;
@@ -45,7 +45,7 @@ bool reco::TauMassTagInfo::calculateTrkP4(double matching_cone,
 
   const TrackRef leadTk= isolatedTau->leadingSignalTrack(matching_cone,leading_trk_pt);
   if (!leadTk) {
-    cout <<" TauMassTagInfo::  No Leading Track !!  " << endl;    
+    std::cout <<" TauMassTagInfo::  No Leading Track !!  " << std::endl;    
     return false;
   }
   math::XYZVector momentum = (*leadTk).momentum();

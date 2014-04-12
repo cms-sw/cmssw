@@ -4,8 +4,6 @@
 /*
  * \file EcalPreshowerDigisValidation.h
  *
- * $Date: 2006/10/13 13:13:14 $
- * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -21,8 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
@@ -32,6 +29,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EcalPreshowerDigisValidation: public edm::EDAnalyzer{
 
@@ -42,29 +40,20 @@ public:
 /// Constructor
 EcalPreshowerDigisValidation(const edm::ParameterSet& ps);
 
-/// Destructor
-~EcalPreshowerDigisValidation();
-
 protected:
 
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
-
-// EndJob
-void endJob(void);
-
 private:
 
  bool verbose_;
  
- DaqMonitorBEInterface* dbe_;
+ DQMStore* dbe_;
  
  std::string outputFile_;
 
- edm::InputTag ESdigiCollection_;
+ edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
 
  MonitorElement* meESDigiMultiplicity_;
  

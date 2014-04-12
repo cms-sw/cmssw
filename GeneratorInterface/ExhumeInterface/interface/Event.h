@@ -8,14 +8,24 @@
 #include "GeneratorInterface/ExhumeInterface/interface/Weight.h"
 #include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
 
+namespace CLHEP {
+class HepRandomEngine;
+}
+
 namespace Exhume{
 
   class Event : public Weight{
 
   public:
     
-    Event(CrossSection&, const unsigned int&);
+    Event(CrossSection&, CLHEP::HepRandomEngine*);
     ~Event();
+
+    inline void SetRandomEngine(CLHEP::HepRandomEngine* engine){
+      randomEngine = engine;
+      Process->SetRandomEngine(engine);
+    }
+
     void Generate();
     inline void Setx1Max(const double &xx_){
       x1Max = xx_;
@@ -80,6 +90,7 @@ namespace Exhume{
     double x1Max, x2Max, t1Min, t1Max, t2Min, t2Max, MinMass, MaxMass;
     double tt1max, tt1min, tt2max, tt2min;
 
+    CLHEP::HepRandomEngine* randomEngine;
   };
 
 }

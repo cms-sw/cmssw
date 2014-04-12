@@ -1,0 +1,24 @@
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="clhep"/>
+<use   name="boost"/>
+<library   file="LaserAlignmentSimulation.cc" name="LaserAlignmentSimulationPlugins">
+  <use   name="Alignment/LaserAlignmentSimulation"/>
+  <use   name="SimG4Core/Notification"/>
+  <use   name="SimG4Core/Watcher"/>
+  <use   name="FWCore/PluginManager"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="LaserAlignmentProducer.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="SimDataFormats/GeneratorProducts"/>
+  <use   name="hepmc"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="LaserOpticalPhysics.cc">
+  <use   name="Alignment/LaserAlignmentSimulation"/>
+  <use   name="SimG4Core/Physics"/>
+  <use   name="SimG4Core/PhysicsLists"/>
+  <use   name="geant4core"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

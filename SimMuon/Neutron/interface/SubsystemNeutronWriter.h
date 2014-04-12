@@ -15,14 +15,17 @@
 #include <vector>
 #include <map>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "SimMuon/Neutron/src/NeutronWriter.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
-class SubsystemNeutronWriter : public edm::EDAnalyzer
+class NeutronWriter;
+
+/// doesn't have to be a producer.  Can act as an analyzer, too.
+class SubsystemNeutronWriter : public edm::EDProducer
 {
 public:
 
@@ -33,7 +36,7 @@ public:
 
   void printStats();
 
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  virtual void produce(edm::Event & e, edm::EventSetup const& c);
 
   virtual int localDetId(int globalDetId) const = 0;
 
@@ -41,27 +44,36 @@ public:
 
   virtual int chamberId(int globalDetId) const = 0;
 
+  /// decides whether this cluster is good enough to be included
+  virtual bool accept(const edm::PSimHitContainer & cluster) const = 0;
+
   /// good practice to do once for each chamber type
   void initialize(int chamberType);
 
 protected:
 
 
-  virtual void writeHits(int chamberType, edm::PSimHitContainer & allSimHits);
+  virtual void writeHits(int chamberType, edm::PSimHitContainer & chamberHits, CLHEP::HepRandomEngine*);
+
+  void writeCluster(int chamberType, const edm::PSimHitContainer & cluster);
 
   /// helper to add time offsets and local det ID
-  void adjust(PSimHit & h, float timeOffset);
+  void adjust(PSimHit & h, float timeOffset, float smearing);
 
   /// updates the counter
   void updateCount(int chamberType);
 
 private:
   NeutronWriter * theHitWriter;
+  bool useRandFlat;
   edm::InputTag theInputTag;
   double theNeutronTimeCut;
   double theTimeWindow;
+  double theT0;
   int theNEvents;
   bool initialized;
+  // true means to translate DetId into just layer number, e.g., 1-6 in CSC
+  bool useLocalDetId_;
   std::map<int, int> theCountPerChamberType;
 };
 

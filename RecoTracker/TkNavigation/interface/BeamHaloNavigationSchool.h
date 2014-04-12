@@ -14,10 +14,12 @@ public:
   
   BeamHaloNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
+  ~BeamHaloNavigationSchool(){ cleanMemory();}
 
+ protected:
   //addon to SimpleNavigationSchool
   void linkOtherEndLayers( SymmetricLayerFinder& symFinder);
-  void addInward(DetLayer * det, FDLC news);
+  void addInward(DetLayer * det, const FDLC& news);
   void addInward(DetLayer * det, ForwardDetLayer * newF);
   void establishInverseRelations();
   FDLC reachableFromHorizontal();

@@ -1,24 +1,40 @@
 #ifndef CondCore_PoolDBOutputService_h
 #define CondCore_PoolDBOutputService_h
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-//#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
-//#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/Ref.h"
-#include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
-#include "serviceCallbackRecord.h"
+#include "FWCore/Utilities/interface/TypeID.h"
+//#include "CondCore/DBCommon/interface/Logger.h"
+//#include "CondCore/DBCommon/interface/LogDBEntry.h"
+//#include "CondCore/DBCommon/interface/TagInfo.h"
+#include "CondCore/CondDB/interface/Session.h"
 #include <string>
 #include <map>
+
+//
+// Package:     DBOutputService
+// Class  :     PoolDBOutputService
+// 
+/**\class PoolDBOutputService PoolDBOutputService.h CondCore/DBOutputService/interface/PoolDBOutputService.h
+   Description: edm service for writing conditions object to DB.  
+*/
+//
+// Author:      Zhen Xie
+// Fixes and other changes: Giacomo Govi
+//
+
 namespace edm{
   class Event;
   class EventSetup;
   class ParameterSet;
 }
 namespace cond{
+  
+  inline std::string classNameForTypeId( const std::type_info& typeInfo ){
+    edm::TypeID type( typeInfo );
+    return type.className();
+  }
+  
   namespace service {
-    class serviceCallbackToken;
+
     class PoolDBOutputService{
     public:
       PoolDBOutputService( const edm::ParameterSet & iConfig, 
@@ -33,123 +49,160 @@ namespace cond{
       			       const edm::Timestamp & iTime );
       void preModule(const edm::ModuleDescription& desc);
       void postModule(const edm::ModuleDescription& desc);
+      void preBeginLumi(const edm::LuminosityBlockID&, 
+			const edm::Timestamp& );
       //
-      // return the database session in use
+      // return the database session in use ( GG: not sure this is still useful... )
       //
-      cond::DBSession& session() const;
-      std::string tag( const std::string& EventSetupRecordName );
-      bool isNewTagRequest( const std::string& EventSetupRecordName );
+      cond::persistency::Session session() const;
       //
-      // insert the payload and its valid till time into the database
-      // Note: user looses the ownership of the pointer to the payloadObj
-      // The payload object will be stored as well
-      // 
-      template<typename T>
-	void createNewIOV( T* firstPayloadObj, 
-			   cond::Time_t firstTillTime,
-			   const std::string& EventSetupRecordName
-			   ){
-	cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
-	if ( !m_dbstarted ) {
-	  this->initDB();
-	}
-	if(!myrecord.m_isNewTag) throw cond::Exception("not a new tag");
-	if ( !m_inTransaction ){
-	  m_pooldb->startTransaction(false);    
-	  m_inTransaction=true;
-	}
-	cond::Ref<T> myPayload(*m_pooldb,firstPayloadObj);
-	myPayload.markWrite(EventSetupRecordName);
-	std::string payloadToken=myPayload.token();
-	std::string iovToken=this->insertIOV(myrecord,payloadToken,firstTillTime,EventSetupRecordName);
-	m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
-	myrecord.m_isNewTag=false;
-      }
-      void createNewIOV( const std::string& firstPayloadToken, 
-			cond::Time_t firstTillTime,
-			const std::string& EventSetupRecordName );
-      template<typename T>
-	void appendTillTime( T* payloadObj, 
-			     cond::Time_t tillTime,
-			     const std::string& EventSetupRecordName
-			     ){
-	cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
-	if (!m_dbstarted) this->initDB();
-	if ( !m_inTransaction ){
-	  m_pooldb->startTransaction(false);    
-	  m_inTransaction=true;
-	}
-	cond::Ref<T> myPayload(*m_pooldb,payloadObj);
-	myPayload.markWrite(EventSetupRecordName);
-	std::string payloadToken=myPayload.token();
-	std::string iovToken=this->insertIOV(myrecord,payloadToken,tillTime,EventSetupRecordName);
-      }
-      void appendTillTime( const std::string& payloadToken, 
-			   cond::Time_t tillTime,
-			   const std::string& EventSetupRecordName
-			    );
+      std::string tag( const std::string& recordName );
+      bool isNewTagRequest( const std::string& recordName );
+      //const cond::Logger& queryLog() const;
       
-      template<typename T>
-	void appendSinceTime( T* payloadObj, 
-			      cond::Time_t sinceTime,
-			      const std::string& EventSetupRecordName ){
-	cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
-	if (!m_dbstarted) this->initDB();
-	if ( !m_inTransaction ){
-	  m_pooldb->startTransaction(false);    
-	  m_inTransaction=true;
-	}
-	cond::Ref<T> myPayload(*m_pooldb,payloadObj);
-	myPayload.markWrite(EventSetupRecordName);
-	std::string payloadToken=myPayload.token();
-	this->appendIOV(myrecord,payloadToken,sinceTime);
-      }
-      //
-      // Append the payload and its valid sinceTime into the database
-      // Note: user looses the ownership of the pointer to the payloadObj
-      // Note: the iov index appended to MUST pre-existing and the existing 
-      // conditions data are retrieved from EventSetup 
       // 
-      void appendSinceTime( const std::string& payloadToken, 
-			   cond::Time_t sinceTime,
-			   const std::string& EventSetupRecordName );
+      template<typename T>
+      void writeOne( T * payload, Time_t time, const std::string& recordName, bool withlogging=false ) {
+        if( !payload ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::writeOne");
+	if (!m_dbstarted) this->initDB( false );
+	Hash payloadId = m_session.storePayload( *payload );
+	std::string payloadType = cond::demangledName(typeid(T));
+	if (isNewTagRequest(recordName) ){
+	  createNewIOV(payloadId, payloadType, time, endOfTime(), recordName, withlogging);
+        } else {
+	  appendSinceTime(payloadId, time, recordName, withlogging);
+        }	
+      }
 
+      // close the IOVSequence setting lastTill
+      void closeIOV(Time_t lastTill, const std::string& recordName, 
+                    bool withlogging=false);
+
+      // 
+      template<typename T>
+      void createNewIOV( T* firstPayloadObj,
+			 cond::Time_t firstSinceTime,
+			 cond::Time_t firstTillTime,
+			 const std::string& recordName,
+                         bool withlogging=false){
+        if( !firstPayloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::createNewIOV");
+	if (!m_dbstarted) this->initDB( false );
+        createNewIOV( m_session.storePayload( *firstPayloadObj ),
+		      cond::demangledName(typeid(T)),
+                      firstSinceTime,
+                      firstTillTime,
+                      recordName,
+                      withlogging);	
+      }
+            
+      void createNewIOV( const std::string& firstPayloadId,
+			 const std::string payloadType, 
+                         cond::Time_t firstSinceTime,
+                         cond::Time_t firstTillTime,
+                         const std::string& recordName,
+                         bool withlogging=false);
+      
+      // this one we need to avoid to adapt client code around... to be removed in the long term!
+      void createNewIOV( const std::string& firstPayloadId,
+                         cond::Time_t firstSinceTime,
+                         cond::Time_t firstTillTime,
+                         const std::string& recordName,
+                         bool withlogging=false);
+
+      // 
+      template<typename T> void appendSinceTime( T* payloadObj,
+                                                 cond::Time_t sinceTime,
+                                                 const std::string& recordName,
+                                                 bool withlogging=false){
+        if( !payloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::appendSinceTime");
+        appendSinceTime( m_session.storePayload( *payloadObj ),
+			 sinceTime,
+			 recordName,
+			 withlogging);
+      }
+      
+      // Append the payload and its valid sinceTime into the database
+      // Note: the iov index appended to MUST pre-existing and the existing 
+      // conditions data are retrieved from the DB
+      // 
+      void appendSinceTime( const std::string& payloadId,
+                            cond::Time_t sinceTime,
+                            const std::string& recordName,
+                            bool withlogging=false);
+     
       //
-      // Service time utility callback method 
+      // Service time utility method 
       // return the infinity value according to the given timetype
-      // It is the IOV closing boundary
       //
       cond::Time_t endOfTime() const;
       //
-      // Service time utility callback method 
-      // return the current conditions time value according to the 
+      // Service time utility method 
+      // return beginning of time value according to the given timetype
+      //
+      cond::Time_t beginOfTime() const;
+      //
+      // Service time utility method 
+      // return the time value of the current edm::Event according to the 
       // given timetype
       //
       cond::Time_t currentTime() const;
-      virtual ~PoolDBOutputService();
+
+      // optional. User can inject additional information into the log associated with a given record
+      void setLogHeaderForRecord(const std::string& recordName,
+				 const std::string& provenance,
+				 const std::string& usertext);
+      // 
+      // Retrieve tag information of the data
+      // 
+      void tagInfo(const std::string& recordName,
+      		   cond::TagInfo_t& result );
+      
+      virtual ~PoolDBOutputService();  
+      
     private:
+
+      struct Record{
+	Record(): m_tag(),
+		  m_isNewTag(false),
+		  m_idName(),
+		  m_timetype(cond::runnumber),
+                  m_closeIOV(false)
+	{}
+
+	std::string timetypestr() const { return cond::timeTypeSpecs[m_timetype].name;}
+	std::string m_tag;
+	bool m_isNewTag;
+	std::string m_idName;
+	cond::TimeType m_timetype;
+        bool m_closeIOV;
+    };      
+
+
+
+      void fillRecord( edm::ParameterSet & pset);
+      
       void connect();    
       void disconnect();
-      void initDB();
-      size_t callbackToken(const std::string& EventSetupRecordName ) const ;
-      void appendIOV(cond::service::serviceCallbackRecord& record,
-		     const std::string& payloadToken, 
-		     cond::Time_t sinceTime);
-      std::string insertIOV(cond::service::serviceCallbackRecord& record,
-			    const std::string& payloadToken, 
-			    cond::Time_t tillTime, const std::string& EventSetupRecordName);
-      serviceCallbackRecord& lookUpRecord(const std::string& EventSetupRecordName);
+      void initDB( bool forReading=true );
+
+      Record & lookUpRecord(const std::string& recordName);
+      //cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
+      
     private:
+      cond::TimeType m_timetype; 
+      std::string m_timetypestr;
       cond::Time_t m_currentTime;
-      cond::DBSession* m_session;
-      cond::IOVService* m_iovservice;
-      cond::PoolStorageManager* m_pooldb;
-      cond::RelationalStorageManager* m_coraldb;
-      std::map<size_t, cond::service::serviceCallbackRecord> m_callbacks;
+
+      cond::persistency::Session m_session;
+      //std::string m_logConnectionString;
+      //std::auto_ptr<cond::Logger> m_logdb;
       bool m_dbstarted;
-      bool m_inTransaction;
-      std::vector< std::pair<std::string,std::string> > m_newtags;
-      //edm::ParameterSet m_connectionPset;
+
+      std::map<std::string, Record> m_callbacks;
+      //std::vector< std::pair<std::string,std::string> > m_newtags;
+      bool m_closeIOV;
+      //std::map<std::string, cond::UserLogInfo> m_logheaders;
+
     };//PoolDBOutputService
   }//ns service
 }//ns cond

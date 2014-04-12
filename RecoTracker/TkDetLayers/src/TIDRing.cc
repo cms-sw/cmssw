@@ -1,20 +1,20 @@
-#include "RecoTracker/TkDetLayers/interface/TIDRing.h"
+#include "TIDRing.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
 
-#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "LayerCrossingSide.h"
+#include "DetGroupMerger.h"
+#include "CompatibleDetToGroupAdder.h"
 
-#include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
+#include "TkDetUtil.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include <boost/function.hpp>
 
@@ -22,8 +22,9 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-TIDRing::TIDRing(vector<const GeomDet*>& innerDets,
-		 vector<const GeomDet*>& outerDets):
+TIDRing::TIDRing(std::vector<const GeomDet*>& innerDets,
+		 std::vector<const GeomDet*>& outerDets):
+  GeometricSearchDet(true),
   theFrontDets(innerDets.begin(),innerDets.end()), 
   theBackDets(outerDets.begin(),outerDets.end())
 {
@@ -111,44 +112,44 @@ TIDRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 		   nextResult, true); 
 
   int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
+  DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result,
 					  crossings.closestIndex(), crossingSide);
 }
 
-
+// indentical in CompositeTECWedge
 SubLayerCrossings 
 TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 			  PropagationDirection propDir) const
 {
-  double rho( startingState.transverseCurvature());
-  
+
   HelixPlaneCrossing::PositionType startPos( startingState.globalPosition() );
   HelixPlaneCrossing::DirectionType startDir( startingState.globalMomentum() );
+ 
+  auto rho = startingState.transverseCurvature();
+  
   HelixForwardPlaneCrossing crossing(startPos,startDir,rho,propDir);
-
+  
   pair<bool,double> frontPath = crossing.pathLength( *theFrontDisk);
   if (!frontPath.first) return SubLayerCrossings();
-
-  GlobalPoint gFrontPoint(crossing.position(frontPath.second));
-
-  int frontIndex = theFrontBinFinder.binIndex(gFrontPoint.phi()); 
-  SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
-
-
 
   pair<bool,double> backPath = crossing.pathLength( *theBackDisk);
   if (!backPath.first) return SubLayerCrossings();
 
+  GlobalPoint gFrontPoint(crossing.position(frontPath.second));
   GlobalPoint gBackPoint( crossing.position(backPath.second));
-  int backIndex = theBackBinFinder.binIndex(gBackPoint.phi());
+
+  int frontIndex = theFrontBinFinder.binIndex(gFrontPoint.barePhi()); 
+  SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
+
+  int backIndex = theBackBinFinder.binIndex(gBackPoint.barePhi());
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
   
   // 0ss: frontDisk has index=0, backDisk has index=1
-  float frontDist = std::abs(Geom::deltaPhi( double(gFrontPoint.barePhi()), 
-					     double(theFrontDets[frontIndex]->surface().phi())));
-  float backDist = std::abs(Geom::deltaPhi( double(gBackPoint.barePhi()), 
-					    double(theBackDets[backIndex]->surface().phi())));
+  float frontDist = std::abs(Geom::deltaPhi( gFrontPoint.barePhi(), 
+					     theFrontDets[frontIndex]->surface().phi()));
+  float backDist = std::abs(Geom::deltaPhi( gBackPoint.barePhi(), 
+					    theBackDets[backIndex]->surface().phi()));
 
 
   if (frontDist < backDist) {

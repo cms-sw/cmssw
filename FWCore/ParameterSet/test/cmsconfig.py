@@ -1,6 +1,5 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.15 2006/08/26 00:54:35 rpw Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -77,7 +76,7 @@ class printable_parameter:
             self.trackedCode = "untracked " # trailing space is needed
 
         # We need special handling of some of the parameter types.
-        if self.type in ["vbool", "vint32", "vuint32", "vdouble", "vstring", "VInputTag"]:
+        if self.type in ["vbool", "vint32", "vuint32", "vdouble", "vstring", "VInputTag", "VESInputTag"]:   
             # TODO: Consider using cStringIO, if this is observed
             # to be a bottleneck. This may happen if many large
             # vectors are used in parameter sets.

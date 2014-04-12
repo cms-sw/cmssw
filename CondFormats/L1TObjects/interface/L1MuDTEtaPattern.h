@@ -12,7 +12,7 @@
  *       (wheel: -2, -1, 0, +1, +2, position : [1,7])
  * 
  *
- *   $Date: 2007/02/27 11:44:00 $
+ *   $Date: 2008/04/09 15:22:31 $
  *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
@@ -53,7 +53,7 @@ class L1MuDTEtaPattern {
     L1MuDTEtaPattern(int id, int w1, int w2, int w3, int p1, int p2, int p3, 
                      int eta, int qual); 
 
-    L1MuDTEtaPattern(int id, std::string pat, int eta, int qual);
+    L1MuDTEtaPattern(int id, const std::string& pat, int eta, int qual);
                        
     /// copy constructor
     L1MuDTEtaPattern(const L1MuDTEtaPattern&);
@@ -93,11 +93,11 @@ class L1MuDTEtaPattern {
     
   private:
  
-    int m_id;
-    int m_wheel[3]; 		// -2, -1, 0, +1, +2
-    int m_position[3];          // position in wheel [1,7], 0 = empty
-    int m_eta;                  // eta code: [-32, +32]
-    int m_qual;                 // quality code: [0,26] 
+    short m_id;
+    short m_wheel[3]; 		// -2, -1, 0, +1, +2
+    short m_position[3];          // position in wheel [1,7], 0 = empty
+    short m_eta;                  // eta code: [-32, +32]
+    short m_qual;                 // quality code: [0,26] 
   
 };
   

@@ -1,0 +1,3 @@
+<bin   file="ScalersTest.cpp">
+  <use   name="DataFormats/Scalers"/>
+</bin>

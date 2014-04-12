@@ -3,8 +3,6 @@
 /**  \class DTTSCand
  *    A Trigger Server Candidate
  *
- *   $Date: 2007/03/09 15:17:44 $
- *   $Revision: 1.3 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -23,7 +21,7 @@ class DTConfigTSPhi;
 //----------------------
 #include "L1Trigger/DTTriggerServerPhi/interface/DTTSS.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
 
 //---------------
 // C++ Headers --
@@ -79,7 +77,7 @@ class DTTSCand {
     inline void clear();
 
     /// Configuration set
-    inline DTConfigTSPhi* config() const { return _tss->config(); }
+    inline const DTConfigTSPhi* config() const { return _tss->config(); }
 
     /// Return associated TRACO trigger
     inline const DTTracoTrigData* tracoTr() const { return _tctrig; }

@@ -18,15 +18,16 @@
 
 using namespace std;
 
+
 SimpleBarrelNavigableLayer::
 SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
 			    const BDLC& outerBLC, 
 			    const FDLC& outerLeftFL, 
 			    const FDLC& outerRightFL,
 			    const MagneticField* field,
-			    float epsilon) :
-  SimpleNavigableLayer(field,epsilon),
-  areAllReachableLayersSet(false),
+			    float epsilon,
+			    bool checkCrossingSide) :
+  SimpleNavigableLayer(field,epsilon,checkCrossingSide),
   theDetLayer( detLayer), 
   theOuterBarrelLayers( outerBLC),
   theOuterLeftForwardLayers( outerLeftFL),
@@ -54,77 +55,6 @@ SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
   sort(theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), TkLayerLess());
 }
   
-
-SimpleBarrelNavigableLayer::
-SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
-			    const BDLC& outerBLC, 
-                            const BDLC& innerBLC,
-                            const BDLC& allOuterBLC,
-                            const BDLC& allInnerBLC,
-			    const FDLC& outerLeftFL, 
-			    const FDLC& outerRightFL,
-                            const FDLC& allOuterLeftFL,
-                            const FDLC& allOuterRightFL,
-                            const FDLC& innerLeftFL,
-                            const FDLC& innerRightFL,
-                            const FDLC& allInnerLeftFL,
-                            const FDLC& allInnerRightFL,
-			    const MagneticField* field,
-			    float epsilon) :
-  SimpleNavigableLayer(field,epsilon),
-  areAllReachableLayersSet(true),
-  theDetLayer( detLayer), 
-  theOuterBarrelLayers( outerBLC),
-  theInnerBarrelLayers( innerBLC),
-  theAllOuterBarrelLayers( allOuterBLC),
-  theAllInnerBarrelLayers( allInnerBLC),
-  theOuterLeftForwardLayers( outerLeftFL),
-  theOuterRightForwardLayers( outerRightFL),
-  theAllOuterLeftForwardLayers( allOuterLeftFL),
-  theAllOuterRightForwardLayers( allOuterRightFL),
-  theInnerLeftForwardLayers( innerLeftFL),
-  theInnerRightForwardLayers( innerRightFL),
-  theAllInnerLeftForwardLayers( allInnerLeftFL),
-  theAllInnerRightForwardLayers( allInnerRightFL)
-{
-  // put barrel and forward layers together
-  theNegOuterLayers.reserve( outerBLC.size() + outerLeftFL.size());
-  thePosOuterLayers.reserve( outerBLC.size() + outerRightFL.size());
-  theNegInnerLayers.reserve( innerBLC.size() + innerLeftFL.size());
-  thePosInnerLayers.reserve( innerBLC.size() + innerRightFL.size());
-
-
-  for (ConstBDLI bl=outerBLC.begin(); bl!=outerBLC.end(); bl++) 
-    theNegOuterLayers.push_back( *bl);
-  thePosOuterLayers = theNegOuterLayers; // barrel part the same
-
-  for (ConstFDLI fl=outerLeftFL.begin(); fl!=outerLeftFL.end(); fl++) 
-    theNegOuterLayers.push_back( *fl);
-  for (ConstFDLI fl=outerRightFL.begin(); fl!=outerRightFL.end(); fl++) 
-    thePosOuterLayers.push_back( *fl);
-
-  for (ConstBDLI bl=innerBLC.begin(); bl!=innerBLC.end(); bl++)
-    theNegInnerLayers.push_back( *bl);
-  thePosInnerLayers = theNegInnerLayers; // barrel part the same
-
-  for (ConstFDLI fl=innerLeftFL.begin(); fl!=innerLeftFL.end(); fl++)
-    theNegInnerLayers.push_back( *fl);
-  for (ConstFDLI fl=innerRightFL.begin(); fl!=innerRightFL.end(); fl++)
-    thePosInnerLayers.push_back( *fl);
-
-  // sort the outer layers 
-  sort( theNegOuterLayers.begin(), theNegOuterLayers.end(), TkLayerLess());
-  sort( thePosOuterLayers.begin(), thePosOuterLayers.end(), TkLayerLess());
-  sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), TkLayerLess(outsideIn));
-  sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), TkLayerLess(outsideIn));
-  sort(theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), TkLayerLess());
-  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(outsideIn));
-  sort(theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), TkLayerLess());
-  sort(theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), TkLayerLess());
-  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(outsideIn));
-  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(outsideIn));
-
-}
 
 
 vector<const DetLayer*> 
@@ -168,45 +98,57 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
     FreeTrajectoryState( fts.parameters()) :
     fts;
 
+  auto const position = fts.position();
+  auto const momentum = fts.momentum();
+
   //establish whether the tracks is crossing the tracker from outer layers to inner ones 
   //or from inner to outer.
-  GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
-  //GlobalVector transverseMomentum(fts.momentum().x(), fts.momentum().y(), 0);
-  //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-  bool isInOutTrackBarrel  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
-  float zpos = fts.position().z();
-  bool isInOutTrackFWD = fts.momentum().z()*zpos>0;
+  GlobalVector transversePosition(position.x(), position.y(), 0);
+  bool isInOutTrackBarrel  = (transversePosition.dot(momentum)>0);
+
+  float zpos = position.z();
+  bool isInOutTrackFWD = momentum.z()*zpos>0;
+  
+
   //establish whether inner or outer layers are crossed after propagation, according
   //to BOTH propagationDirection AND track momentum
   bool dirOppositeXORisInOutTrackBarrel = ( !(dir == oppositeToMomentum) && isInOutTrackBarrel) || ((dir == oppositeToMomentum) && !isInOutTrackBarrel);
   bool dirOppositeXORisInOutTrackFWD = ( !(dir == oppositeToMomentum) && isInOutTrackFWD) || ((dir == oppositeToMomentum) && !isInOutTrackFWD);
 
-  bool signZmomentumXORdir = ( (fts.momentum().z() > 0) && !(dir == alongMomentum) ||
-			      !(fts.momentum().z() > 0) &&  (dir == alongMomentum)    );
+  LogDebug("SimpleBarrelNavigableLayer") << "is alongMomentum? " << (dir == alongMomentum) << endl
+					 << "isInOutTrackBarrel: " << isInOutTrackBarrel << endl
+					 << "isInOutTrackFWD: " << isInOutTrackFWD << endl
+					 << "dirOppositeXORisInOutTrackFWD: " << dirOppositeXORisInOutTrackFWD << endl
+					 << "dirOppositeXORisInOutTrackBarrel: "<< dirOppositeXORisInOutTrackBarrel << endl;
+
+  bool signZmomentumXORdir = (( (momentum.z() > 0) && !(dir == alongMomentum) ) ||
+			      (!(momentum.z() > 0) &&  (dir == alongMomentum) )   );
 
 
-  if ( dirOppositeXORisInOutTrackBarrel &&  dirOppositeXORisInOutTrackFWD) {
-
-    if ( signZmomentumXORdir   ) {
-      wellInside( ftsWithoutErrors, dir, theNegOuterLayers, result);
-    }
-    else {
-      wellInside( ftsWithoutErrors, dir, thePosOuterLayers, result);
-    }
-  } else if (!dirOppositeXORisInOutTrackBarrel &&  !dirOppositeXORisInOutTrackFWD){
+  if likely( dirOppositeXORisInOutTrackBarrel &&  dirOppositeXORisInOutTrackFWD) {
+      if ( signZmomentumXORdir   ) {
+	wellInside( ftsWithoutErrors, dir, theNegOuterLayers, result);
+      }
+      else {
+	wellInside( ftsWithoutErrors, dir, thePosOuterLayers, result);
+      }
+    } else if (!dirOppositeXORisInOutTrackBarrel &&  !dirOppositeXORisInOutTrackFWD){
     if ( signZmomentumXORdir ) {
-      wellInside( ftsWithoutErrors, dir, theNegInnerLayers, result);
-    }
-    else {
       wellInside( ftsWithoutErrors, dir, thePosInnerLayers, result);
     }
+    else {
+      wellInside( ftsWithoutErrors, dir, theNegInnerLayers, result);
+    }
   } else if (!dirOppositeXORisInOutTrackBarrel && dirOppositeXORisInOutTrackFWD){
-      wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
-      if (signZmomentumXORdir){	
-	wellInside(ftsWithoutErrors, dir, theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), result);	
-      }	else {
-	wellInside(ftsWithoutErrors, dir, theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), result);
-      }
+    wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
+    
+    if (signZmomentumXORdir){	
+      wellInside(ftsWithoutErrors, dir, theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(), result);
+      wellInside(ftsWithoutErrors, dir, theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), result);	
+    }	else {
+      wellInside(ftsWithoutErrors, dir, theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(), result);
+      wellInside(ftsWithoutErrors, dir, theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), result);
+    }
   } else {
      if (signZmomentumXORdir){
         wellInside(ftsWithoutErrors, dir, theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(), result);
@@ -215,90 +157,37 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
      }	
      wellInside(ftsWithoutErrors, dir, theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), result);	
   }
+
+  bool goingIntoTheBarrel = (!isInOutTrackBarrel && dir==alongMomentum) || (isInOutTrackBarrel && dir==oppositeToMomentum) ;
+
+  LogDebug("SimpleBarrelNavigableLayer") << "goingIntoTheBarrel: " << goingIntoTheBarrel;
+
+
+  if unlikely(theSelfSearch && result.size()==0){
+    if (!goingIntoTheBarrel){     
+      LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
+    else{
+      const BarrelDetLayer * bl = reinterpret_cast<const BarrelDetLayer *>(detLayer());      unsigned int before=result.size();
+      LogDebug("SimpleBarrelNavigableLayer")<<" I am trying to added myself as a next layer.";
+      wellInside(ftsWithoutErrors, dir, bl, result);
+      unsigned int after=result.size();
+      if (before!=after)
+	LogDebug("SimpleBarrelNavigableLayer")<<" I have added myself as a next layer.";
+    }
+  }
   
   return result;
 }
 
 
 vector<const DetLayer*> 
-SimpleBarrelNavigableLayer::compatibleLayers( NavigationDirection dir) const
-{
-  if( !areAllReachableLayersSet ){
-    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
-    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
-  }
-
-  vector<const DetLayer*> result;
-  if ( dir == insideOut) {
-    for ( BDLC::const_iterator i=theAllOuterBarrelLayers.begin();
-          i!=theAllOuterBarrelLayers.end(); i++) {
-          result.push_back(*i);
-    }
-//    result = theAllOuterBarrelLayers;
-    for ( FDLC::const_iterator i=theAllOuterLeftForwardLayers.begin();
-          i!=theAllOuterLeftForwardLayers.end(); i++) {
-          // avoid duplication of barrel layers
-          result.push_back(*i);
-    }
-    for ( FDLC::const_iterator i=theAllOuterRightForwardLayers.begin();
-          i!=theAllOuterRightForwardLayers.end(); i++) {
-          // avoid duplication of barrel layers
-          result.push_back(*i);
-    }
-  }
-  else {
-    for ( BDLC::const_iterator i=theAllInnerBarrelLayers.begin();
-          i!=theAllInnerBarrelLayers.end(); i++) {
-          result.push_back(*i);
-    }
-    for ( FDLC::const_iterator i=theAllInnerLeftForwardLayers.begin();
-          i!=theAllInnerLeftForwardLayers.end(); i++) {
-          // avoid duplication of barrel layers
-          result.push_back(*i);
-    }
-    for ( FDLC::const_iterator i=theAllInnerRightForwardLayers.begin();
-          i!=theAllInnerRightForwardLayers.end(); i++) {
-          // avoid duplication of barrel layers
-          result.push_back(*i);
-    }
-
-   }
-
-  return result;
-}
-
-vector<const DetLayer*> 
-SimpleBarrelNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts, 
-					      PropagationDirection dir) const
-{
-  if( !areAllReachableLayersSet ){
-    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
-    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
-  }
-
-  vector<const DetLayer*> result;
-  FreeTrajectoryState ftsWithoutErrors = (fts.hasError()) ?
-  FreeTrajectoryState( fts.parameters()) : fts;
-
-  //establish whether the tracks is crossing the tracker from outer layers to inner ones 
-  //or from inner to outer.
-  GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
-  //GlobalVector transverseMomentum(fts.momentum().x(), fts.momentum().y(), 0);
-  //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-  bool isInOutTrack  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
-  //establish whether inner or outer layers are crossed after propagation, according
-  //to BOTH propagationDirection AND track momentum
-  bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ((dir == oppositeToMomentum) && !isInOutTrack);
-
-  vector<const DetLayer*> temp = dirOppositeXORisInOutTrack ? compatibleLayers(insideOut) : compatibleLayers(outsideIn);
-  wellInside( ftsWithoutErrors, dir, temp, result);
-
-  return result;
-
+SimpleBarrelNavigableLayer::compatibleLayers( NavigationDirection dir) const {
+  edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
+  throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
+  return vector<const DetLayer*>();
 }
 
 
-DetLayer* SimpleBarrelNavigableLayer::detLayer() const { return theDetLayer;}
 
 void   SimpleBarrelNavigableLayer::setDetLayer( DetLayer* dl) {
   cerr << "Warniong: SimpleBarrelNavigableLayer::setDetLayer called."
@@ -306,11 +195,12 @@ void   SimpleBarrelNavigableLayer::setDetLayer( DetLayer* dl) {
 }
 
 void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv, 
-						const FDLC& theForwardv)
+						const FDLC& theForwardv,
+						TkLayerLess sorter)
 {
   theInnerBarrelLayers=theBarrelv;
   // sort the inner layers
-  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(outsideIn));
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),sorter);
 
 
   ConstFDLI middle = find_if( theForwardv.begin(),theForwardv.end(),
@@ -319,8 +209,8 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
   theInnerRightForwardLayers=FDLC(middle,theForwardv.end());
 
   // sort the inner layers
-  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(outsideIn));
-  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(outsideIn));
+  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),sorter);
+  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),sorter);
 
 
 
@@ -338,10 +228,49 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
     thePosInnerLayers.push_back( *fl);
 
   // sort the inner layers 
-  sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), TkLayerLess(outsideIn));
-  sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), TkLayerLess(outsideIn));
-  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(outsideIn));
-  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(outsideIn));
-  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(outsideIn));
+  sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), sorter);
+  sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), sorter);
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),sorter);
+  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),sorter);
+  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),sorter);
 
+}
+
+void SimpleBarrelNavigableLayer::setAdditionalLink(DetLayer* additional, NavigationDirection direction){
+  ForwardDetLayer* fadditional = dynamic_cast<ForwardDetLayer*>(additional);
+  BarrelDetLayer*  badditional = dynamic_cast<BarrelDetLayer*>(additional);
+  if (badditional){	
+  	if (direction==insideOut){
+		theOuterBarrelLayers.push_back(badditional);
+		theNegOuterLayers.push_back(badditional);
+		thePosOuterLayers.push_back(badditional);
+		return;	
+  	}
+  	theInnerBarrelLayers.push_back(badditional);
+	theNegInnerLayers.push_back(badditional);
+        thePosInnerLayers.push_back(badditional);	
+	return;
+  } else if (fadditional){
+	double zpos = fadditional->position().z(); 
+	if (direction==insideOut){
+		if (zpos>0){
+			theOuterRightForwardLayers.push_back(fadditional);
+			thePosOuterLayers.push_back(fadditional);
+			return;	
+		}
+		theOuterLeftForwardLayers.push_back(fadditional);
+		theNegOuterLayers.push_back(fadditional);
+		return;
+	}
+	if (zpos>0){
+        	theInnerRightForwardLayers.push_back(fadditional);
+		thePosInnerLayers.push_back(fadditional);
+                return;
+        }
+        theInnerLeftForwardLayers.push_back(fadditional);
+	theNegInnerLayers.push_back(fadditional);
+        return;
+  }
+  edm::LogError("TkNavigation") << "trying to add neither a ForwardDetLayer nor a BarrelDetLayer";	
+  return;	
 }

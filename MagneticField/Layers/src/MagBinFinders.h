@@ -12,11 +12,9 @@ namespace MagBinFinders {
 //----------------------------------------------------------------------
 #ifndef GeneralBinFinderInR_H
 #define GeneralBinFinderInR_H
-/** \class GeneralBinFinderInR
+/** \class MagBinFinders::GeneralBinFinderInR
  *  A R binfinder for a non-periodic group of detectors.
  *
- *  $Date: 2006/11/14 16:03:52 $
- *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -101,7 +99,7 @@ private:
 #ifndef GeneralBinFinderInZ_H
 #define GeneralBinFinderInZ_H
 
-/** \class GeneralBinFinderInZ
+/** \class MagBinFinders::GeneralBinFinderInZ
  * A Z bin finder for a non-periodic group of detectors.
  * Search is done starting from an initial equal-size-bin guess. Therefore
  * it becomes less efficient for binnings with very different bin size. 

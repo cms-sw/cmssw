@@ -3,16 +3,21 @@
 #include <vector>
 #include <iterator>
 #include <iostream>
-
-#include "DataFormats/GeometryVector/interface/Phi.h"
-#include "DataFormats/GeometryVector/interface/Pi.h"
+#include <cmath>
 
 using namespace std;
 
 // A fake class
 class Point;
 
-typedef Geom::Phi<double> Phi;
+//Define one here to avoid coupling with other packages
+class Phi {
+public:
+  explicit Phi(double iV): value_(iV) {}
+  operator double() const {return value_;}
+private:
+  double value_;
+};
 
 class Point {
  public: 

@@ -21,7 +21,6 @@
   ghost@aladdin.com
 
  */
-/* $Id: md5.c,v 1.1 2005/07/06 19:47:28 paterno Exp $ */
 /*
   Independent implementation of MD5 (RFC 1321).
 

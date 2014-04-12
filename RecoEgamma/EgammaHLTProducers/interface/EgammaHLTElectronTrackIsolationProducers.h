@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //
-// $Id: $
+// $Id: EgammaHLTElectronTrackIsolationProducers.h,v 1.3 2011/12/19 11:16:45 sani Exp $
 //
 //
 
@@ -19,40 +19,44 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTTrackIsolation.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
-//
-// class declaration
-//
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class EgammaHLTElectronTrackIsolationProducers : public edm::EDProducer {
-   public:
-      explicit EgammaHLTElectronTrackIsolationProducers(const edm::ParameterSet&);
-      ~EgammaHLTElectronTrackIsolationProducers();
+public:
+  explicit EgammaHLTElectronTrackIsolationProducers(const edm::ParameterSet&);
+  ~EgammaHLTElectronTrackIsolationProducers();
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+private:
+  edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-
-  edm::InputTag electronProducer_;
-  edm::InputTag trackProducer_;
-
-  edm::ParameterSet conf_;
+  bool useGsfTrack_;
+  bool useSCRefs_;
 
   double egTrkIsoPtMin_; 
   double egTrkIsoConeSize_;
   double egTrkIsoZSpan_;   
   double egTrkIsoRSpan_;  
-  double egTrkIsoVetoConeSize_;
-
-  EgammaHLTTrackIsolation* test_;
-
+  double egTrkIsoVetoConeSizeBarrel_;
+  double egTrkIsoVetoConeSizeEndcap_;
+  double egTrkIsoStripBarrel_;
+  double egTrkIsoStripEndcap_;
 };
 

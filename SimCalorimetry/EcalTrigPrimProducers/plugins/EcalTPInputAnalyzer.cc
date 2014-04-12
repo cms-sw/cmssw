@@ -11,7 +11,6 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTPInputAnalyzer.cc,v 1.1 2007/03/06 13:14:53 uberthon Exp $
 //
 //
 
@@ -85,14 +84,12 @@ EcalTPInputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool barrel=true;
   edm::Handle<EBDigiCollection> ebDigis;
   edm::Handle<EEDigiCollection> eeDigis;
-  try{iEvent.getByLabel(producer_,ebLabel_,ebDigis);}
-  catch(cms::Exception &e) {
+  if (!iEvent.getByLabel(producer_,ebLabel_,ebDigis)) {
     barrel=false;
     edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with Producer:"<<producer_<<" and label: "<<ebLabel_;
   }
   bool endcap=true;
-  try{iEvent.getByLabel(producer_,eeLabel_,eeDigis);}
-  catch(cms::Exception &e) {
+  if (!iEvent.getByLabel(producer_,eeLabel_,eeDigis)) {
     endcap=false;
     edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with Producer:"<<producer_<<" and label: "<<eeLabel_;
   }
@@ -133,6 +130,13 @@ EcalTPInputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 //       ecal_fgvb_[subdet]->Fill(d.fineGrain());
 //   }
 }
+
+void
+EcalTPInputAnalyzer::endJob(){
+  histEndc ->Write();
+  histBar  ->Write();
+}
+  
     
 
 

@@ -1,21 +1,17 @@
 /*
  * \file DTDigiTask.cc
- * 
- * $Date: 2006/02/15 08:24:56 $
- * $Revision: 1.1 $
+ *
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include <DQM/DTMonitorModule/interface/DTGlobalRecoTask.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
-#include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
 using namespace std;
 
-DTGlobalRecoTask::DTGlobalRecoTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
+DTGlobalRecoTask::DTGlobalRecoTask(const edm::ParameterSet& ps, DQMStore* dbe,
 				   const edm::EventSetup& context){
 
   logFile.open("DTGlobalRecoTask.log");
@@ -35,7 +31,7 @@ DTGlobalRecoTask::~DTGlobalRecoTask(){
 
 }
 
-void DTGlobalRecoTask::beginJob(const edm::EventSetup& c){
+void DTGlobalRecoTask::beginJob(){
 
   nevents = 0;
 
@@ -56,3 +52,8 @@ void DTGlobalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

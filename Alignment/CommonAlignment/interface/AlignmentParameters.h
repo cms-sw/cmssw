@@ -6,6 +6,8 @@
 #include "Alignment/CommonAlignment/interface/AlignmentParametersData.h"
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+
 /// \class AlignmentParameters 
 ///
 /// Base class for alignment parameters 
@@ -19,8 +21,8 @@
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
 ///
-///  $Date: 2007/04/30 11:33:56 $
-///  $Revision: 1.5.2.1 $
+///  $Date: 2010/10/26 19:50:21 $
+///  $Revision: 1.9 $
 /// (last update by $Author: flucke $)
 
 // include and not forward declare to ensure automatic conversion from AlignableDet(Unit): 
@@ -54,6 +56,11 @@ public:
   /// Destructor
   virtual ~AlignmentParameters();
 
+  /// apply parameters to alignable
+  virtual void apply() = 0;
+  /// tell type (AlignmentParametersFactory::ParametersType - but no circular dependency)
+  virtual int type() const = 0;
+
   /// Enforce clone methods in derived classes
   virtual AlignmentParameters* clone(const AlgebraicVector& par,
 				     const AlgebraicSymMatrix& cov) const = 0;
@@ -64,7 +71,7 @@ public:
   const std::vector<bool>& selector( void ) const;
 
   /// Get number of selected parameters 
-  const int numSelected( void ) const;
+  int numSelected( void ) const;
 
   /// Get selected parameters
   AlgebraicVector selectedParameters( void ) const;
@@ -82,7 +89,7 @@ public:
   virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface& tsos,
 				      const AlignableDetOrUnitPtr &alidet) const = 0;
   virtual AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-					       const AlignableDetOrUnitPtr &alidet) const = 0;
+					       const AlignableDetOrUnitPtr &alidet) const;
 
   /// Set pointer to user variables
   void setUserVariables(AlignmentUserVariables* auv);
@@ -99,10 +106,10 @@ public:
   virtual unsigned int hierarchyLevel() const;
 
   /// Get number of parameters
-  const int size(void) const;
+  int size(void) const;
 
   /// Get validity flag
-  const bool isValid(void) const;
+  bool isValid(void) const;
   /// Set validity flag
   void setValid(bool v);
 

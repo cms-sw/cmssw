@@ -5,8 +5,8 @@
 //   Description: Look-up tables for pt assignment 
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.3 $
+//   $Date: 2010/05/12 23:03:43 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -24,16 +24,18 @@
 // C++ Headers --
 //---------------
 
+#include <iostream>
 #include <ostream>
 #include <iomanip>
 #include <string>
+#include <cstdlib>
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/DTTFBitArray.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTAssParam.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 
@@ -55,9 +57,9 @@ L1MuDTPtaLut::L1MuDTPtaLut() :
   pta_threshold.reserve(MAX_PTASSMETH/2);
   setPrecision();
   
-  if ( load() != 0 ) {
-    cout << "Can not open files to load pt-assignment look-up tables for DTTrackFinder!" << endl;
-  }
+  //  if ( load() != 0 ) {
+  //    cout << "Can not open files to load pt-assignment look-up tables for DTTrackFinder!" << endl;
+  //  }
 
   //  if ( L1MuDTTFConfig::Debug(6) ) print();
   
@@ -70,13 +72,13 @@ L1MuDTPtaLut::L1MuDTPtaLut() :
 
 L1MuDTPtaLut::~L1MuDTPtaLut() {
 
-  vector<LUT*>::iterator iter;
+  vector<LUT>::iterator iter;
   for ( iter = pta_lut.begin(); iter != pta_lut.end(); iter++ ) {
-    if (*iter != 0 ) { 
-      delete *iter;
-      *iter = 0;
-    }
+    (*iter).clear();
   }
+
+  pta_lut.clear();
+  pta_threshold.clear();
 
 }
 
@@ -102,7 +104,7 @@ void L1MuDTPtaLut::reset() {
 int L1MuDTPtaLut::load() {
 
   // get directory name
-  string defaultPath(getenv("DTTF_DATA_PATH"));
+  string defaultPath = "L1TriggerConfig/DTTrackFinder/parameters/";
   string pta_dir = "L1TriggerData/DTTrackFinder/Ass/";
   string pta_str = "";
 
@@ -159,8 +161,7 @@ int L1MuDTPtaLut::load() {
     int shift = sh_phi;
     int adr_old = -2048 >> shift;
 
-    LUT* tmplut = new LUT;
-    pta_lut.push_back(tmplut);
+    LUT tmplut;
 
     int number = -1;
     int sum_pt = 0;
@@ -179,7 +180,8 @@ int L1MuDTPtaLut::load() {
       number++;
       
       if ( adr != adr_old ) {
-        tmplut->insert(make_pair( adr_old, (sum_pt/number) ));
+        assert(number);
+        tmplut.insert(make_pair( adr_old, (sum_pt/number) ));
 
         adr_old = adr;
         number = 0;
@@ -193,6 +195,7 @@ int L1MuDTPtaLut::load() {
     }
 
     file.close();
+    pta_lut.push_back(tmplut);
   }
   return 0;
 
@@ -229,13 +232,13 @@ void L1MuDTPtaLut::print() const {
     for ( int i = 0; i < maxbits; i++ ) cout << '-';    
     cout << "-------------------------" << endl;
 
-    LUT::const_iterator iter = pta_lut[pam]->begin();
-    while ( iter != pta_lut[pam]->end() ) {
+    LUT::const_iterator iter = pta_lut[pam].begin();
+    while ( iter != pta_lut[pam].end() ) {
       int address = (*iter).first;
       int value   = (*iter).second;
 
-      BitArray<12> b_address(static_cast<unsigned>(abs(address)));
-      BitArray<5> b_value(static_cast<unsigned>(abs(value)));
+      DTTFBitArray<12> b_address(static_cast<unsigned>(abs(address)));
+      DTTFBitArray<5> b_value(static_cast<unsigned>(abs(value)));
 
       if ( address < 0 ) b_address.twoComplement();
 
@@ -261,8 +264,8 @@ void L1MuDTPtaLut::print() const {
 //
 int L1MuDTPtaLut::getPt(int pta_ind, int address) const {
 
-  LUT::const_iterator iter = pta_lut[pta_ind]->find(address);
-  if ( iter != pta_lut[pta_ind]->end() ) {
+  LUT::const_iterator iter = pta_lut[pta_ind].find(address);
+  if ( iter != pta_lut[pta_ind].end() ) {
     return (*iter).second;
   }
   else {

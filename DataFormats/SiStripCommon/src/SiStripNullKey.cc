@@ -1,9 +1,7 @@
-// Last commit: $Id: SiStripNullKey.cc,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
-#include <sstream>
 
 // -----------------------------------------------------------------------------
 // 
@@ -12,8 +10,7 @@ SiStripNullKey::SiStripNullKey() : SiStripKey() {;}
 // -----------------------------------------------------------------------------
 // 
 bool SiStripNullKey::isEqual( const SiStripKey& input ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(input);
-  if ( &dynamic_cast<SiStripNullKey&>(temp) ) { return true; }
+  if ( &dynamic_cast<const SiStripNullKey&>(input) ) { return true; }
   else { return false; }
 }
 
@@ -65,18 +62,26 @@ void SiStripNullKey::initGranularity() {;}
 
 // -----------------------------------------------------------------------------
 //
+void SiStripNullKey::print( std::stringstream& ss ) const {
+  ss << " [SiStripNullKey::print]" << std::endl
+     << std::hex
+     << " 32-bit key  : 0x" 
+     << std::setfill('0') 
+     << std::setw(8) << key() << std::endl
+     << std::setfill(' ') 
+     << std::dec
+     << " Directory   : " << path() << std::endl
+     << " Granularity : "
+     << SiStripEnumsAndStrings::granularity( granularity() ) << std::endl
+     << " Channel     : " << channel() << std::endl
+     << " isValid    : " << isValid();
+}
+
+// -----------------------------------------------------------------------------
+//
 std::ostream& operator<< ( std::ostream& os, const SiStripNullKey& input ) {
-  return os << std::endl
-	    << " [SiStripNullKey::print]" << std::endl
-	    << std::hex
-	    << " 32-bit key  : 0x" 
-	    << std::setfill('0') 
-	    << std::setw(8) << input.key() << std::endl
-	    << std::setfill(' ') 
-	    << std::dec
-	    << " Directory   : " << input.path() << std::endl
-	    << " Granularity : "
-	    << SiStripEnumsAndStrings::granularity( input.granularity() ) << std::endl
- 	    << " Channel     : " << input.channel() << std::endl
-	    << " isValid    : " << input.isValid();
+  std::stringstream ss;
+  input.print(ss);
+  os << ss.str();
+  return os;
 }

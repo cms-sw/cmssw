@@ -1,5 +1,5 @@
 /*! \file testJetFinder.cpp
- * \brief Procedural unit-test code for the L1GctTdrJetFinder class.
+ * \brief Procedural unit-test code for the L1GctHardwareJetFinder class.
  *
  *  This is code that tests each public method of the L1GctTdrJetFinder
  *  class.  It takes data from a file to test the methods against known
@@ -9,7 +9,7 @@
  * \date March 2006
  */
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"  //The class to be tested
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"  //The class to be tested
 
 //Custom headers needed for this test
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
@@ -21,7 +21,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 
 //Standard library headers
 #include <fstream>   //for file IO
@@ -34,27 +33,32 @@ using namespace std;
 
 
 //Typedefs for the vector templates and other types used
-typedef vector<L1CaloRegion> RegionsVector;
-typedef vector<L1GctJet> RawJetsVector;
+typedef vector<L1GctRegion>  RegionsVector;
+typedef vector<L1GctJet>  RawJetsVector;
 typedef vector<L1GctJetCand> JetsVector;
 typedef unsigned long int ULong;
 
+typedef L1GctJetFinderBase::lutPtr       lutPtr;
+typedef L1GctJetFinderBase::lutPtrVector lutPtrVector;
+
 
 // Name of the files for test input data and results output.
-const string testDataFile = "testJetFinderInput.txt";  
-const string resultsFile = "testJetFinderOutput.txt";
+const string testDataFile = "testJetFinderInputMismatch.txt";  
+const string resultsFile = "testJetFinderOutputMismatch.txt";
 
 
 // Global constants to tell the program how many things to read in from file
 // THESE ARE TOTAL GUESSES!
-const int numInputRegions = 48;  //Num. calorimeter regions given as input
-const int numOutputJets = 6;     //Num. jets expected out
+const int numInputRegions = 52;  //Num. calorimeter regions given as input
+const int numOutputJets = 18;     //Num. jets expected out
 //There will be Jet Counts to be added here at some point
 
+// Test any jetFinder between 0 and 17
+const unsigned jfNumber=5;
 
 //  FUNCTION PROTOTYPES
 /// Runs the test on the L1GctJetFinder instance passed into it.
-void classTest(L1GctTdrJetFinder *myJetFinder);
+void classTest(L1GctHardwareJetFinder *myJetFinder, std::vector< L1GctJetFinderBase* > myNeighbours);
 /// Loads test input regions and also the known results from a text file.
 void loadTestData(RegionsVector &inputRegions, RawJetsVector &trueJets, ULong &trueHt, ULong &stripSum0, ULong &stripSum1);
 /// Function to safely open input files of any name, using a referenced return ifstream
@@ -64,7 +68,7 @@ void safeOpenOutputFile(ofstream &fout, const string name);
 /// Reads regions from file and pushes the specified number into a vector of regions
 void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegions);
 /// Gets the data of a single region from the testDataFile (reasonably safely). 
-L1CaloRegion readSingleRegion(ifstream &fin);
+L1GctRegion readSingleRegion(ifstream &fin);
 /// Reads jets from file and pushes the specified number into a vector of jets
 void putJetsInVector(ifstream &fin, RawJetsVector &jets, const int numJets);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
@@ -91,21 +95,58 @@ int main(int argc, char **argv)
     produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
 
     // Instance of the class
-    L1GctJetEtCalibrationLut* myJetEtCalLut = lutProducer->produce();
+    const lutPtrVector & myJetEtCalLut = lutProducer->produce();
+    const L1GctJetFinderParams* myJfPars = lutProducer->jfPars();
     delete lutProducer;
-  
-    L1GctTdrJetFinder * myJetFinder = new L1GctTdrJetFinder(9); //TEST OBJECT on heap;
-    myJetFinder->setJetEtCalibrationLut(myJetEtCalLut); 
+
+    // The jetfinder number to be tested is given by jfNumber
+    if (jfNumber<18) {
+      // Work out the numbers of the two neighbours
+      unsigned jfNeigh0 = (jfNumber+8)%9;
+      unsigned jfNeigh1 = (jfNumber+1)%9;
+      if (jfNumber>=9) {
+	jfNeigh0 += 9;
+	jfNeigh1 += 9;
+      }
+
+      L1GctHardwareJetFinder* myJetFinder=new L1GctHardwareJetFinder(jfNumber); //TEST OBJECT on heap;
+      std::vector< L1GctJetFinderBase* > myNeighbours;
+      myNeighbours.push_back( new L1GctHardwareJetFinder(jfNeigh0) );
+      myNeighbours.push_back( new L1GctHardwareJetFinder(jfNeigh1) );
+
+      myJetFinder->setJetEtCalibrationLuts(myJetEtCalLut);
+      myJetFinder->setJetFinderParams(myJfPars);
+      myNeighbours.at(0)->setJetEtCalibrationLuts(myJetEtCalLut);
+      myNeighbours.at(0)->setJetFinderParams(myJfPars);
+      myNeighbours.at(1)->setJetEtCalibrationLuts(myJetEtCalLut);
+      myNeighbours.at(1)->setJetFinderParams(myJfPars);
+
+      myJetFinder->setNeighbourJetFinders(myNeighbours);
+
+      // Connect the jetFinders around in a little circle
+      std::vector< L1GctJetFinderBase* > dummyNeighbours(2);
+      dummyNeighbours.at(0) = myNeighbours.at(1);
+      dummyNeighbours.at(1) = myJetFinder;
+      myNeighbours.at(0)->setNeighbourJetFinders(dummyNeighbours);
+      dummyNeighbours.at(0) = myJetFinder;
+      dummyNeighbours.at(1) = myNeighbours.at(0);
+      myNeighbours.at(1)->setNeighbourJetFinders(dummyNeighbours);
        
-    classTest(myJetFinder);
+      classTest(myJetFinder,myNeighbours);
     
-    //clean up
-    delete myJetEtCalLut; 
-    delete myJetFinder;
+      //clean up
+      delete myNeighbours.at(0);
+      delete myNeighbours.at(1);
+      delete myJetFinder;
+    } else { cout << "Invalid jet finder number " << jfNumber << "; should be less than 18" << endl; }
   }
   catch (cms::Exception& e)
   {
+    if (e.category() == "FileReadError") {
+      std::cout << "No input file - exiting" << std::endl;
+    } else {
       cerr << e.what() << endl;
+    }
   }
   catch(...)
   {
@@ -116,19 +157,20 @@ int main(int argc, char **argv)
 }
 
 // Runs the test, and returns a string with the test result message in.
-void classTest(L1GctTdrJetFinder *myJetFinder)
+void classTest(L1GctHardwareJetFinder *myJetFinder, std::vector< L1GctJetFinderBase* > myNeighbours)
 {
   bool testPass = true; //flag to mark test failure
   
   // Vectors for reading in test data from the text file.
   RegionsVector inputRegions;  //Size?
-  RawJetsVector trueJets;      //Size?
+  RawJetsVector    trueJets;      //Size?
   ULong trueHt;
+  ULong outputEt;
   ULong stripSum0, stripSum1;
   
   // Vectors for receiving the output from the object under test.
   RegionsVector outputRegions; //Size?
-  RawJetsVector outputJets;    //Size?
+  RawJetsVector    outputJets;    //Size?
   ULong outputHt;
   ULong sumOfJetHt;
   //Jet Counts to be added at some point
@@ -140,21 +182,47 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   for(int i = 0; i < numInputRegions; ++i)
   {
     myJetFinder->setInputRegion(inputRegions.at(i));
+    myNeighbours.at(0)->setInputRegion(inputRegions.at(i));
+    myNeighbours.at(1)->setInputRegion(inputRegions.at(i));
   }
 
   // Test the getInputRegion method
+  RegionsVector centralRegions;
+  const unsigned COL_OFFSET = L1GctJetFinderBase::COL_OFFSET;
+  unsigned pos=0;
+  for (unsigned col=0; col<3; ++col) {
+    for (unsigned row=0; row<COL_OFFSET; ++row) {
+      if (col==1 || col ==2) {
+	centralRegions.push_back(inputRegions.at(pos));
+      }
+      ++pos;
+    }
+  }
   outputRegions = myJetFinder->getInputRegions();
-  if(!compareRegionsVectors(outputRegions, inputRegions, "initial data input/output")) { testPass = false; }
+  if(!compareRegionsVectors(outputRegions, centralRegions, "initial data input/output")) { testPass = false; }
 
+  myJetFinder->fetchInput();  //Run algorithm
+  myNeighbours.at(0)->fetchInput();  //Run algorithm
+  myNeighbours.at(1)->fetchInput();  //Run algorithm
   myJetFinder->process();  //Run algorithm
+  myNeighbours.at(0)->process();  //Run algorithm
+  myNeighbours.at(1)->process();  //Run algorithm
   
   //Get the outputted data and store locally
   outputJets = myJetFinder->getRawJets();
-  outputHt = myJetFinder->getHt().value();
+  RawJetsVector nJets0=myNeighbours.at(0)->getRawJets();
+  RawJetsVector nJets1=myNeighbours.at(1)->getRawJets();
+  outputJets.insert(outputJets.end(),
+		    nJets0.begin(),
+		    nJets0.end());
+  outputJets.insert(outputJets.end(),
+		    nJets1.begin(),
+		    nJets1.end());
+  outputHt = myJetFinder->getHtSum().value();
 
   sumOfJetHt = 0;
   for (RawJetsVector::const_iterator it=outputJets.begin(); it!=outputJets.end(); ++it) {
-    sumOfJetHt += it->calibratedEt(myJetFinder->getJetEtCalLut());
+    sumOfJetHt += it->calibratedEt(myJetFinder->getJetEtCalLuts().at(it->rctEta()));
   }
 
   //Test the outputted jets against the known results
@@ -181,11 +249,10 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   }
 
   //Test the Et strip sums against known results
-  if ((stripSum0 != myJetFinder->getEtStrip0().value()) ||
-      (stripSum1 != myJetFinder->getEtStrip1().value())) {     
-    cout << "strip sum 0 comparison: expected " << stripSum0 << " found " << myJetFinder->getEtStrip0() << endl;
-    cout << "strip sum 1 comparison: expected " << stripSum1 << " found " << myJetFinder->getEtStrip1() << endl;
-    cout << "\nTest class has FAILED Et strip sum comparison!" << endl;
+  if ((stripSum0+stripSum1) != myJetFinder->getEtSum().value()) {     
+    cout << "Et sum 0 comparison: expected strips " << stripSum0 << " and " 
+	 << stripSum1 << " found " << myJetFinder->getEtSum() << endl;
+    cout << "\nTest class has FAILED Et sum comparison!" << endl;
     testPass = false;
   }
   else
@@ -213,18 +280,17 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   //get all the data again - should all be empty
   outputRegions = myJetFinder->getInputRegions();
   outputJets = myJetFinder->getRawJets();
-  outputHt = myJetFinder->getHt().value();
-  stripSum0 = myJetFinder->getEtStrip0().value();
-  stripSum1 = myJetFinder->getEtStrip1().value();
+  outputHt = myJetFinder->getHtSum().value();
+  outputEt = myJetFinder->getEtSum().value();
   
   //an empty regions vector for reset comparison
-  vector<L1CaloRegion> blankRegionsVec(numInputRegions);
+  vector<L1GctRegion> blankRegionsVec(numInputRegions);
   vector<L1GctJet> blankJetsVec(numOutputJets);
   
   //Test that all the vectors/values are empty/zero
   if(compareRegionsVectors(outputRegions, blankRegionsVec, "input regions reset") &&
      compareJetsVectors(outputJets, blankJetsVec, "output jets reset") &&
-     outputHt == 0 && stripSum0 == 0 && stripSum1 == 0)
+     outputHt == 0 && outputEt == 0)
   { 
     cout << "\nTest class has passed reset method testing." << endl;
   }
@@ -320,7 +386,7 @@ void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegi
 }
 
 //Gets the data of a single region from the testDataFile (reasonably safely). 
-L1CaloRegion readSingleRegion(ifstream &fin)
+L1GctRegion readSingleRegion(ifstream &fin)
 {   
   //Represents how many numbers there are per line for a region in the input file
   const int numRegionComponents = 6; //the id, et, overFlow, tauVeto, mip, quiet, tauVeto.
@@ -344,10 +410,15 @@ L1CaloRegion readSingleRegion(ifstream &fin)
   // First input value is position in JetFinder array.
   // Convert to eta and phi in global coordinates.
   // Give the two central columns (out of four) the
-  // (phi, eta) values corresponding to RCT crate 9.
-  // This assumes we have created jetFinder id=9.
-  unsigned ieta = (10 + regionComponents[0]%12);
-  unsigned iphi = (23 - regionComponents[0]/12)%18;
+  // (phi, eta) values corresponding to the required RCT crate number.
+  // These depend on the jetfinder number to be tested
+  static const unsigned COL_OFFSET = L1GctJetFinderBase::COL_OFFSET;
+  static const unsigned NEXTRA     = L1GctJetFinderBase::N_EXTRA_REGIONS_ETA00;
+  unsigned localEta = regionComponents[0]%COL_OFFSET;
+  unsigned localPhi = regionComponents[0]/COL_OFFSET;
+  unsigned ieta = ( (jfNumber < 9) ? (10 + NEXTRA - localEta) : (11 - NEXTRA + localEta) );;
+  unsigned phiOffset = 43 - 2*jfNumber;
+  unsigned iphi = (phiOffset - localPhi)%18;
   //return object
   L1CaloRegion tempRegion(regionComponents[1],
 			  static_cast<bool>(regionComponents[2]),
@@ -356,7 +427,7 @@ L1CaloRegion readSingleRegion(ifstream &fin)
 			  static_cast<bool>(regionComponents[5]),
 			  ieta, iphi);
   
-  return tempRegion;
+  return L1GctRegion::makeJfInputRegion(tempRegion);
 }
 
 //Reads jets from file and pushes the specified number into a vector of jets
@@ -392,8 +463,11 @@ L1GctJet readSingleJet(ifstream &fin)
   }
  
   //return object
+  // Arguments to ctor are: rank, eta, phi, overFlow, forwardJet, tauVeto, bx
   L1GctJet tempJet(jetComponents[0], jetComponents[1],
-                       jetComponents[2], static_cast<bool>(jetComponents[3]));
+		   jetComponents[2], false,
+		   ((jetComponents[1]<4) || (jetComponents[1]>=18)), 
+		   static_cast<bool>(jetComponents[3]), 0);
   return tempJet;
 }
 
@@ -454,12 +528,12 @@ bool compareJetsVectors(RawJetsVector &vector1, RawJetsVector &vector2, const st
       //compare the vectors
       for(unsigned int i = 0; i < vector1.size(); ++i)
       {
-        if(vector1[i].rawsum() != vector2[i].rawsum()) {  cout << "Failed rawsum comparison\n"; 
+        if(vector1[i].rawsum() != vector2[i].rawsum()) {  cout << "Jet " << i << " Failed rawsum comparison -- "; 
           cout << "first " << vector1[i].rawsum() << " second " << vector2[i].rawsum() << "\n";
-          testPass = false; break; }
-        if(vector1[i].rctEta() != vector2[i].rctEta()) {  cout << "Failed rctEta comparison\n"; testPass = false; break; }
-        if(vector1[i].rctPhi() != vector2[i].rctPhi()) {  cout << "Failed rctPhi comparison\n"; testPass = false; break; }
-        if(vector1[i].tauVeto() != vector2[i].tauVeto()) {  cout << "Failed tauV comparison\n"; testPass = false; break; }
+          testPass = false; }
+        if(vector1[i].rctEta() != vector2[i].rctEta()) {  cout << "Jet " << i << " Failed rctEta comparison\n"; testPass = false; }
+        if(vector1[i].rctPhi() != vector2[i].rctPhi()) {  cout << "Jet " << i << " Failed rctPhi comparison\n"; testPass = false; }
+        if(vector1[i].tauVeto() != vector2[i].tauVeto()) {  cout << "Jet " << i << " Failed tauV comparison\n"; testPass = false; }
       }
     }
   }

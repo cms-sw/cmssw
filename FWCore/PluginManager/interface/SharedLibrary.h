@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 15:30:08 EDT 2007
-// $Id: SharedLibrary.h,v 1.1.2.2 2007/04/09 18:46:49 chrjones Exp $
 //
 
 // system include files
@@ -25,11 +24,7 @@
 // user include files
 
 // forward declarations
-namespace ROOT {
-  namespace Reflex {
-    class SharedLibrary;
-  }
-}
+
 namespace edmplugin {
 class SharedLibrary
 {
@@ -52,7 +47,7 @@ class SharedLibrary
       const SharedLibrary& operator=(const SharedLibrary&); // stop default
 
       // ---------- member data --------------------------------
-      mutable ROOT::Reflex::SharedLibrary* library_;
+      void* libraryHandle_;
       boost::filesystem::path path_;
 };
 

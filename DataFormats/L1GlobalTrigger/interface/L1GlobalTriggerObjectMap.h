@@ -12,8 +12,6 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
  *
  */
 
@@ -27,6 +25,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+
 // forward declarations
 
 // class declaration
@@ -36,26 +36,25 @@ class L1GlobalTriggerObjectMap
 public:
 
     /// constructor(s)
-    L1GlobalTriggerObjectMap();
+  L1GlobalTriggerObjectMap(){}
 
     /// destructor
-    virtual ~L1GlobalTriggerObjectMap();
+  ~L1GlobalTriggerObjectMap(){}
 
 public:
 
     /// get / set name for algorithm in the object map
-    inline const std::string algoName() const
+    inline const std::string & algoName() const
     {
         return m_algoName;
     }
 
-    void setAlgoName(std::string algoNameValue)
-    {
+    void setAlgoName(const std::string& algoNameValue) {
         m_algoName = algoNameValue;
     }
 
     /// get / set bit number for algorithm in the object map
-    inline const int algoBitNumber() const
+    inline int algoBitNumber() const
     {
         return m_algoBitNumber;
     }
@@ -67,59 +66,51 @@ public:
 
     /// get / set the GTL result for algorithm
     /// NOTE: FDL can mask an algorithm!
-    inline const bool algoGtlResult() const
-    {
+    inline bool algoGtlResult() const {
         return m_algoGtlResult;
     }
 
-    void setAlgoGtlResult(bool algoGtlResultValue)
-    {
+    void setAlgoGtlResult(bool algoGtlResultValue) {
         m_algoGtlResult = algoGtlResultValue;
     }
 
-    /// get / set logical expression for algorithm in the object map
-    inline const std::string algoLogicalExpression() const
-    {
-        return m_algoLogicalExpression;
-    }
-
-    void setAlgoLogicalExpression(std::string algoLogicalExpressionValue)
-    {
-        m_algoLogicalExpression = algoLogicalExpressionValue;
-    }
-
-    /// get / set numerical expression for algorithm in the object map
-    inline const std::string algoNumericalExpression() const
-    {
-        return m_algoNumericalExpression;
-    }
-
-    void setAlgoNumericalExpression(std::string algoNumericalExpressionValue)
-    {
-        m_algoNumericalExpression = algoNumericalExpressionValue;
-    }
-
     /// get / set the vector of combinations for the algorithm
+    /// return a constant reference to the vector of combinations for the algorithm
     inline const std::vector<CombinationsInCond>& combinationVector() const
     {
         return m_combinationVector;
     }
 
-    void setCombinationVector(std::vector<CombinationsInCond> combinationVectorValue)
-    {
+    void setCombinationVector(const std::vector<CombinationsInCond>& combinationVectorValue) {
         m_combinationVector = combinationVectorValue;
     }
-
-    /// get / set the vector of object types for the algorithm
-    inline const std::vector<ObjectTypeInCond>& objectTypeVector() const
-    {
-        return m_objectTypeVector;
+    void swapCombinationVector(std::vector<CombinationsInCond>& combinationVectorValue) {
+      m_combinationVector.swap(combinationVectorValue);
     }
 
-    void setObjectTypeVector(std::vector<ObjectTypeInCond> objectTypeVectorValue)
-    {
-        m_objectTypeVector = objectTypeVectorValue;
+    /// get / set the vector of operand tokens
+    /// return a constant reference to the vector of operand tokens
+    inline const std::vector<L1GtLogicParser::OperandToken>& operandTokenVector() const {
+        return m_operandTokenVector;
     }
+    
+    void setOperandTokenVector(const std::vector<L1GtLogicParser::OperandToken>& operandTokenVectorValue) {
+        m_operandTokenVector = operandTokenVectorValue;
+    }
+    void swapOperandTokenVector(std::vector<L1GtLogicParser::OperandToken>& operandTokenVectorValue) {
+      m_operandTokenVector.swap(operandTokenVectorValue);
+    }
+    
+public:
+
+    /// return all the combinations passing the requirements imposed in condition condNameVal
+    const CombinationsInCond* getCombinationsInCond(const std::string& condNameVal) const;
+
+    /// return all the combinations passing the requirements imposed in condition condNumberVal
+    const CombinationsInCond* getCombinationsInCond(const int condNumberVal) const;
+
+    /// return the result for the condition condNameVal
+    const bool getConditionResult(const std::string& condNameVal) const;
 
 public:
 
@@ -140,18 +131,12 @@ private:
     // GTL result of the algorithm
     bool m_algoGtlResult;
 
-    // logical expression for the algorithm
-    std::string m_algoLogicalExpression;
-
-    // numerical expression for the algorithm
-    // (logical expression with conditions replaced with the actual values)
-    std::string m_algoNumericalExpression;
-
+    /// vector of operand tokens for an algorithm 
+    /// (condition name, condition index, condition result)
+    std::vector<L1GtLogicParser::OperandToken> m_operandTokenVector;
+    
     // vector of combinations for all conditions in an algorithm
     std::vector<CombinationsInCond> m_combinationVector;
-
-    // vector of object types for all conditions in an algorithm
-    std::vector<ObjectTypeInCond> m_objectTypeVector;
 
 };
 

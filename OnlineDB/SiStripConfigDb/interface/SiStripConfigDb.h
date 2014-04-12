@@ -1,18 +1,21 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.21 2007/04/04 06:57:57 bainbrid Exp $
 
-#ifndef SiStripConfigDb_H
-#define SiStripConfigDb_H
+#ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
+#define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 
-#define DATABASE //@@ necessary?
+#define DATABASE // Needed by DeviceFactory API! Do not comment!
+//#define USING_DATABASE_MASKING
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "DataFormats/Common/interface/MapOfVectors.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForRunType.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DeviceFactory.h"
+#include "boost/range/iterator_range.hpp"
 #include "boost/cstdint.hpp"
 #include <iostream>
 #include <fstream>
@@ -20,7 +23,18 @@
 #include <ostream>
 #include <vector>
 #include <string>
+#include <list>
 #include <map>
+
+#include "DbClient.h"
+
+namespace sistrip {
+  static const uint16_t FEC_CRATE_OFFSET =  0; //@@ temporary
+  static const uint16_t FEC_RING_OFFSET  =  0; //@@ temporary
+}
+
+// Friend class
+namespace cms { class SiStripO2O; }
 
 /**	
    \class SiStripConfigDb
@@ -30,101 +44,109 @@
 class SiStripConfigDb {
   
  public:
-  
-  // -------------------- Constructors, destructors --------------------
+
+
+  // ---------- Constructors, destructors ----------
+
   
   /** Constructor when using the "service" mode, which takes as an
       argument a ParameterSet (containing the database connection
       parameters). */
   SiStripConfigDb( const edm::ParameterSet&,
 		   const edm::ActivityRegistry& );
-
-  /** Constructor when using the configuration database, which takes
-      as arguments the database connection parameters. */
-  SiStripConfigDb( std::string confdb, 
-		   std::string db_partition,
-		   uint32_t    db_major_vers = 0,
-		   uint32_t    db_minor_vers = 0 ); 
-
-  /** Constructor when using the configuration database, which takes
-      as arguments the database connection parameters. */
-  SiStripConfigDb( std::string db_user, 
-		   std::string db_passwd, 
-		   std::string db_path,
-		   std::string db_partition,
-		   uint32_t    db_major_vers = 0,
-		   uint32_t    db_minor_vers = 0 ); 
-  
-  /** Constructor when using xml files, which takes as arguments the
-      paths to the various input (and output) xml files. */
-  SiStripConfigDb( std::string input_module_xml,
-		   std::string input_dcuinfo_xml,
-		   std::vector<std::string> input_fec_xml,
-		   std::vector<std::string> input_fed_xml,
-		   std::string output_module_xml = "/tmp/module.xml",
-		   std::string output_dcuinfo_xml = "/tmp/dcuinfo.xml",
-		   std::string output_fec_xml = "/tmp/fec.xml",
-		   std::string output_fed_xml = "/tmp/fed.xml" );
   
   /** Default destructor. */
   ~SiStripConfigDb();
   
-  // -------------------- Typedefs --------------------
 
-  /** */
-  typedef std::vector<deviceDescription*> DeviceDescriptions;
-  /** */
-  typedef std::vector<Fed9U::Fed9UDescription*> FedDescriptions;
-  /** */
-  typedef std::vector<FedChannelConnectionDescription*> FedConnections;
-  /** Key is DCU id. */
+  // ---------- PROTECTED INTERFACE ----------
+
+  
+ protected:
+  
+  /*
+    Access to the configuration database is reserved solely for the
+    commissioning (database) client and the online-to-offline transfer
+    tool. If you wish to use this interface to the configuration
+    database, then please contact one of the package administrators.
+  */
+  
+  // ESSources and O2O
+  friend class SiStripFedCablingBuilderFromDb;
+  friend class SiStripPedestalsBuilderFromDb;
+  friend class SiStripNoiseBuilderFromDb;
+  friend class SiStripCondObjBuilderFromDb;
+  friend class SiStripPsuDetIdMap;
+  
+  
+  // Commissioning clients
+  friend class SiStripCommissioningDbClient;
+  friend class SiStripCommissioningOfflineDbClient;
+  friend class CommissioningHistosUsingDb;
+  friend class FastFedCablingHistosUsingDb;
+  friend class FedCablingHistosUsingDb;
+  friend class ApvTimingHistosUsingDb;
+  friend class OptoScanHistosUsingDb;
+  friend class PedestalsHistosUsingDb;
+  friend class PedsFullNoiseHistosUsingDb;
+  friend class PedsOnlyHistosUsingDb;
+  friend class NoiseHistosUsingDb;
+  friend class VpspScanHistosUsingDb;
+  friend class LatencyHistosUsingDb;
+  friend class FineDelayHistosUsingDb;
+  friend class CalibrationHistosUsingDb;
+
+  // Utility and tests
+  friend class SiStripPartition;
+  friend class testSiStripConfigDb;
+  
+
+
+  // ---------- Typedefs ----------
+
+
+  // FED connections
+  typedef ConnectionDescription FedConnection;
+  typedef edm::MapOfVectors<std::string,FedConnection*> FedConnections;
+  typedef FedConnections::range FedConnectionsRange;
+  typedef std::vector<FedConnection*> FedConnectionsV;
+  
+  // Device descriptions
+  typedef enumDeviceType DeviceType;
+  typedef deviceDescription DeviceDescription;
+  typedef edm::MapOfVectors<std::string,DeviceDescription*> DeviceDescriptions;
+  typedef DeviceDescriptions::range DeviceDescriptionsRange;
+  typedef std::vector<DeviceDescription*> DeviceDescriptionsV;
+  
+  // FED descriptions
+  typedef Fed9U::Fed9UDescription FedDescription;
+  typedef edm::MapOfVectors<std::string,FedDescription*> FedDescriptions;
+  typedef FedDescriptions::range FedDescriptionsRange;
+  typedef std::vector<FedDescription*> FedDescriptionsV;
+
+  // FED ids
+  typedef std::vector<uint16_t> FedIds;
+  typedef boost::iterator_range<FedIds::const_iterator> FedIdsRange;
+  
+  // DCU-DetId map
   typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuDetIdMap;
-  /** */
-  typedef std::vector<piaResetDescription*> PiaResetDescriptions;
-  /** Key is DCU id. */
-  typedef Sgi::hash_map<unsigned long, TkDcuConversionFactors*> DcuConversionFactors;
+  typedef std::pair<uint32_t,TkDcuInfo*> DcuDetId; 
+  typedef edm::MapOfVectors<std::string,DcuDetId> DcuDetIds; 
+  typedef DcuDetIds::range DcuDetIdsRange; 
+  typedef std::vector<DcuDetId> DcuDetIdsV;
   
-  // -------------------- Structs and enums --------------------
+  
+  // Analysis descriptions
+  typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
+  typedef CommissioningAnalysisDescription AnalysisDescription;
+  typedef edm::MapOfVectors<std::string,AnalysisDescription*> AnalysisDescriptions;
+  typedef AnalysisDescriptions::range AnalysisDescriptionsRange;
+  typedef std::vector<AnalysisDescription*> AnalysisDescriptionsV;
 
-  /** 
-   * Container class for database connection parameters: 
-   * Connection params: usingDB flag, confdb, user, passwd and path strings.
-   * Partition info: partition name and major, minor versions.
-   * Input XML files: for modules, DCU-DetId map (dcuinfo.xml), FECs and FEDs.
-   * Output XML files: as for input XML files.
-   */
-  class DbParams { 
-  public:
-    // Constructor and methods
-    DbParams();
-    ~DbParams();
-    void print( std::stringstream& ) const; 
-    void reset(); 
-    void setParams( const edm::ParameterSet& );
-    void confdb( const std::string& );
-    void confdb( const std::string& user,
-		 const std::string& passwd,
-		 const std::string& path );
-    // Public member data 
-    bool usingDb_;
-    std::string confdb_;
-    std::string user_;
-    std::string passwd_;
-    std::string path_;
-    std::string partition_; 
-    uint32_t major_;
-    uint32_t minor_;
-    std::string inputModuleXml_;
-    std::string inputDcuInfoXml_;
-    std::vector<std::string> inputFecXml_;
-    std::vector<std::string> inputFedXml_;
-    std::string inputDcuConvXml_;
-    std::string outputModuleXml_;
-    std::string outputDcuInfoXml_;
-    std::string outputFecXml_;
-    std::string outputFedXml_;
-  };
-  
+
+  // ---------- Useful structs ----------
+
+
   /** Class that holds addresses that uniquely identify a hardware
       component within the control system. */
   class DeviceAddress { 
@@ -136,177 +158,233 @@ class SiStripConfigDb {
     uint16_t fecRing_;
     uint16_t ccuAddr_;
     uint16_t ccuChan_;
+    uint16_t lldChan_;
     uint16_t i2cAddr_;
+    uint16_t fedId_;
+    uint16_t feUnit_;
+    uint16_t feChan_;
   };
+
   
-  // -------------------- Connection and local cache --------------------
+  // ---------- Connection and useful methods ----------
+
   
   /** Establishes connection to DeviceFactory API. */
   void openDbConnection();
   
   /** Closes connection to DeviceFactory API. */
   void closeDbConnection();
+
+  /** Returns database connection parameters. */
+  inline const SiStripDbParams& dbParams() const;
   
   /** Returns whether using database or xml files. */
-  inline const bool& usingDb() const;
+  inline bool usingDb() const;
   
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DeviceFactory* const deviceFactory( std::string method_name = "" ) const;
   
-  /** Resets and clears all local caches and synchronizes with
-      descriptions retrieved from database or xml files. */
-  void refreshLocalCaches();
-  
-  // -------------------- FEC / Front-End devices -------------------- 
-  
-  /** Returns (in arg list) descriptions for a given device type
-      (which can be one of the following: APV25, APVMUX, DCU,
-      LASERDRIVER, PLL ). If boolean is set to true, the descriptions
-      of all devices EXCEPT those of the given type are returned. */
-  void getDeviceDescriptions( DeviceDescriptions&,
-			      const enumDeviceType&,
-			      bool all_devices_except = false );
-  
-  /** Fills local cache with all device descriptions from DB/xml. */
-  const DeviceDescriptions& getDeviceDescriptions(); 
-  
-  /** Overwrites local cache of device descriptions. */
-  void setDeviceDescriptions( const DeviceDescriptions& ) {;} 
-  
-  /** Resets and clears local cache. */
-  void resetDeviceDescriptions(); 
-  
-  /** Uploads all device descriptions to DB/xml. */
-  void uploadDeviceDescriptions( bool new_major_version = true ); 
+  /** Returns pointer to DeviceFactory API, with check if NULL. */
+  DbClient* const databaseCache( std::string method_name = "" ) const;
 
-  /** Creates device descriptions based on FEC cabling. */
-  const DeviceDescriptions& createDeviceDescriptions( const SiStripFecCabling& );
+
+  // ---------- Run numbers for partitions and run types ----------
+
+  
+  class Run {
+  public:
+    sistrip::RunType type_;
+    std::string      partition_;
+    uint16_t         number_;
+    Run() : type_(sistrip::UNDEFINED_RUN_TYPE), partition_(""), number_(0) {;}
+  };
+  
+  typedef std::vector<Run> Runs;
+  
+  typedef std::map<sistrip::RunType,Runs> RunsByType;
+  
+  typedef std::map<std::string,Runs> RunsByPartition;
+  
+  /** Retrieves all runs from database. */
+  void runs( Runs& ) const;
+  
+  /** Runs organsed by type, optionally for given partition. */
+  void runs( const Runs& in,
+	     RunsByType& out,
+	     std::string optional_partition = "" ) const;
+  
+  /** Runs organsed by partition, optionally for given type. */
+  void runs( const Runs& in,
+	     RunsByPartition& out,
+	     sistrip::RunType optional_type = sistrip::UNDEFINED_RUN_TYPE ) const;
+
+  /** Retrieves all partitions names from database. */
+  void partitions( std::list<std::string>& ) const;
+  
+  //@@ SiStripPartition::Versions ???
+
+  
+  // ---------- FED connections ----------
+
+
+  /** Returns local cache (just for given partition if specified). */
+  FedConnectionsRange getFedConnections( std::string partition = "" );
+
+  /** Add to local cache (just for given partition if specified). */
+  void addFedConnections( std::string partition, FedConnectionsV& );
+  
+  /** Uploads to database (just for given partition if specified). */
+  void uploadFedConnections( std::string partition = "" );
+  
+  /** Clears local cache (just for given partition if specified). */
+  void clearFedConnections( std::string partition = "" );
+
+  /** Prints local cache (just for given partition if specified). */
+  void printFedConnections( std::string partition = "" );
+  
+
+  // ---------- FEC / Front-End devices ---------- 
+
+  
+  /** Returns local cache (just for given partition if specified). */
+  DeviceDescriptionsRange getDeviceDescriptions( std::string partition = "" ); 
+
+  /** Returns (pair of iterators to) descriptions of given type. */
+  /** (APV25, APVMUX, DCU, LASERDRIVER, PLL, DOH). */
+  DeviceDescriptionsRange getDeviceDescriptions( DeviceType, std::string partition = "" );
+  
+  /** Adds to local cache (just for given partition if specified). */
+  void addDeviceDescriptions( std::string partition, DeviceDescriptionsV& );
+  
+  /** Uploads to database (just for given partition if specified). */
+  void uploadDeviceDescriptions( std::string partition = "" ); 
+  
+  /** Clears local cache (just for given partition if specified). */
+  void clearDeviceDescriptions( std::string partition = "" ); 
+  
+  /** Prints local cache (just for given partition if specified). */
+  void printDeviceDescriptions( std::string partition = "" ); 
   
   /** Extracts unique hardware address of device from description. */
-  const DeviceAddress& deviceAddress( const deviceDescription& ); //@@ uses temp offsets!
+  DeviceAddress deviceAddress( const deviceDescription& ); //@@ uses temp offsets!
   
-  // -------------------- FED descriptions --------------------
 
-  /** Fills local cache with FED descriptions from DB/xml. */
-  const FedDescriptions& getFedDescriptions();
-  
-  /** Overwrites local cache of FED descriptions. */
-  void setFedDescriptions( const FedDescriptions& ) {;}
+  // ---------- FED descriptions ----------
 
-  /** Resets and clears local cache. */
-  void resetFedDescriptions();
+
+  /** Returns local cache (just for given partition if specified). */
+  FedDescriptionsRange getFedDescriptions( std::string partition = "" ); 
+
+  /** Adds to local cache (just for given partition if specified). */
+  void addFedDescriptions( std::string partition, FedDescriptionsV& );
   
-  /** Uploads FED descriptions to DB/xml. */
-  void uploadFedDescriptions( bool new_major_version = true );
+  /** Uploads to database (just for given partition if specified). */
+  void uploadFedDescriptions( std::string partition = "" ); 
   
-  /** Create "dummy" FED descriptions based on FED cabling. */
-  const FedDescriptions& createFedDescriptions( const SiStripFecCabling& );
+  /** Clears local cache (just for given partition if specified). */
+  void clearFedDescriptions( std::string partition = "" ); 
+  
+  /** Prints local cache (just for given partition if specified). */
+  void printFedDescriptions( std::string partition = "" ); 
   
   /** Extracts FED ids from FED descriptions. */
-  const std::vector<uint16_t>& getFedIds();
+  FedIdsRange getFedIds( std::string partition = "" );
   
-  /** Indicates if strip info is enabled/disabled within FED descs. */
-  inline const bool& usingStrips() const;
+  /** Strip-level info enabled/disabled within FED descriptions. */
+  inline bool usingStrips() const;
   
-  /** Enable/disable strip info within FED descriptions. */
+  /** Enables/disables strip-level info within FED descriptions. */
   inline void usingStrips( bool );
   
-  // -------------------- FED connections --------------------
 
-  /** Fills local cache with connection descriptions from DB/xml. */
-  const FedConnections& getFedConnections();
-  
-  /** Overwrites local cache of FED-FEC connections. */
-  void setFedConnections( const FedConnections& ) {;} //@@ to be implemented!
-  
-  /** Resets and clears local cache. */
-  void resetFedConnections();
-  
-  /** Uploads FED-FEC connections to DB/xml. */
-  void uploadFedConnections( bool new_major_version = true );
-  
-  /** Creates "dummy" FED connections based on FEC cabling. */
-  const FedConnections& createFedConnections( const SiStripFecCabling& );
-  
-  // -------------------- DCU-DetId info --------------------
+  // ---------- DCU-DetId info ----------
 
-  /** Returns the DcuId-DetId map. If the local cache is empty, it
-      retrieves the DcuId-DetId map from the DB/xml file. */
-  const DcuDetIdMap& getDcuDetIdMap();
-  
-  /** Clears the local cache of DcuId-DetId map and sets it equal to
-      the map provided within the argument list. */
-  void setDcuDetIdMap( const DcuDetIdMap& );
-  
-  /** Resets and clears local cache. */
-  void resetDcuDetIdMap();
-  
-  /** Uploads the contents of the local cache to DB/xml file. */
-  void uploadDcuDetIdMap();
-  
-  // -------------------- DCU conversion factors --------------------
-  
-  /** Fills local cache with DCU conversion factors from DB/xml. */
-  const DcuConversionFactors& getDcuConversionFactors();
-  
-  /** Overwrites local cache of DCU conversion factors. */
-  void setDcuConversionFactors( const DcuConversionFactors& );
-  
-  /** Resets and clears local cache. */
-  void resetDcuConversionFactors();
-  
-  /** Uploads DCU conversion factors to DB/xml. */
-  void uploadDcuConversionFactors();
-  
-  /** Create "dummy" DCU conversion factors based on FEC cabling. */
-  const DcuConversionFactors& createDcuConversionFactors( const SiStripFecCabling& );
-  
-  // -------------------- PIA reset descriptions --------------------
 
-  /** Fills local cache with PIA reset descriptions from DB/xml. */
-  const PiaResetDescriptions& getPiaResetDescriptions();
+  /** Returns local cache (just for given partition if specified). */
+  DcuDetIdsRange getDcuDetIds( std::string partition = "" );
   
-  /** Overwrites local cache of PIA reset descriptions. */
-  void setPiaResetDescriptions( const PiaResetDescriptions& ) {;} 
+  /** Adds to local cache (just for given partition if specified). */
+  void addDcuDetIds( std::string partition, DcuDetIdsV& );
+  
+  /** Uploads to database (just for given partition if specified). */
+  void uploadDcuDetIds( std::string partition = "" );
+  
+  /** Clears local cache (just for given partition if specified). */
+  void clearDcuDetIds( std::string partition = "" );
+  
+  /** Prints local cache (just for given partition if specified). */
+  void printDcuDetIds( std::string partition = "" );
+  
+  /** Utility method. */
+  static DcuDetIdsV::const_iterator findDcuDetId( DcuDetIdsV::const_iterator begin,
+						  DcuDetIdsV::const_iterator end,
+						  uint32_t dcu_id  );
+  
+  /** Utility method. */
+  static DcuDetIdsV::iterator findDcuDetId( DcuDetIdsV::iterator begin,
+					    DcuDetIdsV::iterator end,
+					    uint32_t dcu_id  );
+  
+  
+  // ---------- Commissioning analyses ---------- 
 
-  /** Resets and clears local cache. */
-  void resetPiaResetDescriptions();
   
-  /** Uploads PIA reset descriptions to DB/xml. */
-  void uploadPiaResetDescriptions();
+  /** Returns local cache (just for given partition if specified). */
+  AnalysisDescriptionsRange getAnalysisDescriptions( AnalysisType, std::string partition = "" );
   
-  /** Create "dummy" PIA reset descriptions based on FED cabling. */
-  const PiaResetDescriptions& createPiaResetDescriptions( const SiStripFecCabling& );
+  /** Adds to local cache (just for given partition if specified). */
+  void addAnalysisDescriptions( std::string partition, AnalysisDescriptionsV& );
   
-  // -------------------- Miscellaneous --------------------
+  /** Uploads to database (just for given partition if specified). */
+  void uploadAnalysisDescriptions( bool calibration_for_physics = false, std::string partition = "" );
   
-  /** Creates "dummy" descriptions based on FEC cabling. */
-  void createPartition( const std::string& partition_name,
-			const SiStripFecCabling& ); 
+  /** Clears local cache (just for given partition if specified). */
+  void clearAnalysisDescriptions( std::string partition = "" );
+  
+  /** Prints local cache (just for given partition if specified). */
+  void printAnalysisDescriptions( std::string partition = "" );
+  
+  /** Extracts unique hardware address of device from description. */
+  DeviceAddress deviceAddress( const AnalysisDescription& ); //@@ uses temp offsets!
+  
+  /** Returns string for given analysis type. */
+  std::string analysisType( AnalysisType ) const;
   
 
  private:
 
-  
-  // -------------------- Miscellaneous private methods --------------------
 
-  
+  // ---------- Private methods ----------
+
+
+  /** */
+  void clearLocalCache();
+
   /** */
   void usingDatabase();
+
+  /** */
+  void usingDatabaseCache();
   
   /** */
   void usingXmlFiles();
   
-  /** Handles exceptions thrown by FEC and FED software. */
+  /** Handles exceptions thrown by software. */
   void handleException( const std::string& method_name,
-			const std::string& extra_info = "" );// throw (cms::Exception);
+			const std::string& extra_info = "" ) const;
   
   /** Checks whether file at "path" exists or not. */
   bool checkFileExists( const std::string& path );
   
   /** Returns device identifier based on device type. */
   std::string deviceType( const enumDeviceType& device_type ) const;
-
+  
+  void clone( const DcuDetIdMap& in, DcuDetIdsV& out ) const;
+  
+  void clone( const DcuDetIdsV& in, DcuDetIdMap& out ) const;
+  
+  void clone( const DcuDetIdsV& in, DcuDetIdsV& out ) const;
+  
   
   // ---------- Database connection, partitions and versions ----------
 
@@ -314,55 +392,57 @@ class SiStripConfigDb {
   /** Pointer to the DeviceFactory API. */
   DeviceFactory* factory_; 
 
+  /** Pointer to the DbClient class. */
+  DbClient* dbCache_; 
+
   /** Instance of struct that holds all DB connection parameters. */
-  DbParams dbParams_;
+  SiStripDbParams dbParams_;
 
 
-  // -------------------- Local cache --------------------
+  // ---------- Local cache of vectors ----------
 
-
-  /** Vector of descriptions for all FEC devices (including DCUs). */
-  DeviceDescriptions devices_;
-
-  /** PIA reset descriptions are necessary when using xml files. */
-  std::vector<piaResetDescription*> piaResets_;
-
-  /** Fed9U descriptions. */
-  FedDescriptions feds_;
 
   /** FED-FEC connection descriptions. */
   FedConnections connections_;
+  
+  /** Device descriptions (including DCUs). */
+  DeviceDescriptions devices_;
 
-  /** TkDcuInfo objects, containing DcuId-DetId map. */
-  DcuDetIdMap dcuDetIdMap_;
+  /** Fed9U descriptions. */
+  FedDescriptions feds_;
+ 
+  /** DcuId-DetId map (map of TkDcuInfo objects). */
+  DcuDetIds dcuDetIds_;
 
-  /** */
-  DcuConversionFactors dcuConversionFactors_;
+  /** Analysis descriptions for given commissioning run. */
+  AnalysisDescriptions analyses_;
 
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV apvDevices_;
 
-  // -------------------- Reset flags --------------------
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV muxDevices_;
 
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV dcuDevices_;
 
-  /** Indicates device descriptions have been reset. */
-  bool resetDevices_;
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV lldDevices_;
 
-  /** Indicates PIA reset descriptions have been reset. */
-  bool resetPiaResets_;
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV pllDevices_;
 
-  /** Indicates FED descriptions have been reset. */
-  bool resetFeds_;
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV dohDevices_;
 
-  /** Indicates FED connections have been reset. */
-  bool resetConnections_;
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV typedDevices_;
+  
+  /** FED ids. */ 
+  FedIds fedIds_;
+  
 
-  /** Indicates Dcu-DetId map has been reset. */
-  bool resetDcuDetIdMap_;
-
-  /** Indicates DCU conversion factors have been reset. */
-  bool resetDcuConvs_;
-
-
-  // -------------------- Miscellaneous --------------------
+  // ---------- Miscellaneous ----------
 
   
   /** Switch to enable/disable transfer of strip information. */
@@ -373,24 +453,27 @@ class SiStripConfigDb {
   
   /** Static counter of instances of this class. */
   static uint32_t cntr_;
+
+  static bool allowCalibUpload_;
+
   
 };
 
 
-// -------------------- Inline methods --------------------
+// ---------- Inline methods ----------
+
+
+/** Returns database connection parameters. */
+const SiStripDbParams& SiStripConfigDb::dbParams() const { return dbParams_; }
 
 /** Indicates whether DB (true) or XML files (false) are used. */
-const bool& SiStripConfigDb::usingDb() const { return dbParams_.usingDb_; }
+bool SiStripConfigDb::usingDb() const { return dbParams_.usingDb(); }
 
 /** Indicates whether FED strip info is uploaded/downloaded. */
-const bool& SiStripConfigDb::usingStrips() const { return usingStrips_; }
+bool SiStripConfigDb::usingStrips() const { return usingStrips_; }
 
 /** Switches on/off of upload/download for FED strip info. */
 void SiStripConfigDb::usingStrips( bool using_strips ) { usingStrips_ = using_strips; }
 
-/** Debug printout for DbParams class. */
-std::ostream& operator<< ( std::ostream&, const SiStripConfigDb::DbParams& );
 
-
-#endif // SiStripConfigDb_H
-
+#endif // OnlineDB_SiStripConfigDb_SiStripConfigDb_h

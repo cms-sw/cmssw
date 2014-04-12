@@ -15,7 +15,6 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Mon Sept 11 10:57:54 CET 2006
-// $Id: MCProcessFilter.h,v 1.1 2006/09/19 08:07:08 fmoortga Exp $
 //
 //
 
@@ -33,9 +32,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-using namespace edm;
-using namespace std;
-
 //
 // class decleration
 //
@@ -46,7 +42,7 @@ class MCProcessFilter : public edm::EDFilter {
       ~MCProcessFilter();
 
 
-      virtual bool filter(Event&, const EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
       

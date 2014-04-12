@@ -1,10 +1,12 @@
+
 *----------------------------------------------------------------------
 *
-*  Filename             : PYQUEN.F
+*  Filename               : PYQUEN.F
 *
-*  Author               : Igor Lokhtin  
-*  Version              : PYQUEN1_2.f 
-*  Last revision        : 18-JUN-2007 
+*  Author                 : Igor Lokhtin  (Igor.Lokhtin@cern.ch)
+*  Version                : PYQUEN1_5.f, v.1.5.1 
+*  Last revision v.5.1    : 19-DEC-2007 
+*  Last revision v.5.1.1  : 06-MAY-2010
 *
 *======================================================================
 *
@@ -17,39 +19,43 @@
 *                   
 *======================================================================
 
-      SUBROUTINE PYQUEN(A,ifb,bfix)
+      SUBROUTINE PYQUEN(A,ifb,bfix,bmin,bmax)
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
+c      INTEGER PYK,PYCHGE,PYCOMP
       external pydata  
       external pyp,pyr,pyk,pyjoin,pyshow
-      external ftaa,funbip 
+      external funbip,prhoaa,pfunc1
       common /pyjets/ n,npad,k(4000,5),p(4000,5),v(4000,5)
       common /pydat1/ mstu(200),paru(200),mstj(200),parj(200)       
       common /pysubs/ msel,mselpd,msub(500),kfin(2,-40:40),ckin(200)      
       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
       common /plglur/ glur(1000,4),kglu(1000,6),nrg,nrgm 
       common /plquar/ pqua(1000,5),kqua(1000,5),nrq 
-      common /parimp/ b1,psib1,rb1,rb2 
+      common /parimp/ b1,psib1,rb1,rb2,noquen 
       common /pyqpar/ T0u,tau0u,nfu,ienglu,ianglu 
-      common /bintaa/ br 
       common /plfpar/ bgen
-      save /pyjets/, /pydat1/, /pysubs/, /plglur/, /plquar/
-      dimension ijoik(2),ijoin(1000),nis(500),nss(500),nas(500),nus(500) 
+      common /pygeom/ BC
+      common /pythic/ PBAB(110),PTAB(110),PTAAB(110)
+      common /pynup1/ bp,x  
+      save/pyjets/,/pydat1/,/pysubs/,/plglur/,/plquar/,/pygeom/,
+     >    /pythic/,/plpar1/,/parimp/,/pyqpar/,/plfpar/
+      dimension ijoik(2),ijoin(1000),ijoin0(1000),nis(500),nss(500),
+     >          nas(500),nus(500)
                   
 * set initial event paramters  
       AW=A                                 ! atomic weight 
       RA=1.15d0*AW**0.333333d0             ! nucleus radius in fm
-      RA2=2.d0*RA 
+      RA3=3.d0*RA 
       mvisc=0                              ! flag of QGP viscosity (off here) 
       TC=0.2d0                             ! crutical temperature 
       
       if(nfu.ne.0.and.nfu.ne.1.and.nfu.ne.2.and.nfu.ne.3) nfu=0
       nf=nfu                               ! number of active flavours in QGP
       if(tau0u.lt.0.01d0.or.tau0u.gt.10.d0) tau0u=0.1d0  
-      tau0=tau0u                          ! proper time of QGP formation
+      tau0=tau0u                           ! proper time of QGP formation
       if(T0u.lt.0.2d0.or.T0u.gt.2.d0) T0u=1.d0  
-      T000=T0u                            ! initial QGP temperatute 
+      T0=T0u*(AW/207.d0)**0.166667d0       ! initial QGP temperatute at b=0
       if(ienglu.ne.0.and.ienglu.ne.1.and.ienglu.ne.2) ienglu=0 ! e-loss type
       if(ianglu.ne.0.and.ianglu.ne.1.and.ianglu.ne.2) ianglu=0 ! angular spec.  
 *    
@@ -58,19 +64,43 @@
 * avoid stopping run if pythia does not conserve energy due to collisional loss 
       mstu(21)=1 
 
+* creation of arrays for tabulation of beam/target nuclear thickness function
+      Z2=4.d0*RA
+      Z1=-1.d0*Z2
+      H=0.01d0*(Z2-Z1)
+      do ib=1,110    
+       BC=RA3*(ib-1)/109.d0
+       CALL SIMPA(Z1,Z2,H,0.005d0,1.d-8,prhoaa,Z,RES,AIH,AIABS)     
+       PBAB(ib)=BC
+       PTAB(ib)=AW*RES
+      end do   
+      
+* calculation of beam/target nuclear overlap function at b=0
+* if ifb=1: creation of arrays for tabulation of nuclear overlap function
+      npb=1
+      if (ifb.eq.1) npb=110  
+      Z1=0.d0 
+      Z2=6.28318d0 
+      H=0.01d0*(Z2-Z1)    
+      do ib=1,npb 
+       bp=PBAB(ib)
+       CALL SIMPA(Z1,Z2,H,0.05d0,1.d-8,PFUNC1,X,RES,AIH,AIABS)
+       PTAAB(ib)=RES 
+      end do   
+
 * generate impact parameter of A-A collision with jet production  
       if(ifb.eq.0) then 
        if(bfix.lt.0.d0) then    
         write(6,*) 'Impact parameter less than zero!'  
         bfix=0.d0  
        end if  
-       if (bfix.gt.RA2) then 
-        write(6,*) 'Impact parameter larger than two nuclear radius!'  
-        bfix=RA2
+       if (bfix.gt.RA3) then 
+        write(6,*) 'Impact parameter larger than three nuclear radius!'  
+        bfix=RA3
        end if 
        b1=bfix  
       else      
-       call bipsear(fmax1,xmin1) 
+ 112     call bipsear(fmax1,xmin1) 
        fmax=fmax1 
        xmin=xmin1    
  11    bb1=xmin*pyr(0) 
@@ -78,29 +108,16 @@
        fb=funbip(bb1) 
        if(ff1.gt.fb) goto 11    
        b1=bb1  
+       if(bb1.gt.bmax) goto 112
+       if(bb1.lt.bmin) goto 112
       end if  
       bgen=b1 
-
-* calculate initial QGP temperature as function of centrality 
-      sb0=pi*RA*RA  
-      sb=RA*RA*(pi-2.d0*dasin(0.5d0*b1/RA))-b1*dsqrt(abs(RA*RA-
-     >   b1*b1/4.d0)) 
-      rtaa0=9.d0*AW*AW/(8.d0*sb0) 
-      br=max(1.d-10,b1*b1/(4.d0*RA*RA))  
-      call simpa(0.d0,20.d0,0.001d0,0.001d0,1.d-08,ftaa,xx,rest,
-     >           aih,aiabs) 
-      rtaa=rtaa0*(1.d0-br*(1.d0+(1.d0-0.25d0*br)*dlog(1.d0/br)+
-     >     4.d0*rest/pi))   
-      T00=T000*((rtaa*sb0)/(rtaa0*sb))**0.25d0 
-      T0=T00*(AW/207.d0)**0.166667d0 
       
 * generate single event with partonic energy loss 
       nrg=0 
       ehard=ckin(3) 
-      if(b1.le.1.85d0*RA) then
-       call plinit(ehard)  
-       call plevnt(ehard)
-      end if      
+      call plinit(ehard)  
+      call plevnt(ehard)
 
 * reset all in-vacuum radiated guark 4-momenta and codes to zero 
       do i=1,1000  
@@ -122,15 +139,18 @@
       if(mstj(41).ne.0) goto 5
       mstj(41)=1  
       nn=n 
+      kfh1=0 
+      kfh2=0 
+
       do i=9,nn 
        if(k(i,3).eq.7) then  
         ip1=i                    ! first hard parton (line ip1) 
-	kfh1=k(i,1)              ! status code of first hard parton 
+        kfh1=k(i,1)              ! status code of first hard parton 
         qmax1=pyp(i,10)          ! transverse momentum of first hard parton
        end if
        if(k(i,3).eq.8) then 
-	ip2=i                    ! second hard parton (line ip2)  
-	kfh2=k(i,1)              ! status code of second hard parton 
+        ip2=i                    ! second hard parton (line ip2)  
+        kfh2=k(i,1)              ! status code of second hard parton 
         qmax2=pyp(i,10)          ! transverse momentum of second hard parton 
        end if
       end do
@@ -155,25 +175,25 @@
        if (k(i,1).eq.14) goto 3
        if(i.ge.ip002.and.ip002.gt.0) then 
         ptl02=pyp(i,10) 
-	if(ptl02.gt.ptle2.and.k(i,2).eq.k(ip2,2)) then 
-	 ip02=i                   ! leading parton in second shower (line ip02)
-	 ptle2=ptl02              ! pt of the leading parton 
-	end if 
+        if(ptl02.gt.ptle2.and.k(i,2).eq.k(ip2,2)) then 
+         ip02=i                   ! leading parton in second shower (line ip02)
+         ptle2=ptl02              ! pt of the leading parton 
+        end if 
        elseif(ip001.gt.0) then  
         ptl01=pyp(i,10) 
-	if(ptl01.gt.ptle1.and.k(i,2).eq.k(ip1,2)) then 
-	 ip01=i                   ! leading parton in first shower (line ip01)
-	 ptle1=ptl01              ! pt of the leading parton 
+        if(ptl01.gt.ptle1.and.k(i,2).eq.k(ip1,2)) then 
+         ip01=i                   ! leading parton in first shower (line ip01)
+         ptle1=ptl01              ! pt of the leading parton 
         end if 
        end if
  3     continue 
-      end do 	 	
+      end do
 
 * replace two hard partons by two leading partons in original event record 
       if(ip1.gt.0) then 
        do j=1,5 
         v(ip1,j)=v(ip01,j)  
-	p(ip1,j)=p(ip01,j) 
+        p(ip1,j)=p(ip01,j) 
        end do 
        k(ip1,1)=kfh1
 * fix first/last daughter for moving entry 
@@ -196,25 +216,25 @@
         end do 
 *
       end if 
-	
+ 
 * add final showering gluons to the list of in-medium emitted gluons,
 * fill the list of emitted quarks by final showering quark pairs,  
 * and remove showering gluons and quarks from the event record 
       do i=nn+1,n 
        if(k(i,1).eq.14.or.i.eq.ip01.or.i.eq.ip02) goto 12       
-       if(k(i,2).ne.21) then               ! filling 'plquar' arrays for quarks  
-        nrq=nrq+1 
-	do j=1,5 
-	 kqua(nrq,j)=k(i,j)
-	 pqua(nrq,j)=p(i,j)
-	end do 
-         kqua(nrq,1)=2 
-	goto 12        
+       if(k(i,2).ne.21) then           ! filling 'plquar' arrays for quarks 
+       nrq=nrq+1 
+        do j=1,5 
+         kqua(nrq,j)=k(i,j)
+         pqua(nrq,j)=p(i,j)
+        end do 
+        kqua(nrq,1)=2 
+        goto 12        
        end if   
        if(i.ge.ip002.and.ip002.gt.0) then 
         ish=ip2
        else  
-	ish=ip1
+        ish=ip1
        end if 
        nrg=nrg+1
        nur=nrg 
@@ -239,7 +259,8 @@
        glur(nur,3)=pyp(i,15)                      ! phi
        glur(nur,4)=pyp(i,19)                      ! eta   
  12    continue        
-       do j=1,5                              ! remove partons from event list
+* remove partons from event list
+       do j=1,5                             
         v(i,j)=0.d0 
         k(i,j)=0 
         p(i,j)=0.d0  
@@ -273,7 +294,7 @@
         nis(ns+1)=nis(ns+1)+1
         nes=nes+nis(ns+1)     ! nes - total number of entries  
         nss(ns+1)=nes 
-	ns=ns+1 
+        ns=ns+1 
        elseif(ks.ne.2.and.ksp.ne.2.and.ns.gt.0) then 
         i1=i1+1               ! last i1 lines not included in strings 
        end if 
@@ -301,11 +322,11 @@
        end do
 *
        do in=i+1,n 
-	do j=1,5 
-	 v(in-1,j)=v(in,j) 
+        do j=1,5 
+         v(in-1,j)=v(in,j) 
          k(in-1,j)=k(in,j) 
          p(in-1,j)=p(in,j)
-	end do 
+        end do 
 * fix first/last daughter for moving entry 
         do jgl=1,n
          if(k(jgl,4).eq.in) k(jgl,4)=in-1
@@ -315,7 +336,7 @@
        end do 
        do ip=1,nrg 
         ku=kglu(ip,6) 
-	if(ku.gt.i) kglu(ip,6)=ku-1 
+        if(ku.gt.i) kglu(ip,6)=ku-1 
        end do 
        n=n-1
       else  
@@ -332,7 +353,7 @@
         do j=2,ns 
          if(kas.le.nss(j).and.kas.gt.nss(j-1)) 
      >   nas(j)=nas(j)+1 
-	end do
+        end do
        end if 	        
       end do 
       do j=1,ns   
@@ -340,7 +361,7 @@
         nus(j)=nus(j)+nas(i) 
        end do 
       end do 
-            
+	    
 * add emitted gluons in event list  
       nu=n 
       n=n+nrg 
@@ -358,10 +379,11 @@
        end do
 *
       end do 
+
       do ia=ns-1,1,-1  
        do i=nss(ia+1)-1,nss(ia),-1 
         is=i+nus(ia) 
-	do j=1,5 
+        do j=1,5 
          v(is,j)=v(i,j) 
          k(is,j)=k(i,j) 
          p(is,j)=p(i,j) 
@@ -403,6 +425,7 @@
 * rearrange partons to form strings in event list 
       do ij=1,1000 
        ijoin(ij)=0 
+       ijoin0(ij)=0 
       end do 
       do i=1,ns 
        njoin=nis(i)+nas(i) 
@@ -411,11 +434,51 @@
          ijoin(j)=i0+j
         end do 
        else 
-	do j=1,njoin 
+        do j=1,njoin 
          ijoin(j)=nss(i-1)+nus(i-1)+j 
-	end do  
+        end do  
        end if 
+       
+* re-oder additional gluons by z-coordinate along the string
+       if(nas(i).gt.0) then
+        ja=njoin-nas(i)
+        jo1=ijoin(1)
+        jon=ijoin(njoin)
+        etasum=0.d0
+        detaj=pyp(jo1,19)-pyp(jon,19)
+        do j=ja,njoin-1
+         jnum=0
+         etaj=pyp(jo1+j-1,19)
+	 etasum=etasum+etaj
+         do jj=ja,njoin-1
+          etajj=pyp(jo1+jj-1,19)
+          if(detaj.lt.0) then
+           if(etajj.lt.etaj.and.j.ne.jj) jnum=jnum+1
+          else
+           if(etajj.gt.etaj.and.j.ne.jj) jnum=jnum+1
+          end if
+          if(etajj.eq.etaj.and.j.lt.jj) jnum=jnum+1
+	 end do
+         ijoin(ja+jnum)=jo1+j-1
+        end do
+        detas1=abs(pyp(jo1,19)-etasum)
+        detasn=abs(pyp(jon,19)-etasum)
+	if(detasn.gt.detas1) then
+	 do j=1,njoin 
+	  ijoin0(j)=ijoin(j)
+	 end do 
+         do j=2,nas(i)+1
+          ijoin(j)=ijoin0(ja+j-2)
+         end do 	 	
+         do j=nas(i)+2,njoin-1  	
+          ijoin(j)=ijoin0(j-nas(i))
+         end do
+        end if 
+       end if
+
+* form strings
        call pyjoin(njoin,ijoin)
+
       end do  
 
 * add in-vacuum emitted quark pairs 
@@ -425,7 +488,7 @@
        do j=1,5  
         v(n-1,j)=0.d0 
         k(n-1,j)=kqua(i,j) 
-	p(n-1,j)=pqua(i,j) 
+        p(n-1,j)=pqua(i,j) 
        end do
        in=i+1 
  4     ktest=k(n-1,2)+kqua(in,2)
@@ -435,12 +498,12 @@
  8     do j=1,5  
         v(n,j)=0.d0 
         k(n,j)=kqua(in,j) 
-	p(n,j)=pqua(in,j) 
+        p(n,j)=pqua(in,j) 
        end do
        if(in.gt.i+1) then 
         do j=1,5   
          kqua(in,j)=kqua(i+1,j) 
-	 pqua(in,j)=pqua(i+1,j) 
+         pqua(in,j)=pqua(i+1,j) 
         end do
        end if  
       end do
@@ -462,16 +525,15 @@
 
 ********************************* PLINIT ***************************
       SUBROUTINE PLINIT(ET) 
-* set nucleus thikness and plasma parameters   
+* set time-dependence of plasma parameters   
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
       external plvisc  
       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf  
       common /plpar2/ pln0,taupl,tauh,sigpl,sigh,sigplh,sigqqh,rg,rgn 
       common /plevol/ taup(5000),temp(5000),denp(5000),enep(5000)  
-      save /plevol/  
+      save /plevol/,/plpar1/,/plpar2/  
 *
+      et=et
       pi=3.14159d0 
       pi2=pi*pi  
 
@@ -487,7 +549,8 @@
 * set intial plasma temperature, density and energy density in perfect 
 * (if mvisc=0) or viscous (mvisc=1,2) QGP with PLVISC subroitine  
       hst=0.15d0   
-      if(mvisc.eq.2.and.T0.gt.0.6d0) hst=0.25d0 
+      if(T0.gt.1.5d0.or.mvisc.eq.2) hst=0.25d0
+      if(T0.gt.1.5d0.and.mvisc.ne.0) hst=0.9d0  
       T01=T0*5.06d0                 
       TC1=TC*5.06d0
       pln0=(16.d0+9.d0*nf)*1.2d0*(T01**3)/pi2
@@ -528,7 +591,7 @@
 * collisional and radiative energy loss of each parton through plasma        
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
+c      INTEGER PYK,PYCHGE,PYCOMP
       external plthik, pln, plt, pls, gauss, gluang 
       external pyp,pyr,pyk 
       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
@@ -539,14 +602,15 @@
       common /plglur/ glur(1000,4),kglu(1000,6),nrg,nrgm  
       common /factor/ cfac, kf 
       common /pleave/ taul, temlev   
-      common /parimp/ b1, psib1, rb1, rb2 
+      common /parimp/ b1, psib1, rb1, rb2, noquen 
       common /plen/ epartc, um 
       common /plos/ elr,rsk 
       common /numje1/ nuj1, nuj2  
-      save /pyjets/, /plglur/
+      save/pyjets/,/plglur/,/plpar1/,/plpar2/,/thikpa/,/factor/,
+     <    /pleave/,/parimp/,/plen/,/plos/,/numje1/
 *
       pi=3.14159d0              
-
+      et=et
 * find minimum of nuclear thikness function with subroutine plsear      
       psib1=pi*(2.d0*pyr(0)-1.d0) 
       call plsear (fmax1,xmin1)
@@ -565,6 +629,8 @@
       rb2=dsqrt(abs(r0*r0+b1*b1/4.d0-r0*b1*dcos(psib1))) 
       rb1=max(rb1,1.d-4) 
       rb2=max(rb2,1.d-4) 
+* no quenching if noquen=1 or jet production vertex is out of effective dense zone 
+      if(noquen.eq.1.or.rb1.gt.RA.or.rb2.gt.RA) goto 7
 
 * find maximum of angular spectrum of radiated gluons with subroutine gluang 
       temin=0.5d0*pi 
@@ -596,21 +662,21 @@
        epart=abs(pyp(ip,10))            ! parton transverse momentum
        etar=pyp(ip,19)                  ! parton pseudorapidity  
        if(ko.gt.6.and.epart.ge.3.d0.and.abs(etar).
-     >  le.3.5d0) then 
+     >  le.7.d0) then 
        if(ka.eq.21.or.ka.eq.1.or.ka.eq.2.or.ka.eq.3.
      >  or.ka.eq.4.or.ka.eq.5.or.ka.eq.6.or.ka.eq.7.  
      >  or.ka.eq.8) then    
-       if(ks.eq.2.or.ks.eq.1.or.ks.eq.21) then  
+       if(ks.eq.2.or.ks.eq.1) then  
         phir=pyp(ip,15)                 ! parton azimuthal angle  
         tetr=pyp(ip,13)                 ! parton polar angle         
         yrr=pyp(ip,17)                  ! parton rapidity 
         stetr=dsin(tetr)                ! parton sin(theta) 
         if(abs(stetr).le.1.d-05) then 
          if(stetr.ge.0.d0) then 
-	  stetr=1.d-05
+          stetr=1.d-05
          else 
           stetr=-1.d-05
-	 end if 
+         end if 
         end if 
         phir1=-1.d0*phir 
         tetr1=-1.d0*tetr 
@@ -631,11 +697,11 @@
         if(psib1.lt.0.d0) bet=-1.d0*bet 
         phip=phir-bet 
         if(phip.gt.pi) phip=phip-2.d0*pi 
-        if(phip.lt.-1.d0*pi) phip=phip+2.d0*pi 
-        call pyrobo(0,0,0.d0,phir1,0.d0,0.d0,0.d0)  
-        call pyrobo(0,0,tetr1,0.d0,0.d0,0.d0,0.d0)  
-
-* calculate proper time of parton leaving QGP 
+        if(phip.lt.-1.d0*pi) phip=phip+2.d0*pi   
+        call pyrobo(ip,ip,0.d0,phir1,0.d0,0.d0,0.d0)  
+        call pyrobo(ip,ip,tetr1,0.d0,0.d0,0.d0,0.d0)  
+ 
+* calculate proper time of parton leaving the effective dense zone
         aphin=(r0*r0-b1*b1/4.d0)/(rb1*rb2) 
         if(aphin.le.-1.d0) aphin=-0.99999d0
         if(aphin.ge.1.d0) aphin=0.99999d0   
@@ -647,17 +713,25 @@
         taul1=abs(dsqrt(abs(RA*RA-(rb1*dsin(phip))**2))-rb1*dcos(phip)) 
         taul2=abs(dsqrt(abs(RA*RA-(rb2*dsin(phid))**2))-rb2*dcos(phid))    
         taul=min(taul1,taul2)             ! escape time taul 
-        temlev=plt(taul)                  ! QGP temperature at taul 
-        if(taul.le.tau0) goto 100         ! escape from QGP if taul<tau0  
+        temlev=plt(taul,rb1,rb2,yrr)      ! QGP temperature at taul 
+        if(taul.le.tau0) goto 100        ! escape from QGP if taul<tau0  
 
 * start parton rescattering in QGP with proper time iterations  
         tau=tau0 
- 3      tfs=plt(tau) 
-        xi=-10.d0*dlog(max(pyr(0),1.d-10))/(sigpl*pln(tau))
+        xj=r0*dcos(psib1)
+        yj=r0*dsin(psib1)
+        rj1=rb1
+        rj2=rb2
+ 3      tfs=plt(tau,rj1,rj2,yrr) 
+        xi=-10.d0*dlog(max(pyr(0),1.d-10))/(sigpl*pln(tau,rj1,rj2,yrr))
         vel=abs(p(ip,3))/dsqrt(p(ip,3)**2+p(ip,5)**2) ! parton velocity 
         if(vel.lt.0.3d0) goto 4      
         tau=tau+xi*vel    
-        if(tau.ge.taul.or.tfs.le.TC) goto 100  ! escape if tau>taul or >taupl    
+        xj=xj+xi*vel*dcos(phir)
+        yj=yj+xi*vel*dsin(phir)
+        rj1=sqrt(abs(yj**2+(xj+0.5d0*b1)**2))
+        rj2=sqrt(abs(yj**2+(xj-0.5d0*b1)**2))
+        if(tfs.le.TC) goto 100     ! escape if temperature drops below TC
 
 * transform parton 4-momentum due to next scattering with subroutine pljetr
         epartc=p(ip,4)                         ! parton energy 
@@ -668,9 +742,10 @@
         irasf=irasf+1 
         if(irasf.gt.100000) goto 100 
         if(ran.lt.prob) goto 3  
-        pltp=plt(tau) 
+        pltp=plt(tau,rj1,rj2,yrr) 
+        if(pltp.le.TC) goto 100     ! escape if temperature drops below TC
         pltp3=3.d0*pltp 
-        pass=50.6d0/(pln(tau)*sigtr)    
+        pass=50.6d0/(pln(tau,rj1,rj2,yrr)*sigtr)    
         elr=0.d0 
         rsk=0.d0 
         call pljetr(tau,pass,pltp,ipar,epart) 
@@ -689,9 +764,9 @@
            tgl=te1                              
           elseif (ianglu.eq.1) then              
            tgl=((0.5d0*pi*epartc)**pyr(0))/epartc
-	  else 
-	   tgl=0.d0 
-	  end if  	                                          
+          else 
+           tgl=0.d0 
+          end if  	                                          
           pgl=pi*(2.d0*pyr(0)-1.d0) 
 * in comoving system 
           pxgl=abs(elr)*stetr*(dcos(phir)*dcos(tgl)-
@@ -699,7 +774,7 @@
           pygl=abs(elr)*stetr*(dsin(phir)*dcos(tgl)+
      >      dcos(phir)*dsin(tgl)*dsin(pgl))  
           pzgl=-1.d0*abs(elr)*stetr*dsin(tgl)*dcos(pgl) 
-          ptgl=dsqrt(abs(pxgl*pxgl+pygl*pygl))  	 
+          ptgl=dsqrt(abs(pxgl*pxgl+pygl*pygl))
           psgl=dsqrt(abs(ptgl*ptgl+pzgl*pzgl)) 
 * recalculate in lab system 
           dyg=0.5d0*dlog(max(1.d-9,(psgl+pzgl)/(psgl-pzgl)))
@@ -720,22 +795,22 @@
           glur2=glur1/dcosh(glur4)                             ! pt 
 
 * put in event list radiated gluons with pt > 0.2 GeV only 
-	  if(glur2.ge.0.2d0) then 
-	   nrg=nrg+1 
+          if(glur2.ge.0.2d0) then 
+           nrg=nrg+1 
 * set gluon 4-momentum 
-	   glur(nrg,1)=glur1                                   ! energy
-	   glur(nrg,2)=glur2                                   ! pt
-	   glur(nrg,3)=glur3                                   ! phi 
-	   glur(nrg,4)=glur4                                   ! eta
+           glur(nrg,1)=glur1                     ! energy
+           glur(nrg,2)=glur2                     ! pt
+           glur(nrg,3)=glur3                     ! phi 
+           glur(nrg,4)=glur4                     ! eta
 * set gluon codes 
-           kglu(nrg,1)=2                           ! status code 
-           kglu(nrg,2)=21                          ! particle identificator      
-           kglu(nrg,3)=k(ipar,3)                   ! parent line number  
-           kglu(nrg,4)=0                           ! special colour info
-           kglu(nrg,5)=0                           ! special colour info  
-           kglu(nrg,6)=ipar                        ! associated parton number 
+           kglu(nrg,1)=2                         ! status code 
+           kglu(nrg,2)=21                        ! particle identificator 
+           kglu(nrg,3)=k(ipar,3)                 ! parent line number  
+           kglu(nrg,4)=0                         ! special colour info
+           kglu(nrg,5)=0                         ! special colour info  
+           kglu(nrg,6)=ipar                      ! associated parton number 
           end if 
-	 end if  
+         end if  
         else 
          write(6,*) 'Warning! Number of emitted gluons is too large!' 
         end if 
@@ -765,12 +840,13 @@
         p(ip,4)=dsqrt(p(ip,1)**2+p(ip,2)**2+p(ip,3)**2+p(ip,5)**2) 
 
 * boost to laboratory system 
- 100    call pyrobo(0,0,tetr,phir,0.d0,0.d0,0.d0) 
+ 100    call pyrobo(ip,ip,tetr,phir,0.d0,0.d0,0.d0)
        end if 
        end if 
        end if 
  2    continue 
-
+ 7    continue
+ 
       return 
       end     
 ******************************* END PLEVNT ************************* 
@@ -780,7 +856,7 @@
 * transform parton 4-momentum due to scattering in plasma at time = tau 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
+c      INTEGER PYK,PYCHGE,PYCOMP
       external plfun1, pls 
       external pyp,pyr   
       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
@@ -792,7 +868,8 @@
       common /radcal/ aa, bb 
       common /factor/ cfac, kf 
       common /plos/ elr,rsk 
-      save /pyjets/ 
+      save /pyjets/,/plpar1/,/plpar2/,/pyqpar/,/pljdat/,/pleave/,/plos/,
+     <     /factor/,/radcal/
 *
       pi=3.14159d0 
       spi=dsqrt(pi)
@@ -800,14 +877,16 @@
       i=ip                              ! redenote parton number i=ip       
       iter=0 
       iraz=0 
+      epart=epart
+      tau=tau
 
 * boost to system of comoving plasma constituent  
       phir=pyp(i,15)                    ! parton phi  
       tetr=pyp(i,13)                    ! parton theta   
       phir1=-1.d0*phir 
       tetr1=-1.d0*tetr 
-      call pyrobo(0,0,0.d0,phir1,0.d0,0.d0,0.d0)  
-      call pyrobo(0,0,tetr1,0.d0,0.d0,0.d0,0.d0)  
+      call pyrobo(i,i,0.d0,phir1,0.d0,0.d0,0.d0)  
+      call pyrobo(i,i,tetr1,0.d0,0.d0,0.d0,0.d0)  
       pp=pyp(i,8)                       ! parton total momentum   
       ppl=abs(p(i,3))                   ! parton pz 
       um=p(i,5)                         ! parton mass 
@@ -826,8 +905,8 @@
        qm2=(scm-((um+ep0)**2))*(scm-((um-ep0)**2))/scm  
        bub=4.d0*tauu/TC   
        alf=6.d0*pi/((33.d0-2.d0*nf)*dlog(max(bub,1.d-10)))
-       z=pi*4.d0*tauu*tauu*alf*(1.+nf/6.d0)  
-       bubs=dsqrt(abs(z))/TC 
+       z=abs(pi*4.d0*tauu*tauu*alf*(1.+nf/6.d0))  
+       bubs=dsqrt(z)/TC 
        alfs=6.d0*pi/((33.d0-2.d0*nf)*dlog(max(bubs,1.d-10))) 
        phmin2=z 
        phmax2=max(phmin2,qm2)  
@@ -846,7 +925,7 @@
        elp=ygl*z                       ! mimimum radiated energy in LPM regime
        ej=ppl                           
        bb=ej                           ! maximum radiated energy 
-       bbi=max(dsqrt(abs(z)),1.000001d0*elp)  
+       bbi=max(dsqrt(z),1.000001d0*elp)  
        aa=min(bb,bbi)                  ! minimum radiated energy 
        hh=0.00001d0*(bb-aa)    
        REPS=0.01d0 
@@ -880,11 +959,11 @@
        epan=epa-rsk*rsk/(2.d0*ep0)-abs(elr)  
        if(epan.lt.0.1d0) then 
         epan=epan+abs(elr) 
-	elr=0.d0
-	if(epan.lt.0.1d0) then
-	 rsk=0.d0 
-	 epan=epa
-	end if  
+        elr=0.d0
+        if(epan.lt.0.1d0) then
+         rsk=0.d0 
+         epan=epa
+        end if  
        end if  
        pptn=dsqrt(abs(rsk*rsk+(rsk**4)*(1.d0-epa*epa/(ppl*ppl))/
      >      (4.d0*ep0*ep0)-(rsk**4)*epa/(2.d0*ep0*ppl*ppl)-(rsk**4)/
@@ -895,7 +974,7 @@
        p(i,3)=sigp*ppln                                        ! pz 
        p(i,4)=dsqrt(p(i,1)**2+p(i,2)**2+p(i,3)**2+p(i,5)**2)   ! E 
 * boost to system of hard parton 
- 222   call pyrobo(0,0,tetr,phir,0.d0,0.d0,0.d0)
+ 222   call pyrobo(i,i,tetr,phir,0.d0,0.d0,0.d0)
 
       return
       end
@@ -903,20 +982,13 @@
 
 ******************************** PLSEAR ***************************
        SUBROUTINE PLSEAR (fmax,xmin) 
-* finding maximum and 'sufficient minimum of nucleus thikness function. 
+* find maximum and 'sufficient minimum' of jet production vertex distribution
 * xm, fm are outputs. 
        IMPLICIT DOUBLE PRECISION(A-H, O-Z) 
-       IMPLICIT INTEGER(I-N)
-       INTEGER PYK,PYCHGE,PYCOMP
        external plthik
-       common /parimp/ b1, psib1, rb1, rb2 
        common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
-
-       rm1=dsqrt(abs(RA*RA-b1*b1/4.d0*(dsin(psib1)**2)))+
-     >     b1*dcos(psib1)/2.d0 
-       rm2=dsqrt(abs(RA*RA-b1*b1/4.d0*(dsin(psib1)**2)))-
-     >     b1*dcos(psib1)/2.d0 
-       xmin=min(rm1,rm2) 
+       save /plpar1/
+       xmin=3.d0*RA 
        fmax=0.d0
        do 10 j=1,1000
         x=xmin*(j-1)/999.d0
@@ -925,21 +997,18 @@
          fmax=f
         end if
   10   continue
-
        return
        end
 ****************************** END PLSEAR **************************
 
 ******************************** RADSEAR ***************************
        SUBROUTINE RADSEAR (fmax,xmin)
-* find maximum and 'sufficient minimum of radiative energy loss distribution 
+* find maximum and 'sufficient minimum' of radiative energy loss distribution 
 * xm, fm are outputs. 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
       external plfun1  
-      common /radcal/ aa, bb 
-
+      common /radcal/ aa, bb
+      save /radcal/ 
       xmin=bb-aa     
       fmax=0.d0
       do j=1,1000
@@ -949,7 +1018,6 @@
         fmax=f
        end if
       end do   
-
       return
       end
 ****************************** END RADSEAR **************************
@@ -959,12 +1027,10 @@
 * find maximum and 'sufficient minimum' of jet production cross section  
 * as a function of impact paramater (xm, fm are outputs)       
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
       external funbip 
       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
-
-      xmin=2.*RA 
+      save /plpar1/
+      xmin=3.d0*RA 
       fmax=0.d0 
       do j=1,1000
        x=xmin*(j-1)/999.d0 
@@ -973,7 +1039,6 @@
         fmax=f
        end if
       end do  
-
       return
       end
 ****************************** END RADSEAR **************************
@@ -1066,6 +1131,94 @@
       END                                                              
 ************************* END SIMPA *******************************
 
+**************************** SIMPB **********************************
+      SUBROUTINE SIMPB (A1,B1,H1,REPS1,AEPS1,FUNCT,X,                   
+     1                     AI,AIH,AIABS)                                
+* calculate intergal of function FUNCT(X) on the interval from A1 to B1 
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      IMPLICIT INTEGER(I-N)
+      DIMENSION F(7), P(5)                                             
+      H=dSIGN ( H1, B1-A1 )                                             
+      S=dSIGN (1.d0, H )                                                   
+      A=A1                                                              
+      B=B1                                                              
+      AI=0.0d0                                                            
+      AIH=0.0d0                                                           
+      AIABS=0.0d0                                                        
+      P(2)=4.d0                                                           
+      P(4)=4.d0                                                           
+      P(3)=2.d0                                                           
+      P(5)=1.d0                                                           
+      IF(B-A)1,2,1                                                      
+ 1    REPS=ABS(REPS1)                                                   
+      AEPS=ABS(AEPS1)                                                  
+      DO 3 K=1,7                                                        
+ 3    F(K)=10.d16                                                       
+      X=A                                                              
+      C=0.d0                                                              
+      F(1)=FUNCT(X)/3.d0                                                  
+ 4    X0=X                                                              
+      IF( (X0+4.d0*H-B)*S)5,5,6                                           
+ 6    H=(B-X0)/4.d0                                                       
+      IF ( H ) 7,2,7                                                   
+ 7    DO 8 K=2,7                                                      
+ 8    F(K)=10.d16                                                       
+      C=1.d0                                                           
+ 5    DI2=F (1)                                                       
+      DI3=ABS( F(1) )                                                   
+      DO 9 K=2,5                                                       
+      X=X+H                                                           
+      IF((X-B)*S)23,24,24                                              
+ 24   X=B                                                              
+ 23   IF(F(K)-10.d16)10,11,10                                          
+ 11   F(K)=FUNCT(X)/3.d0                                               
+ 10   DI2=DI2+P(K)*F(K)                                                 
+ 9    DI3=DI3+P(K)*ABS(F(K))                                            
+      DI1=(F(1)+4.*F(3)+F(5))*2.d0*H                                      
+      DI2=DI2*H                                                         
+      DI3=DI3*H                                                        
+      IF (REPS) 12,13,12                                               
+ 13   IF (AEPS) 12,14,12                                                
+ 12   EPS=ABS((AIABS+DI3)*REPS)                                         
+      IF(EPS-AEPS)15,16,16                                              
+ 15   EPS=AEPS                                                          
+ 16   DELTA=ABS(DI2-DI1)                                               
+      IF(DELTA-EPS)20,21,21                                             
+ 20   IF(DELTA-EPS/8.d0)17,14,14                                          
+ 17   H=2.d0*H                                                            
+      F(1)=F(5)                                                         
+      F(2)=F(6)                                                         
+      F(3)=F(7)                                                         
+      DO 19 K=4,7                                                       
+ 19   F(K)=10.d16                                                      
+      GO TO 18                                                         
+ 14   F(1)=F(5)                                                         
+      F(3)=F(6)                                                         
+      F(5)=F(7)                                                         
+      F(2)=10.d16                                                       
+      F(4)=10.d16                                                      
+      F(6)=10.d16                                                      
+      F(7)=10.d16                                                      
+ 18   DI1=DI2+(DI2-DI1)/15.d0                                            
+      AI=AI+DI1                                                         
+      AIH=AIH+DI2                                                      
+      AIABS=AIABS+DI3                                                   
+      GO TO 22                                                          
+ 21   H=H/2.d0                                                            
+      F(7)=F(5)                                                        
+      F(6)=F(4)                                                        
+      F(5)=F(3)                                                        
+      F(3)=F(2)                                                         
+      F(2)=10.d16                                                      
+      F(4)=10.d16                                                      
+      X=X0                                                            
+      C=0.                                                             
+      GO TO 5                                                          
+ 22   IF(C)2,4,2                                                      
+ 2    RETURN                                                        
+      END                                                              
+************************* END SIMPB *******************************
+
 ************************* PARINV **********************************
       SUBROUTINE PARINV(X,A,F,N,R)                                      
 * gives interpolation of function F(X) with  arrays A(N) and F(N) 
@@ -1116,12 +1269,11 @@ C41   FORMAT(25H X IS OUT OF THE INTERVAL,3H X=,F15.9)
       END                                                              
 C************************** END PARINV *************************************
 
-* function to calculate quark-quark scattering differential cross section 
+* quark-quark scattering differential cross section 
        double precision FUNCTION PLSIGH(Z)
        IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-       IMPLICIT INTEGER(I-N)
-       INTEGER PYK,PYCHGE,PYCOMP
        common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
+       save /plpar1/
        pi=3.14159d0
        beta=(33.d0-2.d0*nf)/(12.d0*pi)  
        alfs=1.d0/(beta*dlog(max(1.d-10,z/(TC*TC)))) 
@@ -1129,22 +1281,21 @@ C************************** END PARINV *************************************
        return
        end 
 
-* function to calculate differential radiated gluon spectrum in BDMS model 
+* differential radiated gluon spectrum in BDMS model 
       double precision FUNCTION PLFUN1(or) 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
       common /pljdat/ ej, z, ygl, alfs, um, epa 
       common /pleave/ taul, temlev    
       common /factor/ cfac, kf 
+      save /plpar1/,/pljdat/,/pleave/,/factor/
       pi=3.14159d0
       x=min((1.d0-ygl*z/or),or/ej)  
       if(x.le.0.d0) x=0.d0 
       if(x.ge.1.d0) x=0.9999d0      
       if(kf.eq.21) then 
-       if(x.ge.0.5d0) x=1.-x 
-       spinf=0.5*(1.+(1.d0-x)**4+x**4)/(1.d0-x)            
+       if(x.ge.0.5d0) x=1.d0-x 
+       spinf=0.5d0*(1.+(1.d0-x)**4+x**4)/(1.d0-x)            
       else 
        spinf=1.d0-x+0.5d0*x*x 
       end if   
@@ -1164,12 +1315,42 @@ c      dc=1.d0                                         !massless parton
       return 
       end  
 
-* function to calculate time-dependence of QGP viscosity (if mvisc=1,2)  
+* angular distribution of emitted gluons       
+      double precision function gluang(x) 
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      s=0.0863d0 
+      gluang=x*dexp(-1.d0*(x-s)*(x-s)/(2.d0*s*s)) 
+      return
+      end    
+
+* temperature-dependence of parton-plasma integral cross section 
+       double precision FUNCTION PLS(X)
+       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+       external plsigh 
+       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
+       common /plpar2/ pln0,taupl,tauh,sigpl,sigh,sigplh,sigqqh,rg,rgn 
+       common /plen/ epartc, um  
+       save /plpar1/,/plpar2/,/plen/ 
+       t=X 
+       pi=3.14159d0
+       bub=4.d0*t/TC   
+       alf=6.d0*pi/((33.d0-2.d0*nf)*dlog(max(bub,1.d-10)))
+       ZZ0=4.d0*t*t*pi*alf*(1.d0+nf/6.d0)
+       scm=4.d0*t*epartc+um*um+4.d0*t*t  
+       ZZ1=max((scm-((um+2.d0*t)**2))*(scm-((um-2.d0*t)**2))/scm,ZZ0)      
+       HH1=0.01d0*ZZ1  
+       REPS=0.01d0 
+       AEPS=1.d-8
+       CALL SIMPA(ZZ0,ZZ1,HH1,REPS,AEPS,plsigh,ZZ,RESS,AIH,AIABS) 
+       PLS=0.39d0*2.25d0*2.25d0*RESS*(16.d0+4.d0*nf)/(16.d0+9.d0*nf) 
+       return
+       end
+
+* temperature-dependence of QGP viscosity (if mvisc=1,2)  
       double precision FUNCTION PLVISC(X) 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
+      save /plpar1/
       pi=3.14159d0
       T=X 
       TC1=5.06d0*TC 
@@ -1190,87 +1371,138 @@ c      dc=1.d0                                         !massless parton
       return
       end 
 
-* function to calculate time-dependence of QGP number density 
-       double precision FUNCTION PLN(X)  
+* space-time dependence of QGP number density 
+       double precision FUNCTION PLN(X,r1,r2,y)  
        IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-       IMPLICIT INTEGER(I-N)
-       INTEGER PYK,PYCHGE,PYCOMP
+       external pythik
        common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
        common /plpar2/ pln0,taupl,tauh,sigpl,sigh,sigplh,sigqqh,rg,rgn 
        common /plevol/ taup(5000),temp(5000),denp(5000),enep(5000)  
-       save /plevol/  
-       pi2=3.14159d0*3.14159d0
+       common /pythic/ PBAB(110),PTAB(110),PTAAB(110)
+       save /plpar1/,/plpar2/,/plevol/,/pythic/
+       pi=3.14159d0
        t=X       
        if(t.lt.taupl) then
         call parinv(t,taup,denp,5000,res)    
        else
-        res=1.2d0*(16.d0+9.d0*nf)*((5.06d0*TC)**3)/pi2
+        res=1.2d0*(16.d0+9.d0*nf)*((5.06d0*TC)**3)/(pi*pi)
        end if 
-       PLN=res  
+       res=res*(pythik(r1)*pythik(r2)*pi*RA*RA/PTAAB(1))**0.75d0 
+       res=res*dexp(-1.d0*y*y/24.5d0)
+       PLN=max(1.d-8,res)
        return 
        end
 
-* function to calculate time-dependence of QGP temperature 
-       double precision FUNCTION PLT(X)  
+* space-time dependence of QGP temperature 
+       double precision FUNCTION PLT(X,r1,r2,y)  
        IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-       IMPLICIT INTEGER(I-N)
-       INTEGER PYK,PYCHGE,PYCOMP
        common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
        common /plpar2/ pln0,taupl,tauh,sigpl,sigh,sigplh,sigqqh,rg,rgn 
        common /plevol/ taup(5000),temp(5000),denp(5000),enep(5000) 
-       save /plevol/ 
+       common /pythic/ PBAB(110),PTAB(110),PTAAB(110)
+       save /plpar1/,/plpar2/,/plevol/,/pythic/
+       pi=3.14159d0
        t=X       
        if(t.lt.taupl) then
         call parinv(t,taup,temp,5000,res)    
        else
         res=TC
        end if 
-        PLT=res  
+        res=res*(pythik(r1)*pythik(r2)*pi*RA*RA/PTAAB(1))**0.25d0 
+	res=res*(dexp(-1.d0*y*y/24.5d0))**0.333333d0
+        PLT=max(1.d-8,res)  
        return 
        end
 
-* function to caculate time-dependence of parton-plasma integral cross section 
-       double precision FUNCTION PLS(X)
-       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-       IMPLICIT INTEGER(I-N)
-       INTEGER PYK,PYCHGE,PYCOMP
-       external plsigh 
-       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
-       common /plpar2/ pln0,taupl,tauh,sigpl,sigh,sigplh,sigqqh,rg,rgn 
-       common /plen/ epartc, um  
-       t=X 
-       pi=3.14159d0
-       bub=4.d0*t/TC   
-       alf=6.d0*pi/((33.d0-2.d0*nf)*dlog(max(bub,1.d-10)))
-       ZZ0=4.d0*t*t*pi*alf*(1.d0+nf/6.d0)
-       scm=4.d0*t*epartc+um*um+4.d0*t*t  
-       ZZ1=max((scm-((um+2.d0*t)**2))*(scm-((um-2.d0*t)**2))/scm,ZZ0)      
-       HH1=0.01d0*ZZ1  
-       REPS=0.01d0 
-       AEPS=1.d-8
-       CALL SIMPA(ZZ0,ZZ1,HH1,REPS,AEPS,plsigh,ZZ,RESS,AIH,AIABS) 
-       PLS=0.39d0*2.25d0*2.25d0*RESS*(16.d0+4.d0*nf)/(16.d0+9.d0*nf) 
-       return
-       end
+* impact parameter dependence of jet production cross section
+      double precision function funbip(x) 
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      external ftaa 
+      common /pyint7/ sigt(0:6,0:6,0:5)
+      save /pyint7/ 
+      br=x 
+      sigin=sigt(0,0,0)-sigt(0,0,1)
+      taa=ftaa(br)
+      funbip=taa*br*(1.d0-dexp(-0.1d0*taa*sigin)) 
+      return 
+      end 
 
-* function to calculate nuclear thikness function 
-       double precision FUNCTION PLTHIK(X)  
-       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-       IMPLICIT INTEGER(I-N)
-       INTEGER PYK,PYCHGE,PYCOMP
-       common /parimp/ b1, psib1, rb1, rb2 
-       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
-       bu=X
-       r12=bu*bu+b1*b1/4.d0+bu*b1*dcos(psib1) 
-       r22=bu*bu+b1*b1/4.d0-bu*b1*dcos(psib1)  
-       PLTHIK=dsqrt(abs((RA*RA-r12)*(RA*RA-r22)))*bu 
-       return
-       end
+* distribution over jet production vertex position  
+      double precision FUNCTION plthik(X)  
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      external pythik
+      common /parimp/ b1, psib1, rb1, rb2, noquen 
+      save /parimp/
+      bu=X
+      r12=dsqrt(abs(bu*bu+b1*b1/4.d0+bu*b1*dcos(psib1))) 
+      r22=dsqrt(abs(bu*bu+b1*b1/4.d0-bu*b1*dcos(psib1)))  
+      PLTHIK=bu*pythik(r12)*pythik(r22) 
+      return
+      end
+
+* nuclear overlap function at impact parameter b  
+      double precision function ftaa(r)  
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      common /pythic/ PBAB(110),PTAB(110),PTAAB(110)
+      save /pythic/ 
+      call parinv(r,PBAB,PTAAB,110,RES) 
+      ftaa=RES 
+      return 
+      end   
+*
+      double precision function PFUNC1(x) 
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      external PFUNC2 
+      common /pynup1/ bp,xx 
+      common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf       
+      save /plpar1/
+      xx=x 
+      EPS=0.05d0 
+      A=0.d0 
+      B=3.d0*RA
+      H=0.01d0*(B-A)    
+      CALL SIMPB(A,B,H,EPS,1.d-8,PFUNC2,Y,RES,AIH,AIABS)
+      PFUNC1=RES 
+      return 
+      end   
+*      
+      double precision function PFUNC2(y) 
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      external pythik 
+      common /pynup1/ bp,x 
+      r1=sqrt(abs(y*y+bp*bp/4.+y*bp*cos(x))) 
+      r2=sqrt(abs(y*y+bp*bp/4.-y*bp*cos(x)))
+      PFUNC2=y*pythik(r1)*pythik(r2) 
+      return 
+      end  
+
+* nuclear thickness function 
+      double precision function pythik(r)   
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      common /pythic/ PBAB(110),PTAB(110),PTAAB(110)
+      save /pythic/ 
+      call parinv(r,PBAB,PTAB,110,RES) 
+      pythik=RES 
+      return
+      end
+
+* Wood-Saxon nucleon distrubution  
+      double precision function prhoaa(z)  
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf       
+      common /pygeom/ BC 
+      save /plpar1/,/pygeom/
+      pi=3.14159d0
+      df=0.54d0
+      r=sqrt(bc*bc+z*z)
+      rho0=3.d0/(4.d0*pi*RA**3)/(1.d0+(pi*df/RA)**2)
+      prhoaa=rho0/(1.d0+exp((r-RA)/df))
+      return
+      end
 
 * function to generate gauss distribution
       double precision function gauss(x0,sig)
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
  41   u1=pyr(0) 
       u2=pyr(0)  
       v1=2.d0*u1-1.d0
@@ -1280,45 +1512,4 @@ c      dc=1.d0                                         !massless parton
       gauss=v1*dsqrt(-2.d0*dlog(s)/s)*sig+x0
       return
       end    
-      
-* function to calculate angular distribution of emitted gluons       
-      double precision function gluang(x) 
-      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
-      s=0.0863d0 
-      gluang=x*dexp(-1.d0*(x-s)*(x-s)/(2.d0*s*s)) 
-      return
-      end    
-
-* function to calculate jet production vs. centrality 
-      double precision function funbip(x) 
-      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
-      common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
-      dimension bip(15), bipr(15), pjet(15)  
-      data bip/0.d0,0.5d0,1.5d0,2.5d0,3.5d0,4.5d0,5.5d0,6.5d0,7.5d0,
-     >         8.5d0,9.5d0,10.5d0,11.5d0,12.5d0,13.5d0/ 
-      data pjet/200000.d0,217558.d0,625570.d0,949850.d0,1.17128d+06, 
-     >   1.30123d+06,1.32297d+06,1.18483d+06,1.02584d+06,839982.d0,        
-     >   621238.d0,399300.d0,227456.d0,113982.d0,41043.d0/ 
-      bu=x 
-      do i=1,15
-       bipr(i)=bip(i)*RA/6.8d0 
-      end do
-      call parinv (bu,bipr,pjet,15,res) 
-      funbip=res 
-      return 
-      end 
-
-* function integrated at calculation of initial QGP temperature vs. centrality   
-      double precision function ftaa(x) 
-      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
-      common/bintaa/ br             
-      a=1.d0+x*x 
-      ftaa=(1.d0-br*x*x/a)*dlog(1.d0+x*x*(1.d0-br))/(a*a) 
-      return 
-      end 
 **************************************************************************   

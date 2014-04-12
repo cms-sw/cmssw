@@ -8,10 +8,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <ostream>
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
@@ -23,12 +19,9 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "CalibTracker/SiPixelConnectivity/interface/PixelToLNKAssociateFromAscii.h"
 
 #include <bitset>
 
@@ -42,20 +35,23 @@ SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string & associat
 { }
 
 
-SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSetup& setup)
+SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSetup& setup)
 {
   FEDNumbering fednum;
-//  TRange<int> fedIds = fednum.getSiPixelFEDIds();
+//  TRange<int> fedIds(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID);
   TRange<int> fedIds(0,39);
   edm::LogInfo("SiPixelFedCablingMapBuilder")<<"pixel fedid range: "<<fedIds;
 
 
   edm::ESHandle<PixelToFEDAssociate> associator;
   setup.get<TrackerDigiGeometryRecord>().get(theAssociatorName,associator);
+//   PixelToFEDAssociate * associator = new PixelToLNKAssociateFromAscii("pixelToLNK.ascii");
+
+  
   const PixelToFEDAssociate & name2fed = *associator; 
   
   string version = name2fed.version();
-  SiPixelFedCablingMap * result = new SiPixelFedCablingMap(version);
+  SiPixelFedCablingTree * result = new SiPixelFedCablingTree(version);
 
 
   LogDebug("read tracker geometry...");
@@ -137,15 +133,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSet
         detectorRocId.rocDetId = rocDetId;
         const PixelToFEDAssociate::CablingRocId * cablingRocId =  name2fed(detectorRocId);
         if (cablingRocId) {
-          FrameConversion frame(0,0,0,0);
-          if (name->isBarrel() ) {
-            const PixelBarrelName* nameBarrel = dynamic_cast<const PixelBarrelName* >(name);
-            frame = FrameConversion ( *nameBarrel, rocDetId);
-          } else {
-            const PixelEndcapName* nameEndcap = dynamic_cast<const PixelEndcapName* >(name);
-            frame = FrameConversion ( *nameEndcap, rocDetId);
-          }
-          sipixelobjects::PixelROC roc( iu->second, rocDetId, cablingRocId->rocLinkId, frame); 
+          sipixelobjects::PixelROC roc( iu->second, rocDetId, cablingRocId->rocLinkId ); 
           result->addItem(cablingRocId->fedId, cablingRocId->linkId, roc);
         }
       }

@@ -1,14 +1,15 @@
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistograms_H
 #define DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 #include "TProfile.h"
 #include "TH1.h"
@@ -19,109 +20,109 @@
 #include <map>
 
 class MonitorElement;
+class CommissioningAnalysis;
 
 class CommissioningHistograms {
 
  public:
 
-  // ---------- Constructors, destructors ----------
+  // ---------- con(de)structors ----------
   
-  /** */
-  CommissioningHistograms( MonitorUserInterface* const,
+  CommissioningHistograms( const edm::ParameterSet& pset,
+                           DQMStore* const,
 			   const sistrip::RunType& );
-  
-  /** */
-  CommissioningHistograms( DaqMonitorBEInterface* const,
-			   const sistrip::RunType& );
-  
-  /** */
+
+  // MAKE PRIVATE
+  CommissioningHistograms(); // private constructor
+
   virtual ~CommissioningHistograms();
 
-  // ---------- Structs, typedefs ----------
+  virtual void configure( const edm::ParameterSet&, const edm::EventSetup& ) { }
+
+  // ---------- histogram container class ----------
   
-  /** Simple container class for histograms. */
   class Histo {
   public:
     Histo( const std::string& title, 
-	   MonitorElement* const me,
-	   CollateMonitorElement* const cme ) 
+           MonitorElement* const me,
+           MonitorElement* const cme ) 
       : title_(title), me_(me), cme_(cme) {;}
     Histo() : title_(""), me_(0), cme_(0) {;}
     void print( std::stringstream& ) const;
     std::string title_;
     MonitorElement* me_;
-    CollateMonitorElement* cme_;
+    MonitorElement* cme_;
   };
   
+  // ---------- typedefs ----------
+  
+  typedef std::map<uint32_t,CommissioningAnalysis*> Analyses;
+
+  typedef Analyses::iterator Analysis;
+  
+  typedef SummaryPlotFactory<CommissioningAnalysis*> Factory; 
+
   typedef std::vector<Histo*> Histos;
+  
   typedef std::map<uint32_t,Histos> HistosMap;
+  
   typedef std::map<uint32_t,uint32_t> FedToFecMap;
 
-  // ---------- Generic static methods for clients ----------
+  // ---------- histogram "actions" ----------
   
-  /** Extracts run number from list of MonitorElements. */
-  static uint32_t runNumber( DaqMonitorBEInterface* const,
+  static uint32_t runNumber( DQMStore* const,
 			     const std::vector<std::string>& );
   
-  /** Extracts run type from list of MonitorElements. */
-  static sistrip::RunType runType( DaqMonitorBEInterface* const,
+  static sistrip::RunType runType( DQMStore* const,
 				   const std::vector<std::string>& );
   
+  /** Extracts custom information from list of MonitorElements. */
+  static void copyCustomInformation( DQMStore* const,
+				     const std::vector<std::string>& );
+  
   /** Retrieves list of histograms in form of strings. */
-  static void getContents( DaqMonitorBEInterface* const,
+  static void getContents( DQMStore* const,
 			   std::vector<std::string>& );
   
-  // ---------- Client "actions" on histograms ----------
-  
-  /** */
   void extractHistograms( const std::vector<std::string>& );
-  /** */
+
+  // DEPRECATE
   void createCollations( const std::vector<std::string>& );
-  /** */
+
   virtual void histoAnalysis( bool debug );
-  /** */
+
+  virtual void printAnalyses();
+
+  virtual void printSummary();
+  
   virtual void createSummaryHisto( const sistrip::Monitorable&, 
 				   const sistrip::Presentation&, 
 				   const std::string& top_level_dir,
 				   const sistrip::Granularity& );
-  /** */
-  virtual void uploadToConfigDb();
   
-  /** Wraps virtual createSummaryHisto() method for Seal::Callback. */
-  void createSummaryHisto( std::pair<sistrip::Monitorable,
-			   sistrip::Presentation>, 
-			   std::pair<std::string,
-			   sistrip::Granularity> ); 
-  
-  /** */
   void remove( std::string pattern = "" ); 
   
-  /** */
   void save( std::string& filename,
 	     uint32_t run_number = 0 ); 
-  
-  /** */
-  void printHistosMap();
 
-  /** */
-  inline const HistosMap& histos() const;
+  // ---------- protected methods ----------
   
  protected:
 
-  // ---------- Protected methods ----------
-
-  /** */
-  inline MonitorUserInterface* const mui() const;
-
-  /** */
-  inline DaqMonitorBEInterface* const bei() const;
- 
-  /** */
-  inline const FedToFecMap& mapping() const;
-  
-  /** */
   inline const sistrip::RunType& task() const;
   
+  inline DQMStore* const bei() const;
+  
+  inline Analyses& data();
+  
+  inline Factory* const factory();
+  
+  inline const HistosMap& histos() const;
+  
+  inline const FedToFecMap& mapping() const;
+  
+  inline const edm::ParameterSet& pset() const;
+
   TH1* histogram( const sistrip::Monitorable&, 
 		  const sistrip::Presentation&, 
 		  const sistrip::View&,
@@ -130,38 +131,40 @@ class CommissioningHistograms {
 		  const float& xlow = 1. * sistrip::invalid_,
 		  const float& xhigh = 1. * sistrip::invalid_ );
   
-  /** */
+  void printHistosMap();
+
   void clearHistosMap();
 
+  // ---------- private member data ----------
+
+ protected:
+
+  std::auto_ptr<Factory> factory_;
+  
  private:
-
-  // ---------- Protected data ----------
-  
-  /** */
-  CommissioningHistograms();
-  
-  /** */
-  MonitorUserInterface* mui_;
-
-  /** */
-  DaqMonitorBEInterface* bei_;
-  
-  /** Record of collation histos that have been created. */
-  HistosMap histos_;
-  
-  /** Map b/w FED and FEC keys from histo dirs/names. */
-  FedToFecMap mapping_;
   
   sistrip::RunType task_;
+  
+  DQMStore* bei_;
+  
+  Analyses data_;
+  
+  HistosMap histos_;
+  
+  FedToFecMap mapping_;
+
+  edm::ParameterSet pset_;
   
 };
 
 // ---------- inline methods ----------
 
-MonitorUserInterface* const CommissioningHistograms::mui() const { return mui_; }
-DaqMonitorBEInterface* const CommissioningHistograms::bei() const { return bei_; }
+const sistrip::RunType& CommissioningHistograms::task() const { return task_; }
+DQMStore* const CommissioningHistograms::bei() const { return bei_; }
+CommissioningHistograms::Analyses& CommissioningHistograms::data() { return data_; }
+CommissioningHistograms::Factory* const CommissioningHistograms::factory() { return factory_.get(); }
 const CommissioningHistograms::HistosMap& CommissioningHistograms::histos() const { return histos_; }
 const CommissioningHistograms::FedToFecMap& CommissioningHistograms::mapping() const { return mapping_; }
-const sistrip::RunType& CommissioningHistograms::task() const { return task_; }
+const edm::ParameterSet& CommissioningHistograms::pset() const { return pset_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H

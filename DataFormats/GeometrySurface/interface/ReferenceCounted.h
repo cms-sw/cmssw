@@ -1,5 +1,5 @@
-#ifndef SURFACE_REFERENCECOUNTED_H
-#define SURFACE_REFERENCECOUNTED_H
+#ifndef DataFormats_GeometrySurface_ReferenceCounted_h
+#define DataFormats_GeometrySurface_ReferenceCounted_h
 // -*- C++ -*-
 //
 // Package:     Surface
@@ -16,38 +16,46 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.4 2006/07/28 13:02:27 tboccali Exp $
 //
 
 // system include files
 #include "boost/intrusive_ptr.hpp"
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 
 // user include files
 
 // forward declarations
 
-class ReferenceCounted
+class BasicReferenceCounted
 {
 
    public:
-      ReferenceCounted() : referenceCount_(0) {}
-      ReferenceCounted( const ReferenceCounted& iRHS ) : referenceCount_(0) {}
+      BasicReferenceCounted() : referenceCount_(0) {}
+      BasicReferenceCounted( const BasicReferenceCounted& iRHS ) : referenceCount_(0) {}
 
-      const ReferenceCounted& operator=( const ReferenceCounted& ) {
+      const BasicReferenceCounted& operator=( const BasicReferenceCounted& ) {
 	return *this;
       }
-      virtual ~ReferenceCounted() {}
+      virtual ~BasicReferenceCounted() {}
 
       // ---------- const member functions ---------------------
 
-      void addReference() const { ++referenceCount_ ; }
-      void removeReference() const { if( 0 == --referenceCount_ ) {
-	  delete const_cast<ReferenceCounted*>(this);
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+      void addReference() const { referenceCount_.fetch_add(1,std::memory_order_acq_rel) ; }
+      void removeReference() const { if( 1 == referenceCount_.fetch_sub(1,std::memory_order_acq_rel ) ) {
+	  delete const_cast<BasicReferenceCounted*>(this);
 	}
       }
 
-      unsigned int  references() const {return referenceCount_;}
+      unsigned int  references() const {return referenceCount_.load(std::memory_order_acquire);}
+#else
+      void addReference() const;
+      void removeReference() const;
 
+      unsigned int  references() const;
+#endif
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -55,7 +63,11 @@ class ReferenceCounted
    private:
 
       // ---------- member data --------------------------------
-      mutable unsigned int referenceCount_;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+      mutable std::atomic<unsigned int> referenceCount_;
+#else
+      unsigned int referenceCount_;
+#endif
 };
 
 template <class T> class ReferenceCountingPointer : 
@@ -76,12 +88,20 @@ template <class T> class ConstReferenceCountingPointer :
     boost::intrusive_ptr<const T>(&(*other)) {}
 };
 
-inline void intrusive_ptr_add_ref( const ReferenceCounted* iRef ) {
+inline void intrusive_ptr_add_ref( const BasicReferenceCounted* iRef ) {
   iRef->addReference();
 }
 
-inline void intrusive_ptr_release( const ReferenceCounted* iRef ) {
+inline void intrusive_ptr_release( const BasicReferenceCounted* iRef ) {
   iRef->removeReference();
 }
 
-#endif /* SURFACE_REFERENCECOUNTED_H */
+// condition uses naive RefCount
+typedef BasicReferenceCounted ReferenceCountedInConditions;
+
+
+typedef BasicReferenceCounted  ReferenceCountedInEvent;
+
+typedef BasicReferenceCounted ReferenceCounted;
+
+#endif 

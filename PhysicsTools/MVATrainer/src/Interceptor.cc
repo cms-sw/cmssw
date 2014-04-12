@@ -10,7 +10,6 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat May 05 09:05 CEST 2007
-// $Id: Interceptor.cc,v 1.1 2007/05/15 21:37:57 saout Exp $
 //
 
 #include <vector>
@@ -33,8 +32,8 @@ class Interceptor : public VarProcessor {
 	            const MVAComputer *computer);
 	virtual ~Interceptor();
 
-	virtual void configure(ConfIterator iter, unsigned int n);
-	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual void configure(ConfIterator iter, unsigned int n) override;
+	virtual void eval(ValueIterator iter, unsigned int n) const override;
 
     private:
 	Calibration::Interceptor	*interceptor;
@@ -59,8 +58,11 @@ Interceptor::~Interceptor()
 
 void Interceptor::configure(ConfIterator iter, unsigned int n)
 {
-	std::vector<Variable::Flags> flags =
-					interceptor->configure(computer, n);
+	std::vector<Variable::Flags> flags;
+	for(ConfIterator iter2 = iter; iter2; iter2++)
+		flags.push_back(*iter2);
+
+	flags = interceptor->configure(computer, n, flags);
 	if (flags.size() != n)
 		return;
 

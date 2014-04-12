@@ -1,10 +1,13 @@
-#include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
-#include "DQM/RPCMonitorDigi/interface/RPCMonitorSync.h"
-#include "DQM/RPCMonitorDigi/interface/RPCMonitorEfficiency.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RPCMonitorDigi);
-DEFINE_ANOTHER_FWK_MODULE(RPCMonitorSync);
-DEFINE_ANOTHER_FWK_MODULE(RPCMonitorEfficiency);
 
+#include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
+DEFINE_FWK_MODULE(RPCMonitorDigi);
+#include "DQM/RPCMonitorDigi/interface/RPCRecHitProbability.h"
+DEFINE_FWK_MODULE(RPCRecHitProbability);
+#include "DQM/RPCMonitorDigi/interface/RPCTTUMonitor.h"
+DEFINE_FWK_MODULE(RPCTTUMonitor);
+#include "DQM/RPCMonitorDigi/interface/RPCEfficiency.h"
+DEFINE_FWK_MODULE(RPCEfficiency);
+#include "DQM/RPCMonitorDigi/interface/RPCDcsInfo.h"
+DEFINE_FWK_MODULE(RPCDcsInfo);

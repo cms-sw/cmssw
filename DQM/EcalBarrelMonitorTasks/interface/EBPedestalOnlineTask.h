@@ -4,8 +4,6 @@
 /*
  * \file EBPedestalOnlineTask.h
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +11,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+class MonitorElement;
+class DQMStore;
 
 class EBPedestalOnlineTask: public edm::EDAnalyzer{
 
@@ -31,10 +33,19 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -46,11 +57,17 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
+
+ std::string subfolder_;
 
 bool enableCleanup_;
 
-edm::InputTag EBDigiCollection_;
+bool mergeRuns_;
+
+edm::EDGetTokenT<EBDigiCollection> EBDigiCollection_;
 
 MonitorElement* mePedMapG12_[36];
 

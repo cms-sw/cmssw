@@ -7,9 +7,7 @@ package detidGenerator;
 **/
 
 /*
-  $Date: 2006/08/30 15:21:12 $
   
-  $Log: TECDetIdConverter.java,v $
   Revision 1.2  2006/08/30 15:21:12  gbaulieu
   Add the TOB analyzer
 

@@ -1,17 +1,14 @@
-
-using namespace std;
-
 #ifndef TKinFitter_h
 #define TKinFitter_h
-
 
 #include <vector>
 #include "TMatrixD.h"
 #include "TNamed.h"
+#include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 
-class TAbsFitParticle;
 class TAbsFitConstraint;
 class TH1D;
+class TLorentzVector;
 
 class TKinFitter : public TNamed {
 
@@ -56,8 +53,11 @@ public :
 
   Int_t nbMeasParticles() { return _measParticles.size(); }
   const TAbsFitParticle* getMeasParticle( Int_t index ) { return _measParticles[index]; }
+  const TLorentzVector* get4Vec( Int_t index ) { return (_measParticles[index])->getCurr4Vec(); }
+
   Int_t nbUnmeasParticles() { return _unmeasParticles.size(); }
   const TAbsFitParticle* getUnmeasParticle( Int_t index ) { return _unmeasParticles[index]; }
+  Int_t nbConstraints() { return _constraints.size(); }
 
   void print();
 
@@ -94,6 +94,8 @@ protected:
   void countUnmeasParams();
   void resetParams();
 
+  void printMatrix(const TMatrixD &matrix, const TString& name = "");
+
 private :
 
   Int_t _maxNbIter;       // Maximum number of iterations
@@ -107,10 +109,10 @@ private :
   TMatrixD _BT;     // Transposed Jacobi Matrix of measured parameters
   TMatrixD _V;      // Covariance matrix
   TMatrixD _Vinv;   // Inverse covariance matrix
-  TMatrixD _VB;     // VB = ( B*V^(-1)*BT )^(-1)
-  TMatrixD _VBinv;  // VB = ( B*V^(-1)*BT )
-  TMatrixD _VA;     // VA = ( AT*VB*A )
-  TMatrixD _VAinv;  // VA = ( AT*VB*A )^(-1)
+  TMatrixD _VB;     // VB    = ( B*V*BT )^(-1)
+  TMatrixD _VBinv;  // VBinv = ( B*V*BT )
+  TMatrixD _VA;     // VA    = ( AT*VB*A )
+  TMatrixD _VAinv;  // VAinv = ( AT*VB*A )^(-1)
   TMatrixD _c;      // Vector c = A*delta(a*) + B*delta(y*) - f*
 
   TMatrixD _C11;     // Matrix C11
@@ -126,8 +128,10 @@ private :
   TMatrixD _C33;     // Matrix C33
   TMatrixD _C33T;    // Matrix C33T
 
-  TMatrixD _deltaA;  // The correction vector deltaA for unmeasured particles of the last iteration
-  TMatrixD _deltaY;  // The correction vector deltaY for measured particles of the last iteration
+  TMatrixD _deltaA;  // The correction vector deltaA for unmeasured particles of the current iteration
+  TMatrixD _deltaY;  // The correction vector deltaY for measured particles of the current iteration
+  TMatrixD _deltaAstar; // The correction vector deltaA for unmeasured particles of the previous iteration
+  TMatrixD _deltaYstar; // The correction vector deltaY for measured particles of the previous iteration
   TMatrixD _lambda;  // The column vector of Lagrange multiplicators (likelihood L = S + 2 sum_i lambda_i * f_i)
   TMatrixD _lambdaT; // The row vector of Lagrange multiplicators (likelihood L = S + 2 sum_i lambda_i * f_i)
 
@@ -137,14 +141,13 @@ private :
   Int_t _nParA;     // Number of unmeasured parameters
   Int_t _nParB;     // Number of measured parameters
 
-  vector<TAbsFitConstraint*> _constraints;    // vector with constraints
-  vector<TAbsFitParticle*> _measParticles;    // vector with measured particles
-  vector<TAbsFitParticle*> _unmeasParticles;  // vector with unmeasured particles
+  std::vector<TAbsFitConstraint*> _constraints;    // vector with constraints
+  std::vector<TAbsFitParticle*> _measParticles;    // vector with measured particles
+  std::vector<TAbsFitParticle*> _unmeasParticles;  // vector with unmeasured particles
 
   Int_t _status;        // Status of the last fit;_
   Int_t _nbIter;        // number of iteration performed in the fit
 
-  ClassDef(TKinFitter, 1) // Class to perform kinematic fit with non-linear constraints
 };
 
 #endif

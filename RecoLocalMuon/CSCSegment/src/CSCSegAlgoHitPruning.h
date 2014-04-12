@@ -33,13 +33,13 @@ class CSCSegAlgoHitPruning {
   ~CSCSegAlgoHitPruning();
 
   /// clusterize
-  std::vector<CSCSegment> pruneBadHits(const CSCChamber* aChamber, std::vector<CSCSegment> segments);
+  std::vector<CSCSegment> pruneBadHits(const CSCChamber* aChamber, const std::vector<CSCSegment>& segments);
 
  private:
   void fitSlopes(void);
   void fillChiSquared(void);
   void fillLocalDirection(void);
-  HepMatrix derivativeMatrix(void) const;
+  CLHEP::HepMatrix derivativeMatrix(void) const;
   AlgebraicSymMatrix weightMatrix(void) const;
   AlgebraicSymMatrix calculateError(void) const;
   void flipErrors(AlgebraicSymMatrix&) const;

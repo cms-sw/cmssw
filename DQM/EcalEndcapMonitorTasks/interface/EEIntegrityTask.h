@@ -4,8 +4,6 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
  * \author G. Della Ricca
  *
  */
@@ -14,7 +12,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+
+class MonitorElement;
+class DQMStore;
 
 class EEIntegrityTask: public edm::EDAnalyzer{
 
@@ -32,10 +34,25 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginLuminosityBlock
+void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup);
+
+/// EndLuminosityBlock
+void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup);
+
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -47,26 +64,30 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
+
+ std::string subfolder_;
 
 bool enableCleanup_;
 
-edm::InputTag EBDetIdCollection0_;
-edm::InputTag EBDetIdCollection1_;
-edm::InputTag EBDetIdCollection2_;
-edm::InputTag EBDetIdCollection3_;
-edm::InputTag EBDetIdCollection4_;
-edm::InputTag EcalTrigTowerDetIdCollection1_;
-edm::InputTag EcalTrigTowerDetIdCollection2_;
-edm::InputTag EcalElectronicsIdCollection1_;
-edm::InputTag EcalElectronicsIdCollection2_;
-edm::InputTag EcalElectronicsIdCollection3_;
-edm::InputTag EcalElectronicsIdCollection4_;
+bool mergeRuns_;
+
+edm::EDGetTokenT<EEDetIdCollection> EEDetIdCollection1_;
+edm::EDGetTokenT<EEDetIdCollection> EEDetIdCollection2_;
+edm::EDGetTokenT<EEDetIdCollection> EEDetIdCollection3_;
+edm::EDGetTokenT<EEDetIdCollection> EEDetIdCollection4_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection1_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection2_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection3_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection4_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection5_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection6_;
 
 MonitorElement* meIntegrityChId[18];
 MonitorElement* meIntegrityGain[18];
 MonitorElement* meIntegrityGainSwitch[18];
-MonitorElement* meIntegrityGainSwitchStay[18];
 MonitorElement* meIntegrityTTId[18];
 MonitorElement* meIntegrityTTBlockSize[18];
 MonitorElement* meIntegrityMemChId[18];
@@ -74,6 +95,7 @@ MonitorElement* meIntegrityMemGain[18];
 MonitorElement* meIntegrityMemTTId[18];
 MonitorElement* meIntegrityMemTTBlockSize[18];
 MonitorElement* meIntegrityDCCSize;
+MonitorElement* meIntegrityErrorsByLumi;
 
 bool init_;
 

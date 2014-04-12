@@ -13,13 +13,13 @@
 #include <iostream>
 #include <string>
 #include <cmath>
-#include "math.h"
+#include <cmath>
 #include <vector>
 #include <iomanip>
 #include <set>
 #include <stdio.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>//
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
@@ -94,7 +94,7 @@ RPCRecHitReader::RPCRecHitReader(const edm::ParameterSet& pset):_phi(0)
 
 }
 
-void RPCRecHitReader::beginJob( const edm::EventSetup& iSetup)
+void RPCRecHitReader::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 {
 
   edm::ESHandle<RPCGeometry> rpcGeo;
@@ -105,7 +105,7 @@ void RPCRecHitReader::beginJob( const edm::EventSetup& iSetup)
   _rollEff = roll;
 
   fOutputFile  = new TFile( fOutputFileName.c_str(), "RECREATE" );
-  fout = new fstream("RecHitOut.dat", std::ios::out);
+  fout = new std::fstream("RecHitOut.dat", std::ios::out);
 
   _mapLayer[0] = -413.675;
   _mapLayer[1] = -448.675;
@@ -129,7 +129,7 @@ void RPCRecHitReader::beginJob( const edm::EventSetup& iSetup)
       RPCRoll* ir = dynamic_cast<RPCRoll*>(*it);
       RPCDetId id = ir->id();
       
-      const BoundSurface& bSurface = ir->surface();
+      const Surface& bSurface = ir->surface();
       
       if(id.region() == region && id.ring() == wheel && id.sector() == 10 && id.station() == 1 && id.layer() == 1){
 	LocalPoint orgn(0,0,0);
@@ -142,7 +142,7 @@ void RPCRecHitReader::beginJob( const edm::EventSetup& iSetup)
     }
 
     float radius = 413.675;
-    float crd = sqrt(pow((cntr10.x()-cntr11.x()),2)+pow((cntr10.y()-cntr11.y()),2));
+    float crd = sqrt(std::pow((cntr10.x()-cntr11.x()),2)+std::pow((cntr10.y()-cntr11.y()),2));
     _phi = 2*asin(crd/(2*radius));
   }
 
@@ -211,7 +211,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
     // Find chamber with rechits in RPC 
     RPCDetId id = (RPCDetId)(*recIt).rpcId();
     const RPCRoll* roll = dynamic_cast<const RPCRoll* >( rpcGeom->roll(id));
-    const BoundSurface& bSurface = roll->surface();	
+    const Surface& bSurface = roll->surface();	
 
     if((roll->isForward())) return;
    
@@ -221,7 +221,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
 
     float x = 0, y = 0, z = 0;
 
-    if(id.sector() > 10 || 1 <= id.sector() && id.sector() <= 4){ 
+    if(id.sector() > 10 || (1 <= id.sector() && id.sector() <= 4)){ 
       x = rhitglob.x()*cos(-_phi)-rhitglob.y()*sin(-_phi);
       y = rhitglob.y()*cos(-_phi)+rhitglob.x()*sin(-_phi);
       z = rhitglob.z();

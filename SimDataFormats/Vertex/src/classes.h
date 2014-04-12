@@ -5,13 +5,14 @@
 
 #include <vector>
  
-namespace {
-namespace {
+namespace SimDataFormats_Vertex {
+  struct dictionary {
     SimVertex dummy33;
     std::vector<SimVertex> dummy333;
     edm::Wrapper<edm::SimVertexContainer> dummy33333;
+    std::vector<const SimVertex*> dummyvcp;
     edm::SimVertexRef r1;
     edm::SimVertexRefVector rv1;
     edm::SimVertexRefProd rp1; 
-}
+  };
 }

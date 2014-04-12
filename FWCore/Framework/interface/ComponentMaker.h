@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.14 2007/01/12 14:40:24 chrjones Exp $
 //
 
 // system include files
@@ -31,26 +30,32 @@
 // forward declarations
 
 namespace edm {
-   class ParameterSet;
    namespace eventsetup {
       class EventSetupProvider;
+      class EventSetupsController;
       class DataProxyProvider;
-     
-template <class T>
-      class ComponentMakerBase {
-public:
-         virtual ~ComponentMakerBase() {}
+    
+      class ComponentMakerBaseHelper
+      {
+      public:
+        virtual ~ComponentMakerBaseHelper() {}
+      protected:
+        ComponentDescription createComponentDescription(ParameterSet const& iConfiguration) const;
+      };
+ 
+      template <class T>
+      class ComponentMakerBase : public ComponentMakerBaseHelper {
+      public:
          typedef typename T::base_type base_type;
-         virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
-                     ParameterSet const& iConfiguration,
-                     std::string const& iProcessName,
-                     ReleaseVersion const& iVersion,
-                     PassID const& iPass) const = 0;
+         virtual boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
+                                                    EventSetupProvider& iProvider,
+                                                    ParameterSet const& iConfiguration,
+                                                    bool replaceExisting) const = 0;
       };
       
-template <class T, class TComponent>
+   template <class T, class TComponent>
    class ComponentMaker : public ComponentMakerBase<T>
-{
+   {
 
    public:
    ComponentMaker() {}
@@ -58,16 +63,14 @@ template <class T, class TComponent>
    typedef typename T::base_type base_type;
 
       // ---------- const member functions ---------------------
-   virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
-                       ParameterSet const& iConfiguration,
-                       std::string const& iProcessName,
-                       ReleaseVersion const& iVersion,
-                       PassID const& iPass) const;
+   virtual boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
+                                              EventSetupProvider& iProvider,
+                                              ParameterSet const& iConfiguration,
+                                              bool replaceExisting) const;
    
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-
    private:
       ComponentMaker(const ComponentMaker&); // stop default
 
@@ -96,27 +99,55 @@ template <class T, class TComponent>
 
 template< class T, class TComponent>
 boost::shared_ptr<typename ComponentMaker<T,TComponent>::base_type>
-ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
-                                        ParameterSet const& iConfiguration,
-                                        std::string const& iProcessName,
-                                        ReleaseVersion const& iVersion,
-                                        PassID const& iPass) const
+ComponentMaker<T,TComponent>::addTo(EventSetupsController& esController,
+                                    EventSetupProvider& iProvider,
+                                    ParameterSet const& iConfiguration,
+                                    bool replaceExisting) const
 {
-   boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
-   
-   ComponentDescription description;
-   description.type_  = iConfiguration.template getParameter<std::string>("@module_type");
-   description.label_ = iConfiguration.template getParameter<std::string>("@module_label");
+   // This adds components to the EventSetupProvider for the process. It might
+   // make a new component then add it or reuse a component from an earlier
+   // SubProcess or the top level process and add that.
 
-   description.releaseVersion_ = iVersion;
-   description.pid_           = iConfiguration.id();
-   description.processName_   = iProcessName;
-   description.passID_          = iPass;
-      
+   if (!replaceExisting) {
+      boost::shared_ptr<typename T::base_type> alreadyMadeComponent = T::getComponentAndRegisterProcess(esController, iConfiguration);
+
+      if (alreadyMadeComponent) {
+         // This is for the case when a component is shared between
+         // a SubProcess and a previous SubProcess or the top level process
+         // because the component has an identical configuration to a component
+         // from the top level process or earlier SubProcess.
+         boost::shared_ptr<TComponent> component(boost::static_pointer_cast<TComponent, typename T::base_type>(alreadyMadeComponent));
+         T::addTo(iProvider, component, iConfiguration, true);
+         return component;
+      }
+   }
+
+   boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
+   ComponentDescription description =
+      this->createComponentDescription(iConfiguration);
+
    this->setDescription(component.get(),description);
    this->setDescriptionForFinder(component.get(),description);
    this->setPostConstruction(component.get(),iConfiguration);
-   T::addTo(iProvider, component);
+
+   if (replaceExisting) {
+      // This case is for ESProducers where in the first pass
+      // the algorithm thought the component could be shared
+      // across SubProcess's because there was an ESProducer
+      // from a previous process with an identical configuration.
+      // But in a later check it was determined that sharing was not
+      // possible because other components associated with the
+      // same record or records that record depends on had
+      // differing configurations.
+      T::replaceExisting(iProvider, component);
+   } else {
+      // This is for the case when a new component is being constructed.
+      // All components for the top level process fall in this category.
+      // Or it could be a SubProcess where neither the top level process
+      // nor any prior SubProcess had a component with exactly the same configuration.
+      T::addTo(iProvider, component, iConfiguration, false);
+      T::putComponent(esController, iConfiguration, component);
+   }
    return component;
 }
    }

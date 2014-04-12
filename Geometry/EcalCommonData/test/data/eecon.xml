@@ -3,6 +3,21 @@
 
 <ConstantsSection  label="eecon.xml" eval="true">
 
+<Constant name="SCEnvLength"  value="346.60*mm"/>
+
+<Constant name="EESpaWidth"   value="154*mm"/>
+<Constant name="EESpaDepth"   value=" 68.5*mm"/>
+<Constant name="EESpAirWidth" value="102*mm"/>
+<Constant name="EESpAirDepth" value=" 40*mm"/>
+<Constant name="EESpHVDepth"  value=" 16.0*mm"/>
+<Constant name="EESpCaDepth"  value="  8.0*mm"/>
+<Constant name="EESpaXYOff"   value="  1.8*mm"/>
+<Constant name="EESpAirZOff"  value="  3.0*mm"/>
+
+
+<Constant name="EEIRECAL"    value="200*mm"/>
+<Constant name="EEIREREG"    value="250*mm"/>
+
 <Constant name="EEInnerAngle"    value="5.9*deg"/>
 <Constant name="EETanInnerAngle" value="tan([EEInnerAngle])"/>
 <Constant name="EECosInnerAngle" value="cos([EEInnerAngle])"/>
@@ -15,8 +30,6 @@
 
 <Constant name="EEFarZ"     value="3991.0*mm"/>
 <Constant name="EEFarZC"    value="[EEFarZ]  + [EEzMagF]"/>
-<Constant name="EEVFarZ"    value="[EEFarZ]  + 5*mm"/>
-<Constant name="EEVFarZC"   value="[EEVFarZ] + [EEzMagF]"/>
 <Constant name="EBRMin"     value="1238.0*mm"/>
 <Constant name="EBRMax"     value="1775.0*mm"/>
 
@@ -52,6 +65,9 @@
 <Constant name="ESConeZ6"   value=" 450.0*mm"/>
 <Constant name="ESConeZ5"   value=" 410.0*mm"/>
 <Constant name="ESConeZ4"   value=" 410.0*mm"/>
+<!--
+<Constant name="ESConeZ4"   value=" 370.0*mm"/>
+-->
 <Constant name="ESConeZ3"   value="-434.0*mm"/>
 <Constant name="ESConeZ2"   value="-434.0*mm"/>
 <Constant name="ESConeZ1"   value="-450.0*mm"/>
@@ -59,34 +75,70 @@
 <Constant name="ESConeI6"   value=" 375.0*mm"/>
 <Constant name="ESConeI5"   value=" 371.0*mm"/>
 <Constant name="ESConeI4"   value=" 371.0*mm"/>
+<!--
+<Constant name="ESConeI4"   value="[ESConeI3] +
+                                   [EETanInnerAngle]*( [ESConeZ4] - [ESConeZ3] )"/>
+-->
 <Constant name="ESConeI3"   value=" 284.0*mm"/>
 <Constant name="ESConeI2"   value=" 260.0*mm"/>
 <Constant name="ESConeI1"   value=" 260.0*mm"/>
 
+<!--
 <Constant name="ESConeO6"   value=" 450.0*mm"/>
-<Constant name="ESConeO5"   value=" 450.0*mm"/>
+
+make cone not as big because it does not fit into inner moderator
+-->
+
+<Constant name="ESConeO6"   value="[EEIModI5]"/>
+<Constant name="ESConeO5"   value="[ESConeO6]"/>
 <Constant name="ESConeO4"   value=" 374.0*mm"/>
+<!--
+<Constant name="ESConeO4"   value="[ESConeO3] +
+                                   [EETanInnerAngle]*( [ESConeZ4] - [ESConeZ3] )"/>
+-->
 <Constant name="ESConeO3"   value=" 287.0*mm"/>
 <Constant name="ESConeO2"   value=" 306.0*mm"/>
 <Constant name="ESConeO1"   value=" 306.0*mm"/>
 
+<Constant name="ESPlus"         value=" 0.1*mm"/>
+<Constant name="ESConeO6Plus"   value="[ESConeO6] + [ESPlus]"/>
+<Constant name="ESConeO5Plus"   value="[ESConeO5] + [ESPlus]"/>
+<Constant name="ESConeO4Plus"   value="[ESConeO4] + [ESPlus]"/>
+
+<Constant name="ESRingZFront"   value="3074*mm"/>
+<Constant name="ESRingZThick"   value="  14*mm"/>
+<Constant name="ESRingIR"       value=" 288*mm"/>
+<Constant name="ESRingOR"       value=" 311*mm"/>
+
+<Constant name="EEBConeZ"       value="[EEFarZ] - [EEIModZA] + [EEIModZ5]"/>
+<Constant name="EEBConeIR"      value="[EEIModI5]"/>
+
+
 <!-- Global size specifications -->
 
-<Constant name="EREGEnvZES"     value="[EEVFarZ]  - [ESConeZ6] + [ESConeZ2]"/>
+<Constant name="ENCAEnvZES"     value="[ESRingZFront] + [ESRingZThick] + [ESConeZ2] - [ESConeZ1]"/>
 
-<Constant name="ECALEnvZES"     value="[EEVFarZC] - [ESConeZ6] + [ESConeZ2]"/>
+<Constant name="ENCAEnvRNeck"   value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEzNeck] - [ENCAEnvZES] ) + 5*mm"/>
 
-<Constant name="ECALEnvRNeck"   value="[ESConeI6] - [EETanInnerAngle]*([EEVFarZC] - [EEzNeckC])"/>
+<Constant name="ENCAEnvRBCone"  value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEBConeZ] - [ENCAEnvZES] ) + 5*mm"/>
 
-<Constant name="EREGEnvRBack"   value="[ESConeI6] - [EETanInnerAngle]*([EEVFarZ] - [EEzBack])"/>
+<Constant name="ENCAEnvRFront"  value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEzFront] - [ENCAEnvZES] ) +5*mm"/>
 
-<Constant name="ENCAEnvZES"     value="[EEVFarZ]  - [ESConeZ6] + [ESConeZ5]"/>
+<Constant name="ENCAEnvRBack"   value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEzBack] - [ENCAEnvZES] ) + 5*mm"/>
 
-<Constant name="ENCAEnvRNeck"   value="[ESConeO4] - [EETanInnerAngle]*([ENCAEnvZES] - [EEzNeck])"/>
+<Constant name="ENCAEnvRFar"    value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEFarZ] - [ENCAEnvZES] ) + 5*mm"/>
 
-<Constant name="ENCAEnvRFront"  value="[ESConeO4] - [EETanInnerAngle]*([ENCAEnvZES] - [EEzFront])"/>
+<Constant name="ECALEnvRFar"    value="[ENCAEnvRFar] - 5.0*mm"/>
 
-<Constant name="ENCAEnvRBack"   value="[ESConeO4] - [EETanInnerAngle]*([ENCAEnvZES] - [EEzBack])"/>
+<Constant name="ECALEnvRNeck"   value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEzNeck] - [ENCAEnvZES] ) - 5.0*mm"/>
+
+<Constant name="EREGEnvRBack"   value="[ENCAEnvRBack] - 5.0*mm"/>
 
 <!-- Inner Moderator -->
 
@@ -154,7 +206,7 @@
 
 <!-- Support Ring -->
 
-<Constant name="EESRingZ1"   value="[EEzBackBack] +   2.0*mm"/>
+<Constant name="EESRingZ1"   value="[EEzBackBack] +  2*[EEBPPOR]"/>
 <Constant name="EESRingZ2"   value="[EESRingZ1]   +  18.0*mm"/>
 <Constant name="EESRingZ3"   value="[EESRingZ2]             "/>
 <Constant name="EESRingZ4"   value="[EEzNeck]     -  40.0*mm"/>
@@ -167,7 +219,7 @@
 
 <Constant name="EESRingOR1"  value="[EEBackPlateOR]"/>
 <Constant name="EESRingOR2"  value="[EESRingOR1]"/>
-<Constant name="EESRingOR3"  value="[EESRingOR1] + 10*mm"/>
+<Constant name="EESRingOR3"  value="[EESRingIR] + 10*mm"/>
 <Constant name="EESRingOR4"  value="[EESRingOR3]"/>
 <Constant name="EESRingOR5"  value="[EBRMax]"/>
 <Constant name="EESRingOR6"  value="[EESRingOR5]"/>
@@ -236,6 +288,15 @@
 <Constant name="EEiEnvScrOR3" value="[EEiEnvScrOR2]                "/>
 <Constant name="EEiEnvScrOR4" value="[EEiEnvScrIR4] + [EEiEnvScrTh]"/>
 <Constant name="EEiEnvScrOR5" value="[EEiEnvScrIR4] + [EEiEnvScrRT]"/>
+
+<Constant name="EEDeeFrontIR" value="[EEiEnvScrIR5] - 0.3*mm -
+                                     ( [EEiEnvScrZ5] - [EEiEnvScrZ1] - [EEfEnvScrTh] )*[EETanInnerAngle] "/>
+
+<Constant name="EEFrontMidOR" value="[EEfEnvScrOR1] + ( [EEfEnvScrOR4] - [EEfEnvScrOR1] )*
+                                     ( [EEiEnvScrZ3] - [EEfEnvScrZ1] )/( [EEfEnvScrZ4] - [EEfEnvScrZ1] ) "/>
+
+<Constant name="EEFrontMidZ"  value="[EEzFront] + ( [EEiEnvScrZ3] - [EEfEnvScrZ1] ) "/>
+
 
 <!-- Slats for Support of Front Environmental Screen -->
 
@@ -341,6 +402,16 @@
    <ReflectionRotation name="ReflectionY"  phiY="270.*deg"  thetaY="90.*deg" 
                                            phiX= " 0.*deg"  thetaX="90.*deg" 
                                            phiZ=  "0.*deg"  thetaZ= "0.*deg" />
+                          
+   <Rotation name="EEOScrR5A" phiX=  "0.*deg"  thetaX=" 90.*deg" 
+                              phiY=" 90.*deg"  thetaY="110.*deg" 
+                              phiZ= "90.*deg"  thetaZ=" 20.*deg" />
+
+   <Rotation name="EEOScrR5B" phiX=  "0.*deg"  thetaX="110.*deg" 
+                              phiY=" 90.*deg"  thetaY=" 90.*deg" 
+                              phiZ= " 0.*deg"  thetaZ=" 20.*deg" />
+
+
 </RotationSection>
 
 

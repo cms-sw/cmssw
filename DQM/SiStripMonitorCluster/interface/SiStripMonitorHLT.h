@@ -11,6 +11,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -21,17 +22,24 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+class DQMStore;
+
 class SiStripMonitorHLT : public edm::EDAnalyzer {
    public:
       explicit SiStripMonitorHLT(const edm::ParameterSet&);
       ~SiStripMonitorHLT(){};
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
 
    private:
-       DaqMonitorBEInterface* dbe_;
+
+       edm::EDGetTokenT<int> filerDecisionToken_;
+       edm::EDGetTokenT<uint> sumOfClusterToken_;
+       edm::EDGetTokenT<std::map<uint,std::vector<SiStripCluster> > > clusterInSubComponentsToken_;
+
+       DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        MonitorElement * HLTDecision;
        // all events

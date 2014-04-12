@@ -12,15 +12,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoLayer.h"
-#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoNxN.h"
-#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoJets.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
 #include <iostream>
 #include <fstream>
@@ -36,7 +34,7 @@ public:
 
 protected:
 
-  void beginJob (const edm::EventSetup& c);
+  void beginJob ();
   void endJob   ();
   void analyze  (const edm::Event& e, const edm::EventSetup& c);
 
@@ -47,11 +45,15 @@ protected:
 
 private:
 
-  std::string            g4Label, hcalHits, layerInfo, nxNInfo, jetsInfo;
-  std::string            outFile_;
-  bool                   verbose_, scheme_;
-  bool                   checkHit_, checkLay_, checkNxN_, checkJet_;
-  DaqMonitorBEInterface* dbe_;
+  std::string    g4Label, hcalHits, layerInfo, nxNInfo, jetsInfo;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hh_;
+  edm::EDGetTokenT<PHcalValidInfoLayer> tok_iL_;
+  edm::EDGetTokenT<PHcalValidInfoNxN> tok_iN_;
+  edm::EDGetTokenT<PHcalValidInfoJets> tok_iJ_;
+  std::string    outFile_;
+  bool           verbose_, scheme_;
+  bool           checkHit_, checkLay_, checkNxN_, checkJet_;
+  DQMStore       *dbe_;
 
   MonitorElement *meAllNHit_, *meBadDetHit_, *meBadSubHit_, *meBadIdHit_;
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
@@ -62,6 +64,8 @@ private:
   MonitorElement *meHBPhiHit_, *meHEPhiHit_, *meHOPhiHit_, *meHFPhiHit_;
   MonitorElement *meHBEneHit_, *meHEEneHit_, *meHOEneHit_, *meHFEneHit_;
   MonitorElement *meHBTimHit_, *meHETimHit_, *meHOTimHit_, *meHFTimHit_;
+  MonitorElement *mePMTHit_,   *mePMTDepHit_,*mePMTEtaHit_,*mePMTPhiHit_;
+  MonitorElement *mePMTEn1Hit_,*mePMTEn2Hit_,*mePMTTimHit_;
 
   static const int nLayersMAX=20, nDepthsMAX=5;
   MonitorElement *meLayerLay_, *meEtaHLay_, *mePhiHLay_, *meEneHLay_;

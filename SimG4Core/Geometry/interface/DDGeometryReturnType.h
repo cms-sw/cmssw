@@ -10,8 +10,8 @@ class DDGeometryReturnType {
 
 public:
   DDGeometryReturnType(G4LogicalVolume* log,
-		       G4LogicalVolumeToDDLogicalPartMap map,
-		       SensitiveDetectorCatalog catalog);
+		       const G4LogicalVolumeToDDLogicalPartMap& map,
+		       const SensitiveDetectorCatalog& catalog);
   ~DDGeometryReturnType();
 
   G4LogicalVolume*                  logicalVolume() const {return log_;}

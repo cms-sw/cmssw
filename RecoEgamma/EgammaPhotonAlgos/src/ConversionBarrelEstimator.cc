@@ -1,17 +1,16 @@
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionBarrelEstimator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 
 
   // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, 
-							    const TransientTrackingRecHit& hit) const {
+							    const TrackingRecHit& hit) const {
   std::pair<bool,double> result;
   
   //std::cout << "  ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, const TransientTrackingRecHit& hit) " << std::endl;

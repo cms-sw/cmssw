@@ -3,7 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayParameters.h"
-#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
+#include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h" 
 
 /** Class  TwoBodyDecayLinearizationPointFinder computes a rough estimate of the parameters
  *  of a decay. This serves as linearization point for TwoBodyDecayEstimator.
@@ -17,6 +17,8 @@ class TwoBodyDecayLinearizationPointFinder
 {
 
 public:
+
+  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   TwoBodyDecayLinearizationPointFinder( const edm::ParameterSet & config ) {}
 

@@ -1,17 +1,15 @@
-#ifndef Common_RefVectorIterator_h
-#define Common_RefVectorIterator_h
+#ifndef DataFormats_Common_RefVectorIterator_h
+#define DataFormats_Common_RefVectorIterator_h
 
 /*----------------------------------------------------------------------
   
 RefVectorIterator: An iterator for a RefVector
+Note: this is actually a *const_iterator*
 
-
-$Id: RefVectorIterator.h,v 1.6 2006/12/04 19:02:31 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
-#include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/Ref.h"
 
@@ -21,25 +19,28 @@ namespace edm {
   class RefVectorIterator : public std::iterator <std::random_access_iterator_tag, Ref<C, T, F> > {
   public:
     typedef Ref<C, T, F> value_type;
+    typedef Ref<C, T, F> const const_reference;  // Otherwise boost::iterator_reference assumes '*it' returns 'Ref &'
+    typedef const_reference    reference;        // This to prevent compilation of code that tries to modify the RefVector
+                                                 // through this iterator
     typedef typename value_type::key_type key_type;
 
     typedef RefVectorIterator<C, T, F> iterator;
     typedef std::ptrdiff_t difference;
-    typedef typename std::vector<RefItem<key_type> >::const_iterator itemIter;
+    typedef typename std::vector<key_type>::const_iterator keyIter;
     RefVectorIterator() : product_(), iter_() {}
-    explicit RefVectorIterator(RefCore const& product, itemIter const& it) :
+    explicit RefVectorIterator(RefCore const& product, keyIter const& it) :
       product_(product), iter_(it) {}
-    value_type operator*() const {
-      RefItem<key_type> const& item = *iter_;
-      return value_type(product_, item);
+    reference operator*() const {
+      key_type const& key = *iter_;
+      return value_type(product_, key);
     }
-    value_type operator[](difference n) const {
-      RefItem<key_type> const& item = iter_[n];
-      return value_type(product_, item);
+    reference operator[](difference n) const {
+      key_type const& key = iter_[n];
+      return value_type(product_, key);
     }
     std::auto_ptr<value_type> operator->() const {
-      RefItem<key_type> const& item = *iter_;
-      return std::auto_ptr<value_type>(new value_type(product_, item));
+      key_type const& key = *iter_;
+      return std::auto_ptr<value_type>(new value_type(product_, key));
     }
     iterator & operator++() {++iter_; return *this;}
     iterator & operator--() {--iter_; return *this;}
@@ -62,7 +63,7 @@ namespace edm {
 
   private:
     RefCore product_;
-    itemIter iter_;
+    keyIter iter_;
   };
 
   template <typename C, typename T, typename F>

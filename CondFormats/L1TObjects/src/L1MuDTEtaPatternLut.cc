@@ -5,8 +5,8 @@
 //   Description: Look-up table for eta track finder
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/30 07:48:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -34,7 +34,6 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
-#include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
 
 using namespace std;
 
@@ -48,9 +47,9 @@ using namespace std;
 
 L1MuDTEtaPatternLut::L1MuDTEtaPatternLut() {
 
-  if ( load() != 0 ) {
-    cout << "Can not open files to load eta track finder look-up tables for DTTrackFinder!" << endl;
-  }
+  //  if ( load() != 0 ) {
+  //    cout << "Can not open files to load eta track finder look-up tables for DTTrackFinder!" << endl;
+  //  }
 
   //  if ( L1MuDTTFConfig::Debug(6) ) print();
 
@@ -63,14 +62,6 @@ L1MuDTEtaPatternLut::L1MuDTEtaPatternLut() {
 
 L1MuDTEtaPatternLut::~L1MuDTEtaPatternLut() {
 
-  ETFLut_Iter iter = m_lut.begin();
-  while ( iter != m_lut.end() ) {
-    if ( (*iter).second != 0 ) { 
-      delete (*iter).second;
-      (*iter).second = 0;
-    }  
-    iter++;
-  }
   m_lut.clear();
 
 }
@@ -96,7 +87,7 @@ void L1MuDTEtaPatternLut::reset() {
 int L1MuDTEtaPatternLut::load() {
 
   // get directory name
-  string defaultPath(getenv("DTTF_DATA_PATH"));
+  string defaultPath = "L1TriggerConfig/DTTrackFinder/parameters/";
   string eau_dir = "L1TriggerData/DTTrackFinder/Eau/";
 
   // assemble file name
@@ -123,9 +114,9 @@ int L1MuDTEtaPatternLut::load() {
     if ( !file.good() ) break;
     int eta    = file.readInteger();
     if ( !file.good() ) break;
-    L1MuDTEtaPattern* pattern = new L1MuDTEtaPattern(id,pat,eta,qual);
+    L1MuDTEtaPattern pattern(id,pat,eta,qual);
       
-    m_lut[pattern->id()] = pattern;
+    m_lut[pattern.id()] = pattern;
 
     if ( !file.good() ) { file.close(); break; }
     
@@ -154,7 +145,7 @@ void L1MuDTEtaPatternLut::print() const {
 
   LUT::const_iterator iter = m_lut.begin();
   while ( iter != m_lut.end() ) {
-    cout << *(*iter).second << endl;
+    cout << (*iter).second << endl;
     iter++;
   }
 
@@ -166,12 +157,12 @@ void L1MuDTEtaPatternLut::print() const {
 //
 // get pattern with a given ID
 //
-L1MuDTEtaPattern* L1MuDTEtaPatternLut::getPattern(int id) const {
+L1MuDTEtaPattern L1MuDTEtaPatternLut::getPattern(int id) const {
 
   LUT::const_iterator it = m_lut.find(id);
   if ( it == m_lut.end() ) {
     cerr << "Error: L1MuDTEtaPatternLut: pattern not found : " << id << endl;
-    return 0;
+    //    return 0;
   }
   return (*it).second;  
 

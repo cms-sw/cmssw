@@ -31,7 +31,7 @@ class EventSetupRecordKey
 {
 
    public:
-   typedef heterocontainer::HCTypeTag<EventSetupRecordKey> TypeTag;
+   typedef heterocontainer::HCTypeTag TypeTag;
       
       EventSetupRecordKey();
       EventSetupRecordKey(const TypeTag& iType) :
@@ -53,7 +53,7 @@ class EventSetupRecordKey
       // ---------- static member functions --------------------
       template<class T>
          static EventSetupRecordKey makeKey() {
-            return eventsetup::heterocontainer::makeKey<T, EventSetupRecordKey>();
+            return eventsetup::heterocontainer::makeKey<T,EventSetupRecordKey>();
          }
       
       // ---------- member functions ---------------------------

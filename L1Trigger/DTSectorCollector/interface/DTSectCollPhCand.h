@@ -3,7 +3,6 @@
 /**   \Class DTSectCollPhCand.h
  *    A Trigger Server Phi Candidate
  *
- *   $Date: 2007/04/04 10:44:32 $
  *  
  *
  *   \Authors D. Bonacorsi, S. Marcellini
@@ -17,11 +16,11 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "CondFormats/L1TObjects/interface/DTConfigSectColl.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigSectColl.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSC.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
 //---------------
 // C++ Headers --
 //---------------
@@ -76,7 +75,7 @@ class DTSectCollPhCand {
   // Const methods
 
   //! Configuration set
-  inline DTConfigSectColl* config() const { return _tsc->config(); }
+  inline const DTConfigSectColl* config() const { return _tsc->config(); }
 
   //! Return the DTTSS
   inline DTSC* tsc() const { return _tsc; }

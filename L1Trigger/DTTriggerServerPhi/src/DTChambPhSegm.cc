@@ -18,7 +18,7 @@
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrig.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTSPhi.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
 
 //-------------------------------
 // Collaborating Class Headers --

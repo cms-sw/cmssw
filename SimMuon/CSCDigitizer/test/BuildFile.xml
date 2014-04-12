@@ -1,0 +1,6 @@
+<use   name="SimMuon/CSCDigitizer"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="CSCNoiseMatrixTest.cc" name="CSCNoiseMatrixTest">
+</library>
+<bin file="CSCGasCollisionsTest.cpp"/>
+

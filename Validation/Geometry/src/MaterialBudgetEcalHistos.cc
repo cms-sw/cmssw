@@ -2,7 +2,7 @@
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 MaterialBudgetEcalHistos::MaterialBudgetEcalHistos(MaterialBudgetData* data, 
 						   TestHistoMgr* mgr,

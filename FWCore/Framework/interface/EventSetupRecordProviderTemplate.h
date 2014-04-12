@@ -20,80 +20,96 @@
 //
 
 // system include files
-#include "boost/shared_ptr.hpp"
 #include "boost/type_traits/is_base_and_derived.hpp"
+#include "boost/mpl/begin_end.hpp"
+#include "boost/mpl/deref.hpp"
+#include "boost/mpl/next.hpp"
+
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
-#include "FWCore/Framework/interface/DependentEventSetupRecordProviderTemplate.h"
-#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/DependentRecordTag.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
+      
+      //If the types are the same, stop the recursion
+      template <typename T>
+      void addRecordToDependencies(const T*,
+                                   const T*,
+                                   std::set<EventSetupRecordKey>&) { }
+      
+      //Recursively desend container while adding first type's info to set
+      template< typename TFirst, typename TEnd>
+      void addRecordToDependencies(const TFirst*, const TEnd* iEnd, 
+                                   std::set<EventSetupRecordKey>& oSet) {
+         oSet.insert(EventSetupRecordKey::makeKey<typename boost::mpl::deref<TFirst>::type>());
+         const  typename boost::mpl::next< TFirst >::type * next(nullptr);
+         addRecordToDependencies(next, iEnd, oSet);
+      }
 
-template<class T>
-      class EventSetupRecordProviderTemplate : 
-      public  boost::mpl::if_< typename boost::is_base_and_derived<edm::eventsetup::DependentRecordTag, T>::type,
-                             DependentEventSetupRecordProviderTemplate<T>,
-      EventSetupRecordProvider>::type
-{
-
-   public:
-      typedef T RecordType;
-   typedef  typename boost::mpl::if_< typename boost::is_base_and_derived<edm::eventsetup::DependentRecordTag, T>::type,
-      DependentEventSetupRecordProviderTemplate<T>,
-      EventSetupRecordProvider >::type    BaseType;
-   
-   EventSetupRecordProviderTemplate() : BaseType(EventSetupRecordKey::makeKey<T>()), record_() {}
-      //virtual ~EventSetupRecordProviderTemplate();
-
-      // ---------- const member functions ---------------------
-      const T& record() const {return record_;}
-   
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-   virtual void addRecordTo(EventSetupProvider& iEventSetupProvider) {
-      record_.set(this->validityInterval());
-      iEventSetupProvider.addRecordToEventSetup(record_);
-   }
-   
-protected:
-      virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider> iProvider,
-                                      const EventSetupRecordProvider::DataToPreferredProviderMap& iMap) {
-         typedef DataProxyProvider::KeyedProxies ProxyList ;
-         typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
-
-         const ProxyList& keyedProxies(iProvider->keyedProxies(this->key())) ;
-         ProxyList::const_iterator finishedProxyList(keyedProxies.end()) ;
-         for (ProxyList::const_iterator keyedProxy(keyedProxies.begin()) ;
-               keyedProxy != finishedProxyList ;
-               ++keyedProxy) {
-            PreferredMap::const_iterator itFound = iMap.find(keyedProxy->first);
-            if(iMap.end() != itFound) {
-               if( itFound->second.type_ != keyedProxy->second->providerDescription()->type_ ||
-                   itFound->second.label_ != keyedProxy->second->providerDescription()->label_ ) {
-                  //this is not the preferred provider
-                  continue;
-               }
-            }
-            record_.add((*keyedProxy).first , (*keyedProxy).second.get()) ;
+      //Handle the case where a Record has dependencies
+      template <typename T>
+      struct FindDependenciesFromDependentRecord {
+         inline static void dependentRecords(std::set<EventSetupRecordKey>& oSet)  {
+            typedef typename T::list_type list_type;
+            const  typename boost::mpl::begin<list_type>::type * begin(nullptr);
+            const  typename boost::mpl::end<list_type>::type * end(nullptr);
+            addRecordToDependencies(begin, end, oSet);
          }
+      };
+      
+      //Handle the case where a Record has no dependencies
+      struct NoDependenciesForRecord {
+         inline static void dependentRecords(std::set<EventSetupRecordKey>&)  {
+         }
+      };
+      
+      template <typename T>
+      std::set<EventSetupRecordKey>
+      findDependentRecordsFor() {
+         typedef typename boost::mpl::if_< typename boost::is_base_and_derived<edm::eventsetup::DependentRecordTag, T>::type,
+                                           FindDependenciesFromDependentRecord<T>,
+                                           NoDependenciesForRecord>::type DepFinder;
+         std::set<EventSetupRecordKey> returnValue;
+         DepFinder::dependentRecords(returnValue);
+         return returnValue;
       }
-   private:
-      virtual void cacheReset() {
-        record_.cacheReset();
-      }
-      EventSetupRecordProviderTemplate(const EventSetupRecordProviderTemplate&); // stop default
+      
 
-      const EventSetupRecordProviderTemplate& operator=(const EventSetupRecordProviderTemplate&); // stop default
-
-      // ---------- member data --------------------------------
-      T record_;
-};
-
+      template<class T>
+      class EventSetupRecordProviderTemplate : public EventSetupRecordProvider
+      {
+         
+      public:
+         typedef T RecordType;
+         typedef EventSetupRecordProvider    BaseType;
+         
+         EventSetupRecordProviderTemplate() : BaseType(EventSetupRecordKey::makeKey<T>()), record_() {}
+         //virtual ~EventSetupRecordProviderTemplate();
+         
+         // ---------- const member functions ---------------------
+         EventSetupRecord const& record() const {return record_;}
+         
+         // ---------- static member functions --------------------
+         
+         // ---------- member functions ---------------------------
+         std::set<EventSetupRecordKey> dependentRecords() const {
+            return findDependentRecordsFor<T>();
+         }
+      protected:
+         EventSetupRecord& record() { return record_; }
+         
+      private:
+         EventSetupRecordProviderTemplate(EventSetupRecordProviderTemplate const&); // stop default
+         
+         EventSetupRecordProviderTemplate const& operator=(EventSetupRecordProviderTemplate const&); // stop default
+         
+         // ---------- member data --------------------------------
+         T record_;
+      };
+      
    }
 }
 #endif

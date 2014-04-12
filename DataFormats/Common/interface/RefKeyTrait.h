@@ -16,9 +16,10 @@ namespace edm {
     struct RefProdKey {
       template<typename REF>
       static size_t key( const REF & r ) {
-	throw edm::Exception(errors::InvalidReference)
-	  << "attempting get key from a RefToBase containing a RefProd.\n"
-	  << "You can use key only with RefToBase containing a Ref.";
+	Exception::throwThis(errors::InvalidReference,
+	  "attempting get key from a RefToBase containing a RefProd.\n"
+	  "You can use key only with RefToBase containing a Ref.");
+        return 0;
       }
     };
     

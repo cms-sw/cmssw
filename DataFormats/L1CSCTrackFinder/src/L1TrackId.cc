@@ -58,7 +58,7 @@ namespace csc
 
   void L1TrackId::setRank(const unsigned& rank)
   {
-    if (rank>=0 && rank<(1<<kRankBitWidth)) 
+    if (rank<(1<<kRankBitWidth)) // rank >= 0, since rank is unsigned
       {
 	m_rank = rank;
 	setOverlap(rank);

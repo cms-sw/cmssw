@@ -22,10 +22,12 @@
    * Can be used to identify outlying tracks.
    */
 
-class GsfVertexTrackCompatibilityEstimator:public VertexTrackCompatibilityEstimator
+class GsfVertexTrackCompatibilityEstimator:public VertexTrackCompatibilityEstimator<5>
 {
 
 public:
+
+  typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
 
   GsfVertexTrackCompatibilityEstimator(){}
 
@@ -39,12 +41,14 @@ public:
    * \return The chi**2.
    */
 
-  virtual float estimate(const CachingVertex & vrt, const RefCountedVertexTrack track) const;
+  virtual BDpair estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track,
+			  unsigned int hint=UINT_MAX) const;
 
-  virtual float estimate(const CachingVertex & v, 
-			 const RefCountedLinearizedTrackState track) const;
+  virtual BDpair estimate(const CachingVertex<5> & v, 
+			  const RefCountedLinearizedTrackState track,
+			  unsigned int hint=UINT_MAX) const;
 
-  virtual float estimate(const reco::Vertex & vertex, 
+  virtual BDpair estimate(const reco::Vertex & vertex, 
 			 const reco::TransientTrack & track) const;
 
   virtual GsfVertexTrackCompatibilityEstimator * clone() const
@@ -55,13 +59,13 @@ public:
 
 private:
 
-  float estimateFittedTrack(const CachingVertex & v, const RefCountedVertexTrack track) const;
-  float estimateNFittedTrack(const CachingVertex & v, const RefCountedVertexTrack track) const;  
+  BDpair estimateFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;
+  BDpair estimateNFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;  
 
   GsfVertexUpdator updator;
 //   KalmanVertexTrackUpdator trackUpdator;
   MultiPerigeeLTSFactory lTrackFactory;
-  VertexTrackFactory vTrackFactory;
+  VertexTrackFactory<5> vTrackFactory;
 //   KVFHelper helper;
 
 };

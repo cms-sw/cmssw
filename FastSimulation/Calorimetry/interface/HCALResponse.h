@@ -7,23 +7,20 @@
  * 
  */
 
-#include <map>
+#include "FastSimulation/Utilities/interface/DoubleCrystalBallGenerator.h"
+#include <vector>
+#include <string>
 
-#define maxHDeB   12
-#define maxHDeF    7
-#define maxEMe     7
-#define maxHDetaB 30
-#define maxHDetaF 20
-#define maxEMeta  20
-#define maxMUe     4
-#define maxMUeta   6   
-#define maxMUbin  40   
-
-typedef std::pair<double,double> response;
+//define multidimensional vector types
+typedef std::vector<double> vec1;
+typedef std::vector<vec1>   vec2;
+typedef std::vector<vec2>   vec3;
+typedef std::vector<vec3>   vec4;
+typedef std::vector<vec4>   vec5;
 enum part{hcbarrel=0, hcendcap=1, hcforward=2};
 enum type{ECAL=0, HCAL=1, VFCAL=2};
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 namespace edm { 
   class ParameterSet;
@@ -32,65 +29,87 @@ namespace edm {
 class HCALResponse
 {
 public:
-  HCALResponse(const edm::ParameterSet& pset,
-	       const RandomEngine* engine);
-  ~HCALResponse(){;} 
+  HCALResponse(const edm::ParameterSet& pset);
+  ~HCALResponse(){ } 
 
-  // Get the response in the for of pair 
-  // parameters:  energy, eta, e/gamma = 0, hadron = 1, mu = 2
-  response responseHCAL(double energy, double eta, int partype);
+  // Get the response smearing factor
+  // for  e/gamma = 0, hadron = 1, mu = 2, mip: 0/1/2
+  // mip = 2 means "mean" response regardless actual mip
+  double responseHCAL(int _mip, double energy, double eta, int partype, RandomEngineAndDistribution const*);
 
-  // legacy methods using simple furmulae
-  double getHCALEnergyResponse   (double e, int hit);
-  double getHCALEnergyResolution (double e, int hit);
-  double getHFEnergyResolution   (double EGen);
+  //Get the energy and eta dependent mip fraction
+   double getMIPfraction(double energy, double eta);
+
+  // legacy methods using simple formulae
+  double getHCALEnergyResponse(double e, int hit, RandomEngineAndDistribution const*);
   
 private:
 
-  // calculates interpolated-extrapolated reponse (mean and sigma, see below)
-  // for hadrons and e/gamma (the latter in HF specifically)
-  void interHDB(double e, int ie, int ieta);
-  void interHDF(double e, int ie, int ieta);
-  void interEM(double e, int ie, int ieta); 
-  void interMU(double e, int ie, int ieta); 
+  // calculates interpolated-extrapolated response smearing factors
+  // for hadrons, muons, and e/gamma (the last in HF specifically)
+  double interHD(int mip, double e, int ie, int ieta, int det, RandomEngineAndDistribution const*);
+  double interEM(double e, int ie, int ieta, RandomEngineAndDistribution const*);
+  double interMU(double e, int ie, int ieta, RandomEngineAndDistribution const*);
+  
+  //random shooting functions w/ protection from negative energies
+  double gaussShootNoNegative(double e, double sigma,RandomEngineAndDistribution const*);
+  double cballShootNoNegative(double mu, double sigma, double aL, double nL, double aR, double nR,RandomEngineAndDistribution const*);
+  double PoissonShootNoNegative(double e, double sigma,RandomEngineAndDistribution const*);
 
-  ///Default values for resolution parametrisation:
-  ///stochastic, constant and noise.
+  //find subdet
+  int getDet(int ieta);
+  
+  //debugging and mip toggles
+  bool debug, usemip;
+  
+  //Default values for resolution parametrisation:
+  //stochastic, constant and noise.
   //in the barrel and in the endcap
   //in the ECAL, HCAL, VFCAL
   double RespPar[3][2][3];
 
-  ///HCAL response parameters
+  //HCAL response parameters
   double eResponseScale[3];
   double eResponsePlateau[3];
   double eResponseExponent;
   double eResponseCoefficient;
-  double eResponseCorrection;
-  double eBias;
 
-  // just eta step of the tabulated data
-  double etaStep, muStep;
-  // mean and sigma
-  double mean, sigma; 
+  //max values
+  int maxMUe, maxMUeta, maxMUbin, maxEMe, maxEMeta;
+  int maxHDe[4];
+  // eta step for eta index calc
+  double etaStep;
+  // eta index for different regions
+  int HDeta[4], maxHDetas[3], barrelMUeta, endcapMUeta;
+  // energy step of the tabulated muon data
+  double muStep;
+  // correction factor for HF EM
+  double respFactorEM;
 
   // Tabulated energy, et/pt and eta points
-  double eGridHDB[maxHDeB], eGridHDF[maxHDeF];    
-  double eGridEM[maxEMe];
-  double eGridMU[maxMUe];
-  double etaGridMU[maxMUeta];
+  vec1 eGridHD[3];
+  vec1 eGridEM;
+  vec1 eGridMU;
+  vec1 etaGridMU;
 
   // Tabulated response and mean for hadrons normalized to the energy
-  double meanHDB[maxHDeB][maxHDetaB], sigmaHDB[maxHDeB][maxHDetaB];  
-  double meanHDF[maxHDeF][maxHDetaF], sigmaHDF[maxHDeF][maxHDetaF];  
-  // Tabulated response and mean for e/gamma in HF specifically (normalized) 
-  double meanEM[maxEMe][maxEMeta], sigmaEM[maxEMe][maxEMeta];
+  // indices: parameters[par][mip][det][energy][eta]
+  int nPar;
+  std::vector<std::string> parNames;
+  vec5 parameters;
+  
+  // Tabulated response and mean for e/gamma in HF specifically (normalized)
+  // indices: meanEM[energy][eta]
+  vec2 meanEM, sigmaEM;
 
-  // muon histos 
-  double responseMU[maxMUe][maxMUeta][maxMUbin]; 
+  // muon histos
+  // indices: responseMU[energy][eta][bin]
+  vec3 responseMU; 
+  vec3 mipfraction;
+  vec3 PoissonParameters;
 
-
-  // Famos random engine
-  const RandomEngine* random;
+  // crystal ball generator
+  DoubleCrystalBallGenerator cball;
 
 };
 #endif

@@ -13,7 +13,7 @@ void EcalMixingModulePlots( TString inputfile = "EcalDigisValidation.root" )
  TText* te = new TText();
  TFile * rfile = new TFile(rfilename);
 
- rfile->cd("DQMData/EcalDigiTask");
+ rfile->cd("DQMData/EcalDigisV/EcalDigiTask");
  gDirectory->ls();
 
  Char_t histo[200];
@@ -30,11 +30,11 @@ void EcalMixingModulePlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH1 * meEBDigiMixRatiogt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",meEBDigiMixRatiogt100ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",meEBDigiMixRatiogt100ADC_);
    meEBDigiMixRatiogt100ADC_;
 
    TH1 * meEEDigiMixRatiogt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",meEEDigiMixRatiogt100ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",meEEDigiMixRatiogt100ADC_);
    meEEDigiMixRatiogt100ADC_;
 
    Ecal->cd(1);
@@ -53,11 +53,11 @@ void EcalMixingModulePlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH1 * meEBDigiMixRatioOriggt50pc_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",meEBDigiMixRatioOriggt50pc_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",meEBDigiMixRatioOriggt50pc_);
    meEBDigiMixRatioOriggt50pc_;
 
    TH1 * meEEDigiMixRatioOriggt40pc_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",meEEDigiMixRatioOriggt40pc_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",meEEDigiMixRatioOriggt40pc_);
    meEEDigiMixRatioOriggt40pc_;
 
    Ecal->cd(1);
@@ -78,15 +78,15 @@ void EcalMixingModulePlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,3);
 
    TH1 * meEBbunchCrossing_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",meEBbunchCrossing_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",meEBbunchCrossing_);
    meEBbunchCrossing_;
 
    TH1 * meEEbunchCrossing_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",meEEbunchCrossing_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",meEEbunchCrossing_);
    meEEbunchCrossing_;
 
    TH1 * meESbunchCrossing_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",meESbunchCrossing_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",meESbunchCrossing_);
    meESbunchCrossing_;
    
    Ecal->cd(1); 
@@ -106,27 +106,27 @@ void EcalMixingModulePlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(2,3);
    
    TProfile * meEBShape_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel shape digi;1", meEBShape_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel shape digi;1", meEBShape_);
    meEBShape_;
 
    TH1 * meEBShapeRatio_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel shape digi ratio;1",  meEBShapeRatio_ );
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel shape digi ratio;1",  meEBShapeRatio_ );
    meEBShapeRatio_;
 
    TProfile * meEEShape_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap shape digi;1", meEEShape_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap shape digi;1", meEEShape_);
    meEEShape_;
 
    TH1 * meEEShapeRatio_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap shape digi ratio;1",  meEEShapeRatio_ );
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap shape digi ratio;1",  meEEShapeRatio_ );
    meEEShapeRatio_;
 
    TProfile * meESShape_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower shape digi;1", meESShape_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower shape digi;1", meESShape_);
    meESShape_;
 
    TH1 * meESShapeRatio_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower shape digi ratio;1",  meESShapeRatio_ );
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower shape digi ratio;1",  meESShapeRatio_ );
    meESShapeRatio_;
 
    Ecal->cd(1);
@@ -153,7 +153,7 @@ void EcalMixingModulePlots( TString inputfile = "EcalDigisValidation.root" )
 
    TProfile * meEBBunchShape_[21];
    for ( Int_t  i=0 ; i<21; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel shape bunch crossing %02d;1", i-10 );
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel shape bunch crossing %02d;1", i-10 );
      rfile->GetObject(histo,meEBBunchShape_[i]);
      meEBBunchShape_[i];
    }
@@ -171,7 +171,7 @@ void EcalMixingModulePlots( TString inputfile = "EcalDigisValidation.root" )
 
    TProfile * meEEBunchShape_[21];
    for ( Int_t  i=0 ; i<21; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap shape bunch crossing %02d;1", i-10 );
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap shape bunch crossing %02d;1", i-10 );
      rfile->GetObject(histo,meEEBunchShape_[i]);
      meEEBunchShape_[i];
    }
@@ -189,7 +189,7 @@ void EcalMixingModulePlots( TString inputfile = "EcalDigisValidation.root" )
 
    TProfile * meESBunchShape_[21];
    for ( Int_t  i=0 ; i<21; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Preshower shape bunch crossing %02d;1", i-10 );
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower shape bunch crossing %02d;1", i-10 );
      rfile->GetObject(histo,meESBunchShape_[i]);
      meESBunchShape_[i];
    }

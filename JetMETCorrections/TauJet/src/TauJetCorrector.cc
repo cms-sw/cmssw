@@ -11,30 +11,8 @@
 #include <fstream>
 #include <sstream>
 using namespace std;
-namespace {
-class ParametrizationTauJet{
 
- public:
-  
-  ParametrizationTauJet(int ptype, vector<double> x, double u)
-  {
-    type=ptype;
-    theParam[type] = x;
-    theEtabound[type] = u;
-    cout<<"ParametrizationTauJet "<<type<<" "<<u<<endl; 
-  };
-  
-  double value(double, double) const;
-
- private:
-
-  int type;
-  std::map<int, std::vector<double> > theParam;
-  std::map<int,double> theEtabound;
-  
-};
-
-double ParametrizationTauJet::value(double et, double eta)const{
+double TauJetCorrector::ParametrizationTauJet::value(double et, double eta)const{
 
   double x=et;
   double etnew(et);
@@ -42,10 +20,11 @@ double ParametrizationTauJet::value(double et, double eta)const{
   std::vector<double> taus = (*theParam.find(type)).second;
   
        if ( fabs(eta) > etabound) {
-          cout << " ===> ETA outside of range - CORRECTION NOT DONE ***" << endl;
-          cout << " eta = " << eta <<" pt = " << et << " etabound "<<etabound<<endl;
+          //cout << " ===> ETA outside of range - CORRECTION NOT DONE ***" << endl;
+          //cout << " eta = " << eta <<" pt = " << et << " etabound "<<etabound<<endl;
           return et;
         }
+  //cout << "correction parameters: " << taus[0] << " " << taus[1] << " " << taus[2] << endl;
   switch(type){
   case 1:
     {
@@ -64,7 +43,8 @@ double ParametrizationTauJet::value(double et, double eta)const{
     }
 
   default:
-    cerr<<"TauJetCorrector: Error: unknown parametrization type '"<<type<<"' in TauJetCorrector. No correction applied"<<endl;
+	edm::LogError("TauJetCorrector: Error: unknown parametrization type ") << type << " in TauJetCorrector. No correction applied" << endl;
+	//cerr<<"TauJetCorrector: Error: unknown parametrization type '"<<type<<"' in TauJetCorrector. No correction applied"<<endl;
     break;
   }
   return etnew;
@@ -94,7 +74,7 @@ JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag){
   std::ifstream in( (f1.fullPath()).c_str() );
   
   //  if ( f1.isLocal() ){
-    cout << " Start to read file "<<file<<endl;
+    //cout << " Start to read file "<<file<<endl;
     string line;
     while( std::getline( in, line)){
       if(!line.size() || line[0]=='#') continue;
@@ -103,7 +83,7 @@ JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag){
       int type;
       linestream>>par>>type;
       
-      cout<<" Parameter eta = "<<par<<" Type= "<<type<<endl;
+      //cout<<" Parameter eta = "<<par<<" Type= "<<type<<endl;
       
       etavector.push_back(par);
       typevector.push_back(type);
@@ -114,7 +94,7 @@ JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag){
     //  else
     //    cout<<"The file \""<<file<<"\" was not found in path \""<<f1.fullPath()<<"\"."<<endl;
 }
-} // namespace
+
 
 TauJetCorrector::TauJetCorrector(const edm::ParameterSet& fConfig)
 {
@@ -130,9 +110,8 @@ TauJetCorrector::~TauJetCorrector()
 
 void TauJetCorrector::setParameters(std::string aCalibrationType, int itype)
 {
-    cout<< " Start to set parameters "<<endl;
+     //cout<< " Start to set parameters "<<endl;
      type = itype;
-    
      JetCalibrationParameterSetTauJet pset(aCalibrationType);
      
      if((!pset.valid()) && (aCalibrationType!="no"))
@@ -159,19 +138,19 @@ void TauJetCorrector::setParameters(std::string aCalibrationType, int itype)
      if( pset.type(ieta) == -1 ) {etaboundx[mtype-1] = pset.eta(ieta);}
     }
     
-    cout<<" Number of parameters "<<iq<<" "<<ig<<" "<<iqcd<<endl;
+    //cout<<" Number of parameters "<<iq<<" "<<ig<<" "<<iqcd<<endl;
     int mynum = 0;
       for(int ieta=0; ieta<pset.neta();ieta++)
         {
-	cout<<" New parmetrization "<<ieta<<" "<<pset.type(ieta)<<endl;
+	//cout<<" New parmetrization "<<ieta<<" "<<pset.type(ieta)<<endl;
 	
 	 if ( pset.type(ieta) == -1 ) continue;
 	 if( ieta < iq+1)
 	 {
       	  parametrization[pset.eta(ieta)]=new ParametrizationTauJet(pset.type(ieta),(*pq.find(ieta)).second,
 	                                                                          (*etaboundx.find(0)).second);
-	   cout<<" ALL "<<ieta<<" "<<((*pq.find(ieta)).second)[0]<<" "<<((*pq.find(ieta)).second)[1]<<" "<<
-	   ((*pq.find(ieta)).second)[2]<<endl;
+	   //cout<<" ALL "<<ieta<<" "<<((*pq.find(ieta)).second)[0]<<" "<<((*pq.find(ieta)).second)[1]<<" "<<
+	   //((*pq.find(ieta)).second)[2]<<endl;
 
 	 }
 	 if( ieta > iq && ieta < iq + ig + 2 ) 
@@ -179,48 +158,44 @@ void TauJetCorrector::setParameters(std::string aCalibrationType, int itype)
 	  mynum = ieta - iq - 1;
       	  parametrization[pset.eta(ieta)]=new ParametrizationTauJet(pset.type(ieta),(*pg.find(mynum)).second,
 	                                                                          (*etaboundx.find(1)).second);
-	   cout<<" One prong "<<((*pg.find(mynum)).second)[0]<<" "<<((*pg.find(mynum)).second)[1]<<" "<<
-	   ((*pg.find(mynum)).second)[2]<<endl;
+	   //cout<<" One prong "<<((*pg.find(mynum)).second)[0]<<" "<<((*pg.find(mynum)).second)[1]<<" "<<
+	   //((*pg.find(mynum)).second)[2]<<endl;
 	   
 	 }
 	 if( ieta > iq + ig + 1) 
 	 {
 	  mynum = ieta - iq - ig - 2;
-	  cout<<" Mynum "<<mynum<<" "<<ieta<<" "<<pset.type(ieta)<<endl;
+	  //cout<<" Mynum "<<mynum<<" "<<ieta<<" "<<pset.type(ieta)<<endl;
       	  parametrization[pset.eta(ieta)]=new ParametrizationTauJet(pset.type(ieta),(*pqcd.find(mynum)).second,
 	                                                                          (*etaboundx.find(2)).second);
-	   cout<<" Two prongs "<<((*pqcd.find(mynum)).second)[0]<<" "<<((*pqcd.find(mynum)).second)[1]<<" "<<
-	   ((*pqcd.find(mynum)).second)[2]<<endl;
+	   //cout<<" Two prongs "<<((*pqcd.find(mynum)).second)[0]<<" "<<((*pqcd.find(mynum)).second)[1]<<" "<<
+	   //((*pqcd.find(mynum)).second)[2]<<endl;
 	 }
 	}
-   cout<<" Parameters inserted into mAlgorithm "<<endl;								   
+   //cout<<" Parameters inserted into mAlgorithm "<<endl;								   
 }
 
 double TauJetCorrector::correction( const LorentzVector& fJet) const 
 {
-  cout<<" Start Apply Corrections "<<endl;
+  //cout<<" Start Apply Corrections "<<endl;
   if(parametrization.empty()) { return 1.; }
   
     double et=fJet.Et();
     double eta=fabs(fJet.Eta());
     
-    cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
+    //cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
 
     double etnew;
     std::map<double,ParametrizationTauJet*>::const_iterator ip=parametrization.upper_bound(eta);
-      if(ip==parametrization.end()) 
-      {
-          etnew=(--ip)->second->value(et,eta);
-      }
-       else
-          {
-            etnew=ip->second->value(et,eta);
-          }
+    etnew=(--ip)->second->value(et,eta);
 
-	 cout<<" The new energy found "<<etnew<<" "<<et<<endl;
+	 //cout<<" The new energy found "<<etnew<<" "<<et<<endl;
 
          float mScale = etnew/et;
 	 		
      return mScale;
 }
 
+double TauJetCorrector::correction(const reco::Jet& fJet) const {
+	return correction(fJet.p4());
+}

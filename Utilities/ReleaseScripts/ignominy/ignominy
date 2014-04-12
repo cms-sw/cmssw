@@ -1,0 +1,1471 @@
+#!/usr/bin/env perl
+
+use strict;
+use Cwd qw(getcwd);
+use Compress::Zlib qw(gzopen);
+use Storable qw(nfreeze thaw);
+use IO::Handle ();
+
+my $verbose = $ENV{VERBOSE} || 0;
+my $depmode = '';
+my $SCRAM_CMD="scramv1";
+my $arch = undef;
+my $is_package = '-d "$dir/$file/.admin"';
+my $package_type = '$flat || $relative ? "leaf" : "subsystem"';
+
+my @genpathconf = ();
+my @prepathconf = ();
+my @postpathconf = ();
+my $root = undef;
+my $build_root = undef;
+my $src_root = undef;
+my $bindir = undef;
+my $libdir = undef;
+my $incdir = undef;
+my $binary_search_processes=10;
+my $depfilefilter='(dependencies\.mk|.+?\.d)';
+my @libnameoptions=();
+my @pluginnameoptions=();
+my @bins = ();
+my @libs = ();
+my @srcs = ();
+my $out = "";
+my $project = "";
+my $flat = 0;
+
+my @sympref = ();
+my @symno = ();
+
+my %files = ();
+my %packages = ();
+my %binaries = ();
+my %symbols = ();
+my %weak = ();
+my %pathcache=();
+my $searchcachefile= "searchcache";
+my $binary_cache=".binary_data";
+my $searchcache= {};
+my $searchcachedirty=0;
+
+my @outignorep = ();
+my @outignoreb = ();
+my @msglogs =();
+
+my @palias = ();
+my @incsearch = ();
+my @increject = ();
+my @srcreject = ();
+
+my %projects = ();
+
+my @pkgmatchrules = ();
+my $pkgbuilddir = '&concat_path($root, $build_root, $name, $relative)';
+push @libnameoptions,'^(lib|Py).+\.(a|so(\..*)?)$';
+
+my @reject_binary = ();
+
+$packages{'(UNKNOWN)'} = { 
+    PATH		=> '',
+    NAME		=> '(UNKNOWN)',
+    SOURCE_DEPS_DIRECT  => {},
+    SOURCE_DEPS_TRANS   => {},
+    BINARY_DEPS_DIRECT  => {},
+    BINARY_DEPS_TRANS   => {},
+    PACKAGE_DEPS_DIRECT => {},
+    PACKAGE_DEPS_TRANS  => {},
+    COMBINED_DEPS_DIRECT=> {},
+    COMBINED_DEPS_TRANS => {},
+    TYPE		=> 'leaf' };
+
+######################################################################
+# Functions to work with paths
+sub concat_path {
+    my $result = '';
+    foreach my $item (@_) {
+	if ($result && $item) {
+	    $result .= "/$item";
+	} elsif ($item) {
+	    $result = $item;
+	}
+    }
+    return $result;
+}
+
+sub clean_path {
+    my $file = shift;
+    while ($file =~ m%(^|/)\./%) {
+	$file =~ s%(^|/)\./%$1%;
+    }
+
+    while ($file =~ m|([^/]+)/\.\.| && $1 ne '.' && $1 ne '..') {
+	$file =~ s|[^/]+/\.\./||;
+    }
+    return $file;
+}
+
+sub dir_of_path {
+    my $file = shift;
+    $file =~ s|/[^/]+$||;
+    return $file;
+}
+
+sub file_of_path {
+    my $file = shift;
+    $file =~ s|.*/||;
+    return $file;
+}
+
+sub package_name {
+    return &file_of_path(@_);
+}
+
+######################################################################
+# Configuration-related subroutines
+
+# read a configuration file
+sub read_config {
+    my $file = shift;
+    my $handle = new IO::Handle;
+
+    if (! open($handle, "< $file")) {
+	print STDERR "$file: ignored -- cannot read: $!\n";
+	return;
+    }
+
+    my $pathconf = \@postpathconf;
+    while (<$handle>) {
+	chomp;
+
+	while (/\\$/ && !eof($handle)) {
+	    chop;
+	    $_ .= <$handle>;
+	    chomp;
+	}
+
+	s/\#.*//; s/^\s+//; s/\s+$//;
+	next if m/^$/;
+
+	if (/^scan\s+libs\s+(.*)$/) {
+	    push(@libs, split(/\s+/,$1));
+	} elsif (/^scan\s+bins\s+(.*)$/) {
+	    push(@bins, split(/\s+/,$1));
+	} elsif (/^scan\s+src\s+(.*)$/) {
+	    push(@srcs, split(/\s+/,$1));
+	} elsif (/^scan\s+reject\s+(.*)$/) {
+	    push(@srcreject, split(/\s+/,$1));
+	} elsif (/^symbol\s+prefer\s+(.*)$/) {
+	    push(@sympref, $1);
+	} elsif (/^symbol\s+ignore\s+(\S+)\s+(.*)$/) {
+	    push(@symno, [ $1, $2 ]);
+	} elsif (/^match\s+(.*)$/) {
+	    push(@$pathconf, [ split(/:/, $1) ]);
+	} elsif (/^output\s+ignore\s+package\s+(.*)$/) {
+	    push(@outignorep, $1);
+	} elsif (/^output\s+ignore\s+binary\s+(.*)$/) {
+	    push(@outignoreb, $1);
+	} elsif (/^alias\s+package\s+(.*)$/) {
+	    push(@palias, [ split(/:/, $1) ]);
+	} elsif (/^reject\s+include\s+(.*)$/) {
+	    push(@increject, $1);
+	} elsif (/^search\s+include\s+(.*)$/) {
+	    push(@incsearch, [ split(/:/, $1) ]);
+	} elsif (/^option\s+match\s+pre-gen$/) {
+	    $pathconf = \@prepathconf;
+	} elsif (/^option\s+match\s+post-gen$/) {
+	    $pathconf = \@postpathconf;
+	} elsif (/^option\s+(flat|nobinrules)$/) {
+	    $depmode .= " $1";
+	} elsif (/^option\s+define\s+package\s+(.*)$/) {
+	    $is_package = $1;
+	} elsif (/^option\s+define\s+projects\s+(.*)$/) {
+	    $projects{$1}=1;
+	} elsif (/^option\s+define\s+package-type\s+(.*)$/) {
+	    $package_type = $1;
+	} elsif (/^option\s+define\s+package-match-rule\s+(.*)$/) {
+	    push(@pkgmatchrules, $1);
+	} elsif (/^option\s+define\s+package-build-dir\s+(.*)$/) {
+	    $pkgbuilddir = $1;
+	} elsif (/^option\s+define\s+reject-binary\s+(.*)$/) {
+	    push(@reject_binary, $1);
+	} elsif (/^import\s+(.*)$/) {
+	    my $importfile = $1;
+	    if ($importfile =~ m|^/|) {
+		&read_config($importfile);
+	    } else {
+		&read_config(&concat_path(&dir_of_path($file), $importfile));
+	    }
+	} elsif (/^option\s+define\s+dependency-filter\s+(.*)$/) {
+	    $depfilefilter = $1;
+	} elsif (/^option\s+define\s+library-name\s+(.*)$/) {
+	    push @libnameoptions,$1;
+	} elsif (/^option\s+define\s+plugin-name\s+(.*)$/) {
+	    push @pluginnameoptions,$1;
+	} else {
+	    print STDERR "$file:$.: unrecognised line ignored\n";
+	}
+    }
+    close($handle);
+}
+
+# generate internal (preferred) configuration for the packages we have
+# found in this build area
+sub generate_config {
+    foreach my $fullname (reverse sort keys %packages) {
+	my $name = &package_name($fullname);
+	foreach my $expr (@pkgmatchrules) {
+	    push(@genpathconf, [ eval $expr, "'$fullname'" ]);
+	}
+    }
+}
+
+# associate a list of file names to packages
+sub scan_config {
+    my $files = shift;
+    my $action = shift;
+    my @args = @_;
+    my @names = (ref $files eq 'HASH' ? keys %$files : @$files);
+
+    foreach my $file (@names) {
+	$file = &clean_path($file);
+	
+	# see if anything matches
+	my $matched = 0;
+	my $dep = "";
+	if (exists $searchcache->{$file}) {$dep = $searchcache->{$file};}
+	else {
+	  foreach my $config (@prepathconf, @genpathconf, @postpathconf) {
+	    if($file =~ m/$config->[0]/) {
+	      $dep = eval "$config->[1]";
+	      last;
+	    }
+	  }
+	  $searchcache->{$file}=$dep;
+	  $searchcachedirty=1;
+	}
+	if ($dep) {
+		my $dirpart = ($dep =~ m|^(.*)/[^/]+$| && $1);
+		&$action($file, $dep, @args);
+
+		if (! exists $packages{$dep}) {
+		    print STDERR "scan config: instantiating package $dep\n" if $verbose;
+		    $packages{$dep} = { NAME			=> &package_name($dep),
+					PATH			=> $dirpart,
+					SOURCE_DEPS_DIRECT	=> {},
+					SOURCE_DEPS_TRANS	=> {},
+					BINARY_DEPS_DIRECT	=> {},
+					BINARY_DEPS_TRANS	=> {},
+					PACKAGE_DEPS_DIRECT	=> {},
+					PACKAGE_DEPS_TRANS	=> {},
+					COMBINED_DEPS_DIRECT	=> {},
+					COMBINED_DEPS_TRANS	=> {},
+					TYPE			=> 'leaf' };
+		} elsif (($packages{$dep}->{PATH} || '') ne ($dirpart || '')) {
+		    print STDERR ("oops: found "
+				  . &package_name($dep)
+				  . " in `"
+				  . ($packages{$dep}->{PATH} || "")
+				  . "' and in `"
+				  . ($dirpart || "")
+				  . "'!\n");
+		}
+
+		$matched = 1;
+		next;
+	}
+	if (! $matched) {
+          my $actual_file = &get_actual_path ($file);
+	  if ($actual_file eq $file)
+	  {
+	    if ($file!~/^(\(|)0x[0-9a-fA-F]+(\)|)$/){print STDERR "$file: warning: no package matches\n";}
+	  }
+	  else{&scan_config ([$actual_file], $action,@args);}
+	}
+    }
+}
+
+sub dump_config {
+    print STDERR "option define package $is_package\n";
+    print STDERR map { "option $_\n" } split(/\s+/, $depmode);
+    print STDERR map { "scan bins $_\n" } @bins;
+    print STDERR map { "scan libs $_\n" } @libs;
+    print STDERR map { "scan src $_\n" } @srcs;
+    print STDERR map { "scan reject $_\n" } @srcreject;
+    print STDERR map { "symbol prefer $_\n" } @sympref;
+    print STDERR map { "symbol ignore $_->[0] $_->[1]\n" } @symno;
+    print STDERR map { "search include $_->[0]:$_->[1]:$_->[2]\n" } @incsearch;
+    print STDERR map { "reject include $_\n" } @increject;
+    print STDERR map { "match $_->[0]:$_->[1]\n" } (@prepathconf, @genpathconf, @postpathconf);
+    print STDERR map { "output ignore binary $_\n" } @outignoreb;
+    print STDERR map { "output ignore package $_\n" } @outignorep;
+    print STDERR map { "alias package $_->[0]:$_->[1]\n" } @palias;
+}
+
+sub readcache()
+   {
+   my $file = shift;
+   my $cache=undef;
+   my $gz = gzopen($file, "rb");
+   if ($gz)
+      {
+      my $buf;my $data;
+      while ($gz->gzread($buf,1024*1024) > 0){$data.=$buf;}
+      $gz->gzclose();
+      $cache=eval {thaw($data);};
+      if ($@){die "Cache loading error ($file): ",$@,"\n";}
+      }
+   else{die "Can not open file for reading: $file";}
+   return $cache;
+   }
+   
+sub writecache()
+   {
+   my ($cache,$file) = @_;
+   my $gz = gzopen($file, "wb");
+   if ($gz)
+      {
+      eval {$gz->gzwrite(nfreeze($cache));};
+      if ($@){die "Cache writing error ($file): ",$@,"\n";}
+      $gz->gzclose();
+      }
+   else{die "Can not open file for writing: $file";}
+   return;
+   }
+
+sub find_rel_file {
+  my $rel=shift;
+  my $dir=shift;
+  if(-f "${dir}/${rel}"){return &concat_path($dir, $rel);}
+  elsif(-f "${root}/${rel}"){return &concat_path($root, $rel);}
+  return "";
+}
+
+######################################################################
+sub find_packages {
+    my $relative = shift;
+    my $dir = &concat_path($root, $src_root, $relative);
+
+    return if (grep ($dir =~ /$_/, @srcreject));
+    opendir(DIR, "$dir") || die "$dir: cannot scan: $!\n";
+    my @files = readdir(DIR);
+    closedir(DIR);
+
+    foreach my $file (@files) {
+	next if ($file eq '.' || $file eq '..');
+	next if (-l "$dir/$file");
+	next if ($file eq '.domain' || $file eq 'domain' || $file eq '.srt' || $file eq '.admin');
+	next if ($file eq 'CVS');
+	next if (grep ("${dir}/${file}" =~ /$_/, @srcreject));
+
+	my $path = &concat_path($relative, $file);
+	&find_packages($path)
+	    if (-d "$dir/$file");
+	
+	#my $path = &concat_path($relative, $file);
+	my $repos_type=0;
+	if ( -f "$dir/$file/CVS/Repository" ) {
+	  my $repos=`cat $dir/$file/CVS/Repository`; chomp $repos;
+	  my @dirs=split '/', $repos;
+	  if ( exists $projects{$dirs[0]}){
+	    if (@dirs == 2 || @dirs == 3){$repos_type=1;}
+	  }
+	}
+
+	if ( $repos_type ){
+	    $packages{$path} = {
+		PATH			=> $relative,
+		NAME			=> $file,
+		SOURCE_DEPS_DIRECT	=> {},
+		SOURCE_DEPS_TRANS	=> {},
+		BINARY_DEPS_DIRECT	=> {},
+		BINARY_DEPS_TRANS	=> {},
+		PACKAGE_DEPS_DIRECT	=> {},
+		PACKAGE_DEPS_TRANS	=> {},
+		COMBINED_DEPS_DIRECT	=> {},
+		COMBINED_DEPS_TRANS	=> {},
+		TYPE			=> eval $package_type };
+
+	    print STDERR "found package `" . $path
+		. "' of type `" . $packages{$path}{TYPE} . "'\n"
+		    if $verbose;
+	
+	}
+	elsif (-d "$dir/$file" && eval $is_package) {
+	    $packages{$path} = {
+		PATH			=> $relative,
+		NAME			=> $file,
+		SOURCE_DEPS_DIRECT	=> {},
+		SOURCE_DEPS_TRANS	=> {},
+		BINARY_DEPS_DIRECT	=> {},
+		BINARY_DEPS_TRANS	=> {},
+		PACKAGE_DEPS_DIRECT	=> {},
+		PACKAGE_DEPS_TRANS	=> {},
+		COMBINED_DEPS_DIRECT	=> {},
+		COMBINED_DEPS_TRANS	=> {},
+		TYPE			=> eval $package_type };
+
+	    print STDERR "found package `" . $path
+		. "' of type `" . $packages{$path}{TYPE} . "'\n"
+		    if $verbose;
+	}
+    }
+}
+    
+######################################################################
+# Gather source-level dependencies from make dependency data
+
+# Scan make dependency file: store source dependencies for a package.
+# We keep track of every unique file (full path) and resolve only once
+# which package it belongs to.  This speeds up dependency analysis
+# considerably.
+sub scan_depdata_file {
+    my $name = shift;
+    my $dir  = shift;
+    my $file = shift;
+    print STDERR "  reading $file\n" if $verbose;
+    open(INFILE, "< $file") || die "$file: cannot scan for dependencies: $!\n";
+    while (<INFILE>) {
+	chomp; s/.*://; s/\\$//; s/^\s+//; s/\s+$//;
+	map { $_ = &clean_path(m|^/| ? $_ : &find_rel_file($dir, $_));
+	      if ($_ ne "")
+	      {
+	        $files{$_}=undef;
+	        $packages{$name}->{SOURCE_DEPS_TRANS}->{$_} = 1;
+	      }
+	    } split;
+    }
+    close(INFILE);
+}
+
+# Scan a package source directory.  Recurse into all source
+# directories in the build area to find dependency files.  Do not
+# descend into subdirectories that actually are other packages.
+sub scan_depdata_directory {
+    my $name = shift;
+    my $relative = shift;
+    my $dir = eval $pkgbuilddir;
+
+    return if (grep ($dir =~ /$_/, @srcreject));
+    print STDERR ("analysing dependencies in `$dir' ("
+    		  . ($packages{$name}->{PATH} || "") . ":"
+    		  . $packages{$name}->{NAME} . ":"
+    		  . ($relative || "") . ")\n")
+	if $verbose;
+
+    opendir(DIR, "$dir") || return;
+    my @files = readdir(DIR);
+    closedir(DIR);
+
+    foreach my $file (@files) {
+	next if ($file eq '.' || $file eq '..');
+	next if (-l "$dir/$file");
+	next if (grep ($dir =~ /$_/, @srcreject));
+	next if ($packages{&concat_path($name,$relative,$file)});
+
+	if (-d "$dir/$file") {
+	    &scan_depdata_directory($name, &concat_path($relative,$file));
+	} elsif ($file =~ /^$depfilefilter$/) {
+	    my $name1=$name;
+	    &scan_config([ "${dir}/${file}" ], sub { $name1 = $_[1]; });
+	    &scan_depdata_file($name1, $dir, "$dir/$file");
+	}
+    }
+}
+    
+# Translate a file to its package.
+sub scan_locate_files {
+    &scan_config([ keys %files ], sub { $files{$_[0]} = $_[1]; });
+}
+
+# Convert source dependencies of a package into package dependencies.
+# Assumes all files have already been located to their packages.
+sub convert_depdata_dependencies {
+    my $name = shift;
+    foreach my $file (keys %{$packages{$name}->{SOURCE_DEPS_TRANS}}) {
+	next if (! defined $files{$file} || $files{$file} eq $name);
+	$packages{$name}->{PACKAGE_DEPS_TRANS}->{$files{$file}} = 1;
+    }
+}
+
+# Scan for source-level dependencies as reported the compiler during the
+# build.  First discover, then translate them into package dependencies.
+sub scan_depdata_dependencies {
+    map { &scan_depdata_directory($_) } keys %packages;
+    &scan_locate_files;
+    map { &convert_depdata_dependencies($_) } keys %packages;
+}
+
+######################################################################
+# Reject 
+sub scan_incdata_reject {
+    my $filenm = shift;
+
+    return grep($filenm =~ /$_/, @increject) ? 1 : 0;
+}
+
+sub scan_incdata_match {
+    my ($matches, $name, $dir, $filenm) = @_;
+
+    foreach my $incmatch (@incsearch) {
+	if ($name =~ /$incmatch->[0]/ && (!defined $incmatch->[1] || $filenm =~ /$incmatch->[1]/)) {
+	    my $match = eval "$incmatch->[2]";
+	    if ($match =~ m|^/| && -f "$match") {
+		$matches->{&clean_path("$match")} = 1;
+		last;
+	    } elsif ($match =~ m|^[^/]| && -f "$dir/$match") {
+		$matches->{&clean_path("$dir/$match")} = 1;
+		last;
+	    }
+	}
+    }
+}
+
+sub remove_comments ()
+{
+  my $cache=shift;
+  my $e=scalar(@{$cache->{lines}});
+  $cache->{comment_type}=0;
+  for(my $i=0; $i < $e; $i++)
+  {
+    my $line=$cache->{lines}[$i];
+    if ($cache->{comment_type} == 1)
+    {
+      if ($line=~/^(.*?)\*\/(.*)$/)
+      {
+	my $x=$1;
+	$line=$2;
+	$cache->{comment_type}=0;
+	$cache->{lines}[$i]=$line;
+        if ($line!~/^\s*$/){$i--;}
+      }
+      else {$cache->{lines}[$i]="";}
+    }
+    else
+    {
+      my $x1=undef; my $x2=undef;
+      if ($line=~/^(.*?)\/\/(.*)$/){$line=$1;$x2=$2;}
+      if ($line=~/^(.*?)\/\*(.*)$/)
+      {
+        $line=$1;
+	$x1=$2;
+	if(defined $x2){$x1.="//${x2}";$x2=undef;}
+      }
+      if(defined $x1){$i=&remove_comment_type1($cache,$i,$line,$x1);}
+      elsif(defined $x2){$cache->{lines}[$i]=$line;}
+    }
+  }
+}
+
+sub remove_comment_type1 ()
+{
+  my $cache=shift;
+  my $i=shift;
+  my $line=shift;
+  my $x=shift;
+  my $ni=$i;
+  if ($x=~s/^(.*?)\*\///)
+  {
+    $line="${line}${x}";
+    if ($line!~/^\s*$/){$ni--;}
+  }
+  else{$cache->{comment_type}=1;}
+  $cache->{lines}[$i]=$line;
+  return $ni;
+}
+
+# Scan header or source file: store source dependencies for a package.
+# We keep track of every file (full path) and resolve only once which
+# package it belongs to.  However, we need to be able to map #include
+# directives to full paths to the file.  The heuristic we use is to
+# use the dependency data for the package to see which files would
+# match the header.  If only one does, we take that to be the full
+# path.  If more than one do, we warn and pick all of them.
+sub scan_incdata_file {
+    my $cache = shift;
+    my $external = shift;
+    my $name = shift;
+    my $file = shift;
+    my $dir = $file;
+    $dir =~ s|/[^/]+$||;
+
+    print STDERR "  reading $file\n" if $verbose;
+    open(INFILE, "< $file") || die "$file: cannot scan for includes: $!\n";
+    my %tmpcache=();
+    $tmpcache{lines}=[];
+    while(<INFILE>)
+    {
+      chomp;
+      while(/\\$/ && !eof(INFILE)) {
+        chop;
+	$_ .= <INFILE>;
+	chomp;
+      }
+      push @{$tmpcache{lines}}, $_;
+    }
+    close(INFILE);
+    &remove_comments (\%tmpcache);
+    
+    foreach my $fline (@{$tmpcache{lines}})
+    {
+	my $filenm;
+	my %matches;
+	$_=$fline;
+
+	#chomp;
+	#while (/\\$/ && !eof(INFILE)) {
+	#    chop;
+	#    $_ .= <INFILE>;
+	#    chomp;
+	#}
+	next if (! /^\s*\#\s*include\s*<([^>]*)>\s*$/
+		 && ! /^\s*\#\s*include\s*\"([^\"]*)\"\s*$/);
+	$filenm = $1;
+	next if &scan_incdata_reject($filenm);
+
+	if (exists $cache->{$filenm}) {
+	    map { $matches{$_} = 1; } @{$cache->{$filenm}};
+	} else {
+	    if (-f "${dir}/${filenm}"){
+	        $matches{&clean_path("${dir}/${filenm}")} = 1;
+	    }
+	    else {
+		map { $matches{$_} = 1; }
+	        grep(m|\Q/$filenm\E$|, keys %{$packages{$name}->{SOURCE_DEPS_TRANS}});
+	    
+	        if (!$external
+		    && scalar keys %matches == 0
+		    && scalar keys %{$packages{$name}->{SOURCE_DEPS_TRANS}}
+		    # To qualify for search in all known dependencies, the file we are
+		    # looking for must have at least one slash in it; otherwise there
+		    # is far too high an opportunity of matching a random file from some
+		    # other package.
+		    && $filenm =~ m|/|) {
+		    map { $matches{$_} = 1 } grep(m|\Q/$filenm\E$|, keys %files);
+	        }
+	        if (scalar keys %matches == 0) {
+		    &scan_incdata_match(\%matches, $name, $dir, $filenm);
+	        }
+	        if (scalar keys %matches == 0) {
+		    &scan_config([ "$dir/$filenm" ], sub { $matches{"$dir/$filenm"} = 1; })
+	        }
+            }
+	    $cache->{$filenm} = [ keys %matches ];
+        }
+	my $locfile=0;
+	foreach my $f (keys %matches)
+	{
+	  if(!-f $f){next;}
+	  if($f=~/^$dir\/.+/){$locfile=1;last;}
+	}
+	if ($locfile){next;}
+	my %uniqmatches = ();
+	&scan_config([ keys %matches ], sub { $uniqmatches{$_[1]} = 1; });
+
+	if (scalar keys %matches == 0) {
+	    print STDERR "warning: $name: cannot locate `$filenm'\n";
+	} elsif (scalar keys %uniqmatches > 1) {
+	    print STDERR "warning: $name: multiple matches for `$filenm':\n";
+	    print STDERR "\t " . join("\n\t ", keys %matches) . "\n";
+	}
+
+	foreach my $pkg (keys %uniqmatches) {
+	    next if ($pkg eq $name);
+	    print STDERR "    $name: source dependency on $pkg via $filenm\n" if $verbose;
+	    $packages{$name}->{PACKAGE_DEPS_DIRECT}->{$pkg} = 1;
+	}
+    }
+}
+
+# Scan a package source directory.  Recurse into all source
+# directories to find source and header files.  Do not
+# descend into subdirectories that actually are other packages.
+sub scan_incdata_directory {
+    my ($relroot, $name, $relative, $fixed) = @_;
+    my $dir;
+    if ($name =~ m|^/|) {
+	$fixed = 1;
+	$relroot = $dir = $name;
+	$name = "(UNKNOWN)";
+	&scan_config([ $dir ], sub { $name = $_[1]; });
+    } elsif ($fixed) {
+	$dir = &concat_path($relroot, $relative);
+    } else {
+	$dir = &concat_path($root, $relroot, $name, $relative);
+    }
+
+    return if (grep ($dir =~ /$_/, @srcreject));
+    print STDERR ("analysing includes in `$dir' ("
+    		  . ($packages{$name}->{PATH} || "") . ":"
+    		  . ($packages{$name}->{NAME} || "") . ":"
+    		  . ($relative || "") . ")\n")
+	if $verbose;
+
+    opendir(DIR, "$dir") || return;
+    my @files = readdir(DIR);
+    closedir(DIR);
+    my %cache = ();
+    foreach my $file (@files) {
+	next if ($file eq '.' || $file eq '..');
+	next if (-l "$dir/$file");
+	next if ($packages{&concat_path($name,$relative,$file)});
+	next if (grep ("$dir/$file" =~ /$_/, @srcreject));
+
+	if (-d "$dir/$file") {
+	    &scan_incdata_directory($relroot, $name, &concat_path($relative,$file), $fixed);
+	} elsif ($file =~ /\.(c|cc|cxx|cpp|h|hh|inl|icc|iccp|templ|ddl|F|inc)$/i) {
+	    my $name1=$name;
+	    &scan_config([ "${dir}/${file}" ], sub { $name1 = $_[1]; });
+	    &scan_incdata_file(\%cache, $fixed, $name1, "$dir/$file");
+	}
+    }
+}
+    
+# Scan for source-level dependencies from #include directives to get
+# more accurate direct dependency info (depdata gets us transtive).
+sub scan_incdata_dependencies {
+   foreach my $p (&generate_prune_dependencies(keys %packages), @srcs) {
+	&scan_incdata_directory($build_root, $p)
+	    if (($src_root || '') ne ($build_root || ''));
+	&scan_incdata_directory($src_root, $p);
+   }
+}
+
+######################################################################
+# Scan binaries.
+my %prcache=();
+
+sub waitforchild ()
+{
+    use POSIX ":sys_wait_h";
+    my $limit=shift || 0;
+    my $running=$prcache{running};
+    while ($running>$limit) {
+        my $pid=-1;
+	do {
+	  $pid = waitpid(-1, WNOHANG);
+	  if (exists $prcache{pids}{$pid}) { $running--; delete $prcache{pids}{$pid}; }
+	} while ($pid > 0);
+    }
+    $prcache{running}=$running;
+}
+
+sub forkprocess ()
+{
+    &waitforchild($binary_search_processes-1);
+    my $pid=0;
+    my $err=0;
+    do {
+        $pid = fork ();
+	if (!defined $pid) {
+	    $err++;
+	    print STDERR "WARNING: Can not fork a new process:$err: $@\n";
+	    if ($err > 10 ) { die "ERROR: Exiting due to fork() failure.\n"; }
+	}
+    } while (!defined $pid);
+    if ($pid>0) { $prcache{pids}{$pid}=1; $prcache{running}=$prcache{running} + 1; }
+    return $pid;
+}
+
+sub symbol_class {
+    my $label = shift;
+    return 'WEAK' if ($label eq 'W' || $label eq 'V' || substr($label,-1,1) eq '*');
+    return 'COMMON' if ($label eq 'C');  # || $label eq 'B'?
+    return 'TEXT' if ($label eq 'T');
+    return undef if ($label eq 'S' && index($arch, "SunOS") != -1);
+    return 'DATA';
+}
+
+# Scan a possible binary (an executable, shared library or an archive
+# library); ignore anything that doesn't look like one to allow blind
+# scanning of directories.  If the binary is dynamic, scan for
+# information with `ldd'.  If it is a library, scan for undefined
+# symbols so we can get accurate dependencies for unresolved
+# references.
+sub scan_binary_file {
+    my ($dir, $file, $cache, $force) = @_;
+    return if ($file eq '.' || $file eq '..');
+    my $filepath="${dir}/${file}";
+    if (!defined $force){
+      $filepath=&get_actual_path($filepath);
+      if ($filepath ne "${dir}/${file}"){
+        return &scan_binary_file (&dir_of_path($filepath), &file_of_path($filepath), $cache, 1);
+      }
+    }
+    if (exists $cache->{LDD_DONE}{$filepath}) {return ;}
+    my $is_archive = ($file =~ m/^lib.+\.a$/);
+    my $is_library = 0;
+    foreach my $exp (@libnameoptions, @pluginnameoptions){
+        if($file =~ m/$exp/){
+            $is_library=1;
+	    last;
+	}
+    }
+    return if (! -f "$dir/$file" || !(-x "$dir/$file" || $is_library));
+    
+    my $is_binary = 0;
+    if (!$is_library){
+      $is_binary = 1;
+    }
+    
+    foreach my $rejected_binary (@reject_binary){      
+	return if (eval $rejected_binary);
+    }
+
+    my $md5 = $file;
+    my $uniq=0;
+    while (exists $cache->{ALL_FILES}{$md5}) {
+      $md5="${file}.${uniq}";
+      $uniq++;
+    }
+    $cache->{NEW_FILES}{$md5}=1;
+    $cache->{ALL_FILES}{$md5}=1;
+    $cache->{LDD_DONE}{$filepath}{md5}=$md5;
+    $cache->{LDD_DONE}{$filepath}{archive}=$is_archive;
+    $cache->{LDD_DONE}{$filepath}{binary}=$is_binary;
+    
+    my $pid=&forkprocess();
+    if ($pid>0) { return; }
+    my $data = {};
+    if (! $is_archive) {
+        my $log=undef;
+	my $fref;
+        if ($^O=~/linux/io){
+	    open($fref, "ldd '$filepath' |")
+	         || die "$filepath: cannot read shared libraries: $!\n";
+	    while (<$fref>) {
+	        chomp;
+	        next if (! /^\s+(\S+)\s+=>\s+(not found|\S+)(\s+\(0x[0-9a-fA-F]+\))?$/);
+	        if ($2 eq "not found") {
+	            if (!defined $log){if(!open($log, ">${binary_cache}/msglogs/$md5")){$log=undef;}}
+		    if(defined $log){print $log "oops: $filepath: dependent shared library `$1' not found\n";}
+		    next;
+	        }
+	        $data->{$2} = 1;
+            }    
+	}
+        if ($^O=~/darwin/io){
+            open($fref, "otool -L '$filepath' |")
+                 || die "$filepath: cannot read shared libraries: $!\n";
+            while (<$fref>) {
+                chomp;
+                next if (! /^\s+(\S+)\s+\(.+\)\s*$/);
+                my $depname=$1;
+                my $dep=&find_path_file($depname,"$ENV{DYLD_LIBRARY_PATH}:$ENV{DYLD_FALLBACK_LIBRARY_PATH}",":");
+                if ($dep eq "") {
+                    if (!defined $log){if(!open($log, ">${binary_cache}/msglogs/$md5")){$log=undef;}}
+                    if(defined $log){print $log "oops: $filepath: dependent shared library `$depname' not found\n";}
+                    next;
+                }
+                $data->{$dep} = 1;
+            }
+        }
+	close($fref);
+	if(defined $log){close($log);}
+    }
+    &writecache ($data,"${binary_cache}/ldd/${md5}");
+    exit 0;
+}
+
+sub find_path_file() {
+  my ($lib,$paths,$sep)=@_;
+  foreach my $dir (split($sep,$paths)) {
+    if (($dir ne "") && (-e "${dir}/${lib}")){return "${dir}/${lib}";}
+  }
+  return "";
+}
+
+sub update_binary_data ()
+{
+    wait ();
+    if (-f "${binary_cache}/msgs"){system("cat ${binary_cache}/msgs 1>&2; rm -f ${binary_cache}/msgs");}
+    my $data=&readcache("${binary_cache}/ldd.cache");
+    foreach my $filepath (keys %{$data}) {
+        my $md5 = $data->{$filepath};
+	my $syms = &readcache("${binary_cache}/symbols/${md5}");
+	$binaries{"$filepath"}=$syms;
+	$binaries{"$filepath"}->{ORIGIN}='(UNKNOWN)';
+	$binaries{"$filepath"}->{FULLNAME}=undef;
+	$binaries{"$filepath"}->{SYMBOL_DEPS}={};
+	$binaries{"$filepath"}->{PACKAGE_DEPS_DIRECT}={};
+	$binaries{"$filepath"}->{PACKAGE_DEPS_TRANS}={};
+	$binaries{"$filepath"}->{DYNAMIC_DEPS}=&readcache("${binary_cache}/ldd/${md5}");
+	foreach my $sym (keys %{$syms->{cache}}) {
+	    my $type = $syms->{cache}{$sym}[0];
+	    my $symclass = $syms->{cache}{$sym}[1];
+	    if ($symclass ne 'COMMON' && $symclass ne 'WEAK') {
+	        $symbols{$sym} ||= { TYPE => $type, DEFS => [] };
+	        push(@{$symbols{$sym}->{DEFS}}, "$filepath");
+
+	        print STDERR ("warning: symbol type conflict: `$sym'"
+		              . " was previously defined as `"
+		              . $symbols{$sym}->{TYPE} . "', now as `"
+			      . $type . "'\n")
+	            if ($symbols{$sym}->{TYPE} ne $type);
+            } elsif ($symclass eq 'WEAK') {
+	        $weak{$sym} ||= [];
+	        push(@{$weak{$sym}}, "$filepath");
+	    }
+	}
+	delete $binaries{$filepath}->{cache};
+    }
+    rmtree ($binary_cache);
+}
+
+sub scan_binaries_for_symbols ()
+{
+    my $files=shift;
+    foreach my $filepath (keys %{$files}) {
+      &scan_binary_for_symbols($filepath,$files->{$filepath});
+      $files->{$filepath}=$files->{$filepath}{md5};
+    }
+    &waitforchild();
+    &writecache ($files,"${binary_cache}/ldd.cache");
+}
+
+sub scan_binary_for_symbols ()
+{
+    my $filepath=shift;
+    my $cache=shift;
+    push @msglogs,"analysing `$filepath'\n" if $verbose;
+    my $pid=&forkprocess();
+    if ($pid>0) { return; }
+    my $md5        = $cache->{md5};
+    my $is_archive = $cache->{archive};
+    my $is_binary  = $cache->{binary};
+    my %undefs = ();
+    my %defs = ();
+    my $data = {
+        SYMBOLS	 => { UNDEF => [], TEXT => [], WEAK => [],
+		      DATA => [], COMMON => [] } };
+    my $symtab = $data->{SYMBOLS};
+    my $nm_opt="";
+    if (!$is_archive){
+      $nm_opt="-D";
+      if ($^O=~/darwin/io){$nm_opt="-f";}
+    }
+    my $cmd = "nm $nm_opt '$filepath' |";
+    open(NM, $cmd) || die "$filepath: cannot read symbols: $!\n";
+    while (<NM>) {
+        if (/^0*\s+U\s+(\S+)$/) {
+	    $undefs{$1} = 1;
+	} elsif (/^[0-9a-fA-F]+\s+([ACWTDBGRV]\*?)\s+(\S+)$/) {
+	    next if ($is_binary);
+	    my $symclass = &symbol_class($1);
+	    next if (! $symclass);
+	    $defs{$2} = 1;
+	    push(@{$symtab->{$symclass}}, $2);
+	    $data->{cache}{$2}[0]=$1;
+	    $data->{cache}{$2}[1]=$symclass;
+	}
+    }
+    close(NM);
+    delete @undefs{keys %defs};
+    push(@{$symtab->{UNDEF}}, keys %undefs);
+    &writecache ($data,"${binary_cache}/symbols/${md5}");
+    exit 0;
+}
+
+
+# Prune symbol definition: ignore symbols, select preferred binaries
+# for multiple defined symbols, and warn if the symbol has duplicates
+# after this.
+sub convert_binary_symbol_definition {
+    my $sym = shift;
+    my $type = $symbols{$sym}->{TYPE};
+    return if (grep($type =~ /$_->[0]/
+		    && $sym =~ /$_->[1]/, @symno));
+
+    foreach my $pref (@sympref) {
+	my @preferred = grep (/$pref/, @{$symbols{$sym}->{DEFS}});
+	if (@preferred) {
+	    $symbols{$sym}->{DEFS} = [ $preferred[0] ];
+	    last;
+	}
+    }
+
+    # warn about symbol conflicts across package boundaries
+    my $libs=[];
+    my %uniq = ();
+    foreach my $lib (@{$symbols{$sym}->{DEFS}})
+    {
+      my $flib=$lib;
+      $flib=~s/^.*\/([^\/]+)$/$1/;
+      foreach my $librx (@libnameoptions){if ($flib=~m/$librx/){push @$libs,$lib; last;}}
+      $uniq{$binaries{$lib}->{ORIGIN}} = 1;
+    }
+    
+    if ((scalar keys %uniq > 1) && ($type!~/^[VW]$/)) {
+	print STDERR ("warning: $sym ($type): multiple defined:\n",
+		      map { "    warning:   in `$_' ($binaries{$_}->{ORIGIN})\n" } @{$symbols{$sym}->{DEFS}});
+    }
+    $symbols{$sym}->{DEFS} = $libs;
+}
+
+# Convert symbol-level dependencies into package dependencies.
+sub convert_binary_symbol_deps {
+    my $binary = shift;
+    foreach my $sym (@{$binaries{$binary}->{SYMBOLS}->{UNDEF}}) {
+	next if (grep (($symbols{$sym} ? $symbols{$sym}->{TYPE} =~ /$_->[0]/ : 1)
+		       && $sym =~ /$_->[1]/, @symno));
+
+	if (defined $symbols{$sym}) {
+	    my @syms_def=();
+	    foreach my $l (@{$symbols{$sym}->{DEFS}}){
+		if (exists $binaries{$binary}->{DYNAMIC_DEPS}{$l}){push @syms_def,$l;}
+	    }
+	    if (scalar(@syms_def)==0){push @syms_def,@{$symbols{$sym}->{DEFS}};}
+	    print STDERR ("$binary: $sym: resolved from ",
+			  join(", ", @syms_def),
+			  "\n")
+		if $verbose;
+
+	    map { $binaries{$binary}->{SYMBOL_DEPS}->{$_} = 1 }
+		@syms_def;
+	} elsif ($weak{$sym}) {
+	    # ignore weak symbols, we never want them
+	    # print STDERR ("$binary: $sym: resolved weakly from ",
+	    # 		  join(", ", @{$symbols{$sym}->{DEFS}}),
+	    # 		  "\n");
+
+	    # map { $binaries{$binary}->{SYMBOL_DEPS}->{$_} = 1 } @{$weak{$sym}};
+	} else {
+	    print STDERR "warning: $sym: undefined (referenced by $binary)\n";
+	}
+    }
+}
+
+# Find out what package a binary belongs to
+sub convert_binary_origin {
+    my $name = shift;
+    my $file = &file_of_path($name);
+    &scan_config([ $name ], sub {
+	print STDERR "binary $name found in $_[1]\n" if $verbose;
+	$binaries{$name}->{ORIGIN} = $_[1]
+    });
+    $binaries{$name}->{FULLNAME} = &concat_path($binaries{$name}->{ORIGIN}, $file);
+}
+
+# Convert information about the binary: what package dependencies the
+# dynamic and symbol dependencies correspond to.  Assumes undefined
+# symbols have already been resolved and the package location is known
+# for this binary.
+sub convert_binary_dynamic_deps {
+    my $name = shift;
+
+    &scan_config($binaries{$name}->{DYNAMIC_DEPS},
+		 sub { $binaries{$name}->{PACKAGE_DEPS_TRANS}->{$_[1]} = 1
+			   if ($_[1] ne $binaries{$name}->{ORIGIN})});
+    &scan_config($binaries{$name}->{SYMBOL_DEPS},
+		 sub { $binaries{$name}->{PACKAGE_DEPS_DIRECT}->{$_[1]} = 1
+			   if ($_[1] ne $binaries{$name}->{ORIGIN})});
+}
+
+#scan indirect linked libraires
+sub read_and_scan_binary_deps {
+    my $cache=shift || {};
+    if (!exists $cache->{NEW_FILES}) {
+        use File::Path;
+        rmtree ("${binary_cache}");
+        mkpath ("${binary_cache}/ldd",0,0711);
+        mkpath ("${binary_cache}/symbols",0,0711);
+        mkpath ("${binary_cache}/msglogs",0,0711);
+        $prcache{running}=0;
+        foreach my $dir (@bins, @libs) {
+	    if (-d "$dir") {
+	        my $dref;
+	        opendir($dref, "$dir") || next;
+	        map { &scan_binary_file($dir, $_, $cache); } readdir($dref);
+	        closedir($dref);
+	    } elsif (-f "$dir") {
+	        &scan_binary_file(&dir_of_path($dir), &file_of_path($dir), $cache);
+	    }
+        }
+	if (exists $cache->{NEW_FILES})
+	{
+	  &read_and_scan_binary_deps ($cache);
+	  delete $cache->{NEW_FILES};
+	  delete $cache->{ALL_FILES};
+	  &scan_binaries_for_symbols ($cache->{LDD_DONE});
+	  delete $cache->{LDD_DONE};
+	  system("touch ${binary_cache}/msglogs/$$.dump; cat ${binary_cache}/msglogs/* > ${binary_cache}/msgs; rm -rf ${binary_cache}/msglogs");
+	  my $log;
+	  if (open($log,">>${binary_cache}/msgs"))
+	  {
+	    foreach my $msg (@msglogs){print $log "$msg";}
+	    close($log);
+	  }
+	  @msglogs=();
+	}
+	else{&writecache ({},"${binary_cache}/ldd.cache");return;}
+    }
+    &waitforchild();
+    my $hasnew=0;
+    foreach my $md5 (keys %{$cache->{NEW_FILES}}) {
+	$hasnew++;
+	delete $cache->{NEW_FILES}{$md5};
+	my $data = &readcache("${binary_cache}/ldd/${md5}");
+	foreach my $dep (keys %$data) {
+	    &scan_binary_file(&dir_of_path($dep), &file_of_path($dep), $cache) if (! exists $cache->{LDD_DONE}{$dep});
+        }
+    }
+    if ($hasnew) { &read_and_scan_binary_deps ($cache); }
+}
+
+sub cache_binary_data {
+    my $pid=fork ();
+    if ($pid==0){&read_and_scan_binary_deps (); exit 0;}
+}
+
+# Scan binaries and convert their dependencies.
+sub scan_binary_dependencies {
+    wait();
+    &update_binary_data ();
+    map { &convert_binary_origin($_) } sort keys %binaries;
+    map { &convert_binary_symbol_definition($_) } sort keys %symbols;
+    map { &convert_binary_symbol_deps($_) } sort keys %binaries;
+    map { &convert_binary_dynamic_deps($_) } sort keys %binaries;
+}
+
+######################################################################
+sub merge_aliases {
+    my $table = shift;
+
+    foreach my $name (keys %$table) {
+	foreach my $key (qw(PACKAGE_DEPS_DIRECT PACKAGE_DEPS_TRANS)) {
+	    my $new = {};
+	    foreach my $val (keys %{$table->{$name}->{$key}}) {
+		if ($packages{$val}->{ALIAS}) {
+		    $new->{$packages{$val}->{ALIAS}} = 1
+			if ($packages{$val}->{ALIAS} ne $name);
+		} else {
+		    $new->{$val} = 1;
+		}
+	    }
+	    $table->{$name}->{$key} = $new;
+	}
+    }
+}
+
+sub merge_package_aliases {
+    # figure out which packages are aliases
+    foreach my $name (keys %packages) {
+	my @aliased = grep($name =~ /$_->[0]/, @palias);
+	next if (scalar @aliased == 0);
+	print STDERR "warning: package $name aliases to more than one alternate\n"
+	    if (scalar @aliased > 1);
+
+	my ($path, $alias) = ($aliased[0]->[1] =~ m|^(.*/)?([^/]+)$|);
+	$packages{$alias} ||= {
+	    PATH		=> $path,
+	    NAME		=> $alias,
+	    SOURCE_DEPS_DIRECT	=> {},
+	    SOURCE_DEPS_TRANS	=> {},
+	    BINARY_DEPS_DIRECT	=> {},
+	    BINARY_DEPS_TRANS	=> {},
+	    PACKAGE_DEPS_DIRECT	=> {},
+	    PACKAGE_DEPS_TRANS	=> {},
+	    COMBINED_DEPS_DIRECT=> {},
+	    COMBINED_DEPS_TRANS	=> {},
+	    TYPE		=> $packages{$name}->{TYPE} || 'leaf' };
+
+	$packages{$name}->{ALIAS} = $alias;
+	foreach my $key (qw(PACKAGE_DEPS_DIRECT PACKAGE_DEPS_TRANS)) {
+	    map { $packages{$alias}->{$key}->{$_} = 1 }
+	    keys %{$packages{$name}->{$key}};
+	}
+    }
+
+    # remap dependencies to alias destinations
+    &merge_aliases(\%packages);
+    &merge_aliases(\%binaries);
+
+    # remove aliased packages
+    foreach my $name (keys %packages) {
+	delete $packages{$name} if ($packages{$name}->{ALIAS});
+    }
+}
+
+######################################################################
+sub generate_prune_dependencies {
+    my @result = ();
+    foreach my $d (@_) {
+	push(@result, $d) if (! grep($d =~ /$_/, @outignorep));
+    }
+    return @result;
+}
+
+sub generate_dependencies {
+    print map { "    $_\n" } @_;
+}
+
+sub generate_output {
+    foreach my $name (sort keys %packages) {
+	print STDERR "warning: package $name has no type\n"
+	    if (! $packages{$name}->{TYPE});
+    }
+
+    print '#' x 80, "\n", "# Direct source dependencies\n";
+    foreach my $name (sort keys %packages) {
+	my @deps = &generate_prune_dependencies(keys %{$packages{$name}->{PACKAGE_DEPS_DIRECT}});
+
+	next if (grep ($name =~ /$_/, @outignorep));
+	next if ($packages{$name}->{TYPE} ne 'leaf');
+	next if (! @deps && $name eq '(UNKNOWN)');
+	# next if (! scalar @deps);
+
+	print "\n$name:\n";
+	&generate_dependencies(sort @deps);
+
+	map { $packages{$name}->{COMBINED_DEPS_DIRECT}->{$_} = 1 }
+	keys %{$packages{$name}->{PACKAGE_DEPS_DIRECT}};
+    }
+
+    print "\n\n", '#' x 80, "\n", "# Transitive source dependencies\n";
+    foreach my $name (sort keys %packages) {
+	my @deps = &generate_prune_dependencies(keys %{$packages{$name}->{PACKAGE_DEPS_TRANS}});
+
+	next if (grep ($name =~ /$_/, @outignorep));
+	next if ($packages{$name}->{TYPE} ne 'leaf');
+	next if (! @deps && $name eq '(UNKNOWN)');
+	# next if (! scalar @deps);
+
+	print "\n$name:\n";
+	&generate_dependencies(sort @deps);
+
+	map { $packages{$name}->{COMBINED_DEPS_TRANS}->{$_} = 1 }
+	keys %{$packages{$name}->{PACKAGE_DEPS_TRANS}};
+    }
+
+    print "\n\n", '#' x 80, "\n", "# Direct binary dependencies\n";
+    my %names = map { $binaries{$_}->{FULLNAME} => $_ } keys %binaries;
+    foreach my $name (sort keys %names) {
+	my $b = $binaries{$names{$name}};
+	my $file = &file_of_path($name);
+	my @deps = &generate_prune_dependencies(keys %{$b->{PACKAGE_DEPS_DIRECT}});
+
+	next if (! &generate_prune_dependencies($b->{ORIGIN}));
+	next if (grep ($names{$name} =~ /$_/, @outignoreb));
+	next if (! @deps && $name eq '(UNKNOWN)');
+	# next if (! scalar @deps);
+
+	print "\n$b->{ORIGIN} ($file):\n";
+	&generate_dependencies(sort @deps);
+
+	map { $packages{$b->{ORIGIN}}->{COMBINED_DEPS_DIRECT}->{$_} = 1 }
+	keys %{$b->{PACKAGE_DEPS_DIRECT}};
+    }
+
+    print "\n\n", '#' x 80, "\n", "# Transitive binary dependencies\n";
+    foreach my $name (sort keys %names) {
+	my $b = $binaries{$names{$name}};
+	my $file = &file_of_path($name);
+	my @deps = &generate_prune_dependencies(keys %{$b->{PACKAGE_DEPS_TRANS}});
+
+	next if (! &generate_prune_dependencies($b->{ORIGIN}));
+	next if (grep ($names{$name} =~ /$_/, @outignoreb));
+	next if (! @deps && $name eq '(UNKNOWN)');
+	# next if (! scalar @deps);
+
+	print "\n$b->{ORIGIN} ($file):\n";
+	&generate_dependencies(sort @deps);
+
+	map { $packages{$b->{ORIGIN}}->{COMBINED_DEPS_TRANS}->{$_} = 1 }
+	keys %{$b->{PACKAGE_DEPS_TRANS}};
+    }
+
+    print "\n\n", '#' x 80, "\n", "# Direct combined dependencies\n";
+    my %revdirdeps = ();
+    my %revtransdeps = ();
+    foreach my $name (sort keys %packages) {
+	my @deps = &generate_prune_dependencies(keys %{$packages{$name}->{COMBINED_DEPS_DIRECT}});
+
+	next if (grep ($name =~ /$_/, @outignorep));
+	next if ($packages{$name}->{TYPE} ne 'leaf');
+	next if (! @deps && $name eq '(UNKNOWN)');
+	# next if (! scalar @deps);
+
+	print "\n$name:\n";
+	&generate_dependencies(sort @deps);
+	map { $revdirdeps{$_} ||= {}; $revdirdeps{$_}->{$name} = 1; } @deps;
+    }
+
+    print "\n\n", '#' x 80, "\n", "# Transitive combined dependencies\n";
+    foreach my $name (sort keys %packages) {
+	my @deps = &generate_prune_dependencies(keys %{$packages{$name}->{COMBINED_DEPS_TRANS}});
+
+	next if (grep ($name =~ /$_/, @outignorep));
+	next if ($packages{$name}->{TYPE} ne 'leaf');
+	next if (! @deps && $name eq '(UNKNOWN)');
+	# next if (! scalar @deps);
+
+	print "\n$name:\n";
+	&generate_dependencies(sort @deps);
+	map { $revtransdeps{$_} ||= {}; $revtransdeps{$_}->{$name} = 1; } @deps;
+    }
+
+    print "\n\n", '#' x 80, "\n", "# Reversed direct combined dependencies\n";
+    foreach my $name (sort keys %revdirdeps) {
+	my @deps = &generate_prune_dependencies(keys %{$revdirdeps{$name}});
+
+	next if (grep ($name =~ /$_/, @outignorep));
+	next if ($packages{$name}->{TYPE} ne 'leaf');
+	next if (! @deps && $name eq '(UNKNOWN)');
+	# next if (! scalar @deps);
+
+	print "\n$name:\n";
+	&generate_dependencies(sort @deps);
+    }
+
+    print "\n\n", '#' x 80, "\n", "# Reversed transitive combined dependencies\n";
+    foreach my $name (sort keys %revtransdeps) {
+	my @deps = &generate_prune_dependencies(keys %{$revtransdeps{$name}});
+
+	next if (grep ($name =~ /$_/, @outignorep));
+	next if ($packages{$name}->{TYPE} ne 'leaf');
+	next if (! @deps && $name eq '(UNKNOWN)');
+	# next if (! scalar @deps);
+
+	print "\n$name:\n";
+	&generate_dependencies(sort @deps);
+    }
+
+    my @domains = grep($packages{$_}->{TYPE} ne 'leaf', keys %packages);
+    my @leaves  = grep($packages{$_}->{TYPE} eq 'leaf', keys %packages);
+    my %dependencies = ("($project)" => {}, map { $_ => {} } @domains);
+    my %domaindeps = ("($project)" => {}, map { $_ => {} } @domains);
+
+    foreach my $i (@leaves) {
+	my $upper = $packages{$i}->{PATH} || ($i =~ m|^([^/]+)/| ? $1 : "($project)");
+	my @deps = &generate_prune_dependencies(keys %{$packages{$i}->{COMBINED_DEPS_DIRECT}});
+	foreach my $j (@deps) {
+	    my $d = $packages{$j}->{PATH} || ($j =~ m|^([^/]+)/| ? $1 : $j);
+	    $dependencies{$upper}->{$j} = 1;
+	    $domaindeps{$upper}->{$d} = 1 if $upper ne $d;
+	    print STDERR "domain dep: $upper -> $d ($i -> $j)\n" if $verbose;
+	}
+    }
+
+    print "\n\n", '#' x 80, "\n", "# Domain dependencies\n";
+    foreach my $name (sort keys %dependencies) {
+	print "\n$name:\n" if keys %{$dependencies{$name}};
+	&generate_dependencies(sort keys %{$dependencies{$name}});
+    }
+
+    print "\n\n", '#' x 80, "\n", "# Domain only dependencies\n";
+    foreach my $name (sort keys %domaindeps) {
+	print "\n$name:\n" if keys %{$domaindeps{$name}};
+	&generate_dependencies(sort keys %{$domaindeps{$name}});
+    }
+}
+
+sub get_actual_path (){
+    my $path=shift || return "";
+    if (exists $pathcache{$path}){return $pathcache{$path};}
+    my $opath=$path;
+    if (-e $path){
+        my $pass=0;
+        while(($pass==0) || (-l $path)){
+            $pass++;
+            if (-d $path){$path=&get_actual_dir ($path);}
+            else{$path=&get_actual_file ($path);};
+        }
+    }
+    $pathcache{$opath}=$path;
+    return $path;
+}
+
+sub get_actual_dir (){
+    my $dir=shift || return "";
+    my $link=`cd $dir 2>&1; /bin/pwd`; chomp $link;
+    return $link;
+}
+
+sub get_actual_file (){
+    my $file=shift || return "";
+    my $link=readlink($file) || "";
+    if ($link eq ""){$link=$file;}
+    elsif ($link!~/^\//)
+    {$link=&dir_of_path($file)."/$link";}
+    $link=&get_actual_dir(&dir_of_path($link))."/".&file_of_path($link);
+    return $link;
+}
+
+######################################################################
+sub arch {    
+    my $arch = `$SCRAM_CMD arch` || "Linux__2.4";
+    chomp($arch);
+    $arch =~ s/^Current architecture is //;
+    return $arch;
+}
+
+sub main {
+    $arch = &arch;
+
+    my @skip = ();
+    my @conf = ();
+
+    while (scalar @ARGV && $ARGV[0] =~ /^--(.*)$/) {
+ 	my $arg = $1;
+	if ($1 =~ /^mode=(flat|nobinrules)/) {
+	    $depmode .= " $1";
+	} elsif ($1 =~ /^build-root=(.*)/) {
+	    $build_root = $1;
+	} elsif ($1 =~ /^src-root=(.*)/) {
+	    $src_root = $1;
+	} elsif ($1 =~ /^bindir=(.*)/) {
+	    $bindir = $1;
+	} elsif ($1 =~ /^libdir=(.*)/) {
+	    $libdir = $1;
+	} elsif ($1 =~ /^incdir=(.*)/) {
+	    $incdir = $1;
+	} elsif ($1 =~ /^root=(.*)/) {
+	    $root = $1;
+	} elsif ($1 =~ /^verbose$/) {
+	    $verbose = 1;
+	} elsif ($1 =~ /^skip=(makedeps|source|binaries)$/) {
+	    push(@skip, $1);
+	} elsif ($1 =~ /^conf=(.*)/) {
+	    push(@conf, $1);
+	} elsif ($1 =~ /^jobs=(.*)/) {
+	    $binary_search_processes=$1;
+	} else {
+	    die "unrecognised option `$arg'\n";
+	}
+	shift(@ARGV);
+    }
+
+    push(@conf, 'path.conf') if ! @conf;
+    $root = $root || shift(@ARGV) || getcwd;
+    map { &read_config($_); } @conf;
+
+    if ($depmode =~ /flat/) {
+	$flat = 1;
+	$incdir ||= "$root/include";
+	push(@bins, $bindir ||= "$root/bin");
+	push(@libs, $libdir ||= "$root/lib");
+    } else {
+	$build_root ||= "tmp/$arch/src";
+	$src_root   ||= "src";
+	$incdir     ||= "$root/include/$arch";
+	push(@bins, $bindir ||= "$root/bin/$arch");
+	push(@libs, $libdir ||= "$root/lib/$arch");
+    }
+
+    $src_root = undef if $src_root eq '.';
+
+    $project = &file_of_path($root);
+
+    if (-f "$searchcachefile"){$searchcache = &readcache("$searchcachefile");}
+    &cache_binary_data         if !grep($_ eq 'binaries', @skip);
+    &find_packages;
+    &generate_config;
+    &dump_config if $verbose;
+
+    &scan_depdata_dependencies if !grep($_ eq 'makedeps', @skip);
+    &scan_incdata_dependencies if !grep($_ eq 'source',   @skip);
+    &scan_binary_dependencies  if !grep($_ eq 'binaries', @skip);
+    &merge_package_aliases;
+    &generate_output;
+    if ($searchcachedirty){&writecache($searchcache, "$searchcachefile");}
+}
+
+&main;

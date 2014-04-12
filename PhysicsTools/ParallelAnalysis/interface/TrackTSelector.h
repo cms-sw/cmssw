@@ -7,7 +7,6 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: TrackTSelector.h,v 1.2 2006/10/17 08:21:58 llista Exp $
  */
 #include "DataFormats/TrackReco/interface/Track.h"
 // needed because missing in TFWLiteSelector.h
@@ -26,7 +25,8 @@ namespace examples {
     void begin( TList * & );
     /// terminate processing
     void terminate( TList & );
-    
+
+    ClassDef(TrackTSelector,2)
   private:
     /// avoid copy constructor
     TrackTSelector( const TrackTSelector & );

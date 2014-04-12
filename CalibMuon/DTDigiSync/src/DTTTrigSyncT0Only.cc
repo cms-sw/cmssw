@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/24 13:45:54 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -22,8 +20,9 @@ using namespace std;
 using namespace edm;
 
 
-DTTTrigSyncT0Only::DTTTrigSyncT0Only(const ParameterSet& config){
-  debug = config.getUntrackedParameter<bool>("debug");
+DTTTrigSyncT0Only::DTTTrigSyncT0Only(const ParameterSet& config)
+ :debug(config.getUntrackedParameter<bool>("debug"))
+{
 }
 
 
@@ -70,17 +69,22 @@ double DTTTrigSyncT0Only::offset(const DTLayer* layer,
 double DTTTrigSyncT0Only::offset(const DTWireId& wireId) {
   float t0 = 0;
   float t0rms = 0;
-  tZeroMap->cellT0(wireId,
-                   t0,
-                   t0rms,
-                   DTTimeUnits::ns);
+  tZeroMap->get(wireId,
+                t0,
+                t0rms,
+                DTTimeUnits::ns);
+
   return t0;
 }
 
 
-// Set the verbosity level
-bool DTTTrigSyncT0Only::debug;
-
+double DTTTrigSyncT0Only::emulatorOffset(const DTWireId& wireId,
+					 double &tTrig,
+					 double &t0cell) {
+  tTrig = 0.;
+  t0cell = 0.;
+  return 0.;
+}
 
 
 

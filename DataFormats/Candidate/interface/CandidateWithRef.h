@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CandidateWithRef.h,v 1.1 2006/11/20 14:51:25 llista Exp $
  *
  */
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
@@ -31,6 +30,8 @@ namespace reco {
     void setRef( const Ref & r ) { ref_ = r; }
     /// reference 
     reference ref() const { return ref_; }
+
+    CMS_CLASS_VERSION(10)
 
   private:
     /// check overlap with another candidate

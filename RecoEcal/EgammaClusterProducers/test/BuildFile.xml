@@ -1,0 +1,14 @@
+<library   name="RecoEcalPFSuperClusterTreeMaker" file="PFSuperClusterTreeMaker.cc">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/EgammaReco"/>
+  <use   name="DataFormats/GsfTrackReco"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="RecoEcal/EgammaCoreTools"/>
+  <use   name="RecoParticleFlow/PFClusterTools"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

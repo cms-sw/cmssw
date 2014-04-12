@@ -2,12 +2,10 @@
 #define ECAL_FENIX_FGVB_EB_H
 
 #include <vector>
+#include <stdint.h>
 
-class EcalTPParameters;
-
-// global type definitions for header defined by Tag entries in ArgoUML
-// Result: typedef <typedef_global_header> <tag_value>;
-
+class EcalTPGFineGrainEBGroup;
+class EcalTPGFineGrainEBIdMap;
 
 /** 
     \class EcalFenixFgvbEB
@@ -24,21 +22,19 @@ class EcalTPParameters;
 class EcalFenixFgvbEB {
 
  private:
-    const EcalTPParameters * ecaltpp_ ;
-    std::vector<unsigned int> const * params_ ;
-    std::vector<int> adder_out_;
-    std::vector<int> maxOf2_out_;
-    std::vector<int> fgvb_out_;
+  uint32_t ETlow_,  EThigh_,  Ratlow_,  Rathigh_, lut_;
+  //    std::vector<int> adder_out_;
+  //    std::vector<int> maxOf2_out_;
+  //    std::vector<int> fgvb_out_;
+    std::vector<int> add_out_8_;
 
 
  public:
-  EcalFenixFgvbEB(const EcalTPParameters *) ;
-  virtual ~EcalFenixFgvbEB();
-  //  int process() {return 0;} //FIXME: find better base methods
-  void setParameters(int SM, int towNum);
-
-  //  std::vector<int> process( std::vector<int> add_out, std::vector<int> maxof2_out);
- void process( std::vector<int> &add_out, std::vector<int> &maxof2_out, std::vector<int> & output);
+    EcalFenixFgvbEB(int maxNrSamples) ;
+    virtual ~EcalFenixFgvbEB();
+    void setParameters(uint32_t towid,const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB );
+    
+    void process( std::vector<int> &add_out, std::vector<int> &maxof2_out, std::vector<int> & output);
 };
 
 

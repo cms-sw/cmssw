@@ -1,4 +1,3 @@
-#include "TROOT.h"
 #include "TStyle.h"
 #include "TH2F.h"
 #include "TText.h"
@@ -10,10 +9,9 @@
 
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 
-using namespace std;
-
-int main(int argc,char** argv) 
+int main(int /*argc*/,char** /*argv*/) 
 {  
   gStyle->SetOptStat(0);
   gStyle->SetCanvasBorderMode(0);
@@ -42,11 +40,11 @@ int main(int argc,char** argv)
   reference->GetYaxis()->SetTitle("Y [cm]");
   reference->Draw();
 
-  ifstream endcapDump;
+  std::ifstream endcapDump;
   endcapDump.open("ee.C");
   if (!endcapDump)
     {
-      cout << "ERROR: file ee.C not found" << endl;
+      std::cout << "ERROR: file ee.C not found" << std::endl;
       exit(-1);
     }
   TText* t=new TText();
@@ -75,11 +73,11 @@ int main(int argc,char** argv)
 	  TObjArray* coordinates=((TObjString*)newTokens->At(3))->String().Tokenize(","); 
 	  float x=((TObjString*)coordinates->At(0))->String().Atof();
 	  float y=((TObjString*)coordinates->At(1))->String().Atof();
-	  float z=((TObjString*)coordinates->At(2))->String().Atof();
+//	  float z=((TObjString*)coordinates->At(2))->String().Atof();
 	  char text[10];
 	  sprintf(text,"%d,%d",ix,iy);
 	  t->DrawText(x,y,text);
-	  cout << "Volume " << ++i <<  " ix " << ix  <<  " iy " << iy << " Position (" << x << "," << y << ")" << endl;   
+	  std::cout << "Volume " << ++i <<  " ix " << ix  <<  " iy " << iy << " Position (" << x << "," << y << ")" << std::endl;   
 	}
     }
   myCanvas->SaveAs("eeIndices.eps");

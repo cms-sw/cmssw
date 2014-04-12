@@ -1,0 +1,8 @@
+<use name="TrackingTools/GsfTracking"/>
+<use name="TrackingTools/MaterialEffects"/>
+<use name="TrackingTools/AnalyticalJacobians"/>
+<use name="MagneticField/Engine"/>
+<use name="boost"/>
+<use name="rootmath"/>
+<bin file="GsfMaterialEffectsUpdator_t.cpp"></bin>
+

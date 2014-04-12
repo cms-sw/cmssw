@@ -1,13 +1,15 @@
 #ifndef DTNoiseTest_H
 #define DTNoiseTest_H
 
+
+
 /** \class DTNoiseTest
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/05/15 17:21:35 $
- *  $Revision: 1.1 $
- *  \author  M. Zanetti CERN
+ *  A. Gresele - INFN Trento
+ *  G. Mila - INFN Torino
+ *  M. Zanetti - CERN PH
  *
  */
 
@@ -19,9 +21,10 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
@@ -57,10 +60,10 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
-  void beginRun(const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -76,13 +79,26 @@ protected:
   std::string getMEName(const DTChamberId & ch);
   std::string getMEName(const DTLayerId & ly);
 
+
+
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+
+  /// DQM Client Diagnostic
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
+ 
+
+
 private:
 
   bool debug;
-  int nevents;
   int updates;
-  DaqMonitorBEInterface* dbe;
+  unsigned int nLumiSegs;
+  int prescaleFactor;
+  int run;
 
+  DQMStore* dbe;
+  
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   edm::ESHandle<DTTtrig> tTrigMap;

@@ -5,20 +5,19 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+
 #include "ParabolaFit.h"
 #include <vector>
+
+namespace edm {class ParameterSet;}
 
 class ConformalMappingFit {
 public:
   typedef TkRotation<double> Rotation;
   typedef Basic2DVector<double> PointXY;
 
-  ConformalMappingFit(const std::vector<PointXY> & hits);
-
-//  ConformalMappingFit(const std::vector<RecHit>& hits,
-//      const Rotation * rot = 0,
-//      const std::vector<TrajectoryStateOnSurface> * tsos = 0,
-//      bool useMultScatt = false, float pt = 1., float zVtx = 0.);
+  ConformalMappingFit( const std::vector<PointXY> & hits, const std::vector<float> & errRPhi2,
+      const Rotation * rotation = 0);
 
   ~ConformalMappingFit();
 
@@ -26,23 +25,15 @@ public:
   Measurement1D directionPhi() const;
   Measurement1D impactParameter() const;
 
-/*
-  double pT() const;
-  double errPT() const;
-  double phi() const;
-  double errPhi() const;
-  double tip() const; 
-  double errTip() const;
-*/
-  
   int charge() const;
   double chi2() const { return theFit.chi2(); }
 
   const Rotation * rotation() const { return theRotation; }
 
+  void fixImpactParmaeter(double ip) { theFit.fixParC(ip); }
+  void skipErrorCalculation() { theFit.skipErrorCalculationByDefault(); }
+
 private:
-  void init( const std::vector<PointXY> & hits, 
-      const std::vector<float> & errRPhi2, const Rotation * rot = 0);
   double phiRot() const;
   void findRot( const PointXY &);
 

@@ -1,0 +1,3 @@
+<bin name="print_ecal_geom" file="print_ecal_geom.cc">
+        <use name="CalibCalorimetry/EcalLaserAnalyzer"/>
+</bin>

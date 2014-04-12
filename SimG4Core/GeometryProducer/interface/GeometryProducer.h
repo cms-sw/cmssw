@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
  
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
@@ -33,7 +32,7 @@ public:
     typedef std::vector<boost::shared_ptr<SimProducer> > Producers;
     explicit GeometryProducer(edm::ParameterSet const & p);
     virtual ~GeometryProducer();
-    virtual void beginJob(const edm::EventSetup & c);
+    virtual void beginJob();
     virtual void endJob();
     virtual void produce(edm::Event & e, const edm::EventSetup & c);
     std::vector<boost::shared_ptr<SimProducer> > producers() const

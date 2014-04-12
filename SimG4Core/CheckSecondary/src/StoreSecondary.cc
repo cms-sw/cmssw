@@ -12,8 +12,8 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <cmath>
 #include <iostream>
@@ -26,7 +26,7 @@ StoreSecondary::StoreSecondary(const edm::ParameterSet &p) {
 
   produces<std::vector<math::XYZTLorentzVector> >("SecondaryMomenta");
   produces<std::vector<int> >("SecondaryParticles");
-  produces<std::vector<std::string> >("SecondaryProcesses");
+  //  produces<std::vector<std::string> >("SecondaryProcesses");
 
   edm::LogInfo("CheckSecondary") << "Instantiate StoreSecondary to store "
 				 << "secondaries after 1st hadronic inelastic"
@@ -47,9 +47,11 @@ void StoreSecondary::produce(edm::Event& e, const edm::EventSetup&) {
   *secNumber = nsecs;
   e.put(secNumber, "SecondaryParticles");
 
+  /*
   std::auto_ptr<std::vector<std::string> > secProc(new std::vector<std::string>);
   *secProc = procs;
   e.put(secProc, "SecondaryProcesses");
+  */
 
   LogDebug("CheckSecondary") << "StoreSecondary:: Event " << e.id() << " with "
 			     << nsecs.size() << " hadronic collisions with "
@@ -80,15 +82,17 @@ void StoreSecondary::update(const BeginOfTrack * trk) {
 
 void StoreSecondary::update(const G4Step * aStep) {
 
-  std::string name;
-  int         procID;
-  bool        hadrInt;
-  double      deltaE;
+  std::string      name;
+  int              procID;
+  bool             hadrInt;
+  double           deltaE;
+  std::vector<int> charge;
   std::vector<math::XYZTLorentzVector> tracks = treatSecondary->tracks(aStep,
 								       name,
 								       procID,
 								       hadrInt,
-								       deltaE);
+								       deltaE,
+								       charge);
   if (hadrInt) {
     nHad++;
     if (storeIt) {

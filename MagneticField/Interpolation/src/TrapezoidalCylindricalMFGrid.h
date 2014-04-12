@@ -1,12 +1,14 @@
 #ifndef TrapezoidalCylindricalMFGrid_H
 #define TrapezoidalCylindricalMFGrid_H
 
-#include "MagneticField/Interpolation/interface/MFGrid3D.h"
-#include "MagneticField/Interpolation/src/Trapezoid2RectangleMappingX.h"
+#include "MFGrid3D.h"
+#include "Trapezoid2RectangleMappingX.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+
 
 class binary_ifstream;
 
-class TrapezoidalCylindricalMFGrid : public MFGrid3D {
+class dso_internal TrapezoidalCylindricalMFGrid : public MFGrid3D {
 public:
 
   TrapezoidalCylindricalMFGrid( binary_ifstream& istr, 

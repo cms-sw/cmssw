@@ -1,94 +1,18 @@
-/** 
-\class HcalQIEData
-\author Fedor Ratnikov (UMd)
-POOL object to store pedestal values 4xCapId
-$Author: ratnikov
-$Date: 2007/01/09 22:49:21 $
-$Revision: 1.7 $
-*/
-
-#include <iostream>
-
-#include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 
-namespace {
-  HcalQIEShape shape_; // use one default set
+void HcalQIEData::setupShape() {
+  //qie8
+  const float binMin [32] = {-1,  0,  1,  2,  3,  4,  5,  6,  7,  8,
+			     9, 10, 11, 12, 13, 14, 16, 18, 20, 22,
+			     24, 26, 28, 31, 34, 37, 40, 44, 48, 52,
+			     57, 62};
+  mShape[0].setLowEdges(32,binMin);
 
-  int index (int fCapId, int Range) {return fCapId*4+Range;}
 
-  class compareItems {
-  public:
-    bool operator () (const HcalQIECoder& first, const HcalQIECoder& second) const {
-      return first.rawId () < second.rawId ();
-    }
-  };
-
-  std::vector<HcalQIECoder>::const_iterator 
-  find (const std::vector<HcalQIECoder>& container, unsigned long id) {
-    std::vector<HcalQIECoder>::const_iterator result = container.begin ();
-    for (; result != container.end (); result++) {
-      if (result->rawId () == id) break; // found
-    }
-    return result;
-  }
-}
-
-HcalQIEData::HcalQIEData() 
-  : mSorted (true) {}
-
-HcalQIEData::HcalQIEData(const HcalQIEData& a) {
-  //std::cout << "HcalQIEData::HcalQIEData-> from:" << a.mItems.size () << std::endl;
-  mItems = a.mItems;
-  mSorted = a.mSorted;
-  //std::cout << "HcalQIEData::HcalQIEData-> to:" << mItems.size () << std::endl;
-}
-
-HcalQIEData::~HcalQIEData(){}
-
-const HcalQIEShape& HcalQIEData::getShape () const {
-  return shape_;
-}
-
-const HcalQIECoder* HcalQIEData::getCoder (DetId fId) const {
-  HcalQIECoder target (fId.rawId ());
-  std::vector<HcalQIECoder>::const_iterator cell;
-  if (sorted ()) {
-    cell = std::lower_bound (mItems.begin(), mItems.end(), target, compareItems ());
-  }
-  else {
-    std::cerr << "HcalQIEData::getValues-> container is not sorted. Please sort it to search effectively" << std::endl;
-    cell = find (mItems, target.rawId ());
-  }
-  if (cell == mItems.end() || cell->rawId () != fId.rawId ())
-    throw cms::Exception ("Conditions not found") << "Unavailable QIE data for cell " << fId.rawId();
-  return &(*cell);
-}
-
-std::vector<DetId> HcalQIEData::getAllChannels () const {
-  std::vector<DetId> result;
-  for (std::vector<HcalQIECoder>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
-    result.push_back (DetId (item->rawId ()));
-  }
-  return result;
-}
-
-bool HcalQIEData::addCoder (DetId fId, const HcalQIECoder& fCoder) {
-  HcalQIECoder newCoder (fId.rawId ());
-  for (int range = 0; range < 4; range++) { 
-    for (int capid = 0; capid < 4; capid++) {
-      newCoder.setOffset (capid, range, fCoder.offset (capid, range));
-      newCoder.setSlope (capid, range, fCoder.slope (capid, range));
-    }
-  }
- mItems.push_back (newCoder);
- mSorted = false;
- return true; 
-}
-
-void HcalQIEData::sort () {
-  if (!mSorted) {
-    std::sort (mItems.begin(), mItems.end(), compareItems ());
-    mSorted = true;
-  }
+  //qie10
+  const float binMin2 [64] = {-1,  0,  1,  2,  3,    4,  5,  6,  7,  8,    9, 10, 11, 12, 13,   14,  // 16*1
+                             15, 17, 19, 21, 23,   25, 27, 29, 31, 33,   35, 37, 39, 41, 43,   45, 47, 49, 51, 53,//20*2
+                             55, 59, 63, 67, 71,   75, 79, 83, 87, 91,   95, 99, 103,107,111, 115,119,123,127,131,  135,//21*4 
+                             139, 147, 155, 163, 171, 179, 187};// 7*8
+  mShape[1].setLowEdges(64,binMin2);
 }

@@ -5,8 +5,6 @@
  *  Basic analyzer class which accesses CSCSegment
  *  and plot efficiency of the builder
  *
- *  $Date: 2007/07/26 00:52:09 $
- *  $Revision: 1.7 $
  *  \author M. Sani
  */
 
@@ -46,15 +44,23 @@ public:
   
   /// Phi and theta resolution of the built segments
   void resolution(const edm::Handle<edm::PSimHitContainer> sH, 
-            const edm::Handle<CSCSegmentCollection> seg, const CSCGeometry* geom);
+            const edm::Handle<CSCRecHit2DCollection> rH, const edm::Handle<CSCSegmentCollection> seg, 
+            const CSCGeometry* geom);
   
   /// Simulation info
   void simInfo(const edm::Handle<edm::SimTrackContainer> simTracks);
   
   /// Segment building info
-  void recInfo(const edm::Handle<edm::PSimHitContainer> sH, 
-            const edm::Handle<CSCRecHit2DCollection> rH, const edm::Handle<CSCSegmentCollection> seg, 
-            const CSCGeometry* geom);
+  void recInfo( const edm::Handle<edm::PSimHitContainer> sH, 
+                const edm::Handle<CSCRecHit2DCollection> rH, const edm::Handle<CSCSegmentCollection> seg, 
+                const CSCGeometry* geom);
+
+  /// Find best rec segment for set of muon sim hits
+  int bestMatch( CSCDetId id0,
+                 const edm::Handle<edm::PSimHitContainer> simHits,
+                 const edm::Handle<CSCSegmentCollection> cscSegments,
+                 const CSCGeometry* geom );
+
   
 protected:
 
@@ -79,6 +85,7 @@ private:
     double maxPhi, maxTheta;
     int simhit;
     int maxNhits;
+    int minNhits;
     int n6hitSegmentMC[9];
     int n6hitSegmentReco[9];
     int near_segment;

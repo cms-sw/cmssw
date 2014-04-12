@@ -79,6 +79,7 @@ class MVATrainerLooper : public edm::ESProducerLooper {
 
     private:
 	TrainerContainer	trainers;
+        bool dataProcessedInLoop;
 };
 
 template<> inline bool

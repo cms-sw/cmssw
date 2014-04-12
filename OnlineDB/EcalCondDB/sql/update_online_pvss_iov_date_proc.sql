@@ -4,7 +4,7 @@ PROCEDURE update_online_pvss_iov_date
   new_since IN DATE,
   new_till IN DATE,
   logic_id IN INTEGER ) IS
-    /* $id$
+/* 
  *
  * Procedure to validate an IoV to be inserted and update a previous
  * IoV so that there are no overlaps.

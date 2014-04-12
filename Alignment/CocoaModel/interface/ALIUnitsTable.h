@@ -139,7 +139,7 @@ class ALIBestUnit
 public:  // with description
 
     ALIBestUnit(ALIdouble internalValue, ALIstring category);
-    ALIBestUnit(const Hep3Vector& internalValue, ALIstring category);    
+    ALIBestUnit(const CLHEP::Hep3Vector& internalValue, ALIstring category);    
       // These constructors convert a physical quantity from its internalValue
       // into the most appropriate unit of the same category.
       // In practice it builds an object VU = (newValue, newUnit)
@@ -161,7 +161,7 @@ public:  // with description
 private:
 
     ALIdouble   Value[3];        // value in the internal system of units
-    ALIint      nbOfVals;        // ALIdouble=1; Hep3Vector=3
+    ALIint      nbOfVals;        // ALIdouble=1; CLHEP::Hep3Vector=3
     ALIstring   Category;        // dimensional family: Length,Volume,Energy ...
     size_t IndexOfCategory;     // position of Category in UnitsTable
 };

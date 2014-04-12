@@ -12,8 +12,6 @@
   *
   * Not to be used for HF at this time (unlikely to have much effect, however)
   *
-  * $Date: $
-  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class HcalTimeSlew {

@@ -9,7 +9,7 @@ TableDataFormatter::TableDataFormatter () {
 void TableDataFormatter::interpretRawData( const FEDRawData & fedData, 
 					   EcalTBEventHeader& tbEventHeader)
 {
-  const ulong * buffer = ( reinterpret_cast<ulong*>(const_cast<unsigned char*> ( fedData.data())));
+  const unsigned long * buffer = ( reinterpret_cast<unsigned long*>(const_cast<unsigned char*> ( fedData.data())));
   int fedLenght                        = fedData.size(); // in Bytes
   
   // check ultimate fed size and strip off fed-header and -trailer
@@ -22,8 +22,8 @@ void TableDataFormatter::interpretRawData( const FEDRawData & fedData,
       return;
     }
 
-  ulong a=1; // used to extract an 8 Bytes word from fed 
-  ulong b=1; // used to manipulate the 8 Bytes word and get what needed
+  unsigned long a=1; // used to extract an 8 Bytes word from fed 
+  unsigned long b=1; // used to manipulate the 8 Bytes word and get what needed
 
   int wordCounter =0;
   wordCounter +=4;

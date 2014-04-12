@@ -1,24 +1,27 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceHelixLine.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
 
 bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
 {
-
-  if (firstGTP->charge() == 0. && secondGTP->charge() != 0.) {
+  bool isFirstALine = firstGTP->charge() == 0. || firstGTP->magneticField().inTesla(firstGTP->position()).z() == 0.;
+  bool isSecondALine = secondGTP->charge() == 0. || secondGTP->magneticField().inTesla(secondGTP->position()).z() == 0.;
+  if (isFirstALine && !isSecondALine ) {
     theL= firstGTP;
     theH= secondGTP;
-  } else if (firstGTP->charge() != 0. && secondGTP->charge() == 0.) {
+  } else if (!isFirstALine && isSecondALine) {
     theH= firstGTP;
     theL= secondGTP;
   } else {
-    cout << "[TwoTrackMinimumDistanceHelixLine] Error in track charge: " <<endl
-         << "  One of the tracks has to be charged, and the other not." << endl;
-    cout << "  Track Charges: "<<firstGTP->charge() << " and "
-         <<secondGTP->charge()<<endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+      << "Error in track charge: "
+      << "One of the tracks has to be charged, and the other not." << endl
+      << "Track Charges: "<<firstGTP->charge() << " and " <<secondGTP->charge();
     return true;
   }
 
@@ -27,8 +30,8 @@ bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
 
   if ( Hn == 0. || Ln == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceHelixLine] Error: "
-         << "momentum of input trajectory is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+      << "Momentum of input trajectory is zero.";
     return true;
   };
 
@@ -48,8 +51,8 @@ bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
 
   if ( Bc2kH == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceHelixLine] Error: "
-         << "magnetic field at point " << hOrig << " is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+      << "Magnetic field at point " << hOrig << " is zero.";
     return true;
   };
 
@@ -129,12 +132,14 @@ bool TwoTrackMinimumDistanceHelixLine::calculate(
     dPhiH=fctVal/derVal;
     thePhiH -= dPhiH;
     if ((x1-thePhiH)*(thePhiH-x2) < 0.0) {
-      cout << "Jumped out of brackets in TwoTrackMinimumDistanceHelixLine root finding\n";
-      return true;
+      LogDebug ("TwoTrackMinimumDistanceHelixLine")
+        << "Jumped out of brackets in root finding. Will be moved closer.";
+      thePhiH += (dPhiH*0.8);
     }
     if (fabs(dPhiH) < qual) {return false;}
   }
-  cout <<"Number of steps exceeded in TwoTrackMinimumDistanceHelixLine\n";
+  LogDebug ("TwoTrackMinimumDistanceHelixLine")
+    <<"Number of steps exceeded. Has not converged.";
   return true;
 }
 

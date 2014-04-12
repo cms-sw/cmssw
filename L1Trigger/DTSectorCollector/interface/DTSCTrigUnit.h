@@ -3,8 +3,6 @@
 /**  \class  DTSCTrigUnit
  *     Muon Barrel Sector Collector Trigger Unit (Chamber trigger)
  *
- *   $Date: 2007/04/04 10:44:32 $
- *   $Revision: 1.4 $
  *
  *   \author C.Grandi, S. Marcellini
  */
@@ -26,7 +24,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
 #include "L1Trigger/DTBti/interface/DTBtiChip.h"
@@ -47,7 +45,6 @@
 class DTChamber;
 
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -58,7 +55,7 @@ class DTSCTrigUnit {
 
     /// Constructor
     //DTSCTrigUnit(DTChamber* stat, edm::ParameterSet& tu_pset) ;
-    DTSCTrigUnit(DTChamber* stat, const DTConfigManager * conf) ;  
+    DTSCTrigUnit(DTChamber *stat) ;  
 
     /// Destructor 
     ~DTSCTrigUnit() ;
@@ -66,8 +63,14 @@ class DTSCTrigUnit {
     /// The associated geometry
     inline DTTrigGeom* geom() const { return _geom; }
 
+    /// Set geometry
+    void setGeom(const DTChamber* stat) { _geom->setGeom(stat); }
+
+    /// Set configuration
+    void setConfig(const DTConfigManager *conf);
+
     /// The associated chamber
-    inline DTChamber* stat() const { return _geom->stat(); }
+    inline const DTChamber* stat() const { return _geom->stat(); }
 
     /// Identifier of the associated chamber
     inline DTChamberId statId() const { return _geom->statId(); }
@@ -123,6 +126,9 @@ class DTSCTrigUnit {
 
     /// Dump the geometry
     inline void dumpGeom() const { _geom->dumpGeom(); }
+
+    /// Dump the Lut file
+    inline void dumpLUT(short int btic) const { _geom->dumpLUT(btic); }
 
     /// Number of active DTBtiChips
     int nDTBtiChip() { return _theBTIs->size(); }

@@ -174,10 +174,10 @@ std::vector<DetId> EcalTrigTowerConstituentsMap::constituentsOf(const EcalTrigTo
       //--------------------
       // trigger towers are 5x5 crystals in the barrel
       int etaxtalMin=(id.ietaAbs()-1)*5+1;
-      int phixtalMin=(id.iphi()-1)*5+1;
+      int phixtalMin=((id.iphi()-1)*5+11)%360;
       if(phixtalMin<=0)phixtalMin+=360;
       int etaxtalMax=id.ietaAbs()*5;
-      int phixtalMax=id.iphi()*5;
+      int phixtalMax=((id.iphi())*5+10)%360;
       if(phixtalMax<=0) phixtalMax+=360;
       for(int e=etaxtalMin;e<=etaxtalMax;e++) 
 	for(int p=phixtalMin;p<=phixtalMax;p++) 
@@ -188,13 +188,15 @@ std::vector<DetId> EcalTrigTowerConstituentsMap::constituentsOf(const EcalTrigTo
       //--------------------
       // Ecal Endcap
       //--------------------
-      DetId myId=wrapEcalTrigTowerDetId(id);  
+      //DetId myId=wrapEcalTrigTowerDetId(id);  
       EcalTowerMap_by_towerDetId::const_iterator lb,ub;
-      boost::tuples::tie(lb,ub)=get<1>(m_items).equal_range(myId);
+      //boost::tuples::tie(lb,ub)=get<1>(m_items).equal_range(myId);
+      boost::tuples::tie(lb,ub)=boost::get<1>(m_items).equal_range(id);
       while (lb!=ub)
 	{
-	  EEDetId mappedId((*lb).cell);
-	  items.push_back(changeEEDetIdQuadrantAndZ(mappedId,id.iquadrant(),id.zside()));
+	  //EEDetId mappedId((*lb).cell);
+	  //items.push_back(changeEEDetIdQuadrantAndZ(mappedId,id.iquadrant(),id.zside()));
+	  items.push_back((*lb).cell);
 	  ++lb;
 	}
     }

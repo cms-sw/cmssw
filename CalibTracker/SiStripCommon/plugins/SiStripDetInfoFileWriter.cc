@@ -3,21 +3,17 @@
 // Class:      SiStripDetInfoFileWriter
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripDetInfoFileWriter.cc,v 1.4 2007/06/13 14:03:35 gbruno Exp $
 
 #include "CalibTracker/SiStripCommon/plugins/SiStripDetInfoFileWriter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
 
 using namespace cms;
@@ -41,7 +37,7 @@ SiStripDetInfoFileWriter::~SiStripDetInfoFileWriter(){
 
 
 
-void SiStripDetInfoFileWriter::beginJob(const edm::EventSetup& iSetup){
+void SiStripDetInfoFileWriter::beginRun(const edm::EventSetup& iSetup){
 
 
   outputFile_.open(filePath_.c_str());
@@ -53,7 +49,7 @@ void SiStripDetInfoFileWriter::beginJob(const edm::EventSetup& iSetup){
 
     iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
 
-    edm::LogInfo("SiStripDetInfoFileWriter::beginJob - got geometry  ")<<std::endl;
+    edm::LogInfo("SiStripDetInfoFileWriter::beginRun - got geometry  ")<<std::endl;
 
     
     edm::LogInfo("SiStripDetInfoFileWriter") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
@@ -87,7 +83,7 @@ void SiStripDetInfoFileWriter::beginJob(const edm::EventSetup& iSetup){
   
   else {
 
-    edm::LogError("SiStripDetInfoFileWriter::beginJob - Unable to open file")<<endl;
+    edm::LogError("SiStripDetInfoFileWriter::beginRun - Unable to open file")<<endl;
     return;
   
   }

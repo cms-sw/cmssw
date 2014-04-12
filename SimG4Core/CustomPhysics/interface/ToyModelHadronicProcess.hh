@@ -34,10 +34,10 @@ private:
 
   const G4DynamicParticle* FindRhadron(G4ParticleChange*);
 
+  int m_verboseLevel;
   HadronicProcessHelper* m_helper;
   G4ParticleChange m_particleChange;
   bool m_detachCloud;
-  int m_verboseLevel;
   
 
 

@@ -17,32 +17,41 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2007/04/18 16:08:55 $
- * $Revision: 1.4 $
  *
  */
 
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDProducer.h>
+#include <FWCore/Framework/interface/one/EDProducer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 class CSCTriggerPrimitivesBuilder;
 
-class CSCTriggerPrimitivesProducer : public edm::EDProducer
+class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::SharedResources>
 {
  public:
   explicit CSCTriggerPrimitivesProducer(const edm::ParameterSet&);
   ~CSCTriggerPrimitivesProducer();
 
-  virtual void beginJob(const edm::EventSetup& setup);
+  //virtual void beginRun(const edm::EventSetup& setup);
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
   int iev; // event number
+ 
   edm::InputTag compDigiProducer_;
   edm::InputTag wireDigiProducer_;
+  edm::EDGetTokenT<CSCComparatorDigiCollection> comp_token_;
+  edm::EDGetTokenT<CSCWireDigiCollection> wire_token_;
+ 
+  // switch to force the use of parameters from config file rather then from DB
+  bool debugParameters_;
+  // switch to for enabling checking against the list of bad chambers
+  bool checkBadChambers_;
   CSCTriggerPrimitivesBuilder* lctBuilder_;
 };
 

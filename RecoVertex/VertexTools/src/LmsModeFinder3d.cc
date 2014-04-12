@@ -1,9 +1,9 @@
 #include "RecoVertex/VertexTools/interface/lms_3d.h"
 #include "RecoVertex/VertexTools/interface/LmsModeFinder3d.h"
 
-GlobalPoint LmsModeFinder3d::operator() ( const vector<PointAndDistance> & values ) const {
-  vector < GlobalPoint > v;
-  for ( vector< PointAndDistance >::const_iterator i=values.begin(); 
+GlobalPoint LmsModeFinder3d::operator() ( const std::vector<PointAndDistance> & values ) const {
+  std::vector < GlobalPoint > v;
+  for ( std::vector< PointAndDistance >::const_iterator i=values.begin(); 
       i!=values.end() ; ++i ) 
   {
     v.push_back ( i->first );

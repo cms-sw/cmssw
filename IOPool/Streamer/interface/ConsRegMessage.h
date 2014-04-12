@@ -1,5 +1,5 @@
-#ifndef CONSUMER_REG_MESSAGE_H
-#define CONSUMER_REG_MESSAGE_H
+#ifndef IOPool_Streamer_ConsumerRegMessage_h
+#define IOPool_Streamer_ConsumerRegMessage_h
 
 /**
  * These classes are used to build and view
@@ -11,6 +11,7 @@
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include <map>
 
 // --------------- registration request builder ----------------
 
@@ -19,7 +20,6 @@ class ConsRegRequestBuilder
  public:
   ConsRegRequestBuilder(void* buf, uint32 bufSize,
                         std::string const& consumerName,
-                        std::string const& consumerPriority,
                         std::string const& requestParameterSet);
 
   uint32 bufferSize() const { return bufSize_; }
@@ -43,14 +43,12 @@ class ConsRegRequestView
   uint8* startAddress() { return buf_; }
 
   std::string getConsumerName() { return consumerName_; }
-  std::string getConsumerPriority() { return consumerPriority_; }
   std::string getRequestParameterSet() { return requestParameterSet_; }
 
  private:
   uint8* buf_;
   HeaderView head_;
   std::string consumerName_;
-  std::string consumerPriority_;
   std::string requestParameterSet_;
 };
 
@@ -65,6 +63,8 @@ class ConsRegResponseBuilder
   uint32 bufferSize() const { return bufSize_; }
   uint8* startAddress() { return buf_; }
   uint32 size() const;
+
+  void setStreamSelectionTable(std::map<std::string, Strings> const& selTable);
 
   enum STATUS_CODES { ES_NOT_READY = 0x10000 };
 
@@ -86,6 +86,7 @@ class ConsRegResponseView
 
   uint32 getStatus() { return status_; }
   uint32 getConsumerId() { return consumerId_; }
+  std::map<std::string, Strings> getStreamSelectionTable();
 
  private:
   uint8* buf_;

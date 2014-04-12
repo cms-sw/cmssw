@@ -3,18 +3,13 @@
 /** \class OutInConversionTrackFinder
  **  
  **
- **  $Id: OutInConversionTrackFinder.h,v 1.5 2006/12/19 17:35:31 nancy Exp $ 
- **  $Date: 2006/12/19 17:35:31 $ 
- **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-//#include "DataFormats/TrackCandidate/interface/TrackCandidateSuperClusterAssociation.h"
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -30,10 +25,7 @@
 //
 
 class MagneticField;
-class TrackerTrajectoryBuilder;
-class KFUpdator;
 class TrajectoryCleanerBySharedHits;
-class TransientInitialStateEstimator;
 
 class OutInConversionTrackFinder : public ConversionTrackFinder {
  
@@ -41,38 +33,19 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
 
   public :
     
-    OutInConversionTrackFinder( const edm::EventSetup& es,  const edm::ParameterSet& config, const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
+    OutInConversionTrackFinder( const edm::EventSetup& es,  
+				const edm::ParameterSet& config );
   
   
   virtual ~OutInConversionTrackFinder();
-   
-  //  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates, reco::TrackCandidateSuperClusterAssociationCollection& outAssoc, int iSC ) const;
   
- virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates ) const;
-  
-
-
-  // virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const ;
-  //  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const;
-  // virtual TrackCandidateCollection tracks(const TrajectorySeedCollection seeds ) const;
-  //virtual  std::auto_ptr<TrackCandidateCollection>  tracks(const TrajectorySeedCollection seeds ) const;
-
-  
-  
-  
-  
+  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection& seeds, TrackCandidateCollection &candidates ) const;
 
  private: 
 
 
-  edm::ParameterSet                         conf_;
-  const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder_;
-  KFUpdator*                          theUpdator_;
+ 
   TrajectoryCleanerBySharedHits* theTrajectoryCleaner_;
- 
- 
-  TransientInitialStateEstimator* theInitialState_;  
-
   RedundantSeedCleaner*  theSeedCleaner_;
 
 

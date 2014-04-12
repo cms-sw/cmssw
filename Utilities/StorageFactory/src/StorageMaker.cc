@@ -1,62 +1,51 @@
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
-#include "SealBase/Error.h"
-#include "SealBase/Filename.h"
-#include "SealBase/TempFile.h"
-#include "SealBase/Storage.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
+#include "Utilities/StorageFactory/interface/IOFlags.h"
+#include <cstdlib>
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
+StorageMaker::StorageMaker (void)
+{}
 
 StorageMaker::~StorageMaker (void)
 {}
 
-seal::Storage *
-StorageMaker::open (const std::string &proto,
-                   const std::string &path,
-                   int mode,
-                   const std::string &tmpdir)
-{
-    try {
-      return doOpen(proto, path, mode, tmpdir);
-    }
-    catch (seal::Error& e) {
-      std::string errorMsg = "File '" + path + "' is not found or could not be opened.\n" + e.explain();
-      throw edm::Exception(edm::errors::NotFound, "StorageMaker::open()") << errorMsg;
-    }
-}
+void
+StorageMaker::stagein (const std::string &/*proto*/,
+                       const std::string &/*path*/)
+{}
+
+void
+StorageMaker::setTimeout (unsigned int /*timeout*/)
+{}
+
+void
+StorageMaker::setDebugLevel (unsigned int /*level*/)
+{}
 
 bool
-StorageMaker::doCheck (const std::string &proto,
+StorageMaker::check (const std::string &proto,
 		     const std::string &path,
-		     seal::IOOffset *size /* = 0 */)
+		     IOOffset *size /* = 0 */)
 {
-    using namespace seal;
-    Filename tmpdir;
-    TempFile::dir (tmpdir);
+  // Fallback method is to open the file and check its
+  // size.  Because grid jobs run in a directory where
+  // there is usually more space than in /tmp, and that
+  // directory is automatically cleaned up, open up the
+  // temporary files in the current directory.  If the
+  // file is downloaded, it will delete itself in the
+  // destructor or close method.
+  bool found = false;
+  int mode = IOFlags::OpenRead | IOFlags::OpenUnbuffered;
+  if (Storage *s = open (proto, path, mode))
+  {
+    if (size)
+      *size = s->size ();
 
-    bool found = false;
-    int mode = IOFlags::OpenRead | IOFlags::OpenUnbuffered;
-    if (Storage *s = open (proto, path, mode, tmpdir.name ()))
-    {
-	if (size)
-	    *size = s->size ();
+    s->close ();
+    delete s;
 
-	s->close ();
-	delete s;
+    found = true;
+  }
 
-	found = true;
-    }
-
-    Filename::remove (tmpdir, true);
-    return found;
+  return found;
 }

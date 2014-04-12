@@ -9,30 +9,30 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "CLHEP/GenericFunctions/Erf.hh"
 
 EcalPreshowerRecHitsMaker::EcalPreshowerRecHitsMaker(
-  edm::ParameterSet const & p, 
-  const RandomEngine * myrandom)
+  edm::ParameterSet const & p)
   :
-  random_(myrandom),
-  myGaussianTailGenerator_(0)
+  myGaussianTailGenerator_(nullptr)
 {
   edm::ParameterSet RecHitsParameters 
     = p.getParameter<edm::ParameterSet>("ECALPreshower");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
+  inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
+
   initialized_=false;
 
   Genfun::Erf myErf;
   if(  noise_>0. ) {
     preshowerHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
-    myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
+    myGaussianTailGenerator_ = new GaussianTail(noise_, threshold_);
   } else {
     preshowerHotFraction_ =0.;
   }
@@ -51,11 +51,14 @@ void EcalPreshowerRecHitsMaker::clean()
 }
 
 
-void EcalPreshowerRecHitsMaker::loadEcalPreshowerRecHits(edm::Event &iEvent,ESRecHitCollection & ecalHits)
+void EcalPreshowerRecHitsMaker::loadEcalPreshowerRecHits(edm::Event &iEvent,ESRecHitCollection & ecalHits,
+                                                         RandomEngineAndDistribution const* random)
 {
+  // if no preshower, do nothing
 
-  loadPCaloHits(iEvent);
-  if( myGaussianTailGenerator_ ) noisify();
+  if(ncells_==0) return;
+  loadPCaloHits(iEvent, random);
+  if( myGaussianTailGenerator_ ) noisify(random);
 
   std::map<uint32_t,std::pair<float,bool> >::const_iterator 
     it=ecalsRecHits_.begin();
@@ -69,24 +72,26 @@ void EcalPreshowerRecHitsMaker::loadEcalPreshowerRecHits(edm::Event &iEvent,ESRe
       // check if it is above the threshold
       if(it->second.first<threshold_) continue;
       ESDetId detid(it->first);
+      //  std::cout << detid << " " << it->second.first << std::endl;
       ecalHits.push_back(EcalRecHit(detid,it->second.first,0.)); 
     }
 }
 
-void EcalPreshowerRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
+void EcalPreshowerRecHitsMaker::loadPCaloHits(const edm::Event & iEvent,
+                                              RandomEngineAndDistribution const* random)
 {
 
   clean();
 
-  edm::Handle<CrossingFrame> cf;
-  iEvent.getByType(cf);
-  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),"EcalHitsES",std::pair<int,int>(0,0) ));
+  edm::Handle<CrossingFrame<PCaloHit> > cf;
+  iEvent.getByLabel(inputCol_,cf);
+  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),std::pair<int,int>(0,0) ));
 
   MixCollection<PCaloHit>::iterator it=colcalo->begin();
   MixCollection<PCaloHit>::iterator itend=colcalo->end();
   for(;it!=itend;++it)
     {
-      Fill(it->id(),it->energy(),ecalsRecHits_,it.getTrigger());
+      Fill(it->id(),it->energy(),ecalsRecHits_, random, it.getTrigger());
       //      Fill(it->id(),it->energy(),ecalsRecHits_);
     }
 }
@@ -102,14 +107,15 @@ void EcalPreshowerRecHitsMaker::init(const edm::EventSetup &es)
 unsigned EcalPreshowerRecHitsMaker::createVectorsOfCells(const edm::EventSetup &es)
 {
     edm::ESHandle<CaloGeometry> pG;
-    es.get<IdealGeometryRecord>().get(pG);     
+    es.get<CaloGeometryRecord>().get(pG);     
     unsigned total=0;
 
     escells_.reserve(137728);
 
     const CaloSubdetectorGeometry* geom=pG->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);  
-    std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalPreshower);  
-    for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) 
+    if(geom==0) return 0;
+    const std::vector<DetId>& ids(geom->getValidDetIds(DetId::Ecal,EcalPreshower));  
+    for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) 
       {
 	escells_.push_back(i->rawId());
 	++total;
@@ -117,24 +123,25 @@ unsigned EcalPreshowerRecHitsMaker::createVectorsOfCells(const edm::EventSetup &
     return escells_.size();
 }
 
-void EcalPreshowerRecHitsMaker::noisify()
+void EcalPreshowerRecHitsMaker::noisify(RandomEngineAndDistribution const* random)
 {
   if(ecalsRecHits_.size()<ncells_) 
     {
       // Not needed anymore, the noise is added when loading the PCaloHits
       // noisifySignal(ecalsRecHits_);
-      noisifySubdet(ecalsRecHits_,escells_,ncells_);
+      noisifySubdet(ecalsRecHits_,escells_,ncells_, random);
     }
   else
-    edm::LogWarning("CaloRecHitsProducer") << "All HCAL(HB-HE) cells on ! " << std::endl;
+    edm::LogWarning("CaloRecHitsProducer") << "All Preshower cells on ! " << std::endl;
 }
 
 
-void EcalPreshowerRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells)
+void EcalPreshowerRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells,
+                                              RandomEngineAndDistribution const* random)
 {
   // noise won't be injected in cells that contain signal
-  unsigned mean=(unsigned)((double)(ncells-theMap.size())*preshowerHotFraction_);
-  unsigned nps = (unsigned)(random_->poissonShoot(mean));
+  double mean = (double)(ncells-theMap.size())*preshowerHotFraction_;
+  unsigned nps = random->poissonShoot(mean);
   
   unsigned ncell=0;
   unsigned cellindex=0;
@@ -143,12 +150,12 @@ void EcalPreshowerRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,
 
   while(ncell < nps)
     {
-      cellindex = (unsigned)(random_->flatShoot()*ncells);
+      cellindex = (unsigned)(random->flatShoot()*ncells);
       cellnumber = thecells[cellindex];
       itcheck=theMap.find(cellnumber);
       if(itcheck==theMap.end()) // inject only in empty cells
 	{
-	  std::pair <float,bool> noisehit(myGaussianTailGenerator_->shoot(),
+	  std::pair <float,bool> noisehit(myGaussianTailGenerator_->shoot(random),
 					  false);
 	  theMap.insert(std::pair<uint32_t,std::pair<float,bool> >
 			(cellnumber,noisehit));
@@ -160,7 +167,8 @@ void EcalPreshowerRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,
 
 
 // Takes a hit (from a PSimHit) and fills a map 
-void EcalPreshowerRecHitsMaker::Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal)
+void EcalPreshowerRecHitsMaker::Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,
+                                     RandomEngineAndDistribution const* random, bool signal)
 {
   // The signal hits are singletons (no need to look into a map)
   if(signal)
@@ -168,7 +176,7 @@ void EcalPreshowerRecHitsMaker::Fill(uint32_t id,float energy, std::map<uint32_t
       // a new hit is created
       // we can give a hint for the insert
       // Add the noise at this point. We are sure that it won't be added several times
-      energy += random_->gaussShoot(0.,noise_);
+      energy += random->gaussShoot(0.,noise_);
       std::pair<float,bool> hit(energy,false); 
       // if it is signal, it is already ordered, so we can give a hint for the 
       // insert
@@ -180,7 +188,7 @@ void EcalPreshowerRecHitsMaker::Fill(uint32_t id,float energy, std::map<uint32_t
       std::map<uint32_t,std::pair<float,bool> >::iterator itcheck=myHits.find(id);
       if(itcheck==myHits.end())
 	{
-	  energy += random_->gaussShoot(0.,noise_);
+	  energy += random->gaussShoot(0.,noise_);
 	  std::pair<float,bool> hit(energy,false); 	  
 	  myHits.insert(std::pair<uint32_t,std::pair<float,bool> >(id,hit));
 	}
@@ -191,13 +199,14 @@ void EcalPreshowerRecHitsMaker::Fill(uint32_t id,float energy, std::map<uint32_t
     }  
 }
 /*
-void EcalPreshowerRecHitsMaker::noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap)
+void EcalPreshowerRecHitsMaker::noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap,
+                                              RandomEngineAndDistribution const* random)
 {
   std::map<uint32_t,std::pair<float,bool> >::iterator it=theMap.begin();
   std::map<uint32_t,std::pair<float,bool> >::iterator itend=theMap.end();
   for(;it!=itend;++it)
     {
-      it->second.first+= random_->gaussShoot(0.,noise_);
+      it->second.first+= random->gaussShoot(0.,noise_);
       if(it->second.first < threshold_)
 	{
 	  it->second.second=true;

@@ -3,8 +3,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/09 14:38:23 $
- *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -20,10 +18,7 @@
 #include "DataFormats/GeometrySurface/interface/Cone.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
-// #include "Utilities/Notification/interface/TimingReport.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
@@ -31,6 +26,7 @@
 #include <iterator>
 #include <iomanip>
 #include <iostream>
+#include <boost/lexical_cast.hpp>
 
 using namespace SurfaceOrientation;
 using namespace std;
@@ -44,6 +40,7 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   : name(fv.logicalPart().name().name()),
     copyno(fv.copyno()),
     magVolume(0),
+    masterSector(1),
     theRN(0.),
     theRMin(0.),
     theRMax(0.),
@@ -52,11 +49,23 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     center_(GlobalPoint(fv.translation().x()/cm,
 			fv.translation().y()/cm,
 			fv.translation().z()/cm)),
-    expand(expand2Pi)
+    expand(expand2Pi),
+    isIronFlag(false)
 {
+  // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
+  string volName = name;
+  volName.erase(0,volName.rfind('_')+1);    
+  volumeno =boost::lexical_cast<unsigned short>(volName);
+
   for (int i=0; i<6; ++i) {
     isAssigned[i] = false;
   }
+
+  
+  if (MagGeoBuilderFromDDD::debug) {  
+    cout.precision(7);
+  }
+  
 
   referencePlane(fv);
 
@@ -76,30 +85,68 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     cout << "volumeHandle ctor: Unexpected solid: " << (int) solid.shape() << endl;
   }
 
+
+  // NOTE: Table name and master sector are no longer taken from xml!
+//   DDsvalues_type sv(fv.mergedSpecifics());
+    
+//   { // Extract the name of associated field file.
+//     std::vector<std::string> temp;
+//     std::string pname = "table";
+//     DDValue val(pname);
+//     DDsvalues_type sv(fv.mergedSpecifics());
+//     if (DDfetch(&sv,val)) {
+//       temp = val.strings();
+//       if (temp.size() != 1) {
+// 	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
+//       }
+//       magFile = temp[0];
+
+//       string find="[copyNo]";
+//       std::size_t j;
+//       for ( ; (j = magFile.find(find)) != string::npos ; ) {
+// 	stringstream conv;
+// 	conv << setfill('0') << setw(2) << copyno;
+// 	string repl;
+// 	conv >> repl;
+// 	magFile.replace(j, find.length(), repl);
+//       }
       
-  { // Extract the name of associated field file.
-    std::vector<std::string> temp;
-    std::string pname = "mfield_";
-    pname += fv.logicalPart().name().name();
-    DDValue val(pname);
-    DDsvalues_type sv(fv.mergedSpecifics());
-    if (DDfetch(&sv,val)) {
-      temp = val.strings();
-      if (temp.size() != 1) {
-	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
-      }
-      magFile = temp[0];
-    } else {
-      cout << "*** WARNING: volume does not have a SpecPar " << pname << endl;
-    }
-  }
+//     } else {
+//       cout << "*** WARNING: volume does not have a SpecPar " << pname << endl;
+//       cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
+//     }
+//   }
+
+//   { // Extract the number of the master sector.
+//     std::vector<double> temp;
+//     const std::string pname = "masterSector";
+//     DDValue val(pname);
+//     if (DDfetch(&sv,val)) {
+//       temp = val.doubles();
+//       if (temp.size() != 1) {
+//  	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
+//       }
+//       masterSector = int(temp[0]+.5);
+//     } else {
+//       if (MagGeoBuilderFromDDD::debug) { 
+// 	cout << "Volume does not have a SpecPar " << pname 
+// 	     << " using: " << copyno << endl;
+// 	cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
+//       }
+//       masterSector = copyno;
+//     }  
+//   }
+  
+  // Get material for this volume
+  if (fv.logicalPart().material().name().name() == "Iron") isIronFlag=true;  
+
 
   if (MagGeoBuilderFromDDD::debug) {  
     cout << " RMin =  " << theRMin <<endl;
     cout << " RMax =  " << theRMax <<endl;
       
     if (theRMin < 0 || theRN < theRMin || theRMax < theRN) 
-      cout << "***WARNING: wrong RMin/RN/RMax " << endl;
+      cout << "*** WARNING: wrong RMin/RN/RMax , shape: " << (int) shape() << endl;
 
     cout << "Summary: " << name << " " << copyno
 	 << " Shape= " << (int) shape()
@@ -107,7 +154,9 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
 	 << " R " << center().perp()
 	 << " phi " << center().phi()
 	 << " magFile " << magFile
-	 << " Material= " << fv.logicalPart().material().name();
+	 << " Material= " << fv.logicalPart().material().name()
+	 << " isIron= " << isIronFlag
+	 << " masterSector= " << masterSector << std::endl;
 
     cout << " Orientation of surfaces:";
     std::string sideName[3] =  {"positiveSide", "negativeSide", "onSurface"};
@@ -127,7 +176,7 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   // The refPlane is the "main plane" for the solid. It corresponds to the 
   // x,y plane in the DDD local frame, and defines a frame where the local
   // coordinates are the same as in DDD. 
-  // In the current magn geometry, this plane is normal to the 
+  // In the geometry version 85l_030919, this plane is normal to the 
   // beam line for all volumes but pseudotraps, so that global R is along Y,
   // global phi is along -X and global Z along Z:
   //
@@ -148,24 +197,16 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   // inside the volume for DDD boxes and (pesudo)trapezoids, on the beam line
   // for tubs, cons and trunctubs. 
 
+  // In geometry version 1103l, trapezoids have X and Z in the opposite direction
+  // than the above.  Boxes are either oriented as described above or in some case 
+  // have opposite direction for Y and X.
+
   // The global position
   Surface::PositionType & posResult = center_;
 
-  // We currently use a null (unit) rotation for all shapes
-  DDRotationMatrix orcaCorrection;
-
-  // This rotation would define the z,x plane, i.e. parallel to the beam line
-  // for the convention used for the magnetic DDD geometry.
-  //     orcaCorrection.set(DDTranslation(0.,0.,1.),
-  // 		       DDTranslation(1.,0.,0.),
-  // 		       DDTranslation(0.,1.,0.));
-
-  // === DDD uses 'active' rotations - see CLHEP user guide ===
-  //     ORCA seems to use 'passive' rotation. 
-  //     'active' and 'passive' rotations are inverse to each other
-  DDRotationMatrix result = (fv.rotation()*orcaCorrection);//.Inverse();
+  // The reference plane rotation
   DD3Vector x, y, z;
-  result.GetComponents(x,y,z);
+  fv.rotation().GetComponents(x,y,z);
   if (MagGeoBuilderFromDDD::debug) {
     if (x.Cross(y).Dot(z) < 0.5) {
       cout << "*** WARNING: Rotation is not RH "<< endl;
@@ -180,38 +221,24 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
 
   refPlane = new GloballyPositioned<float>(posResult, rotResult);
 
-  LocalVector globalRdir; // Local direction of global R
-  LocalVector globalZdir; // Local direction of global Z
-  if (solid.shape() == ddpseudotrap) {
-    globalRdir = LocalVector(0.,0.,1.);
-    globalZdir = LocalVector(0.,1.,0.);    
-  } else {
-    globalRdir = LocalVector(0.,1.,0.);
-    globalZdir = LocalVector(0.,0.,1.);
-  }
-
   // Check correct orientation
   if (MagGeoBuilderFromDDD::debug) {
+
+    cout << "Refplane pos  " << refPlane->position() << endl;
+
+    // See comments above for the conventions for orientation.
+    LocalVector globalZdir(0.,0.,1.); // Local direction of the axis along global Z 
+    if (solid.shape() == ddpseudotrap) {
+      globalZdir = LocalVector(0.,1.,0.);    
+    }
+    if (refPlane->toGlobal(globalZdir).z()<0.) {
+      globalZdir=-globalZdir;
+    }
+
     float chk = refPlane->toGlobal(globalZdir).dot(GlobalVector(0,0,1));
-    if (fabs(chk) < .999) cout << "*** WARNING RefPlane check failed!***"
-			       << endl;
+    if (chk < .999) cout << "*** WARNING RefPlane check failed!***"
+			 << chk << endl; 
   }
-  
-//   // Check that the reference plane is orthogonal to the CMS beam line.
-//   float chk = ((refPlane->normalVector()).unit()).dot(GlobalVector(0,0,1));
-//   if (fabs(chk) < .999) cout << "*** WARNING RefPlane check failed!***"
-// 			     << endl;
-
-  if (MagGeoBuilderFromDDD::debug) cout << "Refplane pos  " << refPlane->position() << endl;
-
-  // Get the distance to beam line along local y
-  if (solid.shape() != ddcons &&
-      solid.shape() != ddtubs &&
-      solid.shape() != ddtrunctubs) {   
-    theRN = fabs(refPlane->toGlobal(globalRdir).dot(GlobalVector(posResult.x(),posResult.y(),posResult.z())));
-    if (MagGeoBuilderFromDDD::debug) cout << "RN            " << theRN << endl;
-  }
-  
 }
 
 
@@ -288,7 +315,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPhiZSurf(double startPhi,
 
 
 
-bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides which_side)
+bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides which_side, float tolerance)
 {
   //Check for null comparison
   if (&s1==(surfaces[which_side]).get()){
@@ -296,11 +323,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
     return true;
   }
 
-//   static TimingReport::Item & timer = (*TimingReport::current())["volumeHandle::sameSurface"];
-//   TimeMe time(timer,false);
-
   const float maxtilt  = 0.999;
-  const float maxdist  = 0.01; // in cm
 
   const Surface & s2 = *(surfaces[which_side]);
   // Try with a plane.
@@ -313,7 +336,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
     }
     
     if ( (fabs(p1->normalVector().dot(p2->normalVector())) > maxtilt)
-	 && (fabs((p1->toLocal(p2->position())).z()) < maxdist) ) {
+	 && (fabs((p1->toLocal(p2->position())).z()) < tolerance) ) {
       if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: OK "
 		      << fabs(p1->normalVector().dot(p2->normalVector()))
 		      << " " << fabs((p1->toLocal(p2->position())).z()) << endl;
@@ -338,7 +361,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
       return false;
     }
     // Assume axis is the same!
-    if (fabs(cy1->radius() - cy2->radius()) < maxdist) {
+    if (fabs(cy1->radius() - cy2->radius()) < tolerance) {
       return true;
     } else {
       return false;
@@ -355,7 +378,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
     }
     // FIXME
     if (fabs(co1->openingAngle()-co2->openingAngle()) < maxtilt 
-	&& (co1->vertex()-co2->vertex()).mag() < maxdist) {
+	&& (co1->vertex()-co2->vertex()).mag() < tolerance) {
       return true;
     } else {
       return false;
@@ -421,12 +444,16 @@ MagGeoBuilderFromDDD::volumeHandle::surface(int which_side) const {
 
 
 std::vector<VolumeSide>
-MagGeoBuilderFromDDD::volumeHandle::sides(){
+MagGeoBuilderFromDDD::volumeHandle::sides() const{
   std::vector<VolumeSide> result;
   for (int i=0; i<6; ++i){
     // If this is just a master volume out of wich a 2pi volume
     // should be built (e.g. central cylinder), skip the phi boundaries.
     if (expand && (i==phiplus || i==phiminus)) continue;
+
+    // FIXME: Skip null inner degenerate cylindrical surface
+    if (solid.shape() == ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001) continue;
+
     ReferenceCountingPointer<Surface> s = const_cast<Surface*> (surfaces[i].get());
     result.push_back(VolumeSide(s, GlobalFace(i),
 				surfaces[i]->side(center_,0.3)));

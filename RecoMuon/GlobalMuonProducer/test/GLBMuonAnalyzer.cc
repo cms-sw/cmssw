@@ -1,8 +1,6 @@
 /** \class GLBMuonAnalyzer
  *  Analyzer of the Global muon tracks
  *
- *  $Date: $
- *  $Revision:  $
  *  \author R. Bellan  - INFN Torino       <riccardo.bellan@cern.ch>
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */
@@ -10,12 +8,11 @@
 #include "RecoMuon/GlobalMuonProducer/test/GLBMuonAnalyzer.h"
 
 // Collaborating Class Header
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -59,7 +56,7 @@ GLBMuonAnalyzer::GLBMuonAnalyzer(const ParameterSet& pset){
 GLBMuonAnalyzer::~GLBMuonAnalyzer(){
 }
 
-void GLBMuonAnalyzer::beginJob(const EventSetup& eventSetup){
+void GLBMuonAnalyzer::beginJob(){
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
@@ -129,7 +126,7 @@ void GLBMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
 	//LogTrace("Analyzer")<<"Sim pT: "<<(*simTrack).momentum().perp()<<endl;
-	simPt=(*simTrack).momentum().perp();
+	simPt=(*simTrack).momentum().pt();
 	//LogTrace("Analyzer")<<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl;
 	numberOfSimTracks++;
       }    
@@ -160,13 +157,21 @@ void GLBMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
     trackingRecHit_iterator rhbegin = staTrack->recHitsBegin();
     trackingRecHit_iterator rhend = staTrack->recHitsEnd();
     
+    int muHit=0;
+    int tkHit=0;
+    
     //LogTrace("Analyzer")<<"RecHits:"<<endl;
     for(trackingRecHit_iterator recHit = rhbegin; recHit != rhend; ++recHit){
-      const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
-      double r = geomDet->surface().position().perp();
-      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
+      //      const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
+//      double r = geomDet->surface().position().perp();
+//      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
       //LogTrace("Analyzer")<<"r: "<< r <<" z: "<<z <<endl;
+      if((*recHit)->geographicalId().det() == DetId::Muon) ++muHit;
+      if((*recHit)->geographicalId().det() == DetId::Tracker) ++tkHit;
     }
+    if(tkHit == 0) LogTrace("GlobalMuonAnalyzer") << "+++++++++ This track does not contain TH hits +++++++++ ";
+
+
     
     if(recPt && theDataType == "SimData"){  
 

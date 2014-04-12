@@ -1,7 +1,5 @@
 /** \file
  *
- * $Date: 2006/05/09 13:57:21 $
- * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -18,8 +16,8 @@
 /* C++ Headers */
 
 /* ====================================================================== */
-double DTSegmentCand::chi2max=20.; // to be tuned!!
-unsigned int DTSegmentCand::nHitsMin=3; // to be tuned!!
+const double DTSegmentCand::chi2max=20.; // to be tuned!!
+const unsigned int DTSegmentCand::nHitsMin=3; // to be tuned!!
 
 /// Constructor
 DTSegmentCand::DTSegmentCand(AssPointCont& hits,
@@ -27,11 +25,11 @@ DTSegmentCand::DTSegmentCand(AssPointCont& hits,
 theSL(sl), theChi2(-1.) , theHits(hits){
 }
 
-DTSegmentCand::DTSegmentCand(AssPointCont hits,
+DTSegmentCand::DTSegmentCand(const AssPointCont& hits,
                              LocalPoint& position,
                              LocalVector& direction,
                              double chi2,
-                             AlgebraicSymMatrix covMat,
+                             const AlgebraicSymMatrix& covMat,
                              const DTSuperLayer* sl) :
 theSL(sl), thePosition(position), theDirection(direction), theChi2(chi2),
   theCovMatrix( covMat), theHits(hits) {
@@ -60,7 +58,7 @@ bool DTSegmentCand::operator<(const DTSegmentCand& seg){
   return (nHits()<seg.nHits());
 }
 
-void DTSegmentCand::add(DTHitPairForFit* hit, DTEnums::DTCellSide code) {
+void DTSegmentCand::add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code) {
   theHits.insert(AssPoint(hit,code));
 }
 
@@ -70,15 +68,16 @@ void DTSegmentCand::removeHit(AssPoint badHit) {
 
 int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
   int result=0;
+  AssPointCont hitsCont = seg.hits();
+
   for (AssPointCont::const_iterator hit=theHits.begin(); 
        hit!=theHits.end() ; ++hit) {
-    AssPointCont hitsCont = seg.hits();
     for (AssPointCont::const_iterator hit2=hitsCont.begin();
          hit2!=hitsCont.end() ; ++hit2) {
       //  if(result) return result ; // TODO, uncomm this line or move it in another func
       if ((*(*hit).first)==(*(*hit2).first)) {
         ++result;
-	continue;
+        continue;
       }
     }
   }
@@ -88,24 +87,57 @@ int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
 DTSegmentCand::AssPointCont
 DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
   AssPointCont result;
-  if (nSharedHitPairs(seg)==0) return result;
-  for (AssPointCont::const_iterator hit=theHits.begin(); 
-       hit!=theHits.end() ; ++hit) {
-    AssPointCont hitCont = seg.hits();
-    for (AssPointCont::const_iterator hit2 = hitCont.begin();
-         hit2!=hitCont.end() ; ++hit2) {
-      if ((*(*hit).first)==(*(*hit2).first) &&
-          (*hit).second != (*hit2).second) {
-        result.insert(*hit);
-        continue;
-      }
+  const AssPointCont & hits2 = seg.theHits;
+  
+//  if (nSharedHitPairs(seg)==0) return result;
+
+  AssPointCont::const_iterator hitBegin2 = hits2.begin(),   hitEnd2 = hits2.end();
+  for (AssPointCont::const_iterator hit = theHits.begin(), hitEnd  = theHits.end(); 
+       hit != hitEnd ; ++hit) {
+    for (AssPointCont::const_iterator hit2 = hitBegin2; hit2 != hitEnd2; ++hit2) { 
+        if ((*(*hit).first)==(*(*hit2).first) &&
+                (*hit).second != (*hit2).second) {
+            result.insert(*hit);
+            continue;
+        }
     }
   }
   return result;
 }
 
-bool DTSegmentCand::good() const {
-  return nHits()>=nHitsMin && chi2()/NDOF() < chi2max ;
+bool DTSegmentCand::good() const
+{
+  // std::cout << NDOF() << "  " << chi2()/NDOF() << "   " << nHits() << std::endl;
+  if(NDOF() == 0) return false;
+  if(chi2()/NDOF() > chi2max || nHits() < nHitsMin) return false;
+
+  if(nHits() == nHitsMin && hitsShareLayer()) return false ;
+
+  return true;
+}
+
+bool DTSegmentCand::hitsShareLayer() const
+{
+  int layerN[20];
+  int i=0;
+  
+  // we don't expect so many 1D hits, if such a segment arrives just drop it
+  if (theHits.size()>20) return false;
+
+  for(DTSegmentCand::AssPointCont::iterator assHit=theHits.begin();
+      assHit!=theHits.end(); ++assHit) {
+    layerN[i]=(*assHit).first->id().layerId().layer()+10*(*assHit).first->id().superlayerId().superlayer();
+    i++;
+//    std::cout << (*assHit).first->id().layerId().layer()+10*(*assHit).first->id().superlayerId().superlayer()) << std::endl;
+  }
+
+  for(int i=0;i<(int)theHits.size();i++){
+    for(int j=0;j<i;j++){
+      if(layerN[i] == layerN[j]) return true;
+    }
+  }
+
+  return false;
 }
 
 int DTSegmentCand::nLayers() const {
@@ -192,7 +224,8 @@ bool DTSegmentCand::AssPointLessZ::operator()(const AssPoint& pt1,
 }
 
 std::ostream& operator<<(std::ostream& out, const DTSegmentCand& seg) {
-  out <<  " chi2/nHits: " << seg.chi2() << "/" << seg.nHits() ;
+  out <<  " pos: " << seg.position() << " dir: " << seg.direction() 
+      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits();
   return out;
 }
 
@@ -201,4 +234,3 @@ std::ostream& operator<<(std::ostream& out, const DTSegmentCand::AssPoint& hit) 
   //     " " << hit.second  << " Lay " << (hit.first)->layerNumber() << endl;
   return out;
 }
-

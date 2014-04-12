@@ -6,8 +6,6 @@
  * 
 */ 
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -38,36 +36,3 @@ int L1MuGMTLUTHelpers::replace(string & input, const string& gone, const string&
   }
   return n;
 }
-
-//--------------------------------------------------------------------------------
-// Make an uppercase copy of s
-
-string L1MuGMTLUTHelpers::upperCase(const string& s) {
-  char* buf = new char[s.length()];
-  s.copy(buf, s.length());
-  for(unsigned i = 0; i < s.length(); i++)
-    buf[i] = toupper(buf[i]);
-  string r(buf, s.length());
-  delete buf;
-  return r;
-}
-
-
-
-//--------------------------------------------------------------------------------
-// Make an lowercase copy of s
-
-string L1MuGMTLUTHelpers::lowerCase(const string& s) {
-  char* buf = new char[s.length()];
-  s.copy(buf, s.length());
-  for(unsigned i = 0; i < s.length(); i++)
-    buf[i] = tolower(buf[i]);
-  string r(buf, s.length());
-  delete buf;
-  return r;
-}
-
-
-
-
-

@@ -1,22 +1,20 @@
-#include <memory>
-#include <vector>
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
-using namespace std;
+#include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 
 class StGenEventReco : public edm::EDProducer {
-   public:
-      explicit StGenEventReco(const edm::ParameterSet&);
-      ~StGenEventReco();
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
+ public:
+
+  explicit StGenEventReco(const edm::ParameterSet&);
+  ~StGenEventReco();
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+
+ private:
+
+  edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> initToken_;
 };

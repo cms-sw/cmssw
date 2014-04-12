@@ -14,7 +14,6 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: EgammaSCCorrectionMaker.h,v 1.3 2006/08/09 13:02:31 dlevans Exp $
 //
 //
 
@@ -26,8 +25,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
+
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 
 class EgammaSCCorrectionMaker : public edm::EDProducer {
 	
@@ -38,23 +44,38 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
 
    private:
 
-     // the debug level
-     EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
+     EcalClusterFunctionBaseClass* energyCorrectionFunction_;
+     EcalClusterFunctionBaseClass* crackCorrectionFunction_;
+     EcalClusterFunctionBaseClass* localContCorrectionFunction_;
+
 
      // pointer to the correction algo object
      EgammaSCEnergyCorrectionAlgo *energyCorrector_;
     
+     
+
      // vars for the correction algo
      bool applyEnergyCorrection_;
+     bool applyCrackCorrection_;
+     bool applyLocalContCorrection_;
+
+     std::string energyCorrectorName_;
+     std::string crackCorrectorName_;
+     std::string localContCorrectorName_;
+
+     int modeEB_;
+     int modeEE_;
+
+     //     bool oldEnergyScaleCorrection_;
      double sigmaElectronicNoise_;
      double etThresh_;
-
+     
      // vars to get products
-     std::string rHInputProducer_;
-     std::string rHInputCollection_;
-     reco::AlgoId sCAlgo_;
-     std::string sCInputProducer_;
-     std::string sCInputCollection_;
+     edm::EDGetTokenT<EcalRecHitCollection>          rHInputProducer_;
+     edm::EDGetTokenT<reco::SuperClusterCollection>  sCInputProducer_;
+	 edm::InputTag rHTag_;
+
+     reco::CaloCluster::AlgoId sCAlgo_;
      std::string outputCollection_;
 
 };

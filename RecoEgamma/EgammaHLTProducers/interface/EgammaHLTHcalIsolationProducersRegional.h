@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTHcalIsolationProducersRegional.h,v 1.4 2006/10/24 15:25:53 monicava Exp $
+// $Id: EgammaHLTHcalIsolationProducersRegional.h,v 1.3 2011/12/19 11:17:28 sani Exp $
 //
 //
 
@@ -19,38 +19,45 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
+ #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTHcalIsolation.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
-//
-// class declaration
-//
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
+class EgammaHLTHcalIsolation;
 
 class EgammaHLTHcalIsolationProducersRegional : public edm::EDProducer {
-   public:
-      explicit EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet&);
-      ~EgammaHLTHcalIsolationProducersRegional();
+public:
+  explicit EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet&);
+  ~EgammaHLTHcalIsolationProducersRegional();
 
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
+private:
+  EgammaHLTHcalIsolationProducersRegional(const EgammaHLTHcalIsolationProducersRegional& rhs){}
+  EgammaHLTHcalIsolationProducersRegional& operator=(const EgammaHLTHcalIsolationProducersRegional& rhs){return *this;}
+  
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitProducer_;
+  edm::EDGetTokenT<double> rhoProducer_;
 
-  edm::InputTag recoEcalCandidateProducer_;
-  edm::InputTag hbRecHitProducer_;
-  edm::InputTag hfRecHitProducer_;
+  bool doRhoCorrection_;
+  float rhoScale_;
+  float rhoMax_;
+  bool doEtSum_;
+  float effectiveAreaBarrel_;
+  float effectiveAreaEndcap_;
 
-  double egHcalIsoPtMin_;
-  double egHcalIsoConeSize_;
-
-  edm::ParameterSet conf_;
-
-  EgammaHLTHcalIsolation* test_;
-
+  EgammaHLTHcalIsolation* isolAlgo_;
 };
 

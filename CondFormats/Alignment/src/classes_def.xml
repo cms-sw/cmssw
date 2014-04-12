@@ -8,8 +8,15 @@
  <class name="AlignTransformError"/>
  <class name="std::vector<AlignTransformError>"/>
 
+ <class name="AlignmentSurfaceDeformations">
+   <field name="m_items" mapping="blob"/>
+   <field name="m_parameters" mapping="blob"/>
+ </class>
+ <class name="AlignmentSurfaceDeformations::Item"/>
+ <class name="std::vector<AlignmentSurfaceDeformations::Item>"/>
+
  <class name="SurveyError"/>
  <class name="SurveyErrors"/>
  <class name="std::vector<SurveyError>"/>
 
-</lcgdict>   
+</lcgdict>

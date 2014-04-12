@@ -4,8 +4,6 @@
 /** \class GeneralBinFinderInPhi
  * A phi bin finder for a non-periodic group of detectors.
  *
- *  $Date: 2007/01/22 18:17:37 $
- *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -36,7 +34,7 @@ public:
 			std::vector<Det*>::const_iterator last)
     : theNbins( last-first)
   {
-    std::vector<Det*> dets(first,last);
+    std::vector<const Det*> dets(first,last);
     PhiBorderFinder bf(dets);
     theBorders=bf.phiBorders();
     theBins=bf.phiBins();
@@ -51,7 +49,7 @@ public:
     
     const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|GeneralBinFinderInPhi";
 
-    static T epsilon = 10*std::numeric_limits<T>::epsilon();
+    static const T epsilon = 10*std::numeric_limits<T>::epsilon();
     // Assume -pi, pi range in pi (which is the case for Geom::Phi
 
     LogTrace(metname) << "GeneralBinFinderInPhi::binIndex,"

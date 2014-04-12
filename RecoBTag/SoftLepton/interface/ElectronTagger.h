@@ -1,14 +1,13 @@
 #ifndef RecoBTag_SoftLepton_ElectronTagger_h
 #define RecoBTag_SoftLepton_ElectronTagger_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 #include "RecoBTag/SoftLepton/src/ElectronTaggerMLP.h"
 
 /** \class ElectronTagger
  *
- *  $Id: ElectronTagger.h,v 1.1 2007/02/14 17:10:24 demine Exp $
- *  $Date: 2007/02/14 17:10:24 $
- *  $Revision: 1.1 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -17,21 +16,22 @@
 class ElectronTagger : public JetTagComputer {
 public:
 
-  /// default ctor
-  ElectronTagger(void) : theNet() { }
-
   /// explicit ctor 
-  explicit ElectronTagger( __attribute__((unused)) const edm::ParameterSet & configuration) : theNet() { }
+  explicit ElectronTagger(const edm::ParameterSet & configuration) : 
+    m_selector(configuration)
+  { 
+    uses("seTagInfos"); 
+  }
   
   /// dtor
   virtual ~ElectronTagger() { }
 
   /// b-tag a jet based on track-to-jet parameters in the extened info collection
-  virtual float discriminator(const reco::BaseTagInfo & tagInfo) const;
+  virtual float discriminator(const TagInfoHelper & tagInfo) const;
 
 private:
 
-  mutable ElectronTaggerMLP theNet;
+  btag::LeptonSelector m_selector;
 
 };
 

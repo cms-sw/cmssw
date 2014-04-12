@@ -23,7 +23,7 @@ public:
 
   RootChamberWriter & chamberWriter(int chamberType);
 
-  virtual void writeEvent(int chamberType, const edm::PSimHitContainer & hits);
+  virtual void writeCluster(int chamberType, const edm::PSimHitContainer & hits);
 
 private:
   std::map<int, RootChamberWriter> theChamberWriters;

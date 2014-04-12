@@ -54,6 +54,7 @@ namespace csctf
       unsigned sector() const;
       unsigned subsector() const;
       unsigned cscid() const;
+      unsigned cscidSeparateME1a() const;
       int BX() const {return getBX();}
       
       

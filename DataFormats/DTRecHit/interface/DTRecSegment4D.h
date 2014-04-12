@@ -5,8 +5,6 @@
  *
  * 4-parameter RecHits for MuonBarrel DT (x,y, dx/dz, dy/dz)
  *
- * $Date: 2007/02/13 13:25:11 $
- * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -89,10 +87,10 @@ class DTRecSegment4D : public RecSegment {
 
   
   /// Does it have the Phi projection?
-  bool hasPhi() const {return (theProjection==full | theProjection==phi);}
+  bool hasPhi() const {return (theProjection==full || theProjection==phi);}
   
   /// Does it have the Z projection?
-  bool hasZed() const {return (theProjection==full | theProjection==Z);}
+  bool hasZed() const {return (theProjection==full || theProjection==Z);}
   
   /// The superPhi segment: 0 if no phi projection available
   const DTChamberRecSegment2D *phiSegment() const {
@@ -111,7 +109,7 @@ class DTRecSegment4D : public RecSegment {
   void setDirection(LocalVector dir) { theDirection = dir; }
 
   /// Set covariance matrix
-  void setCovMatrix(AlgebraicSymMatrix mat) { theCovMatrix = mat; }
+  void setCovMatrix(const AlgebraicSymMatrix& mat) { theCovMatrix = mat; }
 
   /// The (specific) DetId of the chamber on which the segment resides 
   virtual DTChamberId chamberId() const;

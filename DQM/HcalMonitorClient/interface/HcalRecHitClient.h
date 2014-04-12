@@ -1,112 +1,68 @@
-#ifndef HcalRecHitClient_H
-#define HcalRecHitClient_H
+#ifndef HcalRecHitClient_GUARD_H
+#define HcalRecHitClient_GUARD_H
 
-#include "FWCore/Framework/interface/Event.h"
+#include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+class EtaPhiHists; // forward declaration
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+class HcalRecHitClient : public HcalBaseDQClient {
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+ public:
 
-#include "TROOT.h"
-#include "TStyle.h"
-#include "TFile.h"
+  /// Constructors
+  HcalRecHitClient(){name_="";};
+  HcalRecHitClient(std::string myname);//{ name_=myname;};
+  HcalRecHitClient(std::string myname, const edm::ParameterSet& ps);
 
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class HcalRecHitClient{
-
-public:
-
-/// Constructor
-HcalRecHitClient(const ParameterSet& ps, MonitorUserInterface* mui);
-HcalRecHitClient();
-
-/// Destructor
-virtual ~HcalRecHitClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
-
-/// Analyze
-void analyze(void);
-
-/// BeginJob
-void beginJob(void);
-
-/// EndJob
-void endJob(void);
-
-/// BeginRun
-void beginRun(void);
-
-/// EndRun
-void endRun(void);
-
-/// Setup
-void setup(void);
-
-/// Cleanup
+  void analyze(void);
+  void calculateProblems(void); // calculates problem histogram contents
+  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
+  void beginJob(void);
+  void endJob(void);
+  void beginRun(void);
+  void endRun(void); 
+  void setup(void);  
   void cleanup(void);
 
-  /// HtmlOutput
-  void htmlOutput(int run, string htmlDir, string htmlName);
-  void getHistograms();
-  void loadHistograms(TFile* f);
+  bool hasErrors_Temp(void);  
+  bool hasWarnings_Temp(void);
+  bool hasOther_Temp(void);
+  bool test_enabled(void);
+  
+  /// Destructor
+  ~HcalRecHitClient();
 
-  void report();
-  void errorOutput();
-  void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);
-  bool hasErrors() const { return dqmReportMapErr_.size(); }
-  bool hasWarnings() const { return dqmReportMapWarn_.size(); }
-  bool hasOther() const { return dqmReportMapOther_.size(); }
+ private:
+  int nevts_;
 
-  void resetAllME();
-  void createTests();
-private:
-  int ievt_;
-  int jevt_;
-  bool subDetsOn_[4];
+  EtaPhiHists* meEnergyByDepth;
+  EtaPhiHists* meEnergyThreshByDepth;
+  EtaPhiHists* meTimeByDepth;
+  EtaPhiHists* meTimeThreshByDepth;
+  EtaPhiHists* meSqrtSumEnergy2ByDepth;
+  EtaPhiHists* meSqrtSumEnergy2ThreshByDepth;
 
-  bool cloneME_;
-  bool verbose_;
+  MonitorElement* meHBEnergy_1D;
+  MonitorElement* meHEEnergy_1D;
+  MonitorElement* meHOEnergy_1D;
+  MonitorElement* meHFEnergy_1D;
 
-  double beamE_thresh_;
-  double beamE_width_;
-  string process_;
+  MonitorElement* meHBEnergyRMS_1D;
+  MonitorElement* meHEEnergyRMS_1D;
+  MonitorElement* meHOEnergyRMS_1D;
+  MonitorElement* meHFEnergyRMS_1D;
 
-  MonitorUserInterface* mui_;
+  MonitorElement* meHBEnergyThresh_1D;
+  MonitorElement* meHEEnergyThresh_1D;
+  MonitorElement* meHOEnergyThresh_1D;
+  MonitorElement* meHFEnergyThresh_1D;
 
-  TH2F* tot_occ_[4];
-  TH1F* tot_energy_;
-
-  TH2F* occ_[4];
-  TH1F* energy_[4];
-  TH1F* energyT_[4];
-  TH1F* time_[4];
-
-
-  // Quality criteria for data integrity
-  map<string, vector<QReport*> > dqmReportMapErr_;
-  map<string, vector<QReport*> > dqmReportMapWarn_;
-  map<string, vector<QReport*> > dqmReportMapOther_;
-  map<string, string> dqmQtests_;
-
+  MonitorElement* meHBEnergyRMSThresh_1D;
+  MonitorElement* meHEEnergyRMSThresh_1D;
+  MonitorElement* meHOEnergyRMSThresh_1D;
+  MonitorElement* meHFEnergyRMSThresh_1D;
 };
 
 #endif

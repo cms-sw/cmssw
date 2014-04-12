@@ -1,5 +1,5 @@
-#ifndef Common_DetSetLazyVector_h
-#define Common_DetSetLazyVector_h
+#ifndef DataFormats_Common_DetSetLazyVector_h
+#define DataFormats_Common_DetSetLazyVector_h
 
 /*----------------------------------------------------------------------
   
@@ -23,8 +23,6 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetLazyVector.h,v 1.7 2007/01/17 00:19:11 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -38,8 +36,6 @@ $Id: DetSetLazyVector.h,v 1.7 2007/01/17 00:19:11 wmtan Exp $
 #include "DataFormats/Common/interface/DetSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/Ref.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -57,9 +53,8 @@ namespace edm {
     inline
     void _throw_range(det_id_type i)
   {
-      throw edm::Exception(errors::InvalidReference)
-      << "DetSetLazyVector::operator[] called with index not in collection;\n"
-      << "index value: " << i;
+      Exception::throwThis(errors::InvalidReference,
+        "DetSetLazyVector::operator[] called with index not in collection;\nindex value: ", i);
   }
   }
   
@@ -264,14 +259,6 @@ private:
   {
     a.swap(b);
   }
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  // has swap function
-  template <class T>
-  struct has_swap<edm::DetSetLazyVector<T> > {
-    static bool const value = true;
-  };
-#endif
 
 //specialize behavior of edm::Ref to get access to the 'Det'
 

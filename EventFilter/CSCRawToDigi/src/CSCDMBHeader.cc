@@ -4,7 +4,7 @@
 
 CSCDMBHeader::CSCDMBHeader() 
 {
-  bzero(this, 16);
+  bzero(this, sizeInWords()*2);
   ddu_code_1 = ddu_code_2 = ddu_code_3 = ddu_code_4 = 0xA;
   newddu_code_1 = newddu_code_2 = newddu_code_3 = newddu_code_4 = 0x9;
 }
@@ -63,6 +63,14 @@ unsigned CSCDMBHeader::bxn() const
   return dmb_bxn;
 } 
 
+unsigned CSCDMBHeader::bxn12() const
+{
+  return dmb_bxn1;
+}
+
+
+
+
 unsigned CSCDMBHeader::l1a() const 
 {
   return dmb_l1a;
@@ -106,12 +114,12 @@ void CSCDMBHeader::addCFEB(int icfeb)
 
 void CSCDMBHeader::addNCLCT() 
 {
-  tmb_dav_1 = 1;
+  tmb_dav_1 =  tmb_dav_2 =  tmb_dav_4 = 1;
 }
 
 void CSCDMBHeader::addNALCT() 
 {
-  alct_dav_1 = 1;
+  alct_dav_1 = alct_dav_2 = alct_dav_4 = 1;
 }
 
 

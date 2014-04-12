@@ -4,8 +4,6 @@
 /** \class DetLayerException
  *  Exceptions thrown from TrackingTools/DetLayers and dependent subsystems.
  *
- *  $Date: $
- *  $Revision: $
  */
 
 /// Common base class

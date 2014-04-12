@@ -1,9 +1,11 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.31 2007/05/25 13:08:15 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
+#include <fstream>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -12,201 +14,53 @@ uint32_t SiStripConfigDb::cntr_ = 0;
 
 // -----------------------------------------------------------------------------
 // 
+bool SiStripConfigDb::allowCalibUpload_ = false;
+
+// -----------------------------------------------------------------------------
+// 
 SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
 				  const edm::ActivityRegistry& activity ) :
   factory_(0), 
+  dbCache_(0), 
   dbParams_(),
   // Local cache
-  devices_(), 
-  piaResets_(), 
-  feds_(), 
   connections_(), 
-  dcuDetIdMap_(), 
-  dcuConversionFactors_(),
-  // Reset flags
-  resetDevices_(true), 
-  resetPiaResets_(true), 
-  resetFeds_(true), 
-  resetConnections_(true), 
-  resetDcuDetIdMap_(true), 
-  resetDcuConvs_(true),
+  devices_(), 
+  feds_(), 
+  dcuDetIds_(), 
+  analyses_(),
+  apvDevices_(),
+  muxDevices_(),
+  dcuDevices_(),
+  lldDevices_(),
+  pllDevices_(),
+  dohDevices_(),
+  typedDevices_(), 
+  fedIds_(),
   // Misc
   usingStrips_(true),
   openConnection_(false)
 {
   cntr_++;
-  LogTrace(mlConfigDb_)
+  edm::LogVerbatim(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
-    << " Constructing object using Service..."
+    << " Constructing database service..."
     << " (Class instance: " << cntr_ << ")";
-
+  
   // Set DB connection parameters
   dbParams_.reset();
-  dbParams_.setParams( pset );
-  
-  stringstream ss;
-  ss << "[SiStripConfigDb::" << __func__ << "]"
-     << " Database connection parameters:" << endl
-     << dbParams_ << endl;
-  edm::LogVerbatim(mlConfigDb_) << ss.str();
-  
+  dbParams_.pset( pset );
+  //edm::LogVerbatim(mlConfigDb_) << dbParams_; 
+
   // Open connection
   openDbConnection();
   
 }
 
 // -----------------------------------------------------------------------------
-// 
-SiStripConfigDb::SiStripConfigDb( string confdb, 
-				  string partition,
-				  uint32_t major,
-				  uint32_t minor ) :
-  factory_(0), 
-  dbParams_(),
-  // Local cache
-  devices_(), 
-  piaResets_(), 
-  feds_(), 
-  connections_(), 
-  dcuDetIdMap_(), 
-  dcuConversionFactors_(),
-  // Reset flags
-  resetDevices_(true), 
-  resetPiaResets_(true), 
-  resetFeds_(true), 
-  resetConnections_(true), 
-  resetDcuDetIdMap_(true), 
-  resetDcuConvs_(true),
-  // Misc
-  usingStrips_(true)
-{
-  cntr_++;
-  LogTrace(mlConfigDb_)
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Constructing object..."
-    << " (Class instance: " << cntr_ << ")";
-
-  dbParams_.reset();
-  dbParams_.usingDb_ = true; 
-  dbParams_.confdb( confdb );
-  dbParams_.partition_ = partition; 
-  dbParams_.major_ = major;
-  dbParams_.minor_ = minor;
-
-  stringstream ss;
-  ss << "[SiStripConfigDb::" << __func__ << "]"
-     << " Database connection parameters:" << endl
-     << dbParams_ << endl;
-  edm::LogVerbatim(mlConfigDb_) << ss.str();
-
-}
-
-// -----------------------------------------------------------------------------
-// 
-SiStripConfigDb::SiStripConfigDb( string user, 
-				  string passwd, 
-				  string path,
-				  string partition,
-				  uint32_t major,
-				  uint32_t minor ) :
-  factory_(0), 
-  dbParams_(),
-  // Local cache
-  devices_(), 
-  piaResets_(), 
-  feds_(), 
-  connections_(), 
-  dcuDetIdMap_(), 
-  dcuConversionFactors_(),
-  // Reset flags
-  resetDevices_(true), 
-  resetPiaResets_(true), 
-  resetFeds_(true), 
-  resetConnections_(true), 
-  resetDcuDetIdMap_(true), 
-  resetDcuConvs_(true),
-  // Misc
-  usingStrips_(true)
-{
-  cntr_++;
-  LogTrace(mlConfigDb_)
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Constructing object..."
-    << " (Class instance: " << cntr_ << ")";
-  
-  dbParams_.reset();
-  dbParams_.usingDb_ = true; 
-  dbParams_.confdb( user, passwd, path );
-  dbParams_.partition_ = partition; 
-  dbParams_.major_ = major;
-  dbParams_.minor_ = minor;
-
-  stringstream ss;
-  ss << "[SiStripConfigDb::" << __func__ << "]"
-     << " Database connection parameters:" << endl
-     << dbParams_ << endl;
-  edm::LogVerbatim(mlConfigDb_) << ss.str();
-
-}
-
-// -----------------------------------------------------------------------------
-// 
-SiStripConfigDb::SiStripConfigDb( string input_module_xml,
-				  string input_dcuinfo_xml,
-				  vector<string> input_fec_xml,
-				  vector<string> input_fed_xml,
-				  string output_module_xml,
-				  string output_dcuinfo_xml,
-				  string output_fec_xml,
-				  string output_fed_xml ) : 
-  factory_(0), 
-  dbParams_(),
-  // Local cache
-  devices_(), 
-  piaResets_(), 
-  feds_(), 
-  connections_(), 
-  dcuDetIdMap_(),
-  dcuConversionFactors_(),
-  // Reset flags
-  resetDevices_(true), 
-  resetPiaResets_(true), 
-  resetFeds_(true), 
-  resetConnections_(true), 
-  resetDcuDetIdMap_(true),
-  resetDcuConvs_(true),
-  // Misc
-  usingStrips_(true)
-{
-  cntr_++;
-  LogTrace(mlConfigDb_)
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Constructing object..."
-    << " (Class instance: " << cntr_ << ")";
-
-  dbParams_.reset();
-  dbParams_.usingDb_ = false; 
-  dbParams_.inputModuleXml_ = input_module_xml; 
-  dbParams_.inputDcuInfoXml_ = input_dcuinfo_xml; 
-  dbParams_.inputFecXml_ = input_fec_xml; 
-  dbParams_.inputFedXml_ = input_fed_xml; 
-  dbParams_.outputModuleXml_ = output_module_xml; 
-  dbParams_.outputDcuInfoXml_ = output_dcuinfo_xml; 
-  dbParams_.outputFecXml_ = output_fec_xml; 
-  dbParams_.outputFedXml_ = output_fed_xml; 
-
-  stringstream ss;
-  ss << "[SiStripConfigDb::" << __func__ << "]"
-     << " Database connection parameters:" << endl
-     << dbParams_ << endl;
-  edm::LogVerbatim(mlConfigDb_) << ss.str();
-
-}
-
-// -----------------------------------------------------------------------------
 //
 SiStripConfigDb::~SiStripConfigDb() {
-  if ( openConnection_ ) { closeDbConnection(); }
+  closeDbConnection(); 
   LogTrace(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Destructing object...";
@@ -215,154 +69,43 @@ SiStripConfigDb::~SiStripConfigDb() {
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::DbParams::DbParams() :
-  usingDb_(false),
-  user_(null_),
-  passwd_(null_),
-  path_(null_),
-  partition_(null_), 
-  major_(0),
-  minor_(0),
-  inputModuleXml_(""),
-  inputDcuInfoXml_(""),
-  inputFecXml_(),
-  inputFedXml_(),
-  inputDcuConvXml_(""),
-  outputModuleXml_("/tmp/module.xml"),
-  outputDcuInfoXml_("/tmp/dcuinfo.xml"),
-  outputFecXml_("/tmp/fec.xml"),
-  outputFedXml_("/tmp/fed.xml")
-{
-  reset();
-}
+SiStripConfigDb::DeviceAddress::DeviceAddress() : 
+  fecCrate_(sistrip::invalid_), 
+  fecSlot_(sistrip::invalid_), 
+  fecRing_(sistrip::invalid_), 
+  ccuAddr_(sistrip::invalid_), 
+  ccuChan_(sistrip::invalid_), 
+  lldChan_(sistrip::invalid_), 
+  i2cAddr_(sistrip::invalid_),
+  fedId_(sistrip::invalid_),
+  feUnit_(sistrip::invalid_),
+  feChan_(sistrip::invalid_)
+{ reset(); }
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::DbParams::~DbParams() {
-  inputFecXml_.clear();
-  inputFedXml_.clear();
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DbParams::reset() {
-  usingDb_ = true;
-  confdb_ = null_;
-  confdb( confdb_ );
-  partition_ = null_;
-  major_ = 0;
-  minor_ = 0;
-  inputModuleXml_ = "";
-  inputDcuInfoXml_ = "";
-  inputFecXml_ = vector<string>(1,"");
-  inputFedXml_ = vector<string>(1,"");
-  inputDcuConvXml_ = "";
-  outputModuleXml_ = "";
-  outputDcuInfoXml_ = "";
-  outputFecXml_ = "";
-  outputFedXml_ = "";
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DbParams::setParams( const edm::ParameterSet& pset ) {
-  reset();
-  usingDb_ = pset.getUntrackedParameter<bool>("UsingDb",true); 
-  confdb( pset.getUntrackedParameter<string>("ConfDb","") );
-  partition_ = pset.getUntrackedParameter<string>("Partition","");
-  major_ = pset.getUntrackedParameter<unsigned int>("MajorVersion",0);
-  minor_ = pset.getUntrackedParameter<unsigned int>("MinorVersion",0);
-  inputModuleXml_ = pset.getUntrackedParameter<string>("InputModuleXml","");
-  inputDcuInfoXml_ = pset.getUntrackedParameter<string>("InputDcuInfoXml",""); 
-  inputFecXml_ = pset.getUntrackedParameter< vector<string> >( "InputFecXml", vector<string>(1,"") ); 
-  inputFedXml_ = pset.getUntrackedParameter< vector<string> >( "InputFedXml", vector<string>(1,"") ); 
-  inputDcuConvXml_ = pset.getUntrackedParameter<string>( "InputDcuConvXml","" );
-  outputModuleXml_ = pset.getUntrackedParameter<string>("OutputModuleXml","/tmp/module.xml");
-  outputDcuInfoXml_ = pset.getUntrackedParameter<string>("OutputDcuInfoXml","/tmp/dcuinfo.xml");
-  outputFecXml_ = pset.getUntrackedParameter<string>( "OutputFecXml", "/tmp/fec.xml" );
-  outputFedXml_ = pset.getUntrackedParameter<string>( "OutputFedXml", "/tmp/fed.xml" );
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DbParams::confdb( const string& confdb ) {
-  confdb_ = confdb;
-  uint32_t ipass = confdb.find("/");
-  uint32_t ipath = confdb.find("@");
-  if ( ipass != string::npos && 
-       ipath != string::npos ) {
-    user_   = confdb.substr(0,ipass); 
-    passwd_ = confdb.substr(ipass+1,ipath-ipass-1); 
-    path_   = confdb.substr(ipath+1,confdb.size());
-  } else {
-    user_   = null_;
-    passwd_ = null_;
-    path_   = null_;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DbParams::confdb( const string& user,
-					const string& passwd,
-					const string& path ) {
-  if ( user != "" && passwd != "" && path != "" &&
-       user != null_ && passwd != null_ && path != null_ ) {
-    user_   = user;
-    passwd_ = passwd;
-    path_   = path;
-  } else {
-    user_   = null_;
-    passwd_ = null_;
-    path_   = null_;
-  }
-  confdb_ = user_ + "/" + passwd_ + "@" + path_;
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
-  ss << " Using database            : " << std::boolalpha << usingDb_ << std::noboolalpha << endl
-     << " ConfDb                    : " << confdb_ << endl
-     << " User/Passwd@Path          : " << user_ << "/" << passwd_ << "@" << path_ << endl
-     << " Partition                 : " << partition_ << endl
-     << " Major/minor versions      : " << major_ << "/" << minor_ << endl;
-  // Input
-  ss << " Input \"module.xml\" file   : " << inputModuleXml_ << endl
-     << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << endl
-     << " Input \"fec.xml\" file(s)   : ";
-  vector<string>::const_iterator ifec = inputFecXml_.begin();
-  for ( ; ifec != inputFecXml_.end(); ifec++ ) { ss << *ifec << ", "; }
-  ss << endl;
-  ss << " Input \"fed.xml\" file(s)   : ";
-  vector<string>::const_iterator ifed = inputFedXml_.begin();
-  for ( ; ifed != inputFedXml_.end(); ifed++ ) { ss << *ifed << ", "; }
-  ss << endl;
-  // Output 
-  ss << " Output \"module.xml\" file  : " << outputModuleXml_ << endl
-     << " Output \"dcuinfo.xml\" file : " << outputDcuInfoXml_ << endl
-     << " Output \"fec.xml\" file(s)  : " << outputFecXml_ << endl
-     << " Output \"fed.xml\" file(s)  : " << outputFedXml_ << endl;
-}
-
-// -----------------------------------------------------------------------------
-// 
-ostream& operator<< ( ostream& os, const SiStripConfigDb::DbParams& params ) {
-  stringstream ss;
-  params.print(ss);
-  os << ss.str();
-  return os;
+void SiStripConfigDb::DeviceAddress::reset() { 
+  fecCrate_ = sistrip::invalid_; 
+  fecSlot_  = sistrip::invalid_; 
+  fecRing_  = sistrip::invalid_; 
+  ccuAddr_  = sistrip::invalid_; 
+  ccuChan_  = sistrip::invalid_; 
+  lldChan_  = sistrip::invalid_;
+  i2cAddr_  = sistrip::invalid_;
+  fedId_    = sistrip::invalid_;
+  feUnit_   = sistrip::invalid_;
+  feChan_   = sistrip::invalid_;
 }
 
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::openDbConnection() {
 
-  edm::LogVerbatim(mlConfigDb_) 
+  LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Opening connection to database...";
-
-  // Check
+  
+  // Check if connection already exists
   if ( openConnection_ ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
@@ -370,18 +113,23 @@ void SiStripConfigDb::openDbConnection() {
     return;
   }
   openConnection_ = true;
-  
-  // Establish database connection
-  if ( dbParams_.usingDb_ ) { 
-    usingDatabase(); 
-  } else { 
-    usingXmlFiles(); 
-  }
-  
-  // Refresh local cache
-  refreshLocalCaches();
 
-  edm::LogVerbatim(mlConfigDb_) 
+  // Establish database connection
+  if ( dbParams_.usingDb() ) { 
+    if ( dbParams_.usingDbCache() ) { usingDatabaseCache(); }
+    else { usingDatabase(); }
+  } else { usingXmlFiles(); }
+
+  std::stringstream ss;
+  ss << "[SiStripConfigDb::" << __func__ << "]"
+     << " Database connection parameters: "
+     << std::endl << dbParams_;
+  edm::LogVerbatim(mlConfigDb_) << ss.str();
+
+  // Clear local caches
+  clearLocalCache();
+
+  LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Opened connection to database!";
   
@@ -391,40 +139,84 @@ void SiStripConfigDb::openDbConnection() {
 //
 void SiStripConfigDb::closeDbConnection() {
 
-  edm::LogVerbatim(mlConfigDb_) 
+  LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Closing connection to database...";
 
-  // Check
+  // Check if connection exists
   if ( !openConnection_ ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " No connection open!";
     return;
   }
-  openConnection_ = true;
-
+  openConnection_ = false;
+  
+  // Clear local caches
+  clearLocalCache();
+  
   try { 
     if ( factory_ ) { delete factory_; }
-  } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }
+  } catch (...) { handleException( __func__, "Attempting to delete DeviceFactory object..." ); }
   factory_ = 0; 
 
-  edm::LogVerbatim(mlConfigDb_) 
+  try { 
+    if ( dbCache_ ) { delete dbCache_; }
+  } catch (...) { handleException( __func__, "Attempting to delete DbClient object..." ); }
+  dbCache_ = 0; 
+  
+  LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
-    << " Closed connection to database!";
+    << " Closed connection to database...";
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::clearLocalCache() {
+
+  LogTrace(mlConfigDb_) 
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Clearing local caches...";
+
+  clearFedConnections();
+  clearDeviceDescriptions();
+  clearFedDescriptions();
+  clearDcuDetIds();
+  clearAnalysisDescriptions();
+
+  typedDevices_.clear();
+  fedIds_.clear();
 
 }
 
 // -----------------------------------------------------------------------------
 //
-DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const { 
+DeviceFactory* const SiStripConfigDb::deviceFactory( std::string method_name ) const { 
   if ( factory_ ) { return factory_; }
   else { 
     if ( method_name != "" ) { 
       stringstream ss;
-      ss << "[SiStripConfigDb::" << method_name << "]"
-	 << " NULL pointer to DeviceFactory!";
-      edm::LogError(mlConfigDb_) << ss.str();
+      ss << "[SiStripConfigDb::" << __func__ << "]"
+	 << " NULL pointer to DeviceFactory requested by" 
+	 << " method SiStripConfigDb::" << method_name << "()!";
+      edm::LogWarning(mlConfigDb_) << ss.str();
+    }
+    return 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+DbClient* const SiStripConfigDb::databaseCache( std::string method_name ) const { 
+  if ( dbCache_ ) { return dbCache_; }
+  else { 
+    if ( method_name != "" ) { 
+      stringstream ss;
+      ss << "[SiStripConfigDb::" << __func__ << "]"
+	 << " NULL pointer to DbClient requested by" 
+	 << " method SiStripConfigDb::" << method_name << "()!";
+      edm::LogWarning(mlConfigDb_) << ss.str();
     }
     return 0;
   }
@@ -434,198 +226,293 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const 
 //
 void SiStripConfigDb::usingDatabase() {
   
-  // Check TNS_ADMIN env var
-  string tns_admin = "TNS_ADMIN";
-  string env_var = "/afs/cern.ch/project/oracle/admin";
-  if ( getenv(tns_admin.c_str()) != NULL ) { 
-    string tmp = getenv(tns_admin.c_str()); 
-    if ( tmp == "." ) { 
-      edm::LogWarning(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to 'pwd'!"
-	<< " Setting to '" << env_var << "'...";
-      setenv(tns_admin.c_str(),env_var.c_str(),1); 
-    } else if ( tmp != env_var ) { 
-      edm::LogWarning(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to '" << tmp
-	<< "'! Setting to '" << env_var << "'...";
-      setenv(tns_admin.c_str(),env_var.c_str(),1); 
-    } else {
-      LogTrace(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to: " << tmp;
-    }
-  } else {
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " Env. var. TNS_ADMIN is not set!"
-      << " Setting to '" << env_var << "'...";
-    setenv(tns_admin.c_str(),env_var.c_str(),1); 
-  }
-  
-  // Retrieve connection params from CONFDB env. var. and overwrite .cfg values 
-  string user = "";
-  string passwd = "";
-  string path = "";
+  // Retrieve connection params from CONFDB env. var. and override .cfg values 
+  std::string user = "";
+  std::string passwd = "";
+  std::string path = "";
   DbAccess::getDbConfiguration( user, passwd, path );
   if ( user != "" && passwd != "" && path != "" ) {
-    stringstream ss;
+
+    std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Setting \"user/passwd@path\" to \""
        << user << "/" << passwd << "@" << path
        << "\" using 'CONFDB' environmental variable";
-    if ( dbParams_.user_ != null_ || 
-	 dbParams_.passwd_ != null_ || 
-	 dbParams_.path_ != null_ ) { 
+    if ( dbParams_.user() != null_ || 
+	 dbParams_.passwd() != null_ || 
+	 dbParams_.path() != null_ ) { 
       ss << " (Overwriting existing value of \""
-	 << dbParams_.user_ << "/" 
-	 << dbParams_.passwd_ << "@" 
-	 << dbParams_.path_ 
+	 << dbParams_.user() << "/" 
+	 << dbParams_.passwd() << "@" 
+	 << dbParams_.path() 
 	 << "\" read from .cfg file)";
     }
-    LogTrace(mlConfigDb_) << ss.str() << endl;
+    edm::LogVerbatim(mlConfigDb_) << ss.str() << std::endl;
     dbParams_.confdb( user, passwd, path );
-  } else if ( dbParams_.user_ != null_ && 
-	      dbParams_.passwd_ != null_ && 
-	      dbParams_.path_ != null_ ) { 
-    LogTrace(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " Setting \"user/passwd@path\" to \""
-      << user << "/" << passwd << "@" << path
-      << "\" using ConfDb read from .cfg file";
+
+  } else if ( dbParams_.user() != null_ && 
+	      dbParams_.passwd() != null_ && 
+	      dbParams_.path() != null_ ) { 
+
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Setting \"user/passwd@path\" to \""
+       << dbParams_.user() << "/" 
+       << dbParams_.passwd() << "@" 
+       << dbParams_.path() 
+       << "\" using 'ConfDb' configurable read from .cfg file";
+    edm::LogVerbatim(mlConfigDb_) << ss.str();
+
   } else {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Unable to retrieve 'user/passwd@path' parameters"
       << " from 'CONFDB' environmental variable or .cfg file"
       << " (present value is \"" 
-      << dbParams_.user_ << "/" 
-      << dbParams_.passwd_ << "@" 
-      << dbParams_.path_ 
+      << user << "/" 
+      << passwd << "@" 
+      << path 
       << "\"). Aborting connection to database...";
     return;
   }
   
-  // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and overwrite .cfg value
-  string partition = "ENV_CMS_TK_PARTITION";
-  if ( getenv(partition.c_str()) != NULL ) { 
-    stringstream ss;
-    ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"PARTITION\" to \""
-       << getenv( partition.c_str() )
-       << "\" using 'ENV_CMS_TK_PARTITION' environmental variable";
-    if ( dbParams_.partition_ != "" ) { 
-      ss << " (Overwriting existing value of \""
-	 << dbParams_.partition_
-	 << "\" read from .cfg file)";
-    }
-    LogTrace(mlConfigDb_) << ss.str() << endl;
-    dbParams_.partition_ = getenv( partition.c_str() ); 
-  } else if ( dbParams_.partition_ != "" ) {
-    LogTrace(mlConfigDb_)
+  // Check TNS_ADMIN environmental variable
+  std::string pattern = "TNS_ADMIN";
+  std::string tns_admin = "/afs/cern.ch/project/oracle/admin";
+  if ( getenv( pattern.c_str() ) != NULL ) { 
+    tns_admin = getenv( pattern.c_str() ); 
+    edm::LogVerbatim(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
-      << " Setting \"partition\" to \""
-      << getenv( partition.c_str() )
-      << "\" using 'Partition' read from .cfg file";
-  } else { 
+      << " TNS_ADMIN is set to: \"" 
+      << tns_admin << "\"";
+  } else {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
-      << " Unable to retrieve 'partition' parameter"
-      << " from 'CONFDB' environmental variable or .cfg file"
-      << " (present value is \"" 
-      << dbParams_.partition_
-      << "\"). Aborting connection to database...";
-    return;
-  } 
+      << " TNS_ADMIN is not set!"
+      << " Trying to use /afs and setting to: \"" 
+      << tns_admin << "\"";
+  }
+
+  // Retrieve TNS_ADMIN from .cfg file and override
+  if ( !dbParams_.tnsAdmin().empty() ) {
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Overriding TNS_ADMIN value using cfg file!" << std::endl
+       << "  Original value : \"" << tns_admin << "\"!" << std::endl
+       << "  New value      : \"" << dbParams_.tnsAdmin() << "\"!";
+    tns_admin = dbParams_.tnsAdmin();
+    edm::LogVerbatim(mlConfigDb_) << ss.str();
+  }
+  
+  // Remove trailing slash and set TNS_ADMIN
+  if ( tns_admin.empty() ) { tns_admin = "."; }
+  std::string slash = tns_admin.substr( tns_admin.size()-1, 1 ); 
+  if ( slash == sistrip::dir_ ) { tns_admin = tns_admin.substr( 0, tns_admin.size()-1 ); }
+  setenv( pattern.c_str(), tns_admin.c_str(), 1 ); 
+  
+  // Check if database is found in tnsnames.ora file
+  std::string filename( tns_admin + "/tnsnames.ora" ); 
+  std::ifstream tnsnames_ora( filename.c_str() );
+  bool ok = false;
+  if ( tnsnames_ora.is_open() ) {
+    std::string line;
+    while ( !tnsnames_ora.eof() ) {
+      getline( tnsnames_ora, line );
+      if ( !dbParams_.path().empty() && 
+	   line.find( dbParams_.path() ) != std::string::npos ) { ok = true; }
+    }
+  } else {
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Cannot open file \""
+      << filename << "\"";
+  }
+
+  if ( ok ) {
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Found database account \"" 
+      << dbParams_.path() << "\" in file \""
+      << filename << "\"!";
+  } else {
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Cannot find database account \"" 
+      << dbParams_.path() << "\" in file \""
+      << filename << "\""
+      << " Aborting connection to database...";
+    return; 
+  }
   
   // Create device factory object
   try { 
-    edm::LogVerbatim(mlConfigDb_)
+    LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Creating DeviceFactory object...";
-    factory_ = new DeviceFactory( dbParams_.user_, 
-				  dbParams_.passwd_, 
-				  dbParams_.path_ ); 
-    edm::LogVerbatim(mlConfigDb_)
+    factory_ = new DeviceFactory( dbParams_.user(), 
+				  dbParams_.passwd(), 
+				  dbParams_.path() ); 
+    LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Created DeviceFactory object!";
   } catch (...) { 
-    stringstream ss; 
+    std::stringstream ss; 
     ss << "Failed to connect to database using parameters '" 
-       << dbParams_.user_ << "/" 
-       << dbParams_.passwd_ << "@" 
-       << dbParams_.path_ 
-       << "' and partition '" 
-       << dbParams_.partition_ << "'";
+       << dbParams_.user() << "/" 
+       << dbParams_.passwd() << "@" 
+       << dbParams_.path() 
+       << "' and partitions '" 
+       << dbParams_.partitionNames( dbParams_.partitionNames() ) << "'";
     handleException( __func__, ss.str() );
+    return;
   }
   
   // Check for valid pointer to DeviceFactory
   if ( deviceFactory(__func__) ) { 
-    stringstream ss;
+    std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " DeviceFactory created at address 0x" 
-       << hex << setw(8) << setfill('0') << factory_ << dec
+       << std::hex << std::setw(8) << std::setfill('0') << factory_ << std::dec
        << ", using database account with parameters '" 
-       << dbParams_.user_ << "/" 
-       << dbParams_.passwd_ << "@" 
-       << dbParams_.path_
-       << "' and partition '" 
-       << dbParams_.partition_ << "'";
+       << dbParams_.user() << "/" 
+       << dbParams_.passwd() << "@" 
+       << dbParams_.path();
     LogTrace(mlConfigDb_) << ss.str();
   } else {
     edm::LogError(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL pointer to DeviceFactory!"
       << " Unable to connect to database using connection parameters '" 
-      << dbParams_.user_ << "/" 
-      << dbParams_.passwd_ << "@" 
-      << dbParams_.path_
-      << "' and partition '" 
-      << dbParams_.partition_ << "'";
+      << dbParams_.user() << "/" 
+      << dbParams_.passwd() << "@" 
+      << dbParams_.path()
+      << "' and partitions '" 
+      << dbParams_.partitionNames( dbParams_.partitionNames() ) << "'";
     return; 
   }
   
   try { 
-    deviceFactory(__func__)->setUsingDb( dbParams_.usingDb_ ); 
+    deviceFactory(__func__)->setUsingDb( dbParams_.usingDb() ); 
   } catch (...) { 
     handleException( __func__, "Attempted to 'setUsingDb'" );
   }
   
-  // DCU-DetId 
-  try { 
-    deviceFactory(__func__)->addDetIdPartition( dbParams_.partition_ );
-  } catch (...) { 
-    stringstream ss;
-    ss << "Attempted to 'addDetIdPartition; for partition: " << dbParams_.partition_;
-    handleException( __func__, ss.str() );
-  }
+  // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and override .cfg value
+  std::string partition = "ENV_CMS_TK_PARTITION";
+  if ( getenv(partition.c_str()) != NULL ) { 
+    
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Setting \"partitions\" to \""
+       << getenv( partition.c_str() )
+       << "\" using 'ENV_CMS_TK_PARTITION' environmental variable";
+    if ( !dbParams_.partitionNames().empty() ) {
+      ss << " (Overwriting existing value of \""
+	 << dbParams_.partitionNames( dbParams_.partitionNames() )
+	 << "\" read from .cfg file)";
+    }
+    edm::LogVerbatim(mlConfigDb_) << ss.str() << std::endl;
+    
+    // Build partitions from env. var.
+    std::vector<std::string> partitions = dbParams_.partitionNames( getenv( partition.c_str() ) );
+    if ( !partitions.empty() ) {
+      dbParams_.clearPartitions();
+      std::vector<std::string>::iterator ii = partitions.begin();
+      std::vector<std::string>::iterator jj = partitions.end();
+      for ( ; ii != jj; ++ii ) {
+	SiStripPartition partition( *ii );
+	dbParams_.addPartition( partition );
+      }
+    }
 
-  // FED-FEC connections
+  } else if ( !dbParams_.partitionNames().empty() ) {
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Setting \"partitions\" to \""
+       << dbParams_.partitionNames( dbParams_.partitionNames() )
+       << "\" using 'PartitionName' configurables read from .cfg file";
+    edm::LogVerbatim(mlConfigDb_) << ss.str();
+  } else { 
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Unable to retrieve 'partition' parameter"
+      << " from 'CONFDB' environmental variable or .cfg file!"
+      << " Aborting connection to database...";
+    return;
+  } 
+
+  // Check if should use current state, run number or versions
+  SiStripDbParams::SiStripPartitions::iterator ip = dbParams_.partitions().begin();
+  SiStripDbParams::SiStripPartitions::iterator jp = dbParams_.partitions().end();
+  for ( ; ip != jp; ++ip ) { ip->second.update( this ); }
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::usingDatabaseCache() {
+  
+  // Reset all DbParams except for those concerning database cache
+  SiStripDbParams temp;
+  temp = dbParams_;
+  dbParams_.reset();
+  dbParams_.usingDb( temp.usingDb() );
+  dbParams_.usingDbCache( temp.usingDbCache() );
+  dbParams_.sharedMemory( temp.sharedMemory() );
+
+  // Add default partition 
+  dbParams_.addPartition( SiStripPartition( SiStripPartition::defaultPartitionName_ ) );
+  
+  // Check shared memory name from .cfg file
+  if ( dbParams_.sharedMemory().empty() ) {
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Empty string for shared memory name!" 
+       << " Cannot accept shared memory!";
+    edm::LogError(mlConfigDb_) << ss.str();
+    return;
+  }
+  
+  // Create database cache object
   try { 
-    deviceFactory(__func__)->createInputDBAccess();
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Creating DbClient object...";
+    dbCache_ = new DbClient( dbParams_.sharedMemory() );
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Created DbClient object...";
   } catch (...) { 
-    handleException( __func__, "Attempted to 'createInputDBAccess' for FED-FEC connections!" );
+    std::stringstream ss; 
+    ss << "Failed to connect to database cache using shared memory name: '" 
+       << dbParams_.sharedMemory() << "'!";
+    handleException( __func__, ss.str() );
+    return;
   }
   
-  try {
-    deviceFactory(__func__)->setInputDBVersion( dbParams_.partition_,
-						dbParams_.major_,
-						dbParams_.minor_ );
-  } catch (...) { 
-    stringstream ss;
-    ss << "Attempted to 'setInputDBVersion; for partition: " << dbParams_.partition_;
-    handleException( __func__, ss.str() ); 
+  // Check for valid pointer to DbClient object
+  if ( databaseCache(__func__) ) { 
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " DbClient object created at address 0x" 
+       << std::hex << std::setw(8) << std::setfill('0') << dbCache_ << std::dec
+       << " using shared memory name '" 
+       << dbParams_.sharedMemory() << "'"; 
+    LogTrace(mlConfigDb_) << ss.str();
+  } else {
+    edm::LogError(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " NULL pointer to DbClient object!"
+      << " Unable to connect to database cache using shared memory name '" 
+      << dbParams_.sharedMemory() << "'"; 
+    return; 
   }
   
-  // DCU conversion factors
-  try {
-    //deviceFactory(__func__)->addConversionPartition( dbParams_.partition_ );
+  // Try retrieve descriptions from Database Client
+  try { 
+    databaseCache(__func__)->parse(); 
   } catch (...) { 
-    stringstream ss;
-    ss << "Attempted to 'addConversionPartition; for partition: " << dbParams_.partition_;
-    handleException( __func__, ss.str() ); 
+    handleException( __func__, "Attempted to called DbClient::parse() method" );
   }
   
 }
@@ -646,13 +533,12 @@ void SiStripConfigDb::usingXmlFiles() {
   
  // Check for valid pointer to DeviceFactory
   if ( deviceFactory(__func__) ) { 
-    stringstream ss;
+    std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " DeviceFactory created at address 0x" 
-       << hex << setw(8) << setfill('0') << factory_ << dec
+       << std::hex << std::setw(8) << std::setfill('0') << factory_ << std::dec
        << ", using XML description files";
     LogTrace(mlConfigDb_) << ss.str();
-    cout << ss.str() << endl;
   } else {    
     edm::LogError(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
@@ -662,192 +548,185 @@ void SiStripConfigDb::usingXmlFiles() {
   }
   
   try { 
-    deviceFactory(__func__)->setUsingDb( dbParams_.usingDb_ );
+    deviceFactory(__func__)->setUsingDb( dbParams_.usingDb() );
   } catch (...) { 
     handleException( __func__, "Attempted to 'setUsingDb'" );
   }
 
-  try { 
-    deviceFactory(__func__)->createInputFileAccess();
-  } catch (...) { 
-    handleException( __func__, "Attempted to 'createInputFileAccess'" ); 
-  }
-  
-  // Input module.xml file
-  if ( dbParams_.inputModuleXml_ == "" ) {
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " NULL path to input 'module.xml' file!";
-  } else {
-    if ( checkFileExists( dbParams_.inputModuleXml_ ) ) { 
-      try { 
-	deviceFactory(__func__)->setFedFecConnectionInputFileName( dbParams_.inputModuleXml_ ); 
-      } catch (...) { 
-	handleException( __func__ ); 
-      }
-      LogTrace(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Added input 'module.xml' file: " << dbParams_.inputModuleXml_;
-    } else {
+  // Iterate through partitions
+  SiStripDbParams::SiStripPartitions::const_iterator ip = dbParams_.partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jp = dbParams_.partitions().end();
+  for ( ; ip != jp; ++ip ) {
+    
+    // Input module.xml file
+    if ( ip->second.inputModuleXml() == "" ) {
       edm::LogWarning(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " No 'module.xml' file found at " << dbParams_.inputModuleXml_;
-      dbParams_.inputModuleXml_ = ""; 
-    }
-  }
-  
-  // Input dcuinfo.xml file
-  if ( dbParams_.inputDcuInfoXml_ == "" ) {
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " NULL path to input 'dcuinfo.xml' file!";
-  } else { 
-    if ( checkFileExists( dbParams_.inputDcuInfoXml_ ) ) { 
-      try { 
-	deviceFactory(__func__)->setTkDcuInfoInputFileName( dbParams_.inputDcuInfoXml_ ); 
-      } catch (...) { 
-	handleException( __func__ ); 
-      }
-      LogTrace(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Added 'dcuinfo.xml' file: " << dbParams_.inputDcuInfoXml_;
+	<< " NULL path to input 'module.xml' file!";
     } else {
-      edm::LogWarning(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " No 'dcuinfo.xml' file found at " << dbParams_.inputDcuInfoXml_;
-      dbParams_.inputDcuInfoXml_ = ""; 
-    } 
-  }
-
-  // Input FEC xml files
-  if ( dbParams_.inputFecXml_.empty() ) {
-    edm::LogWarning(mlConfigDb_) 
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " NULL paths to input 'fec.xml' files!";
-  } else {
-    vector<string>::iterator iter = dbParams_.inputFecXml_.begin();
-    for ( ; iter != dbParams_.inputFecXml_.end(); iter++ ) {
-      if ( *iter == "" ) {
+      if ( checkFileExists( ip->second.inputModuleXml() ) ) { 
+	try { 
+	  deviceFactory(__func__)->addConnectionFileName( ip->second.inputModuleXml() ); 
+	} catch (...) { 
+	  handleException( __func__ ); 
+	}
+	LogTrace(mlConfigDb_)
+	  << "[SiStripConfigDb::" << __func__ << "]"
+	  << " Added input 'module.xml' file: " << ip->second.inputModuleXml();
+      } else {
 	edm::LogWarning(mlConfigDb_)
 	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " NULL path to input 'fec.xml' file!";
-      } else {
-	if ( checkFileExists( *iter ) ) { 
-	  try { 
-	    if ( dbParams_.inputFecXml_.size() == 1 ) {
-	      deviceFactory(__func__)->setFecInputFileName( *iter ); 
-	    } else {
-	      deviceFactory(__func__)->addFecFileName( *iter ); 
-	    }
-	  } catch (...) { handleException( __func__ ); }
-	  LogTrace(mlConfigDb_) 
-	    << "[SiStripConfigDb::" << __func__ << "]"
-	    << " Added 'fec.xml' file: " << *iter;
-	} else {
-	  edm::LogWarning(mlConfigDb_) 
-	    << "[SiStripConfigDb::" << __func__ << "]"
-	    << " No 'fec.xml' file found at " << *iter;
-	  *iter = ""; 
-	} 
+	  << " No 'module.xml' file found at " << ip->second.inputModuleXml();
+	ip->second.inputModuleXml() = ""; 
       }
     }
-  }
-    
-  // Input FED xml files
-  if ( dbParams_.inputFedXml_.empty() ) {
-    edm::LogWarning(mlConfigDb_) 
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " NULL paths to input 'fed.xml' files!";
-  } else {
-    vector<string>::iterator iter = dbParams_.inputFedXml_.begin();
-    for ( ; iter != dbParams_.inputFedXml_.end(); iter++ ) {
-      if ( *iter == "" ) {
-	edm::LogWarning(mlConfigDb_) 
+  
+    // Input dcuinfo.xml file
+    if ( ip->second.inputDcuInfoXml() == "" ) {
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " NULL path to input 'dcuinfo.xml' file!";
+    } else { 
+      if ( checkFileExists( ip->second.inputDcuInfoXml() ) ) { 
+	try { 
+	  deviceFactory(__func__)->addTkDcuInfoFileName( ip->second.inputDcuInfoXml() ); 
+	} catch (...) { 
+	  handleException( __func__ ); 
+	}
+	LogTrace(mlConfigDb_)
 	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " NULL path to input 'fed.xml' file!";
+	  << " Added 'dcuinfo.xml' file: " << ip->second.inputDcuInfoXml();
       } else {
-	if ( checkFileExists( *iter ) ) { 
-	  try { 
-	    if ( dbParams_.inputFedXml_.size() == 1 ) {
-	      deviceFactory(__func__)->setFedInputFileName( *iter ); 
-	    } else {
-	      deviceFactory(__func__)->addFedFileName( *iter ); 
-	    }
-	  } catch (...) { 
-	    handleException( __func__ ); 
-	  }
-	  LogTrace(mlConfigDb_) 
+	edm::LogWarning(mlConfigDb_)
+	  << "[SiStripConfigDb::" << __func__ << "]"
+	  << " No 'dcuinfo.xml' file found at " << ip->second.inputDcuInfoXml();
+	ip->second.inputDcuInfoXml() = ""; 
+      } 
+    }
+
+    // Input FEC xml files
+    if ( ip->second.inputFecXml().empty() ) {
+      edm::LogWarning(mlConfigDb_) 
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " NULL paths to input 'fec.xml' files!";
+    } else {
+      std::vector<std::string>::iterator iter = ip->second.inputFecXml().begin();
+      for ( ; iter != ip->second.inputFecXml().end(); iter++ ) {
+	if ( *iter == "" ) {
+	  edm::LogWarning(mlConfigDb_)
 	    << "[SiStripConfigDb::" << __func__ << "]"
-	    << " Added 'fed.xml' file: " << *iter;
+	    << " NULL path to input 'fec.xml' file!";
 	} else {
-	  edm::LogWarning(mlConfigDb_) 
-	    << "[SiStripConfigDb::" << __func__ << "]"
-	    << " No 'fed.xml' file found at " << *iter;
-	  *iter = ""; 
-	} 
+	  if ( checkFileExists( *iter ) ) { 
+	    try { 
+	      deviceFactory(__func__)->addFecFileName( *iter ); 
+	    } catch (...) { handleException( __func__ ); }
+	    LogTrace(mlConfigDb_) 
+	      << "[SiStripConfigDb::" << __func__ << "]"
+	      << " Added 'fec.xml' file: " << *iter;
+	  } else {
+	    edm::LogWarning(mlConfigDb_) 
+	      << "[SiStripConfigDb::" << __func__ << "]"
+	      << " No 'fec.xml' file found at " << *iter;
+	    *iter = ""; 
+	  } 
+	}
       }
     }
+    
+    // Input FED xml files
+    if ( ip->second.inputFedXml().empty() ) {
+      edm::LogWarning(mlConfigDb_) 
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " NULL paths to input 'fed.xml' files!";
+    } else {
+      std::vector<std::string>::iterator iter = ip->second.inputFedXml().begin();
+      for ( ; iter != ip->second.inputFedXml().end(); iter++ ) {
+	if ( *iter == "" ) {
+	  edm::LogWarning(mlConfigDb_) 
+	    << "[SiStripConfigDb::" << __func__ << "]"
+	    << " NULL path to input 'fed.xml' file!";
+	} else {
+	  if ( checkFileExists( *iter ) ) { 
+	    try { 
+		deviceFactory(__func__)->addFedFileName( *iter ); 
+	    } catch (...) { 
+	      handleException( __func__ ); 
+	    }
+	    LogTrace(mlConfigDb_) 
+	      << "[SiStripConfigDb::" << __func__ << "]"
+	      << " Added 'fed.xml' file: " << *iter;
+	  } else {
+	    edm::LogWarning(mlConfigDb_) 
+	      << "[SiStripConfigDb::" << __func__ << "]"
+	      << " No 'fed.xml' file found at " << *iter;
+	    *iter = ""; 
+	  } 
+	}
+      }
+    }
+
   }
 
   // Output module.xml file
-  if ( dbParams_.outputModuleXml_ == "" ) { 
+  if ( dbParams_.outputModuleXml() == "" ) { 
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'module.xml' file!"
       << " Setting to '/tmp/module.xml'...";
-    dbParams_.outputModuleXml_ = "/tmp/module.xml"; 
+    dbParams_.outputModuleXml() = "/tmp/module.xml"; 
   } else {
     try { 
-      FedFecConnectionDeviceFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( dbParams_.outputModuleXml_ ); 
+      ConnectionFactory* factory = deviceFactory(__func__);
+      factory->setOutputFileName( dbParams_.outputModuleXml() ); 
     } catch (...) { 
       handleException( __func__, "Problems setting output 'module.xml' file!" ); 
     }
   }
 
   // Output dcuinfo.xml file
-  if ( dbParams_.outputDcuInfoXml_ == "" ) { 
+  if ( dbParams_.outputDcuInfoXml() == "" ) { 
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'dcuinfo.xml' file!"
       << " Setting to '/tmp/dcuinfo.xml'...";
-    dbParams_.outputModuleXml_ = "/tmp/dcuinfo.xml"; 
+    dbParams_.outputModuleXml() = "/tmp/dcuinfo.xml"; 
   } else {
     try { 
       TkDcuInfoFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( dbParams_.outputDcuInfoXml_ ); 
+      factory->setOutputFileName( dbParams_.outputDcuInfoXml() ); 
     } catch (...) { 
       handleException( __func__, "Problems setting output 'dcuinfo.xml' file!" ); 
     }
   }
 
   // Output fec.xml file
-  if ( dbParams_.outputFecXml_ == "" ) {
+  if ( dbParams_.outputFecXml() == "" ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'fec.xml' file!"
       << " Setting to '/tmp/fec.xml'...";
-    dbParams_.outputFecXml_ = "/tmp/fec.xml";
+    dbParams_.outputFecXml() = "/tmp/fec.xml";
   } else {
     try { 
       FecDeviceFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( dbParams_.outputFecXml_ ); 
+      factory->setOutputFileName( dbParams_.outputFecXml() ); 
     } catch (...) { 
       handleException( __func__, "Problems setting output 'fec.xml' file!" ); 
     }
   }
 
   // Output fed.xml file
-  if ( dbParams_.outputFedXml_ == "" ) {
+  if ( dbParams_.outputFedXml() == "" ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'fed.xml' file!"
       << " Setting to '/tmp/fed.xml'...";
-    dbParams_.outputFedXml_ = "/tmp/fed.xml";
+    dbParams_.outputFedXml() = "/tmp/fed.xml";
   } else {
     try { 
       Fed9U::Fed9UDeviceFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( dbParams_.outputFedXml_ ); 
+      factory->setOutputFileName( dbParams_.outputFedXml() ); 
     } catch (...) { 
       handleException( __func__, "Problems setting output 'fed.xml' file!" ); 
     }
@@ -856,190 +735,68 @@ void SiStripConfigDb::usingXmlFiles() {
 }
 
 // -----------------------------------------------------------------------------
-//
-void SiStripConfigDb::refreshLocalCaches() {
-  resetDeviceDescriptions();
-  resetFedDescriptions();
-  resetFedConnections();
-  resetPiaResetDescriptions();
-  resetDcuConversionFactors();
-}
-
-// -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::createPartition( const string& partition_name,
-				       const SiStripFecCabling& fec_cabling ) {
-  
-  // Set partition name and version
-  dbParams_.partition_ = partition_name;
-  dbParams_.major_ = 0;
-  dbParams_.minor_ = 0;
+void SiStripConfigDb::handleException( const std::string& method_name,
+				       const std::string& extra_info ) const { 
 
-  LogTrace(mlConfigDb_)
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Creating partition " << dbParams_.partition_;
-
-  // Create new partition based on device and PIA reset descriptions
-  const DeviceDescriptions& devices = createDeviceDescriptions( fec_cabling );
-  const PiaResetDescriptions& resets = createPiaResetDescriptions( fec_cabling );
-  if ( !devices.empty() && !resets.empty() ) {
-    try {
-      stringstream ss; 
-      ss << "/tmp/fec_" << dbParams_.partition_ << ".xml";
-      FecDeviceFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( ss.str() );
-      deviceFactory(__func__)->createPartition( devices,
-						resets, 
-						&dbParams_.major_, 
-						&dbParams_.minor_, 
-						&dbParams_.major_,
-						&dbParams_.minor_,
-						dbParams_.partition_,
-						dbParams_.partition_ );
-    } catch (...) { 
-      stringstream ss; 
-      ss << "Failed to create new partition with name "
-	 << dbParams_.partition_ << " and version " 
-	 << dbParams_.major_ << "." << dbParams_.minor_;
-      handleException( __func__, ss.str() );
-    } 
-  }
-  
-  // Create and upload DCU conversion factors
-  const DcuConversionFactors& dcu_convs = createDcuConversionFactors( fec_cabling );
-  if ( !dcu_convs.empty() ) {
-    try {
-      stringstream ss; 
-      ss << "/tmp/dcuconv_" << dbParams_.partition_ << ".xml";
-      TkDcuConversionFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( ss.str() );
-      deviceFactory(__func__)->setTkDcuConversionFactors( dcu_convs );
-    } catch (...) { 
-      stringstream ss; 
-      ss << "Failed to create and upload DCU conversion factors"
-	 << " to partition with name "
-	 << dbParams_.partition_ << " and version " 
-	 << dbParams_.major_ << "." << dbParams_.minor_;
-      handleException( __func__, ss.str() );
-    }
-  }
-  
-  // Create and upload FED descriptions
-  const FedDescriptions& feds = createFedDescriptions( fec_cabling );
-  if ( !feds.empty() ) {
-    try {
-      stringstream ss; 
-      ss << "/tmp/fed_" << dbParams_.partition_ << ".xml";
-      Fed9U::Fed9UDeviceFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( ss.str() );
-      uint16_t major = static_cast<uint16_t>(dbParams_.major_);
-      uint16_t minor = static_cast<uint16_t>(dbParams_.minor_);
-      deviceFactory(__func__)->setFed9UDescriptions( feds,
-						     dbParams_.partition_,
-						     &major,
-						     &minor,
-						     1 ); // new major version
-    } catch(...) {
-      stringstream ss; 
-      ss << "Failed to create and upload FED descriptions"
-	 << " to partition with name "
-	 << dbParams_.partition_ << " and version " 
-	 << dbParams_.major_ << "." << dbParams_.minor_;
-      handleException( __func__, ss.str() );
-    }
-  }
-
-  // Create and upload FED connections
-  const FedConnections& conns = createFedConnections( fec_cabling );
-  if ( !conns.empty() ) {
-    FedConnections::const_iterator iconn = conns.begin();
-    for ( ; iconn != conns.end(); iconn++ ) { 
-      try {
-	deviceFactory(__func__)->addFedChannelConnection( *iconn );
-      } catch(...) {
-	stringstream ss; 
-	ss << "Failed to add FedChannelConnectionDescription!";
-	handleException( __func__, ss.str() );
-      }
-    }
-    try {
-      stringstream ss; 
-      ss << "/tmp/module_" << dbParams_.partition_ << ".xml";
-      FedFecConnectionDeviceFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( ss.str() );
-      deviceFactory(__func__)->write();
-    } catch(...) {
-      stringstream ss; 
-      ss << "Failed to create and upload FedChannelConnectionDescriptions"
-	 << " to partition with name "
-	 << dbParams_.partition_ << " and version " 
-	 << dbParams_.major_ << "." << dbParams_.minor_;
-      
-      handleException( __func__, ss.str() );
-    }
-  }
-
-  LogTrace(mlConfigDb_)
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Finished creating partition " << dbParams_.partition_;
-  
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::handleException( const string& method_name,
-				       const string& extra_info ) { //throw (cms::Exception) {
-
-  stringstream ss;
+  std::stringstream ss;
   try {
-    //throw; // rethrow caught exception to be dealt with below
+    throw; // rethrow caught exception to be dealt with below
   } 
 
   catch ( const cms::Exception& e ) { 
     ss << " Caught cms::Exception in method "
-       << method_name << " with message: " << endl 
+       << method_name << " with message: " << std::endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw e; // rethrow cms::Exception
   }
   
   catch ( const oracle::occi::SQLException& e ) { 
     ss << " Caught oracle::occi::SQLException in method "
-       << method_name << " with message: " << endl 
+       << method_name << " with message: " << std::endl 
        << e.getMessage();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
 
   catch ( const FecExceptionHandler& e ) {
     ss << " Caught FecExceptionHandler exception in method "
-       << method_name << " with message: " << endl 
-       << const_cast<FecExceptionHandler&>(e).getMessage();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
+       << method_name << " with message: " << std::endl 
+       << const_cast<FecExceptionHandler&>(e).what();
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
+
+//   catch ( const Fed9UDeviceFactoryException& e ) {
+//     ss << " Caught Fed9UDeviceFactoryException exception in method "
+//        << method_name << " with message: " << std::endl 
+//        << e.what();
+//     if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+//     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
+//   }
 
   catch ( const ICUtils::ICException& e ) {
     ss << " Caught ICUtils::ICException in method "
-       << method_name << " with message: " << endl 
+       << method_name << " with message: " << std::endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
 
   catch ( const exception& e ) {
     ss << " Caught std::exception in method "
-       << method_name << " with message: " << endl 
+       << method_name << " with message: " << std::endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
 
   catch (...) {
     ss << " Caught unknown exception in method "
-       << method_name << " (No message) " << endl;
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
+       << method_name << " (No message) " << std::endl;
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
   
   // Message
@@ -1057,9 +814,215 @@ bool SiStripConfigDb::checkFileExists( const std::string& path ) {
   return true;
 }
 
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::runs( SiStripConfigDb::Runs& runs ) const {
+  
+  runs.clear();
+  
+  // Check DF pointer
+  DeviceFactory* const df = deviceFactory(__func__);
+  if ( !df ) {
+    edm::LogError(mlConfigDb_)
+      << "[SiStripPartition::" << __func__ << "]"
+      << " NULL pointer to DeviceFactory object!";
+    return;
+  }
+  
+  // Retrieve runs
+  tkRunVector all;
+  all = df->getAllRuns();
 
+  // Iterate through tkRunVector
+  tkRunVector::const_iterator ii = all.begin();
+  tkRunVector::const_iterator jj = all.end();
+  for ( ; ii != jj; ++ii ) {
 
+    // Check TkRun pointer
+    if ( *ii ) {
 
+      // Retrieve run type
+      uint16_t type = (*ii)->getModeId( (*ii)->getMode() );
+      sistrip::RunType temp = sistrip::UNKNOWN_RUN_TYPE;
+      if      ( type ==  1 ) { temp = sistrip::PHYSICS; }
+      else if ( type ==  2 ) { temp = sistrip::PEDESTALS; }
+      else if ( type ==  3 ) { temp = sistrip::CALIBRATION; }
+      else if ( type == 33 ) { temp = sistrip::CALIBRATION_DECO; }
+      else if ( type ==  4 ) { temp = sistrip::OPTO_SCAN; }
+      else if ( type ==  5 ) { temp = sistrip::APV_TIMING; }
+      else if ( type ==  6 ) { temp = sistrip::APV_LATENCY; }
+      else if ( type ==  7 ) { temp = sistrip::FINE_DELAY_PLL; }
+      else if ( type == 10 ) { temp = sistrip::MULTI_MODE; }
+      else if ( type ==  8 ) { temp = sistrip::FINE_DELAY_TTC; }
+      else if ( type == 12 ) { temp = sistrip::FED_TIMING; }
+      else if ( type == 13 ) { temp = sistrip::FED_CABLING; }
+      else if ( type == 14 ) { temp = sistrip::VPSP_SCAN; }
+      else if ( type == 15 ) { temp = sistrip::DAQ_SCOPE_MODE; }
+      else if ( type == 16 ) { temp = sistrip::QUITE_FAST_CABLING; }
+      else if ( type == 17 ) { temp = sistrip::FINE_DELAY; }
+      else if ( type == 18 ) { temp = sistrip::PHYSICS_ZS; }
+      else if ( type == 19 ) { temp = sistrip::CALIBRATION_SCAN; }
+      else if ( type == 20 ) { temp = sistrip::CALIBRATION_SCAN_DECO; }
+      else if ( type == 21 ) { temp = sistrip::FAST_CABLING; }
+      else if ( type ==  0 ) { temp = sistrip::UNDEFINED_RUN_TYPE; }
+      else                   { temp = sistrip::UNKNOWN_RUN_TYPE; }
+      
+      // Store run details
+      Run r;
+      r.type_      = temp;
+      r.partition_ = (*ii)->getPartitionName();
+      r.number_    = (*ii)->getRunNumber();
+      runs.push_back(r);
 
+    } else {
+      edm::LogWarning(mlConfigDb_)
+ 	<< "[SiStripPartition::" << __func__ << "]"
+ 	<< " NULL pointer to TkRun object!";
+    }
+
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::runs( const SiStripConfigDb::Runs& in,
+			    SiStripConfigDb::RunsByType& out,
+			    std::string optional_partition ) const {
+  
+  out.clear();
+  
+  // Check partition name (if not empty string)
+  if ( !optional_partition.empty() ) {
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partition( optional_partition );
+    if ( iter == dbParams_.partitions().end() ) { 
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripPartition::" << __func__ << "]"
+	<< " Partition name not found!";
+      return; 
+    }
+  }
+
+  // Iterate through runs
+  Runs::const_iterator ii = in.begin();
+  Runs::const_iterator jj = in.end();
+  for ( ; ii != jj; ++ii ) {
+    // Check partition name
+    if ( ii->partition_ == optional_partition || optional_partition == "" ) { 
+      // Check run type
+      if ( ii->type_ != sistrip::UNKNOWN_RUN_TYPE &&
+	   ii->type_ != sistrip::UNDEFINED_RUN_TYPE ) { 
+	// Check run number
+	if ( ii->number_ ) { 
+	  bool found = false;
+	  if ( out.find( ii->type_ ) != out.end() ) {
+	    Runs::const_iterator irun = out[ ii->type_ ].begin();
+	    Runs::const_iterator jrun = out[ ii->type_ ].end();
+	    while ( !found && irun != jrun ) {
+	      if ( irun->number_ == ii->number_ ) { found = true; }
+	      ++irun;
+	    }
+	  }
+	  // Check if run number already found
+	  if ( !found ) { 
+	    out[ ii->type_ ].push_back( *ii ); 
+	  } else {
+	    // 	      edm::LogWarning(mlConfigDb_)
+	    // 		<< "[SiStripPartition::" << __func__ << "]"
+	    // 		<< " Run number already found!";
+	  }
+	} else {
+	  // 	    edm::LogWarning(mlConfigDb_)
+	  // 	      << "[SiStripPartition::" << __func__ << "]"
+	  // 	      << " NULL run number!";
+	}
+      } else {
+	// 	  edm::LogWarning(mlConfigDb_)
+	// 	    << "[SiStripPartition::" << __func__ << "]"
+	// 	    << " Unexpected run type!";
+      }
+    } else {
+      // 	edm::LogWarning(mlConfigDb_)
+      // 	  << "[SiStripPartition::" << __func__ << "]"
+      // 	  << " Partition name does not match!";
+    }
+
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::runs( const SiStripConfigDb::Runs& in,
+			    SiStripConfigDb::RunsByPartition& out,
+			    sistrip::RunType optional_type ) const {
+  
+  out.clear();
+
+  // Iterate through runs
+  Runs::const_iterator ii = in.begin();
+  Runs::const_iterator jj = in.end();
+  for ( ; ii != jj; ++ii ) {
+    // Check partition name
+    if ( ii->partition_ != "" ) {
+      // Check run type
+      if ( ii->type_ == optional_type || optional_type == sistrip::UNDEFINED_RUN_TYPE ) { 
+	// Check run number
+	if ( ii->number_ ) { 
+	  bool found = false;
+	  if ( out.find( ii->partition_ ) != out.end() ) {
+	    Runs::const_iterator irun = out[ ii->partition_ ].begin();
+	    Runs::const_iterator jrun = out[ ii->partition_ ].end();
+	    while ( !found && irun != jrun ) {
+	      if ( irun->number_ == ii->number_ ) { found = true; }
+	      ++irun;
+	    }
+	  }
+	  // Check if run number already found
+	  if ( !found ) { 
+	    out[ ii->partition_ ].push_back( *ii ); 
+	  } else {
+	    // 	      edm::LogWarning(mlConfigDb_)
+	    // 		<< "[SiStripPartition::" << __func__ << "]"
+	    // 		<< " Run number already found!";
+	  }
+	} else {
+	  // 	    edm::LogWarning(mlConfigDb_)
+	  // 	      << "[SiStripPartition::" << __func__ << "]"
+	  // 	      << " NULL run number!";
+	}
+      } else {
+	// 	  edm::LogWarning(mlConfigDb_)
+	// 	    << "[SiStripPartition::" << __func__ << "]"
+	// 	    << " Run type does not match!";
+      }
+    } else {
+      // 	edm::LogWarning(mlConfigDb_)
+      // 	  << "[SiStripPartition::" << __func__ << "]"
+      // 	  << " NULL value for partition!";
+    }
+
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::partitions( std::list<std::string>& partitions ) const {
+
+  partitions.clear();
+
+  // Check DF pointer
+  DeviceFactory* const df = deviceFactory(__func__);
+  if ( !df ) {
+    edm::LogError(mlConfigDb_)
+      << "[SiStripPartition::" << __func__ << "]"
+      << " NULL pointer to DeviceFactory object!";
+    return;
+  }
+
+  partitions = df->getAllPartitionNames();
+  
+}
 
   

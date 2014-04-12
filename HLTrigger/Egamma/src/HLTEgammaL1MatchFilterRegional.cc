@@ -1,6 +1,5 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.5 2007/03/23 16:52:09 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,21 +7,19 @@
 
 #include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilterRegional.h"
 
+//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -30,38 +27,66 @@
 //
 // constructors and destructor
 //
-HLTEgammaL1MatchFilterRegional::HLTEgammaL1MatchFilterRegional(const edm::ParameterSet& iConfig)
+HLTEgammaL1MatchFilterRegional::HLTEgammaL1MatchFilterRegional(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
    candIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candIsolatedTag");
    l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
    candNonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candNonIsolatedTag");
    l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
+   L1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("L1SeedFilterTag");
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
    doIsolated_   = iConfig.getParameter<bool>("doIsolated");
-
 
    region_eta_size_      = iConfig.getParameter<double> ("region_eta_size");
    region_eta_size_ecap_ = iConfig.getParameter<double> ("region_eta_size_ecap");
    region_phi_size_      = iConfig.getParameter<double> ("region_phi_size");
-   barrel_end_           = iConfig.getParameter<double> ("barrel_end");   
-   endcap_end_           = iConfig.getParameter<double> ("endcap_end");   
+   barrel_end_           = iConfig.getParameter<double> ("barrel_end");
+   endcap_end_           = iConfig.getParameter<double> ("endcap_end");
 
-   //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+   candIsolatedToken_ = consumes<reco::RecoEcalCandidateCollection>(candIsolatedTag_);
+   if(!doIsolated_) candNonIsolatedToken_ = consumes<reco::RecoEcalCandidateCollection>(candNonIsolatedTag_);
+   L1SeedFilterToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(L1SeedFilterTag_);
 }
 
 HLTEgammaL1MatchFilterRegional::~HLTEgammaL1MatchFilterRegional(){}
 
+void
+HLTEgammaL1MatchFilterRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candIsolatedTag",edm::InputTag("hltRecoIsolatedEcalCandidate"));
+  desc.add<edm::InputTag>("l1IsolatedTag",edm::InputTag("l1extraParticles","Isolated"));
+  desc.add<edm::InputTag>("candNonIsolatedTag",edm::InputTag("hltRecoNonIsolatedEcalCandidate"));
+  desc.add<edm::InputTag>("l1NonIsolatedTag",edm::InputTag("l1extraParticles","NonIsolated"));
+  desc.add<edm::InputTag>("L1SeedFilterTag",edm::InputTag("theL1SeedFilter"));
+  desc.add<int>("ncandcut",1);
+  desc.add<bool>("doIsolated",true);
+  desc.add<double>("region_eta_size",0.522);
+  desc.add<double>("region_eta_size_ecap",1.0);
+  desc.add<double>("region_phi_size",1.044);
+  desc.add<double>("barrel_end",1.4791);
+  desc.add<double>("endcap_end",2.65);
+  descriptions.add("hltEgammaL1MatchFilterRegional",desc);
+}
 
 // ------------ method called to produce the data  ------------
+//configuration:
+//doIsolated=true, only isolated superclusters are allowed to match isolated L1 seeds
+//doIsolated=false, isolated superclusters are allowed to match either iso or non iso L1 seeds, non isolated superclusters are allowed only to match non-iso seeds. If no collection name is given for non-isolated superclusters, assumes the the isolated collection contains all (both iso + non iso) seeded superclusters.
 bool
-HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
-  // The filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
-  // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> ref;
-  
+  // std::cout <<"runnr "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<std::endl;
+  using namespace trigger;
+  using namespace l1extra;
+
+  if (saveTags()) {
+    filterproduct.addCollectionTag(l1IsolatedTag_);
+    if (not doIsolated_)
+      filterproduct.addCollectionTag(l1NonIsolatedTag_);
+  }
+
+  edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
@@ -73,115 +98,103 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
 
   // Get the recoEcalCandidates
   edm::Handle<reco::RecoEcalCandidateCollection> recoIsolecalcands;
-  iEvent.getByLabel(candIsolatedTag_,recoIsolecalcands);
-  //Get the L1 EM Particle Collection
-  edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
-  iEvent.getByLabel(l1IsolatedTag_, emIsolColl ) ;
+  iEvent.getByToken(candIsolatedToken_,recoIsolecalcands);
+
+
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> L1SeedOutput;
+  iEvent.getByToken (L1SeedFilterToken_,L1SeedOutput);
+
+  std::vector<l1extra::L1EmParticleRef > l1EGIso;
+  L1SeedOutput->getObjects(TriggerL1IsoEG, l1EGIso);
+
+  std::vector<l1extra::L1EmParticleRef > l1EGNonIso;
+  L1SeedOutput->getObjects(TriggerL1NoIsoEG, l1EGNonIso);
+
 
   for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoIsolecalcands->begin(); recoecalcand!=recoIsolecalcands->end(); recoecalcand++) {
 
-    bool MATCHEDSC = false;
 
     if(fabs(recoecalcand->eta()) < endcap_end_){
       //SC should be inside the ECAL fiducial volume
 
-      for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
+      bool matchedSCIso = matchedToL1Cand(l1EGIso,recoecalcand->eta(),recoecalcand->phi());
 
-
-	//ORCA matching method
-	double etaBinLow  = 0.;
-	double etaBinHigh = 0.;	
-	if(fabs(recoecalcand->eta()) < barrel_end_){
-	  etaBinLow = emItr->eta() - region_eta_size_/2.;
-	  etaBinHigh = etaBinLow + region_eta_size_;
-	}
-	else{
-	  etaBinLow = emItr->eta() - region_eta_size_ecap_/2.;
-	  etaBinHigh = etaBinLow + region_eta_size_ecap_;
-	}
-
-	float deltaphi=fabs(recoecalcand->phi() - emItr->phi());
-	if(deltaphi>TWOPI) deltaphi-=TWOPI;
-	if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
-
-	if(recoecalcand->eta() < etaBinHigh && recoecalcand->eta() > etaBinLow &&
-	  deltaphi <region_phi_size_/2. )  {
-	  MATCHEDSC = true;
-	}
-	
+      //now due to SC cleaning given preference to isolated candiates,
+      //if there is an isolated and nonisolated L1 cand in the same eta/phi bin
+      //the corresponding SC will be only in the isolated SC collection
+      //so if we are !doIsolated_, we need to run over the nonisol L1 collection as well
+      bool matchedSCNonIso=false;
+      if(!doIsolated_){
+	matchedSCNonIso =  matchedToL1Cand(l1EGNonIso,recoecalcand->eta(),recoecalcand->phi());
       }
-      
-      if(MATCHEDSC) {
+
+
+      if(matchedSCIso || matchedSCNonIso) {
 	n++;
-	ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoIsolecalcands,distance(recoIsolecalcands->begin(),recoecalcand)));
-	filterproduct->putParticle(ref);
-      }
 
-    }
-    
-  }
-  
+	ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand) );
+	filterproduct.addObject(TriggerCluster, ref);
+      }//end  matched check
 
-  if(!doIsolated_) {
-  edm::Handle<reco::RecoEcalCandidateCollection> recoNonIsolecalcands;
-  iEvent.getByLabel(candNonIsolatedTag_,recoNonIsolecalcands);
-  //Get the L1 EM Particle Collection
-  edm::Handle< l1extra::L1EmParticleCollection > emNonIsolColl ;
-  iEvent.getByLabel(l1NonIsolatedTag_, emNonIsolColl ) ;
+    }//end endcap fiduical check
 
-  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoNonIsolecalcands->begin(); recoecalcand!=recoNonIsolecalcands->end(); recoecalcand++) {
+  }//end loop over all isolated RecoEcalCandidates
 
-    bool MATCHEDSC = false;
+  //if doIsolated_ is false now run over the nonisolated superclusters and non isolated L1 seeds
+  //however in the case we have a single collection of superclusters containing both iso L1 and non iso L1 seeded superclusters,
+  //we specific doIsolated=false to match to isolated superclusters to non isolated seeds in the above loop
+  //however we do not have a non isolated collection of superclusters so we have to protect against that
+  if(!doIsolated_ && !candNonIsolatedTag_.label().empty()) {
 
-    if(fabs(recoecalcand->eta()) < endcap_end_){
-      //SC should be inside the ECAL fiducial volume
+    edm::Handle<reco::RecoEcalCandidateCollection> recoNonIsolecalcands;
+    iEvent.getByToken(candNonIsolatedToken_,recoNonIsolecalcands);
 
-      for( l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end() ;++emItr ){
-
-
-	//ORCA matching method
-	double etaBinLow  = 0.;
-	double etaBinHigh = 0.;	
-	if(fabs(recoecalcand->eta()) < barrel_end_){
-	  etaBinLow = emItr->eta() - region_eta_size_/2.;
-	  etaBinHigh = etaBinLow + region_eta_size_;
-	}
-	else{
-	  etaBinLow = emItr->eta() - region_eta_size_ecap_/2.;
-	  etaBinHigh = etaBinLow + region_eta_size_ecap_;
-	}
-
-	float deltaphi=fabs(recoecalcand->phi() - emItr->phi());
-	if(deltaphi>TWOPI) deltaphi-=TWOPI;
-	if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
-
-	if(recoecalcand->eta() < etaBinHigh && recoecalcand->eta() > etaBinLow &&
-	  deltaphi <region_phi_size_/2. )  {
-	  MATCHEDSC = true;
-	}
+    for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoNonIsolecalcands->begin(); recoecalcand!=recoNonIsolecalcands->end(); recoecalcand++) {
+      if(fabs(recoecalcand->eta()) < endcap_end_){
+	bool matchedSCNonIso =  matchedToL1Cand(l1EGNonIso,recoecalcand->eta(),recoecalcand->phi());
 	
-      }
-      
-      if(MATCHEDSC) {
-	n++;
-	ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoNonIsolecalcands,distance(recoNonIsolecalcands->begin(),recoecalcand)));
-	filterproduct->putParticle(ref);
-      }
+	if(matchedSCNonIso) {
+	  n++;
+	  ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand) );
+	  filterproduct.addObject(TriggerCluster, ref);
+	}//end  matched check
+	
+      }//end endcap fiduical check
 
-    }
-    
-  }
-  }
+    }//end loop over all isolated RecoEcalCandidates
+  }//end doIsolatedCheck
 
 
-
-  
-  
   // filter decision
   bool accept(n>=ncandcut_);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
-  
+
   return accept;
+}
+
+
+bool
+HLTEgammaL1MatchFilterRegional::matchedToL1Cand(const std::vector<l1extra::L1EmParticleRef >& l1Cands,const float scEta,const float scPhi) const
+{
+  for (unsigned int i=0; i<l1Cands.size(); i++) {
+    //ORCA matching method
+    double etaBinLow  = 0.;
+    double etaBinHigh = 0.;	
+    if(fabs(scEta) < barrel_end_){
+      etaBinLow = l1Cands[i]->eta() - region_eta_size_/2.;
+      etaBinHigh = etaBinLow + region_eta_size_;
+    }
+    else{
+      etaBinLow = l1Cands[i]->eta() - region_eta_size_ecap_/2.;
+      etaBinHigh = etaBinLow + region_eta_size_ecap_;
+    }
+
+    float deltaphi=fabs(scPhi -l1Cands[i]->phi());
+    if(deltaphi>TWOPI) deltaphi-=TWOPI;
+    if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
+
+    if(scEta < etaBinHigh && scEta > etaBinLow && deltaphi <region_phi_size_/2. )  {
+      return true;
+    }
+  }
+  return false;
 }

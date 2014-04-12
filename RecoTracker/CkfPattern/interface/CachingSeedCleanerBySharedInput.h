@@ -2,6 +2,7 @@
 #define CachingSeedCleanerBySharedInput_H
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
 #include <map>
+#include <boost/unordered_map.hpp>
 
 /** Merge of SeedCleanerBySharedInput and CachingSeedCleanerByHitPosition */
 class CachingSeedCleanerBySharedInput : public RedundantSeedCleaner  {
@@ -18,12 +19,19 @@ class CachingSeedCleanerBySharedInput : public RedundantSeedCleaner  {
    /** \brief Returns true if the seed is not overlapping with another trajectory */
    virtual bool good(const TrajectorySeed *seed) ;
 
-   CachingSeedCleanerBySharedInput() : RedundantSeedCleaner(), theVault(), theCache()
-                                             /*,comps_(0), tracks_(0), calls_(0)*/ {}
+ CachingSeedCleanerBySharedInput(unsigned int numHitsForSeedCleaner=4,
+				 bool onlyPixelHits=false) : 
+   RedundantSeedCleaner(), theVault(), theCache(),
+   theNumHitsForSeedCleaner(numHitsForSeedCleaner),theOnlyPixelHits(onlyPixelHits){}
+
    virtual ~CachingSeedCleanerBySharedInput() { theVault.clear(); theCache.clear(); }
   private:
     std::vector<Trajectory::RecHitContainer> theVault;
-    std::multimap<uint32_t, unsigned short> theCache;
+    //std::multimap<uint32_t, unsigned int> theCache;
+    boost::unordered_multimap<uint32_t, unsigned int> theCache;
+
+    int  theNumHitsForSeedCleaner;
+    bool theOnlyPixelHits;
 
     //uint64_t comps_, tracks_, calls_;
 };

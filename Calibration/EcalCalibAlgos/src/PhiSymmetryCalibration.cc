@@ -4,49 +4,86 @@
 #include <memory>
 
 // Framework
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-// Conditions database
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "Calibration/Tools/interface/calibXMLwriter.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+#include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+//Channel status
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
+
+#include "FWCore/Framework/interface/Run.h"
+
+
+
+
+
+
+#include "boost/filesystem/operations.hpp"
 
 using namespace std;
 #include <fstream>
 #include <iostream>
 #include "TH2F.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1F.h"
+#include "TF1.h"
+#include "TGraph.h"
+#include "TCanvas.h"
+
+const float PhiSymmetryCalibration::kMiscalRangeEB = .05;
+const float PhiSymmetryCalibration::kMiscalRangeEE = .10;
+
+
+
 
 //_____________________________________________________________________________
+// Class constructor
 
 PhiSymmetryCalibration::PhiSymmetryCalibration(const edm::ParameterSet& iConfig) :
-  theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
-  ecalHitsProducer_( iConfig.getParameter< std::string > ("ecalRecHitsProducer") ),
-  barrelHits_( iConfig.getParameter< std::string > ("barrelHitCollection") ),
-  endcapHits_( iConfig.getParameter< std::string > ("endcapHitCollection") ),
+
+  ecalHitsProducer_(iConfig.getParameter<std::string>("ecalRecHitsProducer")),
+  barrelHits_( iConfig.getParameter< std::string > ("barrelHitCollection")),
+  endcapHits_( iConfig.getParameter< std::string > ("endcapHitCollection")),
   eCut_barl_( iConfig.getParameter< double > ("eCut_barrel") ),
-  eCut_endc_( iConfig.getParameter< double > ("eCut_endcap") ),
-  eventSet_( iConfig.getParameter< int > ("eventSet") )
+  ap_( iConfig.getParameter<double> ("ap") ),
+  b_( iConfig.getParameter<double> ("b") ), 
+  eventSet_( iConfig.getParameter< int > ("eventSet") ),
+  statusThreshold_(iConfig.getUntrackedParameter<int>("statusThreshold",3)),
+  reiteration_(iConfig.getUntrackedParameter< bool > ("reiteration",false)),
+  oldcalibfile_(iConfig.getUntrackedParameter<std::string>("oldcalibfile",
+                                            "EcalintercalibConstants.xml"))
 {
 
-  edm::LogWarning("Calibration") << "[PhiSymmetryCalibration] Constructor called ...";
 
-  theParameterSet=iConfig;
+  isfirstpass_=true;
 
+  et_spectrum_b_histos.resize(kBarlRings);
+  e_spectrum_b_histos.resize(kBarlRings);
+  et_spectrum_e_histos.resize(kEndcEtaRings);
+  e_spectrum_e_histos.resize(kEndcEtaRings); 
+  
+  spectra=true;
+
+  nevents_=0;
+  eventsinrun_=0;
+  eventsinlb_=0;
 }
 
 
@@ -56,239 +93,91 @@ PhiSymmetryCalibration::PhiSymmetryCalibration(const edm::ParameterSet& iConfig)
 PhiSymmetryCalibration::~PhiSymmetryCalibration()
 {
 
+
+  for(Int_t i=0;i<kBarlRings;i++){
+    delete et_spectrum_b_histos[i];
+    delete e_spectrum_b_histos[i];
+    
+  }
+  for(Int_t i=0;i<kEndcEtaRings;i++){
+    delete et_spectrum_e_histos[i];
+    delete e_spectrum_e_histos[i];    
+  }
+
+  
 }
+
 
 //_____________________________________________________________________________
 // Initialize algorithm
 
-void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
+void PhiSymmetryCalibration::beginJob( )
 {
 
-  edm::LogWarning("Calibration") << "[PhiSymmetryCalibration] At begin job ...";
 
   // initialize arrays
-
-  for (int sign=0; sign<2; sign++) {
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
+  for (int sign=0; sign<kSides; sign++) {
+    for (int ieta=0; ieta<kBarlRings; ieta++) {
+      for (int iphi=0; iphi<kBarlWedges; iphi++) {
 	etsum_barl_[ieta][iphi][sign]=0.;
+	nhits_barl_[ieta][iphi][sign]=0;
+
       }
     }
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 	etsum_endc_[ix][iy][sign]=0.;
+	nhits_endc_[ix][iy][sign]=0;
       }
     }
   }
 
 
-  for (int ieta=0; ieta<85; ieta++) cellEta_[ieta]=0.;
 
-  for (int ix=0; ix<100; ix++) {
-    for (int iy=0; iy<100; iy++) {
-      cellPos_[ix][iy] = GlobalPoint(0.,0.,0.);
-      cellPhi_[ix][iy]=0.;
-      cellArea_[ix][iy]=0.;
-      endcapRing_[ix][iy]=-1;
-    }
+  for (int imiscal=0; imiscal<kNMiscalBinsEB; imiscal++) {
+    miscalEB_[imiscal]= (1-kMiscalRangeEB) + float(imiscal)* (2*kMiscalRangeEB/(kNMiscalBinsEB-1));
+    for (int ieta=0; ieta<kBarlRings; ieta++) etsum_barl_miscal_[imiscal][ieta]=0.;
   }
 
-  for (int imiscal=0; imiscal<21; imiscal++) {
-    miscal_[imiscal]=.95+float(imiscal)/200.;
-    for (int ieta=0; ieta<85; ieta++) etsum_barl_miscal_[imiscal][ieta]=0.;
-    for (int ring=0; ring<39; ring++) etsum_endc_miscal_[imiscal][ring]=0.;
-  }
-
-  // get initial constants out of DB
-  EcalIntercalibConstants::EcalIntercalibConstantMap imap;
-  if (eventSet_==0) {
-    edm::ESHandle<EcalIntercalibConstants> pIcal;
-    try {
-      iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-      std::cout << "Taken EcalIntercalibConstants" << std::endl;
-      imap = pIcal.product()->getMap();
-      std::cout << "imap.size() = " << imap.size() << std::endl;
-    } catch ( std::exception& ex ) {     
-      std::cerr << "Error! can't get EcalIntercalibConstants " << std::endl;
-    }
-  }
-
-  // get the ecal geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
-  const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  const CaloSubdetectorGeometry *endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);;
-
-
-  // loop over all barrel crystals
-  barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
-  std::vector<DetId>::const_iterator barrelIt;
-  for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end(); barrelIt++) {
-    EBDetId eb(*barrelIt);
-
-    if (eventSet_==0) {
-      // get the initial calibration constants
-      EcalIntercalibConstants::EcalIntercalibConstant calib = (imap.find(eb.rawId()))->second;
-      int sign = eb.zside()>0 ? 1 : 0;
-      oldCalibs_barl[abs(eb.ieta())-1][eb.iphi()-1][sign] = calib;
-      if (eb.iphi()==1) std::cout << "Read old constant for crystal "
-				  << " (" << eb.ieta() << "," << eb.iphi()
-				  << ") : " << calib << std::endl;
-    }
-
-    // store eta value for each ring
-    if (eb.ieta()>0 &&eb.iphi()==1) {
-      const CaloCellGeometry *cellGeometry = barrelGeometry->getGeometry(*barrelIt);
-      cellEta_[eb.ieta()-1] = cellGeometry->getPosition().eta();
-    }
-  }
-
-  // loop over all endcap crystals
-  endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
-  std::vector<DetId>::const_iterator endcapIt;
-  for (endcapIt=endcapCells.begin(); endcapIt!=endcapCells.end(); endcapIt++) {
-    const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(*endcapIt);
-    EEDetId ee(*endcapIt);
-    int ix=ee.ix()-1;
-    int iy=ee.iy()-1;
-
-    if (eventSet_==0) {
-      // get the initial calibration constants
-      EcalIntercalibConstants::EcalIntercalibConstant calib = (imap.find(ee.rawId()))->second;
-      int sign = ee.zside()>0 ? 1 : 0;
-      oldCalibs_endc[ix][iy][sign] = calib;
-      if (ix==49) std::cout << "Read old constant for crystal "
-			    << " (" << ix << "," << iy
-			    << ") : " << calib << std::endl;
-    }
-
-    // store all crystal positions
-    cellPos_[ix][iy] = cellGeometry->getPosition();
-    cellPhi_[ix][iy] = cellGeometry->getPosition().phi();
-
-
-
-    // calculate and store eta-phi area for each crystal front face
-    std::vector<GlobalPoint> cellCorners = cellGeometry->getCorners();
-    cellArea_[ix][iy]=0.;
-    for (int i=0; i<4; i++) {
-      int iplus1 = i==3 ? 0 : i+1;
-      cellArea_[ix][iy] += 
-	cellCorners[i].eta()*float(cellCorners[iplus1].phi()) - 
-	cellCorners[iplus1].eta()*float(cellCorners[i].phi());
-    }
-    cellArea_[ix][iy] = cellArea_[ix][iy]/2.;
-
-  }    
-
-
-  // get eta for each endcap ring
-  float eta_ring[39];
-  for (int ring=0; ring<39; ring++) {
-    eta_ring[ring]=cellPos_[ring][50].eta();
-  }
-
-  // get eta boundaries for each endcap ring
-  etaBoundary_[0]=1.479;
-  etaBoundary_[39]=4.;
-  for (int ring=1; ring<39; ring++) {
-    etaBoundary_[ring]=(eta_ring[ring]+eta_ring[ring-1])/2.;
-  }
-
-  // determine to which ring each endcap crystal belongs,
-  // the number of crystals in each ring,
-  // and the mean eta-phi area of the crystals in each ring
-  for (int ring=0; ring<39; ring++) {
-    nRing_[ring]=0;
-    meanCellArea_[ring]=0.;
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-	if (fabs(cellPos_[ix][iy].eta())>etaBoundary_[ring] &&
-	    fabs(cellPos_[ix][iy].eta())<etaBoundary_[ring+1]) {
-	  meanCellArea_[ring]+=cellArea_[ix][iy];
-	  endcapRing_[ix][iy]=ring;
-	  nRing_[ring]++;
-	}
-      }
-    }
-
-    meanCellArea_[ring]/=nRing_[ring];
-
-    std::cout << nRing_[ring] << " crystals with mean area " << meanCellArea_[ring] << " in endcap ring " << ring << " (" << etaBoundary_[ring] << "<eta<" << etaBoundary_[ring+1] << ")" << std::endl;
+  for (int imiscal=0; imiscal<kNMiscalBinsEE; imiscal++) {
+    miscalEE_[imiscal]= (1-kMiscalRangeEE) + float(imiscal)* (2*kMiscalRangeEE/(kNMiscalBinsEE-1));
+    for (int ring=0; ring<kEndcEtaRings; ring++) etsum_endc_miscal_[imiscal][ring]=0.;
   }
 
 
-    // book and fill and output histograms of ET sum vs phi
 
+  // start spectra stuff
+  if (eventSet_!=1) spectra = false;
   
-    for (int ring=0; ring<39; ring++) {
-      char ch[3];
-      sprintf(ch, "etsumVsPhi_neg1_%i", ring+1);
-      
-      etsumVsPhi_histos1[ring][0] = 
-			       new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
-
-
-      sprintf(ch, "etsumVsPhi_pos1_%i", ring+1);
-   
-      etsumVsPhi_histos1[ring][1]=new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
-    }
-
-
-   for (int ring=0; ring<39; ring++) {
-      char ch[3];
-      sprintf(ch, "etsumVsPhi_neg_%i", ring+1);
-      etsumVsPhi_histos[ring][0] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
-      sprintf(ch, "etsumVsPhi_pos_%i", ring+1);
-      etsumVsPhi_histos[ring][1] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
-      sprintf(ch, "areaVsPhi_%i", ring+1);
-      areaVsPhi_histos[ring] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
-      sprintf(ch, "etaVsPhi_%i", ring+1);
-      etaVsPhi_histos[ring] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
-    }
-
-
-for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-	int ring = endcapRing_[ix][iy];
-	if (ring!=-1) {
-	  int iphi_endc=0;
-	  for (int ip=0; ip<nRing_[ring]; ip++) {
-	    if (cellPhi_[ix][iy]==phi_endc[ip][ring]) iphi_endc=ip;
-	  }
-	  areaVsPhi_histos[ring]->Fill(iphi_endc,cellArea_[ix][iy]);
-	  etaVsPhi_histos[ring]->Fill(iphi_endc,cellPos_[ix][iy].eta());
-	  for (int sign=0; sign<2; sign++) {
-	    etsumVsPhi_histos[ring][sign]->Fill(iphi_endc,etsum_endc_[ix][iy][sign]);
-	  }
+  if(spectra)
+    {
+      ostringstream t;
+      for(Int_t i=0;i<kBarlRings;i++)
+	{
+	  t << "et_spectrum_b_" << i+1;
+	  et_spectrum_b_histos[i]=new TH1F(t.str().c_str(),";E_{T} [MeV]",50,0.,500.);
+	  t.str("");
+	  
+	  t << "e_spectrum_b_" << i+1;
+	  e_spectrum_b_histos[i]=new TH1F(t.str().c_str(),";E [MeV]",50,0.,500.);
+	  t.str("");
+	
 	}
-      }
-    }
-
-
-
- //
-    for (int ring=0; ring<39; ring++) {
-      for (int i=0; i<300; i++) phi_endc[i][ring]=0.;
-      float philast=-999.;
-      for (int ip=0; ip<nRing_[ring]; ip++) {
-	float phimin=999.;
-	for (int ix=0; ix<100; ix++) {
-	  for (int iy=0; iy<100; iy++) {
-	    if (endcapRing_[ix][iy]==ring) {
-	      if (cellPhi_[ix][iy]<phimin && cellPhi_[ix][iy]>philast) {
-		phimin=cellPhi_[ix][iy];
-	      }
-	    }
-	  }
+      for(Int_t i=0;i<kEndcEtaRings;i++)
+	{
+	  t << "et_spectrum_e_" << i+1;
+	  et_spectrum_e_histos[i]=new TH1F(t.str().c_str(),";E_{T} [MeV]",75,0.,1500.);
+	  t.str("");
+	  
+	  t << "e_spectrum_e_" << i+1;
+	  e_spectrum_e_histos[i]=new TH1F(t.str().c_str(),";E [MeV]",75,0.,1500.);
+	  t.str("");
+	
 	}
-	phi_endc[ip][ring]=phimin;
-	philast=phimin;
-      }
     }
-
+  // end spectra stuff
 }
+
 
 //_____________________________________________________________________________
 // Terminate algorithm
@@ -296,535 +185,421 @@ for (int ix=0; ix<100; ix++) {
 void PhiSymmetryCalibration::endJob()
 {
 
-  edm::LogWarning("Calibration") << "[PhiSymmetryCalibration] At end of job";
+  edm::LogInfo("Calibration") << "[PhiSymmetryCalibration] At end of job";
+
+  // start spectra stuff
+  if(spectra)
+    {
+      TFile f("Espectra_plus.root","recreate");
+
+      for(int i=0;i<kBarlRings;i++){
+	et_spectrum_b_histos[i]->Write();
+	e_spectrum_b_histos[i]->Write();
+      }
+
+      for(int i=0;i<kEndcEtaRings;i++){
+	et_spectrum_e_histos[i]->Write();
+	e_spectrum_e_histos[i]->Write();
+      }
+
+      f.Close();
+    }
+  
+
+
 
   if (eventSet_==1) {
     // calculate factors to convert from fractional deviation of ET sum from 
     // the mean to the estimate of the miscalibration factor
     getKfactors();
 
-
     std::ofstream k_barl_out("k_barl.dat", ios::out);
-    for (int ieta=0; ieta<85; ieta++)
+    for (int ieta=0; ieta<kBarlRings; ieta++)
       k_barl_out << ieta << " " << k_barl_[ieta] << endl;
     k_barl_out.close();
 
     std::ofstream k_endc_out("k_endc.dat", ios::out);
-    for (int ring=0; ring<39; ring++)
+    for (int ring=0; ring<kEndcEtaRings; ring++)
       k_endc_out << ring << " " << k_endc_[ring] << endl;
     k_endc_out.close();
   }
 
+
   if (eventSet_!=0) {
+    // output ET sums
 
-    //output ET sums
+    stringstream etsum_file_barl;
+    etsum_file_barl << "etsum_barl_"<<eventSet_<<".dat";
 
-    std::ofstream etsum_barl_out("etsum_barl.dat",ios::app);
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
-	for (int sign=0; sign<2; sign++) {
-	  etsum_barl_out << eventSet_ << " " << ieta << " " << iphi << " " << sign << "  "<< etsum_barl_[ieta][iphi][sign] << endl;
+    std::ofstream etsum_barl_out(etsum_file_barl.str().c_str(),ios::out);
+
+    for (int ieta=0; ieta<kBarlRings; ieta++) {
+      for (int iphi=0; iphi<kBarlWedges; iphi++) {
+	for (int sign=0; sign<kSides; sign++) {
+	  etsum_barl_out << eventSet_ << " " << ieta << " " << iphi << " " << sign 
+		         << " " << etsum_barl_[ieta][iphi][sign] << " " 
+                         <<  nhits_barl_[ieta][iphi][sign] << endl;
 	}
       }
     }
     etsum_barl_out.close();
 
-    std::ofstream etsum_endc_out("etsum_endc.dat",ios::app);
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-	int ring = endcapRing_[ix][iy];
+    stringstream etsum_file_endc;
+    etsum_file_endc << "etsum_endc_"<<eventSet_<<".dat";
+
+    std::ofstream etsum_endc_out(etsum_file_endc.str().c_str(),ios::out);
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
+	int ring = e_.endcapRing_[ix][iy];
 	if (ring!=-1) {
-	  for (int sign=0; sign<2; sign++) {
-	    etsum_endc_out << eventSet_ << " " << ix << " " << iy << " " << sign << " " << etsum_endc_[ix][iy][sign] << endl;
+	  for (int sign=0; sign<kSides; sign++) {
+	    etsum_endc_out << eventSet_ << " " << ix << " " << iy << " " << sign 
+			   << " " << etsum_endc_[ix][iy][sign] << " " 
+			   << nhits_endc_[ix][iy][sign]<<" " 
+                           << e_.endcapRing_[ix][iy]<<endl;
 	  }
 	}
       }
     }
     etsum_endc_out.close();
-
-  } else {
-
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
-	for (int sign=0; sign<2; sign++) {
-	  etsum_barl_[ieta][iphi][sign]=0.;
-	}
-      }
-    }
-
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-	for (int sign=0; sign<2; sign++) {
-	  etsum_endc_[ix][iy][sign]=0.;
-	}
-      }
-    }
-
-    //read in ET sums
-
-    int ieta,iphi,sign,ix,iy,dummy;
-    double etsum;
-    std::ifstream etsum_barl_in("etsum_barl.dat", ios::in);
-    while (!etsum_barl_in.eof()) {
-      etsum_barl_in >> dummy;
-      etsum_barl_in >> ieta;
-      etsum_barl_in >> iphi;
-      etsum_barl_in >> sign;
-      etsum_barl_in >> etsum;
-      etsum_barl_[ieta][iphi][sign]+=etsum;
-    }
-    etsum_barl_in.close();
-
-    std::ifstream etsum_endc_in("etsum_endc.dat", ios::in);
-    while (!etsum_endc_in.eof()) {
-      etsum_endc_in >> dummy;
-      etsum_endc_in >> ix;
-      etsum_endc_in >> iy;
-      etsum_endc_in >> sign;
-      etsum_endc_in >> etsum;
-      etsum_endc_[ix][iy][sign]+=etsum;
-    }
-    etsum_endc_in.close();
-
-    std::ifstream k_barl_in("k_barl.dat", ios::in);
-    for (int ieta=0; ieta<85; ieta++) {
-      k_barl_in >> dummy;
-      k_barl_in >> k_barl_[ieta];
-    }
-    k_barl_in.close();
-
-    std::ifstream k_endc_in("k_endc.dat", ios::in);
-    for (int ring=0; ring<39; ring++) {
-      k_endc_in >> dummy;
-      k_endc_in >> k_endc_[ring];
-    }
-    k_endc_in.close();
-
-
-
-   
-
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-
-	int ring = endcapRing_[ix][iy];
-	if (ring!=-1) {
-	  int iphi_endc=0;
-	  for (int ip=0; ip<nRing_[ring]; ip++) {
-	    if (cellPhi_[ix][iy]==phi_endc[ip][ring]) iphi_endc=ip;
-	  }
-	  for (int sign=0; sign<2; sign++) {
-
-	    etsumVsPhi_histos1[ring][sign]->Fill(iphi_endc,etsum_endc_[ix][iy][sign]);
-	 
-	  }
-	}
-      }
-    }
-
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-
-	int ring = endcapRing_[ix][iy];
-	if (ring!=-1) {
-	  for (int sign=0; sign<2; sign++) {
-
-	    etsum_endc_[ix][iy][sign]*=meanCellArea_[ring]/cellArea_[ix][iy];
-	  }
-	}
-      }
-    }
- 
-
-    TFile f1("etsumVsPhi.root","recreate");
-    for (int ring=0; ring<39; ring++) {
-      areaVsPhi_histos[ring]->Write();
-      etaVsPhi_histos[ring]->Write();
-      for (int sign=0; sign<2; sign++) {
-	etsumVsPhi_histos1[ring][sign]->Write();
-	etsumVsPhi_histos[ring][sign]->Write();
-      }
-    }
-    f1.Close();
-
-    // fill output ET sum histograms
-    fillHistos();
-
-    std::ofstream etsumMean_barl_out("etsumMean_barl.dat",ios::out);
-    for (int ieta=0; ieta<85; ieta++) {
-      etsumMean_barl_out << cellEta_[ieta] << " " << etsumMean_barl_[ieta] << endl;
-    }
-    etsumMean_barl_out.close();
-
-    std::ofstream etsumMean_endc_out("etsumMean_endc.dat",ios::out);
-    for (int ring=0; ring<39; ring++) {
-      etsumMean_endc_out << cellPos_[ring][50].eta() << " " << etsumMean_endc_[ring] << endl;
-    }
-    etsumMean_endc_out.close();
-
-    std::ofstream area_out("area.dat",ios::out);
-    for (int ring=0; ring<39; ring++) {
-      area_out << meanCellArea_[ring] << endl;
-    }
-    area_out.close();
-
-    // Determine barrel calibration constants
-    float epsilon_M_barl[85][360][2];
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
-	for (int sign=0; sign<2; sign++) {
-	  float etsum = etsum_barl_[ieta][iphi][sign];
-	  float epsilon_T = (etsum/etsumMean_barl_[ieta])-1;
-	  epsilon_M_barl[ieta][iphi][sign] = epsilon_T/k_barl_[ieta];
-	}
-      }
-    }
-
-    // Determine endcap calibration constants
-    float epsilon_M_endc[100][100][2];
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-	int ring = endcapRing_[ix][iy];
-	if (ring!=-1) {
-	  for (int sign=0; sign<2; sign++) {
-	    float etsum = etsum_endc_[ix][iy][sign];
-	    float epsilon_T = (etsum/etsumMean_endc_[ring])-1;
-	  epsilon_M_endc[ix][iy][sign] = epsilon_T/k_endc_[ring];
-	  }
-	} else {
-	  epsilon_M_endc[ix][iy][0] = 0.;
-	  epsilon_M_endc[ix][iy][1] = 0.;
-	}
-      }
-    }
-
-    // Write new calibration constants
-
-    calibXMLwriter barrelWriter(EcalBarrel);
-    calibXMLwriter endcapWriter(EcalEndcap);
-
-    double newCalibs_barl[100][100][2];
-    double newCalibs_endc[100][100][2];
-
-    TH1F* miscal_resid_barl_histos[85];
-    TH2F* correl_barl_histos[85];
-    for (int ieta=0; ieta<85; ieta++) {
-      char ch[3];
-      sprintf(ch, "mr_barl_%i", ieta+1);
-      miscal_resid_barl_histos[ieta] = new TH1F(ch,"",50,.8,1.2);
-      sprintf(ch, "co_barl_%i", ieta+1);
-      correl_barl_histos[ieta] = new TH2F(ch,"",50,.8,1.2,50,.8,1.2);
-    }
-
-    TH1F* miscal_resid_endc_histos[39];
-    TH2F* correl_endc_histos[39];
-    for (int ring=0; ring<39; ring++) {
-      char ch[3];
-      sprintf(ch, "mr_endc_%i", ring+1);
-      miscal_resid_endc_histos[ring] = new TH1F(ch,"",50,.8,1.2);
-      sprintf(ch, "co_endc_%i", ring+1);
-      correl_endc_histos[ring] = new TH2F(ch,"",50,.8,1.2,50,.8,1.2);
-    }
-
-    std::vector<DetId>::const_iterator barrelIt=barrelCells.begin();
-    for (; barrelIt!=barrelCells.end(); barrelIt++) {
-      EBDetId eb(*barrelIt);
-      int ieta = abs(eb.ieta())-1;
-      int iphi = eb.iphi()-1;
-      int sign = eb.zside()>0 ? 1 : 0;
-      newCalibs_barl[ieta][iphi][sign] = 
-                                    oldCalibs_barl[ieta][iphi][sign]/
-                                 (1+epsilon_M_barl[ieta][iphi][sign]);
-      barrelWriter.writeLine(eb,newCalibs_barl[ieta][iphi][sign]);
-      miscal_resid_barl_histos[ieta]->Fill(newCalibs_barl[ieta][iphi][sign]);
-      correl_barl_histos[ieta]->Fill(oldCalibs_barl[ieta][iphi][sign],1+epsilon_M_barl[ieta][iphi][sign]);
-      if (iphi==1) {
-	std::cout << "Calib constant for barrel crystal "
-		  << " (" << eb.ieta() << "," << eb.iphi() << ") changed from "
-		  << oldCalibs_barl[ieta][iphi][sign] << " to "
-		  << newCalibs_barl[ieta][iphi][sign] << std::endl;
-      }
-    }
-
-    std::vector<DetId>::const_iterator endcapIt=endcapCells.begin();
-    for (; endcapIt!=endcapCells.end(); endcapIt++) {
-      EEDetId ee(*endcapIt);
-      int ix = ee.ix()-1;
-      int iy = ee.iy()-1;
-      int sign = ee.zside()>0 ? 1 : 0;
-      newCalibs_endc[ix][iy][sign] = 
-                                    oldCalibs_endc[ix][iy][sign]/
-                                 (1+epsilon_M_endc[ix][iy][sign]);
-      endcapWriter.writeLine(ee,newCalibs_endc[ix][iy][sign]);
-      miscal_resid_endc_histos[endcapRing_[ix][iy]]->Fill(newCalibs_endc[ix][iy][sign]);
-      correl_endc_histos[endcapRing_[ix][iy]]->Fill(oldCalibs_endc[ix][iy][sign],1+epsilon_M_endc[ix][iy][sign]);
-      if (ix==50) {
-	std::cout << "Calib constant for endcap crystal "
-		  << " (" << ix << "," << iy << "," << sign << ") changed from "
-		  << oldCalibs_endc[ix][iy][sign] << " to "
-		  << newCalibs_endc[ix][iy][sign] << std::endl;
-      }
-    }
-
-    //double prec_barl[85],prec_endc[39];
-
-    // Output histograms of residual miscalibrations
-    TFile f("PhiSymmetryCalibration_miscal_resid.root","recreate");
-    for (int ieta=0; ieta<85; ieta++) {
-      miscal_resid_barl_histos[ieta]->Fit("gaus");
-      miscal_resid_barl_histos[ieta]->Write();
-      //prec_barl[ieta] = miscal_resid_barl_histos[ieta]->GetFunction("gaus")->GetParameter(2);
-      correl_barl_histos[ieta]->Write();
-    }
-    for (int ring=0; ring<39; ring++) {
-      miscal_resid_endc_histos[ring]->Fit("gaus");
-      miscal_resid_endc_histos[ring]->Write();
-      //prec_endc[ring] = miscal_resid_endc_histos[ring]->GetFunction("gaus")->GetParameter(2);
-      correl_endc_histos[ring]->Write();
-    }
-    f.Close();
-
-    /*
-    std::ofstream prec_barl_out("prec_barl.dat", ios::out);
-    for (int ieta=0; ieta<85; ieta++)
-      prec_barl_out << cellEta_[ieta] << " " << prec_barl[ieta] << endl;
-    prec_barl_out.close();
-
-    std::ofstream prec_endc_out("prec_endc.dat", ios::out);
-    for (int ring=0; ring<39; ring++)
-      prec_endc_out << cellPos_[ring][50].eta() << " " << prec_endc[ring] << endl;
-    prec_endc_out.close();
-    */
-  }
-
+  } 
+  cout<<"Events processed " << nevents_<< endl;
 }
+
 
 //_____________________________________________________________________________
 // Called at each event
 
-void PhiSymmetryCalibration::analyze( const edm::Event& event, 
-  const edm::EventSetup& setup )
+void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventSetup& setup )
 {
   using namespace edm;
   using namespace std;
 
-  nevent++;
-
-  edm::LogInfo("Calibration") << "[PhiSymmetryCalibration] New Event --------------------------------------------------------------";
-
-  if ((nevent<100 && nevent%10==0) 
-      ||(nevent<1000 && nevent%100==0) 
-      ||(nevent<10000 && nevent%100==0) 
-      ||(nevent<100000 && nevent%1000==0) 
-      ||(nevent<10000000 && nevent%1000==0))
-    edm::LogWarning("Calibration") << "[PhiSymmetryCalibration] Events processed: "<<nevent;
-
-  Handle<EBRecHitCollection> barrelRecHitsHandle;
-  Handle<EERecHitCollection> endcapRecHitsHandle;
-
-  try {
-    event.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-    event.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
-  } catch ( std::exception& ex ) {
-    LogDebug("") << "PhiSymmetryCalibration: Error! can't get product!" << std::endl;
+  if (isfirstpass_) {
+    setUp(setup);
+    isfirstpass_=false;
   }
 
-  //Select interesting EcalRecHits (barrel)
+  
+  Handle<EBRecHitCollection> barrelRecHitsHandle;
+  Handle<EERecHitCollection> endcapRecHitsHandle;
+  
+  event.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
+    LogError("") << "[PhiSymmetryCalibration] Error! Can't get product!" << std::endl;
+  }
+  
+  event.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
+  if (!endcapRecHitsHandle.isValid()) {
+    LogError("") << "[PhiSymmetryCalibration] Error! Can't get product!" << std::endl;
+  }
+  
+ 
+  // get the ecal geometry
+  edm::ESHandle<CaloGeometry> geoHandle;
+  setup.get<CaloGeometryRecord>().get(geoHandle);
+  const CaloSubdetectorGeometry *barrelGeometry = 
+    geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorGeometry *endcapGeometry = 
+    geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+ 
+  bool pass=false;
+  // select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
     EBDetId hit = EBDetId(itb->id());
-    float eta = cellEta_[abs(hit.ieta())-1];
+    float eta = barrelGeometry->getGeometry(hit)->getPosition().eta();
     float et = itb->energy()/cosh(eta);
-    float et_thr = eCut_barl_/cosh(eta);
-    et_thr*=1.05;
-    if (et > et_thr && et < et_thr+0.8) {
-      int sign = hit.ieta()>0 ? 1 : 0;
-      etsum_barl_[abs(hit.ieta())-1][hit.iphi()-1][sign] += et;
+    float e  = itb->energy();
+    
+    
+
+    // if iterating, correct by the previous calib constants found,
+    // which are supplied in the form of correction 
+    if (reiteration_) {
+      et= et  * oldCalibs_[hit];
+      e = e  * oldCalibs_[hit];
     }
+
+    float et_thr = eCut_barl_/cosh(eta) + 1.;
+
+    int sign = hit.ieta()>0 ? 1 : 0;
+
+    if (e >  eCut_barl_ && et < et_thr && e_.goodCell_barl[abs(hit.ieta())-1][hit.iphi()-1][sign]) {
+      etsum_barl_[abs(hit.ieta())-1][hit.iphi()-1][sign] += et;
+      nhits_barl_[abs(hit.ieta())-1][hit.iphi()-1][sign] ++;
+      pass =true;
+    }//if energy
 
     if (eventSet_==1) {
-      //Apply a miscalibration to all crystals and increment the 
-      //ET sum, combined for all crystals
-      for (int imiscal=0; imiscal<21; imiscal++) {
-	if (miscal_[imiscal]*et > et_thr && miscal_[imiscal]*et < et_thr+0.8) {
-	  etsum_barl_miscal_[imiscal][abs(hit.ieta())-1] += miscal_[imiscal]*et;
+      // apply a miscalibration to all crystals and increment the 
+      // ET sum, combined for all crystals
+      for (int imiscal=0; imiscal<kNMiscalBinsEB; imiscal++) {
+	if (miscalEB_[imiscal]*e >  eCut_barl_&& miscalEB_[imiscal]*et < et_thr && e_.goodCell_barl[abs(hit.ieta())-1][hit.iphi()-1][sign]) {
+	  etsum_barl_miscal_[imiscal][abs(hit.ieta())-1] += miscalEB_[imiscal]*et;
 	}
       }
-    }
 
-  }
+      // spectra stuff
+      if(spectra && hit.ieta()>0) //POSITIVE!!!
+	//      if(spectra && hit.ieta()<0) //NEGATIVE!!!
+	{
+	  et_spectrum_b_histos[abs(hit.ieta())-1]->Fill(et*1000.);
+	  e_spectrum_b_histos[abs(hit.ieta())-1]->Fill(e*1000.);
+	}//if spectra
+      
+    }//if eventSet_==1
+  }//for barl
 
-  //Select interesting EcalRecHits (endcaps)
+
+  // select interesting EcalRecHits (endcaps)
   EERecHitCollection::const_iterator ite;
   for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end(); ite++) {
     EEDetId hit = EEDetId(ite->id());
-    float eta = cellPos_[hit.ix()-1][hit.iy()-1].eta();
+    float eta = abs(endcapGeometry->getGeometry(hit)->getPosition().eta());
+    //float phi = endcapGeometry->getGeometry(hit)->getPosition().phi();
+
     float et = ite->energy()/cosh(eta);
-    float et_thr = eCut_endc_/cosh(eta);
-    et_thr*=1.05;
-    if (et > et_thr && et < et_thr+0.8) {
-      int sign = hit.zside()>0 ? 1 : 0;
-      etsum_endc_[hit.ix()-1][hit.iy()-1][sign] += et;
+    float e  = ite->energy();
+
+    // if iterating, multiply by the previous correction factor
+    if (reiteration_) {
+      et= et * oldCalibs_[hit];
+      e = e * oldCalibs_[hit];
     }
+
+    int sign = hit.zside()>0 ? 1 : 0;
+
+
+    // changes of eCut_endc_ -> variable linearthr 
+    // e_cut = ap + eta_ring*b
+
+    double eCut_endc=0;
+    for (int ring=0; ring<kEndcEtaRings; ring++) {
+
+      if(eta>e_.etaBoundary_[ring] && eta<e_.etaBoundary_[ring+1])
+	{  
+	  float eta_ring= abs(e_.cellPos_[ring][50].eta())  ;
+	  eCut_endc = ap_ + eta_ring*b_;
+
+	}
+    }
+
+
+    float et_thr = eCut_endc/cosh(eta) + 1.;
+   
+    if (e > eCut_endc && et < et_thr && e_.goodCell_endc[hit.ix()-1][hit.iy()-1][sign]){
+      etsum_endc_[hit.ix()-1][hit.iy()-1][sign] += et;
+      nhits_endc_[hit.ix()-1][hit.iy()-1][sign] ++;
+      pass=true;
+    }
+ 
+   
 
     if (eventSet_==1) {
-      //Apply a miscalibration to all crystals and increment the 
-      //ET sum, combined for all crystals
-      for (int imiscal=0; imiscal<21; imiscal++) {
-	if (miscal_[imiscal]*et > et_thr && miscal_[imiscal]*et < et_thr+0.8) {
-	  int ring = endcapRing_[hit.ix()-1][hit.iy()-1];
-	  etsum_endc_miscal_[imiscal][ring] += miscal_[imiscal]*et*meanCellArea_[ring]/cellArea_[hit.ix()-1][hit.iy()-1];
+      // apply a miscalibration to all crystals and increment the 
+      // ET sum, combined for all crystals
+      for (int imiscal=0; imiscal<kNMiscalBinsEE; imiscal++) {
+	if (miscalEE_[imiscal]*e> eCut_endc && et*miscalEE_[imiscal] < et_thr && e_.goodCell_endc[hit.ix()-1][hit.iy()-1][sign]){
+	  int ring = e_.endcapRing_[hit.ix()-1][hit.iy()-1];
+	  etsum_endc_miscal_[imiscal][ring] += miscalEE_[imiscal]*et;
 	}
       }
-    }
 
+      // spectra stuff
+      if(spectra && hit.zside()>0) //POSITIVE!!!
+
+	{
+	  int ring = e_.endcapRing_[hit.ix()-1][hit.iy()-1];
+
+	  et_spectrum_e_histos[ring]->Fill(et*1000.);
+	  e_spectrum_e_histos[ring]->Fill(e*1000.);
+
+	  if(ring==16)
+	    {
+	      //int iphi_endc = 0;
+	      for (int ip=0; ip<e_.nRing_[ring]; ip++) {
+		//if (phi==e_.phi_endc_[ip][ring]) iphi_endc=ip;
+	      }
+
+	    }
+	}//if spectra
+
+    }//if eventSet_==1
+  }//for endc
+
+  if (pass) {
+    nevents_++;
+    eventsinrun_++;
+    eventsinlb_++;
   }
+}
+
+void PhiSymmetryCalibration::endRun(edm::Run& run, const edm::EventSetup&){
+ 
+  
+  std::cout  << "PHIREPRT : run "<< run.run() 
+             << " start " << (run.beginTime().value()>>32)
+             << " end "   << (run.endTime().value()>>32) 
+             << " dur "   << (run.endTime().value()>>32)- (run.beginTime().value()>>32)
+	  
+             << " npass "      << eventsinrun_  << std::endl;
+  eventsinrun_=0;        
+ 
+  return ;
 
 }
 
-// ----------------------------------------------------------------------------
+//_____________________________________________________________________________
 
 void PhiSymmetryCalibration::getKfactors()
 {
 
-  float epsilon_T[21];
-  float epsilon_M[21];
+  float epsilon_T_eb[kNMiscalBinsEB];
+  float epsilon_M_eb[kNMiscalBinsEB];
 
-  for (int ieta=0; ieta<85; ieta++) {
-    for (int imiscal=0; imiscal<21; imiscal++) {
-      epsilon_T[imiscal] = etsum_barl_miscal_[imiscal][ieta]/etsum_barl_miscal_[10][ieta] - 1.;
-      epsilon_M[imiscal]=miscal_[imiscal]-1.;
+  float epsilon_T_ee[kNMiscalBinsEE];
+  float epsilon_M_ee[kNMiscalBinsEE];
+
+  std::vector<TGraph*>  k_barl_graph(kBarlRings);
+  std::vector<TCanvas*> k_barl_plot(kBarlRings);
+
+  for (int ieta=0; ieta<kBarlRings; ieta++) {
+    for (int imiscal=0; imiscal<kNMiscalBinsEB; imiscal++) {
+      int middlebin =  int (kNMiscalBinsEB/2);
+      epsilon_T_eb[imiscal] = etsum_barl_miscal_[imiscal][ieta]/etsum_barl_miscal_[middlebin][ieta] - 1.;
+      epsilon_M_eb[imiscal] = miscalEB_[imiscal] - 1.;
     }
-    k_barl_graph_[ieta] = new TGraph (21,epsilon_M,epsilon_T);
-    k_barl_graph_[ieta]->Fit("pol1");
+    k_barl_graph[ieta] = new TGraph (kNMiscalBinsEB,epsilon_M_eb,epsilon_T_eb);
+    k_barl_graph[ieta]->Fit("pol1");
 
-    char ch[3];
-    sprintf(ch, "k_barl_%i", ieta+1);
-    k_barl_plot_[ieta] = new TCanvas(ch,"");
-    k_barl_plot_[ieta]->SetFillColor(10);
-    k_barl_plot_[ieta]->SetGrid();
-    k_barl_graph_[ieta]->SetMarkerSize(1.);
-    k_barl_graph_[ieta]->SetMarkerColor(4);
-    k_barl_graph_[ieta]->SetMarkerStyle(20);
-    k_barl_graph_[ieta]->GetXaxis()->SetLimits(-.06,.06);
-    k_barl_graph_[ieta]->GetXaxis()->SetTitleSize(.05);
-    k_barl_graph_[ieta]->GetYaxis()->SetTitleSize(.05);
-    k_barl_graph_[ieta]->GetXaxis()->SetTitle("#epsilon_{M}");
-    k_barl_graph_[ieta]->GetYaxis()->SetTitle("#epsilon_{T}");
-    k_barl_graph_[ieta]->Draw("AP");
 
-    k_barl_[ieta] = k_barl_graph_[ieta]->GetFunction("pol1")->GetParameter(1);
+    ostringstream t;
+    t<< "k_barl_" << ieta+1; 
+    k_barl_plot[ieta] = new TCanvas(t.str().c_str(),"");
+    k_barl_plot[ieta]->SetFillColor(10);
+    k_barl_plot[ieta]->SetGrid();
+    k_barl_graph[ieta]->SetMarkerSize(1.);
+    k_barl_graph[ieta]->SetMarkerColor(4);
+    k_barl_graph[ieta]->SetMarkerStyle(20);
+    k_barl_graph[ieta]->GetXaxis()->SetLimits(-1.*kMiscalRangeEB,kMiscalRangeEB);
+    k_barl_graph[ieta]->GetXaxis()->SetTitleSize(.05);
+    k_barl_graph[ieta]->GetYaxis()->SetTitleSize(.05);
+    k_barl_graph[ieta]->GetXaxis()->SetTitle("#epsilon_{M}");
+    k_barl_graph[ieta]->GetYaxis()->SetTitle("#epsilon_{T}");
+    k_barl_graph[ieta]->Draw("AP");
+
+    k_barl_[ieta] = k_barl_graph[ieta]->GetFunction("pol1")->GetParameter(1);
     std::cout << "k_barl_[" << ieta << "]=" << k_barl_[ieta] << std::endl;
   }
 
-  for (int ring=0; ring<39; ring++) {
-    for (int imiscal=0; imiscal<21; imiscal++) {
-      epsilon_T[imiscal] = etsum_endc_miscal_[imiscal][ring]/etsum_endc_miscal_[10][ring] - 1.;
-      epsilon_M[imiscal]=miscal_[imiscal]-1.;
+
+  std::vector<TGraph*>  k_endc_graph(kEndcEtaRings);
+  std::vector<TCanvas*> k_endc_plot(kEndcEtaRings);
+
+  for (int ring=0; ring<kEndcEtaRings; ring++) {
+    for (int imiscal=0; imiscal<kNMiscalBinsEE; imiscal++) {
+      int middlebin =  int (kNMiscalBinsEE/2);
+      epsilon_T_ee[imiscal] = etsum_endc_miscal_[imiscal][ring]/etsum_endc_miscal_[middlebin][ring] - 1.;
+      epsilon_M_ee[imiscal] = miscalEE_[imiscal] - 1.;
     }
-    k_endc_graph_[ring] = new TGraph (21,epsilon_M,epsilon_T);
-    k_endc_graph_[ring]->Fit("pol1");
+    k_endc_graph[ring] = new TGraph (kNMiscalBinsEE,epsilon_M_ee,epsilon_T_ee);
+    k_endc_graph[ring]->Fit("pol1");
 
-    char ch[3];
-    sprintf(ch, "k_endc_%i", ring+1);
-    k_endc_plot_[ring] = new TCanvas(ch,"");
-    k_endc_plot_[ring]->SetFillColor(10);
-    k_endc_plot_[ring]->SetGrid();
-    k_endc_graph_[ring]->SetMarkerSize(1.);
-    k_endc_graph_[ring]->SetMarkerColor(4);
-    k_endc_graph_[ring]->SetMarkerStyle(20);
-    k_endc_graph_[ring]->GetXaxis()->SetLimits(-.06,.06);
-    k_endc_graph_[ring]->GetXaxis()->SetTitleSize(.05);
-    k_endc_graph_[ring]->GetYaxis()->SetTitleSize(.05);
-    k_endc_graph_[ring]->GetXaxis()->SetTitle("#epsilon_{M}");
-    k_endc_graph_[ring]->GetYaxis()->SetTitle("#epsilon_{T}");
-    k_endc_graph_[ring]->Draw("AP");
+    ostringstream t;
+    t<< "k_endc_"<< ring+1;
+    k_endc_plot[ring] = new TCanvas(t.str().c_str(),"");
+    k_endc_plot[ring]->SetFillColor(10);
+    k_endc_plot[ring]->SetGrid();
+    k_endc_graph[ring]->SetMarkerSize(1.);
+    k_endc_graph[ring]->SetMarkerColor(4);
+    k_endc_graph[ring]->SetMarkerStyle(20);
+    k_endc_graph[ring]->GetXaxis()->SetLimits(-1*kMiscalRangeEE,kMiscalRangeEE);
+    k_endc_graph[ring]->GetXaxis()->SetTitleSize(.05);
+    k_endc_graph[ring]->GetYaxis()->SetTitleSize(.05);
+    k_endc_graph[ring]->GetXaxis()->SetTitle("#epsilon_{M}");
+    k_endc_graph[ring]->GetYaxis()->SetTitle("#epsilon_{T}");
+    k_endc_graph[ring]->Draw("AP");
 
-    k_endc_[ring] = k_endc_graph_[ring]->GetFunction("pol1")->GetParameter(1);
+    k_endc_[ring] = k_endc_graph[ring]->GetFunction("pol1")->GetParameter(1);
     std::cout << "k_endc_[" << ring << "]=" << k_endc_[ring] << std::endl;
   }
  
   TFile f("PhiSymmetryCalibration_kFactors.root","recreate");
-  for (int ieta=0; ieta<85; ieta++) k_barl_plot_[ieta]->Write();
-  for (int ring=0; ring<39; ring++) k_endc_plot_[ring]->Write();
+  for (int ieta=0; ieta<kBarlRings; ieta++) { 
+    k_barl_plot[ieta]->Write();
+    delete k_barl_plot[ieta]; 
+    delete k_barl_graph[ieta];
+  }
+  for (int ring=0; ring<kEndcEtaRings; ring++) { 
+    k_endc_plot[ring]->Write();
+    delete k_endc_plot[ring];
+    delete k_endc_graph[ring];
+  }
   f.Close();
 
 }
 
-void PhiSymmetryCalibration::fillHistos()
-{
-  TFile f("PhiSymmetryCalibration.root","recreate");
 
-  for (int ieta=0; ieta<85; ieta++) {
 
-    // Determine ranges of ET sums to get histo bounds and book histos (barrel)
-    float low=999999.;
-    float high=0.;
-    for (int iphi=0; iphi<360; iphi++) {
-      for (int sign=0; sign<2; sign++) {
-	float etsum = etsum_barl_[ieta][iphi][sign];
-	if (etsum<low) low=etsum;
-	if (etsum>high) high=etsum;
-      }
-    }
-    char ch[3];
-    sprintf(ch, "etsum_barl_%i", ieta+1);
-    etsum_barl_histos_[ieta]=new TH1F(ch,"",50,low-.2*low,high+.1*high);
 
-    // Fill barrel ET sum histos
-    etsumMean_barl_[ieta]=0.;
-    for (int iphi=0; iphi<360; iphi++) {
-      for (int sign=0; sign<2; sign++) {
-	float etsum = etsum_barl_[ieta][iphi][sign];
-	etsum_barl_histos_[ieta]->Fill(etsum);
-	etsumMean_barl_[ieta]+=etsum;
-      }
-    }
-    etsum_barl_histos_[ieta]->Fit("gaus");
-    etsum_barl_histos_[ieta]->Write();
-    etsumMean_barl_[ieta]/=720.;
+
+//_____________________________________________________________________________
+
+
+
+void PhiSymmetryCalibration::setUp(const edm::EventSetup& setup){
+
+  edm::ESHandle<EcalChannelStatus> chStatus;
+  setup.get<EcalChannelStatusRcd>().get(chStatus);
+
+  edm::ESHandle<CaloGeometry> geoHandle;
+  setup.get<CaloGeometryRecord>().get(geoHandle);
+
+  e_.setup(&(*geoHandle), &(*chStatus), statusThreshold_);
+ 
+  
+  if (reiteration_){   
+    
+    EcalCondHeader h;
+    // namespace fs = boost::filesystem;
+//     fs::path p(oldcalibfile_.c_str(),fs::native);
+//     if (!fs::exists(p)) edm::LogError("PhiSym") << "File not found: " 
+// 						<< oldcalibfile_ <<endl;
+    
+    edm::FileInPath fip("Calibration/EcalCalibAlgos/data/"+oldcalibfile_);
+    
+
+    
+    int ret=
+    EcalIntercalibConstantsXMLTranslator::readXML(fip.fullPath(),h,oldCalibs_);    
+    if (ret) edm::LogError("PhiSym")<<"Error reading XML files"<<endl;;
+    
+  } else {
+    // in fact if not reiterating, oldCalibs_ will never be used
+    edm::ESHandle<EcalIntercalibConstants> pIcal;      
+    setup.get<EcalIntercalibConstantsRcd>().get(pIcal);
+    oldCalibs_=*pIcal;
+
   }
-
-  for (int ring=0; ring<39; ring++) {
-
-    // Determine ranges of ET sums to get histo bounds and book histos (endcap)
-    float low=999999.;
-    float high=0.;
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-	if (endcapRing_[ix][iy]==ring) {
-	  for (int sign=0; sign<2; sign++) {
-	    float etsum = etsum_endc_[ix][iy][sign];
-	    if (etsum<low) low=etsum;
-	    if (etsum>high) high=etsum;
-	  }
-	}
-      }
-    }
-    char ch[3];
-    sprintf(ch, "etsum_endc_%i", ring+1);
-    etsum_endc_histos_[ring]= new TH1F(ch,"",50,low-.2*low,high+.1*high);
-
-    // Fill endcap ET sum histos
-    etsumMean_endc_[ring]=0.;
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-	if (endcapRing_[ix][iy]==ring) {
-	  for (int sign=0; sign<2; sign++) {
-	    float etsum = etsum_endc_[ix][iy][sign];
-	    etsum_endc_histos_[ring]->Fill(etsum);
-	    etsumMean_endc_[ring]+=etsum;
-	  }
-	}
-      }
-    }
-    etsum_endc_histos_[ring]->Fit("gaus");
-    etsum_endc_histos_[ring]->Write();
-    etsumMean_endc_[ring]/=(float(nRing_[ring]*2));
-  }
-
-  f.Close();
+  
+}
 
 
+void PhiSymmetryCalibration::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const&){
+
+  
+  if ((lb.endTime().value()>>32)- (lb.beginTime().value()>>32) <60 ) 
+    return;
+
+  std::cout  << "PHILB : run "<< lb.run()
+             << " id " << lb.id() 
+             << " start " << (lb.beginTime().value()>>32)
+             << " end "   << (lb.endTime().value()>>32) 
+             << " dur "   << (lb.endTime().value()>>32)- (lb.beginTime().value()>>32)
+    
+             << " npass "      << eventsinlb_  << std::endl;
+  
+  eventsinlb_=0;
 
 }

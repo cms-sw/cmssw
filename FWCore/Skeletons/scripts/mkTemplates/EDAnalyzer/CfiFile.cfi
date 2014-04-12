@@ -1,9 +1,0 @@
-// Put here the modules you want the cfg file to use,
-// then include this file in your cfg file.
-// i.e. in anlzrname.cfg replace 'module demo = anlzrname {} '
-// with 'include "anlyzerDir/anlzrname/data/anlzrname.cfi" '.
-// (Remember that filenames are case sensitive.)
-
-module demo = anlzrname {
-
-}

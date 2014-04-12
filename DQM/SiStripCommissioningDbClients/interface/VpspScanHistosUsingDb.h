@@ -1,35 +1,27 @@
-// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
 
-#include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
-#include <map>
+#include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 
-class VpspScanHistosUsingDb : public VpspScanHistograms, public CommissioningHistosUsingDb {
+class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScanHistograms {
   
  public:
   
-  VpspScanHistosUsingDb( MonitorUserInterface*,
-			 const DbParams& );
-  
-  VpspScanHistosUsingDb( MonitorUserInterface*,
-			 SiStripConfigDb* const );
-  
-  VpspScanHistosUsingDb( DaqMonitorBEInterface*,
-			 SiStripConfigDb* const );
+  VpspScanHistosUsingDb( const edm::ParameterSet & pset,
+                         DQMStore*,
+                         SiStripConfigDb* const );
 
   virtual ~VpspScanHistosUsingDb();
 
-  virtual void uploadToConfigDb();
+  virtual void uploadConfigurations();
   
  private:
 
-  void update( SiStripConfigDb::DeviceDescriptions& );
+  void update( SiStripConfigDb::DeviceDescriptionsRange );
   
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
   
 };
 

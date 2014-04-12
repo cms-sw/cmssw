@@ -1,66 +1,87 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/08 12:01:31 $
- *  $Revision: 1.1 $
- *  \author D. Pagano - University of Pavia & INFN Pavia
  */
 
 
 #include "RecoMuon/MuonSeedGenerator/src/RPCSeedFinder.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedHits.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "DataFormats/GeometryVector/interface/Pi.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include <iomanip>
 
 using namespace std;
+using namespace edm;
 
-typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
-typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
-typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
-RPCSeedFinder::RPCSeedFinder(){}
+RPCSeedFinder::RPCSeedFinder() {
 
-vector<TrajectorySeed> RPCSeedFinder::seeds(const edm::EventSetup& eSetup) const {
-
-  cout << "[RPCSeedFinder] --> seeds class called" << endl;
-
-  vector<TrajectorySeed> theSeeds;
-
-  RPCSeedHits barrel;
-
-  int num_bar = 0;
-  for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
-      barrel.add(*iter);
-      num_bar++;
-  }
-
-  if ( num_bar ) {
-    cout << "[RPCSeedFinder] --> Barrel Seeds " << num_bar << endl;
-    theSeeds.push_back(barrel.seed(eSetup));
-  }
-  
-  return theSeeds;
+    // Initiate the member
+    isrecHitsset = false;
+    isConfigured = false;
+    isOutputset = false;
+    isEventSetupset = false;
+    oneSeed.clear();
 }
+
+RPCSeedFinder::~RPCSeedFinder() {
+
+}
+
+void RPCSeedFinder::configure(const edm::ParameterSet& iConfig) {
+
+    oneSeed.configure(iConfig);
+    isConfigured = true;
+}
+
+void RPCSeedFinder::setOutput(std::vector<weightedTrajectorySeed> *goodweightedRef, std::vector<weightedTrajectorySeed> *candidateweightedRef) {
+
+    goodweightedSeedsRef = goodweightedRef;
+    candidateweightedSeedsRef = candidateweightedRef;
+    isOutputset = true;
+}
+
+void RPCSeedFinder::setrecHits(ConstMuonRecHitContainer &recHits) {
+
+    oneSeed.clear();
+    for (ConstMuonRecHitContainer::const_iterator iter = recHits.begin(); iter!= recHits.end(); iter++)
+        oneSeed.add(*iter);
+    isrecHitsset = true;
+}
+
+void RPCSeedFinder::setEventSetup(const edm::EventSetup& iSetup) {
+
+    eSetup = &iSetup;
+    isEventSetupset = true;
+}
+
+void RPCSeedFinder::seed() {
+
+    cout << "[RPCSeedFinder] --> seeds called" << endl;
+
+    if(isrecHitsset == false || isOutputset == false || isConfigured == false || isEventSetupset == false)
+    {
+        cout << "Configuration or IO is not set yet" << endl;
+        return;
+    }
+    
+    weightedTrajectorySeed theweightedSeed;
+    int isGoodSeed = 0;
+    const edm::EventSetup &iSetup = *eSetup;
+    theweightedSeed = oneSeed.seed(iSetup, isGoodSeed);
+    // Push back the good seed
+    if(isGoodSeed == 1)
+    {
+        cout << "[RPCSeedFinder] --> Seeds from " << oneSeed.nrhit() << " recHits." << endl;
+        goodweightedSeedsRef->push_back(theweightedSeed);
+    }
+    // Push back cadidate seed but not the fake seed
+    if(isGoodSeed >= 0)
+    {
+        candidateweightedSeedsRef->push_back(theweightedSeed);
+    }
+
+    // Unset the signal
+    oneSeed.clear();
+    isrecHitsset = false;
+}
+
+
 

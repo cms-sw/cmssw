@@ -28,7 +28,7 @@ FourMomentumKinematicConstraint::FourMomentumKinematicConstraint(const Algebraic
  dd = deviation_l;
 }
 
-pair<AlgebraicVector,AlgebraicVector> FourMomentumKinematicConstraint::value(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicVector,AlgebraicVector> FourMomentumKinematicConstraint::value(const AlgebraicVector& exPoint) const
 {
  if(exPoint.num_row() ==0 ) throw VertexException("FourMomentumKinematicConstraint::value requested for zero Linearization point");
 
@@ -44,10 +44,10 @@ pair<AlgebraicVector,AlgebraicVector> FourMomentumKinematicConstraint::value(con
  vl(3) += (pr(6) - mm(3));
  vl(7) += (sqrt(pr(4)*pr(4)+pr(5)*pr(5)+pr(6)*pr(6)+pr(7)*pr(7)) - mm(4));
  
- return pair<AlgebraicVector,AlgebraicVector>(vl,pr);
+ return std::pair<AlgebraicVector,AlgebraicVector>(vl,pr);
 }
  
-pair<AlgebraicMatrix, AlgebraicVector> FourMomentumKinematicConstraint::derivative(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicMatrix, AlgebraicVector> FourMomentumKinematicConstraint::derivative(const AlgebraicVector& exPoint) const
 {
  if(exPoint.num_row() ==0) throw VertexException("FourMomentumKinematicConstraint::value requested for zero Linearization point");
 
@@ -64,15 +64,15 @@ pair<AlgebraicMatrix, AlgebraicVector> FourMomentumKinematicConstraint::derivati
  dr(3,6) = 1.;
  dr(4,7) = pr(7)/ sqrt(pr(4)*pr(4)+pr(5)*pr(5)+pr(6)*pr(6)+pr(7)*pr(7));
   
- return pair<AlgebraicMatrix,AlgebraicVector>(dr,pr);
+ return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,pr);
 }
 
-pair<AlgebraicVector, AlgebraicVector> FourMomentumKinematicConstraint::value(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicVector, AlgebraicVector> FourMomentumKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> &par) const
 {
  int nStates = par.size();
  if(nStates == 0) throw VertexException("FourMomentumKinematicConstraint::Empty vector of particles passed");
  if(nStates != 1) throw VertexException("FourMomentumKinematicConstraint::Multi particle refit is not supported in this version");
- AlgebraicVector pr = par.front()->currentState().kinematicParameters().vector();
+ AlgebraicVector pr = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  AlgebraicVector vl(4,0);
  
  vl(1) = pr(4) - mm(1);
@@ -80,23 +80,23 @@ pair<AlgebraicVector, AlgebraicVector> FourMomentumKinematicConstraint::value(co
  vl(3) = pr(6) - mm(3);
  vl(7) = sqrt(pr(4)*pr(4)+pr(5)*pr(5)+pr(6)*pr(6)+pr(7)*pr(7)) - mm(4);
  
- return pair<AlgebraicVector,AlgebraicVector>(vl,pr);
+ return std::pair<AlgebraicVector,AlgebraicVector>(vl,pr);
 }
 
-pair<AlgebraicMatrix, AlgebraicVector> FourMomentumKinematicConstraint::derivative(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicMatrix, AlgebraicVector> FourMomentumKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> &par) const
 {
  int nStates = par.size();
  if(nStates == 0) throw VertexException("FourMomentumKinematicConstraint::Empty vector of particles passed");
  if(nStates != 1) throw VertexException("FourMomentumKinematicConstraint::Multi particle refit is not supported in this version");
  AlgebraicMatrix dr(4,7,0);
  
- AlgebraicVector pr = par.front()->currentState().kinematicParameters().vector();
+ AlgebraicVector pr = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  dr(1,4) = 1.;
  dr(2,5) = 1.;
  dr(3,6) = 1.;
  dr(4,7) = - pr(7)/sqrt(pr(4)*pr(4)+pr(5)*pr(5)+pr(6)*pr(6)+pr(7)*pr(7));
  
- return pair<AlgebraicMatrix,AlgebraicVector>(dr,pr);
+ return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,pr);
 }
 
 AlgebraicVector FourMomentumKinematicConstraint::deviations(int nStates) const

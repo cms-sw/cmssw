@@ -15,14 +15,11 @@
 // E =  Et/Sin(Theta)
 //
 
-using namespace std;
-
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtThetaPhi.h"
-#include "TLorentzVector.h"
 #include "TMath.h"
-
-ClassImp(TFitParticleEtThetaPhi)
+#include <cmath>
 
 //----------------
 // Constructor --
@@ -65,7 +62,7 @@ TFitParticleEtThetaPhi::TFitParticleEtThetaPhi(const TString &name, const TStrin
   init(pini, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleEtThetaPhi::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleEtThetaPhi::clone( const TString& newname ) const {
   // Returns a copy of itself
   
   TAbsFitParticle* myclone = new TFitParticleEtThetaPhi( *this );
@@ -101,7 +98,8 @@ TLorentzVector* TFitParticleEtThetaPhi::calc4Vec( const TMatrixD* params ) {
   }
 
   if ( params->GetNcols() != 1 || params->GetNrows() !=_nPar ) {
-    cout << "Parameter matrix has wrong size." << endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::calc4Vec - Parameter matrix has wrong size.";
     return 0;
   }
 
@@ -143,7 +141,7 @@ void TFitParticleEtThetaPhi::setIni4Vec(const TLorentzVector* pini) {
     
   } else {
     
-    Double_t et = pini->E()*fabs(sin(pini->Theta()));
+    Double_t et = pini->E()*std::fabs(sin(pini->Theta()));
     Double_t theta = pini->Theta();
     Double_t phi = pini->Phi();
     
@@ -208,7 +206,7 @@ TMatrixD* TFitParticleEtThetaPhi::transform(const TLorentzVector& vec) {
 
   // retrieve parameters
   TMatrixD* tparams = new TMatrixD( _nPar, 1 );
-  (*tparams)(0,0) = vec.E()*fabs(sin(vec.Theta()));
+  (*tparams)(0,0) = vec.E()*std::fabs(sin(vec.Theta()));
   (*tparams)(1,0) = vec.Theta();
   (*tparams)(2,0) = vec.Phi();
 

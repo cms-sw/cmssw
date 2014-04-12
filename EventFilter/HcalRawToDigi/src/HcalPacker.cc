@@ -3,6 +3,8 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 
 HcalPacker::Collections::Collections() {
   hbhe=0;
@@ -14,11 +16,14 @@ HcalPacker::Collections::Collections() {
 }
 
 template <class Coll, class DetIdClass> 
-int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples) {
+int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples,bool& isUS, bool& isMP) {
+  isUS=false; isMP=false;
   if (pt==0) return 0;
   int size=0;
   typename Coll::const_iterator i=pt->find(DetIdClass(did));
   if (i!=pt->end()) {
+    isUS=i->zsUnsuppressed();
+    isMP=i->zsMarkAndPass();
     presamples=i->presamples();
     size=i->size();
     for (int j=0; j<size; j++) 
@@ -27,7 +32,7 @@ int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presa
   return size;
 }
 
-static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const HcalTrigTowerDetId& tid, unsigned short* buffer, int exppresamples, int expsize) {
+static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const HcalTrigTowerDetId& tid, unsigned short* buffer) {
   if (pt==0) return 0;
   int size=0;
   HcalTrigPrimDigiCollection::const_iterator i=pt->find(tid);
@@ -35,45 +40,36 @@ static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const Hca
     int presamples=i->presamples();
     int samples=i->size();
 
-    // rare care of no precision digis, but trig prim digis
-    if (expsize<0) expsize=samples;
-    if (exppresamples<0) exppresamples=presamples;
-    // we must match samples and presamples with zero tps
-    for (int j=0; j<expsize; j++)
-      buffer[j]=0;
-    
-    int offset=exppresamples-presamples;
-
-    for (int j=0; j<samples; j++) 
-      if (j+offset>=0 && j+offset<expsize)
-	buffer[j+offset]=(*i)[j].raw();
-    size=expsize;
+    for (int j=0; j<samples; j++) {
+       buffer[j]=(*i)[j].raw();
+       if (j==presamples) buffer[j]|=0x0200;
+    }
   }
   return size;
 }
 
 int HcalPacker::findSamples(const DetId& did, const Collections& inputs,
-			    unsigned short* buffer, int &presamples) {
-  if (did.det()!=DetId::Hcal) return 0;
+			    unsigned short* buffer, int &presamples, bool& isUS, bool& isMP) {
+  if (!(did.det()==DetId::Hcal || (did.det()== DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId)) ) return 0;
   int size=0;
   HcalGenericDetId genId(did);
   
   switch (genId.genericSubdet()) {
   case(HcalGenericDetId::HcalGenBarrel):
   case(HcalGenericDetId::HcalGenEndcap):
-    size=process<HBHEDigiCollection,HcalDetId>(inputs.hbhe,did,buffer,presamples);
+    size=process<HBHEDigiCollection,HcalDetId>(inputs.hbhe,did,buffer,presamples,isUS,isMP);
     break;
   case(HcalGenericDetId::HcalGenOuter):
-    size=process<HODigiCollection,HcalDetId>(inputs.hoCont,did,buffer,presamples);
+    size=process<HODigiCollection,HcalDetId>(inputs.hoCont,did,buffer,presamples,isUS,isMP);
     break;
   case(HcalGenericDetId::HcalGenForward):
-    size=process<HFDigiCollection,HcalDetId>(inputs.hfCont,did,buffer,presamples);
+    size=process<HFDigiCollection,HcalDetId>(inputs.hfCont,did,buffer,presamples,isUS,isMP);
     break;
   case(HcalGenericDetId::HcalGenZDC):
-    size=process<ZDCDigiCollection,HcalZDCDetId>(inputs.zdcCont,did,buffer,presamples);
+    size=process<ZDCDigiCollection,HcalZDCDetId>(inputs.zdcCont,did,buffer,presamples,isUS,isMP);
     break;
   case(HcalGenericDetId::HcalGenCalibration):
-    size=process<HcalCalibDigiCollection,HcalCalibDetId>(inputs.calibCont,did,buffer,presamples);
+    size=process<HcalCalibDigiCollection,HcalCalibDetId>(inputs.calibCont,did,buffer,presamples,isUS,isMP);
     break;
   default: size=0;
   }
@@ -89,7 +85,8 @@ void HcalPacker::pack(int fedid, int dccnumber,
   std::vector<unsigned short> trigdata(HcalHTRData::CHANNELS_PER_SPIGOT*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL);
   std::vector<unsigned char> preclen(HcalHTRData::CHANNELS_PER_SPIGOT);
   std::vector<unsigned char> triglen(HcalHTRData::CHANNELS_PER_SPIGOT);
-  const int HTRFormatVersion=1;
+  static const int HTRFormatVersion=5;
+  bool channelIsMP[HcalHTRData::CHANNELS_PER_SPIGOT];
 
   HcalHTRData spigots[15];
   // loop over all valid channels in the given dcc, spigot by spigot.
@@ -98,11 +95,14 @@ void HcalPacker::pack(int fedid, int dccnumber,
     HcalElectronicsId exampleEId;
     int npresent=0;
     int presamples=-1, samples=-1;
+    bool haveUnsuppressed=false;
     for (int fiber=1; fiber<=8; fiber++) 
       for (int fiberchan=0; fiberchan<3; fiberchan++) {
 	int linear=(fiber-1)*3+fiberchan;
-	unsigned short chanid=(((fiber-1)&0x7)<<13)|((fiberchan&0x3)<<11);
+	HcalQIESample chanSample(0,0,fiber,fiberchan,false,false);
+	unsigned short chanid=chanSample.raw()&0xF800;
 	preclen[linear]=0;
+	channelIsMP[linear]=false;
 
 	HcalElectronicsId partialEid(fiberchan,fiber,spigot,dccnumber);
 	// does this partial id exist?
@@ -113,8 +113,11 @@ void HcalPacker::pack(int fedid, int dccnumber,
 
 	// next, see if there is a digi with this id
 	unsigned short* database=&(precdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
-	int mypresamples;
-	int mysamples=findSamples(genId,inputs,database,mypresamples);
+	int mypresamples=-1;
+	bool isUS=false, isMP=false;
+	int mysamples=findSamples(genId,inputs,database,mypresamples,isUS,isMP);
+	haveUnsuppressed=haveUnsuppressed || isUS;
+	channelIsMP[linear]=isMP;
 
 	if (mysamples>0) {
 	  if (samples<0) samples=mysamples;
@@ -138,22 +141,26 @@ void HcalPacker::pack(int fedid, int dccnumber,
     for (int slb=1; slb<=6; slb++) 
       for (int slbchan=0; slbchan<=3; slbchan++) {
 	int linear=(slb-1)*4+slbchan;
-	unsigned short chanid=(((slb-1)&0x7)<<13)|((slbchan&0x3)<<11);
+	HcalTriggerPrimitiveSample idCvt(0,0,slb,slbchan);
+	unsigned short chanid=idCvt.raw()&0xF800;
 	triglen[linear]=0;
-	
-	HcalElectronicsId partialEid(dccnumber,spigot,slb,slbchan,0,0,0);
+
+	HcalElectronicsId partialEid(slbchan,slb,spigot,dccnumber,0,0,0);
 	// does this partial id exist?
 	HcalElectronicsId fullEid;
 	HcalTrigTowerDetId tid;
-	if (!emap.lookup(partialEid,fullEid,tid)) continue;
+	if (!emap.lookup(partialEid,fullEid,tid)) {
+//	  std::cout << "TPGPACK : no match for " << partialEid << std::endl;
+	  continue;
+	}  //else std::cout << "TPGPACK : converted " << partialEid << " to " << fullEid << "/" << tid << std::endl;
           
 	// finally, what about a trigger channel?
 	if (!tid.null()) {
 	  unsigned short* trigbase=&(trigdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
-	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase,samples,presamples);
-	  if (samples<0 && triglen[linear]>0) samples=triglen[linear];
+	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase);
+	  
 	  for (unsigned char q=0; q<triglen[linear]; q++)
-	    trigbase[q]=(trigbase[q]&0x7FF)|(chanid&0x1F);
+	    trigbase[q]=(trigbase[q]&0x7FF)|chanid;
 	}
       }
     /// pack into HcalHTRData
@@ -174,6 +181,9 @@ void HcalPacker::pack(int fedid, int dccnumber,
 					samples,
 					presamples,
 					firmwareRev);
+      if (haveUnsuppressed) {
+	spigots[spigot].packUnsuppressed(channelIsMP);
+      }
       
     }
   }
@@ -196,4 +206,9 @@ void HcalPacker::pack(int fedid, int dccnumber,
     if (spigots[spigot].getRawLength()>0)
       dcc->copySpigotData(spigot,spigots[spigot],true,0);
   }
+  // trailer
+  FEDTrailer fedTrailer(output.data()+(output.size()-8));
+  fedTrailer.set(output.data()+(output.size()-8),
+    output.size()/8,
+    evf::compute_crc(output.data(),output.size()), 0, 0);
 }

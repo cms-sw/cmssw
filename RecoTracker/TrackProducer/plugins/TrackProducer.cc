@@ -1,4 +1,4 @@
-#include "RecoTracker/TrackProducer/interface/TrackProducer.h"
+#include "RecoTracker/TrackProducer/plugins/TrackProducer.h"
 // system include files
 #include <memory>
 // user include files
@@ -13,13 +13,21 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
-  TrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
+  KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
+		      iConfig.getParameter<bool>("useHitsSplitting")),
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( iConfig.getParameter<std::string>( "src" ));
-  setProducer( iConfig.getParameter<std::string>( "producer" ));
+  setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
+          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
+          consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
+
+  if ( iConfig.exists("clusterRemovalInfo") ) {
+        edm::InputTag tag = iConfig.getParameter<edm::InputTag>("clusterRemovalInfo");
+        if (!(tag == edm::InputTag())) { setClusterRemovalInfo( tag ); }
+  }
+
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
@@ -32,7 +40,7 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
 
 void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 {
-  edm::LogInfo("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
+  LogDebug("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
   //
   // create empty output collections
   //
@@ -48,34 +56,37 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
+  edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
   //
   //declare and get TrackColection to be retrieved from the event
   //
-    AlgoProductCollection algoResults;
-  try{  
-    edm::Handle<TrackCandidateCollection> theTCCollection;
-    getFromEvt(theEvent,theTCCollection);
-    
-    //
-    //run the algorithm  
-    //
+  AlgoProductCollection algoResults;
+  edm::Handle<TrackCandidateCollection> theTCCollection;
+  reco::BeamSpot bs;
+  getFromEvt(theEvent,theTCCollection,bs);
+  //protect against missing product  
+  if (theTCCollection.failedToGet()){
+    edm::LogError("TrackProducer") <<"could not get the TrackCandidateCollection.";} 
+  else{
     LogDebug("TrackProducer") << "run the algorithm" << "\n";
-    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-  } catch (cms::Exception &e){ edm::LogInfo("TrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
-  //
+    try{  
+      theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
+			       theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+    } catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw;}
+  }
+  
   //put everything in the event
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults, theBuilder.product());
   LogDebug("TrackProducer") << "end" << "\n";
 }
 
 
 std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEvent, const edm::EventSetup& setup)
 {
-  edm::LogInfo("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
+  LogDebug("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
   //
   // create empty output collections
   //
@@ -88,26 +99,29 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
+  edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
   //
   //declare and get TrackColection to be retrieved from the event
   //
   AlgoProductCollection algoResults;
-  try{  
-    edm::Handle<TrackCandidateCollection> theTCCollection;
-    getFromEvt(theEvent,theTCCollection);
-    
-    //
-    //run the algorithm  
-    //
+  edm::Handle<TrackCandidateCollection> theTCCollection;
+  reco::BeamSpot bs;
+  getFromEvt(theEvent,theTCCollection,bs);
+  //protect against missing product  
+  if (theTCCollection.failedToGet()){
+    edm::LogError("TrackProducer") <<"could not get the TrackCandidateCollection.";}
+  else{
     LogDebug("TrackProducer") << "run the algorithm" << "\n";
-    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-  } catch (cms::Exception &e){ edm::LogInfo("TrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
-
-
+    try{  
+      theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
+			       theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+    }
+    catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw; }
+  }
+  
   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
     ttks.push_back( reco::TransientTrack(*((*prod).second.first),thePropagator.product()->magneticField() ));
   }

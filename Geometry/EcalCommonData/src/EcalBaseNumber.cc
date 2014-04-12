@@ -1,34 +1,54 @@
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
 
-void EcalBaseNumber::addLevel(const std::string& name,int copyNumber)
+EcalBaseNumber::EcalBaseNumber():_theLevels(0) { } 
+
+EcalBaseNumber::EcalBaseNumber(const EcalBaseNumber & aBaseNumber):
+  _sortedName(aBaseNumber._sortedName),
+  _sortedCopyNumber(aBaseNumber._sortedCopyNumber),  
+  _theLevels(aBaseNumber._theLevels) { }  
+
+void EcalBaseNumber::setSize(const int & size) {
+  _sortedName.resize(size);
+  _sortedCopyNumber.resize(size);
+}
+
+void EcalBaseNumber::addLevel(const std::string& name, const int & copyNumber)
 {
-  _sortedBaseNumber.push_back(std::pair<std::string,int>(name,copyNumber));
+  _sortedName[_theLevels] = name;
+  _sortedCopyNumber[_theLevels] = copyNumber;
+  _theLevels++;
 }
 
 int EcalBaseNumber::getLevels() const
 {
-  return _sortedBaseNumber.size();
+  return _theLevels;
 }
 
 int EcalBaseNumber::getCopyNumber(int level) const
 {
-  return _sortedBaseNumber[level].second;
+  return _sortedCopyNumber[level];
 }
 
 int EcalBaseNumber::getCopyNumber(const std::string& levelName) const
 {
-  basenumber_type::const_iterator cur=_sortedBaseNumber.begin();
-  basenumber_type::const_iterator end=_sortedBaseNumber.end();
-  while (cur!=end) {
-    if ((*cur).first==levelName) {
-      return (*cur).second;
-    }
-    cur++;
+  for ( int iLevel = 0; iLevel < _theLevels; iLevel++ ) {
+    if ( _sortedName[iLevel] == levelName ) { return _sortedCopyNumber[iLevel]; }  
   }
   return 0;
 }
 
 std::string const & EcalBaseNumber::getLevelName(int level) const
 {
-  return _sortedBaseNumber[level].first;
+  return _sortedName[level];
 }
+
+int EcalBaseNumber::getCapacity() 
+{
+  return  _sortedName.capacity();  
+}
+
+void EcalBaseNumber::reset()
+{
+  _theLevels = 0;
+}
+

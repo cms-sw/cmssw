@@ -10,17 +10,15 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicSeedGenerator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 
 using namespace std;
 CosmicSeedGenerator::CosmicSeedGenerator(edm::ParameterSet const& conf) : 
-  conf_(conf) ,cosmic_seed(conf)
+  conf_(conf) ,cosmic_seed(conf),
+  check(conf,consumesCollector())
+
  {
   edm::LogInfo ("CosmicSeedGenerator")<<"Enter the CosmicSeedGenerator";
   produces<TrajectorySeedCollection>();
@@ -47,15 +45,18 @@ void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
  
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
-  //
- 
-  cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits, es);
- 
-  // invoke the seed finding algorithm
-  cosmic_seed.run(*output,es);
+
+  //check on the number of clusters
+  size_t clustsOrZero = check.tooManyClusters(ev);
+  if (!clustsOrZero){
+    cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits, es);
+    
+    // invoke the seed finding algorithm
+    cosmic_seed.run(*output,es);
+  } else edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
 
   // write output to file
-  LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();
+  LogDebug("CosmicSeedGenerator")<<" number of seeds = "<< output->size();
 
 
   ev.put(output);

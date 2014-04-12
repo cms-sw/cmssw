@@ -1,0 +1,8 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="rootphysics"/>
+<library   file="*.cc" name="CalibrationHcalAlCaRecoProducersPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

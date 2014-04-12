@@ -2,8 +2,6 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2007/03/08 20:14:10 $
- *  $Revision: 1.12 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -20,21 +18,29 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {class Event; class EventSetup;}
 
 class Trajectory;
 class TrajectoryMeasurement;
 class CosmicMuonUtilities;
+class DirectMuonNavigation;
+class MuonBestMeasurementFinder;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
-class CosmicMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
+class CosmicMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
+
 public:
 
   /// Constructor 
-  CosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service);
+  CosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service,edm::ConsumesCollector& iC);
 
   /// Destructor
   virtual ~CosmicMuonTrajectoryBuilder();
@@ -62,13 +68,20 @@ public:
 
   CosmicMuonSmoother* smoother() const {return theSmoother;}
 
-  CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
+  const CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
+
+  DirectMuonNavigation* navigation() const {return theNavigation;}
+
+  MuonBestMeasurementFinder* bestMeasurementFinder() const {return theBestMeasurementFinder;}
+
+  double t0(const DTRecSegment4D* deseg) const;
+
+  PropagationDirection checkDirectionByT0(const DTRecSegment4D*, const DTRecSegment4D*) const;
+
 
 private:
 
   MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
-
-  void explore(Trajectory&, MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
   void buildSecondHalf(Trajectory&);
 
@@ -78,18 +91,30 @@ private:
 
   void selectHits(MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
 
-  /// reverse a trajectory without refit
+  /// reverse a trajectory without refit (out the measurements order changed)
   void reverseTrajectory(Trajectory&) const;
 
-  double computeNDOF(const Trajectory&) const;
+  /// flip a trajectory with refit (the momentum direction is opposite)
+  void flipTrajectory(Trajectory&) const;
+
+  /// reverse the propagation direction of a trajectory
+  void reverseTrajectoryPropagationDirection(Trajectory&) const;
 
   /// check if the trajectory iterates the same hit more than once
   bool selfDuplicate(const Trajectory&) const;
 
-  /// check the direction of trajectory by refitting from both ends
+  /// check the direction of trajectory by checking eta spread
   void estimateDirection(Trajectory&) const;
 
-  void updateTrajectory(Trajectory&, const MuonTransientTrackingRecHit::MuonRecHitContainer&);
+  /// check the direction of trajectory by checking the timing 
+  void getDirectionByTime(Trajectory&) const;
+
+  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const Propagator*, const MeasurementEstimator*);
+
+  void incrementChamberCounters(const DetLayer* layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
+
+  DirectMuonNavigation* theNavigation;
+  edm::ParameterSet theNavigationPSet;
 
   MuonTrajectoryUpdator* theUpdator;
   MuonTrajectoryUpdator* theBKUpdator;
@@ -98,11 +123,20 @@ private:
   const MuonServiceProxy* theService;
   CosmicMuonSmoother* theSmoother;
 
-  std::string thePropagatorName;
-  bool theTraversingMuonFlag;
+  MuonBestMeasurementFinder* theBestMeasurementFinder;
 
+  std::string thePropagatorName;
+
+  bool theTraversingMuonFlag;
+  bool theStrict1LegFlag;
+
+  std::string category_;
   int theNTraversing;
   int theNSuccess;
-  
+
+  unsigned long long theCacheId_DG;
+  edm::Handle<CSCRecHit2DCollection> cschits_;
+  edm::Handle<DTRecHitCollection> dthits_;
+ 
 };
 #endif

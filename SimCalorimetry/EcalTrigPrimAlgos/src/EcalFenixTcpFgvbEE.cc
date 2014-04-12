@@ -1,51 +1,52 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFgvbEE.h>
-#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixChip.h"
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 //---------------------------------------------------------------
-EcalFenixTcpFgvbEE::EcalFenixTcpFgvbEE(const EcalTPParameters * ecaltpp)
-  : ecaltpp_(ecaltpp)
+EcalFenixTcpFgvbEE::EcalFenixTcpFgvbEE(int maxNrSamples)
 {
-}
-//---------------------------------------------------------------
+  indexLut_.resize(maxNrSamples); 
+}//---------------------------------------------------------------
 EcalFenixTcpFgvbEE::~EcalFenixTcpFgvbEE()
 {
 }
 //---------------------------------------------------------------
 void EcalFenixTcpFgvbEE::process(std::vector<std::vector<int> > & bypasslin_out, int nStr,int bitMask,std::vector<int> & output)
 {
-  std::vector<int> indexLut(output.size());
-  
-  int lut_fg = (*params_)[1024];//FIXME
+  //  std::vector<int> indexLut(output.size());
   
   for (unsigned int i=0;i<output.size();i++) {
     output[i]=0;
-    indexLut[i]=0;
+    indexLut_[i]=0;
   }
     
   for (unsigned int i=0;i<output.size();i++) {
     for (int istrip=0;istrip<nStr;istrip++) {
-      int res = (bypasslin_out[istrip])[i];
-      res = (res >>bitMask) & 1;
-      indexLut[i]= indexLut[i] | (res << istrip);
+      int res = (bypasslin_out[istrip])[i]; 
+      res = (res >>bitMask) & 1; //res is FGVB at this stage
+      indexLut_[i]= indexLut_[i] | (res << istrip);
     }
-    indexLut[i]= indexLut[i] | (nStr << 5);
+    indexLut_[i]= indexLut_[i] | (nStr << 5);
      
-    int mask = 1<<indexLut[i];
-    output[i]= lut_fg & mask;
+    int mask = 1<<indexLut_[i];
+    output[i]= fgee_lut_ & mask;
     if (output[i]>0) output[i]=1;
   }
-  //  return output;  
   return;
 } 
 
 //------------------------------------------------------------------- 
 
-void EcalFenixTcpFgvbEE::setParameters(int sectorNb, int towNum)
+void EcalFenixTcpFgvbEE::setParameters(uint32_t towid,const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE)
 {
- params_ = ecaltpp_->getTowerParameters(sectorNb,towNum);
- }
+
+  const  EcalTPGFineGrainTowerEEMap &fgee_map = ecaltpgFineGrainTowerEE -> getMap();
+
+  EcalTPGFineGrainTowerEEMapIterator it=fgee_map.find(towid);
+  if (it!=fgee_map.end()) fgee_lut_=(*it).second;
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGFineGrainTowerEEMap for "<<towid;
+}
 
 
 

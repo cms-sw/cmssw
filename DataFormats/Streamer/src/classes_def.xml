@@ -1,9 +1,17 @@
 
 <lcgdict>
- <class name="edm::ProdPair"/>
- <class name="std::vector<edm::ProdPair>"/>
- <class name="edm::SendEvent"/>
- <class name="edm::SendJobHeader"/>
+ <class name="edm::StreamedProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="512531612"/>
+   <field name="prod_" transient="true"/>
+   <field name="classRef_" transient="true"/>
+ </class>
+ <class name="std::vector<edm::StreamedProduct>"/>
+ <class name="edm::SendEvent" ClassVersion="10">
+  <version ClassVersion="10" checksum="747121728"/>
+ </class>
+ <class name="edm::SendJobHeader" ClassVersion="10">
+  <version ClassVersion="10" checksum="1238072397"/>
+ </class>
  <class name="std::vector<edm::BranchDescription>"/>
 </lcgdict>
 

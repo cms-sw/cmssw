@@ -3,6 +3,6 @@
 #include "SimG4Core/CheckSecondary/interface/StoreSecondary.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_SEAL_MODULE ();
+
 DEFINE_SIMWATCHER (CheckSecondary);
 DEFINE_SIMWATCHER (StoreSecondary);

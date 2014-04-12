@@ -1,7 +1,11 @@
 #include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/FastFedCablingAlgorithm.h"
+#include "DQM/SiStripCommissioningSummary/interface/FastFedCablingSummaryFactory.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TProfile.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -11,21 +15,13 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::FAST_CABLING ),
-  factory_( new Factory )
+FastFedCablingHistograms::FastFedCablingHistograms( const edm::ParameterSet& pset,
+                                                    DQMStore* bei )
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"),
+                             bei,
+                             sistrip::FAST_CABLING )
 {
-  LogTrace(mlDqmClient_) 
-    << "[FastFedCablingHistograms::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-FastFedCablingHistograms::FastFedCablingHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::FAST_CABLING ),
-  factory_( new Factory )
-{
+  factory_ = auto_ptr<FastFedCablingSummaryFactory>( new FastFedCablingSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistograms::" << __func__ << "]"
     << " Constructing object...";
@@ -47,15 +43,15 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
 
   // Some initialisation
   uint16_t valid = 0;
-  HistosMap::const_iterator iter = 0;
-  Analyses::iterator ianal = 0;
+  HistosMap::const_iterator iter;
+  Analyses::iterator ianal;
   std::map<std::string,uint16_t> errors;
   
   // Clear map holding analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
+  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
     if ( ianal->second ) { delete ianal->second; }
   } 
-  data_.clear();
+  data().clear();
   
   // Iterate through map containing histograms
   for ( iter = histos().begin(); 
@@ -79,17 +75,14 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     FastFedCablingAnalysis* anal = new FastFedCablingAnalysis( iter->first );
-    anal->analysis( profs );
-    data_[iter->first] = anal; 
+    FastFedCablingAlgorithm algo( this->pset(), anal );
+    FedToFecMap::const_iterator ifed = mapping().find( iter->first );
+    if ( ifed != mapping().end() ) { anal->fecKey( ifed->second ); }
+    algo.analysis( profs );
+    data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
-    if ( debug ) {
-      std::stringstream ss;
-      anal->print( ss ); 
-      if ( anal->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
-      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-      if ( !anal->getErrorCodes().empty() ) { 
-	errors[anal->getErrorCodes()[0]]++;
-      }
+    if ( !anal->getErrorCodes().empty() ) { 
+      errors[anal->getErrorCodes()[0]]++;
     }
     
   }
@@ -110,10 +103,9 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
 	ss << " " << ii->first << ": " << ii->second << std::endl;
 	count += ii->second;
       }
-      edm::LogVerbatim(mlDqmClient_) 
+      edm::LogWarning(mlDqmClient_) 
 	<< "[FastFedCablingHistograms::" << __func__ << "]"
-	<< " Found " << count << " errors ("
-	<< 100 * count / histos().size() << "%): " 
+	<< " Found " << count << " error strings: "
 	<< ss.str();
     }
   } else {
@@ -126,25 +118,67 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void FastFedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& mon, 
-						   const sistrip::Presentation& pres, 
-						   const std::string& dir,
-						   const sistrip::Granularity& gran ) {
-  
-  // Analyze histograms if not done already
-  if ( data_.empty() ) { histoAnalysis( false ); }
-  
-  // Extract data to be histogrammed
-  sistrip::View view = SiStripEnumsAndStrings::view(dir);
-  uint32_t xbins = factory_->init( mon, pres, view, dir, gran, data_ );
-  
-  // Use base method to create summary histogram
-  TH1* summary = 0;
-  if ( pres != sistrip::HISTO_1D ) { summary = histogram( mon, pres, view, dir, xbins ); }
-  else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
-  
-  // Fill histogram with data
-  factory_->fill( *summary );
-  
+void FastFedCablingHistograms::printAnalyses() {
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) { 
+
+    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( ianal->second );
+    if ( !anal ) { 
+      edm::LogError(mlDqmClient_)
+	<< "[FastFedCablingHistograms::" << __func__ << "]"
+	<< " NULL pointer to analysis object!";
+      continue; 
+    }
+
+    std::stringstream ss;
+    anal->print( ss ); 
+    if ( anal->isValid() &&
+	 !(anal->isDirty()) && 
+	 !(anal->badTrimDac()) ) { LogTrace(mlDqmClient_) << ss.str(); 
+    } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+
+  }
+
 }
 
+// -----------------------------------------------------------------------------
+/** */
+void FastFedCablingHistograms::printSummary() {
+
+  std::stringstream good;
+  std::stringstream bad;
+  
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) { 
+
+    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( ianal->second );
+    if ( !anal ) { 
+      edm::LogError(mlDqmClient_)
+	<< "[FastFedCablingHistograms::" << __func__ << "]"
+	<< " NULL pointer to analysis object!";
+      continue; 
+    }
+
+    if ( anal->isValid() &&
+	 !(anal->isDirty()) && 
+	 !(anal->badTrimDac()) ) { 
+      anal->summary( good ); 
+    } else { anal->summary( bad ); }
+
+  }
+
+  if ( good.str().empty() ) { good << "None found!"; }
+  LogTrace(mlDqmClient_) 
+    << "[FastFedCablingHistograms::" << __func__ << "]"
+    << " Printing summary of good analyses:" << "\n"
+    << good.str();
+  
+  if ( bad.str().empty() ) { return; } //@@ bad << "None found!"; }
+  LogTrace(mlDqmClient_) 
+    << "[FastFedCablingHistograms::" << __func__ << "]"
+    << " Printing summary of bad analyses:" << "\n"
+    << bad.str();
+  
+}

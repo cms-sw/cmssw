@@ -7,16 +7,20 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "TMVA/Reader.h"
-
-
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -39,8 +43,7 @@ class TrajectoryFitter;
 class TrajectorySmoother;
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
-class Propagator;
-class StraightLinePropagator;
+
 
 class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
@@ -49,14 +52,23 @@ class GoodSeedProducer : public edm::EDProducer {
       ~GoodSeedProducer();
   
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob(){}
+      virtual void beginRun(const edm::Run & run,const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endRun(const edm::Run & run,const edm::EventSetup&) override;
  
       ///Find the bin in pt and eta
       int getBin(float,float);
-      bool PSCorrEnergy(const TSOS, int ptbin);
-      void PSforTMVA(const TSOS);
+      int getBin(float);
+      void PSforTMVA(const math::XYZTLorentzVector& mom,
+		     const math::XYZTLorentzVector& pos);
+      bool IsIsolated(float  charge,float P,
+	              math::XYZPointF, 
+                      const reco::PFClusterCollection &ecalColl,
+                      const reco::PFClusterCollection &hcalColl);
+
+      void fillPreIdRefValueMap( edm::Handle<reco::TrackCollection> tkhandle,
+				 const edm::OrphanHandle<reco::PreIdCollection>&,
+				 edm::ValueMap<reco::PreIdRef>::Filler & filler);
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
@@ -69,12 +81,8 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Name of the Seed(Gsf) Collection
       std::string preidgsf_;
 
-      ///Propagator
-      edm::ESHandle<Propagator> propagator_;
-
-      ///StraightLinePropagator to propagate the Trajectory from
-      ///ECAL to the max shower surface
-      StraightLinePropagator *maxShPropagator_;
+      ///Name of the preid Collection (FB)
+      std::string preidname_;
 
       ///Fitter
       edm::ESHandle<TrajectoryFitter> fitter_;
@@ -88,33 +96,65 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Number of hits in the seed;
       int nHitsInSeed_;
 
+      ///Minimum transverse momentum and maximum pseudorapidity
+      double minPt_;
+      double maxPt_;
+      double maxEta_;
+      
+      ///ISOLATION REQUEST AS DONE IN THE TAU GROUP
+      bool applyIsolation_;
+      double HcalIsolWindow_;
+      double EcalStripSumE_minClusEnergy_;
+      double EcalStripSumE_deltaEta_;
+      double EcalStripSumE_deltaPhiOverQ_minValue_;
+      double EcalStripSumE_deltaPhiOverQ_maxValue_;
+      double minEoverP_;
+      double maxHoverP_;
+      ///
+
       ///Cut on the energy of the clusters
       double clusThreshold_;
+
+      ///Min and MAx allowed values forEoverP
+      double minEp_;
+      double maxEp_;
 
       ///Produce the Seed for Ckf tracks?
       bool produceCkfseed_;
 
-      ///Produce the PFtracks for Ckf tracks? 
-      bool produceCkfPFT_;
+      ///  switch to disable the pre-id
+      bool disablePreId_;
+
+      ///Produce the pre-id debugging collection 
+      bool producePreId_;
+      
+      /// Threshold to save Pre Idinfo
+      double PtThresholdSavePredId_;
 
       ///vector of thresholds for different bins of eta and pt
       float thr[150];
       float thrPS[20];
-      float thrTMVA[15];
 
       // ----------access to event data
       edm::ParameterSet conf_;
-      edm::InputTag pfCLusTagPSLabel_;
-      edm::InputTag pfCLusTagECLabel_;
-      std::vector<edm::InputTag> tracksContainers_;
+      edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagPSLabel_;
+      edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagECLabel_;
+      edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagHCLabel_;
+      std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajContainers_;
+      std::vector<edm::EDGetTokenT<reco::TrackCollection > > tracksContainers_;
+      
 
       std::string fitterName_;
       std::string smootherName_;
       std::string propagatorName_;
 
-      static PFResolutionMap* resMapEtaECAL_;
-      static PFResolutionMap* resMapPhiECAL_;
+      PFResolutionMap* resMapEtaECAL_;
+      PFResolutionMap* resMapPhiECAL_;
 
+      ///TRACK QUALITY
+      bool useQuality_;
+      reco::TrackBase::TrackQuality trackQuality_;
+	
       ///READER FOR TMVA
       TMVA::Reader *reader;
 
@@ -125,7 +165,16 @@ class GoodSeedProducer : public edm::EDProducer {
       bool useTmva_;
 
       ///TMVA method
-      std::string metBarrel_;
-      std::string metEndcap_;
+      std::string method_;
+
+      ///B field
+      math::XYZVector B_;
+
+      ///Use of Preshower clusters
+      bool usePreshower_;
+
+      /// Map used to create the TrackRef, PreIdRef value map
+      std::map<reco::TrackRef,unsigned> refMap_;
+     
 };
 #endif

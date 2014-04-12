@@ -5,12 +5,15 @@
 
 #include "SimG4CMS/Calo/interface/HcalQie.h"
 
-#include "G4Poisson.hh"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandPoissonQ.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+
+//#define DebugLog
 
 HcalQie::HcalQie(edm::ParameterSet const & p) {
 
@@ -148,8 +151,10 @@ std::vector<double> HcalQie::shape() {
 			  << "Normalisation " << norm;
   for (i=0; i<nsiz; i++) {
     pulse[i] /= norm;
+#ifdef DebugLog
     LogDebug("HcalSim") << "HcalQie: Pulse[" << std::setw(3) << i << "] " 
 			<< std::setw(8) << pulse[i];
+#endif
   }
   
   return pulse;
@@ -177,12 +182,13 @@ std::vector<int> HcalQie::code() {
   for (i = 0; i < 122; i++) 
     temp[i] = (int)CodeFADCdata[i];
 
+#ifdef DebugLog
   int siz = temp.size();
   LogDebug("HcalSim") << "HcalQie: Codes in array of size " << siz;
   for (i=0; i<siz; i++)
     LogDebug("HcalSim") << "HcalQie: Code[" << std::setw(3) << i << "] " 
 			<< std::setw(6) << temp[i];
-
+#endif
   return temp;
 }
 
@@ -208,12 +214,13 @@ std::vector<double> HcalQie::charge() {
   for (i = 0; i < 122; i++)
     temp[i] = (double)(ChargeFADCdata[i]);
 
+#ifdef DebugLog
   int siz = temp.size();
   LogDebug("HcalSim") << "HcalQie: Charges in array of size " << siz;
   for (i=0; i<siz; i++)
     LogDebug("HcalSim") << "HcalQie: Charge[" << std::setw(3) << i << "] " 
 			<< std::setw(8) << temp[i];
-
+#endif
   return temp;
 }
 
@@ -231,12 +238,13 @@ std::vector<double> HcalQie::weight(int binOfMax, int mode, int npre,
     }
   }
 
+#ifdef DebugLog
   int siz = temp.size();
   LogDebug("HcalSim") << "HcalQie: Weights in array of size " << siz 
 		      << " and Npre " << npre;
   for (i=0; i<siz; i++)
     LogDebug("HcalSim") << "HcalQie: [Weight[" << i << "] = " << temp[i];
-
+#endif
   return temp;
 }
 
@@ -285,7 +293,8 @@ double HcalQie::getShape(double time) {
 }
 
 
-std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
+std::vector<int> HcalQie::getCode(int nht, const std::vector<CaloHit>& hitbuf,
+                                  CLHEP::HepRandomEngine* engine) {
 
   const double  bunchSpace=25.;
   int nmax = (bmax_ > numOfBuckets ? bmax_ : numOfBuckets);
@@ -293,19 +302,20 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
 
   // Noise in the channel
   for (int i=0; i<numOfBuckets; i++) 
-    work[i] = G4RandGauss::shoot(baseline,sigma);
+    work[i] = CLHEP::RandGaussQ::shoot(engine, baseline, sigma);
 
+#ifdef DebugLog
   LogDebug("HcalSim") << "HcalQie::getCode: Noise with baseline " << baseline 
 		      << " width " << sigma << " and " << nht << " hits";
   for (int i=0; i<numOfBuckets; i++) 
     LogDebug("HcalSim") << "HcalQie: Code[" << i << "] = " << work[i];
-  
+#endif  
   double etot=0, esum=0, photons=0;
   if (nht>0) {
   
     // Sort the hits
-    std::vector<CaloHit*> hits(nht);
-    std::vector<CaloHit*>::iterator k1, k2;
+    std::vector<const CaloHit*> hits(nht);
+    std::vector<const CaloHit*>::iterator k1, k2;
     int kk;
     for (kk = 0; kk < nht; kk++) {
       hits[kk] = &hitbuf[kk];
@@ -324,17 +334,21 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
       }
 
       double avpe  = ehit/eDepPerPE;
-      double photo = G4Poisson(avpe);
+      CLHEP::RandPoissonQ randPoissonQ(*engine, avpe);
+      double photo = randPoissonQ.fire();
       etot   += ehit;
       photons+= photo; 
+#ifdef DebugLog
       LogDebug("HcalSim") << "HcalQie::getCode: Hit " << kk << ":" << kk+jump 
 			  << " Energy deposit " << ehit << " Time " << jitter
 			  << " Average and true no of PE " << avpe << " " 
 			  << photo;
-
+#endif
       double bintime = jitter - phase_ - bunchSpace*(binOfMax-bmin_);
+#ifdef DebugLog
       LogDebug("HcalSim") << "HcalQie::getCode: phase " << phase_  
 			  << " binTime " << bintime;
+#endif
       std::vector<double> binsum(nmax,0);
       double norm=0, sum=0.;
       for (int i=bmin_; i<bmax_; i++) {
@@ -348,8 +362,10 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
       }
 
       if (sum>0) norm = (photo/(sum*qToPE));
+#ifdef DebugLog
       LogDebug("HcalSim") << "HcalQie::getCode: PE " << photo << " Sum " << sum
 			  << " Norm. " << norm;
+#endif
       for (int i=bmin_; i<bmax_; i++)
 	work[i] += binsum[i]*norm;
 
@@ -363,22 +379,25 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
     temp[i] = getCode(work[i]);
     esum   += work[i];
   }
+#ifdef DebugLog
   LogDebug("HcalSim") << "HcalQie::getCode: Input " << etot << " GeV; Photons "
 		      << photons << ";  Output " << esum << " fc";
-
+#endif
   return temp;
 }
 
 
-double HcalQie::getEnergy(std::vector<int> code) {
+double HcalQie::getEnergy(const std::vector<int>& code) {
 
   std::vector<double> work(numOfBuckets);
   double sum=0;
   for (int i=0; i<numOfBuckets; i++) {
     work[i] = codeToQ (code[i]);
     sum += work[i]*weight_[i];
+#ifdef DebugLog
     LogDebug("HcalSim") << "HcalQie::getEnergy: " << i << " code " << code[i] 
 			<< " PE " << work[i];
+#endif
   }
 
   double tmp;
@@ -387,8 +406,9 @@ double HcalQie::getEnergy(std::vector<int> code) {
   } else {
     tmp = sum * rescale_ * qToPE;
   }
+#ifdef DebugLog
   LogDebug("HcalSim") << "HcalQie::getEnergy: PE " << sum*qToPE << " Energy " 
 		      << tmp << " GeV";
-
+#endif
   return tmp;
 }

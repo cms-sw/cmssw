@@ -26,7 +26,7 @@ RunCrystalErrorsDat::~RunCrystalErrorsDat()
 
 
 void RunCrystalErrorsDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -38,23 +38,23 @@ void RunCrystalErrorsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			"to_number(:error_bits))");
   } catch (SQLException &e) {
-    throw(runtime_error("RunCrystalErrorsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("RunCrystalErrorsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void RunCrystalErrorsDat::writeDB(const EcalLogicID* ecid, const RunCrystalErrorsDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunCrystalErrorsDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("RunCrystalErrorsDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("RunCrystalErrorsDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("RunCrystalErrorsDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -62,14 +62,14 @@ void RunCrystalErrorsDat::writeDB(const EcalLogicID* ecid, const RunCrystalError
     m_writeStmt->setString(3, ( boost::lexical_cast<std::string>(item->getErrorBits()) ).c_str());
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunCrystalErrorsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("RunCrystalErrorsDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void RunCrystalErrorsDat::fetchData(map< EcalLogicID, RunCrystalErrorsDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -77,7 +77,7 @@ void RunCrystalErrorsDat::fetchData(map< EcalLogicID, RunCrystalErrorsDat >* fil
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunCrystalErrorsDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("RunCrystalErrorsDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -110,6 +110,6 @@ void RunCrystalErrorsDat::fetchData(map< EcalLogicID, RunCrystalErrorsDat >* fil
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(runtime_error("RunCrystalErrorsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunCrystalErrorsDat::fetchData():  "+e.getMessage()));
   }
 }

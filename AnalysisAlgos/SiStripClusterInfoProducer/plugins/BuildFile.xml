@@ -1,0 +1,15 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/SiStripDigi"/>
+<use   name="DataFormats/SiStripCluster"/>
+<use   name="DataFormats/SiStripDetId"/>
+<use   name="CondFormats/SiStripObjects"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="RecoLocalTracker/SiStripZeroSuppression"/>
+<use   name="CalibFormats/SiStripObjects"/>
+<use   name="CalibTracker/Records"/>
+<library   file="*.cc" name="AnalysisAlgosSiStripClusterInfoProducerPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

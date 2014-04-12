@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="pixbarlayer.xml" eval="true">
+		<Constant name="LayerDz" value="55.40*cm"/>
+		<Constant name="CoolDz" value="55.40*cm"/>
+		<Constant name="CoolSide" value="0.40*cm"/>
+		<Constant name="CoolThick" value="0.03*cm"/>
+	</ConstantsSection>
+</DDDefinition>

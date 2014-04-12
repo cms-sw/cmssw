@@ -2,41 +2,41 @@
 // Author : N.Almeida (LIP)
 // falta fazer o update dos block sizes
 
-#ifndef DCCEVENTBLOCK_HH
-#define DCCEVENTBLOCK_HH
+#ifndef DCCTBEVENTBLOCK_HH
+#define DCCTBEVENTBLOCK_HH
 
 
 #include "DCCBlockPrototype.h"
 
-class DCCTowerBlock;
-class DCCDataParser;
-class DCCTrailerBlock;
-class DCCTCCBlock;
-class DCCSRPBlock;
+class DCCTBTowerBlock;
+class DCCTBDataParser;
+class DCCTBTrailerBlock;
+class DCCTBTCCBlock;
+class DCCTBSRPBlock;
 
-class DCCEventBlock : public DCCBlockPrototype {
+class DCCTBEventBlock : public DCCTBBlockPrototype {
 	
 	public :
 		
-		DCCEventBlock(
-			DCCDataParser * parser, 
-			ulong * buffer, 
-			ulong numbBytes, 
-			ulong wordsToEnd, 
-			ulong wordBufferOffset = 0 , 
-			ulong wordEventOffset = 0 
+		DCCTBEventBlock(
+			DCCTBDataParser * parser, 
+			uint32_t * buffer, 
+			uint32_t numbBytes, 
+			uint32_t wordsToEnd, 
+			uint32_t wordBufferOffset = 0 , 
+			uint32_t wordEventOffset = 0 
 		);
 		
-		~DCCEventBlock();
+		~DCCTBEventBlock();
 		
 		void dataCheck(); 
 		
-		std::vector< DCCTowerBlock * > & towerBlocks();
-		std::vector< DCCTCCBlock *   > & tccBlocks();
-		DCCSRPBlock               * srpBlock();
-		DCCTrailerBlock           * trailerBlock();
-		std::vector< DCCTowerBlock * >   towerBlocksById(ulong towerId);
-		std::pair<bool,std::string> compare(DCCEventBlock * );
+		std::vector< DCCTBTowerBlock * > & towerBlocks();
+		std::vector< DCCTBTCCBlock *   > & tccBlocks();
+		DCCTBSRPBlock               * srpBlock();
+		DCCTBTrailerBlock           * trailerBlock();
+		std::vector< DCCTBTowerBlock * >   towerBlocksById(uint32_t towerId);
+		std::pair<bool,std::string> compare(DCCTBEventBlock * );
 
 		bool eventHasErrors();
 		std::string eventErrorString();
@@ -69,18 +69,18 @@ class DCCEventBlock : public DCCBlockPrototype {
 		
 		};		
 
-		std::vector< DCCTowerBlock * > towerBlocks_      ;
-		std::vector< DCCTCCBlock   * > tccBlocks_        ;
-		DCCTrailerBlock       *   dccTrailerBlock_  ;
-		DCCSRPBlock           *   srpBlock_;
-		ulong wordBufferOffset_;
+		std::vector< DCCTBTowerBlock * > towerBlocks_      ;
+		std::vector< DCCTBTCCBlock   * > tccBlocks_        ;
+		DCCTBTrailerBlock       *   dccTrailerBlock_  ;
+		DCCTBSRPBlock           *   srpBlock_;
+		uint32_t wordBufferOffset_;
 		bool emptyEvent;
 };
 
 
-inline std::vector< DCCTowerBlock * > & DCCEventBlock::towerBlocks()  { return towerBlocks_;     }
-inline std::vector< DCCTCCBlock * >   & DCCEventBlock::tccBlocks()    { return tccBlocks_;       }
-inline DCCSRPBlock               * DCCEventBlock::srpBlock()     { return srpBlock_;        }
-inline DCCTrailerBlock           * DCCEventBlock::trailerBlock() { return dccTrailerBlock_; }
+inline std::vector< DCCTBTowerBlock * > & DCCTBEventBlock::towerBlocks()  { return towerBlocks_;     }
+inline std::vector< DCCTBTCCBlock * >   & DCCTBEventBlock::tccBlocks()    { return tccBlocks_;       }
+inline DCCTBSRPBlock               * DCCTBEventBlock::srpBlock()     { return srpBlock_;        }
+inline DCCTBTrailerBlock           * DCCTBEventBlock::trailerBlock() { return dccTrailerBlock_; }
 
 #endif

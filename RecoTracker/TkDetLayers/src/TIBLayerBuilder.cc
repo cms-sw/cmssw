@@ -1,8 +1,8 @@
-#include "RecoTracker/TkDetLayers/interface/TIBLayerBuilder.h"
+#include "TIBLayerBuilder.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TkDetLayers/interface/TIBRingBuilder.h"
+#include "TIBRingBuilder.h"
 
 using namespace edm;
 using namespace std;

@@ -1,20 +1,15 @@
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
 
-using namespace reco;
+//using namespace reco;
 
-EcalIsolatedParticleCandidate::~EcalIsolatedParticleCandidate() { }
+reco::EcalIsolatedParticleCandidate::~EcalIsolatedParticleCandidate() { }
 
-EcalIsolatedParticleCandidate * EcalIsolatedParticleCandidate::clone() const { 
-  return new EcalIsolatedParticleCandidate( * this ); 
+reco::EcalIsolatedParticleCandidate * reco::EcalIsolatedParticleCandidate::clone() const { 
+  return new reco::EcalIsolatedParticleCandidate( * this ); 
 }
 
-SuperClusterRef EcalIsolatedParticleCandidate::superCluster() const {
-  return superClu_;
+l1extra::L1JetParticleRef reco::EcalIsolatedParticleCandidate::l1TauJet() const {
+  return l1tau_;
 }
 
-
-bool EcalIsolatedParticleCandidate::overlap( const Candidate & c ) const {
-  const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != 0 &&  checkOverlap( superCluster(), o->superCluster() ) );
-}
 

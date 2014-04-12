@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/21 12:26:32 $
- *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -16,11 +14,15 @@
 #include "TH1F.h"
 #include "TMath.h"
 #include "TF1.h"
+#include "TString.h"
 
 using namespace std;
 
-DTTimeBoxFitter::DTTimeBoxFitter() : theVerbosityLevel(0) {
-  hDebugFile = new TFile("DTTimeBoxFitter.root", "RECREATE");
+DTTimeBoxFitter::DTTimeBoxFitter(const TString& debugFileName) : hDebugFile(0),
+								 theVerbosityLevel(0),
+								 theSigma(10.) {
+  // Create a root file for debug output only if needed
+  if(debugFileName != "") hDebugFile = new TFile(debugFileName.Data(), "RECREATE");
   interactiveFit = false;
   rebin = 1;
 }
@@ -28,7 +30,7 @@ DTTimeBoxFitter::DTTimeBoxFitter() : theVerbosityLevel(0) {
 
 
 DTTimeBoxFitter::~DTTimeBoxFitter() {
-  hDebugFile->Close();
+  if(hDebugFile != 0) hDebugFile->Close();
 }
 
 
@@ -45,6 +47,9 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
     return make_pair(-1, -1);
   }
 
+  if(hTimeBox->GetEntries() < 50000) {
+    hTimeBox->Rebin(2);
+  }
 
   // Get seeds for the fit
   // The TimeBox range to be fitted (the rising edge)
@@ -75,11 +80,11 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
 
 
   // Fit the histo
-  char *option = "Q";
+  string option = "Q";
   if(theVerbosityLevel >= 2)
     option = "";
 
-  hTimeBox->Fit("IntGauss", option, "",xFitMin, xFitMax);
+  hTimeBox->Fit("IntGauss", option.c_str(), "",xFitMin, xFitMax);
 
   // Get fitted parameters
   double mean =  fIntGaus->GetParameter("Mean");
@@ -107,7 +112,7 @@ void DTTimeBoxFitter::getInteractiveFitSeeds(TH1F *hTBox, double& mean, double& 
   cout << "Inser the fit mean:" << endl;
   cin >> mean;
 
-  sigma = 5; //FIXME: estimate it!
+  sigma = theSigma; //FIXME: estimate it!
 
   tBoxMax = hTBox->GetMaximum();
 
@@ -143,19 +148,20 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   double binValue = (double)(xMax-xMin)/(double)nBins;
 
   // Compute a threshold for TimeBox discrimination
-  const double threshold = binValue*nEntries/(double)(tBoxWidth*2.);
+  const double threshold = binValue*nEntries/(double)(tBoxWidth*3.);
   if(theVerbosityLevel >= 2)
     cout << "   Threshold for logic time box is (# entries): " <<  threshold << endl;
     
-
-  while(threshold > hTBox->GetMaximum()/2.) {
+  int nRebins = 0; // protection for infinite loop
+  while(threshold > hTBox->GetMaximum()/2. && nRebins < 5) {
     cout << " Rebinning!" << endl;
     hTBox->Rebin(2);
     nBins = hTBox->GetNbinsX();
     binValue = (double)(xMax-xMin)/(double)nBins;
+    nRebins++;
   }
 
-  hDebugFile->cd();
+  if(hDebugFile != 0) hDebugFile->cd();
   TString hLName = TString(hTBox->GetName())+"L";
   TH1F hLTB(hLName.Data(), "Logic Time Box", nBins, xMin, xMax);
   // Loop over all time box bins and discriminate them accordigly to the threshold
@@ -163,7 +169,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
     if(hTBox->GetBinContent(i) > threshold)
       hLTB.SetBinContent(i, 1);
   }
-  hLTB.Write();
+  if(hDebugFile != 0) hLTB.Write();
   
   // Look for the time box in the "logic histo" and save beginning and lenght of each plateau
   vector< pair<int, int> > startAndLenght;
@@ -193,6 +199,35 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
     }
   }
 
+  if(theVerbosityLevel >= 2)
+    cout << "   Add macro intervals: " << endl;
+  // Look for consecutive plateau: 2 plateau are consecutive if the gap is < 5 ns
+  vector<  pair<int, int> > superIntervals;
+  for(vector< pair<int, int> >::const_iterator interval = startAndLenght.begin();
+      interval != startAndLenght.end();
+      ++interval) {
+    pair<int, int> theInterval = (*interval);
+    vector< pair<int, int> >::const_iterator next = interval;
+    while(++next != startAndLenght.end()) {
+      int gap = (*next).first - (theInterval.first+theInterval.second);
+      double gabInNs = binValue*gap;
+      if(theVerbosityLevel >= 2)
+	cout << "      gap: " << gabInNs << "(ns)" << endl;
+      if(gabInNs > 20) {
+	break;
+      } else {
+	theInterval = make_pair(theInterval.first, theInterval.second+gap+(*next).second);
+	superIntervals.push_back(theInterval);
+	if(theVerbosityLevel >= 2)
+	  cout << "          Add interval, start: " << theInterval.first
+	       << " width: " << theInterval.second << endl;
+      }
+    }
+  }
+
+  // merge the vectors of intervals
+  copy(superIntervals.begin(), superIntervals.end(), back_inserter(startAndLenght));
+
   // Look for the plateau of the right lenght
   if(theVerbosityLevel >= 2)
     cout << "    Look for the best interval:" << endl;
@@ -214,7 +249,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   }
 
   mean = xMin + beginning*binValue;
-  sigma = 5; //FIXME: estimate it!
+  sigma = theSigma; //FIXME: estimate it!
 
   tBoxMax = hTBox->GetMaximum();
 

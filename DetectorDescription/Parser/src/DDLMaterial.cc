@@ -11,50 +11,33 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLMaterial.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLMaterial.h"
-#include "DDLElementRegistry.h"
-#include "DDLLogicalPart.h"
-
-// DDCore dependencies
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+DDLMaterial::DDLMaterial(  DDLElementRegistry* myreg )
+  : DDXMLElement( myreg )
+{}
 
-//#include <strstream>
-#include <string>
+DDLMaterial::~DDLMaterial( void )
+{}
 
-// Default constructor
-DDLMaterial::DDLMaterial()
-{
-}
-
-// Default desctructor
-DDLMaterial::~DDLMaterial()
-{
-}
-
-void DDLMaterial::setReference (const std::string& nmspace)
+void
+DDLMaterial::setReference( const std::string& nmspace, DDCompactView& cpv )
 {
   // in case it there were any rMaterials
-  DDLElementRegistry::getElement("rMaterial")->clear();
+  myRegistry_->getElement("rMaterial")->clear();
 
   // Attempt to make sure Material elements can be in LogicalPart elements.
-  if (DDLElementRegistry::getElement("LogicalPart")->size() > 0)
+  if (myRegistry_->getElement("LogicalPart")->size() > 0)
     {
-      DDXMLElement* refmat = DDLElementRegistry::getElement("rMaterial");
+      DDXMLElement* refmat = myRegistry_->getElement("rMaterial");
       std::vector<std::string> names;
       std::vector<std::string> values;
       names.push_back("name");
       DDXMLAttribute atts = getAttributeSet();
       values.push_back(atts.find("name")->second);
-      refmat->loadAttributes("rMaterial", names, values, nmspace);
+      refmat->loadAttributes("rMaterial", names, values, nmspace, cpv);
     }
   // clear THIS material's values.
   clear();

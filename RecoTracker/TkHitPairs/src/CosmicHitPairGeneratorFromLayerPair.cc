@@ -1,13 +1,17 @@
 #include "RecoTracker/TkHitPairs/interface/CosmicHitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "RecoTracker/TkHitPairs/interface/OrderedHitPair.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 using namespace std;
-typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
+// typedef TransientTrackingRecHit::ConstRecHitPointer TkHitPairsCachedHit;
 
 CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
 							     const LayerWithHits* outer, 
@@ -29,8 +33,8 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 //  static int NSee = 0; static int Ntry = 0; static int Nacc = 0;
 
 
-  typedef OrderedHitPair::InnerHit InnerHit;
-  typedef OrderedHitPair::OuterHit OuterHit;
+  typedef OrderedHitPair::InnerRecHit InnerHit;
+  typedef OrderedHitPair::OuterRecHit OuterHit;
 
 
   if (theInnerLayer->recHits().empty()) return;
@@ -64,26 +68,26 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 
  
   vector<OrderedHitPair> allthepairs;
+  std::string builderName = "WithTrackAngle";
+  edm::ESHandle<TransientTrackingRecHitBuilder> builder;
+  iSetup.get<TransientRecHitRecord>().get(builderName, builder);
+
   
 
-
-
-  std::vector<const TrackingRecHit*>::const_iterator ohh;
-  for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-    const TkHitPairsCachedHit * oh=new TkHitPairsCachedHit(*ohh,iSetup);
-    std::vector<const TrackingRecHit*>::const_iterator ihh;
-    for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-      const TkHitPairsCachedHit * ih=new TkHitPairsCachedHit(*ihh,iSetup);
+  for( auto ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
+    for(auto ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
+     auto oh = static_cast<BaseTrackerRecHit const * const>(*ohh);
+     auto ih = static_cast<BaseTrackerRecHit const * const>(*ihh);
       
-      float z_diff =ih->z()-oh->z();
-      float inny=ih->r()*sin(ih->phi());
-      float outy=oh->r()*sin(oh->phi());
-      float innx=ih->r()*cos(ih->phi());
-      float outx=oh->r()*cos(oh->phi());
+      float z_diff =ih->globalPosition().z()-oh->globalPosition().z();
+      float inny=ih->globalPosition().y();
+      float outy=oh->globalPosition().y();
+      float innx=ih->globalPosition().x();
+      float outx=oh->globalPosition().x();;
       float dxdy=abs((outx-innx)/(outy-inny));
-      float DeltaR=oh->r()-ih->r();
+      float DeltaR=oh->globalPosition().perp()-ih->globalPosition().perp();;
       
-      if( InTheBarrel && (abs(z_diff)<30)  && (outy > 0.) && (inny > 0.)
+      if( InTheBarrel && (abs(z_diff)<30) // && (outy > 0.) && (inny > 0.)
 	  //&&((abs(inny-outy))<30) 
 	  &&(dxdy<2)
 	  &&(inny*outy>0)
@@ -95,9 +99,9 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 	  // for the other geometries must be verified
 	  //Overlaps in the difference in z is decreased and the difference in phi is
 	  //less than 0.05
-	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->phi()-oh->phi())<0.05)&&(dxdy<2)) result.push_back( OrderedHitPair(*ih, *oh));
+	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->globalPosition().phi()-oh->globalPosition().phi())<0.05)&&(dxdy<2)) result.push_back( OrderedHitPair(ih, oh));
 	}
-	else  result.push_back( OrderedHitPair(*ih, *oh));
+	else  result.push_back( OrderedHitPair( ih, oh));
       
 	
 
@@ -105,13 +109,11 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
       }
       if( InTheForward &&  (abs(z_diff) > 1.)) {
 	//	cout << " ******** sono dentro intheforward *********** " << endl;
-	result.push_back( OrderedHitPair(*ih, *oh));
+	result.push_back( OrderedHitPair(ih,oh));
       }
     }
-    
   }
 
- 
 //   stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(iSetup));
 //   //Seed from overlaps are saved only if 
 //   //no others have been saved
@@ -122,6 +124,7 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 //     }
 //     else result.push_back(allthepairs[0]);
 //   }
+
 
 }
 

@@ -4,54 +4,63 @@
 /** predict phi bending in layer for the tracks constratind by outer hit r-z */ 
 #include <fstream>
 #include "FWCore/Framework/interface/EventSetup.h"
-//#include "Utilities/Notification/interface/TimingReport.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
-class MultipleScatteringParametrisation;
+template<class T> class PixelRecoRange;
 
-class InnerDeltaPhi {
+#include "DataFormats/GeometryVector/interface/Basic2DVector.h"
+
+class dso_hidden InnerDeltaPhi {
 public:
 
-  InnerDeltaPhi( const DetLayer& layer, 
-		 float ptMin,  float rOrigin,
-		 float zMinOrigin, float zMaxOrigin,const edm::EventSetup& iSetup,
-		 bool precise = true);
+  typedef Basic2DVector<float> Point2D;
 
-   ~InnerDeltaPhi();
+  InnerDeltaPhi( const DetLayer& outlayer,const DetLayer& layer,
+                 const TrackingRegion & region,
+                 const edm::EventSetup& iSetup,
+                 bool precise = true,
+                 float extraTolerance = 0.f);
 
-  float operator()( float rHit, float zHit, float errRPhi = 0.) const;
+
+  PixelRecoRange<float> operator()( float xHit, float yHit, float zHit, float errRPhi) const {
+    return phiRange( Point2D(xHit,yHit), zHit, errRPhi); 
+  }
 
 private:
 
+  bool theRDefined;
+  bool thePrecise;
+  int ol;
+
   float theROrigin;
   float theRLayer;
+  float theThickness;
+
   float theRCurvature;
-  float theHitError;
+  float theExtraTolerance;
   float theA;
   float theB;
-  bool  theRDefined;
+
   float theVtxZ;
   float thePtMin;
-  MultipleScatteringParametrisation * sigma;
-  bool thePrecise;
+
+  Point2D theVtx;
+
+
+  MultipleScatteringParametrisation sigma;
+
+
+private:
 
   void initBarrelLayer( const DetLayer& layer);
-  void initForwardLayer( const DetLayer& layer, 
-			 float zMinOrigin, float zMaxOrigin);
+  void initForwardLayer( const DetLayer& layer, float zMinOrigin, float zMaxOrigin);
 
-  float minRadius( float hitR, float hitZ) const {
-    if (theRDefined) return theRLayer;
-    else {
-      float invRmin = (hitZ-theB)/theA/hitR;
-      return ( invRmin> 0) ? std::max( 1./invRmin, (double)theRLayer) : theRLayer;
-    }
-  }
-
-  // the timers are static because we want the same timer for all instances
- /*  static TimingReport::Item * theConstructTimer; */
-/*   static TimingReport::Item * theDeltaPhiTimer; */
-/*   static bool theTimingDone; */
-/*   void initTiming(); */
+  PixelRecoRange<float> phiRange( const Point2D & hitXY, float zHit, float errRPhi) const;
+  float minRadius( float hitR, float hitZ) const;
 
 };
 

@@ -4,8 +4,6 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2007/03/09 15:09:30 $
- *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -14,6 +12,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <vector>
+#include <atomic>
 
 class MagBLayer;
 class MagESector;
@@ -29,10 +28,14 @@ public:
   typedef Surface::GlobalPoint    GlobalPoint;
 
   /// Constructor
-  MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer *> ,
-			     std::vector<MagESector *> ,
-			     std::vector<MagVolume6Faces*> ,
-			     std::vector<MagVolume6Faces*> );
+  MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer *>& ,
+			     const std::vector<MagESector *>& ,
+			     const std::vector<MagVolume6Faces*>& ,
+			     const std::vector<MagVolume6Faces*>& );
+  MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer const*>& ,
+			     const std::vector<MagESector const*>& ,
+			     const std::vector<MagVolume6Faces const*>& ,
+			     const std::vector<MagVolume6Faces const*>& );
 
   /// Destructor
   ~MagGeometry();
@@ -41,45 +44,39 @@ public:
   GlobalVector fieldInTesla(const GlobalPoint & gp) const;
 
   /// Find a volume
-  MagVolume * findVolume(const GlobalPoint & gp) const;
+  MagVolume const * findVolume(const GlobalPoint & gp, double tolerance=0.) const;
+
+  // Deprecated, will be removed
+  bool isZSymmetric() const {return false;}
 
   // FIXME: only for temporary tests, should be removed.
-  const std::vector<MagVolume6Faces*> & barrelVolumes() const {return theBVolumes;}
-  const std::vector<MagVolume6Faces*> & endcapVolumes() const {return theEVolumes;}
+  const std::vector<MagVolume6Faces const*> & barrelVolumes() const {return theBVolumes;}
+  const std::vector<MagVolume6Faces const*> & endcapVolumes() const {return theEVolumes;}
 
 private:
-//  friend class DDI::Singleton<MagGeometry>;
 
   friend class MagGeometryExerciser; // for debug purposes
 
   // Linear search (for debug purposes only)
-  MagVolume * findVolume1(const GlobalPoint & gp, double tolerance=0.) const;
+  MagVolume const* findVolume1(const GlobalPoint & gp, double tolerance=0.) const;
 
-  // Use hierarchical structure for the barrel with non-optimized R search
-  MagVolume * findVolume2(const GlobalPoint & gp, double tolerance=0.) const;
 
   bool inBarrel(const GlobalPoint& gp) const;
 
-  bool trackerField(const GlobalPoint& gp, GlobalVector& bxyz) const ;
+  mutable std::atomic<MagVolume const*> lastVolume; // Cache last volume found
 
-  void ffunkti(float u, float* ff) const;
-
-  mutable MagVolume * lastVolume; // Cache last volume found
-
-  std::vector<MagBLayer *> theBLayers;
-  std::vector<MagESector *> theESectors;
+  std::vector<MagBLayer const*> theBLayers;
+  std::vector<MagESector const*> theESectors;
 
   // FIXME: only for temporary tests, should be removed.
-  std::vector<MagVolume6Faces*> theBVolumes;
-  std::vector<MagVolume6Faces*> theEVolumes;
+  std::vector<MagVolume6Faces const*> theBVolumes;
+  std::vector<MagVolume6Faces const*> theEVolumes;
 
-  MagBinFinders::GeneralBinFinderInR<double>* theBarrelBinFinder;
-  PeriodicBinFinderInPhi<float> * theEndcapBinFinder;
+  MagBinFinders::GeneralBinFinderInR<double> const* theBarrelBinFinder;
+  PeriodicBinFinderInPhi<float> const* theEndcapBinFinder;
 
-  double tolerance;
   bool cacheLastVolume;
-  bool timerOn;
-  bool useParametrizedTrackerField;
+  int geometryVersion;
 };
 #endif
 

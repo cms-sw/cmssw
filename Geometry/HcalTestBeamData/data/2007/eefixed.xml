@@ -1,0 +1,357 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="eefixed.xml">
+		<Tubs name="EEBackPlate" rMin="[eecon:EEBackPlateIR]" rMax="[eecon:EEBackPlateOR]" dz="[eecon:EEBackPlateThick]/2." startPhi="0*deg" deltaPhi="22.5*deg"/>
+		<Tubs name="EEBPPV" rMin="[eecon:EEBackPlateIR]" rMax="[eecon:EEBackPlateOR]" dz="[eecon:EEBPPOR]" startPhi="0*deg" deltaPhi="22.5*deg"/>
+		<!-- Cables -->
+		<Tubs name="EECableF" rMin="[eecon:EEIModO8]" rMax="[eecon:EESRingIR]" dz="[eecon:EECableFdz]" startPhi="0*deg" deltaPhi="22.5*deg"/>
+		<Tubs name="EECableR" rMin="[eecon:EEIModO8]" rMax="[eecon:EESRingIR]" dz="[eecon:EECableRdz]" startPhi="0*deg" deltaPhi="22.5*deg"/>
+		<!-- Moderators -->
+		<Tubs name="EERMod" rMin="[eecon:EERModIR]" rMax="[eecon:EERModOR]" dz="[eecon:EERModTh]/2." startPhi="0*deg" deltaPhi="22.5*deg"/>
+		<Tubs name="EERMCP" rMin="[eecon:EERModIR]" rMax="[eecon:EERModOR]" dz="[eecon:EERMCPTh]/2." startPhi="0*deg" deltaPhi="22.5*deg"/>
+		<Polycone name="EEIMod" startPhi="0*deg" deltaPhi="22.5*deg">
+			<ZSection z="[eecon:EEIModZ1]" rMin="[eecon:EEIModI1]" rMax="[eecon:EEIModO1]"/>
+			<ZSection z="[eecon:EEIModZ2]" rMin="[eecon:EEIModI2]" rMax="[eecon:EEIModO2]"/>
+			<ZSection z="[eecon:EEIModZ3]" rMin="[eecon:EEIModI3]" rMax="[eecon:EEIModO3]"/>
+			<ZSection z="[eecon:EEIModZ4]" rMin="[eecon:EEIModI4]" rMax="[eecon:EEIModO4]"/>
+			<ZSection z="[eecon:EEIModZ5]" rMin="[eecon:EEIModI5]" rMax="[eecon:EEIModO5]"/>
+			<ZSection z="[eecon:EEIModZ6]" rMin="[eecon:EEIModI6]" rMax="[eecon:EEIModO6]"/>
+			<ZSection z="[eecon:EEIModZ7]" rMin="[eecon:EEIModI7]" rMax="[eecon:EEIModO7]"/>
+			<ZSection z="[eecon:EEIModZ8]" rMin="[eecon:EEIModI8]" rMax="[eecon:EEIModO8]"/>
+			<ZSection z="[eecon:EEIModZ9]" rMin="[eecon:EEIModI9]" rMax="[eecon:EEIModO9]"/>
+			<ZSection z="[eecon:EEIModZA]" rMin="[eecon:EEIModIA]" rMax="[eecon:EEIModOA]"/>
+		</Polycone>
+		<Polycone name="EEFMod" startPhi="0*deg" deltaPhi="22.5*deg">
+			<ZSection z="-[eecon:EEFModDZ]" rMin="[eecon:EEFModIR]" rMax="[eecon:EEFModOR1]"/>
+			<ZSection z="0*mm" rMin="[eecon:EEFModIR]" rMax="[eecon:EEFModOR1]"/>
+			<ZSection z="0*mm" rMin="[eecon:EEFModIR]" rMax="[eecon:EEFModOR2]"/>
+			<ZSection z=" [eecon:EEFModDZ]" rMin="[eecon:EEFModIR]" rMax="[eecon:EEFModOR2]"/>
+		</Polycone>
+		<!-- Support Ring -->
+		<Polycone name="EESRing" startPhi="0*deg" deltaPhi="22.5*deg">
+			<ZSection z="[eecon:EESRingZ1]" rMin="[eecon:EESRingIR]" rMax="[eecon:EESRingOR1]"/>
+			<ZSection z="[eecon:EESRingZ2]" rMin="[eecon:EESRingIR]" rMax="[eecon:EESRingOR2]"/>
+			<ZSection z="[eecon:EESRingZ3]" rMin="[eecon:EESRingIR]" rMax="[eecon:EESRingOR3]"/>
+			<ZSection z="[eecon:EESRingZ4]" rMin="[eecon:EESRingIR]" rMax="[eecon:EESRingOR4]"/>
+			<ZSection z="[eecon:EESRingZ5]" rMin="[eecon:EESRingIR]" rMax="[eecon:EESRingOR5]"/>
+			<ZSection z="[eecon:EESRingZ6]" rMin="[eecon:EESRingIR]" rMax="[eecon:EESRingOR6]"/>
+			<ZSection z="[eecon:EESRingZ7]" rMin="[eecon:EESRingIR]" rMax="[eecon:EESRingOR7]"/>
+			<ZSection z="[eecon:EESRingZ8]" rMin="[eecon:EESRingIR]" rMax="[eecon:EESRingOR8]"/>
+		</Polycone>
+		<!-- Environmental screen volumes -->
+		<Polycone name="EEfEnvScr" startPhi="0*deg" deltaPhi="22.5*deg">
+			<ZSection z="[eecon:EEfEnvScrZ1]" rMin="[eecon:EEfEnvScrIR1]" rMax="[eecon:EEfEnvScrOR1]"/>
+			<ZSection z="[eecon:EEfEnvScrZ2]" rMin="[eecon:EEfEnvScrIR2]" rMax="[eecon:EEfEnvScrOR2]"/>
+			<ZSection z="[eecon:EEfEnvScrZ3]" rMin="[eecon:EEfEnvScrIR3]" rMax="[eecon:EEfEnvScrOR3]"/>
+			<ZSection z="[eecon:EEfEnvScrZ4]" rMin="[eecon:EEfEnvScrIR4]" rMax="[eecon:EEfEnvScrOR4]"/>
+		</Polycone>
+		<Polycone name="EEgEnvScr" startPhi="0*deg" deltaPhi="22.5*deg">
+			<ZSection z="[eecon:EEgEnvScrZ1]" rMin="[eecon:EEgEnvScrIR1]" rMax="[eecon:EEgEnvScrOR1]"/>
+			<ZSection z="[eecon:EEgEnvScrZ2]" rMin="[eecon:EEgEnvScrIR2]" rMax="[eecon:EEgEnvScrOR2]"/>
+		</Polycone>
+		<Polycone name="EEiEnvScr" startPhi="0*deg" deltaPhi="22.5*deg">
+			<ZSection z="[eecon:EEiEnvScrZ1]" rMin="[eecon:EEiEnvScrIR1]" rMax="[eecon:EEiEnvScrOR1]"/>
+			<ZSection z="[eecon:EEiEnvScrZ2]" rMin="[eecon:EEiEnvScrIR2]" rMax="[eecon:EEiEnvScrOR2]"/>
+			<ZSection z="[eecon:EEiEnvScrZ3]" rMin="[eecon:EEiEnvScrIR3]" rMax="[eecon:EEiEnvScrOR3]"/>
+			<ZSection z="[eecon:EEiEnvScrZ4]" rMin="[eecon:EEiEnvScrIR4]" rMax="[eecon:EEiEnvScrOR4]"/>
+			<ZSection z="[eecon:EEiEnvScrZ5]" rMin="[eecon:EEiEnvScrIR5]" rMax="[eecon:EEiEnvScrOR5]"/>
+		</Polycone>
+		<!-- Slats for front environmental screen -->
+		<Box name="EEhSlat" dx="[eecon:EESlatLength]/2.0" dy="[eecon:EEhSlatWidth]/4.0" dz="[eecon:EEhSlatThick]/2.0"/>
+		<!-- Pipes for front environmental screen -->
+		<Tubs name="EEfC100W" rMin="0*mm" rMax="[eecon:EEfCoolIR]" dz=" 50*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC100P" rMin="0*mm" rMax="[eecon:EEfCoolOR]" dz=" 50*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC450W" rMin="0*mm" rMax="[eecon:EEfCoolIR]" dz="219*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC450P" rMin="0*mm" rMax="[eecon:EEfCoolOR]" dz="219*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC150W" rMin="0*mm" rMax="[eecon:EEfCoolIR]" dz=" 68*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC150P" rMin="0*mm" rMax="[eecon:EEfCoolOR]" dz=" 68*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC300W" rMin="0*mm" rMax="[eecon:EEfCoolIR]" dz="144*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC300P" rMin="0*mm" rMax="[eecon:EEfCoolOR]" dz="144*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC600W" rMin="0*mm" rMax="[eecon:EEfCoolIR]" dz="294*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC600P" rMin="0*mm" rMax="[eecon:EEfCoolOR]" dz="294*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC740W" rMin="0*mm" rMax="[eecon:EEfCoolIR]" dz="370*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC740P" rMin="0*mm" rMax="[eecon:EEfCoolOR]" dz="370*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC420W" rMin="0*mm" rMax="[eecon:EEfCoolIR]" dz="205*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EEfC420P" rMin="0*mm" rMax="[eecon:EEfCoolOR]" dz="205*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<!-- Pipes for cooling bars -->
+		<Tubs name="EECBXP1W" rMin="0*mm" rMax="[eecon:EECBXPIR]" dz="0.5*[eecon:EECBLen]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EECBXP1P" rMin="0*mm" rMax="[eecon:EECBXPOR]" dz="0.5*[eecon:EECBLen]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EECBXP2W" rMin="0*mm" rMax="[eecon:EECBXPIR]" dz="    [eecon:EECBLen]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="EECBXP2P" rMin="0*mm" rMax="[eecon:EECBXPOR]" dz="    [eecon:EECBLen]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<!-- Cooling bar-related volumes -->
+		<Tubs name="EECoolQ" rMin="[eecon:EECQIR]" rMax="[eecon:EECQOR]" dz="0.5*[eecon:EECBHt]" startPhi="0*deg" deltaPhi="22.5*deg"/>
+		<Box name="EECoolBox" dy="0.5*[eecon:EECBLen]" dz="0.5*[eecon:EECBHt]" dx="0.5*[eecon:EECBWid]"/>
+		<Box name="EECoolIns" dy="0.5*([eecon:EECBLen]-6*mm)" dz="0.5*([eecon:EECBHt] -6*mm)" dx="0.5*([eecon:EECBWid]-6*mm)"/>
+		<Box name="EETankSS" dy="0.5*17.*mm" dz="0.5*28.*mm" dx="0.5*90.*mm"/>
+		<Box name="EETankWa" dy="0.5*11.*mm" dz="0.5*22.*mm" dx="0.5*84.*mm"/>
+		<!-- Just behind SuperCrystal: lump together positional spacer, housing, HV, interface plate, etc. -->
+		<Box name="EESpacer" dx="[eecon:EESpaWidth]/2." dy="[eecon:EESpaWidth]/2." dz="[eecon:EESpaDepth]/2."/>
+		<Box name="EESpAir" dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpAirDepth]/2."/>
+		<Box name="EEHV" dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpHVDepth]/2."/>
+		<Box name="EEHVCa" dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpCaDepth]/2."/>
+		<!-- Cooling pipes in outer environmental screen -->
+	</SolidSection>
+	<LogicalPartSection label="eefixed.xml">
+		<LogicalPart name="EEBackPlate" category="unspecified">
+			<rSolid name="EEBackPlate"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="EEBPPV" category="unspecified">
+			<rSolid name="EEBPPV"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="EECableF" category="unspecified">
+			<rSolid name="EECableF"/>
+			<rMaterial name="materials:E_Cables"/>
+		</LogicalPart>
+		<LogicalPart name="EECableR" category="unspecified">
+			<rSolid name="EECableR"/>
+			<rMaterial name="materials:E_Cables"/>
+		</LogicalPart>
+		<LogicalPart name="EEIMod" category="unspecified">
+			<rSolid name="EEIMod"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="EERMod" category="unspecified">
+			<rSolid name="EERMod"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="EERMCP" category="unspecified">
+			<rSolid name="EERMCP"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="EEFMod" category="unspecified">
+			<rSolid name="EEFMod"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="EESRing" category="unspecified">
+			<rSolid name="EESRing"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="EEfEnvScr" category="unspecified">
+			<rSolid name="EEfEnvScr"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="EEgEnvScr" category="unspecified">
+			<rSolid name="EEgEnvScr"/>
+			<rMaterial name="materials:Foam"/>
+		</LogicalPart>
+		<LogicalPart name="EEiEnvScr" category="unspecified">
+			<rSolid name="EEiEnvScr"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="EEhSlat" category="unspecified">
+			<rSolid name="EEhSlat"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="EECoolBox" category="unspecified">
+			<rSolid name="EECoolBox"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="EECoolIns" category="unspecified">
+			<rSolid name="EECoolIns"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="EETankSS" category="unspecified">
+			<rSolid name="EETankSS"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="EETankWa" category="unspecified">
+			<rSolid name="EETankWa"/>
+			<rMaterial name="materials:E_Water"/>
+		</LogicalPart>
+		<LogicalPart name="EECoolQ" category="unspecified">
+			<rSolid name="EECoolQ"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="EESpacer" category="unspecified">
+			<rSolid name="EESpacer"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="EESpAir" category="unspecified">
+			<rSolid name="EESpAir"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="EEHV" category="unspecified">
+			<rSolid name="EEHV"/>
+			<rMaterial name="materials:E_G10"/>
+		</LogicalPart>
+		<LogicalPart name="EEHVCa" category="unspecified">
+			<rSolid name="EEHVCa"/>
+			<rMaterial name="materials:E_Cables"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool1" category="unspecified">
+			<rSolid name="EEOCool1"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool2" category="unspecified">
+			<rSolid name="EEOCool2"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool3" category="unspecified">
+			<rSolid name="EEOCool3"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool4" category="unspecified">
+			<rSolid name="EEOCool4"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool5" category="unspecified">
+			<rSolid name="EEOCool5"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool6" category="unspecified">
+			<rSolid name="EEOCool6"/>
+			<rMaterial name="materials:StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool1W" category="unspecified">
+			<rSolid name="EEOCool1W"/>
+			<rMaterial name="materials:E_Water"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool2W" category="unspecified">
+			<rSolid name="EEOCool2W"/>
+			<rMaterial name="materials:E_Water"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool3W" category="unspecified">
+			<rSolid name="EEOCool3W"/>
+			<rMaterial name="materials:E_Water"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool4W" category="unspecified">
+			<rSolid name="EEOCool4W"/>
+			<rMaterial name="materials:E_Water"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool5W" category="unspecified">
+			<rSolid name="EEOCool5W"/>
+			<rMaterial name="materials:E_Water"/>
+		</LogicalPart>
+		<LogicalPart name="EEOCool6W" category="unspecified">
+			<rSolid name="EEOCool6W"/>
+			<rMaterial name="materials:E_Water"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="eefixed.xml">
+		<!-- Preshower Ring -->
+		<!-- Preshower Support Cone -->
+		<!-- Backplate and its cooling pipes -->
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EEBackPlate"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzBack] + [eecon:EEBackPlateThick]/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EEBPPV"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzBackBack] + [eecon:EEBPPOR]"/>
+		</PosPart>
+		<!-- Cables -->
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EECableF"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzBackBack] + 2*[eecon:EEBPPOR] + [eecon:EECableFdz]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EECableR"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzCoolQ] + [eecon:EECableRdz] + [eecon:EECBHt]/2"/>
+		</PosPart>
+		<!-- Rear, inner, front moderators -->
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EEIMod"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzMidIMod] "/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EEFMod"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzFMod] "/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EERMod"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzBackIMod] - [eecon:EERModTh]/2."/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EERMCP"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzBackIMod]-[eecon:EERModTh]-[eecon:EERMCPTh]/2."/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EESRing"/>
+		</PosPart>
+		<!-- Environmental screens -->
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEFrontQuad"/>
+			<rChild name="eefixed:EEfEnvScr"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eefixed:EEfEnvScr"/>
+			<rChild name="eefixed:EEgEnvScr"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEFrontQuad"/>
+			<rChild name="eefixed:EEiEnvScr"/>
+		</PosPart>
+		<!-- Horizontal and Vertical slats across inside of front environmental screen -->
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEFrontQuad"/>
+			<rChild name="eefixed:EEhSlat"/>
+			<Translation x="[eecon:EEiEnvScrOR1] + [eecon:EESlatLength]/2." y="[eecon:EEvSlatWidth]/4." z="[eecon:EEfEnvScrZ2] + [eecon:EEhSlatThick]/2."/>
+		</PosPart>
+		<!-- Cooling Pipes for Front Environmental Screen -->
+		<!-- Tracker Support and Cables -->
+		<!-- Cooling Box Quadrant -->
+		<PosPart copyNumber="1">
+			<rParent name="eehier:EEBackQuad"/>
+			<rChild name="eefixed:EECoolQ"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EEzCoolQ]"/>
+		</PosPart>
+		<!-- Cooling box placement -->
+		<PosPart copyNumber="1">
+			<rParent name="eefixed:EECoolQ"/>
+			<rChild name="eefixed:EECoolBox"/>
+			<Translation y="[eecon:EECBY1]" x="[eecon:EECBX1]" z="0*mm"/>
+			<rRotation name="eecon:EERotZ90"/>
+		</PosPart>
+		<!-- Interior of cooling bar box and water supply tanks -->
+		<PosPart copyNumber="1">
+			<rParent name="eefixed:EECoolBox"/>
+			<rChild name="eefixed:EECoolIns"/>
+			<Translation x="0*mm" y="0*mm" z="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eefixed:EECoolIns"/>
+			<rChild name="eefixed:EETankSS"/>
+			<Translation y="-230*mm" z="-31*mm" x="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="eefixed:EECoolIns"/>
+			<rChild name="eefixed:EETankSS"/>
+			<Translation y="-230*mm" z="31*mm" x="0*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eefixed:EETankSS"/>
+			<rChild name="eefixed:EETankWa"/>
+		</PosPart>
+		<!-- Cooling bars inside cooling box interior -->
+		<!-- Piping to cooling blocks -->
+		<PosPart copyNumber="1">
+			<rParent name="eefixed:EEHV"/>
+			<rChild name="eefixed:EEHVCa"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eefixed:EESpAir"/>
+			<rChild name="eefixed:EEHV"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eefixed:EESpacer"/>
+			<rChild name="eefixed:EESpAir"/>
+			<Translation x="0*mm" y="0*mm" z="[eecon:EESpAirZOff]"/>
+		</PosPart>
+		<!--
+		     <PosPart copyNumber="1"> <rParent name="eregalgo:EESCEnv1"/> <rChild name="eefixed:EESpacer"/>
+		     <Translation x="[eecon:EESpaXYOff]" y="[eecon:EESpaXYOff]" 
+		     z="-[eecon:EESpaDepth]/2. + [eecon:SCEnvLength]/2."/> </PosPart>
+		     -->
+	</PosPartSection>
+</DDDefinition>

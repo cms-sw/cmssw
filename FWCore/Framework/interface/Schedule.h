@@ -4,8 +4,6 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.24 2007/06/15 18:41:46 wdd Exp $
-
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
   After construction, events can be fed to the object and passed through
@@ -32,12 +30,9 @@
   is always the first module in the endpath.  The TriggerResultInserter
   is given a fixed label of "TriggerResults".
 
-  The Schedule prints a warning if output modules are present in paths.
-  They belong in endpaths.  The Schedule moves them to the endpath.
-
   Processing of an event happens by pushing the event through the Paths.
   The scheduler performs the reset() on each of the workers independent
-  of the Path objects. 
+  of the Path objects.
 
   ------------------------
 
@@ -62,76 +57,124 @@
 
 */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Common/interface/HLTGlobalStatus.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Actions.h"
-#include "FWCore/Framework/src/Path.h"
-#include "FWCore/Framework/src/RunStopwatch.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/UnscheduledHandler.h"
+#include "FWCore/Framework/interface/ExceptionHelpers.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/src/GlobalSchedule.h"
+#include "FWCore/Framework/src/StreamSchedule.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/MessageLogger/interface/ExceptionMessages.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "boost/shared_ptr.hpp"
 
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
+#include <sstream>
 
 namespace edm {
+
   namespace service {
     class TriggerNamesService;
   }
   class ActivityRegistry;
+  class BranchIDListHelper;
   class EventSetup;
-  class OutputWorker;
-  class UnscheduledCallProducer;
-  class RunStopwatch;
-  class WorkerInPath;
-  class WorkerRegistry;
+  class ExceptionCollector;
+  class OutputModuleCommunicator;
+  class ProcessContext;
+  class PreallocationConfiguration;
+  class StreamSchedule;
+  class GlobalSchedule;
+  class TriggerTimingReport;
+  class ModuleRegistry;
+  class TriggerResultInserter;
+  
   class Schedule {
   public:
     typedef std::vector<std::string> vstring;
-    typedef std::vector<Path> TrigPaths;
-    typedef std::vector<Path> NonTrigPaths;
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<Worker> WorkerPtr;
-    typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
-    typedef std::set<Worker*> AllWorkers;
-    typedef std::pair<int, OutputWorker const*> OneOutputWorker;
-    typedef std::vector<OneOutputWorker> AllOutputWorkers;
+    typedef std::vector<Worker*> AllWorkers;
+    typedef std::vector<boost::shared_ptr<OutputModuleCommunicator>> AllOutputModuleCommunicators;
+
     typedef std::vector<Worker*> Workers;
-    typedef std::vector<WorkerInPath> PathWorkers;
 
-    Schedule(ParameterSet const& processDesc,
-	     edm::service::TriggerNamesService& tns,
-	     WorkerRegistry& wregistry,
-	     ProductRegistry& pregistry,
-	     ActionTable& actions,
-	     ActivityRegistryPtr areg);
-
-    enum State { Ready=0, Running, Latched };
+    Schedule(ParameterSet& proc_pset,
+             service::TriggerNamesService& tns,
+             ProductRegistry& pregistry,
+             BranchIDListHelper& branchIDListHelper,
+             ExceptionToActionTable const& actions,
+             boost::shared_ptr<ActivityRegistry> areg,
+             boost::shared_ptr<ProcessConfiguration> processConfiguration,
+             const ParameterSet* subProcPSet,
+             PreallocationConfiguration const& config,
+             ProcessContext const* processContext);
 
     template <typename T>
-    void runOneEvent(T& principal, 
-		     EventSetup const& eventSetup,
-		     BranchActionType const& branchActionType);
+    void processOneEvent(unsigned int iStreamID,
+                         typename T::MyPrincipal& principal,
+                         EventSetup const& eventSetup,
+                         bool cleaningUpAfterException = false);
 
-    void beginJob(EventSetup const&);
-    void endJob();
+    template <typename T>
+    void processOneGlobal(typename T::MyPrincipal& principal,
+                          EventSetup const& eventSetup,
+                          bool cleaningUpAfterException = false);
 
-    std::pair<double,double> timeCpuReal() const {
-      return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
-    }
+    template <typename T>
+    void processOneStream(unsigned int iStreamID,
+                          typename T::MyPrincipal& principal,
+                          EventSetup const& eventSetup,
+                          bool cleaningUpAfterException = false);
+
+    void beginJob(ProductRegistry const&);
+    void endJob(ExceptionCollector & collector);
+    
+    void beginStream(unsigned int);
+    void endStream(unsigned int);
+
+    // Write the luminosity block
+    void writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const*);
+
+    // Write the run
+    void writeRun(RunPrincipal const& rp, ProcessContext const*);
+
+    // Call closeFile() on all OutputModules.
+    void closeOutputFiles();
+
+    // Call openNewFileIfNeeded() on all OutputModules
+    void openNewOutputFilesIfNeeded();
+
+    // Call openFiles() on all OutputModules
+    void openOutputFiles(FileBlock& fb);
+
+    // Call respondToOpenInputFile() on all Modules
+    void respondToOpenInputFile(FileBlock const& fb);
+
+    // Call respondToCloseInputFile() on all Modules
+    void respondToCloseInputFile(FileBlock const& fb);
+
+    // Call shouldWeCloseFile() on all OutputModules.
+    bool shouldWeCloseOutput() const;
+
+    void preForkReleaseResources();
+    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this Schedule.
@@ -141,24 +184,25 @@ namespace edm {
     /// *** pointers!
     std::vector<ModuleDescription const*> getAllModuleDescriptions() const;
 
+    ///adds to oLabelsToFill the labels for all paths in the process
+    void availablePaths(std::vector<std::string>& oLabelsToFill) const;
+
+    ///adds to oLabelsToFill in execution order the labels of all modules in path iPathLabel
+    void modulesInPath(std::string const& iPathLabel,
+                       std::vector<std::string>& oLabelsToFill) const;
+
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).
-    int totalEvents() const {
-      return total_events_;
-    }
+    int totalEvents() const;
 
     /// Return the number of events which have been passed by one or
     /// more trigger paths.
-    int totalEventsPassed() const {
-      return total_passed_;
-    }
+    int totalEventsPassed() const;
 
     /// Return the number of events that have not passed any trigger.
     /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
-    int totalEventsFailed() const {
-      return totalEvents() - totalEventsPassed();
-    }
+    int totalEventsFailed() const;
 
     /// Turn end_paths "off" if "active" is false;
     /// turn end_paths "on" if "active" is true.
@@ -170,264 +214,71 @@ namespace edm {
 
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport& rep) const;      
-
-    /// Return whether a module has reached its maximum count.
-    bool const terminate() const;
-
-    class CallPrePost {
-    public:
-      CallPrePost(ActivityRegistry* a, EventPrincipal* ep, EventSetup const* es);
-      CallPrePost(ActivityRegistry* a, LuminosityBlockPrincipal* ep, EventSetup const* es) :
-        a_(0), ep_(0), es_(0) {}
-      CallPrePost(ActivityRegistry* a, RunPrincipal* ep, EventSetup const* es) :
-        a_(0), ep_(0), es_(0) {}
-      ~CallPrePost(); 
-
-    private:
-      // We own none of these resources.
-      ActivityRegistry*  a_;
-      EventPrincipal*    ep_;
-      EventSetup const*  es_;
-    };
-
-  private:
-    AllWorkers::const_iterator workersBegin() const 
-    { return all_workers_.begin(); }
-
-    AllWorkers::const_iterator workersEnd() const 
-    { return all_workers_.end(); }
-
-    AllWorkers::iterator workersBegin() 
-    { return  all_workers_.begin(); }
-
-    AllWorkers::iterator workersEnd() 
-    { return all_workers_.end(); }
-
-    void resetAll();
-
-    template <typename T>
-    bool runTriggerPaths(T&, EventSetup const&, BranchActionType const&);
-
-    template <typename T>
-    void runEndPaths(T&, EventSetup const&, BranchActionType const&);
-
-    template <typename T>
-    void setupOnDemandSystem(T& principal, EventSetup const& es);
-
-    void reportSkipped(EventPrincipal const& ep) const;
-    void reportSkipped(LuminosityBlockPrincipal const&) const {}
-    void reportSkipped(RunPrincipal const&) const {}
-
-    void fillWorkers(std::string const& name, PathWorkers& out);
-    void fillTrigPath(int bitpos, std::string const& name, TrigResPtr);
-    void fillEndPath(int bitpos, std::string const& name);
-    void handleWronglyPlacedModules();
-
-    ParameterSet        pset_;
-    WorkerRegistry*     worker_reg_;
-    ProductRegistry*    prod_reg_;
-    ActionTable*        act_table_;
-    std::string         processName_;
-    ActivityRegistryPtr act_reg_;
-
-    State state_;
-    vstring trig_name_list_;
-    vstring               end_path_name_list_;
-
-    TrigResPtr   results_;
-    TrigResPtr   endpath_results_;
-
-    WorkerPtr   results_inserter_;
-    AllWorkers  all_workers_;
-    AllOutputWorkers  all_output_workers_;
-    TrigPaths   trig_paths_;
-    TrigPaths   end_paths_;
-
-    PathWorkers tmp_wrongly_placed_;
-
-    bool                             wantSummary_;
-    int                              total_events_;
-    int                              total_passed_;
-    RunStopwatch::StopwatchPointer   stopwatch_;
-
-    boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
-    std::vector<boost::shared_ptr<Provenance> >     demandBranches_;
-
-    volatile bool       endpathsAreActive_;
-  };
-
-  // -----------------------------
-  // run_one_event is a functor that has bound a specific
-  // Principal and Event Setup, and can be called with a Path, to
-  // execute Path::runOneEvent for that event
+    void getTriggerReport(TriggerReport& rep) const;
     
-  template <typename T>
-  class run_one_event {
-  public:
-    typedef void result_type;
-    run_one_event(T& principal, EventSetup const& setup, BranchActionType const& branchActionType) :
-      ep(principal), es(setup), bat(branchActionType) {};
+    /// Return the trigger timing report information on paths,
+    /// modules-in-path, modules-in-endpath, and modules.
+    void getTriggerTimingReport(TriggerTimingReport& rep) const;
 
-      void operator()(Path& p) {p.runOneEvent(ep, es, bat);}
+    /// Return whether each output module has reached its maximum count.
+    bool terminate() const;
 
-  private:      
-    T&   ep;
-    EventSetup const& es;
-    BranchActionType const& bat;
-  };
+    ///  Clear all the counters in the trigger report.
+    void clearCounters();
 
-  class UnscheduledCallProducer : public UnscheduledHandler {
-  public:
-    UnscheduledCallProducer() : UnscheduledHandler(), labelToWorkers_() {}
-    void addWorker(Worker* aWorker) {
-      assert(0 != aWorker);
-      labelToWorkers_[aWorker->description().moduleLabel_]=aWorker;
-    }
+    /// clone the type of module with label iLabel but configure with iPSet.
+    /// Returns true if successful.
+    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet);
+
+    /// returns the collection of pointers to workers
+    AllWorkers const& allWorkers() const;
+
   private:
-    virtual bool tryToFillImpl(Provenance const& prov,
-			       EventPrincipal& event,
-			       const EventSetup& eventSetup) {
-      std::map<std::string, Worker*>::const_iterator itFound =
-        labelToWorkers_.find(prov.moduleLabel());
-      if(itFound != labelToWorkers_.end()) {
-	  // Unscheduled reconstruction has no accepted definition
-	  // (yet) of the "current path". We indicate this by passing
-	  // a null pointer as the CurrentProcessingContext.
-	  itFound->second->doWork(event, eventSetup, BranchActionEvent, 0);
-	  return true;
-      }
-      return false;
-    }
-    std::map<std::string, Worker*> labelToWorkers_;
+
+    /// Check that the schedule is actually runable
+    void checkForCorrectness() const;
+    
+    void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
+
+    std::shared_ptr<TriggerResultInserter> resultsInserter_;
+    boost::shared_ptr<ModuleRegistry> moduleRegistry_;
+    std::vector<std::shared_ptr<StreamSchedule>> streamSchedules_;
+    //In the future, we will have one GlobalSchedule per simultaneous transition
+    std::unique_ptr<GlobalSchedule> globalSchedule_;
+
+    AllOutputModuleCommunicators         all_output_communicators_;
+    PreallocationConfiguration           preallocConfig_;
+
+
+    bool                           wantSummary_;
+
+    volatile bool           endpathsAreActive_;
   };
 
-  void
-  inline
-  Schedule::reportSkipped(EventPrincipal const& ep) const {
-    Service<JobReport> reportSvc;
-    reportSvc->reportSkippedEvent(ep.id().run(), ep.id().event());
+
+  template <typename T>
+  void Schedule::processOneEvent(unsigned int iStreamID,
+                                 typename T::MyPrincipal& ep,
+                                 EventSetup const& es,
+                                 bool cleaningUpAfterException) {
+    assert(iStreamID<streamSchedules_.size());
+    streamSchedules_[iStreamID]->processOneEvent<T>(ep,es,cleaningUpAfterException);
   }
-  
+
+  template <typename T>
+  void Schedule::processOneStream(unsigned int iStreamID,
+                                  typename T::MyPrincipal& ep,
+                                  EventSetup const& es,
+                                  bool cleaningUpAfterException) {
+    assert(iStreamID<streamSchedules_.size());
+    streamSchedules_[iStreamID]->processOneStream<T>(ep,es,cleaningUpAfterException);
+  }
   template <typename T>
   void
-  Schedule::runOneEvent(T& ep, EventSetup const& es, BranchActionType const& bat) {
-    this->resetAll();
-    state_ = Running;
-
-    bool const isEvent = (bat == BranchActionEvent);
-
-    // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(isEvent ? new RunStopwatch(stopwatch_) : 0);
-
-    if (isEvent) {
-      ++total_events_;
-      setupOnDemandSystem(ep, es);
-    }
-    try {
-      //If the CallPrePost object is used, it must live for the entire time the event is
-      // being processed
-      std::auto_ptr<CallPrePost> sentry;
-      if (isEvent) {
- 	sentry = std::auto_ptr<CallPrePost>(new CallPrePost(act_reg_.get(), &ep, &es));
-      }
-
-      if (runTriggerPaths(ep, es, bat)) {
-	if (isEvent) ++total_passed_;
-      }
-      state_ = Latched;
-	
-      if (results_inserter_.get()) results_inserter_->doWork(ep, es, bat, 0);
-	
-      if (endpathsAreActive_) runEndPaths(ep, es, bat);
-    }
-    catch(cms::Exception& e) {
-      actions::ActionCodes code = act_table_->find(e.rootCause());
-
-      switch(code) {
-      case actions::IgnoreCompletely: {
-	LogWarning(e.category())
-	  << "exception being ignored for current event:\n"
-	  << e.what();
-	break;
-      }
-      case actions::SkipEvent: {
-        if (isEvent) {
-          LogWarning(e.category())
-            << "an exception occurred and event is being skipped: \n"
-            << e.what();
-          reportSkipped(ep);
-        } else {
-	  state_ = Ready;
-	  throw edm::Exception(errors::EventProcessorFailure,
-			     "EventProcessingStopped",e)
-	    << "an exception ocurred during current event processing\n";
-        }
-	break;
-      }
-      default: {
-	state_ = Ready;
-	throw edm::Exception(errors::EventProcessorFailure,
-			     "EventProcessingStopped",e)
-	  << "an exception ocurred during current event processing\n";
-      }
-      }
-    }
-    catch(...) {
-      LogError("PassingThrough")
-	<< "an exception ocurred during current event processing\n";
-      state_ = Ready;
-      throw;
-    }
-
-    // next thing probably is not needed, the product insertion code clears it
-    state_ = Ready;
-
+  Schedule::processOneGlobal(typename T::MyPrincipal& ep,
+                                 EventSetup const& es,
+                                 bool cleaningUpAfterException) {
+    globalSchedule_->processOneGlobal<T>(ep,es,cleaningUpAfterException);
   }
-
-  template <typename T>
-  bool
-  Schedule::runTriggerPaths(T& ep, EventSetup const& es, BranchActionType const& bat) {
-    for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event<T>(ep, es, bat));
-    return results_->accept();
-  }
-
-  template <typename T>
-  void
-  Schedule::runEndPaths(T& ep, EventSetup const& es, BranchActionType const& bat) {
-    // Note there is no state-checking safety controlling the
-    // activation/deactivation of endpaths.
-    for_each(end_paths_.begin(), end_paths_.end(), run_one_event<T>(ep, es, bat));
-
-    // We could get rid of the functor run_one_event if we used
-    // boost::lambda, but the use of lambda with member functions
-    // which take multiple arguments, by both non-const and const
-    // reference, seems much more obscure...
-    //
-    // using namespace boost::lambda;
-    // for_each(end_paths_.begin(), end_paths_.end(),
-    //          bind(&Path::runOneEvent, 
-    //               boost::lambda::_1, // qualification to avoid ambiguity
-    //               var(ep),           //  pass by reference (not copy)
-    //               constant_ref(es))); // pass by const-reference (not copy)
-  }
-  
-  template <typename T>
-  void 
-  Schedule::setupOnDemandSystem(T& ep,
-				EventSetup const& es) {
-    // NOTE: who owns the productdescrption?  Just copied by value
-    unscheduled_->setEventSetup(es);
-    ep.setUnscheduledHandler(unscheduled_);
-    typedef std::vector<boost::shared_ptr<Provenance> > branches;
-    for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
-        itBranch != itBranchEnd;
-        ++itBranch) {
-      std::auto_ptr<Provenance> prov(new Provenance(**itBranch));
-      ep.addGroup(prov, true);
-    }
-  }
-
 }
-
 #endif

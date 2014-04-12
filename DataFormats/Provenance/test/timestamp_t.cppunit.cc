@@ -3,11 +3,10 @@
  *  CMSSW
  *
  *  Created by Chris Jones on 8/8/05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
  *
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "DataFormats/Provenance/interface/Timestamp.h"
 

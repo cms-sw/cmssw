@@ -1,6 +1,6 @@
 #include "GeneratorInterface/GenFilters/interface/MCDijetResonance.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,7 +10,7 @@ using namespace std;
 
 
 MCDijetResonance::MCDijetResonance(const edm::ParameterSet& iConfig) :
-  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))
+  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))
 {
    //here do whatever other initialization is needed
    
@@ -50,7 +50,7 @@ bool MCDijetResonance::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   Handle<HepMCProduct> evt;
   iEvent.getByLabel(label_, evt);
-  HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+  const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
   //If process is not the desired primary process, cleanup and reject the event.
   if (dijetProcess == "ZprimeLightQuarks" &&  myGenEvent->signal_process_id() != 141){
@@ -75,7 +75,7 @@ bool MCDijetResonance::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //count++;
   //} 
   
-  for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
+  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	p != myGenEvent->particles_end(); ++p ) 
     {
       //Find resonance particle and check that it is part of hard collision

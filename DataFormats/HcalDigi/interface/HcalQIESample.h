@@ -8,8 +8,6 @@
  *  Simple container packer/unpacker for a single QIE data word
  *
  *
- *  $Date: 2005/10/04 13:37:35 $
- *  $Revision: 1.4 $
  *  \author J. Mans - Minnesota
  */
 class HcalQIESample {

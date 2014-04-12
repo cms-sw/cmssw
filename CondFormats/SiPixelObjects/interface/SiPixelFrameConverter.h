@@ -2,29 +2,58 @@
 #define SiPixelObjects_SiPixelFrameConverter_H
 
 
-class SiPixelFedCablingMap;
-namespace sipixelobjects { class PixelFEDCabling; }
+
+#include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <boost/cstdint.hpp>
 
 class SiPixelFrameConverter {
 public:
 
-  SiPixelFrameConverter(const SiPixelFedCablingMap * map, int fedId); 
+  typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
 
-  struct CablingIndex { int link; int roc; int dcol; int pxid; };
+  //  using PixelFEDCabling = sipixelobjects::PixelFEDCabling;
 
-  struct DetectorIndex { uint32_t rawId; int row; int col; };
+  SiPixelFrameConverter(const SiPixelFedCabling* map, int fedId); 
 
   bool hasDetUnit(uint32_t radId) const;
 
-  int toDetector(const CablingIndex & cabling, DetectorIndex & detector) const;
+  sipixelobjects::PixelROC const * toRoc(int link, int roc) const;
+  
+  
+  int toDetector(const sipixelobjects::ElectronicIndex & cabling, 
+		 sipixelobjects::DetectorIndex & detector) const {
+    using namespace sipixelobjects;
+    auto roc = toRoc(cabling.link, cabling.roc);
+    if (!roc) return 2;
+    LocalPixel::DcolPxid local = { cabling.dcol, cabling.pxid };
+    if (!local.valid()) return 3;
+    
+    GlobalPixel global = roc->toGlobal( LocalPixel(local) );
+    detector.rawId = roc->rawId();
+    detector.row   = global.row;
+    detector.col   = global.col;
 
-  int toCabling(CablingIndex & cabling, const DetectorIndex & detector) const;
+    return 0;
+
+  }
+
+
+  int toCabling(       sipixelobjects::ElectronicIndex & cabling, 
+                 const sipixelobjects::DetectorIndex & detector) const;
 
 private:
-
-  const sipixelobjects::PixelFEDCabling & theFed; 
+  int theFedId;
+  const SiPixelFedCabling* theMap;
+  SiPixelFedCablingTree const * theTree;
+  const PixelFEDCabling * theFed;
   
 };
 #endif

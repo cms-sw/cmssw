@@ -8,8 +8,7 @@ if [ ! -d $refDir ]; then
     mkdir $refDir
 fi
 
-
-export geomDir=$refDir/Geometry
+export geomDir=Geometry
 
 if [ ! -d $geomDir ]; then
     echo Creating directory $geomDir/.
@@ -39,3 +38,9 @@ cp trackerOverlap.log $geomDir/.
 
 # Copy Images
 cp -R Images $geomDir/.
+
+tar -cvzf $geomDir.tgz $geomDir
+
+mv $geomDir.tgz $refDir/.
+
+rm -r $geomDir

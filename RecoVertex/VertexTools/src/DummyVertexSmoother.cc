@@ -1,11 +1,16 @@
 #include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
 
-CachingVertex DummyVertexSmoother::smooth( const CachingVertex & vertex ) const
+template <unsigned int N>
+CachingVertex<N> DummyVertexSmoother<N>::smooth( const CachingVertex<N> & vertex ) const
 {
   return vertex;
 }
 
-DummyVertexSmoother * DummyVertexSmoother::clone() const
+template <unsigned int N>
+DummyVertexSmoother<N> * DummyVertexSmoother<N>::clone() const
 {
   return new DummyVertexSmoother ( * this );
 }
+
+template class DummyVertexSmoother<5>;
+template class DummyVertexSmoother<6>;

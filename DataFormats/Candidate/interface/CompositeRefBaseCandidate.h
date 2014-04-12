@@ -1,6 +1,6 @@
 #ifndef Candidate_CompositeRefBaseCandidate_h
 #define Candidate_CompositeRefBaseCandidate_h
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 /** \class reco::CompositeRefBaseCandidate
  *
  * a reco::Candidate composed of daughters. 
@@ -9,25 +9,28 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefBaseCandidate.h,v 1.10 2007/05/14 11:59:26 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 namespace reco {
 
-  class CompositeRefBaseCandidate : public Candidate {
+  class CompositeRefBaseCandidate : public LeafCandidate {
   public:
     /// collection of references to daughters
     typedef std::vector<CandidateBaseRef> daughters;
     /// default constructor
-    CompositeRefBaseCandidate() : Candidate() { }
+    CompositeRefBaseCandidate() : LeafCandidate() { }
     /// constructor from values
     CompositeRefBaseCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			       int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+      LeafCandidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+    /// constructor from values
+    CompositeRefBaseCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+			       int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      LeafCandidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from a particle
-    CompositeRefBaseCandidate( const Particle & p ) : Candidate( p ) { }
+    explicit CompositeRefBaseCandidate( const Candidate & c ) : LeafCandidate( c ) { }
     /// destructor
     virtual ~CompositeRefBaseCandidate();
     /// returns a clone of the candidate
@@ -42,10 +45,15 @@ namespace reco {
     virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
+    /// number of mothers
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type ) const;
+    /// return mother at a given position, i = 0, ... numberOfMothers() - 1 (read only mode)
+    virtual const Candidate * mother( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type );
+    using reco::LeafCandidate::daughter; // avoid hiding the base
     /// add a daughter via a reference
     void addDaughter( const CandidateBaseRef & );    
     /// clear daughter references
@@ -54,16 +62,14 @@ namespace reco {
     CandidateBaseRef daughterRef( size_type i ) const { return dau[ i ]; }
 
   private:
-    /// const iterator implentation
+    /// const iterator implementation
     typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    /// iterator implentation
+    /// iterator implementation
     typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
-    /// post-read fixup operation
-    virtual void fixup() const;
   };
 
   inline void CompositeRefBaseCandidate::addDaughter( const CandidateBaseRef & cand ) { 

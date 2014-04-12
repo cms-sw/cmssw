@@ -1,29 +1,81 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
 						       const GlobalVector& direction,
-						       double transverseCurvature, int, 
+						       float transverseCurvature, int, 
 						       const MagneticField* fieldProvider) :
-  theX(aX), theField(fieldProvider), hasCurvature_(true), cachedCurvature_(transverseCurvature)
+  theField(fieldProvider),
+  theX(aX)
 {
-  double bza = -2.99792458e-3 * theField->inTesla(theX).z();
-  double qbp = transverseCurvature/bza*direction.perp();
-  theP = direction*fabs(1./qbp);
-  theCharge = qbp > 0. ? 1 : -1;
+  cachedMagneticField = theField->inTesla(theX);
+  float bza = -2.99792458e-3f * cachedMagneticField.z();
+  float qbpi = bza/(direction.perp()*transverseCurvature);
+  theP = direction*std::abs(qbpi);
+  theCharge = qbpi > 0.f ? 1 : -1;
 }
 
-double GlobalTrajectoryParameters::transverseCurvature() const
+
+GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
+                                                       const GlobalVector& direction,
+                                                       float transverseCurvature, int,
+                                                       const MagneticField* fieldProvider,
+                                                       GlobalVector fieldValue) :
+  theField(fieldProvider),
+  theX(aX),    
+  cachedMagneticField(fieldValue)
 {
-  if (!hasCurvature_) {
-      double bza = -2.99792458e-3 * theField->inTesla(theX).z();
-      cachedCurvature_ = bza*signedInverseTransverseMomentum();
-      hasCurvature_ = true;
-  }
-  return cachedCurvature_;
+  float bza = -2.99792458e-3f * cachedMagneticField.z();
+  float qbpi = bza/(direction.perp()*transverseCurvature);
+  theP = direction*std::abs(qbpi);
+  theCharge = qbpi > 0.f ? 1 : -1;
 }
+
+
+
+
+GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
+                             const GlobalVector& aP,
+                             TrackCharge aCharge, 
+                            const MagneticField* fieldProvider) :
+  theField(fieldProvider),
+  theX(aX), theP(aP),     
+  theCharge(aCharge)
+{
+    cachedMagneticField = theField ? theField->inTesla(theX) : GlobalVector(0, 0, 0);
+} // we must initialize cache to non-NAN to avoid FPE
+
+
+
+
+GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
+                             const GlobalVector& aP,
+                             TrackCharge aCharge,
+                             const MagneticField* fieldProvider,  
+                             GlobalVector fieldValue) :
+  theField(fieldProvider),
+  theX(aX), theP(aP),
+  cachedMagneticField(fieldValue),
+  theCharge(aCharge)
+ {}
+
 
 GlobalVector GlobalTrajectoryParameters::magneticFieldInInverseGeV( const GlobalPoint& x) const
 {
-  return 2.99792458e-3 * theField->inTesla(x);
+  return 2.99792458e-3f * theField->inTesla(x);
 }
+
+
+/*  the field is different as it is attached to each given volume!!!!
+// const MagneticField* GlobalTrajectoryParameters::theField=0;
+#include<iostream>
+// FIXME debug code mostly
+void GlobalTrajectoryParameters::setMF(const MagneticField* fieldProvider) {
+  if (0==fieldProvider) return;
+  if (0!=theField && fieldProvider!=theField)
+    std::cout << "GlobalTrajectoryParameters: a different MF???? " 
+	      << theField << " " << fieldProvider << std::endl;
+  theField =fieldProvider;
+}
+*/

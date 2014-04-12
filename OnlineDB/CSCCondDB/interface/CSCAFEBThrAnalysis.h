@@ -13,8 +13,6 @@
 
 /** \class CSCAFEBThrAnalysis
   *  
-  * $Date: 2006/06/09 13:15:39 $
-  * $Revision: 1.1 $
   * \author 
   */
 class CSCAFEBThrAnalysis {

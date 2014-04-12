@@ -1,7 +1,7 @@
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "G4SystemOfUnits.hh"
 
 class IdSort{
 public:
@@ -11,7 +11,9 @@ public:
 };
 
 
-G4SimEvent::G4SimEvent() : hepMCEvent(0),weight_(0),collisionPoint_(0),
+G4SimEvent::G4SimEvent() : hepMCEvent(0),
+                           weight_(0),
+                           collisionPoint_(math::XYZTLorentzVectorD(0.,0.,0.,0.)),
 			   nparam_(0),param_(0) {}
 
 G4SimEvent::~G4SimEvent() 
@@ -56,12 +58,20 @@ void G4SimEvent::load(edm::SimTrackContainer & c) const
     {
 	G4SimTrack * trk    = g4tracks[i];
 	int ip              = trk->part();
-	HepLorentzVector p  = HepLorentzVector(trk->momentum()/GeV,trk->energy()/GeV);
+	math::XYZTLorentzVectorD p( trk->momentum().x()/GeV,
+	                            trk->momentum().y()/GeV,
+                                    trk->momentum().z()/GeV,
+			            trk->energy()/GeV ) ;
 	int iv              = trk->ivert();
 	int ig              = trk->igenpart();
 	int id              = trk->id();
-	Hep3Vector tkpos    = trk->trackerSurfacePosition();
-	HepLorentzVector tkmom  = trk->trackerSurfaceMomentum();
+	math::XYZVectorD tkpos( trk->trackerSurfacePosition().x()/cm,
+	                        trk->trackerSurfacePosition().y()/cm,
+			        trk->trackerSurfacePosition().z()/cm ) ;
+	math::XYZTLorentzVectorD tkmom( trk->trackerSurfaceMomentum().x()/GeV,
+	                                trk->trackerSurfaceMomentum().y()/GeV,
+	                                trk->trackerSurfaceMomentum().z()/GeV,
+				        trk->trackerSurfaceMomentum().e()/GeV ) ;
 	// ip = particle ID as PDG
 	// pp = 4-momentum
 	// iv = corresponding G4SimVertex index
@@ -83,14 +93,16 @@ void G4SimEvent::load(edm::SimVertexContainer & c) const
 	//
 	// starting 1_1_0_pre3, SimVertex stores in cm !!!
 	// 
-	Hep3Vector v3       = (vtx->vertexPosition())/cm;
-	// Hep3Vector v3       = (vtx->vertexPosition());
+	math::XYZVectorD v3( vtx->vertexPosition().x()/cm, 
+	                     vtx->vertexPosition().y()/cm,
+			     vtx->vertexPosition().z()/cm ) ;
 	float t             = vtx->vertexGlobalTime()/second;
 	int iv              = vtx->parentIndex();
 	// vv = position
 	// t  = global time
 	// iv = index of the parent in the SimEvent SimTrack container (-1 if no parent)
-	SimVertex v = SimVertex(v3,t,iv);
+	SimVertex v = SimVertex(v3,t,iv,i);
+        v.setProcessType(vtx->processType());
 	v.setEventId(EncodedEventId(0));
 	c.push_back(v);
     }

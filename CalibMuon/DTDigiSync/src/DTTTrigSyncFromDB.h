@@ -24,14 +24,21 @@
  *       TOF from the center of the chamber, SL, layer or wire to the hit position.
  *       NOTE: particles are assumed as coming from the IP.
  *
+ *  The emulatorOffset is computed as:
+ *  <br>
+ *  offset = int(ttrig/BXspace)*BXspace + t0
+ *  <br>
+ *  where: <br>
+ *     - t0 from test pulses (taken from DB, it is assumed to be in ns; can be switched off)
+ *     - ttrig from the fit of time box rising edge (taken from DB, it is assumed to be in ns)
+ *     - BXspace BX spacing (in ns). Can be configured.
+ *   
+ *  NOTE: this should approximate what is seen online by the BTI
  *
- *  $Date: 2007/02/19 11:45:21 $
- *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
-
 
 
 class DTLayer;
@@ -73,16 +80,25 @@ public:
   /// It does not take into account TOF and signal propagation along the wire
   double offset(const DTWireId& wireId);
 
+
+  /// Time (ns) to be subtracted to the digi time for emulation purposes
+  /// It does not take into account TOF and signal propagation along the wire
+  /// It also returns the different contributions separately:
+  ///     - tTrig is the offset (t_trig)
+  ///     - t0cell is the t0 from pulses
+  virtual double emulatorOffset(const DTWireId& wireId,
+				double &tTrig,
+				double &t0cell);
+
+
  private:
   
   const DTT0 *tZeroMap;
   const DTTtrig *tTrigMap;
   // Set the verbosity level
-  static bool debug;
+  const bool debug;
   // The velocity of signal propagation along the wire (cm/ns)
   double theVPropWire;
-   // The ttrig is defined as mean + kFactor * sigma
-  double kFactor;
   // Switch on/off the T0 correction from pulses
   bool doT0Correction;
   // Switch on/off the TOF correction for particles from IP
@@ -91,6 +107,11 @@ public:
   // Switch on/off the correction for the signal propagation along the wire
   bool doWirePropCorrection;
   int theWirePropCorrType;
+  // spacing of BX in ns
+  double theBXspace;
+
+  std::string thetTrigLabel;
+
 };
 #endif
 

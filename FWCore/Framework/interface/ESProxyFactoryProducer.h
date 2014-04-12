@@ -24,7 +24,8 @@ Example: register one Factory that creates a proxy that takes no arguments
    class FooProd : public edm::ESProxyFactoryProducer { ... };
 
    FooProd::FooProd(const edm::ParameterSet&) {
-      registerFactory(new edm::eventsetup::ProxyFactoryTemplate<FooProxy>());
+      typedef edm::eventsetup::ProxyFactoryTemplate<FooProxy> > TYPE;
+      registerFactory(std::auto_ptr<TYPE>(new TYPE());
    };
    
 \endcode
@@ -37,9 +38,8 @@ class BarProxy : public edm::eventsetup::DataProxy { ...
 class BarProd : public edm::ESProxyFactoryProducer { ... };
 
 BarProd::BarProd(const edm::ParameterSet& iPS) {
-   registerFactory(
-      new edm::eventsetup::ProxyArgumentFactoryTemplate<FooProxy,
-                                                        edm::ParmeterSet>(iPS));
+   typedef edm::eventsetup::ProxyArgumentFactoryTemplate<FooProxy, edm::ParmeterSet> TYPE;
+   registerFactory(std::auto_ptr<TYPE>(new TYPE(iPS));
 };
 
 \endcode
@@ -48,11 +48,12 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:14:58 CDT 2005
-// $Id: ESProxyFactoryProducer.h,v 1.2 2006/07/23 01:24:33 valya Exp $
 //
 
 // system include files
 #include <map>
+#include <memory>
+#include <string>
 #include "boost/shared_ptr.hpp"
 
 // user include files
@@ -110,18 +111,6 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
                                    eventsetup::EventSetupRecordKey::makeKey<typename TFactory::record_type>(),
                                    temp,
                                    iLabel);
-         }
-      /** \param iFactory pointer to a new instance of a Factory
-         \param iLabel extra string label used to get data (optional)
-         Producer takes ownership of the Factory and uses it create the appropriate
-         Proxy which is then registered with the EventSetup. If used, this method should
-         be called in inheriting class' constructor.
-         */
-      template< class TFactory>
-         void registerFactory(TFactory* iFactory,
-                              const std::string& iLabel = std::string()) {
-            std::auto_ptr<TFactory> temp(iFactory);
-            registerFactory(temp,iLabel);
          }
       
       virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,

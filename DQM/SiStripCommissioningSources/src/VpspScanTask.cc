@@ -2,8 +2,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
@@ -11,7 +10,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-VpspScanTask::VpspScanTask( DaqMonitorBEInterface* dqm,
+VpspScanTask::VpspScanTask( DQMStore* dqm,
 			    const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "VpspScanTask" ),
   vpsp_()
@@ -45,9 +44,9 @@ void VpspScanTask::book() {
 				 connection().lldChannel(),
 				 extra_info.str() ).title();
       
-      vpsp_[iapv].histo_ = dqm()->bookProfile( title, title, 
-					       nbins, -0.5, nbins*1.-0.5,
-					       1025, 0., 1025. );
+      vpsp_[iapv].histo( dqm()->bookProfile( title, title, 
+					     nbins, -0.5, nbins*1.-0.5,
+					     1025, 0., 1025. ) );
       
       vpsp_[iapv].vNumOfEntries_.resize(nbins,0);
       vpsp_[iapv].vSumOfContents_.resize(nbins,0);

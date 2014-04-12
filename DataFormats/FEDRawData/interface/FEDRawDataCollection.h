@@ -6,8 +6,6 @@
  *  
  *  Reference: DaqPrototype/DaqPersistentData/interface/DaqFEDOpaqueData.h
  *
- *  $Date: 2006/08/20 22:41:11 $
- *  $Revision: 1.6 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -18,7 +16,7 @@
 #include <vector>
 
 
-class FEDRawDataCollection  {
+class FEDRawDataCollection : public edm::DoNotRecordParents {
  public:
   FEDRawDataCollection();
 
@@ -46,15 +44,6 @@ inline
 void swap(FEDRawDataCollection & a, FEDRawDataCollection & b) {
   a.swap(b);
 }
-
-#if ! GCC_PREREQUISITE(3,4,4)
-namespace edm {
-  template <> struct has_swap<FEDRawDataCollection> {
-    static bool const value = true;
-  };
-}
-#endif
-
 
 #endif
 

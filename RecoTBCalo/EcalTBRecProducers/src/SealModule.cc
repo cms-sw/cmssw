@@ -4,6 +4,6 @@
 #include "RecoTBCalo/EcalTBRecProducers/interface/IsTBH4Type.h"
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE( EcalTBWeightUncalibRecHitProducer );
-DEFINE_ANOTHER_FWK_MODULE( IsTBH4Type );
+
+DEFINE_FWK_MODULE( EcalTBWeightUncalibRecHitProducer );
+DEFINE_FWK_MODULE( IsTBH4Type );

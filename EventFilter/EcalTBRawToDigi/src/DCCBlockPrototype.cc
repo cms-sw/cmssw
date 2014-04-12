@@ -1,16 +1,13 @@
-
-
 #include "DCCBlockPrototype.h"
 #include "DCCDataParser.h"
 #include "DCCDataMapper.h"
 #include "ECALParserBlockException.h"
 
 #include <stdio.h>
-#include <iomanip>
 #include <sstream>
 
 
-DCCBlockPrototype::DCCBlockPrototype(DCCDataParser * parser, std::string name, ulong * buffer, ulong numbBytes, ulong wordsToEndOfEvent,  ulong wordEventOffset ){
+DCCTBBlockPrototype::DCCTBBlockPrototype(DCCTBDataParser * parser, std::string name, uint32_t * buffer, uint32_t numbBytes, uint32_t wordsToEndOfEvent,  uint32_t wordEventOffset ){
 			
 	blockError_        = false;
 	parser_            = parser;
@@ -25,19 +22,19 @@ DCCBlockPrototype::DCCBlockPrototype(DCCDataParser * parser, std::string name, u
 	
 	/*
 	std::cout<<std::endl;
-	std::cout<<" DEBUG::DCCBlockPrototype:: Block Name                  :   "<<name_<<std::endl;
-	std::cout<<" DEBUG::DCCBlockPrototype:: Block size  [bytes]         :   "<<std::dec<<blockSize_<<std::endl;
-	std::cout<<" DEBUG::DCCBlockPrototype:: Number Of Words             :   "<<std::dec<<blockSize_/4<<std::endl;
-	std::cout<<" DEBUG::DCCBlockPrototype:: word event offset           :   "<<std::dec<<wordEventOffset_<<std::endl;
-	std::cout<<" DEBUG::DCCBlockPrototype:: words to end of event       :   "<<std::dec<<wordsToEndOfEvent_<<std::endl;
-	std::cout<<" DEBUG::DCCBlockPrototype:: First Word (*dataP_)        : 0x"<<hex<<(*dataP_)<<std::endl;
+	std::cout<<" DEBUG::DCCTBBlockPrototype:: Block Name                  :   "<<name_<<std::endl;
+	std::cout<<" DEBUG::DCCTBBlockPrototype:: Block size  [bytes]         :   "<<std::dec<<blockSize_<<std::endl;
+	std::cout<<" DEBUG::DCCTBBlockPrototype:: Number Of Words             :   "<<std::dec<<blockSize_/4<<std::endl;
+	std::cout<<" DEBUG::DCCTBBlockPrototype:: word event offset           :   "<<std::dec<<wordEventOffset_<<std::endl;
+	std::cout<<" DEBUG::DCCTBBlockPrototype:: words to end of event       :   "<<std::dec<<wordsToEndOfEvent_<<std::endl;
+	std::cout<<" DEBUG::DCCTBBlockPrototype:: First Word (*dataP_)        : 0x"<<hex<<(*dataP_)<<std::endl;
 	std::cout<<std::endl;
 	*/
 }
 
 
-void DCCBlockPrototype::parseData(){
-  std::set<DCCDataField *,DCCDataFieldComparator>::iterator it;          //iterator for data fields
+void DCCTBBlockPrototype::parseData(){
+  std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator it;          //iterator for data fields
 	
   //for debug purposes
   //std::cout << "Starting to parse data in block named : " << std::endl;
@@ -58,10 +55,10 @@ void DCCBlockPrototype::parseData(){
 	*/	
 		
     try{
-      ulong data = getDataWord( (*it)->wordPosition() , (*it)->bitPosition(),(*it)->mask());
+      uint32_t data = getDataWord( (*it)->wordPosition() , (*it)->bitPosition(),(*it)->mask());
       dataFields_[(*it)->name()]= data;
       	
-    }catch( ECALParserBlockException & e){
+    }catch( ECALTBParserBlockException & e){
 			
       std::string localString;
       
@@ -78,7 +75,7 @@ void DCCBlockPrototype::parseData(){
       std::ostringstream a;
       
       try{ displayData(a);}
-      catch(ECALParserBlockException &e){}
+      catch(ECALTBParserBlockException &e){}
      
       std::string outputErrorString(a.str());
       error += outputErrorString;
@@ -87,7 +84,7 @@ void DCCBlockPrototype::parseData(){
        
       blockError_ = true;
       
-      throw( ECALParserBlockException(errorString_) );
+      throw( ECALTBParserBlockException(errorString_) );
       
     }		
   }
@@ -98,13 +95,13 @@ void DCCBlockPrototype::parseData(){
 
 
 
-ulong DCCBlockPrototype::getDataWord(ulong wordPosition, ulong bitPosition, ulong mask){
+uint32_t DCCTBBlockPrototype::getDataWord(uint32_t wordPosition, uint32_t bitPosition, uint32_t mask){
 	
 	/*
-	std::cout<<"\n DEBUG::DCCBlockPrototype getDataWord method "
-	    <<"\n DEBUG::DCCBlockPrototype wordPosition       = "<<wordPosition
-	    <<"\n DEBUG::DCCBlockPrototype wordCounter        = "<<wordCounter_
-	    <<"\n DEBUG::DCCBlockPrototype going to increment = "<<(wordPosition-wordCounter_)<<std::endl;
+	std::cout<<"\n DEBUG::DCCTBBlockPrototype getDataWord method "
+	    <<"\n DEBUG::DCCTBBlockPrototype wordPosition       = "<<wordPosition
+	    <<"\n DEBUG::DCCTBBlockPrototype wordCounter        = "<<wordCounter_
+	    <<"\n DEBUG::DCCTBBlockPrototype going to increment = "<<(wordPosition-wordCounter_)<<std::endl;
 	*/
 	if( wordPosition > wordCounter_ ){ increment(wordPosition - wordCounter_);	}
 
@@ -114,7 +111,7 @@ ulong DCCBlockPrototype::getDataWord(ulong wordPosition, ulong bitPosition, ulon
 
 
 
-void DCCBlockPrototype::increment(ulong numb,std::string msg){
+void DCCTBBlockPrototype::increment(uint32_t numb,std::string msg){
 	
 	seeIfIsPossibleToIncrement(numb,msg);
 	dataP_ += numb; wordCounter_ += numb;
@@ -122,7 +119,7 @@ void DCCBlockPrototype::increment(ulong numb,std::string msg){
 
 
 
-void DCCBlockPrototype::seeIfIsPossibleToIncrement(ulong numb, std::string msg){
+void DCCTBBlockPrototype::seeIfIsPossibleToIncrement(uint32_t numb, std::string msg){
 	
 	/*
 	std::cout<<"\n See if is possible to increment numb ="<<std::dec<<numb<<" msg "<<msg<<std::endl;
@@ -141,11 +138,11 @@ void DCCBlockPrototype::seeIfIsPossibleToIncrement(ulong numb, std::string msg){
 		
 		
 		try{ displayData(a);}
-		catch(ECALParserBlockException &e){}
+		catch(ECALTBParserBlockException &e){}
 		outputErrorString = a.str();
 		error += outputErrorString;
 		
-		throw ECALParserBlockException(error); 
+		throw ECALTBParserBlockException(error); 
 		blockError_=true;
 	}
 	
@@ -153,10 +150,10 @@ void DCCBlockPrototype::seeIfIsPossibleToIncrement(ulong numb, std::string msg){
 
 
 
-void DCCBlockPrototype::displayData(  std::ostream & os  ){
+void DCCTBBlockPrototype::displayData(  std::ostream & os  ){
 
   
-  std::set<DCCDataField *,DCCDataFieldComparator>::iterator it;
+  std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator it;
 
 	bool process(true);
 	os << "\n ======================================================================\n"; 
@@ -173,7 +170,7 @@ void DCCBlockPrototype::displayData(  std::ostream & os  ){
 				position = currentPosition; 
 			}
 			os<<" "<<formatString(dataFieldName,14)<<" = "<<std::dec<<std::setw(5)<<getDataField(dataFieldName); 			
-		} catch (ECALParserBlockException & e){ process = false; os<<" not able to get data field..."<<dataFieldName<<std::endl;}
+		} catch (ECALTBParserBlockException & e){ process = false; os<<" not able to get data field..."<<dataFieldName<<std::endl;}
 	}
 	os<<"\n ======================================================================\n"; 
 
@@ -183,12 +180,12 @@ void DCCBlockPrototype::displayData(  std::ostream & os  ){
 
 
 
-std::pair<bool,std::string> DCCBlockPrototype::checkDataField(std::string name, ulong data){
+std::pair<bool,std::string> DCCTBBlockPrototype::checkDataField(std::string name, uint32_t data){
 
 	std::string output("");
 	std::pair<bool,std::string> res;
 	bool errorFound(false);
-	ulong parsedData =  getDataField(name);
+	uint32_t parsedData =  getDataField(name);
 	if( parsedData != data){
 		output += std::string("\n Field : ")+name+(" has value ")+parser_->getDecString( parsedData )+ std::string(", while ")+parser_->getDecString(data)+std::string(" is expected"); 	
 		
@@ -206,11 +203,11 @@ std::pair<bool,std::string> DCCBlockPrototype::checkDataField(std::string name, 
 
 
 
-ulong DCCBlockPrototype::getDataField(std::string name){
+uint32_t DCCTBBlockPrototype::getDataField(std::string name){
 	
-	std::map<std::string,ulong>::iterator it = dataFields_.find(name);
+	std::map<std::string,uint32_t>::iterator it = dataFields_.find(name);
 	if(it == dataFields_.end()){		
-		throw ECALParserBlockException( std::string("\n field named : ")+name+std::string(" was not found in block ")+name_ );
+		throw ECALTBParserBlockException( std::string("\n field named : ")+name+std::string(" was not found in block ")+name_ );
 		blockError_=true;
 	}
 
@@ -220,11 +217,11 @@ ulong DCCBlockPrototype::getDataField(std::string name){
 
 
 
-std::string DCCBlockPrototype::formatString(std::string myString,ulong minPositions){
+std::string DCCTBBlockPrototype::formatString(std::string myString,uint32_t minPositions){
 	std::string ret(myString);
-	ulong stringSize = ret.size();
+	uint32_t stringSize = ret.size();
 	if( minPositions > stringSize ){
-		for(ulong i=0;i< minPositions-stringSize;i++){ ret+=" ";}
+		for(uint32_t i=0;i< minPositions-stringSize;i++){ ret+=" ";}
 	}
 	return  ret;
 
@@ -235,8 +232,8 @@ std::string DCCBlockPrototype::formatString(std::string myString,ulong minPositi
 
 
 
-void DCCBlockPrototype::setDataField(std::string name, ulong data){
-  std::set<DCCDataField *,DCCDataFieldComparator>::iterator it;          //iterator for data fields
+void DCCTBBlockPrototype::setDataField(std::string name, uint32_t data){
+  std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator it;          //iterator for data fields
   bool fieldFound(false);
   for(it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
   	if( ! ((*it)->name()).compare(name) ){ fieldFound = true; }
@@ -244,7 +241,7 @@ void DCCBlockPrototype::setDataField(std::string name, ulong data){
   
   if(fieldFound){ dataFields_[name]= data;}
   else{ 
-  	throw  ECALParserBlockException( std::string("\n field named : ")+name+std::string(" was not found in block ")+name_ );
+  	throw  ECALTBParserBlockException( std::string("\n field named : ")+name+std::string(" was not found in block ")+name_ );
   }
   
 }
@@ -254,13 +251,13 @@ void DCCBlockPrototype::setDataField(std::string name, ulong data){
 
 
 
-std::pair<bool,std::string> DCCBlockPrototype::compare(DCCBlockPrototype * block){
+std::pair<bool,std::string> DCCTBBlockPrototype::compare(DCCTBBlockPrototype * block){
 	
 	
 	std::pair<bool,std::string> ret(true,"");
 	
 	
-	std::set<DCCDataField *,DCCDataFieldComparator>::iterator it;
+	std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator it;
 	std::stringstream out;
 	
 
@@ -299,12 +296,12 @@ std::pair<bool,std::string> DCCBlockPrototype::compare(DCCBlockPrototype * block
 		
 		dataFieldName    =  (*it)->name();
 		
-		ulong aValue, bValue;
+		uint32_t aValue, bValue;
 			
 		//Access original block data fields /////////////////////////////////////////////////////
 		try{ aValue = getDataField(dataFieldName); }
 		
-		catch(ECALParserBlockException &e ){
+		catch(ECALTBParserBlockException &e ){
 			ret.first   = false;
 			out<<"\n ERROR ON ORIGINAL BLOCK unable to get data field :"<<dataFieldName;
 			out<<"\n Comparision was stoped ! ";
@@ -315,7 +312,7 @@ std::pair<bool,std::string> DCCBlockPrototype::compare(DCCBlockPrototype * block
 			
 		//Access comparision block data fields ///////////////////////////////////////////////////////
 		try{ bValue = block->getDataField(dataFieldName); }
-		catch(ECALParserBlockException &e ){
+		catch(ECALTBParserBlockException &e ){
 			ret.first  = false;
 			out<<"\n ERROR ON COMPARISION BLOCK unable to get data field :"<<dataFieldName
 			   <<"\n Comparision was stoped ! ";

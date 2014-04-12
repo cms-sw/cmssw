@@ -10,7 +10,7 @@
  * of the Muon Endcap CSC detector system.
  *
  * The STATIC member functions can be used to translate back and
- * forth between a MuEndLayer 'rawId' and the %set of subdetector labels.
+ * forth between a layer/chamber 'rawId' and the %set of subdetector labels.
  *
  * \warning EVERY LABEL COUNTS FROM ONE NOT ZERO.
  *
@@ -28,14 +28,17 @@ class CSCDetId : public DetId {
 
 public:
 
+
   /// Default constructor; fills the common part in the base
   /// and leaves 0 in all other fields
-  CSCDetId();
+  CSCDetId() : DetId(DetId::Muon, MuonSubdetId::CSC){}
+
+#ifndef EDM_ML_DEBUG
 
   /// Construct from a packed id. It is required that the Detector part of
   /// id is Muon and the SubDet part is CSC, otherwise an exception is thrown.
-  CSCDetId(uint32_t id);
-  CSCDetId(DetId id);
+  CSCDetId(uint32_t id) : DetId(id) {}
+  CSCDetId(DetId id) : DetId(id) {}
 
 
   /// Construct from fully qualified identifier.
@@ -44,12 +47,19 @@ public:
   /// iendcap: 1=forward (+Z), 2=backward(-Z)
   CSCDetId( int iendcap, int istation, 
 	    int iring, int ichamber, 
-	    int ilayer );
+	    int ilayer = 0 ) : DetId(DetId::Muon, MuonSubdetId::CSC) {
+     id_ |= init(iendcap, istation, iring, ichamber, ilayer);
+  }
 
-  /** Copy ctor.
-   */
-  CSCDetId( const CSCDetId& id )
-     : DetId(id.id_) { }  
+#else
+
+    CSCDetId(uint32_t id);
+    CSCDetId(DetId id);
+    CSCDetId( int iendcap, int istation, 
+	      int iring, int ichamber, 
+	      int ilayer = 0 );
+
+#endif
 
   /** Chamber CSCDetId from a Layer CSCDetId
    */
@@ -96,6 +106,36 @@ public:
    int endcap() const {
      return (  (id_>>START_ENDCAP) & MASK_ENDCAP ); }
 
+   /**
+    * What is the sign of global z?
+    *
+    */
+   short int zendcap() const {
+     return ( endcap()!=1 ? -1 : +1 );
+   }
+
+   /**
+    * Chamber type (integer 1-10)
+    */
+   unsigned short iChamberType() {
+     return iChamberType( station(), ring() );
+   }
+
+   /**
+    * Geometric channel no. from geometric strip no. - identical except for ME1a ganged strips
+    *
+    * Note that 'Geometric' means increasing number corresponds to increasing local x coordinate. 
+    * \warning There is no attempt here to handle cabling or readout questions. 
+    * If you need that look at CondFormats/CSCObjects/CSCChannelTranslator.
+    */
+   int channel( int istrip ) { 
+     if ( ring()== 4 ) 
+       // strips 1-48 mapped to channels 1-16:
+       // 1+17+33->1, 2+18+34->2, .... 16+32+48->16
+       return 1 + (istrip-1)%16; 
+     else 
+       return istrip; 
+   }
 
   // static methods
   // Used when we need information about subdetector labels.
@@ -114,14 +154,11 @@ public:
    * starting from the component ids.
    *
    */
-
-  // Tim dislikes the necessity of this ugly code - magic numbers included
-  // Thanks a lot, CMSSW
-
    static int rawIdMaker( int iendcap, int istation, int iring, 
                int ichamber, int ilayer ) {
-     return ((DetId::Muon&0xF)<<28)|((MuonSubdetId::CSC&0x7)<<25)|
-               init(iendcap, istation, iring, ichamber, ilayer) ; }
+     return ( (DetId::Muon&0xF)<<(DetId::kDetOffset) ) |            // set Muon flag
+            ( (MuonSubdetId::CSC&0x7)<<(DetId::kSubdetOffset) ) |   // set CSC flag
+               init(iendcap, istation, iring, ichamber, ilayer) ; } // set CSC id
 
    /**
     * Return Layer label for supplied CSCDetId index.
@@ -161,6 +198,14 @@ public:
     */
    static int endcap( int index ) {
      return (  (index>>START_ENDCAP) & MASK_ENDCAP ); }
+
+   /**
+    * Return a unique integer 1-10 for a station, ring pair:
+    *        1           for S = 1  and R=4 inner strip part of ME11 (ME1a)
+    *      2,3,4 =  R+1  for S = 1  and R = 1,2,3 (ME11 means ME1b)
+    *      5-10  = 2*S+R for S = 2,3,4 and R = 1,2
+    */
+   static unsigned short iChamberType( unsigned short istation, unsigned short iring );
 
    /**
     * Return trigger-level sector id for an Endcap Muon chamber.
@@ -233,21 +278,27 @@ private:
 
   /**
    *
-   * Methods for changing ME1/1 CSCDetId. 
-   * Internally the chambers are ordered (Station/Ring) as: ME1/a (1/1), ME1/b (1/2), ME1/2 (1/3), ME1/3 (1/4).
+   * Methods for reordering CSCDetId for ME1 detectors.
+   *
+   * Internally the chambers are ordered (Station/Ring) as: ME1/a (1/1), ME1/b (1/2), ME1/2 (1/3), ME1/3 (1/4)
+   * i.e. they are labelled within the DetId as if ME1a, ME1b, ME12, ME13 are rings 1, 2, 3, 4.
+   * The offline software always considers rings 1, 2, 3, 4 as ME1b, ME12, ME13, ME1a so that at
+   * least ME12 and ME13 have ring numbers which match in hardware and software!
    *
    */
   static int intToDetId(int iring) {
+    // change iring = 1, 2, 3, 4 input to 2, 3, 4, 1 for use inside the DetId
+    // i.e. ME1b, ME12, ME13, ME1a externally become stored internally in order ME1a, ME1b, ME12, ME13
     int i = (iring+1)%4;
-    if (i == 0)
-      i = 4;
+    if (i == 0) i = 4;
     return i;
   }
 
   static int detIdToInt(int iring) {
+    // reverse intToDetId: change 1, 2, 3, 4 inside the DetId to 4, 1, 2, 3 for external use
+    // i.e. output ring # 1, 2, 3, 4 in ME1 means ME1b, ME12, ME13, ME1a as usual in the offline software.
     int i = (iring-1);
-    if (i == 0)
-      i = 4;
+    if (i == 0) i = 4;
     return i;
   }
  

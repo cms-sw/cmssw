@@ -3,9 +3,10 @@
  * 
  * Analyzer to test Shower Containment Corrections
  *   
- * $Id: $
  *
 */
+
+#include <iostream>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>

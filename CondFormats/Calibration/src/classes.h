@@ -1,29 +1,26 @@
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/Calibration/interface/BlobPedestals.h"
 #include "CondFormats/Calibration/interface/BlobNoises.h"
+#include "CondFormats/Calibration/interface/BlobComplex.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "CondFormats/Calibration/interface/CalibHistograms.h"
-/*#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-*/
-namespace {
-  std::vector< Pedestals::Item >::iterator tmp0;
-  std::vector< Pedestals::Item >::const_iterator tmp1;
-  std::vector< std::vector<BlobNoises::DetRegistry> >::iterator tmp2;
-  std::vector< std::vector<BlobNoises::DetRegistry> >::const_iterator tmp3; 
-  std::vector< mySiStripNoises::SiStripData >::iterator tmp4;
-  std::vector< mySiStripNoises::SiStripData >::const_iterator tmp5;
-  std::vector< mySiStripNoises::DetRegistry >::iterator tmp6;
-  std::vector< mySiStripNoises::DetRegistry >::const_iterator tmp7;   
-  std::vector<unsigned int>::iterator tmp8;
-  std::vector<unsigned int>::const_iterator tmp9;
-  std::vector<short>::iterator tmp10;
-  std::vector<short>::const_iterator tmp11;
-  std::vector<float>::iterator tmp12;
-  std::vector<float>::const_iterator tmp13;
-  std::vector<CalibHistogram>::iterator tmp14;
-  std::vector<CalibHistogram>::const_iterator tmp15;
+#include <bitset>
+#include "CondFormats/Calibration/interface/boostTypeObj.h"
+#include "CondFormats/Calibration/interface/mypt.h"
+#include "CondFormats/Calibration/interface/fakeMenu.h"
+#include "CondFormats/Calibration/interface/strKeyMap.h"
+#include "CondFormats/Calibration/interface/simpleInheritance.h"
+
+#include "CondFormats/Calibration/interface/Efficiency.h"
+#include "CondFormats/Calibration/interface/Conf.h"
+#include "CondFormats/Calibration/interface/big.h"
+
+namespace CondFormats_Calibration {
+  struct dictionary {
+    fixedArray<unsigned short,2097> d;
+    std::map<std::string, Algo> e;
+    std::pair<std::string, Algo> e1;
+    std::map<std::string, Algob> e2;
+    std::pair<std::string, Algob> e3;
+  };
 }

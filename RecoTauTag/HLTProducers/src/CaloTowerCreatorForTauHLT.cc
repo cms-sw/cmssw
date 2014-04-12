@@ -2,14 +2,12 @@
 // original author: L.Lista INFN, modifyed by: F.Ratnikov UMd 
 // Author for regionality A. Nikitenko
 // Modified by S. Gennai
-#include <cmath>
+
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include <cmath>
@@ -22,28 +20,29 @@ using namespace l1extra ;
 CaloTowerCreatorForTauHLT::CaloTowerCreatorForTauHLT( const ParameterSet & p ) 
   :
   mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
-  mtowers (p.getParameter<string> ("towers")),
   mCone (p.getParameter<double> ("UseTowersInCone")),
-  mTauTrigger (p.getParameter<InputTag> ("TauTrigger")),
-//  ml1seeds (p.getParameter<InputTag> ("l1seeds")),
   mEtThreshold (p.getParameter<double> ("minimumEt")),
   mEThreshold (p.getParameter<double> ("minimumE")),
   mTauId (p.getParameter<int> ("TauId"))
 {
-  produces<CandidateCollection>();
+  mtowers_token = consumes<CaloTowerCollection>(p.getParameter<InputTag>("towers") );
+  mTauTrigger_token = consumes<L1JetParticleCollection>(p.getParameter<InputTag>("TauTrigger") );
+
+  produces<CaloTowerCollection>();
 }
 
 CaloTowerCreatorForTauHLT::~CaloTowerCreatorForTauHLT() {
 }
 
 void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
-  Handle<CaloTowerCollection> caloTowers;
-  evt.getByLabel( mtowers, caloTowers );
+  edm::Handle<CaloTowerCollection> caloTowers;
+  evt.getByToken( mtowers_token, caloTowers );
 
   // imitate L1 seeds
-  Handle<L1JetParticleCollection> jetsgen;
-  evt.getByLabel(mTauTrigger, jetsgen);
-  auto_ptr<CandidateCollection> cands( new CandidateCollection );
+  edm::Handle<L1JetParticleCollection> jetsgen;
+  evt.getByToken( mTauTrigger_token, jetsgen);
+
+  std::auto_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
   cands->reserve( caloTowers->size() );
   
   int idTau =0;
@@ -55,10 +54,10 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 	  double Sum08 = 0.;
 	  
 	  unsigned idx = 0;
-	  for (; idx < caloTowers->size (); idx++) {
+	  for (; idx < caloTowers->size(); idx++) {
 	    const CaloTower* cal = &((*caloTowers) [idx]);
 	    if (mVerbose == 2) {
-	      std::cout << "CaloTwoerCreatorForTauHLT::produce-> " << idx << " tower et/eta/phi/e: " 
+	      std::cout << "CaloTowerCreatorForTauHLT::produce-> " << idx << " tower et/eta/phi/e: " 
 			<< cal->et() << '/' << cal->eta() << '/' << cal->phi() << '/' << cal->energy() << " is...";
 	    }
 	    if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold ) {
@@ -66,11 +65,8 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
   	      double delta  = ROOT::Math::VectorUtil::DeltaR((*myL1Jet).p4().Vect(), p);
 	      
 	      if(delta < mCone) {
-		RecoCaloTowerCandidate * c = 
-		  new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p ) );
-		c->setCaloTower (CaloTowerRef( caloTowers, idx) );
-		Sum08 += c->et(); 
-		cands->push_back( c );
+		Sum08 += cal->et(); 
+		cands->push_back( *cal );
 	      }
 	    }
 	    else {

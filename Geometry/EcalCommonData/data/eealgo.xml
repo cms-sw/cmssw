@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <Algorithm name="ecal:DDEcalEndcapAlgo">
+    <rParent name="eregalgo:EREG"/>
+    <String name="EEMat" value="materials:Air"/>
+    <Numeric name="EEzOff" value="[eecon:EEzOff]"/>
+    <String name="EECutBoxName" value="EECutBox"/>
+    <String name="EEEnvName" value="EESCEnv"/>
+    <String name="EEAlvName" value="EESCAlv"/>
+    <String name="EEIntName" value="EESCInt"/>
+    <String name="EECryName" value="EFRY"/>
+    <!-- Added by BWK -->
+    <!-- More endcap materials -->
+    <String name="EECrysMat" value="materials:E_PbWO4"/>
+    <String name="EEBPMat" value="materials:E_Aluminium"/>
+    <String name="EEWallMat" value="materials:EE_Aveolar"/>
+    <!--  Endcap Quadrant -->
+    <String name="EEQuaName" value="eehier:EEFrontQuad"/>
+    <String name="EEQuaMat" value="materials:Air"/>
+    <!-- Endcap crystal: nominal size -->
+    <Numeric name="EECrysLength" value="220.00*mm"/>
+    <Numeric name="EECrysRear" value="30.000*mm - 0.05*mm"/>
+    <Numeric name="EECrysFront" value="28.618*mm - 0.05*mm"/>
+    <!-- Taper = 0.36deg -->
+    <!-- Endcap supercrystal: size of tapered envelope -->
+    <Numeric name="EESCELength" value="[eecon:SCEnvLength]"/>
+    <Numeric name="EESCERear" value="156.87*mm"/>
+    <Numeric name="EESCEFront" value="145.98*mm"/>
+    <!-- Taper = 1.80deg -->
+    <!-- Endcap supercrystal: size of C-fibre alveolar -->
+    <Numeric name="EESCALength" value="276.20*mm"/>
+    <Numeric name="EESCARear" value="154.66*mm - 0.01*mm"/>
+    <Numeric name="EESCAFront" value="145.98*mm - 0.01*mm"/>
+    <!-- Taper = 1.80deg -->
+    <Numeric name="EESCAWall" value="0.200*mm"/>
+    <!-- SC wall thickness -->
+    <Numeric name="EEiLength" value="2*mm"/>
+    <Numeric name="EEiXYOff" value="-2.2*mm"/>
+    <!-- Endcap supercrystal: size of rear housing -->
+    <Numeric name="EESCHLength" value="60.20*mm"/>
+    <Numeric name="EESCHSide" value="154.20*mm"/>
+    <!-- Supercrystal profiles: number of crystals in each column -->
+    <!--                        (-ve => counting from the top)    -->
+    <Numeric name="EEnSCTypes" value="6"/>
+    <!-- Number of SC types -->
+    <Vector name="EESCProf" type="numeric" nEntries="30">
+      5,5,5,5,5, 2,2,2,2,2, 5,5,0,0,0,
+      -4,-4,-4,-4,-4, 0,0,-1,-2,-3, 0,5,5,5,5
+    </Vector>
+    <!-- Endcap quadrant profile: lowest and highest SC in each column -->
+    <Numeric name="EEnColumns" value="10"/>
+    <!-- Number of endcap columns -->
+    <Vector name="EEShape" type="numeric" nEntries="20">
+      3,10,  2,10, 1,10, 1,9, 1,9, 1,9, 1,8, 1,7, 1,6, 1,3
+    </Vector>
+    <Numeric name="EEnSCCutaway" value="9"/>
+    <!-- Number of cutaway SCs -->
+    <Vector name="EESCCutaway" type="numeric" nEntries="27"><!-- Map of cutaway SCs -->
+      1,3,4, 2,2,5, 3,1,6, 3,10,2, 6,9,2, 7,8,2, 8,7,3, 9,6,3, 10,3,3
+    </Vector>
+    <!-- Endcap supercrystal: size of interface plate -->
+    <Numeric name="EESCILength" value="10.20*mm"/>
+    <!-- Factors used in shaving the SCs for partials -->
+    <Numeric name="EEPFHalf" value="0.3"/>
+    <Numeric name="EEPFFifth" value="1.55"/>
+    <Numeric name="EEPF45" value="0.65"/>
+    <!-- Which SCs are in place? -->
+    <Vector name="EESCLims" type="numeric" nEntries="4">
+      [eehier:EESCLimsXlo],  [eehier:EESCLimsXhi],  [eehier:EESCLimsYlo],  [eehier:EESCLimsYhi] 
+    </Vector>
+    <!-- Endcap supercrystal corner positions -->
+    <Numeric name="EEnSCquad" value="78"/>
+    <Numeric name="EEzFront" value="[eecon:EEzFront]"/>
+    <!-- EESCCtrs gives positions of centres of front and rear SC faces in CMS coordinates -->
+    <!-- Column headings for EESCCtrs vector                                       
+         Z positions are assuming front of EE env screen (EEzFront) is at 3172mm from IP-->
+    <!-- This correction to 3172 is made in the C++ code
+         -->
+    <!-- IX  IY   Xfront         Xrear        Yfront       Yrear        Zfront       Zrear -->
+    <Vector name="EESCCtrs" type="numeric" nEntries="624">
+      1,  3,  73.99*mm,     79.436*mm,  367.857*mm,  395.056*mm, 3183.583*mm, 3529.157*mm,
+      1,  4,  73.99*mm,     79.436*mm,  515.672*mm,  553.7125*mm,3185.869*mm, 3530.4185*mm,
+      1,  5,  73.99*mm,     79.436*mm,  664.0725*mm, 712.916*mm, 3188.148*mm, 3531.3325*mm,
+      1,  6,  73.99*mm,     79.436*mm,  813.2075*mm, 872.807*mm, 3190.418*mm, 3531.899*mm,
+      1,  7,  73.99*mm,     79.436*mm,  963.232*mm, 1033.5285*mm,3192.677*mm, 3532.1175*mm,
+      1,  8,  73.99*mm,     79.436*mm, 1114.304*mm, 1195.228*mm, 3194.9225*mm,3531.9865*mm,
+      1,  9,  73.99*mm,     79.436*mm, 1266.587*mm, 1358.058*mm, 3197.152*mm, 3531.5085*mm,
+      1, 10,  73.99*mm,     79.436*mm, 1420.249*mm, 1522.178*mm, 3199.3635*mm,3530.682*mm,
+      2,  2, 221.1655*mm,  238.0385*mm, 220.479*mm,  236.8095*mm,3183.701*mm, 3529.59025*mm,
+      2,  3, 221.24125*mm, 238.092*mm,  367.857*mm,  395.056*mm, 3185.99*mm,  3531.196*mm,
+      2,  4, 221.31675*mm, 238.133*mm,  515.672*mm,  553.7125*mm,3188.2745*mm, 3532.4565*mm,
+      2,  5, 221.392*mm,   238.163*mm,  664.0725*mm, 712.916*mm, 3190.5525*mm, 3533.37*mm,
+      2,  6, 221.467*mm,   238.1825*mm, 813.2075*mm, 872.807*mm, 3192.8215*mm, 3533.93625*mm,
+      2,  7, 221.5415*mm,  238.1895*mm, 963.232*mm, 1033.5285*mm,3195.079*mm, 3534.1545*mm,
+      2,  8, 221.6155*mm,  238.185*mm, 1114.304*mm, 1195.228*mm, 3197.323*mm, 3534.024*mm,
+      2,  9, 221.689*mm,   238.1695*mm,1266.587*mm, 1358.058*mm, 3199.5515*mm, 3533.54575*mm,
+      2, 10, 221.76225*mm, 238.142*mm, 1420.249*mm, 1522.178*mm, 3201.762*mm, 3532.72*mm,
+      3,  1, 368.51*mm,    396.814*mm,   73.39*mm,    78.836*mm, 3183.816*mm, 3529.3015*mm,
+      3,  2, 368.6615*mm,  396.943*mm,  220.479*mm,  236.8095*mm,3186.10375*mm, 3531.248*mm,
+      3,  3, 368.8125*mm,  397.049*mm,  367.857*mm,  395.056*mm, 3188.389*mm, 3532.851*mm,
+      3,  4, 368.9635*mm,  397.132*mm,  515.672*mm,  553.7125*mm,3190.67*mm, 3534.109*mm,
+      3,  5, 369.11375*mm, 397.1925*mm, 664.0725*mm, 712.916*mm, 3192.94425*mm, 3535.02125*mm,
+      3,  6, 369.2635*mm,  397.22975*mm,813.2075*mm, 872.807*mm, 3195.2095*mm, 3535.587*mm,
+      3,  7, 369.4125*mm,  397.24425*mm,963.232*mm, 1033.5285*mm,3197.46325*mm, 3535.80425*mm,
+      3,  8, 369.5605*mm,  397.2355*mm,1114.304*mm, 1195.228*mm, 3199.7035*mm, 3535.6745*mm,
+      3,  9, 369.708*mm,   397.204*mm, 1266.587*mm, 1358.058*mm, 3201.9285*mm, 3535.19675*mm,
+      3, 10, 369.85375*mm, 397.1495*mm,1420.249*mm, 1522.178*mm, 3204.1355*mm, 3534.372*mm,
+      4,  1, 516.413*mm,   556.1055*mm,  73.39*mm,    78.836*mm, 3186.2175*mm, 3530.58*mm,
+      4,  2, 516.6395*mm,  556.2985*mm, 220.479*mm,  236.8095*mm,3188.499*mm, 3532.52125*mm,
+      4,  3, 516.866*mm,   556.4575*mm, 367.857*mm,  395.056*mm, 3190.778*mm, 3534.12*mm,
+      4,  4, 517.09225*mm, 556.582*mm,  515.672*mm,  553.7125*mm,3193.053*mm, 3535.375*mm,
+      4,  5, 517.3175*mm,  556.6725*mm, 664.0725*mm, 712.916*mm, 3195.321*mm, 3536.2845*mm,
+      4,  6, 517.542*mm,   556.7285*mm, 813.2075*mm, 872.807*mm, 3197.58*mm, 3536.8485*mm,
+      4,  7, 517.76525*mm, 556.75025*mm,963.232*mm, 1033.5285*mm,3199.8275*mm, 3537.0655*mm,
+      4,  8, 517.98725*mm, 556.737*mm, 1114.304*mm, 1195.228*mm, 3202.062*mm, 3536.93625*mm,
+      4,  9, 518.20775*mm, 556.69*mm,  1266.587*mm, 1358.058*mm, 3204.2805*mm, 3536.46*mm,
+      5,  1, 664.9525*mm,  715.8825*mm,  73.39*mm,    78.836*mm, 3188.5885*mm, 3531.4695*mm,
+      5,  2, 665.2535*mm,  716.138*mm,  220.479*mm,  236.8095*mm,3190.86125*mm, 3533.403*mm,
+      5,  3, 665.5545*mm,  716.3495*mm, 367.857*mm,  395.056*mm, 3193.13175*mm, 3534.99575*mm,
+      5,  4, 665.855*mm,   716.515*mm,  515.672*mm,  553.7125*mm,3195.39775*mm, 3536.246*mm,
+      5,  5, 666.154*mm,   716.635*mm,  664.0725*mm, 712.916*mm, 3197.65725*mm, 3537.152*mm,
+      5,  6, 666.4525*mm,  716.7095*mm, 813.2075*mm, 872.807*mm, 3199.9075*mm, 3537.71375*mm,
+      5,  7, 666.749*mm,   716.738*mm,  963.232*mm, 1033.5285*mm,3202.14675*mm, 3537.93025*mm,
+      5,  8, 667.044*mm,   716.721*mm, 1114.304*mm, 1195.228*mm, 3204.37275*mm, 3537.80075*mm,
+      5,  9, 667.337*mm,   716.658*mm, 1266.587*mm, 1358.058*mm, 3206.583*mm, 3537.3265*mm,
+      6,  1, 814.2945*mm,  876.4065*mm,  73.39*mm,    78.836*mm, 3190.9485*mm, 3531.9815*mm,
+      6,  2, 814.66975*mm, 876.72575*mm,220.479*mm,  236.8095*mm,3193.21025*mm, 3533.9055*mm,
+      6,  3, 815.04475*mm, 876.98875*mm,367.857*mm,  395.056*mm, 3195.46975*mm, 3535.4905*mm,
+      6,  4, 815.419*mm,   877.1955*mm, 515.672*mm,  553.7125*mm,3197.725*mm, 3536.7345*mm,
+      6,  5, 815.792*mm,   877.34475*mm,664.0725*mm, 712.916*mm, 3199.97325*mm, 3537.6365*mm,
+      6,  6, 816.1635*mm,  877.4375*mm, 813.2075*mm, 872.807*mm, 3202.21275*mm, 3538.19525*mm,
+      6,  7, 816.5335*mm,  877.473*mm,  963.232*mm, 1033.5285*mm,3204.441*mm, 3538.4105*mm,
+      6,  8, 816.901*mm,   877.452*mm, 1114.304*mm, 1195.228*mm, 3206.656*mm, 3538.28225*mm,
+      6,  9, 817.266*mm,   877.3735*mm,1266.587*mm, 1358.058*mm, 3208.8555*mm, 3537.81025*mm,
+      7,  1, 964.607*mm,  1037.835*mm,   73.39*mm,    78.836*mm, 3193.2965*mm, 3532.116*mm,
+      7,  2, 965.056*mm,  1038.2165*mm, 220.479*mm,  236.8095*mm,3195.54475*mm, 3534.029*mm,
+      7,  3, 965.5045*mm, 1038.5315*mm, 367.857*mm,  395.056*mm, 3197.79075*mm, 3535.6045*mm,
+      7,  4, 965.95225*mm,1038.7785*mm, 515.672*mm,  553.7125*mm,3200.03225*mm, 3536.84125*mm,
+      7,  5, 966.39875*mm,1038.9575*mm, 664.0725*mm, 712.916*mm, 3202.26725*mm, 3537.7375*mm,
+      7,  6, 966.84325*mm,1039.0685*mm, 813.2075*mm, 872.807*mm, 3204.4935*mm, 3538.293*mm,
+      7,  7, 967.28575*mm,1039.111*mm,  963.232*mm, 1033.5285*mm,3206.7085*mm, 3538.507*mm,
+      7,  8, 967.7255*mm, 1039.0855*mm,1114.304*mm, 1195.228*mm, 3208.9105*mm, 3538.379*mm,
+      8,  1,1116.0475*mm, 1200.2185*mm,  73.39*mm,    78.836*mm, 3195.609*mm, 3531.877*mm,
+      8,  2,1116.56925*mm,1200.663*mm,  220.479*mm,  236.8095*mm,3197.8415*mm, 3533.7765*mm,
+      8,  3,1117.09025*mm,1201.02825*mm,367.857*mm,  395.056*mm, 3200.07175*mm, 3535.341*mm,
+      8,  4,1117.6105*mm, 1201.315*mm,  515.672*mm,  553.7125*mm,3202.29775*mm, 3536.569*mm,
+      8,  5,1118.129*mm,  1201.5235*mm, 664.0725*mm, 712.916*mm, 3204.517*mm, 3537.459*mm,
+      8,  6,1118.6455*mm, 1201.6525*mm, 813.2075*mm, 872.807*mm, 3206.7275*mm, 3538.0105*mm,
+      8,  7,1119.15975*mm,1201.702*mm,  963.232*mm, 1033.5285*mm,3208.927*mm, 3538.223*mm,
+      9,  1,1268.7805*mm, 1363.726*mm,   73.39*mm,    78.836*mm, 3197.8865*mm, 3531.273*mm,
+      9,  2,1269.37375*mm,1364.23075*mm,220.479*mm,  236.8095*mm,3200.101*mm, 3533.157*mm,
+      9,  3,1269.9665*mm, 1364.6465*mm, 367.857*mm,  395.056*mm, 3202.3135*mm, 3534.70925*mm,
+      9,  4,1270.558*mm,  1364.973*mm,  515.672*mm,  553.7125*mm,3204.5215*mm, 3535.927*mm,
+      9,  5,1271.14775*mm,1365.2095*mm, 664.0725*mm, 712.916*mm, 3206.723*mm, 3536.81025*mm,
+      9,  6,1271.73525*mm,1365.356*mm,  813.2075*mm, 872.807*mm, 3208.916*mm, 3537.3575*mm,
+      10, 1,1422.9755*mm, 1528.5285*mm,  73.39*mm,    78.836*mm, 3200.1305*mm, 3530.312*mm,
+      10, 2,1423.6395*mm, 1529.093*mm,  220.479*mm,  236.8095*mm,3202.325*mm, 3532.179*mm,
+      10, 3,1424.3025*mm, 1529.558*mm,  367.857*mm,  395.056*mm, 3204.51725*mm, 3533.717*mm
+    </Vector>
+    <!-- Crystal positions inside endcap supercrystal -->
+    <Numeric name="EEnCRSC" value="25"/>
+    <!-- EECRCtrs gives positions of centres of front and rear CR faces in SC coordinates  -->
+    <!-- Note: for historical reasons, "front" and "rear" in this table are reversed with  -->
+    <!--       respect to the EESCStrs definition - the CRs are rotated correctly in the   -->
+    <!--       C++ code which creates the endcap geometry.                                 -->
+    <!-- Column headings for EECRCtrs vector                                                          -->
+    <!-- IX  IY   Xfront           Xrear            Yfront        Yrear          Zfront         Zrear -->
+    <Vector name="EECRCtrs" type="numeric" nEntries="200">
+      1, 1, -59.27878125*mm, -59.96993625*mm, -59.96718*mm, -59.276025*mm, 110.333615*mm,-109.666385*mm,
+      1, 2, -59.27878125*mm, -59.96993625*mm, -30.84865*mm, -28.77521*mm,  110.24371*mm,-109.74761*mm,
+      1, 3, -59.27878125*mm, -59.96993625*mm,  -1.727815*mm,  1.727815*mm, 110.15381*mm,-109.820135*mm,
+      1, 4, -59.27878125*mm, -59.96993625*mm,  27.39645*mm,  32.234145*mm, 110.063915*mm,-109.883985*mm,
+      1, 5, -59.27878125*mm, -59.96993625*mm,  56.525305*mm, 62.744865*mm, 109.974035*mm,-109.93912*mm,
+      2, 1, -28.77730625*mm, -30.85140125*mm, -59.96718*mm, -59.276025*mm, 110.24367*mm,-109.747645*mm,
+      2, 2, -28.77679375*mm, -30.85083625*mm, -30.84865*mm,  -28.77521*mm, 110.153765*mm,-109.82887*mm,
+      2, 3, -28.77633625*mm, -30.85027125*mm,  -1.727815*mm,  1.727815*mm, 110.0638675*mm,-109.9013925*mm,
+      2, 4, -28.77593875*mm, -30.84970375*mm,  27.39645*mm,  32.234145*mm, 109.973975*mm,-109.965235*mm,
+      2, 5, -28.77558875*mm, -30.84913625*mm,  56.525305*mm, 62.744865*mm, 109.884095*mm,-110.0203725*mm,
+      3, 1,   1.72637375*mm,  -1.73056625*mm, -59.96718*mm, -59.276025*mm, 110.153725*mm,-109.8202*mm,
+      3, 2,   1.72739875*mm,  -1.72943625*mm, -30.84865*mm, -28.77521*mm,  110.0638275*mm,-109.901415*mm,
+      3, 3,   1.72830875*mm,  -1.72830875*mm,  -1.727815*mm,  1.727815*mm, 109.973935*mm,-109.973935*mm,
+      3, 4,   1.72911125*mm,  -1.72717375*mm,  27.39645*mm,  32.234145*mm, 109.884045*mm,-110.0377825*mm,
+      3, 5,   1.72980375*mm,  -1.72604625*mm,  56.525305*mm, 62.744865*mm, 109.79417*mm,-110.0929125*mm,
+      4, 1,  32.23335875*mm,  27.39369875*mm, -59.96718*mm, -59.276025*mm, 110.06379*mm,-109.884055*mm,
+      4 ,2,  32.23489125*mm,  27.39539625*mm, -30.84865*mm, -28.77521*mm,  109.9739*mm,-109.965265*mm,
+      4, 3,  32.23625875*mm,  27.39709125*mm,  -1.727815*mm,  1.727815*mm, 109.884015*mm,-110.037785*mm,
+      4, 4,  32.23746375*mm,  27.39878625*mm,  27.39645*mm,  32.234145*mm, 109.7941375*mm,-110.1016175*mm,
+      4, 5,  32.23850375*mm,  27.40048125*mm,  56.525305*mm, 62.744865*mm, 109.70427*mm,-110.15675*mm,
+      5, 1,  62.74475375*mm,  56.52256875*mm, -59.96718*mm, -59.276025*mm, 109.97386*mm,-109.93922*mm,
+      5, 2,  62.74679875*mm,  56.52483125*mm, -30.84865*mm, -28.77521*mm,  109.883985*mm,-110.02042*mm,
+      5, 3,  62.74861875*mm,  56.52709125*mm,  -1.727815*mm,  1.727815*mm, 109.7941125*mm,-110.0929225*mm,
+      5, 4,  62.75022625*mm,  56.52935125*mm,  27.39645*mm,  32.234145*mm, 109.7042475*mm,-110.1567525*mm,
+      5, 5,  62.75161125*mm,  56.53161125*mm,  56.525305*mm, 62.744865*mm, 109.6143925*mm,-110.2118725*mm
+    </Vector>
+    <!-- Z offset for crystals inside alveolus -->
+    <Numeric name="EECryZOff" value="21.0*mm"/>
+  </Algorithm>
+</DDDefinition>

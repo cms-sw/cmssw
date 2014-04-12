@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <assert.h>
+#include <cstdio>
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -14,6 +16,7 @@ const int nBegin[EEDetId::IX_MAX] = { 41, 41, 41, 36, 36, 26, 26, 26, 21, 21, 21
 
 int main(int argc, char* argv[]) {
   FILE *ofile = fopen("ee_numbering.dat","w");
+  FILE *ofile_2 = fopen("ee_next_to_boundary.dat","w");
   int hi = -1;
   try {
 	  for (int iz = -1; iz<2; iz+=2) {
@@ -26,6 +29,11 @@ int main(int argc, char* argv[]) {
 					  assert( EEDetId::unhashIndex( hi ) == id );
 					  //std::cout << id << " " << hi << " " << EEDetId::unhashIndex( hi ) << std::endl;
 					  fprintf(ofile, "%d %d %d %d %d\n", ix, iy, iz, hi, 1);
+                                          if ( EEDetId::isNextToBoundary( id ) ) {
+					        fprintf(ofile_2, "%d %d %d %d %d\n", ix, iy, iz, hi, 1);
+                                          } else {
+					        fprintf(ofile_2, "%d %d %d %d %d\n", ix, iy, iz, hi, 0);
+                                          }
 				  } else {
 					  fprintf(ofile, "%d %d %d %d %d\n", ix, iy, iz, hi, 0);
 					  //std::cout << "Invalid detId " << ix << " " << iy << " " << iz << std::endl;
@@ -41,6 +49,7 @@ int main(int argc, char* argv[]) {
 	  std::cerr << e.what();
   }
   fclose(ofile);
+  fclose(ofile_2);
 }
 
 // to plot the output file:

@@ -6,13 +6,13 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/OptORisleyPrism.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+
+using namespace CLHEP;
 
 void OptORisleyPrism::participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav )
 {

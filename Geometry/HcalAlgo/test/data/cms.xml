@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="cms.xml" eval="true">
- <Constant name="Rmin"         value="0*fm"/>
- <Constant name="Zmin"         value="0*fm"/>
- <Constant name="HallZ"        value="27.0*m"/>
- <Constant name="HallR"        value="13.0*m"/>
- <Constant name="CMSR1"        value="8.30*m"/>
- <Constant name="CMSR2"        value="1.00*m"/>
- <Constant name="CMSZ2"        value="26.0*m"/>
+ <Constant name="Rmin"         value="[cmsextent:Rmin]"/>
+ <Constant name="Zmin"         value="[cmsextent:Zmin]"/>
+ <Constant name="HallZ"        value="[cmsextent:HallZ]"/>
+ <Constant name="HallR"        value="[cmsextent:HallR]"/>
+ <Constant name="CMSR1"        value="[cmsextent:CMSR1]"/>
+ <Constant name="CMSR2"        value="[cmsextent:CMSR2]"/>
+ <Constant name="CMSZ2"        value="[cmsextent:CMSZ2]"/>
  <Constant name="TrackCalorR"  value="1.233*m"/>
  <Constant name="CalorMuonR"   value="2.950*m"/>
  <Constant name="TrackBeamZ1"  value="1.948*m"/>
@@ -19,8 +19,10 @@
  <Constant name="CalorBeamZ2"  value="5.541*m"/>
  <Constant name="CalorBeamR1"  value="8.00*cm"/>
  <Constant name="CalorBeamR2"  value="8.93*cm"/>
+ <Constant name="MuonBeamZ0"   value="6.50*m"/>
  <Constant name="MuonBeamZ1"   value="7.50*m"/>
  <Constant name="MuonBeamZ2"   value="10.86*m"/>
+ <Constant name="MuonBeamR0"   value="10.50*cm"/>
  <Constant name="MuonBeamR1"   value="11.785*cm"/>
  <Constant name="MuonBeamR2"   value="75.00*cm"/>
  <Constant name="TotemMuonZ1"  value="10.165*m"/>
@@ -56,8 +58,8 @@
  <Constant name="ForwdVcalZ1"  value="11.1295*m"/>
  <Constant name="ForwdVcalZ2"  value="12.800*m"/>
  <Constant name="ForwdVcalR1"  value="1.600*m"/>
- <Constant name="ForwdDetsZ1"  value="15.870*m"/>
- <Constant name="ForwdDetsR1"  value="33.00*cm"/>
+ <Constant name="ForwdDetsZ1"  value="16.0015*m"/>
+ <Constant name="ForwdDetsR1"  value="34.50*cm"/>
  <Constant name="MBarRmin"     value="3.80*m"/>
  <Constant name="MBarRmax"     value="8.05*m"/>
  <Constant name="MBarZ"        value="6.61*m"/>

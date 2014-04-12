@@ -1,64 +1,80 @@
+#ifndef GctBlockHeader_h_
+#define GctBlockHeader_h_
 
-#ifndef GCTBLOCKHEADER_H
-#define GCTBLOCKHEADER_H
 
-#include <vector>
-#include <map>
+/*!
+* \class GctBlockHeader
+* \brief Simple class for holding the basic attributes of an 32-bit block header.
+* * 
+* \author Robert Frazier
+*/
+
+// C++ headers
 #include <ostream>
-#include <string>
+#include <stdint.h>
 
-// data block header
-// blockId = 7:0
-// nSamples = 11:8 (if nSamples=0xf, use defNSamples_)
-// bcId = 23:12
-// eventId = 31:24
-
-
-
-class GctBlockHeader {
- public:
-  GctBlockHeader(const uint32_t data=0);
-  GctBlockHeader(const unsigned char * data);
-  GctBlockHeader(uint16_t id, uint16_t nsamples, uint16_t bcid, uint16_t evid);
-  ~GctBlockHeader();
+class GctBlockHeader
+{
+public:
+ 
+   /* PUBLIC METHODS */
+ 
+  /// Constructor. Don't use directly - use the generateBlockHeader() method in GctFormatTranslateBase-derived classes.
+  /*! \param valid Flag if this is a known and valid header .*/
+  GctBlockHeader(uint32_t blockId,
+                 uint32_t blockLength,
+                 uint32_t nSamples,
+                 uint32_t bxId,
+                 uint32_t eventId,
+                 bool valid);
   
-  /// this is a valid block header
-  bool valid() const { return ( blockLength_.find(this->id()) != blockLength_.end() ); }
-
-  /// the raw header data
-  uint32_t data() const { return d; }
-
-  /// the block ID
-  unsigned int id() const { return d & 0xff; }
-
-  /// number of time samples
-  unsigned int nSamples() const { return (d>>8) & 0xf; }
+  /// Destructor.
+  ~GctBlockHeader() {};
   
-  /// bunch crossing ID
-  unsigned int bcId() const { return (d>>12) & 0xfff; }
+  /// Get the block ID
+  uint32_t blockId() const { return m_blockId; }
 
-  /// event ID
-  unsigned int eventId() const { return (d>>24) & 0xff; }
+  /// Get the fundamental block length (for 1 time sample)
+  uint32_t blockLength() const { return m_blockLength; }
 
-  /// fundamental block length (for 1 time sample)
-  unsigned int length() const { return blockLength_[this->id()] ; }
-
-  /// block name
-  std::string name() const { return blockName_[this->id()]; }
-
- private:
+  /// Get the number of time samples
+  uint32_t nSamples() const { return m_nSamples; }
   
-  uint32_t d;
+  /// Get the bunch crossing ID
+  uint32_t bxId() const { return m_bxId; }
 
-  static std::map<unsigned, unsigned> blockLength_;  // fundamental size of a block (ie for 1 readout sample)
-  static std::map<unsigned, std::string> blockName_;  // block name!
+  /// Get the event ID
+  uint32_t eventId() const { return m_eventId; }
+
+  /// Returns true if it's valid block header - i.e. if the header is known and can be unpacked.
+  bool valid() const { return m_valid; }
 
 
+private:
+
+  /* PRIVATE METHODS */  
+
+
+
+  /* PRIVATE MEMBER DATA */
+  
+  uint32_t m_blockId;  ///< The Block ID
+  
+  uint32_t m_blockLength;  ///< The fundamental block length (for 1 time sample)
+
+  uint32_t m_nSamples;  ///< The number of time-samples 
+  
+  uint32_t m_bxId;  ///< The bunch-crossing ID
+  
+  uint32_t m_eventId;  ///< The event ID
+  
+  bool m_valid; ///< Is this a valid block header
 
 };
 
+#include <vector>
+typedef std::vector<GctBlockHeader> GctBlockHeaderCollection;
+
 std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h);
 
-
-
-#endif
+#endif /* GctBlockHeader_h_ */

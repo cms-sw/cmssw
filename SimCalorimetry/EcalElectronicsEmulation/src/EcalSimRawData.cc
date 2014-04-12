@@ -145,17 +145,17 @@ void EcalSimRawData::fwrite(ofstream& f, uint16_t data,
   switch(writeMode_){
   case littleEndian:
     {
-      char c = data&0x00FF;
+      char c = data & 0x00FF;
       f.write(&c, sizeof(c));
-      c = data&0xFF00;
+      c = (data >>8) & 0x00FF;
       f.write(&c, sizeof(c));
     }
     break;
   case bigEndian:
     {
-      char c = data&0xFF00; 
+      char c = (data >>8) & 0x00FF; 
       f.write(&c, sizeof(c));
-      c = data&0x00FF;
+      c = data & 0x00FF;
       f.write(&c, sizeof(c));
     }
     break;
@@ -347,7 +347,7 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
       
       stringstream s;
       s.str("");
-      char* ext = ".txt"; //only ascii mode supported for TCP
+      const char* ext = ".txt"; //only ascii mode supported for TCP
 
       s << basename << "_tcc" << setfill('0') << setw(2) << iTcc1
 	<< setfill(' ') << ext;
@@ -362,7 +362,8 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 	int iTtEta0 = (iZ0==0) ? 27 - iTtEtaInSm0 : 28 + iTtEtaInSm0; 
 	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtSmPhi; ++iTtPhiInSm0){
 	  //phi=0deg at middle of 1st barrel DCC:
-	  int iTtPhi0 = (iZ0==0) ? -2 + iTtPhiInSm0 : 1-iTtPhiInSm0;
+	  int iTtPhi0 = -nTtPhisPerEbTcc/2 + iTccPhi0*nTtPhisPerEbTcc
+	    + iTtPhiInSm0;
 	  iTtPhi0 += nTtPhisPerEbTcc*iTccPhi0;
 	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
 	  uint16_t tp_fe2tcc = (tcp[iTtEta0][iTtPhi0] & 0x7ff) ; //keep only Et (9:0) and FineGrain (10)
@@ -406,7 +407,7 @@ void EcalSimRawData::genTccOut(string basename, int iEvent,
       
       stringstream s;
       s.str("");
-      char* ext = ".txt"; //only ascii mode supported for TCP
+      const char* ext = ".txt"; //only ascii mode supported for TCP
 
       s << basename << "_tcc" << setfill('0') << setw(2) << iTcc1
 	<< setfill(' ') << ext;

@@ -1,13 +1,12 @@
-#!/usr/bin/perl 
+#!/usr/bin/env perl 
 #____________________________________________________________________ 
 # File: BootNightlyArea.pl
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2005-10-27 14:25:38+0200
-# Revision: $Id$ 
 #
-# Copyright: 2005 (C) Shaun ASHBY
+# Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use strict;

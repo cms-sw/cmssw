@@ -52,16 +52,63 @@ class TIBDetId : public SiStripDetId {
    */
   std::vector<unsigned int> string() const
     { std::vector<unsigned int> num;
-    num.push_back(((id_>>str_fw_bwStartBit_) & str_fw_bwMask_));
-    num.push_back(((id_>>str_int_extStartBit_) & str_int_extMask_));
-    num.push_back(((id_>>strStartBit_) & strMask_));
-    return num ;}
+      num.push_back( side() );
+      num.push_back( order() );
+      num.push_back(stringNumber());
+      return num ;}
   
   /// detector id
   unsigned int module() const 
     { return ((id_>>moduleStartBit_)& moduleMask_) ;}
+  
+  unsigned int order()const
+  { return ((id_>>str_int_extStartBit_) & str_int_extMask_);}
 
- private:
+  unsigned int side() const
+  {return ((id_>>str_fw_bwStartBit_) & str_fw_bwMask_);}
+
+
+  /** Returns true if the module is a double side = rphi + stereo */
+  bool isDoubleSide() const;
+  
+  /** Returns true if the module is in TIB+ (z>0 side) */
+  bool isZPlusSide() const
+  { return (!isZMinusSide());}
+  
+  /** Returns true if the module is in TIB- (z<0 side) */
+  bool isZMinusSide() const
+  { return (side() == 1);}
+  
+  /** Returns the layer number */
+  unsigned int layerNumber() const
+  { return layer();}
+  
+  /** Returns the string number */
+  unsigned int stringNumber() const
+  { return ((id_>>strStartBit_) & strMask_);}
+  
+  /** Returns the module number */
+  unsigned int moduleNumber() const
+  { return module();}
+  
+  /** Returns true if the module is in internal part of the layer (smaller radius) */
+  bool isInternalString() const
+  { return (order() == 1);}
+  
+  /** Returns true if the module is in external part of the layer (bigger radius) */
+  bool isExternalString() const
+  { return (!isInternalString());}
+  
+  /** Returns true if the module is rphi */
+  bool isRPhi()
+  { return (stereo() == 0 && !isDoubleSide());}
+  
+  /** Returns true if the module is stereo */
+  bool isStereo()
+  { return (stereo() != 0 && !isDoubleSide());}
+  
+  
+private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int layerStartBit_=           14;
   static const unsigned int str_fw_bwStartBit_=       12;
@@ -78,6 +125,22 @@ class TIBDetId : public SiStripDetId {
   static const unsigned int moduleMask_=      0x3;
   static const unsigned int sterMask_=        0x3;
 };
+
+
+inline
+TIBDetId::TIBDetId() : SiStripDetId(){
+}
+inline
+TIBDetId::TIBDetId(uint32_t rawid) : SiStripDetId(rawid){
+}
+inline
+TIBDetId::TIBDetId(const DetId& id) : SiStripDetId(id.rawId()){
+}
+inline
+bool TIBDetId::isDoubleSide() const {
+  // Double Side: only layers 1 and 2
+  return this->glued() == 0 && ( this->layer() == 1 || this->layer() == 2 );
+}
 
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef FWCore_Services_Vertex_Tracker_h
 #define FWCore_Services_Vertex_Tracker_h
 
+#include <atomic>
 #include <iosfwd>
 #include <string>
 
@@ -99,7 +100,7 @@ struct VertexTracker
   mutable float        percent_leaf_;
   mutable float        percent_path_;
 
-  static unsigned int next_id_;
+  static std::atomic<unsigned int> next_id_;
 };
 
 std::ostream&

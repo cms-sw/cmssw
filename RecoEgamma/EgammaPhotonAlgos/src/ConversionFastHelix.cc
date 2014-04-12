@@ -3,7 +3,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 #include <cfloat>
@@ -80,7 +80,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
   
   double arg=rho*rho - ( (v.x()-theCircle.x0())*(v.x()-theCircle.x0()) );
   
-  if ( arg >= 0 ) { 
+  if ( arg > 0 ) { 
     
     
     //  double root = sqrt(  rho*rho - ( (v.x()-theCircle.x0())*(v.x()-theCircle.x0()) )  );
@@ -113,7 +113,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
     double z_0 = 0; 
     
     //std::cout << " ConversionFastHelix:helixStateAtVertex  flfit.n2() " <<  flfit.n2() << " flfit.c() " << flfit.c() << " flfit.n2() " << flfit.n2() << std::endl;
-    if ( flfit.n2() !=0 && !isnan( flfit.c()) && !isnan(flfit.n2())   ) {
+    if ( flfit.n2() !=0 && !edm::isNotFinite( flfit.c()) && !edm::isNotFinite(flfit.n2())   ) {
       //  std::cout << " Accepted " << std::endl;
       z_0 = -flfit.c()/flfit.n2();
       double dzdrphi = -flfit.n1()/flfit.n2();
@@ -168,6 +168,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
 
 FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
 
+  FTS atVertex;
 
   //calculate FTS assuming straight line...
 
@@ -182,8 +183,14 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
   if(fabs(theCircle.n2()) > 0.) {
     dydx = -theCircle.n1()/theCircle.n2(); //else px = 0 
   }
+
+  if ( pt==0 && dydx==0. ) {
+    validStateAtVertex=false;
+    return atVertex; 
+  }
   px = pt/sqrt(1. + dydx*dydx);
   py = px*dydx;
+
   // check sign with scalar product
   if (px*(pMid.x() - v.x()) + py*(pMid.y() - v.y()) < 0.) {
     px *= -1.;
@@ -197,11 +204,11 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
   //p = pt/sin(theta)
   //pz = p*cos(theta) = pt/tan(theta) 
 
+
   FastLine flfit(theOuterHit, theMiddleHit);
-  FTS atVertex;
 
   double z_0 = 0;
-  if (flfit.n2() !=0  && !isnan( flfit.c()) && !isnan(flfit.n2())   ) {
+  if (flfit.n2() !=0  && !edm::isNotFinite( flfit.c()) && !edm::isNotFinite(flfit.n2())   ) {
     z_0 = -flfit.c()/flfit.n2();
 
     double dzdr = -flfit.n1()/flfit.n2();
@@ -209,22 +216,24 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
     
     TrackCharge q = 1;
  
-    AlgebraicSymMatrix66 C = AlgebraicMatrixID();
-    //MP
-    FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-						  GlobalVector(px, py, pz),
-						  q,
-						  mField),
-		       CartesianTrajectoryError(C));
+    atVertex = FTS(GlobalPoint(v.x(), v.y(), z_0),
+		   GlobalVector(px, py, pz),
+		   q,
+		   mField
+		   );
 
-    validStateAtVertex=true;        
-
-    //    std::cout << " ConversionFastHelix:strighLIneStateAtVertex validStraightLineStateAtVertex status " <<validStateAtVertex  << std::endl;
-    return atVertex;
-    
-  } else {
-    
+    //    std::cout << "  ConversionFastHelix::straightLineStateAtVertex curvature " << atVertex.transverseCurvature() << "   signedInverseMomentum " << atVertex.signedInverseMomentum() << std::endl;
+    if ( atVertex.transverseCurvature() == -0 ) {
       return atVertex;
+    } else {
+      validStateAtVertex=true;        
+      return atVertex;
+    }
+  
+  } else {
+
+
+    return atVertex;
   
   }
 

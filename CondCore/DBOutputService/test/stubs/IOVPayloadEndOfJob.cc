@@ -1,14 +1,14 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
+
 #include "IOVPayloadEndOfJob.h"
 #include <cstdlib>
+#include <iostream>
+
 IOVPayloadEndOfJob::IOVPayloadEndOfJob(const edm::ParameterSet& iConfig ):
   m_record(iConfig.getParameter< std::string >("record")){
   std::cout<<"IOVPayloadEndOfJob::IOVPayloadEndOfJob"<<std::endl;
@@ -21,7 +21,6 @@ void IOVPayloadEndOfJob::analyze( const edm::Event& evt, const edm::EventSetup& 
 }
 void IOVPayloadEndOfJob::endJob(){ 
   std::cout<<"IOVPayloadEndOfJob::endJob "<<std::endl;
-  //::putenv(const_cast<char*>("CORAL_AUTH_PATH=/home/xiezhen/work/CMSSW/dev130/CMSSW_1_2_0/src/CondCore/DBOutputService/test/auth"));
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
     std::cout<<"Service is unavailable"<<std::endl;
@@ -29,35 +28,46 @@ void IOVPayloadEndOfJob::endJob(){
   }
   try{
     std::string tag=mydbservice->tag(m_record);
-    Pedestals* myped=new Pedestals;
+    Pedestals myped;
     if( mydbservice->isNewTagRequest(m_record) ){
       for(int ichannel=1; ichannel<=5; ++ichannel){
 	Pedestals::Item item;
 	item.m_mean=1.11*ichannel;
 	item.m_variance=1.12*ichannel;
-	myped->m_pedestals.push_back(item);
+	myped.m_pedestals.push_back(item);
       }
       //create 
-      cond::Time_t firstTillTime=mydbservice->endOfTime();
-      mydbservice->createNewIOV<Pedestals>(myped,firstTillTime,m_record);
+      cond::Time_t firstSinceTime=mydbservice->beginOfTime();
+       std::cout<<"firstSinceTime is begin of time "<<firstSinceTime<<std::endl;
+       mydbservice->writeOne(&myped,firstSinceTime,m_record);
     }else{
       //append 
-      for(int ichannel=1; ichannel<=5; ++ichannel){
-	Pedestals::Item item;
-	item.m_mean=0.15*ichannel;
-	item.m_variance=0.32*ichannel;
-	myped->m_pedestals.push_back(item);
+      cond::Time_t current=mydbservice->currentTime();
+      std::cout<<"current time"<<current<<std::endl;
+      if(current>=5){
+	std::cout<<"appending payload"<<std::endl;
+	for(int ichannel=1; ichannel<=5; ++ichannel){
+	  Pedestals::Item item;
+	  item.m_mean=0.15*ichannel;
+	  item.m_variance=0.32*ichannel;
+	  myped.m_pedestals.push_back(item);
+	}
+	cond::Time_t thisPayload_valid_since=current;
+	std::cout<<"appeding since time "<<thisPayload_valid_since<<std::endl;
+	mydbservice->writeOne(&myped,thisPayload_valid_since,m_record);
+	std::cout<<"done"<<std::endl;
+	//std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
       }
-      cond::Time_t thisPayload_valid_since=5;
-      mydbservice->appendSinceTime<Pedestals>(myped,thisPayload_valid_since,m_record);
     }
-    std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
   }catch(const cond::Exception& er){
-    std::cout<<er.what()<<std::endl;
-  }catch(const std::exception& er){
+    throw cms::Exception("DataBaseUnitTestFailure","failed IOVPayloadEndOfJob",er);
+    //std::cout<<er.what()<<std::endl;
+  }catch(const cms::Exception& er){
+    throw cms::Exception("DataBaseUnitTestFailure","failed IOVPayloadEndOfJob",er);
+  }/*catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
   }catch(...){
     std::cout<<"Unknown error"<<std::endl;
-  }
+    }*/
 }
 DEFINE_FWK_MODULE(IOVPayloadEndOfJob);

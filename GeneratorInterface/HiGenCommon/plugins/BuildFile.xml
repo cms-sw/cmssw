@@ -1,0 +1,11 @@
+<use   name="GeneratorInterface/HiGenCommon"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="heppdt"/>
+<use   name="clhep"/>
+<library   file="*.cc" name="GeneratorInterfaceHiGenCommonPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

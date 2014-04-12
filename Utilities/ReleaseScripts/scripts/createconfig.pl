@@ -6,12 +6,10 @@ $|=1;
 
 my $curdir=`/bin/pwd`; chomp $curdir;
 my $scriptdir=dirname($0);
-my $skiplocal=0;
 my $dir="";
 while(my $arg=shift)
 {
-  if($arg eq "--skiplocal"){$skiplocal=1;}
-  elsif($arg eq "--help"){&usage();exit 0;}
+  if($arg eq "--help"){&usage();exit 0;}
   else{$dir=$arg;last;}
 }
 if($dir eq ""){$dir=$curdir;}
@@ -19,20 +17,19 @@ if(!-d $dir){die "No such directory: $dir\n";}
 
 if($dir=~/^[^\/]/){$dir="${curdir}/${dir}";}
 $dir=&SCRAMGenUtils::fixPath($dir);
-my $arch="";
-my $scram_list_skip=5;
-my $flags="";
-my $tmprel="";
 
 my $release=&SCRAMGenUtils::scramReleaseTop($dir);
 if($release eq ""){die "\"$dir\" is not SCRAM-base project area.\n";}
+my $releasetop=&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP",$release) || $release;
+if($releasetop eq $release){die "\"$release\" is a release area. Please run this script in your developer area.\n";}
+&SCRAMGenUtils::init($release);
+my $arch=&SCRAMGenUtils::getScramArch();
 
 my $headerext="\\.(h|hh|hpp)\$";
 my $srcext="\\.(cc|cpp|c|cxx)\$";
 my $lexparseext="_(lex\\.l|parse\\.y)\$";
 my $config=&SCRAMGenUtils::getFromEnvironmentFile("SCRAM_CONFIGDIR","$release") || "config";
 my $src=&SCRAMGenUtils::getFromEnvironmentFile("SCRAM_SOURCEDIR","$release") || "src";
-my $releasetop=&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP","$release") || $release;
 my $project=&SCRAMGenUtils::getFromEnvironmentFile("SCRAM_PROJECTNAME","$release");
 if($release eq $dir){$dir.="/${src}";}
 
@@ -43,111 +40,84 @@ my $actualdir=$packdir;
 if($packdir eq ""){$packdir=".+";}
 else{$packdir="^$packdir(\/.+|)\$";}
 
-if (!-f "${release}/${config}/scram_version"){die "${release}/${config}/scram_version file does not exist.\n"; exit 1;}
-if (!-d "${release}/${src}"){die "${release}/${src} directory does not exist. No sources to work on.\n"; exit 1;}
+$SCRAM_CMD=$SCRAMGenUtils::SCRAM_CMD;
 
-my $SCRAM_CMD="scram";
-my $SCRAM_VER=`cat ${release}/${config}/scram_version`; chomp $SCRAM_VER;
-if($SCRAM_VER=~/^\s*V1_/){$SCRAM_CMD="scramv1";}
-elsif($SCRAM_VER=~/^\s*V0_/){$SCRAM_CMD="scram";}
-if($arch eq ""){$arch=`$SCRAM_CMD arch`; chomp $arch;}
-$SCRAM_CMD="$SCRAM_CMD -arch $arch";
-$SCRAMGenUtils::SCRAM_CMD=$SCRAM_CMD;
-
-if($skiplocal)
-{
-  print 'SKIP_INCLUDES=^(.+)/[^/]+$:"^$1/.+\\$"',"\n";
-  my $dep=&pkg_depth_default(lc($project));
-  my $exp="[^/]+";
-  for(my $i=1;$i<$dep;$i++){$exp.="/[^/]+";}
-  print 'SKIP_INCLUDES=^(',$exp,')/.+/[^/]+$:"^$1/.+\\$"',"\n";
-}
-print 'OWNHEADER=^(.+)/[^/]+/([^\\.]+)\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)$:"$1/.+?/$2\\.(h|hh|hpp|H|HH|HPP)\\$"',"\n";
+print 'OWNHEADER=^(.+)/[^/]+/([^\\.]+)\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)$:"$1/.+?/$2\\\.(h|hh|hpp|H|HH|HPP)\\$"',"\n";
+print 'LOCAL_HEADERS=^([^/]+/[^/]+)/.+$:"$1/.+"',"\n";
 print "BASE_DIR=${release}/${src}\n";
-$flags="-I${release}/${src}";
-
+my $flags="";
 my $cache={};
-if($releasetop ne $release)
+#print "BASE_DIR=${releasetop}/${src}\n";
+my $doscramb=0;
+my $pcf=&SCRAMGenUtils::fixCacheFileName("${release}/.SCRAM/${arch}/ProjectCache.db");
+if((-f "${release}/tmp/${arch}/Makefile") && (-f $pcf))
 {
-  print "BASE_DIR=${releasetop}/${src}\n";
-  $flags.=" -I${releasetop}/${src}";
-  my $doscramb=1;
-  if((-f "${release}/tmp/${arch}/Makefile") && (-f "${release}/.SCRAM/${arch}/ProjectCache.db"))
+  $cache->{cache}=&SCRAMGenUtils::readCache($pcf);
+  my %dirstocheck=();
+  if($actualdir=~/\//){$dirstocheck{$actualdir}=1;}
+  else
   {
-    $cache->{cache}=&SCRAMGenUtils::readCache("${release}/.SCRAM/${arch}/ProjectCache.db");
-    my %dirstocheck=();
-    if($actualdir=~/\//){$dirstocheck{$actualdir}=1;}
-    else
+    if($actualdir ne ""){$actualdir.="/";}
+    foreach my $d (&SCRAMGenUtils::readDir("${release}/${src}/${actualdir}",1))
     {
-      if($actualdir ne ""){$actualdir.="/";}
-      foreach my $d (&SCRAMGenUtils::readDir("${release}/${src}/${actualdir}",1))
+      if($d eq "CVS"){next;}
+      $d="${actualdir}${d}";
+      if($d!~/\//)
       {
-        $d="${actualdir}${d}";
-        if($d!~/\//)
-        {foreach my $d1 (&SCRAMGenUtils::readDir("${release}/${src}/${d}",1)){$dirstocheck{"${d}/${d1}"}=1;}}
-        else{$dirstocheck{$d}=1;}
+        foreach my $d1 (&SCRAMGenUtils::readDir("${release}/${src}/${d}",1))
+	{
+	  if($d1 eq "CVS"){next;}
+	  $dirstocheck{"${d}/${d1}"}=1;
+	}
       }
-    }
-    my $dircount=scalar(keys %dirstocheck);
-    foreach my $d (keys %{$cache->{cache}{BUILDTREE}})
-    {
-      if(exists $dirstocheck{$d})
-      {
-        delete $dirstocheck{$d};
-	$dircount--;
-	if($dircount == 0){$doscramb=0;last;}
-      }
+      else{$dirstocheck{$d}=1;}
     }
   }
-  if($doscramb)
+  my $dircount=scalar(keys %dirstocheck);
+  foreach my $d (keys %{$cache->{cache}{BUILDTREE}})
   {
-    system("cd $release; $SCRAM_CMD b -r echo_CXX 2>&1 > /dev/null");
-    $cache->{cache}=&SCRAMGenUtils::readCache("${release}/.SCRAM/${arch}/ProjectCache.db");
+    if(exists $dirstocheck{$d})
+    {
+      delete $dirstocheck{$d};
+      $dircount--;
+      if($dircount == 0){last;}
+    }
   }
+  if($dircount > 0){$doscramb=1;}
+}
+else{$doscramb=1;}
+if($doscramb)
+{
+  print "Doing \"$SCRAM_CMD b\" due to new directories:";
+  print join("\n  ",keys %dirstocheck),"\n";
+  system("cd $release; $SCRAM_CMD b -r echo_CXX ufast >/dev/null 2>&1");
+  $cache->{cache}=&SCRAMGenUtils::readCache($pcf);
 }
 
 my $tmprel=$release;
-if(!-f "${release}/tmp/${arch}/Makefile")
-{
-  my $dev=0;
-  if($releasetop ne $release){$dev=1;}
-  $tmprel=&SCRAMGenUtils::createTmpReleaseArea($releasetop,$dev);
-  system("rm -rf ${tmprel}/src; cp -r ${release}/src ${tmprel}");
-  system("cd $tmprel; $SCRAM_CMD b -r echo_CXX 2>&1 > /dev/null");
-  foreach my $f ("tmp/${arch}/Makefile",".SCRAM/${arch}/ProjectCache.db",".SCRAM/${arch}/ToolCache.db")
-  {
-    open(MAKEIN,"${tmprel}/${f}") || die "can not open ${tmprel}/${f} file for reading";
-    open(MAKEOUT,">${tmprel}/${f}.new") || die "can not open ${tmprel}/${f}.new file for reading";
-    while(my $line=<MAKEIN>)
-    {
-      chomp $line;
-      $line=~s/$tmprel/$release/g;
-      print MAKEOUT "$line\n";
-    }
-    close(MAKEIN);
-    close(MAKEOUT);
-    system("mv ${tmprel}/${f}.new ${tmprel}/${f}");
-  }
-  $cache->{cache}=&SCRAMGenUtils::readCache("${tmprel}/.SCRAM/${arch}/ProjectCache.db");
-}
-$cache->{tools}=&SCRAMGenUtils::readCache("${tmprel}/.SCRAM/${arch}/ToolCache.db");
+$cache->{tools}=&SCRAMGenUtils::readCache(&SCRAMGenUtils::fixCacheFileName("${tmprel}/.SCRAM/${arch}/ToolCache.db"));
 
 my $cxx="/usr/bin/c++";
 my $cxx_ver="";
 if(exists $cache->{tools}{SETUP}{cxxcompiler}{CXX}){$cxx=$cache->{tools}{SETUP}{cxxcompiler}{CXX};}
-else{$cxx=&SCRAMGenUtils::getBuildVariable($tmprel,"CXX") || $cxx;}
+else{$cxx=&SCRAMGenUtils::getBuildVariable($tmprel,"CXX","ufast") || $cxx;}
 if(-x $cxx){$cxx_ver=`$cxx --version | head -1 | awk '{print \$3}'`;chomp $cxx_ver;}
 
 print "COMPILER=$cxx\n";
 print "COMPILER_VERSION=$cxx_ver\n";
+print 'SKIP_INCLUDES=.+:"\\\.(cxx|cc|c|cpp|CXX|CC|C|CPP|inc|INC|icpp|ICPP|ii|II|icc|ICC|ipp|IPP)\$"',"\n";
+print 'SKIP_INCLUDES=^(Ig|Vis).*?/interface/config\.h$:"^classlib/sysapi/system\\\.h\$"',"\n";
+print 'SKIP_INCLUDES=.+:"^FWCore/ParameterSet/test/ConfigTestMain\\\.h\$"',"\n";
+print 'SKIP_INCLUDE_INDIRECT_ADD=.+:"^(Ig|Vis).*?/interface/config\\\.h\$"',"\n";
+print 'SKIP_AND_ADD_REMOVED_INCLUDES=^.*?/classes\.h$',"\n";
+print 'SKIP_AND_ADD_REMOVED_INCLUDES=^.*?/([^/]*)LinkDef\.h$',"\n";
 
 &genConfig ($packdir,$cache);
-&updateOrderedTools($cache);
+$cache->{orderedtool}=&SCRAMGenUtils::getOrderedTools($cache->{tools});
 my $toolcount=scalar(@{$cache->{orderedtool}});
 $cache->{uniqinc}={};
-for(my $i=$toolcount;$i>0;$i--)
+foreach my $tool (@{$cache->{orderedtool}})
 {
-  my $tool=$cache->{orderedtool}[$i-1];
   if(exists $cache->{tools}{SETUP}{$tool}{INCLUDE})
   {
     foreach my $inc (@{$cache->{tools}{SETUP}{$tool}{INCLUDE}})
@@ -158,21 +128,14 @@ for(my $i=$toolcount;$i>0;$i--)
   }
 }
 
-foreach my $inc (split /\s+/, &SCRAMGenUtils::getBuildVariable($tmprel,"CPPDEFINES"))
+foreach my $inc (split /\s+/, &SCRAMGenUtils::getBuildVariable($tmprel,"CPPDEFINES","ufast"))
 {$flags="$flags ".postProcessFlag ("-D$inc");}
-$flags="$flags ".&postProcessFlag(&SCRAMGenUtils::getBuildVariable($tmprel,"CPPFLAGS"));
-$flags="$flags ".&postProcessFlag(&SCRAMGenUtils::getBuildVariable($tmprel,"CXXFLAGS"));
-print "COMPILER_FLAGS=$flags\n";
-my $tmpl_compile_support=&checkTemplateCompilationSupport ();
-my $def_compile_support=&checkDefineCompilationSupport ();
-if(($tmpl_compile_support==0) || ($def_compile_support==0)){&genSkip ($cache);}
-print 'SKIP_INCLUDES=^(Ig|Vis).*?/interface/config\.h$:"^classlib/sysapi/system\.h\$"',"\n";
-print 'SKIP_INCLUDES=.+:"^.+?\\.icc\$"',"\n";
-print 'SKIP_INCLUDES=.+:"^Utilities/Testing/interface/CppUnit_testdriver\.icpp\$"',"\n";
-print 'SKIP_INCLUDES=.+:"^FWCore/ParameterSet/test/ConfigTestMain\.h\$"',"\n";
-print 'SKIP_INCLUDE_INDIRECT_ADD=.+:"^(Ig|Vis).*?/interface/config\.h\$"',"\n";
-print 'SKIP_AND_ADD_REMOVED_INCLUDES=^.*?/classes\.h$',"\n";
-print 'SKIP_AND_ADD_REMOVED_INCLUDES=^.*?/([^/]*)LinkDef\.h$',"\n";
+$flags="$flags ".&postProcessFlag(&SCRAMGenUtils::getBuildVariable($tmprel,"CPPFLAGS","ufast"));
+$flags="$flags ".&postProcessFlag(&SCRAMGenUtils::getBuildVariable($tmprel,"CXXFLAGS","ufast"));
+print "DEFAULT_COMPILER_FLAGS=$flags\n";
+#my $tmpl_compile_support=&checkTemplateCompilationSupport ();
+#my $def_compile_support=&checkDefineCompilationSupport ();
+#if(($tmpl_compile_support==0) || ($def_compile_support==0)){&genSkip ($cache);}
 print "SOURCE_EXT=$lexparseext\n";
 
 foreach my $d ("$curdir","$scriptdir")
@@ -181,6 +144,7 @@ foreach my $d ("$curdir","$scriptdir")
   {
     print "#Extra Include Checker Configuration: ${d}/${project}_IncludeChecker.conf\n";
     system("cat ${d}/${project}_IncludeChecker.conf");
+    last;
   }
 }
 &final_exit(0);
@@ -190,31 +154,6 @@ sub final_exit ()
   my $code=shift || 0;
   if(($tmprel ne "") && ($tmprel ne $release)){system("rm -rf $tmprel");}
   exit $code;
-}
-
-sub updateOrderedTools ()
-{
-  my $cache=shift;
-  my $tool=shift || "";
-  if($tool eq "")
-  {
-    if(exists $cache->{orderedtool}){return;}
-    $cache->{tooldone}={}; $cache->{orderedtool}=[];
-    foreach my $t (keys %{$cache->{tools}{SETUP}}){&updateOrderedTools($cache,$t);}
-  }
-  elsif(!exists $cache->{tooldone}{$tool})
-  {
-    $cache->{tooldone}{$tool}=1;
-    if(exists $cache->{tools}{SETUP}{$tool}{USE})
-    {
-      foreach my $t (@{$cache->{tools}{SETUP}{$tool}{USE}})
-      {
-	$t=lc($t);
-	&updateOrderedTools($cache,$t);
-      }
-    }
-    push @{$cache->{orderedtool}},$tool;
-  }
 }
 
 sub genSkip ()
@@ -257,7 +196,7 @@ sub genConfig ()
       if($suffix ne ""){next;}
       my $class=$cache->{BUILDTREE}{$d}{CLASS};
       my $c=$cache->{BUILDTREE}{$d}{RAWDATA}{content};
-      if($class eq "PACKAGE"){&addPack($data,$c,$d);}
+      if($class eq "LIBRARY"){&addPack($data,$c,dirname($d));}
       elsif($class=~/^(TEST|BIN|PLUGINS|BINARY)$/){&addProds($data,$c,$d);}
     }
   }
@@ -300,7 +239,8 @@ sub addProds ()
   my $data=shift;
   my $cache=shift;
   my $d=&SCRAMGenUtils::fixPath(shift);
-  my $bf1="${release}/src/${d}/BuildFile";
+  my $bf1="${release}/src/${d}/BuildFile.xml";
+  if(!-f $bf1){$bf1="${release}/src/${d}/BuildFile";}
   my $bf=undef;
   foreach my $t (keys %{$cache->{BUILDPRODUCTS}})
   {
@@ -315,15 +255,18 @@ sub addProds ()
       {
 	foreach my $f (@{$bf->{$type}{$name}{file}})
 	{
-	  foreach my $f1 (split /\,/,$f)
+	  foreach my $fx (split /\,/,$f)
 	  {
-	    foreach my $f2 (`ls ${release}/src/${d}/$f1 2> /dev/null`)
+	    foreach my $f1 (split /\s+/,$fx)
 	    {
-	      chomp $f2;
-	      $f2=~s/^${release}\/src\///;
-	      $f2=&SCRAMGenUtils::fixPath($f2);
-	      my $fd=dirname($f2);
-	      push @{$data->{prods}{$name}{files}},$f2;
+	      foreach my $f2 (`ls ${release}/src/${d}/$f1 2> /dev/null`)
+	      {
+	        chomp $f2;
+	        $f2=~s/^${release}\/src\///;
+	        $f2=&SCRAMGenUtils::fixPath($f2);
+	        my $fd=dirname($f2);
+	        push @{$data->{prods}{$name}{files}},$f2;
+	      }
 	    }
 	  }
 	}
@@ -504,7 +447,6 @@ sub checkDefineCompilationSupport ()
 sub usage()
 {
   print "Usage\n";
-  print "  $0 [--skiplocal] [--help] <directory> [<arch>]\n\n";
-  print "    --skiplocal    To skip the checking of local includes of packages i.e. includes of type A/B/*.h will not be removed from files A/B/*.\n";
+  print "  $0 [--help] <directory>\n\n";
   print "    --help         To get this help message.\n";
 }

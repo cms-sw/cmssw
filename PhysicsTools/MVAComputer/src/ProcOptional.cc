@@ -9,7 +9,6 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcOptional.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -31,8 +30,10 @@ class ProcOptional : public VarProcessor {
 	             const MVAComputer *computer);
 	virtual ~ProcOptional() {}
 
-	virtual void configure(ConfIterator iter, unsigned int n);
-	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual void configure(ConfIterator iter, unsigned int n) override;
+	virtual void eval(ValueIterator iter, unsigned int n) const override;
+	virtual std::vector<double> deriv(
+				ValueIterator iter, unsigned int n) const override;
 
     private:
 	std::vector<double>	neutralPos;
@@ -69,11 +70,41 @@ void ProcOptional::eval(ValueIterator iter, unsigned int n) const
 			iter(*iter);
 			break;
 		    default:
+			throw cms::Exception("ProcOptional")
+				<< "Multiple input variables encountered."
+				<< std::endl;
+		}
+	}
+}
+
+std::vector<double> ProcOptional::deriv(
+				ValueIterator iter, unsigned int n) const
+{
+	unsigned int size = 0;
+	for(ValueIterator iter2 = iter; iter2; ++iter2)
+		size += iter2.size();
+
+	std::vector<double> result;
+
+	unsigned int column = 0;
+	for(std::vector<double>::const_iterator pos = neutralPos.begin();
+	    pos != neutralPos.end(); pos++, ++iter) {
+		unsigned int row = result.size();
+		result.resize(row + size);
+		switch(iter.size()) {
+		    case 0:
+			break;
+		    case 1:
+			result[row + column++] = 1.0;
+			break;
+		    default:
 			throw cms::Exception("ProcOptionalError")
 				<< "Multiple input variables encountered."
 				<< std::endl;
 		}
 	}
+
+	return result;
 }
 
 } // anonymous namespace

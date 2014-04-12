@@ -12,7 +12,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
 
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 
@@ -26,14 +25,13 @@ public:
   ~GaussianTailNoiseGeneratorTest();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   // ----------member data ---------------------------
   std::string filename_;
   TFile* hFile;
   TH1F* randNumber;
-  CLHEP::HepRandomEngine* rndEngine;
   GaussianTailNoiseGenerator* genNoise;
 };
 
@@ -52,10 +50,7 @@ GaussianTailNoiseGeneratorTest::GaussianTailNoiseGeneratorTest(const edm::Parame
       "which is not present in the configuration file.  You must add the service\n"
       "in the configuration file or remove the modules that require it.";
   }
-
-  rndEngine  = &(rng->getEngine());
-  genNoise = new GaussianTailNoiseGenerator((*rndEngine));
-
+  genNoise = new GaussianTailNoiseGenerator();
 }
 
 
@@ -80,7 +75,8 @@ GaussianTailNoiseGeneratorTest::analyze(const edm::Event& iEvent, const edm::Eve
 
   std::vector<std::pair<int,float> > generatedNoise;
 
-  genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise);
+  edm::Service<edm::RandomNumberGenerator> rng;
+  genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise, &rng->getEngine(iEvent.streamID()));
 
   typedef std::vector<std::pair<int,float> >::const_iterator VI;
 
@@ -92,7 +88,7 @@ GaussianTailNoiseGeneratorTest::analyze(const edm::Event& iEvent, const edm::Eve
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GaussianTailNoiseGeneratorTest::beginJob(const edm::EventSetup&)
+GaussianTailNoiseGeneratorTest::beginJob()
 {
   hFile = new TFile (filename_.c_str(), "RECREATE" );
   randNumber = new TH1F("randNumber","Random Number Distribution",200,2000,6000); 

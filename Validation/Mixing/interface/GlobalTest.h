@@ -1,16 +1,15 @@
 // -*- C++ -*-
 //
 // Class:      GlobalTest
-// 
+//
 /**\class GlobalTest
 
- Description: test suite for Mixing Module
+   Description: test suite for Mixing Module
 
 */
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.h,v 1.1 2007/02/27 17:05:08 uberthon Exp $
 //
 //
 
@@ -23,10 +22,19 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
 //DQM services for histogram
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class TFile;
 class MonitorElement;
@@ -36,16 +44,16 @@ class MonitorElement;
 //
 
 class GlobalTest : public edm::EDAnalyzer {
-public:
+ public:
   explicit GlobalTest(const edm::ParameterSet&);
   ~GlobalTest();
 
-  void beginJob(edm::EventSetup const&iSetup);
+  void beginJob();
   void endJob();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-private:
+ private:
   std::string filename_;
   int minbunch_;
   int maxbunch_;
@@ -59,6 +67,14 @@ private:
   MonitorElement * caloEnergyEBH_[nMaxH];
   MonitorElement * caloEnergyEEH_[nMaxH];
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
+
+  const static int nrHistos=6;
+  char * labels[nrHistos];
+
+  edm::EDGetTokenT<CrossingFrame<SimTrack> > cfTrackToken_;
+  edm::EDGetTokenT<CrossingFrame<SimTrack> > cfVertexToken_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit> > g4SimHits_EB_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit> > g4SimHits_EE_Token_;
 };
 

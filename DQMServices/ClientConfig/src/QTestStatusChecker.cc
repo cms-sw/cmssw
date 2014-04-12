@@ -2,12 +2,11 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2006/07/13 16:36:23 $
- *  $Revision: 1.3 $
  *  \author Ilaria Segoni
  */
 
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include <iostream>
 
 QTestStatusChecker::QTestStatusChecker(){
@@ -17,9 +16,9 @@ QTestStatusChecker::QTestStatusChecker(){
 QTestStatusChecker::~QTestStatusChecker(){
 }
 
-std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(MonitorUserInterface * mui){
+std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(DQMStore * bei){
 	std::pair<std::string,std::string> statement;
-	int status= mui->getSystemStatus();
+	int status= bei->getStatus();
 	switch(status){
 		case dqm::qstatus::ERROR:
 			statement.first ="Errors detected in quality tests";
@@ -41,22 +40,22 @@ std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(Monitor
 	return statement;
 }
 
-std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetailedStatus(MonitorUserInterface * mui){ 
+std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetailedStatus(DQMStore * bei){ 
 	
-	std::vector<std::string> allPathNames=this->fullPathNames(mui); 
+	std::vector<std::string> allPathNames=this->fullPathNames(bei); 
 	detailedWarnings.clear();
 
-	this->processAlarms(allPathNames,mui);	
+	this->processAlarms(allPathNames,bei);	
 	return detailedWarnings;
 } 
 
 		
-void QTestStatusChecker::processAlarms(std::vector<std::string> allPathNames, MonitorUserInterface * mui){	
+void QTestStatusChecker::processAlarms(const std::vector<std::string>& allPathNames, DQMStore * bei){	
   
- for(std::vector<std::string>::iterator fullMePath=allPathNames.begin();fullMePath!=allPathNames.end(); ++fullMePath ){		
+ for(std::vector<std::string>::const_iterator fullMePath=allPathNames.begin();fullMePath!=allPathNames.end(); ++fullMePath ){		
         
         MonitorElement * me=0;	
-        me= mui->get(*fullMePath);
+        me= bei->get(*fullMePath);
 
 	if(me){
 		std::vector<QReport *> report;
@@ -87,6 +86,7 @@ void QTestStatusChecker::processAlarms(std::vector<std::string> allPathNames, Mo
 
  				 messageList=detailedWarnings[colour];
  				 messageList.push_back(text);
+ 				 detailedWarnings[colour]=messageList;
 
  			 }	
  		 }
@@ -97,12 +97,12 @@ void QTestStatusChecker::processAlarms(std::vector<std::string> allPathNames, Mo
 }
 
 
-std::vector<std::string> QTestStatusChecker::fullPathNames(MonitorUserInterface * mui){
+std::vector<std::string> QTestStatusChecker::fullPathNames(DQMStore * bei){
 
 
   std::vector<std::string> contents;
   std::vector<std::string> contentVec;
-  mui->getContents(contentVec);
+  bei->getContents(contentVec);
   for (std::vector<std::string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
         

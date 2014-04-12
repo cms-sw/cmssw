@@ -2,10 +2,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include <string.h>
 #include <sstream>
@@ -13,48 +10,42 @@
 #include <unistd.h>
 #include <fstream>
 
-EcalElectronicsSim::EcalElectronicsSim(const EcalSimParameterMap * parameterMap, 
-                                       EcalCoder * coder, 
-                                       bool applyConstantTerm, 
-                                       double rmsConstantTerm)
-: theParameterMap(parameterMap),
-  theCoder(coder),
-  applyConstantTerm_(applyConstantTerm), 
-  rmsConstantTerm_(rmsConstantTerm)
+EcalElectronicsSim::EcalElectronicsSim( const EcalSimParameterMap* parameterMap      , 
+					EcalCoder*                 coder             , 
+					bool                       applyConstantTerm , 
+					double                     rmsConstantTerm     ) :
+   m_simMap             ( parameterMap ) ,
+   m_theCoder           ( coder        ) ,
+   m_thisCT             ( rmsConstantTerm ),
+   m_applyConstantTerm  ( applyConstantTerm )
 {
 }
 
-
-void EcalElectronicsSim::amplify(CaloSamples & clf) const 
-{
-  clf *= theParameterMap->simParameters(clf.id()).photoelectronsToAnalog();
-  if (applyConstantTerm_) {
-    clf *= (1.+constantTerm());
-  }
+EcalElectronicsSim::~EcalElectronicsSim()
+{  
 }
 
-double EcalElectronicsSim::constantTerm() const
+void 
+EcalElectronicsSim::analogToDigital( CLHEP::HepRandomEngine* engine,
+                                     EcalElectronicsSim::EcalSamples& clf ,
+				     EcalDataFrame&                   df    ) const 
 {
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "EcalElectroncSim requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
+   //PG input signal is in pe.  Converted in GeV
+  amplify( clf, engine ) ;
 
-  double thisCT = rmsConstantTerm_;
-  CLHEP::RandGaussQ gaussQDistribution(rng->getEngine(), 0.0, thisCT);
-  return gaussQDistribution.fire();
+  m_theCoder->analogToDigital( engine, clf, df ) ;
 }
 
-void EcalElectronicsSim::analogToDigital(CaloSamples& clf, EcalDataFrame& df) const 
+void 
+EcalElectronicsSim::amplify( EcalElectronicsSim::EcalSamples& clf, CLHEP::HepRandomEngine* engine ) const
 {
-  //PG input signal is in pe.  Converted in GeV
-  amplify(clf);
-  theCoder->analogToDigital(clf, df);
+   const double fac ( m_simMap->simParameters( clf.id() ).photoelectronsToAnalog() ) ;
+   if( m_applyConstantTerm )
+   {
+      clf *= fac*CLHEP::RandGaussQ::shoot(engine, 1.0, m_thisCT);
+   }
+   else
+   {
+      clf *= fac ;
+   }
 }
-
-
-
-

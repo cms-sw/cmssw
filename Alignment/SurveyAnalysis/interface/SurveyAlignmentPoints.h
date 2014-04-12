@@ -8,8 +8,8 @@
  *  The local residuals for survey points are found for each sensor.
  *  The alignment parameters are found using the HIP algorithm.
  *
- *  $Date: 2007/04/09 03:55:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/03 20:58:58 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
@@ -22,8 +22,8 @@ class SurveyAlignmentPoints:
 
   /// Constructor to set the sensors and residual levels in base class.
   SurveyAlignmentPoints(
-			const std::vector<Alignable*>& sensors,
-			const std::vector<StructureType>& levels
+			const align::Alignables& sensors,
+			const std::vector<align::StructureType>& levels
 			);
 
   protected:

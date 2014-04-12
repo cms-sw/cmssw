@@ -39,6 +39,7 @@ struct CSCCFEBSCAControllerWord {
 TRIG_TIME indicates which of the eight time samples in the 400ns SCA block (lowest bit is the first sample, highest bit the eighth sample) corresponds to the arrival of the LCT; it should be at some fixed phase relative to the peak of the CSC pulse.  SCA_BLK is the SCA Capacitor block used for this time sample. L1A_PHASE and LCT_PHASE show the phase of the 50ns CFEB digitization clock at the time the trigger was received (1=clock high, 0=clock low).  SCA_FULL indicates lost SCA data due to SCA full condition.  The TS_FLAG bit indicates the number of time samples to digitize per event; high=16 time samples, low=8 time samples. 
 
   */
+  explicit CSCCFEBSCAControllerWord(unsigned short frame);
   CSCCFEBSCAControllerWord() {bzero(this, 2);}
 
   unsigned short trig_time : 8;
@@ -54,10 +55,8 @@ TRIG_TIME indicates which of the eight time samples in the 400ns SCA block (lowe
 
 class CSCCFEBTimeSlice {
  public:
-  CSCCFEBTimeSlice() : dummy(0x7fff) {
-    bzero(this, 99*2);
-  }
-    // 
+  CSCCFEBTimeSlice();
+
   /// input from 0 to 95
   CSCCFEBDataWord * timeSample(int index) const {
     return (CSCCFEBDataWord *)(theSamples+index);
@@ -75,7 +74,16 @@ class CSCCFEBTimeSlice {
   
   void setControllerWord(const CSCCFEBSCAControllerWord & controllerWord);
 
-  bool check() const {return dummy == 0x7FFF;}
+  /// Old CFEB format: dummy word 100 should be 0x7FFF
+  /// New CFEB format: the sum of word 97 and 100 should be 0x7FFF (word 100 is inverted word 97)
+  bool check() const {return ((dummy == 0x7FFF)||((dummy+crc)== 0x7FFF));}
+
+  bool checkCRC() const {return crc==calcCRC();}
+
+  unsigned calcCRC() const;
+
+  /// =VB= Set calculated CRC value for simulated CFEB Time Slice data
+  void setCRC() { crc=calcCRC(); dummy=0x7FFF-crc;}
 
   friend std::ostream & operator<<(std::ostream & os, const CSCCFEBTimeSlice &);
 
@@ -108,13 +116,13 @@ class CSCCFEBTimeSlice {
   unsigned blank_space_1 : 4;
 
 
-  ///Word 99
+  /// WORD 99
   unsigned buffer_warning : 1;
   unsigned buffer_count : 5;
   unsigned L1A_number :6;
   unsigned blank_space_3 : 4; 
 
-  /// word 100 is a dummy: 0x7FFF
+  /// WORD 100
   unsigned dummy : 16;
 };
 

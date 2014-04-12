@@ -8,11 +8,13 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorTemplate.cc,v 1.1 2007/05/09 07:06:33 fronga Exp $
+// $Id: AlignmentMonitorTemplate.cc,v 1.6 2010/02/25 00:27:56 wmtan Exp $
 //
 
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
+#include "TH1.h" 
+#include "TObject.h" 
 // #include "PluginManager/ModuleDef.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
@@ -25,12 +27,12 @@
 
 class AlignmentMonitorTemplate: public AlignmentMonitorBase {
    public:
-      AlignmentMonitorTemplate(const edm::ParameterSet& cfg): AlignmentMonitorBase(cfg) { };
+      AlignmentMonitorTemplate(const edm::ParameterSet& cfg): AlignmentMonitorBase(cfg, "AlignmentMonitorTemplate") { };
       ~AlignmentMonitorTemplate() {};
 
-      void book();
-      void event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
-      void afterAlignment(const edm::EventSetup &iSetup);
+      void book() override;
+      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
+      void afterAlignment(const edm::EventSetup &iSetup) override;
 
    private:
       TH1F *m_hist, *m_ihist, *m_otherdir, *m_otherdir2;
@@ -50,12 +52,12 @@ class AlignmentMonitorTemplate: public AlignmentMonitorBase {
 //
 
 void AlignmentMonitorTemplate::book() {
-   m_hist = (TH1F*)(add("/", new TH1F("hist", "hist", 10, 0.5, 10.5)));      // there's only one of these per job
-   m_ihist = (TH1F*)(add("/iterN/", new TH1F("ihist", "ihist", 10, 0, 1)));  // there's a new one of these for each iteration
+   m_hist = book1D("/", "hist", "hist", 10, 0.5, 10.5);      // there's only one of these per job
+   m_ihist = book1D("/iterN/", "ihist", "ihist", 10, 0, 1);  // there's a new one of these for each iteration
    // "/iterN/" is a special directory name, in which the "N" gets replaced by the current iteration number.
 
-   m_otherdir = (TH1F*)(add("/otherdir/", new TH1F("hist", "this is a histogram in another directory", 10, 0.5, 10.5)));
-   m_otherdir2 = (TH1F*)(add("/iterN/otherdir/", new TH1F("hist", "here's one in another directory inside the iterN directories", 10, 0.5, 10.5)));
+   m_otherdir = book1D("/otherdir/", "hist", "this is a histogram in another directory", 10, 0.5, 10.5);
+   m_otherdir2 = book1D("/iterN/otherdir/", "hist", "here's one in another directory inside the iterN directories", 10, 0.5, 10.5);
 
    // This is a procedure that makes one histogram for each selected alignable, and puts them in the iterN directory.
    // This is not a constant-time lookup.  If you need something faster, see AlignmentMonitorMuonHIP, which has a
@@ -63,10 +65,10 @@ void AlignmentMonitorTemplate::book() {
    std::vector<Alignable*> alignables = pStore()->alignables();
    for (std::vector<Alignable*>::const_iterator it = alignables.begin();  it != alignables.end();  ++it) {
       char name[256], title[256];
-      sprintf(name,  "xresid%d", (*it)->geomDetId().rawId());
-      sprintf(title, "x track-hit for DetId %d", (*it)->geomDetId().rawId());
+      snprintf(name, sizeof(name), "xresid%d", (*it)->geomDetId().rawId());
+      snprintf(title, sizeof(title), "x track-hit for DetId %d", (*it)->geomDetId().rawId());
 
-      m_residuals[*it] = (TH1F*)(add("/iterN/", new TH1F(name, title, 100, -5., 5.)));
+      m_residuals[*it] = book1D("/iterN/", name, title, 100, -5., 5.);
    }
 
    // Important: you create TObject pointers with the "new" operator, but YOU don't delete them.  They're deleted by the
@@ -77,7 +79,7 @@ void AlignmentMonitorTemplate::book() {
    // https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideAlignmentAlgorithms#Monitoring    for configuring it
 }
 
-void AlignmentMonitorTemplate::event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
+void AlignmentMonitorTemplate::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
    m_hist->Fill(iteration());  // get the number of events per iteration
    m_ihist->Fill(0.5);         // get the number of events in this iteration in the central bin
 
@@ -155,6 +157,6 @@ void AlignmentMonitorTemplate::afterAlignment(const edm::EventSetup &iSetup) {
 // SEAL definitions
 //
 
-// DEFINE_SEAL_MODULE();
+// 
 // DEFINE_SEAL_PLUGIN(AlignmentMonitorPluginFactory, AlignmentMonitorTemplate, "AlignmentMonitorTemplate");
 DEFINE_EDM_PLUGIN(AlignmentMonitorPluginFactory, AlignmentMonitorTemplate, "AlignmentMonitorTemplate");

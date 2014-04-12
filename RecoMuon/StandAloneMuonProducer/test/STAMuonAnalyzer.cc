@@ -1,8 +1,6 @@
 /** \class STAMuonAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/09/01 14:35:48 $
- *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -54,7 +52,7 @@ STAMuonAnalyzer::STAMuonAnalyzer(const ParameterSet& pset){
 STAMuonAnalyzer::~STAMuonAnalyzer(){
 }
 
-void STAMuonAnalyzer::beginJob(const EventSetup& eventSetup){
+void STAMuonAnalyzer::beginJob(){
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
@@ -123,8 +121,8 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
     cout<<"Simulated tracks: "<<endl;
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
-	cout<<"Sim pT: "<<(*simTrack).momentum().perp()<<endl;
-	simPt=(*simTrack).momentum().perp();
+	cout<<"Sim pT: "<<(*simTrack).momentum().pt()<<endl;
+	simPt=(*simTrack).momentum().pt();
 	cout<<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl;
 	numberOfSimTracks++;
       }    

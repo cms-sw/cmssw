@@ -1,41 +1,34 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<ConstantsSection label="tracker.xml" eval="true">
- <Constant name="zero"             value="0.0*fm"/>
- <Constant name="TrackCalorR"  value="1.233*m"/>
- <Constant name="TrackBeamZ1"  value="1.948*m"/>
- <Constant name="TrackBeamZ2"  value="2.935*m"/>
- <Constant name="TrackBeamR1"  value="3.10*cm"/>
- <Constant name="TrackBeamR2"  value="7.40*cm"/>
-</ConstantsSection>
-
-<SolidSection label="tracker.xml">
- <Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="-[TrackBeamZ2]"  rMin="[TrackBeamR2]"  rMax="[TrackCalorR]" />
-  <ZSection z="-[TrackBeamZ1]"  rMin="[TrackBeamR1]"  rMax="[TrackCalorR]" />
-  <ZSection z="[TrackBeamZ1]"   rMin="[TrackBeamR1]"  rMax="[TrackCalorR]" />
-  <ZSection z="[TrackBeamZ2]"   rMin="[TrackBeamR2]"  rMax="[TrackCalorR]" />
- </Polycone> 
-</SolidSection>
-
-<LogicalPartSection label="tracker.xml">
- <LogicalPart name="Tracker" category="unspecified">
-  <rSolid name="Tracker"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
-</LogicalPartSection>
- 
-<RotationSection label="tracker.xml">
-  <Rotation name="180D" thetaX="90*deg" phiX="180*deg"   thetaY="90*deg"
-                        phiY="90*deg"   thetaZ="180*deg" phiZ="0*deg" />
-</RotationSection>
-
-<PosPartSection label="tracker.xml">
- <PosPart copyNumber="1">
-   <rParent name="trackertib_twentyfivepercent:Tracker"/>
-   <rChild name="tib_twentyfivepercent:TIB"/>
- </PosPart>
-</PosPartSection>
-
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tracker.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+		<Constant name="TrackCalorR" value="1.233*m"/>
+		<Constant name="TrackBeamZ1" value="1.948*m"/>
+		<Constant name="TrackBeamZ2" value="2.935*m"/>
+		<Constant name="TrackBeamR1" value="3.10*cm"/>
+		<Constant name="TrackBeamR2" value="7.40*cm"/>
+	</ConstantsSection>
+	<SolidSection label="tracker.xml">
+		<Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-[TrackBeamZ2]" rMin="[TrackBeamR2]" rMax="[TrackCalorR]"/>
+			<ZSection z="-[TrackBeamZ1]" rMin="[TrackBeamR1]" rMax="[TrackCalorR]"/>
+			<ZSection z="[TrackBeamZ1]" rMin="[TrackBeamR1]" rMax="[TrackCalorR]"/>
+			<ZSection z="[TrackBeamZ2]" rMin="[TrackBeamR2]" rMax="[TrackCalorR]"/>
+		</Polycone>
+	</SolidSection>
+	<LogicalPartSection label="tracker.xml">
+		<LogicalPart name="Tracker" category="unspecified">
+			<rSolid name="Tracker"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<RotationSection label="tracker.xml">
+		<Rotation name="180D" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>
+	</RotationSection>
+	<PosPartSection label="tracker.xml">
+		<PosPart copyNumber="1">
+			<rParent name="trackertib_twentyfivepercent:Tracker"/>
+			<rChild name="tib_twentyfivepercent:TIB"/>
+		</PosPart>
+	</PosPartSection>
 </DDDefinition>

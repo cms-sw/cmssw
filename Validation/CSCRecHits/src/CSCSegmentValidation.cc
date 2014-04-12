@@ -1,10 +1,10 @@
 #include "Validation/CSCRecHits/src/CSCSegmentValidation.h"
-#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include <algorithm>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 
-CSCSegmentValidation::CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
+CSCSegmentValidation::CSCSegmentValidation(DQMStore* dbe, const edm::InputTag & inputTag, edm::ConsumesCollector && iC)
 : CSCBaseValidation(dbe, inputTag),
   theLayerHitsPerChamber(),
   theChamberSegmentMap(),
@@ -25,7 +25,9 @@ CSCSegmentValidation::CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm
   theTypePlot6HitsShower( dbe_->book1D("CSCSegments6HitsShower", "", 100, 0, 10) ),
   theTypePlot6HitsShowerSeg( dbe_->book1D("CSCSegments6HitsShowerSeg", "", 100, 0, 10) )
 {
-   dbe_->setCurrentFolder("CSCRecHitTask");
+   segments_Token_ = iC.consumes<CSCSegmentCollection>(inputTag);
+
+   dbe_->setCurrentFolder("CSCRecHitsV/CSCRecHitTask");
    for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200], title3[200], title4[200],  
@@ -56,7 +58,7 @@ void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& ev
 {
   // get the collection of CSCRecHsegmentItrD
   edm::Handle<CSCSegmentCollection> hRecHits;
-  e.getByLabel(theInputTag, hRecHits);
+  e.getByToken(segments_Token_, hRecHits);
   const CSCSegmentCollection * cscRecHits = hRecHits.product();
 
   theChamberSegmentMap.clear();
@@ -177,7 +179,7 @@ void CSCSegmentValidation::plotResolution(const PSimHit & simHit, const CSCSegme
   double dtheta = segmentPos.theta() - simHitPos.theta();
 
   double sigmax = sqrt(segment.localPositionError().xx());
-  double sigmay = sqrt(segment.localPositionError().yy());
+  //double sigmay = sqrt(segment.localPositionError().yy());
 
   double ddxdz = segmentDir.x()/segmentDir.z() - simHitDir.x()/simHitDir.z();
   double ddydz = segmentDir.y()/segmentDir.z() - simHitDir.y()/simHitDir.z();

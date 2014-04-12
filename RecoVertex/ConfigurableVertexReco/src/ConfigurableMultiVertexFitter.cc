@@ -13,7 +13,7 @@ namespace {
     ret.addParameter<double>("ratio",0.25);
     ret.addParameter<int>("cheat",0);
     edm::ParameterSet nest;
-    nest.addParameter<string>("finder","mbs");
+    nest.addParameter<std::string>("finder","mbs");
     ret.addParameter<edm::ParameterSet>("ini",nest);
     return ret;
   }
@@ -28,7 +28,7 @@ namespace {
   
   const VertexReconstructor * initialiser ( const edm::ParameterSet & p )
   {
-    // cout << "[ConfigurableMultiVertexFitter] ini: " << p << endl;
+    // std::cout << "[ConfigurableMultiVertexFitter] ini: " << p << std::endl;
     return new ConfigurableVertexReconstructor ( p );
   } 
 }
@@ -41,8 +41,8 @@ ConfigurableMultiVertexFitter::ConfigurableMultiVertexFitter() :
 void ConfigurableMultiVertexFitter::configure(
     const edm::ParameterSet & n )
 {
-  edm::ParameterSet m = mydefaults();
-  m.augment ( n );
+  edm::ParameterSet m=n;
+  m.augment ( mydefaults() );
   // print ( m );
   const AnnealingSchedule * ann = schedule ( m );
   const VertexReconstructor * ini = initialiser ( m.getParameter<edm::ParameterSet>("ini") );
@@ -70,34 +70,24 @@ ConfigurableMultiVertexFitter * ConfigurableMultiVertexFitter::clone() const
   return new ConfigurableMultiVertexFitter ( *this );
 }
 
-vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
+std::vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
+    const std::vector < reco::TransientTrack > & t,
+    const reco::BeamSpot & s ) const
+{
+  return theRector->vertices ( t, s );
+}
+
+std::vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
+    const std::vector < reco::TransientTrack > & prims,
+    const std::vector < reco::TransientTrack > & secs,
+    const reco::BeamSpot & s ) const
+{
+  return theRector->vertices ( prims, secs, s );
+}
+
+std::vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
     const std::vector < reco::TransientTrack > & t ) const
 {
-  if ( theCheater==1 && t.size()>3 )
-  {
-    std::vector < reco::TransientTrack > primaries;
-    reco::TransientTrack p1=t[0];
-    reco::TransientTrack p2=t[1];
-    reco::TransientTrack p3=t[2];
-    reco::TransientTrack p4=t[3];
-    primaries.push_back ( p1 );
-    primaries.push_back ( p2 );
-    primaries.push_back ( p3 );
-    primaries.push_back ( p4 );
-    /*
-    cout << "[ConfigurableMultiVertexFitter] primaries: ";
-    for ( vector< reco::TransientTrack >::const_iterator i=primaries.begin(); 
-          i!=primaries.end() ; ++i )
-    {
-      cout << i->id() << "  ";
-    }
-    cout << endl;
-    */
-    return theRector->vertices ( t, primaries );
-  }
-
-  // test code ends
-  // 
   return theRector->vertices ( t );
 }
 

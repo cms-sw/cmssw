@@ -1,19 +1,24 @@
 using namespace std;
 
 #include <cmath>
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-#include <Math/RotationX.h>
-#include <Math/RotationY.h>
 #include <Math/RotationZ.h>
 #include <Math/AxisAngle.h>
 
@@ -29,7 +34,7 @@ File elements.xml:
   Material(elem) Oxygen  
 */
 void regressionTest_setup() {
-   ExprEvalInterface & eval = ExprEval::instance();
+   ClhepEvaluator & eval = ExprEval::instance();
    
    string ns = "setup"; // current namespace faking the filename 'setup.xml'
    
@@ -102,108 +107,100 @@ void regressionTest_setup() {
   File: first.xml
   
 */ 
-void regressionTest_first() {
-   ExprEvalInterface & eval = ExprEval::instance();
-   string ns("first");
-   DDSolid support = DDSolidFactory::box(DDName("support",ns),
-                           eval.eval(ns,"[setup:corner]/4."),
-			   eval.eval(ns,"[setup:corner]/8."),
-			   eval.eval(ns,"[setup:corner]/4.")
-			   );
-   DDSolid sensor = DDSolidFactory::box(DDName("sensor",ns),			   
-                           eval.eval(ns,"[setup:corner]/16."),
-			   eval.eval(ns,"[setup:corner]/16."),
-			   eval.eval(ns,"[setup:corner]/16.")
-			   );
+void regressionTest_first( ) {
+  ///load the new cpv
+  DDCompactView cpv;
+  cout << "main::initialize DDL parser" << endl;
+  DDLParser myP(cpv);// = DDLParser::instance();
+  
+  cout << "main::about to set configuration" << endl;
+  
+  ClhepEvaluator & eval = ExprEval::instance();
+  string ns("first");
+  DDSolid support = DDSolidFactory::box(DDName("support",ns),
+					eval.eval(ns,"[setup:corner]/4."),
+					eval.eval(ns,"[setup:corner]/8."),
+					eval.eval(ns,"[setup:corner]/4.")
+					);
+  DDSolid sensor = DDSolidFactory::box(DDName("sensor",ns),			   
+				       eval.eval(ns,"[setup:corner]/16."),
+				       eval.eval(ns,"[setup:corner]/16."),
+				       eval.eval(ns,"[setup:corner]/16.")
+				       );
+  
+  DDLogicalPart supportLP(DDName("support",ns),     // name
+			  DDName("Oxygen","elements"), // material
+			  DDName("support",ns));    // solid
+  
+  DDLogicalPart sensorLP(DDName("sensor",ns),
+			 DDName("Nitrogen","elements"),
+			 DDName("sensor",ns));	
+  
+  DDLogicalPart part(DDName("group",ns),
+		     DDName("Air","setup"),
+		     DDName("group","setup")    
+		      );
+  
+  DDRotation r30(DDName("R30","setup"));
+  DDRotation r60(DDName("R60","setup"));
+  DDRotation r90(DDName("R90","setup"));
+  DDRotation unit(DDName("Unit","setup"));
+  DDTranslation t0;
+  DDTranslation t1(eval.eval(ns,"[setup:corner]/8."),
+		   eval.eval(ns,"[setup:corner]/16."),
+		   eval.eval(ns,"[setup:corner]/8.")
+		   );
+  DDTranslation t2(eval.eval(ns,"[setup:corner]*1.25*cos(0.)"),
+		   eval.eval(ns,"[setup:corner]*1.25*sin(0.)"),
+		   eval.eval(ns,"0."));
+  DDTranslation t3(eval.eval(ns,"[setup:corner]*1.25*cos(30.*deg)"),
+		   eval.eval(ns,"[setup:corner]*1.25*sin(30.*deg)"),
+		    eval.eval(ns,"0."));
+  DDTranslation t4(eval.eval(ns,"[setup:corner]*1.25*cos(60.*deg)"),
+		   eval.eval(ns,"[setup:corner]*1.25*sin(60.*deg)"),
+		   eval.eval(ns,"0."));
+  DDTranslation t5(eval.eval(ns,"[setup:corner]*1.25*cos(90.*deg)"),
+		   eval.eval(ns,"[setup:corner]*1.25*sin(90.*deg)"),
+		   eval.eval(ns,"0."));
+  
+  cpv.position(sensorLP, supportLP, std::string("1"), t1, unit);
+  cpv.position(supportLP, part, std::string("1"), t2, unit);
+  cpv.position(supportLP, part, std::string("2"), t3, r30);
+  cpv.position(supportLP, part, std::string("3"), t4, r60);
+  cpv.position(supportLP, part, std::string("4"), t5, r90);
    
-   DDLogicalPart supportLP(DDName("support",ns),     // name
-                           DDName("Oxygen","elements"), // material
-                           DDName("support",ns));    // solid
-			   
-   DDLogicalPart sensorLP(DDName("sensor",ns),
-                          DDName("Nitrogen","elements"),
-			  DDName("sensor",ns));	
-
-   DDpos(DDName("sensor",ns), // child
-         DDName("support",ns), // parent
-	 "1",
-	 DDTranslation(eval.eval(ns,"[setup:corner]/8."),
-	               eval.eval(ns,"[setup:corner]/16."),
-		       eval.eval(ns,"[setup:corner]/8.")
-		       ),
-	 DDRotation(DDName("Unit","setup"))
-	);
-	
-   
-   DDLogicalPart part(DDName("group",ns),
-                 DDName("Air","setup"),
-		 DDName("group","setup")    
-                );
- 		
-		
-   DDpos(DDName("support",ns),
-         DDName("group",ns),
-	 "1",
-	 DDTranslation(eval.eval(ns,"[setup:corner]*1.25*cos(0.)"),
-	               eval.eval(ns,"[setup:corner]*1.25*sin(0.)"),
-		       eval.eval(ns,"0.")),
-	 DDRotation(DDName("Unit","setup"))
-	 );
-
-   DDpos(DDName("support",ns),
-         DDName("group",ns),
-	 "2",
-	 DDTranslation(eval.eval(ns,"[setup:corner]*1.25*cos(30.*deg)"),
-	               eval.eval(ns,"[setup:corner]*1.25*sin(30.*deg)"),
-		       eval.eval(ns,"0.")),
-	 DDRotation(DDName("R30","setup"))
-	 );
-
-   DDpos(DDName("support",ns),
-         DDName("group",ns),
-	 "3",
-	 DDTranslation(eval.eval(ns,"[setup:corner]*1.25*cos(60.*deg)"),
-	               eval.eval(ns,"[setup:corner]*1.25*sin(60.*deg)"),
-		       eval.eval(ns,"0.")),
-	 DDRotation(DDName("R60","setup"))
-	 );
-
-   DDpos(DDName("support",ns),
-         DDName("group",ns),
-	 "4",
-	 DDTranslation(eval.eval(ns,"[setup:corner]*1.25*cos(90.*deg)"),
-	               eval.eval(ns,"[setup:corner]*1.25*sin(90.*deg)"),
-		       eval.eval(ns,"0.")),
-	 DDRotation(DDName("R90","setup"))
-	 );
-
-
-
-   DDRotationMatrix * rm = new DDRotationMatrix(ROOT::Math::AxisAngle(DD3Vector(1.,1.,1.),20.*deg)); 
-   DDpos(DDName("group",ns),
-         DDName("world","setup"),
-	 "1",
-	 DDTranslation(),
-	 DDrot(DDName("group",ns), rm)
-	 );				  
-   			  		   
+  DDRotationMatrix * rm = new DDRotationMatrix(ROOT::Math::AxisAngle(DD3Vector(1.,1.,1.),20.*deg));
+  DDRotation rw= DDrot(DDName("group", ns), rm);
+  DDLogicalPart ws(DDName("world","setup"));
+  cpv.position(part, ws, std::string("1"), t0, rw);
 }
 
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
 void output(string filename) 
 {
   ostream & os(cout);
 
   os << "Starting Regressiontest Output" << endl;
+  ///load the new cpv
   DDCompactView cpv;
+  cout << "main::initialize DDL parser" << endl;
+  DDLParser myP(cpv);// = DDLParser::instance();
+
+  cout << "main::about to set configuration" << endl;
+  //    myP->SetConfig("configuration.xml");
+  FIPConfiguration cf(cpv);
+  cf.readConfig("DetectorDescription/RegressionTest/test/configuration.xml");
+
+  cout << "main::about to start parsing" << endl;
+ 
+  myP.parse(cf);
+
+  cout << "main::completed Parser" << endl;
+
   DDExpandedView exv(cpv);
   vector<DDTranslation> tvec;
   bool loop=true;
+  std::cout << "Before the loop..." << std::endl;
   while(loop) {
     ROOT::Math::AxisAngle ra(exv.rotation());
     os << exv.logicalPart() << endl
@@ -222,33 +219,29 @@ void output(string filename)
   }
 }
 
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 void testParser()
 {
   try {
     cout << "main:: initialize" << endl;
-    AlgoInit();
-
+    DDCompactView cpv;
     cout << "main::initialize DDL parser" << endl;
-    DDLParser* myP = DDLParser::instance();
+    DDLParser myP(cpv);// = DDLParser::instance();
 
     cout << "main::about to set configuration" << endl;
     //    myP->SetConfig("configuration.xml");
-    DDLConfiguration cf;
-    cf.readConfig("configuration.xml");
+    FIPConfiguration cf(cpv);
+    cf.readConfig("DetectorDescription/RegressionTest/test/configuration.xml");
 
     cout << "main::about to start parsing" << endl;
  
-    myP->parse(cf);
+    myP.parse(cf);
 
     cout << "main::completed Parser" << endl;
   
     cout << endl << endl << "main::Start checking!" << endl << endl;
   
   }
-  catch (DDException& e)
+  catch (cms::Exception& e)
     {
       cout << "main::PROBLEM:" << endl 
 	   << "         " << e << endl;
@@ -283,7 +276,6 @@ void printRot(const DDRotationMatrix & rot) {
 
 void testrot()
 {
-  //  ExprEvalInterface & eval = ExprEval::instance();
   {
     ROOT::Math::AxisAngle aa(DD3Vector(1.,1.,1.), 20.*deg);
     DDRotationMatrix rm(aa); 

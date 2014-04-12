@@ -5,11 +5,9 @@
 
 /** \class CaloTowerTopology
   *  
-  * $Date: $
-  * $Revision: $
   * \author J. Mans - Minnesota
   */
-class CaloTowerTopology : public CaloSubdetectorTopology {
+class CaloTowerTopology GCC11_FINAL : public CaloSubdetectorTopology {
 public:
   /// standard constructor
   CaloTowerTopology() {}

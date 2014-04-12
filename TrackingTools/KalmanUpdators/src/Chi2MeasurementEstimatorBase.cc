@@ -1,9 +1,9 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 bool Chi2MeasurementEstimatorBase::estimate( const TrajectoryStateOnSurface& ts, 
-					     const BoundPlane& plane) const
+					     const Plane& plane) const
 {
   if ( ts.hasError()) {
     return plane.bounds().inside( ts.localPosition(), 
@@ -15,7 +15,7 @@ bool Chi2MeasurementEstimatorBase::estimate( const TrajectoryStateOnSurface& ts,
 
 MeasurementEstimator::Local2DVector 
 Chi2MeasurementEstimatorBase::maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-							const BoundPlane& plane) const
+							const Plane& plane) const
 {
   if ( ts.hasError()) {
     LocalError le = ts.localError().positionError();

@@ -10,15 +10,13 @@
 // Fit constraint: mass conservation ( m_i - m_j - MassConstraint == 0 )
 //
 
-using namespace std;
-
 #include <iostream>
+#include <iomanip>
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
-#include "PhysicsTools/KinFitter/interface/TAbsFitConstraint.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TLorentzVector.h"
 #include "TClass.h"
 
-ClassImp(TFitConstraintM)
 
 //----------------
 // Constructor --
@@ -32,8 +30,8 @@ TFitConstraintM::TFitConstraintM()
 
 }
 
-TFitConstraintM::TFitConstraintM(vector<TAbsFitParticle*>* ParList1,
-				 vector<TAbsFitParticle*>* ParList2, Double_t Mass)
+TFitConstraintM::TFitConstraintM(std::vector<TAbsFitParticle*>* ParList1,
+				 std::vector<TAbsFitParticle*>* ParList2, Double_t Mass)
   : TAbsFitConstraint() 
   ,_ParList1(0)
   ,_ParList2(0)
@@ -53,14 +51,15 @@ TFitConstraintM::TFitConstraintM(vector<TAbsFitParticle*>* ParList1,
     _TheMassConstraint = Mass;
   }
   else if(Mass < 0) {
-    _TheMassConstraint = 0;
-    cout << "TFitConstraintM : Mass cannot be set to a negative value." << endl;
+    edm::LogWarning ("NegativeMassConstr")
+      << "Mass constraint in TFitConstraintM cannot be set to a negative value, will be set to 0.";
+    _TheMassConstraint = 0.;
   }
 }
 
 TFitConstraintM::TFitConstraintM(const TString &name, const TString &title,
-				 vector<TAbsFitParticle*>* ParList1,
-				 vector<TAbsFitParticle*>* ParList2, Double_t Mass)
+				 std::vector<TAbsFitParticle*>* ParList1,
+				 std::vector<TAbsFitParticle*>* ParList2, Double_t Mass)
   : TAbsFitConstraint(name, title) 
   ,_ParList1(0)
   ,_ParList2(0) 
@@ -80,8 +79,9 @@ TFitConstraintM::TFitConstraintM(const TString &name, const TString &title,
     _TheMassConstraint = Mass;
   }
   else if(Mass < 0) {
-    _TheMassConstraint = 0;
-    cout << "TFitConstraintM : Mass cannot be set to a negative value." << endl;
+    edm::LogWarning ("NegativeMassConstr")
+      << "Mass constraint in TFitConstraintM cannot be set to a negative value, will be set to 0.";
+    _TheMassConstraint = 0.;
   }
 }
 void TFitConstraintM::addParticle1( TAbsFitParticle* particle ) {
@@ -168,12 +168,26 @@ TMatrixD* TFitConstraintM::getDerivative( TAbsFitParticle* particle ) {
       const TLorentzVector* FourVec = (_ParList1[i])->getCurr4Vec();
       Pf += (*FourVec);
     }
+    if( Pf.M() == 0. ) {
+      edm::LogInfo ("KinFitter")
+	<< "Division by zero in "
+	<< IsA()->GetName() << " (named " << GetName() << ", titled " << GetTitle()
+	<< ") will lead to Inf in derivative matrix for particle "
+	<< particle->GetName() << ".";
+    }
     Factor = 1./ Pf.M();
   } else if (OnList( &_ParList2, particle) ) {
     UInt_t Npart = _ParList2.size();
     for (unsigned int i=0; i<Npart; i++) {
       const TLorentzVector* FourVec = (_ParList2[i])->getCurr4Vec();
       Pf += (*FourVec);
+    }
+    if( Pf.M() == 0. ) {
+      edm::LogInfo ("KinFitter")
+	<< "Division by zero in "
+	<< IsA()->GetName() << " (named " << GetName() << ", titled " << GetTitle()
+	<< ") will lead to Inf in derivative matrix for particle "
+	<< particle->GetName() << ".";
     }
     Factor = -1./Pf.M();
   } else {
@@ -208,7 +222,7 @@ Double_t TFitConstraintM::getCurrentValue() {
 }
  
 
-Bool_t TFitConstraintM::OnList(vector<TAbsFitParticle*>* List,
+Bool_t TFitConstraintM::OnList(std::vector<TAbsFitParticle*>* List,
 			       TAbsFitParticle* particle) {
   // Checks whether list contains given particle
 
@@ -221,7 +235,7 @@ Bool_t TFitConstraintM::OnList(vector<TAbsFitParticle*>* List,
   return ok;
 }
 
-Double_t TFitConstraintM::CalcMass(vector<TAbsFitParticle*>* List, Bool_t IniVal) {
+Double_t TFitConstraintM::CalcMass(std::vector<TAbsFitParticle*>* List, Bool_t IniVal) {
   // Calculates initial/current invariant mass of provided list of particles
 
   TLorentzVector P(0., 0., 0., 0.);
@@ -237,13 +251,27 @@ Double_t TFitConstraintM::CalcMass(vector<TAbsFitParticle*>* List, Bool_t IniVal
   return P.M();
 }
 
+TString TFitConstraintM::getInfoString() {
+  // Collect information to be used for printout
+
+  std::stringstream info;
+  info << std::scientific << std::setprecision(6);
+
+  info << "__________________________" << std::endl
+       << std::endl;
+  info <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
+
+  info << "initial value: " << getInitValue() << std::endl;
+  info << "current value: " << getCurrentValue() << std::endl;
+  info << "mass: " << _TheMassConstraint << std::endl;
+
+  return info.str();
+
+}
+
 void TFitConstraintM::print() {
+  // Print constraint contents
 
-  cout << "__________________________" << endl << endl;
-  cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
-
-  cout << "initial value: " << getInitValue() << endl;
-  cout << "current value: " << getCurrentValue() << endl;
-  cout << "mass: " << _TheMassConstraint << endl;
+  edm::LogVerbatim("KinFitter") << this->getInfoString();
 
 }

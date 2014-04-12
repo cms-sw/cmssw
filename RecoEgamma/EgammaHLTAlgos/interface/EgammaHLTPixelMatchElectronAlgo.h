@@ -13,103 +13,60 @@
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-
-
-//class TransientInitialStateEstimator;
-
-using namespace std;
-using namespace edm;
-using namespace reco;
+class MultiTrajectoryStateMode;
+class MultiTrajectoryStateTransform;
 
 class EgammaHLTPixelMatchElectronAlgo {
 
 public:
 
-  EgammaHLTPixelMatchElectronAlgo(
-				  //double maxEOverP, double maxHOverE, 
-				  //double maxDeltaEta, double maxDeltaPhi
- );
+  EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
 
   ~EgammaHLTPixelMatchElectronAlgo();
 
-  void setupES(const EventSetup& setup, const ParameterSet& conf);
-  //  void run(const Event&, TrackCandidateCollection&, ElectronCollection&);
-  void run(Event&, ElectronCollection&);
+  //disabling the ability to copy this module (lets hope nobody was actually copying it before as Bad Things (TM) would have happened)
+private:
+  EgammaHLTPixelMatchElectronAlgo(const EgammaHLTPixelMatchElectronAlgo& rhs){}
+  EgammaHLTPixelMatchElectronAlgo& operator=(const EgammaHLTPixelMatchElectronAlgo& rhs){return *this;}
+
+public:
+  void setupES(const edm::EventSetup& setup);
+  void run(edm::Event&, reco::ElectronCollection&);
 
  private:
 
   // create electrons from tracks
-  void process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss, ElectronCollection & outEle);
-  
-  // temporary to get seed corresponding to track
-  bool equal(edm::Ref<TrajectorySeedCollection> ts, const Track& t);
-  bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
+  //void process(edm::Handle<reco::TrackCollection> tracksH, reco::ElectronCollection & outEle, Global3DPoint & bs);  
+  void process(edm::Handle<reco::TrackCollection> tracksH, edm::Handle<reco::GsfTrackCollection> gsfTracksH, reco::ElectronCollection & outEle, Global3DPoint & bs);  
+  bool isInnerMostWithLostHits(const reco::GsfTrackRef&, const reco::GsfTrackRef&, bool&);
 
-  // input configuration
-  std::string trackBarrelLabel_;
-  std::string trackEndcapLabel_;
-  std::string trackBarrelInstanceName_;
-  std::string trackEndcapInstanceName_;
-  std::string assBarrelLabel_;
-  std::string assBarrelInstanceName_;
-  std::string assEndcapLabel_;
-  std::string assEndcapInstanceName_;
+  edm::EDGetTokenT<reco::TrackCollection> trackProducer_; 
+  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackProducer_; 
+  bool useGsfTracks_;
+  edm::EDGetTokenT<reco::BeamSpot> bsProducer_; 
 
-  const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder;
-  //  CkfTrajectoryBuilder*  theCkfTrajectoryBuilder;
-  TrajectoryCleaner*               theTrajectoryCleaner;
-  TransientInitialStateEstimator*  theInitialStateEstimator;
-  
-  ESHandle<MagneticField>                theMagField;
-  ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+  MultiTrajectoryStateMode* mtsMode_; //its not clear to me why this is a pointer but its not the only one so changing things wouldnt make this class safer
+  MultiTrajectoryStateTransform* mtsTransform_;
 
-  const MeasurementTracker*     theMeasurementTracker;
-  const NavigationSchool*       theNavigationSchool;
-
+  edm::ESHandle<MagneticField> magField_;
+  edm::ESHandle<TrackerGeometry> trackerGeom_;
+  int unsigned long long cacheIDTDGeom_;
+  unsigned long long cacheIDMagField_;
 };
+
 
 #endif // EgammaHLTPixelMatchElectronAlgo_H
 

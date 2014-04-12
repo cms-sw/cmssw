@@ -3,8 +3,12 @@
 
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h" 
 
-class LocalError;
+#include "DataFormats/GeometrySurface/interface/BoundSpan.h"
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 
 /** \class Bounds 
  *
@@ -39,7 +43,12 @@ public:
   virtual bool inside( const Local2DPoint& p) const {
     return inside( Local3DPoint(p.x(), p.y(), 0) );
   }
-  
+
+  /// Determine if a point is inside the bounds, taking a tollerance into account
+  virtual bool inside(const Local2DPoint& p, float tollerance) const {
+    return inside(p,LocalError(tollerance*tollerance,0.f,tollerance*tollerance));
+  }
+
   // For propagation with uncertainties - one has to know by how
   // much one missed a surface
   // virtual Local2DVector<float> howFar( const Local2DPoint&) = 0;
@@ -57,6 +66,16 @@ public:
   }
 
   virtual Bounds* clone() const = 0;
+  
+  std::pair<float,float> const & phiSpan() const { return m_span.phiSpan(); }
+  std::pair<float,float> const & zSpan()   const { return m_span.zSpan(); }
+  std::pair<float,float> const & rSpan()   const { return m_span.rSpan(); }
+
+  void computeSpan(Surface const & plane) { m_span.compute(plane);}
+
+private:  
+  
+  BoundSpan m_span;
 
 };
 

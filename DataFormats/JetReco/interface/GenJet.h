@@ -12,7 +12,6 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.12 2007/08/01 23:03:26 fedor Exp $
  ************************************************************/
 
 
@@ -20,7 +19,7 @@
 
 
 namespace reco {
-  class GenParticleCandidate;
+  class GenParticle;
 
 class GenJet : public Jet {
 public:
@@ -47,6 +46,7 @@ public:
   /** Constructor from values*/
   GenJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
 	 const Jet::Constituents& fConstituents);
+  GenJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific);
 
   /** backward compatible, vertex=(0,0,0) */
   GenJet(const LorentzVector& fP4, const Specific& fSpecific, 
@@ -62,12 +62,15 @@ public:
   /** Returns other energy (undecayed Sigmas etc.)*/
   float auxiliaryEnergy() const {return m_specific.m_AuxiliaryEnergy;};
 
+  /// Detector Eta (use reference Z and jet kinematics only)
+  float detectorEta (float fZVertex) const;
+
   /// convert generic constituent to specific type
-  static const GenParticleCandidate* genParticle (const reco::Candidate* fConstituent);
+  static const GenParticle* genParticle (const reco::Candidate* fConstituent);
   /// get specific constituent
-  const GenParticleCandidate* getConstituent (unsigned fIndex) const;
+  virtual const GenParticle* getGenConstituent (unsigned fIndex) const;
   /// get all constituents
-  std::vector <const GenParticleCandidate*> getConstituents () const;
+  virtual std::vector <const GenParticle*> getGenConstituents () const;
   
   // block accessors
 

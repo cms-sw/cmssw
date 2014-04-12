@@ -13,8 +13,14 @@ L1RCTCrate::L1RCTCrate(int crtNo, const L1RCTLookupTables* rctLookupTables) :
     electronCards.push_back(eic);
   }
 }
-void L1RCTCrate::input(std::vector<std::vector<unsigned short> > RCInput,
-		       std::vector<unsigned short> HFInput)
+
+L1RCTCrate::~L1RCTCrate()
+{
+
+}
+
+void L1RCTCrate::input(const std::vector<std::vector<unsigned short> >& RCInput,
+		       const std::vector<unsigned short>& HFInput)
 {
   //std::cout << "Crate.input() entered" << std::endl;
   for(int i =0; i<7; i++){
@@ -36,7 +42,7 @@ void L1RCTCrate::processReceiverCards(){
 void L1RCTCrate::fillElectronIsolationCards(){
   for(int i = 0; i<7; i++){
     for(int j = 0; j<2; j++){
-      electronCards.at(i).setRegion(j,receiverCards.at(i).getRegion(j));
+      electronCards.at(i).setRegion(j,*receiverCards.at(i).getRegion(j));
     }
   }
 }

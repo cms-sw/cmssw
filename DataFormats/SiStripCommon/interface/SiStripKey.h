@@ -1,10 +1,11 @@
-// Last commit: $Id: SiStripKey.h,v 1.4 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripKey_H
 #define DataFormats_SiStripCommon_SiStripKey_H
 
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
+#include <boost/cstdint.hpp>
 #include <ostream>
+#include <sstream>
 #include <string>
 
 class SiStripKey;
@@ -79,6 +80,14 @@ class SiStripKey {
       sistrip::Granularity is "undefined", returns true.  */
   virtual bool isInvalid( const sistrip::Granularity& ) const;
 
+  // ---------- Print methods ----------
+
+  /** Print member data of the key  */
+  virtual void print( std::stringstream& ss ) const;
+  
+  /** A terse summary of the key  */
+  virtual void terse( std::stringstream& ss ) const {;}
+  
  protected: 
 
   // ---------- Protected methods ----------

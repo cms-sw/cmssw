@@ -1,4 +1,3 @@
-// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.4 2007/07/02 11:38:42 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
 #define DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
@@ -19,10 +18,10 @@ namespace sistrip {
 
   // -------------------- FED ids --------------------
   
-  static const uint16_t FED_ID_MIN     = static_cast<uint16_t>( FEDNumbering::getSiStripFEDIds().first );
-  static const uint16_t FED_ID_MAX     = static_cast<uint16_t>( FEDNumbering::getSiStripFEDIds().second );
-  static const uint16_t CMS_FED_ID_MAX = static_cast<uint16_t>( FEDNumbering::lastFEDId() );
-  static const uint16_t NUMBER_OF_FEDS = static_cast<uint16_t>( FED_ID_MAX - FED_ID_MIN );
+  static const uint16_t FED_ID_MIN     = static_cast<uint16_t>( FEDNumbering::MINSiStripFEDID);
+  static const uint16_t FED_ID_MAX     = static_cast<uint16_t>( FEDNumbering::MAXSiStripFEDID);
+  static const uint16_t CMS_FED_ID_MAX = static_cast<uint16_t>( FEDNumbering::MAXFEDID);
+  static const uint16_t NUMBER_OF_FEDS = static_cast<uint16_t>( FED_ID_MAX - FED_ID_MIN + 1 );
   
   // -------------------- FEDs to channels --------------------
 
@@ -56,8 +55,8 @@ namespace sistrip {
 
   // -------------------- Control system --------------------
 
-  static const uint16_t FEC_CRATE_OFFSET =  1; //@@ temporary
-  static const uint16_t FEC_RING_OFFSET  =  1; //@@ temporary
+  //static const uint16_t FEC_CRATE_OFFSET =  1; //@@ temporary
+  //static const uint16_t FEC_RING_OFFSET  =  1; //@@ temporary
   
   static const uint16_t FEC_RING_MIN    =   1;
   static const uint16_t FEC_RING_MAX    =   8;
@@ -93,21 +92,21 @@ namespace sistrip {
 
   // -------------------- String constants -------------------- 
 
-  static const std::string unknownApvReadoutMode_   = "UnknownApvReadoutMode";
-  static const std::string undefinedApvReadoutMode_ = "UndefinedApvReadoutMode";
+  static const char unknownApvReadoutMode_[]   = "UnknownApvReadoutMode";
+  static const char undefinedApvReadoutMode_[] = "UndefinedApvReadoutMode";
 
-  static const std::string apvPeakMode_ = "ApvPeakMode";
-  static const std::string apvDeconMode_ = "ApvDeconMode";
-  static const std::string apvMultiMode_ = "ApvMultiMode";
+  static const char apvPeakMode_[] = "ApvPeakMode";
+  static const char apvDeconMode_[] = "ApvDeconMode";
+  static const char apvMultiMode_[] = "ApvMultiMode";
 
-  static const std::string unknownFedReadoutMode_   = "UnknownFedReadoutMode";
-  static const std::string undefinedFedReadoutMode_ = "UndefinedFedReadoutMode";
+  static const char unknownFedReadoutMode_[]   = "UnknownFedReadoutMode";
+  static const char undefinedFedReadoutMode_[] = "UndefinedFedReadoutMode";
 
-  static const std::string fedScopeMode_     = "FedScopeMode";
-  static const std::string fedVirginRaw_     = "FedVirginRaw";
-  static const std::string fedProcRaw_       = "FedProcessedRaw";
-  static const std::string fedZeroSuppr_     = "FedZeroSuppressed";
-  static const std::string fedZeroSupprLite_ = "FedZeroSupprressedLite";
+  static const char fedScopeMode_[]     = "FedScopeMode";
+  static const char fedVirginRaw_[]     = "FedVirginRaw";
+  static const char fedProcRaw_[]       = "FedProcessedRaw";
+  static const char fedZeroSuppr_[]     = "FedZeroSuppressed";
+  static const char fedZeroSupprLite_[] = "FedZeroSupprressedLite";
   
   // -------------------- Enumerators --------------------
   

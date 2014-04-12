@@ -1,8 +1,6 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2007/05/28 17:08:56 $
- * $Revision: 1.15 $
  * \author F. Cossutti
  *
 */
@@ -15,22 +13,16 @@ using namespace edm;
 using namespace std;
 
 EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
-  EEdigiCollection_(ps.getParameter<edm::InputTag>("EEdigiCollection"))
+  EEdigiCollectionToken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection")))
   {
  
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
- 
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
-                                                                                                                                          
+                                                                                                                                           
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -80,7 +72,7 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
  
   
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigiTask");
+    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
   
     sprintf (histo, "EcalDigiTask Endcap occupancy z+" ) ;
     meEEDigiOccupancyzp_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -138,7 +130,7 @@ EcalEndcapDigisValidation::~EcalEndcapDigisValidation(){
  
 }
 
-void EcalEndcapDigisValidation::beginJob(const EventSetup& c){
+void EcalEndcapDigisValidation::beginRun(Run const &, EventSetup const & c){
 
   checkCalibrations(c);
 
@@ -148,13 +140,16 @@ void EcalEndcapDigisValidation::endJob(){
 
 }
 
-void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
+void EcalEndcapDigisValidation::analyze(Event const & e, EventSetup const & c){
 
   //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
   Handle<EEDigiCollection> EcalDigiEE;
 
-  e.getByLabel( EEdigiCollection_ , EcalDigiEE );
+  e.getByToken( EEdigiCollectionToken_ , EcalDigiEE );
+
+  // Return if no Endcap data available
+  if( !EcalDigiEE.isValid() ) return;
 
   // ENDCAP
 
@@ -275,7 +270,7 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
   
 }
 
-void  EcalEndcapDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
+void  EcalEndcapDigisValidation::checkCalibrations(edm::EventSetup const & eventSetup) 
 {
 
   // ADC -> GeV Scale

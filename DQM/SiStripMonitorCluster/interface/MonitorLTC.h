@@ -16,25 +16,32 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+class DQMStore;
+
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
+
 
 class MonitorLTC : public edm::EDAnalyzer {
    public:
       explicit MonitorLTC(const edm::ParameterSet&);
       ~MonitorLTC(){};
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
    private:
-       DaqMonitorBEInterface* dbe_;
+       DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        // trigger decision from LTC digis
        MonitorElement * LTCTriggerDecision_all;
        //
        std::string HLTDirectory;
+       //       edm::InputTag ltcDigiCollectionTag_;
+       edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionTagToken_;
 };
 
 #endif

@@ -30,7 +30,7 @@ DCULVRBTempsDat::~DCULVRBTempsDat()
 
 
 void DCULVRBTempsDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -41,23 +41,23 @@ void DCULVRBTempsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRBTempsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRBTempsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void DCULVRBTempsDat::writeDB(const EcalLogicID* ecid, const DCULVRBTempsDat* item, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("DCULVRBTempsDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("DCULVRBTempsDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("DCULVRBTempsDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("DCULVRBTempsDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -69,14 +69,14 @@ void DCULVRBTempsDat::writeDB(const EcalLogicID* ecid, const DCULVRBTempsDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRBTempsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRBTempsDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void DCULVRBTempsDat::fetchData(std::map< EcalLogicID, DCULVRBTempsDat >* fillMap, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -84,7 +84,7 @@ void DCULVRBTempsDat::fetchData(std::map< EcalLogicID, DCULVRBTempsDat >* fillMa
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("DCULVRBTempsDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("DCULVRBTempsDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -116,18 +116,18 @@ void DCULVRBTempsDat::fetchData(std::map< EcalLogicID, DCULVRBTempsDat >* fillMa
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRBTempsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRBTempsDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void DCULVRBTempsDat::writeArrayDB(const std::map< EcalLogicID, DCULVRBTempsDat >* data, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("DCULVRBTempsDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("DCULVRBTempsDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -151,7 +151,7 @@ void DCULVRBTempsDat::writeArrayDB(const std::map< EcalLogicID, DCULVRBTempsDat 
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("DCULVRBTempsDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("DCULVRBTempsDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -204,6 +204,6 @@ void DCULVRBTempsDat::writeArrayDB(const std::map< EcalLogicID, DCULVRBTempsDat 
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRBTempsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRBTempsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

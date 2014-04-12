@@ -4,9 +4,11 @@
 /** \class SurveyParameters
  *
  *  Alignment parameters for survey.
+ *  Inheriting from AlignmentParameters is fake, just to attach it to an Alignable,
+ *  re-using the AlignmentParameters data member. (Should look for another solution...)
  *
- *  $Date: 2007/03/14 18:05:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/09 12:42:03 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -24,6 +26,10 @@ class SurveyParameters:
 		   const AlgebraicVector& par,
 		   const AlgebraicSymMatrix& cov
 		   );
+
+  /// apply not implemented
+  virtual void apply();
+  virtual int type() const;
 
   /// Cloning not implemented.
   virtual AlignmentParameters* clone(

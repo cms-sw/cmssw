@@ -1,9 +1,7 @@
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-
-#include <iostream>
-
+#include <ostream>
 
 EcalElectronicsId::EcalElectronicsId() {
   EcalElectronicsId_=0xFFFFFFFFu;

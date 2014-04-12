@@ -1,21 +1,27 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
-const GeomDetUnit * TransientTrackingRecHit::detUnit() const
-{
-  return dynamic_cast<const GeomDetUnit*>(det());
+#ifdef COUNT_HITS
+#include<cstdio>
+namespace {
+
+  struct Stat {
+    ~Stat() {
+      printf("TTRH: %d/%d/%d/%d\n",tot[0],tot[1],tot[2],tot[3]);
+    }
+    int tot[4]={0};
+  };
+  Stat stat;
 }
 
-
-GlobalPoint TransientTrackingRecHit::globalPosition() const {
-  return  (surface()->toGlobal(localPosition()));
+void countTTRH(TrackingRecHit::Type type) {
+  ++stat.tot[type];
 }
+#endif
 
-GlobalError TransientTrackingRecHit::globalPositionError() const {
-  return ErrorFrameTransformer().transform( localPositionError(), *surface() );
-}   
+
+
+
 
 TransientTrackingRecHit::ConstRecHitContainer TransientTrackingRecHit::transientHits() const 
 {
@@ -24,6 +30,6 @@ TransientTrackingRecHit::ConstRecHitContainer TransientTrackingRecHit::transient
 }
 
 TransientTrackingRecHit::RecHitPointer 
-TransientTrackingRecHit::clone( const TrajectoryStateOnSurface& ts) const {
+TransientTrackingRecHit::clone( const TrajectoryStateOnSurface&) const {
   return RecHitPointer(const_cast<TransientTrackingRecHit*>(this));
 }

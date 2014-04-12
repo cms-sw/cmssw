@@ -8,8 +8,6 @@
  *  values used in the sorting using an Extractor, so that the computation
  *  is performed only once per element.
  *
- *  $Date: 2005/09/21 10:18:42 $
- *  $Revision: 1.1 $
  */
 
 #include <utility>

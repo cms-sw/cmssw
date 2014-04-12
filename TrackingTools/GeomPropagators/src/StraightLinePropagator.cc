@@ -1,6 +1,6 @@
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
@@ -50,15 +50,6 @@ StraightLinePropagator::propagateWithPath(const FreeTrajectoryState& fts,
 TrajectoryStateOnSurface 
 StraightLinePropagator::propagatedState(const FTS& fts,
 					const Surface& surface,
-					const AlgebraicMatrix& jacobian,
-					const LocalPoint& x, 
-					const LocalVector& p) const {
-    return propagatedState(fts,surface,asSMatrix<5,5>(jacobian),x,p);
-}
-
-TrajectoryStateOnSurface 
-StraightLinePropagator::propagatedState(const FTS& fts,
-					const Surface& surface,
 					const AlgebraicMatrix55& jacobian,
 					const LocalPoint& x, 
 					const LocalVector& p) const {
@@ -74,15 +65,6 @@ StraightLinePropagator::propagatedState(const FTS& fts,
     // return state without errors
     return TSOS(LocalTrajectoryParameters(x, p, fts.charge()), surface, theField);
   }
-}
-
-TrajectoryStateOnSurface 
-StraightLinePropagator::propagatedState(const FTS& fts,
-					const Surface& surface,
-					const AlgebraicMatrix& jacobian,
-					const GlobalPoint& x, 
-					const GlobalVector& p) const {
-    return propagatedState(fts,surface,asSMatrix<5,5>(jacobian),x,p);
 }
 
 TrajectoryStateOnSurface 
@@ -106,10 +88,6 @@ StraightLinePropagator::propagatedState(const FTS& fts,
     // return state without errors
     return TSOS(GlobalTrajectoryParameters(x, p, fts.charge(), theField), surface);
   }
-}
-
-AlgebraicMatrix StraightLinePropagator::jacobian_old(double& s) const {
-    return asHepMatrix(jacobian(s));
 }
 
 AlgebraicMatrix55 StraightLinePropagator::jacobian(double& s) const {
@@ -164,6 +142,7 @@ bool StraightLinePropagator::propagateParametersOnPlane(const FTS& fts,
   
   //double dir = (propagationDirection() == alongMomentum) ? 1. : -1.;
   //if(s*dir < 0.) return false;
+  if ((p.x() != 0 || p.y() != 0) && p.z() == 0 && s!= 0) return false;
 
   x = LocalPoint( x.x() + (p.x()/p.z())*s,
                   x.y() + (p.y()/p.z())*s,

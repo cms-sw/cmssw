@@ -8,7 +8,6 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:16:00 CEST 2006
-// $Id: EgammaHLTEcalIsolation.cc,v 1.1 2006/06/20 11:28:14 monicava Exp $
 //
 
 // system include files
@@ -21,8 +20,8 @@
 
 
 float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate, 
-					const std::vector<const reco::SuperCluster*> sclusters,
-					const std::vector<const reco::BasicCluster*> bclusters){
+					const std::vector<const reco::SuperCluster*>& sclusters,
+					const std::vector<const reco::BasicCluster*>& bclusters){
 
   float ecalIsol=0.;
   
@@ -46,7 +45,7 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
     float SCphi = supercluster->phi();
     float SCeta = supercluster->eta();
    
-    if(supercluster->seed()->algo() == 0){
+    if(supercluster->seed()->algo() == algoType_){
       float deltaphi;
       if(candSCphi<0) candSCphi+=TWOPI;
       if(SCphi<0) SCphi+=TWOPI;
@@ -70,7 +69,7 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
   for(std::vector<const reco::BasicCluster*>::const_iterator cItr = bclusters.begin(); cItr != bclusters.end(); ++cItr){
  
     cluster = *cItr;
-    float ebc_bcchi2 = cluster->chi2();
+//    float ebc_bcchi2 = cluster->chi2(); //chi2 for SC was useless and it is removed in 31x
     int   ebc_bcalgo = cluster->algo();
     float ebc_bce    = cluster->energy();
     float ebc_bceta  = cluster->eta();
@@ -79,13 +78,13 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
     float newDelta;
 
 
-    if (ebc_bcet > etMin && ebc_bcalgo == 0) {
-      if (ebc_bcchi2 < 30.) {
+    if (ebc_bcet > etMin && ebc_bcalgo == algoType_ ) {
+      //  if (ebc_bcchi2 < 30.) {
 	
 	if(MATCHEDSC){
 	  bool inSuperCluster = false;
 
-	  reco::basicCluster_iterator theEclust = matchedsupercluster->clustersBegin();
+	  reco::CaloCluster_iterator theEclust = matchedsupercluster->clustersBegin();
 	  // loop over the basic clusters of the matched supercluster
 	  for(;theEclust != matchedsupercluster->clustersEnd();
 	      theEclust++) {
@@ -105,7 +104,7 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
 	    }
 	  }
 	}
-      } // matches ebc_bcchi2
+	//  } // matches ebc_bcchi2
     } // matches ebc_bcet && ebc_bcalgo
 
   }

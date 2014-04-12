@@ -722,21 +722,21 @@
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
           </xsd:sequence>
-          <xsd:sequence>
+          <!--xsd:sequence>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
-          </xsd:sequence>
-          <xsd:sequence>
+          </xsd:sequence-->
+          <!--xsd:sequence>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="1"/>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="1"/>
-          </xsd:sequence>
-          <xsd:sequence>
+          </xsd:sequence-->
+          <!--xsd:sequence>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
-          </xsd:sequence>
+          </xsd:sequence-->
          </xsd:choice>
          <xsd:attributeGroup ref="BooleanSolidAttributes"/>
       </xsd:extension>
@@ -859,7 +859,42 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
-  
+  <xsd:complexType name="SphereType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="SphereAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="OrbType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="OrbAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="EllipticalTubeType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="EllipticalTubeAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="EllipsoidType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="EllipsoidAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ParallelepipedType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="ParallelepipedAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+ 
   <!-- Elements -->
   
   <xsd:element name="Solid" type="SolidType" abstract="true"/>
@@ -881,6 +916,11 @@
   <xsd:element name="ZSection" type="ZSectionType"/>
   <xsd:element name="RZPoint" type="RZPointType"/>
   <xsd:element name="ReflectionSolid" type="ReflectionSolidType" substitutionGroup="Solid"/>
+  <xsd:element name="Sphere" type="SphereType" substitutionGroup="Solid"/>
+  <xsd:element name="Orb" type="OrbType" substitutionGroup="Solid"/>
+  <xsd:element name="EllipticalTube" type="EllipticalTubeType" substitutionGroup="Solid"/>
+  <xsd:element name="Ellipsoid" type="EllipsoidType" substitutionGroup="Solid"/>
+  <xsd:element name="Parallelepiped" type="ParallelepipedType" substitutionGroup="Solid"/>
 
   <!-- Groups (non-Attribute) -->
 
@@ -920,7 +960,7 @@
     <xsd:attribute name="deltaPhi" use="required" type="angleT"/>
     <xsd:attribute name="cutAtStart" use="required" type="lengthT"/>
     <xsd:attribute name="cutAtDelta" use="required" type="lengthT"/>
-    <!--xsd:attribute name="cutInside" use="required" type="xsd:boolean"/-->
+    <xsd:attribute name="cutInside" use="required" type="xsd:boolean"/>
     <xsd:attribute name="lengthUnit" use="optional" type="lengthUnitT"/>
     <xsd:attribute name="angleUnit" use="optional" type="angleUnitT"/>
   </xsd:attributeGroup>
@@ -1012,6 +1052,37 @@
     <xsd:attribute name="rotation" use="optional" type="xsd:string"/>
  -->
   </xsd:attributeGroup>
+  <xsd:attributeGroup name="SphereAttributes">
+    <xsd:attribute name="innerRadius" use="required" type="lengthT"/>
+    <xsd:attribute name="outerRadius" use="required" type="lengthT"/>
+    <xsd:attribute name="startPhi" use="required" type="angleT"/>
+    <xsd:attribute name="deltaPhi" use="required" type="angleT"/>
+    <xsd:attribute name="startTheta" use="required" type="angleT"/>
+    <xsd:attribute name="deltaTheta" use="required" type="angleT"/>
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="OrbAttributes">
+    <xsd:attribute name="radius" use="required" type="lengthT"/>
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="EllipticalTubeAttributes">
+    <xsd:attribute name="xSemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="ySemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="zHeight" use="required" type="lengthT"/>
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="EllipsoidAttributes">
+    <xsd:attribute name="xSemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="ySemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="zSemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="zBottomCut" use="optional" type="lengthT"/>
+    <xsd:attribute name="zTopCut" use="optional" type="lengthT"/>
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="ParallelepipedAttributes">
+    <xsd:attribute name="xHalf" use="required" type="lengthT"/>
+    <xsd:attribute name="yHalf" use="required" type="lengthT"/>
+    <xsd:attribute name="zHalf" use="required" type="angleT"/>
+    <xsd:attribute name="alpha" use="required" type="angleT"/>
+    <xsd:attribute name="theta" use="required" type="angleT"/>
+    <xsd:attribute name="phi" use="required" type="angleT"/>
+  </xsd:attributeGroup>
   <xsd:attributeGroup name="SolidAttributes">
     <xsd:attribute name="name" use="required" type="xsd:string"/>
   </xsd:attributeGroup>
@@ -1098,6 +1169,7 @@
    </xsd:attribute>
    <xsd:attribute name="density" type="densityT" use="required"/>
    <xsd:attribute name="densityUnit" type="densityUnitT" use="optional"/>
+   <xsd:attribute name="pork" use="optional"/>
 </xsd:attributeGroup>
 
 <xsd:attributeGroup name="MaterialFractionAttributes">
@@ -1258,11 +1330,11 @@
     </xsd:annotation>
 
     <xsd:choice>
-      <xsd:sequence>
+      <!--xsd:sequence>
           <xsd:group ref="PCOptions"/>
           <xsd:group ref="RotationOptions" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="Translation" minOccurs="0" maxOccurs="1"/>
-      </xsd:sequence>
+      </xsd:sequence-->
 
       <xsd:sequence>
           <xsd:group ref="PCOptions"/>
@@ -1370,7 +1442,7 @@
       <xsd:element ref="Map"/>
     </xsd:choice>
   </xsd:sequence>
-  <xsd:sequence>
+  <!--xsd:sequence>
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
       <xsd:element ref="Parameter"/>
       <xsd:element ref="String"/>
@@ -1379,7 +1451,7 @@
       <xsd:element ref="Map"/>
     </xsd:choice>
     <xsd:element ref="PartSelector" minOccurs="1" maxOccurs="unbounded"/>
-  </xsd:sequence>
+  </xsd:sequence-->
   </xsd:choice>
   <xsd:attributeGroup ref="SpecParAttributes"/>
 </xsd:complexType>

@@ -10,17 +10,20 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 #include <string>
 #include <map>
 #include <vector>
 //#include <pair>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 
 class DTTriggerCheck: public edm::EDAnalyzer{
@@ -37,7 +40,7 @@ public:
 void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
 // BeginJob
-void beginJob(const edm::EventSetup& setup);
+void beginJob();
 
 // EndJob
 void endJob();
@@ -45,14 +48,18 @@ void endJob();
 protected:
 
 private:
-  DaqMonitorBEInterface* theDbe;
+  DQMStore* theDbe;
 
   bool debug;
 
-  edm::ParameterSet parameters;
-
   MonitorElement* histo;
 
+  bool isLocalRun;
+  edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
 };
 #endif
 
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

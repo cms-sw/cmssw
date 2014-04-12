@@ -3,24 +3,20 @@
 
 /**
  * \class L1GTEvmDigiToRaw
- * 
- * 
- * Description: generate raw data from digis.  
+ *
+ *
+ * Description: generate raw data from digis.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna 
- * 
- * $Date$
- * $Revision$
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *
  *
  */
 
 // system include files
 #include <memory>
-
-#include <boost/cstdint.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,7 +26,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/typedefs.h"
 
 // forward declarations
 class FEDRawDataCollection;
@@ -55,7 +52,7 @@ public:
 private:
 
     /// beginning of job stuff
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
 
     /// loop over events
     virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -63,13 +60,13 @@ private:
     /// block packers -------------
 
     /// pack header
-    void packHeader(unsigned char*);
+    void packHeader(unsigned char*, edm::Event&);
 
     /// pack the GTFE block
     /// gives the number of bunch crosses in the event, as well as the active boards
     /// records for inactive boards are not written in the GT EVM record
     void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeExtWord&,
-                  boost::uint16_t activeBoardsGtValue);
+                  cms_uint16_t activeBoardsGtValue);
 
     /// pack the TCS block
     void packTCS(const edm::EventSetup& evSetup, unsigned char* ptrGt,
@@ -79,7 +76,7 @@ private:
     void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
 
     /// pack trailer word
-    void packTrailer(unsigned char*, int);
+    void packTrailer(unsigned char*, unsigned char*, int);
 
     /// end of job stuff
     virtual void endJob();
@@ -88,13 +85,13 @@ private:
 
     /// FED Id for GT EVM record
     /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_evmGtFedId;  
+    int m_evmGtFedId;
 
     /// input tag for GT EVM record
     edm::InputTag m_evmGtInputTag;
 
     /// mask for active boards
-    boost::uint16_t m_activeBoardsMaskGt;
+    cms_uint16_t m_activeBoardsMaskGt;
 
     /// total Bx's in the event, obtained from GTFE block
     int m_totalBxInEvent;
@@ -107,6 +104,14 @@ private:
     /// assume symmetrical number of BX around L1Accept
     int m_maxBxInEvent;
 
+    /// length of BST record (in bytes)
+    int m_bstLengthBytes;
+
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
 
 };
 

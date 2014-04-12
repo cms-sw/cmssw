@@ -29,7 +29,7 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   // either FullEvent or selected path
   static std::string const fullEvent("FullEvent");
   if (std::find(m_paths.begin(),m_paths.end(),fullEvent) != m_paths.end())
-    activity.watchPostSource(this,&ProfilerService::preSourceI);
+    activity.watchPostSourceEvent(this,&ProfilerService::preSourceI);
   else {
     activity.watchPreProcessEvent(this,&ProfilerService::beginEventI);
     activity.watchPostProcessEvent(this,&ProfilerService::endEventI);
@@ -42,6 +42,8 @@ ProfilerService::~ProfilerService(){
   dumpStat();
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 bool ProfilerService::startInstrumentation(){
   // FIXME here or in client?
   if (!doEvent()) return false;
@@ -92,7 +94,7 @@ bool ProfilerService::resumeInstrumentation() {
 void ProfilerService::dumpStat() const {
      CALLGRIND_DUMP_STATS;
 }
-
+#pragma GCC diagnostic pop
 
 void ProfilerService::newEvent() {
   ++m_evtCount;

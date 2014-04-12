@@ -50,9 +50,6 @@
 // Parameter Set:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// TimeMe class:
-//#include "Utilities/Timing/interface/TimingReport.h"
-
 #include <vector>
 
 
@@ -66,7 +63,8 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   void clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
 				  const PixelGeomDetUnit * pixDet,
 				  const std::vector<short>& badChannels,
-				  edm::DetSet<SiPixelCluster>& output) ;
+				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output
+);
 
   
  private:
@@ -87,33 +85,27 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   int   thePixelThreshold;  // Pixel threshold in electrons
   int   theSeedThreshold;   // Seed threshold in electrons 
   float theClusterThreshold;  // Cluster threshold in electrons
-
+  int   theConversionFactor;  // adc to electron conversion factor
+  int   theOffset;            // adc to electron conversion offset
 
   //! Geometry-related information
   int  theNumOfRows;
   int  theNumOfCols;
   uint32_t detid_;
-
+  bool dead_flag;
   bool doMissCalibrate; // Use calibration or not
-
+  bool doSplitClusters;
   //! Private helper methods:
   bool setup(const PixelGeomDetUnit * pixDet);
   void copy_to_buffer( DigiIterator begin, DigiIterator end );   
   void clear_buffer( DigiIterator begin, DigiIterator end );   
-  SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix );
+  SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix, edmNew::DetSetVector<SiPixelCluster>::FastFiller& output
+);
   // Calibrate the ADC charge to electrons 
   int calibrate(int adc, int col, int row);
+  int   theStackADC_;          // The maximum ADC count for the stack layers
+  int   theFirstStack_;        // The index of the first stack layer
 
-/*   void initTiming(); */
-/*   TimingReport::Item * theSetupTimer; */
-/*   TimingReport::Item * theClustersTimer; */
-/*   TimingReport::Item * theClusterizeTimer; */
-/*   TimingReport::Item * theRecHitTimer; */
-/*   TimingReport::Item * theCopyTimer; */
-/*   TimingReport::Item * theClearTimer; */
-/*   TimingReport::Item * theMakeClustTimer; */
-/*   TimingReport::Item * theCacheGetTimer; */
-/*   TimingReport::Item * theCachePutTimer; */
 
 };
 

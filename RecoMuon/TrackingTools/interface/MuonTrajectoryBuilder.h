@@ -4,8 +4,6 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2007/01/17 16:18:05 $
- *  $Revision: 1.18 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -42,6 +40,5 @@ class MuonTrajectoryBuilder {
     virtual void setEvent(const edm::Event& event) = 0;
   
  private:
-
 };
 #endif

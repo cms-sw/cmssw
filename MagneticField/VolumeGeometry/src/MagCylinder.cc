@@ -5,18 +5,12 @@
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 
-#ifndef NO_DETAILED_TIMING
-// TOFIX
-// #include "Utilities/Notification/interface/TimingReport.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
-#endif
-
 MagCylinder::MagCylinder( const PositionType& pos,
 			  const RotationType& rot, 
 			  DDSolidShape shape,
 			  const std::vector<VolumeSide>& faces,
 			  const MagneticFieldProvider<float> * mfp)
-  : MagVolume(pos,rot,shape,mfp), theFaces(faces), theInnerR(0)
+  : MagVolume(pos,rot,shape,mfp), theFaces(faces), theZmin(0.), theZmax(0.), theInnerR(0.), theOuterR(0.)
 {
   using SurfaceOrientation::GlobalFace;
 
@@ -44,32 +38,15 @@ MagCylinder::MagCylinder( const PositionType& pos,
     throw MagGeometryError("MagCylinder constructed with wrong number/type of faces");
   }
   
-#ifndef NO_DETAILED_TIMING
-// TOFIX
-//   static SimpleConfigurable<bool> timerOn(false,"MagCylinder:timing");
-//   bool timerOn = false;
-//   (*TimingReport::current()).switchOn("MagCylinder::inside",timerOn);
-#endif
 }
 
 bool MagCylinder::inside( const GlobalPoint& gp, double tolerance) const 
 {
-#ifndef NO_DETAILED_TIMING
-// TOFIX
-//   static TimingReport::Item & timer = (*TimingReport::current())["MagCylinder::inside(global)"];
-//   TimeMe t(timer,false);
-#endif
   return inside( toLocal(gp), tolerance);
 }
 
 bool MagCylinder::inside( const LocalPoint& lp, double tolerance) const 
 {
-#ifndef NO_DETAILED_TIMING
-// TOFIX
-//   static TimingReport::Item & timer = (*TimingReport::current())["MagCylinder::inside(local)"];
-//   TimeMe t(timer,false);
-#endif
-
   Scalar r( lp.perp());
   return 
     lp.z() > theZmin - tolerance &&

@@ -1,6 +1,6 @@
-How to make 'scramv1 b runtests' run your shell script...
+How to make 'scram b runtests' run your shell script...
 
-Please note this is a hack, necessary only until 'scramv1 b runtests'
+Please note this is a hack, necessary only until 'scram b runtests'
 can directly run a shell script.
 
 Here are the necessary items:
@@ -27,7 +27,7 @@ The list of arguments in this target is
    ' <shell name> <current directory name> <script1> ...'
 where
 
-  a)  shell name = the path to the shell you want (use bash!)
+  a) shell name = the path to the shell you want (use bash!)
 
   b) current directory name = the name of the current directory (the
       system isn't smart enough to figure this out)
@@ -41,9 +41,8 @@ where
 
   a) LOCAL_TEST_DIR: The directory where the test source code is.
   b) LOCAL_TMP_DIR: The directory in which to create temporary files.
-  c) LOCAL_TOP_DIR: The directory that is the top of your local CVS
+  c) LOCAL_TOP_DIR: The directory that is the top of your local git
      sandbox.
-  d_ LOCAL_TEST_BIN: The directory in which your test binary is
+  d) LOCAL_TEST_BIN: The directory in which your test binary is
      found.
-
 

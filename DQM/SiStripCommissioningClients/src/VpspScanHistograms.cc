@@ -1,7 +1,11 @@
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAlgorithm.h"
+#include "DQM/SiStripCommissioningSummary/interface/VpspScanSummaryFactory.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TProfile.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -11,21 +15,13 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistograms::VpspScanHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::VPSP_SCAN ),
-    factory_( new Factory )
+VpspScanHistograms::VpspScanHistograms( const edm::ParameterSet& pset,
+                                        DQMStore* bei ) 
+  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
+                             bei,
+                             sistrip::VPSP_SCAN )
 {
-  LogTrace(mlDqmClient_) 
-    << "[VpspScanHistograms::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-VpspScanHistograms::VpspScanHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::VPSP_SCAN ),
-    factory_( new Factory )
-{
+  factory_ = auto_ptr<VpspScanSummaryFactory>( new VpspScanSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistograms::" << __func__ << "]"
     << " Constructing object...";
@@ -42,18 +38,20 @@ VpspScanHistograms::~VpspScanHistograms() {
 // -----------------------------------------------------------------------------	 
 /** */	 
 void VpspScanHistograms::histoAnalysis( bool debug ) {
-
+  LogTrace(mlDqmClient_)
+    << "[VpspScanHistograms::" << __func__ << "]";
+  
   // Some initialisation
   uint16_t valid = 0;
-  HistosMap::const_iterator iter = 0;
-  Analyses::iterator ianal = 0;
+  HistosMap::const_iterator iter;
+  Analyses::iterator ianal;
   std::map<std::string,uint16_t> errors;
   
   // Clear map holding analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
+  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
     if ( ianal->second ) { delete ianal->second; }
   } 
-  data_.clear();
+  data().clear();
   
   // Iterate through map containing histograms
   for ( iter = histos().begin(); 
@@ -77,15 +75,12 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
 
     // Perform histo analysis
     VpspScanAnalysis* anal = new VpspScanAnalysis( iter->first );
-    anal->analysis( profs );
-    data_[iter->first] = anal; 
+    VpspScanAlgorithm algo( this->pset(), anal );
+    algo.analysis( profs );
+    data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
-    if ( debug ) {
-      std::stringstream ss;
-      anal->print( ss, 1 ); 
-      anal->print( ss, 2 ); 
-      if ( anal->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
-      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+    if ( !anal->getErrorCodes().empty() ) { 
+      errors[anal->getErrorCodes()[0]]++;
     }
     
   }
@@ -106,7 +101,7 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
 	ss << " " << ii->first << ": " << ii->second << std::endl;
 	count += ii->second;
       }
-      edm::LogVerbatim(mlDqmClient_) 
+      edm::LogWarning(mlDqmClient_) 
 	<< "[VpspScanHistograms::" << __func__ << "]"
 	<< " Found " << count << " errors ("
 	<< 100 * count / histos().size() << "%): " 
@@ -122,24 +117,16 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void VpspScanHistograms::createSummaryHisto( const sistrip::Monitorable& mon, 
-					     const sistrip::Presentation& pres, 
-					     const std::string& dir,
-					     const sistrip::Granularity& gran ) {
-  
-  // Analyze histograms if not done already
-  if ( data_.empty() ) { histoAnalysis( false ); }
-  
-  // Extract data to be histogrammed
-  sistrip::View view = SiStripEnumsAndStrings::view(dir);
-  uint32_t xbins = factory_->init( mon, pres, view, dir, gran, data_ );
-  
-  // Use base method to create summary histogram
-  TH1* summary = 0;
-  if ( pres != sistrip::HISTO_1D ) { summary = histogram( mon, pres, view, dir, xbins ); }
-  else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
-  
-  // Fill histogram with data
-  factory_->fill( *summary );
-  
+void VpspScanHistograms::printAnalyses() {
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) { 
+    if ( ianal->second ) { 
+      std::stringstream ss;
+      ianal->second->print( ss, 1 ); 
+      ianal->second->print( ss, 2 ); 
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+    }
+  }
 }

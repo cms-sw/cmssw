@@ -12,38 +12,3 @@ Timing service - 20-12-05 jbk
  No summaries are being kept now either.  Histograms would be nice
  (per module or across all events).  A big listing of total times spent
  in each module/path would also be nice.
-
-Simple Profiling service - 10-03-06 jbk
-
- Initial version.  This was put together fairly quickly from
- other pieces of code so the files are not well organized.
- I am viewing this as a trial version of this service.
- The connection to functions in
- ProfParse.cc is particularly bad.  The stack decoding from the interrupt
- routine is still faultly, but I am making it available anyway.  Use of
- a standard package for this job may be easier (libunwind for example from
- HP). Here are some of the known defects: (0) it only works under Linux,
- (1) sometimes the caller of the
- interrupted function is missing from the recorded call stack; it seems
- to occur when the caller is very, very small but the real reason has not
- yet been determined, (2) sometimes the recorded function address in the 
- stack is recorded as 0 (zero); this also has not been figured out, and 
- (3) the thread-specific, virtual  interval timers appear to not 
- function in the 2.4 kernel and I did not test using the 2.6 kernel, this
- means that the profiling is targeted towards one thread only. 
- Dispite its flaws, it still points out useful things about where the
- program is spending its time.  All these things need to be fixed (or
- replaced by another tool) and I ran out of development time.  Another
- gross thing is that the profiler source files have the posix realtime
- extension switch activated so the signal handler get the extra context
- argument.
-
- You activate this thing by putting "service = SimpleProfiling { }"
- into your configuration script (for cmsRun).  The output at the end
- of the job explains the names and formats of the output files (they
- are text).  If graphviz is installed, you can run the script in the
- Services/bin directory called ProduceGraph.sh to create a postscript
- file of a call graph starting from any function (by ID) of interest.
- I will provide useful documentation of this script if people find the
- tool useful. 
-

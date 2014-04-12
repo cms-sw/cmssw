@@ -80,21 +80,21 @@ int remakeValidTrack( TString fname)
       fakerate->Write("",TObject::kOverwrite);
 
       //refill slices
-      computeSlice("d0res_vs_eta","sigmad0");
-      computeSlice("d0res_vs_pt","sigmad0Pt");
+      computeSlice("dxyres_vs_eta","sigmadxy");
+      computeSlice("dxyres_vs_pt","sigmadxyPt");
       computeSlice("ptres_vs_eta","sigmapt");
       computeSlice("ptres_vs_pt","sigmaptPt");
-      computeSlice("z0res_vs_eta","sigmaz0");
-      computeSlice("z0res_vs_pt","sigmazoPt");
+      computeSlice("dzres_vs_eta","sigmadz");
+      computeSlice("dzres_vs_pt","sigmadzPt");
       computeSlice("phires_vs_eta","sigmaphi");
       computeSlice("phires_vs_pt","sigmaphiPt");
       computeSlice("cotThetares_vs_eta","sigmacotTheta");
       computeSlice("cotThetares_vs_pt","sigmacotThetaPt");
       //TH1F* ph1 = (TH1F*) chi2_vs_eta->ProfileX();
       //TH1F* ph2 = (TH1F*) nhits_vs_eta->ProfileX();
-      computeSlice("d0pull_vs_eta","h_d0pulleta");
+      computeSlice("dxypull_vs_eta","h_dxypulleta");
       computeSlice("ptpull_vs_eta","h_ptpulleta","h_ptshifteta");
-      computeSlice("z0pull_vs_eta","h_z0pulleta");
+      computeSlice("dzpull_vs_eta","h_dzpulleta");
       computeSlice("phipull_vs_eta","h_phipulleta");
       computeSlice("thetapull_vs_eta","h_thetapulleta");
 

@@ -17,7 +17,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
@@ -47,6 +46,9 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
 #include <string>
 
 #include <TROOT.h>
@@ -65,7 +67,7 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
   explicit SiPixelErrorEstimation(const edm::ParameterSet&);
   virtual ~SiPixelErrorEstimation();
     
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -76,6 +78,10 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
  private: 
   
   edm::ParameterSet conf_;
+  edm::EDGetTokenT<std::vector<Trajectory>> tTrajectory;
+  edm::EDGetTokenT<SiPixelRecHitCollection> tPixRecHitCollection;
+  edm::EDGetTokenT <edm::SimTrackContainer> tSimTrackContainer;
+  edm::EDGetTokenT <reco::TrackCollection> tTrackCollection; 
   std::string outputFile_;
   std::string src_;
   bool checkType_; // do we check that the simHit associated with recHit is of the expected particle type ?
@@ -92,6 +98,95 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
   float rechitresy; // difference between reconstructed hit y position and 'true' y position
   float rechitpullx; // x residual divideded by error
   float rechitpully; // y residual divideded by error
+
+
+
+
+
+  float strip_rechitx; // x position of hit 
+  float strip_rechity; // y position of hit
+  float strip_rechitz; // z position of hit
+  float strip_rechiterrx; // x position error of hit (error not squared)
+  float strip_rechiterry; // y position error of hit (error not squared)
+  float strip_rechitresx; // difference between reconstructed hit x position and 'true' x position
+  
+  
+  float strip_rechitresx2;
+
+  float strip_rechitresy; // difference between reconstructed hit y position and 'true' y position
+  float strip_rechitpullx; // x residual divideded by error
+  float strip_rechitpully; // y residual divideded by error
+  int strip_is_stereo;
+  int strip_hit_type; // matched=0, 1D=1 or 2D=2
+  int detector_type; //IB1=1, IB2=2, OB1=3, OB2=4
+
+  float strip_trk_pt;
+  float strip_cotalpha;
+  float strip_cotbeta;
+  float strip_locbx;
+  float strip_locby;
+  float strip_locbz;
+  float strip_charge;
+  int strip_size;
+  int strip_edge;
+  int strip_nsimhit; // number of simhits associated with a rechit
+  int strip_pidhit; // PID of the particle that produced the simHit associated with the recHit
+  int strip_simproc; // procces type
+
+  int strip_subdet_id; // enum SubDetector { UNKNOWN=0, TIB=3, TID=4, TOB=5, TEC=6 };
+ 
+  int strip_tib_layer             ;
+  int strip_tib_module            ;
+  int strip_tib_order             ;
+  int strip_tib_side              ;
+  int strip_tib_is_double_side    ;
+  int strip_tib_is_z_plus_side    ;
+  int strip_tib_is_z_minus_side   ;
+  int strip_tib_layer_number      ;
+  int strip_tib_string_number     ;
+  int strip_tib_module_number     ;
+  int strip_tib_is_internal_string;
+  int strip_tib_is_external_string;
+  int strip_tib_is_rphi           ;
+  int strip_tib_is_stereo         ;          
+  
+  int strip_tob_layer             ;
+  int strip_tob_module            ;
+  //int strip_tob_order             ;
+  int strip_tob_side              ;
+  int strip_tob_is_double_side    ;
+  int strip_tob_is_z_plus_side    ;
+  int strip_tob_is_z_minus_side   ;
+  int strip_tob_layer_number      ;
+  int strip_tob_rod_number     ;
+  int strip_tob_module_number     ;
+
+  int strip_tob_is_rphi           ;
+  int strip_tob_is_stereo         ;     
+
+  float strip_prob;
+  int   strip_qbin;
+  
+  int   strip_nprm;
+
+  int strip_pidhit1;
+  int strip_simproc1;
+  
+  int strip_pidhit2;
+  int strip_simproc2;
+  
+  int strip_pidhit3;
+  int strip_simproc3;
+
+  int strip_pidhit4;
+  int strip_simproc4;
+
+  int strip_pidhit5;
+  int strip_simproc5;
+
+  int strip_split;
+  float strip_clst_err_x;
+  float strip_clst_err_y;
 
   int npix; // number of pixel in the cluster
   int nxpix; // size of cluster (number of pixels) along x direction
@@ -135,6 +230,18 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
 
   int evt;
   int run;
+
+  float hit_probx;
+  float hit_proby;
+  float hit_cprob0;
+  float hit_cprob1;
+  float hit_cprob2;
+
+  int pixel_split;
+
+  float pixel_clst_err_x;
+  float pixel_clst_err_y;
+
 
    // variables that go in the output ttree_sll_hits_
   
@@ -243,7 +350,7 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
   float all_clust_alpha;
   float all_clust_beta;
 
-  static const int maxpix = 100;
+  static const int maxpix = 10000;
   float all_pixrow[maxpix];
   float all_pixcol[maxpix];
   float all_pixadc[maxpix];
@@ -256,12 +363,22 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
     
   float all_hit_probx;
   float all_hit_proby;
+  float all_hit_cprob0;
+  float all_hit_cprob1;
+  float all_hit_cprob2;
+
+  int all_pixel_split;
+  float all_pixel_clst_err_x;
+  float all_pixel_clst_err_y;
+
 
   // ----------------------------------
 
   TFile * tfile_;
   TTree * ttree_all_hits_;
   TTree * ttree_track_hits_;
+
+  TTree * ttree_track_hits_strip_;
   
 };
 

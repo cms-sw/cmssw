@@ -13,7 +13,6 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.11 2006/08/02 16:32:08 fambrogl Exp $
 //
 //
 
@@ -30,8 +29,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -40,7 +37,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -175,7 +172,7 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    for (std::vector<SimTrack>::iterator isimtk = theSimTracks.begin();
 	isimtk != theSimTracks.end(); ++isimtk){
      edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum  x = "<<isimtk->momentum().x() <<" y = "<<isimtk->momentum().y() <<" z = "<< isimtk->momentum().z();
-     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum Ptx = "<<isimtk->momentum().perp() ;
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum Ptx = "<<std::sqrt(isimtk->momentum().perp2());
    }
 
    for (std::vector<SimVertex>::iterator isimvtx = theSimVertexes.begin();

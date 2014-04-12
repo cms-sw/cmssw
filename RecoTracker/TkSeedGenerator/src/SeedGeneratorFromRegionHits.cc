@@ -1,50 +1,33 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 
-#include <vector>
-
-template <class T> T sqr( T t) {return t*t;}
 
 SeedGeneratorFromRegionHits::SeedGeneratorFromRegionHits(
-  OrderedHitsGenerator *ohg, const edm::ParameterSet & cfg,
-  SeedComparitor * asc)
-  : theHitsGenerator(ohg), theConfig(cfg), theComparitor(asc)
+    OrderedHitsGenerator *ohg, SeedComparitor* asc, SeedCreator* asp)
+  : theHitsGenerator(ohg), theComparitor(asc), theSeedCreator(asp)
 { }
 
-SeedGeneratorFromRegionHits::~SeedGeneratorFromRegionHits()
-{
-  delete theHitsGenerator;
-  delete theComparitor;
-}
 
 void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection, 
     const TrackingRegion & region, const edm::Event& ev, const edm::EventSetup& es)
 {
-
+  if (theComparitor) theComparitor->init(es);
+  theSeedCreator->init(region, es, theComparitor.get());
   const OrderedSeedingHits & hitss = theHitsGenerator->run(region, ev, es);
 
-
-  GlobalError vtxerr( sqr(region.originRBound()), 0, sqr(region.originRBound()),
-                                               0, 0, sqr(region.originZBound()));
-
   unsigned int nHitss =  hitss.size();
+  if (seedCollection.empty()) seedCollection.reserve(nHitss); // don't do multiple reserves in the case of multiple regions: it would make things even worse
+                                                              // as it will cause N re-allocations instead of the normal log(N)/log(2)
   for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
     const SeedingHitSet & hits =  hitss[iHits];
-    if (!theComparitor || theComparitor->compatible( hits ) ) {
-      SeedFromConsecutiveHits seedfromhits( hits, region.origin(), vtxerr, es);
-      if(seedfromhits.isValid()) {
-        seedCollection.push_back( seedfromhits.TrajSeed() );
-      }
+    if (!theComparitor || theComparitor->compatible(hits, region) ) {
+      theSeedCreator->makeSeed(seedCollection, hits);
     }
   }
+  theHitsGenerator->clear();
 }

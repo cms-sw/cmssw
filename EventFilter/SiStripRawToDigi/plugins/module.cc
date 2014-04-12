@@ -1,18 +1,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripDigiToRawModule);
-
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripRawToDigiModule);
+#include "EventFilter/SiStripRawToDigi/plugins/ExcludedFEDListProducer.h"
 
-#include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClustersModule.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClustersModule);
+typedef sistrip::DigiToRawModule SiStripDigiToRawModule;
+typedef sistrip::RawToDigiModule SiStripRawToDigiModule;
+typedef sistrip::ExcludedFEDListProducer SiStripExcludedFEDListProducer;
 
-#include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClustersRoI.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClustersRoI);
-
-#include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClusters.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClusters);
+DEFINE_FWK_MODULE(SiStripDigiToRawModule);
+DEFINE_FWK_MODULE(SiStripRawToDigiModule);
+DEFINE_FWK_MODULE(SiStripExcludedFEDListProducer);
 

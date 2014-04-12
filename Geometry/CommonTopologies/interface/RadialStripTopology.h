@@ -21,27 +21,14 @@
  *
  * WARNING! If the mid-point along local y of the plane of strips does not correspond
  * to the local coordinate origin, set the final ctor argument appropriately. <BR>
+ *
+ * now is an abstract class to allow different specialization for tracker and muon
  */
 
 class RadialStripTopology : public StripTopology {
  public:
 
-  /** 
-   * Constructor from:
-   *    \param ns number of strips
-   *    \param aw angular width of a strip
-   *    \param dh detector height (usually 2 x apothem of TrapezoidalPlaneBounds)
-   *    \param r radial distance from symmetry centre of detector to the point at which 
-   *    the outer edges of the two extreme strips (projected) intersect.
-   *    \param yAx orientation of local y axis: 1 means pointing from the smaller side of
-   *    the module to the larger side (along apothem), and -1 means in the 
-   *    opposite direction, i.e. from the larger side along the apothem to the 
-   *    smaller side. Default value is 1. 
-   *    \param yMid local y offset if mid-point of detector (strip plane) does not coincide with local origin.
-   *    This decouples the extent of strip plane from the boundary of the detector in which the RST is embedded.
-   */
-  RadialStripTopology( int ns, float aw, float dh, float r, int yAx = 1, float yMid = 0.);
-
+ 
   /** 
    * Destructor
    */
@@ -55,7 +42,7 @@ class RadialStripTopology : public StripTopology {
    * LocalPoint on x axis for given 'strip'
    * 'strip' is a float in units of the strip (angular) width
    */
-  virtual LocalPoint localPosition(float strip) const;
+  virtual LocalPoint localPosition(float strip) const=0;
 
   /** 
    * LocalPoint for a given MeasurementPoint <BR>
@@ -70,7 +57,7 @@ class RadialStripTopology : public StripTopology {
    * the fractional position along the strip (range -0.5 to +0.5).<BR>
    * BEWARE! The components are not Cartesian.<BR>
    */
-  virtual LocalPoint localPosition(const MeasurementPoint&) const;
+  virtual LocalPoint localPosition(const MeasurementPoint&) const=0;
 
   /** 
    * LocalError for a pure strip measurement, where 'strip'
@@ -78,14 +65,14 @@ class RadialStripTopology : public StripTopology {
    * stripErr2 is the sigma-squared. Both quantities are expressed in
    * units of theAngularWidth of a strip.
    */
-  virtual LocalError localError(float strip, float stripErr2) const;
+  virtual LocalError localError(float strip, float stripErr2) const=0;
 
   /** 
    * LocalError for a given MeasurementPoint with known MeasurementError.
    * This may be used in Kalman filtering and hence must allow possible
    * correlations between the components.
    */
-  virtual LocalError localError(const MeasurementPoint&, const MeasurementError&) const;
+  virtual LocalError localError(const MeasurementPoint&, const MeasurementError&) const=0;
 
   /** 
    * Strip in which a given LocalPoint lies. This is a float which
@@ -94,7 +81,7 @@ class RadialStripTopology : public StripTopology {
    * detector or BELOW, and float(nstrips) if it falls at the extreme high
    * edge or ABOVE.
    */
-  virtual float strip(const LocalPoint&) const;
+  virtual float strip(const LocalPoint&) const=0;
 
 
   /** 
@@ -103,13 +90,13 @@ class RadialStripTopology : public StripTopology {
    * not sensible for a RadialStripTopology since strip widths vary with local y.
    * Use localPitch(.) instead.
    */
-  virtual float pitch() const;
+  virtual float pitch() const GCC11_FINAL;
 
   /** 
    * Pitch (strip width) at a given LocalPoint. <BR>
    * BEWARE: are you sure you really want to call this for a RadialStripTopology?
    */
-  virtual float localPitch(const LocalPoint&) const;
+  virtual float localPitch(const LocalPoint&) const=0;
 
   /** 
    * Angle between strip and symmetry axis (=local y axis)
@@ -122,22 +109,22 @@ class RadialStripTopology : public StripTopology {
    * whereas values 1, 2, ... nstrips correspond to the upper phi edges of
    * the strips.
    */
-  virtual float stripAngle(float strip) const;
+  virtual float stripAngle(float strip) const=0;
 
   /** 
    * Total number of strips 
    */
-  virtual int nstrips() const { return theNumberOfStrips; }
+  virtual int nstrips() const=0;
 
   /** 
    * Height of detector (= length of long symmetry axis of the plane of strips).
    */
-  virtual float stripLength() const { return theDetHeight; }
+  virtual float stripLength() const=0;
 
   /** 
    * Length of a strip passing through a given LocalPpoint
    */
-  virtual float localStripLength(const LocalPoint& ) const;
+  virtual float localStripLength(const LocalPoint& ) const=0;
 
 
   // =========================================================
@@ -145,9 +132,9 @@ class RadialStripTopology : public StripTopology {
   // StripTopology interface)
   // =========================================================
 
-  virtual MeasurementPoint measurementPosition( const LocalPoint& ) const;
+  virtual MeasurementPoint measurementPosition( const LocalPoint& ) const=0;
 
-  virtual MeasurementError measurementError( const LocalPoint&, const LocalError& ) const;
+  virtual MeasurementError measurementError( const LocalPoint&, const LocalError& ) const=0;
 
   /** 
    * Channel number corresponding to a given LocalPoint.<BR>
@@ -156,7 +143,7 @@ class RadialStripTopology : public StripTopology {
    * LocalPoints outside the detector strip plane will be considered
    * as contributing to the edge channels 0 or nstrips-1.
    */
-  virtual int channel( const LocalPoint& ) const;
+  virtual int channel( const LocalPoint& ) const=0;
 
 
   // =========================================================
@@ -166,37 +153,35 @@ class RadialStripTopology : public StripTopology {
   /** 
    * Angular width of a each strip
    */
-  float angularWidth() const { return theAngularWidth;}
+   virtual float angularWidth() const=0;
 
   /** 
    * Phi pitch of each strip (= angular width!)
    */
-  virtual float phiPitch(void) const { return angularWidth(); }
+  virtual float phiPitch(void) const=0;
 
   /** 
    * Length of long symmetry axis of plane of strips
    */
-  float detHeight() const { return theDetHeight;}
+   virtual float detHeight() const=0;
 
   /** 
    * y extent of strip plane
    */
-  float yExtentOfStripPlane() const { return theDetHeight; } // same as detHeight()
+   virtual float yExtentOfStripPlane() const=0; // same as detHeight()
 
   /** 
    * Distance from the intersection of the projections of
    * the extreme edges of the two extreme strips to the symmetry
    * centre of the plane of strips. 
    */
-  float centreToIntersection() const { return theCentreToIntersection; }
-
+   virtual float centreToIntersection() const=0;
   /** 
    * (y) distance from intersection of the projections of the strips
    * to the local coordinate origin. Same as centreToIntersection()
    * if symmetry centre of strip plane coincides with local origin.
    */
-  float originToIntersection() const { return (theCentreToIntersection - yCentre); }
-
+   virtual float originToIntersection() const=0;
   /**
    * Convenience function to access azimuthal angle of extreme edge of first strip 
    * measured relative to long symmetry axis of the plane of strips. <BR>
@@ -209,45 +194,37 @@ class RadialStripTopology : public StripTopology {
    * where (full angle) = nstrips() * angularWidth(). <BR>
    *
    */
-  float phiOfOneEdge() const { return thePhiOfOneEdge; }
+   virtual float phiOfOneEdge() const=0;
 
   /**
    * Local x where centre of strip intersects input local y <BR>
    * 'strip' should be in range 1 to nstrips() <BR>
    */
-  float xOfStrip(int strip, float y) const;
+   virtual float xOfStrip(int strip, float y) const=0;
  
    /**
    * Nearest strip to given LocalPoint
    */
-  virtual int nearestStrip(const LocalPoint&) const;
+  virtual int nearestStrip(const LocalPoint&) const=0;
 
   /** 
    * y axis orientation, 1 means detector width increases with local y
    */
-  int yAxisOrientation() const { return theYAxisOrientation; }
-
+  virtual float yAxisOrientation() const=0;
+  
   /**
    * Offset in local y between midpoint of detector (strip plane) extent and local origin
    */
-  float yCentreOfStripPlane() const { return yCentre; }
-
+  virtual float yCentreOfStripPlane() const=0;
+  
   /**
    * Distance in local y from a hit to the point of intersection of projected strips
    */
-  float yDistanceToIntersection( float y ) const;
+  virtual float yDistanceToIntersection( float y ) const=0;
 
   friend std::ostream & operator<<(std::ostream&, const RadialStripTopology& );
 
- private:
 
-  int   theNumberOfStrips; // total no. of strips in plane of strips
-  float theAngularWidth;   // angle subtended by each strip = phi pitch
-  float theDetHeight;      // length of long symmetry axis = twice the apothem of the enclosing trapezoid
-  float theCentreToIntersection;  // distance centre of detector face to intersection of edge strips (projected)
-  float thePhiOfOneEdge;   // local 'phi' of one edge of plane of strips (I choose it negative!)
-  int   theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
-  float yCentre; // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
 };
 
 #endif

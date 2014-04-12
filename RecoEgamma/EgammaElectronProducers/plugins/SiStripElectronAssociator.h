@@ -32,26 +32,26 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 //
 // class decleration
 //
 
 class SiStripElectronAssociator : public edm::EDProducer {
-   public:
-      explicit SiStripElectronAssociator(const edm::ParameterSet&);
-      ~SiStripElectronAssociator();
-
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-      std::string siStripElectronProducer_;
-      std::string siStripElectronCollection_;
-      std::string trackProducer_;
-      std::string trackCollection_;
-
-      std::string electronsLabel_;
+ public:
+  explicit SiStripElectronAssociator(const edm::ParameterSet&);
+  ~SiStripElectronAssociator();
+  
+  
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+ private:
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<reco::SiStripElectronCollection> siStripElectronCollection_;
+  edm::EDGetTokenT<reco::TrackCollection> trackCollection_;
+  
+  edm::InputTag electronsLabel_;
 };
 
 #endif // EgammaElectronProducers_SiStripElectronAssociator_h

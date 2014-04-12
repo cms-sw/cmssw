@@ -4,12 +4,11 @@
  */
 #include <vector>
 #include <map>
-#include <iostream>
+#include <iosfwd>
 
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/Vector3D.h"
+#include "Rtypes.h" 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "Math/GenVector/PositionVector3D.h"
 
 namespace reco {
@@ -31,7 +30,7 @@ namespace reco {
 
     /// Define the different layers where the track can be propagated
     enum LayerType {
-       /// Point of closest approach from beam axis (initial point in the case of PFSimParticle)
+      /// Point of closest approach from beam axis (initial point in the case of PFSimParticle)
       ClosestApproach = 0,
       BeamPipeOrEndVertex = 1,       
       /// Preshower layer 1
@@ -47,7 +46,10 @@ namespace reco {
       HCALEntrance = 6,
       /// HCAL exit
       HCALExit = 7,
-      NLayers = 8
+      /// HO layer
+      HOLayer = 8,
+
+      NLayers = 9
     };
 
     /// default constructor. Set variables at default dummy values
@@ -56,9 +58,9 @@ namespace reco {
     /// \brief constructor from values. 
     /// set detId to -1 if this point is not from a tracker layer
     PFTrajectoryPoint(int detId,
-		      int layer,
-		      const math::XYZPoint& posxyz, 
-		      const math::XYZTLorentzVector& momentum); 
+                      int layer,
+                      const math::XYZPoint& posxyz, 
+                      const math::XYZTLorentzVector& momentum); 
 
     /// copy
     PFTrajectoryPoint(const PFTrajectoryPoint& other);
@@ -86,7 +88,7 @@ namespace reco {
     }
 
     /// cartesian position (x, y, z)
-    const math::XYZPoint& positionXYZ() const { return posxyz_; }
+    const math::XYZPoint& position() const { return posxyz_; }
 
     /// trajectory position in (rho, eta, phi) base
     const REPPoint& positionREP() const { return posrep_; }
@@ -125,7 +127,8 @@ namespace reco {
     math::XYZTLorentzVector momentum_;
 
   };
-  
+
+  std::ostream& operator<<(std::ostream& out, const reco::PFTrajectoryPoint& trajPoint); 
 }
 
 #endif

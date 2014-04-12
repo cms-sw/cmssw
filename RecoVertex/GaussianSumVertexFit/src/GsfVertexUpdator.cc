@@ -1,5 +1,6 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexUpdator.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/BasicMultiVertexState.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cfloat>
 
 GsfVertexUpdator::GsfVertexUpdator(bool limit, const GsfVertexMerger * merger) :
@@ -9,16 +10,16 @@ GsfVertexUpdator::GsfVertexUpdator(bool limit, const GsfVertexMerger * merger) :
 }
 
 
-CachingVertex GsfVertexUpdator::add(const CachingVertex & oldVertex,
+CachingVertex<5> GsfVertexUpdator::add(const CachingVertex<5> & oldVertex,
 				    const RefCountedVertexTrack track) const
 {
 
   VSC prevVtxComponents = oldVertex.vertexState().components();
 
-  cout << "GsfVertexUpdator::Add new Track with "
-      << track->linearizedTrack()->components().size() << " components to vertex of "
-      << prevVtxComponents.size() << " components.\n";
-//   cout <<track->linearizedTrack()->state().globalPosition()<<endl;
+//   cout << "GsfVertexUpdator::Add new Track with "
+//       << track->linearizedTrack()->components().size() << " components to vertex of "
+//       << prevVtxComponents.size() << " components.\n";
+
   if (prevVtxComponents.empty()) {
   throw VertexException
     ("GsfVertexUpdator::(Previous) Vertex to update has no components");
@@ -35,7 +36,7 @@ CachingVertex GsfVertexUpdator::add(const CachingVertex & oldVertex,
 
   float trackWeight = track->weight();
 
-  vector<VertexComponent> newVertexComponents;
+  std::vector<VertexComponent> newVertexComponents;
   newVertexComponents.reserve(prevVtxComponents.size()*ltComponents.size());
 
 //     for (LTC::iterator trackCompIter = ltComponents.begin();
@@ -49,13 +50,15 @@ CachingVertex GsfVertexUpdator::add(const CachingVertex & oldVertex,
   	trackCompIter != ltComponents.end(); trackCompIter++ ) {
       newVertexComponents.push_back(
         createNewComponent(*vertexCompIter, *trackCompIter, trackWeight, +1));
+	 // return invalid vertex in case one of the updated vertex-components is invalid
+      if (!newVertexComponents.back().first.isValid()) return CachingVertex<5>();
     }
   }
 //   cout << "updator components: "<<newVertexComponents.size()<<endl;
 
   // Update tracks vector
 
-  vector<RefCountedVertexTrack> newVertexTracks = oldVertex.tracks();
+  std::vector<RefCountedVertexTrack> newVertexTracks = oldVertex.tracks();
   newVertexTracks.push_back(track);
 //   cout << "a \n ";
 
@@ -66,17 +69,16 @@ CachingVertex GsfVertexUpdator::add(const CachingVertex & oldVertex,
   VertexState newVertexState = vertexChi2Pair.first;
 //   cout << "c \n ";
   double chi2 = oldVertex.totalChiSquared() + vertexChi2Pair.second;
-  cout << "updator return\n ";
 
   // Merge:
   if (limitComponents) newVertexState = theMerger->merge(newVertexState);
 
   if  (oldVertex.hasPrior()) {
-    return CachingVertex(oldVertex.priorPosition(), oldVertex.priorError(),
+    return CachingVertex<5>(oldVertex.priorPosition(), oldVertex.priorError(),
     		newVertexState.weightTimesPosition(),
 		newVertexState.weight(), newVertexTracks, chi2);
   } else {
-    return CachingVertex(newVertexState, newVertexTracks, chi2);
+    return CachingVertex<5>(newVertexState, newVertexTracks, chi2);
   }
 
 
@@ -85,11 +87,11 @@ CachingVertex GsfVertexUpdator::add(const CachingVertex & oldVertex,
 
 
 
-CachingVertex GsfVertexUpdator::remove(const CachingVertex & oldVertex, 
+CachingVertex<5> GsfVertexUpdator::remove(const CachingVertex<5> & oldVertex, 
 	const RefCountedVertexTrack track) const
 {
   throw VertexException("GsfVertexUpdator::Remove Methode not yet done");
-//  return CachingVertex();
+//  return CachingVertex<5>();
 }
 
 
@@ -112,44 +114,46 @@ GsfVertexUpdator::createNewComponent(const VertexState & oldVertex,
 
   // Weight of the component in the mixture (non-normalized)
   double weightInMixture = theWeightCalculator.calculate(oldVertex, linTrack, 1.E9);
+  if (weightInMixture < 0.) return VertexComponent(VertexState(), WeightChi2Pair(0.,0.));
 
   // position estimate of the component
   VertexState newVertex = kalmanVertexUpdator.positionUpdate(oldVertex, 
   				linTrack, weight, sign);
-// cout << "c"<<endl;
+  if (!newVertex.isValid()) return VertexComponent(newVertex, WeightChi2Pair(0.,0.));
 
   //Chi**2 contribution of the component
-  float chi2 = kalmanVertexUpdator.chi2Increment(oldVertex, newVertex, 
+  std::pair <bool, double> chi2P = kalmanVertexUpdator.chi2Increment(oldVertex, newVertex, 
   				linTrack, weight);
+  if (!chi2P.first) return VertexComponent(VertexState(), WeightChi2Pair(0.,0.));
 //         cout << "Update: "<<oldVertex.position()<<" "<<newVertex.position()<<" "<<chi2
 // 	     <<" "<<linTrack->weightInMixture()<<" "<<weightInMixture<<endl;
 
-  return VertexComponent(newVertex, WeightChi2Pair(weightInMixture, chi2));
+  return VertexComponent(newVertex, WeightChi2Pair(weightInMixture, chi2P.second));
 }
 
 GsfVertexUpdator::VertexChi2Pair GsfVertexUpdator::assembleVertexComponents(
-	const vector<GsfVertexUpdator::VertexComponent> & newVertexComponents) const
+	const std::vector<GsfVertexUpdator::VertexComponent> & newVertexComponents) const
 {
   VSC vertexComponents;
   vertexComponents.reserve(newVertexComponents.size());
   
   //renormalize weights
-cout << "assemble "<<newVertexComponents.size()<<endl;
+// cout << "assemble "<<newVertexComponents.size()<<endl;
   double totalWeight = 0.;
   double totalChi2 = 0.;
 
-  for (vector<VertexComponent>::const_iterator iter = newVertexComponents.begin();
+  for (std::vector<VertexComponent>::const_iterator iter = newVertexComponents.begin();
     iter != newVertexComponents.end(); iter ++) {
     totalWeight += iter->second.first;
-    cout << iter->first.position()<<iter->second.first<<" "<<iter->second.second<<endl;
   }
-cout << "totalWeight "<<totalWeight<<endl;
+// cout << "totalWeight "<<totalWeight<<endl;
   if (totalWeight<DBL_MIN) {
-    throw VertexException
-      ("GsfVertexUpdator:: Updated Vertex has total weight of 0.");
+    edm::LogWarning("GsfVertexUpdator") << "Updated Vertex has total weight of 0. "
+    <<"The track is probably very far away.";
+    return VertexChi2Pair( VertexState(), 0.);
   }
 
-  for (vector<VertexComponent>::const_iterator iter = newVertexComponents.begin();
+  for (std::vector<VertexComponent>::const_iterator iter = newVertexComponents.begin();
     iter != newVertexComponents.end(); iter ++) {
     double weight = iter->second.first/totalWeight;
     if (iter->second.first>DBL_MIN) {
@@ -158,12 +162,12 @@ cout << "totalWeight "<<totalWeight<<endl;
       totalChi2 += iter->second.second * weight;
     }
   }
-cout << "totalChi2 "<<totalChi2<<endl;
-cout << "vertexComponents "<<vertexComponents.size()<<endl;
+// cout << "totalChi2 "<<totalChi2<<endl;
+// cout << "vertexComponents "<<vertexComponents.size()<<endl;
 
   if (vertexComponents.empty()){
-    throw VertexException
-      ("GsfVertexUpdator:: No Vertex State left after reweighting.");
+    edm::LogWarning("GsfVertexUpdator") << "No Vertex State left after reweighting.";
+    return VertexChi2Pair( VertexState(), 0.);
   }
 
   return VertexChi2Pair( VertexState( new BasicMultiVertexState( vertexComponents)),

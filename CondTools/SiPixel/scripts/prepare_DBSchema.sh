@@ -46,9 +46,9 @@ eval `scramv1 runtime -sh`
 #
 # Questo e' per devdb10/orcon
 #
-$CMSSW_BASE/src/CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect=oracle://cms_orcoff_int2r/CMS_COND_PIXEL --auth /afs/cern.ch/cms/DB/conddb/devowner/authentication.xml --catalog=relationalcatalog_oracle://cms_orcoff_int2r/CMS_COND_GENERAL PIXEL --debug
+#$CMSSW_BASE/src/CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect=oracle://cms_orcoff_int2r/CMS_COND_PIXEL --auth /afs/cern.ch/cms/DB/conddb/devowner/authentication.xml --catalog=relationalcatalog_oracle://cms_orcoff_int2r/CMS_COND_GENERAL PIXEL --debug
 #
 # Qusto e' per SQLite
 #
 #echo $CMSSW_BASE/src/CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect sqlite_file:prova.db --auth $auth PIXEL
-#$CMSSW_BASE/src/CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect sqlite_file:prova.db --auth $auth PIXEL --debug
+$CMSSW_BASE/src/CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect sqlite_file:prova.db --auth $auth PIXEL --debug

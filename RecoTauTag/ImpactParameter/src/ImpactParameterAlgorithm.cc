@@ -4,6 +4,7 @@
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ImpactParameterAlgorithm::ImpactParameterAlgorithm(){
         ip_min   = -9999;
@@ -13,7 +14,7 @@ ImpactParameterAlgorithm::ImpactParameterAlgorithm(){
 	use3D    = false; 
 }
 
-ImpactParameterAlgorithm::ImpactParameterAlgorithm(const ParameterSet & parameters){
+ImpactParameterAlgorithm::ImpactParameterAlgorithm(const edm::ParameterSet & parameters){
 	ip_min       = parameters.getParameter<double>("TauImpactParameterMin");
 	ip_max       = parameters.getParameter<double>("TauImpactParameterMax");
 	sip_min	     = parameters.getParameter<double>("TauImpactParameterSignificanceMin");
@@ -27,32 +28,31 @@ void ImpactParameterAlgorithm::setTransientTrackBuilder(const TransientTrackBuil
 }
 
 
-pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const IsolatedTauTagInfoRef & tauRef, const Vertex & pv) {
+std::pair<float,reco::TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const reco::IsolatedTauTagInfoRef & tauRef, const reco::Vertex & pv) {
 
 	if(transientTrackBuilder == 0){
-	     cout << "Transient track builder is 0. abort!" << endl;
-	     abort(); //FIXME: trow an exception here
+	  throw cms::Exception("NullTransientTrackBuilder") << "Transient track builder is 0. ";
 	}
 
-        TauImpactParameterInfo resultExtended;
+        reco::TauImpactParameterInfo resultExtended;
 	resultExtended.setIsolatedTauTag(tauRef);
 
-	const Jet* jet = tauRef->jet().get();
+	const reco::Jet* jet = tauRef->jet().get();
 	GlobalVector direction(jet->px(),jet->py(),jet->pz());
 
-        const TrackRefVector& tracks = tauRef->selectedTracks();
+        const reco::TrackRefVector& tracks = tauRef->selectedTracks();
 
-	RefVector<TrackCollection>::const_iterator iTrack;
+	edm::RefVector<reco::TrackCollection>::const_iterator iTrack;
 	for(iTrack = tracks.begin(); iTrack!= tracks.end(); iTrack++){
 
-          const TransientTrack transientTrack = (transientTrackBuilder->build(&(**iTrack)));
+          const reco::TransientTrack transientTrack = (transientTrackBuilder->build(&(**iTrack)));
 
           SignedTransverseImpactParameter stip;
 	  Measurement1D ip = stip.apply(transientTrack,direction,pv).second;
 
 	  SignedImpactParameter3D signed_ip3D;
 	  Measurement1D ip3D = signed_ip3D.apply(transientTrack,direction,pv).second;
-	  //cout << "check pv,ip3d,track z " << pv.z() << " " << ip3D.value() << " " << transientTrack->dz() << endl;
+	  LogDebug("ImpactParameterAlgorithm::tag") << "check pv,ip3d " << pv.z() << " " << ip3D.value()  ;
 	  if(!use_sign){
 	    Measurement1D tmp2D(fabs(ip.value()),ip.error());
 	    ip = tmp2D;
@@ -69,11 +69,7 @@ pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const Isolated
 
 	}
 
-	double discriminator = resultExtended.discriminator(ip_min,ip_max,sip_min,use_sign,use3D);
+	float discriminator = resultExtended.discriminator(ip_min,ip_max,sip_min,use_sign,use3D);
 
-//	const JetTracksAssociationRef& jtaRef = tauRef->jtaRef();
-//	JetTag resultBase(discriminator,jtaRef);
-        JetTag resultBase(discriminator);
-
-	return pair<JetTag,TauImpactParameterInfo> (resultBase,resultExtended);
+	return std::make_pair( discriminator, resultExtended );
 }

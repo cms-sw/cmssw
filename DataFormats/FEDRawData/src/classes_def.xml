@@ -1,12 +1,12 @@
 
 <lcgdict>
- <class name="FEDRawData"                          
-          id="1295E5B5-5F02-3F01-9F0E-02AE2172CE6F"/>
- <class name="std::vector<FEDRawData>"             
-          id="1295E5B5-5F02-3F01-9F0E-02AE2572CE6F"/>
- <class name="FEDRawDataCollection"                   
-          id="1795E5B5-5F02-3F03-9F0E-01AE2572CE6F"/>
- <class name="edm::Wrapper<FEDRawDataCollection>"                   
-          id="2795E2B1-5F02-3F03-9F0E-01AE2172CE6F"/>
+ <class name="FEDRawData" ClassVersion="10">
+  <version ClassVersion="10" checksum="3186949634"/>
+ </class>
+ <class name="std::vector<FEDRawData>"/>
+ <class name="FEDRawDataCollection" ClassVersion="10">
+  <version ClassVersion="10" checksum="2136542618"/>
+ </class>
+ <class name="edm::Wrapper<FEDRawDataCollection>" splitLevel="0"/>
  <class name="edm::RefProd<FEDRawDataCollection>"/>
 </lcgdict>

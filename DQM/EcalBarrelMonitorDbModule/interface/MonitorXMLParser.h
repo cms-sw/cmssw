@@ -1,11 +1,8 @@
-// $Id: MonitorXMLParser.h,v 1.3 2006/06/19 16:00:55 benigno Exp $
 
 /*!
   \file MonitorXMLParser.h
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2006/06/19 16:00:55 $
 */
 
 #ifndef MonitorXMLParser_h
@@ -30,11 +27,18 @@ enum { ERROR_ARGS = 1 ,
 
 // - - - - - - - - - - - - - - - - - - - -
 
-typedef struct { std::string query; std::string arg; std::string alias; } DbQuery;
+struct DbQuery { std::string query;
+                 std::string arg;
+                 std::string alias; };
 
-typedef struct { std::string type; std::string title; int xbins; double xfrom; double xto; 
-  int ybins; double yfrom; double yto; int zbins; double zfrom; double zto; unsigned int ncycle; unsigned int loop;
-  std::vector< DbQuery > queries; } DB_ME;
+struct DB_ME { std::string type;
+               std::string title;
+               int xbins; double xfrom; double xto; 
+               int ybins; double yfrom; double yto;
+               int zbins; double zfrom; double zto;
+               unsigned int ncycle;
+               unsigned int loop;
+               std::vector< DbQuery > queries; };
 
 // - - - - - - - - - - - - - - - - - - - -
 
@@ -98,6 +102,7 @@ public:
   ~TagNames() throw(){
     
     try{
+
       xercesc::XMLString::release( &TAG_DBE ) ;
       xercesc::XMLString::release( &TAG_ME ) ;
       xercesc::XMLString::release( &TAG_1D ) ;
@@ -119,10 +124,30 @@ public:
       xercesc::XMLString::release( &ATTR_ARG ) ;
       xercesc::XMLString::release( &ATTR_ALIAS ) ;
 
-    }catch( ... ){
-      std::cerr << "Unknown exception encountered in TagNames dtor" << std::endl ;
+    }catch( xercesc::XMLException& e ){
+   
+      char* message = xercesc::XMLString::transcode( e.getMessage() );
+   
+      std::ostringstream buf ;
+      buf << "Error parsing file: " << message << std::flush;
+   
+      xercesc::XMLString::release( &message );
+   
+      throw( std::runtime_error( buf.str() ) );
+   
+    }catch( const xercesc::DOMException& e ){
+   
+      char* message = xercesc::XMLString::transcode( e.getMessage() );
+   
+      std::ostringstream buf;
+      buf << "Encountered DOM Exception: " << message << std::flush;
+   
+      xercesc::XMLString::release( &message );
+   
+      throw( std::runtime_error( buf.str() ) );
+   
     }
-	
+
   } 
 
 }; // class TagNames

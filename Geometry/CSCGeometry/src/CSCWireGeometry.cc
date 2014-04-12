@@ -20,7 +20,22 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   // return x and y of mid-point of wire, and length of wire, as 3-dim vector.
   // If wire does not intersect active area the returned vector is filled with 0's.
 
+  std::pair< LocalPoint, LocalPoint > ends = wireEnds( wire );
+
   std::vector<float> buf(3); // note all elem init to 0
+  
+  buf[0] = (ends.first.x() + ends.second.x())/2.; // x is first elem of first & second pairs
+  buf[1] = (ends.first.y() + ends.second.y())/2.; // y is second elem of first & second pairs
+  float d2 = (ends.first.x() - ends.second.x()) * (ends.first.x() - ends.second.x()) +
+             (ends.first.y() - ends.second.y()) * (ends.first.y() - ends.second.y());
+  buf[2] = sqrt(d2) ;
+  return buf;
+}
+
+std::pair< LocalPoint, LocalPoint > CSCWireGeometry::wireEnds( float wire ) const {
+
+  // return local (x, y) of each end of wire.
+  // If wire does not intersect active area set all values to 0.
   
   const float fprec = 1.E-06;
 
@@ -74,14 +89,8 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
 
   if ( fabs(wangle) < fprec ) {
 
-    buf[0] = 0.;
-    buf[1] = cw;
-    buf[2] = sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
-  
-    LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wires are not tilted " <<
-      "\n  mid-point: x=0 y=" << cw << ", length=" << buf[2];
-
-    return buf;
+    LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wires are not tilted ";
+    return std::pair< LocalPoint, LocalPoint >( LocalPoint(x1,y1), LocalPoint(x2,y2) );  
   }
   
   // WIRES ARE TILTED
@@ -150,21 +159,51 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
     //     throw cms::Exception("BadCSCGeometry") << "the wire has " << i <<
     //       " ends!" << "\n";
 
-    return buf; // each elem is zero
+    return std::pair< LocalPoint, LocalPoint >( LocalPoint(0.,0.), LocalPoint(0.,0.) ); 
   }
   
   LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: ME11 wire ends ";
   for ( int j = 0; j<i; j++ ) {
     LogTrace("CSCWireGeometry|CSC") << "  x = " << xWireEnd[j] << " y = " << yWireEnd[j];
   }
-  
-  float d2 = (xWireEnd[0]-xWireEnd[1]) * (xWireEnd[0]-xWireEnd[1]) +
-    (yWireEnd[0]-yWireEnd[1]) * (yWireEnd[0]-yWireEnd[1]);
-  
-  buf[0] = (xWireEnd[0]+xWireEnd[1])/2. ;
-  buf[1] = (yWireEnd[0]+yWireEnd[1])/2. ;
-  buf[2] = sqrt(d2) ;
-  return buf;
+
+  return std::pair< LocalPoint, LocalPoint >
+   ( LocalPoint(xWireEnd[0],yWireEnd[0]), LocalPoint(xWireEnd[1],yWireEnd[1]) );  
 }
 
+//@@ COULD/SHOULD BE IMPLEMENTED IN Slanted & Nonslanted DERIVED CLASSES
+
+std::pair<float, float> CSCWireGeometry::equationOfWire( float wire ) const {
+  
+  const float fprec = 1.E-06;
+
+  // slope of wire
+  float wangle = wireAngle(); 
+  float mw = 0;
+  if ( fabs(wangle) > fprec ) mw = tan( wangle );
+
+  // intercept of wire
+  float cw = yOfWire( wire );
+
+  LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wire=" << wire <<
+    ", wire angle = " << wangle <<
+    ", intercept on y axis=" << cw;
+
+  return std::pair<float,float>(mw, cw);
+}
+
+//@@ COULD/SHOULD BE IMPLEMENTED IN Slanted & Nonslanted DERIVED CLASSES
+
+std::pair<float, float> CSCWireGeometry::yLimitsOfWirePlane() const{
+
+  const float fprec = 0.1; // wire angle is either 0 or 29 degrees = 0.506 rads
+  float ylow = yOfFirstWire(); // non-ME11 chambers
+  float wangle = wireAngle();  
+  if ( fabs(wangle) > fprec ) {
+    ylow += tan( std::abs(wangle) ) * narrowWidthOfPlane()/2.; // correction for ME11
+  }
+  float yhigh = ylow + lengthOfPlane(); // add extent of wire plane in y
+  
+  return std::pair<float, float>(ylow, yhigh);
+}
 

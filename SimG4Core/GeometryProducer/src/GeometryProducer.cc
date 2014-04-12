@@ -3,6 +3,7 @@
 #include "SimG4Core/GeometryProducer/interface/GeometryProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
@@ -74,13 +75,19 @@ GeometryProducer::~GeometryProducer()
     if (m_kernel!=0) delete m_kernel; 
 }
 
-void GeometryProducer::beginJob(const edm::EventSetup & es)
+void GeometryProducer::beginJob(){
+}
+ 
+void GeometryProducer::endJob()
+{ std::cout << " GeometryProducer terminating " << std::endl; }
+ 
+void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
     std::cout << " GeometryProducer initializing " << std::endl;
     // DDDWorld: get the DDCV from the ES and use it to build the World
-    edm::ESHandle<DDCompactView> pDD;
+    edm::ESTransientHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
    
     G4LogicalVolumeToDDLogicalPartMap map_;
@@ -121,13 +128,6 @@ void GeometryProducer::beginJob(const edm::EventSetup & es)
 		  << " Tk type Producers, and " << m_sensCaloDets.size() 
 		  << " Calo type producers " << std::endl;
     }
-}
- 
-void GeometryProducer::endJob()
-{ std::cout << " GeometryProducer terminating " << std::endl; }
- 
-void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
-{
     for(Producers::iterator itProd = m_producers.begin();itProd != m_producers.end();
 	++itProd) { (*itProd)->produce(e,es); }
 }

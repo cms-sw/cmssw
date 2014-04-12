@@ -1,5 +1,7 @@
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableAnnealing.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
+#include "RecoVertex/VertexTools/interface/DeterministicAnnealing.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
 
 using namespace std;
@@ -8,10 +10,28 @@ ConfigurableAnnealing::ConfigurableAnnealing ( const edm::ParameterSet & m ) :
   theImpl( 0 )
 {
   string type = m.getParameter<string>("annealing");
-  theImpl = new GeometricAnnealing(
-                  m.getParameter<double>("sigmacut"),
-                  m.getParameter<double>("Tini"),
-                  m.getParameter<double>("ratio") );
+  // edm::LogWarning("ConfigurableAnnealing") << "below one code ist still here.";
+  if ( type == "below" )
+  {
+    edm::LogError("ConfigurableAnnealing") << "below one annealing employed!";
+    vector < float > sched;
+    double final = m.getParameter<double>("Tfinal");
+    sched.push_back ( 256. );
+    sched.push_back ( 64. );
+    sched.push_back ( 16. );
+    sched.push_back ( 4. );
+    sched.push_back ( 1. );
+    sched.push_back ( final );
+    theImpl = new DeterministicAnnealing( sched, m.getParameter<double>("sigmacut"));
+  } else if ( type =="geom" ) {
+    theImpl = new GeometricAnnealing(
+                    m.getParameter<double>("sigmacut"),
+                    m.getParameter<double>("Tini"),
+                    m.getParameter<double>("ratio") );
+  } else {
+    edm::LogError("ConfigurableAnnealing") << "annealing type " << type << " is not known.";
+    exit(-1);
+  }
 }
 
 ConfigurableAnnealing::ConfigurableAnnealing ( const ConfigurableAnnealing & o ) :

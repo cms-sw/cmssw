@@ -15,7 +15,6 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Wed Feb 28 12:05:36 CET 2007
-// $Id: NuclearSeedsEDProducer.h,v 1.2 2007/06/25 09:12:11 roberfro Exp $
 //
 //
 
@@ -54,8 +53,8 @@ class NuclearSeedsEDProducer : public edm::EDProducer {
       ~NuclearSeedsEDProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob();
 
       // ----------member data ---------------------------
@@ -63,5 +62,6 @@ class NuclearSeedsEDProducer : public edm::EDProducer {
       std::auto_ptr<NuclearInteractionFinder>     theNuclearInteractionFinder;
 
       bool improveSeeds;
+      std::string producer_;
 };
 #endif

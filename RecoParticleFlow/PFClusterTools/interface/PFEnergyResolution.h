@@ -20,7 +20,6 @@
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyResolution.h,v 1.1 2007/03/27 15:13:53 veelken Exp $
 //
 //
 
@@ -36,7 +35,8 @@ class PFEnergyResolution
   //PFEnergyResolution(const edm::ParameterSet& parameters);
   ~PFEnergyResolution();
   
-  //double getEnergyResolutionEm(double energyECAL, double eta, double phi) const;
+  double getEnergyResolutionEm(double CorrectedEnergy, double eta) const;  //The resolution must be a function of the corrected energy available in PFEnergyCalibration
+
   double getEnergyResolutionHad(double energyHCAL, double eta, double phi) const;
   //double getEnergyResolutionHad(double energyECAL, double energyHCAL, double eta, double phi) const;
 };

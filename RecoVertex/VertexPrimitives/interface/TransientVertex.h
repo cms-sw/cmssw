@@ -11,8 +11,6 @@
 #include <vector>
 #include <map>
 
-class CachingVertex;
-
 /** \class TransientVertex
  */
 
@@ -111,7 +109,7 @@ public:
 
   /** Access methods
    */
-  VertexState vertexState() const { return theVertexState; }
+  VertexState const & vertexState() const { return theVertexState; }
   GlobalPoint position() const { return theVertexState.position(); }
   GlobalError positionError() const { return theVertexState.error(); }
   GlobalPoint priorPosition() const { return thePriorVertexState.position(); }
@@ -139,7 +137,7 @@ public:
   /** Access to the original tracks used to make the vertex.
    *  Returns track container by value.
    */
-  std::vector<reco::TransientTrack> originalTracks() const {
+  std::vector<reco::TransientTrack> const & originalTracks() const {
     return theOriginalTracks;
   }
 
@@ -154,7 +152,7 @@ public:
   /** Access to the refitted tracks used to make the vertex.
    *  Returns track container by value.
    */
-  std::vector<reco::TransientTrack> refittedTracks() const {
+  std::vector<reco::TransientTrack> const &  refittedTracks() const {
     return theRefittedTracks;
   }
 
@@ -205,9 +203,9 @@ public:
    *   In case these do not exist, or one of the tracks does not belong to the
    *   vertex, an exception is thrown.
    */
-  AlgebraicMatrix tkToTkCovariance(const reco::TransientTrack& t1, 
+  AlgebraicMatrix33 tkToTkCovariance(const reco::TransientTrack& t1, 
   				const reco::TransientTrack& t2) const;
-  void tkToTkCovariance(const TTtoTTmap covMap);
+  void tkToTkCovariance(const TTtoTTmap &covMap);
 
   operator reco::Vertex() const;
 

@@ -1,5 +1,9 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertex.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicTree.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
+#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
 
 KinematicVertex::KinematicVertex()
 {vl = false;}
@@ -14,7 +18,7 @@ KinematicVertex::KinematicVertex(const VertexState state, float totalChiSq,
  pVertex = 0;
 }
 
-KinematicVertex::KinematicVertex(const CachingVertex& vertex)                                              
+KinematicVertex::KinematicVertex(const CachingVertex<6>& vertex)                                              
 {
 // theVertexPosition = vertex.position();
 // theVPositionError = vertex.error();
@@ -45,8 +49,8 @@ bool KinematicVertex::operator==(const KinematicVertex& other)const
  {
   GlobalPoint cPos = this->position();
   GlobalPoint oPos = other.position();
-  AlgebraicMatrix cCov = this->error().matrix();
-  AlgebraicMatrix oCov = other.error().matrix();
+  AlgebraicMatrix33 const & cCov = this->error().matrix();
+  AlgebraicMatrix33 const & oCov = other.error().matrix();
   if((cPos.x()==oPos.x())&&(cPos.y()==oPos.y())&&(cPos.z()==oPos.z())
                                                       &&(cCov==oCov))
   res = true;
@@ -56,7 +60,7 @@ bool KinematicVertex::operator==(const KinematicVertex& other)const
  return res;
 }
 
-bool KinematicVertex::operator==(ReferenceCountingPointer<KinematicVertex> other)const
+bool KinematicVertex::operator==(const ReferenceCountingPointer<KinematicVertex> other)const
 {
  bool res = false;
  if(*this == *other) res = true;
@@ -97,11 +101,46 @@ KinematicTree *  KinematicVertex::correspondingTree() const
 {return tree;}
 
 void KinematicVertex::setTreePointer(KinematicTree * tr) const
-{tree = tr;}
+{ tree = tr;}
 
 ReferenceCountingPointer<KinematicVertex>  KinematicVertex::vertexBeforeConstraint() const
 {return pVertex;}
 
-VertexState KinematicVertex:: vertexState() const
+VertexState KinematicVertex::vertexState() const
 {return theState;}
+
+KinematicVertex::operator reco::Vertex() 
+{
+   //If the vertex is invalid, return an invalid TV !
+  if (!vertexIsValid() || tree==0) return reco::Vertex();
+
+//accessing the tree components, move pointer to top
+  if (!tree->findDecayVertex(this)) return reco::Vertex();
+  std::vector<RefCountedKinematicParticle> daughters = tree->daughterParticles();
+
+  reco::Vertex vertex(reco::Vertex::Point(theState.position()),
+// 	RecoVertex::convertError(theVertexState.error()), 
+	theState.error().matrix_new(), 
+	chiSquared(), degreesOfFreedom(), daughters.size() );
+
+  for (std::vector<RefCountedKinematicParticle>::const_iterator i = daughters.begin();
+       i != daughters.end(); ++i) {
+
+    const TransientTrackKinematicParticle * ttkp = dynamic_cast<const TransientTrackKinematicParticle * >(&(**i));
+    if(ttkp != 0) {
+      const reco::TrackTransientTrack * ttt = dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());
+      if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull())) {
+	reco::TrackRef tr = ttt->persistentTrackRef();
+	vertex.add(reco::TrackBaseRef(tr), ttkp->refittedTransientTrack().track(), 1.);
+      } else {
+	const reco::GsfTransientTrack * ttt = dynamic_cast<const reco::GsfTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());
+	if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull())) {
+	  reco::GsfTrackRef tr = ttt->persistentTrackRef();
+	  vertex.add(reco::TrackBaseRef(tr), ttkp->refittedTransientTrack().track(), 1.);
+	}
+      }
+    }
+  }
+  return vertex;
+}
 

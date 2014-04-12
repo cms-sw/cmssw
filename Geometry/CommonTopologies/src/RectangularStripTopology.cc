@@ -6,7 +6,7 @@
 
 RectangularStripTopology::RectangularStripTopology(int ns, float p, float l) : 
   thePitch(p), theNumberOfStrips(ns), theStripLength(l) { 
-  theOffset = -theNumberOfStrips/2. * thePitch;
+  theOffset = -0.5f*theNumberOfStrips * thePitch;
 
 #ifdef VERBOSE
   cout <<"Constructing RectangularStripTopology with"
@@ -19,7 +19,7 @@ RectangularStripTopology::RectangularStripTopology(int ns, float p, float l) :
   
 LocalPoint 
 RectangularStripTopology::localPosition(float strip) const {
-  return LocalPoint( strip*thePitch + theOffset, 0.0);
+  return LocalPoint( strip*thePitch + theOffset, 0.0f);
 }
 
 LocalPoint 
@@ -28,14 +28,14 @@ RectangularStripTopology::localPosition(const MeasurementPoint& mp) const {
 }
 
 LocalError 
-RectangularStripTopology::localError(float strip, float stripErr2) const{
+RectangularStripTopology::localError(float /*strip*/, float stripErr2) const{
   return LocalError(stripErr2 * thePitch*thePitch,
-		    0.,
-		    theStripLength*theStripLength/12.);
+		    0.f,
+		    theStripLength*theStripLength*(1.f/12.f));
 }
 
 LocalError 
-RectangularStripTopology::localError(const MeasurementPoint& mp,
+RectangularStripTopology::localError(const MeasurementPoint& /*mp*/,
   const MeasurementError& merr) const{
   return LocalError(merr.uu() * thePitch*thePitch,
 		    merr.uv() * thePitch*theStripLength,
@@ -45,9 +45,14 @@ RectangularStripTopology::localError(const MeasurementPoint& mp,
 float 
 RectangularStripTopology::strip(const LocalPoint& lp) const {
   float aStrip = (lp.x() - theOffset) / thePitch;
-  if (aStrip < 0. ) aStrip = 0.;
+  if (aStrip < 0 ) aStrip = 0;
   else if (aStrip > theNumberOfStrips)  aStrip = theNumberOfStrips;
   return aStrip;
+}
+
+float 
+RectangularStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
+  return (lp1.x()-lp2.x())/thePitch;
 }
 
 MeasurementPoint 
@@ -57,35 +62,10 @@ RectangularStripTopology::measurementPosition(const LocalPoint& lp) const {
 }
 
 MeasurementError 
-RectangularStripTopology::measurementError(const LocalPoint& lp,
+RectangularStripTopology::measurementError(const LocalPoint& /*lp*/,
   const LocalError& lerr) const {
-  return MeasurementError(lerr.xx()/thePitch/thePitch,
-  			  lerr.xy()/thePitch/theStripLength,
-			  lerr.yy()/theStripLength/theStripLength);
-}
-
-int 
-RectangularStripTopology::channel(const LocalPoint& lp) const {
-  return std::min(int(strip(lp)),theNumberOfStrips-1);
-}
-
-float 
-RectangularStripTopology::pitch() const { 
-  return thePitch;
-}
-  
-float 
-RectangularStripTopology::localPitch(const LocalPoint& lp) const {
-  return thePitch;
-}
-  
-float 
-RectangularStripTopology::stripAngle(float strip) const {
-  return 0.;
-}
-  
-int 
-RectangularStripTopology::nstrips() const { 
-  return theNumberOfStrips;
+  return MeasurementError(lerr.xx()/(thePitch*thePitch),
+  			  lerr.xy()/(thePitch*theStripLength),
+			  lerr.yy()/(theStripLength*theStripLength));
 }
 

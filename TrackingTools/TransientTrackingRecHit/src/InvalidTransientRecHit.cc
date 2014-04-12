@@ -1,18 +1,56 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
-InvalidTransientRecHit::InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type ) :
-  Base( geom, InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId(), type)), 
-  layer_(layer)
-{
+InvalidTransientRecHit::~InvalidTransientRecHit(){}
+
+void InvalidTransientRecHit::throwError() const {
+  throw cms::Exception("Invalid TrackingRecHit used");
 }
 
-const Surface* InvalidTransientRecHit::surface() const {
-  if (det() != 0 )  return &(det()->surface()); 
-  else if (layer_ != 0)  return &(layer_->surface()); 
-  else return 0;
+GlobalPoint InvalidTransientRecHit::globalPosition() const { throwError(); return GlobalPoint();}
+GlobalError InvalidTransientRecHit::globalPositionError() const { throwError(); return GlobalError();}
+
+float InvalidTransientRecHit::errorGlobalR() const{ throwError(); return 0;}
+float InvalidTransientRecHit::errorGlobalZ() const{ throwError(); return 0;}
+float InvalidTransientRecHit::errorGlobalRPhi() const{ throwError(); return 0;}
+
+
+AlgebraicVector InvalidTransientRecHit::parameters() const { 
+  throwError();
+  return AlgebraicVector();
+}
+
+AlgebraicSymMatrix InvalidTransientRecHit::parametersError() const { 
+  throwError();
+  return AlgebraicSymMatrix();
+}
+  
+AlgebraicMatrix InvalidTransientRecHit::projectionMatrix() const { 
+  throwError();
+  return AlgebraicMatrix();
+}
+
+int InvalidTransientRecHit::dimension() const { throwError(); return 0;}
+
+LocalPoint InvalidTransientRecHit::localPosition() const { 
+  throwError();
+  return LocalPoint();
+}
+
+LocalError InvalidTransientRecHit::localPositionError() const { 
+  throwError();
+  return LocalError();
+}
+
+
+std::vector<const TrackingRecHit*> InvalidTransientRecHit::recHits() const { 
+  throwError();
+  return std::vector<const TrackingRecHit*>();
+}
+
+std::vector<TrackingRecHit*> InvalidTransientRecHit::recHits() { 
+  throwError();
+  return std::vector<TrackingRecHit*>();
 }
 

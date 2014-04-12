@@ -17,7 +17,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Nov 10 14:59:35 EST 2005
-// $Id: TypeIDBase.h,v 1.2 2007/06/14 02:00:58 wmtan Exp $
 //
 
 // system include files
@@ -37,12 +36,12 @@ namespace edm {
          t_(&(typeid(Def))) 
       { }
       
-      TypeIDBase(const TypeIDBase& other) :
-         t_(other.t_)
-      { }
-      
       explicit TypeIDBase(const std::type_info& t) :
          t_(&t)
+      { }
+            
+      explicit TypeIDBase(const std::type_info* t) :
+         t_(t == 0 ? &(typeid(Def)) : t)
       { }
             
       // ---------- const member functions ---------------------
@@ -54,7 +53,7 @@ namespace edm {
       
       bool operator<(const TypeIDBase& b) const { return t_->before(*(b.t_)); }
       bool operator==(const TypeIDBase& b) const { return (*t_) == *(b.t_); }
-      
+
     protected:
       const std::type_info& typeInfo() const {return *t_;}
 

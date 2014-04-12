@@ -3,8 +3,6 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2007/03/07 16:20:53 $
- * $Revision: 1.9 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -141,7 +139,7 @@ void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
 }
 
 /// print next layers
-void MuonNavigationPrinter::printLayers(vector<const DetLayer*> nextLayers) const {
+void MuonNavigationPrinter::printLayers(const vector<const DetLayer*>& nextLayers) const {
 
   for ( vector<const DetLayer*>::const_iterator inext = nextLayers.begin();
       inext != nextLayers.end(); inext++ ) {

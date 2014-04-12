@@ -1,53 +1,65 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/05/21 11:47:45 $
- * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <string>
+#include <cmath>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+#include "DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h"
 
-EBTimingTask::EBTimingTask(const ParameterSet& ps){
+EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
-  for (int i = 0; i < 36 ; i++) {
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  energyThreshold_ = ps.getUntrackedParameter<double>("energyTreshold",1.0);
+
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EcalRecHitCollection_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollection"));
+
+  L1GtEvmReadoutRecord_ = consumes<L1GlobalTriggerEvmReadoutRecord>(ps.getParameter<edm::InputTag>("L1GtEvmReadoutRecord"));
+
+  useBeamStatus_ = ps.getUntrackedParameter<bool>("useBeamStatus", false);
+
+  for (int i = 0; i < 36; i++) {
+    meTime_[i] = 0;
     meTimeMap_[i] = 0;
+    meTimeAmpli_[i] = 0;
   }
+
+  meTimeAmpliSummary_ = 0;
+  meTimeSummary1D_ = 0;
+  meTimeSummaryMap_ = 0;
+
+  stableBeamsDeclared_ = false;
 
 }
 
@@ -55,14 +67,42 @@ EBTimingTask::~EBTimingTask(){
 
 }
 
-void EBTimingTask::beginJob(const EventSetup& c){
+void EBTimingTask::beginJob(void){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
-    dbe_->rmdir("EcalBarrel/EBTimingTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
+    dqmStore_->rmdir(prefixME_ + "/EBTimingTask");
   }
+
+}
+
+void EBTimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
+
+  if ( ! mergeRuns_ ) this->reset();
+
+  stableBeamsDeclared_ = false;
+
+}
+
+void EBTimingTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+}
+
+void EBTimingTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( meTime_[i] ) meTime_[i]->Reset();
+    if ( meTimeMap_[i] ) meTimeMap_[i]->Reset();
+    if ( meTimeAmpli_[i] ) meTimeAmpli_[i]->Reset();
+  }
+
+  if ( meTimeAmpliSummary_ ) meTimeAmpliSummary_->Reset();
+  if ( meTimeSummary1D_ ) meTimeSummary1D_->Reset();
+  if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Reset();
 
 }
 
@@ -70,16 +110,60 @@ void EBTimingTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  std::string name;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
+  // for timing vs amplitude plots
+  const int nbinsE = 25;
+  const float minlogE = -0.5;
+  const float maxlogE = 2.;
+  float binEdgesE[nbinsE + 1];
+  for(int i = 0; i <= nbinsE; i++)
+    binEdgesE[i] = std::pow((float)10., minlogE + (maxlogE - minlogE) / nbinsE * i);
 
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
-      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMap_[i], i+1);
+  const int nbinsT = 200;
+  const float minT = -50.;
+  const float maxT = 50.;
+  float binEdgesT[nbinsT + 1];
+  for(int i = 0; i <= nbinsT; i++)
+    binEdgesT[i] = minT + (maxT - minT) / nbinsT * i;
+
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
+
+    for (int i = 0; i < 36; i++) {
+      name = "EBTMT timing 1D " + Numbers::sEB(i+1);
+      meTime_[i] = dqmStore_->book1D(name, name, 50, -25., 25.);
+      meTime_[i]->setAxisTitle("time (ns)", 1);
+      dqmStore_->tag(meTime_[i], i+1);
+
+      name = "EBTMT timing " + Numbers::sEB(i+1);
+      meTimeMap_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., -20.+shiftProf2D_, 20.+shiftProf2D_, "s");
+      meTimeMap_[i]->setAxisTitle("ieta", 1);
+      meTimeMap_[i]->setAxisTitle("iphi", 2);
+      meTimeMap_[i]->setAxisTitle("time (ns)", 3);
+      dqmStore_->tag(meTimeMap_[i], i+1);
+
+      name = "EBTMT timing vs amplitude " + Numbers::sEB(i+1);
+      meTimeAmpli_[i] = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
+      meTimeAmpli_[i]->setAxisTitle("energy (GeV)", 1);
+      meTimeAmpli_[i]->setAxisTitle("time (ns)", 2);
+      dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
+
+    name = "EBTMT timing vs amplitude summary";
+    meTimeAmpliSummary_ = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
+    meTimeAmpliSummary_->setAxisTitle("energy (GeV)", 1);
+    meTimeAmpliSummary_->setAxisTitle("time (ns)", 2);
+
+    name = "EBTMT timing 1D summary";
+    meTimeSummary1D_ = dqmStore_->book1D(name, name, 50, -25., 25.);
+    meTimeSummary1D_->setAxisTitle("time (ns)", 1);
+
+    name = "EBTMT timing map";
+    meTimeSummaryMap_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85, 85, -20.+shiftProf2D_, 20.+shiftProf2D_, "s");
+    meTimeSummaryMap_->setAxisTitle("jphi", 1);
+    meTimeSummaryMap_->setAxisTitle("jeta", 2);
+    meTimeSummaryMap_->setAxisTitle("time (ns)", 3);
 
   }
 
@@ -87,15 +171,30 @@ void EBTimingTask::setup(void){
 
 void EBTimingTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
 
     for ( int i = 0; i < 36; i++ ) {
-      if ( meTimeMap_[i] ) dbe_->removeElement( meTimeMap_[i]->getName() );
+      if ( meTime_[i] ) dqmStore_->removeElement( meTime_[i]->getName() );
+      meTime_[i] = 0;
+
+      if ( meTimeMap_[i] ) dqmStore_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
+
+      if ( meTimeAmpli_[i] ) dqmStore_->removeElement( meTimeAmpli_[i]->getName() );
+      meTimeAmpli_[i] = 0;
     }
+
+    if ( meTimeAmpliSummary_ ) dqmStore_->removeElement( meTimeAmpliSummary_->getName() );
+    meTimeAmpliSummary_ = 0;
+
+    if ( meTimeSummary1D_ ) dqmStore_->removeElement( meTimeSummary1D_->getName() );
+    meTimeSummary1D_ = 0;
+
+    if ( meTimeSummaryMap_ ) dqmStore_->removeElement( meTimeSummaryMap_->getName() );
+    meTimeSummaryMap_ = 0;
 
   }
 
@@ -105,30 +204,85 @@ void EBTimingTask::cleanup(void){
 
 void EBTimingTask::endJob(void){
 
-  LogInfo("EBTimingTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBTimingTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBTimingTask::analyze(const Event& e, const EventSetup& c){
+void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+
+  const unsigned STABLE_BEAMS = 11;
+
+  bool isData = true;
+  bool enable = false;
+  int runType[36];
+  for (int i=0; i<36; i++) runType[i] = -1;
+
+  edm::Handle<EcalRawDataCollection> dcchs;
+
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
+
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
+
+      int ism = Numbers::iSM( *dcchItr, EcalBarrel );
+
+      runType[ism-1] = dcchItr->getRunType();
+
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
+
+    }
+
+  } else {
+
+    isData = false; enable = true;
+    edm::LogWarning("EBTimingTask") << "EcalRawDataCollection not available";
+
+  }
+
+  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  try {
+  // resetting plots when stable beam is declared
+  if( useBeamStatus_ && !stableBeamsDeclared_ ) {
+    edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtRecord;
+    if( e.getByToken(L1GtEvmReadoutRecord_, gtRecord) ) {
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+      unsigned lhcBeamMode = gtRecord->gtfeWord().beamMode();
+
+      if( lhcBeamMode == STABLE_BEAMS ){
+
+	reset();
+
+	stableBeamsDeclared_ = true;
+
+      }
+    }
+  }
+
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+
+  edm::Handle<EcalRecHitCollection> hits;
+
+  if ( e.getByToken(EcalRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EBTimingTask") << "event " << ievt_ << " hits collection size " << neh;
 
-    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalUncalibratedRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EBDetId id = hitItr->id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -139,31 +293,52 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      LogDebug("EBTimingTask") << " det id = " << id;
-      LogDebug("EBTimingTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( isData ) {
 
+        if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::COSMIC ||
+                 runType[ism-1] == EcalDCCHeaderBlock::MTCC ||
+                 runType[ism-1] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+
+      }
+
+      MonitorElement* meTime = 0;
       MonitorElement* meTimeMap = 0;
+      MonitorElement* meTimeAmpli = 0;
 
+      meTime = meTime_[ism-1];
       meTimeMap = meTimeMap_[ism-1];
+      meTimeAmpli = meTimeAmpli_[ism-1];
 
-      float xval = hit.amplitude();
-      if ( xval <= 0. ) xval = 0.0;
-      float yval = hit.jitter() + 6.0;
-      if ( yval <= 0. ) yval = 0.0;
-      float zval = hit.pedestal();
-      if ( zval <= 0. ) zval = 0.0;
+      float xval = hitItr->energy();
+      float yval = hitItr->time();
 
-      LogDebug("EBTimingTask") << " hit amplitude " << xval;
-      LogDebug("EBTimingTask") << " hit jitter " << yval;
-      LogDebug("EBTimingTask") << " hit pedestal " << zval;
+      uint32_t flag = hitItr->recoFlag();
 
-      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      uint32_t sev = sevlv->severityLevel(id, *hits);
 
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevel::kWeird ) {
+        if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
+        if ( meTimeAmpliSummary_ ) meTimeAmpliSummary_->Fill(xval, yval);
+
+        if ( xval > energyThreshold_ ) {
+          if ( meTime ) meTime->Fill(yval);
+          if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval+shiftProf2D_);
+          if ( meTimeSummary1D_ ) meTimeSummary1D_->Fill(yval);
+
+          float xebeta = id.ieta() - 0.5 * id.zside();
+          float xebphi = id.iphi() - 0.5;
+          if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Fill(xebphi, xebeta, yval+shiftProf2D_);
+        }
+
+      }
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EBTimingTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EBTimingTask") << "EcalRecHitCollection not available";
 
   }
 

@@ -8,7 +8,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Sources/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 
 class TFile;
 class TTree;
@@ -20,23 +20,23 @@ class CDFEventInfo;
 
    \note Notice that there is a hack to renumber events from runs where the first event number was zero.
     
-   $Date: 2006/02/25 13:43:51 $
-   $Revision: 1.4 $
+   $Date: 2008/10/16 08:09:12 $
+   $Revision: 1.7 $
    \author J. Mans - Minnesota
 */
-class HcalTBSource : public edm::ExternalInputSource {
+class HcalTBSource : public edm::ProducerSourceFromFiles {
 public:
 explicit HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc);
-protected:
-    virtual void setRunAndEventInfo();
-    virtual bool produce(edm::Event & e);
+virtual ~HcalTBSource();
 private:
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+  virtual void produce(edm::Event & e);
   void unpackSetup(const std::vector<std::string>& params);
   void openFile(const std::string& filename);
   TTree* m_tree;
   TFile* m_file;
   int m_i, m_fileCounter;
-  bool m_quiet;
+  bool m_quiet, m_onlyRemapped;
   int n_chunks;
   static const int CHUNK_COUNT=64; // MAX Chunks
   CDFChunk* m_chunks[CHUNK_COUNT];

@@ -1,12 +1,10 @@
-#ifndef Common_FillView_h
-#define Common_FillView_h
+#ifndef DataFormats_Common_FillView_h
+#define DataFormats_Common_FillView_h
 
 /*----------------------------------------------------------------------
   
 Several fillView function templates, to provide View support for 
 Standard Library containers.
-
-$Id: FillView.h,v 1.4 2007/07/24 11:37:36 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,6 +15,7 @@ $Id: FillView.h,v 1.4 2007/07/24 11:37:36 llista Exp $
 #include <set>
 #include "DataFormats/Common/interface/RefTraits.h"
 #include "DataFormats/Common/interface/RefVectorTraits.h"
+#include "DataFormats/Common/interface/GetProduct.h"
 
 namespace edm {
   template<typename C, typename T, typename F> class RefVector;
@@ -40,12 +39,11 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/Common/interface/RefHolder_.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 
 namespace edm {
   namespace detail {
+
     template <class COLLECTION>
     void
     reallyFillView(COLLECTION const& coll,
@@ -54,7 +52,7 @@ namespace edm {
 		   helper_vector& helpers)
     {
       typedef COLLECTION                            product_type;
-      typedef typename product_type::value_type     element_type;
+      typedef typename GetProduct<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
       typedef typename product_type::size_type      size_type;
       typedef typename FillViewRefTypeTrait<product_type, 
@@ -63,11 +61,14 @@ namespace edm {
 	typename refhelper::ValueTrait<product_type>::value>::value>::type ref_type;
       typedef reftobase::RefHolder<ref_type>        holder_type;
       
+      ptrs.reserve(ptrs.size() + coll.size());
+      helpers.reserve(helpers.size() + coll.size());
       size_type key = 0;
       for (iter i = coll.begin(), e = coll.end(); i!=e; ++i, ++key) {
-	element_type const* address = &*i;
+	element_type const* address = GetProduct<product_type>::address(i);
 	ptrs.push_back(address);
-	holder_type h(ref_type(id, address, key));
+	ref_type ref(id, address, key, GetProduct<product_type>::product(coll) );
+	holder_type h(ref);
 	helpers.push_back(&h);
       }
     }
@@ -114,13 +115,5 @@ namespace edm {
   }
 
 }
-
-#include "DataFormats/Common/interface/RefHolder.h"
-
-/*
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-*/
 
 #endif

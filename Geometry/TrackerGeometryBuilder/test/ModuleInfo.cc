@@ -10,7 +10,7 @@
 //
 // Original Author:  Riccardo Ranieri
 //         Created:  Wed May 3 10:30:00 CEST 2006
-//
+//     Modified by:  Michael Case, April 2010.
 //
 
 // system include files
@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
@@ -132,15 +134,14 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   // get the GeometricDet
   //
   edm::ESHandle<GeometricDet> rDD;
-  if (fromDDD_) {
-    iSetup.get<IdealGeometryRecord>().get( rDD );     
-  } else {
-    iSetup.get<PGeometricDetRcd>().get( rDD );
-  }
-  edm::LogInfo("ModuleInfo") << " Top node is  " << &(*rDD) << " " <<  (*rDD).name().name() << std::endl;
-  edm::LogInfo("ModuleInfo") << " And Contains  Daughters: " << (*rDD).deepComponents().size() << std::endl;
-  CmsTrackerDebugNavigator nav;
-  nav.dump(&(*rDD));
+  edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
+  iSetup.get<IdealGeometryRecord>().get( rDD );     
+  iSetup.get<IdealGeometryRecord>().get( rDDE );     
+
+  edm::LogInfo("ModuleInfo") << " Top node is  " << rDD.product() << " " <<  rDD.product()->name().name() << std::endl;
+  edm::LogInfo("ModuleInfo") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
+  CmsTrackerDebugNavigator nav(*rDDE.product());
+  nav.dump(*rDD.product(), *rDDE.product());
   //
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
@@ -210,22 +211,32 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   
   std::vector<const GeometricDet*> modules =  (*rDD).deepComponents();
   Output << "************************ List of modules with positions ************************" << std::endl;
+  // MEC: 2010-04-13: need to find corresponding GeometricDetExtra.
+  std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
   for(unsigned int i=0; i<modules.size();i++){
     unsigned int rawid = modules[i]->geographicalID().rawId();
-    GeometricDet::nav_type detNavType = modules[i]->navType();
+    gdei = rDDE->begin();
+    for (; gdei != gdeEnd; ++gdei) {
+      if (gdei->geographicalId() == modules[i]->geographicalId()) break;
+    }
+
+    if (gdei == gdeEnd) throw cms::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra"; //THIS never happens!
+
+    GeometricDet::NavRange detPos = modules[i]->navpos();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
     std::bitset<32> binary_rawid(rawid);
     Output << " ******** raw Id = " << rawid << " (" << binary_rawid << ") ";
     if ( fromDDD_ && printDDD_ ) {
-      Output << "\t nav type = " << detNavType;
+      Output << "\t nav type = " << detPos;
     } 
     Output << std::endl;
     int subdetid = modules[i]->geographicalID().subdetId();
-    double volume = modules[i]->volume() / 1000; // mm3->cm3
-    double density = modules[i]->density() / density_units;
-    double weight = modules[i]->weight() / density_units / 1000.; // [kg], hence the factor 1000;
+    double volume = gdei->volume() / 1000; // mm3->cm3
+    double density = gdei->density() / density_units;
+    double weight = gdei->weight() / density_units / 1000.; // [kg], hence the factor 1000;
     double thickness = modules[i]->bounds()->thickness() * 10000; // cm-->um
     double activeSurface = volume / ( thickness / 10000 ); // cm2 (thickness in um)
+
     volume_total+=volume;
     weight_total+=weight;
     activeSurface_total+=activeSurface;
@@ -249,7 +260,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " PXB" << "\t" << "Layer " << theLayer << " Ladder " << theLadder
 	       << "\t" << " module " << theModule << " " << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name() << std::endl;
 	} else {
 	  Output << " NO DDD Hierarchy available " << std::endl;
 	}
@@ -279,7 +290,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " PXF" << side << "\t" << "Disk " << theDisk << " Blade " << theBlade << " Panel " << thePanel
 	       << "\t" << " module " << theModule << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name() << std::endl;
 	} else {
 	  Output << " NO DDD Hierarchy available " << std::endl;
 	}
@@ -309,11 +320,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TIB" << side << "\t" << "Layer " << theLayer << " " << part
 	       << "\t" << "string " << theString[2] << "\t" << " module " << theModule << " " << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	break;
       }
       
@@ -341,11 +352,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
 	       << "\t" << " module " << theModule[1] << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	break;
       }
       
@@ -372,11 +383,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TOB" << side << "\t" << "Layer " << theLayer 
 	       << "\t" << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t" ;
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	break;
       }
       
@@ -410,11 +421,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 	       << "\t" << " module " << theModule << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	
 	// TEC output as Martin Weber's
 	int out_side  = (module.side() == 1 ) ? -1 : 1;
@@ -542,7 +553,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     // NumberingScheme
     NumberingOutput << rawid;
     if ( fromDDD_ && printDDD_ ) {
-      NumberingOutput << " " << detNavType;
+      NumberingOutput << " " << detPos;
     }
     NumberingOutput << " "
 		    << std::fixed << std::setprecision(4) << modules[i]->translation().X() << " "

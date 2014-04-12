@@ -3,10 +3,9 @@
 
 #include <boost/cstdint.hpp> //for uint16_t
 
-#include <iostream>
 #include <iomanip>
 #include <sstream>
-
+ 
 /*!
  * \author Greg Heath
  * \date Feb 2007
@@ -60,6 +59,12 @@ public:
   template <int KAddressBits, int KDataBits>
   int operator!=(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const { return !equalityCheck(rhsLut); }
 
+  bool setupOk() { return m_setupOk; }
+
+  /// control output messages
+  void setVerbose() { m_verbose = true; }
+  void setTerse() { m_verbose = false; }
+
 protected:
   
   L1GctLut();
@@ -70,6 +75,7 @@ protected:
   bool equalityCheck(const L1GctLut<KAddressBits, KDataBits>& c) const;
 
   bool m_setupOk;
+  bool m_verbose;
 
 private:
 
@@ -97,7 +103,7 @@ L1GctLut<NAddressBits, NDataBits>::~L1GctLut() {}
 template <int NAddressBits, int NDataBits>
 uint16_t L1GctLut<NAddressBits, NDataBits>::lutValue(const uint16_t lutAddress) const
 {
-  assert (m_setupOk);
+  if (!m_setupOk) return (uint16_t) 0;
   uint16_t address=(lutAddress & MAX_ADDRESS_BITMASK);
   uint16_t data=(value(address) & MAX_DATA_BITMASK);
   return data;

@@ -26,7 +26,7 @@
 #include <DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h>
-
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 
 
 
@@ -34,8 +34,8 @@
 #include <vector>
 #include <map>
 
-namespace{ 
-  namespace {
+namespace DataFormats_CSCDigi {
+  struct dictionary {
 
   CSCWireDigi cWD_;
   CSCRPCDigi  cRD_;
@@ -46,7 +46,7 @@ namespace{
   CSCCorrelatedLCTDigi cCorLCTD_;
   CSCCFEBStatusDigi cCSD_;
   CSCTMBStatusDigi cTMBSD_;
-  CSCDCCFormatStatusDigi cDFSD_; 
+  CSCDCCFormatStatusDigi cDFSD_;
   CSCDMBStatusDigi cDMBSD_;
   CSCDDUStatusDigi cDDUSD_;
   CSCDCCStatusDigi cDCCSD_;
@@ -68,22 +68,23 @@ namespace{
   std::vector<CSCDDUStatusDigi>  vDDUSD_;
   std::vector<CSCDCCStatusDigi>  vDCCSD_;
   std::vector<CSCALCTStatusDigi>  vALCTSD_;
+  std::vector<CSCCLCTPreTrigger> vPreTriggerBX_;
 
-
-  std::vector<std::vector<CSCWireDigi> >  vvWD_; 
+  std::vector<std::vector<CSCWireDigi> >  vvWD_;
   std::vector<std::vector<CSCRPCDigi>  >  vvRD_;
-  std::vector<std::vector<CSCStripDigi> >  vvSD_; 
+  std::vector<std::vector<CSCStripDigi> >  vvSD_;
   std::vector<std::vector<CSCComparatorDigi> >  vvCD_;
   std::vector<std::vector<CSCCLCTDigi> > vvCLCTD_;
   std::vector<std::vector<CSCALCTDigi> > vvALCTD_;
   std::vector<std::vector<CSCCorrelatedLCTDigi> > vvCorLCTD_;
   std::vector<std::vector<CSCCFEBStatusDigi> >  vvCSD_;
-  std::vector<std::vector<CSCTMBStatusDigi> >  vvTMBSD_;  
+  std::vector<std::vector<CSCTMBStatusDigi> >  vvTMBSD_;
   std::vector<std::vector<CSCDMBStatusDigi> >  vvDMBSD_;
   std::vector<std::vector<CSCDCCFormatStatusDigi> >  vvDFSD_;
   std::vector<std::vector<CSCDDUStatusDigi> >  vvDDUSD_;
   std::vector<std::vector<CSCDCCStatusDigi> >  vvDCCSD_;
   std::vector<std::vector<CSCALCTStatusDigi> >  vvALCTSD_;
+  std::vector<std::vector<CSCCLCTPreTrigger> > vvPreTrigger_;
 
   CSCWireDigiCollection clWD_;
   CSCRPCDigiCollection  clRD_;
@@ -99,6 +100,7 @@ namespace{
   CSCDMBStatusDigiCollection clDDUSD_;
   CSCDMBStatusDigiCollection clDCCSD_;
   CSCDMBStatusDigiCollection clALCTSD_;
+  CSCCLCTPreTriggerCollection clPreTrigger_;
 
   edm::Wrapper<CSCWireDigiCollection> wWD_;
   edm::Wrapper<CSCRPCDigiCollection> wRD_;
@@ -108,13 +110,12 @@ namespace{
   edm::Wrapper<CSCALCTDigiCollection> wALCTD_;
   edm::Wrapper<CSCCorrelatedLCTDigiCollection> wCorLCTD_;
   edm::Wrapper<CSCCFEBStatusDigiCollection> wCSD_;
-  edm::Wrapper<CSCTMBStatusDigiCollection> wTMBSD_;  
+  edm::Wrapper<CSCTMBStatusDigiCollection> wTMBSD_;
   edm::Wrapper<CSCDCCFormatStatusDigiCollection> wDFSD_;
   edm::Wrapper<CSCDMBStatusDigiCollection> wDMBSD_;
   edm::Wrapper<CSCDDUStatusDigiCollection> wDDUSD_;
   edm::Wrapper<CSCDCCStatusDigiCollection> wDCCSD_;
   edm::Wrapper<CSCALCTStatusDigiCollection> wALCTSD_;
-
-
-  }
+  edm::Wrapper<CSCCLCTPreTriggerCollection> wPreTrigger_;
+  };
 }

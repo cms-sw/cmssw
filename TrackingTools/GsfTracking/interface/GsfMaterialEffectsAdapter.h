@@ -8,7 +8,7 @@
 /** Make standard (single state) MaterialEffectsUpdator usable in
  *  the context of GSF.
  */
-class GsfMaterialEffectsAdapter : public GsfMaterialEffectsUpdator 
+class GsfMaterialEffectsAdapter  GCC11_FINAL : public GsfMaterialEffectsUpdator 
 {
   virtual GsfMaterialEffectsAdapter* clone() const
   {
@@ -17,26 +17,17 @@ class GsfMaterialEffectsAdapter : public GsfMaterialEffectsUpdator
 
 public:
 
-//   GsfMaterialEffectsAdapter();
 
   GsfMaterialEffectsAdapter( const MaterialEffectsUpdator& aMEUpdator ) :
-    GsfMaterialEffectsUpdator(aMEUpdator.mass()),
-    theMEUpdator(aMEUpdator.clone()) {theWeights.push_back(1.);}
+    GsfMaterialEffectsUpdator(aMEUpdator.mass(),1),
+    theMEUpdator(aMEUpdator.clone()) {}
 
   ~GsfMaterialEffectsAdapter() {}
 
-private:
+  
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
 
-protected:
-  // check of arguments for use with cached values
-  virtual bool newArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const
-  {
-    return true;
-  }
-  // storage of arguments for later use of 
-  virtual void storeArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const {}
 
 private:  
   DeepCopyPointerByClone<MaterialEffectsUpdator> theMEUpdator;

@@ -4,8 +4,6 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2006/10/20 16:39:16 $
- * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -21,11 +19,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -42,16 +39,37 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
+//#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
+#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
+#include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
+#include "CondFormats/ESObjects/interface/ESPedestals.h"
+#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+namespace edm {
+  class StreamID;
+}
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class EcalMixingModuleValidation: public edm::EDAnalyzer{
 
@@ -68,10 +86,13 @@ EcalMixingModuleValidation(const edm::ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(edm::Event const & e, edm::EventSetup const & c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+// BeginRun
+void beginRun(edm::Run const &, edm::EventSetup const & c);
+
+// EndRun
+void endRun(const edm::Run& r, const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);
@@ -82,19 +103,21 @@ private:
 
  void findPedestal(const DetId & detId, int gainId, double & ped) const;
 
- void checkCalibrations(const edm::EventSetup & c);
- 
- std::string HepMCLabel;
+ void checkCalibrations(edm::EventSetup const & c);
  
  bool verbose_;
 
- DaqMonitorBEInterface* dbe_;
+ DQMStore* dbe_;
  
  std::string outputFile_;
-
- edm::InputTag EBdigiCollection_;
- edm::InputTag EEdigiCollection_;
- edm::InputTag ESdigiCollection_;
+ 
+ edm::EDGetTokenT<edm::HepMCProduct> HepMCToken_;
+ 
+ edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
+ edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
+ edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
+ 
+ edm::EDGetTokenT< CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_, crossingFramePCaloHitESToken_;
  
  std::map<int, double, std::less<int> > gainConv_;
 
@@ -126,15 +149,22 @@ private:
  MonitorElement* meESShapeRatio_;
 
  const EcalSimParameterMap * theParameterMap;
- const CaloVShape * theEcalShape;
- const ESShape * theESShape;
+ //const CaloVShape * theEcalShape;
+ ESShape * theESShape;
+ const EBShape *theEBShape;
+ const EEShape *theEEShape;
 
- CaloHitResponse * theEcalResponse;
+
+ //CaloHitResponse * theEcalResponse;
  CaloHitResponse * theESResponse;
+ CaloHitResponse * theEBResponse;
+ CaloHitResponse * theEEResponse;
  
- void computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold);
+ void computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine*);
 
  void bunchSumTest(std::vector<MonitorElement *> & theBunches, MonitorElement* & theTotal, MonitorElement* & theRatio, int nSample);
+
+ CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
  double esBaseline_;
  double esADCtokeV_;
@@ -148,6 +178,12 @@ private:
  // the pedestals
  const EcalPedestals * thePedestals;
 
+      int m_ESgain ;
+      const ESPedestals* m_ESpeds ;
+      const ESIntercalibConstants* m_ESmips ;
+      double m_ESeffwei ;
+
+  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
 
 #endif

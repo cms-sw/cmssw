@@ -6,8 +6,8 @@
 #include <vector>
 #include <map>
 
-namespace{ 
-  namespace {
+namespace DataFormats_DTDigi {
+  struct dictionary {
 
   DTDigi d;
   std::vector<DTDigi>  vv;
@@ -22,5 +22,5 @@ namespace{
   edm::Wrapper<DTDigiCollection> dw;
   edm::Wrapper<DTLocalTriggerCollection> tw;
 
-  }
+  };
 }

@@ -2,18 +2,22 @@
  *
  * \author Luca Lista, INFN
  */
+#include <sstream>
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 class ParticleTreeDrawer : public edm::EDAnalyzer {
 public:
   ParticleTreeDrawer( const edm::ParameterSet & );
 private:
-  void analyze( const edm::Event &, const edm::EventSetup & );
-  edm::InputTag src_;
+  std::string getParticleName( int id ) const;
+  void analyze( const edm::Event &, const edm::EventSetup&) override;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
   void printDecay( const reco::Candidate &, const std::string & pre ) const;
   edm::ESHandle<ParticleDataTable> pdt_;
   /// print parameters
@@ -35,17 +39,15 @@ private:
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <iostream>
 #include <algorithm>
 using namespace std;
 using namespace edm;
 using namespace reco;
-using namespace HepMC;
 
 ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
-  src_( cfg.getParameter<InputTag>( "src" ) ),
+  srcToken_( consumes<edm::View<reco::Candidate> >(cfg.getParameter<InputTag>( "src" ) ) ),
   printP4_( cfg.getUntrackedParameter<bool>( "printP4", false ) ),
   printPtEtaPhi_( cfg.getUntrackedParameter<bool>( "printPtEtaPhi", false ) ),
   printVertex_( cfg.getUntrackedParameter<bool>( "printVertex", false ) ),
@@ -67,16 +69,27 @@ bool ParticleTreeDrawer::hasValidDaughters( const reco::Candidate & c ) const {
   return false;
 }
 
-void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {  
+std::string ParticleTreeDrawer::getParticleName(int id) const
+{
+  const ParticleData * pd = pdt_->particle( id );
+  if (!pd) {
+    std::ostringstream ss;
+    ss << "P" << id;
+    return ss.str();
+  } else
+    return pd->name();
+}
+
+void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
   es.getData( pdt_ );
-  Handle<CandidateCollection> particles;
-  event.getByLabel( src_, particles );
+  Handle<View<Candidate> > particles;
+  event.getByToken( srcToken_, particles );
   cands_.clear();
-  for( CandidateCollection::const_iterator p = particles->begin();
+  for( View<Candidate>::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
     cands_.push_back( & * p );
   }
-  for( CandidateCollection::const_iterator p = particles->begin();
+  for( View<Candidate>::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
     if ( accept( * p ) ) {
       if ( p->mother() == 0 ) {
@@ -88,7 +101,7 @@ void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
 }
 
 void ParticleTreeDrawer::printInfo( const Candidate & c ) const {
-  if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
+  if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")";
   if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
   if ( printVertex_ ) cout << " {" << c.vx() << ", " << c.vy() << ", " << c.vz() << "}";
   if ( printStatus_ ) cout << "{status: " << c.status() << "}";
@@ -103,11 +116,7 @@ void ParticleTreeDrawer::printInfo( const Candidate & c ) const {
 }
 
 void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) const {
-  int id = c.pdgId();
-  const ParticleData * pd = pdt_->particle( id );  
-  assert( pd != 0 );
-
-  cout << pd->name(); 
+  cout << getParticleName( c.pdgId() );
   printInfo( c );
   cout << endl;
 
@@ -115,25 +124,23 @@ void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) c
   for( size_t i = 0; i < ndau; ++ i )
     if ( accept( * c.daughter( i ) ) )
       ++ validDau;
-    if ( validDau == 0 ) return;
-  
+  if ( validDau == 0 ) return;
+
   bool lastLevel = true;
   for( size_t i = 0; i < ndau; ++ i ) {
     if ( hasValidDaughters( * c.daughter( i ) ) ) {
       lastLevel = false;
       break;
-    }      
+    }
   }
-  
+
   if ( lastLevel ) {
     cout << pre << "+-> ";
     size_t vd = 0;
     for( size_t i = 0; i < ndau; ++ i ) {
       const Candidate * d = c.daughter( i );
       if ( accept( * d ) ) {
-	const ParticleData * pd = pdt_->particle( d->pdgId() );  
-	assert( pd != 0 );
-	cout << pd->name();
+	cout << getParticleName( d->pdgId() );
 	printInfo( * d );
 	if ( vd != validDau - 1 )
 	  cout << " ";
@@ -160,4 +167,5 @@ void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) c
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE( ParticleTreeDrawer );
+
 

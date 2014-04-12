@@ -18,6 +18,7 @@ class EntryAngle : public Entry
 public:
   //-  EntryAngle(){ };
   EntryAngle( const ALIstring& type ): Entry(type){ 
+    theDimType = ED_angle;
     //-    std::cout << "entryangle " << type << std::endl;
   };
   ~EntryAngle(){};

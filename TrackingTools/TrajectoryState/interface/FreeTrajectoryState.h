@@ -12,6 +12,11 @@
 
 #include <iosfwd>
 
+
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
+
+
 /** A 6-dimensional state vector of a helix given at some point in 
  *  space along the helix, and the associated error matrix.
  *  The error can be obtained in two different parametrizations:
@@ -21,58 +26,59 @@
  *  error parametrisations; it converts from one to the other internally.
  */
 
-class FreeTrajectoryState {
+class FreeTrajectoryState  {
 public:
 // construst
 //default constructor - needed for Persistency
 
-  FreeTrajectoryState():
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(false) {};
-
+  FreeTrajectoryState():  
+    theCurvilinearError(InvalidError()) {}
+  
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters) :
-    theGlobalParameters(aGlobalParameters),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(false)
-  {
-  }
-
+  theGlobalParameters(aGlobalParameters),  
+  theCurvilinearError(InvalidError())
+  {}
+  
   FreeTrajectoryState(const GlobalPoint& aX,
                       const GlobalVector& aP,
                       TrackCharge aCharge, 
                       const MagneticField* fieldProvider) :
-    theGlobalParameters(aX, aP, aCharge, fieldProvider),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(false)
-  {
-  }
+    theGlobalParameters(aX, aP, aCharge, fieldProvider),  
+    theCurvilinearError(InvalidError())
+  {}
+  
 
+  FreeTrajectoryState(const GlobalPoint& aX,
+                      const GlobalVector& aP,
+                      TrackCharge aCharge,
+                      const MagneticField* fieldProvider,
+                     GlobalVector fieldValue) :
+    theGlobalParameters(aX, aP, aCharge, fieldProvider,fieldValue),
+    theCurvilinearError(InvalidError())
+  {}
+
+
+  
+  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
+                      const CurvilinearTrajectoryError& aCurvilinearError) :
+    theGlobalParameters(aGlobalParameters),
+    theCurvilinearError(aCurvilinearError)
+  {}
+  
+  
+  
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CartesianTrajectoryError& aCartesianError) :
-    theGlobalParameters(aGlobalParameters),
-    theCartesianError(aCartesianError),
-    theCartesianErrorValid(true),
-    theCurvilinearErrorValid(false)
-  {
-  }
+    theGlobalParameters(aGlobalParameters)
+  { createCurvilinearError(aCartesianError);  }
+
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
+                      const CartesianTrajectoryError&,
                       const CurvilinearTrajectoryError& aCurvilinearError) :
     theGlobalParameters(aGlobalParameters),
-    theCurvilinearError(aCurvilinearError),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(true)
-  {
-  }
-  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
-                      const CartesianTrajectoryError& aCartesianError,
-                      const CurvilinearTrajectoryError& aCurvilinearError) :
-    theGlobalParameters(aGlobalParameters),
-    theCartesianError(aCartesianError),
-    theCurvilinearError(aCurvilinearError),
-    theCartesianErrorValid(true),
-    theCurvilinearErrorValid(true)
-  {
-  }
+    theCurvilinearError(aCurvilinearError)  
+  {}
+  
 // access
 // propagate access to parameters
   GlobalPoint position() const {
@@ -90,64 +96,67 @@ public:
   double transverseCurvature() const {
     return theGlobalParameters.transverseCurvature();
   }
+
 // direct access
-  bool hasCartesianError() const {return theCartesianErrorValid;}
-  bool hasCurvilinearError() const {return theCurvilinearErrorValid;}
+
+  bool hasCurvilinearError() const {return theCurvilinearError.valid();}
+
   bool hasError() const {
-    return theCurvilinearErrorValid || theCartesianErrorValid;
+    return hasCurvilinearError();
   }
+
+
   const GlobalTrajectoryParameters& parameters() const {
     return theGlobalParameters;
   }
-  const CartesianTrajectoryError& cartesianError() const {
-    if (!hasError()) throw TrajectoryStateException(
-      "FreeTrajectoryState: attempt to access errors when none available");
-    if (!theCartesianErrorValid)
-      createCartesianError();
-    return theCartesianError;
-  }
-  const CurvilinearTrajectoryError& curvilinearError() const {
-    if (!hasError()) throw TrajectoryStateException(
-      "FreeTrajectoryState: attempt to access errors when none available");
-    if (!theCurvilinearErrorValid)
-      createCurvilinearError();
-    return theCurvilinearError;
-  }
-  void rescaleError(double factor) {
-    if (theCartesianErrorValid)
-      theCartesianError *= (factor*factor);
-    if (theCurvilinearErrorValid)
-      theCurvilinearError *= (factor*factor);
+
+
+  CartesianTrajectoryError cartesianError() const {
+    if unlikely(!hasError()) missingError();
+    CartesianTrajectoryError aCartesianError;
+    createCartesianError(aCartesianError);
+    return aCartesianError;
   }
 
+  const CurvilinearTrajectoryError& curvilinearError() const {
+    if  unlikely(!hasError()) missingError();
+    return theCurvilinearError;
+  }
+
+  void rescaleError(double factor);
+
+
   void setCartesianError(const CartesianTrajectoryError &err) {
-        theCartesianError = err; theCartesianErrorValid = true;
+    createCurvilinearError(err);
   }
   void setCartesianError(const AlgebraicSymMatrix66 &err) {
-        theCartesianError = CartesianTrajectoryError(err); theCartesianErrorValid = true;
+    createCurvilinearError(CartesianTrajectoryError(err)); 
   }
+
   void setCurvilinearError(const CurvilinearTrajectoryError &err) {
-        theCurvilinearError = err; theCurvilinearErrorValid = true;
+        theCurvilinearError = err;
   }
   void setCurvilinearError(const AlgebraicSymMatrix55 &err) {
-        theCurvilinearError = CurvilinearTrajectoryError(err); theCurvilinearErrorValid = true;
+        theCurvilinearError = CurvilinearTrajectoryError(err); 
   }
-// properties
-  bool canReach(double radius) const;
+
 private:
+
+
+  void missingError() const; // dso_internal;
+
 // convert curvilinear errors to cartesian
-  void createCartesianError() const;
+  void createCartesianError(CartesianTrajectoryError & aCartesianError) const; // dso_internal;
+
+
 // convert cartesian errors to curvilinear
-  void createCurvilinearError() const;
+  void createCurvilinearError(CartesianTrajectoryError const & aCartesianError) const; // dso_internal;
 
 private:
 
   GlobalTrajectoryParameters  theGlobalParameters;
-  CartesianTrajectoryError    theCartesianError;
-  CurvilinearTrajectoryError  theCurvilinearError;
-  bool                        theCartesianErrorValid;
-  bool                        theCurvilinearErrorValid;
-
+  mutable CurvilinearTrajectoryError  theCurvilinearError;
+ 
 };
 
 std::ostream& operator<<(std::ostream& os, const FreeTrajectoryState& fts);

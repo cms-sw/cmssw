@@ -11,54 +11,40 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLPseudoTrap.h"
 
-
-// -------------------------------------------------------------------------
-// Includes 
-// -------------------------------------------------------------------------
-// Parser parts
-#include "DDLPseudoTrap.h"
-#include "DDLElementRegistry.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
-#include <string>
+DDLPseudoTrap::DDLPseudoTrap( DDLElementRegistry* myreg )
+  : DDLSolid( myreg )
+{}
 
-// Default constructor
-DDLPseudoTrap::DDLPseudoTrap()
-{
-}
-
-// Default destructor
-DDLPseudoTrap::~DDLPseudoTrap()
-{
-}
+DDLPseudoTrap::~DDLPseudoTrap( void )
+{}
 
 // Upon encountering an end of the tag, call DDCore's Trap.
-void DDLPseudoTrap::processElement (const std::string& type, const std::string& nmspace)
+void
+DDLPseudoTrap::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   DCOUT_V('P', "DDLPseudoTrap::processElement started");
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
-  DDSolid myTrap = DDSolidFactory::pseudoTrap(getDDName(nmspace)
-					      , ev.eval(nmspace, atts.find("dx1")->second)
-					      , ev.eval(nmspace, atts.find("dx2")->second)
-					      , ev.eval(nmspace, atts.find("dy1")->second)
-					      , ev.eval(nmspace, atts.find("dy2")->second)
-					      , ev.eval(nmspace, atts.find("dz")->second)
-					      , ev.eval(nmspace, atts.find("radius")->second)
-					      , (atts.find("atMinusZ")->second == "true") ? true : false
-					      );
+  DDSolid myTrap = DDSolidFactory::pseudoTrap( getDDName(nmspace),
+					       ev.eval(nmspace, atts.find("dx1")->second),
+					       ev.eval(nmspace, atts.find("dx2")->second),
+					       ev.eval(nmspace, atts.find("dy1")->second),
+					       ev.eval(nmspace, atts.find("dy2")->second),
+					       ev.eval(nmspace, atts.find("dz")->second),
+					       ev.eval(nmspace, atts.find("radius")->second),
+					       (atts.find("atMinusZ")->second == "true") ? true : false );
 
-  DDLSolid::setReference(nmspace);
+  DDLSolid::setReference(nmspace, cpv);
 
   DCOUT_V('P', "DDLPseudoTrap::processElement completed");
 }

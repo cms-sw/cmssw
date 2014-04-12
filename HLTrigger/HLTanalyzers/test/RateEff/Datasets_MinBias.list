@@ -1,0 +1,19 @@
+MinBias:
+ HLT_L1_BscMinBiasOR_BptxPlusORMinus
+ HLT_MinBiasBSC
+ HLT_MinBiasBSC_BPTX
+ HLT_ZeroBiasPixel_SingleTrack
+ HLT_MinBiasPixel_DoubleIsoTrack5
+ HLT_MinBiasPixel_DoubleTrack
+ HLT_MinBiasPixel_SingleTrack
+ HLT_PixelTracks_Multiplicity40
+ HLT_PixelTracks_Multiplicity70
+ HLT_SelectEcalSpikesHighEt_L1R
+ HLT_SelectEcalSpikes_L1R
+ HLT_StoppedHSCP_8E29
+ HLT_IsoTrackHB_8E29
+ HLT_IsoTrackHE_8E29
+ HLT_L1Tech_BSC_HighMultiplicity
+ HLT_L1Tech_HCAL_HF
+ HLT_L1Tech_BSC_halo_forPhysicsBackground
+ HLT_L1Tech_RPC_TTU_RBst1_collisions

@@ -1,0 +1,16 @@
+<TESTSCONFIGURATION>
+
+  <QTEST name="L1TSyncTest">
+    <TYPE>ContentsYRange</TYPE> 
+    <PARAM name="error">0.0</PARAM>
+    <PARAM name="warning">0.0</PARAM>
+    <PARAM name="ymin">0.80</PARAM>
+    <PARAM name="ymax">1.20</PARAM>
+    <PARAM name="useEmptyBins">1</PARAM>
+  </QTEST>
+
+  <LINK name="*L1TSync/Certification/*">
+    <TestName activate="true">L1TSyncTest</TestName>
+  </LINK>
+
+</TESTSCONFIGURATION>

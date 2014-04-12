@@ -1,8 +1,6 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2007/03/08 14:15:52 $
- * $Revision: 1.11 $
  * \author M. Sani
  * 
  */
@@ -52,19 +50,19 @@ CSCSegAlgoTC::CSCSegAlgoTC(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
 		  << "SegmentSorting = " << SegmentSorting << std::endl;
 }
 
-std::vector<CSCSegment> CSCSegAlgoTC::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoTC::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
   theChamber = aChamber; 
   return buildSegments(rechits); 
 }
 
-std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(const ChamberHitContainer& _rechits) {
   
   // Reimplementation of original algorithm of CSCSegmentizer, Mar-06
 
   LogDebug("CSC") << "*********************************************";
   LogDebug("CSC") << "Start segment building in the new chamber: " << theChamber->specs()->chamberTypeName();
   LogDebug("CSC") << "*********************************************";
-  
+  ChamberHitContainer rechits = _rechits;
   LayerIndex layerIndex(rechits.size());
   
   for(unsigned int i = 0; i < rechits.size(); i++) {
@@ -423,8 +421,8 @@ void CSCSegAlgoTC::fitSlopes() {
   // and the RecHit itself only knows its local position w.r.t.
   // the LAYER, so we must explicitly transform global position.
   
-  HepMatrix M(4,4,0);
-  HepVector B(4,0);
+  CLHEP::HepMatrix M(4,4,0);
+  CLHEP::HepVector B(4,0);
   
   ChamberHitContainer::const_iterator ih = proto_segment.begin();
   
@@ -441,7 +439,7 @@ void CSCSegAlgoTC::fitSlopes() {
     double z = lp.z();
     
     // ptc: Covariance matrix of local errors MUST BE CHECKED IF COMAPTIBLE
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,1) = IC(1,2); // since Cov is symmetric
@@ -484,7 +482,7 @@ void CSCSegAlgoTC::fitSlopes() {
   
   // Solve the matrix equation using CLHEP's 'solve'
   //@@ ptc: CAN solve FAIL?? UNCLEAR FROM (LACK OF) CLHEP DOC
-  HepVector p = solve(M, B);
+  CLHEP::HepVector p = solve(M, B);
   
   // Update member variables uz, vz, theOrigin
   theOrigin = LocalPoint(p(1), p(2), 0.);
@@ -517,7 +515,7 @@ void CSCSegAlgoTC::fillChiSquared() {
     double du = u0 + uz * hz - hu;
     double dv = v0 + vz * hz - hv;
     
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,1) = IC(1,2);
@@ -730,7 +728,7 @@ bool CSCSegAlgoTC::isSegmentGood(std::vector<ChamberHitContainer>::iterator seg,
   // 2) Ensure no hits on segment are already assigned to another segment
   //    (typically of higher quality)
   
-  unsigned int iadd = (rechitsInChamber.size() > 20 )? iadd = 1 : 0;  
+  unsigned int iadd = (rechitsInChamber.size() > 20 )?  1 : 0;  
   
   if (seg->size() < 3 + iadd)
     return false;
@@ -936,11 +934,11 @@ AlgebraicSymMatrix CSCSegAlgoTC::calculateError() const {
   return result;
 }
 
-HepMatrix CSCSegAlgoTC::derivativeMatrix() const {
+CLHEP::HepMatrix CSCSegAlgoTC::derivativeMatrix() const {
   
   ChamberHitContainer::const_iterator it;
   int nhits = proto_segment.size();
-  HepMatrix matrix(2*nhits, 4);
+  CLHEP::HepMatrix matrix(2*nhits, 4);
   int row = 0;
   
   for(it = proto_segment.begin(); it != proto_segment.end(); ++it) {

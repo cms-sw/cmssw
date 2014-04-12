@@ -2,7 +2,6 @@
 #define GeneratorInterface_HydjetInterface_HydjetWrapper
 
 //
-// $Id: HydjetWrapper.h,v 1.2 2007/04/28 16:08:16 mballint Exp $
 //
 
 /*
@@ -13,30 +12,26 @@
  *
  */
 
+extern "C" {
+   void hyinit_(double& energy,double& a,int& ifb1,double& bmin,double& bmax,double& bfix1,int& nh1);
+}
+#define HYINIT hyinit_
 
 #define _MAXMULsize_ 150000
 
-extern "C" {
-  void hydro_(float& a,int& ifb,float& bmin,float& bmax,float& bfix,int& nh);
-}
-#define HYDRO hydro_
-
 
 extern "C" {
-  extern struct{
-    int nnhyd;
-    int khyd[5][_MAXMULsize_];
-    float phyd[5][_MAXMULsize_];
-    float vhyd[5][_MAXMULsize_];
-  }hyd_;
+  void hyevnt_();
 }
-#define hyd hyd_
+#define HYEVNT hyevnt_
+
 
 extern "C" {
   extern struct {
-    float ytfl;
-    float ylfl;
-    float fpart;
+    double ytfl;
+    double ylfl;
+    double Tf;
+    double fpart;
   } hyflow_;
 }
 #define hyflow hyflow_
@@ -44,23 +39,41 @@ extern "C" {
 
 extern "C" {
   extern struct{
-    float bgen;
-    int nbcol;
-    int npart;
+    double bgen;
+    double nbcol;
+    double npart;
     int npyt;
     int nhyd;
   }hyfpar_;
 }
 #define hyfpar hyfpar_
 
+extern "C" {
+  extern struct {
+    double bminh;
+    double bmaxh;
+    double AW;
+    double RA;
+    double npar0;
+    double nbco0;
+    double Apb;
+    double Rpb;
+    int   np;
+    int   init;
+    int   ipr;
+  
+  } hyipar_;
+}
+#define hyipar	hyipar_
 
 
 extern "C" {
   extern struct{
-    int nl;
-    int kl[5][_MAXMULsize_];
-    float pl[5][_MAXMULsize_];
-    float vl[5][_MAXMULsize_];
+    int nhj;
+    int nhp;
+    int khj[5][_MAXMULsize_];
+    double phj[5][_MAXMULsize_];
+    double vhj[5][_MAXMULsize_];
   }hyjets_;
 }
 #define hyjets hyjets_
@@ -68,38 +81,17 @@ extern "C" {
 
 extern "C" {
   extern struct{
+
+    double ptmin;
+    double sigin;
+    double sigjet;
     int nhsel;
-    float ptmin;
-    float njet;
+    int ishad;
+    int njet;
+ 
   }hyjpar_;
 }
 #define hyjpar hyjpar_
-
-
-extern "C" {
-  extern struct{
-    int n;
-    int k[5][_MAXMULsize_];
-    float p[5][_MAXMULsize_];
-    float v[5][_MAXMULsize_];
-  }lujets_;
-}
-#define lujets lujets_
-
-
-// common /hyipar/ bminh,bmaxh,AW,RA,sigin,np  
-
-extern "C" {
-  extern struct {
-    float	bminh;
-	 float	bmaxh;
-	 float	AW;
-	 float	RA;
-	 float	sigin;
-	 float	np;
-  } hyipar_;
-}
-#define hyipar	hyipar_
 
 
 extern "C" {
@@ -109,5 +101,17 @@ extern "C" {
    } ludatr_;
 }
 #define ludatr ludatr_
+
+
+extern "C" {
+  extern struct{
+    double T0u;
+    double tau0u;
+    int   nfu;
+    int   ienglu;
+    int   ianglu;
+  }pyqpar_;
+}
+#define pyqpar pyqpar_
 
 #endif

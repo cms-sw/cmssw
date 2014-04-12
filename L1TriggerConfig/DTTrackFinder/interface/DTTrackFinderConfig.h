@@ -5,8 +5,6 @@
  *   L1 DT Track Finder ESProducer
  *
  *
- *   $Date: 2007/02/27 11:43:59 $
- *   $Revision: 1.2 $
  *
  *   J. Troconiz              UAM Madrid
  */
@@ -30,6 +28,10 @@
 #include "CondFormats/DataRecord/interface/L1MuDTEtaPatternLutRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTQualPatternLutRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFMasksRcd.h"
 
 #include <memory>
 #include <boost/shared_ptr.hpp>
@@ -52,6 +54,10 @@ class DTTrackFinderConfig : public edm::ESProducer {
   std::auto_ptr<L1MuDTEtaPatternLut> produceL1MuDTEtaPatternLut(const L1MuDTEtaPatternLutRcd&);
 
   std::auto_ptr<L1MuDTQualPatternLut> produceL1MuDTQualPatternLut(const L1MuDTQualPatternLutRcd&);
+
+  std::auto_ptr<L1MuDTTFParameters> produceL1MuDTTFParameters(const L1MuDTTFParametersRcd&);
+
+  std::auto_ptr<L1MuDTTFMasks> produceL1MuDTTFMasks(const L1MuDTTFMasksRcd&);
 
  private:
 

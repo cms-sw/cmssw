@@ -14,8 +14,6 @@
  *  This class stores all the MC truth information needed about the
  *  pi0 
  * 
- *  $Date: $
- *  $Revision  $
  *  \author N. Marinelli  University of Notre Dame
 */
 
@@ -25,22 +23,22 @@ class PizeroMCTruth {
 
   public:
     PizeroMCTruth();
-    PizeroMCTruth( const HepLorentzVector&  pizMom, 
+    PizeroMCTruth( const CLHEP::HepLorentzVector&  pizMom, 
 		   std::vector<PhotonMCTruth>& photons,
-		   const HepLorentzVector& pV);  
+		   const CLHEP::HepLorentzVector& pV);  
 		    
 
 
-    HepLorentzVector fourMomentum() const {return thePizero_;} 
-    HepLorentzVector primaryVertex() const {return thePrimaryVertex_;} 
+    CLHEP::HepLorentzVector fourMomentum() const {return thePizero_;} 
+    CLHEP::HepLorentzVector primaryVertex() const {return thePrimaryVertex_;} 
     std::vector<PhotonMCTruth> photons() const { return thePhotons_;}
  
 
 
  private:
-    HepLorentzVector thePizero_;
+    CLHEP::HepLorentzVector thePizero_;
     std::vector<PhotonMCTruth> thePhotons_;
-    HepLorentzVector thePrimaryVertex_;
+    CLHEP::HepLorentzVector thePrimaryVertex_;
     
 
 

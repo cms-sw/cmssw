@@ -1,2284 +1,1033 @@
 
 [oval run] =================================================
-[oval run] USER : uberthon
-[oval run] HOST : lxplus072.cern.ch
+[oval run] USER : ebecheva
+[oval run] HOST : lxcmsf3.cern.ch
 [oval run] run tool: oval
-[oval run] final instruction: ./validateTPG.csh
+[oval run] final instruction: ./validateTPG_suppressed.csh
 [oval run] =================================================
 
 ===================> Step1: executing EDProducer (TPGSimulation) 
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::Cartesian3D<double> already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::CylindricalEta3D<double> already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::Polar3D<double> already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::PxPyPzE4D<double> already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::PtEtaPhiE4D<double> already in TClassTable
-%MSG-w Root_Warning:  TClassTable::Add() 19-Feb-2007 15:36:12 CET pre-events
-class ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > already in TClassTable
-%MSG-i EcalGeom:  19-Feb-2007 15:36:12 CET pre-events
-Creating EcalBarrelNumberingScheme
-%MSG-i EcalGeom:  19-Feb-2007 15:36:12 CET pre-events
-Creating EcalEndcapNumberingScheme
-%MSG-i EcalGeom:  19-Feb-2007 15:36:12 CET pre-events
-Creating EcalPreshowerNumberingScheme
-%MSG-i DDLParser:  19-Feb-2007 15:36:13 CET pre-events
-Start Parsing.  Validation is set off for the time being.
-Element: Constant (64)
-MagneticFieldVolumes:MAGF
-Timing in XMLIdealGeometryESSource : Real Time = 1.07 (s), User Time = 0.99 (s), System Time = 0.08 (s), Cpu Time = 1.07 (s), Idle Time = 0 (s), 
-%MSG-i DDLParser:  19-Feb-2007 15:36:14 CET pre-events
-Start Parsing.  Validation is set off for the time being.
-Element: Constant (2333)
-cms:OCMS
-Timing in XMLIdealGeometryESSource : Real Time = 9.87 (s), User Time = 9.11 (s), System Time = 0.69 (s), Cpu Time = 9.8 (s), Idle Time = 0.07 (s), 
-%MSG-i Root_NoDictionary:  PoolSource:source{*ctor*} TClass::TClass() 
-       19-Feb-2007 15:36:55 CET pre-events
-no dictionary for class pair<unsigned int,vector<unsigned int> > is available
-%MSG-i Root_NoDictionary:  PoolSource:source{*ctor*} TClass::TClass() 
-       19-Feb-2007 15:37:04 CET pre-events
-no dictionary for class reco::JetTagProxy is available
-file:TrigPrim.root: level[Always] Root file version:51400
-%MSG-w EcalTPG:  AfterModuleConstruction 19-Feb-2007 15:38:19 CET pre-events
-Could not find parameter binOfMaximum in  product registry for EBDataFramesSorted, had to set binOfMaximum by  Hand
-Using default HCAL topology
-%MSG-i HcalHardcodeGeometry:  AfterModuleConstruction 19-Feb-2007 15:38:19 CET 
-       pre-events
-Number of HCAL DetIds made: 1 2592
-%MSG-i HcalHardcodeGeometry:  AfterModuleConstruction 19-Feb-2007 15:38:19 CET 
-       pre-events
-Number of HCAL DetIds made: 2 2592
-%MSG-i HcalHardcodeGeometry:  AfterModuleConstruction 19-Feb-2007 15:38:19 CET 
-       pre-events
-Number of HCAL DetIds made: 4 1728
-%MSG-i HcalHardcodeGeometry:  AfterModuleConstruction 19-Feb-2007 15:38:19 CET 
-       pre-events
-Number of HCAL DetIds made: 3 2160
-[EcalBarrelGeometryEP]::Constructing EcalBarrelGeometry
-[EcalBarrelGeometryLoaderFromDDD]:: start the construction of EcalBarrel
-[EcalBarrelGeometry] # of crystals in eta direction: 85
-[EcalBarrelGeometry] # of crystals in phi direction: 360
-[EcalBarrelGeometryLoaderFromDDD]:: Returning EcalBarrelGeometry
-[EcalEndcapGeometryEP]::Constructing EcalEndcapGeometry
-[EcalEndcapGeometryLoaderFromDDD]:: start the construction of EcalEndcap
-[EcalEndcapGeometry] # of modules: 316
-[EcalEndcapGeometry] # of crystal per module: 25
-[EcalEndcapGeometryLoaderFromDDD]:: Returning EcalEndcapGeometry
-[EcalPreshowerGeometryEP]::Constructing EcalPreshowerGeometry
-[EcalPreshowerGeometryLoaderFromDDD]:: start the construction of EcalPreshower
-[EcalPreshowerGeometry] # of strips : 137728
-[EcalPreshowerGeometryLoaderFromDDD]:: Returning EcalPreshowerGeometry
-%MSG-i Geometry:  AfterModuleConstruction 19-Feb-2007 15:38:47 CET pre-events
-CaloTowersHardcodeGeometry made 4392 towers.
-%MSG-i EcalTPG:  AfterModuleConstruction 19-Feb-2007 15:38:47 CET pre-events
-EcalTrigPrimProducer will write:  5 samples for each digi,  binOfMaximum used:  6
-%MSG-s TimeReport:  19-Feb-2007 15:38:47 CET BeforeEvents
+05-Feb-2009 13:56:17 CET  Initiating request to open file rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/28116A15-E9DD-DD11-9BA6-001617E30F4C.root
+05-Feb-2009 13:56:44 CET  Successfully opened file rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/28116A15-E9DD-DD11-9BA6-001617E30F4C.root
 TimeReport> Report activated
 TimeReport> Report columns headings for events: eventnum runnum timetaken
 TimeReport> Report columns headings for modules: eventnum runnum modulelabel modulename timetaken
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:47 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:47 CET BeforeEvents
-TimeModule> 0 0 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 3.50475e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:47 CET BeforeEvents
-TimeModule> 0 0 out PoolOutputModule 1.5974e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:47 CET BeforeEvents
-TimeModule> 0 0 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 2.00272e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:47 CET BeforeEvents
-TimeModule> 0 0 out PoolOutputModule 1.50204e-05
-%MSG-s TimeEvent:  PostModule 19-Feb-2007 15:38:47 CET Run: 5002 Event: 1
-TimeEvent> 1 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:48 CET Run: 5002 Event: 1
-
- =================> For Barrel + Endcap, 1834 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:48 CET Run: 5002 Event: 1
-TimeModule> 1 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.465572
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:48 CET Run: 5002 Event: 1
-TimeModule> 1 5002 out PoolOutputModule 0.576919
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:48 CET Run: 5002 Event: 1
-Begin processing the 2th record. Run 5002, Event 2
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:48 CET Run: 5002 Event: 2
-TimeEvent> 2 5002 1.38283e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:49 CET Run: 5002 Event: 2
-
- =================> For Barrel + Endcap, 1825 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:49 CET Run: 5002 Event: 2
-TimeModule> 2 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.186573
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:49 CET Run: 5002 Event: 2
-TimeModule> 2 5002 out PoolOutputModule 0.0666702
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:49 CET Run: 5002 Event: 2
-Begin processing the 3th record. Run 5002, Event 3
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:49 CET Run: 5002 Event: 3
-TimeEvent> 3 5002 1.3113e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:49 CET Run: 5002 Event: 3
-
- =================> For Barrel + Endcap, 1839 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:49 CET Run: 5002 Event: 3
-TimeModule> 3 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.191186
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:49 CET Run: 5002 Event: 3
-TimeModule> 3 5002 out PoolOutputModule 0.06109
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:49 CET Run: 5002 Event: 3
-Begin processing the 4th record. Run 5002, Event 4
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:49 CET Run: 5002 Event: 4
-TimeEvent> 4 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:49 CET Run: 5002 Event: 4
-
- =================> For Barrel + Endcap, 1911 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:49 CET Run: 5002 Event: 4
-TimeModule> 4 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.198705
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:49 CET Run: 5002 Event: 4
-TimeModule> 4 5002 out PoolOutputModule 0.0716341
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:49 CET Run: 5002 Event: 4
-Begin processing the 5th record. Run 5002, Event 5
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:49 CET Run: 5002 Event: 5
-TimeEvent> 5 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:49 CET Run: 5002 Event: 5
-
- =================> For Barrel + Endcap, 1892 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:49 CET Run: 5002 Event: 5
-TimeModule> 5 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.188056
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:50 CET Run: 5002 Event: 5
-TimeModule> 5 5002 out PoolOutputModule 0.0613101
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:50 CET Run: 5002 Event: 5
-Begin processing the 6th record. Run 5002, Event 6
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:50 CET Run: 5002 Event: 6
-TimeEvent> 6 5002 1.09673e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:50 CET Run: 5002 Event: 6
-
- =================> For Barrel + Endcap, 1855 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:50 CET Run: 5002 Event: 6
-TimeModule> 6 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.201692
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:50 CET Run: 5002 Event: 6
-TimeModule> 6 5002 out PoolOutputModule 0.070205
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:50 CET Run: 5002 Event: 6
-Begin processing the 7th record. Run 5002, Event 7
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:50 CET Run: 5002 Event: 7
-TimeEvent> 7 5002 2.00272e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:50 CET Run: 5002 Event: 7
-
- =================> For Barrel + Endcap, 1806 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:50 CET Run: 5002 Event: 7
-TimeModule> 7 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.192423
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:50 CET Run: 5002 Event: 7
-TimeModule> 7 5002 out PoolOutputModule 0.059027
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:50 CET Run: 5002 Event: 7
-Begin processing the 8th record. Run 5002, Event 8
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:50 CET Run: 5002 Event: 8
-TimeEvent> 8 5002 1.09673e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:50 CET Run: 5002 Event: 8
-
- =================> For Barrel + Endcap, 1910 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:50 CET Run: 5002 Event: 8
-TimeModule> 8 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.171032
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:50 CET Run: 5002 Event: 8
-TimeModule> 8 5002 out PoolOutputModule 0.0635698
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:50 CET Run: 5002 Event: 8
-Begin processing the 9th record. Run 5002, Event 9
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:50 CET Run: 5002 Event: 9
-TimeEvent> 9 5002 1.3113e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:51 CET Run: 5002 Event: 9
-
- =================> For Barrel + Endcap, 1911 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:51 CET Run: 5002 Event: 9
-TimeModule> 9 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.187038
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:51 CET Run: 5002 Event: 9
-TimeModule> 9 5002 out PoolOutputModule 0.0609391
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:51 CET Run: 5002 Event: 9
-Begin processing the 10th record. Run 5002, Event 10
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:51 CET Run: 5002 Event: 10
-TimeEvent> 10 5002 2.28882e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:51 CET Run: 5002 Event: 10
-
- =================> For Barrel + Endcap, 1856 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:51 CET Run: 5002 Event: 10
-TimeModule> 10 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.180149
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:51 CET Run: 5002 Event: 10
-TimeModule> 10 5002 out PoolOutputModule 0.0616531
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:51 CET 
-       Run: 5002 Event: 10
-Begin processing the 11th record. Run 5002, Event 11
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:51 CET Run: 5002 Event: 11
-TimeEvent> 11 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:51 CET Run: 5002 Event: 11
-
- =================> For Barrel + Endcap, 1817 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:51 CET Run: 5002 Event: 11
-TimeModule> 11 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.173907
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:51 CET Run: 5002 Event: 11
-TimeModule> 11 5002 out PoolOutputModule 0.058943
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:51 CET 
-       Run: 5002 Event: 11
-Begin processing the 12th record. Run 5002, Event 12
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:51 CET Run: 5002 Event: 12
-TimeEvent> 12 5002 2.09808e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:51 CET Run: 5002 Event: 12
-
- =================> For Barrel + Endcap, 1805 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:51 CET Run: 5002 Event: 12
-TimeModule> 12 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.182695
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:51 CET Run: 5002 Event: 12
-TimeModule> 12 5002 out PoolOutputModule 0.0712621
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:51 CET 
-       Run: 5002 Event: 12
-Begin processing the 13th record. Run 5002, Event 13
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:51 CET Run: 5002 Event: 13
-TimeEvent> 13 5002 1.09673e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:52 CET Run: 5002 Event: 13
-
- =================> For Barrel + Endcap, 1831 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:52 CET Run: 5002 Event: 13
-TimeModule> 13 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.18698
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:52 CET Run: 5002 Event: 13
-TimeModule> 13 5002 out PoolOutputModule 0.061867
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:52 CET 
-       Run: 5002 Event: 13
-Begin processing the 14th record. Run 5002, Event 14
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:52 CET Run: 5002 Event: 14
-TimeEvent> 14 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:52 CET Run: 5002 Event: 14
-
- =================> For Barrel + Endcap, 1775 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:52 CET Run: 5002 Event: 14
-TimeModule> 14 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.184464
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:52 CET Run: 5002 Event: 14
-TimeModule> 14 5002 out PoolOutputModule 0.062161
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:52 CET 
-       Run: 5002 Event: 14
-Begin processing the 15th record. Run 5002, Event 15
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:52 CET Run: 5002 Event: 15
-TimeEvent> 15 5002 1.3113e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:52 CET Run: 5002 Event: 15
-
- =================> For Barrel + Endcap, 1900 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:52 CET Run: 5002 Event: 15
-TimeModule> 15 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.180696
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:52 CET Run: 5002 Event: 15
-TimeModule> 15 5002 out PoolOutputModule 0.0669661
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:52 CET 
-       Run: 5002 Event: 15
-Begin processing the 16th record. Run 5002, Event 16
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:52 CET Run: 5002 Event: 16
-TimeEvent> 16 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:52 CET Run: 5002 Event: 16
-
- =================> For Barrel + Endcap, 1788 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:52 CET Run: 5002 Event: 16
-TimeModule> 16 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.1779
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:52 CET Run: 5002 Event: 16
-TimeModule> 16 5002 out PoolOutputModule 0.0648801
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:52 CET 
-       Run: 5002 Event: 16
-Begin processing the 17th record. Run 5002, Event 17
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:52 CET Run: 5002 Event: 17
-TimeEvent> 17 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:53 CET Run: 5002 Event: 17
-
- =================> For Barrel + Endcap, 1854 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:53 CET Run: 5002 Event: 17
-TimeModule> 17 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.184338
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:53 CET Run: 5002 Event: 17
-TimeModule> 17 5002 out PoolOutputModule 0.060981
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:53 CET 
-       Run: 5002 Event: 17
-Begin processing the 18th record. Run 5002, Event 18
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:53 CET Run: 5002 Event: 18
-TimeEvent> 18 5002 1.09673e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:53 CET Run: 5002 Event: 18
-
- =================> For Barrel + Endcap, 1824 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:53 CET Run: 5002 Event: 18
-TimeModule> 18 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.187061
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:53 CET Run: 5002 Event: 18
-TimeModule> 18 5002 out PoolOutputModule 0.064815
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:53 CET 
-       Run: 5002 Event: 18
-Begin processing the 19th record. Run 5002, Event 19
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:53 CET Run: 5002 Event: 19
-TimeEvent> 19 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:53 CET Run: 5002 Event: 19
-
- =================> For Barrel + Endcap, 1835 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:53 CET Run: 5002 Event: 19
-TimeModule> 19 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.183523
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:53 CET Run: 5002 Event: 19
-TimeModule> 19 5002 out PoolOutputModule 0.062597
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:53 CET 
-       Run: 5002 Event: 19
-Begin processing the 20th record. Run 5002, Event 20
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:53 CET Run: 5002 Event: 20
-TimeEvent> 20 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:53 CET Run: 5002 Event: 20
-
- =================> For Barrel + Endcap, 1886 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:53 CET Run: 5002 Event: 20
-TimeModule> 20 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.184582
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:53 CET Run: 5002 Event: 20
-TimeModule> 20 5002 out PoolOutputModule 0.0657039
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:53 CET 
-       Run: 5002 Event: 20
-Begin processing the 21th record. Run 5002, Event 21
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:53 CET Run: 5002 Event: 21
-TimeEvent> 21 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:54 CET Run: 5002 Event: 21
-
- =================> For Barrel + Endcap, 1807 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:54 CET Run: 5002 Event: 21
-TimeModule> 21 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.184127
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:54 CET Run: 5002 Event: 21
-TimeModule> 21 5002 out PoolOutputModule 0.060688
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:54 CET 
-       Run: 5002 Event: 21
-Begin processing the 22th record. Run 5002, Event 22
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:54 CET Run: 5002 Event: 22
-TimeEvent> 22 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:54 CET Run: 5002 Event: 22
-
- =================> For Barrel + Endcap, 1787 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:54 CET Run: 5002 Event: 22
-TimeModule> 22 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.196075
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:54 CET Run: 5002 Event: 22
-TimeModule> 22 5002 out PoolOutputModule 0.0652361
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:54 CET 
-       Run: 5002 Event: 22
-Begin processing the 23th record. Run 5002, Event 23
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:54 CET Run: 5002 Event: 23
-TimeEvent> 23 5002 1.38283e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:54 CET Run: 5002 Event: 23
-
- =================> For Barrel + Endcap, 1821 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:54 CET Run: 5002 Event: 23
-TimeModule> 23 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.201859
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:54 CET Run: 5002 Event: 23
-TimeModule> 23 5002 out PoolOutputModule 0.0658832
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:54 CET 
-       Run: 5002 Event: 23
-Begin processing the 24th record. Run 5002, Event 24
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:54 CET Run: 5002 Event: 24
-TimeEvent> 24 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:54 CET Run: 5002 Event: 24
-
- =================> For Barrel + Endcap, 1809 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:54 CET Run: 5002 Event: 24
-TimeModule> 24 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.200721
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:55 CET Run: 5002 Event: 24
-TimeModule> 24 5002 out PoolOutputModule 0.068562
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:55 CET 
-       Run: 5002 Event: 24
-Begin processing the 25th record. Run 5002, Event 25
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:55 CET Run: 5002 Event: 25
-TimeEvent> 25 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:55 CET Run: 5002 Event: 25
-
- =================> For Barrel + Endcap, 1824 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:55 CET Run: 5002 Event: 25
-TimeModule> 25 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.195735
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:55 CET Run: 5002 Event: 25
-TimeModule> 25 5002 out PoolOutputModule 0.0658121
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:55 CET 
-       Run: 5002 Event: 25
-Begin processing the 26th record. Run 5002, Event 26
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:55 CET Run: 5002 Event: 26
-TimeEvent> 26 5002 1.21593e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:55 CET Run: 5002 Event: 26
-
- =================> For Barrel + Endcap, 1803 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:55 CET Run: 5002 Event: 26
-TimeModule> 26 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.199388
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:55 CET Run: 5002 Event: 26
-TimeModule> 26 5002 out PoolOutputModule 0.064388
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:55 CET 
-       Run: 5002 Event: 26
-Begin processing the 27th record. Run 5002, Event 27
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:55 CET Run: 5002 Event: 27
-TimeEvent> 27 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:55 CET Run: 5002 Event: 27
-
- =================> For Barrel + Endcap, 1826 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:55 CET Run: 5002 Event: 27
-TimeModule> 27 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.19528
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:55 CET Run: 5002 Event: 27
-TimeModule> 27 5002 out PoolOutputModule 0.0654631
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:55 CET 
-       Run: 5002 Event: 27
-Begin processing the 28th record. Run 5002, Event 28
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:55 CET Run: 5002 Event: 28
-TimeEvent> 28 5002 1.5974e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:56 CET Run: 5002 Event: 28
-
- =================> For Barrel + Endcap, 1891 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:56 CET Run: 5002 Event: 28
-TimeModule> 28 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.19742
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:56 CET Run: 5002 Event: 28
-TimeModule> 28 5002 out PoolOutputModule 0.0698612
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:56 CET 
-       Run: 5002 Event: 28
-Begin processing the 29th record. Run 5002, Event 29
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:56 CET Run: 5002 Event: 29
-TimeEvent> 29 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:56 CET Run: 5002 Event: 29
-
- =================> For Barrel + Endcap, 1876 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:56 CET Run: 5002 Event: 29
-TimeModule> 29 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.185544
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:56 CET Run: 5002 Event: 29
-TimeModule> 29 5002 out PoolOutputModule 0.065289
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:56 CET 
-       Run: 5002 Event: 29
-Begin processing the 30th record. Run 5002, Event 30
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:56 CET Run: 5002 Event: 30
-TimeEvent> 30 5002 1.21593e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:56 CET Run: 5002 Event: 30
-
- =================> For Barrel + Endcap, 1839 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:56 CET Run: 5002 Event: 30
-TimeModule> 30 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.206437
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:56 CET Run: 5002 Event: 30
-TimeModule> 30 5002 out PoolOutputModule 0.0667901
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:56 CET 
-       Run: 5002 Event: 30
-Begin processing the 31th record. Run 5002, Event 31
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:56 CET Run: 5002 Event: 31
-TimeEvent> 31 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:56 CET Run: 5002 Event: 31
-
- =================> For Barrel + Endcap, 1828 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:56 CET Run: 5002 Event: 31
-TimeModule> 31 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.197094
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:56 CET Run: 5002 Event: 31
-TimeModule> 31 5002 out PoolOutputModule 0.0672259
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:56 CET 
-       Run: 5002 Event: 31
-Begin processing the 32th record. Run 5002, Event 32
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:56 CET Run: 5002 Event: 32
-TimeEvent> 32 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:57 CET Run: 5002 Event: 32
-
- =================> For Barrel + Endcap, 1818 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:57 CET Run: 5002 Event: 32
-TimeModule> 32 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.19885
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:57 CET Run: 5002 Event: 32
-TimeModule> 32 5002 out PoolOutputModule 0.068537
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:57 CET 
-       Run: 5002 Event: 32
-Begin processing the 33th record. Run 5002, Event 33
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:57 CET Run: 5002 Event: 33
-TimeEvent> 33 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:57 CET Run: 5002 Event: 33
-
- =================> For Barrel + Endcap, 1831 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:57 CET Run: 5002 Event: 33
-TimeModule> 33 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.194728
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:57 CET Run: 5002 Event: 33
-TimeModule> 33 5002 out PoolOutputModule 0.0660651
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:57 CET 
-       Run: 5002 Event: 33
-Begin processing the 34th record. Run 5002, Event 34
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:57 CET Run: 5002 Event: 34
-TimeEvent> 34 5002 1.71661e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:57 CET Run: 5002 Event: 34
-
- =================> For Barrel + Endcap, 1850 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:57 CET Run: 5002 Event: 34
-TimeModule> 34 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.181181
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:57 CET Run: 5002 Event: 34
-TimeModule> 34 5002 out PoolOutputModule 0.0633171
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:57 CET 
-       Run: 5002 Event: 34
-Begin processing the 35th record. Run 5002, Event 35
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:57 CET Run: 5002 Event: 35
-TimeEvent> 35 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:57 CET Run: 5002 Event: 35
-
- =================> For Barrel + Endcap, 1796 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:57 CET Run: 5002 Event: 35
-TimeModule> 35 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.200508
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:58 CET Run: 5002 Event: 35
-TimeModule> 35 5002 out PoolOutputModule 0.06426
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:58 CET 
-       Run: 5002 Event: 35
-Begin processing the 36th record. Run 5002, Event 36
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:58 CET Run: 5002 Event: 36
-TimeEvent> 36 5002 1.5974e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:58 CET Run: 5002 Event: 36
-
- =================> For Barrel + Endcap, 1933 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:58 CET Run: 5002 Event: 36
-TimeModule> 36 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.194494
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:58 CET Run: 5002 Event: 36
-TimeModule> 36 5002 out PoolOutputModule 0.0695021
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:58 CET 
-       Run: 5002 Event: 36
-Begin processing the 37th record. Run 5002, Event 37
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:58 CET Run: 5002 Event: 37
-TimeEvent> 37 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:58 CET Run: 5002 Event: 37
-
- =================> For Barrel + Endcap, 1822 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:58 CET Run: 5002 Event: 37
-TimeModule> 37 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.189739
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:58 CET Run: 5002 Event: 37
-TimeModule> 37 5002 out PoolOutputModule 0.06336
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:58 CET 
-       Run: 5002 Event: 37
-Begin processing the 38th record. Run 5002, Event 38
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:58 CET Run: 5002 Event: 38
-TimeEvent> 38 5002 1.50204e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:58 CET Run: 5002 Event: 38
-
- =================> For Barrel + Endcap, 1848 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:58 CET Run: 5002 Event: 38
-TimeModule> 38 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.184093
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:58 CET Run: 5002 Event: 38
-TimeModule> 38 5002 out PoolOutputModule 0.0696869
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:58 CET 
-       Run: 5002 Event: 38
-Begin processing the 39th record. Run 5002, Event 39
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:58 CET Run: 5002 Event: 39
-TimeEvent> 39 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:59 CET Run: 5002 Event: 39
-
- =================> For Barrel + Endcap, 1819 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:59 CET Run: 5002 Event: 39
-TimeModule> 39 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.197067
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:59 CET Run: 5002 Event: 39
-TimeModule> 39 5002 out PoolOutputModule 0.0608249
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:59 CET 
-       Run: 5002 Event: 39
-Begin processing the 40th record. Run 5002, Event 40
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:59 CET Run: 5002 Event: 40
-TimeEvent> 40 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:59 CET Run: 5002 Event: 40
-
- =================> For Barrel + Endcap, 1833 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:59 CET Run: 5002 Event: 40
-TimeModule> 40 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.186317
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:59 CET Run: 5002 Event: 40
-TimeModule> 40 5002 out PoolOutputModule 0.062413
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:59 CET 
-       Run: 5002 Event: 40
-Begin processing the 41th record. Run 5002, Event 41
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:59 CET Run: 5002 Event: 41
-TimeEvent> 41 5002 1.21593e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:59 CET Run: 5002 Event: 41
-
- =================> For Barrel + Endcap, 1807 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:59 CET Run: 5002 Event: 41
-TimeModule> 41 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.191123
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:59 CET Run: 5002 Event: 41
-TimeModule> 41 5002 out PoolOutputModule 0.060739
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:59 CET 
-       Run: 5002 Event: 41
-Begin processing the 42th record. Run 5002, Event 42
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:59 CET Run: 5002 Event: 42
-TimeEvent> 42 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:38:59 CET Run: 5002 Event: 42
-
- =================> For Barrel + Endcap, 1785 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:59 CET Run: 5002 Event: 42
-TimeModule> 42 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.178308
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:38:59 CET Run: 5002 Event: 42
-TimeModule> 42 5002 out PoolOutputModule 0.0628211
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:38:59 CET 
-       Run: 5002 Event: 42
-Begin processing the 43th record. Run 5002, Event 43
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:38:59 CET Run: 5002 Event: 43
-TimeEvent> 43 5002 1.50204e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:00 CET Run: 5002 Event: 43
-
- =================> For Barrel + Endcap, 1867 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:00 CET Run: 5002 Event: 43
-TimeModule> 43 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.192008
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:00 CET Run: 5002 Event: 43
-TimeModule> 43 5002 out PoolOutputModule 0.062762
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:00 CET 
-       Run: 5002 Event: 43
-Begin processing the 44th record. Run 5002, Event 44
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:00 CET Run: 5002 Event: 44
-TimeEvent> 44 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:00 CET Run: 5002 Event: 44
-
- =================> For Barrel + Endcap, 1832 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:00 CET Run: 5002 Event: 44
-TimeModule> 44 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.192153
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:00 CET Run: 5002 Event: 44
-TimeModule> 44 5002 out PoolOutputModule 0.0628259
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:00 CET 
-       Run: 5002 Event: 44
-Begin processing the 45th record. Run 5002, Event 45
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:00 CET Run: 5002 Event: 45
-TimeEvent> 45 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:00 CET Run: 5002 Event: 45
-
- =================> For Barrel + Endcap, 1870 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:00 CET Run: 5002 Event: 45
-TimeModule> 45 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.195491
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:00 CET Run: 5002 Event: 45
-TimeModule> 45 5002 out PoolOutputModule 0.0628409
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:00 CET 
-       Run: 5002 Event: 45
-Begin processing the 46th record. Run 5002, Event 46
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:00 CET Run: 5002 Event: 46
-TimeEvent> 46 5002 1.3113e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:00 CET Run: 5002 Event: 46
-
- =================> For Barrel + Endcap, 1837 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:00 CET Run: 5002 Event: 46
-TimeModule> 46 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.184722
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:00 CET Run: 5002 Event: 46
-TimeModule> 46 5002 out PoolOutputModule 0.063031
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:00 CET 
-       Run: 5002 Event: 46
-Begin processing the 47th record. Run 5002, Event 47
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:00 CET Run: 5002 Event: 47
-TimeEvent> 47 5002 1.38283e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:01 CET Run: 5002 Event: 47
-
- =================> For Barrel + Endcap, 1887 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:01 CET Run: 5002 Event: 47
-TimeModule> 47 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.188127
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:01 CET Run: 5002 Event: 47
-TimeModule> 47 5002 out PoolOutputModule 0.0607629
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:01 CET 
-       Run: 5002 Event: 47
-Begin processing the 48th record. Run 5002, Event 48
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:01 CET Run: 5002 Event: 48
-TimeEvent> 48 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:01 CET Run: 5002 Event: 48
-
- =================> For Barrel + Endcap, 1853 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:01 CET Run: 5002 Event: 48
-TimeModule> 48 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.179421
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:01 CET Run: 5002 Event: 48
-TimeModule> 48 5002 out PoolOutputModule 0.062614
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:01 CET 
-       Run: 5002 Event: 48
-Begin processing the 49th record. Run 5002, Event 49
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:01 CET Run: 5002 Event: 49
-TimeEvent> 49 5002 1.71661e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:01 CET Run: 5002 Event: 49
-
- =================> For Barrel + Endcap, 1906 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:01 CET Run: 5002 Event: 49
-TimeModule> 49 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.185941
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:01 CET Run: 5002 Event: 49
-TimeModule> 49 5002 out PoolOutputModule 0.0747578
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:01 CET 
-       Run: 5002 Event: 49
-Begin processing the 50th record. Run 5002, Event 50
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:01 CET Run: 5002 Event: 50
-TimeEvent> 50 5002 1.50204e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:01 CET Run: 5002 Event: 50
-
- =================> For Barrel + Endcap, 1809 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:01 CET Run: 5002 Event: 50
-TimeModule> 50 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.190713
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:01 CET Run: 5002 Event: 50
-TimeModule> 50 5002 out PoolOutputModule 0.0681179
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:02 CET 
-       Run: 5002 Event: 50
-Begin processing the 51th record. Run 5002, Event 51
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:02 CET Run: 5002 Event: 51
-TimeEvent> 51 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:02 CET Run: 5002 Event: 51
-
- =================> For Barrel + Endcap, 1802 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:02 CET Run: 5002 Event: 51
-TimeModule> 51 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.201147
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:02 CET Run: 5002 Event: 51
-TimeModule> 51 5002 out PoolOutputModule 0.0647559
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:02 CET 
-       Run: 5002 Event: 51
-Begin processing the 52th record. Run 5002, Event 52
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:02 CET Run: 5002 Event: 52
-TimeEvent> 52 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:02 CET Run: 5002 Event: 52
-
- =================> For Barrel + Endcap, 1796 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:02 CET Run: 5002 Event: 52
-TimeModule> 52 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.192963
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:02 CET Run: 5002 Event: 52
-TimeModule> 52 5002 out PoolOutputModule 0.0664852
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:02 CET 
-       Run: 5002 Event: 52
-Begin processing the 53th record. Run 5002, Event 53
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:02 CET Run: 5002 Event: 53
-TimeEvent> 53 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:02 CET Run: 5002 Event: 53
-
- =================> For Barrel + Endcap, 1835 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:02 CET Run: 5002 Event: 53
-TimeModule> 53 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.198978
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:02 CET Run: 5002 Event: 53
-TimeModule> 53 5002 out PoolOutputModule 0.0671091
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:02 CET 
-       Run: 5002 Event: 53
-Begin processing the 54th record. Run 5002, Event 54
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:02 CET Run: 5002 Event: 54
-TimeEvent> 54 5002 1.38283e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:03 CET Run: 5002 Event: 54
-
- =================> For Barrel + Endcap, 1786 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:03 CET Run: 5002 Event: 54
-TimeModule> 54 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.183662
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:03 CET Run: 5002 Event: 54
-TimeModule> 54 5002 out PoolOutputModule 0.068064
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:03 CET 
-       Run: 5002 Event: 54
-Begin processing the 55th record. Run 5002, Event 55
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:03 CET Run: 5002 Event: 55
-TimeEvent> 55 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:03 CET Run: 5002 Event: 55
-
- =================> For Barrel + Endcap, 1798 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:03 CET Run: 5002 Event: 55
-TimeModule> 55 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.204712
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:03 CET Run: 5002 Event: 55
-TimeModule> 55 5002 out PoolOutputModule 0.0653739
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:03 CET 
-       Run: 5002 Event: 55
-Begin processing the 56th record. Run 5002, Event 56
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:03 CET Run: 5002 Event: 56
-TimeEvent> 56 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:03 CET Run: 5002 Event: 56
-
- =================> For Barrel + Endcap, 1912 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:03 CET Run: 5002 Event: 56
-TimeModule> 56 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.205868
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:03 CET Run: 5002 Event: 56
-TimeModule> 56 5002 out PoolOutputModule 0.0730059
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:03 CET 
-       Run: 5002 Event: 56
-Begin processing the 57th record. Run 5002, Event 57
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:03 CET Run: 5002 Event: 57
-TimeEvent> 57 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:03 CET Run: 5002 Event: 57
-
- =================> For Barrel + Endcap, 1778 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:03 CET Run: 5002 Event: 57
-TimeModule> 57 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.198652
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:03 CET Run: 5002 Event: 57
-TimeModule> 57 5002 out PoolOutputModule 0.060869
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:03 CET 
-       Run: 5002 Event: 57
-Begin processing the 58th record. Run 5002, Event 58
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:03 CET Run: 5002 Event: 58
-TimeEvent> 58 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:04 CET Run: 5002 Event: 58
-
- =================> For Barrel + Endcap, 1842 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:04 CET Run: 5002 Event: 58
-TimeModule> 58 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.19566
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:04 CET Run: 5002 Event: 58
-TimeModule> 58 5002 out PoolOutputModule 0.0653069
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:04 CET 
-       Run: 5002 Event: 58
-Begin processing the 59th record. Run 5002, Event 59
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:04 CET Run: 5002 Event: 59
-TimeEvent> 59 5002 1.50204e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:04 CET Run: 5002 Event: 59
-
- =================> For Barrel + Endcap, 1834 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:04 CET Run: 5002 Event: 59
-TimeModule> 59 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.187648
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:04 CET Run: 5002 Event: 59
-TimeModule> 59 5002 out PoolOutputModule 0.061296
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:04 CET 
-       Run: 5002 Event: 59
-Begin processing the 60th record. Run 5002, Event 60
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:04 CET Run: 5002 Event: 60
-TimeEvent> 60 5002 1.3113e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:04 CET Run: 5002 Event: 60
-
- =================> For Barrel + Endcap, 1793 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:04 CET Run: 5002 Event: 60
-TimeModule> 60 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.188632
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:04 CET Run: 5002 Event: 60
-TimeModule> 60 5002 out PoolOutputModule 0.0694859
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:04 CET 
-       Run: 5002 Event: 60
-Begin processing the 61th record. Run 5002, Event 61
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:04 CET Run: 5002 Event: 61
-TimeEvent> 61 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:04 CET Run: 5002 Event: 61
-
- =================> For Barrel + Endcap, 1799 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:04 CET Run: 5002 Event: 61
-TimeModule> 61 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.187112
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:04 CET Run: 5002 Event: 61
-TimeModule> 61 5002 out PoolOutputModule 0.0606129
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:04 CET 
-       Run: 5002 Event: 61
-Begin processing the 62th record. Run 5002, Event 62
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:04 CET Run: 5002 Event: 62
-TimeEvent> 62 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:05 CET Run: 5002 Event: 62
-
- =================> For Barrel + Endcap, 1906 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:05 CET Run: 5002 Event: 62
-TimeModule> 62 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.181002
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:05 CET Run: 5002 Event: 62
-TimeModule> 62 5002 out PoolOutputModule 0.0639689
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:05 CET 
-       Run: 5002 Event: 62
-Begin processing the 63th record. Run 5002, Event 63
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:05 CET Run: 5002 Event: 63
-TimeEvent> 63 5002 1.21593e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:05 CET Run: 5002 Event: 63
-
- =================> For Barrel + Endcap, 1886 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:05 CET Run: 5002 Event: 63
-TimeModule> 63 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.190561
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:05 CET Run: 5002 Event: 63
-TimeModule> 63 5002 out PoolOutputModule 0.063488
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:05 CET 
-       Run: 5002 Event: 63
-Begin processing the 64th record. Run 5002, Event 64
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:05 CET Run: 5002 Event: 64
-TimeEvent> 64 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:05 CET Run: 5002 Event: 64
-
- =================> For Barrel + Endcap, 1913 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:05 CET Run: 5002 Event: 64
-TimeModule> 64 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.192849
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:05 CET Run: 5002 Event: 64
-TimeModule> 64 5002 out PoolOutputModule 0.064364
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:05 CET 
-       Run: 5002 Event: 64
-Begin processing the 65th record. Run 5002, Event 65
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:05 CET Run: 5002 Event: 65
-TimeEvent> 65 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:05 CET Run: 5002 Event: 65
-
- =================> For Barrel + Endcap, 1853 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:05 CET Run: 5002 Event: 65
-TimeModule> 65 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.173391
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:06 CET Run: 5002 Event: 65
-TimeModule> 65 5002 out PoolOutputModule 0.0616751
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:06 CET 
-       Run: 5002 Event: 65
-Begin processing the 66th record. Run 5002, Event 66
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:06 CET Run: 5002 Event: 66
-TimeEvent> 66 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:06 CET Run: 5002 Event: 66
-
- =================> For Barrel + Endcap, 1808 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:06 CET Run: 5002 Event: 66
-TimeModule> 66 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.192513
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:06 CET Run: 5002 Event: 66
-TimeModule> 66 5002 out PoolOutputModule 0.0620928
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:06 CET 
-       Run: 5002 Event: 66
-Begin processing the 67th record. Run 5002, Event 67
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:06 CET Run: 5002 Event: 67
-TimeEvent> 67 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:06 CET Run: 5002 Event: 67
-
- =================> For Barrel + Endcap, 1833 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:06 CET Run: 5002 Event: 67
-TimeModule> 67 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.190866
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:06 CET Run: 5002 Event: 67
-TimeModule> 67 5002 out PoolOutputModule 0.0597529
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:06 CET 
-       Run: 5002 Event: 67
-Begin processing the 68th record. Run 5002, Event 68
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:06 CET Run: 5002 Event: 68
-TimeEvent> 68 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:06 CET Run: 5002 Event: 68
-
- =================> For Barrel + Endcap, 1823 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:06 CET Run: 5002 Event: 68
-TimeModule> 68 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.191626
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:06 CET Run: 5002 Event: 68
-TimeModule> 68 5002 out PoolOutputModule 0.0629559
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:06 CET 
-       Run: 5002 Event: 68
-Begin processing the 69th record. Run 5002, Event 69
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:06 CET Run: 5002 Event: 69
-TimeEvent> 69 5002 1.21593e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:07 CET Run: 5002 Event: 69
-
- =================> For Barrel + Endcap, 1854 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:07 CET Run: 5002 Event: 69
-TimeModule> 69 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.194721
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:07 CET Run: 5002 Event: 69
-TimeModule> 69 5002 out PoolOutputModule 0.060415
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:07 CET 
-       Run: 5002 Event: 69
-Begin processing the 70th record. Run 5002, Event 70
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:07 CET Run: 5002 Event: 70
-TimeEvent> 70 5002 1.38283e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:07 CET Run: 5002 Event: 70
-
- =================> For Barrel + Endcap, 1843 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:07 CET Run: 5002 Event: 70
-TimeModule> 70 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.17624
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:07 CET Run: 5002 Event: 70
-TimeModule> 70 5002 out PoolOutputModule 0.0625122
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:07 CET 
-       Run: 5002 Event: 70
-Begin processing the 71th record. Run 5002, Event 71
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:07 CET Run: 5002 Event: 71
-TimeEvent> 71 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:07 CET Run: 5002 Event: 71
-
- =================> For Barrel + Endcap, 1870 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:07 CET Run: 5002 Event: 71
-TimeModule> 71 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.180575
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:07 CET Run: 5002 Event: 71
-TimeModule> 71 5002 out PoolOutputModule 0.061295
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:07 CET 
-       Run: 5002 Event: 71
-Begin processing the 72th record. Run 5002, Event 72
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:07 CET Run: 5002 Event: 72
-TimeEvent> 72 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:07 CET Run: 5002 Event: 72
-
- =================> For Barrel + Endcap, 1839 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:07 CET Run: 5002 Event: 72
-TimeModule> 72 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.192726
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:07 CET Run: 5002 Event: 72
-TimeModule> 72 5002 out PoolOutputModule 0.062819
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:07 CET 
-       Run: 5002 Event: 72
-Begin processing the 73th record. Run 5002, Event 73
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:07 CET Run: 5002 Event: 73
-TimeEvent> 73 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:08 CET Run: 5002 Event: 73
-
- =================> For Barrel + Endcap, 1851 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:08 CET Run: 5002 Event: 73
-TimeModule> 73 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.180972
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:08 CET Run: 5002 Event: 73
-TimeModule> 73 5002 out PoolOutputModule 0.0602849
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:08 CET 
-       Run: 5002 Event: 73
-Begin processing the 74th record. Run 5002, Event 74
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:08 CET Run: 5002 Event: 74
-TimeEvent> 74 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:08 CET Run: 5002 Event: 74
-
- =================> For Barrel + Endcap, 1798 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:08 CET Run: 5002 Event: 74
-TimeModule> 74 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.183953
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:08 CET Run: 5002 Event: 74
-TimeModule> 74 5002 out PoolOutputModule 0.062712
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:08 CET 
-       Run: 5002 Event: 74
-Begin processing the 75th record. Run 5002, Event 75
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:08 CET Run: 5002 Event: 75
-TimeEvent> 75 5002 1.21593e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:08 CET Run: 5002 Event: 75
-
- =================> For Barrel + Endcap, 1845 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:08 CET Run: 5002 Event: 75
-TimeModule> 75 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.192916
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:08 CET Run: 5002 Event: 75
-TimeModule> 75 5002 out PoolOutputModule 0.059886
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:08 CET 
-       Run: 5002 Event: 75
-Begin processing the 76th record. Run 5002, Event 76
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:08 CET Run: 5002 Event: 76
-TimeEvent> 76 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:08 CET Run: 5002 Event: 76
-
- =================> For Barrel + Endcap, 1809 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:08 CET Run: 5002 Event: 76
-TimeModule> 76 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.177863
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:08 CET Run: 5002 Event: 76
-TimeModule> 76 5002 out PoolOutputModule 0.063678
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:08 CET 
-       Run: 5002 Event: 76
-Begin processing the 77th record. Run 5002, Event 77
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:08 CET Run: 5002 Event: 77
-TimeEvent> 77 5002 1.3113e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:09 CET Run: 5002 Event: 77
-
- =================> For Barrel + Endcap, 1855 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:09 CET Run: 5002 Event: 77
-TimeModule> 77 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.186079
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:09 CET Run: 5002 Event: 77
-TimeModule> 77 5002 out PoolOutputModule 0.061852
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:09 CET 
-       Run: 5002 Event: 77
-Begin processing the 78th record. Run 5002, Event 78
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:09 CET Run: 5002 Event: 78
-TimeEvent> 78 5002 1.38283e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:09 CET Run: 5002 Event: 78
-
- =================> For Barrel + Endcap, 1845 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:09 CET Run: 5002 Event: 78
-TimeModule> 78 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.195051
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:09 CET Run: 5002 Event: 78
-TimeModule> 78 5002 out PoolOutputModule 0.0632122
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:09 CET 
-       Run: 5002 Event: 78
-Begin processing the 79th record. Run 5002, Event 79
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:09 CET Run: 5002 Event: 79
-TimeEvent> 79 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:09 CET Run: 5002 Event: 79
-
- =================> For Barrel + Endcap, 1806 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:09 CET Run: 5002 Event: 79
-TimeModule> 79 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.182425
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:09 CET Run: 5002 Event: 79
-TimeModule> 79 5002 out PoolOutputModule 0.0607162
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:09 CET 
-       Run: 5002 Event: 79
-Begin processing the 80th record. Run 5002, Event 80
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:09 CET Run: 5002 Event: 80
-TimeEvent> 80 5002 1.40667e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:09 CET Run: 5002 Event: 80
-
- =================> For Barrel + Endcap, 1779 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:09 CET Run: 5002 Event: 80
-TimeModule> 80 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.18593
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:09 CET Run: 5002 Event: 80
-TimeModule> 80 5002 out PoolOutputModule 0.0627038
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:09 CET 
-       Run: 5002 Event: 80
-Begin processing the 81th record. Run 5002, Event 81
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:09 CET Run: 5002 Event: 81
-TimeEvent> 81 5002 1.21593e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:10 CET Run: 5002 Event: 81
-
- =================> For Barrel + Endcap, 1931 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:10 CET Run: 5002 Event: 81
-TimeModule> 81 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.178638
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:10 CET Run: 5002 Event: 81
-TimeModule> 81 5002 out PoolOutputModule 0.063647
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:10 CET 
-       Run: 5002 Event: 81
-Begin processing the 82th record. Run 5002, Event 82
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:10 CET Run: 5002 Event: 82
-TimeEvent> 82 5002 1.21593e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:10 CET Run: 5002 Event: 82
-
- =================> For Barrel + Endcap, 1815 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:10 CET Run: 5002 Event: 82
-TimeModule> 82 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.190548
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:10 CET Run: 5002 Event: 82
-TimeModule> 82 5002 out PoolOutputModule 0.0621941
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:10 CET 
-       Run: 5002 Event: 82
-Begin processing the 83th record. Run 5002, Event 83
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:10 CET Run: 5002 Event: 83
-TimeEvent> 83 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:10 CET Run: 5002 Event: 83
-
- =================> For Barrel + Endcap, 1825 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:10 CET Run: 5002 Event: 83
-TimeModule> 83 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.17908
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:10 CET Run: 5002 Event: 83
-TimeModule> 83 5002 out PoolOutputModule 0.061022
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:10 CET 
-       Run: 5002 Event: 83
-Begin processing the 84th record. Run 5002, Event 84
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:10 CET Run: 5002 Event: 84
-TimeEvent> 84 5002 1.38283e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:10 CET Run: 5002 Event: 84
-
- =================> For Barrel + Endcap, 1842 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:10 CET Run: 5002 Event: 84
-TimeModule> 84 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.190526
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:10 CET Run: 5002 Event: 84
-TimeModule> 84 5002 out PoolOutputModule 0.063072
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:10 CET 
-       Run: 5002 Event: 84
-Begin processing the 85th record. Run 5002, Event 85
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:10 CET Run: 5002 Event: 85
-TimeEvent> 85 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:11 CET Run: 5002 Event: 85
-
- =================> For Barrel + Endcap, 1826 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:11 CET Run: 5002 Event: 85
-TimeModule> 85 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.192564
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:11 CET Run: 5002 Event: 85
-TimeModule> 85 5002 out PoolOutputModule 0.0613642
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:11 CET 
-       Run: 5002 Event: 85
-Begin processing the 86th record. Run 5002, Event 86
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:11 CET Run: 5002 Event: 86
-TimeEvent> 86 5002 1.62125e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:11 CET Run: 5002 Event: 86
-
- =================> For Barrel + Endcap, 1833 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:11 CET Run: 5002 Event: 86
-TimeModule> 86 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.191196
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:11 CET Run: 5002 Event: 86
-TimeModule> 86 5002 out PoolOutputModule 0.061878
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:11 CET 
-       Run: 5002 Event: 86
-Begin processing the 87th record. Run 5002, Event 87
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:11 CET Run: 5002 Event: 87
-TimeEvent> 87 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:11 CET Run: 5002 Event: 87
-
- =================> For Barrel + Endcap, 1859 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:11 CET Run: 5002 Event: 87
-TimeModule> 87 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.185292
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:11 CET Run: 5002 Event: 87
-TimeModule> 87 5002 out PoolOutputModule 0.0699601
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:11 CET 
-       Run: 5002 Event: 87
-Begin processing the 88th record. Run 5002, Event 88
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:11 CET Run: 5002 Event: 88
-TimeEvent> 88 5002 1.3113e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:11 CET Run: 5002 Event: 88
-
- =================> For Barrel + Endcap, 1870 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:11 CET Run: 5002 Event: 88
-TimeModule> 88 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.178234
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:12 CET Run: 5002 Event: 88
-TimeModule> 88 5002 out PoolOutputModule 0.0612991
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:12 CET 
-       Run: 5002 Event: 88
-Begin processing the 89th record. Run 5002, Event 89
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:12 CET Run: 5002 Event: 89
-TimeEvent> 89 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:12 CET Run: 5002 Event: 89
-
- =================> For Barrel + Endcap, 1867 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:12 CET Run: 5002 Event: 89
-TimeModule> 89 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.164207
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:12 CET Run: 5002 Event: 89
-TimeModule> 89 5002 out PoolOutputModule 0.0608702
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:12 CET 
-       Run: 5002 Event: 89
-Begin processing the 90th record. Run 5002, Event 90
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:12 CET Run: 5002 Event: 90
-TimeEvent> 90 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:12 CET Run: 5002 Event: 90
-
- =================> For Barrel + Endcap, 1788 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:12 CET Run: 5002 Event: 90
-TimeModule> 90 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.179844
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:12 CET Run: 5002 Event: 90
-TimeModule> 90 5002 out PoolOutputModule 0.060282
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:12 CET 
-       Run: 5002 Event: 90
-Begin processing the 91th record. Run 5002, Event 91
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:12 CET Run: 5002 Event: 91
-TimeEvent> 91 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:12 CET Run: 5002 Event: 91
-
- =================> For Barrel + Endcap, 1784 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:12 CET Run: 5002 Event: 91
-TimeModule> 91 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.178013
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:12 CET Run: 5002 Event: 91
-TimeModule> 91 5002 out PoolOutputModule 0.0590742
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:12 CET 
-       Run: 5002 Event: 91
-Begin processing the 92th record. Run 5002, Event 92
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:12 CET Run: 5002 Event: 92
-TimeEvent> 92 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:12 CET Run: 5002 Event: 92
-
- =================> For Barrel + Endcap, 1848 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:12 CET Run: 5002 Event: 92
-TimeModule> 92 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.176555
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:13 CET Run: 5002 Event: 92
-TimeModule> 92 5002 out PoolOutputModule 0.0621769
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:13 CET 
-       Run: 5002 Event: 92
-Begin processing the 93th record. Run 5002, Event 93
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:13 CET Run: 5002 Event: 93
-TimeEvent> 93 5002 1.12057e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:13 CET Run: 5002 Event: 93
-
- =================> For Barrel + Endcap, 1904 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:13 CET Run: 5002 Event: 93
-TimeModule> 93 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.181133
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:13 CET Run: 5002 Event: 93
-TimeModule> 93 5002 out PoolOutputModule 0.062484
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:13 CET 
-       Run: 5002 Event: 93
-Begin processing the 94th record. Run 5002, Event 94
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:13 CET Run: 5002 Event: 94
-TimeEvent> 94 5002 1.19209e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:13 CET Run: 5002 Event: 94
-
- =================> For Barrel + Endcap, 1828 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:13 CET Run: 5002 Event: 94
-TimeModule> 94 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.170478
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:13 CET Run: 5002 Event: 94
-TimeModule> 94 5002 out PoolOutputModule 0.061583
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:13 CET 
-       Run: 5002 Event: 94
-Begin processing the 95th record. Run 5002, Event 95
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:13 CET Run: 5002 Event: 95
-TimeEvent> 95 5002 1.28746e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:13 CET Run: 5002 Event: 95
-
- =================> For Barrel + Endcap, 1899 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:13 CET Run: 5002 Event: 95
-TimeModule> 95 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.174634
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:13 CET Run: 5002 Event: 95
-TimeModule> 95 5002 out PoolOutputModule 0.059999
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:13 CET 
-       Run: 5002 Event: 95
-Begin processing the 96th record. Run 5002, Event 96
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:13 CET Run: 5002 Event: 96
-TimeEvent> 96 5002 1.21593e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:13 CET Run: 5002 Event: 96
-
- =================> For Barrel + Endcap, 1880 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:13 CET Run: 5002 Event: 96
-TimeModule> 96 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.186502
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:14 CET Run: 5002 Event: 96
-TimeModule> 96 5002 out PoolOutputModule 0.062634
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:14 CET 
-       Run: 5002 Event: 96
-Begin processing the 97th record. Run 5002, Event 97
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:14 CET Run: 5002 Event: 97
-TimeEvent> 97 5002 1.78814e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:14 CET Run: 5002 Event: 97
-
- =================> For Barrel + Endcap, 1870 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:14 CET Run: 5002 Event: 97
-TimeModule> 97 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.2046
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:14 CET Run: 5002 Event: 97
-TimeModule> 97 5002 out PoolOutputModule 0.0657799
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:14 CET 
-       Run: 5002 Event: 97
-Begin processing the 98th record. Run 5002, Event 98
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:14 CET Run: 5002 Event: 98
-TimeEvent> 98 5002 2.09808e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:14 CET Run: 5002 Event: 98
-
- =================> For Barrel + Endcap, 1877 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:14 CET Run: 5002 Event: 98
-TimeModule> 98 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.194462
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:14 CET Run: 5002 Event: 98
-TimeModule> 98 5002 out PoolOutputModule 0.068964
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:14 CET 
-       Run: 5002 Event: 98
-Begin processing the 99th record. Run 5002, Event 99
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:14 CET Run: 5002 Event: 99
-TimeEvent> 99 5002 1.3113e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:14 CET Run: 5002 Event: 99
-
- =================> For Barrel + Endcap, 1895 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:14 CET Run: 5002 Event: 99
-TimeModule> 99 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.181988
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:14 CET Run: 5002 Event: 99
-TimeModule> 99 5002 out PoolOutputModule 0.060868
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:14 CET 
-       Run: 5002 Event: 99
-Begin processing the 100th record. Run 5002, Event 100
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:14 CET Run: 5002 Event: 100
-TimeEvent> 100 5002 1.09673e-05
-%MSG-i EcalTPG:  EcalTrigPrimProducer:ecalTriggerPrimitiveDigis 
-       19-Feb-2007 15:39:15 CET Run: 5002 Event: 100
-
- =================> For Barrel + Endcap, 1815 TP  Digis were produced (including zero ones)
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:15 CET Run: 5002 Event: 100
-TimeModule> 100 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 0.212631
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:15 CET Run: 5002 Event: 100
-TimeModule> 100 5002 out PoolOutputModule 0.309187
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:15 CET Run: 5002 Event: 100
-TimeModule> 100 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 1.78814e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:15 CET Run: 5002 Event: 100
-TimeModule> 100 5002 out PoolOutputModule 0.00520301
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:15 CET Run: 5002 Event: 100
-TimeModule> 100 5002 ecalTriggerPrimitiveDigis EcalTrigPrimProducer 1.90735e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:15 CET Run: 5002 Event: 100
-TimeModule> 100 5002 out PoolOutputModule 0.00503206
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-<File>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:TrigPrim.root</PFN>
-<Catalog>file:PoolFileCatalog.xml</Catalog>
-<ModuleLabel>out</ModuleLabel>
-<GUID>BA9FD9BC-26C0-DB11-A802-000E0C4D36EA</GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-  <Branch>EcalTriggerPrimitiveDigisSorted_ecalTriggerPrimitiveDigis__PROTPGD.</Branch>
-</Branches>
-<OutputModuleClass>PoolOutputModule</OutputModuleClass>
-<TotalEvents>100</TotalEvents>
-
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-<Inputs>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-<Input>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-  <LFN></LFN>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-  <PFN>rfio:/castor/cern.ch/cms/store/RelVal/2006/12/16/RelVal120SingleEPt35/0000/D41C6AF5-588D-DB11-9E2D-0013D4C3BAFA.root</PFN>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-</Input>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-</Inputs>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-</File>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>rfio:/castor/cern.ch/cms/store/RelVal/2006/12/16/RelVal120SingleEPt35/0000/D41C6AF5-588D-DB11-9E2D-0013D4C3BAFA.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>100</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:16 CET Run: 5002 Event: 100
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/check=1/1/0MB/0.24562ms/0.24562ms/0.24562ms; file/close=2/2/0MB/0.265855ms/0.0768238ms/0.189031ms; file/destruct=2/2/0MB/0.0746715ms/0.00507925ms/0.0695923ms; file/flush=36/36/0MB/1241.76ms/0.723037ms/220.505ms; file/open=2/2/0MB/1.43285ms/0.0328455ms/1.40001ms; file/position=145/145/0MB/0.745788ms/0.0011675ms/0.223817ms; file/read=60/60/0.353456MB/2.80759ms/0.0086325ms/0.643395ms; file/write=291/291/1.04803MB/20.1004ms/0.00921875ms/0.781891ms; rfio/close=1/1/0MB/58.8591ms/58.8591ms/58.8591ms; rfio/destruct=1/1/0MB/0.073809ms/0.073809ms/0.073809ms; rfio/open=2/2/0MB/25030.4ms/1589.12ms/23441.3ms; rfio/position=259/259/0MB/7.61734ms/0.0023785ms/0.725868ms; rfio/read=632/632/9.05273MB/1359.9ms/0.60669ms/295.32ms; rfio/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=3/3/0MB/59.3521ms/0.0923465ms/58.9755ms; tstoragefile/construct=4/4/0MB/66213.4ms/3.22039ms/41584.4ms; tstoragefile/flush=36/36/0MB/1242.12ms/0.731729ms/220.514ms; tstoragefile/read=692/692/9.40618MB/1373.73ms/0.013646ms/295.363ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=692/692/9.40618MB/1364.57ms/0.009508ms/295.326ms; tstoragefile/seek=983/983/0MB/6.38453ms/0.00059025ms/0.315726ms; tstoragefile/seekx=376/376/0MB/5.90325ms/0.00213775ms/0.226698ms; tstoragefile/stat=7/7/0MB/3.07098ms/0.00702075ms/0.870058ms; tstoragefile/write=291/291/1.04803MB/25.5286ms/0.0156935ms/0.807119ms; tstoragefile/writex=291/291/1.04803MB/20.7192ms/0.0105022ms/0.787115ms; tfile/read=?/?/9.40618MB/?ms/?ms/?ms; tfile/write=?/?/1.04803MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-s TimeReport:  PostModule 19-Feb-2007 15:39:17 CET Run: 5002 Event: 100
-TimeReport> Time report complete in 29.2622 seconds
+Begin processing the 1st record. Run 1, Event 1001, LumiSection 666670 at 05-Feb-2009 14:01:39 CET
+TimeModule> 1001 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.125662
+TimeModule> 1001 1 TriggerResults TriggerResultInserter 0.000133991
+TimeModule> 1001 1 out PoolOutputModule 0.301427
+TimeEvent> 1001 1 0.429005
+Begin processing the 2nd record. Run 1, Event 1002, LumiSection 666670 at 05-Feb-2009 14:01:39 CET
+TimeModule> 1002 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0565331
+TimeModule> 1002 1 TriggerResults TriggerResultInserter 8.2016e-05
+TimeModule> 1002 1 out PoolOutputModule 0.281441
+TimeEvent> 1002 1 0.33943
+Begin processing the 3rd record. Run 1, Event 1003, LumiSection 666670 at 05-Feb-2009 14:01:40 CET
+TimeModule> 1003 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.33934
+TimeModule> 1003 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1003 1 out PoolOutputModule 0.751058
+TimeEvent> 1003 1 1.09188
+Begin processing the 4th record. Run 1, Event 1004, LumiSection 666670 at 05-Feb-2009 14:01:41 CET
+TimeModule> 1004 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0879679
+TimeModule> 1004 1 TriggerResults TriggerResultInserter 9.41753e-05
+TimeModule> 1004 1 out PoolOutputModule 0.301441
+TimeEvent> 1004 1 0.390925
+Begin processing the 5th record. Run 1, Event 1005, LumiSection 666670 at 05-Feb-2009 14:01:41 CET
+TimeModule> 1005 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.019794
+TimeModule> 1005 1 TriggerResults TriggerResultInserter 8.58307e-05
+TimeModule> 1005 1 out PoolOutputModule 0.26558
+TimeEvent> 1005 1 0.286845
+Begin processing the 6th record. Run 1, Event 1006, LumiSection 666670 at 05-Feb-2009 14:01:41 CET
+TimeModule> 1006 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0191839
+TimeModule> 1006 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1006 1 out PoolOutputModule 0.268425
+TimeEvent> 1006 1 0.289073
+Begin processing the 7th record. Run 1, Event 1007, LumiSection 666670 at 05-Feb-2009 14:01:42 CET
+TimeModule> 1007 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.040622
+TimeModule> 1007 1 TriggerResults TriggerResultInserter 8.29697e-05
+TimeModule> 1007 1 out PoolOutputModule 0.27238
+TimeEvent> 1007 1 0.314472
+Begin processing the 8th record. Run 1, Event 1008, LumiSection 666670 at 05-Feb-2009 14:01:42 CET
+TimeModule> 1008 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.017935
+TimeModule> 1008 1 TriggerResults TriggerResultInserter 8.29697e-05
+TimeModule> 1008 1 out PoolOutputModule 0.284499
+TimeEvent> 1008 1 0.303923
+Begin processing the 9th record. Run 1, Event 1009, LumiSection 666670 at 05-Feb-2009 14:01:42 CET
+TimeModule> 1009 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0203469
+TimeModule> 1009 1 TriggerResults TriggerResultInserter 8.2016e-05
+TimeModule> 1009 1 out PoolOutputModule 0.284675
+TimeEvent> 1009 1 0.306501
+Begin processing the 10th record. Run 1, Event 1010, LumiSection 666670 at 05-Feb-2009 14:01:43 CET
+TimeModule> 1010 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0426278
+TimeModule> 1010 1 TriggerResults TriggerResultInserter 8.2016e-05
+TimeModule> 1010 1 out PoolOutputModule 0.28725
+TimeEvent> 1010 1 0.331379
+Begin processing the 11th record. Run 1, Event 1011, LumiSection 666670 at 05-Feb-2009 14:01:43 CET
+TimeModule> 1011 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0359499
+TimeModule> 1011 1 TriggerResults TriggerResultInserter 8.29697e-05
+TimeModule> 1011 1 out PoolOutputModule 0.288272
+TimeEvent> 1011 1 0.325742
+Begin processing the 12th record. Run 1, Event 1012, LumiSection 666670 at 05-Feb-2009 14:01:43 CET
+TimeModule> 1012 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.056345
+TimeModule> 1012 1 TriggerResults TriggerResultInserter 8.2016e-05
+TimeModule> 1012 1 out PoolOutputModule 0.280182
+TimeEvent> 1012 1 0.337999
+Begin processing the 13th record. Run 1, Event 1013, LumiSection 666670 at 05-Feb-2009 14:01:44 CET
+TimeModule> 1013 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0360842
+TimeModule> 1013 1 TriggerResults TriggerResultInserter 9.799e-05
+TimeModule> 1013 1 out PoolOutputModule 0.283418
+TimeEvent> 1013 1 0.321057
+Begin processing the 14th record. Run 1, Event 1014, LumiSection 666670 at 05-Feb-2009 14:01:44 CET
+TimeModule> 1014 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0351338
+TimeModule> 1014 1 TriggerResults TriggerResultInserter 8.79765e-05
+TimeModule> 1014 1 out PoolOutputModule 0.264934
+TimeEvent> 1014 1 0.301544
+Begin processing the 15th record. Run 1, Event 1015, LumiSection 666670 at 05-Feb-2009 14:01:44 CET
+TimeModule> 1015 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0320721
+TimeModule> 1015 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1015 1 out PoolOutputModule 0.26466
+TimeEvent> 1015 1 0.298224
+Begin processing the 16th record. Run 1, Event 1016, LumiSection 666670 at 05-Feb-2009 14:01:45 CET
+TimeModule> 1016 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.070272
+TimeModule> 1016 1 TriggerResults TriggerResultInserter 8.60691e-05
+TimeModule> 1016 1 out PoolOutputModule 0.258889
+TimeEvent> 1016 1 0.330647
+Begin processing the 17th record. Run 1, Event 1017, LumiSection 666670 at 05-Feb-2009 14:01:45 CET
+TimeModule> 1017 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0309489
+TimeModule> 1017 1 TriggerResults TriggerResultInserter 8.2016e-05
+TimeModule> 1017 1 out PoolOutputModule 0.267936
+TimeEvent> 1017 1 0.3004
+Begin processing the 18th record. Run 1, Event 1018, LumiSection 666670 at 05-Feb-2009 14:01:45 CET
+TimeModule> 1018 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0311391
+TimeModule> 1018 1 TriggerResults TriggerResultInserter 8.82149e-05
+TimeModule> 1018 1 out PoolOutputModule 0.267716
+TimeEvent> 1018 1 0.300342
+Begin processing the 19th record. Run 1, Event 1019, LumiSection 666670 at 05-Feb-2009 14:01:46 CET
+TimeModule> 1019 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0199149
+TimeModule> 1019 1 TriggerResults TriggerResultInserter 8.51154e-05
+TimeModule> 1019 1 out PoolOutputModule 0.265487
+TimeEvent> 1019 1 0.287131
+Begin processing the 20th record. Run 1, Event 1020, LumiSection 666670 at 05-Feb-2009 14:01:46 CET
+TimeModule> 1020 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.184695
+TimeModule> 1020 1 TriggerResults TriggerResultInserter 8.79765e-05
+TimeModule> 1020 1 out PoolOutputModule 0.367434
+TimeEvent> 1020 1 0.553613
+Begin processing the 21st record. Run 1, Event 1021, LumiSection 666670 at 05-Feb-2009 14:01:46 CET
+TimeModule> 1021 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.165017
+TimeModule> 1021 1 TriggerResults TriggerResultInserter 8.79765e-05
+TimeModule> 1021 1 out PoolOutputModule 0.323012
+TimeEvent> 1021 1 0.489507
+Begin processing the 22nd record. Run 1, Event 1022, LumiSection 666670 at 05-Feb-2009 14:01:47 CET
+TimeModule> 1022 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0524881
+TimeModule> 1022 1 TriggerResults TriggerResultInserter 8.79765e-05
+TimeModule> 1022 1 out PoolOutputModule 0.274894
+TimeEvent> 1022 1 0.328875
+Begin processing the 23rd record. Run 1, Event 1023, LumiSection 666670 at 05-Feb-2009 14:01:47 CET
+TimeModule> 1023 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0311019
+TimeModule> 1023 1 TriggerResults TriggerResultInserter 8.4877e-05
+TimeModule> 1023 1 out PoolOutputModule 0.283123
+TimeEvent> 1023 1 0.315736
+Begin processing the 24th record. Run 1, Event 1024, LumiSection 666670 at 05-Feb-2009 14:01:48 CET
+TimeModule> 1024 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0252051
+TimeModule> 1024 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1024 1 out PoolOutputModule 0.269381
+TimeEvent> 1024 1 0.296056
+Begin processing the 25th record. Run 1, Event 1025, LumiSection 666670 at 05-Feb-2009 14:01:48 CET
+TimeModule> 1025 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0321741
+TimeModule> 1025 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1025 1 out PoolOutputModule 0.272166
+TimeEvent> 1025 1 0.305824
+Begin processing the 26th record. Run 1, Event 1026, LumiSection 666670 at 05-Feb-2009 14:01:48 CET
+TimeModule> 1026 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0393081
+TimeModule> 1026 1 TriggerResults TriggerResultInserter 8.32081e-05
+TimeModule> 1026 1 out PoolOutputModule 0.283467
+TimeEvent> 1026 1 0.324254
+Begin processing the 27th record. Run 1, Event 1027, LumiSection 666670 at 05-Feb-2009 14:01:49 CET
+TimeModule> 1027 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.055825
+TimeModule> 1027 1 TriggerResults TriggerResultInserter 8.51154e-05
+TimeModule> 1027 1 out PoolOutputModule 0.270243
+TimeEvent> 1027 1 0.327553
+Begin processing the 28th record. Run 1, Event 1028, LumiSection 666670 at 05-Feb-2009 14:01:49 CET
+TimeModule> 1028 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.247692
+TimeModule> 1028 1 TriggerResults TriggerResultInserter 7.00951e-05
+TimeModule> 1028 1 out PoolOutputModule 0.315475
+TimeEvent> 1028 1 0.564086
+Begin processing the 29th record. Run 1, Event 1029, LumiSection 666670 at 05-Feb-2009 14:01:49 CET
+TimeModule> 1029 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0211959
+TimeModule> 1029 1 TriggerResults TriggerResultInserter 8.4877e-05
+TimeModule> 1029 1 out PoolOutputModule 0.27441
+TimeEvent> 1029 1 0.297112
+Begin processing the 30th record. Run 1, Event 1030, LumiSection 666670 at 05-Feb-2009 14:01:50 CET
+TimeModule> 1030 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0277431
+TimeModule> 1030 1 TriggerResults TriggerResultInserter 8.89301e-05
+TimeModule> 1030 1 out PoolOutputModule 0.275807
+TimeEvent> 1030 1 0.305062
+Begin processing the 31st record. Run 1, Event 1031, LumiSection 666670 at 05-Feb-2009 14:01:50 CET
+TimeModule> 1031 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.127565
+TimeModule> 1031 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1031 1 out PoolOutputModule 0.266848
+TimeEvent> 1031 1 0.395896
+Begin processing the 32nd record. Run 1, Event 1032, LumiSection 666670 at 05-Feb-2009 14:01:50 CET
+TimeModule> 1032 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.020972
+TimeModule> 1032 1 TriggerResults TriggerResultInserter 8.60691e-05
+TimeModule> 1032 1 out PoolOutputModule 0.281262
+TimeEvent> 1032 1 0.303725
+Begin processing the 33rd record. Run 1, Event 1033, LumiSection 666670 at 05-Feb-2009 14:01:51 CET
+TimeModule> 1033 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.02038
+TimeModule> 1033 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1033 1 out PoolOutputModule 0.287071
+TimeEvent> 1033 1 0.308948
+Begin processing the 34th record. Run 1, Event 1034, LumiSection 666670 at 05-Feb-2009 14:01:51 CET
+TimeModule> 1034 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0566821
+TimeModule> 1034 1 TriggerResults TriggerResultInserter 8.79765e-05
+TimeModule> 1034 1 out PoolOutputModule 0.263596
+TimeEvent> 1034 1 0.32177
+Begin processing the 35th record. Run 1, Event 1035, LumiSection 666670 at 05-Feb-2009 14:01:51 CET
+TimeModule> 1035 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.160322
+TimeModule> 1035 1 TriggerResults TriggerResultInserter 8.82149e-05
+TimeModule> 1035 1 out PoolOutputModule 0.289845
+TimeEvent> 1035 1 0.451662
+Begin processing the 36th record. Run 1, Event 1036, LumiSection 666670 at 05-Feb-2009 14:01:52 CET
+TimeModule> 1036 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.024817
+TimeModule> 1036 1 TriggerResults TriggerResultInserter 8.60691e-05
+TimeModule> 1036 1 out PoolOutputModule 0.266806
+TimeEvent> 1036 1 0.293133
+Begin processing the 37th record. Run 1, Event 1037, LumiSection 666670 at 05-Feb-2009 14:01:52 CET
+TimeModule> 1037 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0908542
+TimeModule> 1037 1 TriggerResults TriggerResultInserter 8.51154e-05
+TimeModule> 1037 1 out PoolOutputModule 0.269701
+TimeEvent> 1037 1 0.362046
+Begin processing the 38th record. Run 1, Event 1038, LumiSection 666670 at 05-Feb-2009 14:01:53 CET
+TimeModule> 1038 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0634301
+TimeModule> 1038 1 TriggerResults TriggerResultInserter 8.60691e-05
+TimeModule> 1038 1 out PoolOutputModule 0.304426
+TimeEvent> 1038 1 0.369344
+Begin processing the 39th record. Run 1, Event 1039, LumiSection 666670 at 05-Feb-2009 14:01:53 CET
+TimeModule> 1039 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0200942
+TimeModule> 1039 1 TriggerResults TriggerResultInserter 8.60691e-05
+TimeModule> 1039 1 out PoolOutputModule 0.375255
+TimeEvent> 1039 1 0.397042
+Begin processing the 40th record. Run 1, Event 1040, LumiSection 666670 at 05-Feb-2009 14:01:53 CET
+TimeModule> 1040 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.119988
+TimeModule> 1040 1 TriggerResults TriggerResultInserter 7.70092e-05
+TimeModule> 1040 1 out PoolOutputModule 0.679589
+TimeEvent> 1040 1 0.800613
+Begin processing the 41st record. Run 1, Event 1041, LumiSection 666670 at 05-Feb-2009 14:01:54 CET
+TimeModule> 1041 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0206881
+TimeModule> 1041 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1041 1 out PoolOutputModule 0.344274
+TimeEvent> 1041 1 0.366456
+Begin processing the 42nd record. Run 1, Event 1042, LumiSection 666670 at 05-Feb-2009 14:01:54 CET
+TimeModule> 1042 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0226619
+TimeModule> 1042 1 TriggerResults TriggerResultInserter 8.60691e-05
+TimeModule> 1042 1 out PoolOutputModule 0.275784
+TimeEvent> 1042 1 0.299931
+Begin processing the 43rd record. Run 1, Event 1043, LumiSection 666670 at 05-Feb-2009 14:01:55 CET
+TimeModule> 1043 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0207989
+TimeModule> 1043 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1043 1 out PoolOutputModule 0.281346
+TimeEvent> 1043 1 0.303634
+Begin processing the 44th record. Run 1, Event 1044, LumiSection 666670 at 05-Feb-2009 14:01:55 CET
+TimeModule> 1044 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0861909
+TimeModule> 1044 1 TriggerResults TriggerResultInserter 8.58307e-05
+TimeModule> 1044 1 out PoolOutputModule 0.521263
+TimeEvent> 1044 1 0.608948
+Begin processing the 45th record. Run 1, Event 1045, LumiSection 666670 at 05-Feb-2009 14:01:56 CET
+TimeModule> 1045 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0783658
+TimeModule> 1045 1 TriggerResults TriggerResultInserter 8.60691e-05
+TimeModule> 1045 1 out PoolOutputModule 0.281627
+TimeEvent> 1045 1 0.361487
+Begin processing the 46th record. Run 1, Event 1046, LumiSection 666670 at 05-Feb-2009 14:01:56 CET
+TimeModule> 1046 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.147087
+TimeModule> 1046 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1046 1 out PoolOutputModule 0.295765
+TimeEvent> 1046 1 0.44416
+Begin processing the 47th record. Run 1, Event 1047, LumiSection 666670 at 05-Feb-2009 14:01:57 CET
+TimeModule> 1047 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.164391
+TimeModule> 1047 1 TriggerResults TriggerResultInserter 9.10759e-05
+TimeModule> 1047 1 out PoolOutputModule 0.282382
+TimeEvent> 1047 1 0.448263
+Begin processing the 48th record. Run 1, Event 1048, LumiSection 666670 at 05-Feb-2009 14:01:57 CET
+TimeModule> 1048 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.02652
+TimeModule> 1048 1 TriggerResults TriggerResultInserter 8.79765e-05
+TimeModule> 1048 1 out PoolOutputModule 0.278639
+TimeEvent> 1048 1 0.306674
+Begin processing the 49th record. Run 1, Event 1049, LumiSection 666670 at 05-Feb-2009 14:01:57 CET
+TimeModule> 1049 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0242851
+TimeModule> 1049 1 TriggerResults TriggerResultInserter 8.89301e-05
+TimeModule> 1049 1 out PoolOutputModule 0.266952
+TimeEvent> 1049 1 0.292784
+Begin processing the 50th record. Run 1, Event 1050, LumiSection 666670 at 05-Feb-2009 14:01:58 CET
+TimeModule> 1050 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0229619
+TimeModule> 1050 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1050 1 out PoolOutputModule 0.276813
+TimeEvent> 1050 1 0.30125
+Begin processing the 51st record. Run 1, Event 1051, LumiSection 666670 at 05-Feb-2009 14:01:58 CET
+TimeModule> 1051 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0194972
+TimeModule> 1051 1 TriggerResults TriggerResultInserter 9.10759e-05
+TimeModule> 1051 1 out PoolOutputModule 0.432649
+TimeEvent> 1051 1 0.453612
+Begin processing the 52nd record. Run 1, Event 1052, LumiSection 666670 at 05-Feb-2009 14:01:58 CET
+TimeModule> 1052 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0305271
+TimeModule> 1052 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1052 1 out PoolOutputModule 0.28233
+TimeEvent> 1052 1 0.314346
+Begin processing the 53rd record. Run 1, Event 1053, LumiSection 666670 at 05-Feb-2009 14:01:59 CET
+TimeModule> 1053 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0537059
+TimeModule> 1053 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1053 1 out PoolOutputModule 0.302655
+TimeEvent> 1053 1 0.357851
+Begin processing the 54th record. Run 1, Event 1054, LumiSection 666670 at 05-Feb-2009 14:01:59 CET
+TimeModule> 1054 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.02141
+TimeModule> 1054 1 TriggerResults TriggerResultInserter 8.4877e-05
+TimeModule> 1054 1 out PoolOutputModule 0.279471
+TimeEvent> 1054 1 0.302349
+Begin processing the 55th record. Run 1, Event 1055, LumiSection 666670 at 05-Feb-2009 14:01:59 CET
+TimeModule> 1055 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.032624
+TimeModule> 1055 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1055 1 out PoolOutputModule 0.273778
+TimeEvent> 1055 1 0.307886
+Begin processing the 56th record. Run 1, Event 1056, LumiSection 666670 at 05-Feb-2009 14:02:00 CET
+TimeModule> 1056 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0475478
+TimeModule> 1056 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1056 1 out PoolOutputModule 0.270859
+TimeEvent> 1056 1 0.3199
+Begin processing the 57th record. Run 1, Event 1057, LumiSection 666670 at 05-Feb-2009 14:02:00 CET
+TimeModule> 1057 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0851381
+TimeModule> 1057 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1057 1 out PoolOutputModule 0.258981
+TimeEvent> 1057 1 0.345605
+Begin processing the 58th record. Run 1, Event 1058, LumiSection 666670 at 05-Feb-2009 14:02:00 CET
+TimeModule> 1058 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0751469
+TimeModule> 1058 1 TriggerResults TriggerResultInserter 8.4877e-05
+TimeModule> 1058 1 out PoolOutputModule 0.276997
+TimeEvent> 1058 1 0.353618
+Begin processing the 59th record. Run 1, Event 1059, LumiSection 666670 at 05-Feb-2009 14:02:01 CET
+TimeModule> 1059 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.033267
+TimeModule> 1059 1 TriggerResults TriggerResultInserter 8.60691e-05
+TimeModule> 1059 1 out PoolOutputModule 0.267635
+TimeEvent> 1059 1 0.302582
+Begin processing the 60th record. Run 1, Event 1060, LumiSection 666670 at 05-Feb-2009 14:02:01 CET
+TimeModule> 1060 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0197439
+TimeModule> 1060 1 TriggerResults TriggerResultInserter 8.58307e-05
+TimeModule> 1060 1 out PoolOutputModule 0.27543
+TimeEvent> 1060 1 0.296644
+Begin processing the 61st record. Run 1, Event 1061, LumiSection 666670 at 05-Feb-2009 14:02:01 CET
+TimeModule> 1061 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.037375
+TimeModule> 1061 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1061 1 out PoolOutputModule 0.253081
+TimeEvent> 1061 1 0.291967
+Begin processing the 62nd record. Run 1, Event 1062, LumiSection 666670 at 05-Feb-2009 14:02:02 CET
+TimeModule> 1062 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.131446
+TimeModule> 1062 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1062 1 out PoolOutputModule 0.317073
+TimeEvent> 1062 1 0.450006
+Begin processing the 63rd record. Run 1, Event 1063, LumiSection 666670 at 05-Feb-2009 14:02:02 CET
+TimeModule> 1063 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0416632
+TimeModule> 1063 1 TriggerResults TriggerResultInserter 9.01222e-05
+TimeModule> 1063 1 out PoolOutputModule 0.269114
+TimeEvent> 1063 1 0.312254
+Begin processing the 64th record. Run 1, Event 1064, LumiSection 666670 at 05-Feb-2009 14:02:02 CET
+TimeModule> 1064 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0221331
+TimeModule> 1064 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1064 1 out PoolOutputModule 0.261972
+TimeEvent> 1064 1 0.285593
+Begin processing the 65th record. Run 1, Event 1065, LumiSection 666670 at 05-Feb-2009 14:02:03 CET
+TimeModule> 1065 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0207372
+TimeModule> 1065 1 TriggerResults TriggerResultInserter 8.58307e-05
+TimeModule> 1065 1 out PoolOutputModule 0.270385
+TimeEvent> 1065 1 0.292584
+Begin processing the 66th record. Run 1, Event 1066, LumiSection 666670 at 05-Feb-2009 14:02:03 CET
+TimeModule> 1066 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.088012
+TimeModule> 1066 1 TriggerResults TriggerResultInserter 8.58307e-05
+TimeModule> 1066 1 out PoolOutputModule 0.274976
+TimeEvent> 1066 1 0.364463
+Begin processing the 67th record. Run 1, Event 1067, LumiSection 666670 at 05-Feb-2009 14:02:03 CET
+TimeModule> 1067 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0210021
+TimeModule> 1067 1 TriggerResults TriggerResultInserter 8.58307e-05
+TimeModule> 1067 1 out PoolOutputModule 0.279498
+TimeEvent> 1067 1 0.302021
+Begin processing the 68th record. Run 1, Event 1068, LumiSection 666670 at 05-Feb-2009 14:02:04 CET
+TimeModule> 1068 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.611998
+TimeModule> 1068 1 TriggerResults TriggerResultInserter 8.32081e-05
+TimeModule> 1068 1 out PoolOutputModule 0.320368
+TimeEvent> 1068 1 0.933315
+Begin processing the 69th record. Run 1, Event 1069, LumiSection 666670 at 05-Feb-2009 14:02:05 CET
+TimeModule> 1069 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0928299
+TimeModule> 1069 1 TriggerResults TriggerResultInserter 8.89301e-05
+TimeModule> 1069 1 out PoolOutputModule 0.269497
+TimeEvent> 1069 1 0.363811
+Begin processing the 70th record. Run 1, Event 1070, LumiSection 666670 at 05-Feb-2009 14:02:05 CET
+TimeModule> 1070 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.022646
+TimeModule> 1070 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1070 1 out PoolOutputModule 0.278942
+TimeEvent> 1070 1 0.303057
+Begin processing the 71st record. Run 1, Event 1071, LumiSection 666670 at 05-Feb-2009 14:02:05 CET
+TimeModule> 1071 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0536439
+TimeModule> 1071 1 TriggerResults TriggerResultInserter 8.79765e-05
+TimeModule> 1071 1 out PoolOutputModule 0.263252
+TimeEvent> 1071 1 0.318389
+Begin processing the 72nd record. Run 1, Event 1072, LumiSection 666670 at 05-Feb-2009 14:02:06 CET
+TimeModule> 1072 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0208941
+TimeModule> 1072 1 TriggerResults TriggerResultInserter 8.79765e-05
+TimeModule> 1072 1 out PoolOutputModule 0.274144
+TimeEvent> 1072 1 0.296516
+Begin processing the 73rd record. Run 1, Event 1073, LumiSection 666670 at 05-Feb-2009 14:02:06 CET
+TimeModule> 1073 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.201256
+TimeModule> 1073 1 TriggerResults TriggerResultInserter 6.8903e-05
+TimeModule> 1073 1 out PoolOutputModule 0.267521
+TimeEvent> 1073 1 0.469686
+Begin processing the 74th record. Run 1, Event 1074, LumiSection 666670 at 05-Feb-2009 14:02:06 CET
+TimeModule> 1074 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0311031
+TimeModule> 1074 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1074 1 out PoolOutputModule 0.282994
+TimeEvent> 1074 1 0.315568
+Begin processing the 75th record. Run 1, Event 1075, LumiSection 666670 at 05-Feb-2009 14:02:07 CET
+TimeModule> 1075 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0302079
+TimeModule> 1075 1 TriggerResults TriggerResultInserter 8.51154e-05
+TimeModule> 1075 1 out PoolOutputModule 0.268995
+TimeEvent> 1075 1 0.300679
+Begin processing the 76th record. Run 1, Event 1076, LumiSection 666670 at 05-Feb-2009 14:02:07 CET
+TimeModule> 1076 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.020365
+TimeModule> 1076 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1076 1 out PoolOutputModule 0.272103
+TimeEvent> 1076 1 0.293932
+Begin processing the 77th record. Run 1, Event 1077, LumiSection 666670 at 05-Feb-2009 14:02:07 CET
+TimeModule> 1077 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.046407
+TimeModule> 1077 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1077 1 out PoolOutputModule 0.298876
+TimeEvent> 1077 1 0.34675
+Begin processing the 78th record. Run 1, Event 1078, LumiSection 666670 at 05-Feb-2009 14:02:08 CET
+TimeModule> 1078 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.049983
+TimeModule> 1078 1 TriggerResults TriggerResultInserter 8.58307e-05
+TimeModule> 1078 1 out PoolOutputModule 0.325327
+TimeEvent> 1078 1 0.376774
+Begin processing the 79th record. Run 1, Event 1079, LumiSection 666670 at 05-Feb-2009 14:02:08 CET
+TimeModule> 1079 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0773721
+TimeModule> 1079 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1079 1 out PoolOutputModule 0.384702
+TimeEvent> 1079 1 0.463753
+Begin processing the 80th record. Run 1, Event 1080, LumiSection 666670 at 05-Feb-2009 14:02:08 CET
+TimeModule> 1080 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0496459
+TimeModule> 1080 1 TriggerResults TriggerResultInserter 8.51154e-05
+TimeModule> 1080 1 out PoolOutputModule 0.268139
+TimeEvent> 1080 1 0.319264
+Begin processing the 81st record. Run 1, Event 1081, LumiSection 666670 at 05-Feb-2009 14:02:09 CET
+TimeModule> 1081 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.020757
+TimeModule> 1081 1 TriggerResults TriggerResultInserter 8.10623e-05
+TimeModule> 1081 1 out PoolOutputModule 0.283131
+TimeEvent> 1081 1 0.30535
+Begin processing the 82nd record. Run 1, Event 1082, LumiSection 666670 at 05-Feb-2009 14:02:09 CET
+TimeModule> 1082 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.038332
+TimeModule> 1082 1 TriggerResults TriggerResultInserter 8.2016e-05
+TimeModule> 1082 1 out PoolOutputModule 0.27343
+TimeEvent> 1082 1 0.313229
+Begin processing the 83rd record. Run 1, Event 1083, LumiSection 666670 at 05-Feb-2009 14:02:09 CET
+TimeModule> 1083 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.020772
+TimeModule> 1083 1 TriggerResults TriggerResultInserter 8.4877e-05
+TimeModule> 1083 1 out PoolOutputModule 0.263879
+TimeEvent> 1083 1 0.286118
+Begin processing the 84th record. Run 1, Event 1084, LumiSection 666670 at 05-Feb-2009 14:02:10 CET
+TimeModule> 1084 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0237138
+TimeModule> 1084 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1084 1 out PoolOutputModule 0.280961
+TimeEvent> 1084 1 0.306142
+Begin processing the 85th record. Run 1, Event 1085, LumiSection 666670 at 05-Feb-2009 14:02:10 CET
+TimeModule> 1085 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0468311
+TimeModule> 1085 1 TriggerResults TriggerResultInserter 8.4877e-05
+TimeModule> 1085 1 out PoolOutputModule 0.276078
+TimeEvent> 1085 1 0.324372
+Begin processing the 86th record. Run 1, Event 1086, LumiSection 666670 at 05-Feb-2009 14:02:10 CET
+TimeModule> 1086 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0551231
+TimeModule> 1086 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1086 1 out PoolOutputModule 0.276501
+TimeEvent> 1086 1 0.333098
+Begin processing the 87th record. Run 1, Event 1087, LumiSection 666670 at 05-Feb-2009 14:02:11 CET
+TimeModule> 1087 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.091773
+TimeModule> 1087 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1087 1 out PoolOutputModule 0.273917
+TimeEvent> 1087 1 0.367226
+Begin processing the 88th record. Run 1, Event 1088, LumiSection 666670 at 05-Feb-2009 14:02:11 CET
+TimeModule> 1088 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.035032
+TimeModule> 1088 1 TriggerResults TriggerResultInserter 8.82149e-05
+TimeModule> 1088 1 out PoolOutputModule 0.264994
+TimeEvent> 1088 1 0.301569
+Begin processing the 89th record. Run 1, Event 1089, LumiSection 666670 at 05-Feb-2009 14:02:11 CET
+TimeModule> 1089 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.134938
+TimeModule> 1089 1 TriggerResults TriggerResultInserter 8.89301e-05
+TimeModule> 1089 1 out PoolOutputModule 0.299358
+TimeEvent> 1089 1 0.435788
+Begin processing the 90th record. Run 1, Event 1090, LumiSection 666670 at 05-Feb-2009 14:02:12 CET
+TimeModule> 1090 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0318959
+TimeModule> 1090 1 TriggerResults TriggerResultInserter 8.98838e-05
+TimeModule> 1090 1 out PoolOutputModule 0.287772
+TimeEvent> 1090 1 0.321162
+Begin processing the 91st record. Run 1, Event 1091, LumiSection 666670 at 05-Feb-2009 14:02:12 CET
+TimeModule> 1091 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.040204
+TimeModule> 1091 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1091 1 out PoolOutputModule 0.263766
+TimeEvent> 1091 1 0.305455
+Begin processing the 92nd record. Run 1, Event 1092, LumiSection 666670 at 05-Feb-2009 14:02:12 CET
+TimeModule> 1092 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0373261
+TimeModule> 1092 1 TriggerResults TriggerResultInserter 8.51154e-05
+TimeModule> 1092 1 out PoolOutputModule 0.257798
+TimeEvent> 1092 1 0.296612
+Begin processing the 93rd record. Run 1, Event 1093, LumiSection 666670 at 05-Feb-2009 14:02:13 CET
+TimeModule> 1093 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.0245209
+TimeModule> 1093 1 TriggerResults TriggerResultInserter 8.32081e-05
+TimeModule> 1093 1 out PoolOutputModule 0.28693
+TimeEvent> 1093 1 0.312926
+Begin processing the 94th record. Run 1, Event 1094, LumiSection 666670 at 05-Feb-2009 14:02:13 CET
+TimeModule> 1094 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.023124
+TimeModule> 1094 1 TriggerResults TriggerResultInserter 8.39233e-05
+TimeModule> 1094 1 out PoolOutputModule 0.266521
+TimeEvent> 1094 1 0.291119
+Begin processing the 95th record. Run 1, Event 1095, LumiSection 666670 at 05-Feb-2009 14:02:13 CET
+TimeModule> 1095 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.08426
+TimeModule> 1095 1 TriggerResults TriggerResultInserter 9.01222e-05
+TimeModule> 1095 1 out PoolOutputModule 0.27655
+TimeEvent> 1095 1 0.362312
+Begin processing the 96th record. Run 1, Event 1096, LumiSection 666670 at 05-Feb-2009 14:02:14 CET
+TimeModule> 1096 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.045954
+TimeModule> 1096 1 TriggerResults TriggerResultInserter 8.91685e-05
+TimeModule> 1096 1 out PoolOutputModule 0.291536
+TimeEvent> 1096 1 0.338974
+Begin processing the 97th record. Run 1, Event 1097, LumiSection 666670 at 05-Feb-2009 14:02:14 CET
+TimeModule> 1097 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.018038
+TimeModule> 1097 1 TriggerResults TriggerResultInserter 8.41618e-05
+TimeModule> 1097 1 out PoolOutputModule 0.26715
+TimeEvent> 1097 1 0.286669
+Begin processing the 98th record. Run 1, Event 1098, LumiSection 666670 at 05-Feb-2009 14:02:14 CET
+TimeModule> 1098 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.111484
+TimeModule> 1098 1 TriggerResults TriggerResultInserter 8.70228e-05
+TimeModule> 1098 1 out PoolOutputModule 0.270582
+TimeEvent> 1098 1 0.383546
+Begin processing the 99th record. Run 1, Event 1099, LumiSection 666670 at 05-Feb-2009 14:02:15 CET
+TimeModule> 1099 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.596014
+TimeModule> 1099 1 TriggerResults TriggerResultInserter 6.91414e-05
+TimeModule> 1099 1 out PoolOutputModule 0.331938
+TimeEvent> 1099 1 0.929091
+Begin processing the 100th record. Run 1, Event 1100, LumiSection 666670 at 05-Feb-2009 14:02:16 CET
+TimeModule> 1100 1 simEcalTriggerPrimitiveDigis EcalTrigPrimProducer 0.089417
+TimeModule> 1100 1 TriggerResults TriggerResultInserter 8.82149e-05
+TimeModule> 1100 1 out PoolOutputModule 0.300594
+TimeEvent> 1100 1 0.391538
+05-Feb-2009 14:02:16 CET  Closed file rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/28116A15-E9DD-DD11-9BA6-001617E30F4C.root
+TimeReport> Time report complete in 37.9839 seconds
  Time Summary: 
- Min: 1.09673e-05
- Max: 2.28882e-05
- Avg: 0.292622
+ Min: 0.285593
+ Max: 1.09188
+ Avg: 0.379839
 
-%MSG-i EcalGeom:  PostModule 19-Feb-2007 15:39:17 CET Run: 5002 Event: 100
-Deleting EcalBarrelNumberingScheme
-%MSG-i EcalGeom:  PostModule 19-Feb-2007 15:39:17 CET Run: 5002 Event: 100
-Deleting EcalEndcapNumberingScheme
-%MSG-i EcalGeom:  PostModule 19-Feb-2007 15:39:17 CET Run: 5002 Event: 100
-Deleting EcalPreshowerNumberingScheme
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:17 CET Run: 5002 Event: 100
 
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:17 CET Run: 5002 Event: 100
-</GeneratorInfo>
-Merging stats 2858151 0 4571274 1200 0
-DDCompare stat 7430625 112096868
-Sib rot stats same/diff 20341564 21799167
+=============================================
 
-Main Thread CPU elapsed time 15003u 240s
-===================> Step2: executing EDAnalyser (readTP.cfg) to create histos 
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::Cartesian3D<double> already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::CylindricalEta3D<double> already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::Polar3D<double> already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::PxPyPzE4D<double> already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::PtEtaPhiE4D<double> already in TClassTable
-%MSG-w Root_Warning:  AfterSourceConstruction TClassTable::Add() 
-       19-Feb-2007 15:39:23 CET pre-events
-class ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > already in TClassTable
-%MSG-s TimeReport:  19-Feb-2007 15:39:23 CET BeforeEvents
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 TimeEvent            -s PostModule                           100      100
+    2 TimeModule           -s EcalTrigPrimProd                     100      100
+    3 TimeModule           -s PoolOutputModule                     100      100
+    4 TimeModule           -s TriggerResultIns                     100      100
+    5 TimeReport           -s                                        1        1
+    6 TimeReport           -s PostModule                             1        1
+    7 fileAction           -s PoolSource:sourc                       2        2
+    8 fileAction           -s PostModule                             1        1
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 TimeEvent            1/1001           1/1002           1/1100
+    2 TimeModule           1/1001           1/1002           1/1100
+    3 TimeModule           1/1001           1/1002           1/1100
+    4 TimeModule           1/1001           1/1002           1/1100
+    5 TimeReport           BeforeEvents                      
+    6 TimeReport           1/1100                            
+    7 fileAction           pre-events       pre-events       
+    8 fileAction           1/1100                            
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+System                405                 405
+===================> Step2: executing EDAnalyser (readTPG_suppressed_cfg.py) to create histos in histos.root 
+05-Feb-2009 14:02:20 CET  Initiating request to open file file:TrigPrim_suppressed.root
+05-Feb-2009 14:02:21 CET  Successfully opened file file:TrigPrim_suppressed.root
+ title = Barrel_ttf
+ title = Endcap_ttf
 TimeReport> Report activated
 TimeReport> Report columns headings for events: eventnum runnum timetaken
 TimeReport> Report columns headings for modules: eventnum runnum modulelabel modulename timetaken
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:23 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:23 CET BeforeEvents
-TimeModule> 0 0 tpgcheck TPGCheck 2.59876e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:23 CET BeforeEvents
-TimeModule> 0 0 tpgcheck TPGCheck 1.3113e-05
-%MSG-s TimeEvent:  PostModule 19-Feb-2007 15:39:23 CET Run: 5002 Event: 1
-TimeEvent> 1 5002 9.05991e-06
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 1
-TimeModule> 1 5002 tpgcheck TPGCheck 0.11905
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET Run: 5002 Event: 1
-Begin processing the 2th record. Run 5002, Event 2
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 2
-TimeEvent> 2 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 2
-TimeModule> 2 5002 tpgcheck TPGCheck 0.0489061
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET Run: 5002 Event: 2
-Begin processing the 3th record. Run 5002, Event 3
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 3
-TimeEvent> 3 5002 1.50204e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 3
-TimeModule> 3 5002 tpgcheck TPGCheck 0.0497441
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET Run: 5002 Event: 3
-Begin processing the 4th record. Run 5002, Event 4
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 4
-TimeEvent> 4 5002 2.19345e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 4
-TimeModule> 4 5002 tpgcheck TPGCheck 0.0506701
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET Run: 5002 Event: 4
-Begin processing the 5th record. Run 5002, Event 5
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 5
-TimeEvent> 5 5002 1.40667e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 5
-TimeModule> 5 5002 tpgcheck TPGCheck 0.050957
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET Run: 5002 Event: 5
-Begin processing the 6th record. Run 5002, Event 6
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 6
-TimeEvent> 6 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 6
-TimeModule> 6 5002 tpgcheck TPGCheck 0.049051
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET Run: 5002 Event: 6
-Begin processing the 7th record. Run 5002, Event 7
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 7
-TimeEvent> 7 5002 1.40667e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 7
-TimeModule> 7 5002 tpgcheck TPGCheck 0.047996
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET Run: 5002 Event: 7
-Begin processing the 8th record. Run 5002, Event 8
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 8
-TimeEvent> 8 5002 1.40667e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 8
-TimeModule> 8 5002 tpgcheck TPGCheck 0.0501909
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET Run: 5002 Event: 8
-Begin processing the 9th record. Run 5002, Event 9
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 9
-TimeEvent> 9 5002 1.28746e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 9
-TimeModule> 9 5002 tpgcheck TPGCheck 0.0513611
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET Run: 5002 Event: 9
-Begin processing the 10th record. Run 5002, Event 10
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 10
-TimeEvent> 10 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 10
-TimeModule> 10 5002 tpgcheck TPGCheck 0.0491521
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET 
-       Run: 5002 Event: 10
-Begin processing the 11th record. Run 5002, Event 11
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 11
-TimeEvent> 11 5002 1.38283e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 11
-TimeModule> 11 5002 tpgcheck TPGCheck 0.0495679
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET 
-       Run: 5002 Event: 11
-Begin processing the 12th record. Run 5002, Event 12
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 12
-TimeEvent> 12 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 12
-TimeModule> 12 5002 tpgcheck TPGCheck 0.046864
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET 
-       Run: 5002 Event: 12
-Begin processing the 13th record. Run 5002, Event 13
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 13
-TimeEvent> 13 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 13
-TimeModule> 13 5002 tpgcheck TPGCheck 0.048526
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET 
-       Run: 5002 Event: 13
-Begin processing the 14th record. Run 5002, Event 14
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 14
-TimeEvent> 14 5002 1.40667e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 14
-TimeModule> 14 5002 tpgcheck TPGCheck 0.04791
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET 
-       Run: 5002 Event: 14
-Begin processing the 15th record. Run 5002, Event 15
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 15
-TimeEvent> 15 5002 1.40667e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 15
-TimeModule> 15 5002 tpgcheck TPGCheck 0.049819
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET 
-       Run: 5002 Event: 15
-Begin processing the 16th record. Run 5002, Event 16
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 16
-TimeEvent> 16 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 16
-TimeModule> 16 5002 tpgcheck TPGCheck 0.047019
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET 
-       Run: 5002 Event: 16
-Begin processing the 17th record. Run 5002, Event 17
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 17
-TimeEvent> 17 5002 1.50204e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 17
-TimeModule> 17 5002 tpgcheck TPGCheck 0.049021
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:24 CET 
-       Run: 5002 Event: 17
-Begin processing the 18th record. Run 5002, Event 18
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:24 CET Run: 5002 Event: 18
-TimeEvent> 18 5002 1.40667e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:24 CET Run: 5002 Event: 18
-TimeModule> 18 5002 tpgcheck TPGCheck 0.0468819
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 18
-Begin processing the 19th record. Run 5002, Event 19
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 19
-TimeEvent> 19 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 19
-TimeModule> 19 5002 tpgcheck TPGCheck 0.047524
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 19
-Begin processing the 20th record. Run 5002, Event 20
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 20
-TimeEvent> 20 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 20
-TimeModule> 20 5002 tpgcheck TPGCheck 0.0489168
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 20
-Begin processing the 21th record. Run 5002, Event 21
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 21
-TimeEvent> 21 5002 2.88486e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 21
-TimeModule> 21 5002 tpgcheck TPGCheck 0.047015
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 21
-Begin processing the 22th record. Run 5002, Event 22
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 22
-TimeEvent> 22 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 22
-TimeModule> 22 5002 tpgcheck TPGCheck 0.045861
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 22
-Begin processing the 23th record. Run 5002, Event 23
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 23
-TimeEvent> 23 5002 1.50204e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 23
-TimeModule> 23 5002 tpgcheck TPGCheck 0.048177
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 23
-Begin processing the 24th record. Run 5002, Event 24
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 24
-TimeEvent> 24 5002 1.40667e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 24
-TimeModule> 24 5002 tpgcheck TPGCheck 0.0475059
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 24
-Begin processing the 25th record. Run 5002, Event 25
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 25
-TimeEvent> 25 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 25
-TimeModule> 25 5002 tpgcheck TPGCheck 0.0474551
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 25
-Begin processing the 26th record. Run 5002, Event 26
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 26
-TimeEvent> 26 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 26
-TimeModule> 26 5002 tpgcheck TPGCheck 0.04726
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 26
-Begin processing the 27th record. Run 5002, Event 27
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 27
-TimeEvent> 27 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 27
-TimeModule> 27 5002 tpgcheck TPGCheck 0.0481281
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 27
-Begin processing the 28th record. Run 5002, Event 28
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 28
-TimeEvent> 28 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 28
-TimeModule> 28 5002 tpgcheck TPGCheck 0.052083
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 28
-Begin processing the 29th record. Run 5002, Event 29
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 29
-TimeEvent> 29 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 29
-TimeModule> 29 5002 tpgcheck TPGCheck 0.048336
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 29
-Begin processing the 30th record. Run 5002, Event 30
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 30
-TimeEvent> 30 5002 1.28746e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 30
-TimeModule> 30 5002 tpgcheck TPGCheck 0.0473011
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 30
-Begin processing the 31th record. Run 5002, Event 31
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 31
-TimeEvent> 31 5002 1.90735e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 31
-TimeModule> 31 5002 tpgcheck TPGCheck 0.0486598
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 31
-Begin processing the 32th record. Run 5002, Event 32
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 32
-TimeEvent> 32 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 32
-TimeModule> 32 5002 tpgcheck TPGCheck 0.048018
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 32
-Begin processing the 33th record. Run 5002, Event 33
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 33
-TimeEvent> 33 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 33
-TimeModule> 33 5002 tpgcheck TPGCheck 0.0481811
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 33
-Begin processing the 34th record. Run 5002, Event 34
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 34
-TimeEvent> 34 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 34
-TimeModule> 34 5002 tpgcheck TPGCheck 0.048562
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 34
-Begin processing the 35th record. Run 5002, Event 35
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 35
-TimeEvent> 35 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:25 CET Run: 5002 Event: 35
-TimeModule> 35 5002 tpgcheck TPGCheck 0.0463581
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:25 CET 
-       Run: 5002 Event: 35
-Begin processing the 36th record. Run 5002, Event 36
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:25 CET Run: 5002 Event: 36
-TimeEvent> 36 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 36
-TimeModule> 36 5002 tpgcheck TPGCheck 0.0495842
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 36
-Begin processing the 37th record. Run 5002, Event 37
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 37
-TimeEvent> 37 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 37
-TimeModule> 37 5002 tpgcheck TPGCheck 0.0472541
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 37
-Begin processing the 38th record. Run 5002, Event 38
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 38
-TimeEvent> 38 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 38
-TimeModule> 38 5002 tpgcheck TPGCheck 0.0472441
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 38
-Begin processing the 39th record. Run 5002, Event 39
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 39
-TimeEvent> 39 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 39
-TimeModule> 39 5002 tpgcheck TPGCheck 0.0479
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 39
-Begin processing the 40th record. Run 5002, Event 40
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 40
-TimeEvent> 40 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 40
-TimeModule> 40 5002 tpgcheck TPGCheck 0.0468769
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 40
-Begin processing the 41th record. Run 5002, Event 41
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 41
-TimeEvent> 41 5002 1.28746e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 41
-TimeModule> 41 5002 tpgcheck TPGCheck 0.0464618
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 41
-Begin processing the 42th record. Run 5002, Event 42
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 42
-TimeEvent> 42 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 42
-TimeModule> 42 5002 tpgcheck TPGCheck 0.04598
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 42
-Begin processing the 43th record. Run 5002, Event 43
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 43
-TimeEvent> 43 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 43
-TimeModule> 43 5002 tpgcheck TPGCheck 0.0482011
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 43
-Begin processing the 44th record. Run 5002, Event 44
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 44
-TimeEvent> 44 5002 1.12057e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 44
-TimeModule> 44 5002 tpgcheck TPGCheck 0.0466869
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 44
-Begin processing the 45th record. Run 5002, Event 45
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 45
-TimeEvent> 45 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 45
-TimeModule> 45 5002 tpgcheck TPGCheck 0.0484059
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 45
-Begin processing the 46th record. Run 5002, Event 46
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 46
-TimeEvent> 46 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 46
-TimeModule> 46 5002 tpgcheck TPGCheck 0.0471621
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 46
-Begin processing the 47th record. Run 5002, Event 47
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 47
-TimeEvent> 47 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 47
-TimeModule> 47 5002 tpgcheck TPGCheck 0.0494461
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 47
-Begin processing the 48th record. Run 5002, Event 48
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 48
-TimeEvent> 48 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 48
-TimeModule> 48 5002 tpgcheck TPGCheck 0.0472221
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 48
-Begin processing the 49th record. Run 5002, Event 49
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 49
-TimeEvent> 49 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 49
-TimeModule> 49 5002 tpgcheck TPGCheck 0.050153
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 49
-Begin processing the 50th record. Run 5002, Event 50
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 50
-TimeEvent> 50 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 50
-TimeModule> 50 5002 tpgcheck TPGCheck 0.046231
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 50
-Begin processing the 51th record. Run 5002, Event 51
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 51
-TimeEvent> 51 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 51
-TimeModule> 51 5002 tpgcheck TPGCheck 0.0467122
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 51
-Begin processing the 52th record. Run 5002, Event 52
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 52
-TimeEvent> 52 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:26 CET Run: 5002 Event: 52
-TimeModule> 52 5002 tpgcheck TPGCheck 0.045773
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:26 CET 
-       Run: 5002 Event: 52
-Begin processing the 53th record. Run 5002, Event 53
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:26 CET Run: 5002 Event: 53
-TimeEvent> 53 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 53
-TimeModule> 53 5002 tpgcheck TPGCheck 0.048032
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 53
-Begin processing the 54th record. Run 5002, Event 54
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 54
-TimeEvent> 54 5002 1.28746e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 54
-TimeModule> 54 5002 tpgcheck TPGCheck 0.0457571
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 54
-Begin processing the 55th record. Run 5002, Event 55
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 55
-TimeEvent> 55 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 55
-TimeModule> 55 5002 tpgcheck TPGCheck 0.046535
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 55
-Begin processing the 56th record. Run 5002, Event 56
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 56
-TimeEvent> 56 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 56
-TimeModule> 56 5002 tpgcheck TPGCheck 0.0485392
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 56
-Begin processing the 57th record. Run 5002, Event 57
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 57
-TimeEvent> 57 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 57
-TimeModule> 57 5002 tpgcheck TPGCheck 0.0488079
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 57
-Begin processing the 58th record. Run 5002, Event 58
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 58
-TimeEvent> 58 5002 1.00136e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 58
-TimeModule> 58 5002 tpgcheck TPGCheck 0.0472472
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 58
-Begin processing the 59th record. Run 5002, Event 59
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 59
-TimeEvent> 59 5002 1.00136e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 59
-TimeModule> 59 5002 tpgcheck TPGCheck 0.0479851
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 59
-Begin processing the 60th record. Run 5002, Event 60
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 60
-TimeEvent> 60 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 60
-TimeModule> 60 5002 tpgcheck TPGCheck 0.045347
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 60
-Begin processing the 61th record. Run 5002, Event 61
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 61
-TimeEvent> 61 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 61
-TimeModule> 61 5002 tpgcheck TPGCheck 0.0459151
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 61
-Begin processing the 62th record. Run 5002, Event 62
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 62
-TimeEvent> 62 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 62
-TimeModule> 62 5002 tpgcheck TPGCheck 0.04795
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 62
-Begin processing the 63th record. Run 5002, Event 63
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 63
-TimeEvent> 63 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 63
-TimeModule> 63 5002 tpgcheck TPGCheck 0.0463278
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 63
-Begin processing the 64th record. Run 5002, Event 64
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 64
-TimeEvent> 64 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 64
-TimeModule> 64 5002 tpgcheck TPGCheck 0.0454888
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 64
-Begin processing the 65th record. Run 5002, Event 65
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 65
-TimeEvent> 65 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 65
-TimeModule> 65 5002 tpgcheck TPGCheck 0.044539
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 65
-Begin processing the 66th record. Run 5002, Event 66
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 66
-TimeEvent> 66 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 66
-TimeModule> 66 5002 tpgcheck TPGCheck 0.042871
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 66
-Begin processing the 67th record. Run 5002, Event 67
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 67
-TimeEvent> 67 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 67
-TimeModule> 67 5002 tpgcheck TPGCheck 0.0441551
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 67
-Begin processing the 68th record. Run 5002, Event 68
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 68
-TimeEvent> 68 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 68
-TimeModule> 68 5002 tpgcheck TPGCheck 0.043468
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 68
-Begin processing the 69th record. Run 5002, Event 69
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 69
-TimeEvent> 69 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 69
-TimeModule> 69 5002 tpgcheck TPGCheck 0.0447102
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 69
-Begin processing the 70th record. Run 5002, Event 70
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 70
-TimeEvent> 70 5002 1.12057e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:27 CET Run: 5002 Event: 70
-TimeModule> 70 5002 tpgcheck TPGCheck 0.043972
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:27 CET 
-       Run: 5002 Event: 70
-Begin processing the 71th record. Run 5002, Event 71
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:27 CET Run: 5002 Event: 71
-TimeEvent> 71 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 71
-TimeModule> 71 5002 tpgcheck TPGCheck 0.0477231
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 71
-Begin processing the 72th record. Run 5002, Event 72
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 72
-TimeEvent> 72 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 72
-TimeModule> 72 5002 tpgcheck TPGCheck 0.0437281
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 72
-Begin processing the 73th record. Run 5002, Event 73
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 73
-TimeEvent> 73 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 73
-TimeModule> 73 5002 tpgcheck TPGCheck 0.0444999
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 73
-Begin processing the 74th record. Run 5002, Event 74
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 74
-TimeEvent> 74 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 74
-TimeModule> 74 5002 tpgcheck TPGCheck 0.042949
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 74
-Begin processing the 75th record. Run 5002, Event 75
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 75
-TimeEvent> 75 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 75
-TimeModule> 75 5002 tpgcheck TPGCheck 0.0448921
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 75
-Begin processing the 76th record. Run 5002, Event 76
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 76
-TimeEvent> 76 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 76
-TimeModule> 76 5002 tpgcheck TPGCheck 0.04655
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 76
-Begin processing the 77th record. Run 5002, Event 77
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 77
-TimeEvent> 77 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 77
-TimeModule> 77 5002 tpgcheck TPGCheck 0.045316
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 77
-Begin processing the 78th record. Run 5002, Event 78
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 78
-TimeEvent> 78 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 78
-TimeModule> 78 5002 tpgcheck TPGCheck 0.0464511
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 78
-Begin processing the 79th record. Run 5002, Event 79
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 79
-TimeEvent> 79 5002 1.81198e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 79
-TimeModule> 79 5002 tpgcheck TPGCheck 0.0443671
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 79
-Begin processing the 80th record. Run 5002, Event 80
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 80
-TimeEvent> 80 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 80
-TimeModule> 80 5002 tpgcheck TPGCheck 0.042767
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 80
-Begin processing the 81th record. Run 5002, Event 81
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 81
-TimeEvent> 81 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 81
-TimeModule> 81 5002 tpgcheck TPGCheck 0.0477061
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 81
-Begin processing the 82th record. Run 5002, Event 82
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 82
-TimeEvent> 82 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 82
-TimeModule> 82 5002 tpgcheck TPGCheck 0.042855
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 82
-Begin processing the 83th record. Run 5002, Event 83
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 83
-TimeEvent> 83 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 83
-TimeModule> 83 5002 tpgcheck TPGCheck 0.0434439
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 83
-Begin processing the 84th record. Run 5002, Event 84
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 84
-TimeEvent> 84 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 84
-TimeModule> 84 5002 tpgcheck TPGCheck 0.0436869
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 84
-Begin processing the 85th record. Run 5002, Event 85
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 85
-TimeEvent> 85 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 85
-TimeModule> 85 5002 tpgcheck TPGCheck 0.0451939
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 85
-Begin processing the 86th record. Run 5002, Event 86
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 86
-TimeEvent> 86 5002 1.38283e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 86
-TimeModule> 86 5002 tpgcheck TPGCheck 0.043905
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 86
-Begin processing the 87th record. Run 5002, Event 87
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 87
-TimeEvent> 87 5002 1.09673e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 87
-TimeModule> 87 5002 tpgcheck TPGCheck 0.044795
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 87
-Begin processing the 88th record. Run 5002, Event 88
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 88
-TimeEvent> 88 5002 1.28746e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 88
-TimeModule> 88 5002 tpgcheck TPGCheck 0.0451171
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 88
-Begin processing the 89th record. Run 5002, Event 89
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 89
-TimeEvent> 89 5002 1.12057e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:28 CET Run: 5002 Event: 89
-TimeModule> 89 5002 tpgcheck TPGCheck 0.045604
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:28 CET 
-       Run: 5002 Event: 89
-Begin processing the 90th record. Run 5002, Event 90
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:28 CET Run: 5002 Event: 90
-TimeEvent> 90 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 90
-TimeModule> 90 5002 tpgcheck TPGCheck 0.0423181
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 90
-Begin processing the 91th record. Run 5002, Event 91
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 91
-TimeEvent> 91 5002 1.28746e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 91
-TimeModule> 91 5002 tpgcheck TPGCheck 0.0427029
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 91
-Begin processing the 92th record. Run 5002, Event 92
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 92
-TimeEvent> 92 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 92
-TimeModule> 92 5002 tpgcheck TPGCheck 0.0435009
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 92
-Begin processing the 93th record. Run 5002, Event 93
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 93
-TimeEvent> 93 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 93
-TimeModule> 93 5002 tpgcheck TPGCheck 0.045568
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 93
-Begin processing the 94th record. Run 5002, Event 94
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 94
-TimeEvent> 94 5002 1.3113e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 94
-TimeModule> 94 5002 tpgcheck TPGCheck 0.0434978
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 94
-Begin processing the 95th record. Run 5002, Event 95
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 95
-TimeEvent> 95 5002 1.21593e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 95
-TimeModule> 95 5002 tpgcheck TPGCheck 0.045568
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 95
-Begin processing the 96th record. Run 5002, Event 96
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 96
-TimeEvent> 96 5002 1.28746e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 96
-TimeModule> 96 5002 tpgcheck TPGCheck 0.0444689
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 96
-Begin processing the 97th record. Run 5002, Event 97
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 97
-TimeEvent> 97 5002 1.19209e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 97
-TimeModule> 97 5002 tpgcheck TPGCheck 0.044986
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 97
-Begin processing the 98th record. Run 5002, Event 98
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 98
-TimeEvent> 98 5002 1.40667e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 98
-TimeModule> 98 5002 tpgcheck TPGCheck 0.044059
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 98
-Begin processing the 99th record. Run 5002, Event 99
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 99
-TimeEvent> 99 5002 1.28746e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 99
-TimeModule> 99 5002 tpgcheck TPGCheck 0.0452561
-%MSG-i FwkReport:  main_input:source 19-Feb-2007 15:39:29 CET 
-       Run: 5002 Event: 99
-Begin processing the 100th record. Run 5002, Event 100
-%MSG-s TimeEvent:  PostSource 19-Feb-2007 15:39:29 CET Run: 5002 Event: 100
-TimeEvent> 100 5002 1.12057e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 100
-TimeModule> 100 5002 tpgcheck TPGCheck 0.0433199
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 100
-TimeModule> 100 5002 tpgcheck TPGCheck 1.5974e-05
-%MSG-s TimeModule:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 100
-TimeModule> 100 5002 tpgcheck TPGCheck 1.40667e-05
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 100
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:TrigPrim.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>100</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 100
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/2.47976ms/2.47976ms/2.47976ms; file/destruct=1/1/0MB/0.171304ms/0.171304ms/0.171304ms; file/open=2/2/0MB/1.10962ms/0.122616ms/0.987008ms; file/position=184/184/0MB/2.61896ms/0.003244ms/0.095656ms; file/read=223/223/0.9358MB/26.6532ms/0.024516ms/0.71338ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/2.76731ms/2.76731ms/2.76731ms; tstoragefile/construct=2/2/0MB/3182.19ms/29.4426ms/3152.75ms; tstoragefile/read=223/223/0.9358MB/34.0626ms/0.035984ms/0.757076ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=223/223/0.9358MB/27.7ms/0.027304ms/0.720384ms; tstoragefile/seek=223/223/0MB/3.80742ms/0.001464ms/0.610868ms; tstoragefile/seekx=168/168/0MB/3.19088ms/0.005876ms/0.102836ms; tstoragefile/stat=4/4/0MB/0.223088ms/0.019664ms/0.157612ms; tfile/read=?/?/0.9358MB/?ms/?ms/?ms; tfile/write=?/?/0.000172615MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-s TimeReport:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 100
-TimeReport> Time report complete in 5.6962 seconds
+Begin processing the 1st record. Run 1, Event 1001, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1001 1 tpgcheck TPGCheck 0.0464022
+TimeModule> 1001 1 TriggerResults TriggerResultInserter 0.00353694
+TimeEvent> 1001 1 0.0513909
+Begin processing the 2nd record. Run 1, Event 1002, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1002 1 tpgcheck TPGCheck 0.020673
+TimeModule> 1002 1 TriggerResults TriggerResultInserter 0.000255108
+TimeEvent> 1002 1 0.0215609
+Begin processing the 3rd record. Run 1, Event 1003, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1003 1 tpgcheck TPGCheck 0.0186942
+TimeModule> 1003 1 TriggerResults TriggerResultInserter 0.000235081
+TimeEvent> 1003 1 0.0195429
+Begin processing the 4th record. Run 1, Event 1004, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1004 1 tpgcheck TPGCheck 0.0190701
+TimeModule> 1004 1 TriggerResults TriggerResultInserter 0.000236988
+TimeEvent> 1004 1 0.0199261
+Begin processing the 5th record. Run 1, Event 1005, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1005 1 tpgcheck TPGCheck 0.020092
+TimeModule> 1005 1 TriggerResults TriggerResultInserter 0.000250816
+TimeEvent> 1005 1 0.0210099
+Begin processing the 6th record. Run 1, Event 1006, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1006 1 tpgcheck TPGCheck 0.020956
+TimeModule> 1006 1 TriggerResults TriggerResultInserter 0.000241995
+TimeEvent> 1006 1 0.0218759
+Begin processing the 7th record. Run 1, Event 1007, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1007 1 tpgcheck TPGCheck 0.0193501
+TimeModule> 1007 1 TriggerResults TriggerResultInserter 0.000247002
+TimeEvent> 1007 1 0.0202122
+Begin processing the 8th record. Run 1, Event 1008, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1008 1 tpgcheck TPGCheck 0.0199151
+TimeModule> 1008 1 TriggerResults TriggerResultInserter 0.00037694
+TimeEvent> 1008 1 0.020911
+Begin processing the 9th record. Run 1, Event 1009, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1009 1 tpgcheck TPGCheck 0.0198371
+TimeModule> 1009 1 TriggerResults TriggerResultInserter 0.000237942
+TimeEvent> 1009 1 0.0207071
+Begin processing the 10th record. Run 1, Event 1010, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1010 1 tpgcheck TPGCheck 0.021069
+TimeModule> 1010 1 TriggerResults TriggerResultInserter 0.000236988
+TimeEvent> 1010 1 0.0219421
+Begin processing the 11th record. Run 1, Event 1011, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1011 1 tpgcheck TPGCheck 0.0196872
+TimeModule> 1011 1 TriggerResults TriggerResultInserter 0.000241995
+TimeEvent> 1011 1 0.02054
+Begin processing the 12th record. Run 1, Event 1012, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1012 1 tpgcheck TPGCheck 0.021359
+TimeModule> 1012 1 TriggerResults TriggerResultInserter 0.000241041
+TimeEvent> 1012 1 0.0222259
+Begin processing the 13th record. Run 1, Event 1013, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1013 1 tpgcheck TPGCheck 0.0198519
+TimeModule> 1013 1 TriggerResults TriggerResultInserter 0.000243902
+TimeEvent> 1013 1 0.0207391
+Begin processing the 14th record. Run 1, Event 1014, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1014 1 tpgcheck TPGCheck 0.019563
+TimeModule> 1014 1 TriggerResults TriggerResultInserter 0.000243902
+TimeEvent> 1014 1 0.020431
+Begin processing the 15th record. Run 1, Event 1015, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1015 1 tpgcheck TPGCheck 0.018714
+TimeModule> 1015 1 TriggerResults TriggerResultInserter 0.000380993
+TimeEvent> 1015 1 0.0197091
+Begin processing the 16th record. Run 1, Event 1016, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1016 1 tpgcheck TPGCheck 0.0197389
+TimeModule> 1016 1 TriggerResults TriggerResultInserter 0.000247002
+TimeEvent> 1016 1 0.0206141
+Begin processing the 17th record. Run 1, Event 1017, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1017 1 tpgcheck TPGCheck 0.020576
+TimeModule> 1017 1 TriggerResults TriggerResultInserter 0.000239134
+TimeEvent> 1017 1 0.0214419
+Begin processing the 18th record. Run 1, Event 1018, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1018 1 tpgcheck TPGCheck 0.018301
+TimeModule> 1018 1 TriggerResults TriggerResultInserter 0.000236988
+TimeEvent> 1018 1 0.019171
+Begin processing the 19th record. Run 1, Event 1019, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1019 1 tpgcheck TPGCheck 0.019908
+TimeModule> 1019 1 TriggerResults TriggerResultInserter 0.00024581
+TimeEvent> 1019 1 0.020772
+Begin processing the 20th record. Run 1, Event 1020, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1020 1 tpgcheck TPGCheck 0.0195031
+TimeModule> 1020 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1020 1 0.0203509
+Begin processing the 21st record. Run 1, Event 1021, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1021 1 tpgcheck TPGCheck 0.0192242
+TimeModule> 1021 1 TriggerResults TriggerResultInserter 0.000240803
+TimeEvent> 1021 1 0.0200629
+Begin processing the 22nd record. Run 1, Event 1022, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1022 1 tpgcheck TPGCheck 0.0195742
+TimeModule> 1022 1 TriggerResults TriggerResultInserter 0.000380039
+TimeEvent> 1022 1 0.020613
+Begin processing the 23rd record. Run 1, Event 1023, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1023 1 tpgcheck TPGCheck 0.0204651
+TimeModule> 1023 1 TriggerResults TriggerResultInserter 0.000236988
+TimeEvent> 1023 1 0.0213621
+Begin processing the 24th record. Run 1, Event 1024, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1024 1 tpgcheck TPGCheck 0.019964
+TimeModule> 1024 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1024 1 0.020813
+Begin processing the 25th record. Run 1, Event 1025, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1025 1 tpgcheck TPGCheck 0.0191438
+TimeModule> 1025 1 TriggerResults TriggerResultInserter 0.000231981
+TimeEvent> 1025 1 0.019989
+Begin processing the 26th record. Run 1, Event 1026, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1026 1 tpgcheck TPGCheck 0.0197039
+TimeModule> 1026 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1026 1 0.0205562
+Begin processing the 27th record. Run 1, Event 1027, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1027 1 tpgcheck TPGCheck 0.0207851
+TimeModule> 1027 1 TriggerResults TriggerResultInserter 0.000237226
+TimeEvent> 1027 1 0.021647
+Begin processing the 28th record. Run 1, Event 1028, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1028 1 tpgcheck TPGCheck 0.0191481
+TimeModule> 1028 1 TriggerResults TriggerResultInserter 0.000236988
+TimeEvent> 1028 1 0.02
+Begin processing the 29th record. Run 1, Event 1029, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1029 1 tpgcheck TPGCheck 0.0187469
+TimeModule> 1029 1 TriggerResults TriggerResultInserter 0.000374079
+TimeEvent> 1029 1 0.019742
+Begin processing the 30th record. Run 1, Event 1030, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1030 1 tpgcheck TPGCheck 0.0200312
+TimeModule> 1030 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1030 1 0.0208759
+Begin processing the 31st record. Run 1, Event 1031, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1031 1 tpgcheck TPGCheck 0.019583
+TimeModule> 1031 1 TriggerResults TriggerResultInserter 0.000248909
+TimeEvent> 1031 1 0.020443
+Begin processing the 32nd record. Run 1, Event 1032, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1032 1 tpgcheck TPGCheck 0.0193999
+TimeModule> 1032 1 TriggerResults TriggerResultInserter 0.000250101
+TimeEvent> 1032 1 0.020272
+Begin processing the 33rd record. Run 1, Event 1033, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1033 1 tpgcheck TPGCheck 0.0193651
+TimeModule> 1033 1 TriggerResults TriggerResultInserter 0.000232935
+TimeEvent> 1033 1 0.0202081
+Begin processing the 34th record. Run 1, Event 1034, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1034 1 tpgcheck TPGCheck 0.0219259
+TimeModule> 1034 1 TriggerResults TriggerResultInserter 0.000279903
+TimeEvent> 1034 1 0.022954
+Begin processing the 35th record. Run 1, Event 1035, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1035 1 tpgcheck TPGCheck 0.0211518
+TimeModule> 1035 1 TriggerResults TriggerResultInserter 0.000247002
+TimeEvent> 1035 1 0.022027
+Begin processing the 36th record. Run 1, Event 1036, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1036 1 tpgcheck TPGCheck 0.0202451
+TimeModule> 1036 1 TriggerResults TriggerResultInserter 0.000386953
+TimeEvent> 1036 1 0.0212481
+Begin processing the 37th record. Run 1, Event 1037, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1037 1 tpgcheck TPGCheck 0.0205219
+TimeModule> 1037 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1037 1 0.0213761
+Begin processing the 38th record. Run 1, Event 1038, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1038 1 tpgcheck TPGCheck 0.020277
+TimeModule> 1038 1 TriggerResults TriggerResultInserter 0.000248194
+TimeEvent> 1038 1 0.021173
+Begin processing the 39th record. Run 1, Event 1039, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1039 1 tpgcheck TPGCheck 0.0201101
+TimeModule> 1039 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1039 1 0.0210059
+Begin processing the 40th record. Run 1, Event 1040, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1040 1 tpgcheck TPGCheck 0.0200012
+TimeModule> 1040 1 TriggerResults TriggerResultInserter 0.000241041
+TimeEvent> 1040 1 0.0208981
+Begin processing the 41st record. Run 1, Event 1041, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1041 1 tpgcheck TPGCheck 0.018836
+TimeModule> 1041 1 TriggerResults TriggerResultInserter 0.00023222
+TimeEvent> 1041 1 0.0196881
+Begin processing the 42nd record. Run 1, Event 1042, LumiSection 666670 at 05-Feb-2009 14:02:25 CET
+TimeModule> 1042 1 tpgcheck TPGCheck 0.01917
+TimeModule> 1042 1 TriggerResults TriggerResultInserter 0.000241995
+TimeEvent> 1042 1 0.0200381
+Begin processing the 43rd record. Run 1, Event 1043, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1043 1 tpgcheck TPGCheck 0.019892
+TimeModule> 1043 1 TriggerResults TriggerResultInserter 0.00037694
+TimeEvent> 1043 1 0.0208941
+Begin processing the 44th record. Run 1, Event 1044, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1044 1 tpgcheck TPGCheck 0.0194921
+TimeModule> 1044 1 TriggerResults TriggerResultInserter 0.000239849
+TimeEvent> 1044 1 0.020349
+Begin processing the 45th record. Run 1, Event 1045, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1045 1 tpgcheck TPGCheck 0.0197959
+TimeModule> 1045 1 TriggerResults TriggerResultInserter 0.000231981
+TimeEvent> 1045 1 0.020642
+Begin processing the 46th record. Run 1, Event 1046, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1046 1 tpgcheck TPGCheck 0.0205112
+TimeModule> 1046 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1046 1 0.021369
+Begin processing the 47th record. Run 1, Event 1047, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1047 1 tpgcheck TPGCheck 0.020555
+TimeModule> 1047 1 TriggerResults TriggerResultInserter 0.000236988
+TimeEvent> 1047 1 0.02141
+Begin processing the 48th record. Run 1, Event 1048, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1048 1 tpgcheck TPGCheck 0.0190029
+TimeModule> 1048 1 TriggerResults TriggerResultInserter 0.000238895
+TimeEvent> 1048 1 0.019875
+Begin processing the 49th record. Run 1, Event 1049, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1049 1 tpgcheck TPGCheck 0.0211771
+TimeModule> 1049 1 TriggerResults TriggerResultInserter 0.000242949
+TimeEvent> 1049 1 0.0220499
+Begin processing the 50th record. Run 1, Event 1050, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1050 1 tpgcheck TPGCheck 0.0192659
+TimeModule> 1050 1 TriggerResults TriggerResultInserter 0.000381947
+TimeEvent> 1050 1 0.020277
+Begin processing the 51st record. Run 1, Event 1051, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1051 1 tpgcheck TPGCheck 0.020884
+TimeModule> 1051 1 TriggerResults TriggerResultInserter 0.000240803
+TimeEvent> 1051 1 0.0217628
+Begin processing the 52nd record. Run 1, Event 1052, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1052 1 tpgcheck TPGCheck 0.0200861
+TimeModule> 1052 1 TriggerResults TriggerResultInserter 0.000241995
+TimeEvent> 1052 1 0.0209422
+Begin processing the 53rd record. Run 1, Event 1053, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1053 1 tpgcheck TPGCheck 0.0208409
+TimeModule> 1053 1 TriggerResults TriggerResultInserter 0.00026679
+TimeEvent> 1053 1 0.0218661
+Begin processing the 54th record. Run 1, Event 1054, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1054 1 tpgcheck TPGCheck 0.019336
+TimeModule> 1054 1 TriggerResults TriggerResultInserter 0.000250101
+TimeEvent> 1054 1 0.0202019
+Begin processing the 55th record. Run 1, Event 1055, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1055 1 tpgcheck TPGCheck 0.020184
+TimeModule> 1055 1 TriggerResults TriggerResultInserter 0.000249863
+TimeEvent> 1055 1 0.0210609
+Begin processing the 56th record. Run 1, Event 1056, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1056 1 tpgcheck TPGCheck 0.0198989
+TimeModule> 1056 1 TriggerResults TriggerResultInserter 0.000241995
+TimeEvent> 1056 1 0.0208189
+Begin processing the 57th record. Run 1, Event 1057, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1057 1 tpgcheck TPGCheck 0.0203459
+TimeModule> 1057 1 TriggerResults TriggerResultInserter 0.000398159
+TimeEvent> 1057 1 0.021415
+Begin processing the 58th record. Run 1, Event 1058, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1058 1 tpgcheck TPGCheck 0.0208502
+TimeModule> 1058 1 TriggerResults TriggerResultInserter 0.000235081
+TimeEvent> 1058 1 0.021703
+Begin processing the 59th record. Run 1, Event 1059, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1059 1 tpgcheck TPGCheck 0.021296
+TimeModule> 1059 1 TriggerResults TriggerResultInserter 0.000241041
+TimeEvent> 1059 1 0.0221591
+Begin processing the 60th record. Run 1, Event 1060, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1060 1 tpgcheck TPGCheck 0.0187602
+TimeModule> 1060 1 TriggerResults TriggerResultInserter 0.000241041
+TimeEvent> 1060 1 0.0196171
+Begin processing the 61st record. Run 1, Event 1061, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1061 1 tpgcheck TPGCheck 0.018292
+TimeModule> 1061 1 TriggerResults TriggerResultInserter 0.000241041
+TimeEvent> 1061 1 0.0191362
+Begin processing the 62nd record. Run 1, Event 1062, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1062 1 tpgcheck TPGCheck 0.0192099
+TimeModule> 1062 1 TriggerResults TriggerResultInserter 0.000242949
+TimeEvent> 1062 1 0.020061
+Begin processing the 63rd record. Run 1, Event 1063, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1063 1 tpgcheck TPGCheck 0.0196218
+TimeModule> 1063 1 TriggerResults TriggerResultInserter 0.00024581
+TimeEvent> 1063 1 0.02052
+Begin processing the 64th record. Run 1, Event 1064, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1064 1 tpgcheck TPGCheck 0.0199082
+TimeModule> 1064 1 TriggerResults TriggerResultInserter 0.000386
+TimeEvent> 1064 1 0.020926
+Begin processing the 65th record. Run 1, Event 1065, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1065 1 tpgcheck TPGCheck 0.0195599
+TimeModule> 1065 1 TriggerResults TriggerResultInserter 0.000234842
+TimeEvent> 1065 1 0.020416
+Begin processing the 66th record. Run 1, Event 1066, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1066 1 tpgcheck TPGCheck 0.020129
+TimeModule> 1066 1 TriggerResults TriggerResultInserter 0.000242949
+TimeEvent> 1066 1 0.020987
+Begin processing the 67th record. Run 1, Event 1067, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1067 1 tpgcheck TPGCheck 0.0193982
+TimeModule> 1067 1 TriggerResults TriggerResultInserter 0.000232935
+TimeEvent> 1067 1 0.0202332
+Begin processing the 68th record. Run 1, Event 1068, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1068 1 tpgcheck TPGCheck 0.0201721
+TimeModule> 1068 1 TriggerResults TriggerResultInserter 0.000236988
+TimeEvent> 1068 1 0.0210221
+Begin processing the 69th record. Run 1, Event 1069, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1069 1 tpgcheck TPGCheck 0.0188398
+TimeModule> 1069 1 TriggerResults TriggerResultInserter 0.000242949
+TimeEvent> 1069 1 0.0196931
+Begin processing the 70th record. Run 1, Event 1070, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1070 1 tpgcheck TPGCheck 0.0208189
+TimeModule> 1070 1 TriggerResults TriggerResultInserter 0.000234842
+TimeEvent> 1070 1 0.0216641
+Begin processing the 71st record. Run 1, Event 1071, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1071 1 tpgcheck TPGCheck 0.0195129
+TimeModule> 1071 1 TriggerResults TriggerResultInserter 0.000385046
+TimeEvent> 1071 1 0.0205112
+Begin processing the 72nd record. Run 1, Event 1072, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1072 1 tpgcheck TPGCheck 0.0195479
+TimeModule> 1072 1 TriggerResults TriggerResultInserter 0.000234127
+TimeEvent> 1072 1 0.0204101
+Begin processing the 73rd record. Run 1, Event 1073, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1073 1 tpgcheck TPGCheck 0.019285
+TimeModule> 1073 1 TriggerResults TriggerResultInserter 0.000238895
+TimeEvent> 1073 1 0.020185
+Begin processing the 74th record. Run 1, Event 1074, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1074 1 tpgcheck TPGCheck 0.0198939
+TimeModule> 1074 1 TriggerResults TriggerResultInserter 0.000247955
+TimeEvent> 1074 1 0.0207939
+Begin processing the 75th record. Run 1, Event 1075, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1075 1 tpgcheck TPGCheck 0.019419
+TimeModule> 1075 1 TriggerResults TriggerResultInserter 0.000234127
+TimeEvent> 1075 1 0.0202808
+Begin processing the 76th record. Run 1, Event 1076, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1076 1 tpgcheck TPGCheck 0.0201709
+TimeModule> 1076 1 TriggerResults TriggerResultInserter 0.000251055
+TimeEvent> 1076 1 0.0210378
+Begin processing the 77th record. Run 1, Event 1077, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1077 1 tpgcheck TPGCheck 0.021246
+TimeModule> 1077 1 TriggerResults TriggerResultInserter 0.000266075
+TimeEvent> 1077 1 0.0222142
+Begin processing the 78th record. Run 1, Event 1078, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1078 1 tpgcheck TPGCheck 0.0205162
+TimeModule> 1078 1 TriggerResults TriggerResultInserter 0.000377893
+TimeEvent> 1078 1 0.021508
+Begin processing the 79th record. Run 1, Event 1079, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1079 1 tpgcheck TPGCheck 0.019645
+TimeModule> 1079 1 TriggerResults TriggerResultInserter 0.000249147
+TimeEvent> 1079 1 0.020514
+Begin processing the 80th record. Run 1, Event 1080, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1080 1 tpgcheck TPGCheck 0.0193541
+TimeModule> 1080 1 TriggerResults TriggerResultInserter 0.000253916
+TimeEvent> 1080 1 0.0202549
+Begin processing the 81st record. Run 1, Event 1081, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1081 1 tpgcheck TPGCheck 0.0195329
+TimeModule> 1081 1 TriggerResults TriggerResultInserter 0.000235796
+TimeEvent> 1081 1 0.0203981
+Begin processing the 82nd record. Run 1, Event 1082, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1082 1 tpgcheck TPGCheck 0.0189159
+TimeModule> 1082 1 TriggerResults TriggerResultInserter 0.000246048
+TimeEvent> 1082 1 0.0197721
+Begin processing the 83rd record. Run 1, Event 1083, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1083 1 tpgcheck TPGCheck 0.020566
+TimeModule> 1083 1 TriggerResults TriggerResultInserter 0.000236988
+TimeEvent> 1083 1 0.0214372
+Begin processing the 84th record. Run 1, Event 1084, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1084 1 tpgcheck TPGCheck 0.0194821
+TimeModule> 1084 1 TriggerResults TriggerResultInserter 0.000239849
+TimeEvent> 1084 1 0.0203421
+Begin processing the 85th record. Run 1, Event 1085, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1085 1 tpgcheck TPGCheck 0.0203409
+TimeModule> 1085 1 TriggerResults TriggerResultInserter 0.000383854
+TimeEvent> 1085 1 0.0213571
+Begin processing the 86th record. Run 1, Event 1086, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1086 1 tpgcheck TPGCheck 0.0220029
+TimeModule> 1086 1 TriggerResults TriggerResultInserter 0.000239134
+TimeEvent> 1086 1 0.0228791
+Begin processing the 87th record. Run 1, Event 1087, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1087 1 tpgcheck TPGCheck 0.019269
+TimeModule> 1087 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1087 1 0.0201209
+Begin processing the 88th record. Run 1, Event 1088, LumiSection 666670 at 05-Feb-2009 14:02:26 CET
+TimeModule> 1088 1 tpgcheck TPGCheck 0.018605
+TimeModule> 1088 1 TriggerResults TriggerResultInserter 0.000248909
+TimeEvent> 1088 1 0.0195272
+Begin processing the 89th record. Run 1, Event 1089, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1089 1 tpgcheck TPGCheck 0.0203848
+TimeModule> 1089 1 TriggerResults TriggerResultInserter 0.000268936
+TimeEvent> 1089 1 0.0214081
+Begin processing the 90th record. Run 1, Event 1090, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1090 1 tpgcheck TPGCheck 0.020576
+TimeModule> 1090 1 TriggerResults TriggerResultInserter 0.000244856
+TimeEvent> 1090 1 0.0215068
+Begin processing the 91st record. Run 1, Event 1091, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1091 1 tpgcheck TPGCheck 0.0185969
+TimeModule> 1091 1 TriggerResults TriggerResultInserter 0.000235081
+TimeEvent> 1091 1 0.0194609
+Begin processing the 92nd record. Run 1, Event 1092, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1092 1 tpgcheck TPGCheck 0.0181952
+TimeModule> 1092 1 TriggerResults TriggerResultInserter 0.000370979
+TimeEvent> 1092 1 0.0191779
+Begin processing the 93rd record. Run 1, Event 1093, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1093 1 tpgcheck TPGCheck 0.019603
+TimeModule> 1093 1 TriggerResults TriggerResultInserter 0.000234127
+TimeEvent> 1093 1 0.0204461
+Begin processing the 94th record. Run 1, Event 1094, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1094 1 tpgcheck TPGCheck 0.019731
+TimeModule> 1094 1 TriggerResults TriggerResultInserter 0.000249147
+TimeEvent> 1094 1 0.0206001
+Begin processing the 95th record. Run 1, Event 1095, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1095 1 tpgcheck TPGCheck 0.020807
+TimeModule> 1095 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1095 1 0.0216551
+Begin processing the 96th record. Run 1, Event 1096, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1096 1 tpgcheck TPGCheck 0.0194042
+TimeModule> 1096 1 TriggerResults TriggerResultInserter 0.000238895
+TimeEvent> 1096 1 0.020267
+Begin processing the 97th record. Run 1, Event 1097, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1097 1 tpgcheck TPGCheck 0.020427
+TimeModule> 1097 1 TriggerResults TriggerResultInserter 0.000242949
+TimeEvent> 1097 1 0.021297
+Begin processing the 98th record. Run 1, Event 1098, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1098 1 tpgcheck TPGCheck 0.019897
+TimeModule> 1098 1 TriggerResults TriggerResultInserter 0.000236034
+TimeEvent> 1098 1 0.020752
+Begin processing the 99th record. Run 1, Event 1099, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1099 1 tpgcheck TPGCheck 0.0196021
+TimeModule> 1099 1 TriggerResults TriggerResultInserter 0.000250101
+TimeEvent> 1099 1 0.0204668
+Begin processing the 100th record. Run 1, Event 1100, LumiSection 666670 at 05-Feb-2009 14:02:27 CET
+TimeModule> 1100 1 tpgcheck TPGCheck 0.0199821
+TimeModule> 1100 1 TriggerResults TriggerResultInserter 0.000235081
+TimeEvent> 1100 1 0.020824
+05-Feb-2009 14:02:27 CET  Closed file file:TrigPrim_suppressed.root
+TimeReport> Time report complete in 2.35953 seconds
  Time Summary: 
- Min: 9.05991e-06
- Max: 2.88486e-05
- Avg: 0.056962
+ Min: 0.0191362
+ Max: 0.0513909
+ Avg: 0.0235953
 
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 100
 
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 19-Feb-2007 15:39:29 CET Run: 5002 Event: 100
-</GeneratorInfo>
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 TimeEvent            -s PostModule                           100      100
+    2 TimeModule           -s TPGCheck:tpgchec                     100      100
+    3 TimeModule           -s TriggerResultIns                     100      100
+    4 TimeReport           -s                                        1        1
+    5 TimeReport           -s PostModule                             1        1
+    6 fileAction           -s PoolSource:sourc                       2        2
+    7 fileAction           -s PostModule                             1        1
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 TimeEvent            1/1001           1/1002           1/1100
+    2 TimeModule           1/1001           1/1002           1/1100
+    3 TimeModule           1/1001           1/1002           1/1100
+    4 TimeReport           BeforeEvents                      
+    5 TimeReport           1/1100                            
+    6 fileAction           pre-events       pre-events       
+    7 fileAction           1/1100                            
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+System                305                 305
 ===================> Step3: rereading histos with root
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.18/00a  20 February 2008   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+ROOT 5.18/00a (branches/v5-18-00-patches@22235, Jan 01 2009, 14:00:00 on linux)
 
-CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
+CINT/ROOT C/C++ Interpreter version 5.16.29, Jan 08, 2008
 Type ? for help. Commands must be C++ statements.
 Enclose multiple statements between { }.
 
 Processing HistoCompare.C...
 
-[OVAL] Mean of Barrel histo 0.0526734
+[OVAL] Mean of Barrel energy histo 0.16496
 [OVAL] Mean of barrel fgvb histo 0
-[OVAL] Mean of barrel ttf histo 0.00334172
-[OVAL] Mean of Endcap histo 0.207772
+[OVAL] Mean of barrel ttf histo 0.0140564
+[OVAL] Mean of Endcap energy histo 0.127382
 [OVAL] Mean of Endcap fgvb histo 0
-[OVAL] Mean of endcap ttf histo 0.0180643
+[OVAL] Mean of endcap ttf histo 0.0147495
 
 [oval run] ==========================================
 [oval run] result: OK
 [oval run] ==========================================
+
+[oval diff] ================================================
+[oval diff] diff line: /^\[OVAL\](.*)$/
+[oval diff] ================================================
+
+[oval diff] =========================================
+[oval diff] result: OK
+[oval diff] =========================================
 

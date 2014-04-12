@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -14,14 +15,15 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "Validation/RecoMuon/src/Histograms.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -40,18 +42,24 @@ MuonTrackResidualAnalyzer::MuonTrackResidualAnalyzer(const edm::ParameterSet& ps
   theService = new MuonServiceProxy(serviceParameters);
   
   theMuonTrackLabel = pset.getParameter<InputTag>("MuonTrack");
-  theSeedCollectionLabel = pset.getParameter<InputTag>("MuonSeed");
+  theMuonTrackToken = consumes<reco::TrackCollection>(theMuonTrackLabel);
 
   cscSimHitLabel = pset.getParameter<InputTag>("CSCSimHit");
   dtSimHitLabel = pset.getParameter<InputTag>("DTSimHit");
   rpcSimHitLabel = pset.getParameter<InputTag>("RPCSimHit");
+  theCSCSimHitToken = consumes<std::vector<PSimHit> >(cscSimHitLabel);
+  theDTSimHitToken = consumes<std::vector<PSimHit> >(dtSimHitLabel);
+  theRPCSimHitToken = consumes<std::vector<PSimHit> >(rpcSimHitLabel);
 
-  theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
+  dbe_ = edm::Service<DQMStore>().operator->();
+  out = pset.getUntrackedParameter<string>("rootFileName");
+  dirName_ = pset.getUntrackedParameter<std::string>("dirName");
   
   // Sim or Real
   theDataType = pset.getParameter<InputTag>("DataType"); 
   if(theDataType.label() != "RealData" && theDataType.label() != "SimData")
-    cout<<"Error in Data Type!!"<<endl;
+    LogDebug("MuonTrackResidualAnalyzer")<<"Error in Data Type!!";
+  theDataTypeToken = consumes<edm::SimTrackContainer>(theDataType);
 
   theEtaRange = (EtaRange) pset.getParameter<int>("EtaRange");
 
@@ -69,44 +77,52 @@ MuonTrackResidualAnalyzer::~MuonTrackResidualAnalyzer(){
 }
 
 // Operations
-void MuonTrackResidualAnalyzer::beginJob(const edm::EventSetup& eventSetup){
-  cout<<"Begin Job"<<endl;
-  // Create the root file
-  theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  theFile->cd();
-
-  hDPtRef = new TH1F("DeltaPtRef","P^{in}_{t}-P^{in ref}",10000,-20,20);
-
-  // Resolution wrt the 1D Rec Hits
-  //  h1DRecHitRes = new HResolution1DRecHit("TotalRec");
-
-  // Resolution wrt the 1d Sim Hits
-  //  h1DSimHitRes = new HResolution1DRecHit("TotalSim");
-
-  hSimHitsPerTrack  = new TH1F("SimHitsPerTrack","Number of sim hits per track",55,0,55);
-  hSimHitsPerTrackVsEta  = new TH2F("SimHitsPerTrackVsEta","Number of sim hits per track VS #eta",
-				    120,-3.,3.,55,0,55);
-  hDeltaPtVsEtaSim = new TH2F("DeltaPtVsEtaSim","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
-  hDeltaPtVsEtaSim2 = new TH2F("DeltaPtVsEtaSim2","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
+void MuonTrackResidualAnalyzer::beginJob(){
+ 
 }
 
 void MuonTrackResidualAnalyzer::endJob(){
-  theFile->cd();
-  // Write the histos to file
-
-  hDPtRef->Write();
-  hDeltaPtVsEtaSim->Write();
-  hDeltaPtVsEtaSim2->Write();
-  // h1DRecHitRes->Write();
-  // h1DSimHitRes->Write();
-  hSimHitsPerTrack->Write();
-  hSimHitsPerTrackVsEta->Write();
-  theFile->Close();
 }
- 
+void MuonTrackResidualAnalyzer::beginRun(){
+ LogDebug("MuonTrackResidualAnalyzer")<<"Begin Run";
+  
+  dbe_->showDirStructure();
+  
+  dbe_->cd();
+  InputTag algo = theMuonTrackLabel;
+  string dirName=dirName_;
+  if (algo.process()!="")
+    dirName+=algo.process()+"_";
+  if(algo.label()!="")
+    dirName+=algo.label()+"_";
+  if(algo.instance()!="")
+    dirName+=algo.instance()+"";
+  if (dirName.find("Tracks")<dirName.length()){
+    dirName.replace(dirName.find("Tracks"),6,"");
+  }
+  std::replace(dirName.begin(), dirName.end(), ':', '_');
+  dbe_->setCurrentFolder(dirName.c_str());
+  
+  
+  hDPtRef = dbe_->book1D("DeltaPtRef","P^{in}_{t}-P^{in ref}",10000,-20,20);
+  
+  // Resolution wrt the 1D Rec Hits
+  //  h1DRecHitRes = new HResolution1DRecHit("TotalRec");
+  
+  // Resolution wrt the 1d Sim Hits
+  //  h1DSimHitRes = new HResolution1DRecHit("TotalSim");
+  
+  hSimHitsPerTrack  = dbe_->book1D("SimHitsPerTrack","Number of sim hits per track",55,0,55);
+  hSimHitsPerTrackVsEta  = dbe_->book2D("SimHitsPerTrackVsEta","Number of sim hits per track VS #eta",120,-3.,3.,55,0,55);
+  hDeltaPtVsEtaSim = dbe_->book2D("DeltaPtVsEtaSim","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
+  hDeltaPtVsEtaSim2 = dbe_->book2D("DeltaPtVsEtaSim2","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
+}
 
+void MuonTrackResidualAnalyzer::endRun(){
+  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+}
 void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& eventSetup){
-  cout<<"Analyze"<<endl;
+  LogDebug("MuonTrackResidualAnalyzer")<<"Analyze";
 
   // Update the services
   theService->update(eventSetup);
@@ -115,13 +131,13 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::Eve
 
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> dtSimHits;
-  event.getByLabel(dtSimHitLabel.instance(),dtSimHitLabel.label(), dtSimHits);
+  event.getByToken(theDTSimHitToken, dtSimHits);
 
   Handle<PSimHitContainer> cscSimHits;
-  event.getByLabel(cscSimHitLabel.instance(),cscSimHitLabel.label(), cscSimHits);
+  event.getByToken(theCSCSimHitToken, cscSimHits);
 
   Handle<PSimHitContainer> rpcSimHits;
-  event.getByLabel(rpcSimHitLabel.instance(),rpcSimHitLabel.label(), rpcSimHits);
+  event.getByToken(theRPCSimHitToken, rpcSimHits);
 
   Handle<SimTrackContainer> simTracks;
 
@@ -138,7 +154,7 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::Eve
   if(theDataType.label() == "SimData"){
     
     // Get the SimTrack collection from the event
-    event.getByLabel(theDataType.instance(),simTracks);
+    event.getByToken(theDataTypeToken,simTracks);
     
     // Loop over the Sim tracks
     SimTrackContainer::const_iterator simTrack;
@@ -155,7 +171,7 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::Eve
   
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> muonTracks;
-  event.getByLabel(theMuonTrackLabel, muonTracks);
+  event.getByToken(theMuonTrackToken, muonTracks);
 
   reco::TrackCollection::const_iterator muonTrack;
   
@@ -169,9 +185,6 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::Eve
 
     TransientTrackingRecHit::ConstRecHitContainer result;
     
-    trackingRecHit_iterator rhend = track.recHitsBegin()-1;
-    trackingRecHit_iterator rhbegin = track.recHitsEnd()-2;
-    
     // SimHit Energy loss analysis  
     double momAtEntry = -150., momAtExit = -150.;
 
@@ -183,19 +196,19 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::Eve
       const GeomDet *geomDetB = theService->trackingGeometry()->idToDet(DetId(theSimHitContainer.back()->detUnitId()));
       double distB = geomDetB->toGlobal(theSimHitContainer.back()->localPosition()).mag();
 
-      cout<<"Inner SimHit: "<<theSimHitContainer.front()->particleType()
-	  <<" Pt: "<<theSimHitContainer.front()->momentumAtEntry().perp()
-	  <<" E: "<<theSimHitContainer.front()->momentumAtEntry().perp()
-	  <<" R: "<<distA<<endl;
-      cout<<"Outer SimHit: "<<theSimHitContainer.back()->particleType()
-	  <<" Pt: "<<theSimHitContainer.back()->momentumAtEntry().perp()
-	  <<" E: "<<theSimHitContainer.front()->momentumAtEntry().perp()
-	  <<" R: "<<distB<<endl;
-
+      LogTrace("MuonTrackResidualAnalyzer")<<"Inner SimHit: "<<theSimHitContainer.front()->particleType()
+					   <<" Pt: "<<theSimHitContainer.front()->momentumAtEntry().perp()
+					   <<" E: "<<theSimHitContainer.front()->momentumAtEntry().perp()
+					   <<" R: "<<distA<<endl;
+      LogTrace("MuonTrackResidualAnalyzer")<<"Outer SimHit: "<<theSimHitContainer.back()->particleType()
+					   <<" Pt: "<<theSimHitContainer.back()->momentumAtEntry().perp()
+					   <<" E: "<<theSimHitContainer.front()->momentumAtEntry().perp()
+					   <<" R: "<<distB<<endl;
+      
       momAtEntry = theSimHitContainer.front()->momentumAtEntry().perp();
       momAtExit =  theSimHitContainer.back()->momentumAtEntry().perp();
     }
-
+    
     trackingRecHit_iterator rhFirst = track.recHitsBegin();
     trackingRecHit_iterator rhLast = track.recHitsEnd()-1;
     map<DetId,const PSimHit*>::const_iterator itFirst = muonSimHitsPerId.find((*rhFirst)->geographicalId());
@@ -205,13 +218,13 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::Eve
     if (itFirst != muonSimHitsPerId.end() )
       momAtEntry2 = itFirst->second->momentumAtEntry().perp();
     else {
-      cout<<"No first sim hit found"<<endl;
+      LogDebug("MuonTrackResidualAnalyzer")<<"No first sim hit found";
       ++rhFirst;
       itFirst = muonSimHitsPerId.find((*rhFirst)->geographicalId());
       if (itFirst != muonSimHitsPerId.end() )
 	momAtEntry2 = itFirst->second->momentumAtEntry().perp();
       else{
-	cout<<"No second sim hit found"<<endl;
+	LogDebug("MuonTrackResidualAnalyzer")<<"No second sim hit found";
 	// continue;
       }
     }
@@ -219,13 +232,13 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::Eve
     if (itLast != muonSimHitsPerId.end() )
       momAtExit2 = itLast->second->momentumAtEntry().perp();
     else {
-      cout<<"No last sim hit found"<<endl;
+      LogDebug("MuonTrackResidualAnalyzer")<<"No last sim hit found";
       --rhLast;
       itLast = muonSimHitsPerId.find((*rhLast)->geographicalId());
       if (itLast != muonSimHitsPerId.end() )
 	momAtExit2 = itLast->second->momentumAtEntry().perp();
       else{
-	cout<<"No last but one sim hit found"<<endl;
+	LogDebug("MuonTrackResidualAnalyzer")<<"No last but one sim hit found";
 	// continue;
       }
     }
@@ -237,7 +250,7 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::Eve
 	hDeltaPtVsEtaSim2->Fill(etaSim,momAtEntry2-momAtExit2);
     }
     else
-      cout<<"NO SimTrack'eta"<<endl;
+      LogDebug("MuonTrackResidualAnalyzer")<<"NO SimTrack'eta";
     //
 
     // computeResolution(trajectoryBW,muonSimHitsPerId,h1DSimHitRes);
@@ -255,7 +268,7 @@ bool MuonTrackResidualAnalyzer::isInTheAcceptance(double eta){
   case endcap:
     return ( abs(eta) >= 1.1 && abs(eta) <= 2.4 ) ? true : false;  
   default:
-    {cout<<"No correct Eta range selected!! "<<endl; return false;}
+    {LogDebug("MuonTrackResidualAnalyzer")<<"No correct Eta range selected!! "; return false;}
   }
 }
 
@@ -277,11 +290,11 @@ MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<PSimHitContainer> dtSimhits,
   if(theSimHitContainer.size() >1)
     stable_sort(theSimHitContainer.begin(),theSimHitContainer.end(),RadiusComparatorInOut(theService->trackingGeometry()));
 
-  cout<<"Sim Hit list"<<endl;
+  LogDebug("MuonTrackResidualAnalyzer")<<"Sim Hit list";
   int count=1;
   for(vector<const PSimHit*>::const_iterator it = theSimHitContainer.begin(); 
       it != theSimHitContainer.end(); ++it){
-    cout<<count 
+    LogTrace("MuonTrackResidualAnalyzer")<<count 
 	<< " " 
 	<< " Process Type: " << (*it)->processType()
 	<< " " 
@@ -313,7 +326,7 @@ void MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<PSimHitContainer> simhi
     if (it == hitIdMap.end() )
       hitIdMap[id] = &*simhit;
     else
-      cout<<"TWO muons in the same sensible volume!!"<<endl;
+      LogDebug("MuonTrackResidualAnalyzer")<<"TWO muons in the same sensible volume!!";
     
     ++theMuonSimHitNumberPerEvent;
   }
@@ -336,8 +349,8 @@ void MuonTrackResidualAnalyzer::computeResolution(Trajectory &trajectory,
     //     double errY = datum->updatedState().cartesianError().matrix()[1][1];
     //     double errZ = datum->updatedState().cartesianError().matrix()[2][2];
     //
-    double errX = datum->updatedState().localError().matrix_old()[3][3];
-    double errY = datum->updatedState().localError().matrix_old()[4][4];
+    double errX = datum->updatedState().localError().matrix()(3,3);
+    double errY = datum->updatedState().localError().matrix()(4,4);
     double errZ = 1.;
 
     map<DetId,const PSimHit*>::const_iterator it = hitIdMap.find(datum->recHit()->geographicalId());

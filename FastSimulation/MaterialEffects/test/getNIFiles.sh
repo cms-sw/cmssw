@@ -93,11 +93,11 @@ for energy in 30 50 100 200
     case $pid in
 	211)
 	    maxnu=$(( maxnu*1 ))
-	    part="pi+"
+	    part="piplus"
 	    ;;
 	-211)
 	    maxnu=$(( maxnu*1 ))
-	    part="pi-"
+	    part="piminus"
 	    ;;
 	130)
 	    maxnu=$(( maxnu/4 ))
@@ -105,11 +105,11 @@ for energy in 30 50 100 200
 	    ;;
 	321)
 	    maxnu=$(( maxnu/5 ))
-	    part="K+"
+	    part="Kplus"
 	    ;;
 	-321) 
 	    maxnu=$(( maxnu/5 ))
-	    part="K-"
+	    part="Kminus"
 	    ;;
 	2212) 
 	    maxnu=$(( maxnu*15 /100 ))

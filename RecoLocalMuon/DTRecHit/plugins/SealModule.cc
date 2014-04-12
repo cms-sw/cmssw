@@ -14,8 +14,8 @@
 #include "CalibMuon/DTDigiSync/src/DTTTrigSyncT0Only.h"
 #include "CalibMuon/DTDigiSync/src/DTTTrigSyncFromDB.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(DTRecHitProducer);
+
+DEFINE_FWK_MODULE(DTRecHitProducer);
 
 DEFINE_EDM_PLUGIN (DTRecHitAlgoFactory, DTNoDriftAlgo, "DTNoDriftAlgo");
 DEFINE_EDM_PLUGIN (DTRecHitAlgoFactory, DTLinearDriftAlgo, "DTLinearDriftAlgo");

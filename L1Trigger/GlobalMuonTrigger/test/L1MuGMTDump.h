@@ -6,8 +6,6 @@
  *   Description:  Dump GMT readout
 */
 //                
-//   $Date: 2006/10/20 12:53:08 $
-//   $Revision: 1.3 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -39,7 +37,7 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 //              ---------------------

@@ -1,8 +1,6 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/10/31 08:01:42 $
- *  $Revision: 1.5 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -11,15 +9,12 @@
 
 // Collaborating Class Header
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
@@ -27,10 +22,9 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
 
 using namespace std;
 using namespace edm;
@@ -52,12 +46,11 @@ PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet& pset){
   numberOfRecTracks=0;
 
   /// get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
 
-
+  //set Token(-s)
+  theSTAMuonToken_ = consumes<reco::TrackCollection>(pset.getUntrackedParameter<string>("StandAloneTrackCollectionLabel"));
 
 }
 
@@ -65,7 +58,7 @@ PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet& pset){
 PhysicsObjectsMonitor::~PhysicsObjectsMonitor(){
 }
 
-void PhysicsObjectsMonitor::beginJob(const EventSetup& eventSetup){
+void PhysicsObjectsMonitor::beginJob(){
 
   dbe->setCurrentFolder("PhysicsObjects/MuonReconstruction");           
 
@@ -86,17 +79,9 @@ void PhysicsObjectsMonitor::beginJob(const EventSetup& eventSetup){
   NRPChits = dbe->book1D("NRPChits","Number of RPC hits on track",11,-.5,11.5);
 
   DTvsCSC = dbe->book2D("DTvsCSC","Number of DT vs CSC hits on track",29,-.5,28.5,29,-.5,28.5);
-  MonitorElementT<TNamed>* ob =
-               dynamic_cast<MonitorElementT<TNamed>*> (DTvsCSC);
-  if(ob)
-  {
-   TH2F * root_ob = dynamic_cast<TH2F *> (ob->operator->());
-   if(root_ob) {
-     root_ob->SetXTitle("Number of DT hits");
-     root_ob->SetYTitle("Number of CSC hits");
-   }
-  }
-
+  TH2F * root_ob = DTvsCSC->getTH2F();
+  root_ob->SetXTitle("Number of DT hits");
+  root_ob->SetYTitle("Number of CSC hits");
 
 }
 
@@ -124,7 +109,7 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
   
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
-  event.getByLabel(theSTAMuonLabel, staTracks);
+  event.getByToken(theSTAMuonToken_, staTracks);
 
   ESHandle<MagneticField> theMGField;
   eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
@@ -136,7 +121,6 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
   // Get the SimTrack collection from the event
   //  if(theDataType == "SimData"){
   //  Handle<SimTrackContainer> simTracks;
-  //  event.getByLabel("g4SimHits",simTracks);
     
   //  numberOfRecTracks += staTracks->size();
 

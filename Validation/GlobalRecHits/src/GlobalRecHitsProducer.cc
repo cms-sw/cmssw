@@ -2,12 +2,13 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/04/30 13:49:00 $
- *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -42,6 +43,28 @@ GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   MuRPCSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSrc");
   MuRPCSimSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSimSrc");
 
+  // fix for consumes
+  ECalUncalEBSrc_Token_ = consumes<EBUncalibratedRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalUncalEBSrc"));
+  ECalUncalEESrc_Token_ = consumes<EEUncalibratedRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalUncalEESrc"));
+  ECalEBSrc_Token_ = consumes<EBRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
+  ECalEESrc_Token_ = consumes<EERecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalEESrc"));
+  ECalESSrc_Token_ = consumes<ESRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalESSrc"));
+  HCalSrc_Token_ = consumes<edm::PCaloHitContainer>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  SiStripSrc_Token_ = consumes<SiStripMatchedRecHit2DCollection>(iPSet.getParameter<edm::InputTag>("SiStripSrc"));
+  SiPxlSrc_Token_ = consumes<SiPixelRecHitCollection>(iPSet.getParameter<edm::InputTag>("SiPxlSrc"));
+
+  MuDTSrc_Token_ = consumes<DTRecHitCollection>(iPSet.getParameter<edm::InputTag>("MuDTSrc"));
+  MuDTSimSrc_Token_ = consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("MuDTSimSrc"));
+
+  MuCSCSrc_Token_ = consumes<CSCRecHit2DCollection>(iPSet.getParameter<edm::InputTag>("MuCSCSrc"));
+  MuCSCHits_Token_ = consumes<CrossingFrame<PSimHit>>(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("MuonCSCHits")));
+
+  MuRPCSrc_Token_ = consumes<RPCRecHitCollection>(iPSet.getParameter<edm::InputTag>("MuRPCSrc"));
+  MuRPCSimSrc_Token_ = consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("MuRPCSimSrc"));
+
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProduc\
+er") + std::string("EcalHitsEE")));
   conf_ = iPSet;
 
   // use value of first digit to determine default output level (inclusive)
@@ -96,7 +119,7 @@ GlobalRecHitsProducer::~GlobalRecHitsProducer()
 {
 }
 
-void GlobalRecHitsProducer::beginJob(const edm::EventSetup& iSetup)
+void GlobalRecHitsProducer::beginJob()
 {
   std::string MsgLoggerCat = "GlobalRecHitsProducer_beginJob";
 
@@ -226,19 +249,20 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
     eventout = "\nGathering info:";  
 
   // extract crossing frame from event
-  edm::Handle<CrossingFrame> crossingFrame;
-  iEvent.getByType(crossingFrame);
-  if (!crossingFrame.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find crossingFrame in event!";
-    return;
-  }
+  //edm::Handle<CrossingFrame> crossingFrame;
+  edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
+  //iEvent.getByType(crossingFrame);
+  //if (!crossingFrame.isValid()) {
+  //  edm::LogWarning(MsgLoggerCat)
+  //    << "Unable to find crossingFrame in event!";
+  //  return;
+  //}
 
   ////////////////////////
   //extract EB information
   ////////////////////////
   edm::Handle<EBUncalibratedRecHitCollection> EcalUncalibRecHitEB;
-  iEvent.getByLabel(ECalUncalEBSrc_, EcalUncalibRecHitEB);
+  iEvent.getByToken(ECalUncalEBSrc_Token_, EcalUncalibRecHitEB);
   if (!EcalUncalibRecHitEB.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalUncalRecHitEB in event!";
@@ -246,7 +270,7 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
   }  
 
   edm::Handle<EBRecHitCollection> EcalRecHitEB;
-  iEvent.getByLabel(ECalEBSrc_, EcalRecHitEB);
+  iEvent.getByToken(ECalEBSrc_Token_, EcalRecHitEB);
   if (!EcalRecHitEB.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalRecHitEB in event!";
@@ -254,11 +278,18 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
   }  
 
   // loop over simhits
-  const std::string barrelHitsName("EcalHitsEB");
+  iEvent.getByToken(EBHits_Token_,crossingFrame);
+  if (!crossingFrame.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find cal barrel crossingFrame in event!";
+    return;
+  }
+  //std::auto_ptr<MixCollection<PCaloHit> >
+  //  barrelHits(new MixCollection<PCaloHit>
+  //	       (crossingFrame.product(), barrelHitsName));
   std::auto_ptr<MixCollection<PCaloHit> >
-    barrelHits(new MixCollection<PCaloHit>
-	       (crossingFrame.product(), barrelHitsName));
-  
+    barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
+
   // keep track of sum of simhit energy in each crystal
   MapType ebSimMap;
   for (MixCollection<PCaloHit>::MixItr hitItr 
@@ -303,7 +334,7 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
   //extract EE information
   ////////////////////////
   edm::Handle<EEUncalibratedRecHitCollection> EcalUncalibRecHitEE;
-  iEvent.getByLabel(ECalUncalEESrc_, EcalUncalibRecHitEE);
+  iEvent.getByToken(ECalUncalEESrc_Token_, EcalUncalibRecHitEE);
   if (!EcalUncalibRecHitEE.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalUncalRecHitEE in event!";
@@ -311,7 +342,7 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
   }  
 
   edm::Handle<EERecHitCollection> EcalRecHitEE;
-  iEvent.getByLabel(ECalEESrc_, EcalRecHitEE);
+  iEvent.getByToken(ECalEESrc_Token_, EcalRecHitEE);
   if (!EcalRecHitEE.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalRecHitEE in event!";
@@ -319,11 +350,18 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
   }  
 
   // loop over simhits
-  const std::string endcapHitsName("EcalHitsEE");
+  iEvent.getByToken(EEHits_Token_,crossingFrame);
+  if (!crossingFrame.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find cal endcap crossingFrame in event!";
+    return;
+  }
+  //std::auto_ptr<MixCollection<PCaloHit> >
+  //  endcapHits(new MixCollection<PCaloHit>
+  //	       (crossingFrame.product(), endcapHitsName));
   std::auto_ptr<MixCollection<PCaloHit> >
-    endcapHits(new MixCollection<PCaloHit>
-	       (crossingFrame.product(), endcapHitsName));
-  
+    endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
+
   // keep track of sum of simhit energy in each crystal
   MapType eeSimMap;
   for (MixCollection<PCaloHit>::MixItr hitItr 
@@ -368,7 +406,7 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
   //extract ES information
   ////////////////////////
   edm::Handle<ESRecHitCollection> EcalRecHitES;
-  iEvent.getByLabel(ECalESSrc_, EcalRecHitES);
+  iEvent.getByToken(ECalESSrc_Token_, EcalRecHitES);
   if (!EcalRecHitES.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalRecHitES in event!";
@@ -376,11 +414,18 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
   }  
 
   // loop over simhits
-  const std::string preshowerHitsName("EcalHitsES");
+  iEvent.getByToken(ESHits_Token_,crossingFrame);
+  if (!crossingFrame.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find cal preshower crossingFrame in event!";
+    return;
+  }
+  //std::auto_ptr<MixCollection<PCaloHit> >
+  //  preshowerHits(new MixCollection<PCaloHit>
+  //	       (crossingFrame.product(), preshowerHitsName));
   std::auto_ptr<MixCollection<PCaloHit> >
-    preshowerHits(new MixCollection<PCaloHit>
-	       (crossingFrame.product(), preshowerHitsName));
-  
+    preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
+
   // keep track of sum of simhit energy in each crystal
   MapType esSimMap;
   for (MixCollection<PCaloHit>::MixItr hitItr 
@@ -473,7 +518,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
   // get geometry
   edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<IdealGeometryRecord>().get(geometry);
+  iSetup.get<CaloGeometryRecord>().get(geometry);
   if (!geometry.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find CaloGeometry in event!";
@@ -484,7 +529,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
   // extract simhit info
   //////////////////////
   edm::Handle<edm::PCaloHitContainer> hcalHits;
-  iEvent.getByLabel(HCalSrc_,hcalHits);
+  iEvent.getByToken(HCalSrc_Token_,hcalHits);
   if (!hcalHits.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find hcalHits in event!";
@@ -520,7 +565,6 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
   // max values to be used (HO is found in HB)
   Double_t maxHBEnergy = 0.;
   Double_t maxHEEnergy = 0.;
-  Double_t maxHOEnergy = 0.;
   Double_t maxHFEnergy = 0.;
 
   Double_t maxHBPhi = -1000.;
@@ -565,7 +609,6 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	double fPhi = cellGeometry->getPosition().phi () ;
 	if ( (jhbhe->energy()) > maxHBEnergy ) {
 	  maxHBEnergy = jhbhe->energy();
-	  maxHOEnergy = maxHBEnergy;
 	  maxHBPhi = fPhi;
 	  maxHOPhi = maxHBPhi;
 	  maxHBEta = fEta;
@@ -829,6 +872,12 @@ void GlobalRecHitsProducer::storeHCal(PGlobalRecHit& product)
 void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, 
 				   const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
   std::string MsgLoggerCat = "GlobalRecHitsProducer_fillTrk";
 
   TString eventout;
@@ -837,7 +886,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 
   // get strip information
   edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
-  iEvent.getByLabel(SiStripSrc_, rechitsmatched);
+  iEvent.getByToken(SiStripSrc_Token_, rechitsmatched);
   if (!rechitsmatched.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find stripmatchedrechits in event!";
@@ -865,19 +914,14 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
     DetId detid = ((*it)->geographicalId());
 
     //loop over rechits-matched in the same subdetector
-    SiStripMatchedRecHit2DCollection::range 
-      rechitmatchedRange = rechitsmatched->get(detid);
-    SiStripMatchedRecHit2DCollection::const_iterator 
-      rechitmatchedRangeIteratorBegin = rechitmatchedRange.first;
-    SiStripMatchedRecHit2DCollection::const_iterator 
-      rechitmatchedRangeIteratorEnd   = rechitmatchedRange.second;
-    SiStripMatchedRecHit2DCollection::const_iterator 
-      itermatched = rechitmatchedRangeIteratorBegin;
-    int numrechitmatched = 
-      rechitmatchedRangeIteratorEnd - rechitmatchedRangeIteratorBegin;
-   
-    if (numrechitmatched > 0) {
-
+    SiStripMatchedRecHit2DCollection::const_iterator rechitmatchedMatch = rechitsmatched->find(detid);
+      
+      if (rechitmatchedMatch != rechitsmatched->end()) {
+      SiStripMatchedRecHit2DCollection::DetSet rechitmatchedRange = *rechitmatchedMatch;
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorBegin = rechitmatchedRange.begin();
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorEnd   = rechitmatchedRange.end();
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator itermatched = rechitmatchedRangeIteratorBegin;
+	
       for ( itermatched = rechitmatchedRangeIteratorBegin; 
 	    itermatched != rechitmatchedRangeIteratorEnd;
 	    ++itermatched) {
@@ -922,28 +966,28 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	  // get TIB
 	  if (detid.subdetId() == sdSiTIB) {
 
-	    TIBDetId tibid(myid);
+	    
 	    ++nStripBrl;
 
-	    if (tibid.layer() == 1) {
+	    if (tTopo->tibLayer(myid) == 1) {
 	      TIBL1RX.push_back(rechitmatchedx);
 	      TIBL1RY.push_back(rechitmatchedy);
 	      TIBL1SX.push_back(closestPair.first.x());
 	      TIBL1SY.push_back(closestPair.first.y());
 	    }
-	    if (tibid.layer() == 2) {
+	    if (tTopo->tibLayer(myid) == 2) {
 	      TIBL2RX.push_back(rechitmatchedx);
 	      TIBL2RY.push_back(rechitmatchedy);
 	      TIBL2SX.push_back(closestPair.first.x());
 	      TIBL2SY.push_back(closestPair.first.y());
 	    }	
-	    if (tibid.layer() == 3) {
+	    if (tTopo->tibLayer(myid) == 3) {
 	      TIBL3RX.push_back(rechitmatchedx);
 	      TIBL3RY.push_back(rechitmatchedy);
 	      TIBL3SX.push_back(closestPair.first.x());
 	      TIBL3SY.push_back(closestPair.first.y());
 	    }
-	    if (tibid.layer() == 4) {
+	    if (tTopo->tibLayer(myid) == 4) {
 	      TIBL4RX.push_back(rechitmatchedx);
 	      TIBL4RY.push_back(rechitmatchedy);
 	      TIBL4SX.push_back(closestPair.first.x());
@@ -954,28 +998,28 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	  // get TOB
 	  if (detid.subdetId() == sdSiTOB) {
 
-	    TOBDetId tobid(myid);
+	    
 	    ++nStripBrl;
 
-	    if (tobid.layer() == 1) {
+	    if (tTopo->tobLayer(myid) == 1) {
 	      TOBL1RX.push_back(rechitmatchedx);
 	      TOBL1RY.push_back(rechitmatchedy);
 	      TOBL1SX.push_back(closestPair.first.x());
 	      TOBL1SY.push_back(closestPair.first.y());
 	    }
-	    if (tobid.layer() == 2) {
+	    if (tTopo->tobLayer(myid) == 2) {
 	      TOBL2RX.push_back(rechitmatchedx);
 	      TOBL2RY.push_back(rechitmatchedy);
 	      TOBL2SX.push_back(closestPair.first.x());
 	      TOBL2SY.push_back(closestPair.first.y());
 	    }	
-	    if (tobid.layer() == 3) {
+	    if (tTopo->tobLayer(myid) == 3) {
 	      TOBL3RX.push_back(rechitmatchedx);
 	      TOBL3RY.push_back(rechitmatchedy);
 	      TOBL3SX.push_back(closestPair.first.x());
 	      TOBL3SY.push_back(closestPair.first.y());
 	    }
-	    if (tobid.layer() == 4) {
+	    if (tTopo->tobLayer(myid) == 4) {
 	      TOBL4RX.push_back(rechitmatchedx);
 	      TOBL4RY.push_back(rechitmatchedy);
 	      TOBL4SX.push_back(closestPair.first.x());
@@ -986,22 +1030,22 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	  // get TID
 	  if (detid.subdetId() == sdSiTID) {
 
-	    TIDDetId tidid(myid);
+	    
 	    ++nStripFwd;
 
-	    if (tidid.wheel() == 1) {
+	    if (tTopo->tidWheel(myid) == 1) {
 	      TIDW1RX.push_back(rechitmatchedx);
 	      TIDW1RY.push_back(rechitmatchedy);
 	      TIDW1SX.push_back(closestPair.first.x());
 	      TIDW1SY.push_back(closestPair.first.y());
 	    }
-	    if (tidid.wheel() == 2) {
+	    if (tTopo->tidWheel(myid) == 2) {
 	      TIDW2RX.push_back(rechitmatchedx);
 	      TIDW2RY.push_back(rechitmatchedy);
 	      TIDW2SX.push_back(closestPair.first.x());
 	      TIDW2SY.push_back(closestPair.first.y());
 	    }	
-	    if (tidid.wheel() == 3) {
+	    if (tTopo->tidWheel(myid) == 3) {
 	      TIDW3RX.push_back(rechitmatchedx);
 	      TIDW3RY.push_back(rechitmatchedy);
 	      TIDW3SX.push_back(closestPair.first.x());
@@ -1012,52 +1056,52 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	  // get TEC
 	  if (detid.subdetId() == sdSiTEC) {
 
-	    TECDetId tecid(myid);
+	    
 	    ++nStripFwd;
 
-	    if (tecid.wheel() == 1) {
+	    if (tTopo->tecWheel(myid) == 1) {
 	      TECW1RX.push_back(rechitmatchedx);
 	      TECW1RY.push_back(rechitmatchedy);
 	      TECW1SX.push_back(closestPair.first.x());
 	      TECW1SY.push_back(closestPair.first.y());
 	    }
-	    if (tecid.wheel() == 2) {
+	    if (tTopo->tecWheel(myid) == 2) {
 	      TECW2RX.push_back(rechitmatchedx);
 	      TECW2RY.push_back(rechitmatchedy);
 	      TECW2SX.push_back(closestPair.first.x());
 	      TECW2SY.push_back(closestPair.first.y());
 	    }	
-	    if (tecid.wheel() == 3) {
+	    if (tTopo->tecWheel(myid) == 3) {
 	      TECW3RX.push_back(rechitmatchedx);
 	      TECW3RY.push_back(rechitmatchedy);
 	      TECW3SX.push_back(closestPair.first.x());
 	      TECW3SY.push_back(closestPair.first.y());
 	    }
-	    if (tecid.wheel() == 4) {
+	    if (tTopo->tecWheel(myid) == 4) {
 	      TECW4RX.push_back(rechitmatchedx);
 	      TECW4RY.push_back(rechitmatchedy);
 	      TECW4SX.push_back(closestPair.first.x());
 	      TECW4SY.push_back(closestPair.first.y());
 	    }
-	    if (tecid.wheel() == 5) {
+	    if (tTopo->tecWheel(myid) == 5) {
 	      TECW5RX.push_back(rechitmatchedx);
 	      TECW5RY.push_back(rechitmatchedy);
 	      TECW5SX.push_back(closestPair.first.x());
 	      TECW5SY.push_back(closestPair.first.y());
 	    }	
-	    if (tecid.wheel() == 6) {
+	    if (tTopo->tecWheel(myid) == 6) {
 	      TECW6RX.push_back(rechitmatchedx);
 	      TECW6RY.push_back(rechitmatchedy);
 	      TECW6SX.push_back(closestPair.first.x());
 	      TECW6SY.push_back(closestPair.first.y());
 	    }
-	    if (tecid.wheel() == 7) {
+	    if (tTopo->tecWheel(myid) == 7) {
 	      TECW7RX.push_back(rechitmatchedx);
 	      TECW7RY.push_back(rechitmatchedy);
 	      TECW7SX.push_back(closestPair.first.x());
 	      TECW7SY.push_back(closestPair.first.y());
 	    }	
-	    if (tecid.wheel() == 8) {
+	    if (tTopo->tecWheel(myid) == 8) {
 	      TECW8RX.push_back(rechitmatchedx);
 	      TECW8RY.push_back(rechitmatchedy);
 	      TECW8SX.push_back(closestPair.first.x());
@@ -1083,7 +1127,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
   // get pixel information
   //Get RecHits
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  iEvent.getByLabel(SiPxlSrc_, recHitColl);
+  iEvent.getByToken(SiPxlSrc_Token_, recHitColl);
   if (!recHitColl.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find SiPixelRecHitCollection in event!";
@@ -1114,14 +1158,12 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
     //const PixelGeomDetUnit * theGeomDet = 
     //  dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId) );
     
-    SiPixelRecHitCollection::range pixelrechitRange = 
-      (recHitColl.product())->get(detId);
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = 
-      pixelrechitRange.first;
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = 
-      pixelrechitRange.second;
-    SiPixelRecHitCollection::const_iterator pixeliter = 
-      pixelrechitRangeIteratorBegin;
+    SiPixelRecHitCollection::const_iterator pixeldet = recHitColl->find(detId);
+    if (pixeldet == recHitColl->end()) continue;
+    SiPixelRecHitCollection::DetSet pixelrechitRange = *pixeldet;
+    SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+    SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd   = pixelrechitRange.end();
+    SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
     std::vector<PSimHit> matched;
     
     //----Loop over rechits for this detId
@@ -1167,22 +1209,22 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	
 	// get Barrel pixels
 	if (subid == sdPxlBrl) {
-	  PXBDetId bdetid(myid);
+	  
 	  ++nPxlBrl;
 
-	  if (bdetid.layer() == 1) {
+	  if (tTopo->pxbLayer(myid) == 1) {
 	    BRL1RX.push_back(rechit_x);
 	    BRL1RY.push_back(rechit_y);
 	    BRL1SX.push_back(sim_x);
 	    BRL1SY.push_back(sim_y);	  
 	  }
-	  if (bdetid.layer() == 2) {
+	  if (tTopo->pxbLayer(myid) == 2) {
 	    BRL2RX.push_back(rechit_x);
 	    BRL2RY.push_back(rechit_y);
 	    BRL2SX.push_back(sim_x);
 	    BRL2SY.push_back(sim_y);	  	  
 	  }
-	  if (bdetid.layer() == 3) {
+	  if (tTopo->pxbLayer(myid) == 3) {
 	    BRL3RX.push_back(rechit_x);
 	    BRL3RY.push_back(rechit_y);
 	    BRL3SX.push_back(sim_x);
@@ -1192,31 +1234,31 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 
 	// get Forward pixels
 	if (subid == sdPxlFwd) {
-	  PXFDetId fdetid(myid);
+	  
 	  ++nPxlFwd;
 
-	  if (fdetid.disk() == 1) {
-	    if (fdetid.side() == 1) {
+	  if (tTopo->pxfDisk(myid) == 1) {
+	    if (tTopo->pxfSide(myid) == 1) {
 	      FWD1nRX.push_back(rechit_x);
 	      FWD1nRY.push_back(rechit_y);
 	      FWD1nSX.push_back(sim_x);
 	      FWD1nSY.push_back(sim_y);	  
 	    }
-	    if (fdetid.side() == 2) {
+	    if (tTopo->pxfSide(myid) == 2) {
 	      FWD1pRX.push_back(rechit_x);
 	      FWD1pRY.push_back(rechit_y);
 	      FWD1pSX.push_back(sim_x);
 	      FWD1pSY.push_back(sim_y);
 	    }
 	  }
-	  if (fdetid.disk() == 2) {
-	    if (fdetid.side() == 1) {
+	  if (tTopo->pxfDisk(myid) == 2) {
+	    if (tTopo->pxfSide(myid) == 1) {
 	      FWD2nRX.push_back(rechit_x);
 	      FWD2nRY.push_back(rechit_y);
 	      FWD2nSX.push_back(sim_x);
 	      FWD2nSY.push_back(sim_y);
 	    }
-	    if (fdetid.side() == 2) {
+	    if (tTopo->pxfSide(myid) == 2) {
 	      FWD2pRX.push_back(rechit_x);
 	      FWD2pRY.push_back(rechit_y);
 	      FWD2pSX.push_back(sim_x);
@@ -1648,7 +1690,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   }  
 
   edm::Handle<edm::PSimHitContainer> dtsimHits;
-  iEvent.getByLabel(MuDTSimSrc_, dtsimHits);
+  iEvent.getByToken(MuDTSimSrc_Token_, dtsimHits);
   if (!dtsimHits.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find dtsimHits in event!";
@@ -1659,7 +1701,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
     DTHitQualityUtils::mapSimHitsPerWire(*(dtsimHits.product()));
 
   edm::Handle<DTRecHitCollection> dtRecHits;
-  iEvent.getByLabel(MuDTSrc_, dtRecHits);
+  iEvent.getByToken(MuDTSrc_Token_, dtRecHits);
   if (!dtRecHits.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find dtRecHits in event!";
@@ -1680,14 +1722,22 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   // get CSC Strip information
   // get map of sim hits
   theMap.clear();
-  edm::Handle<CrossingFrame> cf;
-  iEvent.getByType(cf);
+  //edm::Handle<CrossingFrame> cf;
+  edm::Handle<CrossingFrame<PSimHit> > cf;
+  //iEvent.getByType(cf);
+  //if (!cf.isValid()) {
+  //  edm::LogWarning(MsgLoggerCat)
+  //    << "Unable to find CrossingFrame in event!";
+  //  return;
+  //}    
+  //MixCollection<PSimHit> simHits(cf.product(), "MuonCSCHits");
+  iEvent.getByToken(MuCSCHits_Token_,cf);
   if (!cf.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find CrossingFrame in event!";
+      << "Unable to find muo CSC  crossingFrame in event!";
     return;
-  }    
-  MixCollection<PSimHit> simHits(cf.product(), "MuonCSCHits");
+  }
+  MixCollection<PSimHit> simHits(cf.product());
 
   // arrange the hits by detUnit
   for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
@@ -1708,7 +1758,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
 
   // get rechits
   edm::Handle<CSCRecHit2DCollection> hRecHits;
-  iEvent.getByLabel(MuCSCSrc_, hRecHits);
+  iEvent.getByToken(MuCSCSrc_Token_, hRecHits);
   if (!hRecHits.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find CSC RecHits in event!";
@@ -1759,7 +1809,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   }  
 
   edm::Handle<edm::PSimHitContainer> simHit;
-  iEvent.getByLabel(MuRPCSimSrc_, simHit);
+  iEvent.getByToken(MuRPCSimSrc_Token_, simHit);
   if (!simHit.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find RPCSimHit in event!";
@@ -1767,7 +1817,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   }    
 
   edm::Handle<RPCRecHitCollection> recHit;
-  iEvent.getByLabel(MuRPCSrc_, recHit);
+  iEvent.getByToken(MuRPCSrc_Token_, recHit);
   if (!simHit.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find RPCRecHit in event!";
@@ -2155,12 +2205,14 @@ GlobalRecHitsProducer::recHitDistFromWire(const DTRecHit1D& recHit,
 
 template  <typename type>
 int GlobalRecHitsProducer::compute(const DTGeometry *dtGeom,
-				   std::map<DTWireId, std::vector<PSimHit> > 
-				   simHitsPerWire,
-				   std::map<DTWireId, std::vector<type> > 
-				   recHitsPerWire,
+				   const std::map<DTWireId, std::vector<PSimHit> >& 
+				   _simHitsPerWire,
+				   const std::map<DTWireId, std::vector<type> >& 
+				   _recHitsPerWire,
 				   int step) {
-
+  
+  std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire = _simHitsPerWire;
+  std::map<DTWireId, std::vector<type> > recHitsPerWire = _recHitsPerWire;
   int nDt = 0;
   // Loop over cells with a muon SimHit
   for(std::map<DTWireId, std::vector<PSimHit> >::const_iterator wireAndSHits = 
@@ -2226,4 +2278,4 @@ GlobalRecHitsProducer::plotResolution(const PSimHit & simHit,
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GlobalRecHitsProducer);
+//DEFINE_FWK_MODULE(GlobalRecHitsProducer);

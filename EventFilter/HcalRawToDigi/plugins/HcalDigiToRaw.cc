@@ -1,17 +1,11 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "EventFilter/HcalRawToDigi/plugins/HcalDigiToRaw.h"
 
@@ -26,6 +20,14 @@ HcalDigiToRaw::HcalDigiToRaw(edm::ParameterSet const& conf) :
   calibTag_(conf.getUntrackedParameter("CALIB",edm::InputTag())),
   trigTag_(conf.getUntrackedParameter("TRIG",edm::InputTag()))
 {
+  // register for data access
+  tok_hbhe_ = consumes<HBHEDigiCollection>(hbheTag_);
+  tok_ho_ = consumes<HODigiCollection>(hoTag_);
+  tok_hf_ = consumes<HFDigiCollection>(hfTag_);
+  tok_calib_ = consumes<HcalCalibDigiCollection>(calibTag_);
+  tok_zdc_ = consumes<ZDCDigiCollection>(zdcTag_);
+  tok_htp_ = consumes<HcalTrigPrimDigiCollection>(trigTag_);
+
   produces<FEDRawDataCollection>();
 }
 
@@ -41,32 +43,32 @@ void HcalDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   // Step A: Get Inputs 
   edm::Handle<HBHEDigiCollection> hbhe;
   if (!hbheTag_.label().empty()) {
-    e.getByLabel(hbheTag_,hbhe);
+    e.getByToken(tok_hbhe_,hbhe);
     colls.hbhe=hbhe.product();
   }
   edm::Handle<HODigiCollection> ho;
   if (!hoTag_.label().empty()) {
-    e.getByLabel(hoTag_,ho);
+    e.getByToken(tok_ho_,ho);
     colls.hoCont=ho.product();
   }
   edm::Handle<HFDigiCollection> hf;
   if (!hfTag_.label().empty()) {
-    e.getByLabel(hfTag_,hf);
+    e.getByToken(tok_hf_,hf);
     colls.hfCont=hf.product();
   }
   edm::Handle<HcalCalibDigiCollection> Calib;
   if (!calibTag_.label().empty()) {
-    e.getByLabel(calibTag_,Calib);
+    e.getByToken(tok_calib_,Calib);
     colls.calibCont=Calib.product();
   }
   edm::Handle<ZDCDigiCollection> zdc;
   if (!zdcTag_.label().empty()) {
-    e.getByLabel(zdcTag_,zdc);
+    e.getByToken(tok_zdc_,zdc);
     colls.zdcCont=zdc.product();
   }
   edm::Handle<HcalTrigPrimDigiCollection> htp;
   if (!trigTag_.label().empty()) {
-    e.getByLabel(trigTag_,htp);
+    e.getByToken(tok_htp_,htp);
     colls.tpCont=htp.product();
   }
   // get the mapping
@@ -76,8 +78,8 @@ void HcalDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   // Step B: Create empty output
   std::auto_ptr<FEDRawDataCollection> raw=std::auto_ptr<FEDRawDataCollection>(new FEDRawDataCollection());
 
-  const int ifed_first=FEDNumbering::getHcalFEDIds().first;
-  const int ifed_last=FEDNumbering::getHcalFEDIds().second;
+  const int ifed_first=FEDNumbering::MINHCALFEDID;
+  const int ifed_last=FEDNumbering::MAXHCALFEDID;
 
   int orbitN=e.id().event();
   int bcnN=2000;

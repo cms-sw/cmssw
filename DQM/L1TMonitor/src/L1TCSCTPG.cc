@@ -1,8 +1,6 @@
 /*
  * \file L1TCSCTPG.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
@@ -13,7 +11,8 @@ using namespace std;
 using namespace edm;
 
 L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
-  : csctpgSource_( ps.getParameter< InputTag >("csctpgSource") )
+  : csctpgSource_( ps.getParameter< InputTag >("csctpgSource") ),
+    csctpgSource_token_( consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter< InputTag >("csctpgSource") ))
 {
 
   // verbosity switch
@@ -21,28 +20,17 @@ L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TCSCTPG: constructor...." << endl;
 
-  logFile_.open("L1TCSCTPG.log");
 
   dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
+  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
   {
-    dbe = Service<DaqMonitorBEInterface>().operator->();
+    dbe = Service<DQMStore>().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
-  }
-  else{
-    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -52,7 +40,7 @@ L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TCSCTPG");
+    dbe->setCurrentFolder("L1T/L1TCSCTPG");
   }
 
 
@@ -62,24 +50,22 @@ L1TCSCTPG::~L1TCSCTPG()
 {
 }
 
-void L1TCSCTPG::beginJob(const EventSetup& c)
+void L1TCSCTPG::beginJob(void)
 {
-
   nev_ = 0;
+}
 
-  // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
+void L1TCSCTPG::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
+{
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TCSCTPG");
-    dbe->rmdir("L1TMonitor/L1TCSCTPG");
+    dbe->setCurrentFolder("L1T/L1TCSCTPG");
+    dbe->rmdir("L1T/L1TCSCTPG");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1TCSCTPG");
+    dbe->setCurrentFolder("L1T/L1TCSCTPG");
     
     csctpgpattern = dbe->book1D("CSC TPG hit pattern", 
        "CSC TPG hit pattern", 8, -0.5, 7.5 ) ;
@@ -101,10 +87,12 @@ void L1TCSCTPG::beginJob(const EventSetup& c)
 }
 
 
+
+
 void L1TCSCTPG::endJob(void)
 {
   if(verbose_) cout << "L1TCSCTPG: end job...." << endl;
-  LogInfo("L1TCSCTPG") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -118,12 +106,10 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
 
 
   Handle<CSCCorrelatedLCTDigiCollection> pCSCTPGcorrlcts;
-
-  try {
-  e.getByLabel(csctpgSource_,pCSCTPGcorrlcts);
-  }
-  catch (...) {
-    edm::LogInfo("L1CSCTPG") << "can't find CSCCorrelatedLCTDigiCollection with label "
+  e.getByToken(csctpgSource_token_,pCSCTPGcorrlcts);
+    
+  if (!pCSCTPGcorrlcts.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find CSCCorrelatedLCTDigiCollection with label "
 			       << csctpgSource_.label() ;
     return;
   }

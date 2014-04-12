@@ -4,8 +4,6 @@
  *  Matching Unit in the L1 Global Muon Trigger.
 */
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 

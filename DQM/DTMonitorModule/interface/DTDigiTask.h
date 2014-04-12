@@ -4,8 +4,6 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2007/03/22 18:52:01 $
- * $Revision: 1.11 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -18,12 +16,15 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/LTCDigi/interface/LTCDigi.h"
+#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+
+
+#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
 #include <iostream>
@@ -34,10 +35,13 @@
 
 class DTGeometry;
 class DTSuperLayerId;
+class DTLayerId;
 class DTChamberId;
 class DTTtrig;
 class DTT0;
 
+class DQMStore;
+class MonitorElement;
 
 class DTDigiTask: public edm::EDAnalyzer{
 
@@ -45,19 +49,29 @@ public:
 
   /// Constructor
   DTDigiTask(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   virtual ~DTDigiTask();
 
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Book the ME
   void bookHistos(const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
   void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag);
- 
+  void bookHistos(const int wheelId, std::string folder, std::string histoTag);
+
+  /// To reset the MEs
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup);
+
+  /// To map real channels
+  void channelsMap(const DTChamberId& dtCh, std::string histoTag);
+
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
@@ -69,7 +83,8 @@ protected:
 
 private:
 
-  bool debug;
+  std::string topFolder() const;
+
   int nevents;
 
   /// no needs to be precise. Value from PSets will always be used
@@ -79,24 +94,77 @@ private:
   /// tTrig from the DB
   float tTrig;
   float tTrigRMS;
+  float kFactor;
+
+  //check for sync noise
+  //  bool newChamber;
+  //  DTChamberId chDone;
+  std::map<DTChamberId,int> hitMap;
+  std::set<DTChamberId> syncNoisyChambers;
+  int syncNumTot;
+  int syncNum;
 
   edm::Handle<LTCDigiCollection> ltcdigis;
 
-  DaqMonitorBEInterface* dbe;
-
-  edm::ParameterSet parameters;
+  DQMStore* dbe;
 
   edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESHandle<DTReadOutMapping> mapping;
 
   edm::ESHandle<DTTtrig> tTrigMap;
   edm::ESHandle<DTT0> t0Map;
 
-
-  std::string outputFile;
-
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > wheelHistos;
+
+  // Parameters from config file
+
+  // The label to retrieve the digis
+  edm::EDGetTokenT<DTDigiCollection> dtDigiToken_;
+
+  edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
+
+  // Set to true to read the ttrig from DB (useful to determine in-time and out-of-time hits)
+  bool readTTrigDB;
+  // Set to true to subtract t0 from test pulses
+  bool subtractT0;
+  // Tmax value (TDC counts)
+  int defaultTmax;
+  // Switch from static (all histo at the beginninig of the job) to
+  // dynamic (book when needed) histo booking
+  bool doStaticBooking;
+  // Switch for local/global runs
+  bool isLocalRun;
+  // Setting for the reset of the ME after n (= ResetCycle) luminosity sections
+  int resetCycle;
+  // Check the DB of noisy channels
+  bool checkNoisyChannels;
+  // Default TTrig to be used when not reading the TTrig DB
+  int defaultTTrig;
+
+  int inTimeHitsLowerBound;
+  int inTimeHitsUpperBound;
+  int timeBoxGranularity;
+  int maxTDCCounts;
+  bool doAllHitsOccupancies;
+  bool doNoiseOccupancies;
+  bool doInTimeOccupancies;
+
+  bool tpMode;
+  bool lookForSyncNoise;
+  bool filterSyncNoise;
+
+  bool doLayerTimeBoxes;
+
+  std::map<DTChamberId, int> nSynchNoiseEvents;
+  MonitorElement* nEventMonitor;
 
 
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

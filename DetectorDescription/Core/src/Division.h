@@ -32,10 +32,10 @@ namespace DDI {
 	     const double width,
 	     const double offset );
       
-    const DDAxes axis() const;
-    const int nReplicas() const;
-    const double width() const;
-    const double offset() const;
+    DDAxes axis() const;
+    int nReplicas() const;
+    double width() const;
+    double offset() const;
     const DDLogicalPart & parent() const;
     void stream(std::ostream &);
       

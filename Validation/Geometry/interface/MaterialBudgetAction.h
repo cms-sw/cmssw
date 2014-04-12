@@ -15,6 +15,7 @@
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
 
@@ -22,6 +23,7 @@ class BeginOfTrack;
 class BeginOfRun;
 class G4Step;
 class EndOfTrack;
+class EndOfEvent;
 class G4StepPoint;
 class G4VTouchable;
 
@@ -29,7 +31,8 @@ class MaterialBudgetAction : public SimProducer,
 			     public Observer<const BeginOfRun*>,
 			     public Observer<const BeginOfTrack*>,
 			     public Observer<const G4Step*>,
-			     public Observer<const EndOfTrack*>
+			     public Observer<const EndOfTrack*>,
+			     public Observer<const EndOfEvent *>
 {
  public:
   MaterialBudgetAction(const edm::ParameterSet&);
@@ -47,9 +50,10 @@ class MaterialBudgetAction : public SimProducer,
   void update(const BeginOfTrack*);
   void update(const G4Step*);
   void update(const EndOfTrack*);
+  void update(const EndOfEvent*);
   
   void initRun();
-  void processEvent( uint nEv );
+  void processEvent( unsigned int nEv );
   void endRun();
   
   bool CheckTouchableInSelectedVolumes( const G4VTouchable* touch );
@@ -65,7 +69,10 @@ class MaterialBudgetAction : public SimProducer,
   MaterialBudgetTxt* theTxt;
   TestHistoMgr* theHistoMgr;
   bool saveToTxt, saveToTree, saveToHistos;
-
+  bool storeDecay;
+  double Ekin;
+  bool firstParticle;
+  
   std::vector<G4String> theVolumeList; 
   G4String theProcessToStop;
   std::string theHistoList;

@@ -1,0 +1,112 @@
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+%MSG-i NoFreshErrors:  UTC_SUMMARY:ssm_sum Run: 1 Event: 1
+Not in this event, anyway
+%MSG
+
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+%MSG-i NoFreshErrors:  UTC_SUMMARY:ssm_sum Run: 1 Event: 2
+Not in this event, anyway
+%MSG
+
+Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UTC_S1:ssm_1a Run: 1 Event: 3
+S1 with identifier 11 n = 3
+%MSG
+%MSG-e grouped_cat:  UTC_S1:ssm_1a Run: 1 Event: 3
+S1 timer with identifier 11
+%MSG
+%MSG-e cat_A:  UTC_S2:ssm_2a Run: 1 Event: 3
+S2 with identifier 21
+%MSG
+%MSG-e grouped_cat:  UTC_S2:ssm_2a Run: 1 Event: 3
+S2 timer with identifier 21
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 3
+S2B with identifier 21
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 3
+more S2B
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 3
+more S2B
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 3
+more S2B
+%MSG
+cat_A   UTC_S1:ssm_1a   1
+cat_A   UTC_S2:ssm_2a   1
+cat_B   UTC_S2:ssm_2a   4
+grouped_cat   UTC_S1:ssm_1a   1
+grouped_cat   UTC_S2:ssm_2a   1
+
+Begin processing the 4th record. Run 1, Event 4, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UTC_S1:ssm_1a Run: 1 Event: 4
+S1 with identifier 11 n = 4
+%MSG
+%MSG-e grouped_cat:  UTC_S1:ssm_1a Run: 1 Event: 4
+S1 timer with identifier 11
+%MSG
+%MSG-e cat_A:  UTC_S2:ssm_2a Run: 1 Event: 4
+S2 with identifier 21
+%MSG
+%MSG-e grouped_cat:  UTC_S2:ssm_2a Run: 1 Event: 4
+S2 timer with identifier 21
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 4
+S2B with identifier 21
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 4
+more S2B
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 4
+more S2B
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 4
+more S2B
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 4
+more S2B
+%MSG
+cat_A   UTC_S1:ssm_1a   1
+cat_A   UTC_S2:ssm_2a   1
+cat_B   UTC_S2:ssm_2a   5
+grouped_cat   UTC_S1:ssm_1a   1
+grouped_cat   UTC_S2:ssm_2a   1
+
+Begin processing the 5th record. Run 1, Event 5, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UTC_S1:ssm_1a Run: 1 Event: 5
+S1 with identifier 11 n = 5
+%MSG
+%MSG-e grouped_cat:  UTC_S1:ssm_1a Run: 1 Event: 5
+S1 timer with identifier 11
+%MSG
+%MSG-e cat_A:  UTC_S2:ssm_2a Run: 1 Event: 5
+S2 with identifier 21
+%MSG
+%MSG-e grouped_cat:  UTC_S2:ssm_2a Run: 1 Event: 5
+S2 timer with identifier 21
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 5
+S2B with identifier 21
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 5
+more S2B
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 5
+more S2B
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 5
+more S2B
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 5
+more S2B
+%MSG
+%MSG-e cat_B:  UTC_S2:ssm_2a Run: 1 Event: 5
+more S2B
+%MSG
+cat_A   UTC_S1:ssm_1a   1
+cat_A   UTC_S2:ssm_2a   1
+cat_B   UTC_S2:ssm_2a   6
+grouped_cat   UTC_S1:ssm_1a   1
+grouped_cat   UTC_S2:ssm_2a   1
+

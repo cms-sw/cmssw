@@ -1,8 +1,10 @@
-#ifndef Streamer_TestConsumer_h
-#define Streamer_TestConsumer_h
+#ifndef IOPool_Streamer_TestConsumer_h
+#define IOPool_Streamer_TestConsumer_h
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "boost/shared_ptr.hpp"
 
 namespace edmtest
 {
@@ -21,8 +23,8 @@ namespace edmtest
     void sendRegistry(void* buf, int len);
 
   private:
-    Worker* worker_;
-    edm::EventBuffer* bufs_;
+    boost::shared_ptr<Worker> worker_;
+    edm::EventBuffer* bufs_; //does not own the buffer
   };
 }
 

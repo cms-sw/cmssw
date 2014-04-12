@@ -1,4 +1,3 @@
-// Last commit: $Id: test_Template.cc,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_Template.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -28,7 +27,7 @@ test_Template::~test_Template() {
 
 // -----------------------------------------------------------------------------
 // 
-void test_Template::beginJob( const edm::EventSetup& setup ) {
+void test_Template::beginJob() {
   
   std::stringstream ss;
   ss << "[test_Template::" << __func__ << "]"

@@ -2,13 +2,14 @@
 #define TrajectoryStateClosestToPointBuilder_H
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /**
  * This class builds a TrajectoryStateClosestToPoint given an original 
  * TrajectoryStateOnSurface or FreeTrajectoryState. This new state is then 
  * defined at the point of closest approach to the reference point.
+ * In case the propagation was not successful, this state can be invalid.
  */
 
 class TrajectoryStateClosestToPointBuilder
@@ -25,17 +26,14 @@ public:
   virtual TrajectoryStateClosestToPoint operator() (const TSOS& originalTSOS, 
     const GlobalPoint& referencePoint) const = 0;
 
-  bool positionEqual(const GlobalPoint& ptB, const GlobalPoint& ptA) const 
-  {
-    if ((ptA.x() == ptB.x()) && (ptA.y() == ptB.y()) && (ptA.z() == ptB.z()))
-      return true;
-    else return false;
+  static bool positionEqual(const GlobalPoint& ptB, const GlobalPoint& ptA) {
+    return ptA==ptB;
   }
 
 protected:
 
-  TrajectoryStateClosestToPoint constructTSCP(const FTS& originalFTS, 
-    const GlobalPoint& referencePoint) const
+  static TrajectoryStateClosestToPoint constructTSCP(const FTS& originalFTS, 
+    const GlobalPoint& referencePoint)
     {return TrajectoryStateClosestToPoint(originalFTS, referencePoint);}
 
 

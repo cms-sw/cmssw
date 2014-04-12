@@ -6,8 +6,6 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2007/03/13 10:26:12 $
- *   $Revision: 1.25 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -22,16 +20,21 @@
 
 // TrackFinder and Specific STA Trajectory Builder
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/ExhaustiveMuonTrajectoryBuilder.h"
+#include "RecoMuon/TrackingTools/interface/DirectMuonTrajectoryBuilder.h"
+
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 // Input and output collection
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include <string>
 
@@ -53,13 +56,27 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   
   // TrackLoader parameters
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
-  
+  edm::ConsumesCollector  iC = consumesCollector();
+
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
+  MuonTrackLoader * trackLoader = new MuonTrackLoader(trackLoaderParameters,iC,theService);
+  MuonTrajectoryBuilder * trajectoryBuilder = 0;
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
-				       new MuonTrackLoader(trackLoaderParameters,theService));
+  string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
+  if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
+    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService,iC);
+  else if(typeOfBuilder == "DirectMuonTrajectoryBuilder")
+    trajectoryBuilder = new DirectMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
+  else if(typeOfBuilder == "Exhaustive")
+    trajectoryBuilder = new ExhaustiveMuonTrajectoryBuilder(trajectoryBuilderParameters,theService,iC);
+  else{
+    LogWarning("Muon|RecoMuon|StandAloneMuonProducer") << "No Trajectory builder associated with "<<typeOfBuilder
+						       << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
+    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService,iC);
+  }
+  theTrackFinder = new MuonTrackFinder(trajectoryBuilder, trackLoader);
 
   setAlias(parameterSet.getParameter<std::string>("@module_label"));
   
@@ -70,6 +87,13 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   produces<reco::TrackToTrackMap>().setBranchAlias(theAlias + "TrackToTrackMap");
   
   produces<std::vector<Trajectory> >().setBranchAlias(theAlias + "Trajectories");
+  produces<TrajTrackAssociationCollection>().setBranchAlias(theAlias + "TrajToTrackMap");
+
+
+
+  seedToken = consumes<edm::View<TrajectorySeed> >(theSeedCollectionLabel);
+  
+
 }
   
 /// destructor
@@ -88,11 +112,12 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
 
   // Take the seeds container
   LogTrace(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
-  Handle<TrajectorySeedCollection> seeds; 
-  event.getByLabel(theSeedCollectionLabel,seeds);
+  Handle<View<TrajectorySeed> > seeds; 
+  event.getByToken(seedToken,seeds);
 
   // Update the services
   theService->update(eventSetup);
+  NavigationSetter setter(*theService->muonNavigationSchool());
 
   // Reconstruct 
   LogTrace(metname)<<"Track Reconstruction"<<endl;

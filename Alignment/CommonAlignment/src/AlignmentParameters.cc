@@ -68,7 +68,7 @@ const std::vector<bool>& AlignmentParameters::selector(void) const
 }
 
 //__________________________________________________________________________________________________
-const int AlignmentParameters::numSelected(void) const
+int AlignmentParameters::numSelected(void) const
 {
   return theData->numSelected();
 }
@@ -101,6 +101,31 @@ const AlgebraicSymMatrix& AlignmentParameters::covariance(void) const
   return theData->covariance();
 }
 
+//__________________________________________________________________________________________________
+AlgebraicMatrix
+AlignmentParameters::selectedDerivatives(const TrajectoryStateOnSurface& tsos,
+					 const AlignableDetOrUnitPtr &alignableDet) const
+{
+  const AlgebraicMatrix dev(this->derivatives(tsos, alignableDet));
+
+  const int ncols  = dev.num_col();
+  const int nrows  = dev.num_row();
+  const int nsel   = numSelected();
+
+  AlgebraicMatrix seldev(nsel, ncols);
+
+  int ir2 = 0;
+  for (int irow = 0; irow < nrows; ++irow) {
+    if (this->selector()[irow]) {
+      for (int icol = 0; icol < ncols; ++icol) {
+	seldev[ir2][icol] = dev[irow][icol];
+      }
+      ++ir2;
+    }
+  }
+
+  return seldev;
+}
 
 //__________________________________________________________________________________________________
 void  AlignmentParameters::setUserVariables(AlignmentUserVariables* auv)
@@ -149,14 +174,14 @@ unsigned int AlignmentParameters::hierarchyLevel() const
 
 
 //__________________________________________________________________________________________________
-const int AlignmentParameters::size(void) const
+int AlignmentParameters::size(void) const
 { 
   return theData->parameters().num_row();
 }
 
 
 //__________________________________________________________________________________________________
-const bool AlignmentParameters::isValid(void) const
+bool AlignmentParameters::isValid(void) const
 { 
   return bValid;
 }

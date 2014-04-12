@@ -9,7 +9,6 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: Spline.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
 //
 
 #include <cstring>
@@ -28,6 +27,16 @@ double Spline::Segment::eval(double x) const
 	y += coeffs[2] * tmp;	tmp *= x;
 	y += coeffs[3] * tmp;
 	return y;
+}
+
+double Spline::Segment::deriv(double x) const
+{
+	double tmp;
+	double d = 0.0;
+	d += coeffs[1];			tmp = x;
+	d += coeffs[2] * tmp * 2.0;	tmp *= x;
+	d += coeffs[3] * tmp * 3.0;
+	return d;
 }
 
 double Spline::Segment::integral(double x) const
@@ -61,6 +70,17 @@ void Spline::set(unsigned int n_, const double *vals)
 
 	delete[] segments;
 	segments = new Segment[n];
+
+	if (n == 1) {
+		Segment *seg = &segments[0];
+		seg->coeffs[0] = vals[0];
+		seg->coeffs[1] = vals[1] - vals[0];
+		seg->coeffs[2] = 0.0;
+		seg->coeffs[3] = 0.0;
+		seg->area = 0.0;
+		area = seg->integral(1.0);
+		return;
+	}
 
 	double m0, m1;
 	Segment *seg = &segments[0];
@@ -119,6 +139,21 @@ double Spline::eval(double x) const
 	double rest = std::modf(x * n, &total);
 
 	return segments[(unsigned int)total].eval(rest);
+}
+
+double Spline::deriv(double x) const
+{
+	if (x < 0.0 || x > 1.0)
+		return 0.0;
+	else if (x == 0.0)
+		return segments[0].deriv(0.0);
+	else if (x == 1.0)
+		return segments[n - 1].deriv(1.0);
+
+	double total;
+	double rest = std::modf(x * n, &total);
+
+	return segments[(unsigned int)total].deriv(rest);
 }
 
 double Spline::integral(double x) const

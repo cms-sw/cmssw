@@ -7,11 +7,11 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-void printVec(vector<int> vec){
-  cout << "Elements are : ";  
+void printVec(std::vector<int> vec){
+  std::cout << "Elements are : ";  
   for(int i = 0; i<3; i++)
-    cout << vec.at(i) << " ";
-  cout << endl;
+    std::cout << vec.at(i) << " ";
+  std::cout << std::endl;
 }
 int main() {
   L1RCTNeighborMap nmap;

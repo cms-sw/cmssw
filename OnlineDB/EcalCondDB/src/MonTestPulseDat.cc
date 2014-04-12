@@ -34,7 +34,7 @@ MonTestPulseDat::~MonTestPulseDat()
 
 
 void MonTestPulseDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -45,23 +45,23 @@ void MonTestPulseDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":adc_mean_g1, :adc_rms_g1, :adc_rms_g6, :adc_rms_g6, :adc_mean_g12, :adc_rms_g12, :task_status)");
   } catch (SQLException &e) {
-    throw(runtime_error("MonTestPulseDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MonTestPulseDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MonTestPulseDat::writeDB(const EcalLogicID* ecid, const MonTestPulseDat* item, MonRunIOV* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonTestPulseDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonTestPulseDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MonTestPulseDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MonTestPulseDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -76,14 +76,14 @@ void MonTestPulseDat::writeDB(const EcalLogicID* ecid, const MonTestPulseDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MonTestPulseDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonTestPulseDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void MonTestPulseDat::fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMap, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -91,7 +91,7 @@ void MonTestPulseDat::fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMa
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MonTestPulseDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MonTestPulseDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -127,18 +127,18 @@ void MonTestPulseDat::fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMa
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonTestPulseDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("MonTestPulseDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void MonTestPulseDat::writeArrayDB(const std::map< EcalLogicID, MonTestPulseDat >* data, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonTestPulseDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonTestPulseDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -169,7 +169,7 @@ void MonTestPulseDat::writeArrayDB(const std::map< EcalLogicID, MonTestPulseDat 
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("MonTestPulseDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("MonTestPulseDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -246,6 +246,6 @@ void MonTestPulseDat::writeArrayDB(const std::map< EcalLogicID, MonTestPulseDat 
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonTestPulseDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonTestPulseDat::writeArrayDB():  "+e.getMessage()));
   }
 }

@@ -2,7 +2,6 @@
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -28,6 +27,7 @@ void CSCNumberingScheme::initMe (  const MuonDDDConstants& muonConstants ) {
   theRingLevel=muonConstants.getValue("me_ring")/theLevelPart;
   theLayerLevel=muonConstants.getValue("me_layer")/theLevelPart;
 #ifdef LOCAL_DEBUG
+  std::cout << "Initialize CSCNumberingScheme" << std::endl;
   std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
   std::cout << "theStationLevel " << theStationLevel <<std::endl;
   std::cout << "theSubringLevel " << theSubringLevel <<std::endl;
@@ -37,7 +37,7 @@ void CSCNumberingScheme::initMe (  const MuonDDDConstants& muonConstants ) {
 #endif
 }
 
-int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
+int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num){
 
 #ifdef LOCAL_DEBUG
   std::cout << "CSCNumbering "<<num.getLevels()<<std::endl;

@@ -1,11 +1,5 @@
-/** \file
- *
- *  $Date: $
- *  $Revision: $
- */
-
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-
+#include<ostream>
 using namespace GeomDetEnumerators;
 
 std::ostream& operator<<( std::ostream& s, Location l) {

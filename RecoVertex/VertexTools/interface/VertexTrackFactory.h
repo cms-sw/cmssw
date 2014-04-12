@@ -1,8 +1,9 @@
 #ifndef VertexTrackFactory_H
 #define VertexTrackFactory_H
 
-#include "RecoVertex/VertexPrimitives/interface/RefCountedVertexTrack.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
+#include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
 
 /** 
  *  Concrete class to encapsulate the creation of a RefCountedVertexTrack, 
@@ -11,9 +12,16 @@
  *  so that the reference-counting mechanism works well. 
  */ 
 
+template <unsigned int N>
 class VertexTrackFactory {
 
 public:
+
+  typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
+  typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
+  typedef ReferenceCountingPointer<LinearizedTrackState<N> > RefCountedLinearizedTrackState;
+  typedef ROOT::Math::SMatrix<double,3,N-2,ROOT::Math::MatRepStd<double,3,N-2> > AlgebraicMatrix3M;
+  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepSym<double,N+1> > AlgebraicSymMatrixOO;
 
   VertexTrackFactory() {}
    ~VertexTrackFactory() {}
@@ -22,7 +30,7 @@ public:
    vertexTrack(const RefCountedLinearizedTrackState lt, 
 	       const VertexState vs,
 	       float weight = 1.0 ) const {
-    return RefCountedVertexTrack(new VertexTrack(lt, vs, weight ));
+    return RefCountedVertexTrack(new VertexTrack<N>(lt, vs, weight ));
   };
 
   RefCountedVertexTrack
@@ -30,7 +38,7 @@ public:
 	       const VertexState vs,
 	       const RefCountedRefittedTrackState & refittedState, 
 	       float smoothedChi2, float weight = 1.0 ) const {
-    return RefCountedVertexTrack(new VertexTrack(lt, vs, weight, refittedState,
+    return RefCountedVertexTrack(new VertexTrack<N>(lt, vs, weight, refittedState,
      				 smoothedChi2));
   };
 
@@ -39,8 +47,8 @@ public:
 	      const VertexState vs,
 	      const RefCountedRefittedTrackState & refittedState,
 	      float smoothedChi2,
-	      const AlgebraicMatrix & tVCov, float weight = 1.0 ) const {
-    return RefCountedVertexTrack(new VertexTrack(lt, vs, weight,
+	      const AlgebraicSymMatrixOO & tVCov, float weight = 1.0 ) const {
+    return RefCountedVertexTrack(new VertexTrack<N>(lt, vs, weight,
                                  refittedState, smoothedChi2, tVCov));
   };
 };

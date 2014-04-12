@@ -11,7 +11,6 @@ Description: Input text file to be loaded into the source cards and output RCT d
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.3 2007/07/10 13:32:50 tapper Exp $
 //
 //
 
@@ -24,7 +23,7 @@ using namespace std;
 
 // Set constants
 const static unsigned NUM_LINES_PER_EVENT = 63;
-const static unsigned NUM_RCT_CRATES = 18;
+const static int NUM_RCT_CRATES = 18;
 
 SourceCardTextToRctDigi::SourceCardTextToRctDigi(const edm::ParameterSet& iConfig):
   m_textFileName(iConfig.getParameter<std::string>("TextFileName")),
@@ -36,13 +35,13 @@ SourceCardTextToRctDigi::SourceCardTextToRctDigi(const edm::ParameterSet& iConfi
   produces<L1CaloRegionCollection>();
 
   // Open the input file
-  m_file.open(m_textFileName.c_str(),ios::in);
+  m_file.open(m_textFileName.c_str(),std::ios::in);
 
   if(!m_file.good())
     {
       throw cms::Exception("SourceCardTextToRctDigiTextFileOpenError")
         << "SourceCardTextToRctDigi::SourceCardTextToRctDigi : "
-        << " couldn't open the file " << m_textFileName << " for reading" << endl;
+        << " couldn't open the file " << m_textFileName << " for reading" << std::endl;
     }
 
   // Make a SC routing object
@@ -58,14 +57,14 @@ SourceCardTextToRctDigi::~SourceCardTextToRctDigi()
 
 /// Append empty digi collection
 void SourceCardTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
-  auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
-  for (unsigned i=0; i<NUM_RCT_CRATES; i++){  
-    for (unsigned j=0; j<4; j++) {
+  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  for (int i=0; i<NUM_RCT_CRATES; i++){  
+    for (int j=0; j<4; j++) {
       em->push_back(L1CaloEmCand(0, i, true));
       em->push_back(L1CaloEmCand(0, i, false));
     }
-    for (unsigned j=0; j<14; j++)
+    for (int j=0; j<14; j++)
       rgn->push_back(L1CaloRegion(0,false,false,false,false,i,j/2,j%2));
     for (unsigned j=0; j<8; j++)
       rgn->push_back(L1CaloRegion(0,true,i,j));
@@ -79,7 +78,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
 {
   // Skip event if required
   if (m_nevt < m_fileEventOffset){
-    //    string tmp;
+    //    std::string tmp;
     // for (unsigned i=0;i<NUM_LINES_PER_EVENT;i++){
     //getline(m_file,tmp);
     //}
@@ -88,27 +87,27 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     return;
   } else if (m_nevt==0 && m_fileEventOffset<0) {
     //skip first fileEventOffset input events
-    string tmp; 
+    std::string tmp; 
     for(int i=0;i<abs(m_fileEventOffset); i++)
       for (unsigned line=0; line<NUM_LINES_PER_EVENT; line++)  
 	if(!getline(m_file,tmp))
 	  {
 	    throw cms::Exception("SourceCardTextToRctDigiTextFileReadError")
 	      << "SourceCardTextToRctDigi::produce() : "
-	      << " couldn't read from the file " << m_textFileName << endl;
+	      << " couldn't read from the file " << m_textFileName << std::endl;
 	  }
   }
   
 
   // New collections
-  auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
 
   // General variables  
   unsigned long VHDCI[2][2];
   int routingMode;
   int crate;
-  string dataString; 
+  std::string dataString; 
   unsigned short eventNumber;
   unsigned short logicalCardID;
 
@@ -134,10 +133,10 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     {
       throw cms::Exception("SourceCardTextToRctDigiTextFileReadError")
         << "SourceCardTextToRctDigi::produce : "
-        << " unexpected end of file " << m_textFileName << endl;
+        << " unexpected end of file " << m_textFileName << std::endl;
     }      
   
-  int thisEventNumber;  
+  int thisEventNumber=-1;  
   // Read in file one line at a time 
   for (unsigned line=0; line<NUM_LINES_PER_EVENT; line++){  
 
@@ -145,7 +144,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     {
       throw cms::Exception("SourceCardTextToRctDigiTextFileReadError")
         << "SourceCardTextToRctDigi::SourceCardTextToRctDigi : "
-        << " couldn't read from the file " << m_textFileName << endl;
+        << " couldn't read from the file " << m_textFileName << std::endl;
     }   
 
     // Convert the string to useful info
@@ -184,7 +183,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
       // Something went wrong
       throw cms::Exception("SourceCardtextToRctDigiError")
         << "SourceCardTextToRctDigi::produce : "
-        << " unknown routing mode=" << routingMode << endl;
+        << " unknown routing mode=" << routingMode << std::endl;
     }
   }
 
@@ -193,51 +192,32 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
 
     // Make EM collections
     for (int i=0; i<4; i++){
-      em->push_back(L1CaloEmCand(eIsoRank[crate][i],eIsoRegionId[crate][i],eIsoCardId[crate][i],crate,true,i,eventNumber));
-      em->push_back(L1CaloEmCand(eNonIsoRank[crate][i],eNonIsoRegionId[crate][i],eNonIsoCardId[crate][i],crate,false,i,eventNumber));
+      em->push_back(L1CaloEmCand(eIsoRank[crate][i],eIsoRegionId[crate][i],eIsoCardId[crate][i],crate,true,i,0));
+      em->push_back(L1CaloEmCand(eNonIsoRank[crate][i],eNonIsoRegionId[crate][i],eNonIsoCardId[crate][i],crate,false,i,0));
     }
     
     // Make region collections
     for (int i=0; i<7; i++){// Receiver card
       for (int j=0; j<2; j++){// Region
-        rgn->push_back(L1CaloRegion(RC[crate][i][j],RCof[crate][i][j],RCtau[crate][i][j],MIPbits[crate][i][j],Qbits[crate][i][j],crate,i,j));
+        rgn->push_back(L1CaloRegion::makeHBHERegion(RC[crate][i][j],RCof[crate][i][j],RCtau[crate][i][j],MIPbits[crate][i][j],Qbits[crate][i][j],crate,i,j));
       }
     }
     
     // Make HF region collections
     for (int i=0; i<4; i++){// Eta bin
       for (int j=0; j<2; j++){// HF0, HF1
-        rgn->push_back(L1CaloRegion(HF[crate][i][j],HFQ[crate][i][j],crate,i+(4*j)));// region=eta+4*phi for eta 0-3 
+        rgn->push_back(L1CaloRegion::makeHFRegion(HF[crate][i][j],HFQ[crate][i][j],crate,i+(4*j)));// region=eta+4*phi for eta 0-3 
       }
     }
   }
 
   // Debug info
   for (L1CaloEmCollection::const_iterator iem=em->begin(); iem!=em->end(); iem++){
-    LogDebug("Electrons") << "Rank=" << iem->rank() 
-                          << " Card=" << iem->rctCard()
-                          << " Region=" << iem->rctRegion() 
-                          << " Crate=" << iem->rctCrate() 
-                          << " Isolated=" << iem->isolated() << endl;
+    LogDebug("Electrons") << (*iem);
   }
   
   for (L1CaloRegionCollection::const_iterator irgn=rgn->begin(); irgn!=rgn->end(); irgn++){
-    if (irgn->id().isHf()){
-      LogDebug("HFRegions") << "Et=" << irgn->et()
-                            << " FineGrain=" << irgn->fineGrain()
-                            << " Eta=" << irgn->id().rctEta()
-                            << " Phi=" << irgn->id().rctPhi()
-                            << " Crate=" << irgn->rctCrate();
-    } else {
-      LogDebug("Regions") << "Et=" << irgn->et()
-                          << " OverFlow=" << irgn->overFlow()
-                          << " tauVeto=" << irgn->tauVeto()
-                          << " mip=" << irgn->mip()
-                          << " quiet=" << irgn->quiet()
-                          << " Card=" << irgn->rctCard()
-                          << " Region=" << irgn->rctRegionIndex()
-                          << " Crate=" << irgn->rctCrate();
-    }
+      LogDebug("HFRegions") << (*irgn);
   }
 
   iEvent.put(em);

@@ -19,7 +19,6 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReportService.h,v 1.1 2006/05/02 02:45:48 wmtan Exp $
 //
 
 #include <string>
@@ -29,25 +28,25 @@ through the MessageLogger.
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
+  class ConfigurationDescriptions;
+
   namespace service {
     class JobReportService : public JobReport {
     public:
       JobReportService(ParameterSet const& ps, ActivityRegistry& reg);
       ~JobReportService();
-         
-      void postBeginJob();
+
       void postEndJob();
-
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const Event&, const EventSetup&);
-
-      void preModule(const ModuleDescription&);
-      void postModule(const ModuleDescription&);
 
       void frameworkShutdownOnFailure();
 
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     };
+
+    inline
+    bool isProcessWideService(JobReportService const*) {
+      return true;
+    }
   }
 }
-
 #endif

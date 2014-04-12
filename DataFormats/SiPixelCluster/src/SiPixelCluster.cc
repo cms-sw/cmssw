@@ -10,38 +10,69 @@
 //!  an inner class) and a container of channels. 
 //!
 //!  March 2007: Edge pixel methods moved to RectangularPixelTopology (V.Chiochia)
-//! 
+//!  May   2008: Offset based packing (D.Fehling / A. Rizzi)  
 //!  \author Petar Maksimovic, JHU
 //---------------------------------------------------------------------------
 
 
-SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, float adc) :
-  detId_(0),     // &&& To be fixed ?? 
-  // The center of pixel with row # N is at N+0.5 in the meas. frame!
-  theSumX( (pix.row()+0.5) * adc), 
-  theSumY( (pix.col()+0.5) * adc),
-  theCharge( adc),
-  theMinPixelRow( pix.row()),
-  theMaxPixelRow( pix.row()),
-  theMinPixelCol( pix.col()),
-  theMaxPixelCol( pix.col())
+SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, int adc) :
+  thePixelRow(pix.row()),
+  thePixelCol(pix.col()),
+    // ggiurgiu@fnal.gov, 01/05/12
+  // Initialize the split cluster errors to un-physical values.
+  // The CPE will check these errors and if they are not un-physical, 
+  // it will recognize the clusters as split and assign these (increased) 
+  // errors to the corresponding rechit. 
+  err_x(-99999.9),
+  err_y(-99999.9)
 {
   // First pixel in this cluster.
-  thePixels.push_back( Pixel( pix.row()+0.5, pix.col()+0.5, adc));
+  thePixelADC.push_back( adc );
+  thePixelOffset.push_back(0 );
+  thePixelOffset.push_back(0 );
 }
 
-void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, float adc) {
-
-  // The center of pixel with row # N is at N+0.5 in the meas. frame!
-  theSumX += (pix.row()+0.5) * adc; 
-  theSumY += (pix.col()+0.5) * adc; 
-  theCharge += adc;
-
-  thePixels.push_back( Pixel( (pix.row()+0.5), (pix.col()+0.5),adc ) );
-
-  if (pix.row() < theMinPixelRow) theMinPixelRow = pix.row();
-  if (pix.row() > theMaxPixelRow) theMaxPixelRow = pix.row();
-  if (pix.col() < theMinPixelCol) theMinPixelCol = pix.col();
-  if (pix.col() > theMaxPixelCol) theMaxPixelCol = pix.col();
+void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
+  
+  int ominRow = minPixelRow();
+  int ominCol = minPixelCol();
+  bool recalculate = false;
+  
+  int minRow = ominRow;
+  int minCol = ominCol;
+  
+  if (pix.row() < minRow) {
+    minRow = pix.row();
+    recalculate = true;
+  }
+  if (pix.col() < minCol) {
+    minCol = pix.col();
+    recalculate = true;
+  }
+  
+  if (recalculate) {
+    int maxCol = 0;
+    int maxRow = 0;
+    int isize = thePixelADC.size();
+    for (int i=0; i<isize; ++i) {
+      int xoffset = thePixelOffset[i*2]  + ominRow - minRow;
+      int yoffset = thePixelOffset[i*2+1]  + ominCol -minCol;
+      thePixelOffset[i*2] = std::min(63,xoffset);
+      thePixelOffset[i*2+1] = std::min(63,yoffset);
+      if (xoffset > maxRow) maxRow = xoffset; 
+      if (yoffset > maxCol) maxCol = yoffset; 
+    }
+    packRow(minRow,maxRow);
+    packCol(minCol,maxCol);
+  }
+  
+  if ( (!overflowRow()) && pix.row() > maxPixelRow()) 
+    packRow(minRow,pix.row()-minRow);
+  
+  if ( (!overflowCol()) && pix.col() > maxPixelCol())
+    packCol(minCol,pix.col()-minCol);
+  
+  thePixelADC.push_back( adc );
+  thePixelOffset.push_back( std::min(63,pix.row() - minRow) );
+  thePixelOffset.push_back( std::min(63,pix.col() - minCol) );
 }
-

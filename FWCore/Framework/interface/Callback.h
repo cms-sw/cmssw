@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 14:30:24 EDT 2005
-// $Id: Callback.h,v 1.8 2006/08/26 18:37:54 chrjones Exp $
 //
 
 // system include files
@@ -52,7 +51,7 @@ namespace edm {
          Callback(T* iProd, 
                    method_type iMethod,
                    const TDecorator& iDec = TDecorator()) :
-            proxyData_(produce::size< TReturn >::value, static_cast<void*>(0)),
+            proxyData_(produce::size< TReturn >::value, static_cast<void*>(nullptr)),
             producer_(iProd), 
             method_(iMethod),
             wasCalledForThisRecord_(false),
@@ -83,15 +82,15 @@ namespace edm {
          void storeReturnedValues(TReturn iReturn) {
             //std::cout <<" storeReturnedValues "<< iReturn <<" " <<iReturn->value_ <<std::endl;
             typedef typename produce::product_traits<TReturn>::type type;
-            setData(iReturn, static_cast<typename  type::head_type*>(0), static_cast<const typename type::tail_type *>(0));
+            setData(iReturn, static_cast<typename  type::head_type*>(nullptr), static_cast<const typename type::tail_type *>(nullptr));
          }
          
          template<class RemainingContainerT, class DataT, class ProductsT>
             void setData(ProductsT& iProducts, const RemainingContainerT*, const DataT*) {
                DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
                if(0 != temp) { copyFromTo(iProducts, *temp); }
-               setData(iProducts, static_cast< const typename RemainingContainerT::head_type *>(0),
-                       static_cast< const typename RemainingContainerT::tail_type *>(0));
+               setData(iProducts, static_cast< const typename RemainingContainerT::head_type *>(nullptr),
+                       static_cast< const typename RemainingContainerT::tail_type *>(nullptr));
             }
          template<class DataT, class ProductsT>
             void setData(ProductsT& iProducts, const produce::Null*, const DataT*) {

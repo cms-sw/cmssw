@@ -20,9 +20,8 @@ struct VertexHigherPtSquared {
 
 public:
 
-  double sumPtSquared(const std::vector<reco::TransientTrack> & tks) const;
   double sumPtSquared(const reco::Vertex & v) const;
-
+  double sumPtSquared(const std::vector<reco::TransientTrack> & tks) const ;
 
 };
 

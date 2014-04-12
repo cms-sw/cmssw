@@ -1,0 +1,108 @@
+<TESTSCONFIGURATION>
+<QTEST name="DeadChannels">
+         <TYPE>DeadChannel</TYPE>
+         <PARAM name="error">0.99</PARAM>
+         <PARAM name="warning">0.50</PARAM>
+         <PARAM name="threshold">3</PARAM>
+</QTEST>
+<QTEST name="PhiFlatness">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0</PARAM>
+	<PARAM name="ymax">0.014</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+<QTEST name="KSComparison">
+	<TYPE>Comp2RefKolmogorov</TYPE>	
+	<PARAM name="testparam">0</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+<QTEST name="ResidualFit">
+	<TYPE>ContentsWithinExpected</TYPE>	
+	<PARAM name="minMean">-4</PARAM>
+	<PARAM name="maxMean">4</PARAM>
+	<PARAM name="minRMS">0</PARAM>
+	<PARAM name="maxRMS">4</PARAM>
+	<PARAM name="toleranceMean">5</PARAM>
+	<PARAM name="minEntries">20</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+<LINK name="*HLTMuonL1_phi_norm"> 
+	<TestName activate="true">PhiFlatness</TestName>
+</LINK>
+<LINK name="*HLTMuonL2_phi_norm"> 
+	<TestName activate="true">PhiFlatness</TestName>
+</LINK>
+<LINK name="*HLTMuonL3_phi_norm"> 
+	<TestName activate="true">PhiFlatness</TestName>
+</LINK>
+<LINK name="*HLTMuonL1_phi"> 
+	<TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level1/HLTMuonL1_eta">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level1/HLTMuonL1_pt">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level1/HLTMuonL1_charge">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level2/HLTMuonL2_phi">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level2/HLTMuonL2_eta">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level2/HLTMuonL2_pt">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level2/HLTMuonL2_charge">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level2/HLTMuonL2_d0">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level2/HLTMuonL2_dr">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level2/HLTMuonL2_dz">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level2/HLTMuonL2_dz0">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level3/HLTMuonL3_phi">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level3/HLTMuonL3_eta">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level3/HLTMuonL3_pt">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level3/HLTMuonL3_charge">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level3/HLTMuonL3_d0">
+       	<TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level3/HLTMuonL3_dr">
+       	<TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level3/HLTMuonL3_dz">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*/L1PassThrough/Level3/HLTMuonL3_dz0">
+        <TestName activate="true">KSComparison</TestName>
+</LINK>
+<LINK name="*HLTMuonL1toL3_phiresphi">
+	<TestName activate="true">ResidualFit</TestName>
+</LINK>
+</TESTSCONFIGURATION>
+
+

@@ -1,88 +1,62 @@
-#ifndef EcalSimAlgos_CaloTDigitizer_h
-#define EcalSimAlgos_CaloTDigitizer_h
+#ifndef EcalSimAlgos_EcalTDigitizer_h
+#define EcalSimAlgos_EcalTDigitizer_h
 
 /** Turns hits into digis.  Assumes that 
     there's an ElectroncsSim class with the
-    interface analogToDigital(const CaloSamples &, Digi &);
-
+    interface analogToDigital(CLHEP::HepRandomEngine*, const CaloSamples &, Digi &);
 */
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
+
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-// #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-// #include "DataFormats/Common/interface/DataFrame.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
 
+class EcalHitResponse ;
 
-template<class Traits>
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
+template< class Traits >
 class EcalTDigitizer
 {
-public:
-  /// these are the types that need to be defined in the Traits
-  /// class.  The ElectronicsSim needs to have an interface
-  /// that you'll see in the run() method
-  typedef typename Traits::ElectronicsSim ElectronicsSim;
-  typedef typename Traits::Digi Digi;
-  typedef typename Traits::DigiCollection DigiCollection;
+   public:
 
-  EcalTDigitizer(CaloHitResponse * hitResponse, ElectronicsSim * electronicsSim, bool addNoise)
-  :  theHitResponse(hitResponse),
-     theElectronicsSim(electronicsSim),
-     theDetIds(0),
-     addNoise_(addNoise)
-  {
-  }
+      typedef typename Traits::ElectronicsSim ElectronicsSim ;
+      typedef typename Traits::Digi           Digi           ;
+      typedef typename Traits::DigiCollection DigiCollection ;
+      typedef typename Traits::EcalSamples    EcalSamples    ;
 
+      EcalTDigitizer< Traits >( EcalHitResponse* hitResponse    ,
+				ElectronicsSim*  electronicsSim ,
+				bool             addNoise         ) ;
 
+      virtual ~EcalTDigitizer< Traits >() ;
 
-  /// doesn't delete the pointers passed in
-  ~EcalTDigitizer() {}
+      void add(const std::vector<PCaloHit> & hits, int bunchCrossing, CLHEP::HepRandomEngine*);
 
-  /// tell the digitizer which cells exist
-  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = detIds;}
+      virtual void initializeHits();
 
-  /// turns hits into digis
-  void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
-    assert(theDetIds.size() != 0);
+      virtual void run(DigiCollection&          output, CLHEP::HepRandomEngine* );
 
-    theHitResponse->run(input);
-
-    theElectronicsSim->newEvent();
-
-    // reserve space for how many digis we expect
-    int nDigisExpected = addNoise_ ? theDetIds.size() : theHitResponse->nSignals();
-    output.reserve(nDigisExpected);
-
-    // make a raw digi for evey cell
-    for(std::vector<DetId>::const_iterator idItr = theDetIds.begin();
-        idItr != theDetIds.end(); ++idItr)
-    {
-       CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
-       bool needToDeleteSignal = false;
-       // don't bother digitizing if no signal and no noise
-       if(analogSignal == 0 && addNoise_) {
-         // I guess we need to make a blank signal for this cell.
-         // Don't bother storing it anywhere.
-         analogSignal = new CaloSamples(theHitResponse->makeBlankSignal(*idItr));
-         needToDeleteSignal = true;
-       }
-       if(analogSignal != 0) { 
-	 output.push_back(*idItr);
-	 Digi digi(output.back());
-         theElectronicsSim->analogToDigital(*analogSignal , digi);
-         if(needToDeleteSignal) delete analogSignal;
+      virtual void run( MixCollection<PCaloHit>& input ,
+			DigiCollection&          output  ) {
+         assert(0);
       }
-    }
 
-    // free up some memory
-    theHitResponse->clear();
-  }
+   protected:
 
+      bool addNoise() const ;
 
-private:
-  CaloHitResponse * theHitResponse;
-  ElectronicsSim * theElectronicsSim;
-  std::vector<DetId> theDetIds;
-  bool addNoise_;
+      const EcalHitResponse* hitResponse() const ;
+
+      const ElectronicsSim* elecSim() const ;
+
+   private:
+
+      EcalHitResponse* m_hitResponse    ;
+      ElectronicsSim*  m_electronicsSim ;
+      bool             m_addNoise       ;
 };
 
 #endif

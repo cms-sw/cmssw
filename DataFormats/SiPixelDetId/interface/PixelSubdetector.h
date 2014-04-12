@@ -8,9 +8,8 @@
 
 class PixelSubdetector { 
  public:
+  enum SubDetector {PixelBarrel=1,PixelEndcap=2};
 
-static const unsigned int PixelBarrel=1;
-static const unsigned int PixelEndcap=2; 
 };
 
 #endif

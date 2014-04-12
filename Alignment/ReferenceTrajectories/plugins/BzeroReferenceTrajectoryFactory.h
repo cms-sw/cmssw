@@ -1,25 +1,33 @@
-#ifndef Alignment_ReferenceTrajectories_BzeroReferenceTrajectoryFactory_h
-#define Alignment_ReferenceTrajectories_BzeroReferenceTrajectoryFactory_h
-
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
-#include "Alignment/ReferenceTrajectories/interface/BzeroReferenceTrajectory.h"
 
-/// A factory that produces instances of class BzeroReferenceTrajectory from a given TrajTrackPairCollection.
+namespace edm {
+  class ParameterSet;
+  class EventSetup;
+}
+namespace reco {
+  class BeamSpot;
+}
 
+/// A factory that produces instances of class BzeroReferenceTrajectory from a
+/// given TrajTrackPairCollection.
 
 class BzeroReferenceTrajectoryFactory : public TrajectoryFactoryBase
 {
-
 public:
-
-  BzeroReferenceTrajectoryFactory( const edm::ParameterSet & config );
-  virtual ~BzeroReferenceTrajectoryFactory( void );
+  BzeroReferenceTrajectoryFactory(const edm::ParameterSet &config);
+  virtual ~BzeroReferenceTrajectoryFactory();
 
   /// Produce the reference trajectories.
-  virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup & setup,
-							    const ConstTrajTrackPairCollection & tracks ) const;
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const reco::BeamSpot &beamSpot) const;
 
-  virtual BzeroReferenceTrajectoryFactory* clone( void ) const { return new BzeroReferenceTrajectoryFactory( *this ); }
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const ExternalPredictionCollection &external,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual BzeroReferenceTrajectoryFactory* clone() const { return new BzeroReferenceTrajectoryFactory( *this ); }
 
 private:
 
@@ -27,5 +35,3 @@ private:
   double theMomentumEstimate;
 };
 
-
-#endif

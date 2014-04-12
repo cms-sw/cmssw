@@ -1,14 +1,8 @@
 #ifndef _SiStripInformationExtractor_h_
 #define _SiStripInformationExtractor_h_
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-#include "xgi/Utils.h"
-#include "xgi/Method.h"
-
-#include "TCanvas.h"
-#include "TH1.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <fstream>
 #include <sstream>
@@ -18,6 +12,10 @@
 #include <map>
 
 class SiStripLayoutParser;
+class SiStripDetCabling;
+class DQMStore;
+class QReport;
+class SiStripHistoPlotter;
 
 class SiStripInformationExtractor {
 
@@ -26,58 +24,70 @@ class SiStripInformationExtractor {
   SiStripInformationExtractor();
  ~SiStripInformationExtractor();
 
-  void readModuleAndHistoList(MonitorUserInterface* mui,xgi::Output * out, bool coll_flag);
-  void plotSingleModuleHistos(MonitorUserInterface * mui,
-                      std::multimap<std::string, std::string>& req_map);
-  void plotGlobalHistos(MonitorUserInterface * mui,
-                      std::multimap<std::string, std::string>& req_map);
-  void plotHistosFromPath(MonitorUserInterface * mui,std::multimap<std::string, std::string>& req_map);
-  void plotHistosFromLayout(MonitorUserInterface * mui);
-  void plotTrackerMapHistos(MonitorUserInterface* mui, std::multimap<std::string, std::string>& req_map);
-  const std::ostringstream& getImage() const;
-  void readSummaryHistoTree(MonitorUserInterface* mui, std::string& str_name, 
-                xgi::Output * out, bool coll_flag);
-  void readAlarmTree(MonitorUserInterface* mui, std::string& str_name, 
-                xgi::Output * out, bool coll_flag);
- 
-  void readStatusMessage(MonitorUserInterface* mui, std::string& path,xgi::Output * out);
-  void readGlobalHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag);
-  void readLayoutNames(xgi::Output * out);
+  void plotHistosFromLayout(DQMStore * dqm_store);
+  void createImages(DQMStore* dqm_store);
+
+  // removing xdaq deps
+ // void getSingleModuleHistos(DQMStore * dqm_store, 
+  //     const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+ // void getGlobalHistos(DQMStore* dqm_store, 
+  //     const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+  //void getHistosFromPath(DQMStore * dqm_store, 
+    //   const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+//  void getTrackerMapHistos(DQMStore* dqm_store, 
+  //     const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+  //void getCondDBHistos(DQMStore* dqm_store, bool& plot_flag,
+    //   const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+
+  //void readModuleAndHistoList(DQMStore* dqm_store,std::string& sname, const edm::ESHandle<SiStripDetCabling>& detcabling,xgi::Output * out);
+  //void readSummaryHistoTree(DQMStore* dqm_store, std::string& str_name, 
+      //          xgi::Output * out);
+  //void readAlarmTree(DQMStore* dqm_store, std::string& str_name, 
+ //               xgi::Output * out);
+
+  //void readStatusMessage(DQMStore* dqm_store, std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+  //void readGlobalHistoList(DQMStore* dqm_store, std::string& dname, xgi::Output * out);
+  //void readLayoutNames(DQMStore* dqm_store, xgi::Output * out);
+
+  //void readQTestSummary(DQMStore* dqm_store, std::string type, xgi::Output * out);
+
+  //void readNonGeomHistoTree(DQMStore* dqm_store, std::string& fld_name, xgi::Output * out);
+
+  //void getImage(const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
 
 
  private:
 
   void readConfiguration();
-  void fillModuleAndHistoList(MonitorUserInterface * mui,
-        std::vector<std::string>& modules, std::vector<std::string>& histos);
-  void fillGlobalHistoList(MonitorUserInterface * mui, std::vector<std::string>& histos);
-  void selectSingleModuleHistos(MonitorUserInterface * mui,  std::string mid, 
-          std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
-  void getItemList(std::multimap<std::string, std::string>& req_map,
-                   std::string item_name, std::vector<std::string>& items);
-  bool hasItem(std::multimap<std::string, std::string>& req_map,
-	      std::string item_name);
-  std::string getItemValue(std::multimap<std::string, std::string>& req_map,
-	      std::string item_name);
-  void fillImageBuffer();
-  void plotHistos(std::multimap<std::string, std::string>& req_map, 
-                  std::vector<MonitorElement*> me_list, bool sflag);
-  bool goToDir(MonitorUserInterface* mui, std::string& sname, bool flg);
-  void printSummaryHistoList(MonitorUserInterface* mui, std::ostringstream& str_val);
-  void printAlarmList(MonitorUserInterface * mui, std::ostringstream& str_val);
-  void selectImage(std::string& name, int status);
-  void selectImage(std::string& name, dqm::qtests::QR_map& test_map);
-  void selectGlobalHistos(MonitorUserInterface * mui, std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
-  void defineZone(int nhist, int& ncol, int & now);  
-  void setCanvasMessage(const std::string& error_string);
-  void createDummiesFromLayout();
-  void setDrawingOption(TH1* hist, float xlow=-1.0, float xhigh=-1.0);
 
-  std::ostringstream pictureBuffer_;
+  void getItemList(const std::multimap<std::string, std::string>& req_map,
+                   std::string item_name, std::vector<std::string>& items);
+  bool hasItem(const std::multimap<std::string, std::string>& req_map,
+	      std::string item_name);
+  std::string getItemValue(const std::multimap<std::string, std::string>& req_map,
+	      std::string item_name);
+  void printSummaryHistoList(DQMStore* dqm_store, std::ostringstream& str_val);
+  void printAlarmList(DQMStore * dqm_store, std::ostringstream& str_val);
+  void printNonGeomHistoList(DQMStore * dqm_store, std::ostringstream& str_val);
+
+  void selectImage(std::string& name, int status);
+  void selectImage(std::string& name, std::vector<QReport*> & reports);
+  void selectColor(std::string& col, int status);
+  void selectColor(std::string& col, std::vector<QReport*>& reports);
+
+  
+  //void setHTMLHeader(xgi::Output * out);
+  //void setXMLHeader(xgi::Output * out);
+  //void setPlainHeader(xgi::Output * out);
+
+
   SiStripLayoutParser* layoutParser_;
 
   std::map<std::string, std::vector< std::string > > layoutMap;
-  TCanvas* canvas_;
+  std::vector<std::string> subdetVec;
   bool  readReference_;
+ 
+
+  SiStripHistoPlotter* histoPlotter_;
 };
 #endif

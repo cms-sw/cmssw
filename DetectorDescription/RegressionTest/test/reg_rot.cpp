@@ -3,7 +3,7 @@
 #include <cmath>
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 using namespace std;
 
@@ -19,14 +19,14 @@ int main()
   cout << " axis:  theta[deg]="; cin >> theta; theta = theta*deg;
   cout << " angle: alpha[deg]="; cin >> alpha; alpha = alpha*deg;
   cout << endl;
-  Hep3Vector axis;
+  CLHEP::Hep3Vector axis;
   axis[0] = cos(phi)*sin(theta);
   axis[1] = sin(phi)*sin(theta);
   axis[2] = cos(theta);
   cout << " axis: (" << axis[0] << ',' 
                      << axis[1] << ','
 		     << axis[2] << ')' << endl;
-  HepRotation rot(axis,alpha);		      
+  CLHEP::HepRotation rot(axis,alpha);		      
   cout << endl;
   cout << "<Rotation name=\"YourNameHere\"" << endl;
   cout << "  phiX=\"" << rot.phiX()/deg << "*deg\"" << endl;

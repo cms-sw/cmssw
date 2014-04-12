@@ -7,7 +7,7 @@
 /** Combines two GsfMaterialEffectsUpdators (for multiple scattering
  *  and energy loss).
  */
-class GsfCombinedMaterialEffectsUpdator : public GsfMaterialEffectsUpdator
+class GsfCombinedMaterialEffectsUpdator GCC11_FINAL : public GsfMaterialEffectsUpdator
 {  
  public:
   virtual GsfCombinedMaterialEffectsUpdator* clone() const
@@ -16,20 +16,14 @@ class GsfCombinedMaterialEffectsUpdator : public GsfMaterialEffectsUpdator
   }
 
 public:
-//   /// Default constructor (mass from configurable)
-//   GsfCombinedMaterialEffectsUpdator();
-//   /// Constructor with explicit mass hypothesis
-//   GsfCombinedMaterialEffectsUpdator( float mass );
   /// Constructor from multiple scattering and energy loss updator
   GsfCombinedMaterialEffectsUpdator (GsfMaterialEffectsUpdator& msUpdator,
 				     GsfMaterialEffectsUpdator& elUpdator);
 
- private:
-//   /// initialisation of individual updators
-//   void createUpdators(const float);
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const;
-  
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
+
+ 
  private:
   // objects used for calculations of multiple scattering and energy loss
   DeepCopyPointerByClone<GsfMaterialEffectsUpdator> theMSUpdator;

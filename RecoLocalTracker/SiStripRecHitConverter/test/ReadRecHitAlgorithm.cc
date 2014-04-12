@@ -9,7 +9,7 @@
 
 #include "RecoLocalTracker/SiStripRecHitConverter/test/ReadRecHitAlgorithm.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
@@ -28,36 +28,24 @@ ReadRecHitAlgorithm::~ReadRecHitAlgorithm() {
 void ReadRecHitAlgorithm::run(const SiStripRecHit2DCollection* input)
 {
   
-  // get vector of detunit ids
-  const std::vector<DetId> detIDs = input->ids();
-  //  std::cout<<detIDs.size()<<std::endl;
-    // loop over detunits
-  for ( std::vector<DetId>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
-    unsigned int id = (*detunit_iterator).rawId();
-    edm::OwnVector<SiStripRecHit2D> collector; 
-    if(id!=999999999){ //if is valid detector
-      SiStripRecHit2DCollection::range rechitRange = input->get((*detunit_iterator));
-      SiStripRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-      SiStripRecHit2DCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
-      SiStripRecHit2DCollection::const_iterator iter=rechitRangeIteratorBegin;
-      for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
-	  SiStripRecHit2D const rechit=*iter;
-	  LocalPoint position=rechit.localPosition();
-	  LocalError error=rechit.localPositionError();
-	  //GeomDet& det=rechit->det();
-	  //DetId id=rechit.geographicalId();
-	  const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();
-	  edm::LogInfo("ReadRecHit")<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<"\n"
-	  <<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy();
-	  if (clust.isNonnull ()){
-	    edm::LogInfo("ReadRecHit")<<"barycenter= "<<clust->barycenter();
-	  }
-	  else{
-	    edm::LogError("ReadRecHit")<<"The cluster is empty!";
-	  }
-	  //	  std::cout<<"det id: "<<id.rawid<<std::endl;
+  for (SiStripRecHit2DCollection::const_iterator detunit_iterator = input->begin(); detunit_iterator != input->end(); ++detunit_iterator) { 
+      for(SiStripRecHit2DCollection::DetSet::const_iterator iter=detunit_iterator->begin(), end = detunit_iterator->end(); iter != end; ++iter){//loop on the rechit
+          SiStripRecHit2D const & rechit=*iter;
+          LocalPoint position=rechit.localPosition();
+          LocalError error=rechit.localPositionError();
+          //GeomDet& det=rechit->det();
+          //DetId id=rechit.geographicalId();
+          SiStripRecHit2D::ClusterRef clust=rechit.cluster();
+          edm::LogInfo("ReadRecHit")<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<"\n"
+              <<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy();
+          if (clust.isNonnull ()){
+              edm::LogInfo("ReadRecHit")<<"barycenter= "<<clust->barycenter();
+          }
+          else{
+              edm::LogError("ReadRecHit")<<"The cluster is empty!";
+          }
+          //	  std::cout<<"det id: "<<id.rawid<<std::endl;
       }
-    }
   }
 }
 
@@ -65,30 +53,163 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DCollection* input)
 void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)
 {
   
-  // get vector of detunit ids
-  const std::vector<DetId> detIDs = input->ids();
-  //  std::cout<<detIDs.size()<<std::endl;
-    // loop over detunits
-  for ( std::vector<DetId>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
-    unsigned int id = (*detunit_iterator).rawId();
-    edm::OwnVector<SiStripRecHit2D> collector; 
-    if(id!=999999999){ //if is valid detector
-      SiStripMatchedRecHit2DCollection::range rechitRange = input->get((*detunit_iterator));
-      SiStripMatchedRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-      SiStripMatchedRecHit2DCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
-      SiStripMatchedRecHit2DCollection::const_iterator iter=rechitRangeIteratorBegin;
-      for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
-	  SiStripMatchedRecHit2D const rechit=*iter;
+  for (SiStripMatchedRecHit2DCollection::const_iterator detunit_iterator = input->begin(); detunit_iterator != input->end(); ++detunit_iterator) { 
+     for(SiStripMatchedRecHit2DCollection::DetSet::const_iterator iter=detunit_iterator->begin(), end = detunit_iterator->end(); iter != end; ++iter){//loop on the rechit
+	  SiStripMatchedRecHit2D const & rechit=*iter;
 	  LocalPoint position=rechit.localPosition();
 	  LocalError error=rechit.localPositionError();
-	  //GeomDet& det=rechit->det();
+	  auto det=rechit.det();
 	  //DetId id=rechit.geographicalId();
 	  //	  std::vector<const SiStripCluster*> clust=rechit.cluster();
 	  edm::LogInfo("ReadRecHit")<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<"\n"
 	  <<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy();
-	  //	  std::cout<<"det id: "<<id.rawid<<std::endl;
+
+          auto m = iter->monoHit();
+          auto s = iter->stereoHit();
+	  ProjectedSiStripRecHit2D projrechit(m.localPosition() ,m.localPositionError() , *det, m );
+	  ProjectedSiStripRecHit2D projsrechit(s.localPosition() ,s.localPositionError() , *det, s );
+	  
+	  edm::LogVerbatim("ReadRecHit")<<"Checking shareinput\nALL:";
+	  
+	  edm::LogVerbatim("ReadRecHit")<<"Matched with its mono ---------->";
+	  if (iter->sharesInput(&m,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Matched with its stereo ---------->";
+	  if (iter->sharesInput(&s,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Mono with its matched ---------->";
+	  if (m.sharesInput(&rechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Stereo with its matched ---------->";
+	  if (s.sharesInput(&rechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Mono with itsself ---------->";
+	  if (m.sharesInput(&m,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Stereo with itsself ---------->";
+	  if (s.sharesInput(&s,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Mono with stereo ---------->";
+	  if (m.sharesInput(&s,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Stereo with mono ---------->";
+	  if (s.sharesInput(&m,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+  
+       	  edm::LogVerbatim("ReadRecHit")<<"Mono with projected mono---------->";
+	  if (m.sharesInput(&projrechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Stereo with projected mono ---------->";
+	  if (s.sharesInput(&projrechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Matched with projected mono ---------->";
+	  if (iter->sharesInput(&projrechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with mono---------->";
+	  if (projrechit.sharesInput(&m,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with stereo ---------->";
+	  if (projrechit.sharesInput(&s,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with matched ---------->";
+	  if (projrechit.sharesInput(&rechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with projected stereo ---------->";
+	  if (projrechit.sharesInput(&projsrechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with itsself ---------->";
+	  if (projrechit.sharesInput(&projrechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Matched with itsself ---------->";
+	  if (rechit.sharesInput(&rechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Checking shareinput\nSOME:";
+	  
+	  edm::LogVerbatim("ReadRecHit")<<"Matched with its mono ---------->";
+	  if (iter->sharesInput(&m,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Matched with its stereo ---------->";
+	  if (iter->sharesInput(&s,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Mono with its matched ---------->";
+	  if (m.sharesInput(&rechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Stereo with its matched ---------->";
+	  if (s.sharesInput(&rechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Mono with itsself ---------->";
+	  if (m.sharesInput(&m,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Stereo with itsself ---------->";
+	  if (s.sharesInput(&s,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Mono with stereo ---------->";
+	  if (m.sharesInput(&s,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Stereo with mono ---------->";
+	  if (s.sharesInput(&m,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+  
+       	  edm::LogVerbatim("ReadRecHit")<<"Mono with projected mono---------->";
+	  if (m.sharesInput(&projrechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Stereo with projected mono ---------->";
+	  if (s.sharesInput(&projrechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Matched with projected mono ---------->";
+	  if (iter->sharesInput(&projrechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with mono---------->";
+	  if (projrechit.sharesInput(&m,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with stereo ---------->";
+	  if (projrechit.sharesInput(&s,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with matched ---------->";
+	  if (projrechit.sharesInput(&rechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with projected stereo ---------->";
+	  if (projrechit.sharesInput(&projsrechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with itsself ---------->";
+	  if (projrechit.sharesInput(&projrechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
+	  edm::LogVerbatim("ReadRecHit")<<"Matched with itsself ---------->";
+	  if (rechit.sharesInput(&rechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+
       }
-    }
   }
 }
 

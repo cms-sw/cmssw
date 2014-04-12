@@ -6,8 +6,6 @@
  *       Class to hold drift tubes status
  *             ( cell by cell noise and masks )
  *
- *  $Date: 2006/06/12 13:45:12 $
- *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,12 +19,16 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
-#include <map>
+#include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -100,14 +102,39 @@ class DTStatusFlag {
                   bool&   tdcMask,
                   bool&  trigMask,
                   bool&  deadFlag,
-                  bool&  nohvFlag ) const;
+                  bool&  nohvFlag ) const
+      { return get( wheelId, stationId, sectorId, slId, layerId, cellId,
+                    noiseFlag, feMask, tdcMask, trigMask,
+                    deadFlag, nohvFlag); };
   int cellStatus( const DTWireId& id,
                   bool& noiseFlag,
                   bool&    feMask,
                   bool&   tdcMask,
                   bool&  trigMask,
                   bool&  deadFlag,
-                  bool&  nohvFlag ) const;
+                  bool&  nohvFlag ) const
+      { return get( id,
+                    noiseFlag, feMask, tdcMask, trigMask,
+                    deadFlag, nohvFlag ); };
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           bool& noiseFlag,
+           bool&    feMask,
+           bool&   tdcMask,
+           bool&  trigMask,
+           bool&  deadFlag,
+           bool&  nohvFlag ) const;
+  int get( const DTWireId& id,
+           bool& noiseFlag,
+           bool&    feMask,
+           bool&   tdcMask,
+           bool&  trigMask,
+           bool&  deadFlag,
+           bool&  nohvFlag ) const;
 
   /// access version
   const
@@ -128,14 +155,40 @@ class DTStatusFlag {
                      bool   tdcMask,
                      bool  trigMask,
                      bool  deadFlag,
-                     bool  nohvFlag );
+                     bool  nohvFlag )
+      { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
+                    noiseFlag, feMask, tdcMask, trigMask,
+                    deadFlag, nohvFlag); };
   int setCellStatus( const DTWireId& id,
                      bool noiseFlag,
                      bool    feMask,
                      bool   tdcMask,
                      bool  trigMask,
                      bool  deadFlag,
-                     bool  nohvFlag );
+                     bool  nohvFlag )
+      { return set( id,
+                    noiseFlag, feMask, tdcMask, trigMask,
+                    deadFlag, nohvFlag ); };
+
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           bool noiseFlag,
+           bool    feMask,
+           bool   tdcMask,
+           bool  trigMask,
+           bool  deadFlag,
+           bool  nohvFlag );
+  int set( const DTWireId& id,
+           bool noiseFlag,
+           bool    feMask,
+           bool   tdcMask,
+           bool  trigMask,
+           bool  deadFlag,
+           bool  nohvFlag );
 
   int setCellNoise( int   wheelId,
                     int stationId,
@@ -198,20 +251,26 @@ class DTStatusFlag {
                    bool flag );
 
   /// Access methods to data
-  typedef std::map<DTStatusFlagId,
-                   DTStatusFlagData,
-                   DTStatusFlagCompare>::const_iterator const_iterator;
+  typedef std::vector< std::pair<DTStatusFlagId,
+                                 DTStatusFlagData> >::const_iterator
+                                                      const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTStatusFlag(DTStatusFlag const&);
+  DTStatusFlag& operator=(DTStatusFlag const&);
 
   std::string dataVersion;
 
-  std::map<DTStatusFlagId,DTStatusFlagData,DTStatusFlagCompare> cellData;
+  std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > dataList;
+
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf;
+
+  std::string mapName() const;
 
 };
-
-
 #endif // DTStatusFlag_H
-

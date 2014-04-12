@@ -7,8 +7,6 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceLineLine.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceHelixLine.h"
 
-using namespace std;
-
   /**
    * General interface to calculate the PCA of two tracks. 
    * According to the charge of the tracks, the correct algorithm is used:<ul>
@@ -18,47 +16,38 @@ using namespace std;
    * </ul>
    */
 
-class TwoTrackMinimumDistance : public ClosestApproachOnHelices {
+class TwoTrackMinimumDistance GCC11_FINAL : public ClosestApproachOnHelices {
 
 public:
 
   enum Mode { FastMode=0, SlowMode=1 };
 
-  TwoTrackMinimumDistance( const Mode m=FastMode ) { theModus=m; };
+  TwoTrackMinimumDistance( const Mode m=FastMode ) { theModus=m; status_ = false;};
+  ~TwoTrackMinimumDistance(){}
+
+  virtual bool calculate(const TrajectoryStateOnSurface & sta, 
+	 const TrajectoryStateOnSurface & stb);
+
+  virtual bool calculate(const FreeTrajectoryState & sta,
+	const FreeTrajectoryState & stb);
+
+  virtual bool calculate(const GlobalTrajectoryParameters & sta,
+	const GlobalTrajectoryParameters & stb);
+
+  virtual bool status() const {return status_;}
 
   /**
    * Returns the two PCA on the trajectories.
    */
-  virtual pair<GlobalPoint, GlobalPoint>
-  points(const TrajectoryStateOnSurface & sta,
-         const TrajectoryStateOnSurface & stb) const;
 
-  /**
-   * Returns the two PCA on the trajectories.
-   */
-  virtual pair<GlobalPoint, GlobalPoint>
-  points(const FreeTrajectoryState & sta,
-         const FreeTrajectoryState & stb) const;
-
-  pair<GlobalPoint, GlobalPoint> points(const GlobalTrajectoryParameters & sta,
-                                const GlobalTrajectoryParameters & stb) const;
-
+  virtual std::pair<GlobalPoint, GlobalPoint> points() const;
 
   /** arithmetic mean of the two points of closest approach */
-  virtual GlobalPoint crossingPoint(const TrajectoryStateOnSurface & sta,
-                                    const TrajectoryStateOnSurface & stb) const;
+  virtual GlobalPoint crossingPoint() const;
 
-  /** arithmetic mean of the two points of closest approach */
-  virtual GlobalPoint crossingPoint(const FreeTrajectoryState & sta,
-                                    const FreeTrajectoryState & stb) const;
+  /** distance between the two points of closest approach in 3D */
+  virtual float distance() const;
 
-  /** distance between the two points of closest approach in 3D.
-   */
-  virtual float distance(const TrajectoryStateOnSurface & sta,
-                         const TrajectoryStateOnSurface & stb) const;
-
-  virtual float distance(const FreeTrajectoryState & sta,
-                         const FreeTrajectoryState & stb) const;
 
   /**
    *  Clone method
@@ -69,7 +58,7 @@ public:
 
   double firstAngle() const;
   double secondAngle() const;
-  pair <double, double> pathLength() const;
+  std::pair <double, double> pathLength() const;
 
 private:
   enum Charge { hh, hl, ll };
@@ -79,13 +68,15 @@ private:
   mutable TwoTrackMinimumDistanceHelixHelix theTTMDhh;
   mutable TwoTrackMinimumDistanceLineLine theTTMDll;
   mutable TwoTrackMinimumDistanceHelixLine theTTMDhl;
+  bool status_;
+  std::pair<GlobalPoint, GlobalPoint> points_;
 
-  pair<GlobalPoint, GlobalPoint> pointsLineLine(const GlobalTrajectoryParameters & sta,
-                                const GlobalTrajectoryParameters & stb) const;
-  pair<GlobalPoint, GlobalPoint> pointsHelixLine(const GlobalTrajectoryParameters & sta,
-                                const GlobalTrajectoryParameters & stb) const;
-  pair<GlobalPoint, GlobalPoint> pointsHelixHelix(const GlobalTrajectoryParameters & sta,
-                                const GlobalTrajectoryParameters & stb) const;
+  bool pointsLineLine(const GlobalTrajectoryParameters & sta,
+	const GlobalTrajectoryParameters & stb)  dso_internal;
+  bool pointsHelixLine(const GlobalTrajectoryParameters & sta,
+	const GlobalTrajectoryParameters & stb)  dso_internal;
+  bool pointsHelixHelix(const GlobalTrajectoryParameters & sta,
+	const GlobalTrajectoryParameters & stb)  dso_internal;
 };
 
 #endif

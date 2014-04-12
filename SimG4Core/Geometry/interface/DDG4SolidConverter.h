@@ -35,6 +35,11 @@ private:
     static G4VSolid * torus(const DDSolid &);
     static G4VSolid * pseudotrap(const DDSolid &);
     static G4VSolid * trunctubs(const DDSolid &);
+    static G4VSolid * sphere(const DDSolid &);
+    static G4VSolid * orb(const DDSolid &);
+    static G4VSolid * ellipsoid(const DDSolid &);
+    static G4VSolid * ellipticaltube(const DDSolid &);
+    static G4VSolid * para(const DDSolid &);
     static const std::vector<double>* par_;
     std::map<DDSolidShape,FNPTR> convDispatch_;
 };

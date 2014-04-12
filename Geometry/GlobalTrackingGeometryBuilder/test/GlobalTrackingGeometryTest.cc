@@ -1,29 +1,22 @@
 /*
  * \file GlobalTrackingGeometryTest.cc
  *
- *  $Date: 2006/07/26 13:35:17 $
- *  $Revision: 1.2 $
  *  \author M. Sani
  */
 
 #include <memory>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <Geometry/GlobalTrackingGeometryBuilder/test/GlobalTrackingGeometryTest.h>
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
 #include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
 
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/DTGeometry/interface/DTLayer.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
 
@@ -34,7 +27,7 @@
 #include <iomanip> 
 #include <vector>
 
-GlobalTrackingGeometryTest::GlobalTrackingGeometryTest( const edm::ParameterSet& iConfig)
+GlobalTrackingGeometryTest::GlobalTrackingGeometryTest( const edm::ParameterSet& /*iConfig*/)
  : my_name( "GlobalTrackingGeometryTest" ) {}
 
 GlobalTrackingGeometryTest::~GlobalTrackingGeometryTest() {}
@@ -139,7 +132,7 @@ void GlobalTrackingGeometryTest::analyzeTracker(const GlobalTrackingGeometry* ge
     std::cout << "Tracker det: GlobalTrackingGeometry succesfully tested." << std::endl;
 }
 
-void GlobalTrackingGeometryTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
     std::cout << myName() << ": Analyzer..." << std::endl;
 

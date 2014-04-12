@@ -5,8 +5,6 @@
  *
  * Producer for DT segment in one projection.
  *  
- * $Date: 2006/04/26 14:15:32 $
- * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -14,6 +12,7 @@
 
 /* Base Class Headers */
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
   class ParameterSet;
@@ -54,7 +53,7 @@ class DTRecSegment2DProducer : public edm::EDProducer {
   DTRecSegment2DBaseAlgo* theAlgo;
 
   //static std::string theAlgoName;
-  std::string theRecHits1DLabel;
+  edm::InputTag theRecHits1DLabel;
 };
 #endif // DTRecHit_DTRecSegment2DProducer_h
 

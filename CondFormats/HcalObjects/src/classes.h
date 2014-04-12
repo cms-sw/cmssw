@@ -1,26 +1,88 @@
-#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalGains.h"
-#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
-#include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-/*
-template std::vector< HcalPedestals::Item >::iterator;
-template std::vector< HcalPedestals::Item >::const_iterator;
-template std::vector< HcalPedestalWidths::Item >::iterator;
-template std::vector< HcalPedestalWidths::Item >::const_iterator;
-template std::vector< HcalGains::Item >::iterator;
-template std::vector< HcalGains::Item >::const_iterator;
-template std::vector< HcalGainWidths::Item >::iterator;
-template std::vector< HcalGainWidths::Item >::const_iterator;
-template std::vector< HcalQIEData::Item >::iterator;
-template std::vector< HcalQIEData::Item >::const_iterator;
-template std::vector< HcalCalibrationQIEData::Item >::iterator;
-template std::vector< HcalCalibrationQIEData::Item >::const_iterator;
-template std::vector< HcalElectronicsMap::Item >::iterator;
-template std::vector< HcalElectronicsMap::Item >::const_iterator;
-template std::vector< HcalChannelQuality::Item >::iterator;
-template std::vector< HcalChannelQuality::Item >::const_iterator;
-*/
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
+
+namespace CondFormats_HcalObjects {
+  struct dictionary {
+
+    HcalPedestals mypeds();
+    std::vector<HcalPedestal> mypedsVec;
+ 
+    HcalPedestalWidths mywidths();
+    std::vector<HcalPedestalWidth> mywidthsVec;
+ 
+    HcalGains mygains();
+    std::vector<HcalGain> mygainsVec;
+ 
+    HcalGainWidths mygwidths();
+    std::vector<HcalGainWidth> mygwidthsVec;
+ 
+    HcalQIEData myqie();
+    std::vector<HcalQIECoder> myqievec;
+ 
+    HcalCalibrationQIEData mycalqie();
+    std::vector<HcalCalibrationQIECoder> mycalqieVec;
+ 
+    HcalElectronicsMap mymap;
+    std::vector<HcalElectronicsMap::PrecisionItem> mymap2;
+    std::vector<HcalElectronicsMap::TriggerItem> mymap3;
+ 
+    HcalChannelQuality myquality;
+    std::vector<HcalChannelStatus> myqualityVec;
+ 
+    HcalZSThresholds myth;
+    std::vector<HcalZSThreshold> mythvec;
+ 
+    HcalRespCorrs mycorrs;
+    std::vector<HcalRespCorr> mycorrsVec;
+ 
+    HcalLUTCorrs mylutcorrs;
+    std::vector<HcalLUTCorr> mylutcorrsVec;
+ 
+    HcalPFCorrs mypfcorrs;
+    std::vector<HcalPFCorr> mypfcorrsVec;
+ 
+    HcalL1TriggerObjects myL1trigs;
+    std::vector<HcalL1TriggerObject> myL1trigsVec;
+
+    HcalTimeCorrs mytcorrs;
+    std::vector<HcalTimeCorr> mytcorrsVec;
+
+    HcalValidationCorrs myVcorrs;
+    std::vector<HcalValidationCorr> myVcorrsVec;
+
+    HcalLutMetadata myLutMetadata;
+    std::vector<HcalLutMetadatum> myLutMetadatumVec;
+    HcalLutMetadata::NonChannelData myLutNonChannelMetadata;
+
+    HcalCholeskyMatrices myCholeskys;
+    std::vector<HcalCholeskyMatrix> myCholeskysVec;
+
+    HcalCovarianceMatrices myCovariances;
+    std::vector<HcalCovarianceMatrix> myCovariancesVec;
+
+    HcalDcsValues myDcsValues;
+    std::vector<HcalDcsValue> myDcsValueVec;
+
+    HcalDcsMap myDcsMap;
+    std::vector<HcalDcsMap::Item> myDcsMapVec;
+    
+    HcalLongRecoParams myLongRecoParams;
+    std::vector<HcalLongRecoParam> myLongRecoParamVec;
+    std::vector<uint32_t> myUintVec;
+    
+    HcalRecoParams myRecoParams;
+    std::vector<HcalRecoParam> myRecoParamVec;
+    
+    HcalMCParams myMCParams;
+    std::vector<HcalMCParam> myMCParamsVec;
+
+    // HF noise DB objects
+    HcalFlagHFDigiTimeParams myHcalFlagHFDigiTimeParams;
+    std::vector<HcalFlagHFDigiTimeParam> myHcalFlagHFDigiTimeParamVec;
+
+    HcalTimingParams myTimingParams;
+    std::vector<HcalTimingParam> myTimingParamVec;
+  };
+}
+

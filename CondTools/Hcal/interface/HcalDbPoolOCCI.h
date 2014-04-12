@@ -44,7 +44,7 @@ class HcalDbPoolOCCI {
   oracle::occi::Statement* mStatement;
   std::string getMetadataToken (const std::string& fTag);
   std::string getDataToken (const std::string& fIov, unsigned long fRun);
-  template <class T> bool getObjectGeneric (T* fObject, const std::string& fTag, unsigned long fRun);
+  template <class T, class S> bool getObjectGeneric (T* fObject, S* fCondObject, const std::string& fTag, unsigned long fRun);
 
 };
 #endif

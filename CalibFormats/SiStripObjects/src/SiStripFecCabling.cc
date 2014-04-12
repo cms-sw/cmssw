@@ -1,6 +1,5 @@
-// Last commit: $Id: SiStripFecCabling.cc,v 1.21 2007/05/15 13:20:14 bainbrid Exp $
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,14 +28,12 @@ void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) 
     << " Building FEC cabling...";
 
   // Retrieve and iterate through FED ids
-  const std::vector<uint16_t>& feds = fed_cabling.feds();
-  std::vector<uint16_t>::const_iterator ifed;
-  for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  auto feds = fed_cabling.fedIds();
+  for ( auto ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
 
     // Retrieve and iterate through FED channel connections
-    const std::vector<FedChannelConnection>& conns = fed_cabling.connections( *ifed ); 
-    std::vector<FedChannelConnection>::const_iterator iconn;
-    for ( iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
+    auto conns = fed_cabling.fedConnections( *ifed ); 
+    for ( auto iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
 
       // Check that FED id is not invalid and add devices
       if ( iconn->fedId() != sistrip::invalid_ ) { addDevices( *iconn ); } 
@@ -76,6 +73,9 @@ void SiStripFecCabling::addDevices( const FedChannelConnection& conn ) {
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::connections( std::vector<FedChannelConnection>& conns ) const {
+  LogTrace(mlCabling_)
+    << "[SiStripFecCabling::" << __func__ << "]"
+    << " Building vector of FedChannelConnection objects...";
   conns.clear();
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = this->crates().begin(); icrate != this->crates().end(); icrate++ ) {
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
@@ -83,12 +83,27 @@ void SiStripFecCabling::connections( std::vector<FedChannelConnection>& conns ) 
 	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 	  for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
 	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
-	      conns.push_back( FedChannelConnection( icrate->fecCrate(), ifec->fecSlot(), iring->fecRing(), iccu->ccuAddr(), imod->ccuChan(), 
+	      conns.push_back( FedChannelConnection( icrate->fecCrate(), 
+						     ifec->fecSlot(), 
+						     iring->fecRing(), 
+						     iccu->ccuAddr(), 
+						     imod->ccuChan(), 
 						     imod->activeApvPair( imod->lldChannel(ipair) ).first, 
 						     imod->activeApvPair( imod->lldChannel(ipair) ).second,
-						     imod->dcuId(), imod->detId(), imod->nApvPairs(),
-						     imod->fedCh(ipair).first, imod->fedCh(ipair).second, 0, //imod->length(),
-						     imod->dcu(), imod->pll(), imod->mux(), imod->lld() ) );
+						     imod->dcuId(), 
+						     imod->detId(), 
+						     imod->nApvPairs(),
+						     imod->fedCh(ipair).fedId_, 
+						     imod->fedCh(ipair).fedCh_, 
+						     imod->length(),
+						     imod->dcu(), 
+						     imod->pll(), 
+						     imod->mux(), 
+						     imod->lld() ) );
+	      uint16_t fed_crate = imod->fedCh(ipair).fedCrate_;
+	      uint16_t fed_slot = imod->fedCh(ipair).fedSlot_;
+	      conns.back().fedCrate( fed_crate );
+	      conns.back().fedSlot( fed_slot );
 	    }
 	  }
 	}
@@ -141,8 +156,7 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
   }
 
   if ( !ss.str().empty() ) { edm::LogWarning(mlCabling_) << ss.str(); }
-  static FedChannelConnection temp;
-  static const SiStripModule module(temp);
+  static const SiStripModule module{FedChannelConnection{}};
   return module;
 }
 
@@ -160,8 +174,7 @@ const SiStripModule& SiStripFecCabling::module( const uint32_t& dcu_id ) const {
       }
     }
   }
-  static FedChannelConnection temp;
-  static const SiStripModule module(temp);
+  static const SiStripModule module{FedChannelConnection{}};
   return module;
 }
 
@@ -171,8 +184,9 @@ NumberOfDevices SiStripFecCabling::countDevices() const {
   
   NumberOfDevices num_of_devices; // simple container class used for counting
 
+  std::vector<uint16_t> fed_crates; 
+  std::vector<uint16_t> fed_slots; 
   std::vector<uint16_t> fed_ids; 
-  std::vector<uint16_t>::iterator ifed;
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = this->crates().begin(); icrate != this->crates().end(); icrate++ ) {
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
       for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
@@ -197,17 +211,37 @@ NumberOfDevices SiStripFecCabling::countDevices() const {
 	    else if ( imod->nApvPairs() == 3 ) { num_of_devices.nApvPairs3_++; }
 	    else { num_of_devices.nApvPairsX_++; }
 
-	    // FED ids and channels
+	    // FED crates, slots, ids, channels
 	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
-	      uint16_t fed_id = imod->fedCh(ipair).first;
+
+	      uint16_t fed_crate = imod->fedCh(ipair).fedCrate_;
+	      uint16_t fed_slot  = imod->fedCh(ipair).fedSlot_;
+	      uint16_t fed_id    = imod->fedCh(ipair).fedId_;
+
 	      if ( fed_id ) { 
+
 		num_of_devices.nFedChans_++;
-		ifed = find( fed_ids.begin(), fed_ids.end(), fed_id );
+		
+		std::vector<uint16_t>::iterator icrate = find( fed_crates.begin(), fed_crates.end(), fed_crate );
+		if ( icrate == fed_crates.end() ) { 
+		  num_of_devices.nFedCrates_++; 
+		  fed_crates.push_back(fed_crate); 
+		}
+		
+		std::vector<uint16_t>::iterator islot = find( fed_slots.begin(), fed_slots.end(), fed_slot );
+		if ( islot == fed_slots.end() ) { 
+		  num_of_devices.nFedSlots_++; 
+		  fed_slots.push_back(fed_slot); 
+		}
+
+		std::vector<uint16_t>::iterator ifed = find( fed_ids.begin(), fed_ids.end(), fed_id );
 		if ( ifed == fed_ids.end() ) { 
 		  num_of_devices.nFedIds_++; 
 		  fed_ids.push_back(fed_id); 
 		}
+
 	      }
+
 	    }
 
 	    // FE devices
@@ -235,12 +269,49 @@ NumberOfDevices SiStripFecCabling::countDevices() const {
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::print( std::stringstream& ss ) const {
+  uint32_t valid = 0;
+  uint32_t total = 0;
+  ss << "[SiStripFecCabling::" << __func__ << "] Printing FEC cabling:" << std::endl;
+  ss << "Printing cabling for " << crates().size() << " crates" << std::endl;
+  for ( std::vector<SiStripFecCrate>::const_iterator icrate = crates().begin(); icrate != crates().end(); icrate++ ) {
+    ss << "Printing cabling for " << icrate->fecs().size() << " FECs for crate " << icrate->fecCrate() << std::endl;
+    for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
+      ss << "Printing cabling for " << ifec->rings().size() << " rings for FEC " << ifec->fecSlot() << std::endl;
+      for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
+	ss << "Printing cabling for " << iring->ccus().size() << " CCUs for ring " << iring->fecRing() << std::endl;
+	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
+	  ss << "Printing cabling for " << iccu->modules().size() << " modules for CCU " << iccu->ccuAddr() << std::endl;
+	  for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
+
+	    SiStripModule::FedCabling conns = imod->fedChannels();
+	    SiStripModule::FedCabling::const_iterator ii = conns.begin();
+	    SiStripModule::FedCabling::const_iterator jj = conns.end();
+	    for ( ; ii != jj; ++ii ) {
+	      if ( ii->second.fedId_ != sistrip::invalid_ &&
+		   ii->second.fedCh_ != sistrip::invalid_ ) { valid++; }
+	      total++;
+	    }
+	    ss << *imod << std::endl;
+	  } 
+	}
+      }
+    }
+  }
+  ss << "Number of connected:   " << valid << std::endl
+     << "Number of connections: " << total << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripFecCabling::terse( std::stringstream& ss ) const {
+  ss << "[SiStripFecCabling::" << __func__ << "] Printing FEC cabling:" << std::endl;
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = crates().begin(); icrate != crates().end(); icrate++ ) {
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
       for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
 	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 	  for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
-	    ss << *imod << std::endl;
+	    imod->terse(ss); 
+	    ss << std::endl;
 	  } 
 	}
       }
@@ -256,7 +327,3 @@ std::ostream& operator<< ( std::ostream& os, const SiStripFecCabling& cabling ) 
   os << ss.str();
   return os;
 }
-
-// -----------------------------------------------------------------------------
-// 
-EVENTSETUP_DATA_REG(SiStripFecCabling);

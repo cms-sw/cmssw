@@ -2,9 +2,7 @@
 #define TrackToTrackCovCalculator_H
 
 #include <map>
-#include "RecoVertex/VertexPrimitives/interface/RefCountedVertexTrack.h"
-#include "RecoVertex/VertexPrimitives/interface/TrackMap.h"
-#include "RecoVertex/VertexPrimitives/interface/TrackToTrackMap.h"
+#include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 
 /** \class TrackToTrackCovCalculator
  *  Abstract class for algorithms computing the covariance 
@@ -13,8 +11,7 @@
  *  of the vertex.
  */
 
-class CachingVertex;
-
+template <unsigned int N>
 class TrackToTrackCovCalculator {
 
 public:
@@ -22,7 +19,7 @@ public:
   TrackToTrackCovCalculator() {}
   virtual ~TrackToTrackCovCalculator() {}
 
-  virtual TrackToTrackMap operator() (const CachingVertex &) const = 0;
+  virtual typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> &) const = 0;
   
   virtual TrackToTrackCovCalculator * clone() const = 0;
 

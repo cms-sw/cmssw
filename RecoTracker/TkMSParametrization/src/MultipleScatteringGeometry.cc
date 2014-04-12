@@ -1,4 +1,4 @@
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
+#include "MultipleScatteringGeometry.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 

@@ -43,18 +43,13 @@ L1MuDTTrackContainer::~L1MuDTTrackContainer() {}
 //--------------
 // Operations --
 //--------------
-void L1MuDTTrackContainer::setContainer(TrackContainer inputTracks) {
+void L1MuDTTrackContainer::setContainer(const TrackContainer& inputTracks) {
 
   dtTracks = inputTracks;
 }
 
-L1MuDTTrackContainer::TrackContainer* L1MuDTTrackContainer::getContainer() const {
-
-  TrackContainer* rT=0;
-
-  rT = const_cast<TrackContainer*>(&dtTracks);
-
-  return(rT);
+L1MuDTTrackContainer::TrackContainer const* L1MuDTTrackContainer::getContainer() const {
+  return &dtTracks;
 }
 
 bool L1MuDTTrackContainer::bxEmpty(int step) const {
@@ -82,4 +77,34 @@ int L1MuDTTrackContainer::bxSize(int step1, int step2) const {
   }
 
   return(size);
+}
+
+L1MuDTTrackCand const* L1MuDTTrackContainer::dtTrackCand1(int wheel, int sect, int step) const {
+
+  L1MuDTTrackCand const* rT=0;
+
+  for ( Trackiterator i  = dtTracks.begin();
+                      i != dtTracks.end();
+                      i++ ) {
+    if  (step == i->bx() && wheel == i->whNum() && sect == i->scNum()
+      && i->TrkTag() == 0)
+      rT = &(*i);
+  }
+
+  return(rT);
+}
+
+L1MuDTTrackCand const* L1MuDTTrackContainer::dtTrackCand2(int wheel, int sect, int step) const {
+
+  L1MuDTTrackCand const* rT=0;
+
+  for ( Trackiterator i  = dtTracks.begin();
+                      i != dtTracks.end();
+                      i++ ) {
+    if  (step == i->bx() && wheel == i->whNum() && sect == i->scNum()
+      && i->TrkTag() == 1)
+      rT = &(*i);
+  }
+
+  return(rT);
 }

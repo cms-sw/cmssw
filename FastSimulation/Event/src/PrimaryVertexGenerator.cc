@@ -2,14 +2,21 @@
 
   /// Default constructor
 PrimaryVertexGenerator::PrimaryVertexGenerator() : 
-  math::XYZVector(), 
-  random(0)  
+  math::XYZVector(),
+  boost_(0)
 {
 }
 
-PrimaryVertexGenerator::PrimaryVertexGenerator(const RandomEngine* engine) : 
-  math::XYZVector(), 
-  random(engine)  
-{
+PrimaryVertexGenerator::~PrimaryVertexGenerator() { 
+  if ( boost_ ) delete boost_; 
 }
-  
+
+TMatrixD* 
+PrimaryVertexGenerator::boost() const { 
+  return boost_;
+}
+
+void 
+PrimaryVertexGenerator::setBoost(TMatrixD* aBoost) {
+  boost_ = aBoost;
+}

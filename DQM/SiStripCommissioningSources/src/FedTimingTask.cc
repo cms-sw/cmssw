@@ -1,14 +1,13 @@
 #include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-FedTimingTask::FedTimingTask( DaqMonitorBEInterface* dqm,
+FedTimingTask::FedTimingTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FedTimingTask" ),
   timing_(),
@@ -39,9 +38,9 @@ void FedTimingTask::book() {
 			     sistrip::LLD_CHAN, 
 			     connection().lldChannel() ).title();
 
-  timing_.histo_ = dqm()->bookProfile( title, title, 
-				       nbins, -0.5, nbins*1.-0.5,
-				       1025, 0., 1025. );
+  timing_.histo( dqm()->bookProfile( title, title, 
+				     nbins, -0.5, nbins*1.-0.5,
+				     1025, 0., 1025. ) );
   
   timing_.vNumOfEntries_.resize(nbins,0);
   timing_.vSumOfContents_.resize(nbins,0);

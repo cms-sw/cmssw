@@ -24,6 +24,16 @@ CREATE TABLE run_config_dat (
 ALTER TABLE run_config_dat ADD CONSTRAINT run_config_dat_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE run_config_dat ADD CONSTRAINT run_config_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
 
+CREATE TABLE run_tpgconfig_dat (
+  iov_id                NUMBER(10),
+  logic_id              NUMBER(10),
+  config_tag            VARCHAR2(100) NOT NULL,
+  version NUMBER(10) NOT NULL 
+);
+
+ ALTER TABLE run_TPGCONFIG_DAT ADD CONSTRAINT run_tpgconfig_dat_pk PRIMARY KEY (iov_id, logic_id);
+ ALTER TABLE run_TPGCONFIG_DAT ADD CONSTRAINT run_tpgconfig_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
+
 
 
 CREATE TABLE run_h4_table_position_dat (
@@ -109,3 +119,33 @@ CREATE SEQUENCE error_dictionary_def_sq INCREMENT BY 1 START WITH 1;
 ALTER TABLE error_dictionary_def ADD CONSTRAINT error_dictionary_def_pk PRIMARY KEY (def_id);
 ALTER TABLE error_dictionary_def ADD CONSTRAINT error_dictionary_def_uk UNIQUE (error_mask);
 CREATE INDEX error_dictionary_def_ix ON error_dictionary_def(short_desc);
+
+
+CREATE TABLE run_comment_dat (
+  iov_id		NUMBER(10),
+  comment_id		NUMBER(10),
+  source		varchar2(20),
+  user_comment          varchar2(200),
+  db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL	
+);
+
+ALTER TABLE run_comment_dat ADD CONSTRAINT run_comment_dat_pk PRIMARY KEY (comment_id);
+ALTER TABLE run_comment_dat ADD CONSTRAINT run_comment_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
+CREATE SEQUENCE run_comment_dat_SQ INCREMENT BY 1 START WITH 1;
+
+CREATE trigger run_comment_dat_TRG
+before insert on run_comment_dat
+for each row
+begin
+select run_comment_dat_SQ.NextVal into :new.comment_id from dual;
+end;
+/
+
+CREATE TABLE run_FEconfig_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10),
+  config_id		NUMBER(10) 
+);
+
+ALTER TABLE run_FEconfig_dat ADD CONSTRAINT run_FEconfig_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE run_FEconfig_dat ADD CONSTRAINT run_FEconfig_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);

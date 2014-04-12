@@ -11,9 +11,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "TFile.h"
 #include "TH1.h"
-
-class TFile;
-class TH1D;
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 //
 // class decleration
@@ -26,7 +24,7 @@ class AnalysisJV : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       std::string fOutputFileName ;
@@ -34,6 +32,13 @@ class AnalysisJV : public edm::EDAnalyzer {
       TFile*      fOutputFile ;
       TH1D*       fHistAlpha ;
 
-  
+      typedef std::vector<double> ResultCollection1;
+      typedef std::vector<bool> ResultCollection2;
+
+      edm::EDGetTokenT<ResultCollection1> fResult1Token;
+      edm::EDGetTokenT<ResultCollection2> fResult2Token;
+      edm::EDGetTokenT<reco::CaloJetCollection> fCaloJetsToken;
+
+
 };
 #endif

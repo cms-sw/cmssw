@@ -1,5 +1,5 @@
-#ifndef Streamer_Messages_h
-#define Streamer_Messages_h
+#ifndef IOPool_Streamer_Messages_h
+#define IOPool_Streamer_Messages_h
 
 /*
   The header for each of the data buffer that will be transferred.
@@ -121,7 +121,7 @@ namespace edm {
   class EventMsg : public MsgCode
   {
   public:
-    struct Header
+    struct EventMsgHeader
     {
       unsigned char which_seg_[4];
       unsigned char total_segs_[4];
@@ -133,7 +133,7 @@ namespace edm {
     // incoming data buffer to be looked at
     EventMsg(MsgCode& mc):
       MsgCode(mc),
-      head_((Header*)MsgCode::payload()),
+      head_((EventMsgHeader*)MsgCode::payload()),
       which_seg_(getWhichSeg()),
       total_segs_(getTotalSegs()),
       event_num_(getEventNumber()),
@@ -144,7 +144,7 @@ namespace edm {
     // incoming data buffer to be looked at
     explicit EventMsg(void* buffer, int size=0):
       MsgCode(buffer,size),
-      head_((Header*)MsgCode::payload()),
+      head_((EventMsgHeader*)MsgCode::payload()),
       which_seg_(getWhichSeg()),
       total_segs_(getTotalSegs()),
       event_num_(getEventNumber()),
@@ -159,12 +159,12 @@ namespace edm {
 	     int which_seg,
 	     int total_segs):
       MsgCode(buffer,size),
-      head_((Header*)MsgCode::payload()),
+      head_((EventMsgHeader*)MsgCode::payload()),
       which_seg_(which_seg),
       total_segs_(total_segs),
       event_num_(e),
       run_num_(r),
-      data_size_(payloadSize() - sizeof(Header))
+      data_size_(payloadSize() - sizeof(EventMsgHeader))
     {
       setCode(MsgCode::EVENT);
       setWhichSeg(which_seg);
@@ -175,9 +175,9 @@ namespace edm {
     }
 
     // the data is really a SendEvent
-    void* data()   const { return (char*)payload() + sizeof(Header); } 
+    void* data()   const { return (char*)payload() + sizeof(EventMsgHeader); } 
     // the size is max size here
-    int dataSize() const { return data_size_ + sizeof(Header); }
+    int dataSize() const { return data_size_ + sizeof(EventMsgHeader); }
 
     int getDataSize() const 
     {
@@ -236,11 +236,11 @@ namespace edm {
     // the number of bytes used, including the headers
     int msgSize() const
     {
-      return codeSize()+sizeof(Header)+getDataSize();
+      return codeSize()+sizeof(EventMsgHeader)+getDataSize();
     }
 
   private:
-    Header* head_;
+    EventMsgHeader* head_;
     int which_seg_;
     int total_segs_;
     edm::EventNumber_t event_num_;
@@ -257,21 +257,21 @@ namespace edm {
   class InitMsg : public MsgCode
   {
   public:
-    struct Header
+    struct InitMsgHeader
     {
       unsigned char data_size_[4];
     };
 
     InitMsg(MsgCode& m):
       MsgCode(m),
-      head_((Header*)MsgCode::payload()),
-      data_size_(payloadSize() - sizeof(Header))
+      head_((InitMsgHeader*)MsgCode::payload()),
+      data_size_(payloadSize() - sizeof(InitMsgHeader))
     { setDataSize(data_size_); }
 
     InitMsg(void* buffer, int size, bool setcode = false):
       MsgCode(buffer,size),
-      head_((Header*)MsgCode::payload()),
-      data_size_(payloadSize() - sizeof(Header)) // default to full length
+      head_((InitMsgHeader*)MsgCode::payload()),
+      data_size_(payloadSize() - sizeof(InitMsgHeader)) // default to full length
     {
       if(setcode)
 	{
@@ -288,8 +288,8 @@ namespace edm {
     // for this message, there is nothing manually encoded/decoded in the
     // header, it is all contained in the ROOT buffer.
     // currently we supply no extra data header
-    void* data() const { return (char*)payload()+sizeof(Header); } 
-    int dataSize() const { return payloadSize() + sizeof(Header); }
+    void* data() const { return (char*)payload()+sizeof(InitMsgHeader); } 
+    int dataSize() const { return payloadSize() + sizeof(InitMsgHeader); }
 
     int getDataSize() const 
     {
@@ -304,11 +304,11 @@ namespace edm {
     // the number of bytes used, including the headers
     int msgSize() const
     {
-      return codeSize()+sizeof(Header)+getDataSize();
+      return codeSize()+sizeof(InitMsgHeader)+getDataSize();
     }
 
   private:
-    Header* head_;
+    InitMsgHeader* head_;
     int data_size_;
   };
 

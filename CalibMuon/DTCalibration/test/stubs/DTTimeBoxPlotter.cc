@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/21 12:26:32 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -12,7 +10,7 @@
 
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 #include <string>
 
@@ -21,7 +19,6 @@
 #include "TROOT.h"
 #include "TCollection.h"
 #include "TSystem.h"
-#include "TF1.h"
 #include "TH2F.h"
 // #include "TProfile.h"
 

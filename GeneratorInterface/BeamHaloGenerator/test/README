@@ -7,3 +7,10 @@ Original code from V. Drollinger, see notes
 For GENMOD = 2, need a link called "input.txt" which must point to :
 /afs/cern.ch/cms/beam_halo/ir1.lssl.6_4.pn274.sam
 input.txt should be in the directory where you run cmsRun 
+
+
+Added on February 25:
+to run with the MARS files, you need a link for bgas.123 and tails.1,
+in the directory where you run cmsRun.
+The files are in /afs/cern.ch/cms/beam_halo/.
+

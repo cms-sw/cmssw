@@ -1,6 +1,4 @@
 #include <memory>
-#include <vector>
-#include <iostream>
 #include <list>
 
 // #include "DataFormats/Common/interface/Handle.h"
@@ -8,10 +6,8 @@
 #include "EventFilter/EcalDigiToRaw/interface/TowerBlockFormatter.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 using namespace std;
 
@@ -32,17 +28,15 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 {
 
  int bx = *pbx_;
- int lv1 = *plv1_;
+ int lv1 = *plv1_ - 1;
 
 
   int rdsize = rawdata.size() / 8;  // size in Word64
 
-  bool newFE = false;
-
         const EBDetId& ebdetid = dataframe.id();
 
 	int DCCid = TheMapping -> DCCid(ebdetid);
-	int FEDid = EcalFEDIds.first + DCCid ;
+	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
 
 
         int nsamples = dataframe.size();
@@ -81,7 +75,6 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 	}
 	else {
                 if (debug_) cout << "New FE in TowerBlockFormatter  FE " << dec << iFE << " 0x" << hex << iFE << " in FED id " << dec << FEDid << endl;
-		newFE = true;
  		int inser = rdsize;
 		int number_FEs = FEorder.size() -1;
                 FE_order = number_FEs+1;
@@ -198,7 +191,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 
 	//if (idcc != 34) continue;
 
-	int FEDid = EcalFEDIds.first + idcc;
+	int FEDid = FEDNumbering::MINECALFEDID + idcc;
 	// cout << "Process FED " << FEDid << endl;
 	FEDRawData& fedData = productRawData -> FEDData(FEDid);
 	if (fedData.size() <= 16) continue;
@@ -422,13 +415,10 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 
   int rdsize = rawdata.size() / 8;  // size in Word64
 
-  bool newFE = false;
-
-
         const EEDetId& eedetid = dataframe.id();
 	EcalElectronicsId elid = TheMapping -> getElectronicsId(eedetid);
         int DCCid = elid.dccId();
-	int FEDid = EcalFEDIds.first + DCCid ;
+	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
 	int iFE = elid.towerId();
 
 	if (debug_) cout << "enter in TowerBlockFormatter::DigiToRaw DCCid FEDid iFE " <<
@@ -470,7 +460,6 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
         }
         else {
                 if (debug_) cout << "New FE in TowerBlockFormatter  FE " << dec << iFE << " 0x" << hex << iFE << " in FED id " << dec << FEDid << endl;
-                newFE = true;
                 int inser = rdsize;
                 int number_FEs = FEorder.size() -1;
                 FE_order = number_FEs+1;

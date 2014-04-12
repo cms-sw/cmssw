@@ -4,8 +4,6 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2007/05/12 09:39:05 $
- * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,12 +17,16 @@
 #include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
+
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+class MonitorElement;
+class DQMStore;
+#ifdef WITH_ECAL_COND_DB
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
+#endif
 
 class EECosmicClient : public EEClient {
 
@@ -38,19 +40,11 @@ EECosmicClient(const edm::ParameterSet& ps);
 /// Destructor
 virtual ~EECosmicClient();
 
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
-
-/// softReset
-void softReset(void);
-
 /// Analyze
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -67,11 +61,10 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
-
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -82,30 +75,25 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
+bool debug_;
 
-bool enableMonitorDaemon_;
+std::string prefixME_;
 
-string prefixME_;
+bool enableCleanup_;
 
-vector<int> superModules_;
+std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
-
-CollateMonitorElement* me_h01_[18];
-CollateMonitorElement* me_h02_[18];
-CollateMonitorElement* me_h03_[18];
+DQMStore* dqmStore_;
 
 MonitorElement* meh01_[18];
 MonitorElement* meh02_[18];
 MonitorElement* meh03_[18];
 
 TProfile2D* h01_[18];
-TProfile2D* h02_[18];
+TH1F* h02_[18];
 TH1F* h03_[18];
 
 };

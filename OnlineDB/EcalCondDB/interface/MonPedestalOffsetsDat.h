@@ -41,7 +41,7 @@ class MonPedestalOffsetsDat : public IDataItem {
     throw(std::runtime_error);
 
 
-  void fetchData(std::map< EcalLogicID, MonPedestalOffsetsDat >* fillMap, MonRunIOV* iov)
+  void fetchData(std::map< EcalLogicID, MonPedestalOffsetsDat >* fillMap, MonRunIOV* iov, std::string mappa=" cv.maps_to " )
      throw(std::runtime_error);
 
   // User data

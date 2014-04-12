@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 /**
  *  Least Median Sum of Squares in one dimension.

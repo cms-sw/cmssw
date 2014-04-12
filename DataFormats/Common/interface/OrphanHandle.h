@@ -5,9 +5,7 @@
   
 OrphanHandle: Non-owning "smart pointer" for reference to EDProducts.
 
-
-This is a very preliminary version, and lacks safety features and
-elegance.
+This is a very preliminary version, and lacks safety features and elegance.
 
 If the pointed-to EDProduct is destroyed, use of the OrphanHandle
 becomes undefined. There is no way to query the OrphanHandle to
@@ -19,110 +17,45 @@ OrphanHandles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: OrphanHandle.h,v 1.4 2007/04/29 14:50:10 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Common/interface/OrphanHandleBase.h"
 
 namespace edm {
-  class EDProduct;
-
   template <typename T>
-  class OrphanHandle {
+  class OrphanHandle : public OrphanHandleBase {
   public:
+    typedef T element_type;
+
     // Default constructed handles are invalid.
     OrphanHandle();
-
-    OrphanHandle(const OrphanHandle<T>& h);
 
     OrphanHandle(T const* prod, ProductID const& id);
 
     ~OrphanHandle();
 
-    void swap(OrphanHandle<T>& other);
-
-    
-    OrphanHandle<T>& operator=(const OrphanHandle<T>& rhs);
-
-    bool isValid() const;
-
     T const* product() const;
     T const* operator->() const; // alias for product()
     T const& operator*() const;
 
-    ProductID id() const;
-
-    void clear();
-
   private:
-    T const* prod_;
-    ProductID id_;
   };
 
   template <class T>
-  OrphanHandle<T>::OrphanHandle() :
-    prod_(0),
-    id_(0)
+  OrphanHandle<T>::OrphanHandle() : OrphanHandleBase()
   { }
 
   template <class T>
-  OrphanHandle<T>::OrphanHandle(const OrphanHandle<T>& h) :
-    prod_(h.prod_),
-    id_(h.id_)
-  { }
-
-  template <class T>
-  OrphanHandle<T>::OrphanHandle(T const* prod, ProductID const& theId) :
-    prod_(prod),
-    id_(theId) { 
-      assert(prod_);
-      assert(id_.isValid());
+  OrphanHandle<T>::OrphanHandle(T const* prod, ProductID const& theId) : OrphanHandleBase(prod, theId) {
   }
 
   template <class T>
-  OrphanHandle<T>::~OrphanHandle() { 
-    // Really nothing to do -- we do not own the things to which we
-    // point.  For help in debugging, we clear the data.
-    clear();
-  }
-
-  template <class T>
-  void
-  OrphanHandle<T>::clear()
-  {
-    prod_ = 0;
-    id_ = ProductID();
-  }
-
-  template <class T>
-  void
-  OrphanHandle<T>::swap(OrphanHandle<T>& other) {
-    using std::swap;
-    std::swap(prod_, other.prod_);
-    swap(id_, other.id_);
-  }
-
-  template <class T>
-  OrphanHandle<T>&
-  OrphanHandle<T>::operator=(const OrphanHandle<T>& rhs) {
-    OrphanHandle<T> temp(rhs);
-    this->swap(temp);
-    return *this;
-  }
-
-  template <class T>
-  bool
-  OrphanHandle<T>::isValid() const {
-    return prod_ != 0 && id_ != ProductID();
-  }
+  OrphanHandle<T>::~OrphanHandle() {}
 
   template <class T>
   T const* 
   OrphanHandle<T>::product() const {
-    // Should we throw if the pointer is null?
-    return prod_;
+    return static_cast<T const*>(productStorage());
   }
 
   template <class T>
@@ -137,20 +70,5 @@ namespace edm {
     return *product();
   }
 
-  template <class T>
-  ProductID 
-  OrphanHandle<T>::id() const {
-    return id_;
-  }
-
-  // Free swap function
-  template <class T>
-  inline
-  void
-  swap(OrphanHandle<T>& a, OrphanHandle<T>& b) 
-  {
-    a.swap(b);
-  }
 }
-
 #endif

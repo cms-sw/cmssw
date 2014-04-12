@@ -20,7 +20,11 @@
 
 // system include files
 #include <map>
+#include <string>
+#include <vector>
+#include <cassert>
 #include "boost/type_traits/is_base_and_derived.hpp"
+#include "boost/static_assert.hpp"
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -30,6 +34,8 @@
 // forward declarations
 
 namespace edm {
+   class ESInputTag;
+   
    namespace eventsetup {
       class EventSetupProvider;
       class EventSetupRecord;
@@ -68,13 +74,25 @@ class EventSetup
          void getData(const std::string& iLabel, T& iHolder) const {
             typedef typename T::value_type data_type;
             typedef typename eventsetup::data_default_record_trait<data_type>::type RecordT;
-            const RecordT& rec = this->get<RecordT>(iLabel);
-            rec.get(iHolder);
+            const RecordT& rec = this->get<RecordT>();
+            rec.get(iLabel,iHolder);
          }
-      
+
+      template< typename T>
+        void getData(const edm::ESInputTag& iTag, T& iHolder) const {
+           typedef typename T::value_type data_type;
+           typedef typename eventsetup::data_default_record_trait<data_type>::type RecordT;
+           const RecordT& rec = this->get<RecordT>();
+           rec.get(iTag,iHolder);
+        }
+   
       const IOVSyncValue& iovSyncValue() const { return syncValue_;}
 
       const eventsetup::EventSetupRecord* find(const eventsetup::EventSetupRecordKey&) const;
+      
+      ///clears the oToFill vector and then fills it with the keys for all available records
+      void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;
+      
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -87,10 +105,7 @@ class EventSetup
       //Only called by EventSetupProvider
       void setIOVSyncValue(const IOVSyncValue&);
 
-      template<typename T>
-         void add(const T& iRecord) {
-            insert(eventsetup::heterocontainer::makeKey<T, eventsetup::EventSetupRecordKey>(), &iRecord);
-         }
+      void add(const eventsetup::EventSetupRecord& iRecord);
       
       void clear();
       

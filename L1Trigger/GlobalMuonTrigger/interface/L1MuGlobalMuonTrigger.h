@@ -5,8 +5,6 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2007/04/10 09:59:18 $
-//   $Revision: 1.3 $
 //
 //   Author :
 //   Ivan Mikulec                    HEPHY Vienna
@@ -22,7 +20,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -49,13 +47,13 @@ class L1MuGMTDebugBlock;
 //---------------------
 //-- Class Interface --
 //---------------------
-class L1MuGlobalMuonTrigger : public edm::EDProducer {
+class L1MuGlobalMuonTrigger : public edm::one::EDProducer<edm::one::SharedResources> {
 
  public:
 
     explicit L1MuGlobalMuonTrigger(const edm::ParameterSet&);
     ~L1MuGlobalMuonTrigger();
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
@@ -105,10 +103,18 @@ class L1MuGlobalMuonTrigger : public edm::EDProducer {
     std::vector<L1MuGMTReadoutRecord*> m_ReadoutRingbuffer;
 
     bool m_writeLUTsAndRegs;
+    bool m_sendMipIso;
 
     static L1MuGMTConfig* m_config;
 
     static L1MuGMTDebugBlock* m_db;
+    
+    unsigned long long m_L1MuGMTScalesCacheID;
+    unsigned long long m_L1MuTriggerScalesCacheID;
+    unsigned long long m_L1MuTriggerPtScaleCacheID;
+    unsigned long long m_L1MuGMTParametersCacheID;
+    unsigned long long m_L1MuGMTChannelMaskCacheID;
+    unsigned long long m_L1CaloGeometryCacheID;
 };
 
 #endif // L1TriggerGlobalMuonTrigger_L1MuGlobalMuonTrigger_h

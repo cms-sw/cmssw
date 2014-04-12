@@ -4,7 +4,6 @@
 /*
  * \file EcalPreshowerRecHitsValidation.h
  *
- * $Date: 2006/10/17 09:56:12 $
  * \author C. Rovelli
  *
  */
@@ -19,8 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
@@ -31,6 +29,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EcalPreshowerRecHitsValidation: public edm::EDAnalyzer{
   
@@ -48,7 +47,7 @@ class EcalPreshowerRecHitsValidation: public edm::EDAnalyzer{
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
   
   // EndJob
   void endJob(void);
@@ -57,11 +56,11 @@ class EcalPreshowerRecHitsValidation: public edm::EDAnalyzer{
   
   bool verbose_;
   
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 
-  edm::InputTag EEuncalibrechitCollection_;
-  edm::InputTag EErechitCollection_;
-  edm::InputTag ESrechitCollection_;
+  edm::EDGetTokenT<EEUncalibratedRecHitCollection> EEuncalibrechitCollection_token_;
+  edm::EDGetTokenT<EERecHitCollection> EErechitCollection_token_;
+  edm::EDGetTokenT<ESRecHitCollection> ESrechitCollection_token_;
   
   MonitorElement* meESRecHitsEnergy_;    
   MonitorElement* meESRecHitsEnergy_zp1st_;

@@ -1,27 +1,26 @@
 /** \file LaserBeamsTEC2.cc
  *  
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/09/09 18:22:48 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsTEC2.h"
 
-#include "SimG4Core/Notification/interface/GenParticleInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "globals.hh"                        // Global Constants and typedefs
-#include "G4DataVector.hh"
-#include "G4Event.hh"
-#include "G4OpticalPhoton.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
 
-LaserBeamsTEC2::LaserBeamsTEC2()
+LaserBeamsTEC2::LaserBeamsTEC2() :
+  theParticleGun(0),
+  theDRand48Engine(0)
 { 
   G4int nPhotonsGun = 1;
   G4int nPhotonsBeam = 1;
@@ -66,7 +65,7 @@ LaserBeamsTEC2::LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4doub
   setOptPhotonPolar(90.0);
 
   // initialize the random number engine
-  theDRand48Engine = new DRand48Engine();
+  theDRand48Engine = new CLHEP::DRand48Engine();
 }
 
 LaserBeamsTEC2::~LaserBeamsTEC2()
@@ -81,7 +80,7 @@ void LaserBeamsTEC2::GeneratePrimaries(G4Event* myEvent)
 
   // use the random number generator service of the framework
   edm::Service<edm::RandomNumberGenerator> rng;
-  uint seed = rng->mySeed();
+  unsigned int seed = rng->mySeed();
 
   // set the seed
   theDRand48Engine->setSeed(seed);
@@ -126,8 +125,8 @@ void LaserBeamsTEC2::GeneratePrimaries(G4Event* myEvent)
 	  for (int theParticle = 0; theParticle < thenParticle; theParticle++)
 	    {
 	      // get randomnumbers  and calculate the position
-	      RandGaussQ aGaussObjX( *theDRand48Engine, LaserPositionX, LaserRingSigmaX[theRing] );
-	      RandGaussQ aGaussObjY( *theDRand48Engine, LaserPositionY, LaserRingSigmaY[theRing] );
+	      CLHEP::RandGaussQ aGaussObjX( *theDRand48Engine, LaserPositionX, LaserRingSigmaX[theRing] );
+	      CLHEP::RandGaussQ aGaussObjY( *theDRand48Engine, LaserPositionY, LaserRingSigmaY[theRing] );
 
 	      G4double theXPosition = aGaussObjX.fire();
 	      G4double theYPosition = aGaussObjY.fire();

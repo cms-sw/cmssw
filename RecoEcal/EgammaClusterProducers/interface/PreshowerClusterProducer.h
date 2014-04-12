@@ -6,16 +6,17 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
-
-
+#include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESMissingEnergyCalibration.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
 class PreshowerClusterProducer : public edm::EDProducer {
 
@@ -28,18 +29,19 @@ class PreshowerClusterProducer : public edm::EDProducer {
   ~PreshowerClusterProducer();
 
   virtual void produce( edm::Event& evt, const edm::EventSetup& es);
+  void set(const edm::EventSetup& es);
 
  private:
 
   int nEvt_;         // internal counter of events
 
   //clustering parameters:
-  std::string preshHitProducer_;   // name of module/plugin/producer producing hits
-  std::string preshHitCollection_; // secondary name given to collection of hits by hitProducer
-  std::string preshClusterCollectionX_;  // secondary name to be given to collection of cluster produced in this module
+  edm::EDGetTokenT<EcalRecHitCollection> preshHitsToken_;         // name of module/plugin/producer producing hits
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapSClusterToken_;   // ditto SuperClusters
+
+  // name out output collections
+  std::string preshClusterCollectionX_;  
   std::string preshClusterCollectionY_;  
-  std::string endcapSClusterCollection_;
-  std::string endcapSClusterProducer_;
 
   int preshNclust_;
   float preshClustECut;
@@ -48,16 +50,27 @@ class PreshowerClusterProducer : public edm::EDProducer {
   // association parameters:
   std::string assocSClusterCollection_;    // name of super cluster output collection
 
-  double calib_planeX_;
-  double calib_planeY_;
+  edm::ESHandle<ESGain> esgain_;
+  edm::ESHandle<ESMIPToGeVConstant> esMIPToGeV_;
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalib_;
+  edm::ESHandle<ESMissingEnergyCalibration> esMissingECalib_;
+  edm::ESHandle<ESChannelStatus> esChannelStatus_;
   double mip_;
-  double gamma_;
+  double gamma0_;
+  double gamma1_;
+  double gamma2_;
+  double gamma3_;
+  double alpha0_;
+  double alpha1_;
+  double alpha2_;
+  double alpha3_;
+  double aEta_[4];
+  double bEta_[4];
 
   PreshowerClusterAlgo * presh_algo; // algorithm doing the real work
    // The set of used DetID's
   //std::set<DetId> used_strips;
 
-  PreshowerClusterAlgo::DebugLevel debugL;  
 
 };
 #endif

@@ -16,16 +16,15 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 //#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-
-
 
 class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
@@ -35,19 +34,35 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   ~IsolatedPixelTrackCandidateProducer();
 
 
-  virtual void beginJob (edm::EventSetup const & es){};
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+  double getDistInCM(double eta1, double phi1, double eta2, double phi2);
+  std::pair<double, double> GetEtaPhiAtEcal(const edm::EventSetup& iSetup, double etaIP, double phiIP, double pT, int charge, double vtxZ);
 
  private:
-
-  edm::InputTag l1eTauJetsSource_;
-  edm::InputTag pixelTracksSource_;
-  edm::InputTag particleMapSource_;
+	
+  std::vector<edm::InputTag> pixelTracksSources_;
   edm::ParameterSet parameters;
 
-  double pixelIsolationConeSize_;
-  double maxEta_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_l1_;
+  edm::EDGetTokenT<reco::VertexCollection> tok_vert_;
 
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > toks_pix_;
+
+  double prelimCone_;
+  double pixelIsolationConeSizeAtEC_;
+  double vtxCutSeed_;
+  double vtxCutIsol_;
+  double tauAssocCone_;
+  double tauUnbiasCone_;
+  std::string bfield_;
+  double minPTrackValue_;
+  double maxPForIsolationValue_;
+  double rEB_;
+  double zEE_;
+  double ebEtaBoundary_;
 };
 
 

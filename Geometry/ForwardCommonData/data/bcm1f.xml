@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection label="bcm1f">
+    <!-- dimensions of the bcm1f volume -->
+    <Constant name="Bcm1Z1" value="1.800*m"/>
+    <Constant name="Bcm1Z2" value="1.900*m"/>
+    <Constant name="Bcm1fZ"              value="([Bcm1Z2]+[Bcm1Z1])/2"/>  <!-- z position of the centre of bcm1f volume wrt to CMS -->
+    <Constant name="Bcm1fThickness"      value="([Bcm1Z2]-[Bcm1Z1])"/>
+    <Constant name="Bcm1fInnerRadius"    value="[cms:TrackBeamR1]"/>
+    <Constant name="Bcm1fOuterRadius"    value="[cms:TrackLumiR1]"/>
+    <!-- dimensions of the diamonds -->
+    <Constant name="DiamondLX"            value="5.0*mm"/>
+    <Constant name="DiamondLY"            value="5.0*mm"/>
+    <Constant name="DiamondLZ"            value="0.5*mm"/>
+    <Constant name="DiamondZ"             value="1814*mm"/> <!-- z position of the centre of the diamond wrt CMS -->
+    <!-- dimensions of the effective (metallised) sensitive area -->
+    <Constant name="SensorLX"            value="[DiamondLX]*0.95"/>
+    <Constant name="SensorLY"            value="[DiamondLY]*0.95/2"/>
+    <Constant name="SensorLZ"            value="[DiamondLZ]"/>
+    <Constant name="SensorGap"           value="0.01*mm"/>
+    <Constant name="SensorShift"         value="[SensorLY]/2+[SensorGap]/2"/>
+    <!-- location of the sensors in rho-z with respect to CMS (0,0,0) -->
+    <Constant name="SensorRho"           value="70.5*mm"/>
+    <Constant name="SensorZ"             value="[DiamondZ]"/>
+ </ConstantsSection>
+ 
+ <!-- Create geometrical shapes -->
+ <SolidSection label="bcm1f">
+    <Tubs name="BCM1F"  rMin="[Bcm1fInnerRadius]" rMax="[Bcm1fOuterRadius]" dz="[Bcm1fThickness]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Box  name="BCM1FDiamond"  dx="[DiamondLX]/2" dy="[DiamondLY]/2" dz="[DiamondLZ]/2"/>
+    <Box  name="BCM1FSensor"   dx="[SensorLX]/2"  dy="[SensorLY]/2"  dz="[SensorLZ]/2"/>
+ </SolidSection>
+ 
+ <!-- Define the materials of the geometrical shapes -->
+ <LogicalPartSection label="bcm1f">
+ 
+    <LogicalPart name="BCM1F" category="unspecified">
+       <rSolid name="BCM1F"/>
+       <rMaterial name="materials:Air"/>
+   </LogicalPart>
+   
+   <LogicalPart name="BCM1FDiamond" category="unspecified">
+       <rSolid name="BCM1FDiamond"/>
+       <rMaterial name="materials:Diamond"/>
+   </LogicalPart>
+   
+   <LogicalPart name="BCM1FSensor" category="unspecified">
+       <rSolid name="BCM1FSensor"/>
+       <rMaterial name="materials:Diamond"/>
+   </LogicalPart> 
+   
+ </LogicalPartSection>
+ 
+ <!-- Position --> 
+ <PosPartSection label="bcm1f">
+ 
+    <!-- Planes --> 
+     <PosPart copyNumber="1">
+       <rParent name="pltbcm:PLTBCM"/>
+       <rChild name="BCM1F"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm" y="0*fm" z="[Bcm1fZ]-[pltbcm:PltBcmZ]"/>
+    </PosPart>
+    
+    <!-- Diamonds -->  
+    <Algorithm name="global:DDAngular">
+       <rParent name="BCM1F"/>
+       <String name="ChildName" value="BCM1FDiamond"/>
+       <Numeric name="StartCopyNo" value="1"/>
+       <Numeric name="IncrCopyNo" value="1"/>
+       <Numeric name="N" value="12"/>
+       <Numeric name="Radius" value="[SensorRho]"/>
+       <Numeric name="StartAngle" value="120*deg"/>
+       <Numeric name="RangeAngle" value="360*deg"/>
+       <Vector name="Center" type="numeric" nEntries="3"> 0, 0, ([DiamondZ]-[Bcm1fZ]) </Vector>
+       <Vector name="RotateSolid" type="numeric" nEntries="36">
+       0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg,
+       0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg,
+       0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg
+       </Vector>
+    </Algorithm>
+    
+    <!-- Sensors --> 
+     <PosPart copyNumber="1">
+       <rParent name="BCM1FDiamond"/>
+       <rChild name="BCM1FSensor"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm" y="-[SensorShift]" z="0*fm"/>
+    </PosPart>
+     <PosPart copyNumber="2">
+       <rParent name="BCM1FDiamond"/>
+       <rChild name="BCM1FSensor"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm" y="[SensorShift]" z="0*fm"/>
+    </PosPart>
+ </PosPartSection>
+ 
+</DDDefinition>

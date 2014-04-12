@@ -1,0 +1,13 @@
+#
+# This is the decay file for the decay B+ -> MU+ MU- MU+ nu
+#
+Alias      MyB+   B+
+Alias      Myanti-B+   B-
+ChargeConj Myanti-B+   MyB+ 
+#
+Decay MyB+
+1.000      mu+  mu-  mu+  nu_mu          PHSP;
+Enddecay
+CDecay Myanti-B+
+#
+End

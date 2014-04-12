@@ -51,6 +51,16 @@ C...Initial values.
       KFS=ISIGN(1,K(IP,2))
       KC=PYCOMP(KFA)
       MSTJ(92)=0
+
+C-ap  to silence a couple of compiler warnings.
+      wtmax = 0 
+      pqt   = 0
+      pmst  = 0
+      pmr   = 0
+      pmes  = 0
+      isis  = 0
+      im    = 0
+      mmix  = 0
  
 C...Choose lifetime and determine decay vertex.
 C      IF(K(IP,1).EQ.5) THEN
@@ -215,7 +225,7 @@ C...Check existence of decay channels. Particle/antiparticle rules.
       ENDIF
  
 C...Sum branching ratios of allowed decay channels.
-  220 NOPE=0
+      NOPE=0
       BRSU=0D0
       DO 230 IDL=MDCY(KCA,2),MDCY(KCA,2)+MDCY(KCA,3)-1
 c
@@ -475,11 +485,13 @@ C...Determine position of grandmother, number of sisters.
       IF(MMAT.EQ.3) THEN
         IM=K(IP,3)
         IF(IM.LT.0.OR.IM.GE.IP) IM=0
-        IF(IM.NE.0) KFAM=IABS(K(IM,2))
         IF(IM.NE.0) THEN
+          KFAM=IABS(K(IM,2))
           DO 360 IL=MAX(IP-2,IM+1),MIN(IP+2,N)
-            IF(K(IL,3).EQ.IM) NM=NM+1
-            IF(K(IL,3).EQ.IM.AND.IL.NE.IP) ISIS=IL
+            IF(K(IL,3).EQ.IM) THEN
+               NM=NM+1
+               IF(IL.NE.IP) ISIS=IL
+            END IF
   360     CONTINUE
           IF(NM.NE.2.OR.KFAM.LE.100.OR.MOD(KFAM,10).NE.1.OR.
      &    MOD(KFAM/1000,10).NE.0) NM=0

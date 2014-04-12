@@ -16,16 +16,14 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.4 2007/07/18 16:40:14 menasce Exp $
 //
 //
-#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelContinuousPalette.h"
+#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 
-#include <qstring.h>
-#include <qregexp.h>
+#include "TText.h"
 
 #include <fstream>
 #include <iostream>
@@ -38,6 +36,7 @@ SiPixelTrackerMap::SiPixelTrackerMap(string s,int xsize1, int ysize1) : TrackerM
 //      << "[SiPixelTrackerMap::SiPixelTrackerMap()]" 
 //      << endl ;
   title = s ;
+ // cout<<"created a new Tracker Map! the title is: "<<s<<endl;
 }
 		  
 //----------------------------------------------------------------------------------------------------
@@ -138,6 +137,7 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
   char buffer [20];
   sprintf(buffer,"%X",mod->idex);
 
+//cout<<"drawModule: xp= "<<xp<<" , yp= "<<yp<<endl;
   bool FPIX_M_1 = false ;
   bool FPIX_M_2 = false ;
   bool FPIX_P_1 = false ;
@@ -145,14 +145,8 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
   bool BPIX_L_1 = false ;
   bool BPIX_L_2 = false ;
   bool BPIX_L_3 = false ;
-  QRegExp rx("(BPIX|FPIX)") ;
-  QRegExp
-  ry("(FPIX\\s+-z\\s+disc\\s+1|FPIX\\s+-z\\s+disc\\s+2|FPIX\\s+\\+z\\s+disc\\s+2|FPIX\\s+\\+z\\s+disc\\s+1|layer\\s+\\d+)") ;
-  QString modName = mod->name ;
-  if( rx.search(modName) != -1 )
-  {
-   if( ry.search(modName) != -1 )
-   {
+  string moduleName = mod->name;
+  if(moduleName.find("PixelEndcap")!=string::npos || moduleName.find("PixelBarrel")!=string::npos) {
     FPIX_M_1 = false ;
     FPIX_M_2 = false ;
     FPIX_P_1 = false ;
@@ -160,14 +154,14 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
     BPIX_L_1 = false ;
     BPIX_L_2 = false ;
     BPIX_L_3 = false ;
-    if( ry.cap(1) == "FPIX -z disc 1" ) {FPIX_M_1 = true;}
-    if( ry.cap(1) == "FPIX -z disc 2" ) {FPIX_M_2 = true;}
-    if( ry.cap(1) == "FPIX +z disc 1" ) {FPIX_P_1 = true;}
-    if( ry.cap(1) == "FPIX +z disc 2" ) {FPIX_P_2 = true;}
-    if( ry.cap(1) == "layer 1"        ) {BPIX_L_1 = true;}
-    if( ry.cap(1) == "layer 2"        ) {BPIX_L_2 = true;}
-    if( ry.cap(1) == "layer 3"        ) {BPIX_L_3 = true;}
-   }
+    if( moduleName.find("PixelEndcap 3")!=string::npos ) {FPIX_M_1 = true;}
+    if( moduleName.find("PixelEndcap 4")!=string::npos ) {FPIX_M_2 = true;}
+    if( moduleName.find("PixelEndcap 1")!=string::npos ) {FPIX_P_1 = true;}
+    if( moduleName.find("PixelEndcap 2")!=string::npos ) {FPIX_P_2 = true;}
+    if( moduleName.find("PixelBarrel 1")!=string::npos ) {BPIX_L_1 = true;}
+    if( moduleName.find("PixelBarrel 2")!=string::npos ) {BPIX_L_2 = true;}
+    if( moduleName.find("PixelBarrel 3")!=string::npos ) {BPIX_L_3 = true;}
+   //}
    *svgfile << "      <svg:polygon detid=\"" 
   	    << mod->idex
   	    << "\" id=\""
@@ -234,9 +228,11 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
 //print_total = false represent in color the average  
 void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, float maxval)
 {
+//cout<<"Entering SiPixelTrackerMap::print: "<<endl;
+
  minvalue=minval; maxvalue=maxval;
- svgfile = new ofstream("svgmap.xml",ios::out);
- jsfile = new ifstream("TrackerMapHeader.txt",ios::in);
+ svgfile = new std::ofstream("svgmap.xml",ios::out);
+ jsfile = new std::ifstream("TrackerMapHeader.txt",ios::in);
  
  //copy javascript interface from trackermap.txt file
  string line;
@@ -255,7 +251,7 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
     for (int module=1;module<200;module++) 
     {
      int key=layer*100000+ring*1000+module;
-     TmModule * mod = SvgModuleMap::smoduleMap[key];
+     TmModule * mod = smoduleMap[key];
      if(mod !=0 && !mod->notInUse())
      {
        mod->value = mod->value / mod->count;
@@ -276,7 +272,7 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
     for (int module=1;module<200;module++) 
     {
      int key=layer*100000+ring*1000+module;
-     TmModule * mod = SvgModuleMap::smoduleMap[key];
+     TmModule * mod = smoduleMap[key];
      if(mod !=0 && !mod->notInUse())
      {
        if (minvalue > mod->value)minvalue=mod->value;
@@ -296,7 +292,7 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
    for (int module=1;module<200;module++) 
    {
     int key=layer*100000+ring*1000+module;
-    TmModule * mod = SvgModuleMap::smoduleMap[key];
+    TmModule * mod = smoduleMap[key];
     if(mod !=0 && !mod->notInUse())
     {
       drawModule(mod,key,layer,print_total);
@@ -305,14 +301,14 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
   }
  }
 
-//  cout << ACYellow << ACBold
-//       << "[SiPixelTrackerMap::print()] "
-//       << ACPlain
-//       << "TKType: |" 
-//       << TKType
-//       << "|"
-//       << endl ;
-
+/*  cout << ACYellow << ACBold
+       << "[SiPixelTrackerMap::print()] "
+       << ACPlain
+       << "TKType: |" 
+       << TKType
+       << "|"
+       << endl ;
+*/
   *svgfile << "  " << endl ;
 
  if( TKType == "Averages" || TKType == "Entries")
@@ -321,6 +317,8 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
  } else {
   *svgfile << "      <svg:g id=\"theColorMap\" transform=\"translate(0, 0)\" style=\"visibility: hidden;\">" << endl ;
  }
+ 
+ // this is the color scale on the right hand side of the tracker map:
  int px = 1370 ;
  int dx =   25 ;
  int py =   50 ;
@@ -368,6 +366,8 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
    *svgfile << "  " << endl ;
   }
   py += dy + 1;
+  
+ // cout<<"inside the polygon loop: i= "<<i<<" , r= "<<SiPixelContinuousPalette::r[i]<<" , g= "<<SiPixelContinuousPalette::g[i]<<" , b= "<<SiPixelContinuousPalette::b[i]<<" , px= "<<px<<" , py= "<<py<<endl;
  }
  *svgfile << "      </svg:g>" << endl ;
 
@@ -402,7 +402,7 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
           << "</svg:text>"
           << endl;
  delete jsfile ;					 
- jsfile = new ifstream("TrackerMapTrailer.txt",ios::in); 
+ jsfile = new std::ifstream("TrackerMapTrailer.txt",ios::in); 
  while (getline( *jsfile, line ))			 
        {						 
  	   *svgfile << line << endl;			 
@@ -410,11 +410,11 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
  delete jsfile ;
  
  svgfile->close() ;
-//  cout << ACYellow << ACBold
-//       << "[SiPixelTrackerMap::print(  )] "
-//       << ACPlain
-//       << "svgmap.xml file just closed..."
-//       << endl ;
- 					 
+/*  cout << ACYellow << ACBold
+       << "[SiPixelTrackerMap::print(  )] "
+       << ACPlain
+       << "svgmap.xml file just closed..."
+       << endl ;
+*/ 					 
  delete svgfile ;					 
 }

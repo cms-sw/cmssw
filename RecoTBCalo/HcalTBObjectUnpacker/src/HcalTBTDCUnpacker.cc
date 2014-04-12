@@ -28,10 +28,12 @@ static const int lcTOF2J           = 132;
 namespace hcaltb {
 
 HcalTBTDCUnpacker::HcalTBTDCUnpacker(bool include_unmatched_hits) :
-  includeUnmatchedHits_(include_unmatched_hits) {
+  includeUnmatchedHits_(include_unmatched_hits),
+  dumpObs_(0) {
 //  setupWC(); reads it from configuration file
+//  dumpObs_=fopen("dump_obs.csv","w");
 }
-void HcalTBTDCUnpacker::setCalib(const vector<vector<string> >& calibLines_) {
+void HcalTBTDCUnpacker::setCalib(const std::vector<std::vector<std::string> >& calibLines_) {
         for(int i=0;i<161;i++)
          {
           tdc_ped[i]=0.;tdc_convers[i]=1.;
@@ -120,7 +122,7 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
   // old TDC (767)
   if (tdc->n_max_hits!=192) {
     const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
-    hitbase=(unsigned int*)(qdctdc);
+    hitbase=(const unsigned int*)(qdctdc);
     hitbase+=6; // header
     hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
     totalhits=qdctdc->n_tdc_hits&0xFFFF; // mask off high bits
@@ -146,7 +148,7 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
   for (int i=0;i<32;i++) v775[i]=-1;
   if (tdc->n_max_hits!=192) {
     const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
-    hitbase=(unsigned int*)(qdctdc);
+    hitbase=(const unsigned int*)(qdctdc);
     hitbase+=6; // header
     hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
     hitbase+=(qdctdc->n_tdc_hits&0xFFFF); // same length
@@ -213,11 +215,11 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
 
 const int HcalTBTDCUnpacker::WC_CHANNELIDS[PLANECOUNT*3] = { 
                                                      12, 13, 14, // WCA LR plane 
-						     10, 11, 15, // WCA UD plane
+						     10, 11, 14, // WCA UD plane
 						     22, 23, 24, // WCB LR plane
-						     20, 21, 25, // WCB UD plane
+						     20, 21, 24, // WCB UD plane
 						     32, 33, 34, // WCC LR plane
-						     30, 31, 35, // WCC UD plane
+						     30, 31, 34, // WCC UD plane
 						     101, 102, 104, // WCD LR plane
 						     107, 108, 110, // WCD UD plane
 						     113, 114, 116, // WCE LR plane
@@ -278,6 +280,10 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
 
     std::vector<double> plane_hits;
     double hit_time;
+    hits1[0]=-1000;
+    hits2[0]=-1000;
+    hitsA[0]=-1000;
+    hitsA[1]=-1000;
 
     chan1=WC_CHANNELIDS[plane*3];
     chan2=WC_CHANNELIDS[plane*3+1];
@@ -295,6 +301,11 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
       }
     }
     
+    if (n1!=0 && n2!=0 && dumpObs_!=0) {
+      fprintf(dumpObs_,"%d,%f,%f,%f,%f\n",plane,hits1[0],hits2[0],hitsA[0],hitsA[1]);
+      fflush(dumpObs_);
+    }
+
     // anode-matched hits
     for (int ii=0; ii<n1; ii++) {
       int jmin=-1, lmin=-1;

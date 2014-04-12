@@ -5,7 +5,11 @@
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"  
+
 #include <iostream>
 
 
@@ -13,15 +17,13 @@ CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet & p)
  : CSCBaseElectronicsSim(p),
    theFraction(0.5),
    theWireNoise(0.0),
-   theWireThreshold(0.),
-   theTimingCalibrationError(p.getParameter<double>("wireTimingError"))
+   theWireThreshold(0.)
 {
   fillAmpResponse();
 }
 
 
 void CSCWireElectronicsSim::initParameters() {
-  theLayerGeometry = theLayer->geometry();
   nElements = theLayerGeometry->numberOfWireGroups();
   theWireNoise = theSpecs->wireNoise(theShapingTime)
                 * e_SI * pow(10.0,15);
@@ -33,7 +35,7 @@ int CSCWireElectronicsSim::readoutElement(int element) const {
   return theLayerGeometry->wireGroup(element);
 }
 
-void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
+void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis, CLHEP::HepRandomEngine* engine) {
 
   if(theSignalMap.empty()) {
     return;
@@ -55,9 +57,14 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
     // the way we handle noise in this chamber is by randomly varying
     // the threshold
-    float threshold = theWireThreshold + theRandGaussQ->fire() * theWireNoise;
+    float threshold = theWireThreshold;
+    if (doNoise_) {
+      threshold += CLHEP::RandGaussQ::shoot(engine) * theWireNoise;
+    }
     for(int ibin = 0; ibin < signalSize; ++ibin)
-      if(signal.getBinValue(ibin) > threshold) {
+    {
+      if(signal.getBinValue(ibin) > threshold) 
+      {
         // jackpot.  Now define this signal as everything up until
         // the signal goes below zero.
         int lastbin = signalSize;
@@ -69,69 +76,79 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
           }
         }
 
-      float qMax = 0.0;
-      // in this loop, find the max charge and the 'fifth' electron arrival
-      for ( i = ibin; i < lastbin; ++i)
-      {
-        float next_charge = signal.getBinValue(i);
-        if(next_charge > qMax) {
-          qMax = next_charge;
-        }
-      }
-     
-      int bin_firing_FD = 0;
-      for ( i = ibin; i < lastbin; ++i)
-      {
-        if( bin_firing_FD == 0 && signal.getBinValue(i) >= qMax * theFraction )
+        float qMax = 0.0;
+        // in this loop, find the max charge and the 'fifth' electron arrival
+        for ( i = ibin; i < lastbin; ++i)
         {
-           bin_firing_FD = i;
+          float next_charge = signal.getBinValue(i);
+          if(next_charge > qMax) {
+            qMax = next_charge;
+          }
         }
-      } 
-      float tofOffset = timeOfFlightCalibration(wireGroup);
-      int chamberType = theSpecs->chamberType();
-      // fill in the rest of the information, for everything that survives the fraction discrim.
+     
+        int bin_firing_FD = 0;
+        for ( i = ibin; i < lastbin; ++i)
+        {
+          if( signal.getBinValue(i) >= qMax * theFraction )
+          {
+             bin_firing_FD = i;
+	     //@@ Long-standing but unlikely minor bug, I (Tim) think - following 'break' was missing...
+	     //@@ ... So if both ibins 0 and 1 could fire FD, we'd flag the firing bin as 1 not 0
+	     //@@ (since the above test was restricted to bin_firing_FD==0 too).
+	     break;
+          }
+        } 
 
-      // Shouldn't one measure from theTimeOffset of the CSCAnalogSignal?
-      // Well, yes, but unfortunately it seems CSCAnalogSignal::superimpose
-      // fails to reset theTimeOffset properly. In any case, if everything
-      // is self-consistent, the overall theTimeOffset should BE
-      // theSignalStartTime. There is big trouble if any of the
-      // overlapping MEAS's happen to have a timeOffset earlier than
-      // theSignalStartTime (which is why it defaults to -10bx = -250ns).
-      // That could only happen in the case of signals from pile-up events
-      // arising way earlier than 10bx before the signal event crossing
-      // and so only if pile-up were simulated over an enormous range of
-      // bx earlier than the signal bx.
-      // (Comments from Tim, Aug-2005)
+        float tofOffset = timeOfFlightCalibration(wireGroup);
+        int chamberType = theSpecs->chamberType();
 
-      float fdTime = theRandGaussQ->fire(theSignalStartTime + theSamplingTime*bin_firing_FD,
-                                         theTimingCalibrationError);
+        // Note that CSCAnalogSignal::superimpose does not reset theTimeOffset to the earliest
+	// of the two signal's time offsets. If it did then we could handle signals from any
+	// time range e.g. form pileup events many bx's from the signal bx (bx=0).
+	// But then we would be wastefully storing signals over times which we can never
+	// see in the real detector, because only hits within a few bx's of bx=0 are read out.
+	// Instead, the working time range for wire hits is always started from
+	// theSignalStartTime, set as a parameter in the config file.
+	// On the other hand, if any of the overlapped CSCAnalogSignals happens to have
+        // a timeOffset earlier than theSignalStartTime (which is currently set to -100 ns)
+	// then we're in trouble. For pileup events this would mean events from collisions
+	// earlier than 4 bx before the signal bx.
 
-      int beamCrossingTag = 
-         static_cast<int>( (fdTime - tofOffset - theBunchTimingOffsets[chamberType])
-                            / theBunchSpacing );
+        float fdTime = theSignalStartTime + theSamplingTime*bin_firing_FD;
+        if(doNoise_) {
+          fdTime += theTimingCalibrationError[chamberType] * CLHEP::RandGaussQ::shoot(engine);
+        }
 
-      // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit
-      // flagging appropriate bunch crossing, and bx 0 corresponding to 7th bit i.e.
+        float bxFloat = (fdTime - tofOffset- theBunchTimingOffsets[chamberType]) / theBunchSpacing
+                           + theOffsetOfBxZero;
+        int bxInt = static_cast<int>(bxFloat);
+        if(bxFloat >= 0 && bxFloat < 16)
+        {
+           timeWord |= (1 << bxInt );
+           // discriminator stays high for 35 ns
+           if(bxFloat-bxInt > 0.6) 
+           {
+             timeWord |= (1 << (bxInt+1) );
+           }
+        }
 
-      //      1st bit set (bit 0) <-> bx -6
-      //      2nd              1  <-> bx -5
-      //      ...           ...       ....
-      //      7th              6  <-> bx  0
-      //      8th              7  <-> bx +1
-      //      ...           ...       ....
-      //     16th             15  <-> bx +9
+        // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit
+        // flagging appropriate bunch crossing, and bx 0 corresponding to the 7th bit, 'bit 6':
+  
+        //      1st bit set (bit 0) <-> bx -6
+        //      2nd              1  <-> bx -5
+        //      ...           ...       ....
+        //      7th              6  <-> bx  0
+        //      8th              7  <-> bx +1
+        //      ...           ...       ....
+        //     16th             15  <-> bx +9
 
-      // Parameter theOffsetOfBxZero = 6 @@WARNING! This offset may be changed (hardware)!
-
-      int nBitsToOffset = beamCrossingTag + theOffsetOfBxZero;
-      if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
- 	 timeWord |= (1 << nBitsToOffset ); // set appropriate bit
-
-      // skip over all the time bins used for this digi
-      ibin = lastbin;
+        // skip over all the time bins used for this digi
+        ibin = lastbin;
+      } // if over threshold
     } // loop over time bins in signal
 
+    // Only create a wire digi if there is a wire hit within [-6 bx, +9 bx]
     if(timeWord != 0)
     {
       CSCWireDigi newDigi(wireGroup, timeWord);
@@ -168,16 +185,6 @@ float CSCWireElectronicsSim::calculateAmpResponse(float t) const {
 }                                                                               
 
 
-float CSCWireElectronicsSim::signalDelay(int element, float pos) const {
-  // readout is on right edge of chamber, signal speed is c
-  // zero calibrated to chamber center
-  // pos is assumed to be in wire coordinates, not local
-  float distance = -1. * pos; // in cm
-  float speed = c_light / cm;
-  float delay = distance / speed;
-  return delay;
-}
-
 float CSCWireElectronicsSim::timeOfFlightCalibration(int wireGroup) const {
   // calibration is done for groups of 8 wire groups, facetiously
   // called wireGroupGroups
@@ -186,12 +193,8 @@ float CSCWireElectronicsSim::timeOfFlightCalibration(int wireGroup) const {
   if(middleWireGroup > numberOfWireGroups) 
      middleWireGroup = numberOfWireGroups;
 
-//  LocalPoint centerOfGroupGroup = theLayerGeometry->centerOfWireGroup(middleWireGroup);
-//  float averageDist = theLayer->surface().toGlobal(centerOfGroupGroup).mag();
   GlobalPoint centerOfGroupGroup = theLayer->centerOfWireGroup(middleWireGroup);
   float averageDist = centerOfGroupGroup.mag();
-
-
   float averageTOF  = averageDist * cm / c_light; // Units of c_light: mm/ns
 
   LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: TofCalib  wg = " << wireGroup << 

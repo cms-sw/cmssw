@@ -1,25 +1,24 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "DataFormats/GeometrySurface/interface/Bounds.h"
 
-
-#include "CLHEP/Units/PhysicalConstants.h"
-
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type,const GeometricDet* gd) : 
-   GeomDetUnit(sp),theType( type), theGD(gd)
-{}
-
-
-
-const GeomDetType& StripGeomDetUnit::type() const { return *theType;}
-
-
-const Topology& StripGeomDetUnit::topology() const {return specificType().topology();}
-
-const StripTopology& StripGeomDetUnit::specificTopology() const { 
-  return specificType().specificTopology();
+  GeomDetUnit(sp), theTopology(new ProxyStripTopology(type, sp)), theGD(gd)
+{
+  if(theGD) setDetId(theGD->geographicalID());
 }
 
-DetId StripGeomDetUnit::geographicalId() const {return theGD->geographicalID();}
+const GeomDetType& StripGeomDetUnit::type() const { return theTopology->type(); }
+
+StripGeomDetType& StripGeomDetUnit::specificType() const { return theTopology->specificType(); }
+
+const Topology& StripGeomDetUnit::topology() const { return *theTopology; }
+
+const StripTopology& StripGeomDetUnit::specificTopology() const { return *theTopology; }
+
+void StripGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
+{
+  theTopology->setSurfaceDeformation(deformation);
+}

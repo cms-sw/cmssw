@@ -30,7 +30,7 @@ public:
       subdet(det), zside(zs), depth(d), etaR(et), phi(fi), phis(phiskip), lay(ly) {}
   };
 
-  HcalID         unitID(int det, Hep3Vector pos, int depth, int lay=-1) const;
+  HcalID         unitID(int det, const CLHEP::Hep3Vector& pos, int depth, int lay=-1) const;
   HcalID         unitID(double eta, double phi, int depth=1, int lay=-1) const;
   HcalID         unitID(int det, double etaR, double phi, int depth,
 			int lay=-1) const;
@@ -39,8 +39,10 @@ public:
   HcalCellType::HcalCell cell(int det, int zside, int depth, int etaR, 
 			      int iphi, bool corr=true) const;
   std::vector<double> getEtaTable() const;
-  std::vector<HcalCellType::HcalCellType> HcalCellTypes() const;
-  std::vector<HcalCellType::HcalCellType> HcalCellTypes(HcalSubdetector) const;
+  unsigned int   numberOfCells(HcalSubdetector) const;
+  std::vector<HcalCellType> HcalCellTypes() const;
+  std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
+  void           printTile();
 
 private:
 
@@ -48,13 +50,17 @@ private:
   double         getEta(double r, double z) const;
   double         deltaEta(int det, int eta, int depth) const;
   void           initialize(std::string & name, const DDCompactView & cpv);
-  void           loadSpecPars(DDFilteredView);
-  void           loadGeometry(DDFilteredView);
+  void           loadSpecPars(const DDFilteredView&);
+  void           loadGeometry(const DDFilteredView&);
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &,
 				  int&) const;
   int            getShift(HcalSubdetector subdet, int depth) const;
   double         getGain (HcalSubdetector subdet, int depth) const;
-  unsigned       find (int element, std::vector<int> array) const;
+  unsigned       find (int element, std::vector<int>& array) const;
+  int            unitPhi (int det, int etaR) const;
+  void           tileHB(int eta, int depth);
+  void           tileHE(int eta, int depth);
+  double         getEtaHO(double& etaR, double& x, double& y, double& z) const;
 
 private:
 
@@ -77,13 +83,19 @@ private:
   std::vector<int>    shiftHE;  // Readout shift ..  ..
   std::vector<double> gainHF;   // Gain factor   for HF
   std::vector<int>    shiftHF;  // Readout shift ..  ..
-  double              zVcal;    // Z-position  of the HF
+  double              zVcal;    // Z-position  of the front of HF
   double              dzVcal;   // Half length of the HF
+  double              dlShort;  // Diference of length between long and short
   std::vector<int>    nOff;     // Speical eta bin #'s in barrel and endcap
-  std::vector<double> rHB;      // Radial positions of HB layers
-  std::vector<double> zHE;      // Z-positions of HE layers
-  int                 nzHB, nmodHB; // Number of halves and modules in HB
-  int                 nzHE, nmodHE; // Number of halves and modules in HE
+  std::vector<double> rHB, drHB;        // Radial positions of HB layers
+  std::vector<double> zHE, dzHE;        // Z-positions of HE layers
+  std::vector<double> zho;              // Z-positions of HO layers
+  int                 nzHB, nmodHB;     // Number of halves and modules in HB
+  int                 nzHE, nmodHE;     // Number of halves and modules in HE
+  double              etaHO[4], rminHO; // eta in HO ring boundaries
+  std::vector<double> rhoxb, zxb, dyxb, dzxb; // Geometry parameters to
+  std::vector<int>    layb, laye;             // get tile size for HB & HE
+  std::vector<double> zxe, rhoxe, dyxe, dx1e, dx2e; // in different layers
 };
 
 #endif

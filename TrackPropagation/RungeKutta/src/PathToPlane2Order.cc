@@ -1,6 +1,6 @@
-#include "TrackPropagation/RungeKutta/interface/PathToPlane2Order.h"
-#include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
-#include "TrackPropagation/RungeKutta/interface/FrameChanger.h"
+#include "PathToPlane2Order.h"
+#include "RKLocalFieldProvider.h"
+#include "FrameChanger.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
 #include <iostream>
@@ -31,12 +31,12 @@ PathToPlane2Order::operator()( const Plane& plane,
 
     Frame::PositionType fpos( theFieldFrame->toGlobal( Frame::LocalPoint(pos)));
     Frame::RotationType frot( localX, localY, localZ);
-// frame in which the field is along Z
+    // frame in which the field is along Z
     Frame frame( fpos, frot);
-
-//    cout << "PathToPlane2Order frame " << frame.position() << endl << frame.rotation() << endl;
-
-// transform the position and direction to that frame
+    
+    //    cout << "PathToPlane2Order frame " << frame.position() << endl << frame.rotation() << endl;
+    
+    // transform the position and direction to that frame
     Frame::LocalPoint localPos = frame.toLocal( fpos); // same as LocalPoint(0,0,0)
 
     //transform momentum from field frame to new frame via global frame
@@ -44,8 +44,7 @@ PathToPlane2Order::operator()( const Plane& plane,
     Frame::LocalVector localMom = frame.toLocal( gmom); 
 
     // transform the plane to the same frame
-    FrameChanger changer;
-    FrameChanger::PlanePtr localPlane = changer.transformPlane( plane, frame);
+    Plane localPlane =  FrameChanger::transformPlane( plane, frame);
 /*
      cout << "PathToPlane2Order input plane       " << plane.position() << endl 
  	 << plane.rotation() << endl;
@@ -54,6 +53,10 @@ PathToPlane2Order::operator()( const Plane& plane,
 */
     double k = 2.99792458e-3;
     double transverseMomentum = localMom.perp();   // transverse to the field
+    if (!(transverseMomentum != 0) ) {  // if (!(x!=0)) will trap both 0 and NaN
+      //LogDebug("PathToPlane2Order_ZeroMomentum") << "Momentum transverse to the field is zero or Nan (" << transverseMomentum << ")\n";
+        return std::pair<bool,double>(false,0);
+    }
     double curvature = -k * charge * B.mag() / transverseMomentum;
 /*
      cout << "PathToPlane2Order curvature " << curvature << endl;
@@ -73,7 +76,7 @@ PathToPlane2Order::operator()( const Plane& plane,
 */
     HelixArbitraryPlaneCrossing crossing( localPos.basicVector(), localMom.basicVector(), 
 					  curvature, propDir);
-    std::pair<bool,double> res = crossing.pathLength(*localPlane);
+    std::pair<bool,double> res = crossing.pathLength(localPlane);
 
     return res;
 }

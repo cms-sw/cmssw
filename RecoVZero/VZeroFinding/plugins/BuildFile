@@ -1,4 +1,0 @@
-<use name=RecoVZero/VZeroFinding>
-<library file="*.cc" name=RecoVZeroVZeroFindingPlugins>
-  <flags EDM_PLUGIN=1>
-</library>

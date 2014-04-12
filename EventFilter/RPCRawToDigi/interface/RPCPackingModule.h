@@ -6,8 +6,9 @@
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include <vector> 
 
@@ -17,6 +18,7 @@ namespace edm {class Event; }
 
 class FEDRawData;
 class RPCRecordFormatter;
+class RPCReadOutMapping;
 
 class RPCPackingModule : public edm::EDProducer {
 public:
@@ -34,10 +36,12 @@ public:
       int fedId, int trigger_BX, const RPCDigiCollection* , const RPCRecordFormatter& ); 
 
 private:
-  FEDRawData * rawData( int fedId, const RPCDigiCollection* , const RPCRecordFormatter& );
+  FEDRawData * rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection* , const RPCRecordFormatter& );
 
 private:
+  edm::EDGetTokenT<RPCDigiCollection> dataLabel_;
   unsigned long eventCounter_;
+  const RPCReadOutMapping * theCabling; 
 
 };
 #endif

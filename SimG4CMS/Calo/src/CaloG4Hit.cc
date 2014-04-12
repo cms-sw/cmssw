@@ -5,8 +5,14 @@
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include <iostream>
 
-CaloG4Hit::CaloG4Hit():entry(0), entryLocal(0) {
+#include "G4SystemOfUnits.hh"
 
+G4Allocator<CaloG4Hit> CaloG4HitAllocator;
+
+CaloG4Hit::CaloG4Hit(){
+
+  setEntry(0.,0.,0.);
+  setEntryLocal(0.,0.,0.);
   elem     = 0.;
   hadr     = 0.;
   theIncidentEnergy = 0.;

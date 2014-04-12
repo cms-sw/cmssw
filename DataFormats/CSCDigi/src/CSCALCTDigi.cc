@@ -2,8 +2,6 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date: 2007/03/21 15:50:43 $
- * $Revision: 1.9 $
  *
  * \author N. Terentiev, CMU
  */
@@ -11,6 +9,7 @@
 #include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
 
 #include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -45,17 +44,15 @@ void CSCALCTDigi::clear() {
 }
 
 bool CSCALCTDigi::operator > (const CSCALCTDigi& rhs) const {
-  // The > operator first checks the quality of ALCTs.
-  // If two qualities are equal, the ALCT furthest from the beam axis
-  // (lowest eta, highest wire group number) is selected.
-  // IMPROVE: in ORCA, we used 3-bit patternHits (quality plus the promotion
-  // bit as the MSB) instead of 2-bit quality; needs to be checked.
   bool returnValue = false;
-#ifdef TB
-  // Firmware "feature" in 2003 and 2004 test beam data.
+
+  // Early ALCTs are always preferred to the ones found at later bx's.
   if (getBX()  < rhs.getBX()) {returnValue = true;}
   if (getBX() != rhs.getBX()) {return returnValue;}
-#endif
+
+  // The > operator then checks the quality of ALCTs.
+  // If two qualities are equal, the ALCT furthest from the beam axis
+  // (lowest eta, highest wire group number) is selected.
   int quality1 = getQuality();
   int quality2 = rhs.getQuality();
   if (quality1 > quality2) {returnValue = true;}
@@ -92,9 +89,20 @@ void CSCALCTDigi::print() const {
 	      << " Accel. = "         << setw(1) << getAccelerator()
 	      << " PatternB = "       << setw(1) << getCollisionB()
 	      << " Key wire group = " << setw(3) << getKeyWG()
-	      << " BX = "             << setw(2) << getBX() << std::endl;
+	      << " BX = "             << setw(2) << getBX()
+              << " Full BX= "         << std::setw(1) << getFullBX() << std::endl;
   }
   else {
     std::cout << "Not a valid Anode LCT." << std::endl;
   }
+}
+
+std::ostream & operator<<(std::ostream & o, const CSCALCTDigi& digi) {
+  return o << "CSC ALCT #"         << digi.getTrknmb()
+           << ": Valid = "         << digi.isValid()
+           << " Quality = "        << digi.getQuality()
+           << " Accel. = "         << digi.getAccelerator()
+           << " PatternB = "       << digi.getCollisionB()
+           << " Key wire group = " << digi.getKeyWG()
+           << " BX = "             << digi.getBX();
 }

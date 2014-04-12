@@ -1,13 +1,12 @@
-#!/usr/bin/perl
-#____________________________________________________________________ 
+#!/usr/bin/env perl
+#______________  ______________________________________________________ 
 # File: CreateCVSPackage.pl
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.10 2006/12/07 15:25:22 sashby Exp $ 
 #
-# Copyright: 2006 (C) Shaun ASHBY
+#  Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use Cwd qw(cwd);
@@ -17,7 +16,7 @@ use File::Basename;
 # Fixed parameters:
 my $cvs = '/usr/bin/cvs';
 my $projectroot = 'CMSSW';
-my $cvsroot = ':kserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
+my $cvsroot = ':gserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
 
 # Use CVSROOT to override:
 if ($ENV{CVSROOT}) {
@@ -318,15 +317,14 @@ sub new($) {
     my ($idlist)=@_;
     # Read through the lists of developers to get full info:
     foreach my $loginid (@$idlist) {
-	# Use phone command to get the full info for this person:
-	chomp(my ($pbinfo)=`phone -loginid $loginid -FULL`);
+	# Use phonebook command to get the full info for this person:
+	chomp(my ($pbinfo)=`phonebook -login $loginid -t login -t surname -t firstname -t email `);
 	# Check to see if user exists:
 	if ($pbinfo =~ /not found/) {
 	    print "WARNING: Userid \"$loginid\" not found in CCDB. Ignoring this user.","\n";
 	    next;
 	}
-	my ($ccid,$pbdata,$email) = split(";",$pbinfo);   
-	my ($lastname,$firstname,@rest) = split(" ",$pbdata);
+	my ($ccid,$lastname, $firstname,$email) = split(";",$pbinfo);   
 	$lastname = ucfirst(lc($lastname));
 	push(@{$self->{IDS}},new ID($loginid,"$firstname $lastname",$email));
     }
@@ -353,14 +351,13 @@ sub new($) {
     # Read through the lists of developers to get full info:
     foreach my $loginid (@$idlist) {
 	# Use phone command to get the full info for this person:
-	chomp(my ($pbinfo)=`phone -loginid $loginid -FULL`);
+	chomp(my ($pbinfo)=`phonebook -login $loginid -t login -t surname -t firstname -t email `);
 	# Check to see if user exists:
 	if ($pbinfo =~ /not found/) {
 	    print "WARNING: Userid \"$loginid\" not found in CCDB. Ignoring this user.","\n";
 	    next;
 	}
-	my ($ccid,$pbdata,$email) = split(";",$pbinfo);   
-	my ($lastname,$firstname,@rest) = split(" ",$pbdata);
+	my ($ccid,$lastname, $firstname,$email) = split(";",$pbinfo);   
 	$lastname = ucfirst(lc($lastname));
 	push(@{$self->{IDS}},new ID($loginid,"$firstname $lastname",$email));
     }
@@ -562,8 +559,8 @@ sub write() {
     $developerfile.="#                 is the [loginname]. The rest of the entries are\n";
     $developerfile.="#                 used for information and clarity purposes.\n";
     $developerfile.="#\n";
-    $developerfile.="# You can find the information required to add a user, using the \"phone\"\n";
-    $developerfile.="# command from any CERN machine. \"phone user -A\" will give you a list of his\n";
+    $developerfile.="# You can find the information required to add a user, using the \"phonebook\"\n";
+    $developerfile.="# command from any CERN machine. \"phonebook user --all\" will give you a list of his\n";
     $developerfile.="# accounts and lognames too.\n";
     $developerfile.="# A safe assumption is to look for his ZH account on AFS/LXPLUS\n";
     $developerfile.="# Please remember to use lower case for the logname.\n";

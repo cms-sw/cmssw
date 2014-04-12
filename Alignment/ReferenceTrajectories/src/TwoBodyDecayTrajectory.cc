@@ -1,27 +1,31 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "Alignment/ReferenceTrajectories/interface/TwoBodyDecayTrajectory.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
+#include "DataFormats/Math/interface/Error.h" 
+#include "Alignment/TwoBodyDecay/interface/TwoBodyDecayParameters.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
-#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
-#include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToLocal.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-
 
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState& trajectoryState,
 						const ConstRecHitCollection & recHits,
 						const MagneticField* magField,
 						MaterialEffects materialEffects,
+						PropagationDirection propDir,
 						bool hitsAreReverse,
+						const reco::BeamSpot &beamSpot,
 						bool useRefittedState,
 						bool constructTsosWithErrors )
 
-  : ReferenceTrajectoryBase( TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size() )
+  : ReferenceTrajectoryBase( 
+     TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size(),
+  (materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-4 : 0,
+  (materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-3 : 1 )
 {
   if ( hitsAreReverse )
   {
@@ -40,19 +44,19 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
       fwdRecHits.second.push_back( *itRecHits );
     }
 
-    theValidityFlag = this->construct( trajectoryState, fwdRecHits, magField, materialEffects,
-				       useRefittedState, constructTsosWithErrors );
+    theValidityFlag = this->construct( trajectoryState, fwdRecHits, magField, materialEffects, propDir,
+				       beamSpot, useRefittedState, constructTsosWithErrors );
   }
   else
   {
-    theValidityFlag = this->construct( trajectoryState, recHits, magField, materialEffects,
-				       useRefittedState, constructTsosWithErrors );
+    theValidityFlag = this->construct( trajectoryState, recHits, magField, materialEffects, propDir,
+				       beamSpot, useRefittedState, constructTsosWithErrors );
   }
 }
 
 
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( void )
-  : ReferenceTrajectoryBase( 0, 0 )
+  : ReferenceTrajectoryBase( 0, 0, 0, 0)
 {}
 
 
@@ -60,9 +64,11 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
 					const ConstRecHitCollection& recHits,
 					const MagneticField* field,
 					MaterialEffects materialEffects,
+					PropagationDirection propDir,
+					const reco::BeamSpot &beamSpot,
 					bool useRefittedState,
 					bool constructTsosWithErrors )
-{
+{  
   const TwoBodyDecayTrajectoryState::TsosContainer& tsos = state.trajectoryStates( useRefittedState );
   const TwoBodyDecayTrajectoryState::Derivatives& deriv = state.derivatives();
   double mass = state.particleMass();
@@ -72,53 +78,101 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   //
 
   // construct a trajectory (hits should be already in correct order)
-  ReferenceTrajectory trajectory1( tsos.first, recHits.first, false, field, materialEffects, mass );
+  ReferenceTrajectory trajectory1( tsos.first, recHits.first, false, field, materialEffects,
+				   propDir, mass, false, beamSpot);
 
   // check if construction of trajectory was successful
   if ( !trajectory1.isValid() ) return false;
-
+  
+  int nLocal = deriv.first.num_row();
+  int nTbd   = deriv.first.num_col();
+  unsigned int nHitMeas1     = trajectory1.numberOfHitMeas();
+  unsigned int nVirtualMeas1 = trajectory1.numberOfVirtualMeas(); 
+  unsigned int nPar1         = trajectory1.numberOfPar();
+  unsigned int nVirtualPar1  = trajectory1.numberOfVirtualPar(); 
+     
   // derivatives of the trajectory w.r.t. to the decay parameters
-  AlgebraicMatrix fullDeriv1 = trajectory1.derivatives()*deriv.first;
+  AlgebraicMatrix fullDeriv1 = trajectory1.derivatives().sub(1,nHitMeas1+nVirtualMeas1,1,nLocal) * trajectory1.localToTrajectory() * deriv.first;
 
   //
   // second track
   //
 
-  ReferenceTrajectory trajectory2( tsos.second, recHits.second, false, field, materialEffects, mass );
+  ReferenceTrajectory trajectory2( tsos.second, recHits.second, false, field, materialEffects,
+				   propDir, mass, false, beamSpot );
 
   if ( !trajectory2.isValid() ) return false;
+  
+  unsigned int nHitMeas2     = trajectory2.numberOfHitMeas();
+  unsigned int nVirtualMeas2 = trajectory2.numberOfVirtualMeas();  
+  unsigned int nPar2         = trajectory2.numberOfPar();
+  unsigned int nVirtualPar2  = trajectory2.numberOfVirtualPar();
 
-  AlgebraicMatrix fullDeriv2 = trajectory2.derivatives()*deriv.second;
+  AlgebraicMatrix fullDeriv2 = trajectory2.derivatives().sub(1,nHitMeas2+nVirtualMeas2,1,nLocal) * trajectory2.localToTrajectory() * deriv.second;
 
   //
   // combine both tracks
   //
-
+  
   theNumberOfRecHits.first = recHits.first.size();
   theNumberOfRecHits.second = recHits.second.size();
 
-  int nMeasurements1 = nMeasPerHit*theNumberOfRecHits.first;
-  //int nMeasurements2 = nMeasPerHit*theNumberOfRecHits.second;
-  //int nMeasurements = nMeasurements1 + nMeasurements2;
+  theNumberOfHits = trajectory1.numberOfHits() + trajectory2.numberOfHits(); 
+  theNumberOfPars = nPar1 + nPar2;
+  theNumberOfVirtualPars = nVirtualPar1 + nVirtualPar2;
+  theNumberOfVirtualMeas = nVirtualMeas1 + nVirtualMeas2 + 1; // add virtual mass measurement
+  
+  // hit measurements from trajectory 1
+  int rowOffset = 1;
+  int colOffset = 1; 
+  theDerivatives.sub( rowOffset, colOffset,                fullDeriv1.sub(            1, nHitMeas1,                     1, nTbd ) );
+  colOffset += nTbd;
+  theDerivatives.sub( rowOffset, colOffset, trajectory1.derivatives().sub(            1, nHitMeas1,            nLocal + 1, nPar1 + nVirtualPar1 ) );
+  // hit measurements from trajectory 2
+  rowOffset += nHitMeas1;
+  colOffset = 1; 
+  theDerivatives.sub( rowOffset, colOffset,                fullDeriv2.sub(            1, nHitMeas2,                     1, nTbd ) );
+  colOffset += (nPar1 + nVirtualPar1 + nTbd - nLocal);
+  theDerivatives.sub( rowOffset, colOffset, trajectory2.derivatives().sub(            1, nHitMeas2,            nLocal + 1, nPar2 + nVirtualPar2 ) );  
+  // MS measurements from trajectory 1
+  rowOffset += nHitMeas2;  
+  colOffset = 1; 
+  theDerivatives.sub( rowOffset, colOffset,                fullDeriv1.sub(nHitMeas1 + 1, nHitMeas1 + nVirtualMeas1,          1, nTbd ) );  
+  colOffset += nTbd;
+  theDerivatives.sub( rowOffset, colOffset, trajectory1.derivatives().sub(nHitMeas1 + 1, nHitMeas1 + nVirtualMeas1, nLocal + 1, nPar1 + nVirtualPar1 ) ); 
+  // MS measurements from trajectory 2
+  rowOffset += nVirtualMeas1;  
+  colOffset = 1; 
+  theDerivatives.sub( rowOffset, colOffset,                fullDeriv2.sub(nHitMeas2 + 1, nHitMeas2 + nVirtualMeas2,          1, nTbd ) );
+  colOffset += (nPar1 + nVirtualPar1 + nTbd - nLocal);  
+  theDerivatives.sub( rowOffset, colOffset, trajectory2.derivatives().sub(nHitMeas2 + 1, nHitMeas2 + nVirtualMeas2, nLocal + 1, nPar2 + nVirtualPar2 ) ); 
+        
+  theMeasurements.sub(                                         1, trajectory1.measurements().sub(            1, nHitMeas1 ) );
+  theMeasurements.sub( nHitMeas1                             + 1, trajectory2.measurements().sub(            1, nHitMeas2 ) );
+  theMeasurements.sub( nHitMeas1 + nHitMeas2                 + 1, trajectory1.measurements().sub(nHitMeas1 + 1, nHitMeas1 + nVirtualMeas1 ) );
+  theMeasurements.sub( nHitMeas1 + nHitMeas2 + nVirtualMeas1 + 1, trajectory2.measurements().sub(nHitMeas2 + 1, nHitMeas2 + nVirtualMeas2 ) );
 
-  theDerivatives.sub( 1, 1, fullDeriv1 );
-  theDerivatives.sub( nMeasurements1 + 1, 1, fullDeriv2 );
+  theMeasurementsCov.sub(                                         1, trajectory1.measurementErrors().sub(            1, nHitMeas1 ) );
+  theMeasurementsCov.sub( nHitMeas1                             + 1, trajectory2.measurementErrors().sub(            1, nHitMeas2 ) );
+  theMeasurementsCov.sub( nHitMeas1 + nHitMeas2                 + 1, trajectory1.measurementErrors().sub(nHitMeas1 + 1, nHitMeas1 + nVirtualMeas1 ) );
+  theMeasurementsCov.sub( nHitMeas1 + nHitMeas2 + nVirtualMeas1 + 1, trajectory2.measurementErrors().sub(nHitMeas2 + 1, nHitMeas2 + nVirtualMeas2 ) );
 
-  theMeasurements.sub( 1, trajectory1.measurements() );
-  theMeasurements.sub( nMeasurements1 + 1, trajectory2.measurements() );
+  theTrajectoryPositions.sub(             1, trajectory1.trajectoryPositions() );
+  theTrajectoryPositions.sub( nHitMeas1 + 1, trajectory2.trajectoryPositions() );
 
-  theMeasurementsCov.sub( 1, trajectory1.measurementErrors() );
-  theMeasurementsCov.sub( nMeasurements1 + 1, trajectory2.measurementErrors() );
-
-  theTrajectoryPositions.sub( 1, trajectory1.trajectoryPositions() );
-  theTrajectoryPositions.sub( nMeasurements1 + 1, trajectory2.trajectoryPositions() );
-
-  theTrajectoryPositionCov = state.decayParameters().covariance().similarity( theDerivatives );
+  theTrajectoryPositionCov = state.decayParameters().covariance().similarity( theDerivatives.sub(1, nHitMeas1 + nHitMeas2, 1, 9) );
 
   theParameters = state.decayParameters().parameters();
 
   theRecHits.insert( theRecHits.end(), recHits.first.begin(), recHits.first.end() );
   theRecHits.insert( theRecHits.end(), recHits.second.begin(), recHits.second.end() );
+
+  // add virtual mass measurement
+  rowOffset += nVirtualMeas2;
+  int indMass = rowOffset-1;
+  theMeasurements[indMass] = state.primaryMass() - state.decayParameters()[TwoBodyDecayParameters::mass];
+  theMeasurementsCov[indMass][indMass] = state.primaryWidth() * state.primaryWidth();
+  theDerivatives[indMass][TwoBodyDecayParameters::mass] = 1.0;
 
   if ( constructTsosWithErrors )
   {
@@ -165,7 +219,7 @@ void TwoBodyDecayTrajectory::constructSingleTsosWithErrors( const TrajectoryStat
 							    int iTsos,
 							    const MagneticField* field )
 {
-  AlgebraicSymMatrix localErrors( 5, 0 );
+  AlgebraicSymMatrix55 localErrors;
   const double coeff = 1e-2;
 
   double invP = tsos.localParameters().signedInverseMomentum();

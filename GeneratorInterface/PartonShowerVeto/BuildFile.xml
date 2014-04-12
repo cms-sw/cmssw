@@ -1,0 +1,11 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="GeneratorInterface/Pythia6Interface"/>
+<use   name="GeneratorInterface/AlpgenInterface"/>
+<use   name="GeneratorInterface/LHEInterface"/>
+<use   name="fastjet"/>
+<use   name="f77compiler"/>
+<export>
+  <lib   name="1"/>
+</export>

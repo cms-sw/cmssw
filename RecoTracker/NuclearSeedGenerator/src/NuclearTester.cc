@@ -2,32 +2,28 @@
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-template <class T>
-int index(T it_begin, T it_end, T it_)
-{
-           int indx=0;
-           for(T the_it=it_begin; the_it!=it_end; the_it++, indx++)
-                   if(the_it == it_) return indx;
-           return indx;
-}
-
 //----------------------------------------------------------------------
 NuclearTester::NuclearTester(unsigned int max_hits, const MeasurementEstimator* est, const TrackerGeometry* track_geom) :
     maxHits(max_hits), theEstimator(est), trackerGeom(track_geom) { NuclearIndex=0; }
 
 //----------------------------------------------------------------------
 bool NuclearTester::isNuclearInteraction( ) {
- 	 
-        // 1. we require at least 3 TM vectors to check if nuclear interactions occurs
+// TODO : if energy of primary track is below a threshold don't use checkWithMultiplicity but only checkwith compatible_hits.front
+
+        // 1. if momentum of the primary track is below 5 GeV and if the number of compatible hits >0
+        //    assume that a nuclear interaction occured at the end of the track
+        if( allTM.front().first.updatedState().globalMomentum().mag() < 5.0 && compatible_hits.front()>0) { NuclearIndex=1; return true; } 
+
+        // 2. else to use multiplicity we require at least 3 TM vectors to check if nuclear interactions occurs
         if(nHitsChecked()<3) return false;
 
         // 2. check with multiplicity :
 	if( checkWithMultiplicity() == true ) return true;
-	else  { 
-               // 3. last case : uncompleted track with at least 2 compatible hits in the last layer
-               if( nHitsChecked() >= maxHits && compatible_hits.front()>1) {NuclearIndex=1; return true; }
+    	else  {
+               // 3. last case : uncompleted track with at least 1 compatible hits in the last layer
+               if( nHitsChecked() >= maxHits && compatible_hits.front()>0) {NuclearIndex=1; return true; }
         }
-      
+
 	return false;
 }
 //----------------------------------------------------------------------
@@ -46,16 +42,16 @@ bool NuclearTester::checkWithMultiplicity() {
 
     // if the previous nb of compatible TM is > min+2 and if the next compatible TM is min+-1 -> NUCLEAR
     // example : Nhits = 5, 8, 2, 2, ...
-    if((*(min_it-1) - *min_it) > 2 && (*(min_it+1) - *min_it) < 2 ) { 
-            NuclearIndex = index<std::vector<int>::iterator>(compatible_hits.begin(),compatible_hits.end(),min_it);
+    if((*(min_it-1) - *min_it) > 2 && (*(min_it+1) - *min_it) < 2 ) {
+            NuclearIndex = min_it - compatible_hits.begin();
             return true;
     }
-  
+
     // case of : Nhits = 5, 8, 3, 2, 2, ...
     if(min_it-1 != compatible_hits.begin())  //because min_it must be at least at the third position
     {
-      if(min_it-1 != compatible_hits.begin() && (*(min_it-1) - *min_it) < 2 && (*(min_it-2) - *(min_it-1)) > 2 ) { 
-           NuclearIndex = index<std::vector<int>::const_iterator>(compatible_hits.begin(),compatible_hits.end(),min_it-1);
+      if(min_it-1 != compatible_hits.begin() && (*(min_it-1) - *min_it) < 2 && (*(min_it-2) - *(min_it-1)) > 2 ) {
+           NuclearIndex = min_it - 1 - compatible_hits.begin();
            return true;
       }
     }
@@ -96,7 +92,7 @@ std::vector<GlobalPoint> NuclearTester::HitPositions(const std::vector<Trajector
 //----------------------------------------------------------------------
 double NuclearTester::fwdEstimate(const std::vector<TrajectoryMeasurement>& vecTM) const {
        if(vecTM.empty()) return 0;
-       
+
        const TransientTrackingRecHit* hit = vecTM.front().recHit().get();
        if( hit->isValid() )
           return theEstimator->estimate( vecTM.front().forwardPredictedState(), *hit ).second;

@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/07 22:54:37 $
- *  $Revision: 1.5 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 
@@ -12,6 +10,8 @@
 
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
+#include "Geometry/DTGeometry/interface/DTSuperLayer.h"
+#include <iostream>
 
 using namespace std;
 
@@ -32,6 +32,7 @@ double DTDigiSyncTOFCorr::digitizerOffset(const DTWireId * id, const DTLayer* la
   const double cSpeed = 29.9792458; // cm/ns
 
   if (corrType==1) {
+    // Subtraction of assumed TOF, per CHAMBER
     double flightL = layer->chamber()->surface().position().mag();
     offset -= flightL/cSpeed;
   } else if (corrType==2) {
@@ -46,6 +47,10 @@ double DTDigiSyncTOFCorr::digitizerOffset(const DTWireId * id, const DTLayer* la
 
     offset -= flightL/cSpeed;
 
+  } else if (corrType==3) {
+    // Subtraction of assumed TOF, per SUPERLAYER
+    double flightL = layer->superLayer()->surface().position().mag();
+    offset -= flightL/cSpeed;
   } else if (corrType!=0){
     cout << "ERROR: SimMuon:DTDigitizer:DTDigiSyncTOFCorr:TOFCorrection = " << corrType
 	 << "is not defined " << endl; 

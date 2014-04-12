@@ -8,7 +8,6 @@
  *
  * \author Chiara Genta
  *
- * \version $Id:$
  *
  */
 namespace reco {

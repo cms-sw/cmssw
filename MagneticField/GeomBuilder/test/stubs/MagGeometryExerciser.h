@@ -4,8 +4,6 @@
 /** \class MagGeometryExerciser
  *  No description available.
  *
- *  $Date: 2007/02/03 16:20:08 $
- *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -26,7 +24,7 @@ public:
 
 
   void testFindVolume(int ntry = 100000); // findVolume(random) test
-  void testInside(int ntry = 100000);     // inside(random) test
+  void testInside(int ntry = 100000, float tolerance=0.);     // inside(random) test
 
   //  void testFieldRandom(int ntry = 1000);// fieldInTesla vs MagneticField::inTesla (random)
   //  void testFieldVol1();  // fieldInTesla within vol 1 (tiny region)
@@ -35,12 +33,12 @@ public:
 
 private:
   // Check if inside succeeds for the given point.
-  bool testInside(const GlobalPoint & gp);
+  bool testInside(const GlobalPoint & gp, float tolerance=0.);
   // Check if findVolume succeeds for the given point.
   bool testFindVolume(const GlobalPoint & gp);
 
   const MagGeometry * theGeometry;
-  std::vector<MagVolume6Faces*> volumes;
+  std::vector<MagVolume6Faces const*> volumes;
 };
 #endif
 

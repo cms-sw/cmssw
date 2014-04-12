@@ -1,5 +1,6 @@
 #include <SimG4Core/CustomPhysics/interface/CustomPDGParser.h>
 //#include<iostream>
+#include <cstdlib>
 
 /*CustomPDGParser::CustomPDGParser(int pdgCode) : m_pdgCode(pdgCode)
 {
@@ -15,9 +16,14 @@ bool CustomPDGParser::s_isRHadron(int pdg)
 bool CustomPDGParser::s_isstopHadron(int pdg) 
 {
  int pdgAbs=abs(pdg);
- return ( (pdgAbs % 100000 / 10000 == 6) ||  (pdgAbs % 10000 / 1000 == 6)  );
+ return ( (pdgAbs % 10000 / 1000 == 6) ||  (pdgAbs % 1000 / 100 == 6)  );
 }
 
+bool CustomPDGParser::s_issbottomHadron(int pdg) 
+{
+ int pdgAbs=abs(pdg);
+ return ( (pdgAbs % 10000 / 1000 == 5) ||  (pdgAbs % 10000 / 100 == 5)  );
+}
 
 bool CustomPDGParser::s_isSLepton(int pdg)
 {
@@ -49,14 +55,15 @@ bool CustomPDGParser::s_isRMeson(int pdg)
 bool CustomPDGParser::s_isMesonino(int pdg)
 {
  int pdgAbs=abs(pdg);
- return (pdgAbs % 10000 / 100 == 6);
+ return ((pdgAbs % 10000 / 100 == 6 ) || (pdgAbs % 10000 / 100 == 5));
+
 
 }
 
 bool CustomPDGParser::s_isSbaryon(int pdg)
 {
  int pdgAbs=abs(pdg);
- return (pdgAbs % 10000 / 1000 == 6);
+ return ((pdgAbs % 10000 / 1000 == 6) || (pdgAbs % 10000 / 1000 == 5));
 
 }
 
@@ -102,6 +109,7 @@ double CustomPDGParser::s_charge(int pdg)
 	  if (squark % 2 == 0 && quark % 2 == 1) charge = 1;
 	  if (squark % 2 == 1 && quark % 2 == 0) charge = 1;
 	  charge *= sign;
+	  if(s_issbottomHadron(pdg)) charge*=-1;
 	  return charge;
 	}
 
@@ -114,6 +122,7 @@ double CustomPDGParser::s_charge(int pdg)
 	    }
 	  charge/=3;
 	  charge*=sign;
+	  if(s_issbottomHadron(pdg)) charge*=-1;
 	  return charge;
 	}
 

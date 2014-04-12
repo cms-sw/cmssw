@@ -1,0 +1,19 @@
+#Created by I. Heredia
+#to decay Xi_b- -> Xi- J/psi (mu+ mu-) and charge conjugate.
+#Xi- is decayed by Geant.
+#
+Alias      MyXi_b-     Xi_b-
+Alias      Myanti-Xi_b+     anti-Xi_b+
+ChargeConj MyXi_b-     Myanti-Xi_b+
+Alias      MyJ/psi  J/psi
+ChargeConj MyJ/psi  MyJ/psi
+#
+Decay MyXi_b-
+  1.000    Xi-     MyJ/psi   PHSP;
+Enddecay
+CDecay Myanti-Xi_b+
+#
+Decay MyJ/psi
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+End

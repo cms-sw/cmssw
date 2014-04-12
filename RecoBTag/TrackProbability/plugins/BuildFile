@@ -1,5 +1,0 @@
-<use name=RecoBTag/TrackProbability>
-<use name=RecoBTau/JetTagComputer>
-<library file="*.cc" name=RecoBTagTrackProbabilityPlugins>
-      <flags EDM_PLUGIN=1>
-</library>

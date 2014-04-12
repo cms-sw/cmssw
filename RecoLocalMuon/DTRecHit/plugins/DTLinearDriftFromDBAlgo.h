@@ -6,14 +6,13 @@
  *  Compute drift distance using constant drift velocity
  *  read from database.
  *
- *  $Date: 2006/09/13 09:40:10 $
- *  $Revision: 1.1 $
  *  \author S.Bolognesi - INFN Torino
  */
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
 class DTMtime;
+class DTRecoUncertainties;
 
 class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
  public:
@@ -82,16 +81,30 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
 		       int step) const;
 
   //Map of meantimes
-   const DTMtime *mTimeMap;
+  const DTMtime *mTimeMap;
+
+  // Map of hit uncertainties
+  const DTRecoUncertainties *uncertMap;
  
   // Times below MinTime (ns) are considered as coming from previous BXs.
-  static float minTime;
+  const float minTime;
 
   // Times above MaxTime (ns) are considered as coming from following BXs
-  static float maxTime;
+  const float maxTime;
+  
+  // Perform a correction to vDrift for the external wheels
+  const bool doVdriftCorr;
+
+  // Switch recalculating hit parameters from digi time in Step 2 
+  // (when off, Step 2 does nothing)
+  const bool stepTwoFromDigi;
+
+  // Assign hit uncertainties based on new uncertainties DB 
+  // If false, the value taken from vdrift DB is used instead.
+  bool useUncertDB;
 
   // Switch on/off the verbosity
-  static bool debug;
+  const bool debug;
 };
 #endif
 

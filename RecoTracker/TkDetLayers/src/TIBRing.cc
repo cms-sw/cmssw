@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/TIBRing.h"
+#include "TIBRing.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -8,17 +8,18 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossing2OrderLocal.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
-#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "LayerCrossingSide.h"
+#include "DetGroupMerger.h"
+#include "CompatibleDetToGroupAdder.h"
 
 using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 TIBRing::TIBRing(vector<const GeomDet*>& theGeomDets):
+  GeometricSearchDet(true),
   theDets(theGeomDets.begin(),theGeomDets.end())
 {
   //checkRadius( first, last);
@@ -152,31 +153,32 @@ TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
-  //vector<DetGroup> result;
   float detWidth = closestGel.det()->surface().bounds().width();
   if (crossings.nextDistance < detWidth + window) {
     vector<DetGroup> nextResult;
     if (Adder::add( *theDets[theBinFinder.binIndex(crossings.nextIndex)], 
-		   tsos, prop, est, nextResult)) {
-      int crossingSide = LayerCrossingSide().barrelSide( tsos, prop);
+		    tsos, prop, est, nextResult)) {
+      int crossingSide = LayerCrossingSide::barrelSide( tsos, prop);
       if (crossings.closestIndex < crossings.nextIndex) {
-	DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult,
+	DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult),
 						result,
 						theHelicity, crossingSide);
       }
       else {
-	DetGroupMerger::orderAndMergeTwoLevels( nextResult, closestResult,
+	DetGroupMerger::orderAndMergeTwoLevels( std::move(nextResult), std::move(closestResult),
 						result,
 						theHelicity, crossingSide);
       }
     }
     else {
       result.swap(closestResult);
-    }
+    } 
+  }else{
+    result.swap(closestResult);
   }
   
   // only loop over neighbors (other than closest and next) if window is BIG
-  if (window > 0.5*detWidth) {
+  if (window > 0.5f*detWidth) {
     searchNeighbors( tsos, prop, est, crossings, window, result);
   } 
 }
@@ -189,33 +191,33 @@ void TIBRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			       vector<DetGroup>& result) const
 {
   typedef CompatibleDetToGroupAdder Adder;
-  int crossingSide = LayerCrossingSide().barrelSide( tsos, prop);
+  int crossingSide = LayerCrossingSide::barrelSide( tsos, prop);
   typedef DetGroupMerger Merger;
   
-  int negStart = min( crossings.closestIndex, crossings.nextIndex) - 1;
-  int posStart = max( crossings.closestIndex, crossings.nextIndex) + 1;
+  int negStart = std::min( crossings.closestIndex, crossings.nextIndex) - 1;
+  int posStart = std::max( crossings.closestIndex, crossings.nextIndex) + 1;
   
   int quarter = theDets.size()/4;
-  vector<DetGroup> tmp;
-  vector<DetGroup> newResult;
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
     const GeomDet* neighbor = theDets[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    tmp.clear();
-    newResult.clear();
-    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
-    Merger::orderAndMergeTwoLevels( tmp, result, newResult, theHelicity, crossingSide);
+    vector<DetGroup> tmp1;
+    if (!Adder::add( *neighbor, tsos, prop, est, tmp1)) break;
+    vector<DetGroup> tmp2; tmp2.swap(result);
+    vector<DetGroup> newResult;
+    Merger::orderAndMergeTwoLevels(std::move(tmp1), std::move(tmp2), newResult, theHelicity, crossingSide);
     result.swap(newResult);
   }
   for (int idet=posStart; idet < posStart + quarter-1; idet++) {
     const GeomDet* neighbor = theDets[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    tmp.clear();
-    newResult.clear();
-    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
-    Merger::orderAndMergeTwoLevels( result, tmp, newResult, theHelicity, crossingSide);
+    vector<DetGroup> tmp1;
+    if (!Adder::add( *neighbor, tsos, prop, est, tmp1)) break;
+    vector<DetGroup> tmp2; tmp2.swap(result);
+    vector<DetGroup> newResult;
+    Merger::orderAndMergeTwoLevels(std::move(tmp2), std::move(tmp1), newResult, theHelicity, crossingSide);
     result.swap(newResult);
   }
 }
@@ -230,28 +232,29 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   GlobalPoint startPos( startingState.globalPosition());
   GlobalVector startDir( startingState.globalMomentum());
-  double rho( startingState.transverseCurvature());
+  auto rho = startingState.transverseCurvature();
 
   HelixBarrelCylinderCrossing cylCrossing( startPos, startDir, rho,
-					   propDir,specificSurface());
+					   propDir,specificSurface(),
+					     HelixBarrelCylinderCrossing::bestSol);
 
   if (!cylCrossing.hasSolution()) return SubRingCrossings();
 
   GlobalPoint  cylPoint( cylCrossing.position());
   GlobalVector cylDir( cylCrossing.direction());
-  int closestIndex = theBinFinder.binIndex(cylPoint.phi());
+  int closestIndex = theBinFinder.binIndex(cylPoint.barePhi());
 
-  const BoundPlane& closestPlane( theDets[closestIndex]->surface());
+  const Plane& closestPlane( theDets[closestIndex]->surface());
 
-  LocalPoint closestPos = Crossing( cylPoint, cylDir, rho, closestPlane).position();
+  LocalPoint closestPos = Crossing::positionOnly( cylPoint, cylDir, rho, closestPlane);
   float closestDist = closestPos.x(); // use fact that local X perp to global Z 
 
   //int next = cylPoint.phi() - closestPlane.position().phi() > 0 ? closest+1 : closest-1;
-  int nextIndex = PhiLess()( closestPlane.position().phi(), cylPoint.phi()) ? 
+  int nextIndex = PhiLess()( closestPlane.position().barePhi(), cylPoint.barePhi()) ? 
     closestIndex+1 : closestIndex-1;
 
-  const BoundPlane& nextPlane( theDets[ theBinFinder.binIndex(nextIndex)]->surface());
-  LocalPoint nextPos = Crossing( cylPoint, cylDir, rho, nextPlane).position();
+  const Plane& nextPlane( theDets[ theBinFinder.binIndex(nextIndex)]->surface());
+  LocalPoint nextPos = Crossing::positionOnly( cylPoint, cylDir, rho, nextPlane);
   float nextDist = nextPos.x();
 
   if (fabs(closestDist) < fabs(nextDist)) {

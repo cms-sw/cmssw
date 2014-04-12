@@ -1,0 +1,86 @@
+
+/*!
+
+\page CalibCalorimetry_EcalLaserAnalyzer Package CalibCalorimetry/EcalLaserAnalyzer
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/CalibCalorimetry/EcalLaserAnalyzer/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/CalibCalorimetry/EcalLaserAnalyzer/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- ME
+- MEChannel
+- MEEBGeom
+- MEEEGeom
+- MEGeom
+- MELaserPrim
+- PulseFit
+- PulseFitWithFunction
+- PulseFitWithShape
+- Shape
+- TAPD
+- TAPDPulse
+- TFParams
+- TMCORLin
+- TMCORSat
+- TMCReader
+- TMConfig
+- TMEGeom
+- TMTQ
+- TMarkov
+- TMatacq
+- TMem
+- TMom
+- TPEDestalAnalysis
+- TPN
+- TPNCor
+- TPNFit
+- TPNPulse
+- TSFit
+- TShapeAnalysis
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+- EcalABAnalyzer
+- EcalLaserAnalyzer
+- EcalLaserAnalyzer2
+- EcalMatacqAnalyzer
+- EcalPerEvtLaserAnalyzer
+- EcalPerEvtMatacqAnalyzer
+- EcalStatusAnalyzer
+- EcalTestPulseAnalyzer
+- LinkDef
+
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

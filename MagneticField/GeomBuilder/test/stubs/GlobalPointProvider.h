@@ -5,8 +5,6 @@
  *
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
  *  \author N. Amapane - CERN
  */
 
@@ -19,12 +17,12 @@
 
 class GlobalPointProvider {
  public:
-  GlobalPointProvider(float minR,
-		      float maxR,
-		      float minPhi,
-		      float maxPhi,
-		      float minZ,
-		      float maxZ) : 
+  GlobalPointProvider(double minR,
+		      double maxR,
+		      double minPhi,
+		      double maxPhi,
+		      double minZ,
+		      double maxZ) : 
     theMinR(minR),
     theMaxR(maxR),
     theMinPhi(minPhi),
@@ -50,9 +48,10 @@ class GlobalPointProvider {
   
   GlobalPoint getPoint() {
 
-    float R = RandFlat::shoot(theMinR,theMaxR);
-    float Z = RandFlat::shoot(theMinZ,theMaxZ);
-    float phi = RandFlat::shoot(theMinPhi,theMaxPhi);
+    //Turn 
+    double R = CLHEP::RandFlat::shoot(theMinR,theMaxR);
+    double Z = CLHEP::RandFlat::shoot(theMinZ,theMaxZ);
+    double phi = CLHEP::RandFlat::shoot(theMinPhi,theMaxPhi);
 
     GlobalPoint gp(GlobalPoint::Cylindrical(R,phi,Z));
 
@@ -64,12 +63,12 @@ class GlobalPointProvider {
 
 
  private:
-  float theMinR;
-  float theMaxR;  
-  float theMinPhi;
-  float theMaxPhi;
-  float theMinZ;
-  float theMaxZ;
+  double theMinR;
+  double theMaxR;  
+  double theMinPhi;
+  double theMaxPhi;
+  double theMinZ;
+  double theMaxZ;
 };
 
 #endif

@@ -3,11 +3,18 @@
 /** \class reco::Vertex
  *  
  * A reconstructed Vertex providing position, error, chi2, ndof 
- * and reconstrudted tracks
+ * and reconstrudted tracks.
+ * The vertex can be valid, fake, or invalid.
+ * A valid vertex is one which has been obtained from a vertex fit of tracks, 
+ * and all data is meaningful
+ * A fake vertex is a vertex which was not made out of a proper fit with
+ * tracks, but still has a position and error (chi2 and ndof are null). 
+ * For a primary vertex, it could simply be the beam line.
+ * A fake vertex is considered valid.
+ * An invalid vertex has no meaningful data.
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.26 2007/05/30 07:44:32 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -15,10 +22,10 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
-// #include "DataFormats/Common/interface/OneToValue.h"
-#include <iostream>
+#include "DataFormats/Common/interface/RefToBase.h" 
+#include <Math/GenVector/PxPyPzE4D.h>                                                                                                   
+#include <Math/GenVector/PxPyPzM4D.h> 
+#include "DataFormats/Math/interface/LorentzVector.h"                                                                                   
 
 namespace reco {
 
@@ -26,6 +33,8 @@ namespace reco {
 
   class Vertex {
   public:
+    /// The iteratator for the vector<TrackRef>
+    typedef std::vector<TrackBaseRef >::const_iterator trackRef_iterator;
     /// point in the space
     typedef math::XYZPoint Point;
     /// error matrix dimension
@@ -38,21 +47,48 @@ namespace reco {
     enum { size = dimension * ( dimension + 1 ) / 2 };
     /// index type
     typedef unsigned int index;
-    /// default constructor
-    Vertex() { }
-    /// constructor from values
+    /// default constructor - The vertex will not be valid. Position, error,
+    /// chi2, ndof will have random entries, and the vectors of tracks will be empty
+    /// Use the isValid method to check that your vertex is valid. 
+    Vertex():  chi2_( 0.0 ), ndof_( 0 ), position_(0.,0.,0. ) { validity_ = false; for(int i = 0; i < size; ++ i ) covariance_[i]=0.;
+}
+    /// Constructor for a fake vertex.
+    Vertex( const Point &, const Error &);
+    /// constructor for a valid vertex, with all data
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
+    /// Tells whether the vertex is valid.
+    bool isValid() const {return validity_;}
+    /// Tells whether a Vertex is fake, i.e. not a vertex made out of a proper
+    /// fit with tracks.
+    /// For a primary vertex, it could simply be the beam line.
+    bool isFake() const {return (chi2_==0 && ndof_==0 && tracks_.empty());}
     /// add a reference to a Track
-    void add( const TrackRef & r, float w=1.0 );
+    void add( const TrackBaseRef & r, float w=1.0 );
     /// add the original a Track(reference) and the smoothed Track
-    void add( const TrackRef & r, const Track & refTrack, float w=1.0 );
+    void add( const TrackBaseRef & r, const Track & refTrack, float w=1.0 );
     void removeTracks();
+
+#ifndef CMS_NOCXX11
     ///returns the weight with which a Track has contributed to the vertex-fit.
-    float trackWeight ( const TrackRef & r ) const;
+    template<typename TREF> 
+    float trackWeight ( const TREF & r ) const {
+      int i=0;
+      for(auto const & t : tracks_) {
+        if ( (r.id()==t.id()) & (t.key()==r.key()) ) return weights_[i]/255.f;
+        ++i;
+      }
+      return 0;
+    }
+#else
+   ///returns the weight with which a Track has contributed to the vertex-fit.
+    float trackWeight ( const TrackBaseRef & r ) const;
+    ///returns the weight with which a Track has contributed to the vertex-fit.
+    float trackWeight ( const TrackRef & r ) const; 
+#endif
     /// first iterator over tracks
-    track_iterator tracks_begin() const;
+    trackRef_iterator tracks_begin() const;
     /// last iterator over tracks
-    track_iterator tracks_end() const;
+    trackRef_iterator tracks_end() const;
     /// number of tracks
     size_t tracksSize() const;
     /// chi-squares
@@ -65,7 +101,7 @@ namespace reco {
      */
     double ndof() const { return ndof_; }
     /// chi-squared divided by n.d.o.f.
-    double normalizedChi2() const { return chi2_ / ndof_; }
+    double normalizedChi2() const { return ndof_ != 0 ? chi2_ / ndof_ : chi2_ * 1e6; }
     /// position 
     const Point & position() const { return position_; }
     /// x coordinate 
@@ -81,11 +117,9 @@ namespace reco {
     /// error on z
     double zError() const { return sqrt( covariance(2, 2) ); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double error( int i, int j ) const {
-      std::cout << "reco::Vertex::error(i, j) OBSOLETE, use covariance(i, j)"
-		<< std::endl;
-      return covariance_[ idx( i, j ) ]; 
-    }
+    // Note that:
+    //   double error( int i, int j ) const 
+    // is OBSOLETE, use covariance(i, j)
     double covariance( int i, int j ) const { 
       return covariance_[ idx( i, j ) ]; 
     }
@@ -101,7 +135,11 @@ namespace reco {
     
     /// Returns the original track which corresponds to a particular refitted Track
     /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
-    TrackRef originalTrack(const Track & refTrack) const;
+    TrackBaseRef originalTrack(const Track & refTrack) const;
+
+    /// Returns the refitted track which corresponds to a particular original Track
+    /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
+    Track refittedTrack(const TrackBaseRef & track) const;
 
     /// Returns the refitted track which corresponds to a particular original Track
     /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
@@ -110,7 +148,12 @@ namespace reco {
     /// Returns the container of refitted tracks
     const std::vector<Track> & refittedTracks() const { return refittedTracks_;}
 
-  private:
+    /// Returns the four momentum of the sum of the tracks, assuming the given mass for the decay products
+    math::XYZTLorentzVectorD p4(float mass=0.13957018,float minWeight=0.5) const; 
+
+    /// Returns the number of tracks in the vertex with weight above minWeight
+    unsigned int nTracks(float minWeight=0.5) const; 
+
     class TrackEqual {
       public:
 	TrackEqual( const Track & t) : track_( t ) { }
@@ -118,19 +161,23 @@ namespace reco {
       private:
 	const Track & track_;
     };
+
+  private:
     /// chi-sqared
-    Double32_t chi2_;
+    float chi2_;
     /// number of degrees of freedom
-    Double32_t ndof_;
+    float ndof_;
     /// position
     Point position_;
     /// covariance matrix (3x3) as vector
-    Double32_t covariance_[ size ];
+    float covariance_[ size ];
     /// reference to tracks
-    TrackRefVector tracks_;
+    std::vector<TrackBaseRef > tracks_;
     /// The vector of refitted tracks
     std::vector<Track> refittedTracks_;
-    edm::AssociationMap< edm::OneToValue<reco::TrackCollection, float> > weights_;
+    std::vector<uint8_t> weights_;
+    /// tells wether the vertex is really valid.
+    bool validity_;
 
 
     /// position index

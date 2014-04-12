@@ -1,71 +1,72 @@
 #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include <iostream>
 
 using namespace reco;
 using namespace std;
 
+
+
 GsfTransientTrack::GsfTransientTrack() : 
   GsfTrack(), tkr_(), theField(0), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false)
-{
-  init();
-}
+  initialTSCPAvailable(false), blStateAvailable(false), theTIPExtrapolator()
+{}
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field) : 
-  GsfTrack(tk), tkr_(), theField(field), initialTSOSAvailable(false),
+  GsfTrack(tk),
+  tkr_(), theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false)
 {
-  init();
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
 }
 
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field) : 
-  GsfTrack(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false)
+  GsfTrack(*tk), 
+  tkr_(tk), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false),
+  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
-  init();
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(*tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
 }
 
-GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  GsfTrack(tk), tkr_(), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
+GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field,
+				      const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  GsfTrack(tk),
+   tkr_(), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
+  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
-  init();
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
 }
 
-GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  GsfTrack(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
+GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field, 
+				      const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  GsfTrack(*tk),
+   tkr_(tk), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
+  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
-  init();
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(*tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
 }
 
 
 GsfTransientTrack::GsfTransientTrack( const GsfTransientTrack & tt ) :
-  GsfTrack(tt), tkr_(tt.persistentTrackRef()), theField(tt.field()), 
+  GsfTrack(tt),
+  tkr_(tt.persistentTrackRef()), theField(tt.field()), 
   initialFTS(tt.initialFreeState()), initialTSOSAvailable(false),
-  initialTSCPAvailable(false)
+  initialTSCPAvailable(false),
+  theTIPExtrapolator(AnalyticalPropagator(tt.field(), alongMomentum))
 {
-  init();
   if (tt.initialTSOSAvailable) {
     initialTSOS= tt.impactPointState();
     initialTSOSAvailable = true;
@@ -76,12 +77,6 @@ GsfTransientTrack::GsfTransientTrack( const GsfTransientTrack & tt ) :
   }
 }
 
-void GsfTransientTrack::init()
-{
-  thePropagator = 
-    new GsfPropagatorAdapter(AnalyticalPropagator(theField, alongMomentum));
-  theTIPExtrapolator = new TransverseImpactPointExtrapolator(*thePropagator);
-}
 
 
 void GsfTransientTrack::setES(const edm::EventSetup& setup) {
@@ -99,6 +94,7 @@ void GsfTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGe
 void GsfTransientTrack::setBeamSpot(const BeamSpot& beamSpot)
 {
   theBeamSpot = beamSpot;
+  blStateAvailable = false;
 }
 
 
@@ -119,14 +115,14 @@ TrajectoryStateClosestToPoint GsfTransientTrack::impactPointTSCP() const
 
 TrajectoryStateOnSurface GsfTransientTrack::outermostMeasurementState() const
 {
-    MultiTrajectoryStateTransform theTransform;
-    return theTransform.outerStateOnSurface((*this),*theTrackingGeometry,theField);
+    MultiTrajectoryStateTransform theMTransform;
+    return theMTransform.outerStateOnSurface((*this),*theTrackingGeometry,theField);
 }
 
 TrajectoryStateOnSurface GsfTransientTrack::innermostMeasurementState() const
 {
-    MultiTrajectoryStateTransform theTransform;
-    return theTransform.innerStateOnSurface((*this),*theTrackingGeometry,theField);
+    MultiTrajectoryStateTransform theMTransform;   
+    return theMTransform.innerStateOnSurface((*this),*theTrackingGeometry,theField);
 }
 
 void GsfTransientTrack::calculateTSOSAtVertex() const
@@ -139,7 +135,7 @@ void GsfTransientTrack::calculateTSOSAtVertex() const
 TrajectoryStateOnSurface 
 GsfTransientTrack::stateOnSurface(const GlobalPoint & point) const
 {
-  return theTIPExtrapolator->extrapolate(innermostMeasurementState(), point);
+  return theTIPExtrapolator.extrapolate(innermostMeasurementState(), point);
 }
 
 
@@ -152,7 +148,7 @@ GsfTransientTrack::trajectoryStateClosestToPoint( const GlobalPoint & point ) co
 TrajectoryStateClosestToBeamLine GsfTransientTrack::stateAtBeamLine() const
 {
   if (!blStateAvailable) {
-    TrajectoryStateClosestToBeamLineBuilder blsBuilder;
+    TSCBLBuilderNoMaterial blsBuilder;
     trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
     blStateAvailable = true;
   }

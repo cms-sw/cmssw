@@ -1,6 +1,16 @@
-#ifndef GlobalGridWrapper_H
-#define GlobalGridWrapper_H
+#ifndef GlobalGridWrapper_h
+#define GlobalGridWrapper_h
 
+/** \class GlobalGridWrapper
+ *
+ *  Generic interpolator that is a wrapper of MagneticFieldGrid, i.e.
+ *  non-specialized/optimized for each kind of grid.
+ *
+ *  \author T. Todorov
+ */
+
+
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "MagneticField/Interpolation/interface/MFGrid.h"
 
 #include <string>
@@ -8,7 +18,7 @@
 class binary_ifstream;
 class MagneticFieldGrid;
 
-class GlobalGridWrapper : public MFGrid {
+class dso_internal GlobalGridWrapper : public MFGrid {
 public:
 
   GlobalGridWrapper(  const GloballyPositioned<float>& vol,
@@ -22,7 +32,7 @@ public:
 
   virtual LocalPoint fromGridFrame( double a, double b, double c) const;
 
-  virtual std::vector<int> dimensions() const;
+  virtual Dimensions dimensions() const;
 
   virtual LocalPoint  nodePosition( int i, int j, int k) const;
 

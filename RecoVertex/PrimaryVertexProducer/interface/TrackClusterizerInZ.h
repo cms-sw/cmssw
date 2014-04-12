@@ -3,29 +3,29 @@
 
 /**\class TrackClusterizerInZ 
  
-  Description: separates event tracks into clusters along the beam line
+  Description: interface/base class for track clusterizers that separate event tracks into clusters along the beam line
 
 */
 
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+
 
 
 class TrackClusterizerInZ {
 
+
 public:
 
-  TrackClusterizerInZ(const edm::ParameterSet& conf);
+  TrackClusterizerInZ(){};
+  TrackClusterizerInZ(const edm::ParameterSet& conf){};
 
-  std::vector< std::vector<reco::TransientTrack> >
-  clusterize(const std::vector<reco::TransientTrack> & tracks) const;
+  virtual std::vector< std::vector<reco::TransientTrack> >
+    clusterize(const std::vector<reco::TransientTrack> & tracks)const =0;
 
-  float zSeparation() const;
-
-private:
-
-  edm::ParameterSet theConfig;
+  virtual ~TrackClusterizerInZ(){};
 
 };
 

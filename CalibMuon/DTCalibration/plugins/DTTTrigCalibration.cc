@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/11 12:21:00 $
- *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCalibration.h"
@@ -50,7 +48,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   digiLabel = pset.getUntrackedParameter<string>("digiLabel");
 
   // Switch on/off the DB writing
-  findTMeanAndSigma = pset.getUntrackedParameter<bool>("fitAndWrite", "false");
+  findTMeanAndSigma = pset.getUntrackedParameter<bool>("fitAndWrite", false);
 
   // The TDC time-window (ns)
   maxTDCCounts = 5000 * pset.getUntrackedParameter<int>("tdcRescale", 1);
@@ -64,6 +62,9 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   theFitter = new DTTimeBoxFitter();
   if(debug)
     theFitter->setVerbosity(1);
+  
+  double sigmaFit = pset.getUntrackedParameter<double>("sigmaTTrigFit",10.);
+  theFitter->setFitSigma(sigmaFit);
 
   doSubtractT0 = pset.getUntrackedParameter<bool>("doSubtractT0","false");
   // Get the synchronizer
@@ -75,6 +76,9 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   }
 
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
+
+  // the kfactor to be uploaded in the ttrig DB
+  kFactor =  pset.getUntrackedParameter<double>("kFactor",-0.7);
 
   if(debug) 
     cout << "[DTTTrigCalibration]Constructor called!" << endl;
@@ -241,10 +245,11 @@ void DTTTrigCalibration::endJob() {
 	  slHisto != theHistoMap.end();
 	  slHisto++) {
 	pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
-	tTrig->setSLTtrig((*slHisto).first,
-			  meanAndSigma.first,
-			  meanAndSigma.second,
-			  DTTimeUnits::ns);
+	tTrig->set((*slHisto).first,
+		   meanAndSigma.first,
+		   meanAndSigma.second,
+                   kFactor,
+		   DTTimeUnits::ns);
     
 	if(debug) {
 	  cout << " SL: " << (*slHisto).first

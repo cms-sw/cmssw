@@ -5,8 +5,6 @@
 //   L1 DT Track Finder Digi-to-Raw
 //
 //
-//   $Date: 2007/03/12 00:44:19 $
-//   $Revision: 1.3 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -19,18 +17,20 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
 
 #include <iostream>
-#include <string>
 
 using namespace std;
 
 DTTFFEDSim::DTTFFEDSim(const edm::ParameterSet& pset) : eventNum(0) {
 
   produces<FEDRawDataCollection>();
+
+  DTDigiInputTag = pset.getParameter<edm::InputTag>("DTDigi_Source");
+  DTPHTFInputTag = pset.getParameter<edm::InputTag>("DTTracks_Source");
 
 }
 
@@ -51,20 +51,28 @@ void DTTFFEDSim::produce(edm::Event& e, const edm::EventSetup& c) {
 bool DTTFFEDSim::fillRawData(edm::Event& e,
                              FEDRawDataCollection& data) {
 
-  eventNum++;
+  eventNum = e.id().event();
 
   int lines = 2;
 
-  edm::Handle<L1MuDTChambPhContainer> dttrig;
-  e.getByType(dttrig);
-  lines += dttrig->bxSize(-1, 1);
+  edm::Handle<L1MuDTChambPhContainer> phtrig;
+  e.getByLabel(getDTDigiInputTag(),phtrig);
+  lines += phtrig->bxSize(-1, 1);
+
+  edm::Handle<L1MuDTChambThContainer> thtrig;
+  e.getByLabel(getDTDigiInputTag(),thtrig);
+  lines += thtrig->bxSize(-1, 1);
+
+  edm::Handle<L1MuDTTrackContainer>   trtrig;
+  e.getByLabel(getDTPHTFInputTag(),trtrig);
+  lines += trtrig->bxSize(-1, 1)*3;
 
   FEDRawData& dttfdata = data.FEDData(0x30C);
   dttfdata.resize(lines*8); // size in bytes
   unsigned char* LineFED=dttfdata.data();
 
-  long* dataWord1 = new long;
-  long* dataWord2 = new long;
+  int* dataWord1 = new int;
+  int* dataWord2 = new int;
 
   //--> Header
 
@@ -74,9 +82,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
   int newCRC =  0xFFFF;
   calcCRC(*dataWord1, *dataWord2, newCRC);
-  *((long*)LineFED)=*dataWord2; 
+  *((int*)LineFED)=*dataWord2; 
   LineFED+=4;
-  *((long*)LineFED)=*dataWord1; 
+  *((int*)LineFED)=*dataWord1; 
 
   //--> DTTF data 
 
@@ -93,15 +101,15 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
   //Input
   L1MuDTChambPhContainer::Phi_iterator tsphi;
 
-  for ( tsphi =  dttrig->getContainer()->begin();
-        tsphi != dttrig->getContainer()->end();
+  for ( tsphi =  phtrig->getContainer()->begin();
+        tsphi != phtrig->getContainer()->end();
         tsphi++ ) {
     if ( tsphi->code() != 7 ) {
 
       int wheelID   = tsphi->whNum()+1;
       if ( wheelID <= 0 ) wheelID -= 2;
       int stationID = tsphi->stNum()-1;
-      int is2nd     = ( tsphi->Ts2Tag() == 1 ) ? 1 : 0;
+      int is2nd     = tsphi->Ts2Tag();
 
       int channelNr = channel(wheelID, tsphi->scNum(), tsphi->bxNum()-is2nd);
       if ( channelNr == 255 ) continue;
@@ -124,12 +132,120 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
       calcCRC(*dataWord1, *dataWord2, newCRC);
       LineFED+=4;
-      *((long*)LineFED)=*dataWord2; 
+      *((int*)LineFED)=*dataWord2; 
       LineFED+=4;
-      *((long*)LineFED)=*dataWord1; 
+      *((int*)LineFED)=*dataWord1; 
     }
   }
   //Input
+
+  //Input
+  L1MuDTChambThContainer::The_iterator tsthe;
+
+  for ( tsthe =  thtrig->getContainer()->begin();
+        tsthe != thtrig->getContainer()->end();
+        tsthe++ ) {
+
+    int wheelTh  = tsthe->whNum();
+    int sectorID = tsthe->scNum();
+
+    int channelNr = channel(0, sectorID, tsthe->bxNum());
+    if ( channelNr == 255 ) continue;
+    int TSId = wheelTh+2;
+
+    *dataWord1 = ((channelNr&0xFF)<<24)
+               + 0x00FFFFFF;
+
+    *dataWord2 = ((TSId&0x07)<<28)
+               + 0x0FFFFFFF;
+
+    int stationID = tsthe->stNum()-1;
+    for ( int bti = 0; bti < 7; bti++ )
+      if ( wheelTh == -2 || wheelTh == -1 || 
+	   ( wheelTh == 0 && (sectorID == 0 || sectorID == 3 || sectorID == 4 || sectorID == 7 || sectorID == 8 || sectorID == 11) ) )
+	*dataWord2 -= (tsthe->position(bti)&0x1)<<(stationID*7+bti);
+      else
+	*dataWord2 -= (tsthe->position(6-bti)&0x1)<<(stationID*7+bti);
+
+    calcCRC(*dataWord1, *dataWord2, newCRC);
+    LineFED+=4;
+    *((int*)LineFED)=*dataWord2; 
+    LineFED+=4;
+    *((int*)LineFED)=*dataWord1; 
+  }
+  //Input
+
+  //Output
+  L1MuDTTrackContainer::Trackiterator tstrk;
+
+  for ( tstrk =  trtrig->getContainer()->begin();
+        tstrk != trtrig->getContainer()->end();
+        tstrk++ ) {
+
+    int channelNr = channel(tstrk->whNum(), tstrk->scNum(), tstrk->bx());
+    if ( channelNr == 255 ) continue;
+    int TSId = ( tstrk->TrkTag() == 0 ) ? 0xAFFF : 0xBFFF;
+
+    *dataWord1 = ((channelNr&0xFF)<<24)
+               + 0x00FFFFFF;
+
+    *dataWord2 = (           (TSId&0xFFFF)<<16)
+	       + ( tstrk->stNum(4)&0x0000F)
+               + ((tstrk->stNum(3)&0x0000F)<<4)
+               + ((tstrk->stNum(2)&0x0000F)<<8)
+	       + ((tstrk->stNum(1)&0x00003)<<12);
+
+    calcCRC(*dataWord1, *dataWord2, newCRC);
+    LineFED+=4;
+    *((int*)LineFED)=*dataWord2; 
+    LineFED+=4;
+    *((int*)LineFED)=*dataWord1; 
+
+    TSId = ( tstrk->TrkTag() == 0 ) ? 0xCFFE : 0xDFFE;
+
+    *dataWord1 = ((channelNr&0xFF)<<24)
+               + 0x00FFFFFF;
+
+    *dataWord2 = (                    (TSId&0xFFFE)<<16)
+	       + ( ~tstrk->quality_packed()&0x0007)
+               + (     (tstrk->phi_packed()&0x00FF)<<3)
+               + ( (~tstrk->charge_packed()&0x0001)<<11)
+	       + (     (~tstrk->pt_packed()&0x001F)<<12);
+
+    calcCRC(*dataWord1, *dataWord2, newCRC);
+    LineFED+=4;
+    *((int*)LineFED)=*dataWord2; 
+    LineFED+=4;
+    *((int*)LineFED)=*dataWord1; 
+
+    channelNr = channel(0, tstrk->scNum(), tstrk->bx());
+    if ( channelNr == 255 ) continue;
+    TSId = (tstrk->whNum()+3)<<16;
+    TSId += ( tstrk->whNum() < 0 ) ? 0x8FFFC : 0x7FFFC;
+
+    *dataWord1 = ((channelNr&0xFF)<<24)
+               + 0x00FFFFFF;
+
+    *dataWord2 = (TSId&0xFFFFC)<<12;
+
+    if ( tstrk->TrkTag() == 0 ) {
+      *dataWord2 +=                            0x3F80
+                 + (       tstrk->eta_packed()&0x003F)
+                 + ((~tstrk->finehalo_packed()&0x0001)<<6);
+    }
+    else {
+      *dataWord2 +=                            0x007F
+                 + (     ( tstrk->eta_packed()&0x003F)<<7)
+                 + ((~tstrk->finehalo_packed()&0x0001)<<13);
+    }
+
+    calcCRC(*dataWord1, *dataWord2, newCRC);
+    LineFED+=4;
+    *((int*)LineFED)=*dataWord2; 
+    LineFED+=4;
+    *((int*)LineFED)=*dataWord1; 
+  }
+  //Output
 
   //--> Trailer
 
@@ -142,9 +258,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
   *dataWord2 += (newCRC&0xFFFF)<<16;
 
   LineFED+=4;
-  *((long*)LineFED)=*dataWord2; 
+  *((int*)LineFED)=*dataWord2; 
   LineFED+=4;
-  *((long*)LineFED)=*dataWord1; 
+  *((int*)LineFED)=*dataWord1; 
 
   delete dataWord1;
   delete dataWord2;
@@ -164,37 +280,51 @@ int DTTFFEDSim::channel( int wheel, int sector,  int bx ){
   if ( sector < 0 || sector > 11) { return myChannel; }
   if ( abs(wheel) > 3)            { return myChannel; }
 
-   myChannel = sector*21 + wheel*3 + bx + 10 ; 
+  myChannel = sector*21 + wheel*3 - bx + 10 ; 
+
+  if (myChannel > 125) myChannel += 2;
 
   return myChannel;
 }
 
 int DTTFFEDSim::bxNr( int channel ){
 
-  if (channel < 0 || channel > 252 ){ return -999; }
+  int myChannel = channel;
 
-  int myBx = (channel%3)-1;
+  if (myChannel > 127) myChannel -= 2;
+
+  if (myChannel < 0 || myChannel > 251 ){ return -999; }
+
+  int myBx = 1-(myChannel%3);
 
   return myBx;
 }
 
 int DTTFFEDSim::sector( int channel ){
 
-  if (channel < 0 || channel > 252 ){ return -999; }
+  int myChannel = channel;
 
-  return channel/21;
+  if (myChannel > 127) myChannel -= 2;
+
+  if (myChannel < 0 || myChannel > 251 ){ return -999; }
+
+  return myChannel/21;
 }
 
 int DTTFFEDSim::wheel( int channel ){
 
-  if (channel < 0 || channel > 252 ){ return -999; }    
+  int myChannel = channel;
 
-  int myWheel = ((channel%21)/3)-3;
+  if (myChannel > 127) myChannel -= 2;
+
+  if (myChannel < 0 || myChannel > 251 ){ return -999; }
+
+  int myWheel = ((myChannel%21)/3)-3;
 
   return myWheel;
 }
 
-void DTTFFEDSim::calcCRC(long myD1, long myD2, int &myC){
+void DTTFFEDSim::calcCRC(int myD1, int myD2, int &myC){
 
   int myCRC[16],D[64],C[16];
 
@@ -245,15 +375,15 @@ void DTTFFEDSim::calcCRC(long myD1, long myD2, int &myC){
 	       D[3]  + C[1]  + C[11] + C[12] + C[15] )%2;
 
   myCRC[6] = ( D[61] + D[60] + D[50] + D[46] + D[35] + D[34] +
-	       D[33] + D[32] + D[20] + D[18] + D[5]  + D[4]   +
+	       D[33] + D[32] + D[20] + D[18] + D[5]  + D[4]  +
 	       C[2]  + C[12] + C[13] )%2;
 
   myCRC[7] = ( D[62] + D[61] + D[51] + D[47] + D[36] + D[35] +
-	       D[34] + D[33] + D[21] + D[19] + D[6]  + D[5]   +
+	       D[34] + D[33] + D[21] + D[19] + D[6]  + D[5]  +
 	       C[3]  + C[13] + C[14] )%2;
 
   myCRC[8] = ( D[63] + D[62] + D[52] + D[48] + D[37] + D[36] +
-	       D[35] + D[34] + D[22] + D[20] + D[7]  + D[6]   +
+	       D[35] + D[34] + D[22] + D[20] + D[7]  + D[6]  +
 	       C[0]  + C[4]  + C[14] + C[15] )%2;
 
   myCRC[9] = ( D[63] + D[53] + D[49] + D[38] + D[37] + D[36] +
@@ -267,7 +397,7 @@ void DTTFFEDSim::calcCRC(long myD1, long myD2, int &myC){
 		D[25] + D[23] + D[10] + D[9]  + C[3]  + C[7] )%2;
 
   myCRC[12] = ( D[56] + D[52] + D[41] + D[40] + D[39] + D[38] +
-		D[26] + D[24] + D[11] + D[10] + C[4] + C[8] )%2;
+		D[26] + D[24] + D[11] + D[10] + C[4]  + C[8] )%2;
 
   myCRC[13] = ( D[57] + D[53] + D[42] + D[41] + D[40] + D[39] +
 		D[27] + D[25] + D[12] + D[11] + C[5]  + C[9] )%2;

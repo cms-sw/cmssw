@@ -5,7 +5,6 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonRefProducer.cc,v 1.1 2007/07/16 23:57:32 dmytro Exp $
 //
 //
 
@@ -20,16 +19,20 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "RecoMuon/MuonIdentification/plugins/MuonRefProducer.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 MuonRefProducer::MuonRefProducer(const edm::ParameterSet& iConfig)
 {
    theReferenceCollection_ = iConfig.getParameter<edm::InputTag>("ReferenceCollection");
-   type_ = muonid::TMLastStation; // default type
+   muonToken_ = consumes<reco::MuonCollection> (theReferenceCollection_);
+
+   type_ = muon::TMLastStation; // default type
    std::string type = iConfig.getParameter<std::string>("algorithmType");
    if ( type.compare("TMLastStation") != 0 )
      edm::LogWarning("MuonIdentification") << "Unknown algorithm type is requested: " << type << "\nUsing the default one.";
@@ -61,16 +64,14 @@ MuonRefProducer::~MuonRefProducer(){}
 
 void MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   
    std::auto_ptr<edm::RefVector<std::vector<reco::Muon> > > outputCollection(new edm::RefVector<std::vector<reco::Muon> >);
 
    edm::Handle<reco::MuonCollection> muons;
-   iEvent.getByLabel(theReferenceCollection_, muons);
+   iEvent.getByToken(muonToken_, muons);
    
    // loop over input collection
    for ( unsigned int i=0; i<muons->size(); ++i ) 
-     if ( muonid::isGoodMuon( (*muons)[i], type_, minNumberOfMatches_,
+     if ( muon::isGoodMuon( (*muons)[i], type_, minNumberOfMatches_,
 	  maxAbsDx_, maxAbsPullX_, maxAbsDy_, maxAbsPullY_, maxChamberDist_, maxChamberDistPull_, arbitrationType_) )
        outputCollection->push_back( edm::RefVector<std::vector<reco::Muon> >::value_type(muons,i) );
    iEvent.put(outputCollection);

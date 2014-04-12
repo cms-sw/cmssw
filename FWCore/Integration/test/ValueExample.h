@@ -16,15 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:51:59 EDT 2005
-// $Id$
 //
 
-// system include files
+namespace edm {
+  class ParameterSet;
+  class ConfigurationDescriptions;
+}
 
-// user include files
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-// forward declarations
 class ValueExample
 {
    
@@ -36,7 +34,8 @@ public:
    int value() const { return value_; }
    
    // ---------- static member functions --------------------
-   
+   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
    // ---------- member functions ---------------------------
    
 private:

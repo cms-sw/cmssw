@@ -5,8 +5,6 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2006/08/01 18:14:27 $
- *  $Revision: 1.3 $
  *  \author Suchandra Dutta
   */
 
@@ -14,9 +12,11 @@
 #include <fstream>
 #include <string>
 #include <map>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <stdint.h>
 
-
+class MonitorElement;
+class DQMStore;
+class TrackerTopology;
 class SiStripUtility
 {
  public:
@@ -27,9 +27,18 @@ class SiStripUtility
 
  static void split(const std::string& str, std::vector<std::string>& tokens, 
              const std::string& delimiters=" ");
- static void getStatusColor(int status, int& rval, int&gval, int& bval);
- static void getStatusColor(int status, int& icol, std::string& tag);
- static int getStatus(MonitorElement* me);
+ static void getMEStatusColor(int status, int& rval, int&gval, int& bval);
+ static void getDetectorStatusColor(int status, int& rval, int&gval, int& bval);
+ static void getMEStatusColor(int status, int& icol, std::string& tag);
+ static int getMEStatus(MonitorElement* me);
+ static int getMEStatus(MonitorElement* me, int& bad_channels);
+ static void getModuleFolderList(DQMStore* dqm_store, std::vector<std::string>& m_ids);
+ static void getMEValue(MonitorElement* me, std::string & val);
+ static bool goToDir(DQMStore * dqm_store, std::string name);
+ static void getSubDetectorTag(uint32_t det_id, std::string& subdet_tag, const TrackerTopology* tTopo);
+ static void setBadModuleFlag(std::string & hname, uint16_t& flg);
+ static void getBadModuleStatus(uint16_t flag, std::string& message);
+ static void getTopFolderPath(DQMStore* dqm_store, std::string top_dir, std::string& path);   
 };
 
 #endif

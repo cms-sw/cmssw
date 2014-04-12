@@ -1,13 +1,13 @@
 #include <cmath>
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <Math/AxisAngle.h>
 
 #include <sstream>
 #include <cstdlib>
+#include <atomic>
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -43,18 +43,17 @@ std::ostream & operator<<(std::ostream & os, const DDRotation & r)
 
 DDRotation::DDRotation() : DDBase<DDName,DDRotationMatrix*>()
 {
-  //static bool onlyOnce=true;
-  //if (onlyOnce) {
-  //  static DDRotationMatrix* rm_ = new DDRotationMatrix;
-  //  prep_ = StoreT::instance().create(DDName("",""), rm_ );
-  static std::string baseName("DdBlNa");
-  static int countBlank;
-  static std::ostringstream ostr;
-  ostr << countBlank++;
-  prep_ = StoreT::instance().create(DDName(baseName+ostr.str(),baseName), new DDRotationMatrix );
-  //  std::cout << "making a BLANK " << baseName+ostr.str() << " named rotation, " << prep_->second << std::endl;
-  ostr.clear();
-  ostr.str("");
+  constexpr char const* baseName = "DdBlNa";
+  // In this particular case, we do not really care about multiple threads
+  // using the same counter, we simply need to have a unique id for the 
+  // blank matrix being created, so just making this static an atomic should do
+  // the trick. In order to ensure repeatibility one should also include some 
+  // some run specific Id, I guess. Not sure it really matters.
+  static std::atomic<int> countBlank;
+  char buf[64];
+  snprintf(buf, 64, "%s%i", baseName, countBlank++);
+  prep_ = StoreT::instance().create(DDName(buf,baseName), new DDRotationMatrix );
+  //  std::cout << "making a BLANK " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
 
@@ -76,20 +75,17 @@ DDRotation::DDRotation(const DDName & name, DDRotationMatrix * rot)
 DDRotation::DDRotation(DDRotationMatrix * rot)
  : DDBase<DDName,DDRotationMatrix*>()
 {
-  static std::string baseNoName("DdNoNa");
-  static int countNN;
-  static std::ostringstream ostr2;
-  ostr2 << countNN++;
-  prep_ = StoreT::instance().create(DDName(baseNoName+ostr2.str(), baseNoName), rot);
-  //  std::cout << "making a NO-NAME " << baseNoName+ostr2.str() << " named rotation, " << prep_->second << std::endl;
-  ostr2.clear();
-  ostr2.str("");
+  static std::atomic<int> countNN;
+  char buf[64];
+  snprintf(buf, 64, "DdNoNa%i", countNN++);
+  prep_ = StoreT::instance().create(DDName(buf, "DdNoNa"), rot);
+  //  std::cout << "making a NO-NAME " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
-void DDRotation::clear()
-{
-  StoreT::instance().clear();
-}
+// void DDRotation::clear()
+// {
+//   StoreT::instance().clear();
+// }
 
 DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
 {
@@ -114,7 +110,7 @@ DDRotation DDrot(const DDName & ddname,
    double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system this must be -1
    if (fabs(1.-check)>tol) {
      edm::LogError("DDRotation") << ddname << " is not a RIGHT-handed orthonormal matrix!" << std::endl;
-     throw DDException( ddname.name() + std::string(" is not RIGHT-handed!" ) );
+     throw cms::Exception("DDException") << ddname.name() << " is not RIGHT-handed!";
    }
 
    DDRotationMatrix* rot = new DDRotationMatrix(x.x(),y.x(),z.x(),
@@ -151,7 +147,7 @@ DDRotation DDrotReflect(const DDName & ddname,
    double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system this must be -1
    if (fabs(1.+check)>tol) {
      edm::LogError("DDRotation") << ddname << " is not a LEFT-handed orthonormal matrix!" << std::endl;
-     throw DDException( ddname.name() + std::string(" is not LEFT-handed!" ) );
+     throw cms::Exception("DDException") << ddname.name() << " is not LEFT-handed!";
    }
    
    DDRotationMatrix* rot = new DDRotationMatrix(x.x(),y.x(),z.x(),
@@ -186,7 +182,7 @@ DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
      edm::LogError("DDRotation") << o.str() << std::endl;
      
      
-     throw DDException( o.str() );
+     throw cms::Exception("DDException") << o.str();
    }
    
    return new DDRotationMatrix(x.x(),y.x(),z.x(),

@@ -2,7 +2,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 
 using namespace reco;
 
@@ -48,7 +47,7 @@ void VertexCompatibleWithBeam::setBeamSpot(const BeamSpot & beamSpot){
 bool VertexCompatibleWithBeam::operator()(const reco::Vertex & v) const 
 {
   GlobalPoint p(Basic3DVector<float> (v.position()));
-  VertexState vs(p, RecoVertex::convertError(v.covariance()));
+  VertexState vs(p, GlobalError(v.covariance()));
   return (theDistance->distance(vs, theBeam).value() < theCut);
 }
 
@@ -56,7 +55,7 @@ bool VertexCompatibleWithBeam::operator()(const reco::Vertex & v) const
 float VertexCompatibleWithBeam::distanceToBeam(const reco::Vertex & v) const
 {
   GlobalPoint p(Basic3DVector<float> (v.position()));
-  VertexState vs(p, RecoVertex::convertError(v.covariance()));
+  VertexState vs(p, GlobalError(v.covariance()));
   return theDistance->distance(vs, theBeam).value();
 }
 
@@ -64,7 +63,7 @@ float VertexCompatibleWithBeam::distanceToBeam(const reco::Vertex & v) const
 float VertexCompatibleWithBeam::distanceToBeam(const reco::Vertex & v, const VertexState & bs) const
 {
   GlobalPoint p(Basic3DVector<float> (v.position()));
-  VertexState vs(p, RecoVertex::convertError(v.covariance()));
+  VertexState vs(p, GlobalError(v.covariance()));
   return theDistance->distance(vs, bs).value();
 }
 
@@ -72,7 +71,7 @@ float VertexCompatibleWithBeam::distanceToBeam(const reco::Vertex & v, const Ver
 bool VertexCompatibleWithBeam::operator()(const reco::Vertex & v, const VertexState & bs) const 
 {
   GlobalPoint p(Basic3DVector<float> (v.position()));
-  VertexState vs(p, RecoVertex::convertError(v.covariance()));
+  VertexState vs(p, GlobalError(v.covariance()));
   return (theDistance->distance(vs, bs).value() < theCut);
 }
 

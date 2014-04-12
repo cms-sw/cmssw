@@ -12,8 +12,6 @@
  *  which had a problem with directories more than one level deep.
  *  (see macro hadd_old.C for this previous implementation).
  *
- *  $Date: 2007/07/31 21:41:01 $
- *  $Revision: 1.2 $
  *
  *  Authors:
  *  A. Everett Purdue University
@@ -35,6 +33,7 @@
 #include "TCanvas.h"
 #include <TPDF.h>
 #include <TLegend.h>
+#include <TGraph.h>
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -67,7 +66,8 @@ int main(int argc, char *argv[] )
   desc.add_options()
     ("help,h","Print this help message")
     ("infile,i",   boost::program_options::value<std::string>(),
-     "Input file name (Default is validation.root)") 
+     //     "Input file name (Default is validation.root)") 
+     "Input file name") 
     ("outfile,o",  boost::program_options::value<std::string>(),
      "Sets output files to <outfile>.root/.pdf (default is canvas)")
     ("pdf,p",
@@ -83,7 +83,7 @@ int main(int argc, char *argv[] )
   usage += "\t input= validation_01.root AND validation_02.root\n" ;
   usage += "\t output= validation-canvas.root\n" ;
   usage += "\t         validation-canvas.pdf\n" ;
-  usage += "\t         gif files in validation-canvas\/ \n\t\t\t (a directory tree which has the same \n\t\t\t directory structure as validation-canvas.root\n" ;
+  usage += "\t         gif files in validation-canvas/ \n\t\t\t (a directory tree which has the same \n\t\t\t directory structure as validation-canvas.root\n" ;
   usage += "\n" ; 
 
   boost::program_options::positional_options_description pos ; 
@@ -116,9 +116,9 @@ int main(int argc, char *argv[] )
     makeGraphic = true ; 
   } 
   if (vmap.count("infile")) {
-    infileName = vmap["infile"].as<std::string>() ;     
+    infileName = vmap["infile"].as<std::string>() ;
     /*
-    ifstream inFile(infileName.c_str()) ;
+    std::ifstream inFile(infileName.c_str()) ;
     if (inFile.is_open()) { //--- input files listed in a file ---//
       while ( !inFile.eof() ) {
 	std::string skipped ;
@@ -127,9 +127,9 @@ int main(int argc, char *argv[] )
       }
     } else 
     */
-{ //--- Assume the file is a space-separated list of files -//
-      unsigned int strStart = 0 ; 
-      for (unsigned int itr=infileName.find(" ",0); itr!=std::string::npos;
+    { //--- Assume the file is a space-separated list of files -//
+      size_t strStart = 0 ; 
+      for (size_t itr=infileName.find(" ",0); itr!=std::string::npos;
 	   itr=infileName.find(" ",itr)) {
 	std::string skipped = infileName.substr(strStart,(itr-strStart)) ; 
 	itr++ ; strStart = itr ; 
@@ -139,23 +139,27 @@ int main(int argc, char *argv[] )
       inFileVector.push_back( infileName.substr(strStart,infileName.length()) ); 
     }
   }
-  
+  else {
+    std::cout << " *** No input file given: please define one " << std::endl;
+    return 0;
+  }
+
   TDirectory *target = TFile::Open(TString(outname),"RECREATE");
   
   baseName = new TString(outbase);
   baseName->Append("/");
   
   TList *sourcelist = new TList();  
-  for (int i = 0; i < inFileVector.size(); i++) {
-    cout << inFileVector[i] << " " << endl;
+  for (std::vector<std::string>::size_type i = 0; i < inFileVector.size(); i++) {
+    std::cout << inFileVector[i] << " " << std::endl;
     sourcelist->Add(TFile::Open(TString(inFileVector[i])));
   }
 
   TCanvas* c1 = new TCanvas("c1") ;
   pdf = 0 ;
   if (makePdf) pdf = new TPDF(TString(pdfname)) ;
-  int pageNumber = 2 ;
-  double titleSize = 0.050 ; 
+  //  int pageNumber = 2 ;
+  // double titleSize = 0.050 ; 
   
   gROOT->SetStyle("Plain") ; 
   gStyle->SetPalette(1) ; 
@@ -212,7 +216,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
       h1->SetMarkerColor(color);
       h1->Draw();
       TString tmpName(first_source->GetName());
-      gLegend->AddEntry(h1,tmpName.Remove(tmpName.Length()-5,5),"LP");
+      gLegend->AddEntry(h1,tmpName,"LP");
       c1->Update();
 
       // loop over all source files and add the content of the
@@ -232,7 +236,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 	   h2->SetMarkerColor(color);
            h2->Draw("same");
 	   TString tmpName(nextsource->GetName());
-	   gLegend->AddEntry(h2,tmpName.Remove(tmpName.Length()-5,5),"LP");
+	   gLegend->AddEntry(h2,tmpName,"LP");
 	   gLegend->Draw("same");
 	   c1->Update();
            //- delete h2;
@@ -242,7 +246,6 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
       }
     }
     else if ( obj->IsA()->InheritsFrom( "TH2" ) ) {
-      
       // descendant of TH2 -> merge it
       gLegend = new TLegend(.85,.15,1.0,.30,"");
       gLegend->SetHeader(gDirectory->GetName());
@@ -254,7 +257,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
       h1->SetMarkerColor(color);
       h1->Draw();
       TString tmpName(first_source->GetName());
-      gLegend->AddEntry(h1,tmpName.Remove(tmpName.Length()-5,5),"LP");
+      gLegend->AddEntry(h1,tmpName,"LP");
       c1->Update();
 
       // loop over all source files and add the content of the
@@ -274,7 +277,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 	   h2->SetMarkerColor(color);
 	   h2->Draw("same");
 	   TString tmpName(nextsource->GetName());
-	   gLegend->AddEntry(h2,tmpName.Remove(tmpName.Length()-5,5),"LP");
+	   gLegend->AddEntry(h2,tmpName,"LP");
 	   gLegend->Draw("same");
 	   c1->Update();
            //- delete h2;
@@ -282,11 +285,53 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
         nextsource = (TFile*)sourcelist->After( nextsource );
       }
     }
+    else if ( obj->IsA()->InheritsFrom( "TGraph" ) ) {
+      obj->IsA()->Print();
+      gLegend = new TLegend(.7,.15,.95,.4,"");
+      gLegend->SetHeader(gDirectory->GetName());
+      Color_t color = 1;
+      Style_t style = 22;
+      TGraph *h1 =(TGraph*)obj;
+      h1->SetLineColor(color);
+      h1->SetMarkerStyle(style);
+      h1->SetMarkerColor(color);
+      h1->GetHistogram()->Draw();
+      h1->Draw();
+      TString tmpName(first_source->GetName());
+      gLegend->AddEntry(h1,tmpName,"LP");
+      c1->Update();
+
+      // loop over all source files and add the content of the
+      // correspondant histogram to the one pointed to by "h1"
+      TFile *nextsource = (TFile*)sourcelist->After( first_source );
+      while ( nextsource ) {
+        
+        // make sure we are at the correct directory level by cd'ing to path
+        nextsource->cd( path );
+        TKey *key2 = (TKey*)gDirectory->GetListOfKeys()->FindObject(h1->GetName());
+        if (key2) {
+           TGraph *h2 = (TGraph*)key2->ReadObj();
+	   color++;
+	   style++;
+	   h2->SetLineColor(color);
+	   h2->SetMarkerStyle(style);
+	   h2->SetMarkerColor(color);
+           h2->Draw("same");
+	   TString tmpName(nextsource->GetName());
+	   gLegend->AddEntry(h2,tmpName,"LP");
+	   gLegend->Draw("same");
+	   c1->Update();
+           //- delete h2;
+        }
+
+        nextsource = (TFile*)sourcelist->After( nextsource );
+      }
+    }
     else if ( obj->IsA()->InheritsFrom( "TTree" ) ) {
-      cout << "I don't draw trees" << endl;
+      std::cout << "I don't draw trees" << std::endl;
     } else if ( obj->IsA()->InheritsFrom( "TDirectory" ) ) {
       // it's a subdirectory
-      cout << "Found subdirectory " << obj->GetName() << endl;
+      std::cout << "Found subdirectory " << obj->GetName() << std::endl;
 
       // create a new subdir of same name and title in the target file
       target->cd();
@@ -303,8 +348,8 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 
     } else {
       // object is of no type that we know or can handle
-      cout << "Unknown object type, name: " 
-           << obj->GetName() << " title: " << obj->GetTitle() << endl;
+      std::cout << "Unknown object type, name: " 
+           << obj->GetName() << " title: " << obj->GetTitle() << std::endl;
     }
  
     // now write the merged TCanvas (which is "in" obj) to the target file
@@ -314,7 +359,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
     if ( obj ) {
       target->cd();
 
-	if ( obj->IsA()->InheritsFrom( "TH1") ) {
+	if ( obj->IsA()->InheritsFrom( "TH1") || obj->IsA()->InheritsFrom("TGraph")) {
 	  //	 && !obj->IsA()->InheritsFrom("TH2") ) {
 	  TString newName(obj->GetName());
 	  newName.ReplaceAll("(",1,"_",1);

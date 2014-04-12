@@ -32,12 +32,12 @@ class TwoBodyDecayModel
   /** Jacobian for transformation from curvilinear to cartesian representation (needs the z-component of
    *  magnetic field in inverse GeV as input).
    */
-  AlgebraicMatrix curvilinearToCartesianJacobian( AlgebraicVector curv, double zMagField );
+  AlgebraicMatrix curvilinearToCartesianJacobian( const AlgebraicVector& curv, double zMagField );
 
   /** Convert vector from curvilinear to cartesian coordinates (needs the z-component of
    *  magnetic field in inverse GeV as input).
    */
-  AlgebraicVector convertCurvilinearToCartesian( AlgebraicVector curv, double zMagField );
+  AlgebraicVector convertCurvilinearToCartesian( const AlgebraicVector& curv, double zMagField );
 
   /** Momenta of the secondaries in cartesian repraesentation.
    */

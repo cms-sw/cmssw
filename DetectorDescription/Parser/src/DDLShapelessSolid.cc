@@ -11,44 +11,34 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLShapelessSolid.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLShapelessSolid.h"
-#include "DDLElementRegistry.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-//#include <strstream>
-#include <string>
+DDLShapelessSolid::DDLShapelessSolid( DDLElementRegistry* myreg )
+  : DDLSolid( myreg )
+{}
 
-// Default constructor
-DDLShapelessSolid::DDLShapelessSolid()
+DDLShapelessSolid::~DDLShapelessSolid( void )
+{}
+
+void
+DDLShapelessSolid::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
+  myRegistry_->getElement("rSolid")->clear();
 }
 
-// Default desctructor
-DDLShapelessSolid::~DDLShapelessSolid()
-{
-}
-
-void DDLShapelessSolid::preProcessElement(const std::string& name, const std::string& nmspace)
-{
-  DDLElementRegistry::getElement("rSolid")->clear();
-}
 // Upon ending a ShapelessSolid element, call DDCore giving the box name, and dimensions.
-void DDLShapelessSolid::processElement (const std::string& type, const std::string& nmspace)
+void
+DDLShapelessSolid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   DCOUT_V('P', "DDLShapelessSolid::processElement started");
 
   DDSolid dds = DDSolidFactory::shapeless(getDDName(nmspace));
     
-  DDLSolid::setReference(nmspace);
+  DDLSolid::setReference(nmspace, cpv);
 
   DCOUT_V('P', "DDLShapelessSolid::processElement completed");
 }

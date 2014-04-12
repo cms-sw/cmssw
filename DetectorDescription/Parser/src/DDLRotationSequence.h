@@ -8,8 +8,6 @@
 
 #include <string>
 
-//namespace ddl {
-
 ///  DDLRotationSequence handles a set of Rotations.
 /** @class DDLRotationSequence
  * @author Michael Case
@@ -25,22 +23,17 @@
  */
 class DDLRotationSequence : public DDLRotationByAxis
 {
-
- public:
+public:
 
   /// Constructor 
-  DDLRotationSequence();
+  DDLRotationSequence( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLRotationSequence();
+  ~DDLRotationSequence( void );
 
-  void preProcessElement (const std::string& name, const std::string& nmspace);
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 
-  void processElement (const std::string& name, const std::string& nmspace);
-
- private:
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 };
 
-//} 
 #endif

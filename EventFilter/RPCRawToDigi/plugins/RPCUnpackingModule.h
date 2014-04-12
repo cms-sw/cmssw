@@ -3,18 +3,18 @@
 
 
 /** \class RPCUnpackingModule
- *  Driver class for unpacking RPC raw data (DCC format)
- *
- *  $Date: 2007/04/05 15:51:06 $
- *  $Revision: 1.13 $
- *  \author Ilaria Segoni - CERN
- */
+ ** unpacking RPC raw data
+ **/
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+#include "RPCReadOutMappingWithFastSearch.h"
 
-namespace edm { class Event; class EventSetup; }
 
+class RPCReadOutMapping;
+namespace edm { class Event; class EventSetup; class Run; }
 
 class RPCUnpackingModule: public edm::EDProducer {
 public:
@@ -28,11 +28,18 @@ public:
    /** Retrieves a RPCDigiCollection from the Event, creates a
       FEDRawDataCollection (EDProduct) using the DigiToRaw converter,
       and attaches it to the Event. */
-    void produce(edm::Event & e, const edm::EventSetup& c); 
+    void produce(edm::Event & ev, const edm::EventSetup& es) override; 
+
+    void beginRun(const edm::Run &run, const edm::EventSetup& es) override;
   
 private:
   edm::InputTag dataLabel_;
+  bool doSynchro_; 
   unsigned long eventCounter_;
+
+  edm::ESWatcher<RPCEMapRcd> theRecordWatcher;
+  const RPCReadOutMapping* theCabling;
+  RPCReadOutMappingWithFastSearch theReadoutMappingSearch;
 };
 
 

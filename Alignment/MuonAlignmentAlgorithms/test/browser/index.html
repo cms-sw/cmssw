@@ -1,0 +1,469 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en" dir="ltr" >
+<head>
+<title>EMU CSC Offline DQM Results Browser</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+	body {
+		color: #000000;
+		background-color: #8080FF;
+		margin: 2px;
+		font-family:Arial;
+		overflow: auto;
+	}
+	a, A:link, a:visited, a:active, A:hover	{
+			color: #000000;
+			text-decoration: none;
+			outline-style: none;
+	}
+
+	fieldset {
+		background-color: #ddd;
+			
+		border-style: solid;
+		border-width: 1px;
+		border-color: black;
+		margin: 2px;
+		padding: 2px;
+		overflow: auto;
+	}
+
+	legend {
+		border-style: solid;
+		border-width: 1px;
+		background-color:  #C0C0FF;
+	}
+	legend:hover {
+		background-color: white;
+	}
+
+	label {
+		font-weight: bold;
+	}
+
+	table {
+		border-color: black;
+		background-color: #AFAFAF;
+		border-collapse: collapse;
+		background-color: #bbb;
+		border-width: 1px;
+		border-spacing: 0px;
+		border-style: solid;
+		margin: 1px;
+	}
+
+	tr, th, td {
+		vertical-align: top;
+		border: 1px solid black;
+	}
+	td, th {
+		font-size:7pt;
+		padding: 0px;
+	}
+
+	div.tabs {
+		float: none;
+	}
+
+	div.tabs ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	div.tabs li {
+		font-size: 12px;
+		float: left;
+		border: 1px solid;
+		border-bottom-width: 0;
+		margin: 0 0.5em 0 0;
+		background-color: #9F9F9F;
+	}
+
+	div.tabs a {
+		display: block;
+		padding: 0 1em;
+		
+	}
+
+	div.tabs #selected, #selected:active, #selected_runs, #selected_runs:active {
+		font-weight: bold;
+		position: relative;
+		top: 1px;
+		background-color: white;
+		
+	}
+	div#report_entry_div {
+		max-height: 100px;
+		overflow: auto;
+	}
+
+	div#tests_div 
+	{
+		max-height: 500px;
+		max-width: 300px;
+		overflow: auto;
+	}
+
+	div#runs_list
+	{
+		max-height: 132px;
+		overflow-x: hidden;
+		overflow-y: scroll;
+	}
+
+	div#slideshow_div {
+		max-height: 400px;
+		overflow: auto;
+	}
+
+	div#log {
+		max-height: 200px;
+		overflow: auto;
+	}
+
+	table.page_layout {
+		border-width: 0px;
+		border-spacing: 2px;
+		background-color: #6060FF;
+		
+	}
+	table.page_layout tr, table.page_layout th, table.page_layout td {
+		vertical-align: top;
+	}
+
+	table.log {
+		border-collapse: collapse;
+		background-color: #ccc;
+		border-width: 1px;
+		border-spacing: 0px;
+		border-style: solid;
+		margin: 2px;
+	}
+	table.log th {background-color: #AFAFFF; text-align: left; padding: 0 2px 0 2px;}
+	table.log tr {border-style: solid;}
+	td.log {font-size:8pt; font-family:Arial; padding: 0 2px 0 2px; border-style: solid;}
+
+	table.dqm_report {
+		background-color: #F0F0F0;
+	}
+
+	span#debug {color: black; font-weight: bold;}
+	span#info  {color: green; font-weight: bold;}
+	span#error {color: red; font-weight: bold;}
+	span#warn  {color: orange; font-weight: bold;}
+
+	SEVERITY {font-weight: bold;}
+/*
+	.SEVERITY_NONE {background-color: yellowgreen; font-weight: bold;}
+	.SEVERITY_MINOR  {background-color: yellow; font-weight: bold;}
+	.SEVERITY_TOLERABLE {background-color: lightpink; font-weight: bold;}
+	.SEVERITY_SEVERE  {background-color: orange; font-weight: bold;}
+	.SEVERITY_CRITICAL  {background-color: red; font-weight: bold;}
+*/
+	li.sshow_list { font-size:8pt; font-family:Arial; margin: 0;}
+
+	a.winTitle {
+		margin: 0;
+		font-size: 12px;
+		font-weight: bold;
+		text-decoration: none;
+		color: #000080;
+	}
+
+	a.add_to_list {
+		font-weight: bold;
+		color: green;
+		background: white;
+	}
+	a.test_help, span.show_icon {
+		font-weight: bold;
+		color: white;
+		background: #50D050;
+	}
+	a.remove_from_list {
+		font-weight: bold;
+		color: white;
+		background: #D05050;
+	}
+
+	table.runs_table, table.tests_table {
+		width: 100%;
+	}
+
+
+	table.runs_table tr, td {text-align: left; white-space: nowrap;}
+	table.runs_table th {padding: 0 0 0 4px; text-align: left; font-weight: bold; background-color: #AFAFFF; } 
+
+	#csctable_div, #dttable_div, #hwtable_div, #runs_div, #common_div, #report_div, #csccounters_div 
+	{
+		padding: 1px;
+		border-style: solid;
+		border-width: 1px;
+		border-color: black;
+		background-color: white;
+		clear: left;
+		overflow:auto;
+	}
+
+	#csctable_div, #dttable_div, #hwtable_div, #ddutable_div, #report_div {
+		float: left;
+	}
+
+	#results_folders_list {
+		height: auto;
+	}
+
+	#sysview_div {
+		max-height: 450px;
+		overflow: auto;
+	}
+
+	#csc_table {
+		border-collapse: collapse;
+		background-color: #bbb;
+		border-width: 1px;
+		border-spacing: 0px;
+		border-style: solid;
+		margin: 2px;
+	}
+
+	#csc_table td {
+		text-align: center;
+	}
+
+	#dt_table {
+		border-collapse: collapse;
+		background-color: #bbb;
+		border-width: 1px;
+		border-spacing: 0px;
+		border-style: solid;
+		margin: 2px;
+	}
+
+	#dt_table td {
+		text-align: center;
+		min-width: 30px;
+	}
+
+	legend.t_hdr, a.test_hdr {
+		font-size: 9pt;
+		font-weight: bold;
+		background-color: #ddd;
+	}
+	a.test_hdr2 {
+		font-size: 8pt;
+		font-weight: bold;
+		background-color: #ddd;
+	}
+
+	td.hw_tr {font-size: 10pt; font-weight: bold; background-color: #ddd;}
+	td.hw_td {background-color: white; text-align: center;}
+	td.node_info {background-color: white;}
+	td.me_csc, td.me_ddu { width: 18px; background-color: #8C8C8C}
+	td.me_type{ background-color: #ddd; font-weight: bold;  width: 40px;} 
+	td.me, td.me_emu { background-color: #ddd; font-weight: bold; font-size:9pt; width: 50px; }
+	th.RunLink {padding: 0 0 0 4px; text-align: left; font-size:10pt;  font-weight: bold; background-color: #AFAFFF; } 
+	th.repScope {padding: 0 0 0 4px; text-align: left; font-size:10pt;  font-weight: bold; background-color: #AFAFFF; } 
+	
+</style>
+<script language="JavaScript" src="display_mechanics.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+<!--//
+	if (navigator.userAgent.toLowerCase().indexOf('msie') != -1) isIE=true;
+	// baseURL=document.URL;
+	// if (document.URL.lastIndexOf('/') != document.URL.length-1) baseURL+="/";
+	//document.write('<script src="', CSCMap, '" type="text/javascript"><\/script>');
+	//document.write('<script src="', DDUMap, '" type="text/javascript"><\/script>');
+	//document.write('<script src="', VMEMap, '" type="text/javascript"><\/script>');
+	//document.write('<script src="', TestsMap, '" type="text/javascript"><\/script>');
+	//document.write('<script src="', ResFolders, '" type="text/javascript"><\/script>');
+// -->
+</script>
+<table  class='page_layout' >
+
+<tr style='border: 0px black solid;'><td style='border: 0px black solid;'>
+	
+	<fieldset id="Runs">
+		<legend>
+			<a class='winTitle' href='#' onClick='showHide("runs_list");'>Runs</a>
+		</legend>
+		<div id="runs_list">
+			<script type="text/javascript">			
+			<!--//
+				// setSelectedResultsFolder();
+				getRunsList();
+			// -->
+			</script>
+		</div>
+
+	</fieldset>
+	
+	<fieldset id="Tests">
+		<legend><a class='winTitle' href='#' onClick='showHide("tests_div");'>Tests</a></legend>
+		<div id="tests_div"></div>
+	</fieldset>
+	
+	<fieldset id="Options">
+		<legend><a class='winTitle' href='#' onClick='showHide("options_div");'>Options</a></legend>
+		<div id="options_div">
+
+			<table>
+				<tr>
+					<td><label>Plot Height:</label> 
+					<input type=button name="decHeight" value="-" onclick="decImageHeight();">    		     
+					<script type="text/javascript"> 
+						document.write("<input type=text readonly id='imageHeight' align=right value='"+imgHeight+"' size='4'>"); 		 
+					</script>
+					<input type=button name="incHeight" value="+" onclick="incImageHeight()">    
+					</td>
+				</tr>
+				<!--
+				<tr><td>
+					<input type=checkbox id="showReference" onclick="selectShowReferenceMode()"> <label>Show Reference Plots</label>
+				</td></tr>
+				-->
+				<tr><td>
+					<input type=checkbox id="showIter1" onclick="selectShowIter1Mode()"> <label>Show 1st iteration</label>
+				</td></tr>
+				<tr><td>
+					<input type=checkbox id="openExternal" onclick="selectPlotMode()"> <label>Open in External Window</label>
+				</td></tr>
+			</table>
+		</div>
+	</fieldset>
+	
+	<fieldset id="SlideShow">
+		<legend><a class='winTitle' href='#' onClick='showHide("slideshow_div");'>SlideShow</a></legend>
+		<div id="slideshow_div">
+			<form name="theTimer"><table>
+			<tr>
+				<td colspan=3>
+				
+				<script type="text/javascript"> 
+				<!--//
+					new initSlideShowList();
+				//-->
+				</script>
+				
+				</td>
+			</tr>
+			<tr>
+				<td colspan=3 align=center>
+				<span id="currentTest"></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<input type=button name="prev" value="&lt;" onclick="showPrevSlide()">
+				<input type=button name="start" value="Start" onclick="startSlideShow()">
+				<input type=button name="stop" value="Stop" onclick="stopSlideShow()">
+				<input type=button name="reset" value="Reset" onclick="resetSlideShow()">
+				<input type=button name="next" value="&gt;" onclick="showNextSlide()">
+				<input type=text id="updateInterval" value="5" size="2">
+				</td>
+			</tr>
+			</table></form>
+			
+			<div id="slideshow_list">
+			</div>
+		</div>
+	</fieldset>
+
+</td><td style='border: 0px black solid;'>	
+	
+	<fieldset id="SystemView">
+		<legend>
+			<a class='winTitle' href='#' onClick='showHide("sysview_div");'>System View</a>
+		</legend>		
+		<div id="sysview_div">	
+			<div class="tabs">
+				<ul>
+				<li title="csc_view" id="selected" onClick="return setSelectedTab(this);"><a href="#">CSCs Table</a></li>
+				<li title="dt_view"   onClick="return setSelectedTab(this);"><a href="#">DTs Table</a></li>
+				<!--
+				<li title="common_view"   onClick="return setSelectedTab(this);"><a href="#">Common Table</a></li>
+				<li title="hw_view"   onClick="return setSelectedTab(this);"><a href="#">VME/DMB Table</a></li>		
+				<li title="csccounters_view"   onClick="return setSelectedTab(this);"><a href="">CSC Efficiencies</a></li>
+				-->
+				<li title="report_view"  onClick="return setSelectedTab(this);"><a href="#">Summary Report</a></li>
+				</ul>
+			</div>
+			<div id="csctable_div" >
+				<script type="text/javascript">
+				<!--//
+					showCSCTable("csctable_div");
+				// -->
+				</script>
+			</div>
+			<div id="dttable_div" style="display: none;">
+				<script type="text/javascript">
+				<!--//
+					showDTTable("dttable_div");
+				// -->
+				</script>
+			</div>
+			<div id="common_div" style="display: none;">
+				Common muon alignment results
+			</div>
+			<div id="hwtable_div" style="display: none;">
+				Empty HW Table
+			</div>
+			<div id="csccounters_div" style="display: none;">
+				<script type="text/javascript">
+				<!--//
+					//showCSCCounters();
+				// -->
+				</script>
+			</div>
+			<div id="report_div" style="display: none;">
+				No Summary Report
+			</div>
+		</div>
+	</fieldset>
+	
+	
+	<fieldset id="StatusEntry">
+		<legend><a id='report_title' class='winTitle' href='#' onClick='showHide("report_entry_div");'>Report Status</a></legend>
+		<div id="report_entry_div"></div>
+	</fieldset>
+	
+	<fieldset id="Plots">
+		<legend><a id='plot_title' class='winTitle' href='#' onClick='showHide("plots_div");'>Plots</a></legend>
+		<div id="plots_div"></div>
+	</fieldset>
+	
+</td></tr>
+
+<tr style='border: 0px black solid;'><td colspan=2 style='border: 0px black solid;'>
+	<fieldset>
+		<legend><a class='winTitle' href='#' onClick='showHide("log");'>Log</a>
+			<input type=button value="Clear" onclick="clearLog();"> 
+			<select id="selLogLevel" onChange="selectLogLevel()";>	
+				<option selected value="all">ALL</option>
+				<option value="debug">DEBUG</option>			
+				<option value="info">INFO</option>
+				<option value="warn">WARNING</option>
+				<option value="error">ERROR</option>
+			</select>
+		</legend>
+		<div id="log">
+		<table>
+			<script type="text/javascript">
+				<!--//
+					showLog();
+				// -->
+			</script>
+		</table>
+		</div>
+	</fieldset>
+</td></tr>
+
+</table>	
+
+</body>
+</html>

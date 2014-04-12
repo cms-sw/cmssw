@@ -3,7 +3,7 @@
 
 /** \class BeamHaloPropagator
  *
- * A propagator which use different algorithm to propagate 
+ * A propagator which use different algorithm to propagate
  * within an endcap or to cross over to the other endcap
  *
  * \author  Jean-Roch VLIMANT UCSB
@@ -21,13 +21,13 @@
 
 /* Class BeamHaloPropagator Interface */
 
-class BeamHaloPropagator : public Propagator {
+class BeamHaloPropagator GCC11_FINAL : public Propagator {
 
   public:
 
-    /* Constructor */ 
+    /* Constructor */
     ///Defines which propagator is used inside endcap and in barrel
-    BeamHaloPropagator(Propagator* aEndCapTkProp, Propagator* aCrossTkProp, const MagneticField* field,
+    BeamHaloPropagator(const Propagator* aEndCapTkProp, const Propagator* aCrossTkProp, const MagneticField* field,
 		       PropagationDirection dir = alongMomentum);
 
     ///Defines which propagator is used inside endcap and in barrel
@@ -38,7 +38,7 @@ class BeamHaloPropagator : public Propagator {
     ///Copy constructor
     BeamHaloPropagator( const BeamHaloPropagator& );
 
-    /** virtual destructor */ 
+    /** virtual destructor */
     virtual ~BeamHaloPropagator() ;
 
     ///Virtual constructor (using copy c'tor)
@@ -47,19 +47,20 @@ class BeamHaloPropagator : public Propagator {
     }
 
 
-    void setPropagationDirection (PropagationDirection dir)
+    void setPropagationDirection (PropagationDirection dir) override
     {
-      getEndCapTkPropagator()->setPropagationDirection(dir);
-      getCrossTkPropagator()->setPropagationDirection(dir);
+      Propagator::setPropagationDirection(dir);
+      theEndCapTkProp->setPropagationDirection(dir);
+      theCrossTkProp->setPropagationDirection(dir);
     }
 
 
 
-    /* Operations as propagator*/ 
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
+    /* Operations as propagator*/
+    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
                                        const Surface& surface) const;
 
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos, 
+    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
                                        const Surface& surface) const {
       return Propagator::propagate(tsos,surface);
     }
@@ -72,42 +73,42 @@ class BeamHaloPropagator : public Propagator {
       return Propagator::propagate(tsos, plane);
     }
 
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
+    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
                                        const Cylinder& cylinder) const;
 
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos, 
+    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
                                        const Cylinder& cylinder) const {
       return Propagator::propagate(tsos, cylinder);
     }
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const FreeTrajectoryState& fts, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const FreeTrajectoryState& fts,
                         const Surface& surface) const {
         return Propagator::propagateWithPath(fts,surface);
       }
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const TrajectoryStateOnSurface& tsos, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const TrajectoryStateOnSurface& tsos,
                         const Surface& surface) const {
         return Propagator::propagateWithPath(tsos,surface);
       }
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const FreeTrajectoryState& fts, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const FreeTrajectoryState& fts,
                         const Plane& plane) const;
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const TrajectoryStateOnSurface& tsos, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const TrajectoryStateOnSurface& tsos,
                         const Plane& plane) const {
         return Propagator::propagateWithPath(tsos, plane);
       }
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const FreeTrajectoryState& fts, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const FreeTrajectoryState& fts,
                         const Cylinder& cylinder) const;
 
-    std::pair<TrajectoryStateOnSurface,double> 
-      propagateWithPath(const TrajectoryStateOnSurface& tsos, 
+    std::pair<TrajectoryStateOnSurface,double>
+      propagateWithPath(const TrajectoryStateOnSurface& tsos,
                         const Cylinder& cylinder) const {
         return Propagator::propagateWithPath(tsos, cylinder);
       }
@@ -116,23 +117,23 @@ class BeamHaloPropagator : public Propagator {
       bool crossingTk(const FreeTrajectoryState& fts, const Plane& plane)  const ;
 
     ///return the propagator used in endcaps
-    Propagator* getEndCapTkPropagator() const ;
+    const Propagator* getEndCapTkPropagator() const ;
     ///return the propagator used to cross the tracker
-    Propagator* getCrossTkPropagator() const ;
+    const Propagator* getCrossTkPropagator() const ;
     ///return the magneticField
     virtual const MagneticField* magneticField() const {return theField;}
 
   private:
-    void directionCheck(PropagationDirection dir)const;
+    void directionCheck(PropagationDirection dir);
 
-    mutable Propagator* theEndCapTkProp;
-    mutable Propagator* theCrossTkProp;
+    Propagator* theEndCapTkProp;
+    Propagator* theCrossTkProp;
     const MagneticField* theField;
-    
+
   protected:
 
 };
 
-#endif 
+#endif
 
 

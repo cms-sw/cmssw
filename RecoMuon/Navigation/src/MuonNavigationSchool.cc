@@ -5,8 +5,6 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2007/05/01 20:21:26 $
- * $Revision: 1.10 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -30,7 +28,7 @@
 #include "RecoMuon/Navigation/interface/MuonForwardNavigableLayer.h"
 #include "RecoMuon/Navigation/interface/MuonEtaRange.h"
 #include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
-#include "Utilities/General/interface/CMSexception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <algorithm>
 #include <iostream>
@@ -39,6 +37,8 @@ using namespace std;
 /// Constructor
 MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC ) : theMuonDetLayerGeometry(muonLayout) {
 
+  theAllDetLayersInSystem=&muonLayout->allLayers(); 
+
   // get all barrel DetLayers (DT + optional RPC) 
   vector<DetLayer*> barrel;
   if ( enableRPC ) barrel = muonLayout->allBarrelLayers();
@@ -46,7 +46,7 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
 
   for ( vector<DetLayer*>::const_iterator i = barrel.begin(); i != barrel.end(); i++ ) {
     BarrelDetLayer* mbp = dynamic_cast<BarrelDetLayer*>(*i);
-    if ( mbp == 0 ) throw Genexception("Bad BarrelDetLayer");
+    if ( mbp == 0 ) throw cms::Exception("MuonNavigationSchool", "Bad BarrelDetLayer");
     addBarrelLayer(mbp);
   }
 
@@ -57,7 +57,7 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
 
   for ( vector<DetLayer*>::const_iterator i = endcap.begin(); i != endcap.end(); i++ ) {
     ForwardDetLayer* mep = dynamic_cast<ForwardDetLayer*>(*i);
-    if ( mep == 0 ) throw Genexception("Bad ForwardDetLayer");
+    if ( mep == 0 ) throw cms::Exception("MuonNavigationSchool", "Bad ForwardDetLayer");
     addEndcapLayer(mep);
   }
 

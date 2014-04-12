@@ -1,0 +1,12 @@
+<use   name="DataFormats/Provenance"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="clhep"/>
+<library   file="TestRandomNumberServiceAnalyzer.cc" name="IOMCRandomEngineTestRandomNumberServiceAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<bin   file="TestIOMCRandomEngineService.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash IOMC/RandomEngine/test testRandomService.sh"/>
+</bin>

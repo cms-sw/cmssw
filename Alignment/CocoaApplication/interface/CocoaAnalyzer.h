@@ -20,31 +20,25 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "DetectorDescription/Core/interface/DDPosData.h" 
 
 class Event;
 class EventSetup;
 class Entry;
 //#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/OptAlignObjects/interface/OAQuality.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
-#include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h"
-
-#include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h"
 
 class DDFilteredView;
 class DDCompactView;
 class DDSpecifics;
 class OpticalObject;
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class CocoaAnalyzer : public edm::EDAnalyzer
+class CocoaAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
  public:
   
@@ -52,8 +46,8 @@ class CocoaAnalyzer : public edm::EDAnalyzer
   explicit  CocoaAnalyzer(int i) { }
   virtual ~ CocoaAnalyzer() { }
   
-  virtual void beginJob(const edm::EventSetup& c);
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   // see note on endJob() at the bottom of the file.
   // virtual void endJob() ;
 
@@ -62,14 +56,11 @@ class CocoaAnalyzer : public edm::EDAnalyzer
   std::vector<OpticalAlignInfo> ReadCalibrationDB( const edm::EventSetup& evts );
 
   void CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListCalib );
-  OpticalAlignInfo* FindOpticalAlignInfoXML( OpticalAlignInfo oaInfo );
-  bool CorrectOaParam( OpticalAlignParam* oaParamXML, OpticalAlignParam oaParamDB );
+  OpticalAlignInfo* FindOpticalAlignInfoXML( const OpticalAlignInfo& oaInfo );
+  bool CorrectOaParam( OpticalAlignParam* oaParamXML, const OpticalAlignParam& oaParamDB );
 
   void RunCocoa();
 
-  bool DumpCocoaResults(); 
-  double GetEntryError( const Entry* entry );
- 
   OpticalAlignInfo GetOptAlignInfoFromOptO( OpticalObject* opto );
   double myFetchDbl(const DDsvalues_type& dvst, 
 	        		      const std::string& spName,

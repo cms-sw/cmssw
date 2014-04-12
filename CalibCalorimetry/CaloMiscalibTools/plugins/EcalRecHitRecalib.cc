@@ -19,6 +19,8 @@ EcalRecHitRecalib::EcalRecHitRecalib(const edm::ParameterSet& iConfig)
   endcapHits_ = iConfig.getParameter< std::string > ("endcapHitCollection");
   RecalibBarrelHits_ = iConfig.getParameter< std::string > ("RecalibBarrelHitCollection");
   RecalibEndcapHits_ = iConfig.getParameter< std::string > ("RecalibEndcapHitCollection");
+  refactor_ = iConfig.getUntrackedParameter<double> ("Refactor",(double)1);
+  refactor_mean_ = iConfig.getUntrackedParameter<double> ("Refactor_mean",(double)1);
 
   //register your products
   produces< EBRecHitCollection >(RecalibBarrelHits_);
@@ -46,14 +48,18 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const EBRecHitCollection*  EBRecHits = 0;
   const EERecHitCollection*  EERecHits = 0; 
  
-  try {
-    iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-    EBRecHits = barrelRecHitsHandle.product(); // get a ptr to the product
-
-    iEvent.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
-    EERecHits = endcapRecHitsHandle.product(); // get a ptr to the product
-  } catch ( std::exception& ex ) {
+  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
     LogDebug("") << "EcalREcHitMiscalib: Error! can't get product!" << std::endl;
+  } else {
+    EBRecHits = barrelRecHitsHandle.product(); // get a ptr to the product
+  }
+
+  iEvent.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
+  if (!endcapRecHitsHandle.isValid()) {
+    LogDebug("") << "EcalREcHitMiscalib: Error! can't get product!" << std::endl;
+  } else {
+    EERecHits = endcapRecHitsHandle.product(); // get a ptr to the product
   }
 
   //Create empty output collections
@@ -74,11 +80,11 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (itb=EBRecHits->begin(); itb!=EBRecHits->end(); itb++) {
 	
 	// find intercalib constant for this xtal
-	EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(itb->id().rawId());
-	EcalIntercalibConstants::EcalIntercalibConstant icalconst;
+	EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(itb->id().rawId());
+	EcalIntercalibConstant icalconst = -1;
 
 	if( icalit!=ical->getMap().end() ){
-	  icalconst = icalit->second;
+	  icalconst = (*icalit);
 	  // edm::LogDebug("EcalRecHitRecalib") << "Found intercalib for xtal " << EBDetId(itb->id()) << " " << icalconst ;
 
 	} else {
@@ -87,10 +93,10 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
           
           // make the rechit with rescaled energy and put in the output collection
-
-	  EcalRecHit aHit(itb->id(),itb->energy()*icalconst,itb->time());
+	icalconst=refactor_mean_+(icalconst-refactor_mean_)*refactor_; //apply additional scaling factor (works if gaussian)
+	EcalRecHit aHit(itb->id(),itb->energy()*icalconst,itb->time());
 	  
-	  RecalibEBRecHitCollection->push_back( aHit);
+	RecalibEBRecHitCollection->push_back( aHit);
       }
     }
 
@@ -102,11 +108,11 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (ite=EERecHits->begin(); ite!=EERecHits->end(); ite++) {
 	
 	// find intercalib constant for this xtal
-	EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(ite->id().rawId());
-	EcalIntercalibConstants::EcalIntercalibConstant icalconst;
+	EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(ite->id().rawId());
+	EcalIntercalibConstant icalconst = -1;
 
 	if( icalit!=ical->getMap().end() ){
-	  icalconst = icalit->second;
+	  icalconst = (*icalit);
 	  // edm:: LogDebug("EcalRecHitRecalib") << "Found intercalib for xtal " << EEDetId(ite->id()) << " " << icalconst ;
           } else {
             edm::LogError("EcalRecHitRecalib") << "No intercalib const found for xtal " << EEDetId(ite->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
@@ -114,10 +120,11 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
           
           // make the rechit with rescaled energy and put in the output collection
-
-	  EcalRecHit aHit(ite->id(),ite->energy()*icalconst,ite->time());
-	  
-	  RecalibEERecHitCollection->push_back( aHit);
+	
+	icalconst=refactor_mean_+(icalconst-refactor_mean_)*refactor_; //apply additional scaling factor (works if gaussian)
+	EcalRecHit aHit(ite->id(),ite->energy()*icalconst,ite->time());
+	
+	RecalibEERecHitCollection->push_back( aHit);
       }
     }
 

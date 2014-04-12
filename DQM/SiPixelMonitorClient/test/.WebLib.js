@@ -1,6 +1,6 @@
 var WebLib = {} ;
 
-WebLib.http_request      = false;                                                            
+WebLib.http_request      = null;                                                            
 WebLib.view_all_contents = true;                                                        
                                                                                      
 //___________________________________________________________________________________
@@ -32,7 +32,7 @@ WebLib.getApplicationURL = function()
 
   return url;
  } catch (errorMessage) {
-  alert("[WebLib.getApplicationURL] Exeuction/syntax error: " + errorMessage ) ;
+  alert("[WebLib.getApplicationURL] Execution/syntax error: " + errorMessage ) ;
  }
 }
 
@@ -53,10 +53,18 @@ WebLib.getApplicationURL2 = function()
   url   = url.substring(0, index);
 
   // add the cgi request
-  url += "urn:xdaq-application:lid=15";
+  var s0          = (url.lastIndexOf(":")+1);
+  var s1          = url.lastIndexOf("/");
+  var port_number = url.substring(s0, s1);
+  if (port_number == "40000") {
+    url += "urn:xdaq-application:lid=27/moduleWeb?module=SiPixelEDAClient&";
+  } else if (port_number == "1972") {
+    url += "urn:xdaq-application:lid=15/Request?";
+//    url += "urn:xdaq-application:lid=15";
+  }
   return url;
  } catch (errorMessage) {
-  alert("[WebLib.getApplicationURL2] Exeuction/syntax error: " + errorMessage ) ;
+  alert("[WebLib.getApplicationURL2] Execution/syntax error: " + errorMessage ) ;
  }
 }
 
@@ -70,7 +78,7 @@ WebLib.getContextURL = function()
   var index   = app_url.lastIndexOf("/");
   return app_url.substring(0, index);
  } catch (errorMessage) {
-  alert("[WebLib.getContextURL] Exeuction/syntax error: " + errorMessage ) ;
+  alert("[WebLib.getContextURL] Execution/syntax error: " + errorMessage ) ;
  }
 }
 
@@ -96,7 +104,7 @@ WebLib.getApplicationParentURL = function()  // Unused?
   }
   return url;
  } catch (errorMessage) {
-  alert("[WebLib.getApplicationParentURL] Exeuction/syntax error: " + errorMessage ) ;
+  alert("[WebLib.getApplicationParentURL] Execution/syntax error: " + errorMessage ) ;
  }
 }
 
@@ -132,7 +140,7 @@ WebLib.makeRequest = function(url, receiver_function)
     alert('[WebLib.makeRequest] Giving up :( Cannot create an XMLHTTP instance');
   } 
  } catch (errorMessage) {
-  alert("[WebLib.makeRequest] Exeuction/syntax error: " + errorMessage ) ;
+  alert("[WebLib.makeRequest] Execution/syntax error: " + errorMessage ) ;
  }
 }
 
@@ -143,7 +151,7 @@ WebLib.dummy = function()
  {
   Messages.displayMessages();
  } catch (errorMessage) {
-  alert("[WebLib.dummy] Exeuction/syntax error: " + errorMessage ) ;
+  alert("[WebLib.dummy] Execution/syntax error: " + errorMessage ) ;
  }
 }
 
@@ -178,7 +186,7 @@ WebLib.initReq = function(reqType, url, bool, respHandle)
 	   errv.message); 
   } 
  } catch (errorMessage) {
-  alert("[WebLib.initReq] Exeuction/syntax error: " + errorMessage ) ;
+  alert("[WebLib.initReq] Execution/syntax error: " + errorMessage ) ;
  }
 }
 
@@ -200,7 +208,7 @@ WebLib.enableButtons = function(which)
        theForm.listMECommand.disabled = !theForm.listMECommand.disabled ;
   }
  } catch (errorMessage) {
-  alert("[WebLib.enableButtons] Exeuction/syntax error: " + errorMessage ) ;
+  alert("[WebLib.enableButtons] Execution/syntax error: " + errorMessage ) ;
  }
 }
 
@@ -210,6 +218,12 @@ document.write('<script src="SERVED_DIRECTORY_URL/js_files/ContentViewer.js"><\/
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/ConfigBox.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/Select.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/Messages.js"><\/script>');
+//document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/Navigator.js"><\/script>');
+//document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/GifDisplay.js"><\/script>');
+//document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/ContentViewer.js"><\/script>');
+//document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/ConfigBox.js"><\/script>');
+//document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/Select.js"><\/script>');
+//document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/Messages.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/RequestHistos.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/CommonActions.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/RequestPlot.js"><\/script>');
@@ -217,3 +231,6 @@ document.write('<script src="SERVED_DIRECTORY_URL/js_files/ClientActions.js"><\/
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/tab-view.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/context-menu.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/folder-tree-static.js"><\/script>');
+//document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/tab-view.js"><\/script>');
+//document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/context-menu.js"><\/script>');
+//document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/folder-tree-static.js"><\/script>');

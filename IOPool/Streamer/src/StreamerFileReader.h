@@ -1,33 +1,45 @@
-#ifndef _StreamerFileReader_H
-#define _StreamerFileReader_H
+#ifndef IOPool_Streamer_StreamerFileReader_h
+#define IOPool_Streamer_StreamerFileReader_h
 
-#include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
-#include "IOPool/Streamer/interface/StreamerInputFile.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "boost/shared_ptr.hpp"
 
+#include <memory>
 #include <string>
-#include <iostream>
+#include <vector>
 
-namespace edm
-{
-  class StreamerFileReader 
-  {
+class EventMsgView;
+class InitMsgView;
+
+namespace edm {
+  class ConfigurationDescriptions;
+  class EventPrincipal;
+  class EventSkipperByID;
+  struct InputSourceDescription;
+  class ParameterSet;
+  class StreamerInputFile;
+  class StreamerFileReader : public StreamerInputSource {
   public:
-    StreamerFileReader(edm::ParameterSet const& pset);
-    ~StreamerFileReader();
+    StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc);
+    virtual ~StreamerFileReader();
 
-     const InitMsgView* getHeader(); 
-     const EventMsgView* getNextEvent();
-     const bool newHeader(); 
+    InitMsgView const* getHeader();
+    EventMsgView const* getNextEvent();
+    bool newHeader();
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-  private:  
+  private:
+    virtual bool checkNextEvent();
+    virtual void skip(int toSkip);
+    virtual void closeFile_();
+    virtual void reset_();
 
-     std::vector<std::string> streamerNames_; /** names of Streamer files */
-     std::auto_ptr<StreamerInputFile> stream_reader_;
+    std::vector<std::string> streamerNames_; // names of Streamer files
+    std::unique_ptr<StreamerInputFile> streamReader_;
+    boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    int initialNumberOfEventsToSkip_;
   };
-
 } //end-of-namespace-def
 
 #endif

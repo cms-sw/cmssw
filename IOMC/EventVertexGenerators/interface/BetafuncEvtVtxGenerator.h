@@ -1,7 +1,6 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.3 2007/03/22 02:28:46 yarba Exp $
 /*
 ________________________________________________________________________
 
@@ -20,10 +19,11 @@ ________________________________________________________________________
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
-
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
 
 namespace CLHEP {
-   class RandGauss;
+  class HepRandomEngine;
 }
 
 class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator 
@@ -32,12 +32,16 @@ public:
   BetafuncEvtVtxGenerator(const edm::ParameterSet & p);
   virtual ~BetafuncEvtVtxGenerator();
 
+  virtual void beginRun(const edm::Run & , const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex() ;
+  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
 
   virtual TMatrixD* GetInvLorentzBoost();
-  
+
+    
   /// set resolution in Z in cm
   void sigmaZ(double s=1.0);
 
@@ -60,7 +64,7 @@ public:
 
   /// beta function
   double BetaFunction(double z, double z0);
-  
+    
 private:
   /** Copy constructor */
   BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p);
@@ -69,6 +73,8 @@ private:
   
 private:
 
+  bool readDB_;
+
   double alpha_, phi_;
   //TMatrixD boost_;
   
@@ -76,11 +82,11 @@ private:
   double fSigmaZ;
   //double fdxdz, fdydz;
   double fbetastar, femittance;
-  double falpha;
-  
-  
-  CLHEP::RandGauss*  fRandom ;
-  
+  //  double falpha;
+  double fTimeOffset;
+
+  void update(const edm::EventSetup& iEventSetup);
+  edm::ESWatcher<SimBeamSpotObjectsRcd> parameterWatcher_;
 };
 
 #endif

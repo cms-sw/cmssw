@@ -1,13 +1,12 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-SiStripCluster::SiStripCluster( uint32_t detid, const SiStripDigiRange& range) :
-  detId_(detid), firstStrip_(range.first->strip())
+SiStripCluster::SiStripCluster(const SiStripDigiRange& range) :
+  firstStrip_(range.first->strip()),
+  error_x(-99999.9)
 {
 
   amplitudes_.reserve( range.second - range.first);
-  int sumx = 0;
-  int suma = 0;
   
   uint16_t lastStrip=0;
   bool firstInloop = true;
@@ -22,40 +21,21 @@ SiStripCluster::SiStripCluster( uint32_t detid, const SiStripDigiRange& range) :
     lastStrip = i->strip();
     firstInloop = false;
     
-    uint16_t amp = i->adc();       // FIXME: gain correction here
-    amplitudes_.push_back( amp);
-    sumx += i->strip()*amp;
-    suma += amp;
+    amplitudes_.push_back(i->adc()); 
   }
-  // strip centers are offcet by half pitch w.r.t. strip numbers,
-  // so one has to add 0.5 to get the correct barycenter position
-  barycenter_ = sumx / static_cast<float>(suma) + 0.5;
-  
 }
 
-SiStripCluster::SiStripCluster(const uint32_t& detid, 
-			       const uint16_t& firstStrip, 
-			       std::vector<uint16_t>::const_iterator begin, 
-			       std::vector<uint16_t>::const_iterator end) :
 
-  detId_(detid),
-  firstStrip_(firstStrip),
-  amplitudes_(),
-  barycenter_(0) 
-
-{
-  amplitudes_.reserve(end-begin);
+float SiStripCluster::barycenter() const{
   int sumx = 0;
   int suma = 0;
-  std::vector<uint16_t>::const_iterator idigi = begin;
-  for (;idigi!=end;idigi++) {
-    amplitudes_.push_back(*idigi);
-    sumx += (firstStrip_+idigi-begin)*(*idigi);
-    suma += (*idigi);
+  size_t asize = amplitudes_.size();
+  for (size_t i=0;i<asize;++i) {
+    sumx += (firstStrip_+i)*(amplitudes_[i]);
+    suma += amplitudes_[i];
   }
   
   // strip centers are offcet by half pitch w.r.t. strip numbers,
   // so one has to add 0.5 to get the correct barycenter position
-  barycenter_ = sumx / static_cast<float>(suma) + 0.5;
+  return sumx / static_cast<float>(suma) + 0.5f;
 }
-

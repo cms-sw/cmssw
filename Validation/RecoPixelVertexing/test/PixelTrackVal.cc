@@ -8,6 +8,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -16,9 +17,9 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenVertex.h"
-
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 
 #include <iostream>
@@ -26,8 +27,8 @@
 #include <cmath>
 #include <TH1.h>
 #include "TFile.h"
+#include "TObjArray.h"
 
-using namespace std;
 template <class T> T sqr( T t) {return t*t;}
 
 
@@ -35,21 +36,25 @@ class PixelTrackVal : public edm::EDAnalyzer {
 public:
   explicit PixelTrackVal(const edm::ParameterSet& conf);
   ~PixelTrackVal();
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginJob();
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob();
 private:
-  float deltaR(const math::XYZVector & mom1, const math::XYZVector & mom2) const;
-
-  edm::ParameterSet conf_; 
-  // How noisy should I be
   int verbose_;
-  TFile *f_;
-  TH1 *h_Pt, *h_dR, *h_VtxZ, *h_TIP, *h_VtxZ_Pull, *h_Nan;
+  std::string file_;
+  TObjArray hList;
+  edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTrackContainerToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexContainerToken_;
 };
 
 PixelTrackVal::PixelTrackVal(const edm::ParameterSet& conf)
-  : conf_(conf),f_(0)
+  : verbose_( conf.getUntrackedParameter<unsigned int>( "Verbosity", 0 ) ) // How noisy?
+  , file_( conf.getUntrackedParameter<std::string>( "HistoFile", "pixelTrackHistos.root" ) )
+  , hList(0)
+  , trackCollectionToken_( consumes<reco::TrackCollection>( edm::InputTag( conf.getParameter<std::string>( "TrackCollection" ) ) ) )
+  , simTrackContainerToken_( consumes<edm::SimTrackContainer>( conf.getParameter<edm::InputTag>( "simG4" ) ) )
+  , simVertexContainerToken_( consumes<edm::SimVertexContainer>( conf.getParameter<edm::InputTag>( "simG4" ) ) )
 {
   edm::LogInfo("PixelTrackVal")<<" CTOR";
 }
@@ -57,68 +62,57 @@ PixelTrackVal::PixelTrackVal(const edm::ParameterSet& conf)
 PixelTrackVal::~PixelTrackVal()
 {
   edm::LogInfo("PixelTrackVal")<<" DTOR";
-  delete f_;
 }
 
-void PixelTrackVal::beginJob(const edm::EventSetup& es) {
-  // How noisy?
-  verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
-
-  // Make my little tree
-  std::string file = conf_.getUntrackedParameter<std::string>("HistoFile","pixelTrackHistos.root");
-//  const char* cwd= gDirectory->GetPath();
-  f_ = new TFile(file.c_str(),"RECREATE");
-
-  h_Pt        = new TH1F("h_Pt","h_Pt",31, -2., 1.2);
-  h_dR        = new TH1F("h_dR","h_dR",30,0.,0.06);
-  h_TIP       = new TH1F("h_TIP","h_TIP",100,-0.1,0.1);
-  h_VtxZ      = new TH1F("h_VtxZ","h_VtxZ",100,-0.1,0.1);
-  h_VtxZ_Pull = new TH1F("h_VtxZ_Pull","h_VtxZ_Pull",80,0.,8);
-  h_Nan       = new TH1F("h_Nan","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz",9,0.5,9.5);
+void PixelTrackVal::beginJob() {
+  hList.Add( new TH1F("h_Pt","h_Pt",31, -2., 1.2) );
+  hList.Add( new TH1F("h_dR","h_dR",30,0.,0.06) );
+  hList.Add( new TH1F("h_TIP","h_TIP",100,-0.1,0.1) );
+  hList.Add( new TH1F("h_VtxZ","h_VtxZ",100,-0.1,0.1) );
+  hList.Add( new TH1F("h_VtxZ_Pull","h_VtxZ_Pull",80,0.,8) );
+  hList.Add( new TH1F("h_Nan","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz",9,0.5,9.5) );
+  hList.SetOwner();
 }
 
 void PixelTrackVal::analyze(
     const edm::Event& ev, const edm::EventSetup& es)
 {
 
-  using namespace edm;
-  using namespace std;
-  using namespace reco;
-
-  cout <<"*** PixelTrackVal, analyze event: " << ev.id() << endl;
+  std::cout <<"*** PixelTrackVal, analyze event: " << ev.id() << std::endl;
 
 
 
 //------------------------ simulated tracks
-  Handle<reco::TrackCollection> trackCollection;
-  std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
-  ev.getByLabel(trackCollName,trackCollection);
+  edm::Handle<reco::TrackCollection> trackCollection;
+  ev.getByToken(trackCollectionToken_, trackCollection );
   const reco::TrackCollection tracks = *(trackCollection.product());
 
   typedef reco::TrackCollection::const_iterator IT;
 
   if (verbose_ > 0) {
 //    std::cout << *(trackCollection.provenance()) << std::endl;
-    cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
+    std::cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
   }
 
   for (unsigned int idx=0; idx<tracks.size(); idx++) {
 
     const reco::Track * it= &tracks[idx];
-    h_Nan->Fill(1.,isnan(it->momentum().x())*1.);
-    h_Nan->Fill(2.,isnan(it->momentum().y())*1.);
-    h_Nan->Fill(3.,isnan(it->momentum().z())*1.);
+    TH1* h = static_cast<TH1*>(hList.FindObject("h_Nan"));
+    h->Fill(1.,edm::isNotFinite(it->momentum().x())*1.);
+    h->Fill(2.,edm::isNotFinite(it->momentum().y())*1.);
+    h->Fill(3.,edm::isNotFinite(it->momentum().z())*1.);
     
     bool problem = false;
     int index = 3;
     for (int i = 0; i != 3; i++) {
       for (int j = i; j != 3; j++) {
 	  index++;
-	  h_Nan->Fill(index*1., isnan(it->covariance(i, j))*1.);
-	  if (isnan(it->covariance(i, j))) problem = true;
+	  static_cast<TH1*>(hList.FindObject("h_Nan"))->Fill(
+            index*1., edm::isNotFinite(it->covariance(i, j))*1.);
+	  if (edm::isNotFinite(it->covariance(i, j))) problem = true;
 	  // in addition, diagonal element must be positive
 	  if (j == i && it->covariance(i, j) < 0) {
-	    h_Nan->Fill(index*1., 1.);
+	    static_cast<TH1*>(hList.FindObject("h_Nan"))->Fill(index*1., 1.);
 	    problem = true;
 	  }
       }
@@ -126,20 +120,21 @@ void PixelTrackVal::analyze(
     if (problem) std::cout <<" *** PROBLEM **" << std::endl;
 
     if (verbose_ > 0) {
-      cout << "\tmomentum: " << tracks[idx].momentum()
-	   << "\tPT: " << tracks[idx].pt()<< endl;
-      cout << "\tvertex: " << tracks[idx].vertex()
-         << "\tTIP: "<< tracks[idx].d0() << " +- " << tracks[idx].d0Error()
-	   << "\tZ0: " << tracks[idx].dz() << " +- " << tracks[idx].dzError() << endl;
-      cout << "\tcharge: " << tracks[idx].charge()<< endl;
+      std::cout << "\tmomentum: " << tracks[idx].momentum()
+		<< "\tPT: " << tracks[idx].pt()
+		<< std::endl;
+      std::cout << "\tvertex: " << tracks[idx].vertex()
+		<< "\tTIP: "<< tracks[idx].d0() << " +- " << tracks[idx].d0Error()
+		<< "\tZ0: " << tracks[idx].dz() << " +- " << tracks[idx].dzError()
+		<< std::endl;
+      std::cout << "\tcharge: " << tracks[idx].charge() << std::endl;
     }
   }
 
 //------------------------ simulated vertices and tracks
    
-   InputTag simG4 = conf_.getParameter<edm::InputTag>( "simG4" );
-   Handle<SimVertexContainer> simVtcs;
-   ev.getByLabel( simG4, simVtcs);
+   edm::Handle<edm::SimVertexContainer> simVtcs;
+   ev.getByToken( simVertexContainerToken_, simVtcs );
 
 //   std::cout << "SimVertex " << simVtcs->size() << std::endl;
 //   for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
@@ -148,15 +143,15 @@ void PixelTrackVal::analyze(
 //         << v->position().x() << " " << v->position().y() << " " << v->position().z() << " "
 //         << v->parentIndex() << " " << v->noParent() << " " << std::endl; }
 
-   Handle<SimTrackContainer> simTrks;
-   ev.getByLabel( simG4, simTrks);
+   edm::Handle<edm::SimTrackContainer> simTrks;
+   ev.getByToken( simTrackContainerToken_, simTrks );
    std::cout << "simtrks " << simTrks->size() << std::endl;
 
 //-------------- association
   // matching cuts from Marcin
   float detaMax=0.012;
   float dRMax=0.025;
-  typedef SimTrackContainer::const_iterator IP;
+  typedef edm::SimTrackContainer::const_iterator IP;
   for (IP p=simTrks->begin(); p != simTrks->end(); p++) {
     if ( (*p).noVertex() ) continue;
     if ( (*p).type() == -99) continue;
@@ -164,9 +159,13 @@ void PixelTrackVal::analyze(
 
     math::XYZVector mom_gen( (*p).momentum().x(), (*p).momentum().y(), (*p).momentum().z());
     float phi_gen = (*p).momentum().phi();
-    float pt_gen = (*p).momentum().perp();
+//    float pt_gen = (*p).momentum().Pt();
+    float pt_gen = sqrt((*p).momentum().x() * (*p).momentum().x() + (*p).momentum().y() * (*p).momentum().y());
     float eta_gen = (*p).momentum().eta();
-    HepLorentzVector vtx =(*simVtcs)[p->vertIndex()].position();
+    math::XYZTLorentzVectorD vtx((*simVtcs)[p->vertIndex()].position().x(),
+                                 (*simVtcs)[p->vertIndex()].position().y(),
+                                 (*simVtcs)[p->vertIndex()].position().z(),
+                                 (*simVtcs)[p->vertIndex()].position().e());
     float z_gen  = vtx.z();
 
 //     cout << "\tmomentum: " <<  (*p).momentum()
@@ -186,16 +185,17 @@ void PixelTrackVal::analyze(
       while (dphi < -M_PI) dphi +=2*M_PI;
       float deta = eta_gen-eta_rec;
       float dz = z_gen-z_rec;
-      float dR = deltaR( mom_gen, mom_rec);
+      double dR = deltaR( mom_gen, mom_rec);
       //
       // matched track
       //
-      if (fabs(deta) < 0.3 && fabs(dphi) < 0.3) h_dR->Fill( dR);
+      if (fabs(deta) < 0.3 && fabs(dphi) < 0.3) 
+        static_cast<TH1*>(hList.FindObject("h_dR"))->Fill( dR);
       if (fabs(deta) < detaMax && dR < dRMax) {
-        h_Pt->Fill( (pt_gen - pt_rec)/pt_gen);
-        h_TIP->Fill( it->d0() );
-        h_VtxZ->Fill( dz );
-        h_VtxZ_Pull->Fill( fabs( dz/it->dzError()) );
+        static_cast<TH1*>(hList.FindObject("h_Pt"))->Fill((pt_gen - pt_rec)/pt_gen);
+        static_cast<TH1*>(hList.FindObject("h_TIP"))->Fill( it->d0() );
+        static_cast<TH1*>(hList.FindObject("h_VtxZ"))->Fill( dz );
+        static_cast<TH1*>(hList.FindObject("h_VtxZ_Pull"))->Fill( fabs( dz/it->dzError()) );
       }
     }
   } 
@@ -203,19 +203,21 @@ void PixelTrackVal::analyze(
 
 void PixelTrackVal::endJob() 
 {
-  if (f_) f_->Write();
+  // Make my little tree
+  TFile f(file_.c_str(),"RECREATE");
+  hList.Write();
+  f.Close();
 }
 
-float PixelTrackVal::deltaR(const  math::XYZVector & m1, const  math::XYZVector & m2) const
-{
-  float dphi = m1.phi()-m2.phi();
-  while (dphi > 2*M_PI) dphi-=2*M_PI;
-  while (dphi < -2*M_PI) dphi+=2*M_PI;
-  float deta = m1.eta() - m2.eta();
-  float dr = sqrt( sqr(dphi) + sqr(deta));
-  return dr;
-
-}
+//float PixelTrackVal::deltaRR(const  math::XYZVector & m1, const  math::XYZVector & m2) const
+//{
+//  float dphi = m1.phi()-m2.phi();
+//  while (dphi > 2*M_PI) dphi-=2*M_PI;
+//  while (dphi < -2*M_PI) dphi+=2*M_PI;
+//  float deta = m1.eta() - m2.eta();
+//  float dr = sqrt( sqr(dphi) + sqr(deta));
+//  return dr;
+//}
 
 
 DEFINE_FWK_MODULE(PixelTrackVal);

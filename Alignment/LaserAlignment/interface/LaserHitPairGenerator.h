@@ -4,19 +4,15 @@
 /** \class LaserHitPairGenerator
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: 2007/05/10 10:38:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/10 12:00:32 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 
-#include "DataFormats/Common/interface/RangeMap.h"
 
-#include "Alignment/LaserAlignment/interface/LaserHitPairGeneratorFromLayerPair.h"
-#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "Alignment/LaserAlignment/interface/OrderedLaserHitPairs.h"
 
 #include <vector>

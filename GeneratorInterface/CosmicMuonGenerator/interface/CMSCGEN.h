@@ -19,12 +19,13 @@
 //           7% for range 10...500 GeV, 50% for 3000 GeV and 25% for 3 GeV
 
 
-
-#include "TMath.h" 
 #include <iostream>
-//#include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
-#include "TRandom2.h"
 
+#include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonParameters.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CMSCGEN 
 {
@@ -74,26 +75,30 @@ private:
   double corr[101];
 
 
-  TRandom2 RanGen2; // random number generator (periodicity > 10**14)  
-
+  CLHEP::HepRandomEngine *RanGen2; // random number generator
+  bool delRanGen;
 
   bool TIFOnly_const;
   bool TIFOnly_lin;
 
+
+  //variables for upgoing muons from neutrinos
+  double enumin;
+  double enumax;
+
 public:
 
   // constructor
-  CMSCGEN(){
-  initialization = 0;
-}
+  CMSCGEN();
 
   //destructor
-  ~CMSCGEN(){
-  initialization = 0;
-}
+  ~CMSCGEN();
 
-  int initialize(double,double,double,double,int,bool,bool);  
-        // to set the energy and cos theta range 
+  void setRandomEngine(CLHEP::HepRandomEngine* v);
+
+        // to set the energy and cos theta range
+  int initialize(double,double,double,double,CLHEP::HepRandomEngine*,bool,bool);
+  int initialize(double,double,double,double,int,bool,bool);
 
   int generate();
        // to generate energy*charge and cos theta for one cosmic
@@ -104,6 +109,21 @@ public:
 
   double flux();
    
+  //upward going muons from neutrinos
+  int initializeNuMu(double, double, double, double, double, double, double, double, double, CLHEP::HepRandomEngine*);
+  int initializeNuMu(double, double, double, double, double, double, double, double, double, int);
+  int generateNuMu();
+
+
+
+  double Rnunubar; //Ration of nu to nubar
+  double ProdAlt; //production altitude in atmosphere
+  double sigma;
+  double AR;
+  double dNdEmudEnu(double Enu, double Emu, double theta);
+  double dNdEmudEnuMax;
+  double negabs, negfrac;
+
 };
 #endif
 

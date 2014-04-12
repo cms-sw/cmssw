@@ -18,6 +18,7 @@ class testSimActivityRegistry: public CppUnit::TestFixture
    CPPUNIT_TEST_SUITE(testSimActivityRegistry);
    
    CPPUNIT_TEST(signalTest);
+   CPPUNIT_TEST(signalForwardingTest);
    CPPUNIT_TEST(enrollerTest);
    
    CPPUNIT_TEST_SUITE_END();
@@ -26,6 +27,7 @@ public:
    void tearDown(){}
    
    void signalTest();
+   void signalForwardingTest();
    void enrollerTest();
 };
 
@@ -67,10 +69,37 @@ testSimActivityRegistry::signalTest()
    }
 }
 
+#define TESTF(signal, SIGNAL)    MyObserver<SIGNAL> watch ## SIGNAL; \
+registry2.connect(&watch ## SIGNAL);\
+const SIGNAL* p ## SIGNAL=0; \
+registry. signal ## Signal_(p ## SIGNAL); \
+CPPUNIT_ASSERT(watch ## SIGNAL .saw_);
+
+void
+testSimActivityRegistry::signalForwardingTest()
+{
+   SimActivityRegistry registry;
+   SimActivityRegistry registry2;
+   registry.connect(registry2);
+
+   for(int i=0; i<1000; i++) {
+   TESTF(beginOfRun,BeginOfRun);
+   TESTF(beginOfJob,BeginOfJob);
+   TESTF(beginOfEvent,BeginOfEvent);
+   TESTF(beginOfTrack,BeginOfTrack);
+   TESTF(dddWorld,DDDWorld);
+   TESTF(g4Step,G4Step);
+
+   TESTF(endOfRun,EndOfRun);
+   TESTF(endOfEvent,EndOfEvent);
+   TESTF(endOfTrack,EndOfTrack);   
+   }
+}
+
 namespace {
    
    template<class T> struct Counting : public Observer<const T*> {
-      mutable int& count_;
+      int& count_;
       Counting(int& iCount) : count_(iCount) {}     
       void update(const T*) {
          ++count_;

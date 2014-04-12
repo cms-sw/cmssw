@@ -1,22 +1,13 @@
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include <string>
-using namespace std;
 
-map< const int  , TmApvPair *>
-SvgApvPair::apvMap=map<const int  , TmApvPair *>();
-
-multimap< const int  , TmApvPair *>
-ModApvPair::apvModuleMap=multimap<const int  , TmApvPair *>();
-
-map< const int  , int>
-SvgFed::fedMap=map<const int  , int>();
-
-TmApvPair::TmApvPair(int connId){
+TmApvPair::TmApvPair(int connId,int crate){
   idex=connId;
+  this->crate=crate;
   value=0;count=0;
   red = -1;
-  histNumber=0;
+  text="";
 }
 
 TmApvPair::~TmApvPair(){

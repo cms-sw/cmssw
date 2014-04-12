@@ -1,273 +1,205 @@
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-#include "SealBase/Storage.h"
-#include "SealIOTools/StorageStreamBuf.h"
-#include "SealBase/DebugAids.h"
-#include "SealBase/Signal.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Utilities/StorageFactory/test/Test.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
 #include <iostream>
 #include <cmath>
 #include <limits>
 #include <string>
 #include <vector>
-#include <queue>
-#include <fstream>
 #include <sstream>
 #include <memory>
-# include <boost/shared_ptr.hpp>
-# include "SealBase/IOError.h"
 
-namespace T0Repack {
-
-  class
-  Error : public seal::IOError
-  {
-  public:
-    Error (const char *context);
-    
-    virtual std::string	explainSelf (void) const;
-    virtual seal::Error *clone (void) const;
-    virtual void	rethrow (void);
-    
-  private:
-    
-  };
-
-
-
-
-
-  /* read full file from seal:storage and save it in a string
-   */
-  class InputStream : public  std::istringstream {
-  public:
-    InputStream(const std::string & fURL);
-
-  private:
-    std::string m_fileURL;		
-
-  };
-
-  struct Buffer {
-    const char * buffer;
-    seal::IOSize bufferSize;
-
-  };
-
-  class OutputEventFile {
-  public:
-    // construct and open (throws on error, clean before throwing ...)
-    OutputEventFile(const std::string & fURL);
-    // close and clean
-    ~OutputEventFile();
-    // sequential write
-    void put(const Buffer & event);
-    // total amount of byte written
-    inline seal::IOSize size() const { return m_size;}
-    //
-    inline const std::string & fileURL() const { return  m_fileURL;}
-  private:
-    std::string m_fileURL;		
-    std::auto_ptr<seal::Storage> storage;
-    seal::IOSize m_size;
-  };
-
-  /* owns last event */
-  class InputEventFile {
-  public:
-    // construct and open (throws on error, clean before throwing ...)
-    InputEventFile(const std::string & fURL);
-    // close and clean
-    ~InputEventFile();
-    // random read
-    Buffer get(seal::IOOffset location, seal::IOSize bufferSize);
-    // total amount of byte read
-    inline seal::IOSize size() const { return m_size;}
-    //
-    inline const std::string & fileURL() const { return  m_fileURL;}
-
-  private:
-    std::string m_fileURL;		
-    std::auto_ptr<seal::Storage> storage;
-    seal::IOSize m_size;
-    std::vector<char> vbuf;
-  };
-
-  class Sequencer {
-  public:
-    Sequencer(std::string& configFileName);
-
-    void parse();
-
-  private:
-    enum {N_Actions=4};
-    enum Actions {OPEN, CLOSE, INDEX, SELECT, TRACE}; 
-    static std::string ActionName[N_Actions];
-
-    void oneStep();
-    void parseIndex(const std::string & indexFileName);
-    
-    struct Step {
-      Actions action;
-      std::string value;
-    };
-
-
-  private:
-    int m_traceLevel;
-    int m_selectedStream;
-    std::queue<Step> m_steps;
-    std::vector<boost::shared_ptr<OutputEventFile> > m_output;
-  };
-
-
-}
-
-
-using namespace seal;
-int main (int argc, char **argv)
+int main (int argc, char **argv) try
 {
+  initTest();
 
-    Signal::handleFatal (argv [0]);
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  if (argc < 4)
+  {
+    std::cerr << "usage: " << argv[0] << " NUM-DATASETS OUTPUT-FILE INDEX-FILE...\n";
+    return EXIT_FAILURE;
+  }
 
-    if (argc < 4)
+  int			 datasetN = ::atoi(argv [1]);
+  std::string		 outputURL = argv[2];
+  Storage		 *outputFile = 0;
+  IOSize		 totSize = 0;
+  std::vector<Storage *> indexFiles;
+  std::vector<IOOffset>  indexSizes;
+
+  StorageFactory::get ()->enableAccounting(true);
+  std::cerr << "write to file " << outputURL << " " << datasetN << " datasets\n";
+
+  for (int i = 3; i < argc; ++i)
+  {
+    IOOffset size = -1;
+    if (StorageFactory::get ()->check(argv [i], &size))
     {
-	std::cerr << "please give dataset number, output file name, and list of index files" <<std::endl;
-	return EXIT_FAILURE;
+      indexFiles.push_back(StorageFactory::get ()->open (argv [i],IOFlags::OpenRead));
+      indexSizes.push_back(size);
     }
-
-    StorageFactory::get ()->enableAccounting(true);
-
-    int datasetN = ::atol(argv [1]);
-    std::string outputURL = argv[2];
-    std::cerr << "write to file " << outputURL
-	      << " dataset " << datasetN << std::endl;
-    std::vector<Storage	*> indexFiles;
-    std::vector<IOOffset> indexSizes;
-    for ( int i=3; i<argc; i++ ) {
-      IOOffset    size = -1;
-      if (StorageFactory::get ()->check(argv [i], &size)) {	
-	indexFiles.push_back(StorageFactory::get ()->
-			     open (argv [i],seal::IOFlags::OpenRead));
-	indexSizes.push_back(size);
-      }
-      else {
-	std::cerr << "index file " << argv [i] << " does not exists" << std::endl;
-	return EXIT_FAILURE;
-      }
+    else
+    {
+      std::cerr << "index file " << argv [i] << " does not exist\n";
+      return EXIT_FAILURE;
     }
+  }
 
-    // open output file
-    Storage  * outputFile = 0;
-    try {
-      outputFile = StorageFactory::get ()->open (outputURL,
-						 IOFlags::OpenWrite
-						 | IOFlags::OpenCreate
-						 | IOFlags::OpenTruncate);
-    } catch (...) {
-      std::cerr << "error in opening output file " << outputURL << std::endl;
+  // open output file
+  try
+  {
+    outputFile = StorageFactory::get ()->open
+      (outputURL, IOFlags::OpenWrite|IOFlags::OpenCreate|IOFlags::OpenTruncate);
+  }
+  catch (cms::Exception &e)
+  {
+    std::cerr << "error in opening output file " << outputURL
+	      << ": " << e.explainSelf () << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // parse index file, read buffer, select and copy to output file
+  for (size_t i = 0; i < indexFiles.size(); ++i)
+  {
+    // suck in the index file.
+    std::cout << "reading from index file " <<  argv[i+3] << std::endl;
+    std::istringstream in;
+    try
+    {
+      std::vector<char> lbuf(indexSizes[i]+1, '\0');
+      IOSize		nn = indexFiles[i]->read(&lbuf[0], indexSizes[i]);
+
+      if (indexSizes[i] < 0 || static_cast<IOOffset>(nn) != indexSizes[i])
+      {
+        std::cerr << "error in reading from index file " <<  argv[i+3] << std::endl;
+        std::cerr << "asked for " <<  indexSizes[i] << " bytes, got " << nn << " bytes\n";
+        return EXIT_FAILURE;
+      }
+
+      in.str(&lbuf[0]);
+    }
+    catch (cms::Exception &e)
+    {
+      std::cerr << "error in reading from index file " << argv [i+3] << std::endl
+		<< e.explainSelf() << std::endl;
+      return EXIT_FAILURE;
+    }
+    catch (...)
+    {
+      std::cerr << "error in reading from index file " << argv [i+3] << std::endl;
       return EXIT_FAILURE;
     }
 
-    // parse index file
-    // read buffer
-    // select and copy to output file
-    IOSize totSize=0;
-    for (unsigned int i=0; i<indexFiles.size();i++) {
-      std::cerr << "reading from index file " <<  argv[i+3] << std::endl;
-      //StorageStreamBuf	bufio (indexFiles[i]);
-      // std::istream in (&bufio);
-      // std::ifstream in(argv [i+3]);
-      // get the whole file in memory
-      std::istringstream in;
-      try {
-	std::vector<char> lbuf(indexSizes[i]+1,'\0');
-	IOSize nn = indexFiles[i]->read(&lbuf[0],indexSizes[i]);
-	if (nn!=indexSizes[i]) {
-	      std::cerr << "error in reading from  index file " <<  argv[i+3] << std::endl;
-	      std::cerr << "asked for " <<  indexSizes[i] <<". got " << nn << std::endl;
-	      return EXIT_FAILURE;
-	}
-	in.str(&lbuf[0]);
-      } catch (...) {
-	std::cerr << "error in reading from index file " << argv [i+3] << std::endl;
-	return EXIT_FAILURE;
-      
-      }
+    std::string line1;
+    std::getline(in, line1);
+    std::cout << "first line is '" << line1 << "'\n";
+    std::string::size_type pos = line1.find('=');
+    if (pos != std::string::npos)
+      pos = line1.find_first_not_of(' ',pos+1);
+    if (pos == std::string::npos)
+    {
+      std::cerr << "badly formed index file " << argv [i+3] << std::endl;
+      std::cerr << "first line is:\n" << line1 << std::endl;
+      return EXIT_FAILURE;
+    }
+    line1.erase(0,pos);
 
-	std::string line1; std::getline(in, line1);
-	std::cerr << "first line is:\n" << line1 << std::endl;
-	std::string::size_type pos = line1.find('=');
-      if (pos!=std::string::npos) pos = line1.find_first_not_of(' ',pos+1);
-      if (pos==std::string::npos) {
-	std::cerr << "badly formed index file " << argv [i+3] << std::endl;
-	std::cerr << "first line is:\n" << line1 << std::endl;
-	return EXIT_FAILURE;
+    Storage	*s = 0; 
+    IOOffset	size = 0;
+    try
+    {
+      std::cout << "input event file " << i << " is " << line1 << std::endl;
+      if (StorageFactory::get ()->check(line1, &size))
+        s = StorageFactory::get ()->open (line1, IOFlags::OpenRead);
+      else
+      {
+        std::cerr << "input file " << line1 << " does not exist\n";
+        return EXIT_FAILURE;
       }
-      line1.erase(0,pos);
-      std::cerr << "input event file " << i << " is " << line1 << std::endl;
-      Storage	* s; 
-      IOOffset size=0;
-      try {
-	if (StorageFactory::get ()->check(line1, &size)) {	
-	 s = StorageFactory::get ()->
-	   open (line1,seal::IOFlags::OpenRead);
-	}
-	else {
-	  std::cerr << "input file " << line1 << " does not exists" << std::endl;
-	  return EXIT_FAILURE;
-	}
-      } catch (...) {
-	std::cerr << "error in opening input file " << line1 << std::endl;
-	  return EXIT_FAILURE;
-      }
-      //
-      std::vector<char> vbuf;
-      while(in) {
-	int dataset=-1;
-	IOOffset bufLoc = -1;
-	IOSize   bufSize = 0;
-	in >> dataset >> bufLoc >> bufSize;
-	if (dataset==datasetN) {
-	  std::cerr << "copy buf at " << bufLoc << " of size " << bufSize << std::endl;
-	  if (bufSize>vbuf.size()) vbuf.resize(bufSize);
-	  char * buf = &vbuf[0];
-	  try {
-	    s->position(bufLoc);
-	    IOSize  n = s->read (buf, bufSize);
-	    totSize+=n;
-	    if (n!= bufSize) {
-	      std::cerr << "error in reading from  input file " << line1 << std::endl;
-	      std::cerr << "asked for " << bufSize <<". got " << n << std::endl;
-	      return EXIT_FAILURE;
-	    }
-	  } catch (...) {
-	    std::cerr << "error in reading from  input file " << line1 << std::endl;
-	    return EXIT_FAILURE;
-	  }
-	  try {
-	    outputFile->write(buf,bufSize);
-	  } catch (...) {
-	    std::cerr << "error in writing to output file " << outputURL << std::endl;
-	    return EXIT_FAILURE;
-	  }
-	}
-      }
-
-      delete s;
- 
+    }
+    catch (cms::Exception &e)
+    {
+      std::cerr << "error in opening input file " << line1 << std::endl
+		<< e.explainSelf() << std::endl;
+      return EXIT_FAILURE;
+    }
+    catch (...)
+    {
+      std::cerr << "error in opening input file " << line1 << std::endl;
+      return EXIT_FAILURE;
     }
 
-    outputFile->close();
-    delete  outputFile;
+    std::vector<char> vbuf;
+    while (in)
+    {
+      int	dataset = -1;
+      IOOffset	bufLoc = -1;
+      IOSize	bufSize = 0;
 
-    std::cerr << "copied a total of " << totSize << " bytes" << std::endl;
+      in >> dataset >> bufLoc >> bufSize;
 
+      if (dataset != datasetN)
+	continue;
 
-    std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
+      std::cout << "copy buf at " << bufLoc << " of size " << bufSize << std::endl;
+      if (bufSize > vbuf.size())
+	vbuf.resize(bufSize);
 
-    return EXIT_SUCCESS;
+      char * buf = &vbuf[0];
+      try
+      {
+        s->position(bufLoc);
+        IOSize n = s->read (buf, bufSize);
+        totSize += n;
+        if (n != bufSize)
+        {
+          std::cerr << "error in reading from input file " << line1 << std::endl;
+          std::cerr << "asked for " <<  bufSize << " bytes, got " << n << " bytes\n";
+          return EXIT_FAILURE;
+        }
+      }
+      catch (cms::Exception &e)
+      {
+        std::cerr << "error in reading input file " << line1 << std::endl
+		  << e.explainSelf() << std::endl;
+        return EXIT_FAILURE;
+      }
+      catch (...)
+      {
+        std::cerr << "error in reading input file " << line1 << std::endl;
+        return EXIT_FAILURE;
+      }
+
+      try
+      {
+	outputFile->write(buf,bufSize);
+      }
+      catch (cms::Exception &e)
+      {
+        std::cerr << "error in writing output file " << outputURL << std::endl
+		  << e.explainSelf() << std::endl;
+        return EXIT_FAILURE;
+      }
+      catch (...)
+      {
+        std::cerr << "error in writing output file " << outputURL << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+
+    s->close();
+    delete s;
+  }
+
+  outputFile->close();
+  delete outputFile;
+
+  std::cout << "copied a total of " << totSize << " bytes" << std::endl;
+  std::cout << StorageAccount::summaryXML () << std::endl;
+  return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
 }
-

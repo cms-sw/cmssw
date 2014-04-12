@@ -1,0 +1,6 @@
+<environment>
+  <use   name="SimCalorimetry/CastorSim"/>
+  <use   name="CalibCalorimetry/HcalTPGAlgos"/>
+  <bin   file="CastorDigitizerTest.cpp">
+  </bin>
+</environment>

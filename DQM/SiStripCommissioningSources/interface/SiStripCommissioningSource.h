@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningSources_SiStripCommissioningSource_H
 #define DQM_SiStripCommissioningSources_SiStripCommissioningSource_H
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -9,11 +10,13 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <boost/cstdint.hpp>
 #include <string>
 #include <vector>
 #include <map>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class CommissioningTask;
 class FedChannelConnection;
 class SiStripEventSummary;
@@ -33,8 +36,8 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   SiStripCommissioningSource( const edm::ParameterSet& );
   ~SiStripCommissioningSource();
   
-  void beginJob( edm::EventSetup const& );
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginRun( edm::Run const &, const edm::EventSetup & );
+  void analyze( const edm::Event &, const edm::EventSetup & );
   void endJob();
   
  private: // ---------- Private methods ----------
@@ -43,19 +46,19 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   SiStripCommissioningSource();
   
   /** */
-  DaqMonitorBEInterface* const dqm( std::string method = "" ) const;
+  DQMStore* const dqm( std::string method = "" ) const;
   
   /** */
   void createRunNumber();
 
   /** */
-  void createTask( const SiStripEventSummary* const );
+  void createTask( const SiStripEventSummary* const, const edm::EventSetup& );
   
   /** */
   void createCablingTasks();
 
   /** */
-  void createTasks( sistrip::RunType );
+  void createTasks( sistrip::RunType, const edm::EventSetup& );
   
   /** */
   void clearCablingTasks();
@@ -73,11 +76,19 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   
   /** */
   void remove();
+  
+  /** */
+  void directory( std::stringstream&, 
+		  uint32_t run_number = 0 );
+  
+  /** */
+  //void cablingForConnectionRun( const sistrip::RunType& ); //@@ do not use!
 
+  
   // ---------- DQM fwk and cabling ----------
 
   /** Interface to Data Quality Monitoring framework. */
-  DaqMonitorBEInterface* dqm_;
+  DQMStore* dqm_;
 
   /** */
   SiStripFedCabling* fedCabling_;
@@ -86,6 +97,10 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   SiStripFecCabling* fecCabling_;
   
   // ---------- Input / output ----------
+  edm::EDGetTokenT<SiStripEventSummary> inputModuleSummaryToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiVirginRawToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiScopeModeToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiFineDelaySelectionToken_;
 
   /** Name of digi input module. */
   std::string inputModuleLabel_;
@@ -125,6 +140,13 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
 
   /** */
   std::string base_;
+
+  /** flag for choosing the organizational 'view' the DQM histogram tree */
+  std::string view_;
+
+  /** parameters to pass to the tasks */
+  edm::ParameterSet parameters_;
+
 
 };
 

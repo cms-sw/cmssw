@@ -17,7 +17,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -27,7 +26,7 @@
 #include "TFile.h"
 #include "TTree.h"
 
-using namespace std;
+
 
 namespace edm {
   class ParameterSet;
@@ -46,33 +45,36 @@ class MinBias : public edm::EDAnalyzer {
       ~MinBias();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
 
    private:
   // ----------member data ---------------------------
   // names of modules, producing object collections
-     
-     string hbheLabel_,hoLabel_,hfLabel_;
+
+     std::string hbheLabel_,hoLabel_,hfLabel_;
+     edm::EDGetTokenT<HBHERecHitCollection> hbheToken_;
+     edm::EDGetTokenT<HORecHitCollection> hoToken_;
+     edm::EDGetTokenT<HFRecHitCollection> hfToken_;
   // stuff for histogramms
   //  output file name with histograms
-     string fOutputFileName ;
+     std::string fOutputFileName ;
      bool allowMissingInputs_;
   //
      TFile*      hOutputFile ;
   //   TH1D*       hCalo1[8000], *hCalo2;
      TTree * myTree;
-  //  
-     int mydet, mysubd, depth, iphi, ieta;
+  //
+     int mydet, mysubd, depth, iphi, ieta, ievent;
      float phi,eta;
      float mom1,mom2,mom3,mom4,occup;
      const CaloGeometry* geo;
   // counters
-     map<DetId,double> theFillDetMap0;
-     map<DetId,double> theFillDetMap1; 
-     map<DetId,double> theFillDetMap2; 
-     map<DetId,double> theFillDetMap3; 
-     map<DetId,double> theFillDetMap4; 
-    
+     std::map<DetId,double> theFillDetMap0;
+     std::map<DetId,double> theFillDetMap1;
+     std::map<DetId,double> theFillDetMap2;
+     std::map<DetId,double> theFillDetMap3;
+     std::map<DetId,double> theFillDetMap4;
+
 };
 }

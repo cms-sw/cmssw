@@ -1,14 +1,12 @@
 /** \file
  *
- *  $Date: 2006/08/22 19:28:00 $
- *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
 #include "RecoMuon/DetLayers/interface/MuDetRing.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -44,7 +42,7 @@ const vector<const GeometricSearchDet*>&
 MuDetRing::components() const {
   // FIXME dummy impl.
   cout << "temporary dummy implementation of MuDetRing::components()!!" << endl;
-  static vector<const GeometricSearchDet*> result;
+  static const vector<const GeometricSearchDet*> result;
   return result;
 }
 

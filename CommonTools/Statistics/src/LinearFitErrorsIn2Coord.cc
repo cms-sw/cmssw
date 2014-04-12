@@ -3,15 +3,15 @@
 #include <cmath>
 
 float LinearFitErrorsIn2Coord::slope(
-  const vector<float> & x, const vector<float> & y, int ndat, 
-  const vector<float> & sigx, const vector<float> & sigy) const
+  const std::vector<float> & x, const std::vector<float> & y, int ndat, 
+  const std::vector<float> & sigx, const std::vector<float> & sigy) const
 {
 
   // scale y and sigy, compute scaled errors
   float scale = sqrt(variance(x, ndat) / variance(y, ndat));
-  vector<float> yScaled = y;
-  vector<float> sigyScaled = sigy;
-  vector<float> sig(ndat);
+  std::vector<float> yScaled = y;
+  std::vector<float> sigyScaled = sigy;
+  std::vector<float> sig(ndat);
   for (int i = 0; i != ndat; i++) {
     yScaled[i] *= scale; 
     sigyScaled[i] *= scale;
@@ -31,8 +31,8 @@ float LinearFitErrorsIn2Coord::slope(
 
 
 float LinearFitErrorsIn2Coord::intercept(
-  const vector<float> & x, const vector<float> & y, int ndat, 
-  const vector<float> & sigx, const vector<float> & sigy) const
+  const std::vector<float> & x, const std::vector<float> & y, int ndat, 
+  const std::vector<float> & sigx, const std::vector<float> & sigy) const
 {
   
   float fs = slope(x, y, ndat, sigx, sigy);
@@ -50,7 +50,7 @@ float LinearFitErrorsIn2Coord::intercept(
 
 
 float 
-LinearFitErrorsIn2Coord::variance(const vector<float> & x, int ndat) const 
+LinearFitErrorsIn2Coord::variance(const std::vector<float> & x, int ndat) const 
 {
   double m1 = 0., m2 = 0.;
   for (int i = 0; i != ndat; i++) {

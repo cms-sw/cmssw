@@ -14,10 +14,10 @@
 //    typedef vector<int, edm::debugging_allocator<int> > vint;
 // etc.
 //
-// $Id:$
 //---------------------------------------------------------------------
 
 #include <limits>
+#include <cstddef>
 
 namespace edm
 {

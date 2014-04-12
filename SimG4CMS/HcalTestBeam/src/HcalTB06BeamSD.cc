@@ -16,6 +16,7 @@
 
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
 			       SensitiveDetectorCatalog & clg, 
@@ -27,7 +28,8 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");
   useBirk    = m_HC.getParameter<bool>("UseBirkLaw");
   birk1      = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2      = m_HC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  birk2      = m_HC.getParameter<double>("BirkC2");
+  birk3      = m_HC.getParameter<double>("BirkC3");
 
   LogDebug("HcalTBSim") <<"***************************************************"
 			<< "\n"
@@ -40,8 +42,8 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
 			<<"***************************************************";
 
   edm::LogInfo("HcalTBSim") << "HcalTB06BeamSD:: Use of Birks law is set to " 
-			    << useBirk << "  with the two constants C1 = "
-			    << birk1 << ", C2 = " << birk2;
+			    << useBirk << "  with three constants kB = "
+			    << birk1 << ", C1 = " <<birk2 << ", C2 = " <<birk3;
 
   std::string attribute, value;
 
@@ -74,7 +76,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   std::vector<int>      nocc;
   while (dodet) {
     const DDLogicalPart & log = fv2.logicalPart();
-    matName = DDSplit(log.material().name()).first;
+    matName = log.material().name().name();
     bool notIn = true;
     for (unsigned int i=0; i<matNames.size(); i++) 
       if (matName == matNames[i]) {notIn = false; nocc[i]++;}
@@ -110,7 +112,7 @@ double HcalTB06BeamSD::getEnergyDeposit(G4Step* aStep) {
   if (useBirk) {
     G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
     if (mat->GetName() == matName)
-      weight *= getAttenuation(aStep, birk1, birk2);
+      weight *= getAttenuation(aStep, birk1, birk2, birk3);
   }
   LogDebug("HcalTBSim") << "HcalTB06BeamSD: Detector " 
 			<< aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()
@@ -133,8 +135,8 @@ uint32_t HcalTB06BeamSD::setDetUnitId(G4Step * aStep) {
     lay = (touch->GetReplicaNumber(1));
     G4ThreeVector hitPoint    = preStepPoint->GetPosition();
     G4ThreeVector localPoint  = setToLocal(hitPoint, touch);
-    x   = (int)(localPoint.x()/0.02);
-    y   = (int)(localPoint.y()/0.02);
+    x   = (int)(localPoint.x()/(0.2*mm));
+    y   = (int)(localPoint.y()/(0.2*mm));
   }
 
   return packIndex (det, lay, x, y);
@@ -176,7 +178,7 @@ std::vector<G4String> HcalTB06BeamSD::getNames(DDFilteredView& fv) {
   bool dodet = fv.firstChild();
   while (dodet) {
     const DDLogicalPart & log = fv.logicalPart();
-    G4String name = DDSplit(log.name()).first;
+    G4String name = log.name().name();
     bool ok = true;
     for (unsigned int i=0; i<tmp.size(); i++)
       if (name == tmp[i]) ok = false;

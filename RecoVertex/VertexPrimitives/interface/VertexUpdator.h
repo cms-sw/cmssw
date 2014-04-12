@@ -8,10 +8,13 @@
  * Updates CachingVertex with one VertexTrack. 
  */
 
+template <unsigned int N>
 class VertexUpdator {
 
 public:
   
+  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+
   /**
    * Default Constructor
    */  
@@ -23,11 +26,11 @@ public:
    * Method updating the vertex, with the information contained 
    * in the track.
    */
-  virtual CachingVertex add(const CachingVertex & v,
-			    const RefCountedVertexTrack t) const = 0;
+  virtual CachingVertex<N> add(const CachingVertex<N> & v,
+	const typename CachingVertex<N>::RefCountedVertexTrack  t) const = 0;
 
-  virtual CachingVertex remove(const CachingVertex & v,
-			       const RefCountedVertexTrack t) const = 0;
+  virtual CachingVertex<N> remove(const CachingVertex<N> & v,
+	const typename CachingVertex<N>::RefCountedVertexTrack  t) const = 0;
 
   virtual VertexUpdator * clone() const = 0;  
 

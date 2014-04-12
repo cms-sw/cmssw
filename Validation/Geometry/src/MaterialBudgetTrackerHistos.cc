@@ -394,13 +394,13 @@ void MaterialBudgetTrackerHistos::fillEndTrack()
       
       float x0 = theData->getStepMaterialX0(iStep);
 
-      int nSubStep = 1;
-      float boxWidth = 0.5;
+      int nSubStep = 2;
+      float boxWidth = 0.1;
       if( (deltaRadius>boxWidth) || (fabs(deltaz)>boxWidth) ) {
-	nSubStep = max(
+	nSubStep = static_cast<int>(max(
 		       ceil(deltaRadius/boxWidth/2.)*2,
 		       ceil(fabs(deltaz)/boxWidth/2.)*2
-		       );
+		       ));
       }
       
       for(int iSubStep = 1; iSubStep < nSubStep; iSubStep+=2) {
@@ -606,13 +606,13 @@ void MaterialBudgetTrackerHistos::fillEndTrack()
       
       float il = theData->getStepMaterialLambda0(iStep);
 
-      int nSubStep = 1;
-      float boxWidth = 0.5;
+      int nSubStep = 2;
+      float boxWidth = 0.1;
       if( (deltaRadius>boxWidth) || (fabs(deltaz)>boxWidth) ) {
-	nSubStep = max(
+	nSubStep = static_cast<int>(max(
 		       ceil(deltaRadius/boxWidth/2.)*2,
 		       ceil(fabs(deltaz)/boxWidth/2.)*2
-		       );
+		       ));
       }
       
       for(int iSubStep = 1; iSubStep < nSubStep; iSubStep+=2) {

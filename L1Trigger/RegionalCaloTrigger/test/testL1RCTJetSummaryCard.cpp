@@ -11,6 +11,7 @@ int main() {
   std::vector<double> eGammaHCalScaleFactors(32, 1.0);
   std::vector<double> jetMETECalScaleFactors(32, 1.0);
   std::vector<double> jetMETHCalScaleFactors(32, 1.0);
+  std::vector<double> c,d,e,f,g,h;
   L1RCTParameters* rctParameters = 
     new L1RCTParameters(1.0,                       // eGammaLSB
 			1.0,                       // jetMETLSB
@@ -19,22 +20,36 @@ int main() {
 			0.5,                       // hOeCut
 			1.0,                       // eMinForHoECut
 			50.0,                      // eMaxForHoECut
+			1.0,                       // hMinForHoECut
 			2.0,                       // eActivityCut
 			3.0,                       // hActivityCut
+			3,                         // eicIsolationThreshold
+                        3,                         // jscQuietThresholdBarrel
+                        3,                         // jscQuietThresholdEndcap
+			false,                     // noiseVetoHB
+			false,                     // noiseVetoHEplus
+			false,                     // noiseVetoHEminus
+			false,                     // use Lindsey
 			eGammaECalScaleFactors,
 			eGammaHCalScaleFactors,
 			jetMETECalScaleFactors,
-			jetMETHCalScaleFactors
+			jetMETHCalScaleFactors,
+			c,
+			d,
+			e,
+			f,
+			g,
+			h
 			);
   L1RCTLookupTables* lut = new L1RCTLookupTables();
   lut->setRCTParameters(rctParameters);  // transcoder and etScale are not used
   L1RCTJetSummaryCard jsc(0,lut);
-  vector<unsigned short> hfregions(8);
-  vector<unsigned short> bregions(14);
-  vector<unsigned short> tauBits(14);
-  vector<unsigned short> mipBits(14);
-  vector<unsigned short> isoElectrons(14);
-  vector<unsigned short> nonIsoElectrons(14);
+  std::vector<unsigned short> hfregions(8);
+  std::vector<unsigned short> bregions(14);
+  std::vector<unsigned short> tauBits(14);
+  std::vector<unsigned short> mipBits(14);
+  std::vector<unsigned short> isoElectrons(14);
+  std::vector<unsigned short> nonIsoElectrons(14);
   isoElectrons.at(0) = 10;
   isoElectrons.at(1) = 20;
   isoElectrons.at(2) = 30;

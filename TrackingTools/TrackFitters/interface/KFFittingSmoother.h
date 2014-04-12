@@ -6,55 +6,81 @@
  *  This is necessary e.g. when the seed introduced a bias (by using
  *  a beam contraint etc.). Ported from ORCA
  *
- *  $Date: 2007/05/09 13:34:14 $
- *  $Revision: 1.4.2.1 $
  *  \author todorov, cerati
  */
 
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 
-class KFFittingSmoother : public TrajectoryFitter {
+class KFFittingSmoother GCC11_FINAL : public TrajectoryFitter {
 
 public:
   /// constructor with predefined fitter and smoother and propagator
-  KFFittingSmoother(const TrajectoryFitter& aFitter,
-                    const TrajectorySmoother& aSmoother,
-		    double estimateCut = -1,
-		    int minNumberOfHits = 5) :
-    theFitter(aFitter.clone()),
-    theSmoother(aSmoother.clone()),
-    theEstimateCut(estimateCut),
-    theMinNumberOfHits(minNumberOfHits) {}
-  
-  virtual ~KFFittingSmoother();
-  
-  virtual std::vector<Trajectory> fit(const Trajectory& t) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const RecHitContainer& hits, 
-				 const TrajectoryStateOnSurface& firstPredTsos) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const RecHitContainer& hits) const;
+KFFittingSmoother(const TrajectoryFitter& aFitter,
+                  const TrajectorySmoother& aSmoother,
+                  double estimateCut = -1,
+                  double logPixelProbabilityCut = -16.0,
+                  int minNumberOfHits = 5,
+                  bool rejectTracks = false,
+                  bool BreakTrajWith2ConsecutiveMissing = false,
+                  bool NoInvalidHitsBeginEnd = false) :
+  theFitter(aFitter.clone()),
+      theSmoother(aSmoother.clone()),
+      theEstimateCut(estimateCut),
 
-  const TrajectoryFitter* fitter() const {return theFitter;}
-  const TrajectorySmoother* smoother() const {return theSmoother;}
+      // ggiurgiu@fnal.gov
+      theLogPixelProbabilityCut( logPixelProbabilityCut ),
 
-  KFFittingSmoother* clone() const {
-    return new KFFittingSmoother(*theFitter,*theSmoother);
+      theMinNumberOfHits(minNumberOfHits),
+      rejectTracksFlag(rejectTracks),
+      breakTrajWith2ConsecutiveMissing(BreakTrajWith2ConsecutiveMissing),
+      noInvalidHitsBeginEnd(NoInvalidHitsBeginEnd) {}
+
+  virtual ~KFFittingSmoother() {};
+
+  Trajectory fitOne(const Trajectory& t, fitType type) const;
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+                    const RecHitContainer& hits,
+                    const TrajectoryStateOnSurface& firstPredTsos, fitType type) const;
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits, fitType type) const;
+
+  const TrajectoryFitter* fitter() const {return theFitter.get();}
+  const TrajectorySmoother* smoother() const {return theSmoother.get();}
+
+  std::unique_ptr<TrajectoryFitter> clone() const override {
+    return std::unique_ptr<TrajectoryFitter>(
+        new KFFittingSmoother(*theFitter,
+                              *theSmoother,
+                              theEstimateCut,theLogPixelProbabilityCut,
+                              theMinNumberOfHits,rejectTracksFlag,
+                              breakTrajWith2ConsecutiveMissing,noInvalidHitsBeginEnd));
   }
-  
+
 private:
 
-  const TrajectoryFitter* theFitter;
-  const TrajectorySmoother* theSmoother;
+  Trajectory smoothingStep(Trajectory const & fitted) const {return theSmoother->trajectory(fitted);}
+
+private:
+
+  const std::unique_ptr<TrajectoryFitter> theFitter;
+  const std::unique_ptr<TrajectorySmoother> theSmoother;
   double theEstimateCut;
+
+  double theLogPixelProbabilityCut; // ggiurgiu@fnal.gov
+
   int theMinNumberOfHits;
-  
-  std::vector<Trajectory> smoothingStep(std::vector<Trajectory>& fitted) const;
+  bool rejectTracksFlag;
+  bool breakTrajWith2ConsecutiveMissing;
+  bool noInvalidHitsBeginEnd;
+
   TrajectoryStateWithArbitraryError   tsosWithError;
-  
+
+  /// Method to check that the trajectory has no NaN in the states and chi2
+  bool checkForNans(const Trajectory &theTraj) const;
+
 };
 
 #endif //CD_KFFittingSmoother_H_

@@ -149,7 +149,7 @@ public:
  private:
 
   static void CheckIfFitPossible();
-  static int CheckIfMeasIsProportionalToAnother( uint measNo );
+  static int CheckIfMeasIsProportionalToAnother( ALIuint measNo );
   static std::string GetMeasurementName( int meas );
 
 // private DATA MEMBERS 
@@ -176,9 +176,9 @@ private:
   //FOR LINK..................
 private:
     //
-  //-  void AddSigma( Hep3Vector& vori, Hep3Vector& vadd );
-  //-  Hep3Vector atanVectorSigma( Hep3Vector& tanvs, const Hep3Vector& tanv );
-  //-  Hep3Vector atanVector( Hep3Vector& tanv );
+  //-  void AddSigma( CLHEP::Hep3Vector& vori, CLHEP::Hep3Vector& vadd );
+  //-  CLHEP::Hep3Vector atanVectorSigma( CLHEP::Hep3Vector& tanvs, const CLHEP::Hep3Vector& tanv );
+  //-  CLHEP::Hep3Vector atanVector( CLHEP::Hep3Vector& tanv );
 
   //----- The minimum quality an entry must have to be inhcluded in the fit
   static ALIint theMinimumEntryQuality; 
@@ -199,6 +199,9 @@ private:
 
   //----- Minimum value of the factor to multiply Da to test if an smaller chi2 can be obtained (chapter 5.2 of LeastSquareMethods)
   static ALIdouble theMinDaFactor;
+
+ public:
+  static ALIuint nEvent; 
 };
 
 

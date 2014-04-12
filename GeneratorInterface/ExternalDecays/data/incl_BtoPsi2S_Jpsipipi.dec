@@ -1,0 +1,154 @@
+#
+# This is the decay file for B -> Psi(2S)->JPsi (-> mu mu ) X
+#
+# EventType:
+#
+# Descriptor: {[B => X+ Psi(2S)->(J/psi(1S) -> mu+ mu- {,gamma} {,gamma}) X]cc]
+#
+# NickName: 
+#
+# Physics: 
+#
+# Tested: Yes
+# By: Keith Ulmer (keith.ulmer@colorado.edu)
+#     Giordano Cerizza (gcerizza@utk.edu)
+# Date: 2/27/10
+#
+
+Define Hp 0.49
+Define Hz 0.775
+Define Hm 0.4
+Define pHp 2.50
+Define pHz 0.0
+Define pHm -0.17
+
+Alias      MyB0   B0
+Alias      Myanti-B0   anti-B0
+ChargeConj Myanti-B0   MyB0 
+
+Alias      MyB+   B+
+Alias      MyB-   B-
+ChargeConj MyB-   MyB+
+
+Alias      MyB_s0   B_s0
+Alias      Myanti-B_s0   anti-B_s0
+ChargeConj Myanti-B_s0   MyB_s0 
+
+Alias      MyLambda_b0   Lambda_b0
+Alias      Myanti-Lambda_b0   anti-Lambda_b0
+ChargeConj Myanti-Lambda_b0   MyLambda_b0 
+
+Alias      MyJ/psi  J/psi
+ChargeConj MyJ/psi  MyJ/psi
+
+Decay MyJ/psi
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+
+
+Alias Mypsi(2S) psi(2S)
+ChargeConj Mypsi(2S) Mypsi(2S) 
+
+Decay Mypsi(2S)
+ 1.000          MyJ/psi  pi+ pi-                 VVPIPI;
+Enddecay
+
+Decay MyB+
+0.239   Mypsi(2S) K+                        SVS;
+0.228   Mypsi(2S) K*+                       SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus;
+0.152   Mypsi(2S) K0  pi+                   PHSP;
+0.076   Mypsi(2S) K+  pi0                   PHSP;
+0.076   Mypsi(2S) K+  pi-  pi+              PHSP;
+0.038   Mypsi(2S) K+  pi0  pi0              PHSP;
+0.038   Mypsi(2S) K0  pi+  pi0              PHSP;
+0.153   Mypsi(2S)  K_1+                     PHSP;
+Enddecay
+
+Decay MyB-
+0.239   Mypsi(2S) K-                        SVS;
+0.228   Mypsi(2S) K*-                       SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus;
+0.152   Mypsi(2S) K0  pi-                   PHSP;
+0.076   Mypsi(2S) K-  pi0                   PHSP;
+0.076   Mypsi(2S) K-  pi-  pi+              PHSP;
+0.038   Mypsi(2S) K-  pi0  pi0              PHSP;
+0.038   Mypsi(2S) K0  pi-  pi0              PHSP;
+0.153   Mypsi(2S)  K_1-                     PHSP;
+Enddecay
+
+Decay MyB0
+0.121     Mypsi(2S)  K_S0              SVS;
+0.121     Mypsi(2S)  K_L0              SVS;
+#
+#
+0.242     Mypsi(2S)  K*0             SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus;
+
+0.147     Mypsi(2S)  K+  pi-          PHSP;
+0.074     Mypsi(2S)  K0  pi0          PHSP;
+0.074     Mypsi(2S)  K0  pi-  pi+     PHSP;
+0.037     Mypsi(2S)  K0  pi0  pi0     PHSP;
+0.037     Mypsi(2S)  K+  pi-  pi0     PHSP;
+0.147     Mypsi(2S)  K_10              PHSP;
+Enddecay
+
+Decay Myanti-B0
+0.121     Mypsi(2S)  K_S0              SVS;
+0.121     Mypsi(2S)  K_L0              SVS;
+#
+#
+0.242     Mypsi(2S)  anti-K*0             SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus;
+
+0.147     Mypsi(2S)  K-  pi+          PHSP;
+0.074     Mypsi(2S)  anti-K0  pi0          PHSP;
+0.074     Mypsi(2S)  anti-K0  pi-  pi+     PHSP;
+0.037     Mypsi(2S)  anti-K0  pi0  pi0     PHSP;
+0.037     Mypsi(2S)  K-  pi+  pi0     PHSP;
+0.147     Mypsi(2S)  anti-K_10              PHSP;
+Enddecay
+
+Decay MyB_s0
+0.082     Mypsi(2S)     eta'	                           SVS;
+0.041     Mypsi(2S)     eta                                SVS;
+0.207     Mypsi(2S)     phi                                SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.054     Mypsi(2S)     K-          K+                     PHSP;
+0.054     Mypsi(2S)     anti-K0     K0                     PHSP;
+0.054     Mypsi(2S)     K0          K-         pi+         PHSP;
+0.054     Mypsi(2S)     anti-K0     K0         pi0         PHSP;
+0.054     Mypsi(2S)     K-          K+         pi0         PHSP;
+0.060     Mypsi(2S) phi      pi+  pi-  PHSP;
+0.060     Mypsi(2S) phi      pi0  pi0  PHSP;
+0.035    Mypsi(2S) eta      pi+  pi-  PHSP;
+0.035    Mypsi(2S) eta      pi0  pi0  PHSP;
+0.070    Mypsi(2S) eta'     pi+  pi-  PHSP;
+0.070    Mypsi(2S) eta'     pi0  pi0  PHSP;
+0.035    Mypsi(2S) pi+      pi-       PHSP;
+0.035    Mypsi(2S) pi0      pi0       PHSP;
+Enddecay
+
+Decay Myanti-B_s0
+0.082     Mypsi(2S)     eta'	                           SVS;
+0.041     Mypsi(2S)     eta                                SVS;
+0.207     Mypsi(2S)     phi                                SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.054     Mypsi(2S)     K-          K+                     PHSP;
+0.054     Mypsi(2S)     anti-K0     K0                     PHSP;
+0.054     Mypsi(2S)     K0          K+         pi-         PHSP;
+0.054     Mypsi(2S)     anti-K0     K0         pi0         PHSP;
+0.054     Mypsi(2S)     K-          K+         pi0         PHSP;
+0.060     Mypsi(2S) phi      pi+  pi-  PHSP;
+0.060     Mypsi(2S) phi      pi0  pi0  PHSP;
+0.035    Mypsi(2S) eta      pi+  pi-  PHSP;
+0.035    Mypsi(2S) eta      pi0  pi0  PHSP;
+0.070    Mypsi(2S) eta'     pi+  pi-  PHSP;
+0.070    Mypsi(2S) eta'     pi0  pi0  PHSP;
+0.035    Mypsi(2S) pi+      pi-       PHSP;
+0.035    Mypsi(2S) pi0      pi0       PHSP;
+Enddecay
+
+Decay MyLambda_b0
+1.000 Lambda0         Mypsi(2S)                      PHSP;
+Enddecay
+
+Decay Myanti-Lambda_b0
+1.000 anti-Lambda0         Mypsi(2S)                      PHSP;
+Enddecay
+
+End

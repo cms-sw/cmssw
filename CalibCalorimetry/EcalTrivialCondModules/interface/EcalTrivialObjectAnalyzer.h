@@ -1,5 +1,4 @@
 //
-// $Id: $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //

@@ -1,0 +1,47 @@
+<use   name="clhep"/>
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="rootgraphics"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/Vertex"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Services"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/Records"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/TrackAssociator"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="RecoJets/JetProducers"/>
+<use   name="Calibration/IsolatedParticles"/>
+<flags   EDM_PLUGIN="1"/>
+<library   name="CalibrationIsolatedTracksNxN" file="IsolatedTracksNxN.cc">
+</library>
+<library   name="CalibrationIsolatedTracksCone" file="IsolatedTracksCone.cc">
+</library>
+<library   name="CalibrationIsolatedParticlesGeneratedJets" file="IsolatedParticlesGeneratedJets.cc">
+</library>
+<library   name="CalibrationIsolatedGenParticles" file="IsolatedGenParticles.cc">
+</library>
+<library   name="CalibrationElectronStudy" file="ElectronStudy.cc">
+</library>

@@ -15,7 +15,6 @@
 //
 // Original Author:  G. Bruno
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripDetInfoFileWriter.h,v 1.1 2007/06/13 14:03:35 gbruno Exp $
 //
 //
 
@@ -33,7 +32,7 @@ public:
 
 private:
 
-  void beginJob(const edm::EventSetup& iSetup);
+  void beginRun(const edm::EventSetup& iSetup);
 
   void analyze(const edm::Event &, const edm::EventSetup &){};
 

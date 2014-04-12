@@ -1,40 +1,57 @@
-/// clhep
-#include "CLHEP/Units/SystemOfUnits.h"
-
-//#include "DetectorDescription/Core/interface/DDExpandedView.h"
-//temporary
-//#include "DetectorDescription/Core/interface/DDSolid.h"
-//
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GeomTopologyBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderFromGeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripTopologyBuilder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
-
 #include <cfloat>
-#include <vector>
-
+#include <cassert>
 using std::vector;
 using std::string;
 
+namespace {
+  void verifyDUinTG(TrackerGeometry const & tg) {
+    int off=0; int end=0;
+    for ( int i=1; i!=7; i++) {
+      auto det = GeomDetEnumerators::tkDetEnum[i];
+      off = tg.offsetDU(det);
+      end = tg.endsetDU(det); assert(end>off);
+      for (int j=off; j!=end; ++j) {
+	assert(tg.detUnits()[j]->geographicalId().subdetId()==i);
+	assert(tg.detUnits()[j]->subDetector()==det);
+	assert(tg.detUnits()[j]->index()==j);
+      }
+    }
+  }
+}
 
-TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd){
-
+TrackerGeometry*
+TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::ParameterSet& pSet )
+{
+  bool upgradeGeometry = false;
+  int BIG_PIX_PER_ROC_X = 1;
+  int BIG_PIX_PER_ROC_Y = 2;
+  
+  if( pSet.exists( "trackerGeometryConstants" ))
+  {
+    const edm::ParameterSet tkGeomConsts( pSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
+    upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );  
+    BIG_PIX_PER_ROC_X = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" );
+    BIG_PIX_PER_ROC_Y = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" );
+  }
+    
+  thePixelDetTypeMap.clear();
+  theStripDetTypeMap.clear();
+   
   TrackerGeometry* tracker = new TrackerGeometry(gd);
   std::vector<const GeometricDet*> comp;
   gd->deepComponents(comp);
@@ -50,76 +67,96 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
   for(u_int32_t i = 0;i<comp.size();i++)
     dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
   
-
-  buildPixel(pixB,tracker,theDetIdToEnum.type(1), "barrel"); //"PixelBarrel" 
-  buildPixel(pixF,tracker,theDetIdToEnum.type(2), "endcap"); //"PixelEndcap" 
-  buildSilicon(tib,tracker,theDetIdToEnum.type(3), "barrel");// "TIB"	
-  buildSilicon(tid,tracker,theDetIdToEnum.type(4), "endcap");//"TID" 
-  buildSilicon(tob,tracker,theDetIdToEnum.type(5), "barrel");//"TOB"	
-  buildSilicon(tec,tracker,theDetIdToEnum.type(6), "endcap");//"TEC"        
+  // this order is VERY IMPORTANT!!!!!
+  buildPixel(pixB,tracker,GeomDetEnumerators::SubDetector::PixelBarrel,
+	     upgradeGeometry,
+	     BIG_PIX_PER_ROC_X,
+	     BIG_PIX_PER_ROC_Y); //"PixelBarrel" 
+  buildPixel(pixF,tracker,GeomDetEnumerators::SubDetector::PixelEndcap,
+	     upgradeGeometry,
+	     BIG_PIX_PER_ROC_X,
+	     BIG_PIX_PER_ROC_Y); //"PixelEndcap" 
+  buildSilicon(tib,tracker,GeomDetEnumerators::SubDetector::TIB, "barrel");//"TIB"	
+  buildSilicon(tid,tracker,GeomDetEnumerators::SubDetector::TID, "endcap");//"TID" 
+  buildSilicon(tob,tracker,GeomDetEnumerators::SubDetector::TOB, "barrel");//"TOB"	
+  buildSilicon(tec,tracker,GeomDetEnumerators::SubDetector::TEC, "endcap");//"TEC"        
   buildGeomDet(tracker);//"GeomDet"
+
+  verifyDUinTG(*tracker);
+
   return tracker;
 }
 
 void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricDet*>  const & gdv, 
 						    TrackerGeometry* tracker,
-						    GeomDetType::SubDetector& det,
-						    const std::string& part){ 
-
-  static std::map<std::string,PixelGeomDetType*> detTypeMap;
+						    GeomDetType::SubDetector det,
+						    bool upgradeGeometry,
+						    int BIG_PIX_PER_ROC_X, // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
+						    int BIG_PIX_PER_ROC_Y) // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+{
+  tracker->setOffsetDU(det);
 
   for(u_int32_t i=0; i<gdv.size(); i++){
 
-    std::string const & detName = gdv[i]->name();
-    if (detTypeMap.find(detName) == detTypeMap.end()) {
-
+    std::string const & detName = gdv[i]->name().fullname();
+    if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
+      std::unique_ptr<const Bounds> bounds(gdv[i]->bounds());
+      
       PixelTopology* t = 
-	theTopologyBuilder->buildPixel(gdv[i]->bounds(),
+	  PixelTopologyBuilder().build(&*bounds,
+				       upgradeGeometry,
 				       gdv[i]->pixROCRows(),
 				       gdv[i]->pixROCCols(),
-				       gdv[i]->pixROCx(),
-				       gdv[i]->pixROCy(),
-				       part);
+				       BIG_PIX_PER_ROC_X,
+				       BIG_PIX_PER_ROC_Y,
+				       gdv[i]->pixROCx(), gdv[i]->pixROCy());
       
-      detTypeMap[detName] = new PixelGeomDetType(t,detName,det);
-      tracker->addType(detTypeMap[detName]);
+      thePixelDetTypeMap[detName] = new PixelGeomDetType(t,detName,det);
+      tracker->addType(thePixelDetTypeMap[detName]);
     }
 
     PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i]);
-    GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),detTypeMap[detName],gdv[i]);
+    GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),thePixelDetTypeMap[detName],gdv[i]);
 
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }
+  tracker->setEndsetDU(det);
+
 }
 
 void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const GeometricDet*>  const & gdv, 
 						      TrackerGeometry* tracker,
-						      GeomDetType::SubDetector& det,
+						      GeomDetType::SubDetector det,
 						      const std::string& part)
 { 
-  static std::map<std::string,StripGeomDetType*> detTypeMap;
-  
+  tracker->setOffsetDU(det);
+
   for(u_int32_t i=0;i<gdv.size();i++){
 
-    std::string const & detName = gdv[i]->name();
-    if (detTypeMap.find(detName) == detTypeMap.end()) {
-
+    std::string const & detName = gdv[i]->name().fullname();
+    if (theStripDetTypeMap.find(detName) == theStripDetTypeMap.end()) {
+       std::unique_ptr<const Bounds> bounds(gdv[i]->bounds());
        StripTopology* t =
-	theTopologyBuilder->buildStrip(gdv[i]->bounds(),
+	   StripTopologyBuilder().build(&*bounds,
 				       gdv[i]->siliconAPVNum(),
 				       part);
-      detTypeMap[detName] = new  StripGeomDetType( t,detName,det,
+      theStripDetTypeMap[detName] = new  StripGeomDetType( t,detName,det,
 						   gdv[i]->stereo());
-      tracker->addType(detTypeMap[detName]);
+      tracker->addType(theStripDetTypeMap[detName]);
     }
-    
-    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i]);  
-    GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
+     
+    StripSubdetector sidet( gdv[i]->geographicalID());
+    double scale  = (sidet.partnerDetId()) ? 0.5 : 1.0 ;	
+
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],scale);  
+    GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName],gdv[i]);
     
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }  
+  tracker->setEndsetDU(det);
+
 }
 
 
@@ -157,65 +194,16 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
   }
 }
 
-
-// std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string & s, DDExpandedView* ev) const
-// {
-//     DDValue val(s);
-//     vector<const DDsvalues_type *> result;
-//     ev->specificsV(result);
-//     vector<const DDsvalues_type *>::iterator it = result.begin();
-//     bool foundIt = false;
-//     for (; it != result.end(); ++it)
-//     {
-// 	foundIt = DDfetch(*it,val);
-// 	if (foundIt) break;
-
-//     }    
-//     if (foundIt)
-//     { 
-// 	const std::vector<std::string> & temp = val.strings(); 
-// 	if (temp.size() != 1)
-// 	{
-// 	  throw cms::Exception("Configuration") << "I need 1 "<< s << " tags";
-// 	}
-// 	return temp[0]; 
-//     }
-//     return "NotFound";
-// }
-
-// double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string & s,  DDExpandedView* ev) const 
-// {
-//   DDValue val(s);
-//   vector<const DDsvalues_type *> result;
-//   ev->specificsV(result);
-//   vector<const DDsvalues_type *>::iterator it = result.begin();
-//   bool foundIt = false;
-//   for (; it != result.end(); ++it)
-//     {
-//       foundIt = DDfetch(*it,val);
-//       if (foundIt) break;
-//     }    
-//   if (foundIt)
-//     { 
-//       const std::vector<std::string> & temp = val.strings(); 
-//       if (temp.size() != 1)
-// 	{
-// 	  throw cms::Exception("Configuration") << "I need 1 "<< s << " tags";
-// 	}
-//       return double(atof(temp[0].c_str())); 
-//     }
-//   return 0;
-// }
-
 PlaneBuilderFromGeometricDet::ResultType
-TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* gd) const
+TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* gd,
+							   double scale) const
 {
   PlaneBuilderFromGeometricDet planeBuilder;
   PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gd);  
   //
   // set medium properties (if defined)
   //
-  plane->setMediumProperties(MediumProperties(gd->radLength(),gd->xi()));
+  plane->setMediumProperties(MediumProperties(gd->radLength()*scale,gd->xi()*scale));
 
   return plane;
 }

@@ -14,6 +14,7 @@
 #define _MEASUREMENT_HH
 
 #include <vector>
+#include <cstdlib>
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
@@ -21,7 +22,7 @@ class OpticalObject;
 class Entry;
 class EntryLength;
 class OpticalAlignMeasurementInfo;
-
+class OpticalAlignParam;
 
 class Measurement
 { 
@@ -38,6 +39,8 @@ public:
   virtual void buildOptONamesList( const std::vector<ALIstring>& wl );
   // Fill the data 
   void fillData(ALIuint coor, const std::vector<ALIstring>& wl );
+  void fillData( ALIuint coor, OpticalAlignParam* oaParam);
+
   // Convert OptOs names in OptOs pointers
   void buildOptOList();
   // Make list including every entry of every ancestor of each Measured OptO
@@ -53,7 +56,7 @@ public:
   void DumpBadOrderOptOs();
 
   // Calculate derivative of this Measurement with respect to a parameter of an Entry
-  ALIdouble* DerivativeRespectEntry( Entry* entry );
+  std::vector<ALIdouble> DerivativeRespectEntry( Entry* entry );
 
   // get the ':X' that determines how the behaviour of the OptO w.r.t. this Measurement
   ALIstring getMeasuringBehaviour( const std::vector< OpticalObject* >::const_iterator vocite);
@@ -73,7 +76,7 @@ public:
 
   void copyMeas( Measurement* meas, const std::string& subsstr1, const std::string& subsstr2 );
 
-  void constructFromOA( OpticalAlignMeasurementInfo&  measInfo ) ;
+  void constructFromOA( OpticalAlignMeasurementInfo&  measInfo);
 
  // ACCESS DATA MEMBERS
   const ALIuint dim() const { 
@@ -103,7 +106,7 @@ public:
     return _OptONameList;
   }
   
-  std::vector<OpticalObject*>& OptOList() {
+  const std::vector<OpticalObject*>& OptOList() const {
     return _OptOList;
   }
   
@@ -122,7 +125,7 @@ public:
   const ALIdouble* value() const {
     return theValue;
   } 
-  const ALIdouble value( uint ii ) const {
+  const ALIdouble value( ALIuint ii ) const {
     return theValue[ii];
   } 
 
@@ -130,11 +133,11 @@ public:
     return theSigma;
   } 
 
-  const ALIdouble sigma( uint ii) const {
+  const ALIdouble sigma( ALIuint ii) const {
     return theSigma[ii];
   } 
 
-  const ALIstring valueType( uint ii) const {
+  const ALIstring valueType( ALIuint ii) const {
     return theValueType[ii];
   } 
 
@@ -153,10 +156,10 @@ public:
     return theCurrentTime;
   }
 
-  const Hep3Vector& getLightRayPosition( ) const{
+  const CLHEP::Hep3Vector& getLightRayPosition( ) const{
     return theLightRayPosition; 
   }
-  const Hep3Vector& getLightRayDirection( ) const{ 
+  const CLHEP::Hep3Vector& getLightRayDirection( ) const{ 
     return theLightRayDirection; 
   }
 
@@ -193,7 +196,7 @@ public:
   void setValueSimulated( ALIint coor, ALIdouble value) {
       theValueSimulated[coor] = value;
   }
-  virtual int xlaserLine( uint ii) { std::cerr << "!!!! Measurement::xlaserLine is not returning anything " << std::endl; abort(); };
+  virtual int xlaserLine( ALIuint ii) { std::cerr << "!!!! Measurement::xlaserLine is not returning anything " << std::endl; abort(); };
  
   //----- Set name as type plus name of last OptO 
   void setName();
@@ -203,7 +206,7 @@ public:
       return theValueIsSimulated[coor];
   }
 
-  virtual void setXlaserLine( uint ii, int val ) { };
+  virtual void setXlaserLine( ALIuint ii, int val ) { };
 
  static ALIdouble cameraScaleFactor;
 
@@ -216,9 +219,9 @@ public:
    //-   std::cout << " dsetting file name " << filename << std::endl;
  }
 
- void setLightRayPosition( const Hep3Vector& lightRayPosition )
+ void setLightRayPosition( const CLHEP::Hep3Vector& lightRayPosition )
    { theLightRayPosition = lightRayPosition; }
- void setLightRayDirection( const Hep3Vector& lightRayDirection )
+ void setLightRayDirection( const CLHEP::Hep3Vector& lightRayDirection )
    { theLightRayDirection = lightRayDirection; }
 
  protected:  
@@ -254,8 +257,8 @@ private:
   //----- List of OptOs Measured and their ancestors
   std::vector<Entry*> theAffectingEntryList;
 
-  Hep3Vector theLightRayPosition;
-  Hep3Vector theLightRayDirection;
+  CLHEP::Hep3Vector theLightRayPosition;
+  CLHEP::Hep3Vector theLightRayDirection;
   static ALIstring theMeasurementsFileName;
 
   static ALIstring theCurrentDate;  

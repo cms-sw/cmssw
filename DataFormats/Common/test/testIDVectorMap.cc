@@ -1,5 +1,4 @@
-// $Id: testIDVectorMap.cc,v 1.1 2006/02/15 11:57:18 llista Exp $
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Common/interface/IDVectorMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
 
@@ -16,7 +15,6 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testIDVectorMap);
 
 #include <iostream>
-using namespace std;
 
 struct MatchOddId {
   bool operator()(int i) const { return i % 2 == 1; }

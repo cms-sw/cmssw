@@ -1,0 +1,17 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="RecoCaloTools/Selectors"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/ParticleFlowReco"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="RecoLocalCalo/EcalRecAlgos"/>
+<use   name="CommonTools/Statistics"/>
+<export>
+  <lib   name="1"/>
+</export>

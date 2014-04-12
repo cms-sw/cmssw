@@ -1,5 +1,5 @@
-#ifndef _StreamerOutputFile_h
-#define _StreamerOutputFile_h
+#ifndef IOPool_Streamer_StreamerOutputFile_h
+#define IOPool_Streamer_StreamerOutputFile_h
 
 /** StreamerOutputFile: Class for doing Streamer Write operations */
 
@@ -12,6 +12,7 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
+#include "boost/shared_ptr.hpp"
 
 #include <exception>
 #include <fstream>
@@ -36,6 +37,9 @@ class StreamerOutputFile
      */
      void write(const InitMsgView&);
 
+     void writeInitFragment(uint32 fragIndex, uint32 fragCount,
+                            const char *dataPtr, uint32 dataSize);
+
      uint64 write(const EventMsgBuilder&);
      /**
       Performs write on EventMsgBuilder type,
@@ -45,19 +49,17 @@ class StreamerOutputFile
      */
      uint64 write(const EventMsgView&);
 
-      //Returns how many bytes were written out
-      uint32 writeEOF(uint32 statusCode,
-                    const std::vector<uint32>& hltStats);
+     uint64 writeEventFragment(uint32 fragIndex, uint32 fragCount,
+                               const char *dataPtr, uint32 dataSize);
+
+     uint32 adler32() const { return streamerfile_->adler32(); }
 
   private:
-     void writeEventHeader(const EventMsgBuilder& ineview);
      void writeEventHeader(const EventMsgView& ineview);
-
-     void writeStart(const InitMsgBuilder& inview);
      void writeStart(const InitMsgView& inview);
 
   private:
-     OutputFile* streamerfile_;
+     boost::shared_ptr<OutputFile> streamerfile_;
 };
 
 #endif

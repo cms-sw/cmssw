@@ -4,14 +4,12 @@
 /** \class ProduceFakeDB
  *  Class which produce fake DB of ttrig,t0,vdrift
  *
- *  $Date: 2007/03/24 16:53:55 $
- *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
@@ -27,7 +25,7 @@ public:
   virtual ~ProduceFakeDB();
 
   // Operations
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
 

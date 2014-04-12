@@ -1,103 +1,62 @@
 #ifndef RFIO_ADAPTOR_RFIO_FILE_H
-# define RFIO_ADAPTOR_RFIO_FILE_H
+#define RFIO_ADAPTOR_RFIO_FILE_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
+# include "Utilities/StorageFactory/interface/Storage.h"
+# include "Utilities/StorageFactory/interface/IOFlags.h"
+# include <string>
 
-# include "SealBase/Storage.h"
-# include "SealBase/FileAcl.h"
-# include "SealBase/IOChannel.h"
-# include "SealBase/IOFlags.h"
-
-#include<vector>
-#include <sys/stat.h>
-// rfio data structure
-
-#ifndef  RFIO_iovec64_H
-#define  RFIO_iovec64_H
-extern "C" {
-struct iovec64 {
-  off64_t iov_base;
-  int iov_len ;
-};
-}
-#endif
-
-typedef std::vector<iovec64> IOVec;
-inline void push(IOVec& vec, off64_t b, int l) {
-  vec.push_back(iovec64());
-  vec.back().iov_base = b;
-  vec.back().iov_len = l;
-} 
-
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-using namespace seal;
 /** RFIO #Storage object.  */
-class RFIOFile : public seal::Storage
+class RFIOFile : public Storage
 {
 public:
-    RFIOFile (void);
-    RFIOFile (IOFD fd);
-    RFIOFile (const char *name, int flags = IOFlags::OpenRead, FileAcl perms = 0666);
-    RFIOFile (const std::string &name, int flags = IOFlags::OpenRead, FileAcl perms = 0666);
-    ~RFIOFile (void);
+  RFIOFile (void);
+  RFIOFile (IOFD fd);
+  RFIOFile (const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
+  RFIOFile (const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
+  ~RFIOFile (void);
 
-    virtual void	create (const char *name,
+  virtual void		create (const char *name,
 				bool exclusive = false,
-				FileAcl perms = 0666);
-    virtual void	create (const std::string &name,
+				int perms = 0666);
+  virtual void		create (const std::string &name,
 				bool exclusive = false,
-				FileAcl perms = 0666);
-    virtual void	open (const char *name,
+				int perms = 0666);
+  virtual void		open (const char *name,
 			      int flags = IOFlags::OpenRead,
-			      FileAcl perms = 0666);
-    virtual void	open (const std::string &name,
+			      int perms = 0666);
+  virtual void		open (const std::string &name,
 			      int flags = IOFlags::OpenRead,
-			      FileAcl perms = 0666);
+			      int perms = 0666);
 
-    using Storage::read;
-    using Storage::write;
-    using Storage::position;
+  using Storage::read;
+  using Storage::readv;
+  using Storage::write;
+  using Storage::position;
 
-    virtual IOSize	read (void *into, IOSize n);
-    virtual IOSize	write (const void *from, IOSize n);
+  virtual IOSize	read (void *into, IOSize n);
+  virtual IOSize	readv (IOPosBuffer *into, IOSize buffers);
+  virtual IOSize	write (const void *from, IOSize n);
+  virtual IOOffset	position (IOOffset offset, Relative whence = SET);
+  virtual void		resize (IOOffset size);
+  virtual void		close (void);
+  virtual void		abort (void);
 
-    virtual IOOffset	position (IOOffset offset, Relative whence = SET);
-    virtual void	resize (IOOffset size);
-
-    virtual void	close (void);
-    virtual void	abort (void);
-
-  virtual void          preseek(const IOVec& iov);
+/*
+ * Note: we used to implement prefetch for RFIOFile, but it never got used in
+ * production due to memory leaks in the underlying library.  This was removed
+ * in CMSSW 6 so we could default to storage-only if available.
+ */
 
 private:
+  ssize_t		retryRead (void *into, IOSize n, int maxRetry = 10);
+  void			reopen();
 
-    ssize_t     retry_read (void *into, IOSize n, int max_retry=10);
-
-  void reOpen();
-
-private:
-    IOFD		m_fd;
-    bool		m_close;
-
-  /// history fro retry...
-  std::string m_name;
-  int m_flags;
-  FileAcl m_perms;
-  IOVec m_lastIOV;
-  
-
-  IOOffset              m_currentPosition;
-
-  int m_nRetries;
+  IOFD			m_fd;
+  bool			m_close;
+  std::string		m_name;
+  int			m_flags;
+  int			m_perms;
+  IOOffset              m_curpos;
 };
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // RFIO_ADAPTOR_RFIO_FILE_H

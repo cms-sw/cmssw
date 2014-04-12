@@ -3,27 +3,17 @@
 // Write the new XML object: needed includes
 
 // Xerces-C
-#include <xercesc/util/XMLString.hpp>
-#include <xercesc/dom/DOMElement.hpp>
-#include <xercesc/dom/DOMText.hpp>
-#include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMImplementationRegistry.hpp>
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
-#include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMCharacterData.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/util/XMLURL.hpp>
 
 
 #include "CondTools/Hcal/interface/StreamOutFormatTarget.h"
-#include <fstream>
-#include <iostream>
 #include <sstream>
 #include <string>
 using namespace std;
@@ -35,7 +25,7 @@ HcalConstantsXMLWriter::HcalConstantsXMLWriter()
 HcalConstantsXMLWriter::~HcalConstantsXMLWriter()
 {
 }
-void HcalConstantsXMLWriter::writeXML(string& newfile0, vector<int> detvec,vector<int> etavec,vector<int> phivec, vector<int> depthvec,vector<float> scalevec)
+void HcalConstantsXMLWriter::writeXML(string& newfile0,const vector<int>& detvec,const vector<int>& etavec,const vector<int>& phivec,const vector<int>& depthvec,const vector<float>& scalevec)
 {
    int nn = newfile0.size();
    char newfile[99]; 
@@ -43,7 +33,7 @@ void HcalConstantsXMLWriter::writeXML(string& newfile0, vector<int> detvec,vecto
    {
      newfile[i]=newfile0[i];
    }
-   char* fend="\0";
+   char const* fend="\0";
    newfile[nn] = *fend;
 
    cout<<" New file "<<newfile<<endl;
@@ -75,7 +65,7 @@ void HcalConstantsXMLWriter::writeXML(string& newfile0, vector<int> detvec,vecto
    XMLString::transcode("Cell", tempStr, 99);
    vector<DOMElement*> theDOMVec;
 
-   for(int i=0; i<detvec.size();i++)
+   for(unsigned int i=0; i<detvec.size();i++)
    {
    theDOMVec.push_back(mDoc->createElement (tempStr));
    newCellLine(theDOMVec[i],detvec[i],etavec[i],phivec[i],depthvec[i],scalevec[i]);
@@ -114,22 +104,26 @@ void HcalConstantsXMLWriter::newCellLine(DOMElement* detelem, int det, int eta, 
    ostringstream ost1;
    ost1 <<eta;
    attreta->setValue(XMLString::transcode(ost1.str().c_str()));
-   DOMAttr* attr3 = detelem->setAttributeNode(attreta);
+   //DOMAttr* attr3 = detelem->setAttributeNode(attreta);
+   detelem->setAttributeNode(attreta);
 
    ostringstream ost2;
    ost2 <<phi;
    attrphi->setValue(XMLString::transcode(ost2.str().c_str()));
-   DOMAttr* attr4 = detelem->setAttributeNode(attrphi);
+   //DOMAttr* attr4 = detelem->setAttributeNode(attrphi);
+   detelem->setAttributeNode(attrphi);
 
    ostringstream ost3;
    ost3 <<depth;     
    attrdepth->setValue(XMLString::transcode(ost3.str().c_str()));
-   DOMAttr* attr5 = detelem->setAttributeNode(attrdepth);
+   //DOMAttr* attr5 = detelem->setAttributeNode(attrdepth);
+   detelem->setAttributeNode(attrdepth);
 
    ostringstream ost4;
    ost4 << scale;
    attrscale->setValue(XMLString::transcode(ost4.str().c_str()));
-   DOMAttr* attr6 = detelem->setAttributeNode(attrscale);
+   //DOMAttr* attr6 = detelem->setAttributeNode(attrscale);
+   detelem->setAttributeNode(attrscale);
 
 }
 

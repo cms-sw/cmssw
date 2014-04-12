@@ -1,0 +1,12 @@
+<use   name="root"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/JetMETObjects"/>
+<use   name="JetMETCorrections/InterpolationTables"/>
+<export>
+  <use   name="JetMETCorrections/InterpolationTables"/>
+  <lib   name="1"/>
+</export>

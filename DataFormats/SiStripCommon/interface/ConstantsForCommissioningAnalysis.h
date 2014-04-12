@@ -1,4 +1,3 @@
-// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.4 2007/07/04 08:27:55 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
 #define DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
@@ -14,35 +13,51 @@ namespace sistrip {
   
   // ---------- General ----------
 
-  static const std::string numberOfHistos_      = "UnexpectedNumberOfHistograms";
-  static const std::string nullPtr_             = "NullPointerToHistogram";
-  static const std::string numberOfBins_        = "UnexpectedNumberOfHistogramBins";
-  static const std::string noEntries_           = "NoEntriesInHistogramBin";
-  static const std::string unexpectedTask_      = "UnexpectedTaskInHistoTitle";
-  static const std::string unexpectedExtraInfo_ = "UnexpectedExtraInfoInHistoTitle";
+  static const char numberOfHistos_[]      = "UnexpectedNumberOfHistograms";
+  static const char nullPtr_[]             = "NullPointerToHistogram";
+  static const char numberOfBins_[]        = "UnexpectedNumberOfHistogramBins";
+  static const char unexpectedBinNumber_[] = "UnexpectedBinNumber";
+  static const char noEntries_[]           = "NoEntriesInHistogramBin";
+  static const char unexpectedTask_[]      = "UnexpectedTaskInHistoTitle";
+  static const char unexpectedExtraInfo_[] = "UnexpectedExtraInfoInHistoTitle";
   
   // ---------- Fast FED cabling ----------
   
-  static const std::string fastCablingAnalysis_ = "FastFedCablingAnalysis";
+  static const char fastCablingAnalysis_[] = "FastCablingAnalysis";
+  static const char invalidLightLevel_[]   = "InvalidLightLevel";
+  static const char invalidTrimDacLevel_[] = "InvalidTrimDacLevel";
 
   // ---------- FED cabling ----------
   
-  static const std::string fedCablingAnalysis_ = "FedCablingAnalysis";
-  static const std::string noCandidates_       = "NoChannelsAboveThreshold";
+  static const char fedCablingAnalysis_[] = "FedCablingAnalysis";
+  static const char noCandidates_[]       = "NoChannelsAboveThreshold";
   
   // ---------- APV timing ----------
   
-  static const std::string apvTimingAnalysis_   = "ApvTimingAnalysis";
-  static const std::string smallDataRange_      = "SmallRangeInRawData";
-  static const std::string smallTickMarkHeight_ = "SmallTickMarkHeight";
-  static const std::string missingTickMark_     = "TickMarkNotFound";
-  static const std::string tickMarkBelowThresh_ = "TickMarkHeightBelowThreshold";
-  static const std::string noRisingEdges_       = "NoCandidateRisingEdges";
-  static const std::string rejectedCandidate_   = "RejectedTickMarkCandidate";
+  static const char apvTimingAnalysis_[]   = "ApvTimingAnalysis";
+  static const char smallDataRange_[]      = "SmallRangeInRawData";
+  static const char smallTickMarkHeight_[] = "SmallTickMarkHeight";
+  static const char missingTickMark_[]     = "TickMarkNotFound";
+  static const char tickMarkBelowThresh_[] = "TickMarkHeightBelowThreshold";
+  static const char noRisingEdges_[]       = "NoCandidateRisingEdges";
+  static const char rejectedCandidate_[]   = "RejectedTickMarkCandidate";
+  static const char incompletePlateau_[]   = "IncompletePlateau";
+  static const char invalidRefTime_[]      = "InvalidRefTime";
+  static const char invalidDelayTime_[]    = "InvalidDelayTime";
+  static const char tickMarkRecovered_[]   = "TickMarkRecovered";
+
 
   // ---------- Opto scan ----------
   
-  static const std::string optoScanAnalysis_ = "OptoScanAnalysis";
+  static const char optoScanAnalysis_[]      = "OptoScanAnalysis";
+  static const char invalidZeroLightLevel_[] = "InvalidZeroLightLevel";
+
+  // ---------- VPSP scan ----------
+
+  static const char noTopPlateau_[]    = "CannotFindTopPlateau";
+  static const char noBottomPlateau_[] = "CannotFindBottomPlateau";
+  static const char noVpspSetting_[]   = "InvalidZeroLightLevel";
+  static const char noBaselineLevel_[] = "InvalidZeroLightLevel";
 
 }
 

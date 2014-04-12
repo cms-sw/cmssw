@@ -1,4 +1,5 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetRingOneZ.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
 //#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
@@ -14,13 +15,13 @@ ForwardDetRingOneZ::~ForwardDetRingOneZ(){}
 
 ForwardDetRingOneZ::ForwardDetRingOneZ(vector<const GeomDet*>::const_iterator first,
 				       vector<const GeomDet*>::const_iterator last)
-  : theDets(first,last)
+  : ForwardDetRing(false), theDets(first,last)
 {
   initialize();
 }
 
 ForwardDetRingOneZ::ForwardDetRingOneZ( const vector<const GeomDet*>& dets)
-  : theDets(dets)
+  : ForwardDetRing(false), theDets(dets)
 {
   initialize();
 }

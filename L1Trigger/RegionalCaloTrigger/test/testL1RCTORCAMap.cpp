@@ -8,11 +8,11 @@ int main(){
   L1RCTORCAMap themap;
   for(int i = 0; i<72; i++){
     for(int j = 0; j<56; j++){
-      vector<int> vec = themap.orcamap(j,i);
-      cout << "phi " << i << " eta " <<  j << " goes to ";
+      std::vector<int> vec = themap.orcamap(j,i);
+      std::cout << "phi " << i << " eta " <<  j << " goes to ";
       for(int k = 0; k < 3; k++)
 	cout << vec.at(k) << " ";
-      cout << endl;
+      std::cout << std::endl;
     }
   }
 }

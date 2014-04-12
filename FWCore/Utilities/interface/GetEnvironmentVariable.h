@@ -9,6 +9,6 @@ namespace edm {
   std::string getEnvironmentVariable (std::string const& name, std::string const& defaultValue = std::string()) {
     char *p = ::getenv(name.c_str());
     return (p ? std::string(p) : defaultValue); 
-  };
+  }
 }
 #endif

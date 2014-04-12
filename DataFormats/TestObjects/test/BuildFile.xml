@@ -1,0 +1,7 @@
+<use   name="boost"/>
+<use   name="cppunit"/>
+<use   name="DataFormats/TestObjects"/>
+<bin   file="Enum_t.cpp">
+  <use   name="DataFormats/StdDictionaries"/>
+  <use   name="DataFormats/WrappedStdDictionaries"/>
+</bin>

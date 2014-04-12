@@ -9,13 +9,9 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTT0Print.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
@@ -42,6 +38,37 @@ namespace edmtest {
     context.get<DTT0Rcd>().get(t0);
     std::cout << t0->version() << std::endl;
     std::cout << std::distance( t0->begin(), t0->end() ) << " data in the container" << std::endl;
+    float t0mean;
+    float t0rms;
+    DTT0::const_iterator iter = t0->begin();
+    DTT0::const_iterator iend = t0->end();
+    while ( iter != iend ) {
+      const DTT0Data& t0Data = *iter++;
+      int channelId = t0Data.channelId;
+      if ( channelId == 0 ) continue;
+      DTWireId id( channelId );
+      DTChamberId* cp = &id;
+      DTChamberId ch( *cp );
+      DTChamberId cc( id.chamberId() );
+      std::cout << channelId   << " "
+                <<  id.rawId() << " "
+                << cp->rawId() << " "
+                <<  ch.rawId() << " "
+                <<  cc.rawId() << std::endl;
+      t0->get( id, t0mean, t0rms, DTTimeUnits::counts );
+      std::cout << id.wheel()      << " "
+                << id.station()    << " "
+                << id.sector()     << " "
+                << id.superlayer() << " "
+                << id.layer()      << " "
+                << id.wire()       << " -> "
+                << t0Data.t0mean   << " "
+                << t0Data.t0rms    << " -> "
+                << t0mean          << " "
+                << t0rms           << std::endl;
+    }
+
+
   }
   DEFINE_FWK_MODULE(DTT0Print);
 }

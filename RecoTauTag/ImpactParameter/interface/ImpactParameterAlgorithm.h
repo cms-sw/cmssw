@@ -5,7 +5,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 //#include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -16,15 +16,15 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-using namespace std; 
-using namespace edm;
-using namespace reco;
+ 
+
+
 
 class  ImpactParameterAlgorithm  {
 
     public:
  
-	ImpactParameterAlgorithm(const ParameterSet  & parameters );
+	ImpactParameterAlgorithm(const edm::ParameterSet  & parameters );
 	ImpactParameterAlgorithm(); 
 
 	// For out of framework usage we may need a different constructor
@@ -33,15 +33,15 @@ class  ImpactParameterAlgorithm  {
    
 	~ImpactParameterAlgorithm() {}
 
-	void setPrimaryVertex(Vertex * pv) {primaryVertex = pv;}
+	void setPrimaryVertex(reco::Vertex * pv) {primaryVertex = pv;}
   
-	pair<JetTag,TauImpactParameterInfo> tag(const IsolatedTauTagInfoRef&, const Vertex&); 
+	std::pair<float,reco::TauImpactParameterInfo> tag(const reco::IsolatedTauTagInfoRef&, const reco::Vertex&); 
 
 	void setTransientTrackBuilder(const TransientTrackBuilder*);
 
 
     private:
-	Vertex* primaryVertex;
+	reco::Vertex* primaryVertex;
 
 	//algorithm parameters
 	double  ip_min,

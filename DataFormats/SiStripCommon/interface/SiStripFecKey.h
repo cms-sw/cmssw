@@ -1,17 +1,9 @@
-// Last commit: $Id: SiStripFecKey.h,v 1.10 2007/06/06 09:09:22 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFecKey_H
 #define DataFormats_SiStripCommon_SiStripFecKey_H
 
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
-#include <ostream>
-#include <string>
-
-class SiStripFecKey;
-
-/** Debug info for SiStripFedKey class. */
-std::ostream& operator<< ( std::ostream&, const SiStripFecKey& );
 
 /**
    @class SiStripFecKey
@@ -84,7 +76,7 @@ class SiStripFecKey : public SiStripKey {
   /** Default constructor */
   SiStripFecKey();
   
-  // ---------- Public interface to member data ----------
+  // ---------- Control structure ----------
   
   /** Returns VME crate. */
   inline const uint16_t& fecCrate() const;
@@ -147,8 +139,16 @@ class SiStripFecKey : public SiStripKey {
       sistrip::Granularity is "undefined", returns true.  */
   bool isInvalid( const sistrip::Granularity& ) const;
 
- private:
+  // ---------- Print methods ----------
 
+  /** A terse summary of the key  */
+  virtual void print( std::stringstream& ss ) const;
+
+  /** A terse summary of the key  */
+  virtual void terse( std::stringstream& ss ) const;
+  
+ private:
+  
   // ---------- Private methods ----------
   
   void initFromValue();
@@ -159,7 +159,7 @@ class SiStripFecKey : public SiStripKey {
   // ---------- Private member data ----------
 
   /** FEC crate [0,1-4,invalid]. */
-  uint16_t fecCrate_; 
+  uint16_t fecCrate_;
 
   /** FEC slot [0,2-21,invalid]. */
   uint16_t fecSlot_;
@@ -167,25 +167,25 @@ class SiStripFecKey : public SiStripKey {
   /** FEC ring [0,1-8,invalid]. */
   uint16_t fecRing_;
 
-  /** CCU module [0,1-127,invalid]. */
+  /** CCU module [0,1-126,invalid]. */
   uint16_t ccuAddr_;
 
   /** FE module [0,16-31,invalid]. */
   uint16_t ccuChan_;
 
   /** LLD channel [0,1-3,invalid]. */
-  uint16_t lldChan_;  
+  uint16_t lldChan_;
 
   /** APV I2C address [0,32-37,invalid]. */
-  uint16_t i2cAddr_;  
+  uint16_t i2cAddr_;
   
   // Definition of bit field positions for 32-bit key 
-  static const uint16_t fecCrateOffset_ = 29;
-  static const uint16_t fecSlotOffset_  = 24;
-  static const uint16_t fecRingOffset_  = 20;
-  static const uint16_t ccuAddrOffset_  = 12;
-  static const uint16_t ccuChanOffset_  =  7;
-  static const uint16_t lldChanOffset_  =  4;
+  static const uint16_t fecCrateOffset_ = 27;
+  static const uint16_t fecSlotOffset_  = 22;
+  static const uint16_t fecRingOffset_  = 18;
+  static const uint16_t ccuAddrOffset_  = 10;
+  static const uint16_t ccuChanOffset_  =  5;
+  static const uint16_t lldChanOffset_  =  2;
   static const uint16_t i2cAddrOffset_  =  0;
   
   // Definition of bit field masks for 32-bit key 
@@ -195,7 +195,7 @@ class SiStripFecKey : public SiStripKey {
   static const uint16_t ccuAddrMask_  = 0xFF; // (8 bits)
   static const uint16_t ccuChanMask_  = 0x1F; // (5 bits)
   static const uint16_t lldChanMask_  = 0x07; // (3 bits)
-  static const uint16_t i2cAddrMask_  = 0x0F; // (4 bits)
+  static const uint16_t i2cAddrMask_  = 0x03; // (2 bits)
   
 };
 
@@ -208,5 +208,40 @@ const uint16_t& SiStripFecKey::ccuAddr() const { return ccuAddr_; }
 const uint16_t& SiStripFecKey::ccuChan() const { return ccuChan_; }
 const uint16_t& SiStripFecKey::lldChan() const { return lldChan_; }
 const uint16_t& SiStripFecKey::i2cAddr() const { return i2cAddr_; }
+
+/* const uint16_t& SiStripFecKey::fecCrate() const {  */
+/*   return ( key()>>fecCrateOffset_ ) & fecCrateMask_ != fecCrateMask_ ? ( key()>>fecCrateOffset_ ) & fecCrateMask_ : sistrip::invalid_;  */
+/* } */
+/* const uint16_t& SiStripFecKey::fecSlot() const {  */
+/*   return ( key()>>fecSlotOffset_ ) & fecSlotMask_ != fecSlotMask_ ? ( key()>>fecSlotOffset_ ) & fecSlotMask_ : sistrip::invalid_;  */
+/* } */
+/* const uint16_t& SiStripFecKey::fecRing() const {  */
+/*   return ( key()>>fecRingOffset_ ) & fecRingMask_ != fecRingMask_ ? ( key()>>fecRingOffset_ ) & fecRingMask_ : sistrip::invalid_;  */
+/* } */
+/* const uint16_t& SiStripFecKey::ccuAddr() const {  */
+/*   return ( key()>>ccuAddrOffset_ ) & ccuAddrMask_ != ccuAddrMask_ ? ( key()>>ccuAddrOffset_ ) & ccuAddrMask_ : sistrip::invalid_;  */
+/* } */
+/* const uint16_t& SiStripFecKey::ccuChan() const {  */
+/*   return ( key()>>ccuChanOffset_ ) & ccuChanMask_ != ccuChanMask_ ? ( key()>>ccuChanOffset_ ) & ccuChanMask_ : sistrip::invalid_;  */
+/* } */
+/* const uint16_t& SiStripFecKey::lldChan() const {  */
+/*   return ( key()>>lldChanOffset_ ) & lldChanMask_ != lldChanMask_ ? ( key()>>lldChanOffset_ ) & lldChanMask_ : sistrip::invalid_;  */
+/* } */
+/* const uint16_t& SiStripFecKey::i2cAddr() const {  */
+/*   return ( key()>>i2cAddrOffset_ ) & i2cAddrMask_ != i2cAddrMask_ ? ( key()>>i2cAddrOffset_ ) & i2cAddrMask_ : sistrip::invalid_;  */
+/* } */
+
+std::ostream& operator<< ( std::ostream&, const SiStripFecKey& );
+
+inline bool operator< ( const SiStripFecKey& a, const SiStripFecKey& b ) { return ( a.key() < b.key() ); }
+
+class ConsistentWithKey {
+ public: 
+  explicit ConsistentWithKey( const SiStripFecKey& key );
+  bool operator() ( const uint32_t&, const uint32_t& ) const;
+ private:
+  explicit ConsistentWithKey();
+  SiStripFecKey mask_;
+};
 
 #endif // DataFormats_SiStripCommon_SiStripFecKey_H

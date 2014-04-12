@@ -14,10 +14,10 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/SeedGeneratorForCosmics.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 
 class CosmicSeedGenerator : public edm::EDProducer
@@ -28,11 +28,12 @@ class CosmicSeedGenerator : public edm::EDProducer
 
   virtual ~CosmicSeedGenerator();
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   edm::ParameterSet conf_;
   SeedGeneratorForCosmics  cosmic_seed;
+  ClusterChecker check;
 
 
 };

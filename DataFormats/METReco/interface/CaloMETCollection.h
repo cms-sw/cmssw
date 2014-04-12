@@ -14,10 +14,7 @@
  ************************************************************/
 
 #include <vector>
-#include "DataFormats/METReco/interface/CaloMET.h"
-
-using namespace reco;
-using namespace std;
+#include "DataFormats/METReco/interface/CaloMETFwd.h" 
 
 namespace reco
 {

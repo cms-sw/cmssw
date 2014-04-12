@@ -2,10 +2,10 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
-PSimHitMap::PSimHitMap(const std::string & collectionName)
-:  theCollectionName(collectionName),
-   theMap(),
-   theEmptyContainer()
+PSimHitMap::PSimHitMap(const edm::InputTag & collectionTag)
+:  theMap(),
+   theEmptyContainer(),  
+   simHitsTag(collectionTag)
 {
 }
 
@@ -13,10 +13,12 @@ PSimHitMap::PSimHitMap(const std::string & collectionName)
 void PSimHitMap::fill(const edm::Event & e)
 {
   theMap.clear();
-  edm::Handle<CrossingFrame> cf;
-  e.getByType(cf);
-  
-  MixCollection<PSimHit> simHits(cf.product(), theCollectionName);
+  edm::Handle<CrossingFrame<PSimHit> > cf;
+  LogTrace("PSimHitMap") <<"getting CrossingFrame<PSimHit> collection - "<<simHitsTag;
+  e.getByLabel(simHitsTag, cf);
+
+  MixCollection<PSimHit> simHits(cf.product());
+  LogTrace("PSimHitMap") <<"... size = "<<simHits.size();
 
   // arrange the hits by detUnit
   for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
@@ -24,8 +26,6 @@ void PSimHitMap::fill(const edm::Event & e)
   {
     theMap[hitItr->detUnitId()].push_back(*hitItr);
   }
-
-
 }
 
 

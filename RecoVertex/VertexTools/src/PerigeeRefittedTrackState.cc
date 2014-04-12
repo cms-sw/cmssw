@@ -1,24 +1,16 @@
 #include "RecoVertex/VertexTools/interface/PerigeeRefittedTrackState.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 
-AlgebraicVector PerigeeRefittedTrackState::momentumVector() const
+AlgebraicVector3 PerigeeRefittedTrackState::momentumVector() const
 {
- if (!momentumVectorAvailable) {
-   momentumAtVertex = AlgebraicVector(3);
-    momentumAtVertex[0] = theState.perigeeParameters().vector_old()[0];
-    momentumAtVertex[1] = theState.perigeeParameters().theta();
-    momentumAtVertex[2] = theState.perigeeParameters().phi();
-    momentumVectorAvailable = true;
-  }
   return momentumAtVertex;
 }
 
-std::vector< RefCountedRefittedTrackState > 
+std::vector< PerigeeRefittedTrackState::RefCountedRefittedTrackState > 
 PerigeeRefittedTrackState::components() const
 {
   std::vector<RefCountedRefittedTrackState> result; result.reserve(1);
@@ -27,11 +19,11 @@ PerigeeRefittedTrackState::components() const
   return result;
 }
 
-ReferenceCountingPointer<RefittedTrackState> 
+PerigeeRefittedTrackState::RefCountedRefittedTrackState
 PerigeeRefittedTrackState::stateWithNewWeight (const double newWeight) const
 {
   return RefCountedRefittedTrackState(
-  		new PerigeeRefittedTrackState(theState, newWeight) );
+  		new PerigeeRefittedTrackState(theState, momentumAtVertex, newWeight) );
 }
 
 TrajectoryStateOnSurface

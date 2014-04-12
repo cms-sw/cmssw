@@ -54,7 +54,13 @@ bool GeomDetType::isRPC() const
   return (theSubDet == RPCBarrel || theSubDet == RPCEndcap) ;
 }
 
+bool GeomDetType::isGEM() const
+{   
+  return (theSubDet == GEM ) ;
+}
+
+
 bool GeomDetType::isMuon() const
 {
-  return (theSubDet == DT || theSubDet == CSC || isRPC()) ;
+  return (theSubDet == DT || theSubDet == CSC || isRPC() || theSubDet == GEM) ;
 }

@@ -9,9 +9,10 @@
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
@@ -20,8 +21,9 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Random/Random.h"
 
 #include <cmath>
 #include <iostream>
@@ -149,7 +151,7 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 void HcalTestAnalysis::update(const BeginOfJob * job) {
 
   // Numbering From DDD
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
   (*job)()->get<IdealGeometryRecord>().get(pDD);
   edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialise "
 			  << "HcalNumberingFromDDD for " << names[0];
@@ -289,12 +291,14 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
       // Calculate the distance if it is a muon
       G4String part = aStep->GetTrack()->GetDefinition()->GetParticleName();
       if ((part == "mu-" || part == "mu+") && mudist[layer] < 0) {
-	Hep3Vector pos = aStep->GetPreStepPoint()->GetPosition();
-	double theta   = pos.theta();
-	double   eta   = -log(tan(theta * 0.5));
-	double   phi   = pos.phi();
-	double  dist   = sqrt ((eta-eta0)*(eta-eta0) + (phi-phi0)*(phi-phi0));
-	mudist[layer]  = dist*pos.perp();
+        math::XYZPoint pos(aStep->GetPreStepPoint()->GetPosition().x(),
+                           aStep->GetPreStepPoint()->GetPosition().y(),
+                           aStep->GetPreStepPoint()->GetPosition().z());
+        double theta   = pos.theta();
+        double   eta   = -log(tan(theta * 0.5));
+        double   phi   = pos.phi();
+        double  dist   = sqrt ((eta-eta0)*(eta-eta0) + (phi-phi0)*(phi-phi0));
+        mudist[layer]  = dist*std::sqrt(pos.perp2());
       }
     }
 
@@ -317,7 +321,8 @@ void HcalTestAnalysis::update(const EndOfEvent * evt) {
   LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after Fill";
 
   // Qie analysis
-  qieAnalysis();
+  CLHEP::HepRandomEngine* engine = CLHEP::HepRandom::getTheEngine();
+  qieAnalysis(engine);
   LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after QieAnalysis";
 
   // Layers tuples filling
@@ -356,7 +361,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       double e        = aHit->getEnergyDeposit()/GeV;
       double time     = aHit->getTimeSlice();
       
-      Hep3Vector pos  = aHit->getPosition();
+      math::XYZPoint pos   = aHit->getPosition();
       double theta    = pos.theta();
       double   eta    = -log(tan(theta * 0.5));
       double   phi    = pos.phi();
@@ -404,7 +409,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       double time     = aHit->getTimeSlice();
       std::string det =  "EB";
       
-      Hep3Vector pos  = aHit->getPosition();
+      math::XYZPoint pos  = aHit->getPosition();
       double theta    = pos.theta();
       double   eta    = -log(tan(theta/2.));
       double   phi    = pos.phi();
@@ -442,7 +447,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       double time     = aHit->getTimeSlice();
       std::string det = "EE";
       
-      Hep3Vector pos  = aHit->getPosition();
+      math::XYZPoint pos  = aHit->getPosition();
       double theta    = pos.theta();
       double   eta    = -log(tan(theta/2.));
       double   phi    = pos.phi();
@@ -468,7 +473,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
 }
 
 //-----------------------------------------------------------------------------
-void HcalTestAnalysis::qieAnalysis() {
+void HcalTestAnalysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
 
   //Fill tuple with hit information
   int hittot = caloHitCache.size();
@@ -498,6 +503,7 @@ void HcalTestAnalysis::qieAnalysis() {
     int phic = (centralTower%100);
 
     for (int layr=0; layr<nGroup; layr++) {
+      /*
       int layx, layy=20;
       for (int i=0; i<20; i++) 
 	if (group_[i] == layr+1 && i < layy) layy = i+1;
@@ -510,7 +516,7 @@ void HcalTestAnalysis::qieAnalysis() {
 	if      (layy < 2)    layx = 0;
 	else                  layx = 1;
       }
-
+      */
       for (int it=0; it<nTower; it++) {
 	int    nhit = 0;
 	double esim = 0;
@@ -542,7 +548,7 @@ void HcalTestAnalysis::qieAnalysis() {
 	  }
 	}
 
-	std::vector<int> cd = myqie->getCode(nhit,hits);
+	std::vector<int> cd = myqie->getCode(nhit, hits, engine);
 	double         eqie = myqie->getEnergy(cd);
 
 	LogDebug("HcalSim") << "HcalTestAnalysis::Qie: Energy in layer " 

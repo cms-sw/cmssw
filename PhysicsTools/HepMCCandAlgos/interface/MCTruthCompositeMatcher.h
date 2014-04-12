@@ -6,60 +6,58 @@
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/MCCandMatcher.h"
 
-template<typename C>
+template<typename C1, typename C2 = C1>
 class MCTruthCompositeMatcher : public edm::EDProducer {
 public:
   explicit MCTruthCompositeMatcher( const edm::ParameterSet & );
   ~MCTruthCompositeMatcher();
 private:
-  typedef typename CandMatcher<C>::map_type map_type;
-  edm::InputTag src_;
-  std::vector<edm::InputTag> matchMaps_;
-  void produce( edm::Event & , const edm::EventSetup & );
+  typedef typename CandMatcher<C1, C2>::map_type map_type;
+  edm::EDGetTokenT<C1> srcToken_;
+  std::vector<edm::EDGetTokenT<map_type> > matchMapTokens_;
+  void produce( edm::Event & , const edm::EventSetup&) override;
 };
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-template<typename C>
-MCTruthCompositeMatcher<C>::MCTruthCompositeMatcher( const edm::ParameterSet & cfg ) :
-  src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
-  matchMaps_( cfg.template getParameter<std::vector<edm::InputTag> >( "matchMaps" ) ) {
+template<typename C1, typename C2>
+MCTruthCompositeMatcher<C1, C2>::MCTruthCompositeMatcher( const edm::ParameterSet & cfg ) :
+  srcToken_( consumes<C1>(cfg.template getParameter<edm::InputTag>( "src" ) ) ),
+  matchMapTokens_( edm::vector_transform(cfg.template getParameter<std::vector<edm::InputTag> >( "matchMaps" ), [this](edm::InputTag const & tag){return consumes<map_type>(tag);} ) ) {
   produces<map_type>();
 }
 
-template<typename C>
-MCTruthCompositeMatcher<C>::~MCTruthCompositeMatcher() {
+template<typename C1, typename C2>
+MCTruthCompositeMatcher<C1, C2>::~MCTruthCompositeMatcher() {
 }
 
-template<typename C>
-void MCTruthCompositeMatcher<C>::produce( edm::Event & evt , const edm::EventSetup & ) {
-  using namespace edm;
-  using namespace reco;
-  using namespace std;
-  typedef typename CandMatcher<C>::reference_type reference_type;
-  Handle<C> cands;
-  evt.getByLabel( src_, cands );
-  
+template<typename C1, typename C2>
+void MCTruthCompositeMatcher<C1, C2>::produce( edm::Event & evt , const edm::EventSetup & ) {
+  typedef typename CandMatcher<C1, C2>::reference_type reference_type;
+  Handle<C1> cands;
+  evt.getByToken(srcToken_, cands);
+
   size_t nMaps = matchMaps_.size();
   std::vector<const map_type *> maps;
   maps.reserve( nMaps );
   for( size_t i = 0; i != nMaps; ++ i ) {
     Handle<map_type> matchMap;
-    evt.getByLabel( matchMaps_[i], matchMap );
+    evt.getByToken( matchMapTokens_[i], matchMap );
     maps.push_back( & * matchMap );
-  } 
-  MCCandMatcher<C> match( maps );
+  }
+  MCCandMatcher<C1, C2> match( maps );
   auto_ptr<map_type> matchMap( new map_type );
   for( size_t i = 0; i != cands->size(); ++ i ) {
-    const typename C::value_type & cand = ( * cands )[ i ];
-    CandidateRef mc = match( cand );
+    const typename C1::value_type & cand = ( * cands )[ i ];
+    reference_type mc(match( cand ));
     if ( mc.isNonnull() ) {
-      matchMap->insert( reference_type( cands, i ), mc );      
+      matchMap->insert( reference_type( cands, i ), mc );
     }
   }
 
@@ -67,3 +65,4 @@ void MCTruthCompositeMatcher<C>::produce( edm::Event & evt , const edm::EventSet
 }
 
 #endif
+

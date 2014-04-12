@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Sun 21 10:14:34 CEST 2006
-// $Id: HcalTB02SD.cc,v 1.2 2007/03/08 00:19:50 sunanda Exp $
 //
   
 // system include files
@@ -28,6 +27,8 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
+#include "G4SystemOfUnits.hh"
+
 //
 // constructors and destructor
 //
@@ -41,7 +42,8 @@ HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_SD = p.getParameter<edm::ParameterSet>("HcalTB02SD");
   useBirk= m_SD.getUntrackedParameter<bool>("UseBirkLaw",false);
   birk1  = m_SD.getUntrackedParameter<double>("BirkC1",0.013)*(g/(MeV*cm2));
-  birk2  = m_SD.getUntrackedParameter<double>("BirkC2",9.6e-6)*(g/(MeV*cm2))*(g/(MeV*cm2));
+  birk2  = m_SD.getUntrackedParameter<double>("BirkC2",0.0568);
+  birk3  = m_SD.getUntrackedParameter<double>("BirkC3",1.75);
   useWeight= true;
 
   HcalTB02NumberingScheme* scheme=0;
@@ -66,8 +68,9 @@ HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
     << "\n"
     << "***************************************************" ;
   edm::LogInfo("HcalTBSim")  << "HcalTB02SD:: Use of Birks law is set to      "
-			     << useBirk << "        with the constants C1 = "
-			     << birk1 << ", C2 = " << birk2;
+			     << useBirk << "        with three constants kB = "
+			     << birk1 << ", C1 = " << birk2 << ", C2 = "
+			     << birk3;
 
   if (useWeight) initMap(name,cpv);
 
@@ -92,7 +95,7 @@ double HcalTB02SD::getEnergyDeposit(G4Step * aStep) {
     // take into account light collection curve for crystals
     double weight = 1.;
     if (useWeight) weight *= curve_LY(nameVolume, preStepPoint);
-    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2);
+    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
     double edep   = aStep->GetTotalEnergyDeposit() * weight;
     LogDebug("HcalTBSim") << "HcalTB02SD:: " << nameVolume
 			  <<" Light Collection Efficiency " << weight 
@@ -128,7 +131,7 @@ void HcalTB02SD::initMap(G4String sd, const DDCompactView & cpv) {
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
     const std::vector<double> & paras = sol.parameters();
-    G4String name = DDSplit(sol.name()).first;
+    G4String name = sol.name().name();
     LogDebug("HcalTBSim") << "HcalTB02SD::initMap (for " << sd << "): Solid " 
 			  << name << " Shape " << sol.shape() 
 			  << " Parameter 0 = " << paras[0];

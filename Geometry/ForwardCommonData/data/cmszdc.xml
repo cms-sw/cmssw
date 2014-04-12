@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="cmszdcConstant" eval="true">
+		<Constant name="zposition" value="140.0*m"/>
+	</ConstantsSection>
+	<PosPartSection label="cmszdcPosPart">
+		<PosPart copyNumber="1">
+			<rParent name="cms:CMSE"/>
+			<rChild name="zdc:ZDC"/>
+			<Translation x="0*fm" y="0*fm" z="[zposition]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:CMSE"/>
+			<rChild name="zdc:ZDC"/>
+			<rRotation name="zdcrotations:R0"/>
+			<Translation x="0*fm" y="0*fm" z="-[zposition]"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

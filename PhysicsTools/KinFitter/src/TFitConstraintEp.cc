@@ -9,17 +9,12 @@
 //
 // Fit constraint: energy and momentum conservation
 //
-//
-
-
-using namespace std;
 
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <iomanip>
 #include "TClass.h"
-
-ClassImp(TFitConstraintEp)
 
 //----------------
 // Constructor --
@@ -34,7 +29,16 @@ TFitConstraintEp::TFitConstraintEp()
   ,_component(TFitConstraintEp::pX)
 {}
 
-TFitConstraintEp::TFitConstraintEp(vector<TAbsFitParticle*>* particles, 
+TFitConstraintEp::TFitConstraintEp(const TString &name, const TString &title,
+                                   TFitConstraintEp::component thecomponent,
+                                   Double_t constraint)
+  :TAbsFitConstraint(name, title)
+  ,_constraint(constraint)
+  ,_component(thecomponent)
+{
+}
+
+TFitConstraintEp::TFitConstraintEp(std::vector<TAbsFitParticle*>* particles, 
 				   TFitConstraintEp::component thecomponent, 
 				   Double_t constraint)
   :TAbsFitConstraint()
@@ -56,7 +60,7 @@ TFitConstraintEp::TFitConstraintEp(vector<TAbsFitParticle*>* particles,
 }
 
 TFitConstraintEp::TFitConstraintEp(const TString &name, const TString &title,
-				   vector<TAbsFitParticle*>* particles, 
+				   std::vector<TAbsFitParticle*>* particles, 
 				   TFitConstraintEp::component thecomponent, 
 				   Double_t constraint)
   :TAbsFitConstraint(name, title)
@@ -149,14 +153,28 @@ Double_t TFitConstraintEp::getCurrentValue() {
   return CurrentValue;
 }
 
+TString TFitConstraintEp::getInfoString() {
+  // Collect information to be used for printout
+
+  std::stringstream info;
+  info << std::scientific << std::setprecision(6);
+
+  info << "__________________________" << std::endl
+       << std::endl;
+  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
+
+  info << "initial value: " << getInitValue() << std::endl;
+  info << "current value: " << getCurrentValue() << std::endl;
+  info << "component: " << _component << std::endl;
+  info << "constraint: " << _constraint << std::endl;
+
+  return info.str();
+
+}
+
 void TFitConstraintEp::print() {
+  // Print constraint contents
 
-  cout << "__________________________" << endl << endl;
-  cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
-
-  cout << "initial value: " << getInitValue() << endl;
-  cout << "current value: " << getCurrentValue() << endl;
-  cout << "component: " << _component << endl;
-  cout << "constraint: " << _constraint << endl;
+  edm::LogVerbatim("KinFitter") << this->getInfoString();
 
 }

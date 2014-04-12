@@ -8,8 +8,9 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalWeight.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 //#include "CommonReco/CommonVertex/interface/RefCountedVertexSeed.h"
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <vector>
 
@@ -18,7 +19,7 @@ class VertexState;
 /** Class containing a measurement of a vertex.
  */
 
-class BasicVertexState  : private ReferenceCounted {
+class BasicVertexState  : public ReferenceCounted {
 
 public:
 
@@ -43,9 +44,11 @@ public:
   virtual GlobalPoint position() const = 0;
   virtual GlobalError error() const = 0;
   virtual GlobalWeight weight() const = 0;
-  virtual AlgebraicVector weightTimesPosition() const = 0;
+  virtual AlgebraicVector3 weightTimesPosition() const = 0;
   virtual double weightInMixture() const = 0;
   virtual std::vector<VertexState> components() const;
+  virtual bool isValid() const = 0;
+
 
   /** conversion to VertexSeed
    */

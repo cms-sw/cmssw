@@ -1,0 +1,738 @@
+Common service cable types
+==========================
+
+$$  ATTENTION: Materials calculated in this file are used
+$$             in mixtures for other materials !
+$$             So if you change something, do not forget to  
+$$             update the materials input file and the dimensions
+$$             in the other materials that use it !!
+$$
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                        Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity
+..................................................................... 
+
+=====================================================================
+
+6366,93	9550,39	14,84	126	67,46	7470,03	22,32
+glass fibre	heating foils kapton	heating foils Inconel circuit
+3183,46	238,76	79,59
+
+
+o Optical Fibers
+  ---------------
+20070829 rranieri
+
+Outer diameter: 900 um = 0.9 mm = 0.09 cm
+
+MCVolume: (pi*(0.09/2)^2 cm^2) * 1 cm = 6.362 x 10^-3 cm^3
+
+Weight/cm inferred from direct measurements, see http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/AOH_MB.htm.
+
+ Optical fibers
+	two different types
+	- transparents (polyethylene)
+	- green (acrylate)
+	take 1/2 polyethilane and 1/2 acrylate composition
+
+(1) Buffer (Polyethylene): m = 0.5 x [ ( 0.9713 / 88 / 2 ) ] = 2.759 x 10^-3 g
+			density = 0.95 g/cm^3
+			--> volume = 2.904 x 10^-3 cm^3
+(2) Buffer (Acrylate):	m = 0.5 x [ ( 1.2089 / 88 / 2 ) ] = 3.434 x 10^-3 g
+			density = 1.17 g/cm^3
+			--> volume = 2.935 x 10^-3 cm^3
+(3) Coating (Acrylate):	m = [ ( 0.0758 / 88 / 2 ) ] = 4.307 x 10^-4 g
+			density = 1.17 g/cm^3
+			--> volume = 0.368 x 10^-3 cm^3
+(4) Cladding+Core (take SiO2):	m = [ ( 0.0472+0.0002 ) / 88 / 2 ) ] = 2.693 x 10^-4 g
+			density = 2.20 g/cm^3
+			--> volume = 0.122 x 10^-3 cm^3
+
+..............................................................................
+# "Optical fiber"                         "Optical_Fiber"   6.362E-3  -1
+* 1 "Optical fibers buffer (transparent)" "Polyethylene"    2.904E-3   1  CAB
+* 2 "Optical fibers buffer (green)"       "Acrylate"        2.935E-3   1  CAB
+* 3 "Optical fibers coating"              "Acrylate"        0.368E-3   1  CAB
+* 4 "Optical fibers cladding+core"        "Silica"          0.122E-3   1  CAB
+..............................................................................
+==============================================================================
+
+o Ruggedized 12-fibers Ribbon 
+  ---------------------------
+
+20070710 GSguazzoni
+
+MCVolume: (4.3mm*2.0mm)*1cm = 0.086000 cm^3
+
+Total Weight/cm and fractional composition from direct measurement.
+Fractional composition of bare ribbon from data sheets.
+
+Nominal outer dimensions: 4.3mm*2.0mm
+(1) Plastic sheath (PE) ==> 4.95/0.95/100 = 0.051205 cm^3 
+(2) Aramide filler (=kevlar) ==> 1/1.44/100 = 0.006944 cm^3 
+(3) Ribbon matrix coating (Acrylate) ==> 0.004030 cm^3
+(4) 12x Core (quartz) 0<diam<9micron +
+    12x Cladding (quartz) 9<diam<125micron ==> 0.001476 cm^3
+(5) 12x Coating (acrylate) 125<diam<250micron ==> 0.004416 cm^3
+
+Volumes per centimeter.
+.....................................................................
+# "Ruggedized Ribbon"       "T_RuggRibbon"          8.6000E-2 -1.
+* 1 "Plastic Sheath"        "Polyethylene"          5.1205E-2  1  CAB
+* 2 "Filler"                "Kevlar"                0.6944E-2  1  CAB
+* 3 "Matrix coating"        "Acrylate"              0.4030E-2  1  CAB
+* 4 "12x Core+Cladding"     "Silica"                0.1476E-2  1  CAB
+* 5 "12x Coating"           "Acrylate"              0.4416E-2  1  CAB
+......................................................................
+======================================================================
+
+o Ruggedized Ribbon 12x Female MU Connector
+  -----------------------------------------
+
+20070710 GSguazzoni
+20070829 rranieri
+
+MCVolume: (6.0*2.0*1.0) cm^3 = 12.0 cm^3
+
+Total Weight and fractional composition from direct measurement.
+MC Volume roughly external dimensions.
+
+(1) Plastic Case (Polyethylene) ==> (10-1.9)/0.95 = 8.5263 cm^3
+(2) Ceramic Sleeve (Ceramic) ==> 1.9/3.96525 = 0.4792 cm^3
+(3) Plastic 2D tag (Polyethylene) ==> 0.12/0.95 = 0.1263 cm^3
+(4) 2x Fixing Screws (Iron) ==> 0.2/7.87 = 0.0254 cm^3
+
+Volumes per piece.
+.....................................................................
+# "Ribbon 12x MU connector"  "T_Ribbon12xMUConn"    12.0     -1.
+* 1 "Plastic"                "Polyethylene"          8.5263   1  CAB
+* 2 "Ceramic"                "Ceramic"               0.4792   1  CAB
+* 3 "2D tags"                "Polyethylene"          0.1263   1  CAB
+* 4 "Screws"		     "Iron"		     0.0254   1  SUP
+......................................................................
+======================================================================
+
+
+o Ruggedized Ribbon 12x Female MU Connector for TOB
+  --------------------------------------------------
+
+20070829 rranieri
+
+MCVolume: (6.0*2.0*1.0) cm^3 = 12.0 cm^3
+
+Total Weight and fractional composition from direct measurement.
+MC Volume roughly external dimensions.
+
+(1) Plastic Case (Polyethylene) ==> (9-1.9)/0.95 = 7.4737 cm^3
+(2) Ceramic Sleeve (Ceramic) ==> 1.9/3.96525 = 0.4792 cm^3
+(3) Plastic 2D tag (Polyethylene) ==> 0.12/0.95 = 0.1263 cm^3
+(4) 2x Fixing Screws (Iron) ==> 0.2/7.87 = 0.0254 cm^3
+
+Volumes per piece.
+........................................................................
+# "TOB Ribbon 12x MU connector" "TOB_Ribbon12xMUConn"  12.0     -1.
+* 1 "Plastic"                   "Polyethylene"          7.4737   1  CAB
+* 2 "Ceramic"                   "Ceramic"               0.4792   1  CAB
+* 3 "2D tags"                   "Polyethylene"          0.1263   1  CAB
+........................................................................
+========================================================================
+
+
+o TOB DOHM power connector 
+  -------------------------
+
+20070829 rranieri
+
+Total Weight/cm and fractional composition from direct measurement.
+Fractional composition of bare ribbon from data sheets.
+
+Nominal outer dimensions: 4.3mm*2.0mm
+(1) Kapton ==> (0.9485 g/m) / (1.4 g/cm^3) --> 0.6775 cm^3 / m
+(2) Aluminium ==> (1.863 g/m) / (2.7 g/cm^3) --> 0.69 cm^3 / m
+(3) Polyethylene ==> (4.680564 g/m) / (0.95 g/cm^3) --> 4.9269 cm^3 / m
+(4) Copper ==> (27.5109 g/m) / (8.96 g/cm^3) --> 3.0704 cm^3 / m
+
+MCVolume: (0.6775 + 0.69 + 4.9269 + 3.0704) cm^3 / m = 9.3648 cm^3 / m = 0.093648 cm^3 / cm
+
+........................................................................
+# "TOB DOHM Power Connector" "TOB_DOHM_PowerConnector" 9.3648E-2 -1.
+* 1 "Kapton"                 "T_Kapton"                0.6775E-2  1 CAB
+* 2 "Aluminium"              "Aluminium"               0.6900E-2  1 CAB
+* 3 "Polyethylene"           "Polyethylene"            4.9269E-2  1 CAB
+* 4 "Copper"                 "Copper"                  3.0704E-2  1 CAB
+........................................................................
+========================================================================
+
+
+
+
+o Optical Ribbon
+  --------------
+This is 12 optical fibers together in a plastic shield
+(1) Fibers, X-sextion = 1.27e-4 cm^2
+(2) total dimensions  3.1 x 0.32 mm^2 = 9.61e-3 cm^2
+    => plastic X-section: 8.1e-3 cm^3
+.....................................................................
+# "Optical fibre ribbon"         "Fibre_Ribbon"    9.61E-3   -1.
+* 1 "Optical Fibers"             "Quartz"          1.27E-4   12  CAB
+* 2 "Ribbon shield"              "Polyethylene"    8.1e-3    1   CAB
+.....................................................................
+=====================================================================
+
+o Multi Service Control Cable
+  ---------------------------
+
+Control cable connected to the digital Optohybrids
+From Robert's Habia  table (13-03-02)
+Outer diameter is 6.0  mm
+(1) Cu x-sec      3.82 mm^2
+(2) Insulation   12.54 mm^2
+
+.....................................................................
+# "Control Cable"           "MS_cntrl_cable"        0.283     -1.
+* 1 "Copper"                "Copper"                0.0382     1  CAB
+* 2 "Insulation"            "Polyethylene"          0.1254     1  CAB
+......................................................................
+======================================================================
+
+o Multi Service PLCC (CAB Control Cable) TIB/TID version
+  ------------------------------------------------------
+
+20070709 GSguazzoni
+
+MCVolume: (pi*(10/2)^2 mm^2)*1cm = 0.7854 cm^3
+
+Total Weight/cm from direct measurement.
+Fractional composition from data sheets.
+
+Nominal outer diameter: 9.45 mm
+MC outer diameter set to 1cm.
+(1) Cu xsect          6.249 mm^2
+(2) Insulation (PE)  66.841 mm^2
+(3) Shielding (Al)    1.847 mm^2 
+
+Volumes per centimeter.
+.....................................................................
+# "MS PLCC CAB Ctrl cable"  "MS_CntrlTIBTID"        0.7854    -1.
+* 1 "Copper"                "Copper"                6.249E-2   1  CAB
+* 2 "Insulation and sheath" "Polyethylene"         66.841E-2   1  CAB
+* 3 "Shielding"             "Aluminium"             1.847E-2   1  CAB
+......................................................................
+======================================================================
+
+
+o CAB60 Aluminum Multi Service Cable (60 APVs) TIB/TID version
+  ------------------------------------------------------------
+
+20070926 GSguazzoni
+
+MCVolume: (pi*(10/2)^2 mm^2)*1cm = 0.7854 cm^3
+
+Weight/cm inferred from direct measurement and 
+Habia data sheet.
+
+From direct measurement it is evident that the so-called Al
+conductors are not pure aluminium but an unknown alloy (effective
+density is ~3.4g/cm^3 instead of 2.7g/cm^3 of Al). Also the silver
+plating is not negligible. The "Al"-conductor composition has been
+computed assuming:
+- 4micron Ag plating on each 0.320mm yarn;
+- a Cu percentage to match the measured weight (~11.9%).
+
+Nominal outer diameter: 9.4 mm
+MC outer diameter set to 1cm.
+
+(1) Cu x-sect              3.085 mm^2 
+(2) Al x-sect             13.147 mm^2
+(3) Insulation (PE)       21.460 mm^2 
+(4) Insulation (Polymide)  1.519 mm^2 <== Polymide ~ Kapton
+(5) Silver                 0.564 mm^2
+
+Volumes per centimeter.
+......................................................................
+# "MS CAB 60 Al cable TIBTID"   "CAB_Al60TIBTID"  0.7854   -1.
+* 1 "Copper"                    "Copper"          3.085E-2  1   CAB
+* 2 "Aluminium"                 "Aluminium"      13.147E-2  1   CAB
+* 3 "Insulation"                "Polyethylene"   21.460E-2  1   CAB
+* 4 "Sheath"                    "T_Kapton"        1.519E-2  1   CAB
+* 5 "Silver coating"            "Silver"          0.564E-2  1   CAB
+......................................................................
+======================================================================
+
+o CAB60 Aluminum Multi Service Cable (60 APVs)
+  --------------------------------------------
+
+20070926 GSguazzoni
+
+MCVolume: (pi*(10/2)^2 mm^2)*1cm = 0.7854 cm^3
+
+Weight/cm inferred from direct measurement and 
+Habia data sheet.
+
+See "CAB_Al60TIBTID" comments above.
+
+Nominal outer diameter: 10.6 mm
+MC outer diameter set to 1cm.
+
+(1) Cu x-sect              3.599 mm^2 
+(2) Al x-sect             14.201 mm^2
+(3) Insulation (PE)       30.579 mm^2 
+(4) Insulation (Polymide)  1.715 mm^2 <== Polymide ~ Kapton
+(5) Silver                 0.564 mm^2
+
+Volumes per centimeter.
+......................................................................
+# "MS Al Cable 60 APVs"         "CAB_Al60"         0.7854    -1.
+* 1 "Copper"                    "Copper"           3.599E-2  1   CAB
+* 2 "Aluminium"                 "Aluminium"       14.201E-2  1   CAB
+* 3 "Insulation"                "Polyethylene"    30.579E-2  1   CAB
+* 4 "Sheath"                    "T_Kapton"         1.715E-2  1   CAB
+* 5 "Silver coating"            "Silver"           0.564E-2  1   CAB
+......................................................................
+======================================================================
+
+o CAB60 Aluminum Multi Service Cable (48 APVs)
+  --------------------------------------------
+
+20070926 GSguazzoni
+
+MCVolume: (pi*(10/2)^2 mm^2)*1cm = 0.7854 cm^3
+
+Weight/cm inferred from direct measurement and 
+Habia data sheet.
+
+See "CAB_Al60TIBTID" comments above.
+
+Nominal outer diameter: 9.6 mm
+MC outer diameter set to 1cm.
+
+(1) Cu x-sect              3.208 mm^2 
+(2) Al x-sect             11.013 mm^2
+(3) Insulation (PE)       26.687 mm^2 
+(4) Insulation (Polymide)  1.552 mm^2 <== Polymide ~ Kapton
+(5) Silver                 0.393 mm^2
+
+Volumes per centimeter.
+......................................................................
+# "MS Al Cable 48 APVs"         "CAB_Al48"          0.7854    -1.
+* 1 "Copper"                    "Copper"            3.208E-2  1   CAB
+* 2 "Aluminium"                 "Aluminium"        11.013E-2  1   CAB
+* 3 "Insulation"                "Polyethylene"     26.687E-2  1   CAB
+* 4 "Sheath"                    "T_Kapton"          1.552E-2  1   CAB
+* 5 "Silver coating"            "Silver"            0.393E-2  1   CAB
+......................................................................
+======================================================================
+
+o CAB60 Aluminum Multi Service Cable (36 APVs)
+  --------------------------------------------
+
+20070926 GSguazzoni
+
+MCVolume: (pi*(10/2)^2 mm^2)*1cm = 0.7854 cm^3
+
+Weight/cm inferred from direct measurement and 
+Habia data sheet.
+
+See "CAB_Al60TIBTID" comments above.
+
+Nominal outer diameter: 9.6 mm
+MC outer diameter set to 1cm.
+
+(1) Cu x-sect              3.044 mm^2 
+(2) Al x-sect              9.771 mm^2
+(3) Insulation (PE)       25.986 mm^2 
+(4) Insulation (Polymide)  1.536 mm^2 <== Polymide ~ Kapton
+(5) Silver                 0.322 mm^2
+
+Volumes per centimeter.
+......................................................................
+# "MS Al Cable 36 APVs"         "CAB_Al36"          0.7854    -1.
+* 1 "Copper"                    "Copper"            3.044E-2  1   CAB
+* 2 "Aluminium"                 "Aluminium"         9.771E-2  1   CAB
+* 3 "Insulation"                "Polyethylene"     25.986E-2  1   CAB
+* 4 "Sheath"                    "T_Kapton"          1.536E-2  1   CAB
+* 5 "Silver coating"            "Silver"            0.322E-2  1   CAB
+......................................................................
+======================================================================
+
+
+
+
+o Bulkhead cables: Pixel input/output
+  ------------------------------------
+MC Volume: 30308.3 cm^3
+
+cables and cooling updated by alschmid 20090326:
+
+(1-2) Pipes between PP0 and PP1:
+      18 cooling, 12 gas, 16 thermal screen pipes =46 pieces
+      material copper, inner diameter 10mm, outer diam. 12mm
+      length between PP0 and PP1 approx 1m.
+      => 34.55cm3 of copper per pipe
+         80cm3 coolant
+(3-4) Copper power cables
+      cable specifications available on twiki page:
+      https://twiki.cern.ch/twiki/bin/view/CMS/PixelBarrelGeometryMaterials
+      1meter is in the cable channel area which results in
+      16kg copper  ==  1780cm3
+      3 kg PE  = 3160cm3 
+
+(5-6) Optical ribbon
+       Number of fibers: for barrel, I calculated 576 fibers, 
+       i.e. total = 960 fibers -> 80 ribbons, length 80 cm
+
+
+......................................................................
+# "Bulkhead pixel in/out-put"  "Tk_panels_mid1"    30308.3   -1
+* 1 "Cooling pipes"           "Copper"            34.55    46   COL
+* 2 "Coolant"                 "C6F14"             80.0     18   COL
+* 3 "Copper power cables"       "Copper"          1780      1   CAB
+* 4 "Power cable insulation"    "Polyethylene"    3160      1   CAB
+* 5 "Optical Fibers"             "Quartz"        1.27E-4  960   CAB
+* 6 "Ribbon shield"              "Polyethylene"   8.1e-3   80   CAB
+......................................................................
+======================================================================
+
+
+
+
+o Bulkhead cables: Pixel cables/connectors
+  ----------------------------------------
+MC Volume: 70285.7 cm3
+
+copper cables updated 20090326 by alschmid
+(1-2) Copper power cables:
+      cable specifications available on twiki page:
+      https://twiki.cern.ch/twiki/bin/view/CMS/PixelBarrelGeometryMaterials
+      1meter is in the PP0 area which results in
+      16kg copper  ==  1780cm3
+      3 kg PE  = 3160cm3 
+(3-4) Optical ribbon
+       Number of fibers: for barrel, I calculated 576 fibers, 
+       i.e. total = 960 fibers -> 80 ribbons, length 80 cm
+(5-6) Power connectors (MOLEX 43020/25 20 pins) 
+      from Paolo: MOLEX conn 4x1.2x2.5 cm 
+                  take 85 %-vol plastic, 15 % metal
+         -> Kapton 10.2 cm^3
+            Cu     1.8 cm^3
+        28 stacks of 5 connectors each -> 140
+(7-8) Optoconnectors - as in strip detector
+......................................................................
+# "Bulkhead pixel connectors"  "Tk_panels_mid2"  70285.7 -1
+* 1 "Copper power cables"       "Copper"         1780      1   CAB
+* 2 "Power cable insulation"    "Polyethylene"   3160      1   CAB
+* 3 "Optical Fibers"            "Quartz"        1.27E-4  960   CAB
+* 4 "Ribbon shield"             "Polyethylene"   8.1e-3   80   CAB
+* 5 "Power connector"           "T_Kapton"       10.2    140   CAB
+* 6 "Power connector"           "Copper"         1.8     140   CAB
+* 7 "Optoconnector"             "T_Kapton"       15.0     80   CAB
+* 8 "Optoconnector"             "Copper"         0.446    80   CAB    
+......................................................................
+======================================================================
+
+
+
+o Bulkhead cables: TEC cables
+  ----------------------------------------
+
+20070928 GSguazzoni 
+Changed MS_Al.. to CAB_Al.. but probably everything else here
+needs to be updated!
+
+MC Volume: tube segments, r = 62.5-110.5 cm, dz = 7.7 cm, dphi = 4*70 deg
+              ==> 156236 cm^3
+
+(1) Al MS cables, average length = 50 cm, 384 of them
+(2) Cu MS cables, "         "           , 384 of them
+(3-4) Connectors: numbers from Horst 
+        5.7 g plastic => 4.07 cm^3
+        5.95 g Cu     => 0.664 cm^3
+......................................................................
+# "Bulkhead TEC cables"  "Tk_panels_mid3"       156236    20290.
+* 1 "MS cable Al 36 APVs"       "CAB_Al36"      0.7854  19200   CAB
+* 2 "MS cable Cu 60 APVs"       "MS_Cu60"         59.4    384   CAB
+* 3 "Connectors"                "T_Kapton"        4.07    384   CAB
+* 4 "Connectors"                "Copper"          0.664   384   CAB
+......................................................................
+======================================================================
+
+o Bulkhead cables: TEC/TOB/TID/TIB out...
+  ---------------------------------------
+
+20070928 GSguazzoni 
+Changed MS_Al.. to CAB_Al.. but probably everything else here
+needs to be updated!
+
+All cables, fibers and cooling pipes of all subdetectors...
+ 
+MC Volume: r = 110.5-123.30 cm, thick/2 = 4.755 cm
+          ==> take cross-section here = 933.72 cm^2
+
+                 TIB          TID     TOB     TEC  
+MS Cables:  
+ CAB_Al36         128           48     254      -
+ CAB_Al48          56           12      -       -
+ CAB_Al60          -            -       90      -
+ MS_Cu60          -            -       -      384
+ Control cabl.    42           15      46     144
+ Fiber Ribbons   291           92     561     744
+
+Cooling pipes: TIB+TID : 56 + 14 Steel pipes
+               TOB :     46 CuNi pipes, but approx. by Steel
+               TEC :     64 SS pipes
+
+......................................................................
+# "Bulkhead cables outlet"  "Tk_panels_up"        10280.226   -1.
+* 1 "MS cable Al 36 APVs"       "CAB_Al36"        0.7854  430   CAB
+* 2 "MS cable Al 48 APVs"       "CAB_Al48"        0.7854   68   CAB
+* 3 "MS cable Al 60 APVs"       "CAB_Al60"        0.7854   90   CAB
+* 4 "Control cables"            "MS_cntrl_cable"  0.283   247   CAB  
+* 5 "MS cable Cu 60 APVs"       "MS_Cu60"         1.188   384   CAB
+* 6 "Optical ribbon"         "Fibre_Ribbon"     0.00961  1688   CAB
+* 7 "Cooling pipes TIB+TID"   "Steel-008"         0.181   70    COL
+* 8 "Coolant TIB+TID"         "C6F14"             0.950   70    COL
+* 9 "Cooling pipes TOB"       "Steel-008"          0.16   46    COL
+* 10 "Coolant TOB"             "C6F14"            0.785   46    COL
+* 11 "Cooling pipes TEC"       "Steel-008"       0.1806   64    COL
+* 12 "Coolant TEC"             "C6F14"            0.95     64    COL
+......................................................................
+======================================================================
+
+
+o Thermal Screen Power Cables
+  -----------------------------
+
+20080219 rranieri
+
+MCVolume: 1.000 cm^3
+
+Weight/cm inferred from direct measurement --> 402 g/m = 4.02 g/cm.
+
+(1) 10% Cu x-sect
+	density = 8.96 g/cm^3
+	--> volume = 0.10 x (4.02 / 8.96) cm^2 x 1 cm = 0.045 cm^3
+(2) 90% Insulation (PE)
+	density = 0.95 g/cm^3
+	--> volume = 0.90 x (4.02 / 0.95) cm^2 x 1 cm = 3.808 cm^3
+
+......................................................
+# "TS Power Cable" "TS_PowerCable"     1.000  -1
+* 1 "Copper"       "Copper"            0.045   1  CAB
+* 2 "Insulation"   "Polyethylene"      3.808   1  CAB
+......................................................
+======================================================
+
+
+o Thermal Screen Signal Cables
+  -----------------------------
+
+20080219 rranieri
+
+MCVolume: 1.000 cm^3
+
+Weight/cm inferred from direct measurement --> 313 g/m = 3.13 g/cm.
+
+(1) 10% Cu x-sect
+	density = 8.96 g/cm^3
+	--> volume = 0.10 x (3.13 / 8.96) cm^2 x 1 cm = 0.035 cm^3
+(2) 90% Insulation (PE)
+	density = 0.95 g/cm^3
+	--> volume = 0.90 x (3.13 / 0.95) cm^2 x 1 cm = 2.965 cm^3
+
+......................................................
+# "TS Power Cable" "TS_SignalCable"    1.000  -1
+* 1 "Copper"       "Copper"            0.035   1  CAB
+* 2 "Insulation"   "Polyethylene"      2.965   1  CAB
+......................................................
+======================================================
+
+
+o PP1 cables: PXB,PXF,TIB,TID,TOB,TEC,TS
+  ---------------------------------------
+
+20080219 rranieri 
+Services of the whole Tracker into PP1 (4 ECAL volumes called "Tracker_PP1_Cables")
+ 
+MC Volume [Tracker_PP1_Cables]: 116407.5 cm^3
+
+The length of the cables is ~3000 mm = 300 cm
+
+(1-3) MS Cables
+            TIBTID  TOB  TEC
+CAB_Al36        0   508  304
+CAB_Al48        0   180  272
+CAB_Al60      488     0  192
+
+Total cm of cables per each of the 4 sectors (number of cables x 300 cm / 4)
+            TIBTID   TOB    TEC   TOTAL
+CAB_Al36        0   38100  22800  60900
+CAB_Al48        0   13500  20400  33900
+CAB_Al60    36600       0  14400  51000
+
+(4) Ruggedized Ribbon
+The toal number of fiber ribbons is TIB+TID+TOB+TEC = 3620
+Total cm per sector: 3620 x 300 cm / 4 = 271500
+
+(5) DOHM ribbons
+            TIBTID  TOB  TEC
+DOHM cables   120    92  144
+
+Total cm of cables per each of the 4 sectors (number of cables x 300 cm / 4)
+            TIBTID   TOB    TEC   TOTAL
+DOHM cables  9000    6900  10800  26700
+
+(6-7) TIB/TID/TOB/TEC Cooling Pipes (unit length = 1 cm)
+ Inner diameter = 10.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x (0.50 - 0.45)^2 cm^2 x 1 cm = 7.854 x 10^-3 cm^3 
+ Material: pure copper
+ 
+ Cooling Fluid
+ Inner diameter =  0.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x 0.45^2 cm^2 x 1 cm = 0.6362 cm^3 
+ Material: C6F14_F2_-30C
+
+              TIBTID  TOB  TEC
+Cooling Pipes   144    88  128
+
+Total cm of cables per each of the 4 sectors (number of cables x 300 cm / 4)
+              TIBTID   TOB    TEC   TOTAL
+Cooling Pipes  10800  6600   9600   27000
+
+(8) Thermal Screen Power Cables
+Number of TS Power Cables = 8
+
+Total cm of cables per each of the 4 sectors (number of cables x 300 cm / 4)
+             
+Power Cables TS --> 600 cm
+
+(9) Thermal Screen Signal Cables
+
+Number of TS Signal Cables = 10
+
+Total cm of cables per each of the 4 sectors (number of cables x 300 cm / 4)
+             
+Signal Cables TS --> 750 cm
+
+(10-11) Thermal Screen Cooling Pipes (unit length = 1 cm)
+ Inner diameter = 10.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x (0.50 - 0.45)^2 cm^2 x 1 cm = 7.854 x 10^-3 cm^3 
+ Material: pure copper
+ 
+ Cooling Fluid
+ Inner diameter =  0.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x 0.45^2 cm^2 x 1 cm = 0.6362 cm^3 
+ Material: C6F14_3M_-15C
+
+Number of Cooling Pipes TS = ??
+
+Total cm of cables per each of the 4 sectors (number of cables x 300 cm / 4)
+             
+Cooling Pipes TS --> ?? cm
+
+(12) 16 Inox rails in the 18 phi sectors per each side
+	 => 8 rails per each MC Volume "Tracker_PP1_Cables"
+1.5 mm thickness over the whole surface
+
+1 Rail Total length (from "Tracker_PP1_Cables" properties):
+	- diagonal of Dz=(3106.6-2708.88) mm = 397.72 mm , Dr=(1424.45-1238) mm = 186.45 mm (triangle)
+	- axial Dz=(3288.5-3057.56) mm = 230.94 mm , Dr=(1775-1721.5) mm = 53.5 mm
+	- thichness: t=1.5 mm
+  Diagonal Volume: 2 x [ (t x Dr) x Dz] --> 222464.682 mm^3 = 222.5 cm^3
+  Axial Volume: 2 x [ (t x Dz) x Dr] --> 37065.87 mm^3 = 37.1 cm^3
+
+1 Rail Volume = 259.6 cm^3
+8 copies
+
+
+(13), (14) Copper power cables:
+           cable specifications available on twiki page:
+           https://twiki.cern.ch/twiki/bin/view/CMS/PixelBarrelGeometryMaterials
+           1meter is in the PP0 area which results in
+           24kg copper  ==  2670cm3
+           4.5 kg PE  = 4740cm3
+
+--------> Still Missing: TS Cooling Pipes, TEC,  cables
+
+.................................................................................
+# "Tracker Cables to PP1"           "Tk_Cables_PP1"   116407.5          -1
+* 1 "Multi Service Cable CAB36"     "CAB_Al36"             0.7854    60900  CAB
+* 2 "Multi Service Cable CAB48"     "CAB_Al48"             0.7854    33900  CAB
+* 3 "Multi Service Cable CAB60"     "CAB_Al60"             0.7854    51000  CAB
+* 4 "Ruggedized ribbons"            "T_RuggRibbon"         0.086    271500  CAB
+* 5 "DOHM ribbons"                  "T_RuggRibbon"         0.086     26700  CAB
+* 6 "TIB/TID/TOB/TEC Cooling Pipes" "Copper"               7.854E-3  27000  COL
+* 7 "TIB/TID/TOB/TEC Cooling Fluid" "C6F14_F2_-30C"        0.6362    27000  COL
+* 8 "TS Power Cables"               "TS_PowerCable"        1.000       600  CAB
+* 9 "TS Signal Cables"              "TS_SignalCable"       1.000       750  CAB
+* 10 "TS Cooling Pipes"             "Copper"               7.854E-3      0  COL
+* 11 "TS Cooling Fluid"             "C6F14_3M_-15C"        0.6362        0  COL
+* 12 "Inox Rail"                    "Steel-008"          259.6           8  SUP
+* 13 "Copper power cables"          "Copper"             2670.0          1  CAB
+* 14 "PE in power cables"           "Polyethylene"       4740.0          1  CAB
+..................................................................................
+=================================================================================
+
+
+o PP1 connectors: PXB,PXF,TIB,TID,TOB,TEC,TS
+  ---------------------------------------
+
+20080219 rranieri 
+Connectors for the services of the whole Tracker into PP1 (4 ECAL volumes called "Tracker_PP1_Connectors")
+
+MC Volume [Tracker_PP1_Cables]: 47602.8 cm^3
+
+The length of the cables is ~30 cm (1/10 on average wrt the previous volume)
+
+--------> Still Missing: TS Cooling Pipes, TEC, PXB, PXF cables [see above]
+
+...................................................................................
+# "Tracker Connectors in PP1"       "Tk_Connectors_PP1"  47602.8          -1
+* 1 "Multi Service Cable CAB36"     "CAB_Al36"               0.7854     6090  CAB
+* 2 "Multi Service Cable CAB48"     "CAB_Al48"               0.7854     3390  CAB
+* 3 "Multi Service Cable CAB60"     "CAB_Al60"               0.7854     5100  CAB
+* 4 "Ruggedized ribbons"            "T_RuggRibbon"           0.086     27150  CAB
+* 5 "DOHM ribbons"                  "T_RuggRibbon"           0.086      2670  CAB
+* 6 "TIB/TID/TOB/TEC Cooling Pipes" "Copper"                 7.854E-3   2700  COL
+* 7 "TIB/TID/TOB/TEC Cooling Fluid" "C6F14_F2_-30C"          0.6362     2700  COL
+* 8 "TS Power Cables"               "TS_PowerCable"          1.000        60  CAB
+* 9 "TS Signal Cables"              "TS_SignalCable"         1.000        75  CAB
+* 10 "TS Cooling Pipes"             "Copper"                 7.854E-3      0  COL
+* 11 "TS Cooling Fluid"             "C6F14_3M_-15C"          0.6362        0  COL
+...................................................................................
+===================================================================================
+
+
+# "END"  "END"  0.  0.   
+this has to be the last line !
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

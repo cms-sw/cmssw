@@ -10,7 +10,6 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.cc,v 1.1 2007/03/20 06:49:28 dmytro Exp $
 //
 //
 
@@ -26,15 +25,19 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    dREcalPreselection = iConfig.getParameter<double>("dREcalPreselection");
    dRHcalPreselection = iConfig.getParameter<double>("dRHcalPreselection");
    dRMuonPreselection = iConfig.getParameter<double>("dRMuonPreselection");
+   dRPreshowerPreselection = iConfig.getParameter<double>("dRPreshowerPreselection");
    
    muonMaxDistanceX = iConfig.getParameter<double>("muonMaxDistanceX");
    muonMaxDistanceY = iConfig.getParameter<double>("muonMaxDistanceY");
+   muonMaxDistanceSigmaX = iConfig.getParameter<double>("muonMaxDistanceSigmaX");
+   muonMaxDistanceSigmaY = iConfig.getParameter<double>("muonMaxDistanceSigmaY");
    
    useEcal = iConfig.getParameter<bool>("useEcal");
    useHcal = iConfig.getParameter<bool>("useHcal");
    useHO   = iConfig.getParameter<bool>("useHO");
    useCalo = iConfig.getParameter<bool>("useCalo");
    useMuon = iConfig.getParameter<bool>("useMuon");
+   usePreshower = iConfig.getParameter<bool>("usePreshower");
    
    theEBRecHitCollectionLabel       = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
    theEERecHitCollectionLabel       = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
@@ -48,6 +51,7 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    // accountForTrajectoryChangeMuon   = iConfig.getParameter<bool>("accountForTrajectoryChangeMuon");
    
    truthMatch = iConfig.getParameter<bool>("truthMatch");
+   muonMaxDistanceSigmaY = iConfig.getParameter<double>("trajectoryUncertaintyTolerance");
 }
 
 TrackAssociatorParameters::TrackAssociatorParameters( const edm::ParameterSet& iConfig )

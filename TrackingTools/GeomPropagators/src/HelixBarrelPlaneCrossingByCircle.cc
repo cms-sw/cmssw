@@ -2,6 +2,7 @@
 #include "TrackingTools/GeomPropagators/src/RealQuadEquation.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/Math/interface/SIMDVec.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -22,10 +23,10 @@ HelixBarrelPlaneCrossingByCircle( const GlobalPoint& pos,
 
 void HelixBarrelPlaneCrossingByCircle::init()
 {
-  double pabs = theStartingDir.mag();
+  double pabsI = 1./theStartingDir.mag();
   double pt   = theStartingDir.perp();
-  theCosTheta = theStartingDir.z()/pabs;
-  theSinTheta = pt / pabs;
+  theCosTheta = theStartingDir.z()*pabsI;
+  theSinTheta = pt*pabsI;
 
   // protect for zero curvature case
   const double sraightLineCutoff = 1.e-7;
@@ -36,8 +37,9 @@ void HelixBarrelPlaneCrossingByCircle::init()
     // circle parameters
     // position of center of curvature is on a line perpendicular
     // to startingDir and at a distance 1/curvature.
-    theXCenter = theStartingPos.x() - theStartingDir.y() / (pt*theRho);
-    theYCenter = theStartingPos.y() + theStartingDir.x() / (pt*theRho);
+    double o = 1./(pt*theRho);
+    theXCenter = theStartingPos.x() - theStartingDir.y()*o;
+    theYCenter = theStartingPos.y() + theStartingDir.x()*o;
     useStraightLine = false;
   }
 }
@@ -73,14 +75,14 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
     nfac = ny/nx;
     dfac = distToPlane/nx;
     B = distCy - nfac*distCx;  // only part of B, may have large cancelation
-    C = 2.*dfac*distCx + dfac*dfac;
+    C = (2.*distCx + dfac)*dfac;
   }
   else {
     solveForX = true;
     nfac = nx/ny;
     dfac = distToPlane/ny;
     B = distCx - nfac*distCy; // only part of B, may have large cancelation
-    C = 2.*dfac*distCy + dfac*dfac;
+    C = (2.*distCy + dfac)*dfac;
   }
   B -= nfac*dfac; B *= 2;  // the rest of B (normally small)
   A = 1.+ nfac*nfac;
@@ -106,7 +108,7 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
   if (solved) {
     theDmag = theD.mag();
     // protect asin (taking some safety margin)
-    double sinAlpha = theDmag*theRho/2.;
+    double sinAlpha = 0.5*theDmag*theRho;
     if ( sinAlpha>(1.-10*DBL_EPSILON) )  sinAlpha = 1.-10*DBL_EPSILON;
     else if ( sinAlpha<-(1.-10*DBL_EPSILON) )  sinAlpha = -(1.-10*DBL_EPSILON);
     theS = theActualDir*2./(theRho*theSinTheta) * asin( sinAlpha);
@@ -136,14 +138,14 @@ HelixBarrelPlaneCrossingByCircle::chooseSolution( const Vector2D& d1,
 
   }
   else {
-    int propSign = thePropDir==alongMomentum ? 1 : -1;
-    if (momProj1*momProj2 < 0) {
+    double propSign = thePropDir==alongMomentum ? 1 : -1;
+    if (!mathSSE::samesign(momProj1,momProj2)) {
       // if different signs return the positive one
       solved = true;
-      theD         = (momProj1*propSign>0) ? d1 : d2;
+      theD         = mathSSE::samesign(momProj1,propSign) ? d1 : d2;
       theActualDir = propSign;
     }
-    else if (momProj1*propSign > 0) {
+    else if (mathSSE::samesign(momProj1,propSign)) {
       // if both positive, return the shortest
       solved = true;
       theD = (d1.mag2()<d2.mag2()) ? d1 : d2;
@@ -187,10 +189,10 @@ HelixBarrelPlaneCrossingByCircle::direction( double s) const
       double tmp = 0.5*theDmag*theRho;
       if (s < 0) tmp = -tmp;
       // protect sqrt
-      sinPhi = 1.-tmp*tmp;
+      sinPhi = 1.-(tmp*tmp);
       if ( sinPhi<0 )  sinPhi = 0.;
       sinPhi = 2.*tmp*sqrt(sinPhi);
-      cosPhi = 1.-2.*tmp*tmp;
+      cosPhi = 1.-2.*(tmp*tmp);
     }
     else {
       double phi = s*theSinTheta*theRho;

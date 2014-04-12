@@ -25,18 +25,14 @@
  */
 class DDLString : public DDXMLElement
 {
+public:
 
- public:
+  DDLString( DDLElementRegistry* myreg );
 
-  DDLString();
+  ~DDLString( void );
 
-  ~DDLString();
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 
-  void preProcessElement (const std::string& name, const std::string& nmspace);
-
-  void processElement (const std::string& name, const std::string& nmspace);
-
- private:
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 };
 #endif

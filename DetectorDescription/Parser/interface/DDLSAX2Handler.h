@@ -6,6 +6,7 @@
 // ---------------------------------------------------------------------------
 
 // Xerces C++ Dependencies
+#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
 
@@ -32,17 +33,18 @@
  *  startElement and endElement events.
  *
  */
-class DDLSAX2Handler : public xercesc_2_7::DefaultHandler
+class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
 {
 
  public:
-  typedef xercesc_2_7::Attributes Attributes;
-  typedef xercesc_2_7::SAXParseException SAXParseException;
+  typedef XERCES_CPP_NAMESPACE::Attributes Attributes;
+  typedef XERCES_CPP_NAMESPACE::SAXParseException SAXParseException;
 
   // -----------------------------------------------------------------------
   //  Constructor and Destructor
   // -----------------------------------------------------------------------
 
+  //  DDLSAX2Handler();
   DDLSAX2Handler();
   ~DDLSAX2Handler();
 
@@ -117,8 +119,18 @@ class DDLSAX2Handler : public xercesc_2_7::DefaultHandler
   unsigned int    elementCount_;
   unsigned int    spaceCount_;
   bool            sawErrors_;
-
-  std::string getnmspace(const std::string& fname);
+  bool            userNS_;
+  std::string     nmspace_;
+/*   std::string getnmspace(const std::string& fname); */
+ 
+ public:
+  /** This allows the DDLSAX2Handler and objects that inherit from it to set
+   ** the userNS_ flag to indicate 
+   **     false[default] use the filename of the file being handled as the DD namespace
+   **     true           assume ALL the "name" attributes have DD namespace specified.
+   **/
+  virtual void setUserNS(bool userns);
+  virtual void setNameSpace(const std::string& nms);
 };
 
 #endif

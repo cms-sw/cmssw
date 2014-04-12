@@ -2,15 +2,30 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor2_t.cppunit.cc,v 1.9 2007/05/08 03:18:39 wmtan Exp $
-
 ----------------------------------------------------------------------*/  
 #include <exception>
 #include <iostream>
 #include <string>
 #include <stdexcept>
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include <cppunit/extensions/HelperMacros.h>
+#include "FWCore/Utilities/interface/Exception.h"
+#include "cppunit/extensions/HelperMacros.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+
+// to be called also by the other cppunit...
+void doInit() {
+   static bool firstTime=true;
+   if(firstTime) {
+      //std::cout << "common init" << std::endl;
+      edm::RootAutoLibraryLoader::enable();
+      if(not edmplugin::PluginManager::isAvailable()) {
+        edmplugin::PluginManager::configure(edmplugin::standard::config());
+     }
+      firstTime = false;
+   }
+}
 
 
 class testeventprocessor2: public CppUnit::TestFixture
@@ -19,7 +34,10 @@ CPPUNIT_TEST_SUITE(testeventprocessor2);
 CPPUNIT_TEST(eventprocessor2Test);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
+  void setUp(){
+      //std::cout << "setting up testeventprocessor2" << std::endl;
+      doInit();
+  }
   void tearDown(){}
   void eventprocessor2Test();
 };
@@ -27,40 +45,45 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testeventprocessor2);
 
+
+
 void work()
 {
-  std::string configuration("process PROD = {\n"
-		    "untracked PSet maxEvents = {untracked int32 input = 5}\n"
-		    "source = EmptySource { }\n"
-		    "module m1 = IntProducer { int32 ivalue = 10 }\n"
-		    "module m2 = DoubleProducer { double dvalue = 3.3 }\n"
-		    "module out = AsciiOutputModule { }\n"
-                    "path p1 = { m1,m2,out }\n"
-		    "}\n");
-  edm::EventProcessor proc(configuration);
+  //std::cout << "work in testeventprocessor2" << std::endl;
+  std::string configuration(
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('PROD')\n"
+      "process.maxEvents = cms.untracked.PSet(\n"
+      "  input = cms.untracked.int32(5))\n"
+      "process.source = cms.Source('EmptySource')\n"
+      "process.m1 = cms.EDProducer('IntProducer',\n"
+      "   ivalue = cms.int32(10))\n"
+      "process.m2 = cms.EDProducer('ToyDoubleProducer',\n"
+      "   dvalue = cms.double(3.3))\n"
+      "process.out = cms.OutputModule('AsciiOutputModule')\n"
+      "process.p1 = cms.Path(process.m1*process.m2)\n"
+      "process.ep1 = cms.EndPath(process.out)");
+  edm::EventProcessor proc(configuration, true);
   proc.beginJob();
   proc.run();
   proc.endJob();
 }
 
 void testeventprocessor2::eventprocessor2Test()
-//int main()
 {
-  /*try { work(); rc = 0;}
-  int rc = -1;                // we should never return this value!
+  try { work();}
   catch (cms::Exception& e) {
       std::cerr << "CMS exception caught: "
 		<< e.explainSelf() << std::endl;
-      rc = 1;
+      CPPUNIT_ASSERT("cms Exception caught in testeventprocessor2::eventprocessor2Test"==0);
   }
   catch (std::runtime_error& e) {
       std::cerr << "Standard library exception caught: "
 		<< e.what() << std::endl;
-      rc = 1;
+      CPPUNIT_ASSERT("std Exception caught in testeventprocessor2::eventprocessor2Test"==0);
   }
   catch (...) {
       std::cerr << "Unknown exception caught" << std::endl;
-      rc = 2;
+      CPPUNIT_ASSERT("unkown Exception caught in testeventprocessor2::eventprocessor2Test"==0);
   }
-  return rc;*/
 }

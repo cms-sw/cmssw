@@ -39,6 +39,11 @@ class CaliCrystalIntercalDat : public IDataItem {
   
   void fetchData(std::map< EcalLogicID, CaliCrystalIntercalDat >* fillVec, CaliIOV* iov)
     throw(std::runtime_error);
+
+  void writeArrayDB(const std::map< EcalLogicID, CaliCrystalIntercalDat >* data, CaliIOV* iov)
+    throw(std::runtime_error);
+
+
   
   // User data
   float m_cali;

@@ -1,4 +1,3 @@
-#include "Utilities/Timing/interface/TimingReport.h" 
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
@@ -6,11 +5,13 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
 // default constructor allocates default wire and strip digitizers
+
 RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config) {
-  std::string name = config.getParameter<std::string>("digiModel");
-  theRPCSim = RPCSimFactory::get()->create(name,config.getParameter<edm::ParameterSet>("digiModelConfig"));
+  theName = config.getParameter<std::string>("digiModel");
+  theRPCSim = RPCSimFactory::get()->create(theName,config.getParameter<edm::ParameterSet>("digiModelConfig"));
 }
 
 RPCDigitizer::~RPCDigitizer() {
@@ -19,11 +20,14 @@ RPCDigitizer::~RPCDigitizer() {
   theRPCSim = 0;
 }
 
-
-
 void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
-                            RPCDigiCollection & rpcDigis)
+                            RPCDigiCollection & rpcDigis,
+			    RPCDigiSimLinks & rpcDigiSimLink,
+                            CLHEP::HepRandomEngine* engine)
 {
+
+  theRPCSim->setRPCSimSetUp(theSimSetUp);
+
   // arrange the hits by roll
   std::map<int, edm::PSimHitContainer> hitMap;
   for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
@@ -32,23 +36,27 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     hitMap[hitItr->detUnitId()].push_back(*hitItr);
   }
 
-  // now loop over rolls and run the simulation for each one
-  for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
-      hitMapItr != hitMap.end(); ++hitMapItr)
-  {
-    int rollDetId = hitMapItr->first;
-    const RPCRoll* roll = this->findDet(rollDetId);
-    const edm::PSimHitContainer & rollSimHits = hitMapItr->second;
+   if ( ! theGeometry) {
+   throw cms::Exception("Configuration")
+     << "RPCDigitizer requires the RPCGeometry \n which is not present in the configuration file.  You must add the service\n in the configuration file or remove the modules that require it.";
+  }
 
-    LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() <<" hit(s) in the rpc roll";
-    TimeMe t2("RPCSim");
 
-    theRPCSim->simulate(roll, rollSimHits);
-    theRPCSim->fillDigis(rollDetId,rpcDigis);
+  std::vector<RPCRoll*>  rpcRolls = theGeometry->rolls() ;
+  for(std::vector<RPCRoll*>::iterator r = rpcRolls.begin();
+      r != rpcRolls.end(); r++){
+
+    const edm::PSimHitContainer & rollSimHits = hitMap[(*r)->id()];
     
+//    LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() 
+//			     <<" hit(s) in the rpc roll";  
+    
+    theRPCSim->simulate(*r, rollSimHits, engine);
+    theRPCSim->simulateNoise(*r, engine);
+    theRPCSim->fillDigis((*r)->id(),rpcDigis);
+    rpcDigiSimLink.insert(theRPCSim->rpcDigiSimLinks());
   }
 }
-
 
 const RPCRoll * RPCDigitizer::findDet(int detId) const {
   assert(theGeometry != 0);

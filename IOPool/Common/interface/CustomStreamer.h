@@ -2,6 +2,7 @@
 #define IOPool_Common_CustomStreamer_h
 
 #include <string>
+#include "TROOT.h"
 #include "TClassStreamer.h"
 #include "TClassRef.h"
 #include "FWCore/Utilities/interface/TypeID.h"

@@ -1,5 +1,4 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: EBSrFlag.h,v 1.1 2007/02/09 10:46:03 meridian Exp $
 
 #ifndef EBSRFLAG_H
 #define EBSRFLAG_H

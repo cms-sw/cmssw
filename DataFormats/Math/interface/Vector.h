@@ -1,6 +1,5 @@
 #ifndef TrackReco_Vector_h
 #define TrackReco_Vector_h
-// $Id: Vector.h,v 1.5 2006/06/26 08:56:09 llista Exp $
 #include "Rtypes.h"
 #include "Math/SVector.h"
 

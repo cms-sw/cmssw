@@ -2,12 +2,13 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.18 2007/07/26 07:20:18 innocent Exp $
  * \date 02 Aug 2005
  */
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DataFormats/MuonDetId/interface/MuonSubdetId.h> 
+
+#include<iostream>
 
 RPCDetId::RPCDetId():DetId(DetId::Muon, MuonSubdetId::RPC),trind(0){}
 
@@ -39,6 +40,99 @@ RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int 
   this->init(region,ring,station,sector,layer,subsector,roll);
 }
 
+
+void 
+RPCDetId::buildfromDB(int region, int ring, int trlayer, int sector, 
+		      const std::string& subs,
+		      const std::string& roll,
+		      const std::string& dbname){
+
+  bool barrel = (region==0);
+  //STATION
+  int station = -1;
+  if (barrel) {
+    if (trlayer==1 || trlayer==2) station = 1;
+    else if (trlayer==3 || trlayer==4) station = 2;
+    else station = trlayer-2;
+  } else {   
+   station = abs(ring); 
+  }
+
+
+  //LAYER
+  //int layer = 1;
+  //if (barrel && station==1) layer = trlayer;
+  //if (barrel && station==2) layer = trlayer-2; 
+
+  //SUBSECTOR
+  int subsector = 1;
+
+  if (barrel) {
+    if (station==3 && subs=="+") subsector = 2;
+    if (station==4 && 
+         (   sector==1 || sector==2 || sector==3 
+                       || sector==5 || sector==6   
+          || sector==7 || sector==8 
+          || sector==10             || sector==12)
+          && (subs=="+")) {
+         subsector = 2;
+    }
+
+    if (station==4 && sector==4) {
+      if (subs=="--") subsector=1;
+      if (subs=="-")  subsector=2;
+      if (subs=="+")  subsector=3;
+      if (subs=="++") subsector=4;
+    } 
+  }
+
+   // ROLL
+  int iroll=0;
+
+  if      (roll=="Backward" || roll=="A") iroll = 1;
+  else if (roll=="Central" || roll=="B") iroll = 2;
+  else if (roll=="Forward" || roll=="C") iroll = 3;
+  else if (roll=="D") iroll = 4;
+  else {
+    std::cout << "** RPC: DBSpecToDetUnit, how to assigne roll to: "
+         <<roll<<" ???" << std::endl;
+  }
+
+  int trIndex = 0;
+  if(barrel){   
+    //cout <<" BARREL: " << endl; 
+    int eta_id = 6+ring;
+    int plane_id = station;
+    if(trlayer==2) plane_id=5;
+    if(trlayer==4) plane_id=6;
+    int sector_id = sector*3;
+    int copy_id = subsector;
+    int roll_id = iroll;
+    trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+roll_id;
+  } 
+  else { 
+    //    cout << "ENDCAP : " << endl;
+    int eta_id = trlayer;
+    if(ring>0) eta_id = 12-trlayer;
+    int plane_id = abs(ring);
+    int sector_id = sector;
+
+    if (region <0){
+      if (sector_id < 20 ){
+	sector_id = 19+ 1-sector_id;
+      }else{
+	sector_id = 36+20-sector_id;
+      }
+    }
+    sector_id-=1;
+
+    //
+    int copy_id = 1;
+    int roll_id = iroll;
+    trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+ roll_id;
+  }
+  this->buildfromTrIndex(trIndex);
+}
 
 void
 RPCDetId::buildfromTrIndex(int trIndex)
@@ -73,6 +167,19 @@ RPCDetId::buildfromTrIndex(int trIndex)
   }
   trIndex = trIndex%10000;
   int sector_id = trIndex/100;
+  if (region!=0) {
+        if ( !(ring == 1 && station > 1 && region==1)) {     
+         sector_id+=1;
+         if (sector_id==37)sector_id=1;
+     }
+  }
+  if (region==-1){
+    if (sector_id < 20 ){
+      sector_id = 19+ 1-sector_id;
+    }else{
+      sector_id = 36+20-sector_id;
+    }
+  }
   trIndex = trIndex%100;
   int copy_id = trIndex/10;
   int sector=(sector_id-1)/3+1;
@@ -86,12 +193,15 @@ RPCDetId::buildfromTrIndex(int trIndex)
   else {
     if ( ring == 1 && station > 1) {
       // 20 degree chambers
-      subsector = (sector_id-1)%3+1;
+       subsector = ((sector_id+1)/2-1)%3+1;
     }else {
       // 10 degree chambers
       subsector = (sector_id-1)%6+1;
     }
+//     std::cout <<" RE"<<station*region<<"/"<<ring<<" sector_id "<<sector_id
+//    	      << " sector "<<sector <<" sub "<<subsector<<std::endl;
   }
+
 
   int roll=trIndex%10;
   this->init(region,ring,station,sector,layer,subsector,roll);

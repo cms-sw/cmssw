@@ -1,8 +1,6 @@
 #ifndef RecoLocalMuon_RPCClusterizer_h
 #define RecoLocalMuon_RPCClusterizer_h
 /** \class RPCClusterizer
- *  $Date: 2006/06/01 22:27:09 $
- *  $Revision: 1.4 $
  *  \author M. Maggi -- INFN Bari
  */
 

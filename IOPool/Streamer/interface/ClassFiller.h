@@ -1,11 +1,10 @@
-#ifndef Streamer_ClassFiller_h
-#define Streamer_ClassFiller_h
+#ifndef IOPool_Streamer_ClassFiller_h
+#define IOPool_Streamer_ClassFiller_h
 
 // -*- C++ -*-
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
-
-#include "TBuffer.h"
+#include "Rtypes.h"
 
 #include <typeinfo>
 #include <string>

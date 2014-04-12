@@ -5,12 +5,9 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
-//   E. Delmeire  UAM Madrid
 //
 //--------------------------------------------------
 
@@ -18,15 +15,12 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
-#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 #include <iostream>
-#include <string>
 
 using namespace std;
 
@@ -36,6 +30,10 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet& pset) {
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();
   produces<L1MuDTTrackContainer>("DATA");
+
+  DTTFInputTag = pset.getParameter<edm::InputTag>("DTTF_FED_Source");
+
+  verbose_ =  pset.getUntrackedParameter<bool>("verbose",false);
 
 }
 
@@ -83,6 +81,7 @@ bool DTTFFEDReader::fillRawData(edm::Event& e,
 void DTTFFEDReader::analyse(edm::Event& e) {
   clear();
   process(e);
+  match();
   return;
 }
 
@@ -90,41 +89,47 @@ void DTTFFEDReader::analyse(edm::Event& e) {
 void DTTFFEDReader::process(edm::Event& e) {
 
   // Container
-  vector<long> DTTFWordContainer; 
-  vector<long>::iterator DTTFiterator;
+  vector<int> DTTFWordContainer; 
+  vector<int>::iterator DTTFiterator;
 
   // Header constituents
   int BOEevTy, DTTFId;
 
   // DTTF Payload constituents 
-  long DTTFWord;
+  int DTTFWord;
   int DTTFChan, bitsID;
+  int addr1[2] = { 3,  3};
+  int addr2[2] = {15, 15};
+  int addr3[2] = {15, 15};
+  int addr4[2] = {15, 15};
 
   // Trailer constituents
   int evtLgth , CRC;
 
-  bool goOn = true;
-
   //--> Header
 
   edm::Handle<FEDRawDataCollection> data;
-  e.getByType(data);
+  e.getByLabel(getDTTFInputTag(),data);
   FEDRawData dttfdata = data->FEDData(0x030C);
+  if ( dttfdata.size() == 0 ) return;
 
-  long* dataWord1 = new long;
-  long* dataWord2 = new long;
+  int* dataWord1 = new int;
+  int* dataWord2 = new int;
   unsigned char* LineFED=dttfdata.data();
-  *dataWord2=*((long*)LineFED);
+  *dataWord2=*((int*)LineFED);
   LineFED+=4;
-  *dataWord1=*((long*)LineFED);
+  *dataWord1=*((int*)LineFED);
   int lines  = 1; // already counting header
 
   BOEevTy = ((*dataWord1)&0xFF000000)>>24; // positions 57 ->64
   DTTFId  = ((*dataWord2)&0x000FFF00)>>8;  // positions 9 ->20
 
   if( (BOEevTy != 0x50) || ( DTTFId != 0x030C) ){
-    cout << "Not a DTTF header " << hex << *dataWord1 << endl;
-    goOn = false;
+    if ( verbose_ ) edm::LogWarning("dttf_unpacker")
+      << "Not a DTTF header " << hex << *dataWord1;
+    delete dataWord1;
+    delete dataWord2;
+    return;
   }
 
   int newCRC =  0xFFFF;
@@ -134,9 +139,9 @@ void DTTFFEDReader::process(edm::Event& e) {
   //--> DTTF data 
 
   LineFED+=4;
-  *dataWord2=*((long*)LineFED);
+  *dataWord2=*((int*)LineFED);
   LineFED+=4;
-  *dataWord1=*((long*)LineFED);
+  *dataWord1=*((int*)LineFED);
   int chkEOE = ((*dataWord1)&0xFFF00000)>>20; 
   lines++;
 
@@ -150,15 +155,18 @@ void DTTFFEDReader::process(edm::Event& e) {
     DTTFWordContainer.push_back(DTTFWord);
 
     LineFED+=4;
-    *dataWord2=*((long*)LineFED);
+    *dataWord2=*((int*)LineFED);
     LineFED+=4;
-    *dataWord1=*((long*)LineFED);
+    *dataWord1=*((int*)LineFED);
     chkEOE = ((*dataWord1)&0xFFF00000)>>20; 
     lines++;
 
     if(lines > 3026){
-      cout << "Warning : number of DTTF lines > 3026 " << endl; // 3026 = 1(header) + 3024(max # PHTF-ETTF 64 bits words) + 1(trailer)
-      goOn = false;
+      if ( verbose_ ) edm::LogWarning("dttf_unpacker")
+        << "Warning : number of DTTF lines > 3026 "; // 3026 = 1(header) + 3024(max # PHTF-ETTF 64 bits words) + 1(trailer)
+      delete dataWord1;
+      delete dataWord2;
+      return;
     }
 
   } // end while-Data loop
@@ -171,24 +179,23 @@ void DTTFFEDReader::process(edm::Event& e) {
 
   calcCRC(*dataWord1, (*dataWord2)&0xFFFF, newCRC);
   if( newCRC != CRC){
-    cout << "Calculated CRC " ;
-    cout << hex << newCRC << " differs from CRC in trailer " << hex << CRC << endl;
-    goOn = false;
-  }
-
-  if( lines != evtLgth){
-    cout << "Number of words read != event length " << dec << lines << " " << evtLgth << endl;
-    goOn = false;
-  }
-
-
-  // --> analyse event    
-
-  if( !goOn ) {
+    if ( verbose_ ) edm::LogWarning("dttf_unpacker")
+      << "Calculated CRC " << hex << newCRC << " differs from CRC in trailer " << hex << CRC;
     delete dataWord1;
     delete dataWord2;
     return;
   }
+
+  if( lines != evtLgth){
+    if ( verbose_ ) edm::LogWarning("dttf_unpacker")
+      << "Number of words read != event length " << dec << lines << " " << evtLgth;
+    delete dataWord1;
+    delete dataWord2;
+    return;
+  }
+
+
+  // --> analyse event    
 
   for( DTTFiterator =  DTTFWordContainer.begin();
        DTTFiterator != DTTFWordContainer.end();
@@ -245,6 +252,118 @@ void DTTFFEDReader::process(edm::Event& e) {
     }
     //Input
 
+    //Input
+    if(wheelID==0 && bitsID<=0x4){
+   
+      int wheelTh = bitsID-2;
+
+      int posALL, posBTI[7];
+
+      if ( wheelTh == -2 || wheelTh == -1 || 
+	   ( wheelTh == 0 && (sectorID == 0 || sectorID == 3 || sectorID == 4 || sectorID == 7 || sectorID == 8 || sectorID == 11) ) ) {
+
+	posALL    =  ~(*DTTFiterator)&0x7F;
+	posBTI[0] =  ~(*DTTFiterator)&0x01;
+	posBTI[1] = (~(*DTTFiterator)&0x02)>>1;
+	posBTI[2] = (~(*DTTFiterator)&0x04)>>2;
+	posBTI[3] = (~(*DTTFiterator)&0x08)>>3;
+	posBTI[4] = (~(*DTTFiterator)&0x10)>>4;
+	posBTI[5] = (~(*DTTFiterator)&0x20)>>5;
+	posBTI[6] = (~(*DTTFiterator)&0x40)>>6;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 1, posBTI) );
+	}
+
+	posALL    =  ~(*DTTFiterator)&0x3F80;
+	posBTI[0] = (~(*DTTFiterator)&0x0080)>>7;
+	posBTI[1] = (~(*DTTFiterator)&0x0100)>>8;
+	posBTI[2] = (~(*DTTFiterator)&0x0200)>>9;
+	posBTI[3] = (~(*DTTFiterator)&0x0400)>>10;
+	posBTI[4] = (~(*DTTFiterator)&0x0800)>>11;
+	posBTI[5] = (~(*DTTFiterator)&0x1000)>>12;
+	posBTI[6] = (~(*DTTFiterator)&0x2000)>>13;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 2, posBTI) );
+	}
+
+	posALL    =  ~(*DTTFiterator)&0x1FC000;
+	posBTI[0] = (~(*DTTFiterator)&0x004000)>>14;
+	posBTI[1] = (~(*DTTFiterator)&0x008000)>>15;
+	posBTI[2] = (~(*DTTFiterator)&0x010000)>>16;
+	posBTI[3] = (~(*DTTFiterator)&0x020000)>>17;
+	posBTI[4] = (~(*DTTFiterator)&0x040000)>>18;
+	posBTI[5] = (~(*DTTFiterator)&0x080000)>>19;
+	posBTI[6] = (~(*DTTFiterator)&0x100000)>>20;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 3, posBTI) );
+	}
+      }
+
+      else {
+
+	posALL    =  ~(*DTTFiterator)&0x7F;
+	posBTI[6] =  ~(*DTTFiterator)&0x01;
+	posBTI[5] = (~(*DTTFiterator)&0x02)>>1;
+	posBTI[4] = (~(*DTTFiterator)&0x04)>>2;
+	posBTI[3] = (~(*DTTFiterator)&0x08)>>3;
+	posBTI[2] = (~(*DTTFiterator)&0x10)>>4;
+	posBTI[1] = (~(*DTTFiterator)&0x20)>>5;
+	posBTI[0] = (~(*DTTFiterator)&0x40)>>6;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 1, posBTI) );
+	}
+
+	posALL    =  ~(*DTTFiterator)&0x3F80;
+	posBTI[6] = (~(*DTTFiterator)&0x0080)>>7;
+	posBTI[5] = (~(*DTTFiterator)&0x0100)>>8;
+	posBTI[4] = (~(*DTTFiterator)&0x0200)>>9;
+	posBTI[3] = (~(*DTTFiterator)&0x0400)>>10;
+	posBTI[2] = (~(*DTTFiterator)&0x0800)>>11;
+	posBTI[1] = (~(*DTTFiterator)&0x1000)>>12;
+	posBTI[0] = (~(*DTTFiterator)&0x2000)>>13;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 2, posBTI) );
+	}
+
+	posALL    =  ~(*DTTFiterator)&0x1FC000;
+	posBTI[6] = (~(*DTTFiterator)&0x004000)>>14;
+	posBTI[5] = (~(*DTTFiterator)&0x008000)>>15;
+	posBTI[4] = (~(*DTTFiterator)&0x010000)>>16;
+	posBTI[3] = (~(*DTTFiterator)&0x020000)>>17;
+	posBTI[2] = (~(*DTTFiterator)&0x040000)>>18;
+	posBTI[1] = (~(*DTTFiterator)&0x080000)>>19;
+	posBTI[0] = (~(*DTTFiterator)&0x100000)>>20;
+
+	if(posALL){
+	  theSegments.push_back(
+		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 3, posBTI) );
+	}
+      }
+    }
+    //Input
+
+    //Addresses
+    if(wheelID!=0 && bitsID>=0xA && bitsID<=0xB){   
+
+      int candID   = bitsID - 0xA;
+
+      addr4[candID]   = ((*DTTFiterator)&0x0F);
+      addr3[candID]   = ((*DTTFiterator)&0xF0)>>4;
+      addr2[candID]   = ((*DTTFiterator)&0xF00)>>8;
+      addr1[candID]   = ((*DTTFiterator)&0x3000)>>12;
+    }
+    //Addresses
+
     //Output
     if(wheelID!=0 && bitsID>=0xC){   
 
@@ -262,8 +381,29 @@ void DTTFFEDReader::process(edm::Event& e) {
 
       if(qual!=0){
         dtTracks.push_back(
-		    L1MuRegionalCand( 0, phi, 0, pt, ch,
-                    1, muonID, qual, bxID) );
+		    L1MuDTTrackCand( 0, phi, 0, pt, ch, 1, 0, qual, bxID, wheelID, sectorID,
+                    muonID, addr1[muonID], addr2[muonID], addr3[muonID], addr4[muonID] ) );
+      }
+    }
+    //Output
+
+    //Output
+    if(wheelID==0 && bitsID>=0x8){
+   
+      int wheelTh = bitsID&0x7;
+
+      int etaALL;
+
+      etaALL =  ~(*DTTFiterator)&0x007F;
+      if (etaALL) {
+        etTrack[bxID+1][sectorID][wheelTh][0] =   (*DTTFiterator)&0x003F;
+        efTrack[bxID+1][sectorID][wheelTh][0] = (~(*DTTFiterator)&0x0040)>>6;
+      }
+
+      etaALL =  (~(*DTTFiterator)&0x3F80)>>7;
+      if (etaALL) {
+        etTrack[bxID+1][sectorID][wheelTh][1]= ( (*DTTFiterator)&0x1F80)>>7;
+        efTrack[bxID+1][sectorID][wheelTh][1]= (~(*DTTFiterator)&0x2000)>>13;
       }
     }
     //Output
@@ -272,6 +412,24 @@ void DTTFFEDReader::process(edm::Event& e) {
 
   delete dataWord1;
   delete dataWord2;
+  return;
+}
+
+void DTTFFEDReader::match() {
+
+  for ( L1MuDTTrackContainer::TrackIterator i  = dtTracks.begin();
+                                            i != dtTracks.end();
+                                            i++ ) {
+    int bxTh     = i->bx()+1;
+    int sectorTh = i->scNum();
+    int wheelTh  = i->whNum()+3;
+    if(wheelTh > 3) wheelTh-=1;
+    int muonTh   = i->TrkTag();
+
+    i->setEtaPacked(etTrack[bxTh][sectorTh][wheelTh][muonTh]);
+    i->setFineHaloPacked(efTrack[bxTh][sectorTh][wheelTh][muonTh]);
+  }
+
   return;
 }
 
@@ -292,6 +450,18 @@ void DTTFFEDReader::clear() {
   phiSegments.clear();
   theSegments.clear();
   dtTracks.clear();
+
+  for(int i=0; i<3;  i++){
+    for(int j=0; j<12; j++){
+      for(int k=0; k<6;  k++){
+        for(int l=0; l<2;  l++){
+          etTrack[i][j][k][l] = 0;
+          efTrack[i][j][k][l] = 0;
+        } 
+      } 
+    } 
+  }
+
   return;
 }
 
@@ -308,37 +478,51 @@ int DTTFFEDReader::channel( int wheel, int sector,  int bx ){
   if ( sector < 0 || sector > 11) { return myChannel; }
   if ( abs(wheel) > 3)            { return myChannel; }
 
-   myChannel = sector*21 + wheel*3 + bx + 10 ; 
+  myChannel = sector*21 + wheel*3 - bx + 10 ; 
+
+  if (myChannel > 125) myChannel += 2;
 
   return myChannel;
 }
 
 int DTTFFEDReader::bxNr( int channel ){
 
-  if (channel < 0 || channel > 252 ){ return -999; }
+  int myChannel = channel;
 
-  int myBx = (channel%3)-1;
+  if (myChannel > 127) myChannel -= 2;
+
+  if (myChannel < 0 || myChannel > 251 ){ return -999; }
+
+  int myBx = 1-(myChannel%3);
 
   return myBx;
 }
 
 int DTTFFEDReader::sector( int channel ){
 
-  if (channel < 0 || channel > 252 ){ return -999; }
+  int myChannel = channel;
 
-  return channel/21;
+  if (myChannel > 127) myChannel -= 2;
+
+  if (myChannel < 0 || myChannel > 251 ){ return -999; }
+
+  return myChannel/21;
 }
 
 int DTTFFEDReader::wheel( int channel ){
 
-  if (channel < 0 || channel > 252 ){ return -999; }    
+  int myChannel = channel;
 
-  int myWheel = ((channel%21)/3)-3;
+  if (myChannel > 127) myChannel -= 2;
+
+  if (myChannel < 0 || myChannel > 251 ){ return -999; }
+
+  int myWheel = ((myChannel%21)/3)-3;
 
   return myWheel;
 }
 
-void DTTFFEDReader::calcCRC(long myD1, long myD2, int &myC){
+void DTTFFEDReader::calcCRC(int myD1, int myD2, int &myC){
 
   int myCRC[16],D[64],C[16];
 

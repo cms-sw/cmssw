@@ -11,7 +11,6 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id$
 //
 //
 
@@ -28,8 +27,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class L1GlobalCaloTrigger;
-class L1GctJetEtCalibrationLut;
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
+
 class gctTestFunctions;
 
 //
@@ -37,31 +36,47 @@ class gctTestFunctions;
 //
 
 class L1GctTest : public edm::EDAnalyzer {
-   public:
-      explicit L1GctTest(const edm::ParameterSet&);
-      ~L1GctTest();
+public:
+
+  /// typedefs
+  typedef L1GlobalCaloTrigger::lutPtr       lutPtr;
+  typedef L1GlobalCaloTrigger::lutPtrVector lutPtrVector;
+
+  explicit L1GctTest(const edm::ParameterSet&);
+  ~L1GctTest();
 
 
-   private:
-      virtual void beginJob(const edm::EventSetup& c) ;
-      virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-      virtual void endJob() ;
+private:
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  virtual void endJob() ;
 
-      void configureGct(const edm::EventSetup& c);
+  void configureGct(const edm::EventSetup& c);
+  void configParamsPrint(std::ostream & out);
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      L1GlobalCaloTrigger* m_gct;
-      L1GctJetEtCalibrationLut* m_jetEtCalibLut;
+  L1GlobalCaloTrigger* m_gct;
+  lutPtrVector m_jetEtCalibLuts;
 
-      gctTestFunctions* m_tester;
+  gctTestFunctions* m_tester;
 
-      bool theElectronTestIsEnabled;
-      bool theEnergyAlgosTestIsEnabled;
-      bool theFirmwareTestIsEnabled;
+  bool theElectronTestIsEnabled;
+  bool theSingleEventTestIsEnabled;
+  bool theEnergyAlgosTestIsEnabled;
+  bool theFirmwareTestIsEnabled;
+  bool theRealDataTestIsEnabled;
 
-      std::string theInputDataFileName;
-      std::string theReferenceDataFileName;
+  bool theUseNewTauAlgoFlag;
+  bool theConfigParamsPrintFlag;
 
-      unsigned m_eventNo;
+  std::string theInputDataFileName;
+  std::string theReferenceDataFileName;
+  std::string theEnergySumsDataFileName;
+
+  int m_firstBx;
+  int m_lastBx;
+
+  unsigned m_eventNo;
+  bool m_allGood;
 };

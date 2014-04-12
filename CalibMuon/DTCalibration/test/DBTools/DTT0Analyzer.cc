@@ -2,21 +2,17 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/02 16:11:09 $
- *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 
 #include "DTT0Analyzer.h"
-#include "DTCalibrationMap.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
-
+#include <iostream>
 #include "TFile.h"
 #include "TH1D.h"
 #include "TString.h"
@@ -36,7 +32,7 @@ DTT0Analyzer::~DTT0Analyzer(){
   theFile->Close();
 }
 
-void DTT0Analyzer::beginJob(const edm::EventSetup& eventSetup) {
+void DTT0Analyzer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
   //Get the t0 map from the DB
   ESHandle<DTT0> t0;
   eventSetup.get<DTT0Rcd>().get(t0);
@@ -50,20 +46,28 @@ void DTT0Analyzer::endJob() {
   // Loop over DB entries
   for(DTT0::const_iterator tzero = tZeroMap->begin();
       tzero != tZeroMap->end(); tzero++) {
-    DTWireId wireId((*tzero).first.wheelId,
-		    (*tzero).first.stationId,
-		    (*tzero).first.sectorId,
-		    (*tzero).first.slId,
-		    (*tzero).first.layerId,
-		    (*tzero).first.cellId);
-    float t0mean = (*tzero).second.t0mean;
-    float t0rms = (*tzero).second.t0rms;
+// @@@ NEW DTT0 FORMAT
+//    DTWireId wireId((*tzero).first.wheelId,
+//		    (*tzero).first.stationId,
+//		    (*tzero).first.sectorId,
+//		    (*tzero).first.slId,
+//		    (*tzero).first.layerId,
+//		    (*tzero).first.cellId);
+    int channelId = tzero->channelId;
+    if ( channelId == 0 ) continue;
+    DTWireId wireId( channelId );
+// @@@ NEW DTT0 END
+    float t0mean;
+    float t0rms;
+    // t0s and rms are TDC counts
+    tZeroMap->get(wireId, t0mean, t0rms, DTTimeUnits::counts);
     cout << "Wire: " <<  wireId <<endl
 	 << " T0 mean (TDC counts): " << t0mean
 	 << " T0_rms (TDC counts): " << t0rms << endl;
 
     DTLayerId layerId = wireId.layerId();
     const int nWires = dtGeom->layer(layerId)->specificTopology().channels();
+
 
     //Define an histo for means and an histo for sigmas for each layer
     TH1D *hT0Histo = theMeanHistoMap[layerId];
@@ -87,8 +91,9 @@ void DTT0Analyzer::endJob() {
      }
 
     //Fill the histos
-    hT0Histo->SetBinContent(hT0Histo->GetBin(wireId.wire()),t0mean);  
-    hSigmaT0Histo->SetBinContent(hSigmaT0Histo->GetBin(wireId.wire()),t0rms);  
+    int nBin= hT0Histo->GetXaxis()->FindFixBin(wireId.wire());
+    hT0Histo->SetBinContent(nBin,t0mean);  
+    hSigmaT0Histo->SetBinContent(nBin,t0rms);  
   }
 
   //Write histos in a .root file

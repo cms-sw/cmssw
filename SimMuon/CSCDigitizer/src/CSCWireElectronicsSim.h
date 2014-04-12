@@ -26,7 +26,7 @@ public:
 
   void setFraction(float newFraction)  {theFraction = newFraction;};
 
-  void fillDigis(CSCWireDigiCollection & digis);
+  void fillDigis(CSCWireDigiCollection & digis, CLHEP::HepRandomEngine*);
 
 private:
   /// initialization for each layer
@@ -37,7 +37,6 @@ private:
 
   float calculateAmpResponse(float t) const;
  
-  virtual float signalDelay(int element, float pos) const;
   virtual float timeOfFlightCalibration(int wireGroup) const;
 
   /// we code strip indices from 1-80, and wire indices start at 100
@@ -49,7 +48,6 @@ private:
   float theFraction;
   float theWireNoise;
   float theWireThreshold;
-  float theTimingCalibrationError; // in ns
 
 };
 

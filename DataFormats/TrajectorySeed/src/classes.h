@@ -5,9 +5,10 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 
-namespace {
-  namespace {
+namespace DataFormats_TrajectorySeed {
+  struct dictionary {
     std::vector<TrajectorySeed> v1;
     TrajectorySeedCollection c1;
     edm::Wrapper<TrajectorySeedCollection> w1;
@@ -16,7 +17,11 @@ namespace {
     edm::Ref<TrajectorySeedCollection> s1;
     edm::RefProd<TrajectorySeedCollection> s2;
     edm::RefVector<TrajectorySeedCollection> s3;
-  }
+
+    edm::RefToBase<TrajectorySeed> sr;  
+    edm::reftobase::IndirectHolder<TrajectorySeed> ihs;
+    edm::reftobase::Holder< TrajectorySeed, edm::Ref<TrajectorySeedCollection> > rbh;
+    edm::reftobase::RefHolder< edm::Ref<TrajectorySeedCollection> > rbrh;
+
+  };
 }
-
-

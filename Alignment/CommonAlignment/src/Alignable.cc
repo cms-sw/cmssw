@@ -1,31 +1,38 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/06/21 16:18:28 $
- *  $Revision: 1.14 $
+ *  $Date: 2012/12/11 19:11:02 $
+ *  $Revision: 1.23 $
  *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
+#include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
+#include "CondFormats/Alignment/interface/AlignmentSorter.h"
+
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
+
 //__________________________________________________________________________________________________
-Alignable::Alignable(const GeomDet* det):
-  theDetId( det->geographicalId() ),
-  theId( theDetId.rawId() ),
-  theSurface( det->surface() ),
+Alignable::Alignable(align::ID id, const AlignableSurface& surf):
+  theDetId(id), // FIXME: inconsistent with other ctr., but needed for AlignableNavigator 
+  theId(id),    // (finally get rid of one of the IDs!)
+  theSurface(surf),
+  theCachedSurface(surf),
   theAlignmentParameters(0),
   theMother(0),
   theSurvey(0)
 {
 }
 
-
-Alignable::Alignable(uint32_t id, const RotationType& rot):
+//__________________________________________________________________________________________________
+Alignable::Alignable(align::ID id, const RotationType& rot):
+  theDetId(), // FIXME: inconsistent with other ctr., cf. above
   theId(id),
   theSurface(PositionType(), rot),
+  theCachedSurface(PositionType(), rot),
   theAlignmentParameters(0),
   theMother(0),
   theSurvey(0)
@@ -38,40 +45,6 @@ Alignable::~Alignable()
   delete theAlignmentParameters;
   delete theSurvey;
 }
-
-
-//__________________________________________________________________________________________________
-void Alignable::deepComponents( std::vector<const Alignable*>& result ) const
-{
-  const Alignables& comp = components();
-
-  unsigned int nComp = comp.size();
-
-  if (nComp > 0)
-    for (unsigned int i = 0; i < nComp; ++i)
-    {
-      comp[i]->deepComponents(result);
-    }
-  else
-    result.push_back(this);
-}
-
-//__________________________________________________________________________________________________
-void Alignable::deepComponents( std::vector<Alignable*>& result )
-{
-  const std::vector<Alignable*>& comp = components();
-
-  unsigned int nComp = comp.size();
-
-  if (nComp > 0)
-    for (unsigned int i = 0; i < nComp; ++i)
-    {
-      comp[i]->deepComponents(result);
-    }
-  else
-    result.push_back(this);
-}
-
 
 //__________________________________________________________________________________________________
 bool Alignable::firstCompsWithParams(Alignables &paramComps) const
@@ -239,6 +212,57 @@ void Alignable::addRotation( const RotationType& rotation )
 
 }
 
+//__________________________________________________________________________________________________
+AlignmentSurfaceDeformations* Alignable::surfaceDeformations( void ) const
+{
+
+  typedef std::pair<int,SurfaceDeformation*> IdSurfaceDeformationPtrPair;
+
+  std::vector<IdSurfaceDeformationPtrPair> result;
+  surfaceDeformationIdPairs(result);
+  std::sort( result.begin(), 
+ 	     result.end(), 
+	     lessIdAlignmentPair<IdSurfaceDeformationPtrPair>() );
+  
+  AlignmentSurfaceDeformations* allSurfaceDeformations = new AlignmentSurfaceDeformations();
+  
+  for ( std::vector<IdSurfaceDeformationPtrPair>::const_iterator iPair = result.begin();
+	iPair != result.end();
+	++iPair) {
+    
+    // should we check for 'empty' parameters here (all zeros) and skip ?
+    // may be add 'empty' method to SurfaceDeformation
+    allSurfaceDeformations->add((*iPair).first,
+				(*iPair).second->type(),
+				(*iPair).second->parameters());
+  }
+  
+  return allSurfaceDeformations;
+
+}
+ 
+void Alignable::cacheTransformation()
+{
+  theCachedSurface = theSurface;
+  theCachedDisplacement = theDisplacement;
+  theCachedRotation = theRotation;
+}
+
+void Alignable::restoreCachedTransformation()
+{
+  // first treat itself
+  theSurface = theCachedSurface;
+  theDisplacement = theCachedDisplacement;
+  theRotation = theCachedRotation;
+
+  // now treat components (a clean design would move that to AlignableComposite...)
+  const Alignables comps(this->components());
+
+  for (auto it = comps.begin(); it != comps.end(); ++it) {
+    (*it)->restoreCachedTransformation();
+  }
+ 
+}
 
 //__________________________________________________________________________________________________
 void Alignable::setSurvey( const SurveyDet* survey )

@@ -18,7 +18,6 @@ struct EScales{
   double HF2Scale;
   std::string instanceLabel;
 };
-struct EScales EScales;
 
 #endif
 

@@ -9,7 +9,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotFromDB.h,v 1.2 2007/03/29 16:34:52 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -29,7 +28,7 @@ class BeamSpotFromDB : public edm::EDAnalyzer {
   ~BeamSpotFromDB();
 
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

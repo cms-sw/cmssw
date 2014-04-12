@@ -1,332 +1,324 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.58 2007/07/26 23:46:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
-#include "RootFile.h"
-#include "RootTree.h"
-#include "IOPool/Common/interface/ClassFiller.h"
-
-#include "FWCore/Catalog/interface/FileCatalog.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "InputFile.h"
+#include "RootInputFileSequence.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/RunID.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputType.h"
 
-#include "CLHEP/Random/RandFlat.h"
-#include "TTree.h"
-#include "TFile.h"
+#include <set>
 
 namespace edm {
+
+  class LuminosityBlockID;
+  class EventID;
+
+  namespace {
+    void checkHistoryConsistency(Principal const& primary, Principal const& secondary) {
+      ProcessHistory const& ph1 = primary.processHistory();
+      ProcessHistory const& ph2 = secondary.processHistory();
+      if(ph1 != ph2 && !isAncestor(ph2, ph1)) {
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+          "The secondary file is not an ancestor of the primary file\n";
+      }
+    }
+    void checkConsistency(EventPrincipal const& primary, EventPrincipal const& secondary) {
+      if(!isSameEvent(primary, secondary)) {
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+          primary.id() << " has inconsistent EventAuxiliary data in the primary and secondary file\n";
+      }
+    }
+    void checkConsistency(LuminosityBlockAuxiliary const& primary, LuminosityBlockAuxiliary const& secondary) {
+      if(primary.id() != secondary.id()) {
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+          primary.id() << " has inconsistent LuminosityBlockAuxiliary data in the primary and secondary file\n";
+      }
+    }
+    void checkConsistency(RunAuxiliary const& primary, RunAuxiliary const& secondary) {
+      if(primary.id() != secondary.id()) {
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+          primary.id() << " has inconsistent RunAuxiliary data in the primary and secondary file\n";
+      }
+    }
+  }
+
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
-    fileIter_(fileCatalogItems().begin()),
-    rootFile_(),
-    matchMode_(BranchDescription::Permissive),
-    flatDistribution_(0),
-    eventsRemainingInFile_(0)
-  {
-    std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
-    if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
-    ClassFiller();
-    if (primary()) {
-      init(*fileIter_);
-      updateProductRegistry();
-      setInitialPosition(pset);
-    } else {
-      Service<RandomNumberGenerator> rng;
-      if (!rng.isAvailable()) {
-        throw cms::Exception("Configuration")
-          << "A secondary input source requires the RandomNumberGeneratorService\n"
-          "which is not present in the configuration file.  You must add the service\n"
-          "in the configuration file or remove the modules that require it.";
+    rootServiceChecker_(),
+    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), desc.allocations_->numberOfStreams(),
+                                                   primary() ? InputType::Primary : InputType::SecondarySource)),
+    secondaryFileSequence_(catalog(1).empty() ? nullptr :
+                           new RootInputFileSequence(pset, *this, catalog(1), desc.allocations_->numberOfStreams(),
+                           InputType::SecondaryFile)),
+    secondaryRunPrincipal_(),
+    secondaryLumiPrincipal_(),
+    secondaryEventPrincipals_(),
+    branchIDsToReplace_() {
+    if(secondaryFileSequence_) {
+      unsigned int nStreams = desc.allocations_->numberOfStreams();
+      assert(primary());
+      secondaryEventPrincipals_.reserve(nStreams);
+      for(unsigned int index = 0; index < nStreams; ++index) {
+        secondaryEventPrincipals_.emplace_back(new EventPrincipal(secondaryFileSequence_->fileProductRegistry(),
+                                                                  secondaryFileSequence_->fileBranchIDListHelper(),
+                                                                  processConfiguration(),
+                                                                  nullptr,
+                                                                  index));
       }
-      CLHEP::HepRandomEngine& engine = rng->getEngine();
-      flatDistribution_ = new CLHEP::RandFlat(engine);
+      std::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
+      ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
+      ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry()->productList();
+      typedef ProductRegistry::ProductList::const_iterator const_iterator;
+      typedef ProductRegistry::ProductList::iterator iterator;
+      //this is the registry used by the 'outside' world and only has the primary file information in it at present
+      ProductRegistry::ProductList& fullList = productRegistryUpdate().productListUpdator();
+      for(const_iterator it = secondary.begin(), itEnd = secondary.end(); it != itEnd; ++it) {
+        if(it->second.present()) {
+          idsToReplace[it->second.branchType()].insert(it->second.branchID());
+          //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
+          iterator itFound = fullList.find(it->first);
+          if(itFound != fullList.end()) {
+            itFound->second.setDropped(false);
+          }
+        }
+      }
+      for(const_iterator it = primary.begin(), itEnd = primary.end(); it != itEnd; ++it) {
+        if(it->second.present()) idsToReplace[it->second.branchType()].erase(it->second.branchID());
+      }
+      if(idsToReplace[InEvent].empty() && idsToReplace[InLumi].empty() && idsToReplace[InRun].empty()) {
+        secondaryFileSequence_.reset();
+      } else {
+        for(int i = InEvent; i < NumBranchTypes; ++i) {
+          branchIDsToReplace_[i].reserve(idsToReplace[i].size());
+          for(std::set<BranchID>::const_iterator it = idsToReplace[i].begin(), itEnd = idsToReplace[i].end();
+               it != itEnd; ++it) {
+            branchIDsToReplace_[i].push_back(*it);
+          }
+        }
+      }
+    }
+  }
+
+  PoolSource::~PoolSource() {}
+
+  void
+  PoolSource::endJob() {
+    if(secondaryFileSequence_) secondaryFileSequence_->endJob();
+    primaryFileSequence_->endJob();
+    InputFile::reportReadBranches();
+  }
+
+  std::unique_ptr<FileBlock>
+  PoolSource::readFile_() {
+    std::unique_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
+    if(secondaryFileSequence_) {
+      fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
+    }
+    return std::move(fb);
+  }
+
+  void PoolSource::closeFile_() {
+    primaryFileSequence_->closeFile_();
+  }
+
+  boost::shared_ptr<RunAuxiliary>
+  PoolSource::readRunAuxiliary_() {
+    return primaryFileSequence_->readRunAuxiliary_();
+  }
+
+  boost::shared_ptr<LuminosityBlockAuxiliary>
+  PoolSource::readLuminosityBlockAuxiliary_() {
+    return primaryFileSequence_->readLuminosityBlockAuxiliary_();
+  }
+
+  void
+  PoolSource::readRun_(RunPrincipal& runPrincipal) {
+    primaryFileSequence_->readRun_(runPrincipal);
+    if(secondaryFileSequence_ && !branchIDsToReplace_[InRun].empty()) {
+      bool found = secondaryFileSequence_->skipToItem(runPrincipal.run(), 0U, 0U);
+      if(found) {
+        boost::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
+        checkConsistency(runPrincipal.aux(), *secondaryAuxiliary);
+        secondaryRunPrincipal_.reset(new RunPrincipal(secondaryAuxiliary,
+                                                      secondaryFileSequence_->fileProductRegistry(),
+                                                      processConfiguration(),
+                                                      nullptr,
+                                                      runPrincipal.index()));
+        secondaryFileSequence_->readRun_(*secondaryRunPrincipal_);
+        checkHistoryConsistency(runPrincipal, *secondaryRunPrincipal_);
+        runPrincipal.recombine(*secondaryRunPrincipal_, branchIDsToReplace_[InRun]);
+      } else {
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::readRun_")
+          << " Run " << runPrincipal.run()
+          << " is not found in the secondary input files\n";
+      }
     }
   }
 
   void
-  PoolSource::endJob() {
-    rootFile_->close();
-    delete flatDistribution_;
-  }
-
-  void PoolSource::setInitialPosition(ParameterSet const& pset) {
-    EventID firstEventID(pset.getUntrackedParameter<unsigned int>("firstRun", 0),
-		  pset.getUntrackedParameter<unsigned int>("firstEvent", 0));
-    if (firstEventID != EventID()) {
-      EventID id = EventID(pset.getUntrackedParameter<unsigned int>("firstRun", 1),
-		  pset.getUntrackedParameter<unsigned int>("firstEvent", 1));
-      RootTree::EntryNumber eventEntry =
-	rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
-      while (eventEntry < 0) {
-        // Set the entry to the last entry in this file
-        rootFile_->eventTree().setEntryNumber(rootFile_->eventTree().entries()-1);
-
-        // Advance to the first entry of the next file, if there is a next file.
-        if(!next()) {
-          throw cms::Exception("MismatchedInput","PoolSource::PoolSource()")
-	    << "Input files have no " << id << "\n";
-        }
-        eventEntry = rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
-      }
-      RootTree::EntryNumber runEntry = rootFile_->runTree().getBestEntryNumber(id.run(), 0);
-      RootTree::EntryNumber lumiEntry = rootFile_->lumiTree().getBestEntryNumber(id.run(), 1);
-      if (runEntry < 0) runEntry = 0;
-      if (lumiEntry < 0) lumiEntry = 0;
-      rootFile_->eventTree().setEntryNumber(eventEntry - 1);
-      rootFile_->lumiTree().setEntryNumber(lumiEntry - 1);
-      rootFile_->runTree().setEntryNumber(runEntry - 1);
-    }
-    int eventsToSkip = pset.getUntrackedParameter<unsigned int>("skipEvents", 0);
-    if (eventsToSkip > 0) {
-      skip(eventsToSkip);
-    }
-    rootFile_->eventTree().setOrigEntryNumber();
-    rootFile_->lumiTree().setOrigEntryNumber();
-    rootFile_->runTree().setOrigEntryNumber();
-  }
-
-  void PoolSource::init(FileCatalogItem const& file) {
-    TTree::SetMaxTreeSize(kMaxLong64);
-    TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
-    if (filePtr != 0) filePtr->Close();
-    rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
-	processConfiguration(), file.logicalFileName()));
-  }
-
-  void PoolSource::updateProductRegistry() const {
-    if (rootFile_->productRegistry()->nextID() > productRegistry()->nextID()) {
-      productRegistryUpdate().setNextID(rootFile_->productRegistry()->nextID());
-    }
-    ProductRegistry::ProductList const& prodList = rootFile_->productRegistry()->productList();
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-	it != itEnd; ++it) {
-      productRegistryUpdate().copyProduct(it->second);
-    }
-  }
-
-  bool PoolSource::next() {
-    if (rootFile_->eventTree().next()) return true;
-    if (!nextFile()) return false;
-    return next();
-  }
-
-  bool PoolSource::nextFile() {
-    if(fileIter_ != fileCatalogItems().end()) ++fileIter_;
-    if(fileIter_ == fileCatalogItems().end()) {
-      if (primary()) {
-	return false;
+  PoolSource::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
+    primaryFileSequence_->readLuminosityBlock_(lumiPrincipal);
+    if(secondaryFileSequence_ && !branchIDsToReplace_[InLumi].empty()) {
+      bool found = secondaryFileSequence_->skipToItem(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), 0U);
+      if(found) {
+        boost::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
+        checkConsistency(lumiPrincipal.aux(), *secondaryAuxiliary);
+        secondaryLumiPrincipal_.reset(new LuminosityBlockPrincipal(secondaryAuxiliary,
+                                                                   secondaryFileSequence_->fileProductRegistry(),
+                                                                   processConfiguration(),
+                                                                   nullptr,
+                                                                   lumiPrincipal.index()));
+        secondaryFileSequence_->readLuminosityBlock_(*secondaryLumiPrincipal_);
+        checkHistoryConsistency(lumiPrincipal, *secondaryLumiPrincipal_);
+        lumiPrincipal.recombine(*secondaryLumiPrincipal_, branchIDsToReplace_[InLumi]);
       } else {
-	fileIter_ = fileCatalogItems().begin();
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::readLuminosityBlock_")
+          << " Run " << lumiPrincipal.run()
+          << " LuminosityBlock " << lumiPrincipal.luminosityBlock()
+          << " is not found in the secondary input files\n";
       }
     }
+  }
 
-    rootFile_->close();
-
-    init(*fileIter_);
-
-    if (primary()) {
-      // make sure the new product registry is compatible with the main one
-      std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
-							    fileIter_->fileName(),
-							    matchMode_);
-      if (!mergeInfo.empty()) {
-        throw cms::Exception("MismatchedInput","PoolSource::next()") << mergeInfo;
+  void
+  PoolSource::readEvent_(EventPrincipal& eventPrincipal) {
+    primaryFileSequence_->readEvent(eventPrincipal);
+    if(secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
+      bool found = secondaryFileSequence_->skipToItem(eventPrincipal.run(),
+                                                      eventPrincipal.luminosityBlock(),
+                                                      eventPrincipal.id().event());
+      if(found) {
+        EventPrincipal& secondaryEventPrincipal = *secondaryEventPrincipals_[eventPrincipal.streamID().value()];
+        secondaryFileSequence_->readEvent(secondaryEventPrincipal);
+        checkConsistency(eventPrincipal, secondaryEventPrincipal);
+        checkHistoryConsistency(eventPrincipal, secondaryEventPrincipal);
+        eventPrincipal.recombine(secondaryEventPrincipal, branchIDsToReplace_[InEvent]);
+        eventPrincipal.mergeProvenanceRetrievers(secondaryEventPrincipal);
+        secondaryEventPrincipal.clearPrincipal();
+      } else {
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
+          eventPrincipal.id() << " is not found in the secondary input files\n";
       }
     }
+  }
+
+  bool
+  PoolSource::readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext) {
+    bool found = primaryFileSequence_->skipToItem(id.run(), id.luminosityBlock(), id.event());
+    if(!found) return false;
+    EventSourceSentry sentry(*this, streamContext);
+    readEvent_(eventPrincipal);
     return true;
   }
 
-  bool PoolSource::previous() {
-    if(rootFile_->eventTree().previous()) return true;
-    if(fileIter_ == fileCatalogItems().begin()) {
-      if (primary()) {
-	return false;
-      } else {
-	fileIter_ = fileCatalogItems().end();
+  InputSource::ItemType
+  PoolSource::getNextItemType() {
+    RunNumber_t run = IndexIntoFile::invalidRun;
+    LuminosityBlockNumber_t lumi = IndexIntoFile::invalidLumi;
+    EventNumber_t event = IndexIntoFile::invalidEvent;
+    InputSource::ItemType itemType = primaryFileSequence_->getNextItemType(run, lumi, event);
+    if(secondaryFileSequence_ && (IsSynchronize != state())) {
+      if(itemType == IsRun || itemType == IsLumi || itemType == IsEvent) {
+        if(!secondaryFileSequence_->containedInCurrentFile(run, lumi, event)) {
+          return IsSynchronize;
+        }
       }
     }
-    --fileIter_;
-
-    rootFile_->close();
-
-    init(*fileIter_);
-
-    if (primary()) {
-      // make sure the new product registry is compatible to the main one
-      std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
-							    fileIter_->fileName(),
-							    matchMode_);
-      if (!mergeInfo.empty()) {
-        throw cms::Exception("MismatchedInput","PoolSource::previous()") << mergeInfo;
-      }
-    }
-    rootFile_->eventTree().setEntryNumber(rootFile_->eventTree().entries());
-    return previous();
+    return itemType;
   }
 
-  PoolSource::~PoolSource() {
-  }
-
-  boost::shared_ptr<RunPrincipal>
-  PoolSource::readRun_() {
-    boost::shared_ptr<RunPrincipal> rp;
-    do {
-	 rp = rootFile_->readRun(primary() ? productRegistry() : rootFile_->productRegistry()); 
-    } while (rp.get() == 0 && nextFile());
-    return rp;
-  }
-
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  PoolSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
-    return rootFile_->readLumi(primary() ? productRegistry() : rootFile_->productRegistry(), rp); 
-  }
-
-  // readEvent_() is responsible for creating, and setting up, the
-  // EventPrincipal.
-  //
-  //   1. create an EventPrincipal with a unique EventID
-  //   2. For each entry in the provenance, put in one Group,
-  //      holding the Provenance for the corresponding EDProduct.
-  //   3. set up the caches in the EventPrincipal to know about this
-  //      Group.
-  //
-  // We do *not* create the EDProduct instance (the equivalent of reading
-  // the branch containing this EDProduct. That will be done by the Delayed Reader,
-  //  when it is asked to do so.
-  //
-
-  std::auto_ptr<EventPrincipal>
-  PoolSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    return rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
-  }
-
-  std::auto_ptr<EventPrincipal>
-  PoolSource::read() {
-    if (next()) {
-      previous();
-    } else {
-      if (!primary()) {
-	repeat();
-      }
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    boost::shared_ptr<LuminosityBlockPrincipal> lbp;
-    return rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
-  }
-
-  std::auto_ptr<EventPrincipal>
-  PoolSource::readIt(EventID const& id) {
-    RootTree::EntryNumber entry = rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
-    if (entry >= 0) {
-      rootFile_->eventTree().setEntryNumber(entry - 1);
-      return read();
-    } else {
-      return std::auto_ptr<EventPrincipal>(0);
-    }
+  void
+  PoolSource::preForkReleaseResources() {
+    primaryFileSequence_->closeFile_();
   }
 
   // Rewind to before the first event that was read.
   void
   PoolSource::rewind_() {
-    fileIter_ = fileCatalogItems().begin();
-    init(*fileIter_);    
+    primaryFileSequence_->rewind_();
   }
 
-  // Rewind to the beginning of the current file
-  void
-  PoolSource::rewindFile() {
-    rootFile_->eventTree().resetEntryNumber();
-    rootFile_->lumiTree().resetEntryNumber();
-    rootFile_->runTree().resetEntryNumber();
-  }
-
-  // Advance "offset" events. Entry numbers begin at 0.
-  // The current entry number is the last one read, not the next one read.
-  // The current entry number may be -1, if none have been read yet.
+  // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
   PoolSource::skip(int offset) {
-    EntryNumber newEntry = rootFile_->eventTree().entryNumber() + offset;
-    if (newEntry >= rootFile_->eventTree().entries()) {
+    primaryFileSequence_->skipEvents(offset);
+  }
 
-      // We must go to the next file
-      // Calculate how much we will advance in this file,
-      // including one for the next() call below
-      int increment = rootFile_->eventTree().entries() - rootFile_->eventTree().entryNumber();    
-
-      // Set the entry to the last entry in this file
-      rootFile_->eventTree().setEntryNumber(rootFile_->eventTree().entries()-1);
-
-      // Advance to the first entry of the next file, if there is a next file.
-      if(!next()) return;
-
-      // Now skip the remaining offset.
-      skip(offset - increment);
-
-    } else if (newEntry < -1) {
-
-      // We must go to the previous file
-      // Calculate how much we will back up in this file,
-      // including one for the previous() call below
-      int decrement = rootFile_->eventTree().entryNumber() + 1;    
-
-      // Set the entry to the first entry in this file
-      rootFile_->eventTree().setEntryNumber(0);
-
-      // Back up to the last entry of the previous file, if there is a previous file.
-      if(!previous()) return;
-
-      // Now skip the remaining offset.
-      skip(offset + decrement);
-    } else {
-      // The same file.
-      rootFile_->eventTree().setEntryNumber(newEntry);
-    }
+  bool
+  PoolSource::goToEvent_(EventID const& eventID) {
+    return primaryFileSequence_->goToEvent(eventID);
   }
 
   void
-  PoolSource::readMany_(int number, EventPrincipalVector& result) {
-    if (!primary()) {
-	readRandom(number, result);
-	return;
-    }
-    for (int i = 0; i < number; ++i) {
-      std::auto_ptr<EventPrincipal> ev = read();
-      if (ev.get() == 0) {
-	return;
-      }
-      EventPrincipalVectorElement e(ev.release());
-      result.push_back(e);
-      --eventsRemainingInFile_;
-    }
+  PoolSource::readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine* engine) {
+    assert(!secondaryFileSequence_);
+    primaryFileSequence_->readOneRandom(cache, engine);
+  }
+
+  bool
+  PoolSource::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine* engine) {
+    assert(!secondaryFileSequence_);
+    return primaryFileSequence_->readOneRandomWithID(cache, lumiID, engine);
+  }
+
+  bool
+  PoolSource::readOneSequential(EventPrincipal& cache) {
+    assert(!secondaryFileSequence_);
+    return primaryFileSequence_->readOneSequential(cache);
+  }
+
+  bool
+  PoolSource::readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID) {
+    assert(!secondaryFileSequence_);
+    return primaryFileSequence_->readOneSequentialWithID(cache, lumiID);
   }
 
   void
-  PoolSource::readRandom(int number, EventPrincipalVector& result) {
-    for (int i = 0; i < number; ++i) {
-      while (eventsRemainingInFile_ <= 0) randomize();
-      std::auto_ptr<EventPrincipal> ev = read();
-      if (ev.get() == 0) {
-	rewindFile();
-	ev = read();
-	assert(ev.get() != 0);
-      }
-      EventPrincipalVectorElement e(ev.release());
-      result.push_back(e);
-      --eventsRemainingInFile_;
-    }
+  PoolSource::readOneSpecified(EventPrincipal& cache, EventID const& id) {
+    assert(!secondaryFileSequence_);
+    primaryFileSequence_->readOneSpecified(cache, id);
   }
 
   void
-  PoolSource::randomize() {
-    FileCatalogItem const& file = *(fileCatalogItems().begin() +
-				 flatDistribution_->fireInt(fileCatalogItems().size()));
-    rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
-        processConfiguration(), file.logicalFileName()));
-    eventsRemainingInFile_ = rootFile_->eventTree().entries();
-    rootFile_->eventTree().setEntryNumber(flatDistribution_->fireInt(eventsRemainingInFile_));
+  PoolSource::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
+    assert(!secondaryFileSequence_);
+    primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
+  }
+
+  void
+  PoolSource::fillDescriptions(ConfigurationDescriptions & descriptions) {
+
+    ParameterSetDescription desc;
+
+    desc.setComment("Reads EDM/Root files.");
+    VectorInputSource::fillDescription(desc);
+    RootInputFileSequence::fillDescription(desc);
+
+    descriptions.add("source", desc);
+  }
+
+  bool
+  PoolSource::randomAccess_() const {
+    return true;
+  }
+
+  ProcessingController::ForwardState
+  PoolSource::forwardState_() const {
+    return primaryFileSequence_->forwardState();
+  }
+
+  ProcessingController::ReverseState
+  PoolSource::reverseState_() const {
+    return primaryFileSequence_->reverseState();
   }
 }

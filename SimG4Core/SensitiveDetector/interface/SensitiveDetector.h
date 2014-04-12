@@ -3,8 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-//#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -38,7 +36,7 @@ public:
   enum coordinates {WorldCoordinates, LocalCoordinates};
   Local3DPoint InitialStepPosition(G4Step * s, coordinates);
   Local3DPoint FinalStepPosition(G4Step * s, coordinates);
-  Local3DPoint ConvertToLocal3DPoint(G4ThreeVector point);    
+  Local3DPoint ConvertToLocal3DPoint(const G4ThreeVector& point);    
   std::string nameOfSD() { return name; }
   virtual std::vector<std::string> getNames() 
   {

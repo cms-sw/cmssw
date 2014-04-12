@@ -2,7 +2,7 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include<algorithm>
 
@@ -23,7 +23,8 @@ void TrackerMapDDDtoID::buildAll(const GeometricDet* iDet){
 
 void TrackerMapDDDtoID::buildAllStep2(const GeometricDet* theTracker){
   
-  std::vector<const GeometricDet*> allDetectors=theTracker->deepComponents();
+  std::vector<const GeometricDet*> allDetectors;
+  theTracker->deepComponents(allDetectors);
   
   //
   // Also build a map! (for slower access)
@@ -38,7 +39,7 @@ void TrackerMapDDDtoID::buildAllStep2(const GeometricDet* theTracker){
   edm::LogInfo("TrackerMapDDDtoID")<<"Created TrackerMapDDDtoID; results in "<<allDetectors.size()<<" detectors numbered.";
 }
 
-
+/*
 unsigned int TrackerMapDDDtoID::id(const DDExpandedView & e) const
 {
   return id(e.navPos());
@@ -49,7 +50,7 @@ unsigned int TrackerMapDDDtoID::id(const DDFilteredView & f) const
 {
   return id(f.navPos());
 }
-
+*/
 
 unsigned int TrackerMapDDDtoID::id(const nav_type & n) const
 {
@@ -61,17 +62,20 @@ unsigned int TrackerMapDDDtoID::id(const nav_type & n) const
 }
 
 
-std::vector<TrackerMapDDDtoID::nav_type> TrackerMapDDDtoID::allNavTypes() const{
+std::vector<TrackerMapDDDtoID::nav_type> const & TrackerMapDDDtoID::allNavTypes() const{
   return navVec;
 }
 
-TrackerMapDDDtoID::nav_type TrackerMapDDDtoID::navType(uint32_t num) const
+namespace {
+  const TrackerMapDDDtoID::nav_type nullresult;
+}
+
+TrackerMapDDDtoID::nav_type const & TrackerMapDDDtoID::navType(uint32_t num) const
 { 
   std::map<uint32_t,nav_type>::const_iterator it = revpath2id_.find(num);
-  nav_type result;
   if (it != revpath2id_.end())
-    result = it->second;
-  return result;  
+    return it->second;
+  return nullresult;  
 }
 
 void TrackerMapDDDtoID::clear(){

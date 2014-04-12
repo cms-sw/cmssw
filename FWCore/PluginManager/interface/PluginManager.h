@@ -16,18 +16,20 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:48 EDT 2007
-// $Id: PluginManager.h,v 1.4 2007/07/02 21:09:37 chrjones Exp $
 //
 
 // system include files
 #include <vector>
 #include <map>
 #include <string>
+#include <mutex>
+
 #include <boost/filesystem/path.hpp>
-#include <boost/shared_ptr.hpp>
-#include "sigc++/signal.h"
+#include "boost/shared_ptr.hpp"
+#include "tbb/concurrent_unordered_map.h"
 
 // user include files
+#include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 
@@ -35,6 +37,14 @@
 namespace edmplugin {
   class DummyFriend;
   class PluginFactoryBase;
+  
+  struct PluginManagerPathHasher {
+    size_t operator()(boost::filesystem::path const& iPath) const {
+      tbb::tbb_hash<std::string> hasher;
+      return hasher( iPath.native() );
+    }
+  };
+  
 class PluginManager
 {
    friend class DummyFriend;
@@ -92,9 +102,9 @@ class PluginManager
       static bool isAvailable();
       
       // ---------- member functions ---------------------------
-      sigc::signal<void,const boost::filesystem::path&> goingToLoad_;
-      sigc::signal<void,const SharedLibrary&> justLoaded_;
-      sigc::signal<void,const std::string&,const std::string&> askedToLoadCategoryWithPlugin_;
+      edm::signalslot::Signal<void(const boost::filesystem::path&)> goingToLoad_;
+      edm::signalslot::Signal<void(const SharedLibrary&)> justLoaded_;
+      edm::signalslot::Signal<void(const std::string&,const std::string&)> askedToLoadCategoryWithPlugin_;
    private:
       PluginManager(const Config&);
       PluginManager(const PluginManager&); // stop default
@@ -104,15 +114,18 @@ class PluginManager
       void newFactory(const PluginFactoryBase* );
       static std::string& loadingLibraryNamed_();
       static PluginManager*& singleton();
-      
+  
+      std::recursive_mutex& pluginLoadMutex() {return pluginLoadMutex_;}
+  
       const boost::filesystem::path& loadableFor_(const std::string& iCategory,
                                                   const std::string& iPlugin,
                                                   bool& ioThrowIfFailElseSucceedStatus);
       // ---------- member data --------------------------------
       SearchPath searchPath_;
-      std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> > loadables_;
+      tbb::concurrent_unordered_map<boost::filesystem::path, boost::shared_ptr<SharedLibrary>, PluginManagerPathHasher > loadables_;
       
       CategoryToInfos categoryToInfos_;
+      std::recursive_mutex pluginLoadMutex_;
 };
 
 }

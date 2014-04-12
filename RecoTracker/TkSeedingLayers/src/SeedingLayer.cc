@@ -9,67 +9,49 @@ using namespace std;
 class SeedingLayer::SeedingLayerImpl {
 public:
   SeedingLayerImpl(
-                const std::string & name,
+                const std::string & name, int seqNum,
                 const DetLayer* layer,
                 const TransientTrackingRecHitBuilder * hitBuilder,
                 const HitExtractor * hitExtractor)
   : theName(name),
+    theSeqNum(seqNum),
     theLayer(layer),
-    theTTRHBuilder(hitBuilder),
-    theHitExtractor(hitExtractor),
-    theHasPredefinedHitErrors(false),thePredefinedHitErrorRZ(0.),thePredefinedHitErrorRPhi(0.) { }
+    theTTRHBuilder(static_cast<TkTransientTrackingRecHitBuilder const *>(hitBuilder)),
+    theHitExtractor(hitExtractor) { }
 
-  SeedingLayerImpl(
-    const string & name,
-    const DetLayer* layer,
-    const TransientTrackingRecHitBuilder * hitBuilder,
-    const HitExtractor * hitExtractor,
-    float hitErrorRZ, float hitErrorRPhi)
-  : theName(name), theLayer(layer),
-    theTTRHBuilder(hitBuilder), theHitExtractor(hitExtractor),
-    theHasPredefinedHitErrors(true),
-    thePredefinedHitErrorRZ(hitErrorRZ), thePredefinedHitErrorRPhi(hitErrorRPhi) { }
+  ~SeedingLayerImpl() {  }
 
-  ~SeedingLayerImpl() { delete theHitExtractor; }
-
-  vector<SeedingHit> hits(const SeedingLayer &sl, const edm::Event& ev, 
-      const edm::EventSetup& es) const { return theHitExtractor->hits(sl,ev,es); }
+  SeedingLayer::Hits hits(const SeedingLayer &sl, const edm::Event& ev, 
+			  const edm::EventSetup& es) const { return theHitExtractor->hits(*theTTRHBuilder, ev, es);  }
 
   std::string name() const { return theName; }
 
-  const DetLayer*  detLayer() const { return theLayer; }
-  const TransientTrackingRecHitBuilder * hitBuilder() const { return theTTRHBuilder; }
+  int seqNum() const { return theSeqNum; }
 
-  bool  hasPredefinedHitErrors() const { return theHasPredefinedHitErrors; }
-  float predefinedHitErrorRZ() const { return thePredefinedHitErrorRZ; }
-  float predefinedHitErrorRPhi() const { return thePredefinedHitErrorRPhi; }
+  const DetLayer*  detLayer() const { return theLayer; }
+  const TkTransientTrackingRecHitBuilder * hitBuilder() const { return theTTRHBuilder; }
 
 private:
   SeedingLayerImpl(const SeedingLayerImpl &);
 
 private:
   std::string theName;
+  int theSeqNum;
   const DetLayer* theLayer;
-  const TransientTrackingRecHitBuilder *theTTRHBuilder;
+  const TkTransientTrackingRecHitBuilder *theTTRHBuilder;
   const HitExtractor * theHitExtractor;
-  bool theHasPredefinedHitErrors;
-  float thePredefinedHitErrorRZ, thePredefinedHitErrorRPhi;
 };
 
 
 
 
 SeedingLayer::SeedingLayer( 
-    const std::string & name, 
+    const std::string & name, int seqNum,
     const DetLayer* layer, 
     const TransientTrackingRecHitBuilder * hitBuilder,
-    const HitExtractor * hitExtractor,
-    bool usePredefinedErrors, float hitErrorRZ, float hitErrorRPhi)
+    const HitExtractor * hitExtractor)
 {
-  SeedingLayerImpl * l = usePredefinedErrors ? 
-      new SeedingLayerImpl(name,layer,hitBuilder,hitExtractor,hitErrorRZ,hitErrorRPhi)
-    : new SeedingLayerImpl(name,layer,hitBuilder,hitExtractor);
-  theImpl = boost::shared_ptr<SeedingLayerImpl> (l);
+  theImpl = std::make_shared<SeedingLayerImpl> (name,seqNum,layer,hitBuilder,hitExtractor);
 }
 
 std::string SeedingLayer::name() const
@@ -77,32 +59,22 @@ std::string SeedingLayer::name() const
   return theImpl->name();
 }
 
+int SeedingLayer::seqNum() const
+{
+  return theImpl->seqNum();
+}
+
 const DetLayer*  SeedingLayer::detLayer() const
 {
   return theImpl->detLayer();
 }
 
-const TransientTrackingRecHitBuilder * SeedingLayer::hitBuilder() const 
+const TkTransientTrackingRecHitBuilder * SeedingLayer::hitBuilder() const 
 {
   return theImpl->hitBuilder();
 }
 
-std::vector<SeedingHit> SeedingLayer::hits(const edm::Event& ev, const edm::EventSetup& es) const
+SeedingLayer::Hits SeedingLayer::hits(const edm::Event& ev, const edm::EventSetup& es) const
 {
   return  theImpl->hits( *this,ev,es);
-}
-
-bool SeedingLayer::hasPredefinedHitErrors() const 
-{
-  return theImpl->hasPredefinedHitErrors();
-}
-
-float SeedingLayer::predefinedHitErrorRZ() const
-{
-  return theImpl->predefinedHitErrorRZ();
-}
-
-float SeedingLayer::predefinedHitErrorRPhi() const
-{
-  return theImpl->predefinedHitErrorRPhi();
 }

@@ -1,17 +1,20 @@
 #include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 
-CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
+CSCRecHit2DValidation::CSCRecHit2DValidation(DQMStore* dbe, const edm::InputTag & inputTag, edm::ConsumesCollector && iC)
 : CSCBaseValidation(dbe, inputTag),
   theNPerEventPlot( dbe_->book1D("CSCRecHitsPerEvent", "Number of CSC Rec Hits per event", 100, 0, 500) )
 {
-   dbe_->setCurrentFolder("CSCRecHitTask");
+   rechits_Token_ = iC.consumes<CSCRecHit2DCollection>(inputTag);
+
+   dbe_->setCurrentFolder("CSCRecHitsV/CSCRecHitTask");
 
    for(int i = 0; i < 10; ++i)
   {
-    char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200], title7[200], title8[200];
+    char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200], title7[200], title8[200], title9[200];
     sprintf(title1, "CSCRecHitResolution%d", i+1);
     sprintf(title2, "CSCRecHitPull%d", i+1);
     sprintf(title3, "CSCRecHitYResolution%d", i+1);
@@ -20,6 +23,7 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const e
     sprintf(title6, "CSCSimHitPosInStrip%d", i+1);
     sprintf(title7, "CSCRecHit%d", i+1);
     sprintf(title8, "CSCSimHit%d", i+1);
+    sprintf(title9, "CSCTPeak%d", i+1);
 
 
     theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -0.2, 0.2);
@@ -30,15 +34,26 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const e
     theSimHitPosInStrip[i] = dbe_->book1D(title6, title6, 100, -2, 2);
     theScatterPlots[i] = dbe->book2D(title7, title7, 200, -20, 20, 200, -250, 250);
     theSimHitScatterPlots[i] = dbe->book2D(title8, title8, 200, -20, 20, 200, -250, 250);
+    theTPeaks[i] =  dbe->book1D(title9, title9, 200, 0, 400);
   }
 
 }
+
+CSCRecHit2DValidation::~CSCRecHit2DValidation()
+{
+  for(int i = 0; i < 10; ++i)
+  {
+    edm::LogInfo("CSCRecHitValidation") << "Resolution of " << theResolutionPlots[i]->getName() << " is " << theResolutionPlots[i]->getRMS();
+    edm::LogInfo("CSCRecHitValidation") << "Peak Time is " << theTPeaks[i]->getMean();
+  }
+}
+
 
 void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& eventSetup)
 {
   // get the collection of CSCRecHrecHitItrD
   edm::Handle<CSCRecHit2DCollection> hRecHits;
-  e.getByLabel(theInputTag, hRecHits);
+  e.getByToken(rechits_Token_, hRecHits);
   const CSCRecHit2DCollection * cscRecHits = hRecHits.product();
 
   unsigned nPerEvent = 0;
@@ -51,8 +66,7 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
     edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
     const CSCLayer * layer = findLayer(detId);
     int chamberType = layer->chamber()->specs()->chamberType();
-
-
+    theTPeaks[chamberType-1]->Fill(recHitItr->tpeak());
     if(simHits.size() == 1)
     {
       plotResolution(simHits[0], *recHitItr, layer, chamberType);
@@ -68,10 +82,10 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
     theScatterPlots[chamberType-1]->Fill( localPhi, localY);
   }    
   theNPerEventPlot->Fill(nPerEvent);
-
+return;
   // fill sim hits
   std::vector<int> layersWithSimHits = theSimHitMap->detsWithHits();
-  for(int i = 0; i < layersWithSimHits.size(); ++i)
+  for(unsigned i = 0; i < layersWithSimHits.size(); ++i)
    {
     edm::PSimHitContainer simHits = theSimHitMap->hits(layersWithSimHits[i]);
     for(edm::PSimHitContainer::const_iterator hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr)

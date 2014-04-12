@@ -2,10 +2,8 @@
 #define RecoMuon_StandAloneTrackFinder_StandAloneMuonBackwardFilter_H
 
 /** \class StandAloneMuonBackwardFilter
- *  The outward-inward fitter (starts from StandAloneMuonRefitter outermost state).
+ *  The outward-inward fitter (starts from StandAloneMuonFilter outermost state).
  *
- *  $Date: 2006/08/30 12:56:18 $
- *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

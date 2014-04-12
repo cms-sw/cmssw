@@ -9,12 +9,18 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+using namespace std;
+using namespace edm;
 
 /*****************************************************************************/
-VZeroProducer::VZeroProducer(const edm::ParameterSet& pset)
+VZeroProducer::VZeroProducer(const ParameterSet& pset)
   : pset_(pset)
 {
-  edm::LogInfo("VZeroProducer") << " constructor";
+  LogInfo("VZeroProducer") << " constructor";
   produces<reco::VZeroCollection>();
 
   // Get track level cuts
@@ -27,24 +33,22 @@ VZeroProducer::VZeroProducer(const edm::ParameterSet& pset)
 /*****************************************************************************/
 VZeroProducer::~VZeroProducer()
 {
-  edm::LogInfo("VZeroProducer") << " destructor";
+  LogInfo("VZeroProducer") << " destructor";
 }
 
 /*****************************************************************************/
-void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
+void VZeroProducer::produce(Event& ev, const EventSetup& es)
 {
-  LogDebug("VZeroProducer, produce")<<"event# :"<<ev.id();
-
-  cerr << "[V0 finder]" << endl;
-
   // Get tracks
-  edm::Handle<reco::TrackCollection> trackCollection;
-  ev.getByLabel("ctfTripletTracks",  trackCollection);
+  Handle<reco::TrackCollection> trackCollection;
+  ev.getByLabel(pset_.getParameter<InputTag>("trackCollection"),
+                                              trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
 
   // Get primary vertices
-  edm::Handle<reco::VertexCollection> vertexCollection;
-  ev.getByType(vertexCollection);
+  Handle<reco::VertexCollection> vertexCollection;
+  ev.getByLabel(pset_.getParameter<InputTag>("vertexCollection"),
+                                              vertexCollection);
   const reco::VertexCollection* vertices = vertexCollection.product();
 
   // Find vzeros
@@ -65,11 +69,11 @@ void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
       negatives.push_back(reco::TrackRef(trackCollection, i));
   }
 
-  cerr << " [VZeroProducer] using tracks :"
+  LogTrace("MinBiasTracking") << "[VZeroProducer] using tracks :"
        << " +" << positives.size()
-       << " -" << negatives.size() << endl;
+       << " -" << negatives.size();
 
-  std::auto_ptr<reco::VZeroCollection> result(new reco::VZeroCollection);
+  auto_ptr<reco::VZeroCollection> result(new reco::VZeroCollection);
 
   // Check all combination of positives and negatives
   if(positives.size() > 0 && negatives.size() > 0)
@@ -89,15 +93,16 @@ void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
                             reco::Vertex::Error(), 0.,0.,0);
 
         // Add references to daughters
-        vertex.add(*ipos);
-        vertex.add(*ineg);
+        vertex.add(reco::TrackBaseRef(*ipos));
+        vertex.add(reco::TrackBaseRef(*ineg));
 
         // Store vzero
         result->push_back(reco::VZero(vertex,data));
       }
     }
 
-  cerr << " [VZeroProducer] found candidates : " << result->size() << endl;
+  LogTrace("MinBiasTracking")
+    << "[VZeroProducer] found candidates : " << result->size();
 
   // Put result back to the event
   ev.put(result);

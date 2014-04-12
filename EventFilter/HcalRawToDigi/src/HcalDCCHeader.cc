@@ -1,15 +1,9 @@
 /*  
- *  $Date: 2007/02/19 04:05:40 $
- *  $Revision: 1.2 $
  *  \author J. Mans -- UMD
  */
-#ifndef HTBDAQ_DATA_STANDALONE
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
-#else
-#include "HcalHTRData.h"
-#include "HcalDCCHeader.h"
-#endif
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string.h>
 #include <stdint.h>
 
@@ -25,13 +19,22 @@ unsigned int HcalDCCHeader::getTotalLengthBytes() const {
 }
 
 void HcalDCCHeader::getSpigotData(int nspigot, HcalHTRData& decodeTool) const {
+  edm::LogWarning("HCAL-Unpacker") << "Using unsafe getSpigotData without length controls.  Not recommended!  Replace with new getSpigotData call";
+  getSpigotData(nspigot,decodeTool,10000000);
+}
+  
+
+int HcalDCCHeader::getSpigotData(int nspigot, HcalHTRData& decodeTool, int validSize) const {
   const unsigned short* base=((unsigned short*)this)+sizeof(HcalDCCHeader)/sizeof(unsigned short);
   int offset=0,i,len=0;
   for (i=0; i<=nspigot; i++) {
     offset+=len;
     len=(spigotInfo[i]&0x3FF)*2;
   }
-  decodeTool.adoptData(base+offset,len);
+  if ((offset+len+sizeof(HcalDCCHeader)/sizeof(unsigned short))<(validSize/sizeof(unsigned short))) {
+    decodeTool.adoptData(base+offset,len);
+    return 0;
+  } else { return -1; }
 }
 
 void HcalDCCHeader::clear() {

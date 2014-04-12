@@ -85,18 +85,18 @@ int main (int argc, char **argv)
         if(pluginName != prevPluginName) {
           std::cout <<"  "<<pluginName<<std::endl;
           if(printFiles) {
-            std::cout <<"   "<<itInfo->loadable_.native_file_string()<<std::endl;
+            std::cout <<"   "<<itInfo->loadable_.string()<<std::endl;
           }
           prevPluginName=pluginName;
         }
         else if(printAllFiles) {
-          std::cout <<"   "<<itInfo->loadable_.native_file_string()<<std::endl;
+          std::cout <<"   "<<itInfo->loadable_.string()<<std::endl;
         }
       }
     }
   }catch(std::exception& iException) {
     std::cerr <<"Caught exception "<<iException.what()<<std::endl;
-    returnValue = 1;
+    returnValue = EXIT_FAILURE;
   }
 
     return returnValue;

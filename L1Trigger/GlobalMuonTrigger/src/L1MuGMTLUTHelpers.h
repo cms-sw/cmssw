@@ -8,8 +8,6 @@
  *
 */ 
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -61,11 +59,6 @@ class L1MuGMTLUTHelpers {
     };
 
     static int replace(std::string& input, const std::string& gone, const std::string& it, bool multiple);
-
-    static std::string upperCase(const std::string& s);
-
-    static std::string lowerCase(const std::string& s);
-
 };
 
 #endif

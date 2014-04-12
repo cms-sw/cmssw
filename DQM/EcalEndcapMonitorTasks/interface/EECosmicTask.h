@@ -4,8 +4,6 @@
 /*
  * \file EECosmicTask.h
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +11,12 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+class MonitorElement;
+class DQMStore;
 
 class EECosmicTask: public edm::EDAnalyzer{
 
@@ -31,10 +34,19 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -46,18 +58,25 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
-edm::InputTag EcalRawDataCollection_;
-edm::InputTag EcalRecHitCollection_;
+bool mergeRuns_;
 
-MonitorElement* meCutMap_[18];
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EcalUncalibratedRecHitCollection_; 
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
 
 MonitorElement* meSelMap_[18];
 
-MonitorElement* meSpectrumMap_[18];
+MonitorElement* meSpectrum_[2][18];
+
+double threshold_;
+double minJitter_;
+double maxJitter_;
 
 bool init_;
 

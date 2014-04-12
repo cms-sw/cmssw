@@ -8,7 +8,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 17:51:21 EDT 2006
-// $Id: L1JetParticle.cc,v 1.3 2006/08/10 18:47:42 wsun Exp $
 //
 
 // system include files
@@ -34,10 +33,25 @@ L1JetParticle::L1JetParticle()
 }
 
 L1JetParticle::L1JetParticle( const LorentzVector& p4,
-			      const edm::Ref< L1GctJetCandCollection >& aRef )
-//   : ParticleKinematics( p4 ),
+			      const edm::Ref< L1GctJetCandCollection >& aRef,
+			      int bx )
    : LeafCandidate( ( char ) 0, p4 ),
-     ref_( aRef )
+     ref_( aRef ),
+     bx_( bx )
+{
+   if( ref_.isNonnull() )
+   {
+      type_ = gctJetCand()->isTau() ? kTau :
+         ( gctJetCand()->isForward() ? kForward : kCentral ) ;
+   }
+}
+
+L1JetParticle::L1JetParticle( const PolarLorentzVector& p4,
+			      const edm::Ref< L1GctJetCandCollection >& aRef,
+			      int bx )
+   : LeafCandidate( ( char ) 0, p4 ),
+     ref_( aRef ),
+     bx_( bx )
 {
    if( ref_.isNonnull() )
    {
@@ -47,11 +61,22 @@ L1JetParticle::L1JetParticle( const LorentzVector& p4,
 }
 
 L1JetParticle::L1JetParticle( const LorentzVector& p4,
-			      JetType type )
+			      JetType type,
+			      int bx )
    : LeafCandidate( ( char ) 0, p4 ),
      type_( type ),
-     ref_( edm::Ref< L1GctJetCandCollection >() )
-     
+     ref_( edm::Ref< L1GctJetCandCollection >() ),
+     bx_( bx )
+{
+}
+
+L1JetParticle::L1JetParticle( const PolarLorentzVector& p4,
+			      JetType type,
+			      int bx )
+   : LeafCandidate( ( char ) 0, p4 ),
+     type_( type ),
+     ref_( edm::Ref< L1GctJetCandCollection >() ),
+     bx_( bx )
 {
 }
 
@@ -60,9 +85,9 @@ L1JetParticle::L1JetParticle( const LorentzVector& p4,
 //    // do actual copying here;
 // }
 
-L1JetParticle::~L1JetParticle()
-{
-}
+// L1JetParticle::~L1JetParticle()
+// {
+// }
 
 //
 // assignment operators

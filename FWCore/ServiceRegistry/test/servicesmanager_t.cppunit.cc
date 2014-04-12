@@ -28,6 +28,7 @@ class testServicesManager: public CppUnit::TestFixture
    CPPUNIT_TEST(loadTest);
    CPPUNIT_TEST(legacyTest);
    CPPUNIT_TEST(dependencyTest);
+   CPPUNIT_TEST(saveConfigTest);
    
    CPPUNIT_TEST_SUITE_END();
 public:
@@ -38,6 +39,7 @@ public:
    void loadTest();
    void legacyTest();
    void dependencyTest();
+   void saveConfigTest();
 };
 
 ///registration of the test so that the runner can find it
@@ -51,7 +53,7 @@ namespace {
 }
 
 //namespace edm {
-//   struct ActivityRegistry {};
+//   class ActivityRegistry {};
 //}
 
 void
@@ -296,3 +298,38 @@ testServicesManager::dependencyTest()
       
    }
 }   
+
+void
+testServicesManager::saveConfigTest()
+{
+   typedef testserviceregistry::DummyService TestService;
+   
+   using namespace edm::serviceregistry;
+   
+   edm::AssertHandler ah;
+   
+   {
+      std::vector<edm::ParameterSet> pss;
+      {
+         edm::ParameterSet ps;
+         std::string typeName("DummyService");
+         ps.addParameter("@service_type", typeName);
+         int value = 1;
+         ps.addParameter("value", value);
+         pss.push_back(ps);
+      }
+
+      {
+         edm::ParameterSet ps;
+         std::string typeName("DummyStoreConfigService");
+         ps.addParameter("@service_type", typeName);
+         pss.push_back(ps);
+      }
+      
+      
+      ServicesManager sm(pss);
+      
+      CPPUNIT_ASSERT( !pss[0].exists("@save_config") );
+      CPPUNIT_ASSERT( pss[1].exists("@save_config") );
+   }
+}

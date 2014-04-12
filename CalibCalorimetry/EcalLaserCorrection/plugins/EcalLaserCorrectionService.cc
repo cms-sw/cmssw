@@ -8,9 +8,6 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
-#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
-#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
@@ -30,7 +27,9 @@ EcalLaserCorrectionService::EcalLaserCorrectionService( const edm::ParameterSet&
 
   setWhatProduced (this, (dependsOn (&EcalLaserCorrectionService::alphaCallback) &
      			  (&EcalLaserCorrectionService::apdpnRefCallback) &
-     			  (&EcalLaserCorrectionService::apdpnCallback) )
+     			  (&EcalLaserCorrectionService::apdpnCallback) &
+                          (&EcalLaserCorrectionService::linearCallback)
+                          )
      		   );
 
   //now do what ever other initialization is needed
@@ -65,17 +64,23 @@ boost::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce( const
 void EcalLaserCorrectionService::alphaCallback (const EcalLaserAlphasRcd& fRecord) {
   edm::ESHandle <EcalLaserAlphas> item;
   fRecord.get (item);
-  mService_->setData (item.product ());
+  mService_->setAlphaData (item.product ());
 }
 
 void EcalLaserCorrectionService::apdpnRefCallback (const EcalLaserAPDPNRatiosRefRcd& fRecord) {
   edm::ESHandle <EcalLaserAPDPNRatiosRef> item;
   fRecord.get (item);
-  mService_->setData (item.product ());
+  mService_->setAPDPNRefData (item.product ());
 }
 
 void EcalLaserCorrectionService::apdpnCallback (const EcalLaserAPDPNRatiosRcd& fRecord) {
   edm::ESHandle <EcalLaserAPDPNRatios> item;
   fRecord.get (item);
-  mService_->setData (item.product ());
+  mService_->setAPDPNData (item.product ());
+}
+
+void EcalLaserCorrectionService::linearCallback (const EcalLinearCorrectionsRcd& fRecord) {
+  edm::ESHandle <EcalLinearCorrections> item;
+  fRecord.get (item);
+  mService_->setLinearCorrectionsData (item.product ());
 }

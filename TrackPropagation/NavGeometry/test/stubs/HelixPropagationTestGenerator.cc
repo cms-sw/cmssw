@@ -43,20 +43,20 @@ void HelixPropagationTestGenerator::generateStartValues () {
   //
   // generate random position (gaussian smearing)
   //
-  currentPosition = VectorTypeExtended(posVx+sigVx*RandGauss::shoot(),
-				       posVy+sigVy*RandGauss::shoot(),
-				       posVz+sigVz*RandGauss::shoot());
+  currentPosition = VectorTypeExtended(posVx+sigVx*CLHEP::RandGauss::shoot(),
+				       posVy+sigVy*CLHEP::RandGauss::shoot(),
+				       posVz+sigVz*CLHEP::RandGauss::shoot());
   //
   // generate momentum vector from azimuthal angle, pseudo-
   // rapidity and transverse momentum
   //
-  ExtendedDouble aPhi = RandFlat::shoot(phiMin,phiMax);
-  ExtendedDouble aEta = RandFlat::shoot(etaMin,etaMax);
+  ExtendedDouble aPhi = CLHEP::RandFlat::shoot(phiMin,phiMax);
+  ExtendedDouble aEta = CLHEP::RandFlat::shoot(etaMin,etaMax);
   ExtendedDouble aPt;
   if ( useLogPt )
-    aPt = exp(RandFlat::shoot(log(ptMin>0?ptMin:FLT_MIN),log(ptMax)));
+    aPt = exp(CLHEP::RandFlat::shoot(log(ptMin>0?ptMin:FLT_MIN),log(ptMax)));
   else
-    aPt = RandFlat::shoot(ptMin,ptMax);
+    aPt = CLHEP::RandFlat::shoot(ptMin,ptMax);
   ExtendedDouble aTheta = 2.*atan(exp(-aEta));
   ExtendedDouble aP = sqrt((aPt*aPt)/(sin(aTheta)*sin(aTheta)));
   currentDirection = VectorTypeExtended(aP*sin(aTheta)*cos(aPhi),
@@ -65,7 +65,7 @@ void HelixPropagationTestGenerator::generateStartValues () {
   //
   // generate charge (+/-1) and (signed) curvature
   //
-  theCharge = RandFlat::shoot(qMin,qMax)<0. ? -1 : 1;
+  theCharge = CLHEP::RandFlat::shoot(qMin,qMax)<0. ? -1 : 1;
 //    theCurvature = - theField->inInverseGeV(currentPosition.toPoint()).z()*theCharge/currentDirection.perp();
   theCurvature = - theField->inInverseGeV(GlobalPoint(currentPosition.x(),
 						      currentPosition.y(),

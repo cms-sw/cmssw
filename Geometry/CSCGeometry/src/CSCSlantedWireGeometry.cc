@@ -11,7 +11,7 @@ CSCSlantedWireGeometry::CSCSlantedWireGeometry( double wireSpacing,
     cosWireAngle = cos( wireAngle );
     sinWireAngle = sin( wireAngle );
     theWireOffset = yOfFirstWire * cosWireAngle; 
-    LogTrace("CSC") <<
+    LogTrace("CSCWireGeometry|CSC") <<
       "CSCSlantedWireGeometry: constructed:\n" <<
       " wireSpacing = " << wireSpacing << 
       ", y1 = " << yOfFirstWire << 

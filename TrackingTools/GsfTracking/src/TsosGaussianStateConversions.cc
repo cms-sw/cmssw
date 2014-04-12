@@ -4,6 +4,8 @@
 #include "TrackingTools/GsfTools/interface/BasicMultiTrajectoryState.h"
 #include "boost/shared_ptr.hpp"
 
+using namespace SurfaceSideDefinition;
+
 namespace GaussianStateConversions {
 
   MultiGaussianState<5> multiGaussianStateFromTSOS (const TrajectoryStateOnSurface tsos)

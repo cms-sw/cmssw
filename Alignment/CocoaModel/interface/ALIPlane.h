@@ -10,23 +10,22 @@
 #ifndef _ALIPlane_HH
 #define _ALIPlane_HH
 #include <CLHEP/Vector/ThreeVector.h>
-#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include "Alignment/CocoaModel/interface/ALILine.h"
 
 class ALIPlane {
 
 public:
-  ALIPlane( const Hep3Vector& point, const Hep3Vector& normal );
+  ALIPlane( const CLHEP::Hep3Vector& point, const CLHEP::Hep3Vector& normal );
   // Project a std::vector onto this plane
-  Hep3Vector project( const Hep3Vector& vec );
-  ALILine lineProject( const Hep3Vector& vec );
-  //  Hep3Vector ALIPlane::intersect( const ALIPlane& l2);
-  const Hep3Vector& point() const {return _point;};
-  const Hep3Vector& normal() const {return _normal;};
+  CLHEP::Hep3Vector project( const CLHEP::Hep3Vector& vec );
+  ALILine lineProject( const CLHEP::Hep3Vector& vec );
+  //  CLHEP::Hep3Vector ALIPlane::intersect( const ALIPlane& l2);
+  const CLHEP::Hep3Vector& point() const {return _point;};
+  const CLHEP::Hep3Vector& normal() const {return _normal;};
 
 private:
-  Hep3Vector _point;
-  Hep3Vector _normal;
+  CLHEP::Hep3Vector _point;
+  CLHEP::Hep3Vector _normal;
 
 };
 

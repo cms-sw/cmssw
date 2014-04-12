@@ -10,7 +10,7 @@ class HcalDetId;
 class HcalTrigTowerGeometry {
 public:
 
-  HcalTrigTowerGeometry();
+  HcalTrigTowerGeometry( const HcalTopology* topology );
 
   void setupHF(bool useShortFibers, bool useQuadRings);
   
@@ -23,7 +23,8 @@ public:
 
   /// the number of phi bins in this eta ring
   int nPhiBins(int ieta) const {
-    return (abs(ieta) < firstHFTower()) ? 72 : 18;
+    int nPhiBinsHF = ( useUpgradeConfigurationHFTowers_ ? 36 : 18 );   
+    return (abs(ieta) < firstHFTower()) ? 72 : nPhiBinsHF;
   }
 
   int firstHFTower() const {return 29;} 
@@ -39,10 +40,15 @@ public:
   /// where this tower begins and ends in eta
   void towerEtaBounds(int ieta, double & eta1, double & eta2) const;
 
+  void setUpgradeConfigurationHFTowers(bool value) {
+    useUpgradeConfigurationHFTowers_ = value;
+  }
+
 private:
-  HcalTopology theTopology;
+  const HcalTopology* theTopology;
   bool useShortFibers_;
   bool useHFQuadPhiRings_;
+  bool useUpgradeConfigurationHFTowers_;
 };
 
 #endif

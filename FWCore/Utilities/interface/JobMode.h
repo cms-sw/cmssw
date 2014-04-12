@@ -14,6 +14,7 @@ namespace edm {
 
   enum JobMode {
          GridJobMode
+       , ReleaseValidationJobMode
        , AnalysisJobMode
        , NilJobMode
   };

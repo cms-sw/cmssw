@@ -3,38 +3,38 @@
 /**
  *Author: Vladlen Timciuc, Caltech
  * Created: 10 July 2007
- * $Id: EcalLaserAPDPNRatios.h,v 1.2 2007/07/16 22:01:29 meridian Exp $
+ * $Id: EcalLaserAPDPNRatios.h,v 1.5 2007/09/27 09:42:55 ferriff Exp $
  **/
-#include <map>
-#include <boost/cstdint.hpp>
+#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include <vector>
 
 class EcalLaserAPDPNRatios {
  public:
   struct EcalLaserAPDPNpair{
+    EcalLaserAPDPNpair() : p1(0), p2(0), p3(0) {}
     float p1;
     float p2;
+    float p3;
   };
   struct EcalLaserTimeStamp{
+    EcalLaserTimeStamp() : t1(), t2(), t3() {}
     edm::Timestamp t1;
     edm::Timestamp t2;
+    edm::Timestamp t3;
   };
   
-  typedef std::map<uint32_t, EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;
-  typedef std::map<uint32_t, EcalLaserTimeStamp> EcalLaserTimeStampMap;
-  typedef std::map<uint32_t, EcalLaserAPDPNpair>::const_iterator EcalLaserAPDPNRatiosMapIterator;
-  typedef std::map<uint32_t, EcalLaserTimeStamp>::const_iterator EcalLaserTimeStampMapIterator;
+  typedef EcalCondObjectContainer<EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;
+  typedef std::vector<EcalLaserTimeStamp> EcalLaserTimeStampMap;
 
-  EcalLaserAPDPNRatios();
-  ~EcalLaserAPDPNRatios();
-
+  EcalLaserAPDPNRatios() : time_map(92) {}; // FIXME
+  ~EcalLaserAPDPNRatios() {};
    
-  void  setValue(const uint32_t& id, const EcalLaserAPDPNpair& value);
+  void  setValue(uint32_t rawId, const EcalLaserAPDPNpair& value) { laser_map[rawId] = value; };
   const EcalLaserAPDPNRatiosMap& getLaserMap() const { return laser_map; }
   
-  void setTime(const int& id, const EcalLaserTimeStamp& value);
-  const EcalLaserTimeStampMap& getTimeMap() const { return time_map; }
-  
+  void setTime(int hashedIndex, const EcalLaserTimeStamp& value) { time_map[hashedIndex] = value; };
+  const EcalLaserTimeStampMap& getTimeMap() const { return time_map; }  
 
  private:
   EcalLaserAPDPNRatiosMap laser_map;

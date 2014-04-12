@@ -1,7 +1,5 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include <vector>
-#include <iostream>
 
 using std::vector;
 using std::ostream;
@@ -13,14 +11,14 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id) :
   m_id(id),
   m_sorters(4)
 {
-
-  // sorters 0 and 1 are in FPGA 0
-  m_sorters.at(0) = new L1GctElectronSorter(4,true);
-  m_sorters.at(1) = new L1GctElectronSorter(4,false);
   
-  // sorters 2 and 3 are in FPGA 1
-  m_sorters.at(2) = new L1GctElectronSorter(5,true);
-  m_sorters.at(3) = new L1GctElectronSorter(5,false);
+  // sorters 0 and 1 are in FPGA U1 and deal with RCT crates 4-8 (13-17)
+  m_sorters.at(0) = new L1GctElectronSorter(5,true);
+  m_sorters.at(1) = new L1GctElectronSorter(5,false);
+
+  // sorters 2 and 3 are in FPGA U2 and deal with RCT crates 0-3 (9-12)
+  m_sorters.at(2) = new L1GctElectronSorter(4,true);
+  m_sorters.at(3) = new L1GctElectronSorter(4,false);
 }
 
 
@@ -35,8 +33,25 @@ L1GctEmLeafCard::~L1GctEmLeafCard()
 
 /// clear buffers
 void L1GctEmLeafCard::reset() {
+  L1GctProcessor::reset();
   for (unsigned i=0; i<N_SORTERS; i++) {
     m_sorters.at(i)->reset();
+  }
+}
+
+/// partially clear buffers
+void L1GctEmLeafCard::setBxRange(const int firstBx, const int numberOfBx) {
+  L1GctProcessor::setBxRange(firstBx, numberOfBx);
+  for (unsigned i=0; i<N_SORTERS; i++) {
+    m_sorters.at(i)->setBxRange(firstBx, numberOfBx);
+  }
+}
+
+/// partially clear buffers
+void L1GctEmLeafCard::setNextBx(const int bx) {
+  L1GctProcessor::setNextBx(bx);
+  for (unsigned i=0; i<N_SORTERS; i++) {
+    m_sorters.at(i)->setNextBx(bx);
   }
 }
 

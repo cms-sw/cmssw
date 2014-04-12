@@ -21,7 +21,7 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
    const uint32_t nLevels ( baseNumber.getLevels() ) ;
 
-   LogDebug("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
+   //LogDebug("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
   
    if( 7 > nLevels )
    {
@@ -61,10 +61,10 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
   uint32_t intindex = EEDetId(module_number,crystal_number,zside,EEDetId::SCCRYSTALMODE).rawId();
   
-  LogDebug("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside 
-		       << " super crystal = " << module_number << " crystal = "
-		       << crystal_number << " packed index = 0x" << std::hex 
-		       << intindex << std::dec;
+//LogDebug("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside 
+//                     << " super crystal = " << module_number << " crystal = "
+//                     << crystal_number << " packed index = 0x" << std::hex 
+//                     << intindex << std::dec;
 
 
   return intindex;
@@ -76,14 +76,14 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
       const int ic  ( baseNumber.getCopyNumber(0)%100 ) ; // crystal #, 0-44
       const int icx ( ic/10 ) ;
       const int icy ( ic%5 ) ;
-      const int is  ( baseNumber.getCopyNumber(3)%100 ) ; // supercrystal #, 0-99
+      const int is  ( baseNumber.getCopyNumber(2)%100 ) ; // supercrystal #, 0-99
       const int isx ( is/10 ) ;
       const int isy ( is%10 ) ;
 
-      const int iq  ( 3 - 2*baseNumber.getCopyNumber(4) ) ; // quadrant #, -1, +1
-      const int id  ( 3 - 2*baseNumber.getCopyNumber(6) ) ; // dee      #, -1, +1
+      const int iq  ( 3 - 2*baseNumber.getCopyNumber(3) ) ; // quadrant #, -1, +1
+      const int id  ( 3 - 2*baseNumber.getCopyNumber(5) ) ; // dee      #, -1, +1
 
-      const int iz  ( 3 - 2*baseNumber.getCopyNumber(8) ) ; // z: -1, +1
+      const int iz  ( 3 - 2*baseNumber.getCopyNumber(7) ) ; // z: -1, +1
 
       const int ix  ( 50 + id*iz*( 5*isx + icx + 1 ) - ( id*iz - 1 )/2 ) ; // x: 1-100
       const int iy  ( 50 + id*iq*( 5*isy + icy + 1 ) - ( id*iq - 1 )/2 ) ; // y: 1-100

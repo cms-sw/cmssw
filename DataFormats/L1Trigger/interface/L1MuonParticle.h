@@ -12,7 +12,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.8 2007/04/02 08:03:13 wsun Exp $
 //
 
 // system include files
@@ -37,7 +36,13 @@ namespace l1extra {
 
 	 L1MuonParticle( Charge q,
 			 const LorentzVector& p4,
-			 const L1MuGMTExtendedCand& aCand ) ;
+			 const L1MuGMTExtendedCand& aCand,
+			 int bx = 0 ) ;
+
+	 L1MuonParticle( Charge q,
+			 const PolarLorentzVector& p4,
+			 const L1MuGMTExtendedCand& aCand,
+			 int bx = 0 ) ;
 
          // Creates null Ref.
          L1MuonParticle( Charge q,
@@ -46,9 +51,19 @@ namespace l1extra {
                          bool mip = false,
 			 bool forward = false,
 			 bool rpc = false,
-			 unsigned int detector = 0 ) ;
+			 unsigned int detector = 0,
+			 int bx = 0 ) ;
 
-	 virtual ~L1MuonParticle();
+         L1MuonParticle( Charge q,
+                         const PolarLorentzVector& p4,
+                         bool isolated = false,
+                         bool mip = false,
+			 bool forward = false,
+			 bool rpc = false,
+			 unsigned int detector = 0,
+			 int bx = 0 ) ;
+
+	 virtual ~L1MuonParticle() {}
 
 	 // ---------- const member functions ---------------------
          bool isIsolated() const
@@ -66,6 +81,12 @@ namespace l1extra {
 	 const L1MuGMTExtendedCand& gmtMuonCand() const
 	 { return cand_ ; }
 
+	 virtual L1MuonParticle* clone() const
+	 { return new L1MuonParticle( *this ) ; }
+
+	 int bx() const
+	 { return bx_ ; }
+
 	 // ---------- static member functions --------------------
 
 	 // ---------- member functions ---------------------------
@@ -81,6 +102,9 @@ namespace l1extra {
 	 void setRPC( bool isRPC )
 	 { rpc_ = isRPC ; }
 
+	 void setBx( int bx )
+	 { bx_ = bx ; }
+
       private:
 	 // L1MuonParticle(const L1MuonParticle&); // stop default
 
@@ -92,6 +116,7 @@ namespace l1extra {
 	 bool forward_ ;
 	 bool rpc_ ;
 	 L1MuGMTExtendedCand cand_ ;
+	 int bx_ ;
    };
 }
 

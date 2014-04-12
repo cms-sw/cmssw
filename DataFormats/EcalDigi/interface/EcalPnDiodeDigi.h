@@ -10,7 +10,6 @@
 
 /** \class EcalPnDiodeDigi
       
-$Id: EcalPnDiodeDigi.h,v 1.2 2007/03/27 09:55:01 meridian Exp $
 */
 
 class EcalPnDiodeDigi {

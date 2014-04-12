@@ -1,8 +1,6 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2007/03/08 14:15:45 $
- *  $Revision: 1.12 $
  *  \author M. Sani
  */
  
@@ -44,18 +42,18 @@ CSCSegAlgoSK::CSCSegAlgoSK(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
 		  << "minLayersApart = " << minLayersApart << std::endl;
 }
 
-std::vector<CSCSegment> CSCSegAlgoSK::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoSK::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
     theChamber = aChamber; 
     return buildSegments(rechits); 
 }
 
-std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& urechits) {
 	
   LogDebug("CSC") << "*********************************************";
   LogDebug("CSC") << "Start segment building in the new chamber: " << theChamber->specs()->chamberTypeName();
   LogDebug("CSC") << "*********************************************";
   
-  
+  ChamberHitContainer rechits = urechits;
   LayerIndex layerIndex(rechits.size());
   
   for(unsigned int i = 0; i < rechits.size(); i++) {
@@ -206,7 +204,7 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits)
 }
 
 void CSCSegAlgoSK::tryAddingHitsToSegment(const ChamberHitContainer& rechits, 
-					  BoolContainer used, LayerIndex layerIndex,
+					  const BoolContainer& used, const LayerIndex& layerIndex,
 					  const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2) {
 
   // Iterate over the layers with hits in the chamber
@@ -348,7 +346,7 @@ bool CSCSegAlgoSK::isSegmentGood(const ChamberHitContainer& rechitsInChamber) co
   //@@ THESE VALUES SHOULD BECOME PARAMETERS?
   bool ok = false;
   
-  unsigned int iadd = ( rechitsInChamber.size() > 20 )? iadd = 1 : 0;  
+  unsigned int iadd = ( rechitsInChamber.size() > 20 )?  1 : 0;  
   
   if (windowScale > 1.)
     iadd = 1;
@@ -533,8 +531,8 @@ void CSCSegAlgoSK::fitSlopes() {
   // and the RecHit itself only knows its local position w.r.t.
   // the LAYER, so we must explicitly transform global position.
   
-  HepMatrix M(4,4,0);
-  HepVector B(4,0);
+  CLHEP::HepMatrix M(4,4,0);
+  CLHEP::HepVector B(4,0);
   
   ChamberHitContainer::const_iterator ih = proto_segment.begin();
   
@@ -551,7 +549,7 @@ void CSCSegAlgoSK::fitSlopes() {
     double z = lp.z();
     
     // ptc: Covariance matrix of local errors 
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,1) = IC(1,2); // since Cov is symmetric
@@ -595,7 +593,7 @@ void CSCSegAlgoSK::fitSlopes() {
   
   // Solve the matrix equation using CLHEP's 'solve'
   //@@ ptc: CAN solve FAIL?? UNCLEAR FROM (LACK OF) CLHEP DOC
-  HepVector p = solve(M, B);
+  CLHEP::HepVector p = solve(M, B);
   
   // Update member variables uz, vz, theOrigin
   // Note it has local z = 0
@@ -629,7 +627,7 @@ void CSCSegAlgoSK::fillChiSquared() {
     double du = u0 + uz * hz - hu;
     double dv = v0 + vz * hz - hv;
     
-    HepMatrix IC(2,2);
+    CLHEP::HepMatrix IC(2,2);
     IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,1) = IC(1,2);
@@ -751,11 +749,11 @@ void CSCSegAlgoSK::increaseProtoSegment(const CSCRecHit2D* h, int layer) {
   }			
 }		
 
-HepMatrix CSCSegAlgoSK::derivativeMatrix() const {
+CLHEP::HepMatrix CSCSegAlgoSK::derivativeMatrix() const {
   
   ChamberHitContainer::const_iterator it;
   int nhits = proto_segment.size();
-  HepMatrix matrix(2*nhits, 4);
+  CLHEP::HepMatrix matrix(2*nhits, 4);
   int row = 0;
   
   for(it = proto_segment.begin(); it != proto_segment.end(); ++it) {

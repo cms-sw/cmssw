@@ -5,8 +5,8 @@
 #include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
-// #include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/KalmanVertexSmoother.h"
+#include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
+// #include "RecoVertex/AdaptiveVertexFit/interface/KalmanVertexSmoother.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
@@ -26,9 +26,12 @@
  *
  */
 
-class AdaptiveVertexFitter : public VertexFitter {
+class AdaptiveVertexFitter : public VertexFitter<5> {
 
 public:
+
+  typedef ReferenceCountingPointer<VertexTrack<5> > RefCountedVertexTrack;
+  typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   /**
    *   Reimplemented constructors to use any kind of
@@ -39,11 +42,11 @@ public:
       const AnnealingSchedule & ann = GeometricAnnealing(),
       const LinearizationPointFinder & linP =
              DefaultLinearizationPointFinder(),
-      const VertexUpdator & updator = KalmanVertexUpdator(),
-      const VertexTrackCompatibilityEstimator & estor =
-             KalmanVertexTrackCompatibilityEstimator(),
-      const VertexSmoother & smoother = KalmanVertexSmoother(),
-      const AbstractLTSFactory & ltsf = LinearizedTrackStateFactory() );
+      const VertexUpdator<5> & updator = KalmanVertexUpdator<5>(),
+      const VertexTrackCompatibilityEstimator<5> & estor =
+             KalmanVertexTrackCompatibilityEstimator<5>(),
+      const VertexSmoother<5> & smoother = DummyVertexSmoother<5>(),
+      const AbstractLTSFactory<5> & ltsf = LinearizedTrackStateFactory() );
 
   AdaptiveVertexFitter( const AdaptiveVertexFitter & original );
 
@@ -55,7 +58,7 @@ public:
   * No prior vertex position will be used in the vertex fit.
   * \return The fitted vertex
   */
-  virtual CachingVertex vertex( const vector<reco::TransientTrack> & ) const;
+  virtual CachingVertex<5> vertex( const std::vector<reco::TransientTrack> & ) const;
 
  /**
   * Method returning the fitted vertex, from a container of VertexTracks.
@@ -65,13 +68,18 @@ public:
   * No prior vertex position will be used in the vertex fit.
   * \return The fitted vertex
   */
-  virtual CachingVertex vertex(const vector<RefCountedVertexTrack> & ) const;
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & ) const;
 
+  /**
+   *  Same as above, only now also with BeamSpot constraint.
+   */
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> &,
+     const reco::BeamSpot & spot ) const;
 
-  /** Fit vertex out of a vector of reco::TransientTracks. Uses the specified
+  /** Fit vertex out of a std::vector of reco::TransientTracks. Uses the specified
    * linearization point.
    */
-  virtual CachingVertex vertex( const vector<reco::TransientTrack> &,
+  virtual CachingVertex<5> vertex( const std::vector<reco::TransientTrack> &,
                                 const GlobalPoint& linPoint ) const;
 
   /** Fit vertex out of a set of reco::TransientTracks.
@@ -79,7 +87,7 @@ public:
    *   estimate of the vertex position. The error is used for the
    *   weight of the prior estimate.
    */
-  virtual CachingVertex vertex( const vector<reco::TransientTrack> &,
+  virtual CachingVertex<5> vertex( const std::vector<reco::TransientTrack> &,
                                 const GlobalPoint & priorPos,
                                 const GlobalError & priorError ) const;
 
@@ -87,7 +95,7 @@ public:
    *  The specified BeamSpot will be used as priot, but NOT for the linearization.
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
-  virtual CachingVertex vertex(const vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
 		const reco::BeamSpot& beamSpot) const;
 
 
@@ -95,7 +103,7 @@ public:
    *   Uses the position and error for the prior estimate of the vertex.
    *   This position is not used to relinearize the tracks.
    */
-  virtual CachingVertex vertex( const vector<RefCountedVertexTrack> &,
+  virtual CachingVertex<5> vertex( const std::vector<RefCountedVertexTrack> &,
                                 const GlobalPoint & priorPos,
                                 const GlobalError & priorError ) const;
 
@@ -116,20 +124,23 @@ public:
    *   \param maxlpshift if the vertex moves further than this,
    *   then we re-linearize the tracks.
    *   \param maxstep that's the maximum of iterations that we allow for.
-   *   \param weightthreshhold that's the minimum track weight
+   *   \param weightthreshold that's the minimum track weight
    *   for a track to be considered "significant".
    *   If fewer than two tracks are significant, an exception is thrown.
    */
   void setParameters( double maxshift=0.0001, double maxlpshift=0.1, 
-                      unsigned maxstep=30, double weightthreshhold=.001 );
+                      unsigned maxstep=30, double weightthreshold=.001 );
 
   /**
    *  Sets parameters.
    *  The following parameters are expected:
-   *  maxshift,  maxlpshift,  maxstep,  weightthreshhold
+   *  maxshift,  maxlpshift,  maxstep,  weightthreshold
    */
   void setParameters ( const edm::ParameterSet & );
 
+  void gsfIntermediarySmoothing(bool sm) { gsfIntermediarySmoothing_ = sm; }
+
+  bool gsfIntermediarySmoothing() const { return gsfIntermediarySmoothing_;}
 
 private:
   /**
@@ -142,27 +153,27 @@ private:
    *    also be used as the new linearization point.
    * \return The container of VertexTracks which are to be used in the next fit.
    */
-  vector<RefCountedVertexTrack> reLinearizeTracks(
-                const vector<RefCountedVertexTrack> & tracks,
-                const CachingVertex & vertex ) const;
+  std::vector<RefCountedVertexTrack> reLinearizeTracks(
+                const std::vector<RefCountedVertexTrack> & tracks,
+                const CachingVertex<5> & vertex ) const;
 
 
   /**
    * Construct a new container of VertexTracks with new weights 
    * accounting for vertex error, from an existing set of LinearizedTracks. 
    */
-  vector<RefCountedVertexTrack> reWeightTracks(
-                        const vector<RefCountedLinearizedTrackState> &,
-                        const CachingVertex & seed ) const;
+  std::vector<RefCountedVertexTrack> reWeightTracks(
+                        const std::vector<RefCountedLinearizedTrackState> &,
+                        const CachingVertex<5> & seed ) const;
 
   /**
    * Construct new a container of VertexTracks with new weights 
    * accounting for vertex error, from an existing set of VertexTracks. 
    * From these the LinearizedTracks will be reused.
    */
-  vector<RefCountedVertexTrack> reWeightTracks(
-                        const vector<RefCountedVertexTrack> &,
-                        const CachingVertex & seed) const;
+  std::vector<RefCountedVertexTrack> reWeightTracks(
+                        const std::vector<RefCountedVertexTrack> &,
+                        const CachingVertex<5> & seed) const;
 
 
   /**
@@ -170,36 +181,39 @@ private:
    *  KalmanChiSquare.
    */
   
-  vector<RefCountedVertexTrack> weightTracks(
-                        const vector<RefCountedLinearizedTrackState> &,
+  std::vector<RefCountedVertexTrack> weightTracks(
+                        const std::vector<RefCountedLinearizedTrackState> &,
                         const VertexState & seed ) const;
 
   /**
    *  Linearize tracks, for the first time in the iteration.
    */
-  vector<RefCountedVertexTrack> linearizeTracks(
-                        const vector<reco::TransientTrack> &,
+  std::vector<RefCountedVertexTrack> linearizeTracks(
+                        const std::vector<reco::TransientTrack> &,
                         const VertexState & ) const;
   /**
    *  perform the fit
    */
-  CachingVertex fit( const vector<RefCountedVertexTrack> & tracks,
+  CachingVertex<5> fit( const std::vector<RefCountedVertexTrack> & tracks,
                      const VertexState & priorSeed,
                      bool withPrior) const;
 
+  double getWeight ( float chi2 ) const;
 private:
-  float theMaxShift;
-  float theMaxLPShift;
+  double theMaxShift;
+  double theMaxLPShift;
   int theMaxStep;
-  float theWeightThreshold;
+  double theWeightThreshold;
   mutable int theNr;
 
   LinearizationPointFinder * theLinP;
-  VertexUpdator * theUpdator;
-  VertexSmoother * theSmoother;
+  VertexUpdator<5> * theUpdator;
+  VertexSmoother<5> * theSmoother;
   AnnealingSchedule * theAssProbComputer;
-  VertexTrackCompatibilityEstimator * theComp;
-  const AbstractLTSFactory * theLinTrkFactory;
+  VertexTrackCompatibilityEstimator<5> * theComp;
+  const AbstractLTSFactory<5> * theLinTrkFactory;
+  bool gsfIntermediarySmoothing_;
+  mutable int mctr_;
 };
 
 #endif

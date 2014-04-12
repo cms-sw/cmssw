@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -56,6 +57,7 @@ class myTrackAnalyzer : public edm::EDAnalyzer {
  private:
   edm::ParameterSet conf_;
   bool doPixel_, doStrip_;
+  edm::InputTag trackCollectionTag_;
 };
 
 #endif

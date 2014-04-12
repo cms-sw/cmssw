@@ -1,0 +1,9 @@
+<use   name="boost"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/PythonParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<export>
+  <lib   name="1"/>
+</export>

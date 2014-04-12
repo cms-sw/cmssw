@@ -2,20 +2,19 @@
 #define HCALSIMPLEAMPLITUDEZS_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimCalorimetry/HcalZeroSuppressionAlgos/interface/HcalZSAlgoEnergy.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "HcalZSAlgoEnergy.h"
 
+#include <string>
 
 /** \class HcalSimpleAmplitudeZS
 	
-$Date: 2007/03/08 22:13:22 $
-$Revision: 1.3 $
 \author J. Mans - Minnesota
 */
 class HcalSimpleAmplitudeZS : public edm::EDProducer {
@@ -24,9 +23,13 @@ public:
   virtual ~HcalSimpleAmplitudeZS();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
-  HcalZSAlgoEnergy algo_;
-  std::set<HcalSubdetector> subdets_;
-  edm::InputTag inputLabel_;
+  std::auto_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hbheUpgrade_,hfUpgrade_;
+  std::string inputLabel_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbheUpgrade_;
+  edm::EDGetTokenT<HFUpgradeDigiCollection> tok_hfUpgrade_;
 };
 
 #endif

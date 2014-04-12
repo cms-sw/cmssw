@@ -1,0 +1,37 @@
+<use   name="DataFormats/BeamSpot"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/TrajectorySeed"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/Records"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<use   name="RecoMuon/DetLayers"/>
+<use   name="RecoMuon/Navigation"/>
+<use   name="RecoMuon/Records"/>
+<use   name="RecoMuon/TransientTrackingRecHit"/>
+<use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="TrackingTools/DetLayers"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/KalmanUpdators"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/Records"/>
+<use   name="TrackingTools/TrackFitters"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="TrackingTools/TransientTrackingRecHit"/>
+<use   name="DataFormats/CSCRecHit"/>
+<use   name="DataFormats/DTRecHit"/>
+<use   name="TrackingTools/TrackRefitter"/>
+<use   name="roothistmatrix"/>
+<export>
+  <lib   name="1"/>
+</export>

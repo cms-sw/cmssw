@@ -1,190 +1,277 @@
-#include "DCCTowerBlock.h"
-#include "DCCEventBlock.h"
-#include "DCCDataParser.h"
-#include "DCCXtalBlock.h"
-#include "DCCEventBlock.h"
-#include "DCCDataMapper.h"
-#include "ECALParserBlockException.h"
 #include <stdio.h>
+#include <algorithm>
+#include "EventFilter/EcalRawToDigi/interface/DCCTowerBlock.h"
+#include "EventFilter/EcalRawToDigi/interface/DCCEventBlock.h"
+#include "EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h"
+#include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
 
 
 
-DCCTowerBlock::DCCTowerBlock(
- 	DCCEventBlock * dccBlock, 
-	DCCDataParser * parser, 
-	ulong * buffer, 
-	ulong numbBytes,
-	ulong wordsToEnd,
-	ulong wordEventOffset,
-	ulong expectedTowerID
-)
-: DCCBlockPrototype(parser,"TOWERHEADER", buffer, numbBytes,wordsToEnd, wordEventOffset ) 
- , dccBlock_(dccBlock), expectedTowerID_(expectedTowerID)
-{
-	
-	//Reset error counters ///////////
-	errors_["FE::HEADER"]        = 0;
-	errors_["FE::TT/SC ID"]      = 0; 
-	errors_["FE::BLOCK LENGTH"]  = 0;
-	//////////////////////////////////
+DCCTowerBlock::DCCTowerBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack , bool forceToKeepFRdata)
+: DCCFEBlock(u,m,e,unpack,forceToKeepFRdata){}
 
-	
-	
-	// Get data fields from the mapper and retrieve data /////////////////////////////////////
-	mapperFields_ = parser_->mapper()->towerFields();	
-	parseData();
-	//////////////////////////////////////////////////////////////////////////////////////////
- }
+
+void DCCTowerBlock::updateCollectors(){
+
+  DCCFEBlock::updateCollectors();
+  
+  // needs to be update for eb/ee
+  digis_                 = unpacker_->ebDigisCollection();
+   
+  invalidGains_          = unpacker_->invalidGainsCollection();
+  invalidGainsSwitch_    = unpacker_->invalidGainsSwitchCollection();
+  invalidChIds_          = unpacker_->invalidChIdsCollection();
+
+}
+
+
+
+int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
+  
+  bool errorOnXtal(false);
  
- 
- void DCCTowerBlock::parseXtalData(){
-	
-	ulong numbBytes = blockSize_;
-	ulong wordsToEnd =wordsToEndOfEvent_;
-	
-	// See if we can construct the correct number of XTAL Blocks////////////////////////////////////////////////////////////////////////////////
-	ulong numbDWInXtalBlock = ( parser_->numbXtalSamples() )/4 + 1;
-	ulong length            = getDataField("BLOCK LENGTH");
-	ulong numbOfXtalBlocks  = 0 ;
-	
-	if( length > 0 ){ numbOfXtalBlocks = (length-1)/numbDWInXtalBlock; }
-	ulong xtalBlockSize     =  numbDWInXtalBlock*8;
-	//ulong pIncrease         =  numbDWInXtalBlock*2;
-	
-	//cout<<"\n DEBUG::numbDWInXtal Block "<<dec<<numbDWInXtalBlock<<endl;
-	//cout<<"\n DEBUG::length             "<<length<<endl;
-	//cout<<"\n DEBUG::xtalBlockSize      "<<xtalBlockSize<<endl;
-	//cout<<"\n DEBUG::pIncreade          "<<pIncrease<<endl;
+  const uint16_t * xData_= reinterpret_cast<const uint16_t *>(data_);
 
-	
-	
-	bool zs = dccBlock_->getDataField("ZS");
-	if( !zs && numbOfXtalBlocks != 25 ){
-	
-	   
-		(errors_["FE::BLOCK LENGTH"])++;
-		errorString_ += "\n ======================================================================\n"; 		
-		errorString_ += string(" ") + name_ + string(" ZS is not active, error in the Tower Length !") ;
-		errorString_ += "\n Tower Length is : " + (parser_->getDecString(numbBytes/8))+string(" , while it should be : ");
-		string myString = parser_->getDecString((ulong)(25*numbDWInXtalBlock+1));
-		errorString_ += "\n It was only possible to build : " + parser_->getDecString( numbOfXtalBlocks)+ string(" XTAL blocks");
-		errorString_ += "\n ======================================================================";
-		blockError_ = true;
-	};
-	if( numbOfXtalBlocks > 25 ){
-		if (errors_["FE::BLOCK LENGTH"]==0)(errors_["FE::BLOCK LENGTH"])++;
-		errorString_ += "\n ======================================================================\n"; 		
-		errorString_ += string(" ") + name_ + string(" Tower Length is larger then expected...!") ;
-		errorString_ += "\n Tower Length is : " + parser_->getDecString(numbBytes/8)+string(" , while it should be at maximum : ");
-		string myString = parser_->getDecString((ulong)(25*numbDWInXtalBlock+1));
-		errorString_ += "\n Action -> data after the xtal 25 is ignored... "; 
-		errorString_ += "\n ======================================================================";
-		blockError_ = true;
-		
-	}
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	blockSize_     += length*8;  //??????????????????????
-	
-	// Get XTAL Data //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ulong stripID, xtalID;
-	
-	
-	for(ulong numbXtal=1; numbXtal <= numbOfXtalBlocks && numbXtal <=25 ; numbXtal++){
-	
-		increment(1);
-		
-		stripID =( numbXtal-1)/5 + 1;	
-		xtalID  = numbXtal - (stripID-1)*5;
-		
-		
-		if(!zs){ 	
-			xtalBlocks_.push_back(  new DCCXtalBlock( parser_, dataP_, xtalBlockSize, wordsToEnd-wordCounter_,wordCounter_+wordEventOffset_,xtalID, stripID) );
-		}else{
-			xtalBlocks_.push_back(  new DCCXtalBlock( parser_, dataP_, xtalBlockSize, wordsToEnd-wordCounter_,wordCounter_+wordEventOffset_,0,0));
-		}
-		
-		increment(xtalBlockSize/4-1);
-	}
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Get xtal data ids
+  unsigned int stripId  = (*xData_)                     & TOWER_STRIPID_MASK;
+  unsigned int xtalId   = ((*xData_)>>TOWER_XTALID_B )  & TOWER_XTALID_MASK;
 
-		
-	// Check internal data ////////////
-	if(parser_->debug()){ dataCheck();};
-	///////////////////////////////////
-}
-
-
-
-DCCTowerBlock::~DCCTowerBlock(){
-	vector<DCCXtalBlock *>::iterator it;
-	for(it=xtalBlocks_.begin();it!=xtalBlocks_.end();it++){ delete (*it);}
-	xtalBlocks_.clear();
-}
-
-
-
-void DCCTowerBlock::dataCheck(){
-	string checkErrors("");	
-	
-	
-	pair <bool,string> res;
-	
-	///////////////////////////////////////////////////////////////////////////
-	// For TB we don-t check Bx 
-	//res = checkDataField("BX", BXMASK & (dccBlock_->getDataField("BX")));
-	//if(!res.first){ checkErrors += res.second; (errors_["FE::HEADER"])++; }
-	////////////////////////////////////////////////////////////////////////////
-	
-        // mod to account for ECAL counters starting from 0 in the front end N. Almeida
-	res = checkDataField("LV1", L1MASK &  (dccBlock_->getDataField("LV1")  -1)   ); 
-	if(!res.first){ checkErrors += res.second; (errors_["FE::HEADER"])++; }
-	
-	
-	if(expectedTowerID_ != 0){ 
-		res = checkDataField("TT/SC ID",expectedTowerID_); 
-		if(!res.first){ checkErrors += res.second; (errors_["FE::HEADER"])++; } 
-	}
-	
-	if( checkErrors !="" ){
-		string myTowerId;
-		
-		errorString_ +="\n ======================================================================\n"; 
-		errorString_ += string(" ") + name_ + string("( ID = ")+parser_->getDecString((ulong)(expectedTowerID_))+string(" ) errors : ") ;
-		errorString_ += checkErrors ;
-		errorString_ += "\n ======================================================================";
-		blockError_ = true;	
-	}
-} 
-
-
-vector< DCCXtalBlock * > DCCTowerBlock::xtalBlocksById(ulong stripId, ulong xtalId){
-	vector<DCCXtalBlock *> myVector;	
-	vector<DCCXtalBlock *>::iterator it;
-	
-	for( it = xtalBlocks_.begin(); it!= xtalBlocks_.end(); it++ ){
-		try{
-			
-			pair<bool,string> stripIdCheck   = (*it)->checkDataField("STRIP ID",stripId);
-			pair<bool,string> xtalIdCheck    = (*it)->checkDataField("XTAL ID",xtalId);
-			
-			if(xtalIdCheck.first && stripIdCheck.first ){ myVector.push_back( (*it) ); }
-			
-		}catch (ECALParserBlockException &e){/*ignore*/ }
-	}
-	
-	return myVector;
-}
-
-int DCCTowerBlock::towerID() {
-  int result=-1;
-
-  for(set<DCCDataField *,DCCDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
-    if ( (*it)->name() == "TT/SC ID" ) 
-      result=getDataField( (*it)->name() )  ;
+  // check id in case data are not 0suppressed
+  if( !zs_ && (expStripID != stripId || expXtalID != xtalId)){ 
+    if(! DCCDataUnpacker::silentMode_){ 
+      edm::LogWarning("IncorrectBlock")
+        <<"For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+        <<"\n The expected strip is "<<expStripID<<" and "<<stripId<<" was found"
+        <<"\n The expected xtal  is "<<expXtalID <<" and "<<xtalId<<" was found";        
+    } 
+    // using expected cry_di to raise warning about xtal_id problem
+    pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
+    (*invalidChIds_)->push_back(*pDetId_);
     
+    stripId    = expStripID;
+    xtalId     = expXtalID;
+    errorOnXtal= true;
+    
+    // return here, so to skip all following checks
+    lastXtalId_++;
+    if (lastXtalId_ > NUMB_XTAL)         {lastXtalId_=1; lastStripId_++;}
+    data_ += numbDWInXtalBlock_;
+    return BLOCK_UNPACKED;
+  }
+
+
+  // check id in case of 0suppressed data
+
+  else if(zs_){
+
+    // Check for valid Ids 1) values out of range
+
+    if(stripId == 0 || stripId > 5 || xtalId == 0 || xtalId > 5){
+      if( ! DCCDataUnpacker::silentMode_ ){
+        edm::LogWarning("IncorrectBlock")
+          <<"For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+          <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId
+          <<" ids ( last strip was: " << lastStripId_ << " last ch was: " << lastXtalId_ << ")";
+      }
+      
+      int st = lastStripId_;
+      int ch = lastXtalId_;
+      ch++;
+      if (ch > NUMB_XTAL)         {ch=1; st++;}
+      if (st > NUMB_STRIP)        {ch=1; st=1;}
+      
+      // adding channel following the last valid
+      //pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
+      //(*invalidChIds_)->push_back(*pDetId_);
+      fillEcalElectronicsError(invalidZSXtalIds_); 
+
+      errorOnXtal = true;
+
+      lastStripId_ = st;
+      lastXtalId_  = ch;
+      
+      // return here, so to skip all following checks
+      return SKIP_BLOCK_UNPACKING;
+      
+    }else{
+
+      // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
+      
+      
+      // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
+      //                        3) if strip has increased wrt previous xtal
+      if( ( stripId == lastStripId_ && xtalId <= lastXtalId_ ) ||
+          (stripId < lastStripId_))
+        {
+          if (! DCCDataUnpacker::silentMode_) {
+            edm::LogWarning("IncorrectBlock")
+              << "Xtal id was expected to increase but it didn't - last valid xtal id was " << lastXtalId_ << " while current xtal is " << xtalId
+              << " (LV1 " << event_->l1A() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")";
+          }
+          
+          int st = lastStripId_;
+          int ch = lastXtalId_;
+          ch++;
+          if (ch > NUMB_XTAL)        {ch=1; st++;}
+          if (st >  NUMB_STRIP)        {ch=1; st=1;}
+          
+          // adding channel following the last valid
+          //pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
+          //(*invalidChIds_)->push_back(*pDetId_);
+          fillEcalElectronicsError(invalidZSXtalIds_); 
+          
+          errorOnXtal = true;
+          lastStripId_ = st;
+          lastXtalId_  = ch;
+
+          // return here, so to skip all following checks
+          return SKIP_BLOCK_UNPACKING;
+          
+        }
+      
+      // if channel id not proven wrong, update lastStripId_ and lastXtalId_
+      lastStripId_  = stripId;
+      lastXtalId_   = xtalId;
+    }//end else
+  }// end if (zs_)
+
+
+  bool addedFrame=false;
+
+  // if there is an error on xtal id ignore next error checks  
+  // otherwise, assume channel_id is valid and proceed with making and checking the data frame
+  if(errorOnXtal) return SKIP_BLOCK_UNPACKING;
+
+  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+  (*digis_)->push_back(*pDetId_);
+  EBDataFrame df( (*digis_)->back() );
+  addedFrame=true;
+  bool wrongGain(false);
+
+  //set samples in the data frame
+  for(unsigned int i =0; i< nTSamples_ ;i++){ // loop on samples 
+    xData_++;
+    unsigned int data =  (*xData_) & TOWER_DIGI_MASK;
+    unsigned int gain =  data>>12;
+    xtalGains_[i]=gain;
+    if(gain == 0){ 
+      wrongGain = true; 
+      // although gain==0 found, produce the dataFrame in order to have it, for saturation case
+    } 
+    df.setSample(i,data);
+  }// loop on samples        
+
+  bool isSaturation(true);
+  if(wrongGain){
+    
+    // check whether the gain==0 has features of saturation or not
+    // gain==0 occurs either in case of data corruption or of ADC saturation
+    //                                  \->reject digi            \-> keep digi
+    
+    // determine where gainId==0 starts
+    short firstGainZeroSampID(-1);    short firstGainZeroSampADC(-1);
+    for (unsigned int s=0; s<nTSamples_; s++ ) {
+      if(df.sample(s).gainId()==0 && firstGainZeroSampID==-1)
+        {
+          firstGainZeroSampID  = s;
+          firstGainZeroSampADC = df.sample(s).adc();
+          break;
+        }
+    }
+    
+    // check whether gain==0 and adc() stays constant for (at least) 5 consecutive samples
+    unsigned int plateauEnd = std::min(nTSamples_,(unsigned int)(firstGainZeroSampID+5));
+    for (unsigned int s=firstGainZeroSampID; s<plateauEnd; s++) 
+      {
+        if( df.sample(s).gainId()==0 && df.sample(s).adc()==firstGainZeroSampADC ) {;}
+        else
+          { isSaturation=false;  break;}  //it's not saturation
+      }
+    // get rid of channels which are stuck in gain0
+    if(firstGainZeroSampID<3) {isSaturation=false; }
+    
+    if (! DCCDataUnpacker::silentMode_) {
+      if (unpacker_->getChannelValue(mapper_->getActiveDCC(), towerId_, stripId, xtalId) != 10) {
+        edm::LogWarning("IncorrectGain")
+          << "Gain zero" << (isSaturation ? " with features of saturation" : "" ) << " was found in Tower Block"
+          << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC()
+          << " tower " << towerId_ << " strip " << stripId << " xtal " << xtalId << ")";
+      }
+    }
+    
+    if (! isSaturation)
+      {
+        (*invalidGains_)->push_back(*pDetId_);
+        (*digis_)->pop_back(); 
+        errorOnXtal = true; 
+        
+        //Point to begin of next xtal Block
+        data_ += numbDWInXtalBlock_;
+        //return here, so to skip all the rest
+        //make special collection for gain0 data frames when due to saturation
+        return BLOCK_UNPACKED;
+      }//end isSaturation 
+    else {
+        data_ += numbDWInXtalBlock_;
+        return BLOCK_UNPACKED;
+    }
+
+    }//end WrongGain
+  
+  
+  // from here on, care about gain switches
+  
+  short firstGainWrong=-1;
+  short numGainWrong=0;
+  
+  for (unsigned int i=1; i<nTSamples_; i++ ) {
+    if (i>0 && xtalGains_[i-1]>xtalGains_[i]) {
+          numGainWrong++;
+          if (firstGainWrong == -1) { firstGainWrong=i;}
+    }
   }
   
-  return result;
+  
+  if (numGainWrong > 0) {
+    if (! DCCDataUnpacker::silentMode_) {
+      edm::LogWarning("IncorrectGain")
+        << "A wrong gain transition switch was found for Tower Block in strip " << stripId << " and xtal " << xtalId
+        << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")";
+    }
+    
+    (*invalidGainsSwitch_)->push_back(*pDetId_);
+    errorOnXtal = true;
+  }
+  
+  //Add frame to collection only if all data format and gain rules are respected
+  if (errorOnXtal && addedFrame) {
+    (*digis_)->pop_back();
+  }
+  
+  //Point to begin of next xtal Block
+  data_ += numbDWInXtalBlock_;
+  
+  return BLOCK_UNPACKED;
+}
+
+
+
+void DCCTowerBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * errorColection ){
+
+   const int activeDCC = mapper_->getActiveSM();
+
+   if(NUMB_SM_EB_MIN_MIN<=activeDCC && activeDCC<=NUMB_SM_EB_PLU_MAX){
+     EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(activeDCC+TCCID_SMID_SHIFT_EB,expTowerID_);
+     (*errorColection)->push_back(*eleTp);
+   }else{
+      if( ! DCCDataUnpacker::silentMode_ ){
+          edm::LogWarning("IncorrectBlock")
+            <<"For event "<<event_->l1A()<<" there's fed: "<< activeDCC
+            <<" activeDcc: "<<mapper_->getActiveSM()
+            <<" but that activeDcc is not valid in EB.";
+        }
+
+   }
 
 }
+

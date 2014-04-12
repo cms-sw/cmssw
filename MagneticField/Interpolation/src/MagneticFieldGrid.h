@@ -11,15 +11,15 @@
  * transfer data, or activate the interpolation between grid points
  *
  * \author : <Volker.Drollinger@cern.ch>
- * $date   : 31/03/2004 13:07:28 CET $
  *
  * Modifications:
  *
  */
 
 // interpolation package
-#include "MagneticField/Interpolation/src/VectorFieldInterpolation.h"
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "VectorFieldInterpolation.h"
+#include "binary_ifstream.h"
 
 // used libs
 #include <vector>
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <fstream>
 
-class MagneticFieldGrid{
+class dso_internal MagneticFieldGrid{
 public:
   // constructor
   MagneticFieldGrid(){
@@ -47,7 +47,7 @@ public:
 
 private:
   // header classes (5: one for each type)
-  class HeaderType3{
+  class dso_internal HeaderType3{
   public:
     // constructor
     HeaderType3(){}
@@ -58,7 +58,7 @@ private:
     void printInfo();
   };
   // b-field container
-  class BVector{
+  class dso_internal BVector{
   public:
     // constructor
     BVector(){}

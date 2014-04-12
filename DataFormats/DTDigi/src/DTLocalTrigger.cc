@@ -1,6 +1,5 @@
 /** \file
  * 
- *  $Date: 2006/09/06 18:50:07 $
  *
  * \author FRC
  */
@@ -8,20 +7,19 @@
 
 #include <DataFormats/DTDigi/interface/DTLocalTrigger.h>
 
-#include <iostream>
 
 using namespace std;
 
 
-DTLocalTrigger::DTLocalTrigger (int bx, int data) : 
-
+DTLocalTrigger::DTLocalTrigger (int eventBx, int bx, int data) : 
+  theEventBX(eventBx),
   theBX (bx),
   theData(data)
 {}
 
 
 DTLocalTrigger::DTLocalTrigger () : 
-
+  theEventBX(0),
   theBX (0),
   theData(0)
 {}
@@ -72,3 +70,6 @@ DTLocalTrigger::print() const {
   cout << endl;
 }
 
+uint16_t DTLocalTrigger::eventBx() const {
+  return theEventBX;
+}

@@ -1,5 +1,4 @@
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -14,30 +13,27 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/Utilities/interface/Histos.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
-#include "TH2.h"
-#include "TFile.h"
-#include "TCanvas.h"
 
 class testMaterialEffects : public edm::EDAnalyzer {
 public :
   explicit testMaterialEffects(const edm::ParameterSet&);
   ~testMaterialEffects();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  virtual void beginRun(edm::Run const& ,edm::EventSetup const& ) override;
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;  
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   //  TH2F * h100;
   std::vector<MonitorElement*> h0;
   std::vector<MonitorElement*> h1;
@@ -52,6 +48,11 @@ private:
   std::vector<MonitorElement*> h10;
   std::vector<MonitorElement*> h11;
   std::vector<MonitorElement*> h12;
+  std::vector<MonitorElement*> h13;
+  std::vector<MonitorElement*> h14;
+  std::vector<MonitorElement*> h15;
+  std::vector<MonitorElement*> h16;
+  std::vector<MonitorElement*> h17;
   std::vector<MonitorElement*> htmp;
 
   std::vector< std::vector<MonitorElement*> > h100;
@@ -65,6 +66,8 @@ private:
   std::vector< std::vector<double> > subTrackerLength;
   std::vector<double> tmpRadius;
   std::vector<double> tmpLength;
+
+  unsigned int nevt;
 
 };
 
@@ -83,6 +86,11 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   h10(2,static_cast<MonitorElement*>(0)),
   h11(2,static_cast<MonitorElement*>(0)),
   h12(2,static_cast<MonitorElement*>(0)),
+  h13(2,static_cast<MonitorElement*>(0)),
+  h14(2,static_cast<MonitorElement*>(0)),
+  h15(2,static_cast<MonitorElement*>(0)),
+  h16(2,static_cast<MonitorElement*>(0)),
+  h17(2,static_cast<MonitorElement*>(0)),
   htmp(2,static_cast<MonitorElement*>(0)),
   tmpRadius(2,static_cast<double>(0.)),
   tmpLength(2,static_cast<double>(0.))
@@ -95,7 +103,7 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   // For the fast sim
   mySimEvent[1] = new FSimEvent(particleFilter_);
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   h0[0] = dbe->book2D("radioFull", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h0[1] = dbe->book2D("radioFast", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h1[0] = dbe->book1D("etaEFull", "Full Electron eta distribution",54,0.,2.7);
@@ -111,7 +119,7 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   h6[0] = dbe->book2D("radioFullRem1", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h6[1] = dbe->book2D("radioFastRem1", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h7[0] = dbe->book2D("radioFullRem2", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
-  h7[1] = dbe->book2D("radioFullRem2", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
+  h7[1] = dbe->book2D("radioFastRem2", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h8[0] = dbe->book2D("radioFullBP", "Full BP radiography", 1000, 0.,320.,1000,0., 150. );
   h8[1] = dbe->book2D("radioFastBP", "Fast BP radiography", 1000, 0.,320.,1000,0., 150. );
   h9[0] = dbe->book2D("radioFullPX", "Full PX radiography", 1000, 0.,320.,1000,0., 150. );
@@ -122,465 +130,420 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   h11[1] = dbe->book2D("radioFastTO", "Fast TO radiography", 1000, 0.,320.,1000,0., 150. );
   h12[0] = dbe->book2D("radioFullCA", "Full CA radiography", 1000, 0.,320.,1000,0., 150. );
   h12[1] = dbe->book2D("radioFastCA", "Fast CA radiography", 1000, 0.,320.,1000,0., 150. );
+  h13[0] = dbe->book1D("TrackerFullR","Full Tracker Radius",300,0.,150.);
+  h13[1] = dbe->book1D("TrackerFastR","Fast Tracker Radius",300,0.,150.);
+  h14[0] = dbe->book1D("TrackerFullR2","Full Tracker Radius 2",800,0.,40.);
+  h14[1] = dbe->book1D("TrackerFastR2","Fast Tracker Radius 2",800,0.,40.);
+  h15[0] = dbe->book1D("HF1Full","Full HF1 region",550,0.,5.5);
+  h15[1] = dbe->book1D("HF1Fast","Fast HF1 region",550,0.,5.5);
+  h16[0] = dbe->book1D("HF2Full","Full HF2 region",550,0.,5.5);
+  h16[1] = dbe->book1D("HF2Fast","Fast HF2 region",550,0.,5.5);
+  h17[0] = dbe->book1D("HF3Full","Full HF3 region",550,0.,5.5);
+  h17[1] = dbe->book1D("HF3Fast","Fast HF3 region",550,0.,5.5);
 
   // Beam Pipe
-  htmp[0] = dbe->book1D("BeamPipeFull", "Full Beam Pipe",120,0.,3.);
-  htmp[1] = dbe->book1D("BeamPipeFast", "Fast Beam Pipe",120,0.,3.);
-  tmpRadius[0] = 3.8;
-  tmpRadius[1] = 3.05;
-  tmpLength[0] = 999.;
-  tmpLength[1] = 27.;
+  htmp[0] = dbe->book1D("BeamPipeFull", "Full Beam Pipe",220,0.,5.5);
+  htmp[1] = dbe->book1D("BeamPipeFast", "Fast Beam Pipe",220,0.,5.5);
+  std::vector<double> tmpRadius = p.getUntrackedParameter<std::vector<double> >("BPCylinderRadius");
+  std::vector<double> tmpLength = p.getUntrackedParameter<std::vector<double> >("BPCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // Beam Pipe (cont'd)
-  htmp[0] = dbe->book1D("BPFull", "Full Beam Pipe",120,0.,3.);
-  htmp[1] = dbe->book1D("BPFast", "Fast Beam Pipe",120,0.,3.);
+  htmp[0] = dbe->book1D("BPFullDummy", "Full Beam Pipe",220,0.,5.5);
+  htmp[1] = dbe->book1D("BPFastDummy", "Fast Beam Pipe",220,0.,5.5);
+  h200.push_back(htmp);
+  blockTrackerRadius.push_back(tmpRadius);
+  blockTrackerLength.push_back(tmpLength);
+
+  // Beam Pipe (cont'd)
+  htmp[0] = dbe->book1D("BPFull", "Full Beam Pipe",220,0.,5.5);
+  htmp[1] = dbe->book1D("BPFast", "Fast Beam Pipe",220,0.,5.5);
   h300.push_back(htmp);
   subTrackerRadius.push_back(tmpRadius);
   subTrackerLength.push_back(tmpLength);
 
   // PIXB1
-  htmp[0] = dbe->book1D("PXB1Full", "Full Pixel Barrel 1",120,0.,3.);
-  htmp[1] = dbe->book1D("PXB1Fast", "Fast Pixel Barrel 1",120,0.,3.);
-  tmpRadius[0] = 6.0;
-  tmpRadius[1] = 6.0;
-  tmpLength[0] = 26.5;
-  tmpLength[1] = 26.5;
+  htmp[0] = dbe->book1D("PXB1Full", "Full Pixel Barrel 1",220,0.,5.5);
+  htmp[1] = dbe->book1D("PXB1Fast", "Fast Pixel Barrel 1",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXB1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXB1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXB2
-  htmp[0] = dbe->book1D("PXB2Full", "Full Pixel Barrel 2",120,0.,3.);
-  htmp[1] = dbe->book1D("PXB2Fast", "Fast Pixel Barrel 2",120,0.,3.);
-  tmpRadius[0] = 8.5;
-  tmpRadius[1] = 8.5;
-  tmpLength[0] = 26.5;
-  tmpLength[1] = 26.5;
+  htmp[0] = dbe->book1D("PXB2Full", "Full Pixel Barrel 2",220,0.,5.5);
+  htmp[1] = dbe->book1D("PXB2Fast", "Fast Pixel Barrel 2",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXB2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXB2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXB3
-  htmp[0] = dbe->book1D("PXB3Full", "Full Pixel Barrel 3",120,0.,3.);
-  htmp[1] = dbe->book1D("PXB3Fast", "Fast Pixel Barrel 3",120,0.,3.);
-  tmpRadius[0] = 11.5;
-  tmpRadius[1] = 11.5;
-  tmpLength[0] = 26.5;
-  tmpLength[1] = 26.5;
+  htmp[0] = dbe->book1D("PXB3Full", "Full Pixel Barrel 3",220,0.,5.5);
+  htmp[1] = dbe->book1D("PXB3Fast", "Fast Pixel Barrel 3",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXB3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXB3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXB Cables
-  htmp[0] = dbe->book1D("PXBCFull", "Full Pixel Barrel Cables",120,0.,3.);
-  htmp[1] = dbe->book1D("PXBCFast", "Fast Pixel Barrel Cables",120,0.,3.);
-  tmpRadius[0] = 18.0;
-  tmpRadius[1] = 16.9;
-  tmpLength[0] = 30.0;
-  tmpLength[1] = 30.0;
+  htmp[0] = dbe->book1D("PXBCFull", "Full Pixel Barrel Cables",220,0.,5.5);
+  htmp[1] = dbe->book1D("PXBCFast", "Fast Pixel Barrel Cables",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXBCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXBCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // All Pixel Barrel
-  htmp[0] = dbe->book1D("PXBFull", "Full Pixel Barrel",120,0.,3.);
-  htmp[1] = dbe->book1D("PXBFast", "Fast Pixel Barrel",120,0.,3.);
+  htmp[0] = dbe->book1D("PXBFull", "Full Pixel Barrel",220,0.,5.5);
+  htmp[1] = dbe->book1D("PXBFast", "Fast Pixel Barrel",220,0.,5.5);
   h200.push_back(htmp);
   blockTrackerRadius.push_back(tmpRadius);
   blockTrackerLength.push_back(tmpLength);
 
   // PIXD1
-  htmp[0] = dbe->book1D("PXD1Full", "Full Pixel Disk 1",120,0.,3.);
-  htmp[1] = dbe->book1D("PXD1Fast", "Fast Pixel Disk 1",120,0.,3.);
-  tmpRadius[0] = 15.5;
-  tmpRadius[1] = 17.0;
-  tmpLength[0] = 40.0;
-  tmpLength[1] = 40.0;
+  htmp[0] = dbe->book1D("PXD1Full", "Full Pixel Disk 1",220,0.,5.5);
+  htmp[1] = dbe->book1D("PXD1Fast", "Fast Pixel Disk 1",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXD1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXD1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXD2
-  htmp[0] = dbe->book1D("PXD2Full", "Full Pixel Disk 2",120,0.,3.);
-  htmp[1] = dbe->book1D("PXD2Fast", "Fast Pixel Disk 2",120,0.,3.);
-  tmpRadius[0] = 15.5;
-  tmpRadius[1] = 17.0;
-  tmpLength[0] = 55.0;
-  tmpLength[1] = 50.0;
+  htmp[0] = dbe->book1D("PXD2Full", "Full Pixel Disk 2",220,0.,5.5);
+  htmp[1] = dbe->book1D("PXD2Fast", "Fast Pixel Disk 2",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXD2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXD2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // PIXD Cables
-  htmp[0] = dbe->book1D("PXDCFull", "Full Pixel Disk Cables",120,0.,3.);
-  htmp[1] = dbe->book1D("PXDCFast", "Fast Pixel Disk Cables",120,0.,3.);
-  tmpRadius[0] = 20.0;
-  tmpRadius[1] = 18.0;
-  tmpLength[0] = 999.0;
-  tmpLength[1] = 999.0;
+  htmp[0] = dbe->book1D("PXDCFull", "Full Pixel Disk Cables",220,0.,5.5);
+  htmp[1] = dbe->book1D("PXDCFast", "Fast Pixel Disk Cables",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXDCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXDCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // All Pixel Disks
-  htmp[0] = dbe->book1D("PXDFull", "Full Pixel Disk",120,0.,3.);
-  htmp[1] = dbe->book1D("PXDFast", "Fast Pixel Disk",120,0.,3.);
+  htmp[0] = dbe->book1D("PXDFull", "Full Pixel Disk",220,0.,5.5);
+  htmp[1] = dbe->book1D("PXDFast", "Fast Pixel Disk",220,0.,5.5);
   h200.push_back(htmp);
   blockTrackerRadius.push_back(tmpRadius);
   blockTrackerLength.push_back(tmpLength);
 
   // All Pixel
-  htmp[0] = dbe->book1D("PixelFull", "Full Pixel",120,0.,3.);
-  htmp[1] = dbe->book1D("PixelFast", "Fast Pixel",120,0.,3.);
+  htmp[0] = dbe->book1D("PixelFull", "Full Pixel",220,0.,5.5);
+  htmp[1] = dbe->book1D("PixelFast", "Fast Pixel",220,0.,5.5);
   h300.push_back(htmp);
   subTrackerRadius.push_back(tmpRadius);
   subTrackerLength.push_back(tmpLength);
 
   // TIB1
-  htmp[0] = dbe->book1D("TIB1Full", "Full Tracker Inner Barrel 1",120,0.,3.);
-  htmp[1] = dbe->book1D("TIB1Fast", "Fast Tracker Inner Barrel 1",120,0.,3.);
-  tmpRadius[0] = 28.0;
-  tmpRadius[1] = 28.0;
-  tmpLength[0] = 70.0;
-  tmpLength[1] = 73.0;
+  htmp[0] = dbe->book1D("TIB1Full", "Full Tracker Inner Barrel 1",220,0.,5.5);
+  htmp[1] = dbe->book1D("TIB1Fast", "Fast Tracker Inner Barrel 1",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TIB2
-  htmp[0] = dbe->book1D("TIB2Full", "Full Tracker Inner Barrel 2",120,0.,3.);
-  htmp[1] = dbe->book1D("TIB2Fast", "Fast Tracker Inner Barrel 2",120,0.,3.);
-  tmpRadius[0] = 37.0;
-  tmpRadius[1] = 37.0;
-  tmpLength[0] = 70.0;
-  tmpLength[1] = 73.0;
+  htmp[0] = dbe->book1D("TIB2Full", "Full Tracker Inner Barrel 2",220,0.,5.5);
+  htmp[1] = dbe->book1D("TIB2Fast", "Fast Tracker Inner Barrel 2",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TIB3
-  htmp[0] = dbe->book1D("TIB3Full", "Full Tracker Inner Barrel 3",120,0.,3.);
-  htmp[1] = dbe->book1D("TIB3Fast", "Fast Tracker Inner Barrel 3",120,0.,3.);
-  tmpRadius[0] = 45.0;
-  tmpRadius[1] = 45.0;
-  tmpLength[0] = 70.0;
-  tmpLength[1] = 73.0;
+  htmp[0] = dbe->book1D("TIB3Full", "Full Tracker Inner Barrel 3",220,0.,5.5);
+  htmp[1] = dbe->book1D("TIB3Fast", "Fast Tracker Inner Barrel 3",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TIB4
-  htmp[0] = dbe->book1D("TIB4Full", "Full Tracker Inner Barrel 4",120,0.,3.);
-  htmp[1] = dbe->book1D("TIB4Fast", "Fast Tracker Inner Barrel 4",120,0.,3.);
-  tmpRadius[0] = 52.0;
-  tmpRadius[1] = 53.0;
-  tmpLength[0] = 70.0;
-  tmpLength[1] = 73.0;
+  htmp[0] = dbe->book1D("TIB4Full", "Full Tracker Inner Barrel 4",220,0.,5.5);
+  htmp[1] = dbe->book1D("TIB4Fast", "Fast Tracker Inner Barrel 4",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB4CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB4CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TIB Cables
-  htmp[0] = dbe->book1D("TIBCFull", "Full Tracker Inner Barrel Cables",120,0.,3.);
-  htmp[1] = dbe->book1D("TIBCFast", "Fast Tracker Inner Barrel Cables",120,0.,3.);
-  tmpRadius[0] = 53.0;
-  tmpRadius[1] = 53.95;
-  tmpLength[0] = 73.0;
-  tmpLength[1] = 75.5;
+  htmp[0] = dbe->book1D("TIBCFull", "Full Tracker Inner Barrel Cables",220,0.,5.5);
+  htmp[1] = dbe->book1D("TIBCFast", "Fast Tracker Inner Barrel Cables",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIBCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIBCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // All TIB
-  htmp[0] = dbe->book1D("TIBFull", "Full Tracker Inner Barrel",120,0.,3.);
-  htmp[1] = dbe->book1D("TIBFast", "Fast Tracker Inner Barrel",120,0.,3.);
+  htmp[0] = dbe->book1D("TIBFull", "Full Tracker Inner Barrel",220,0.,5.5);
+  htmp[1] = dbe->book1D("TIBFast", "Fast Tracker Inner Barrel",220,0.,5.5);
   h200.push_back(htmp);
   blockTrackerRadius.push_back(tmpRadius);
   blockTrackerLength.push_back(tmpLength);
 
   // TID1
-  htmp[0] = dbe->book1D("TID1Full", "Full Tracker Inner Disk 1",120,0.,3.);
-  htmp[1] = dbe->book1D("TID1Fast", "Fast Tracker Inner Disk 1",120,0.,3.);
-  tmpRadius[0] = 52.0;
-  tmpRadius[1] = 54.0;
-  tmpLength[0] = 83.0;
-  tmpLength[1] = 83.0;
+  htmp[0] = dbe->book1D("TID1Full", "Full Tracker Inner Disk 1",220,0.,5.5);
+  htmp[1] = dbe->book1D("TID1Fast", "Fast Tracker Inner Disk 1",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TID1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TID1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TID2
-  htmp[0] = dbe->book1D("TID2Full", "Full Tracker Inner Disk 2",120,0.,3.);
-  htmp[1] = dbe->book1D("TID2Fast", "Fast Tracker Inner Disk 2",120,0.,3.);
-  tmpRadius[0] = 52.0;
-  tmpRadius[1] = 54.0;
-  tmpLength[0] = 95.0;
-  tmpLength[1] = 95.0;
+  htmp[0] = dbe->book1D("TID2Full", "Full Tracker Inner Disk 2",220,0.,5.5);
+  htmp[1] = dbe->book1D("TID2Fast", "Fast Tracker Inner Disk 2",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TID2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TID2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TID3
-  htmp[0] = dbe->book1D("TID3Full", "Full Tracker Inner Disk 3",120,0.,3.);
-  htmp[1] = dbe->book1D("TID3Fast", "Fast Tracker Inner Disk 3",120,0.,3.);
-  tmpRadius[0] = 52.0;
-  tmpRadius[1] = 54.0;
-  tmpLength[0] = 110.0;
-  tmpLength[1] = 106.0;
+  htmp[0] = dbe->book1D("TID3Full", "Full Tracker Inner Disk 3",220,0.,5.5);
+  htmp[1] = dbe->book1D("TID3Fast", "Fast Tracker Inner Disk 3",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TID3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TID3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TID Cables
-  htmp[0] = dbe->book1D("TIDCFull", "Full Tracker Inner Disk Cables",120,0.,3.);
-  htmp[1] = dbe->book1D("TIDCFast", "Fast Tracker Inner Disk Cables",120,0.,3.);
-  tmpRadius[0] = 59.0;
-  tmpRadius[1] = 55.0;
-  tmpLength[0] = 122.0;
-  tmpLength[1] = 109.0;
+  htmp[0] = dbe->book1D("TIDCFull", "Full Tracker Inner Disk Cables",220,0.,5.5);
+  htmp[1] = dbe->book1D("TIDCFast", "Fast Tracker Inner Disk Cables",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIDCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIDCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // All TID
-  htmp[0] = dbe->book1D("TIDFull", "Full Tracker Inner Disk",120,0.,3.);
-  htmp[1] = dbe->book1D("TIDFast", "Fast Tracker Inner Disk",120,0.,3.);
+  htmp[0] = dbe->book1D("TIDFull", "Full Tracker Inner Disk",220,0.,5.5);
+  htmp[1] = dbe->book1D("TIDFast", "Fast Tracker Inner Disk",220,0.,5.5);
   h200.push_back(htmp);
   blockTrackerRadius.push_back(tmpRadius);
   blockTrackerLength.push_back(tmpLength);
 
   // All Inner Tracker
-  htmp[0] = dbe->book1D("InnerFull", "Full Inner Tracker",120,0.,3.);
-  htmp[1] = dbe->book1D("InnerFast", "Fast Inner Tracker",120,0.,3.);
+  htmp[0] = dbe->book1D("InnerFull", "Full Inner Tracker",220,0.,5.5);
+  htmp[1] = dbe->book1D("InnerFast", "Fast Inner Tracker",220,0.,5.5);
   h300.push_back(htmp);
   subTrackerRadius.push_back(tmpRadius);
   subTrackerLength.push_back(tmpLength);
 
   // TOB1
-  htmp[0] = dbe->book1D("TOB1Full", "Full Tracker Outer Barrel 1",120,0.,3.);
-  htmp[1] = dbe->book1D("TOB1Fast", "Fast Tracker Outer Barrel 1",120,0.,3.);
-  tmpRadius[0] = 65.0;
-  tmpRadius[1] = 65.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  htmp[0] = dbe->book1D("TOB1Full", "Full Tracker Outer Barrel 1",220,0.,5.5);
+  htmp[1] = dbe->book1D("TOB1Fast", "Fast Tracker Outer Barrel 1",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB2
-  htmp[0] = dbe->book1D("TOB2Full", "Full Tracker Outer Barrel 2",120,0.,3.);
-  htmp[1] = dbe->book1D("TOB2Fast", "Fast Tracker Outer Barrel 2",120,0.,3.);
-  tmpRadius[0] = 75.0;
-  tmpRadius[1] = 75.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  htmp[0] = dbe->book1D("TOB2Full", "Full Tracker Outer Barrel 2",220,0.,5.5);
+  htmp[1] = dbe->book1D("TOB2Fast", "Fast Tracker Outer Barrel 2",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB3
-  htmp[0] = dbe->book1D("TOB3Full", "Full Tracker Outer Barrel 3",120,0.,3.);
-  htmp[1] = dbe->book1D("TOB3Fast", "Fast Tracker Outer Barrel 3",120,0.,3.);
-  tmpRadius[0] = 83.0;
-  tmpRadius[1] = 83.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  htmp[0] = dbe->book1D("TOB3Full", "Full Tracker Outer Barrel 3",220,0.,5.5);
+  htmp[1] = dbe->book1D("TOB3Fast", "Fast Tracker Outer Barrel 3",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB4
-  htmp[0] = dbe->book1D("TOB4Full", "Full Tracker Outer Barrel 4",120,0.,3.);
-  htmp[1] = dbe->book1D("TOB4Fast", "Fast Tracker Outer Barrel 4",120,0.,3.);
-  tmpRadius[0] = 92.0;
-  tmpRadius[1] = 92.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  htmp[0] = dbe->book1D("TOB4Full", "Full Tracker Outer Barrel 4",220,0.,5.5);
+  htmp[1] = dbe->book1D("TOB4Fast", "Fast Tracker Outer Barrel 4",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB4CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB4CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB5
-  htmp[0] = dbe->book1D("TOB5Full", "Full Tracker Outer Barrel 5",120,0.,3.);
-  htmp[1] = dbe->book1D("TOB5Fast", "Fast Tracker Outer Barrel 5",120,0.,3.);
-  tmpRadius[0] = 103.0;
-  tmpRadius[1] = 103.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  htmp[0] = dbe->book1D("TOB5Full", "Full Tracker Outer Barrel 5",220,0.,5.5);
+  htmp[1] = dbe->book1D("TOB5Fast", "Fast Tracker Outer Barrel 5",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB5CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB5CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB6
-  htmp[0] = dbe->book1D("TOB6Full", "Full Tracker Outer Barrel 6",120,0.,3.);
-  htmp[1] = dbe->book1D("TOB6Fast", "Fast Tracker Outer Barrel 6",120,0.,3.);
-  tmpRadius[0] = 113.0;
-  tmpRadius[1] = 113.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  htmp[0] = dbe->book1D("TOB6Full", "Full Tracker Outer Barrel 6",220,0.,5.5);
+  htmp[1] = dbe->book1D("TOB6Fast", "Fast Tracker Outer Barrel 6",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB6CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB6CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TOB Cables
-  htmp[0] = dbe->book1D("TOBCFull", "Full Tracker Outer Barrel Cables",120,0.,3.);
-  htmp[1] = dbe->book1D("TOBCFast", "Fast Tracker Outer Barrel Cables",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 125.0;
-  tmpLength[1] = 125.0;
+  htmp[0] = dbe->book1D("TOBCFull", "Full Tracker Outer Barrel Cables",220,0.,5.5);
+  htmp[1] = dbe->book1D("TOBCFast", "Fast Tracker Outer Barrel Cables",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOBCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOBCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // All TOB
-  htmp[0] = dbe->book1D("TOBFull", "Full Tracker Outer Barrel",120,0.,3.);
-  htmp[1] = dbe->book1D("TOBFast", "Fast Tracker Outer Barrel",120,0.,3.);
+  htmp[0] = dbe->book1D("TOBFull", "Full Tracker Outer Barrel",220,0.,5.5);
+  htmp[1] = dbe->book1D("TOBFast", "Fast Tracker Outer Barrel",220,0.,5.5);
   h200.push_back(htmp);
   blockTrackerRadius.push_back(tmpRadius);
   blockTrackerLength.push_back(tmpLength);
 
   // TEC1
-  htmp[0] = dbe->book1D("TEC1Full", "Full Tracker EndCap 1",120,0.,3.);
-  htmp[1] = dbe->book1D("TEC1Fast", "Fast Tracker Endcap 1",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 136.0;
-  tmpLength[1] = 136.0;
+  htmp[0] = dbe->book1D("TEC1Full", "Full Tracker EndCap 1",220,0.,5.5);
+  htmp[1] = dbe->book1D("TEC1Fast", "Fast Tracker Endcap 1",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC2
-  htmp[0] = dbe->book1D("TEC2Full", "Full Tracker EndCap 2",120,0.,3.);
-  htmp[1] = dbe->book1D("TEC2Fast", "Fast Tracker Endcap 2",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 150.0;
-  tmpLength[1] = 150.0;
+  htmp[0] = dbe->book1D("TEC2Full", "Full Tracker EndCap 2",220,0.,5.5);
+  htmp[1] = dbe->book1D("TEC2Fast", "Fast Tracker Endcap 2",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC3
-  htmp[0] = dbe->book1D("TEC3Full", "Full Tracker EndCap 3",120,0.,3.);
-  htmp[1] = dbe->book1D("TEC3Fast", "Fast Tracker Endcap 3",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 165.0;
-  tmpLength[1] = 165.0;
+  htmp[0] = dbe->book1D("TEC3Full", "Full Tracker EndCap 3",220,0.,5.5);
+  htmp[1] = dbe->book1D("TEC3Fast", "Fast Tracker Endcap 3",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC4
-  htmp[0] = dbe->book1D("TEC4Full", "Full Tracker EndCap 4",120,0.,3.);
-  htmp[1] = dbe->book1D("TEC4Fast", "Fast Tracker Endcap 4",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 180.0;
-  tmpLength[1] = 180.0;
+  htmp[0] = dbe->book1D("TEC4Full", "Full Tracker EndCap 4",220,0.,5.5);
+  htmp[1] = dbe->book1D("TEC4Fast", "Fast Tracker Endcap 4",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC4CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC4CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC5
-  htmp[0] = dbe->book1D("TEC5Full", "Full Tracker EndCap 5",120,0.,3.);
-  htmp[1] = dbe->book1D("TEC5Fast", "Fast Tracker Endcap 5",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 195.0;
-  tmpLength[1] = 195.0;
+  htmp[0] = dbe->book1D("TEC5Full", "Full Tracker EndCap 5",220,0.,5.5);
+  htmp[1] = dbe->book1D("TEC5Fast", "Fast Tracker Endcap 5",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC5CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC5CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC6
-  htmp[0] = dbe->book1D("TEC6Full", "Full Tracker EndCap 6",120,0.,3.);
-  htmp[1] = dbe->book1D("TEC6Fast", "Fast Tracker Endcap 6",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 211.0;
-  tmpLength[1] = 211.0;
+  htmp[0] = dbe->book1D("TEC6Full", "Full Tracker EndCap 6",220,0.,5.5);
+  htmp[1] = dbe->book1D("TEC6Fast", "Fast Tracker Endcap 6",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC6CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC6CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC7
-  htmp[0] = dbe->book1D("TEC7Full", "Full Tracker EndCap 7",120,0.,3.);
-  htmp[1] = dbe->book1D("TEC7Fast", "Fast Tracker Endcap 7",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 230.0;
-  tmpLength[1] = 230.0;
+  htmp[0] = dbe->book1D("TEC7Full", "Full Tracker EndCap 7",220,0.,5.5);
+  htmp[1] = dbe->book1D("TEC7Fast", "Fast Tracker Endcap 7",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC7CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC7CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC8
-  htmp[0] = dbe->book1D("TEC8Full", "Full Tracker EndCap 8",120,0.,3.);
-  htmp[1] = dbe->book1D("TEC8Fast", "Fast Tracker Endcap 8",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 252.0;
-  tmpLength[1] = 252.0;
+  htmp[0] = dbe->book1D("TEC8Full", "Full Tracker EndCap 8",220,0.,5.5);
+  htmp[1] = dbe->book1D("TEC8Fast", "Fast Tracker Endcap 8",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC8CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC8CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // TEC9
-  htmp[0] = dbe->book1D("TEC9Full", "Full Tracker EndCap 9",120,0.,3.);
-  htmp[1] = dbe->book1D("TEC9Fast", "Fast Tracker Endcap 9",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 272.0;
-  tmpLength[1] = 272.0;
+  htmp[0] = dbe->book1D("TEC9Full", "Full Tracker EndCap 9",220,0.,5.5);
+  htmp[1] = dbe->book1D("TEC9Fast", "Fast Tracker Endcap 9",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC9CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC9CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // All TEC
-  htmp[0] = dbe->book1D("TECFull", "Full Tracker EndCap",120,0.,3.);
-  htmp[1] = dbe->book1D("TECFast", "Fast Tracker EndCap",120,0.,3.);
+  htmp[0] = dbe->book1D("TECFull", "Full Tracker EndCap",220,0.,5.5);
+  htmp[1] = dbe->book1D("TECFast", "Fast Tracker EndCap",220,0.,5.5);
   h200.push_back(htmp);
   blockTrackerRadius.push_back(tmpRadius);
   blockTrackerLength.push_back(tmpLength);
 
   // All Outer 
-  htmp[0] = dbe->book1D("OuterFull", "Full Outer Tracker",120,0.,3.);
-  htmp[1] = dbe->book1D("OuterFast", "Fast Outer Tracker",120,0.,3.);
+  htmp[0] = dbe->book1D("OuterFull", "Full Outer Tracker",220,0.,5.5);
+  htmp[1] = dbe->book1D("OuterFast", "Fast Outer Tracker",220,0.,5.5);
   h300.push_back(htmp);
   subTrackerRadius.push_back(tmpRadius);
   subTrackerLength.push_back(tmpLength);
 
   // Outer Cables
-  htmp[0] = dbe->book1D("TECCFull", "Full Tracker Outer Cables",120,0.,3.);
-  htmp[1] = dbe->book1D("TECCFast", "Fast Tracker Outer Cables",120,0.,3.);
-  tmpRadius[0] = 125.0;
-  tmpRadius[1] = 121.0;
-  tmpLength[0] = 301.0;
-  tmpLength[1] = 301.0;
+  htmp[0] = dbe->book1D("TECCFull", "Full Tracker Outer Cables",220,0.,5.5);
+  htmp[1] = dbe->book1D("TECCFast", "Fast Tracker Outer Cables",220,0.,5.5);
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TrackerCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TrackerCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
 
   // All TEC
-  htmp[0] = dbe->book1D("CablesFull", "Full Tracker Cables",120,0.,3.);
-  htmp[1] = dbe->book1D("CablesFast", "Fast Tracker Cables",120,0.,3.);
+  htmp[0] = dbe->book1D("CablesFull", "Full Tracker Cables",220,0.,5.5);
+  htmp[1] = dbe->book1D("CablesFast", "Fast Tracker Cables",220,0.,5.5);
   h200.push_back(htmp);
   blockTrackerRadius.push_back(tmpRadius);
   blockTrackerLength.push_back(tmpLength);
 
   // All 
-  htmp[0] = dbe->book1D("TrackerFull", "Full Tracker",120,0.,3.);
-  htmp[1] = dbe->book1D("TrackerFast", "Fast Tracker",120,0.,3.);
+  htmp[0] = dbe->book1D("TrackerFull", "Full Tracker",220,0.,5.5);
+  htmp[1] = dbe->book1D("TrackerFast", "Fast Tracker",220,0.,5.5);
   h300.push_back(htmp);
   subTrackerRadius.push_back(tmpRadius);
   subTrackerLength.push_back(tmpLength);
 
+  // All Patrice : Finer granularity
+  htmp[0] = dbe->book1D("TrackerFull2", "Full Tracker 2",550,0.,5.5);
+  htmp[1] = dbe->book1D("TrackerFast2", "Fast Tracker 2",550,0.,5.5);
+  h300.push_back(htmp);
+  subTrackerRadius.push_back(tmpRadius);
+  subTrackerLength.push_back(tmpLength);
 
  
   //  for ( unsigned hist=0; hist<h100.size(); ++hist ) 
@@ -589,6 +552,8 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   //	      << " "  << trackerRadius[hist][1] 
   //	      << ", Length = " << trackerLength[hist][0] 
   //	      << " " << trackerLength[hist][1] << std::endl;
+
+  nevt=0;
 								
 }
 
@@ -598,7 +563,7 @@ testMaterialEffects::~testMaterialEffects()
   //  delete mySimEvent;
 }
 
-void testMaterialEffects::beginJob(const edm::EventSetup & es)
+void testMaterialEffects::beginRun(edm::Run const&, edm::EventSetup const& es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
@@ -612,14 +577,21 @@ void testMaterialEffects::beginJob(const edm::EventSetup & es)
 void
 testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  //  std::cout << "Fill full event " << std::endl;
+
+  if( ( nevt < 100 && nevt%10 == 0)   || 
+      ( nevt < 1000 && nevt%100 == 0) || 
+      nevt%1000 == 0 ) 
+    std::cout<<"process entry "<< nevt << std::endl;
+  nevt++; 
+
+  //std::cout << "Fill full event " << std::endl;
   edm::Handle<std::vector<SimTrack> > fullSimTracks;
   iEvent.getByLabel("g4SimHits",fullSimTracks);
   edm::Handle<std::vector<SimVertex> > fullSimVertices;
   iEvent.getByLabel("g4SimHits",fullSimVertices);
   mySimEvent[0]->fill( *fullSimTracks, *fullSimVertices );
   
-  //  std::cout << "Fill full event " << std::endl;
+  //std::cout << "Fill fast event " << std::endl;
   edm::Handle<std::vector<SimTrack> > fastSimTracks;
   iEvent.getByLabel("famosSimHits",fastSimTracks);
   edm::Handle<std::vector<SimVertex> > fastSimVertices;
@@ -685,7 +657,7 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	    myGammas.push_back(igamma);
 
 	    h2[ievt]->Fill(myGamma.momentum().e());
-	    h3[ievt]->Fill(myGamma.momentum().e()/theElectron.e());
+	    h3[ievt]->Fill(myGamma.momentum().e()/theFather.e());
 
 	  }
 	  h4[ievt]->Fill(nbrems);
@@ -705,8 +677,8 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
  	// Fill the individual layer histograms !
 	bool filled = false;
 	for ( unsigned hist=0; hist<h100.size() && !filled; ++hist ) {
-	  if ( radius < trackerRadius[hist][ievt] && 
-	       zed < trackerLength[hist][ievt] ) {
+	  if ( eta<5. && ( radius < trackerRadius[hist][ievt] && 
+			   zed < trackerLength[hist][ievt] ) ) {
 	    h100[hist][ievt]->Fill(eta);
 	    filled = true;
 	  }
@@ -716,13 +688,22 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
  	// Fill the block histograms !
 	filled = false;
 	for ( unsigned hist=0; hist<h200.size() && !filled; ++hist ) {
-	  if ( radius < blockTrackerRadius[hist][ievt] && 
-	       zed < blockTrackerLength[hist][ievt] ) {
+	  if ( eta<5. && ( radius < blockTrackerRadius[hist][ievt] && 
+			   zed < blockTrackerLength[hist][ievt] ) ) {
 	    h200[hist][ievt]->Fill(eta);
 	    filled = true;
 	  }
 	}
 	if (!filled) h7[ievt]->Fill(zed,radius);
+
+        // Patrice
+        if ( eta > 3.) {
+          h13[ievt]->Fill(radius);
+          h14[ievt]->Fill(radius);
+          if ( eta <  3.61                 ) h15[ievt]->Fill(eta);
+          if ( eta >= 3.61  && eta < 4.835 ) h16[ievt]->Fill(eta);
+          if ( eta >= 4.835 && eta < 4.915 ) h17[ievt]->Fill(eta);
+        }
 
  	// Fill the cumulative histograms !
 	for ( unsigned hist=0; hist<h300.size(); ++hist ) {
@@ -731,7 +712,7 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	       ( hist == 2 && 
 		 radius < subTrackerRadius[1][ievt] && 
 		 zed < subTrackerLength[1][ievt] ) ) {
-	    h300[hist][ievt]->Fill(eta);
+	    if ( ( hist <= 3 && eta < 5. ) || hist>=4 ) h300[hist][ievt]->Fill(eta);
 	    if ( hist == 0 ) h8[ievt]->Fill(zed,radius);
 	    if ( hist == 1 ) h9[ievt]->Fill(zed,radius);
 	    if ( hist == 2 ) h10[ievt]->Fill(zed,radius);
@@ -746,5 +727,5 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testMaterialEffects);
+
+DEFINE_FWK_MODULE(testMaterialEffects);

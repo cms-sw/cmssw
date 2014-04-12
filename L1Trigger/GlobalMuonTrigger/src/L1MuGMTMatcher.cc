@@ -5,8 +5,6 @@
 //   Description: Matcher 
 //
 //
-//   $Date: 2007/04/02 15:45:39 $
-//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 

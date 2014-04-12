@@ -1,7 +1,6 @@
 #ifndef L1CALOEMCAND_H
 #define L1CALOEMCAND_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -60,10 +59,22 @@ public:
   unsigned index() const { return m_index; }
 
   /// get bunch-crossing index
-  int bx() const { return m_bx; }
+  int16_t bx() const { return m_bx; }
 
   /// get DetID object
   L1CaloRegionDetId regionId() const { return L1CaloRegionDetId(rctCrate(),rctCard(),rctRegion()); }
+
+  /// set BX
+  void setBx(int16_t bx);
+
+  /// equality operator, including rank, isolation, position
+  int operator==(const L1CaloEmCand& c) const { return ((m_data==c.raw() && m_iso==c.isolated() && m_rctCrate==c.rctCrate() && this->regionId()==c.regionId()) || (this->empty() && c.empty())); }
+
+  /// inequality operator
+  int operator!=(const L1CaloEmCand& c) const { return !(*this == c); }
+
+  /// is there any information in the candidate
+  bool empty() const { return (rank() == 0); }
 
 
  private:

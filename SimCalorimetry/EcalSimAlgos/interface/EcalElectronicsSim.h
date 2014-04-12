@@ -1,45 +1,54 @@
-
 #ifndef EcalSimAlgos_EcalElectronicsSim_h
 #define EcalSimAlgos_EcalElectronicsSim_h 1
 
 
-#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 
 
-class EcalCoder;
-class EcalDataFrame;
-class EcalSimParameterMap;
+class EcalCoder           ;
+class EcalDataFrame       ;
+class EcalSimParameterMap ;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 /* \class EcalElectronicsSim
  * \brief Converts CaloDataFrame in CaloTimeSample and vice versa.
  * 
- */                                                                                            
+ */
+
 class EcalElectronicsSim
 {
- public:
-  /// ctor
-  EcalElectronicsSim(const EcalSimParameterMap * parameterMap, EcalCoder * coder, bool applyConstantTerm, double rmsConstantTerm) ;
+   public:
 
-  /// input signal is in pe.  Converted in GeV
-  void amplify(CaloSamples & clf) const;
+      typedef CaloTSamples<float,10> EcalSamples ;
 
-  /// from CaloSamples to EcalDataFrame
-  void analogToDigital(CaloSamples& clf, EcalDataFrame& df) const;
-  /// compute the event random constant term
-  double constantTerm() const;
+      EcalElectronicsSim( const EcalSimParameterMap* parameterMap      , 
+			  EcalCoder*                 coder             , 
+			  bool                       applyConstantTerm , 
+			  double                     rmsConstantTerm     ) ;
 
-  ///  anything that needs to be done once per event
-  void newEvent() {}
+      ~EcalElectronicsSim() ;
 
- private:
+      /// from EcalSamples to EcalDataFrame
+      void analogToDigital( CLHEP::HepRandomEngine*, EcalSamples& clf, EcalDataFrame& df ) const ;
 
-  /// map of parameters
-  const EcalSimParameterMap * theParameterMap;
-  /// Converts CaloDataFrame in CaloTimeSample and vice versa
-  EcalCoder * theCoder;
-  const bool applyConstantTerm_;
-  const double rmsConstantTerm_;
+      void newEvent() {}
+
+   private:
+
+      /// input signal is in pe.  Converted in GeV
+      void amplify( EcalSamples& clf, CLHEP::HepRandomEngine* ) const ;
+
+      /// map of parameters
+
+      const EcalSimParameterMap* m_simMap ;
+
+      EcalCoder*                 m_theCoder ;
+
+      const double               m_thisCT;
+      const bool                 m_applyConstantTerm;
 } ;
 
 

@@ -30,7 +30,7 @@ DCULVRTempsDat::~DCULVRTempsDat()
 
 
 void DCULVRTempsDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -41,23 +41,23 @@ void DCULVRTempsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRTempsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRTempsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void DCULVRTempsDat::writeDB(const EcalLogicID* ecid, const DCULVRTempsDat* item, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("DCULVRTempsDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("DCULVRTempsDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("DCULVRTempsDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("DCULVRTempsDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -69,14 +69,14 @@ void DCULVRTempsDat::writeDB(const EcalLogicID* ecid, const DCULVRTempsDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRTempsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRTempsDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void DCULVRTempsDat::fetchData(std::map< EcalLogicID, DCULVRTempsDat >* fillMap, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -84,7 +84,7 @@ void DCULVRTempsDat::fetchData(std::map< EcalLogicID, DCULVRTempsDat >* fillMap,
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("DCULVRTempsDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("DCULVRTempsDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -116,6 +116,6 @@ void DCULVRTempsDat::fetchData(std::map< EcalLogicID, DCULVRTempsDat >* fillMap,
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRTempsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRTempsDat::fetchData():  "+e.getMessage()));
   }
 }

@@ -27,7 +27,7 @@ RunPTMTempDat::~RunPTMTempDat()
 
 
 void RunPTMTempDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -38,23 +38,23 @@ void RunPTMTempDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":temperature)");
   } catch (SQLException &e) {
-    throw(runtime_error("RunPTMTempDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("RunPTMTempDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void RunPTMTempDat::writeDB(const EcalLogicID* ecid, const RunPTMTempDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunPTMTempDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("RunPTMTempDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("RunPTMTempDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("RunPTMTempDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -63,14 +63,14 @@ void RunPTMTempDat::writeDB(const EcalLogicID* ecid, const RunPTMTempDat* item, 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunPTMTempDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("RunPTMTempDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void RunPTMTempDat::fetchData(map< EcalLogicID, RunPTMTempDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -78,7 +78,7 @@ void RunPTMTempDat::fetchData(map< EcalLogicID, RunPTMTempDat >* fillMap, RunIOV
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunPTMTempDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("RunPTMTempDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -109,6 +109,6 @@ void RunPTMTempDat::fetchData(map< EcalLogicID, RunPTMTempDat >* fillMap, RunIOV
     }
 
   } catch (SQLException &e) {
-    throw(runtime_error("RunPTMTempDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunPTMTempDat::fetchData():  "+e.getMessage()));
   }
 }

@@ -10,15 +10,12 @@
 // Fit constraint: mass conservation ( m_i - m_j - alpha * MassConstraint == 0 )
 //
 
-using namespace std;
-
 #include <iostream>
+#include <iomanip>
 #include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
-#include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
-#include "TLorentzVector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TClass.h"
 
-ClassImp(TFitConstraintMGaus)
 
 //----------------
 // Constructor --
@@ -31,8 +28,8 @@ TFitConstraintMGaus::TFitConstraintMGaus()
 
 }
 
-TFitConstraintMGaus::TFitConstraintMGaus(vector<TAbsFitParticle*>* ParList1,
-					 vector<TAbsFitParticle*>* ParList2, 
+TFitConstraintMGaus::TFitConstraintMGaus(std::vector<TAbsFitParticle*>* ParList1,
+					 std::vector<TAbsFitParticle*>* ParList2, 
 					 Double_t Mass,
 					 Double_t Width)
   : TFitConstraintM(ParList1, ParList2, Mass ) 
@@ -44,8 +41,8 @@ TFitConstraintMGaus::TFitConstraintMGaus(vector<TAbsFitParticle*>* ParList1,
 }
 
 TFitConstraintMGaus::TFitConstraintMGaus(const TString &name, const TString &title,
-					 vector<TAbsFitParticle*>* ParList1,
-					 vector<TAbsFitParticle*>* ParList2, 
+					 std::vector<TAbsFitParticle*>* ParList1,
+					 std::vector<TAbsFitParticle*>* ParList2, 
 					 Double_t Mass,
 					 Double_t Width)
   : TFitConstraintM( name, title, ParList1, ParList2, Mass )
@@ -67,7 +64,6 @@ TFitConstraintMGaus::init() {
 
 }
 
-
 //--------------
 // Destructor --
 //--------------
@@ -84,6 +80,12 @@ void TFitConstraintMGaus::setMassConstraint(Double_t Mass, Double_t Width) {
   _TheMassConstraint = Mass;
   _width = Width;
   setCovMatrix( 0 );
+  if(!Mass) throw cms::Exception("Configuration")
+    << "Error occured!\n"
+    << "Object type : TFitConstraintMGaus\n"
+    << "Object name : " << GetName() << "\n"
+    << "Object title: " << GetTitle() << "\n"
+    << "Mass of 0 GeV not supported, please choose a larger mass!\n";
   _covMatrix(0,0) = (Width*Width) / (Mass * Mass);
 
 }
@@ -124,17 +126,31 @@ TMatrixD* TFitConstraintMGaus::getDerivativeAlpha() {
 
 }
 
+TString TFitConstraintMGaus::getInfoString() {
+  // Collect information to be used for printout
+
+  std::stringstream info;
+  info << std::scientific << std::setprecision(6);
+
+  info << "__________________________" << std::endl
+       << std::endl;
+  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
+
+  info << "initial value: " << getInitValue() << std::endl;
+  info << "current value: " << getCurrentValue() << std::endl;
+  info << "mean mass: " << _TheMassConstraint << std::endl;
+  info << "width: " << _width << std::endl;
+  info << "initial mass: " << _iniparameters(0,0)*_TheMassConstraint  << std::endl;
+  info << "current mass: " << _parameters(0,0)*_TheMassConstraint  << std::endl;
+
+  return info.str();
+
+}
+
 void TFitConstraintMGaus::print() {
+  // Print constraint contents
 
-  cout << "__________________________" << endl << endl;
-  cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
-
-  cout << "initial value: " << getInitValue() << endl;
-  cout << "current value: " << getCurrentValue() << endl;
-  cout << "mean mass: " << _TheMassConstraint << endl;
-  cout << "width: " << _width << endl;
-  cout << "initial mass: " << _iniparameters(0,0)*_TheMassConstraint  << endl;
-  cout << "current mass: " << _parameters(0,0)*_TheMassConstraint  << endl;
+  edm::LogVerbatim("KinFitter") << this->getInfoString();
 
 }
 

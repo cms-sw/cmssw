@@ -3,6 +3,8 @@
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include <algorithm>
+
+#include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
 //---------------------------------------------------------------------------
 #include <set>
 using namespace std;
@@ -35,15 +37,25 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
         for(unsigned int iMuN = 0; iMuN < tcsMuonsVec2[iTC+1].size(); iMuN++) {
           if(tcsMuonsVec2[iTC+1][iMuN].getCode() == 0)
             continue;
-          if(tcsMuonsVec2[iTC+1][iMuN].gBDataKilledFirst()){
-            if(abs(tcsMuonsVec2[iTC][iMu].getEtaAddr() -
-                    tcsMuonsVec2[iTC+1][iMuN].getEtaAddr()) <= 1)
-              if(tcsMuonsVec2[iTC][iMu].getCode() <= tcsMuonsVec2[iTC+1][iMuN].getCode()) {
-                if(tcsMuonsVec2[iTC][iMu].getSegmentAddr() == RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1)
+          if(tcsMuonsVec2[iTC+1][iMuN].gBDataKilledFirst())
+          {
+            int eta1 = tcsMuonsVec2[iTC][iMu].getEtaAddr();
+            int eta2 = tcsMuonsVec2[iTC+1][iMuN].getEtaAddr();
+            if ( eta1 > 16 ) eta1 = - ( (~eta1 & 63) + 1);
+            if ( eta2 > 16 ) eta2 = - ( (~eta2 & 63) + 1);
+            if(abs(eta1 - eta2) <= 1) 
+            {
+              if(tcsMuonsVec2[iTC][iMu].getCode() <= tcsMuonsVec2[iTC+1][iMuN].getCode()) 
+              {
+                if(tcsMuonsVec2[iTC][iMu].getSegmentAddr() == RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1) {
                   tcsMuonsVec2[iTC][iMu].kill();
+                }
               }    
-              else
+              else 
+              {
                 tcsMuonsVec2[iTC+1][iMuN].kill();
+              }
+            }
           }
         }
       }
@@ -89,6 +101,29 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
                             outputEndcapMuons.end());
   return m_GBOutputMuons;
 }
+void RPCHalfSorter::maskHSBInput(L1RpcTBMuonsVec & newVec, int mask) {
+
+    if ( mask < 0 || mask > 3) {
+         throw cms::Exception("RPCHalfSorter::maskHSBInput") << " hsbMask has wrong value - " << mask <<" \n";
+    }
+
+    if ( mask == 1) { // leave the best muons
+      newVec.at(2) = RPCTBMuon();
+      newVec.at(3) = RPCTBMuon();
+    } else if (mask == 2){
+      newVec.at(0) = RPCTBMuon();
+      newVec.at(1) = RPCTBMuon();
+    } else {
+      newVec.at(0) = RPCTBMuon();
+      newVec.at(1) = RPCTBMuon();
+      newVec.at(2) = RPCTBMuon();
+      newVec.at(3) = RPCTBMuon();
+    }
+
+}
+
+
+
 /** 
  * Runs runHalf() for 2 detecors parts.
  * Converts m_tower number (eta addr) from continous (0 - 32, m_tower 0 = 16)
@@ -96,14 +131,20 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
  * @return 4 munons from barrel (m_GBOutputMuons[0]),
  * and 4 from endcaps (m_GBOutputMuons[1]).
 */
-L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
+L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, edm::ESHandle<L1RPCHsbConfig> hsbConf) {
   
   m_GBOutputMuons[0].clear();
   m_GBOutputMuons[1].clear();
 
   L1RpcTBMuonsVec2 firstHalfTcsMuonsVec2;
 
-  firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1]); //TC=11 (last one)
+  if ( tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1].size()==0 || hsbConf->getHsbMask(0,0) == 3 ) {
+    firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1]); //TC=11 (last one)
+  } else {
+    L1RpcTBMuonsVec newVec = tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1];
+    maskHSBInput(newVec, hsbConf->getHsbMask(0,0));
+    firstHalfTcsMuonsVec2.push_back(newVec); 
+  }
 
   // update sectorAddr. Dont update sectorAddr of last tc (it will be done in other half)
   int secAddr = 1;  
@@ -114,12 +155,20 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
         tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr); // |
                                                    // iTC=0 - firstTrigger crate (no=1) 
                                                    //       - in hw it has sectorAddr=1
-        tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
+        //tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
                                                    //      want to act same as hw
       }
     } // iter. over muons end
     ++secAddr; // Next trigger crate. Update the address
-    firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[iTC]);
+
+    if ( tcsMuonsVec2[iTC].size()==0 || hsbConf->getHsbMask(0, iTC+1) == 3 ) {
+      firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[iTC]);
+    } else {
+      L1RpcTBMuonsVec newVec = tcsMuonsVec2[iTC];
+      maskHSBInput(newVec, hsbConf->getHsbMask(0, iTC+1));
+      firstHalfTcsMuonsVec2.push_back(newVec); 
+    }
+
   }
 
   runHalf(firstHalfTcsMuonsVec2);
@@ -134,14 +183,28 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
     for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++){
       if ( secAddr != 0 && secAddr != 7  ){ 
         tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr);
-        tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
+        //tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
                                                    //      want to act same as hw
       }
     }
     ++secAddr;
-    secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[iTC]);
+    if ( tcsMuonsVec2[iTC].size()==0 || hsbConf->getHsbMask(1, iTC-5) == 3 ) {
+      secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[iTC]);
+    } else {
+      L1RpcTBMuonsVec newVec = tcsMuonsVec2[iTC];
+      maskHSBInput(newVec, hsbConf->getHsbMask(1, iTC-5));
+      secondHalfTcsMuonsVec2.push_back(newVec); 
+    }
   }
-  secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[0]);
+
+  //secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[0]);
+  if ( tcsMuonsVec2[0].size()==0 || hsbConf->getHsbMask(1 , 7) == 3 ) {
+    secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[0]);
+  } else {
+    L1RpcTBMuonsVec newVec = tcsMuonsVec2[0];
+    maskHSBInput(newVec, hsbConf->getHsbMask(1, 7));
+    secondHalfTcsMuonsVec2.push_back(newVec); 
+  }
 
   runHalf(secondHalfTcsMuonsVec2);
   // Debug
@@ -161,11 +224,14 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
 	    iMod=4;
 	  }
           // Print out 
-          if (m_TrigCnfg->getDebugLevel()!=0){
+          if (m_TrigCnfg->getDebugLevel()==1){
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug")<<"GB 3"<< region <<halfNum  
-	        << " " << i - iMod << " "
-                << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel());
+           // LogDebug("RPCHwDebug")<<"GB 3"<< region <<halfNum  
+	   //     << " " << i - iMod << " "
+           //     << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel());
+           //MuonsGrabber::Instance().writeDataForRelativeBX(iBx);  
+           MuonsGrabber::Instance().addMuon(m_GBOutputMuons[region][i], 3, region, halfNum, i - iMod);  
+
 #else
             std::cout <<"GB 3" << region<< halfNum
 	        << " " << i - iMod << " "

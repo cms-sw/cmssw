@@ -1,57 +1,52 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/05/24 13:26:12 $
- * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EECosmicTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EECosmicTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EECosmicTask::EECosmicTask(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
+EECosmicTask::EECosmicTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
-  for (int i = 0; i < 18 ; i++) {
-    meCutMap_[i] = 0;
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EcalUncalibratedRecHitCollection_ = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection"));
+  EcalRecHitCollection_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollection"));
+
+  threshold_ = 0.12500; // typical muon energy deposit is 250 MeV
+
+  minJitter_ = -2.0;
+  maxJitter_ =  1.5;
+
+  for (int i = 0; i < 18; i++) {
     meSelMap_[i] = 0;
-    meSpectrumMap_[i] = 0;
+    meSpectrum_[0][i] = 0;
+    meSpectrum_[1][i] = 0;
   }
 
 }
@@ -60,13 +55,35 @@ EECosmicTask::~EECosmicTask(){
 
 }
 
-void EECosmicTask::beginJob(const EventSetup& c){
+void EECosmicTask::beginJob(void){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
-    dbe_->rmdir("EcalEndcap/EECosmicTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask");
+    dqmStore_->rmdir(prefixME_ + "/EECosmicTask");
+  }
+
+}
+
+void EECosmicTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EECosmicTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+}
+
+void EECosmicTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( meSelMap_[i] ) meSelMap_[i]->Reset();
+    if ( meSpectrum_[0][i] ) meSpectrum_[0][i]->Reset();
+    if ( meSpectrum_[1][i] ) meSpectrum_[1][i]->Reset();
   }
 
 }
@@ -75,27 +92,30 @@ void EECosmicTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  std::string name;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EECT energy cut SM%02d", i+1);
-      meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask/Sel");
+    for (int i = 0; i < 18; i++) {
+      name = "EECT energy sel " + Numbers::sEE(i+1);
+      meSelMap_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meSelMap_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meSelMap_[i]->setAxisTitle("101-ix", 1);
+      meSelMap_[i]->setAxisTitle("iy", 2);
+      meSelMap_[i]->setAxisTitle("energy (GeV)", 3);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EECT energy sel SM%02d", i+1);
-      meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-    }
+    dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask/Spectrum");
+    for (int i = 0; i < 18; i++) {
+      name = "EECT 1x1 energy spectrum " + Numbers::sEE(i+1);
+      meSpectrum_[0][i] = dqmStore_->book1D(name, name, 100, 0., 1.5);
+      meSpectrum_[0][i]->setAxisTitle("energy (GeV)", 1);
 
-    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EECT energy spectrum SM%02d", i+1);
-      meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
+      name = "EECT 3x3 energy spectrum " + Numbers::sEE(i+1);
+      meSpectrum_[1][i] = dqmStore_->book1D(name, name, 100, 0., 1.5);
+      meSpectrum_[1][i]->setAxisTitle("energy (GeV)", 1);
     }
 
   }
@@ -104,27 +124,23 @@ void EECosmicTask::setup(void){
 
 void EECosmicTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
-    for (int i = 0; i < 18 ; i++) {
-      if ( meCutMap_[i] ) dbe_->removeElement( meCutMap_[i]->getName() );
-      meCutMap_[i] = 0;
-    }
-
-    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
-    for (int i = 0; i < 18 ; i++) {
-      if ( meSelMap_[i] ) dbe_->removeElement( meSelMap_[i]->getName() );
+    dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask/Sel");
+    for (int i = 0; i < 18; i++) {
+      if ( meSelMap_[i] ) dqmStore_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
-    for (int i = 0; i < 18 ; i++) {
-      if ( meSpectrumMap_[i] ) dbe_->removeElement( meSpectrumMap_[i]->getName() );
-      meSpectrumMap_[i] = 0;
+    dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask/Spectrum");
+    for (int i = 0; i < 18; i++) {
+      if ( meSpectrum_[0][i] ) dqmStore_->removeElement( meSpectrum_[0][i]->getName() );
+      meSpectrum_[0][i] = 0;
+      if ( meSpectrum_[1][i] ) dqmStore_->removeElement( meSpectrum_[1][i]->getName() );
+      meSpectrum_[1][i] = 0;
     }
 
   }
@@ -135,45 +151,44 @@ void EECosmicTask::cleanup(void){
 
 void EECosmicTask::endJob(void){
 
-  LogInfo("EECosmicTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EECosmicTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EECosmicTask::analyze(const Event& e, const EventSetup& c){
+void EECosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
+  bool isData = true;
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[18];
+  for (int i=0; i<18; i++) runType[i] = -1;
 
-  try {
+  edm::Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( dcch ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
+      runType[ism-1] = dcchItr->getRunType();
 
-      dccMap[ ism ] = dcch;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EECosmicTask") << EcalRawDataCollection_ << " not available";
+    isData = false; enable = true;
+    edm::LogWarning("EECosmicTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -183,64 +198,97 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  edm::Handle<EcalRecHitCollection> hits;
 
-    Handle<EcalRecHitCollection> hits;
-    e.getByLabel(EcalRecHitCollection_, hits);
+  if ( e.getByToken(EcalRecHitCollection_, hits) ) {
 
-    int nebh = hits->size();
-    LogDebug("EECosmicTask") << "event " << ievt_ << " hits collection size " << nebh;
+    int neeh = hits->size();
+    LogDebug("EECosmicTask") << "event " << ievt_ << " hits collection size " << neeh;
+
+    edm::Handle<EcalUncalibratedRecHitCollection> uhits;
+
+    if ( ! e.getByToken(EcalUncalibratedRecHitCollection_, uhits) ) {
+      edm::LogWarning("EECosmicTask") << "EcalUncalibratedRecHitCollection not available";
+    }
 
     for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EEDetId id = hitItr->id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) enable = true;
+      int iz = 0;
 
-      LogDebug("EECosmicTask") << " det id = " << id;
-      LogDebug("EECosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( ism >=  1 && ism <=  9 ) iz = -1;
+      if ( ism >= 10 && ism <= 18 ) iz = +1;
 
-      float xval = hit.energy();
+      if ( isData ) {
+
+        if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::COSMIC ||
+                 runType[ism-1] == EcalDCCHeaderBlock::MTCC ||
+                 runType[ism-1] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+
+      }
+
+      float xval = hitItr->energy();
       if ( xval <= 0. ) xval = 0.0;
 
-      LogDebug("EECosmicTask") << " hit energy " << xval;
+      // look for the seeds
+      float e3x3 = 0.;
+      bool isSeed = true;
 
-      const float lowThreshold  = 0.06125;
-      const float highThreshold = 0.12500;
-
-      if ( xval >= lowThreshold ) {
-        if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
+      // evaluate 3x3 matrix around a seed
+      for(int icry=0; icry<9; ++icry) {
+        unsigned int row    = icry/3;
+        unsigned int column = icry%3;
+        int icryX = id.ix()+column-1;
+        int icryY = id.iy()+row-1;
+        if ( EEDetId::validDetId(icryX, icryY, iz) ) {
+          EEDetId id3x3 = EEDetId(icryX, icryY, iz, EEDetId::XYMODE);
+          if ( hits->find(id3x3) != hits->end() ) {
+            float neighbourEnergy = hits->find(id3x3)->energy();
+            e3x3 += neighbourEnergy;
+            if ( neighbourEnergy > xval ) isSeed = false;
+          }
+        }
       }
 
-      if ( xval >= highThreshold ) {
-        if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, xval);
+      // find the jitter of the seed
+      float jitter = -999.;
+      if ( isSeed ) {
+        if ( uhits.isValid() ) {
+          if ( uhits->find(id) != uhits->end() ) {
+            jitter = uhits->find(id)->jitter();
+          }
+        }
       }
 
-      if ( meSpectrumMap_[ism-1] ) meSpectrumMap_[ism-1]->Fill(xval);
+      if ( isSeed && e3x3 >= threshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
+        if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xix, xiy, e3x3);
+      }
+
+      if ( meSpectrum_[0][ism-1] ) meSpectrum_[0][ism-1]->Fill(xval);
+
+      if ( isSeed && xval >= threshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
+        if ( meSpectrum_[1][ism-1] ) meSpectrum_[1][ism-1]->Fill(e3x3);
+      }
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EECosmicTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EECosmicTask") << "EcalRecHitCollection not available";
 
   }
 

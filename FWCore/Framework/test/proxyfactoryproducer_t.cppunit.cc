@@ -7,7 +7,7 @@
 
 */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyFactoryTemplate.h"
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
@@ -24,7 +24,7 @@ public:
    DummyProxy() {}
 protected:
    const value_type* make(const record_type&, const DataKey&) {
-      return static_cast<const value_type*>(0) ;
+      return static_cast<const value_type*>(nullptr) ;
    }
    void invalidateCache() {
    }   
@@ -104,6 +104,7 @@ void testProxyfactor::appendLabelTest()
   std::string kToAppend("Barney");
   pset.addParameter("appendToDataLabel",
                     kToAppend);
+  pset.registerIt();
   {
     TestLabelProducer testProd;
     testProd.setAppendToDataLabel(pset);

@@ -1,4 +1,3 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorCluster.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorHLT.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorFilter.h"
@@ -7,8 +6,8 @@
 
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripMonitorCluster);
-DEFINE_ANOTHER_FWK_MODULE(SiStripMonitorHLT);
-DEFINE_ANOTHER_FWK_MODULE(SiStripMonitorFilter);
-DEFINE_ANOTHER_FWK_MODULE(MonitorLTC);
+
+DEFINE_FWK_MODULE(SiStripMonitorCluster);
+DEFINE_FWK_MODULE(SiStripMonitorHLT);
+DEFINE_FWK_MODULE(SiStripMonitorFilter);
+DEFINE_FWK_MODULE(MonitorLTC);

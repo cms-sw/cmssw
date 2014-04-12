@@ -1,5 +1,4 @@
 //
-// $Id: PEcalTBInfo.cc,v 1.1 2006/05/30 16:43:43 fabiocos Exp $
 //
 
 // system include files

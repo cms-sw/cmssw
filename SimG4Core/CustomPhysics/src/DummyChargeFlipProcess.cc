@@ -1,8 +1,10 @@
 #include <iostream>
 #include "G4ParticleTable.hh"
-#include "CLHEP/Random/RandFlat.h"
+#include "Randomize.hh"
 
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
+
+using namespace CLHEP;
 
 DummyChargeFlipProcess::
 DummyChargeFlipProcess(const G4String& processName) : 
@@ -57,7 +59,6 @@ DumpPhysicsTable(const G4ParticleDefinition& /*aParticleType*/)
 G4VParticleChange *DummyChargeFlipProcess::PostStepDoIt(
   const G4Track &aTrack, const G4Step &/*aStep*/)
 {
-  SetDispatch(this);
   G4ParticleChange * pc = new G4ParticleChange();
   pc->Initialize(aTrack);
   const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
@@ -77,7 +78,7 @@ G4VParticleChange *DummyChargeFlipProcess::PostStepDoIt(
      aTrack.GetPosition();
      // create a new track object
       G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-      float randomParticle = RandFlat::shoot();
+      float randomParticle = G4UniformRand();
       G4ParticleDefinition * newType = aParticleDef;
       if(randomParticle < 0.333)
         newType=particleTable->FindParticle(1009213);

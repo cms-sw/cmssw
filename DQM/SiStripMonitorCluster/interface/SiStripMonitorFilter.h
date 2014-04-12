@@ -11,6 +11,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -20,6 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+class DQMStore;
 
 class SiStripMonitorFilter : public edm::EDAnalyzer {
    public:
@@ -27,11 +29,12 @@ class SiStripMonitorFilter : public edm::EDAnalyzer {
       ~SiStripMonitorFilter(){};
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
 
    private:
-       DaqMonitorBEInterface* dbe_;
+       edm::EDGetTokenT<int> filerDecisionToken_;       
+       DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        MonitorElement * FilterDecision;
        // all events

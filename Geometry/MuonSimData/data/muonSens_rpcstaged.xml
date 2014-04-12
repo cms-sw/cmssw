@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="muonsensitive">
+    <SpecPar name="barrel">
+      <PartSelector path="//MBSLPhiGas"/>
+      <PartSelector path="//MBChimSLPhiGas"/>
+      <PartSelector path="//MB1SLZGas"/>
+      <PartSelector path="//MB2SLZGas"/>
+      <PartSelector path="//MB3SLZGas"/>
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
+      <Parameter name="ReadOutName" value="MuonDTHits"/>
+    </SpecPar>
+    <SpecPar name="rpc">
+      <PartSelector path="//MB.*RPC.*Gas.*"/>
+      <!--PartSelector path="//REA1" /-->
+      <!--PartSelector path="//REA2" /-->
+      <!--PartSelector path="//REA3" /-->
+      <!--PartSelector path="//REA4" /-->
+      <PartSelector path="//REB1"/>
+      <PartSelector path="//REB2"/>
+      <PartSelector path="//REB3"/>
+      <PartSelector path="//REC1"/>
+      <PartSelector path="//REC2"/>
+      <PartSelector path="//REC3"/>
+      <!--PartSelector path="//RED1" /-->
+      <!--PartSelector path="//RED2" /-->
+      <!--PartSelector path="//RED3" /-->
+      <!--PartSelector path="//RED4" /-->
+      <PartSelector path="//REE1"/>
+      <PartSelector path="//REE2"/>
+      <PartSelector path="//REE3"/>
+      <PartSelector path="//REF1"/>
+      <PartSelector path="//REF2"/>
+      <PartSelector path="//REF3"/>
+      <!--PartSelector path="//REG1" /-->
+      <!--PartSelector path="//REG2" /-->
+      <!--PartSelector path="//REH1" /-->
+      <!--PartSelector path="//REH2" /-->
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
+      <Parameter name="ReadOutName" value="MuonRPCHits"/>
+    </SpecPar>
+    <SpecPar name="endcap">
+      <PartSelector path="//ME11_ActiveGasVol"/>
+      <PartSelector path="//ME12_ActiveGasVol"/>
+      <PartSelector path="//ME13_ActiveGasVol"/>
+      <PartSelector path="//ME1A_ActiveGasVol"/>
+      <PartSelector path="//ME21_ActiveGasVol"/>
+      <PartSelector path="//ME22_ActiveGasVol"/>
+      <PartSelector path="//ME31_ActiveGasVol"/>
+      <PartSelector path="//ME32_ActiveGasVol"/>
+      <PartSelector path="//ME41_ActiveGasVol"/>
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
+      <Parameter name="ReadOutName" value="MuonCSCHits"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

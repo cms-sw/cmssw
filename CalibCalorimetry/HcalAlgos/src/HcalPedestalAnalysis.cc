@@ -1,14 +1,11 @@
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
-
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
-#include <TFile.h>
+#include "TFile.h"
+#include <cmath>
 
 //
 // Michal Szleper, Mar 30, 2007
@@ -24,6 +21,9 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
     fValPedestals (0),
     fValPedestalWidths (0)
 {
+  fTopology=0;
+  m_coder = 0;
+  m_shape = 0;
   evt=0;
   sample=0;
   m_file=0;
@@ -60,6 +60,8 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   m_startTS = ps.getUntrackedParameter<int>("firstTS", 0);
   if(m_startTS<0) m_startTS=0;
   m_endTS = ps.getUntrackedParameter<int>("lastTS", 9);
+
+  fTopology=new HcalTopology(HcalTopologyMode::LHC,2,3);
 
 //  m_logFile.open("HcalPedestalAnalysis.log");
 
@@ -134,7 +136,6 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
     if(evt_curr==0)evt_curr=m_nevtsample;
   }
 
-  m_shape = cond.getHcalShape();
   // Get data for every CAPID.
   // HBHE
   try{
@@ -142,13 +143,14 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
+      m_shape = cond.getHcalShape(m_coder);
       for(int k=0; k<(int)state.size();k++) state[k]=true;
 // here we loop over pairs of time slices, it is more convenient
 // in order to extract the correlation matrix
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
         for(int flag=0; flag<4; flag++){
           if(i+flag<digi.size() && i+flag<=m_endTS){
-            per2CapsHists(flag,0,digi.id(),digi.sample(i),digi.sample(i+flag),hbHists.PEDTRENDS);
+            per2CapsHists(flag,0,digi.id(),digi.sample(i),digi.sample(i+flag),hbHists.PEDTRENDS,cond);
           }
         }
       }
@@ -169,7 +171,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {	   
         for(int flag=0; flag<4; flag++){
           if(i+flag<digi.size() && i+flag<=m_endTS){
-            per2CapsHists(flag,1,digi.id(),digi.sample(i),digi.sample(i+flag),hoHists.PEDTRENDS);
+            per2CapsHists(flag,1,digi.id(),digi.sample(i),digi.sample(i+flag),hoHists.PEDTRENDS,cond);
           }
         }
       }
@@ -190,7 +192,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
         for(int flag=0; flag<4; flag++){
           if(i+flag<digi.size() && i+flag<=m_endTS){
-            per2CapsHists(flag,2,digi.id(),digi.sample(i),digi.sample(i+flag),hfHists.PEDTRENDS);
+            per2CapsHists(flag,2,digi.id(),digi.sample(i),digi.sample(i+flag),hfHists.PEDTRENDS,cond);
           }
         }
       }
@@ -209,7 +211,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
 }
 
 //-----------------------------------------------------------------------------
-void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, map<HcalDetId, map<int,PEDBUNCH> > &toolT) {
+void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, map<HcalDetId, map<int,PEDBUNCH> > &toolT, const HcalDbService& cond) {
 
 // this function is due to be called for every time slice, it fills either a charge
 // histo for a single capID (flag=0) or a product histo for two capIDs (flag>0)
@@ -240,23 +242,11 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
     map<int,float> qiecalib;
     char name[1024];
     for(int i=0; i<4; i++){
-// we do not want pedestals in linearized ADC
-//      getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
-//      qiecalib[i]=(hi-lo)/bins;
-//      qiecalib[i+4]=lo+0.5;
-// to have pedestals in raw ADC counts
-      if (m_pedsinADC==1) {
-        qiecalib[i]=1.;
-        qiecalib[i+4]=0.;
-      }
-// to have pedestals in fC (for the moment using average QIE calibrations only)
-      else {
-        if (type=="HF") qiecalib[i]=0.36;
-        else qiecalib[i]=0.92;
-        qiecalib[i+4]=0.;
-      }
-      lo=(-0.5-qiecalib[i+4])/qiecalib[i];
-      hi=(9.5-qiecalib[i+4])/qiecalib[i];
+      lo=-0.5;
+      // fix from Andy: if you convert to fC and then bin in units of 1, you may 'skip' a bin while
+      // filling, since the ADCs are quantized
+      if (m_pedsinADC) hi=9.5;
+      else hi = 11.5;
       sprintf(name,"%s Pedestal, eta=%d phi=%d d=%d cap=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);  
       insert[i].first =  new TH1F(name,name,bins,lo,hi);
       sprintf(name,"%s Product, eta=%d phi=%d d=%d caps=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+1)%4);  
@@ -280,6 +270,11 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
 
   _mei = _meot->second;
 
+  const HcalQIECoder* coder = cond.getHcalCoder(detid);
+  const HcalQIEShape* shape = cond.getHcalShape(coder);
+  float charge1 = coder->charge(*shape,qie1.adc(),qie1.capid());
+  float charge2 = coder->charge(*shape,qie2.adc(),qie2.capid());
+
 // fill single capID histo
   if(flag==0){
     if(m_nevtsample>0) {
@@ -291,11 +286,9 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
         _mei[qie1.capid()+12].first->Reset();
       }
     }
-//    map<int,float> qiecalib = QieCalibMap[detid];
-//    float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
     if (qie1.adc()<bins){
-      _mei[qie1.capid()].first->AddBinContent(qie1.adc()+1,1);
-//      _mei[qie1.capid()].first->Fill(charge1);
+      if (m_pedsinADC) _mei[qie1.capid()].first->Fill(qie1.adc());
+      else _mei[qie1.capid()].first->Fill(charge1); 
     }
     else if(qie1.adc()>=bins){
       _mei[qie1.capid()].first->AddBinContent(bins+1,1);
@@ -305,8 +298,8 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
 // fill 2 capID histo
   if(flag>0){
     map<int,float> qiecalib = QieCalibMap[detid];
-    float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
-    float charge2=(qie2.adc()-qiecalib[qie2.capid()+4])/qiecalib[qie2.capid()];
+    //float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
+    //float charge2=(qie2.adc()-qiecalib[qie2.capid()+4])/qiecalib[qie2.capid()];
     if (charge1*charge2<bins2){
       _mei[qie1.capid()+4*flag].first->Fill(charge1*charge2);
     }
@@ -485,20 +478,26 @@ void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       sig[3][1]=sig[1][3];
       sig[3][2]=sig[2][3];
       sig[0][3]=sig[3][0];
-      if (fRawPedestals) fRawPedestals->addValue(detid,cap[0],cap[1],cap[2],cap[3]);
-      if (fRawPedestalWidths) {
-        HcalPedestalWidth* widthsp = fRawPedestalWidths->setWidth(detid);
-        widthsp->setSigma(0,0,sig[0][0]);
-        widthsp->setSigma(0,1,sig[0][1]);
-        widthsp->setSigma(0,2,sig[0][2]);
-        widthsp->setSigma(1,1,sig[1][1]);
-        widthsp->setSigma(1,2,sig[1][2]);
-        widthsp->setSigma(1,3,sig[1][3]);
-        widthsp->setSigma(2,2,sig[2][2]);
-        widthsp->setSigma(2,3,sig[2][3]);
-        widthsp->setSigma(3,3,sig[3][3]);
-        widthsp->setSigma(3,0,sig[0][3]);
-      }
+      if (fRawPedestals)
+	{
+	  HcalPedestal item(detid,cap[0],cap[1],cap[2],cap[3]);
+	  fRawPedestals->addValues(item);
+	}
+      if (fRawPedestalWidths) 
+	{
+	  HcalPedestalWidth widthsp(detid);
+	  widthsp.setSigma(0,0,sig[0][0]);
+	  widthsp.setSigma(0,1,sig[0][1]);
+	  widthsp.setSigma(0,2,sig[0][2]);
+	  widthsp.setSigma(1,1,sig[1][1]);
+	  widthsp.setSigma(1,2,sig[1][2]);
+	  widthsp.setSigma(1,3,sig[1][3]);
+	  widthsp.setSigma(2,2,sig[2][2]);
+	  widthsp.setSigma(2,3,sig[2][3]);
+	  widthsp.setSigma(3,3,sig[3][3]);
+	  widthsp.setSigma(3,0,sig[0][3]);
+	  fRawPedestalWidths->addValues(widthsp);
+	}
     }
   }
 }
@@ -520,14 +519,14 @@ int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   if(m_pedValflag>0) {
     fValPedestals = fOutputPedestals;
     fValPedestalWidths = fOutputPedestalWidths;
-    fRawPedestals = new HcalPedestals();
-    fRawPedestalWidths = new HcalPedestalWidths();
+    fRawPedestals = new HcalPedestals(fTopology,m_pedsinADC);
+    fRawPedestalWidths = new HcalPedestalWidths(fTopology,m_pedsinADC);
   }
   else {
     fRawPedestals = fOutputPedestals;
     fRawPedestalWidths = fOutputPedestalWidths;
-    fValPedestals = new HcalPedestals();
-    fValPedestalWidths = new HcalPedestalWidths();
+    fValPedestals = new HcalPedestals(fTopology,m_pedsinADC);
+    fValPedestalWidths = new HcalPedestalWidths(fTopology,m_pedsinADC);
   }
 
 // compute pedestal constants
@@ -550,10 +549,6 @@ int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   }
 
   if (m_nevtsample<1) {
-    if(fRawPedestals && fRawPedestalWidths) {
-      fRawPedestals->sort();
-      fRawPedestalWidths->sort();
-    }
 
 // pedestal validation: m_AllPedsOK=-1 means not validated,
 //                                   0 everything OK,
@@ -572,10 +567,6 @@ int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
 //      if(evt<100)m_AllPedsOK=-2;
 //    }
 
-    if(fValPedestals && fValPedestalWidths) {
-      fValPedestals->sort();
-      fValPedestalWidths->sort();
-    }
   }
 
   // Write other histograms.
@@ -803,9 +794,9 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
   for (int i=0; i<(int)RefChanns.size(); i++){
     detid=HcalDetId(RefChanns[i]);
     for (int icap=0; icap<4; icap++) {
-      RefPedVals[icap]=fRefPedestals->getValue(detid,icap);
+      RefPedVals[icap]=fRefPedestals->getValues(detid)->getValue(icap);
       for (int icap2=icap; icap2<4; icap2++) {
-        RefPedSigs[icap][icap2]=fRefPedestalWidths->getSigma(detid,icap,icap2);
+        RefPedSigs[icap][icap2]=fRefPedestalWidths->getValues(detid)->getSigma(icap,icap2);
         if(icap2!=icap)RefPedSigs[icap2][icap]=RefPedSigs[icap][icap2];
       }
     }
@@ -813,9 +804,9 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
 // read new raw values
     if(isinRaw[detid]) {
       for (int icap=0; icap<4; icap++) {
-        RawPedVals[icap]=fRawPedestals->getValue(detid,icap);
+        RawPedVals[icap]=fRawPedestals->getValues(detid)->getValue(icap);
         for (int icap2=icap; icap2<4; icap2++) {
-          RawPedSigs[icap][icap2]=fRawPedestalWidths->getSigma(detid,icap,icap2);
+          RawPedSigs[icap][icap2]=fRawPedestalWidths->getValues(detid)->getSigma(icap,icap2);
           if(icap2!=icap)RawPedSigs[icap2][icap]=RawPedSigs[icap][icap2];
         }
       }
@@ -863,11 +854,13 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
     else {
       PedValLog<<"HcalPedVal: no valid data from channel "<<detid<<std::endl;
       erflag+=100000;
-      fValPedestals->addValue(detid,RefPedVals[0],RefPedVals[1],RefPedVals[2],RefPedVals[3]);
-      HcalPedestalWidth* widthsp = fValPedestalWidths->setWidth(detid);
+      HcalPedestal item(detid,RefPedVals[0],RefPedVals[1],RefPedVals[2],RefPedVals[3]);
+      fValPedestals->addValues(item);
+      HcalPedestalWidth widthsp(detid);
       for (int icap=0; icap<4; icap++) {
-        for (int icap2=icap; icap2<4; icap2++) widthsp->setSigma(icap2,icap,RefPedSigs[icap2][icap]);
+        for (int icap2=icap; icap2<4; icap2++) widthsp.setSigma(icap2,icap,RefPedSigs[icap2][icap]);
       }
+      fValPedestalWidths->addValues(widthsp);
     }
 
 // end of channel loop
@@ -881,16 +874,18 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
     for (int i=0; i<(int)RefChanns.size(); i++){
       detid=HcalDetId(RefChanns[i]);
       if (isinRaw[detid]) {
-        HcalPedestalWidth* widthsp = fValPedestalWidths->setWidth(detid);
+        HcalPedestalWidth widthsp(detid);
         for (int icap=0; icap<4; icap++) {
-          RefPedVals[icap]=fRefPedestals->getValue(detid,icap);
+          RefPedVals[icap]=fRefPedestals->getValues(detid)->getValue(icap);
           for (int icap2=icap; icap2<4; icap2++) {
-            RefPedSigs[icap][icap2]=fRefPedestalWidths->getSigma(detid,icap,icap2);
+            RefPedSigs[icap][icap2]=fRefPedestalWidths->getValues(detid)->getSigma(icap,icap2);
             if(icap2!=icap)RefPedSigs[icap2][icap]=RefPedSigs[icap][icap2];
-            widthsp->setSigma(icap2,icap,RefPedSigs[icap2][icap]);
+            widthsp.setSigma(icap2,icap,RefPedSigs[icap2][icap]);
           }
         }
-        fValPedestals->addValue(detid,RefPedVals[0],RefPedVals[1],RefPedVals[2],RefPedVals[3]);
+	fValPedestalWidths->addValues(widthsp);
+	HcalPedestal item(detid,RefPedVals[0],RefPedVals[1],RefPedVals[2],RefPedVals[3]);
+        fValPedestals->addValues(item);
       }
     }
   }
@@ -900,16 +895,18 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
     for (int i=0; i<(int)RawChanns.size(); i++){
       detid=HcalDetId(RawChanns[i]);
       if (isinRaw[detid]) {
-        HcalPedestalWidth* widthsp = fValPedestalWidths->setWidth(detid);
+        HcalPedestalWidth widthsp(detid);
         for (int icap=0; icap<4; icap++) {
-          RawPedVals[icap]=fRawPedestals->getValue(detid,icap);
+          RawPedVals[icap]=fRawPedestals->getValues(detid)->getValue(icap);
           for (int icap2=icap; icap2<4; icap2++) {
-            RawPedSigs[icap][icap2]=fRawPedestalWidths->getSigma(detid,icap,icap2);
+            RawPedSigs[icap][icap2]=fRawPedestalWidths->getValues(detid)->getSigma(icap,icap2);
             if(icap2!=icap)RawPedSigs[icap2][icap]=RawPedSigs[icap][icap2];
-            widthsp->setSigma(icap2,icap,RawPedSigs[icap2][icap]);
+            widthsp.setSigma(icap2,icap,RawPedSigs[icap2][icap]);
           }
         }
-        fValPedestals->addValue(detid,RawPedVals[0],RawPedVals[1],RawPedVals[2],RawPedVals[3]);
+	fValPedestalWidths->addValues(widthsp);
+	HcalPedestal item(detid,RawPedVals[0],RawPedVals[1],RawPedVals[2],RawPedVals[3]);
+        fValPedestals->addValues(item);
       }
     }
   }

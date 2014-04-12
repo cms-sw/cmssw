@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/16 10:13:32 $
- *  $Revision: 1.4 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -12,8 +10,10 @@
 #include "RecoLocalMuon/RPCRecHit/src/RPCClusterContainer.h"
 #include "RecoLocalMuon/RPCRecHit/src/RPCCluster.h"
 #include "RecoLocalMuon/RPCRecHit/src/RPCClusterizer.h"
+#include "RecoLocalMuon/RPCRecHit/src/RPCMaskReClusterizer.h"
 
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -29,12 +29,16 @@ RPCRecHitBaseAlgo::~RPCRecHitBaseAlgo(){}
 // Build all hits in the range associated to the layerId, at the 1st step.
 edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
 							 const RPCDetId& rpcId,
-							 const RPCDigiCollection::Range& digiRange) {
+							 const RPCDigiCollection::Range& digiRange,
+                                                         const RollMask& mask) {
   edm::OwnVector<RPCRecHit> result; 
 
 
   RPCClusterizer clizer;
-  RPCClusterContainer cls = clizer.doAction(digiRange);
+  RPCClusterContainer tcls = clizer.doAction(digiRange);
+  RPCMaskReClusterizer mrclizer;
+  RPCClusterContainer cls = mrclizer.doAction(rpcId,tcls,mask);
+
 
   for (RPCClusterContainer::const_iterator cl = cls.begin();
        cl != cls.end(); cl++){

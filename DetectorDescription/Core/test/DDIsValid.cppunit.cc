@@ -1,15 +1,14 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <cppunit/extensions/HelperMacros.h>
-#include<fstream>
-#include<string>
+#include <fstream>
+#include <string>
 #include <sstream>
 #include <algorithm>
 #include <iterator>
 #include <vector>
-
 
 #include <regex.h>
 #include <set>
@@ -113,7 +112,7 @@ namespace {
       for (; lpit != lped; ++lpit) {
 	// std::cout << " " << std::string(lpit->name());
 	if (!lpit->isDefined().second) {
-	  message = message + "LogicalPart " + std::string(lpit->name()) + " not (yet) defined!\n";
+	  message = message + "LogicalPart " + lpit->name().fullname() + " not (yet) defined!\n";
 	  flag = false;
 	}
       }
@@ -172,9 +171,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testDDIsValid);
 
 void testDDIsValid::testloading() {
   std::cerr << "test Loading" << std::endl;
-
+  // get name using FileInPath.
+  edm::FileInPath fp("DetectorDescription/Core/test/lpnames.out");
   // test that we load LPNAMES correclty
-  std::ifstream in("lpnames.out");
+  //  std::ifstream in("lpnames.out");
+  std::ifstream in(fp.fullPath().c_str());
+  //  std::cout << "FILE : " << fp << " absolute path " << fp.fullPath().c_str() << std::endl;
   in.unsetf( std::ios::skipws );
   std::istream_iterator<char> sbegin(in),send;
   std::string str;
@@ -198,8 +200,11 @@ void testDDIsValid::testloading() {
 
 
 void testDDIsValid::buildIt() {
+  // get name using FileInPath.
+  edm::FileInPath fp("DetectorDescription/Core/test/lpnames.out");
   // fill LPNAMES
-  std::ifstream in("lpnames.out");
+  //  std::ifstream in("lpnames.out");
+  std::ifstream in(fp.fullPath().c_str());
   std::string line;
   while (std::getline(in,line) ) {
     std::string::size_type p;
@@ -224,8 +229,12 @@ void testDDIsValid::checkAgaistOld() {
 
   buildIt();
   testloading();
+  // get name using FileInPath.
+  edm::FileInPath fp("DetectorDescription/Core/test/regex.queries");
 
-  std::ifstream in("regex.queries");
+  //  std::ifstream in("regex.queries");
+  std::ifstream in(fp.fullPath().c_str());
+
   std::string line;
   const std::string ns;
   int bad=0;

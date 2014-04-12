@@ -2,7 +2,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Strip1DMeasurementTransformator.h"
 
 TrajectoryStateOnSurface 
-KFStrip1DUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) const {
+KFStrip1DUpdator::update(const TSOS& aTsos, const TrackingRecHit& aHit) const {
 
   double pzSign = aTsos.localParameters().pzSign();
 
@@ -23,7 +23,7 @@ KFStrip1DUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit)
   AlgebraicMatrix51 K(R * (C * ROOT::Math::Transpose(H)));
 
   // Compute local filtered state vector
-  AlgebraicVector5 fsv = x + (const AlgebraicVector5 &)(K * (m - px));
+  AlgebraicVector5 fsv = x + K.Col(0) * (m - px);
 
   // Compute covariance matrix of local filtered state vector
   AlgebraicSymMatrix55 I = AlgebraicMatrixID();
@@ -32,7 +32,7 @@ KFStrip1DUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit)
 //   AlgebraicMatrix M((I - K * H)*C);            // already commented when CLHEP was in use
 //   AlgebraicSymMatrix fse(5,0); fse.assign(M);  // already commented when CLHEP was in use
 
-  return TSOS( LTP(fsv, pzSign), LTE(fse), aTsos.surface(), &(aTsos.globalParameters().magneticField()));  
+  return TSOS( LTP(fsv, pzSign), LTE(fse), aTsos.surface(), &(aTsos.globalParameters().magneticField()), aTsos.surfaceSide() );  
 }
 
 

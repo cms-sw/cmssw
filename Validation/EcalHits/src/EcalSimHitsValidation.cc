@@ -10,6 +10,7 @@
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Validation/EcalHits/interface/EcalSimHitsValidation.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -34,17 +35,11 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
-  if ( verbose_ ) {
-    std::cout << " verbose switch is ON" << std::endl;
-  } else {
-    std::cout << " verbose switch is OFF" << std::endl;
-  }
-
   // DQMServices                                                        
   dbe_ = 0;
 
   // get hold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();           
+  dbe_ = edm::Service<DQMStore>().operator->();           
   if ( dbe_ ) {
     if ( verbose_ ) { dbe_->setVerbose(1); } 
     else            { dbe_->setVerbose(0); }
@@ -65,7 +60,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
  
   
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalSimHitsValidation");
+    dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
   
     sprintf (histo, "EcalSimHitsValidation Gun Momentum" ) ;
     meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);
@@ -94,7 +89,7 @@ EcalSimHitsValidation::~EcalSimHitsValidation(){
 
 }
 
-void EcalSimHitsValidation::beginJob(const edm::EventSetup& c){
+void EcalSimHitsValidation::beginJob(){
 
 }
 
@@ -120,15 +115,14 @@ void EcalSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& 
   e.getByLabel(g4InfoLabel,EEHitsCollection,EcalHitsEE);
   e.getByLabel(g4InfoLabel,ESHitsCollection,EcalHitsES);
 
-  theEBCaloHits.insert(theEBCaloHits.end(), EcalHitsEB->begin(), EcalHitsEB->end());
-  theEECaloHits.insert(theEECaloHits.end(), EcalHitsEE->begin(), EcalHitsEE->end());
-  theESCaloHits.insert(theESCaloHits.end(), EcalHitsES->begin(), EcalHitsES->end());
-
   for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
         p != MCEvt->GetEvent()->particles_end(); ++p ) {
 
     double htheta = (*p)->momentum().theta();
-    double heta = -log(tan(htheta * 0.5));
+    double heta = -99999.;
+    if( tan(htheta * 0.5) > 0 ) {
+      heta = -log(tan(htheta * 0.5));
+    }
     double hphi = (*p)->momentum().phi();
     hphi = (hphi>=0) ? hphi : hphi+2*M_PI;
     hphi = hphi / M_PI * 180.;
@@ -142,21 +136,30 @@ void EcalSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& 
   }
   
   double EBEnergy_ = 0.;
-  for (std::vector<PCaloHit>::iterator isim = theEBCaloHits.begin();
-       isim != theEBCaloHits.end(); ++isim){
-    EBEnergy_ += isim->energy();
+  if ( EcalHitsEB.isValid() ) {
+    theEBCaloHits.insert(theEBCaloHits.end(), EcalHitsEB->begin(), EcalHitsEB->end());
+    for (std::vector<PCaloHit>::iterator isim = theEBCaloHits.begin();
+         isim != theEBCaloHits.end(); ++isim){
+      EBEnergy_ += isim->energy();
+    }
   }
 
   double EEEnergy_ = 0.;
-  for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin();
-       isim != theEECaloHits.end(); ++isim){
-    EEEnergy_ += isim->energy();
+  if ( EcalHitsEE.isValid() ) {
+    theEECaloHits.insert(theEECaloHits.end(), EcalHitsEE->begin(), EcalHitsEE->end());
+    for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin();
+         isim != theEECaloHits.end(); ++isim){
+      EEEnergy_ += isim->energy();
+    }
   }
-
+  
   double ESEnergy_ = 0.;
-  for (std::vector<PCaloHit>::iterator isim = theESCaloHits.begin();
-       isim != theESCaloHits.end(); ++isim){
-    ESEnergy_ += isim->energy();
+  if ( EcalHitsES.isValid() ) {
+    theESCaloHits.insert(theESCaloHits.end(), EcalHitsES->begin(), EcalHitsES->end());
+    for (std::vector<PCaloHit>::iterator isim = theESCaloHits.begin();
+         isim != theESCaloHits.end(); ++isim){
+      ESEnergy_ += isim->energy();
+    }
   }
   
   double etot = EBEnergy_ + EEEnergy_ + ESEnergy_ ;

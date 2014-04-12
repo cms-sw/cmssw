@@ -7,20 +7,19 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexSmoothedChiSquaredEstimator.h"
 #include "RecoVertex/VertexPrimitives/interface/TrackToTrackCovCalculator.h"
 
-#include "RecoVertex/VertexPrimitives/interface/TrackMap.h"
-#include "RecoVertex/VertexPrimitives/interface/TrackToTrackMap.h"
-
-
-class CachingVertex;
-
 /**
  *  The class which handles the track-refit, smoothed chi**2 and track-to-track 
  *  covariance matrix calculations.
  */
 
-class SequentialVertexSmoother : public VertexSmoother {
+template <unsigned int N>
+class SequentialVertexSmoother : public VertexSmoother<N> {
 
 public:
+
+  typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
+  typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
+  typedef ReferenceCountingPointer<LinearizedTrackState<N> > RefCountedLinearizedTrackState;
 
   /**
    *  The constructor, where the different components to be used are specified.
@@ -29,16 +28,16 @@ public:
    *  \return covCalc The algorithm the track-to-track covariance matrix. 
    *  If this option is not required, this pointer should be 0.
    */
-  SequentialVertexSmoother(const VertexTrackUpdator & vtu, 
-			   const VertexSmoothedChiSquaredEstimator & vse, 
-			   const TrackToTrackCovCalculator & covCalc);
+  SequentialVertexSmoother(const VertexTrackUpdator<N> & vtu, 
+			   const VertexSmoothedChiSquaredEstimator<N> & vse, 
+			   const TrackToTrackCovCalculator<N> & covCalc);
 
   virtual ~SequentialVertexSmoother();
 
   /**
    *  Special copy constructor cloning the private data
    */
-  SequentialVertexSmoother(const SequentialVertexSmoother & smoother);
+  SequentialVertexSmoother(const SequentialVertexSmoother<N> & smoother);
 
   /**
    *  Methode which will refit the tracks with the vertex constraint, 
@@ -50,30 +49,30 @@ public:
    *	last update.
    *  \return the final vertex estimate, with all the supplementary information
    */
-  virtual CachingVertex smooth(const CachingVertex & vertex) const;
+  virtual CachingVertex<N> smooth(const CachingVertex<N> & vertex) const;
 
   /**
    *  Access methods
    */
-  const VertexTrackUpdator * vertexTrackUpdator() const
+  const VertexTrackUpdator<N> * vertexTrackUpdator() const
     { return theVertexTrackUpdator; }
-  const VertexSmoothedChiSquaredEstimator * vertexSmoothedChiSquaredEstimator() const
+  const VertexSmoothedChiSquaredEstimator<N> * vertexSmoothedChiSquaredEstimator() const
     { return theVertexSmoothedChiSquaredEstimator; }
-  const TrackToTrackCovCalculator * trackToTrackCovCalculator() const
+  const TrackToTrackCovCalculator<N> * trackToTrackCovCalculator() const
     { return theTrackToTrackCovCalculator; }
 
   /**
    * Clone method 
    */
-  virtual SequentialVertexSmoother * clone() const 
+  virtual SequentialVertexSmoother<N> * clone() const 
   {
     return new SequentialVertexSmoother(* this);
   }
   
 private:
-   VertexTrackUpdator * theVertexTrackUpdator;       
-   VertexSmoothedChiSquaredEstimator * theVertexSmoothedChiSquaredEstimator;
-   TrackToTrackCovCalculator * theTrackToTrackCovCalculator;
+   VertexTrackUpdator<N> * theVertexTrackUpdator;       
+   VertexSmoothedChiSquaredEstimator<N> * theVertexSmoothedChiSquaredEstimator;
+   TrackToTrackCovCalculator<N> * theTrackToTrackCovCalculator;
 };
 
 #endif

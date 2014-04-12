@@ -16,17 +16,17 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Jan 25 07:18:21 CET 2006
-// $Id: SiStripSubStructure.h,v 1.3 2007/03/16 09:57:09 dkcira Exp $
 //
 
 #include <vector>
+#include <stdint.h>
 
 class SiStripSubStructure
 {
 
    public:
       SiStripSubStructure();
-      virtual ~SiStripSubStructure();
+      ~SiStripSubStructure();
 
       void getTIBDetectors(const std::vector<uint32_t> & inputDetRawIds, // INPUT
                            std::vector<uint32_t> & tibDetRawIds,         // OUTPUT

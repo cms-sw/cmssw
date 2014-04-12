@@ -13,7 +13,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Oct 24 00:00:00 EDT 2006
-// $Id$
 //
 //
 
@@ -37,13 +36,27 @@
 //
 // constructors and destructor
 //
-L1CaloGeometryProd::L1CaloGeometryProd(const edm::ParameterSet& iConfig)
+L1CaloGeometryProd::L1CaloGeometryProd(const edm::ParameterSet& ps)
 {
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);
 
    //now do what ever other initialization is needed
+
+   // This producer should never make more than one version of L1Geometry,
+   // so we can initialize it in the ctor.
+   m_geom =
+     L1CaloGeometry( ps.getParameter<unsigned int>("numberGctEmJetPhiBins"),
+		     ps.getParameter<double>("gctEmJetPhiBinOffset"),
+		     ps.getParameter<unsigned int>("numberGctEtSumPhiBins"),
+		     ps.getParameter<double>("gctEtSumPhiBinOffset"),
+		     ps.getParameter<unsigned int>("numberGctHtSumPhiBins"),
+		     ps.getParameter<double>("gctHtSumPhiBinOffset"),
+		     ps.getParameter<unsigned int>("numberGctCentralEtaBinsPerHalf"),
+		     ps.getParameter<unsigned int>("numberGctForwardEtaBinsPerHalf"),
+		     ps.getParameter<unsigned int>("etaSignBitOffset"),
+		     ps.getParameter< std::vector<double> >("gctEtaBinBoundaries") ) ;
 }
 
 
@@ -68,10 +81,10 @@ L1CaloGeometryProd::produce(const L1CaloGeometryRecord& iRecord)
    std::auto_ptr<L1CaloGeometry> pL1CaloGeometry ;
 
    pL1CaloGeometry = std::auto_ptr< L1CaloGeometry >(
-      new L1CaloGeometry() ) ;
+      new L1CaloGeometry( m_geom ) ) ;
 
    return pL1CaloGeometry ;
 }
 
 //define this as a plug-in
-//DEFINE_FWK_EVENTSETUP_MODULE(L1CaloGeometryProd)
+DEFINE_FWK_EVENTSETUP_MODULE(L1CaloGeometryProd) ;

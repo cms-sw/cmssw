@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/06/14 23:42:39 $
- *  $Revision: 1.1 $
  *  \author Rick Wilkinson
  */
 
@@ -10,7 +8,7 @@
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
-#include <TrackingTools/PatternTools/interface/MeasurementEstimator.h>
+#include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
@@ -22,7 +20,7 @@ using namespace std;
 
 MuRingForwardDoubleLayer::MuRingForwardDoubleLayer(const vector<const ForwardDetRing*>& frontRings,
                                        const vector<const ForwardDetRing*>& backRings) :
-
+  RingedForwardLayer(true),
   theFrontLayer(frontRings),
   theBackLayer(backRings),
   theRings(frontRings), // add back later
@@ -74,33 +72,31 @@ BoundDisk * MuRingForwardDoubleLayer::computeSurface()
   RotationType rot;
 
   return new BoundDisk( pos, rot,
-                        SimpleDiskBounds( rmin, rmax,
-                                          zmin-zPos, zmax-zPos));
+                        new SimpleDiskBounds( rmin, rmax,
+                                              zmin-zPos, zmax-zPos));
 }
 
 
-bool MuRingForwardDoubleLayer::frontIsCloserTo(const TrajectoryStateOnSurface&tsos) const
+bool MuRingForwardDoubleLayer::isInsideOut(const TrajectoryStateOnSurface& tsos) const 
 {
-  // decide which face is closest, and do that one first.
-  float frontz = theFrontLayer.specificSurface().position().z();
-  float backz  = theBackLayer.specificSurface().position().z();
-  float statez = tsos.globalPosition().z();
-
-  return ( fabs(frontz-statez) < fabs(backz-statez) );
+  return tsos.globalPosition().basicVector().dot(tsos.globalMomentum().basicVector()) > 0;
 }
 
   
 
 std::pair<bool, TrajectoryStateOnSurface>
-MuRingForwardDoubleLayer::compatible( const TrajectoryStateOnSurface& startingState, const Propagator& prop,
-                                      const MeasurementEstimator& est) const
+MuRingForwardDoubleLayer::compatible(const TrajectoryStateOnSurface& startingState, const Propagator& prop,
+                                     const MeasurementEstimator& est) const
 {
   // mostly copied from ForwardDetLayer, except propagates to closest surface,
   // not to center
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
 
-  bool frontIsCloser = frontIsCloserTo(startingState);
-  const MuRingForwardLayer & closerLayer = (frontIsCloser) ? theFrontLayer : theBackLayer;
+  bool insideOut = isInsideOut(startingState);
+  const MuRingForwardLayer & closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
+  LogTrace("Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer") 
+    << "MuRingForwardDoubleLayer::compatible is assuming inside-out direction: "<< insideOut;
+
 
   //std::pair<bool, TrajectoryStateOnSurface> result 
   //  = closerLayer.compatible(startingState, prop, est);
@@ -176,17 +172,14 @@ MuRingForwardDoubleLayer::groupedCompatibleDets( const TrajectoryStateOnSurface&
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
   vector<GeometricSearchDet::DetWithState> detWithStates1, detWithStates2;
   
-  if(frontIsCloserTo(startingState))
-  {
-    detWithStates1 = theFrontLayer.compatibleDets(startingState, prop, est);
-    detWithStates2 = theBackLayer.compatibleDets(startingState, prop, est);    
-  }
-  else 
-  {
-    detWithStates1 = theBackLayer.compatibleDets(startingState, prop, est);
-    detWithStates2 = theFrontLayer.compatibleDets(startingState, prop, est);
-  }
- 
+  LogTrace(metname) << "groupedCompatibleDets are currently given always in inside-out order";
+  // this should be fixed either in RecoMuon/MeasurementDet/MuonDetLayerMeasurements or
+  // RecoMuon/DetLayers/MuRingForwardDoubleLayer
+  // and removed the reverse operation in StandAloneMuonFilter::findBestMeasurements
+
+  detWithStates1 = theFrontLayer.compatibleDets(startingState, prop, est);
+  detWithStates2 = theBackLayer.compatibleDets(startingState, prop, est);    
+  
   vector<DetGroup> result;
   if(!detWithStates1.empty()) result.push_back( DetGroup(detWithStates1) );
   if(!detWithStates2.empty()) result.push_back( DetGroup(detWithStates2) );

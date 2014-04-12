@@ -4,8 +4,6 @@
  *    Implementation of TS Phi trigger algorithm
  *
  *
- *   $Date: 2007/04/04 10:44:36 $
- *   $Revision: 1.4 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -35,8 +33,8 @@ class DTTrigGeom;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTSPhi.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 
@@ -57,14 +55,16 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
  public:
   
   /// Constructor
-  //DTTSPhi(DTTrigGeom*, DTTracoCard*, edm::ParameterSet&);
-  DTTSPhi(DTTrigGeom*, DTTracoCard*, const DTConfigManager *);
+  DTTSPhi(DTTrigGeom*, DTTracoCard*);
 
   /// Destructor 
   ~DTTSPhi();
 
   /// Return the configuration class
-  inline DTConfigTSPhi* config() const {return _config; }
+  inline const DTConfigTSPhi* config() const {return _config; }
+
+  /// Set configuration
+  void setConfig(const DTConfigManager *conf);
   
   /// Return number of DTTSPhi segments  
   int nSegm(int step);
@@ -111,7 +111,7 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
   
   DTTracoCard* _tracocard;
 
-  DTConfigTSPhi* _config;
+  const DTConfigTSPhi* _config;
   
   // Components
   std::vector<DTTSS*> _tss[DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1];

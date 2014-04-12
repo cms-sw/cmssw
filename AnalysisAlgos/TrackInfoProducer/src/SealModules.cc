@@ -2,5 +2,5 @@
 
 #include "AnalysisAlgos/TrackInfoProducer/interface/TrackInfoProducer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TrackInfoProducer);
+
+DEFINE_FWK_MODULE(TrackInfoProducer);

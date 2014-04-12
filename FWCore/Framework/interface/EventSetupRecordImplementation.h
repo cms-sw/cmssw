@@ -4,101 +4,64 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordImplementation
-// 
+//
 /**\class EventSetupRecordImplementation EventSetupRecordImplementation.h FWCore/Framework/interface/EventSetupRecordImplementation.h
 
- Description: <one line class summary>
+ Description: Help class which implements the necessary virtual methods for a new Record class
 
  Usage:
-    <usage>
+    This class handles implementing the necessary 'meta data' methods for a Record. To use the class, a new Record type should
+ inherit from EventSetupRecordImplementation and pass itself as the argument to the template parameter. For example, for a
+ Record named FooRcd, you would declare it like
 
+      class FooRcd : public edm::eventsetup::EventSetupRecordImplementation< FooRcd > {};
 */
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 16:50:49 EST 2005
-// $Id: EventSetupRecordImplementation.h,v 1.10 2006/08/16 13:42:44 chrjones Exp $
 //
 
-// system include files
-#include <string>
-
 // user include files
+
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/DataProxy.h"
+
+// system include files
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
-     class ComponentDescription;
-     
-template<class T>
-class EventSetupRecordImplementation : public EventSetupRecord
-{
+      struct ComponentDescription;
 
-   public:
-      //virtual ~EventSetupRecordImplementation();
+      template<typename T>
+      class EventSetupRecordImplementation : public EventSetupRecord {
 
-      // ---------- const member functions ---------------------
-      template< typename HolderT>
-         void get(HolderT& iHolder) const {
-            const typename HolderT::value_type* value;
-            const ComponentDescription* desc;
-            this->getImplementation(value, "",desc);
-                                                      
-            iHolder = HolderT(value,desc);
+      public:
+         //virtual ~EventSetupRecordImplementation();
+
+         // ---------- const member functions ---------------------
+         virtual EventSetupRecordKey key() const {
+            return EventSetupRecordKey::makeKey<T>();
          }
 
-      template< typename HolderT>
-      void get(const char* iName, HolderT& iHolder) const {
-         const typename HolderT::value_type* value;
-         const ComponentDescription* desc;
-         this->getImplementation(value, iName,desc);
-         iHolder = HolderT(value,desc);
-      }
-      template< typename HolderT>
-      void get(const std::string& iName, HolderT& iHolder) const {
-         const typename HolderT::value_type* value;
-         const ComponentDescription* desc;
-         this->getImplementation(value, iName.c_str(),desc);
-         iHolder = HolderT(value,desc);
-      }
-      
-      virtual EventSetupRecordKey key() const {
-         return EventSetupRecordKey::makeKey<T>();
-      }
-
-      virtual bool doGet(const DataKey& aKey) const {
-         const DataProxy* proxy = find(aKey);
-         if(0 != proxy) {
-            proxy->doGet(*this, aKey);
+         // ---------- static member functions --------------------
+         static EventSetupRecordKey keyForClass()  {
+            return EventSetupRecordKey::makeKey<T>();
          }
-         return 0 != proxy;
-      }
-      
-      // ---------- static member functions --------------------
-      static EventSetupRecordKey keyForClass()  {
-         return EventSetupRecordKey::makeKey<T>();
-      }
-   
-      // ---------- member functions ---------------------------
- 
-   protected:
-      EventSetupRecordImplementation() {}
 
-   private:
-      EventSetupRecordImplementation(const EventSetupRecordImplementation&); // stop default
+         // ---------- member functions ---------------------------
 
-      const EventSetupRecordImplementation& operator=(const EventSetupRecordImplementation&); // stop default
-      
-      template < typename DataT > 
-         void getImplementation(DataT const *& iData ,
-                                const char* iName,
-                                const ComponentDescription*& iDesc) const;       // ---------- member data --------------------------------
+      protected:
+         EventSetupRecordImplementation() {}
 
-};
+      private:
+         EventSetupRecordImplementation(EventSetupRecordImplementation const&); // stop default
+
+         EventSetupRecordImplementation const& operator=(EventSetupRecordImplementation const&); // stop default
+
+         // ---------- member data --------------------------------
+      };
    }
 }
-#include "FWCore/Framework/interface/recordGetImplementation.icc"
 
 #endif

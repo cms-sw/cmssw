@@ -54,7 +54,7 @@ RandomPlaneGeneratorByAxis::operator() (const GlobalPoint& position,
   // reference direction (random sign w.r.t. input direction)
   //
   GlobalVectorDouble refDir(doubleDir.unit());
-  if ( RandFlat::shoot(-1.,1.)<0. )  refDir *= -1;
+  if ( CLHEP::RandFlat::shoot(-1.,1.)<0. )  refDir *= -1;
   TkRotation<double> rotation;
   //
   // arbitrary or barrel planes
@@ -87,7 +87,7 @@ RandomPlaneGeneratorByAxis::operator() (const GlobalPoint& position,
     // of tilt (restrict to 0 or pi in case of barrel plane
     // to keep orientation for strictBarrel planes).
     //
-    double dPhi = RandFlat::shoot(0.,2*M_PI);
+    double dPhi = CLHEP::RandFlat::shoot(0.,2*M_PI);
     if ( thePlaneType!=arbitrary )
       dPhi = dPhi>M_PI ? M_PI : 0.;
     rotation = rotationAroundZ(dPhi)*rotation;
@@ -96,7 +96,7 @@ RandomPlaneGeneratorByAxis::operator() (const GlobalPoint& position,
     // y-local (to keep y-local || z-global for the
     // case of strictBarrel planes)
     //
-    double cosTilt = RandFlat::shoot(cos(theMaxTilt),1.);
+    double cosTilt = CLHEP::RandFlat::shoot(cos(theMaxTilt),1.);
     rotation = rotationAroundY(cosTilt<=1.?acos(cosTilt):0.)*rotation;
   }
   //
@@ -119,14 +119,14 @@ RandomPlaneGeneratorByAxis::operator() (const GlobalPoint& position,
   // unless it's a "strict" barrel or forward plane
   //
   if ( thePlaneType!=strictBarrel && thePlaneType!=strictForward )
-    rotation = rotationAroundZ(RandFlat::shoot(0.,2*M_PI))*rotation;
+    rotation = rotationAroundZ(CLHEP::RandFlat::shoot(0.,2*M_PI))*rotation;
   //
   // Now define the origin of the plane by a random shift
   // w.r.t. the reference position
   //
   Basic3DVector<double> deltaPos = 
-    rotation.multiplyInverse(Basic3DVector<double>(RandFlat::shoot(-theSize/2,theSize/2),
-						   RandFlat::shoot(-theSize/2,theSize/2),
+    rotation.multiplyInverse(Basic3DVector<double>(CLHEP::RandFlat::shoot(-theSize/2,theSize/2),
+						   CLHEP::RandFlat::shoot(-theSize/2,theSize/2),
 						   0));
   doublePos += GlobalVectorDouble(deltaPos);
   //

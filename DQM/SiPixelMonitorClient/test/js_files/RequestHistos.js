@@ -5,7 +5,7 @@ var RequestHistos = {} ;
 RequestHistos.RequestModuleHistoList = function() { // Unused? 
   var queryString;
   var url = WebLib.getApplicationURL2();
-  url += "/Request?";
+  //url += "/Request?";
   queryString = "RequestID=SingleModuleHistoList";
   url += queryString; 
   WebLib.makeRequest(url, RequestHistos.FillModuleHistoList);     
@@ -15,7 +15,7 @@ RequestHistos.RequestModuleHistoList = function() { // Unused?
 RequestHistos.RequestMEList = function(what) {
   var queryString;
   var url = WebLib.getApplicationURL2();
-  url += "/Request?";
+  //url += "/Request?";
   queryString = "RequestID=GetMEList";
   url += queryString; 
   if( what == 'CB' )
@@ -31,7 +31,7 @@ RequestHistos.RequestSummaryHistoList = function() {
   IMGC.loadingProgress('visible') ;
   var queryString;
   var url = WebLib.getApplicationURL2();
-  url += "/Request?";
+  //url += "/Request?";
   queryString = "RequestID=SummaryHistoList";
   var obj = document.getElementById("structure_name");
   var sname =  obj.options[obj.selectedIndex].value;
@@ -45,12 +45,14 @@ RequestHistos.RequestModuleTree = function() {
   IMGC.loadingProgress('visible') ;
   var queryString;
   var url = WebLib.getApplicationURL2();
-  url += "/Request?";
+//alert("RequestModuleTree:" + url);
+  //url += "/Request?";
   queryString = "RequestID=ModuleHistoList";
   var obj = document.getElementById("structure_for_module");
   var sname =  obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url += queryString; 
+//alert("RequestModuleTree:" + url);
   WebLib.makeRequest(url, RequestHistos.FillModuleTree);     
 }
 
@@ -58,7 +60,7 @@ RequestHistos.RequestModuleTree = function() {
 RequestHistos.RequestAlarmList = function() {
   var queryString;
   var url = WebLib.getApplicationURL2();
-  url += "/Request?";
+  //url += "/Request?";
   queryString = "RequestID=AlarmList";
   var obj = document.getElementById("structure_for_alarm");
   var sname =  obj.options[obj.selectedIndex].value;
@@ -205,6 +207,7 @@ RequestHistos.FillSummaryHistoList = function() {
 
 //___________________________________________________________________________________
 RequestHistos.FillModuleTree = function() {
+  //alert ("FillModuleTree");
   if (WebLib.http_request.readyState == 4) {
     if (WebLib.http_request.status == 200) {
       try {
@@ -217,7 +220,7 @@ RequestHistos.FillModuleTree = function() {
         IMGC.loadingProgress('hide') ;
       }
       catch (err) {
-//        alert ("Error detail: " + err.message); 
+        //alert ("Error detail: " + err.message); 
       }
     }
   }

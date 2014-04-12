@@ -18,13 +18,15 @@
 //                      initializers to correspond to order of member
 //                      declarations
 //   1/17/06    mf	summary() for use in MessageLogger
+//   8/16/07    mf	Changes to implement grouping of modules in specified 
+//			categories
+//   6/19/08    mf	summaryForJobReport()
 //
 //  ---------------------------------------------------------------------
 
 
 #include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/ELadministrator.h"
-#include "FWCore/MessageService/interface/ELcontextSupplier.h"
+#include "FWCore/MessageService/interface/ELdestControl.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
@@ -32,7 +34,7 @@
 #include <iomanip>
 #include <sstream>
 #include <ios>
-
+#include <cassert>
 
 // Possible Traces:
 // #define ELstatisticsCONSTRUCTOR_TRACE
@@ -157,6 +159,25 @@ ELstatistics::clone() const  {
 
 }  // clone()
 
+static  std::string summarizeContext(const std::string& c)
+  {
+    if ( c.substr (0,4) != "Run:" ) return c;
+    std::istringstream is (c);
+    std::string runWord;
+    int run;
+    is >> runWord >> run;
+    if (!is) return c;
+    if (runWord != "Run:") return c;
+    std::string eventWord;
+    int event;
+    is >> eventWord >> event;
+    if (!is) return c;
+    if (eventWord != "Event:") return c;
+    std::ostringstream os;
+    os << run << "/" << event;
+    return os.str();
+  }
+
 
 bool  ELstatistics::log( const edm::ErrorObj & msg )  {
 
@@ -182,22 +203,7 @@ bool  ELstatistics::log( const edm::ErrorObj & msg )  {
     std::cerr << "    =:=:=: Message accounted for in stats \n";
   #endif
   if ( s != stats.end() )  {
-    #ifdef ELstatsLOG_TRACE
-        std::cerr << "    =:=:=: Message not last stats \n";
-        std::cerr << "    =:=:=: getContextSupplier \n";
-        const ELcontextSupplier & csup
-          = ELadministrator::instance()->getContextSupplier();
-        std::cerr << "    =:=:=: getContextSupplier \n";
-        ELstring sumcon;
-        std::cerr << "    =:=:=: summaryContext \n";
-        sumcon = csup.summaryContext();
-        std::cerr << "    =:=:=: summaryContext is: " << sumcon << "\n";
-        (*s).second.add( sumcon, msg.reactedTo() );
-        std::cerr << "    =:=:=: add worked. \n";
-    #else
-        (*s).second.add( ELadministrator::instance()->
-                    getContextSupplier().summaryContext(), msg.reactedTo() );
-    #endif
+        (*s).second.add( summarizeContext(msg.context()), msg.reactedTo() );
 
     updatedStats = true;
     #ifdef ELstatsLOG_TRACE
@@ -251,20 +257,20 @@ void  ELstatistics::zero()  {
 }  // zero()
 
 
-static ELstring  formSummary( ELmap_stats & stats )  {
-
+ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
+			// Major changes 8/16/07 mf, including making this
+			// a static member function instead of a free function
+			
   using std::ios;       /* _base ? */
   using std::setw;
   using std::right;
   using std::left;
 
   std::ostringstream          s;
-  ELmap_stats::const_iterator i;  // traverse messages
-  int                         n;
+  int                         n = 0;
 
   // -----  Summary part I:
   //
-  ELstring  lastProcess( "" );
   bool      ftnote( false );
 
   struct part3  {
@@ -272,16 +278,21 @@ static ELstring  formSummary( ELmap_stats & stats )  {
     part3() : n(0L), t(0L)  { ; }
   }  p3[ELseverityLevel::nLevels];
 
-  for ( i = stats.begin(), n = 0;  i != stats.end();  ++i )  {
+  std::set<std::string>::iterator gcEnd = groupedCategories.end(); 
+  std::set<std::string> gCats = groupedCategories;  // TEMP FOR DEBUGGING SANITY
+  for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
 
+     // If this is a grouped category, wait till later to output its stats
+    std::string cat = (*i).first.id; 
+    if ( groupedCategories.find(cat) != gcEnd )
+    {								// 8/16/07 mf
+       continue; // We will process these categories later
+    }
+    							
     // -----  Emit new process and part I header, if needed:
     //
-    if ( n == 0  || ! eq(lastProcess, (*i).first.process) ) {
+    if ( n == 0 ) {
       s << "\n";
-      lastProcess = (*i).first.process;
-      if ( lastProcess.size() > 0) {
-        s << "Process " << (*i).first.process << '\n';
-      }
       s << " type     category        sev    module        "
              "subroutine        count    total\n"
         << " ---- -------------------- -- ---------------- "
@@ -290,22 +301,59 @@ static ELstring  formSummary( ELmap_stats & stats )  {
     }
     // -----  Emit detailed message information:
     //
-    s << right << setw( 5) << ++n                                     << ' '
-      << left  << setw(20) << (*i).first.id.substr(0,20)              << ' '
-      << left  << setw( 2) << (*i).first.severity.getSymbol()         << ' '
-      << left  << setw(16) << (*i).first.module.substr(0,16)          << ' '
-      << left  << setw(16) << (*i).first.subroutine.substr(0,16)
-      << right << setw( 7) << (*i).second.n
-      << left  << setw( 1) << ( (*i).second.ignoredFlag ? '*' : ' ' )
-      << right << setw( 8) << (*i).second.aggregateN                  << '\n'
+    s << right << std::setw( 5) << ++n                                     << ' '
+      << left  << std::setw(20) << (*i).first.id.substr(0,20)              << ' '
+      << left  << std::setw( 2) << (*i).first.severity.getSymbol()         << ' '
+      << left  << std::setw(16) << (*i).first.module.substr(0,16)          << ' '
+      << left  << std::setw(16) << (*i).first.subroutine.substr(0,16)
+      << right << std::setw( 7) << (*i).second.n
+      << left  << std::setw( 1) << ( (*i).second.ignoredFlag ? '*' : ' ' )
+      << right << std::setw( 8) << (*i).second.aggregateN                  << '\n'
       ;
     ftnote = ftnote || (*i).second.ignoredFlag;
 
     // -----  Obtain information for Part III, below:
     //
-    p3[(*i).first.severity.getLevel()].n += (*i).second.n;
-    p3[(*i).first.severity.getLevel()].t += (*i).second.aggregateN;
-  }  // for
+    ELextendedID xid = (*i).first;
+    p3[xid.severity.getLevel()].n += (*i).second.n;
+    p3[xid.severity.getLevel()].t += (*i).second.aggregateN;
+  }  // for i
+
+  // ----- Part Ia:  The grouped categories
+  for ( std::set<std::string>::iterator g = groupedCategories.begin(); g != gcEnd; ++g ) {
+    int groupTotal = 0;
+    int groupAggregateN = 0;
+    ELseverityLevel severityLevel;
+    bool groupIgnored = true;
+    for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
+      if ( (*i).first.id == *g ) {
+        if (groupTotal==0) severityLevel = (*i).first.severity;
+	groupIgnored &= (*i).second.ignoredFlag;
+	groupAggregateN += (*i).second.aggregateN;
+        ++groupTotal;
+      } 
+    } // for i
+    if (groupTotal > 0) {
+      // -----  Emit detailed message information:
+      //
+      s << right << std::setw( 5) << ++n                                     << ' '
+	<< left  << std::setw(20) << (*g).substr(0,20)                       << ' '
+	<< left  << std::setw( 2) << severityLevel.getSymbol()               << ' '
+	<< left  << std::setw(16) << "  <Any Module>  "                      << ' '
+	<< left  << std::setw(16) << "<Any Function>"
+	<< right << std::setw( 7) << groupTotal
+	<< left  << std::setw( 1) << ( groupIgnored ? '*' : ' ' )
+	<< right << std::setw( 8) << groupAggregateN                  << '\n'
+	;
+      ftnote = ftnote || groupIgnored;
+
+      // -----  Obtain information for Part III, below:
+      //
+      int lev = severityLevel.getLevel();
+      p3[lev].n += groupTotal;
+      p3[lev].t += groupAggregateN;
+    } // end if groupTotal>0
+  }  // for g
 
   // -----  Provide footnote to part I, if needed:
   //
@@ -316,7 +364,13 @@ static ELstring  formSummary( ELmap_stats & stats )  {
 
   // -----  Summary part II:
   //
-  for ( i = stats.begin(), n = 0;  i != stats.end();  ++i )  {
+  n = 0;
+  for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
+    std::string cat = (*i).first.id; 
+    if ( groupedCategories.find(cat) != gcEnd )
+    {								// 8/16/07 mf
+       continue; // We will process these categories later
+    }
     if ( n ==  0 ) {
       s << '\n'
 	<< " type    category    Examples: "
@@ -325,10 +379,10 @@ static ELstring  formSummary( ELmap_stats & stats )  {
 	   "------------ ---------------- ----------------\n"
 	;
     }
-    s << right << setw( 5) << ++n                             << ' '
-      << left  << setw(20) << (*i).first.id.c_str()           << ' '
-      << left  << setw(16) << (*i).second.context1.c_str()    << ' '
-      << left  << setw(16) << (*i).second.context2.c_str()    << ' '
+    s << right << std::setw( 5) << ++n                             << ' '
+      << left  << std::setw(20) << (*i).first.id.c_str()           << ' '
+      << left  << std::setw(16) << (*i).second.context1.c_str()    << ' '
+      << left  << std::setw(16) << (*i).second.context2.c_str()    << ' '
                            << (*i).second.contextLast.c_str() << '\n'
       ;
   }  // for
@@ -339,9 +393,9 @@ static ELstring  formSummary( ELmap_stats & stats )  {
     <<   "--------    -------------   -----------------\n";
   for ( int k = 0;  k < ELseverityLevel::nLevels;  ++k )  {
     if ( p3[k].n != 0  ||  p3[k].t != 0 )  {
-      s << left  << setw( 8) << ELseverityLevel( ELseverityLevel::ELsev_(k) ).getName().c_str()
-        << right << setw(17) << p3[k].n
-        << right << setw(20) << p3[k].t
+      s << left  << std::setw( 8) << ELseverityLevel( ELseverityLevel::ELsev_(k) ).getName().c_str()
+        << right << std::setw(17) << p3[k].n
+        << right << std::setw(20) << p3[k].t
                              << '\n'
         ;
     }
@@ -392,6 +446,120 @@ std::map<ELextendedID , StatsCount> ELstatistics::statisticsMap() const {
 }
 
 
+								// 6/19/08 mf
+void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
 
+  struct part3  {
+    long n, t;
+    part3() : n(0L), t(0L)  { ; }
+  }  p3[ELseverityLevel::nLevels];
+
+  std::set<std::string>::iterator gcEnd = groupedCategories.end(); 
+  std::set<std::string> gCats = groupedCategories;  // TEMP FOR DEBUGGING SANITY
+
+  // ----- Part I:  The ungrouped categories
+  for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
+
+     // If this is a grouped category, wait till later to output its stats
+    std::string cat = (*i).first.id; 
+    if ( groupedCategories.find(cat) != gcEnd )
+    {								
+       continue; // We will process these categories later
+    }
+    							
+    // -----  Emit detailed message information:
+    //
+    std::ostringstream s;
+    s << "Category_";
+    std::string sevSymbol = (*i).first.severity.getSymbol();
+    if ( sevSymbol[0] == '-' ) sevSymbol = sevSymbol.substr(1);
+    s << sevSymbol << "_" << (*i).first.id;
+    int n = (*i).second.aggregateN;    
+    std::string catstr = s.str();
+    if (sm.find(catstr) != sm.end()) {
+      sm[catstr] += n; 
+    } else {
+       sm[catstr] = n;
+    } 
+    // -----  Obtain information for Part III, below:
+    //
+    ELextendedID xid = (*i).first;
+    p3[xid.severity.getLevel()].n += (*i).second.n;
+    p3[xid.severity.getLevel()].t += (*i).second.aggregateN;
+  }  // for i
+
+  // ----- Part Ia:  The grouped categories
+  for ( std::set<std::string>::iterator g = groupedCategories.begin(); g != gcEnd; ++g ) {
+    int groupTotal = 0;
+    int groupAggregateN = 0;
+    ELseverityLevel severityLevel;
+    for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
+      if ( (*i).first.id == *g ) {
+        if (groupTotal==0) severityLevel = (*i).first.severity;
+	groupAggregateN += (*i).second.aggregateN;
+        ++groupTotal;
+      } 
+    } // for i
+    if (groupTotal > 0) {
+      // -----  Emit detailed message information:
+      //
+      std::ostringstream s;
+      s << "Category_";
+      std::string sevSymbol = severityLevel.getSymbol();
+      if ( sevSymbol[0] == '-' ) sevSymbol = sevSymbol.substr(1);
+      s << sevSymbol << "_" << *g;
+      int n = groupAggregateN;    
+      std::string catstr = s.str();
+      if (sm.find(catstr) != sm.end()) {
+        sm[catstr] += n; 
+      } else {
+         sm[catstr] = n;
+      } 
+
+      // -----  Obtain information for Part III, below:
+      //
+      int lev = severityLevel.getLevel();
+      p3[lev].n += groupTotal;
+      p3[lev].t += groupAggregateN;
+    } // end if groupTotal>0
+  }  // for g
+
+  // part II (sample event numbers) does not exist for the job report.
+
+  // -----  Summary part III:
+  //
+  for ( int k = 0;  k < ELseverityLevel::nLevels;  ++k )  {
+    //if ( p3[k].t != 0 )  {
+    if (true) {
+      std::string sevName;
+      sevName = ELseverityLevel( ELseverityLevel::ELsev_(k) ).getName();
+      if (sevName == "Severe")  sevName = "System";
+      if (sevName == "Success") sevName = "Debug";
+      sevName = std::string("Log")+sevName;
+      sevName = dualLogName(sevName);
+      if (sevName != "UnusedSeverity") {
+        sm[sevName] = p3[k].t;
+      }
+    }
+  }  // for k
+
+} // summaryForJobReport()
+
+std::string ELstatistics::dualLogName (std::string const & s) 
+{
+  if (s=="LogDebug")   return  "LogDebug_LogTrace";
+  if (s=="LogInfo")    return  "LogInfo_LogVerbatim";
+  if (s=="LogWarning") return  "LogWarnng_LogPrint";
+  if (s=="LogError")   return  "LogError_LogProblem";
+  if (s=="LogSystem")  return  "LogSystem_LogAbsolute";
+  return "UnusedSeverity";
+}
+
+std::set<std::string> ELstatistics::groupedCategories; // 8/16/07 mf 
+
+void ELstatistics::noteGroupedCategory(std::string const & cat) {
+  groupedCategories.insert(cat);
+}
+  
 } // end of namespace service  
 } // end of namespace edm  

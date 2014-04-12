@@ -13,7 +13,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
  TText* te = new TText();
  TFile * rfile = new TFile(rfilename);
 
- rfile->cd("DQMData/EcalDigiTask");
+ rfile->cd("DQMData/EcalDigisV/EcalDigiTask");
  gDirectory->ls();
 
  Char_t histo[200];
@@ -29,15 +29,15 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,3);
    
    TH1* meGunEnergy_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Gun Momentum;1",meGunEnergy_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Gun Momentum;1",meGunEnergy_);
    meGunEnergy_;
    
    TH1* meGunEta_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Gun Eta;1",meGunEta_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Gun Eta;1",meGunEta_);
    meGunEta_;
    
    TH1* meGunPhi_; 
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Gun Phi;1",meGunPhi_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Gun Phi;1",meGunPhi_);
    meGunPhi_; 
    
    
@@ -56,7 +56,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
 
    TH2 * meEBDigiOccupancy_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel occupancy;1",meEBDigiOccupancy_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel occupancy;1",meEBDigiOccupancy_);
    meEBDigiOccupancy_;
 
    gStyle->SetOptStat("11");
@@ -75,11 +75,11 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH2 * meEEDigiOccupancyzp_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z+;1",meEEDigiOccupancyzp_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap occupancy z+;1",meEEDigiOccupancyzp_);
    meEEDigiOccupancyzp_;
 
    TH2 * meEEDigiOccupancyzm_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z-;1",meEEDigiOccupancyzm_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap occupancy z-;1",meEEDigiOccupancyzm_);
    meEEDigiOccupancyzm_;
 
    gStyle->SetOptStat("11");
@@ -100,19 +100,19 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(2,2);
 
    TH1 * meEBDigiMultiplicity_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel digis multiplicity;1",meEBDigiMultiplicity_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel digis multiplicity;1",meEBDigiMultiplicity_);
    meEBDigiMultiplicity_;
 
    TH1 * meESDigiMultiplicity_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower digis multiplicity;1",meESDigiMultiplicity_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower digis multiplicity;1",meESDigiMultiplicity_);
    meESDigiMultiplicity_;
 
    TH1 * meEEDigiMultiplicityzp_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap multiplicity z+;1",meEEDigiMultiplicityzp_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap multiplicity z+;1",meEEDigiMultiplicityzp_);
    meEEDigiMultiplicityzp_;
 
    TH1 * meEEDigiMultiplicityzm_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap multiplicity z-;1",meEEDigiMultiplicityzm_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap multiplicity z-;1",meEEDigiMultiplicityzm_);
    meEEDigiMultiplicityzm_;
 
    Ecal->cd(1);
@@ -141,11 +141,11 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TProfile * meEBDigiADCGlobal_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel global pulse shape;1",meEBDigiADCGlobal_) ;
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel global pulse shape;1",meEBDigiADCGlobal_) ;
    meEBDigiADCGlobal_;
 
    TProfile * meEEDigiADCGlobal_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap global pulse shape;1",meEEDigiADCGlobal_) ;
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap global pulse shape;1",meEEDigiADCGlobal_) ;
    meEEDigiADCGlobal_;
 
    Ecal->cd(1);
@@ -162,11 +162,11 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH1 * meEBDigiSimRatio_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio;1",meEBDigiSimRatio_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio;1",meEBDigiSimRatio_);
    meEBDigiSimRatio_;
 
    TH1 * meEEDigiSimRatio_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio;1",meEEDigiSimRatio_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio;1",meEEDigiSimRatio_);
    meEEDigiSimRatio_;
 
    Ecal->cd(1);
@@ -185,11 +185,11 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH1 * meEBDigiSimRatiogt10ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 10 ADC;1",meEBDigiSimRatiogt10ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 10 ADC;1",meEBDigiSimRatiogt10ADC_);
    meEBDigiSimRatiogt10ADC_;
 
    TH1 * meEEDigiSimRatiogt20ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 20 ADC;1",meEEDigiSimRatiogt20ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 20 ADC;1",meEEDigiSimRatiogt20ADC_);
    meEEDigiSimRatiogt20ADC_;
 
    Ecal->cd(1);
@@ -208,11 +208,11 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH1 * meEBDigiSimRatiogt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 100 ADC;1",meEBDigiSimRatiogt100ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 100 ADC;1",meEBDigiSimRatiogt100ADC_);
    meEBDigiSimRatiogt100ADC_;
 
    TH1 * meEEDigiSimRatiogt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 100 ADC;1",meEEDigiSimRatiogt100ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 100 ADC;1",meEEDigiSimRatiogt100ADC_);
    meEEDigiSimRatiogt100ADC_;
 
    Ecal->cd(1);
@@ -233,11 +233,11 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH1 * meEBnADCafterSwitch_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel ADC counts after gain switch;1", meEBnADCafterSwitch_) ;
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel ADC counts after gain switch;1", meEBnADCafterSwitch_) ;
    meEBnADCafterSwitch_;
 
    TH1 * meEEnADCafterSwitch_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap ADC counts after gain switch;1", meEEnADCafterSwitch_) ;
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap ADC counts after gain switch;1", meEEnADCafterSwitch_) ;
    meEEnADCafterSwitch_;
 
    Ecal->cd(1);
@@ -254,11 +254,11 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH1 * meEBPedestal_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel pedestal for pre-sample;1",meEBPedestal_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel pedestal for pre-sample;1",meEBPedestal_);
    meEBPedestal_;
 
    TH1 * meEEPedestal_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap pedestal for pre-sample;1",meEEPedestal_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap pedestal for pre-sample;1",meEEPedestal_);
    meEEPedestal_;
 
    Ecal->cd(1);
@@ -276,11 +276,11 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH1 * meEBMaximumgt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum position gt 100 ADC;1",meEBMaximumgt100ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum position gt 100 ADC;1",meEBMaximumgt100ADC_);
    meEBMaximumgt100ADC_;
 
    TH1 * meEEMaximumgt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 100 ADC;1",meEEMaximumgt100ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum position gt 100 ADC;1",meEEMaximumgt100ADC_);
    meEEMaximumgt100ADC_;
 
    Ecal->cd(1);
@@ -295,11 +295,11 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Divide(1,2);
 
    TH1 * meEBMaximumgt10ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum position gt 10 ADC;1",meEBMaximumgt10ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum position gt 10 ADC;1",meEBMaximumgt10ADC_);
    meEBMaximumgt10ADC_;
 
    TH1 * meEEMaximumgt20ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 20 ADC;1",meEEMaximumgt20ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum position gt 20 ADC;1",meEEMaximumgt20ADC_);
    meEEMaximumgt20ADC_;
 
    Ecal->cd(1);
@@ -317,7 +317,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meESDigiADC_[3];
    for ( Int_t  i=0 ; i<3; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Preshower ADC pulse %02d;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower ADC pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meESDigiADC_[i]);
      meESDigiADC_[i];
    }
@@ -338,7 +338,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEBDigiADCAnalog_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel analog pulse %02d;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel analog pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meEBDigiADCAnalog_[i]);
      meEBDigiADCAnalog_[i];
    }
@@ -359,7 +359,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEBDigiADCg1_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel ADC pulse %02d Gain 1;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel ADC pulse %02d Gain 1;1", i+1) ;
      rfile->GetObject(histo,meEBDigiADCg1_[i]);
      meEBDigiADCg1_[i];
    }
@@ -380,7 +380,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEBDigiADCg6_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel ADC pulse %02d Gain 6;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel ADC pulse %02d Gain 6;1", i+1) ;
      rfile->GetObject(histo,meEBDigiADCg6_[i]);
      meEBDigiADCg6_[i];
    }
@@ -401,7 +401,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEBDigiADCg12_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel ADC pulse %02d Gain 12;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel ADC pulse %02d Gain 12;1", i+1) ;
      rfile->GetObject(histo,meEBDigiADCg12_[i]);
      meEBDigiADCg12_[i];
    }
@@ -422,7 +422,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEBDigiGain_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel gain pulse %02d;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel gain pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meEBDigiGain_[i]);
      meEBDigiGain_[i];
    }
@@ -443,7 +443,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEEDigiADCAnalog_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap analog pulse %02d;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap analog pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meEEDigiADCAnalog_[i]);
      meEEDigiADCAnalog_[i];
    }
@@ -464,7 +464,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEEDigiADCg1_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap ADC pulse %02d Gain 1;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap ADC pulse %02d Gain 1;1", i+1) ;
      rfile->GetObject(histo,meEEDigiADCg1_[i]);
      meEEDigiADCg1_[i];
    }
@@ -485,7 +485,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEEDigiADCg6_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap ADC pulse %02d Gain 6;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap ADC pulse %02d Gain 6;1", i+1) ;
      rfile->GetObject(histo,meEEDigiADCg6_[i]);
      meEEDigiADCg6_[i];
    }
@@ -506,7 +506,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEEDigiADCg12_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap ADC pulse %02d Gain 12;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap ADC pulse %02d Gain 12;1", i+1) ;
      rfile->GetObject(histo,meEEDigiADCg12_[i]);
      meEEDigiADCg12_[i];
    }
@@ -527,7 +527,7 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 
    TH1 * meEEDigiGain_[10];
    for ( Int_t  i=0 ; i<10; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap gain pulse %02d;1", i+1) ;
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap gain pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meEEDigiGain_[i]);
      meEEDigiGain_[i];
    }

@@ -4,16 +4,14 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2007/04/25 19:41:55 $
- *  $Revision: 1.13 $
  * \author Alex Tumanov 
  */
 
+#include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/Framework/interface/EDProducer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class CSCMonitorInterface;
 
@@ -27,20 +25,27 @@ class CSCDCCUnpacker: public edm::EDProducer {
   
   /// Produce digis out of raw data
   void produce(edm::Event & e, const edm::EventSetup& c);
-
-
-
+  
+  /// Visualization of raw data in FED-less events (Robert Harr and Alexander Sakharov)
+  void visual_raw(int hl,int id, int run, int event, bool fedshort, bool fDump, short unsigned int* buf) const; 
   
  private:
 
-  bool debug, PrintEventNumber, goodEvent, useExaminer, unpackStatusDigis, unpackMTCCData; 
+  bool debug, printEventNumber, goodEvent, useExaminer, unpackStatusDigis;
+  bool useSelectiveUnpacking, useFormatStatus;
+  
+  /// Visualization of raw data
+  bool  visualFEDInspect, visualFEDShort, formatedEventDump;
+  /// Suppress zeros LCTs
+  bool SuppressZeroLCT;
+  
   int numOfEvents;
   unsigned int errorMask, examinerMask;
-  CSCReadoutMappingFromFile theMapping;
-  bool instatiateDQM;
+  bool instantiateDQM;
   CSCMonitorInterface * monitor;
-  edm::InputTag inputObjectsTag; // input tag labelling raw data for input
 
+  /// Token for consumes interface & access to data
+  edm::EDGetTokenT<FEDRawDataCollection> i_token;
 
 
 };

@@ -11,7 +11,7 @@
 #define _FittedEntriesSet_HH
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "time.h"
+#include <ctime>
 #include <vector>
 #include "Alignment/CocoaAnalysis/interface/FittedEntry.h"
 //#ifdef MAT_MESCHACH
@@ -25,16 +25,16 @@ class FittedEntriesSet
 public:
   //---------- Constructors / Destructor
   FittedEntriesSet( MatrixMeschach* AtWAMatrix );
-  FittedEntriesSet( std::vector<ALIstring> wl );
+  FittedEntriesSet( const std::vector<ALIstring>& wl );
   //---- Average a list of FittedEntriesSet's
-  FittedEntriesSet( std::vector<FittedEntriesSet*> vSets ); 
+  FittedEntriesSet( const std::vector<FittedEntriesSet*>& vSets ); 
   ~FittedEntriesSet(){ };
   void Fill();
   void FillEntries();
   void FillCorrelations();
   void CreateCorrelationMatrix( const ALIuint nent );
-  void FillEntriesFromFile( std::vector<ALIstring> wl);
-  void FillEntriesAveragingSets( std::vector<FittedEntriesSet*> vSets );
+  void FillEntriesFromFile( const std::vector<ALIstring>& wl);
+  void FillEntriesAveragingSets( const std::vector<FittedEntriesSet*>& vSets );
 
   void SetOptOEntries();
 

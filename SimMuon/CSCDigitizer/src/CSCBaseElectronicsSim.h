@@ -20,16 +20,19 @@
 
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
 // declarations
 class CSCLayer;
 class CSCChamberSpecs;
 class CSCDetectorHit;
 class CSCLayerGeometry;
-class CSCDetId;
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 class DetId;
 class PSimHit;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CSCBaseElectronicsSim
 {
@@ -38,25 +41,24 @@ public:
   typedef std::map<int, CSCAnalogSignal, std::less<int> > CSCSignalMap;
   typedef edm::DetSet<StripDigiSimLink> DigiSimLinks;
  
-  void setRandomEngine(CLHEP::HepRandomEngine& engine);
- 
   // takes the input detector hits, turns them into DIGIs, and
   // stores them in the layer
   void simulate(const CSCLayer * layer,
-                const std::vector<CSCDetectorHit> & inputHits);
+                const std::vector<CSCDetectorHit> & inputHits,
+                CLHEP::HepRandomEngine*);
 
   const DigiSimLinks & digiSimLinks() const {return theDigiSimLinks;}
  
   virtual ~CSCBaseElectronicsSim();
 
-  /**
-   * For verbosity
-   */  
+  /// for standalone apps who don't calculate it from the geometry
+  void setLayerId(const CSCDetId & id) {theLayerId = id;}
 
 protected:
   // constructor protected, so this class must be a base class
   CSCBaseElectronicsSim(const edm::ParameterSet & p);
 
+  void setLayer(const CSCLayer * layer);
   // initialize things that change from layer to layer
   virtual void initParameters() = 0;
 
@@ -81,19 +83,19 @@ protected:
     theSignalStopTime = stopTime;
   }
 
-  void addNoise();
+  void addNoise(CLHEP::HepRandomEngine*);
 
-  CSCAnalogSignal & find(int element);
+  CSCAnalogSignal & find(int element, CLHEP::HepRandomEngine*);
   // the returned signal will be the one stored in the
   // signal, not the original.  If another signal
   // is found on this element, they will be superimposed.
-  CSCAnalogSignal & add(const CSCAnalogSignal &);
-  virtual CSCAnalogSignal makeNoiseSignal(int element);
+  CSCAnalogSignal & add(const CSCAnalogSignal &, CLHEP::HepRandomEngine*);
+  virtual CSCAnalogSignal makeNoiseSignal(int element, CLHEP::HepRandomEngine*);
 
   /// how long, in ns, it takes a signal at pos to propagate to
   /// the readout edge.  This may be negative, since the timing
   /// may be calibrated to the center of the detector
-  virtual float signalDelay(int element, float pos) const = 0;
+  virtual float signalDelay(int element, float pos) const;
 
   /// creates links from Digi to SimTrack
   /// disabled for now
@@ -103,7 +105,7 @@ protected:
   virtual int channelIndex(int channel) const {return channel;}
 
   /// the CSCDetId corresponding to the current layer
-  CSCDetId layerId() const;
+  CSCDetId layerId() const {return theLayerId;}
 
   /// the average time-of-flight from the interaction point to the given detector
   double averageTimeOfFlight(const DetId & detId) const;
@@ -114,6 +116,7 @@ protected:
   const CSCChamberSpecs * theSpecs;
   const CSCLayerGeometry * theLayerGeometry;
   const CSCLayer * theLayer;  // the one currently being digitized
+  CSCDetId theLayerId;
 
   CSCSignalMap theSignalMap;
   CSCAnalogSignal theAmpResponse;
@@ -148,15 +151,16 @@ protected:
 
   // Which bit in the 16-bit time word corresponds to the zeroth beam crossing?
   int theOffsetOfBxZero; // bit corresponding to bx 0 (counting from 0-15)
-
+  /// Speed (cm/ns) that it takes for the signal to get from the element to the readout.
+  /// Actually negative in strips, due to reflection effects.
+  std::vector<double> theSignalPropagationSpeed;
+  std::vector<double> theTimingCalibrationError;
   bool doNoise_;
 
   // keeps track of which hits contribute to which channels
   typedef std::multimap<int, CSCDetectorHit, std::less<int> >  DetectorHitMap;
   DetectorHitMap theDetectorHitMap;
   DigiSimLinks theDigiSimLinks;
-
-  CLHEP::RandGaussQ * theRandGaussQ;
 };
 
 #endif

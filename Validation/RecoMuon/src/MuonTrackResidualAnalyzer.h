@@ -4,21 +4,26 @@
 /** \class MuonTrackResidualAnalyzer
  *  No description available.
  *
- *  $Date: 2007/03/13 09:39:37 $
- *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */ 
 
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -29,9 +34,6 @@ namespace edm {
   class EventSetup;
 }
 
-class TFile;
-class TH1F;
-class TH2F;
 class HTracks;
 class HResolution;
 
@@ -56,8 +58,10 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
+  virtual void beginRun() ;
+  virtual void endRun() ;
 
 protected:
 
@@ -77,24 +81,31 @@ private:
   
  private:
   
-  std::string theRootFileName;
-  TFile* theFile;
-
+  DQMStore* dbe_;
+  std::string dirName_;
+  
+  std::string out;
+  
   edm::InputTag theDataType;
+  edm::EDGetTokenT<edm::SimTrackContainer> theDataTypeToken;
   EtaRange theEtaRange;
   
   edm::InputTag theMuonTrackLabel;
-  edm::InputTag theSeedCollectionLabel;
   edm::InputTag cscSimHitLabel;
   edm::InputTag dtSimHitLabel;
   edm::InputTag rpcSimHitLabel;
-  
+
+  edm::EDGetTokenT<reco::TrackCollection> theMuonTrackToken;
+  edm::EDGetTokenT<std::vector<PSimHit> > theCSCSimHitToken;
+  edm::EDGetTokenT<std::vector<PSimHit> > theDTSimHitToken;
+  edm::EDGetTokenT<std::vector<PSimHit> > theRPCSimHitToken;
+
   MuonServiceProxy *theService;
   KFUpdator *theUpdator;
   MeasurementEstimator *theEstimator;
 
  private:
-  TH1F *hDPtRef;
+  MonitorElement *hDPtRef;
  
   // Resolution wrt the 1D Rec Hits
   HResolution1DRecHit *h1DRecHitRes;
@@ -102,10 +113,10 @@ private:
   // Resolution wrt the 1d Sim Hits
   HResolution1DRecHit  *h1DSimHitRes;
 
-  TH1F *hSimHitsPerTrack;
-  TH2F *hSimHitsPerTrackVsEta; 
-  TH2F *hDeltaPtVsEtaSim;
-  TH2F *hDeltaPtVsEtaSim2;
+  MonitorElement *hSimHitsPerTrack;
+  MonitorElement *hSimHitsPerTrackVsEta; 
+  MonitorElement *hDeltaPtVsEtaSim;
+  MonitorElement *hDeltaPtVsEtaSim2;
 
   int theMuonSimHitNumberPerEvent;
   
@@ -127,7 +138,7 @@ private:
       
       double distA = geomDetA->toGlobal(a->localPosition()).mag();
       double distB = geomDetB->toGlobal(b->localPosition()).mag();
-
+      
       return distA < distB; 
     }
 

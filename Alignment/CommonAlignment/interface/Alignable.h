@@ -1,37 +1,33 @@
 #ifndef Alignment_CommonAlignment_Alignable_H
 #define Alignment_CommonAlignment_Alignable_H
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h" // fixme: should forward declare
-#include "Geometry/CommonDetUnit/interface/DetPositioner.h"
-#include "CondFormats/Alignment/interface/Alignments.h" // fixme: should forward declare
-#include "CondFormats/Alignment/interface/AlignmentErrors.h" // fixme: should forward declare
-
-// Headers in the same package
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h" // fixme: should forward declare
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+class AlignmentErrors;
+class AlignmentParameters;
+class AlignmentPositionError;
+class Alignments;
+class AlignmentSurfaceDeformations;
+class SurfaceDeformation;
 
 /** \class Alignable
  *
  * Abstract base class for alignable entities.
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
- * The class derives from DetPositioner, a friend class of
- * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/06/21 16:18:27 $
- *  $Revision: 1.24 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2011/09/19 11:42:35 $
+ *  $Revision: 1.36 $
+ *  (last update by $Author: mussgill $)
  */
 
 class AlignmentParameters;
-class GeomDet;
 class SurveyDet;
 
-class Alignable : public DetPositioner
-{  
+class Alignable
+{
   
 public:
 
@@ -40,16 +36,16 @@ public:
   typedef align::RotationType RotationType;
   typedef align::GlobalVector GlobalVector;
   typedef align::LocalVector  LocalVector;
-  typedef AlignableObjectId::AlignableObjectIdType AlignableObjectIdType; // fixme: put in namespace
+  typedef align::Alignables   Alignables;
+  typedef align::StructureType StructureType;
 
-  typedef std::vector<Alignable*> Alignables;
-
-  /// Constructor from GeomDet
-  Alignable( const GeomDet* );
+  /// Constructor from id and surface, setting also geomDetId
+  /// (AlignableNavigator relies on the fact that only AlignableDet/DetUnit have geomDetId!)
+  Alignable( align::ID, const AlignableSurface& );
 
   /// Constructor for a composite with given rotation.
   /// Position is found (later) from average of daughters' positions.
-  Alignable( uint32_t id, const RotationType& );
+  Alignable( align::ID, const RotationType& );
 
   /// Destructor
   virtual ~Alignable();
@@ -61,18 +57,18 @@ public:
   AlignmentParameters* alignmentParameters() const { return theAlignmentParameters; }
 
   /// Add a component to alignable
+  /// (GF: Should be interface in Composite, but needed in AlignableBuilder::build)
   virtual void addComponent( Alignable* ) = 0;
 
   /// Return vector of all direct components
   virtual Alignables components() const = 0;
 
   /// Return number of direct components
-  inline const int size() const { return components().size(); }
+  int size() const { return components().size(); }
 
-  /// Get the terminals (lowest daughters that are not composites) of
-  /// Alignable. Add to existing result which is passed by reference.
-  void deepComponents( std::vector<const Alignable*>& result ) const;
-  void deepComponents( std::vector<Alignable*>& result );
+  /// Return the list of lowest daughters (non-composites) of Alignable.
+  /// Contain itself if Alignable is a unit.
+  const Alignables& deepComponents() const { return theDeepComponents; }
 
   /// Provide all components, subcomponents, subsub... etc. of Alignable
   /// down to AlignableDetUnit, except for 'single childs' like e.g.
@@ -141,35 +137,47 @@ public:
   /// Return change of orientation since the creation of the object 
   const RotationType& rotation() const { return theRotation; }
 
-  /// Set the alignment position error
+  /// Set the alignment position error - if (!propagateDown) do not affect daughters
   virtual void 
-  setAlignmentPositionError( const AlignmentPositionError& ape ) = 0;
+  setAlignmentPositionError( const AlignmentPositionError& ape, bool propagateDown) = 0;
 
-  /// Add (or set if not already present) the AlignmentPositionError
+  /// Add (or set if not already present) the AlignmentPositionError,
+  /// but if (!propagateDown) do not affect daughters
   virtual void 
-  addAlignmentPositionError( const AlignmentPositionError& ape ) = 0;
+  addAlignmentPositionError( const AlignmentPositionError& ape, bool propagateDown ) = 0;
 
   /// add (or set if not already present) the AlignmentPositionError 
   /// which would result from a rotation (given in the GLOBAL frame
-  /// of CMS) of the alignable object
+  /// of CMS) of the alignable object,
+  /// but if (!propagateDown) do not affect daughters
   virtual void 
-  addAlignmentPositionErrorFromRotation( const RotationType& rotation ) = 0;
+  addAlignmentPositionErrorFromRotation( const RotationType& rotation, bool propagateDown ) = 0;
 
   /// add (or set if not already present) the AlignmentPositionError 
   /// which would result from a rotation (given in the LOCAL frame
-  /// of the Alignable)  of the alignable object
+  /// of the Alignable)  of the alignable object,
+  /// but if (!propagateDown) do not affect daughters
   virtual void 
-  addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation ) = 0;
+  addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation, bool propagateDown ) = 0;
 
+  /// Set the surface deformation parameters - if (!propagateDown) do not affect daughters
+  virtual void
+  setSurfaceDeformation(const SurfaceDeformation *deformation, bool propagateDown) = 0;
+
+  /// Add the surface deformation parameters to the existing ones,
+  /// if (!propagateDown) do not affect daughters.
+  virtual void
+  addSurfaceDeformation(const SurfaceDeformation *deformation, bool propagateDown) = 0;
+  
   /// Return the alignable type identifier
-  virtual int alignableObjectId() const = 0;
+  virtual StructureType alignableObjectId() const = 0;
 
-  /// Return the DetId of the associated GeomDet (0 by default).
+  /// Return the DetId of the associated GeomDet (0 by default)
   /// This should be removed. Ultimately we need only one ID.
   const DetId& geomDetId() const { return theDetId; }
 
-  /// Return the ID of Alignable.
-  uint32_t id() const { return theId; }
+  /// Return the ID of Alignable, i.e. DetId of 'first' component GeomDet(Unit). 
+  align::ID id() const { return theId; } 
 
   /// Recursive printout of alignable information
   virtual void dump() const = 0;
@@ -179,6 +187,19 @@ public:
   
   /// Return vector of alignment errors
   virtual AlignmentErrors* alignmentErrors() const = 0;
+
+  /// Return surface deformations, sorted by DetId
+  AlignmentSurfaceDeformations* surfaceDeformations() const;
+
+  /// Return surface deformations as a vector of pairs of raw DetId
+  /// and pointers to surface deformations
+  virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const = 0;
+
+  /// cache the current position, rotation and other parameters (e.g. surface deformations)
+  virtual void cacheTransformation();
+
+  /// restore the previously cached transformation, also for possible components
+  virtual void restoreCachedTransformation();
 
   /// Return survey info
   const SurveyDet* survey() const { return theSurvey; }
@@ -193,17 +214,26 @@ protected:
 
 protected:
 
-  DetId theDetId; // used to check if Alignable is associated to a GeomDet
-                  // ugly way to keep AlignableNavigator happy for now
+  DetId theDetId; // used to check if Alignable is associated to a GeomDet 
+                  // ugly way to keep AlignableNavigator happy for now 
 
-  uint32_t theId; // real ID as int, above DetId should be removed
+  align::ID theId; // real ID as int, above DetId should be removed
 
   AlignableSurface theSurface; // Global position and orientation of surface
 
   GlobalVector theDisplacement; // total linear displacement
   RotationType theRotation;     // total angular displacement
 
+  AlignableSurface theCachedSurface;
+  GlobalVector theCachedDisplacement;
+  RotationType theCachedRotation;
+
+  Alignables theDeepComponents; // list of lowest daughters
+                                // contain itself if Alignable is a unit
+
 private:
+  /// private default ctr. to enforce usage of the specialised ones
+  Alignable() {};
 
   AlignmentParameters* theAlignmentParameters;
 

@@ -6,6 +6,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
+#include "FWCore/Utilities/interface/Visibility.h"
+
 class Cylinder;
 
 /** Calculates the crossing of a helix with a barrel cylinder.
@@ -13,11 +15,13 @@ class Cylinder;
 
 class HelixBarrelCylinderCrossing {
 
+public:
+  enum Solution {bothSol, bestSol, onlyPos};
+
   typedef double                   TmpType;
   typedef Basic2DVector<TmpType>   Point; // for private use only
   typedef Basic2DVector<TmpType>   Vector; // for private use only
 
-public:
 
   typedef GlobalPoint    PositionType;
   typedef GlobalVector   DirectionType;
@@ -25,7 +29,7 @@ public:
   HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
 			       const GlobalVector& startingDir,
 			       double rho, PropagationDirection propDir, 
-			       const Cylinder& cyl);
+			       const Cylinder& cyl, Solution sol=bothSol);
 
   bool hasSolution() const { return theSolExists;}
 
@@ -42,6 +46,13 @@ public:
    *  is given by position( pathLength( cylinder)).
    */
   PositionType position() const { return thePos;}
+  
+  /// Method to access separately each solution of the helix-cylinder crossing equations
+  PositionType position1() const { return thePos1;}
+
+  /// Method to access separately each solution of the helix-cylinder crossing equations
+  PositionType position2() const { return thePos2;}
+
 
   /** Returns the direction along the helix that corresponds to path
    *  length "s" from the starting point. As for position,
@@ -52,17 +63,20 @@ public:
 
 private:
 
-  bool           theSolExists;
-  double         theS;
   PositionType   thePos;
   DirectionType  theDir;
-  Vector         theD;
-  int            theActualDir;
+  double         theS;
+  bool           theSolExists;
 
-  void chooseSolution( const Point& p1, const Point& p2,
-		       const PositionType& startingPos,
-		       const DirectionType& startingDir, 
-		       PropagationDirection propDir);
+
+  PositionType   thePos1;
+  PositionType   thePos2;
+
+
+  std::pair<Vector,int> chooseSolution( const Point& p1, const Point& p2,
+					const PositionType& startingPos,
+					const DirectionType& startingDir, 
+					PropagationDirection propDir) dso_internal;
 
 };
 

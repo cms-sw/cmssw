@@ -1,0 +1,35 @@
+# This is the decay file for the decay B+ -> MU+ MU- K*+(-> Ks pi+)
+#
+# Descriptor: [B+ -> mu+ mu- {,gamma} {,gamma} (K*+ -> Ks pi+)]cc
+#
+# NickName: 
+#
+# Physics: Includes radiative mode
+#
+# Tested: Yes
+# By:     K. Ulmer
+# Date:   2-26-08
+#
+Alias      MyB+        B+
+Alias      MyB-        B-
+ChargeConj MyB+        MyB-
+Alias      MyK*+       K*+
+Alias      MyK*-       K*-
+ChargeConj MyK*+       MyK*-
+Alias      MyK_S0      K_S0
+ChargeConj MyK_S0      MyK_S0
+#
+Decay MyB+
+  1.000        MyK*+     mu+     mu-      BTOSLLBALL;
+Enddecay
+CDecay MyB-
+#
+Decay MyK*+
+  1.000        MyK_S0    pi+              VSS;
+Enddecay
+CDecay MyK*-
+#
+Decay MyK_S0
+  1.000        pi+       pi-              PHSP;
+Enddecay
+End

@@ -6,8 +6,6 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianState.h"
 #include <vector>
 
-// #define DRAW_GSND
-
 /** Utility class for the analysis of multi-dimensional Gaussian
  *  mixtures. The input state is assumed to exist for 
  *  the lifetime of this object.
@@ -33,11 +31,6 @@ public:
   GaussianSumUtilities (const MultiState& state) :
     theState(state), 
     theModeStatus(NotComputed) {
-#ifdef DRAW_GSND
-//     v1Draw_ = 1;
-//     v2Draw_ = 2;
-    instance_ = this;
-#endif
   } 
   ~GaussianSumUtilities () {
   }
@@ -145,13 +138,6 @@ private:
   Matrix d2LnPdf (const Vector&, const std::vector<double>&) const;
 
 
-#ifdef DRAW_GSND
-public:
-  void setDraw (int i1, int i2) {v1Draw_=i1; v2Draw_=i2;}
-private:
-  static double fcn2 (double* x, double* p);
-  static double fcn2mode (double* x, double* p);
-#endif
 
 private:
   const MultiState& theState;
@@ -161,11 +147,6 @@ private:
 //   mutable Vector theMode;
   mutable SingleGaussianState<N> theMode;
 
-#ifdef DRAW_GSND
-  static int v1Draw_;
-  static int v2Draw_;
-  static GaussianSumUtilities<N>* instance_;
-#endif
 };
 
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities.icc"

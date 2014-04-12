@@ -4,25 +4,19 @@
 /** \class AlignableCSCCEndcap
  *  The alignable muon CSC endcap.
  *
- *  $Date: 2006/10/16 14:39:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/15 16:05:53 $
+ *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 
@@ -38,7 +32,7 @@ class AlignableCSCEndcap : public AlignableComposite
 
  public:
 
-  AlignableCSCEndcap( const std::vector<AlignableCSCStation*> cscStations );
+  AlignableCSCEndcap( const std::vector<AlignableCSCStation*>& cscStations );
 
   ~AlignableCSCEndcap();
   
@@ -51,9 +45,6 @@ class AlignableCSCEndcap : public AlignableComposite
 
   }
   
-  typedef GlobalPoint           PositionType;
-  typedef TkRotation<float>     RotationType;
-
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;
   // get the global orientation
@@ -63,14 +54,11 @@ class AlignableCSCEndcap : public AlignableComposite
 
   AlignableCSCStation &station(int i);  
   
-  /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableCSCEndcap; }
-
   /// Printout muon End Cap information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCEndcap& );
 
   /// Recursive printout of the muon End Cap structure
-  void dump( void );
+  void dump( void ) const;
 
   // Get alignments sorted by DetId
   Alignments* alignments() const;

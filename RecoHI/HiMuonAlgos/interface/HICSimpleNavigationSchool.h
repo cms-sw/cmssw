@@ -1,0 +1,1 @@
+#error Obsolete header

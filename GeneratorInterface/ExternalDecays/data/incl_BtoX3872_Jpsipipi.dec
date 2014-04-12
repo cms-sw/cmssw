@@ -1,0 +1,64 @@
+#
+#
+Define Hp 0.49
+Define Hz 0.775
+Define Hm 0.4
+Define pHp 2.50
+Define pHz 0.0
+Define pHm -0.17
+#
+#
+Alias      MyJ/psi  J/psi
+ChargeConj MyJ/psi  MyJ/psi
+#
+Decay MyJ/psi
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+#
+#
+Alias Myrho0 rho0
+ChargeConj Myrho0 Myrho0
+#
+Decay Myrho0
+1.000    pi+ pi-                         VSS;
+Enddecay	
+# 
+#
+Alias      myX(3872)  X(3872)
+ChargeConj myX(3872)  myX(3872)
+
+#
+Decay myX(3872)
+  1.000         MyJ/psi      Myrho0          PHSP;
+Enddecay
+# 
+#
+Alias      MyB+   B+
+Alias      MyB-   B-
+ChargeConj MyB-   MyB+
+#
+Decay MyB+
+  0.640         myX(3872)      K+          SVS;
+  0.360         myX(3872)      K*+         SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus;
+Enddecay 
+Decay MyB-
+  0.640         myX(3872)      K-          SVS;
+  0.360         myX(3872)      K*-         SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus;
+Enddecay 
+
+#
+Alias      MyB0  B0
+Alias      Myanti-B0  anti-B0
+ChargeConj MyB0  Myanti-B0
+#
+Decay MyB0
+  0.640         myX(3872)      K0         SVS;
+  0.360         myX(3872)      K*0        SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus;
+Enddecay
+#
+Decay Myanti-B0
+  0.640         myX(3872)      anti-K0          SVS;
+  0.360         myX(3872)      anti-K*0         SVV_HELAMP PKHplus PKphHplus PKHzero PKphHzero PKHminus PKphHminus;
+Enddecay
+#
+End

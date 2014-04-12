@@ -1,0 +1,17 @@
+<use   name="Alignment/CommonAlignment"/>
+<use   name="Alignment/CommonAlignmentAlgorithm"/>
+<use   name="Alignment/CommonAlignmentParametrization"/>
+<use   name="Alignment/MuonAlignment"/>
+<use   name="Alignment/SurveyAnalysis"/>
+<use   name="Alignment/ReferenceTrajectories"/>
+<use   name="DataFormats/CLHEP"/>
+<use   name="DataFormats/SiStripDetId"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="rootcore"/>
+<flags   EDM_PLUGIN="1"/>
+

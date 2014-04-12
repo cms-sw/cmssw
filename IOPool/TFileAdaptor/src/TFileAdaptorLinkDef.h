@@ -1,7 +1,6 @@
 #include "IOPool/TFileAdaptor/interface/TStorageFactoryFile.h"
 #include "IOPool/TFileAdaptor/interface/TStorageFactorySystem.h"
 
-
 #ifndef __MAKECINT__
 #include <boost/shared_ptr.hpp>
 #else
@@ -36,4 +35,3 @@ private:
 #pragma link C++ class TStorageFactorySystem;
 
 #endif // __CINT__
-

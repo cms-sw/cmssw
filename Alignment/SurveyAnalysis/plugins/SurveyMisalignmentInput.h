@@ -5,25 +5,18 @@
  *
  *  Class to misaligned tracker from DB.
  *
- *  $Date: 2007/06/22 17:29:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/06/13 09:22:26 $
+ *  $Revision: 1.5 $
  *  \author Chung Khim Lae
  */
 // user include files
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputTextReader.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+class AlignableSurface;
+class Alignments;
 
 class SurveyMisalignmentInput:
   public SurveyInputBase
@@ -31,27 +24,30 @@ class SurveyMisalignmentInput:
 public:
 	
   SurveyMisalignmentInput(
-		const edm::ParameterSet&
-		);
+			  const edm::ParameterSet&
+			  );
 	
   /// Read ideal tracker geometry from DB
-  virtual void beginJob(
-		const edm::EventSetup&
-		);
+  virtual void analyze(
+		       const edm::Event&,
+		       const edm::EventSetup&
+		       );
 	
 private:
 	
-	SurveyInputTextReader::MapType uIdMap;
-	//edm::ParameterSet theParameterSet;	
-	std::string textFileName;
+  SurveyInputTextReader::MapType uIdMap;
 
-	edm::ESHandle<Alignments> alignments;
+  std::string textFileName;
+
+  edm::ESHandle<Alignments> alignments;
 	
-	/// Add survey info to an alignable
+  /// Add survey info to an alignable
   void addSurveyInfo(Alignable*);
-	/// Get alignable surface from misalignments.db
-	AlignableSurface getAlignableSurface(uint32_t);
-	
+
+  /// Get alignable surface from misalignments.db
+  AlignableSurface getAlignableSurface(align::ID);
+  
+  const edm::ParameterSet theParameterSet;
 };
 
 #endif

@@ -1,20 +1,23 @@
-#ifndef Common_RefHolderBase_h
-#define Common_RefHolderBase_h
+#ifndef DataFormats_Common_RefHolderBase_h
+#define DataFormats_Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.2 2007/07/12 12:08:57 llista Exp $
  *
  */
-#include "Reflex/Type.h"
+#include <memory>
+
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace edm {
+  class ProductID;
+  class EDProductGetter;
   namespace reftobase {
-    using ROOT::Reflex::Type;
 
     class RefVectorHolderBase;
 
     class RefHolderBase {
     public:
+      RefHolderBase() { }
       template <class T> T const* getPtr() const;
       virtual ~RefHolderBase();
       virtual RefHolderBase* clone() const = 0;
@@ -36,13 +39,20 @@ namespace edm {
 					  std::string& msg) const = 0;
 
       virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const = 0;
+      virtual EDProductGetter const* productGetter() const = 0;
+      virtual bool hasProductCache() const = 0;
+      virtual void const * product() const = 0;
+
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const = 0;
 
     private:
       // "cast" the real type of the element (the T of contained Ref),
-      // and cast it to the type specified by toType, using Reflex.
+      // and cast it to the type specified by toType.
       // Return 0 if the real type is not toType nor a subclass of
       // toType.
-      virtual void const* pointerToType(Type const& toType) const = 0;
+      virtual void const* pointerToType(TypeWithDict const& toType) const = 0;
     };
 
     //------------------------------------------------------------------
@@ -57,7 +67,7 @@ namespace edm {
     T const*
     RefHolderBase::getPtr() const
     {
-      static Type s_type(Type::ByTypeInfo(typeid(T)));
+      static const TypeWithDict s_type(typeid(T));
       return static_cast<T const*>(pointerToType(s_type));
     }
 

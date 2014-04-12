@@ -12,6 +12,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 #include "TH1F.h"
 #include "TF1.h"
@@ -30,11 +31,8 @@
 //                0 - write out current raw constants (default)
 //                1 - write out validated constants
 
-class HcalPedestals;
-class HcalPedestalWidths;
 class HcalDbService;
-class HcalQIEShape;
-class HcalQIECoder;
+class TFile;
 
 class HcalPedestalAnalysis{
   
@@ -90,7 +88,7 @@ private:
   //###  
   typedef std::pair<TH1F*,std::pair<std::map<int, std::vector<double> >,std::vector<TH1F*> > > PEDBUNCH;
 
-  void per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT);
+  void per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT,const HcalDbService& cond);
 
   void GetPedConst(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* PedMeans, TH1F* PedWidths);
 
@@ -135,7 +133,7 @@ private:
   int evt_curr;
   float m_stat[4];
   std::vector<bool> state;
-
+  HcalTopology* fTopology;
 // flag to make gaussian fits to charge dists
   static const int fitflag=0;
 };

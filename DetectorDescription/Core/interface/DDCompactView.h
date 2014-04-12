@@ -3,19 +3,28 @@
 
 #include <vector>
 
-#include "DetectorDescription/Base/interface/Ptr.h"
-
+#include "DetectorDescription/Core/interface/DDAlgo.h"
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 
 
 class DDPartSelector;
 class DDPhysicalPart;
+namespace DDI {
+  class Material;
+  class Solid;
+  class LogicalPart;
+  class Specific;
+}
 
 
 /**
   Navigation through the compact view of the detector ...
+
+Updated: Michael Case [ MEC ] 2010-02-11
+
 */
+//MEC: these comments are kept from original... Will we ever do this? don't think so.
 //FIXME: DDCompactView: check for proper acyclic directed graph structure!!
 //FIXME:
 //FIXME:         X          [A-X] ... LogicalPart
@@ -29,7 +38,7 @@ class DDPhysicalPart;
 
 //typedef TreeNode<DDPhysicalPart,int> expnode_t;
 //! type of data representation of DDCompactView
-typedef graph<DDLogicalPart,DDPosData*> graph_type; //:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
+//typedef graph<DDLogicalPart,DDPosData*> graph_type; //:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
 
 //! Compact representation of the geometrical detector hierarchy
 /** A DDCompactView represents the detector as an acyclic directed multigraph.
@@ -54,6 +63,16 @@ typedef graph<DDLogicalPart,DDPosData*> graph_type; //:typedef Graph<DDLogicalPa
     (expansion of an acyclic directed multigraph into a tree). In the figure there are
     5 different paths from CMS to Module2 (e.g. CMS-Pos1->Ecal-Pos4->EEndcap-Pos21->Module2)
     thus there will be 5 nodes of Module2 in the expanded view.
+
+MEC:
+    There has been a re-purposing of the DDCompactView to not only hold the 
+    representation described above (in detail this is the DDCompactViewImpl)
+    but also own the memory of the stores refered to by the graph.
+
+    DDCompactView now owns the DDMaterial, DDSpecific, DDLogicalPart,
+    DDRotation, DDSolid and etc.  Removal of the global one-and-only 
+    stores, methods and details such as DDRoot will mean that all of
+    these will be accessed via the DDCompactView.
 */
 class DDCompactView
 {
@@ -77,8 +96,7 @@ public:
   
   //! type of representation of the compact-view (acyclic directed multigraph)
   /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
-  typedef graph<DDLogicalPart,DDPosData*> graph_type;//:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
- // typedef GraphWalker<DDLogicalPart,DDPosData*> walker_t;
+  typedef ::graph<DDLogicalPart,DDPosData*> graph_type;
     
   //! Creates a compact-view 
   explicit DDCompactView();
@@ -94,67 +112,60 @@ public:
   //! returns the DDLogicalPart representing the root of the geometrical hierarchy
   const DDLogicalPart & root() const;
 
-  //! for faster read-operations when using a graph-walker.
-  void optimize();
-  
-  //! preliminary printing ...  
-  void print(std::ostream & os) const;   
-  
   //! Prototype version of calculating the weight of a detector component
   double weight(const DDLogicalPart & p) const;
 
+  //! positioning...
+  void algoPosPart(const DDLogicalPart & self,
+		   const DDLogicalPart & parent,
+		   DDAlgo & algo
+		   );
+  
+  void position (const DDLogicalPart & self,
+		 const DDLogicalPart & parent,
+		 std::string copyno,
+		 const DDTranslation & trans,
+		 const DDRotation & rot,
+		 const DDDivision * div = NULL);
+  
+  void position (const DDLogicalPart & self,
+		 const DDLogicalPart & parent,
+		 int copyno,
+		 const DDTranslation & trans,
+		 const DDRotation & rot,
+		 const DDDivision * div = NULL);
   
   // ************************************************************************
   // UNSTABLE STUFF below! DON'T USE!
   // ************************************************************************
   
-  //! Prototypish cleaning up, WILL CLEAN THE COMPLETE DDD TRANSIENT STORE
-  void clear();
-  
-  /*      
-  std::pair<bool,DDPhysicalPart> goTo(const DDPartSelector & path) const 
-   { return rep_->goTo(path); }
-  */
-
-  //! \b don't \b use : interface not stable ....
-  void global();
-  
   //! \b don't \b use : interface not stable ....
   void setRoot(const DDLogicalPart & root);
-
-  //! \b don't \b use ! 
-  poschildren_type::size_type children(poschildren_type & result) const;
-  
-  //! \b don't \b use ! 
-  logchild_type::size_type children(logchild_type & result) const;
 
   //! \b dont't \b use ! Proper implementation missing ...
   walker_type walker() const;
 
-  /* Not Yet      
-  bool firstChild(DDLogicalPart & result) // modifies current child
-   { exit(1); return 0; 
-     return rep_->firstChild(result); 
-   } 
-   
-  bool nextChild(DDLogicalPart & result) // modifies current child
-   { exit(1); return 0; 
-     // return rep_->nextChild(result); 
-   }
-*/
-
   // ---------------------------------------------------------------
   // +++ DDCore INTERNAL USE ONLY ++++++++++++++++++++++++++++++++++
-  
-  // ctor only needed by DDPos 
-  explicit DDCompactView(bool add);
-  
+    
   // to modify the structure! DDCore internal!
   graph_type & writeableGraph();
+
+  void swap( DDCompactView& );
+
+  void lockdown();
   
-protected:
-  Ptr<DDCompactViewImpl> rep_;
- // static DDCompactViewImpl*  global_; 
+ protected:
+  DDCompactViewImpl* rep_;
+
+ private:
+    // 2010-01-27 memory patch
+    // for copying and protecting DD Store's after parsing is complete.
+    DDI::Store<DDName, DDI::Material*> matStore_;
+    DDI::Store<DDName, DDI::Solid*> solidStore_;
+    DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
+    DDI::Store<DDName, DDI::Specific*> specStore_;
+    DDI::Store<DDName, DDRotationMatrix*> rotStore_;    
 
 };
 

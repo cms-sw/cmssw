@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="pixfwdOuterDisk1.xml" eval="true">
+  
+  <Constant name="OuterRingRMax"        value="166.0*mm"/>
+  <Constant name="OuterRingRMin"        value="[OuterRingRMax]-2.0*mm"/>
+  <Constant name="OuterRingCFRMax"      value="[OuterRingRMin]"/>
+  <Constant name="OuterRingCFRMin"      value="[OuterRingCFRMax]-0.5*mm"/>
+<!--  <Constant name="OuterRingHalfWidth"   value="31.0*mm"/> -->
+  <Constant name="OuterRingHalfWidth"   value="18.6*mm"/>
+  <Constant name="OuterRingZ"           value="-[pixfwdDisks:DiskHalfWidth]+[OuterRingHalfWidth]"/>
+  <Constant name="InnerRingRMax"      value="89.2"/>
+  <Constant name="InnerRingRMin"      value="[InnerRingRMax]-2.0*mm"/>
+  <Constant name="InnerRingCFRMax"     value="[InnerRingRMin]"/>
+  <Constant name="InnerRingCFRMin"     value="[InnerRingCFRMax]-0.5*mm"/>
+<!--   <Constant name="InnerRingHalfWidth"   value="14.0*mm"/> -->
+  <Constant name="InnerRingHalfWidth"   value="15.0*mm"/>
+  <Constant name="InnerRingZ"           value="-[pixfwdDisks:DiskHalfWidth]+[InnerRingHalfWidth]"/>
+</ConstantsSection>
+ 
+
+<SolidSection label="pixfwdOuterDisk1.xml">
+  <Tubs name="PixelForwardOuterDiskInnerRing"  startPhi="0." deltaPhi="360*deg"
+   rMin="[InnerRingRMin]" rMax="[InnerRingRMax]" dz="[InnerRingHalfWidth]" />
+
+  <Tubs name="PixelForwardOuterDiskOuterRing"  startPhi="0." deltaPhi="360*deg"
+   rMin="[OuterRingRMin]" rMax="[OuterRingRMax]" dz="[OuterRingHalfWidth]" />
+
+  <Tubs name="PixelForwardOuterDiskCFInnerRing"  startPhi="0." deltaPhi="360*deg"
+   rMin="[InnerRingCFRMin]" rMax="[InnerRingCFRMax]" dz="[InnerRingHalfWidth]" />
+
+  <Tubs name="PixelForwardOuterDiskCFOuterRing"  startPhi="0." deltaPhi="360*deg"
+   rMin="[OuterRingCFRMin]" rMax="[OuterRingCFRMax]" dz="[OuterRingHalfWidth]" />
+</SolidSection>
+ 
+<LogicalPartSection label="pixfwdOuterDisk1.xml">
+ <LogicalPart name="PixelForwardOuterDiskInnerRing" category="support">
+  <rSolid name="PixelForwardOuterDiskInnerRing"/>
+  <rMaterial name="materials:C_C_OuterInnerRing"/>
+ </LogicalPart>
+
+ <LogicalPart name="PixelForwardOuterDiskOuterRing" category="support">
+  <rSolid name="PixelForwardOuterDiskOuterRing"/>
+  <rMaterial name="materials:C_C_OuterOuterRing"/>
+ </LogicalPart>
+
+ <LogicalPart name="PixelForwardOuterDiskCFInnerRing" category="support">
+  <rSolid name="PixelForwardOuterDiskCFInnerRing"/>
+  <rMaterial name="materials:FPix_CFSkin_OuterInnerRing"/>
+ </LogicalPart>
+
+ <LogicalPart name="PixelForwardOuterDiskCFOuterRing" category="support">
+  <rSolid name="PixelForwardOuterDiskCFOuterRing"/>
+  <rMaterial name="materials:FPix_CFSkin_OuterOuterRing"/>
+ </LogicalPart>
+
+
+</LogicalPartSection>
+
+
+<PosPartSection label="pixfwdOuterDisk1.xml">
+  <PosPart copyNumber="1">
+    <rParent name="pixfwdDisks:PixelForwardDisk1"/>
+    <rChild name="pixfwdOuterDisk1:PixelForwardOuterDiskInnerRing"/>
+    <Translation x="0.*mm" y="0.*mm" z="[InnerRingZ]"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="pixfwdDisks:PixelForwardDisk1"/>
+    <rChild name="pixfwdOuterDisk1:PixelForwardOuterDiskOuterRing"/>
+    <Translation x="0.*mm" y="0.*mm" z="[OuterRingZ]"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="pixfwdDisks:PixelForwardDisk1"/>
+    <rChild name="pixfwdOuterDisk1:PixelForwardOuterDiskCFInnerRing"/>
+    <Translation x="0.*mm" y="0.*mm" z="[InnerRingZ]"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="pixfwdDisks:PixelForwardDisk1"/>
+    <rChild name="pixfwdOuterDisk1:PixelForwardOuterDiskCFOuterRing"/>
+    <Translation x="0.*mm" y="0.*mm" z="[OuterRingZ]"/>
+  </PosPart>
+</PosPartSection>
+
+<!-- Blades -->
+
+<Algorithm name="track:DDPixFwdDiskAlgo">
+  <rParent name="pixfwdDisks:PixelForwardDisk1"/>
+  <String  name="ChildName"        value="pixfwdblade1:PixelForwardBlade"/> 
+  <Numeric name="StartCopyNo"      value="22"/>
+  <Numeric name="NumberOfBlades"   value="34"/>
+  <Numeric name="BladeAngle"       value="-20*deg"/>
+  <Numeric name="BladeTilt"        value="0*deg"/>
+  <Numeric name="BladeCommonZ"     value="-3.25*mm"/>
+  <Vector  name="BladeZShift" type="numeric" nEntries="34">
+   -27.42*mm,-24.92*mm,-22.42*mm,-19.92*mm,-17.42*mm,-14.92*mm,-12.42*mm, -9.92*mm,
+   -27.42*mm,-24.92*mm,-22.42*mm,-19.92*mm,-17.42*mm,-14.92*mm,-12.42*mm, -9.92*mm, -7.42*mm,
+   -7.42*mm, -9.92*mm, -12.42*mm,-14.92*mm,-17.42*mm,-19.92*mm,-22.42*mm,-24.92*mm, -27.42*mm,
+   -9.92*mm, -12.42*mm,-14.92*mm,-17.42*mm,-19.92*mm,-22.42*mm,-24.92*mm, -27.42*mm
+  </Vector>
+  <Numeric name="AnchorRadius"     value="129.5*mm"/>
+  <String  name="RotationName"     value="pixfwdOuterDisk1:PixOuter"/>
+  <String  name="FlagString"       value="YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"/>
+</Algorithm>
+
+</DDDefinition>

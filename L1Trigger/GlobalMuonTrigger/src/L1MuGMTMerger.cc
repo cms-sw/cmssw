@@ -5,8 +5,6 @@
 //   Description:  GMT Merger
 //
 //
-//   $Date $
-//   $Revision $
 //
 //   Author :
 //   H. Sakulin                   HEPHY Vienna
@@ -57,6 +55,7 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFPtMixLUT.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTReg.h"
   
@@ -225,13 +224,15 @@ void L1MuGMTMerger::merge() {
 
   // set physical values in the GMT candidates for use in the analysis
   const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+  const L1MuTriggerPtScale* theTriggerPtScale = L1MuGMTConfig::getTriggerPtScale();
   
   std::vector<L1MuGMTExtendedCand*>::const_iterator icand;
   for(icand=m_MuonCands.begin();icand!=m_MuonCands.end();icand++) {
     L1MuGMTExtendedCand* cand = (*icand);
     cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge( cand->phiIndex() ));
     cand->setEtaValue( theTriggerScales->getGMTEtaScale()->getCenter( cand->etaIndex() ));
-    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge( cand->ptIndex() ));
+    cand->setPtValue( theTriggerPtScale->getPtScale()->getLowEdge( cand->ptIndex() ));
+    // cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge( cand->ptIndex() ));
   }
 
 }
@@ -365,7 +366,9 @@ void L1MuGMTMerger::createMergedCand(int idx_dtcsc, int idx_rpc) {
   int merge_rank_rpc   = merge_rank(rpc_mu[idx_rpc]);
 
   // calculate select-bits (1: take DT/CSC, 0: take RPC)
-  int selected_by_rank = abs(merge_rank_dtcsc) > abs(merge_rank_rpc);
+  // fix: if equal prefer DT/CSC as in HW!
+//  int selected_by_rank = abs(merge_rank_dtcsc) > abs(merge_rank_rpc);
+  int selected_by_rank = abs(merge_rank_dtcsc) >= abs(merge_rank_rpc);
   int selected_by_pt   = dtcsc_mu[idx_dtcsc]->pt_packed() <= rpc_mu[idx_rpc]->pt_packed();
 
   // Selection by combination of min pt and higher rank

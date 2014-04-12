@@ -1,5 +1,5 @@
-#ifndef TestObjects_ToyProducts_h
-#define TestObjects_ToyProducts_h
+#ifndef DataFormats_TestObjects_ToyProducts_h
+#define DataFormats_TestObjects_ToyProducts_h
 
 /*----------------------------------------------------------------------
 
@@ -7,114 +7,136 @@ Toy EDProducts for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
+#include "FWCore/Utilities/interface/typedefs.h"
+
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "DataFormats/Common/interface/SortedCollection.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/Common/interface/AssociationVector.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-
-namespace edmtest
-{
+namespace edmtest {
 
   // Toy products
 
-  struct DummyProduct
-  { };
-
-  struct IntProduct
-  {
-    explicit IntProduct(int i=0) : value(i) { }
-    ~IntProduct() { }
-    
-    int value;
+  struct ProductWithNoDictionary {
   };
 
-  struct DoubleProduct
-  {
-    explicit DoubleProduct(double d=2.2) : value(d) { }
-    ~DoubleProduct() { }
-    
+  struct DummyProduct {
+  };
+
+  struct EnumProduct {
+    enum TheEnumProduct {
+	TheZero = 0,
+        TheOne = 1,
+        TheTwo = 2,
+        TheThree = 3
+    };
+    explicit EnumProduct(TheEnumProduct e = TheZero) : value(e) {}
+    ~EnumProduct() {}
+
+    TheEnumProduct value;
+  };
+
+  struct IntProduct {
+    explicit IntProduct(int i = 0) : value(i) {}
+    ~IntProduct() {}
+
+    cms_int32_t value;
+  };
+
+  struct TransientIntProduct {
+    explicit TransientIntProduct(int i = 0) : value(i) {}
+    ~TransientIntProduct() {}
+
+    cms_int32_t value;
+    ProductWithNoDictionary dummy;
+  };
+
+  struct Int16_tProduct {
+    explicit Int16_tProduct(int16_t i = 0, uint16_t j = 1) :value(i), uvalue(j) {}
+    ~Int16_tProduct() {}
+    int16_t value;
+    uint16_t uvalue;
+  };
+
+  struct DoubleProduct {
+    explicit DoubleProduct(double d = 2.2) : value(d) {}
+    ~DoubleProduct() {}
+
     double value;
   };
 
-  struct StringProduct
-  {
+  struct StringProduct {
     StringProduct() : name_() {}
-    explicit StringProduct(const std::string& s) : name_(s){}
+    explicit StringProduct(std::string const& s) : name_(s) {}
     std::string name_;
   };
 
-  struct Simple
-  {
-    Simple() : key(0), value(0.0) { }
-    Simple(const Simple& in) : key(in.key), value(in.value) { }
-    typedef int key_type;
+  struct Simple {
+    Simple() : key(0), value(0.0) {}
+    virtual ~Simple();
+    typedef cms_int32_t key_type;
     key_type    key;
     double      value;
     key_type id() const { return key; }
-    Simple* clone() const { return new Simple(*this); }
+    virtual Simple* clone() const;
   };
 
   inline
   bool
-  operator== (Simple const& a, Simple const& b)
-  {
-    return (a.key==b.key && a.value==b.value);
+  operator==(Simple const& a, Simple const& b) {
+    return(a.key == b.key && a.value == b.value);
   }
-  
+
   inline
-  bool operator< (Simple const& a, Simple const& b)
-  {
+  bool operator<(Simple const& a, Simple const& b) {
     return a.key < b.key;
   }
 
-  struct SimpleDerived : public Simple
-  {
-    SimpleDerived() : Simple(), dummy(0.0) { }
-    SimpleDerived(const SimpleDerived& in) : Simple(in), dummy(in.dummy) { }
-    double      dummy;
-    SimpleDerived* clone() const { return new SimpleDerived(*this); }
+  struct SimpleDerived : public Simple {
+    SimpleDerived() : Simple(), dummy(0.0) {}
+    virtual ~SimpleDerived();
+    double dummy;
+    virtual SimpleDerived* clone() const;
   };
 
-  struct Sortable
-  {
-    int data;
-    Sortable() : data(0) { }
-    explicit Sortable(int i) : data(i) { }
+  struct Sortable {
+    cms_int32_t data;
+    Sortable() : data(0) {}
+    explicit Sortable(int i) : data(i) {}
   };
 
   inline
   bool
-  operator== (Sortable const& a, Sortable const& b)
-  {
-    return (a.data == b.data);
+  operator==(Sortable const& a, Sortable const& b) {
+    return(a.data == b.data);
   }
 
   inline
-  bool operator< (Sortable const& a, Sortable const& b)
-  {
+  bool operator<(Sortable const& a, Sortable const& b) {
     return a.data < b.data;
   }
 
-  struct Unsortable : public edm::DoNotSortUponInsertion
-  {
-    int data;
-    Unsortable() : data(0) { }
-    explicit Unsortable(int i) : data(i) { }
+  struct Unsortable : public edm::DoNotSortUponInsertion {
+    cms_int32_t data;
+    Unsortable() : data(0) {}
+    explicit Unsortable(int i) : data(i) {}
   };
 
   inline
-  bool operator< (Unsortable const&, Unsortable const&)
-  {
+  bool operator<(Unsortable const&, Unsortable const&) {
     throw std::logic_error("operator< called for Unsortable");
   }
 
-
-    
+  struct Prodigal : public edm::DoNotRecordParents {
+    cms_int32_t data;
+    Prodigal() : data(0) {}
+    explicit Prodigal(int i) : data(i) {}
+  };
 
   typedef edm::SortedCollection<Simple> SCSimpleProduct;
   typedef std::vector<Simple>           VSimpleProduct;

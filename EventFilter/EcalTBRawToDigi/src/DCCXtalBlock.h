@@ -1,24 +1,24 @@
 // Date   : 30/05/2005
 // Author : N.Almeida (LIP)
 
-#ifndef DCCXTALBLOCK_HH
-#define DCCXTALBLOCK_HH
+#ifndef DCCTBXTALBLOCK_HH
+#define DCCTBXTALBLOCK_HH
 
 #include "DCCBlockPrototype.h"
-class DCCDataParser;
+class DCCTBDataParser;
 
-class DCCXtalBlock : public DCCBlockPrototype {
+class DCCTBXtalBlock : public DCCTBBlockPrototype {
 
 	public :
 		
-		DCCXtalBlock(
-			DCCDataParser * parser, 
-			ulong * buffer,
-			ulong numbBytes,
-			ulong wordsToEnd,  
-			ulong wordEventOffset,
-			ulong expectedXtalID ,
-			ulong expectedStripID 
+		DCCTBXtalBlock(
+			DCCTBDataParser * parser, 
+			uint32_t * buffer,
+			uint32_t numbBytes,
+			uint32_t wordsToEnd,  
+			uint32_t wordEventOffset,
+			uint32_t expectedXtalID ,
+			uint32_t expectedStripID 
 		);
 		
 		void dataCheck(); 
@@ -28,12 +28,12 @@ class DCCXtalBlock : public DCCBlockPrototype {
 
 	protected :
 		
-		void increment(ulong numb);
+		void increment(uint32_t numb);
 		
 		enum xtalBlockFields{ BPOSITION_BLOCKID = 30, BLOCKID = 3};
 		
-		ulong expectedXtalID_;
-		ulong expectedStripID_;
+		uint32_t expectedXtalID_;
+		uint32_t expectedStripID_;
 
 
 };

@@ -29,7 +29,7 @@ SimpleJetDump::SimpleJetDump( const ParameterSet & cfg ) :
   {
 }
 
-void SimpleJetDump::beginJob( const EventSetup & ) {
+void SimpleJetDump::beginJob( ) {
   evtCount = 0;
 }
 

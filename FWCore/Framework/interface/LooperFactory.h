@@ -1,5 +1,5 @@
-#ifndef Framework_LooperFactory_h
-#define Framework_LooperFactory_h
+#ifndef FWCore_Framework_LooperFactory_h
+#define FWCore_Framework_LooperFactory_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: LooperFactory.h,v 1.6 2007/04/09 23:13:18 chrjones Exp $
 //
 
 // system include files
@@ -29,11 +28,15 @@
 
 // forward declarations
 namespace edm {
-   class EDLooper;
+   class EDLooperBase;
    class EventSetupRecordIntervalFinder;
+   class ParameterSet;
 
    namespace eventsetup {
+
       class DataProxyProvider;
+      class EventSetupsController;
+
       namespace looper {
       template<class T>
          void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const DataProxyProvider*) 
@@ -78,16 +81,26 @@ namespace edm {
       }
       }
       struct LooperMakerTraits {
-         typedef EDLooper base_type;
+         typedef EDLooperBase base_type;
          static std::string name();
          template<class T>
-            static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent)
+         static void addTo(EventSetupProvider& iProvider,
+                           boost::shared_ptr<T> iComponent,
+                           ParameterSet const&,
+                           bool)
             {
                //a looper does not always have to be a provider or a finder
-               looper::addProviderTo(iProvider, iComponent, static_cast<const T*>(0));
-               looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(0));
+               looper::addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
+               looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
             }
-               
+
+         static void replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<EDLooperBase> iComponent); 
+
+         static boost::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
+                                                                            ParameterSet const& iConfiguration);               
+         static void putComponent(EventSetupsController& esController,
+                                  ParameterSet const& iConfiguration,
+                                  boost::shared_ptr<base_type> const& component);
       };
       template< class TType>
          struct LooperMaker : public ComponentMaker<edm::eventsetup::LooperMakerTraits,TType> {};
@@ -98,9 +111,6 @@ namespace edm {
 }
 
 #define DEFINE_FWK_LOOPER(type) \
-DEFINE_EDM_PLUGIN (edm::eventsetup::LooperPluginFactory,edm::eventsetup::LooperMaker<type>,#type)
-
-#define DEFINE_ANOTHER_FWK_LOOPER(type) \
 DEFINE_EDM_PLUGIN (edm::eventsetup::LooperPluginFactory,edm::eventsetup::LooperMaker<type>,#type)
 
 #endif

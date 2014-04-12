@@ -9,8 +9,6 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
  *
  */
 
@@ -18,14 +16,10 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 
 // system include files
-#include <string>
-#include <vector>
 
 #include <algorithm>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
@@ -34,32 +28,70 @@
 // forward declarations
 
 
-// constructor(s)
-L1GlobalTriggerObjectMapRecord::L1GlobalTriggerObjectMapRecord()
-{}
-
-// destructor
-L1GlobalTriggerObjectMapRecord::~L1GlobalTriggerObjectMapRecord()
-{}
 
 // methods
+
+/// return the object map for the algorithm algoNameVal
+const L1GlobalTriggerObjectMap* L1GlobalTriggerObjectMapRecord::getObjectMap(
+    const std::string& algoNameVal) const {
+
+    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator 
+        itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end(); ++itObj) {
+
+        if (itObj->algoName() == algoNameVal) {
+
+            return &((*itObj));
+        }
+
+    }
+
+    // no algoName found, return zero pointer!
+    edm::LogError("L1GlobalTriggerObjectMapRecord")
+        << "\n\n  ERROR: The requested algorithm name = " << algoNameVal
+        << "\n  does not exists in the trigger menu."
+        << "\n  Returning zero pointer for getObjectMap\n\n" << std::endl;
+
+    return 0;
+
+}
+    
+/// return the object map for the algorithm with bit number const int algoBitNumberVal
+const L1GlobalTriggerObjectMap* L1GlobalTriggerObjectMapRecord::getObjectMap(
+    const int algoBitNumberVal) const {
+ 
+    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator 
+        itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end(); ++itObj) {
+
+        if (itObj->algoBitNumber() == algoBitNumberVal) {
+
+            return &((*itObj));
+        }
+
+    }
+
+    // no algoBitNumberVal found, return zero pointer!
+    edm::LogError("L1GlobalTriggerObjectMapRecord")
+        << "\n\n  ERROR: The requested algorithm with bit number = " << algoBitNumberVal
+        << "\n  does not exists in the trigger menu."
+        << "\n  Returning zero pointer for getObjectMap\n\n" << std::endl;
+
+    return 0;
+    
+}
 
 // return all the combinations passing the requirements imposed in condition condNameVal
 // from algorithm algoNameVal
 const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
-    std::string algoNameVal, std::string condNameVal) const
+    const std::string& algoNameVal, const std::string& condNameVal) const
 {
 
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
-        if ( (*itObj).algoName() == algoNameVal ) {
+        if ( itObj->algoName() == algoNameVal ) {
 
-            L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
-                                         (*itObj).algoNumericalExpression());
-            int conditionIndexVal = logicParser.operandIndex(condNameVal);
-
-            return &((*itObj).combinationVector().at(conditionIndexVal));
+            return itObj->getCombinationsInCond(condNameVal);
+            
         }
     }
 
@@ -78,18 +110,14 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
 // return all the combinations passing the requirements imposed in condition condNameVal
 // from algorithm with bit number algoBitNumberVal
 const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
-    int algoBitNumberVal, std::string condNameVal) const
+    const int algoBitNumberVal, const std::string& condNameVal) const
 {
 
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
-        if ( (*itObj).algoBitNumber() == algoBitNumberVal ) {
-            L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
-                                         (*itObj).algoNumericalExpression());
-            int conditionIndexVal = logicParser.operandIndex(condNameVal);
-
-            return &((*itObj).combinationVector().at(conditionIndexVal));
+        if ( itObj->algoBitNumber() == algoBitNumberVal ) {
+            return itObj->getCombinationsInCond(condNameVal);
         }
     }
 
@@ -107,18 +135,15 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
 
 // return the result for the condition condNameVal
 // from algorithm with name algoNameVal
-const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
-    std::string algoNameVal, std::string condNameVal) const
+bool L1GlobalTriggerObjectMapRecord::getConditionResult(
+    const std::string& algoNameVal, const std::string& condNameVal) const
 {
 
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
-        if ( (*itObj).algoName() == algoNameVal ) {
-
-            L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
-                                         (*itObj).algoNumericalExpression());
-            return logicParser.operandResult(condNameVal);
+        if ( itObj->algoName() == algoNameVal ) {
+            return itObj->getConditionResult(condNameVal);
         }
     }
 
@@ -136,17 +161,15 @@ const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
 
 // return the result for the condition condNameVal
 // from algorithm with bit number algoBitNumberVal
-const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
-    int algoBitNumberVal, std::string condNameVal) const
+bool L1GlobalTriggerObjectMapRecord::getConditionResult(
+    const int algoBitNumberVal, const std::string& condNameVal) const
 {
+
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
-        if ( (*itObj).algoBitNumber() == algoBitNumberVal ) {
-            L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
-                                         (*itObj).algoNumericalExpression());
-
-            return logicParser.operandResult(condNameVal);
+        if ( itObj->algoBitNumber() == algoBitNumberVal ) {
+            return itObj->getConditionResult(condNameVal);
         }
     }
 

@@ -7,7 +7,7 @@
 
 #include "FWCore/Framework/test/DummyData.h"
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 using edm::eventsetup::test::DummyData;
-EVENTSETUP_DATA_REG(DummyData);
+TYPELOOKUP_DATA_REG(DummyData);

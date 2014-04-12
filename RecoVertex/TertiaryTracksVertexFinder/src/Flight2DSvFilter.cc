@@ -23,7 +23,7 @@ Flight2DSvFilter::Flight2DSvFilter ( double maxDist2D=2.5 , double minDist2D=0.0
   usePrimaryVertex = false; 
 }
 
-Flight2DSvFilter::Flight2DSvFilter ( TransientVertex primaryVertex , double maxDist2D=2.5 , double minDist2D=0.01 , double  minSign2D=3.0 , int  minTracks=2 ) {
+Flight2DSvFilter::Flight2DSvFilter ( const TransientVertex &primaryVertex , double maxDist2D=2.5 , double minDist2D=0.01 , double  minSign2D=3.0 , int  minTracks=2 ) {
   // init. data members
   maxFlightDist2D                = maxDist2D ;  // cm             
   minFlightDist2D                = minDist2D ;  // cm           

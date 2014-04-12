@@ -1,0 +1,174 @@
+NOTES AND INSTRUCTIONS FOR THE CODE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+This code creates Wenu or Zee candidates from some configurable trigger stream
+and applies some selections. It contains the following files:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+source and header files:
+------------------------
+WenuCandidateFilter.cc
+ZeeCandidateFilter.cc
+WenuPlots.h and WenuPlots.cc
+ZeePlots.h  and ZeePlots.cc
+
+cfg files:
+----------
+pat_WenuPlots.py  aod_WenuPlots.py
+pat_ZeePlots.py   aod_ZeePlots.py 
+
+macros:
+-------
+PlotCombiner.cc
+inputFiles
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+For  details  with  respect  to the  definitions  of  candidates   check   the 
+implementation notes in all source files.
+
+There are 2 ways to run this code: either running the whole PAT sequence
+(recommended) or bypassing pat and run with whatever exists precalculated
+in the AOD collections.
+
+Run the code without running the PAT sequence
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quick instruction: cmsRun aod_WenuPlots.py or cmsRun aod_ZeePlots.py
+
+
+An interface that is provided aod2patFilter.cc creates pat::ElectronCollection 
+and pat::METCollection from AOD. This uses the default pat constructors. 
+Isolations are added manually to the the PAT objects in the following way:
+    myElectron.setTrackIso(elec->dr03TkSumPt());
+    myElectron.setECalIso(elec->dr04EcalRecHitSumEt());
+    myElectron.setHCalIso(elec->dr04HcalTowerSumEt());
+Please edit this part accordingly, if you prefere different isolation 
+definitions. No facility to calculate your own isolations is provided. If you
+want to do so you have to run the PAT sequence yourself. (see next session)
+
+
+Running the whole PAT sequence yourself
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quick instruction: cmsRun pat_WenuPlots.py  or cmsRun pat_ZeePlots.py
+
+
+The software has been tested and run successfully with the following tags:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Test Release based on: CMSSW_3_1_2
+--- Tag ---    -------- Package --------
+V01-08-08      CondFormats/JetMETObjects
+V05-06-05      DataFormats/PatCandidates
+V01-08-04-01   JetMETCorrections/Algorithms
+V01-08-21      JetMETCorrections/Configuration
+V02-09-05      JetMETCorrections/Modules
+V07-08-22-01   PhysicsTools/PatAlgos
+V03-07-06      PhysicsTools/PatUtils
+V04-02-02      PhysicsTools/PFCandProducer
+V02-10-01      RecoJets/JetAlgorithms
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+However,  it  can be run just with  CMSSW_3_1_2 without  any further  tags and
+should produce the same results.
+
+Instructions:
+^^^^^^^^^^^^^
+    (the following hold for both Wenu and Zee plots)
+    In the cfg file that is provided you have to edit the following lines:....
+    *  line 17: the source - these are the input files
+>>> *  line 30: select your Global Tag: 
+                STARTUP31X_V4::All  this is good for the low lumi trigger menu
+                MC_31X_V5::All      this is good for the highlumi trigger menu
+>>> *  line 71: the MET collection of your preference
+                LINE 72: modify the "metSource"  to take whatever met you like
+                the default  that is  given is     "met","","RECO"     that is 
+		uncorrected Calo MET.
+>>> *  line 96: select your Trigger path. There are 3 parameters that you set:
+                LINE 96: HLT_process_name : high  (HLT)  or low (HLT8E29) lumi 
+	                                    menu..............................
+                LINE 98 and 100: the path and the filter names. For your...... 
+	                         convenience all the correct pairs are given..
+                                 at the end of the cfg file...................
+>>> *  line102: the Filter: select the parameters that you want. ONLY these...
+                parameters have to be changed:................................
+                 ETCut   double the ET cut in the SC ET of the candidate
+                 METCut  double the MET cut in the MET of the event
+                 vetoSecondElectronEvents bool (only Wenu) on/off rejection of
+                              events  with a 2nd electron with ET>see nextpara
+                 ETCut2ndEle double the ET cut for the 2nd electron rejection
+                 electronMatched2HLT  bool demand the electron to be matched to
+                             an HLT object (in Zee means at least one electron)
+                 electronMatched2HLT_DR double the DR for the HLT matching
+>>> *  line124: set the selection cuts that you prefere........................
+>>> *  line159: set the cuts that you want to invert...........................
+>>> *  line168: set the name of your selection PSet............................
+
+
+How to add the histograms and make the final plots
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(applies to all versions)
+
+After you have done these changes you can run over the grid over the different
+datasets. The histograms are stored in root trees that you can hadd together.
+For example if you have run over QCD Em enriched samples with say 10 jobs you
+will finally get out 10 files
+histos_1.root, histos_2, ...., histos_10.root
+that you can combine
+hadd histos_qcd.root histos_1.root histos_2.root ....
+
+Having added the different bkgs together you set up file "inputFiles"
+with the following format:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# zee or wenu
+wenu
+# file name, type (sig, qcd, bce, gje, ewk), weight
+histos_wenu.root     sig     1.46
+histos_q20_30.root   qcd     0
+histos_q30_80.root   qcd     100.
+histos_q80_170.root  qcd     0
+histos_b20_30.root   bce     0
+histos_b30_80.root   bce     0
+histos_b80_170.root  bce     0
+histos_zee.root      ewk     0
+histos_wtaunu.root   ewk     0
+histos_ztautau.root  ewk     0
+histos_gj15.root     gje     0
+histos_gj20.root     gje     0
+histos_gj25.root     gje     10.12
+histos_gj30.root     gje     0
+histos_gj35.root     gje     0
+histos_wmunu.root    ewk     0
+histos_ttbar.root    ewk     0
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+lines that start with # are considered to be comments
+line 2 has wenu or zee. From line 4 the list of the histo files are listed
+(first word) then a type that could be sig,qcd,bce, gj or ewk in order to
+discriminate among different sources of bkgs and finally the weight that we
+want to weight the histogram entries. This particular example is for Wenu. For
+Zee one has to put type sig in the zee file and ewk in the Wenu file. The order
+of the files is arbitrary. Files with weight 0 will be ignored.
+After you have set up this code you run a root macro to combine the plots.
+You can do (not recommended - it actually crushes - to be debugged)
+root -b PlotCombiner.cc 
+or to compile it within root (recommended)
+root -b
+root [1] .L PlotCombiner.cc++
+root [2] PlotCombiner()
+
+and you finally get the plots.
+
+
+
+
+Contact
+
+Nikolaos.Rompotis@Cern.ch
+
+18Sept09
+
+Nikolaos Rompotis
+Imperial College London
+
+
+

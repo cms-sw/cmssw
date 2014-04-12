@@ -7,8 +7,6 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2007/05/11 18:27:48 $
- *  $Revision: 1.25 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -16,6 +14,7 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -23,8 +22,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -56,8 +57,14 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par,
     // The rescale factor
     theRescaleFactor =  par.getParameter<double>("RescaleErrorFactor");
   
+  // Use the invalid hits?
+  useInvalidHits =  par.getParameter<bool>("UseInvalidHits");
+
   // Flag needed for the rescaling
   theFirstTSOSFlag = true;
+
+  // Exlude RPC from the fit?
+   theRPCExFlag = par.getParameter<bool>("ExcludeRPCFromFit");
 }
 
 MuonTrajectoryUpdator::MuonTrajectoryUpdator( NavigationDirection fitDirection,
@@ -98,72 +105,12 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
   // measurement layer
   const DetLayer* detLayer=measurement->layer();
 
-  // The KFUpdator takes TransientTrackingRecHits as arg.
-  TransientTrackingRecHit::ConstRecHitContainer recHitsForFit;
- 
-  // this are the 4D segment for the CSC/DT and a point for the RPC 
+  // these are the 4D segment for the CSC/DT and a point for the RPC 
   TransientTrackingRecHit::ConstRecHitPointer muonRecHit = measurement->recHit();
  
-  switch(theGranularity){
-  case 0:
-    {
-      // Asking for 4D segments for the CSC/DT and a point for the RPC
-      recHitsForFit.push_back( muonRecHit );
-      break;
-    }
-  case 1:
-    {
-      if (detLayer->subDetector()==GeomDetEnumerators::DT ||
-	  detLayer->subDetector()==GeomDetEnumerators::CSC) 
-	// measurement->recHit() returns a 4D segment, then
-	// DT case: asking for 2D segments.
-	// CSC case: asking for 2D points.
-	recHitsForFit = muonRecHit->transientHits();
-      
-      else if(detLayer->subDetector()==GeomDetEnumerators::RPCBarrel || 
-	      detLayer->subDetector()==GeomDetEnumerators::RPCEndcap)
-	recHitsForFit.push_back( muonRecHit);   
-      
-      break;
-    }
-    
-  case 2:
-    {
-      if (detLayer->subDetector()==GeomDetEnumerators::DT ) {
-
-	// Asking for 2D segments. measurement->recHit() returns a 4D segment
-	TransientTrackingRecHit::ConstRecHitContainer segments2D = muonRecHit->transientHits();
-	
-	// loop over segment
-	for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator segment = segments2D.begin(); 
-	     segment != segments2D.end();++segment ){
-
-	  // asking for 1D Rec Hit
-	  TransientTrackingRecHit::ConstRecHitContainer rechit1D = (**segment).transientHits();
-	  
-	  // load them into the recHitsForFit container
-	  copy(rechit1D.begin(),rechit1D.end(),back_inserter(recHitsForFit));
-	}
-      }
-
-      else if(detLayer->subDetector()==GeomDetEnumerators::RPCBarrel || 
-	      detLayer->subDetector()==GeomDetEnumerators::RPCEndcap)
-	recHitsForFit.push_back(muonRecHit);
-      
-      else if(detLayer->subDetector()==GeomDetEnumerators::CSC)	
-	// Asking for 2D points. measurement->recHit() returns a 4D segment
-	recHitsForFit = (*muonRecHit).transientHits();
-      
-      break;
-    }
-    
-  default:
-    {
-      throw cms::Exception(metname) <<"Wrong granularity chosen!"
-				    <<"it will be set to 0";
-      break;
-    }
-  }
+  // The KFUpdator takes TransientTrackingRecHits as arg.
+  TransientTrackingRecHit::ConstRecHitContainer recHitsForFit =
+  MuonTransientTrackingRecHitBreaker::breakInSubRecHits(muonRecHit,theGranularity);
 
   // sort the container in agreement with the porpagation direction
   sort(recHitsForFit,detLayer);
@@ -184,13 +131,24 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
         pair<bool,double> thisChi2 = estimator()->estimate(propagatedTSOS, *((*recHit).get()));
 
 	LogTrace(metname) << "Estimation for Kalman Fit. Chi2: " << thisChi2.second;
+
+	// Is an RPC hit? Prepare the variable to possibly exluding it from the fit
+	bool wantIncludeThisHit = true;
+	if (theRPCExFlag && 
+	    (*recHit)->geographicalId().det() == DetId::Muon &&
+	    (*recHit)->geographicalId().subdetId() == MuonSubdetId::RPC){
+	  wantIncludeThisHit = false;	
+	  LogTrace(metname) << "This is an RPC hit and the present configuration is such that it will be excluded from the fit";
+	}
+
 	
         // The Chi2 cut was already applied in the estimator, which
         // returns 0 if the chi2 is bigger than the cut defined in its
         // constructor
-        if ( thisChi2.first ) {
+	if (thisChi2.first) {
           updated=true;
-	  
+	  if (wantIncludeThisHit) { // This split is a trick to have the RPC hits counted as updatable (in used chamber counting), while are not actually included in the fit when the proper obtion is activated.
+
           LogTrace(metname) << endl 
 			    << "     Kalman Start" << "\n" << "\n";
           LogTrace(metname) << "  Meas. Position : " << (**recHit).globalPosition() << "\n"
@@ -215,11 +173,32 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 	  
 	  LogTrace(metname) << "\n\n     Kalman End" << "\n" << "\n";	      
 	  
-	  TrajectoryMeasurement updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
-									*recHit,thisChi2.second,detLayer, 
+	  TrajectoryMeasurement && updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
+									*recHit, thisChi2.second, detLayer, 
 									measurement);
 	  // FIXME: check!
-	  trajectory.push(updatedMeasurement, thisChi2.second);	  
+	  trajectory.push(std::move(updatedMeasurement), thisChi2.second);	
+	  }
+	  else {
+	    LogTrace(metname) << "  Compatible RecHit with good chi2 but made with RPC when it was decided to not include it in the fit"
+			      << "  --> trajectory NOT updated, invalid RecHit added." << endl;
+	      
+	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit)->hit() );
+	    invalidRhPtr->invalidateHit();
+	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr.get(), thisChi2.second, detLayer);
+	    trajectory.push(std::move(invalidRhMeasurement), thisChi2.second);	  	    
+	  }
+	}
+	else {
+          if(useInvalidHits) {
+            LogTrace(metname) << "  Compatible RecHit with too large chi2"
+			    << "  --> trajectory NOT updated, invalid RecHit added." << endl;
+
+	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit)->hit() );
+	    invalidRhPtr->invalidateHit();
+	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr.get(), thisChi2.second, detLayer);
+	    trajectory.push(std::move(invalidRhMeasurement), thisChi2.second);	  
+          }
 	}
       }
     }

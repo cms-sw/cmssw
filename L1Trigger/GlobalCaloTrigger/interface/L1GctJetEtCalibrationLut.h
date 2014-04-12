@@ -1,12 +1,12 @@
 #ifndef L1GCTJETETCALIBRATIONLUT_H_
 #define L1GCTJETETCALIBRATIONLUT_H_
 
-#define JET_ET_CAL_LUT_ADD_BITS 15
-#define JET_ET_CAL_LUT_DAT_BITS 16
+#define JET_ET_CAL_LUT_ADD_BITS 11
+#define JET_ET_CAL_LUT_DAT_BITS 6
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
 
-class L1GctJetEtCalibrationFunction;
+class L1GctJetFinderParams;
 class L1CaloEtScale;
 
 /*!
@@ -17,10 +17,11 @@ class L1CaloEtScale;
 /*! \class L1GctJetEtCalibrationLut
  * \brief Jet Et calibration LUT
  * 
- * Input is 10 bit Et and 4 bit eta
- * Outputs are 6 bit rank (for jet sorting) and 10 bit Et (for Ht calculation)
+ * Input is 10 bit Et and tau veto bit. Separate LUTs for different eta.
+ * Output is 6 bit rank (for jet sorting).
  * 
  * Modified March 2007 to remove the actual calculation to a separate class
+ * Modified October 2008 to have separate LUTs for each eta, as in the firmware
  *
  */
 
@@ -35,12 +36,14 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
   virtual ~L1GctJetEtCalibrationLut();
 
   // set components
-  void setFunction(const L1GctJetEtCalibrationFunction * const lutfn);
+  void setFunction(const L1GctJetFinderParams * const lutfn);
   void setOutputEtScale(const L1CaloEtScale * const scale);
+  void setEtaBin(const unsigned eta);
 
   // get components
-  const L1GctJetEtCalibrationFunction* getFunction() const { return m_lutFunction; }
+  const L1GctJetFinderParams* getFunction() const { return m_lutFunction; }
   const L1CaloEtScale* getOutputEtScale() const { return m_outputEtScale; }
+  unsigned etaBin() const { return static_cast<unsigned>(m_etaBin); }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut);
@@ -52,8 +55,10 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
 
  private:
 
-  const L1GctJetEtCalibrationFunction* m_lutFunction;
+  const L1GctJetFinderParams* m_lutFunction;
   const L1CaloEtScale * m_outputEtScale;
+
+  uint8_t m_etaBin;
 
 };
 

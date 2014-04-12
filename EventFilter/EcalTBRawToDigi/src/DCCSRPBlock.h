@@ -2,8 +2,8 @@
 // Author : N.Almeida (LIP)
 
 
-#ifndef DCCSRPBLOCK_HH
-#define DCCSRPBLOCK_HH
+#ifndef DCCTBSRPBLOCK_HH
+#define DCCTBSRPBLOCK_HH
 
 #include <iostream>
 #include <string>
@@ -14,21 +14,21 @@
 
 #include "DCCBlockPrototype.h"
 
-class DCCEventBlock;
-class DCCXtalBlock;
-class DCCDataParser;
+class DCCTBEventBlock;
+class DCCTBXtalBlock;
+class DCCTBDataParser;
 
-class DCCSRPBlock : public DCCBlockPrototype {
+class DCCTBSRPBlock : public DCCTBBlockPrototype {
 	
 	public :
 		
-		DCCSRPBlock(
-			DCCEventBlock * dccBlock,
-			DCCDataParser * parser, 
-			ulong * buffer, 
-			ulong numbBytes,
-			ulong wordsToEnd, 
-			ulong wordEventOffset
+		DCCTBSRPBlock(
+			DCCTBEventBlock * dccBlock,
+			DCCTBDataParser * parser, 
+			uint32_t * buffer, 
+			uint32_t numbBytes,
+			uint32_t wordsToEnd, 
+			uint32_t wordEventOffset
 		);
 	
 		
@@ -37,7 +37,7 @@ class DCCSRPBlock : public DCCBlockPrototype {
 		
 		void dataCheck();
 		
-		void  increment(ulong numb);
+		void  increment(uint32_t numb);
 		
 		enum srpFields{ 
 			BXMASK = 0xFFF,
@@ -46,7 +46,7 @@ class DCCSRPBlock : public DCCBlockPrototype {
 			BLOCKID = 4
 		};
 	
-		DCCEventBlock * dccBlock_;
+		DCCTBEventBlock * dccBlock_;
 		
 		
 		

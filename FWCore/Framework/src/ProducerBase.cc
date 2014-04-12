@@ -1,7 +1,5 @@
 /*----------------------------------------------------------------------
   
-$Id: ProducerBase.cc,v 1.3 2007/03/04 06:10:25 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProducerBase.h"
@@ -17,7 +15,7 @@ namespace edm {
   ProducerBase::ProducerBase() : ProductRegistryHelper(), callWhenNewProductsRegistered_() {}
   ProducerBase::~ProducerBase() { }
 
-   boost::function<void(const BranchDescription&)> ProducerBase::registrationCallback() const {
+   std::function<void(BranchDescription const&)> ProducerBase::registrationCallback() const {
       return callWhenNewProductsRegistered_;
    }
 
@@ -25,14 +23,14 @@ namespace edm {
    namespace {
      class CallbackWrapper {
        public:  
-        CallbackWrapper(boost::shared_ptr<ProducerBase> iProd,
-                        boost::function<void(const BranchDescription&)> iCallback,
+        CallbackWrapper(ProducerBase* iProd,
+                        std::function<void(BranchDescription const&)> iCallback,
                         ProductRegistry* iReg,
                         const ModuleDescription& iDesc):
-        prod_(&(*iProd)), callback_(iCallback), reg_(iReg), mdesc_(iDesc),
+        prod_(iProd), callback_(iCallback), reg_(iReg), mdesc_(iDesc),
         lastSize_(iProd->typeLabelList().size()) {}
         
-        void operator()(const BranchDescription& iDesc) {
+        void operator()(BranchDescription const& iDesc) {
            callback_(iDesc);
            addToRegistry();
         }
@@ -50,7 +48,7 @@ namespace edm {
 
       private:
         ProducerBase* prod_;
-        boost::function<void(const BranchDescription&)> callback_;
+        std::function<void(BranchDescription const&)> callback_;
         ProductRegistry* reg_;
         ModuleDescription mdesc_;
         unsigned int lastSize_;
@@ -59,39 +57,28 @@ namespace edm {
   }
 
 
-  void ProducerBase::registerProducts(boost::shared_ptr<ProducerBase> product,
+  void ProducerBase::registerProducts(ProducerBase* producer,
 				ProductRegistry* iReg,
-				ModuleDescription const& md,
-				bool throwIfNoProducts)
+				ModuleDescription const& md)
   {
-    if (typeLabelList().empty() && registrationCallback().empty()) {
-      if (throwIfNoProducts) {
-        throw edm::Exception(errors::NoProductSpecified,"Producer")
-		<< "Module " << md.moduleName_
-		<< " did not specify that it produces a product.\n"
-		<< "The module constructor must call 'produces<T>(instanceName)'"
-		<< " for each product it produces.\nT is the product type.\n"
-		<< "'instanceName' is an optional string used to distinguish"
-		<< " multiple products of the same type.";
-      } else {
-        return;
-      }
+    if (typeLabelList().empty() && !registrationCallback()) {
+      return;
     }
     //If we have a callback, first tell the callback about all the entries already in the
     // product registry, then add any items this producer wants to add to the registry 
     // and only after that do we register the callback. This is done so the callback does not
     // get called for items registered by this producer (avoids circular reference problems)
     bool isListener = false;
-    if(!(registrationCallback().empty())) {
+    if(registrationCallback()) {
        isListener=true;
        iReg->callForEachBranch(registrationCallback());
     }
     TypeLabelList const& plist = typeLabelList();
 
     ProductRegistryHelper::addToRegistry(plist.begin(), plist.end(), md, *(iReg), isListener);
-    if(!(registrationCallback().empty())) {
+    if(registrationCallback()) {
        Service<ConstProductRegistry> regService;
-       regService->watchProductAdditions(CallbackWrapper(product, registrationCallback(), iReg, md));
+       regService->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), iReg, md));
     }
   }
 }

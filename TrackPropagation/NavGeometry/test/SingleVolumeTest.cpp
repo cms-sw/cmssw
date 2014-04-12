@@ -40,7 +40,9 @@ public:
   virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const {return true;}
 
   /// Access to volume faces
-  virtual std::vector<VolumeSide> faces() const {return std::vector<VolumeSide>();}
+  virtual const std::vector<VolumeSide>& faces() const {
+    static std::vector<VolumeSide> dummy;
+    return dummy;}
 };
 
 
@@ -139,7 +141,8 @@ int main()
 	//MM: Added MyTestField needed for Analytical Propagator
 	// and added MyTestField to AnalyticalPropagator and GlobalTrajectoryParameters initialisers
 	MyMagneticField  MyTestField;
-	AlgebraicSymMatrix C(5,1);
+        ROOT::Math::SMatrixIdentity id;
+	AlgebraicSymMatrix55 C(id);
 	C *= 0.01;
 	CurvilinearTrajectoryError err(C);
 

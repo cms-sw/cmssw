@@ -22,16 +22,16 @@ public:
   typedef std::vector<PixelROC> ROCs;
 
   /// ctor with id of link and parent FED
-  PixelFEDLink(int id = -1) : theId(id) { } 
+  PixelFEDLink(unsigned int id = 0) : theId(id) { } 
 
   ///  add connection (defined by connection spec and ROCs)
   void add(const ROCs & rocs);
 
   /// link id
-  int id() const { return theId; }
+  unsigned int id() const { return theId; }
 
   /// number of ROCs in fed
-  int numberOfROCs() const { return theROCs.size(); }
+  unsigned int numberOfROCs() const { return theROCs.size(); }
 
   /// return ROC identified by id. ROC ids are ranged [1,numberOfROCs]
   const PixelROC * roc(unsigned int id) const
@@ -46,7 +46,7 @@ public:
   void addItem(const PixelROC & roc);
 
 private:
-  int theId;
+  unsigned int theId;
   ROCs theROCs;
   std::string printForMap() const;
 };

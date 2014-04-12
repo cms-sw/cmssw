@@ -22,7 +22,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "L1Trigger/DTTriggerServerPhi/interface/DTTSCand.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTSPhi.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
 
 //---------------
 // C++ Headers --
@@ -33,7 +33,7 @@
 //----------------
 // Constructors --
 //----------------
-DTTSS::DTTSS(DTConfigTSPhi* config, int n) : _config(config), _n(n), _ignoreSecondTrack(0) {
+DTTSS::DTTSS(int n) : _n(n), _ignoreSecondTrack(0) {
 
   // reserve the appropriate amount of space for vectors
   //_tctrig[0].reserve(DTConfigTSPhi::NTCTSS);
@@ -262,8 +262,8 @@ DTTSS::sortTSS2() {
          !inner_or_corr &&                    // outer and not corr
          curr->TcPos()==best->TcPos()) {   // same correlator of 1st track
         if(config()->TssGhost2Flag()==2 ||   // do not look to corr bit of 1st
-           (!best->isCorr() ) && config()->TssGhost2Flag()!=4 || // skip if best is not corr
-           (!best->isCorr() ) && best->isInner() && config()->TssGhost2Flag()==4 )   // skip only if best is inner and not corr
+           ( (!best->isCorr() ) && config()->TssGhost2Flag()!=4)  || // skip if best is not corr
+	   ( (!best->isCorr() ) && best->isInner() && config()->TssGhost2Flag()==4) )   // skip only if best is inner and not corr
  {                
 	  _logWord2[1+curr->TcPos()] = 'G';
 // 	  std::cout << " skip sort 2 in TSS" << std::endl;

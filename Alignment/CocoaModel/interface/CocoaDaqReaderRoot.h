@@ -14,9 +14,9 @@ class CocoaDaqReaderRoot : public CocoaDaqReader {
  public:
   CocoaDaqReaderRoot(const std::string& m_inFileName );
   ~CocoaDaqReaderRoot();
-  virtual bool ReadNextEvent();
-  virtual bool ReadEvent( int nev );
-  virtual void BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList );
+  virtual bool ReadNextEvent() override;
+  virtual bool ReadEvent( int nev ) override;
+  virtual void BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList ) override;
 
  public:
   int GetNEvents() const { return nev; }

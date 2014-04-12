@@ -4,20 +4,17 @@
 /** \class OutInConversionSeedFinder
  **  
  **
- **  $Id: OutInConversionSeedFinder.h,v 1.5 2007/03/14 20:34:30 nancy Exp $ 
- **  $Date: 2007/03/14 20:34:30 $ 
- **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
-
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
@@ -43,23 +40,22 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   public :
     
   
-    OutInConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker );
-  
+    OutInConversionSeedFinder( const edm::ParameterSet& config );
   
   virtual ~OutInConversionSeedFinder();
   
   
   
-  virtual void  makeSeeds(const reco::BasicClusterCollection& allBc) const  ;
-
-
+  virtual void  makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > & allBc) const  ;
+  virtual void  makeSeeds( const reco::CaloClusterPtr&  aBC ) const  ;  
+  
  private:
   
-
+  edm::ParameterSet conf_;
   std::pair<FreeTrajectoryState,bool> makeTrackState(int charge) const ;
-
-  void fillClusterSeeds(const reco::BasicCluster* bc) const ;
-
+  
+  void fillClusterSeeds(const reco::CaloClusterPtr& bc) const ;
+  
   void startSeed(const FreeTrajectoryState &) const;
   void completeSeed(const TrajectoryMeasurement & m1,
 			    FreeTrajectoryState & fts, 
@@ -76,15 +72,15 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
 
   private :
     
-    float  the2ndHitdphi_;
+  float  the2ndHitdphi_;
   float   the2ndHitdzConst_;    
   float  the2ndHitdznSigma_; 
   mutable std::vector<TrajectoryMeasurement> theFirstMeasurements_;
   mutable int nSeedsPerBC_;
   int maxNumberOfOutInSeedsPerBC_;
-
-  const LayerMeasurements*      theLayerMeasurements_;
-  
+  float bcEtcut_;
+  float bcEcut_;
+  bool useEtCut_;
 
 };
 

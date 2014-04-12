@@ -10,8 +10,6 @@
 /**
    \class ViewTranslator
    \author P.Kalavase, R.Bainbridge
-   $Date: 11/10/2006
-   $Revision: 1.0
    
    Utility class that maps Fed and Det keys with the Fec Keys, saves
    them in a root file and also extracts fec keys if given a fed/det

@@ -5,13 +5,12 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2006/11/17 17:45:11 $
- * $Revision: 1.9 $
  *
  * \author N. Terentiev, CMU
  */
 
 #include <boost/cstdint.hpp>
+#include <iosfwd>
 
 class CSCCLCTDigi {
 
@@ -20,7 +19,7 @@ class CSCCLCTDigi {
   /// Constructors
   CSCCLCTDigi(const int valid, const int quality, const int pattern,
 	      const int striptype, const int bend, const int strip,
-	      const int cfeb, const int bx, const int trknmb = 0);
+	      const int cfeb, const int bx, const int trknmb = 0, const int fullbx=0);
   /// default
   CSCCLCTDigi();
 
@@ -42,7 +41,7 @@ class CSCCLCTDigi {
   /// return bend
   int getBend()      const {return bend_ ;}
 
-  /// return strip
+  /// return halfstrip that goes from 0 to 31 
   int getStrip()     const {return strip_ ;}
 
   /// return Key CFEB ID
@@ -83,13 +82,10 @@ class CSCCLCTDigi {
   /// number.
   bool operator >  (const CSCCLCTDigi&) const;
 
-  /// True if the two LCTs have exactly the same members OR they
-  /// are high- and low-pT LCTs from the exact same location in the chamber.
+  /// True if the two LCTs have exactly the same members (except the number).
   bool operator == (const CSCCLCTDigi&) const;
 
-  /// False only when both LCTs have exactly the same members.
-  /** @@ Shouldn't be false only when the preceding one is true?
-      To be checked. */
+  /// True if the preceding one is false.
   bool operator != (const CSCCLCTDigi&) const;
 
   /// Print content of digi.
@@ -100,7 +96,7 @@ class CSCCLCTDigi {
   uint16_t valid_      ;
   uint16_t quality_    ;
   uint16_t pattern_    ;
-  uint16_t striptype_  ;
+  uint16_t striptype_  ; // not used since mid-2008
   uint16_t bend_       ;
   uint16_t strip_      ;
   uint16_t cfeb_       ;
@@ -110,17 +106,6 @@ class CSCCLCTDigi {
 
 };
 
-#include<iostream>
-inline std::ostream & operator<<(std::ostream & o, const CSCCLCTDigi& digi) {
-  return o << "CSC CLCT #"    << digi.getTrknmb()
-	   << ": Valid = "    << digi.isValid()
-           << " Quality = "   << digi.getQuality()
-           << " Pattern = "   << digi.getPattern()
-           << " StripType = " << digi.getStripType()
-           << " Bend = "      << digi.getBend()
-           << " Strip = "     << digi.getStrip()
-           << " KeyStrip = "  << digi.getKeyStrip()
-           << " CFEB = "      << digi.getCFEB()
-	   << " BX = "        << digi.getBX();
-}
+std::ostream & operator<<(std::ostream & o, const CSCCLCTDigi& digi);
+
 #endif

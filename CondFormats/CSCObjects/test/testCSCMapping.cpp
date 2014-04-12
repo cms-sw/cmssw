@@ -12,6 +12,7 @@
 #include <FWCore/ParameterSet/interface/FileInPath.h>
 #include <CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include <iostream>
 #include <cstdlib>
 
@@ -157,4 +158,3 @@ void testCSCMapping::testRead(){
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCSCMapping);
 
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

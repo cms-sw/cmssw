@@ -1,0 +1,13 @@
+# 2011/06/15 charge correction by A. Starodumov 
+# This is the decay file for the decay B0 -> PI- mu+ nu
+#
+Alias      MyB0   B0
+Alias      Myanti-B0   anti-B0
+ChargeConj Myanti-B0   MyB0 
+#
+Decay MyB0
+1.000      pi-   mu+   nu_mu   PHOTOS ISGW2;
+Enddecay
+CDecay Myanti-B0
+#
+End

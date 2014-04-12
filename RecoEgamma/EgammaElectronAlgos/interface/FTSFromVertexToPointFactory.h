@@ -19,19 +19,16 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
 //
 //
+
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+
 class MagneticField;
 
 class FTSFromVertexToPointFactory{
 public:
-  FTSFromVertexToPointFactory() { };
-  FreeTrajectoryState operator()(const MagneticField *magField, const GlobalPoint& xmeas,  
-                                 const GlobalPoint& xvert, 
-                                 float momentum, TrackCharge charge);
-
+  static FreeTrajectoryState get( MagneticField const & magField, GlobalPoint const & xmeas, GlobalPoint const & xvert, float momentum, TrackCharge charge);
 };
 
 #endif

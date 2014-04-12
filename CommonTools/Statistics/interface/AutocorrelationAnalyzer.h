@@ -41,9 +41,9 @@ private:
 
   int theSize;
   int theNTotal;
-  HepVector theMeans;
-  HepSymMatrix theCovariances;
-  HepSymMatrix theCorrelations;
+  CLHEP::HepVector theMeans;
+  CLHEP::HepSymMatrix theCovariances;
+  CLHEP::HepSymMatrix theCorrelations;
   bool calculated_;
 };
 

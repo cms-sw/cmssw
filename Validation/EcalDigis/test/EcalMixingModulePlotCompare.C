@@ -21,10 +21,10 @@ void EcalMixingModulePlotCompare( TString currentfile = "EcalDigisValidation_new
  TFile * rfile = new TFile(rfilename);
  TFile * sfile = new TFile(sfilename);
 
- rfile->cd("DQMData/EcalDigiTask");
+ rfile->cd("DQMData/EcalDigisV/EcalDigiTask");
  gDirectory->ls();
 
- sfile->cd("DQMData/EcalDigiTask");
+ sfile->cd("DQMData/EcalDigisV/EcalDigiTask");
  gDirectory->ls();
 
  Char_t histo[200];
@@ -43,22 +43,22 @@ void EcalMixingModulePlotCompare( TString currentfile = "EcalDigisValidation_new
    Ecal->Divide(1,2);
 
    TH1 * meEBDigiMixRatiogt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",meEBDigiMixRatiogt100ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",meEBDigiMixRatiogt100ADC_);
    meEBDigiMixRatiogt100ADC_;
    meEBDigiMixRatiogt100ADC_->SetLineColor(rcolor);
 
    TH1 * meEEDigiMixRatiogt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",meEEDigiMixRatiogt100ADC_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",meEEDigiMixRatiogt100ADC_);
    meEEDigiMixRatiogt100ADC_;
    meEEDigiMixRatiogt100ADC_->SetLineColor(rcolor);
 
    TH1 * newmeEBDigiMixRatiogt100ADC_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",newmeEBDigiMixRatiogt100ADC_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",newmeEBDigiMixRatiogt100ADC_);
    newmeEBDigiMixRatiogt100ADC_;
    newmeEBDigiMixRatiogt100ADC_->SetLineColor(scolor);
 
    TH1 * newmeEEDigiMixRatiogt100ADC_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",newmeEEDigiMixRatiogt100ADC_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",newmeEEDigiMixRatiogt100ADC_);
    newmeEEDigiMixRatiogt100ADC_;
    newmeEEDigiMixRatiogt100ADC_->SetLineColor(scolor);
 
@@ -86,22 +86,22 @@ void EcalMixingModulePlotCompare( TString currentfile = "EcalDigisValidation_new
    Ecal->Divide(1,2);
 
    TH1 * meEBDigiMixRatioOriggt50pc_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",meEBDigiMixRatioOriggt50pc_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",meEBDigiMixRatioOriggt50pc_);
    meEBDigiMixRatioOriggt50pc_;
    meEBDigiMixRatioOriggt50pc_->SetLineColor(rcolor);
 
    TH1 * meEEDigiMixRatioOriggt40pc_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",meEEDigiMixRatioOriggt40pc_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",meEEDigiMixRatioOriggt40pc_);
    meEEDigiMixRatioOriggt40pc_;
    meEEDigiMixRatioOriggt40pc_->SetLineColor(rcolor);
 
    TH1 * newmeEBDigiMixRatioOriggt50pc_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",newmeEBDigiMixRatioOriggt50pc_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",newmeEBDigiMixRatioOriggt50pc_);
    newmeEBDigiMixRatioOriggt50pc_;
    newmeEBDigiMixRatioOriggt50pc_->SetLineColor(scolor);
 
    TH1 * newmeEEDigiMixRatioOriggt40pc_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",newmeEEDigiMixRatioOriggt40pc_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",newmeEEDigiMixRatioOriggt40pc_);
    newmeEEDigiMixRatioOriggt40pc_;
    newmeEEDigiMixRatioOriggt40pc_->SetLineColor(scolor);
 
@@ -131,32 +131,32 @@ void EcalMixingModulePlotCompare( TString currentfile = "EcalDigisValidation_new
    Ecal->Divide(1,3);
 
    TH1 * meEBbunchCrossing_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",meEBbunchCrossing_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",meEBbunchCrossing_);
    meEBbunchCrossing_;
    meEBbunchCrossing_->SetLineColor(rcolor);
 
    TH1 * meEEbunchCrossing_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",meEEbunchCrossing_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",meEEbunchCrossing_);
    meEEbunchCrossing_;
    meEEbunchCrossing_->SetLineColor(rcolor);
 
    TH1 * meESbunchCrossing_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",meESbunchCrossing_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",meESbunchCrossing_);
    meESbunchCrossing_;
    meESbunchCrossing_->SetLineColor(rcolor);
 
    TH1 * newmeEBbunchCrossing_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",newmeEBbunchCrossing_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",newmeEBbunchCrossing_);
    newmeEBbunchCrossing_;
    newmeEBbunchCrossing_->SetLineColor(scolor);
 
    TH1 * newmeEEbunchCrossing_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",newmeEEbunchCrossing_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",newmeEEbunchCrossing_);
    newmeEEbunchCrossing_;
    newmeEEbunchCrossing_->SetLineColor(scolor);
 
    TH1 * newmeESbunchCrossing_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",newmeESbunchCrossing_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",newmeESbunchCrossing_);
    newmeESbunchCrossing_;
    newmeESbunchCrossing_->SetLineColor(scolor);
    
@@ -190,62 +190,62 @@ void EcalMixingModulePlotCompare( TString currentfile = "EcalDigisValidation_new
    Ecal->Divide(2,3);
    
    TProfile * meEBShape_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel shape digi;1", meEBShape_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel shape digi;1", meEBShape_);
    meEBShape_;
    meEBShape_->SetLineColor(rcolor);
 
    TH1 * meEBShapeRatio_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel shape digi ratio;1",  meEBShapeRatio_ );
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel shape digi ratio;1",  meEBShapeRatio_ );
    meEBShapeRatio_;
    meEBShapeRatio_->SetLineColor(rcolor);
 
    TProfile * meEEShape_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap shape digi;1", meEEShape_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap shape digi;1", meEEShape_);
    meEEShape_;
    meEEShape_->SetLineColor(rcolor);
 
    TH1 * meEEShapeRatio_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap shape digi ratio;1",  meEEShapeRatio_ );
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap shape digi ratio;1",  meEEShapeRatio_ );
    meEEShapeRatio_;
    meEEShapeRatio_->SetLineColor(rcolor);
 
    TProfile * meESShape_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower shape digi;1", meESShape_);
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower shape digi;1", meESShape_);
    meESShape_;
    meESShape_->SetLineColor(rcolor);
 
    TH1 * meESShapeRatio_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower shape digi ratio;1",  meESShapeRatio_ );
+   rfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower shape digi ratio;1",  meESShapeRatio_ );
    meESShapeRatio_;
    meESShapeRatio_->SetLineColor(rcolor);
    
    TProfile * newmeEBShape_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel shape digi;1", newmeEBShape_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel shape digi;1", newmeEBShape_);
    newmeEBShape_;
    newmeEBShape_->SetLineColor(scolor);
 
    TH1 * newmeEBShapeRatio_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel shape digi ratio;1",  newmeEBShapeRatio_ );
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel shape digi ratio;1",  newmeEBShapeRatio_ );
    newmeEBShapeRatio_;
    newmeEBShapeRatio_->SetLineColor(scolor);
 
    TProfile * newmeEEShape_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap shape digi;1", newmeEEShape_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap shape digi;1", newmeEEShape_);
    newmeEEShape_;
    newmeEEShape_->SetLineColor(scolor);
 
    TH1 * newmeEEShapeRatio_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap shape digi ratio;1",  newmeEEShapeRatio_ );
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap shape digi ratio;1",  newmeEEShapeRatio_ );
    newmeEEShapeRatio_;
    newmeEEShapeRatio_->SetLineColor(scolor);
 
    TProfile * newmeESShape_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower shape digi;1", newmeESShape_);
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower shape digi;1", newmeESShape_);
    newmeESShape_;
    newmeESShape_->SetLineColor(scolor);
 
    TH1 * newmeESShapeRatio_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower shape digi ratio;1",  newmeESShapeRatio_ );
+   sfile->GetObject("DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower shape digi ratio;1",  newmeESShapeRatio_ );
    newmeESShapeRatio_;
    newmeESShapeRatio_->SetLineColor(scolor);
 
@@ -298,7 +298,7 @@ void EcalMixingModulePlotCompare( TString currentfile = "EcalDigisValidation_new
    TProfile * meEBBunchShape_[21];
    TProfile * newmeEBBunchShape_[21];
    for ( Int_t  i=0 ; i<21; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel shape bunch crossing %02d;1", i-10 );
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Barrel shape bunch crossing %02d;1", i-10 );
      rfile->GetObject(histo,meEBBunchShape_[i]);
      meEBBunchShape_[i];
      meEBBunchShape_[i]->SetLineColor(rcolor);
@@ -325,7 +325,7 @@ void EcalMixingModulePlotCompare( TString currentfile = "EcalDigisValidation_new
    TProfile * meEEBunchShape_[21];
    TProfile * newmeEEBunchShape_[21];
    for ( Int_t  i=0 ; i<21; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap shape bunch crossing %02d;1", i-10 );
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Endcap shape bunch crossing %02d;1", i-10 );
      rfile->GetObject(histo,meEEBunchShape_[i]);
      meEEBunchShape_[i];
      meEEBunchShape_[i]->SetLineColor(rcolor);
@@ -352,7 +352,7 @@ void EcalMixingModulePlotCompare( TString currentfile = "EcalDigisValidation_new
    TProfile * meESBunchShape_[21];
    TProfile * newmeESBunchShape_[21];
    for ( Int_t  i=0 ; i<21; i++ ) {
-     sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Preshower shape bunch crossing %02d;1", i-10 );
+     sprintf (histo, "DQMData/EcalDigisV/EcalDigiTask/EcalDigiTask Preshower shape bunch crossing %02d;1", i-10 );
      rfile->GetObject(histo,meESBunchShape_[i]);
      meESBunchShape_[i];
      meESBunchShape_[i]->SetLineColor(rcolor);

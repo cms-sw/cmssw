@@ -1,54 +1,44 @@
 #ifndef STORAGE_FACTORY_STORAGE_ACCOUNT_H
 # define STORAGE_FACTORY_STORAGE_ACCOUNT_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
-# include "SealBase/LongLong.h"
 # include <boost/shared_ptr.hpp>
+# include <stdint.h>
 # include <string>
 # include <map>
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-class StorageAccount
-{
+class StorageAccount {
 public:
-  struct Counter
-  {
-    seal::ULongLong	attempts;
-    seal::ULongLong	successes;
-    double		amount;
-    double		timeTotal;
-    double              timeMin;
-    double		timeMax;
+  struct Counter {
+    uint64_t attempts;
+    uint64_t successes;
+    double   amount;
+    double   amount_square;
+    int64_t  vector_count;
+    int64_t  vector_square;
+    double   timeTotal;
+    double   timeMin;
+    double   timeMax;
   };
-  
-  class Stamp
-  {
+
+  class Stamp {
   public:
     Stamp (Counter &counter);
-    
-    void		tick (double amount = 0.) const;
+
+    void     tick (double amount = 0., int64_t tick = 0) const;
   protected:
-    Counter		&m_counter;
-    double		m_start;
+    Counter &m_counter;
+    double   m_start;
   };
 
   typedef std::map<std::string, Counter> OperationStats;
   typedef std::map<std::string, boost::shared_ptr<OperationStats> > StorageStats;
-  
-  static const StorageStats &	summary (void);
-  static std::string		summaryText (bool banner=false);
-  static Counter &		counter (const std::string &storageClass,
-					 const std::string &operation);
-};
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+  static const StorageStats& summary(void);
+  static std::string         summaryXML(void);
+  static std::string         summaryText(bool banner=false);
+  static void                fillSummary(std::map<std::string, std::string> &summary);
+  static Counter&            counter (const std::string &storageClass,
+                                      const std::string &operation);
+};
 
 #endif // STORAGE_FACTORY_STORAGE_ACCOUNT_H

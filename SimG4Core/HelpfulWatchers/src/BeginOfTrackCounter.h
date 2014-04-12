@@ -17,7 +17,6 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 29 12:26:39 EST 2005
-// $Id$
 //
 
 // system include files
@@ -29,6 +28,10 @@
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 
 // forward declarations
+namespace edm {
+   class ParameterSet;
+}
+
 namespace simwatcher {
    class BeginOfTrackCounter : public SimProducer,
       public Observer<const BeginOfTrack*>

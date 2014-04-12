@@ -15,14 +15,11 @@
 // E(fit) =  d * E_meas
 //
 
-using namespace std;
-
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleESpher.h"
-#include "TLorentzVector.h"
 #include "TMath.h"
 
-ClassImp(TFitParticleESpher)
 
 //----------------
 // Constructor --
@@ -65,7 +62,7 @@ TFitParticleESpher::TFitParticleESpher(const TString &name, const TString &title
   init(pini, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleESpher::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleESpher::clone( const TString& newname ) const {
   // Returns a copy of itself
   
   TAbsFitParticle* myclone = new TFitParticleESpher( *this );
@@ -101,7 +98,8 @@ TLorentzVector* TFitParticleESpher::calc4Vec( const TMatrixD* params ) {
   }
 
   if ( params->GetNcols() != 1 || params->GetNrows() !=_nPar ) {
-    cout << "Parameter matrix has wrong size." << endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::calc4Vec - Parameter matrix has wrong size.";
     return 0;
   }
 

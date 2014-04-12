@@ -14,7 +14,6 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.2 2007/03/09 21:16:28 michals Exp $
 //
 //
 
@@ -34,9 +33,9 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
    for(std::vector<GlobalPoint>::const_iterator surface_iter = surfaces.begin(); 
        surface_iter != surfaces.end(); surface_iter++) {
       // this stuff is some weird pointer, which destroy itself
-      Cylinder *cylinder = new Cylinder(Surface::PositionType(0,0,0),
-					Surface::RotationType(), 
-					double (surface_iter->perp()) );
+      Cylinder *cylinder = new Cylinder(surface_iter->perp(), 
+                                        Surface::PositionType(0,0,0),
+					Surface::RotationType() ); 
       Plane *forwardEndcap = new Plane(Surface::PositionType(0,0,surface_iter->z()),
 				       Surface::RotationType());
       Plane *backwardEndcap = new Plane(Surface::PositionType(0,0,-surface_iter->z()),
@@ -82,7 +81,7 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
       if(! tSOSDest.isValid() )
       {
 // barrel
-       if(ibar = 0){ 
+       if(ibar == 0){ 
            if (tanTheta < 0 ) tSOSDest = ivProp_->propagate( ftsCurrent,*forwardEndcap);
            if (tanTheta >= 0 ) tSOSDest = ivProp_->propagate( ftsCurrent,*backwardEndcap);
        }
@@ -253,7 +252,7 @@ void HDetIdAssociator::buildMap()
    check_setup();
    LogTrace("HDetIdAssociator")<<"building map" << "\n";
    if(theMap_) delete theMap_;
-   theMap_ = new std::vector<std::vector<std::set<DetId> > >(nEta_,nPhi_);
+   theMap_ = new std::vector<std::vector<std::set<DetId> > >(nEta_,std::vector<std::set<DetId> >(nPhi_));
    int numberOfDetIdsOutsideEtaRange = 0;
    int numberOfDetIdsActive = 0;
    std::set<DetId> validIds = getASetOfValidDetIds();

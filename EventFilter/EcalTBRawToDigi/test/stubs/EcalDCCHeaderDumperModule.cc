@@ -3,8 +3,6 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/10/26 23:35:39 $
- * $Revision: 1.5 $
  *
  * \author A. Ghezzi
  *
@@ -38,7 +36,7 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
 
     for ( EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();headerItr != DCCHeaders->end(); 
 	  ++headerItr ) {
-      int nevt =headerItr->getLV1(); 
+      //      int nevt =headerItr->getLV1(); 
       bool skip = false;
       //LASER
 //       bool skip = nevt > 3 && nevt < 620;
@@ -65,6 +63,8 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
       std::cout << "DCCErrors: "<<headerItr->getDCCErrors()<<"\n";
       std::cout<<"Run Number: "<<headerItr->getRunNumber()<<"\n";
       std::cout<<"Event number (LV1): "<<headerItr->getLV1()<<"\n";
+      // this requires DataFormats/EcalRawData V01-01-12
+      //std::cout << "Orbit: " << headerItr->getOrbit () << "\n";
       std::cout<<"BX: "<<headerItr->getBX()<<"\n";
       std::cout<<"TRIGGER TYPE: "<< headerItr->getBasicTriggerType()<<"\n";
       
@@ -94,7 +94,9 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
       }
       std::cout<<std::endl;
       
-      std::vector<short> TTStatus = headerItr->getTriggerTowerStatus();
+      // this requires DataFormats/EcalRawData V01-01-12
+      //std::vector<short> TTStatus = headerItr->getFEStatus();
+      std::vector<short> TTStatus = headerItr->getFEStatus();
       std::cout<<"TT Status size: "<<TTStatus.size()<<std::endl;
       std::cout<<"TT Status: ";
       for(unsigned u =0;u<TTStatus.size();u++){
@@ -113,6 +115,3 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
 };// class EcalDigiDumperModule
 
 DEFINE_FWK_MODULE(EcalDCCHeaderDumperModule);
-  
-
-

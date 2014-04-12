@@ -1,11 +1,9 @@
-#ifndef EcalDCC07UnpackingModule_H
-#define EcalDCC07UnpackingModule_H
+#ifndef EcalDCCTB07UnpackingModule_H
+#define EcalDCCTB07UnpackingModule_H
 
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2007/07/05 07:22:48 $
- *  $Revision: 1.2 $
  * \author Y. Maravin
  * \author G. Franzoni
  * \author G. Della Ricca
@@ -13,30 +11,31 @@
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
 #include <string>
 
 
 class EcalTB07DaqFormatter;
-class EcalSupervisorDataFormatter;
+class EcalSupervisorTBDataFormatter;
 class CamacTBDataFormatter;
 class TableDataFormatter;
-class MatacqDataFormatter;
+class MatacqTBDataFormatter;
 
-  class EcalDCC07UnpackingModule: public edm::EDProducer {
+  class EcalDCCTB07UnpackingModule: public edm::EDProducer {
   public:
     /// Constructor
-    EcalDCC07UnpackingModule(const edm::ParameterSet& pset);
+    EcalDCCTB07UnpackingModule(const edm::ParameterSet& pset);
 
     /// Destructor
-    virtual ~EcalDCC07UnpackingModule();
+    virtual ~EcalDCCTB07UnpackingModule();
     
     /// Produce digis out of raw data
     void produce(edm::Event & e, const edm::EventSetup& c);
 
     // BeginJob
-    void beginJob(const edm::EventSetup& c);
+    void beginJob();
 
     // EndJob
     void endJob(void);
@@ -44,14 +43,14 @@ class MatacqDataFormatter;
   private:
 
     EcalTB07DaqFormatter* formatter_;
-    EcalSupervisorDataFormatter* ecalSupervisorFormatter_;
+    EcalSupervisorTBDataFormatter* ecalSupervisorFormatter_;
     CamacTBDataFormatter* camacTBformatter_;
     TableDataFormatter* tableFormatter_;
-    MatacqDataFormatter* matacqFormatter_;
+    MatacqTBDataFormatter* matacqFormatter_;
 
     bool ProduceEEDigis_;
     bool ProduceEBDigis_;
-
+    edm::InputTag fedRawDataCollectionTag_;
   };
 
 #endif

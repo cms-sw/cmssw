@@ -1,5 +1,5 @@
-#ifndef _EventMsgBuilder_h
-#define _EventMsgBuilder_h
+#ifndef IOPool_Streamer_EventMsgBuilder_h
+#define IOPool_Streamer_EventMsgBuilder_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 
@@ -9,11 +9,13 @@ class EventMsgBuilder
 {
 public:
   EventMsgBuilder(void* buf, uint32 size,
-                  uint32 run, uint32 event, uint32 lumi,
+                  uint32 run, uint32 event, uint32 lumi, uint32 outModId,
+                  uint32 droppedEventsCount,
                   std::vector<bool>& l1_bits,
-                  uint8* hlt_bits, uint32 hlt_bit_count);
+                  uint8* hlt_bits, uint32 hlt_bit_count, 
+                  uint32 adler32_chksum, const char* host_name);
 
-  void setReserved(uint32);
+  void setOrigDataSize(uint32);
   uint8* startAddress() const { return buf_; }
   void setEventLength(uint32 len);
   uint8* eventAddr() const { return event_addr_; }

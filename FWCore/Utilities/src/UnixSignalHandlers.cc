@@ -1,50 +1,35 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
-using namespace std;
+#if !defined(NSIG)
+#if defined(_NSIG)
+#define NSIG _NSIG
+#elif defined(__DARWIN_NSIG)
+#define NSIG __DARWIN_NSIG
+#endif
+#endif
 
 namespace edm {
 
-    boost::mutex usr2_lock;
-
 //--------------------------------------------------------------
 
-    extern "C" {
-      volatile bool shutdown_flag = false;
+    volatile std::atomic<bool> shutdown_flag{false};
 
+    extern "C" {
       void ep_sigusr2(int,siginfo_t*,void*)
       {
 	FDEBUG(1) << "in sigusr2 handler\n";
-	shutdown_flag = true;
+	shutdown_flag.store(true);
       }
     }
-
-//--------------------------------------------------------------
-
-    boost::mutex signum_lock;
-    volatile int signum_value = 
-#if defined(__linux__)
-      SIGRTMIN;
-#else
-    0;
-#endif
-
-//--------------------------------------------------------------
-
-    int getSigNum()
-    {
-      boost::mutex::scoped_lock sl(signum_lock);
-      int rc = signum_value;
-      ++signum_value;
-      return rc;
-    }
-
 #define MUST_BE_ZERO(fun) if((fun) != 0)					\
-      { perror("UnixSignalHandlers::setupSignal: sig function failed"); abort(); }
+{ perror("UnixSignalHandlers::setupSignal: sig function failed"); abort(); }
 
 //--------------------------------------------------------------
 
@@ -112,7 +97,7 @@ namespace edm {
 #if defined(__linux__)
       edm::disableRTSigs();
 #endif
-      edm::installSig(signum,edm::ep_sigusr2);
+      edm::installSig(signum,func);
       edm::reenableSigs(&oldset);
     }
 
@@ -160,7 +145,7 @@ namespace edm {
 //    Swap it with the current sigset_t
       MUST_BE_ZERO(pthread_sigmask( SIG_SETMASK, &tmpset, &oldset ));
 //    Now see what's included in the set
-      for(int k=1; k<_NSIG; ++k) {
+      for(int k=1; k<NSIG; ++k) {
         std::cerr << "sigismember is " << sigismember( &tmpset, k )
                   << " for signal " << std::setw(2) << k
 #if defined(__linux__)

@@ -1,10 +1,10 @@
 #ifndef MultiPerigeeLTSFactory_H
 #define MultiPerigeeLTSFactory_H
 
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/PerigeeMultiLTS.h"
 #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
 #include "RecoVertex/VertexTools/interface/AbstractLTSFactory.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 /** 
  *  Concrete class to encapsulate the creation of RefCountedLinearizedTrackState, 
@@ -15,11 +15,11 @@
  *  so that the reference-counting mechanism works well. 
  */ 
 
-class MultiPerigeeLTSFactory : public AbstractLTSFactory  {
+class MultiPerigeeLTSFactory : public AbstractLTSFactory<5>  {
 
 public:
-//   MultiPerigeeLTSFactory();
-//   virtual ~MultiPerigeeLTSFactory();
+
+  typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   RefCountedLinearizedTrackState
     linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track) const;

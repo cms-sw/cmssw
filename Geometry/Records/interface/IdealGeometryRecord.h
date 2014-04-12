@@ -16,12 +16,15 @@
 //
 // Author:      
 // Created:     Mon Jul 25 11:05:09 EDT 2005
-// $Id$
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
+#include "boost/mpl/vector.hpp"
 
-class IdealGeometryRecord : public edm::eventsetup::EventSetupRecordImplementation<IdealGeometryRecord> {};
+class IdealGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
+  IdealGeometryRecord, boost::mpl::vector<GeometryFileRcd, PGeometricDetExtraRcd> > { };
 
 #endif /* RECORDS_IDEALGEOMETRYRECORD_H */
 

@@ -2,103 +2,96 @@
 #define DataFormats_Provenance_BranchType_h
 
 #include <string>
+#include <iosfwd>
 /*----------------------------------------------------------------------
-  
-BranchType: The type of a Branch (Event, LuminosityBlock, or Run)
-
-$Id: BranchType.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 
+#include "FWCore/Utilities/interface/BranchType.h"
+
 namespace edm {
-  // Note: These enum values are used as subscripts for a fixed size array, so they must not change.
-  enum BranchType {
-    InEvent = 0,
-    InLumi = 1,
-    InRun = 2,
-    EndBranchType = 3
-  };
+  std::string const& BranchTypeToString(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToString(BranchType const& branchType) {
-    std::string st = ((branchType == InEvent) ? "Event" : ((branchType == InRun) ? "Run" : "LuminosityBlock"));
-    return st;
-  }
+  std::string const& BranchTypeToProductTreeName(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToProductTreeName(BranchType const& branchType) {
-    return BranchTypeToString(branchType) + "s";
-  }
+  std::string const& BranchTypeToMetaDataTreeName(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToMetaDataTreeName(BranchType const& branchType) {
-    return BranchTypeToString(branchType) + "MetaData";
-  }
+  std::string const& BranchTypeToInfoTreeName(BranchType const& branchType); // backward compatibility
 
-  inline
-  std::string BranchTypeToAuxiliaryBranchName(BranchType const& branchType) {
-    return BranchTypeToString(branchType) + "Auxiliary";
-  }
+  std::string const& BranchTypeToAuxiliaryBranchName(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToAuxBranchName(BranchType const& branchType) {
-    return BranchTypeToString(branchType) + "Aux";
-  }
+  std::string const& BranchTypeToAuxBranchName(BranchType const& branchType); // backward compatibility
 
-  inline
+  std::string const& BranchTypeToProductStatusBranchName(BranchType const& branchType); // backward compatibility
+
+  std::string const& BranchTypeToBranchEntryInfoBranchName(BranchType const& branchType);
+  
+  std::string const& BranchTypeToProductProvenanceBranchName(BranchType const& BranchType);
+
+  std::string const& BranchTypeToMajorIndexName(BranchType const& branchType);
+
+  std::string const& BranchTypeToMinorIndexName(BranchType const& branchType);
+
   std::ostream&
-  operator<<(std::ostream& os, BranchType const& branchType) {
-    os << BranchTypeToString(branchType);
-    return os;
-  }
+  operator<<(std::ostream& os, BranchType const& branchType);
 
   namespace poolNames {
-    inline
-    std::string containerName(std::string const& tree, std::string const& branch) {
-      return tree + "(" + branch + ")";
-    }
+    //------------------------------------------------------------------
+    // EntryDescription Tree // backward compatibility
+    std::string const& entryDescriptionTreeName(); // backward compatibility
 
+    // Branches on EntryDescription Tree // backward compatibility
+    std::string const& entryDescriptionIDBranchName(); // backward compatibility
+    std::string const& entryDescriptionBranchName(); // backward compatibility
+
+    //------------------------------------------------------------------
+    // Parentage Tree
+    std::string const& parentageTreeName();
+
+    // Branches on parentage tree
+    std::string const& parentageBranchName();
+
+    //------------------------------------------------------------------
+    // Other branches on Events Tree
+    std::string const& eventSelectionsBranchName();
+    std::string const& branchListIndexesBranchName();
+
+    //------------------------------------------------------------------
+    //------------------------------------------------------------------
     // MetaData Tree (1 entry per file)
-    inline
-    std::string
-    metaDataTreeName() { return "MetaData"; }
+    std::string const& metaDataTreeName();
 
-    // Branch on MetaData Tree
-    inline
-    std::string
-    productDescriptionBranchName() {return "ProductRegistry";}
+    // Branches on MetaData Tree
+    std::string const& productDescriptionBranchName();
+    std::string const& productDependenciesBranchName();
+    std::string const& parameterSetMapBranchName(); // backward compatibility
+    std::string const& moduleDescriptionMapBranchName(); // backward compatibility
+    std::string const& processHistoryMapBranchName(); // backward compatibility
+    std::string const& processHistoryBranchName();
+    std::string const& processConfigurationBranchName();
+    std::string const& branchIDListBranchName();
+    std::string const& fileFormatVersionBranchName();
+    std::string const& fileIdentifierBranchName();
+    std::string const& fileIndexBranchName(); // backward compatibility
+    std::string const& indexIntoFileBranchName();
 
-    // Branch on MetaData Tree
-    inline
-    std::string
-    parameterSetMapBranchName() {return "ParameterSetMap";}
+    // Event History Tree // backward compatibility
+    std::string const& eventHistoryTreeName(); // backward compatibility
 
-    // Branch on MetaData Tree
-    inline
-    std::string
-    moduleDescriptionMapBranchName() {return "ModuleDescriptionMap";}
+    // Branches on EventHistory Tree // backward compatibility
+    std::string const& eventHistoryBranchName(); // backward compatibility
 
-    // Branch on MetaData Tree
-    inline
-    std::string
-    processHistoryMapBranchName() {return "ProcessHistoryMap";}
-
-    // Branch on MetaData Tree
-    inline
-    std::string
-    processConfigurationMapBranchName() {return "ProcessConfigurationMap";}
-
-    // Branch on MetaData Tree
-    inline
-    std::string
-    fileFormatVersionBranchName() {return "FileFormatVersion";}
-
-    inline
-    std::string
-    eventTreeName() {return BranchTypeToProductTreeName(InEvent);}
-
-    inline
-    std::string
-    eventMetaDataTreeName() {return BranchTypeToMetaDataTreeName(InEvent);}
+    //------------------------------------------------------------------
+    // ParameterSet Tree (1 entry per ParameterSet)
+    std::string const& parameterSetsTreeName();
+    
+    std::string const& idToParameterSetBlobsBranchName();
+    
+    //------------------------------------------------------------------
+    // Other tree names
+    std::string const& runTreeName();
+    std::string const& luminosityBlockTreeName();
+    std::string const& eventTreeName();
+    std::string const& eventMetaDataTreeName();
   }
 }
 #endif

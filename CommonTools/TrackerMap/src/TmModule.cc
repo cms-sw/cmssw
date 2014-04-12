@@ -1,14 +1,5 @@
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include <string>
-using namespace std;
-
-
-map< const int  , TmModule *>
-SvgModuleMap::smoduleMap=map<const int  , TmModule *>();
-
-map< const int  , TmModule *>
-IdModuleMap::imoduleMap=map<const int  , TmModule *>();
-
 
 TmModule::TmModule(int idc, int ring, int layer){
   idModule = idc;
@@ -18,6 +9,9 @@ TmModule::TmModule(int idc, int ring, int layer){
  notused=true;
  histNumber=0;
  red=-1;
+ capvids="";
+ CcuId=0;
+ HVchannel=2;
 }
 TmModule::~TmModule(){
 }

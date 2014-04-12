@@ -1,4 +1,3 @@
-#include "Utilities/Timing/interface/TimingReport.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
@@ -9,8 +8,15 @@
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include<list>
+#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
+
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"  
+#include "CLHEP/Random/RandGaussQ.h"
+
+#include "boost/bind.hpp"  
+#include <list>
+#include <cassert>
 
 // This is CSCStripElectronicsSim.cc
 
@@ -33,7 +39,10 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   theComparatorClockJump(2),
   sca_time_bin_size(50.),
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
-  theComparatorTimeBinOffset(p.getParameter<double>("comparatorTimeBinOffset"))
+  theComparatorTimeBinOffset(p.getParameter<double>("comparatorTimeBinOffset")),
+  theComparatorTimeOffset(p.getParameter<double>("comparatorTimeOffset")),
+  theComparatorSamplingTime(p.getParameter<double>("comparatorSamplingTime")),
+  theSCATimingOffsets(p.getParameter<std::vector<double> >("scaTimingOffsets"))
 {
 
   if(doCrosstalk_) {
@@ -51,18 +60,15 @@ CSCStripElectronicsSim::~CSCStripElectronicsSim() {
 }
 
 void CSCStripElectronicsSim::initParameters() {
-  TimeMe t("CSCStripEl:init");
-  theLayerGeometry = theLayer->geometry();
   nElements = theLayerGeometry->numberOfStrips();
   theComparatorThreshold = 20.;
   //selfTest();
 
   //calculate the offset to the peak
   float averageDistance = theLayer->surface().position().mag();
-  float averageTimeOfFlight = averageDistance * cm / c_light; // Units of c_light: mm/ns
+  theAverageTimeOfFlight = averageDistance * cm / c_light; // Units of c_light: mm/ns
   int chamberType = theSpecs->chamberType();
-
-  theTimingOffset = theShapingTime + averageTimeOfFlight
+  theTimingOffset = theShapingTime + theAverageTimeOfFlight
          + theBunchTimingOffsets[chamberType];
 //TODO make sure config gets overridden
   theSignalStartTime = theTimingOffset
@@ -84,13 +90,12 @@ float CSCStripElectronicsSim::calculateAmpResponse(float t) const
 }
 
 
-CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
+CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element, CLHEP::HepRandomEngine* engine) {
   std::vector<float> noiseBins(nScaBins_);
   CSCAnalogSignal tmpSignal(element, sca_time_bin_size, noiseBins);
   if(doNoise_) {
-    theStripConditions->noisify(layerId(), tmpSignal);
+    theStripConditions->noisify(layerId(), tmpSignal, engine);
   }
-  tmpSignal *= theSpecs->chargePerCount();
   // now rebin it
   std::vector<float> binValues(theNumberOfSamples);
   for(int ibin=0; ibin < theNumberOfSamples; ++ibin) {
@@ -101,27 +106,18 @@ CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
 }
 
 
-float CSCStripElectronicsSim::signalDelay(int element, float pos) const {
-  // readout is on top edge of chamber, signal speed is 0.8 c
-  // zero calibrated to chamber center
-  float distance = -1. * pos;
-  float speed = 0.8 * c_light / cm;
-  return distance / speed;;
-}
-
-
 float CSCStripElectronicsSim::comparatorReading(const CSCAnalogSignal & signal,
-                                                  float time) const {
+                                                float time,
+                                                CLHEP::HepRandomEngine* engine) const {
    return std::min(signal.getValue(time), theComparatorSaturation)
-       +  theComparatorRMSOffset* theRandGaussQ->fire();  
+     +  theComparatorRMSOffset * CLHEP::RandGaussQ::shoot(engine);
 }
 
 
-std::vector<CSCComparatorDigi> 
-CSCStripElectronicsSim::runComparator() {
+void
+CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> & result, CLHEP::HepRandomEngine* engine) {
   // first, make a list of all the comparators we actually
   // need to run
-  std::vector<CSCComparatorDigi> result;
   std::list<int> comparatorsWithSignal;
   CSCSignalMap::iterator signalMapItr;
   for(signalMapItr = theSignalMap.begin();
@@ -138,17 +134,20 @@ CSCStripElectronicsSim::runComparator() {
     // find signal1 and signal2
     // iComparator counts from 0
     // icomp =0->1,2,  =1->3,4,  =2->5,6, ...
-    const CSCAnalogSignal & signal1 = find(readoutElement(iComparator*2 + 1));
-    const CSCAnalogSignal & signal2 = find(readoutElement(iComparator*2 + 2));
-    for(float time = theSignalStartTime; time < theSignalStopTime-theComparatorWait; time += theSamplingTime) {
-      if(comparatorReading(signal1, time) > theComparatorThreshold
-      || comparatorReading(signal2, time) > theComparatorThreshold) {
+    const CSCAnalogSignal & signal1 = find(readoutElement(iComparator*2 + 1), engine);
+    const CSCAnalogSignal & signal2 = find(readoutElement(iComparator*2 + 2), engine);
+    for(float time = theSignalStartTime +theComparatorTimeOffset; 
+        time < theSignalStopTime-theComparatorWait; 
+        time += theComparatorSamplingTime) 
+    {
+      if(comparatorReading(signal1, time, engine) > theComparatorThreshold
+         || comparatorReading(signal2, time, engine) > theComparatorThreshold) {
 	 // wait a bit, so we can run the comparator at the signal peak
         float comparatorTime = time;
         time += theComparatorWait;
 		  
-        float height1 = comparatorReading(signal1, time);
-        float height2 = comparatorReading(signal2, time);
+        float height1 = comparatorReading(signal1, time, engine);
+        float height2 = comparatorReading(signal2, time, engine);
         int output = 0; 
         int strip = 0;
 	 // distrip logic; comparator output is for pairs of strips:
@@ -161,38 +160,33 @@ CSCStripElectronicsSim::runComparator() {
          const CSCAnalogSignal * mainSignal = 0;
          // pick the higher of the two strips in the pair
          if(height1 > height2) {
+           mainSignal = &signal1;
            float leftStrip = 0.;
            if(iComparator > 0)  {
-             leftStrip = comparatorReading(find(readoutElement(iComparator*2)), time); 
+             leftStrip = comparatorReading(find(readoutElement(iComparator*2), engine), time, engine);
            }
            // if this strip is higher than either of its neighbors, make a comparator digi
-           if(leftStrip < height1) {
+           if(leftStrip < height1 && height1 > theComparatorThreshold) {
              output = (leftStrip < height2);
              strip = iComparator*2 + 1;
-             mainSignal = &signal1;
            }
          } else {
+           mainSignal = &signal2;
            float rightStrip = 0.;
            if(iComparator*2+3 <= nElements) {
-             rightStrip = comparatorReading(find(readoutElement(iComparator*2+3)), time);
+             rightStrip = comparatorReading(find(readoutElement(iComparator*2+3), engine), time, engine);
            }
-           if(rightStrip < height2) {
+           if(rightStrip < height2 && height2 > theComparatorThreshold) {
              output = (height1 < rightStrip);
              strip = iComparator*2 + 2;
-             mainSignal = &signal2;
            }
          }
          if(strip != 0) {
 
-           // decide how long this comparator and neighboring ones will be locked for
-           float lockingTime = time + theComparatorDeadTime;
-           // really should be zero, but strip signal doesn't go negative yet
-           float resetThreshold = 1;
-           while(lockingTime < theSignalStopTime
-              && mainSignal->getValue(lockingTime) > resetThreshold) {
-             lockingTime += theSamplingTime;
-           }
-           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing) + theComparatorTimeBinOffset;
+           float bxFloat = (comparatorTime-theTimingOffset)/theBunchSpacing
+                           + theComparatorTimeBinOffset + theOffsetOfBxZero;
+
+
       // Comparator digi as of Nov-2006 adapted to real data: time word has 16 bits with set bit
       // flagging appropriate bunch crossing, and bx 0 corresponding to 9th bit i.e.
 
@@ -206,21 +200,28 @@ CSCStripElectronicsSim::runComparator() {
 
       // Parameter theOffsetOfBxZero = 9 @@WARNING! This offset may be changed (hardware)!
 
-           int nBitsToOffset = timeBin + theOffsetOfBxZero;
            int timeWord = 0; // and this will remain if too early or late
-           if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
- 	       timeWord = (1 << nBitsToOffset ); // set appropriate bit
+           if ( (bxFloat>= 0) && (bxFloat<16) ) 
+ 	       timeWord = (1 << static_cast<int>(bxFloat) ); // set appropriate bit
 
            CSCComparatorDigi newDigi(strip, output, timeWord);
            result.push_back(newDigi);
-           time = lockingTime;
          }
+
+         // wait for the comparator to reset
+         time += theComparatorDeadTime;
+         // really should be zero, but strip signal doesn't go negative yet
+         float resetThreshold = 1;
+         while(time < theSignalStopTime
+            && mainSignal->getValue(time) > resetThreshold) {
+           time += theComparatorSamplingTime;
+         }
+
        } // if over threshold
     } // loop over time samples
   }  // loop over comparators  
   // sort by time
   sort(result.begin(), result.end());
-  return result;
 }
 
 
@@ -243,8 +244,21 @@ CSCStripElectronicsSim::getKeyStrips(const std::vector<CSCComparatorDigi> & comp
 }
 
 
+std::list<int>
+CSCStripElectronicsSim::getKeyStripsFromMC() const
+{
+  // assumes the detector hit map is filled
+  std::list<int> result;
+  transform(theDetectorHitMap.begin(), theDetectorHitMap.end(), 
+            back_inserter(result), boost::bind(&DetectorHitMap::value_type::first,_1));
+  result.sort();
+  result.unique();
+  return result;
+}
+
+
 std::list<int> 
-CSCStripElectronicsSim::channelsToRead(const std::list<int> & keyStrips) const
+CSCStripElectronicsSim::channelsToRead(const std::list<int> & keyStrips, int window) const
 {
   std::list<int> result;
   std::list<int>::const_iterator keyStripItr = keyStrips.begin();
@@ -253,7 +267,7 @@ CSCStripElectronicsSim::channelsToRead(const std::list<int> & keyStrips) const
     for( ; keyStripItr != keyStrips.end(); ++keyStripItr)
     { 
       // pick the five strips around the comparator
-      for(int istrip = (*keyStripItr)-2; istrip <= (*keyStripItr)+2; ++istrip)
+      for(int istrip = (*keyStripItr)-window; istrip <= (*keyStripItr)+window; ++istrip)
       {
         if(istrip>0 && istrip<= nElements)
         {
@@ -274,13 +288,13 @@ CSCStripElectronicsSim::channelsToRead(const std::list<int> & keyStrips) const
       cfebsToRead.push_back(cfeb);
       int remainder = (readoutElement(*keyStripItr)-1)%16;
       // if we're within 3 strips of an edge, take neighboring CFEB, too
-      if(remainder <= 2 && cfeb != 0)
+      if(remainder < window && cfeb != 0)
       {
         cfebsToRead.push_back(cfeb-1);
       }
       // the 'readouElement' makes it so that ME1/1 has just one CFEB
       int maxCFEBs = readoutElement(nElements)/16 - 1;
-      if(remainder >= 13 && cfeb != maxCFEBs)
+      if(remainder >= 16-window && cfeb != maxCFEBs)
       {
         cfebsToRead.push_back(cfeb+1);
       }
@@ -311,62 +325,78 @@ bool SortSignalsByTotal(const CSCAnalogSignal & s1,
 
 
 void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis, 
-                                       CSCComparatorDigiCollection & comparators)
+                                       CSCComparatorDigiCollection & comparators,
+                                       CLHEP::HepRandomEngine* engine)
 {
-  TimeMe t("CSCStripEl:filldigi");
   if(doCrosstalk_) {
-    addCrosstalk();
+    addCrosstalk(engine);
   } 
 
-  std::vector<CSCComparatorDigi> comparatorOutputs = runComparator();
+  std::vector<CSCComparatorDigi> comparatorOutputs;
+  runComparator(comparatorOutputs, engine);
   // copy these to the result
-  CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), comparatorOutputs.end());
-  comparators.put(range, layerId());
+  if(!comparatorOutputs.empty())
+  {
+    CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), 
+                                             comparatorOutputs.end());
+    comparators.put(range, layerId());
+  }
 
-  double startTime = theTimingOffset 
-                     - (sca_peak_bin-1) * sca_time_bin_size;
+  //std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
+  std::list<int> keyStrips = getKeyStripsFromMC();
+  fillStripDigis(keyStrips, digis, engine);
+}
 
-  std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
-  std::list<int> stripsToDo = channelsToRead(keyStrips);
+
+void CSCStripElectronicsSim::fillStripDigis(const std::list<int> & keyStrips,
+                                            CSCStripDigiCollection & digis,
+                                            CLHEP::HepRandomEngine* engine)
+{
+  std::list<int> stripsToDo = channelsToRead(keyStrips, 3);
   std::vector<CSCStripDigi> stripDigis;
+  stripDigis.reserve(stripsToDo.size());
   for(std::list<int>::const_iterator stripItr = stripsToDo.begin();
       stripItr != stripsToDo.end(); ++stripItr)
   {
-    stripDigis.push_back( createDigi(*stripItr, startTime) );
+    createDigi( *stripItr, find(*stripItr, engine), stripDigis, engine);
   }
 
   CSCStripDigiCollection::Range stripRange(stripDigis.begin(), stripDigis.end());
   digis.put(stripRange, layerId());
 }
 
-
-void CSCStripElectronicsSim::addCrosstalk() {
+ 
+void CSCStripElectronicsSim::addCrosstalk(CLHEP::HepRandomEngine* engine) {
   // this is needed so we can add a noise signal to the map
   // without messing up any iterators
   std::vector<CSCAnalogSignal> realSignals;
   realSignals.reserve(theSignalMap.size());
-  for(CSCSignalMap::iterator mapI = theSignalMap.begin(); mapI != theSignalMap.end(); ++mapI) {
+  CSCSignalMap::iterator mapI = theSignalMap.begin(), mapEnd = theSignalMap.end();
+  for( ; mapI != mapEnd; ++mapI) {
     realSignals.push_back((*mapI).second);
   }
   sort(realSignals.begin(), realSignals.end(), SortSignalsByTotal);
-  for(std::vector<CSCAnalogSignal>::iterator realSignalItr = realSignals.begin();
-      realSignalItr != realSignals.end(); ++realSignalItr) {
+  std::vector<CSCAnalogSignal>::iterator realSignalItr = realSignals.begin(),
+                                         realSignalsEnd = realSignals.end();
+  for( ; realSignalItr != realSignalsEnd;  ++realSignalItr)
+  {
     int thisStrip = (*realSignalItr).getElement();
     // add it to each neighbor
     if(thisStrip > 1) {
       int otherStrip = thisStrip - 1;
-      addCrosstalk(*realSignalItr, thisStrip, otherStrip);
+      addCrosstalk(*realSignalItr, thisStrip, otherStrip, engine);
     }
     if(thisStrip < nElements) {
       int otherStrip = thisStrip + 1;
-      addCrosstalk(*realSignalItr, thisStrip, otherStrip);
+      addCrosstalk(*realSignalItr, thisStrip, otherStrip, engine);
     }
   }
 }
 
 
 void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
-       int thisStrip, int otherStrip)
+                                          int thisStrip, int otherStrip,
+                                          CLHEP::HepRandomEngine* engine)
 {
   float capacitiveCrosstalk, resistiveCrosstalk;
   bool leftRight = (otherStrip > thisStrip);
@@ -375,37 +405,42 @@ void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
                                 capacitiveCrosstalk, resistiveCrosstalk);
   theCrosstalkGenerator->setParameters(capacitiveCrosstalk, 0., resistiveCrosstalk);
   CSCAnalogSignal crosstalkSignal( theCrosstalkGenerator->getCrosstalk(signal) );
-  find(readoutElement(otherStrip)).superimpose(crosstalkSignal);
+  find(readoutElement(otherStrip), engine).superimpose(crosstalkSignal);
 
   // Now subtract the crosstalk signal from the original signal
   crosstalkSignal *= -1.;
-  find(thisStrip).superimpose(crosstalkSignal);
+  find(thisStrip, engine).superimpose(crosstalkSignal);
 
 }
 
 
-CSCStripDigi CSCStripElectronicsSim::createDigi(int channel, float startTime)
+void CSCStripElectronicsSim::createDigi(int channel, const CSCAnalogSignal & signal, std::vector<CSCStripDigi> & result,
+                                        CLHEP::HepRandomEngine* engine)
 {
-  const CSCAnalogSignal & signal = find(channel);
   // fill in the sca information
   std::vector<int> scaCounts(nScaBins_);
 
   float pedestal = theStripConditions->pedestal(layerId(), channel);
-  float gain = theStripConditions->smearedGain(layerId(), channel);
-
+  float gain = theStripConditions->smearedGain(layerId(), channel, engine);
+  int chamberType = theSpecs->chamberType();
+  float timeSmearing = CLHEP::RandGaussQ::shoot(engine) * theTimingCalibrationError[chamberType];
+  // undo the correction for TOF, instead, using some nominal
+  // value from ME2/1
+  float t0 = theSignalStartTime+theSCATimingOffsets[chamberType] + timeSmearing
+           + 29. - theAverageTimeOfFlight;
   for(int scaBin = 0; scaBin < nScaBins_; ++scaBin) {
+    float t = t0 + scaBin*sca_time_bin_size;
     scaCounts[scaBin] = static_cast< int >
-      ( pedestal + signal.getValue(startTime+scaBin*sca_time_bin_size) * gain );
+      ( pedestal + signal.getValue(t) * gain );
   }
   CSCStripDigi newDigi(channel, scaCounts);
 
   // do saturation of 12-bit ADC
   doSaturation(newDigi);
 
+  result.push_back(newDigi);
   addLinks(channelIndex(channel));
   LogTrace("CSCStripElectronicsSim") << newDigi;
-
-  return newDigi;
 }
 
 
@@ -419,6 +454,33 @@ void CSCStripElectronicsSim::doSaturation(CSCStripDigi & digi)
 }
 
 
+void CSCStripElectronicsSim::fillMissingLayer(const CSCLayer * layer,
+                                              const CSCComparatorDigiCollection & comparators,
+                                              CSCStripDigiCollection & digis,
+                                              CLHEP::HepRandomEngine* engine)
+{
+  theSignalMap.clear();
+  setLayer(layer);
+  CSCDetId chamberId(theLayerId.chamberId());
+  // find all comparator key strips in this chamber
+  std::list<int> chamberKeyStrips;
+  for(CSCComparatorDigiCollection::DigiRangeIterator comparatorItr = comparators.begin();
+      comparatorItr != comparators.end(); ++comparatorItr)
+  {
+    // could be more efficient
+    if(CSCDetId((*comparatorItr).first).chamberId() == chamberId)
+    {
+      std::vector<CSCComparatorDigi> layerComparators((*comparatorItr).second.first, (*comparatorItr).second.second);
+      std::list<int> layerKeyStrips = getKeyStrips(layerComparators);
+      chamberKeyStrips.insert(chamberKeyStrips.end(), layerKeyStrips.begin(), layerKeyStrips.end());
+    }
+  }
+  chamberKeyStrips.sort();
+  chamberKeyStrips.unique();
+  fillStripDigis(chamberKeyStrips, digis, engine);
+}
+    
+
 void CSCStripElectronicsSim::selfTest() const
 {
   // make sure the zero suppression algorithms work
@@ -428,7 +490,7 @@ void CSCStripElectronicsSim::selfTest() const
   keyStrips.push_back(readoutElement(19));
   keyStrips.push_back(readoutElement(30));
   keyStrips.push_back(readoutElement(32)); 
-  stripsRead = channelsToRead(keyStrips);
+  stripsRead = channelsToRead(keyStrips, 3);
   if(doSuppression_)
   {
     unsigned int expectedSize = isGanged ? 10 : 12;

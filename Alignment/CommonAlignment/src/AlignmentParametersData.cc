@@ -1,7 +1,6 @@
 #include "Alignment/CommonAlignment/interface/AlignmentParametersData.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
 #include <functional>

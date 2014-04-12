@@ -2,7 +2,6 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.h,v 1.3 2007/06/09 01:17:41 lowette Exp $
 //
 
 #ifndef TtSemiLRJetCombObservables_h
@@ -14,36 +13,52 @@
 
    In this TtSemiLRJetCombObservables class a list of observables is calculated that might be used in the evaluation of the
    combined Likelihood ratio to distinguish between correct and wrong jet combinations
-  // obs1 : pt(had top)
-  // obs2 : (pt_b1 + pt_b2)/(sum jetpt)
-  // obs3 : delta R between had top and lep b  
+  // obs1 :
+  // obs2 :
+  // obs3 :
+  // ...
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiLRJetCombObservables.h,v 1.3 2007/06/09 01:17:41 lowette Exp $
+  \version  $Id: TtSemiLRJetCombObservables.h,v 1.6 2008/04/15 10:13:43 rwolf Exp $
 */
 
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
+// General C++ stuff
+#include <iostream>
+#include <string>
+#include <vector>
 #include <Math/VectorUtil.h>
 
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 
 class TtSemiLRJetCombObservables {
 
   public:
-    TtSemiLRJetCombObservables();
-    ~TtSemiLRJetCombObservables();	
 
-    void  operator()(TtSemiEvtSolution&);
+  typedef std::pair<unsigned int,bool>   IntBoolPair;
 
-  private:
-    std::vector<std::pair<unsigned int,double> > jetCombVarVal;
+  TtSemiLRJetCombObservables(edm::ConsumesCollector && iC, const edm::EDGetTokenT<std::vector<pat::Jet> > & jetSourceToken);
+  ~TtSemiLRJetCombObservables();
 
+  std::vector< IntBoolPair > operator()(TtSemiEvtSolution&, const edm::Event & iEvent,bool matchOnly = false);
+  //void  operator()(TtSemiEvtSolution&);
 
+private:
+
+  typedef std::pair<unsigned int,double> IntDblPair;
+  //std::vector<std::pair<unsigned int,double> > jetCombVarVal;
+
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetSourceToken_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
+
+  std::vector< IntDblPair > evtselectVarVal;
+  std::vector< IntBoolPair > evtselectVarMatch;
 };
 
 #endif

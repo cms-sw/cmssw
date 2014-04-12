@@ -10,12 +10,6 @@
  Implementation:
      <Notes on implementation>
 */
-//
-// Original Author:  Pascal Vanlaer
-//         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: KVFTest.h,v 1.3 2006/10/31 16:52:03 speer Exp $
-//
-//
 
 
 // system include files
@@ -31,8 +25,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "RecoVertex/KalmanVertexFit/test/SimpleVertexTree.h"
+#include "RecoVertex/KalmanVertexFit/interface/SimpleVertexTree.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <TFile.h>
 
   /**
@@ -46,7 +41,7 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
 
 private:
@@ -60,5 +55,8 @@ private:
   TFile*  rootFile_;
 
   std::string outputFile_; // output file
-  std::string trackLabel_; // label of track producer
+  edm::EDGetTokenT<reco::TrackCollection> token_tracks; 
+  edm::EDGetTokenT<TrackingParticleCollection> token_TrackTruth;
+  edm::EDGetTokenT<TrackingVertexCollection> token_VertexTruth;
+
 };

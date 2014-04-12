@@ -1,12 +1,12 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterZgamma.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 #include<list>
 #include<vector>
 #include<cmath>
 
 PythiaFilterZgamma::PythiaFilterZgamma(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 selProc(iConfig.getUntrackedParameter<int>("SelectProcess")),
 ptElMin(iConfig.getUntrackedParameter<double>("MinElPt", 5.0)),
 ptMuMin(iConfig.getUntrackedParameter<double>("MinMuPt", 3.0)),

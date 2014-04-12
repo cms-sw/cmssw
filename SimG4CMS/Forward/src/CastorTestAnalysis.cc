@@ -11,21 +11,21 @@
 //
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4CMS/Forward/interface/CastorTestAnalysis.h"
-#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+//#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
 
 #include "TFile.h"
 #include <cmath>
 #include <iostream>
 #include <iomanip>
 
+#define debugLog
+
 enum ntcastors_elements {
- // ntzdcs_evt, ntzdcs_nprim, ntzdcs_parttype, ntzdcs_einit, ntzdcs_eta, ntzdcs_phi,
- // ntzdcs_eentry, ntzdcs_etot, ntzdcs_etotn, ntzdcs_nunit, ntzdcs_ntimesli
-  ntcastors_evt, ntcastors_trackid, ntcastors_charge, ntcastors_pdgcode, 
-ntcastors_x, ntcastors_y, ntcastors_z, ntcastors_stepl, 
-  ntcastors_stepe, ntcastors_eta, ntcastors_phi, ntcastors_vpx, ntcastors_vpy, ntcastors_vpz
+  ntcastors_evt, ntcastors_trackid, ntcastors_charge, ntcastors_pdgcode, ntcastors_x, ntcastors_y, ntcastors_z, ntcastors_stepl, ntcastors_stepe, ntcastors_eta, ntcastors_phi, ntcastors_vpx, ntcastors_vpy, ntcastors_vpz
 };
 
 enum ntcastore_elements {
@@ -35,11 +35,11 @@ enum ntcastore_elements {
 CastorTestAnalysis::CastorTestAnalysis(const edm::ParameterSet &p) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("CastorTestAnalysis");
-  verbosity    = m_Anal.getParameter<int>("Verbosity");
-  doNTcastorstep  = m_Anal.getParameter<int>("StepNtupleFlag");
-  doNTcastorevent  = m_Anal.getParameter<int>("EventNtupleFlag");
-  stepNtFileName = m_Anal.getParameter<std::string>("StepNtupleFileName");
-  eventNtFileName = m_Anal.getParameter<std::string>("EventNtupleFileName");
+  verbosity                = m_Anal.getParameter<int>("Verbosity");
+  doNTcastorstep           = m_Anal.getParameter<int>("StepNtupleFlag");
+  doNTcastorevent          = m_Anal.getParameter<int>("EventNtupleFlag");
+  stepNtFileName           = m_Anal.getParameter<std::string>("StepNtupleFileName");
+  eventNtFileName          = m_Anal.getParameter<std::string>("EventNtupleFileName");
 
   if (verbosity > 0)
    std::cout<<std::endl;
@@ -109,6 +109,8 @@ void CastorTestAnalysis::update(const BeginOfEvent * evt) {
 }
 
 
+
+
 void CastorTestAnalysis::update(const G4Step * aStep) {
   stepIndex++;
   
@@ -119,7 +121,6 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
 //  G4StepPoint * postStepPoint= aStep->GetPostStepPoint();
   G4double stepL = aStep->GetStepLength();
   G4double stepE = aStep->GetTotalEnergyDeposit();
-
   
   if (verbosity >= 2) 
     std::cout << "Step " << stepL << ", " << stepE << std::endl;
@@ -127,7 +128,7 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   G4Track * theTrack    = aStep->GetTrack();
   G4int theTrackID      = theTrack->GetTrackID();
   G4double theCharge    = theTrack->GetDynamicParticle()->GetCharge();
-  G4String particleType = theTrack->GetDefinition()->GetParticleName();
+  //  G4String particleType = theTrack->GetDefinition()->GetParticleName();
   G4int pdgcode		= theTrack->GetDefinition()->GetPDGEncoding();
 
   G4ThreeVector vert_mom = theTrack->GetVertexMomentumDirection();
@@ -140,11 +141,11 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   G4ThreeVector hitPoint = preStepPoint->GetPosition();
 
    // Fill-in ntuple
-//  castorsteparray[ntcastors_evt] = (*evt)()->GetEventID();
+  //  castorsteparray[ntcastors_evt] = (*evt)()->GetEventID();
   castorsteparray[ntcastors_evt] = (float)eventIndex;
   castorsteparray[ntcastors_trackid] = (float)theTrackID;
   castorsteparray[ntcastors_charge] = theCharge;
-  castorsteparray[ntcastors_pdgcode] = (float)pdgcode;
+  castorsteparray[ntcastors_pdgcode] = pdgcode;
   castorsteparray[ntcastors_x] = hitPoint.x();
   castorsteparray[ntcastors_y] = hitPoint.y();
   castorsteparray[ntcastors_z] = hitPoint.z();
@@ -155,9 +156,42 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   castorsteparray[ntcastors_vpx] = vpx;
   castorsteparray[ntcastors_vpy] = vpy;
   castorsteparray[ntcastors_vpz] = vpz;
+
+  /*
+  std::cout<<"TrackID: "<< theTrackID<<std::endl;
+  std::cout<<"   StepN: "<< theTrack->GetCurrentStepNumber() <<std::endl;
+  std::cout<<"      ParentID: "<< aStep->GetTrack()->GetParentID() <<std::endl;
+  std::cout<<"      PDG: "<< pdgcode <<std::endl;
+  std::cout<<"      X,Y,Z (mm): "<< theTrack->GetPosition().x() <<","<< theTrack->GetPosition().y() <<","<< theTrack->GetPosition().z() <<std::endl;
+  std::cout<<"      KE (MeV): "<< theTrack->GetKineticEnergy() <<std::endl;
+  std::cout<<"      Total EDep (MeV): "<< aStep->GetTotalEnergyDeposit() <<std::endl;
+  std::cout<<"      StepLength (mm): "<< aStep->GetStepLength() <<std::endl;
+  std::cout<<"      TrackLength (mm): "<< theTrack->GetTrackLength() <<std::endl;
+
+  if ( theTrack->GetNextVolume() != 0 )
+      std::cout<<"      NextVolume: "<< theTrack->GetNextVolume()->GetName() <<std::endl;
+  else 
+      std::cout<<"      NextVolume: OutOfWorld"<<std::endl;
+  
+  if(aStep->GetPostStepPoint()->GetProcessDefinedStep() != NULL)
+      std::cout<<"      ProcessName: "<< aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() <<std::endl;
+  else
+      std::cout<<"      ProcessName: UserLimit"<<std::endl;
+  
+
+   std::cout<<std::endl;
+  */
+
+#ifdef DebugLog
+  if ( theTrack->GetNextVolume() != 0 )
+    LogDebug("ForwardSim") << " NextVolume: " << theTrack->GetNextVolume()->GetName() ;
+  else 
+    LogDebug("ForwardSim") << " NextVolume: OutOfWorld" ;
+#endif
+
  
 //fill ntuple with step level information
-//  castorstepntuple->Fill(castorsteparray);
+  castorstepntuple->Fill(castorsteparray);
   }
 }
 
@@ -172,114 +206,77 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
   std::cout << "update(*evt) --> accessed all HC";
   
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
-  
-//  int CAPLid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTPL");
-//  int CABUid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTBU");
-//  int CATUid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTTU");
     
   CaloG4HitCollection* theCAFI = (CaloG4HitCollection*) allHC->GetHC(CAFIid);
-//  CaloG4HitCollection* theCAPL = (CaloG4HitCollection*) allHC->GetHC(CAPLid);
-//  CaloG4HitCollection* theCABU = (CaloG4HitCollection*) allHC->GetHC(CABUid);
-//  CaloG4HitCollection* theCATU = (CaloG4HitCollection*) allHC->GetHC(CATUid);
 
-  CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
+  theCastorNumScheme = new CastorNumberingScheme();
+  // CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
 
+/*
   unsigned int volumeID=0;
+  int det, zside, sector, zmodule;
   std::map<int,float,std::less<int> > themap;
+  double totalEnergy = 0;
+  double hitEnergy = 0;
   double en_in_fi = 0.;
-  float totalEnergy = 0;
-//  double en_in_pl = 0.;
+  double en_in_pl = 0.;
+*/
 //  double en_in_bu = 0.;
 //  double en_in_tu = 0.;
 
-  int nentries = theCAFI->entries();
-  
   if (doNTcastorevent) {
-    if (nentries > 0) {
-     for (int ihit = 0; ihit < nentries; ihit++) {
-	CaloG4Hit* aHit = (*theCAFI)[ihit];
-	totalEnergy += aHit->getEnergyDeposit();
+    
+    eventGlobalHit = 0 ;
+    // int eventGlobalHit = 0 ;
+    
+    //  Check FI TBranch for Hits
+    if (theCAFI->entries() > 0) getCastorBranchData(theCAFI) ;
+    
+    // Find Primary info:
+      int trackID = 0;
+      int particleType = 0;
+      G4PrimaryParticle* thePrim=0;
+      G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
+      std::cout << "Event has " << nvertex << " vertex" << std::endl; 
+      if (nvertex==0) std::cout << "CASTORTest End Of Event  ERROR: no vertex" << std::endl;
+
+      for (int i = 0 ; i<nvertex; i++) {
+        G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
+        if (avertex == 0) 
+	  std::cout << "CASTORTest End Of Event ERR: pointer to vertex = 0" << std::endl;
+        std::cout << "Vertex number :" <<i << std::endl;
+        int npart = avertex->GetNumberOfParticle();
+        if (npart ==0)
+	  std::cout << "CASTORTest End Of Event ERR: no primary!" << std::endl;
+        if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
       }
     
-      for (int ihit = 0; ihit < nentries; ihit++) {
-	CaloG4Hit* aHit = (*theCAFI)[ihit];
-	volumeID = aHit->getUnitID();
-	double hitEnergy = aHit->getEnergyDeposit();
-	en_in_fi += aHit->getEnergyDeposit();
-//	double enEm = aHit->getEM();
-//	double enHad = aHit->getHadr();
-	Hep3Vector hitPoint = aHit->getEntry();
-
-	themap[volumeID] += aHit->getEnergyDeposit();
-    int det, zside, sector, zmodule;
-
-    theCastorNumScheme->unpackIndex(volumeID, det, zside, sector,zmodule);
-
-//    int index = CaloNumberingPacker::packCastorIndex(det,zside,sector,zmodule);
-//     float theTotalEnergy = themap[index];
-
-      castoreventarray[ntcastore_evt] = (float)eventIndex;
-      castoreventarray[ntcastore_ihit] = (float)ihit;
-      castoreventarray[ntcastore_detector] = (float)det;
-      castoreventarray[ntcastore_sector] = (float)sector;
-      castoreventarray[ntcastore_module] = (float)zmodule;
-      castoreventarray[ntcastore_enem] = en_in_fi;
-      castoreventarray[ntcastore_enhad] = totalEnergy;
-      castoreventarray[ntcastore_hitenergy] = hitEnergy;
-      castoreventarray[ntcastore_x] = hitPoint.x();
-      castoreventarray[ntcastore_y] = hitPoint.y();
-      castoreventarray[ntcastore_z] = hitPoint.z();
-
-      castoreventntuple->Fill(castoreventarray);
-    }
-
-// Find Primary info:
-    int trackID = 0;
-    int particleType = 0;
-    G4PrimaryParticle* thePrim=0;
-    G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
-    std::cout << "Event has " << nvertex << " vertex" << std::endl;   
-    if (nvertex==0)
-      std::cout << "CASTORTest End Of Event  ERROR: no vertex" << std::endl;
-
-    for (int i = 0 ; i<nvertex; i++) {
-	
-      G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-      if (avertex == 0) 
-	std::cout << "CASTORTest End Of Event ERR: pointer to vertex = 0" << std::endl;
-      std::cout << "Vertex number :" <<i << std::endl;
-      int npart = avertex->GetNumberOfParticle();
-      if (npart ==0)
-	std::cout << "CASTORTest End Of Event ERR: no primary!" << std::endl;
-      if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
-    }
+      double px=0.,py=0.,pz=0., pInit=0;
+      double eta = 0., phi = 0.;
     
-    double px=0.,py=0.,pz=0.;
-    double eta = 0., phi = 0., pInit = 0.;
-    
-    if (thePrim != 0) {
-      px = thePrim->GetPx();
-      py = thePrim->GetPy();
-      pz = thePrim->GetPz();
-      pInit = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
-      if (pInit==0) {
-	std::cout << "CASTORTest End Of Event  ERR: primary has p=0 " << std::endl;
-      } else {   
-	float costheta = pz/pInit;
-	float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
-	eta = -log(tan(theta/2));
+      if (thePrim != 0) {
+        px = thePrim->GetPx();
+        py = thePrim->GetPy();
+        pz = thePrim->GetPz();
+        pInit = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
+        if (pInit==0) {
+	  std::cout << "CASTORTest End Of Event  ERR: primary has p=0 " << std::endl;
+        } else {   
+	  float costheta = pz/pInit;
+	  float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
+	  eta = -log(tan(theta/2));
 
-	if (px != 0) phi = atan(py/px);  
+	  if (px != 0) phi = atan(py/px);  
+        }
+	particleType	= thePrim->GetPDGcode();
+      } else {
+        std::cout << "CASTORTest End Of Event ERR: could not find primary "
+		  << std::endl;
       }
-      particleType	= thePrim->GetPDGcode();
-    } else {
-      std::cout << "CASTORTest End Of Event ERR: could not find primary "
-		<< std::endl;
-    }
-    
-    
-  } // nentries > 0
-}
+      LogDebug("ForwardSim") << "CastorTestAnalysis: Particle Type " 
+			     << particleType << " p/eta/phi " << pInit << ", "
+			     << eta << ", " << phi;
+  }
 
   int iEvt = (*evt)()->GetEventID();
   if (iEvt < 10) 
@@ -295,6 +292,64 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
 }
 
 void CastorTestAnalysis::update(const EndOfRun * run) {;}
+  
+//=================================================================== 
+void CastorTestAnalysis::getCastorBranchData(const CaloG4HitCollection * hc) {
+
+    int nentries = hc->entries();
+    
+    if (nentries > 0) {
+      
+      unsigned int volumeID=0;
+      int det=0, zside, sector, zmodule;
+      std::map<int,float,std::less<int> > themap;
+      double totalEnergy = 0;
+      double hitEnergy = 0;
+      double en_in_sd = 0.;
+
+      for (int ihit = 0; ihit < nentries; ihit++) {
+	CaloG4Hit* aHit = (*hc)[ihit];
+	totalEnergy += aHit->getEnergyDeposit();
+      }
+    
+      for (int ihit = 0; ihit < nentries; ihit++) {
+	CaloG4Hit* aHit = (*hc)[ihit];
+	volumeID = aHit->getUnitID();
+	hitEnergy = aHit->getEnergyDeposit();
+	en_in_sd += aHit->getEnergyDeposit();
+//	double enEm = aHit->getEM();
+//	double enHad = aHit->getHadr();
+	
+	themap[volumeID] += aHit->getEnergyDeposit();
+	// int det, zside, sector, zmodule;
+	theCastorNumScheme->unpackIndex(volumeID, zside, sector,zmodule);
+
+	// det = 2 ;  //  det=2/3 for CAFI/CAPL
+	
+	castoreventarray[ntcastore_evt]       = (float)eventIndex;
+//	castoreventarray[ntcastore_ihit]      = (float)ihit;
+	castoreventarray[ntcastore_ihit]      = (float)eventGlobalHit;
+	castoreventarray[ntcastore_detector]  = (float)det;
+	castoreventarray[ntcastore_sector]    = (float)sector;
+	castoreventarray[ntcastore_module]    = (float)zmodule;
+	castoreventarray[ntcastore_enem]      = en_in_sd;
+	castoreventarray[ntcastore_enhad]     = totalEnergy;
+	castoreventarray[ntcastore_hitenergy] = hitEnergy;
+	castoreventarray[ntcastore_x]         = aHit->getPosition().x();
+	castoreventarray[ntcastore_y]         = aHit->getPosition().y();
+	castoreventarray[ntcastore_z]         = aHit->getPosition().z();
+//	castoreventarray[ntcastore_x]         = aHit->getEntry().x();
+//	castoreventarray[ntcastore_y]         = aHit->getEntry().y();
+//	castoreventarray[ntcastore_z]         = aHit->getEntry().z();
+	
+	castoreventntuple->Fill(castoreventarray);
+	
+	eventGlobalHit++ ;
+      }
+    } // nentries > 0
+}
+
+//=================================================================== 
 
 void CastorTestAnalysis::Finish() {
   if (doNTcastorstep) {

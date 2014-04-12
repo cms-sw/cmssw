@@ -27,6 +27,7 @@ and produces appropriate histograms.
 <!-- Describe modules implemented in this package and their parameter set -->
 
 - SiPixelMonitorRecHit - pixel rec hit data monitoring class
+
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
 
@@ -35,7 +36,7 @@ To run the pixel rechit DQM: cmsRun test/SiPixelMonitorRecHit.cfg.
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
 In progress. First modification from Validation
-
+Second modification from existing Pixel Monitor Digi code
 <hr>
 Last updated: Jul. 21 2007
 @DATE@  Author: K. Rose

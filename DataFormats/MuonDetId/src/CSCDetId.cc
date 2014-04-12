@@ -2,11 +2,7 @@
 #include <FWCore/Utilities/interface/Exception.h>
 #include <iostream>
 
-//using namespace std;
-
-CSCDetId::CSCDetId():DetId(DetId::Muon, MuonSubdetId::CSC){}
-
-
+#ifdef EDM_ML_DEBUG
 CSCDetId::CSCDetId(uint32_t id):DetId(id) {
   if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::CSC) {
     throw cms::Exception("InvalidDetId") << "CSCDetId ctor:"
@@ -15,6 +11,7 @@ CSCDetId::CSCDetId(uint32_t id):DetId(id) {
 					 << " is not a valid CSC id";  
   }
 }
+
 CSCDetId::CSCDetId(DetId id):DetId(id) {
   if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::CSC) {
     throw cms::Exception("InvalidDetId") << "CSCDetId ctor:"
@@ -23,7 +20,6 @@ CSCDetId::CSCDetId(DetId id):DetId(id) {
 					 << " is not a valid CSC id";  
   }
 }
-
 
 CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber, 
 		    int ilayer ) : 
@@ -46,17 +42,7 @@ CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber,
   id_ |= init(iendcap, istation, iring, ichamber, ilayer);
 }
 
-std::ostream& operator<<( std::ostream& os, const CSCDetId& id )
-{
-  // Note that there is no endl to end the output
-
-   os << " E:" << id.endcap()
-      << " S:" << id.station()
-      << " R:" << id.ring()
-      << " C:" << id.chamber()
-      << " L:" << id.layer();
-   return os;
-}  
+#endif
 
 int CSCDetId::triggerSector() const
 {
@@ -111,4 +97,25 @@ int CSCDetId::triggerCscId() const
   return result;
 }
 
+unsigned short CSCDetId::iChamberType( unsigned short istation, unsigned short iring ) {
+  int i = 2 * istation + iring; // i=2S+R ok for S=2, 3, 4
+  if ( istation == 1 ) {
+    --i;                       // ring 1R -> i=1+R (2S+R-1=1+R for S=1)
+    if ( i > 4 ) i = 1;        // But ring 1A (R=4) -> i=1
+  }   
+  return i;
+}
+
+
+std::ostream& operator<<( std::ostream& os, const CSCDetId& id )
+{
+  // Note that there is no endl to end the output
+
+   os << " E:" << id.endcap()
+      << " S:" << id.station()
+      << " R:" << id.ring()
+      << " C:" << id.chamber()
+      << " L:" << id.layer();
+   return os;
+}  
 

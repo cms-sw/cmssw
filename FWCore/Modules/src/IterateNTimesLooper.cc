@@ -2,87 +2,99 @@
 //
 // Package:     Modules
 // Class  :     IterateNTimesLooper
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 11 11:16:14 EDT 2006
-// $Id: IterateNTimesLooper.cc,v 1.2 2006/07/28 13:24:35 valya Exp $
 //
 
 // system include files
 
 // user include files
+#include "FWCore/Framework/interface/EDLooper.h"
+#include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Modules/src/IterateNTimesLooper.h"
 
+namespace edm {
 
-//
-// constants, enums and typedefs
-//
+  class IterateNTimesLooper : public EDLooper {
 
-//
-// static data member definitions
-//
+    public:
+      IterateNTimesLooper(ParameterSet const&);
+      virtual ~IterateNTimesLooper();
 
-//
-// constructors and destructor
-//
-IterateNTimesLooper::IterateNTimesLooper(const edm::ParameterSet& iConfig) :
-max_(iConfig.getParameter<unsigned int>("nTimes")),
-times_(0),
-shouldStop_(false)
-{
-}
+      // ---------- const member functions ---------------------
 
-// IterateNTimesLooper::IterateNTimesLooper(const IterateNTimesLooper& rhs)
-// {
-//    // do actual copying here;
-// }
+      // ---------- static member functions --------------------
 
-IterateNTimesLooper::~IterateNTimesLooper()
-{
-}
+      // ---------- member functions ---------------------------
+      virtual void startingNewLoop(unsigned int) override;
+      virtual Status duringLoop(Event const&, EventSetup const&) override;
+      virtual Status endOfLoop(EventSetup const&, unsigned int) override;
 
-//
-// assignment operators
-//
-// const IterateNTimesLooper& IterateNTimesLooper::operator=(const IterateNTimesLooper& rhs)
-// {
-//   //An exception safe implementation is
-//   IterateNTimesLooper temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+    private:
+      IterateNTimesLooper(IterateNTimesLooper const&); // stop default
 
-//
-// member functions
-//
-void 
-IterateNTimesLooper::startingNewLoop(unsigned int iIteration) {
-  times_ = iIteration;
-  if (iIteration >= max_ ) {
-    shouldStop_ = true;
+      IterateNTimesLooper const& operator=(IterateNTimesLooper const&); // stop default
+
+      // ---------- member data --------------------------------
+      unsigned int max_;
+      unsigned int times_;
+      bool shouldStop_;
+  };
+
+  //
+  //
+  // constructors and destructor
+  //
+  IterateNTimesLooper::IterateNTimesLooper(ParameterSet const& iConfig) :
+    max_(iConfig.getParameter<unsigned int>("nTimes")),
+    times_(0),
+    shouldStop_(false) {
+  }
+
+  // IterateNTimesLooper::IterateNTimesLooper(IterateNTimesLooper const& rhs) {
+  //    // do actual copying here;
+  // }
+
+  IterateNTimesLooper::~IterateNTimesLooper() {
+  }
+
+  //
+  // assignment operators
+  //
+  // IterateNTimesLooper const& IterateNTimesLooper::operator=(IterateNTimesLooper const& rhs) {
+  //   //An exception safe implementation is
+  //   IterateNTimesLooper temp(rhs);
+  //   swap(rhs);
+  //
+  //   return *this;
+  // }
+
+  //
+  // member functions
+  //
+  void
+  IterateNTimesLooper::startingNewLoop(unsigned int iIteration) {
+    times_ = iIteration;
+    if(iIteration >= max_) {
+      shouldStop_ = true;
+    }
+  }
+
+  EDLooper::Status
+  IterateNTimesLooper::duringLoop(Event const&, EventSetup const&) {
+    return shouldStop_ ? kStop : kContinue;
+  }
+
+  EDLooper::Status
+  IterateNTimesLooper::endOfLoop(EventSetup const&, unsigned int /*iCounter*/) {
+    ++times_;
+    return (times_ < max_) ? kContinue : kStop;
   }
 }
 
-edm::EDLooper::Status 
-IterateNTimesLooper::duringLoop(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  return shouldStop_ ? kStop : kContinue;
-}
-
-edm::EDLooper::Status 
-IterateNTimesLooper::endOfLoop(const edm::EventSetup& es, unsigned int iCounter) {
-  ++times_;
-  return (times_ < max_ ) ? kContinue : kStop;
-}
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//
+using edm::IterateNTimesLooper;
+DEFINE_FWK_LOOPER(IterateNTimesLooper);

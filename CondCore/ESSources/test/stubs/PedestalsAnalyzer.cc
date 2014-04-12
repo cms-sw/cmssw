@@ -15,11 +15,11 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/DataRecord/interface/PedestalsRcd.h"
+
+#include "TFile.h"
 
 using namespace std;
 
@@ -37,12 +37,28 @@ namespace edmtest
     virtual ~PedestalsAnalyzer() {  
       std::cout<<"~PedestalsAnalyzer "<<std::endl;
     }
+    virtual void beginJob();
+    virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   private:
   };
-  
   void
-   PedestalsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
+  PedestalsAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& context){
+    std::cout<<"###PedestalsAnalyzer::beginRun"<<std::endl;
+    edm::ESHandle<Pedestals> pPeds;
+    std::cout<<"got eshandle"<<std::endl;
+    context.get<PedestalsRcd>().get(pPeds);
+  }
+  void
+  PedestalsAnalyzer::beginJob(){
+    std::cout<<"###PedestalsAnalyzer::beginJob"<<std::endl;
+    /*edm::ESHandle<Pedestals> pPeds;
+      std::cout<<"got eshandle"<<std::endl;
+      context.get<PedestalsRcd>().get(pPeds);
+    */
+  }
+  void
+  PedestalsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
     using namespace edm::eventsetup;
     // Context is not used.
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
@@ -58,11 +74,14 @@ namespace edmtest
     std::cout<<"got context"<<std::endl;
     const Pedestals* myped=pPeds.product();
     std::cout<<"Pedestals* "<<myped<<std::endl;
-    for(std::vector<Pedestals::Item>::const_iterator it=myped->m_pedestals.begin(); it!=myped->m_pedestals.end(); ++it){
-      std::cout << "  mean:  " <<it->m_mean
-                << "  variance:  " <<it->m_variance
-		<< std::endl;
-    }
+    for(std::vector<Pedestals::Item>::const_iterator it=myped->m_pedestals.begin(); it!=myped->m_pedestals.end(); ++it)
+      std::cout << " mean: " <<it->m_mean
+                << " variance: " <<it->m_variance;
+    std::cout  << std::endl;
+
+    TFile * f = TFile::Open("MyPedestal.xml","recreate");
+    f->WriteObjectAny(myped,"Pedestals","Pedestals");
+    f->Close();
   }
   DEFINE_FWK_MODULE(PedestalsAnalyzer);
 }

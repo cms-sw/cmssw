@@ -2,13 +2,15 @@
 #include "G4ProcessManager.hh"
 #include "G4ParticleTable.hh"
 #include "G4Track.hh"
-#include "G4InelasticInteraction.hh"
+#include "Randomize.hh"
 //Our includes
 #include "SimG4Core/CustomPhysics/interface/ToyModelHadronicProcess.hh"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 #include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.hh"
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
+
+using namespace CLHEP;
 
 ToyModelHadronicProcess::ToyModelHadronicProcess(HadronicProcessHelper * aHelper, const G4String& processName) :
   G4VDiscreteProcess(processName), m_verboseLevel(0),  m_helper(aHelper),  m_detachCloud(true)
@@ -79,17 +81,19 @@ G4double ToyModelHadronicProcess::GetMeanFreePath(const G4Track& aTrack, G4doubl
 G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 							const G4Step& /*  step*/)
 {
+
+  const G4TouchableHandle thisTouchable(track.GetTouchableHandle());
   
   // A little setting up
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
   m_particleChange.Initialize(track);
   //  G4DynamicParticle* incidentRHadron = const_cast<G4DynamicParticle*>(track.GetDynamicParticle()); //This will contain RHadron Def + RHad momentum
   const G4DynamicParticle* incidentRHadron = track.GetDynamicParticle(); //This will contain RHadron Def + RHad momentum
-  double E_0 = incidentRHadron->GetKineticEnergy();
-  const G4int theIncidentPDG = incidentRHadron->GetDefinition()->GetPDGEncoding();
+//  double E_0 = incidentRHadron->GetKineticEnergy();
+//  const G4int theIncidentPDG = incidentRHadron->GetDefinition()->GetPDGEncoding();
   const G4ThreeVector aPosition = track.GetPosition();
 
-  double gamma = incidentRHadron->GetTotalEnergy()/incidentRHadron->GetDefinition()->GetPDGMass();
+//  double gamma = incidentRHadron->GetTotalEnergy()/incidentRHadron->GetDefinition()->GetPDGMass();
 
   CustomParticle* CustomIncident = dynamic_cast<CustomParticle*>(incidentRHadron->GetDefinition());
   G4DynamicParticle* cloudParticle =  new G4DynamicParticle(); //This will contain Cloud Def + scaled momentum
@@ -186,8 +190,8 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 				    << "     4P Targ = " << target4Momentum  / GeV<< std::endl;
 
   //Choosing random direction
-  const G4double phi_p = 2*pi*RandFlat::shoot()-pi ;
-  const G4double theta_p = pi*RandFlat::shoot() ;
+  const G4double phi_p = 2*pi*G4UniformRand()-pi ;
+  const G4double theta_p = pi*G4UniformRand() ;
   const G4ThreeVector randomDirection(sin(theta_p)*cos(phi_p),
 				      sin(theta_p)*sin(phi_p),
 				      cos(theta_p));
@@ -245,7 +249,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
     KinCalc.doDecay(cm4Momentum, fourMomenta[0], fourMomenta[1], fourMomenta[2] );
     
     //Rotating the plane to a random orientation, and boosting home
-    HepRotation rotation(randomDirection,RandFlat::shoot()*2*pi);
+    CLHEP::HepRotation rotation(randomDirection,G4UniformRand()*2*pi);
     for (std::vector<G4LorentzVector>::iterator it = fourMomenta.begin();
 	 it!=fourMomenta.end();
 	 it++)
@@ -271,7 +275,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
     m_particleChange.ProposeTrackStatus(fStopAndKill);
     if(m_verboseLevel >= 3) std::cout  << "Incident does not survive: stopAndKill + set num secondaries to " << numberOfSecondaries << std::endl;
   }  
-  double e_kin;
+  //  double e_kin;
 
   for (int ip=0; ip <numberOfSecondaries;ip++)
     {
@@ -286,11 +290,11 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 	      G4LorentzVector p4_new = gluinoMomentum+fourMomenta[ip];
 	      G4ThreeVector momentum = p4_new.vect();
 	      double rhMass=newParticlesRHadron[ip]->GetPDGMass() ;
-	      e_kin = sqrt(momentum.mag()*momentum.mag()+rhMass*rhMass)-rhMass;
-	      //	  fourMomenta[ip]=G4LorentzVector(momentum,sqrt(momentum.mag2()+rhMass*rhMass));
+	      //	      e_kin = sqrt(momentum.mag()*momentum.mag()+rhMass*rhMass)-rhMass;
+	      //	      fourMomenta[ip]=G4LorentzVector(momentum,sqrt(momentum.mag2()+rhMass*rhMass));
 	      fourMomenta[ip].setVectM(momentum,rhMass);
 
-	      double virt=(p4_new-fourMomenta[ip]).m()/MeV;
+//	      double virt=(p4_new-fourMomenta[ip]).m()/MeV;
 
 	      if(m_verboseLevel >= 3)
 		std::cout <<  " = " << fourMomenta[ip]/GeV <<"(m="<< fourMomenta[ip].m() / GeV<<") vs. "<<rhMass/GeV 
@@ -312,7 +316,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 	      //	      productDynParticle->SetMomentum(fourMomenta[ip].vect()+gluinoMomentum.vect());  
 	      productDynParticle->Set4Momentum(p4_new);  
 
-	      double virt=(gluinoMomentum+fourMomenta[ip]-p4_new).m()/MeV;
+//	      double virt=(gluinoMomentum+fourMomenta[ip]-p4_new).m()/MeV;
 
 	      if(m_verboseLevel >= 3)
 		std::cout  << "ToyModelHadronicProcess::PostStepDoIt   Add gluino momentum " <<
@@ -332,19 +336,12 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 	  G4Track* productTrack = new G4Track(productDynParticle,
 					      track.GetGlobalTime(),
 					      position);
+      productTrack->SetTouchableHandle(thisTouchable);
 	  //Append to the result
 	  if(m_verboseLevel >= 3) std::cout  << "ToyModelHadronicProcess::PostStepDoIt   Add secondary with 4-Momentum " << productDynParticle->Get4Momentum()/GeV << std::endl;
 	  m_particleChange.AddSecondary(productTrack);
 	}
     } 
-
-
-
-
-
-
-
-
 
   //clear interaction length      
   ClearNumberOfInteractionLengthLeft();

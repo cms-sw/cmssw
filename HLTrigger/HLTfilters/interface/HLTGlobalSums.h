@@ -3,20 +3,20 @@
 
 /** \class HLTGlobalSums
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing cuts on
  *  global sums such as the scalar sum of Et (a.k.a. H_T), available
  *  in the T=CaloMET or T=MET object.
  *
- *  $Date: 2007/03/09 08:34:09 $
- *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
  */
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<string>
+#include<vector>
 
 //
 // class declaration
@@ -29,14 +29,18 @@ class HLTGlobalSums : public HLTFilter {
 
       explicit HLTGlobalSums(const edm::ParameterSet&);
       ~HLTGlobalSums();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       // configuration
-      edm::InputTag inputTag_; // input tag identifying MET product
+      edm::InputTag                     inputTag_;   // input tag identifying MET product
+      edm::EDGetTokenT<std::vector<T> > inputToken_; // token identifying MET product
+      int triggerType_;        // triggerType configured
       std::string observable_; // which observable to cut on
       double min_,max_;        // cut: Min<=observable<=Max
       int min_N_;              // how many needed to pass
+      int tid_;                // actual triggerType
 };
 
 #endif //HLTGlobalSums_h

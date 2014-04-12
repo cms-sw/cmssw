@@ -17,17 +17,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 12:24:44 EDT 2007
-// $Id: PluginFactoryBase.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
 #include <string>
 #include <vector>
-#include "sigc++/signal.h"
+#include <map>
+#include <atomic>
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
+
+#include "FWCore/Utilities/interface/Signal.h"
 // user include files
 #include "FWCore/PluginManager/interface/PluginInfo.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 namespace edmplugin {
@@ -38,16 +40,43 @@ class PluginFactoryBase
       PluginFactoryBase() {}
       virtual ~PluginFactoryBase();
 
+      struct PluginMakerInfo {
+        PluginMakerInfo(void* iPtr, const std::string& iName):
+        m_name(iName),
+        m_ptr() {
+          m_ptr.store(iPtr,std::memory_order_release);}
+        
+        PluginMakerInfo(const PluginMakerInfo& iOther):
+        m_name(iOther.m_name),
+        m_ptr() {
+          m_ptr.store(iOther.m_ptr.load(std::memory_order_acquire),
+                      std::memory_order_release);
+        }
+        
+        PluginMakerInfo& operator=(const PluginMakerInfo& iOther) {
+          m_name = iOther.m_name;
+          m_ptr.store(iOther.m_ptr.load(std::memory_order_acquire),std::memory_order_release);
+          return *this;
+        }
+        std::string m_name;
+        //NOTE: this has to be last since once it is non zero it signals
+        // that the construction has finished
+        std::atomic<void*> m_ptr;
+      };
+  
+      typedef tbb::concurrent_vector<PluginMakerInfo> PMakers;
+      typedef tbb::concurrent_unordered_map<std::string, PMakers > Plugins;
+
       // ---------- const member functions ---------------------
 
       ///return info about all plugins which are already available in the program
-      virtual std::vector<PluginInfo> available() const = 0;
+      virtual std::vector<PluginInfo> available() const;
 
       ///returns the name of the category to which this plugin factory belongs
       virtual const std::string& category() const = 0;
       
       ///signal containing plugin category, and  plugin info for newly added plugin
-      mutable sigc::signal<void,const std::string&, const PluginInfo&> newPluginAdded_;
+      mutable edm::signalslot::Signal<void(const std::string&, const PluginInfo&)> newPluginAdded_;
 
       // ---------- static member functions --------------------
 
@@ -64,67 +93,29 @@ class PluginFactoryBase
 
       //since each inheriting class has its own Container type to hold their PMakers
       // this function allows them to share the same code when doing the lookup
-      template<typename Plugins>
-      typename Plugins::const_iterator findPMaker(const std::string& iName,
-                                                   const Plugins& iPlugins) const {
-        //do we already have it?
-        typename Plugins::const_iterator itFound = iPlugins.find(iName);
-        if(itFound == iPlugins.end()) {
-          std::string lib = PluginManager::get()->load(this->category(),iName).path().native_file_string();
-          itFound = iPlugins.find(iName);
-          if(itFound == iPlugins.end()) {
-            throw cms::Exception("PluginCacheError")<<"The plugin '"<<iName<<"' should have been in loadable\n '"
-            <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPlugRefresh "<<lib<<"'";
-          }
-        } else {
-          //should check to see if this is from the proper loadable if it
-          // was not statically linked
-          if (itFound->second.front().second != PluginManager::staticallyLinkedLoadingFileName() &&
-              PluginManager::isAvailable()) {
-            if( itFound->second.front().second != PluginManager::get()->loadableFor(category(),iName).native_file_string() ) {
-              throw cms::Exception("WrongPluginLoaded")<<"The plugin '"<<iName<<"' should have been loaded from\n '"
-              <<PluginManager::get()->loadableFor(category(),iName).native_file_string()
-              <<"'\n but instead it was already loaded from\n '"
-              <<itFound->second.front().second<<"'\n because some other plugin was loaded from the latter loadables.\n"
-              "To work around the problem the plugin '"<<iName<<"' should only be defined in one of these loadables.";
-            }
-          }
-        }
-        return itFound;
-      }
+      // this routine will throw an exception if iName is unknown therefore the return value is always valid
+      void* findPMaker(const std::string& iName) const;
+
+      //similar to findPMaker but will return 'end()' if iName is known
+      void* tryToFindPMaker(const std::string& iName) const;
       
-      template<typename MakersItr>
-        static void fillInfo(MakersItr iBegin, MakersItr iEnd,
-                             PluginInfo& iInfo,
-                             std::vector<PluginInfo>& iReturn ) {
-          for(MakersItr it = iBegin;
-              it != iEnd;
-              ++it) {
-            iInfo.loadable_ = it->second;
-            iReturn.push_back(iInfo);
-          }
-        }
-      template<typename PluginsItr>
-      static void fillAvailable(PluginsItr iBegin,
-                                PluginsItr iEnd,
-                                std::vector<PluginInfo>& iReturn) {
-        PluginInfo info;
-        for( PluginsItr it = iBegin;
-            it != iEnd;
-            ++it) {
-          info.name_ = it->first;
-          fillInfo(it->second.begin(),it->second.end(),
-                   info, iReturn);
-        }
-      }
-      
+      void fillInfo(const PMakers &makers,
+                    PluginInfo& iInfo,
+                    std::vector<PluginInfo>& iReturn ) const;
+
+      void fillAvailable(std::vector<PluginInfo>& iReturn) const;
+
+      void registerPMaker(void* iPMaker, const std::string& iName);
       
    private:
       PluginFactoryBase(const PluginFactoryBase&); // stop default
 
       const PluginFactoryBase& operator=(const PluginFactoryBase&); // stop default
 
+      void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
       // ---------- member data --------------------------------
+      Plugins m_plugins;
+  
 
 };
 

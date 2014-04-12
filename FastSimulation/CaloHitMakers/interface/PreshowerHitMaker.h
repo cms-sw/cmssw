@@ -2,9 +2,11 @@
 #define PreshowerHitMaker_h
 
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
+#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
 
 class CaloGeometryHelper;
 class LandauFluctuationGenerator;
+class RandomEngineAndDistribution;
 
 class PreshowerHitMaker : public CaloHitMaker
 {
@@ -12,20 +14,30 @@ class PreshowerHitMaker : public CaloHitMaker
 
   typedef math::XYZVector XYZVector;
   typedef math::XYZVector XYZPoint;
+  typedef ROOT::Math::Transform3DPJ Transform3D;
 
   PreshowerHitMaker(CaloGeometryHelper * calo, 
 		    const XYZPoint & , 
-		    const XYZVector& ,
+		    const XYZVector& , 
 		    const XYZPoint& ,
 		    const XYZVector&,
-		    const LandauFluctuationGenerator* aGenerator);
+		    const LandauFluctuationGenerator* aGenerator,
+	            const RandomEngineAndDistribution* engine);
 
-  ~PreshowerHitMaker() {;}
+  ~PreshowerHitMaker() {;} 
   
   inline void setSpotEnergy(double e) { spotEnergy=e;} 
-  bool addHit(double r,double phi,unsigned layer=0);
-  const std::map<unsigned,float>& getHits() { return hitMap_ ;} ;
+  bool addHit(double r, double phi, unsigned layer=0);
 
+  const std::map<CaloHitID,float>& getHits() { return hitMap_ ;} ;
+ // for tuning
+  inline void setMipEnergy(double e1, double e2) { mip1_=e1 ; mip2_=e2;} 
+  
+  float totalLayer1() const { return totalLayer1_;}
+  float totalLayer2() const { return totalLayer2_;}
+  float layer1Calibrated() const { return 0.024/81.1E-6*totalLayer1_;}
+  float layer2Calibrated() const { return 0.024*0.7/81.1E-6*totalLayer2_;}
+  float totalCalibrated() const { return 0.024/81.1E-6*(totalLayer1_+0.7*totalLayer2_);}
 
  private:
 
@@ -33,16 +45,18 @@ class PreshowerHitMaker : public CaloHitMaker
   XYZVector psLayer1Dir_;
   XYZPoint psLayer2Entrance_;
   XYZVector psLayer2Dir_;
-  double invcostheta1x;
-  double invcostheta1y;
-  double invcostheta2x;
-  double invcostheta2y;
-  double x1,y1,z1;
-  double x2,y2,z2;
-
+  bool layer1valid_;
+  bool layer2valid_;
+  Transform3D locToGlobal1_;
+  Transform3D locToGlobal2_;
+  float anglecorrection1_;
+  float anglecorrection2_;
+  double mip1_,mip2_;
+  float totalLayer1_;
+  float totalLayer2_;
   /// The Landau Fluctuation generator
   const LandauFluctuationGenerator*  theGenerator;
-
+  const RandomEngineAndDistribution* random;
 };
 
 #endif

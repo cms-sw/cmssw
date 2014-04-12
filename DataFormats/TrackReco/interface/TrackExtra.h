@@ -2,13 +2,13 @@
 #define TrackReco_TrackExtra_h
 /** \class reco::TrackExtra TrackExtra.h DataFormats/TrackReco/interface/TrackExtra.h
  *
- * Extension of a reconstructed Track. It is ment to be stored
- * in the RECO, and to be referenced by its corresponding
- * object stored in the AOD
+ * Additional information about a reconstructed track. It is stored in RECO and supplements
+ * the basic information stored in the Track class that is stored on AOD only.
+ * If you wish to use information in the TrackExtra class, you should
+ * access it via the reference supplied in the Track class.
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.20 2007/07/30 13:26:45 bellan Exp $
  *
  */
 #include <Rtypes.h>
@@ -16,15 +16,16 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/TrackReco/interface/TrackExtraBase.h"
-#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/TrackResiduals.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 namespace reco {
   class TrackExtra : public TrackExtraBase {
   public:
-    /// parameter dimension
+    /// tracker parameter dimension
     enum { dimension = 5 };
-    /// error matrix size
+    /// track error matrix size
     enum { covarianceSize = dimension * ( dimension + 1 ) / 2 };
     /// point in the space
     typedef math::XYZPoint Point;
@@ -36,13 +37,36 @@ namespace reco {
     typedef unsigned int index;
 
     /// default constructor
-    TrackExtra(): seedDir_(anyDirection) { }
-    /// constructor from outermost position and momentum
+    TrackExtra(): 
+      outerMomentum_(),
+      outerOk_(false),
+      outerDetId_(0),
+      innerPosition_(),
+      innerMomentum_(),
+      innerOk_(false),
+      innerDetId_(0),
+      seedDir_(anyDirection),
+      seedRef_(),
+      trackResiduals_()
+   {
+     index idx = 0;
+     for( index i = 0; i < dimension; ++ i ) {
+       for( index j = 0; j <= i; ++ j ) {
+         outerCovariance_[ idx ] = 0;
+         innerCovariance_[ idx ] = 0;
+         ++idx;
+       }
+     }
+   }
+
+    /// constructor from outermost/innermost position and momentum and Seed information
     TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok ,
 		const Point & innerPosition, const Vector & innerMomentum, bool iok,
 		const CovarianceMatrix& outerState, unsigned int outerId,
 		const CovarianceMatrix& innerState, unsigned int innerId, 
-		PropagationDirection seedDir);
+		PropagationDirection seedDir, 
+		edm::RefToBase<TrajectorySeed>  seedRef=edm::RefToBase<TrajectorySeed>());
+
     /// outermost hit position
     const Point & outerPosition() const { return outerPosition_; }
     /// momentum vector at outermost hit position
@@ -95,7 +119,21 @@ namespace reco {
     // direction how the hits were sorted in the original seed
     PropagationDirection seedDirection() const {return seedDir_;}
 
+    /**  return the edm::reference to the trajectory seed in the original
+     *   seeds collection. If the collection has been dropped from the
+     *   Event, the reference may be invalid. Its validity should be tested,
+     *   before the reference is actually used. 
+     */
+    edm::RefToBase<TrajectorySeed> seedRef() const { return seedRef_; }
+    void setSeedRef( edm::RefToBase<TrajectorySeed> & r) { seedRef_=r; }
+    /// set the residuals
+    void setResiduals (const TrackResiduals &r) { trackResiduals_ = r; }
+
+    /// get the residuals 
+    const TrackResiduals &residuals () const { return trackResiduals_; }
+
   private:
+
     /// outermost hit position
     Point outerPosition_;
     /// momentum vector at outermost hit position
@@ -103,7 +141,7 @@ namespace reco {
     /// outermost hit validity flag
     bool outerOk_;
     /// outermost trajectory state curvilinear errors 
-    Double32_t outerCovariance_[ covarianceSize ];
+    float outerCovariance_[ covarianceSize ];
     unsigned int outerDetId_;
 
 
@@ -114,11 +152,14 @@ namespace reco {
     /// innermost hit validity flag
     bool innerOk_;
     /// innermost trajectory state 
-    Double32_t innerCovariance_[ covarianceSize ];
+    float innerCovariance_[ covarianceSize ];
     unsigned int innerDetId_;
 
     PropagationDirection seedDir_;
+    edm::RefToBase<TrajectorySeed> seedRef_;
 
+    /// unbiased track residuals 
+    TrackResiduals trackResiduals_;
   };
 
 }

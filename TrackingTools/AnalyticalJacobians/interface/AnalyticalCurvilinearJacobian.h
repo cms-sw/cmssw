@@ -1,7 +1,9 @@
 #ifndef AnalyticalCurvilinearJacobian_H
 #define AnalyticalCurvilinearJacobian_H
 
-#include "TrackingTools/AnalyticalJacobians/interface/CurvilinearJacobian.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
+#include "DataFormats/GeometryVector/interface/GlobalVector.h" 
 
 /** \class AnalyticalCurvilinearJacobian 
  * Creating Jacobian of transformation within the curvilinear frame.
@@ -16,9 +18,11 @@
 
 class GlobalTrajectoryParameters;
 
-class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
+class AnalyticalCurvilinearJacobian  {
  public:
- 
+  /// default constructor (for tests)
+  AnalyticalCurvilinearJacobian()  :  theJacobian(AlgebraicMatrixID()){}
+
   /// get Field at starting state (internally)
   AnalyticalCurvilinearJacobian(const GlobalTrajectoryParameters& globalParameters,
 				const GlobalPoint& x, 
@@ -31,21 +35,26 @@ class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
 				const GlobalVector& theFieldInInverseGeV, 
 				const double& s);
   
-  virtual ~AnalyticalCurvilinearJacobian() {}
   
-  virtual const AlgebraicMatrix55& jacobian() const {return theJacobian;}
-  virtual const AlgebraicMatrix jacobian_old() const {return asHepMatrix(theJacobian);}
-private:
+public:
   /// result for non-vanishing curvature
   void computeFullJacobian (const GlobalTrajectoryParameters&,
 			    const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
 			    const double& s);
+  /// result for non-vanishing curvature and "small" step
+  void computeInfinitesimalJacobian (const GlobalTrajectoryParameters&,
+				     const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
+				     const double& s);
   /// straight line approximation
   void computeStraightLineJacobian (const GlobalTrajectoryParameters&,
 				    const GlobalPoint&, const GlobalVector&, 
 				    const double& s);
 
- private:
+
+
+  const AlgebraicMatrix55& jacobian() const {return theJacobian;}
+
+private:
   
   AlgebraicMatrix55 theJacobian;
 

@@ -1,52 +1,36 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.5 2007/06/19 12:30:27 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
 
-#include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
-#include <string>
-#include <map>
+#include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
 
-class ApvTimingHistosUsingDb : public ApvTimingHistograms, public CommissioningHistosUsingDb {
+class ApvTimingHistosUsingDb : public CommissioningHistosUsingDb, public ApvTimingHistograms  {
   
  public:
-  
-  ApvTimingHistosUsingDb( MonitorUserInterface*,
-			  const DbParams& );
 
-  ApvTimingHistosUsingDb( MonitorUserInterface*,
-			  SiStripConfigDb* const );
-
-  ApvTimingHistosUsingDb( DaqMonitorBEInterface*,
-			  SiStripConfigDb* const );
+  ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
+                          DQMStore*,
+                          SiStripConfigDb* const );
 
   virtual ~ApvTimingHistosUsingDb();
-
-  virtual void uploadToConfigDb();
-
-  inline void uploadPllSettings( bool );
   
-  inline void uploadFedSettings( bool );
-  
+  virtual void uploadConfigurations();
+
  private:
 
-  bool update( SiStripConfigDb::DeviceDescriptions& );
-
-  void update( SiStripConfigDb::FedDescriptions& );
+  bool update( SiStripConfigDb::DeviceDescriptionsRange );
   
-  bool uploadFecSettings_;
-
-  bool uploadFedSettings_;
+  void update( SiStripConfigDb::FedDescriptionsRange );
+  
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
+  
+  // switch for uploading the pll thresholds
+  bool skipFecUpdate_;
+  // switch for uploading the frame finding thresholds
+  bool skipFedUpdate_;
   
 };
 
-// ---------- Inline methods ----------
-
-void ApvTimingHistosUsingDb::uploadPllSettings( bool upload ) { uploadFecSettings_ = upload; }
-void ApvTimingHistosUsingDb::uploadFedSettings( bool upload ) { uploadFedSettings_ = upload; }
 
 #endif // DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
-

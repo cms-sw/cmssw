@@ -4,12 +4,13 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixLineExtrapolation.h"
 #include "TrackingTools/GeomPropagators/interface/HelixExtrapolatorToLine2Order.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /** Calculates closest approach of a helix to a line or a point by 
  *  iterative use of a 2nd order expansion of the helix.
  */
 
-class IterativeHelixExtrapolatorToLine : public HelixLineExtrapolation {
+class IterativeHelixExtrapolatorToLine GCC11_FINAL : public HelixLineExtrapolation {
 public:
   /** Constructor using point, direction and (transverse!) curvature.
    */
@@ -24,17 +25,13 @@ public:
    *  along the helix from the starting point to the closest approach. 
    *  to the point. The starting point is given in the constructor.
    */
-  virtual std::pair<bool,double> pathLength (const GlobalPoint& point) const {
-    return genericPathLength(point);
-  }
+  virtual std::pair<bool,double> pathLength (const GlobalPoint& point) const;
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the closest approach
    *  to the line. The starting point is given in the constructor.
    */
-  virtual std::pair<bool,double> pathLength (const Line& line) const {
-    return genericPathLength(line);
-  }
+  virtual std::pair<bool,double> pathLength (const Line& line) const;
 
   /** Position at pathlength s from the starting point.
    */
@@ -55,7 +52,7 @@ public:
 private:
   /// common functionality for extrapolation to line or point
   template <class T> 
-  std::pair<bool,double> genericPathLength (const T& object) const;
+  std::pair<bool,double> genericPathLength (const T& object) const dso_internal;
 
 private:
   const double theX0,theY0,theZ0;

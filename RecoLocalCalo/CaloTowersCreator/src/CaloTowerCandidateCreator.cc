@@ -1,10 +1,8 @@
 // makes CaloTowerCandidates from CaloTowers
 // original author: L.Lista INFN
 // modifyed by: F.Ratnikov UMd
-// $Id: CaloTowerCandidateCreator.cc,v 1.8 2007/03/07 19:43:13 mansj Exp $
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,10 +14,11 @@ using namespace std;
 CaloTowerCandidateCreator::CaloTowerCandidateCreator( const ParameterSet & p ) 
   :
   mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
-  mSource (p.getParameter<edm::InputTag> ("src")),
   mEtThreshold (p.getParameter<double> ("minimumEt")),
   mEThreshold (p.getParameter<double> ("minimumE"))
 {
+  tok_src_ = consumes<CaloTowerCollection> (p.getParameter<edm::InputTag> ("src"));
+
   produces<CandidateCollection>();
 }
 
@@ -28,7 +27,7 @@ CaloTowerCandidateCreator::~CaloTowerCandidateCreator() {
 
 void CaloTowerCandidateCreator::produce( Event& evt, const EventSetup& ) {
   Handle<CaloTowerCollection> caloTowers;
-  evt.getByLabel( mSource, caloTowers );
+  evt.getByToken( tok_src_, caloTowers );
   
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
   cands->reserve( caloTowers->size() );
@@ -40,7 +39,7 @@ void CaloTowerCandidateCreator::produce( Event& evt, const EventSetup& ) {
 		<< cal->et() << '/' << cal->eta() << '/' << cal->phi() << '/' << cal->energy() << " is...";
     }
     if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold ) {
-      math::PtEtaPhiELorentzVector p( cal->et(), cal->eta(), cal->phi(), cal->energy() );
+      math::PtEtaPhiMLorentzVector p( cal->et(), cal->eta(), cal->phi(), 0 );
       RecoCaloTowerCandidate * c = 
 	new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p ) );
       c->setCaloTower (CaloTowerRef( caloTowers, idx) );

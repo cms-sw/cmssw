@@ -3,10 +3,18 @@
    
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/TrackCollectionFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/TrackFP420.h"
+#include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
+#include "DataFormats/FP420Cluster/interface/TrackCollectionFP420.h"
+#include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 
 class TrackProducerFP420;
 
@@ -18,8 +26,8 @@ class FP420TrackMain
   ~FP420TrackMain();
 
   /// Runs the algorithm
-  void run(const ClusterCollectionFP420 &input,
-	   TrackCollectionFP420 &toutput
+  void run(edm::Handle<ClusterCollectionFP420> &input,
+	   std::auto_ptr<TrackCollectionFP420> &toutput
 	   );
 
  private:
@@ -33,15 +41,22 @@ class FP420TrackMain
   bool validTrackerizer_;
 
   int verbosity;
+ // Number of Detectors:
+ int dn0;
  // Number of Stations:
  int sn0_;
  // Number of planes:
  int pn0_;
+ // Number of semsors:
+ int rn0_;
  // Number of planes types:
- int zn0_;
+ int xytype_;
 
 	bool UseHalfPitchShiftInX_;
 	bool UseHalfPitchShiftInY_;
+
+	bool UseHalfPitchShiftInXW_;
+	bool UseHalfPitchShiftInYW_;
 
 	//double zUnit_; 
 	double z420_; 
@@ -55,14 +70,19 @@ class FP420TrackMain
 	//	double ZBoundDet_;
 	double ZSiStep_;
 	double ZSiPlane_;
-	double ZSiDetL_;
-	double ZSiDetR_;
+	double ZSiDet_;
+	double zBlade_;
+	double gapBlade_;
 
 	double dXX_;
 	double dYY_;
 	double chiCutX_;
 	double chiCutY_;
 
+	double zinibeg_;
+
+	double XsensorSize_;
+	double YsensorSize_;
 
 };
 

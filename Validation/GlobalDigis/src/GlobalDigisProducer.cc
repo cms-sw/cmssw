@@ -2,12 +2,12 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/04/30 19:47:45 $
- *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "Validation/GlobalDigis/interface/GlobalDigisProducer.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -33,11 +33,32 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
   ECalEESrc_ = iPSet.getParameter<edm::InputTag>("ECalEESrc");
   ECalESSrc_ = iPSet.getParameter<edm::InputTag>("ECalESSrc");
   HCalSrc_ = iPSet.getParameter<edm::InputTag>("HCalSrc");
+  HCalDigi_ = iPSet.getParameter<edm::InputTag>("HCalDigi");
   SiStripSrc_ = iPSet.getParameter<edm::InputTag>("SiStripSrc"); 
   SiPxlSrc_ = iPSet.getParameter<edm::InputTag>("SiPxlSrc");
   MuDTSrc_ = iPSet.getParameter<edm::InputTag>("MuDTSrc");
   MuCSCStripSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCStripSrc");
   MuCSCWireSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCWireSrc");
+  // fix for consumes
+  ECalEBSrc_Token_ = consumes<EBDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
+  ECalEESrc_Token_ = consumes<EEDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEESrc"));
+  ECalESSrc_Token_ = consumes<ESDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalESSrc"));
+  HCalSrc_Token_ = consumes<edm::PCaloHitContainer>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  HBHEDigi_Token_ = consumes<edm::SortedCollection<HBHEDataFrame> >(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  HODigi_Token_ = consumes<edm::SortedCollection<HODataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  HFDigi_Token_ = consumes<edm::SortedCollection<HFDataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  SiStripSrc_Token_ = consumes<edm::DetSetVector<SiStripDigi> >(iPSet.getParameter<edm::InputTag>("SiStripSrc")); 
+  SiPxlSrc_Token_ = consumes<edm::DetSetVector<PixelDigi> >(iPSet.getParameter<edm::InputTag>("SiPxlSrc"));
+  MuDTSrc_Token_ = consumes<DTDigiCollection>(iPSet.getParameter<edm::InputTag>("MuDTSrc"));
+  MuCSCStripSrc_Token_ = consumes<CSCStripDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCStripSrc"));
+  MuCSCWireSrc_Token_ = consumes<CSCWireDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCWireSrc"));
+  //
+  const std::string barrelHitsName("EcalHitsEB");
+  const std::string endcapHitsName("EcalHitsEE");
+  const std::string preshowerHitsName("EcalHitsES");
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("barrelHitsName")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("endcapHitsName")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("preshowerHitsName")));
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -65,6 +86,8 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
       << ":" << ECalESSrc_.instance() << "\n"
       << "    HCalSrc       = " << HCalSrc_.label() 
       << ":" << HCalSrc_.instance() << "\n"
+      << "    HCalDigi       = " << HCalDigi_.label() 
+      << ":" << HCalDigi_.instance() << "\n"
       << "    SiStripSrc    = " << SiStripSrc_.label() 
       << ":" << SiStripSrc_.instance() << "\n" 
       << "    SiPixelSrc    = " << SiPxlSrc_.label()
@@ -93,14 +116,14 @@ GlobalDigisProducer::~GlobalDigisProducer()
 {
 }
 
-void GlobalDigisProducer::beginJob(const edm::EventSetup& iSetup)
+void GlobalDigisProducer::beginJob( void )
 {
   std::string MsgLoggerCat = "GlobalDigisProducer_beginJob";
 
-  // setup calorimeter constants from service
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
+//   // setup calorimeter constants from service
+//   edm::ESHandle<EcalADCToGeVConstant> pAgc;
+//   iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
+//   const EcalADCToGeVConstant* agc = pAgc.product();
   
   EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
 
@@ -111,17 +134,17 @@ void GlobalDigisProducer::beginJob(const edm::EventSetup& iSetup)
 
   delete defaultRatios;
 
-  ECalbarrelADCtoGeV_ = agc->getEBValue();
-  ECalendcapADCtoGeV_ = agc->getEEValue();
+//   ECalbarrelADCtoGeV_ = agc->getEBValue();
+//   ECalendcapADCtoGeV_ = agc->getEEValue();
 
   if (verbosity >= 0) {
     edm::LogInfo(MsgLoggerCat) 
       << "Modified Calorimeter gain constants: g0 = " << ECalgainConv_[0]
       << ", g1 = " << ECalgainConv_[1] << ", g2 = " << ECalgainConv_[2]
       << ", g3 = " << ECalgainConv_[3];
-    edm::LogInfo(MsgLoggerCat)
-      << "Modified Calorimeter ADCtoGeV constants: barrel = " 
-      << ECalbarrelADCtoGeV_ << ", endcap = " << ECalendcapADCtoGeV_;
+//     edm::LogInfo(MsgLoggerCat)
+//       << "Modified Calorimeter ADCtoGeV constants: barrel = " 
+//       << ECalbarrelADCtoGeV_ << ", endcap = " << ECalendcapADCtoGeV_;
   }
 
   // clear storage vectors
@@ -145,6 +168,21 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
 
   // keep track of number of events processed
   ++count;
+
+
+  // THIS BLOCK MIGRATED HERE FROM beginJob:
+  // setup calorimeter constants from service
+  edm::ESHandle<EcalADCToGeVConstant> pAgc;
+  iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
+  const EcalADCToGeVConstant* agc = pAgc.product();
+  ECalbarrelADCtoGeV_ = agc->getEBValue();
+  ECalendcapADCtoGeV_ = agc->getEEValue();
+  if (verbosity >= 0) {
+    edm::LogInfo(MsgLoggerCat)
+      << "Modified Calorimeter ADCtoGeV constants: barrel = " 
+      << ECalbarrelADCtoGeV_ << ", endcap = " << ECalendcapADCtoGeV_;
+  }
+  
 
   // get event id information
   int nrun = iEvent.id().run();
@@ -250,36 +288,42 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     eventout = "\nGathering info:";  
 
   // extract crossing frame from event
-  edm::Handle<CrossingFrame> crossingFrame;
-  iEvent.getByType(crossingFrame);
-  if (!crossingFrame.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find crossingFrame in event!";
-    return;
-  }
+  //edm::Handle<CrossingFrame> crossingFrame;
+  edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
+  //iEvent.getByType(crossingFrame);
+  //if (!crossingFrame.isValid()) {
+  //  edm::LogWarning(MsgLoggerCat)
+  //    << "Unable to crossingFrame in event!";
+  //  return;
+  //}
 
   ////////////////////////
   //extract EB information
   ////////////////////////
   bool isBarrel = true;
   edm::Handle<EBDigiCollection> EcalDigiEB;  
-  const EBDigiCollection *EBdigis = 0;
-  iEvent.getByLabel(ECalEBSrc_, EcalDigiEB);
+  iEvent.getByToken(ECalEBSrc_Token_, EcalDigiEB);
   if (!EcalDigiEB.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalDigiEB in event!";
     return;
   }  
-  EBdigis = EcalDigiEB.product();
   if ( EcalDigiEB->size() == 0) isBarrel = false;
 
   if (isBarrel) {
     
     // loop over simhits
-    const std::string barrelHitsName("EcalHitsEB");
+    iEvent.getByToken(EBHits_Token_,crossingFrame);
+    if (!crossingFrame.isValid()) {
+      edm::LogWarning(MsgLoggerCat)
+	<< "Unable to find cal barrel crossingFrame in event!";
+      return;
+    }
+    //std::auto_ptr<MixCollection<PCaloHit> >
+    //barrelHits(new MixCollection<PCaloHit>
+    //		 (crossingFrame.product(), barrelHitsName));
     std::auto_ptr<MixCollection<PCaloHit> >
-      barrelHits(new MixCollection<PCaloHit>
-		 (crossingFrame.product(), barrelHitsName));
+      barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 
     // keep track of sum of simhit energy in each crystal
     MapType ebSimMap;
@@ -378,23 +422,28 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   ////////////////////////
   bool isEndCap = true;
   edm::Handle<EEDigiCollection> EcalDigiEE;  
-  const EEDigiCollection *EEdigis = 0;
-  iEvent.getByLabel(ECalEESrc_, EcalDigiEE);
+  iEvent.getByToken(ECalEESrc_Token_, EcalDigiEE);
   if (!EcalDigiEE.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalDigiEE in event!";
     return;
   }  
-  EEdigis = EcalDigiEE.product();
   if (EcalDigiEE->size() == 0) isEndCap = false;
 
   if (isEndCap) {
 
     // loop over simhits
-    const std::string endcapHitsName("EcalHitsEE");
+    iEvent.getByToken(EEHits_Token_, crossingFrame);
+    if (!crossingFrame.isValid()) {
+      edm::LogWarning(MsgLoggerCat)
+	<< "Unable to find cal endcap crossingFrame in event!";
+      return;
+    }
+    //std::auto_ptr<MixCollection<PCaloHit> >
+    //  endcapHits(new MixCollection<PCaloHit>
+    //	 (crossingFrame.product(), endcapHitsName));
     std::auto_ptr<MixCollection<PCaloHit> >
-      endcapHits(new MixCollection<PCaloHit>
-		 (crossingFrame.product(), endcapHitsName));
+      endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 
     // keep track of sum of simhit energy in each crystal
     MapType eeSimMap;
@@ -493,23 +542,28 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   ////////////////////////
   bool isPreshower = true;
   edm::Handle<ESDigiCollection> EcalDigiES;  
-  const ESDigiCollection *ESdigis = 0;
-  iEvent.getByLabel(ECalESSrc_, EcalDigiES);
+  iEvent.getByToken(ECalESSrc_Token_, EcalDigiES);
   if (!EcalDigiES.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalDigiES in event!";
     return;
   }  
-  ESdigis = EcalDigiES.product();
   if (EcalDigiES->size() == 0) isPreshower = false;
 
   if (isPreshower) {
 
     // loop over simhits
-    const std::string preshowerHitsName("EcalHitsES");
-    std::auto_ptr<MixCollection<PCaloHit> >
-      preshowerHits(new MixCollection<PCaloHit>
-		 (crossingFrame.product(), preshowerHitsName));
+    iEvent.getByToken(ESHits_Token_,crossingFrame);
+    if (!crossingFrame.isValid()) {
+      edm::LogWarning(MsgLoggerCat)
+	<< "Unable to find cal preshower crossingFrame in event!";
+      return;
+    }
+    //std::auto_ptr<MixCollection<PCaloHit> >
+    //  preshowerHits(new MixCollection<PCaloHit>
+    //		 (crossingFrame.product(), preshowerHitsName));
+   std::auto_ptr<MixCollection<PCaloHit> >
+      preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 
     // keep track of sum of simhit energy in each crystal
     MapType esSimMap;
@@ -644,15 +698,14 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
       << "Unable to find HCalconditions in event!";
     return;
   } 
-  const HcalQIEShape *shape = HCalconditions->getHcalShape();
-  HcalCalibrations calibrations;
+  //HcalCalibrations calibrations;
   CaloSamples tool;
 
   ///////////////////////
   // extract simhit info
   //////////////////////
   edm::Handle<edm::PCaloHitContainer> hcalHits;
-  iEvent.getByLabel(HCalSrc_,hcalHits);
+  iEvent.getByToken(HCalSrc_Token_,hcalHits);
   if (!hcalHits.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find hcalHits in event!";
@@ -689,7 +742,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // get HBHE information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HBHEDataFrame> > hbhe;
-  iEvent.getByType(hbhe);
+  iEvent.getByToken(HBHEDigi_Token_,hbhe);
   if (!hbhe.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HBHEDataFrame in event!";
@@ -704,8 +757,12 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 
     if ((cell.subdet() == sdHcalBrl) || (cell.subdet() == sdHcalEC)) {
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
+      //HCalconditions->makeHcalCalibration(cell, &calibrations);
+      const HcalCalibrations& calibrations = 
+	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
+      const HcalQIEShape *shape = HCalconditions->getHcalShape(channelCoder);
+
       HcalCoderDb coder(*channelCoder, *shape);
       coder.adc2fC(*ihbhe, tool);
       
@@ -754,7 +811,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // get HO information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HODataFrame> > ho;
-  iEvent.getByType(ho);
+  iEvent.getByToken(HODigi_Token_,ho);
   if (!ho.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HODataFrame in event!";
@@ -768,8 +825,12 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 
     if (cell.subdet() == sdHcalOut) {
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
+      //HCalconditions->makeHcalCalibration(cell, &calibrations);
+      const HcalCalibrations& calibrations = 
+	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
+      const HcalQIEShape *shape = HCalconditions->getHcalShape(channelCoder);
+
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*iho, tool);
 
@@ -795,7 +856,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // get HF information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HFDataFrame> > hf;
-  iEvent.getByType(hf);
+  iEvent.getByToken(HFDigi_Token_,hf);
   if (!hf.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HFDataFrame in event!";
@@ -809,8 +870,12 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 
     if (cell.subdet() == sdHcalFwd) {
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
+      //HCalconditions->makeHcalCalibration(cell, &calibrations);
+      const HcalCalibrations& calibrations = 
+	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
+      const HcalQIEShape *shape = HCalconditions->getHcalShape(channelCoder);
+
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*ihf, tool);
 
@@ -894,6 +959,12 @@ void GlobalDigisProducer::storeHCal(PGlobalDigi& product)
 void GlobalDigisProducer::fillTrk(edm::Event& iEvent, 
 				   const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
   std::string MsgLoggerCat = "GlobalDigisProducer_fillTrk";
 
   TString eventout;
@@ -902,7 +973,7 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
 
   // get strip information
   edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;  
-  iEvent.getByLabel(SiStripSrc_, stripDigis);
+  iEvent.getByToken(SiStripSrc_Token_, stripDigis);
   if (!stripDigis.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find stripDigis in event!";
@@ -921,22 +992,22 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
     
     // get TIB
     if (detId.subdetId() == sdSiTIB) {
-      TIBDetId tibid(id);
+      
       for (iter = begin; iter != end; ++iter) {
 	++nStripBrl;
-	if (tibid.layer() == 1) {
+	if (tTopo->tibLayer(id) == 1) {
 	  TIBL1ADC.push_back((*iter).adc());
 	  TIBL1Strip.push_back((*iter).strip());
 	}
-	if (tibid.layer() == 2) {
+	if (tTopo->tibLayer(id) == 2) {
 	  TIBL2ADC.push_back((*iter).adc());
 	  TIBL2Strip.push_back((*iter).strip());
 	}	
-	if (tibid.layer() == 3) {
+	if (tTopo->tibLayer(id) == 3) {
 	  TIBL3ADC.push_back((*iter).adc());
 	  TIBL3Strip.push_back((*iter).strip());
 	}
-	if (tibid.layer() == 4) {
+	if (tTopo->tibLayer(id) == 4) {
 	  TIBL4ADC.push_back((*iter).adc());
 	  TIBL4Strip.push_back((*iter).strip());
 	}
@@ -945,22 +1016,22 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
     
     // get TOB
     if (detId.subdetId() == sdSiTOB) {
-      TOBDetId tobid(id);
+      
       for (iter = begin; iter != end; ++iter) {
 	++nStripBrl;
-	if (tobid.layer() == 1) {
+	if (tTopo->tobLayer(id) == 1) {
 	  TOBL1ADC.push_back((*iter).adc());
 	  TOBL1Strip.push_back((*iter).strip());
 	}
-	if (tobid.layer() == 2) {
+	if (tTopo->tobLayer(id) == 2) {
 	  TOBL2ADC.push_back((*iter).adc());
 	  TOBL2Strip.push_back((*iter).strip());
 	}	
-	if (tobid.layer() == 3) {
+	if (tTopo->tobLayer(id) == 3) {
 	  TOBL3ADC.push_back((*iter).adc());
 	  TOBL3Strip.push_back((*iter).strip());
 	}
-	if (tobid.layer() == 4) {
+	if (tTopo->tobLayer(id) == 4) {
 	  TOBL4ADC.push_back((*iter).adc());
 	  TOBL4Strip.push_back((*iter).strip());
 	}
@@ -969,18 +1040,18 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
     
     // get TID
     if (detId.subdetId() == sdSiTID) {
-      TIDDetId tidid(id);
+      
       for (iter = begin; iter != end; ++iter) {
 	++nStripFwd;
-	if (tidid.wheel() == 1) {
+	if (tTopo->tidWheel(id) == 1) {
 	  TIDW1ADC.push_back((*iter).adc());
 	  TIDW1Strip.push_back((*iter).strip());
 	}
-	if (tidid.wheel() == 2) {
+	if (tTopo->tidWheel(id) == 2) {
 	  TIDW2ADC.push_back((*iter).adc());
 	  TIDW2Strip.push_back((*iter).strip());
 	}
-	if (tidid.wheel() == 3) {
+	if (tTopo->tidWheel(id) == 3) {
 	  TIDW3ADC.push_back((*iter).adc());
 	  TIDW3Strip.push_back((*iter).strip());
 	}
@@ -989,38 +1060,38 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
 
     // get TEC
     if (detId.subdetId() == sdSiTEC) {
-      TECDetId tecid(id);
+      
       for (iter = begin; iter != end; ++iter) {
 	++nStripFwd;
-	if (tecid.wheel() == 1) {
+	if (tTopo->tecWheel(id) == 1) {
 	  TECW1ADC.push_back((*iter).adc());
 	  TECW1Strip.push_back((*iter).strip());
 	}
-	if (tecid.wheel() == 2) {
+	if (tTopo->tecWheel(id) == 2) {
 	  TECW2ADC.push_back((*iter).adc());
 	  TECW2Strip.push_back((*iter).strip());
 	}
-	if (tecid.wheel() == 3) {
+	if (tTopo->tecWheel(id) == 3) {
 	  TECW3ADC.push_back((*iter).adc());
 	  TECW3Strip.push_back((*iter).strip());
 	}
-	if (tecid.wheel() == 4) {
+	if (tTopo->tecWheel(id) == 4) {
 	  TECW4ADC.push_back((*iter).adc());
 	  TECW4Strip.push_back((*iter).strip());
 	}
-	if (tecid.wheel() == 5) {
+	if (tTopo->tecWheel(id) == 5) {
 	  TECW5ADC.push_back((*iter).adc());
 	  TECW5Strip.push_back((*iter).strip());
 	}
-	if (tecid.wheel() == 6) {
+	if (tTopo->tecWheel(id) == 6) {
 	  TECW6ADC.push_back((*iter).adc());
 	  TECW6Strip.push_back((*iter).strip());
 	}
-	if (tecid.wheel() == 7) {
+	if (tTopo->tecWheel(id) == 7) {
 	  TECW7ADC.push_back((*iter).adc());
 	  TECW7Strip.push_back((*iter).strip());
 	}
-	if (tecid.wheel() == 8) {
+	if (tTopo->tecWheel(id) == 8) {
 	  TECW8ADC.push_back((*iter).adc());
 	  TECW8Strip.push_back((*iter).strip());
 	}
@@ -1040,7 +1111,7 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
 
   // get pixel information
   edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;  
-  iEvent.getByLabel(SiPxlSrc_, pixelDigis);
+  iEvent.getByToken(SiPxlSrc_Token_, pixelDigis);
   if (!pixelDigis.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find pixelDigis in event!";
@@ -1059,20 +1130,20 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
 
     // get Barrel pixels
     if (detId.subdetId() == sdPxlBrl) {
-      PXBDetId bdetid(id);
+      
       for (iter = begin; iter != end; ++iter) {
 	++nPxlBrl;
-	if (bdetid.layer() == 1) {
+	if (tTopo->pxbLayer(id) == 1) {
 	  BRL1ADC.push_back((*iter).adc());
 	  BRL1Row.push_back((*iter).row());
 	  BRL1Col.push_back((*iter).column());	  
 	}
-	if (bdetid.layer() == 2) {
+	if (tTopo->pxbLayer(id) == 2) {
 	  BRL2ADC.push_back((*iter).adc());
 	  BRL2Row.push_back((*iter).row());
 	  BRL2Col.push_back((*iter).column());	  
 	}
-	if (bdetid.layer() == 3) {
+	if (tTopo->pxbLayer(id) == 3) {
 	  BRL3ADC.push_back((*iter).adc());
 	  BRL3Row.push_back((*iter).row());
 	  BRL3Col.push_back((*iter).column());	  
@@ -1082,28 +1153,28 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
 
     // get Forward pixels
     if (detId.subdetId() == sdPxlFwd) {
-      PXFDetId fdetid(id);
+      
       for (iter = begin; iter != end; ++iter) {
 	++nPxlFwd;
-	if (fdetid.disk() == 1) {
-	  if (fdetid.side() == 1) {
+	if (tTopo->pxfDisk(id) == 1) {
+	  if (tTopo->pxfSide(id) == 1) {
 	    FWD1nADC.push_back((*iter).adc());
 	    FWD1nRow.push_back((*iter).row());
 	    FWD1nCol.push_back((*iter).column());
 	  }
-	  if (fdetid.side() == 2) {
+	  if (tTopo->pxfSide(id) == 2) {
 	    FWD1pADC.push_back((*iter).adc());
 	    FWD1pRow.push_back((*iter).row());
 	    FWD1pCol.push_back((*iter).column());
 	  }
 	}
-	if (fdetid.disk() == 2) {
-	  if (fdetid.side() == 1) {
+	if (tTopo->pxfDisk(id) == 2) {
+	  if (tTopo->pxfSide(id) == 1) {
 	    FWD2nADC.push_back((*iter).adc());
 	    FWD2nRow.push_back((*iter).row());
 	    FWD2nCol.push_back((*iter).column());
 	  }
-	  if (fdetid.side() == 2) {
+	  if (tTopo->pxfSide(id) == 2) {
 	    FWD2pADC.push_back((*iter).adc());
 	    FWD2pRow.push_back((*iter).row());
 	    FWD2pCol.push_back((*iter).column());
@@ -1434,7 +1505,7 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
 
   // get DT information
   edm::Handle<DTDigiCollection> dtDigis;  
-  iEvent.getByLabel(MuDTSrc_, dtDigis);
+  iEvent.getByToken(MuDTSrc_Token_, dtDigis);
   if (!dtDigis.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find dtDigis in event!";
@@ -1486,7 +1557,7 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
 
   // get CSC Strip information
   edm::Handle<CSCStripDigiCollection> strips;  
-  iEvent.getByLabel(MuCSCStripSrc_, strips);
+  iEvent.getByToken(MuCSCStripSrc_Token_, strips);
   if (!strips.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find muon strips in event!";
@@ -1526,7 +1597,7 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
 
   // get CSC Wire information
   edm::Handle<CSCWireDigiCollection> wires;  
-  iEvent.getByLabel(MuCSCWireSrc_, wires);
+  iEvent.getByToken(MuCSCWireSrc_Token_, wires);
   if (!wires.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find muon wires in event!";
@@ -1765,4 +1836,4 @@ void GlobalDigisProducer::clear()
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GlobalDigisProducer);
+//DEFINE_FWK_MODULE(GlobalDigisProducer);

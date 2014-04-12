@@ -1,5 +1,4 @@
 #include "Geometry/CSCGeometry/interface/CSCWireTopology.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
 #include "Geometry/CSCGeometry/src/CSCGangedWireGrouping.h"
 #include "Geometry/CSCGeometry/src/CSCNonslantedWireGeometry.h"
@@ -7,7 +6,7 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <cmath>
 
@@ -58,7 +57,9 @@ CSCWireTopology::CSCWireTopology(
 CSCWireTopology::CSCWireTopology( const CSCWireTopology& mewt ) :
   theAlignmentPinToFirstWire(mewt.theAlignmentPinToFirstWire) {
   if (mewt.theWireGrouping) theWireGrouping = mewt.theWireGrouping->clone();
+  else theWireGrouping = 0;
   if (mewt.theWireGeometry) theWireGeometry = mewt.theWireGeometry->clone();
+  else theWireGeometry = 0;
   
 }
 
@@ -128,3 +129,34 @@ float CSCWireTopology::yResolution( int wireGroup ) const {
   return wireSpacing() * theWireGrouping->numberOfWiresPerGroup( wireGroup ) / sqrt(12.);
 }
 
+std::pair<float, float> CSCWireTopology::equationOfWire( float wire ) const {
+  return theWireGeometry->equationOfWire( wire );
+}
+
+float CSCWireTopology::restrictToYOfWirePlane( float y ) const {
+  // Reset y to lie within bounds of wire plane at top and bottom.
+  
+  std::pair<float, float> ylim = theWireGeometry->yLimitsOfWirePlane();
+
+  if ( y < ylim.first ) {
+    y = ylim.first;
+  }
+  else if ( y > ylim.second ) {
+    y = ylim.second;
+  }
+  return y;
+}
+
+bool CSCWireTopology::insideYOfWirePlane( float y ) const {
+  // Returns true if arg falls within y limits of wire plane; false otherwise.
+      
+  std::pair<float, float> ylim = theWireGeometry->yLimitsOfWirePlane();
+
+  if ( y < ylim.first ) {
+    return false;
+  }
+  else if ( y > ylim.second ) {
+    return false;
+  }
+  return true;
+}

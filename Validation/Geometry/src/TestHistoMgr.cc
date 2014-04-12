@@ -3,7 +3,7 @@
 //#define PI121
 
 #include "Validation/Geometry/interface/TestHistoMgr.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #ifdef StatTesting
 #include "Validation/SimG4GeometryValidation/interface/StatisticsComparator.h"
 #include "StatisticsTesting/Chi2ComparisonAlgorithm.h"
@@ -13,6 +13,7 @@
 #include "StatisticsTesting/ComparisonResult.h"
 #endif
 #include <iostream>
+#include <cstdlib>
 
 //----------------------------------------------------------------------
 TestHistoMgr::TestHistoMgr()
@@ -79,8 +80,8 @@ void TestHistoMgr::openSecondFile( const std::string& name )
 
   /*  std::vector<std::string> objectNames = theStoreIn->listObjectNames();
   std::vector<std::string> objectTypes = theStoreIn->listObjectTypes(); 
-  uint siz = objectNames.size();
-  for( uint ii = 0; ii < siz; ii++ ) {
+  unsigned int siz = objectNames.size();
+  for( unsigned int ii = 0; ii < siz; ii++ ) {
     //    std::cout << " HISTOS IN FILE " << std::endl;
 
     //   std::cout << " HISTO: " << objectNames[ii] << " " << objectTypes[ii] << std::endl;

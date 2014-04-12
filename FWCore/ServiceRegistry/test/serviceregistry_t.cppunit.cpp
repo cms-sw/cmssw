@@ -19,6 +19,8 @@
 
 #include "boost/thread/thread.hpp"
 
+#include <atomic>
+
 class testServiceRegistry: public CppUnit::TestFixture
 {
    CPPUNIT_TEST_SUITE(testServiceRegistry);
@@ -27,6 +29,8 @@ class testServiceRegistry: public CppUnit::TestFixture
    CPPUNIT_TEST(hierarchyTest);
    CPPUNIT_TEST(threadTest);
    CPPUNIT_TEST(externalServiceTest);
+   CPPUNIT_TEST(saveConfigWithExternalTest);
+
    
    CPPUNIT_TEST_SUITE_END();
 public:
@@ -37,6 +41,7 @@ public:
    void hierarchyTest();
    void threadTest();
    void externalServiceTest();
+   void saveConfigWithExternalTest();
 };
 
 ///registration of the test so that the runner can find it
@@ -148,6 +153,41 @@ testServiceRegistry::externalServiceTest()
    }
 }
 
+void 
+testServiceRegistry::saveConfigWithExternalTest()
+{
+   //In the HLT the PrescaleService is created once and then used again
+   // even if a new EventProcessor is created.  However, the '@save_config' must
+   // still be added to the Service's PSet even if that service is not created
+   edm::AssertHandler ah;
+
+   std::vector<edm::ParameterSet> pss;
+   
+   {
+      edm::ParameterSet ps;
+      std::string typeName("DummyStoreConfigService");
+      ps.addParameter("@service_type", typeName);
+      pss.push_back(ps);
+   }
+   edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
+   CPPUNIT_ASSERT( pss[0].exists("@save_config") );
+
+   pss.clear();
+
+   {
+      edm::ParameterSet ps;
+      std::string typeName("DummyStoreConfigService");
+      ps.addParameter("@service_type", typeName);
+      pss.push_back(ps);
+   }
+   
+   //create the services
+   edm::ServiceToken token2(edm::ServiceRegistry::createSet(pss, token, edm::serviceregistry::kTokenOverrides));
+
+   CPPUNIT_ASSERT( pss[0].exists("@save_config") );
+   
+}
+
 void
 testServiceRegistry::hierarchyTest()
 {
@@ -201,9 +241,9 @@ namespace {
          isUnique_ = (otherRegistry_ != &(edm::ServiceRegistry::instance()));
       }
       void* otherRegistry_;
-      static bool isUnique_;
+      static std::atomic<bool> isUnique_;
    };
-   bool UniqueRegistry::isUnique_ = false;
+   std::atomic<bool> UniqueRegistry::isUnique_{false};
 
    struct PassServices {
       PassServices(edm::ServiceToken iToken,

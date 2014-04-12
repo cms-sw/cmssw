@@ -5,8 +5,6 @@
 //   Description: Extrapolation Unit
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -40,6 +38,8 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
 using namespace std;
 
@@ -100,6 +100,8 @@ L1MuDTExtrapolationUnit::~L1MuDTExtrapolationUnit() {
 //
 void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
 
+  c.get< L1MuDTTFParametersRcd >().get( pars );
+
   SEUmap::const_iterator iter;
   for ( iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++ ) {
 
@@ -121,7 +123,8 @@ void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
   //
   // use EX21 to cross-check EX12
   //
-  if ( L1MuDTTFConfig::getUseEX21() ) {
+  bool run_21 = pars->get_soc_run_21(m_sp.id().wheel(), m_sp.id().sector());
+  if ( L1MuDTTFConfig::getUseEX21() || run_21 ) {
 
     // search for EX12 + EX21 single extrapolation units
     for ( unsigned int startAdr = 0; startAdr < 2; startAdr++ ) {
@@ -169,8 +172,8 @@ void L1MuDTExtrapolationUnit::reset() {
 //
 void L1MuDTExtrapolationUnit::reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr) {
 
-  assert( startAdr >= 0 && startAdr <= 3 );
-  assert( relAdr >= 0 && relAdr <= 12 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( relAdr >= 0 && relAdr <= 12 );
 
   SEUId seuid = make_pair(ext, startAdr);
   SEUmap::const_iterator iter = m_SEUs.find(seuid);
@@ -188,8 +191,8 @@ unsigned short int L1MuDTExtrapolationUnit::getAddress(Extrapolation ext, unsign
   // startAdr = 0, 1  : own wheel
   // startAdr = 2, 3  : next wheel neighbour
 
-  assert( startAdr >= 0 && startAdr <= 3 );
-  assert( id == 0 || id == 1 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( id == 0 || id == 1 );
   
   unsigned short int address = 15;
   
@@ -211,8 +214,8 @@ unsigned short int L1MuDTExtrapolationUnit::getQuality(Extrapolation ext, unsign
   // startAdr = 0, 1  : own wheel
   // startAdr = 2, 3  : next wheel neighbour
 
-  assert( startAdr >= 0 && startAdr <= 3 );
-  assert( id == 0 || id == 1 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( id == 0 || id == 1 );
   
   unsigned short int quality = 0;
 
@@ -233,7 +236,7 @@ const bitset<12>& L1MuDTExtrapolationUnit::getEXTable(Extrapolation ext, unsigne
   // startAdr = 0, 1  : own wheel
   // startAdr = 2, 3  : next wheel neighbour
 
-  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
   
   SEUId seuid = make_pair(ext, startAdr);
   return m_SEUs[seuid]->exTable();
@@ -249,7 +252,7 @@ const bitset<12>& L1MuDTExtrapolationUnit::getQSTable(Extrapolation ext, unsigne
   // startAdr = 0, 1  : own wheel
   // startAdr = 2, 3  : next wheel neighbour
 
-  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
   
   SEUId seuid = make_pair(ext, startAdr);
   return m_SEUs[seuid]->qsTable();
@@ -335,7 +338,7 @@ pair<int,int> L1MuDTExtrapolationUnit::which_ext(Extrapolation ext) {
   int source = 0;
   int target = 0;
 
-  assert( ext >= 0 && ext < MAX_EXT );
+  //  assert( ext >= 0 && ext < MAX_EXT );
 
   switch ( ext ) {
     case EX12 : { source = 1; target = 2; break; }
@@ -346,10 +349,8 @@ pair<int,int> L1MuDTExtrapolationUnit::which_ext(Extrapolation ext) {
     case EX24 : { source = 2; target = 4; break; }
     case EX34 : { source = 3; target = 4; break; }
     case EX15 : { source = 1; target = 3; break; }
-    case EX16 : { source = 1; target = 4; break; }
     case EX25 : { source = 2; target = 3; break; }
-    case EX26 : { source = 2; target = 4; break; }
-    case EX56 : { source = 3; target = 4; break; }
+    default : { source = 1; target = 2; break; }
   }
 
   return pair<int,int>(source,target);

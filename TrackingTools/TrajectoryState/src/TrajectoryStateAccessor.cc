@@ -2,21 +2,27 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 
-double TrajectoryStateAccessor::inversePtError() const
+float TrajectoryStateAccessor::inversePtError() const
 {
   GlobalVector momentum = theFts.momentum();
-  AlgebraicSymMatrix55 errMatrix = theFts.curvilinearError().matrix();
+  AlgebraicSymMatrix55 const & errMatrix = theFts.curvilinearError().matrix();
   
-  float SinTheta=sin(momentum.theta());
-  float CosTheta=cos(momentum.theta());
-  float ptRec=momentum.perp();
+  float ptRec2= momentum.perp2();
+  float pzRec = momentum.z();
+  float pzRec2 = pzRec*pzRec;
+  float CosTheta2 = (pzRec2)/(ptRec2+pzRec2);
+  float SinTheta2 = 1.f-CosTheta2;
+ 
+  float par2 = CosTheta2/ptRec2;
+
   float InvpErr=errMatrix(0,0);
   float thetaErr=errMatrix(1,1);
   float corr=errMatrix(0,1);
-  float invPtErr2 = 1/(SinTheta*SinTheta)*
-    (InvpErr + 
-     ((CosTheta*CosTheta)/(ptRec*ptRec))*thetaErr - 
-     2*(CosTheta/ptRec)*corr);
-  return sqrt(invPtErr2);
+
+  float invPtErr2 =
+    ( InvpErr + par2*thetaErr - 
+      2.f*std::sqrt(par2)*corr
+    )/(SinTheta2);
+  return std::sqrt(invPtErr2);
 }
   

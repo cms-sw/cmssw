@@ -1,0 +1,73 @@
+# This is the decay file for the polarized decay Lambda_B0 -> J/Psi(MU+ MU-) Lambda0
+#
+# Descriptor: [Lambda_B0 -> J/Psi(mu+ mu-) Lambda0]cc
+#
+# NickName: 
+#
+# Physics: Generates the correct angular distributions for polarized Lambda_b0 decay
+#
+# Tested: Yes
+# By:     B. Drell
+# Date:   1-25-11
+#
+#
+# The helicity amplitudes are H[lambda1, lambda2] where lambda1 is the 
+# Lambda0 helicity and lambda2 is the J/Psi helicity:
+# aPlus  = H[1/2, 0]
+# aMinus = H[-1/2, 0]
+# bPlus  = H[-1/2, -1]
+# bMinus = H[1/2, 1]
+#
+# The correct ordering for HELAMP is highest helicity to lowest, first particle
+# first.  So the correct order is:
+# bMinus betaMinus aPlus alphaPlus aMinus alphaMinus bPlus betaPlus
+#
+# These numerical values come from the ATLAS paper.
+# Calculated using PQCD general amplitude coefficients.
+# I need to verify that these are correct.
+Define aPlus		0.423266
+Define alphaPlus	-1.61239
+Define aMinus		0.257533
+Define alphaMinus	1.22743
+Define bPlus		0.295037
+Define betaPlus		-1.84891
+Define bMinus		0.812939
+Define betaMinus	1.53438
+#
+#Helicity amplitudes for Lambda0 decay (from Lambda0 asymmetry 
+#parameter alpha_Lam)
+#alpha_Lam = 0.642 +- 0.013 = |hPlus|^2 - |hMinus|^2
+Define hPlus		0.906
+Define hMinus		0.423
+#
+Alias	   MyLambda_b0		Lambda_b0
+Alias	   Myanti-Lambda_b0 	anti-Lambda_b0
+ChargeConj MyLambda_b0		Myanti-Lambda_b0
+Alias	   MyLambda0		Lambda0
+Alias	   Myanti-Lambda0	anti-Lambda0
+ChargeConj MyLambda0		Myanti-Lambda0
+Alias	   MyJpsi		J/psi
+ChargeConj MyJpsi		MyJpsi
+#
+Decay MyLambda_b0
+1.0	MyLambda0		MyJpsi	HELAMP bMinus betaMinus aPlus alphaPlus aMinus alphaMinus bPlus betaPlus;
+Enddecay
+#
+Decay Myanti-Lambda_b0
+#1.0	   Myanti-Lambda0	MyJpsi	HELAMP bPlus betaPlus aMinus alphaMinus aPlus alphaPlus bMinus betaMinus;
+1.0	Myanti-Lambda0		MyJpsi	HELAMP bMinus betaMinus aPlus alphaPlus aMinus alphaMinus bPlus betaPlus;
+Enddecay
+#
+Decay MyLambda0
+1.0	   p+			pi-	HELAMP hPlus 0 hMinus 0;
+Enddecay
+#
+Decay Myanti-Lambda0
+1.0	   anti-p-		pi+	HELAMP hMinus 0 hPlus 0;
+Enddecay
+#
+Decay MyJpsi
+1.0	   mu+			mu-	PHOTOS VLL;
+Enddecay
+#
+End

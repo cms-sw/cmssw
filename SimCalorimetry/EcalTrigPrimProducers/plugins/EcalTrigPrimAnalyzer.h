@@ -10,13 +10,13 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.h,v 1.2 2007/04/20 12:08:43 uberthon Exp $
 //
 //
 
 
 // system include files
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -27,7 +27,7 @@
 #include <string>
 #include <TH1I.h>
 #include <TFile.h>
-
+#include <TTree.h>
 #include <TH2F.h>
 #include <TH1F.h>
 
@@ -41,7 +41,8 @@ class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
       ~EcalTrigPrimAnalyzer();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob();
    private:
 
   // for histos of nr of hits
@@ -53,12 +54,15 @@ class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
   TFile *histfile_;
   TH2F *hTPvsRechit_;
   TH1F *hTPoverRechit_;
+  TTree *tree_ ;
 
-  std::string label_;
-  std::string producer_;
-  std::string rechits_labelEB_;
-  std::string  rechits_labelEE_;
-  std::string  rechits_producer_;
+  int iphi_, ieta_ , tpgADC_, ttf_, fg_ ;
+  float eRec_, tpgGeV_ ;
+
+  edm::InputTag label_;
+
+  edm::InputTag rechits_labelEB_;
+  edm::InputTag rechits_labelEE_;
 
   bool recHits_;
 };

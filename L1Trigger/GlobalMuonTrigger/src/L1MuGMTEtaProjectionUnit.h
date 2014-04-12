@@ -9,8 +9,6 @@
  *  MIP and Isolation.
  */
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            CERN EP 

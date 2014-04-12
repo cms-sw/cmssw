@@ -4,4 +4,4 @@
 
 #include "QCDAnalysis/Skimming/interface/QCDSingleJetFilter.h"
 
-DEFINE_ANOTHER_FWK_MODULE(QCDSingleJetFilter);
+DEFINE_FWK_MODULE(QCDSingleJetFilter);

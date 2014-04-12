@@ -1,14 +1,21 @@
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringX0Data.h"
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
+#include "MSLayersKeeperX0AtEta.h"
+#include "MultipleScatteringX0Data.h"
+#include "MultipleScatteringGeometry.h"
 #include <algorithm>
+#include "DataFormats/Math/interface/approx_log.h"
+
 using namespace std;
-template <class T> T sqr( T t) {return t*t;}
+
+namespace {
+  template <class T> inline T sqr( T t) {return t*t;}
+  // float unsafe_asinhf(float x) { return std::abs(x)>10.f ? std::copysign(3.f,x) : unsafe_logf<3>(x+std::sqrt(1.f+x*x)); }
+  inline float unsafe_asinhf(float x) { return unsafe_logf<3>(x+std::sqrt(1.f+x*x)); }
+}
 
 //------------------------------------------------------------------------------
 const MSLayersAtAngle & MSLayersKeeperX0AtEta::layers(float cotTheta) const
 {
-  float eta = asinh(cotTheta);
+  float eta = unsafe_asinhf(cotTheta);
   return theLayersData[idxBin(eta)];
 }
 
@@ -20,7 +27,7 @@ float MSLayersKeeperX0AtEta::eta(int idxBin) const
 int MSLayersKeeperX0AtEta::idxBin(float eta) const
 {
   float ieta = eta/theDeltaEta;
-  if ( fabs(ieta) >= theHalfNBins - 1.e-3)
+  if ( std::abs(ieta) >= theHalfNBins - 1.e-3)
     return (eta>0) ? max(2*theHalfNBins-1,0) : 0;
   else
     return int(ieta+theHalfNBins);
@@ -113,7 +120,7 @@ void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup)
 void MSLayersKeeperX0AtEta::setX0(
     vector<MSLayer>& layers, 
     float eta, 
-    const SumX0AtEtaDataProvider & sumX0) const
+    const SumX0AtEtaDataProvider & sumX0)
 {
   const float BIG = 99999.;
   float cotTheta = sinh(eta);

@@ -1,12 +1,9 @@
-#ifndef Common_HLTenums_h
-#define Common_HLTenums_h
+#ifndef DataFormats_Common_HLTenums_h
+#define DataFormats_Common_HLTenums_h
 
 /** \brief HLT enums
  *
  *  Definition of common HLT enums
- *
- *  $Date: 2006/04/19 20:12:04 $
- *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -27,4 +24,4 @@ namespace edm
     }
 }
 
-#endif // Common_HLTenums_h
+#endif // DataFormats_Common_HLTenums_h

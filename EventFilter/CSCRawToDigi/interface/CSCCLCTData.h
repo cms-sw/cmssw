@@ -3,6 +3,7 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include <vector>
 #include <cassert>
+#include <atomic>
 
 struct CSCCLCTDataWord {
   CSCCLCTDataWord(unsigned cfeb, unsigned tbin, unsigned data)
@@ -15,12 +16,14 @@ struct CSCCLCTDataWord {
   unsigned short cfeb_ : 4;
 };
 
+class CSCTMBHeader;
 
 class CSCCLCTData {
 
 public:
 
-  CSCCLCTData(int ncfebs=5, int ntbins=7);
+  explicit CSCCLCTData(const CSCTMBHeader * tmbHeader);
+  CSCCLCTData(int ncfebs, int ntbins);
   CSCCLCTData(int ncfebs, int ntbins, const unsigned short *e0bbuf);
 
   /** turns on/off debug flag for this class */
@@ -30,7 +33,7 @@ public:
   std::vector<CSCComparatorDigi> comparatorDigis(int layer);
 
   /// layers count from one
-  std::vector<CSCComparatorDigi> comparatorDigis(int layer, unsigned icfeb);
+  std::vector<CSCComparatorDigi> comparatorDigis(uint32_t idlayer, unsigned icfeb);
 
 
   unsigned short * data() {return theData;}
@@ -38,11 +41,16 @@ public:
   int sizeInWords() const { return size_;}
   int nlines() const { return ncfebs_*ntbins_*6; }
 
+  ///TODO for packing.  Doesn't do flipping yet
+  void add(const CSCComparatorDigi & digi, int layer);
+
   CSCCLCTDataWord & dataWord(int iline) const {
 #ifdef ASSERTS
     assert(iline < nlines());
 #endif
-    return *(CSCCLCTDataWord *)(theData+iline);
+    union dataPtr { const unsigned short * s; CSCCLCTDataWord * d; } mptr;
+    mptr.s = theData+iline;
+    return *(mptr.d);
   }
 
   CSCCLCTDataWord & dataWord(int cfeb, int tbin, int layer) const {
@@ -57,10 +65,19 @@ public:
   // checks that the CFEB number and time bins are correct
   bool check() const;
 
+  // hex dump
+  void dump() const;
+
+  // checks packing and unpacking
+  static void selfTest();
 
 
  private:
-  static bool debug;
+
+  // helper for constructors
+  void zero();
+
+  static std::atomic<bool> debug;
   int ncfebs_;
   int ntbins_;
   int size_;

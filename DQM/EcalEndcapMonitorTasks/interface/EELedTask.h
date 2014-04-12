@@ -4,8 +4,6 @@
 /*
  * \file EELedTask.h
  *
- * $Date: 2007/05/12 09:28:32 $
- * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +11,13 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+class MonitorElement;
+class DQMStore;
 
 class EELedTask: public edm::EDAnalyzer{
 
@@ -31,10 +35,19 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -46,27 +59,37 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
-edm::InputTag EcalRawDataCollection_;
-edm::InputTag EBDigiCollection_;
-edm::InputTag EcalPnDiodeDigiCollection_;
-edm::InputTag EcalUncalibratedRecHitCollection_;
+bool mergeRuns_;
 
-MonitorElement* meShapeMapA_[18];
-MonitorElement* meAmplMapA_[18];
-MonitorElement* meTimeMapA_[18];
-MonitorElement* meAmplPNMapA_[18];
-MonitorElement* meShapeMapB_[18];
-MonitorElement* meAmplMapB_[18];
-MonitorElement* meTimeMapB_[18];
-MonitorElement* meAmplPNMapB_[18];
-MonitorElement* mePnAmplMapG01_[18];
-MonitorElement* mePnPedMapG01_[18];
-MonitorElement* mePnAmplMapG16_[18];
-MonitorElement* mePnPedMapG16_[18];
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<EEDigiCollection> EEDigiCollection_;
+edm::EDGetTokenT<EcalPnDiodeDigiCollection> EcalPnDiodeDigiCollection_;
+edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EcalUncalibratedRecHitCollection_;
+std::vector<int> ledWavelengths_;
+
+MonitorElement* meShapeMapL1_[18];
+MonitorElement* meAmplMapL1_[18];
+MonitorElement* meTimeMapL1_[18];
+MonitorElement* meAmplPNMapL1_[18];
+MonitorElement* mePnAmplMapG01L1_[18];
+MonitorElement* mePnPedMapG01L1_[18];
+MonitorElement* mePnAmplMapG16L1_[18];
+MonitorElement* mePnPedMapG16L1_[18];
+
+MonitorElement* meShapeMapL2_[18];
+MonitorElement* meAmplMapL2_[18];
+MonitorElement* meTimeMapL2_[18];
+MonitorElement* meAmplPNMapL2_[18];
+MonitorElement* mePnAmplMapG01L2_[18];
+MonitorElement* mePnPedMapG01L2_[18];
+MonitorElement* mePnAmplMapG16L2_[18];
+MonitorElement* mePnPedMapG16L2_[18];
 
 bool init_;
 

@@ -1,0 +1,19 @@
+<TESTSCONFIGURATION>
+
+   <QTEST name="BeamSpotOnlineTest">
+       <TYPE>MeanWithinExpected</TYPE>
+       <PARAM name="error">0.90</PARAM>
+       <PARAM name="warning">0.99</PARAM>
+       <PARAM name="mean">1.0</PARAM>
+       <PARAM name="useRMS">0</PARAM>
+       <PARAM name="useSigma">0</PARAM>
+       <PARAM name="useRange">1</PARAM>
+       <PARAM name="xmin">0.0</PARAM>
+       <PARAM name="xmax">5.0</PARAM>
+   </QTEST>
+ 
+  <LINK name="*BeamSpotError*">
+         <TestName activate="true">BeamSpotOnlineTest</TestName>
+ </LINK>
+ 
+</TESTSCONFIGURATION>

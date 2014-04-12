@@ -15,7 +15,7 @@ namespace reco{
 					  0, 
 					  0 ) ) : CompositeCandidate(q, p4,
 								     vtx) { }
-    const Vertex & vertex() const { return recoVertex; }
+    const Vertex & getRecoVertex() const { return recoVertex; }
     const Vertex::CovarianceMatrix vtxCovariance() { 
       return recoVertex.covariance(); 
     }

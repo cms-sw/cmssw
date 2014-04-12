@@ -23,15 +23,15 @@ using std::endl;
 using std::string;
 using std::ios;
 
-const int TextToRaw::EVT_MAX_SIZE;
+const unsigned TextToRaw::EVT_MAX_SIZE;
 
 TextToRaw::TextToRaw(const edm::ParameterSet& iConfig) :
   fedId_(iConfig.getUntrackedParameter<int>("fedId", 745)),
-  filename_(iConfig.getUntrackedParameter<string>("filename", "slinkOutput.txt")),
+  filename_(iConfig.getUntrackedParameter<std::string>("filename", "slinkOutput.txt")),
   fileEventOffset_(iConfig.getUntrackedParameter<int>("FileEventOffset", 0)),
   nevt_(0)
 {
-  edm::LogInfo("TextToDigi") << "Reading ASCII dump from " << filename_ << endl;
+  edm::LogInfo("TextToDigi") << "Reading ASCII dump from " << filename_ << std::endl;
 
   //register the products
   produces<FEDRawDataCollection>();
@@ -70,13 +70,13 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     nevt_++;
     return;
   } else if (nevt_==0 && fileEventOffset_<0) {
-    string line;
+    std::string line;
     //skip first fileEventOffset input crossings 
-    for(int i=0; i<abs(fileEventOffset_); i++) {
-      int iline=0;
+    for(unsigned i=0; i<(unsigned)abs(fileEventOffset_); i++) {
+      unsigned iline=0;
       while (getline(file_, line) && !line.empty()) {
 	iline++;
-	if(iline>=EVT_MAX_SIZE)       
+	if(iline*4>=EVT_MAX_SIZE)       
 	  throw cms::Exception("TextToRawEventSizeOverflow")
 	    << "TextToRaw::produce() : "
 	    << " read too many lines (" << iline << ": " << line << ")" 
@@ -89,11 +89,17 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   nevt_++;
   
    // read file
-   string line;
-   int i=0; // count 32-bit words
+   std::string line;
+   unsigned i=0; // count 32-bit words
 
    // while not encountering dumb errors
    while (getline(file_, line) && !line.empty() ) {
+
+     // bail if we reached the EVT_MAX_SIZE
+     if (i*4>=EVT_MAX_SIZE) {
+       throw cms::Exception("TextToRaw")
+         << "Read too many lines from file. Maximum event size is " << EVT_MAX_SIZE << " lines" << std::endl;
+     }
 
      // convert string to int
      std::istringstream iss(line);
@@ -118,7 +124,7 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    }
 
-   int evtSize = i * 4;
+   unsigned evtSize = i * 4;
 
    // create the collection
    std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
@@ -140,11 +146,11 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TextToRaw::beginJob(const edm::EventSetup&)
+TextToRaw::beginJob() 
 {
   // open VME file
-  file_.open(filename_.c_str(), ios::in);
-  if(!file_.good()) { edm::LogInfo("TextToDigi") << "Failed to open ASCII file " << filename_ << endl; }
+  file_.open(filename_.c_str(), std::ios::in);
+  if(!file_.good()) { edm::LogInfo("TextToDigi") << "Failed to open ASCII file " << filename_ << std::endl; }
 }
 
 

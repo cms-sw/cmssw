@@ -4,22 +4,35 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 
-class TkTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {
+
+
+class SiStripRecHitMatcher;
+class PixelClusterParameterEstimator;
+class StripClusterParameterEstimator;
+
+class TkTransientTrackingRecHitBuilder GCC11_FINAL : public TransientTrackingRecHitBuilder {
   
  public:
   TkTransientTrackingRecHitBuilder (const TrackingGeometry* trackingGeometry, 
 				    const PixelClusterParameterEstimator * ,
 				    const StripClusterParameterEstimator * ,
-                                    const SiStripRecHitMatcher           *);
+                                    const SiStripRecHitMatcher           *,
+				    bool computeCoarseLocalPositionFromDisk);
   TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const ;
-  const PixelClusterParameterEstimator * pixelClusterParameterEstimator(){return pixelCPE;}
-  const StripClusterParameterEstimator * stripClusterParameterEstimator(){return stripCPE;}
-  const SiStripRecHitMatcher           * siStripRecHitMatcher(){return theMatcher;}
-    
+  TransientTrackingRecHit::RecHitPointer build ( const TrackingRecHit * p, const TrajectoryStateOnSurface & state)  const ;
+
+  const PixelClusterParameterEstimator * pixelClusterParameterEstimator() const {return pixelCPE;}
+  const StripClusterParameterEstimator * stripClusterParameterEstimator() const {return stripCPE;}
+  const SiStripRecHitMatcher           * siStripRecHitMatcher() const {return theMatcher;}
+  const TrackingGeometry               * geometry() const  { return tGeometry_;}
+
+  // for the time being here...
+  TkClonerImpl cloner() const { return TkClonerImpl(pixelCPE,stripCPE,theMatcher);}
+
+private:
+  TransientTrackingRecHit::RecHitPointer oldbuild (const TrackingRecHit * p) const ;
 
 
  private:
@@ -27,7 +40,7 @@ class TkTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {
   const PixelClusterParameterEstimator * pixelCPE;
   const StripClusterParameterEstimator * stripCPE;
   const SiStripRecHitMatcher           * theMatcher;
-  
+  bool theComputeCoarseLocalPosition;
 };
 
 

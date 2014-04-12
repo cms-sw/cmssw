@@ -11,19 +11,19 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/06/27 14:38:48 $
- * $Revision: 1.3 $
  *
  */
 
+#include <CondFormats/CSCObjects/interface/CSCBadChambers.h>
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
+#include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-class L1CSCTPParameters;
+class CSCDBL1TPParameters;
 class CSCMotherboard;
 class CSCMuonPortCard;
 
@@ -40,14 +40,16 @@ class CSCTriggerPrimitivesBuilder
   ~CSCTriggerPrimitivesBuilder();
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
-  void setConfigParameters(const L1CSCTPParameters* conf);
+  void setConfigParameters(const CSCDBL1TPParameters* conf);
 
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
    *  in each (sub)sector and put them into an output collection as well. */
-  void build(const CSCWireDigiCollection* wiredc,
+  void build(const CSCBadChambers* badChambers,
+	     const CSCWireDigiCollection* wiredc,
 	     const CSCComparatorDigiCollection* compdc,
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
+             CSCCLCTPreTriggerCollection & oc_pretrig,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,
 	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct);
 
@@ -69,6 +71,15 @@ class CSCTriggerPrimitivesBuilder
   static const int max_subsector;
   static const int min_chamber;   // chambers per trigger subsector
   static const int max_chamber;
+
+  /// a flag whether to skip chambers from the bad chambers map
+  bool checkBadChambers_;
+
+  /** SLHC: special configuration parameters for ME11 treatment. */
+  bool smartME1aME1b, disableME1a;
+
+  /** SLHC: special switch for disabling ME42 */
+  bool disableME42;
 
   int m_minBX, m_maxBX; // min and max BX to sort.
 

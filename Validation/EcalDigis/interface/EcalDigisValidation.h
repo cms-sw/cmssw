@@ -4,8 +4,6 @@
 /*
  * \file EcalDigisValidation.h
  *
- * $Date: 2006/10/16 13:13:53 $
- * $Revision: 1.8 $
  * \author F. Cossutti
  *
 */
@@ -21,11 +19,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -40,11 +37,12 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EcalDigisValidation: public edm::EDAnalyzer{
 
@@ -61,30 +59,33 @@ EcalDigisValidation(const edm::ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(edm::Event const & e, edm::EventSetup const & c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+// BeginRun
+void beginRun(edm::Run const &, edm::EventSetup const & c);
 
 // EndJob
 void endJob(void);
 
 private:
 
- void checkCalibrations(const edm::EventSetup & c);
- 
- std::string HepMCLabel;
- std::string g4InfoLabel;
- 
+ void checkCalibrations(edm::EventSetup const & c);
+  
  bool verbose_;
  
- DaqMonitorBEInterface* dbe_;
+ DQMStore* dbe_;
  
  std::string outputFile_;
 
- edm::InputTag EBdigiCollection_;
- edm::InputTag EEdigiCollection_;
- edm::InputTag ESdigiCollection_;
+ edm::EDGetTokenT<edm::HepMCProduct> HepMCToken_;
+ edm::EDGetTokenT<edm::SimTrackContainer> g4TkInfoToken_;
+ edm::EDGetTokenT<edm::SimVertexContainer> g4VtxInfoToken_;
+
+ edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
+ edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
+ edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
+ 
+ edm::EDGetTokenT< CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_, crossingFramePCaloHitESToken_;
  
  std::map<int, double, std::less<int> > gainConv_;
 

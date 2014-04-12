@@ -7,8 +7,6 @@
  * One instance is created for each DDVolume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -41,7 +39,7 @@ public:
   const Surface & surface(int which_side) const;
   const Surface & surface(Sides which_side) const;
   /// Find out if two surfaces are the same physical surface
-  bool sameSurface(const Surface & s1, Sides which_side);
+  bool sameSurface(const Surface & s1, Sides which_side, float tolerance = 0.01);
   /// Assign a shared surface perorming sanity checks.
   bool setSurface(const Surface & s1, Sides which_side);
   /// if the specified surface has been matched.
@@ -58,18 +56,26 @@ public:
   std::string name;
   /// Name of magnetic field table file
   std::string magFile;
+  /// volume number
+  unsigned short volumeno;
   /// copy number
-  int copyno;
+  unsigned short copyno;
 
   /// Just for debugging...
   static void printUniqueNames(handles::const_iterator begin,
 			       handles::const_iterator end);
 
-  /// Phi limits 
-  // FIXME: on median plane of the phi surface - not absolute (Should be
-  // changed). Used by: LessDPhiMax; bSector; bSlab::[min|max]Phi();
+
+  // Phi ranges: Used by: LessDPhiMax; bSector; bSlab::[min|max]Phi();
   // MagBSector, MagBRod
-  Geom::Phi<float> minPhi() const {return surface(SurfaceOrientation::phiminus).position().phi();}
+
+  /// Minimum value of phi covered by the volume
+  // FIXME: actually returns phi of the point on median plane of the -phi 
+  // surface, except for trapezoids where the absoulte min has been implemented
+  Geom::Phi<float> minPhi() const {return thePhiMin;}
+  /// Maximum value of phi covered by the volume
+  // FIXME: actually returns phi of the point on median plane of the +phi 
+  // surface
   Geom::Phi<float> maxPhi() const {return surface(SurfaceOrientation::phiplus).position().phi();}
 
   /// Z limits. 
@@ -88,15 +94,21 @@ public:
   const GloballyPositioned<float> * placement() const {return refPlane;}
 
   /// Shape of the solid
-  DDSolidShape shape() {return solid.shape();}
+  DDSolidShape shape() const {return solid.shape();}
 
   /// The surfaces and they orientation, as required to build a MagVolume.
-  std::vector<VolumeSide> sides();
+  std::vector<VolumeSide> sides() const;
 
   /// Pointer to the final MagVolume (must be set from outside)
   MagVolume6Faces* magVolume;
 
   bool toExpand() const {return expand;}
+
+  /// Temporary hack to pass information on material. Will eventually be replaced!
+  bool isIron() const{return isIronFlag;}
+
+  /// The sector for which an interpolator for this class of volumes should be built
+  int masterSector;
 
 private:
   // Disallow Default/copy ctor & assignment op.
@@ -135,6 +147,7 @@ private:
   // FIXME!
   double theRMin;
   double theRMax;
+  Geom::Phi<float> thePhiMin;
 
   // The refPlane is the "main plane" for the solid. It corresponds to the 
   // x,y plane in the DDD local frame, and defines a frame where the local
@@ -150,6 +163,10 @@ private:
   // Flag this as a master volume out of wich a 2pi volume should be built 
   // (e.g. central cylinder); this is taken into account by sides().
   bool expand;
+
+  // Temporary hack to keep information on material. Will eventually be replaced!  
+  bool isIronFlag;
+
 };
 
 

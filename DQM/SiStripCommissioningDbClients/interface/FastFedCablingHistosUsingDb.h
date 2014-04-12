@@ -1,39 +1,37 @@
-// Last commit: $Id: $
 
 #ifndef DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
 
-#include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
-#include <string>
-#include <map>
+#include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 
-class FastFedCablingHistosUsingDb : public FastFedCablingHistograms, public CommissioningHistosUsingDb {
+class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public FastFedCablingHistograms  {
   
  public:
   
-  FastFedCablingHistosUsingDb( MonitorUserInterface*,
-			       const DbParams& );
-  
-  FastFedCablingHistosUsingDb( MonitorUserInterface*,
-			       SiStripConfigDb* const );
-
-  FastFedCablingHistosUsingDb( DaqMonitorBEInterface*,
-			       SiStripConfigDb* const );
+  FastFedCablingHistosUsingDb( const edm::ParameterSet & pset,
+                               DQMStore*,
+                               SiStripConfigDb* const );
 
   virtual ~FastFedCablingHistosUsingDb();
+ 
+  virtual void addDcuDetIds(); // override
   
-  virtual void uploadToConfigDb();
+  virtual void uploadConfigurations();
   
  private:
   
-  void update( SiStripConfigDb::FedConnections&,
-	       const SiStripConfigDb::DeviceDescriptions&, 
-	       const SiStripConfigDb::DcuDetIdMap& );
+  void update( SiStripConfigDb::FedConnectionsV&,
+               SiStripConfigDb::FedDescriptionsRange,
+               SiStripConfigDb::DeviceDescriptionsRange, 
+               SiStripConfigDb::DcuDetIdsRange );
   
-  void update( SiStripConfigDb::FedDescriptions& );
+  void update( SiStripConfigDb::FedDescriptionsRange );
+  
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
+  
+  void connections( SiStripConfigDb::DeviceDescriptionsRange, 
+                    SiStripConfigDb::DcuDetIdsRange );
   
 };
 

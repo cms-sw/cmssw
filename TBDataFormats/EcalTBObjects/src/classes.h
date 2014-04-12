@@ -5,8 +5,8 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRecInfo.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
-  namespace {
+namespace TBDataFormats_EcalTBObjects {
+  struct dictionary {
     std::vector<EcalTBTDCSample> vTDC_;
     std::vector<EcalTBHodoscopePlaneRawHits> vHplaneRawHits_;
     
@@ -32,6 +32,6 @@ namespace {
     edm::Wrapper<EcalTBHodoscopeRawInfo> theHodow_;
     edm::Wrapper<EcalTBHodoscopeRecInfo> theRecHodow_;
 
- }
+ };
 }
 

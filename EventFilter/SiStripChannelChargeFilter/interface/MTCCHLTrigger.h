@@ -20,8 +20,8 @@ namespace cms
   private:
    //   bool selOnClusterCharge;
    bool selOnDigiCharge;
-   uint ChargeThreshold;
-   //   uint digiChargeThreshold;
+   unsigned int ChargeThreshold;
+   //   unsigned int digiChargeThreshold;
    //   std::string rawtodigiProducer;
    //   std::string zsdigiProducer;
    std::string clusterProducer;

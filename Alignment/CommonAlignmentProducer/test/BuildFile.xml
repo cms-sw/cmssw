@@ -1,0 +1,19 @@
+<use   name="root"/>
+<use   name="CondFormats/AlignmentRecord"/>
+<use   name="DataFormats/DetId"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<library   file="*Rcd*.cpp" name="CommonAlignmentProducerRcdScans">
+  <use   name="CondCore/DBOutputService"/>
+  <use   name="CondFormats/Alignment"/>
+  <use   name="Alignment/CommonAlignment"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="TestAccessGeom.cc">
+  <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="Geometry/DTGeometry"/>
+  <use   name="Geometry/CSCGeometry"/>
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

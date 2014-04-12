@@ -1,50 +1,30 @@
-//<<<<<< INCLUDES                                                       >>>>>>
+#include "Utilities/StorageFactory/test/Test.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
 
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-#include "SealBase/Storage.h"
-#include "SealBase/TempFile.h"
-#include "SealBase/Filename.h"
-#include "SealBase/DebugAids.h"
-#include "SealBase/Signal.h"
-#include <iostream>
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
-using namespace seal;
-int main (int, char **argv)
+int main (int, char **/*argv*/) try
 {
-    Signal::handleFatal (argv [0]);
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  initTest();
 
-    // Make temporary directory for downloads
-    Filename tmpdir;
-    TempFile::dir (tmpdir);
+  IOSize	n;
+  char		buf [1024];
+  Storage	*s = StorageFactory::get ()->open
+    ("http://cmsdoc.cern.ch/cms.html", IOFlags::OpenRead);
 
-    Storage	*s = StorageFactory::get ()->open
-	("http://cmsdoc.cern.ch/cms.html", IOFlags::OpenRead, tmpdir.name ());
-    char	buf [1024];
-    IOSize	n;
+  assert (s);
+  while ((n = s->read (buf, sizeof (buf))))
+    std::cout.write (buf, n);
 
-    ASSERT (s);
-    while ((n = s->read (buf, sizeof (buf))))
-	std::cout.write (buf, n);
+  s->close();
+  delete s;
 
-    delete s;
-
-    // Delete temporaries
-    Filename::remove (tmpdir, true);
-
-    std::cerr << "stats:\n" << StorageAccount::summaryText ();
-    return EXIT_SUCCESS;
+  std::cerr << StorageAccount::summaryXML () << std::endl;
+  return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
 }

@@ -49,11 +49,10 @@ replace g4SimHits.Watchers = {
 }
 </pre>
 
-- LaserAlignmentSource: source to provide an empty MCHepEvent. 
+- LaserAlignmentProducer: producer to provide an empty MCHepEvent. 
 <pre>
-source = LaserAlignmentSource 
+module laserAlignmentProducer  = LaserAlignmentProducer
 {
-    untracked uint32 firstRun = 1
 }
 </pre>
 

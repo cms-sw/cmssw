@@ -1,0 +1,22 @@
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/EgammaObjects"/>
+<use   name="DataFormats/CaloRecHit"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="DataFormats/ParticleFlowReco"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="RecoParticleFlow/PFClusterTools"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoEgamma/ElectronIdentification"/>
+<use   name="boost"/>
+<use   name="clhep"/>
+<use   name="rootmath"/>
+<use   name="roottmva"/>
+<export>
+  <lib   name="1"/>
+</export>

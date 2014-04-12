@@ -1,9 +1,7 @@
-#ifndef TRACKINGTOOLS_TRANSIENTRACKBUILDER_H
-#define TRACKINGTOOLS_TRANSIENTRACKBUILDER_H
+#ifndef TransientTrackFromFTSFactory_H
+#define TransientTrackFromFTSFactory_H
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Handle.h"
 
   /**
    * Helper class to build TransientTrack from a FreeTrajectoryState.

@@ -2,6 +2,7 @@
 #define DATAFORMATS_PIXELCHANMNELIDENTIFIER_H
 
 #include <utility>
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class PixelChannelIdentifier{
  public:
@@ -19,7 +20,6 @@ class PixelChannelIdentifier{
     return (row << thePacking.column_width) | col;
   }
   
- private:
   /**
    * Pack the pixel information to use less memory
    */
@@ -28,23 +28,40 @@ class PixelChannelIdentifier{
   public:
     
     // Constructor: pre-computes masks and shifts from field widths
-    Packing(const int row_w, const int column_w, 
-	    const int time_w, const int adc_w);
-    
-    // public data:
-    int adc_shift;
-    int time_shift;
-    int row_shift;
-    int column_shift;
-    
-    PackedDigiType adc_mask;
-    PackedDigiType time_mask;
-    PackedDigiType row_mask;
-    PackedDigiType column_mask;
-    
+    // gcc4.8: sorry, unimplemented: use of the value of the object being constructed in a constant expression
+    // no constexpr yet....
+    Packing(int row_w, int column_w, 
+		      int time_w, int adc_w) : 
+      row_width(row_w), column_width(column_w), adc_width(adc_w)
+      ,row_shift(0)
+      ,column_shift(row_shift + row_w)
+      ,time_shift(column_shift + column_w)
+      ,adc_shift(time_shift + time_w)
+      ,row_mask(~(~0 << row_w))
+      ,column_mask( ~(~0 << column_w))
+      ,time_mask(~(~0 << time_w))
+      ,adc_mask(~(~0 << adc_w))
+      ,rowcol_mask(~(~0 << (column_w+row_w)))
+      ,max_row(row_mask)
+      ,max_column(column_mask)
+      ,max_adc(adc_mask){}
+
+							   
     int row_width;
     int column_width;
     int adc_width;
+    
+    int row_shift;
+    int column_shift;
+    int time_shift;
+    int adc_shift;
+   
+    PackedDigiType row_mask;
+    PackedDigiType column_mask;
+    PackedDigiType time_mask;
+    PackedDigiType adc_mask;
+    PackedDigiType rowcol_mask;
+    
     
     int max_row;
     int max_column;
@@ -52,7 +69,16 @@ class PixelChannelIdentifier{
   };
   
  public:
-  static Packing   thePacking;
+  //#ifndef CMS_NOCXX11
+  static Packing packing() { return Packing(8, 9, 4, 11);}
+
+  static const Packing thePacking;
+
+  //#else
+  //static constexpr Packing packing() { return Packing(8, 9, 4, 11);}
+
+  //static constexpr Packing thePacking = packing();
+  //#endif
 };  
 
 

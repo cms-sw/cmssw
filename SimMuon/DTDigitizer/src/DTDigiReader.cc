@@ -4,8 +4,6 @@
 /** \class DTDigiReader
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/06/22 13:10:58 $
- *  $Revision: 1.4 $
  *  \authors: R. Bellan
  */
 
@@ -53,7 +51,7 @@ public:
     // delete DigiTimeBox;
   }
   
-  void analyze(const Event & event, const EventSetup& eventSetup){
+  void analyze(const Event & event, const EventSetup& eventSetup) override{
     cout << "--- Run: " << event.id().run()
 	 << " Event: " << event.id().event() << endl;
     

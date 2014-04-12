@@ -4,8 +4,6 @@
 /* Program to evaluate ttrig and sigma ttrig from TB histograms
  *  and write the results to a file for each SL
  
- *  $Date: 2007/01/22 11:10:28 $
- *  $Revision: 1.2 $
  *  \author S. Bolognesi
  */
 
@@ -51,6 +49,8 @@ private:
 
   // Debug flag
   bool debug;
+  // the kfactor to be uploaded in the ttrig DB
+  double kFactor;
 
   // The file which contains the tMax histograms
   TFile *theFile;

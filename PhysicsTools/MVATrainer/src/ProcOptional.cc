@@ -30,11 +30,8 @@ class ProcOptional : public TrainProcessor {
 	             MVATrainer *trainer);
 	virtual ~ProcOptional();
 
-	virtual Variable::Flags getDefaultFlags() const
-	{ return Variable::FLAG_ALL; }
-
-	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalibration() const;
+	virtual void configure(DOMElement *elem) override;
+	virtual Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	std::vector<double>	neutrals;
@@ -78,7 +75,7 @@ void ProcOptional::configure(DOMElement *elem)
 		throw cms::Exception("ProcOptional")
 			<< "Got " << neutrals.size()
 			<< " neutral pos values for "
-			<< getInputs().size() << " input varibles."
+			<< getInputs().size() << " input variables."
 			<< std::endl;
 }
 

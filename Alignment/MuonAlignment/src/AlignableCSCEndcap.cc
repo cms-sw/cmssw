@@ -1,17 +1,21 @@
 /** \file
  *
- *  $Date: 2006/08/04 20:18:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.7 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
  
 #include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
+#include "CondFormats/Alignment/interface/Alignments.h" 
+#include "CondFormats/Alignment/interface/AlignmentErrors.h" 
+#include "CondFormats/Alignment/interface/AlignmentSorter.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 /// The constructor simply copies the vector of stations and computes the surface from them
-AlignableCSCEndcap::AlignableCSCEndcap( const std::vector<AlignableCSCStation*> cscStations ) 
+AlignableCSCEndcap::AlignableCSCEndcap( const std::vector<AlignableCSCStation*>& cscStations ) 
+   : AlignableComposite(cscStations[0]->id(), align::AlignableCSCEndcap)
 {
 
   theCSCStations.insert( theCSCStations.end(), cscStations.begin(), cscStations.end() );
@@ -91,11 +95,11 @@ std::ostream &operator << (std::ostream& os, const AlignableCSCEndcap& b )
 
 
 /// Recursive printout of whole Half Barrel structure
-void AlignableCSCEndcap::dump( void )
+void AlignableCSCEndcap::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableCSCStation*>::iterator iLayer = theCSCStations.begin();
+  for ( std::vector<AlignableCSCStation*>::const_iterator iLayer = theCSCStations.begin();
 		iLayer != theCSCStations.end(); iLayer++ )
 	(*iLayer)->dump();
 

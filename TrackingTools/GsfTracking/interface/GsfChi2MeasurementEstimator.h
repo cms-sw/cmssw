@@ -24,7 +24,7 @@ public:
     theEstimator(aMaxChi2) {}
 
   virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-					  const TransientTrackingRecHit&) const;
+					  const TrackingRecHit&) const;
 
   virtual GsfChi2MeasurementEstimator* clone() const {
     return new GsfChi2MeasurementEstimator(*this);

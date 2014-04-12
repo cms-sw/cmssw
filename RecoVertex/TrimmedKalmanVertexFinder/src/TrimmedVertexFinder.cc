@@ -1,16 +1,14 @@
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/TrimmedVertexFinder.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexUpdator.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 
 TrimmedVertexFinder::TrimmedVertexFinder(
-  const VertexFitter * vf, const VertexUpdator * vu, 
-  const VertexTrackCompatibilityEstimator * ve)
+  const VertexFitter<5> * vf, const VertexUpdator<5> * vu, 
+  const VertexTrackCompatibilityEstimator<5> * ve)
   : theFitter(vf->clone()), theUpdator(vu->clone()), 
     theEstimator(ve->clone()), theMinProb(0.05)
 {}
@@ -31,31 +29,43 @@ TrimmedVertexFinder::~TrimmedVertexFinder() {
   delete theEstimator;
 }
 
-
-vector<TransientVertex> 
-TrimmedVertexFinder::vertices(vector<TransientTrack> & tks) 
-  const
+std::vector<TransientVertex> 
+TrimmedVertexFinder::vertices(std::vector<TransientTrack> & tks ) const
 {
-  vector<TransientVertex> all;
+  // FIXME write this!!!
+  return vertices ( tks, reco::BeamSpot(), false );
+}
+
+std::vector<TransientVertex> 
+TrimmedVertexFinder::vertices(std::vector<TransientTrack> & tks,
+    const reco::BeamSpot & spot, bool use_spot )  const
+{
+  std::vector<TransientVertex> all;
   if (tks.size() < 2) return all;
 
   // prepare vertex tracks and initial vertex
-  CachingVertex vtx = theFitter->vertex(tks);
+  CachingVertex<5> vtx;
+  if ( use_spot ) 
+  {
+     vtx = theFitter->vertex(tks, spot );
+  } else {
+     vtx = theFitter->vertex(tks);
+  }
   if (!vtx.isValid()) {
-    cout << "TrimmedVertexFinder::WARNING: initial vertex invalid"
-	 << endl << "vertex finding stops here." << endl;
+    edm::LogWarning ( "TrimmedVertexFinder" ) << "initial vertex invalid."
+	    << " vertex finding stops here.";
     return all;
   }
 
-  vector<RefCountedVertexTrack> selected = vtx.tracks();
+  std::vector<RefCountedVertexTrack> selected = vtx.tracks();
 
   // reject incompatible tracks starting from the worst
-  vector<RefCountedVertexTrack> remain;
+  std::vector<RefCountedVertexTrack> remain;
   bool found = false;
   while (!found && selected.size() >= 2) {
 
     // find track with worst compatibility
-    vector<RefCountedVertexTrack>::iterator iWorst = theWorst(vtx, 
+    std::vector<RefCountedVertexTrack>::iterator iWorst = theWorst(vtx, 
 							      selected, 
 							      theMinProb);
     
@@ -74,10 +84,15 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks)
 	// successive removals lead to numerical problems
 	// this is however quick since intermediate quantities are cached
 	// in the RefCountedVertexTracks
-	vtx = theFitter->vertex(selected);
+  if ( use_spot ) // && all.size()==0 )
+  {
+	  vtx = theFitter->vertex(selected,spot);
+  } else {
+	  vtx = theFitter->vertex(selected);
+  }
 	if (!vtx.isValid()) {
-	  cout << "TrimmedVertexFinder::WARNING: current vertex invalid"
-	       << endl << "vertex finding stops here." << endl;
+    edm::LogWarning ( "TrimmedVertexFinder" ) << "current vertex invalid"
+	       << "vertex finding stops here.";
 	  return all;
 	}
 
@@ -92,7 +107,7 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks)
       int n_tracks_in_vertex = selected.size();
 
       // now return all tracks with weight < 0.5 to 'remain'.
-      for ( vector< RefCountedVertexTrack >::const_iterator t=selected.begin();
+      for ( std::vector< RefCountedVertexTrack >::const_iterator t=selected.begin();
           t!=selected.end() ; ++t )
       {
         if ( (**t).weight() < 0.5 )
@@ -106,18 +121,18 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks)
       };
 
       if ( n_tracks_in_vertex > 1 ) {
-	all.push_back(vtx);
+        all.push_back(vtx);
       }
       else {
-	cout << "[TrimmedVertexFinder] ERROR: found vertex ";
-	cout << "has less than 2 tracks " << endl;
+        edm::LogError ( "TrimmedVertexFinder" ) 
+          << "found vertex has less than 2 tracks";
       }
     }
   }
 
   // modify list of incompatible tracks
   tks.clear();
-  for (vector<RefCountedVertexTrack>::const_iterator i = remain.begin(); 
+  for (std::vector<RefCountedVertexTrack>::const_iterator i = remain.begin(); 
        i != remain.end(); i++) {
     const PerigeeLinearizedTrackState* plts = 
       dynamic_cast<const PerigeeLinearizedTrackState*>
@@ -134,34 +149,24 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks)
 }
 
 
-vector<RefCountedVertexTrack>::iterator 
-TrimmedVertexFinder::theWorst(const CachingVertex & vtx, 
-  vector<RefCountedVertexTrack> & vtxTracks, float cut) const
+std::vector<TrimmedVertexFinder::RefCountedVertexTrack>::iterator 
+TrimmedVertexFinder::theWorst(const CachingVertex<5> & vtx, 
+  std::vector<RefCountedVertexTrack> & vtxTracks, float cut) const
 {
 
   //  cout << "Cut is now " << cut << endl;
 
   // find track with worst compatibility
-  vector<RefCountedVertexTrack>::iterator iWorst = vtxTracks.end();
+  std::vector<RefCountedVertexTrack>::iterator iWorst = vtxTracks.end();
   float worseChi2 = 0.;
-  for (vector<RefCountedVertexTrack>::iterator itr = vtxTracks.begin();
+  for (std::vector<RefCountedVertexTrack>::iterator itr = vtxTracks.begin();
        itr != vtxTracks.end(); itr++) {
 
-    float chi2 = 0;
-    try {
-      // remove track from vertex
-      CachingVertex newV = theUpdator->remove(vtx, *itr);
-      // compute compatibility
-      chi2 = theEstimator->estimate(newV, *itr);
-    }
-    catch ( cms::Exception & e) {
-      // problematic track, remove it from vertex
-      cout << "[TrimmedVertexFinder] warning: "
-	   << "exception caught for this track, causing its rejection:" 
-	   << e.what() << endl;
-      iWorst = itr;
-      break;
-    }
+    CachingVertex<5> newV = theUpdator->remove(vtx, *itr);
+    if (!newV.isValid()) return itr;
+    std::pair<bool, double> result = theEstimator->estimate(newV, *itr);
+    if (!result.first) return itr;
+    float chi2 = result.second;
 
     // compute number of degrees of freedom
     if ( chi2 > 0. ) {

@@ -21,9 +21,9 @@
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <cstdlib>
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -51,12 +51,15 @@ public:
       }
   }
 
+
+
   /** Gets data for PACs. @param patFilesDirectory The directory where files defining
     * PACs are stored. The files should be named acording to special convencion.
     * @param  _PACsCnt The configuration version.
     * Should be caled once, before using PACs
     */
   void init(std::string patFilesDirectory, L1RpcPACsCntEnum _PACsCnt)  {
+    destroy(); 
     m_PACsCnt = _PACsCnt;
     if(m_PACsCnt == ONE_PAC_PER_TOWER) {
       m_SectorsCnt = 1;
@@ -85,12 +88,12 @@ public:
         }
       } 
     } 
-    xercesc::XMLPlatformUtils::Terminate();
+    cms::concurrency::xercesTerminate();
   };
 
   
   void init(const L1RPCConfig *rpcconf)  {
-  
+    destroy(); 
     switch (rpcconf->getPPT()){
       case 1:
         m_PACsCnt = ONE_PAC_PER_TOWER;
@@ -103,7 +106,6 @@ public:
         break;
     
     }
-  
     
     if(m_PACsCnt == ONE_PAC_PER_TOWER) {
       m_SectorsCnt = 1;
@@ -122,18 +124,47 @@ public:
       m_SegmentCnt = 4;
     }
 
+    /*
+    std::vector<std::vector<std::vector<RPCPattern::RPCPatVec> > > patvec;
+    std::vector<std::vector<std::vector<RPCPattern::TQualityVec> > > qualvec;
+    for (int tower = 0; tower < RPCConst::m_TOWER_COUNT; ++tower) {
+      patvec.push_back(std::vector< std::vector< RPCPattern::RPCPatVec > >());
+      qualvec.push_back(std::vector< std::vector< RPCPattern::TQualityVec > >());
+      for (int logSector = 0; logSector < m_SectorsCnt; ++logSector) {
+        patvec[tower].push_back(std::vector< RPCPattern::RPCPatVec >());
+        qualvec[tower].push_back(std::vector< RPCPattern::TQualityVec >());
+        for (int logSegment = 0; logSegment < m_SegmentCnt; ++logSegment) {
+          patvec[tower][logSector].push_back(RPCPattern::RPCPatVec());
+          qualvec[tower][logSector].push_back(RPCPattern::TQualityVec());
+        }
+      }
+    }
+
+    for (unsigned int ipat=0; ipat<rpcconf->m_pats.size(); ipat++)
+      patvec[rpcconf->m_pats[ipat].getTower()][rpcconf->m_pats[ipat].getLogSector()][rpcconf->m_pats[ipat].getLogSegment()].push_back(rpcconf->m_pats[ipat]);
+    for (unsigned int iqual=0; iqual<rpcconf->m_quals.size(); iqual++)
+      qualvec[rpcconf->m_quals[iqual].m_tower][rpcconf->m_quals[iqual].m_logsector][rpcconf->m_quals[iqual].m_logsegment].push_back(rpcconf->m_quals[iqual]);
+    */
+
+
     for (int tower = 0; tower < RPCConst::m_TOWER_COUNT; tower++) {
       m_PacTab.push_back(std::vector<std::vector<TPacType*> >());
       for (int logSector = 0; logSector < m_SectorsCnt; logSector++) {
         m_PacTab[tower].push_back(std::vector<TPacType*>());
         for (int logSegment = 0; logSegment < m_SegmentCnt; logSegment++) {
-          TPacType* pac  = new TPacType(rpcconf->m_pats[tower][logSector][logSegment],
-                                        rpcconf->m_quals[tower][logSector][logSegment]); 
-          m_PacTab[tower][logSector].push_back(pac);                   
+          /*L1RPCConfig* rpcconf1=new L1RPCConfig();
+          rpcconf1->setPPT(rpcconf->getPPT());
+          for (unsigned int ipat=0; ipat<patvec[tower][logSector][logSegment].size(); ipat++)
+            rpcconf1->m_pats.push_back(patvec[tower][logSector][logSegment][ipat]);
+          for (unsigned int iqual=0; iqual<qualvec[tower][logSector][logSegment].size(); iqual++)
+            rpcconf1->m_quals.push_back(qualvec[tower][logSector][logSegment][iqual]);
+          //TPacType* pac  = new TPacType(rpcconf1->m_pats,rpcconf1->m_quals);*/
+          TPacType* pac  = new TPacType(rpcconf, tower, logSector, logSegment);
+          m_PacTab[tower][logSector].push_back(pac);
         }
       } 
     } 
-    xercesc::XMLPlatformUtils::Terminate();
+    cms::concurrency::xercesTerminate();
   };
   
   /** Returns the pointer to m_PAC for given LogCone defined by m_tower, logSector, logSegment.
@@ -174,6 +205,18 @@ public:
     int m_SegmentCnt; //!< Count of used differnt segments.
 
     L1RpcPACsCntEnum m_PACsCnt; //Used configuration version.
+
+    void destroy(){
+      for (size_t tower = 0; tower < m_PacTab.size() ; ++tower) {
+        for (size_t logSector = 0; logSector < m_PacTab.at(tower).size(); logSector++) {
+          for (size_t logSegment = 0; logSegment < m_PacTab.at(tower).at(logSector).size() ; logSegment++) {
+            TPacType* pac = m_PacTab.at(tower).at(logSector).at(logSegment);
+            delete pac;
+          }
+        }
+      }
+      m_PacTab.clear();
+    }
 };
 
 #endif

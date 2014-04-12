@@ -2,6 +2,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -130,12 +131,12 @@ StartingLayerFinder::startingLayers(const TrajectorySeed& aSeed) const {
   
   const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet( DetId( aSeed.startingState().detId()));
   
-  TrajectoryStateTransform tsTransform;
-  TrajectoryStateOnSurface tsos = tsTransform.transientState( aSeed.startingState(), &(gdet->surface()), 
+  
+  TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState( aSeed.startingState(), &(gdet->surface()), 
 							      thePropagator->magneticField());
 
 
-  FreeTrajectoryState* fts=tsos.freeTrajectoryState();
+  const FreeTrajectoryState* fts=tsos.freeTrajectoryState();
   
   return startingLayers(*fts, dr, dz);
 }

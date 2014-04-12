@@ -1,5 +1,5 @@
-#ifndef Streamer_StreamThingProducer_h
-#define Streamer_StreamThingProducer_h
+#ifndef IOPool_Streamer_StreamThingProducer_h
+#define IOPool_Streamer_StreamThingProducer_h
 
 /** \class ThingProducer
  *

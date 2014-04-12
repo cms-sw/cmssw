@@ -15,16 +15,14 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.8 2005/11/12 16:18:04 chrjones Exp $
 //
 //
 
 // system include files
-#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/NoDataException.h"
-#include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 // forward declarations
 namespace edm {
@@ -38,20 +36,16 @@ class NoProxyException : public NoDataException<T>
       // ---------- constants, enums and typedefs --------------
 
       // ---------- Constructors and destructor ----------------
-      NoProxyException(const EventSetupRecord& iRecord,
+      NoProxyException(const EventSetupRecordKey& iKey,
 			  const DataKey& iDataKey) :
-	NoDataException<T>(iRecord.key(), iDataKey,"NoProxyException",standardMessage()) 
+       NoDataException<T>(iKey, iDataKey,"NoProxyException",NoDataExceptionBase::noProxyMessage()) 
        {
        }
-      virtual ~NoProxyException() throw() {}
 
       // ---------- member functions ---------------------------
 
    private:
       // ---------- const member functions ---------------------
-      std::string standardMessage()const throw() { 
-         return std::string("Please add an ESSource or ESProducer to your job which can deliver this data.\n");
-      }
 
       // ---------- static member functions --------------------
 

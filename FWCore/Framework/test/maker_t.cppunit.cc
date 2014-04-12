@@ -2,12 +2,7 @@
 #include <iostream>
 
 
-#include "FWCore/ParameterSet/interface/Makers.h"
-
-#include <cppunit/extensions/HelperMacros.h>
-
-using namespace std;
-using namespace edm;
+#include "cppunit/extensions/HelperMacros.h"
 
 // ----------------------------------------------
 class testmaker: public CppUnit::TestFixture
@@ -27,11 +22,11 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testmaker);
 void testmaker::makerTest()
 //int main()
 {
-  string param1 = 
+  std::string param1 = 
     "string module_type = \"TestMod\"\n "
     " string module_label = \"t1\"";
 
-  string param2 = 
+  std::string param2 = 
     "string module_type = \"TestMod\" "
     "string module_label = \"t2\"";
     
@@ -43,20 +38,20 @@ void testmaker::makerTest()
     //Factory::Iterator ib(f->begin()),ie(f->end());
     //for(;ib!=ie;++ib)
     //  {
-    //cout << (*ib)->name() << endl;
+    //std::cout << (*ib)->name() << std::endl;
     // }
 
     boost::shared_ptr<ParameterSet> p1 = makePSet(*edm::pset::parse(param1.c_str()));;
     boost::shared_ptr<ParameterSet> p2 = makePSet(*edm::pset::parse(param2.c_str()));;
 
-    cerr << p1->getParameter<std::string>("@module_type");
+    std::cerr << p1->getParameter<std::string>("@module_type");
 
-    edm::ActionTable table;
+    edm::ExceptionToActionTable table;
 
     edm::ProductRegistry preg;
 
-    auto_ptr<Worker> w1 = f->makeWorker(*p1, preg, table, "PROD", 0, 0);
-    auto_ptr<Worker> w2 = f->makeWorker(*p2, preg, table, "PROD", 0, 0);
+    std::auto_ptr<Worker> w1 = f->makeWorker(*p1, preg, table, "PROD", 0, 0);
+    std::auto_ptr<Worker> w2 = f->makeWorker(*p2, preg, table, "PROD", 0, 0);
   }
   catch(cms::Exception& e) {
       std::cerr << "cms::Exception: " << e.explainSelf() << std::endl;
@@ -67,7 +62,7 @@ void testmaker::makerTest()
       throw;
   }
   catch(...) {
-      std::cerr << "weird exception" << endl;
+      std::cerr << "weird exception" << std::endl;
       throw;
   }
 

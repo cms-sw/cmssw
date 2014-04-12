@@ -17,6 +17,9 @@
 #include <DataFormats/GeometryVector/interface/LocalPoint.h>
 #include <DataFormats/GeometrySurface/interface/LocalError.h>
 
+#include <utility> // for std::pair
+
+class CSCGeometry;
 class CSCWireGroupPackage;
 
 class CSCLayerGeometry : public TrapezoidalPlaneBounds { 
@@ -25,6 +28,7 @@ public:
 
  /**
    * Ctor from basic trapezoidal Chamber parameters.
+   * \param geom The pointer to the actual CSCGeometry we're building.
    * \param iChamberType The index 1-9 for station/ring combination.
    * \param TrapezoidalPlaneBounds describing geometry of face.
    * \param nstrips No. of strips in cathode plane of a Layer.
@@ -36,12 +40,13 @@ public:
    * \param wg CSCWireGroupPackage encapsulating wire group info.
    * \param wireAngleInDegrees angle of wires w.r.t local x axis.
    * \param yOfFirstWire local y coordinate of first (lowest) wire in wire plane - nearest narrow edge.
+   * \param hThickness half-thickness of chamber layer in cm (i.e. half the gas gap).
    */
-  CSCLayerGeometry( int iChamberType,
+  CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
              const TrapezoidalPlaneBounds& bounds,
              int nstrips, float stripOffset, float stripPhiPitch, 
 	     float whereStripsMeet, float extentOfStripPlane, float yCentreOfStripPlane,
-             const CSCWireGroupPackage& wg, float wireAngleInDegrees, double yOfFirstWire );
+	     const CSCWireGroupPackage& wg, float wireAngleInDegrees, double yOfFirstWire, float hThickness );
 
   CSCLayerGeometry(const CSCLayerGeometry& );
 
@@ -209,20 +214,68 @@ public:
     return theWireTopology->yOfWireGroup( wireGroup, x ); }
 
   /**
-   * Local coordinates of center of a wire group
+   * Local coordinates of center of a wire group.
    * \WARNING Used to be centerOfWireGroup in ORCA
    * but that version now returns GlobalPoint.
    */
   LocalPoint localCenterOfWireGroup( int wireGroup ) const;
 
-  //@@ MUST BE IMPLEMENTED IN CSCLayerGeometry ITSELF
   /** 
    * Length of a wire group (center wire, across chamber face)
    */
   float lengthOfWireGroup( int wireGroup ) const;
 
   /**
-   * Transform strip and wire errors to local x, y frame
+   * Local y limits of the strip plane
+   */
+  std::pair<float, float> yLimitsOfStripPlane() const {
+    return theStripTopology->yLimitsOfStripPlane();
+  }
+
+  /**
+   * Is a supplied LocalPoint inside the strip region?
+   * 
+   * This is a more reliable fiducial cut for CSCs than the 'Bounds' of the GeomDet(Unit)
+   * since those ranges are looser than the sensitive gas region.
+   * There are three versions, to parallel those of the TrapezoidalPlaneBounds which
+   * a naive user might otherwise employ.
+   */
+  bool inside( const Local3DPoint&, const LocalError&, float scale=1.f ) const;
+  bool inside( const Local3DPoint& ) const;
+  bool inside( const Local2DPoint& ) const;
+
+  /**
+   * Return estimate of the 2-dim point of intersection of a strip and a cluster of wires.
+   *
+   * Input arguments: a (float) strip number, and the wires which delimit a cluster of wires.
+   * The wires are expected to be real wire numbers, and not wire-group numbers.<br>
+   *
+   * Returned: pair, with members: <br>
+   * first: LocalPoint which is midway along "the" strip between the wire limits, <br>
+   * or the chamber edges, as appropriate. <bf>
+   * second: length of the strip between the wires (or edges as appropriate).
+   */
+  std::pair<LocalPoint, float> possibleRecHitPosition( float s, int w1, int w2 ) const;
+      
+  /**
+   * Return 2-dim point at which a strip and a wire intersects.
+   *
+   * Input arguments: a (float) strip number, and an (int) wire. <br>
+   * Output: LocalPoint which is at their intersection, or at extreme y
+   * of wire plane, as appropriate. (If y is adjusted, x is also adjusted to keep it on same strip.)
+   */
+  LocalPoint intersectionOfStripAndWire( float s, int w) const;
+	
+  /**
+   * Return the point of intersection of two straight lines (in 2-dim).
+   *
+   * Input arguments are pair(m1,c1) and pair(m2,c2) where m=slope, c=intercept (y=mx+c). <br>
+   * BEWARE! Do not call with m1 = m2 ! No trapping !
+   */
+  LocalPoint intersectionOfTwoLines( std::pair<float, float> p1, std::pair<float, float> p2 ) const;
+
+  /**
+   * Transform strip and wire errors to local x, y frame.
    * Need to supply (central) strip of the hit.
    * The sigma's are in distance units.
    */

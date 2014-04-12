@@ -7,6 +7,8 @@
 
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
+#include "DataFormats/TrackReco/interface/Track.h" 
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
@@ -75,6 +77,8 @@ namespace reco {
    */
     GsfTrackRef persistentTrackRef() const { return tkr_; }
 
+    TrackBaseRef trackBaseRef() const {return TrackBaseRef(tkr_);}
+
     TrackCharge charge() const {return GsfTrack::charge();}
 
     const MagneticField* field() const {return theField;}
@@ -97,10 +101,11 @@ namespace reco {
     mutable TrajectoryStateClosestToPoint initialTSCP;
     TSCPBuilderNoMaterial builder;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-    TransverseImpactPointExtrapolator* theTIPExtrapolator;
-    Propagator* thePropagator;
     reco::BeamSpot theBeamSpot;
     mutable TrajectoryStateClosestToBeamLine trajectoryStateClosestToBeamLine;
+
+    TransverseImpactPointExtrapolator theTIPExtrapolator;
+  
 
   };
 

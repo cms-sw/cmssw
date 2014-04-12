@@ -4,8 +4,6 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/08/01 15:29:24 $
- *  $Revision: 1.13 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -13,8 +11,18 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+//#include "TrackingTools/ementDet/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+
 
 #include <vector>
 
@@ -30,24 +38,35 @@ typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 
 class MuonDetLayerMeasurements {
  public:
+  typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
-
-  MuonDetLayerMeasurements(bool enableDT = true,
+  MuonDetLayerMeasurements(edm::InputTag dtlabel,
+			   edm::InputTag csclabel,
+			   edm::InputTag rpclabel,
+			   edm::ConsumesCollector& iC,
+			   bool enableDT = true,
 			   bool enableCSC = true,
-			   bool enableRPC = true,
-			   std::string dtlabel = "dt4DSegments", 
-			   std::string csclabel = "cscSegments",
-			   std::string rpclabel = "rpcRecHits");
-
+			   bool enableRPC = true
+			    );
+  
   virtual ~MuonDetLayerMeasurements();
   
+  // for a given det and state.  Not clear when the fastMeasurements below
+  //  should be used, since it isn't passed a GeomDet
+  MeasurementContainer
+    measurements( const DetLayer* layer,
+                  const GeomDet * det,
+                  const TrajectoryStateOnSurface& stateOnDet,
+                  const MeasurementEstimator& est,
+                  const edm::Event& iEvent);
+
   /// returns TMeasurements in a DetLayer compatible with the TSOS.
   MeasurementContainer
     measurements( const DetLayer* layer,
 		  const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop,
 		  const MeasurementEstimator& est,
-		  const edm::Event& iEvent) const;
+		  const edm::Event& iEvent);
 
   /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
   MeasurementContainer
@@ -56,14 +75,14 @@ class MuonDetLayerMeasurements {
 		      const TrajectoryStateOnSurface& startingState,
 		      const Propagator& prop,
 		      const MeasurementEstimator& est,
-		      const edm::Event& iEvent) const;
+		      const edm::Event& iEvent);
 
   /// returns TMeasurements in a DetLayer compatible with the TSOS.
   MeasurementContainer
     measurements( const DetLayer* layer,
 		  const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop,
-		  const MeasurementEstimator& est) const;
+		  const MeasurementEstimator& est);
 
   /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
   MeasurementContainer
@@ -71,34 +90,64 @@ class MuonDetLayerMeasurements {
 		      const TrajectoryStateOnSurface& theStateOnDet,
 		      const TrajectoryStateOnSurface& startingState,
 		      const Propagator& prop,
-		      const MeasurementEstimator& est) const;
+		      const MeasurementEstimator& est);
 
+  std::vector<TrajectoryMeasurementGroup>
+    groupedMeasurements( const DetLayer* layer,
+                  const TrajectoryStateOnSurface& startingState,
+                  const Propagator& prop,
+                  const MeasurementEstimator& est,
+                  const edm::Event& iEvent);
+
+  std::vector<TrajectoryMeasurementGroup>
+    groupedMeasurements( const DetLayer* layer,
+                  const TrajectoryStateOnSurface& startingState,
+                  const Propagator& prop,
+                  const MeasurementEstimator& est);
  
   void setEvent(const edm::Event &);  
 
-  /// returns the rechits which are onto the layer
-  MuonTransientTrackingRecHit::MuonRecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent) const;
+  /// returns the rechits which are on the layer
+  MuonRecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent);
 
-  /// returns the rechits which are onto the layer
-  MuonTransientTrackingRecHit::MuonRecHitContainer recHits(const DetLayer* layer) const;
+  /// returns the rechits which are on the layer
+  MuonRecHitContainer recHits(const DetLayer* layer);
 
 
  private:
 
   /// obtain TrackingRecHits from a DetLayer
-  MuonTransientTrackingRecHit::MuonRecHitContainer recHits(const GeomDet*, const edm::Event& iEvent) const;
+  MuonRecHitContainer recHits(const GeomDet*, const edm::Event& iEvent);
+
+  /// check that the event is set, and throw otherwise
+  void checkEvent() const;
+
+
+  edm::EDGetTokenT<DTRecSegment4DCollection> dtToken_;
+  edm::EDGetTokenT<CSCSegmentCollection> cscToken_;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcToken_;
 
 
   bool enableDTMeasurement;
   bool enableCSCMeasurement;
   bool enableRPCMeasurement;
+  
+  // caches that should get filled once per event
+  edm::Handle<DTRecSegment4DCollection> theDTRecHits;
+  edm::Handle<CSCSegmentCollection>     theCSCRecHits;
+  edm::Handle<RPCRecHitCollection>      theRPCRecHits;
 
-  std::string theDTRecHitLabel;
-  std::string theCSCRecHitLabel;
-  std::string theRPCRecHitLabel;
+  void checkDTRecHits();
+  void checkCSCRecHits();
+  void checkRPCRecHits();
 
-  bool theEventFlag;
+  // keeps track of which event the cache holds
+  edm::Event::CacheIdentifier_t theDTEventCacheID;
+  edm::Event::CacheIdentifier_t theCSCEventCacheID;
+  edm::Event::CacheIdentifier_t theRPCEventCacheID;
+
   const edm::Event* theEvent;   
+
 };
 #endif
 

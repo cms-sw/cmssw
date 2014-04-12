@@ -10,13 +10,15 @@ class NoPrimaryVertexGenerator : public PrimaryVertexGenerator {
 
 public:
   /// Default constructor
-  NoPrimaryVertexGenerator() : PrimaryVertexGenerator() {;}
-
+  NoPrimaryVertexGenerator() : PrimaryVertexGenerator() {
+    beamSpot_ = math::XYZPoint(0.,0.,0.);
+  }
+  
   /// Destructor
   ~NoPrimaryVertexGenerator() {;}
   
   /// Generation process (to be implemented)
-  virtual void generate() {;}
+  virtual void generate(RandomEngineAndDistribution const*) { }
 
  private:
 

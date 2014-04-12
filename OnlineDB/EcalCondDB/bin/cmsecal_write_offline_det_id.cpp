@@ -25,10 +25,8 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Exception.h"
-#include "SealKernel/Context.h"
-#include "SealKernel/ComponentLoader.h"
-#include "SealKernel/IMessageService.h"
-#include "PluginManager/PluginManager.h"
+#include "CoralKernel/Context.h"
+#include "CoralBase/MessageStream.h"
 
 #include <iostream>
 #include <string>
@@ -41,46 +39,25 @@ public:
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(std::string connect, std::string user, std::string pass) :
-    m_context( new seal::Context)
+  CondDBApp(std::string connect, std::string user, std::string pass) 
   {
     std::cout << "Loading services..." << std::flush;
-    seal::PluginManager::get()->initialise();
-    seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader( m_context.get() );
-    //loader->load( "CORAL/Services/RelationalService" );
+   
 
-    //loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
-
-    loader->load( "SEAL/Services/MessageService" );
-    
-    loader->load("CORAL/Services/ConnectionService");
-
-    std::vector< seal::Handle<seal::IMessageService> > v_msgSvc;
-    m_context->query( v_msgSvc );
-    seal::Handle<seal::IMessageService> msgSvc;
-    if ( ! v_msgSvc.empty() ) {
-      msgSvc = v_msgSvc.front();
-      msgSvc->setOutputStream( std::cerr, seal::Msg::Nil );
-      msgSvc->setOutputStream( std::cerr, seal::Msg::Verbose );
-      msgSvc->setOutputStream( std::cerr, seal::Msg::Debug );
-      msgSvc->setOutputStream( std::cerr, seal::Msg::Info );
-      msgSvc->setOutputStream( std::cerr, seal::Msg::Fatal );
-      msgSvc->setOutputStream( std::cerr, seal::Msg::Error );
-      msgSvc->setOutputStream( std::cerr, seal::Msg::Warning );
-    }
     if (!::getenv( "POOL_OUTMSG_LEVEL" )){ //if not set, default to warning
-      msgSvc->setOutputLevel( seal::Msg::Debug);
+      coral::MessageStream::setMsgVerbosity(coral::Warning);
     } else {
-      msgSvc->setOutputLevel( seal::Msg::Debug );
+      coral::MessageStream::setMsgVerbosity(coral::Debug);
     }
+    coral::Context& ctx = coral::Context::instance();
+    ctx.loadComponent("CORAL/Services/ConnectionService");
+    coral::IHandle<coral::IConnectionService> conHandle =
+      ctx.query<coral::IConnectionService>( "CORAL/Services/ConnectionService" );
     
-    seal::IHandle<coral::IConnectionService> conHandle =
-      m_context->query<coral::IConnectionService>( "CORAL/Services/ConnectionService" );
-    
-    if ( ! conHandle ){ 
+    if ( ! conHandle.isValid() ){ 
       throw std::runtime_error( "Could not locate the connection service" );
     }
-    conHandle->configuration().setDefaultAuthenticationService("CORAL/Services/EnvironmentAuthenticationService");
+    conHandle->configuration().setAuthenticationService("CORAL/Services/EnvironmentAuthenticationService");
     m_proxy.reset(conHandle->connect(connect, coral::Update ));
   }
   /**
@@ -231,7 +208,6 @@ public:
   }
 
 private:
-  seal::Handle< seal::Context > m_context;
   std::auto_ptr<coral::ISessionProxy> m_proxy;
 };
 

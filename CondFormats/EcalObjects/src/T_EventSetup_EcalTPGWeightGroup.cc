@@ -5,11 +5,11 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_EcalTPGGroups.cc,v 1.2 2007/06/22 13:08:28 paganini Exp $
+// $Id: T_EventSetup_EcalTPGWeightGroup.cc,v 1.1 2007/08/07 09:08:59 paganini Exp $
 //
 
 // user include files
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(EcalTPGWeightGroup);
+TYPELOOKUP_DATA_REG(EcalTPGWeightGroup);

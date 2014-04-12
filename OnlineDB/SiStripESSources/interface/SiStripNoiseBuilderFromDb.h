@@ -1,21 +1,15 @@
-// Last commit: $Id: SiStripNoiseBuilderFromDb.h,v 1.1 2006/12/22 12:20:35 bainbrid Exp $
-// Latest tag:  $Name: TIF_190307 $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripNoiseBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripNoiseBuilderFromDb_H
 
-#include "CalibTracker/SiStripPedestals/interface/SiStripNoiseESSource.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripNoiseESSource.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include "boost/cstdint.hpp"
+#include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 #include <string>
-
-class SiStripFecCabling;
-class SiStripDetCabling;
-class SiStripNoises;
-class DcuDetIdMap;
 
 class SiStripNoiseBuilderFromDb : public SiStripNoiseESSource {
   
@@ -27,11 +21,6 @@ class SiStripNoiseBuilderFromDb : public SiStripNoiseESSource {
   /** Builds pedestals using info from configuration database. */
   virtual SiStripNoises* makeNoise();
   
-  /** Builds pedestals using FED descriptions and cabling info
-      retrieved from configuration database. */
-  static void buildNoise( SiStripConfigDb* const,
-			  const SiStripDetCabling&,
-			  SiStripNoises& );
   
  protected:
   
@@ -39,11 +28,12 @@ class SiStripNoiseBuilderFromDb : public SiStripNoiseESSource {
       pedestals to be written to the conditions database. */
   virtual void writeNoiseToCondDb( const SiStripNoises& ) {;}
   
-  /** Access to the configuration DB interface class. */
-  SiStripConfigDb* db_;
   
   /** Container for DB connection parameters. */
-  SiStripConfigDb::DbParams dbParams_;
+  SiStripDbParams dbParams_;
+
+  /** Service to access onlineDB and extract pedestal/noise */
+  edm::Service<SiStripCondObjBuilderFromDb> condObjBuilder;
   
 };
 

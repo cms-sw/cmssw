@@ -8,6 +8,9 @@
 #include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
+#include <cstring>
+
 
 /**
  * Constructor.
@@ -17,15 +20,17 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
 			    edm::Timestamp timeStamp,
 		            //uint64 timeStamp,
                             uint32 lumiSection, uint32 updateNumber,
+                            uint32 adler_chksum,
+                            const char* host_name,
                             std::string const& releaseTag,
                             std::string const& topFolderName,
-                            DQMEvent::TObjectTable monitorElementsBySubFolder):
+                            const DQMEvent::TObjectTable& monitorElementsBySubFolder):
   buf_((uint8*)buf),bufSize_(bufSize)
 {
   DQMEventHeader* evtHdr;
   uint8* bufPtr;
   uint32 len;
-  uint32 protocolVersion = 1;
+  uint32 protocolVersion = 3;
 
   // fill in event header information
   bufPtr = buf_ + sizeof(DQMEventHeader);
@@ -79,7 +84,7 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
   bufPtr += len;
 
   // copy the subfolder count into the message
-  convert(monitorElementsBySubFolder.size(), bufPtr);
+  convert(static_cast<uint32>(monitorElementsBySubFolder.size()), bufPtr);
   bufPtr += sizeof(uint32);
 
   // copy the ME count and name for each subfolder into the message
@@ -90,7 +95,7 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
       std::string subFolderName = sfIter->first;
       std::vector<TObject *> toList = sfIter->second;
 
-      convert(toList.size(), bufPtr);
+      convert(static_cast<uint32>(toList.size()), bufPtr);
       bufPtr += sizeof(uint32);
 
       len = subFolderName.length();
@@ -99,6 +104,18 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
       subFolderName.copy((char*) bufPtr, len);
       bufPtr += len;
     }
+  // adler32 check sum of data blob
+  convert(adler_chksum, bufPtr);
+  bufPtr +=  sizeof(uint32);
+
+  // put host name (Length and then Name) right after check sum
+  uint32 host_name_len = strlen(host_name);
+  assert(host_name_len < 0x00ff);
+  //Put host_name_len
+  *bufPtr++ = host_name_len;
+  //Put host_name 
+  memcpy(bufPtr,host_name,host_name_len);
+  bufPtr += host_name_len;
 
   // set the header size and the event address, taking into account the
   // size of the event length field
@@ -122,8 +139,14 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
   // initialize the compression flag to zero
   setCompressionFlag(0);
 
-  // initialize the reserved word to zero
-  setReserved(0);
+  // initialize the filter unit process ID to zero
+  setFUProcessId(0);
+
+  // initialize the filter unit GUID to zero
+  setFUGuid(0);
+
+  // initialize the merge count to zero
+  setMergeCount(0);
 }
 
 /**
@@ -155,12 +178,30 @@ void DQMEventMsgBuilder::setCompressionFlag(uint32 value)
 }
 
 /**
- * Sets the value of the reserved word in the header.
+ * Sets the value of the filter unit process ID in the header.
  */
-void DQMEventMsgBuilder::setReserved(uint32 value)
+void DQMEventMsgBuilder::setFUProcessId(uint32 value)
 {
   DQMEventHeader* evtHdr = (DQMEventHeader*) buf_;
-  convert(value, evtHdr->reserved_);
+  convert(value, evtHdr->fuProcessId_);
+}
+
+/**
+ * Sets the value of the filter unit GUID in the header.
+ */
+void DQMEventMsgBuilder::setFUGuid(uint32 value)
+{
+  DQMEventHeader* evtHdr = (DQMEventHeader*) buf_;
+  convert(value, evtHdr->fuGuid_);
+}
+
+/**
+ * Sets the value of the merge count in the header.
+ */
+void DQMEventMsgBuilder::setMergeCount(uint32 value)
+{
+  DQMEventHeader* evtHdr = (DQMEventHeader*) buf_;
+  convert(value, evtHdr->mergeCount_);
 }
 
 /**

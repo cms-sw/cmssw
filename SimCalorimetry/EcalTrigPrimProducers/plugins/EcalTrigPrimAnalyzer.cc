@@ -9,9 +9,8 @@
 */
 //
 //
-// Original Author:  Ursula Berthon, Stephanie Baffioni
+// Original Author:  Ursula Berthon, Stephanie Baffioni, Pascal Paganini
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.3 2007/04/27 12:55:39 uberthon Exp $
 //
 //
 
@@ -21,7 +20,6 @@
 #include <utility>
 
 // user include files
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,7 +37,10 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+
 #include "EcalTrigPrimAnalyzer.h"
 
 #include <TMath.h>
@@ -54,6 +55,14 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet&  iConfig)
   ecal_parts_.push_back("Endcap");
 
   histfile_=new TFile("histos.root","RECREATE");
+  tree_ = new TTree("TPGtree","TPGtree");
+  tree_->Branch("iphi",&iphi_,"iphi/I");
+  tree_->Branch("ieta",&ieta_,"ieta/I");
+  tree_->Branch("eRec",&eRec_,"eRec/F");
+  tree_->Branch("tpgADC",&tpgADC_,"tpgADC/I");
+  tree_->Branch("tpgGeV",&tpgGeV_,"tpgGeV/F");
+  tree_->Branch("ttf",&ttf_,"ttf/I");
+  tree_->Branch("fg",&fg_,"fg/I");
   for (unsigned int i=0;i<2;++i) {
     ecal_et_[i]=new TH1I(ecal_parts_[i].c_str(),"Et",255,0,255);
     char title[30];
@@ -62,15 +71,14 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet&  iConfig)
     sprintf(title,"%s_fgvb",ecal_parts_[i].c_str());
     ecal_fgvb_[i]=new TH1I(title,"FGVB",10,0,10);
   }
-  label_= iConfig.getParameter<std::string>("Label");
-  producer_= iConfig.getParameter<std::string>("Producer");
+
   recHits_= iConfig.getParameter<bool>("AnalyzeRecHits");
+  label_=iConfig.getParameter<edm::InputTag>("inputTP");
   if (recHits_) {
     hTPvsRechit_= new TH2F("TP_vs_RecHit","TP vs  rechit",256,-1,255,255,0,255);
     hTPoverRechit_= new TH1F("TP_over_RecHit","TP over rechit",500,0,4);
-    rechits_labelEB_= iConfig.getParameter<std::string>("RecHitsLabelEB");
-    rechits_labelEE_= iConfig.getParameter<std::string>("RecHitsLabelEE");
-    rechits_producer_=  iConfig.getParameter<std::string>("RecHitsProducer");
+    rechits_labelEB_=iConfig.getParameter<edm::InputTag>("inputRecHitsEB");
+    rechits_labelEE_=iConfig.getParameter<edm::InputTag>("inputRecHitsEE");
   }
 }
 
@@ -100,10 +108,9 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
   // Get input
   edm::Handle<EcalTrigPrimDigiCollection> tp;
-  iEvent.getByLabel(label_,producer_,tp);
+  iEvent.getByLabel(label_,tp);
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
-    //    for (int ii=0;ii<d.size();++ii) printf(" TP %d, sample %d, et %d\n",i,ii,d[ii].compressedEt());fflush(stdout);
     int subdet=d.id().subDet()-1;
     if (subdet==0) {
       ecal_et_[subdet]->Fill(d.compressedEt());
@@ -122,18 +129,18 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
   // comparison with RecHits
   edm::Handle<EcalRecHitCollection> rechit_EB_col;
-  iEvent.getByLabel(rechits_producer_,rechits_labelEB_,rechit_EB_col);
+  iEvent.getByLabel(rechits_labelEB_,rechit_EB_col);
 
   edm::Handle<EcalRecHitCollection> rechit_EE_col;
-  iEvent.getByLabel(rechits_producer_,rechits_labelEE_, rechit_EE_col);
+  iEvent.getByLabel(rechits_labelEE_,rechit_EE_col);
   
 
   edm::ESHandle<CaloGeometry> theGeometry;
   edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle;
   edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
-  iSetup.get<IdealGeometryRecord>().get( theGeometry );
-  iSetup.get<IdealGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
-  iSetup.get<IdealGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
+  iSetup.get<CaloGeometryRecord>().get( theGeometry );
+  iSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
+  iSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
 
   const CaloSubdetectorGeometry *theEndcapGeometry,*theBarrelGeometry;
   theEndcapGeometry = &(*theEndcapGeometry_handle);
@@ -198,27 +205,41 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
     mapTow_Et.insert(pair<EcalTrigTowerDetId,float>(towid1, Etsum));
   }
 
+
+  EcalTPGScale ecalScale ;
+  ecalScale.setEventSetup(iSetup) ;
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
     const EcalTrigTowerDetId TPtowid= d.id();
     map<EcalTrigTowerDetId, float>::iterator it=  mapTow_Et.find(TPtowid);
+    float Et = ecalScale.getTPGInGeV(d.compressedEt(), TPtowid) ; 
+    if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28)    Et*=2;
+    iphi_ = TPtowid.iphi() ;
+    ieta_ = TPtowid.ieta() ;
+    tpgADC_ = d.compressedEt() ;
+    tpgGeV_ = Et ;
+    ttf_ = d.ttFlag() ;
+    fg_ = d.fineGrain() ;
     if (it!= mapTow_Et.end()) {
-      int subdet=d.id().subDet()-1;
-      float Et=d.compressedEt();
-      Et*=0.469;  //FIXME: should use EcalTPParameters
-      if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28)    Et*=2;
       hTPvsRechit_->Fill(it->second,Et);
       hTPoverRechit_->Fill(Et/it->second);
-
-      if( (Et< (0.9* it->second) || Et> (1.1* it->second))  && (  (subdet==0 && (it->second >0.4)) || (subdet==1 && (it->second >0.5)))){
-      }
-
-      if (Et/(it->second)>1.03 && Et/(it->second)<1.07){
-      }
+      eRec_ = it->second ;
     }
-
-
+    tree_->Fill() ;
   }
 
 }
 
+void
+EcalTrigPrimAnalyzer::endJob(){
+  for (unsigned int i=0;i<2;++i) {
+    ecal_et_[i]->Write();
+    ecal_tt_[i]->Write();
+    ecal_fgvb_[i]->Write();
+  }
+  if (recHits_) {
+    hTPvsRechit_->Write();
+    hTPoverRechit_->Write();
+  }
+}
+  

@@ -2,14 +2,13 @@
  * \file Mille.cc
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.2 $
- *  $Date: 2007/03/16 16:44:47 $
+ *  $Revision: 1.3 $
+ *  $Date: 2007/04/16 17:47:38 $
  *  (last update by $Author: flucke $)
  */
 
 #include "Mille.h"
 
-#include <fstream>
 #include <iostream>
 
 //___________________________________________________________________________

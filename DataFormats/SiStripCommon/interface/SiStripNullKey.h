@@ -1,12 +1,9 @@
-// Last commit: $Id: SiStripNullKey.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripNullKey_H
 #define DataFormats_SiStripCommon_SiStripNullKey_H
 
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
-#include <ostream>
-#include <string>
 
 class SiStripNullKey;
 
@@ -50,6 +47,14 @@ class SiStripNullKey : public SiStripKey {
   /** All member data to level of "Granularity" are invalid. If
       sistrip::Granularity is "undefined", returns true.  */
   bool isInvalid( const sistrip::Granularity& ) const;
+
+  // ---------- Print methods ----------
+  
+  /** Print member data of the key  */
+  virtual void print( std::stringstream& ss ) const;
+  
+  /** A terse summary of the key  */
+  virtual void terse( std::stringstream& ss ) const {;}
   
  private: 
 

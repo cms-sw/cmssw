@@ -6,7 +6,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "G4ThreeVector.hh"
 
 #include <vector>
 #include <string>
@@ -18,10 +21,15 @@ class HFFibre {
 public:
   
   //Constructor and Destructor
-  HFFibre(const DDCompactView & cpv);
+  HFFibre(std::string & name, const DDCompactView & cpv,
+	  edm::ParameterSet const & p);
   ~HFFibre();
 
   double              attLength(double lambda);
+  double              tShift(const G4ThreeVector& point, int depth, 
+			     int fromEndAbs=0);
+  double              zShift(const G4ThreeVector& point, int depth, 
+			     int fromEndAbs=0);
 
 protected:
 
@@ -30,8 +38,11 @@ protected:
 
 private:
 
+  double                      cFibre;
+  std::vector<double>         gpar, radius;
+  std::vector<double>         shortFL, longFL;
   std::vector<double>         attL;
-  int                         nBinAtt;
+  int                         nBinR, nBinAtt;
   double                      lambLim[2];
 
 };

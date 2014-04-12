@@ -1,7 +1,7 @@
 
 
-#include <iostream>
 #include "DetectorDescription/Base/interface/DDTypes.h"
+#include <iostream>
 ////////// output operator for printing the arguments of an algorithm
 
 std::ostream & operator<<(std::ostream & os, const DDNumericArguments & t)

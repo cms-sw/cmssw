@@ -20,7 +20,6 @@
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- ColorPalette
 - EcalErrorMask
 - EcalMonitorPrescaler
 - LogicID

@@ -3,18 +3,16 @@
 
 /**
  * \class L1GlobalTriggerRawToDigi
- * 
- * 
- * Description: unpack raw data into digitized data.  
+ *
+ *
+ * Description: unpack raw data into digitized data.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
- * 
- * $Date$
- * $Revision$
+ *
  *
  */
 
@@ -30,7 +28,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/typedefs.h"
 
 // forward declarations
 class L1GtfeWord;
@@ -43,6 +42,7 @@ class FEDHeader;
 class FEDTrailer;
 
 class L1MuTriggerScales;
+class L1MuTriggerPtScale;
 
 
 // class declaration
@@ -59,9 +59,7 @@ public:
 
 private:
 
-    virtual void beginJob(const edm::EventSetup&);
-
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     /// block unpackers
 
@@ -75,17 +73,19 @@ private:
     void unpackPSB(const edm::EventSetup&, const unsigned char*, L1GtPsbWord&);
 
     /// unpack the GMT record
-    void unpackGMT(const unsigned char*, std::auto_ptr<L1MuGMTReadoutCollection>&);
+    void unpackGMT(const unsigned char*, std::auto_ptr<L1MuGMTReadoutCollection>&,edm::Event&);
 
     /// unpack trailer word
     void unpackTrailer(const unsigned char*, FEDTrailer&);
 
 
+    /// produce empty products in case of problems
+    void produceEmptyProducts(edm::Event&);
+
+
     /// dump FED raw data
     void dumpFedRawData(const unsigned char*, int, std::ostream&);
 
-    ///
-    virtual void endJob();
 
 private:
 
@@ -95,13 +95,13 @@ private:
 
     /// input tags for GT DAQ record
     edm::InputTag m_daqGtInputTag;
-    
+
     /// FED Id for GT DAQ record
     /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_daqGtFedId;  
+    int m_daqGtFedId;
 
     /// mask for active boards
-    boost::uint16_t m_activeBoardsMaskGt;
+    cms_uint16_t m_activeBoardsMaskGt;
 
     // number of bunch crossing to be unpacked
     int m_unpackBxInEvent;
@@ -115,10 +115,28 @@ private:
     int m_uppSkipBxInEvent;
 
     /// total Bx's in the event, obtained from GTFE block
+    //
+    /// corresponding to alternative 0 in altNrBxBoard()
+    int m_recordLength0;
+
+    /// corresponding to alternative 1 in altNrBxBoard()
+    int m_recordLength1;
+
+    /// number of Bx for a board, obtained from GTFE block (record length & alternative)
     int m_totalBxInEvent;
+
 
     /// muon trigger scales to convert unpacked data into physical quantities
     const L1MuTriggerScales* m_TriggerScales;
+    const L1MuTriggerPtScale* m_TriggerPtScale;
+
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
+
+
 };
 
 #endif // EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerRawToDigi_h

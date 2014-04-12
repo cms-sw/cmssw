@@ -1,29 +1,19 @@
 #include <memory>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDValue.h>
-#include <DetectorDescription/Core/interface/DDsvalues.h>
 #include <DetectorDescription/Core/interface/DDExpandedView.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/OfflineDBLoader/interface/ReadWriteORA.h"
-#include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
-#include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 
 #include <iostream>
 #include <istream>
@@ -40,8 +30,8 @@ public:
   explicit PhysicalPartsTree( const edm::ParameterSet& );
   ~PhysicalPartsTree();
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
   
 private: 
 
@@ -62,8 +52,9 @@ void PhysicalPartsTree::analyze( const edm::Event& iEvent, const edm::EventSetup
   std::cout << "analyze does nothing" << std::endl;
 }
 
-void PhysicalPartsTree::beginJob( const edm::EventSetup& iSetup ) {
-
+void PhysicalPartsTree::beginRun( const edm::Run&, const edm::EventSetup& iSetup ) {
+  //set a tolerance for "near zero"
+  double tolerance = 1.0e-3;
 
   std::string physicalPartsTreeFileName("PHYSICALPARTSTREE.dat");
   std::string logicalPartTypesFileName("LOGICALPARTTYPES.dat");
@@ -84,14 +75,16 @@ void PhysicalPartsTree::beginJob( const edm::EventSetup& iSetup ) {
 
 
   std::cout << "PhysicalPartsTree Analyzer..." << std::endl;
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
 
   iSetup.get<IdealGeometryRecord>().get( "", pDD );
   
   const DDCompactView & cpv = *pDD;
   DDExpandedView epv(cpv);
   int pospartid=0;
-  while(epv.next()){
+  size_t lastfound;
+  std::string lgname;
+   while(epv.next()){
  
     //for table physicalpartstree
     std::ostringstream parent, child,logicalpartid,parentid;
@@ -100,31 +93,50 @@ void PhysicalPartsTree::beginJob( const edm::EventSetup& iSetup ) {
     parent << hist[hist.size()-2].logicalPart().name();
     logicalpartid << epv.geoHistory();
     parentid<<hist[hist.size()-2];
-    physicalPartsTreeOS<<logicalpartid.str()<<","<< parentid.str() << "," << child.str()<<std::endl;
-
+    lgname=logicalpartid.str();
+    lastfound=lgname.find_last_of("/\\");
+    lgname=lgname.substr(lastfound+1,lgname.size());
+    physicalPartsTreeOS<<lgname<<","<< parentid.str() << "," << child.str()<<std::endl;
+//    std::cout << "Logical Part Name= "<<logicalpartid.str() << std::endl;
+     
     //for table nominalPlacements
     bool reflection = false;
 
-    Hep3Vector xv = epv.rotation().colX();
-    Hep3Vector yv = epv.rotation().colY();
-    Hep3Vector zv = epv.rotation().colZ();
-    if ( xv.cross(yv) * zv  < 0) {
-                reflection = true;
-              }
- 
+    DD3Vector x, y, z;
+    epv.rotation().GetComponents(x, y, z);
+    //Hep3Vector xv = epv.rotation().colX();
+    //Hep3Vector yv = epv.rotation().colY();
+    //Hep3Vector zv = epv.rotation().colZ();
+    //if ( xv.cross(yv) * zv  < 0) {
+    //            reflection = true;
+    //          }
+    if ( (1.0 + (x.Cross(y)).Dot(z)) <= tolerance ) {
+      reflection = true;
+    }
+    std::vector<double> comps(9);
+    epv.rotation().GetComponents(comps.begin(), comps.end());
     nominalPlacementsOS<< logicalpartid.str()<<","
-		       << epv.translation().x() << "," 
-		       << epv.translation().y() << ","  
-		       << epv.translation().z()<< "," 
-		       << epv.rotation().xx()<< "," 
-		       << epv.rotation().xy()<< "," 
-		       << epv.rotation().xz()<< "," 
-		       << epv.rotation().yx()<< "," 
-		       << epv.rotation().yy()<< "," 
-		       << epv.rotation().yz()<< "," 
-		       << epv.rotation().zx()<< "," 
-		       << epv.rotation().zy()<< "," 
-		       << epv.rotation().zz()<< "," 
+		       << epv.translation().X() << "," 
+		       << epv.translation().Y() << ","  
+		       << epv.translation().Z()<< "," 
+// 		       << epv.rotation().xx()<< "," 
+// 		       << epv.rotation().xy()<< "," 
+// 		       << epv.rotation().xz()<< "," 
+// 		       << epv.rotation().yx()<< "," 
+// 		       << epv.rotation().yy()<< "," 
+// 		       << epv.rotation().yz()<< "," 
+// 		       << epv.rotation().zx()<< "," 
+// 		       << epv.rotation().zy()<< "," 
+// 		       << epv.rotation().zz()<< "," 
+		       << comps[0]<<","
+		       << comps[1]<<","
+		       << comps[2]<<","
+		       << comps[3]<<","
+		       << comps[4]<<","
+		       << comps[5]<<","
+		       << comps[6]<<","
+		       << comps[7]<<","
+		       << comps[8]<<","
 		       << (int)reflection
 		       <<std::endl;
 

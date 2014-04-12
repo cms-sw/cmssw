@@ -5,7 +5,6 @@
  *
  *
  *
- *    $Date: 2007/04/04 10:44:32 $
  *
  *    \author D. Bonacorsi, S. Marcellini
  */
@@ -37,7 +36,7 @@ class DTSCTrigUnit;
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollThSegm.h"
 #include "DataFormats/MuonDetId/interface/DTSectCollId.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //---------------
@@ -60,10 +59,13 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
 
   //!  Constructor
   //DTSectColl(edm::ParameterSet& sc_pset);
-  DTSectColl(const DTConfigManager * _conf_manager, DTSectCollId id);
+  DTSectColl(DTSectCollId id);
   
   //!  Destructor 
   ~DTSectColl();
+
+  /// Set configuration
+  void setConfig(const DTConfigManager *conf);
 
   //! Return TSPhi
   inline DTTSPhi* getTSPhi(int istat) const { return _tsphi[istat-1]; }
@@ -72,7 +74,7 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   inline DTTSTheta* getTSTheta(int istat) const { return _tstheta[istat-1]; }
 
   //!Configuration
-  inline DTConfigSectColl* config() const { return _config; }
+  inline const DTConfigSectColl* config() const { return _config; }
 
   // non-const methods
 
@@ -180,7 +182,7 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
  private:
 
   // Configuration
-  DTConfigSectColl* _config;
+  const DTConfigSectColl* _config;
 
   // SC Id
   DTSectCollId _sectcollid;

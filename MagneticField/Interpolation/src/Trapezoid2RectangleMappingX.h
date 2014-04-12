@@ -1,13 +1,25 @@
-#ifndef Trapezoid2RectangleMappingX_H
-#define Trapezoid2RectangleMappingX_H
+#ifndef Trapezoid2RectangleMappingX_h
+#define Trapezoid2RectangleMappingX_h
 
-//#define DEBUG_GRID
+/** \class Trapezoid2RectangleMappingX
+ *
+ *  Maps a trapezoidal coordinate system into a cartesian one.
+ *  It is assumed that x is the coordinate along the trapezoid bases while y is along
+ *  the trapezoid height.
+ *
+ *  \author T. Todorov
+ */
 
-#ifdef DEBUG_GRID
+
+//#define DEBUG_GRID_TRM
+
+#ifdef DEBUG_GRID_TRM
 #include <iostream>
 #endif
 
-class Trapezoid2RectangleMappingX {
+#include "FWCore/Utilities/interface/Visibility.h"
+
+class dso_internal Trapezoid2RectangleMappingX {
 public:
 
   Trapezoid2RectangleMappingX() {}
@@ -18,9 +30,9 @@ public:
   {
     k_ = 2/h * (bovera-1.) / (bovera+1.);
 
-#ifdef DEBUG_GRID
-    cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
- 	 << " b/a= " << bovera << " h= " << h << endl;
+#ifdef DEBUG_GRID_TRM
+    std::cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
+ 	 << " b/a= " << bovera << " h= " << h << std::endl;
 #endif
   }
 
@@ -28,9 +40,9 @@ public:
   Trapezoid2RectangleMappingX( double x0, double y0, double k) :
     x0_(x0), y0_(y0), k_(k), parallel_(true)
   {
-#ifdef DEBUG_GRID
-    cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
- 	 << " k= " << k << endl;
+#ifdef DEBUG_GRID_TRM
+    std::cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
+ 	 << " k= " << k << std::endl;
 #endif
   }
 
@@ -42,7 +54,7 @@ public:
     else            xrec = xtrap - x0_ + k_*yrec;
 
 #ifdef DEBUG_GRID
-    cout << xtrap << " " << ytrap << " transformed to rectangle " << xrec << " " << yrec << endl;
+    std::cout << xtrap << " " << ytrap << " transformed to rectangle " << xrec << " " << yrec << std::endl;
 #endif
   }
 
@@ -53,7 +65,7 @@ public:
     ytrap = y0_ + yrec;
 
 #ifdef DEBUG_GRID
-    cout << xrec << " " << yrec << " transformed to trapezoid " << xtrap << " " << ytrap << endl;
+    std::cout << xrec << " " << yrec << " transformed to trapezoid " << xtrap << " " << ytrap << std::endl;
 #endif
   }
 

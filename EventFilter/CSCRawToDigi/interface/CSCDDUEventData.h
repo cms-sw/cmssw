@@ -1,10 +1,11 @@
-// Author Rick Wilkinson
-//Modified 4/21/03 to store all CSC data in vectors
-//A.Tumanov
-//DDUHeader is separated into a class of its own
-
 #ifndef CSCDDUEventData_h
 #define CSCDDUEventData_h
+
+/** \class CSCDDUEventData
+ *
+ * \author Rick Wilkinson
+ * \author A. Tumanov
+ */
 
 #include <vector>
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
@@ -12,6 +13,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include <boost/dynamic_bitset.hpp>
 
 class CSCDDUEventData {
@@ -19,9 +21,9 @@ public:
 
   explicit CSCDDUEventData(const CSCDDUHeader &);
 
-  /// buf may need to stay pinned in memory as long
-  /// as this data is used.  Not sure
-  explicit CSCDDUEventData(unsigned short *buf);
+  // buf may need to stay pinned in memory as long
+  // as this data is used.  Not sure
+  explicit CSCDDUEventData(unsigned short *buf, CSCDCCExaminer* examiner=NULL);
 
   ~CSCDDUEventData();
 
@@ -33,13 +35,14 @@ public:
 
   CSCDDUHeader header() const {return theDDUHeader;}
   CSCDDUTrailer trailer() const {return theDDUTrailer;}
+  uint16_t trailer0() const {return theDDUTrailer0;}
 
   CSCDCCHeader dccHeader() const {return theDCCHeader;}
   CSCDCCTrailer dccTrailer() const {return theDCCTrailer;}
 
 
   /// for making events.  Sets the bxnum and lvl1num inside the chamber event
-  void add(CSCEventData &);
+    void add(CSCEventData &, int dmbId, int dduInput);
 
   /// trailer info
   long unsigned int errorstat;
@@ -57,18 +60,19 @@ public:
   boost::dynamic_bitset<> pack();
 
   
-  static bool debug;
+  static std::atomic<bool> debug;
   static unsigned int errMask;
 
   /// a good test routine would be to unpack data, then pack it again.
 protected:
-  void unpack_data(unsigned short * buf);
+  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=NULL);
   CSCDCCHeader theDCCHeader;
   CSCDDUHeader theDDUHeader;
   // CSCData is unpacked and stored in this vector
   std::vector<CSCEventData> theData;
   CSCDDUTrailer theDDUTrailer;
   CSCDCCTrailer theDCCTrailer;
+  uint16_t theDDUTrailer0;
   int theSizeInWords;
 };
 

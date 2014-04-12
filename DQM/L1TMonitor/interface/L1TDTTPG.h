@@ -4,11 +4,9 @@
 /*
  * \file L1TDTTPG.h
  *
- * $Date: 2007/02/22 19:43:52 $
- * $Revision: 1.4 $
  * \author J. Berryhill
  *
-*/
+ */
 
 // system include files
 #include <memory>
@@ -22,10 +20,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+// L1 containers
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
 
 //
 // class decleration
@@ -33,58 +36,84 @@
 
 class L1TDTTPG : public edm::EDAnalyzer {
 
-public:
+ public:
 
-// Constructor
-L1TDTTPG(const edm::ParameterSet& ps);
+  // Constructor
+  L1TDTTPG(const edm::ParameterSet& ps);
 
-// Destructor
-virtual ~L1TDTTPG();
+  // Destructor
+  virtual ~L1TDTTPG();
 
-protected:
-// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+ protected:
+  // Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+  // BeginJob
+  void beginJob(void);
 
-// EndJob
-void endJob(void);
+  // EndJob
+  void endJob(void);
 
-private:
+  // BeginRun
+  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
+
+
+ private:
+
+  void setMapPhLabel(MonitorElement *me);
+  void setMapThLabel(MonitorElement *me);
+
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
-  MonitorElement* dttpgphbx;  
-  MonitorElement* dttpgphwheel;  
-  MonitorElement* dttpgphsector;  
-  MonitorElement* dttpgphstation;  
-  MonitorElement* dttpgphphi;  
-  MonitorElement* dttpgphphiB;  
-  MonitorElement* dttpgphquality;  
-  MonitorElement* dttpgphts2tag;  
-  MonitorElement* dttpgphbxcnt;  
-  MonitorElement* dttpgphntrack;  
+  MonitorElement* dttpgphbx[8];  
+  MonitorElement* dttpgphbxcomp;
+  MonitorElement* dttpgphwheel[3];  
+  MonitorElement* dttpgphsector[3];  
+  MonitorElement* dttpgphstation[3];  
+  /*   MonitorElement* dttpgphphi[3];   */
+  /*   MonitorElement* dttpgphphiB[3];   */
+  MonitorElement* dttpgphquality[3];  
+  MonitorElement* dttpgphts2tag[3];  
+  /*   MonitorElement* dttpgphbxcnt[3];   */
+  MonitorElement* dttpgphntrack;
+  MonitorElement* dttpgphmap;
+  MonitorElement* dttpgphmapbx[3];
+  MonitorElement* dttpgphmap2nd;
+  MonitorElement* dttpgphmapcorr;
+  MonitorElement* dttpgphbestmap;
+  MonitorElement* dttpgphbestmapcorr;
 
-  MonitorElement* dttpgthbx;  
-  MonitorElement* dttpgthwheel;  
-  MonitorElement* dttpgthsector;  
-  MonitorElement* dttpgthstation;  
-  MonitorElement* dttpgththeta;  
-  MonitorElement* dttpgthquality;    
+
+  MonitorElement* dttpgthbx[3];  
+  MonitorElement* dttpgthwheel[3];  
+  MonitorElement* dttpgthsector[3];  
+  MonitorElement* dttpgthstation[3];  
+  MonitorElement* dttpgththeta[3];  
+  MonitorElement* dttpgthquality[3];    
   MonitorElement* dttpgthntrack;  
+  MonitorElement* dttpgthmap;
+  MonitorElement* dttpgthmapbx[3];
+  MonitorElement* dttpgthmaph;
+  MonitorElement* dttpgthbestmap;
+  MonitorElement* dttpgthbestmaph;
 
-  MonitorElement *dttf_p_phi;
-  MonitorElement *dttf_p_pt ;
-  MonitorElement *dttf_p_q;
-  MonitorElement *dttf_p_qual;
+  MonitorElement *dttf_p_phi[3];
+  MonitorElement *dttf_p_pt[3];
+  MonitorElement *dttf_p_q[3];
+  MonitorElement *dttf_p_qual[3];
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
-  ofstream logFile_;
+  std::ofstream logFile_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> dttpgSourcePhContainer_token_;
+  edm::EDGetTokenT<L1MuDTChambThContainer> dttpgSourceThContainer_token_;
   edm::InputTag dttpgSource_;
+
+  std::string trstring_;
+  edm::EDGetTokenT<L1MuDTTrackContainer> trToken_;
 };
 
 #endif

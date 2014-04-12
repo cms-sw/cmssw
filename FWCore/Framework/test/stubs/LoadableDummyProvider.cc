@@ -8,7 +8,6 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyProvider.cc,v 1.5 2006/10/21 17:18:57 wmtan Exp $
 //
 
 // system include files

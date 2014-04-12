@@ -5,8 +5,6 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2007/07/06 15:35:37 $
-//   $Revision: 1.7 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -55,8 +53,15 @@
 #include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTChannelMaskRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 //----------------
 // Constructors --
@@ -64,7 +69,18 @@
 L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   produces<std::vector<L1MuGMTCand> >();
   produces<L1MuGMTReadoutCollection>();
-
+  m_sendMipIso = ps.getUntrackedParameter<bool>("SendMipIso",false);
+  if( m_sendMipIso ) {
+    produces<std::vector<unsigned> >();
+  }
+  
+  m_L1MuGMTScalesCacheID = 0ULL;
+  m_L1MuTriggerScalesCacheID = 0ULL;
+  m_L1MuTriggerPtScaleCacheID = 0ULL;
+  m_L1MuGMTParametersCacheID = 0ULL;
+  m_L1MuGMTChannelMaskCacheID = 0ULL;
+  m_L1CaloGeometryCacheID = 0ULL;
+  
   m_ExtendedCands.reserve(20);
 
   // set configuration parameters
@@ -107,6 +123,7 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   m_Sorter = new L1MuGMTSorter(*this);   // barrel
 
   if(!m_db) m_db = new L1MuGMTDebugBlock(m_config->getBxMin(),m_config->getBxMax());
+  usesResource("L1MuGlobalMuonTrigger");
 }
 
 //--------------
@@ -145,21 +162,77 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
 // Operations --
 //--------------
 
-void L1MuGlobalMuonTrigger::beginJob(const edm::EventSetup& es) {
+void L1MuGlobalMuonTrigger::beginJob() {
     
-  edm::ESHandle< L1MuGMTScales > gmtscales_h;
-  es.get< L1MuGMTScalesRcd >().get( gmtscales_h );
-  m_config->setGMTScales( gmtscales_h.product() );
+}
 
-  edm::ESHandle< L1MuTriggerScales > trigscales_h;
-  es.get< L1MuTriggerScalesRcd >().get( trigscales_h );
-  m_config->setTriggerScales( trigscales_h.product() );
-
-  edm::ESHandle< L1MuGMTParameters > gmtparams_h;
-  es.get< L1MuGMTParametersRcd >().get( gmtparams_h );
-  m_config->setGMTParams( gmtparams_h.product() );
+void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   
-  m_config->setDefaults();
+  // configure from the event setup
+  
+  unsigned long long L1MuGMTScalesCacheID = es.get< L1MuGMTScalesRcd >().cacheIdentifier();
+  if(L1MuGMTScalesCacheID != m_L1MuGMTScalesCacheID) {
+    edm::ESHandle< L1MuGMTScales > gmtscales_h;
+    es.get< L1MuGMTScalesRcd >().get( gmtscales_h );
+    m_config->setGMTScales( gmtscales_h.product() );
+  }
+
+  unsigned long long L1MuTriggerScalesCacheID = es.get< L1MuTriggerScalesRcd >().cacheIdentifier();
+  if(L1MuTriggerScalesCacheID != m_L1MuTriggerScalesCacheID) {
+    edm::ESHandle< L1MuTriggerScales > trigscales_h;
+    es.get< L1MuTriggerScalesRcd >().get( trigscales_h );
+    m_config->setTriggerScales( trigscales_h.product() );
+  }
+
+  unsigned long long L1MuTriggerPtScaleCacheID = es.get< L1MuTriggerPtScaleRcd >().cacheIdentifier();
+  if(L1MuTriggerPtScaleCacheID != m_L1MuTriggerPtScaleCacheID) {
+    edm::ESHandle< L1MuTriggerPtScale > trigptscale_h;
+    es.get< L1MuTriggerPtScaleRcd >().get( trigptscale_h );
+    m_config->setTriggerPtScale( trigptscale_h.product() );
+  }
+
+  unsigned long long L1MuGMTParametersCacheID = es.get< L1MuGMTParametersRcd >().cacheIdentifier();
+  if(L1MuGMTParametersCacheID != m_L1MuGMTParametersCacheID) {
+    edm::ESHandle< L1MuGMTParameters > gmtparams_h;
+    es.get< L1MuGMTParametersRcd >().get( gmtparams_h );
+    m_config->setGMTParams( gmtparams_h.product() );
+    m_config->setDefaults();
+  }
+
+  unsigned long long L1MuGMTChannelMaskCacheID = es.get< L1MuGMTChannelMaskRcd >().cacheIdentifier();
+  if(L1MuGMTChannelMaskCacheID != m_L1MuGMTChannelMaskCacheID) {
+    edm::ESHandle< L1MuGMTChannelMask > gmtchanmask_h;
+    es.get< L1MuGMTChannelMaskRcd >().get( gmtchanmask_h );
+    m_config->setGMTChanMask( gmtchanmask_h.product() );
+    if ( L1MuGMTConfig::Debug(1) ) {
+      std::string onoff;
+      const L1MuGMTChannelMask* theChannelMask = L1MuGMTConfig::getGMTChanMask();
+      unsigned mask = theChannelMask->getSubsystemMask();
+      
+      edm::LogVerbatim("GMT_info");
+      edm::LogVerbatim("GMT_info") << " GMT input Channel Mask:" << std::hex << mask << std::dec;
+      onoff = mask&1 ? "OFF" : "ON";
+      edm::LogVerbatim("GMT_info") << " DT   input " << onoff;
+      onoff = mask&2 ? "OFF" : "ON";
+      edm::LogVerbatim("GMT_info") << " RPCb input " << onoff;
+      onoff = mask&4 ? "OFF" : "ON";
+      edm::LogVerbatim("GMT_info") << " CSC  input " << onoff;
+      onoff = mask&8 ? "OFF" : "ON";
+      edm::LogVerbatim("GMT_info") << " RPCf input " << onoff;
+      edm::LogVerbatim("GMT_info");
+    }
+  }
+
+  unsigned long long L1CaloGeometryCacheID = es.get< L1CaloGeometryRecord >().cacheIdentifier();
+  if(L1CaloGeometryCacheID != m_L1CaloGeometryCacheID) {
+    edm::ESHandle< L1CaloGeometry > caloGeom_h ;
+    es.get< L1CaloGeometryRecord >().get( caloGeom_h ) ;
+    m_config->setCaloGeom( caloGeom_h.product() ) ;
+  }
+  
+  m_config->createLUTsRegs();
+  
+  // write LUTs and Regs if required
   
   if(m_writeLUTsAndRegs) {
     std::string dir = "gmtconfig";
@@ -169,10 +242,6 @@ void L1MuGlobalMuonTrigger::beginJob(const edm::EventSetup& es) {
     m_config->dumpLUTs(dir);
     m_config->dumpRegs(dir);
   }
-  
-}
-
-void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // process the event
   if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info");
@@ -279,7 +348,17 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   std::auto_ptr<L1MuGMTReadoutCollection> GMTRRC(getReadoutCollection());
   e.put(GMTRRC);
+
+  if( m_sendMipIso ) {
+    std::auto_ptr<std::vector<unsigned> > mipiso(new std::vector<unsigned>);
+    for(int i=0; i<32; i++) {
+      mipiso->push_back(m_db->IsMIPISO(0,i));
+    }  
+    e.put(mipiso);
+  }
   
+// delete registers and LUTs
+  m_config->clearLUTsRegs();
 }
 
 //

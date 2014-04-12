@@ -1,0 +1,1 @@
+clang -cc1 -load ../../../../lib/slc5_amd64_gcc472/libUtilitiesStaticAnalyzers.so -analyze -analyzer-checker=optional.ClassChecker -std=c++0x class_checker.cpp

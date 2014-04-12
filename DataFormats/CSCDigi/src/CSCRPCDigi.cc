@@ -2,15 +2,13 @@
  *
  * Digi for RPC data coming thru RAT-ALCT-DDU.
  *
- * $Date: 2006/04/06 11:18:37 $
- * $Revision: 1.4 $
  *
  * \author N. Terentiev, CMU
  */
 
 
-#include <DataFormats/CSCDigi/interface/CSCRPCDigi.h>
-#include <bitset>
+#include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
+#include <iostream>
 
 /// Constructors
 
@@ -37,5 +35,9 @@ void CSCRPCDigi::print() const {
 	    << "  BXN = " << getBXN() << std::endl;
 }
 
+std::ostream & operator<<(std::ostream & o, const CSCRPCDigi& digi) {
+  return o << " RPC = " << digi.getRpc() << "  Pad = "<< digi.getPad()
+           << "  Tbin = " << digi.getTbin() << "  Bxn = " << digi.getBXN();
+}
 
 

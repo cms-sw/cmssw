@@ -16,6 +16,7 @@ class EcalLaserDbRecord;
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
 
 
 class EcalLaserCorrectionService : public edm::ESProducer {
@@ -29,6 +30,7 @@ public:
   void alphaCallback (const EcalLaserAlphasRcd& fRecord);
   void apdpnRefCallback (const EcalLaserAPDPNRatiosRefRcd& fRecord);
   void apdpnCallback (const EcalLaserAPDPNRatiosRcd& fRecord);
+  void linearCallback (const EcalLinearCorrectionsRcd& fRecord);
   
 private:
   // ----------member data ---------------------------

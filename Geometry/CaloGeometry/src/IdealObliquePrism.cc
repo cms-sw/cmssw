@@ -1,98 +1,207 @@
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include <math.h>
 
-namespace calogeom {
+typedef IdealObliquePrism::CCGFloat CCGFloat ;
+typedef IdealObliquePrism::Pt3D     Pt3D     ;
+typedef IdealObliquePrism::Pt3DVec  Pt3DVec  ;
 
-  IdealObliquePrism::IdealObliquePrism(const GlobalPoint& faceCenter, float widthEta, float widthPhi, float thickness, bool parallelToZaxis) : 
-  CaloCellGeometry(faceCenter),
-  hwidthEta_(widthEta/2),
-  hwidthPhi_(widthPhi/2),
-  thickness_((parallelToZaxis)?(thickness):(-thickness))
+IdealObliquePrism::IdealObliquePrism() :
+   CaloCellGeometry()
+{}
+
+IdealObliquePrism::IdealObliquePrism( const IdealObliquePrism& idop ) 
+  : CaloCellGeometry( idop )
 {
+  *this = idop ;
 }
 
-  static inline GlobalPoint etaPhiR(float eta, float phi, float rad) {
-    return GlobalPoint(rad*cosf(phi)/coshf(eta),rad*sinf(phi)/coshf(eta),rad*tanhf(eta));
-  }
+IdealObliquePrism& 
+IdealObliquePrism::operator=( const IdealObliquePrism& idop ) 
+{
+  if( &idop != this ) CaloCellGeometry::operator=( idop ) ;
+  return *this ;
+}
 
-  static inline GlobalPoint etaPhiPerp(float eta, float phi, float perp) {
-    return GlobalPoint(perp*cosf(phi),perp*sinf(phi),perp*sinhf(eta));
-  }
+IdealObliquePrism::IdealObliquePrism( const GlobalPoint& faceCenter, 
+				      const CornersMgr*  mgr       ,
+				      const CCGFloat*    parm       )
+  : CaloCellGeometry ( faceCenter, mgr, parm )
+{initSpan();}
 
-  static inline GlobalPoint etaPhiZ(float eta, float phi, float z) {
-    return GlobalPoint(z*cosf(phi)/sinhf(eta),z*sinf(phi)/sinhf(eta),z);
-  }
-  
-  IdealObliquePrism::IdealObliquePrism(float eta, float phi, float radialDistanceToFront, float widthEta, float widthPhi, float thickness, bool parallelToZaxis) :
-    CaloCellGeometry(etaPhiR(eta,phi,radialDistanceToFront)),
-    hwidthEta_(widthEta/2),
-    hwidthPhi_(widthPhi/2),
-  thickness_((parallelToZaxis)?(thickness):(-thickness))
-  {
-  }
+IdealObliquePrism::~IdealObliquePrism() 
+{}
 
-  const std::vector<GlobalPoint> & IdealObliquePrism::getCorners() const {
-    if (points_.empty()) {
-      if (thickness_>0) { 
-	/* In this case, the faces are parallel to the zaxis.  This implies that all corners will have the same 
-	   cylindrical radius. 
-	*/
-	GlobalPoint p=getPosition();
-	float r_near=p.perp()/cos(hwidthPhi_);
-	float r_far=r_near*((p.mag()+thickness_)/(p.mag())); // geometry...
-	float eta=p.eta();
-	float phi=p.phi();
-	points_.push_back(etaPhiPerp(eta+hwidthEta_,phi+hwidthPhi_,r_near)); // (+,+,near)
-	points_.push_back(etaPhiPerp(eta+hwidthEta_,phi-hwidthPhi_,r_near)); // (+,-,near)
-	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi-hwidthPhi_,r_near)); // (-,-,near)
-	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi+hwidthPhi_,r_near)); // (-,+,near)
-	points_.push_back(etaPhiPerp(eta+hwidthEta_,phi+hwidthPhi_,r_far)); // (+,+,far)
-	points_.push_back(etaPhiPerp(eta+hwidthEta_,phi-hwidthPhi_,r_far)); // (+,-,far)
-	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi-hwidthPhi_,r_far)); // (-,-,far)
-	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi+hwidthPhi_,r_far)); // (-,+,far)
-      } else {
-	/* In this case, the faces are perpendicular to the zaxis.  This implies that all corners will have the same 
-	   z-dimension. 
-	*/
-	GlobalPoint p=getPosition();
-	float z_near=p.z();
-	float z_far=z_near*((p.mag()-thickness_)/(p.mag())); // geometry... (negative to correct sign)
-	float eta=p.eta();
-	float phi=p.phi();
-	points_.push_back(etaPhiZ(eta+hwidthEta_,phi+hwidthPhi_,z_near)); // (+,+,near)
-	points_.push_back(etaPhiZ(eta+hwidthEta_,phi-hwidthPhi_,z_near)); // (+,-,near)
-	points_.push_back(etaPhiZ(eta-hwidthEta_,phi-hwidthPhi_,z_near)); // (-,-,near)
-	points_.push_back(etaPhiZ(eta-hwidthEta_,phi+hwidthPhi_,z_near)); // (-,+,near)
-	points_.push_back(etaPhiZ(eta+hwidthEta_,phi+hwidthPhi_,z_far)); // (+,+,far)
-	points_.push_back(etaPhiZ(eta+hwidthEta_,phi-hwidthPhi_,z_far)); // (+,-,far)
-	points_.push_back(etaPhiZ(eta-hwidthEta_,phi-hwidthPhi_,z_far)); // (-,-,far)
-	points_.push_back(etaPhiZ(eta-hwidthEta_,phi+hwidthPhi_,z_far)); // (-,+,far)
-      }    
-    }
-    return points_;
-  }
+CCGFloat 
+IdealObliquePrism::dEta()  const 
+{
+   return param()[0] ;
+}
 
-  bool IdealObliquePrism::inside(const GlobalPoint& point) const {
-    // first check eta/phi
-    bool is_inside=true;
-    const GlobalPoint& face=getPosition();
-    // eta
-    is_inside=is_inside && fabs(point.eta()-face.eta())<=hwidthEta_;
-    // phi
-    is_inside=is_inside && fabs(point.phi()-face.phi())<=hwidthPhi_;
+CCGFloat 
+IdealObliquePrism::dPhi()  const 
+{ 
+   return param()[1] ;
+}
 
-    // distance (trickier)
-    if (is_inside) {
-      GlobalPoint face2=etaPhiR(face.eta(),face.phi(),face.mag()+fabs(thickness_));
-      if (thickness_>0) { // 
-	float projection=point.perp()*cos(point.phi()-face.phi());
-	is_inside=is_inside && projection>=face.perp();
-	is_inside=is_inside && projection<=face2.perp();
-      } else { // here, it is just a Z test.
-	is_inside=is_inside && ((face.z()<0)?(point.z()<=face.z()):(point.z()>=face.z())); // "front" face
-	is_inside=is_inside && ((face.z()<0)?(point.z()>=face2.z()):(point.z()<=face2.z())); // "back" face
+CCGFloat 
+IdealObliquePrism::dz()    const 
+{
+   return param()[2] ;
+}
+
+CCGFloat 
+IdealObliquePrism::eta()   const
+{
+   return param()[3] ; 
+}
+
+CCGFloat 
+IdealObliquePrism::z()     const 
+{
+   return param()[4] ;
+}
+
+void 
+IdealObliquePrism::vocalCorners( Pt3DVec&        vec ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref  ) const 
+{ 
+   localCorners( vec, pv, ref ) ; 
+}
+
+  /*
+   static GlobalPoint etaPhiR( float eta, float phi, float rad )
+   {
+      return GlobalPoint( rad*cosf(phi)/coshf(eta) , 
+			  rad*sinf(phi)/coshf(eta) ,
+			  rad*tanhf(eta)            ) ;
+   }
+  */
+
+GlobalPoint
+IdealObliquePrism::etaPhiPerp( float eta, float phi, float perp )  
+{
+   return GlobalPoint( perp*cosf(phi) ,
+		       perp*sinf(phi) ,
+		       perp*sinhf(eta) ) ;
+}
+
+GlobalPoint 
+IdealObliquePrism::etaPhiZ(float eta, float phi, float z) 
+{
+   return GlobalPoint( z*cosf(phi)/sinhf(eta) , 
+		       z*sinf(phi)/sinhf(eta) ,
+		       z                       ) ;
+}
+
+void IdealObliquePrism::localCorners( Pt3DVec&        lc  ,
+				      const CCGFloat* pv  ,
+				      Pt3D&           ref   )
+{
+   assert( 8 == lc.size() ) ;
+   assert( 0 != pv ) ;
+   
+   const CCGFloat dEta ( pv[0] ) ;
+   const CCGFloat dPhi ( pv[1] ) ;
+   const CCGFloat dz   ( pv[2] ) ;
+   const CCGFloat eta  ( pv[3] ) ;
+   const CCGFloat z    ( pv[4] ) ;
+   
+   std::vector<GlobalPoint> gc ( 8, GlobalPoint(0,0,0) ) ;
+
+   const GlobalPoint p ( etaPhiZ( eta, 0, z ) ) ;
+
+   if( 0 < dz )
+   {
+      const CCGFloat r_near ( p.perp()/cos( dPhi ) ) ;
+      const CCGFloat r_far  ( r_near*( ( p.mag() + 2*dz )/p.mag() ) ) ;
+      gc[ 0 ] = etaPhiPerp( eta + dEta , +dPhi , r_near ) ; // (+,+,near)
+      gc[ 1 ] = etaPhiPerp( eta + dEta , -dPhi , r_near ) ; // (+,-,near)
+      gc[ 2 ] = etaPhiPerp( eta - dEta , -dPhi , r_near ) ; // (-,-,near)
+      gc[ 3 ] = etaPhiPerp( eta - dEta , +dPhi , r_near ) ; // (-,+,far)
+      gc[ 4 ] = etaPhiPerp( eta + dEta , +dPhi , r_far  ) ; // (+,+,far)
+      gc[ 5 ] = etaPhiPerp( eta + dEta , -dPhi , r_far  ) ; // (+,-,far)
+      gc[ 6 ] = etaPhiPerp( eta - dEta , -dPhi , r_far  ) ; // (-,-,far)
+      gc[ 7 ] = etaPhiPerp( eta - dEta , +dPhi , r_far  ) ; // (-,+,far)
+   }
+   else
+   {
+      const CCGFloat z_near ( z ) ;
+      const CCGFloat z_far  ( z*( 1 - 2*dz/p.mag() ) ) ;
+      gc[ 0 ] = etaPhiZ( eta + dEta , +dPhi , z_near ) ; // (+,+,near)
+      gc[ 1 ] = etaPhiZ( eta + dEta , -dPhi , z_near ) ; // (+,-,near)
+      gc[ 2 ] = etaPhiZ( eta - dEta , -dPhi , z_near ) ; // (-,-,near)
+      gc[ 3 ] = etaPhiZ( eta - dEta , +dPhi , z_near ) ; // (-,+,far)
+      gc[ 4 ] = etaPhiZ( eta + dEta , +dPhi , z_far  ) ; // (+,+,far)
+      gc[ 5 ] = etaPhiZ( eta + dEta , -dPhi , z_far  ) ; // (+,-,far)
+      gc[ 6 ] = etaPhiZ( eta - dEta , -dPhi , z_far  ) ; // (-,-,far)
+      gc[ 7 ] = etaPhiZ( eta - dEta , +dPhi , z_far  ) ; // (-,+,far)
+   }
+   for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+   {
+      lc[i] = Pt3D( gc[i].x(), gc[i].y(), gc[i].z() ) ;
+   }
+   
+   ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
+}
+
+const CaloCellGeometry::CornersVec& 
+IdealObliquePrism::getCorners() const
+{
+   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
+   if( co.uninitialized() )
+   {
+      CornersVec& corners ( setCorners() ) ;
+      if( dz()>0 ) 
+      { 
+	 /* In this case, the faces are parallel to the zaxis.  
+	    This implies that all corners will have the same 
+	    cylindrical radius. 
+	 */
+	 const GlobalPoint p      ( getPosition() ) ;
+	 const CCGFloat    r_near ( p.perp()/cos(dPhi()) ) ;
+	 const CCGFloat    r_far  ( r_near*( ( p.mag() + 2*dz() )/p.mag() ) ) ;
+	 const CCGFloat    eta    ( p.eta() ) ;
+	 const CCGFloat    phi    ( p.phi() ) ;
+	 corners[ 0 ] = etaPhiPerp( eta + dEta() , phi + dPhi() , r_near ) ; // (+,+,near)
+	 corners[ 1 ] = etaPhiPerp( eta + dEta() , phi - dPhi() , r_near ) ; // (+,-,near)
+	 corners[ 2 ] = etaPhiPerp( eta - dEta() , phi - dPhi() , r_near ) ; // (-,-,near)
+	 corners[ 3 ] = etaPhiPerp( eta - dEta() , phi + dPhi() , r_near ) ; // (-,+,near)
+	 corners[ 4 ] = etaPhiPerp( eta + dEta() , phi + dPhi() , r_far ) ; // (+,+,far)
+	 corners[ 5 ] = etaPhiPerp( eta + dEta() , phi - dPhi() , r_far ) ; // (+,-,far)
+	 corners[ 6 ] = etaPhiPerp( eta - dEta() , phi - dPhi() , r_far ) ; // (-,-,far)
+	 corners[ 7 ] = etaPhiPerp( eta - dEta() , phi + dPhi() , r_far ) ; // (-,+,far)
+      } 
+      else 
+      {
+	 /* In this case, the faces are perpendicular to the zaxis.  
+	    This implies that all corners will have the same 
+	    z-dimension. 
+	 */
+	 const GlobalPoint p      ( getPosition() ) ;
+	 const CCGFloat    z_near ( p.z() ) ;
+	 const CCGFloat    mag    ( p.mag() ) ;
+	 const CCGFloat    z_far  ( z_near*( 1 - 2*dz()/mag ) ) ; // negative to correct sign
+	 const CCGFloat    eta    ( p.eta() ) ;
+	 const CCGFloat    phi    ( p.phi() ) ;
+	 
+	 corners[ 0 ] = etaPhiZ( eta + dEta(), phi + dPhi(), z_near ) ; // (+,+,near)
+	 corners[ 1 ] = etaPhiZ( eta + dEta(), phi - dPhi(), z_near ) ; // (+,-,near)
+	 corners[ 2 ] = etaPhiZ( eta - dEta(), phi - dPhi(), z_near ) ; // (-,-,near)
+	 corners[ 3 ] = etaPhiZ( eta - dEta(), phi + dPhi(), z_near ) ; // (-,+,near)
+	 corners[ 4 ] = etaPhiZ( eta + dEta(), phi + dPhi(), z_far  ) ; // (+,+,far)
+	 corners[ 5 ] = etaPhiZ( eta + dEta(), phi - dPhi(), z_far  ) ; // (+,-,far)
+	 corners[ 6 ] = etaPhiZ( eta - dEta(), phi - dPhi(), z_far  ) ; // (-,-,far)
+	 corners[ 7 ] = etaPhiZ( eta - dEta(), phi + dPhi(), z_far  ) ; // (-,+,far)
+	 
       }
-    }
-    return is_inside;
-  }
+   }
+   return co ;
+}
+
+std::ostream& operator<<( std::ostream& s, const IdealObliquePrism& cell ) 
+{
+   s << "Center: " <<  cell.getPosition() << std::endl ;
+   s << "dEta = " << cell.dEta() << ", dPhi = " << cell.dPhi() << ", dz = " << cell.dz() << std::endl ;
+   return s;
 }

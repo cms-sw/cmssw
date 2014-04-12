@@ -4,8 +4,6 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +11,14 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+class MonitorElement;
+class DQMStore;
 
 class EBLaserTask: public edm::EDAnalyzer{
 
@@ -31,10 +36,19 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -46,66 +60,60 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
-edm::InputTag EcalRawDataCollection_;
-edm::InputTag EBDigiCollection_;
-edm::InputTag EcalPnDiodeDigiCollection_;
-edm::InputTag EcalUncalibratedRecHitCollection_;
+bool mergeRuns_;
 
-MonitorElement* meShapeMapL1A_[36];
-MonitorElement* meAmplMapL1A_[36];
-MonitorElement* meTimeMapL1A_[36];
-MonitorElement* meAmplPNMapL1A_[36];
-MonitorElement* meShapeMapL1B_[36];
-MonitorElement* meAmplMapL1B_[36];
-MonitorElement* meTimeMapL1B_[36];
-MonitorElement* meAmplPNMapL1B_[36];
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<EBDigiCollection> EBDigiCollection_;
+edm::EDGetTokenT<EcalPnDiodeDigiCollection> EcalPnDiodeDigiCollection_;
+edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EcalUncalibratedRecHitCollection_;
+std::vector<int> laserWavelengths_;
+
+MonitorElement* meShapeMapL1_[36];
+MonitorElement* meAmplMapL1_[36];
+MonitorElement* meTimeMapL1_[36];
+MonitorElement* meAmplPNMapL1_[36];
 MonitorElement* mePnAmplMapG01L1_[36];
 MonitorElement* mePnPedMapG01L1_[36];
 MonitorElement* mePnAmplMapG16L1_[36];
 MonitorElement* mePnPedMapG16L1_[36];
 
-MonitorElement* meShapeMapL2A_[36];
-MonitorElement* meAmplMapL2A_[36];
-MonitorElement* meTimeMapL2A_[36];
-MonitorElement* meAmplPNMapL2A_[36];
-MonitorElement* meShapeMapL2B_[36];
-MonitorElement* meAmplMapL2B_[36];
-MonitorElement* meTimeMapL2B_[36];
-MonitorElement* meAmplPNMapL2B_[36];
+MonitorElement* meShapeMapL2_[36];
+MonitorElement* meAmplMapL2_[36];
+MonitorElement* meTimeMapL2_[36];
+MonitorElement* meAmplPNMapL2_[36];
 MonitorElement* mePnAmplMapG01L2_[36];
 MonitorElement* mePnPedMapG01L2_[36];
 MonitorElement* mePnAmplMapG16L2_[36];
 MonitorElement* mePnPedMapG16L2_[36];
 
-MonitorElement* meShapeMapL3A_[36];
-MonitorElement* meAmplMapL3A_[36];
-MonitorElement* meTimeMapL3A_[36];
-MonitorElement* meAmplPNMapL3A_[36];
-MonitorElement* meShapeMapL3B_[36];
-MonitorElement* meAmplMapL3B_[36];
-MonitorElement* meTimeMapL3B_[36];
-MonitorElement* meAmplPNMapL3B_[36];
+MonitorElement* meShapeMapL3_[36];
+MonitorElement* meAmplMapL3_[36];
+MonitorElement* meTimeMapL3_[36];
+MonitorElement* meAmplPNMapL3_[36];
 MonitorElement* mePnAmplMapG01L3_[36];
 MonitorElement* mePnPedMapG01L3_[36];
 MonitorElement* mePnAmplMapG16L3_[36];
 MonitorElement* mePnPedMapG16L3_[36];
 
-MonitorElement* meShapeMapL4A_[36];
-MonitorElement* meAmplMapL4A_[36];
-MonitorElement* meTimeMapL4A_[36];
-MonitorElement* meAmplPNMapL4A_[36];
-MonitorElement* meShapeMapL4B_[36];
-MonitorElement* meAmplMapL4B_[36];
-MonitorElement* meTimeMapL4B_[36];
-MonitorElement* meAmplPNMapL4B_[36];
+MonitorElement* meShapeMapL4_[36];
+MonitorElement* meAmplMapL4_[36];
+MonitorElement* meTimeMapL4_[36];
+MonitorElement* meAmplPNMapL4_[36];
 MonitorElement* mePnAmplMapG01L4_[36];
 MonitorElement* mePnPedMapG01L4_[36];
 MonitorElement* mePnAmplMapG16L4_[36];
 MonitorElement* mePnPedMapG16L4_[36];
+
+ MonitorElement* meAmplSummaryMapL1_;
+ MonitorElement* meAmplSummaryMapL2_;
+ MonitorElement* meAmplSummaryMapL3_;
+ MonitorElement* meAmplSummaryMapL4_;
 
 bool init_;
 

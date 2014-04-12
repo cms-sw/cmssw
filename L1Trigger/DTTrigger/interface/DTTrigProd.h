@@ -4,8 +4,6 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2007/02/09 11:26:18 $
- *   $Revision: 1.3 $
  *
  *   \author C. Battilana
  *
@@ -36,7 +34,8 @@ public:
   ~DTTrigProd();
 
   //! Create Trigger Units before starting event processing
-  void beginJob(const edm::EventSetup & iEventSetup);
+  //void beginJob(const edm::EventSetup & iEventSetup);
+  void beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
   
   //! Producer: process every event and generates trigger data
   void produce(edm::Event & iEvent, const edm::EventSetup& iEventSetup);
@@ -45,6 +44,9 @@ private:
 
   // Trigger istance
   DTTrig* my_trig;
+
+  // Trigger Configuration Manager CCB validity flag
+  bool my_CCBValid;
 
   // Sector Format Flag true=[0-11] false=[1-12]
   bool my_DTTFnum;
@@ -55,6 +57,13 @@ private:
   // Debug Flag
   bool my_debug;
 
+  // Lut dump file parameters
+  bool my_lut_dump_flag;
+  short int my_lut_btic;
+
+  // ParameterSet
+  edm::ParameterSet my_params;
+   
 };
  
 #endif

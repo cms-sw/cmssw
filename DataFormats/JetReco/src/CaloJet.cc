@@ -1,6 +1,5 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.13 2007/05/03 21:13:18 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -10,6 +9,12 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 using namespace reco;
+
+ CaloJet::CaloJet (const LorentzVector& fP4, const Point& fVertex, 
+		   const Specific& fSpecific)
+   : Jet (fP4, fVertex),
+     m_specific (fSpecific)
+ {}
 
  CaloJet::CaloJet (const LorentzVector& fP4, const Point& fVertex, 
  		  const Specific& fSpecific, 
@@ -25,35 +30,69 @@ CaloJet::CaloJet (const LorentzVector& fP4,
     m_specific (fSpecific)
 {}
 
-CaloTowerRef CaloJet::caloTower (const reco::Candidate* fConstituent) {
-  if (fConstituent) {
-    const RecoCaloTowerCandidate* towerCandidate = dynamic_cast <const RecoCaloTowerCandidate*> (fConstituent);
+
+/// Physics Eta (use reference Z and jet kinematics only)
+//float CaloJet::physicsEtaQuick (float fZVertex) const {
+//  return Jet::physicsEta (fZVertex, eta());
+//}
+
+/// Physics Eta (loop over constituents)
+//float CaloJet::physicsEtaDetailed (float fZVertex) const {
+//  Jet::LorentzVector correctedMomentum;
+//  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+//  for (unsigned i = 0; i < towers.size(); ++i) {
+//    const Candidate* c = towers[i];
+//    double etaRef = Jet::physicsEta (fZVertex, c->eta());
+//    math::PtEtaPhiMLorentzVectorD p4 (c->p()/cosh(etaRef), etaRef, c->phi(), c->mass());
+//    correctedMomentum += p4;
+//  }
+//  return correctedMomentum.eta();
+//}
+
+/// Physics p4 (use jet Z and kinematics only)
+//deprecated, with 3d vertex correction not clear anymore!
+//CaloJet::LorentzVector CaloJet::physicsP4 (float fZVertex) const {
+//  double physicsEta = Jet::physicsEta (fZVertex, eta());
+//  math::PtEtaPhiMLorentzVectorD p4 (p()/cosh(physicsEta), physicsEta, phi(), mass());
+//  return CaloJet::LorentzVector (p4);
+//}
+
+CaloJet::LorentzVector CaloJet::physicsP4 (const Particle::Point &vertex) const {
+  return Jet::physicsP4(vertex,*this,this->vertex());
+}
+
+CaloJet::LorentzVector CaloJet::detectorP4 () const {
+  return Jet::detectorP4(this->vertex(),*this);
+}
+
+
+CaloTowerPtr CaloJet::getCaloConstituent (unsigned fIndex) const {
+   Constituent dau = daughterPtr (fIndex);
+
+   if ( dau.isNonnull() && dau.isAvailable() ) {
+
+   const CaloTower* towerCandidate = dynamic_cast <const CaloTower*> (dau.get());
+
     if (towerCandidate) {
-      return towerCandidate->caloTower ();
+//      return towerCandidate;
+// 086     Ptr(ProductID const& productID, T const* item, key_type item_key) :
+      return edm::Ptr<CaloTower> (dau.id(), towerCandidate, dau.key() );
     }
     else {
-      throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of RecoCandidate type";
+      throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTowere type";
     }
-  }
-  return CaloTowerRef ();
-}
 
-CaloTowerRef CaloJet::getConstituent (unsigned fIndex) const {
-  // no direct access, have to iterate for now
-  int index (fIndex);
-  Candidate::const_iterator daugh = begin ();
-  for (; --index >= 0 && daugh != end (); daugh++) {}
-  if (daugh != end ()) { // in range
-    const Candidate* constituent = &*daugh; // deref
-    return caloTower (constituent);
-  }
-  return CaloTowerRef ();
+   }
+
+   else {
+     return CaloTowerPtr();
+   }
 }
 
 
-std::vector <CaloTowerRef> CaloJet::getConstituents () const {
-  std::vector <CaloTowerRef> result;
-  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getConstituent (i));
+std::vector <CaloTowerPtr > CaloJet::getCaloConstituents () const {
+  std::vector <CaloTowerPtr> result;
+  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getCaloConstituent (i));
   return result;
 }
 
@@ -75,7 +114,7 @@ std::string CaloJet::print () const {
       << "      had energy in HB/HO/HE/HF: " << hadEnergyInHB() << '/' << hadEnergyInHO() << '/' << hadEnergyInHE() << '/' << hadEnergyInHF() << std::endl
       << "      constituent towers area: " << towersArea() << std::endl;
   out << "      Towers:" << std::endl;
-  std::vector <CaloTowerRef> towers = getConstituents ();
+  std::vector <CaloTowerPtr > towers = getCaloConstituents ();
   for (unsigned i = 0; i < towers.size (); i++) {
     if (towers[i].get ()) {
       out << "      #" << i << " " << *(towers[i]) << std::endl;
@@ -87,16 +126,15 @@ std::string CaloJet::print () const {
   return out.str ();
 }
 
-std::vector<CaloTowerDetId> CaloJet::getTowerIndices() const {
-  std::cerr << "===============================================================================" << std::endl 
-	    << " OUT OF DATE! CaloJet::getTowerIndices() method is depricated and does nothing." << std::endl
-	    << " Please use CaloJet::getConstituents() method to access constituent towers. " << std::endl
-	    << "===============================================================================" << std::endl;
-  return std::vector<CaloTowerDetId> ();
-}
-
 //----------------------------------------------------------
 // here are methods extracting information from constituents
 //----------------------------------------------------------
 
-
+std::vector<CaloTowerDetId> CaloJet::getTowerIndices() const {
+  std::vector<CaloTowerDetId> result;
+  std::vector <CaloTowerPtr> towers = getCaloConstituents ();
+  for (unsigned i = 0; i < towers.size(); ++i) {
+    result.push_back (towers[i]->id());
+  }
+  return result;
+}

@@ -6,14 +6,12 @@
  *  in the measurement frame (the one perpendicular to the strip).
  *  Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:58:19 $
- *  $Revision: 1.1.2.1 $
  *  \author todorov, cerati
  */
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
-class Chi2Strip1DEstimator : public Chi2MeasurementEstimatorBase {
+class Chi2Strip1DEstimator GCC11_FINAL : public Chi2MeasurementEstimatorBase {
 
 public:
 
@@ -21,7 +19,7 @@ public:
     Chi2MeasurementEstimatorBase( maxChi2, nSigma) {}
 
   virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				     const TransientTrackingRecHit&) const;
+				     const TrackingRecHit&) const;
 
   virtual Chi2Strip1DEstimator* clone() const {
     return new Chi2Strip1DEstimator(*this);

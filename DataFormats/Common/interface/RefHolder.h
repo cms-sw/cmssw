@@ -1,11 +1,12 @@
-#ifndef Common_RefHolder_h
-#define Common_RefHolder_h
+#ifndef DataFormats_Common_RefHolder_h
+#define DataFormats_Common_RefHolder_h
 #include "DataFormats/Common/interface/RefHolder_.h"
 
 #include "DataFormats/Common/interface/IndirectVectorHolder.h"
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/HolderToVectorTrait.h"
+#include <memory>
 
 namespace edm {
   namespace reftobase {

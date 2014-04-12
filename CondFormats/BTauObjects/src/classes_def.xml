@@ -1,21 +1,23 @@
      <lcgdict>
-        <class name="CalibratedHistogram"/>
-        <class name="std::vector<float>"/>
-
         <class name="TrackProbabilityCategoryData"/>      
-        <class name="TrackProbabilityCalibration"/>
 	<class name="TrackProbabilityCalibration::Entry"/>
 	<class name="std::vector<TrackProbabilityCalibration::Entry>"/>     
+        <class name="TrackProbabilityCalibration" class_version="0">
+           <field name="data" mapping="blob"/>
+        </class>
 
         <class name="CombinedSVCategoryData"/>      
-        <class name="CombinedSVCalibration"/>
 	<class name="CombinedSVCalibration::Entry"/>
 	<class name="std::vector<CombinedSVCalibration::Entry>"/>     
-        
-        
+        <class name="CombinedSVCalibration" class_version="0">
+           <field name="data" mapping="blob"/>
+        </class>
+
         <class name="CombinedTauTagCategoryData"/>        
-        <class name="CombinedTauTagCalibration"/>
         <class name="CombinedTauTagCalibration::Entry"/>
         <class name="std::vector<CombinedTauTagCalibration::Entry>"/>      
-  <class pattern="*iterator*"/>
+        <class name="CombinedTauTagCalibration" class_version="0">
+           <field name="data" mapping="blob"/>
+        </class>
+
 </lcgdict>   

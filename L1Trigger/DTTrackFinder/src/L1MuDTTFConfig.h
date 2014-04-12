@@ -5,8 +5,6 @@
  *   Configuration parameters for L1MuDTTrackFinder
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -30,6 +28,7 @@
 //------------------------------------
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 //              ---------------------
 //              -- Class Interface --
@@ -45,6 +44,9 @@ class L1MuDTTFConfig {
     /// destructor 
     virtual ~L1MuDTTFConfig();
 
+    static edm::InputTag getDTDigiInputTag() { return m_DTDigiInputTag; }
+    static edm::InputTag getCSCTrSInputTag() { return m_CSCTrSInputTag; }
+ 
     static bool Debug() { return m_debug; }
     static bool Debug(int level) { return (m_debug && m_dbgLevel >= level); }
  
@@ -55,8 +57,10 @@ class L1MuDTTFConfig {
     static int  getBxMax() { return m_BxMax; }
     static bool overlap() { return m_overlap; }
     static int getExtTSFilter() { return m_extTSFilter; } 
+    static bool getopenLUTs() { return m_openLUTs; } 
     static bool getUseEX21() { return m_useEX21; }
     static bool getEtaTF() { return m_etaTF; }
+    static bool getEtaCanc() { return m_etacanc; }
     static bool getTSOutOfTimeFilter() { return m_TSOutOfTimeFilter; }
     static int  getTSOutOfTimeWindow() { return m_TSOutOfTimeWindow; }
     static int getNbitsExtPhi() { return m_NbitsExtPhi; }
@@ -74,6 +78,9 @@ class L1MuDTTFConfig {
 
     const edm::ParameterSet* m_ps;
 
+    static edm::InputTag m_DTDigiInputTag;
+    static edm::InputTag m_CSCTrSInputTag;
+
     static bool   m_debug;             // debug flag 
     static int    m_dbgLevel;          // debug level
 
@@ -84,9 +91,13 @@ class L1MuDTTFConfig {
 
     static int    m_extTSFilter;       // Extrapolation TS-Quality Filter
  
+    static bool   m_openLUTs;          // use open LUTs
+
     static bool   m_useEX21;           // perform EX21 extrapolation (cross-check EX12)
 
     static bool   m_etaTF;             // use eta track finder
+
+    static bool   m_etacanc;           // use etaFlag for CSC segment cancellation
 
     static bool   m_TSOutOfTimeFilter; // perform out-of-time TS cancellation
     static int    m_TSOutOfTimeWindow; // phi window size to be checked

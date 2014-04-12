@@ -1,8 +1,6 @@
 /*
  * \file DTTestPulsesTask.cc
- * 
- * $Date: 2007/03/13 18:59:53 $
- * $Revision: 1.9 $
+ *
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -10,16 +8,9 @@
 #include <DQM/DTMonitorModule/interface/DTTestPulsesTask.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 // Digis
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
 // Geometry
@@ -33,6 +24,7 @@
 #include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 #include <CondFormats/DTObjects/interface/DTRangeT0.h>
 #include <CondFormats/DataRecord/interface/DTRangeT0Rcd.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 using namespace edm;
@@ -43,38 +35,36 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
 
 
   cout<<"[DTTestPulseTask]: Constructor"<<endl;
-
-  outputFile = ps.getUntrackedParameter<string>("outputFile", "DTTestPulesSources.root");
+  dtDigisToken_ = consumes<DTDigiCollection>(
+      edm::InputTag(ps.getUntrackedParameter<std::string>("dtdigis", "dtunpacker")));
 
   parameters = ps;
 
 
-  t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100), 
+  t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100),
 			    parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100));
 
-  
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-  edm::Service<MonitorDaemon> daemon; 	 
-  daemon.operator->();
-
-  dbe->setVerbose(1);
+  dbe = edm::Service<DQMStore>().operator->();
 
 }
 
 DTTestPulsesTask::~DTTestPulsesTask(){
 
   cout <<"[DTTestPulsesTask]: analyzed " << nevents << " events" << endl;
-  
-  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true))) dbe->save(outputFile);
+
 }
 
 
-void DTTestPulsesTask::beginJob(const edm::EventSetup& context){
+void DTTestPulsesTask::beginJob(){
 
   cout<<"[DTTestPulsesTask]: BeginJob"<<endl;
 
   nevents = 0;
+
+}
+
+void DTTestPulsesTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
@@ -84,19 +74,18 @@ void DTTestPulsesTask::beginJob(const edm::EventSetup& context){
 
 }
 
-
 void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, string histoTag) {
 
 
-  stringstream wheel; wheel << dtLayer.wheel();	
-  stringstream station; station << dtLayer.station();	
-  stringstream sector; sector << dtLayer.sector();	
-  stringstream superLayer; superLayer << dtLayer.superlayer();	
-  stringstream layer; layer << dtLayer.layer();	
+  stringstream wheel; wheel << dtLayer.wheel();
+  stringstream station; station << dtLayer.station();
+  stringstream sector; sector << dtLayer.sector();
+  stringstream superLayer; superLayer << dtLayer.superlayer();
+  stringstream layer; layer << dtLayer.layer();
 
   cout<<"[DTTestPulseTask]: booking"<<endl;
 
-  // TP Profiles  
+  // TP Profiles
   if ( folder == "TPProfile" ) {
 
     const int nWires = muonGeom->layer(DTLayerId(dtLayer.wheel(),
@@ -107,27 +96,27 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
 
     dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
 			  "/Station" + station.str() +
-			  "/Sector" + sector.str() + 
-			  "/SuperLayer" + superLayer.str() + 
+			  "/Sector" + sector.str() +
+			  "/SuperLayer" + superLayer.str() +
 			  "/" +folder);
-    
-    string histoName = histoTag 
-      + "_W" + wheel.str() 
-      + "_St" + station.str() 
-      + "_Sec" + sector.str() 
-      + "_SL" + superLayer.str() 
+
+    string histoName = histoTag
+      + "_W" + wheel.str()
+      + "_St" + station.str()
+      + "_Sec" + sector.str()
+      + "_SL" + superLayer.str()
       + "_L" + layer.str();
 
-    // Setting the range 
+    // Setting the range
     if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
       t0RangeMap->slRangeT0( dtLayer.superlayerId() , t0sPeakRange.first, t0sPeakRange.second);
     }
-    
-    
+
+
     cout<<"t0sRangeLowerBound "<<t0sPeakRange.first<<"; "
 	<<"t0sRangeUpperBound "<<t0sPeakRange.second<<endl;
-    
-    
+
+
     testPulsesProfiles[int(DTLayerId(dtLayer.wheel(),
 				   dtLayer.station(),
 				   dtLayer.sector(),
@@ -143,29 +132,29 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
 
     dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
 			  "/Station" + station.str() +
-			  "/Sector" + sector.str() + 
-			  "/SuperLayer" + superLayer.str() + 
+			  "/Sector" + sector.str() +
+			  "/SuperLayer" + superLayer.str() +
 			  "/" +folder);
-    
-    string histoName = histoTag 
-      + "_W" + wheel.str() 
-      + "_St" + station.str() 
-      + "_Sec" + sector.str() 
-      + "_SL" + superLayer.str() 
+
+    string histoName = histoTag
+      + "_W" + wheel.str()
+      + "_St" + station.str()
+      + "_Sec" + sector.str()
+      + "_SL" + superLayer.str()
       + "_L" + layer.str();
-    
+
     const int nWires = muonGeom->layer(DTLayerId(dtLayer.wheel(),
 						 dtLayer.station(),
 						 dtLayer.sector(),
 						 dtLayer.superlayer(),
 						 dtLayer.layer()))->specificTopology().channels();
-    
+
     testPulsesOccupancies[int(DTLayerId(dtLayer.wheel(),
 					dtLayer.station(),
 					dtLayer.sector(),
 					dtLayer.superlayer(),
 					dtLayer.layer()).rawId())] =
-      dbe->book1D(histoName, histoName, nWires, 0, nWires); 
+      dbe->book1D(histoName, histoName, nWires, 0, nWires);
   }
 
   // Time Box per Chamber
@@ -173,19 +162,19 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
 
     dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
 			  "/Station" + station.str() +
-			  "/Sector" + sector.str() + 
+			  "/Sector" + sector.str() +
 			  "/" +folder);
-    
-    string histoName = histoTag 
-      + "_W" + wheel.str() 
-      + "_St" + station.str() 
-      + "_Sec" + sector.str(); 
-    
+
+    string histoName = histoTag
+      + "_W" + wheel.str()
+      + "_St" + station.str()
+      + "_Sec" + sector.str();
+
     testPulsesTimeBoxes[int( DTLayerId(dtLayer.wheel(),
 				       dtLayer.station(),
 				       dtLayer.sector(),
 				       dtLayer.superlayer(),
-				       dtLayer.layer()).chamberId().rawId())] = 
+				       dtLayer.layer()).chamberId().rawId())] =
       dbe->book1D(histoName, histoName, 10000, 0, 10000); // Overview of the TP (and noise) times
   }
 
@@ -195,23 +184,23 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
 void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   nevents++;
-  
+
   edm::Handle<DTDigiCollection> dtdigis;
-  e.getByLabel("dtunpacker", dtdigis);
-  
+  e.getByToken(dtDigisToken_, dtdigis);
+
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
-    
+
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
-      
+
       // for clearness..
       int layerIndex = ((*dtLayerId_It).first).rawId();
       int chIndex = ((*dtLayerId_It).first).chamberId().rawId();
 
 
-      if ((*digiIt).countsTDC() > t0sPeakRange.first &&
-	  (*digiIt).countsTDC() < t0sPeakRange.second ) {
+      if ((int)(*digiIt).countsTDC() > t0sPeakRange.first &&
+	  (int)(*digiIt).countsTDC() < t0sPeakRange.second ) {
 
 	// Occupancies
 	if (testPulsesOccupancies.find(layerIndex) != testPulsesOccupancies.end())
@@ -242,3 +231,8 @@ void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

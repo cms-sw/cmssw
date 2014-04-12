@@ -5,6 +5,7 @@
 
 class NavigableLayer;
 class NavigationSchool;
+class DetLayer;
 
 /** This class sets the navigation state given by the NavigationSchool,
  *  and saves the previous state for the affected layers.
@@ -27,10 +28,13 @@ public:
 
 private:
 
+  const NavigationSchool& theNav;
+
   StateType theSavedState;
 
-  void saveState( const StateType& newState);
+  void saveState();
   void setState( const StateType&); 
+  void cleanState();
 
 };
 

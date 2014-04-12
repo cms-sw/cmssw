@@ -2,11 +2,12 @@
 #define HELIXARBITRARYPLANECROSSING2ORDER_H_
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /** Calculates intersections of a helix with planes of
  *  any orientation using a parabolic approximation. */
 
-class HelixArbitraryPlaneCrossing2Order : public HelixPlaneCrossing {
+class HelixArbitraryPlaneCrossing2Order GCC11_FINAL : public HelixPlaneCrossing {
 
 
 public:
@@ -25,7 +26,7 @@ public:
 				    const PropagationDirection propDir = alongMomentum) :
     theX0(x0), theY0(y0), theZ0(z0),
     theCosPhi0(cosPhi0), theSinPhi0(sinPhi0),
-    theCosTheta(cosTheta), theSinTheta(sinTheta),
+    theCosTheta(cosTheta), theSinThetaI(1./sinTheta),
     theRho(rho), 
     thePropDir(propDir) {}
 
@@ -70,12 +71,12 @@ private:
 
   /** Choice of one of two solutions according to the propagation direction.
    */
-  std::pair<bool,double> solutionByDirection(const double dS1,const double dS2) const;
+  std::pair<bool,double> solutionByDirection(const double dS1,const double dS2) const dso_internal;
 
 private:
   const double theX0,theY0,theZ0;
   double theCosPhi0,theSinPhi0;
-  double theCosTheta,theSinTheta;
+  double theCosTheta,theSinThetaI;
   const double theRho;
   const PropagationDirection thePropDir;
 

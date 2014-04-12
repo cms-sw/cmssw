@@ -1,6 +1,0 @@
-<export>
- <lib name=PhysicsToolsStatPatternRecognition>
- <use name=root>
-</export>
-
-<use name=root>

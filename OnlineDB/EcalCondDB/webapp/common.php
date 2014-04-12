@@ -4,7 +4,6 @@
  * 
  * Common variables and functions for the application (basically a config
  * script)
- * $Id: common.php,v 1.4 2006/07/23 16:53:18 egeland Exp $
  */
 
 function get_conn_params($location) {

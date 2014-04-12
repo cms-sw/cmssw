@@ -22,35 +22,41 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <set>
 
-class RPCGeometry;
 class PSimHit;
+class RPCSimSetUp;
 
 namespace edm{
   class ParameterSet;
+}
+
+namespace CLHEP {
+  class HepRandomEngine;
 }
 
 class RPCSynchronizer
 {
  public:
   RPCSynchronizer(const edm::ParameterSet& config);
-  ~RPCSynchronizer(){}
-  float getReadOutTime(const RPCDetId& rpcDetId);
-  void setReadOutTime(const RPCGeometry*);
-  int getSimHitBx(const PSimHit*);
-  int getDigiBx(const PSimHit*, int, int);
+  ~RPCSynchronizer();
 
-  /// sets geometry
-  void setGeometry(const RPCGeometry * geom) {theGeometry = geom;}
+  int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine*);
+  void setRPCSimSetUp(RPCSimSetUp *simsetup){theSimSetUp = simsetup;}
+  RPCSimSetUp* getRPCSimSetUp(){ return theSimSetUp; }
 
  private:
-  std::map<RPCDetId, float> _bxmap;
-  const RPCGeometry * theGeometry;
 
   double resRPC;
   double timOff;
   double dtimCs;
   double resEle;
   double sspeed;
+  double cspeed;
   double lbGate;
+  double lbGateNew;
+  double cosmicPar;
+  double LHCGate;
+  bool cosmics;
+
+  RPCSimSetUp * theSimSetUp;
 };
 #endif

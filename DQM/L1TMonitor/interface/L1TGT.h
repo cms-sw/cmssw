@@ -1,18 +1,23 @@
 #ifndef L1TGT_H
 #define L1TGT_H
 
-/*
- * \file L1TGT.h
+/**
+ * \class L1TGT
  *
- * $Date: 2007/04/03 20:04:01 $
- * $Revision: 1.3 $
- * \author J. Berryhill
  *
-*/
+ * Description: DQM for L1 Global Trigger.
+ *
+ * \author J. Berryhill, I. Mikulec
+ * \author Vasile Mihai Ghete - HEPHY Vienna
+ *
+ *
+ */
 
 // system include files
 #include <memory>
 #include <unistd.h>
+#include <vector>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -23,72 +28,172 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+//L1 trigger includes
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
-#include <iostream>
-#include <fstream>
-#include <vector>
 
 //
-// class decleration
+// class declaration
 //
 
-class L1TGT : public edm::EDAnalyzer {
+class L1TGT: public edm::EDAnalyzer {
 
 public:
 
-// Constructor
-L1TGT(const edm::ParameterSet& ps);
+    // constructor
+    L1TGT(const edm::ParameterSet& ps);
 
-// Destructor
-virtual ~L1TGT();
-
-protected:
-// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
-void beginJob(const edm::EventSetup& c);
-
-// EndJob
-void endJob(void);
+    // destructor
+    virtual ~L1TGT();
 
 private:
-  // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
 
-  MonitorElement* gttriggerdword;
-  MonitorElement* gttriggerdbits;
-  MonitorElement* gttriggerdbitscorr;
-  MonitorElement* gtfdlbx;
-  MonitorElement* gtfdlevent;
-  MonitorElement* gtfdllocalbx;
-  MonitorElement* gtfdlbxinevent;
-  MonitorElement* gtfdlsize;
+    virtual void beginJob();
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
+            const edm::EventSetup&);
 
-  MonitorElement* gtfeboardId;
-  MonitorElement* gtferecordlength;
-  MonitorElement* gtfebx;
-  MonitorElement* gtfesetupversion; 
-  MonitorElement* gtfeactiveboards; 
-  MonitorElement* gtfetotaltrigger;
-  MonitorElement* gtfesize;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
-  bool verbose_;
-  bool monitorDaemon_;
-  ofstream logFile_;
-  edm::InputTag gtSource_;
+    /// end section
+    virtual void endLuminosityBlock(const edm::LuminosityBlock&,
+            const edm::EventSetup&);
+    virtual void endRun(const edm::Run&, const edm::EventSetup&);
+
+    virtual void endJob();
+
+private:
+
+    /// book all histograms for the module
+    void bookHistograms();
+
+    bool isActive(int word, int bit);
+    // Active boards DAQ record bit number:
+    // 0 FDL
+    // 1 PSB_0 9 Techn.Triggers for FDL
+    // 2 PSB_1 13 Calo data for GTL
+    // 3 PSB_2 14 Calo data for GTL
+    // 4 PSB_3 15 Calo data for GTL
+    // 5 PSB_4 19 M/Q bits for GMT
+    // 6 PSB_5 20 M/Q bits for GMT
+    // 7 PSB_6 21 M/Q bits for GMT
+    // 8 GMT
+    enum activeDAQ {
+        FDL = 0, PSB9, PSB13, PSB14, PSB15, PSB19, PSB20, PSB21, GMT
+    };
+    // Active boards EVM record bit number:
+    // 0 TCS
+    // 1 FDL
+    enum activeEVM {
+        TCS, FDLEVM
+    };
+
+    // count the number of indices per Ls for prescale factor sets
+    // if no errors, it must be 1
+    void countPfsIndicesPerLs();
+
+
+private:
+
+    /// input parameters
+
+    /// input tag for L1 GT DAQ readout record
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtSource_L1GT_;
+    edm::EDGetTokenT<L1MuGMTReadoutCollection> gtSource_L1MuGMT_;
+
+    /// input tag for L1 GT EVM readout record
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmSource_;
+
+    /// switches to choose the running of various methods
+    bool m_runInEventLoop;
+    bool m_runInEndLumi;
+    bool m_runInEndRun;
+    bool m_runInEndJob;
+
+
+    /// verbosity switch
+    bool verbose_;
+
+private:
+
+    MonitorElement* algo_bits;
+    MonitorElement* algo_bits_corr;
+    MonitorElement* tt_bits;
+    MonitorElement* tt_bits_corr;
+    MonitorElement* algo_tt_bits_corr;
+    MonitorElement* algo_bits_lumi;
+    MonitorElement* tt_bits_lumi;
+    MonitorElement* event_type;
+
+    MonitorElement* event_number;
+    MonitorElement* event_lumi;
+    MonitorElement* trigger_number;
+    MonitorElement* trigger_lumi;
+    MonitorElement* evnum_trignum_lumi;
+    MonitorElement* orbit_lumi;
+    MonitorElement* setupversion_lumi;
+
+    MonitorElement* gtfe_bx;
+    MonitorElement* dbx_module;
+
+    MonitorElement* BST_MasterStatus;
+    MonitorElement* BST_turnCountNumber;
+    MonitorElement* BST_lhcFillNumber;
+    MonitorElement* BST_beamMode;
+    MonitorElement* BST_beamMomentum;
+    MonitorElement* BST_intensityBeam1;
+    MonitorElement* BST_intensityBeam2;
+    MonitorElement* gpsfreq;
+    MonitorElement* gpsfreqwide;
+    MonitorElement* gpsfreqlum;
+
+    MonitorElement* m_monL1PrescaleFactorSet;
+    MonitorElement* m_monL1PfIndicesPerLs;
+
+    MonitorElement* m_monOrbitNrDiffTcsFdlEvm;
+    MonitorElement* m_monLsNrDiffTcsFdlEvm;
+    // maximum difference in orbit number, luminosity number
+    // histogram range: -(MaxOrbitNrDiffTcsFdlEvm+1), (MaxOrbitNrDiffTcsFdlEvm+1)
+    //   if value is greater than the maximum difference, fill an entry in the last but one bin
+    //   if value is smaller than the negative value of maximum difference, fill an entry
+    //     in the second bin
+    //   if no value can be retrieved for TCS, fill an entry in the first bin
+    //   if no value can be retrieved for FDL, fill an entry in the last bin
+    static const int MaxOrbitNrDiffTcsFdlEvm;
+    static const int MaxLsNrDiffTcsFdlEvm;
+
+    MonitorElement* m_monOrbitNrDiffTcsFdlEvmLs;
+    MonitorElement* m_monLsNrDiffTcsFdlEvmLs;
+
+    //MonitorElement* m_monDiffEvmDaqFdl;
+
+private:
+
+    /// internal members
+
+    DQMStore* m_dbe;
+
+    /// number of events processed
+    int m_nrEvJob;
+    int m_nrEvRun;
+
+    /// histogram folder for L1 GT plots
+    std::string m_histFolder;
+
+    boost::uint64_t preGps_;
+    boost::uint64_t preOrb_;
+
+
+    std::vector<std::pair<int,int> > m_pairLsNumberPfIndex;
+    typedef std::vector<std::pair<int, int> >::const_iterator CItVecPair;
+
+
 };
 
 #endif

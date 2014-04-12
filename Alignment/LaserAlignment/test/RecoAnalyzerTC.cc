@@ -1,12 +1,24 @@
 /** \file RecoAnalyzerTC.cc
  *  function to get some information about the TrackCandidates
  *
- *  $Date: 2007/03/18 19:00:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/14 07:39:33 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/test/RecoAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "FWCore/Framework/interface/EventSetup.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h" 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
+#include "DataFormats/DetId/interface/DetId.h" 
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h" 
+#include "DataFormats/TrackReco/interface/Track.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 
 void RecoAnalyzer::trackerTC(edm::Event const& theEvent, edm::EventSetup const& theSetup)
 {

@@ -9,20 +9,14 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTMtimeWrite.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
-#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include <string>
 #include <map>
@@ -73,7 +67,11 @@ namespace edmtest {
                   >> qua
                   >> mti
                   >> rms ) {
-      status = mTime->setSLMtime( whe, sta, sec, qua, mti, rms );
+      status = mTime->set( whe, sta, sec, qua, mti, rms,
+                           DTVelocityUnits::cm_per_ns );
+//                           DTVelocityUnits::cm_per_count );
+//                           DTTimeUnits::ns );
+//                           DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "
@@ -83,9 +81,12 @@ namespace edmtest {
       std::cout << "insert status: " << status << std::endl;
     }
 
+    chkData( mTime );
+
     if( dbservice->isNewTagRequest("DTMtimeRcd") ){
       dbservice->createNewIOV<DTMtime>(
-                 mTime,dbservice->endOfTime(),"DTMtimeRcd");
+                 mTime,dbservice->beginOfTime(),
+                       dbservice->endOfTime(),"DTMtimeRcd");
     }
     else{
       std::cout << "already present tag" << std::endl;
@@ -94,5 +95,38 @@ namespace edmtest {
     }
 
   }
+
+  void DTMtimeWrite::chkData( DTMtime* mTime ) {
+    std::ifstream ifile( "testMtime.txt" );
+    int status = 0;
+    int whe;
+    int sta;
+    int sec;
+    int qua;
+    float mti;
+    float rms;
+    float ckmti;
+    float ckrms;
+    while ( ifile >> whe
+                  >> sta
+                  >> sec
+                  >> qua
+                  >> mti
+                  >> rms ) {
+      status = mTime->get( whe, sta, sec, qua, ckmti, ckrms,
+                           DTTimeUnits::counts );
+      std::cout << whe << " "
+                << sta << " "
+                << sec << " "
+                << qua << " "
+                << mti << " "
+                << rms << "  -> "
+                << ckmti << " "
+                << ckrms << "  -> ";
+      std::cout << "get status: " << status << std::endl;
+    }
+    return;
+  }
+
   DEFINE_FWK_MODULE(DTMtimeWrite);
 }

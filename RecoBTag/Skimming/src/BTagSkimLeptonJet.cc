@@ -1,8 +1,6 @@
 /** \class BTaSkimLeptonJet
  *
  *
- * $Date: 2007/08/02 22:50:50 $
- * $Revision: 1.2 $
  *
  * \author Francisco Yumiceva, FERMILAB
  *
@@ -12,12 +10,16 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"    
-#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+//#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+//#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "RecoBTag/Skimming/interface/BTagSkimLeptonJet.h"
 
@@ -100,8 +102,8 @@ bool BTagSkimLeptonJet::filter( edm::Event& iEvent,
 	  std::stable_sort( TheMuons.begin(), TheMuons.end(), PtSorter() );
   }
 
-  Handle<PixelMatchGsfElectronCollection> ElectronHandle;
-  PixelMatchGsfElectronCollection TheElectrons;
+  Handle<GsfElectronCollection> ElectronHandle;
+  GsfElectronCollection TheElectrons;
   if (LeptonType_ == "electron") {
     //try{
 		  iEvent.getByLabel( LeptonInput_, ElectronHandle );
@@ -146,7 +148,7 @@ bool BTagSkimLeptonJet::filter( edm::Event& iEvent,
 		  }
 
 		  if (LeptonType_ == "electron") {
-			  for ( PixelMatchGsfElectronCollection::const_iterator anelectron = TheElectrons.begin(); anelectron != TheElectrons.end(); anelectron++ ) {
+			  for ( GsfElectronCollection::const_iterator anelectron = TheElectrons.begin(); anelectron != TheElectrons.end(); anelectron++ ) {
 				  if ( (anelectron->pt() > MinLeptonPt_) && (fabs(anelectron->eta()) < MaxLeptonEta_ ) ) {
 					  
 					  double deltar = ROOT::Math::VectorUtil::DeltaR(ajet->p4().Vect(),

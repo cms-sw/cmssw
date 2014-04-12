@@ -3,21 +3,18 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <string>
 
-class  SiPixelDigiValid: public edm::EDAnalyzer {
+namespace edm {
+  template< class T > class DetSetVector;
+}
+class PixelDigi;
+class DQMStore;
+class MonitorElement;
+
+class  SiPixelDigiValid: public DQMEDAnalyzer {
 
  public:
     
@@ -26,12 +23,14 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
 
  protected:
      void analyze(const edm::Event& e, const edm::EventSetup& c);
-     void beginJob(const edm::EventSetup& c);
+     void beginJob();
+     void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
      void endJob(void);
 
  private:
 
   std::string outputFile_;
+  bool runStandalone;
 
   //////Barrel Pixel
   /* 1st Layer */
@@ -265,8 +264,8 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
   MonitorElement*  meNdigiZmDisk2PerPanel2_;
    
  
-  DaqMonitorBEInterface* dbe_;
-  edm::InputTag src_;  
+  DQMStore* dbe_;
+  edm::EDGetTokenT< edm::DetSetVector<PixelDigi> > edmDetSetVector_PixelDigi_Token_;
 
  
 };

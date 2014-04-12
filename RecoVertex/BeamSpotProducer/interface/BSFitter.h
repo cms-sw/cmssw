@@ -9,7 +9,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.2 2007/01/22 23:36:07 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -23,12 +22,11 @@ ________________________________________________________________**/
 #include "TMatrixD.h"
 #include "TMath.h"
 #include "Minuit2/VariableMetricMinimizer.h"
+#include "TH1F.h"
 
 // C++ standard
 #include <vector>
 #include <string>
-
-using namespace ROOT::Minuit2;
 
 class BSFitter {
   public:
@@ -36,7 +34,7 @@ class BSFitter {
 	//typedef std::vector <BSTrkParameters> BSTrkCollection;
 	
 	BSFitter();
-	BSFitter( std::vector< BSTrkParameters > BSvector);
+	BSFitter( const std::vector< BSTrkParameters > &BSvector);
 	
 	virtual ~BSFitter();
 
@@ -60,23 +58,30 @@ class BSFitter {
 	
 	// Fit only d0-phi distribution with a chi2
 	reco::BeamSpot Fit_d0phi();
+	void SetMaximumZ(double z) { fMaxZ = z; }
+	void SetConvergence(double val) { fconvergence = val; }
+	void SetMinimumNTrks(int n) { fminNtrks = n; }
 	void Setd0Cut_d0phi(double d0cut);
 	void SetChi2Cut_d0phi(double chi2cut);
+	void SetInputBeamWidth(double val) { finputBeamWidth = val; }
 	int GetAcceptedTrks() { return ftmprow; }
 	void d0phi_Init() {
 		ftmprow = 0;
 		ftmp.ResizeTo(4,1);
 		ftmp.Zero();
 		fnthite=0;
+		goodfit=true;
 	}
 	std::vector < BSTrkParameters > GetData() { return fBSvector; }
 	
 	reco::BeamSpot Fit_ited0phi();
 		
 	reco::BeamSpot Fit_d_likelihood(double *inipar);
-	reco::BeamSpot Fit_d_z_likelihood(double *inipar);
+	reco::BeamSpot Fit_d_z_likelihood(double *inipar, double *error_par);
 	reco::BeamSpot Fit_dres_z_likelihood(double *inipar);
-	
+
+    double scanPDF(double *init_pars,int & tracksFailed,int option);
+    
 	double GetMinimum() {
 		return ff_minimum;
 	}
@@ -96,14 +101,16 @@ class BSFitter {
 	reco::BeamSpot::ResCovMatrix GetResMatrix() {
 		return fres_matrix;
 	}
-			
+
+	TH1F * GetVzHisto() { return h1z; }
+	
   private:
 
-	ModularFunctionMinimizer* theFitter;
+	ROOT::Minuit2::ModularFunctionMinimizer* theFitter;
 	//BSzFcn* theGausszFcn;
 	BSpdfsFcn* thePDF;
 	
-	
+	reco::BeamSpot::BeamType fbeamtype;
 	std::string ffit_type;
 	std::string ffit_variable;
 
@@ -116,7 +123,8 @@ class BSFitter {
 	Double_t fsqrt2pi;
 		
 	std::vector < BSTrkParameters > fBSvector;
-	
+    std::vector < BSTrkParameters > fBSvectorBW;
+    
 	double fresolution_c0;
 	double fresolution_c1;
 	double fres_c0_err;
@@ -130,7 +138,12 @@ class BSFitter {
 	double fchi2cut;
 	int ftmprow;
 	int fnthite;
-	
+	bool goodfit;
+	double fMaxZ;
+	double fconvergence;
+	int fminNtrks;
+	double finputBeamWidth;
+	TH1F *h1z;
 };
 
 #endif

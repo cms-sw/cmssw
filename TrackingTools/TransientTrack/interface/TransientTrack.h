@@ -10,8 +10,11 @@
 
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/Common/interface/RefToBase.h" 
 
 namespace reco {
 
@@ -21,8 +24,38 @@ namespace reco {
 
   public:
 
-    // constructor from persistent track
-    TransientTrack(); 
+    TransientTrack() noexcept {}
+
+    explicit TransientTrack( BasicTransientTrack * btt ) noexcept : Base(btt) {}
+
+    ~TransientTrack() noexcept {}
+
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+
+    TransientTrack(TransientTrack const & rh) noexcept :
+      Base(rh){}
+    
+    
+    TransientTrack(TransientTrack && rh) noexcept :
+      Base(std::move(rh)){}
+    
+    TransientTrack & operator=(TransientTrack && rh) noexcept {
+      Base::operator=(std::move(rh));
+      return *this;
+    }
+    
+    TransientTrack & operator=(TransientTrack const & rh) noexcept {
+      Base::operator=(rh);
+      return *this;
+    }
+
+#endif
+  
+    void swap(TransientTrack & rh) noexcept {
+      Base::swap(rh);
+    }
+
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 
 
@@ -30,7 +63,7 @@ namespace reco {
 
     TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
-    TransientTrack( BasicTransientTrack * btt ) : Base(btt) {}
+
 
     void setES(const edm::EventSetup& es) {sharedData().setES(es);}
 
@@ -80,6 +113,8 @@ namespace reco {
 
     const Track & track() const {return data().track();}
 
+    TrackBaseRef trackBaseRef() const {return data().trackBaseRef();}
+
     TrajectoryStateClosestToBeamLine stateAtBeamLine() const
 	{return data().stateAtBeamLine();}
 
@@ -105,7 +140,10 @@ namespace reco {
     double ndof() const { return track().ndof(); }
     /// chi-squared divided by n.d.o.f.
     double normalizedChi2() const { return track().chi2() / track().ndof(); }
- 
+
+    /// Make the ReferenceCountingProxy method to check validity public
+    bool isValid() const {return Base::isValid() ;}
+
   };
 
 }

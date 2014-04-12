@@ -1,7 +1,7 @@
 
 #include "GeneratorInterface/GenFilters/interface/PythiaHLTSoupFilter.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 
 using namespace edm;
@@ -9,7 +9,7 @@ using namespace std;
 
 
 PythiaHLTSoupFilter::PythiaHLTSoupFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 minptelectron(iConfig.getUntrackedParameter("MinPtElectron", 0.)),
 minptmuon(iConfig.getUntrackedParameter("MinPtMuon", 0.)),
 maxetaelectron(iConfig.getUntrackedParameter("MaxEtaElectron", 10.)),
@@ -44,43 +44,37 @@ bool PythiaHLTSoupFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
    Handle<HepMCProduct> evt;
    iEvent.getByLabel(label_, evt);
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
     
-    if(myGenEvent->signal_process_id() == 2) {
-    
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	  p != myGenEvent->particles_end(); ++p ) {
+   if(myGenEvent->signal_process_id() == 2) {
+     
+     for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	   p != myGenEvent->particles_end(); ++p ) {
 	  
- 
-	if ( abs((*p)->pdg_id()) == 11 
-	     && (*p)->momentum().perp() > minptelectron
-	     && abs((*p)->momentum().eta()) < maxetaelectron
-	     && (*p)->status() == 1 ) { accepted = true; }
-
-           
-	     
-	if ( abs((*p)->pdg_id()) == 13 
-	     && (*p)->momentum().perp() > minptmuon
-	     && abs((*p)->momentum().eta()) < maxetamuon
-	     && (*p)->status() == 1 ) { accepted = true; }
-	     
-	 
-	 if ( abs((*p)->pdg_id()) == 15 
-	     && (*p)->momentum().perp() > minpttau
-	     && abs((*p)->momentum().eta()) < maxetatau
-	     && (*p)->status() == 3 ) { accepted = true; }         
-	     
-	  
-      }
-
+       
+       if ( abs((*p)->pdg_id()) == 11 
+	    && (*p)->momentum().perp() > minptelectron
+	    && abs((*p)->momentum().eta()) < maxetaelectron
+	    && (*p)->status() == 1 ) { accepted = true; }
+       
+       
+       
+       if ( abs((*p)->pdg_id()) == 13 
+	    && (*p)->momentum().perp() > minptmuon
+	    && abs((*p)->momentum().eta()) < maxetamuon
+	    && (*p)->status() == 1 ) { accepted = true; }
+       
+       
+       if ( abs((*p)->pdg_id()) == 15 
+	    && (*p)->momentum().perp() > minpttau
+	    && abs((*p)->momentum().eta()) < maxetatau
+	    && (*p)->status() == 3 ) { accepted = true; }         
+     }
+     
     } else { accepted = true; }
-
-
-    delete myGenEvent; 
-
-
+   
    if (accepted){
-   return true; } else {return false;}
+     return true; } else {return false;}
 
 }
 

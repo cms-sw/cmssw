@@ -6,10 +6,11 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -18,385 +19,279 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit1DMomConstraint.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+// #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 
-void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
-					      const MagneticField * theMF,
-					      const TrackCandidateCollection& theTCCollection,
-					      const TrajectoryFitter * theFitter,
-					      const Propagator * thePropagator,
-					      const TransientTrackingRecHitBuilder* builder,
-					      AlgoProductCollection& algoResults)
-{
-  edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
-
-  int cont = 0;
-  for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
-    {
-      
-      const TrackCandidate * theTC = &(*i);
-      PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
-      const TrackCandidate::range& recHitVec=theTC->recHits();
-      const TrajectorySeed& seed = theTC->seed();
-
-      //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
-      TrajectoryStateTransform transformer;
-  
-      DetId  detId(state.detId());
-      TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
-								     &(theG->idToDet(detId)->surface()), 
-								     theMF);
-
-      LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
-      
-      //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-      //meanwhile computes the number of degrees of freedom
-      TransientTrackingRecHit::RecHitContainer hits;
-      
-      float ndof=0;
-      
-      for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
-	   i!=recHitVec.second; i++){
-	hits.push_back(builder->build(&(*i) ));
-	if ((*i).isValid()){
-	  ndof = ndof + (i->dimension())*(i->weight());
-	}
-      }
-      
-      
-      ndof = ndof - 5;
-      
-      //build Track
-      LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
-      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof);
-      LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
-      if(ok) cont++;
+namespace {
+#ifdef STAT_TSB
+  struct StatCount {
+    long long totTrack=0;
+    long long totLoop=0;
+    long long totGsfTrack=0;
+    long long totFound=0;
+    long long totLost=0;
+    long long totAlgo[12];
+    void track(int l) {
+      if (l>0) ++totLoop; else ++totTrack;
     }
-  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
-}
+    void hits(int f, int l) { totFound+=f; totLost+=l;} 
+    void gsf() {++totGsfTrack;}
+    void algo(int a) { if (a>=0 && a<12) ++totAlgo[a];}
 
-void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
-					  const MagneticField * theMF,
-					  const reco::TrackCollection& theTCollection,
-					  const TrajectoryFitter * theFitter,
-					  const Propagator * thePropagator,
-					  const TransientTrackingRecHitBuilder* builder,
-					  AlgoProductCollection& algoResults)
-{
-  edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollection.size() << "\n";
-  
-  int cont = 0;
-  for (reco::TrackCollection::const_iterator i=theTCollection.begin(); i!=theTCollection.end();i++)
-    {
-      try{
-	const reco::Track * theT = &(*i);
-	float ndof=0;
-	PropagationDirection seedDir = theT->seedDirection();
-	//LogDebug("TrackProducer") << "theT->seedDirection()=" << seedDir;
 
-	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
-
-	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
-
-	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
-	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
-						   BasicTrajectorySeed::recHitContainer(), seedDir);
-	// =========================
-	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
-
-	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
-	if(ok) cont++;
-      }catch ( CMSexception & e){
-	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
-      }catch ( std::exception & e){
-	edm::LogError("TrackProducer") << "Genexception2: " << e.what() <<"\n";      
-      }catch (...){
-	edm::LogError("TrackProducer") << "Genexception: \n";
-      }
+    void print() const {
+      std::cout << "TrackProducer stat\nTrack/Loop/Gsf/FoundHits/LostHits/algos "
+    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack  <<'/'<< totFound  <<'/'<< totLost;
+      for (auto a : totAlgo) std::cout << '/'<< a;
+	std::cout  << std::endl;
     }
-  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
-  
-}
+    StatCount() {}
+    ~StatCount() { print();}
+  };
+  StatCount statCount;
 
-void TrackProducerAlgorithm::runWithMomentum(const TrackingGeometry * theG,
-					     const MagneticField * theMF,
-					     const TrackMomConstraintAssociationCollection& theTCollectionWithConstraint,
-					     const TrajectoryFitter * theFitter,
-					     const Propagator * thePropagator,
-					     const TransientTrackingRecHitBuilder* builder,
-					     AlgoProductCollection& algoResults){
+#else
+  struct StatCount {
+    void track(int){}
+    void hits(int, int){}
+    void gsf(){}
+    void algo(int){}
+  };
+  [[cms::thread_safe]] StatCount statCount;
+#endif
 
-  edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
-  
-  int cont = 0;
-  for (TrackMomConstraintAssociationCollection::const_iterator i=theTCollectionWithConstraint.begin(); i!=theTCollectionWithConstraint.end();i++) {
-      try{
-	const reco::Track * theT = i->key.get();
-
-	LogDebug("TrackProducer") << "Running Refitter with Momentum Constraint. p=" << i->val->first << " err=" << i->val->second;
-
-	float ndof=0;
-	PropagationDirection seedDir = theT->seedDirection();
-
-	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
-
-	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
-
-	double mom = i->val->first;//10;
-	double err = i->val->second;//0.01;
-	TransientTrackingRecHit::RecHitPointer testhit = 
-	  TRecHit1DMomConstraint::build(((int)(theInitialStateForRefitting.charge())),
-					mom,err,
-					&theInitialStateForRefitting.surface());
-	
-	//no insert in OwnVector...
-	TransientTrackingRecHit::RecHitContainer tmpHits;	
-	tmpHits.push_back(testhit);
-	for (TransientTrackingRecHit::RecHitContainer::const_iterator i=hits.begin(); i!=hits.end(); i++){
-	  tmpHits.push_back(*i);
-	}
-	hits.swap(tmpHits);
-	
-	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
-	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
-						   BasicTrajectorySeed::recHitContainer(), seedDir);
-	// =========================
-	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
-	
-	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
-	if(ok) cont++;
-      }catch ( CMSexception & e){
-	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
-      }catch ( std::exception & e){
-	edm::LogError("TrackProducer") << "Genexception2: " << e.what() <<"\n";      
-      }catch (...){
-	edm::LogError("TrackProducer") << "Genexception: \n";
-      }
-    }
-  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
-  
-}
-
-void TrackProducerAlgorithm::runWithVertex(const TrackingGeometry * theG,
-					     const MagneticField * theMF,
-					     const TrackVtxConstraintAssociationCollection& theTCollectionWithConstraint,
-					     const TrajectoryFitter * theFitter,
-					     const Propagator * thePropagator,
-					     const TransientTrackingRecHitBuilder* builder,
-					     AlgoProductCollection& algoResults){
-
-  edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
-  
-  int cont = 0;
-  for (TrackVtxConstraintAssociationCollection::const_iterator i=theTCollectionWithConstraint.begin(); i!=theTCollectionWithConstraint.end();i++) {
-      try{
-	const reco::Track * theT = i->key.get();
-
-	LogDebug("TrackProducer") << "Running Refitter with Vertex Constraint. pos=" << i->val->first << " err=" << i->val->second.matrix();
-
-	float ndof=0;
-	PropagationDirection seedDir = theT->seedDirection();
-
-	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
-
-	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
-
-	const LocalPoint testpoint(0,0,0);
-	GlobalPoint pos = i->val->first;//(0,0,0);
-	GlobalError err = i->val->second;//(0.01,0,0,0.01,0,0.001);
-
-	Propagator* myPropagator = new PropagatorWithMaterial(anyDirection,0.105,theMF);
-	TransverseImpactPointExtrapolator extrapolator(*myPropagator);
-	TrajectoryStateOnSurface tsosAtVtx = extrapolator.extrapolate(theInitialStateForRefitting,pos);
-	
-	const Surface * surfAtVtx = &tsosAtVtx.surface();
-	
-
-	LocalError testerror = ErrorFrameTransformer().transform(err, *surfAtVtx);
-	
-	//GlobalError myerror = ErrorFrameTransformer().transform(testerror, *surfAtVtx);
-	//LogTrace("TrackProducer") << "initial GlobalError:" << err.matrix();
-	//LogTrace("TrackProducer") << "Surface position:\n" << surfAtVtx->position();
-	//LogTrace("TrackProducer") << "Surface rotation:\n" << surfAtVtx->rotation();
-	//LogTrace("TrackProducer") << "corresponding LocalError:\n" << testerror;
-	//LogTrace("TrackProducer") << "corresponding GlobalError:" << myerror.matrix();
-	
-	TransientTrackingRecHit::RecHitPointer testhit = TRecHit2DPosConstraint::build(testpoint,testerror,surfAtVtx);
-	
-	//push constraining hit and sort along seed direction
-	hits.push_back(testhit);
-	RecHitSorter sorter = RecHitSorter();
-	hits = sorter.sortHits(hits,seedDir);
-
-	//use the state on the surface of the first hit (could be the constraint or not)
-	theInitialStateForRefitting = myPropagator->propagate(*theInitialStateForRefitting.freeState(), *(hits[0]->surface()) );	  
-	delete myPropagator;
-
-	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
-	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
-						   BasicTrajectorySeed::recHitContainer(), seedDir);
-	// =========================
-	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
-
-	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
-	if(ok) cont++;
-      }catch ( CMSexception & e){
-	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
-      }catch ( std::exception & e){
-	edm::LogError("TrackProducer") << "Genexception2: " << e.what() <<"\n";      
-      }catch (...){
-	edm::LogError("TrackProducer") << "Genexception: \n";
-      }
-    }
-  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
 
 }
 
-bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
-					 const Propagator * thePropagator,
-					 AlgoProductCollection& algoResults,
-					 TransientTrackingRecHit::RecHitContainer& hits,
-					 TrajectoryStateOnSurface& theTSOS,
-					 const TrajectorySeed& seed,
-					 float ndof)
+
+
+
+template <> bool
+TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFitter,
+						 const Propagator * thePropagator,
+						 AlgoProductCollection& algoResults,
+						 TransientTrackingRecHit::RecHitContainer& hits,
+						 TrajectoryStateOnSurface& theTSOS,
+						 const TrajectorySeed& seed,
+						 float ndof,
+						 const reco::BeamSpot& bs,
+						 SeedRef seedRef,
+						 int qualityMask,signed char nLoops)						 
 {
   //variable declarations
-  std::vector<Trajectory> trajVec;
   reco::Track * theTrack;
   Trajectory * theTraj; 
   PropagationDirection seedDir = seed.direction();
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
-  trajVec = theFitter->fit(seed, hits, theTSOS);
+  Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper : TrajectoryFitter::standard);
+  if unlikely(!trajTmp.isValid()) return false;
   
-  LogDebug("TrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
   
-  TrajectoryStateOnSurface innertsos;
   
-  if (trajVec.size() != 0){
+  theTraj = new Trajectory(std::move(trajTmp));
+  theTraj->setSeedRef(seedRef);
+  
+  statCount.hits(theTraj->foundHits(),theTraj->lostHits());
+  statCount.algo(int(algo_));
 
-    theTraj = new Trajectory( trajVec.front() );
-    
+  // TrajectoryStateOnSurface innertsos;
+  // if (theTraj->direction() == alongMomentum) {
+  //  innertsos = theTraj->firstMeasurement().updatedState();
+  // } else { 
+  //  innertsos = theTraj->lastMeasurement().updatedState();
+  // }
+  
+  ndof = 0;
+  for (auto const & tm : theTraj->measurements()) {
+    auto const & h = tm.recHitR();
+    if (h.isValid()) ndof = ndof + float(h.dimension())*h.weight();  // two virtual calls!
+  }
+  
+  ndof -= 5.f;
+  if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
+ 
+ 
+  //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
+  //if geometricInnerState_ is true the state for projection to beam line is the one from the (geometrically) closest measurement to the beam line: to be sued for non-collision tracks
+  //the two shouuld give the same result for collision tracks that are NOT loopers
+  TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface;
+  if (geometricInnerState_) {
+    stateForProjectionToBeamLineOnSurface = theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState();
+  } else {
     if (theTraj->direction() == alongMomentum) {
-      innertsos = theTraj->firstMeasurement().updatedState();
+      stateForProjectionToBeamLineOnSurface = theTraj->firstMeasurement().updatedState();
     } else { 
-      innertsos = theTraj->lastMeasurement().updatedState();
+      stateForProjectionToBeamLineOnSurface = theTraj->lastMeasurement().updatedState();
     }
-    
-    
-    TSCPBuilderNoMaterial tscpBuilder;
-    LogDebug("TrackProducer") << "innertsos=" << innertsos ;
-    TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
-						     GlobalPoint(0,0,0) );//FIXME Correct?   
-    GlobalPoint v = tscp.theState().position();
-    math::XYZPoint  pos( v.x(), v.y(), v.z() );
-    GlobalVector p = tscp.theState().momentum();
-    math::XYZVector mom( p.x(), p.y(), p.z() );
-
-    LogDebug("TrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
-
-    theTrack = new reco::Track(theTraj->chiSquared(),
-			       int(ndof),//FIXME fix weight() in TrackingRecHit
-			       //			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
-			       //			       0, //FIXME no corresponding method in trajectory.h
-			       //			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
-			       pos, mom, tscp.charge(), tscp.theState().curvilinearError());
-    
-    LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
-
-    LogDebug("TrackProducer") <<"track done\n";
-
-    AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
-    algoResults.push_back(aProduct);
-    
-    return true;
-  } 
-  else  return false;
-}
-
-TrajectoryStateOnSurface TrackProducerAlgorithm::getInitialState(const reco::Track * theT,
-								 TransientTrackingRecHit::RecHitContainer& hits,
-								 const TrackingGeometry * theG,
-								 const MagneticField * theMF){
-
-  TrajectoryStateOnSurface theInitialStateForRefitting;
-  //the starting state is the state closest to the first hit along seedDirection.
-  TrajectoryStateTransform transformer;
-  //avoiding to use transientTrack, it should be faster;
-  TrajectoryStateOnSurface innerStateFromTrack=transformer.innerStateOnSurface(*theT,*theG,theMF);
-  TrajectoryStateOnSurface outerStateFromTrack=transformer.outerStateOnSurface(*theT,*theG,theMF);
-  TrajectoryStateOnSurface initialStateFromTrack = 
-    ( (innerStateFromTrack.globalPosition()-hits.front()->globalPosition()).mag2() <
-      (outerStateFromTrack.globalPosition()-hits.front()->globalPosition()).mag2() ) ? 
-    innerStateFromTrack: outerStateFromTrack;       
-  
-  // error is rescaled, but correlation are kept.
-  initialStateFromTrack.rescaleError(100);
-  theInitialStateForRefitting = TrajectoryStateOnSurface(initialStateFromTrack.localParameters(),
-							 initialStateFromTrack.localError(), 		      
-							 initialStateFromTrack.surface(),
-							 theMF); 
-  return theInitialStateForRefitting;
-}
-
-TransientTrackingRecHit::RecHitContainer 
-TrackProducerAlgorithm::getHitVector(const reco::Track * theT,   
-				     PropagationDirection& seedDir,
-				     float& ndof,
-				     const TransientTrackingRecHitBuilder* builder){
-
-  TransientTrackingRecHit::RecHitContainer hits;	
-  bool isFirstFound(false);
-  //just look for the first and second *valid* hits.Don't care about ordering.
-  TransientTrackingRecHit::ConstRecHitPointer firstHit(0),secondHit(0);
-  for (trackingRecHit_iterator it=theT->recHitsBegin(); it!=theT->recHitsEnd(); it++){
-    if(((**it).isValid()) ) {
-      if(!isFirstFound){
-	isFirstFound = true;
-	firstHit = builder->build(&**it);
-	//LogDebug("TrackProducer") << "firstHit->globalPosition(): " << firstHit->globalPosition() << std::endl;
-	continue;
-      }
-      secondHit = builder->build(&**it);
-      //LogDebug("TrackProducer") << "secondHit->globalPosition(): " << secondHit->globalPosition() << std::endl;
-      break;
-    }else LogDebug("TrackProducer") << "==== debug:this hit of a reco::Track is not valid!! =======";
   }
-  GlobalVector delta = secondHit->globalPosition() - firstHit->globalPosition() ;
-  PropagationDirection trackHitsSort = ( (delta.dot(GlobalVector(theT->momentum().x(),theT->momentum().y(),theT->momentum().z()))
-					  > 0) ? alongMomentum : oppositeToMomentum);
-  
-  //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-  //meanwhile computes the number of degrees of freedom
-  //========  Sorted as seed direction (refit in the same ordeer of original final fit)
-  if (seedDir==anyDirection){//if anyDirection the seed direction is not stored in the root file: keep same order
-    for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
-      hits.push_back(builder->build(&**i ));
-      if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
-    }
-    seedDir=trackHitsSort;
-  } else if (seedDir==trackHitsSort){//keep same order
-    for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
-      hits.push_back(builder->build(&**i ));
-      if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
-    }
-  } else{//invert hits order
-    //no reverse iterator in OwnVector...
-    for (TrackingRecHitRefVector::iterator i=theT->recHitsEnd()-1; i!=theT->recHitsBegin()-1; i--){
-      hits.push_back(builder->build(&**i ));
-      if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
-    }	  
+
+  if unlikely(!stateForProjectionToBeamLineOnSurface.isValid()){
+    edm::LogError("CannotPropagateToBeamLine")<<"the state on the closest measurement isnot valid. skipping track.";
+    delete theTraj;
+    return false;
   }
+  const FreeTrajectoryState & stateForProjectionToBeamLine=*stateForProjectionToBeamLineOnSurface.freeState();
+  
+  LogDebug("TrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
+  
+  TSCBLBuilderNoMaterial tscblBuilder;
+  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+  
+  if unlikely(!tscbl.isValid()) {
+    delete theTraj;
+    return false;
+  }
+  
+  GlobalPoint v = tscbl.trackStateAtPCA().position();
+  math::XYZPoint  pos( v.x(), v.y(), v.z() );
+  GlobalVector p = tscbl.trackStateAtPCA().momentum();
+  math::XYZVector mom( p.x(), p.y(), p.z() );
+  
+  LogDebug("TrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
+  
+  theTrack = new reco::Track(theTraj->chiSquared(),
+			     int(ndof),//FIXME fix weight() in TrackingRecHit
+			     pos, mom, tscbl.trackStateAtPCA().charge(), 
+			     tscbl.trackStateAtPCA().curvilinearError(),
+			     algo_);
+  
+  theTrack->setQualityMask(qualityMask);
+  theTrack->setNLoops(nLoops);
+  
+  LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
+  
+  LogDebug("TrackProducer") <<"track done\n";
+  
+  AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
+  algoResults.push_back(aProduct);
+  
+  statCount.track(nLoops);
+
+  return true;
+} 
+
+template <> bool
+TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * theFitter,
+						    const Propagator * thePropagator,
+						    AlgoProductCollection& algoResults,
+						    TransientTrackingRecHit::RecHitContainer& hits,
+						    TrajectoryStateOnSurface& theTSOS,
+						    const TrajectorySeed& seed,
+						    float ndof,
+						    const reco::BeamSpot& bs,
+						    SeedRef seedRef,
+						    int qualityMask,signed char nLoops)
+{
+  //variable declarations
+  reco::GsfTrack * theTrack;
+  Trajectory * theTraj; 
+  PropagationDirection seedDir = seed.direction();
+  
+  Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper: TrajectoryFitter::standard);
+  if unlikely(!trajTmp.isValid()) return false;
+  
+  
+  theTraj = new Trajectory( std::move(trajTmp) );
+  theTraj->setSeedRef(seedRef);
+  
+  //  TrajectoryStateOnSurface innertsos;
+  // TrajectoryStateOnSurface outertsos;
+
+  // if (theTraj->direction() == alongMomentum) {
+  //  innertsos = theTraj->firstMeasurement().updatedState();
+  //  outertsos = theTraj->lastMeasurement().updatedState();
+  // } else { 
+  //  innertsos = theTraj->lastMeasurement().updatedState();
+  //  outertsos = theTraj->firstMeasurement().updatedState();
+  // }
+  //     std::cout
+  //       << "Nr. of first / last states = "
+  //       << innertsos.components().size() << " "
+  //       << outertsos.components().size() << std::endl;
+  //     std::vector<TrajectoryStateOnSurface> components = 
+  //       innertsos.components();
+  //     double sinTheta = 
+  //       sin(innertsos.globalMomentum().theta());
+  //     for ( std::vector<TrajectoryStateOnSurface>::const_iterator ic=components.begin();
+  // 	  ic!=components.end(); ic++ ) {
+  //       std::cout << " comp " << ic-components.begin() << " "
+  // 		<< (*ic).weight() << " "
+  // 		<< (*ic).localParameters().vector()[0]/sinTheta << " "
+  // 		<< sqrt((*ic).localError().matrix()[0][0])/sinTheta << std::endl;
+  //     }
+  
+  ndof = 0;
+  for (auto const & tm : theTraj->measurements()) {
+    auto const & h = tm.recHitR();
+    if (h.isValid()) ndof = ndof + h.dimension()*h.weight();
+  }
+  
   ndof = ndof - 5;
-  return hits;
-}
+  if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
+  
+  
+  //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
+  //if geometricInnerState_ is true the state for projection to beam line is the one from the (geometrically) closest measurement to the beam line: to be sued for non-collision tracks
+  //the two shouuld give the same result for collision tracks that are NOT loopers
+  TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface;
+  if (geometricInnerState_) {
+    stateForProjectionToBeamLineOnSurface = theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState();
+  } else {
+    if (theTraj->direction() == alongMomentum) {
+      stateForProjectionToBeamLineOnSurface = theTraj->firstMeasurement().updatedState();
+    } else { 
+      stateForProjectionToBeamLineOnSurface = theTraj->lastMeasurement().updatedState();
+    }
+  }
+
+  if unlikely(!stateForProjectionToBeamLineOnSurface.isValid()){
+      edm::LogError("CannotPropagateToBeamLine")<<"the state on the closest measurement isnot valid. skipping track.";
+      delete theTraj;
+      return false;
+    }    
+  
+  const FreeTrajectoryState & stateForProjectionToBeamLine=*stateForProjectionToBeamLineOnSurface.freeState();
+  
+  LogDebug("GsfTrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
+  
+  TSCBLBuilderNoMaterial tscblBuilder;
+  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+  
+  if unlikely(tscbl.isValid()==false) {
+      delete theTraj;
+      return false;
+    }
+  
+  GlobalPoint v = tscbl.trackStateAtPCA().position();
+  math::XYZPoint  pos( v.x(), v.y(), v.z() );
+  GlobalVector p = tscbl.trackStateAtPCA().momentum();
+  math::XYZVector mom( p.x(), p.y(), p.z() );
+  
+  LogDebug("GsfTrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
+  
+  theTrack = new reco::GsfTrack(theTraj->chiSquared(),
+				int(ndof),//FIXME fix weight() in TrackingRecHit
+				//			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
+				//			       0, //FIXME no corresponding method in trajectory.h
+				//			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
+				pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError());    
+  theTrack->setAlgorithm(algo_);
+  
+  LogDebug("GsfTrackProducer") <<"track done\n";
+  
+  AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
+  LogDebug("GsfTrackProducer") <<"track done1\n";
+  algoResults.push_back(aProduct);
+  LogDebug("GsfTrackProducer") <<"track done2\n";
+  
+  statCount.gsf();
+  return true;
+} 

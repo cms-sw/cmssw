@@ -1,0 +1,13 @@
+#
+# This is the decay file for the decay BS0 -> MU+ MU- PI0
+#
+Alias      MyB_s0   B_s0
+Alias      Myanti-B_s0   anti-B_s0
+ChargeConj Myanti-B_s0   MyB_s0 
+#
+Decay MyB_s0
+1.000      mu+  mu-  pi0                      PHSP;
+Enddecay
+CDecay Myanti-B_s0
+#
+End

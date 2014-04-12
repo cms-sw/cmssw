@@ -1,8 +1,0 @@
-<use name=Utilities/StorageFactory>
-<use name=rootcore>
-
-<export>
- <lib name=IOPoolTFileAdaptor>
- <use name=Utilities/StorageFactory>
- <use name=rootcore>
-</export>

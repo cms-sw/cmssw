@@ -1,7 +1,5 @@
-// Last commit: $Id: SiStripFecCrate.cc,v 1.5 2007/03/21 09:54:21 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCrate.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 // -----------------------------------------------------------------------------

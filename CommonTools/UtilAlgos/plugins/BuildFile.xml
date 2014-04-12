@@ -1,0 +1,9 @@
+<export>
+</export>
+<library   name="CommonToolsToolsUtilAlgos_plugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="DataFormats/Candidate"/>
+</library>

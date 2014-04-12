@@ -46,7 +46,7 @@ class PixelVertexTest : public edm::EDAnalyzer {
 public:
   explicit PixelVertexTest(const edm::ParameterSet& conf);
   ~PixelVertexTest();
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginJob();
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob();
 private:
@@ -96,7 +96,7 @@ PixelVertexTest::~PixelVertexTest()
   //  delete t_;
 }
 
-void PixelVertexTest::beginJob(const edm::EventSetup& es) {
+void PixelVertexTest::beginJob() {
   // How noisy?
   verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
 

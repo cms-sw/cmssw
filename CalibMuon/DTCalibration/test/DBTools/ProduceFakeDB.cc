@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/27 08:20:05 $
- *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -39,8 +37,8 @@ ProduceFakeDB::ProduceFakeDB(const ParameterSet& pset) {
 
 ProduceFakeDB::~ProduceFakeDB(){}
 
-void ProduceFakeDB::beginJob(const edm::EventSetup& context){
-  context.get<MuonGeometryRecord>().get(muonGeom);
+void ProduceFakeDB::beginRun(const edm::Run&, const EventSetup& setup) {
+  setup.get<MuonGeometryRecord>().get(muonGeom);
 }
 
 void ProduceFakeDB::endJob() {
@@ -60,7 +58,8 @@ void ProduceFakeDB::endJob() {
     //Loop on superlayers
     for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
 	 sl != dtSupLylist.end(); sl++) {
-      mtimeMap->setSLMtime((*sl)->id(), vdrift, hitReso, DTTimeUnits::ns);
+      // vdrift is cm/ns , resolution is cm
+      mtimeMap->set((*sl)->id(), vdrift, hitReso, DTVelocityUnits::cm_per_ns);
     }
 
     // Write the object in the DB
@@ -73,14 +72,14 @@ void ProduceFakeDB::endJob() {
     //Read the fake values from the cfg files
     double ttrig = ps.getUntrackedParameter<double>("ttrig", 496);
     double sigmaTtrig = ps.getUntrackedParameter<double>("sigmaTtrig", 0);
-
+    double kFactor = ps.getUntrackedParameter<double>("kFactor", 0);
     // Create the object to be written to DB
     DTTtrig* tTrigMap = new DTTtrig();
 
     //Loop on superlayers
     for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
 	 sl != dtSupLylist.end(); sl++) {
-      tTrigMap->setSLTtrig((*sl)->id(), ttrig, sigmaTtrig, DTTimeUnits::ns);
+      tTrigMap->set((*sl)->id(), ttrig, sigmaTtrig, kFactor, DTTimeUnits::ns);
     }
 
     // Write the object in the DB
@@ -103,10 +102,11 @@ void ProduceFakeDB::endJob() {
 	
       //Get the number of wires for each layer
       int nWires = (*ly)->specificTopology().channels();
+      int firstWire = (*ly)->specificTopology().firstChannel();
       //Loop on wires
-      for(int w=1; w<=nWires; w++){
-	DTWireId wireId((*ly)->id(), w);
-	tZeroMap->setCellT0(wireId, tzero, sigmaTzero, DTTimeUnits::counts );
+      for(int w=0; w<nWires; w++){
+	DTWireId wireId((*ly)->id(), w + firstWire);
+	tZeroMap->set(wireId, tzero, sigmaTzero, DTTimeUnits::counts );
       }
     }
 

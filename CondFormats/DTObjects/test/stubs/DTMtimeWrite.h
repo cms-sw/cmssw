@@ -11,6 +11,8 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class DTMtime;
+
 namespace edmtest {
   class DTMtimeWrite : public edm::EDAnalyzer
   {
@@ -20,6 +22,7 @@ namespace edmtest {
     virtual ~ DTMtimeWrite();
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
     virtual void endJob();
+    virtual void chkData( DTMtime* mTime );
   private:
   };
 }

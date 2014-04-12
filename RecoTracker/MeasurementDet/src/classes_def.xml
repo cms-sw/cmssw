@@ -1,0 +1,4 @@
+<lcgdict>
+ <class name="MeasurementTrackerEvent"/>
+ <class name="edm::Wrapper<MeasurementTrackerEvent>" persistent="false"/>
+</lcgdict>

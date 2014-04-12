@@ -10,12 +10,6 @@
  Implementation:
      <Notes on implementation>
 */
-//
-// Original Author:  Pascal Vanlaer
-//         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: KineExample.h,v 1.1 2007/07/06 12:59:19 speer Exp $
-//
-//
 
 
 // system include files
@@ -50,7 +44,7 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
   virtual void endJob();
 
 private:
@@ -68,5 +62,7 @@ private:
 //   TFile*  rootFile_;
 
   std::string outputFile_; // output file
-  std::string trackLabel_; // label of track producer
+  edm::EDGetTokenT<reco::TrackCollection> token_tracks; 
+//   edm::EDGetTokenT<TrackingParticleCollection> token_TrackTruth;
+  edm::EDGetTokenT<TrackingVertexCollection> token_VertexTruth;
 };

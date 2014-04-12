@@ -7,8 +7,6 @@
  *   studies
  *
  *
- *   $Date: 2007/04/27 08:52:21 $
- *   $Revision: 1.6 $
  *
  *   \author C. Battilana
  */
@@ -22,8 +20,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
-#include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 // Trigger and DataFormats headers
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"
@@ -37,6 +35,7 @@
 #include "TFile.h"
 
 // Collaborating classes
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include <CLHEP/Vector/LorentzVector.h>
 
 // C++ headers
@@ -51,35 +50,13 @@ const double DTTrigTest::my_TtoTDC = 32./25.;
 
 DTTrigTest::DTTrigTest(const ParameterSet& pset): my_trig(0) { 
 
-  //SV obsolete, now configuration is read from EventSetup
-  //my_debug= pset.getUntrackedParameter<bool>("debug");
+  my_debug= pset.getUntrackedParameter<bool>("debug");
   string outputfile = pset.getUntrackedParameter<string>("outputFileName");
-  //if (my_debug) 
-  //  cout << "[DTTrigTest] Creating rootfile " <<  outputfile <<endl;
+  if (my_debug) 
+    cout << "[DTTrigTest] Creating rootfile " <<  outputfile <<endl;
   my_rootfile = new TFile(outputfile.c_str(),"RECREATE");
   my_tree = new TTree("h1","GMT",0);
-  //my_trig = new DTTrig(pset.getParameter<ParameterSet>("DTTPGParameters"));
-
-//   bool globaldelay = pset.getUntrackedParameter<bool>("globalSync");
-//   double syncdelay = pset.getUntrackedParameter<double>("syncDelay");
-//   stringstream myos;
-//   myos << syncdelay;
-  
-//   if (globaldelay) {
-//     if (my_debug)
-//       cout << "[DTTrigTest] Using same synchronization for all chambers:" << endl;
-//     my_trig = new DTTrig();
-//     double ftdelay = pset.getUntrackedParameter<double>("globalSyncValue");
-//     my_trig->config()->setParam("Programmable Dealy",myos.str());
-//     my_trig->config()->setParamValue("BTI setup time","psetdelay",ftdelay*my_TtoTDC);
-//     if (my_debug ) 
-//       cout << "[DTTrigTest] Delay set to " << ftdelay << " ns (as set in parameterset)" << endl; 
-//   }
-//   else {
-//     if (my_debug) 
-//       cout << "[DTTrigTest] Using chamber by chamber synchronization" << endl;
-//     my_trig = new DTTrig(pset.getUntrackedParameter<ParameterSet>("L1DTFineSync"),myos.str());
-//   }
+  my_params = pset;
   if (my_debug) cout << "[DTTrigTest] Constructor executed!!!" << endl;
 
 
@@ -104,23 +81,21 @@ void DTTrigTest::endJob(){
 
 }
 
-void DTTrigTest::beginJob(const EventSetup & iEventSetup){   
-    
-  //get DTConfigManager
-  ESHandle< DTConfigManager > confManager ;
-  iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
+//void DTTrigTest::beginJob(const EventSetup & iEventSetup){   
+void DTTrigTest::beginJob(){   
+  // get DTConfigManager
+  // ESHandle< DTConfigManager > confManager ;
+  // iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
 
   //for testing purpose....
   //DTBtiId btiid(1,1,1,1,1);
   //confManager->getDTConfigBti(btiid)->print();
 
-  my_debug= confManager->getDTTPGDebug();
+//   my_trig = new DTTrig(my_params);
 
-  my_trig = new DTTrig(confManager.product());
-
-  my_trig->createTUs(iEventSetup);
-  if (my_debug ) 
-    cout << "[DTTrigTest] TU's Created" << endl;
+//   my_trig->createTUs(iEventSetup);
+//   if (my_debug) 
+//     cout << "[DTTrigTest] TU's Created" << endl;
   
   // BOOKING of the tree's varables
   // GENERAL block branches
@@ -223,6 +198,19 @@ void DTTrigTest::beginJob(const EventSetup & iEventSetup){
 
 }
 
+void DTTrigTest::beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup) {
+
+  if (!my_trig) {
+    my_trig = new DTTrig(my_params);
+    my_trig->createTUs(iEventSetup);
+    if (my_debug)
+      cout << "[DTTrigTest] TU's Created" << endl;
+  }
+
+}
+
+
+
 void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   
   const int MAXGEN  = 10;
@@ -250,10 +238,10 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   
   for (itrack=MyTracks->begin(); itrack!=MyTracks->end(); itrack++){
     if ( abs(itrack->type())==13){
-      float pt  = itrack->momentum().perp();
-      float eta = itrack->momentum().pseudoRapidity();
+      math::XYZTLorentzVectorD momentum = itrack->momentum();
+      float pt  = momentum.Pt();
+      float eta = momentum.eta();
       if ( pt>ptcut && fabs(eta)<etacut ){
-	HepLorentzVector momentum = itrack->momentum();
 	float phi = momentum.phi();
 	int charge = static_cast<int> (-itrack->type()/13); //static_cast<int> (itrack->charge());
 	if ( phi<0 ) phi = 2*M_PI + phi;

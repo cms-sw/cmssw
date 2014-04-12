@@ -1,27 +1,23 @@
 /**
  * \class L1GtfeExtWord
- * 
- * 
- * Description: L1 Global Trigger - GTFE words in the readout record.  
+ *
+ *
+ * Description: L1 Global Trigger - GTFE words in the readout record.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
- * $Date$
- * $Revision$
+ *
  *
  */
 
 // this class header
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 
 // system include files
-#include <boost/cstdint.hpp>
-#include <iostream>
 #include <iomanip>
+#include <stdint.h>
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -29,49 +25,48 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+
+
 // constructors
 
 // empty constructor, all members set to zero;
-L1GtfeExtWord::L1GtfeExtWord()
-        : L1GtfeWord()
-{
+L1GtfeExtWord::L1GtfeExtWord() :
+    L1GtfeWord(), m_bstSource(0) {
 
-    for (int iB = 0; iB < NumberBstBlocks; ++iB) {
-        m_bst[iB] = 0;
-    }
-
+    // empty
 
 }
 
-// constructor from unpacked values;
+// all members set to zero, m_bst has bstSizeBytes zero elements
+L1GtfeExtWord::L1GtfeExtWord(int bstSizeBytes) :
+    L1GtfeWord(), m_bstSource(0) {
+
+    m_bst.resize(bstSizeBytes);
+
+}
+
+
+// constructor from unpacked values, m_bst size taken from bstValue
 L1GtfeExtWord::L1GtfeExtWord(
-    boost::uint16_t boardIdValue,
-    boost::uint16_t recordLengthValue,
-    boost::uint16_t bxNrValue,
-    boost::uint32_t setupVersionValue,
-    boost::uint16_t activeBoardsValue,
-    boost::uint32_t totalTriggerNrValue, // end of L1GtfeWord
-    boost::uint16_t bstValue[NumberBstBlocks] )
-        : L1GtfeWord(
-            boardIdValue,
-            recordLengthValue,
-            bxNrValue,
-            setupVersionValue,
-            activeBoardsValue,
-            totalTriggerNrValue
-        )
+        cms_uint16_t boardIdValue, cms_uint16_t recordLength1Value,
+        cms_uint16_t recordLengthValue, cms_uint16_t bxNrValue,
+        cms_uint32_t setupVersionValue, cms_uint16_t activeBoardsValue,
+        cms_uint16_t altNrBxBoardValue, cms_uint32_t totalTriggerNrValue, // end of L1GtfeWord
+        const std::vector<cms_uint16_t>& bstValue, cms_uint16_t bstSourceValue) :
+    L1GtfeWord(
+            boardIdValue, recordLength1Value, recordLengthValue, bxNrValue, setupVersionValue,
+            activeBoardsValue, altNrBxBoardValue, totalTriggerNrValue), m_bst(bstValue),
+            m_bstSource(bstSourceValue)
 
 {
 
-    for (int iB = 0; iB < NumberBstBlocks; ++iB) {
-        m_bst[iB] = bstValue[iB];
-    }
-
+    // empty
 }
 
 // destructor
-L1GtfeExtWord::~L1GtfeExtWord()
-{
+L1GtfeExtWord::~L1GtfeExtWord() {
 
     // empty now
 
@@ -81,6 +76,8 @@ L1GtfeExtWord::~L1GtfeExtWord()
 bool L1GtfeExtWord::operator==(const L1GtfeExtWord& result) const
 {
 
+    // base class
+
     const L1GtfeWord gtfeResult = result;
     const L1GtfeWord gtfeThis = *this;
 
@@ -89,12 +86,17 @@ bool L1GtfeExtWord::operator==(const L1GtfeExtWord& result) const
     }
 
 
-    for (int iB = 0; iB < NumberBstBlocks; ++iB) {
+    //
+
+    for (unsigned int iB = 0; iB < m_bst.size(); ++iB) {
         if(m_bst[iB] != result.m_bst[iB]) {
             return false;
         }
     }
 
+    if ( m_bstSource != result.m_bstSource) {
+        return false;
+    }
 
     // all members identical
     return true;
@@ -111,10 +113,16 @@ bool L1GtfeExtWord::operator!=(const L1GtfeExtWord& result) const
 
 // methods
 
-boost::uint64_t L1GtfeExtWord::gpsTime()
+const cms_uint64_t L1GtfeExtWord::gpsTime() const
 {
 
-    boost::uint64_t gpst = 0ULL;
+    cms_uint64_t gpst = 0ULL;
+
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (GpsTimeLastBlock >= bstSize) {
+        return gpst;
+    }
 
     for (int iB = GpsTimeFirstBlock; iB <= GpsTimeLastBlock; ++iB) {
 
@@ -123,112 +131,59 @@ boost::uint64_t L1GtfeExtWord::gpsTime()
         const int BstShift = BstBitSize*scaledIB;
 
         gpst = gpst |
-               ( (static_cast<boost::uint64_t> (m_bst[iB])) << BstShift );
+               ( (static_cast<cms_uint64_t> (m_bst[iB])) << BstShift );
 
     }
 
     return gpst;
 }
 
+void L1GtfeExtWord::setGpsTime(const cms_uint64_t gpsTimeValue) {
 
-boost::uint32_t L1GtfeExtWord::turnCountNumber()
-{
+    // return if BST message too small
+    int bstSize = m_bst.size();
+    if (GpsTimeLastBlock >= bstSize) {
 
-    boost::uint32_t tcn = 0;
+        edm::LogError("L1GtfeExtWord") << "Error: BST message length "
+            << bstSize << " smaller than the required GpsTimeLastBlock "
+            << GpsTimeLastBlock << "\n Cannot set GpsTime" << std::endl;
 
-    for (int iB = TurnCountNumberFirstBlock; iB <= TurnCountNumberLastBlock; ++iB) {
+        return;
+    }
+
+    for (int iB = GpsTimeFirstBlock; iB <= GpsTimeLastBlock; ++iB) {
 
         // keep capitalization for similarity with other functions
-        const int scaledIB = iB - TurnCountNumberFirstBlock;
+        const int scaledIB = iB - GpsTimeFirstBlock;
         const int BstShift = BstBitSize*scaledIB;
+        const cms_uint64_t BstMask = 0x0000000000000000ULL | (BstBlockMask << BstShift);
 
-        tcn = tcn |
-              ( (static_cast<boost::uint32_t> (m_bst[iB])) << BstShift );
+        m_bst[iB] = static_cast<cms_uint16_t> ((gpsTimeValue & BstMask) >> BstShift);
+
+        //LogTrace("L1GtfeExtWord")
+        //<< "BstShift: value [dec] = " << BstShift << "\n"
+        //<< "BstBlockMask: value [hex] = "  << std::hex << BstBlockMask << "\n"
+        //<< "BstMask: value [hex] = "<< BstMask << std::dec
+        //<< std::endl;
+
+        //LogTrace("L1GtfeExtWord")
+        //<< "BST block " << iB << ": value [hex] = " << std::hex << m_bst[iB] << std::dec
+        //<< std::endl;
 
     }
 
-    return tcn;
 }
 
-boost::uint32_t L1GtfeExtWord::lhcFillNumber()
+const cms_uint16_t L1GtfeExtWord::bstMasterStatus() const
 {
 
-    boost::uint32_t lhcfn = 0;
+    cms_uint16_t bms = 0;
 
-    for (int iB = LhcFillNumberFirstBlock; iB <= LhcFillNumberLastBlock; ++iB) {
-
-        // keep capitalization for similarity with other functions
-        const int scaledIB = iB - LhcFillNumberFirstBlock;
-        const int BstShift = BstBitSize*scaledIB;
-
-        lhcfn = lhcfn |
-                ( (static_cast<boost::uint32_t> (m_bst[iB])) << BstShift );
-
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (BstMasterStatusLastBlock >= bstSize) {
+        return bms;
     }
-
-    return lhcfn;
-}
-
-boost::uint32_t L1GtfeExtWord::totalIntensityBeam1()
-{
-
-    boost::uint32_t tib = 0;
-
-    for (int iB = TotalIntensityBeam1FirstBlock; iB <= TotalIntensityBeam1LastBlock; ++iB) {
-
-        // keep capitalization for similarity with other functions
-        const int scaledIB = iB - TotalIntensityBeam1FirstBlock;
-        const int BstShift = BstBitSize*scaledIB;
-
-        tib = tib |
-              ( (static_cast<boost::uint32_t> (m_bst[iB])) << BstShift );
-
-    }
-
-    return tib;
-}
-
-boost::uint32_t L1GtfeExtWord::totalIntensityBeam2()
-{
-
-    boost::uint32_t tib = 0;
-
-    for (int iB = TotalIntensityBeam2FirstBlock; iB <= TotalIntensityBeam2LastBlock; ++iB) {
-
-        // keep capitalization for similarity with other functions
-        const int scaledIB = iB - TotalIntensityBeam2FirstBlock;
-        const int BstShift = BstBitSize*scaledIB;
-
-        tib = tib |
-              ( (static_cast<boost::uint32_t> (m_bst[iB])) << BstShift );
-
-    }
-
-    return tib;
-}
-
-boost::uint16_t L1GtfeExtWord::beamMomentum()
-{
-
-    boost::uint16_t bm = 0;
-
-    for (int iB = BeamMomentumFirstBlock; iB <= BeamMomentumLastBlock; ++iB) {
-
-        // keep capitalization for similarity with other functions
-        const int scaledIB = iB - BeamMomentumFirstBlock;
-        const int BstShift = BstBitSize*scaledIB;
-
-        bm = bm | ( m_bst[iB] << BstShift );
-
-    }
-
-    return bm;
-}
-
-boost::uint16_t L1GtfeExtWord::bstMasterStatus()
-{
-
-    boost::uint16_t bms = 0;
 
     for (int iB = BstMasterStatusFirstBlock; iB <= BstMasterStatusLastBlock; ++iB) {
 
@@ -243,28 +198,91 @@ boost::uint16_t L1GtfeExtWord::bstMasterStatus()
     return bms;
 }
 
-boost::uint16_t L1GtfeExtWord::machineMode()
+
+const cms_uint32_t L1GtfeExtWord::turnCountNumber() const
 {
 
-    boost::uint16_t mm = 0;
+    cms_uint32_t tcn = 0;
 
-    for (int iB = MachineModeFirstBlock; iB <= MachineModeLastBlock; ++iB) {
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (TurnCountNumberLastBlock >= bstSize) {
+        return tcn;
+    }
+
+    for (int iB = TurnCountNumberFirstBlock; iB <= TurnCountNumberLastBlock; ++iB) {
 
         // keep capitalization for similarity with other functions
-        const int scaledIB = iB - MachineModeFirstBlock;
+        const int scaledIB = iB - TurnCountNumberFirstBlock;
         const int BstShift = BstBitSize*scaledIB;
 
-        mm = mm | ( m_bst[iB] << BstShift );
+        tcn = tcn |
+              ( (static_cast<cms_uint32_t> (m_bst[iB])) << BstShift );
 
     }
 
-    return mm;
+    return tcn;
 }
 
-boost::uint16_t L1GtfeExtWord::particleTypeBeam1()
+const cms_uint32_t L1GtfeExtWord::lhcFillNumber() const
 {
 
-    boost::uint16_t ptb = 0;
+    cms_uint32_t lhcfn = 0;
+
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (LhcFillNumberLastBlock >= bstSize) {
+        return lhcfn;
+    }
+
+    for (int iB = LhcFillNumberFirstBlock; iB <= LhcFillNumberLastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - LhcFillNumberFirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        lhcfn = lhcfn |
+                ( (static_cast<cms_uint32_t> (m_bst[iB])) << BstShift );
+
+    }
+
+    return lhcfn;
+}
+
+const cms_uint16_t L1GtfeExtWord::beamMode() const
+{
+
+    cms_uint16_t bm = 0;
+
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (BeamModeLastBlock >= bstSize) {
+        return bm;
+    }
+
+    for (int iB = BeamModeFirstBlock; iB <= BeamModeLastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - BeamModeFirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        bm = bm | ( m_bst[iB] << BstShift );
+
+    }
+
+    return bm;
+}
+
+const cms_uint16_t L1GtfeExtWord::particleTypeBeam1() const
+{
+
+    cms_uint16_t ptb = 0;
+
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (ParticleTypeBeam1LastBlock >= bstSize) {
+        return ptb;
+    }
 
     for (int iB = ParticleTypeBeam1FirstBlock; iB <= ParticleTypeBeam1LastBlock; ++iB) {
 
@@ -279,10 +297,16 @@ boost::uint16_t L1GtfeExtWord::particleTypeBeam1()
     return ptb;
 }
 
-boost::uint16_t L1GtfeExtWord::particleTypeBeam2()
+const cms_uint16_t L1GtfeExtWord::particleTypeBeam2() const
 {
 
-    boost::uint16_t ptb = 0;
+    cms_uint16_t ptb = 0;
+
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (ParticleTypeBeam2LastBlock >= bstSize) {
+        return ptb;
+    }
 
     for (int iB = ParticleTypeBeam2FirstBlock; iB <= ParticleTypeBeam2LastBlock; ++iB) {
 
@@ -298,11 +322,88 @@ boost::uint16_t L1GtfeExtWord::particleTypeBeam2()
 
 }
 
+const cms_uint16_t L1GtfeExtWord::beamMomentum() const
+{
+
+    cms_uint16_t bm = 0;
+
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (BeamMomentumLastBlock >= bstSize) {
+        return bm;
+    }
+
+    for (int iB = BeamMomentumFirstBlock; iB <= BeamMomentumLastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - BeamMomentumFirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        bm = bm | ( m_bst[iB] << BstShift );
+
+    }
+
+    return bm;
+}
+
+const cms_uint32_t L1GtfeExtWord::totalIntensityBeam1() const
+{
+
+    cms_uint32_t tib = 0;
+
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (TotalIntensityBeam1LastBlock >= bstSize) {
+        return tib;
+    }
+
+    for (int iB = TotalIntensityBeam1FirstBlock; iB <= TotalIntensityBeam1LastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - TotalIntensityBeam1FirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        tib = tib |
+              ( (static_cast<cms_uint32_t> (m_bst[iB])) << BstShift );
+
+    }
+
+    return tib;
+}
+
+const cms_uint32_t L1GtfeExtWord::totalIntensityBeam2() const
+{
+
+    cms_uint32_t tib = 0;
+
+    // return 0 if BST message too small
+    int bstSize = m_bst.size();
+    if (TotalIntensityBeam2LastBlock >= bstSize) {
+        return tib;
+    }
+
+    for (int iB = TotalIntensityBeam2FirstBlock; iB <= TotalIntensityBeam2LastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - TotalIntensityBeam2FirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        tib = tib |
+              ( (static_cast<cms_uint32_t> (m_bst[iB])) << BstShift );
+
+    }
+
+    return tib;
+}
+
+
 // get/set BST for block iB
 const uint16_t L1GtfeExtWord::bst(int iB) const
 {
 
-    if (iB < 0 || iB > NumberBstBlocks) {
+    int NumberBstBlocks = m_bst.size();
+
+    if (iB < 0 || iB >= NumberBstBlocks) {
         throw cms::Exception("BstIndexError")
         << "\nError: index for BST array out of range. Allowed range: [0, "
         << NumberBstBlocks << ") " << std::endl;
@@ -316,7 +417,9 @@ const uint16_t L1GtfeExtWord::bst(int iB) const
 void L1GtfeExtWord::setBst(const uint16_t bstVal, const int iB)
 {
 
-    if (iB < 0 || iB > NumberBstBlocks) {
+    int NumberBstBlocks = m_bst.size();
+
+    if (iB < 0 || iB >= NumberBstBlocks) {
         throw cms::Exception("BstIndexError")
         << "\nError: index for BST array out of range. Allowed range: [0, "
         << NumberBstBlocks << ") " << std::endl;
@@ -328,21 +431,21 @@ void L1GtfeExtWord::setBst(const uint16_t bstVal, const int iB)
 }
 
 // set the BST block for index iB from a 64-bits word
-void L1GtfeExtWord::setBst(const boost::uint64_t& word64, const int iB)
+void L1GtfeExtWord::setBst(const cms_uint64_t& word64, const int iB)
 {
 
-    // keep capitalization for similarity with other functions
+    // keep capitalization for similarity with other functions //FIXME check it again
     const int scaledIB = iB%(sizeof(word64)*8/BstBitSize);
-    const boost::uint64_t BstMask = 0x0000000000000000ULL | (BstBlockMask << scaledIB);
     const int BstShift = BstBitSize*scaledIB;
+    const cms_uint64_t BstMask = 0x0000000000000000ULL | (BstBlockMask << BstShift);
 
-    m_bst[iB] = (word64 & BstMask) >> BstShift;
+    m_bst[iB] = static_cast<cms_uint16_t> ((word64 & BstMask) >> BstShift);
 
 }
 
 // set the BST block in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtfeExtWord::setBstWord64(boost::uint64_t& word64, int iB, int iWord)
+void L1GtfeExtWord::setBstWord64(cms_uint64_t& word64, int iB, int iWord)
 {
 
     // keep capitalization for similarity with other functions
@@ -352,9 +455,68 @@ void L1GtfeExtWord::setBstWord64(boost::uint64_t& word64, int iB, int iWord)
 
     if (iWord == BstWord) {
         word64 = word64 |
-                 (static_cast<boost::uint64_t> (m_bst[iB]) << BstShift);
+                 (static_cast<cms_uint64_t> (m_bst[iB]) << BstShift);
     }
 
+
+}
+
+
+// set the hex message indicating the source of BST message from a 64-bits word
+void L1GtfeExtWord::setBstSource(const cms_uint64_t& word64) {
+
+    m_bstSource = (word64 & BstSourceMask) >> BstSourceShift;
+
+}
+
+// set hex message indicating the source of BST message in a 64-bits word,
+// having the index iWord in the GTFE raw record
+void L1GtfeExtWord::setBstSourceWord64(cms_uint64_t& word64, const int iWord) {
+
+    // BST always in the last word of GTFE extended - size must be correct!
+    int gtfeSize = this->getSize();
+
+    int BstSourceWord = gtfeSize/8 - 1; // counting starts at 0
+
+    if (iWord == BstSourceWord) {
+        word64 = word64 | (static_cast<cms_uint64_t> (m_bstSource)
+                           << BstSourceShift);
+    }
+
+}
+
+
+// get the size of the GTFE block in GT EVM record (in multiple of 8 bits)
+const unsigned int L1GtfeExtWord::getSize() const {
+
+    L1GtfeWord gtfeWord;
+    unsigned int gtfeSize = gtfeWord.getSize();
+
+    unsigned int gtfeExtSize;
+
+    // 2 bytes to write if real BST message or simulated BST message
+    unsigned int bytesBstWriter = 2;
+
+    // size of BST block, using rounded 64-bit words (8 bytes per 64-bit word)
+
+    unsigned int bstSize = m_bst.size();
+
+    if ( (bstSize +bytesBstWriter )%8 == 0) {
+        gtfeExtSize = gtfeSize + bstSize + bytesBstWriter;
+    }
+    else {
+        gtfeExtSize = gtfeSize + bstSize + bytesBstWriter + (8 - (bstSize + bytesBstWriter)%8 );
+    }
+
+    return gtfeExtSize;
+}
+
+
+
+// resize the BST vector to get the right size of the block
+void L1GtfeExtWord::resize(int bstSizeBytes) {
+
+    m_bst.resize(bstSizeBytes);
 
 }
 
@@ -363,47 +525,66 @@ void L1GtfeExtWord::reset()
 {
 
     L1GtfeWord::reset();
-
-    for (int iB = 0; iB < NumberBstBlocks; ++iB) {
-        m_bst[iB] = 0;
-    }
+    m_bst.clear();
 
 }
 
 // pretty print the content of a L1GtfeWord
-void L1GtfeExtWord::print(std::ostream& myCout) const
-{
+void L1GtfeExtWord::print(std::ostream& myCout) const {
 
     myCout << "\n L1GtfeExtWord::print \n" << std::endl;
 
-    int sizeW64 = 64;
-    int dataBlocksPerLine = sizeW64/8; // 8x8 bits per line
+    unsigned int sizeW64 = 64;
+    unsigned int dataBlocksPerLine = sizeW64 / 8; // 8x8 bits per line
 
     L1GtfeWord::print(myCout);
 
+    unsigned int numberBstBlocks = m_bst.size();
+
     myCout << "\n  BST ";
-    for (int iB = 0; iB < NumberBstBlocks; ++iB) {
+
+    if (numberBstBlocks == 0) {
+
+        myCout << "\n  BST source [hex]: " << std::hex << std::setw(4)
+                << std::setfill('0') << m_bstSource << std::setfill(' ')
+                << std::dec << std::endl;
+
+        return;
+    }
+
+    for (unsigned int iB = 0; iB < numberBstBlocks; iB += dataBlocksPerLine) {
 
         myCout << "\n" << std::hex << " hex: ";
 
-        for (int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
-            myCout
-            << std::setw(2) << std::setfill('0') << m_bst[iB]
-            << "   " << std::setfill(' ');
+        for (unsigned int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
+
+            if (jB >= numberBstBlocks) {
+                break;
+            }
+
+            myCout << std::setw(2) << std::setfill('0') << m_bst[jB] << "   "
+                    << std::setfill(' ');
         }
 
-        myCout << "\n"<< std::dec << " dec: " ;
+        myCout << "\n" << std::dec << " dec: ";
 
-        for (int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
-            myCout
-            << std::setw(3) << std::setfill('0') << m_bst[iB]
-            << "  " << std::setfill(' ');
+        for (unsigned int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
+
+            if (jB >= numberBstBlocks) {
+                break;
+            }
+
+            myCout << std::setw(3) << std::setfill('0') << m_bst[jB] << "  "
+                    << std::setfill(' ');
         }
 
         myCout << std::endl;
 
-        iB += dataBlocksPerLine;
     }
+
+    myCout << "\n  BST source [hex]: " << std::hex << std::setw(4)
+            << std::setfill('0') << m_bstSource << std::setfill(' ')
+            << std::dec << std::endl;
 
 }
 
@@ -419,10 +600,13 @@ void L1GtfeExtWord::unpack(const unsigned char* gtfePtr)
     L1GtfeWord gtfeWord;
     const unsigned char* gtfeExtPtr = gtfePtr + gtfeWord.getSize();
 
-    const boost::uint64_t* payload =
-        reinterpret_cast<boost::uint64_t*>(const_cast<unsigned char*>(gtfeExtPtr));
+    const cms_uint64_t* payload =
+        reinterpret_cast<cms_uint64_t*>(const_cast<unsigned char*>(gtfeExtPtr));
 
-    if ( edm::isDebugEnabled() ) {
+    int BlockSizeExt = this->getSize()/8;
+    int NumberBstBlocks = m_bst.size();
+
+    if (edm::isDebugEnabled() ) {
 
         for (int iWord = BstFirstWord; iWord < BlockSizeExt; ++iWord) {
 
@@ -437,7 +621,7 @@ void L1GtfeExtWord::unpack(const unsigned char* gtfePtr)
         }
     }
 
-    int blocksPerWord = sizeof(boost::uint64_t)*8/BstBitSize;
+    int blocksPerWord = sizeof(cms_uint64_t)*8/BstBitSize;
 
     for (int iB = 0; iB < NumberBstBlocks; ++iB) {
 
@@ -454,7 +638,6 @@ void L1GtfeExtWord::unpack(const unsigned char* gtfePtr)
 
 
 // static class members
-const int L1GtfeExtWord::NumberBstBlocks;
 
 // block description in the raw GT record
 
@@ -466,40 +649,43 @@ const int L1GtfeExtWord::BstBitSize = 8;
 
 // BST block mask, correlated with the number of bits of a block
 // 8 bit = 0xFF
-const boost::uint64_t L1GtfeExtWord::BstBlockMask = 0xFFULL;
-
-// block size in 64bits words
-const int L1GtfeExtWord::BlockSizeExt = 6;        // 6 x 64bits
+const cms_uint64_t L1GtfeExtWord::BstBlockMask = 0xFFULL;
 
 // BST blocks: conversion to defined quantities (LHC-BOB-ES-0001)
 
 const int L1GtfeExtWord::GpsTimeFirstBlock = 0;
 const int L1GtfeExtWord::GpsTimeLastBlock = 7;
 
-const int L1GtfeExtWord::TurnCountNumberFirstBlock = 8;
-const int L1GtfeExtWord::TurnCountNumberLastBlock = 11;
+const int L1GtfeExtWord::BstMasterStatusFirstBlock = 17;
+const int L1GtfeExtWord::BstMasterStatusLastBlock =  17;
 
-const int L1GtfeExtWord:: LhcFillNumberFirstBlock = 12;
-const int L1GtfeExtWord:: LhcFillNumberLastBlock = 15;
+const int L1GtfeExtWord::TurnCountNumberFirstBlock = 18;
+const int L1GtfeExtWord::TurnCountNumberLastBlock = 21;
 
-const int L1GtfeExtWord:: TotalIntensityBeam1FirstBlock = 16;
-const int L1GtfeExtWord:: TotalIntensityBeam1LastBlock = 19;
+const int L1GtfeExtWord::LhcFillNumberFirstBlock = 22;
+const int L1GtfeExtWord::LhcFillNumberLastBlock = 25;
 
-const int L1GtfeExtWord::TotalIntensityBeam2FirstBlock = 20;
-const int L1GtfeExtWord::TotalIntensityBeam2LastBlock = 23;
-
-const int L1GtfeExtWord::BeamMomentumFirstBlock = 24;
-const int L1GtfeExtWord::BeamMomentumLastBlock = 25;
-
-const int L1GtfeExtWord::BstMasterStatusFirstBlock = 26;
-const int L1GtfeExtWord::BstMasterStatusLastBlock =  26;
-
-const int L1GtfeExtWord::MachineModeFirstBlock = 27;
-const int L1GtfeExtWord::MachineModeLastBlock = 27;
+const int L1GtfeExtWord::BeamModeFirstBlock = 26;
+const int L1GtfeExtWord::BeamModeLastBlock = 27;
 
 const int L1GtfeExtWord::ParticleTypeBeam1FirstBlock = 28;
 const int L1GtfeExtWord::ParticleTypeBeam1LastBlock = 28;
 
 const int L1GtfeExtWord::ParticleTypeBeam2FirstBlock = 29;
 const int L1GtfeExtWord::ParticleTypeBeam2LastBlock = 29;
+
+const int L1GtfeExtWord::BeamMomentumFirstBlock = 30;
+const int L1GtfeExtWord::BeamMomentumLastBlock = 31;
+
+const int L1GtfeExtWord::TotalIntensityBeam1FirstBlock = 32;
+const int L1GtfeExtWord::TotalIntensityBeam1LastBlock = 35;
+
+const int L1GtfeExtWord::TotalIntensityBeam2FirstBlock = 36;
+const int L1GtfeExtWord::TotalIntensityBeam2LastBlock = 39;
+
+// BST
+const cms_uint64_t L1GtfeExtWord::BstSourceMask = 0xFFFF000000000000ULL;
+const int L1GtfeExtWord::BstSourceShift = 48;
+
+
 

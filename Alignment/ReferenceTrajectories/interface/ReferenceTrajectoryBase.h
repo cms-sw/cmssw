@@ -1,11 +1,11 @@
-#ifndef REFERENCE_TRAJECTORY_BASE_H
-#define REFERENCE_TRAJECTORY_BASE_H
+#ifndef Alignment_ReferenceTrajectories_ReferenceTrajectoryBase_H
+#define Alignment_ReferenceTrajectories_ReferenceTrajectoryBase_H
 
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2007/03/02 12:16:55 $
- * by         : $Author: fronga $
+ * last update: $Date: 2010/09/10 12:11:39 $
+ * by         : $Author: mussgill $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
  * stated.
@@ -49,6 +49,36 @@
  * 
  * Take care to check validity of the calculation (isValid()) before using the results.
  *
+ *.............................................................................
+ *
+ * 090730 C. Kleinwort: 'Break Points' introduced for better description of multiple 
+ *                      scattering (correlations)
+ *
+ * For each detector layer (in the hit collection) two ortogonal scattering angles are
+ * introduced as new local track parameters ("break points"). To constrain those to the
+ * expected mean (=0.) and variance (~1/p^2 X/X0) corresponding measurements are added.
+ * Invalid hits may be used to produce break points too (UseInvalidHits = True).
+ *
+ * Break points have been implemented for: ReferenceTrajectory, BzeroReferenceTrajectory,
+ *    DualReferenceTrajectory and DualBzeroReferenceTrajectory
+ * For 'Dual' trajectories they make no sense as only the correlations between the hits  
+ * in a track half are accounted for and not those between the halves! 
+ *
+ * Break Points are selected by TrajectoryFactory.MaterialEffects = "BreakPoints"
+ *
+ * 090909 C. Kleinwort: 'Broken Lines' introduced for description of multiple scattering
+ *      (V. Blobel, Nuclear Instruments and Methods A, 566 (2006), pp. 14-17)
+ * Fine Broken Lines are selected by TrajectoryFactory.MaterialEffects = "BrokenLinesFine"
+ *      (exact derivatives)
+ * Coarse Broken Lines are selected by TrajectoryFactory.MaterialEffects = "BrokenLines[Coarse]"
+ *      (approximate derivatives, closeby hits (ds<1cm) combined)
+ *
+ * 091127 C. Kleinwort: 
+ *   1) 'Broken Lines' extended to PCA,
+ *      required for beamspot constraint and TwoBodyDecayTrajectory,
+ *      selected with "BrokenLines[Coarse]Pca" or "BrokenLinesFinePca"
+ *   2) For coarse Broken Lines linear interpolation is used for combined hits
+ *   3) TwoBodyDecayTrajectory implemented for break points and Broken Lines
  */
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
@@ -57,6 +87,7 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 
 #include <vector>
 
@@ -67,7 +98,8 @@ public:
 
   typedef ReferenceCountingPointer<ReferenceTrajectoryBase> ReferenceTrajectoryPtr;
 
-  enum MaterialEffects { none, multipleScattering, energyLoss, combined };
+  enum MaterialEffects { none, multipleScattering, energyLoss, combined, 
+			 breakPoints, brokenLinesCoarse, brokenLinesFine };
 
   virtual ~ReferenceTrajectoryBase() {}
 
@@ -80,7 +112,7 @@ public:
   /** Returns the full covariance matrix of the measurements. ORCA-equivalent: covariance()
    */
   const AlgebraicSymMatrix& measurementErrors() const { return theMeasurementsCov; }
-
+  
   /** Returns the local coordinates of the reference trajectory.
       ORCA-equivalent: referenceTrack()
    */
@@ -95,26 +127,62 @@ public:
    */
   const AlgebraicMatrix& derivatives() const { return theDerivatives; }
 
-  /** Returns the set of 'track'-parameters.
+  /** Returns the transformation of tracjectory to curvilinear parameters
    */
+  const AlgebraicMatrix& trajectoryToCurv() const { return theInnerTrajectoryToCurvilinear; }
+  /** Returns the transformation of local to tracjectory parameters
+   */
+  const AlgebraicMatrix& localToTrajectory() const { return theInnerLocalToTrajectory; }    
+
+  /** Returns the set of 'track'-parameters.
+   */  
   const AlgebraicVector& parameters() const { return theParameters; }
+
+  /** Returns true if the covariance matrix of the 'track'-parameters is set.
+   */
+  inline bool parameterErrorsAvailable() const { return theParamCovFlag; }
+
+  /** Set the covariance matrix of the 'track'-parameters.
+   */
+  inline void setParameterErrors( const AlgebraicSymMatrix& error ) { theParameterCov = error; theParamCovFlag = true; }
+  
+  /** Returns the covariance matrix of the 'track'-parameters.
+   */
+  inline const AlgebraicSymMatrix& parameterErrors() const { return theParameterCov; }
 
   /** Returns the Tsos at the surfaces of the hits, parallel to recHits()
    */
   const std::vector<TrajectoryStateOnSurface>& trajectoryStates() const { return theTsosVec; }
+
   /** Returns the TransientTrackingRecHits (as ConstRecHitPointer's), 
       order might depend on concrete implementation of inheriting class
    */
   const TransientTrackingRecHit::ConstRecHitContainer& recHits() const { return theRecHits; }
 
+  inline unsigned int numberOfHits() const { return theNumberOfHits; }
+  inline unsigned int numberOfPar() const { return theNumberOfPars; }
+  inline unsigned int numberOfVirtualMeas() const { return theNumberOfVirtualMeas; }  
+  inline unsigned int numberOfVirtualPar() const { return theNumberOfVirtualPars; }  
+  inline unsigned int numberOfHitMeas() const { return theNumberOfHits * nMeasPerHit; } 
+     
   virtual ReferenceTrajectoryBase* clone() const = 0;
 
 protected:
 
-  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0);
+  explicit ReferenceTrajectoryBase(unsigned int nPar, unsigned int nHits,
+				   unsigned int nVirtualPar, unsigned int nVirtualMeas);
+
+  unsigned int numberOfUsedRecHits(const TransientTrackingRecHit::ConstRecHitContainer &recHits) const;
+  bool useRecHit(const TransientTrackingRecHit::ConstRecHitPointer& hitPtr) const;
 
   bool theValidityFlag;
+  bool theParamCovFlag;
 
+  unsigned int theNumberOfHits;   // number of (measurements from) hits
+  unsigned int theNumberOfPars;   // number of (track) parameters
+  unsigned int theNumberOfVirtualMeas; // number of virtual measurements
+  unsigned int theNumberOfVirtualPars; // number of parameters for virtual measurements
+      
   std::vector<TrajectoryStateOnSurface> theTsosVec;
   TransientTrackingRecHit::ConstRecHitContainer theRecHits;
 
@@ -125,8 +193,15 @@ protected:
   AlgebraicSymMatrix  theTrajectoryPositionCov;
 
   AlgebraicVector     theParameters;
+  AlgebraicSymMatrix  theParameterCov;
+
   AlgebraicMatrix     theDerivatives;
 
+// CHK for beamspot   transformation trajectory parameter to curvilinear at refTSos
+  AlgebraicMatrix     theInnerTrajectoryToCurvilinear;  
+// CHK for TwoBodyD.  transformation local to trajectory parameter at refTsos
+  AlgebraicMatrix     theInnerLocalToTrajectory;  
+    
   static const unsigned int nMeasPerHit = 2;
 };
 

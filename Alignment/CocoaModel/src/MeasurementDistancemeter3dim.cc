@@ -8,10 +8,10 @@
 
 #include "Alignment/CocoaModel/interface/MeasurementDistancemeter3dim.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"

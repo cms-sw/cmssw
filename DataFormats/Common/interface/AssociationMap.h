@@ -1,21 +1,19 @@
-#ifndef Common_AssociationMap_h
-#define Common_AssociationMap_h
+#ifndef DataFormats_Common_AssociationMap_h
+#define DataFormats_Common_AssociationMap_h
 /** \class edm::AssociationMap
  *
  * one-to-many or one-to-one associative map using EDM references
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.33 2007/01/23 00:25:52 wmtan Exp $
  *
  */
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/OneToValue.h"
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "DataFormats/Common/interface/OneToMany.h"
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
   template<typename Tag>
@@ -51,12 +49,9 @@ namespace edm {
       typedef value_type * pointer;
       typedef value_type & reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
-      const_iterator() { }
+      const_iterator(): map_(0) { }
       const_iterator(const self * map, typename map_type::const_iterator mi) :
 	map_(map), i(mi) { }
-      const_iterator & operator=(const const_iterator & it) {
-	map_ = it.map_; i = it.i; return *this;
-      }
       const_iterator& operator++() { ++i; return *this; }
       const_iterator operator++(int) { const_iterator ci = *this; ++i; return ci; }
       const_iterator& operator--() { --i; return *this; }
@@ -137,7 +132,7 @@ namespace edm {
     void post_insert() { Tag::sort(map_); }
 
     // Find should be private!  However, generated reflex dictionaries do not compile
-    //  with gcc 3.4.5 if Find is private.  Reflex should fix this!!
+    // if Find is private.  
     /// find helper
     struct Find :
       public std::binary_function<const self&, size_type, const value_type *> {
@@ -147,6 +142,9 @@ namespace edm {
 	return &(*c.find(i));
       }
     };
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     /// reference set
@@ -167,8 +165,7 @@ namespace edm {
       if (tf == transientMap_.end()) {
 	typename map_type::const_iterator f = map_.find(i);
 	if (f == map_.end())
-	  throw edm::Exception(edm::errors::InvalidReference)
-	    << "can't find reference in AssociationMap at position " << i;
+	  Exception::throwThis(edm::errors::InvalidReference, "can't find reference in AssociationMap at position ", i);
 	value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
 	std::pair<typename internal_transient_map_type::const_iterator, bool> ins =
 	  transientMap_.insert(std::make_pair(i, v));
@@ -194,13 +191,6 @@ namespace edm {
     };
   }
 
-#if ! GCC_PREREQUISITE(3,4,4)
-  /// has post insert trait
-  template<typename  T> 
-  struct has_postinsert_trait<AssociationMap<T> >  { 
-    static bool const value = true; 
-  }; 
-#endif
 }
 
 #endif

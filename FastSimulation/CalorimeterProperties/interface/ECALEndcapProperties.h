@@ -25,17 +25,18 @@ class ECALEndcapProperties : public ECALProperties
 
   virtual ~ECALEndcapProperties() { }
 
-  /// Thickness (cm)
-  double thickness(double eta) const { return 22.0; }
+ /// Thickness (in cm): 22.0 for Standard ECAL
+  double thickness(double eta) const { return thickness_; }
 
-  ///Photostatistics (photons/GeV) in the homegeneous material
-  inline double photoStatistics() const { return 50E3; }
+  ///Photostatistics (photons/GeV) in the homegeneous material: 50E3  for Standard ECAL
+  inline double photoStatistics() const { return photoStatistics_; }
 
-  ///Light Collection efficiency [Default : 2.3%]
-  inline double lightCollectionEfficiency() const { return lightColl; }
+  ///Light Collection efficiency [Default : 3.0%]
+  inline double lightCollectionEfficiency() const { return lightColl_; }
 
-  ///Light Collection uniformity
-  inline double lightCollectionUniformity() const {return 0.003;}
+  ///Light Collection uniformity 0.003 for Standard ECAL
+  inline double lightCollectionUniformity() const {return lightCollUnif_;}
+
 
 };
 

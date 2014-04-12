@@ -4,9 +4,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Handle.h"
 
   /**
    * Helper class to build TransientTrack from the persistent Track.
@@ -32,10 +29,13 @@ class TransientTrackBuilder {
 
     std::vector<reco::TransientTrack> build ( const edm::Handle<reco::TrackCollection> & trkColl)  const;
     std::vector<reco::TransientTrack> build ( const edm::Handle<reco::GsfTrackCollection> & trkColl)  const;
+    std::vector<reco::TransientTrack> build ( const edm::Handle<edm::View<reco::Track> > & trkColl)  const;
 
     std::vector<reco::TransientTrack> build ( const edm::Handle<reco::TrackCollection> & trkColl,
 	const reco::BeamSpot & beamSpot) const;
     std::vector<reco::TransientTrack> build ( const edm::Handle<reco::GsfTrackCollection> & trkColl,
+	const reco::BeamSpot & beamSpot)  const;
+    std::vector<reco::TransientTrack> build ( const edm::Handle<edm::View<reco::Track> > & trkColl,
 	const reco::BeamSpot & beamSpot)  const;
 
     reco::TransientTrack build (const FreeTrajectoryState & fts) const;

@@ -4,18 +4,26 @@
 /** \class MuonAlignment
  *  The MuonAlignment helper class for alignment jobs
  *
- *  $Date: 2007/01/26 19:39:41 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/06/07 19:28:47 $
+ *  $Revision: 1.14 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
-#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 
-class MuonAlignment{
+#include <map>
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include <FWCore/Framework/interface/Frameworkfwd.h> 
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
+#include "Alignment/MuonAlignment/interface/MuonAlignmentInputMethod.h"
+
+class MuonAlignment {
 
   public:
 
-      MuonAlignment( const edm::EventSetup& setup );
+      MuonAlignment( const edm::EventSetup& iSetup );
+
+      MuonAlignment( const edm::EventSetup& iSetup, const MuonAlignmentInputMethod& input );
 
      ~MuonAlignment() { delete theAlignableMuon; delete theAlignableNavigator; }
       
@@ -24,10 +32,22 @@ class MuonAlignment{
       AlignableNavigator* getAlignableNavigator() { return theAlignableNavigator; }
 
 
-      void moveAlignableLocalCoord( DetId& , std::vector<float>& , std::vector<float>& );
+      void moveAlignableLocalCoord( DetId& , align::Scalars& , align::Scalars& );
+      void moveAlignableGlobalCoord( DetId& , align::Scalars& , align::Scalars& );
 
-      void moveAlignableGlobalCoord( DetId& , std::vector<float>& , std::vector<float>& );
+      void recursiveList(const align::Alignables& alignables, align::Alignables &theList);
+      void recursiveMap(const align::Alignables& alignables, std::map<align::ID, Alignable*> &theMap);
+      void recursiveStructureMap(const align::Alignables& alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap);
 
+      void copyAlignmentToSurvey(double shiftErr, double angleErr);
+      void fillGapsInSurvey(double shiftErr, double angleErr);
+      void copySurveyToAlignment();
+
+      void writeXML(const edm::ParameterSet &iConfig, const edm::EventSetup &iSetup);
+
+      void saveDTSurveyToDB();
+      void saveCSCSurveyToDB();
+      void saveSurveyToDB();
 
       void saveDTtoDB();
       void saveCSCtoDB();
@@ -35,19 +55,21 @@ class MuonAlignment{
 
 
   private:
+      void init();
+      void recursiveCopySurveyToAlignment(Alignable *alignable);
 
       std::string theDTAlignRecordName, theDTErrorRecordName;
       std::string theCSCAlignRecordName, theCSCErrorRecordName;
+      std::string theDTSurveyRecordName, theDTSurveyErrorRecordName;
+      std::string theCSCSurveyRecordName, theCSCSurveyErrorRecordName;
  
-      std::vector<float> displacements;
+      align::Scalars displacements;
 
-      std::vector<float> rotations;
+      align::Scalars rotations;
 
       AlignableMuon* theAlignableMuon;
 
       AlignableNavigator* theAlignableNavigator;
-
-
 };
 
 #endif //MuonAlignment_H

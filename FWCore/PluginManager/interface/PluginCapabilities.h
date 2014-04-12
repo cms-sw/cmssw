@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr  6 12:36:19 EDT 2007
-// $Id: PluginCapabilities.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files

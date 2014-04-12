@@ -2,14 +2,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/DivisiveVertexFinder.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <memory>
 #include <string>
 #include <cmath>
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf) 
-  : conf_(conf), verbose_(0), dvf_(0), ptMin_(1.0)
+  : verbose_(0), dvf_(0), ptMin_(1.0)
 {
   // Register my product
   produces<reco::VertexCollection>();
@@ -23,7 +25,12 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   double zSeparation = conf.getParameter<double>("ZSeparation"); // 0.05 cm
   int ntrkMin        = conf.getParameter<int>("NTrkMin"); // 3
   // Tracking requirements before sending a track to be considered for vtx
-  ptMin_ = conf_.getParameter<double>("PtMin"); // 1.0 GeV
+  ptMin_ = conf.getParameter<double>("PtMin"); // 1.0 GeV
+  trackCollName = conf.getParameter<edm::InputTag>("TrackCollection");
+  token_Tracks = consumes<reco::TrackCollection>(trackCollName);
+  token_BeamSpot = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
+  method2 = conf.getParameter<bool>("Method2");
+
 
   if (finder == "DivisiveVertexFinder") {
     if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Using the DivisiveVertexFinder\n";
@@ -43,8 +50,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // First fish the pixel tracks out of the event
   edm::Handle<reco::TrackCollection> trackCollection;
-  std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
-  e.getByLabel(trackCollName,trackCollection);
+  e.getByToken(token_Tracks,trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
   if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Found " << tracks.size() << " tracks in TrackCollection called " << trackCollName << "\n";
   
@@ -57,12 +63,17 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
   if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Selected " << trks.size() << " of these tracks for vertexing\n";
 
+  edm::Handle<reco::BeamSpot> bsHandle;
+  e.getByToken(token_BeamSpot,bsHandle);
+  math::XYZPoint myPoint(0.,0.,0.);
+  if (bsHandle.isValid()) myPoint = math::XYZPoint(bsHandle->x0(),bsHandle->y0(), 0. ); //FIXME: fix last coordinate with vertex.z() at same time
+
   // Third, ship these tracks off to be vertexed
   std::auto_ptr<reco::VertexCollection> vertexes(new reco::VertexCollection);
   bool ok;
-  if (conf_.getParameter<bool>("Method2")) {
+  if (method2) {
     ok = dvf_->findVertexesAlt(trks,       // input
-			     *vertexes); // output
+			     *vertexes,myPoint); // output
     if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << "Method2 returned status of " << ok;
   }
   else {
@@ -74,10 +85,71 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if (verbose_ > 0) {
     edm::LogInfo("PixelVertexProducer") << ": Found " << vertexes->size() << " vertexes\n";
     for (unsigned int i=0; i<vertexes->size(); ++i) {
-      edm::LogInfo("PixelVertexProducer") << "Vertex number " << i << " has " << (*vertexes)[i].tracksSize() << " tracks with a position of " << (*vertexes)[i].z() << " +- " << std::sqrt( (*vertexes)[i].error(2,2) );
+      edm::LogInfo("PixelVertexProducer") << "Vertex number " << i << " has " << (*vertexes)[i].tracksSize() << " tracks with a position of " << (*vertexes)[i].z() << " +- " << std::sqrt( (*vertexes)[i].covariance(2,2) );
     }
   }
 
-  // Finally, put them in the event if things look OK
-  if (ok) e.put(vertexes);
+
+  if(bsHandle.isValid())
+    {
+      const reco::BeamSpot & bs = *bsHandle;
+      
+      for (unsigned int i=0; i<vertexes->size(); ++i) {
+	double z=(*vertexes)[i].z();
+	double x=bs.x0()+bs.dxdz()*(z-bs.z0());
+	double y=bs.y0()+bs.dydz()*(z-bs.z0()); 
+	reco::Vertex v( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
+	//Copy also the tracks 
+	for (std::vector<reco::TrackBaseRef >::const_iterator it = (*vertexes)[i].tracks_begin();
+	     it !=(*vertexes)[i].tracks_end(); it++) {
+	  v.add( *it );
+	}
+	(*vertexes)[i]=v;
+	
+      }
+    }
+  else
+    {
+      edm::LogWarning("PixelVertexProducer") << "No beamspot found. Using returning vertexes with (0,0,Z) ";
+    } 
+  
+  if(!vertexes->size() && bsHandle.isValid()){
+    
+    const reco::BeamSpot & bs = *bsHandle;
+      
+      GlobalError bse(bs.rotatedCovariance3D());
+      if ( (bse.cxx() <= 0.) ||
+	   (bse.cyy() <= 0.) ||
+	   (bse.czz() <= 0.) ) {
+	AlgebraicSymMatrix33 we;
+	we(0,0)=10000;
+	we(1,1)=10000;
+	we(2,2)=10000;
+	vertexes->push_back(reco::Vertex(bs.position(), we,0.,0.,0));
+	
+	edm::LogInfo("PixelVertexProducer") <<"No vertices found. Beamspot with invalid errors " << bse.matrix() << std::endl
+					       << "Will put Vertex derived from dummy-fake BeamSpot into Event.\n"
+					       << (*vertexes)[0].x() << "\n"
+					       << (*vertexes)[0].y() << "\n"
+					       << (*vertexes)[0].z() << "\n";
+      } else {
+	vertexes->push_back(reco::Vertex(bs.position(),
+					 bs.rotatedCovariance3D(),0.,0.,0));
+	
+	edm::LogInfo("PixelVertexProducer") << "No vertices found. Will put Vertex derived from BeamSpot into Event:\n"
+					       << (*vertexes)[0].x() << "\n"
+					       << (*vertexes)[0].y() << "\n"
+					       << (*vertexes)[0].z() << "\n";
+      }
+  }
+      
+  else if(!vertexes->size() && !bsHandle.isValid())
+    {
+      edm::LogWarning("PixelVertexProducer") << "No beamspot and no vertex found. No vertex returned.";
+    }
+  
+  e.put(vertexes);
+  
 }
+
+

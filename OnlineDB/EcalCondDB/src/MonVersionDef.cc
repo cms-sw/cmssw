@@ -72,7 +72,7 @@ int MonVersionDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("MonVersionDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("MonVersionDef::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -81,7 +81,7 @@ int MonVersionDef::fetchID()
 
 
 void MonVersionDef::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -96,12 +96,12 @@ void MonVersionDef::setByID(int id)
       m_monVer = rset->getString(1);
       m_desc = rset->getString(2);
     } else {
-      throw(runtime_error("MonVersionDef::setByID:  Given def_id is not in the database"));
+      throw(std::runtime_error("MonVersionDef::setByID:  Given def_id is not in the database"));
     }
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("MonVersionDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error("MonVersionDef::setByID:  "+e.getMessage()));
   }
 }
 
@@ -124,6 +124,6 @@ void MonVersionDef::fetchAllDefs( std::vector<MonVersionDef>* fillVec)
       fillVec->push_back( monVersionDef );
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonVersionDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error("MonVersionDef::fetchAllDefs:  "+e.getMessage()));
   }
 }

@@ -8,14 +8,13 @@
 //
 // Author:      Chris Jones
 // Created:     Wed Mar 30 14:27:26 EST 2005
-// $Id: EventSetupRecordIntervalFinder.cc,v 1.5 2005/10/03 23:20:48 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-
+#include <cassert>
 
 //
 // constants, enums and typedefs
@@ -74,12 +73,22 @@ EventSetupRecordIntervalFinder::findingRecordWithKey(const EventSetupRecordKey& 
    intervals_.insert(Intervals::value_type(iKey, ValidityInterval()));
 }
 
+void 
+EventSetupRecordIntervalFinder::delaySettingRecords()
+{
+}
+
 //
 // const member functions
 //
 std::set<EventSetupRecordKey> 
 EventSetupRecordIntervalFinder::findingForRecords() const
 {
+   if(intervals_.empty()) {
+      //we are delaying our reading
+      const_cast<EventSetupRecordIntervalFinder*>(this)->delaySettingRecords();
+   }
+   
    std::set<EventSetupRecordKey> returnValue;
    
    for(Intervals::const_iterator itEntry = intervals_.begin(), itEntryEnd = intervals_.end();

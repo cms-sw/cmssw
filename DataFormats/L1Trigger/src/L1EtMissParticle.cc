@@ -8,7 +8,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 18:22:52 EDT 2006
-// $Id: L1EtMissParticle.cc,v 1.3 2006/08/10 18:47:42 wsun Exp $
 //
 
 // system include files
@@ -34,19 +33,43 @@ L1EtMissParticle::L1EtMissParticle()
 }
 
 L1EtMissParticle::L1EtMissParticle(
-   const LorentzVector& p4,
-   const double& etTotal,
-   const double& etHad,
-   const edm::RefProd< L1GctEtMiss >& aEtMissRef,
-   const edm::RefProd< L1GctEtTotal >& aEtTotalRef,
-   const edm::RefProd< L1GctEtHad >& aEtHadRef )
-//   : ParticleKinematics( p4 ),
+	const LorentzVector& p4,
+	EtMissType type,
+	const double& etTotal,
+	const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
+	const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
+	const edm::Ref< L1GctHtMissCollection >& aHtMissRef,
+	const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
+	int bx )
    : LeafCandidate( ( char ) 0, p4 ),
+     type_( type ),
      etTot_( etTotal ),
-     etHad_( etHad ),
      etMissRef_( aEtMissRef ),
      etTotRef_( aEtTotalRef ),
-     etHadRef_( aEtHadRef )
+     htMissRef_( aHtMissRef ),
+     etHadRef_( aEtHadRef ),
+     bx_( bx )
+{
+}
+
+
+L1EtMissParticle::L1EtMissParticle(
+	const PolarLorentzVector& p4,
+	EtMissType type,
+	const double& etTotal,
+	const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
+	const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
+	const edm::Ref< L1GctHtMissCollection >& aHtMissRef,
+	const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
+	int bx )
+   : LeafCandidate( ( char ) 0, p4 ),
+     type_( type ),
+     etTot_( etTotal ),
+     etMissRef_( aEtMissRef ),
+     etTotRef_( aEtTotalRef ),
+     htMissRef_( aHtMissRef ),
+     etHadRef_( aEtHadRef ),
+     bx_( bx )
 {
 }
 
@@ -55,9 +78,9 @@ L1EtMissParticle::L1EtMissParticle(
 //    // do actual copying here;
 // }
 
-L1EtMissParticle::~L1EtMissParticle()
-{
-}
+// L1EtMissParticle::~L1EtMissParticle()
+// {
+// }
 
 //
 // assignment operators

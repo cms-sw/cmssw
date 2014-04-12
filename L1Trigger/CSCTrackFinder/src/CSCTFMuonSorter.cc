@@ -4,8 +4,8 @@
 
 CSCTFMuonSorter::CSCTFMuonSorter(const edm::ParameterSet& pset)
 {
-  m_minBX = pset.getUntrackedParameter<int>("MinBX",-3);
-  m_maxBX = pset.getUntrackedParameter<int>("MaxBX",-3);
+  m_minBX = pset.getParameter<int>("MinBX");
+  m_maxBX = pset.getParameter<int>("MaxBX");
 }
 
 std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc::L1Track>& tracks) const

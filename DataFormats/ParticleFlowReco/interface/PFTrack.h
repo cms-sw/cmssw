@@ -1,8 +1,6 @@
 #ifndef DataFormats_ParticleFlowReco_PFTrack_h
 #define DataFormats_ParticleFlowReco_PFTrack_h
 
-#include "Math/GenVector/PositionVector3D.h"
-#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 
 #include <iostream>
@@ -43,15 +41,15 @@ namespace reco {
      For a PFSimParticle, the ordering of the points is the following.
      
      - If the particle decays before ECAL:
-       - point 1: start point
-       - point 2: end point 
+     - point 1: start point
+     - point 2: end point 
 
      - If the particle does not decay before ECAL:
-       - point 1: start point
-       - point 2: PS1 or dummy
-       - point 3: PS2 or dummy
-       - point 4: ECAL entrance
-       - point 5: HCAL entrance
+     - point 1: start point
+     - point 2: PS1 or dummy
+     - point 3: PS2 or dummy
+     - point 4: ECAL entrance
+     - point 5: HCAL entrance
      
 
      \todo Note that some points are missing, and should be added: shower max,
@@ -63,90 +61,90 @@ namespace reco {
      \date   July 2006
   */
   class PFTrack
-  {
-  public:
+    {
+    public:
     
-    PFTrack();
+      PFTrack();
     
-    PFTrack(double charge);
+      PFTrack(double charge);
 
-    PFTrack(const PFTrack& other);
+      PFTrack(const PFTrack& other);
    
-    /// add a trajectory measurement
-    /// \todo throw an exception if the number of points is too large
-    void addPoint(const reco::PFTrajectoryPoint& trajPt);
+      /// add a trajectory measurement
+      /// \todo throw an exception if the number of points is too large
+      void addPoint(const reco::PFTrajectoryPoint& trajPt);
 
-    /// set a trajectory point
-    void setPoint(unsigned int index,
-		  const reco::PFTrajectoryPoint& measurement)
-      { trajectoryPoints_[index] = measurement; }
+      /// set a trajectory point
+      void setPoint(unsigned int index,
+                    const reco::PFTrajectoryPoint& measurement)
+        { trajectoryPoints_[index] = measurement; }
 
-    /// calculate posrep_ once and for all for each point
-    /// \todo where is posrep? profile and see if it's necessary.
-    void calculatePositionREP();
+      /// calculate posrep_ once and for all for each point
+      /// \todo where is posrep? profile and see if it's necessary.
+      void calculatePositionREP();
 
-    /// \return electric charge
-    double charge() const { return charge_; }
+      /// \return electric charge
+      double charge() const { return charge_; }
 
-    /// \return number of trajectory points
-    unsigned int nTrajectoryPoints() const 
-      { return trajectoryPoints_.size(); }
+      /// \return number of trajectory points
+      unsigned int nTrajectoryPoints() const 
+        { return trajectoryPoints_.size(); }
     
-    /// \return number of trajectory measurements in tracker
-    unsigned int nTrajectoryMeasurements() const 
-      { return (indexOutermost_ ? indexOutermost_ - indexInnermost_ + 1 : 0); }
+      /// \return number of trajectory measurements in tracker
+      unsigned int nTrajectoryMeasurements() const 
+        { return (indexOutermost_ ? indexOutermost_ - indexInnermost_ + 1 : 0); }
 
-    /// \return vector of trajectory points
-    const std::vector< reco::PFTrajectoryPoint >& trajectoryPoints() const 
-      { return trajectoryPoints_; }
+      /// \return vector of trajectory points
+      const std::vector< reco::PFTrajectoryPoint >& trajectoryPoints() const 
+        { return trajectoryPoints_; }
     
-    /// \return a trajectory point
-    const reco::PFTrajectoryPoint& trajectoryPoint(unsigned index) const 
-      { return trajectoryPoints_[index]; }
+      /// \return a trajectory point
+      const reco::PFTrajectoryPoint& trajectoryPoint(unsigned index) const 
+        { return trajectoryPoints_[index]; }
 
-    /// \return an extrapolated point 
-    /// \todo throw an exception in case of invalid point.
-    const reco::PFTrajectoryPoint& extrapolatedPoint(unsigned layerid) const; 
+      /// \return an extrapolated point 
+      /// \todo throw an exception in case of invalid point.
+      const reco::PFTrajectoryPoint& extrapolatedPoint(unsigned layerid) const; 
 
-    /// iterator on innermost tracker measurement
-    std::vector< reco::PFTrajectoryPoint >::const_iterator 
-      innermostMeasurement() const
-      { return trajectoryPoints_.begin() + indexInnermost_; }
+      /// iterator on innermost tracker measurement
+      std::vector< reco::PFTrajectoryPoint >::const_iterator 
+        innermostMeasurement() const
+        { return trajectoryPoints_.begin() + indexInnermost_; }
     
-    /// iterator on outermost tracker measurement
-    std::vector< reco::PFTrajectoryPoint >::const_iterator 
-      outermostMeasurement() const
-      { return trajectoryPoints_.begin() + indexOutermost_; }
+      /// iterator on outermost tracker measurement
+      std::vector< reco::PFTrajectoryPoint >::const_iterator 
+        outermostMeasurement() const
+        { return trajectoryPoints_.begin() + indexOutermost_; }
     
 
-    void         setColor(int color) {color_ = color;}
+      void         setColor(int color) {color_ = color;}
     
-    int          color() const { return color_; }    
+      int          color() const { return color_; }    
 
-    friend  std::ostream& operator<<(std::ostream& out, 
-				     const PFTrack& track);
+      friend  std::ostream& operator<<(std::ostream& out, 
+                                       const PFTrack& track);
 
-  protected:
+    protected:
 
-    /// maximal number of tracking layers
-    static const unsigned int nMaxTrackingLayers_;
+      /// maximal number of tracking layers
+      static const unsigned int nMaxTrackingLayers_;
   
-    /// charge
-    double charge_;
+      /// charge
+      double charge_;
 
-    /// vector of trajectory points
-    std::vector< reco::PFTrajectoryPoint > trajectoryPoints_;
+      /// vector of trajectory points
+      std::vector< reco::PFTrajectoryPoint > trajectoryPoints_;
 
-    /// index innermost tracker measurement
-    unsigned int indexInnermost_;
+      /// index innermost tracker measurement
+      unsigned int indexInnermost_;
 
-    /// index outermost tracker measurement
-    unsigned int indexOutermost_;
+      /// index outermost tracker measurement
+      unsigned int indexOutermost_;
 
-    /// color (transient)
-    int  color_;
+      /// color (transient)
+      int  color_;
 
-  };
+    };
 
 }
 

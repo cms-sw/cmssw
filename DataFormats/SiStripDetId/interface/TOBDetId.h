@@ -48,15 +48,48 @@ class TOBDetId : public SiStripDetId {
    */
   std::vector<unsigned int> rod() const
     { std::vector<unsigned int> num;
-    num.push_back(((id_>>rod_fw_bwStartBit_) & rod_fw_bwMask_));
-    num.push_back(((id_>>rodStartBit_) & rodMask_));
-    return num ;}
+      num.push_back( side() );
+      num.push_back( rodNumber() );
+      return num ;}
   
+  unsigned int side() const
+  { return ((id_>>rod_fw_bwStartBit_) & rod_fw_bwMask_);}
   /// detector id
   unsigned int module() const 
     { return ((id_>>moduleStartBit_)& moduleMask_) ;}
   
- private:
+  /** Returns true if the module is a double side = rphi + stereo */
+  bool isDoubleSide() const;
+  
+  /** Returns true if the module is in TOB+ (z>0 side) */
+  bool isZPlusSide() const
+  { return (!isZMinusSide());}
+  
+  /** Returns true if the module is in TOB- (z<0 side) */
+  bool isZMinusSide() const
+  { return (side() == 1);}
+  
+  /** Returns the layer number */
+  unsigned int layerNumber() const
+  { return layer();}
+  
+  /** Returns the rod number */
+  unsigned int rodNumber() const
+  { return ((id_>>rodStartBit_) & rodMask_);}
+  
+  /** Returns the module number */
+  unsigned int moduleNumber() const
+  { return module();}
+  
+  /** Returns true if the module is rphi */
+  bool isRPhi()
+  { return (stereo() == 0 && !isDoubleSide());}
+  
+  /** Returns true if the module is stereo */
+  bool isStereo()
+  { return (stereo() != 0 && !isDoubleSide());}
+  
+private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int layerStartBit_=     14;
   static const unsigned int rod_fw_bwStartBit_= 12;
@@ -71,6 +104,22 @@ class TOBDetId : public SiStripDetId {
   static const unsigned int moduleMask_=      0x7;
   static const unsigned int sterMask_=        0x3;
 };
+
+
+inline
+TOBDetId::TOBDetId() : SiStripDetId() {
+}
+inline
+TOBDetId::TOBDetId(uint32_t rawid) : SiStripDetId(rawid) {
+}
+inline
+TOBDetId::TOBDetId(const DetId& id) : SiStripDetId(id.rawId()) {
+}
+inline
+bool TOBDetId::isDoubleSide() const {
+  // Double Side: only layers 1 and 2
+  return this->glued() == 0 && ( this->layer() == 1 || this->layer() == 2 );
+}
 
 
 #endif

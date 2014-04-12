@@ -6,54 +6,72 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: ProducerBase.h,v 1.3 2006/12/08 21:40:28 wmtan Exp $
-
-
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "boost/bind.hpp"
-#include "boost/function.hpp"
-#include "boost/shared_ptr.hpp"
-#include <string>
+
+#include <functional>
+
 namespace edm {
   class BranchDescription;
   class ModuleDescription;
   class ProductRegistry;
-#if GCC_PREREQUISITE(3,4,4)
+  
+  class EDProducer;
+  class EDFilter;
+  namespace one {
+    class EDProducerBase;
+    class EDFilterBase;
+  }
+  namespace global {
+    class EDProducerBase;
+    class EDFilterBase;
+  }
+  namespace stream {
+    template<typename T> class ProducingModuleAdaptorBase;
+  }
+  
   class ProducerBase : private ProductRegistryHelper {
-#else
-  // Bug in gcc3.2.3 compiler forces public inheritance
-  class ProducerBase : public ProductRegistryHelper {
-#endif
   public:
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     ProducerBase ();
     virtual ~ProducerBase();
  
     /// used by the fwk to register list of products
-    boost::function<void(const BranchDescription&)> registrationCallback() const;
+    std::function<void(BranchDescription const&)> registrationCallback() const;
 
-    void registerProducts(boost::shared_ptr<ProducerBase>,
-			ProductRegistry *,
-			ModuleDescription const&,
-			bool throwIfNoProducts);
+    void registerProducts(ProducerBase*,
+			ProductRegistry*,
+			ModuleDescription const&);
 
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
 
   protected:
-    template<class TProducer, class TMethod>
-    void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod) {
-       callWhenNewProductsRegistered_ = boost::bind(iMethod,iProd,_1);
+    void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+       callWhenNewProductsRegistered_ = func;
     }
           
   private:
-    boost::function<void(const BranchDescription&)> callWhenNewProductsRegistered_;
+    friend class EDProducer;
+    friend class EDFilter;
+    friend class one::EDProducerBase;
+    friend class one::EDFilterBase;
+    friend class global::EDProducerBase;
+    friend class global::EDFilterBase;
+    template<typename T> friend class stream::ProducingModuleAdaptorBase;
+    
+    template< typename P>
+    void commit_(P& iPrincipal) {
+      iPrincipal.commit_();
+    }
+
+    template< typename P, typename L, typename I>
+    void commit_(P& iPrincipal, L* iList, I* iID) {
+      iPrincipal.commit_(iList,iID);
+    }
+
+    std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
   };
-
-
 }
-
 #endif

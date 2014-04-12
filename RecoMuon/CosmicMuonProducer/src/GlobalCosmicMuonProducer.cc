@@ -5,13 +5,12 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon
  *  tracks
  *
- * $Date: 2007/02/23 21:57:15 $
- * $Revision: 1.5 $
  * \author:  Chang Liu  - Purdue University <Chang.Liu@cern.ch>
 **/
 
 // system include files
 #include <memory>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,10 +24,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "RecoMuon/CosmicMuonProducer/interface/GlobalCosmicMuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
@@ -42,7 +40,7 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
 {
 
   edm::ParameterSet tbpar = iConfig.getParameter<edm::ParameterSet>("TrajectoryBuilderParameters");
-  theTrackCollectionLabel = iConfig.getParameter<edm::InputTag>("MuonCollectionLabel");
+  theTrackCollectionToken =consumes<reco::TrackCollection>( iConfig.getParameter<edm::InputTag>("MuonCollectionLabel"));
 
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -52,14 +50,15 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   
   // the services
   theService = new MuonServiceProxy(serviceParameters);
-  
-  theTrackFinder = new MuonTrackFinder(new GlobalCosmicMuonTrajectoryBuilder(tbpar,theService),
-				       new MuonTrackLoader(trackLoaderParameters, theService));
+  edm::ConsumesCollector iC = consumesCollector();
+  theTrackFinder = new MuonTrackFinder(new GlobalCosmicMuonTrajectoryBuilder(tbpar,theService,iC),
+				       new MuonTrackLoader(trackLoaderParameters,iC, theService));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
   produces<std::vector<Trajectory> >();
+  produces<TrajTrackAssociationCollection>();
 
   produces<reco::MuonTrackLinksCollection>();
 
@@ -81,7 +80,11 @@ GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   LogTrace(metname)<<"Global Cosmic Muon Reconstruction started";  
   
   edm::Handle<reco::TrackCollection> cosMuons;
-  iEvent.getByLabel(theTrackCollectionLabel,cosMuons);
+  iEvent.getByToken(theTrackCollectionToken,cosMuons);
+  if (!cosMuons.isValid()) {
+    LogTrace(metname)<< "Muon Track collection is invalid!!!";
+    return;
+  }
   
   // Update the services
   theService->update(iSetup);
@@ -89,10 +92,13 @@ GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // Reconstruct the tracks in the tracker+muon system
   LogTrace(metname)<<"Track Reconstruction";
 
-  // The trajectory can be taken from the event!
-  edm::Handle<std::vector<Trajectory> > staMuonsTraj;
-  theTrackFinder->reconstruct(cosMuons,staMuonsTraj,iEvent);
-  
+  std::vector<MuonTrajectoryBuilder::TrackCand> cosTrackCands;
+  for ( unsigned int position = 0; position != cosMuons->size(); ++position ) {
+    reco::TrackRef cosTrackRef(cosMuons,position);
+    MuonTrajectoryBuilder::TrackCand cosCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),cosTrackRef);
+    cosTrackCands.push_back(cosCand); 
+  }
+  theTrackFinder->reconstruct(cosTrackCands,iEvent);
   LogTrace(metname)<<"Event loaded";
 
 }

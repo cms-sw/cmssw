@@ -1,15 +1,14 @@
 #include <iostream>
 #include <fstream>
 
-#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-typedef Hep3Vector H3V;
-typedef HepRotation HRM;
+typedef CLHEP::Hep3Vector H3V;
+typedef CLHEP::HepRotation HRM;
 
 using namespace std;
 
@@ -122,14 +121,14 @@ void checkNorm ( double check ) {
 
 }
 
-int main(int argc, char *argv[]) {
+int main(int /*argc*/, char **/*argv[]*/) {
   cout << "====================== CLHEP: ========================" << endl;
   // Examples from DD XML
   // <ReflectionRotation name="180R" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg" />
 {  
   H3V x,y,z;
   hepSetAxes ( x, y, z, 90*deg, 0*deg, 90*deg, 90*deg, 180*deg, 0*deg );
-  HepRotation R;
+  CLHEP::HepRotation R;
   R.rotateAxes(x, y, z);      
   HRM ddr(R);
   cout << "   *** REFLECTION *** " << endl;
@@ -137,8 +136,8 @@ int main(int argc, char *argv[]) {
   hepOutVecs (x, y, z);
   cout << "Matrix output built up from vectors:" << endl;
   hrmOut(ddr);
-  cout << "Matrix build from HepRep3x3 to preserve left-handedness:" << endl;
-  HepRep3x3 temp(x.x(),y.x(),z.x(),
+  cout << "Matrix build from CLHEP::HepRep3x3 to preserve left-handedness:" << endl;
+  CLHEP::HepRep3x3 temp(x.x(),y.x(),z.x(),
                  x.y(),y.y(),z.y(),
                  x.z(),y.z(),z.z()); //matrix representation
   HRM ddr2(temp);
@@ -148,7 +147,7 @@ int main(int argc, char *argv[]) {
 {  
   H3V x,y,z;
   hepSetAxes ( x, y, z, 90*deg, -51.39999*deg, 90*deg, 38.60001*deg, 0*deg, 0*deg );
-  HepRotation R;
+  CLHEP::HepRotation R;
   R.rotateAxes(x, y, z);
   HRM ddr(R);
   cout << "   *** ROTATION *** " << endl;
@@ -156,8 +155,8 @@ int main(int argc, char *argv[]) {
   hepOutVecs (x, y, z);
   cout << "Matrix output built up from vectors:" << endl;
   hrmOut(ddr);
-  cout << "Matrix build from HepRep3x3 to preserve left-handedness:" << endl;
-  HepRep3x3 temp(x.x(),y.x(),z.x(),
+  cout << "Matrix build from CLHEP::HepRep3x3 to preserve left-handedness:" << endl;
+  CLHEP::HepRep3x3 temp(x.x(),y.x(),z.x(),
                  x.y(),y.y(),z.y(),
                  x.z(),y.z(),z.z()); //matrix representation
   HRM ddr2(temp);

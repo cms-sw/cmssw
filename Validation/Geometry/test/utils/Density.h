@@ -18,15 +18,18 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 // histograms
 // Target
 TProfile* prof_density_vs_eta;
 //
 
 // logfile
-ofstream theLogFile;
+std::ofstream theLogFile;
+//
+
+// plot range
+double etaMin;
+double etaMax;
 //
 
 class Density {
@@ -37,13 +40,13 @@ public :
   // Declaration of leave types
   Float_t         ParticleEta;
   Int_t           Nsteps;
-  Double_t        InitialX[10000];   //[Nsteps]
-  Double_t        InitialY[10000];   //[Nsteps]
-  Double_t        InitialZ[10000];   //[Nsteps]
-  Double_t        FinalX[10000];   //[Nsteps]
-  Double_t        FinalY[10000];   //[Nsteps]
-  Double_t        FinalZ[10000];   //[Nsteps]
-  Float_t         MaterialDensity[10000];   //[Nsteps]
+  Double_t        InitialX[8000];   //[Nsteps]
+  Double_t        InitialY[8000];   //[Nsteps]
+  Double_t        InitialZ[8000];   //[Nsteps]
+  Double_t        FinalX[8000];   //[Nsteps]
+  Double_t        FinalY[8000];   //[Nsteps]
+  Double_t        FinalZ[8000];   //[Nsteps]
+  Float_t         MaterialDensity[8000];   //[Nsteps]
   
   // List of branches
   TBranch        *b_ParticleEta;   //!
@@ -102,6 +105,7 @@ Density::Density(TString fileName)
   Book();
   //
   helpfulCommands();
+  //
 }
 
 Density::~Density()
@@ -186,9 +190,13 @@ Int_t Density::Cut(Long64_t entry)
 }
 
 void Density::Book(){
+  etaBin = 15;
+  etaMin = 0.0;
+  etaMax = 3.0;
+  //
   prof_density_vs_eta = new TProfile("prof_density_vs_eta",
 				     "Average Density vs Pseudorapidity;|#eta|;#bar{#rho} [g/cm^{3}]",
-				     25,0.0,5.0);
+				     etaBin,etaMin,etaMax);
 }
 
 void Density::MakePlots(TString suffix);

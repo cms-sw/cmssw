@@ -32,30 +32,25 @@ class printPartonJet : public edm::EDAnalyzer {
     explicit printPartonJet(const edm::ParameterSet & );
     ~printPartonJet() {};
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-     
+
   private:
 
-    edm::InputTag source_;
-    edm::InputTag matched_;
-    string   fOutputFileName_;   
-
-    edm::Handle<reco::CandidateCollection> partonJets;
-    edm::Handle<reco::CandMatchMap> PartonCaloMap;
+    edm::EDGetTokenT< View <Candidate> > sourceToken_;
+    string   fOutputFileName_;
+    Handle< View <Candidate> > partonJets;
 };
 
 printPartonJet::printPartonJet(const edm::ParameterSet& iConfig)
 {
-  source_  = iConfig.getParameter<InputTag> ("src");
-  matched_ = iConfig.getParameter<InputTag> ("matched");
+  sourceToken_  = consumes< View <Candidate> >(iConfig.getParameter<InputTag> ("src"));
 }
 
 void printPartonJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   cout << "[printPartonJet] analysing event " << iEvent.id() << endl;
-  
+
   try {
-    iEvent.getByLabel (source_ ,partonJets);
-    iEvent.getByLabel (matched_,PartonCaloMap);
+    iEvent.getByToken (sourceToken_ ,partonJets);
   } catch(std::exception& ce) {
     cerr << "[printPartonJet] caught std::exception " << ce.what() << endl;
     return;
@@ -64,46 +59,21 @@ void printPartonJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   cout << "************************" << endl;
   cout << "* PartonJetCollection  *" << endl;
   cout << "************************" << endl;
-  for( CandidateCollection::const_iterator f  = partonJets->begin();
-                                           f != partonJets->end();
-                                           f++) {
+  for( size_t j = 0; j != partonJets->size(); ++j ) {
 
-     printf("[printPartonJet] (pt,eta,phi) = %7.3f %6.3f %6.3f |\n",
-              f->et(),
-              f->eta(),
-              f->phi()  );
-
-     for( Candidate::const_iterator c  = f->begin();   
-                                    c != f->end();   
-                                    c ++) {  
-       printf("        [Constituents] (pt,eta,phi | id |isB,isC) = %6.2f %5.2f %5.2f | %6d |\n",
-               c->et(),                                                                       
-               c->eta(),                                                                      
-               c->phi(),  
-               c->pdgId() );
-     }                                                                                          
-  }
-
-  cout << "*************************" << endl;
-  cout << "* Matching to Calo jets *" << endl;
-  cout << "*************************" << endl;
-
-  for( CandMatchMap::const_iterator f  = PartonCaloMap->begin();
-                                    f != PartonCaloMap->end();
-                                    f++) {
-
-      const Candidate *theParton     = &*(f->key);
-      const Candidate *theCaloJet  = &*(f->val);
-
-      printf("[printParton-CaloMap] (pt,eta,phi) parton = %7.3f %6.3f %6.3f - %6d | jet = %7.3f %6.3f %6.3f |\n",
-	     theParton->et(), 
-	     theParton->eta(),
-	     theParton->phi(), 
-             theParton->pdgId(),
-             theCaloJet->et(),
-             theCaloJet->eta(),
-             theCaloJet->phi()
-	     );
+    printf("[printPartonJet] (pt,eta,phi) = %7.3f %6.3f %6.3f |\n",
+             (*partonJets)[j].et(),
+             (*partonJets)[j].eta(),
+             (*partonJets)[j].phi()  );
+    for( Candidate::const_iterator itC  = (*partonJets)[j].begin();
+                                   itC != (*partonJets)[j].end();
+                                   itC ++) {
+         cout << "              Constituent (pt,eta,phi,pdgId): "
+              << itC->pt() << " "
+              << itC->eta() << " "
+              << itC->phi() << " "
+              << itC->pdgId() << endl;
+    }
   }
 }
 

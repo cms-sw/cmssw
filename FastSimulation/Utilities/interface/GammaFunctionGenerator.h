@@ -16,32 +16,30 @@
 //STL
 #include <vector>
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class GammaFunctionGenerator
 {
  public:
 
   /// Constructor
-  GammaFunctionGenerator(const RandomEngine* engine);
+  GammaFunctionGenerator();
 
   /// Destructor
   virtual ~GammaFunctionGenerator();
   
   /// shoot along a gamma distribution with shape parameter alpha and scale beta 
   /// values > xmin
-  double shoot() const;
+  double shoot(RandomEngineAndDistribution const*) const;
   
   /// The parameters must be set before shooting
     void setParameters(double a,double b, double xm);
 
  private:
   /// values 0<a<1.
-  double gammaFrac() const;
+  double gammaFrac(RandomEngineAndDistribution const*) const;
   /// integer values
-  double gammaInt() const;
-
-
+  double gammaInt(RandomEngineAndDistribution const*) const;
 
  private:
 
@@ -75,8 +73,5 @@ class GammaFunctionGenerator
 
   // if xmin>xmax
   bool badRange;
-
-  const RandomEngine* random;
-
 };
 #endif

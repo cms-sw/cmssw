@@ -7,8 +7,6 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/04/30 13:49:00 $
- *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -23,6 +21,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -42,7 +41,6 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 // calorimeter info
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -50,8 +48,8 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 // data in edm::event
-#include "SimDataFormats/GlobalValidation/interface/PGlobalSimHit.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -60,8 +58,9 @@
 //#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 // helper files
-#include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
+//#include <CLHEP/Vector/LorentzVector.h>
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -82,9 +81,9 @@ class GlobalHitsProducer : public edm::EDProducer
 
   explicit GlobalHitsProducer(const edm::ParameterSet&);
   virtual ~GlobalHitsProducer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob( void );
   virtual void endJob();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 
@@ -124,6 +123,11 @@ class GlobalHitsProducer : public edm::EDProducer
   FloatVector G4TrkPt; 
   FloatVector G4TrkE;
 
+  edm::InputTag G4VtxSrc_;
+  edm::InputTag G4TrkSrc_;
+  edm::EDGetTokenT<edm::SimVertexContainer> G4VtxSrc_Token_;
+  edm::EDGetTokenT<edm::SimTrackContainer> G4TrkSrc_Token_;
+
   // Electromagnetic info
   // ECal info
   FloatVector ECalE; 
@@ -132,6 +136,8 @@ class GlobalHitsProducer : public edm::EDProducer
   FloatVector ECalEta;
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> ECalEBSrc_Token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> ECalEESrc_Token_;
 
   // Preshower info
   FloatVector PreShE; 
@@ -139,6 +145,7 @@ class GlobalHitsProducer : public edm::EDProducer
   FloatVector PreShPhi; 
   FloatVector PreShEta;
   edm::InputTag ECalESSrc_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> ECalESSrc_Token_;
 
   // Hadronic info
   // HCal info
@@ -147,6 +154,7 @@ class GlobalHitsProducer : public edm::EDProducer
   FloatVector HCalPhi; 
   FloatVector HCalEta;
   edm::InputTag HCalSrc_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>  HCalSrc_Token_;
 
   // Tracker info
   // Pixel info
@@ -162,6 +170,10 @@ class GlobalHitsProducer : public edm::EDProducer
   edm::InputTag PxlBrlHighSrc_;
   edm::InputTag PxlFwdLowSrc_;
   edm::InputTag PxlFwdHighSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> PxlBrlLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> PxlBrlHighSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> PxlFwdLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> PxlFwdHighSrc_Token_;
 
   // Strip info
   FloatVector SiBrlToF; 
@@ -180,6 +192,14 @@ class GlobalHitsProducer : public edm::EDProducer
   edm::InputTag SiTIDHighSrc_;
   edm::InputTag SiTECLowSrc_;
   edm::InputTag SiTECHighSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTIBLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTIBHighSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTOBLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTOBHighSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTIDLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTIDHighSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTECLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTECHighSrc_Token_;
 
   // Muon info
   // DT info
@@ -188,12 +208,14 @@ class GlobalHitsProducer : public edm::EDProducer
   FloatVector MuonDtPhi;
   FloatVector MuonDtEta;
   edm::InputTag MuonDtSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuonDtSrc_Token_;
   // CSC info
   FloatVector MuonCscToF; 
   FloatVector MuonCscZ;
   FloatVector MuonCscPhi;
   FloatVector MuonCscEta;
   edm::InputTag MuonCscSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuonCscSrc_Token_;
   // RPC info
   FloatVector MuonRpcBrlToF; 
   FloatVector MuonRpcBrlR;
@@ -204,12 +226,17 @@ class GlobalHitsProducer : public edm::EDProducer
   FloatVector MuonRpcFwdPhi;
   FloatVector MuonRpcFwdEta;
   edm::InputTag MuonRpcSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuonRpcSrc_Token_;
 
   // private statistics information
   unsigned int count;
 
 }; // end class declaration
-  
+ 
+#endif
+ 
+#ifndef GlobalHitMap
+#define GlobalHitMap
 // geometry mapping
 static const int dTrk             = 1;
 static const int sdPxlBrl         = 1;

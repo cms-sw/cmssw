@@ -1,10 +1,5 @@
 #include "Utilities/Timing/interface/LinuxCPUTime.h"
 #include <iostream>
-#include <fstream>
-#include <limits>
-#include "Utilities/General/interface/CMSexception.h"
-#include "Utilities/General/interface/ioutils.h"
-
  
 std::ostream * LinuxElapsedTime::dout = &std::cout;
 
@@ -16,8 +11,3 @@ LinuxElapsedTime::~LinuxElapsedTime() {
 }
 
 
-namespace {
-
-  LinuxElapsedTime totaltime("Main Thread");
-
-}

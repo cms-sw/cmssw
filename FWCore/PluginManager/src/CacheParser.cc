@@ -8,15 +8,17 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:30:46 EDT 2007
-// $Id: CacheParser.cc,v 1.1.2.1 2007/04/09 18:46:50 chrjones Exp $
 //
 
 // system include files
 #include <algorithm>
+#include <limits>
+#include "boost/version.hpp"
 
 // user include files
 #include "FWCore/PluginManager/interface/CacheParser.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edmplugin {
 //
@@ -159,7 +161,11 @@ CacheParser::write(const CategoryToInfos& iInfos, std::ostream& oOut)
         it2 != it->second.end();
         ++it2) {
       //remove any directory specification
-      std::string loadable(it2->loadable_.leaf());
+#if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
+      std::string loadable(it2->loadable_.filename().string());
+#else
+      std::string loadable(it2->loadable_.filename());
+#endif
       std::string name(it2->name_);
       ordered[loadable].push_back(NameAndType(name,type));
     }
@@ -175,7 +181,7 @@ CacheParser::write(LoadableToPlugins& iIn, std::ostream& oOut)
        ++it) {
     std::string loadable(it->first.string());
     replaceSpaces(loadable);
-    std::sort(it->second.begin(),it->second.end());
+    edm::sort_all(it->second);
     
     for(std::vector<std::pair<std::string,std::string> >::iterator it2 = it->second.begin();
         it2 != it->second.end();

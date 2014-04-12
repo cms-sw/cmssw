@@ -8,7 +8,7 @@ vector<PartitionGenerator::Partition>
 PartitionGenerator::partitions(int collectionSize, int minCollectionSize) 
 const {
 
-  vector<Partition> partitions;
+  std::vector<Partition> partitions;
 
   // at the very least, we have a single bag of size 'collectionSize'
   partitions.push_back( Partition(1, collectionSize) );
@@ -16,8 +16,8 @@ const {
   int first = collectionSize - minCollectionSize, second = minCollectionSize;
   while( first >= second ) {
     // try to further divide the first
-    vector<Partition> subPartitions = this->partitions(first, second);
-    vector<Partition>::iterator isub;
+    std::vector<Partition> subPartitions = this->partitions(first, second);
+    std::vector<Partition>::iterator isub;
     for( isub = subPartitions.begin(); isub != subPartitions.end(); isub++ ) {
       const Partition& sub = *isub;
       // reject subPartitions of first with a last element smaller than second
@@ -34,18 +34,18 @@ const {
 }
 
 
-vector< vector<PartitionGenerator::Partition> > 
+vector< std::vector<PartitionGenerator::Partition> > 
 PartitionGenerator::sortedPartitions(int collectionSize, 
 				     int minCollectionSize) const {
 
-  vector<Partition> partitions 
+  std::vector<Partition> partitions 
     = this->partitions(collectionSize, minCollectionSize);
   sort (partitions.begin(), partitions.end(), LessCollections());
   
-  vector< vector<Partition> > sortedPartitions;
+  std::vector< std::vector<Partition> > sortedPartitions;
   sortedPartitions.resize(partitions.rbegin()->size());
 
-  for (vector<Partition>::const_iterator i = partitions.begin();
+  for (std::vector<Partition>::const_iterator i = partitions.begin();
        i != partitions.end(); i++) {
     sortedPartitions[(*i).size() - 1].push_back(*i);
   }

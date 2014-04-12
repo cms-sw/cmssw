@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
@@ -25,26 +26,29 @@ class SiPixelFedCablingMapTestWriter : public edm::EDAnalyzer {
  public:
   explicit SiPixelFedCablingMapTestWriter( const edm::ParameterSet& );
   ~SiPixelFedCablingMapTestWriter();
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
  private:
-  SiPixelFedCablingMap * cabling;
+  SiPixelFedCablingTree * cablingTree;
   string m_record;
 };
 
 
 SiPixelFedCablingMapTestWriter::SiPixelFedCablingMapTestWriter( const edm::ParameterSet& iConfig ) 
-  : cabling(0),
+  : cablingTree(0),
     m_record(iConfig.getParameter<std::string>("record"))
 {
   cout <<" HERE record: "<< m_record<<endl;
-  ::putenv("CORAL_AUTH_USER=konec");
-  ::putenv("CORAL_AUTH_PASSWORD=test"); 
+  ::putenv((char*)"CORAL_AUTH_USER=konec");
+  ::putenv((char*)"CORAL_AUTH_PASSWORD=test"); 
 }
 
 void  SiPixelFedCablingMapTestWriter::endJob()
 {
+  cout<<"Convert Tree to Map";
+ 
+  SiPixelFedCablingMap * cablingMap = new SiPixelFedCablingMap(cablingTree);
   cout<<"Now writing to DB"<<endl;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
@@ -55,10 +59,15 @@ void  SiPixelFedCablingMapTestWriter::endJob()
   try {
     if( mydbservice->isNewTagRequest(m_record) ) {
       mydbservice->createNewIOV<SiPixelFedCablingMap>( 
-          cabling, mydbservice->endOfTime(), m_record);
+          cablingMap,
+	  mydbservice->beginOfTime(),
+	  mydbservice->endOfTime(), 
+	  m_record);
     } else {
       mydbservice->appendSinceTime<SiPixelFedCablingMap>(
-          cabling, mydbservice->currentTime(), m_record);
+          cablingMap, 
+	  mydbservice->currentTime(), 
+	  m_record);
     }
   }
   catch (std::exception &e) { cout <<"std::exception:  "<< e.what(); }
@@ -73,23 +82,22 @@ SiPixelFedCablingMapTestWriter::~SiPixelFedCablingMapTestWriter()
 }
 
 // ------------ method called to produce the data  ------------
-void SiPixelFedCablingMapTestWriter::beginJob( const edm::EventSetup& iSetup ) {
+void SiPixelFedCablingMapTestWriter::beginJob() {
    cout << "BeginJob method " << endl;
    cout<<"Building FED Cabling"<<endl;   
-   cabling =  new SiPixelFedCablingMap("My map V-TEST");
-  
+   cablingTree =  new SiPixelFedCablingTree("My map V-TEST");
 
    PixelROC r1;
    PixelROC r2;
 
-   PixelFEDLink link(0);
+   PixelFEDLink link(2);
    PixelFEDLink::ROCs rocs; rocs.push_back(r1); rocs.push_back(r2);
    link.add(rocs);
 
    PixelFEDCabling fed(0);
    fed.addLink(link);
-   cabling->addFed(fed);
-   cout <<"PRINTING MAP:"<<endl<<cabling->print(3) << endl;
+   cablingTree->addFed(fed);
+   cout <<"PRINTING MAP:"<<endl<<cablingTree->print(3) << endl;
 
    
 }

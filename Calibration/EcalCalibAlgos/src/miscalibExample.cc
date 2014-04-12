@@ -13,45 +13,30 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: miscalibExample.cc,v 1.2 2006/09/20 12:22:25 malgeri Exp $
 //
 //
 
 
 // system include files
-#include <memory>
 
 // user include files
 #include "Calibration/EcalCalibAlgos/interface/miscalibExample.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TFile.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TF1.h"
-#include "TRandom.h"
 
 #include <iostream>
-#include <string>
 #include <stdexcept>
 #include <vector>
 
 
 
-// class decleration
+// class declaration
 //
 /*
 class miscalibExample : public edm::EDAnalyzer {
@@ -60,7 +45,7 @@ class miscalibExample : public edm::EDAnalyzer {
       ~miscalibExample();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
    private:
 
@@ -95,7 +80,7 @@ miscalibExample::~miscalibExample()
 
 //========================================================================
 void
-miscalibExample::beginJob(edm::EventSetup const& iSetup) {
+miscalibExample::beginJob() {
 //========================================================================
 
   // Book histograms 
@@ -137,9 +122,8 @@ miscalibExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
  // Get hybrid super clusters after energy correction
  
   Handle<reco::SuperClusterCollection> pCorrectedHybridSuperClusters;
-  try {
-    iEvent.getByLabel(correctedHybridSuperClusterProducer_, correctedHybridSuperClusterCollection_, pCorrectedHybridSuperClusters);
-  } catch ( cms::Exception& ex ) {
+  iEvent.getByLabel(correctedHybridSuperClusterProducer_, correctedHybridSuperClusterCollection_, pCorrectedHybridSuperClusters);
+  if (!pCorrectedHybridSuperClusters.isValid()) {
     LogError("EgammaSimpleAnalyzer") << "Error! can't get collection with label " << correctedHybridSuperClusterCollection_.c_str() ;
   }
   const reco::SuperClusterCollection* correctedHybridSuperClusters = pCorrectedHybridSuperClusters.product();

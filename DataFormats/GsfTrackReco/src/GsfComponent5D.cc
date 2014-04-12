@@ -6,7 +6,7 @@ GsfComponent5D::GsfComponent5D (const double& weight,
 				const ParameterVector& parameters,
 				const CovarianceMatrix& matrix) :
   weight_(weight), parameters_(parameters) {
-  double* data(covariance_);
+  float* data(covariance_);
   typedef unsigned int index;
   for( index i = 0; i < dimension; ++ i )
     for( index j = 0; j <= i; ++ j )
@@ -15,7 +15,7 @@ GsfComponent5D::GsfComponent5D (const double& weight,
 
 GsfComponent5D::CovarianceMatrix&
 GsfComponent5D::covariance (CovarianceMatrix& matrix) const {
-  const double* data(covariance_);
+  const float* data(covariance_);
   typedef unsigned int index;
   for( index i = 0; i < dimension; ++ i )
     for( index j = 0; j <= i; ++ j )

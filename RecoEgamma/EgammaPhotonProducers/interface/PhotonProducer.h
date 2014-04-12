@@ -3,9 +3,6 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.8 2007/02/28 17:15:48 futyand Exp $ 
- **  $Date: 2007/02/28 17:15:48 $ 
- **  $Revision: 1.8 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -15,13 +12,26 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
+#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
+#include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::EDProducer {
@@ -31,39 +41,76 @@ class PhotonProducer : public edm::EDProducer {
   PhotonProducer (const edm::ParameterSet& ps);
   ~PhotonProducer();
 
-  virtual void beginJob (edm::EventSetup const & es);
+  virtual void beginRun (edm::Run const& r, edm::EventSetup const & es) override final;
+  virtual void endRun(edm::Run const&,  edm::EventSetup const&) override final;
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:
 
-  void fillPhotonCollection(const edm::Handle<reco::SuperClusterCollection> & scHandle,
-			    const reco::BasicClusterShapeAssociationCollection& clshpMap,
-			    const CaloSubdetectorGeometry *geometry,
-			    const CaloSubdetectorGeometry *geometryES,
-			    const EcalRecHitCollection *hits,
-			    const reco::SeedSuperClusterAssociationCollection& pixelSeedAssoc,
-			    math::XYZPoint & vtx,
+  void fillPhotonCollection(edm::Event& evt,
+			    edm::EventSetup const & es,
+                            const edm::Handle<reco::PhotonCoreCollection> & photonCoreHandle,
+                            const CaloTopology *topology,
+			    const EcalRecHitCollection* ecalBarrelHits,
+			    const EcalRecHitCollection* ecalEndcapHits,
+			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
+			    //math::XYZPoint & vtx,
+			    reco::VertexCollection& pvVertices,
 			    reco::PhotonCollection & outputCollection,
-			    int& iSC);
+			    int& iSC,
+			    const EcalSeverityLevelAlgo * sevLv);
 
+  // std::string PhotonCoreCollection_;
   std::string PhotonCollection_;
-  std::string scHybridBarrelProducer_;
-  std::string scIslandEndcapProducer_;
-  std::string scHybridBarrelCollection_;
-  std::string scIslandEndcapCollection_;
-  std::string barrelClusterShapeMapProducer_;
-  std::string barrelClusterShapeMapCollection_;
-  std::string endcapClusterShapeMapProducer_;
-  std::string endcapClusterShapeMapCollection_;
-  std::string barrelHitProducer_;
-  std::string endcapHitProducer_;
-  std::string barrelHitCollection_;
-  std::string endcapHitCollection_;
-  std::string pixelSeedAssocProducer_;
-  std::string vertexProducer_;
+  edm::EDGetTokenT<reco::PhotonCoreCollection> photonCoreProducer_;
+  edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
+
+  std::string conversionProducer_;
+  std::string conversionCollection_;
+
+  //AA
+  //Flags and severities to be excluded from calculations
+  
+  std::vector<int> flagsexclEB_;
+  std::vector<int> flagsexclEE_;
+  std::vector<int> severitiesexclEB_;
+  std::vector<int> severitiesexclEE_;
+
+
+  double hOverEConeSize_;
+  double maxHOverE_;
+  double minSCEt_;
+  double highEt_;
+  double  minR9Barrel_;
+  double  minR9Endcap_;
+  bool   runMIPTagger_;
+
+  bool validConversions_;
+  std::string pixelSeedProducer_;
+  
+  bool usePrimaryVertex_;
   edm::ParameterSet conf_;
 
   PositionCalc posCalculator_;
+
+  edm::ESHandle<CaloGeometry> theCaloGeom_;
+  edm::ESHandle<CaloTopology> theCaloTopo_;
+ 
+  bool validPixelSeeds_;
+  PhotonIsolationCalculator* thePhotonIsolationCalculator_;
+
+  //MIP
+  PhotonMIPHaloTagger* thePhotonMIPHaloTagger_;
+
+  std::vector<double>  preselCutValuesBarrel_; 
+  std::vector<double>  preselCutValuesEndcap_; 
+
+  EcalClusterFunctionBaseClass* energyCorrectionF;
+  PhotonEnergyCorrector* thePhotonEnergyCorrector_;
+  std::string  candidateP4type_;
 
 };
 #endif

@@ -13,6 +13,7 @@ CaloHitMaker::CaloHitMaker(const CaloGeometryHelper * theCalo,DetId::Detector ba
   //  std::cout << " FamosCalorimeter " << basedet << " " << cal << std::endl;
   EMSHOWER=(sht==0);
   HADSHOWER=(sht==1);
+  MIP=(sht==2);
   if(base_==DetId::Ecal&&(subdetn_==EcalBarrel||subdetn==EcalEndcap)&&onCal_)
     theCaloProperties = (CalorimeterProperties*)myCalorimeter->ecalProperties(onCal_);
   // is it really necessary to cast here ? 

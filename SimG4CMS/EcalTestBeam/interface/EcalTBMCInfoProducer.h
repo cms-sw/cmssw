@@ -3,13 +3,11 @@
 /*
  * \file EcalTBMCInfoProducer.h
  *
- * $Id: EcalTBMCInfoProducer.h,v 1.4 2007/03/07 10:48:54 fabiocos Exp $
  *
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,20 +16,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
 
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "Math/GenVector/Rotation3D.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
-
-namespace CLHEP {
-  class RandFlat;
-}
 
 class EcalTBMCInfoProducer: public edm::EDProducer{
   
@@ -47,7 +40,7 @@ class EcalTBMCInfoProducer: public edm::EDProducer{
   void produce(edm::Event & event, const edm::EventSetup& eventSetup);
   
   // BeginJob
-  //void beginJob(const edm::EventSetup& c);
+  //void beginJob();
   
   // EndJob
   //void endJob(void);
@@ -69,13 +62,9 @@ private:
 
   EcalTBCrystalMap * theTestMap;
 
-  HepRotation * fromCMStoTB;
+  ROOT::Math::Rotation3D * fromCMStoTB;
 
   std::string GenVtxLabel;
-
-  CLHEP::RandFlat *flatDistribution_;
- 
-
 };
 
 #endif

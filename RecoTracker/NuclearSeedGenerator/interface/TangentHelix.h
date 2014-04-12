@@ -39,6 +39,8 @@ class TangentHelix {
 
        double curvatureError() { return theCircle.curvatureError(); }
 
+        double vertexError() { return theCircle.vertexError(); }
+
    private :
        GlobalPoint theInnerPoint;
        GlobalPoint theOuterPoint;

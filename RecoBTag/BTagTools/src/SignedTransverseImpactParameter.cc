@@ -23,12 +23,12 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const TransientT
 
   TrajectoryStateOnSurface stateOnSurface = track.impactPointState();
 
-  FreeTrajectoryState * FTS =  stateOnSurface.freeState(); //aRecTrack.stateAtFirstPoint().freeTrajectoryState());
+  const FreeTrajectoryState * FTS =  stateOnSurface.freeState(); //aRecTrack.stateAtFirstPoint().freeTrajectoryState());
 
   GlobalPoint vertexPosition(vertex.x(),vertex.y(),vertex.z());
  
-  double theValue;
-  double theError;
+  double theValue=0.;
+  double theError=0.;
   TransverseImpactPointExtrapolator TIPE(track.field());
   TrajectoryStateOnSurface TSOS = TIPE.extrapolate(*FTS, vertexPosition);
 

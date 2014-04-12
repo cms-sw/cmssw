@@ -1,107 +1,95 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/06/13 18:01:29 $
- * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
-#include <fstream>
+#include <sstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
+#include "DQM/EcalCommon/interface/NumbersPn.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EELaserTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EELaserTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EELaserTask::EELaserTask(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
+EELaserTask::EELaserTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
-  for (int i = 0; i < 18 ; i++) {
-    meShapeMapL1A_[i] = 0;
-    meAmplMapL1A_[i] = 0;
-    meTimeMapL1A_[i] = 0;
-    meAmplPNMapL1A_[i] = 0;
-    meShapeMapL1B_[i] = 0;
-    meAmplMapL1B_[i] = 0;
-    meTimeMapL1B_[i] = 0;
-    meAmplPNMapL1B_[i] = 0;
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EEDigiCollection_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEDigiCollection"));
+  EcalPnDiodeDigiCollection_ = consumes<EcalPnDiodeDigiCollection>(ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection"));
+  EcalUncalibratedRecHitCollection_ = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection"));
+
+  // vector of enabled wavelengths (Default to all 4)
+  laserWavelengths_.reserve(4);
+  for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
+
+  for (int i = 0; i < 18; i++) {
+    meShapeMapL1_[i] = 0;
+    meAmplMapL1_[i] = 0;
+    meTimeMapL1_[i] = 0;
+    meAmplPNMapL1_[i] = 0;
     mePnAmplMapG01L1_[i] = 0;
     mePnPedMapG01L1_[i] = 0;
     mePnAmplMapG16L1_[i] = 0;
     mePnPedMapG16L1_[i] = 0;
 
-    meShapeMapL2A_[i] = 0;
-    meAmplMapL2A_[i] = 0;
-    meTimeMapL2A_[i] = 0;
-    meAmplPNMapL2A_[i] = 0;
-    meShapeMapL2B_[i] = 0;
-    meAmplMapL2B_[i] = 0;
-    meTimeMapL2B_[i] = 0;
-    meAmplPNMapL2B_[i] = 0;
+    meShapeMapL2_[i] = 0;
+    meAmplMapL2_[i] = 0;
+    meTimeMapL2_[i] = 0;
+    meAmplPNMapL2_[i] = 0;
     mePnAmplMapG01L2_[i] = 0;
     mePnPedMapG01L2_[i] = 0;
     mePnAmplMapG16L2_[i] = 0;
     mePnPedMapG16L2_[i] = 0;
 
-    meShapeMapL3A_[i] = 0;
-    meAmplMapL3A_[i] = 0;
-    meTimeMapL3A_[i] = 0;
-    meAmplPNMapL3A_[i] = 0;
-    meShapeMapL3B_[i] = 0;
-    meAmplMapL3B_[i] = 0;
-    meTimeMapL3B_[i] = 0;
-    meAmplPNMapL3B_[i] = 0;
+    meShapeMapL3_[i] = 0;
+    meAmplMapL3_[i] = 0;
+    meTimeMapL3_[i] = 0;
+    meAmplPNMapL3_[i] = 0;
     mePnAmplMapG01L3_[i] = 0;
     mePnPedMapG01L3_[i] = 0;
     mePnAmplMapG16L3_[i] = 0;
     mePnPedMapG16L3_[i] = 0;
 
-    meShapeMapL4A_[i] = 0;
-    meAmplMapL4A_[i] = 0;
-    meTimeMapL4A_[i] = 0;
-    meAmplPNMapL4A_[i] = 0;
-    meShapeMapL4B_[i] = 0;
-    meAmplMapL4B_[i] = 0;
-    meTimeMapL4B_[i] = 0;
-    meAmplPNMapL4B_[i] = 0;
+    meShapeMapL4_[i] = 0;
+    meAmplMapL4_[i] = 0;
+    meTimeMapL4_[i] = 0;
+    meAmplPNMapL4_[i] = 0;
     mePnAmplMapG01L4_[i] = 0;
     mePnPedMapG01L4_[i] = 0;
     mePnAmplMapG16L4_[i] = 0;
     mePnPedMapG16L4_[i] = 0;
+  }
+
+  for(int i=0; i<2; i++){
+    meAmplSummaryMapL1_[i] = 0;
+    meAmplSummaryMapL2_[i] = 0;
+    meAmplSummaryMapL3_[i] = 0;
+    meAmplSummaryMapL4_[i] = 0;
   }
 
 }
@@ -110,13 +98,100 @@ EELaserTask::~EELaserTask(){
 
 }
 
-void EELaserTask::beginJob(const EventSetup& c){
+void EELaserTask::beginJob(void){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask");
-    dbe_->rmdir("EcalEndcap/EELaserTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask");
+    dqmStore_->rmdir(prefixME_ + "/EELaserTask");
+  }
+
+}
+
+void EELaserTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EELaserTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+}
+
+void EELaserTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+      if ( meShapeMapL1_[i] )  meShapeMapL1_[i]->Reset();
+      if ( meAmplMapL1_[i] ) meAmplMapL1_[i]->Reset();
+      if ( meTimeMapL1_[i] ) meTimeMapL1_[i]->Reset();
+      if ( meAmplPNMapL1_[i] ) meAmplPNMapL1_[i]->Reset();
+    }
+
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+      if ( meShapeMapL2_[i] )  meShapeMapL2_[i]->Reset();
+      if ( meAmplMapL2_[i] ) meAmplMapL2_[i]->Reset();
+      if ( meTimeMapL2_[i] ) meTimeMapL2_[i]->Reset();
+      if ( meAmplPNMapL2_[i] ) meAmplPNMapL2_[i]->Reset();
+    }
+
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+      if ( meShapeMapL3_[i] )  meShapeMapL3_[i]->Reset();
+      if ( meAmplMapL3_[i] ) meAmplMapL3_[i]->Reset();
+      if ( meTimeMapL3_[i] ) meTimeMapL3_[i]->Reset();
+      if ( meAmplPNMapL3_[i] ) meAmplPNMapL3_[i]->Reset();
+    }
+
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+      if ( meShapeMapL4_[i] )  meShapeMapL4_[i]->Reset();
+      if ( meAmplMapL4_[i] ) meAmplMapL4_[i]->Reset();
+      if ( meTimeMapL4_[i] ) meTimeMapL4_[i]->Reset();
+      if ( meAmplPNMapL4_[i] ) meAmplPNMapL4_[i]->Reset();
+    }
+
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+      if ( mePnAmplMapG01L1_[i] ) mePnAmplMapG01L1_[i]->Reset();
+      if ( mePnPedMapG01L1_[i] ) mePnPedMapG01L1_[i]->Reset();
+
+      if ( mePnAmplMapG16L1_[i] ) mePnAmplMapG16L1_[i]->Reset();
+      if ( mePnPedMapG16L1_[i] ) mePnPedMapG16L1_[i]->Reset();
+    }
+
+
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+      if ( mePnAmplMapG01L2_[i] ) mePnAmplMapG01L2_[i]->Reset();
+      if ( mePnPedMapG01L2_[i] ) mePnPedMapG01L2_[i]->Reset();
+
+      if ( mePnAmplMapG16L2_[i] ) mePnAmplMapG16L2_[i]->Reset();
+      if ( mePnPedMapG16L2_[i] ) mePnPedMapG16L2_[i]->Reset();
+    }
+
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+      if ( mePnAmplMapG01L3_[i] ) mePnAmplMapG01L3_[i]->Reset();
+      if ( mePnPedMapG01L3_[i] ) mePnPedMapG01L3_[i]->Reset();
+
+      if ( mePnAmplMapG16L3_[i] ) mePnAmplMapG16L3_[i]->Reset();
+      if ( mePnPedMapG16L3_[i] ) mePnPedMapG16L3_[i]->Reset();
+    }
+
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+      if ( mePnAmplMapG01L4_[i] ) mePnAmplMapG01L4_[i]->Reset();
+      if ( mePnPedMapG01L4_[i] ) mePnPedMapG01L4_[i]->Reset();
+
+      if ( mePnAmplMapG16L4_[i] ) mePnAmplMapG16L4_[i]->Reset();
+      if ( mePnPedMapG16L4_[i] ) mePnPedMapG16L4_[i]->Reset();
+    }
+
+  }
+
+  for(int i=0; i<2; i++){
+    if( meAmplSummaryMapL1_[i] ) meAmplSummaryMapL1_[i]->Reset();
+    if( meAmplSummaryMapL2_[i] ) meAmplSummaryMapL2_[i]->Reset();
+    if( meAmplSummaryMapL3_[i] ) meAmplSummaryMapL3_[i]->Reset();
+    if( meAmplSummaryMapL4_[i] ) meAmplSummaryMapL4_[i]->Reset();
   }
 
 }
@@ -125,213 +200,334 @@ void EELaserTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  std::string name;
+  std::stringstream LaserN, LN;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EELT shape %s L1A", Numbers::sEE(i+1).c_str());
-      meShapeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapL1A_[i], i+1);
-      sprintf(histo, "EELT amplitude %s L1A", Numbers::sEE(i+1).c_str());
-      meAmplMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapL1A_[i], i+1);
-      sprintf(histo, "EELT timing %s L1A", Numbers::sEE(i+1).c_str());
-      meTimeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapL1A_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s L1A", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapL1A_[i], i+1);
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, "EELT shape %s L1B", Numbers::sEE(i+1).c_str());
-      meShapeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapL1B_[i], i+1);
-      sprintf(histo, "EELT amplitude %s L1B", Numbers::sEE(i+1).c_str());
-      meAmplMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapL1B_[i], i+1);
-      sprintf(histo, "EELT timing %s L1B", Numbers::sEE(i+1).c_str());
-      meTimeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapL1B_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s L1B", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapL1B_[i], i+1);
+      LaserN.str("");
+      LaserN << "Laser" << 1;
+      LN.str("");
+      LN << "L" << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EELT shape " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meShapeMapL1_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+        meShapeMapL1_[i]->setAxisTitle("channel", 1);
+        meShapeMapL1_[i]->setAxisTitle("sample", 2);
+        meShapeMapL1_[i]->setAxisTitle("amplitude", 3);
+        dqmStore_->tag(meShapeMapL1_[i], i+1);
+
+	name = "EELT amplitude " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplMapL1_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplMapL1_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL1_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapL1_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplMapL1_[i], i+1);
+
+	name = "EELT timing " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meTimeMapL1_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+        meTimeMapL1_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL1_[i]->setAxisTitle("101-ix", 1);
+        meTimeMapL1_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meTimeMapL1_[i], i+1);
+
+	name = "EELT amplitude over PN " + Numbers::sEE(i+1) + " " + LN.str();
+        meAmplPNMapL1_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplPNMapL1_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL1_[i]->setAxisTitle("101-ix", 1);
+        meAmplPNMapL1_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplPNMapL1_[i], i+1);
+      }
+
+      name = "EELT amplitude map " + LN.str() + " EE -";
+      meAmplSummaryMapL1_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL1_[0]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL1_[0]->setAxisTitle("iy", 2);
+
+      name = "EELT amplitude map " + LN.str() + " EE +";
+      meAmplSummaryMapL1_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL1_[1]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL1_[1]->setAxisTitle("iy", 2);
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str() + "/PN");
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str() + "/PN/Gain01");
+
+      for (int i = 0; i < 18; i++) {
+	name = "EELT PNs amplitude " + Numbers::sEE(i+1) + " G01 " + LN.str(); 
+        mePnAmplMapG01L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG01L1_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG01L1_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG01L1_[i], i+1);
+
+	name = "EELT PNs pedestal " + Numbers::sEE(i+1) + " G01 " + LN.str(); 
+        mePnPedMapG01L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG01L1_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG01L1_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG01L1_[i], i+1);
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str() + "/PN/Gain16");
+
+      for (int i = 0; i < 18; i++) {
+	name = "EELT PNs amplitude " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnAmplMapG16L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG16L1_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG16L1_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG16L1_[i], i+1);
+
+	name = "EELT PNs pedestal " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnPedMapG16L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG16L1_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EELT shape %s L2A", Numbers::sEE(i+1).c_str());
-      meShapeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapL2A_[i], i+1);
-      sprintf(histo, "EELT amplitude %s L2A", Numbers::sEE(i+1).c_str());
-      meAmplMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapL2A_[i], i+1);
-      sprintf(histo, "EELT timing %s L2A", Numbers::sEE(i+1).c_str());
-      meTimeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapL2A_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s L2A", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapL2A_[i], i+1);
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, "EELT shape %s L2B", Numbers::sEE(i+1).c_str());
-      meShapeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapL2B_[i], i+1);
-      sprintf(histo, "EELT amplitude %s L2B", Numbers::sEE(i+1).c_str());
-      meAmplMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapL2B_[i], i+1);
-      sprintf(histo, "EELT timing %s L2B", Numbers::sEE(i+1).c_str());
-      meTimeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapL2B_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s L2B", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapL2B_[i], i+1);
+      LaserN.str("");
+      LaserN << "Laser" << 2;
+      LN.str("");
+      LN << "L" << 2;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EELT shape " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meShapeMapL2_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+        meShapeMapL2_[i]->setAxisTitle("channel", 1);
+        meShapeMapL2_[i]->setAxisTitle("sample", 2);
+        meShapeMapL2_[i]->setAxisTitle("amplitude", 3);
+        dqmStore_->tag(meShapeMapL2_[i], i+1);
+
+	name = "EELT amplitude " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplMapL2_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL2_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapL2_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplMapL2_[i], i+1);
+
+	name = "EELT timing " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meTimeMapL2_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+        meTimeMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL2_[i]->setAxisTitle("101-ix", 1);
+        meTimeMapL2_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meTimeMapL2_[i], i+1);
+
+	name = "EELT amplitude over PN " + Numbers::sEE(i+1) + " " + LN.str();
+        meAmplPNMapL2_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplPNMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL2_[i]->setAxisTitle("101-ix", 1);
+        meAmplPNMapL2_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplPNMapL2_[i], i+1);
+      }
+
+      name = "EELT amplitude map " + LN.str() + " EE -";
+      meAmplSummaryMapL2_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL2_[0]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL2_[0]->setAxisTitle("iy", 2);
+
+      name = "EELT amplitude map " + LN.str() + " EE +";
+      meAmplSummaryMapL2_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL2_[1]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL2_[1]->setAxisTitle("iy", 2);
+
+      for (int i = 0; i < 18; i++) {
+	name = "EELT PNs amplitude " + Numbers::sEE(i+1) + " G01 " + LN.str(); 
+        mePnAmplMapG01L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG01L2_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG01L2_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG01L2_[i], i+1);
+
+	name = "EELT PNs pedestal " + Numbers::sEE(i+1) + " G01 " + LN.str(); 
+        mePnPedMapG01L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG01L2_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG01L2_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG01L2_[i], i+1);
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str() + "/PN/Gain16");
+
+      for (int i = 0; i < 18; i++) {
+	name = "EELT PNs amplitude " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnAmplMapG16L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG16L2_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG16L2_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG16L2_[i], i+1);
+
+	name = "EELT PNs pedestal " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnPedMapG16L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG16L2_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG16L2_[i], i+1);
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EELT shape %s L3A", Numbers::sEE(i+1).c_str());
-      meShapeMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapL3A_[i], i+1);
-      sprintf(histo, "EELT amplitude %s L3A", Numbers::sEE(i+1).c_str());
-      meAmplMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapL3A_[i], i+1);
-      sprintf(histo, "EELT timing %s L3A", Numbers::sEE(i+1).c_str());
-      meTimeMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapL3A_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s L3A", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapL3A_[i], i+1);
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, "EELT shape %s L3B", Numbers::sEE(i+1).c_str());
-      meShapeMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapL3B_[i], i+1);
-      sprintf(histo, "EELT amplitude %s L3B", Numbers::sEE(i+1).c_str());
-      meAmplMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapL3B_[i], i+1);
-      sprintf(histo, "EELT timing %s L3B", Numbers::sEE(i+1).c_str());
-      meTimeMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapL3B_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s L3B", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapL3B_[i], i+1);
+      LaserN.str("");
+      LaserN << "Laser" << 3;
+      LN.str("");
+      LN << "L" << 3;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EELT shape " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meShapeMapL3_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+        meShapeMapL3_[i]->setAxisTitle("channel", 1);
+        meShapeMapL3_[i]->setAxisTitle("sample", 2);
+        meShapeMapL3_[i]->setAxisTitle("amplitude", 3);
+        dqmStore_->tag(meShapeMapL3_[i], i+1);
+
+	name = "EELT amplitude " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplMapL3_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplMapL3_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL3_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapL3_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplMapL3_[i], i+1);
+
+	name = "EELT timing " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meTimeMapL3_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+        meTimeMapL3_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL3_[i]->setAxisTitle("101-ix", 1);
+        meTimeMapL3_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meTimeMapL3_[i], i+1);
+
+	name = "EELT amplitude over PN " + Numbers::sEE(i+1) + " " + LN.str();
+        meAmplPNMapL3_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplPNMapL3_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL3_[i]->setAxisTitle("101-ix", 1);
+        meAmplPNMapL3_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplPNMapL3_[i], i+1);
+      }
+
+      name = "EELT amplitude map " + LN.str() + " EE -";
+      meAmplSummaryMapL3_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL3_[0]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL3_[0]->setAxisTitle("iy", 2);
+
+      name = "EELT amplitude map " + LN.str() + " EE +";
+      meAmplSummaryMapL3_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL3_[1]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL3_[1]->setAxisTitle("iy", 2);
+
+      for (int i = 0; i < 18; i++) {
+	name = "EELT PNs amplitude " + Numbers::sEE(i+1) + " G01 " + LN.str(); 
+        mePnAmplMapG01L3_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG01L3_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG01L3_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG01L3_[i], i+1);
+
+	name = "EELT PNs pedestal " + Numbers::sEE(i+1) + " G01 " + LN.str(); 
+        mePnPedMapG01L3_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG01L3_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG01L3_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG01L3_[i], i+1);
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str() + "/PN/Gain16");
+
+      for (int i = 0; i < 18; i++) {
+	name = "EELT PNs amplitude " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnAmplMapG16L3_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG16L3_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG16L3_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG16L3_[i], i+1);
+
+	name = "EELT PNs pedestal " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnPedMapG16L3_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG16L3_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG16L3_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG16L3_[i], i+1);
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EELT shape %s L4A", Numbers::sEE(i+1).c_str());
-      meShapeMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapL4A_[i], i+1);
-      sprintf(histo, "EELT amplitude %s L4A", Numbers::sEE(i+1).c_str());
-      meAmplMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapL4A_[i], i+1);
-      sprintf(histo, "EELT timing %s L4A", Numbers::sEE(i+1).c_str());
-      meTimeMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapL4A_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s L4A", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapL4A_[i], i+1);
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, "EELT shape %s L4B", Numbers::sEE(i+1).c_str());
-      meShapeMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(meShapeMapL4B_[i], i+1);
-      sprintf(histo, "EELT amplitude %s L4B", Numbers::sEE(i+1).c_str());
-      meAmplMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplMapL4B_[i], i+1);
-      sprintf(histo, "EELT timing %s L4B", Numbers::sEE(i+1).c_str());
-      meTimeMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe_->tag(meTimeMapL4B_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s L4B", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
-      dbe_->tag(meAmplPNMapL4B_[i], i+1);
-    }
+      LaserN.str("");
+      LaserN << "Laser" << 4;
+      LN.str("");
+      LN << "L" << 4;
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str());
+      for (int i = 0; i < 18; i++) {
+	name = "EELT shape " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meShapeMapL4_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+        meShapeMapL4_[i]->setAxisTitle("channel", 1);
+        meShapeMapL4_[i]->setAxisTitle("sample", 2);
+        meShapeMapL4_[i]->setAxisTitle("amplitude", 3);
+        dqmStore_->tag(meShapeMapL4_[i], i+1);
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G01 L1", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01L1_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG01L1_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G01 L1", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01L1_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG01L1_[i], i+1);
-    }
+	name = "EELT amplitude " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplMapL4_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplMapL4_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL4_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapL4_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplMapL4_[i], i+1);
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G16 L1", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16L1_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG16L1_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G16 L1", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16L1_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG16L1_[i], i+1);
-    }
+	name = "EELT timing " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meTimeMapL4_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+        meTimeMapL4_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL4_[i]->setAxisTitle("101-ix", 1);
+        meTimeMapL4_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meTimeMapL4_[i], i+1);
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN");
+	name = "EELT amplitude over PN " + Numbers::sEE(i+1) + " " + LN.str();
+        meAmplPNMapL4_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplPNMapL4_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL4_[i]->setAxisTitle("101-ix", 1);
+        meAmplPNMapL4_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplPNMapL4_[i], i+1);
+      }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G01 L2", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01L2_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG01L2_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G01 L2", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01L2_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG01L2_[i], i+1);
-    }
+      name = "EELT amplitude map " + LN.str() + " EE -";
+      meAmplSummaryMapL4_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL4_[0]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL4_[0]->setAxisTitle("iy", 2);
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G16 L2", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16L2_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG16L2_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G16 L2", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16L2_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG16L2_[i], i+1);
-    }
+      name = "EELT amplitude map " + LN.str() + " EE +";
+      meAmplSummaryMapL4_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL4_[1]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL4_[1]->setAxisTitle("iy", 2);
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN");
+      for (int i = 0; i < 18; i++) {
+	name = "EELT PNs amplitude " + Numbers::sEE(i+1) + " G01 " + LN.str(); 
+        mePnAmplMapG01L4_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG01L4_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG01L4_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG01L4_[i], i+1);
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G01 L3", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01L3_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG01L3_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G01 L3", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01L3_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG01L3_[i], i+1);
-    }
+	name = "EELT PNs pedestal " + Numbers::sEE(i+1) + " G01 " + LN.str(); 
+        mePnPedMapG01L4_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG01L4_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG01L4_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG01L4_[i], i+1);
+      }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G16 L3", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16L3_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG16L3_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G16 L3", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16L3_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG16L3_[i], i+1);
-    }
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/" + LaserN.str() + "/PN/Gain16");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN");
+      for (int i = 0; i < 18; i++) {
+	name = "EELT PNs amplitude " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnAmplMapG16L4_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnAmplMapG16L4_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG16L4_[i]->setAxisTitle("amplitude", 2);
+        dqmStore_->tag(mePnAmplMapG16L4_[i], i+1);
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G01 L4", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01L4_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG01L4_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G01 L4", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01L4_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG01L4_[i], i+1);
-    }
+	name = "EELT PNs pedestal " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnPedMapG16L4_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
+        mePnPedMapG16L4_[i]->setAxisTitle("channel", 1);
+        mePnPedMapG16L4_[i]->setAxisTitle("pedestal", 2);
+        dqmStore_->tag(mePnPedMapG16L4_[i], i+1);
+      }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G16 L4", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16L4_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnAmplMapG16L4_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G16 L4", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16L4_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe_->tag(mePnPedMapG16L4_[i], i+1);
     }
 
   }
@@ -340,165 +536,172 @@ void EELaserTask::setup(void){
 
 void EELaserTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1");
-    for (int i = 0; i < 18 ; i++) {
-      if ( meShapeMapL1A_[i] )  dbe_->removeElement( meShapeMapL1A_[i]->getName() );
-      meShapeMapL1A_[i] = 0;
-      if ( meAmplMapL1A_[i] ) dbe_->removeElement( meAmplMapL1A_[i]->getName() );
-      meAmplMapL1A_[i] = 0;
-      if ( meTimeMapL1A_[i] ) dbe_->removeElement( meTimeMapL1A_[i]->getName() );
-      meTimeMapL1A_[i] = 0;
-      if ( meAmplPNMapL1A_[i] ) dbe_->removeElement( meAmplPNMapL1A_[i]->getName() );
-      meAmplPNMapL1A_[i] = 0;
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      if ( meShapeMapL1B_[i] )  dbe_->removeElement( meShapeMapL1B_[i]->getName() );
-      meShapeMapL1B_[i] = 0;
-      if ( meAmplMapL1B_[i] ) dbe_->removeElement( meAmplMapL1B_[i]->getName() );
-      meAmplMapL1B_[i] = 0;
-      if ( meTimeMapL1B_[i] ) dbe_->removeElement( meTimeMapL1B_[i]->getName() );
-      meTimeMapL1B_[i] = 0;
-      if ( meAmplPNMapL1B_[i] ) dbe_->removeElement( meAmplPNMapL1B_[i]->getName() );
-      meAmplPNMapL1B_[i] = 0;
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser1");
+      for (int i = 0; i < 18; i++) {
+        if ( meShapeMapL1_[i] )  dqmStore_->removeElement( meShapeMapL1_[i]->getName() );
+        meShapeMapL1_[i] = 0;
+        if ( meAmplMapL1_[i] ) dqmStore_->removeElement( meAmplMapL1_[i]->getName() );
+        meAmplMapL1_[i] = 0;
+        if ( meTimeMapL1_[i] ) dqmStore_->removeElement( meTimeMapL1_[i]->getName() );
+        meTimeMapL1_[i] = 0;
+        if ( meAmplPNMapL1_[i] ) dqmStore_->removeElement( meAmplPNMapL1_[i]->getName() );
+        meAmplPNMapL1_[i] = 0;
+      }
+
+      for(int i=0; i<2; i++)
+	if( meAmplSummaryMapL1_[i] ) dqmStore_->removeElement( meAmplSummaryMapL1_[i]->getName() );
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2");
-    for (int i = 0; i < 18 ; i++) {
-      if ( meShapeMapL2A_[i] )  dbe_->removeElement( meShapeMapL2A_[i]->getName() );
-      meShapeMapL2A_[i] = 0;
-      if ( meAmplMapL2A_[i] ) dbe_->removeElement( meAmplMapL2A_[i]->getName() );
-      meAmplMapL2A_[i] = 0;
-      if ( meTimeMapL2A_[i] ) dbe_->removeElement( meTimeMapL2A_[i]->getName() );
-      meTimeMapL2A_[i] = 0;
-      if ( meAmplPNMapL2A_[i] ) dbe_->removeElement( meAmplPNMapL2A_[i]->getName() );
-      meAmplPNMapL2A_[i] = 0;
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      if ( meShapeMapL2B_[i] )  dbe_->removeElement( meShapeMapL2B_[i]->getName() );
-      meShapeMapL2B_[i] = 0;
-      if ( meAmplMapL2B_[i] ) dbe_->removeElement( meAmplMapL2B_[i]->getName() );
-      meAmplMapL2B_[i] = 0;
-      if ( meTimeMapL2B_[i] ) dbe_->removeElement( meTimeMapL2B_[i]->getName() );
-      meTimeMapL2B_[i] = 0;
-      if ( meAmplPNMapL2B_[i] ) dbe_->removeElement( meAmplPNMapL2B_[i]->getName() );
-      meAmplPNMapL2B_[i] = 0;
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser2");
+      for (int i = 0; i < 18; i++) {
+        if ( meShapeMapL2_[i] )  dqmStore_->removeElement( meShapeMapL2_[i]->getName() );
+        meShapeMapL2_[i] = 0;
+        if ( meAmplMapL2_[i] ) dqmStore_->removeElement( meAmplMapL2_[i]->getName() );
+        meAmplMapL2_[i] = 0;
+        if ( meTimeMapL2_[i] ) dqmStore_->removeElement( meTimeMapL2_[i]->getName() );
+        meTimeMapL2_[i] = 0;
+        if ( meAmplPNMapL2_[i] ) dqmStore_->removeElement( meAmplPNMapL2_[i]->getName() );
+        meAmplPNMapL2_[i] = 0;
+      }
+
+      for(int i=0; i<2; i++)
+	if( meAmplSummaryMapL2_[i] ) dqmStore_->removeElement( meAmplSummaryMapL2_[i]->getName() );
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3");
-    for (int i = 0; i < 18 ; i++) {
-      if ( meShapeMapL3A_[i] )  dbe_->removeElement( meShapeMapL3A_[i]->getName() );
-      meShapeMapL3A_[i] = 0;
-      if ( meAmplMapL3A_[i] ) dbe_->removeElement( meAmplMapL3A_[i]->getName() );
-      meAmplMapL3A_[i] = 0;
-      if ( meTimeMapL3A_[i] ) dbe_->removeElement( meTimeMapL3A_[i]->getName() );
-      meTimeMapL3A_[i] = 0;
-      if ( meAmplPNMapL3A_[i] ) dbe_->removeElement( meAmplPNMapL3A_[i]->getName() );
-      meAmplPNMapL3A_[i] = 0;
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      if ( meShapeMapL3B_[i] )  dbe_->removeElement( meShapeMapL3B_[i]->getName() );
-      meShapeMapL3B_[i] = 0;
-      if ( meAmplMapL3B_[i] ) dbe_->removeElement( meAmplMapL3B_[i]->getName() );
-      meAmplMapL3B_[i] = 0;
-      if ( meTimeMapL3B_[i] ) dbe_->removeElement( meTimeMapL3B_[i]->getName() );
-      meTimeMapL3B_[i] = 0;
-      if ( meAmplPNMapL3B_[i] ) dbe_->removeElement( meAmplPNMapL3B_[i]->getName() );
-      meAmplPNMapL3B_[i] = 0;
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser3");
+      for (int i = 0; i < 18; i++) {
+        if ( meShapeMapL3_[i] )  dqmStore_->removeElement( meShapeMapL3_[i]->getName() );
+        meShapeMapL3_[i] = 0;
+        if ( meAmplMapL3_[i] ) dqmStore_->removeElement( meAmplMapL3_[i]->getName() );
+        meAmplMapL3_[i] = 0;
+        if ( meTimeMapL3_[i] ) dqmStore_->removeElement( meTimeMapL3_[i]->getName() );
+        meTimeMapL3_[i] = 0;
+        if ( meAmplPNMapL3_[i] ) dqmStore_->removeElement( meAmplPNMapL3_[i]->getName() );
+        meAmplPNMapL3_[i] = 0;
+      }
+
+      for(int i=0; i<2; i++)
+	if( meAmplSummaryMapL3_[i] ) dqmStore_->removeElement( meAmplSummaryMapL3_[i]->getName() );
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4");
-    for (int i = 0; i < 18 ; i++) {
-      if ( meShapeMapL4A_[i] )  dbe_->removeElement( meShapeMapL4A_[i]->getName() );
-      meShapeMapL4A_[i] = 0;
-      if ( meAmplMapL4A_[i] ) dbe_->removeElement( meAmplMapL4A_[i]->getName() );
-      meAmplMapL4A_[i] = 0;
-      if ( meTimeMapL4A_[i] ) dbe_->removeElement( meTimeMapL4A_[i]->getName() );
-      meTimeMapL4A_[i] = 0;
-      if ( meAmplPNMapL4A_[i] ) dbe_->removeElement( meAmplPNMapL4A_[i]->getName() );
-      meAmplPNMapL4A_[i] = 0;
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      if ( meShapeMapL4B_[i] )  dbe_->removeElement( meShapeMapL4B_[i]->getName() );
-      meShapeMapL4B_[i] = 0;
-      if ( meAmplMapL4B_[i] ) dbe_->removeElement( meAmplMapL4B_[i]->getName() );
-      meAmplMapL4B_[i] = 0;
-      if ( meTimeMapL4B_[i] ) dbe_->removeElement( meTimeMapL4B_[i]->getName() );
-      meTimeMapL4B_[i] = 0;
-      if ( meAmplPNMapL4B_[i] ) dbe_->removeElement( meAmplPNMapL4B_[i]->getName() );
-      meAmplPNMapL4B_[i] = 0;
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser4");
+      for (int i = 0; i < 18; i++) {
+        if ( meShapeMapL4_[i] )  dqmStore_->removeElement( meShapeMapL4_[i]->getName() );
+        meShapeMapL4_[i] = 0;
+        if ( meAmplMapL4_[i] ) dqmStore_->removeElement( meAmplMapL4_[i]->getName() );
+        meAmplMapL4_[i] = 0;
+        if ( meTimeMapL4_[i] ) dqmStore_->removeElement( meTimeMapL4_[i]->getName() );
+        meTimeMapL4_[i] = 0;
+        if ( meAmplPNMapL4_[i] ) dqmStore_->removeElement( meAmplPNMapL4_[i]->getName() );
+        meAmplPNMapL4_[i] = 0;
+      }
+
+      for(int i=0; i<2; i++)
+	if( meAmplSummaryMapL4_[i] ) dqmStore_->removeElement( meAmplSummaryMapL4_[i]->getName() );
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN");
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG01L1_[i] ) dbe_->removeElement( mePnAmplMapG01L1_[i]->getName() );
-      mePnAmplMapG01L1_[i] = 0;
-      if ( mePnPedMapG01L1_[i] ) dbe_->removeElement( mePnPedMapG01L1_[i]->getName() );
-      mePnPedMapG01L1_[i] = 0;
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser1/PN");
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser1/PN/Gain01");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG01L1_[i] ) dqmStore_->removeElement( mePnAmplMapG01L1_[i]->getName() );
+        mePnAmplMapG01L1_[i] = 0;
+        if ( mePnPedMapG01L1_[i] ) dqmStore_->removeElement( mePnPedMapG01L1_[i]->getName() );
+        mePnPedMapG01L1_[i] = 0;
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser1/PN/Gain16");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG16L1_[i] ) dqmStore_->removeElement( mePnAmplMapG16L1_[i]->getName() );
+        mePnAmplMapG16L1_[i] = 0;
+        if ( mePnPedMapG16L1_[i] ) dqmStore_->removeElement( mePnPedMapG16L1_[i]->getName() );
+        mePnPedMapG16L1_[i] = 0;
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG16L1_[i] ) dbe_->removeElement( mePnAmplMapG16L1_[i]->getName() );
-      mePnAmplMapG16L1_[i] = 0;
-      if ( mePnPedMapG16L1_[i] ) dbe_->removeElement( mePnPedMapG16L1_[i]->getName() );
-      mePnPedMapG16L1_[i] = 0;
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser2/PN");
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser2/PN/Gain01");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG01L2_[i] ) dqmStore_->removeElement( mePnAmplMapG01L2_[i]->getName() );
+        mePnAmplMapG01L2_[i] = 0;
+        if ( mePnPedMapG01L2_[i] ) dqmStore_->removeElement( mePnPedMapG01L2_[i]->getName() );
+        mePnPedMapG01L2_[i] = 0;
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser2/PN/Gain16");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG16L2_[i] ) dqmStore_->removeElement( mePnAmplMapG16L2_[i]->getName() );
+        mePnAmplMapG16L2_[i] = 0;
+        if ( mePnPedMapG16L2_[i] ) dqmStore_->removeElement( mePnPedMapG16L2_[i]->getName() );
+        mePnPedMapG16L2_[i] = 0;
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN");
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG01L2_[i] ) dbe_->removeElement( mePnAmplMapG01L2_[i]->getName() );
-      mePnAmplMapG01L2_[i] = 0;
-      if ( mePnPedMapG01L2_[i] ) dbe_->removeElement( mePnPedMapG01L2_[i]->getName() );
-      mePnPedMapG01L2_[i] = 0;
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser3/PN");
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser3/PN/Gain01");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG01L3_[i] ) dqmStore_->removeElement( mePnAmplMapG01L3_[i]->getName() );
+        mePnAmplMapG01L3_[i] = 0;
+        if ( mePnPedMapG01L3_[i] ) dqmStore_->removeElement( mePnPedMapG01L3_[i]->getName() );
+        mePnPedMapG01L3_[i] = 0;
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser3/PN/Gain16");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG16L3_[i] ) dqmStore_->removeElement( mePnAmplMapG16L3_[i]->getName() );
+        mePnAmplMapG16L3_[i] = 0;
+        if ( mePnPedMapG16L3_[i] ) dqmStore_->removeElement( mePnPedMapG16L3_[i]->getName() );
+        mePnPedMapG16L3_[i] = 0;
+      }
+
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG16L2_[i] ) dbe_->removeElement( mePnAmplMapG16L2_[i]->getName() );
-      mePnAmplMapG16L2_[i] = 0;
-      if ( mePnPedMapG16L2_[i] ) dbe_->removeElement( mePnPedMapG16L2_[i]->getName() );
-      mePnPedMapG16L2_[i] = 0;
-    }
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser4/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG01L3_[i] ) dbe_->removeElement( mePnAmplMapG01L3_[i]->getName() );
-      mePnAmplMapG01L3_[i] = 0;
-      if ( mePnPedMapG01L3_[i] ) dbe_->removeElement( mePnPedMapG01L3_[i]->getName() );
-      mePnPedMapG01L3_[i] = 0;
-    }
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser4/PN/Gain01");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG01L4_[i] ) dqmStore_->removeElement( mePnAmplMapG01L4_[i]->getName() );
+        mePnAmplMapG01L4_[i] = 0;
+        if ( mePnPedMapG01L4_[i] ) dqmStore_->removeElement( mePnPedMapG01L4_[i]->getName() );
+        mePnPedMapG01L4_[i] = 0;
+      }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG16L3_[i] ) dbe_->removeElement( mePnAmplMapG16L3_[i]->getName() );
-      mePnAmplMapG16L3_[i] = 0;
-      if ( mePnPedMapG16L3_[i] ) dbe_->removeElement( mePnPedMapG16L3_[i]->getName() );
-      mePnPedMapG16L3_[i] = 0;
-    }
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask/Laser4/PN/Gain16");
+      for (int i = 0; i < 18; i++) {
+        if ( mePnAmplMapG16L4_[i] ) dqmStore_->removeElement( mePnAmplMapG16L4_[i]->getName() );
+        mePnAmplMapG16L4_[i] = 0;
+        if ( mePnPedMapG16L4_[i] ) dqmStore_->removeElement( mePnPedMapG16L4_[i]->getName() );
+        mePnPedMapG16L4_[i] = 0;
+      }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN");
-
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG01L4_[i] ) dbe_->removeElement( mePnAmplMapG01L4_[i]->getName() );
-      mePnAmplMapG01L4_[i] = 0;
-      if ( mePnPedMapG01L4_[i] ) dbe_->removeElement( mePnPedMapG01L4_[i]->getName() );
-      mePnPedMapG01L4_[i] = 0;
-    }
-
-    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
-      if ( mePnAmplMapG16L4_[i] ) dbe_->removeElement( mePnAmplMapG16L4_[i]->getName() );
-      mePnAmplMapG16L4_[i] = 0;
-      if ( mePnPedMapG16L4_[i] ) dbe_->removeElement( mePnPedMapG16L4_[i]->getName() );
-      mePnPedMapG16L4_[i] = 0;
     }
 
   }
@@ -509,41 +712,44 @@ void EELaserTask::cleanup(void){
 
 void EELaserTask::endJob(void){
 
-  LogInfo("EELaserTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EELaserTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EELaserTask::analyze(const Event& e, const EventSetup& c){
+void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[18];
+  for (int i=0; i<18; i++) runType[i] = -1;
+  unsigned rtHalf[18];
+  for (int i=0; i<18; i++) rtHalf[i] = -1;
+  int waveLength[18];
+  for (int i=0; i<18; i++) waveLength[i] = -1;
 
-  try {
+  edm::Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( dcch ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
+      runType[ism-1] = dcchItr->getRunType();
+      rtHalf[ism-1] = dcchItr->getRtHalf();
+      waveLength[ism-1] = dcchItr->getEventSettings().wavelength;
 
-      dccMap[ ism ] = dcch;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-           dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_GAP ) enable = true;
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EELaserTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EELaserTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -553,136 +759,175 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  bool numPN[80];
+  float adcPN[80];
+  for ( int i = 0; i < 80; i++ ) {
+    numPN[i] = false;
+    adcPN[i] = 0.;
+  }
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  std::vector<int> PNs;
+  PNs.reserve(12);
 
-    int nebd = digis->size();
-    LogDebug("EELaserTask") << "event " << ievt_ << " digi collection size " << nebd;
+  edm::Handle<EEDigiCollection> digis;
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+  if ( e.getByToken(EEDigiCollection_, digis) ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+    int maxpos[10];
+    for(int i(0); i < 10; i++)
+      maxpos[i] = 0;
+    int nReadouts(0);
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      EEDetId id = digiItr->id();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      int ism = Numbers::iSM( id );
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
-      LogDebug("EELaserTask") << " det id = " << id;
-      LogDebug("EELaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
+
+      nReadouts++;
+
+      EEDataFrame dataframe = (*digiItr);
+
+      int iMax(-1);
+      float max(0.);
+      float min(4096.);
+      for (int i = 0; i < 10; i++) {
+        int adc = dataframe.sample(i).adc();
+	if(adc > max){
+	  max = adc;
+	  iMax = i;
+	}
+	if(adc < min)
+	  min = adc;
+      }
+      if(iMax >= 0 && max - min > 20.)
+	maxpos[iMax] += 1;
+
+    }
+
+    int threshold(nReadouts / 2);
+    enable = false;
+    for(int i(0); i < 10; i++){
+      if(maxpos[i] > threshold){
+	enable = true;
+	break;
+      }
+    }
+
+    if(!enable) return;
+
+    int need = digis->size();
+    LogDebug("EELaserTask") << "event " << ievt_ << " digi collection size " << need;
+
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+
+      EEDetId id = digiItr->id();
+
+      int ix = id.ix();
+      int iy = id.iy();
+
+      int ism = Numbers::iSM( id );
+
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+
+      if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
+
+      int ic = Numbers::icEE(ism, ix, iy);
+
+      EEDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 10; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
-        float gain = 1.;
+        int adc = dataframe.sample(i).adc();
 
         MonitorElement* meShapeMap = 0;
 
-        if ( sample.gainId() == 1 ) gain = 1./12.;
-        if ( sample.gainId() == 2 ) gain = 1./ 6.;
-        if ( sample.gainId() == 3 ) gain = 1./ 1.;
+        if ( rtHalf[ism-1] == 0 || rtHalf[ism-1] == 1 ) {
 
-        if ( ie < 6 || ip > 10 ) {
-
-          if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
+          if ( waveLength[ism-1] == 0 ) meShapeMap = meShapeMapL1_[ism-1];
+          if ( waveLength[ism-1] == 1 ) meShapeMap = meShapeMapL2_[ism-1];
+          if ( waveLength[ism-1] == 2 ) meShapeMap = meShapeMapL3_[ism-1];
+          if ( waveLength[ism-1] == 3 ) meShapeMap = meShapeMapL4_[ism-1];
 
         } else {
 
-          if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3B_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4B_[ism-1];
+          edm::LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism-1];
 
         }
 
-//        float xval = float(adc) * gain;
         float xval = float(adc);
 
         if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
 
       }
 
+      NumbersPn::getPNs( ism, ix, iy, PNs );
+
+      for (unsigned int i=0; i<PNs.size(); i++) {
+        int ipn = PNs[i];
+        if ( ipn >= 0 && ipn < 80 ) numPN[ipn] = true;
+      }
+
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EELaserTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EELaserTask") << "EEDigiCollection not available";
 
   }
 
-  float adcA[18];
-  float adcB[18];
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
-  for ( int i = 0; i < 18; i++ ) {
-    adcA[i] = 0.;
-    adcB[i] = 0.;
-  }
-
-  try {
-
-    Handle<EcalPnDiodeDigiCollection> pns;
-    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+  if ( e.getByToken(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EELaserTask") << "event " << ievt_ << " pns collection size " << nep;
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
-      EcalPnDiodeDigi pn = (*pnItr);
-      EcalPnDiodeDetId id = pn.id();
+      if ( Numbers::subDet( pnItr->id() ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( pnItr->id() );
 
-      int num = id.iPnId();
+      int num = pnItr->id().iPnId();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+      int ipn = NumbersPn::ipnEE( ism, num );
 
-      LogDebug("EELaserTask") << " det id = " << id;
-      LogDebug("EELaserTask") << " sm, num " << ism << " " << num;
+      if ( ipn >= 0 && ipn < 80 && numPN[ipn] == false ) continue;
 
       float xvalped = 0.;
 
       for (int i = 0; i < 4; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         MonitorElement* mePNPed = 0;
 
-        if ( sample.gainId() == 0 ) {
-          if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePNPed = mePnPedMapG01L3_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePNPed = mePnPedMapG01L4_[ism-1];
+        if ( pnItr->sample(i).gainId() == 0 ) {
+          if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
+          if ( waveLength[ism-1] == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
+          if ( waveLength[ism-1] == 2 ) mePNPed = mePnPedMapG01L3_[ism-1];
+          if ( waveLength[ism-1] == 3 ) mePNPed = mePnPedMapG01L4_[ism-1];
         }
-        if ( sample.gainId() == 1 ) {
-          if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePNPed = mePnPedMapG16L3_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePNPed = mePnPedMapG16L4_[ism-1];
+        if ( pnItr->sample(i).gainId() == 1 ) {
+          if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
+          if ( waveLength[ism-1] == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
+          if ( waveLength[ism-1] == 2 ) mePNPed = mePnPedMapG16L3_[ism-1];
+          if ( waveLength[ism-1] == 3 ) mePNPed = mePnPedMapG16L4_[ism-1];
         }
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, xval);
 
         xvalped = xvalped + xval;
 
@@ -696,8 +941,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       for (int i = 0; i < 50; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         float xval = float(adc);
 
@@ -707,151 +951,134 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       xvalmax = xvalmax - xvalped;
 
-      if ( pn.sample(0).gainId() == 0 ) {
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePN = mePnAmplMapG01L3_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePN = mePnAmplMapG01L4_[ism-1];
+      if ( pnItr->sample(0).gainId() == 0 ) {
+        if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
+        if ( waveLength[ism-1] == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
+        if ( waveLength[ism-1] == 2 ) mePN = mePnAmplMapG01L3_[ism-1];
+        if ( waveLength[ism-1] == 3 ) mePN = mePnAmplMapG01L4_[ism-1];
       }
-      if ( pn.sample(0).gainId() == 1 ) {
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePN = mePnAmplMapG16L3_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePN = mePnAmplMapG16L4_[ism-1];
+      if ( pnItr->sample(0).gainId() == 1 ) {
+        if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
+        if ( waveLength[ism-1] == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
+        if ( waveLength[ism-1] == 2 ) mePN = mePnAmplMapG16L3_[ism-1];
+        if ( waveLength[ism-1] == 3 ) mePN = mePnAmplMapG16L4_[ism-1];
       }
 
-      if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
+      if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
-      if ( num == 1 ) adcA[ism-1] = xvalmax;
-      if ( num == 6 ) adcB[ism-1] = xvalmax;
+      if ( ipn >= 0 && ipn < 80 ) adcPN[ipn] = xvalmax;
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EELaserTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EELaserTask") << "EcalPnDiodeDigiCollection not available";
 
   }
 
-  try {
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByToken(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EELaserTask") << "event " << ievt_ << " hits collection size " << neh;
 
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalUncalibratedRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EEDetId id = hitItr->id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
+      int iz;
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ){
+	ix = 101 - ix;
+	iz = 0;
+      }else{
+	iz = 1;
+      }
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
-      LogDebug("EELaserTask") << " det id = " << id;
-      LogDebug("EELaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
+      MonitorElement* meAmplSummaryMap = 0;
 
-      if ( ie < 6 || ip > 10 ) {
+      if ( rtHalf[ism-1] == 0 || rtHalf[ism-1] == 1 ) {
 
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
-          meAmplMap = meAmplMapL1A_[ism-1];
-          meTimeMap = meTimeMapL1A_[ism-1];
-          meAmplPNMap = meAmplPNMapL1A_[ism-1];
+        if ( waveLength[ism-1] == 0 ) {
+          meAmplMap = meAmplMapL1_[ism-1];
+          meTimeMap = meTimeMapL1_[ism-1];
+          meAmplPNMap = meAmplPNMapL1_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL1_[iz];
         }
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
-          meAmplMap = meAmplMapL2A_[ism-1];
-          meTimeMap = meTimeMapL2A_[ism-1];
-          meAmplPNMap = meAmplPNMapL2A_[ism-1];
+        if ( waveLength[ism-1] == 1 ) {
+          meAmplMap = meAmplMapL2_[ism-1];
+          meTimeMap = meTimeMapL2_[ism-1];
+          meAmplPNMap = meAmplPNMapL2_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL2_[iz];
         }
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) {
-          meAmplMap = meAmplMapL3A_[ism-1];
-          meTimeMap = meTimeMapL3A_[ism-1];
-          meAmplPNMap = meAmplPNMapL3A_[ism-1];
+        if ( waveLength[ism-1] == 2 ) {
+          meAmplMap = meAmplMapL3_[ism-1];
+          meTimeMap = meTimeMapL3_[ism-1];
+          meAmplPNMap = meAmplPNMapL3_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL3_[iz];
         }
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) {
-          meAmplMap = meAmplMapL4A_[ism-1];
-          meTimeMap = meTimeMapL4A_[ism-1];
-          meAmplPNMap = meAmplPNMapL4A_[ism-1];
+        if ( waveLength[ism-1] == 3 ) {
+          meAmplMap = meAmplMapL4_[ism-1];
+          meTimeMap = meTimeMapL4_[ism-1];
+          meAmplPNMap = meAmplPNMapL4_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL4_[iz];
         }
 
       } else {
 
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
-          meAmplMap = meAmplMapL1B_[ism-1];
-          meTimeMap = meTimeMapL1B_[ism-1];
-          meAmplPNMap = meAmplPNMapL1B_[ism-1];
-        }
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
-          meAmplMap = meAmplMapL2B_[ism-1];
-          meTimeMap = meTimeMapL2B_[ism-1];
-          meAmplPNMap = meAmplPNMapL2B_[ism-1];
-        }
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) {
-          meAmplMap = meAmplMapL3B_[ism-1];
-          meTimeMap = meTimeMapL3B_[ism-1];
-          meAmplPNMap = meAmplPNMapL3B_[ism-1];
-        }
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) {
-          meAmplMap = meAmplMapL4B_[ism-1];
-          meTimeMap = meTimeMapL4B_[ism-1];
-          meAmplPNMap = meAmplPNMapL4B_[ism-1];
-        }
+        edm::LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism-1];
 
       }
 
-      float xval = hit.amplitude();
+      float xval = hitItr->amplitude();
       if ( xval <= 0. ) xval = 0.0;
-      float yval = hit.jitter() + 6.0;
+      float yval = hitItr->jitter() + 5.0;
       if ( yval <= 0. ) yval = 0.0;
-      float zval = hit.pedestal();
+      float zval = hitItr->pedestal();
       if ( zval <= 0. ) zval = 0.0;
 
-      LogDebug("EELaserTask") << " hit amplitude " << xval;
-      LogDebug("EELaserTask") << " hit jitter " << yval;
-      LogDebug("EELaserTask") << " hit pedestal " << zval;
+      if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
 
-      if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
-
-      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      if ( xval > 16. ) {
+        if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
+      }
 
       float wval = 0.;
 
-      if ( ie < 6 || ip > 10 ) {
+      NumbersPn::getPNs( ism, ix, iy, PNs );
 
-        if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
-
-      } else {
-
-        if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
-
+      if ( PNs.size() > 0 ) {
+        int ipn = PNs[0];
+        if ( ipn >= 0 && ipn < 80 ) {
+          if ( adcPN[ipn] != 0. ) wval = xval / adcPN[ipn];
+        }
       }
 
-      LogDebug("EELaserTask") << " hit amplitude over PN " << wval;
+      if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
 
-      if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, wval);
+      if( meAmplSummaryMap ) meAmplSummaryMap->Fill(xix, xiy, xval);
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EELaserTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EELaserTask") << "EcalUncalibratedRecHitCollection not available";
 
   }
 

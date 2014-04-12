@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jul 17 09:34:30 EDT 2006
-// $Id: ESProducerLooper.cc,v 1.1 2006/07/23 01:24:34 valya Exp $
 //
 
 // system include files

@@ -4,7 +4,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceMakerBase
-// 
+//
 /**\class ServiceMakerBase ServiceMakerBase.h FWCore/ServiceRegistry/interface/ServiceMakerBase.h
 
  Description: Base class for Service Makers
@@ -16,47 +16,58 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceMakerBase.h,v 1.2 2005/09/10 02:08:48 wmtan Exp $
 //
 
-// system include files
 
-// user include files
+#include <typeinfo>
 
 // forward declarations
 namespace edm {
    class ParameterSet;
    class ActivityRegistry;
-   
-   namespace serviceregistry {
 
+   namespace service {
+      inline bool isProcessWideService(void const* /*service*/) {
+        return false;
+      }
+   }
+
+   namespace serviceregistry {
+      class SaveConfiguration;
       class ServiceWrapperBase;
       class ServicesManager;
-      
+
       class ServiceMakerBase {
-         
+
 public:
          ServiceMakerBase();
          virtual ~ServiceMakerBase();
-         
+
          // ---------- const member functions ---------------------
-         virtual const std::type_info& serviceType() const = 0;
-      
-         virtual bool make(const edm::ParameterSet&,
-                           edm::ActivityRegistry&,
+         virtual std::type_info const& serviceType() const = 0;
+
+         virtual bool make(ParameterSet const&,
+                           ActivityRegistry&,
                            ServicesManager&) const = 0;
 
+         virtual bool processWideService() const = 0;
+
+         virtual bool saveConfiguration() const = 0;
+
          // ---------- static member functions --------------------
-         
+
          // ---------- member functions ---------------------------
-         
+
+protected:
+         bool testSaveConfiguration(SaveConfiguration const*) const {return true;}
+         bool testSaveConfiguration(void const*) const {return false;}
+
 private:
-         ServiceMakerBase(const ServiceMakerBase&); // stop default
-         
-         const ServiceMakerBase& operator=(const ServiceMakerBase&); // stop default
-         
+         ServiceMakerBase(ServiceMakerBase const&); // stop default
+
+         ServiceMakerBase const& operator=(ServiceMakerBase const&); // stop default
+
          // ---------- member data --------------------------------
-         
       };
    }
 }

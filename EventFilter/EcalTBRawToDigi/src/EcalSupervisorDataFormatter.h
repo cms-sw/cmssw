@@ -1,8 +1,7 @@
-#ifndef EcalSupervisorDataFormatter_H
-#define EcalSupervisorDataFormatter_H
-/** \class EcalSupervisorDataFormatter
+#ifndef EcalSupervisorTBDataFormatter_H
+#define EcalSupervisorTBDataFormatter_H
+/** \class EcalSupervisorTBDataFormatter
  *
- *  $Id: EcalSupervisorDataFormatter.h,v 1.2 2006/07/27 23:43:04 meridian Exp $
  */
 
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h>
@@ -13,12 +12,12 @@
 
 
 class FEDRawData;
-class EcalSupervisorDataFormatter   {
+class EcalSupervisorTBDataFormatter   {
 
  public:
 
-  EcalSupervisorDataFormatter() ;
-  virtual ~EcalSupervisorDataFormatter(){LogDebug("EcalTBRawToDigi") << "@SUB=EcalSupervisorDataFormatter" << "\n"; };
+  EcalSupervisorTBDataFormatter() ;
+  virtual ~EcalSupervisorTBDataFormatter(){LogDebug("EcalTBRawToDigi") << "@SUB=EcalSupervisorTBDataFormatter" << "\n"; };
 
   //Method to be implemented
   void  interpretRawData( const FEDRawData & data, EcalTBEventHeader& tbEventHeader ) ;

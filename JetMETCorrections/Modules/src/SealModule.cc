@@ -1,31 +1,71 @@
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 #include "CondCore/PluginSystem/interface/registration_macros.h"
-DEFINE_SEAL_MODULE();
-
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-REGISTER_PLUGIN (JetCorrectionsRecord, JetCorrector);
+#include "JetMETCorrections/Modules/interface/JetCorrectionESProducer.h"
+#include "JetMETCorrections/Modules/interface/JetCorrectionESSource.h"
+#include "JetMETCorrections/Modules/interface/JetCorrectionESChain.h"
+#include "JetMETCorrections/Modules/interface/JetCorrectionProducer.h"
+#include "JetMETCorrections/Modules/interface/QGLikelihoodESProducer.h"
+#include "JetMETCorrections/Algorithms/interface/LXXXCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/L1OffsetCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/L1JPTOffsetCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/L1FastjetCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/L6SLBCorrector.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/JPTJet.h"
+#include "DataFormats/JetReco/interface/TrackJet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
+
+REGISTER_PLUGIN(JetCorrectionsRecord,JetCorrectorParametersCollection);
 
 using namespace cms;
+using namespace reco;
 
-#include "JetCorrectionProducer.h"
-DEFINE_ANOTHER_FWK_MODULE(JetCorrectionProducer);
-#include "PlotJetCorrections.h"
-DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
+typedef JetCorrectionProducer<CaloJet> CaloJetCorrectionProducer;
+DEFINE_FWK_MODULE(CaloJetCorrectionProducer);
 
-#include "JetCorrectionService.icc"
-#include "JetMETCorrections/Objects/interface/SimpleJetCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (SimpleJetCorrector, SimpleJetCorrectionService);
-#include "JetMETCorrections/MCJet/interface/MCJetCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService);
-#include "JetMETCorrections/GammaJet/interface/GammaJetCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (GammaJetCorrector, GammaJetCorrectionService);
-#include "JetMETCorrections/JetParton/interface/JetPartonCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (JetPartonCorrector, JetPartonCorrectionService);
-#include "JetMETCorrections/JetPlusTrack/interface/JetPlusTrackCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (JetPlusTrackCorrector, JetPlusTrackCorrectionService);
-#include "JetMETCorrections/TauJet/interface/TauJetCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (TauJetCorrector, TauJetCorrectionService);
+typedef JetCorrectionProducer<PFJet> PFJetCorrectionProducer;
+DEFINE_FWK_MODULE(PFJetCorrectionProducer);
+
+typedef JetCorrectionProducer<JPTJet> JPTJetCorrectionProducer;
+DEFINE_FWK_MODULE(JPTJetCorrectionProducer);
+
+typedef JetCorrectionProducer<TrackJet> TrackJetCorrectionProducer;
+DEFINE_FWK_MODULE(TrackJetCorrectionProducer);
+
+typedef JetCorrectionProducer<GenJet> GenJetCorrectionProducer;
+DEFINE_FWK_MODULE(GenJetCorrectionProducer);
+
+DEFINE_FWK_EVENTSETUP_MODULE(JetCorrectionESChain);
+
+
+DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodESProducer);
+
+
+//--------------- Generic LX corrections --------------------
+DEFINE_JET_CORRECTION_ESSOURCE (LXXXCorrector, LXXXCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER (LXXXCorrector, LXXXCorrectionESProducer);
+
+//--------------- L1 Offset subtraction corrections ---------
+DEFINE_JET_CORRECTION_ESSOURCE (L1OffsetCorrector, L1OffsetCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER (L1OffsetCorrector, L1OffsetCorrectionESProducer);
+
+//--------------- L1 Offset subtraction corrections ---------
+DEFINE_JET_CORRECTION_ESSOURCE (L1JPTOffsetCorrector, L1JPTOffsetCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER (L1JPTOffsetCorrector, L1JPTOffsetCorrectionESProducer);
+
+//--------------- L1 fastjet UE&PU subtraction corrections --
+DEFINE_JET_CORRECTION_ESSOURCE (L1FastjetCorrector, L1FastjetCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER (L1FastjetCorrector, L1FastjetCorrectionESProducer);
+
+//---------------  L6 SLB corrections -----------------------
+DEFINE_JET_CORRECTION_ESSOURCE (L6SLBCorrector, L6SLBCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER (L6SLBCorrector, L6SLBCorrectionESProducer);

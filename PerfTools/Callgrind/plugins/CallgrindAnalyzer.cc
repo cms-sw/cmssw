@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Jan 18 10:34:18 CET 2007
-// $Id: CallgrindAnalyzer.cc,v 1.2 2007/02/25 14:27:50 innocent Exp $
 //
 //
 
@@ -44,9 +43,9 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
   
   // ----------member data ---------------------------
       int m_firstEvent;
@@ -91,6 +90,8 @@ Profiler::~Profiler()
 //
 
 // ------------ method called to for each event  ------------
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 void
 Profiler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -117,11 +118,12 @@ if(m_evtCount >= m_firstEvent && (m_evtCount <= m_lastEvent || m_lastEvent == -1
 
  }
 }
+#pragma GCC diagnostic pop
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-Profiler::beginJob(const edm::EventSetup&)
+Profiler::beginJob()
 {
 }
 

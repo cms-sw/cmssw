@@ -13,7 +13,6 @@
 //
 // Original Author:  Valentin Kuznetsov
 //         Created:  Tue Jul 18 10:17:05 EDT 2006
-// $Id: DummyLooper.cc,v 1.5 2007/05/22 21:08:14 chrjones Exp $
 //
 //
 

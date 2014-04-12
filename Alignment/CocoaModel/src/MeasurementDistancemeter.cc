@@ -8,10 +8,10 @@
 
 #include "Alignment/CocoaModel/interface/MeasurementDistancemeter.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
@@ -30,7 +30,7 @@ void MeasurementDistancemeter::calculateSimulatedValue( ALIbool firstTime )
 
   //---------- Loop list of OptO that take part in measurement
   std::vector<OpticalObject*>::const_iterator vocite =  OptOList().begin();
-  if( ALIUtils::debug >= 5) std::cout  << "OptOList size" <<OptOList().size() << std::endl;
+  if( ALIUtils::debug >= 5) std::cout  << "OptOList size= " <<OptOList().size() << std::endl;
 
   //----- Check that there are only two measurements that are 'distance_target' and 'distancemeter'
   ALIbool right_objects = 0;
@@ -43,7 +43,7 @@ void MeasurementDistancemeter::calculateSimulatedValue( ALIbool firstTime )
   }
   if( !right_objects ) {
     std::cerr << "!!! ERROR in MeasurementDistancemeter: " << name() << " There should only be two objects of type 'distance_target' and 'distancemeter' " << std::endl;
- std::cerr	 << " 1st " << (*vocite)->name() << " 2nd " << (*vocite+1)->name()  << std::endl;
+ std::cerr	 << " 1st: " << (*vocite)->name() << " 2nd: " << (*vocite+1)->name()  << std::endl;
     std::cerr << " 1st " << (*vocite)->type() << " 2nd " << (*vocite+1)->type() << std::endl;
 
     DumpBadOrderOptOs();

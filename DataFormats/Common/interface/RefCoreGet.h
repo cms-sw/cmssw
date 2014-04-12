@@ -2,15 +2,13 @@
 #define DataFormats_Common_RefCoreGet_h
 
 /*----------------------------------------------------------------------
-  
-RefCoreGet: Free function to get the pointer to a referenced product.
 
-$Id: RefCoreGet.h,v 1.1 2007/05/15 17:10:24 wmtan Exp $
+RefCoreGet: Free function to get the pointer to a referenced product.
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace edm {
@@ -18,21 +16,12 @@ namespace edm {
   namespace refcore {
     template <typename T>
     inline
-    T const* 
+    T const*
     getProductPtr_(RefCore const& ref) {
-      ref.checkDereferenceability();
       //if (isNull()) throwInvalidReference();
-
-      EDProduct const* product = ref.productGetter()->getIt(ref.id());      
-      Wrapper<T> const* wrapper = dynamic_cast<Wrapper<T> const*>(product);
-
-      if (wrapper == 0) { 
-	throw edm::Exception(errors::InvalidReference,"WrongType")
-	  << "RefCore: A request to convert a contained product of type: "
-	  << typeid(product).name() << "\n"
-	  << " to type " << typeid(T).name()
-	  << "\ncan not be satisfied\n";
-      }
+      assert (!ref.isTransient());
+      WrapperHolder product = ref.getProductPtr(typeid(T));
+      Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(product.wrapper());
       ref.setProductPtr(wrapper->product());
       return wrapper->product();
     }
@@ -41,9 +30,13 @@ namespace edm {
   template <typename T>
   inline
   T const*
-  getProduct(RefCore const & ref) {
-    T const* p = static_cast<T const *>(ref.productPtr());
-    return (p != 0) ? p : refcore::getProductPtr_<T>(ref);
+  getProduct(RefCore const& ref) {
+    T const* p = static_cast<T const*>(ref.productPtr());
+    if (p != 0) return p;
+    if (ref.isTransient()) {
+      ref.nullPointerForTransientException(typeid(T));
+    }
+    return refcore::getProductPtr_<T>(ref);
   }
 }
 #endif

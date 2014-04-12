@@ -4,8 +4,6 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2007/04/04 10:44:34 $
- *   $Revision: 1.5 $
  *
  *   \author C.Grandi
  */
@@ -40,9 +38,12 @@
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTChambThSegm.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectColl.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+
+class InputTag;
 
 //              ---------------------
 //              -- Class Interface --
@@ -67,16 +68,16 @@ class DTTrig {
   public:
   
     //! Constructors
-    /*  DTTrig(); */
-    
-    //DTTrig(const edm::ParameterSet& pset);
-    DTTrig(const DTConfigManager * conf);
+    DTTrig(const edm::ParameterSet &params);
 
     //! Destructor
     ~DTTrig();
     
     //! Create the trigger units and store them in the cache
     void createTUs(const edm::EventSetup& iSetup);
+
+    //! update the eventsetup info
+    void updateES(const edm::EventSetup& iSetup);
 
     //! Run the whole trigger reconstruction chain
     void triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -174,6 +175,12 @@ class DTTrig {
     //! Dump the geometry
     void dumpGeom();
 
+    //! Dump the LUT files
+    void dumpLuts(short int lut_btic, const DTConfigManager *conf);
+
+    //! Get BX Offset
+    int getBXOffset() { return _conf_manager->getBXOffset(); }
+
     // Methods to access intermediate results
 
     //! Return a copy of all the BTI triggers
@@ -238,9 +245,14 @@ class DTTrig {
 
     TUcontainer _cache;       		// Trigger units
     SCcontainer _cache1;      		// Sector Collector units
-    //edm::ParameterSet _conf_pset;    	// Configuration Pset
-    const DTConfigManager * _conf_manager;    // Configuration Manager class pointer 
-    bool _debug;                     	// Debug flag
+    const DTConfigManager *_conf_manager;    // Configuration Manager class pointer 
+    edm::InputTag _digitag;
+    bool _debug;                        // Debug flag
+    bool _inputexist;
+
+    unsigned long long _configid;
+    unsigned long long _geomid;
+
 };
 
 #endif

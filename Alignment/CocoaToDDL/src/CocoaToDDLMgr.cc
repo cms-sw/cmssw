@@ -17,7 +17,6 @@
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 
 CocoaToDDLMgr* CocoaToDDLMgr::instance = 0;
@@ -70,9 +69,8 @@ void CocoaToDDLMgr::writeHeader( ALIstring filename)
 void CocoaToDDLMgr::writeMaterials()
 {
   newSectPre_ma("");
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto &optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     CocoaMaterialElementary* mat = (*ite)->getMaterial();
     //-    std::cout << " mat of opto " << (*ite)->name() << " = " << mat->getName() << std::endl;
@@ -89,11 +87,10 @@ void CocoaToDDLMgr::writeSolids()
 {
   newSectPre_so("");
   
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite,ite2;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto &optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     bool alreadyWritten = false;
-    for(ite2 = optolist.begin(); ite2 != ite; ite2++ ){
+    for(auto ite2 = optolist.begin(); ite2 != ite; ite2++ ){
       if( (*ite)->shortName() == (*ite2)->shortName() ) {
 	alreadyWritten = true;
       }
@@ -112,11 +109,10 @@ void CocoaToDDLMgr::writeLogicalVolumes()
 {
   newSectPre_lv("");
   
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite,ite2;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto &optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     bool alreadyWritten = false;
-    for(ite2 = optolist.begin(); ite2 != ite; ite2++ ){
+    for(auto ite2 = optolist.begin(); ite2 != ite; ite2++ ){
       if( (*ite)->shortName() == (*ite2)->shortName() ) {
 	alreadyWritten = true;
       }
@@ -133,9 +129,8 @@ void CocoaToDDLMgr::writePhysicalVolumes()
 {
   newSectPre_pv("");
   
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto &optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     pv( *ite );
   }
@@ -149,7 +144,7 @@ void CocoaToDDLMgr::writePhysicalVolumes()
 void CocoaToDDLMgr::writeRotations()
 {
   newSectPre_ro("");
-  std::vector<HepRotation>::const_iterator ite;
+  std::vector<CLHEP::HepRotation>::const_iterator ite;
   int nc = 0;
   for( ite = theRotationList.begin(); ite != theRotationList.end(); ite++) {
     //-  std::cout << nc << " rot size " <<  theRotationList.size() << std::endl;
@@ -165,9 +160,8 @@ void CocoaToDDLMgr::writeSpecPars()
 {
   newSectPre_specPar("");
   
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto &optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     specPar( *ite );
   }
@@ -542,9 +536,9 @@ void CocoaToDDLMgr::pv(OpticalObject * opto)
    
    if( rotNumber != -1 ) file_ << "  <rRotation name=\"R" << rotNumber << "\"/>" << std::endl;
 
-   Hep3Vector t =  opto->centreLocal();
-   if(t != Hep3Vector()) { //if (0,0,0) write nothing
-     const Hep3Vector t = opto->centreLocal();
+   CLHEP::Hep3Vector t =  opto->centreLocal();
+   if(t != CLHEP::Hep3Vector()) { //if (0,0,0) write nothing
+     const CLHEP::Hep3Vector t = opto->centreLocal();
 
      file_ << "  <Translation x=\"" <<  UC(t[0],"Length") << "\""
            <<               " y=\"" << UC(t[1],"Length") << "\""
@@ -575,10 +569,10 @@ void CocoaToDDLMgr::newSectPre_ro(std::string name)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // handlers reflections and rotations ...
-void CocoaToDDLMgr::ro(const HepRotation& ro, int n)
+void CocoaToDDLMgr::ro(const CLHEP::HepRotation& ro, int n)
 {
    
-   HepRotation roinv = inverseOf(ro);
+   CLHEP::HepRotation roinv = inverseOf(ro);
   //-    G4ThreeVector v(1.,1.,1.);
   //-     G4ThreeVector a;
   //-   a = (*ro)*v;
@@ -624,8 +618,9 @@ void CocoaToDDLMgr::newSectPre_specPar(std::string name)
 void CocoaToDDLMgr::specPar(OpticalObject * opto)
 {
   file_ << " <SpecPar name=\"" << opto->name() << "_PARAMS\">" << std::endl;
-  file_ << "    <PartSelector path=\"/" << opto->name() << "\"/> " << std::endl;
+  file_ << "   <PartSelector path=\"/" << opto->name() << "\"/> " << std::endl;
   file_ << "   <Parameter name=\"cocoa_type\""  << " value=\"" << opto->type() << "\"   eval=\"false\" /> " << std::endl;
+  file_ << "   <Parameter name=\"cmssw_ID\""  << " value=\"" << opto->getCmsswID() << "\" /> " << std::endl;
 
   const std::vector< Entry* > coord = opto->CoordinateEntryList();
   for( int ii=3; ii<6; ii++ ){
@@ -647,7 +642,7 @@ void CocoaToDDLMgr::specPar(OpticalObject * opto)
   }
   
   const std::vector< Entry* > extraEnt = opto->ExtraEntryList();
-  for( uint ii=0; ii<extraEnt.size(); ii++ ){
+  for( ALIuint ii=0; ii<extraEnt.size(); ii++ ){
     Entry* ent = extraEnt[ii]; 
     file_ << "   <Parameter name=\"extra_entry\" value=\"" << ent->name() << "\"  eval=\"false\" /> " << std::endl;
     file_ << "   <Parameter name=\"dimType\" value=\"" << ent->type() << "\"  eval=\"false\" /> " << std::endl;
@@ -687,7 +682,7 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
   std::vector<ALIstring>::iterator site;
   std::multimap<OpticalObject*,Measurement*> optoMeasMap;
   for( mite = measlist.begin(); mite != measlist.end(); mite++ ) {
-    std::vector<OpticalObject*> optolist = (*mite)->OptOList();
+    auto &optolist = (*mite)->OptOList();
     OpticalObject* opto = optolist[optolist.size()-1];
     optoMeasMap.insert( std::multimap<OpticalObject*,Measurement*>::value_type(opto, *mite) );
   }
@@ -715,7 +710,7 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
       for( site = namelist.begin(); site != namelist.end(); site++ ){     
 	file_ << "   <Parameter name=\"" << std::string("meas_object_name_")+meas->name() << "\" value=\"" << (*site) << "\"  eval=\"false\" /> " << std::endl;
       }
-      for( uint ii = 0; ii < meas->dim(); ii++ ){
+      for( ALIuint ii = 0; ii < meas->dim(); ii++ ){
 	file_ << "   <Parameter name=\"" << std::string("meas_value_name_")+meas->name() << "\" value=\"" << meas->valueType(ii) << "\"  eval=\"false\" /> " << std::endl;
 	file_ << "   <Parameter name=\"" << std::string("meas_value_")+meas->name() << "\" value=\"" << meas->value(ii) << "\"  eval=\"true\" /> " << std::endl;
 	file_ << "   <Parameter name=\"" << std::string("meas_sigma_")+meas->name() << "\" value=\"" << meas->sigma(ii) << "\"  eval=\"true\" /> " << std::endl;
@@ -734,9 +729,8 @@ void CocoaToDDLMgr::writeSpecParsCocoa()
   file_ << "<!--    Define volumes as COCOA objects --> " << std::endl
 	<< "  <SpecPar name=\"COCOA\"> " << std::endl;
 
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto &optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     file_ << "    <PartSelector path=\"/" << (*ite)->name() << "\"/> " << std::endl;
   }
@@ -824,7 +818,7 @@ ALIint CocoaToDDLMgr::buildRotationNumber( OpticalObject* opto )
 
   if(opto->rmLocal().isIdentity() ) return rotnum;
 
-  std::vector<HepRotation>::const_iterator ite;
+  std::vector<CLHEP::HepRotation>::const_iterator ite;
 
   int nc = 0;
   for( ite = theRotationList.begin(); ite != theRotationList.end(); ite++) {

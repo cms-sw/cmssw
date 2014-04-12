@@ -3,8 +3,6 @@
 //   Class: L1MuGMTDebugBlock
 //
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.5 $
 //
 //   Author :
 //   H. Sakulin                HEPHY Vienna
@@ -77,7 +75,7 @@ L1MuGMTDebugBlock::~L1MuGMTDebugBlock() {
   _fwdmuons.clear();
 }
 
-void L1MuGMTDebugBlock::SetCancelBits (int idx, std::vector<bool> mine, vector<bool> others) {
+void L1MuGMTDebugBlock::SetCancelBits (int idx, const std::vector<bool>& mine, const vector<bool>& others) {
   unsigned bits = 0;
   unsigned mask = 1;
   

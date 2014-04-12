@@ -1,13 +1,10 @@
 /** \file
  *
- *  $Date: 2006/04/12 18:19:05 $
- *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
 #include <algorithm>
 #include <iostream>
@@ -22,7 +19,6 @@ DTGeometry::~DTGeometry(){
 }
 
 const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
-  static DetTypeContainer  theDetTypes;
   // FIXME - fill it at runtime
   return theDetTypes;
 }
@@ -61,14 +57,12 @@ const DTGeometry::DetContainer& DTGeometry::dets() const{
 
 
 const DTGeometry::DetIdContainer& DTGeometry::detUnitIds() const{
-  static DetIdContainer    theDetUnitIds;
   // FIXME - fill it at runtime
   return theDetUnitIds;
 }
 
 
 const DTGeometry::DetIdContainer& DTGeometry::detIds() const{
-  static DetIdContainer theDetIds;
   // FIXME - fill it at runtime
   return theDetIds;
 }

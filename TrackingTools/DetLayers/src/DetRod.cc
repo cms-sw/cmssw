@@ -1,5 +1,4 @@
 #include "TrackingTools/DetLayers/interface/DetRod.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 

@@ -65,7 +65,7 @@ int LocationDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("LocationDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("LocationDef::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -74,7 +74,7 @@ int LocationDef::fetchID()
 
 
 void LocationDef::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -89,12 +89,12 @@ void LocationDef::setByID(int id)
       m_loc = rset->getString(1);
       m_ID = id;
     } else {
-      throw(runtime_error("LocationDef::setByID:  Given def_id is not in the database"));
+      throw(std::runtime_error("LocationDef::setByID:  Given def_id is not in the database"));
     }
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("LocationDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error("LocationDef::setByID:  "+e.getMessage()));
   }
 }
 
@@ -117,6 +117,6 @@ void LocationDef::fetchAllDefs( std::vector<LocationDef>* fillVec)
       fillVec->push_back( locationDef );
     }
   } catch (SQLException &e) {
-    throw(runtime_error("LocationDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error("LocationDef::fetchAllDefs:  "+e.getMessage()));
   }
 }

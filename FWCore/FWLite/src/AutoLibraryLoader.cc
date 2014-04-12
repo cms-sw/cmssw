@@ -8,13 +8,13 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.18 2007/05/16 14:32:32 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
 #include "TROOT.h"
 #include "TInterpreter.h"
+#include "TApplication.h"
 
 // user include files
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
@@ -32,7 +32,7 @@
 // static data member definitions
 //
 
-
+bool AutoLibraryLoader::enabled_(false);
 
 //
 // constructors and destructor
@@ -49,19 +49,34 @@ AutoLibraryLoader::AutoLibraryLoader()
 void
 AutoLibraryLoader::enable()
 {
+   if (enabled_) { return; }
+   enabled_ = true;
+
    edmplugin::PluginManager::configure(edmplugin::standard::config());
    static BareRootProductGetter s_getter;
-   static edm::EDProductGetter::Operate s_op(&s_getter);
    edm::RootAutoLibraryLoader::enable();
    //this function must be called after enabling the autoloader
-   // so that the Reflex dictionaries will be converted to ROOT 
-   // dictionaries and the TClass we need will be available
+   // so that the TClass we need will be available
    fwlite::setRefStreamer(&s_getter);
    
    //Make it easy to load our headers
    TInterpreter* intrp= gROOT->GetInterpreter();
+   const char* env = getenv("CMSSW_FWLITE_INCLUDE_PATH");
+   if( 0 != env) {
+     //this is a comma separated list
+     const char* start = env;
+     const char* end;
+     do{
+       //find end
+       for(end=start; *end!=0 and *end != ':';++end);
+       std::string dir(start, end);
+       intrp->AddIncludePath(dir.c_str());
+       start = end+1;
+     }while(*end != 0);
+   }
+   
    bool foundCMSIncludes = false;
-   const char* env = getenv("CMSSW_BASE");
+   env = getenv("CMSSW_BASE");
    if( 0 != env) {
      foundCMSIncludes = true;
      std::string dir(env);
@@ -82,11 +97,10 @@ AutoLibraryLoader::enable()
      <<"  CMSSW_RELEASE_BASE\n"
      <<" therefore attempting to '#include' any CMS headers will not work"<<std::endl;
    }
-   
+   if (0 != gApplication) {
+     gApplication->InitializeGraphics();
+   }
 }
-
-
-
 
 void
 AutoLibraryLoader::loadAll()
@@ -96,5 +110,3 @@ AutoLibraryLoader::loadAll()
   edm::RootAutoLibraryLoader::loadAll();
 }
 
-
-ClassImp(AutoLibraryLoader)

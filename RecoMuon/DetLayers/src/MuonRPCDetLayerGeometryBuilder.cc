@@ -106,7 +106,7 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
 
 
 MuRingForwardDoubleLayer* 
-MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, int station,
+MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,const std::vector<int>& rings, int station,
 					   int layer,
 					   vector<int>& rolls,
 					   const RPCGeometry& geo) {
@@ -116,7 +116,7 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
   vector<const ForwardDetRing*> frontRings, backRings;
 
 
-  for (std::vector<int>::iterator ring=rings.begin(); ring<rings.end();++ring){ 
+  for (std::vector<int>::const_iterator ring=rings.begin(); ring<rings.end();++ring){ 
     for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); ++roll) {    
       vector<const GeomDet*> frontDets, backDets;
       for(int sector = RPCDetId::minSectorForwardId; sector <= RPCDetId::maxSectorForwardId; ++sector) {
@@ -342,28 +342,32 @@ MuonRPCDetLayerGeometryBuilder::makeBarrelRods(vector<const GeomDet *> & geomDet
 bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId & rpcId)
 {
   // ME1/2 is always in back
-  if(rpcId.station() == 1 && rpcId.ring() == 2)  return false;
+  //  if(rpcId.station() == 1 && rpcId.ring() == 2)  return false;
 
   bool result = false;
-  // 20 degree rings are a little weird
-  if(rpcId.ring() == 1 && rpcId.station() > 1)
+  int ring = rpcId.ring();
+  int station = rpcId.station();
+  // 20 degree rings are a little weird! not anymore from 17x
+  if(ring == 1 && station > 1)
   {
-    /* goes (sector) (subsector)
-    1 1 back
-    1 2 front
-    1 3 front
-    2 1 front
-    2 2 back
-    2 3 back
+    // RE2/1 RE3/1  Upscope Geometry
+    /* goes (sector) (subsector)            1/3
+    1 1 back   // front 
+    1 2 front  // back  
+    1 3 front  // front 
+    2 1 front  // back  
+    2 2 back   // from  
+    2 3 back   // back  
+                        
     */
-    result = (rpcId.subsector() != 1);
+    result = (rpcId.subsector() != 2);
     if(rpcId.sector()%2 == 0) result = !result;
     return result;
   }
   else
   {
     // 10 degree rings have odd subsectors in front
-    result = (rpcId.subsector()%2 == 1);
+    result = (rpcId.subsector()%2 == 0);
   }
   return result;
 }

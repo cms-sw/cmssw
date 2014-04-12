@@ -1,19 +1,24 @@
 #ifndef DataFormats_Common_RefTraits_h
 #define DataFormats_Common_RefTraits_h
 
+#include <functional>
+#include <algorithm>
+
 namespace edm {
   template<typename C, typename T, typename F> class RefVector;
   template<typename T> class RefToBaseVector;
-
+ 
   namespace refhelper {
     template<typename C, typename T>
-    struct FindUsingAdvance : public std::binary_function<C const&, typename C::size_type, T const*> {
-      typedef FindUsingAdvance<C, T> self;
-      typename self::result_type operator()(typename self::first_argument_type iContainer,
-                                            typename self::second_argument_type iIndex) {
-        typename C::const_iterator it = iContainer.begin();
-        std::advance(it, iIndex);
-        return it.operator->();
+    struct FindUsingAdvance {
+      typedef C const&              first_argument_type;
+      typedef unsigned int 	    second_argument_type;
+      typedef T const*              result_type;
+
+      result_type operator()(first_argument_type iContainer, second_argument_type iIndex) {
+	typename C::const_iterator it = iContainer.begin();
+	std::advance(it, static_cast<typename C::size_type>(iIndex));
+	return it.operator->();
       }
     };
     

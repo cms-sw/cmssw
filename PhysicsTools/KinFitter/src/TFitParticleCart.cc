@@ -15,14 +15,11 @@
 // E = Sqrt( |p|^2 + d^2*m^2 )
 //
 
-using namespace std;
-
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleCart.h"
-#include "TLorentzVector.h"
 #include "TMath.h"
 
-ClassImp(TFitParticleCart)
 
 //----------------
 // Constructor --
@@ -59,13 +56,13 @@ TFitParticleCart::TFitParticleCart(TLorentzVector* pini, const TMatrixD* theCovM
 }
 
 TFitParticleCart::TFitParticleCart(const TString &name, const TString &title, 
-			   TLorentzVector* pini, const TMatrixD* theCovMatrix)
+				   TLorentzVector* pini, const TMatrixD* theCovMatrix)
   :TAbsFitParticle(name, title)  
 {
   init(pini, theCovMatrix);
 }
 
-TAbsFitParticle* TFitParticleCart::clone( TString newname ) const {
+TAbsFitParticle* TFitParticleCart::clone( const TString& newname ) const {
   // Returns a copy of itself
 
   TAbsFitParticle* myclone = new TFitParticleCart( *this );
@@ -101,7 +98,8 @@ TLorentzVector* TFitParticleCart::calc4Vec( const TMatrixD* params ) {
   }
 
   if ( params->GetNcols() != 1 || params->GetNrows() !=_nPar ) {
-    cout << "Parameter matrix has wrong size." << endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::calc4Vec - Parameter matrix has wrong size.";
     return 0;
   }
   

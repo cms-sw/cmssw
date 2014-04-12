@@ -6,9 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
  *
- * $Id: CenterOfMassBooster.h,v 1.1 2006/03/03 10:09:18 llista Exp $
  *
  */
 #include "PhysicsTools/CandUtils/interface/Booster.h"

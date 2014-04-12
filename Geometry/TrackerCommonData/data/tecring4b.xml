@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tecring4b.xml" eval="true">
+		<Constant name="Modules" value="3"/>
+		<Constant name="DPhi" value="360*deg/[tecring4:NPhi]"/>
+		<Constant name="Phi" value="([Modules]-1)*[DPhi]"/>
+		<Constant name="Phi0" value="-[Phi]/2"/>
+		<Constant name="AngleHyb0" value="-10.000*deg"/>
+		<Constant name="AngleHyb1" value="0.000*deg"/>
+		<Constant name="AngleHyb2" value="10.000*deg"/>
+		<Constant name="Bridges" value="1"/>
+		<Constant name="PhiBridge" value="[Phi0]+[DPhi]"/>
+		<Constant name="CoolIns0" value="4404"/>
+		<Constant name="CoolIns1" value="3333"/>
+		<Constant name="CoolIns2" value="4440"/>
+	</ConstantsSection>
+	<LogicalPartSection label="tecring4b.xml">
+		<LogicalPart name="TECRing4B" category="unspecified">
+			<rSolid name="tecring4:TECRing4"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<Algorithm name="track:DDTECPhiAlgo">
+		<rParent name="tecring4b:TECRing4B"/>
+		<String name="ChildName" value="tecmodule4:TECModule4"/>
+		<Numeric name="StartAngle" value="[Phi0]"/>
+		<Numeric name="IncrAngle" value="[DPhi]"/>
+		<Numeric name="Radius" value="[tecring4:RPos]"/>
+		<Numeric name="ZIn" value="[tecring4:ModuleZ]"/>
+		<Numeric name="ZOut" value="-[tecring4:ModuleZ]"/>
+		<Numeric name="Number" value="[Modules]"/>
+		<Numeric name="StartCopyNo" value="3"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+	</Algorithm>
+	<Algorithm name="track:DDTECPhiAltAlgo">
+		<rParent name="tecring4b:TECRing4B"/>
+		<String name="ChildName" value="tecmodule4r:TECModule4Bridge"/>
+		<Numeric name="StartAngle" value="[PhiBridge]"/>
+		<Numeric name="IncrAngle" value="2*[DPhi]"/>
+		<Numeric name="Radius" value="[tecring4:BridgeR]"/>
+		<Numeric name="ZIn" value="[tecring4:BridgeZ]"/>
+		<Numeric name="ZOut" value="[tecring4:BridgeZ]"/>
+		<Numeric name="Number" value="[Bridges]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+	</Algorithm>
+</DDDefinition>

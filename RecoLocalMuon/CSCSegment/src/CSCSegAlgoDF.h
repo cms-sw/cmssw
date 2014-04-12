@@ -42,7 +42,7 @@
 #include <vector>
 
 class CSCSegAlgoPreClustering;
-class CSCSegAlgoHitPruning;
+class CSCSegAlgoShowering;
 
 class CSCSegAlgoDF : public CSCSegmentAlgorithm {
 
@@ -66,12 +66,12 @@ public:
    * Build track segments in this chamber (this is where the actual
    * segment-building algorithm hides.)
    */
-  std::vector<CSCSegment> buildSegments(ChamberHitContainer rechits);
+  std::vector<CSCSegment> buildSegments(const ChamberHitContainer& rechits);
 
   /**
    * Here we must implement the algorithm
    */
-  std::vector<CSCSegment> run(const CSCChamber* aChamber, ChamberHitContainer rechits); 
+  std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits); 
 
 private:
 
@@ -90,20 +90,40 @@ private:
    *    - if not, copy the segment, add the hit if it's within a certain range.         <BR>
    */
   void tryAddingHitsToSegment( const ChamberHitContainer& rechitsInChamber,
-                               const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
+                               const ChamberHitContainerCIt i1, 
+                               const ChamberHitContainerCIt i2,
+                               const LayerIndex& layerIndex);
 
   /**
    * Flag hits on segment as used
    */
   void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber);
+ 
+  /** 
+   * Prune bad segment from the worse hit based on residuals
+   */
+  void pruneFromResidual();
+
+
+  /** 
+   * Order the hits on the 2nd layer for seed building
+   */
+  void orderSecondSeed( GlobalPoint gp1, 
+                                  const ChamberHitContainerCIt i1,
+                                  const ChamberHitContainerCIt i2,
+	                          const ChamberHitContainer& rechits,
+                                  const LayerIndex& layerIndex );
+
 	
-  /// Utility functions 	
   bool isHitNearSegment(const CSCRecHit2D* h) const;
   bool addHit(const CSCRecHit2D* hit, int layer);
   void updateParameters(void);
   bool hasHitOnLayer(int layer) const;
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
+  CLHEP::HepMatrix derivativeMatrix(void) const;
+  AlgebraicSymMatrix weightMatrix(void) const;
   AlgebraicSymMatrix calculateError(void) const;
+  void flipErrors(AlgebraicSymMatrix&) const;
 
   // Member variables
   const std::string myName; 
@@ -113,6 +133,7 @@ private:
   ChamberHitContainer closeHits;
 
   ChamberHitContainer protoSegment;
+  ChamberHitContainer secondSeedHits;
   float       protoSlope_u;
   float       protoSlope_v;
   LocalPoint  protoIntercept;		
@@ -122,8 +143,11 @@ private:
   // input from .cfi file
   bool   debug;
   bool   preClustering;
+  int    minHitsForPreClustering;
+  bool   testSeg;
   bool   Pruning;
   int    minLayersApart;
+  int    nHitsPerClusterIsShower;
   float  nSigmaFromSegment;
   int    minHitsPerSegment;
   int    muonsPerChamberMax;
@@ -131,9 +155,11 @@ private:
   double dPhiFineMax;
   float tanPhiMax;
   float tanThetaMax;
+  float chi2Max;
+  float maxRatioResidual;
 
   CSCSegAlgoPreClustering* preCluster_;
-  CSCSegAlgoHitPruning* hitPruning_;
+  CSCSegAlgoShowering* showering_;
 
 };
 

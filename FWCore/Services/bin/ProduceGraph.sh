@@ -54,6 +54,6 @@ fi
 echo "plotting ps"
 dot -Tps -Gsize="8.5,11" -o ${fid}.ps ${fid}_dig
 
-# echo "plotting png"
-# dot -Tpng -o ${fid}.png ${fid}_dig
+echo "plotting png"
+dot -Tpng -o ${fid}.png ${fid}_dig
 

@@ -1,42 +1,20 @@
 #include "Calibration/EcalCalibAlgos/interface/Pi0FixedMassWindowCalibration.h"
 
 // System include files
-#include <memory>
 
 // Framework
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 
 // Conditions database
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/Pi0CalibXMLwriter.h"
 
-// Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-
 // Reconstruction Classes
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -44,8 +22,6 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 // EgammaCoreTools
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
@@ -98,17 +74,12 @@ Pi0FixedMassWindowCalibration::Pi0FixedMassWindowCalibration(const edm::Paramete
 
 
 
+
   // Parameters for the position calculation:
-  std::map<std::string,double> providedParameters;
-  providedParameters.insert(std::make_pair("LogWeighted",iConfig.getParameter<bool>("posCalc_logweight")));
-  providedParameters.insert(std::make_pair("T0_barl",iConfig.getParameter<double>("posCalc_t0_barl")));
-  providedParameters.insert(std::make_pair("T0_endc",iConfig.getParameter<double>("posCalc_t0_endc")));
-  providedParameters.insert(std::make_pair("T0_endcPresh",iConfig.getParameter<double>("posCalc_t0_endcPresh")));
-  providedParameters.insert(std::make_pair("W0",iConfig.getParameter<double>("posCalc_w0")));
-  providedParameters.insert(std::make_pair("X0",iConfig.getParameter<double>("posCalc_x0")));
-  posCalculator_ = PositionCalc(providedParameters);
-  //  shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
-  shapeAlgo_ = ClusterShapeAlgo(providedParameters);
+  edm::ParameterSet posCalcParameters = 
+    iConfig.getParameter<edm::ParameterSet>("posCalcParameters");
+  posCalculator_ = PositionCalc(posCalcParameters); 
+  shapeAlgo_ = ClusterShapeAlgo(posCalcParameters);
   clustershapecollectionEB_ = iConfig.getParameter<std::string>("clustershapecollectionEB");
 
   //AssociationMap
@@ -133,61 +104,14 @@ Pi0FixedMassWindowCalibration::~Pi0FixedMassWindowCalibration()
 //_____________________________________________________________________________
 // Initialize algorithm
 
-void Pi0FixedMassWindowCalibration::beginOfJob( const edm::EventSetup& iSetup )
+void Pi0FixedMassWindowCalibration::beginOfJob( )
 {
 
-  std::cout << "[Pi0FixedMassWindowCalibration] beginOfJob "<<std::endl;
+  //std::cout << "[Pi0FixedMassWindowCalibration] beginOfJob "<<std::endl;
 
-  // initialize arrays
-
-  for (int sign=0; sign<2; sign++) {
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
-	oldCalibs_barl[ieta][iphi][sign]=0.;
-	newCalibs_barl[ieta][iphi][sign]=0.;
-	wxtals[ieta][iphi][sign]=0.;
-	mwxtals[ieta][iphi][sign]=0.;
-      }
-    }
-  }
-
-  // get initial constants out of DB
-
-  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  EcalIntercalibConstants::EcalIntercalibConstantMap imap;
-
-  try {
-    iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-    std::cout << "Taken EcalIntercalibConstants" << std::endl;
-    imap = pIcal.product()->getMap();
-    std::cout << "imap.size() = " << imap.size() << std::endl;
-  } catch ( std::exception& ex ) {     
-    std::cerr << "Error! can't get EcalIntercalibConstants " << std::endl;
-  } 
-
-  // get the ecal geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
-  //const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-
-  // loop over all barrel crystals
-  barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
-  std::vector<DetId>::const_iterator barrelIt;
-  for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end(); barrelIt++) {
-    EBDetId eb(*barrelIt);
-
-    // get the initial calibration constants
-    EcalIntercalibConstants::EcalIntercalibConstant calib = (imap.find(eb.rawId()))->second;
-    int sign = eb.zside()>0 ? 1 : 0;
-    oldCalibs_barl[abs(eb.ieta())-1][eb.iphi()-1][sign] = calib;
-    if (eb.iphi()==1) std::cout << "Read old constant for crystal "
-                           << " (" << eb.ieta() << "," << eb.iphi()
-                           << ") : " << calib << std::endl;
-
-
-
-  }
+  isfirstcall_=true;
+  
+ 
 
 }
 
@@ -297,6 +221,69 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   using namespace edm;
   using namespace std;
 
+  // this chunk used to belong to beginJob(isetup). Moved here
+  // with the beginJob without arguments migration
+  
+  if (isfirstcall_){
+   // initialize arrays
+
+    for (int sign=0; sign<2; sign++) {
+      for (int ieta=0; ieta<85; ieta++) {
+	for (int iphi=0; iphi<360; iphi++) {
+	  oldCalibs_barl[ieta][iphi][sign]=0.;
+	  newCalibs_barl[ieta][iphi][sign]=0.;
+	  wxtals[ieta][iphi][sign]=0.;
+	  mwxtals[ieta][iphi][sign]=0.;
+	}
+      }
+    }
+    
+    // get initial constants out of DB
+    
+    edm::ESHandle<EcalIntercalibConstants> pIcal;
+    EcalIntercalibConstantMap imap;
+    
+    try {
+      setup.get<EcalIntercalibConstantsRcd>().get(pIcal);
+      std::cout << "Taken EcalIntercalibConstants" << std::endl;
+      imap = pIcal.product()->getMap();
+      std::cout << "imap.size() = " << imap.size() << std::endl;
+    } catch ( std::exception& ex ) {     
+      std::cerr << "Error! can't get EcalIntercalibConstants " << std::endl;
+    } 
+    
+    // get the ecal geometry:
+    edm::ESHandle<CaloGeometry> geoHandle;
+    setup.get<CaloGeometryRecord>().get(geoHandle);
+    const CaloGeometry& geometry = *geoHandle;
+    //const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    
+    // loop over all barrel crystals
+    barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
+    std::vector<DetId>::const_iterator barrelIt;
+    for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end(); barrelIt++) {
+      EBDetId eb(*barrelIt);
+      
+      // get the initial calibration constants
+      EcalIntercalibConstantMap::const_iterator itcalib = imap.find(eb.rawId());
+      if ( itcalib == imap.end() ) {
+	// FIXME -- throw error
+      }
+      EcalIntercalibConstant calib = (*itcalib);
+      int sign = eb.zside()>0 ? 1 : 0;
+      oldCalibs_barl[abs(eb.ieta())-1][eb.iphi()-1][sign] = calib;
+      if (eb.iphi()==1) std::cout << "Read old constant for crystal "
+				  << " (" << eb.ieta() << "," << eb.iphi()
+				  << ") : " << calib << std::endl;
+      
+      
+      
+    }
+    isfirstcall_=false;
+  }
+  
+
+
   nevent++;
 
   if ((nevent<100 && nevent%10==0) 
@@ -353,7 +340,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;
-  setup.get<IdealGeometryRecord>().get(geoHandle);
+  setup.get<CaloGeometryRecord>().get(geoHandle);
 
   const CaloSubdetectorGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
@@ -420,8 +407,6 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   float etIslandBCEB[MAXBCEB];
   float etaIslandBCEB[MAXBCEB];
   float phiIslandBCEB[MAXBCEB];
-  int ietaIslandBCEB[MAXBCEB];
-  int iphiIslandBCEB[MAXBCEB];
   float e2x2IslandBCEB[MAXBCEB];
   float e3x3IslandBCEB[MAXBCEB];
   float e5x5IslandBCEB[MAXBCEB];
@@ -440,8 +425,6 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
     etIslandBCEB[i] = 0;
     etaIslandBCEB[i] = 0;
     phiIslandBCEB[i] = 0;
-    ietaIslandBCEB[i] = 0;
-    iphiIslandBCEB[i] = 0;
     e2x2IslandBCEB[i] = 0;
     e3x3IslandBCEB[i] = 0;
     e5x5IslandBCEB[i] = 0;
@@ -458,7 +441,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
 
   int iClus_recalib=0;
   for(reco::BasicClusterCollection::const_iterator aClus = clusters_recalib.begin(); aClus != clusters_recalib.end(); aClus++) {
-    cout<<" CLUSTER [recalibration] : #,NHits,e,et,eta,phi,e2x2,e3x3,e5x5: "<<iClus_recalib<<" "<<aClus->getHitsByDetId().size()<<" "<<aClus->energy()<<" "<<aClus->energy()*sin(aClus->position().theta())<<" "<<aClus->position().eta()<<" "<<aClus->position().phi()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e2x2()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e3x3()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e5x5()<<endl; 
+    cout<<" CLUSTER [recalibration] : #,NHits,e,et,eta,phi,e2x2,e3x3,e5x5: "<<iClus_recalib<<" "<<aClus->size()<<" "<<aClus->energy()<<" "<<aClus->energy()*sin(aClus->position().theta())<<" "<<aClus->position().eta()<<" "<<aClus->position().phi()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e2x2()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e3x3()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e5x5()<<endl; 
 
     eIslandBCEB[nIslandBCEB] = aClus->energy();
     etIslandBCEB[nIslandBCEB] = aClus->energy()*sin(aClus->position().theta());
@@ -469,17 +452,17 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
     e3x3IslandBCEB[nIslandBCEB] = (*clustersshapes_p_recalib)[nIslandBCEB].e3x3();    
     e5x5IslandBCEB[nIslandBCEB] = (*clustersshapes_p_recalib)[nIslandBCEB].e5x5();    
 
-    nIslandBCEBRecHits[nIslandBCEB] = aClus->getHitsByDetId().size();
+    nIslandBCEBRecHits[nIslandBCEB] = aClus->size();
 
-    std::vector<DetId> hits = aClus->getHitsByDetId();
-    std::vector<DetId>::iterator hit;
+    std::vector<std::pair< DetId,float> > hits = aClus->hitsAndFractions();
+    std::vector<std::pair< DetId,float> >::iterator hit;
     std::map<DetId, EcalRecHit>::iterator aHit;
 
     int irhcount=0;
     for(hit = hits.begin(); hit != hits.end(); hit++)
       {
         // need to get hit by DetID in order to get energy
-        aHit = recHitsEB_map->find(*hit);
+        aHit = recHitsEB_map->find((*hit).first);
         //cout << "       RecHit #: "<<irhcount<<" from Basic Cluster with Energy: "<<aHit->second.energy()<<endl; 
 
         EBDetId sel_rh = aHit->second.detid();

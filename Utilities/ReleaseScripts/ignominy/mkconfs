@@ -1,0 +1,290 @@
+#!/bin/sh
+
+conf=$UTILSDIR/path-$1.conf
+sconf=$DEPDIR/path-auto.conf
+
+rm -fr $DEPDIR
+mkdir -p $DEPDIR
+
+exec >> $sconf
+# Nag_C must come first, otherwise we'll mistake `Nag' include
+# directory with the one in the LHC++ generic include directory and
+# will be unable to locate Nag_C headers.
+(cd $DIST; scram tool list | grep "^ *nag_c "; \
+ scram tool list | grep -v "^ *nag_c" | grep -v '^ *$' | grep -v 'Tool list for' | grep -v '\+\+\+\+' ) |
+while read name version rest; do
+  tooldoc=`cd $DIST; scram tool info $name|grep '^Docfile : '| \
+	   sed 's/.*module=//;s/\&.*//;'`
+  toolname=`echo $tooldoc | sed 's|.*/||'`
+  tooltype=`echo $tooldoc | sed 's|^SCRAMToolBox/||; s|/.*||; s|LHCxx|LHC++|g'`
+
+  # try to work around old versions of scram
+  if [ x"$tooltype" = x"$toolname" ]; then
+    case $toolname in
+      GEMINI*      ) tooltype=LHC++ toolname=Gemini ;;
+      NAG_C        ) tooltype=LHC++ ;;
+      Objectivity  ) tooltype=LHC++ toolname=Objectivity ;;
+      ObjectSpace* ) tooltype=LHC++ toolname=ObjectSpace ;;
+      cern_*       ) tooltype=CERNLIB toolname=cern ;;
+      OpenInventor ) tooltype=LHC++ ;;
+      OpenGL       ) tooltype=System ;;
+      Qt           ) tooltype=LHC++ ;;
+      X11          ) tooltype=System ;;
+      *            ) tooltype=Unknown ;;
+    esac
+  fi
+
+  [ "$toolname" = NAG_C     ] && toolname=Nag_C
+  [ "$toolname" = NTupleTag ] && toolname=NtupleTag
+  [ "$toolname" = QPlotter  ] && toolname=Qplotter
+
+  mapname=$toolname
+  [ "$toolname" = T_HTL     ] && mapname=HTL
+  [ "$toolname" = FML_nag   ] && mapname=FML
+  [ "$toolname" = FML_minuit ] && mapname=FML
+
+  mapfullname="$tooltype/$mapname"
+  [ "$tooltype" = CompilerTools ] && mapfullname="<Compiler>"
+
+  echo "# $tooltype/$toolname"
+  libdir=`cd $DIST; scram tool info $name | grep '^LIBDIR=' | sed 's/^[^=]*=//;'`
+  if [ -n "$libdir" ]; then
+    for l in `cd $DIST; scram tool info $name | grep '^lib=' | sed 's/^lib=//'`; do
+      echo "scan libs $libdir/lib$l.so"
+      echo "scan libs $libdir/lib$l.a"
+      # FIXME: misses LHC++ copied libraries
+      #   echo "match /lib$l.so:'$tooltype/$toolname'"
+      echo "match /lib$l\\.:'$mapfullname'"
+    done
+  fi
+
+  # Add compiler's include and lib directories
+  case $tooltype/$toolname in
+    */gcc* )
+      # SCRAM's got a crappy habit of listing all tools in mixed architectures,
+      # and then misreporting compilers if we are not actually using them on this
+      # architecture, so filter out a compiler we are not actually using.  Usually
+      # it has some random garbage path on the wrong architecture.
+      cxx=`cd $DIST; scram tool tag $name CXX`
+      test -f "$cxx" -a -x "$cxx" || continue
+
+      root=`echo $cxx | sed 's|/bin/[^/]*$||'`
+      dir=`$cxx -v 2>&1 | grep /specs | sed 's/.* //; s|/specs||'`
+      v=`$cxx -dumpversion`
+      for n in stdc++ g2c gcc_s supc++; do 
+	echo "match ^$root/lib/lib`echo $n | tr -d +`:'<Compiler>'"
+	echo "match ^/usr/(local/|)lib/lib`echo $n | tr -d +`:'<Compiler>'"
+        for f in $root/lib/lib$n*; do [ -f $f ] && echo "scan libs $f"; done
+        for f in $dir/lib$n*; do [ -f $f ] && echo "scan libs $f"; done
+      done
+
+      echo "search include .*:(.*):\"$dir/include/\$1\"" # 2.x
+      echo "search include .*:(.*):\"$root/include/c++/$v/\$1\"" # 3.x
+      echo "search include .*:(.*):\"$root/include/c++/$v/backward/\$1\"" # 3.x
+      echo "search include .*:(.*):\"$root/include/c++/$v/ext/\$1\"" # 3.x
+      echo "search include .*:(.*):\"$root/include/g++/\$1\"" # 2.x
+
+      echo 'match '$dir'/:"<Compiler>"'
+      echo 'match '$root'/include/c\+\+/:"<Compiler>"'
+      echo 'match '$root'/include/g\+\+/:"<Compiler>"'
+
+      echo 'symbol ignore . ^MAIN__$'
+      echo 'symbol ignore . ^_GLOBAL_OFFSET_TABLE_$'
+
+      case $v in
+	2.* )
+	  echo 'symbol ignore . ^__builtin'
+	  echo 'symbol ignore . ^__pure_virtual'
+	  echo 'symbol ignore . ^__u(div|mod)di'
+
+	  echo 'symbol ignore . ^__eh_'
+	  echo 'symbol ignore . ^__gmon_'
+	  echo 'symbol ignore . ^__libc_'
+	  echo 'symbol ignore . ^_IO_'
+
+	  echo 'symbol ignore . ^__ti'
+	  echo 'symbol ignore . ^__tft?\d'
+	  echo 'symbol ignore . ^__vt_'
+
+	  echo 'symbol ignore . ^_\._9bad_alloc$'
+	  ;;
+	3.* )
+	  echo 'symbol ignore . ^__pure_virtual' # FIXME: Temporary to disambiguate 2.95 CLHEP/GEANT4
+	  echo 'symbol ignore . ^__dso_handle$'
+
+	  echo 'symbol ignore . ^_ZTI'
+	  echo 'symbol ignore . ^_ZTV'
+	  echo 'symbol ignore . ^_ZTT'
+
+          echo 'symbol ignore . ^_ZNSs4_Rep11_S_terminalE$'
+          echo 'symbol ignore . ^_ZNSs4_Rep11_S_max_sizeE$'
+          echo 'symbol ignore . ^_ZNSt24__default_alloc_templateILb1ELi0EE22_S_node_allocator_lockE$'
+	  ;;
+      esac
+      ;;
+      
+    */SunCC )
+      cxx=`cd $DIST; scram tool tag $name CXX`
+      root=`echo $cxx | sed 's|/bin/[^/]*$||'`
+      v=WS6U1; [ -d $root/$v ] || v=WS6U2
+      echo "scan libs $root/lib"
+      echo "search include .*:(.*):\"$root/$v/include/CC/Cstd/\$1\""
+      echo "search include .*:(.*):\"$root/$v/include/CC/std/\$1\""
+      echo "search include .*:(.*):\"$root/$v/include/CC/\$1\""
+      echo "search include .*:(.*):\"$root/$v/include/cc/\$1\""
+
+      echo "match $root/lib/:'<Compiler>'"
+      echo "match $root/$v/include/CC/:'<Compiler>'"
+      echo "match $root/$v/include/cc/:'<Compiler>'"
+
+      echo "# ignore compiler builtins that may have been pulled into shared libs"
+      echo "# or just may be missing for a random reason (e.g. compiler generated),"
+      echo "# or may be duplicated safely (e.g. virtual function tables, template"
+      echo "# instantiations)"
+      echo "symbol ignore . __vtbl\$"
+      echo "symbol ignore . ^__0[FO]"
+      echo "symbol ignore . ^__0[fo].(vector|allocator|basic_string|os_[a-z_]+)"
+      echo "symbol ignore . ^__0[fo].(opiVArray|[HT]_([A-Z]|2D_)[A-Za-z_]+)"
+      echo "symbol ignore . ^__0[fo].((Even|Uneven)_Partition)"
+      echo "symbol ignore . ^__rtbany\$"
+      echo "symbol ignore . ^__rtu__"
+      echo "symbol ignore . ^\.[a-z]"
+      echo "symbol ignore . ^__copyright\$"
+      ;;
+  esac
+
+  for incdir in `cd $DIST; scram tool info $name | grep '^INCLUDE=' | sed 's/^INCLUDE=//;'`; do
+    case $tooltype/$toolname in
+      LHC++/T_HTL ) ;;
+      */Sockets ) ;;
+
+      */OSCAR | */COBRA | */IGUANA )
+        echo "search include .*:(.*):\"$incdir/\$1\""
+        echo "match ^$incdir/([^/]+)/([^/]+)/:\"$toolname/\$1/\$2\""
+	# Don't trust `Version', it may not be right in pre-releases
+	base=`cd $DIST; scram tool info $name | grep '_BASE=' | sed 's/.*=//;'`
+	v=`echo $base | sed 's|.*/||; s/^[^_]*_//;'`
+	if [ -f $base/doc/deps/$1/log.gz ]; then
+	  echo "scan libs $libdir"
+	  gzip -d -c < $base/doc/deps/$1/log.gz | \
+	    grep "match.*$toolname.*/lib" | \
+	    grep -v 'UNKNOWN' | sed "s|:'|:'$toolname/|"
+	  grep "match /lib/.*cmodule\.so\$:.*" < $base/doc/deps/$1/path-auto.conf
+	fi
+	;;
+
+      */X11 )
+	echo "match ^/usr/openwin/:'System/X11'"
+	echo "match ^/usr/X11R6/:'System/X11'"
+	echo "match ^/usr/local/lib/libXpm\.:'System/X11'" ;;
+
+      CERNLIB/* | */cmsim | */Python | */zlib | \
+      LHC++/Nag_C | */OpenGL | */OpenInventor | */Qt | \
+      */Xerces | */CenterPoint-XML | */TGSInventor | */Coin3D | \
+      */Boost* )
+        # echo "search include .*:(.*):\"$incdir/\$1\""
+        # echo "match ^$incdir/:'$mapfullname'" ;;
+        echo "search include .*:(.*):\"$incdir/\$1\""
+	echo "match ^$incdir/:\"$mapfullname\"" ;;
+
+      LHC++/Objectivity )
+        # Avoid searching Objectivity, its `limits.h' confuses the
+        # analysis.  The search directive below will not affect
+        # compiled packages, they will still know if they included
+        # something from Objectivity (via make dependency info).  The
+        # directive is used only for LHC++ packages where we scan only
+        # the source.
+        echo "search include (HepODBMS|HTL):(.*):\"$incdir/\$1\""
+        echo "search include .*:^(oo.*\.h)$:\"$incdir/\$1\""
+        echo "match ^$incdir/:'$mapfullname'" ;;
+
+      LHC++/ObjectSpace )
+        echo "search include .*:(ospace/.*):\"$incdir/\$1\""
+        echo "search include LHC\+\+:(.*):\"$incdir/\$1\""
+        echo "match ^$incdir/:'$mapfullname'" ;;
+
+      LHC++/FML_* )
+        echo "scan src /afs/cern.ch/sw/lhcxx/share/$mapname/$version"
+        echo "match ^/afs/cern.ch/sw/lhcxx/share/$mapname/:'$mapfullname'"
+        echo "search include .*:(.*):\"$incdir/\$1\""
+	case $incdir in */$mapname | */$mapname/* )
+	  echo "match ^$incdir/:'$mapfullname'" ;;
+	esac
+        echo "match ^$incdir/$mapname/:'$mapfullname'" ;;
+
+      LHC++/GEANT4 )
+	src=`cd $DIST; scram tool info $name | grep 'G4SRC=' | sed 's/.*=//;'`
+	# echo "scan src $src"
+	echo "search include .*:(.*):\"$incdir/\$1\""
+	echo "match ^$incdir/:'$mapfullname'" ;;
+
+      LHC++/* )
+	# FIXME: Lizard needs this but COBRA doesn't use it?
+	echo "match /include/VectorOfPoints/:'LHC++/VectorOfPoints'"
+        echo "scan src /afs/cern.ch/sw/lhcxx/share/$toolname/$version"
+        echo "match ^/afs/cern.ch/sw/lhcxx/share/$toolname/:'$mapfullname'"
+        echo "search include .*:(.*):\"$incdir/\$1\""
+	case $incdir in */$toolname | */$toolname/* )
+	  echo "match ^$incdir/:'$mapfullname'" ;;
+	esac
+        echo "match ^$incdir/$toolname/:'$mapfullname'" ;;
+    esac
+  done
+done
+
+echo "# Python modules"
+find $DIST/src -name \*_wrap.c | \
+while read file; do
+  pkg=`echo $file | sed "s%^$DIST/src/%%; s%/python/.*%%"`
+  mod=`echo $file | sed 's%.*/%%; s%_wrap.c%cmodule.so%'`
+  echo "match /lib/[^/]+/$mod\$:'$pkg'"
+done
+
+echo "# Programs"
+find $DIST/src -name BuildFile | \
+while read file; do
+  if grep -i '<bin.*name=' $file >/dev/null; then
+    bins="`grep -i '<bin' $file | sed 's/.*<bin //; s/.*name=//; s/ .*//;'`"
+  else
+    bins="`grep -i '<bin' $file | sed 's/.*<bin //; s/.*file=//; s/\.c.*//;'`"
+  fi
+  for bin in $bins; do
+    pkg=`echo $file | sed "s%^$DIST/src/%%; s%/\(test\|applications\)/.*%%; s%/BuildFile\$%%"`
+    echo "match /bin/[^/]+(/[^/]+)?/$bin\$:'$pkg'"
+  done
+done
+
+echo "# SCRAM defaults"
+echo 'option define package            -d "$dir/$file/.admin"'
+echo 'option define package-type       grep(m|^\Q$path/|, keys %packages) ? "subsystem" : "leaf"'
+echo 'option define package-match-rule "^(\Q$root/\E)?((\\.)?\\/)?\Q@{[&concat_path($src_root, $fullname)]}/\E"'
+echo 'option define package-match-rule "^\Q@{[&concat_path($incdir, $src_root, $fullname)]}/\E"'
+echo 'option define package-match-rule "^\Q@{[&concat_path($root, $build_root, $fullname)]}/\E"'
+echo 'option define package-match-rule "^\Q@{[&concat_path($bindir, $name)]}\E\$"'
+echo 'option define package-match-rule "^\Q$bindir/\E(example|test)_\Q$name\E(_[^/]+)?\$"'
+echo 'option define package-match-rule "^\Q@{[&concat_path($libdir, '\''lib'\''.$name)]}\E(_[a-z_]+)?\.(so|a)"'
+echo 'option define package-build-dir  &concat_path($root, $build_root, $name, $relative)'
+
+echo 'search include .*:(.*):"$incdir/src/$1"'
+echo 'search include .*:(.*):"$root/src/$name/interface/$1"'
+echo 'search include .*:(.*):"$root/src/$name/include/$1"'
+echo 'search include .*:(.*):"$root/src/$1"'
+echo 'search include .*:(.*):"/usr/include/$1"'
+echo 'search include .*:(.*):"/usr/local/include/$1"'
+echo 'search include .*:^(/.*):"$1"' >> $sconf
+
+echo '# don'\''t allow standard headers from object space to confuse search'
+echo 'reject include ^(algorithm|bitset|deque|exception|[a-z]*stream[a-z]*|functional)$'
+echo 'reject include ^(io[a-z]+|iterator|limits|list|map|memory|new|numeric|queue|set|stack)$'
+echo 'reject include ^(stdexcept|string|typeinfo|utility|vector)$'
+echo 'reject include ^c[a-z]+$'
+
+echo 'match /include/Xm/:"System/Motif"'
+echo 'match /lib/libXm\.:"System/Motif"'
+echo 'match ^/usr/local/(lib|include)/([^/]+):"ASIS/$2"'
+echo 'match ^/usr/(lib|include)/:"<OS>"'
+echo 'match ^/lib/:"<OS>"'
+
+echo 'output ignore package ^<Compiler>$'
+echo 'output ignore package ^<OS>$'
+echo 'output ignore binary ^/usr/'

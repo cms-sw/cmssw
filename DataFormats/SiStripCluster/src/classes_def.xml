@@ -1,26 +1,26 @@
 <lcgdict>
 
- <class name="SiStripCluster"/>
+ <class name="SiStripCluster" ClassVersion="11">
+  <version ClassVersion="11" checksum="3702468681"/>
+  <version ClassVersion="10" checksum="3791198690"/>
+  <field name="error_x" transient="true"/>
+ </class>
  <class name="std::vector<SiStripCluster>"/>
- <class name="std::pair<unsigned int, unsigned int>"/>
- <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
- <class name="SiStripClusterCollection"/>
- <class name="edm::Wrapper<SiStripClusterCollection>" id="C4D8A21B-7FB4-C5CC-EC4C-3DF86655814C"/>
 
- <class name="edm::DetSet<SiStripCluster>"/>
- <class name="edm::DetSetVector<SiStripCluster>"/>
- <class name="std::vector<edm::DetSet<SiStripCluster> >"/>
- <class name="std::vector< std::vector < edm::DetSet<SiStripCluster> > >"/>
- <class name="edm::Wrapper< edm::DetSet<SiStripCluster> >"/>
- <class name="edm::Wrapper< std::vector<edm::DetSet<SiStripCluster> > >"/>
- <class name="edm::Wrapper< edm::DetSetVector<SiStripCluster> >"/>
- <class name="edm::Wrapper< std::vector< std::vector < edm::DetSet<SiStripCluster> > > >"/>
+ <class name="edmNew::DetSetVector<SiStripCluster>"/>
 
- <class pattern="__gnu_cxx::__normal_iterator<*>"/>
- <class pattern="edm::SiStripRefGetter<*>"/>
- <class pattern="edm::SiStripLazyGetter<*>"> <field name="unpacker_" transient="true"/> </class>
- <class pattern="edm::Ref<*>"/>
- <class pattern="std::vector<edm::Ref*>"/>
- <class pattern="edm::Wrapper<*>"/>
+ <class name="edm::Wrapper< edmNew::DetSetVector<SiStripCluster> >"/>
+
+ <class name="edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster, edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector>"/>
+
+
+ <class name="edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> >"/>
+ <class name="edm::Wrapper<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >"/>
+
+
+ <class name="std::vector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> >" />
+ <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> >" />
+ <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > >" />
+
 
 </lcgdict>

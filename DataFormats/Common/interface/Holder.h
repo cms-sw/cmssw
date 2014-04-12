@@ -1,7 +1,10 @@
+
 #ifndef DataFormats_Common_Holder_h
 #define DataFormats_Common_Holder_h
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolder.h"
+#include <memory>
 
 namespace edm {
   namespace reftobase {
@@ -33,6 +36,17 @@ namespace edm {
 	return std::auto_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
       }
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
+      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const;
+      virtual EDProductGetter const* productGetter() const;
+      virtual bool hasProductCache() const;
+      virtual void const * product() const;
+
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const { return ref_.isAvailable(); }
+
+      //Used by ROOT storage
+      CMS_CLASS_VERSION(10)
 
     private:
       REF ref_;
@@ -44,19 +58,19 @@ namespace edm {
 
     template <class T, class REF>
     inline
-    Holder<T,REF>::Holder() : 
+    Holder<T,REF>::Holder() : BaseHolder<T>(),
       ref_()
     {  }
 
     template <class T, class REF>
     inline
-    Holder<T,REF>::Holder(Holder const& other) :
+    Holder<T,REF>::Holder(Holder const& other) : BaseHolder<T>(other),
       ref_(other.ref_)
     { }
 
     template <class T, class REF>
     inline
-    Holder<T,REF>::Holder(REF const& r) :
+    Holder<T,REF>::Holder(REF const& r) : BaseHolder<T>(),
       ref_(r)
     { }
 
@@ -127,6 +141,24 @@ namespace edm {
     }
 
     template <class T, class REF>
+    inline
+    EDProductGetter const* Holder<T,REF>::productGetter() const {
+      return ref_.productGetter();
+    }
+
+    template <class T, class REF>
+    inline
+    bool Holder<T,REF>::hasProductCache() const {
+      return ref_.hasProductCache();
+    }
+
+    template <class T, class REF>
+    inline
+    void const * Holder<T,REF>::product() const {
+      return ref_.product();
+    }
+
+    template <class T, class REF>
     bool
     Holder<T,REF>::fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const
@@ -146,6 +178,7 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/HolderToVectorTrait.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 namespace edm {
   namespace reftobase {
@@ -154,6 +187,12 @@ namespace edm {
     std::auto_ptr<BaseVectorHolder<T> > Holder<T,REF>::makeVectorHolder() const {
       typedef typename HolderToVectorTrait<T, REF>::type helper;
       return helper::makeVectorHolder();
+    }
+
+    template <typename T, typename REF>
+    std::auto_ptr<RefVectorHolderBase> Holder<T,REF>::makeVectorBaseHolder() const {
+      typedef typename HolderToVectorTrait<T, REF>::type helper;
+      return helper::makeVectorBaseHolder();
     }
 
   }

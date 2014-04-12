@@ -1,0 +1,4 @@
+<bin   file="TrajectorySeed_t.cpp">
+  <use   name="DataFormats/TrajectorySeed"/>
+  <use   name="DataFormats/TrackerRecHit2D"/>
+</bin>

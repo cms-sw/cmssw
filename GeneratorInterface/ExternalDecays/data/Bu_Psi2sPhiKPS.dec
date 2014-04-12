@@ -1,0 +1,19 @@
+Alias myB+ B+
+Alias myB- B-
+
+Decay myB+
+0.00009   psi(2S)   phi     K+    PHSP;
+Enddecay
+Decay myB-
+0.00009    psi(2S)   phi    K-    PHSP;
+Enddecay
+#
+Decay  psi(2S)
+0.0588    mu+  mu-               PHOTOS  VLL;
+Enddecay
+#
+Decay phi
+0.4910   K+   K-         VSS;
+Enddecay
+#
+End

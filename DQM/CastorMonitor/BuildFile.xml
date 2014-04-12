@@ -1,0 +1,16 @@
+<flags   EDM_PLUGIN="1"/>
+<use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/HcalRecHit"/>
+<use   name="DataFormats/HcalDigi"/>
+<use   name="CondFormats/CastorObjects"/>
+<use   name="CalibFormats/CastorObjects"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="EventFilter/CastorRawToDigi"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="DQMServices/Core"/>
+<use   name="DQMServices/Components"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="rootmath"/>

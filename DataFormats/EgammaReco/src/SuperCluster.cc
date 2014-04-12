@@ -1,48 +1,90 @@
-// $Id: SuperCluster.cc,v 1.9 2007/07/31 15:20:04 ratnik Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include <algorithm>
 using namespace reco;
 
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
-  EcalCluster( energy, position ), rawEnergy_(-1.) {
+  CaloCluster( energy, position ), preshowerEnergy_(0), rawEnergy_(0), phiWidth_(0), etaWidth_(0), preshowerEnergy1_(0), preshowerEnergy2_(0) {
 }
 
-SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
-                            const BasicClusterRef & seed,
-                            const BasicClusterRefVector& clusters,
-			    double Epreshower) :
-  EcalCluster(energy,position), rawEnergy_(-1.)
-{
 
+
+SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
+                            const CaloClusterPtr & seed,
+                            const CaloClusterPtrVector& clusters,
+			    double Epreshower, double phiWidth, double etaWidth, double Epreshower1, double Epreshower2) :
+  CaloCluster(energy,position), rawEnergy_(0)
+{
+  phiWidth_ = phiWidth;
+  etaWidth_ = etaWidth;
   seed_ = seed;
   preshowerEnergy_ = Epreshower;
+  preshowerEnergy1_ = Epreshower1;
+  preshowerEnergy2_ = Epreshower2;
 
   // set references to constituent basic clusters and update list of rechits
-  for(BasicClusterRefVector::const_iterator bcit  = clusters.begin();
+  for(CaloClusterPtrVector::const_iterator bcit  = clusters.begin();
                                             bcit != clusters.end();
                                           ++bcit) {
     clusters_.push_back( (*bcit) );
 
     // updated list of used hits
-    const std::vector<DetId> & v1 = (*bcit)->getHitsByDetId();
-    for( std::vector<DetId>::const_iterator diIt = v1.begin();
+    const std::vector< std::pair<DetId, float> > & v1 = (*bcit)->hitsAndFractions();
+    for( std::vector< std::pair<DetId, float> >::const_iterator diIt = v1.begin();
                                             diIt != v1.end();
                                            ++diIt ) {
-      usedHits_.push_back( (*diIt) );
+      hitsAndFractions_.push_back( (*diIt) );
+    } // loop over rechits
+  } // loop over basic clusters
+  
+  computeRawEnergy();
+}
+
+
+
+SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
+                            const CaloClusterPtr & seed,
+                            const CaloClusterPtrVector& clusters,
+                            const CaloClusterPtrVector& preshowerClusters,
+			    double Epreshower, double phiWidth, double etaWidth, double Epreshower1, double Epreshower2) :
+  CaloCluster(energy,position), rawEnergy_(-1.)
+{
+  phiWidth_ = phiWidth;
+  etaWidth_ = etaWidth;
+  seed_ = seed;
+  preshowerEnergy_ = Epreshower;
+  preshowerEnergy1_ = Epreshower1;
+  preshowerEnergy2_ = Epreshower2;
+
+  // set references to constituent basic clusters and update list of rechits
+  for(CaloClusterPtrVector::const_iterator bcit  = clusters.begin();
+                                            bcit != clusters.end();
+                                          ++bcit) {
+    clusters_.push_back( (*bcit) );
+
+    // updated list of used hits
+    const std::vector< std::pair<DetId, float> > & v1 = (*bcit)->hitsAndFractions();
+    for( std::vector< std::pair<DetId, float> >::const_iterator diIt = v1.begin();
+                                            diIt != v1.end();
+                                           ++diIt ) {
+      hitsAndFractions_.push_back( (*diIt) );
     } // loop over rechits
   } // loop over basic clusters
 
+  // set references to preshower clusters
+  for(CaloClusterPtrVector::const_iterator pcit  = preshowerClusters.begin();
+                                            pcit != preshowerClusters.end();
+                                          ++pcit) {
+    preshowerClusters_.push_back( (*pcit) );
+  }
+  computeRawEnergy();
 }
 
-double SuperCluster::rawEnergy() const
-{
-  if (rawEnergy_<0) {
-    rawEnergy_ = 0.;
-    reco::basicCluster_iterator bcItr;
-    for(bcItr = clustersBegin(); bcItr != clustersEnd(); bcItr++)
-      {
-	rawEnergy_ += (*bcItr)->energy();
-      }
+void SuperCluster::computeRawEnergy() {
+
+  rawEnergy_ = 0.;
+  for(CaloClusterPtrVector::const_iterator bcItr = clustersBegin(); 
+      bcItr != clustersEnd(); bcItr++){
+      rawEnergy_ += (*bcItr)->energy();
   }
-  return rawEnergy_;
 }

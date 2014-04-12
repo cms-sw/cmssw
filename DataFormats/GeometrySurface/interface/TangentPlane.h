@@ -7,19 +7,6 @@
  *  To be constructed by the "parent" surface.
  */
 
-class TangentPlane : public Plane {
-public:
-  TangentPlane (const PositionType& pos, 
-		const RotationType& rot, 
-		const Surface* parent) :
-    Surface(pos,rot), Plane(pos,rot),
-    theParent(parent) {}
+using TangentPlane = Plane;
 
-  /// access to original surface
-  const Surface& parentSurface() {return *theParent;}
-
-private:
-  ConstReferenceCountingPointer<Surface> theParent;
-
-};
 #endif

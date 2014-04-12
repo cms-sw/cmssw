@@ -4,7 +4,7 @@
 
 //#include "G4StepPoint.hh"
 
-using namespace std;
+
 #include<vector>
 
 class AmplitudeSegmentFP420 {

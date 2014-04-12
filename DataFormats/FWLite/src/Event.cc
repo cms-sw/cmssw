@@ -2,18 +2,16 @@
 //
 // Package:     FWLite
 // Class  :     Event
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.6 2007/06/28 23:32:47 wmtan Exp $
 //
 
 // system include files
 #include <iostream>
-#include "Reflex/Type.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
@@ -21,15 +19,25 @@
 #include "TTree.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
+#include "DataFormats/FWLite/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
+#include "DataFormats/FWLite/interface/EventHistoryGetter.h"
+#include "DataFormats/FWLite/interface/RunFactory.h"
 
 //used for backwards compatability
 #include "DataFormats/Provenance/interface/EventAux.h"
@@ -37,106 +45,113 @@
 //
 // constants, enums and typedefs
 //
+namespace {
+  struct NoDelete {
+    void operator()(void*){}
+  };
+}
+
 namespace fwlite {
 //
 // static data member definitions
 //
-  namespace internal {
-    const char* const DataKey::kEmpty="";
-    
-    class ProductGetter : public edm::EDProductGetter {
-public:
-      ProductGetter(Event* iEvent) : event_(iEvent) {}
-      
-      edm::EDProduct const*
-      getIt(edm::ProductID const& iID) const {
-        return event_->getByProductID(iID);
-      }
-private:
-      Event* event_;
-      
-    };
-  }
-  typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > DataMap;
+    namespace internal {
+        class ProductGetter : public edm::EDProductGetter {
+            public:
+                ProductGetter(Event* iEvent) : event_(iEvent) {}
 
+                virtual
+                edm::WrapperHolder
+                getIt(edm::ProductID const& iID) const override {
+                    return event_->getByProductID(iID);
+                }
+
+            private:
+                virtual
+                unsigned int
+                transitionIndex_() const override {
+                    return 0U;
+                }
+
+                Event* event_;
+        };
+    }
 //
 // constructors and destructor
 //
   Event::Event(TFile* iFile):
   file_(iFile),
-  eventTree_(0),
-  eventIndex_(-1),
+//  eventTree_(0),
+  eventHistoryTree_(0),
+//  eventIndex_(-1),
+  branchMap_(iFile),
   pAux_(&aux_),
   pOldAux_(0),
   fileVersion_(-1),
-  prodReg_(0)
-{
-    if(0==file_) {
-      throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";
+  parameterSetRegistryFilled_(false),
+  dataHelper_(branchMap_.getEventTree(),
+              boost::shared_ptr<HistoryGetterBase>(new EventHistoryGetter(this)),
+              boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
+              boost::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this)),
+              true) {
+    if(0 == iFile) {
+      throw cms::Exception("NoFile") << "The TFile pointer passed to the constructor was null";
     }
-    
-    eventTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventTreeName().c_str()));
-    if(0==eventTree_) {
-      throw cms::Exception("NoEventTree")<<"The TFile contains no TTree named "<<edm::poolNames::eventTreeName();
+
+    if(0 == branchMap_.getEventTree()) {
+      throw cms::Exception("NoEventTree") << "The TFile contains no TTree named " << edm::poolNames::eventTreeName();
     }
     //need to know file version in order to determine how to read the basic event info
-    {
-      TTree* metaDataTree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::metaDataTreeName().c_str()) );
-      assert(0!=metaDataTree);
-      
-      edm::FileFormatVersion v;
-      edm::FileFormatVersion* pV=&v;
-      TBranch* bVer = metaDataTree->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
-      bVer->SetAddress(&pV);
-      bVer->GetEntry(0);
-      fileVersion_ = v.value_;
-    }
+    fileVersion_ = branchMap_.getFileVersion(iFile);
+
     //got this logic from IOPool/Input/src/RootFile.cc
-    
-    if(fileVersion_ >= 3 ) {
-      auxBranch_ = eventTree_->GetBranch("EventAuxiliary");
-      if(0==auxBranch_) {
-        throw cms::Exception("NoEventAuxilliary")<<"The TTree "
-        <<edm::poolNames::eventTreeName()
-        <<" does not contain a branch named 'EventAuxiliary'";
+
+    TTree* eventTree = branchMap_.getEventTree();
+    if(fileVersion_ >= 3) {
+      auxBranch_ = eventTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
+      if(0 == auxBranch_) {
+        throw cms::Exception("NoEventAuxilliary") << "The TTree "
+        << edm::poolNames::eventTreeName()
+        << " does not contain a branch named 'EventAuxiliary'";
       }
       auxBranch_->SetAddress(&pAux_);
     } else {
       pOldAux_ = new edm::EventAux();
-      auxBranch_ = eventTree_->GetBranch("EventAux");
-      if(0==auxBranch_) {
-        throw cms::Exception("NoEventAux")<<"The TTree "
-          <<edm::poolNames::eventTreeName()
-          <<" does not contain a branch named 'EventAux'";
+      auxBranch_ = eventTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InEvent).c_str());
+      if(0 == auxBranch_) {
+        throw cms::Exception("NoEventAux") << "The TTree "
+          << edm::poolNames::eventTreeName()
+          << " does not contain a branch named 'EventAux'";
       }
       auxBranch_->SetAddress(&pOldAux_);
     }
-    eventIndex_=0;
-    
-    getter_ = std::auto_ptr<edm::EDProductGetter>(new internal::ProductGetter(this));
+    branchMap_.updateEvent(0);
+
+    if(fileVersion_ >= 7 && fileVersion_ < 17) {
+      eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
+    }
+    runFactory_ =  boost::shared_ptr<RunFactory>(new RunFactory());
+
 }
 
-// Event::Event(const Event& rhs)
+// Event::Event(Event const& rhs)
 // {
 //    // do actual copying here;
 // }
 
-Event::~Event()
-{
-  for(std::vector<const char*>::iterator it = labels_.begin(), itEnd=labels_.end();
+Event::~Event() {
+  for(std::vector<char const*>::iterator it = labels_.begin(), itEnd = labels_.end();
       it != itEnd;
       ++it) {
     delete [] *it;
   }
-  delete prodReg_;
   delete pOldAux_;
 }
 
 //
 // assignment operators
 //
-// const Event& Event::operator=(const Event& rhs)
-// {
+// Event const& Event::operator=(Event const& rhs) {
 //   //An exception safe implementation is
 //   Event temp(rhs);
 //   swap(rhs);
@@ -147,363 +162,360 @@ Event::~Event()
 //
 // member functions
 //
-const Event& 
-Event::operator++()
-{
-  if(eventIndex_ < size()) {
-    ++eventIndex_;
-  }
-  return *this;
+
+Event const&
+Event::operator++() {
+   Long_t eventIndex = branchMap_.getEventEntry();
+   if(eventIndex < size()) {
+      branchMap_.updateEvent(++eventIndex);
+   }
+   return *this;
 }
 
-const Event& 
-Event::to(Long64_t iEntry)
-{
-  eventIndex_ = iEntry;
-  return *this;
+Long64_t
+Event::indexFromEventId(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event) {
+   entryFinder_.fillIndex(branchMap_);
+   EntryFinder::EntryNumber_t entry = entryFinder_.findEvent(run, lumi, event);
+   return (entry == EntryFinder::invalidEntry) ? -1 : entry;
 }
 
-const Event& 
-Event::toBegin()
-{
-  eventIndex_ = 0;
-  return *this;
+bool
+Event::to(Long64_t iEntry) {
+   if (iEntry < size()) {
+      // this is a valid entry
+      return branchMap_.updateEvent(iEntry);
+   }
+   // if we're here, then iEntry was not valid
+   return false;
+}
+
+bool
+Event::to(edm::RunNumber_t run, edm::EventNumber_t event) {
+   return to(run, 0U, event);
+}
+
+bool
+Event::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event) {
+   entryFinder_.fillIndex(branchMap_);
+   EntryFinder::EntryNumber_t entry = entryFinder_.findEvent(run, lumi, event);
+   if (entry == EntryFinder::invalidEntry) {
+      return false;
+   }
+   return branchMap_.updateEvent(entry);
+}
+
+bool
+Event::to(const edm::EventID &id) {
+   return to(id.run(), id.luminosityBlock(), id.event());
+}
+
+Event const&
+Event::toBegin() {
+   branchMap_.updateEvent(0);
+   return *this;
 }
 
 //
 // const member functions
 //
+void       Event::draw(Option_t* opt) {
+   GetterOperate op(dataHelper_.getter());
+   branchMap_.getEventTree()->Draw(opt);
+}
+Long64_t   Event::draw(char const* varexp, const TCut& selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
+   GetterOperate op(dataHelper_.getter());
+   return branchMap_.getEventTree()->Draw(varexp,selection,option,nentries,firstentry);
+}
+Long64_t   Event::draw(char const* varexp, char const* selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
+   GetterOperate op(dataHelper_.getter());
+   return branchMap_.getEventTree()->Draw(varexp,selection,option,nentries,firstentry);
+}
+Long64_t   Event::scan(char const* varexp, char const* selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
+   GetterOperate op(dataHelper_.getter());
+   return branchMap_.getEventTree()->Scan(varexp,selection,option,nentries,firstentry);
+}
+
+
 Long64_t
-Event::size() const 
-{
-  return eventTree_->GetEntries();
+Event::size() const {
+  return branchMap_.getEventTree()->GetEntries();
 }
 
 bool
-Event::isValid() const
-{
-  return eventIndex_!=-1 and eventIndex_ < size(); 
+Event::isValid() const {
+  Long_t eventIndex = branchMap_.getEventEntry();
+  return eventIndex != -1 and eventIndex < size();
 }
 
 
-Event::operator bool() const
-{
+Event::operator bool() const {
   return isValid();
 }
 
 bool
-Event::atEnd() const
-{
-  return eventIndex_==-1 or eventIndex_ == size();
+Event::atEnd() const {
+  Long_t eventIndex = branchMap_.getEventEntry();
+  return eventIndex == -1 or eventIndex == size();
 }
 
-/*
-void 
-Event::getByBranchName(const std::type_info& iInfo, const char* iName, void*& oData) const 
-{
-  oData=0;
-  std::cout <<iInfo.name()<<std::endl;
-}
-*/
 
-static
-TBranch* findBranch(TTree* iTree, const std::string& iMainLabels, const std::string& iProcess) {
-  std::string branchName(iMainLabels);
-  branchName+=iProcess;
-  //branchName+=".obj";
-  branchName+=".";
-  return iTree->GetBranch(branchName.c_str());
-}
-
-void 
-Event::getByLabel(const std::type_info& iInfo,
-                  const char* iModuleLabel,
-                  const char* iProductInstanceLabel,
-                  const char* iProcessLabel,
-                  void* oData) const 
-{
-  //std::cout <<iInfo.name()<<" '"<<iModuleLabel<<"' '"<< (( 0!=iProductInstanceLabel)?iProductInstanceLabel:"")<<"' '"
-  //<<((0!=iProcessLabel)?iProcessLabel:"")<<"'"<<std::endl;
-  void** pOData = reinterpret_cast<void**>(oData);
-  *pOData = 0;
-  //std::cout <<iInfo.name()<<std::endl;
-  edm::TypeID type(iInfo);
-  internal::DataKey key(type, iModuleLabel, iProductInstanceLabel, iProcessLabel);
-  
-  boost::shared_ptr<internal::Data> theData;
-  DataMap::iterator itFind = data_.find(key);
-  if(itFind == data_.end() ) {
-    //std::cout <<"did not find the key"<<std::endl;
-    //see if such a branch actually exists
-    const std::string sep("_");
-    //CHANGE: If this fails, need to lookup the the friendly name which was used to write the file
-    std::string name(type.friendlyClassName());
-    name +=sep+std::string(key.module());
-    name +=sep+std::string(key.product())+sep;
-
-    //if we have to lookup the process label, remember it and register the product again
-    std::string foundProcessLabel;
-    TBranch* branch = 0;
-    if (0==iProcessLabel || iProcessLabel==internal::DataKey::kEmpty ||
-        strlen(iProcessLabel)==0) 
-    {
-      const std::string* lastLabel=0;
-      //have to search in reverse order since newest are on the bottom
-      const edm::ProcessHistory& h = history();
-      for (edm::ProcessHistory::const_reverse_iterator iproc = h.rbegin(),
-	   eproc = h.rend();
-           iproc != eproc;
-           ++iproc) {
-        lastLabel = &(iproc->processName());
-        branch=findBranch(eventTree_,name,iproc->processName());
-        if(0!=branch) { break; }
-      }
-      if(0==branch) {
-        throw cms::Exception("NoBranch")<<"The file does not contain a branch beginning with '"<<name<<"'";
-      }
-      //do we already have this one?
-      if(0!=lastLabel) {
-        //std::cout <<" process name "<<*lastLabel<<std::endl;
-        internal::DataKey fullKey(type,iModuleLabel,iProductInstanceLabel,lastLabel->c_str());
-        itFind = data_.find(fullKey);
-        if(itFind != data_.end()) {
-          //remember the data we've found
-          //std::cout <<"  key already exists"<<std::endl;
-          theData = itFind->second;
-        } else {
-          //only set this if we don't already have it 
-          // since it this string is not empty we re-register
-          //std::cout <<"  key does not already exists"<<std::endl;
-          foundProcessLabel = *lastLabel;
-        }
-      }
-    }else {
-      //we have all the pieces
-      branch = findBranch(eventTree_,name,key.process());
-      if(0==branch){
-        throw cms::Exception("NoBranch")<<"The file does not contain a branch named '"<<name<<key.process()<<"'";
-      }
-    }
-    //cache the info
-    char* newModule = new char[strlen(iModuleLabel)+1];
-    std::strcpy(newModule,iModuleLabel);
-    labels_.push_back(newModule);
-    
-    char* newProduct = const_cast<char*>(key.product());
-    if(newProduct[0] != 0) {
-      newProduct = new char[strlen(newProduct)+1];
-      std::strcpy(newProduct,key.product());
-      labels_.push_back(newProduct);
-    }
-    char* newProcess = const_cast<char*>(key.process());
-    if(newProcess[0]!=0) {
-      newProcess = new char[strlen(newProcess)+1];
-      std::strcpy(newProcess,key.process());
-      labels_.push_back(newProcess);
-    }
-    internal::DataKey newKey(edm::TypeID(iInfo),newModule,newProduct,newProcess);
-    
-    if(0== theData.get() ) {
-      //We do not already have this data as another key
-      
-      //Use Reflex to create an instance of the object to be used as a buffer
-      ROOT::Reflex::Type rType = ROOT::Reflex::Type::ByTypeInfo(iInfo);
-      if(rType == ROOT::Reflex::Type()) {
-        throw cms::Exception("UnknownType")<<"No Reflex dictionary exists for type "<<iInfo.name();
-      }
-      ROOT::Reflex::Object obj = rType.Construct();
-      
-      if(obj.Address() == 0) {
-        throw cms::Exception("ConstructionFailed")<<"failed to construct an instance of "<<rType.Name();
-      }
-      boost::shared_ptr<internal::Data> newData(new internal::Data() );
-      newData->branch_ = branch;
-      newData->obj_ = obj;
-      newData->lastEvent_=-1;
-      newData->pObj_ = obj.Address();
-      newData->pProd_=0;
-      branch->SetAddress(&(newData->pObj_));
-      theData = newData;
-    }
-    itFind = data_.insert(std::make_pair(newKey, theData)).first;
-    
-    if(foundProcessLabel.size()) {
-      //also remember it with the process label
-      newProcess = new char[foundProcessLabel.size()+1];
-      std::strcpy(newProcess,foundProcessLabel.c_str());
-      labels_.push_back(newProcess);
-      internal::DataKey newKey(edm::TypeID(iInfo),newModule,newProduct,newProcess);
-
-      data_.insert(std::make_pair(newKey,theData));
+std::vector<std::string> const&
+Event::getProcessHistory() const {
+  if (procHistoryNames_.empty()) {
+    const edm::ProcessHistory& h = history();
+    for (edm::ProcessHistory::const_iterator iproc = h.begin(), eproc = h.end();
+         iproc != eproc; ++iproc) {
+      procHistoryNames_.push_back(iproc->processName());
     }
   }
-  if(eventIndex_ != itFind->second->lastEvent_) {
-    //haven't gotten the data for this event
-    //std::cout <<" getByLabel getting data"<<std::endl;
-
-    //Make sure the edm::Ref* talk to this Event
-    GetterOperate op(getter_.get());
-
-    //WORK AROUND FOR ROOT!!
-    //Create a new instance so that we can clear any cache the object uses
-    //this slows the code down 
-    ROOT::Reflex::Object obj = itFind->second->obj_;
-    itFind->second->obj_ = itFind->second->obj_.TypeOf().Construct();
-    itFind->second->pObj_ = itFind->second->obj_.Address();
-    itFind->second->branch_->SetAddress(&(itFind->second->pObj_));
-    //If a REF to this was requested in the past, we might as well do the work now
-    if(0!=itFind->second->pProd_) {
-      //The type is the same so the offset will be the same
-      void* p = itFind->second->pProd_;
-      itFind->second->pProd_ = reinterpret_cast<edm::EDProduct*>(static_cast<char*>(itFind->second->obj_.Address())+(static_cast<char*>(p)-static_cast<char*>(obj.Address())));
-    }
-    obj.Destruct();
-    //END OF WORK AROUND
-    
-    itFind->second->branch_->GetEntry(eventIndex_);
-    itFind->second->lastEvent_=eventIndex_;
-  }
-  *pOData = itFind->second->obj_.Address();
+  return procHistoryNames_;
 }
 
 
-const edm::ProcessHistory& 
-Event::history() const
-{
-  if(historyMap_.empty()) {
-    TTree* meta = dynamic_cast<TTree*>(file_->Get(edm::poolNames::metaDataTreeName().c_str()));
-    if(0==meta) {
-      throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
-      <<edm::poolNames::metaDataTreeName();
+std::string const
+Event::getBranchNameFor(std::type_info const& iInfo,
+                  char const* iModuleLabel,
+                  char const* iProductInstanceLabel,
+                  char const* iProcessLabel) const {
+    return dataHelper_.getBranchNameFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
+}
+
+bool
+Event::getByLabel(
+                  std::type_info const& iInfo,
+                  char const* iModuleLabel,
+                  char const* iProductInstanceLabel,
+                  char const* iProcessLabel,
+                  void* oData) const {
+    if(atEnd()) {
+        throw cms::Exception("OffEnd") << "You have requested data past the last event";
     }
+    Long_t eventIndex = branchMap_.getEventEntry();
+    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, eventIndex);
+}
 
-    edm::ProcessHistoryMap* pPhm=&historyMap_;
-    TBranch* b = meta->GetBranch(edm::poolNames::processHistoryMapBranchName().c_str());
-    b->SetAddress(&pPhm);
-    b->GetEntry(0);
-  }
+bool
+Event::getByLabel(std::type_info const& iInfo,
+                  char const* iModuleLabel,
+                  char const* iProductInstanceLabel,
+                  char const* iProcessLabel,
+                  edm::WrapperHolder& holder) const {
+    if(atEnd()) {
+        throw cms::Exception("OffEnd") << "You have requested data past the last event";
+    }
+    Long_t eventIndex = branchMap_.getEventEntry();
+    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, holder, eventIndex);
+}
 
-  if(auxBranch_->GetEntryNumber() != eventIndex_) {
-    auxBranch_->GetEntry(eventIndex_);
+edm::EventAuxiliary const&
+Event::eventAuxiliary() const {
+   Long_t eventIndex = branchMap_.getEventEntry();
+   updateAux(eventIndex);
+   return aux_;
+}
+
+void
+Event::updateAux(Long_t eventIndex) const {
+  if(auxBranch_->GetEntryNumber() != eventIndex) {
+    auxBranch_->GetEntry(eventIndex);
     //handling dealing with old version
     if(0 != pOldAux_) {
       conversion(*pOldAux_,aux_);
     }
   }
-  
-  return historyMap_[aux_.processHistoryID()];
 }
 
-edm::EDProduct const* 
-Event::getByProductID(edm::ProductID const& iID) const
-{
-  //std::cout <<"getByProductID"<<std::endl;
-  std::map<edm::ProductID,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(iID);
-  if(itFound == idToData_.end() ) {
-    //std::cout <<" not found"<<std::endl;
-    if(0==prodReg_) {
-      //std::cout <<" getting product registry"<<std::endl;
-      prodReg_ = new edm::ProductRegistry;
+const edm::ProcessHistory&
+Event::history() const {
+  edm::ProcessHistoryID processHistoryID;
 
-      TTree* metaDataTree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::metaDataTreeName().c_str()) );
-      assert(0!=metaDataTree);
+  bool newFormat = (fileVersion_ >= 5);
 
-      TBranch* bReg = metaDataTree->GetBranch(edm::poolNames::productDescriptionBranchName().c_str());
-      bReg->SetAddress(&prodReg_);
-      bReg->GetEntry(0);
-      prodReg_->setFrozen();
-      
-      //std::cout <<"  caching"<<std::endl;
-      //cache some info
-      const edm::ProductRegistry::ProductList& prodList = prodReg_->productList();
-      for(edm::ProductRegistry::ProductList::const_iterator itProd = prodList.begin(),
-	  itProdEnd = prodList.end();
-          itProd != itProdEnd;
-          ++itProd) {
-        //this has to be called since 'branchName' is not stored and the 'init' method is supposed to
-        // regenerate it
-        itProd->second.init();
-        idToBD_[itProd->second.productID()] = &(itProd->second);
+  Long_t eventIndex = branchMap_.getEventEntry();
+  updateAux(eventIndex);
+  if (!newFormat) {
+    processHistoryID = aux_.processHistoryID();
+  }
+  if(historyMap_.empty() || newFormat) {
+    procHistoryNames_.clear();
+    TTree *meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
+    if(0 == meta) {
+      throw cms::Exception("NoMetaTree") << "The TFile does not appear to contain a TTree named "
+      << edm::poolNames::metaDataTreeName();
+    }
+    if (historyMap_.empty()) {
+      if (fileVersion_ < 11) {
+        edm::ProcessHistoryMap* pPhm = &historyMap_;
+        TBranch* b = meta->GetBranch(edm::poolNames::processHistoryMapBranchName().c_str());
+        b->SetAddress(&pPhm);
+        b->GetEntry(0);
+      } else {
+        edm::ProcessHistoryVector historyVector;
+        edm::ProcessHistoryVector* pPhv = &historyVector;
+        TBranch* b = meta->GetBranch(edm::poolNames::processHistoryBranchName().c_str());
+        b->SetAddress(&pPhv);
+        b->GetEntry(0);
+        for (auto& history : historyVector) {
+          historyMap_.insert(std::make_pair(history.setProcessHistoryID(), history));
+        }
       }
-      //std::cout <<"  cached"<<std::endl;
     }
-    //std::cout <<"  find branch description"<<std::endl;
-    std::map<edm::ProductID,const edm::BranchDescription*>::iterator itCacheFind = idToBD_.find(iID);
-    if(idToBD_.end() == itCacheFind) {
-      throw cms::Exception("ProductNotFound")<<"No data item with productID "<<iID.id()<<" was found in the file.";
+    if (newFormat) {
+      if (fileVersion_ >= 17) {
+        processHistoryID = aux_.processHistoryID();
+      } else if (fileVersion_ >= 7) {
+        edm::History history;
+        edm::History* pHistory = &history;
+        TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
+        if (!eventHistoryBranch)
+          throw edm::Exception(edm::errors::FatalRootError)
+            << "Failed to find history branch in event history tree";
+        eventHistoryBranch->SetAddress(&pHistory);
+        eventHistoryTree_->GetEntry(eventIndex);
+        processHistoryID = history.processHistoryID();
+      } else {
+        std::vector<edm::EventProcessHistoryID> *pEventProcessHistoryIDs = &eventProcessHistoryIDs_;
+        TBranch* b = meta->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
+        b->SetAddress(&pEventProcessHistoryIDs);
+        b->GetEntry(0);
+        edm::EventProcessHistoryID target(aux_.id(), edm::ProcessHistoryID());
+        processHistoryID = std::lower_bound(eventProcessHistoryIDs_.begin(), eventProcessHistoryIDs_.end(), target)->processHistoryID();
+      }
     }
 
-    //std::cout <<"  get Type for class"<<std::endl;
-    //Calculate the key from the branch description
-    ROOT::Reflex::Type type( ROOT::Reflex::Type::ByName(edm::wrappedClassName(itCacheFind->second->fullClassName())));
-    assert( ROOT::Reflex::Type() != type) ;
-
-    //std::cout <<"  build key"<<std::endl;
-    //Only the product instance label may be empty
-    const char* pIL = itCacheFind->second->productInstanceName().c_str();
-    if(pIL[0] == 0) {
-      pIL = 0;
-    }
-    internal::DataKey k(edm::TypeID(type.TypeInfo()), 
-                        itCacheFind->second->moduleLabel().c_str(),
-                        pIL,
-                        itCacheFind->second->processName().c_str());
-    
-    //has this already been gotten?
-    KeyToDataMap::iterator itData = data_.find(k);
-    if(data_.end() == itData) {
-      //std::cout <<" calling getByLabel"<<std::endl;
-      //ask for the data
-      void* dummy = 0;
-      getByLabel(type.TypeInfo(),
-                 k.module(),
-                 k.product(),
-                 k.process(),
-                 &dummy);
-      //std::cout <<"  called"<<std::endl;
-      itData = data_.find(k);
-      assert(itData != data_.end());
-      assert(0!=dummy);
-      assert(dummy == itData->second->obj_.Address());
-    }
-    itFound = idToData_.insert(std::make_pair(iID,itData->second)).first;
   }
-  if(eventIndex_ != itFound->second->lastEvent_) {
-    //haven't gotten the data for this event
-    //std::cout <<" getByProductID getting data"<<std::endl;
-    //Make sure the edm::Ref* talk to this Event
-    GetterOperate op(getter_.get());
-    itFound->second->branch_->GetEntry(eventIndex_);
-    itFound->second->lastEvent_=eventIndex_;
-  }  
-  if(0==itFound->second->pProd_) {
-    //std::cout <<"  need to convert"<<std::endl;
-    //need to convert pointer to proper type
-    static ROOT::Reflex::Type sEDProd( ROOT::Reflex::Type::ByTypeInfo(typeid(edm::EDProduct)));
-    //assert( sEDProd != ROOT::Reflex::Type() );
-    ROOT::Reflex::Object edProdObj = itFound->second->obj_.CastObject( sEDProd );
-        
-    itFound->second->pProd_ = reinterpret_cast<edm::EDProduct*>(edProdObj.Address());
 
-    //std::cout <<" type "<<typeid(itFound->second->pProd_).name()<<std::endl;
-    if(0==itFound->second->pProd_) {
-      cms::Exception("FailedConversion")
-      <<"failed to convert a '"<<itFound->second->obj_.TypeOf().Name()<<"' to a edm::EDProduct";
+  return historyMap_[processHistoryID];
+}
+
+
+edm::WrapperHolder
+Event::getByProductID(edm::ProductID const& iID) const {
+  Long_t eventIndex = branchMap_.getEventEntry();
+  return dataHelper_.getByProductID(iID, eventIndex);
+}
+
+
+edm::TriggerNames const&
+Event::triggerNames(edm::TriggerResults const& triggerResults) const {
+  edm::TriggerNames const* names = triggerNames_(triggerResults);
+  if (names != 0) return *names;
+
+  if (!parameterSetRegistryFilled_) {
+    fillParameterSetRegistry();
+    names = triggerNames_(triggerResults);
+  }
+  if (names != 0) return *names;
+
+  throw cms::Exception("TriggerNamesNotFound")
+    << "TriggerNames not found in ParameterSet registry";
+  return *names;
+}
+
+void
+Event::fillParameterSetRegistry() const {
+  if (parameterSetRegistryFilled_) return;
+  parameterSetRegistryFilled_ = true;
+
+  TTree* meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
+  if (0 == meta) {
+    throw cms::Exception("NoMetaTree") << "The TFile does not contain a TTree named "
+      << edm::poolNames::metaDataTreeName();
+  }
+
+  edm::FileFormatVersion fileFormatVersion;
+  edm::FileFormatVersion *fftPtr = &fileFormatVersion;
+  if(meta->FindBranch(edm::poolNames::fileFormatVersionBranchName().c_str()) != 0) {
+    TBranch *fft = meta->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
+    fft->SetAddress(&fftPtr);
+    fft->GetEntry(0);
+  }
+
+  typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
+  PsetMap psetMap;
+  TTree* psetTree(0);
+  if (meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
+    PsetMap *psetMapPtr = &psetMap;
+    TBranch* b = meta->GetBranch(edm::poolNames::parameterSetMapBranchName().c_str());
+    b->SetAddress(&psetMapPtr);
+    b->GetEntry(0);
+  } else if(0 == (psetTree = dynamic_cast<TTree *>(branchMap_.getFile()->Get(edm::poolNames::parameterSetsTreeName().c_str())))) {
+    throw cms::Exception("NoParameterSetMapTree")
+    << "The TTree "
+    << edm::poolNames::parameterSetsTreeName() << " could not be found in the file.";
+  } else {
+    typedef std::pair<edm::ParameterSetID, edm::ParameterSetBlob> IdToBlobs;
+    IdToBlobs idToBlob;
+    IdToBlobs* pIdToBlob = &idToBlob;
+    psetTree->SetBranchAddress(edm::poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
+    for(long long i = 0; i != psetTree->GetEntries(); ++i) {
+      psetTree->GetEntry(i);
+      psetMap.insert(idToBlob);
     }
   }
-  //std::cout <<"finished getByProductID"<<std::endl;
-  return itFound->second->pProd_;
+  edm::ParameterSetConverter::ParameterSetIdConverter psetIdConverter;
+  if(!fileFormatVersion.triggerPathsTracked()) {
+    edm::ParameterSetConverter converter(psetMap, psetIdConverter, fileFormatVersion.parameterSetsByReference());
+  } else {
+    // Merge into the parameter set registry.
+    edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
+    for(PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
+        i != iEnd; ++i) {
+      edm::ParameterSet pset(i->second.pset());
+      pset.setID(i->first);
+      psetRegistry.insertMapped(pset);
+    }
+  }
+}
+
+edm::TriggerResultsByName
+Event::triggerResultsByName(std::string const& process) const {
+
+  fwlite::Handle<edm::TriggerResults> hTriggerResults;
+  hTriggerResults.getByLabel(*this, "TriggerResults", "", process.c_str());
+  if (!hTriggerResults.isValid()) {
+    return edm::TriggerResultsByName(0,0);
+  }
+
+  edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
+  if (names == 0 && !parameterSetRegistryFilled_) {
+    fillParameterSetRegistry();
+    names = triggerNames_(*hTriggerResults);
+  }
+  return edm::TriggerResultsByName(hTriggerResults.product(), names);
 }
 
 //
 // static member functions
 //
-void 
-Event::throwProductNotFoundException(const std::type_info& iType, const char* iModule, const char* iProduct, const char* iProcess)
-{
+void
+Event::throwProductNotFoundException(std::type_info const& iType, char const* iModule, char const* iProduct, char const* iProcess) {
     edm::TypeID type(iType);
-  throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<iModule
-    <<"'\n  productInstance='"<<((0!=iProduct)?iProduct:"")<<"'\n  process='"<<((0!=iProcess)?iProcess:"")<<"'\n"
+  throw edm::Exception(edm::errors::ProductNotFound) << "A branch was found for \n  type ='" << type.className() << "'\n  module='" << iModule
+    << "'\n  productInstance='" << ((0!=iProduct)?iProduct:"") << "'\n  process='" << ((0 != iProcess) ? iProcess : "") << "'\n"
     "but no data is available for this Event";
 }
+
+
+fwlite::LuminosityBlock const& Event::getLuminosityBlock() const {
+  if (not lumi_) {
+    // Branch map pointer not really being shared, owned by event, have to trick Lumi
+    lumi_ = boost::shared_ptr<fwlite::LuminosityBlock> (
+             new fwlite::LuminosityBlock(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
+             runFactory_)
+          );
+  }
+  edm::RunNumber_t             run  = eventAuxiliary().run();
+  edm::LuminosityBlockNumber_t lumi = eventAuxiliary().luminosityBlock();
+  lumi_->to(run, lumi);
+  return *lumi_;
+}
+
+fwlite::Run const& Event::getRun() const {
+  run_ = runFactory_->makeRun(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()));
+  edm::RunNumber_t run = eventAuxiliary().run();
+  run_->to(run);
+  return *run_;
+}
+
 }

@@ -1,6 +1,5 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -10,18 +9,20 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -29,123 +30,117 @@
 //
 // constructors and destructor
 //
-HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet& iConfig)
+HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
-
-  L1IsoPixelmapbarrelTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelmapbarrelTag");
-  L1IsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelmapendcapTag");
-
-  L1NonIsoPixelmapbarrelTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelmapbarrelTag");
-  L1NonIsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelmapendcapTag");
-
+  L1IsoPixelSeedsTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelSeedsTag");
+  L1NonIsoPixelSeedsTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelSeedsTag");
   npixelmatchcut_     = iConfig.getParameter<double> ("npixelmatchcut");
   ncandcut_           = iConfig.getParameter<int> ("ncandcut");
-
   doIsolated_    = iConfig.getParameter<bool> ("doIsolated");
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
 
-   //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  L1IsoPixelSeedsToken_ = consumes<reco::ElectronSeedCollection>(L1IsoPixelSeedsTag_);
+  L1NonIsoPixelSeedsToken_= consumes<reco::ElectronSeedCollection>(L1NonIsoPixelSeedsTag_);
 }
 
 HLTElectronPixelMatchFilter::~HLTElectronPixelMatchFilter(){}
 
+void
+HLTElectronPixelMatchFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candTag",edm::InputTag("hltEgammaHcalIsolFilter"));
+  desc.add<edm::InputTag>("L1IsoPixelSeedsTag",edm::InputTag("electronPixelSeeds"));
+  desc.add<edm::InputTag>("L1NonIsoPixelSeedsTag",edm::InputTag("electronPixelSeeds"));
+  desc.add<double>("npixelmatchcut",1.0);
+  desc.add<int>("ncandcut",1);
+  desc.add<bool>("doIsolated",true);
+  desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
+  descriptions.add("hltElectronPixelMatchFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // The filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
-  // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> candref;
-  
-  // get hold of filtered candidates
-  edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
-  iEvent.getByLabel (candTag_,recoecalcands);
-  
-  //get hold of the pixel seed - supercluster association map
-  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1IsoBarrelMap;
-  iEvent.getByLabel (L1IsoPixelmapbarrelTag_,L1IsoBarrelMap);
-  
-  //get hold of the pixel seed - supercluster association map
-  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1IsoEndcapMap;
-  iEvent.getByLabel (L1IsoPixelmapendcapTag_,L1IsoEndcapMap);
-
-  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1NonIsoBarrelMap;
-  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1NonIsoEndcapMap;
-  if(!doIsolated_){
-    iEvent.getByLabel (L1NonIsoPixelmapbarrelTag_,L1NonIsoBarrelMap);
-    iEvent.getByLabel (L1NonIsoPixelmapendcapTag_,L1NonIsoEndcapMap);
+  using namespace trigger;
+  if (saveTags()) {
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (not doIsolated_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
   }
-  
+
+  // Ref to Candidate object to be recorded in filter object
+  edm::Ref<reco::RecoEcalCandidateCollection> ref;
+
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
+  iEvent.getByToken (candToken_,PrevFilterOutput);
+
+  std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
+  PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
+  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);  //we dont know if its type trigger cluster or trigger photon
+
+  //get hold of the pixel seed - supercluster association map
+  edm::Handle<reco::ElectronSeedCollection> L1IsoSeeds;
+  iEvent.getByToken (L1IsoPixelSeedsToken_,L1IsoSeeds);
+
+  edm::Handle<reco::ElectronSeedCollection> L1NonIsoSeeds;
+  if(!doIsolated_){
+    iEvent.getByToken (L1NonIsoPixelSeedsToken_,L1NonIsoSeeds);
+  }
+
   // look at all egammas,  check cuts and add to filter object
   int n = 0;
+  // std::cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<std::endl;
+  for (unsigned int i=0; i<recoecalcands.size(); i++) {
 
-  for (unsigned int i=0; i<recoecalcands->size(); i++) {
-    candref = recoecalcands->getParticleRef(i);
-    reco::RecoEcalCandidateRef recr = candref.castTo<reco::RecoEcalCandidateRef>();
-    reco::SuperClusterRef recr2 = recr->superCluster();
+    ref = recoecalcands[i];
+    reco::SuperClusterRef recr2 = ref->superCluster();
 
+    // std::cout<<"AA  ref, e, eta, phi"<<&(*recr2)<<" "<<recr2->energy()<<" "<<recr2->eta()<<" "<<recr2->phi()<<std::endl;
     int nmatch = 0;
 
-    for(reco::SeedSuperClusterAssociationCollection::const_iterator itb = L1IsoBarrelMap->begin(); 
-	itb != L1IsoBarrelMap->end(); itb++){
-      
-      edm::Ref<reco::SuperClusterCollection> theClusBarrel = itb->val;
-      
-      if(&(*recr2) ==  &(*theClusBarrel)) {
-	nmatch++;
-      }
-    }
+    for(reco::ElectronSeedCollection::const_iterator it = L1IsoSeeds->begin();
+	it != L1IsoSeeds->end(); it++){
 
-    for(reco::SeedSuperClusterAssociationCollection::const_iterator ite = L1IsoEndcapMap->begin(); 
-	ite != L1IsoEndcapMap->end(); ite++){
-      
-      edm::Ref<reco::SuperClusterCollection> theClusEndcap = ite->val;
-      
-      if(&(*recr2) ==  &(*theClusEndcap)) {
+      edm::RefToBase<reco::CaloCluster> caloCluster = it->caloCluster() ;
+      reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
+      // std::cout<<"BB ref, e, eta, phi"<<&(*scRef)<<" "<<scRef->energy()<<" "<<scRef->eta()<<" "<<scRef->phi()<<std::endl;
+
+      if(&(*recr2) ==  &(*scRef)) {
 	nmatch++;
       }
     }
 
     if(!doIsolated_){
 
-      for(reco::SeedSuperClusterAssociationCollection::const_iterator itb = L1NonIsoBarrelMap->begin(); 
-	  itb != L1NonIsoBarrelMap->end(); itb++){
-      
-	edm::Ref<reco::SuperClusterCollection> theClusBarrel = itb->val;
-      
-	if(&(*recr2) ==  &(*theClusBarrel)) {
+      for(reco::ElectronSeedCollection::const_iterator it = L1NonIsoSeeds->begin();
+	  it != L1NonIsoSeeds->end(); it++){
+	edm::RefToBase<reco::CaloCluster> caloCluster = it->caloCluster() ;
+	reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
+	//std::cout<<"CC ref, e, eta, phi"<<&(*scRef)<<" "<<scRef->energy()<<" "<<scRef->eta()<<" "<<scRef->phi()<<std::endl;
+	if(&(*recr2) ==  &(*scRef)) {
 	  nmatch++;
 	}
       }
 
-      for(reco::SeedSuperClusterAssociationCollection::const_iterator ite = L1NonIsoEndcapMap->begin(); 
-	  ite != L1NonIsoEndcapMap->end(); ite++){
-      
-	edm::Ref<reco::SuperClusterCollection> theClusEndcap = ite->val;
-      
-	if(&(*recr2) ==  &(*theClusEndcap)) {
-	  nmatch++;
-	}
-      } 
-
-    }
+    }//end if(!doIsolated_)
 
     if ( nmatch >= npixelmatchcut_) {
       n++;
-      filterproduct->putParticle(candref);
+      filterproduct.addObject(TriggerCluster, ref);
     }
 
-  }
-
+  }//end of loop over candidates
+  // std::cout<<"######################################################################"<<std::endl;
   // filter decision
   bool accept(n>=ncandcut_);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
-  
+
   return accept;
 }
+
 

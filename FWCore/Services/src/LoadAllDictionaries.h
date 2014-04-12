@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:42 EDT 2005
-// $Id: LoadAllDictionaries.h,v 1.3 2007/05/08 03:18:42 wmtan Exp $
 //
 
 // system include files
@@ -26,6 +25,7 @@
 // forward declarations
 namespace edm {
    class ParameterSet;
+   class ConfigurationDescriptions;
    namespace service {
       class LoadAllDictionaries
    {
@@ -37,6 +37,7 @@ namespace edm {
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       // ---------- member functions ---------------------------
 

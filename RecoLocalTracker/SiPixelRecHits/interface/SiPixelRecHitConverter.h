@@ -27,18 +27,18 @@
 //!         DetSetVector by V.Chiochia (Zurich University).
 //!
 //! \version v2, May 30, 2006  
+//! change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 //!
 //---------------------------------------------------------------------------
 
 //--- Base class for CPEs:
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-//&&& #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
 //--- Geometry + DataFormats
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 //--- Framework
@@ -54,7 +54,7 @@
 #endif
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class MagneticField;
 namespace cms
@@ -73,33 +73,29 @@ namespace cms
     //--- likely we can use one (and they will switch internally), or
     //--- make two of the same but configure them differently.  We need a more
     //--- realistic use case...
-    void setupCPE(const MagneticField* mag);
 
     //--- The top-level event method.
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
-
-    // Begin Job
-    virtual void beginJob(const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     //--- Execute the position estimator algorithm(s).
     //--- New interface with DetSetVector
-    void run(const edm::DetSetVector<SiPixelCluster>& input,
-	     SiPixelRecHitCollection & output,
+    void run(const edmNew::DetSetVector<SiPixelCluster>& input,
+	     SiPixelRecHitCollectionNew & output,
 	     edm::ESHandle<TrackerGeometry> & geom);
 
-    void run(edm::Handle<edm::DetSetVector<SiPixelCluster> >  inputhandle,
-	     SiPixelRecHitCollection & output,
+    void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
+	     SiPixelRecHitCollectionNew & output,
 	     edm::ESHandle<TrackerGeometry> & geom);
 
   private:
     edm::ParameterSet conf_;
     // TO DO: maybe allow a map of pointers?
-    std::string cpeName_;                   // what the user said s/he wanted
-    PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
-    //&&& PixelCPEBase * cpe_;                    // what we got (for now, one ptr to base class)
-    bool ready_;                            // needed CPE's valid => good to go!
+    std::string cpeName_="None";                   // what the user said s/he wanted
+    /// const PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
+    PixelCPEBase const * cpe_=nullptr;                    // What we got (for now, one ptr to base class)
     edm::InputTag src_;
-    int   theVerboseLevel;              // algorithm's verbosity
+    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> tPixelCluster;
+    bool m_newCont; // save also in emdNew::DetSetVector
   };
 }
 

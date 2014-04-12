@@ -16,14 +16,9 @@ type and name is "untracked double acceptRate".
 //
 // Original Author:  W. David Dagenhart
 //         Created:  26 March 2007
-// $Id$
 //
 
 #include "FWCore/Framework/interface/EDFilter.h"
-
-namespace CLHEP {
-  class RandFlat;
-}
 
 namespace edm {
   class ParameterSet;
@@ -35,13 +30,11 @@ namespace edm {
     explicit RandomFilter(edm::ParameterSet const& ps);
     virtual ~RandomFilter();
 
-    virtual bool filter(edm::Event& e, edm::EventSetup const& c);
+    virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
 
     // value between 0 and 1
     double acceptRate_;
-
-    CLHEP::RandFlat *flatDistribution_;
   };
 }

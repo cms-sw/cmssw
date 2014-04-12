@@ -1,26 +1,50 @@
 #include "FastSimulation/CaloRecHitsProducer/test/DigiCheck.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include <iostream>
 
 DigiCheck::DigiCheck(const edm::ParameterSet&){;}
-DigiCheck::~DigiCheck(){;}
+DigiCheck::~DigiCheck(){
+  std::cout <<  " Saving histos " ;
+  dbe->save("Digicheck.root");
+  std::cout << " done " << std::endl;
+}
 typedef math::XYZVector XYZPoint;
-void  DigiCheck::beginJob(const edm::EventSetup & c){
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+
+void  DigiCheck::beginRun(edm::Run const& run, edm::EventSetup const& es){
+
+  m_firstTimeAnalyze = true ;
+  dbe = edm::Service<DQMStore>().operator->();
+}
+
+void  DigiCheck::beginJobAnalyze(const edm::EventSetup & c){
+
+  edm::ESHandle<CaloTopology> theCaloTopology;
+  c.get<CaloTopologyRecord>().get(theCaloTopology);       
+  edm::ESHandle<CaloGeometry> pG;
+  c.get<CaloGeometryRecord>().get(pG);     
+  // Setup the tools
+  double bField000 = 4.;
+  myGeometry.setupGeometry(*pG);
+  myGeometry.setupTopology(*theCaloTopology);
+  myGeometry.initialize(bField000);
+    
+  edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
+  c.get<IdealGeometryRecord>().get(hetm);
+  eTTmap_ = &(*hetm);
+  std::cout << " Booking histos in " << dbe->pwd().c_str() << std::endl;
+  dbe->setCurrentFolder( "FastSim/Digis" );
   h0b = dbe->book2D("h0b","Gain vs Gev",100,0.,1700.,5,-0.5,4.5);
   h0e = dbe->book2D("h0e","Gain vs Gev",100,0.,3000.,5,-0.5,4.5);
   h1b = dbe->book2D("h1b","Gain 3 ADC vs GeV - Barrel",140,0.,140.,1000,0,5000);
@@ -30,31 +54,27 @@ void  DigiCheck::beginJob(const edm::EventSetup & c){
   h2e = dbe->book2D("h2e","Gain 2 ADC vs GeV- Endcap",140,0,1400,1000,0,5000);
   h3e = dbe->book2D("h3e","Gain 1 ADC vs GeV- Endcap",140,0,3000,1000,0,5000);
   h4  = dbe->book2D("h4","HBHE GeV adc",1000,0,1000,1000,0,1000);
-  h5  = dbe->book2D("h5","digis vs rechits ",400,0,200,400,0,200);
-  h6  = dbe->book2D("h6","digis vs rechits ",400,0,200,400,0,200);
+  h5  = dbe->book2D("h5","digis vs rechits barrel",400,0,200,400,0,200);
+  h6  = dbe->book2D("h6","digis vs rechits endcaps ",400,0,200,400,0,200);
   h7  = dbe->book1D("h7","TP digis vs calohits ",100,-10,10);
   h8  = dbe->book2D("h8","ieta vs TP/calohits ",64,-31.5,31.5,200,-2,2);
   h9  = dbe->book2D("h9","iphi vs TP/calohits ",100,-0.5,99.5,200,-2,2);
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  c.get<CaloTopologyRecord>().get(theCaloTopology);       
-  edm::ESHandle<CaloGeometry> pG;
-  c.get<IdealGeometryRecord>().get(pG);     
-  // Setup the tools
-  myGeometry.setupGeometry(*pG);
-  myGeometry.setupTopology(*theCaloTopology);
-  myGeometry.initialize();
-    
-  edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
-  c.get<IdealGeometryRecord>().get(hetm);
-  eTTmap_ = &(*hetm);
+  std::cout << " done " << std::endl;
+
 }
 
 void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   if( m_firstTimeAnalyze )
+   {
+      beginJobAnalyze( iSetup ) ;
+      m_firstTimeAnalyze = false ;
+   }
+
   // builds the tower-cell map
   if(mapTow_sintheta.size()==0)
     {
-      std::vector<DetId> vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
+      const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
       std::map<EcalTrigTowerDetId,std::vector<GlobalPoint> > mapTow_Centers;
       //  std::map<EcalTrigTowerDetId,GlobalPoint> mapTow_Pos;
       unsigned size=vec.size();
@@ -66,13 +86,13 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	  mapTow_Centers[towid1].push_back(p);
 	}
       
-      vec=myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap);
-      size=vec.size();
+      const std::vector<DetId>& vece(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
+      size=vece.size();
       for(unsigned ic=0;ic<size;++ic)
 	{
-	  const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
+	  const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vece[ic]);
 	  GlobalPoint p=geom->getPosition();
-	  EcalTrigTowerDetId towid1= eTTmap_->towerOf(vec[ic]);
+	  EcalTrigTowerDetId towid1= eTTmap_->towerOf(vece[ic]);
 	  mapTow_Centers[towid1].push_back(p);
 	}
   
@@ -112,15 +132,15 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
   edm::Handle<EBDigiCollection> ebDigis;
-  iEvent.getByLabel("caloRecHits",ebDigis);
+  iEvent.getByLabel("ecalRecHit",ebDigis);
   
   edm::Handle<EEDigiCollection> eeDigis;
-  iEvent.getByLabel("caloRecHits",eeDigis);
+  iEvent.getByLabel("ecalRecHit",eeDigis);
 
   std::map<EcalTrigTowerDetId,double> mapTow_et;
   
   //EBDigiCollection::const_iterator i;
-  //  std::cout << " Barrel digis " << std::endl;
+  std::cout << " Barrel digis / Endcap digis " << ebDigis->size() << " " << eeDigis->size() << std::endl;
   //for(i=ebDigis->begin();i!=ebDigis->end();++i)
   for(unsigned int idigi = 0; idigi < ebDigis->size(); ++idigi)
     {
@@ -211,7 +231,7 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   
   edm::Handle<HBHEDigiCollection> hbheDigis;
-  iEvent.getByLabel("caloRecHits",hbheDigis);
+  iEvent.getByLabel("hbhereco",hbheDigis);
   HBHEDigiCollection::const_iterator k;
   for(k=hbheDigis->begin();k!=hbheDigis->end();++k)
     {
@@ -222,13 +242,13 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 //	std::cout << k->id() << " "  << simHitEnergy << std::endl;
     }
   edm::Handle<EBRecHitCollection> hrechit_EB_col;
-  iEvent.getByLabel("caloRecHits","EcalRecHitsEB",hrechit_EB_col);
+  iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",hrechit_EB_col);
 
   edm::Handle<EERecHitCollection> hrechit_EE_col;
-  iEvent.getByLabel("caloRecHits", "EcalRecHitsEE",hrechit_EE_col);
+  iEvent.getByLabel("ecalRecHit", "EcalRecHitsEE",hrechit_EE_col);
 
   std::map<EcalTrigTowerDetId,double> mapTow_et_rechits;
-  
+  std::cout <<  " Number of RecHits " << hrechit_EB_col->size() << " " << hrechit_EE_col->size() << std::endl;
   EcalRecHitCollection::const_iterator rhit=hrechit_EB_col.product()->begin();
   EcalRecHitCollection::const_iterator rhitend=hrechit_EB_col.product()->end();
   for(;rhit!=rhitend;++rhit)
@@ -292,25 +312,30 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Finally fill the histo
   std::map<EcalTrigTowerDetId,double>::const_iterator mytowerit=mapTow_et.begin();
   std::map<EcalTrigTowerDetId,double>::const_iterator mytoweritend=mapTow_et.end();
+  std::cout << " Number of trigger towers from digis " << mapTow_et.size() << std::endl;
+  std::cout << " Number of trigger towers from RecHits " << mapTow_et_rechits.size() << std::endl;
   for(;mytowerit!=mytoweritend;++mytowerit)
     {
       // Look for the same tower in the RecHits collection 
       std::map<EcalTrigTowerDetId,double>::const_iterator theotherTower=mapTow_et_rechits.find(mytowerit->first);
       if(theotherTower==mapTow_et_rechits.end())
 	{
-	  std::cout << " Strange - in one collection but not in the other " << std::endl;	  
+	  //	  std::cout << " Strange - in one collection but not in the other " << std::endl;	  
 	  continue;
 	}
       double energy1=mytowerit->second*mapTow_sintheta[mytowerit->first];
       double energy2=theotherTower->second*mapTow_sintheta[mytowerit->first];
-      h5->Fill(energy1,energy2);
+      if(mytowerit->first.ietaAbs()<=17)
+	h5->Fill(energy1,energy2);
+      else
+	h6->Fill(energy1,energy2);
     }
 }
 
-void DigiCheck::endJob()
+void DigiCheck::endRun()
 {
-  dbe->save("Digicheck.root");
+  //  dbe->save("Digicheck.root");
 }
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(DigiCheck);
+
+DEFINE_FWK_MODULE(DigiCheck);

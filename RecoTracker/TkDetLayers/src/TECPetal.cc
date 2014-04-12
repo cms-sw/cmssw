@@ -1,2 +1,2 @@
-#include "RecoTracker/TkDetLayers/interface/TECPetal.h"
+#include "TECPetal.h"
 

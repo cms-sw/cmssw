@@ -2,8 +2,8 @@
 #define DataFormats_Common_BasicHandle_h
 
 /*----------------------------------------------------------------------
-  
-Handle: Non-owning "smart pointer" for reference to EDProducts and
+
+Handle: Shared "smart pointer" for reference to EDProducts and
 their Provenances.
 
 This is a very preliminary version, and lacks safety features and
@@ -19,37 +19,76 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.5 2007/06/01 21:14:38 wmtan Exp $
+If failedToGet() returns true then the requested data is not available
+If failedToGet() returns false but isValid() is also false then no attempt
+  to get data has occurred
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Common/interface/ProductData.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
+#include "DataFormats/Common/interface/HandleExceptionFactory.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
+#include <memory>
+#include "DataFormats/Common/interface/HideStdSharedPtrFromRoot.h"
+
+namespace cms {
+  class Exception;
+}
 
 namespace edm {
-  class EDProduct;
+  template <typename T> class Wrapper;
+
   class BasicHandle {
   public:
     BasicHandle() :
-      wrap_(0),
+      product_(),
       prov_(0) {}
 
     BasicHandle(BasicHandle const& h) :
-      wrap_(h.wrap_),
-      prov_(h.prov_) {}
+      product_(h.product_),
+      prov_(h.prov_),
+      whyFailedFactory_(h.whyFailedFactory_){}
 
-    BasicHandle(EDProduct const* prod, Provenance const* prov) :
-      wrap_(prod), prov_(prov) {
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+    BasicHandle(BasicHandle &&h) = default;
+#endif
+    
+    BasicHandle(void const* iProd, WrapperInterfaceBase const* iInterface, Provenance const* iProv) :
+      product_(WrapperHolder(iProd, iInterface)),
+      prov_(iProv) {
     }
+
+    BasicHandle(WrapperHolder const& iWrapperHolder, Provenance const* iProv) :
+      product_(iWrapperHolder),
+      prov_(iProv) {
+    }
+
+    BasicHandle(ProductData const& productData) :
+      product_(WrapperHolder(productData.wrapper_.get(), productData.getInterface())),
+      prov_(&productData.prov_) {
+    }
+
+    ///Used when the attempt to get the data failed
+    BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed):
+    product_(),
+    prov_(0),
+    whyFailedFactory_(iWhyFailed) {}
 
     ~BasicHandle() {}
 
     void swap(BasicHandle& other) {
-      std::swap(wrap_, other.wrap_);
+      using std::swap;
+      swap(product_, other.product_);
       std::swap(prov_, other.prov_);
+      swap(whyFailedFactory_,other.whyFailedFactory_);
     }
 
-    
     BasicHandle& operator=(BasicHandle const& rhs) {
       BasicHandle temp(rhs);
       this->swap(temp);
@@ -57,11 +96,23 @@ namespace edm {
     }
 
     bool isValid() const {
-      return wrap_ && prov_;
+      return product_.wrapper() != 0 && prov_ != 0;
     }
 
-    EDProduct const* wrapper() const {
-      return wrap_;
+    bool failedToGet() const {
+      return bool(whyFailedFactory_);
+    }
+
+    WrapperInterfaceBase const* interface() const {
+      return product_.interface();
+    }
+
+    void const* wrapper() const {
+      return product_.wrapper();
+    }
+
+    WrapperHolder wrapperHolder() const {
+      return product_;
     }
 
     Provenance const* provenance() const {
@@ -69,15 +120,25 @@ namespace edm {
     }
 
     ProductID id() const {
-      if (!prov_) {
-        return ProductID();
-      }
       return prov_->productID();
     }
 
+    std::shared_ptr<cms::Exception> whyFailed() const {
+      return whyFailedFactory_->make();
+    }
+    
+    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const {
+      return whyFailedFactory_;
+    }
+    
+    std::shared_ptr<HandleExceptionFactory>& whyFailedFactory()  {
+      return whyFailedFactory_;
+    }
+
   private:
-    EDProduct const* wrap_;
-    Provenance const* prov_;    
+    WrapperHolder product_;
+    Provenance const* prov_;
+    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };
 
   // Free swap function

@@ -1,6 +1,5 @@
 #include "DQM/HLTEvF/interface/PathTimerInserter.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"

@@ -2,7 +2,7 @@
 //
 // Package:    TestFailuresAnalyzer
 // Class:      TestFailuresAnalyzer
-// 
+//
 /**\class TestFailuresAnalyzer TestFailuresAnalyzer.cc stubs/TestFailuresAnalyzer/src/TestFailuresAnalyzer.cc
 
  Description: <one line class summary>
@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestFailuresAnalyzer.cc,v 1.2 2006/10/21 17:18:57 wmtan Exp $
 //
 //
 
@@ -24,13 +23,14 @@
 // user include files
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/test/stubs/TestFailuresAnalyzer.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/Utilities/interface/EDMException.h"
 //
 // class decleration
 //
@@ -47,13 +47,16 @@ enum {
    kConstructor,
    kBeginOfJob,
    kEvent,
-   kEndOfJob
+   kEndOfJob,
+   kBeginOfJobBadXML,
+   kEventCorruption
 };
 //
 // constructors and destructor
 //
 TestFailuresAnalyzer::TestFailuresAnalyzer(const edm::ParameterSet& iConfig)
-: whichFailure_(iConfig.getParameter<int>("whichFailure"))
+  : whichFailure_(iConfig.getParameter<int>("whichFailure")),
+    eventToThrow_(iConfig.getUntrackedParameter<unsigned>("eventToThrow", 2U))
 {
    //now do what ever initialization is needed
    if(whichFailure_ == kConstructor){
@@ -64,7 +67,7 @@ TestFailuresAnalyzer::TestFailuresAnalyzer(const edm::ParameterSet& iConfig)
 
 TestFailuresAnalyzer::~TestFailuresAnalyzer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -76,15 +79,18 @@ TestFailuresAnalyzer::~TestFailuresAnalyzer()
 //
 
 // ------------ method called to produce the data  ------------
-void 
-TestFailuresAnalyzer::beginJob(const edm::EventSetup&)
+void
+TestFailuresAnalyzer::beginJob()
 {
    if(whichFailure_ == kBeginOfJob){
       throw cms::Exception("Test") <<" beginJob";
    }
+   if(whichFailure_ == kBeginOfJobBadXML){
+      throw cms::Exception("Test") <<" beginJob with <BAD> >XML<";
+   }
 }
 
-void 
+void
 TestFailuresAnalyzer::endJob()
 {
    if(whichFailure_ == kEndOfJob){
@@ -94,12 +100,14 @@ TestFailuresAnalyzer::endJob()
 
 
 void
-TestFailuresAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup */)
+TestFailuresAnalyzer::analyze(const edm::Event& e /* iEvent */, const edm::EventSetup& /* iSetup */)
 {
    if(whichFailure_ == kEvent){
       throw cms::Exception("Test") <<" event";
    }
-   
+   if(whichFailure_ == kEventCorruption && eventToThrow_ == e.eventAuxiliary().event()) {
+      throw edm::Exception(edm::errors::EventCorruption, "testing exception handling");
+   }
 }
 
 //define this as a plug-in

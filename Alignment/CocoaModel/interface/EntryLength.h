@@ -20,6 +20,7 @@ public:
   //-  EntryLength(){ };
   EntryLength( const ALIstring& type ): Entry(type){
     // std::cout << "entrylength" << std::endl;
+    theDimType = ED_length;
   };
   ~EntryLength(){};
 

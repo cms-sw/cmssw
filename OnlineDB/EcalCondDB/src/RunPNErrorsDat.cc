@@ -28,7 +28,7 @@ RunPNErrorsDat::~RunPNErrorsDat()
 
 
 void RunPNErrorsDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -40,23 +40,23 @@ void RunPNErrorsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			"to_number(:error_bits))");
   } catch (SQLException &e) {
-    throw(runtime_error("RunPNErrorsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("RunPNErrorsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void RunPNErrorsDat::writeDB(const EcalLogicID* ecid, const RunPNErrorsDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunPNErrorsDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("RunPNErrorsDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("RunPNErrorsDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("RunPNErrorsDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -64,14 +64,14 @@ void RunPNErrorsDat::writeDB(const EcalLogicID* ecid, const RunPNErrorsDat* item
     m_writeStmt->setString(3, ( boost::lexical_cast<std::string>(item->getErrorBits()) ).c_str());
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunPNErrorsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("RunPNErrorsDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void RunPNErrorsDat::fetchData(map< EcalLogicID, RunPNErrorsDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -79,7 +79,7 @@ void RunPNErrorsDat::fetchData(map< EcalLogicID, RunPNErrorsDat >* fillMap, RunI
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunPNErrorsDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("RunPNErrorsDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -112,6 +112,6 @@ void RunPNErrorsDat::fetchData(map< EcalLogicID, RunPNErrorsDat >* fillMap, RunI
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("RunPNErrorsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunPNErrorsDat::fetchData():  "+e.getMessage()));
   }
 }

@@ -1,8 +1,8 @@
 #ifndef FastSimulation_EventProducer_FamosManager_H
 #define FastSimulation_EventProducer_FamosManager_H
 
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include <string>
 
 namespace HepMC {
@@ -12,6 +12,8 @@ namespace HepMC {
 namespace edm { 
   class ParameterSet;
   class EventSetup;
+  class Run;
+  class HepMCProduct;
 }
 
 class FSimEvent;
@@ -19,7 +21,8 @@ class TrajectoryManager;
 class PileUpSimulator;
 class MagneticField;
 class CalorimetryManager;
-class RandomEngine;
+class RandomEngineAndDistribution;
+class TrackerTopology;
 
 // using trailing _ for private data members, m_p prefix for PSet variables (MSt)
 
@@ -35,7 +38,7 @@ class FamosManager
   ~FamosManager();
 
   /// Get information from the Event Setup
-  void setupGeometryAndField(const edm::EventSetup & es);    
+  void setupGeometryAndField(edm::Run const& run, const edm::EventSetup & es);
 
   /// The generated event
   //  const HepMC::GenEvent* genEvent() const { return myGenEvent; };
@@ -46,14 +49,21 @@ class FamosManager
 
   /// The real thing is done here
   void reconstruct(const HepMC::GenEvent* evt, 
-		   const reco::CandidateCollection* particles);
+		   const reco::GenParticleCollection* particles,
+		   const HepMC::GenEvent* pu,
+		   const TrackerTopology *tTopo,
+                   RandomEngineAndDistribution const*);
+  
+  void reconstruct(const reco::GenParticleCollection* particles,
+		   const TrackerTopology *tTopo,
+                   RandomEngineAndDistribution const*);
 
   /// The tracker 
   TrajectoryManager * trackerManager() const {return myTrajectoryManager;}
 
   /// The calorimeter 
   CalorimetryManager * calorimetryManager() const {return myCalorimetry;}
-
+  
   
  private:   
 
@@ -69,15 +79,9 @@ class FamosManager
   bool m_pUseMagneticField;
   bool m_Tracking;
   bool m_Calorimetry;
-  bool m_PileUp;
+  bool m_Alignment;
   double weight_;    
   int m_pRunNumber;
   int m_pVerbose;
-
- private:
-
-  const RandomEngine* random;
-
 };
-                       
 #endif

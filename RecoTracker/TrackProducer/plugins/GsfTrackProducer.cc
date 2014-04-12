@@ -1,4 +1,4 @@
-#include "RecoTracker/TrackProducer/interface/GsfTrackProducer.h"
+#include "RecoTracker/TrackProducer/plugins/GsfTrackProducer.h"
 // system include files
 #include <memory>
 // user include files
@@ -8,14 +8,22 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
+#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
 
 GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
-  GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
+  GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
+		       iConfig.getParameter<bool>("useHitsSplitting")),
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( iConfig.getParameter<std::string>( "src" ));
+  setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
+          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
+          consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 //   string a = alias_;
 //   a.erase(a.size()-6,a.size());
@@ -25,6 +33,7 @@ GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::GsfTrackExtraCollection>().setBranchAlias( alias_ + "GsfTrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<TrajGsfTrackAssociationCollection>();
 
 }
 
@@ -40,6 +49,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
   std::auto_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
   std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+
   //
   //declare and get stuff to be retrieved from ES
   //
@@ -47,74 +57,29 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
+  edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
   //
   //declare and get TrackColection to be retrieved from the event
   //
-    AlgoProductCollection algoResults;
+  AlgoProductCollection algoResults;
+  reco::BeamSpot bs;
   try{  
     edm::Handle<TrackCandidateCollection> theTCCollection;
-    getFromEvt(theEvent,theTCCollection);
+    getFromEvt(theEvent,theTCCollection,bs);
     
     //
     //run the algorithm  
     //
     LogDebug("GsfTrackProducer") << "run the algorithm" << "\n";
     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-  } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
+			     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+  } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n"; throw; }
   //
   //put everything in the event
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
-	   outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
+	   outputTrajectoryColl, algoResults, theBuilder.product(), bs);
   LogDebug("GsfTrackProducer") << "end" << "\n";
 }
-
-
-// std::vector<reco::TransientTrack> GsfTrackProducer::getTransient(edm::Event& theEvent, const edm::EventSetup& setup)
-// {
-//   edm::LogInfo("GsfTrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
-//   //
-//   // create empty output collections
-//   //
-//   std::vector<reco::TransientTrack> ttks;
-
-//   //
-//   //declare and get stuff to be retrieved from ES
-//   //
-//   edm::ESHandle<TrackerGeometry> theG;
-//   edm::ESHandle<MagneticField> theMF;
-//   edm::ESHandle<TrajectoryFitter> theFitter;
-//   edm::ESHandle<Propagator> thePropagator;
-//   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-//   getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
-
-//   //
-//   //declare and get TrackColection to be retrieved from the event
-//   //
-//   AlgoProductCollection algoResults;
-//   try{  
-//     edm::Handle<TrackCandidateCollection> theTCCollection;
-//     getFromEvt(theEvent,theTCCollection);
-    
-//     //
-//     //run the algorithm  
-//     //
-//     LogDebug("GsfTrackProducer") << "run the algorithm" << "\n";
-//     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-// 			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-//   } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
-
-
-//   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-//     ttks.push_back( reco::TransientTrack(*((*prod).second),thePropagator.product()->magneticField() ));
-//   }
-
-//   LogDebug("GsfTrackProducer") << "end" << "\n";
-
-//   return ttks;
-// }
-
-

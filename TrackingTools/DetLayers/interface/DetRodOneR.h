@@ -2,7 +2,7 @@
 #define DetLayers_DetRodOneR_H
 
 /** \class DetRodOneR
- *  A rod of detectors, all having the same BoundPlane.
+ *  A rod of detectors, all having the same Plane.
  */
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
@@ -15,8 +15,6 @@ class DetRodOneR : public DetRod {
  public: 
   typedef std::vector<GeometricSearchDet*> DetContainer;
 
-  /// Dummy constructor
-  DetRodOneR(){};
 
   /// Construct from iterators on GeomDet*
   DetRodOneR( std::vector<const GeomDet*>::const_iterator first,

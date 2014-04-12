@@ -1,7 +1,5 @@
 /** \file
  * 
- *  $Date: 2005/11/10 13:21:02 $
- *  $Revision: 1.3 $
  *
  * \author N. Amapane - INFN Torino
  */
@@ -9,7 +7,6 @@
 
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 
-#include <iostream>
 
 using namespace std;
 
@@ -31,15 +28,14 @@ DTDigi::DTDigi (int wire, double tdrift, int number):
 {}
 
 
-DTDigi::DTDigi (ChannelType channel, int nTDC):
-  theWire(0),
-  theCounts(nTDC),
-  theNumber(0)
-{
-  ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
-  theWire = ch->wire;
-  theNumber = ch->number;
-}
+// DTDigi::DTDigi (ChannelType channel, int nTDC):
+//   theWire(0),
+//   theCounts(nTDC),
+//   theNumber(0)
+// {
+//   theNumber = channel&number_mask;
+//   theWire   = (channel&wire_mask)>>wire_offset;
+// }
 
 
 DTDigi::DTDigi ():
@@ -59,19 +55,9 @@ DTDigi::operator == (const DTDigi& digi) const {
 }
 
 // Getters
-DTDigi::ChannelType
-DTDigi::channel() const {
-  ChannelPacking result;
-  result.wire = theWire;
-  result.number= theNumber;
-  return *(reinterpret_cast<DTDigi::ChannelType*>(&result));
-}
-
-// DTEnum::ViewCode
-// DTDigi::viewCode() const{
-//   if ( slayer()==2 )
-//     return DTEnum::RZed;
-//   else return DTEnum::RPhi;
+// DTDigi::ChannelType
+// DTDigi::channel() const {
+//   return  (theNumber & number_mask) | (theWire<<wire_offset)&wire_mask;
 // }
 
 double DTDigi::time() const { return theCounts*reso; }

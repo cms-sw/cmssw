@@ -1,4 +1,5 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 FastCircle::FastCircle(const GlobalPoint& outerHit,
 		       const GlobalPoint& middleHit,
@@ -6,7 +7,7 @@ FastCircle::FastCircle(const GlobalPoint& outerHit,
   theOuterPoint(outerHit), 
   theInnerPoint(middleHit), 
   theVertexPoint(aVertex), 
-  theNorm(100.), 
+  theNorm(128.), 
   theX0(0.), 
   theY0(0.), 
   theRho(0.),
@@ -39,11 +40,30 @@ FastCircle::FastCircle(const GlobalPoint& outerHit,
   
 }
 
+namespace {
+  inline
+  AlgebraicVector3 transform(const GlobalPoint& aPoint, float norm) {
+    
+    AlgebraicVector3 riemannPoint;
+    
+    auto p = aPoint.basicVector()/norm;
+    float R2 = p.perp2();
+    float fact = 1.f/(1.f+R2); // let's factorize the common factor out
+    riemannPoint[0] = fact*p.x();  
+    riemannPoint[1] = fact*p.y();  
+    riemannPoint[2] = fact*R2;
+    
+    return riemannPoint;
+  }
+
+
+}
+
 void FastCircle::createCircleParameters() {
   
-  AlgebraicVector3 x = transform(theOuterPoint);
-  AlgebraicVector3 y = transform(theInnerPoint);
-  AlgebraicVector3 z = transform(theVertexPoint);
+  AlgebraicVector3 x = transform(theOuterPoint,theNorm);
+  AlgebraicVector3 y = transform(theInnerPoint,theNorm);
+  AlgebraicVector3 z = transform(theVertexPoint,theNorm);
 
   AlgebraicVector3 n;
 
@@ -51,6 +71,11 @@ void FastCircle::createCircleParameters() {
   n[1] = -(x[0]*(y[2] - z[2]) + y[0]*(z[2] - x[2]) + z[0]*(x[2] - y[2]));
   n[2] =   x[0]*(y[1] - z[1]) + y[0]*(z[1] - x[1]) + z[0]*(x[1] - y[1]);
 
+  double mag2 = n[0]*n[0]+n[1]*n[1]+n[2]*n[2];
+  if (mag2 < 1.e-20) {
+    theValid = false;
+    return;
+  }
   n.Unit(); // reduce n to a unit vector
   double  c = -(n[0]*x[0] + n[1]*x[1] + n[2]*x[2]);
   //  c = -(n[0]*y[0] + n[1]*y[1] + n[2]*y[2]);
@@ -78,19 +103,3 @@ void FastCircle::createCircleParameters() {
 
 }
 
-AlgebraicVector3 FastCircle::transform(const GlobalPoint& aPoint) const {
-
-  AlgebraicVector3 riemannPoint;
-
-  double R = aPoint.perp();
-  R /= theNorm;
-  double phi = 0.;
-  if(R > 0.) phi = aPoint.phi();
- 
-  double fact = R/(1+R*R); // let's factorize the common factor out
-  riemannPoint[0] = fact*cos(phi);
-  riemannPoint[1] = fact*sin(phi);
-  riemannPoint[2] = fact*R;
-  
-  return riemannPoint;
-}

@@ -5,9 +5,6 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.12 2007/03/04 06:00:22 wmtan Exp $
-
-
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -16,7 +13,7 @@ $Id: ProductRegistryHelper.h,v 1.12 2007/03/04 06:00:22 wmtan Exp $
 #include <list>
 
 namespace edm {
-  class EDProduct;
+  class WrapperOwningHolder;
   class ModuleDescription;
   class ProductRegistry;
   class ProductRegistryHelper {
@@ -75,14 +72,20 @@ namespace edm {
 
     template <typename ProductType, BranchType B> 
     TypeLabelItem const& produces(std::string const& instanceName) {
-
-      ProductType aproduct;
-      TypeID tid(aproduct);
-      TypeLabelItem tli(B, tid, instanceName);
-      typeLabelList_.push_back(tli);
-      return *typeLabelList_.rbegin();
+      TypeID tid(typeid(ProductType));
+      return produces<B>(tid,instanceName);
     }
 
+   
+    TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
+       return produces<InEvent>(id,instanceName);
+    }
+
+    template <BranchType B>
+    TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
+       typeLabelList_.emplace_back(B, id, instanceName);
+       return *typeLabelList_.rbegin();
+    }
   private:
     TypeLabelList typeLabelList_;
   };

@@ -9,12 +9,11 @@ NOTE: This is *very* incomplete.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/ParameterSet/interface/Registry.h"
-
-namespace edm
-{
+namespace edm {
   class ParameterSet;
   class FileInPath;
+  class ParameterSetDescription;
+  class ConfigurationDescriptions;
 }
 
 #endif

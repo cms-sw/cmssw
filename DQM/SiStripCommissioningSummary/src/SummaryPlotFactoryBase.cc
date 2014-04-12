@@ -87,8 +87,9 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
       << level_ << "\"";
   } 
   
-  if ( gran_ == sistrip::UNKNOWN_GRAN ||
-       gran_ == sistrip::UNDEFINED_GRAN ) {
+  if ( ( gran_ == sistrip::UNKNOWN_GRAN ||
+	 gran_ == sistrip::UNDEFINED_GRAN ) &&
+       pres != sistrip::HISTO_1D ) {
     edm::LogWarning(mlSummaryPlots_) 
       << "[SummaryPlotFactoryBase::" << __func__ << "]"
       << " Unexpected granularity: " 
@@ -133,6 +134,9 @@ void SummaryPlotFactoryBase::fill( TH1& summary_histo ) {
       << " NULL pointer to TH1 object!";
     return;
   }
+  
+  // Print contents of map for histogram
+  //generator_->printMap();
   
   // Generate appropriate summary histogram 
   if ( pres_ == sistrip::HISTO_1D ) {

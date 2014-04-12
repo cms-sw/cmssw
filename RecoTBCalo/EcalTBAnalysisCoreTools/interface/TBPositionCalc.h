@@ -3,6 +3,7 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
+#include "Rtypes.h"
 
 #include <fstream>
 #include <vector>
@@ -19,23 +20,24 @@
 #include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h" 
 
 
 class TBPositionCalc
 {
  public:
   
-  TBPositionCalc(std::map<std::string,double> providedParameters, const std::string& mapFile, const CaloSubdetectorGeometry *passedGeometry);  
+  TBPositionCalc(const std::map<std::string,double>& providedParameters, const std::string& mapFile, const CaloSubdetectorGeometry *passedGeometry);  
 
   TBPositionCalc() { };
 
   ~TBPositionCalc();
 
-  Hep3Vector CalculateTBPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
+  CLHEP::Hep3Vector CalculateTBPos(const std::vector<EBDetId>& passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
   
-  Hep3Vector CalculateCMSPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
+  CLHEP::Hep3Vector CalculateCMSPos(const std::vector<EBDetId>& passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
   
-  void computeRotation(int myCrystal, HepRotation & CMStoTB );
+  void computeRotation(int myCrystal, CLHEP::HepRotation & CMStoTB );
     
 
  private:

@@ -1,27 +1,20 @@
 /**
  * \file testChannel.cc
  *
- * $Date: 2007/04/23 07:41:33 $
- * $Revision: 1.6 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
 
 
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 
 #include "TFile.h"
 
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/testChannel.h"
-#include <fstream>
-#include <iostream>
 
 //! ctor
-testChannel::testChannel (const ParameterSet& paramSet) :
+testChannel::testChannel (const edm::ParameterSet& paramSet) :
   m_digiCollection (paramSet.getParameter<std::string> ("digiCollection")) ,
   m_digiProducer (paramSet.getParameter<std::string> ("digiProducer")) ,
   m_headerProducer (paramSet.getParameter<std::string> ("headerProducer")) ,
@@ -51,24 +44,24 @@ testChannel::~testChannel ()
 
 
 //! begin the job
-void testChannel::beginJob (EventSetup const& eventSetup)
+void testChannel::beginJob ()
 {
    LogDebug ("testChannel") << "entering beginJob ..." ;
 }
 
 
 //! perform te analysis
-void testChannel::analyze (Event const& event, 
-                           EventSetup const& eventSetup) 
+void testChannel::analyze (edm::Event const& event, 
+                           edm::EventSetup const& eventSetup) 
 {
    LogDebug ("testChannel") << "entering analyze ..." ;
 
    // get the headers
    // (one header for each supermodule)
    edm::Handle<EcalRawDataCollection> DCCHeaders ;
-   try {
-     event.getByLabel (m_headerProducer, DCCHeaders) ;
-   } catch ( std::exception& ex ) {
+   event.getByLabel (m_headerProducer, DCCHeaders) ;
+   if(!DCCHeaders.isValid())
+   {
      edm::LogError ("testChannel") << "Error! can't get the product " 
                                    << m_headerProducer.c_str () ;
    }
@@ -88,10 +81,9 @@ void testChannel::analyze (Event const& event,
 
    // get the digis
    // (one digi for each crystal)
-   Handle<EBDigiCollection> pDigis;
-   try {
-     event.getByLabel (m_digiProducer, pDigis) ;
-   } catch ( std::exception& ex ) 
+   edm::Handle<EBDigiCollection> pDigis;
+   event.getByLabel (m_digiProducer, pDigis) ;
+   if(!pDigis.isValid())
    {
      edm::LogError ("testChannel") << "Error! can't get the product " 
                                    << m_digiCollection.c_str () ;

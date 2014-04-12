@@ -1,5 +1,6 @@
 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayLinearizationPointFinder.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 
 const TwoBodyDecayParameters 
@@ -9,8 +10,10 @@ TwoBodyDecayLinearizationPointFinder::getLinearizationPoint( const std::vector< 
 {
   GlobalPoint linPoint = tracks[0]->linearizationPoint();
   PerigeeLinearizedTrackState* linTrack1 = dynamic_cast<PerigeeLinearizedTrackState*>( tracks[0].get() );
-  GlobalVector firstMomentum = linTrack1->predictedState().momentum();
   PerigeeLinearizedTrackState* linTrack2 = dynamic_cast<PerigeeLinearizedTrackState*>( tracks[1].get() );
+  if (!linTrack1 || !linTrack2) return TwoBodyDecayParameters();
+
+  GlobalVector firstMomentum = linTrack1->predictedState().momentum();
   GlobalVector secondMomentum = linTrack2->predictedState().momentum();
 
   AlgebraicVector secondaryMomentum1( 3 );

@@ -14,45 +14,33 @@
 
 // system include files
 #include <string>
-#include <TTree.h>
-#include <TFile.h>
-#include <TRotMatrix.h>
+#include "TTree.h"
+#include "TFile.h"
+// #include "TRotMatrix.h"
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
-
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/GeometrySurface/interface/TkRotation.h"
+
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include <boost/cstdint.hpp> 
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CLHEP/Vector/RotationInterfaces.h" 
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-
-#include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //
 //
 // class declaration
@@ -130,6 +118,12 @@ TestConverter2::~TestConverter2()
 void
 TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
    
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
@@ -164,60 +158,60 @@ TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 		  
 		  if ((*it).rawId() == (*iGeomDet).rawId()) {
 		  
-		    DetId * thisId = new DetId( (*iGeomDet).rawId() );
-
-		    if (thisId->subdetId() == int(StripSubdetector::TIB) ) {
-		      TIBDetId * thisTIBid = new TIBDetId( *thisId );
+		    DetId thisId((*iGeomDet).rawId());
+		    
+		    if (thisId.subdetId() == int(StripSubdetector::TIB) ) {
+		      
 		      subdid_ = 3;
-		      layerdisk_ = thisTIBid->layer(); 
-		      std::vector<unsigned int> theString = thisTIBid->string();
+		      layerdisk_ = tTopo->tibLayer(thisId); 
+		      std::vector<unsigned int> theString = tTopo->tibStringInfo(thisId);
 		      fwbw_ = theString[0];
 		      frontback_ = theString[1];
 		      stringrod_ = theString[2];
 		      petal_ = 0;
-		      module_ = thisTIBid->module();
+		      module_ = tTopo->tibModule(thisId);
 
-		    } else if (thisId->subdetId() == int(StripSubdetector::TID) ) {
-		      TIDDetId * thisTIDid = new TIDDetId( *thisId );
+		    } else if (thisId.subdetId() == int(StripSubdetector::TID) ) {
+		      
 		      subdid_ = 4;
-		      layerdisk_ = thisTIDid->wheel(); 
-		      std::vector<unsigned int> theModule = thisTIDid->module();
+		      layerdisk_ = tTopo->tidWheel(thisId); 
+		      std::vector<unsigned int> theModule = tTopo->tidModuleInfo(thisId);
 		      frontback_ = theModule[0];
 		      module_ = theModule[1];
 		      petal_ = 0;
-		      fwbw_ = thisTIDid->side();
-		      stringrod_ = thisTIDid->ring();
+		      fwbw_ = tTopo->tidSide(thisId);
+		      stringrod_ = tTopo->tidRing(thisId);
 		     
-		    } else if (thisId->subdetId() == int(StripSubdetector::TOB) ) {
-		      TOBDetId * thisTOBid = new TOBDetId( *thisId );
+		    } else if (thisId.subdetId() == int(StripSubdetector::TOB) ) {
+		      
 		      subdid_ = 5;
-		      layerdisk_ = thisTOBid->layer(); 
-		      std::vector<unsigned int> theRod = thisTOBid->rod();
+		      layerdisk_ = tTopo->tobLayer(thisId); 
+		      std::vector<unsigned int> theRod = tTopo->tobRodInfo(thisId);
 		      fwbw_ = theRod[0];
 		      stringrod_ = theRod[1];
 		      petal_ = 0;
 		      frontback_ = 0;
-		      module_ = thisTOBid->module();
+		      module_ = tTopo->tobModule(thisId);
 		      
-		    } else if (thisId->subdetId() == int(StripSubdetector::TEC) ) {
-		      TECDetId * thisTECid = new TECDetId( *thisId );
+		    } else if (thisId.subdetId() == int(StripSubdetector::TEC) ) {
+		      
 		      subdid_ = 6;
-		      layerdisk_ = thisTECid->wheel(); 
-		      std::vector<unsigned int> thePetal = thisTECid->petal();
+		      layerdisk_ = tTopo->tecWheel(thisId); 
+		      std::vector<unsigned int> thePetal = tTopo->tecPetalInfo(thisId);
 		      frontback_ = thePetal[0];
 		      petal_ = thePetal[1];
-		      fwbw_ = thisTECid->side();
-		      stringrod_ = thisTECid->ring();
-		      module_ = thisTECid->module();
+		      fwbw_ = tTopo->tecSide(thisId);
+		      stringrod_ = tTopo->tecRing(thisId);
+		      module_ = tTopo->tecModule(thisId);
 		         
 		    } else {
-		      std::cout << "WARNING!!! this DetId (" << thisId->rawId() << ") does not belong to SiStrip tracker" << std::endl;
+		      std::cout << "WARNING!!! this DetId (" << thisId.rawId() << ") does not belong to SiStrip tracker" << std::endl;
 		      break;
 		    }
 
-		    // HepRotation fromAngles( (*iGeomDet).eulerAngles()  );
-                    HepRotation fromAngles( (*iGeomDet).rotation()  );
-		    Surface::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
+		    // CLHEP::HepRotation fromAngles( (*iGeomDet).eulerAngles()  );
+                    CLHEP::HepRotation fromAngles( (*iGeomDet).rotation()  );
+		    align::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
 						    fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
 						    fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
 		    
@@ -233,7 +227,7 @@ TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 		    dnx_     = rotation.zx() - (*iDet)->rotation().zx();
 		    dny_     = rotation.zy() - (*iDet)->rotation().zy();
 		    dnz_     = rotation.zz() - (*iDet)->rotation().zz();
-                    HepSymMatrix errMat = (*it).matrix();
+                    CLHEP::HepSymMatrix errMat = (*it).matrix();
                     errx_    = sqrt(errMat[0][0]); 
 		    erry_    = sqrt(errMat[1][1]);
 		    errz_    = sqrt(errMat[2][2]); 

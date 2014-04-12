@@ -24,7 +24,7 @@ class CSCFakeCrosstalkConditions: public edm::ESProducer, public edm::EventSetup
   float mean,min,minchi;
   int seed;long int M;
 
-  void prefillFakeCrosstalk();
+  void prefillCrosstalk();
   
   typedef const  CSCcrosstalk * ReturnType;
   

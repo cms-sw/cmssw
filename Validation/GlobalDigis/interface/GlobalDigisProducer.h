@@ -7,8 +7,6 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/04/30 13:49:00 $
- *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -24,6 +22,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+//DQM services
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // ecal calorimeter info
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
@@ -57,16 +59,10 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 // silicon pixel info
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
 // muon DT info
 #include "DataFormats/DTDigi/interface/DTDigi.h"
@@ -83,15 +79,15 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
 // event info
-#include "SimDataFormats/GlobalDigiValidation/interface/PGlobalDigi.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 // helper files
-#include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
+//#include <CLHEP/Vector/LorentzVector.h>
+//#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <stdlib.h>
@@ -116,7 +112,7 @@ class GlobalDigisProducer : public edm::EDProducer
 
   explicit GlobalDigisProducer(const edm::ParameterSet&);
   virtual ~GlobalDigisProducer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob( void );
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
@@ -181,6 +177,7 @@ class GlobalDigisProducer : public edm::EDProducer
   FloatVector HFCalSHE;
 
   edm::InputTag HCalSrc_;
+  edm::InputTag HCalDigi_;
 
   // Tracker info
   // SiStrip
@@ -240,7 +237,29 @@ class GlobalDigisProducer : public edm::EDProducer
   // private statistics information
   unsigned int count;
 
+  //fix for consumes
+  edm::EDGetTokenT<EBDigiCollection> ECalEBSrc_Token_;
+  edm::EDGetTokenT<EEDigiCollection> ECalEESrc_Token_;
+  edm::EDGetTokenT<ESDigiCollection> ECalESSrc_Token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> HCalSrc_Token_;
+  edm::EDGetTokenT<edm::SortedCollection<HBHEDataFrame> > HBHEDigi_Token_;
+  edm::EDGetTokenT<edm::SortedCollection<HODataFrame> > HODigi_Token_;
+  edm::EDGetTokenT<edm::SortedCollection<HFDataFrame> > HFDigi_Token_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > SiStripSrc_Token_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > SiPxlSrc_Token_;
+  edm::EDGetTokenT<DTDigiCollection> MuDTSrc_Token_;
+  edm::EDGetTokenT<CSCStripDigiCollection> MuCSCStripSrc_Token_;
+  edm::EDGetTokenT<CSCWireDigiCollection> MuCSCWireSrc_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
+
 }; // end class declaration
+
+#endif
+
+#ifndef GlobalHitMap
+#define GlobalHitMap
 
 // geometry mapping
 static const int dTrk             = 1;

@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.4 2007/06/19 12:29:21 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
@@ -16,8 +15,7 @@
 #include <map>
 
 class CommissioningHistograms;
-class DaqMonitorBEInterface;
-class MonitorUIRoot;
+class DQMStore;
 class TH1;
 
 /**
@@ -35,20 +33,20 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   SiStripCommissioningOfflineClient( const edm::ParameterSet& );
   virtual ~SiStripCommissioningOfflineClient();
   
-  virtual void beginJob( edm::EventSetup const& );
+  virtual void beginRun( const edm::Run&, const edm::EventSetup& );
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   virtual void endJob();
   
  protected:
 
-  virtual void createCommissioningHistograms();
-  virtual void testUploadToDb() {;}
-  virtual void uploadToDb() {;}
-
+  virtual void createHistos( const edm::ParameterSet&, const edm::EventSetup& );
+  virtual void uploadToConfigDb() {;}
+  virtual void setInputFiles( std::vector<std::string>&, const std::string, uint32_t, bool );
+  
  protected:
 
-  /** MonitorUserInterface object. */ 
-  MonitorUIRoot* mui_;
+  /** DQMStore object. */ 
+  DQMStore* bei_;
   
   /** Action "executor" */
   CommissioningHistograms* histos_;
@@ -94,6 +92,9 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   
   /** SummaryPlot objects. */
   std::vector<SummaryPlot> plots_;
+
+  /** */
+  edm::ParameterSet parameters_;
   
 };
 

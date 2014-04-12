@@ -3,6 +3,7 @@
 
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDigi/interface/ESSample.h"
+#include "DataFormats/Common/interface/DataFrame.h"
 #include <vector>
 #include <ostream>
 
@@ -14,6 +15,8 @@ class ESDataFrame {
 
   ESDataFrame(); 
   explicit ESDataFrame(const ESDetId& id);
+
+  ESDataFrame( const edm::DataFrame& df ) ;
     
   const ESDetId& id() const { return id_; }
     
@@ -33,7 +36,7 @@ class ESDataFrame {
   ESDetId id_;
   int size_;
 
-  std::vector<ESSample> data_;    
+  ESSample data_[MAXSAMPLES] ;
 };
   
 std::ostream& operator<<(std::ostream&, const ESDataFrame&);

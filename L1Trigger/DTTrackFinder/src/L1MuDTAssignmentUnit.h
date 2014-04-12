@@ -9,8 +9,6 @@
  *   found by the Track Assembler
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -31,7 +29,7 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessorc.h"
+#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -49,7 +47,7 @@ class L1MuDTSectorProcessor;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTAssignmentUnit : public L1AbstractProcessorc {
+class L1MuDTAssignmentUnit : public L1AbstractProcessor {
 
   public:
 
@@ -95,7 +93,7 @@ class L1MuDTAssignmentUnit : public L1AbstractProcessorc {
     PtAssMethod getPtMethod() const;
     
     /// calculate bend angle
-    int getPtAddress(PtAssMethod) const;
+    int getPtAddress(PtAssMethod, int bendcharge=0) const;
     
     /// build difference of two phi values
     int phiDiff(int stat1, int stat2) const;

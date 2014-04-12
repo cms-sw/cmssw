@@ -1,13 +1,12 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.9 2007/06/29 10:12:43 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForDqm.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForView.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
-#include <sstream>
 
 // -----------------------------------------------------------------------------
 //
@@ -101,8 +100,7 @@ SiStripFecKey::SiStripFecKey( const SiStripKey& input ) :
   lldChan_(sistrip::invalid_),
   i2cAddr_(sistrip::invalid_)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(input);
-  SiStripFecKey& fec_key = dynamic_cast<SiStripFecKey&>(temp);
+  const SiStripFecKey& fec_key = dynamic_cast<const SiStripFecKey&>(input);
   if ( (&fec_key) ) {
     key(fec_key.key());
     path(fec_key.path());
@@ -122,16 +120,15 @@ SiStripFecKey::SiStripFecKey( const SiStripKey& input ) :
 SiStripFecKey::SiStripFecKey( const SiStripKey& input,
 			      const sistrip::Granularity& gran ) :
   SiStripKey(),
-  fecCrate_(sistrip::invalid_), 
-  fecSlot_(sistrip::invalid_),
-  fecRing_(sistrip::invalid_), 
-  ccuAddr_(sistrip::invalid_),
-  ccuChan_(sistrip::invalid_), 
-  lldChan_(sistrip::invalid_),
-  i2cAddr_(sistrip::invalid_)
+  fecCrate_(0), 
+  fecSlot_(0),
+  fecRing_(0), 
+  ccuAddr_(0),
+  ccuChan_(0), 
+  lldChan_(0),
+  i2cAddr_(0)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(input);
-  SiStripFecKey& fec_key = dynamic_cast<SiStripFecKey&>(temp);
+  const SiStripFecKey& fec_key = dynamic_cast<const SiStripFecKey&>(input);
   if ( (&fec_key) ) {
     
     if ( gran == sistrip::FEC_CRATE || gran == sistrip::FEC_SLOT ||
@@ -229,8 +226,9 @@ uint16_t SiStripFecKey::i2cAddr( const uint16_t& lld_chan,
 // -----------------------------------------------------------------------------
 // 
 uint16_t SiStripFecKey::lldChan( const uint16_t& i2c_addr ) {
-  if ( i2c_addr < sistrip::APV_I2C_MIN ||
-       i2c_addr > sistrip::APV_I2C_MAX ) {
+  if ( i2c_addr == 0 ) { return 0; }
+  else if ( i2c_addr < sistrip::APV_I2C_MIN ||
+	    i2c_addr > sistrip::APV_I2C_MAX ) {
     return sistrip::invalid_;
   }
   return ( ( i2c_addr - sistrip::APV_I2C_MIN ) / 2 + 1 );
@@ -249,8 +247,7 @@ bool SiStripFecKey::firstApvOfPair( const uint16_t& i2c_addr ) {
 // -----------------------------------------------------------------------------
 // 
 bool SiStripFecKey::isEqual( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripFecKey& input = dynamic_cast<SiStripFecKey&>(temp);
+  const SiStripFecKey& input = dynamic_cast<const SiStripFecKey&>(key);
   if ( !(&input) ) { return false; }
   if ( fecCrate_ == input.fecCrate() &&
        fecSlot_ == input.fecSlot() &&
@@ -266,8 +263,7 @@ bool SiStripFecKey::isEqual( const SiStripKey& key ) const {
 // -----------------------------------------------------------------------------
 // 
 bool SiStripFecKey::isConsistent( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripFecKey& input = dynamic_cast<SiStripFecKey&>(temp);
+  const SiStripFecKey& input = dynamic_cast<const SiStripFecKey&>(key);
   if ( !(&input) ) { return false; }
   if ( isEqual(input) ) { return true; }
   else if ( ( fecCrate_ == 0 || input.fecCrate() == 0 ) &&
@@ -409,12 +405,11 @@ void SiStripFecKey::initFromValue() {
   // APV I2C address
   if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
        i2cAddr_ <= sistrip::APV_I2C_MAX ) { 
-    i2cAddr_ = i2cAddr_;
-//     // Consistency check wrt LLD channel
-//     if ( lldChan(i2cAddr_) && lldChan_ &&
-// 	 lldChan(i2cAddr_) != lldChan_ ) {
-//       i2cAddr_ = sistrip::invalid_;
-//     }
+    i2cAddr_ = i2cAddr_; 
+    if ( lldChan_ && lldChan( i2cAddr_ ) != lldChan_ ) { 
+      i2cAddr_ = sistrip::invalid_;
+      key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+    }
   } else if ( i2cAddr_ == 0 ) { 
     i2cAddr_ = 0;
   } else { i2cAddr_ = sistrip::invalid_; }
@@ -495,12 +490,11 @@ void SiStripFecKey::initFromKey() {
     // Extract APV I2C address
     if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
 	 i2cAddr_ <= sistrip::APV_I2C_MAX ) {
-      key( key() | ( hybridPos(i2cAddr_) << i2cAddrOffset_ ) ); 
-//       // Consistency check wrt LLD channel
-//       if ( lldChan(i2cAddr_) && lldChan_ &&
-// 	   lldChan(i2cAddr_) != lldChan_ ) {
-// 	i2cAddr_ |= (i2cAddrMask_<<i2cAddrOffset_) ); 
-//       }
+      key( key() | ( ( firstApvOfPair( i2cAddr_ ) ? 1 : 2 ) << i2cAddrOffset_ ) ); // key encodes APV number (1 or 2)
+      if ( lldChan_ && lldChan( i2cAddr_ ) != lldChan_ ) { 
+	i2cAddr_ = sistrip::invalid_;
+	key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+      }
     } else if ( i2cAddr_ == 0 ) { 
       key( key() | (i2cAddr_<<i2cAddrOffset_) );
     } else { 
@@ -520,20 +514,14 @@ void SiStripFecKey::initFromKey() {
     i2cAddr_  = ( key()>>i2cAddrOffset_ )  & i2cAddrMask_;
 
     if ( fecCrate_ == fecCrateMask_ ) { fecCrate_ = sistrip::invalid_; } 
-    if ( fecSlot_ == fecSlotMask_ )   { fecSlot_ = sistrip::invalid_; } 
-    if ( fecRing_ == fecRingMask_ )   { fecRing_ = sistrip::invalid_; } 
-    if ( ccuAddr_ == ccuAddrMask_ )   { ccuAddr_ = sistrip::invalid_; } 
-    if ( ccuChan_ == ccuChanMask_ )   { ccuChan_ = sistrip::invalid_; }
-    else if ( ccuChan_ )              { ccuChan_ += (sistrip::CCU_CHAN_MIN-1); }
-    if ( lldChan_ == lldChanMask_ )   { lldChan_ = sistrip::invalid_; }
-    if ( i2cAddr_ == i2cAddrMask_ )   { i2cAddr_ = sistrip::invalid_; }
-    else if ( i2cAddr_ )              { i2cAddr_ = i2cAddr(i2cAddr_); }
-    
-//     // Consistency check wrt LLD channel
-//     if ( lldChan(i2cAddr_) && lldChan_ &&
-// 	 lldChan(i2cAddr_) != lldChan_ ) {
-//       i2cAddr_ = sistrip::invalid_;
-//     }
+    if ( fecSlot_ == fecSlotMask_ ) { fecSlot_ = sistrip::invalid_; } 
+    if ( fecRing_ == fecRingMask_ ) { fecRing_ = sistrip::invalid_; } 
+    if ( ccuAddr_ == ccuAddrMask_ ) { ccuAddr_ = sistrip::invalid_; } 
+    if ( ccuChan_ == ccuChanMask_ ) { ccuChan_ = sistrip::invalid_; }
+    else if ( ccuChan_ ) { ccuChan_ += (sistrip::CCU_CHAN_MIN-1); }
+    if ( lldChan_ == lldChanMask_ ) { lldChan_ = sistrip::invalid_; }
+    if ( i2cAddr_ == i2cAddrMask_ ) { i2cAddr_ = sistrip::invalid_; }
+    else if ( i2cAddr_ && lldChan_ != lldChanMask_ ) { i2cAddr_ = i2cAddr( lldChan_, 2-i2cAddr_ ); }
     
   }
   
@@ -605,11 +593,11 @@ void SiStripFecKey::initFromPath() {
     // Check if root is found
     if ( path().find( sistrip::root_ ) == std::string::npos ) {
       std::string temp = path();
-      path( sistrip::root_ + sistrip::dir_ + temp );
+      path( std::string(sistrip::root_) + sistrip::dir_ + temp );
     }
     
-    uint32_t curr = 0; // current string position
-    uint32_t next = 0; // next string position
+    size_t curr = 0; // current string position
+    size_t next = 0; // next string position
     next = path().find( sistrip::controlView_, curr );
 
     // Extract view 
@@ -617,16 +605,16 @@ void SiStripFecKey::initFromPath() {
     if ( curr != std::string::npos ) { 
       next = path().find( sistrip::fecCrate_, curr );
       std::string control_view( path(), 
-				curr+sistrip::controlView_.size(), 
-				(next-sistrip::dir_.size())-curr );
+				curr+(sizeof(sistrip::controlView_) - 1), 
+				next-(sizeof(sistrip::dir_) - 1)-curr );
       
       // Extract FEC crate
       curr = next;
       if ( curr != std::string::npos ) { 
 	next = path().find( sistrip::fecSlot_, curr );
 	std::string fec_crate( path(), 
-			       curr+sistrip::fecCrate_.size(), 
-			       (next-sistrip::dir_.size())-curr );
+			       curr+(sizeof(sistrip::fecCrate_) - 1), 
+			       next-(sizeof(sistrip::dir_) - 1)-curr );
 	fecCrate_ = std::atoi( fec_crate.c_str() );
 
 	// Extract FEC slot
@@ -634,8 +622,8 @@ void SiStripFecKey::initFromPath() {
 	if ( curr != std::string::npos ) { 
 	  next = path().find( sistrip::fecRing_, curr );
 	  std::string fec_slot( path(), 
-				curr+sistrip::fecSlot_.size(), 
-				(next-sistrip::dir_.size())-curr );
+				curr+(sizeof(sistrip::fecSlot_) - 1), 
+				next-(sizeof(sistrip::dir_) - 1)-curr );
 	  fecSlot_ = std::atoi( fec_slot.c_str() );
 
 	  // Extract FEC ring
@@ -643,8 +631,8 @@ void SiStripFecKey::initFromPath() {
 	  if ( curr != std::string::npos ) { 
 	    next = path().find( sistrip::ccuAddr_, curr );
 	    std::string fec_ring( path(), 
-				  curr+sistrip::fecRing_.size(),
-				  (next-sistrip::dir_.size())-curr );
+				  curr+(sizeof(sistrip::fecRing_) - 1),
+				  next-(sizeof(sistrip::dir_) - 1)-curr );
 	    fecRing_ = std::atoi( fec_ring.c_str() );
 
 	    // Extract CCU address
@@ -652,8 +640,8 @@ void SiStripFecKey::initFromPath() {
 	    if ( curr != std::string::npos ) { 
 	      next = path().find( sistrip::ccuChan_, curr );
 	      std::string ccu_addr( path(), 
-				    curr+sistrip::ccuAddr_.size(), 
-				    (next-sistrip::dir_.size())-curr );
+				    curr+(sizeof(sistrip::ccuAddr_) - 1), 
+				    next-(sizeof(sistrip::dir_) - 1)-curr );
 	      ccuAddr_ = std::atoi( ccu_addr.c_str() );
 
 	      // Extract CCU channel
@@ -661,8 +649,8 @@ void SiStripFecKey::initFromPath() {
 	      if ( curr != std::string::npos ) { 
 		next = path().find( sistrip::lldChan_, curr );
 		std::string ccu_chan( path(), 
-				      curr+sistrip::ccuChan_.size(), 
-				      (next-sistrip::dir_.size())-curr );
+				      curr+(sizeof(sistrip::ccuChan_) - 1), 
+				      next-(sizeof(sistrip::dir_) - 1)-curr );
 		ccuChan_ = std::atoi( ccu_chan.c_str() );
 		
 		// Extract LLD channel
@@ -670,8 +658,8 @@ void SiStripFecKey::initFromPath() {
 		if ( curr != std::string::npos ) { 
 		  next = path().find( sistrip::apv_, curr );
 		  std::string lld_chan( path(), 
-					curr+sistrip::lldChan_.size(), 
-					(next-sistrip::dir_.size())-curr );
+					curr+(sizeof(sistrip::lldChan_) - 1), 
+					next-(sizeof(sistrip::dir_) - 1)-curr );
 		  lldChan_ = std::atoi( lld_chan.c_str() );
 		  
 		  // Extract I2C address
@@ -679,7 +667,7 @@ void SiStripFecKey::initFromPath() {
 		  if ( curr != std::string::npos ) { 
 		    next = std::string::npos;
 		    std::string i2c_addr( path(), 
-					  curr+sistrip::apv_.size(),
+					  curr+(sizeof(sistrip::apv_) - 1),
 					  next-curr );
 		    i2cAddr_ = std::atoi( i2c_addr.c_str() );
 		  }
@@ -762,26 +750,81 @@ void SiStripFecKey::initGranularity() {
 
 // -----------------------------------------------------------------------------
 //
-std::ostream& operator<< ( std::ostream& os, const SiStripFecKey& input ) {
-  return os << std::endl
-	    << " [SiStripFecKey::print]" << std::endl
-	    << std::hex
-	    << " FEC key              : 0x" 
-	    << std::setfill('0') 
-	    << std::setw(8) << input.key() << std::endl
-	    << std::setfill(' ') 
-	    << std::dec
-	    << " FEC VME crate        : " << input.fecCrate() << std::endl
-	    << " FEC VME slot         : " << input.fecSlot() << std::endl 
-	    << " FEC control ring     : " << input.fecRing() << std::endl
-	    << " CCU I2C address      : " << input.ccuAddr() << std::endl
-	    << " CCU chan (FE module) : " << input.ccuChan() << std::endl
-	    << " LaserDriver channel  : " << input.lldChan() << std::endl 
-	    << " APV I2C address      : " << input.i2cAddr() << std::endl 
-	    << " Directory            : " << input.path() << std::endl
-	    << " Granularity          : "
-	    << SiStripEnumsAndStrings::granularity( input.granularity() ) << std::endl
- 	    << " Channel              : " << input.channel() << std::endl
-	    << " isValid              : " << input.isValid();
+void SiStripFecKey::terse( std::stringstream& ss ) const {
+  ss << "FEC:crate/slot/ring/CCU/module/LLD/I2C= "
+     << fecCrate() << "/"
+     << fecSlot() << "/"
+     << fecRing() << "/"
+     << ccuAddr() << "/"
+     << ccuChan() << "/"
+     << lldChan() << "/"
+     << i2cAddr();
+//   ss << " FecKey"
+//     //<< "=0x" 
+//     //<< std::hex
+//     //<< std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
+//     //<< std::dec
+//     //<< ", " << ( isValid() ? "Valid" : "Invalid" )
+//      << ", Crate=" << fecCrate()
+//      << ", Slot=" << fecSlot()
+//      << ", Ring=" << fecRing()
+//      << ", CCU=" << ccuAddr()
+//      << ", module=" << ccuChan()
+//      << ", LLD=" << lldChan()
+//      << ", I2C=" << i2cAddr();
 }
 
+// -----------------------------------------------------------------------------
+//
+void SiStripFecKey::print( std::stringstream& ss ) const {
+  ss << " [SiStripFecKey::print]" << std::endl
+     << std::hex
+     << " FEC key              : 0x" 
+     << std::setfill('0') 
+     << std::setw(8) << key() << std::endl
+     << std::setfill(' ') 
+     << std::dec
+     << " FEC VME crate        : " << fecCrate() << std::endl
+     << " FEC VME slot         : " << fecSlot() << std::endl 
+     << " FEC control ring     : " << fecRing() << std::endl
+     << " CCU I2C address      : " << ccuAddr() << std::endl
+     << " CCU chan (FE module) : " << ccuChan() << std::endl
+     << " LaserDriver channel  : " << lldChan() << std::endl 
+     << " APV I2C address      : " << i2cAddr() << std::endl 
+     << " Directory            : " << path() << std::endl
+     << " Granularity          : "
+     << SiStripEnumsAndStrings::granularity( granularity() ) << std::endl
+     << " Channel              : " << channel() << std::endl
+     << " isValid              : " << isValid();
+}
+
+// -----------------------------------------------------------------------------
+//
+std::ostream& operator<< ( std::ostream& os, const SiStripFecKey& input ) {
+  std::stringstream ss;
+  input.print(ss);
+  os << ss.str();
+  return os;
+}
+
+// -----------------------------------------------------------------------------
+//
+ConsistentWithKey::ConsistentWithKey( const SiStripFecKey& key ) 
+  : mask_( key.fecCrate() ? sistrip::invalid_ : 0,
+ 	   key.fecSlot() ? sistrip::invalid_ : 0,
+ 	   key.fecRing() ? sistrip::invalid_ : 0,
+ 	   key.ccuAddr() ? sistrip::invalid_ : 0,
+ 	   key.ccuChan() ? sistrip::invalid_ : 0,
+ 	   key.lldChan() ? sistrip::invalid_ : 0,
+ 	   key.i2cAddr() ? sistrip::invalid_ : 0 ) {;}
+
+// -----------------------------------------------------------------------------
+//
+ConsistentWithKey::ConsistentWithKey() 
+  : mask_(SiStripNullKey()) {;}
+
+// -----------------------------------------------------------------------------
+//
+bool ConsistentWithKey::operator() ( const uint32_t& a, const uint32_t& b ) const {
+  return ( ( a & mask_.key() ) < ( b & mask_.key() ) );
+}

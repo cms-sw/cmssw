@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkevhyp
+Author     : Valentin Kuznetsov <vkuznet@gmail.com>
+Description: mkevhyp code
+"""
+
+# system modules
+import sys
+
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
+
+# package modules
+from FWCore.Skeletons.cms import generate, config
+
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
+
+def pkg_help():
+    "mkevhyp help function"
+    msg  = '\nmkevhyp script generates CMS EventHypothesis code'
+    msg += '\nUsage  : mkevhyp MyEventHypothesis -author "FirstName LastName"'
+    msg += '\nOutput : '
+    msg += """
+        MyEventHypothesis/
+        |-- BuildFile.xml
+        |  interface/
+        |  |-- MyEventHypothesis.h
+        |  |-- EventHypothesisProducer.h
+        |  src/
+        |  |-- MyEventHypothesis.cc
+        |  |-- EventHypothesisProducer.cc
+        """
+    msg += '\nExample:'
+    msg += '\n        # create new EventHypothesis code'
+    msg += '\n        mkevhyp MyEventHypothesis'
+    msg += '\n        # create new EventHypothesis code with given author'
+    msg += '\n        mkevhyp MyEventHypothesis -author "First Last"'
+    msg += '\n'
+    return msg
+
+if __name__ == '__main__':
+    generate(config('EventHypothesis', pkg_help(), tmpl_dir()))

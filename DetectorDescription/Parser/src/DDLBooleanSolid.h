@@ -26,14 +26,14 @@ class DDLBooleanSolid : public DDLSolid
  public:
 
   /// Constructor
-  DDLBooleanSolid();
+  DDLBooleanSolid( DDLElementRegistry* myreg );
 
   /// Destructor
   ~DDLBooleanSolid();
 
-  void preProcessElement (const std::string& name, const std::string& nmspace);
+  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
 
-  void processElement (const std::string& name, const std::string& nmspace); 
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
 
  private:
   std::string dumpBooleanSolid (const std::string& name, const std::string& nmspace); 

@@ -24,7 +24,7 @@ public:
 private:
 
   void update(const BeginOfRun * run);
-  void dumpTouch(G4VPhysicalVolume * pv, uint leafDepth, bool printIt,
+  void dumpTouch(G4VPhysicalVolume * pv, unsigned int leafDepth, bool printIt,
 		 std::ostream & out = std::cout);
   G4VPhysicalVolume * getTopPV();
 

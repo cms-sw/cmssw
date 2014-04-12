@@ -1,12 +1,13 @@
 // This is CSCBaseElectronicsSim.cc
 
-#include "Utilities/Timing/interface/TimingReport.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+#include "CLHEP/Random/RandGaussQ.h"
 
 #include<list>
 #include<algorithm>
@@ -29,8 +30,9 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theSamplingTime(p.getParameter<double>("samplingTime")),
   theNumberOfSamples(static_cast<int>((theSignalStopTime-theSignalStartTime)/theSamplingTime)),
   theOffsetOfBxZero(p.getParameter<int>("timeBitForBxZero")),
-  doNoise_(p.getParameter<bool>("doNoise")),
-  theRandGaussQ(0)
+  theSignalPropagationSpeed(p.getParameter<std::vector<double> >("signalSpeed")),
+  theTimingCalibrationError(p.getParameter<std::vector<double> >("timingCalibrationError")),
+  doNoise_(p.getParameter<bool>("doNoise"))
 {
   assert(theBunchTimingOffsets.size() == 11);
 }
@@ -38,36 +40,24 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
 
 CSCBaseElectronicsSim::~CSCBaseElectronicsSim()
 {
-  delete theRandGaussQ;
-}
-
-
-void CSCBaseElectronicsSim::setRandomEngine(CLHEP::HepRandomEngine& engine)
-{
-  if(theRandGaussQ) delete theRandGaussQ;
-  theRandGaussQ = new RandGaussQ(engine);
 }
 
 
 void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
-                               const std::vector<CSCDetectorHit> & detectorHits)
+                                     const std::vector<CSCDetectorHit> & detectorHits,
+                                     CLHEP::HepRandomEngine* engine)
 {
   theNoiseWasAdded = false;
 
-  TimeMe a("CSCBaseEl:simulate");
   {
     theSignalMap.clear();
     theDetectorHitMap.clear();
-    // fill the specs member data
-    theSpecs = layer->chamber()->specs();
-    theLayer = layer;
+    setLayer(layer);
     // can we swap for efficiency?
     theDigiSimLinks = DigiSimLinks(layerId().rawId());
-    initParameters();
   }
   
   {
-    TimeMe c("CSCBaseEl:loop");
     size_t nHits = detectorHits.size();
       // turn each detector hit into an analog signal
     for( size_t i = 0; i < nHits; ++i) {
@@ -75,16 +65,28 @@ void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
 
       // skip if  hit element is not part of a readout element
       // e.g. wire in non-readout group
-      if ( element != 0 ) add( amplifySignal(detectorHits[i]) );
+      if ( element != 0 ) add( amplifySignal(detectorHits[i]), engine );
     }
   }
   
   {
     if(doNoise_) {
-      addNoise();
+      addNoise(engine);
     }
   }
 } 
+
+
+void CSCBaseElectronicsSim::setLayer(const CSCLayer * layer) 
+{
+  // fill the specs member data
+  theSpecs = layer->chamber()->specs();
+  theLayerGeometry = layer->geometry();
+
+  theLayer = layer;
+  theLayerId = CSCDetId(theLayer->geographicalId().rawId());
+  initParameters();
+}
 
 
 void CSCBaseElectronicsSim::fillAmpResponse() {
@@ -123,28 +125,28 @@ CSCBaseElectronicsSim::amplifySignal(const CSCDetectorHit & detectorHit)  {
 } 
 
 
-CSCAnalogSignal CSCBaseElectronicsSim::makeNoiseSignal(int element) {
+CSCAnalogSignal CSCBaseElectronicsSim::makeNoiseSignal(int element, CLHEP::HepRandomEngine*) {
   std::vector<float> binValues(theNumberOfSamples);
   // default is empty
   return CSCAnalogSignal(element, theSamplingTime, binValues, 0., theSignalStartTime);
 } 
 
 
-void CSCBaseElectronicsSim::addNoise() {
+void CSCBaseElectronicsSim::addNoise(CLHEP::HepRandomEngine* engine) {
   for(CSCSignalMap::iterator mapI = theSignalMap.begin(); 
       mapI!=  theSignalMap.end(); ++mapI) {
     // superimpose electronics noise
-    (*mapI).second.superimpose(makeNoiseSignal((*mapI).first));
+    (*mapI).second.superimpose(makeNoiseSignal((*mapI).first, engine));
     // DON'T do amp gain variations.  Handled in strips by calibration code
     // and variations in the shaper peaking time.
-     double timeOffset = theRandGaussQ->fire((*mapI).second.getTimeOffset(), thePeakTimeSigma);
+    double timeOffset = CLHEP::RandGaussQ::shoot(engine, (*mapI).second.getTimeOffset(), thePeakTimeSigma);
     (*mapI).second.setTimeOffset(timeOffset);
   }
   theNoiseWasAdded = true;
 }
 
 
-CSCAnalogSignal & CSCBaseElectronicsSim::find(int element) {
+CSCAnalogSignal & CSCBaseElectronicsSim::find(int element, CLHEP::HepRandomEngine* engine) {
   if(element <= 0 || element > nElements) {
     LogTrace("CSCBaseElectronicsSim") << "CSCBaseElectronicsSim: bad element = " << element << 
          ". There are " << nElements  << " elements.";
@@ -154,7 +156,7 @@ CSCAnalogSignal & CSCBaseElectronicsSim::find(int element) {
   if(signalMapItr == theSignalMap.end()) {
     CSCAnalogSignal newSignal;
     if(theNoiseWasAdded) {
-      newSignal = makeNoiseSignal(element);
+      newSignal = makeNoiseSignal(element, engine);
     } else {
       std::vector<float> emptyV(theNumberOfSamples);
       newSignal = CSCAnalogSignal(element, theSamplingTime, emptyV, 0., theSignalStartTime);
@@ -165,13 +167,23 @@ CSCAnalogSignal & CSCBaseElectronicsSim::find(int element) {
 }
 
 
-CSCAnalogSignal & CSCBaseElectronicsSim::add(const CSCAnalogSignal & signal) {
+CSCAnalogSignal & CSCBaseElectronicsSim::add(const CSCAnalogSignal & signal, CLHEP::HepRandomEngine* engine) {
   int element = signal.getElement();
-  CSCAnalogSignal & newSignal = find(element);
+  CSCAnalogSignal & newSignal = find(element, engine);
   newSignal.superimpose(signal);
   return newSignal;
 }
  
+
+float CSCBaseElectronicsSim::signalDelay(int element, float pos) const {
+  // readout is on top edge of chamber for strips, right edge
+  // for wires.
+  // zero calibrated to chamber center
+  float distance = -1. * pos;
+  float speed = theSignalPropagationSpeed[theSpecs->chamberType()];
+  return distance / speed;
+}
+
 
 void CSCBaseElectronicsSim::addLinks(int channelIndex) {
   std::pair<DetectorHitMap::iterator, DetectorHitMap::iterator> channelHitItr 
@@ -208,10 +220,5 @@ void CSCBaseElectronicsSim::addLinks(int channelIndex) {
   }
 }
 
-
-
-CSCDetId CSCBaseElectronicsSim::layerId() const {
-  return CSCDetId(theLayer->geographicalId().rawId());
-}
 
 

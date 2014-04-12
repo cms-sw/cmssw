@@ -19,8 +19,7 @@ void ddstats(std::ostream & os)
   int noExpNodes(1); // number of expanded-nodes
 
   // number of Logical- and PosParts, Solids, Materials
-  int noLog(0), noPos(0), noSol(0), noMat(0), noRot(0); 
-  noPos = noEdges;
+  int noLog(0), noSol(0), noMat(0), noRot(0); 
   
   // accumulative number of name-characters (logparts,solids,rotation,materials)
   int noCLog(0), noCSol(0), noCMat(0), noCRot(0);
@@ -28,13 +27,13 @@ void ddstats(std::ostream & os)
   int noSolidP(0); // accumulative number of solid-parameters
  
   // fetch the acyclic multigraph 
-  const graph_type & g = cpv.graph();
+  const DDCompactView::graph_type & g = cpv.graph();
   
   DDExpandedView exv(cpv);
   while (exv.next()) ++noExpNodes;
 
   // iterate over the adjacency-list
-  graph_type::const_adj_iterator it = g.begin();
+  DDCompactView::graph_type::const_adj_iterator it = g.begin();
   for(; it != g.end(); ++it) {
     ++noNodes;
     noEdges += it->size();

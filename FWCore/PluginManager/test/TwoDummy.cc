@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr  6 15:32:53 EDT 2007
-// $Id: TwoDummy.cc,v 1.1.2.1 2007/04/09 18:46:51 chrjones Exp $
 //
 
 // system include files

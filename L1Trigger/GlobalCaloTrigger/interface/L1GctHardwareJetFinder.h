@@ -54,12 +54,6 @@ private:
   static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
-  /// Threshold value to find a local et maximum
-  static const unsigned int JET_THRESHOLD;
-
-  /// Vector of pre-clustered jets formatted as a search array for the final clustering
-  RegionsVector m_protoJetRegions;
-
   /// Local vectors used during both stages of clustering
   RegionsVector m_localMaxima;
   /// Each local maximum becomes a cluster
@@ -67,9 +61,14 @@ private:
 
   /// The number of local Maxima/clusters found at each stage of clustering
   unsigned m_numberOfClusters;
+
+  // Additional clusters to avoid double counting of jets across eta=0
+  RegionsVector m_localMax00;
+  RegionsVector  m_cluster00;
   
   /// The first stage of clustering, called by fetchInput()
   void findProtoJets();  
+  L1GctRegion makeProtoJet(L1GctRegion localMax);
   /// The second stage of clustering, called by process()
   void findJets();  
 
@@ -80,18 +79,6 @@ private:
   /// Convert protojets to final jets
   void findFinalClusters();
 
-  // Comparison operator for sorting local maxima
-  // In the case where the two et values are equal, we favour
-  // the more central region
-/*   struct etGreaterThan : public std::binary_function<L1CaloRegion, L1CaloRegion, bool>  */
-/*   { */
-/*     bool operator()(const L1CaloRegion& x, const L1CaloRegion& y) { */
-/*       return ( (x.et() > y.et()) || ((x.et() == y.et()) && (x.rctEta() < y.rctEta())) ) ; */
-/*     } */
-/*   }; */
-
-  /// Fill search array for the second stage of clustering based on the pre-clustered jets
-  void fillRegionsFromProtoJets();
   /// Organise the pre-clustered jets into the ones we keep and those we send to the neighbour
   void convertClustersToProtoJets();
   /// Organise the final clustered jets into L1GctJets

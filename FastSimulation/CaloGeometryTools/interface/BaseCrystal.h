@@ -8,6 +8,7 @@
 // Unfortunately, GlobalPoints are also needed
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloDirectionOperations.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -40,7 +41,7 @@ class BaseCrystal
     //    }
   ~BaseCrystal() {;}
   /// 
-  void setCorners(const std::vector<GlobalPoint>& vec,const GlobalPoint& pos);
+  void setCorners(const CaloCellGeometry::CornersVec& vec,const GlobalPoint& pos);
 
   inline const std::vector<XYZPoint>& getCorners() const {return corners_;}
 

@@ -1,7 +1,5 @@
 /*  
  *
- *  $Date: 2007/07/20 19:18:20 $
- *  $Revision: 1.5 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -40,7 +38,7 @@ EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string tbName,
 					    int tbTowerIDToLocation[201]) {
 
   LogDebug("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter";
-  std::vector<ulong> parameters;
+  std::vector<uint32_t> parameters;
   parameters.push_back(10); // parameters[0] is the xtal samples 
   parameters.push_back(1);  // parameters[1] is the number of trigger time samples for TPG's
   parameters.push_back(68); // parameters[2] is the number of TT
@@ -52,7 +50,7 @@ EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string tbName,
   parameters.push_back(3);  // parameters[8] is the tcc3 id
   parameters.push_back(4);  // parameters[9] is the tcc4 id
 
-  theParser_ = new DCCDataParser(parameters);
+  theParser_ = new DCCTBDataParser(parameters);
 
   tbName_ = tbName;
 
@@ -73,13 +71,13 @@ EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string tbName,
 void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData , 
 					    EBDigiCollection& digicollection,
 					    EEDigiCollection& eeDigiCollection,
-					    EcalPnDiodeDigiCollection & pndigicollection , 
+					    EcalPnDiodeDigiCollection & pndigicollection, 
 					    EcalRawDataCollection& DCCheaderCollection, 
-					    EBDetIdCollection & dccsizecollection , 
-					    EcalTrigTowerDetIdCollection & ttidcollection , 
-					    EcalTrigTowerDetIdCollection & blocksizecollection,
+					    EBDetIdCollection & dccsizecollection, 
+					    EcalElectronicsIdCollection & ttidcollection, 
+					    EcalElectronicsIdCollection & blocksizecollection,
 					    EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, 
-					    EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection, 
+					    EBDetIdCollection & gainswitchcollection, 
 					    EcalElectronicsIdCollection & memttidcollection,  
 					    EcalElectronicsIdCollection & memblocksizecollection,
 					    EcalElectronicsIdCollection & memgaincollection,  
@@ -105,12 +103,12 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
   pnAllocated = false;
   
 
-  theParser_->parseBuffer( reinterpret_cast<ulong*>(const_cast<unsigned char*>(pData)), static_cast<ulong>(length), shit );
+  theParser_->parseBuffer( reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(pData)), static_cast<uint32_t>(length), shit );
   
-  std::vector< DCCEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
+  std::vector< DCCTBEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
 
-  // Access each DCC block
-  for( std::vector< DCCEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); 
+  // Access each DCCTB block
+  for( std::vector< DCCTBEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); 
        itEventBlock != dccEventBlocks.end(); 
        itEventBlock++){
     
@@ -127,7 +125,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
     // getting the fields of the DCC header
     EcalDCCHeaderBlock theDCCheader;
 
-    theDCCheader.setId(1);                                                      // tb unpacker: forced to 1 to get first geom slot in EB
+    theDCCheader.setId(46);                                                      // tb EE unpacker: forced to 46 to match EE region used at h2
     int fedId = (*itEventBlock)->getDataField("FED/DCC ID");
     theDCCheader.setFedId( fedId );                                             // fed id as found in raw data (0... 35 at tb )
 
@@ -146,6 +144,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
     else{ edm::LogWarning("EcalTB07RawToDigiTriggerType") << "@SUB=EcalTB07DaqFormatter::interpretRawData"
 							<< "unrecognized TRIGGER TYPE: "<<trigger_type;}
     theDCCheader.setLV1((*itEventBlock)->getDataField("LV1"));
+    theDCCheader.setOrbit((*itEventBlock)->getDataField("ORBIT COUNTER"));
     theDCCheader.setBX((*itEventBlock)->getDataField("BX"));
     theDCCheader.setErrors((*itEventBlock)->getDataField("DCC ERRORS"));
     theDCCheader.setSelectiveReadout( sr );
@@ -165,9 +164,9 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
     theDCCheader.setTccStatus(theTCCs);
 
 
-    std::vector< DCCTCCBlock * > tccBlocks = (*itEventBlock)->tccBlocks();
+    std::vector< DCCTBTCCBlock * > tccBlocks = (*itEventBlock)->tccBlocks();
     
-    for(    std::vector< DCCTCCBlock * >::iterator itTCCBlock = tccBlocks.begin(); 
+    for(    std::vector< DCCTBTCCBlock * >::iterator itTCCBlock = tccBlocks.begin(); 
 	    itTCCBlock != tccBlocks.end(); 
 	    itTCCBlock ++)
       {
@@ -185,9 +184,13 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		int etaTT = (i)  / kTowersInPhi +1;
 		int phiTT = (i) % kTowersInPhi +1;
 
+		// follow HB convention in iphi
+		phiTT=3-phiTT;
+		if(phiTT<=0)phiTT=phiTT+72;
+
 		EcalTriggerPrimitiveSample theSample(TpSamples[i].first, TpSamples[i].second, TpFlags[i]);
-		
-		EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
+
+		EcalTrigTowerDetId idtt(2, EcalBarrel, etaTT, phiTT, 0);
 		EcalTriggerPrimitiveDigi thePrimitive(idtt);
 		thePrimitive.setSize(1);                          // hard coded
 		thePrimitive.setSample(0, theSample);
@@ -231,15 +234,25 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	std::cout << "tower " << i << " has status " << TowerStatus[i] << std::endl;
       }
     }
-    theDCCheader.setTriggerTowerStatus(theTTstatus);
-    
-    EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
-    ulong DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
+
+    theDCCheader.setFEStatus(theTTstatus);
+
+    EcalDCCTBHeaderRuntypeDecoder theRuntypeDecoder;
+    uint32_t DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
     theRuntypeDecoder.Decode(DCCruntype, &theDCCheader);
     //DCCHeader filled!
     DCCheaderCollection.push_back(theDCCheader);
     
-    std::vector< DCCTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
+    // add three more DCC headers (EE region used at h4)
+    EcalDCCHeaderBlock hdr = theDCCheader;
+    hdr.setId(04);
+    DCCheaderCollection.push_back(hdr);
+    hdr.setId(05);
+    DCCheaderCollection.push_back(hdr);
+    hdr.setId(06);
+    DCCheaderCollection.push_back(hdr);
+
+    std::vector< DCCTBTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
     LogDebug("EcalTB07RawToDigi") << "@SUBS=EcalTB07DaqFormatter::interpretRawData"
 				<< "dccTowerBlocks size " << dccTowerBlocks.size();
 
@@ -249,18 +262,23 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
     for (int v=0; v<71; v++){
       _ExpectedTowers[v]=99999;
     }
-    // staus==0:  tower expected; status==1: tower not expected
+
+    // note: these are the tower statuses handled at the moment - to be completed
+    // staus==0:   tower expected;
+    // staus==9:   Synk error LV1, tower expected;
+    // staus==10:  Synk error BX, tower expected;
+    // status==1, 2, 3, 4, 5:  tower not expected
     for (int u=1; u< (kTriggerTowersAndMem+1); u++)
       {
 	// map status array to expected tower array
-	int towerMap[kTriggerTowersAndMem+1];
-	for (int i=0; i<kTriggerTowersAndMem; ++i ) towerMap[i] = i;
+	//int towerMap[kTriggerTowersAndMem+1];
+	//for (int i=0; i<kTriggerTowersAndMem; ++i ) towerMap[i] = i;
 	//towerMap[1] = 6;
 	//towerMap[2] = 2;
 	//towerMap[3] = 1;
 	//towerMap[4] = 5;
 
-	if(   TowerStatus[u] ==0   ) 
+	if(   TowerStatus[u] ==0 || TowerStatus[u] ==9 || TowerStatus[u] ==10  ) 
 	  {_ExpectedTowers[_expTowersIndex]= tbStatusToLocation_[u];
 	    _expTowersIndex++;
 	    _numExpectedTowers++;
@@ -270,9 +288,6 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
     _expTowersIndex=0;
       
       
-    // FIXME: dccID hard coded, for now
-    unsigned dccID = 1-1;// at the moment SM is 1 by default (in DetID)
-
     // if number of dccEventBlocks NOT same as expected stop
     if (!      (dccTowerBlocks.size() == _numExpectedTowers)      )
       {
@@ -281,10 +296,10 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 				      << "number of TowerBlocks found (" << dccTowerBlocks.size()
 				      << ") differs from expected (" << _numExpectedTowers 
 				      << ") skipping event"; 
-	
-        EBDetId idsm(1, 1 + 20 * dccID);
-        dccsizecollection.push_back(idsm);
 
+        EBDetId idsm(1, 1);
+        dccsizecollection.push_back(idsm);
+	
 	return;
 	
       }
@@ -294,7 +309,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 
     // Access the Tower block    
-    for( std::vector< DCCTowerBlock * >::iterator itTowerBlock = dccTowerBlocks.begin(); 
+    for( std::vector< DCCTBTowerBlock * >::iterator itTowerBlock = dccTowerBlocks.begin(); 
          itTowerBlock!= dccTowerBlocks.end(); 
          itTowerBlock++){
 
@@ -309,14 +324,9 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
       // checking if tt in data is the same as tt expected 
       // else skip tower and increment problem counter
 	    
-      // compute eta/phi in order to have iTT = _ExpectedTowers[_expTowersIndex]
-      // for the time being consider only zside>0
+      // dccId set to 46 in order to match 'real' CMS positio at H2
 
-      int etaTT = (_ExpectedTowers[_expTowersIndex]-1)  / kTowersInPhi +1;
-      int phiTT = (_ExpectedTowers[_expTowersIndex]-1) % kTowersInPhi +1;
-
-
-      EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
+      EcalElectronicsId idtt(46, _ExpectedTowers[_expTowersIndex], 1, 1);
     
 
       if (  !(tower == _ExpectedTowers[_expTowersIndex])	  )
@@ -361,7 +371,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    )
 	{
 	  
-	  std::vector<DCCXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();	
+	  std::vector<DCCTBXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();	
 	  
 	  // if there is no zero suppression, tower block must have have 25 channels in it
 	  if (  (!dataIsSuppressed)   &&   (xtalDataBlocks.size() != kChannelsPerTower)   )
@@ -385,7 +395,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	  short expCryInTower =0;
 
 	  // Access the Xstal data
-	  for( std::vector< DCCXtalBlock * >::iterator itXtalBlock = xtalDataBlocks.begin(); 
+	  for( std::vector< DCCTBXtalBlock * >::iterator itXtalBlock = xtalDataBlocks.begin(); 
 	       itXtalBlock!= xtalDataBlocks.end(); 
 	       itXtalBlock++){ //loop on crys of a  tower
 
@@ -513,12 +523,12 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    if ( tbName_ == "h4" ) iz = -1;
 	    EEDetId  eeId(ix, iy, iz);
 	        
-	    // here data frame go into the Event
+            // here data frame go into the Event
             // removed later on (with a pop_back()) if gain==0 or if forbidden-gain-switch
-	    digicollection.push_back( id );
-	    eeDigiCollection.push_back( eeId );
-	    EBDataFrame theFrame ( digicollection.back() );
-	    EEDataFrame eeFrame ( eeDigiCollection.back() );
+            digicollection.push_back( id );
+            eeDigiCollection.push_back( eeId );
+            EBDataFrame theFrame ( digicollection.back() );
+            EEDataFrame eeFrame ( eeDigiCollection.back() );
 
 	    std::vector<int> xtalDataSamples = (*itXtalBlock)->xtalDataSamples();   
 	    //theFrame.setSize(xtalDataSamples.size()); // if needed, to be changed when constructing digicollection
@@ -585,46 +595,17 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      }
 	    }
 
-	    // only discriminating if gain stays the same after the forbidden gain transition
-	    bool wrongGainStaysTheSame=false;
-	    if (firstGainWrong!=-1 && firstGainWrong<9){
-	      short gainWrong = xtalGain[firstGainWrong];
-    
-	      // does wrong gain stay the same after the forbidden transition?
-	      for (unsigned short u=firstGainWrong+1; u<xtalGain.size(); u++){
-
-		if( gainWrong == xtalGain[u]) 
-		  wrongGainStaysTheSame=true; 
-		else
-		  wrongGainStaysTheSame=false; 
-
-	      }// END loop on samples after forbidden transition
-            
-	    }// END OF if firstGainWrong!=0 && firstGainWrong<8
-
-
 	    if (numGainWrong>0) {
 	      gainswitchcollection.push_back(id);
 
-	      if (numGainWrong == 1 && (wrongGainStaysTheSame)) {
-              
-		edm::LogWarning("EcalTB07RawToDigiGainSwitch") << "@SUB=EcalTB07DaqFormatter:interpretRawData"
-							<< "channelHasGainSwitchProblem: wrong transition stays till last sample";
-		
-		gainswitchstaycollection.push_back(id);              
-	      }
-	      else if (numGainWrong>1) {
-		edm::LogWarning("EcalTB07RawToDigiGainSwitch") << "@SUB=EcalTB07DaqFormatter:interpretRawData"
+	      edm::LogWarning("EcalTB07RawToDigiGainSwitch") << "@SUB=EcalTB07DaqFormatter:interpretRawData"
 							<< "channelHasGainSwitchProblem: more than 1 wrong transition";
 		
-		for (unsigned short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
-		  int countADC = 0x00000FFF;
-		  countADC &= xtalDataSamples[i1];
-		  LogDebug("EcalTB07RawToDigi") << "Sample " << i1 << " ADC " << countADC << " Gain " << xtalGain[i1];
-		}
-
-	      }// end 'if there is multiple transition'
-	     
+	      for (unsigned short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
+		int countADC = 0x00000FFF;
+		countADC &= xtalDataSamples[i1];
+		LogDebug("EcalTB07RawToDigi") << "Sample " << i1 << " ADC " << countADC << " Gain " << xtalGain[i1];
+	      }
 
 	      // there has been a forbidden gain transition,  dataframe not to go to the Event
               digicollection.pop_back();
@@ -633,9 +614,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 	    }// END of:   'if there is a forbidden gain transition'
 
-
 	  }// end loop on crystals within a tower block
-	  
 	  
 	  _expTowersIndex++;
 	}// end: tt1 ... tt68, crystal data
@@ -692,7 +671,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 
 
-void EcalTB07DaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDigiCollection & pndigicollection ,
+void EcalTB07DaqFormatter::DecodeMEM( DCCTBTowerBlock *  towerblock,  EcalPnDiodeDigiCollection & pndigicollection ,
 				    EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 				    EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection)
 {
@@ -723,8 +702,8 @@ void EcalTB07DaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeD
   /******************************************************************************
    // getting the raw hits from towerBlock while checking tt and ch data structure 
    ******************************************************************************/
-  std::vector<DCCXtalBlock *> & dccXtalBlocks = towerblock->xtalBlocks();
-  std::vector<DCCXtalBlock*>::iterator itXtal;
+  std::vector<DCCTBXtalBlock *> & dccXtalBlocks = towerblock->xtalBlocks();
+  std::vector<DCCTBXtalBlock*>::iterator itXtal;
 
   // checking mem tower block fo size
   if (dccXtalBlocks.size() != kChannelsPerTower)
@@ -891,17 +870,14 @@ void EcalTB07DaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeD
     // if present Pn has any of its 5 channels with problems, do not produce digi for it
     if (! pnIsOkInBlock [pnId-1] ) continue;
 
-    // fixme giof: second argumenti is DCCId, to be determined
-    EcalPnDiodeDetId PnId(1, 1, pnId +  kPnPerTowerBlock*mem_id);
+    // second argument is DccId which is set to 46 to match h2 data in global CMS geometry
+    EcalPnDiodeDetId PnId(2, 46, pnId +  kPnPerTowerBlock*mem_id);
     EcalPnDiodeDigi thePnDigi(PnId );
 
     thePnDigi.setSize(kSamplesPerPn);
 
     for (int sample =0; sample<kSamplesPerPn; sample++)
       {
-	//	int adc  = (data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] & 0xfff);
-	//	int gain = (data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] & 0x3000) /4096;;
-	//	EcalFEMSample thePnSample(adc, gain);
 	EcalFEMSample thePnSample( data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] );
 	thePnDigi.setSample(sample,  thePnSample );  
       }
@@ -915,7 +891,7 @@ void EcalTB07DaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeD
 std::pair<int,int>  EcalTB07DaqFormatter::cellIndex(int tower_id, int strip, int ch) {
   
   int xtal= (strip-1)*5+ch-1;
-  //  cout << " cellIndex input xtal " << xtal << endl;
+  //  std::cout << " cellIndex input xtal " << xtal << std::endl;
   std::pair<int,int> ind;
   
   int eta = (tower_id - 1)/kTowersInPhi*kCardsPerTower;
@@ -926,8 +902,8 @@ std::pair<int,int>  EcalTB07DaqFormatter::cellIndex(int tower_id, int strip, int
   else
     eta += (kCrystalsPerTower - 1 - xtal)/kCardsPerTower;
 
-  if (rightTower(tower_id) && (xtal/kCardsPerTower)%2 == 1 ||
-      !rightTower(tower_id) && (xtal/kCardsPerTower)%2 == 0)
+  if ((rightTower(tower_id) && (xtal/kCardsPerTower)%2 == 1) ||
+      (!rightTower(tower_id) && (xtal/kCardsPerTower)%2 == 0))
 
     phi += (kChannelsPerCard - 1 - xtal%kChannelsPerCard);
   else
@@ -937,7 +913,7 @@ std::pair<int,int>  EcalTB07DaqFormatter::cellIndex(int tower_id, int strip, int
   ind.first =eta+1;  
   ind.second=phi+1; 
 
-  //  cout << "  EcalTB07DaqFormatter::cell_index eta " << ind.first << " phi " << ind.second << " " << endl;
+  //  std::cout << "  EcalTB07DaqFormatter::cell_index eta " << ind.first << " phi " << ind.second << " " << std::endl;
 
   return ind;
 

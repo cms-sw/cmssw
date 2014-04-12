@@ -1,16 +1,15 @@
-#ifndef SiStripMonitorCluster_SiStripOfflineDQM_h
-#define SiStripMonitorCluster_SiStripOfflineDQM_h
+#ifndef SiStripMonitorClient_SiStripOfflineDQM_h
+#define SiStripMonitorClient_SiStripOfflineDQM_h
 // -*- C++ -*-
 //
-// Package:     SiStripMonitorCluster
+// Package:     SiStripMonitorClient
 // Class  :     SiStripOfflineDQM
 // 
 /**\class SiStripOfflineDQM SiStripOfflineDQM.h DQM/SiStripMonitorCluster/interface/SiStripOfflineDQM.h
 
  Description: 
-   Offline version of Online DQM - perform the same functionality but in
-   offline mode.
-
+   DQM class to perform Summary creation Quality Test on a merged Root file
+   after CAF processing
  Usage:
     <usage>
 
@@ -22,32 +21,72 @@
 
 #include <string>
 
-// Forward classes declarations
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutorQTest.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <map>
 
-class MonitorUserInterface;
+class DQMStore;
+class SiStripActionExecutor;
+class SiStripDetCabling;
 
 class SiStripOfflineDQM: public edm::EDAnalyzer {
-  public:
-    explicit SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET);
-    virtual ~SiStripOfflineDQM();
 
-    virtual void analyze( const edm::Event	    &roEVENT, 
-			                    const edm::EventSetup &roEVENT_SETUP);
-    virtual void beginJob( const edm::EventSetup &roEVENT);
-    virtual void endJob();
+ public:
 
-  private:
-    const bool        bVERBOSE_;
-    const bool        bSAVE_IN_FILE_;
-    const std::string oOUT_FILE_NAME_;
+  /// Constructor
+  SiStripOfflineDQM(const edm::ParameterSet& ps);
+  
+  /// Destructor
+  virtual ~SiStripOfflineDQM();
 
-    MonitorUserInterface       *poMui_;
-    SiStripActionExecutorQTest  oActionExecutor_;
+ private:
+
+  /// BeginJob
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+
+  /// Analyze
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+
+  /// End Of Luminosity
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+
+  /// EndRun
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+
+  /// Endjob
+  void endJob();
+
+private:
+
+  void checkTrackerFEDs(edm::Event const& e);
+  bool openInputFile();
+
+  DQMStore* dqmStore_;
+
+  SiStripActionExecutor* actionExecutor_;
+
+  bool createSummary_;
+  std::string inputFileName_;
+  std::string outputFileName_;
+  int globalStatusFilling_; 
+  bool usedWithEDMtoMEConverter_;
+  int nEvents_;
+  bool trackerFEDsFound_;
+  bool printFaultyModuleList_;
+
+  edm::ParameterSet configPar_;
+
 };
-
 #endif

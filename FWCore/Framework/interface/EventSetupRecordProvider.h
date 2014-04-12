@@ -1,5 +1,5 @@
-#ifndef Framework_EventSetupRecordProvider_h
-#define Framework_EventSetupRecordProvider_h
+#ifndef FWCore_Framework_EventSetupRecordProvider_h
+#define FWCore_Framework_EventSetupRecordProvider_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -18,41 +18,44 @@
 // Created:     Fri Mar 25 19:02:23 EST 2005
 //
 
+// user include files
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
+
 // system include files
-#include <vector>
-#include <set>
-#include <map>
 #include "boost/shared_ptr.hpp"
 
-// user include files
-#include "FWCore/Framework/interface/ValidityInterval.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include <map>
+#include <memory>
+#include <set>
+#include <vector>
 
 // forward declarations
 namespace edm {
    class EventSetupRecordIntervalFinder;
 
    namespace eventsetup {
-      class EventSetupProvider;
-      class DataProxyProvider;
-      class ComponentDescription;
+      struct ComponentDescription;
       class DataKey;
+      class DataProxyProvider;
+      class EventSetupProvider;
+      class EventSetupRecord;
+      class ParameterSetIDHolder;
       
-class EventSetupRecordProvider
-{
+class EventSetupRecordProvider {
 
    public:
       typedef std::map<DataKey, ComponentDescription> DataToPreferredProviderMap;
    
-      EventSetupRecordProvider(const EventSetupRecordKey& iKey);
+      EventSetupRecordProvider(EventSetupRecordKey const& iKey);
       virtual ~EventSetupRecordProvider();
 
       // ---------- const member functions ---------------------
 
-      const ValidityInterval& validityInterval() const {
+      ValidityInterval const& validityInterval() const {
          return validityInterval_;
       }
-      const EventSetupRecordKey& key() const { return key_; }      
+      EventSetupRecordKey const& key() const { return key_; }      
 
       ///Returns the list of Records the provided Record depends on (usually none)
       virtual std::set<EventSetupRecordKey> dependentRecords() const;
@@ -60,39 +63,54 @@ class EventSetupRecordProvider
       ///return information on which DataProxyProviders are supplying information
       std::set<ComponentDescription> proxyProviderDescriptions() const;
       
-      ///returns the DataProxyProvider or a 'null' if not found
-      boost::shared_ptr<DataProxyProvider> proxyProvider(const ComponentDescription&) const;
+      ///returns the first matching DataProxyProvider or a 'null' if not found
+      boost::shared_ptr<DataProxyProvider> proxyProvider(ComponentDescription const&) const;
+
+      ///returns the first matching DataProxyProvider or a 'null' if not found
+      boost::shared_ptr<DataProxyProvider> proxyProvider(ParameterSetIDHolder const&) const;
+
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void addRecordTo(EventSetupProvider&) = 0;
-      void addRecordToIfValid(EventSetupProvider&, const IOVSyncValue&) ;
+
+      void resetProxyProvider(ParameterSetIDHolder const&, boost::shared_ptr<DataProxyProvider> const&);
+
+      void addRecordTo(EventSetupProvider&);
+      void addRecordToIfValid(EventSetupProvider&, IOVSyncValue const&) ;
 
       void add(boost::shared_ptr<DataProxyProvider>);
       ///For now, only use one finder
       void addFinder(boost::shared_ptr<EventSetupRecordIntervalFinder>);
-      void setValidityInterval(const ValidityInterval&);
+      void setValidityInterval(ValidityInterval const&);
       
       ///sets interval to this time and returns true if have a valid interval for time
-      bool setValidityIntervalFor(const IOVSyncValue&);
+      bool setValidityIntervalFor(IOVSyncValue const&);
 
       ///If the provided Record depends on other Records, here are the dependent Providers
-      virtual void setDependentProviders(const std::vector< boost::shared_ptr<EventSetupRecordProvider> >&);
+      void setDependentProviders(std::vector<boost::shared_ptr<EventSetupRecordProvider> >const&);
 
       /**In the case of a conflict, sets what Provider to call.  This must be called after
          all providers have been added.  An empty map is acceptable. */
-      void usePreferred(const DataToPreferredProviderMap&);
+      void usePreferred(DataToPreferredProviderMap const&);
       
       ///This will clear the cache's of all the Proxies so that next time they are called they will run
       void resetProxies();
       
       boost::shared_ptr<EventSetupRecordIntervalFinder> finder() const { return finder_; }
 
+      void getReferencedESProducers(std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers);
+
+      void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
+
+      void resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap);
+
    protected:
-      virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,
-                                      const DataToPreferredProviderMap& ) = 0;
-      virtual void cacheReset()  = 0;
+      void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,
+                              DataToPreferredProviderMap const&);
+      void cacheReset();
+   
+      virtual EventSetupRecord& record() = 0;
       
       boost::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(boost::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
         std::swap(iNew, finder_);
@@ -100,16 +118,19 @@ class EventSetupRecordProvider
       }
 
    private:
-      EventSetupRecordProvider(const EventSetupRecordProvider&); // stop default
+      EventSetupRecordProvider(EventSetupRecordProvider const&); // stop default
 
-      const EventSetupRecordProvider& operator=(const EventSetupRecordProvider&); // stop default
+      EventSetupRecordProvider const& operator=(EventSetupRecordProvider const&); // stop default
 
+      void resetTransients();
+      bool checkResetTransients();
       // ---------- member data --------------------------------
-      const EventSetupRecordKey key_;
+      EventSetupRecordKey const key_;
       ValidityInterval validityInterval_;
       boost::shared_ptr<EventSetupRecordIntervalFinder> finder_;
-      std::vector< boost::shared_ptr<DataProxyProvider> > providers_;
-      std::auto_ptr< std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > > multipleFinders_;
+      std::vector<boost::shared_ptr<DataProxyProvider> > providers_;
+      std::auto_ptr<std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > > multipleFinders_;
+      bool lastSyncWasBeginOfRun_;
 };
    }
 }

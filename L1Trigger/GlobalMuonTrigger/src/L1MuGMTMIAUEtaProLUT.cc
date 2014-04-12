@@ -3,8 +3,6 @@
 //   Class: L1MuGMTMIAUEtaProLUT
 //
 // 
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.5 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -31,8 +29,10 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTEtaLUT.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -69,8 +69,10 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
   // INPUTS:  eta(6) pt(5) charge(1)
   // OUTPUTS: eta_sel(10) 
 
-  const L1MuGMTScales* theGMTScales = L1MuGMTConfig::getGMTScales();
+  // const L1MuGMTScales* theGMTScales = L1MuGMTConfig::getGMTScales();
   const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+  const L1MuTriggerPtScale* theTriggerPtScale = L1MuGMTConfig::getTriggerPtScale();
+  const L1CaloGeometry* theCaloGeom = L1MuGMTConfig::getCaloGeom() ;
 
   int isRPC = idx % 2;
   int isFWD = idx / 4;
@@ -97,10 +99,13 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
   // eta conversion depends only on isys by default
   int isys = isFWD + 2 * isRPC; // DT, CSC, BRPC, FRPC
   float neweta  =  L1MuGMTEtaLUT::eta (isys, isISO, ch_idx, oldeta, 
-			      theTriggerScales->getPtScale()->getLowEdge(pt) );  // use old LUT, here
+     theTriggerPtScale->getPtScale()->getLowEdge(pt) );  // use old LUT, here
+  // theTriggerScales->getPtScale()->getLowEdge(pt) );  // use old LUT, here
 
 
-  unsigned icenter = theGMTScales->getCaloEtaScale()->getPacked( neweta );
+  //  unsigned icenter = theGMTScales->getCaloEtaScale()->getPacked( neweta );
+  // globalEtaIndex is 0-21 for forward+central; need to shift to 0-13 for central only
+  unsigned icenter = theCaloGeom->globalEtaIndex( neweta ) - theCaloGeom->numberGctForwardEtaBinsPerHalf() ;
 
   unsigned eta_select_word_14 = 1 << icenter; // for the whole detector
     
@@ -111,7 +116,9 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
 
     // for even number of isolation cells check the fine grain info
     if (m_IsolationCellSizeEta%2 == 0) {
-      float bincenter = theGMTScales->getCaloEtaScale()->getCenter( icenter );
+      // float bincenter = theGMTScales->getCaloEtaScale()->getCenter( icenter );
+      // globalEtaIndex is 0-21 for forward+central; need to shift to 0-13 for central only
+      float bincenter = theCaloGeom->globalEtaBinCenter( icenter + theCaloGeom->numberGctForwardEtaBinsPerHalf() );
       if ( neweta > bincenter ) imax++;
       else imin--;
     }

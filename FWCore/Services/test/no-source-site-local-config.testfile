@@ -1,0 +1,18 @@
+<site-local-config>
+<site name="DUMMY">
+  <event-data>
+    <catalog url="trivialcatalog_file:/dummy/storage.xml?protocol=dcap"/>
+  </event-data>
+  <local-stage-out>
+    <se-name value="cmssrm.dummy.foo"/>
+    <command value="srm"/>
+    <catalog url="trivialcatalog_file:/dummy/storage.xml?protocol=srm"/>
+  </local-stage-out>
+  <calib-data>
+    <frontier-connect>
+      <proxy url="http://cmsfrontier.dummy.foo:3128"/>
+      <proxy url="http://cmsfrontier.dummy.foo:3128"/>
+    </frontier-connect>
+  </calib-data>
+</site>
+</site-local-config>

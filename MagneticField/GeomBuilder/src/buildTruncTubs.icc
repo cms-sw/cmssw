@@ -6,8 +6,6 @@
  *  local to global transformation are used.
  *  
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -85,9 +83,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
 
   // FIXME: use builder
   surfaces[plane_side] = new Plane(pos_Rplane, rot_R);
-  surfaces[cyl_side] = new Cylinder(Surface::PositionType(0,0,center_.z()),
-				    Surface::RotationType(),
-				    rCyl);
+  surfaces[cyl_side] = new Cylinder(rCyl, Surface::PositionType(0,0,center_.z()),
+				    Surface::RotationType());
+				  
 
   // Build lateral surfaces.
   // Note that with the choice of center descrived above, the 
@@ -102,7 +100,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
 	 << "cyl radius    " << rCyl << endl;
 
 //   // Check ordering.
-    if (pos_Rplane.perp() < rCyl  != cutInside) {      
+    if ((pos_Rplane.perp() < rCyl)  != cutInside) {      
       cout << "*** WARNING: pos_outer < pos_inner " << endl;
     }
   }
@@ -110,5 +108,5 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
   // Save volume boundaries
   theRMin = rIn;
   theRMax = rOut;
-
+  thePhiMin = surfaces[phiminus]->position().phi();
 }

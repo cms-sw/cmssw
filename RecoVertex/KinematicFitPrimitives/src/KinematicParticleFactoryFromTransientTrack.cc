@@ -31,6 +31,22 @@ RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle
 
 RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle(const reco::TransientTrack& initialTrack, 
                                                                            const ParticleMass& massGuess,
+                                                                           float chiSquared, 
+                                                                           float degreesOfFr, 
+                                                                           float& m_sigma,
+                                                                           const FreeTrajectoryState &freestate) const
+{
+// cout<<"calling the state builder"<<endl;
+ KinematicState initState = builder(freestate,massGuess, m_sigma);
+ const reco::TransientTrack * track = &initialTrack;
+ KinematicConstraint * lastConstraint = 0;
+ ReferenceCountingPointer<KinematicParticle> previousParticle = 0;
+ return ReferenceCountingPointer<KinematicParticle>(new TransientTrackKinematicParticle(initState,
+                      chiSquared,degreesOfFr, lastConstraint, previousParticle, propagator, track));
+}
+
+RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle(const reco::TransientTrack& initialTrack, 
+                                                                           const ParticleMass& massGuess,
 									   float chiSquared, 
 									   float degreesOfFr,
 		                                                           const GlobalPoint& expPoint, 

@@ -2,40 +2,23 @@
 #define DQM_SiStripCommissioningClients_FastFedCablingHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/FastFedCablingSummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/FastFedCablingAnalysis.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMStore;
 
-class FastFedCablingHistograms : public CommissioningHistograms {
+class FastFedCablingHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  FastFedCablingHistograms( MonitorUserInterface* );
-  FastFedCablingHistograms( DaqMonitorBEInterface* );
+  FastFedCablingHistograms( const edm::ParameterSet& pset, DQMStore* );
   virtual ~FastFedCablingHistograms();
   
-  typedef SummaryPlotFactory<FastFedCablingAnalysis*> Factory;
-  typedef std::map<uint32_t,FastFedCablingAnalysis*> Analyses;
-
-  /** */
   void histoAnalysis( bool debug );
 
-  /** */
-  void createSummaryHisto( const sistrip::Monitorable&,
-			   const sistrip::Presentation&,
-			   const std::string& top_level_dir,
-			   const sistrip::Granularity& );
+  void printAnalyses(); // override
 
- protected: 
-  
-  Analyses data_;
-  
-  std::auto_ptr<Factory> factory_;
-  
+  void printSummary(); // override
+
 };
 
 #endif // DQM_SiStripCommissioningClients_FastFedCablingHistograms_H
-
 

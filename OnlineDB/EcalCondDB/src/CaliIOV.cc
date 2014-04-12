@@ -25,7 +25,7 @@ CaliIOV::~CaliIOV()
 
 
 
-void CaliIOV::setSince(Tm since)
+void CaliIOV::setSince(const Tm& since)
 {
   if (since != m_since) {
     m_ID = 0;
@@ -42,7 +42,7 @@ Tm CaliIOV::getSince() const
 
 
 
-void CaliIOV::setTill(Tm till)
+void CaliIOV::setTill(const Tm& till)
 {
   if (till != m_till) {
     m_ID = 0;
@@ -59,7 +59,7 @@ Tm CaliIOV::getTill() const
 
 
 
-void CaliIOV::setCaliTag(CaliTag tag)
+void CaliIOV::setCaliTag(const CaliTag& tag)
 {
   if (tag != m_caliTag) {
     m_ID = 0;
@@ -77,7 +77,7 @@ CaliTag CaliIOV::getCaliTag() const
 
 
 int CaliIOV::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -117,7 +117,7 @@ int CaliIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("CaliIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("CaliIOV::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -151,19 +151,19 @@ void CaliIOV::setByID(int id)
        m_caliTag.setByID(tagID);
        m_ID = id;
      } else {
-       throw(runtime_error("CaliTag::setByID:  Given tag_id is not in the database"));
+       throw(std::runtime_error("CaliTag::setByID:  Given tag_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("CaliTag::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("CaliTag::setByID:  "+e.getMessage()));
    }
 }
 
 
 
 int CaliIOV::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -179,7 +179,7 @@ int CaliIOV::writeDB()
   DateHandler dh(m_env, m_conn);
 
   if (m_since.isNull()) {
-    throw(runtime_error("CaliIOV::writeDB:  Must setSince before writing"));
+    throw(std::runtime_error("CaliIOV::writeDB:  Must setSince before writing"));
   }
   
   if (m_till.isNull()) {
@@ -199,12 +199,12 @@ int CaliIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("CaliIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("CaliIOV::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("CaliIOV::writeDB:  Failed to write"));
+    throw(std::runtime_error("CaliIOV::writeDB:  Failed to write"));
   }
   
   return m_ID;
@@ -212,8 +212,8 @@ int CaliIOV::writeDB()
 
 
 
-void CaliIOV::setByTm(CaliTag* tag, Tm eventTm)
-  throw(runtime_error)
+void CaliIOV::setByTm(CaliTag* tag, const Tm& eventTm)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   
@@ -221,7 +221,7 @@ void CaliIOV::setByTm(CaliTag* tag, Tm eventTm)
   int tagID = tag->fetchID();
   
   if (!tagID) {
-    throw(runtime_error("CaliIOV::setByTm:  Given CaliTag does not exist in the DB"));
+    throw(std::runtime_error("CaliIOV::setByTm:  Given CaliTag does not exist in the DB"));
   }
 
   DateHandler dh(m_env, m_conn);
@@ -249,11 +249,11 @@ void CaliIOV::setByTm(CaliTag* tag, Tm eventTm)
       m_since = dh.dateToTm( sinceDate );
       m_till = dh.dateToTm( tillDate );
     } else {
-      throw(runtime_error("CaliIOV::setByTm:  Given subrun is not in the database"));
+      throw(std::runtime_error("CaliIOV::setByTm:  Given subrun is not in the database"));
     }
      
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("CaliIOV::setByTm:  "+e.getMessage()));
+    throw(std::runtime_error("CaliIOV::setByTm:  "+e.getMessage()));
   }
 }

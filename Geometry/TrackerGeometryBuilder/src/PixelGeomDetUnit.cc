@@ -1,24 +1,24 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "DataFormats/GeometrySurface/interface/Bounds.h"
 
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
-
-
-PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType* type,const GeometricDet* gd): GeomDetUnit(sp),
-												 theType(type),theGD(gd)
-{}
-
-
-const GeomDetType& PixelGeomDetUnit::type() const { return *theType;}
-
-
-const Topology& PixelGeomDetUnit::topology() const {return specificType().topology();}
-
-const PixelTopology& PixelGeomDetUnit::specificTopology() const { 
-  return specificType().specificTopology();
+PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType* type,const GeometricDet* gd) : 
+  GeomDetUnit(sp), theTopology(new ProxyPixelTopology(type, sp)), theGD(gd)
+{
+  setDetId(theGD->geographicalID());
 }
 
-DetId PixelGeomDetUnit::geographicalId() const {return theGD->geographicalID();}
+const GeomDetType& PixelGeomDetUnit::type() const { return theTopology->type(); }
+
+PixelGeomDetType& PixelGeomDetUnit::specificType() const { return theTopology->specificType(); }
+
+const Topology& PixelGeomDetUnit::topology() const { return *theTopology; }
+
+const PixelTopology& PixelGeomDetUnit::specificTopology() const { return *theTopology; }
+
+void PixelGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
+{
+  theTopology->setSurfaceDeformation(deformation);
+}

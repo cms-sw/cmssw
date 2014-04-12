@@ -16,8 +16,7 @@ Usage:
 //
 // Original Author:  chiochia
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiPixelFolderOrganizer.h,v 1.3 2006/04/23 13:24:20 chiochia Exp $
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 #include <string>
 
@@ -32,12 +31,18 @@ class SiPixelFolderOrganizer {
   virtual ~SiPixelFolderOrganizer();
   
   /// Set folder name for a module or plaquette
-  bool setModuleFolder(const uint32_t& rawdetid=0);
+  //type is: BPIX  mod=0, lad=1, lay=2, phi=3, 
+  //         FPIX  mod=0, blade=4, disc=5, ring=6
+  bool setModuleFolder(const uint32_t& rawdetid=0, int type=0, bool isUpgrade=false);
+  void getModuleFolder(const uint32_t& rawdetid, std::string& path, bool isUpgrade);
+
+  /// Set folder name for a FED (used in the case of errors without detId)
+  bool setFedFolder(const uint32_t FedId);
   
  private:
 
   std::string rootFolder;
   std::string slash;
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 };
 #endif

@@ -1,0 +1,16 @@
+<export>
+</export>
+<library   file="*.cc" name="RecoJetsJetPlusTracks_plugins">
+  <use   name="CondFormats/JetMETObjects"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/EgammaCandidates"/>
+  <use   name="DataFormats/JetReco"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/MuonReco"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="boost"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

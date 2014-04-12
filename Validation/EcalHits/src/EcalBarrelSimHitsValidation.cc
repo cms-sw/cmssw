@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include "Validation/EcalHits/interface/EcalBarrelSimHitsValidation.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -18,18 +19,14 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   EBHitsCollection(ps.getParameter<std::string>("EBHitsCollection")),
   ValidationCollection(ps.getParameter<std::string>("ValidationCollection")){   
 
+  EBHitsToken               = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(g4InfoLabel),std::string(EBHitsCollection)));
+  ValidationCollectionToken = consumes <PEcalValidInfo>         (edm::InputTag(std::string(g4InfoLabel),std::string(ValidationCollection)));
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
-  if ( verbose_ ) {
-    std::cout << " verbose switch is ON" << std::endl;
-  } else {
-    std::cout << " verbose switch is OFF" << std::endl;
-  }
-
   // get hold of back-end interface
   dbe_ = 0;
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();           
+  dbe_ = edm::Service<DQMStore>().operator->();           
   if ( dbe_ ) {
     if ( verbose_ ) { dbe_->setVerbose(1); } 
     else            { dbe_->setVerbose(0); }
@@ -44,6 +41,12 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   meEBOccupancy_   = 0;
   meEBLongitudinalShower_ = 0;
   meEBhitEnergy_   = 0;
+  meEBhitLog10Energy_       = 0;
+  meEBhitLog10EnergyNorm_   = 0;
+  meEBhitLog10Energy25Norm_ = 0;
+  meEBhitEnergy2_   = 0;
+  meEBcrystalEnergy_   = 0;
+  meEBcrystalEnergy2_   = 0;
 
   meEBe1_  = 0;  
   meEBe4_  = 0;  
@@ -52,6 +55,7 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   meEBe25_ = 0; 
 
   meEBe1oe4_   = 0;  
+  meEBe1oe9_   = 0;  
   meEBe4oe9_   = 0;  
   meEBe9oe16_  = 0;
   meEBe1oe25_  = 0;  
@@ -64,22 +68,40 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   Char_t histo[200];
    
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalSimHitsValidation");
+    dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
   
     sprintf (histo, "EB hits multiplicity" ) ;
     menEBHits_ = dbe_->book1D(histo, histo, 50, 0., 5000.) ;
  
     sprintf (histo, "EB crystals multiplicity" ) ;
-    menEBCrystals_ = dbe_->book1D(histo, histo, 50, 0., 300.) ; 
+    menEBCrystals_ = dbe_->book1D(histo, histo, 200, 0., 2000.) ; 
 
     sprintf (histo, "EB occupancy" ) ;
     meEBOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   
     sprintf (histo, "EB longitudinal shower profile" ) ;
-    meEBLongitudinalShower_ = dbe_->bookProfile(histo, histo, 26, 0., 26., 100, 0., 3000.);
+    meEBLongitudinalShower_ = dbe_->bookProfile(histo, histo, 26, 0., 26., 100, 0., 20000.);
 
     sprintf (histo, "EB hits energy spectrum" );
     meEBhitEnergy_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
+
+    sprintf (histo, "EB hits log10energy spectrum" );
+    meEBhitLog10Energy_ = dbe_->book1D(histo, histo, 140, -10., 4.);
+
+    sprintf (histo, "EB hits log10energy spectrum vs normalized energy" );
+    meEBhitLog10EnergyNorm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
+
+    sprintf (histo, "EB hits log10energy spectrum vs normalized energy25" );
+    meEBhitLog10Energy25Norm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
+
+    sprintf (histo, "EB hits energy spectrum 2" );
+    meEBhitEnergy2_ = dbe_->book1D(histo, histo, 1000, 0., 0.001);
+
+    sprintf (histo, "EB crystal energy spectrum" );
+    meEBcrystalEnergy_ = dbe_->book1D(histo, histo, 5000, 0., 50.);
+
+    sprintf (histo, "EB crystal energy spectrum 2" );
+    meEBcrystalEnergy2_ = dbe_->book1D(histo, histo, 1000, 0., 0.001);
 
     sprintf (histo, "EB E1" ) ;
     meEBe1_ = dbe_->book1D(histo, histo, 400, 0., 400.);
@@ -98,6 +120,9 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
 
     sprintf (histo, "EB E1oE4" ) ;
     meEBe1oe4_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
+
+    sprintf (histo, "EB E1oE9" ) ;
+    meEBe1oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
 
     sprintf (histo, "EB E4oE9" ) ;
     meEBe4oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
@@ -120,15 +145,15 @@ EcalBarrelSimHitsValidation::~EcalBarrelSimHitsValidation(){
  
 }
 
-void EcalBarrelSimHitsValidation::beginJob(const edm::EventSetup& c){
+void EcalBarrelSimHitsValidation::beginJob(){
 
 }
 
 void EcalBarrelSimHitsValidation::endJob(){
   
-  for (int myStep=0; myStep<26; myStep++){
-    if (meEBLongitudinalShower_) meEBLongitudinalShower_->Fill(float(myStep), eRLength[myStep]/myEntries);
-  }
+  //for (int myStep=0; myStep<26; myStep++){
+  //  if (meEBLongitudinalShower_) meEBLongitudinalShower_->Fill(float(myStep), eRLength[myStep]/myEntries);
+  //}
 }
 
 void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& c){
@@ -136,10 +161,13 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   
   edm::Handle<edm::PCaloHitContainer> EcalHitsEB;
-  e.getByLabel(g4InfoLabel,EBHitsCollection,EcalHitsEB);
+  e.getByToken(EBHitsToken,EcalHitsEB);
+
+  // Do nothing if no Barrel data available
+  if( ! EcalHitsEB.isValid() ) return;
 
   edm::Handle<PEcalValidInfo> MyPEcalValidInfo;
-  e.getByLabel(g4InfoLabel,ValidationCollection,MyPEcalValidInfo);
+  e.getByToken(ValidationCollectionToken,MyPEcalValidInfo);
 
   std::vector<PCaloHit> theEBCaloHits;
   theEBCaloHits.insert(theEBCaloHits.end(), EcalHitsEB->begin(), EcalHitsEB->end());
@@ -147,20 +175,25 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   myEntries++;
 
   double EBEnergy_ = 0.;
-  std::map<unsigned int, std::vector<PCaloHit>,std::less<unsigned int> > CaloHitMap;
+  std::map<unsigned int, std::vector<PCaloHit*>,std::less<unsigned int> > CaloHitMap;
   
   double eb1  = 0.0;
   double eb4  = 0.0;
   double eb9  = 0.0;
   double eb16 = 0.0;
   double eb25 = 0.0;
+  std::vector<double> econtr(140, 0. );
+  std::vector<double> econtr25(140, 0. );
   
   MapType ebmap;
   uint32_t nEBHits = 0;
   
   for (std::vector<PCaloHit>::iterator isim = theEBCaloHits.begin();
        isim != theEBCaloHits.end(); ++isim){
-    CaloHitMap[(*isim).id()].push_back((*isim));
+
+    if ( isim->time() > 500. ) { continue; }
+
+    CaloHitMap[ isim->id()].push_back( &(*isim) );
     
     EBDetId ebid (isim->id()) ;
     
@@ -179,10 +212,22 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     EBEnergy_ += isim->energy();
     nEBHits++;
     meEBhitEnergy_->Fill(isim->energy());
+    if( isim->energy() > 0 ) {
+      meEBhitLog10Energy_->Fill(log10(isim->energy()));
+      int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
+      if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
+    }
+    meEBhitEnergy2_->Fill(isim->energy());
     
   }
 
   if (menEBCrystals_) menEBCrystals_->Fill(ebmap.size());
+  if (meEBcrystalEnergy_) {
+    for (std::map<uint32_t,float,std::less<uint32_t> >::iterator it = ebmap.begin(); it != ebmap.end(); ++it ) meEBcrystalEnergy_->Fill((*it).second);
+  }
+  if (meEBcrystalEnergy2_) {
+    for (std::map<uint32_t,float,std::less<uint32_t> >::iterator it = ebmap.begin(); it != ebmap.end(); ++it ) meEBcrystalEnergy2_->Fill((*it).second);
+  }
   
   if (menEBHits_) menEBHits_->Fill(nEBHits);
   
@@ -200,6 +245,17 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     eb25=  energyInMatrixEB(5,5,bx,by,bz,ebmap);
     if (meEBe25_) meEBe25_->Fill(eb25);
     
+    std::vector<uint32_t> ids25; ids25 = getIdsAroundMax(5,5,bx,by,bz,ebmap);
+
+    for( unsigned i=0; i<25; i++ ) {
+      for( unsigned int j=0; j<CaloHitMap[ids25[i]].size(); j++ ) {
+	if( CaloHitMap[ids25[i]][j]->energy() > 0 ) {
+	  int log10i = int( ( log10( CaloHitMap[ids25[i]][j]->energy()) + 10. ) * 10. );
+	  if( log10i >=0 && log10i < 140 ) econtr25[log10i] += CaloHitMap[ids25[i]][j]->energy();
+	}
+      }
+    }
+
     MapType  newebmap;
     if( fillEBMatrix(3,3,bx,by,bz,newebmap, ebmap)){
       eb4 = eCluster2x2(newebmap);
@@ -211,17 +267,38 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     }
     
     if (meEBe1oe4_   && eb4  > 0.1 ) meEBe1oe4_  -> Fill(eb1/eb4);
+    if (meEBe1oe9_   && eb9  > 0.1 ) meEBe1oe9_  -> Fill(eb1/eb9);
     if (meEBe4oe9_   && eb9  > 0.1 ) meEBe4oe9_  -> Fill(eb4/eb9);
     if (meEBe9oe16_  && eb16 > 0.1 ) meEBe9oe16_ -> Fill(eb9/eb16);
     if (meEBe1oe25_  && eb25 > 0.1 ) meEBe1oe25_ -> Fill(eb1/eb25);
     if (meEBe9oe25_  && eb25 > 0.1 ) meEBe9oe25_ -> Fill(eb9/eb25);
     if (meEBe16oe25_ && eb25 > 0.1 ) meEBe16oe25_-> Fill(eb16/eb25);
-    
+
+    if( meEBhitLog10EnergyNorm_ && EBEnergy_ != 0 ) {
+      for( int i=0; i<140; i++ ) {
+	meEBhitLog10EnergyNorm_->Fill( -10.+(float(i)+0.5)/10., econtr[i]/EBEnergy_ );
+      }
+    }
+
+    if( meEBhitLog10Energy25Norm_ && eb25 != 0 ) {
+      for( int i=0; i<140; i++ ) {
+	meEBhitLog10Energy25Norm_->Fill( -10.+(float(i)+0.5)/10., econtr25[i]/eb25 );
+      }
+    }
+
+
   }
   
-  if ( MyPEcalValidInfo->eb1x1() > 0. ) {
-    std::vector<float>  BX0 = MyPEcalValidInfo->bX0();
-    for (int myStep=0; myStep< 26; myStep++ ) { eRLength[myStep] += BX0[myStep]; }
+
+  if( MyPEcalValidInfo.isValid() ) {
+    if ( MyPEcalValidInfo->eb1x1() > 0. ) {
+      std::vector<float>  BX0 = MyPEcalValidInfo->bX0();
+      if (meEBLongitudinalShower_) meEBLongitudinalShower_->Reset();
+      for (int myStep=0; myStep< 26; myStep++ ) { 
+	eRLength[myStep] += BX0[myStep]; 
+	if (meEBLongitudinalShower_) meEBLongitudinalShower_->Fill(float(myStep), eRLength[myStep]/myEntries);
+      }
+    }
   }
 }
 
@@ -256,6 +333,33 @@ float EcalBarrelSimHitsValidation::energyInMatrixEB(int nCellInEta, int nCellInP
     << " EB matrix energy = " << totalEnergy
     << " for " << ncristals << " crystals" ;
   return totalEnergy;
+  
+}   
+
+std::vector<uint32_t> EcalBarrelSimHitsValidation::getIdsAroundMax( int nCellInEta, int nCellInPhi, int centralEta, int centralPhi, int centralZ, MapType& themap){
+
+  int   ncristals   = 0;
+  std::vector<uint32_t> ids( nCellInEta*nCellInPhi );
+  
+  int goBackInEta = nCellInEta/2;
+  int goBackInPhi = nCellInPhi/2;
+  int startEta    = centralZ*centralEta-goBackInEta;
+  int startPhi    = centralPhi-goBackInPhi;
+  
+  for (int ieta=startEta; ieta<startEta+nCellInEta; ieta++) {
+    for (int iphi=startPhi; iphi<startPhi+nCellInPhi; iphi++) {
+      
+      uint32_t index ;
+      if (abs(ieta) > 85 || abs(ieta)<1 ) { continue; }
+      if (iphi< 1)      { index = EBDetId(ieta,iphi+360).rawId(); }
+      else if(iphi>360) { index = EBDetId(ieta,iphi-360).rawId(); }
+      else              { index = EBDetId(ieta,iphi).rawId();     }
+      ids[ncristals] = index;
+      ncristals     += 1;
+    }
+  }
+  
+  return ids;
   
 }   
 

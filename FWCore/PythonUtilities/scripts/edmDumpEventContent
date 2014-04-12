@@ -1,0 +1,240 @@
+#! /usr/bin/env python
+
+import os
+import sys
+import copy
+import optparse
+import re
+import copy
+import subprocess
+
+# define regex
+wrapperRE      = re.compile (r'edm::Wrapper<(.+)\s*>$')
+trailingDotRE  = re.compile (r'\.$')
+underscoreRE   = re.compile (r'_')
+leadingSlashRE = re.compile (r'^/')
+webRE          = re.compile (r'^\w+://')
+
+def getOutput (command):
+    '''Given an input command, returns STDOUT and STDERR'''
+    proc = subprocess.Popen(command,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE
+                            )
+    return proc.communicate()
+
+
+def expandFilename (filename, options):
+    '''Intelligently guesses as to whether or not it is given an PFN
+    or LFN.  Returns PFN.'''
+    # if this is a web address, don't modify it
+    if webRE.search (filename):
+        return filename
+    # if it doesn't start with a slash, return it as is
+    if not leadingSlashRE.search (filename):
+        return filename
+    # if the file exists locally AND 'lfn' option is not given, return
+    # as is
+    if not options.lfn and os.path.exists (filename):
+        return filename
+    # OK.  If we're here, then we probably have an LFN.  Convert it
+    stdout, stderr = getOutput ('edmFileUtil -d %s' % filename)
+    if stdout:
+        return stdout.strip()
+    raise RuntimeError, "Could not successfully run 'edmFileUtil.' Error %s" \
+          % stderr
+
+
+class Branch (object):
+    # default options
+    form = "%(type)5s  %(module)5s  %(label)5s  %(process)5s"
+    mode = 'normal'
+    forceColumns = False
+    inQuotes = ['module', 'label', 'process']
+
+    def __init__ (self, branchInfo, regexList = None):
+        """Takes the needed information from Root's Branch Info"""
+        match = wrapperRE.match( branchInfo.GetTypeName() )
+        if match:
+            self.type = match.group (1)
+        else:
+            # this isn't a type we're interested in
+            raise ValueError, "Not edm::Wrapper"
+        name = trailingDotRE.sub ('', branchInfo.GetName())
+        pieces = underscoreRE.split (name)
+        if len (pieces) != 4:
+            raise ValueError, "%s not formatted as expected" % name
+        self.typeString = pieces[0] # not currently used
+        self.module     = pieces[1]
+        self.label      = pieces[2]
+        self.process    = pieces[3]
+        self.fullname   = "_".join (pieces)
+        # if we're past a regex list, then make sure we've got a match
+        if not regexList:
+            # nothing more to do
+            return
+        found = False
+        for regex in regexList:
+            # search the branch name
+            if regex.search (self.fullname):
+                found = True
+                break
+            if regex.search (self.type):
+                found = True
+                break
+        if not found:
+            raise ValueError, "%s does not match regexs provided" \
+                  % self.fullname
+
+        
+    def __str__ (self):
+        """String representation """
+        copyDict = copy.copy (self.__dict__)
+        for key in Branch.inQuotes:
+            copyDict[key] = '"%s"' % copyDict[key]
+        return Branch.form % copyDict
+    
+    
+    @staticmethod
+    def _setForm (branchList):
+        '''Loop through lists and set widths and form appropriately'''
+        # each item in this dictionary is a variable in Branch where
+        # we want to keep track of the length.  The first number in
+        # the list is the maximum length of all of the Branch items in
+        # the list.  The second entry is the maximum length that it
+        # should take IFF we are enforcing maximum length.
+        lengthDict = { 'type'    : [7, 35],
+                       'module'  : [7, 25],
+                       'label'   : [7, 15],
+                       'process' : [7, 15] }
+        # Since we want this script to print out the columns in the
+        # order that we want and not some random order, we specify
+        # that order here.
+        order = ['type', 'module', 'label', 'process']
+        for obj in branchList:
+            for key, twoList in lengthDict.iteritems():
+                attribute = getattr (obj, key)
+                if len (attribute) + 2 > twoList[0]:
+                    twoList[0] = len (attribute) + 2
+        totalLength = 0
+        for twoList in lengthDict.values():
+            totalLength += twoList[0]
+        useMin = True
+        if Branch.forceColumns or totalLength < 70:
+            useMin = False
+        Branch.form = ""
+        if Branch.mode == 'name':
+            # name
+            Branch.form += '%(fullname)s'
+        else:
+            for piece in order:
+                Branch.form += '%('
+                Branch.form +=  piece
+                if useMin:
+                    Branch.form += ')-%ds   ' % min ( lengthDict[piece] )
+                else:
+                    Branch.form += ')-%ds   ' % lengthDict[piece][0]
+        if Branch.mode == 'all':
+            # name
+            Branch.form += '     %(fullname)s'
+
+
+    @staticmethod
+    def printList (branchList):
+        '''Print out nicely formatted list of all branches'''
+        Branch._setForm (branchList)
+        title = Branch.form % {'type'     : 'Type',
+                               'module'   : 'Module',
+                               'label'    : 'Label',
+                               'process'  : 'Process',
+                               'fullname' : 'Full Name'}
+        print title
+        print '-' * len(title)
+        for branch in branchList:
+            print branch
+
+#branches = ''
+if __name__ == "__main__":
+
+    parser = optparse.OptionParser \
+             ("usage: %prog [options] templates.root" \
+              "\nPrints out info on edm file.")
+    parser.add_option ('--name', dest='name', action='store_true',
+                       help='print out only branch names')
+    parser.add_option ('--all',  dest='all',  action='store_true',
+                       help='Print out everything: type, module, label, '\
+                       'process, and branch name')
+    parser.add_option ('--lfn', dest='lfn', action='store_true',
+                       help="Force LFN2PFN translation (usually not necessary)")
+    parser.add_option ('--lumi', dest='lumi', action='store_true',
+                       help="Look at 'lumi' tree")
+    parser.add_option ('--run', dest='run', action='store_true',
+                       help="Look at 'run' tree")
+    parser.add_option ("--regex", dest='regex', action="append",
+                       type="string", default=[],
+                       help="Filter results based on regex")    
+    parser.add_option ('--skipping', dest='skipping', action='store_true',
+                       help="Print out branches being skipped")
+    parser.add_option ('--forceColumns', dest='forceColumns',
+                       action='store_true',
+                       help="Forces printouts to be in nice columns")
+    options, args = parser.parse_args()
+    if not args:
+        print parser.print_usage()
+        sys.exit()
+    filename = expandFilename (args[0], options)
+    ###################
+    # process options #
+    ###################
+    # check for illegal combinations
+    if options.name and options.all:
+        raise RuntimeError, "Can notuse '--name' and '--all' options together."
+    if options.lumi and options.run:
+        raise RuntimeError, "Can not use '--lumi' and '--run' options together."
+    if options.name:
+        Branch.mode = 'name'
+    elif options.all:
+        Branch.mode = 'all'
+    Branch.forceColumns = options.forceColumns
+
+    treeName = 'Events'
+    if options.lumi:
+        treeName = 'LuminosityBlocks'
+    elif options.run:
+        treeName = 'Runs'
+    regexList = []
+    # are we asked to filter this list?
+    for regexString in options.regex:
+        regexList.append( re.compile( regexString, re.IGNORECASE ) )
+    # Because PyRoot is, well, greedy, we want to make sure we have
+    # setup and parsed the command line options before importing ROOT
+    # otherwise ROOT will try and do this for us.  This "feature" can
+    # be turned of in Root 5.24 or later, but CMSSW uses 5.22.
+    import PhysicsTools.PythonAnalysis as cmstools
+    import ROOT
+    ROOT.gROOT.SetBatch() # setting batch mode
+    # Here we turn of stderr so that we don't get all of the errors
+    # saying we don't have a dictionary for all of the objects in the
+    # root file.  When we've loaded the file, we're turn it back
+    oldStderr = os.dup( sys.stderr.fileno() )
+    newStderr = file ( '/dev/null', 'w')
+    os.dup2( newStderr.fileno(), sys.stderr.fileno() )
+    rootfile = ROOT.TFile.Open( filename )
+    os.dup2( oldStderr, sys.stderr.fileno() )
+    if not rootfile:
+        raise RuntimeError, "Could not open file '%s'." % filename
+    Tree = rootfile.Get (treeName)
+    branches = Tree.GetListOfBranches()
+    branchList = []
+    for branchInfo in branches:
+        try:
+            branch = Branch (branchInfo, regexList)
+        except Exception as detail:
+            if options.skipping:
+                print "Skipping ", detail
+            continue
+        branchList.append (branch)
+    Branch.printList (branchList)
+    rootfile.Close()
+    del rootfile

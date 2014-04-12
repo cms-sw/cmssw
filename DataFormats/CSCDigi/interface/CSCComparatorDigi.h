@@ -5,14 +5,13 @@
  *
  * Digi for CSC Comparators.
  *  
- *  $Date: 2006/12/01 19:07:03 $
- *  $Revision: 1.10 $
  *
  * \author M. Schmitt, Northwestern
  *
  */
 #include <iosfwd>
 #include <vector>
+#include <stdint.h>
 
 class CSCComparatorDigi{
 

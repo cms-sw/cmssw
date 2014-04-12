@@ -1,88 +1,72 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<ConstantsSection label="tibemptystring2lr_mtcc.xml" eval="true">
- <Constant name="zero"         value="0.0*fm"/>
-</ConstantsSection>
-
-<SolidSection label="tibemptystring2lr_mtcc.xml">
- <Box name="TIBString2LoPls1"            dx="[tibmodpar:ModuleDx]"    
-      dy="[tibmodpar:SSModuleDy]"        dz="[tibstring2c:StringLoPlsL]/2"/>
- <Box name="TIBString2LoPls2"            dx="[tibstringpar:CoolTubeW]/2"    
-      dy="[tibstringpar:CoolTubeD]/2"    dz="[tibstring2c:StringLoPlsL]/2"/>
- <Tubs name="TIBString2LoPlsCoolS"       rMin="[zero]"      
-       rMax="[tibstringpar:CoolTubeD]/2" dz="[tibstring2lr:CoolL]/2"
-       startPhi="0*deg"                  deltaPhi="360*deg"/>
- <Tubs name="TIBString2LoPlsCoolW"       rMin="[zero]"      
-       rMax="[tibstringpar:CoolTubeD]/2" dz="[tibstringpar:CoolTubeW]/2"
-       startPhi="0*deg"                  deltaPhi="360*deg"/>
- </SolidSection>
-
-<LogicalPartSection label="tibemptystring2lr_mtcc.xml">
- <LogicalPart name="TIBString2LoPls1" category="unspecified">
-  <rSolid name="TIBString2LoPls1"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="TIBString2LoPls2" category="unspecified">
-  <rSolid name="TIBString2LoPls2"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="TIBString2LoPlsCoolS" category="unspecified">
-  <rSolid name="TIBString2LoPlsCoolS"/>
-  <rMaterial name="tibmaterial:TIB_mod_cool"/>
- </LogicalPart>
- <LogicalPart name="TIBString2LoPlsCoolW" category="unspecified">
-  <rSolid name="TIBString2LoPlsCoolW"/>
-  <rMaterial name="tibmaterial:TIB_mod_cool"/>
- </LogicalPart>
-</LogicalPartSection>
-
-<PosPartSection label="tibemptystring2lr_mtcc.xml">
- <PosPart copyNumber="1">
-   <rParent name="tibemptystring2lr_mtcc:TIBString2LoPls2"/>
-   <rChild name="tibemptystring2lr_mtcc:TIBString2LoPlsCoolS"/>
-  <Translation x="-[tibstringpar:CoolTubeSep]/2"   y="[zero]"  
-               z="([tibstring2c:StringLoPlsL]-[tibstring2lr:CoolL])/2" />
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="tibemptystring2lr_mtcc:TIBString2LoPls2"/>
-   <rChild name="tibemptystring2lr_mtcc:TIBString2LoPlsCoolS"/>
-  <Translation x="[tibstringpar:CoolTubeSep]/2"    y="[zero]"  
-               z="([tibstring2c:StringLoPlsL]-[tibstring2lr:CoolL])/2" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tibemptystring2lr_mtcc:TIBString2LoPls2"/>
-   <rChild name="tibemptystring2lr_mtcc:TIBString2LoPlsCoolW"/>
-  <rRotation name="tibstringpar:90XD"/>
-  <Translation x="[zero]"   y="[zero]"  z="-([tibstring2lr:CoolL]-
-               ([tibstring2c:StringLoPlsL]-[tibstringpar:CoolTubeD])/2)" />
- </PosPart>
-</PosPartSection>
-
-<Algorithm name="track:DDTrackerZPosAlgo">
-  <rParent name="tibemptystring2lr_mtcc:TIBString2LoPls1"/>
-  <String name="ChildName"    value="tibemptymodule2_mtcc:TIBModule2"/>
-  <Numeric name="StartCopyNo" value="4"/>
-  <Numeric name="IncrCopyNo"  value="1" />
-  <Vector name="ZPositions" type="numeric" nEntries="3">
-  ([tibstring2lr:Det0Z]+[tibstring2lr:ShiftDet]), 
-  ([tibstring2lr:Det1Z]+[tibstring2lr:ShiftDet]), 
-  ([tibstring2lr:Det2Z]+[tibstring2lr:ShiftDet]) </Vector>
-  <Vector name="Rotations" type="string" nEntries="3">
-  tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
-</Algorithm>
-
-<Algorithm name="track:DDTrackerZPosAlgo">
-  <rParent name="tibemptystring2lr_mtcc:TIBString2LoPls1"/>
-  <String name="ChildName"    value="tibemptystringss_mtcc:TIBICCBoxSS"/>
-  <Numeric name="StartCopyNo" value="5"/>
-  <Numeric name="IncrCopyNo"  value="1" />
-  <Vector name="ZPositions" type="numeric" nEntries="3">
-  ([tibstring2lr:ICC0Z]+[tibstring2lr:ShiftICC]), 
-  ([tibstring2lr:ICC1Z]+[tibstring2lr:ShiftICC]), 
-  ([tibstring2lr:ICC2Z]+[tibstring2lr:ShiftICC]) </Vector>
-  <Vector name="Rotations" type="string" nEntries="3">
-  tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
-</Algorithm>
- 
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tibemptystring2lr_mtcc.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+	</ConstantsSection>
+	<SolidSection label="tibemptystring2lr_mtcc.xml">
+		<Box name="TIBString2LoPls1" dx="[tibmodpar:ModuleDx]" dy="[tibmodpar:SSModuleDy]" dz="[tibstring2c:StringLoPlsL]/2"/>
+		<Box name="TIBString2LoPls2" dx="[tibstringpar:CoolTubeW]/2" dy="[tibstringpar:CoolTubeD]/2" dz="[tibstring2c:StringLoPlsL]/2"/>
+		<Tubs name="TIBString2LoPlsCoolS" rMin="[zero]" rMax="[tibstringpar:CoolTubeD]/2" dz="[tibstring2lr:CoolL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TIBString2LoPlsCoolW" rMin="[zero]" rMax="[tibstringpar:CoolTubeD]/2" dz="[tibstringpar:CoolTubeW]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="tibemptystring2lr_mtcc.xml">
+		<LogicalPart name="TIBString2LoPls1" category="unspecified">
+			<rSolid name="TIBString2LoPls1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TIBString2LoPls2" category="unspecified">
+			<rSolid name="TIBString2LoPls2"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TIBString2LoPlsCoolS" category="unspecified">
+			<rSolid name="TIBString2LoPlsCoolS"/>
+			<rMaterial name="tibmaterial:TIB_mod_cool"/>
+		</LogicalPart>
+		<LogicalPart name="TIBString2LoPlsCoolW" category="unspecified">
+			<rSolid name="TIBString2LoPlsCoolW"/>
+			<rMaterial name="tibmaterial:TIB_mod_cool"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tibemptystring2lr_mtcc.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tibemptystring2lr_mtcc:TIBString2LoPls2"/>
+			<rChild name="tibemptystring2lr_mtcc:TIBString2LoPlsCoolS"/>
+			<Translation x="-[tibstringpar:CoolTubeSep]/2" y="[zero]" z="([tibstring2c:StringLoPlsL]-[tibstring2lr:CoolL])/2"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tibemptystring2lr_mtcc:TIBString2LoPls2"/>
+			<rChild name="tibemptystring2lr_mtcc:TIBString2LoPlsCoolS"/>
+			<Translation x="[tibstringpar:CoolTubeSep]/2" y="[zero]" z="([tibstring2c:StringLoPlsL]-[tibstring2lr:CoolL])/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibemptystring2lr_mtcc:TIBString2LoPls2"/>
+			<rChild name="tibemptystring2lr_mtcc:TIBString2LoPlsCoolW"/>
+			<rRotation name="tibstringpar:90XD"/>
+			<Translation x="[zero]" y="[zero]" z="-([tibstring2lr:CoolL]-([tibstring2c:StringLoPlsL]-[tibstringpar:CoolTubeD])/2)"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="track:DDTrackerZPosAlgo">
+		<rParent name="tibemptystring2lr_mtcc:TIBString2LoPls1"/>
+		<String name="ChildName" value="tibemptymodule2_mtcc:TIBModule2"/>
+		<Numeric name="StartCopyNo" value="4"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Vector name="ZPositions" type="numeric" nEntries="3">
+			([tibstring2lr:Det0Z]+[tibstring2lr:ShiftDet]), 
+			([tibstring2lr:Det1Z]+[tibstring2lr:ShiftDet]), 
+			([tibstring2lr:Det2Z]+[tibstring2lr:ShiftDet]) </Vector>
+		<Vector name="Rotations" type="string" nEntries="3">
+			tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerZPosAlgo">
+		<rParent name="tibemptystring2lr_mtcc:TIBString2LoPls1"/>
+		<String name="ChildName" value="tibemptystringss_mtcc:TIBICCBoxSS"/>
+		<Numeric name="StartCopyNo" value="5"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Vector name="ZPositions" type="numeric" nEntries="3">
+			([tibstring2lr:ICC0Z]+[tibstring2lr:ShiftICC]), 
+			([tibstring2lr:ICC1Z]+[tibstring2lr:ShiftICC]), 
+			([tibstring2lr:ICC2Z]+[tibstring2lr:ShiftICC]) </Vector>
+		<Vector name="Rotations" type="string" nEntries="3">
+			tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
+	</Algorithm>
 </DDDefinition>

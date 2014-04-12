@@ -11,7 +11,7 @@
 class CSCDCCHeader {
 
  public:
-  CSCDCCHeader(int bx, int l1a, int sourceId);
+  CSCDCCHeader(int bx, int l1a, int sourceId, int version=0);
   CSCDCCHeader();
   CSCDCCHeader(const CSCDCCStatusDigi & digi);
 
@@ -20,7 +20,8 @@ class CSCDCCHeader {
   int getCDFFOV() const;
   int getCDFEventType() const;
   int getCDFBunchCounter() const; 
-  bool check() const { return dcc_code1==0xD9 && dcc_code2==0x97;}
+  void setDAV(int dduSlot);
+  bool check() const { return true/*dcc_code1==0xD9 && dcc_code2==0x97*/;}
   unsigned short * data() {return (short unsigned *)word;}
   static unsigned sizeInWords() {return 8;}
 
@@ -29,7 +30,6 @@ class CSCDCCHeader {
 
  private:
   unsigned long long word[2];
-  int BX_id, LV1_id, Source_id, dcc_code1, dcc_code2;
   
   /*
   //first line of DCC header definded by CDF (common data format)

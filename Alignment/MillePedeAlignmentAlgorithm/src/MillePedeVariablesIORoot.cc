@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.3 $
- *  $Date: 2006/12/03 17:53:57 $
- *  (last update by $Author: fronga $)
+ *  $Revision: 1.6 $
+ *  $Date: 2008/10/14 07:19:32 $
+ *  (last update by $Author: flucke $)
  */
 
 // this class's header
@@ -13,7 +13,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
@@ -21,10 +20,20 @@
 #include "TTree.h"
 
 // -------------------------------------------------------------------------------------------------
-MillePedeVariablesIORoot::MillePedeVariablesIORoot()
+MillePedeVariablesIORoot::MillePedeVariablesIORoot() :
+  myId(0), myObjId(0), myNumPar(0),
+  myHitsX(0), myHitsY(0), myLabel(0)
 {
   treename = "MillePedeUser";
   treetxt = "MillePede User Variables";
+  for (unsigned int i=0;i<kMaxNumPar;i++) {
+    myIsValid[i] = 0;
+    myDiffBefore[i] = 0.;
+    myGlobalCor[i] = 0.;
+    myPreSigma[i] = 0.;
+    myParameter[i] = 0.;
+    mySigma[i] = 0.;
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -87,7 +96,7 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
   }
 
   const MillePedeVariables *mpVar = 
-    dynamic_cast<MillePedeVariables*>(ali->alignmentParameters()->userVariables());
+    static_cast<MillePedeVariables*>(ali->alignmentParameters()->userVariables());
   myNumPar = mpVar->size();
   if (myNumPar >= kMaxNumPar) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::writeOne"
@@ -107,10 +116,8 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
   myHitsY = mpVar->hitsY();
   myLabel = mpVar->label();
 
-  const TrackerAlignableId ID;
-  const TrackerAlignableId::UniqueId detType = ID.alignableUniqueId(ali); 
-  myId = detType.first;
-  myObjId = detType.second;
+  myId = ali->id();
+  myObjId = ali->alignableObjectId();
 
   tree->Fill();
 
@@ -122,18 +129,15 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
 {
   ierr = 0;
 
-  const TrackerAlignableId ID;
-  const TrackerAlignableId::UniqueId detType = ID.alignableUniqueId(ali); 
-  
-  if (tree->GetEntryWithIndex(detType.first, detType.second) < 0) {
+  if (tree->GetEntryWithIndex(ali->id(), ali->alignableObjectId()) < 0) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::readOne"
-                               << "No index for detType = (" << detType.first << "/"
-                               << detType.second << ") found!";
+                               << "No index for id/type = (" << ali->id() << "/"
+                               << ali->alignableObjectId() << ") found!";
     ierr = 1;
     return 0;
   }
 
-  MillePedeVariables *mpVar = new MillePedeVariables(myNumPar);
+  MillePedeVariables *mpVar = new MillePedeVariables(myNumPar, myLabel);
   for (unsigned int iPar = 0; iPar < myNumPar; ++iPar) {
     mpVar->isValid()[iPar]    = myIsValid[iPar];
     mpVar->diffBefore()[iPar] = myDiffBefore[iPar];
@@ -144,7 +148,6 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
   }
   mpVar->setHitsX(myHitsX);
   mpVar->setHitsY(myHitsY);
-  mpVar->setLabel(myLabel);
   
   return mpVar;
 }

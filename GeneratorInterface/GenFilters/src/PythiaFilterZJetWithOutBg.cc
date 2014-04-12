@@ -1,5 +1,5 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterZJetWithOutBg.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include <iostream>
 #include<list>
@@ -7,7 +7,7 @@
 #include<cmath>
 
 PythiaFilterZJetWithOutBg::PythiaFilterZJetWithOutBg(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 etaMuMax(iConfig.getUntrackedParameter<double>("MaxMuonEta", 2.5)),
 ptMuMin(iConfig.getUntrackedParameter<double>("MinMuonPt", 3.5)),
 ptZMin(iConfig.getUntrackedParameter<double>("MinZPt")),
@@ -26,9 +26,9 @@ PythiaFilterZJetWithOutBg::~PythiaFilterZJetWithOutBg(){}
 // ------------ method called to produce the data  ------------
 bool PythiaFilterZJetWithOutBg::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
-  if(theNumberOfSelected>=maxnumberofeventsinrun)   {
-    throw cms::Exception("endJob")<<"we have reached the maximum number of events ";
-  }
+//  if(theNumberOfSelected>=maxnumberofeventsinrun)   {
+//    throw cms::Exception("endJob")<<"we have reached the maximum number of events ";
+//  }
 
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;

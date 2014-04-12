@@ -3,8 +3,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,7 +12,6 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
@@ -25,14 +22,18 @@ using namespace edm;
 using namespace std;
 
 KVFTest::KVFTest(const edm::ParameterSet& iConfig)
-  : theConfig(iConfig)
+  : theConfig(iConfig), associatorForParamAtPca(0), tree(0)
 {
-  trackLabel_ = iConfig.getParameter<std::string>("TrackLabel");
+  token_tracks = consumes<TrackCollection>(iConfig.getParameter<string>("TrackLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
   kvfPSet = iConfig.getParameter<edm::ParameterSet>("KVFParameters");
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
   edm::LogInfo("RecoVertex/KVFTest") 
     << "Initializing KVF TEST analyser  - Output file: " << outputFile_ <<"\n";
+
+  token_TrackTruth = consumes<TrackingParticleCollection>(edm::InputTag("trackingtruth", "TrackTruth"));
+  token_VertexTruth = consumes<TrackingVertexCollection>(edm::InputTag("trackingtruth", "VertexTruth"));
+
 }
 
 
@@ -40,12 +41,7 @@ KVFTest::~KVFTest() {
   delete rootFile_;
 }
 
-void KVFTest::beginJob(edm::EventSetup const& setup){
-  edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-  associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
-
-  tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+void KVFTest::beginJob(){
 }
 
 
@@ -60,29 +56,39 @@ void KVFTest::endJob() {
 void
 KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if ( associatorForParamAtPca==0 ) {
+    edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
+    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
+    associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
+
+    tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+  }
 
 
 
-  try {
-    edm::LogInfo("RecoVertex/KVFTest") 
-      << "Reconstructing event number: " << iEvent.id() << "\n";
+  edm::LogInfo("RecoVertex/KVFTest") 
+    << "Reconstructing event number: " << iEvent.id() << "\n";
     
-    // get RECO tracks from the event
-    // `tks` can be used as a ptr to a reco::TrackCollection
-    edm::Handle<reco::TrackCollection> tks;
-    iEvent.getByLabel(trackLabel_, tks);
-
+  // get RECO tracks from the event
+  // `tks` can be used as a ptr to a reco::TrackCollection
+  edm::Handle<edm::View<reco::Track> > tks;
+  iEvent.getByToken(token_tracks, tks);
+  if (!tks.isValid()) {
+    edm::LogInfo("RecoVertex/KVFTest") 
+      << "Exception during event number: " << iEvent.id()
+      << "\n";
+  } else {
     edm::LogInfo("RecoVertex/KVFTest") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
-    cout << "got " << (*tks).size() << " tracks " << endl;
-
+    std::cout << "got " << (*tks).size() << " tracks " << std::endl;
+    
     // Transform Track to TransientTrack
 
     //get the builder:
     edm::ESHandle<TransientTrackBuilder> theB;
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
     //do the conversion:
-    vector<TransientTrack> t_tks = (*theB).build(tks);
+    std::vector<TransientTrack> t_tks = (*theB).build(tks);
 
     edm::LogInfo("RecoVertex/KVFTest") 
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
@@ -97,26 +103,22 @@ KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // For the analysis: compare to your SimVertex
       TrackingVertex sv = getSimVertex(iEvent);
-  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  iEvent.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
-  const TrackingParticleCollection tPC = *(TPCollectionH.product());
-      reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
-									      TPCollectionH,
-									      &iEvent);
-
-      tree->fill(tv, &sv, &recSimColl);
+      edm::Handle<TrackingParticleCollection>  TPCollectionH ;
+      iEvent.getByToken(token_TrackTruth, TPCollectionH);
+      if (!TPCollectionH.isValid()) {
+	edm::LogInfo("RecoVertex/KVFTest") 
+	  << "Exception during event number: " << iEvent.id() 
+	  << "\n";
+      } else {
+	const TrackingParticleCollection tPC = *(TPCollectionH.product());
+	reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
+											 TPCollectionH,
+											 &iEvent);    
+	tree->fill(tv, &sv, &recSimColl);
+      }
     }
-    
-  }
-
-  catch (std::exception & err) {
-    edm::LogInfo("RecoVertex/KVFTest") 
-      << "Exception during event number: " << iEvent.id() 
-      << "\n" << err.what() << "\n";
-  }
-
+  }  
 }
-
 
 //Returns the first vertex in the list.
 
@@ -124,7 +126,7 @@ TrackingVertex KVFTest::getSimVertex(const edm::Event& iEvent) const
 {
    // get the simulated vertices
   edm::Handle<TrackingVertexCollection>  TVCollectionH ;
-  iEvent.getByLabel("trackingtruth","VertexTruth",TVCollectionH);
+  iEvent.getByToken(token_VertexTruth,TVCollectionH);
   const TrackingVertexCollection tPC = *(TVCollectionH.product());
 
 //    Handle<edm::SimVertexContainer> simVtcs;
@@ -142,4 +144,4 @@ TrackingVertex KVFTest::getSimVertex(const edm::Event& iEvent) const
 //    }
    return *(tPC.begin());
 }
-DEFINE_ANOTHER_FWK_MODULE(KVFTest);
+DEFINE_FWK_MODULE(KVFTest);

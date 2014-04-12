@@ -48,7 +48,7 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
 
     TrajectoryStateClosestToPoint tscp=(*itT).trajectoryStateClosestToPoint(vtxPoint);
     double val=tscp.perigeeParameters().transverseImpactParameter();
-    double error=sqrt((tscp.perigeeError().covarianceMatrix_old())[3][3]);
+    double error=sqrt(tscp.perigeeError().covarianceMatrix()(3,3));
 
     if (debug) cout <<"[AddTvTrack] tip val,err"<<val<<","<<error<<endl;
 
@@ -89,8 +89,6 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
   for( vector<TransientTrack>::const_iterator itT = 
     unusedTrackswithIPSig.begin() ; itT != unusedTrackswithIPSig.end() ; 
     itT++ ) {  
-    try {  
-
       // point on track closest to b flight line 
 
       // ORCA implementation
@@ -232,7 +230,7 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
       GlobalPoint vtxPoint((*thePrimaryVertices)[0].position());
       TrajectoryStateClosestToPoint tscp=(*itT).trajectoryStateClosestToPoint(vtxPoint);
       double IP=tscp.perigeeParameters().transverseImpactParameter();
-      double error=sqrt((tscp.perigeeError().covarianceMatrix_old())[3][3]);
+      double error=sqrt(tscp.perigeeError().covarianceMatrix()(3,3));
       double err=sqrt(pow(error,2)+pow(0.0015,2));
       double IPSig = IP/err;
 
@@ -266,10 +264,6 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
 
       // end TDR INFO ---------------------------------------------------------
    
-    } // end try block 
-    catch(...) {
-      cout << " [AddTvTrack]::getSecondaryVertices throws exception " << endl;
-    }
 
   } // end  main loop over tracks
 

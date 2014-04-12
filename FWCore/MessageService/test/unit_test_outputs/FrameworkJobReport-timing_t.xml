@@ -1,0 +1,11 @@
+<FrameworkJobReport>
+<TimingService>
+  <AvgEventTime  Value="0.0017045" />
+  <MaxEventTime  Value="0.00337982" />
+  <MinEventTime  Value="0.000648022" />
+  <TotalTime  Value="0.017045" />
+</TimingService>
+
+<GeneratorInfo>
+</GeneratorInfo>
+</FrameworkJobReport>

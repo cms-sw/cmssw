@@ -10,12 +10,10 @@
 #include<vector>
 #include<map>
 
-using namespace std;
-
 class CalibrationCluster{
 
 public:
-typedef map<EBDetId,unsigned int> CalibMap;
+typedef std::map<EBDetId,unsigned int> CalibMap;
 typedef CalibMap::value_type pippo;
 
 
@@ -24,15 +22,15 @@ CalibrationCluster();
 ~CalibrationCluster();
 
 CalibMap getMap(int, int, int, int);
-vector<EBDetId> get5x5Id(EBDetId const &);
-vector<EBDetId> get3x3Id(EBDetId const &);
-vector<float>   getEnergyVector(const EBRecHitCollection* ,CalibMap &, vector<EBDetId> &, float &, int &);
+std::vector<EBDetId> get5x5Id(EBDetId const &);
+std::vector<EBDetId> get3x3Id(EBDetId const &);
+std::vector<float>   getEnergyVector(const EBRecHitCollection* ,CalibMap &, std::vector<EBDetId> &, float &, int &);
 
 private:
 
-vector<EBDetId> Xtals5x5;
-vector<EBDetId> Xtals3x3;
-vector<float> energyVector;
+std::vector<EBDetId> Xtals5x5;
+std::vector<EBDetId> Xtals3x3;
+std::vector<float> energyVector;
 CalibMap calibRegion;
 };
 

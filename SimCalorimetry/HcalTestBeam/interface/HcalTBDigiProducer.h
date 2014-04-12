@@ -1,7 +1,7 @@
-#ifndef HcalTestBeam_HcalTBDigiProducer_h
-#define HcalTestBeam_HcalTBDigiProducer_h
+#ifndef SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
+#define SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,21 +17,34 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 #include<vector>
 #include<string>
 
-class HcalTBDigiProducer : public edm::EDProducer {
+class PEcalTBInfo;
 
+namespace edm {
+  class StreamID;
+}
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
+class HcalTBDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit HcalTBDigiProducer(const edm::ParameterSet& ps);
+  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   virtual ~HcalTBDigiProducer();
 
-  /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override ;
+  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
 private:
+  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hits, int bunchCrossing, CLHEP::HepRandomEngine*);
 
   /// fills the vectors for each subdetector
   void sortHits(const edm::PCaloHitContainer & hits);
@@ -41,6 +54,8 @@ private:
   void updateGeometry();
 
   void setPhaseShift(const DetId & detId);
+
+  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
 private:
 
@@ -78,7 +93,8 @@ private:
 
   bool   doPhaseShift;
   double tunePhaseShift;
+
+  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
 
 #endif
-

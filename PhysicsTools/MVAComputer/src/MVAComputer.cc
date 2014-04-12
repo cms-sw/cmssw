@@ -1,10 +1,22 @@
 #include <iostream>
+#include <sstream>
+#include <fstream>
 #include <algorithm>
+#include <iterator>
 #include <cstddef>
+#include <cstring>
 #include <vector>
 #include <set>
 
+// ROOT version magic to support TMVA interface changes in newer ROOT   
+#include <RVersion.h>
+
+#include <TBufferFile.h>
+#include <TClass.h>
+
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "PhysicsTools/MVAComputer/interface/zstream.h"
 
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
@@ -15,24 +27,52 @@
 // #define DEBUG_EVAL
 
 #ifdef DEBUG_EVAL
-#	include <Reflex/Tools.h>
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 #endif
+
+#define STANDALONE_HEADER "MVAComputer calibration\n"
 
 namespace PhysicsTools {
 
-MVAComputer::MVAComputer(
-			const Calibration::MVAComputer *calib) :
+MVAComputer::MVAComputer(const Calibration::MVAComputer *calib) :
 	nVars(0), output(0)
 {
 	setup(calib);
 }
 
+MVAComputer::MVAComputer(Calibration::MVAComputer *calib, bool owned) :
+	nVars(0), output(0)
+{
+	if (owned)
+		this->owned.reset(calib);
+	setup(calib);
+}
+
+MVAComputer::MVAComputer(const char *filename) :
+	nVars(0), output(0), owned(readCalibration(filename))
+{
+	setup(owned.get());
+}
+
+MVAComputer::MVAComputer(std::istream &is) :
+	nVars(0), output(0), owned(readCalibration(is))
+{
+	setup(owned.get());
+}
+
 void MVAComputer::setup(const Calibration::MVAComputer *calib)
 {
+
 	nVars = calib->inputSet.size();
 	output = calib->output;
 
-	VarProcessor::ConfigCtx config(nVars);
+	std::vector<Variable::Flags> flags(nVars, Variable::FLAG_ALL);
+	const TrainMVAComputerCalibration *trainCalib =
+		dynamic_cast<const TrainMVAComputerCalibration*>(calib);
+	if (trainCalib)
+		trainCalib->initFlags(flags);
+
+	VarProcessor::ConfigCtx config(flags);
 	std::vector<Calibration::VarProcessor*> processors =
 							calib->getProcessors();
 
@@ -82,21 +122,26 @@ void MVAComputer::setup(const Calibration::MVAComputer *calib)
 
 	std::set<InputVar> variables;
 	unsigned int i = 0;
-	for(std::vector<Calibration::Variable>::const_iterator iter =
-			calib->inputSet.begin(); iter != calib->inputSet.end();
-	    ++iter, i++) {
+	for(std::vector<Calibration::Variable>::const_iterator iter = calib->inputSet.begin(); iter != calib->inputSet.end(); ++iter, i++) {
 		InputVar var;
 		var.var = Variable(iter->name, config[i].mask);
 		var.index = i;
+		var.multiplicity = 0;
 		variables.insert(var);
 	}
 
 	inputVariables.resize(i);
-	std::copy(variables.begin(), variables.end(),
-	          inputVariables.begin());
 
+	unsigned int l =0;
+	for(std::set<InputVar>::const_iterator iter = variables.begin(); iter != variables.end(); ++iter, l++) 	
+	{
+		inputVariables[l].var=iter->var;
+		inputVariables[l].index=iter->index; 
+	}
+	
 	for(unsigned int j = 0; j < i; j++)
-		inputVariables[j].multiplicity = config[j].origin;
+		inputVariables[j].multiplicity = config[j].origin;	
+
 }
 
 MVAComputer::~MVAComputer()
@@ -105,9 +150,8 @@ MVAComputer::~MVAComputer()
 
 unsigned int MVAComputer::getVariableId(AtomicId name) const
 {
-	std::vector<InputVar>::const_iterator pos =
-		std::lower_bound(inputVariables.begin(), inputVariables.end(),
-		                 name);
+
+	std::vector<InputVar>::const_iterator pos = std::lower_bound(inputVariables.begin(), inputVariables.end(), name);
 
 	if (pos == inputVariables.end() || pos->var.getName() != name)
 		throw cms::Exception("InvalidVariable")
@@ -117,16 +161,18 @@ unsigned int MVAComputer::getVariableId(AtomicId name) const
 	return pos->index;
 }
 
-void MVAComputer::eval(double *values, int *conf, unsigned int n) const
+template<class T>
+void MVAComputer::evalInternal(T &ctx) const
 {
-	double *output = values + n;
-	int *outConf = conf + inputVariables.size();
+	
+	double *output = ctx.values() + ctx.n();
+	int *outConf = ctx.conf() + inputVariables.size();
 
 #ifdef DEBUG_EVAL
 	std::cout << "Input" << std::endl;
-	double *v = values;
-	for(int *o = conf; o < outConf; o++) {
-		std::cout << "\tVar " << (o - conf) << std::endl;
+	double *v = ctx.values();
+	for(int *o = ctx.conf(); o < outConf; o++) {
+		std::cout << "\tVar " << (o - ctx.conf()) << std::endl;
 		for(int i = o[0]; i < o[1]; i++)
 			std::cout << "\t\t" << *v++ << std::endl;
 	}
@@ -146,19 +192,19 @@ void MVAComputer::eval(double *values, int *conf, unsigned int n) const
 			                          ? next->nOutput : 0;
 
 #ifdef DEBUG_EVAL
-			std::cout << ROOT::Reflex::Tools::Demangle(
-				typeid(*iter->processor)) << std::endl;
+		std::string demangledName;
+		edm::typeDemangle(typeid(*iter->processor).name(), demangledName);
+		std::cout << demangledName << std::endl;
 #endif
 			if (status != VarProcessor::kSkip)
-				iter->processor->eval(
-					values, conf, output, outConf,
-					loopStart ? loopStart : loopOutConf,
-					offset);
+				ctx.eval(&*iter->processor, outConf, output,
+				         loopStart ? loopStart : loopOutConf,
+				         offset, iter->nOutput);
 
 #ifdef DEBUG_EVAL
 			for(unsigned int i = 0; i < iter->nOutput;
 			    i++, outConf++) {
-				std::cout << "\tVar " << (outConf - conf)
+				std::cout << "\tVar " << (outConf - ctx.conf())
 				          << std::endl;
 				for(int j = outConf[0]; j < outConf[1]; j++)
 					std::cout << "\t\t" << *output++
@@ -187,5 +233,115 @@ void MVAComputer::eval(double *values, int *conf, unsigned int n) const
 		}
 	}
 }
+
+Calibration::MVAComputer *MVAComputer::readCalibration(const char *filename)
+{
+	std::ifstream file(filename);
+	return readCalibration(file);
+}
+
+Calibration::MVAComputer *MVAComputer::readCalibration(std::istream &is)
+{
+	if (!is.good())
+		throw cms::Exception("InvalidFileState")
+			<< "Stream passed to MVAComputer::readCalibration "
+			   "has an invalid state." << std::endl;
+
+	char header[sizeof STANDALONE_HEADER - 1] = { 0, };
+	if (is.readsome(header, sizeof header) != sizeof header ||
+	    std::memcmp(header, STANDALONE_HEADER, sizeof header) != 0)
+		throw cms::Exception("InvalidFileFormat")
+			<< "Stream passed to MVAComputer::readCalibration "
+			   "is not a valid calibration file." << std::endl;
+
+	TClass *rootClass =
+		TClass::GetClass("PhysicsTools::Calibration::MVAComputer");
+	if (!rootClass)
+		throw cms::Exception("DictionaryMissing")
+			<< "CondFormats dictionary for "
+			   "PhysicsTools::Calibration::MVAComputer missing"
+			<< std::endl;
+
+	ext::izstream izs(&is);
+	std::ostringstream ss;
+	ss << izs.rdbuf();
+	std::string buf = ss.str();
+
+	TBufferFile buffer(TBuffer::kRead, buf.size(), const_cast<void*>(
+			static_cast<const void*>(buf.c_str())), kFALSE);
+	buffer.InitMap();
+
+	std::auto_ptr<Calibration::MVAComputer> calib(
+					new Calibration::MVAComputer());
+	buffer.StreamObject(static_cast<void*>(calib.get()), rootClass);
+
+	return calib.release();
+}
+
+void MVAComputer::writeCalibration(const char *filename,
+                                   const Calibration::MVAComputer *calib)
+{
+	std::ofstream file(filename);
+	writeCalibration(file, calib);
+}
+
+void MVAComputer::writeCalibration(std::ostream &os,
+                                   const Calibration::MVAComputer *calib)
+{
+	if (!os.good())
+		throw cms::Exception("InvalidFileState")
+			<< "Stream passed to MVAComputer::writeCalibration "
+			   "has an invalid state." << std::endl;
+
+	os << STANDALONE_HEADER;
+
+	TClass *rootClass =
+		TClass::GetClass("PhysicsTools::Calibration::MVAComputer");
+	if (!rootClass)
+		throw cms::Exception("DictionaryMissing")
+			<< "CondFormats dictionary for "
+			   "PhysicsTools::Calibration::MVAComputer missing"
+			<< std::endl;
+
+	TBufferFile buffer(TBuffer::kWrite);
+	buffer.StreamObject(const_cast<void*>(static_cast<const void*>(calib)),
+	                    rootClass);
+
+	ext::ozstream ozs(&os);
+	ozs.write(buffer.Buffer(), buffer.Length());
+	ozs.flush();
+}
+
+// instantiate use cases fo MVAComputer::evalInternal
+
+void MVAComputer::DerivContext::eval(
+		const VarProcessor *proc, int *outConf, double *output,
+		int *loop, unsigned int offset, unsigned int out) const
+{
+	proc->deriv(values(), conf(), output, outConf,
+	            loop, offset, n(), out, deriv_);
+}
+
+double MVAComputer::DerivContext::output(unsigned int output,
+                                         std::vector<double> &derivs) const
+{
+	derivs.clear();
+	derivs.reserve(n_);
+
+	int pos = conf_[output];
+	if (pos >= (int)n_)
+		std::copy(&deriv_.front() + n_ * (pos - n_),
+		          &deriv_.front() + n_ * (pos - n_ + 1),
+		          std::back_inserter(derivs));
+	else {
+		derivs.resize(n_);
+		derivs[pos] = 1.;
+	}
+
+	return values_[pos];
+}
+
+template void MVAComputer::evalInternal(EvalContext &ctx) const;
+template void MVAComputer::evalInternal(DerivContext &ctx) const;
 
 } // namespace PhysicsTools

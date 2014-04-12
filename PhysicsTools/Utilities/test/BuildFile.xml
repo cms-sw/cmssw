@@ -1,0 +1,55 @@
+<bin   name="testPhysicsToolsUtilities" file="testPolynomial.cc,testParameter.cc,testFunctions.cc,testSimplifications.cc,testFunctionsIO.cc,testVariables.cc,testDerivatives.cc,testPrimitive.cc,testIntegral.cc,testRunner.cpp,testLumiReweight.cc">
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/TrackerRecHit2D"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use   name="PhysicsTools/Utilities"/>
+  <use   name="cppunit"/>
+</bin>
+<bin   file="testZMassFit.cpp" name="testZMassFit">
+  <use   name="rootminuit"/>
+  <use   name="rootminuit2"/>
+  <use   name="PhysicsTools/Utilities"/>
+  <use   name="Utilities/General"/>
+</bin>
+<bin   file="testZMassFitSimple.cpp" name="testZMassFitSimple">
+  <use   name="rootminuit"/>
+  <use   name="PhysicsTools/Utilities"/>
+</bin>
+<bin   file="testZMassFitLikelihood.cpp" name="testZMassFitLikelihood">
+  <use   name="rootminuit"/>
+  <use   name="rootminuit2"/>
+  <use   name="PhysicsTools/Utilities"/>
+  <use   name="Utilities/General"/>
+</bin>
+<bin   file="testZMassFitExtLikelihood.cpp" name="testZMassFitExtLikelihood">
+  <use   name="rootminuit"/>
+  <use   name="rootminuit2"/>
+  <use   name="PhysicsTools/Utilities"/>
+  <use   name="Utilities/General"/>
+</bin>
+<bin   file="testExpressionFit.cpp" name="testExpressionFit">
+  <use   name="rootminuit"/>
+  <use   name="rootminuit2"/>
+  <use   name="PhysicsTools/Utilities"/>
+  <use   name="Utilities/General"/>
+</bin>
+<bin   file="testRooFitFunction.cpp" name="testRooFitFunction">
+  <use   name="PhysicsTools/Utilities"/>
+  <use   name="roofit"/>
+</bin>
+<bin   file="testIntegralTiming.cpp" name="testIntegralTiming">
+  <use   name="rootminuit"/>
+  <use   name="Utilities/General"/>
+  <use   name="PhysicsTools/Utilities"/>
+</bin>
+<bin   file="testSideBandSubtraction.cc" name="testSideBandSubtraction">
+  <use   name="root"/>
+  <use   name="rootcore"/>
+  <use   name="roofit"/>
+  <use   name="PhysicsTools/Utilities"/>
+  <use   lib="Gpad"/>
+</bin>
+<bin   file="test_Poisson.cpp">
+  <use   name="PhysicsTools/Utilities"/>
+</bin>

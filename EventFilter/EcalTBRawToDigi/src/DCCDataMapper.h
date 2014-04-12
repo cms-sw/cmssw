@@ -1,8 +1,8 @@
 // Date   : 30/05/2005
 // Author : N.Almeida (LIP)
 
-#ifndef DCCDATAMAPPER_HH
-#define DCCDATAMAPPER_HH
+#ifndef DCCTBDATAMAPPER_HH
+#define DCCTBDATAMAPPER_HH
 
 
 #include <string>                //STL
@@ -18,12 +18,12 @@
 /* and a mask (number of bits)                              */
 /* Note: this class is defined inline                       */
 /*----------------------------------------------------------*/
-class DCCDataField{
+class DCCTBDataField{
 public : 
   /**
      Class constructor (sets data field's characteristics)
   */
-  DCCDataField(std::string name, ulong wordPosition, ulong bitPosition, ulong mask){
+  DCCTBDataField(std::string name, uint32_t wordPosition, uint32_t bitPosition, uint32_t mask){
     name_=name; wordPosition_ = wordPosition; bitPosition_= bitPosition; mask_= mask;
   }
 		
@@ -32,23 +32,23 @@ public :
   */
   void setName(std::string namestr)        { name_.clear(); name_ = namestr; }
   std::string name()                       { return name_;                   }
-  void setWordPosition(ulong wordpos) { wordPosition_ = wordpos;        }
-  ulong wordPosition()                { return wordPosition_;           }
-  void setBitPosition(ulong bitpos)   { bitPosition_ = bitpos;          }
-  ulong bitPosition()                 { return bitPosition_;            }
-  void setMask(ulong maskvalue)       { mask_=maskvalue;                }
-  ulong mask()                        { return mask_;                   }
+  void setWordPosition(uint32_t wordpos) { wordPosition_ = wordpos;        }
+  uint32_t wordPosition()                { return wordPosition_;           }
+  void setBitPosition(uint32_t bitpos)   { bitPosition_ = bitpos;          }
+  uint32_t bitPosition()                 { return bitPosition_;            }
+  void setMask(uint32_t maskvalue)       { mask_=maskvalue;                }
+  uint32_t mask()                        { return mask_;                   }
 
   /**
      Class destructor
   */
-  ~DCCDataField() { };
+  ~DCCTBDataField() { };
 		
 protected :
   std::string name_;
-  ulong wordPosition_;
-  ulong bitPosition_;
-  ulong mask_;
+  uint32_t wordPosition_;
+  uint32_t bitPosition_;
+  uint32_t mask_;
 };
 
 
@@ -57,14 +57,14 @@ protected :
 /* DCC DATA FIELD COMPARATOR                                */
 /* compares data fields positions                           */
 /*----------------------------------------------------------*/
-class DCCDataFieldComparator{ 
+class DCCTBDataFieldComparator{ 
  
 public : 
 
   /** 
       Overloads operator() returning true if DCCDataField 1 comes first then DCCDataField 2 in the DCC data block
   */ 
-  bool operator()(DCCDataField *d1, DCCDataField * d2){
+  bool operator()(DCCTBDataField *d1, DCCTBDataField * d2){
     bool value(false);
     
     if (d1->wordPosition() < d2->wordPosition()){ 
@@ -86,11 +86,11 @@ public :
 /* DCC DATA MAPPER                                          */
 /* maps the data according to ECAL raw data format specs.   */
 /*----------------------------------------------------------*/
-class DCCDataMapper{
+class DCCTBDataMapper{
 public: 
   
-  DCCDataMapper(DCCDataParser * myParser );
-  ~DCCDataMapper();
+  DCCTBDataMapper(DCCTBDataParser * myParser );
+  ~DCCTBDataMapper();
 
   /**
      Build methods for raw data fields
@@ -105,33 +105,33 @@ public:
   /**
      Return methods for raw data fields
   */
-  std::set<DCCDataField *, DCCDataFieldComparator> *dccFields()        { return dccFields_;        }
-  std::set<DCCDataField *, DCCDataFieldComparator> *emptyEventFields() { return emptyEventFields_; }
-  std::set<DCCDataField *, DCCDataFieldComparator> *tcc68Fields()      { return tcc68Fields_;      }
-  std::set<DCCDataField *, DCCDataFieldComparator> *tcc32Fields()      { return tcc32Fields_;      }
-  std::set<DCCDataField *, DCCDataFieldComparator> *tcc16Fields()      { return tcc16Fields_;      }
-  std::set<DCCDataField *, DCCDataFieldComparator> *srp68Fields()      { return srp68Fields_;      }
-  std::set<DCCDataField *, DCCDataFieldComparator> *srp32Fields()      { return srp32Fields_;      }
-  std::set<DCCDataField *, DCCDataFieldComparator> *srp16Fields()      { return srp16Fields_;      }
-  std::set<DCCDataField *, DCCDataFieldComparator> *towerFields()      { return towerFields_;      }
-  std::set<DCCDataField *, DCCDataFieldComparator> *xtalFields()       { return xtalFields_;       }
-  std::set<DCCDataField *, DCCDataFieldComparator> *trailerFields()    { return trailerFields_;    }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *dccFields()        { return dccFields_;        }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *emptyEventFields() { return emptyEventFields_; }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *tcc68Fields()      { return tcc68Fields_;      }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *tcc32Fields()      { return tcc32Fields_;      }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *tcc16Fields()      { return tcc16Fields_;      }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *srp68Fields()      { return srp68Fields_;      }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *srp32Fields()      { return srp32Fields_;      }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *srp16Fields()      { return srp16Fields_;      }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *towerFields()      { return towerFields_;      }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *xtalFields()       { return xtalFields_;       }
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> *trailerFields()    { return trailerFields_;    }
   
 protected:
-  DCCDataParser * parser_;
-  std::set<DCCDataField *, DCCDataFieldComparator> * dccFields_;
-  std::set<DCCDataField *, DCCDataFieldComparator> * emptyEventFields_;
-  std::set<DCCDataField *, DCCDataFieldComparator> * tcc68Fields_;
-  std::set<DCCDataField *, DCCDataFieldComparator> * tcc32Fields_;
-  std::set<DCCDataField *, DCCDataFieldComparator> * tcc16Fields_;
+  DCCTBDataParser * parser_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * dccFields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * emptyEventFields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * tcc68Fields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * tcc32Fields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * tcc16Fields_;
   
-  std::set<DCCDataField *, DCCDataFieldComparator> * srp68Fields_;
-  std::set<DCCDataField *, DCCDataFieldComparator> * srp32Fields_;
-  std::set<DCCDataField *, DCCDataFieldComparator> * srp16Fields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * srp68Fields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * srp32Fields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * srp16Fields_;
   
-  std::set<DCCDataField *, DCCDataFieldComparator> * towerFields_;
-  std::set<DCCDataField *, DCCDataFieldComparator> * xtalFields_;
-  std::set<DCCDataField *, DCCDataFieldComparator> * trailerFields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * towerFields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * xtalFields_;
+  std::set<DCCTBDataField *, DCCTBDataFieldComparator> * trailerFields_;
   
 public: 
 

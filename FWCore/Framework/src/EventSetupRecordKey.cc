@@ -67,6 +67,3 @@ EventSetupRecordKey::EventSetupRecordKey() : type_()
 //
    }
 }
-#include "FWCore/Framework/interface/HCTypeTag.icc"
-
-template class edm::eventsetup::heterocontainer::HCTypeTag<edm::eventsetup::EventSetupRecordKey>;

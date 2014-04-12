@@ -28,7 +28,7 @@ void testWriting()
               100., 300., 0.0001, 11, layer, 1, 0., 0.);
       hits.push_back(pSimHit);
     }
-    writer.writeEvent(detType, hits);
+    writer.writeCluster(detType, hits);
   }
 
 }

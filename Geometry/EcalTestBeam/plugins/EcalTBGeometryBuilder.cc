@@ -13,14 +13,12 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: EcalTBGeometryBuilder.cc,v 1.1 2007/03/19 15:57:10 fabiocos Exp $
 //
 //
 
 
 // user include files
 #include "Geometry/EcalTestBeam/plugins/EcalTBGeometryBuilder.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -51,7 +49,6 @@ EcalTBGeometryBuilder::~EcalTBGeometryBuilder()
 EcalTBGeometryBuilder::ReturnType
 EcalTBGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
 {
-   using namespace edm::es;
    edm::ESHandle<CaloSubdetectorGeometry> pG;
 
    std::auto_ptr<CaloGeometry> pCaloGeom(new CaloGeometry());

@@ -5,8 +5,6 @@
  *  For now: Analyzer of StandAlone muon tracks
  *  Later: Add other detectors and more Reco
  * 
- *  $Date: 2006/10/15 11:07:09 $
- *  $Revision: 1.2 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -14,10 +12,11 @@
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "DQMServices/Core/interface/MonitorElement.h"
+//#include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 namespace edm {
   class ParameterSet;
@@ -41,14 +40,14 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
 protected:
 
 private:
   std::string theRootFileName;
   bool saveRootFile;
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
 
   std::string theSTAMuonLabel;
@@ -80,7 +79,9 @@ private:
   int numberOfRecTracks;
 
   std::string theDataType;
-  
+
+  //define Token(-s)
+  edm::EDGetTokenT<reco::TrackCollection> theSTAMuonToken_;
 };
 #endif
 

@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/01/19 11:57:44 $
- *  $Revision: 1.12 $
  *  \author N. Amapane - CERN
  */
 
@@ -10,7 +8,7 @@
 #include "RecoMuon/DetLayers/interface/MuDetRod.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -26,6 +24,7 @@
 using namespace std;
 
 MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
+  RodBarrelLayer(false),
   theRods(rods),
   theBinFinder(0),
   isOverlapping(false)
@@ -192,11 +191,6 @@ MuRodBarrelLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startin
   return vector<DetGroup>();
 }
 
-
-bool MuRodBarrelLayer::hasGroups() const {
-  // FIXME : depending on isOverlapping?
-  return false;
-}
 
 
 GeomDetEnumerators::SubDetector MuRodBarrelLayer::subDetector() const {

@@ -5,40 +5,38 @@
  *
  *  Digi for CSC DDU info available in DDU
  *  
- *  $Date: 2007/05/23 18:02:50 $
- *  $Revision: 1.3 $
  *
  */
 
 #include <vector>
+#include <iosfwd>
+#include <stdint.h>
 
 class CSCDDUStatusDigi{
 
 public:
 
   /// Constructor for all variables 
-  CSCDDUStatusDigi (const uint16_t * header, const uint16_t * trailer );
+  CSCDDUStatusDigi (const uint16_t * header, const uint16_t * trailer, uint16_t tts);
 
   /// Default constructor.
   CSCDDUStatusDigi () {}
 
   /// Data Accessors
-  const uint16_t * header() const {return header_;}
+  const uint16_t * header() const { return header_;}
   const uint16_t * trailer() const {return trailer_;}
+  const uint16_t getDDUTTS() const; 
+  
+ /// Print the content of CSCDDUStatusDigi
+ void print() const;
 
 private:
 
   uint16_t header_[12];
   uint16_t trailer_[12];
+  uint16_t tts_;
 };
 
-#include<iostream>
-/// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const CSCDDUStatusDigi& digi) {
-  o << " "; 
-  o <<"\n";
- 
-  return o;
-}
+std::ostream & operator<<(std::ostream & o, const CSCDDUStatusDigi& digi);
 
 #endif

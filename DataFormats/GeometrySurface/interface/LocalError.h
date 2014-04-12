@@ -5,16 +5,21 @@
  *  used for the local frame.
  */
 
+#include "DataFormats/GeometrySurface/interface/TrivialError.h"
 #include <cmath>
 #include <iosfwd>
 
 class LocalError {
 public:
-
   LocalError() : thexx(0), thexy(0), theyy(0) {}
+  LocalError(InvalidError) : thexx(-9999.e10f), thexy(0), theyy(-9999.e10f) {}
 
   LocalError( float xx, float xy, float yy) :
     thexx(xx), thexy(xy), theyy(yy) {}
+
+  bool invalid() const { return thexx<-1.e10f;}
+  bool valid() const { return !invalid();}
+
 
   float xx() const { return thexx;}
   float xy() const { return thexy;}
@@ -25,27 +30,27 @@ public:
    *  The error matrix components are actually multiplied with the square 
    *  of the factor.
    */
-  LocalError scale(float s) { 
+  LocalError scale(float s) const { 
     float s2 = s*s;
     return LocalError(s2*xx(), s2*xy(), s2*yy());
   }
 
   /// Return a new LocalError, rotated by an angle defined by the direction (x,y)
-  LocalError rotate(float x, float y) { 
-    double mag = sqrt(x*x+y*y);
-    return rotateCosSin( x/mag, y/mag);
+  LocalError rotate(float x, float y) const { 
+    return rotateCosSin( x, y, 1.f/(x*x+y*y) );
   }
 
   /// Return a new LocalError, rotated by an angle phi
-  LocalError rotate(float phi) { 
+  LocalError rotate(float phi) const { 
     return rotateCosSin( cos(phi), sin(phi));
   }
 
   /// Return a new LocalError, rotated by an angle defined by it's cosine and sine
-  LocalError rotateCosSin( double c, double s) {
-    return LocalError( c*c*xx() - 2*c*s*xy() + s*s*yy(),
-		       c*s*xx() + (c*c-s*s)*xy() - c*s*yy(),
-		       s*s*xx() + 2*c*s*xy() + c*c*yy());
+  LocalError rotateCosSin( float c, float s, float mag2i=1.f) const {
+    return LocalError( mag2i*( (c*c)*xx() + (s*s)*yy() - 2.f*(c*s)*xy()),
+		       mag2i*( (c*s)*(xx() - yy()) +  (c*c-s*s)*xy()) ,
+		       mag2i*( (s*s)*xx() + (c*c)*yy() + 2.f*(c*s)*xy())
+                     );
   }
 
 private:

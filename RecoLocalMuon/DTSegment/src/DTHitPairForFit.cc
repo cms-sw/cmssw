@@ -1,7 +1,5 @@
 /** \file
  *
- * $Date: 2006/04/21 16:01:05 $
- * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -58,32 +56,27 @@ LocalPoint DTHitPairForFit::localPosition(DTEnums::DTCellSide s) const {
 pair<bool,bool> 
 DTHitPairForFit::isCompatible(const LocalPoint& posIni,
                               const LocalVector& dirIni) const {
-  return std::pair<bool,bool>(isCompatible(posIni, dirIni, DTEnums::Left),
-                              isCompatible(posIni, dirIni, DTEnums::Right));
-}
 
-bool DTHitPairForFit::isCompatible(const LocalPoint& posIni,
-                                   const LocalVector& dirIni,
-                                   DTEnums::DTCellSide code) const {
-  // all is in SL frame
-  LocalPoint pos= localPosition(code);
-  LocalError err= localPositionError();
 
-  const float errorScale=10.; // to be tuned!!
-
-  LocalPoint segPosAtZ=
-    posIni+dirIni*(pos.z()-posIni.z())/dirIni.z();
-
-  // cout << "segPosAtZ     " << segPosAtZ << endl;
-  // cout << "segPosInLayer " << pos<< endl;
-  // cout << "errInLayer (" << err.xx() << "," << 
-  //    err.xy() << "," << err.yy() << ")" << endl;
-
-  float dx=pos.x()-segPosAtZ.x();
-  // cout << "Dx " << dx << " vs " << sqrt(err.xx())*errorScale << endl;
-
-  return fabs(dx)<sqrt(err.xx())*errorScale;
-
+    pair<bool,bool> ret;
+    LocalPoint segPosAtZLeft  = posIni+dirIni*(theLeftPos.z() -posIni.z())/dirIni.z();
+    LocalPoint segPosAtZRight = posIni+dirIni*(theRightPos.z()-posIni.z())/dirIni.z();
+    float dxLeft  = fabs(theLeftPos.x() - segPosAtZLeft.x());
+    float dxRight = fabs(theRightPos.x() - segPosAtZRight.x());
+    float exx = sqrt(theError.xx());
+    // if both below 3 sigma, return both
+    // if both at 10 sigma or above, return none
+    // if one is below N sigma and one above, for 10>=N>=3, match only that one, otherwise none
+    if (std::max(dxLeft, dxRight) < 3*exx) {
+        ret = make_pair(true,true);
+    } else if (std::min(dxLeft, dxRight) >= 10*exx) {
+        ret = make_pair(false,false);
+    } else {
+        float sigmasL = floorf(dxLeft/exx), sigmasR = floorf(dxRight/exx);
+        ret.first  = ( sigmasL < sigmasR );
+        ret.second = ( sigmasR < sigmasL );
+    } 
+    return ret;
 }
 
 bool DTHitPairForFit::operator<(const DTHitPairForFit& hit) const {

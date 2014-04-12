@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <algorithm>
-//using namespace std;
 
 /**
  * Class to compute partitions of size k of an integer n.

@@ -1,4 +1,3 @@
-// $Id: CompositeRefBaseCandidate.cc,v 1.4 2007/02/19 12:59:05 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -28,7 +27,11 @@ Candidate::iterator CompositeRefBaseCandidate::end() {
 }    
 
 const Candidate * CompositeRefBaseCandidate::daughter( size_type i ) const { 
-  return ( i >= 0 && i < numberOfDaughters() ) ? & * dau[ i ] : 0;
+  return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0; // i >= 0, since i is unsigned
+}
+
+const Candidate * CompositeRefBaseCandidate::mother( size_type i ) const { 
+ return 0;
 }
 
 Candidate * CompositeRefBaseCandidate::daughter( size_type i ) { 
@@ -39,13 +42,11 @@ size_t CompositeRefBaseCandidate::numberOfDaughters() const {
   return dau.size(); 
 }
 
+size_t CompositeRefBaseCandidate::numberOfMothers() const { 
+  return 0;
+}
+
 bool CompositeRefBaseCandidate::overlap( const Candidate & c2 ) const {
   throw cms::Exception( "Error" ) << "can't check overlap internally for CompositeRefBaseCanddate";
 }
 
-void CompositeRefBaseCandidate::fixup() const {
-  size_t n = numberOfDaughters();
-  for( size_t i = 0; i < n; ++ i ) {
-    daughter( i )->addMother( this );
-  }
-}

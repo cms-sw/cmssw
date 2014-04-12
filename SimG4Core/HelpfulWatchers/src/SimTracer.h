@@ -16,7 +16,6 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 22 16:41:33 EST 2005
-// $Id: SimTracer.h,v 1.1 2005/11/22 22:03:04 chrjones Exp $
 //
 
 // system include files

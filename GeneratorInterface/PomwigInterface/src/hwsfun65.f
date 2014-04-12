@@ -416,15 +416,18 @@ C Initialise xpq
             GOTO 999
          ELSEIF (NSTRU.EQ.10.OR.NSTRU.EQ.13.OR.NSTRU.EQ.15) THEN
 C     Reggeon 
-            parma(1)='NPTYPE'
-            parma(2)='NGROUP'
-            parma(3)='NSET'
-            valu(1)=2
+C            parma(1)='NPTYPE'
+C            parma(2)='NGROUP'
+C            parma(3)='NSET'
+C            valu(1)=2
 *            valu(2)=5
 *            valu(3)=2            ! GRV-P LO
-            valu(2)=1
-            valu(3)=1            ! OWENS
-
+C            valu(2)=1
+C            valu(3)=1            ! OWENS
+C A. Vilela Pereira 25/03/09
+            parma(1)=AUTPDF(IBEAM)
+            valu(1)=211
+C A. Vilela Pereira
             CALL PDFSET(PARMA,VALU)
             CALL STRUCTM(X,QSCA,UPV,DNV,USEA,DSEA,STR,CHM,BTM,TOP,GLU)
             DIST(1)=(0.5D0*DNV)+DSEA

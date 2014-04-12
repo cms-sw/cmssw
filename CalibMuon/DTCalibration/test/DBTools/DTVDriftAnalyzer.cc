@@ -2,21 +2,16 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/14 16:15:24 $
- *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
 #include "DTVDriftAnalyzer.h"
-#include "DTCalibrationMap.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
-
+#include <iostream>
 #include "TFile.h"
 #include "TH1D.h"
 #include "TString.h"
@@ -35,7 +30,7 @@ DTVDriftAnalyzer::~DTVDriftAnalyzer(){
   theFile->Close();
 }
 
-void DTVDriftAnalyzer::beginJob(const edm::EventSetup& eventSetup) {
+void DTVDriftAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
   ESHandle<DTMtime> mTime;
   eventSetup.get<DTMtimeRcd>().get(mTime);
   mTimeMap = &*mTime;
@@ -44,7 +39,6 @@ void DTVDriftAnalyzer::beginJob(const edm::EventSetup& eventSetup) {
 }
 
 void DTVDriftAnalyzer::endJob() {
-   static const double convToNs = 25./32.;
    // Loop over DB entries
    for(DTMtime::const_iterator mtime = mTimeMap->begin();
        mtime != mTimeMap->end(); mtime++) {
@@ -52,11 +46,14 @@ void DTVDriftAnalyzer::endJob() {
 		     (*mtime).first.stationId,
 		     (*mtime).first.sectorId,
 		     (*mtime).first.slId, 0, 0);
-    double vdrift = (*mtime).second.mTime * convToNs;
-    float reso = (*mtime).second.mTrms * convToNs;
+    float vdrift;
+    float reso;
+    DetId detId( wireId.rawId() );
+    // vdrift is cm/ns , resolution is cm
+    mTimeMap->get(detId, vdrift, reso, DTVelocityUnits::cm_per_ns);
     cout << "Wire: " <<  wireId <<endl
-	 << " vdrift (ns): " << vdrift<<endl
-	 << " reso (ns): " << reso<<endl;
+	 << " vdrift (cm/ns): " << vdrift<<endl
+	 << " reso (cm): " << reso<<endl;
 
     //Define an histo for each wheel and each superlayer type
     TH1D *hVDriftHisto = theVDriftHistoMap[make_pair(wireId.wheel(),wireId.superlayer())];

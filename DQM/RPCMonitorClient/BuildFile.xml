@@ -1,0 +1,24 @@
+<flags   EDM_PLUGIN="1"/>
+<use   name="boost"/>
+<use   name="rootcore"/>
+<use   name="rootgraphics"/>
+<use   name="DQMServices/Core"/>
+<use   name="DQMServices/ClientConfig"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/RPCGeometry"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/Records"/>
+<use   name="EventFilter/RPCRawToDigi"/>
+<use   name="DataFormats/RPCDigi"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="DataFormats/MuonDetId"/>
+<use   name="CondFormats/RPCObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/RunInfo"/>
+<use   name="CondCore/DBCommon"/>
+<use   name="CondCore/PopCon"/>
+
+

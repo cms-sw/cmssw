@@ -9,6 +9,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include <iostream>
 
 namespace edm
@@ -42,6 +43,8 @@ namespace edm
          << dqmEventView.eventNumberAtUpdate() << " "
          << dqmEventView.runNumber() << " "
          << dqmEventView.size() << " "
+         << dqmEventView.adler32_chksum() << " "
+         << dqmEventView.hostName() << " "
          << dqmEventView.eventLength() << " "
          << dqmEventView.eventAddress()
          << std::endl;
@@ -57,6 +60,17 @@ namespace edm
     unsigned char *bufPtr = dqmEventView.eventAddress();
     unsigned int bufLen = dqmEventView.eventLength();
     unsigned int originalSize = dqmEventView.compressionFlag();
+
+    uint32_t adler32_chksum = cms::Adler32((char*)dqmEventView.eventAddress(), dqmEventView.eventLength());
+    if((uint32)adler32_chksum != dqmEventView.adler32_chksum()) {
+      throw cms::Exception("StreamTranslation",
+                           "DQM Event chksum error")
+          << "Error from StreamDQMSerializer: checksum of event data blob failed:" << std::endl
+          << "chksum from event = " << adler32_chksum << " from header = "
+          << dqmEventView.adler32_chksum() << " host name = "
+          << dqmEventView.hostName() << std::endl;
+    }
+
     if (originalSize != 0)
       {
         unsigned int actualSize =

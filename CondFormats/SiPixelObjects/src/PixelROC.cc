@@ -1,51 +1,34 @@
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <sstream>
+#include <algorithm>
 using namespace std;
 using namespace sipixelobjects;
 
-int PixelROC::theNRows = 80;
-int PixelROC::theNCols = 52;
+PixelROC::PixelROC(uint32_t du, int idDU, int idLk)
+  : theDetUnit(du), theIdDU(idDU), theIdLk(idLk)
+{initFrameConversion();}
 
-PixelROC::PixelROC(uint32_t du, int idDU, int idLk, const FrameConversion & frame)
-  : theDetUnit(du), 
-    theIdDU(idDU), theIdLk(idLk), 
-    theRowOffset( frame.row().offset()),     theRowSlopeSign( frame.row().slope()),
-    theColOffset( frame.collumn().offset()), theColSlopeSign( frame.collumn().slope())
-{ }
-
-bool PixelROC::inside( const LocalPixel & lp) const
+void PixelROC::initFrameConversion()
 {
-  return (     0 <= lp.dcol && lp.dcol < 26
-           &&  2 <= lp.pxid && lp.pxid < 162 );
-}
-
-PixelROC::LocalPixel PixelROC::toLocal( const GlobalPixel& glo) const
-{
-   FrameConversion conversion(theRowOffset,theRowSlopeSign,theColOffset,theColSlopeSign);
-   int rocRow = conversion.row().inverse(glo.row);
-   int rocCol = conversion.collumn().inverse(glo.col);
-
-  LocalPixel loc = {-1,-1};
-  if (0<= rocRow && rocRow < PixelROC::rows() && 0 <= rocCol && rocCol <PixelROC::cols()) {
-    loc.dcol = rocCol/2;
-    loc.pxid = 2*(theNRows-rocRow)+ (rocCol%2);
+  if ( PixelModuleName::isBarrel(theDetUnit) ) {
+    PixelBarrelName barrelName(theDetUnit); 
+    theFrameConverter = FrameConversion(barrelName, theIdDU);
+  } else {
+    PixelEndcapName endcapName(theDetUnit);
+    theFrameConverter =  FrameConversion(endcapName, theIdDU); 
   }
-  return loc;
 }
-
-
 
 string PixelROC::print(int depth) const
 {
+
   ostringstream out;
-  bool barrel = ( 1==((theDetUnit>>25)&0x7));
+  bool barrel = PixelModuleName::isBarrel(theDetUnit);
   DetId detId(theDetUnit);
   if (depth-- >=0 ) {
     out <<"======== PixelROC ";
@@ -55,7 +38,8 @@ string PixelROC::print(int depth) const
     out <<" ("<<theDetUnit<<")"
         <<" idInDU: "<<theIdDU
         <<" idInLk: "<<theIdLk
-        <<" frame: "<<theRowOffset<<","<<theRowSlopeSign<<","<<theColOffset<<","<<theColSlopeSign
+//        <<" frame: "<<theRowOffset<<","<<theRowSlopeSign<<","<<theColOffset<<","<<theColSlopeSign
+//        <<" frame: "<<*theFrameConverter
         <<endl;
   }
   return out.str();

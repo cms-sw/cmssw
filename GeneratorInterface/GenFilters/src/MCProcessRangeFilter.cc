@@ -1,7 +1,7 @@
 
 #include "GeneratorInterface/GenFilters/interface/MCProcessRangeFilter.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 
 using namespace edm;
@@ -9,7 +9,7 @@ using namespace std;
 
 
 MCProcessRangeFilter::MCProcessRangeFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 minProcessID(iConfig.getUntrackedParameter("MinProcessID",0)),
 maxProcessID(iConfig.getUntrackedParameter("MaxProcessID",500)),
 pthatMin(iConfig.getUntrackedParameter("MinPthat",0)),
@@ -36,7 +36,7 @@ bool MCProcessRangeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
    Handle<HepMCProduct> evt;
    iEvent.getByLabel(label_, evt);
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
     
     // do the selection -- processID 0 is always accepted
@@ -49,10 +49,7 @@ bool MCProcessRangeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     } 
     
-
-    delete myGenEvent; 
-
-
+    
    if (accepted){ return true; } else {return false;}
 
 }

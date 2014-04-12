@@ -1,13 +1,13 @@
 #include "TrackPropagation/RungeKutta/interface/RKPropagatorInZ.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 // #include "CommonReco/RKPropagators/interface/RK4PreciseSolver.h"
-#include "TrackPropagation/RungeKutta/interface/RKCurvilinearDistance.h"
-#include "TrackPropagation/RungeKutta/interface/CurvilinearLorentzForce.h"
-#include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
+#include "RKCurvilinearDistance.h"
+#include "CurvilinearLorentzForce.h"
+#include "RKLocalFieldProvider.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "TrackPropagation/RungeKutta/interface/RKAdaptiveSolver.h"
-#include "TrackPropagation/RungeKutta/interface/RKOne4OrderStep.h"
-#include "TrackPropagation/RungeKutta/interface/RKOneCashKarpStep.h"
+#include "RKAdaptiveSolver.h"
+#include "RKOne4OrderStep.h"
+#include "RKOneCashKarpStep.h"
 
 TrajectoryStateOnSurface 
 RKPropagatorInZ::propagate (const FreeTrajectoryState& ts, const Plane& plane) const

@@ -1,20 +1,22 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.4 2007/06/19 12:30:36 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
-#include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/PedsFullNoiseHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
 using namespace sistrip;
@@ -23,20 +25,25 @@ using namespace sistrip;
 // 
 SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const edm::ParameterSet& pset ) 
   : SiStripCommissioningOfflineClient(pset),
-    uploadToDb_( pset.getUntrackedParameter<bool>("DoNotUse",true) ),
-    test_( /* note the "!" -> */ !pset.getUntrackedParameter<bool>("UploadToConfigDb",false) ),
-    uploadFecSettings_( pset.getUntrackedParameter<bool>("UploadFecSettings",true) ),
-    uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) )
+    uploadAnal_( pset.getUntrackedParameter<bool>("UploadAnalyses",false) ),
+    uploadConf_( pset.getUntrackedParameter<bool>("UploadHwConfig",false) )
 {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
     << " Constructing object...";
-  if ( test_ ) {
+  if ( !uploadConf_ ) {
     edm::LogWarning(mlDqmClient_) 
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
-      << " ===> TEST only! No hardware configuration"
-      << " settings will be uploaded to the DB...";
+      << " ===> TEST only! No hardware configurations"
+      << " will be uploaded to the DB...";
   }
+  if ( !uploadAnal_ ) {
+    edm::LogWarning(mlDqmClient_) 
+      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
+      << " ===> TEST only! No analysis descriptions"
+      << " will be uploaded to the DB...";
+  }
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -49,31 +56,23 @@ SiStripCommissioningOfflineDbClient::~SiStripCommissioningOfflineDbClient() {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripCommissioningOfflineDbClient::createCommissioningHistograms() {
+void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet& pset, const edm::EventSetup& setup) {
 
   // Check pointer
   if ( histos_ ) {
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " CommissioningHistogram object already exists!"
       << " Aborting...";
     return;
   } 
 
-  // Check pointer to MUI
-  if ( !mui_ ) {
-    edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!";
-    return;
-  }
-
   // Check pointer to BEI
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
-  if ( !bei ) {
-    edm::LogWarning(mlDqmClient_)
+  // is this needed here? bei_ = edm::Service<DQMStore>().operator->();
+  if ( !bei_ ) {
+    edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
-      << " NULL pointer to DaqMonitorBEInterface!";
+      << " NULL pointer to DQMStore!";
     return;
   }
 
@@ -87,7 +86,7 @@ void SiStripCommissioningOfflineDbClient::createCommissioningHistograms() {
   
   // Check DB connection
   if ( !db ) {
-    edm::LogWarning(mlCabling_) 
+    edm::LogError(mlCabling_) 
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " NULL pointer to SiStripConfigDb!"
       << " Aborting...";
@@ -95,58 +94,74 @@ void SiStripCommissioningOfflineDbClient::createCommissioningHistograms() {
   } 
   
   // Create corresponding "commissioning histograms" object 
-  if ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::FED_CABLING ) { histos_ = new FedCablingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::VPSP_SCAN ) { histos_ = new VpspScanHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::PEDESTALS ) { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
-  else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) {
+  if      ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::APV_TIMING )   { histos_ = new ApvTimingHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::OPTO_SCAN )    { histos_ = new OptoScanHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::VPSP_SCAN )    { histos_ = new VpspScanHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::PEDESTALS )    { histos_ = new PedestalsHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::PEDS_ONLY )    { histos_ = new PedsOnlyHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::PEDS_FULL_NOISE ) { histos_ = new PedsFullNoiseHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::NOISE )        { histos_ = new NoiseHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::APV_LATENCY )  { histos_ = new LatencyHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::FINE_DELAY )   { histos_ = new FineDelayHistosUsingDb( pset, bei_, db ); }
+  else if ( runType_ == sistrip::CALIBRATION ||
+            runType_ == sistrip::CALIBRATION_DECO ||
+            runType_ == sistrip::CALIBRATION_SCAN ||
+            runType_ == sistrip::CALIBRATION_SCAN_DECO)
+                                                { histos_ = new CalibrationHistosUsingDb( pset, bei_, db, runType_ ); }
+  else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { 
+    histos_ = 0; 
+    edm::LogError(mlDqmClient_)
+      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
+      << " Undefined run type!";
+    return;
+  } else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) {
     histos_ = 0;
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " Unknown run type!";
+    return;
+  }
+  histos_->configure(pset,setup);
+
+  CommissioningHistosUsingDb* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
+  if ( tmp ) { 
+    tmp->doUploadConf( uploadConf_ ); 
+    tmp->doUploadAnal( uploadAnal_ ); 
+    std::stringstream ss;
+    ss << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]" 
+       << std::endl
+       << " Uploading hardware configurations?    : " 
+       << ( tmp->doUploadConf() ? "true" : "false" )
+       << std::endl
+       << " Uploading calibrations from analysis? : " 
+       << ( tmp->doUploadAnal() ? "true" : "false" )
+       << std::endl;
+    edm::LogVerbatim(mlDqmClient_) << ss.str();
+  } else {
+    edm::LogError(mlDqmClient_) 
+      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
+      << " NULL pointer to CommissioningHistosUsingDb!";
   }
 
-  // 
-  ApvTimingHistosUsingDb* temp = dynamic_cast<ApvTimingHistosUsingDb*>(histos_);
-  if ( temp ) { 
-    temp->uploadPllSettings( uploadFecSettings_ );
-    temp->uploadFedSettings( uploadFedSettings_ );
-  }
-  
-}
-
-// -----------------------------------------------------------------------------
-// Switch for "test mode" (inhibits actual database upload)
-void SiStripCommissioningOfflineDbClient::testUploadToDb() {
-  if ( test_ ) { 
-    CommissioningHistosUsingDb* histos = 0;
-    histos = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
-    if ( histos ) { histos->testOnly(true); }
-    else {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
-	<< " NULL pointer to CommissioningHistosUsingDb!";
-    }
-  }
 }
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripCommissioningOfflineDbClient::uploadToDb() {
-  if ( uploadToDb_ ) { 
-    edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
-      << " Uploading parameters to database...";
-    if ( histos_ ) { histos_->uploadToConfigDb(); }
+void SiStripCommissioningOfflineDbClient::uploadToConfigDb() {
+  edm::LogVerbatim(mlDqmClient_)
+    << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
+    << " Uploading parameters to database...";
+  CommissioningHistosUsingDb* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
+  if ( tmp ) { 
+    tmp->uploadToConfigDb(); 
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " Uploaded parameters to database!";
   } else {
-    edm::LogVerbatim(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
-      << " No database upload performed!";
+      << " NULL pointer to CommissioningHistosUsingDb object!"
+      << " Upload aborted!...";
   }
 }

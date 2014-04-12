@@ -19,8 +19,14 @@
 // $Id: 
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "boost/mpl/vector.hpp"
 
-class L1EmEtScaleRcd : public edm::eventsetup::EventSetupRecordImplementation<L1EmEtScaleRcd> {};
+//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
+
+//class L1EmEtScaleRcd : public edm::eventsetup::EventSetupRecordImplementation<L1EmEtScaleRcd> {};
+class L1EmEtScaleRcd : public edm::eventsetup::DependentRecordImplementation<L1EmEtScaleRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

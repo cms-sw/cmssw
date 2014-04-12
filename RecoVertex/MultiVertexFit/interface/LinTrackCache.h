@@ -3,7 +3,8 @@
 
 #include <map>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
+#include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 class LinTrackCache
@@ -20,6 +21,9 @@ private:
   };
 
 public:
+
+  typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
+
   /**
    *  \class LinTrackCache
    *  caches LinearizedTrackStates

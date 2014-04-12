@@ -1,0 +1,17 @@
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="FWCore/Common"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/PythonParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/Version"/>
+<use   name="boost"/>
+<use   name="rootcintex"/>
+<use   name="rootcore"/>
+<flags ADD_SUBDIR="1"/>
+<export>
+  <lib   name="1"/>
+</export>

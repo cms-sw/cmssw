@@ -1,51 +1,44 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/05/11 15:05:05 $
- * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBPedestalOnlineTask::EBPedestalOnlineTask(const ParameterSet& ps){
+EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
 
-  for (int i = 0; i < 36 ; i++) {
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  EBDigiCollection_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBDigiCollection"));
+
+  for (int i = 0; i < 36; i++) {
     mePedMapG12_[i] = 0;
   }
 
@@ -55,13 +48,33 @@ EBPedestalOnlineTask::~EBPedestalOnlineTask(){
 
 }
 
-void EBPedestalOnlineTask::beginJob(const EventSetup& c){
+void EBPedestalOnlineTask::beginJob(void){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
-    dbe_->rmdir("EcalBarrel/EBPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask");
+    dqmStore_->rmdir(prefixME_ + "/EBPedestalOnlineTask");
+  }
+
+}
+
+void EBPedestalOnlineTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBPedestalOnlineTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+}
+
+void EBPedestalOnlineTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( mePedMapG12_[i] ) mePedMapG12_[i]->Reset();
   }
 
 }
@@ -70,16 +83,23 @@ void EBPedestalOnlineTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  std::string name;
+  std::string dir;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dir = prefixME_ + "/EBPedestalOnlineTask";
+    if(subfolder_.size())
+      dir += "/" + subfolder_;
 
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPOT pedestal %s G12", Numbers::sEB(i+1).c_str());
-      mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePedMapG12_[i], i+1);
+    dqmStore_->setCurrentFolder(dir);
+
+    dqmStore_->setCurrentFolder(dir + "/Gain12");
+    for (int i = 0; i < 36; i++) {
+      name = "EBPOT pedestal " + Numbers::sEB(i+1) + " G12";
+      mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePedMapG12_[i]->setAxisTitle("ieta", 1);
+      mePedMapG12_[i]->setAxisTitle("iphi", 2);
+      dqmStore_->tag(mePedMapG12_[i], i+1);
     }
 
   }
@@ -88,14 +108,18 @@ void EBPedestalOnlineTask::setup(void){
 
 void EBPedestalOnlineTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    std::string dir = prefixME_ + "/EBPedestalOnlineTask";
+    if(subfolder_.size())
+      dir += "/" + subfolder_;
 
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
+    dqmStore_->setCurrentFolder(dir);
+
+    dqmStore_->setCurrentFolder(dir + "/Gain12");
     for ( int i = 0; i < 36; i++ ) {
-      if ( mePedMapG12_[i] ) dbe_->removeElement( mePedMapG12_[i]->getName() );
+      if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
     }
 
@@ -107,30 +131,28 @@ void EBPedestalOnlineTask::cleanup(void){
 
 void EBPedestalOnlineTask::endJob(void){
 
-  LogInfo("EBPedestalOnlineTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBPedestalOnlineTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
+void EBPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  try {
+  edm::Handle<EBDigiCollection> digis;
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  if ( e.getByToken(EBDigiCollection_, digis) ) {
 
     int nebd = digis->size();
     LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EBDetId id = digiItr->id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -141,19 +163,30 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      LogDebug("EBPedestalOnlineTask") << " det id = " << id;
-      LogDebug("EBPedestalOnlineTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      EBDataFrame dataframe = (*digiItr);
+
+      int iMax(-1);
+      int maxADC(0);
+      for(int i(0); i < 10; i++){
+        if(dataframe.sample(i).gainId() != 1) break;
+        int adc(dataframe.sample(i).adc());
+        if(adc > maxADC){
+          maxADC = adc;
+          iMax = i;
+        }
+      }
+
+      if(iMax != 5) continue;
 
       for (int i = 0; i < 3; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
+        int adc = dataframe.sample(i).adc();
 
         MonitorElement* mePedMap = 0;
 
-        if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
-        if ( sample.gainId() == 2 ) mePedMap = 0;
-        if ( sample.gainId() == 3 ) mePedMap = 0;
+        if ( dataframe.sample(i).gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
+        if ( dataframe.sample(i).gainId() == 2 ) mePedMap = 0;
+        if ( dataframe.sample(i).gainId() == 3 ) mePedMap = 0;
 
         float xval = float(adc);
 
@@ -163,9 +196,9 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EBPedestalOnlineTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBPedestalOnlineTask") << "EBDigiCollection not available";
 
   }
 

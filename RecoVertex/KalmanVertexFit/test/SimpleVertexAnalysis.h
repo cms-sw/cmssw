@@ -10,11 +10,10 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-using std::cout;
 
 #define MAXTRACK 120
 
-using std::vector;
+
 
   /**
    * Root analysis code for TTree produced by SimpleVertexTree
@@ -79,21 +78,21 @@ class SimpleVertexAnalysis {
   /**
    * Fit of the residual and pull plots with a single Gaussian, and printout of the
    * main results
-   * A separate output stream can be provided (parameter out - default is cout)
+   * A separate output stream can be provided (parameter out - default is std::cout)
    */
-   void singleGaussianVertexResult(ostream &out = cout);
+   void singleGaussianVertexResult(ostream &out = std::cout);
   /**
    * Fit of the residual and pull plots with two Gaussians (one for the core, the
    * other for the tails, and printout of the main results
-   * A separate output stream can be provided (parameter out - default is cout)
+   * A separate output stream can be provided (parameter out - default is std::cout)
    */
-   void doubleGaussianVertexResult(ostream &out = cout);
+   void doubleGaussianVertexResult(ostream &out = std::cout);
   /**
    * Measurement of the coverage of the residual distributions 
    * (50%, 90% and 95% coverage)
-   * A separate output stream can be provided (parameter out - default is cout)
+   * A separate output stream can be provided (parameter out - default is std::cout)
    */
-   void vertexCoverage(ostream &out = cout);
+   void vertexCoverage(ostream &out = std::cout);
   /**
    * Output of Track parameter results into 4 canvases
    */
@@ -106,30 +105,30 @@ class SimpleVertexAnalysis {
   /**
    * Method to produce the TeX line for the statistices table 
    * of the Tables (TeX )
-   * A separate output stream can be provided (parameter out - default is cout)
+   * A separate output stream can be provided (parameter out - default is std::cout)
    */
-   void statTeXResult(ostream &out = cout);
+   void statTeXResult(ostream &out = std::cout);
 
   /**
    * Method to produce the TeX line for the X-coordinate table 
    * of the Tables (TeX )
-   * A separate output stream can be provided (parameter out - default is cout)
+   * A separate output stream can be provided (parameter out - default is std::cout)
    */
-   void xTeXResult(ostream &out = cout);
+   void xTeXResult(ostream &out = std::cout);
 
   /**
    * Method to produce the TeX line for the Z-coordinate table 
    * of the Tables (TeX )
-   * A separate output stream can be provided (parameter out - default is cout)
+   * A separate output stream can be provided (parameter out - default is std::cout)
    */
-   void zTeXResult(ostream &out = cout);
+   void zTeXResult(ostream &out = std::cout);
 
   /**
    * Method to produce the TeX line for the X- and Z-coordinate table 
    * of the Tables (TeX )
-   * A separate output stream can be provided (parameter out - default is cout)
+   * A separate output stream can be provided (parameter out - default is std::cout)
    */
-   void resolutionTeXResult(ostream &out = cout);
+   void resolutionTeXResult(ostream &out = std::cout);
 
 
    TH1F *resX, *resY, *resZ; 
@@ -257,8 +256,8 @@ private:
    * Calculates and prints the 50, 90 and 95% coverage for the given vector.
    * Returns the 90% coverage.
    */
-  float getCoverage(vector<float> &residuals, ostream &out = cout);
-  void doubleGaussianFit(TH1F *plot, ostream &out = cout);
+  float getCoverage(std::vector<float> &residuals, ostream &out = std::cout);
+  void doubleGaussianFit(TH1F *plot, ostream &out = std::cout);
   void epsPlot(TH1F *plot, TString name);
 
    void bookTrackHisto();

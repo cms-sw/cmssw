@@ -1,10 +1,11 @@
-#include "RecoTracker/TkDetLayers/interface/PixelForwardLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/PixelBladeBuilder.h"
+#include "PixelForwardLayerBuilder.h"
+#include "PixelForwardLayerPhase1.h"
+#include "PixelBladeBuilder.h"
 
 using namespace edm;
 using namespace std;
 
-PixelForwardLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwardLayer,
+ForwardDetLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwardLayer,
 						   const TrackerGeometry* theGeomDetGeometry){
   vector<const GeometricDet*>  theGeometricPanels = aPixelForwardLayer->components();
   int panelsSize = theGeometricPanels.size();
@@ -30,5 +31,7 @@ PixelForwardLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelFor
 					       theGeomDetGeometry ) );
   }
   
+  if ( aPixelForwardLayer->type()==GeometricDet::PixelEndCapPhase1 ) 
+    return new PixelForwardLayerPhase1(theBlades);
   return new PixelForwardLayer(theBlades);  
 }

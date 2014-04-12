@@ -8,14 +8,13 @@
 #include "Alignment/CocoaModel/interface/OptOPinhole.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
 #ifdef COCOA_VIS
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 

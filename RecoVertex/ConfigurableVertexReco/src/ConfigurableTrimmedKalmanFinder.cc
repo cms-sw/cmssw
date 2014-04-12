@@ -21,8 +21,8 @@ void ConfigurableTrimmedKalmanFinder::configure(
     const edm::ParameterSet & n )
 {
   if ( theRector ) delete theRector;
-  edm::ParameterSet m = mydefaults();
-  m.augment ( n );
+  edm::ParameterSet m=n;
+  m.augment ( mydefaults() );
   KalmanTrimmedVertexFinder * tmp = new KalmanTrimmedVertexFinder();
   tmp->setPtCut ( m.getParameter<double>("ptcut") );
   tmp->setTrackCompatibilityCut ( m.getParameter<double>("trkcutpv") );
@@ -47,7 +47,22 @@ ConfigurableTrimmedKalmanFinder * ConfigurableTrimmedKalmanFinder::clone() const
   return new ConfigurableTrimmedKalmanFinder ( *this );
 }
 
-vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices ( 
+std::vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices ( 
+    const std::vector < reco::TransientTrack > & t,
+    const reco::BeamSpot & s ) const
+{
+  return theRector->vertices ( t, s );
+}
+
+std::vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices ( 
+    const std::vector < reco::TransientTrack > & prims,
+    const std::vector < reco::TransientTrack > & secs,
+    const reco::BeamSpot & s ) const
+{
+  return theRector->vertices ( prims, secs, s );
+}
+
+std::vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices ( 
     const std::vector < reco::TransientTrack > & t ) const
 {
   return theRector->vertices ( t );

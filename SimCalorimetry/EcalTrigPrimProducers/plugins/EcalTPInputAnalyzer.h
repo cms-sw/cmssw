@@ -12,7 +12,6 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTPInputAnalyzer.h,v 1.1 2007/03/06 13:14:52 uberthon Exp $
 //
 //
 
@@ -40,8 +39,9 @@ class EcalTPInputAnalyzer : public edm::EDAnalyzer {
       explicit EcalTPInputAnalyzer(const edm::ParameterSet&);
       ~EcalTPInputAnalyzer();
 
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob();
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
 
   // for histos of nr of hits

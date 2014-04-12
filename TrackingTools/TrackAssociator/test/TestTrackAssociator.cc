@@ -13,7 +13,6 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.15 2007/04/02 17:45:02 dmytro Exp $
 //
 //
 
@@ -80,6 +79,9 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "Utilities/Timing/interface/TimerStack.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 class TestTrackAssociator : public edm::EDAnalyzer {
  public:
    explicit TestTrackAssociator(const edm::ParameterSet&);
@@ -108,43 +110,40 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
    using namespace edm;
 
    // get list of tracks and their vertices
-   Handle<SimTrackContainer> simTracks;
-   iEvent.getByType<SimTrackContainer>(simTracks);
-   
-   Handle<SimVertexContainer> simVertices;
-   iEvent.getByType<SimVertexContainer>(simVertices);
-   if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
-   
-   // loop over simulated tracks
-   LogVerbatim("TrackAssociator") << "Number of simulated tracks found in the event: " << simTracks->size() ;
-   for(SimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
-       tracksCI != simTracks->end(); tracksCI++){
+   Handle<reco::MuonCollection> muons;
+   iEvent.getByLabel("muons",muons);
+      
+   // loop 
+   LogVerbatim("TrackAssociator") << "Number of muons found in the event: " << muons->size() ;
+   for(reco::MuonCollection::const_iterator muon = muons->begin(); 
+       muon != muons->end(); ++muon){
       
       // skip low Pt tracks
-      if (tracksCI->momentum().perp() < 5) {
-	 LogVerbatim("TrackAssociator") << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" ;
+      if (muon->pt() < 2) {
+	 LogVerbatim("TrackAssociator") << "Skipped low Pt muon (Pt: " << muon->pt() << ")" ;
 	 continue;
       }
-      
-      // get vertex
-      int vertexIndex = tracksCI->vertIndex();
-      // uint trackIndex = tracksCI->genpartIndex();
-      
-      SimVertex vertex(Hep3Vector(0.,0.,0.),0);
-      if (vertexIndex >= 0) vertex = (*simVertices)[vertexIndex];
       
       // skip tracks originated away from the IP
-      if (vertex.position().rho() > 50) {
-	 LogVerbatim("TrackAssociator") << "Skipped track originated away from IP: " <<vertex.position().rho();
+      if (fabs(muon->vertex().rho()) > 50) {
+	 LogVerbatim("TrackAssociator") << "Skipped track with large impact parameter: " <<muon->vertex().rho();
 	 continue;
       }
       
-      LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
-	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() ;
+      LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " 
+	<< muon->pt() << " , " << muon->eta() << " , " << muon->phi() ;
       
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
-							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex),
-							  parameters_);
+      TrackDetMatchInfo info;
+      if (muon->innerTrack().isAvailable()) 
+	info = trackAssociator_.associate(iEvent, iSetup, *muon->innerTrack(), parameters_);
+      else {
+	 if (!muon->outerTrack().isAvailable()) {
+	    LogVerbatim("TrackAssociator") << "No refernced tracks are available, skim the muon";
+	    continue;
+	 }
+	 info = trackAssociator_.associate(iEvent, iSetup, *muon->outerTrack(), parameters_);
+      }
+	   
       LogVerbatim("TrackAssociator") << "===========================================================================" ;
       LogVerbatim("TrackAssociator") << "ECAL RecHit energy: crossed, 3x3(max), 5x5(max), 3x3(direction), 5x5(direction), cone R0.5, generator";
       DetId centerId = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits);
@@ -161,11 +160,11 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	"(" << info.trkGlobPosAtEcal.z() << ", " << info.trkGlobPosAtEcal.Rho() << ", " <<
 	info.trkGlobPosAtEcal.eta() << ", " << info.trkGlobPosAtEcal.phi() << "), " << centerId.rawId();
       LogVerbatim("TrackAssociator") << "ECAL crossed DetIds with associated hits: (id, energy, z, perp, eta, phi)";
-      for(std::vector<EcalRecHit>::const_iterator hit = info.crossedEcalRecHits.begin(); 
+      for(std::vector<const EcalRecHit*>::const_iterator hit = info.crossedEcalRecHits.begin(); 
 	  hit != info.crossedEcalRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "ECAL crossed DetIds: (id, z, perp, eta, phi)";
@@ -177,11 +176,19 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "ECAL associated DetIds: (id, energy, z, perp, eta, phi)";
-      for(std::vector<EcalRecHit>::const_iterator hit = info.ecalRecHits.begin(); 
+      for(std::vector<const EcalRecHit*>::const_iterator hit = info.ecalRecHits.begin(); 
 	  hit != info.ecalRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
+	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
+	}
+      LogVerbatim("TrackAssociator") << "Preshower crossed DetIds: (id, z, perp, eta, phi)";
+      for(std::vector<DetId>::const_iterator id = info.crossedPreshowerIds.begin(); 
+	  id != info.crossedPreshowerIds.end(); ++id)
+	{
+	   GlobalPoint point = info.getPosition(*id);
+	   LogVerbatim("TrackAssociator") << "\t" << id->rawId() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
 
@@ -201,12 +208,13 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	"(" << info.trkGlobPosAtHcal.z() << ", " << info.trkGlobPosAtHcal.Rho() << ", " <<
 	info.trkGlobPosAtHcal.eta() << ", " << info.trkGlobPosAtHcal.phi() << "), " << centerId.rawId();
       LogVerbatim("TrackAssociator") << "HCAL crossed DetIds with hits:";
-      for(std::vector<HBHERecHit>::const_iterator hit = info.crossedHcalRecHits.begin(); 
+      for(std::vector<const HBHERecHit*>::const_iterator hit = info.crossedHcalRecHits.begin(); 
 	  hit != info.crossedHcalRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
-	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
+	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << (*hit)->id().depth() << ", \t" << 
+	     point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "HCAL crossed DetIds: (id, z, perp, eta, phi)";
       for(std::vector<DetId>::const_iterator id = info.crossedHcalIds.begin(); 
@@ -216,13 +224,14 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	   LogVerbatim("TrackAssociator") << "\t" << id->rawId() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
-      LogVerbatim("TrackAssociator") << "HCAL associated DetIds: (id, energy)";
-      for(std::vector<HBHERecHit>::const_iterator hit = info.hcalRecHits.begin(); 
+      LogVerbatim("TrackAssociator") << "HCAL associated DetIds: id, (energy, z, perp, depth, eta, phi)";
+      for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin(); 
 	  hit != info.hcalRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
-	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
+	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << (*hit)->id().depth() << ", \t" << 
+	     point.eta() << ", \t" << point.phi() << ")";
 	}
 
       LogVerbatim("TrackAssociator") << "---------------------------------------------------------------------------" ;
@@ -240,11 +249,11 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	"(" << info.trkGlobPosAtHO.z() << ", " << info.trkGlobPosAtHO.Rho() << ", " <<
 	info.trkGlobPosAtHO.eta() << ", " << info.trkGlobPosAtHO.phi() << "), " << centerId.rawId();
       LogVerbatim("TrackAssociator") << "HO crossed DetIds with hits:";
-      for(std::vector<HORecHit>::const_iterator hit = info.crossedHORecHits.begin(); 
+      for(std::vector<const HORecHit*>::const_iterator hit = info.crossedHORecHits.begin(); 
 	  hit != info.crossedHORecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "HO crossed DetIds: (id, z, perp, eta, phi)";
@@ -256,18 +265,18 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "HO associated DetIds: (id, energy,position)";
-      for(std::vector<HORecHit>::const_iterator hit = info.hoRecHits.begin(); 
+      for(std::vector<const HORecHit*>::const_iterator hit = info.hoRecHits.begin(); 
 	  hit != info.hoRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi();
-	       // << ") ## " << info.dumpGeometry(hit->detid());
+	       // << ") ## " << info.dumpGeometry((*hit)->detid());
 	}
 
       if (parameters_.useMuon) {
 	 LogVerbatim("TrackAssociator") << "Muon detector matching details: " ;
-	 for(std::vector<MuonChamberMatch>::const_iterator chamber = info.chambers.begin();
+	 for(std::vector<TAMuonChamberMatch>::const_iterator chamber = info.chambers.begin();
 	     chamber!=info.chambers.end(); chamber++)
 	   {
 	      LogVerbatim("TrackAssociator") << chamber->info() << "\n\t(DetId, station, edgeX, edgeY): "
@@ -284,7 +293,7 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 		<< chamber->tState.localPosition().x() << ", "
 		<< chamber->tState.localPosition().y();
 
-	      for(std::vector<MuonSegmentMatch>::const_iterator segment=chamber->segments.begin(); 
+	      for(std::vector<TAMuonSegmentMatch>::const_iterator segment=chamber->segments.begin(); 
 		  segment!=chamber->segments.end(); segment++)
 		{
 		   LogVerbatim("TrackAssociator") << "\t segment position (z,Rho,eta,phi,DetId): " 

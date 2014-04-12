@@ -7,29 +7,34 @@
 #include <functional>
 #include <algorithm>
 #include <boost/bind.hpp>
-#include<ostream>
-#include<limits>
+#include <ostream>
+#include <limits>
+#include <assert.h>
 
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TSystem.h>
-#include <TStyle.h>
-#include <TObjArray.h>
-#include <TBranch.h>
-#include <TH1.h>
-#include <TCanvas.h>
-#include <Riostream.h>
+#include "Rtypes.h"
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TStyle.h"
+#include "TObjArray.h"
+#include "TBranch.h"
+#include "TH1.h"
+#include "TCanvas.h"
+#include "Riostream.h"
 // #include "FWCore/FWLite/src/AutoLibraryLoader.h"
+
+#include "TBufferFile.h"
 
 namespace {
 
-  typedef std::valarray<size_t> size_type; 
+  enum Indices {kUncompressed,kCompressed};
+
+  typedef std::valarray<Long64_t> size_type; 
 
   size_type getBasketSize( TBranch *);
   
   size_type getBasketSize( TObjArray * branches) {
-    size_type result(size_t(0),2);
+    size_type result(static_cast<Long64_t>(0),2);
     size_t n = branches->GetEntries();
     for( size_t i = 0; i < n; ++ i ) {
       TBranch * b = dynamic_cast<TBranch*>( branches->At( i ) );
@@ -40,12 +45,12 @@ namespace {
   }
   
   size_type getBasketSize( TBranch * b) {
-    size_type result(size_t(0),2);
+    size_type result(static_cast<Long64_t>(0),2);
     if ( b != 0 ) {
       if ( b->GetZipBytes() > 0 ) {
-	result[0]  = b->GetTotBytes();  result[1] = b->GetZipBytes();
+	result[kUncompressed]  = b->GetTotBytes();  result[kCompressed] = b->GetZipBytes();
       } else {
-	result[0] = b->GetTotalSize(); result[1] = b->GetTotalSize();
+	result[kUncompressed] = b->GetTotalSize(); result[kCompressed] = b->GetTotalSize();
       }
       result += getBasketSize( b->GetListOfBranches() );
     }
@@ -54,11 +59,11 @@ namespace {
 
 
   size_type getTotalSize( TBranch * br) {
-    TBuffer buf( TBuffer::kWrite, 10000 );
+    TBufferFile buf( TBuffer::kWrite, 10000 );
     TBranch::Class()->WriteBuffer( buf, br );
     size_type size = getBasketSize(br);
     if ( br->GetZipBytes() > 0 )
-      size[0] += buf.Length();
+      size[kUncompressed] += buf.Length();
     return size;
   }
 }
@@ -106,7 +111,7 @@ namespace perftools {
       std::string const name( b->GetName() );
       if ( name == "EventAux" ) continue;
       size_type s = getTotalSize(b);
-      m_branches.push_back( BranchRecord(name, double(s[0])/double(m_nEvents), double(s[1])/double(m_nEvents)) );
+      m_branches.push_back( BranchRecord(name, double(s[kCompressed])/double(m_nEvents), double(s[kUncompressed])/double(m_nEvents)) );
     }
     std::sort(m_branches.begin(),m_branches.end(), 
 	      boost::bind(std::greater<double>(),
@@ -153,15 +158,17 @@ namespace perftools {
 
   namespace detail {
 
-    void dump(ostream& co, EdmEventSize::BranchRecord const & br) {
-      co << br.name << " " <<  br.compr_size <<  " " << br.uncompr_size << "\n"; 
+    void dump(std::ostream& co, EdmEventSize::BranchRecord const & br) {
+      co << br.name << " " <<  br.uncompr_size <<  " " << br.compr_size << "\n"; 
     }
   }
 
   
   void EdmEventSize::dump(std::ostream & co, bool header) const {
-    if (header) 
+    if (header) {
       co << "File " << m_fileName << " Events " << m_nEvents << "\n";
+      co <<"Branch Name | Average Uncompressed Size (Bytes/Event) | Average Compressed Size (Bytes/Event) \n";
+    }
     std::for_each(m_branches.begin(),m_branches.end(),
 		  boost::bind(detail::dump,boost::ref(co),_1));
   }
@@ -196,7 +203,7 @@ namespace perftools {
 	  if ( um > 0 && um < mn ) mn = um;
 	}
 	mn *= 0.8;
-	double mx = max( compressed.GetMaximum(), uncompressed.GetMaximum() );
+	double mx = std::max( compressed.GetMaximum(), uncompressed.GetMaximum() );
 	mx *= 1.2;
 	uncompressed.SetMinimum( mn );
 	uncompressed.SetMaximum( mx );

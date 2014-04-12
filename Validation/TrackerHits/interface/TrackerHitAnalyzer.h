@@ -4,43 +4,24 @@
 /*
  * \file TrackerHitAnalyzer.h
  *
- * $Date: 2006/10/26 08:30:31 $
- * $Revision: 1.9 $
  * \author F. Cossutti
  *
 */
 // framework & common header files
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include <fstream>
-#include <map>
-#include <iostream>
-#include <stdlib.h>
 #include <string>
-#include <memory>
-#include <vector>
 
+class DQMStore;
+class MonitorElement;
 
-class TrackerHitAnalyzer: public edm::EDAnalyzer {
+class TrackerHitAnalyzer: public DQMEDAnalyzer {
   
 public:
 
@@ -52,41 +33,41 @@ TrackerHitAnalyzer(const edm::ParameterSet& ps);
 
 protected:
 
+ void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
+
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+
 
 // EndJob
-void endJob(void);
+void endJob();
 
 //void BookTestHistos(Char_t sname, int nbin, float *xmin, float *xmax);
 
 private:
 
-  edm::InputTag SiTIBLowSrc_;
-  edm::InputTag SiTIBHighSrc_;
-  edm::InputTag SiTOBLowSrc_;
-  edm::InputTag SiTOBHighSrc_;
-  edm::InputTag SiTIDLowSrc_;
-  edm::InputTag SiTIDHighSrc_;
-  edm::InputTag SiTECLowSrc_;
-  edm::InputTag SiTECHighSrc_;
-  edm::InputTag PxlBrlLowSrc_;
-  edm::InputTag PxlBrlHighSrc_;
-  edm::InputTag PxlFwdLowSrc_;
-  edm::InputTag PxlFwdHighSrc_;
-
-//  edm::ParameterSet config_;
- 
- 
  bool verbose_;
- 
- DaqMonitorBEInterface* fDBE;
- 
- std::string fOutputFile;
 
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlBrlLow_Token_, edmPSimHitContainer_pxlBrlHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlFwdLow_Token_, edmPSimHitContainer_pxlFwdHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIBLow_Token_, edmPSimHitContainer_siTIBHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTOBLow_Token_, edmPSimHitContainer_siTOBHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIDLow_Token_, edmPSimHitContainer_siTIDHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTECLow_Token_, edmPSimHitContainer_siTECHigh_Token_;
+ edm::EDGetTokenT<edm::SimTrackContainer> edmSimTrackContainerToken_;
+
+ DQMStore* fDBE;
+ edm::ParameterSet conf_;
+
+ MonitorElement* htofeta;
+ MonitorElement* htofphi;
+ MonitorElement* htofr;
+ MonitorElement* htofz;
+ MonitorElement* htofeta_profile;
+ MonitorElement* htofphi_profile;
+ MonitorElement* htofr_profile;
+ MonitorElement* htofz_profile;
  MonitorElement* h1e[12];
  MonitorElement* h2e[12];
  MonitorElement* h3e[12];
@@ -128,6 +109,10 @@ private:
  MonitorElement* h4ly[12];
  MonitorElement* h5ly[12];
  MonitorElement* h6ly[12];
+
+ bool runStandalone;
+ std::string fOutputFile;
+
 };
 
 #endif

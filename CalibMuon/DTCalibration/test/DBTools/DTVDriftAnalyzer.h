@@ -4,8 +4,6 @@
 /** \class DTVDriftAnalyzer
  *  Plot the vdrift from the DB
  *
- *  $Date: 2007/05/08 14:52:44 $
- *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -16,6 +14,7 @@
 
 #include <string>
 #include <fstream>
+#include <map>
 #include <vector>
 
 class DTMtime;
@@ -31,8 +30,8 @@ public:
   virtual ~DTVDriftAnalyzer();
 
   /// Operations
-  //Read the DTGeometry and teh t0 DB
-  void beginJob(const edm::EventSetup& setup);
+  //Read the DTGeometry and the vdrift DB
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
   //Do the real work
   void endJob();

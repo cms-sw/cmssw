@@ -1,0 +1,12 @@
+{
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_GEOMETRY", 
+    "destinationTags": {
+        "TKExtra_Geometry_TagXX": {
+            "dependencies": {}, 
+            "synchronizeTo": "offline"
+        }
+    }, 
+    "inputTag": "TKExtra_Geometry_TagXX", 
+    "since": null, 
+    "userText": "Geometry payload for Tracker Extra Reco TagXX"
+}

@@ -6,10 +6,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
@@ -27,20 +24,21 @@ class TransientInitialStateEstimator;
 
 namespace cms
 {
-  class CkfTrackCandidateMaker : public CkfTrackCandidateMakerBase, public edm::EDProducer
+  class CkfTrackCandidateMaker : public edm::EDProducer, public CkfTrackCandidateMakerBase
   {
   public:
 
     explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf):
-      CkfTrackCandidateMakerBase(conf){
+      CkfTrackCandidateMakerBase(conf, consumesCollector()){
       produces<TrackCandidateCollection>();
     }
 
     virtual ~CkfTrackCandidateMaker(){;}
 
-    virtual void beginJob (edm::EventSetup const & es){beginJobBase(es);}
+    virtual void beginRun (edm::Run const& r, edm::EventSetup const & es) override {beginRunBase(r,es);}
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& es){produceBase(e,es);}
+    virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
+    
   };
 }
 

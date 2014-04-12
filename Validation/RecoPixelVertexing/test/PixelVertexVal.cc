@@ -19,8 +19,8 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenVertex.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
 
 
 #include <iostream>
@@ -38,18 +38,26 @@ class PixelVertexVal : public edm::EDAnalyzer {
 public:
   explicit PixelVertexVal(const edm::ParameterSet& conf);
   ~PixelVertexVal();
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginJob();
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob();
 private:
   edm::ParameterSet conf_; 
   int verbose_;
+  std::string file_;
   std::map<std::string, TH1*> h;
-  TFile * rootFile;
+  edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexContainerToken_;
 };
 
 PixelVertexVal::PixelVertexVal(const edm::ParameterSet& conf)
-  : conf_(conf),rootFile(0)
+  : verbose_( conf.getUntrackedParameter<unsigned int>( "Verbosity", 0 ) ) // How noisy?
+  , file_( conf.getUntrackedParameter<std::string>( "HistoFile","pixelVertexHistos.root" ) )
+  , h()
+  , trackCollectionToken_( consumes<reco::TrackCollection>( edm::InputTag( conf.getParameter<std::string>( "TrackCollection" ) ) ) )
+  , vertexCollectionToken_( consumes<reco::VertexCollection>( edm::InputTag( conf.getParameter<std::string>( "VertexCollection" ) ) ) )
+  , simVertexContainerToken_( consumes<edm::SimVertexContainer>( conf.getParameter<edm::InputTag>( "simG4" ) ) )
 {
   edm::LogInfo("PixelVertexVal")<<" CTOR";
 }
@@ -57,17 +65,9 @@ PixelVertexVal::PixelVertexVal(const edm::ParameterSet& conf)
 PixelVertexVal::~PixelVertexVal()
 {
   edm::LogInfo("PixelVertexVal")<<" DTOR";
-  delete rootFile;
 }
 
-void PixelVertexVal::beginJob(const edm::EventSetup& es) {
-  // How noisy?
-  verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
-
-  std::string file = conf_.getUntrackedParameter<std::string>("HistoFile","pixelVertexHistos.root");
-//  const char* cwd= gDirectory->GetPath();
-  rootFile  = new TFile(file.c_str(),"RECREATE");
-
+void PixelVertexVal::beginJob() {
   // validation histos
   h["h_Nbvtx"]= new TH1F("h_nbvtx","nb vertices in event",16,0.,16.);
   h["h_Nbtrks"]= new TH1F("h_Nbtrks","nb tracks in PV",100,0.,100.);
@@ -84,8 +84,7 @@ void PixelVertexVal::analyze(
   if (verbose_ > 0) cout <<"------------------------------------------------"<<endl;
   cout <<"*** PixelVertexVal, analyze event: " << ev.id() << endl;
   edm::Handle<reco::TrackCollection> trackCollection;
-  std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
-  ev.getByLabel(trackCollName,trackCollection);
+  ev.getByToken( trackCollectionToken_, trackCollection );
   const reco::TrackCollection tracks = *(trackCollection.product());
 
   reco::TrackRefVector trks;
@@ -96,17 +95,15 @@ void PixelVertexVal::analyze(
 //  }
 
   edm::Handle<reco::VertexCollection> vertexCollection;
-  std::string vertexCollName = conf_.getParameter<std::string>("VertexCollection");
-  ev.getByLabel(vertexCollName,vertexCollection);
+  ev.getByToken( vertexCollectionToken_, vertexCollection );
   const reco::VertexCollection vertexes = *(vertexCollection.product());
   if (verbose_ > 0) {
 //    std::cout << *(vertexCollection.provenance()) << std::endl;
     cout << "Reconstructed "<< vertexes.size() << " vertexes" << std::endl;
   }
 
-  edm::InputTag simG4 = conf_.getParameter<edm::InputTag>( "simG4" );
   edm::Handle<edm::SimVertexContainer> simVtcs;
-  ev.getByLabel( simG4, simVtcs);
+  ev.getByToken( simVertexContainerToken_, simVtcs );
   if (verbose_ > 0) {
     cout << "simulated vertices: "<< simVtcs->size() << std::endl;
   }
@@ -136,8 +133,10 @@ void PixelVertexVal::analyze(
     float dz =  pv.position().z() - z_PV;
     h["h_ResZ"]->Fill( dz ); 
     h["h_PullZ"]->Fill( dz/pv.zError() );
-    typedef reco::track_iterator IT;
-    for (IT it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
+
+    for (reco::Vertex::trackRef_iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
+//    for (reco::Vertex::track_iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
+//    for (reco::TrackRefVector::iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
       //h["h_TrkRes"]->Fill((*it)->dz());
       h["h_TrkRes"]->Fill((*it)->vertex().z() - pv.position().z());
     }
@@ -146,7 +145,14 @@ void PixelVertexVal::analyze(
 }
 
 void PixelVertexVal::endJob() {
-  if (rootFile) rootFile->Write();
+  TFile rootFile(file_.c_str(),"RECREATE");
+  for (std::map<std::string, TH1*>::const_iterator ih= h.begin(); ih != h.end(); ++ih) {
+    TH1 * histo = (*ih).second;
+    histo->Write();
+    delete histo; 
+  }
+  rootFile.Close();
+  h.clear();
 }
 
 DEFINE_FWK_MODULE(PixelVertexVal);

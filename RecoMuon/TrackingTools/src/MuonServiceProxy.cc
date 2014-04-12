@@ -4,8 +4,6 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2007/06/07 12:16:41 $
- *  $Revision: 1.12 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -18,13 +16,14 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 // Framework Headers
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // C++ Headers
 #include <map>
@@ -46,7 +45,7 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   propagatorNames = par.getUntrackedParameter<vector<string> >("Propagators", noPropagators);
   
   if(propagatorNames.empty())
-    LogError("Muon|RecoMuon|MuonServiceProxy") << "NO propagator(s) selected!";
+    LogDebug("Muon|RecoMuon|MuonServiceProxy") << "NO propagator(s) selected!";
   
   for(vector<string>::iterator propagatorName = propagatorNames.begin();
       propagatorName != propagatorNames.end(); ++propagatorName)
@@ -112,10 +111,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     }
   }
   
-    if ( theMuonNavigationFlag && theSchool ) NavigationSetter setter(*theSchool);
-
   // Propagators
-  theChangeInTrackingComponentsRecord = false;
   unsigned long long newCacheId_P = setup.get<TrackingComponentsRecord>().cacheIdentifier();
   if ( newCacheId_P != theCacheId_P ) {
     LogTrace(metname) << "Tracking Component changed!";
@@ -125,6 +121,9 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
 	++prop)
       setup.get<TrackingComponentsRecord>().get( prop->first , prop->second );
   }
+  else
+    theChangeInTrackingComponentsRecord = false;
+
 }
 
 // get the propagator
@@ -134,8 +133,8 @@ ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) co
   
   if (prop == thePropagators.end()){
     LogError("Muon|RecoMuon|MuonServiceProxy") 
-      << "MuonServiceProxy: propagator not found! Please load it in the MuonServiceProxy.cff"; 
-    return 0;
+      << "MuonServiceProxy: propagator with name: "<< propagatorName <<" not found! Please load it in the MuonServiceProxy.cff"; 
+    return ESHandle<Propagator>(0);
   }
   
   return prop->second;

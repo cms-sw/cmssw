@@ -8,8 +8,6 @@ TypeID: A unique identifier for a C++ type.
 The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
-$Id: TypeID.h,v 1.1 2007/03/04 04:40:19 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <typeinfo>
@@ -17,45 +15,55 @@ $Id: TypeID.h,v 1.1 2007/03/04 04:40:19 wmtan Exp $
 #include "FWCore/Utilities/interface/TypeIDBase.h"
 
 namespace edm {
+  bool stripTemplate(std::string& theName);
 
-  class TypeID : public TypeIDBase {
+  std::string stripNamespace(std::string const& theName);
+
+  class TypeID : private TypeIDBase {
   public:
 
     TypeID() : TypeIDBase() {}
 
-    TypeID(const TypeID& other) :
-     TypeIDBase(other)
-    { }
-    
-    explicit TypeID(const std::type_info& t) :
-      TypeIDBase(t)
-    { }
-
-    // Copy assignment disallowed; see below.
+    explicit TypeID(std::type_info const& t) : TypeIDBase(t) {
+    }
 
     template <typename T>
-    explicit TypeID(const T& t) :
-      TypeIDBase(typeid(t))
-    { }
+    explicit TypeID(T const& t) : TypeIDBase(typeid(t)) {
+    }
 
-    // Print out the name of the type, using the reflection class name.
+    // Print out the name of the type, using the dictionary class name.
     void print(std::ostream& os) const;
 
-    std::string className() const;
+    std::string const& className() const;
 
     std::string userClassName() const;
 
     std::string friendlyClassName() const;
 
-  private:
-    TypeID& operator=(const TypeID&); // not implemented
-   
-    static bool stripTemplate(std::string& theName);
+#ifndef __GCCXML__
+    explicit operator bool() const;
+#endif
+    
+    using TypeIDBase::name;
 
-    static bool stripNamespace(std::string& theName);
+    bool operator<(TypeID const& b) const { return this->TypeIDBase::operator<(b); }
+
+    bool operator==(TypeID const& b) const {return this->TypeIDBase::operator==(b);}
+
+    using TypeIDBase::typeInfo;
+
+  private:
 
   };
 
-  std::ostream& operator<<(std::ostream& os, const TypeID& id);
+  inline bool operator>(TypeID const& a, TypeID const& b) {
+    return b < a;
+  }
+
+  inline bool operator!=(TypeID const& a, TypeID const& b) {
+    return !(a == b);
+  }
+
+  std::ostream& operator<<(std::ostream& os, TypeID const& id);
 }
 #endif

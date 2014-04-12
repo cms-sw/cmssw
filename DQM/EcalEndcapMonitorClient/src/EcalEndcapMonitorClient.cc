@@ -1,8 +1,6 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/07/28 16:00:25 $
- * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,606 +11,614 @@
 #include <iomanip>
 #include <fstream>
 #include <algorithm>
+#include <unistd.h>
 
 #include "FWCore/Framework/interface/Run.h"
-
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
-
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
+
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#endif
 
-#include "DQM/EcalCommon/interface/ColorPalette.h"
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
+#include "DQM/EcalCommon/interface/Masks.h"
 
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEOccupancyClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EELaserClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETimingClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EELedClient.h"
 
-#include "xgi/Method.h"
-#include "xgi/Utils.h"
+EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) 
+{
+  // verbose switch
 
-#include "cgicc/Cgicc.h"
-#include "cgicc/FormEntry.h"
-#include "cgicc/HTMLClasses.h"
+  verbose_ = ps.getUntrackedParameter<bool>("verbose",  true);
 
-#include "TStyle.h"
-#include "TGaxis.h"
-#include "TColor.h"
-
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalEndcapMonitorClient"){
-
-  mui_ = 0;
-
-  this->initialize(ps);
-
-}
-
-void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
-
-  cout << endl;
-  cout << " *** Ecal Endcap Generic Monitor Client ***" << endl;
-  cout << endl;
-
-  // Set runTypes
-
-  runTypes_.resize( 22 );
-  for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN";
-  runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
-  runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
-  runTypes_[EcalDCCHeaderBlock::MTCC]                   = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
-  runTypes_[EcalDCCHeaderBlock::LED_STD]                = "LED";
-  runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
-  
-  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]          = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::LASER_GAP]              = "LASER";
-  runTypes_[EcalDCCHeaderBlock::LED_GAP]                = "LED";
-  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]          = "TEST_PULSE";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
-
-  clients_.clear();
-  clientNames_.clear();
+  if ( verbose_ ) {
+    std::cout << std::endl;
+    std::cout << " *** Ecal Endcap Generic Monitor Client ***" << std::endl;
+    std::cout << std::endl;
+  }
 
   // DQM ROOT input file
 
-  inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
+  inputFile_ = ps.getUntrackedParameter<std::string>("inputFile", "");
 
-  if ( inputFile_.size() != 0 ) {
-    cout << " Reading DQM data from inputFile = '" << inputFile_ << "'" << endl;
-  }
-
-  // DQM ROOT output file
-
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-
-  if ( outputFile_.size() != 0 ) {
-    cout << " Writing DQM data to outputFile = '" << outputFile_ << "'" << endl;
+  if ( verbose_ ) {
+    if ( inputFile_.size() != 0 ) {
+      std::cout << " Reading DQM data from inputFile '" << inputFile_ << "'" << std::endl;
+    }
   }
 
   // Ecal Cond DB
 
-  dbName_ = ps.getUntrackedParameter<string>("dbName", "");
-  dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
+  dbName_ = ps.getUntrackedParameter<std::string>("dbName", "");
+  dbHostName_ = ps.getUntrackedParameter<std::string>("dbHostName", "");
   dbHostPort_ = ps.getUntrackedParameter<int>("dbHostPort", 1521);
-  dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
-  dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
+  dbUserName_ = ps.getUntrackedParameter<std::string>("dbUserName", "");
+  dbPassword_ = ps.getUntrackedParameter<std::string>("dbPassword", "");
 
-  if ( dbName_.size() != 0 ) {
-    cout << " Using Ecal Cond DB, "
-         << " dbName = '" << dbName_ << "'"
-         << " dbHostName = '" << dbHostName_ << "'"
-         << " dbHostPort = '" << dbHostPort_ << "'"
-         << " dbUserName = '" << dbUserName_ << "'" << endl;
-  } else {
-    cout << " Ecal Cond DB is OFF" << endl;
-  }
+  dbTagName_ = ps.getUntrackedParameter<std::string>("dbTagName", "CMSSW");
 
-  // Mask file
-
-  maskFile_ = ps.getUntrackedParameter<string>("maskFile", "");
-
-  if ( maskFile_.size() != 0 ) {
-    cout << " Using maskFile = '" << maskFile_ << "'" << endl;
+  if ( verbose_ ) {
+    if ( dbName_.size() != 0 ) {
+      std::cout << " Ecal Cond DB: " << std::endl;
+      std::cout << "   dbName = '" << dbName_ << "'" << std::endl;
+      std::cout << "   dbUserName = '" << dbUserName_ << "'" << std::endl;
+      if ( dbHostName_.size() != 0 ) {
+        std::cout << "   dbHostName = '" << dbHostName_ << "'" << std::endl;
+        std::cout << "   dbHostPort = '" << dbHostPort_ << "'" << std::endl;
+      }
+      std::cout << "   dbTagName = '" << dbTagName_ << "'" << std::endl;
+#ifndef WITH_ECAL_COND_DB
+      std::cout << std::endl;
+      std::cout << "WARNING: DB access is NOT available" << std::endl;
+      std::cout << std::endl;
+#endif
+    } else {
+      std::cout << " Ecal Cond DB is OFF" << std::endl;
+    }
   }
 
   // mergeRuns switch
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  if ( mergeRuns_ ) {
-    cout << " mergeRuns switch is ON" << endl;
-  } else {
-    cout << " mergeRuns switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( mergeRuns_ ) {
+      std::cout << " mergeRuns switch is ON" << std::endl;
+    } else {
+      std::cout << " mergeRuns switch is OFF" << std::endl;
+    }
   }
 
-  // enableSubRunDb switch
+  // resetFile
 
-  enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
-  dbRefreshTime_  = ps.getUntrackedParameter<int>("dbRefreshTime", 15);
+  resetFile_ = ps.getUntrackedParameter<std::string>("resetFile", "");
 
-  if ( enableSubRunDb_ ) {
-    cout << " enableSubRunDb switch is ON" << endl;
-    cout << " dbRefreshTime is " << dbRefreshTime_ << " minutes" << endl;
-  } else {
-    cout << " enableSubRunDb switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( resetFile_.size() != 0 ) {
+      std::cout << " resetFile is '" << resetFile_ << "'" << std::endl;
+    }
   }
 
-  // enableSubRunHtml switch
+  // updateTime
 
-  enableSubRunHtml_ = ps.getUntrackedParameter<bool>("enableSubRunHtml", false);
-  htmlRefreshTime_  = ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
+  updateTime_ = ps.getUntrackedParameter<int>("updateTime", 0);
 
-  if ( enableSubRunHtml_ ) {
-    cout << " enableSubRunHtml switch is ON" << endl;
-    cout << " htmlRefreshTime is " << htmlRefreshTime_ << " minutes" << endl;
-  } else {
-    cout << " enableSubRunHtml switch is OFF" << endl;
+  if ( verbose_ ) {
+    std::cout << " updateTime is " << updateTime_ << " minute(s)" << std::endl;
+  }
+
+  // dbUpdateTime
+
+  dbUpdateTime_  = ps.getUntrackedParameter<int>("dbUpdateTime", 0);
+
+  if ( verbose_ ) {
+    std::cout << " dbUpdateTime is " << dbUpdateTime_ << " minute(s)" << std::endl;
   }
 
   // location
 
-  location_ =  ps.getUntrackedParameter<string>("location", "H4");
+  location_ =  ps.getUntrackedParameter<std::string>("location", "H4");
 
-  // base Html output directory
-
-  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", "");
-
-  if ( baseHtmlDir_.size() != 0 ) {
-    cout << " HTML output will go to"
-         << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
-  } else {
-    cout << " HTML output is OFF" << endl;
-  }
-
-  // collateSources switch
-
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
-
-  if ( collateSources_ ) {
-    cout << " collateSources switch is ON" << endl;
-  } else {
-    cout << " collateSources switch is OFF" << endl;
+  if ( verbose_ ) {
+    std::cout << " location is '" << location_ << "'" << std::endl;
   }
 
   // cloneME switch
 
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  if ( cloneME_ ) {
-    cout << " cloneME switch is ON" << endl;
-  } else {
-    cout << " cloneME switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( cloneME_ ) {
+      std::cout << " cloneME switch is ON" << std::endl;
+    } else {
+      std::cout << " cloneME switch is OFF" << std::endl;
+    }
   }
 
-  // enableQT switch
+  // debug switch
 
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
-  if ( enableQT_ ) {
-    cout << " enableQT switch is ON" << endl;
-  } else {
-    cout << " enableQT switch is OFF" << endl;
-  }
-
-  // enableExit switch
-
-  enableExit_ = ps.getUntrackedParameter<bool>("enableExit", false);
-
-  if ( enableExit_ ) {
-    cout << " enableExit switch is ON" << endl;
-  } else {
-    cout << " enableExit switch is OFF" << endl;
-  }
-
-  // verbosity switch
-
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
-
-  // MonitorDaemon switch
-
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
-
-  if ( enableMonitorDaemon_ ) {
-    cout << " enableMonitorDaemon switch is ON" << endl;
-  } else {
-    cout << " enableMonitorDaemon switch is OFF" << endl;
-  }
-
-  // enableStateMachine switch
-
-  enableStateMachine_ = ps.getUntrackedParameter<bool>("enableStateMachine", false);
-
-  if ( enableStateMachine_ ) {
-    cout << " enableStateMachine switch is ON" << endl;
-  } else {
-    cout << " enableStateMachine switch is OFF" << endl;
-  }
-
-  // prefix to ME paths
-
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
-
-  cout << " prefixME is set to '" << prefixME_ << "'" << endl;
-
-  // DQM Client name
-
-  clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalEndcapMonitorClient");
-
-  if ( enableMonitorDaemon_ ) {
-
-    // DQM Collector hostname
-
-    hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
-
-    // DQM Collector port
-
-    hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
-
-    cout << " Client '" << clientName_ << "' " << endl
-         << " Collector on host '" << hostName_ << "'"
-         << " on port '" << hostPort_ << "'" << endl;
-
-  }
-
-  // Server switch
-
-  enableServer_ = ps.getUntrackedParameter<bool>("enableServer", false);
-  serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
-
-  if ( enableServer_ ) {
-    cout << " enableServer switch is ON" << endl;
-    if ( enableMonitorDaemon_ && hostPort_ != serverPort_ ) {
-      cout << " Forcing the same port for Collector and Server" << endl;
-      serverPort_ = hostPort_;
+    if ( debug_ ) {
+      std::cout << " debug switch is ON" << std::endl;
+    } else {
+      std::cout << " debug switch is OFF" << std::endl;
     }
-    cout << " Running server on port '" << serverPort_ << "'" << endl;
-  } else {
-    cout << " enableServer switch is OFF" << endl;
+  }
+
+  // prescaleFactor
+
+  prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
+
+  if ( verbose_ ) {
+    std::cout << " prescaleFactor is " << prescaleFactor_ << std::endl;
+  }
+
+  // prefixME path
+
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
+
+  if ( verbose_ ) {
+    std::cout << " prefixME path is '" << prefixME_ << "'" << std::endl;
+  }
+
+  produceReports_ = ps.getUntrackedParameter<bool>("produceReports", true);
+
+  if (produceReports_){
+    std::cout << " producing reportSummaries" << std::endl;
+  }
+
+  // enableCleanup switch
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  if ( verbose_ ) {
+    if ( enableCleanup_ ) {
+      std::cout << " enableCleanup switch is ON" << std::endl;
+    } else {
+      std::cout << " enableCleanup switch is OFF" << std::endl;
+    }
   }
 
   // vector of selected Super Modules (Defaults to all 18).
 
-  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
+  superModules_.reserve(18);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
 
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
-  cout << " Selected SMs:" << endl;
-
-  for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
-    cout << " " << setw(2) << setfill('0') << superModules_[i];
+  if ( verbose_ ) {
+    std::cout << " Selected SMs:" << std::endl;
+    for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
+      std::cout << " " << std::setw(2) << std::setfill('0') << superModules_[i];
+    }
+    std::cout << std::endl;
   }
 
-  cout << endl;
-
-  // vector of enabled Clients (Defaults to standard ones)
+  // vector of enabled Clients (defaults)
 
   enabledClients_.push_back("Integrity");
+  enabledClients_.push_back("StatusFlags");
   enabledClients_.push_back("PedestalOnline");
+  enabledClients_.push_back("Summary");
 
-  enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
+  enabledClients_ = ps.getUntrackedParameter<std::vector<std::string> >("enabledClients", enabledClients_);
 
-  cout << " Enabled Clients:" << endl;
-
-  for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
-    cout << " " << enabledClients_[i];
-  }
-  
-  cout << endl;
-
-  // global ROOT style
-
-  gStyle->Reset("Default");
-
-  gStyle->SetCanvasColor(10);
-  gStyle->SetPadColor(10);
-  gStyle->SetFillColor(10);
-  gStyle->SetStatColor(10);
-  gStyle->SetTitleFillColor(10);
-
-  TGaxis::SetMaxDigits(4);
-
-  gStyle->SetOptTitle(kTRUE);
-  gStyle->SetTitleX(0.01);
-  gStyle->SetTitleY(1.00);
-  gStyle->SetTitleW(0.00);
-  gStyle->SetTitleH(0.05);
-  gStyle->SetTitleBorderSize(0);
-  gStyle->SetTitleFont(43, "c");
-  gStyle->SetTitleFontSize(11);
-
-  gStyle->SetOptStat(kFALSE);
-  gStyle->SetStatX(0.99);
-  gStyle->SetStatY(0.99);
-  gStyle->SetStatW(0.25);
-  gStyle->SetStatH(0.20);
-  gStyle->SetStatBorderSize(1);
-  gStyle->SetStatFont(43);
-  gStyle->SetStatFontSize(10);
-
-  gStyle->SetOptFit(kFALSE);
-
-  gROOT->ForceStyle();
-
-  // Define new color palette
-
-  for( int i=0; i<6; i++ ) {
-    TColor* color;
-    if( ! gROOT->GetColor( 301+i )) {
-      color = new TColor( 301+i, ecdqm::rgb[i][0], ecdqm::rgb[i][1], ecdqm::rgb[i][2], "" );
+  if ( verbose_ ) {
+    std::cout << " Enabled Clients:" << std::endl;
+    for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
+      std::cout << " " << enabledClients_[i];
     }
-    else {
-      color = gROOT->GetColor( 301+i );
-      color->SetRGB( ecdqm::rgb[i][0], ecdqm::rgb[i][1], ecdqm::rgb[i][2] );
-    }
+    std::cout << std::endl;
   }
 
-  for( int i=0; i<10; i++ ) {
-    TColor* color;
-    if( ! gROOT->GetColor( 401+i )) {
-      color = new TColor( 401+i, ecdqm::rgb2[i][0], ecdqm::rgb2[i][1], ecdqm::rgb2[i][2], "" );
-    }
-    else {
-      color = gROOT->GetColor( 401+i );
-      color->SetRGB( ecdqm::rgb2[i][0], ecdqm::rgb2[i][1], ecdqm::rgb2[i][2] );
-    }
-  }
+  // set runTypes (use resize() on purpose!)
+
+  runTypes_.resize(30);
+  for ( unsigned int i = 0; i < runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
+
+  runTypes_[EcalDCCHeaderBlock::COSMIC]               = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::BEAMH4]               = "BEAM";
+  runTypes_[EcalDCCHeaderBlock::BEAMH2]               = "BEAM";
+  runTypes_[EcalDCCHeaderBlock::MTCC]                 = "MTCC";
+  runTypes_[EcalDCCHeaderBlock::LASER_STD]            = "LASER";
+  runTypes_[EcalDCCHeaderBlock::LED_STD]              = "LED";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]       = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]         = "PEDESTAL";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN] = "PEDESTAL-OFFSET";
+
+  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]       = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]       = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::HALO_GLOBAL]          = "HALO";
+  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]        = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]        = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::HALO_LOCAL]           = "HALO";
+
+  runTypes_[EcalDCCHeaderBlock::LASER_GAP]            = "LASER";
+  runTypes_[EcalDCCHeaderBlock::LED_GAP]              = "LED";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]        = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]         = "PEDESTAL";
+
+  runTypes_[EcalDCCHeaderBlock::CALIB_LOCAL]          = "CALIB";
 
   // clients' constructors
+
+  clients_.reserve(12);
+  clientsNames_.reserve(12);
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEIntegrityClient(ps) );
-    clientNames_.push_back( "Integrity" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "Integrity" );
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+
+  }
+
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "StatusFlags" ) != enabledClients_.end() ) {
+
+    clients_.push_back( new EEStatusFlagsClient(ps) );
+    clientsNames_.push_back( "StatusFlags" );
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+
+  }
+
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "Occupancy" ) != enabledClients_.end() ) {
+
+    clients_.push_back( new EEOccupancyClient(ps) );
+    clientsNames_.push_back( "Occupancy" );
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Cosmic" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EECosmicClient(ps) );
-    clientNames_.push_back( "Cosmic" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "Cosmic" );
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Laser" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EELaserClient(ps) );
-    clientNames_.push_back( "Laser" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsNames_.push_back( "Laser" );
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-  }
-
-  if ( find(enabledClients_.begin(), enabledClients_.end(), "Led" ) != enabledClients_.end() ) {
-
-    clients_.push_back( new EELedClient(ps) );
-    clientNames_.push_back( "Led" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Pedestal" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEPedestalClient(ps) );
-    clientNames_.push_back( "Pedestal" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsNames_.push_back( "Pedestal" );
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "PedestalOnline" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEPedestalOnlineClient(ps) );
-    clientNames_.push_back( "PedestalOnline" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "PedestalOnline" );
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
-  
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "TestPulse" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EETestPulseClient(ps) );
-    clientNames_.push_back( "TestPulse" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsNames_.push_back( "TestPulse" );
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-  } 
-    
-  if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamCalo" ) != enabledClients_.end() ) {
-
-    clients_.push_back( new EEBeamCaloClient(ps) );
-    clientNames_.push_back( "BeamCalo" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-
-  }
-
-  if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamHodo" ) != enabledClients_.end() ) {
-
-    clients_.push_back( new EEBeamHodoClient(ps) );
-    clientNames_.push_back( "BeamHodo" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "TriggerTower" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EETriggerTowerClient(ps) );
-    clientNames_.push_back( "TriggerTower" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "TriggerTower" );
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Cluster" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEClusterClient(ps) );
-    clientNames_.push_back( "Cluster" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "Cluster" );
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Timing" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EETimingClient(ps) );
-    clientNames_.push_back( "Timing" );
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "Timing" );
 
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
-  summaryClient_ = new EESummaryClient(ps);
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "Led" ) != enabledClients_.end() ) {
 
-  summaryClient_->setFriends(clients_);
+    clients_.push_back( new EELedClient(ps) );
+    clientsNames_.push_back( "Led" );
 
-  cout << endl;
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(std::pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+
+  }
+
+  // define status bits
+
+  clientsStatus_.insert(std::pair<std::string,int>( "Integrity",       0 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "Cosmic",          1 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "Laser",           2 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "Pedestal",        3 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "PedestalOnline",  4 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "TestPulse",       5 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "TriggerTower",    8 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "Cluster",         9 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "Timing",         10 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "Led",            11 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "StatusFlags",    12 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "Occupancy",      13 ));
+
+  summaryClient_ = 0;
+
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "Summary" ) != enabledClients_.end() ) {
+
+    summaryClient_ = new EESummaryClient(ps);
+
+  }
+
+  if ( summaryClient_ ) summaryClient_->setFriends(clients_);
+
+  if ( verbose_ ) std::cout << std::endl;
 
 }
 
-EcalEndcapMonitorClient::~EcalEndcapMonitorClient(){
+EcalEndcapMonitorClient::~EcalEndcapMonitorClient() {
 
-  cout << "Exit ..." << endl;
+  if ( verbose_ ) std::cout << "Exit ..." << std::endl;
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     delete clients_[i];
   }
 
-  delete summaryClient_;
-
-  mui_->disconnect();
-  // delete mui_;
+  if ( summaryClient_ ) delete summaryClient_;
 
 }
 
-void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
+void EcalEndcapMonitorClient::beginJob(void) {
 
   begin_run_ = false;
   end_run_   = false;
@@ -623,87 +629,57 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
   h_ = 0;
 
   status_  = "unknown";
+
   run_     = -1;
   evt_     = -1;
-  runtype_ = -1;
+
+  runType_ = -1;
+  evtType_ = -1;
 
   last_run_ = -1;
 
   subrun_  = -1;
 
-  last_jevt_   = -1;
-  last_update_ =  0;
-
-  unknowns_ = 0;
-
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EcalEndcapMonitorClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
 
   current_time_ = time(NULL);
-  last_time_db_ = current_time_;
-  last_time_html_ = current_time_;
+  last_time_update_ = current_time_;
+  last_time_reset_ = current_time_;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  // start DQM user interface instance
-  // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
-
-  if ( enableMonitorDaemon_ ) {
-    if ( enableServer_ ) {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
-    } else {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-    }
-  } else {
-    mui_ = new MonitorUIRoot();
-    if ( enableServer_ ) {
-      mui_->actAsServer(serverPort_, clientName_);
+  if ( inputFile_.size() != 0 ) {
+    if ( dqmStore_ ) {
+      dqmStore_->open(inputFile_);
     }
   }
-
-  if ( verbose_ ) {
-    mui_->setVerbose(1);
-  } else {
-    mui_->setVerbose(0);
-  }
-
-  if ( ! enableMonitorDaemon_ ) {
-    if ( inputFile_.size() != 0 ) {
-      if ( dbe ) {
-        dbe->open(inputFile_);
-      }
-    }
-  }
-
-  mui_->setMaxAttempts2Reconnect(99999);
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
-    clients_[i]->beginJob(mui_);
+    clients_[i]->beginJob();
   }
 
-  summaryClient_->beginJob(mui_);
-
-  this->subscribe();
+  if ( summaryClient_ ) summaryClient_->beginJob();
 
 }
 
-void EcalEndcapMonitorClient::beginRun(void){
+void EcalEndcapMonitorClient::beginRun(void) {
 
   begin_run_ = true;
   end_run_   = false;
 
   last_run_  = run_;
 
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EcalEndcapMonitorClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
   current_time_ = time(NULL);
-  last_time_db_ = current_time_;
-  last_time_html_ = current_time_;
+  last_time_update_ = current_time_;
+  last_time_reset_ = current_time_;
 
   this->setup();
 
@@ -711,71 +687,115 @@ void EcalEndcapMonitorClient::beginRun(void){
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
     clients_[i]->cleanup();
-    bool started; started = false;
-    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !started ) { started = true; clients_[i]->beginRun(); }
+    bool done = false;
+    for ( std::multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+      if ( runType_ != -1 && runType_ == (*j).second && !done ) {
+        done = true;
+        clients_[i]->beginRun();
+      }
     }
   }
 
-  summaryClient_->beginRun();
+  if ( summaryClient_ ) summaryClient_->beginRun();
 
 }
 
-void EcalEndcapMonitorClient::beginRun(const Run& r, const EventSetup& c) {
+void EcalEndcapMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  cout << endl;
-  cout << "Standard beginRun() for run " << r.id().run() << endl;
-  cout << endl;
+  Numbers::initGeometry(c, verbose_);
 
-  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+  if ( verbose_ ) std::cout << std::endl;
 
-    if ( ! mergeRuns_ ) {
+  Masks::initMasking(c, verbose_);
 
-      forced_update_ = true;
-      this->analyze();
+  if ( verbose_ ) {
+    std::cout << std::endl;
+    std::cout << "Standard beginRun() for run " << r.id().run() << std::endl;
+    std::cout << std::endl;
+  }
 
-      if ( ! begin_run_ ) {
+  // summary for DQM GUI
 
-        forced_status_ = false;
-        this->beginRun();
+  if(produceReports_){
 
+    MonitorElement* me;
+
+    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+    if ( me ) {
+      dqmStore_->removeElement(me->getName());
+    }
+    me = dqmStore_->bookFloat("reportSummary");
+    me->Fill(-1.0);
+
+    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+
+    for (int i = 0; i < 18; i++) {
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalEndcap_" + Numbers::sEE(i+1) );
+      if ( me ) {
+	dqmStore_->removeElement(me->getName());
       }
-
+      me = dqmStore_->bookFloat("EcalEndcap_" + Numbers::sEE(i+1));
+      me->Fill(-1.0);
     }
 
+    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+    if ( me ) {
+      dqmStore_->removeElement(me->getName());
+    }
+
+    me = dqmStore_->book2D("reportSummaryMap", "EcalEndcap Report Summary Map", 40, 0., 200., 20, 0., 100);
+    for ( int jx = 1; jx <= 40; jx++ ) {
+      for ( int jy = 1; jy <= 20; jy++ ) {
+	me->setBinContent( jx, jy, -1.0 );
+      }
+    }
+    me->setAxisTitle("ix / ix+100", 1);
+    me->setAxisTitle("iy", 2);
   }
+
+  run_ = r.id().run();
+  evt_ = 0;
+
+  jevt_ = 0;
 
 }
 
 void EcalEndcapMonitorClient::endJob(void) {
 
-  // check last event
-
   if ( ! end_run_ ) {
 
-    cout << endl;
-    cout << "Checking last event at endJob() ... " << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      std::cout << std::endl;
+      std::cout << "Checking last event at endJob() ... " << std::endl;
+      std::cout << std::endl;
+    }
 
     forced_update_ = true;
+
     this->analyze();
 
     if ( begin_run_ && ! end_run_ ) {
 
-      cout << endl;
-      cout << "Forcing endRun() ... " << endl;
-      cout << endl;
+      if ( verbose_ ) {
+        std::cout << std::endl;
+        std::cout << "Forcing endRun() ... " << std::endl;
+        std::cout << std::endl;
+      }
 
       forced_status_ = true;
+
+      this->analyze();
       this->endRun();
 
     }
 
   }
 
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
+  if ( debug_ ) std::cout << "EcalEndcapMonitorClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -783,7 +803,7 @@ void EcalEndcapMonitorClient::endJob(void) {
     clients_[i]->endJob();
   }
 
-  summaryClient_->endJob();
+  if ( summaryClient_ ) summaryClient_->endJob();
 
 }
 
@@ -792,76 +812,80 @@ void EcalEndcapMonitorClient::endRun(void) {
   begin_run_ = false;
   end_run_   = true;
 
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: endRun, jevt = " << jevt_ << endl;
-
-  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
-
-  if ( outputFile_.size() != 0 ) {
-    string fileName = outputFile_;
-    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
-      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
-        char tmp[10];
-        if ( run_ != -1 ) {
-          sprintf(tmp,"%09d", run_);
-        } else {
-          sprintf(tmp,"%09d", 0);
-        }
-        fileName.replace(i, 9, tmp);
-      }
-    }
-    mui_->save(fileName);
-  }
+  if ( debug_ ) std::cout << "EcalEndcapMonitorClient: endRun, jevt = " << jevt_ << std::endl;
 
   if ( subrun_ != -1 ) {
 
     this->writeDb();
+
     this->endRunDb();
 
   }
 
-  if ( subrun_ != -1 ) {
-    if ( enableSubRunDb_ ) {
-      this->softReset();
+  if ( resetFile_.size() != 0 || dbUpdateTime_ > 0 ) {
+
+    this->softReset(false);
+
+    for ( int i=0; i<int(clients_.size()); i++ ) {
+      bool done = false;
+      for ( std::multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+        if ( runType_ != -1 && runType_ == (*j).second && !done ) {
+          done = true;
+          clients_[i]->analyze();
+        }
+      }
     }
+
+    if ( summaryClient_ ) summaryClient_->analyze();
+
   }
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool ended; ended = false;
-    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !ended ) { ended = true; clients_[i]->endRun(); }
+    bool done = false;
+    for ( std::multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+      if ( runType_ != -1 && runType_ == (*j).second && !done ) {
+        done = true;
+        clients_[i]->endRun();
+      }
     }
   }
 
-  summaryClient_->endRun();
+  if ( summaryClient_ ) summaryClient_->endRun();
 
   this->cleanup();
 
   status_  = "unknown";
+
   run_     = -1;
   evt_     = -1;
-  runtype_ = -1;
+
+  runType_ = -1;
+  evtType_ = -1;
 
   subrun_ = -1;
 
-  last_jevt_   = -1;
-  last_update_ = 0;
-
 }
 
-void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
+void EcalEndcapMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  cout << endl;
-  cout << "Standard endRun() for run " << r.id().run() << endl;
-  cout << endl;
+  if ( verbose_ ) {
+    std::cout << std::endl;
+    std::cout << "Standard endRun() for run " << r.id().run() << std::endl;
+    std::cout << std::endl;
+  }
 
-  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+  this->analyze();
+
+  if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
+
+    forced_update_ = true;
+
+    this->analyze();
 
     if ( ! mergeRuns_ ) {
 
-      forced_update_ = true;
-      this->analyze();
-
-      if ( ! end_run_ ) {
+      if ( begin_run_ && ! end_run_ ) {
 
         forced_status_ = false;
         this->endRun();
@@ -872,13 +896,93 @@ void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
   }
 
+  // summary for DQM GUI
+
+  if ( run_ != -1 && evt_ != -1 && runType_ == -1 )  {
+
+    MonitorElement* me;
+
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+    if ( me ) me->Fill(-1.0);
+
+    for (int i = 0; i < 18; i++) {
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalEndcap_" + Numbers::sEE(i+1));
+      if ( me ) me->Fill(-1.0);
+    }
+
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+    for ( int jx = 1; jx <= 40; jx++ ) {
+      for ( int jy = 1; jy <= 20; jy++ ) {
+        if ( me ) me->setBinContent( jx, jy, -1.0 );
+      }
+    }
+
+  }
+
 }
 
-void EcalEndcapMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+void EcalEndcapMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
+
+  if ( verbose_ ) {
+    std::cout << std::endl;
+    std::cout << "Standard beginLuminosityBlock() for luminosity block " << l.id().luminosityBlock() << " of run " << l.id().run() << std::endl;
+    std::cout << std::endl;
+  }
 
 }
 
-void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
+
+  current_time_ = time(NULL);
+
+  if ( verbose_ ) {
+    std::cout << std::endl;
+    std::cout << "Standard endLuminosityBlock() for luminosity block " << l.id().luminosityBlock() << " of run " << l.id().run() << std::endl;
+    std::cout << std::endl;
+  }
+
+  if(begin_run_ && !end_run_){
+    unsigned iC(0);
+    for(; iC < enabledClients_.size(); iC++){
+      std::string& name(enabledClients_[iC]);
+
+      if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
+
+      std::string dir(prefixME_ + "/EE" + name + "Client");
+      if(!dqmStore_->dirExists(dir) || !dqmStore_->containsAnyMonitorable(dir)){
+        std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
+        if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
+        std::cout << "EE" << name << "Client is missing plots; issuing beginRun" << std::endl;
+
+        break;
+      }
+    }
+    if(iC != enabledClients_.size()){
+      forced_status_ = false;
+      endRun();
+      beginRun();
+      run_ = l.id().run();
+      evt_ = 0;
+    }
+  }
+
+  if ( updateTime_ > 0 ) {
+    if ( (current_time_ - last_time_update_) < 60 * updateTime_ ) {
+      return;
+    }
+    last_time_update_ = current_time_;
+  }
+
+  if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
+
+    forced_update_ = true;
+
+    this->analyze();
+
+  }
+}
+
+void EcalEndcapMonitorClient::reset(void) {
 
 }
 
@@ -887,6 +991,8 @@ void EcalEndcapMonitorClient::setup(void) {
 }
 
 void EcalEndcapMonitorClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   if ( cloneME_ ) {
     if ( h_ ) delete h_;
@@ -900,16 +1006,27 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   subrun_ = 0;
 
+#ifdef WITH_ECAL_COND_DB
   EcalCondDBInterface* econn;
 
   econn = 0;
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection ..." << endl;
-      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      if ( verbose_ ) std::cout << "Opening DB connection with TNS_ADMIN ..." << std::endl;
+      econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
+      if ( verbose_ ) std::cout << "done." << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
+      if ( dbHostName_.size() != 0 ) {
+        try {
+          if ( verbose_ ) std::cout << "Opening DB connection without TNS_ADMIN ..." << std::endl;
+          econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+          if ( verbose_ ) std::cout << "done." << std::endl;
+        } catch (std::runtime_error &e) {
+          std::cerr << e.what() << std::endl;
+        }
+      }
     }
   }
 
@@ -921,14 +1038,14 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   RunTypeDef rundef;
 
-  rundef.setRunType( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_]  );
+  rundef.setRunType( this->getRunType() );
 
   RunTag runtag;
 
   runtag.setLocationDef(locdef);
   runtag.setRunTypeDef(rundef);
 
-  runtag.setGeneralTag( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] );
+  runtag.setGeneralTag( this->getRunType() );
 
   // fetch the RunIOV from the DB
 
@@ -936,13 +1053,13 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Fetching RunIOV ... " << flush;
+      if ( verbose_ ) std::cout << "Fetching RunIOV ..." << std::endl;
 //      runiov_ = econn->fetchRunIOV(&runtag, run_);
       runiov_ = econn->fetchRunIOV(location_, run_);
-      cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
       foundRunIOV = true;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
       foundRunIOV = false;
     }
   }
@@ -961,19 +1078,21 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
     if ( econn ) {
       try {
-        cout << "Inserting RunIOV ... " << flush;
+        if ( verbose_ ) std::cout << "Inserting RunIOV ..." << std::endl;
         econn->insertRunIOV(&runiov_);
-        cout << "done." << endl;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+//        runiov_ = econn->fetchRunIOV(&runtag, run_);
+        runiov_ = econn->fetchRunIOV(location_, run_);
+        if ( verbose_ ) std::cout << "done." << std::endl;
+      } catch (std::runtime_error &e) {
+        std::cerr << e.what() << std::endl;
         try {
-          cout << "Fetching RunIOV (again) ... " << flush;
+          if ( verbose_ ) std::cout << "Fetching RunIOV (again) ..." << std::endl;
 //          runiov_ = econn->fetchRunIOV(&runtag, run_);
           runiov_ = econn->fetchRunIOV(location_, run_);
-          cout << "done." << endl;
+          if ( verbose_ ) std::cout << "done." << std::endl;
           foundRunIOV = true;
-        } catch (runtime_error &e) {
-          cerr << e.what() << endl;
+        } catch (std::runtime_error &e) {
+          std::cerr << e.what() << std::endl;
           foundRunIOV = false;
         }
       }
@@ -983,67 +1102,56 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   // end - setup the RunIOV (on behalf of the DAQ)
 
-  string st = runiov_.getRunTag().getRunTypeDef().getRunType();
-  if ( st == "UNKNOWN" ) runtype_ = -1;
-  else for ( unsigned int i=0; i<runTypes_.size(); i++ ) if ( st == runTypes_[i] ) runtype_ = i;
-
-  cout << endl;
-  cout << "=============RunIOV:" << endl;
-  cout << "Run Number:         " << runiov_.getRunNumber() << endl;
-  cout << "Run Start:          " << runiov_.getRunStart().str() << endl;
-  cout << "Run End:            " << runiov_.getRunEnd().str() << endl;
-  cout << "====================" << endl;
-  cout << endl;
-  cout << "=============RunTag:" << endl;
-  cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << endl;
-  cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << endl;
-  cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
-  cout << "====================" << endl;
-  cout << endl;
-
-  if ( econn ) {
-    try {
-      std::cout << "Fetching EcalLogicID vectors..." << std::flush;
-      LogicID::init( econn );
-      std::cout << "done." << std::endl;
-    } catch( std::runtime_error &e ) {
-      std::cerr << e.what() << std::endl;
-    }
+  if ( verbose_ ) {
+    std::cout << std::endl;
+    std::cout << "=============RunIOV:" << std::endl;
+    std::cout << "Run Number:         " << runiov_.getRunNumber() << std::endl;
+    std::cout << "Run Start:          " << runiov_.getRunStart().str() << std::endl;
+    std::cout << "Run End:            " << runiov_.getRunEnd().str() << std::endl;
+    std::cout << "====================" << std::endl;
+    std::cout << std::endl;
+    std::cout << "=============RunTag:" << std::endl;
+    std::cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << std::endl;
+    std::cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << std::endl;
+    std::cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << std::endl;
+    std::cout << "====================" << std::endl;
+    std::cout << std::endl;
   }
 
-  if ( maskFile_.size() != 0 ) {
-    try {
-      cout << "Fetching masked channels from file ... " << flush;
-      EcalErrorMask::readFile(maskFile_, verbose_);
-      cout << "done." << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
+  std::string rt = runiov_.getRunTag().getRunTypeDef().getRunType();
+  if ( strcmp(rt.c_str(), "UNKNOWN") == 0 ) {
+    runType_ = -1;
   } else {
-    if ( econn ) {
-      try {
-	cout << "Fetching masked channels from DB ... " << flush;
-	EcalErrorMask::readDB(econn, &runiov_);
-	cout << "done." << endl;
-      } catch (runtime_error &e) {
-	cerr << e.what() << endl;
+    for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
+      if ( strcmp(rt.c_str(), runTypes_[i].c_str()) == 0 ) {
+        if ( runType_ != int(i) ) {
+          if ( verbose_ ) {
+            std::cout << std::endl;
+            std::cout << "Fixing Run Type to: " << runTypes_[i] << std::endl;
+            std::cout << std::endl;
+          }
+          runType_ = i;
+        }
+        break;
       }
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   if ( econn ) {
     try {
-      cout << "Closing DB connection ..." << endl;
+      if ( verbose_ ) std::cout << "Closing DB connection ..." << std::endl;
       delete econn;
       econn = 0;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
     }
   }
+#endif
 
-  cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
 }
 
@@ -1051,16 +1159,27 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   subrun_++;
 
+#ifdef WITH_ECAL_COND_DB
   EcalCondDBInterface* econn;
 
   econn = 0;
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection ..." << endl;
-      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      if ( verbose_ ) std::cout << "Opening DB connection with TNS_ADMIN ..." << std::endl;
+      econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
+      if ( verbose_ ) std::cout << "done." << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
+      if ( dbHostName_.size() != 0 ) {
+        try {
+          if ( verbose_ ) std::cout << "Opening DB connection without TNS_ADMIN ..." << std::endl;
+          econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+          if ( verbose_ ) std::cout << "done." << std::endl;
+        } catch (std::runtime_error &e) {
+          std::cerr << e.what() << std::endl;
+        }
+      }
     }
   }
 
@@ -1071,71 +1190,130 @@ void EcalEndcapMonitorClient::writeDb(void) {
   MonRunTag montag;
 
   montag.setMonVersionDef(monverdef);
-  montag.setGeneralTag("CMSSW");
+  montag.setGeneralTag(dbTagName_);
 
   Tm startSubRun;
 
   startSubRun.setToCurrentGMTime();
 
-  // setup the MonIOV
+  // fetch the MonIOV from the DB
 
-  moniov_.setRunIOV(runiov_);
-  moniov_.setSubRunNumber(subrun_);
+  bool foundMonIOV = false;
 
-  if ( enableMonitorDaemon_ ) {
-    moniov_.setSubRunStart(startSubRun);
-  } else {
-    moniov_.setSubRunStart(runiov_.getRunStart());
+  if ( econn ) {
+    try {
+      if ( verbose_ ) std::cout << "Fetching MonIOV ..." << std::endl;
+      RunTag runtag = runiov_.getRunTag();
+      moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
+      if ( verbose_ ) std::cout << "done." << std::endl;
+      foundMonIOV = true;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
+      foundMonIOV = false;
+    }
   }
 
-  moniov_.setMonRunTag(montag);
+  // begin - setup the MonIOV
 
-  cout << endl;
-  cout << "==========MonRunIOV:" << endl;
-  cout << "SubRun Number:      " << moniov_.getSubRunNumber() << endl;
-  cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << endl;
-  cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << endl;
-  cout << "====================" << endl;
-  cout << endl;
-  cout << "==========MonRunTag:" << endl;
-  cout << "GeneralTag:         " << moniov_.getMonRunTag().getGeneralTag() << endl;
-  cout << "Monitoring Ver:     " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion() << endl;
-  cout << "====================" << endl;
-  cout << endl;
+  if ( !foundMonIOV ) {
+
+    moniov_.setRunIOV(runiov_);
+    moniov_.setSubRunNumber(subrun_);
+
+    if ( subrun_ > 1 ) {
+      moniov_.setSubRunStart(startSubRun);
+    } else {
+      moniov_.setSubRunStart(runiov_.getRunStart());
+    }
+
+    moniov_.setMonRunTag(montag);
+
+    if ( econn ) {
+      try {
+        if ( verbose_ ) std::cout << "Inserting MonIOV ..." << std::endl;
+        econn->insertMonRunIOV(&moniov_);
+        RunTag runtag = runiov_.getRunTag();
+        moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
+        if ( verbose_ ) std::cout << "done." << std::endl;
+      } catch (std::runtime_error &e) {
+        std::cerr << e.what() << std::endl;
+        try {
+          if ( verbose_ ) std::cout << "Fetching MonIOV (again) ..." << std::endl;
+          RunTag runtag = runiov_.getRunTag();
+          moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
+          if ( verbose_ ) std::cout << "done." << std::endl;
+          foundMonIOV = true;
+        } catch (std::runtime_error &e) {
+          std::cerr << e.what() << std::endl;
+          foundMonIOV = false;
+        }
+      }
+    }
+
+  }
+
+  // end - setup the MonIOV
+
+  if ( verbose_ ) {
+    std::cout << std::endl;
+    std::cout << "==========MonRunIOV:" << std::endl;
+    std::cout << "SubRun Number:      " << moniov_.getSubRunNumber() << std::endl;
+    std::cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << std::endl;
+    std::cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << std::endl;
+    std::cout << "====================" << std::endl;
+    std::cout << std::endl;
+    std::cout << "==========MonRunTag:" << std::endl;
+    std::cout << "GeneralTag:         " << moniov_.getMonRunTag().getGeneralTag() << std::endl;
+    std::cout << "Monitoring Ver:     " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion() << std::endl;
+    std::cout << "====================" << std::endl;
+    std::cout << std::endl;
+  }
 
   int taskl = 0x0;
   int tasko = 0x0;
 
-  for ( int j = 0; j<int(clients_.size()); ++j ) {
-    bool written; written = false;
-    for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-        if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
-        if ( clientNames_[j] == "Led" && h_->GetBinContent(EcalDCCHeaderBlock::LED_STD+1) == 0 ) continue;
-        written = true;
-        taskl |= 0x1 << j;
-        cout << endl;
-        cout << " Writing " << clientNames_[j] << " results to DB " << endl;
-        cout << endl;
-        if ( clients_[j]->writeDb(econn, &runiov_, &moniov_) ) {
-          tasko |= 0x1 << j;
+  for ( int i=0; i<int(clients_.size()); i++ ) {
+    bool done = false;
+    for ( std::multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+      if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != EcalDCCHeaderBlock::COSMIC && runType_ != EcalDCCHeaderBlock::COSMICS_LOCAL && runType_ != EcalDCCHeaderBlock::COSMICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_LOCAL && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != EcalDCCHeaderBlock::LASER_STD && runType_ != EcalDCCHeaderBlock::LASER_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Led") == 0 && runType_ != EcalDCCHeaderBlock::LED_STD && runType_ != EcalDCCHeaderBlock::LED_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != EcalDCCHeaderBlock::PEDESTAL_STD && runType_ != EcalDCCHeaderBlock::PEDESTAL_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != EcalDCCHeaderBlock::TESTPULSE_MGPA && runType_ != EcalDCCHeaderBlock::TESTPULSE_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
+        done = true;
+        if ( verbose_ ) {
+          if ( econn ) {
+            std::cout << " Writing " << clientsNames_[i] << " results to DB " << std::endl;
+            std::cout << std::endl;
+          }
+        }
+        bool status;
+        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, status) ) {
+          taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
+          if ( status ) {
+            tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
+          }
         } else {
-          tasko |= 0x0 << j;
+          tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
         }
       }
     }
-    if ( ((taskl >> j) & 0x1) ) {
-      cout << endl;
-      cout << " Task output for " << clientNames_[j] << " = " << ((tasko >> j) & 0x1) << endl;
-      cout << endl;
+    if ( ((taskl >> clientsStatus_[clientsNames_[i]]) & 0x1) ) {
+      if ( verbose_ ) {
+        std::cout << " Task output for " << clientsNames_[i] << " = "
+             << ((tasko >> clientsStatus_[clientsNames_[i]]) & 0x1) << std::endl;
+        std::cout << std::endl;
+      }
     }
   }
 
-  summaryClient_->writeDb(econn, &runiov_, &moniov_);
+  bool status;
+  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, status);
 
   EcalLogicID ecid;
   MonRunDat md;
-  map<EcalLogicID, MonRunDat> dataset;
+  std::map<EcalLogicID, MonRunDat> dataset;
 
   MonRunOutcomeDef monRunOutcomeDef;
 
@@ -1143,85 +1321,85 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   float nevt = -1.;
 
-  if ( h_ ) nevt = h_->GetEntries();
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   md.setNumEvents(int(nevt));
   md.setMonRunOutcomeDef(monRunOutcomeDef);
 
-  if ( outputFile_.size() != 0 ) {
-    string fileName = outputFile_;
-    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
-      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
-        char tmp[10];
-        if ( run_ != -1 ) {
-          sprintf(tmp,"%09d", run_);
-        } else {
-          sprintf(tmp,"%09d", 0);
-        }
-        fileName.replace(i, 5, tmp);
-      }
-    }
-    md.setRootfileName(fileName);
-  }
+//  string fileName = "";
+//  md.setRootfileName(fileName);
 
   md.setTaskList(taskl);
   md.setTaskOutcome(tasko);
 
   if ( econn ) {
     try {
-      ecid = LogicID::getEcalLogicID("ECAL");
+      ecid = LogicID::getEcalLogicID("EE");
       dataset[ecid] = md;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
     }
   }
 
   if ( econn ) {
     try {
-      cout << "Inserting MonRunDat ... " << flush;
+      if ( verbose_ ) std::cout << "Inserting MonRunDat ..." << std::endl;
       econn->insertDataSet(&dataset, &moniov_);
-      cout << "done." << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
     }
   }
 
   if ( econn ) {
     try {
-      cout << "Closing DB connection ..." << endl;
+      if ( verbose_ ) std::cout << "Closing DB connection ..." << std::endl;
       delete econn;
       econn = 0;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
     }
   }
+#endif
 
-  cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
 }
 
 void EcalEndcapMonitorClient::endRunDb(void) {
 
+#ifdef WITH_ECAL_COND_DB
   EcalCondDBInterface* econn;
 
   econn = 0;
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection ..." << endl;
-      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      if ( verbose_ ) std::cout << "Opening DB connection with TNS_ADMIN ..." << std::endl;
+      econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
+      if ( verbose_ ) std::cout << "done." << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
+      if ( dbHostName_.size() != 0 ) {
+        try {
+          if ( verbose_ ) std::cout << "Opening DB connection without TNS_ADMIN ..." << std::endl;
+          econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+          if ( verbose_ ) std::cout << "done." << std::endl;
+        } catch (std::runtime_error &e) {
+          std::cerr << e.what() << std::endl;
+        }
+      }
     }
   }
 
   EcalLogicID ecid;
   RunDat rd;
-  map<EcalLogicID, RunDat> dataset;
+  std::map<EcalLogicID, RunDat> dataset;
 
   float nevt = -1.;
 
-  if ( h_ ) nevt = h_->GetEntries();
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   rd.setNumEvents(int(nevt));
 
@@ -1231,12 +1409,12 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Fetching RunDat ... " << flush;
+      if ( verbose_ ) std::cout << "Fetching RunDat ..." << std::endl;
       econn->fetchDataSet(&dataset, &runiov_);
-      cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
       foundRunDat = true;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
       foundRunDat = false;
     }
   }
@@ -1247,20 +1425,20 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
     if ( econn ) {
       try {
-        ecid = LogicID::getEcalLogicID("ECAL");
+        ecid = LogicID::getEcalLogicID("EE");
         dataset[ecid] = rd;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+      } catch (std::runtime_error &e) {
+        std::cerr << e.what() << std::endl;
       }
     }
 
     if ( econn ) {
       try {
-        cout << "Inserting RunDat ... " << flush;
+        if ( verbose_ ) std::cout << "Inserting RunDat ..." << std::endl;
         econn->insertDataSet(&dataset, &runiov_);
-        cout << "done." << endl;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+        if ( verbose_ ) std::cout << "done." << std::endl;
+      } catch (std::runtime_error &e) {
+        std::cerr << e.what() << std::endl;
       }
     }
 
@@ -1270,232 +1448,123 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Closing DB connection ..." << endl;
+      if ( verbose_ ) std::cout << "Closing DB connection ..." << std::endl;
       delete econn;
       econn = 0;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
     }
   }
+#endif
 
 }
 
-void EcalEndcapMonitorClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: subscribe" << endl;
-
-  mui_->subscribe("*/FU0_is_done");
-  mui_->subscribe("*/FU0_is_dead");
-
-  mui_->subscribe("*/EcalEndcap/EcalInfo/STATUS");
-  mui_->subscribe("*/EcalEndcap/EcalInfo/RUN");
-  mui_->subscribe("*/EcalEndcap/EcalInfo/EVT");
-  mui_->subscribe("*/EcalEndcap/EcalInfo/EVTTYPE");
-  mui_->subscribe("*/EcalEndcap/EcalInfo/RUNTYPE");
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EcalEndcapMonitorClient: collate" << endl;
-
-    Char_t histo[200];
-
-    sprintf(histo, "EVTTYPE");
-    me_h_ = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EcalInfo");
-    sprintf(histo, "*/EcalEndcap/EcalInfo/EVTTYPE");
-    mui_->add(me_h_, histo);
-
-  }
-
-}
-
-void EcalEndcapMonitorClient::subscribeNew(void){
-
-  mui_->subscribeNew("*/FU0_is_done");
-  mui_->subscribeNew("*/FU0_is_dead");
-
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/STATUS");
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/RUN");
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/EVT");
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/EVTTYPE");
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/RUNTYPE");
-
-}
-
-void EcalEndcapMonitorClient::unsubscribe(void) {
-
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EcalEndcapMonitorClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      mui_->removeCollate(me_h_);
-
-    }
-
-  }
-
-  mui_->unsubscribe("*/FU0_is_done");
-  mui_->unsubscribe("*/FU0_is_dead");
-
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/STATUS");
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/RUN");
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/EVT");
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/EVTTYPE");
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/RUNTYPE");
-
-}
-
-void EcalEndcapMonitorClient::softReset(void) {
-
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool done; done = false;
-    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !done ) { done = true; clients_[i]->softReset(); }
-    }
-  }
-
-  summaryClient_->softReset();
-
-}
-
-void EcalEndcapMonitorClient::analyze(void){
+void EcalEndcapMonitorClient::analyze(void) {
 
   current_time_ = time(NULL);
 
   ievt_++;
   jevt_++;
 
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
-
-  // # of full monitoring cycles processed
-  int updates = mui_->getNumUpdates();
-
-  if ( enableStateMachine_ ) updates = -1;
-
-  if ( verbose_ ) cout << " updates = " << updates << endl;
-
-  // run QTs on MEs updated during last cycle (offline mode)
-  if ( ! enableStateMachine_ ) {
-    if ( enableQT_ ) mui_->runQTests();
-  }
-
-  // update MEs (online mode)
-  if ( ! enableStateMachine_ ) {
-    mui_->doMonitoring();
-  }
-
-  Char_t histo[200];
+  if ( debug_ ) std::cout << "EcalEndcapMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
 
   MonitorElement* me;
-  string s;
+  std::string s;
 
-  bool update = false;
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/STATUS");
+  if ( me ) {
+    status_ = "unknown";
+    s = me->valueString();
+    if ( strcmp(s.c_str(), "i=0") == 0 ) status_ = "begin-of-run";
+    if ( strcmp(s.c_str(), "i=1") == 0 ) status_ = "running";
+    if ( strcmp(s.c_str(), "i=2") == 0 ) status_ = "end-of-run";
+    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/STATUS'" << std::endl;
+  }
 
-  if ( updates != last_update_ || updates == -1 || forced_update_ ) {
-
-    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/STATUS").c_str());
-    me = mui_->get(histo);
-    if ( me ) {
-      s = me->valueString();
-      status_ = "unknown";
-      if ( s.substr(2,1) == "0" ) status_ = "begin-of-run";
-      if ( s.substr(2,1) == "1" ) status_ = "running";
-      if ( s.substr(2,1) == "2" ) status_ = "end-of-run";
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    }
-
-    if ( inputFile_.size() != 0 ) {
-      if ( ievt_ == 1 ) {
-        cout << endl;
-        cout << " Reading DQM from file, forcing 'begin-of-run'" << endl;
-        cout << endl;
-        status_ = "begin-of-run";
+  if ( inputFile_.size() != 0 ) {
+    if ( ievt_ == 1 ) {
+      if ( verbose_ ) {
+        std::cout << std::endl;
+        std::cout << " Reading DQM from file, forcing 'begin-of-run'" << std::endl;
+        std::cout << std::endl;
       }
+      status_ = "begin-of-run";
     }
+  }
 
-    int ecal_run = -1;
-    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUN").c_str());
-    me = mui_->get(histo);
-    if ( me ) {
-      s = me->valueString();
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_run);
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    }
+  int ecal_run = -1;
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/RUN");
+  if ( me ) {
+    s = me->valueString();
+    sscanf(s.c_str(), "i=%d", &ecal_run);
+    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/RUN'" << std::endl;
+  }
 
-    int ecal_evt = -1;
-    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVT").c_str());
-    me = mui_->get(histo);
-    if ( me ) {
-      s = me->valueString();
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_evt);
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    }
+  int ecal_evt = -1;
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/EVT");
+  if ( me ) {
+    s = me->valueString();
+    sscanf(s.c_str(), "i=%d", &ecal_evt);
+    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/EVT'" << std::endl;
+  }
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EcalInfo/EVTTYPE");
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVTTYPE").c_str());
-    }
-    me = mui_->get(histo);
-    h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
+  h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUNTYPE").c_str());
-    me = mui_->get(histo);
-    if ( me ) {
-      s = me->valueString();
-      runtype_ = atoi(s.substr(2,s.size()-2).c_str());
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    }
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/RUNTYPE");
+  if ( me ) {
+    s = me->valueString();
+    sscanf(s.c_str(), "i=%d", &evtType_);
+    if ( runType_ == -1 ) runType_ = evtType_;
+    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/RUNTYPE' " << s << std::endl;
+  }
 
-    if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+  // if the run number from the Event is less than zero,
+  // use the run number from the ECAL DCC header
+  if ( run_ <= 0 ) run_ = ecal_run;
 
-      cout << " RUN status = \"" << status_ << "\"" << endl;
+  if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
+    if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
+  }
 
-      cout << "   CMS  run/event = " << run_ << "/" << evt_ << endl;
+  bool update = ( forced_update_                    ) ||
+                ( prescaleFactor_ != 1              ) ||
+                ( jevt_ <   10                      ) ||
+                ( jevt_ <  100 && jevt_ %   10 == 0 ) ||
+                ( jevt_ < 1000 && jevt_ %  100 == 0 ) ||
+                (                 jevt_ % 1000 == 0 );
 
-      cout << "   ECAL run/event = " << ecal_run << "/" << ecal_evt << endl;
+  if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
-      cout << "   ECAL location = " << location_ << endl;
-
-      cout << "   ECAL run ( event ) type = " << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) << flush;
+    if ( verbose_ ) {
+      std::cout << " RUN status = \"" << status_ << "\"" << std::endl;
+      std::cout << "   CMS run/event number = " << run_ << "/" << evt_ << std::endl;
+      std::cout << "   EE run/event number = " << ecal_run << "/" << ecal_evt << std::endl;
+      std::cout << "   EE location = " << location_ << std::endl;
+      std::cout << "   EE run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << std::flush;
 
       if ( h_ ) {
-        if ( h_->GetEntries() != 0 ) {
-          cout << " ( " << flush;
-          for ( int i=0; i<int(runTypes_.size()); ++i ) {
-            if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(i+1) != 0 ) {
-              string s = runTypes_[i];
+        if ( h_->GetSumOfWeights() != 0 ) {
+          std::cout << " ( " << std::flush;
+          for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
+            if ( strcmp(runTypes_[i].c_str(), "UNKNOWN") != 0 && h_->GetBinContent(2+i) != 0 ) {
+              std::string s = runTypes_[i];
               transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
-              cout << s << " ";
+              std::cout << s << " ";
             }
           }
-          cout << ")" << flush;
+          std::cout << ")" << std::flush;
         }
       }
-      cout << endl;
-
+      std::cout << std::endl;
     }
-
-    // if the run number from the Event is less than zero,
-    // use the run number from the ECAL DCC header
-    if ( run_ <= 0 ) run_ = ecal_run;
-
-    update = true;
-
-    last_update_ = updates;
-
-    last_jevt_ = jevt_;
-
-    if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
 
   }
 
-  if ( status_ == "begin-of-run" ) {
+  if ( strcmp(status_.c_str(), "begin-of-run") == 0 ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
       if ( ! begin_run_ ) {
 
@@ -1508,87 +1577,68 @@ void EcalEndcapMonitorClient::analyze(void){
 
   }
 
-  if ( status_ == "begin-of-run" || status_ == "running" || status_ == "end-of-run" ) {
+  if ( strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "running") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
     if ( begin_run_ && ! end_run_ ) {
 
-      if ( ( update && ( jevt_ < 10 || jevt_ % 100 == 0 ) ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+      bool update = ( forced_update_                      ) ||
+                    ( prescaleFactor_ != 1                ) ||
+                    ( jevt_ <     3                       ) ||
+                    ( jevt_ <  1000 && jevt_ %   100 == 0 ) ||
+                    ( jevt_ < 10000 && jevt_ %  1000 == 0 ) ||
+                    (                  jevt_ % 10000 == 0 );
+
+      if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
-          bool analyzed; analyzed = false;
-          for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-            if ( runtype_ != -1 && runtype_ == (*j).second && !analyzed ) { analyzed = true; clients_[i]->analyze(); }
+          bool done = false;
+          for ( std::multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+            if ( runType_ != -1 && runType_ == (*j).second && !done ) {
+              done = true;
+              clients_[i]->analyze();
+            }
           }
         }
 
-        summaryClient_->analyze();
-
-        if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
-
-          // run QTs on local MEs, updated in analyze()
-          if ( ! enableStateMachine_ ) {
-            if ( enableQT_ ) mui_->runQTests();
-          }
-
-          // update MEs [again, just to silence a warning]
-          if ( ! enableStateMachine_ ) {
-            mui_->doMonitoring();
-          }
-
-        }
-
-      }
-
-      if ( status_ == "end-of-run" || forced_update_ ) {
-
-        if ( enableQT_ ) {
-
-          cout << endl;
-          switch ( mui_->getSystemStatus() ) {
-            case dqm::qstatus::ERROR:
-              cout << " Error(s)";
-              break;
-            case dqm::qstatus::WARNING:
-              cout << " Warning(s)";
-              break;
-            case dqm::qstatus::OTHER:
-              cout << " Some tests did not run;";
-              break;
-            default:
-              cout << " No problems";
-          }
-          cout << " reported after running the quality tests" << endl;
-          cout << endl;
-
-        }
+        if ( summaryClient_ ) summaryClient_->analyze();
 
       }
 
       forced_update_ = false;
 
-      if ( enableSubRunHtml_ ) {
-        if ( (current_time_ - last_time_html_) > 60 * htmlRefreshTime_ ) {
-          last_time_html_ = current_time_;
-          this->htmlOutput( true );
+      bool reset = false;
+
+      if ( resetFile_.size() != 0 ) {
+        if ( access(resetFile_.c_str(), W_OK) == 0 ) {
+          if ( unlink(resetFile_.c_str()) == 0 ) {
+            reset |= true;
+          }
         }
       }
 
-      if ( enableSubRunDb_ ) {
-        if ( (current_time_ - last_time_db_) > 60 * dbRefreshTime_ ) {
-          if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
-               runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
-               runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
-          last_time_db_ = current_time_;
-        }
+      if ( dbUpdateTime_ > 0 ) {
+        reset |= (current_time_ - last_time_reset_) > 60 * dbUpdateTime_;
+      }
+
+      if ( reset ) {
+        if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
+             runType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+             runType_ == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+             runType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+             runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
+             runType_ == EcalDCCHeaderBlock::BEAMH2 ||
+             runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+        this->softReset(true);
+        last_time_reset_ = current_time_;
       }
 
     }
 
   }
 
-  if ( status_ == "end-of-run" ) {
+  if ( strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
       if ( begin_run_ && ! end_run_ ) {
 
@@ -1603,42 +1653,26 @@ void EcalEndcapMonitorClient::analyze(void){
 
   // BEGIN: run-time fixes for missing state transitions
 
-  // too many 'unknown' states
-
-  if ( status_ == "unknown" ) {
-
-    if ( update ) unknowns_++;
-
-    if ( unknowns_ >= 50 ) {
-
-      cout << endl;
-      cout << "Too many 'unknown' states ..." << endl;
-      cout << endl;
-
-      if ( enableExit_ ) throw exception();
-
-    }
-
-  }
-
   // run number transition
 
-  if ( status_ == "running" ) {
+  if ( strcmp(status_.c_str(), "running") == 0 ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
       if ( ! mergeRuns_ ) {
 
         int new_run_ = run_;
         int old_run_ = last_run_;
-            
+
         if ( new_run_ != old_run_ ) {
 
           if ( begin_run_ && ! end_run_ ) {
 
-            cout << endl;
-            cout << " Old run has finished, issuing endRun() ... " << endl;
-            cout << endl;
+            if ( verbose_ ) {
+              std::cout << std::endl;
+              std::cout << " Old run has finished, issuing endRun() ... " << std::endl;
+              std::cout << std::endl;
+            }
 
             // end old_run_
             run_ = old_run_;
@@ -1650,9 +1684,11 @@ void EcalEndcapMonitorClient::analyze(void){
 
           if ( ! begin_run_ ) {
 
-            cout << endl;
-            cout << " New run has started, issuing beginRun() ... " << endl;
-            cout << endl;
+            if ( verbose_ ) {
+              std::cout << std::endl;
+              std::cout << " New run has started, issuing beginRun() ... " << std::endl;
+              std::cout << std::endl;
+            }
 
             // start new_run_
             run_ = new_run_;
@@ -1672,17 +1708,19 @@ void EcalEndcapMonitorClient::analyze(void){
 
   // 'running' state without a previous 'begin-of-run' state
 
-  if ( status_ == "running" ) {
+  if ( strcmp(status_.c_str(), "running") == 0 ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
       if ( ! forced_status_ ) {
 
         if ( ! begin_run_ ) {
 
-          cout << endl;
-          cout << "Forcing beginRun() ... NOW !" << endl;
-          cout << endl;
+          if ( verbose_ ) {
+            std::cout << std::endl;
+            std::cout << "Forcing beginRun() ... NOW !" << std::endl;
+            std::cout << std::endl;
+          }
 
           forced_status_ = true;
           this->beginRun();
@@ -1695,78 +1733,24 @@ void EcalEndcapMonitorClient::analyze(void){
 
   }
 
-  // too many 'running' states without updates (obsolete)
+  // 'end-of-run' state without a previous 'begin-of-run' or 'running' state
 
-  if ( status_ == "running" ) {
+  if ( strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
       if ( ! forced_status_ ) {
 
-        if ( begin_run_ && ! end_run_ ) {
+        if ( ! begin_run_ ) {
 
-          if ( ( jevt_ - last_jevt_ ) > 200 ) {
-
-            cout << endl;
-            cout << "Forcing endRun() ... NOW !" << endl;
-            cout << endl;
-
-            forced_status_ = true;
-            this->endRun();
-
+          if ( verbose_ ) {
+            std::cout << std::endl;
+            std::cout << "Forcing beginRun() ... NOW !" << std::endl;
+            std::cout << std::endl;
           }
 
-        }
-
-      }
-
-    }
-
-  }
-
-  // missing 'end-of-run' state, use the 'FU_is_done' ME
-
-  if ( status_ == "running" ) {
-
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-      if ( begin_run_ && ! end_run_ ) {
-
-        me = mui_->get("Collector/FU0_is_done");
-        if ( me ) {
-
-          cout << endl;
-          cout << " Source FU0 is done, issuing endRun() ... " << endl;
-          cout << endl;
-
-          forced_status_ = false;
-          this->endRun();
-
-        }
-
-      }
-
-    }
-
-  }
-
-  // missing 'end-of-run' state, use the 'FU_is_dead' ME
-
-  if ( status_ == "running" ) {
-
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-      if ( begin_run_ && ! end_run_ ) {
-
-        me = mui_->get("Collector/FU0_is_dead");
-        if ( me ) {
-
-          cout << endl;
-          cout << " Source FU0 is dead, issuing endRun() ... " << endl;
-          cout << endl;
-
-          forced_status_ = false;
-          this->endRun();
+          forced_status_ = true;
+          this->beginRun();
 
         }
 
@@ -1778,259 +1762,45 @@ void EcalEndcapMonitorClient::analyze(void){
 
   // END: run-time fixes for missing state transitions
 
-  this->subscribeNew();
+}
 
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool subscribed; subscribed = false;
-    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
+void EcalEndcapMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& c) {
+
+  run_ = e.id().run();
+  evt_ = e.id().event();
+
+  if ( prescaleFactor_ > 0 ) {
+    if ( jevt_ % prescaleFactor_ == 0 ){
+      this->analyze();
     }
   }
 
-  summaryClient_->subscribeNew();
-
 }
 
-void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
+void EcalEndcapMonitorClient::softReset(bool flag) {
 
-  run_ = e.id().run();
-
-  evt_ = e.id().event();
- 
-  this->analyze(); 
-
-}
-
-void EcalEndcapMonitorClient::htmlOutput( bool current ){
-
-  time_t start = time(NULL);
-
-  cout << endl;
-  cout << "Preparing EcalEndcapMonitorClient html output ..." << endl;
-
-  char tmp[10];
-
-  sprintf(tmp, "%09d", run_);
-
-  string htmlDir;
-  if( current ) {
-    htmlDir = baseHtmlDir_ + "/current/";
-  }
-  else {
-    htmlDir = baseHtmlDir_ + "/" + tmp + "/";
-  }
-
-  system(("/bin/mkdir -p " + htmlDir).c_str());
-
-  ofstream htmlFile;
-
-  htmlFile.open((htmlDir + "index.html").c_str());
-
-  // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor:Executed Tasks index</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Executed tasks for run:&nbsp&nbsp&nbsp" << endl;
-  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << run_ <<"</span></h2> " << endl;
-  htmlFile << "<h2>Run type:&nbsp&nbsp&nbsp" << endl;
-  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) <<"</span></h2> " << endl;
-  htmlFile << "<hr>" << endl;
-
-  htmlFile << "<ul>" << endl;
-
-  string htmlName;
-
-  for ( int j = 0; j<int(clients_.size()); ++j ) {
-    bool written; written = false;
-    for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-        if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
-        if ( clientNames_[j] == "Led" && h_->GetBinContent(EcalDCCHeaderBlock::LED_STD+1) == 0 ) continue;
-        written = true;
-        htmlName = "EE" + clientNames_[j] + "Client.html";
-        clients_[j]->htmlOutput(run_, htmlDir, htmlName);
-        htmlFile << "<li><a href=\"" << htmlName << "\">Data " << clientNames_[j] << "</a></li>" << endl;
+  std::vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
+  std::vector<MonitorElement*>::const_iterator meitr;
+  for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
+    if ( !strncmp((*meitr)->getName().c_str(), "EE", 2)
+         && strncmp((*meitr)->getName().c_str(), "EETrend", 7)
+         && strncmp((*meitr)->getName().c_str(), "by lumi", 7) ) {
+      if ( flag ) {
+        dqmStore_->softReset(*meitr);
+      } else {
+        dqmStore_->disableSoftReset(*meitr);
       }
     }
   }
 
-  if ( superModules_.size() > 1 ) {
-
-    htmlName = "EESummaryClient.html";
-    summaryClient_->htmlOutput(run_, htmlDir, htmlName);
-    htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
-
-  }
-
-  htmlFile << "</ul>" << endl;
-
-  // html page footer
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
-
-  htmlFile.close();
-
-  cout << endl;
-
-  if( current ) {
-    time_t elapsed = time(NULL) - start;
-    std::cout << "==========> htmlOutput Elapsed Time: " << elapsed << std::endl;
-  }
-
-}
-
-void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
-
-  string path;
-  string mname;
-  
-  static bool autorefresh_ = false;
-  
-  try {
-  
-    cgicc::Cgicc cgi(in);
-
-    if ( xgi::Utils::hasFormElement(cgi,"autorefresh") ) {
-      autorefresh_ = xgi::Utils::getFormElement(cgi, "autorefresh")->getIntegerValue() != 0;
-    }
-
-    if ( xgi::Utils::hasFormElement(cgi,"module") ) {
-      mname = xgi::Utils::getFormElement(cgi, "module")->getValue();
-    }
-
-    cgicc::CgiEnvironment cgie(in);
-    path = cgie.getPathInfo() + "?" + cgie.getQueryString();
-
-  } catch (const std::exception & e) { }
-
-  *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << endl;
-  *out << cgicc::html().set("lang", "en").set("dir","ltr")           << endl;
-
-  *out << "<html>"                                                   << endl;
-
-  *out << "<head>"                                                   << endl;
-
-  *out << "<title>" << typeid(EcalEndcapMonitorClient).name()
-       << " MAIN</title>"                                            << endl;
-
-  if ( autorefresh_ ) {
-    *out << "<meta http-equiv=\"refresh\" content=\"3\">"            << endl;
-  }
-
-  *out << "</head>"                                                  << endl;
-
-  *out << "<body>"                                                   << endl;
-
-  *out << cgicc::form().set("method","GET").set("action", path )
-       << std::endl;
-  *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname)
-       << std::endl;
-  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1")
-       << std::endl;
-  *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
-       << std::endl;
-  *out << cgicc::form()                                              << endl;
-
-  *out << cgicc::h3( "EcalEndcapMonitorClient Status" ).set( "style", "font-family:arial" ) << endl;
-
-  *out << "<table style=\"font-family: arial\"><tr><td>" << endl;
-
-  *out << "<p style=\"font-family: arial\">"
-       << "<table border=1>"
-       << "<tr><th>Cycle</th><td align=right>" << this->getEvtPerJob();
-  int nevt = 0;
-  if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetEntries());
-  *out << "<tr><th>Event</th><td align=right>" << nevt
-       << "</td><tr><th>Run</th><td align=right>" << this->getRun()
-       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType()
-       << "</td></table></p>" << endl;
-
-  *out << "</td><td>" << endl;
-
-  *out << "<p style=\"font-family: arial\">"
-       << "<table border=1>"
-       << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << endl;
-  vector<string> runTypes = this->getRunTypes();
-  for( unsigned int i=0, j=0; i<runTypes.size(); i++ ) {
-    if ( runTypes[i] != "UNKNOWN" ) {
-      if ( j++%2 == 0 ) *out << "<tr>";
-      nevt = 0;
-      if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetBinContent(i+1));
-      *out << "<td>" << runTypes[i]
-           << "</td><td align=right>" << nevt << endl;
+  MonitorElement* me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
+  if ( me ) {
+    if ( flag ) {
+      dqmStore_->softReset(me);
+    } else {
+      dqmStore_->disableSoftReset(me);
     }
   }
-  *out << "</td></table></p>" << endl;
-
-  *out << "</td><tr><td colspan=2>" << endl;
-
-  *out << "<p style=\"font-family: arial\">"
-       << "<table border=1>"
-       << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
-  const vector<EEClient*> clients = this->getClients();
-  const vector<string> clientNames = this->getClientNames();
-  for( unsigned int i=0; i<clients.size(); i++ ) {
-    if ( clients[i] != 0 ) {
-      if ( i%2 == 0 ) *out << "<tr>";
-      *out << "<td>" << clientNames[i]
-           << "</td><td align=right>" << clients[i]->getEvtPerJob()
-           << "</td><td align=right>" << clients[i]->getEvtPerRun() << endl;
-    }
-  }
-  *out << "</td></table></p>" << endl;
-
-  *out << "</td><tr><td>" << endl;
-
-
-  *out << "<p style=\"font-family: arial\">"
-       << "<table border=1>"
-       << "<tr><th colspan=2>RunIOV</th>"
-       << "<tr><td>Run Number</td><td align=right> " << this->getRunIOV().getRunNumber()
-       << "</td><tr><td>Run Start</td><td align=right> " << this->getRunIOV().getRunStart().str()
-       << "</td><tr><td>Run End</td><td align=right> " << this->getRunIOV().getRunEnd().str()
-       << "</td></table></p>" << endl;
-
-  *out << "</td><td colsapn=2>" << endl;
-
-  *out << "<p style=\"font-family: arial\">"
-       << "<table border=1>"
-       << "<tr><th colspan=2>RunTag</th>"
-       << "<tr><td>GeneralTag</td><td align=right> " << this->getRunIOV().getRunTag().getGeneralTag()
-       << "</td><tr><td>Location</td><td align=right> " << this->getRunIOV().getRunTag().getLocationDef().getLocation()
-       << "</td><tr><td>Run Type</td><td align=right> " << this->getRunIOV().getRunTag().getRunTypeDef().getRunType()
-       << "</td></table></p>" << endl;
-
-  *out << "</td><tr><td>" << endl;
-
-  *out << "<p style=\"font-family: arial\">"
-       << "<table border=1>"
-       << "<tr><th colspan=2>MonRunIOV</th>"
-       << "<tr><td>SubRun Number</td><td align=right> " << this->getMonIOV().getSubRunNumber()
-       << "</td><tr><td>SubRun Start</td><td align=right> " << this->getMonIOV().getSubRunStart().str()
-       << "</td><tr><td>SubRun End</td><td align=right> " << this->getMonIOV().getSubRunEnd().str()
-       << "</td></table></p>" << endl;
-
-  *out << "</td><td colspan=2>" << endl;
-
-  *out << "<p style=\"font-family: arial\">"
-       << "<table border=1>"
-       << "<tr><th colspan=2>MonRunTag</th>"
-       << "<tr><td>GeneralTag</td><td align=right> " << this->getMonIOV().getMonRunTag().getGeneralTag()
-       << "</td><tr><td>Monitoring Version</td><td align=right> " << this->getMonIOV().getMonRunTag().getMonVersionDef().getMonitoringVersion()
-       << "</td></table></p>" << endl;
-
-  *out << "</td><table>" << endl;
-
-
-  *out << "</body>"                                                  << endl;
-
-  *out << "</html>"                                                  << endl;
 
 }
 

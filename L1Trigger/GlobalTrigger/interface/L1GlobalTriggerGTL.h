@@ -3,153 +3,148 @@
 
 /**
  * \class L1GlobalTriggerGTL
- * 
- * 
- * Description: Global Trigger Logic board.  
+ *
+ *
+ * Description: Global Trigger Logic board.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: M. Fierro            - HEPHY Vienna - ORCA version 
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
- * 
- * $Date:$
- * $Revision:$
+ *
+ * \author: M. Fierro            - HEPHY Vienna - ORCA version
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
+ *
  *
  */
 
 // system include files
 #include <bitset>
 #include <vector>
-#include <set>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
-
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
-class L1GlobalTrigger;
-class L1GlobalTriggerConditions;
-class L1GlobalTriggerConfig;
+class L1GlobalTriggerPSB;
+class L1GtTriggerMenu;
+class L1CaloGeometry;
+class L1MuTriggerScales;
+class L1GtEtaPhiConversions;
 
 // class declaration
-class L1GlobalTriggerGTL 
+class L1GlobalTriggerGTL
 {
 
 public:
 
-    // constructor
-    L1GlobalTriggerGTL(const L1GlobalTrigger&);
-    
+    // constructors
+    L1GlobalTriggerGTL();
+
     // destructor
     virtual ~L1GlobalTriggerGTL();
-    
-public:
-  
-    typedef unsigned int MuonDataWord;
-    
-    typedef std::vector<L1MuGMTCand*> GMTVector;
 
-    // TODO particleBlock: set of unsigned int instead of std::string?
-    typedef std::set<unsigned int> particleBlock; 
-//    typedef std::set<std::string> particleBlock; 
-
-    typedef std::vector<particleBlock> algoVector;
-
-    typedef std::vector<L1GlobalTriggerConditions*> conditions;
-
-    typedef std::vector<conditions*> conditionContainer;
-    
 public:
 
     /// receive data from Global Muon Trigger
-    void receiveData(edm::Event&, int iBxInEvent);
-    
+    void receiveGmtObjectData(
+        edm::Event&,
+        const edm::InputTag&, const int iBxInEvent,
+        const bool receiveMu, const int nrL1Mu);
+
+
+    /// initialize the class (mainly reserve)
+    void init(const int nrL1Mu, const int numberPhysTriggers);
+
     /// run the GTL
-    void run(int iBxInEvent);
-    
-    /// fill object map record
-    const std::vector<L1GlobalTriggerObjectMap>* objectMap();
+    void run(edm::Event& iEvent, const edm::EventSetup& evSetup,
+        const L1GlobalTriggerPSB* ptrGtPSB, const bool produceL1GtObjectMapRecord,
+        const int iBxInEvent, std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
+        const unsigned int numberPhysTriggers,
+        const int nrL1Mu,
+        const int nrL1NoIsoEG,
+        const int nrL1IsoEG,
+        const int nrL1CenJet,
+        const int nrL1ForJet,
+        const int nrL1TauJet,
+        const int nrL1JetCounts,
+        const int ifMuEtaNumberBits,
+        const int ifCaloEtaNumberBits);
 
     /// clear GTL
-    void reset(); 
-    
+    void reset();
+
     /// print received Muon dataWord
-    void printGmtData(int iBxInEvent) const;
+    void printGmtData(const int iBxInEvent) const;
 
     /// return decision
-    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getDecisionWord() const { return m_gtlDecisionWord; }
-    
+    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getDecisionWord() const
+    {
+        return m_gtlDecisionWord;
+    }
+
     /// return algorithm OR decision
-    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getAlgorithmOR() const { return m_gtlAlgorithmOR; }
-    
-    /// return muon decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_MUON() const { return glt_cond[0]; }
+    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getAlgorithmOR() const
+    {
+        return m_gtlAlgorithmOR;
+    }
 
-    /// return electon/gamma decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_EG() const { return glt_cond[1]; }
+    /// return global muon trigger candidate
+    inline const std::vector<const L1MuGMTCand*>* getCandL1Mu() const
+    {
+        return m_candL1Mu;
+    }
 
-    /// return isolated electron/gamma decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_IEG() const { return glt_cond[2]; }
-    
-    /// return central jet decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_CJET() const { return glt_cond[3]; }
-    
-    /// return forward jet decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_FJET() const { return glt_cond[4]; }
+public:
 
-    /// return tau jet decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_TJET() const { return glt_cond[5]; }
+    inline void setVerbosity(const int verbosity) {
+        m_verbosity = verbosity;
+    }
 
-    /// return total transverse energy decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_ETT() const { return glt_cond[6]; }
-
-    /// return missing transverse energy decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_ETM() const { return glt_cond[7]; }
-    
-    /// return hadron transverse energy decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_HTT() const { return glt_cond[8]; }
-
-    /// return jet counts decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_JC() const { return glt_cond[9]; }
-    
-// TODO un-comment if I decide to keep the MenuItem enum
-//    /// return decision
-//    inline const bool getDecision(L1GlobalTriggerSetup::MenuItem item) const { return m_gtlDecisionWord.element(item); }
-    
-    /// return global muon trigger candidate data words
-    const std::vector< MuonDataWord > getMuons() const;
-
-    /// return global muon trigger candidate  
-    inline const GMTVector* getMuonCandidates() const { return glt_muonCand; }
-    
 private:
 
-    const L1GlobalTrigger& m_GT;
+    // cached stuff
 
-    GMTVector* glt_muonCand;
-    
+    // trigger menu
+    const L1GtTriggerMenu* m_l1GtMenu;
+    unsigned long long m_l1GtMenuCacheID;
+
+    // L1 scales (phi, eta) for Mu, Calo and EnergySum objects
+    const L1CaloGeometry* m_l1CaloGeometry;
+    unsigned long long m_l1CaloGeometryCacheID;
+
+    const L1MuTriggerScales* m_l1MuTriggerScales;
+    unsigned long long m_l1MuTriggerScalesCacheID;
+
+    // conversions for eta and phi
+    L1GtEtaPhiConversions* m_gtEtaPhiConversions;
+
+private:
+
+    std::vector<const L1MuGMTCand*>* m_candL1Mu;
+
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
 
-    std::bitset<L1GlobalTriggerSetup::MaxItem> glt_cond[9];
-    
-    std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> glt_generalAND;
-    
-    algoVector glt_algos;
+  // cache of maps
+  std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
+  
 
-    conditionContainer glt_particleConditions;
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
+
 
 };
 

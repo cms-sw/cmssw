@@ -1,0 +1,287 @@
+	    How the MessageService Sets Up the Module Name  
+	    ----------------------------------------------
+
+This document describes how the module name, and any suppression information,
+gets where the logger needs it, in response to some function in a module getting
+to the point where it is about to be called.   
+	    
+The key action in the MessageService itself is a sequence link
+
+    curr_module_ += ":";
+    curr_module_ += desc.moduleLabel();
+    //cache this value to improve performance based on profiling studies
+    descToCalcName_[&desc]=curr_module_;
+    messageDrop->moduleName = curr_module_;  
+    //...
+    messageDrop->debugEnabled = 
+    			debugEnabledModules_.count(desc.moduleLabel());
+   
+These are in mini-functions in MessageService/src/MessageLogger.cc,
+such as preModule.
+
+(Sometimes the module name is modified, as in:
+
+  MessageDrop::instance()->moduleName = curr_module_ + "{ctor}";  
+
+and we shall want to introduce some sort of consistancy on that.)
+
+Note that any function that tries to do this with a module must be
+supplied (in its signature) with const ModuleDescription & desc.
+
+preModule and its brethren are not names known to the framework.  They 
+become relevant because in the MessageLogger ctor we have lines like
+  iRegistry.watchPreModule(this,&MessageLogger::preModule);
+  iRegistry.watchPostModule(this,&MessageLogger::postModule);
+  iRegistry.watchPreModuleConstruction(this,&MessageLogger::preModuleConstruction);
+  iRegistry.watchPostModuleConstruction(this,&MessageLogger::postModuleConstruction);
+These methodes of iRegistry are found in ActivityRegistry.h in the 
+ServiceRegistry package; the full set is shown in Appendix B.
+
+
+Meanwhile, the code for the module creates a class derived from
+EDAnalyzer (see EDAnalyzer.h in the Framework package).  
+
+This could,for different sorts of modules, have been
+  class EDAnalyzer;
+  class EDFilter;
+  class EDLooper;
+  class EDProducer;  
+and perhaps also
+  class OutputModule;  
+  class InputSource;
+
+See appendix A for details of module types other than EDAnalyzer.
+
+EDAnalyzer has the following virtual void functions:
+
+    virtual void analyze(Event const&, EventSetup const&) = 0;
+    virtual void beginJob(EventSetup const&){ beginJob(); } // deprecated
+    virtual void beginJob(){}
+    virtual void endJob(){}
+    virtual void beginRun(Run const&, EventSetup const&){}
+    virtual void endRun(Run const&, EventSetup const&){}
+    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
+    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
+    virtual void respondToOpenInputFile(FileBlock const& fb) {}
+    virtual void respondToCloseInputFile(FileBlock const& fb) {}
+    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
+    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+
+So, for example, in the course of each event, when the analysis path comes to
+this module, the analyze() method gets called by the framework.  But this is
+actually a sandwich of up to 2S+1 calls, including up to two for each service:
+
+a) If the service registers watchPreModule function, then that function is 
+   called. (In the MessageLogger, we register preModule in this way.)
+b) analyze() is called.
+c) If the service registers watchPostModule function, then that function is 
+   called. (In the MessageLogger, we register postModule in this way.)
+
+So for each of the "life-cycle-events", EITHER associated with a module OR
+independent of modules, we should do whatever is appropriate in terms of:
+1) Establishing the module name (for output in messages) 
+2) Establishing Run/Event
+3) Setting up the enablers, based either on module label OR on a generic 
+   for this life-cycle event
+4) In rare cases, special ML activity like triggering a summary
+
+We should establish these in the "pre" callback, and probably should 
+restore them in the "post" callback, although under the assumptions
+that we know all the cycle and handle each pre correctly, and that
+nothing "of interest" occurs in the frame work BETWEEN post this and pre
+that, we could take a shortcut and do without the post callbacks.  I
+should probably just make those conditional code.
+
+A few general routines should suffice:
+
+declareModule   (writtenName, label)
+declareRunEvent (string)
+declareRunEvent (EventID)
+
+-----------------------------------------------------------------
+
+Appendix A:  Other module types
+
+EDProducer has produce (...) instead of analyze.  EDFilter has filter(...).
+OutputModule has these plus 
+write(EventPrincipal const& e) pure virtual instead of analyze(), along with
+writeRun(RunPrincipal const& r) = 0;
+writeLuminosityBlock(LuminosityBlockPrincipal const& lb) =0
+and openFile(FileBlock const& fb) {}
+InputSource is somewhat different.
+
+and EDLooper has a slightly different set:
+    virtual void beginOfJob(const edm::EventSetup&); 
+    virtual void beginOfJob();
+    virtual void startingNewLoop(unsigned int ) = 0; 
+    virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) = 0; 
+    virtual Status endOfLoop(const edm::EventSetup&, unsigned int iCounter) = 0; 
+    virtual void endOfJob();
+
+---------------------------------------------
+
+Appendix B:  The service activities
+
+These are discerned from 
+
+The following activities have no arguments by the time the module-specific code 
+is reached: 
+:
+watchPostBeginJob  // after all modules have gotten their beginJob called  
+watchPostEndJob    // after all modules have gotten their endJob called
+watchJobFailure    // if event processing or end-of-job processing fails 
+                   // with an uncaught exception.
+watchPreSource     // before the source starts creating an Event
+watchPostSource    // after the source starts creating (sic) an Event 
+watchPreSourceLumi // before the source starts creating a Lumi
+watchPostSourceLumi// after the source starts creating (sic) a Lumi 
+watchPreSourceRun  // before the source starts creating a Run
+watchPostSourceRun // after the source starts creating (sic) a Run 
+watchPreOpenFile   // before the source opens a file
+watchPostOpenFile  // after the source opens a file
+watchPreCloseFile  // before the source closes a file
+watchPostCloseFile // after the source closes a file
+ 
+The following activities have one argument by the time the module-specific code 
+is reached. In each of these cases, that is a string const&.
+
+watchPrePathBeginRun  // before starting to process a Path for beginRun         
+watchPrePathEndRun    // before starting to process a Path for endRun         
+watchPrePathBeginLumi // before starting to process a Path for beginLumi         
+watchPrePathEndLumi   // before starting to process a Path for endLumi         
+watchPreProcessPath   // before starting to process a Path for an event
+
+The following activities have one argument by the time the module-specific code 
+is reached. In each of these cases, that is a  ModuleDescription const&.
+
+watchPreModuleConstruction  // before the module is constructed
+watchPostModuleConstruction // after the module has been constructed
+watchPreModuleBeginJob	    // before the module does beginJob
+watchPostModuleBeginJob	    // after the module ad done beginJob
+watchPreModuleEndJob	    // before the module does endJob
+watchPostModuleEndJob	    // after the module ad done endJob
+watchPreModule		    // before the module starts processing the Event
+watchPostModule		    // after the module finished processing the Event
+watchPreModuleBeginRun      // before the module starts processing beginRun
+watchPostModuleBeginRun     // after the module finished processing beginRun
+watchPreModuleEndRun        // before the module starts processing endRun
+watchPostModuleEndRun       // after the module finished processing endRun
+watchPreModuleBeginLumi     // before the module starts processing beginLumi
+watchPostModuleBeginLumi    // after the module finished processing beginLumi
+watchPreModuleEndLumi       // before the module starts processing endLumi
+watchPostModuleEndLumi      // after the module finished processing endLumi
+watchPreSourceConstruction  // before the source is constructed       
+watchPostSourceConstruction // after the source was constructed       
+
+:
+The following activities have two arguments by the time the module-specific code 
+is reached.  In each of these cases, we describe the 2 arguments:
+
+watchPreProcessEvent   // after the Event has been created by the InputSource 
+		       // but before any modules have seen the Event
+     		       // (EventID const&, Timestamp const&)
+watchPostProcessEvent  //  after all modules have finished processing the Event
+		       // (Event const&, EventSetup const&)
+watchPreBeginRun       // after the Run has been created by the InputSource 
+		       // but before any modules have seen the Run
+     		       // (RunID const&, Timestamp const&)
+watchPostBeginRun      //  after all modules have finished processing beginRun
+		       // (Run const&, EventSetup const&)
+watchPreEndRun         // before the endRun is processed 
+     		       // (RunID const&, Timestamp const&)
+watchPostEndRun        // after all modules have finished processing the Run
+		       // (Run const&, EventSetup const&)
+watchPreBeginLumi      // after the Lumi has been created by the InputSource 
+		       // but before any modules have seen the Lumi
+     		       // (LumionsityBlockID const&, Timestamp const&)
+watchPostBeginLumi     //  after all modules have finished processing beginLumi
+		       // (LumionsityBlock const&, EventSetup const&)
+watchPreEndLumi        // before the endLumi is processed 
+     		       // (LumionsityBlockID const&, Timestamp const&)
+watchPostEndLumi       // after all modules have finished processing the Lumi
+		       // (Run const&, EventSetup const&)
+watchPostProcessPath   // after all modules have finished for the Path for an event		       
+		       // (string const&, HLTPathStatus const&)
+watchPostPathBeginRun  // after all modules have finished for the Path for beginRun		       
+		       // (string const&, HLTPathStatus const&)
+watchPostPathEndRun    // after all modules have finished for the Path for endRun		       
+		       // (string const&, HLTPathStatus const&)		     
+watchPostPathBeginLumi // after all modules have finished for the Path for beginLumi		       
+		       // (string const&, HLTPathStatus const&)
+watchPostPathEndLumi   // after all modules have finished for the Path for endLumi		       
+		       // (string const&, HLTPathStatus const&)
+		     
+---------------------------------------------
+
+Appendix C:  Which service activities are currently dealt with in logger?
+
+Items marked * are dealt with thus far
+:
+Activities having no arguments in call: 
+
+watchPostBeginJob  *  "AfterBeginJob", Run/Event = BeforeEvents
+watchPostEndJob    *  ---, triggers MSqSUM
+watchJobFailure    *  "jobFailure" triggers MSqSUM
+watchPreSource     *  module label "source"; debug enabled based on "source"
+watchPostSource    *  "PostSource"; 
+watchPreSourceLumi *  module label "source"; debug enabled based on "source"
+watchPostSourceLumi*  "PostSource"; 
+watchPreSourceRun  *  module label "source"; debug enabled based on "source"
+watchPostSourceRun *  "PostSource"; 
+watchPreOpenFile   *  "file_open"; debug enabled based on "file_open"
+watchPostOpenFile  *  AfterFile
+watchPreCloseFile  *  "file_close"; debug enabled based on "file_close" 
+watchPostCloseFile *  AfterFile
+ 
+Activities having one argument in call, which is a string const& and is not
+the module name.  These need to leave RunEvent alone
+
+watchPrePathBeginRun  * RPath: the string         
+watchPrePathEndRun    * RPathEnd: the string        
+watchPrePathBeginLumi * LPath: the string    	    
+watchPrePathEndLumi   * LPathEnd: the string 	   
+watchPreProcessPath   * PreProcessPath: the string   
+
+
+Activities having one argument by the time the module-specific code 
+is reached. In each of these cases, that is a  ModuleDescription const&.
+
+watchPreModuleConstruction  * nominal + "ctor" (also validation check)
+watchPostModuleConstruction * "AfterModConstruction"
+watchPreModuleBeginJob	    * nominal + "@beginJob"    
+watchPostModuleBeginJob	    * "AfterModBeginJob"
+watchPreModuleEndJob	    * nominal + "@endJob"  
+watchPostModuleEndJob	    * "AfterModEndJob"
+watchPreModule		    * nominal
+watchPostModule		    * "PostModule"	    
+watchPreModuleBeginRun      * nominal + "@beginRun"   
+watchPostModuleBeginRun     * "AfterModBeginRun"
+watchPreModuleEndRun        * nominal + "@endRun"  
+watchPostModuleEndRun       * "AfterModEndRun"
+watchPreModuleBeginLumi     * nominal + "@beginLumi" 
+watchPostModuleBeginLumi    * "AfterModBeginLumi"
+watchPreModuleEndLumi       * nominal + "@endLumi"  
+watchPostModuleEndLumi      * "AfterModEndLumi"
+watchPreSourceConstruction  *  nominal  (also validation check) 
+watchPostSourceConstruction * "AfterSourceConstruction";       
+
+:
+Activities having two arguments by the time the module-specific code 
+is reached.  In each of these cases, we describe the 2 arguments:
+
+watchPreProcessEvent   * (preEventProcessing) sets Run/Event per EventID
+watchPostProcessEvent  * (postEventProcessing) Run/event = PostProcessEvents
+watchPreBeginRun       * sets Run/Event per RunID without any event
+watchPostBeginRun      * Run/event = PostBeginRun  
+watchPreEndRun         * Run/event just run per RunID
+watchPostEndRun        * Run/event = PostEndRun
+watchPreBeginLumi      * sets Run/Event per iID with Lumi instead of event 
+watchPostBeginLumi     * moduleName = PostBeginLumi
+watchPreEndLumi        * sets Run/Event per iID with Lumi instead of event 
+watchPostEndLumi       * Run/event = PostEndLumi
+watchPostProcessPath   * moduleName = PostProcessPath
+watchPostPathBeginRun  * Run/event = PostPathBeginRun 		       
+watchPostPathEndRun    * Run/event = PostPathEndRun	     
+watchPostPathBeginLumi * Run/event = PostPathBeginLumi
+watchPostPathEndLumi   * Run/event = PostPathEndLumi
+		     

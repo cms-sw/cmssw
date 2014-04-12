@@ -16,7 +16,6 @@ class RPCRoll : public GeomDetUnit{
   RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs);
   ~RPCRoll();
   const RPCRollSpecs* specs() const;
-  DetId geographicalId() const;
   RPCDetId id() const;
   const Topology& topology() const;
   const StripTopology& specificTopology() const;

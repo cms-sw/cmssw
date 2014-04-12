@@ -7,10 +7,10 @@
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
+#include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 class TrackDetMatchInfo {
  public:
    enum EnergyType { EcalRecHits, HcalRecHits, HORecHits, TowerTotal, TowerEcal, TowerHcal, TowerHO };
@@ -24,19 +24,25 @@ class TrackDetMatchInfo {
    /// ( not well defined for tracks originating away from IP)
    double coneEnergy( double dR, EnergyType );
    
-   /// Find detector elements with highest energy deposition
-   DetId findMaxDeposition( EnergyType );
-   
    /// get energy of the NxN shape (N = 2*gridSize + 1) around given detector element
    double nXnEnergy(const DetId&, EnergyType, int gridSize = 1);
    
    /// get energy of the NxN shape (N = 2*gridSize + 1) around track projection
    double nXnEnergy(EnergyType, int gridSize = 1);
 
+   /// Find detector elements with highest energy deposition
+   DetId findMaxDeposition( EnergyType );
+   DetId findMaxDeposition( EnergyType, int gridSize );
+   DetId findMaxDeposition( const DetId&, EnergyType, int gridSize );
+   
    /// Track position at different parts of the calorimeter
    math::XYZPoint trkGlobPosAtEcal;
    math::XYZPoint trkGlobPosAtHcal;
    math::XYZPoint trkGlobPosAtHO;
+   
+  GlobalVector trkMomAtEcal;
+  GlobalVector trkMomAtHcal;
+  GlobalVector trkMomAtHO;
    
    bool isGoodEcal;
    bool isGoodHcal;
@@ -45,16 +51,16 @@ class TrackDetMatchInfo {
    bool isGoodMuon;
    
    /// hits in the cone
-   std::vector<EcalRecHit> ecalRecHits;
-   std::vector<HBHERecHit> hcalRecHits;
-   std::vector<HORecHit>   hoRecHits;
-   std::vector<CaloTower>  towers;
+   std::vector<const EcalRecHit*> ecalRecHits;
+   std::vector<const HBHERecHit*> hcalRecHits;
+   std::vector<const HORecHit*>   hoRecHits;
+   std::vector<const CaloTower*>  towers;
 
    /// hits in detector elements crossed by a track
-   std::vector<EcalRecHit> crossedEcalRecHits;
-   std::vector<HBHERecHit> crossedHcalRecHits;
-   std::vector<HORecHit>   crossedHORecHits;
-   std::vector<CaloTower>  crossedTowers;
+   std::vector<const EcalRecHit*> crossedEcalRecHits;
+   std::vector<const HBHERecHit*> crossedHcalRecHits;
+   std::vector<const HORecHit*>   crossedHORecHits;
+   std::vector<const CaloTower*>  crossedTowers;
 
    /// detector elements crossed by a track 
    /// (regardless of whether energy was deposited or not)
@@ -62,8 +68,9 @@ class TrackDetMatchInfo {
    std::vector<DetId>      crossedHcalIds;
    std::vector<DetId>      crossedHOIds;
    std::vector<DetId>      crossedTowerIds;
+   std::vector<DetId>      crossedPreshowerIds;
    
-   std::vector<MuonChamberMatch> chambers;
+   std::vector<TAMuonChamberMatch> chambers;
 
    /// track info
    FreeTrajectoryState stateAtIP;

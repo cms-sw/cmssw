@@ -10,6 +10,9 @@
 //                      but not but a factor of 2**K
 //   06-05-16   mf      Added code to establish interval and to use skipped
 //			and interval when determinine in add() whehter to react
+//   06-05-19   wmtan   Bug fix.  skipped = 0, not skipped == 0.
+//			and interval when determinine in add() whehter to react
+//   09-04-15   wmtan   Use smart pointers with new, not bare pointers
 //
 // ----------------------------------------------------------------------
 
@@ -159,7 +162,7 @@ void  StatsCount::add( const ELstring & context, bool reactedTo )  {
 #include <sstream>
 #include <string.h>
 
-char *  ELmapDump ( ELmap_limits m )  {
+boost::shared_array<char> ELmapDump ( ELmap_limits m )  {
 
   std::ostringstream s;
   s << "**** ELmap_limits Dump **** \n";
@@ -172,8 +175,8 @@ char *  ELmapDump ( ELmap_limits m )  {
   }
   s << "--------------------------------------------\n";
 
-  char *  dump = new char[s.str().size()+1];
-  strcpy( dump, s.str().c_str() );
+  boost::shared_array<char> dump(new char[s.str().size()+1]);
+  strcpy( dump.get(), s.str().c_str() );
 
   return dump;
 

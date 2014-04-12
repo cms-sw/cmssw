@@ -9,6 +9,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadoutSuppressor.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+
 #include <memory>
 #include <vector>
 
@@ -46,7 +48,8 @@ public:
 	       const EESrFlagCollection& eeSrFlags,
 	       int iEvent = -1,
 	       bool withHeader = true);
-  
+
+
 private:
 
   /** Sanity check on the DCC FIR filter weights. Log warning or
@@ -65,7 +68,7 @@ private:
   bool
   getBinOfMax(const edm::Event& evt, const edm::ProductID& noZsDigiId,
 	      int& binOfMax) const;
-  
+
   const EBDigiCollection*
   getEBDigis(edm::Event& event) const;
 
@@ -74,17 +77,29 @@ private:
 
   const EcalTrigPrimDigiCollection*
   getTrigPrims(edm::Event& event) const;
-  
+
+  ///@{
   /// call these once an event, to make sure everything
   /// is up-to-date
   void
   checkGeometry(const edm::EventSetup & eventSetup);
   void
   checkTriggerMap(const edm::EventSetup & eventSetup);
+  void
+  checkElecMap(const edm::EventSetup & eventSetup);
 
+  ///@}
+
+  ///Checks validity of selective setting object is valid to be used
+  ///for MC, especially checks the number of elements in the vectors
+  ///@param forEmulator if true check the restriction that applies for
+  ///EcalSelectiveReadoutProducer
+  ///@throw cms::Exception if the setting is not valid.
+  static void checkValidity(const EcalSRSettings& settings);
+  
   void
   printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
-  
+
 private:
   std::auto_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
   std::string digiProducer_; // name of module/plugin/producer making digis
@@ -100,17 +115,45 @@ private:
   // store the pointer, so we don't have to update it every event
   const CaloGeometry * theGeometry;
   const EcalTrigTowerConstituentsMap * theTriggerTowerMap;
+  const EcalElectronicsMapping * theElecMap;
   edm::ParameterSet params_;
 
   bool trigPrimBypass_;
+
+  int trigPrimBypassMode_;
 
   /** Number of event whose TT and SR flags must be dumped into a file.
    */
   int dumpFlags_;
 
-  // switch to write out the SrFlags collections in the event
+  /** switch to write out the SrFlags collections in the event
+   */
   bool writeSrFlags_;
 
+  /** Switch for suppressed digi production If false SR flags are produced
+   * but selective readout is not applied on the crystal channel digis.
+   */
+  bool produceDigis_;
+
+  /** SR settings
+   */
+  const EcalSRSettings* settings_;
+
+  /** Switch for retrieving SR settings from condition database instead
+   * of CMSSW python configuration file.
+   */
+  bool useCondDb_;
+
+
+  /**  Special switch to turn off SR entirely using special DB entries 
+   */
+
+  bool useFullReadout_;
+
+  /** Used when settings_ is imported from configuration file. Just used
+   * for memory management. Used settings_ to access to the object
+   */
+  std::auto_ptr<EcalSRSettings> settingsFromFile_;
 };
 
-#endif 
+#endif

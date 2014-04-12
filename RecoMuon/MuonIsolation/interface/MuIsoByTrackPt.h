@@ -4,19 +4,20 @@
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseAlgorithm.h"
 #include "RecoMuon/MuonIsolation/interface/CutsConeSizeFunction.h"
 
-namespace muonisolation { class MuIsoExtractor; }
+namespace reco { namespace isodeposit { class IsoDepositExtractor; }}
 namespace muonisolation { class IsolatorByDeposit; }
 namespace reco { class Track; }
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
+namespace edm { class ConsumesCollector; }
 namespace edm { class ParameterSet; }
 
 
 class MuIsoByTrackPt : public MuIsoBaseAlgorithm {
 public:
-  MuIsoByTrackPt(const edm::ParameterSet& conf);
+  MuIsoByTrackPt(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
   virtual ~MuIsoByTrackPt();
-   
+
   virtual float isolation(const edm::Event&, const edm::EventSetup&, const reco::Track& muon);
   virtual float isolation(const edm::Event& ev, const edm::EventSetup& es, const reco::TrackRef& muon)
   {
@@ -30,13 +31,13 @@ public:
 
   void setConeSize(float dr);
   void setCut(float cut) { theCut = cut; }
-  
-  virtual muonisolation::MuIsoExtractor * extractor() { return theExtractor; }
+
+  virtual reco::isodeposit::IsoDepositExtractor * extractor() { return theExtractor; }
   virtual muonisolation::IsolatorByDeposit * isolator() { return theIsolator; }
 
 private:
   float theCut;
-  muonisolation::MuIsoExtractor * theExtractor;
+  reco::isodeposit::IsoDepositExtractor * theExtractor;
   muonisolation::IsolatorByDeposit * theIsolator;
 };
 

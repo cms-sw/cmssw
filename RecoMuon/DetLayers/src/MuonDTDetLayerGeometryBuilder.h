@@ -5,8 +5,6 @@
  *
  *  Build the DT DetLayers.
  *
- *  $Date: 2006/05/03 15:22:13 $
- *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 

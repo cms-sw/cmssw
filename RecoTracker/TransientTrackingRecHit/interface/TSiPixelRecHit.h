@@ -1,19 +1,20 @@
+
 #ifndef RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiPixelRecHit_H
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiPixelRecHit_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // class GeomDetUnit;
 
-class TSiPixelRecHit : public TransientTrackingRecHit {
+class TSiPixelRecHit GCC11_FINAL : public TValidTrackingRecHit {
 public:
 
-  typedef const edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, edm::refhelper::FindForDetSetVector<SiPixelCluster> > clusterRef;
+  typedef SiPixelRecHit::ClusterRef clusterRef;
 
 
   virtual ~TSiPixelRecHit() {}
@@ -30,6 +31,10 @@ public:
 
   virtual LocalPoint localPosition() const {return theHitData.localPosition();}
   virtual LocalError localPositionError() const {return theHitData.localPositionError();}
+
+  virtual void getKfComponents( KfComponentsHolder & holder ) const {
+      HelpertRecHit2DLocalPos().getKfComponents(holder, theHitData, *det()); 
+  }
 
   virtual const TrackingRecHit * hit() const {return &theHitData;};
   
@@ -53,44 +58,48 @@ public:
   const PixelClusterParameterEstimator* cpe() const {return theCPE;}
 
   static RecHitPointer build( const GeomDet * geom, const SiPixelRecHit* rh, 
-			      const PixelClusterParameterEstimator* cpe) {
-    return RecHitPointer( new TSiPixelRecHit( geom, rh, cpe));
+			      const PixelClusterParameterEstimator* cpe,
+			      bool computeCoarseLocalPosition=false) {
+    return RecHitPointer( new TSiPixelRecHit( geom, rh, cpe, computeCoarseLocalPosition));
   }
 
-  static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
+  static RecHitPointer build( const LocalPoint& pos, const LocalError& err, SiPixelRecHitQuality::QualWordType qual,
 			      const GeomDet* det, 
-			      clusterRef cluster,
+			      const clusterRef & cluster,
 			      const PixelClusterParameterEstimator* cpe) {
-    return RecHitPointer( new TSiPixelRecHit( pos, err, det, cluster, cpe));
+    return RecHitPointer( new TSiPixelRecHit( pos, err, qual, det, cluster, cpe));
   }
+
+
+  //!  Probability of the compatibility of the track with the pixel cluster shape.
+  virtual float clusterProbability() const {
+    return theHitData.clusterProbability( theCPE->clusterProbComputationFlag() );
+  }
+
 
 
 private:
-
-  SiPixelRecHit                         theHitData;
   const PixelClusterParameterEstimator* theCPE;
+  SiPixelRecHit                         theHitData;
 
-  /// This constructor copy the TrackingRecHit, it should be used when the 
-  /// TrackingRecHit exist already in some collection
+
+  /// This private constructor copies the TrackingRecHit.  It should be used when the 
+  /// TrackingRecHit exist already in some collection.
   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
-		 const PixelClusterParameterEstimator* cpe) : 
-    TransientTrackingRecHit(geom, *rh), theHitData(*rh), theCPE(cpe) {}
+		 const PixelClusterParameterEstimator* cpe,
+		 bool computeCoarseLocalPosition);
 
-  /// Creates the TrackingRecHit internally, avoids redundent cloning
-  TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
-				const GeomDet* det, 
-		  //				const SiPixelCluster& clust,
-		  clusterRef clust,
+
+
+  /// Another private constructor.  It creates the TrackingRecHit internally, 
+  /// avoiding redundent cloning.
+  TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,SiPixelRecHitQuality::QualWordType qual,
+		  const GeomDet* det, 
+		  const clusterRef & clust,
 		  const PixelClusterParameterEstimator* cpe) :
-    TransientTrackingRecHit(det), 
-    theHitData( pos, err, det->geographicalId(), clust),
-    theCPE(cpe)
-  {}
-  
-  //  TSiPixelRecHit( const TSiPixelRecHit& other ) :
-  //  TransientTrackingRecHit( other.det()), 
-  //  theHitData( other.specificHit()->clone()),
-  //  theCPE( other.cpe())  {}
+    TValidTrackingRecHit(det), theCPE(cpe),
+    theHitData( pos, err, qual, *det, clust){}
+
 
   virtual TSiPixelRecHit * clone() const {
     return new TSiPixelRecHit(*this);

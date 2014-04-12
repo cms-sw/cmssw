@@ -1,0 +1,5 @@
+<bin   name="testEcalRecHit" file="testRunner.cpp,testEcalRecHit.cppunit.cc,testEcalUncalibratedRecHit.cppunit.cc">
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="cppunit"/>
+</bin>
+

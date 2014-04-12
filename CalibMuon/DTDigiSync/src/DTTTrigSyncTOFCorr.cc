@@ -1,29 +1,38 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/06 14:47:33 $
- *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "DTTTrigSyncTOFCorr.h"
 
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include <iostream>
 
 using namespace std;
 
-
-
-DTTTrigSyncTOFCorr::DTTTrigSyncTOFCorr(const edm::ParameterSet& config){
-  theTTrig = config.getParameter<double>("tTrig"); // FIXME: Default was 500 ns
-  theVPropWire = config.getParameter<double>("vPropWire"); // FIXME: Default was 24.4 cm/ns
-  theTOFCorrType = config.getParameter<int>("tofCorrType"); // FIXME: Default was 1
-  debug = config.getUntrackedParameter<bool>("debug");
-
+DTTTrigSyncTOFCorr::DTTTrigSyncTOFCorr(const edm::ParameterSet& config)
+: 
+  // The fixed t0 (or t_trig) to be subtracted to digi time (ns)
+  theTTrig(config.getParameter<double>("tTrig")),           // FIXME: Default was 500 ns
+  // Velocity of signal propagation along the wire (cm/ns)
+  theVPropWire(config.getParameter<double>("vPropWire")),   // FIXME: Default was 24.4 cm/ns
+  // Select the mode for TOF correction:
+  //     0: tofCorr = TOF from IP to 3D Hit position (globPos)
+  //     1: tofCorr = TOF correction for distance difference
+  //                  between 3D center of the chamber and hit position
+  //                  (default)
+  //     2: tofCorr = TOF correction for distance difference
+  //                  between 3D center of the wire and hit position
+  //                  (This mode in available for backward compatibility)
+  theTOFCorrType(config.getParameter<int>("tofCorrType")), // FIXME: Default was 1
+  debug(config.getUntrackedParameter<bool>("debug")),
+  theBXspace(config.getUntrackedParameter<double>("bxSpace", 25.)) // spacing of BX in ns
+{
 }
 
 
@@ -108,31 +117,12 @@ double DTTTrigSyncTOFCorr::offset(const DTWireId& wireId) {
 }
 
 
-// The fixed t0 (or t_trig) to be subtracted to digi time (ns)
-double DTTTrigSyncTOFCorr::theTTrig;
+double DTTTrigSyncTOFCorr::emulatorOffset(const DTWireId& wireId,
+					 double &tTrig,
+					 double &t0cell) {
+  tTrig = theTTrig;
+  t0cell = 0.;
 
-
-
-// Velocity of signal propagation along the wire (cm/ns)
-double DTTTrigSyncTOFCorr::theVPropWire;
-
-
-  
-// Select the mode for TOF correction:
-//     0: tofCorr = TOF from IP to 3D Hit position (globPos)
-//     1: tofCorr = TOF correction for distance difference
-//                  between 3D center of the chamber and hit position
-//                  (default)
-//     2: tofCorr = TOF correction for distance difference
-//                  between 3D center of the wire and hit position
-//                  (This mode in available for backward compatibility)
-int DTTTrigSyncTOFCorr::theTOFCorrType;
-
-
-
-// Set the verbosity level
-bool DTTTrigSyncTOFCorr::debug;
-
-
-
+  return int(tTrig/theBXspace)*theBXspace;
+}
 

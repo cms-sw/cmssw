@@ -4,10 +4,9 @@
 #include "Rtypes.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 
-using namespace std;
 using namespace tfwliteselectortest;
 
 static const char* kA = "a";
@@ -35,27 +34,41 @@ void ThingsTSelector::preProcessing(const TList*, TList& out ) {
 }
 
 void ThingsTSelector::process( const edm::Event& iEvent ) {
-  cout << "processing event " << endl;
+  std::cout << "processing event " << std::endl;
   //  chain->GetEntry( entry );
   using namespace edmtest;
   edm::Handle<OtherThingCollection> hOThings;
-  iEvent.getByLabel("OtherThing", "testUserTag", hOThings);
 
-  cout << ">> other things found:" << hOThings->size() << endl;
-  for ( size_t i = 0; i < hOThings->size(); ++i ) {
-    const OtherThing & thing = (*hOThings)[ i ];
-    h_refA ->Fill( thing.ref->a );
-    cout << ">> ref->a:  " << thing.ref->a <<endl;
-  }
+  try {
+    iEvent.getByLabel("OtherThing", "testUserTag", hOThings);
+    std::cout << ">> other things found:" << hOThings->size() << std::endl;
 
-  edm::Handle<ThingCollection> hThings;
-  iEvent.getByLabel("Thing",hThings);
-  const ThingCollection& things = *hThings;
-  cout << ">> things found:" << things.size() << endl;
-  for ( size_t i = 0; i < things.size(); ++i ) {
-    const Thing & thing = things[ i ];
-    h_a ->Fill( thing.a );
-    cout << ">> a:  " << thing.a <<endl;
+    for ( size_t i = 0; i < hOThings->size(); ++i ) {
+      const OtherThing & thing = (*hOThings)[ i ];
+      h_refA ->Fill( thing.ref->a );
+      std::cout << ">> ref->a:  " << thing.ref->a << std::endl;
+    }
+
+    edm::Handle<ThingCollection> hThings;
+    iEvent.getByLabel("Thing",hThings);
+    const ThingCollection& things = *hThings;
+    std::cout << ">> things found:" << things.size() << std::endl;
+    for ( size_t i = 0; i < things.size(); ++i ) {
+      const Thing & thing = things[ i ];
+      h_a ->Fill( thing.a );
+      std::cout << ">> a:  " << thing.a << std::endl;
+    }
+  } catch (cms::Exception& x) {
+    std::cout << std::endl << "Failed with cms::Exception: " << std::endl;
+    std::cout << x.what() << std::endl;
+    abort();
+  } catch (std::exception& x) {
+    std::cout << std::endl << "Failed with std::exception" << std::endl;
+    std::cout << x.what() << std::endl;
+    abort();
+  } catch (...) {
+    std::cout << std::endl << "Failed with unknown exception" << std::endl;
+    abort();
   }
 
 }
@@ -65,7 +78,7 @@ void ThingsTSelector::postProcessing(TList&)
 }
 
 void ThingsTSelector::terminate(TList& out) {
-  cout << "terminate" << endl;
+  std::cout << "terminate" << std::endl;
   TCanvas * canvas = new TCanvas( );
   {
      TObject* hist = out.FindObject(kA);
@@ -73,7 +86,7 @@ void ThingsTSelector::terminate(TList& out) {
 	hist->Draw();
 	canvas->SaveAs( "a.jpg" );
      } else {
-	cout <<"no '"<<kA<<"' histogram"<<endl;
+	std::cout <<"no '"<<kA<<"' histogram"<< std::endl;
      }
   }
   {
@@ -82,7 +95,7 @@ void ThingsTSelector::terminate(TList& out) {
 	hist->Draw();
 	canvas->SaveAs( "refA.jpg" );
      } else {
-	cout <<"no '"<<kRefA<<"' histogram"<<endl;
+	std::cout <<"no '"<<kRefA<<"' histogram"<< std::endl;
      }
   }
   delete canvas;

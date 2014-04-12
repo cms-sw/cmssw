@@ -4,44 +4,93 @@
 /** \class HLTPrescaler
  *
  *  
- *  This class is an HLTFilter (-> EDFilter) implementing an HLT
+ *  This class is an EDFilter implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2007/08/02 21:52:06 $
- *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
- *
+ *  \author Philipp Schieferdecker
  */
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include <atomic>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
-#include <string>
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
-class HLTPrescaler : public HLTFilter {
+namespace trigger {
+  struct Efficiency {
+    Efficiency(): eventCount_(0),acceptCount_(0) { }
+    mutable std::atomic<unsigned int> eventCount_;
+    mutable std::atomic<unsigned int> acceptCount_;
+  };
+}
 
- public:
-
-  explicit HLTPrescaler(edm::ParameterSet const&);
+class HLTPrescaler : public edm::stream::EDFilter<edm::GlobalCache<trigger::Efficiency> >
+{
+public:
+  //
+  // construction/destruction
+  //
+  explicit HLTPrescaler(edm::ParameterSet const& iConfig, const trigger::Efficiency* efficiency);
   virtual ~HLTPrescaler();
-  virtual bool filter(edm::Event& e, edm::EventSetup const& c);
-  virtual bool beginLuminosityBlock(edm::LuminosityBlock &, edm::EventSetup const&);
 
- private:
+  static std::unique_ptr<trigger::Efficiency> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::unique_ptr<trigger::Efficiency>(new trigger::Efficiency());
+  }
 
-  /// to put a filterobject into the event?
-  bool         b_;
-  /// accept one in n_
-  unsigned int n_;
-  /// offset in event number (usually 0)
-  unsigned int o_;
-  /// local event counter
-  unsigned int count_;
 
-  /// prescaler service
-  edm::service::PrescaleService* ps_;
-  /// module label (temporary, to be replaced asap by method *moduleLabel())
-  std::string moduleLabel_;
+
+  //
+  // member functions
+  //
+  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&lb,
+				    edm::EventSetup const& iSetup) override;
+  virtual bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup) override;
+  virtual void endStream() override;
+  static  void globalEndJob(const trigger::Efficiency* efficiency);
+  
+  
+private:
+  //
+  //member data
+  //
+
+  /// l1 prescale set index
+  unsigned int prescaleSet_;
+
+  /// accept one in prescaleFactor_; 0 means never to accept an event
+  unsigned int prescaleFactor_;
+
+  /// event counter
+  unsigned int eventCount_;
+
+  /// accept counter
+  unsigned int acceptCount_;
+
+  /// initial offset
+  unsigned int offsetCount_;
+  unsigned int offsetPhase_;
+
+  /// prescale service
+  edm::service::PrescaleService* prescaleService_;
+  
+  /// check for (re)initialization of the prescale
+  bool newLumi_;
+
+  /// GT payload, to extract the prescale column index
+  edm::InputTag                                  gtDigiTag_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigiToken_;
+
+  /// "seed" used to initialize the prescale counter
+  static const
+  unsigned int prescaleSeed_;
 
 };
 

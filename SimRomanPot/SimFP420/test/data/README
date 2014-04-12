@@ -1,11 +1,7 @@
 execute command:
 
-cmsRun runTest1.cfg
+cmsRun runEDDigi_cfg.py
 
-TheAnalysis.root will be produced 
+test1event.root will be produced 
 
-execute 
 
-root -b zz1.C
-
-ggv zz1.ps

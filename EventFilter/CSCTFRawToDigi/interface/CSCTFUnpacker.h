@@ -3,7 +3,7 @@
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 //CSC Track Finder Raw Data Format
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
@@ -12,12 +12,13 @@
 #include <string>
 
 class CSCTriggerMapping;
-class CSCTFMonitorInterface;
 
 class CSCTFUnpacker: public edm::EDProducer {
 private:
-	CSCTriggerMapping     *mapping; // redundant, but needed
-	CSCTFMonitorInterface *monitor; // not in use so far
+	int  m_minBX, m_maxBX;
+	bool swapME1strips;
+
+	CSCTriggerMapping *mapping; // redundant, but needed
 
 	CSCTFEvent tfEvent; // TF data container
 
@@ -27,8 +28,6 @@ private:
 
 	// label of the module which produced raw data
 	edm::InputTag producer;
-
-	//virtual void beginJob(const edm::EventSetup& setup); // set up mapping
 
 public:
 	void produce(edm::Event& e, const edm::EventSetup& c);

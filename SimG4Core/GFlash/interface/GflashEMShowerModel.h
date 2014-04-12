@@ -24,8 +24,7 @@
 // ********************************************************************
 //
 //
-// $Id: GflashEMShowerModel.h,v 1.1 2007/05/15 23:16:40 syjun Exp $
-// GEANT4 tag $Name:  $
+// GEANT4 tag $Name: V04-05-01 $
 //
 //
 //---------------------------------------------------------------
@@ -38,94 +37,49 @@
 //  GFlash parameterisation shower model.
 
 // Authors: E.Barberio & Joanna Weng - 9.11.04
+// other authors : Soon Yung Jun & Dongwook Jang - 2007/12/07
 //---------------------------------------------------------------
 #ifndef GflashEMShowerModel_h
-#define GflashEMShowerModel_h 1
+#define GflashEMShowerModel_h
 
-//G4 Standard
 #include "G4VFastSimulationModel.hh"
-#include "G4VPhysicalVolume.hh"
-#include "G4ios.hh"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//GFlash
-#include "SimG4Core/GFlash/interface/GflashEMShowerModelMessenger.h"
-#include "SimG4Core/G4gflash/src/GFlashHitMaker.hh"
+#include "G4TouchableHandle.hh"
+#include "G4Navigator.hh"
+#include "G4Step.hh"
 
-#include "GFlashParticleBounds.hh"
-#include "GFlashEnergySpot.hh"
-//#include "GFlashHitMaker.hh"
-#include  <vector>
+class GflashEMShowerProfile;
+class G4Region;
 
-class GVFlashShowerParameterisation;
-class GFlashHomoShowerParameterisation;
-class GFlashSamplingShowerParameterisation;
+class GflashEMShowerModel : public G4VFastSimulationModel {
 
-class GflashEMShowerModel : public G4VFastSimulationModel
-{
-  public:  // with description
-
-    GflashEMShowerModel (G4String, G4Envelope*);
-    GflashEMShowerModel (G4String);
-    ~GflashEMShowerModel ();  
-      // Constructors, destructor
-  int model_trigger;
-  int isapp;
-  int edoit;	 
-  G4ThreeVector test;	
-
-    G4bool ModelTrigger(const G4FastTrack &); 
-    G4bool IsApplicable(const G4ParticleDefinition&);
-    void DoIt(const G4FastTrack&, G4FastStep&);
-      // Checks whether conditions of fast parameterisation are fullfilled
+ public:
   
-    // setting
+  GflashEMShowerModel (const G4String& name, G4Envelope* env, 
+		       const edm::ParameterSet& parSet);
+  virtual ~GflashEMShowerModel ();  
 
-    inline void SetFlagParamType(G4int I)
-      { FlagParamType = I; }
-    inline void SetFlagParticleContainment(G4int I)
-      { FlagParticleContainment = I; }
-    inline void SetStepInX0(G4double Lenght)
-      { StepInX0=Lenght; } 
-    inline void SetParameterisation(GVFlashShowerParameterisation &DP)
-      { Parameterisation=&DP;}
-    inline void SetHitMaker(GFlashHitMaker &Maker)
-      { HMaker=&Maker; }
-    inline void SetParticleBounds(GFlashParticleBounds &SpecificBound)
-      { PBound =&SpecificBound; }
-  
-    // getting
+  G4bool ModelTrigger(const G4FastTrack &); 
+  G4bool IsApplicable(const G4ParticleDefinition&);
+  void DoIt(const G4FastTrack&, G4FastStep&);
 
-    inline G4int GetFlagParamType()
-      { return FlagParamType; }
-    inline G4int GetFlagParticleContainment()
-      { return FlagParticleContainment; }  
-    inline G4double GetStepInX0()
-      { return StepInX0; }
+private:
+  G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
+  void makeHits(const G4FastTrack& fastTrack);
+  void updateGflashStep(const G4ThreeVector& position, G4double time);
 
-  public:  // without description
+private:
+  edm::ParameterSet theParSet;
+  bool theWatcherOn;
 
-    // Gets ?  
-    GFlashParticleBounds  *PBound;
-    GVFlashShowerParameterisation *Parameterisation;  
+  GflashEMShowerProfile *theProfile;
 
-  private:
+  const G4Region* theRegion;
 
-    void ElectronDoIt(const G4FastTrack&, G4FastStep&);
-    //  void GammaDoIt(const G4FastTrack&, G4FastStep&);
-    //  void NeutrinoDoIt(const G4FastTrack&, G4FastStep&);
-    G4bool CheckParticleDefAndContainment(const G4FastTrack &fastTrack);
-    G4bool CheckContainment(const G4FastTrack &fastTrack);
-  
-  private:
+  G4Step *theGflashStep;
+  G4Navigator *theGflashNavigator;
+  G4TouchableHandle  theGflashTouchableHandle;
 
-    GFlashHitMaker *HMaker;  
-    GflashEMShowerModelMessenger* Messenger;
-  
-    //Control Flags
-    G4int FlagParamType;           ///0=no GFlash 1=only em showers parametrized
-    G4int FlagParticleContainment; ///0=no check  ///1=only fully contained...
-    G4double StepInX0;  
-    G4double EnergyStop;
-  
 };
 #endif

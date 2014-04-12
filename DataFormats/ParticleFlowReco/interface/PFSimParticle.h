@@ -23,8 +23,11 @@ namespace reco {
     PFSimParticle();
   
     PFSimParticle(double charge, int pdgCode, 
-		  unsigned id, int motherId,
-		  const std::vector<int>& daughterIds);
+                  unsigned id, int motherId,
+                  const std::vector<int>& daughterIds,
+		  unsigned rectrackId,
+		  const std::vector<unsigned>& recHitContrib,
+		  const std::vector<double>&   recHitContribFrac );
 
     PFSimParticle(const PFSimParticle& other);
 
@@ -40,9 +43,16 @@ namespace reco {
     /// \return vector of daughter ids
     const std::vector<int>& daughterIds() const {return daughterIds_;}
 
+   //accessing MCTruth Matching Info
+    unsigned rectrackId() 
+      const {return rectrackId_;} 
+    std::vector<unsigned> recHitContrib() 
+      const {return recHitContrib_;} 
+    std::vector<double> recHitContribFrac() 
+      const {return recHitContribFrac_;} 
 
     friend  std::ostream& operator<<(std::ostream& out, 
-				     const PFSimParticle& track);
+                                     const PFSimParticle& track);
 
   private:
     
@@ -57,6 +67,11 @@ namespace reco {
 
     /// id of daughter particles (can be > 2 in hadron showers)
     std::vector<int> daughterIds_;
+
+    unsigned rectrackId_; 
+    std::vector<unsigned> recHitContrib_; 
+    std::vector<double>   recHitContribFrac_;
+
   };
 
 }

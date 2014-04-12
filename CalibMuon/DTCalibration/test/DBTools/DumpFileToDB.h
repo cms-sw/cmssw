@@ -6,8 +6,6 @@
  *  of ORCA MuBarDigiParameters (see DTCalibrationMap for details)
  *  into a DB. At the moment only the ttrig info is handled.
  *
- *  $Date: 2006/07/05 09:14:26 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -19,6 +17,7 @@
 #include <vector>
 
 class DTCalibrationMap;
+class DTTtrig;
 
 class DumpFileToDB : public edm::EDAnalyzer {
 public:
@@ -29,6 +28,8 @@ public:
   virtual ~DumpFileToDB();
 
   // Operations
+ // Operations
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
  
@@ -43,6 +44,11 @@ private:
   std::string mapFileName;
 
   std::string dbToDump;
+  // sum the correction in the txt file (for the mean value) to what is input DB 
+  bool diffMode;
+  const DTTtrig *tTrigMapOrig;
+
+
 };
 #endif
 

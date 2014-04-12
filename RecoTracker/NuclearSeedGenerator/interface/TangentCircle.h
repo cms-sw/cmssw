@@ -11,7 +11,10 @@ class TangentCircle
 //   typedef Vector2DBase< float, GlobalTag>    Global2DVector;
 
  public :
-     TangentCircle(){}
+     TangentCircle() :
+        theInnerPoint(), theOuterPoint(), theVertexPoint(), theDirectionAtVertex(),
+        theX0(0), theY0(0), theRho(0), theVertexError(0), 
+        valid(false), theCharge(0) {}
 
      /// Calculate the circle from 2 points on the circle (the vertex=innerPoint and the outerPoint)
      /// and the tangent direction at the inner point

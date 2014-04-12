@@ -12,8 +12,6 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 //#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
-#include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
-#include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
@@ -39,17 +37,6 @@ private:
   //definition of the map 
  
 
-  SiStripRecHit2DCollection::range rphi_range1;
-  SiStripRecHit2DCollection::range rphi_range2;
-  SiStripRecHit2DCollection::range rphi_range3;
-  SiStripRecHit2DCollection::range rphi_range4;
-
-  SiStripRecHit2DCollection::range stereo_range1;
-  SiStripRecHit2DCollection::range stereo_range2;
-  SiStripRecHit2DCollection::range stereo_range3;
-
-  SiStripMatchedRecHit2DCollection::range match_range1;
-  SiStripMatchedRecHit2DCollection::range match_range2;
   TrackerLayerIdAccessor acc;
   
   LayerWithHits *lh1;

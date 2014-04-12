@@ -1,8 +1,9 @@
+#include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <cassert>
 #include <iostream>
-#include "FWCore/Utilities/interface/Digest.h"
 
-using namespace std;
 using cms::Digest;
 using cms::MD5Result;
 
@@ -22,7 +23,7 @@ void testGivenString(std::string const& s) {
 }
 
 void testConversions() {
-  string data("aldjfakl\tsdjf34234 \najdf");
+  std::string data("aldjfakl\tsdjf34234 \najdf");
   Digest dig(data);
   MD5Result r1 = dig.digest();
   assert(r1.isValid());
@@ -33,6 +34,19 @@ void testConversions() {
   assert(r1 == r2);
   assert(r1.toString() == r2.toString());
   assert(r1.compactForm() == r2.compactForm());
+
+  //check the MD5Result lookup table
+  MD5Result lookup;
+  MD5Result fromHex;
+  for(unsigned int i=0; i<256; ++i) {
+    for(unsigned int j=0; j<16; ++j) {
+      lookup.bytes[j]=static_cast<char>(i);
+      fromHex.fromHexifiedString(lookup.toString());
+      assert(lookup == fromHex);
+      assert(lookup.toString() == fromHex.toString());
+      assert(lookup.compactForm() == fromHex.compactForm());
+    }
+  }
 }
 
 void testEmptyString() {
@@ -66,5 +80,12 @@ int main() {
   testGivenString("{ }");
   testGivenString("abc 123 abc");
   testEmptyString();
-  testConversions();
+  try {
+    testConversions();
+  }
+  catch(cms::Exception const& e) {
+    std::cerr << e.explainSelf() << std::endl; 
+    return 1;
+  }
+  return 0;
 }

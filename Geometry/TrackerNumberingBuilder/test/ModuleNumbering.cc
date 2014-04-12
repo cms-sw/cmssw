@@ -40,12 +40,8 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
@@ -124,9 +120,7 @@ ModuleNumbering::~ModuleNumbering()
 
 void ModuleNumbering::fillModuleVariables(const GeometricDet* module, double& polarRadius, double& phiRad, double& z) {
   // module variables
-  // CLHEP WAS  polarRadius = std::sqrt(module->translation()[0]*module->translation()[0]+module->translation()[1]*module->translation()[1]);
   polarRadius = std::sqrt(module->translation().X()*module->translation().X()+module->translation().Y()*module->translation().Y());
-  // CLHEP WAS   phiRad = atan2(module->translation()[1],module->translation()[0]);
   phiRad = atan2(module->translation().Y(),module->translation().X());
   // tolerance near phi=0
   if(fabs(phiRad) < tolerance_angle) phiRad=0.0;
@@ -171,6 +165,12 @@ double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double ph
 void
 ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
   
   edm::LogInfo("ModuleNumbering") << "begins";
   
@@ -187,17 +187,19 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   // get the GeometricDet
   //
   edm::ESHandle<GeometricDet> rDD;
+  edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get( rDD );     
-  edm::LogInfo("ModuleNumbering") << " Top node is  " << &(*rDD) << " " <<  (*rDD).name().name() << std::endl;
-  edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << (*rDD).deepComponents().size() << std::endl;
-  CmsTrackerDebugNavigator nav;
-  nav.dump(&(*rDD));
+  iSetup.get<IdealGeometryRecord>().get( rDDE );     
+  edm::LogInfo("ModuleNumbering") << " Top node is  " << rDD.product() << " " <<  rDD.product()->name().name() << std::endl;
+  edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
+  CmsTrackerDebugNavigator nav(*rDDE.product());
+  nav.dump(*rDD.product(), *rDDE.product());
   //
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
   //
-  
+ 
   std::vector<const GeometricDet*> modules =  (*rDD).deepComponents();
   std::map< uint32_t , const GeometricDet* > mapDetIdToGeometricDet;
   
@@ -303,7 +305,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
 		  //
 		  Output << "            raw Id = " << rawid << " (" << binary_detid << ")"
-			 << "\t nav type = " << detNavType << std::endl;
+			 << "\t nav type = " << printNavType(Output,&detNavType.front(),detNavType.size()) << std::endl;
 		  
 		  // variables
 		  fillModuleVariables(mapDetIdToGeometricDet[myDetId], polarRadius, phiRad, z);
@@ -317,11 +319,11 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  Output << "\t R = " << polarRadius << "\t phi = " << phiRad << "\t z = " << z << std::endl;
 		  
 		  // Module Info
-		  TIBDetId module(rawid);
+		  
 		  std::string name = mapDetIdToGeometricDet[myDetId]->name().name();
-		  unsigned int         theLayer  = module.layer();
-		  std::vector<unsigned int> theString = module.string();
-		  unsigned int         theModule = module.module();
+		  unsigned int         theLayer  = tTopo->tibLayer(rawid);
+		  std::vector<unsigned int> theString = tTopo->tibStringInfo(rawid);
+		  unsigned int         theModule = tTopo->tibModule(rawid);
 		  std::string side;
 		  std::string part;
 		  side = (theString[0] == 1 ) ? "-" : "+";
@@ -487,7 +489,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
 		  //
 		  Output << "            raw Id = " << rawid << " (" << binary_detid << ")"
-			 << "\t nav type = " << detNavType << std::endl;
+			 << "\t nav type = " << printNavType(Output,&detNavType.front(),detNavType.size()) << std::endl;
 		  
 		  // variables
 		  fillModuleVariables(mapDetIdToGeometricDet[myDetId], polarRadius, phiRad, z);
@@ -501,14 +503,14 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  Output << "\t R = " << polarRadius << "\t phi = " << phiRad << "\t z = " << z << std::endl;
 		  
 		  // Module Info
-		  TIDDetId module(rawid);
+		  
 		  std::string name = mapDetIdToGeometricDet[myDetId]->name().name();
-		  unsigned int         theDisk   = module.wheel();
-		  unsigned int         theRing   = module.ring();
-		  std::vector<unsigned int> theModule = module.module();
+		  unsigned int         theDisk   = tTopo->tidWheel(rawid);
+		  unsigned int         theRing   = tTopo->tidRing(rawid);
+		  std::vector<unsigned int> theModule = tTopo->tidModuleInfo(rawid);
 		  std::string side;
 		  std::string part;
-		  side = (module.side() == 1 ) ? "-" : "+";
+		  side = (tTopo->tidSide(rawid) == 1 ) ? "-" : "+";
 		  part = (theModule[0] == 1 ) ? "back" : "front";
 		  Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
 			 << "\t" << " module " << theModule[1] << "\t" << name << std::endl;
@@ -664,7 +666,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
 		  //
 		  Output << "            raw Id = " << rawid << " (" << binary_detid << ")"
-			 << "\t nav type = " << detNavType << std::endl;
+			 << "\t nav type = " << printNavType(Output,&detNavType.front(),detNavType.size()) << std::endl;
 		  
 		  // variables
 		  fillModuleVariables(mapDetIdToGeometricDet[myDetId], polarRadius, phiRad, z);
@@ -677,11 +679,11 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  Output << "\t R = " << polarRadius << "\t phi = " << phiRad << "\t z = " << z << std::endl;
 		  
 		  // Module Info
-		  TOBDetId module(rawid);
+		  
 		  std::string name = mapDetIdToGeometricDet[myDetId]->name().name();
-		  unsigned int         theLayer  = module.layer();
-		  std::vector<unsigned int> theRod    = module.rod();
-		  unsigned int         theModule = module.module();
+		  unsigned int         theLayer  = tTopo->tobLayer(rawid);
+		  std::vector<unsigned int> theRod    = tTopo->tobRodInfo(rawid);
+		  unsigned int         theModule = tTopo->tobModule(rawid);
 		  std::string side;
 		  std::string part;
 		  side = (theRod[0] == 1 ) ? "-" : "+";
@@ -875,7 +877,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		      GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
 		      //
 		      Output << "            raw Id = " << rawid << " (" << binary_detid << ")"
-			     << "\t nav type = " << detNavType << std::endl;
+			     << "\t nav type = " << printNavType(Output,&detNavType.front(),detNavType.size()) << std::endl;
 		      
 		      // variables
 		      fillModuleVariables(mapDetIdToGeometricDet[myDetId], polarRadius, phiRad, z);
@@ -959,15 +961,15 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		      Output << "\t R = " << polarRadius << "\t phi = " << phiRad << "\t z = " << z << std::endl;
 		      
 		      // Module Info
-		      TECDetId module(rawid);
+		      
 		      std::string name = mapDetIdToGeometricDet[myDetId]->name().name();
-		      unsigned int theWheel = module.wheel();
-		      unsigned int         theModule = module.module();
-		      std::vector<unsigned int> thePetal  = module.petal();
-		      unsigned int         theRing   = module.ring();
+		      unsigned int theWheel = tTopo->tecWheel(rawid);
+		      unsigned int         theModule = tTopo->tecModule(rawid);
+		      std::vector<unsigned int> thePetal  = tTopo->tecPetalInfo(rawid);
+		      unsigned int         theRing   = tTopo->tecRing(rawid);
 		      std::string side;
 		      std::string petal;
-		      side  = (module.side() == 1 ) ? "-" : "+";
+		      side  = (tTopo->tecSide(rawid) == 1 ) ? "-" : "+";
 		      petal = (thePetal[0] == 1 ) ? "back" : "front";
 		      Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 			     << "\t" << " module " << theModule << "\t" << name << std::endl;

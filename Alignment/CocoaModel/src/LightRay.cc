@@ -6,8 +6,10 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include <cstdlib>
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -67,9 +69,9 @@ LightRay::LightRay( OpticalObject* opto1, OpticalObject* opto2)
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-LightRay::LightRay( Hep3Vector& vec1, Hep3Vector& vec2 )
+LightRay::LightRay( CLHEP::Hep3Vector& vec1, CLHEP::Hep3Vector& vec2 )
 {
-  Hep3Vector dir = vec2 - vec1;
+  CLHEP::Hep3Vector dir = vec2 - vec1;
   dir *= 1./dir.mag();
   setDirection( dir );
   setPoint( vec1 );
@@ -157,7 +159,7 @@ void LightRay::reflect( const ALIPlane& plane)
 //@@ 3D deviation: it actually deviates in the plane of the plate normal and lightray, in the other plane there is no deviation
 //@@ Refract inside this plane
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void LightRay::refract( const ALIPlane plate, const ALIdouble refra_ind1, const ALIdouble refra_ind2)
+void LightRay::refract( const ALIPlane& plate, const ALIdouble refra_ind1, const ALIdouble refra_ind2)
 {
   if(ALIUtils::debug >= 5) {
     std::cout << "% LR REFRACT: " <<  "refra_ind1 = " << refra_ind1 << " refra_ind2 = " << refra_ind2 <<std::endl;

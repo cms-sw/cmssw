@@ -5,8 +5,6 @@
 //   Description: Extrapolation Result Selector
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP

@@ -1,510 +1,380 @@
-#include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include "DQM/HcalMonitorClient/interface/HcalHotCellClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 
-HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, MonitorUserInterface* mui){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
-  mui_ = mui;
-  for(int i=0; i<4; i++){
-    occ_geo_[i][0]=0;
-    occ_en_[i][0]=0;
-    occ_geo_[i][1]=0;
-    occ_en_[i][1]=0;
-    gl_geo_[i]=0;
-    gl_en_[i]=0;
-    max_en_[i]=0;
-    max_t_[i]=0;
-  }
+#include <iostream>
 
-  // cloneME switch
+/*
+ * \file HcalHotCellClient.cc
+ * 
+ * \author J. Temple
+ * \brief Hot Cell Client class
+ */
+ 
+HcalHotCellClient::HcalHotCellClient(std::string myname)
+{
+  name_=myname;
+}
+
+HcalHotCellClient::HcalHotCellClient(std::string myname, const edm::ParameterSet& ps)
+{
+  name_=myname;
+  enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
+  debug_                 = ps.getUntrackedParameter<int>("debug",0);
+  prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
+  if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
+    prefixME_.append("/");
+  subdir_                = ps.getUntrackedParameter<std::string>("HotCellFolder","HotCellMonitor_Hcal/"); // HotCellMonitor_Hcal  
+  if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
+    subdir_.append("/");
+  subdir_=prefixME_+subdir_;
+
+  validHtmlOutput_       = ps.getUntrackedParameter<bool>("HotCell_validHtmlOutput",true);
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-  
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  badChannelStatusMask_   = ps.getUntrackedParameter<int>("HotCell_BadChannelStatusMask",
+  							  ps.getUntrackedParameter<int>("BadChannelStatusMask",
+  											(1<<HcalChannelStatus::HcalCellHot))); // identify channel status values to mask
+  // badChannelStatusMask_   = ps.getUntrackedParameter<int>("HotCell_BadChannelStatusMask", (1<<1)); // identify channel status values to mask
 
-  // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
-  
-  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-  
-  for(unsigned int i=0; i<subdets.size(); i++){
-    if(subdets[i]=="HB") subDetsOn_[0] = true;
-    else if(subdets[i]=="HE") subDetsOn_[1] = true;
-    else if(subdets[i]=="HF") subDetsOn_[2] = true;
-    else if(subdets[i]=="HO") subDetsOn_[3] = true;
-  }
+  minerrorrate_ = ps.getUntrackedParameter<double>("HotCell_minerrorrate",
+						   ps.getUntrackedParameter<double>("minerrorrate",0.25));
+  minevents_    = ps.getUntrackedParameter<int>("HotCell_minevents",
+						ps.getUntrackedParameter<int>("minevents",100));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
+  ProblemCellsByDepth=0;
+  ProblemCells=0;
 }
 
-HcalHotCellClient::HcalHotCellClient(){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  mui_ = 0;
-  for(int i=0; i<4; i++){
-    occ_geo_[i][0]=0;
-    occ_en_[i][0]=0;
-    occ_geo_[i][1]=0;
-    occ_en_[i][1]=0;
-    gl_geo_[i]=0;
-    gl_en_[i]=0;
-    max_en_[i]=0;
-    max_t_[i]=0;
-  }
-
-  // verbosity switch
-  verbose_ = false;
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+void HcalHotCellClient::analyze()
+{
+  if (debug_>2) std::cout <<"\tHcalHotCellClient::analyze()"<<std::endl;
+  calculateProblems();
 }
 
-HcalHotCellClient::~HcalHotCellClient(){
+void HcalHotCellClient::calculateProblems()
+{
+  if (debug_>2) std::cout <<"\t\tHcalHotCellClient::calculateProblems()"<<std::endl;
+  if(!dqmStore_) return;
+  double totalevents=0;
+  int etabins=0, phibins=0, zside=0;
+  double problemvalue=0;
 
-  this->cleanup();
-
-}
-
-void HcalHotCellClient::beginJob(void){
-  
-  if ( verbose_ ) cout << "HcalHotCellClient: beginJob" << endl;
-  
-  ievt_ = 0;
-  jevt_ = 0;
-
-  this->setup();
-  this->subscribe();
-  this->resetAllME();
-  return;
-}
-
-void HcalHotCellClient::beginRun(void){
-
-  if ( verbose_ ) cout << "HcalHotCellClient: beginRun" << endl;
-
-  jevt_ = 0;
-  this->setup();
-  this->subscribe();
-  this->resetAllME();
-  return;
-}
-
-void HcalHotCellClient::endJob(void) {
-
-  if ( verbose_ ) cout << "HcalHotCellClient: endJob, ievt = " << ievt_ << endl;
-
-  this->cleanup(); 
-  return;
-}
-
-void HcalHotCellClient::endRun(void) {
-
-  if ( verbose_ ) cout << "HcalHotCellClient: endRun, jevt = " << jevt_ << endl;
-
-  this->cleanup();  
-  return;
-}
-
-void HcalHotCellClient::setup(void) {
-  
-  return;
-}
-
-void HcalHotCellClient::cleanup(void) {
-
-  if ( cloneME_ ) {
-    for(int i=0; i<4; i++){
-      if ( occ_geo_[i][0]) delete occ_geo_[i][0];  
-      if ( occ_en_[i][0]) delete occ_en_[i][0];  
-      if ( occ_geo_[i][1]) delete occ_geo_[i][1];  
-      if ( occ_en_[i][1]) delete occ_en_[i][1];  
-      if ( gl_geo_[i]) delete gl_geo_[i];  
-      if ( gl_en_[i]) delete gl_en_[i];  
-      if ( max_en_[i]) delete max_en_[i];  
-      if ( max_t_[i]) delete max_t_[i];  
-
-    }    
-  }
-  for(int i=0; i<4; i++){
-    occ_geo_[i][0]=0;
-    occ_en_[i][0]=0;
-    occ_geo_[i][1]=0;
-    occ_en_[i][1]=0;
-    gl_geo_[i]=0;
-    gl_en_[i]=0;
-    max_en_[i]=0;
-    max_t_[i]=0;
-  }
-
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  return;
-}
-
-void HcalHotCellClient::subscribe(void){
-
-  if ( verbose_ ) cout << "HcalHotCellClient: subscribe" << endl;
-  if(mui_){
-    mui_->subscribe("*/HcalMonitor/HotCellMonitor/*");
-    mui_->subscribe("*/HcalMonitor/HotCellMonitor/HB/*");
-    mui_->subscribe("*/HcalMonitor/HotCellMonitor/HE/*");
-    mui_->subscribe("*/HcalMonitor/HotCellMonitor/HF/*");
-    mui_->subscribe("*/HcalMonitor/HotCellMonitor/HO/*");
-  }
-  return;
-}
-
-void HcalHotCellClient::subscribeNew(void){
-  if(mui_){
-    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/*");
-    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/HB/*");
-    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/HE/*");
-    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/HF/*");
-    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/HO/*");
-  }
-  return;
-}
-
-void HcalHotCellClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "HcalHotCellClient: unsubscribe" << endl;
-  if(mui_){
-    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/*");
-    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/HB/*");
-    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/HE/*");
-    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/HF/*");
-    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/HO/*");
-  }
-  return;
-}
-
-void HcalHotCellClient::errorOutput(){
-  if(!mui_) return;
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
-  for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
-    string testName = testsMap->first;
-    string meName = testsMap->second;
-    MonitorElement* me = mui_->get(meName);
-    if(me){
-      if (me->hasError()){
-	vector<QReport*> report =  me->getQErrors();
-	dqmReportMapErr_[meName] = report;
-      }
-      if (me->hasWarning()){
-	vector<QReport*> report =  me->getQWarnings();
-	dqmReportMapWarn_[meName] = report;
-      }
-      if(me->hasOtherReport()){
-	vector<QReport*> report= me->getQOthers();
-	dqmReportMapOther_[meName] = report;
-      }
+  // Clear away old problems
+  if (ProblemCells!=0)
+    {
+      ProblemCells->Reset();
+      (ProblemCells->getTH2F())->SetMaximum(1.05);
+      (ProblemCells->getTH2F())->SetMinimum(0.);
     }
-  }
-  printf("HotCell Task: %d errors, %d warnings, %d others\n",dqmReportMapErr_.size(),dqmReportMapWarn_.size(),dqmReportMapOther_.size());
-
-  return;
-}
-
-void HcalHotCellClient::getErrors(map<string, vector<QReport*> > outE, map<string, vector<QReport*> > outW, map<string, vector<QReport*> > outO){
-
-  this->errorOutput();
-  outE.clear(); outW.clear(); outO.clear();
-
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapErr_.begin(); i!=dqmReportMapErr_.end(); i++){
-    outE[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapWarn_.begin(); i!=dqmReportMapWarn_.end(); i++){
-    outW[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapOther_.begin(); i!=dqmReportMapOther_.end(); i++){
-    outO[i->first] = i->second;
-  }
-
-  return;
-}
-
-void HcalHotCellClient::report(){
-
-  if ( verbose_ ) cout << "HcalHotCellClient: report" << endl;
-  //  this->setup();  
+  for  (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
+    {
+      if (ProblemCellsByDepth->depth[d]!=0) 
+	{
+	  ProblemCellsByDepth->depth[d]->Reset();
+	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMaximum(1.05);
+	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMinimum(0.);
+	}
+    }
   
-  char name[256];
-  sprintf(name, "%sHcalMonitor/HotCellMonitor/HotCell Task Event Number",process_.c_str());
-  MonitorElement* me = 0;
-  if(mui_) me = mui_->get(name);
-  if ( me ) {
-    string s = me->valueString();
-    ievt_ = -1;
-    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( verbose_ ) cout << "Found '" << name << "'" << endl;
-  }
+  // Get histograms that are used in testing
+  TH2F* HotAboveThresholdByDepth[4];
+  TH2F* HotAlwaysAboveThresholdByDepth[4];
+  TH2F* HotAboveETThresholdByDepth[4];
+  TH2F* HotAlwaysAboveETThresholdByDepth[4];
+  TH2F* HotNeighborsByDepth[4];
 
-  getHistograms();
+  std::vector<std::string> name = HcalEtaPhiHistNames();
 
-  return;
-}
+  bool neighbortest=false;
 
-void HcalHotCellClient::analyze(void){
+  MonitorElement* me;
+  for (int i=0;i<4;++i)
+    {
+      // Assume histograms aren't found by default
+      HotAboveThresholdByDepth[i]=0;
+      HotAlwaysAboveThresholdByDepth[i]=0;
+      HotAboveETThresholdByDepth[i]=0;
+      HotAlwaysAboveETThresholdByDepth[i]=0;
+      HotNeighborsByDepth[i]=0;
 
-  jevt_++;
-  int updates = 0;
-  if(mui_) mui_->getNumUpdates();
-  if ( updates % 10 == 0 ) {
-    if ( verbose_ ) cout << "HcalHotCellClient: " << updates << " updates" << endl;
-  }
-  
-  return;
-}
+      std::string s=subdir_+"hot_rechit_above_threshold/"+name[i]+"Hot Cells Above ET Threshold";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0)HotAboveETThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAboveETThresholdByDepth[i], debug_);
 
-void HcalHotCellClient::getHistograms(){
-  if(!mui_) return;
-  char name[150];    
-  
-  for(int i=0; i<4; i++){
-    sprintf(name,"HotCellMonitor/HotCell Depth %d Occupancy Map",i+1);
-    gl_geo_[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);
-    
-    sprintf(name,"HotCellMonitor/HotCell Depth %d Energy Map",i+1);
-    gl_en_[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);    
-  }
-    
-  for(int i=0; i<4; i++){
-    if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE"; 
-    if(i==2) type = "HF"; 
-    if(i==3) type = "HO"; 
-    sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 0",type.c_str(),type.c_str());
-    occ_geo_[i][0] = getHisto2(name, process_, mui_,verbose_,cloneME_);      
-    sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Energy Map, Threshold 0",type.c_str(),type.c_str());
-    occ_en_[i][0] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+      s=subdir_+"hot_rechit_always_above_threshold/"+name[i]+"Hot Cells Persistently Above ET Threshold";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0)HotAlwaysAboveETThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAlwaysAboveETThresholdByDepth[i], debug_);
 
-    sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 1",type.c_str(),type.c_str());
-    occ_geo_[i][1] = getHisto2(name, process_, mui_,verbose_,cloneME_);      
-    sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Energy Map, Threshold 1",type.c_str(),type.c_str());
-    occ_en_[i][1] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+      s=subdir_+"hot_rechit_above_threshold/"+name[i]+"Hot Cells Above Energy Threshold";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0)HotAboveThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAboveThresholdByDepth[i], debug_);
 
-    sprintf(name,"HotCellMonitor/%s/%s HotCell Energy",type.c_str(),type.c_str());
-    max_en_[i] = getHisto(name, process_, mui_,verbose_,cloneME_);
-    sprintf(name,"HotCellMonitor/%s/%s HotCell Time",type.c_str(),type.c_str());
-    max_t_[i] = getHisto(name, process_, mui_,verbose_,cloneME_);    
-  }
-  return;
-}
+      s=subdir_+"hot_rechit_always_above_threshold/"+name[i]+"Hot Cells Persistently Above Energy Threshold";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0)HotAlwaysAboveThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAlwaysAboveThresholdByDepth[i], debug_);
 
-void HcalHotCellClient::resetAllME(){
-  if(!mui_) return;
-
-  Char_t name[150];    
-
-  sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Energy",process_.c_str());
-  resetME(name,mui_);
-  sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Time",process_.c_str());
-  resetME(name,mui_);
-  for(int i=1; i<5; i++){
-    sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Depth %d Occupancy Map",process_.c_str(),i);
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Depth %d Energy Map",process_.c_str(),i);
-    resetME(name,mui_);
-  }
-  sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Occupancy Map",process_.c_str());
-  resetME(name,mui_);
-  sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Energy Map",process_.c_str());
-  resetME(name,mui_);
+      s=subdir_+"hot_neighbortest/"+name[i]+"Hot Cells Failing Neighbor Test";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0)HotNeighborsByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotNeighborsByDepth[i], debug_);
+      s=subdir_+"hot_neighbortest/NeighborTestEnabled";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0 && me->getIntValue()==1)
+	neighbortest=true;
+    }
 
 
-  for(int i=0; i<4; i++){
-    if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE"; 
-    if(i==2) type = "HF"; 
-    if(i==3) type = "HO"; 
-    
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Energy",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Time",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell ID",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Energy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Energy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Occupancy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Energy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-  }
+  // Because we're clearing and re-forming the problem cell histogram here, we don't need to do any cute
+  // setting of the underflow bin to 0, and we can plot results as a raw rate between 0-1.
 
-  return;
-}
+  for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
+    {
+      if (ProblemCellsByDepth->depth[d]==0) continue;
 
-void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
-
-  cout << "Preparing HcalHotCellClient html output ..." << endl;
-  string client = "HotCellMonitor";
-  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
-  
-  ofstream htmlFile;
-  htmlFile.open((htmlDir + htmlName).c_str());
-
-  // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor: Hcal HotCell Task output</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
-  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal HotCells</span></h2> " << endl;
-  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
-  htmlFile << "<hr>" << endl;
-  htmlFile << "<table  width=100% border=1><tr>" << endl;
-  if(hasErrors())htmlFile << "<td bgcolor=red><a href=\"HotCellMonitorErrors.html\">Errors in this task</a></td>" << endl;
-  else htmlFile << "<td bgcolor=lime>No Errors</td>" << endl;
-  if(hasWarnings()) htmlFile << "<td bgcolor=yellow><a href=\"HotCellMonitorWarnings.html\">Warnings in this task</a></td>" << endl;
-  else htmlFile << "<td bgcolor=lime>No Warnings</td>" << endl;
-  if(hasOther()) htmlFile << "<td bgcolor=aqua><a href=\"HotCellMonitorMessages.html\">Messages in this task</a></td>" << endl;
-  else htmlFile << "<td bgcolor=lime>No Messages</td>" << endl;
-  htmlFile << "</tr></table>" << endl;
-  htmlFile << "<hr>" << endl;
-
-  htmlFile << "<h2><strong>Hcal Hot Cell Histograms</strong></h2>" << endl;
-  htmlFile << "<h3>" << endl;
-  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;  
-  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
-  if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
-  if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
-  htmlFile << "</h3>" << endl;
-  htmlFile << "<hr>" << endl;
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
-
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,gl_geo_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,gl_en_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,gl_geo_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,gl_en_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,gl_geo_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,gl_en_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,gl_geo_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,gl_en_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
-  for(int i=0; i<4; i++){
-    if(!subDetsOn_[i]) continue;
-    
-    string type = "HB";
-    if(i==1) type = "HE"; 
-    if(i==2) type = "HF"; 
-    if(i==3) type = "HO"; 
-
-    htmlFile << "<tr align=\"left\">" << endl;
-    htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
-
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,occ_en_[i][0],"iEta","iPhi", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,occ_geo_[i][1],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,occ_en_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML(runNo,max_en_[i],"GeV","Evts", 92, htmlFile,htmlDir);
-    histoHTML(runNo,max_t_[i],"nS","Evts", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-  }
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  // html page footer
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
-
-  htmlFile.close();
-
-  return;
-}
-
-void HcalHotCellClient::createTests(){
-  //  char meTitle[250], name[250];    
-  //  vector<string> params;
-  
-  if(verbose_) printf("There are NO hot cell client tests....\n");
+      if (HotAboveETThresholdByDepth[d]) totalevents = std::max(totalevents, HotAboveETThresholdByDepth[d]->GetBinContent(0));
+      else if (HotAlwaysAboveETThresholdByDepth[d]) totalevents = std::max(totalevents, HotAlwaysAboveETThresholdByDepth[d]->GetBinContent(0));
+      else if (HotAboveThresholdByDepth[d]) totalevents = std::max(totalevents, HotAboveThresholdByDepth[d]->GetBinContent(0));
+      else if (HotAlwaysAboveThresholdByDepth[d]) totalevents = std::max(totalevents, HotAlwaysAboveThresholdByDepth[d]->GetBinContent(0));
+      else if (neighbortest==true && HotNeighborsByDepth[d]) totalevents = std::max(totalevents, HotNeighborsByDepth[d]->GetBinContent(0));
+      else if (debug_>0) std::cout <<"<HcalHotCellClient::calculateProblems> No evaluation histograms found; no valid hot tests enabled?" << std::endl;
+      if (totalevents==0 || totalevents<minevents_) continue;
+      enoughevents_=true; // kind of a hack here
+      etabins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsX();
+      phibins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsY();
+      problemvalue=0;
+      for (int eta=0;eta<etabins;++eta)
+	{
+	  int ieta=CalcIeta(eta,d+1);
+	  if (ieta==-9999) continue;
+	  for (int phi=0;phi<phibins;++phi)
+	    {
+	      problemvalue=0; // problem fraction sums over all three tests
+	      // If cell is never-present in all runs, then problemvalue = event
+	      if (HotAboveETThresholdByDepth[d]!=0)
+		problemvalue+=HotAboveETThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
+	      if (HotAboveThresholdByDepth[d]!=0)
+		problemvalue+=HotAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
+	      if (HotAlwaysAboveThresholdByDepth[d]!=0)
+		problemvalue+=HotAlwaysAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
+	      if (neighbortest==true && HotNeighborsByDepth[d]!=0)
+		problemvalue+=HotNeighborsByDepth[d]->GetBinContent(eta+1,phi+1);
+	      if (problemvalue==0) continue;
+	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
+	      problemvalue = std::min(1.,problemvalue);
+	      
+	      zside=0;
+	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
+		ieta<0 ? zside = -1 : zside = 1;
+	      
+	      // For problem cells that exceed our allowed rate,
+	      // set the values to -1 if the cells are already marked in the status database
+	      if (problemvalue>minerrorrate_)
+		{
+		  HcalSubdetector subdet=HcalEmpty;
+		  if (isHB(eta,d+1))subdet=HcalBarrel;
+		  else if (isHE(eta,d+1)) subdet=HcalEndcap;
+		  else if (isHF(eta,d+1)) subdet=HcalForward;
+		  else if (isHO(eta,d+1)) subdet=HcalOuter;
+		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
+		    problemvalue=999;
+		}
+	      ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
+	      if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
+	    } // loop on phi
+	} // loop on eta
+    } // loop on depth
    
+  if (ProblemCells==0)
+    {
+      if (debug_>0) std::cout <<"<HcalHotCellClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
+      return;
+    }
+   
+  // Normalization of ProblemCell plot, in the case where there are errors in multiple depths
+  etabins=(ProblemCells->getTH2F())->GetNbinsX();
+  phibins=(ProblemCells->getTH2F())->GetNbinsY();
+  for (int eta=0;eta<etabins;++eta)
+    {
+      for (int phi=0;phi<phibins;++phi)
+	{
+	  if (ProblemCells->getBinContent(eta+1,phi+1)>1. && ProblemCells->getBinContent(eta+1,phi+1)<999)
+	    ProblemCells->setBinContent(eta+1,phi+1,1.);
+	}
+    }
+
+  FillUnphysicalHEHFBins(*ProblemCellsByDepth);
+  FillUnphysicalHEHFBins(ProblemCells);
   return;
 }
 
-void HcalHotCellClient::loadHistograms(TFile* infile){
 
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/HotCellMonitor/HotCell Task Event Number");
-  if(tnd){
-    string s =tnd->GetTitle();
-    ievt_ = -1;
-    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-  }
-
-  char name[150];    
-  for(int i=0; i<4; i++){
-    if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE"; 
-    if(i==2) type = "HF"; 
-    if(i==3) type = "HO"; 
-
-    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/HotCell Depth %d Occupancy Map",i+1);
-    gl_geo_[i] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/HotCell Depth %d Energy Map",i+1);
-    gl_en_[i] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 0",type.c_str(),type.c_str());
-    occ_geo_[i][0] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/%s/%s HotCell Geo Energy Map, Threshold 0",type.c_str(),type.c_str());
-    occ_en_[i][0] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 1",type.c_str(),type.c_str());
-    occ_geo_[i][1] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/%s/%s HotCell Geo Energy Map, Threshold 1",type.c_str(),type.c_str());
-    occ_en_[i][1] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/%s/%s HotCell Energy",type.c_str(),type.c_str());
-    max_en_[i] = (TH1F*)infile->Get(name);
-
-    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/%s/%s HotCell Time",type.c_str(),type.c_str());
-    max_t_[i] = (TH1F*)infile->Get(name);
-
-  }
-  return;
+void HcalHotCellClient::beginJob()
+{
+  dqmStore_ = edm::Service<DQMStore>().operator->();
+  if (debug_>0) 
+    {
+      std::cout <<"<HcalHotCellClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
+      dqmStore_->showDirStructure();
+    }
 }
+
+void HcalHotCellClient::endJob(){}
+
+void HcalHotCellClient::beginRun(void)
+{
+  enoughevents_=false;
+  if (!dqmStore_) 
+    {
+      if (debug_>0) std::cout <<"<HcalHotCellClient::beginRun> dqmStore does not exist!"<<std::endl;
+      return;
+    }
+  dqmStore_->setCurrentFolder(subdir_);
+  problemnames_.clear();
+  ProblemCells=dqmStore_->book2D(" ProblemHotCells",
+				 " Problem Hot Cell Rate for all HCAL;ieta;iphi",
+				 85,-42.5,42.5,
+				 72,0.5,72.5);
+  problemnames_.push_back(ProblemCells->getName());
+  if (debug_>1)
+    std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
+  dqmStore_->setCurrentFolder(subdir_+"problem_hotcells");
+  ProblemCellsByDepth=new EtaPhiHists();
+  ProblemCellsByDepth->setup(dqmStore_," Problem Hot Cell Rate");
+  for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
+    problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
+
+  nevts_=0;
+}
+
+void HcalHotCellClient::endRun(void){analyze();}
+
+void HcalHotCellClient::setup(void){}
+void HcalHotCellClient::cleanup(void){}
+
+bool HcalHotCellClient::hasErrors_Temp(void)
+{
+  if (!ProblemCells)
+    {
+      if (debug_>1) std::cout <<"<HcalHotCellClient::hasErrors_Temp>  ProblemCells histogram does not exist!"<<std::endl;
+      return false;
+    }
+  int problemcount=0;
+  int ieta=-9999;
+
+  for (int depth=0;depth<4; ++depth)
+    {
+      int etabins  = (ProblemCells->getTH2F())->GetNbinsX();
+      int phibins  = (ProblemCells->getTH2F())->GetNbinsY();
+      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
+        {
+          for (int hist_phi=0; hist_phi<phibins;++hist_phi)
+            {
+              ieta=CalcIeta(hist_eta,depth+1);
+	      if (ieta==-9999) continue;
+	      if (ProblemCellsByDepth->depth[depth]==0)
+		continue;
+	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
+		++problemcount;
+	    } // for (int hist_phi=1;...)
+	} // for (int hist_eta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>0) return true;
+  return false;
+}
+
+bool HcalHotCellClient::hasWarnings_Temp(void){return false;}
+bool HcalHotCellClient::hasOther_Temp(void){return false;}
+bool HcalHotCellClient::test_enabled(void){return true;}
+
+
+void HcalHotCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual)
+{
+  // This gets called by HcalMonitorClient
+  if (nevts_<minevents_) return; // not enough events to make judgment; don't create new status file
+
+  float binval;
+  int ieta=0;
+  int iphi=0;
+  int etabins=0;
+  int phibins=0;
+  
+  int subdet=0;
+  if (debug_>1)
+    {
+      std::cout <<"<HcalHotCellClient>  Summary of Hot Cells in Run: "<<std::endl;
+      std::cout <<"(Error rate must be >= "<<minerrorrate_*100.<<"% )"<<std::endl;  
+    }
+  for (int d=0;d<4;++d)
+    {
+      etabins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsX();
+      phibins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsY();
+      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
+	{
+	  ieta=CalcIeta(hist_eta,d+1);
+	  if (ieta==-9999) continue;
+	  for (int hist_phi=0;hist_phi<phibins;++hist_phi)
+	    {
+	      iphi=hist_phi+1;
+	      
+	      // ProblemCells have already been normalized
+	      binval=ProblemCellsByDepth->depth[d]->getBinContent(hist_eta+1,hist_phi+1);
+	      
+	      // Set subdetector labels for output
+	      if (d<2)
+		{
+		  if (isHB(hist_eta,d+1)) 
+		    subdet=HcalBarrel;
+		  else if (isHE(hist_eta,d+1)) 
+		    subdet=HcalEndcap;
+		  else if (isHF(hist_eta,d+1)) 
+		    subdet=HcalForward;
+		}
+	      else if (d==2) 
+		subdet=HcalEndcap;
+	      else if (d==3) 
+		subdet=HcalOuter;
+	      // Set correct depth label
+	      
+	      HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
+	      // Need this to keep from flagging non-existent HE/HF cells
+	      if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
+		continue;
+	      
+	      int hotcell=0;
+	      if (binval>minerrorrate_)
+		hotcell=1;
+	      if (hotcell==1 && debug_>0)
+		std::cout <<"Hot Cell :  subdetector = "<<subdet<<" (eta,phi,depth) = ("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
+	      
+	      // DetID not found in quality list; add it.  (This shouldn't happen!)
+	      if (myqual.find(myid)==myqual.end())
+		{
+		  myqual[myid]=(hotcell<<HcalChannelStatus::HcalCellHot);  // 
+		}
+	      else
+		{
+		  int mask=(1<<HcalChannelStatus::HcalCellHot);
+		  // hot cell found; 'or' the hot cell mask with existing ID
+		  if (hotcell==1)
+		    myqual[myid] |=mask;
+		  // cell is not found, 'and' the inverse of the mask with the existing ID.
+		  // Does this work correctly?  I think so, but need to verify.
+		  // Also, do we want to allow the client to turn off hot cell masks, or only add them?
+		  else
+		    myqual[myid] &=~mask;
+		}
+	    } // for (int hist_phi=1;hist_phi<=phibins;++hist_phi)
+	} // for (int hist_eta=1;hist_eta<=etabins;++hist_eta)
+    } // for (int d=0;d<4;++d)
+
+
+} //void HcalHotCellClient::updateChannelStatus
+
+HcalHotCellClient::~HcalHotCellClient()
+{}

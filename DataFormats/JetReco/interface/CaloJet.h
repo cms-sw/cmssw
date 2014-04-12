@@ -18,7 +18,6 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.26 2007/08/01 23:03:25 fedor Exp $
  ************************************************************/
 
 
@@ -29,6 +28,11 @@
 namespace reco {
 class CaloJet : public Jet {
  public:
+
+    typedef CaloTowerPtr ConstituentTypePtr;
+    typedef CaloTowerFwdPtr ConstituentTypeFwdPtr;
+
+
   struct Specific {
     Specific () :
       mMaxEInEmTowers (0),
@@ -78,6 +82,9 @@ class CaloJet : public Jet {
   CaloJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
 	  const Jet::Constituents& fConstituents);
 
+  /** Constructor from values*/
+  CaloJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific);
+
   /** backward compatible, vertex=(0,0,0) */
   CaloJet(const LorentzVector& fP4, const Specific& fSpecific, 
 	  const Jet::Constituents& fConstituents);
@@ -114,13 +121,28 @@ class CaloJet : public Jet {
   /** Returns the number of constituents carrying a 60% of the total Jet energy*/
   int n60() const {return nCarrying (0.6);}
 
+  /// Physics Eta (use jet Z and kinematics only)
+    //  float physicsEtaQuick (float fZVertex) const;
+  /// Physics Eta (use jet Z and kinematics only)
+    //float physicsEta (float fZVertex) const {return physicsEtaQuick (fZVertex);}
+  /// Physics p4 (use jet Z and kinematics only)
+    //LorentzVector physicsP4 (float fZVertex) const;
+  /// Physics p4 for full 3d vertex corretion
+  LorentzVector physicsP4 (const Particle::Point &vertex) const;
+  /// detector p4 for full 3d vertex correction.
+  LorentzVector detectorP4 () const;
+  
+  /// Physics Eta (loop over constituents)
+    //float physicsEtaDetailed (float fZVertex) const;
 
-  /// convert generic constituent to specific type
-  static CaloTowerRef caloTower (const reco::Candidate* fConstituent);
+  /// Detector Eta (default for CaloJets)
+    //float detectorEta () const {return eta();}
+
+
   /// get specific constituent
-  CaloTowerRef getConstituent (unsigned fIndex) const;
+  virtual CaloTowerPtr getCaloConstituent (unsigned fIndex) const;
   /// get all constituents
-  std::vector <CaloTowerRef> getConstituents () const;
+  virtual std::vector <CaloTowerPtr> getCaloConstituents () const;
   
   // block accessors
   
@@ -132,9 +154,8 @@ class CaloJet : public Jet {
   /// Print object
   virtual std::string print () const;
 
-  /// Keep this for a while to avoid braking the third party code
+  /// CaloTowers indexes
   std::vector<CaloTowerDetId> getTowerIndices() const;
-
  private:
   /// Polymorphic overlap
   virtual bool overlap( const Candidate & ) const;

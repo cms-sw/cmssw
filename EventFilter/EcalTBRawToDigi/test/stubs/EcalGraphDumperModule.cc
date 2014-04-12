@@ -3,8 +3,6 @@
  * module dumping TGraph with 10 data frames
  *   
  * 
- * $Date: 2007/06/13 13:55:32 $
- * $Revision: 1.2 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -14,9 +12,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
-#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
 #include <iostream>
@@ -194,7 +190,7 @@ void EcalGraphDumperModule::analyze( const edm::Event & e, const  edm::EventSetu
       if (icIter == listAllChannels.end()) { continue; }
 	    
 
-      for ( unsigned int i=0; i< (*digiItr).size() ; ++i ) {
+      for (int i=0; i< ((int)(*digiItr).size()) ; ++i ) {
         EBDataFrame df( *digiItr );
 	ordinate[i] = df.sample(i).adc();
       }

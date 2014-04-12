@@ -1,0 +1,2733 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="pxlx.xml">
+		<Polycone name="PXLX" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-2.82*m" rMin="7.4*cm" rMax="19*cm"/>
+			<ZSection z="-1.899*m" rMin="3.4*cm" rMax="19*cm"/>
+			<ZSection z="-1.899*m" rMin="3.1*cm" rMax="19*cm"/>
+			<ZSection z="1.899*m" rMin="3.1*cm" rMax="19*cm"/>
+			<ZSection z="1.899*m" rMin="3.4*cm" rMax="19*cm"/>
+			<ZSection z="2.82*m" rMin="7.4*cm" rMax="19*cm"/>
+		</Polycone>
+		<Polycone name="PBXL" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-56*cm" rMin="18*cm" rMax="18.5*cm"/>
+			<ZSection z="-30*cm" rMin="18*cm" rMax="18.5*cm"/>
+			<ZSection z="-30*cm" rMin="3.1*cm" rMax="18.5*cm"/>
+			<ZSection z="30*cm" rMin="3.1*cm" rMax="18.5*cm"/>
+			<ZSection z="30*cm" rMin="18*cm" rMax="18.5*cm"/>
+			<ZSection z="56*cm" rMin="18*cm" rMax="18.5*cm"/>
+		</Polycone>
+		<Tubs name="PBS1" rMin="3.7*cm" rMax="3.705*cm" dz="27.7*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBS2" rMin="3.705*cm" rMax="3.715*cm" dz="27.7*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBS3" rMin="18.485*cm" rMax="18.49*cm" dz="27.7*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBS4" rMin="18.49*cm" rMax="18.5*cm" dz="27.7*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBR1" rMin="3.7*cm" rMax="18*cm" dz="2.99999*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBNX" rMin="3.7*cm" rMax="18*cm" dz="2.74*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Polycone name="PBR6" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="28.6*cm" rMin="4.5*cm" rMax="18*cm"/>
+			<ZSection z="28.6375*cm" rMin="4.5*cm" rMax="18*cm"/>
+			<ZSection z="28.75*cm" rMin="4.5*cm" rMax="4.5*cm"/>
+		</Polycone>
+		<Polycone name="PBR7" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="28.45*cm" rMin="7.5*cm" rMax="18*cm"/>
+			<ZSection z="28.5125*cm" rMin="7.5*cm" rMax="18*cm"/>
+			<ZSection z="28.6*cm" rMin="7.5*cm" rMax="7.5*cm"/>
+		</Polycone>
+		<Polycone name="PBR8" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="28.3*cm" rMin="11.5*cm" rMax="18*cm"/>
+			<ZSection z="28.396*cm" rMin="11.5*cm" rMax="18*cm"/>
+			<ZSection z="28.45*cm" rMin="11.5*cm" rMax="11.5*cm"/>
+		</Polycone>
+		<Tubs name="PBR5" rMin="4*cm" rMax="4.88*cm" dz="2.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBR2" rMin="6.9*cm" rMax="7.78*cm" dz="2.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBR4" rMin="9.7*cm" rMax="10.58*cm" dz="2.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBC1" rMin="12*cm" rMax="18.5*cm" dz="950.005*mum" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBC3" rMin="12*cm" rMax="18.5*cm" dz="950.005*mum" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBC2" rMin="18*cm" rMax="18.25*cm" dz="5.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PBC4" rMin="18*cm" rMax="18.25*cm" dz="8*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Polyhedra name="PX1B" numSide="18" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-27.7*cm" rMin="4.11*cm" rMax="4.84*cm"/>
+			<ZSection z="27.7*cm" rMin="4.11*cm" rMax="4.84*cm"/>
+		</Polyhedra>
+		<Box name="PXBL" dx="1.25*cm" dy="670*mum" dz="26.68*cm"/>
+		<Box name="PXBB" dx="1.25*cm" dy="90*mum" dz="26.68*cm"/>
+		<Box name="PXB1" dx="1.1*cm" dy="30*mum" dz="10*cm"/>
+		<Box name="PXB2" dx="1.1*cm" dy="30*mum" dz="6.67*cm"/>
+		<Box name="PXB3" dx="1.1*cm" dy="30*mum" dz="3.34*cm"/>
+		<Box name="PXBM" dx="1.25*cm" dy="580*mum" dz="26.68*cm"/>
+		<Box name="PXBQ" dx="1.25*cm" dy="580*mum" dz="3.335*cm"/>
+		<Box name="PXBP" dx="1.25*cm" dy="290*mum" dz="3.315*cm"/>
+		<Box name="PXBH" dx="1.1*cm" dy="90*mum" dz="3.225*cm"/>
+		<Box name="PXBE" dx="9*mm" dy="150*mum" dz="3.315*cm"/>
+		<Box name="PXBD" dx="8.1*mm" dy="150*mum" dz="3.225*cm"/>
+		<Box name="PXBA" dx="8.1*mm" dy="50*mum" dz="3.2*cm"/>
+		<Box name="PXBC" dx="1.75*mm" dy="1.75*mm" dz="27.7*cm"/>
+		<Polyhedra name="PX2B" numSide="30" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-27.7*cm" rMin="7.02*cm" rMax="7.72*cm"/>
+			<ZSection z="27.7*cm" rMin="7.02*cm" rMax="7.72*cm"/>
+		</Polyhedra>
+		<Polyhedra name="PX3B" numSide="42" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-27.7*cm" rMin="9.88*cm" rMax="10.56*cm"/>
+			<ZSection z="27.7*cm" rMin="9.88*cm" rMax="10.56*cm"/>
+		</Polyhedra>
+		<Tubs name="PBXS" rMin="18.5*cm" rMax="18.7*cm" dz="1.13*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PFXL" rMin="4.9*cm" rMax="17*cm" dz="15*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PXWF" rMin="4.9*cm" rMax="17*cm" dz="2.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PXR1" rMin="5.016*cm" rMax="5.116*cm" dz="2.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PXR2" rMin="16.86*cm" rMax="16.96*cm" dz="2.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PXCM" rMin="16.44*cm" rMax="16.86*cm" dz="3.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trd1 name="PXTU" dz="5.485*cm" dy1="3.35*mm" dy2="3.35*mm" dx1="1.6*cm" dx2="3.2*cm"/>
+		<Box name="PXCU" dx="3.5*mm" dy="1.5*mm" dz="3*cm"/>
+		<Box name="PXCT" dx="1.15*cm" dy="1.5*mm" dz="3.5*mm"/>
+		<Box name="PXCC" dx="2.5*mm" dy="1.5*mm" dz="1.525*cm"/>
+		<Trd1 name="PXFG" dz="4.64*cm" dy1="300*mum" dy2="300*mum" dx1="1.572*cm" dx2="2.848*cm"/>
+		<Trd1 name="PXHD" dz="4.64*cm" dy1="75*mum" dy2="75*mum" dx1="1.572*cm" dx2="2.848*cm"/>
+		<Box name="PXA1" dx="8.925*mm" dy="550*mum" dz="1.185*cm"/>
+		<Box name="PXFB_1_PXA1" dx="6.925*mm" dy="200*mum" dz="1.185*cm"/>
+		<Box name="PXFV_1_PXA1" dx="6.925*mm" dy="75*mum" dz="1.185*cm"/>
+		<Box name="PXFQ_1_PXA1" dx="6.3*mm" dy="125*mum" dz="7.95*mm"/>
+		<Box name="PXFD" dx="4.05*mm" dy="150*mum" dz="4.05*mm"/>
+		<Box name="PXA3" dx="1.2975*cm" dy="550*mum" dz="1.59*cm"/>
+		<Box name="PXFB_3_PXA3" dx="1.2975*cm" dy="200*mum" dz="1.59*cm"/>
+		<Box name="PXFV_3_PXA3" dx="1.2975*cm" dy="75*mum" dz="1.59*cm"/>
+		<Box name="PXFQ_3_PXA3" dx="1.1475*cm" dy="125*mum" dz="1.2*cm"/>
+		<Box name="PXA5" dx="1.2975*cm" dy="550*mum" dz="1.995*cm"/>
+		<Box name="PXFB_5_PXA5" dx="1.2975*cm" dy="200*mum" dz="1.995*cm"/>
+		<Box name="PXFV_5_PXA5" dx="1.2975*cm" dy="75*mum" dz="1.995*cm"/>
+		<Box name="PXFQ_5_PXA5" dx="1.1475*cm" dy="125*mum" dz="1.605*cm"/>
+		<Box name="PXA7" dx="8.925*mm" dy="550*mum" dz="2.22*cm"/>
+		<Box name="PXFB_7_PXA7" dx="6.925*mm" dy="200*mum" dz="2.22*cm"/>
+		<Box name="PXFV_7_PXA7" dx="6.925*mm" dy="75*mum" dz="2.22*cm"/>
+		<Box name="PXFQ_7_PXA7" dx="6.3*mm" dy="125*mum" dz="1.98*cm"/>
+		<Box name="PXA2" dx="1.2975*cm" dy="550*mum" dz="1.59*cm"/>
+		<Box name="PXFB_2_PXA2" dx="1.2975*cm" dy="200*mum" dz="1.59*cm"/>
+		<Box name="PXFV_2_PXA2" dx="1.2975*cm" dy="75*mum" dz="1.59*cm"/>
+		<Box name="PXFQ_2_PXA2" dx="1.1475*cm" dy="125*mum" dz="1.2*cm"/>
+		<Box name="PXA4" dx="1.2975*cm" dy="550*mum" dz="1.995*cm"/>
+		<Box name="PXFB_4_PXA4" dx="1.2975*cm" dy="200*mum" dz="1.995*cm"/>
+		<Box name="PXFV_4_PXA4" dx="1.2975*cm" dy="75*mum" dz="1.995*cm"/>
+		<Box name="PXFQ_4_PXA4" dx="1.1475*cm" dy="125*mum" dz="1.605*cm"/>
+		<Box name="PXA6" dx="1.2975*cm" dy="550*mum" dz="2.4*cm"/>
+		<Box name="PXFB_6_PXA6" dx="1.2975*cm" dy="200*mum" dz="2.4*cm"/>
+		<Box name="PXFV_6_PXA6" dx="1.2975*cm" dy="75*mum" dz="2.4*cm"/>
+		<Box name="PXFQ_6_PXA6" dx="1.1475*cm" dy="125*mum" dz="2.01*cm"/>
+		<Tubs name="PXPC" rMin="15.96*cm" rMax="16.06*cm" dz="1*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PFXM" rMin="4.9*cm" rMax="17*cm" dz="15*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PXWG" rMin="4.9*cm" rMax="17*cm" dz="2.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PXSF" rMin="17*cm" rMax="17.9*cm" dz="1.255*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PXS1" rMin="17*cm" rMax="17.9*cm" dz="6*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PXS2" rMin="17*cm" rMax="17.9*cm" dz="6*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PXS3" rMin="17*cm" rMax="17.9*cm" dz="1.1175*m" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="pxlx.xml">
+		<LogicalPart name="PXLX" category="unspecified">
+			<rSolid name="PXLX"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PBXL" category="unspecified">
+			<rSolid name="PBXL"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PBS1" category="unspecified">
+			<rSolid name="PBS1"/>
+			<rMaterial name="materials:Aluminium Pix_b"/>
+		</LogicalPart>
+		<LogicalPart name="PBS2" category="unspecified">
+			<rSolid name="PBS2"/>
+			<rMaterial name="materials:Carbon fibre st_b"/>
+		</LogicalPart>
+		<LogicalPart name="PBS3" category="unspecified">
+			<rSolid name="PBS3"/>
+			<rMaterial name="materials:Aluminium Pix_b"/>
+		</LogicalPart>
+		<LogicalPart name="PBS4" category="unspecified">
+			<rSolid name="PBS4"/>
+			<rMaterial name="materials:Carbon fibre st_b"/>
+		</LogicalPart>
+		<LogicalPart name="PBR1" category="unspecified">
+			<rSolid name="PBR1"/>
+			<rMaterial name="materials:Pix_Bar_Ring_CF"/>
+		</LogicalPart>
+		<LogicalPart name="PBNX" category="unspecified">
+			<rSolid name="PBNX"/>
+			<rMaterial name="materials:Pix_Bar_Ring_HC"/>
+		</LogicalPart>
+		<LogicalPart name="PBR6" category="unspecified">
+			<rSolid name="PBR6"/>
+			<rMaterial name="materials:Pix_Bar_Cable1"/>
+		</LogicalPart>
+		<LogicalPart name="PBR7" category="unspecified">
+			<rSolid name="PBR7"/>
+			<rMaterial name="materials:Pix_Bar_Cable2"/>
+		</LogicalPart>
+		<LogicalPart name="PBR8" category="unspecified">
+			<rSolid name="PBR8"/>
+			<rMaterial name="materials:Pix_Bar_Cable3"/>
+		</LogicalPart>
+		<LogicalPart name="PBR5" category="unspecified">
+			<rSolid name="PBR5"/>
+			<rMaterial name="materials:Pix_Bar_Water"/>
+		</LogicalPart>
+		<LogicalPart name="PBR2" category="unspecified">
+			<rSolid name="PBR2"/>
+			<rMaterial name="materials:Pix_Bar_Water"/>
+		</LogicalPart>
+		<LogicalPart name="PBR4" category="unspecified">
+			<rSolid name="PBR4"/>
+			<rMaterial name="materials:Pix_Bar_Water"/>
+		</LogicalPart>
+		<LogicalPart name="PBC1" category="unspecified">
+			<rSolid name="PBC1"/>
+			<rMaterial name="materials:Pix_Bar_Conn1"/>
+		</LogicalPart>
+		<LogicalPart name="PBC3" category="unspecified">
+			<rSolid name="PBC3"/>
+			<rMaterial name="materials:Pix_Bar_Conn1"/>
+		</LogicalPart>
+		<LogicalPart name="PBC2" category="unspecified">
+			<rSolid name="PBC2"/>
+			<rMaterial name="materials:Pix_Bar_Conn2"/>
+		</LogicalPart>
+		<LogicalPart name="PBC4" category="unspecified">
+			<rSolid name="PBC4"/>
+			<rMaterial name="materials:Pix_Bar_Conn3"/>
+		</LogicalPart>
+		<LogicalPart name="PX1B" category="unspecified">
+			<rSolid name="PX1B"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXBL" category="unspecified">
+			<rSolid name="PXBL"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXBB" category="unspecified">
+			<rSolid name="PXBB"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXB1" category="unspecified">
+			<rSolid name="PXB1"/>
+			<rMaterial name="materials:Pix_Bar_Cable"/>
+		</LogicalPart>
+		<LogicalPart name="PXB2" category="unspecified">
+			<rSolid name="PXB2"/>
+			<rMaterial name="materials:Pix_Bar_Cable"/>
+		</LogicalPart>
+		<LogicalPart name="PXB3" category="unspecified">
+			<rSolid name="PXB3"/>
+			<rMaterial name="materials:Pix_Bar_Cable"/>
+		</LogicalPart>
+		<LogicalPart name="PXBM" category="unspecified">
+			<rSolid name="PXBM"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXBQ" category="unspecified">
+			<rSolid name="PXBQ"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXBP" category="unspecified">
+			<rSolid name="PXBP"/>
+			<rMaterial name="materials:Pix_Bar_Baseplate"/>
+		</LogicalPart>
+		<LogicalPart name="PXBH" category="unspecified">
+			<rSolid name="PXBH"/>
+			<rMaterial name="materials:T_Pix_Bar_Readout"/>
+		</LogicalPart>
+		<LogicalPart name="PXBE" category="unspecified">
+			<rSolid name="PXBE"/>
+			<rMaterial name="materials:T_Silicon"/>
+		</LogicalPart>
+		<LogicalPart name="PXBD" category="unspecified">
+			<rSolid name="PXBD"/>
+			<rMaterial name="materials:T_Pix_Bar_Det"/>
+		</LogicalPart>
+		<LogicalPart name="PXBA" category="unspecified">
+			<rSolid name="PXBA"/>
+			<rMaterial name="materials:T_Pix_Bar_Hybrid"/>
+		</LogicalPart>
+		<LogicalPart name="PXBC" category="unspecified">
+			<rSolid name="PXBC"/>
+			<rMaterial name="materials:Pix_Bar_Cool"/>
+		</LogicalPart>
+		<LogicalPart name="PX2B" category="unspecified">
+			<rSolid name="PX2B"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PX3B" category="unspecified">
+			<rSolid name="PX3B"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PBXS" category="unspecified">
+			<rSolid name="PBXS"/>
+			<rMaterial name="materials:Pix_Bar_Services"/>
+		</LogicalPart>
+		<LogicalPart name="PFXL" category="unspecified">
+			<rSolid name="PFXL"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXWF" category="unspecified">
+			<rSolid name="PXWF"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXR1" category="unspecified">
+			<rSolid name="PXR1"/>
+			<rMaterial name="materials:Pix_Fwd_Iring"/>
+		</LogicalPart>
+		<LogicalPart name="PXR2" category="unspecified">
+			<rSolid name="PXR2"/>
+			<rMaterial name="materials:Pix_Fwd_Oring"/>
+		</LogicalPart>
+		<LogicalPart name="PXCM" category="unspecified">
+			<rSolid name="PXCM"/>
+			<rMaterial name="materials:Pix_Fwd_Bypass"/>
+		</LogicalPart>
+		<LogicalPart name="PXTU" category="unspecified">
+			<rSolid name="PXTU"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXCU" category="unspecified">
+			<rSolid name="PXCU"/>
+			<rMaterial name="materials:Pix_Fwd_Cool"/>
+		</LogicalPart>
+		<LogicalPart name="PXCT" category="unspecified">
+			<rSolid name="PXCT"/>
+			<rMaterial name="materials:Pix_Fwd_Cool"/>
+		</LogicalPart>
+		<LogicalPart name="PXCC" category="unspecified">
+			<rSolid name="PXCC"/>
+			<rMaterial name="materials:Pix_Fwd_Strut"/>
+		</LogicalPart>
+		<LogicalPart name="PXFG" category="unspecified">
+			<rSolid name="PXFG"/>
+			<rMaterial name="materials:Pix_Fwd_Blade"/>
+		</LogicalPart>
+		<LogicalPart name="PXHD" category="unspecified">
+			<rSolid name="PXHD"/>
+			<rMaterial name="materials:Pix_Fwd_HDI"/>
+		</LogicalPart>
+		<LogicalPart name="PXA1" category="unspecified">
+			<rSolid name="PXA1"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXFB_1_PXA1" category="unspecified">
+			<rSolid name="PXFB_1_PXA1"/>
+			<rMaterial name="materials:Pix_Fwd_Base"/>
+		</LogicalPart>
+		<LogicalPart name="PXFV_1_PXA1" category="unspecified">
+			<rSolid name="PXFV_1_PXA1"/>
+			<rMaterial name="materials:Pix_Fwd_VHDI"/>
+		</LogicalPart>
+		<LogicalPart name="PXFQ_1_PXA1" category="unspecified">
+			<rSolid name="PXFQ_1_PXA1"/>
+			<rMaterial name="materials:T_Pix_Fwd_Readout"/>
+		</LogicalPart>
+		<LogicalPart name="PXFD" category="unspecified">
+			<rSolid name="PXFD"/>
+			<rMaterial name="materials:T_Pix_Fwd_Det"/>
+		</LogicalPart>
+		<LogicalPart name="PXA3" category="unspecified">
+			<rSolid name="PXA3"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXFB_3_PXA3" category="unspecified">
+			<rSolid name="PXFB_3_PXA3"/>
+			<rMaterial name="materials:Pix_Fwd_Base"/>
+		</LogicalPart>
+		<LogicalPart name="PXFV_3_PXA3" category="unspecified">
+			<rSolid name="PXFV_3_PXA3"/>
+			<rMaterial name="materials:Pix_Fwd_VHDI"/>
+		</LogicalPart>
+		<LogicalPart name="PXFQ_3_PXA3" category="unspecified">
+			<rSolid name="PXFQ_3_PXA3"/>
+			<rMaterial name="materials:T_Pix_Fwd_Readout"/>
+		</LogicalPart>
+		<LogicalPart name="PXA5" category="unspecified">
+			<rSolid name="PXA5"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXFB_5_PXA5" category="unspecified">
+			<rSolid name="PXFB_5_PXA5"/>
+			<rMaterial name="materials:Pix_Fwd_Base"/>
+		</LogicalPart>
+		<LogicalPart name="PXFV_5_PXA5" category="unspecified">
+			<rSolid name="PXFV_5_PXA5"/>
+			<rMaterial name="materials:Pix_Fwd_VHDI"/>
+		</LogicalPart>
+		<LogicalPart name="PXFQ_5_PXA5" category="unspecified">
+			<rSolid name="PXFQ_5_PXA5"/>
+			<rMaterial name="materials:T_Pix_Fwd_Readout"/>
+		</LogicalPart>
+		<LogicalPart name="PXA7" category="unspecified">
+			<rSolid name="PXA7"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXFB_7_PXA7" category="unspecified">
+			<rSolid name="PXFB_7_PXA7"/>
+			<rMaterial name="materials:Pix_Fwd_Base"/>
+		</LogicalPart>
+		<LogicalPart name="PXFV_7_PXA7" category="unspecified">
+			<rSolid name="PXFV_7_PXA7"/>
+			<rMaterial name="materials:Pix_Fwd_VHDI"/>
+		</LogicalPart>
+		<LogicalPart name="PXFQ_7_PXA7" category="unspecified">
+			<rSolid name="PXFQ_7_PXA7"/>
+			<rMaterial name="materials:T_Pix_Fwd_Readout"/>
+		</LogicalPart>
+		<LogicalPart name="PXA2" category="unspecified">
+			<rSolid name="PXA2"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXFB_2_PXA2" category="unspecified">
+			<rSolid name="PXFB_2_PXA2"/>
+			<rMaterial name="materials:Pix_Fwd_Base"/>
+		</LogicalPart>
+		<LogicalPart name="PXFV_2_PXA2" category="unspecified">
+			<rSolid name="PXFV_2_PXA2"/>
+			<rMaterial name="materials:Pix_Fwd_VHDI"/>
+		</LogicalPart>
+		<LogicalPart name="PXFQ_2_PXA2" category="unspecified">
+			<rSolid name="PXFQ_2_PXA2"/>
+			<rMaterial name="materials:T_Pix_Fwd_Readout"/>
+		</LogicalPart>
+		<LogicalPart name="PXA4" category="unspecified">
+			<rSolid name="PXA4"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXFB_4_PXA4" category="unspecified">
+			<rSolid name="PXFB_4_PXA4"/>
+			<rMaterial name="materials:Pix_Fwd_Base"/>
+		</LogicalPart>
+		<LogicalPart name="PXFV_4_PXA4" category="unspecified">
+			<rSolid name="PXFV_4_PXA4"/>
+			<rMaterial name="materials:Pix_Fwd_VHDI"/>
+		</LogicalPart>
+		<LogicalPart name="PXFQ_4_PXA4" category="unspecified">
+			<rSolid name="PXFQ_4_PXA4"/>
+			<rMaterial name="materials:T_Pix_Fwd_Readout"/>
+		</LogicalPart>
+		<LogicalPart name="PXA6" category="unspecified">
+			<rSolid name="PXA6"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXFB_6_PXA6" category="unspecified">
+			<rSolid name="PXFB_6_PXA6"/>
+			<rMaterial name="materials:Pix_Fwd_Base"/>
+		</LogicalPart>
+		<LogicalPart name="PXFV_6_PXA6" category="unspecified">
+			<rSolid name="PXFV_6_PXA6"/>
+			<rMaterial name="materials:Pix_Fwd_VHDI"/>
+		</LogicalPart>
+		<LogicalPart name="PXFQ_6_PXA6" category="unspecified">
+			<rSolid name="PXFQ_6_PXA6"/>
+			<rMaterial name="materials:T_Pix_Fwd_Readout"/>
+		</LogicalPart>
+		<LogicalPart name="PXPC" category="unspecified">
+			<rSolid name="PXPC"/>
+			<rMaterial name="materials:Pix_Fwd_PortCard"/>
+		</LogicalPart>
+		<LogicalPart name="PFXM" category="unspecified">
+			<rSolid name="PFXM"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXWG" category="unspecified">
+			<rSolid name="PXWG"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXSF" category="unspecified">
+			<rSolid name="PXSF"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="PXS1" category="unspecified">
+			<rSolid name="PXS1"/>
+			<rMaterial name="materials:Pix_Fwd_Services_1"/>
+		</LogicalPart>
+		<LogicalPart name="PXS2" category="unspecified">
+			<rSolid name="PXS2"/>
+			<rMaterial name="materials:Pix_Fwd_Services_2"/>
+		</LogicalPart>
+		<LogicalPart name="PXS3" category="unspecified">
+			<rSolid name="PXS3"/>
+			<rMaterial name="materials:Pix_Fwd_Services_3"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="pxlx.xml">
+		<PosPart copyNumber="1">
+			<rParent name="cms:TRAK"/>
+			<rChild name="pxlx:PXLX"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXLX"/>
+			<rChild name="pxlx:PBXL"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBS1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBS2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBS3"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBS4"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="28*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR1"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-28*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBR1"/>
+			<rChild name="pxlx:PBNX"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR6"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR6"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR7"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR7"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR8"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR8"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR5"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="29*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR5"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-29*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="29*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR2"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-29*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR4"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="29*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBR4"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-29*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBC1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="27.595*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBC1"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-27.595*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBC3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="28.845*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBC3"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-28.845*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBC2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="34.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBC2"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-34.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBC4"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="48*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PBC4"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-48*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PX1B"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:R300"/>
+			<Translation x="6.54696*cm" y="3.77989*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1326"/>
+			<Translation x="5.26667*cm" y="4.74213*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1306"/>
+			<Translation x="3.61739*cm" y="2.0885*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:R320"/>
+			<Translation x="2.97524*cm" y="3.54576*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1308"/>
+			<Translation x="1.42862*cm" y="3.9251*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:R360"/>
+			<Translation x="0*fm" y="4.62866*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1310"/>
+			<Translation x="-1.42862*cm" y="3.9251*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1311"/>
+			<Translation x="-2.97524*cm" y="3.54576*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1312"/>
+			<Translation x="-3.61739*cm" y="2.0885*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1313"/>
+			<Translation x="-4.55834*cm" y="8.03758*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1314"/>
+			<Translation x="-4.11354*cm" y="-7.25328*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1306"/>
+			<Translation x="-4.00854*cm" y="-2.31433*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1316"/>
+			<Translation x="-2.68492*cm" y="-3.19977*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1308"/>
+			<Translation x="-1.58309*cm" y="-4.34952*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1318"/>
+			<Translation x="0*fm" y="-4.177*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1310"/>
+			<Translation x="1.58309*cm" y="-4.34952*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1320"/>
+			<Translation x="2.68492*cm" y="-3.19977*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1312"/>
+			<Translation x="4.00854*cm" y="-2.31433*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1322"/>
+			<Translation x="4.11354*cm" y="-7.25329*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1314"/>
+			<Translation x="4.55834*cm" y="8.03758*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1324"/>
+			<Translation x="6.74014*cm" y="2.19*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1354"/>
+			<Translation x="-10.1625*cm" y="-2.31953*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1376"/>
+			<Translation x="-9.2594*cm" y="-3.63405*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1306"/>
+			<Translation x="-9.02734*cm" y="-5.21194*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1327"/>
+			<Translation x="4.44352*cm" y="6.11599*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1328"/>
+			<Translation x="2.88254*cm" y="6.4743*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1329"/>
+			<Translation x="1.57177*cm" y="7.39458*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1330"/>
+			<Translation x="0*fm" y="7.087*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1331"/>
+			<Translation x="-1.57177*cm" y="7.39458*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1332"/>
+			<Translation x="-2.88254*cm" y="6.4743*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1333"/>
+			<Translation x="-4.44352*cm" y="6.11599*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1334"/>
+			<Translation x="-5.26667*cm" y="4.74213*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1335"/>
+			<Translation x="-6.54696*cm" y="3.77989*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1336"/>
+			<Translation x="-6.74014*cm" y="2.19*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1337"/>
+			<Translation x="-7.51836*cm" y="7.90212*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1338"/>
+			<Translation x="-7.04818*cm" y="-7.40793*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1324"/>
+			<Translation x="-7.18977*cm" y="-2.3361*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1340"/>
+			<Translation x="-6.13752*cm" y="-3.5435*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1326"/>
+			<Translation x="-5.61801*cm" y="-5.05848*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1342"/>
+			<Translation x="-4.16563*cm" y="-5.7335*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1328"/>
+			<Translation x="-3.07484*cm" y="-6.9062*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1344"/>
+			<Translation x="-1.47347*cm" y="-6.93213*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1330"/>
+			<Translation x="0*fm" y="-7.55977*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1346"/>
+			<Translation x="1.47347*cm" y="-6.93213*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1332"/>
+			<Translation x="3.07484*cm" y="-6.9062*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1348"/>
+			<Translation x="4.16563*cm" y="-5.7335*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1334"/>
+			<Translation x="5.61801*cm" y="-5.05848*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1350"/>
+			<Translation x="6.13752*cm" y="-3.5435*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1336"/>
+			<Translation x="7.18977*cm" y="-2.3361*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1352"/>
+			<Translation x="7.04818*cm" y="-7.40794*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1338"/>
+			<Translation x="7.51836*cm" y="7.90211*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1354"/>
+			<Translation x="9.69761*cm" y="2.21342*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1355"/>
+			<Translation x="9.70331*cm" y="3.80827*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1306"/>
+			<Translation x="8.61436*cm" y="4.9735*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1357"/>
+			<Translation x="8.14971*cm" y="6.49918*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1358"/>
+			<Translation x="6.76568*cm" y="7.29167*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1359"/>
+			<Translation x="5.87198*cm" y="8.61261*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1360"/>
+			<Translation x="4.31584*cm" y="8.96194*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1361"/>
+			<Translation x="3.07249*cm" y="9.96077*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1362"/>
+			<Translation x="1.48252*cm" y="9.8359*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:R360"/>
+			<Translation x="0*fm" y="10.4239*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1364"/>
+			<Translation x="-1.48252*cm" y="9.8359*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1365"/>
+			<Translation x="-3.07249*cm" y="9.96077*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1366"/>
+			<Translation x="-4.31584*cm" y="8.96194*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1367"/>
+			<Translation x="-5.87198*cm" y="8.61261*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1368"/>
+			<Translation x="-6.76568*cm" y="7.29167*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1369"/>
+			<Translation x="-8.14971*cm" y="6.49918*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1312"/>
+			<Translation x="-8.61436*cm" y="4.9735*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="34">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1387"/>
+			<Translation x="4.52274*cm" y="-9.39159*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1371"/>
+			<Translation x="-9.70331*cm" y="3.80827*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1372"/>
+			<Translation x="-9.69761*cm" y="2.21342*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1373"/>
+			<Translation x="-10.3947*cm" y="7.78978*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1374"/>
+			<Translation x="-9.91919*cm" y="-7.43339*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1378"/>
+			<Translation x="-7.77688*cm" y="-6.20185*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1358"/>
+			<Translation x="-7.09003*cm" y="-7.64124*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1380"/>
+			<Translation x="-5.60335*cm" y="-8.2186*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1360"/>
+			<Translation x="-4.52275*cm" y="-9.39158*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1382"/>
+			<Translation x="-2.93193*cm" y="-9.50508*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1362"/>
+			<Translation x="-1.5536*cm" y="-10.3074*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1318"/>
+			<Translation x="0*fm" y="-9.947*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="32">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1364"/>
+			<Translation x="1.55359*cm" y="-10.3074*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="33">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1386"/>
+			<Translation x="2.93193*cm" y="-9.50508*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="35">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1388"/>
+			<Translation x="5.60334*cm" y="-8.2186*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="36">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1389"/>
+			<Translation x="7.09003*cm" y="-7.64124*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="37">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1390"/>
+			<Translation x="7.77688*cm" y="-6.20186*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="38">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1312"/>
+			<Translation x="9.02734*cm" y="-5.21194*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="39">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1392"/>
+			<Translation x="9.2594*cm" y="-3.63405*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="40">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1372"/>
+			<Translation x="10.1625*cm" y="-2.31953*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="41">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1394"/>
+			<Translation x="9.91919*cm" y="-7.43345*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="42">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBL"/>
+			<rRotation name="rotations:RM1374"/>
+			<Translation x="10.3947*cm" y="7.78975*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBL"/>
+			<rChild name="pxlx:PXBB"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="580*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBB"/>
+			<rChild name="pxlx:PXB1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="60*mum" z="16.68*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXBB"/>
+			<rChild name="pxlx:PXB1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="60*mum" z="-16.68*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBB"/>
+			<rChild name="pxlx:PXB2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="20.01*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXBB"/>
+			<rChild name="pxlx:PXB2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-20.01*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBB"/>
+			<rChild name="pxlx:PXB3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-60*mum" z="23.34*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXBB"/>
+			<rChild name="pxlx:PXB3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-60*mum" z="-23.34*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBL"/>
+			<rChild name="pxlx:PXBM"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-90*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBM"/>
+			<rChild name="pxlx:PXBQ"/>
+			<Translation x="0*fm" y="0*fm" z="-23.345*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXBM"/>
+			<rChild name="pxlx:PXBQ"/>
+			<Translation x="0*fm" y="0*fm" z="-16.675*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXBM"/>
+			<rChild name="pxlx:PXBQ"/>
+			<Translation x="0*fm" y="0*fm" z="-10.005*cm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXBM"/>
+			<rChild name="pxlx:PXBQ"/>
+			<Translation x="0*fm" y="0*fm" z="-3.335*cm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXBM"/>
+			<rChild name="pxlx:PXBQ"/>
+			<Translation x="0*fm" y="0*fm" z="3.335*cm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXBM"/>
+			<rChild name="pxlx:PXBQ"/>
+			<Translation x="0*fm" y="0*fm" z="10.005*cm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PXBM"/>
+			<rChild name="pxlx:PXBQ"/>
+			<Translation x="0*fm" y="0*fm" z="16.675*cm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PXBM"/>
+			<rChild name="pxlx:PXBQ"/>
+			<Translation x="0*fm" y="0*fm" z="23.345*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBQ"/>
+			<rChild name="pxlx:PXBP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-290*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBQ"/>
+			<rChild name="pxlx:PXBH"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="90*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBQ"/>
+			<rChild name="pxlx:PXBE"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="330*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBE"/>
+			<rChild name="pxlx:PXBD"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXBQ"/>
+			<rChild name="pxlx:PXBA"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="530*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:R300"/>
+			<Translation x="6.33738*cm" y="3.65889*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1306"/>
+			<Translation x="3.82697*cm" y="2.2095*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:R320"/>
+			<Translation x="2.81969*cm" y="3.36038*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1308"/>
+			<Translation x="1.51139*cm" y="4.1525*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:R360"/>
+			<Translation x="0*fm" y="4.38666*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1310"/>
+			<Translation x="-1.51139*cm" y="4.1525*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1311"/>
+			<Translation x="-2.81969*cm" y="3.36038*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1312"/>
+			<Translation x="-3.82697*cm" y="2.2095*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1313"/>
+			<Translation x="-4.32001*cm" y="7.61735*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1314"/>
+			<Translation x="-4.35187*cm" y="-7.67351*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1306"/>
+			<Translation x="-3.79896*cm" y="-2.19333*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1316"/>
+			<Translation x="-2.84048*cm" y="-3.38515*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1308"/>
+			<Translation x="-1.50033*cm" y="-4.12211*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1318"/>
+			<Translation x="0*fm" y="-4.419*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1310"/>
+			<Translation x="1.50033*cm" y="-4.12211*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1320"/>
+			<Translation x="2.84048*cm" y="-3.38515*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1312"/>
+			<Translation x="3.79896*cm" y="-2.19333*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1322"/>
+			<Translation x="4.35187*cm" y="-7.67352*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="pxlx:PX1B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1314"/>
+			<Translation x="4.32001*cm" y="7.61735*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1324"/>
+			<Translation x="6.97029*cm" y="2.26479*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1374"/>
+			<Translation x="-10.1605*cm" y="-7.61423*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1354"/>
+			<Translation x="-9.92659*cm" y="-2.26568*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1376"/>
+			<Translation x="-9.48467*cm" y="-3.72246*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1306"/>
+			<Translation x="-8.81776*cm" y="-5.09094*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1326"/>
+			<Translation x="5.44651*cm" y="4.90406*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1327"/>
+			<Translation x="4.30128*cm" y="5.9202*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1328"/>
+			<Translation x="2.98097*cm" y="6.69537*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1329"/>
+			<Translation x="1.52145*cm" y="7.15786*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1330"/>
+			<Translation x="0*fm" y="7.329*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1331"/>
+			<Translation x="-1.52145*cm" y="7.15786*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1332"/>
+			<Translation x="-2.98097*cm" y="6.69538*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1333"/>
+			<Translation x="-4.30128*cm" y="5.9202*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1334"/>
+			<Translation x="-5.44651*cm" y="4.90406*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1335"/>
+			<Translation x="-6.33738*cm" y="3.65889*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1336"/>
+			<Translation x="-6.97029*cm" y="2.26479*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1337"/>
+			<Translation x="-7.27769*cm" y="7.64916*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1338"/>
+			<Translation x="-7.28885*cm" y="-7.66089*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1324"/>
+			<Translation x="-6.95962*cm" y="-2.26132*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1340"/>
+			<Translation x="-6.3471*cm" y="-3.6645*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1326"/>
+			<Translation x="-5.43817*cm" y="-4.89655*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1342"/>
+			<Translation x="-4.30788*cm" y="-5.92929*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1328"/>
+			<Translation x="-2.97641*cm" y="-6.68512*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1344"/>
+			<Translation x="-1.52379*cm" y="-7.16884*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1330"/>
+			<Translation x="0*fm" y="-7.31777*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1346"/>
+			<Translation x="1.52378*cm" y="-7.16884*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1332"/>
+			<Translation x="2.97641*cm" y="-6.68512*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1348"/>
+			<Translation x="4.30788*cm" y="-5.92929*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1334"/>
+			<Translation x="5.43817*cm" y="-4.89655*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1350"/>
+			<Translation x="6.3471*cm" y="-3.6645*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1336"/>
+			<Translation x="6.95962*cm" y="-2.26132*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1352"/>
+			<Translation x="7.28885*cm" y="-7.66089*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="pxlx:PX2B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1338"/>
+			<Translation x="7.27769*cm" y="7.64915*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1354"/>
+			<Translation x="9.93354*cm" y="2.26727*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1355"/>
+			<Translation x="9.47804*cm" y="3.71986*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1306"/>
+			<Translation x="8.82393*cm" y="5.0945*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1357"/>
+			<Translation x="7.96051*cm" y="6.34829*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1358"/>
+			<Translation x="6.93028*cm" y="7.46907*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1359"/>
+			<Translation x="5.73565*cm" y="8.41266*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1360"/>
+			<Translation x="4.42084*cm" y="9.17997*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1361"/>
+			<Translation x="3.00116*cm" y="9.72952*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1362"/>
+			<Translation x="1.51859*cm" y="10.0752*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:R360"/>
+			<Translation x="0*fm" y="10.1819*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1364"/>
+			<Translation x="-1.51859*cm" y="10.0752*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1365"/>
+			<Translation x="-3.00116*cm" y="9.72952*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1366"/>
+			<Translation x="-4.42084*cm" y="9.17997*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1367"/>
+			<Translation x="-5.73565*cm" y="8.41266*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1368"/>
+			<Translation x="-6.93028*cm" y="7.46907*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1369"/>
+			<Translation x="-7.96051*cm" y="6.34829*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="33">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1386"/>
+			<Translation x="3.00326*cm" y="-9.73633*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1312"/>
+			<Translation x="-8.82393*cm" y="5.0945*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1371"/>
+			<Translation x="-9.47804*cm" y="3.71986*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1372"/>
+			<Translation x="-9.93354*cm" y="2.26727*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1373"/>
+			<Translation x="-10.1534*cm" y="7.60894*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1378"/>
+			<Translation x="-7.96608*cm" y="-6.35274*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1358"/>
+			<Translation x="-6.92543*cm" y="-7.46384*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1380"/>
+			<Translation x="-5.73967*cm" y="-8.41855*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1360"/>
+			<Translation x="-4.41775*cm" y="-9.17355*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1382"/>
+			<Translation x="-3.00326*cm" y="-9.73633*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1362"/>
+			<Translation x="-1.51753*cm" y="-10.0681*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1318"/>
+			<Translation x="0*fm" y="-10.189*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="32">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1364"/>
+			<Translation x="1.51753*cm" y="-10.0681*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="34">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1387"/>
+			<Translation x="4.41775*cm" y="-9.17355*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="35">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1388"/>
+			<Translation x="5.73967*cm" y="-8.41855*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="36">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1389"/>
+			<Translation x="6.92543*cm" y="-7.46384*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="37">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1390"/>
+			<Translation x="7.96608*cm" y="-6.35274*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="38">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1312"/>
+			<Translation x="8.81776*cm" y="-5.09094*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="39">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1392"/>
+			<Translation x="9.48467*cm" y="-3.72246*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="40">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1372"/>
+			<Translation x="9.92659*cm" y="-2.26568*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="41">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1394"/>
+			<Translation x="10.1605*cm" y="-7.61429*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="42">
+			<rParent name="pxlx:PX3B"/>
+			<rChild name="pxlx:PXBC"/>
+			<rRotation name="rotations:RM1374"/>
+			<Translation x="10.1534*cm" y="7.6089*mm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PX2B"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PBXL"/>
+			<rChild name="pxlx:PX3B"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXLX"/>
+			<rChild name="pxlx:PBXS"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="1.69*m"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXLX"/>
+			<rChild name="pxlx:PBXS"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-1.69*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXLX"/>
+			<rChild name="pxlx:PFXL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="45*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PFXL"/>
+			<rChild name="pxlx:PXWF"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-10.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PFXL"/>
+			<rChild name="pxlx:PXWF"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="1.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXR1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXR1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXR2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXR2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXCM"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXCM"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1396"/>
+			<Translation x="-1.384*cm" y="10.509*cm" z="1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1397"/>
+			<Translation x="-4.056*cm" y="9.793*cm" z="7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1398"/>
+			<Translation x="-6.453*cm" y="8.41*cm" z="2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1399"/>
+			<Translation x="-8.41*cm" y="6.453*cm" z="-2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1400"/>
+			<Translation x="-9.793*cm" y="4.056*cm" z="-7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1401"/>
+			<Translation x="-10.509*cm" y="1.384*cm" z="-1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1402"/>
+			<Translation x="-10.509*cm" y="-1.384*cm" z="1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1403"/>
+			<Translation x="-9.793*cm" y="-4.056*cm" z="7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1404"/>
+			<Translation x="-8.41*cm" y="-6.453*cm" z="2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1405"/>
+			<Translation x="-6.453*cm" y="-8.41*cm" z="-2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1406"/>
+			<Translation x="-4.056*cm" y="-9.793*cm" z="-7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1407"/>
+			<Translation x="-1.384*cm" y="-10.509*cm" z="-1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1408"/>
+			<Translation x="1.384*cm" y="-10.509*cm" z="1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1409"/>
+			<Translation x="4.056*cm" y="-9.793*cm" z="7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1410"/>
+			<Translation x="6.453*cm" y="-8.41*cm" z="2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1411"/>
+			<Translation x="8.41*cm" y="-6.453*cm" z="-2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1412"/>
+			<Translation x="9.793*cm" y="-4.056*cm" z="-7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1413"/>
+			<Translation x="10.509*cm" y="-1.384*cm" z="-1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1414"/>
+			<Translation x="10.509*cm" y="1.384*cm" z="1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1415"/>
+			<Translation x="9.793*cm" y="4.056*cm" z="7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1416"/>
+			<Translation x="8.41*cm" y="6.453*cm" z="2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1417"/>
+			<Translation x="6.453*cm" y="8.41*cm" z="-2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1418"/>
+			<Translation x="4.056*cm" y="9.793*cm" z="-7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="pxlx:PXWF"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1419"/>
+			<Translation x="1.384*cm" y="10.509*cm" z="-1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1420"/>
+			<Translation x="-1.384*cm" y="10.509*cm" z="-1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1421"/>
+			<Translation x="-4.056*cm" y="9.793*cm" z="-7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1422"/>
+			<Translation x="-6.453*cm" y="8.41*cm" z="-2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1423"/>
+			<Translation x="-8.41*cm" y="6.453*cm" z="2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1424"/>
+			<Translation x="-9.793*cm" y="4.056*cm" z="7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1425"/>
+			<Translation x="-10.509*cm" y="1.384*cm" z="1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1426"/>
+			<Translation x="-10.509*cm" y="-1.384*cm" z="-1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1427"/>
+			<Translation x="-9.793*cm" y="-4.056*cm" z="-7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1428"/>
+			<Translation x="-8.41*cm" y="-6.453*cm" z="-2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1429"/>
+			<Translation x="-6.453*cm" y="-8.41*cm" z="2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1430"/>
+			<Translation x="-4.056*cm" y="-9.793*cm" z="7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1431"/>
+			<Translation x="-1.384*cm" y="-10.509*cm" z="1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1432"/>
+			<Translation x="1.384*cm" y="-10.509*cm" z="-1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1433"/>
+			<Translation x="4.056*cm" y="-9.793*cm" z="-7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1434"/>
+			<Translation x="6.453*cm" y="-8.41*cm" z="-2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1435"/>
+			<Translation x="8.41*cm" y="-6.453*cm" z="2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1436"/>
+			<Translation x="9.793*cm" y="-4.056*cm" z="7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1437"/>
+			<Translation x="10.509*cm" y="-1.384*cm" z="1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1438"/>
+			<Translation x="10.509*cm" y="1.384*cm" z="-1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1439"/>
+			<Translation x="9.793*cm" y="4.056*cm" z="-7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1440"/>
+			<Translation x="8.41*cm" y="6.453*cm" z="-2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1441"/>
+			<Translation x="6.453*cm" y="8.41*cm" z="2.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1442"/>
+			<Translation x="4.056*cm" y="9.793*cm" z="7.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="pxlx:PXWG"/>
+			<rChild name="pxlx:PXTU"/>
+			<rRotation name="rotations:RM1443"/>
+			<Translation x="1.384*cm" y="10.509*cm" z="1.25*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXCU"/>
+			<rRotation name="rotations:RM1444"/>
+			<Translation x="1.2*cm" y="0*fm" z="1.4*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXCU"/>
+			<rRotation name="rotations:RM1445"/>
+			<Translation x="-1.2*cm" y="0*fm" z="1.4*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXCT"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-2.084*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXCC"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-3.96*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXFG"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-1.8*mm" z="-2.78*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXFG"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="1.8*mm" z="-2.78*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXHD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-2.175*mm" z="-2.78*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXHD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="2.175*mm" z="-2.78*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXA1"/>
+			<rRotation name="rotations:RM1446"/>
+			<Translation x="0*fm" y="-2.8*mm" z="-4.1705*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA1"/>
+			<rChild name="pxlx:PXFB_1_PXA1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.55*mm" y="350*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA1"/>
+			<rChild name="pxlx:PXFV_1_PXA1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.55*mm" y="75*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA1"/>
+			<rChild name="pxlx:PXFQ_1_PXA1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.125*mm" y="-125*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA1"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-400*mum" z="-4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA1"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-400*mum" z="4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA3"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="-8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA3"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="-8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXA3"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXA3"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXA3"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXA3"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="-1.215*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="-1.215*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="-4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="-4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="1.215*cm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="1.215*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA7"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-400*mum" z="-1.62*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA7"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-400*mum" z="-8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXA7"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-400*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXA7"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-400*mum" z="8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXA7"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-400*mum" z="1.62*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA2"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="-8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA2"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="-8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXA2"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXA2"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXA2"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXA2"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="-1.215*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="-1.215*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="-4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="-4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="4.05*mm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="1.215*cm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="1.215*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="-1.62*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="-1.62*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="-8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="-8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="8.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-4.05*mm" y="-400*mum" z="1.62*cm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="4.05*mm" y="-400*mum" z="1.62*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXA3"/>
+			<rRotation name="rotations:RM1446"/>
+			<Translation x="0*fm" y="-2.8*mm" z="-1.6325*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXA3"/>
+			<rChild name="pxlx:PXFB_3_PXA3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="350*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXA3"/>
+			<rChild name="pxlx:PXFV_3_PXA3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="75*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="pxlx:PXA3"/>
+			<rChild name="pxlx:PXFQ_3_PXA3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-125*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXA5"/>
+			<rRotation name="rotations:RM1446"/>
+			<Translation x="0*fm" y="-2.8*mm" z="1.2805*cm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFB_5_PXA5"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="350*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFV_5_PXA5"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="75*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="pxlx:PXA5"/>
+			<rChild name="pxlx:PXFQ_5_PXA5"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-125*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXA7"/>
+			<rRotation name="rotations:RM1446"/>
+			<Translation x="0*fm" y="-2.8*mm" z="3.77*cm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PXA7"/>
+			<rChild name="pxlx:PXFB_7_PXA7"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.55*mm" y="350*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PXA7"/>
+			<rChild name="pxlx:PXFV_7_PXA7"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.55*mm" y="75*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="pxlx:PXA7"/>
+			<rChild name="pxlx:PXFQ_7_PXA7"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.125*mm" y="-125*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXA2"/>
+			<rRotation name="rotations:RM1447"/>
+			<Translation x="0*fm" y="2.8*mm" z="-2.9675*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA2"/>
+			<rChild name="pxlx:PXFB_2_PXA2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="350*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA2"/>
+			<rChild name="pxlx:PXFV_2_PXA2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="75*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXA2"/>
+			<rChild name="pxlx:PXFQ_2_PXA2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-125*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXA4"/>
+			<rRotation name="rotations:RM1447"/>
+			<Translation x="0*fm" y="2.8*mm" z="85*mum"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFB_4_PXA4"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="350*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFV_4_PXA4"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="75*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="pxlx:PXA4"/>
+			<rChild name="pxlx:PXFQ_4_PXA4"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-125*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXTU"/>
+			<rChild name="pxlx:PXA6"/>
+			<rRotation name="rotations:RM1447"/>
+			<Translation x="0*fm" y="2.8*mm" z="2.9625*cm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFB_6_PXA6"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="350*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFV_6_PXA6"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="75*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="pxlx:PXA6"/>
+			<rChild name="pxlx:PXFQ_6_PXA6"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-125*mum" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PFXL"/>
+			<rChild name="pxlx:PXPC"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-7*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PFXL"/>
+			<rChild name="pxlx:PXPC"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PFXM"/>
+			<rChild name="pxlx:PXPC"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-7*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PFXM"/>
+			<rChild name="pxlx:PXPC"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXLX"/>
+			<rChild name="pxlx:PFXM"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-45*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PFXM"/>
+			<rChild name="pxlx:PXWG"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-10.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PFXM"/>
+			<rChild name="pxlx:PXWG"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="1.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXLX"/>
+			<rChild name="pxlx:PXSF"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="1.565*m"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="pxlx:PXLX"/>
+			<rChild name="pxlx:PXSF"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-1.565*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXSF"/>
+			<rChild name="pxlx:PXS1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-1.16*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXSF"/>
+			<rChild name="pxlx:PXS2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-1.04*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="pxlx:PXSF"/>
+			<rChild name="pxlx:PXS3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="13.75*cm"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

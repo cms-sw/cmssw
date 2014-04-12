@@ -1,11 +1,15 @@
 //
-// $Id:$
 //
 
-#include "FWCore/Framework/interface/InputSourceMacros.h"
-#include "GeneratorInterface/PyquenInterface/interface/PyquenSource.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+//#include "GeneratorInterface/PyquenInterface/interface/PyquenSource.h"
+//#include "GeneratorInterface/PyquenInterface/interface/PyquenProducer.h"
+#include "GeneratorInterface/PyquenInterface/interface/PyquenGeneratorFilter.h"
 
+//using edm::PyquenSource;
+//using edm::PyquenProducer;
+using gen::PyquenGeneratorFilter;
 
-using edm::PyquenSource;
-
-DEFINE_FWK_INPUT_SOURCE(PyquenSource);
+//DEFINE_FWK_INPUT_SOURCE(PyquenSource);
+//DEFINE_FWK_MODULE(PyquenProducer);
+DEFINE_FWK_MODULE(PyquenGeneratorFilter);

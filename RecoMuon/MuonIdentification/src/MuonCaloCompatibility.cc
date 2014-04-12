@@ -10,7 +10,6 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloCompatibility.cc,v 1.2 2007/05/01 19:43:23 ibloch Exp $
 //
 //
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
@@ -21,9 +20,8 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
 {
    MuonfileName_ = (iConfig.getParameter<edm::FileInPath>("MuonTemplateFileName")).fullPath();
    PionfileName_ = (iConfig.getParameter<edm::FileInPath>("PionTemplateFileName")).fullPath();
-   muon_templates = new TFile(MuonfileName_.c_str(),"READ");
-   pion_templates = new TFile(PionfileName_.c_str(),"READ");
-
+   muon_templates.reset( new TFile(MuonfileName_.c_str(),"READ") );
+   pion_templates.reset( new TFile(PionfileName_.c_str(),"READ") );
 
    pion_em_etaEmi  = (TH2D*) pion_templates->Get("em_etaEmi");
    pion_had_etaEmi = (TH2D*) pion_templates->Get("had_etaEmi");
@@ -118,41 +116,76 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
   pion_template_ho   = NULL;
   muon_template_ho   = NULL;
   
-  if( !use_corrected_hcal ) { // old eta regions, uncorrected energy
-    eta = amuon.track().get()->eta();
-    p   = amuon.track().get()->p(); 
-    //    p   = 10./sin(amuon.track().get()->theta()); // use this for templates < 1_5
-    if( use_em_special ) {
-      if( amuon.getCalEnergy().em == 0. )    em  = -5.;
-      else em  = amuon.getCalEnergy().em;
-    }
-    else {
-      em  = amuon.getCalEnergy().em;
-    }
-    had = amuon.getCalEnergy().had;
-    ho  = amuon.getCalEnergy().ho;
+  // 071002: Get either tracker track, or SAmuon track.
+  // CaloCompatibility templates may have to be specialized for 
+  // the use with SAmuons, currently just using the ones produced
+  // using tracker tracks. 
+  const reco::Track* track = 0;
+  if ( ! amuon.track().isNull() ) {
+    track = amuon.track().get();
   }
   else {
-    eta = amuon.track().get()->eta();
-    p   = amuon.track().get()->p();
-   //    p   = 10./sin(amuon.track().get()->theta());  // use this for templates < 1_5
-    // hcal energy is now done where we get the template histograms (to use corrected cal energy)!
-    //     had = amuon.getCalEnergy().had;
-    if( use_em_special ) {
-      if( amuon.getCalEnergy().em == 0. )    em  = -5.;
-      else em  = amuon.getCalEnergy().em;
+    if ( ! amuon.standAloneMuon().isNull() ) {
+      track = amuon.standAloneMuon().get();
     }
     else {
-      em  = amuon.getCalEnergy().em;
+      throw cms::Exception("FatalError") << "Failed to fill muon id calo_compatibility information for a muon with undefined references to tracks"; 
     }
-    ho  = amuon.getCalEnergy().ho;
+  }
+
+  if( !use_corrected_hcal ) { // old eta regions, uncorrected energy
+    eta = track->eta();
+    p   = track->p(); 
+
+    // new 070904: Set lookup momentum to 1999.9 if larger than 2 TeV. 
+    // Though the templates were produced with p<2TeV, we believe that
+    // this approximation should be roughly valid. A special treatment
+    // for >1 TeV muons is advisable anyway :)
+    if( p>=2000. ) p = 1999.9;
+
+    //    p   = 10./sin(track->theta()); // use this for templates < 1_5
+    if( use_em_special ) {
+      if( amuon.calEnergy().em == 0. )    em  = -5.;
+      else em  = amuon.calEnergy().em;
+    }
+    else {
+      em  = amuon.calEnergy().em;
+    }
+    had = amuon.calEnergy().had;
+    ho  = amuon.calEnergy().ho;
+  }
+  else {
+    eta = track->eta();
+    p   = track->p();
+    
+    // new 070904: Set lookup momentum to 1999.9 if larger than 2 TeV. 
+    // Though the templates were produced with p<2TeV, we believe that
+    // this approximation should be roughly valid. A special treatment
+    // for >1 TeV muons is advisable anyway :)
+    if( p>=2000. ) p = 1999.9;
+
+    //    p   = 10./sin(track->theta());  // use this for templates < 1_5
+    // hcal energy is now done where we get the template histograms (to use corrected cal energy)!
+    //     had = amuon.calEnergy().had;
+    if( use_em_special ) {
+      if( amuon.calEnergy().em == 0. )    em  = -5.;
+      else em  = amuon.calEnergy().em;
+    }
+    else {
+      em  = amuon.calEnergy().em;
+    }
+    ho  = amuon.calEnergy().ho;
   }
 
 
   // Skip everyting and return "I don't know" (i.e. 0.5) for uncovered regions:
-  if( p < 0. || p > 500.) return 0.5;
-  if( fabs(eta) >  2.5 ) return 0.5; // for the 070410 evening job (w norm and w corr) i had abs here which seems to take and return int!!
-
+  //  if( p < 0. || p > 500.) return 0.5; // removed 500 GeV cutoff 070817 after updating the tempates (v2_0) to have valid entried beyond 500 GeV
+  if( p < 0. ) return 0.5; // return "unknown" for unphysical momentum input.
+  if( fabs(eta) >  2.5 ) return 0.5; 
+  // temporary fix for low association efficiency:
+  // set caloCompatibility to 0.12345 for tracks
+  // which have 0 energy in BOTH ecal and hcal
+  if( amuon.calEnergy().had == 0.0 && amuon.calEnergy().em == 0.0 ) return 0.12345; 
 
   //  std::cout<<std::endl<<"Input values are: "<<eta <<" "<< p <<" "<< em <<" "<< had <<" "<< ho;
 
@@ -202,72 +235,72 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     }
   }
   else if( 42 == 42 ) { // new eta bins, corrected hcal energy
-    if(  amuon.track().get()->eta() >  1.27  ) {
-      // 	had_etaEpl ->Fill(muon->track().get()->p(),1.8/2.2*muon->getCalEnergy().had );
-      if(use_corrected_hcal)	had = 1.8/2.2*amuon.getCalEnergy().had;
-      else	had = amuon.getCalEnergy().had;
+    if(  track->eta() >  1.27  ) {
+      // 	had_etaEpl ->Fill(muon->track().get()->p(),1.8/2.2*muon->calEnergy().had );
+      if(use_corrected_hcal)	had = 1.8/2.2*amuon.calEnergy().had;
+      else	had = amuon.calEnergy().had;
       pion_template_had = pion_had_etaEpl;
       muon_template_had = muon_had_etaEpl;
     }
-    if( amuon.track().get()->eta() <=  1.27  && amuon.track().get()->eta() >  1.1 ) {
-      // 	had_etaTpl ->Fill(muon->track().get()->p(),(1.8/(-2.2*muon->track().get()->eta()+5.5))*muon->getCalEnergy().had );
-      if(use_corrected_hcal)	had = (1.8/(-2.2*amuon.track().get()->eta()+5.5))*amuon.getCalEnergy().had;
-      else 	had = amuon.getCalEnergy().had;
+    if( track->eta() <=  1.27  && track->eta() >  1.1 ) {
+      // 	had_etaTpl ->Fill(muon->track().get()->p(),(1.8/(-2.2*muon->track().get()->eta()+5.5))*muon->calEnergy().had );
+      if(use_corrected_hcal)	had = (1.8/(-2.2*track->eta()+5.5))*amuon.calEnergy().had;
+      else 	had = amuon.calEnergy().had;
       pion_template_had  = pion_had_etaTpl;
       muon_template_had  = muon_had_etaTpl;
     }
-    if( amuon.track().get()->eta() <=  1.1 && amuon.track().get()->eta() > -1.1 ) {
-      // 	had_etaB   ->Fill(muon->track().get()->p(),sin(muon->track().get()->theta())*muon->getCalEnergy().had );
-      if(use_corrected_hcal)	had = sin(amuon.track().get()->theta())*amuon.getCalEnergy().had;
-      else 	had = amuon.getCalEnergy().had;
+    if( track->eta() <=  1.1 && track->eta() > -1.1 ) {
+      // 	had_etaB   ->Fill(muon->track().get()->p(),sin(muon->track().get()->theta())*muon->calEnergy().had );
+      if(use_corrected_hcal)	had = sin(track->theta())*amuon.calEnergy().had;
+      else 	had = amuon.calEnergy().had;
       pion_template_had  = pion_had_etaB;
       muon_template_had  = muon_had_etaB;
     }
-    if( amuon.track().get()->eta() <= -1.1 && amuon.track().get()->eta() > -1.27 ) {
-      // 	had_etaTmi ->Fill(muon->track().get()->p(),(1.8/(-2.2*muon->track().get()->eta()+5.5))*muon->getCalEnergy().had );
-      if(use_corrected_hcal)	had = (1.8/(2.2*amuon.track().get()->eta()+5.5))*amuon.getCalEnergy().had;
-      else 	had = amuon.getCalEnergy().had;
+    if( track->eta() <= -1.1 && track->eta() > -1.27 ) {
+      // 	had_etaTmi ->Fill(muon->track().get()->p(),(1.8/(-2.2*muon->track().get()->eta()+5.5))*muon->calEnergy().had );
+      if(use_corrected_hcal)	had = (1.8/(2.2*track->eta()+5.5))*amuon.calEnergy().had;
+      else 	had = amuon.calEnergy().had;
       pion_template_had = pion_had_etaTmi;
       muon_template_had = muon_had_etaTmi;
     }
-    if( amuon.track().get()->eta() <= -1.27 ) {
-      // 	had_etaEmi ->Fill(muon->track().get()->p(),1.8/2.2*muon->getCalEnergy().had );
-      if(use_corrected_hcal)	had = 1.8/2.2*amuon.getCalEnergy().had;
-      else 	had = amuon.getCalEnergy().had;
+    if( track->eta() <= -1.27 ) {
+      // 	had_etaEmi ->Fill(muon->track().get()->p(),1.8/2.2*muon->calEnergy().had );
+      if(use_corrected_hcal)	had = 1.8/2.2*amuon.calEnergy().had;
+      else 	had = amuon.calEnergy().had;
       pion_template_had = pion_had_etaEmi;
       muon_template_had = muon_had_etaEmi;
     }
     
     // just two eta regions for Ecal (+- 1.479 for barrel, else for rest), no correction:
 
-    //    std::cout<<"We have a muon with an eta of: "<<amuon.track().get()->eta()<<std::endl;
+    //    std::cout<<"We have a muon with an eta of: "<<track->eta()<<std::endl;
 
-    if(  amuon.track().get()->eta() >  1.479  ) {
-      // 	em_etaEpl  ->Fill(muon->track().get()->p(),muon->getCalEnergy().em   );
-      // 	//	em_etaTpl  ->Fill(muon->track().get()->p(),muon->getCalEnergy().em   );
-      ////      em  = amuon.getCalEnergy().em;
+    if(  track->eta() >  1.479  ) {
+      // 	em_etaEpl  ->Fill(muon->track().get()->p(),muon->calEnergy().em   );
+      // 	//	em_etaTpl  ->Fill(muon->track().get()->p(),muon->calEnergy().em   );
+      ////      em  = amuon.calEnergy().em;
       pion_template_em  = pion_em_etaEpl;
       muon_template_em  = muon_em_etaEpl;
     }
-    if( amuon.track().get()->eta() <=  1.479 && amuon.track().get()->eta() > -1.479 ) {
-      // 	em_etaB    ->Fill(muon->track().get()->p(),muon->getCalEnergy().em   );
-      ////      em  = amuon.getCalEnergy().em;
+    if( track->eta() <=  1.479 && track->eta() > -1.479 ) {
+      // 	em_etaB    ->Fill(muon->track().get()->p(),muon->calEnergy().em   );
+      ////      em  = amuon.calEnergy().em;
       pion_template_em  = pion_em_etaB;
       muon_template_em  = muon_em_etaB;
     }
-    if( amuon.track().get()->eta() <= -1.479 ) {
-      // 	//	em_etaTmi  ->Fill(muon->track().get()->p(),muon->getCalEnergy().em   );
-      // 	em_etaEmi  ->Fill(muon->track().get()->p(),muon->getCalEnergy().em   );
-      ////      em  = amuon.getCalEnergy().em;
+    if( track->eta() <= -1.479 ) {
+      // 	//	em_etaTmi  ->Fill(muon->track().get()->p(),muon->calEnergy().em   );
+      // 	em_etaEmi  ->Fill(muon->track().get()->p(),muon->calEnergy().em   );
+      ////      em  = amuon.calEnergy().em;
       pion_template_em  = pion_em_etaEmi;
       muon_template_em  = muon_em_etaEmi;
     }
     
     // just one barrel eta region for the HO, no correction
-    //    if( amuon.track().get()->eta() < 1.4 && amuon.track().get()->eta() > -1.4 ) { // experimenting now...
-    if( amuon.track().get()->eta() < 1.28 && amuon.track().get()->eta() > -1.28 ) {
-      // 	ho_etaB    ->Fill(muon->track().get()->p(),muon->getCalEnergy().ho   );
-      ////      ho  = amuon.getCalEnergy().ho;
+    //    if( track->eta() < 1.4 && track->eta() > -1.4 ) { // experimenting now...
+    if( track->eta() < 1.28 && track->eta() > -1.28 ) {
+      // 	ho_etaB    ->Fill(muon->track().get()->p(),muon->calEnergy().ho   );
+      ////      ho  = amuon.calEnergy().ho;
       pion_template_ho  = pion_ho_etaB;
       muon_template_ho  = muon_ho_etaB;
     }
@@ -287,7 +320,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     LogTrace("MuonIdentification")<<"Input variables: eta    p     em     had    ho "<<"\n"
 	     <<eta<<" "<<p<<" "<<em<<" "<<had<<" "<<ho<<" "<<"\n"
 	     <<"cal uncorr:    em     had    ho "<<"\n"
-	     <<eta<<" "<<p<<" "<<amuon.getCalEnergy().em<<" "<<amuon.getCalEnergy().had<<" "<<amuon.getCalEnergy().ho;
+	     <<eta<<" "<<p<<" "<<amuon.calEnergy().em<<" "<<amuon.calEnergy().had<<" "<<amuon.calEnergy().ho;
   }
   
 
@@ -319,7 +352,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
       pbz = 1.;
       psz = 1.;
       LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ho   - defaulting signal and background  ";
-      LogTrace("MuonIdentification")<<"            // template value to 1. "<<pion_template_em->GetName()<<" e: "<<em<<" p: "<<p; 
+      LogTrace("MuonIdentification")<<"            // template value to 1. "<<pion_template_ho->GetName()<<" e: "<<em<<" p: "<<p; 
     }
     else pbz =  pion_template_ho->GetBinContent(  pion_template_ho->GetXaxis()->FindBin(p), pion_template_ho->GetYaxis()->FindBin(ho) );
   }
@@ -347,8 +380,8 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     if( accessing_overflow( muon_template_ho, p, ho ) ) {
       psz = 1.;
       pbz = 1.;
-      LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ho   - defaulting signal and background  ";
-      LogTrace("MuonIdentification")<<"            // template value to 1. "<<muon_template_em->GetName()<<" e: "<<ho<<" p: "<<p;
+       LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ho   - defaulting signal and background  ";
+       LogTrace("MuonIdentification")<<"            // template value to 1. "<<muon_template_ho->GetName()<<" e: "<<ho<<" p: "<<p;
     }
     else psz =  muon_template_ho->GetBinContent(  muon_template_ho->GetXaxis()->FindBin(p), muon_template_ho->GetYaxis()->FindBin(ho) );
   }
@@ -371,7 +404,23 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     psz = 1.;
     pbz = 1.;
   }
- 
+
+  // There are two classes of events that deliver 0 for the hcal or ho energy:
+  // 1) the track momentum is so low that the extrapolation tells us it should not have reached the cal
+  // 2) the crossed cell had an reading below the readout cuts.
+  // The 2nd case discriminates between muons and hadrons, the 1st not. Thus for the time being, 
+  // we set the returned ps and pb to 0 for these cases.
+  // We need to have a return value different from 0 for the 1st case in the long run.
+  if ( had == 0.0 ) {
+    psy = 1.;
+    pby = 1.;
+  } 
+  if ( ho == 0.0 ) {
+    psz = 1.;
+    pbz = 1.;
+  }
+  
+
   // Set em to neutral if no energy in em or negative energy measured. 
   // (These cases might indicate problems in the ecal association or readout?! The only 
   // hint so far: for critical eta region (eta in [1.52, 1.64]) have negative em values.)
@@ -387,7 +436,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     LogTrace("MuonIdentification")<<"Input variables: eta    p     em     had    ho "<<"\n"
 	     <<eta<<" "<<p<<" "<<em<<" "<<had<<" "<<ho<<" "<<"\n"
 	     <<"cal uncorr:    em     had    ho "<<"\n"
-	     <<eta<<" "<<p<<" "<<amuon.getCalEnergy().em<<" "<<amuon.getCalEnergy().had<<" "<<amuon.getCalEnergy().ho;
+	     <<eta<<" "<<p<<" "<<amuon.calEnergy().em<<" "<<amuon.calEnergy().had<<" "<<amuon.calEnergy().ho;
   }
   return muon_compatibility;
 }

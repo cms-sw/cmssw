@@ -1,9 +1,0 @@
-<use name=FWCore/Utilities>
-<use name=clhep>
-<use name=root>
-
-<export>
-  <use name=clhep>
-  <use name=root>
-  <lib name=FastSimulationUtilities>
-</export>

@@ -2,13 +2,16 @@
 #define FastSimulation_Event_FBaseSimEvent_H
 
 // Data Formats
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 // HepPDT Headers
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 // Famos Headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
+#include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
+#include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexTypeFwd.h"
 
 #include <vector>
 
@@ -26,7 +29,7 @@ class KineParticleFilter;
 class SimTrack;
 class SimVertex;
 class PrimaryVertexGenerator;
-class RandomEngine;
+class RandomEngineAndDistribution;
 //class Histos;
 
 namespace edm {
@@ -36,6 +39,7 @@ namespace edm {
 namespace HepMC {
   class GenEvent;
   class GenParticle;
+  class GenVertex;
 }
 
 class FBaseSimEvent  
@@ -47,8 +51,7 @@ public:
   FBaseSimEvent(const edm::ParameterSet& kine);
 
   FBaseSimEvent(const edm::ParameterSet& vtx,
-		const edm::ParameterSet& kine,
-		const RandomEngine* engine);
+		const edm::ParameterSet& kine);
 
   ///  usual virtual destructor
   ~FBaseSimEvent();
@@ -62,10 +65,10 @@ public:
   }
 
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
-  void fill(const HepMC::GenEvent& hev);
+  void fill(const HepMC::GenEvent& hev, RandomEngineAndDistribution const*);
 
-  /// fill the FBaseSimEvent from the current reco::CandidateCollection
-  void fill(const reco::CandidateCollection& hev);
+  /// fill the FBaseSimEvent from the current reco::GenParticleCollection
+  void fill(const reco::GenParticleCollection& hev, RandomEngineAndDistribution const*);
 
   /// fill the FBaseSimEvent from SimTrack's and SimVert'ices
   void fill(const std::vector<SimTrack>&, const std::vector<SimVertex>&);
@@ -74,8 +77,8 @@ public:
   void printMCTruth(const HepMC::GenEvent& hev);
 
   /// Add the particles and their vertices to the list
-  void addParticles(const HepMC::GenEvent& hev);
-  void addParticles(const reco::CandidateCollection& myGenParticles);
+  void addParticles(const HepMC::GenEvent& hev, RandomEngineAndDistribution const*);
+  void addParticles(const reco::GenParticleCollection& myGenParticles, RandomEngineAndDistribution const*);
 
   /// print the FBaseSimEvent in an intelligible way
   void print() const;
@@ -113,6 +116,9 @@ public:
   /// Return vertex with given Id 
   inline FSimVertex& vertex(int id) const;
 
+  /// Return vertex with given Id 
+  inline FSimVertexType& vertexType(int id) const;
+
   /// return "reconstructed" charged tracks index.
   int chargedTrack(int id) const;
 
@@ -122,19 +128,28 @@ public:
   /// return embedded vertex with given id
   inline const SimVertex & embdVertex(int i) const;
 
+  /// return embedded vertex type with given id
+  inline const FSimVertexType & embdVertexType(int i) const;
+
   /// return MC track with a given id
   const HepMC::GenParticle* embdGenpart(int i) const;
 
   /// Add a new track to the Event and to the various lists
-  int addSimTrack(const RawParticle* p, int iv, int ig=-1);
+  int addSimTrack(const RawParticle* p, int iv, int ig=-1, 
+		  const HepMC::GenVertex* ev=0);
 
   /// Add a new vertex to the Event and to the various lists
-  int addSimVertex(const XYZTLorentzVector& decayVertex,int im=-1);
+  int addSimVertex(const XYZTLorentzVector& decayVertex, int im=-1,
+		   FSimVertexType::VertexType type = FSimVertexType::ANY);
 
   const KineParticleFilter& filter() const { return *myFilter; } 
 
   PrimaryVertexGenerator* thePrimaryVertexGenerator() const { return theVertexGenerator; }
 
+  /// Set the beam spot position
+  inline void setBeamSpot(const math::XYZPoint& aBeamSpot) { 
+    theBeamSpot = aBeamSpot;
+  }
 
  protected:
 
@@ -153,12 +168,11 @@ public:
     return theGenParticles; 
   }
 
-
-
  private:
 
   std::vector<FSimTrack>* theSimTracks;
   std::vector<FSimVertex>* theSimVertices;
+  FSimVertexTypeCollection* theFSimVerticesType;
   std::vector<HepMC::GenParticle*>* theGenParticles;
 
   std::vector<unsigned>* theChargedTracks;
@@ -184,8 +198,8 @@ public:
   const ParticleDataTable * pdt;
 
   PrimaryVertexGenerator* theVertexGenerator;
-
-  const RandomEngine* random;
+  math::XYZPoint theBeamSpot;
+  double lateVertexPosition;
 
   //  Histos* myHistos;
 

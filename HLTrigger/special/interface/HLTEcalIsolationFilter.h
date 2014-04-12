@@ -2,18 +2,31 @@
 #define HLTEcalIsolationFilter_h
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class HLTEcalIsolationFilter : public HLTFilter {
 
    public:
       explicit HLTEcalIsolationFilter(const edm::ParameterSet&);
       ~HLTEcalIsolationFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
-      edm::InputTag candTag_; // input tag identifying product contains filtered egammas
-      double maxennearby;   // Ecal isolation threshold in GeV 
-      double minen;        // number of egammas required
+      edm::InputTag candTag_;
+      edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candToken_;
+      double maxennearby;
+      double minen;
+      int maxhitout;
+      int maxhitin;
+      double maxenin;
+      double maxenout;
+      double maxetacand;
+
 };
 
-#endif 
+#endif

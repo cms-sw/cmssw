@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 
@@ -53,7 +53,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 // Math
 #include "Math/GenVector/VectorUtil.h"
@@ -71,7 +71,7 @@ class JetCrystalsAssociator : public edm::EDProducer {
       ~JetCrystalsAssociator();
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
    private:
       std::auto_ptr<JetCrystalsAssociationCollection> associate( 
           const edm::Handle<CaloJetCollection> & jets,
@@ -121,7 +121,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // geometry initialization
   ESHandle<CaloGeometry> geometry;
-  iSetup.get<IdealGeometryRecord>().get(geometry);
+  iSetup.get<CaloGeometryRecord>().get(geometry);
   
   const CaloSubdetectorGeometry* EB = geometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
    const CaloSubdetectorGeometry* EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
@@ -144,12 +144,12 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    //loop on jets and associate
    for (size_t t = 0; t < jets->size(); t++)
     {
-      const std::vector<CaloTowerRef>  myTowers=(*jets)[t].getConstituents();
+      const std::vector<CaloTowerPtr>  myTowers=(*jets)[t].getCaloConstituents();
       //      cout <<"Jet id "<<t<<endl;
       //      cout <<"Tower size "<<myTowers.size()<<endl;
       for (unsigned int iTower = 0; iTower < myTowers.size(); iTower++)
 	{
-	  CaloTowerRef theTower = myTowers[iTower];
+	  CaloTowerPtr theTower = myTowers[iTower];
 	  size_t numRecHits = theTower->constituentsSize();
 	// access CaloRecHits
 	for (size_t j = 0; j < numRecHits; j++) {

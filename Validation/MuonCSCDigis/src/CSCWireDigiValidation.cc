@@ -1,20 +1,25 @@
 #include "Validation/MuonCSCDigis/src/CSCWireDigiValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 
-CSCWireDigiValidation::CSCWireDigiValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag, bool doSim)
+CSCWireDigiValidation::CSCWireDigiValidation(DQMStore* dbe,
+                                             const edm::InputTag & inputTag,
+                                             edm::ConsumesCollector && iC,
+                                             bool doSim)
 : CSCBaseValidation(dbe, inputTag),
   theDoSimFlag(doSim),
   theTimeBinPlots(),
   theNDigisPerLayerPlots(),
   theNDigisPerEventPlot( dbe_->book1D("CSCWireDigisPerEvent", "CSC Wire Digis per event", 100, 0, 100) )
 {
+  wires_Token_ = iC.consumes<CSCWireDigiCollection>(inputTag);
+
   for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200], title3[200];
@@ -31,6 +36,14 @@ CSCWireDigiValidation::CSCWireDigiValidation(DaqMonitorBEInterface* dbe, const e
 
 CSCWireDigiValidation::~CSCWireDigiValidation()
 {
+//   for(int i = 0; i < 10; ++i)
+//   {
+//     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName() 
+//       << " is " << theTimeBinPlots[i]->getMean() 
+//       << " +/- " << theTimeBinPlots[i]->getRMS();
+//     edm::LogInfo("CSCDigiValidation") << "RMS of " << theResolutionPlots[i]->getName() 
+//       << " is " << theResolutionPlots[i]->getRMS();
+//   }
 }
 
 
@@ -38,9 +51,9 @@ void CSCWireDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
 {
   edm::Handle<CSCWireDigiCollection> wires;
 
-  try {
-    e.getByLabel(theInputTag, wires);
-  } catch (...) {
+  e.getByToken(wires_Token_, wires);
+
+  if (!wires.isValid()) {
     edm::LogError("CSCDigiDump") << "Cannot get wires by label " << theInputTag.encode();
   }
 

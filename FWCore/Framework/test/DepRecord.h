@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jun 22 19:46:32 EDT 2005
-// $Id: DepRecord.h,v 1.3 2005/09/01 04:24:28 wmtan Exp $
 //
 
 // system include files

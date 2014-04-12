@@ -20,13 +20,13 @@ MonRunList::~MonRunList()
 {
 }
 
-void MonRunList::setRunTag(RunTag tag)
+void MonRunList::setRunTag(const RunTag& tag)
 {
   if (tag != m_runTag) {
     m_runTag = tag;
   }
 }
-void MonRunList::setMonRunTag(MonRunTag tag)
+void MonRunList::setMonRunTag(const MonRunTag& tag)
 {
   if (tag != m_monrunTag) {
     m_monrunTag = tag;
@@ -50,7 +50,7 @@ std::vector<MonRunIOV> MonRunList::getRuns()
 
 
 void MonRunList::fetchRuns()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -140,14 +140,14 @@ void MonRunList::fetchRuns()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
   }
 
 
 }
 
 void MonRunList::fetchRuns(int min_run, int max_run)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -250,14 +250,14 @@ void MonRunList::fetchRuns(int min_run, int max_run)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
   }
 
 
 }
 
 void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   // fetch the last n_runs that come just before max_run (including max_run)
@@ -289,7 +289,7 @@ void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
 		 "WHERE mon_run_iov.run_iov_id=run_iov.iov_id and run_iov.tag_id = :tag_id "
 		 " and mon_run_iov.tag_id=:montag_id "
 		 " and run_iov.run_num< :max_run "
-		 " order by run_iov.run_num, mon_run_iov.subrun_num DESC ) where rownum< :n_runs" );
+		 " order by run_iov.run_num DESC ) where rownum< :n_runs order by run_num DESC " );
     stmt->setInt(1, tagID);
     stmt->setInt(2, montagID);
     stmt->setInt(3, my_max_run);
@@ -343,7 +343,7 @@ void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("MonRunList::fetchLastNRuns:  "+e.getMessage()));
   }
 
 

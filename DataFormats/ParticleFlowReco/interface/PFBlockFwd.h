@@ -19,10 +19,12 @@ namespace reco {
   /// persistent reference to PFCluster objects
   typedef edm::Ref<PFBlockCollection> PFBlockRef;
 
+  /// handle to a block collection
+  typedef edm::Handle<PFBlockCollection> PFBlockHandle;
 
 
   /// iterator over a vector of references to PFBlock objects
-/*   typedef PFBlockRefVector::iterator PFBlock_iterator; */
+  /*   typedef PFBlockRefVector::iterator PFBlock_iterator; */
 }
 
 #endif

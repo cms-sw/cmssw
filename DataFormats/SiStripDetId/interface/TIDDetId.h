@@ -63,12 +63,53 @@ class TIDDetId : public SiStripDetId {
    */
   std::vector<unsigned int> module() const
     { std::vector<unsigned int> num;
-    num.push_back(((id_>>module_fw_bwStartBit_) & module_fw_bwMask_));
-    num.push_back(((id_>>moduleStartBit_) & moduleMask_));
-    return num ;}
+      num.push_back( order() );
+      num.push_back( moduleNumber() );
+      return num ;}
   
+  unsigned int order() const 
+  { return ((id_>>module_fw_bwStartBit_) & module_fw_bwMask_);}
+
+  /** Returns true if the module is a double side = rphi + stereo */
+  bool isDoubleSide() const;
   
- private:
+  /** Returns true if the module is in TID+ (z>0 side) */
+  bool isZPlusSide() const
+  { return (!isZMinusSide());}
+  
+  /** Returns true if the module is in TID- (z<0 side) */
+  bool isZMinusSide() const
+  { return (side()==1);}
+  
+  /** Returns true if the ring is mounted on the disk back (not facing impact point) */
+  bool isBackRing() const
+  { return (order()==1);}
+  
+  /** Returns true if the ring is mounted on the disk front (facing impact point) */
+  bool isFrontRing() const
+  { return (!isBackRing());}
+  
+  /** Returns the disk number */
+  unsigned int diskNumber() const
+  { return wheel();}
+  
+  /** Returns the ring number */
+  unsigned int ringNumber() const
+  { return ring();}
+  
+  /** Returns the module number */
+  unsigned int moduleNumber() const
+  { return ((id_>>moduleStartBit_) & moduleMask_);}
+  
+  /** Returns true if the module is rphi */
+  bool isRPhi()
+  { return (stereo() == 0 && !isDoubleSide());}
+  
+  /** Returns true if the module is stereo */
+  bool isStereo()
+  { return (stereo() != 0 && !isDoubleSide());}
+  
+private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int sideStartBit_=          13;
   static const unsigned int wheelStartBit_=         11;
@@ -84,6 +125,24 @@ class TIDDetId : public SiStripDetId {
   static const unsigned int moduleMask_=         0x1F;
   static const unsigned int sterMask_=           0x3;
 };
+
+
+inline
+TIDDetId::TIDDetId() : SiStripDetId() {
+}
+inline
+TIDDetId::TIDDetId(uint32_t rawid) : SiStripDetId(rawid) {
+}
+inline
+TIDDetId::TIDDetId(const DetId& id) : SiStripDetId(id.rawId()) {
+}
+inline
+bool TIDDetId::isDoubleSide() const {
+  // Double Side: only rings 1 and 2
+  return this->glued() == 0 && ( this->ring() == 1 || this->ring() == 2 );
+}
+
+
 
 
 #endif

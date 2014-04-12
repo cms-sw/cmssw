@@ -1,5 +1,5 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include <iostream>
+#include <ostream>
 
 using namespace std;
 

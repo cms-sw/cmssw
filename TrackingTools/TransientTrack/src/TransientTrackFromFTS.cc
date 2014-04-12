@@ -1,14 +1,11 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTS.h"
+#include "DataFormats/Math/interface/Error.h" 
+#include "DataFormats/Math/interface/Vector3D.h" 
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
-#include <iostream>
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+// #include <iostream>
+#include "FWCore/Utilities/interface/Likely.h"
 
 using namespace reco;
 
@@ -62,18 +59,19 @@ TransientTrackFromFTS::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeo
 void TransientTrackFromFTS::setBeamSpot(const BeamSpot& beamSpot)
 {
   theBeamSpot = beamSpot;
+  blStateAvailable = false;
 }
 
 
 TrajectoryStateOnSurface TransientTrackFromFTS::impactPointState() const
 {
-  if (!initialTSOSAvailable) calculateTSOSAtVertex();
+  if unlikely(!initialTSOSAvailable) calculateTSOSAtVertex();
   return initialTSOS;
 }
 
 TrajectoryStateClosestToPoint TransientTrackFromFTS::impactPointTSCP() const
 {
-  if (!initialTSCPAvailable) {
+  if unlikely(!initialTSCPAvailable) {
     initialTSCP = builder(initialFTS, initialFTS.position());
     initialTSCPAvailable = true;
   }
@@ -92,6 +90,7 @@ TrajectoryStateOnSurface TransientTrackFromFTS::innermostMeasurementState() cons
     "TransientTrack built from a FreeTrajectoryState (TransientTrackFromFTS) can not have an innermostMeasurementState";
 }
 
+
 void TransientTrackFromFTS::calculateTSOSAtVertex() const
 {
   TransverseImpactPointExtrapolator tipe(theField);
@@ -108,7 +107,7 @@ TransientTrackFromFTS::stateOnSurface(const GlobalPoint & point) const
 
 const Track & TransientTrackFromFTS::track() const
 {
-  if (!trackAvailable) {
+  if unlikely(!trackAvailable) {
     GlobalPoint v = initialFTS.position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
     GlobalVector p = initialFTS.momentum();
@@ -123,8 +122,8 @@ const Track & TransientTrackFromFTS::track() const
 
 TrajectoryStateClosestToBeamLine TransientTrackFromFTS::stateAtBeamLine() const
 {
-  if (!blStateAvailable) {
-    TrajectoryStateClosestToBeamLineBuilder blsBuilder;
+  if unlikely(!blStateAvailable) {
+    TSCBLBuilderNoMaterial blsBuilder;
     trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
     blStateAvailable = true;
   }

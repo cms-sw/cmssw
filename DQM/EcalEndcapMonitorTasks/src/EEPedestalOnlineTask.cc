@@ -1,53 +1,44 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/05/21 09:57:46 $
- * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEPedestalOnlineTask.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+#include "DQM/EcalEndcapMonitorTasks/interface/EEPedestalOnlineTask.h"
 
-EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
+EEPedestalOnlineTask::EEPedestalOnlineTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
 
-  for (int i = 0; i < 18 ; i++) {
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  EEDigiCollection_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEDigiCollection"));
+
+  for (int i = 0; i < 18; i++) {
     mePedMapG12_[i] = 0;
   }
 
@@ -57,13 +48,33 @@ EEPedestalOnlineTask::~EEPedestalOnlineTask(){
 
 }
 
-void EEPedestalOnlineTask::beginJob(const EventSetup& c){
+void EEPedestalOnlineTask::beginJob(void){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
-    dbe_->rmdir("EcalEndcap/EEPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask");
+    dqmStore_->rmdir(prefixME_ + "/EEPedestalOnlineTask");
+  }
+
+}
+
+void EEPedestalOnlineTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEPedestalOnlineTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+}
+
+void EEPedestalOnlineTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( mePedMapG12_[i] ) mePedMapG12_[i]->Reset();
   }
 
 }
@@ -72,16 +83,24 @@ void EEPedestalOnlineTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  std::string name;
+  std::string dir;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dir = prefixME_ + "/EEPedestalOnlineTask";
+    if(subfolder_.size())
+      dir += "/" + subfolder_;
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
-    for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPOT pedestal %s G12", Numbers::sEE(i+1).c_str());
-      mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe_->tag(mePedMapG12_[i], i+1);
+    dqmStore_->setCurrentFolder(dir);
+
+    dqmStore_->setCurrentFolder(dir + "/Gain12");
+    for (int i = 0; i < 18; i++) {
+      name = "EEPOT pedestal " + Numbers::sEE(i+1) + " G12";
+      mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePedMapG12_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG12_[i]->setAxisTitle("101-ix", 1);
+      mePedMapG12_[i]->setAxisTitle("iy", 2);
+      dqmStore_->tag(mePedMapG12_[i], i+1);
     }
 
   }
@@ -90,14 +109,18 @@ void EEPedestalOnlineTask::setup(void){
 
 void EEPedestalOnlineTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    std::string dir = prefixME_ + "/EEPedestalOnlineTask";
+    if(subfolder_.size())
+      dir += "/" + subfolder_;
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
+    dqmStore_->setCurrentFolder(dir);
+
+    dqmStore_->setCurrentFolder(dir + "/Gain12");
     for ( int i = 0; i < 18; i++ ) {
-      if ( mePedMapG12_[i] ) dbe_->removeElement( mePedMapG12_[i]->getName() );
+      if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
     }
 
@@ -109,65 +132,75 @@ void EEPedestalOnlineTask::cleanup(void){
 
 void EEPedestalOnlineTask::endJob(void){
 
-  LogInfo("EEPedestalOnlineTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EEPedestalOnlineTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
+void EEPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  try {
+  edm::Handle<EEDigiCollection> digis;
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  if ( e.getByToken(EEDigiCollection_, digis) ) {
 
-    int nebd = digis->size();
-    LogDebug("EEPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
+    int need = digis->size();
+    LogDebug("EEPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << need;
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EEDetId id = digiItr->id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      LogDebug("EEPedestalOnlineTask") << " det id = " << id;
-      LogDebug("EEPedestalOnlineTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
+
+      EEDataFrame dataframe = (*digiItr);
+
+      int iMax(-1);
+      int maxADC(0);
+      for(int i(0); i < 10; i++){
+        if(dataframe.sample(i).gainId() != 1) break;
+        int adc(dataframe.sample(i).adc());
+        if(adc > maxADC){
+          maxADC = adc;
+          iMax = i;
+        }
+      }
+
+      if(iMax != 5) continue;
 
       for (int i = 0; i < 3; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
+        int adc = dataframe.sample(i).adc();
 
         MonitorElement* mePedMap = 0;
 
-        if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
-        if ( sample.gainId() == 2 ) mePedMap = 0;
-        if ( sample.gainId() == 3 ) mePedMap = 0;
+        if ( dataframe.sample(i).gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
+        if ( dataframe.sample(i).gainId() == 2 ) mePedMap = 0;
+        if ( dataframe.sample(i).gainId() == 3 ) mePedMap = 0;
 
         float xval = float(adc);
 
-        if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
+        if ( mePedMap ) mePedMap->Fill(xix, xiy, xval);
 
       }
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
-    LogWarning("EEPedestalOnlineTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EEPedestalOnlineTask") << "EEDigiCollection not available";
 
   }
 

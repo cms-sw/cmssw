@@ -10,10 +10,12 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2007/02/27 09:44:56 $
- *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
+
+#include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
+
+#include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -22,6 +24,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 namespace edm {class ParameterSet; class EventSetup;}
 namespace reco {class TransientTrack;}
 
@@ -31,7 +34,7 @@ class Propagator;
 class TransientTrackingRecHitBuilder;
 class Trajectory;
 
-class TrackTransformer{
+class TrackTransformer: public TrackTransformerBase{
 
 public:
 
@@ -44,10 +47,14 @@ public:
   // Operations
 
   /// Convert a reco::Track into Trajectory
-  std::vector<Trajectory> transform(const reco::Track&) const;
+  virtual std::vector<Trajectory> transform(const reco::Track&) const;
 
   /// Convert a reco::TrackRef into Trajectory
   std::vector<Trajectory> transform(const reco::TrackRef&) const;
+
+  /// Convert a reco::TrackRef into Trajectory, refit with a new set of hits
+  std::vector<Trajectory> transform(const reco::TransientTrack&,
+                                    const TransientTrackingRecHit::ConstRecHitContainer&) const;
 
   /// the magnetic field
   const MagneticField* magneticField() const {return &*theMGField;}
@@ -56,22 +63,24 @@ public:
   edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const {return theTrackingGeometry;}
 
   /// set the services needed by the TrackTransformer
-  void setServices(const edm::EventSetup&);
+  virtual void setServices(const edm::EventSetup&);
 
   /// the refitter used to refit the reco::Track
   edm::ESHandle<TrajectoryFitter> refitter() const {return theFitter;}
   
   /// the smoother used to smooth the trajectory which came from the refitting step
   edm::ESHandle<TrajectorySmoother> smoother() const {return theSmoother;}
+
+  TransientTrackingRecHit::ConstRecHitContainer
+    getTransientRecHits(const reco::TransientTrack& track) const;
   
  protected:
   
  private:
+
   std::string thePropagatorName;
   edm::ESHandle<Propagator> propagator() const {return thePropagator;}
   edm::ESHandle<Propagator> thePropagator;
-  
-  enum RefitDirection{insideOut,outsideIn,undetermined};
   
   unsigned long long theCacheId_TC;
   unsigned long long theCacheId_GTG;
@@ -80,6 +89,7 @@ public:
   
   bool theRPCInTheFit;
 
+  bool theDoPredictionsOnly;
   RefitDirection theRefitDirection;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
@@ -90,12 +100,11 @@ public:
   
   std::string theSmootherName;
   edm::ESHandle<TrajectorySmoother> theSmoother;
-
-  TransientTrackingRecHit::ConstRecHitContainer
-    getTransientRecHits(const reco::TransientTrack& track) const;
-  
-  RefitDirection
+ 
+  RefitDirection::GeometricalDirection
     checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer&) const;
+
+  //  void reorder(TransientTrackingRecHit::ConstRecHitContainer& recHits) const;
 
   std::string theTrackerRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;

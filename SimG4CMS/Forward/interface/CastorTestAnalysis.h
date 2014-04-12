@@ -22,12 +22,14 @@
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4UserEventAction.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
 
 #include <cassert>
 #include <iostream>
@@ -37,7 +39,6 @@
 #include <memory>
 #include <vector>
 
-#include <CLHEP/Vector/LorentzVector.h>
 #include <CLHEP/Random/Randomize.h> 
 
 #include "TROOT.h"
@@ -84,7 +85,8 @@ private:
   
 private:
 
-  void   Finish();
+  void getCastorBranchData(const CaloG4HitCollection * hc);
+  void Finish();
 
   int verbosity;
   int doNTcastorstep;
@@ -97,9 +99,12 @@ private:
 
   TNtuple* castorstepntuple;
   TNtuple* castoreventntuple;
+  
+  CastorNumberingScheme* theCastorNumScheme;
 
   int eventIndex;
   int stepIndex;
+  int eventGlobalHit;
 
   Float_t castorsteparray[14];
   Float_t castoreventarray[11];

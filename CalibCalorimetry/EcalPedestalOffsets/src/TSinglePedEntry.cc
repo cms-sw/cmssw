@@ -34,14 +34,14 @@ void TSinglePedEntry::insert (const int & pedestal)
 
 double TSinglePedEntry::average () const
 {
-  if (!m_entries) return -999 ;
+  if (!m_entries) return -1;
   return static_cast<double>(m_pedestalSum) / m_entries ;
 }
 
 
 double TSinglePedEntry::RMS () const
 {
-  if (!m_entries) return -999 ;
+  if (!m_entries) return -1;
   return sqrt (RMSSq ())  ;
 }
 
@@ -52,7 +52,7 @@ double TSinglePedEntry::RMSSq () const
             << "\t" << m_pedestalSum
             << "\t" << m_entries << std::endl ;   // FIXME
 */            
-  if (!m_entries) return -999 ;
+  if (!m_entries) return -1;
   double num = 1./static_cast<double>(m_entries) ;
   double output = m_pedestalSqSum * num - m_pedestalSum * num * m_pedestalSum * num ;
   return output ;

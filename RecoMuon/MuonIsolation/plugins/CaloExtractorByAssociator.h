@@ -7,21 +7,19 @@
  *  these can later be subtracted from deposits in a cone.
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
- *  
- *  $Date: 2007/07/11 00:30:31 $
- *  $Revision: 1.2.4.1 $
- *  $Id: CaloExtractorByAssociator.h,v 1.2.4.1 2007/07/11 00:30:31 slava77 Exp $
+ *
  *  \author S. Krutelyov
  */
 
 #include <string>
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
@@ -29,17 +27,17 @@
 
 class TrackAssociatorParameters;
 class TrackDetectorAssociator;
-class Propagator;
+class MuonServiceProxy;
 
 namespace muonisolation {
-  
-  class CaloExtractorByAssociator : public MuIsoExtractor {
+
+  class CaloExtractorByAssociator : public reco::isodeposit::IsoDepositExtractor {
 
   public:
 
     //! constructors
     CaloExtractorByAssociator(){};
-    CaloExtractorByAssociator(const edm::ParameterSet& par);
+    CaloExtractorByAssociator(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
     //! destructor
     virtual ~CaloExtractorByAssociator();
@@ -47,17 +45,17 @@ namespace muonisolation {
     //! allows to set extra vetoes (in addition to the muon) -- no-op at this point
     virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
     //! no-op: by design of this extractor the deposits are pulled out all at a time
-    virtual reco::MuIsoDeposit 
+    virtual reco::IsoDeposit
       deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
     //! return deposits for 3 calorimeter subdetectors (ecal, hcal, ho) -- in this order
-    virtual std::vector<reco::MuIsoDeposit> 
+    virtual std::vector<reco::IsoDeposit>
       deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
   private:
 
     //! use towers or rec hits
     bool theUseRecHitsFlag;
-  
+
     //! Label of deposit -- suggest to set to "" (all info is in collection name anyways)
     std::string theDepositLabel;
 
@@ -77,6 +75,9 @@ namespace muonisolation {
     double theDR_Veto_E;
     double theDR_Veto_H;
     double theDR_Veto_HO;
+    //! centers the cone on the veto direction -- makes more sense for
+    //! very displaced tracks like in cosmics
+    bool theCenterConeOnCalIntersection;
     //! max cone size in which towers are considered
     double theDR_Max;
 
@@ -93,10 +94,13 @@ namespace muonisolation {
     //! Vector of calo Ids to veto -- not used
     std::vector<DetId> theVetoCollection;
 
+    //! the event setup proxy, it takes care the services update
+    MuonServiceProxy* theService;
+
+
     //! associator, its' parameters and the propagator
     TrackAssociatorParameters* theAssociatorParameters;
-    TrackDetectorAssociator* theAssociator;  
-    mutable Propagator* thePropagator; 
+    TrackDetectorAssociator* theAssociator;
 
     //! flag to turn on/off printing of a time report
     bool thePrintTimeReport;
@@ -107,11 +111,6 @@ namespace muonisolation {
     double noiseHOcal(const CaloTower& tower) const;
     double noiseRecHit(const DetId& detId) const;
 
-    //! Function to ensure that phi and theta are in range
-    static double PhiInRange(const double& phi);
-
-    //! DeltaR function
-    template <class T, class U> static double deltaR(const T& t, const U& u);
   };
 
 }

@@ -6,8 +6,6 @@
  *       Class to hold drift tubes T0s
  *             ( cell by cell time offsets )
  *
- *  $Date: 2006/06/29 14:20:02 $
- *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -27,28 +25,12 @@
 // C++ Headers --
 //---------------
 #include <string>
+#include <vector>
 #include <map>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
-
-class DTT0Id {
-
- public:
-
-  DTT0Id();
-  ~DTT0Id();
-
-  int   wheelId;
-  int stationId;
-  int  sectorId;
-  int      slId;
-  int   layerId;
-  int    cellId;
-
-};
-
 
 class DTT0Data {
 
@@ -57,16 +39,10 @@ class DTT0Data {
   DTT0Data();
   ~DTT0Data();
 
+  uint32_t channelId;
   float t0mean;
   float t0rms;
 
-};
-
-
-class DTT0Compare {
- public:
-  bool operator()( const DTT0Id& idl,
-                   const DTT0Id& idr ) const;
 };
 
 
@@ -94,11 +70,27 @@ class DTT0 {
               int    cellId,
               float& t0mean,
               float& t0rms,
-              DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+              DTTimeUnits::type unit ) const
+      { return get( wheelId, stationId, sectorId, slId, layerId, cellId,
+                    t0mean, t0rms, unit ); };
   int cellT0( const DTWireId& id,
               float& t0mean,
               float& t0rms,
-              DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+              DTTimeUnits::type unit ) const
+      { return get( id, t0mean, t0rms, unit ); };
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           float& t0mean,
+           float& t0rms,
+           DTTimeUnits::type unit ) const;
+  int get( const DTWireId& id,
+           float& t0mean,
+           float& t0rms,
+           DTTimeUnits::type unit ) const;
   float unit() const;
 
   /// access version
@@ -117,17 +109,31 @@ class DTT0 {
                  int    cellId,
                  float t0mean,
                  float t0rms,
-                 DTTimeUnits::type unit = DTTimeUnits::counts );
+                 DTTimeUnits::type unit )
+      { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
+                    t0mean, t0rms, unit ); };
   int setCellT0( const DTWireId& id,
                  float t0mean,
                  float t0rms,
-                 DTTimeUnits::type unit = DTTimeUnits::counts );
+                 DTTimeUnits::type unit )
+      { return set( id, t0mean, t0rms, unit ); };
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           float t0mean,
+           float t0rms,
+           DTTimeUnits::type unit );
+  int set( const DTWireId& id,
+           float t0mean,
+           float t0rms,
+           DTTimeUnits::type unit );
   void setUnit( float unit );
 
   /// Access methods to data
-  typedef std::map<DTT0Id,
-                   DTT0Data,
-                   DTT0Compare>::const_iterator const_iterator;
+  typedef std::vector<DTT0Data>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -136,7 +142,7 @@ class DTT0 {
   std::string dataVersion;
   float nsPerCount;
 
-  std::map<DTT0Id,DTT0Data,DTT0Compare> cellData;
+  std::vector< DTT0Data > dataList;
 
 };
 

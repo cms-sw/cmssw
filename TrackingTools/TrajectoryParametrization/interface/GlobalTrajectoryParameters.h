@@ -3,11 +3,10 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 class MagneticField;
-
 /** Class providing access to a set of relevant parameters of a trajectory
  *  in the global, Cartesian frame. The basic data members used to calculate
  *  these parameters are the charge and global position and momentum.
@@ -16,7 +15,11 @@ class MagneticField;
 class GlobalTrajectoryParameters {
 public:
 // construct
-  GlobalTrajectoryParameters() {}
+  GlobalTrajectoryParameters() :
+    theField(0), 
+    theX(), theP(), 
+    theCharge(0)
+  {}  // we must initialize cache to non-NAN to avoid FPE
 
   /** Constructing class from global position, global momentum and charge.
    */
@@ -24,20 +27,32 @@ public:
   GlobalTrajectoryParameters(const GlobalPoint& aX,
                              const GlobalVector& aP,
                              TrackCharge aCharge, 
-			     const MagneticField* fieldProvider) :
-    theX(aX), theP(aP), theCharge(aCharge), theField(fieldProvider),
-    hasCurvature_(false), cachedCurvature_(1.0) {} // we must initialize cache to non-NAN to avoid FPE
+			     const MagneticField* fieldProvider);
+
+  GlobalTrajectoryParameters(const GlobalPoint& aX,
+                             const GlobalVector& aP,
+                             TrackCharge aCharge,
+                             const MagneticField* fieldProvider,
+                             GlobalVector fieldValue);
+
 
   /** Constructing class from global position, direction (unit length) 
    *  and transverse curvature. The fourth int argument is dummy, 
    *  it serves only to distinguish
    *  this constructor from the one above.
    */
+  GlobalTrajectoryParameters(const GlobalPoint& aX,
+                             const GlobalVector& direction,
+                             float transverseCurvature, int, 
+			     const MagneticField* fieldProvider);
+
 
   GlobalTrajectoryParameters(const GlobalPoint& aX,
                              const GlobalVector& direction,
-                             double transverseCurvature, int, 
-			     const MagneticField* fieldProvider);
+                             float transverseCurvature, int,
+                             const MagneticField* fieldProvider,  
+                             GlobalVector fieldValue);
+
 
   /** Global position.
    */
@@ -53,6 +68,10 @@ public:
     return theP;
   }
 
+  GlobalVector direction() const {
+    return theP.unit();
+  }
+
   /** Charge q of particle, either +1 or -1.
    */
 
@@ -63,14 +82,14 @@ public:
   /** Charge divided by (magnitude of) momentum, i.e. q/p.
    */  
 
-  double signedInverseMomentum() const {
+  float signedInverseMomentum() const {
     return theCharge/theP.mag();
   }
 
   /** Charge divided by transverse momentum, i.e. q/p_T.
    */ 
 
-  double signedInverseTransverseMomentum() const {
+  float signedInverseTransverseMomentum() const {
     return theCharge/theP.perp();
   }
 
@@ -79,7 +98,9 @@ public:
    *  counterclockwise rotation of the track with respect to the global z-axis.
    */
 
-  double transverseCurvature() const;
+  float transverseCurvature() const {
+    return -2.99792458e-3f * signedInverseTransverseMomentum() * cachedMagneticField.z();
+  }
 
   /** Vector whose first three elements are the global position coordinates and
    *  whose last three elements are the global momentum coordinates.
@@ -96,22 +117,25 @@ public:
     return AlgebraicVector6(theX.x(),theX.y(),theX.z(),theP.x(),theP.y(),theP.z());
   }
 
-  /** Vector whose first three elements are the global position coordinates and
-   *  whose last three elements are the global momentum coordinates.
-   */
-
-  AlgebraicVector vector_old() const { return asHepVector(vector());  }
-
+ 
   GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const; 
+  GlobalVector magneticFieldInInverseGeV() const {
+    return 2.99792458e-3f * cachedMagneticField;
+  }
+
+  GlobalVector magneticFieldInTesla() const {
+    return cachedMagneticField;
+  }
+
   const MagneticField& magneticField() const {return *theField;}
 
+
 private:
+  const MagneticField* theField;
   GlobalPoint theX;
   GlobalVector theP;
-  TrackCharge theCharge;
-  const MagneticField* theField;
-  mutable bool hasCurvature_; mutable double cachedCurvature_;
-  //mutable bool hasMagneticField_; mutable GlobalVector cachedMagneticField_; // 
+  GlobalVector cachedMagneticField;
+  signed char  theCharge;
 
 };
 

@@ -4,7 +4,8 @@
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecay.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayVirtualMeasurement.h"
 
-#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
+#include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h" 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -21,6 +22,8 @@ class TwoBodyDecayEstimator
 
 public:
 
+  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+
   TwoBodyDecayEstimator( const edm::ParameterSet & config );
   virtual ~TwoBodyDecayEstimator( void ) {}
 
@@ -28,7 +31,7 @@ public:
 				 const TwoBodyDecayParameters & linearizationPoint,
 				 const TwoBodyDecayVirtualMeasurement & vm ) const;
 
-  inline const int ndf( void ) const { return theNdf; }
+  inline int ndf( void ) const { return theNdf; }
   inline const AlgebraicVector& pulls( void ) const { return thePulls; }
 
   virtual TwoBodyDecayEstimator* clone( void ) const { return new TwoBodyDecayEstimator( *this ); }

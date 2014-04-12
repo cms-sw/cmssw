@@ -1,6 +1,5 @@
 #ifndef HCALTBTDCUNPACKER_H
 #define HCALTBTDCUNPACKER_H 1
-using namespace std;
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBEventPosition.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTiming.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -8,8 +7,6 @@ using namespace std;
 namespace hcaltb {
 /** \class HcalTBTDCUnpacker
     
-   $Date: 2006/08/04 00:28:00 $
-   $Revision: 1.5 $
    \author J. Mans, P. Dudero - Minnesota
 */
 class HcalTBTDCUnpacker {
@@ -18,7 +15,7 @@ public:
   void unpack(const FEDRawData& raw,
 	      HcalTBEventPosition& pos,
 	      HcalTBTiming& timing) const;
-  void setCalib(const vector<vector<string> >& calibLines_);
+  void setCalib(const std::vector<std::vector<std::string> >& calibLines_);
 private:
   struct Hit {
     int channel;
@@ -41,6 +38,7 @@ private:
   bool includeUnmatchedHits_;
   double tdc_ped[161];
   double tdc_convers[161];
+  FILE   *dumpObs_;
 };
 
 }

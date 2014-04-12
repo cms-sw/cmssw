@@ -1,0 +1,14 @@
+<library   file="*.cc" name="EventFilterUtilitiesPlugins">
+  <Flags CXXFLAGS="-g"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/Sources"/>
+  <use   name="IOPool/Streamer"/>
+  <use   name="EventFilter/Utilities"/>
+  <use   name="DataFormats/FEDRawData"/>
+  <use   name="root"/>
+  <use   name="boost"/>
+  <use   name="CLHEP"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

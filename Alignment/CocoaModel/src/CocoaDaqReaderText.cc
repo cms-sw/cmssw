@@ -3,11 +3,10 @@
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
-#include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
-
 
 using namespace std;
 #include <iostream>
+#include <cstdlib>
 
 //----------------------------------------------------------------------
 CocoaDaqReaderText::CocoaDaqReaderText(const std::string& fileName )
@@ -54,8 +53,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
     std::cout << " Reading " << nMeas << " measurements from file " << theFilein.name() 
     	 << " DATE: " << wordlist[1] << " " << wordlist[1] << std::endl;
   }
-  ALIint ii;
-  for(ii = 0; ii < nMeas; ii++) {
+  for( ALIint im = 0; im < nMeas; im++) {
     theFilein.getWordsInLine(wordlist);  
     if( wordlist[0] == ALIstring("SENSOR2D") || wordlist[0] == ALIstring("TILTMETER") || wordlist[0] == ALIstring("DISTANCEMETER")  || wordlist[0] == ALIstring("DISTANCEMETER1DIM")  || wordlist[0] == ALIstring("COPS") ) {
       if( wordlist.size() != 2 ) {
@@ -65,7 +63,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
       }
       std::vector< Measurement* >::const_iterator vmcite;
       for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); vmcite++ ) {
-	//-------- Measurement found, fill data
+	//---- Look for Measurement
 	/*	ALIint last_slash =  (*vmcite)->name().rfind('/');
 	ALIstring oname = (*vmcite)->name();
 	if( last_slash != -1 ) {
@@ -77,6 +75,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
 	oname = oname.substr(fcolon+1,oname.length());
 	//-    std::cout << " measurement name " << (*vmcite)->name() << " short " << oname << std::endl;
 	if( oname == wordlist[1] ) {
+	//-------- Measurement found, fill data
 	  //-   std::cout << " measurement name found " << oname << std::endl;
 	  if( (*vmcite)->type() != wordlist[0] ) {
 	    std::cerr << "!!! Reading measurement from file: type in file is " 
@@ -88,7 +87,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
 	  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
 	  ALIbool sigmaFF = gomgr->GlobalOptions()["measurementErrorFromFile"];
 	  //---------- Read the data 
-	  for ( uint ii=0; ii < meastemp->dim(); ii++){
+	  for ( unsigned int ii=0; ii < meastemp->dim(); ii++){
 	    theFilein.getWordsInLine( wordlist );
             ALIdouble sigma = 0.;
             if( !sigmaFF ) { 

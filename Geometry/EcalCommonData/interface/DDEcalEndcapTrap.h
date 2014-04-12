@@ -6,15 +6,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Plane3D.h>
 #include <CLHEP/Geometry/Vector3D.h>
@@ -33,25 +32,25 @@ class DDEcalEndcapTrap {
 
       //  virtual ~DDEcalEndcapTrap();
 
-      void rotate( const DDRotationMatrix rot ) ;
-      void rotate( const DDTranslation frontCentre,
-		   const DDTranslation rearCentre ) ;
-      void translate( const DDTranslation trans ) ;
+      void rotate( const DDRotationMatrix& rot ) ;
+      void rotate( const DDTranslation& frontCentre,
+		   const DDTranslation& rearCentre ) ;
+      void translate( const DDTranslation& trans ) ;
 
   //  void rotate();
 
       void rotateX( const double angle ) ;
       void rotateY( const double angle ) ;
       void translate();
-      void moveto( const DDTranslation frontCentre,
-		   const DDTranslation rearCentre  );
-      double elevationAngle( const DDTranslation trans );
-      double polarAngle(     const DDTranslation trans);
+      void moveto( const DDTranslation& frontCentre,
+		   const DDTranslation& rearCentre  );
+      double elevationAngle( const DDTranslation& trans );
+      double polarAngle(     const DDTranslation& trans);
       double elevationAngle();
       double polarAngle();
       DDTranslation cornerPos( const int icorner );
       void cornerPos( const int           icorner ,
-		      const DDTranslation cc)         ;
+		      const DDTranslation& cc)         ;
       DDTranslation centrePos();
       DDTranslation fcentrePos();
       DDTranslation rcentrePos();

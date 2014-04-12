@@ -1,5 +1,5 @@
-#ifndef Common_DetSetRefVector_h
-#define Common_DetSetRefVector_h
+#ifndef DataFormats_Common_DetSetRefVector_h
+#define DataFormats_Common_DetSetRefVector_h
 
 /*----------------------------------------------------------------------
   
@@ -23,8 +23,6 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetRefVector.h,v 1.7 2007/01/17 00:19:11 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -33,20 +31,22 @@ $Id: DetSetRefVector.h,v 1.7 2007/01/17 00:19:11 wmtan Exp $
 #include "boost/concept_check.hpp"
 #include "boost/iterator/indirect_iterator.hpp"
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 
 namespace edm {
 
   //------------------------------------------------------------
   // Forward declarations
-  template <class T, class C> class DetSetRefVector;
+  template <typename T, typename C> class DetSetRefVector;
 
   //------------------------------------------------------------
   // Helper function, to regularize throwing of exceptions.
@@ -58,9 +58,8 @@ namespace edm {
     inline
     void _throw_range(det_id_type i)
     {
-      throw edm::Exception(errors::InvalidReference)
-	<< "DetSetRefVector::operator[] called with index not in collection;\n"
-	<< "index value: " << i;
+      Exception::throwThis(errors::InvalidReference,
+        "DetSetRefVector::operator[] called with index not in collection;\nindex value: ", i);
     }
   }
 
@@ -77,7 +76,7 @@ namespace edm {
   }
   
   //allow comparison of edm::Ref<...> to the det_it_type.  This allows searching without dereferencing the edm::Ref
-  template <class T, class C=DetSetVector<T> >
+  template <typename T, typename C=DetSetVector<T> >
     struct CompareRefDetSet {
     typedef Ref<C, DetSet<T>, refhelper::FindDetSetForDetSetVector<T,C> > ref_type; 
       bool operator()(const ref_type& iRef, det_id_type iId) {
@@ -88,7 +87,7 @@ namespace edm {
       }
     };
 
-  template <class T, class C=DetSetVector<T> >
+  template <typename T, typename C=DetSetVector<T> >
   class DetSetRefVector 
   {
     /// DetSetVector requires that T objects can be compared with
@@ -116,8 +115,35 @@ namespace edm {
 
     DetSetRefVector() {}
     
-    template <typename THandle>
-      DetSetRefVector(const THandle& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
+      DetSetRefVector(const Handle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
+        sets_.reserve(iDets.size());
+        det_id_type sanityCheck = 0;
+        for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin(),
+            itDetIdEnd = iDets.end();
+            itDetId != itDetIdEnd;
+            ++itDetId) {
+          assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
+          sanityCheck = *itDetId;
+          //the last 'false' says to not get the data right now
+          sets_.push_back(ref_type(iHandle, *itDetId, false));
+        }
+      }
+
+      DetSetRefVector(const OrphanHandle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
+        sets_.reserve(iDets.size());
+        det_id_type sanityCheck = 0;
+        for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin(),
+            itDetIdEnd = iDets.end();
+            itDetId != itDetIdEnd;
+            ++itDetId) {
+          assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
+          sanityCheck = *itDetId;
+          //the last 'false' says to not get the data right now
+          sets_.push_back(ref_type(iHandle, *itDetId, false));
+        }
+      }
+
+      DetSetRefVector(const TestHandle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
         sets_.reserve(iDets.size());
         det_id_type sanityCheck = 0;
         for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin(),
@@ -133,7 +159,7 @@ namespace edm {
 
     void swap(DetSetRefVector& other);
 
-    //    DetSetVector& operator=(DetSetVector const& rhs);
+    DetSetRefVector& operator=(DetSetRefVector const& rhs);
 
     /// Return true if we contain no DetSets.
     bool empty() const;
@@ -164,20 +190,31 @@ namespace edm {
     /// DetSetVector has been inserted into the Event.
     //void post_insert();
 
+    //Needed for ROOT storage
+    CMS_CLASS_VERSION(10)
+
   private:
     collection_type   sets_;
 
   };
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   void
-  DetSetRefVector<T,C>::swap(DetSetRefVector<T,C>& other) 
-  {
+  DetSetRefVector<T,C>::swap(DetSetRefVector<T,C>& other) {
     sets_.swap(other.sets_);
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
+  inline
+  DetSetRefVector<T ,C>&
+  DetSetRefVector<T, C>::operator=(DetSetRefVector<T,C> const& rhs) {
+    DetSetRefVector<T, C> temp(rhs);
+    this->swap(temp);
+    return *this;
+  }
+
+  template <typename T, typename C>
   inline
   bool
   DetSetRefVector<T,C>::empty() const 
@@ -185,7 +222,7 @@ namespace edm {
     return sets_.empty();
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::size_type
   DetSetRefVector<T,C>::size() const
@@ -193,7 +230,7 @@ namespace edm {
     return sets_.size();
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::const_iterator
   DetSetRefVector<T,C>::find(det_id_type id) const
@@ -210,7 +247,7 @@ namespace edm {
     return p.first;
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::const_reference
   DetSetRefVector<T,C>::operator[](det_id_type i) const 
@@ -222,7 +259,7 @@ namespace edm {
     return *it;
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::const_iterator
   DetSetRefVector<T,C>::begin() const
@@ -230,7 +267,7 @@ namespace edm {
     return sets_.begin();
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::const_iterator
   DetSetRefVector<T,C>::end() const
@@ -239,21 +276,12 @@ namespace edm {
   }
 
   // Free swap function
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   void
-  swap(DetSetRefVector<T,C>& a, DetSetRefVector<T,C>& b) 
-  {
+  swap(DetSetRefVector<T, C>& a, DetSetRefVector<T, C>& b) {
     a.swap(b);
   }
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  // Has swap function
-  template <class T, class C>
-  struct has_swap<edm::DetSetRefVector<T,C> > {
-    static bool const value = true;
-  };
-#endif
 
 //specialize behavior of edm::Ref to get access to the 'Det'
 

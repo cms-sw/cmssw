@@ -3,109 +3,50 @@
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetSystem.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
+// backward compatibility
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
-#include <map>
-#include <vector>
-
-class StrictWeakOrdering{
- public:
-  bool operator() ( uint32_t p,const uint32_t& i) const {return p < i;}
-};
-class TkStripMeasurementDet;
-class TkPixelMeasurementDet;
-class TkGluedMeasurementDet;
-class GeometricSearchTracker;
 class SiStripRecHitMatcher;
-class GluedGeomDet;
+class StMeasurementConditionSet;
+class PxMeasurementConditionSet;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
+   enum QualityFlags { BadModules=1, // for everybody
+                       /* Strips: */ BadAPVFibers=2, BadStrips=4, MaskBad128StripBlocks=8, 
+                       /* Pixels: */ BadROCs=2 }; 
 
-  MeasurementTracker(const edm::ParameterSet&              conf,
-		     const PixelClusterParameterEstimator* pixelCPE,
-		     const StripClusterParameterEstimator* stripCPE,
-		     const SiStripRecHitMatcher*  hitMatcher,
-		     const TrackerGeometry*  trackerGeom,
-		     const GeometricSearchTracker* geometricSearchTracker,
-		     const SiStripDetCabling *stripCabling,
-		     const SiStripNoises *stripNoises,
-		     bool  isRegional=false);
+  MeasurementTracker(TrackerGeometry const *  trackerGeom,
+		     GeometricSearchTracker const * geometricSearchTracker) : 
+    theTrackerGeom(trackerGeom), theGeometricSearchTracker(geometricSearchTracker) {}
+
+
 
   virtual ~MeasurementTracker();
- 
-  void update( const edm::Event&) const;
-  void updatePixels( const edm::Event&) const;
-  void updateStrips( const edm::Event&) const;
 
   const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
 
   const GeometricSearchTracker* geometricSearchTracker() const {return theGeometricSearchTracker;}
 
   /// MeasurementDetSystem interface
-  virtual const MeasurementDet*       idToDet(const DetId& id) const;
+  virtual MeasurementDetWithData idToDet(const DetId& id, const MeasurementTrackerEvent &data) const = 0;
 
-  typedef std::map<DetId,MeasurementDet*>   DetContainer;
+  /// Provide templates to be filled in
+  virtual const StMeasurementConditionSet & stripDetConditions() const = 0;
+  virtual const PxMeasurementConditionSet & pixelDetConditions() const = 0;
 
-  /// For debug only 
-  const DetContainer& allDets() const {return theDetMap;}
-  const std::vector<TkStripMeasurementDet*>& stripDets() const {return theStripDets;}
-  const std::vector<TkPixelMeasurementDet*>& pixelDets() const {return thePixelDets;}
-  const std::vector<TkGluedMeasurementDet*>& gluedDets() const {return theGluedDets;}
-
-
-private:
-  const edm::ParameterSet& pset_;
-
-  mutable unsigned int lastEventNumberPixels;
-  mutable unsigned int lastEventNumberStrips;
-  mutable unsigned int lastRunNumberPixels;
-  mutable unsigned int lastRunNumberStrips;
-
-
-  mutable DetContainer                        theDetMap;
-  mutable std::vector<TkStripMeasurementDet*> theStripDets;
-  mutable std::vector<TkPixelMeasurementDet*> thePixelDets;
-  mutable std::vector<TkGluedMeasurementDet*> theGluedDets;
-
-  const PixelClusterParameterEstimator* thePixelCPE;
-  const StripClusterParameterEstimator* theStripCPE;
-  const SiStripRecHitMatcher*           theHitMatcher;
+protected:
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
-  mutable SiStripNoises*                dummyStripNoises;  // not const
 
-  bool isRegional_;
 
-  void initialize() const;
-
-  void addStripDet( const GeomDet* gd,
-		    const StripClusterParameterEstimator* cpe) const;
-  void addPixelDet( const GeomDet* gd,
-		    const PixelClusterParameterEstimator* cpe) const;
-
-  void addGluedDet( const GluedGeomDet* gd, const SiStripRecHitMatcher* matcher) const;
-
-  void addPixelDets( const TrackingGeometry::DetContainer& dets) const;
-
-  void addStripDets( const TrackingGeometry::DetContainer& dets) const;
-
-  void initializeStripStatus (const SiStripDetCabling *stripCabling) const;
-  void initializeStripNoises (const SiStripNoises *stripNoises) const;
 };
 
-#endif
+#endif // MeasurementTracker_H

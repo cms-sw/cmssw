@@ -30,6 +30,7 @@ class CSCComparatorOutput;
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <boost/dynamic_bitset.hpp>
 
 class CSCEventData {
@@ -50,11 +51,21 @@ class CSCEventData {
   /** turns on/off debug flag for this class */
   static void setDebug(const bool value) {debug = value;}
 
+
+  ///if dealing with ALCT data
+  bool isALCT(const short unsigned int * buf);
+
+  ///if dealing with TMB data
+  bool isTMB(const short unsigned int * buf);
+
+
+  
+
   /// unpacked in long mode: has overflow and error bits decoded
   CSCCFEBData * cfebData(unsigned icfeb) const;
 
   /// returns all the strip digis in the chamber, with the comparator information.
-  std::vector<CSCStripDigi> stripDigis(unsigned ilayer) const;
+  std::vector<CSCStripDigi> stripDigis(const CSCDetId & idlayer) const;
 
   /// returns all the strip digis in the chamber's cfeb
   std::vector<CSCStripDigi> stripDigis(unsigned idlayer, unsigned icfeb) const;
@@ -69,39 +80,45 @@ class CSCEventData {
   std::vector< std::vector<CSCWireDigi> > wireDigis() const;
 
 
-  /// the number of ALCT's
-  int nalct() const {return nalct_;}
+  /// the flag for existence of ALCT data
+  int nalct() const {return theDMBHeader.nalct();}
 
   /// the number of CLCTs
-  int nclct() const {return nclct_;}
+  int nclct() const {return theDMBHeader.nclct();}
 
   /// the DAQ motherboard header.  A good place for event and chamber info
-  const CSCDMBHeader & dmbHeader() const {return theDMBHeader;}
-  CSCDMBHeader & dmbHeader()  {return theDMBHeader;}
+  const CSCDMBHeader * dmbHeader() const {return &theDMBHeader;}
+  CSCDMBHeader * dmbHeader()  {return &theDMBHeader;}
   
   /// user must check if nalct > 0
-  CSCALCTHeader alctHeader() const;
+  CSCALCTHeader * alctHeader() const;
 
   /// user must check if nalct > 0
-  CSCALCTTrailer alctTrailer() const;
+  CSCALCTTrailer * alctTrailer() const;
 
   /// user must check if nalct > 0
-  CSCAnodeData & alctData() const;
+  CSCAnodeData * alctData() const;
 
   ///user must check in nclct > 0
-  CSCTMBData & tmbData() const;
+  CSCTMBData * tmbData() const;
 
   /// user must check if nclct > 0
-  CSCTMBHeader & tmbHeader() const;
+  CSCTMBHeader * tmbHeader() const;
 
   /// user must check if nclct > 0
-  CSCCLCTData & clctData() const;
+  CSCCLCTData * clctData() const;
 
   /// DMB trailer
-  CSCDMBTrailer dmbTrailer() const {return theDMBTrailer;}
+  const CSCDMBTrailer * dmbTrailer() const {return &theDMBTrailer;}
   /// routines to add digis to the data
   void add(const CSCStripDigi &, int layer);
   void add(const CSCWireDigi &, int layer);
+  void add(const CSCComparatorDigi &, int layer);
+  /// these go in as vectors, so they get sorted right away
+  void add(const std::vector<CSCALCTDigi> &);
+  void add(const std::vector<CSCCLCTDigi> &);
+  void add(const std::vector<CSCCorrelatedLCTDigi> &);
+
   
   /// this will fill the DMB header, and change all related fields in
   /// the DMBTrailer, ALCTHeader, and TMBHeader
@@ -118,16 +135,22 @@ class CSCEventData {
 
 
   static bool debug;
+  //uint16_t dataPresent; // 7 bit word which will tell if alct, clct, and 5 cfebs are present
+  static void selfTest();
 
 private:
   /// helpers for ctors, dtor, and op=
   /// zeroes all pointers
   void init();
+  void unpack_data(unsigned short * buf);
   void copy(const CSCEventData &);
   void destroy();
 
-  /// makes new ALCT classes
-  void createALCTClasses();
+  /// makes new ALCT classes, if needed
+  void checkALCTClasses();
+  /// makes new TMB classes, if needed
+  void checkTMBClasses();
+
   /// adds the comparators to the strip digis
   void addComparatorInformation(std::vector<CSCStripDigi>&, int layer) const;
 
@@ -146,12 +169,14 @@ private:
 
   CSCDMBTrailer theDMBTrailer;
 
-  int nalct_;
-  int nclct_;
   int size_;
   /// this won't be filled when real data is read it.  It's only used when packing
   /// simulated data, so we know how many wire and strip channels to make.
   int theChamberType;
+  
+  /// Auxiliary bufer to recove the ALCT raw payload from zero suppression 
+  unsigned short * alctZSErecovered;
+  int zseEnable; 
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCEventData & evt);

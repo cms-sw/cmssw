@@ -3,14 +3,15 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store Gain values 4xCapId
 $Author: ratnikov
-$Date: 2006/11/21 03:35:34 $
-$Revision: 1.1 $
+$Date: 2007/01/09 22:49:21 $
+$Revision: 1.3 $
 */
 
 #include <iostream>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalRawGains.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 
 namespace {
   class compareItems {
@@ -46,7 +47,7 @@ const HcalRawGain* HcalRawGains::getValues (DetId fId) const {
     cell = find (mItems, fId.rawId ());
   }
   if (cell == mItems.end() || cell->rawId () != target.rawId ())
-    throw cms::Exception ("Conditions not found") << "Unavailable Raw Gains for cell " << target.rawId();
+    throw cms::Exception ("Conditions not found") << "Unavailable Raw Gains for cell " << HcalGenericDetId(target.rawId());
   return &(*cell);
 }
 

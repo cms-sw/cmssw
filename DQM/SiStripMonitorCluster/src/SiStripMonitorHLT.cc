@@ -9,67 +9,59 @@
 #include <numeric>
 #include <iostream>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorHLT.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-using namespace std;
-using namespace edm;
 
 SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
 {
   HLTDirectory="HLTResults";
-  dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_  = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
+
+  filerDecisionToken_ = consumes<int>(conf_.getParameter<std::string>("HLTProducer") );
+  sumOfClusterToken_  = consumes<uint>(conf_.getParameter<std::string>("HLTProducer") );
+  clusterInSubComponentsToken_ = consumes<std::map<uint,std::vector<SiStripCluster> > >(conf_.getParameter<std::string>("HLTProducer") );
 }
 
 
-void SiStripMonitorHLT::beginJob(const edm::EventSetup& es){
-  using namespace edm;
+void SiStripMonitorHLT::beginJob(){
 
-  dbe_->setCurrentFolder(HLTDirectory);
+  dqmStore_->setCurrentFolder(HLTDirectory);
   std::string HLTProducer = conf_.getParameter<std::string>("HLTProducer");
-  HLTDecision = dbe_->book1D(HLTProducer+"_HLTDecision", HLTProducer+"HLTDecision", 2, -0.5, 1.5);
+  HLTDecision = dqmStore_->book1D(HLTProducer+"_HLTDecision", HLTProducer+"HLTDecision", 2, -0.5, 1.5);
   // all
-  SumOfClusterCharges_all = dbe_->book1D("SumOfClusterCharges_all", "SumOfClusterCharges_all", 50, 0, 2000);
-  ChargeOfEachClusterTIB_all = dbe_->book1D("ChargeOfEachClusterTIB_all", "ChargeOfEachClusterTIB_all", 400, -0.5, 400.5);
-  ChargeOfEachClusterTOB_all = dbe_->book1D("ChargeOfEachClusterTOB_all", "ChargeOfEachClusterTOB_all", 400, -0.5, 400.5);
-  ChargeOfEachClusterTEC_all = dbe_->book1D("ChargeOfEachClusterTEC_all", "ChargeOfEachClusterTEC_all", 400, -0.5, 400.5);
-  NumberOfClustersAboveThreshold_all = dbe_->book1D("NumberOfClustersAboveThreshold_all", "NumberOfClustersAboveThreshold_all", 30, 30.5, 60.5);
+  SumOfClusterCharges_all = dqmStore_->book1D("SumOfClusterCharges_all", "SumOfClusterCharges_all", 50, 0, 2000);
+  ChargeOfEachClusterTIB_all = dqmStore_->book1D("ChargeOfEachClusterTIB_all", "ChargeOfEachClusterTIB_all", 400, -0.5, 400.5);
+  ChargeOfEachClusterTOB_all = dqmStore_->book1D("ChargeOfEachClusterTOB_all", "ChargeOfEachClusterTOB_all", 400, -0.5, 400.5);
+  ChargeOfEachClusterTEC_all = dqmStore_->book1D("ChargeOfEachClusterTEC_all", "ChargeOfEachClusterTEC_all", 400, -0.5, 400.5);
+  NumberOfClustersAboveThreshold_all = dqmStore_->book1D("NumberOfClustersAboveThreshold_all", "NumberOfClustersAboveThreshold_all", 30, 30.5, 60.5);
   // 31 = TIB2, 32 = TIB2, 33 = TIB3, 51 = TOB1, 52=TOB2, 60 = TEC
   // accepted from HLT
-  SumOfClusterCharges_hlt = dbe_->book1D("SumOfClusterCharges_hlt", "SumOfClusterCharges_hlt", 50, 0, 2000);
-  ChargeOfEachClusterTIB_hlt = dbe_->book1D("ChargeOfEachClusterTIB_hlt", "ChargeOfEachClusterTIB_hlt", 400, -0.5, 400.5);
-  ChargeOfEachClusterTOB_hlt = dbe_->book1D("ChargeOfEachClusterTOB_hlt", "ChargeOfEachClusterTOB_hlt", 400, -0.5, 400.5);
-  ChargeOfEachClusterTEC_hlt = dbe_->book1D("ChargeOfEachClusterTEC_hlt", "ChargeOfEachClusterTEC_hlt", 400, -0.5, 400.5);
-  NumberOfClustersAboveThreshold_hlt = dbe_->book1D("NumberOfClustersAboveThreshold_hlt", "NumberOfClustersAboveThreshold_hlt", 30, 30.5, 60.5);
+  SumOfClusterCharges_hlt = dqmStore_->book1D("SumOfClusterCharges_hlt", "SumOfClusterCharges_hlt", 50, 0, 2000);
+  ChargeOfEachClusterTIB_hlt = dqmStore_->book1D("ChargeOfEachClusterTIB_hlt", "ChargeOfEachClusterTIB_hlt", 400, -0.5, 400.5);
+  ChargeOfEachClusterTOB_hlt = dqmStore_->book1D("ChargeOfEachClusterTOB_hlt", "ChargeOfEachClusterTOB_hlt", 400, -0.5, 400.5);
+  ChargeOfEachClusterTEC_hlt = dqmStore_->book1D("ChargeOfEachClusterTEC_hlt", "ChargeOfEachClusterTEC_hlt", 400, -0.5, 400.5);
+  NumberOfClustersAboveThreshold_hlt = dqmStore_->book1D("NumberOfClustersAboveThreshold_hlt", "NumberOfClustersAboveThreshold_hlt", 30, 30.5, 60.5);
 }
 
 void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  using namespace std;
 
   // get from event
-  string HLTProducer = conf_.getParameter<string>("HLTProducer");
-  Handle<int> filter_decision; iEvent.getByLabel(HLTProducer, "", filter_decision); // filter decision
-  Handle<uint> sum_of_clustch; iEvent.getByLabel(HLTProducer, "", sum_of_clustch); // sum of cluster charges
+  std::string HLTProducer = conf_.getParameter<std::string>("HLTProducer");
+
+  edm::Handle<int> filter_decision; iEvent.getByToken(filerDecisionToken_,filter_decision); // filter decision
+  edm::Handle<uint> sum_of_clustch; iEvent.getByToken(sumOfClusterToken_, sum_of_clustch); // sum of cluster charges
   // first element of pair: layer: TIB1, ...., TEC; second element: nr of clusters above threshold
-  Handle<map<uint,vector<SiStripCluster> > > clusters_in_subcomponents;
-  if(HLTProducer=="ClusterMTCCFilter") iEvent.getByLabel(HLTProducer, "", clusters_in_subcomponents);
+  edm::Handle<std::map<uint,std::vector<SiStripCluster> > > clusters_in_subcomponents;
+  if(HLTProducer=="ClusterMTCCFilter") iEvent.getByToken(clusterInSubComponentsToken_,clusters_in_subcomponents);
 
   // trigger decision
   HLTDecision->Fill(*filter_decision);
@@ -81,16 +73,16 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //clusters in different layers
   if(HLTProducer=="ClusterMTCCFilter"){
     // loop over layers ("subcomponents")
-    for(map<uint,vector<SiStripCluster> >::const_iterator it = clusters_in_subcomponents->begin(); it != clusters_in_subcomponents->end(); it++){
+    for(std::map<uint,std::vector<SiStripCluster> >::const_iterator it = clusters_in_subcomponents->begin(); it != clusters_in_subcomponents->end(); it++){
       int generalized_layer = it->first;
-      vector<SiStripCluster> theclusters = it->second;
+      std::vector<SiStripCluster> theclusters = it->second;
       NumberOfClustersAboveThreshold_all->Fill( generalized_layer, theclusters.size() ); // number of clusters in this generalized layer
       if(*filter_decision) NumberOfClustersAboveThreshold_hlt->Fill( generalized_layer, theclusters.size() );
       //loop over clusters (and detids)
-      for(vector<SiStripCluster>::const_iterator icluster = theclusters.begin(); icluster != theclusters.end(); icluster++){
+      for(std::vector<SiStripCluster>::const_iterator icluster = theclusters.begin(); icluster != theclusters.end(); icluster++){
         // calculate sum of amplitudes
         unsigned int amplclus=0;
-        for(vector<uint16_t>::const_iterator ia=icluster->amplitudes().begin(); ia!=icluster->amplitudes().end(); ia++) {
+        for(std::vector<uint8_t>::const_iterator ia=icluster->amplitudes().begin(); ia!=icluster->amplitudes().end(); ia++) {
           if ((*ia)>0) amplclus+=(*ia); // why should this be negative?
         }
         if(generalized_layer==31 || generalized_layer==32 || generalized_layer==33){ // you can also ask the detid here whether is TIB
@@ -111,20 +103,20 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
 }
 
 void SiStripMonitorHLT::endJob(void){
-  LogInfo("DQM|SiStripMonitorHLT")<<"Events rejected/accepted "<<HLTDecision->getBinContent(1)<<"/"<<HLTDecision->getBinContent(2);
+  edm::LogInfo("DQM|SiStripMonitorHLT")<<"Events rejected/accepted "<<HLTDecision->getBinContent(1)<<"/"<<HLTDecision->getBinContent(2);
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  string outputFileName = conf_.getParameter<string>("OutputFileName");
+  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    dbe_->save(outputFileName);
+    dqmStore_->save(outputFileName);
   }
 
   // delete MEs
-//  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<"pwd="<<dbe_->pwd();
-////  std::string folder_to_delete = dbe_->monitorDirName + "/" + HLTDirectory;
-//  dbe_->cd();
+//  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<"pwd="<<dqmStore_->pwd();
+////  std::string folder_to_delete = dqmStore_->monitorDirName + "/" + HLTDirectory;
+//  dqmStore_->cd();
 //  std::string folder_to_delete = HLTDirectory;
 //  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<" Removing whole directory "<<folder_to_delete;
-//  dbe_->rmdir(folder_to_delete);
+//  dqmStore_->rmdir(folder_to_delete);
 
 }
 

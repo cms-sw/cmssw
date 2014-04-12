@@ -13,7 +13,6 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Jun  7 17:21:58 MSD 2007
-// $Id$
 //
 //
 
@@ -22,35 +21,34 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+
 
 #include "Calibration/HcalIsolatedTrackReco/interface/EcalIsolatedParticleCandidateProducer.h"
-#include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
-#include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidateFwd.h"
 
-#include "FWCore/Framework/interface/produce_helpers.h"
+
 
 
 EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(const edm::ParameterSet& conf)
 {
-  useEndcap_=conf.getParameter<bool>("UseEndcap");
-  coneSize_ = conf.getParameter<double>("EcalIsolationConeSize");
-  minEnergy_= conf.getParameter<double>("MinEnergy");
-  barrelBclusterProducer_=conf.getParameter<std::string>("BarrelBasicClusterProducer");
-  endcapBclusterProducer_=conf.getParameter<std::string>("EndcapBasicClusterProducer");
-  barrelBclusterCollectionLabel_=conf.getParameter<std::string>("BarrelBasicClusterCollectionLabel");
-  endcapBclusterCollectionLabel_=conf.getParameter<std::string>("EndcapBasicClusterCollectionLabel");
-
+  InConeSize_ = conf.getParameter<double>("EcalInnerConeSize");
+  OutConeSize_= conf.getParameter<double>("EcalOuterConeSize");
+  hitCountEthr_= conf.getParameter<double>("ECHitCountEnergyThreshold");
+  hitEthr_=conf.getParameter<double>("ECHitEnergyThreshold");
+  tok_l1tau_ = consumes<l1extra::L1JetParticleCollection>(conf.getParameter<edm::InputTag>("L1eTauJetsSource"));
+  tok_hlt_ = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("L1GTSeedLabel"));
+  tok_EB_ = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBrecHitCollectionLabel"));
+  tok_EE_ = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EErecHitCollectionLabel"));
 
    //register your products
-   produces< reco::EcalIsolatedParticleCandidateCollection >();
+  produces< reco::IsolatedPixelTrackCandidateCollection >();
 
 }
 
@@ -69,100 +67,157 @@ EcalIsolatedParticleCandidateProducer::~EcalIsolatedParticleCandidateProducer()
 //
 
 // ------------ method called to produce the data  ------------
-void
+void 
 EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::Handle<reco::BasicClusterCollection> basCluEB;
-  iEvent.getByLabel(barrelBclusterProducer_,barrelBclusterCollectionLabel_, basCluEB);
+ 
+  using namespace edm;
+
+//  std::cout<<"get tau"<<std::endl;
+
+  Handle<l1extra::L1JetParticleCollection> l1Taus;
+  iEvent.getByToken(tok_l1tau_,l1Taus);
+
+//  std::cout<<"get geom"<<std::endl;
+
+  ESHandle<CaloGeometry> pG;
+  iSetup.get<CaloGeometryRecord>().get(pG);
+  geo = pG.product();
+
+//  std::cout<<" get ec rechit"<<std::endl;
+
+  Handle<EcalRecHitCollection> ecalEB;
+  iEvent.getByToken(tok_EB_,ecalEB);
+
+  Handle<EcalRecHitCollection> ecalEE;
+  iEvent.getByToken(tok_EE_,ecalEE);
+
+//  std::cout<<"get l1 trig obj"<<std::endl;
+
+  Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
+  iEvent.getByToken(tok_hlt_, l1trigobj);
+
+  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
+  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
+
+  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
+  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
    
-  edm::Handle<reco::BasicClusterCollection> basCluEE;
-  if (useEndcap_) iEvent.getByLabel(endcapBclusterProducer_, endcapBclusterCollectionLabel_,basCluEE);
-    
-  reco::EcalIsolatedParticleCandidateCollection * eipcCollection=new reco::EcalIsolatedParticleCandidateCollection;
+  double ptTriggered=-10;
+  double etaTriggered=-100;
+  double phiTriggered=-100;
 
-  //  edm::LogInfo("AAAAAAAAAA")<<"supCluEB size: "<<supCluEB->size()<<"\n"<<"supCluEE size: "<<supCluEE->size()<<"\n"<<"basCluEB size: "<<basCluEB->size()<<"\n"<<"basCluEB size: "<<basCluEE->size()<<" BasEB id: "<<rrr->id()<<"Bas EE id: "<<rrr1->id();
+//  std::cout<<"find highest pT triggered obj"<<std::endl;
 
-  //  double scCount;
+  for (unsigned int p=0; p<l1tauobjref.size(); p++)
+        {
+        if (l1tauobjref[p]->pt()>ptTriggered)
+                {
+                ptTriggered=l1tauobjref[p]->pt();
+                phiTriggered=l1tauobjref[p]->phi();
+                etaTriggered=l1tauobjref[p]->eta();
+                }
+        }
+  for (unsigned int p=0; p<l1jetobjref.size(); p++)
+        {
+        if (l1jetobjref[p]->pt()>ptTriggered)
+                {
+                ptTriggered=l1jetobjref[p]->pt();
+                phiTriggered=l1jetobjref[p]->phi();
+                etaTriggered=l1jetobjref[p]->eta();
+                }
+        }
 
-  //      for (unsigned int i=0; i<basCluEB->size(); i++)
-  for (reco::BasicClusterCollection::const_iterator it_b=basCluEB->begin(); it_b!=basCluEB->end(); it_b++)	
-    {
-      if (it_b->energy()<minEnergy_) continue;
-      double eta=it_b->eta();
-      double phi=it_b->phi();
-      double energy=it_b->energy();
-      double maxNear=-10;
-      double sumNear=0;
-      for (reco::BasicClusterCollection::const_iterator it_in=basCluEB->begin(); it_in!=basCluEB->end(); it_in++)	
-	{   
-	  double dPhi;
-	  if (it_in->phi()-it_b->phi()>3.14159) dPhi=6.28319-(it_in->phi()-it_b->phi());
-	  else dPhi=it_in->phi()-it_b->phi();
-	  if (it_in==it_b||(sqrt(pow(it_in->eta()-it_b->eta(),2)+pow(dPhi,2))>coneSize_)) continue;
-	  if (maxNear<it_in->energy()) maxNear=it_in->energy();
-	  sumNear+=it_in->energy();
-	}
-      if (useEndcap_) 
+  reco::IsolatedPixelTrackCandidateCollection * iptcCollection=new reco::IsolatedPixelTrackCandidateCollection;
+
+//  std::cout<<"loop over l1taus"<<std::endl;
+
+  for (l1extra::L1JetParticleCollection::const_iterator tit=l1Taus->begin(); tit!=l1Taus->end(); tit++)
 	{
-	  for (reco::BasicClusterCollection::const_iterator it_in=basCluEE->begin(); it_in!=basCluEE->end(); it_in++)
-	    {
-	      double dPhi;
-	      if (it_in->phi()-it_b->phi()>3.14159) dPhi=6.28319-(it_in->phi()-it_b->phi());
-	      else dPhi=it_in->phi()-it_b->phi();
-	      if (it_in==it_b||(sqrt(pow(it_in->eta()-it_b->eta(),2)+pow(dPhi,2))>coneSize_)) continue;
-	      if (maxNear<it_in->energy()) maxNear=it_in->energy();
-	      sumNear+=it_in->energy();
-	    }
+	double dphi=fabs(tit->phi()-phiTriggered);
+	if (dphi>3.1415926535) dphi=2*3.1415926535-dphi;
+	double Rseed=sqrt(pow(etaTriggered-tit->eta(),2)+dphi*dphi);
+	if (Rseed<1.2) continue;
+	int nhitOut=0;
+	int nhitIn=0;
+	double OutEnergy=0;
+	double InEnergy=0;
+//	std::cout<<" loops over rechits"<<std::endl;
+	for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++)
+		{
+		double phiD, R;
+                GlobalPoint pos = geo->getPosition(eItr->detid());
+                double phihit = pos.phi();
+                double etahit = pos.eta();
+                phiD=fabs(phihit-tit->phi());
+                if (phiD>3.1415926535) phiD=2*3.1415926535-phiD;
+                R=sqrt(pow(etahit-tit->eta(),2)+phiD*phiD);
+                
+		if (R<OutConeSize_&&R>InConeSize_&&eItr->energy()>hitCountEthr_)
+                	{
+                  	nhitOut++;
+                	}
+		if (R<InConeSize_&&eItr->energy()>hitCountEthr_)
+                        {
+                        nhitIn++;
+                        }
+
+		if (R<OutConeSize_&&R>InConeSize_&&eItr->energy()>hitEthr_)
+                        {
+                        OutEnergy+=eItr->energy();
+                        }
+                if (R<InConeSize_&&eItr->energy()>hitEthr_)
+                        {
+                        InEnergy+=eItr->energy();
+                        }
+
+                }
+
+	for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end(); eItr++)
+                {
+                double phiD, R;
+                GlobalPoint pos = geo->getPosition(eItr->detid());
+                double phihit = pos.phi();
+                double etahit = pos.eta();
+                phiD=fabs(phihit-tit->phi());
+                if (phiD>3.1415926535) phiD=2*3.1415926535-phiD;
+                R=sqrt(pow(etahit-tit->eta(),2)+phiD*phiD);
+                if (R<OutConeSize_&&R>InConeSize_&&eItr->energy()>hitCountEthr_)
+                        {
+                        nhitOut++;
+                        }
+                if (R<InConeSize_&&eItr->energy()>hitCountEthr_)
+                        {
+                        nhitIn++;
+                        }
+		if (R<OutConeSize_&&R>InConeSize_&&eItr->energy()>hitEthr_)
+                        {
+                        OutEnergy+=eItr->energy();
+                        }
+                if (R<InConeSize_&&eItr->energy()>hitEthr_)
+                        {
+                        InEnergy+=eItr->energy();
+                        }
+
+                }
+//	std::cout<<"create and push_back candidate"<<std::endl;
+	reco::IsolatedPixelTrackCandidate newca(l1extra::L1JetParticleRef(l1Taus,tit-l1Taus->begin()), InEnergy, OutEnergy, nhitIn, nhitOut);
+        iptcCollection->push_back(newca);	
 	}
-      
-       reco::EcalIsolatedParticleCandidate newca(eta, phi, energy, maxNear, sumNear);
-       eipcCollection->push_back(newca);
-    }
-  if (useEndcap_)
-    {
-      for (reco::BasicClusterCollection::const_iterator it_e=basCluEE->begin(); it_e!=basCluEE->end(); it_e++)	
-	{
-	  if (it_e->energy()<minEnergy_) continue;
-	  double eta=it_e->eta();
-	  double phi=it_e->phi();
-	  double energy=it_e->energy();
-	  double maxNear=-10;
-	  double sumNear=0;
-	  for (reco::BasicClusterCollection::const_iterator it_in=basCluEB->begin(); it_in!=basCluEB->end(); it_in++)	
-	    {    
-	      double dPhi;
-	      if (it_in->phi()-it_e->phi()>3.14159) dPhi=6.28319-(it_in->phi()-it_e->phi());
-	      else dPhi=it_in->phi()-it_e->phi();
-	      if (it_in==it_e||(sqrt(pow(it_in->eta()-it_e->eta(),2)+pow(dPhi,2))>coneSize_)) continue;
-	      if (maxNear<it_in->energy()) maxNear=it_in->energy();
-	      sumNear+=it_in->energy();
-	    }
-	  for (reco::BasicClusterCollection::const_iterator it_in=basCluEE->begin(); it_in!=basCluEE->end(); it_in++)
-	    {
-	      double dPhi;
-	      if (it_in->phi()-it_e->phi()>3.14159) dPhi=6.28319-(it_in->phi()-it_e->phi());
-	      else dPhi=it_in->phi()-it_e->phi();
-	      if (it_in==it_e||(sqrt(pow(it_in->eta()-it_e->eta(),2)+pow(dPhi,2))>coneSize_)) continue;
-	      if (maxNear<it_in->energy()) maxNear=it_in->energy();
-	      sumNear+=it_in->energy();
-	    }
-	  reco::EcalIsolatedParticleCandidate newca(eta, phi, energy, maxNear, sumNear);
-	  eipcCollection->push_back(newca);
-	}
-    }
+
 
   
   //Use the ExampleData to create an ExampleData2 which 
   // is put into the Event
   
-  std::auto_ptr<reco::EcalIsolatedParticleCandidateCollection> pOut(eipcCollection);
+//  std::cout<<"put cand into event"<<std::endl;
+  std::auto_ptr<reco::IsolatedPixelTrackCandidateCollection> pOut(iptcCollection);
   iEvent.put(pOut);
-}
 
+}
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalIsolatedParticleCandidateProducer::beginJob(const edm::EventSetup&)
-{
+EcalIsolatedParticleCandidateProducer::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

@@ -1,4 +1,3 @@
-#include <iostream>
 #include <cstring>
 #include <vector>
 #include <memory>
@@ -6,6 +5,8 @@
 #include <xercesc/dom/DOM.hpp>
 
 #include <TMatrixD.h>
+#include <TMatrixF.h>
+#include <TH2.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -30,19 +31,19 @@ class ProcMatrix : public TrainProcessor {
 	           MVATrainer *trainer);
 	virtual ~ProcMatrix();
 
-	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalibration() const;
+	virtual void configure(DOMElement *elem) override;
+	virtual Calibration::VarProcessor *getCalibration() const override;
 
-	virtual void trainBegin();
+	virtual void trainBegin() override;
 	virtual void trainData(const std::vector<double> *values,
-	                       bool target, double weight);
-	virtual void trainEnd();
+	                       bool target, double weight) override;
+	virtual void trainEnd() override;
 
-	virtual bool load();
-	virtual void save();
+	virtual bool load() override;
+	virtual void save() override;
 
     protected:
-	virtual void *requestObject(const std::string &name) const;
+	virtual void *requestObject(const std::string &name) const override;
 
     private:
 	enum Iteration {
@@ -50,10 +51,17 @@ class ProcMatrix : public TrainProcessor {
 		ITER_DONE
 	} iteration;
 
+	typedef std::pair<unsigned int, double> Rank;
+
+	std::vector<Rank> ranking() const;
+
+	std::auto_ptr<LeastSquares>	lsSignal, lsBackground;
 	std::auto_ptr<LeastSquares>	ls;
 	std::vector<double>		vars;
 	bool				fillSignal;
 	bool				fillBackground;
+	bool				doNormalization;
+	bool				doRanking;
 };
 
 static ProcMatrix::Registry registry("ProcMatrix");
@@ -61,7 +69,8 @@ static ProcMatrix::Registry registry("ProcMatrix");
 ProcMatrix::ProcMatrix(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_FILL), fillSignal(true), fillBackground(true)
+	iteration(ITER_FILL), fillSignal(true), fillBackground(true),
+	doRanking(false)
 {
 }
 
@@ -71,7 +80,7 @@ ProcMatrix::~ProcMatrix()
 
 void ProcMatrix::configure(DOMElement *elem)
 {
-	ls = std::auto_ptr<LeastSquares>(new LeastSquares(getInputs().size()));
+	ls.reset(new LeastSquares(getInputs().size()));
 
 	DOMNode *node = elem->getFirstChild();
 	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
@@ -91,6 +100,17 @@ void ProcMatrix::configure(DOMElement *elem)
 		XMLDocument::readAttribute<bool>(elem, "signal", false);
 	fillBackground =
 		XMLDocument::readAttribute<bool>(elem, "background", false);
+	doNormalization =
+		XMLDocument::readAttribute<bool>(elem, "normalize", false);
+
+	doRanking = XMLDocument::readAttribute<bool>(elem, "ranking", false);
+	if (doRanking)
+		fillSignal = fillBackground = doNormalization = true;
+
+	if (doNormalization && fillSignal && fillBackground) {
+		lsSignal.reset(new LeastSquares(getInputs().size()));
+		lsBackground.reset(new LeastSquares(getInputs().size()));
+	}
 
 	node = node->getNextSibling();
 	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
@@ -109,6 +129,9 @@ void ProcMatrix::configure(DOMElement *elem)
 
 Calibration::VarProcessor *ProcMatrix::getCalibration() const
 {
+	if (doRanking)
+		return 0;
+
 	Calibration::ProcMatrix *calib = new Calibration::ProcMatrix;
 
 	unsigned int n = ls->getSize();
@@ -119,7 +142,7 @@ Calibration::VarProcessor *ProcMatrix::getCalibration() const
 
 	for(unsigned int i = 0; i < n; i++)
 		for(unsigned int j = 0; j < n; j++)
-			calib->matrix.elements.push_back(rotation(i, j));
+			calib->matrix.elements.push_back(rotation(j, i));
 
 	return calib;
 }
@@ -139,8 +162,19 @@ void ProcMatrix::trainData(const std::vector<double> *values,
 	if (!(target ? fillSignal : fillBackground))
 		return;
 
-	for(unsigned int i = 0; i < ls->getSize(); i++, values++)
+	LeastSquares *ls = target ? lsSignal.get() : lsBackground.get();
+	if (!ls)
+		ls = this->ls.get();
+
+	for(unsigned int i = 0; i < ls->getSize(); i++, values++) {
+		if (values->empty())
+			throw cms::Exception("ProcMatrix")
+				<< "Variable \""
+				<< (const char*)getInputs().get()[i]->getName()
+				<< "\" is not set in ProcMatrix trainer."
+				<< std::endl;
 		vars[i] = values->front();
+	}
 
 	ls->add(vars, target, weight);
 }
@@ -150,13 +184,82 @@ void ProcMatrix::trainEnd()
 	switch(iteration) {
 	    case ITER_FILL:
 		vars.clear();
+		if (lsSignal.get()) {
+			unsigned int n = ls->getSize();
+			double weight = lsSignal->getCoefficients()
+								(n + 1, n + 1);
+			if (weight > 1.0e-9)
+				ls->add(*lsSignal, 1.0 / weight);
+			lsSignal.reset();
+		}
+		if (lsBackground.get()) {
+			unsigned int n = ls->getSize();
+			double weight = lsBackground->getCoefficients()
+								(n + 1, n + 1);
+			if (weight > 1.0e-9)
+				ls->add(*lsBackground, 1.0 / weight);
+			lsBackground.reset();
+		}
 		ls->calculate();
 
 		iteration = ITER_DONE;
 		trained = true;
 		break;
+
 	    default:
 		/* shut up */;
+	}
+
+	if (iteration == ITER_DONE && monitoring) {
+		TMatrixF matrix(ls->getCorrelations());
+		TH2F *histo = monitoring->book<TH2F>("CorrMatrix", matrix);
+		histo->SetNameTitle("CorrMatrix",
+			(fillSignal && fillBackground)
+			? "correlation matrix (signal + background)"
+			: (fillSignal ? "correlation matrix (signal)"
+			              : "correlation matrix (background)"));
+
+		std::vector<SourceVariable*> inputs = getInputs().get();
+		for(std::vector<SourceVariable*>::const_iterator iter =
+			inputs.begin(); iter != inputs.end(); ++iter) {
+
+			unsigned int idx = iter - inputs.begin();
+			SourceVariable *var = *iter;
+			std::string name =
+				(const char*)var->getSource()->getName()
+				+ std::string("_")
+				+ (const char*)var->getName();
+
+			histo->GetXaxis()->SetBinLabel(idx + 1, name.c_str());
+			histo->GetYaxis()->SetBinLabel(idx + 1, name.c_str());
+			histo->GetXaxis()->SetBinLabel(inputs.size() + 1,
+			                               "target");
+			histo->GetYaxis()->SetBinLabel(inputs.size() + 1,
+			                               "target");
+		}
+		histo->LabelsOption("d");
+		histo->SetMinimum(-1.0);
+		histo->SetMaximum(+1.0);
+
+		if (!doRanking)
+			return;
+
+		std::vector<Rank> ranks = ranking();
+		TVectorD rankVector(ranks.size());
+		for(unsigned int i = 0; i < ranks.size(); i++)
+			rankVector[i] = ranks[i].second;
+		TH1F *rank = monitoring->book<TH1F>("Ranking", rankVector);
+		rank->SetNameTitle("Ranking", "variable ranking");
+		rank->SetYTitle("correlation to target");
+		for(unsigned int i = 0; i < ranks.size(); i++) {
+			unsigned int v = ranks[i].first;
+			std::string name;
+			SourceVariable *var = inputs[v];
+			name = (const char*)var->getSource()->getName()
+			       + std::string("_")
+			       + (const char*)var->getName();
+			rank->GetXaxis()->SetBinLabel(i + 1, name.c_str());
+		}
 	}
 }
 
@@ -170,16 +273,12 @@ void *ProcMatrix::requestObject(const std::string &name) const
 
 bool ProcMatrix::load()
 {
-	std::auto_ptr<XMLDocument> xml;
-
-	try {
-		xml = std::auto_ptr<XMLDocument>(new XMLDocument(
-				trainer->trainFileName(this, "xml")));
-	} catch(...) {
+	std::string filename = trainer->trainFileName(this, "xml");
+	if (!exists(filename))
 		return false;
-	}
 
-	DOMElement *elem = xml->getRootNode();
+	XMLDocument xml(filename);
+	DOMElement *elem = xml.getRootNode();
 	if (std::strcmp(XMLSimpleStr(elem->getNodeName()), "ProcMatrix") != 0)
 		throw cms::Exception("ProcMatrix")
 			<< "XML training data file has bad root node."
@@ -215,6 +314,104 @@ void ProcMatrix::save()
 	DOMDocument *doc = xml.createDocument("ProcMatrix");
 
 	xml.getRootNode()->appendChild(ls->save(doc));
+}
+
+static void maskLine(TMatrixDSym &m, unsigned int line)
+{
+	unsigned int n = m.GetNrows();
+	for(unsigned int i = 0; i < n; i++)
+		m(i, line) = m(line, i) = 0.;
+	m(line, line) = 1.;
+}
+
+static void restoreLine(TMatrixDSym &m, TMatrixDSym &o, unsigned int line)
+{
+	unsigned int n = m.GetNrows();
+	for(unsigned int i = 0; i < n; i++) {
+		m(i, line) = o(i, line);
+		m(line, i) = o(line, i);
+	}
+}
+
+static double targetCorrelation(const TMatrixDSym &coeffs,
+                                const std::vector<bool> &use)
+{
+	unsigned int n = coeffs.GetNrows() - 2;
+	
+	TVectorD weights = LeastSquares::solveFisher(coeffs);
+	weights.ResizeTo(n + 2);
+	weights[n + 1] = weights[n];
+	weights[n] = 0.;
+
+	double v1 = 0.;
+	double v2 = 0.;
+	double v3 = coeffs(n, n);
+	double N = coeffs(n + 1, n + 1);
+	double M = 0.;
+	for(unsigned int i = 0; i < n + 2; i++) {
+		if (i < n && !use[n])
+			continue;
+		double w = weights[i];
+		for(unsigned int j = 0; j < n + 2; j++) {
+			if (i < n && !use[n])
+				continue;
+			v1 += w * weights[j] * coeffs(i, j);
+		}
+		v2 += w * coeffs(i, n);
+		M += w * coeffs(i, n + 1);
+	}
+
+	double c1 = v1 * N - M * M;
+	double c2 = v2 * N - M * coeffs(n + 1, n);
+	double c3 = v3 * N - coeffs(n + 1, n) * coeffs(n + 1, n);
+
+	double c = c1 * c3;
+	return (c > 1.0e-9) ? c2 / std::sqrt(c) : 0.0;
+}
+
+std::vector<ProcMatrix::Rank> ProcMatrix::ranking() const
+{
+	TMatrixDSym coeffs = ls->getCoefficients();
+	unsigned int n = coeffs.GetNrows() - 2;
+
+	typedef std::pair<unsigned int, double> Rank;
+	std::vector<Rank> ranking;
+	std::vector<bool> use(n, true);
+
+	double corr = targetCorrelation(coeffs, use);
+
+	for(unsigned int nVars = n; nVars > 1; nVars--) {
+		double bestCorr = -99999.0;
+		unsigned int bestIdx = n;
+		TMatrixDSym origCoeffs = coeffs;
+
+		for(unsigned int i = 0; i < n; i++) {
+			if (!use[i])
+				continue;
+
+			use[i] = false;
+			maskLine(coeffs, i);
+			double newCorr = targetCorrelation(coeffs, use);
+			use[i] = true;
+			restoreLine(coeffs, origCoeffs, i);
+
+			if (newCorr > bestCorr) {
+				bestCorr = newCorr;
+				bestIdx = i;
+			}
+		}
+
+		ranking.push_back(Rank(bestIdx, corr));
+		corr = bestCorr;
+		use[bestIdx] = false;
+		maskLine(coeffs, bestIdx);
+	}
+
+	for(unsigned int i = 0; i < n; i++)
+		if (use[i])
+			ranking.push_back(Rank(i, corr));
+
+	return ranking;
 }
 
 } // anonymous namespace

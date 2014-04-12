@@ -30,7 +30,7 @@ DCSPTMTemp::~DCSPTMTemp()
 
 
 
-void DCSPTMTemp::setStart(Tm start)
+void DCSPTMTemp::setStart(const Tm& start)
 {
   if (start != m_runStart) {
     m_ID = 0;
@@ -47,7 +47,7 @@ Tm DCSPTMTemp::getStart() const
 
 
 
-void DCSPTMTemp::setEnd(Tm end)
+void DCSPTMTemp::setEnd(const Tm& end)
 {
   if (end != m_runEnd) {
     m_ID = 0;
@@ -77,7 +77,7 @@ EcalLogicID DCSPTMTemp::getEcalLogicID() const
   return m_ecid;
 }
 
-void DCSPTMTemp::setEcalLogicID(EcalLogicID ecid) 
+void DCSPTMTemp::setEcalLogicID(const EcalLogicID& ecid) 
 {
   m_ecid=ecid;
 }

@@ -12,8 +12,9 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.27 2007/08/07 01:18:15 wsun Exp $
-// $Log: L1ParticleMap.h,v $
+// Revision 1.28  2007/08/08 03:49:03  wsun
+// Diffractive trigger threshold update from X. Rouby.
+//
 // Revision 1.27  2007/08/07 01:18:15  wsun
 // Added JetMET calibration triggers from Len.
 //
@@ -99,17 +100,15 @@
 
 // system include files
 #include <string>
-
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 // user include files
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h" 
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h" 
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h" 
-/* #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"  */
-/* #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"  */
-/* #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"  */
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h" 
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h" 
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h" 
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-/* #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"  */
-#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h" 
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h" 
 
 // forward declarations
 
@@ -284,9 +283,12 @@ namespace l1extra {
 	    const L1IndexComboVector& indexCombos =
 	       L1IndexComboVector()
 	    ) ;
+	 L1ParticleMap( const L1ParticleMap&);
+	 L1ParticleMap& operator=(const L1ParticleMap&);
 
 	 virtual ~L1ParticleMap();
 
+	 void swap(L1ParticleMap&);
 	 // ---------- const member functions ---------------------
 	 L1TriggerType triggerType() const
 	 { return triggerType_ ; }
@@ -362,13 +364,18 @@ namespace l1extra {
 
 	 // const L1ParticleMap& operator=(const L1ParticleMap&); // stop default
 
+	 void setIndexCombos() const;
 	 // ---------- member data --------------------------------
 
 	 // Index into trigger menu.
 	 L1TriggerType triggerType_ ;
 
 	 bool triggerDecision_ ;
-
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+	 mutable std::atomic<char> indexCombosState_;
+#else
+	 mutable char indexCombosState_;
+#endif
 	 // Vector of length numOfObjects() that gives the
 	 // type of each trigger object.
 	 L1ObjectTypeVector objectTypes_ ;
@@ -392,10 +399,10 @@ namespace l1extra {
 	 //
 	 // This data member is mutable because if #particles = 1, then this
 	 // vector is empty and is filled on request.
-	 mutable L1IndexComboVector indexCombos_ ;
+	 mutable L1IndexComboVector indexCombos_ ; //CMS thread safe via indexCombosState_
 
 	 // Static array of trigger names.
-	 static std::string triggerNames_[ kNumOfL1TriggerTypes ] ;
+	 static const std::string triggerNames_[ kNumOfL1TriggerTypes ] ;
    };
 
 }

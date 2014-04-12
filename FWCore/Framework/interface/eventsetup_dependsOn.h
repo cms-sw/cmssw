@@ -1,3 +1,4 @@
+
 #ifndef Framework_eventsetup_dependsOn_h
 #define Framework_eventsetup_dependsOn_h
 // -*- C++ -*-
@@ -44,14 +45,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 23 14:06:56 EDT 2005
-// $Id: eventsetup_dependsOn.h,v 1.6 2005/09/01 04:58:19 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/ESPreFunctorDecorator.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
 
@@ -60,29 +59,29 @@ namespace edm {
    namespace eventsetup {
       
       //Simple functor that checks to see if a Record has changed since the last time it was called
-      // and if so, calls the appropriate member method.  Multiple callers can be changed together using the
+      // and if so, calls the appropriate member method.  Multiple callers can be chained together using the
       // TCallerChain template argument.
-      template<class T, class TRecord, class TDependsOnRecord, class TCallerChain >
-      struct DependsOnCaller
-   {
-      DependsOnCaller(T* iCallee, void(T::* iMethod)(const TDependsOnRecord&) , const TCallerChain& iChain) : 
-      callee_(iCallee), method_(iMethod), chain_(iChain), time_(IOVSyncValue::invalidIOVSyncValue()) {}
+     template<class T, class TRecord, class TDependsOnRecord, class TCallerChain >
+	struct DependsOnCaller
+	{
+	DependsOnCaller(T* iCallee, void(T::* iMethod)(const TDependsOnRecord&) , const TCallerChain& iChain) : 
+	  callee_(iCallee), method_(iMethod), chain_(iChain),cacheID_(0){} 
       
-      void operator()(const TRecord& iRecord) {
-         const TDependsOnRecord& record = iRecord.template getRecord<TDependsOnRecord>();
-         if(record.validityInterval().first() != time_) {
-            (callee_->*method_)(record);
-            time_= record.validityInterval().first();
-         }
-         //call next 'functor' in our chain
-         chain_(iRecord);
-      }
-private:
-      T* callee_;
-      void (T::*method_)(const TDependsOnRecord&);
-      TCallerChain chain_;
-      IOVSyncValue time_;
-   };
+	    void operator()(const TRecord& iRecord) {
+	    const TDependsOnRecord& record = iRecord.template getRecord<TDependsOnRecord>();
+	    if(record.cacheIdentifier() != cacheID_) {
+	      (callee_->*method_)(record);
+	      cacheID_=record.cacheIdentifier();
+	    }
+	    //call next 'functor' in our chain
+	    chain_(iRecord);
+	  }
+	private:
+	  T* callee_;
+	  void (T::*method_)(const TDependsOnRecord&);
+	  TCallerChain chain_;
+	  unsigned long long cacheID_;
+	};
 
       //helper function to help create a DependsOnCaller
       template<class T, class TRecord, class TDependsOnRecord, class TCallerChain >
@@ -114,7 +113,7 @@ private:
             struct TwoHolder {
                typedef T T1_t;
                typedef U T2_t;
-               TwoHolder(T i1, U i2) : h1_(i1), h2_(i2) {}
+               TwoHolder(const T& i1, const U& i2) : h1_(i1), h2_(i2) {}
                T h1_;
                U h2_;
             };

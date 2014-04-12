@@ -30,7 +30,7 @@
       if (index%1000==0) std::cout << "Event " << index << " has " << muons.size() << " muons" << std::endl;
       for(unsigned int i=0; i<muons.size(); i++)
 	{
-	   const std::vector<reco::MuonChamberMatch>& matches = muons[i].matches();
+	   const std::vector<reco::TAMuonChamberMatch>& matches = muons[i].matches();
 	   if ( matches.empty() || matches.front().segmentMatches.empty() ) continue;
 	   
 	   bool fillReco = false;

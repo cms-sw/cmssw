@@ -2,22 +2,38 @@ import os
 import coral
 import IdGenerator, Node, DBImpl
 class tagTree(object):
-    """Class manages tag tree
+    """Class manages tag tree. Note: tree name is not case sensitive.
+    Tree name is always converted to upper case
     """
-    def __init__( self, session ):
+    def __init__( self, session, treename ):
         self.__session = session
-        self.__tagTreeTableName = 'TAGTREE_TABLE'
+        self.__tagTreeTableName = 'TAGTREE_TABLE_'+str.upper(treename)
+        self.__tagTreeIDs = 'TAGTREE_'+str.upper(treename)+'_IDS'
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
-        self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalSince':'unsigned long long', 'globalTill':'unsigned long long','comment':'string'}
+        self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalsince':'unsigned long long', 'globaltill':'unsigned long long'}
         self.__tagTreeTableNotNullColumns = ['nodelabel','lft','rgt','parentid']
-        self.__tagTreeTableUniqueColumns = ['nodelabel','lft','rgt']
+        self.__tagTreeTableUniqueColumns = ['nodelabel']
         self.__tagTreeTablePK = ('nodeid')
+    def existTagTreeTable( self ):
+        """Check if tree table exists
+        """
+        transaction=self.__session.transaction()
+        try:
+            transaction.start(True)
+            schema = self.__session.nominalSchema()
+            result=schema.existsTable(self.__tagTreeTableName)
+            transaction.commit()
+            #print result
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        return result
     def createTagTreeTable( self ):
         """Create tag tree table. Existing table will be deleted. 
         """
+        transaction=self.__session.transaction()
         try:
-            transaction=self.__session.transaction()
-            transaction.start()
+            transaction.start(False)
             schema = self.__session.nominalSchema()
             schema.dropIfExistsTable( self.__tagTreeTableName )
             description = coral.TableDescription();
@@ -32,68 +48,234 @@ class tagTree(object):
             #description.createForeignKey('tagid_FK','tagid',self.__tagInventoryTableName,'tagid')
             self.__tagTreeTableHandle = schema.createTable( description )
             self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
+            self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
+            self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
+            self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
             #create also the associated id table
-            generator=IdGenerator.IdGenerator(schema)
-            generator.createIDTable(self.__tagTreeTableName,True)
+            generator=IdGenerator.IdGenerator(self.__session.nominalSchema())
+            generator.createIDTable(self.__tagTreeIDs,True)
             transaction.commit()
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
+
+    def importFromTree( self, sourcetreename ):
+        """fill up this tree by cloning from the given source tree
+        in the SAME database
+        """
+        sourcetagTreeTableName = 'TAGTREE_TABLE_'+str.upper(sourcetreename)
+        sourcetagTreeIDs = 'TAGTREE_'+str.upper(sourcetreename)+'_IDS'
+        
+        transaction=self.__session.transaction()
+        transaction.start(True)
+        schema = self.__session.nominalSchema()
+        r1=schema.existsTable(sourcetagTreeTableName)
+        r2=schema.existsTable(sourcetagTreeIDs)
+        r3=schema.existsTable(self.__tagTreeTableName)
+        r4=schema.existsTable(self.__tagTreeIDs)
+        transaction.commit()
+        if r1 and r2 is False:
+            raise "source tag tree doesn't exist "+str(sourcetreename) 
+        if r3 and r4 is True:
+            transaction.start(False)
+            schema.truncateTable(self.__tagTreeTableName)
+            schema.truncateTable(self.__tagTreeIDs)
+            transaction.commit()
+        else:
+            self.createTagTreeTable()
+            transaction.start(False)
+            schema.truncateTable(self.__tagTreeIDs)
+            transaction.commit()
+        nresult=0
+        try:
+            transaction.start(False)
+            insertwtQuery=schema.tableHandle(self.__tagTreeTableName).dataEditor().insertWithQuery()
+            insertwtQuery.query().addToTableList(sourcetagTreeTableName)
+            nresult=insertwtQuery.execute()
+            transaction.commit()
+            del insertwtQuery
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        #print nresult,' rows copied from ',sourcetagTreeTableName
+        
+        try:
+            transaction.start(False)
+            insertwtQuery=schema.tableHandle(self.__tagTreeIDs).dataEditor().insertWithQuery()
+            insertwtQuery.query().addToTableList(sourcetagTreeIDs)
+            nresult=insertwtQuery.execute()
+            transaction.commit()
+            del insertwtQuery
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        #print nresult,' rows copied from ',sourcetagTreeIDs
+
+    def replaceLeafLinks(self, leafnodelinks ):
+        """modify the tagid link in leafnodes
+        Input: {oldtagid:newtagid , oldtagid:newtagid}
+        This function does not check if the nodes are all really leafs. User has to check before passing the input argument
+        """
+        if len(leafnodelinks.keys())==0:
+            raise 'TagTree::replaceLeafLinks: empty input '
+        
+        transaction=self.__session.transaction()
+        transaction.start(False)
+        schema = self.__session.nominalSchema()
+        try:
+            updateAction="tagid = :newtagid"
+            updateCondition="tagid = :oldtagid"
+            updateData=coral.AttributeList()
+            updateData.extend('newtagid','unsigned long')
+            updateData.extend('oldtagid','unsigned long')
+            mybulkOperation=schema.tableHandle(self.__tagTreeTableName).dataEditor().bulkUpdateRows("tagid = :newtagid","tagid = :oldtagid",updateData,1000)
+            for oldtagid in leafnodelinks.keys():
+                updateData['newtagid'].setData(leafnodelinks[oldtagid])
+                updateData['oldtagid'].setData(oldtagid)
+                mybulkOperation.processNextIteration()
+            mybulkOperation.flush()
+            transaction.commit()
+            del mybulkOperation
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+
     def insertNode( self, node, parentLabel='ROOT' ):
         """Append a new node to specified parent. \n
+        Silently ignore duplicate entry \n
         Input: new node. \n
         Input: name of the parent node. \n
         Output: result nodeid  
         """
-        nodeid=0
+        nodeid=node.nodeid
+        nodelabel=node.nodelabel
         parentid=0
-        tagid=0
+        tagid=node.tagid
+        lft=1
+        rgt=2
+        globalsince=node.globalsince
+        globaltill=node.globaltill
+        duplicate=False
         transaction=self.__session.transaction()
         try:
-            transaction.start(True)
-            schema = self.__session.nominalSchema()
-            generator=IdGenerator.IdGenerator(schema)
-            nodeid=generator.getNewID(generator.getIDTableName(self.__tagTreeTableName))
-            transaction.commit()
-            if parentLabel == 'ROOT':
-                parentid=0
-            else:
-                parentNode=self.getNode(parentLabel)
-                parentid=parentNode.nodeid
-            nodelabel=node.nodelabel
-            globalSince=node.globalSince
-            globalTill=node.globalTill
-            if node.isLeaf:
-                tagid=node.tagid
-            lft=0
-            rgt=0
-            if parentLabel == 'ROOT':
-                lft=1
-                rgt=2
-            else:
-                lft=parentNode.rgt
-                rgt=parentNode.rgt+1
-            tabrowValueDict={'nodeid':nodeid, 'nodelabel':nodelabel,
-                            'lft':lft, 'rgt':rgt, 'parentid':parentid,
-                            'tagid':tagid, 'globalSince':globalSince,
-                            'globalTill':globalTill,'comment':''
-                            }
-            transaction.start(False)
-            tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
             if parentLabel != 'ROOT':
-                self.__openGap( tableHandle,parentNode.rgt,1 )
-            dbop=DBImpl.DBImpl(schema)
-            dbop.insertOneRow(self.__tagTreeTableName,
-                              self.__tagTreeTableColumns,
-                              tabrowValueDict)
-            generator.incrementNextID(generator.getIDTableName(self.__tagTreeTableName))
+                    parentNode=self.getNode(parentLabel)
+                    if parentNode.empty():
+                        raise ValueError,"non-existing parent node "+parentLabel
+                    parentid=parentNode.nodeid
+                    lft=parentNode.rgt
+                    rgt=parentNode.rgt+1
+            ##start readonly transaction
+            transaction.start(False)
+            condition='nodelabel=:nodelabel'
+            conditionbindDict=coral.AttributeList()
+            conditionbindDict.extend('nodelabel','string')
+            conditionbindDict['nodelabel'].setData(nodelabel)
+            dbop=DBImpl.DBImpl(self.__session.nominalSchema())
+            duplicate=dbop.existRow(self.__tagTreeTableName,condition,conditionbindDict)
+            if duplicate is False:                
+                generator=IdGenerator.IdGenerator(self.__session.nominalSchema())
+                nodeid=generator.getNewID(self.__tagTreeIDs)
+            if duplicate is False:                
+                tabrowValueDict={'nodeid':nodeid, 'nodelabel':nodelabel,
+                                 'lft':lft, 'rgt':rgt, 'parentid':parentid,
+                                 'tagid':tagid, 'globalsince':globalsince,
+                                 'globaltill':globaltill
+                                 }
+                if parentLabel != 'ROOT':
+                    self.__openGap(self.__session.nominalSchema().tableHandle(self.__tagTreeTableName),parentNode.rgt,1 )
+                dbop.insertOneRow(self.__tagTreeTableName,
+                                  self.__tagTreeTableColumns,
+                                  tabrowValueDict)
+                generator.incrementNextID(self.__tagTreeIDs)
             transaction.commit()
+            return nodeid
         except coral.Exception, er:
             transaction.rollback()
             raise Exception, str(er)
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
+        
+    def renameNodes( self, nodenamemap):
+        """
+        rename selected nodes \n
+        Input: {oldnodename:newnodename}
+        Output: [renamednodeid]
+        """
+        transaction=self.__session.transaction()
+        allnodes={}
+        try:
+            transaction.start(True)
+            schema = self.__session.nominalSchema()
+            query = schema.tableHandle(self.__tagTreeTableName).newQuery()
+            query.addToOutputList('nodelabel')
+            cursor = query.execute()
+            while ( cursor.next() ):
+                nodelabel=cursor.currentRow()['nodelabel'].data()
+                if nodenamemap.has_key(nodelabel):
+                    allnodes[nodelabel]=nodenamemap[nodelabel]
+                else:
+                    allnodes[nodelabel]=nodelabel
+            transaction.commit()
+            del query
+            if len(allnodes.values())!=len(set(allnodes.values())):
+                raise "new node labels are not unique in the tree"
+            transaction.start(False)
+            editor = schema.tableHandle(self.__tagTreeTableName).dataEditor()
+            inputData = coral.AttributeList()
+            inputData.extend('oldnodelabel','string')
+            inputData.extend('newnodelabel','string')
+            for nodelabelpair in nodenamemap.items():
+                inputData['oldnodelabel'].setData(nodelabelpair[0])
+                inputData['newnodelabel'].setData(nodelabelpair[1])
+                editor.updateRows( "nodelabel = :newnodelabel", "nodelabel = :oldnodelabel", inputData )
+            transaction.commit()
+        except coral.Exception, er:
+            transaction.rollback()
+            del query
+            raise Exception, str(er)
+        except Exception, er:
+            transaction.rollback()
+            del query
+            raise Exception, str(er)
+        
+    def getNodeById( self, nodeid ):
+        """return result of query "select * from treetable where nodeid=:nodeid" in Node structure \n
+        Input: id of the node to get.\n
+        Output: selected node 
+        """
+        result=Node.Node()
+        transaction=self.__session.transaction()
+        try:
+            transaction.start(True)
+            schema = self.__session.nominalSchema()
+            query = schema.tableHandle(self.__tagTreeTableName).newQuery()
+            condition = 'nodeid =:nodeid'
+            conditionData = coral.AttributeList()
+            conditionData.extend( 'nodeid','unsigned int' )
+            conditionData['nodeid'].setData(nodeid)
+            query.setCondition( condition, conditionData)
+            cursor = query.execute()
+            while ( cursor.next() ):
+                result.tagid=cursor.currentRow()['tagid'].data()
+                result.nodeid=cursor.currentRow()['nodeid'].data()
+                result.nodelabel=cursor.currentRow()['nodelabel'].data()
+                result.lft=cursor.currentRow()['lft'].data()
+                result.rgt=cursor.currentRow()['rgt'].data()
+                result.parentid=cursor.currentRow()['parentid'].data()
+                result.globalsince=cursor.currentRow()['globalsince'].data()
+                result.globaltill=cursor.currentRow()['globaltill'].data()
+            transaction.commit()
+            del query
+            return result
+        except coral.Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        
     def getNode( self, label='ROOT' ):
         """return result of query "select * from treetable where nodelabel=label" in Node structure \n
         Input: name of the node to get. Default to 'ROOT' \n
@@ -105,22 +287,22 @@ class tagTree(object):
         transaction=self.__session.transaction()
         try:
             transaction.start(True)
-            schema = self.__session.nominalSchema()
-            query = schema.tableHandle(self.__tagTreeTableName).newQuery()
+            query=self.__session.nominalSchema().tableHandle(self.__tagTreeTableName).newQuery()
             condition = 'nodelabel =:nodelabel'
             conditionData = coral.AttributeList()
             conditionData.extend( 'nodelabel','string' )
-            conditionData['nodelabel'].setData(label)
             query.setCondition( condition, conditionData)
+            conditionData['nodelabel'].setData(label)
             cursor = query.execute()
             while ( cursor.next() ):
+                result.tagid=cursor.currentRow()['tagid'].data()
                 result.nodeid=cursor.currentRow()['nodeid'].data()
                 result.nodelabel=cursor.currentRow()['nodelabel'].data()
                 result.lft=cursor.currentRow()['lft'].data()
                 result.rgt=cursor.currentRow()['rgt'].data()
                 result.parentid=cursor.currentRow()['parentid'].data()
-                result.globalSince=cursor.currentRow()['globalSince'].data()
-                result.globalTill=cursor.currentRow()['globalTill'].data()
+                result.globalsince=cursor.currentRow()['globalsince'].data()
+                result.globaltill=cursor.currentRow()['globaltill'].data()
             transaction.commit()
             del query
             return result
@@ -186,22 +368,25 @@ class tagTree(object):
             cursor = query.execute()
             while ( cursor.next() ):
                 resultNode=Node.Node()
+                resultNode.tagid=cursor.currentRow()['tagid'].data()
                 resultNode.nodeid=cursor.currentRow()['nodeid'].data()
                 resultNode.nodelabel=cursor.currentRow()['nodelabel'].data()
                 resultNode.lft=cursor.currentRow()['lft'].data()
                 resultNode.rgt=cursor.currentRow()['rgt'].data()
                 resultNode.parentid=cursor.currentRow()['parentid'].data()
-                resultNode.globalSince=cursor.currentRow()['globalSince'].data()
-                resultNode.globalTill=cursor.currentRow()['globalTill'].data()
+                resultNode.globalsince=cursor.currentRow()['globalsince'].data()
+                resultNode.globaltill=cursor.currentRow()['globaltill'].data()
                 result.append( resultNode )
             transaction.commit()
             del query
             return result
         except coral.Exception, er:
             transaction.rollback()
+            del query
             raise Exception, str(er)
         except Exception, er:
             transaction.rollback()
+            del query
             raise Exception, str(er)   
     def getSubtree( self, label='ROOT' ):
         """Get the tree under node(included) with specified label.
@@ -212,7 +397,27 @@ class tagTree(object):
         result=[]
         try:
             if label=='ROOT' :
-                pass
+                transaction=self.__session.transaction()
+                transaction.start(True)
+                schema = self.__session.nominalSchema()
+                query = schema.tableHandle(self.__tagTreeTableName).newQuery()
+                for columnName in self.__tagTreeTableColumns:
+                    query.addToOutputList(columnName)
+                cursor = query.execute()
+                while ( cursor.next() ):
+                    resultNode=Node.Node()
+                    resultNode.tagid=cursor.currentRow()['tagid'].data()
+                    resultNode.nodeid=cursor.currentRow()['nodeid'].data()
+                    resultNode.nodelabel=cursor.currentRow()['nodelabel'].data()
+                    resultNode.lft=cursor.currentRow()['lft'].data()
+                    resultNode.rgt=cursor.currentRow()['rgt'].data()
+                    resultNode.parentid=cursor.currentRow()['parentid'].data()
+                    resultNode.globalsince=cursor.currentRow()['globalsince'].data()
+                    resultNode.globaltill=cursor.currentRow()['globaltill'].data()
+                    result.append(resultNode)
+                transaction.commit()
+                del query
+                return result
             else:
                 me=self.getNode(label)
                 parentlft=me.lft
@@ -234,13 +439,14 @@ class tagTree(object):
                 cursor = query.execute()
                 while ( cursor.next() ):
                     resultNode=Node.Node()
+                    resultNode.tagid=cursor.currentRow()['p1.tagid'].data()
                     resultNode.nodeid=cursor.currentRow()['p1.nodeid'].data()
                     resultNode.nodelabel=cursor.currentRow()['p1.nodelabel'].data()
                     resultNode.lft=cursor.currentRow()['p1.lft'].data()
                     resultNode.rgt=cursor.currentRow()['p1.rgt'].data()
                     resultNode.parentid=cursor.currentRow()['p1.parentid'].data()
-                    resultNode.globalSince=cursor.currentRow()['p1.globalSince'].data()
-                    resultNode.globalTill=cursor.currentRow()['p1.globalTill'].data()
+                    resultNode.globalsince=cursor.currentRow()['p1.globalsince'].data()
+                    resultNode.globaltill=cursor.currentRow()['p1.globaltill'].data()
                     result.append(resultNode)
                 transaction.commit()
                 del query
@@ -292,14 +498,19 @@ class tagTree(object):
         try:
             if label=='ROOT' :
                 transaction.start(False)
-                tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
-                editor = tableHandle.dataEditor()
-                editor.deleteRows('',conditionData)
+                self.__session.nominalSchema().dropIfExistsTable(self.__tagTreeTableName)
+                self.__session.nominalSchema().dropIfExistsTable(self.__tagTreeIDs)
+                #editor = tableHandle.dataEditor()
+                #conditionData = coral.AttributeList()
+                #editor.deleteRows('',conditionData)
+                #idtableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeIDs)
+                #ideditor = idtableHandle.dataEditor()
+                #ideditor.deleteRows('',conditionData)
                 transaction.commit()
             else :
-                me=Node.Node()
-                parentlft=me.lft
-                parentrgt=me.rgt
+                myparent=self.getNodeById(self.getNode(label).nodeid)
+                parentlft=myparent.lft
+                parentrgt=myparent.rgt
                 n=self.nChildren(label)
                 transaction.start(False)
                 tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
@@ -326,23 +537,21 @@ class tagTree(object):
         assert (label !='ROOT')
         transaction=self.__session.transaction()
         try:
-            me=Node.Node()
-            parentlft=me.lft
-            parentrgt=me.rgt
+            myparent=self.getNodeById(self.getNode(label).nodeid)
+            parentlft=myparent.lft
+            parentrgt=myparent.rgt
             transaction.start(False)
             tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
             editor = tableHandle.dataEditor()
             condition = 'nodelabel = :nodelabel'
             conditionData = coral.AttributeList()
             conditionData.extend('nodelabel','string')
-            conditionData['nodelabel'].setData(nodelabel)
+            conditionData['nodelabel'].setData(label)
             editor.deleteRows( condition, conditionData )
             self.__closeGap(tableHandle,parentlft,parentrgt,1)
             transaction.commit()
-        except coral.Exception, er:
-            transaction.rollback()
-            raise Exception, str(er)
         except Exception, er:
+            print str(er)
             transaction.rollback()
             raise Exception, str(er)   
     def __openGap(self,tableHandle,parentrgt,n):
@@ -356,7 +565,7 @@ class tagTree(object):
         inputData['parentrgt'].setData(parentrgt)
         editor = tableHandle.dataEditor()
         setClause = 'lft=lft+'+str(delta)
-        condition = 'rgt>:parentrgt'
+        condition = 'lft>:parentrgt'
         editor.updateRows(setClause, condition, inputData)
         setClause = 'rgt=rgt+'+str(delta)
         condition = 'rgt>=:parentrgt'
@@ -377,27 +586,26 @@ class tagTree(object):
         editor.updateRows(setClause2,condition2,inputData)
 if __name__ == "__main__":
     os.putenv( "CORAL_AUTH_PATH", "." )
-    context = coral.Context()
-    context.setVerbosityLevel( 'ERROR' )
-    svc = coral.ConnectionService( context )
+    svc = coral.ConnectionService()
     session = svc.connect( 'sqlite_file:testTree.db',
                            accessMode = coral.access_Update )
     #session = svc.connect( 'oracle://devdb10/cms_xiezhen_dev',
     #                       accessMode = coral.access_Update )
     try:
-        mytree=tagTree(session)
+        #create a tree named 'mytest'
+        mytree=tagTree(session,'mytest2')
         mytree.createTagTreeTable()
         mynode=Node.Node()
         mynode.nodelabel='A'
-        mynode.globalSince=1
-        mynode.globalTill=10
+        mynode.globalsince=1
+        mynode.globaltill=10
         mytree.insertNode(mynode,'ROOT')
         result=mytree.getNode('A')
         print result
         mynode=Node.Node()
         mynode.nodelabel='AC1'
-        mynode.globalSince=2
-        mynode.globalTill=5
+        mynode.globalsince=2
+        mynode.globaltill=5
         mytree.insertNode(mynode,'A')
         result=mytree.getNode('A')
         print result
@@ -409,8 +617,8 @@ if __name__ == "__main__":
         print 'all leafs',result
         mynode=Node.Node()
         mynode.nodelabel='AB2'
-        mynode.globalSince=3
-        mynode.globalTill=7
+        mynode.globalsince=3
+        mynode.globaltill=7
         mytree.insertNode(mynode,'A')
         result=mytree.getNode('A')
         print 'Node A ',result
@@ -418,12 +626,18 @@ if __name__ == "__main__":
         print 'Node AB2 ',result
         result=mytree.getPath('AB2')
         print 'Path to AB2 ',result
-        result=mytree.getAllLeaves()
-        print 'all leaves again',result
+        allleafs=mytree.getAllLeaves()
+        print 'all leaves again',allleafs
         print 'number of children ',mytree.nChildren('A')
         print 'number of children ',mytree.nChildren('ROOT')
         result=mytree.getSubtree('A')
         print 'subtree of A ',result
+        newtree=tagTree(session,'mynewtest')
+        newtree.importFromTree('mytest2')
+        newlinks={}
+        for l in allleafs:
+            newlinks[l.tagid]=1234
+        newtree.replaceLeafLinks(newlinks)
         del session
     except Exception, e:
         print "Failed in unit test"

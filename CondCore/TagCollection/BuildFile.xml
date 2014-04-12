@@ -1,0 +1,4 @@
+<use   name="CondCore/DBCommon"/>
+<export>
+  <lib   name="1"/>
+</export>

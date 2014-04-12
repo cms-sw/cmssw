@@ -51,23 +51,29 @@
 #include <utility>  
 #include <vector>
 
+
 using namespace edm;                            
+
 
 //----------------
 // Constructors --
 //----------------
 
-DTBtiCard::DTBtiCard(DTTrigGeom* geom, const DTConfigManager * _conf_manager) : DTGeomSupplier(geom) {
+DTBtiCard::DTBtiCard(DTTrigGeom *geom) : 
+  DTGeomSupplier(geom) {
 
         //_configBti = new DTConfigBti(bti_pset);
 	//_configBti->print();
 
-	DTChamberId sid = ChamberId();
-	_conf_bti_map = _conf_manager->getDTConfigBtiMap(sid);	
-	_debug = _conf_manager->getDTTPGDebug();
+	//DTChamberId sid = ChamberId();
+	//_conf_bti_map = conf_manager->getDTConfigBtiMap(sid);	
+	//_debug = conf_manager->getDTTPGDebug();
 
-	_finedelay   = _conf_manager->getDTConfigTrigUnit(sid)->MCSetupTime();
-  	_MCdelay     = _conf_manager->getDTConfigTrigUnit(sid)->MCDigiOffset();
+	//_finedelay   = conf_manager->getDTConfigTrigUnit(sid)->MCSetupTime();
+  	//_MCdelay     = conf_manager->getDTConfigTrigUnit(sid)->MCDigiOffset();
+
+	
+	
 }
 
 //--------------
@@ -92,6 +98,20 @@ DTBtiCard::clearCache(){
   localClear();
   
 }
+
+void
+DTBtiCard::setConfig(const DTConfigManager *conf){
+  
+  DTChamberId sid = ChamberId();
+  _conf_bti_map = conf->getDTConfigBtiMap(sid);	
+  _debug = conf->getDTTPGDebug();
+  _pedestals = conf->getDTConfigPedestals();
+
+  // get bti acceptance flag
+  _flag_acc = conf->useAcceptParam();
+
+}
+
 
 void
 DTBtiCard::localClear(){
@@ -241,8 +261,8 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
 
   if(debug()){
     std::cout << "DTBtiCard::loadBTI called for wheel=" << wheel() ;
-    std::cout <<                                ", station=" << station();
-    std::cout <<                                ", sector="  << sector() << std::endl;
+    std::cout << ", station=" << station();
+    std::cout << ", sector="  << sector() << std::endl;
   }
   
   DTDigiCollection::DigiRangeIterator detUnitIt;
@@ -263,7 +283,19 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
     for (DTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt!=range.second;
 	 ++digiIt){
-      if((*digiIt).time()<1000 &&(*digiIt).time()>0){
+
+      int tube = (*digiIt).wire();
+      const DTWireId tubeid(id,tube);
+      float tdrift = (*digiIt).time() - _pedestals->getOffset(tubeid);
+
+      if ( debug() ){  
+	std::cout << " digi time : " << (*digiIt).time();
+	std::cout << " pedestal offset : " << _pedestals->getOffset(tubeid) << std::endl;
+	std::cout << " drift time after subtraction : " << tdrift << std::endl;
+      }
+	
+
+      if(tdrift<500 && tdrift>-500){
 	if(debug()) 
 		(*digiIt).print();
 
@@ -273,7 +305,7 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
 	//DTChamberId dtcham =id.chamberId();
 	int sln = slnum.superlayer();
 	int layn = id.layer();
-	int tube = (*digiIt).wire();
+	//int tube = (*digiIt).wire();
 
         // map in FE channel number: SL theta tubes are numbered inversely w.r.t. hardware setup in new geometry 19/06/06
         // assign ch numbers to btis: in new geometry does not depend on layer staggering anymore! Same staggering anywhere.
@@ -293,13 +325,10 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
         
   	// FIXED get configuration for the nbti chip Identifier, and from it MCdelay + finedelay
   	//DTChamberId sid = geom()->statId();
-  	//DTBtiId _id = DTBtiId(sid, sln, nbti);
- 
-	float tdrift = (*digiIt).time() - _MCdelay + _finedelay; 
-//      std::cout<<"tdrift "<< tdrift << " (*digiIt).wire() " << (*digiIt).wire() << std::endl;
+  	//DTBtiId _id = DTBtiId(sid, sln, nbti); 
 
 	DTDigi* pdigi = new DTDigi((*digiIt).wire(),tdrift);
-	_digis.push_back(const_cast<DTDigi*>(pdigi) );
+	_digis.push_back(pdigi);
 	
 	
 	switch(layn) {
@@ -417,7 +446,7 @@ DTBtiCard::activeGetBTI(int sl, int n){
   if( pbti!=_btimap[sl-1].end() ) {
     bti = (*pbti).second;
   } else {
-    bti = new DTBtiChip(geom(),sl,n, config_bti(_id));
+    bti = new DTBtiChip(this, geom(),sl,n, config_bti(_id));
     _btimap[sl-1][n]=bti;
   }
   return bti;
@@ -523,7 +552,7 @@ DTBtiCard::localPosition(const DTTrigData* tr) const {
 LocalPoint 
 DTBtiCard::localPosition(const DTTrigData* tr) const {
 //NEWGEO!!!
- DTBtiTrigData* trig = dynamic_cast<DTBtiTrigData*>(const_cast<DTTrigData*>(tr));
+ const DTBtiTrigData* trig = dynamic_cast<const DTBtiTrigData*>(tr);
  if(!trig) {
     std::cout << "DTBtiCard::localPosition called with wrong argument!" << std::endl;
     return LocalPoint(0,0,0);
@@ -535,7 +564,7 @@ DTBtiCard::localPosition(const DTTrigData* tr) const {
   float z = geom()->localPosition(trig->parentId()).z();
   
   //FE position
-  int FE = geom()->posFE(trig->parentId().superlayer());
+  //int FE = geom()->posFE(trig->parentId().superlayer());
 
   //trigger position in the BTI frame
   float xt = 0;
@@ -570,7 +599,7 @@ DTBtiCard::localPosition(const DTTrigData* tr) const {
 LocalVector
 DTBtiCard::localDirection(const DTTrigData* tr) const {
 //NEWGEO
- DTBtiTrigData* trig = dynamic_cast<DTBtiTrigData*>(const_cast<DTTrigData*>(tr));
+ const DTBtiTrigData* trig = dynamic_cast<const DTBtiTrigData*>(tr);
  //this method is only for check purpose
   if(!trig) {
     std::cout << "DTBtiCard::localDirection called with wrong argument!" << std::endl;

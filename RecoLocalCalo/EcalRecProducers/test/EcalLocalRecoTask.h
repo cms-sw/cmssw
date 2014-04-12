@@ -4,7 +4,6 @@
 /*
  * \file EcalLocalRecoTask.h
  *
- * $Id: $
  *
 */
 
@@ -19,8 +18,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
@@ -30,24 +29,22 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
+#include <string>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EcalLocalRecoTask: public EDAnalyzer
+class EcalLocalRecoTask: public edm::EDAnalyzer
 {
 
 
  public:
   
   /// Constructor
-  EcalLocalRecoTask(const ParameterSet& ps);
+  EcalLocalRecoTask(const edm::ParameterSet& ps);
   
   /// Destructor
   ~EcalLocalRecoTask();
@@ -55,38 +52,38 @@ class EcalLocalRecoTask: public EDAnalyzer
  protected:
   
   /// Analyze
-  void analyze(const Event& e, const EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
   
   // BeginJob
-  void beginJob(const EventSetup& c);
+  void beginJob();
   
   // EndJob
   void endJob(void);
   
  private:
-  typedef map<uint32_t,float,less<uint32_t> >  MapType;  
+  typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;  
 
   bool verbose_;
   
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   
-  string outputFile_;
+  std::string outputFile_;
 
-  string recHitProducer_;
-  string ESrecHitProducer_;
+
+  edm::EDGetTokenT<EBRecHitCollection> EBrecHitToken_;
+  edm::EDGetTokenT<EERecHitCollection> EErecHitToken_;
+  edm::EDGetTokenT<ESRecHitCollection> ESrecHitToken_;
   
-  string EBrechitCollection_;
-  string EErechitCollection_;
-  string ESrechitCollection_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> EBurecHitToken_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> EEurecHitToken_;
+  
 
-  string uncalibrecHitProducer_;
-  string EBuncalibrechitCollection_;
-  string EEuncalibrechitCollection_;
+  edm::EDGetTokenT<EBDigiCollection> EBdigiToken_;
+  edm::EDGetTokenT<EEDigiCollection> EEdigiToken_;
+  edm::EDGetTokenT<ESDigiCollection> ESdigiToken_;
 
-  string digiProducer_;
-  string EBdigiCollection_;
-  string EEdigiCollection_;
-  string ESdigiCollection_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> cfToken_;
+  
 
   MonitorElement* meEBUncalibRecHitMaxSampleRatio_;
   MonitorElement* meEBUncalibRecHitPedestal_;

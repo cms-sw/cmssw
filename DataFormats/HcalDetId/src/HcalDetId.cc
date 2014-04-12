@@ -1,5 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <ostream>
 
 const HcalDetId HcalDetId::Undefined(HcalEmpty,0,0,0);
 
@@ -11,7 +12,7 @@ HcalDetId::HcalDetId(uint32_t rawid) : DetId(rawid) {
 
 HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth) : DetId(Hcal,subdet) {
   // (no checking at this point!)
-  id_ |= ((depth&0x7)<<14) |
+  id_ |= ((depth&0x1F)<<14) |
     ((tower_ieta>0)?(0x2000|(tower_ieta<<7)):((-tower_ieta)<<7)) |
     (tower_iphi&0x7F);
 }
@@ -21,10 +22,9 @@ HcalDetId::HcalDetId(const DetId& gen) {
     HcalSubdetector subdet=(HcalSubdetector(gen.subdetId()));
     if (gen.det()!=Hcal || 
 	(subdet!=HcalBarrel && subdet!=HcalEndcap && 
-	 subdet!=HcalOuter && subdet!=HcalForward ))
-      {
-	throw cms::Exception("Invalid DetId") << "Cannot initialize HcalDetId from " << std::hex << gen.rawId() << std::dec; 
-      }  
+	 subdet!=HcalOuter && subdet!=HcalForward )) {
+      throw cms::Exception("Invalid DetId") << "Cannot initialize HcalDetId from " << std::hex << gen.rawId() << std::dec; 
+    }  
   }
   id_=gen.rawId();
 }
@@ -64,4 +64,5 @@ std::ostream& operator<<(std::ostream& s,const HcalDetId& id) {
   default : return s << id.rawId();
   }
 }
+
 

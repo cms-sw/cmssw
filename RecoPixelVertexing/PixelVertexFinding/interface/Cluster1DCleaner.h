@@ -22,7 +22,7 @@ public:
         theDiscardedCluster1Ds.clear();
     }
     // return the compatible clusters
-    std::vector< Cluster1D< T > > clusters( std::vector< Cluster1D< T > > );
+    std::vector< Cluster1D< T > > clusters( const std::vector< Cluster1D< T > > &);
     /*
        return the vector of discarded Cluster1Ds
        it should be called after Cluster1DCleaner::clusters
@@ -34,7 +34,7 @@ public:
     }
     
 private:
-    void cleanCluster1Ds( std::vector<Cluster1D<T> > );
+    void cleanCluster1Ds( const std::vector<Cluster1D<T> > &);
     float average(const std::vector<Cluster1D<T> >&);
     std::vector<Cluster1D<T> > theCleanedCluster1Ds;
     std::vector<Cluster1D<T> > theDiscardedCluster1Ds;
@@ -48,7 +48,7 @@ private:
 
 template <class T>
 std::vector<Cluster1D<T> >
-Cluster1DCleaner<T>::clusters(std::vector<Cluster1D<T> > clust)
+Cluster1DCleaner<T>::clusters(const std::vector<Cluster1D<T> >& clust)
 {
     cleanCluster1Ds(clust);
     return theCleanedCluster1Ds;
@@ -56,7 +56,7 @@ Cluster1DCleaner<T>::clusters(std::vector<Cluster1D<T> > clust)
 
 template <class T>
 void
-Cluster1DCleaner<T>::cleanCluster1Ds(std::vector<Cluster1D<T> > clust)
+Cluster1DCleaner<T>::cleanCluster1Ds(const std::vector<Cluster1D<T> >& clust)
 {
     theCleanedCluster1Ds.clear();
     theDiscardedCluster1Ds.clear();

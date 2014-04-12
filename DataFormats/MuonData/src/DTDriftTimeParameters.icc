@@ -3,6 +3,8 @@
 // MuBarDriftTimeParametrization and MuBarTime2DiftParametrization.
 // THIS_CLASS should be #defined accordingly.
 
+#include <string>
+
 #define DT_Cell_Width     42
 #define DT_Cell_HalfWidth 21
 #define N_Func             8
@@ -433,7 +435,7 @@ unsigned short THIS_CLASS::MB_DT_Check_boundaries (double distime,
 						   short ifl) const
 {
       unsigned short status = 1;
-      char *name = "MB_DT_drift_time" ;
+      std::string name = "MB_DT_drift_time" ;
 
       if ( ifl<0 ) {
          name = "MB_DT_drift_distance" ;

@@ -1,0 +1,240 @@
+#! /usr/bin/env python
+
+from FWCore.ParameterSet.Modules import _Module
+from FWCore.ParameterSet.Mixins import _ValidatingParameterListBase
+import FWCore.ParameterSet.Config as cms
+
+
+def simpleItemToString(param):
+    return str(param)
+def boolItemToString(param):
+    if param:
+        return "true"
+    return "false"
+def stringItemToString(param):
+    return '"'+param+'"'
+
+def simpleValueToString(param):
+    return simpleItemToString(param.value())
+def boolValueToString(param):
+    return boolItemToString(param.value())
+def stringValueToString(param):
+    return stringItemToString(param.value())
+def pythonValueToString(param):
+    t,c = simpleParamHandlers[type(param).__name__]
+    return t+"("+param.pythonValue()+")"
+
+simpleParamHandlers = {"int32":("int",simpleValueToString),
+                       "uint32":("unsigned int",simpleValueToString),
+                       "double":("double",simpleValueToString),
+                       "int64":("long int",simpleValueToString),
+                       "uint64":("unsigned long int",simpleValueToString),
+                       "bool":("bool",boolValueToString),
+                       "string":("std::string",stringValueToString),
+                       "ESInputTag":("edm::ESInputTag",pythonValueToString),
+                       "InputTag":("edm::InputTag",pythonValueToString),
+                       "EventID":("edm::EventID",pythonValueToString),
+                       "ESInputTag":("edm::ESInputTag",pythonValueToString),
+                       "EventRange":("edm::EventRange",pythonValueToString),
+                       "FileInPath":("edm::FileInPath",pythonValueToString),
+                       "LuminosityBlockID":("edm::LuminosityBlockID",pythonValueToString),
+                       "LuminosityBlockRange":("edm::LuminosityBlockRange",pythonValueToString)
+                       
+                       }
+
+
+itemParamHandlers = {"vint32":("int",simpleItemToString),
+                     "vuint32":("unsigned int",simpleItemToString),
+                     "vdouble":("double",simpleItemToString),
+                     "vint64":("long int",simpleItemToString),
+                     "vuint64":("unsigned long int",simpleItemToString),
+                     "vbool":("bool",boolItemToString),
+                     "vstring":("std::string",stringItemToString),
+                     "VESInputTag":("edm::ESInputTag",pythonValueToString),
+                     "VInputTag":("edm::InputTag",stringItemToString),
+                     "VEventID":("edm::EventID",stringItemToString),
+                     "VESInputTag":("edm::ESInputTag",pythonValueToString),
+                     "VEventRange":("edm::EventRange",stringItemToString),
+                     "VFileInPath":("edm::FileInPath",pythonValueToString),
+                     "VLuminosityBlockID":("edm::LuminosityBlockID",stringItemToString),
+                     "VLuminosityBlockRange":("edm::LuminosityBlockRange",stringItemToString)
+                    }
+
+def printVPSetDescription(spacing,descName,pList,label,depth):
+    print spacing+"{"
+    newSpacing = spacing+"  "
+    newDescName = "vpsd"+str(depth)
+    print newSpacing+"edm::ParameterSetDescription "+newDescName+";"
+    if len(pList) > 0:
+        printParameterSetDescription(newSpacing,newDescName,pList[0],0)
+    tempName = "temp"+str(depth)
+    print newSpacing+"std::vector<edm::ParameterSet> "+tempName+";"
+    print newSpacing+tempName+".reserve("+str(len(pList))+");"
+    for i in pList:
+        print newSpacing+"{"
+        newerSpacing = newSpacing+"  "
+        otherTempName = "temp"+str(depth+1)
+        print newerSpacing+"edm::ParameterSet "+otherTempName+";"
+        printParameterSet(newerSpacing,tempName,i,depth+1)
+        print newerSpacing+tempName+".push_back("+otherTempName+");"
+        print newSpacing+"}"
+    
+    trackiness=""
+    if not pList.isTracked():
+        trackiness="Untracked"
+    print newSpacing+descName+".addVPSet"+trackiness+'("'+label+'",'+newDescName+","+tempName+");"
+    print spacing+"}"
+
+def printListTypeParameterDescription(spacing,descName,pList,label,depth):
+    if isinstance(pList,cms.VPSet):
+        printVPSetDescription(spacing,descName,pList,label,depth)
+        return
+    print spacing+"{"
+    newSpacing = spacing+"  "
+    itemType,converter = itemParamHandlers[type(pList).__name__]
+    tempName = "temp"+str(depth)
+    print newSpacing+"std::vector<"+itemType+"> "+tempName+";"
+    print newSpacing+tempName+".reserve("+str(len(pList))+");"
+    for i in pList:
+        print newSpacing+tempName+".push_back("+converter(i)+");"
+    trackiness=""
+    if not pList.isTracked():
+        trackiness="Untracked"
+    print newSpacing+descName+".add"+trackiness+"<std::vector<"+itemType+'> >("'+label+'",'+tempName+");"
+    print spacing+"}"
+
+def printParameterSetDescription(spacing,descName, pset, depth):
+    for l,p in pset.parameters_().iteritems():
+        if isinstance(p,cms.PSet):
+            print spacing+"{"
+            newSpacing = spacing+"  "
+            newDescName = "psd"+str(depth)
+            print newSpacing+"edm::ParameterSetDescription "+newDescName+";"
+            printParameterSetDescription(newSpacing,newDescName,p,depth+1)
+            trackiness=""
+            if not p.isTracked():
+                trackiness="Untracked"
+            print newSpacing+descName+".add"+trackiness+'<edm::ParameterSetDescription>("'+l+'",'+newDescName+");"
+            print spacing+"}"
+        else:
+            if isinstance(p,_ValidatingParameterListBase):
+                printListTypeParameterDescription(spacing,descName,p,l,depth+1)
+                #print p
+                #raise RuntimeError()
+            else:
+                trackiness=""
+                if not p.isTracked():
+                    trackiness="Untracked"
+                (t,c) = simpleParamHandlers[type(p).__name__]
+                print spacing+descName+".add"+trackiness+"<"+t+'>("'+l+'",'+c(p)+");"
+
+def printVPSet(spacing,psetName,pList,label,depth):
+    print spacing+"{"
+    newSpacing = spacing+"  "
+    tempName = "temp"+str(depth)
+    print newSpacing+"std::vector<edm::ParameterSet> "+tempName+";"
+    print newSpacing+tempName+".reserve("+str(len(pList))+");"
+    for i in pList:
+        print newSpacing+"{"
+        newerSpacing = newSpacing+"  "
+        newPSetName = "vps"
+        print newerSpacing+"edm::ParameterSet "+newPSetName+";"
+        printParameterSet(newerSpacing,newPSetName,i,depth+1)
+        print newerSpacing+tempName+".push_back("+newPSetName+");"
+        print newSpacing+"}"
+    
+    trackiness=""
+    if not pList.isTracked():
+        trackiness="Untracked"
+    print newSpacing+psetName+".add"+trackiness+'Parameter<std::vector<edm::ParameterSet> >("'+label+'",'+tempName+");"
+    print spacing+"}"
+
+def printListTypeParameter(spacing,psetName,pList,label,depth):
+    if isinstance(pList,cms.VPSet):
+        printVPSet(spacing,psetName,pList,label,depth)
+        return
+    print spacing+"{"
+    newSpacing = spacing+"  "
+    itemType,converter = itemParamHandlers[type(pList).__name__]
+    tempName = "temp"+str(depth)
+    print newSpacing+"std::vector<"+itemType+"> "+tempName+";"
+    print newSpacing+tempName+".reserve("+str(len(pList))+");"
+    for i in pList:
+        print newSpacing+tempName+".push_back("+converter(i)+");"
+    trackiness=""
+    if not pList.isTracked():
+        trackiness="Untracked"
+    print newSpacing+psetName+".add"+trackiness+'Parameter<std::vector<'+itemType+'> >("'+label+'",'+tempName+");"
+    print spacing+"}"
+
+
+def printParameterSet(spacing,psetName, pset, depth):
+    for l,p in pset.parameters_().iteritems():
+        if isinstance(p,cms.PSet):
+            print spacing+"{"
+            newSpacing = spacing+"  "
+            newPSetName = "ps"+str(depth)
+            print newSpacing+"edm::ParameterSet "+newPSetName+";"
+            printParameterSet(newSpacing,newPSetName,p,depth+1)
+            trackiness=""
+            if not p.isTracked():
+                trackiness="Untracked"
+            print newSpacing+psetName+".add"+trackiness+'Parameter<edm::ParameterSet>("'+l+'",'+newPSetName+");"
+            print spacing+"}"
+        else:
+            if isinstance(p,_ValidatingParameterListBase):
+                printListTypeParameter(spacing,psetName,p,l,depth)
+                #print p
+                #raise RuntimeError()
+            else:
+                trackiness=""
+                if not p.isTracked():
+                    trackiness="Untracked"
+                (t,c) = simpleParamHandlers[type(p).__name__]
+                print spacing+psetName+".add"+trackiness+"Parameter<"+t+'>("'+l+'",'+c(p)+");"
+                
+
+import optparse
+usage = "%prog [configuration file name]"
+parser = optparse.OptionParser(usage=usage)
+
+(options, args) = parser.parse_args()
+if len(args) != 1:
+    parser.error("wrong number of arguments")
+
+filename = args[0]
+
+f = open(filename)
+
+#this dictionary will contain the python objects from the file
+config = dict()
+
+exec f in config
+
+#print config
+
+mod = None
+modLabel = None
+for item in config.iterkeys():
+    #print item
+    if item.startswith('_'):
+        continue
+    
+    if isinstance(config[item], _Module):
+        if mod is None:
+            mod = config[item]
+            modLabel = item
+        else:
+            raise RuntimeError("The file '"+filename+"' contains more than one module");
+
+if mod is None:
+    raise RuntimeError("No module found in file '"+filename+"'")
+
+spacing = "  ";
+print "void"
+print mod.type_()+"::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {"
+print spacing+"edm::ParameterSetDescription desc;"
+#print mod.parameters_()
+printParameterSetDescription(spacing,"desc",mod,0)
+print spacing+'descriptions.add("'+modLabel+'",desc);'
+print "}"

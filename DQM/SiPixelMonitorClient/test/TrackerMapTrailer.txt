@@ -131,7 +131,7 @@
  	      type  = "text" 
  	      value = ""
  	      style = "font-weight:bold;"
- 	      name  = "currentElementText" 
+ 	      name  = "selectedElementText" 
  	      size  = "50">
        </input>
       </h3>

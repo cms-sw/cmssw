@@ -1,25 +1,30 @@
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h" 
 
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
-
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
 
 #include "zlib.h"
 
-
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/RefCoreStreamer.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -27,102 +32,66 @@
 
 #include <string>
 #include <iostream>
+#include <set>
 
 namespace edm {
   namespace {
-    const int init_size = 1024*1024;
+    int const init_size = 1024*1024;
   }
-
-  std::string StreamerInputSource::processName_;
-  unsigned int StreamerInputSource::protocolVersion_;
-
 
   StreamerInputSource::StreamerInputSource(
                     ParameterSet const& pset,
                     InputSourceDescription const& desc):
-    InputSource(pset, desc),
-    holder_(),
-    lbp_(),
-    rp_(),
-    processHistoryID_(),
+    RawInputSource(pset, desc),
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
-    xbuf_(TBuffer::kRead, init_size)
-  {
+    xbuf_(TBuffer::kRead, init_size),
+    sendEvent_(),
+    eventPrincipalHolder_(),
+    adjustEventToNewProductRegistry_(false),
+    processName_(),
+    protocolVersion_(0U) {
   }
 
   StreamerInputSource::~StreamerInputSource() {}
 
   // ---------------------------------------
-
-  void
-  StreamerInputSource::mergeIntoRegistry(SendDescs const& descs,
-			 ProductRegistry& reg) {
-    SendDescs::const_iterator i(descs.begin()), e(descs.end());
-
-    // the next line seems to be not good.  what if the productdesc is
-    // already there? it looks like I replace it.  maybe that it correct
-
-    FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
-    for(; i != e; ++i) {
-	reg.copyProduct(*i);
-	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
-    }
-
-    // not needed any more
-    // fillStreamers(*pr_);
+  std::unique_ptr<FileBlock>
+  StreamerInputSource::readFile_() {
+    return std::unique_ptr<FileBlock>(new FileBlock);
   }
 
   void
-  StreamerInputSource::mergeWithRegistry(SendDescs const& descs) {
+  StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header, ProductRegistry& reg, BranchIDListHelper& branchIDListHelper, bool subsequent) {
 
-    mergeIntoRegistry(descs, productRegistryUpdate());
+    SendDescs const& descs = header.descs();
 
-    SendDescs::const_iterator i(descs.begin()), e(descs.end());
+    FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
 
-    // the next line seems to be not good.  what if the productdesc is
-    // already there? it looks like I replace it.  maybe that it correct
-
-    std::string processName;
-
-    //process name is already stored in deserializer, if for Protocol version 4 and above.
-    //From the INIT Message itself.
-    
-    if ( protocolVersion_ > 3) {
-           processName = processName_;
-    } else { 
-    	if (i != e) {
-       		processName = i->processName();
-	}
-    	for (; i != e; ++i) {
-		if(processName != i->processName()) {
-	   	throw cms::Exception("MultipleProcessNames")
-	      		<< "at least two different process names ('"
-	      		<< processName
-	      		<< "', '"
-	      		<< i->processName()
-	      		<< "' found in JobHeader. We can only support one.";
-		}
-    	}
+    if (subsequent) {
+      ProductRegistry pReg;
+      pReg.updateFromInput(descs);
+      std::string mergeInfo = reg.merge(pReg, std::string(), BranchDescription::Permissive);
+      if (!mergeInfo.empty()) {
+        throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
+      }
+      branchIDListHelper.updateFromInput(header.branchIDLists());
+    } else {
+      declareStreamers(descs);
+      buildClassCache(descs);
+      loadExtraClasses();
+      if(!reg.frozen()) {
+        reg.updateFromInput(descs);
+      }
+      branchIDListHelper.updateFromInput(header.branchIDLists());
     }
-
-    FDEBUG(10) << "StreamerInputSource::mergeWithRegistry :"<<processName<<std::endl; 
-
-    edm::ProcessHistory ph;
-    ph.reserve(1);
-    ph.push_back(edm::ProcessConfiguration(processName, ParameterSetID(), ReleaseVersion(), PassID()));
-    edm::ProcessHistoryRegistry::instance()->insertMapped(ph);
-    setProcessHistoryID(ph.id());
-
   }
 
   void
   StreamerInputSource::declareStreamers(SendDescs const& descs) {
-    SendDescs::const_iterator i(descs.begin()), e(descs.end());
-
-    for(; i != e; ++i) {
+    for(auto const& item : descs) {
         //pi->init();
-        std::string const real_name = wrappedClassName(i->className());
+        std::string const real_name = wrappedClassName(item.className());
         FDEBUG(6) << "declare: " << real_name << std::endl;
         loadCap(real_name);
     }
@@ -130,61 +99,13 @@ namespace edm {
 
 
   void
-  StreamerInputSource::buildClassCache(SendDescs const& descs) { 
-    SendDescs::const_iterator i(descs.begin()), e(descs.end());
-
-    for(; i != e; ++i) {
+  StreamerInputSource::buildClassCache(SendDescs const& descs) {
+    for(auto const& item : descs) {
         //pi->init();
-        std::string const real_name = wrappedClassName(i->className());
+        std::string const real_name = wrappedClassName(item.className());
         FDEBUG(6) << "BuildReadData: " << real_name << std::endl;
         doBuildRealData(real_name);
     }
-  }
-
-  void 
-  StreamerInputSource::saveTriggerNames(InitMsgView const* header) {
-
-    ParameterSet trigger_pset;
-    std::vector<std::string> paths;
-    header->hltTriggerNames(paths);
-    trigger_pset.addParameter<Strings>("@trigger_paths", paths);
-    pset::Registry* psetRegistry = pset::Registry::instance();
-    psetRegistry->insertMapped(trigger_pset);
-  }
-
-  boost::shared_ptr<RunPrincipal>
-  StreamerInputSource::readRun_() {
-    if (holder_.get() == 0) holder_ = read();
-    if (holder_.get() == 0) {
-      rp_ = boost::shared_ptr<RunPrincipal>();
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>();
-    }
-    return rp_;
-  }
-
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  StreamerInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
-    if (holder_.get() == 0) holder_ = read();
-    if (holder_.get() == 0 || rp->run() != holder_->runNumber()) {
-      rp_ = boost::shared_ptr<RunPrincipal>();
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>();
-    }
-    return lbp_;
-  }
-
-  std::auto_ptr<EventPrincipal>
-  StreamerInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    if (holder_.get() == 0) holder_ = read();
-    if (holder_.get() == 0 || lbp->runNumber() != holder_->runNumber()) {
-      rp_ = boost::shared_ptr<RunPrincipal>();
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>();
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    if (lbp->luminosityBlock() != holder_->luminosityBlock()) {
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>();
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    return holder_;
   }
 
   /**
@@ -192,8 +113,7 @@ namespace edm {
    * (which is related to the product registry).
    */
   std::auto_ptr<SendJobHeader>
-  StreamerInputSource::deserializeRegistry(InitMsgView const& initView)
-  {
+  StreamerInputSource::deserializeRegistry(InitMsgView const& initView) {
     if(initView.code() != Header::INIT)
       throw cms::Exception("StreamTranslation","Registry deserialization error")
         << "received wrong message type: expected INIT, got "
@@ -208,28 +128,60 @@ namespace edm {
          FDEBUG(10) << "StreamerInputSource::deserializeRegistry processName = "<< processName_<< std::endl;
          FDEBUG(10) << "StreamerInputSource::deserializeRegistry protocolVersion_= "<< protocolVersion_<< std::endl;
     }
-    
+
+   // calculate the adler32 checksum
+   uint32_t adler32_chksum = cms::Adler32((char const*)initView.descData(),initView.descLength());
+   //std::cout << "Adler32 checksum of init message = " << adler32_chksum << std::endl;
+   //std::cout << "Adler32 checksum of init messsage from header = " << initView.adler32_chksum() << " "
+   //          << "host name = " << initView.hostName() << " len = " << initView.hostName_len() << std::endl;
+    if((uint32)adler32_chksum != initView.adler32_chksum()) {
+      std::cerr << "Error from StreamerInputSource: checksum of Init registry blob failed "
+                << " chksum from registry data = " << adler32_chksum << " from header = "
+                << initView.adler32_chksum() << " host name = " << initView.hostName() << std::endl;
+      // skip event (based on option?) or throw exception?
+    }
+
     TClass* desc = getTClass(typeid(SendJobHeader));
 
-    TBuffer xbuf(TBuffer::kRead, initView.descLength(),
-                 (char*)initView.descData(),kFALSE);
+    TBufferFile xbuf(TBuffer::kRead, initView.descLength(),
+                 const_cast<char*>((char const*)initView.descData()),kFALSE);
     RootDebug tracer(10,10);
     std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 
-    if(sd.get()==0) {
+    if(sd.get() == nullptr) {
         throw cms::Exception("StreamTranslation","Registry deserialization error")
           << "Could not read the initial product registry list\n";
     }
 
-    return sd;  
+    sd->initializeTransients();
+    return sd;
   }
 
   /**
-   * Deserializes the specified event message into an EventPrincipal object.
+   * Deserializes the specified init message into a SendJobHeader object
+   * and merges registries.
    */
-  std::auto_ptr<EventPrincipal>
-  StreamerInputSource::deserializeEvent(EventMsgView const& eventView)
-  {
+  void
+  StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent) {
+     std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
+     mergeIntoRegistry(*sd, productRegistryUpdate(), *branchIDListHelper(), subsequent);
+     if (subsequent) {
+       adjustEventToNewProductRegistry_ = true;
+     }
+     SendJobHeader::ParameterSetMap const& psetMap = sd->processParameterSet();
+     pset::Registry& psetRegistry = *pset::Registry::instance();
+     for (auto const& item : psetMap) {
+       ParameterSet pset(item.second.pset());
+       pset.setID(item.first);
+       psetRegistry.insertMapped(pset);
+     }
+  }
+
+  /**
+   * Deserializes the specified event message.
+   */
+  void
+  StreamerInputSource::deserializeEvent(EventMsgView const& eventView) {
     if(eventView.code() != Header::EVENT)
       throw cms::Exception("StreamTranslation","Event deserialization error")
         << "received wrong message type: expected EVENT, got "
@@ -238,121 +190,116 @@ namespace edm {
          << eventView.event() << " "
          << eventView.run() << " "
          << eventView.size() << " "
+         << eventView.adler32_chksum() << " "
          << eventView.eventLength() << " "
          << eventView.eventData()
          << std::endl;
     // uncompress if we need to
     // 78 was a dummy value (for no uncompressed) - should be 0 for uncompressed
     // need to get rid of this when 090 MTCC streamers are gotten rid of
-    unsigned long origsize = eventView.reserved();
-    unsigned long dest_size; //(should be >= eventView.reserved() )
+    unsigned long origsize = eventView.origDataSize();
+    unsigned long dest_size; //(should be >= eventView.origDataSize())
 
-    if(eventView.reserved() != 78 && eventView.reserved() != 0)
-    {
-      // compressed
-      dest_size = uncompressBuffer((unsigned char*)eventView.eventData(),
-                                   eventView.eventLength(), dest_, origsize);
+    uint32_t adler32_chksum = cms::Adler32((char const*)eventView.eventData(), eventView.eventLength());
+    //std::cout << "Adler32 checksum of event = " << adler32_chksum << std::endl;
+    //std::cout << "Adler32 checksum from header = " << eventView.adler32_chksum() << " "
+    //          << "host name = " << eventView.hostName() << " len = " << eventView.hostName_len() << std::endl;
+    if((uint32)adler32_chksum != eventView.adler32_chksum()) {
+      std::cerr << "Error from StreamerInputSource: checksum of event data blob failed "
+                << " chksum from event = " << adler32_chksum << " from header = "
+                << eventView.adler32_chksum() << " host name = " << eventView.hostName() << std::endl;
+      // skip event (based on option?) or throw exception?
     }
-    else // not compressed
-    {
+    if(origsize != 78 && origsize != 0) {
+      // compressed
+      dest_size = uncompressBuffer(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
+                                   eventView.eventLength(), dest_, origsize);
+    } else { // not compressed
       // we need to copy anyway the buffer as we are using dest in xbuf
       dest_size = eventView.eventLength();
       dest_.resize(dest_size);
       unsigned char* pos = (unsigned char*) &dest_[0];
-      unsigned char* from = (unsigned char*) eventView.eventData();
+      unsigned char const* from = (unsigned char const*) eventView.eventData();
       std::copy(from,from+dest_size,pos);
     }
     //TBuffer xbuf(TBuffer::kRead, dest_size,
-    //             (char*) &dest[0],kFALSE);
+    //             (char const*) &dest[0],kFALSE);
     //TBuffer xbuf(TBuffer::kRead, eventView.eventLength(),
-    //             (char*) eventView.eventData(),kFALSE);
+    //             (char const*) eventView.eventData(),kFALSE);
     xbuf_.Reset();
     xbuf_.SetBuffer(&dest_[0],dest_size,kFALSE);
     RootDebug tracer(10,10);
 
-    std::auto_ptr<SendEvent> sd((SendEvent*)xbuf_.ReadObjectAny(tc_));
+    setRefCoreStreamer(&eventPrincipalHolder_);
+    sendEvent_ = std::unique_ptr<SendEvent>((SendEvent*)xbuf_.ReadObjectAny(tc_));
+    setRefCoreStreamer();
 
-    if(sd.get()==0) {
+    if(sendEvent_.get() == nullptr) {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
+    processHistoryRegistryUpdate().registerProcessHistory(sendEvent_->processHistory());
 
-    FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << std::endl;
-    if(lbp_.get() == 0) {
-      if (rp_.get() == 0) {
-	rp_ = boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(sd->id_.run(),
-			   sd->time_,
-			   Timestamp::invalidTimestamp(),
-			   productRegistry(),
-			   processConfiguration()));
-      }
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>(
-        new LuminosityBlockPrincipal(eventView.lumi(),
-				     sd->time_,
-				     Timestamp::invalidTimestamp(),
-				     productRegistry(),
-				     rp_,
-				     processConfiguration()));
+    FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
+    if(runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run()) {
+      RunAuxiliary* runAuxiliary = new RunAuxiliary(sendEvent_->aux().run(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
+      runAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
+      setRunAuxiliary(runAuxiliary);
+      resetLuminosityBlockAuxiliary();
     }
-    std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
-                                                   sd->time_,
-                                                   productRegistry(),
-                                                   lbp_,
-                                                   processConfiguration(),
-                                                   true,
-						   EventAuxiliary::Any,
-						   EventPrincipal::invalidBunchXing,
-						   EventPrincipal::invalidStoreNumber,
-						   processHistoryID_));
+    if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventView.lumi()) {
+      LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
+        new LuminosityBlockAuxiliary(runAuxiliary()->run(), eventView.lumi(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
+      luminosityBlockAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
+      setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
+    }
+    setEventCached();
+  }
+
+  void
+  StreamerInputSource::read(EventPrincipal& eventPrincipal) {
+    if(adjustEventToNewProductRegistry_) {
+      eventPrincipal.adjustIndexesAfterProductRegistryAddition();
+      bool eventOK = eventPrincipal.adjustToNewProductRegistry(*productRegistry());
+      assert(eventOK);
+      adjustEventToNewProductRegistry_ = false;
+    }
+    EventSelectionIDVector ids(sendEvent_->eventSelectionIDs());
+    BranchListIndexes indexes(sendEvent_->branchListIndexes());
+    branchIDListHelper()->fixBranchListIndexes(indexes);
+    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistry(), std::move(ids), std::move(indexes));
+    eventPrincipalHolder_.setEventPrincipal(&eventPrincipal);
+
     // no process name list handling
 
-    SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());
-    for(; spi != spe; ++spi) {
+    SendProds& sps = sendEvent_->products();
+    for(auto& spitem : sps) {
         FDEBUG(10) << "check prodpair" << std::endl;
-        if(spi->prov() == 0)
-          throw cms::Exception("StreamTranslation","EmptyProvenance");
-        if(spi->desc() == 0)
-          throw cms::Exception("StreamTranslation","EmptyDesc");
+        if(spitem.desc() == nullptr)
+          throw cms::Exception("StreamTranslation","Empty Provenance");
         FDEBUG(5) << "Prov:"
-             << " " << spi->desc()->className()
-             << " " << spi->desc()->productInstanceName()
-             << " " << spi->desc()->productID()
-             << " " << spi->prov()->productID_
+             << " " << spitem.desc()->className()
+             << " " << spitem.desc()->productInstanceName()
+             << " " << spitem.desc()->branchID()
              << std::endl;
 
-        if(spi->prod()==0) {
-            FDEBUG(10) << "Product is null" << std::endl;
-            continue;
-            throw cms::Exception("StreamTranslation","EmptyProduct");
-        }
+        BranchDescription const branchDesc(*spitem.desc());
+        // This ProductProvenance constructor inserts into the entry description registry
+        ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
 
-        std::auto_ptr<EDProduct>
-          aprod(const_cast<EDProduct*>(spi->prod()));
-        std::auto_ptr<BranchEntryDescription>
-          aedesc(const_cast<BranchEntryDescription*>(spi->prov()));
-        std::auto_ptr<BranchDescription>
-          adesc(const_cast<BranchDescription*>(spi->desc()));
-
-        std::auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get())));
-        if(aprov->isPresent()) {
-          FDEBUG(10) << "addgroup next " << aprov->productID() << std::endl;
-          FDEBUG(10) << "addgroup next " << aprov->event().productID_ << std::endl;
-          ep->addGroup(aprod, aprov);
-          FDEBUG(10) << "addgroup done" << std::endl;
+        if(spitem.prod() != nullptr) {
+          FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
+          eventPrincipal.putOnRead(branchDesc, spitem.prod(), productProvenance);
+          FDEBUG(10) << "addproduct done" << std::endl;
         } else {
-          FDEBUG(10) << "addgroup empty next " << aprov->productID() << std::endl;
-          FDEBUG(10) << "addgroup empty next " << aprov->event().productID_ 
-                                               << std::endl;
-          ep->addGroup(aprov);
-          FDEBUG(10) << "addgroup empty done" << std::endl;
+          FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
+          eventPrincipal.putOnRead(branchDesc, spitem.prod(), productProvenance);
+          FDEBUG(10) << "addproduct empty done" << std::endl;
         }
-        spi->clear();
+        spitem.clear();
     }
 
-    FDEBUG(10) << "Size = " << ep->numEDProducts() << std::endl;
-
-    return ep;     
+    FDEBUG(10) << "Size = " << eventPrincipal.size() << std::endl;
   }
 
   /**
@@ -364,23 +311,22 @@ namespace edm {
    * Errors are reported by throwing exceptions.
    */
   unsigned int
-  StreamerInputSource::uncompressBuffer(unsigned char *inputBuffer,
-				       unsigned int inputSize,
-				       std::vector<unsigned char> &outputBuffer,
-				       unsigned int expectedFullSize)
-  {
+  StreamerInputSource::uncompressBuffer(unsigned char* inputBuffer,
+                                        unsigned int inputSize,
+                                        std::vector<unsigned char>& outputBuffer,
+                                        unsigned int expectedFullSize) {
     unsigned long origSize = expectedFullSize;
-    unsigned long uncompressedSize = expectedFullSize;
+    unsigned long uncompressedSize = expectedFullSize*1.1;
     FDEBUG(1) << "Uncompress: original size = " << origSize
               << ", compressed size = " << inputSize
               << std::endl;
-    outputBuffer.resize(origSize);
+    outputBuffer.resize(uncompressedSize);
     int ret = uncompress(&outputBuffer[0], &uncompressedSize,
                          inputBuffer, inputSize); // do not need compression level
     //std::cout << "unCompress Return value: " << ret << " Okay = " << Z_OK << std::endl;
     if(ret == Z_OK) {
         // check the length against original uncompressed length
-        FDEBUG(10) << " original size = " << origSize << " final size = " 
+        FDEBUG(10) << " original size = " << origSize << " final size = "
                    << uncompressedSize << std::endl;
         if(origSize != uncompressedSize) {
             std::cerr << "deserializeEvent: Problem with uncompress, original size = "
@@ -397,7 +343,49 @@ namespace edm {
         throw cms::Exception("StreamDeserialization","Uncompression error")
             << "Error code = " << ret << "\n ";
     }
-
     return (unsigned int) uncompressedSize;
+  }
+
+  void StreamerInputSource::resetAfterEndRun() {
+     // called from an online streamer source to reset after a stop command
+     // so an enable command will work
+     resetLuminosityBlockAuxiliary();
+     resetRunAuxiliary();
+     assert(!eventCached());
+     reset();
+  }
+
+  void StreamerInputSource::setRun(RunNumber_t) {
+     // Need to define a dummy setRun here or else the InputSource::setRun is called
+     // if we have a source inheriting from this and wants to define a setRun method
+     throw Exception(errors::LogicError)
+     << "StreamerInputSource::setRun()\n"
+     << "Run number cannot be modified for this type of Input Source\n"
+     << "Contact a Storage Manager Developer\n";
+  }
+
+  StreamerInputSource::EventPrincipalHolder::EventPrincipalHolder() : eventPrincipal_(nullptr) {}
+
+  StreamerInputSource::EventPrincipalHolder::~EventPrincipalHolder() {}
+
+  WrapperHolder
+  StreamerInputSource::EventPrincipalHolder::getIt(ProductID const& id) const {
+    return eventPrincipal_ ? eventPrincipal_->getIt(id) : WrapperHolder();
+  }
+
+  unsigned int
+  StreamerInputSource::EventPrincipalHolder::transitionIndex_() const {
+    assert(eventPrincipal_ != nullptr);
+    return eventPrincipal_->transitionIndex();
+  }
+
+  void
+  StreamerInputSource::EventPrincipalHolder::setEventPrincipal(EventPrincipal* ep) {
+    eventPrincipal_ = ep;
+  }
+
+  void
+  StreamerInputSource::fillDescription(ParameterSetDescription& desc) {
+    RawInputSource::fillDescription(desc);
   }
 }

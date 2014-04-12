@@ -1,17 +1,17 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentCorrelationsStore_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentCorrelationsStore_h
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+/// This class manages the storage and retrieval of correlations between Alignables
+/// for the AlignmentParameterStore. This basic implementation simply stores the
+/// off diagonal entries of the "big covariance matrix". ATTENTION: Definition of
+/// data structure "Correlations" differs from definition in AlignmentParameterStore,
+/// but is used only internally.
 
 #include <map>
 
-/// This class manages the storage and retrieval of correlations between Alignables
-/// for the AlignmentParameterStore. This basic implementation simply stores the
-/// offdiagonal entries of the "big covariance matrix". ATTENTION: Definition of
-/// data structure "Correlations" differs from definition in AlignmentParameterStore,
-/// but is used only internally.
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+
+class Alignable;
 
 class AlignmentCorrelationsStore
 {

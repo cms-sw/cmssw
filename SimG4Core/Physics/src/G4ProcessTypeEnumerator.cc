@@ -1,6 +1,6 @@
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 #include "SimG4Core/Physics/interface/ProcessTypeEnumerator.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "G4VProcess.hh"
 
 #include <iostream>
@@ -47,6 +47,19 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["SigmaPlusInelastic"] = "Hadronic";
   mapProcesses["XiZeroInelastic"] = "Hadronic";
   mapProcesses["AntiXiMinusInelastic"] = "Hadronic";
+  mapProcesses["AlphaInelastic"] = "Hadronic";
+  mapProcesses["FullModelHadronicProcess"] = "Hadronic";
+  mapProcesses["hInelastic"] = "Hadronic";
+  mapProcesses["dInelastic"] = "Hadronic";
+  mapProcesses["tInelastic"] = "Hadronic";
+  mapProcesses["nCapture"] = "Hadronic";
+  mapProcesses["alphaInelastic"] = "Hadronic";
+  mapProcesses["CHIPSElasticScattering"] = "Hadronic";
+  mapProcesses["MixedProtonInelasticProcess"] = "Hadronic";
+
+  // for GFlash Hadron process
+  mapProcesses["WrappedPionMinusInelastic"] = "Hadronic";
+  mapProcesses["WrappedPionPlusInelastic"] = "Hadronic";
 
   // ionizations
   mapProcesses["eIoni"] = "EIoni";
@@ -75,6 +88,9 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["SynchrotronRadiation"] = "SynchrotronRadiation";
   // Compton
   mapProcesses["compt"] = "Compton";
+  // hbrem etc;
+  mapProcesses["hBrems"] = "hBrems";
+  mapProcesses["hPairProd"] = "hPairProd";
   //
   map2Process["Undefined"] = -1;
   map2Process["Unknown"] = 0;
@@ -114,6 +130,19 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   map2Process["SigmaPlusInelastic"] = 32;
   map2Process["XiZeroInelastic"] = 33;
   map2Process["AntiXiMinusInelastic"] = 34;
+  map2Process["FullModelHadronicProcess"] = 35;
+  map2Process["hInelastic"] = 36;
+  map2Process["dInelastic"] = 37;
+  map2Process["tInelastic"] = 38;
+  map2Process["alphaInelastic"] = 39;
+  map2Process["nCapture"] = 40;
+  map2Process["CHIPSElasticScattering"] = 17;
+  map2Process["MixedProtonInelasticProcess"] = 7;
+
+  // for GFlash hadron process
+  map2Process["WrappedPionMinusInelastic"] = 68;
+  map2Process["WrappedPionPlusInelastic"] = 69;
+
   // Decay
   map2Process["Decay"] = 50;
   // EM
@@ -132,6 +161,8 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   map2Process["phot"] = 63;
   map2Process["SynchrotronRadiation"] = 64;
   map2Process["compt"] = 65;
+  map2Process["hBrems"] = 66;
+  map2Process["hPairProd"] = 67;
   //
   buildReverseMap();
   //
@@ -154,17 +185,16 @@ unsigned int G4ProcessTypeEnumerator::processId(const G4VProcess* process){
     //
     std::string temp = "Primary";
 #ifdef MYDEB
-    std::cout <<" G4ProcessTypeEnumerator : Primary process, returning "<<
-      theProcessTypeEnumerator->processId(temp)<<std::endl;
+    LogDebug("Physics") <<"G4ProcessTypeEnumerator : Primary process, returning "
+			<< theProcessTypeEnumerator->processId(temp);
 #endif
     return theProcessTypeEnumerator->processId(temp);
-  }else{
+  } else {
     std::string temp = process->GetProcessName();
 #ifdef MYDEB
-    std::cout <<" G4ProcessTypeEnumerator : G4Process "<<temp<<" mapped to "<<
-      processCMSName(temp)<<
-      "; returning "<<
-      theProcessTypeEnumerator->processId(processCMSName(temp))<<std::endl;
+    LogDebug("Physics") <<"G4ProcessTypeEnumerator : G4Process "<<temp
+			<<" mapped to "<< processCMSName(temp)<<"; returning "
+			<<theProcessTypeEnumerator->processId(processCMSName(temp));
 #endif
     return theProcessTypeEnumerator->processId(processCMSName(temp));
   }
@@ -182,7 +212,7 @@ int G4ProcessTypeEnumerator::processIdLong(const G4VProcess* process) {
 std::string G4ProcessTypeEnumerator::processCMSName(std::string in){
   if (mapProcesses[in] == ""){
     //    throw MantisException("G4ProcessTypeEnumerator: unknown G4 process "+in);
-    std::cout <<" NOT FOUND G4ProcessTypeEnumerator: "<<in<<std::endl;
+    LogDebug("Physics")<<" NOT FOUND G4ProcessTypeEnumerator: "<<in;
     return "Unknown";
   }
   return mapProcesses[in];

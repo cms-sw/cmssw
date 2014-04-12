@@ -4,30 +4,20 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2007/05/28 16:35:14 $
- * $Revision: 1.8 $
- * \author C. Bernet
  *
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
-// #include "boost/multi_array.hpp"
-
-// #include <iostream>
-// #include <fstream>
 #include <vector>
 
-
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EBTriggerTowerTask : public edm::EDAnalyzer {
 
@@ -55,10 +45,19 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
 	       const edm::EventSetup& c);
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
   /// EndJob
   void endJob(void);
+
+  /// BeginRun
+  void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+  /// EndRun
+  void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+  /// Reset
+  void reset(void);
 
   /// Setup
   void setup(void);
@@ -75,60 +74,93 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   void reserveArray( array1& array );
 
   /// process a collection of digis, either real or emulated
-  void processDigis( const edm::Handle<EcalTrigPrimDigiCollection>& digis, 
+  void processDigis( const edm::Event& e, 
+                     const edm::Handle<EcalTrigPrimDigiCollection>& digis, 
 		     array1& meEtMap,
 		     array1& meVeto,
-		     array1& meFlags,
-		     const edm::Handle<EcalTrigPrimDigiCollection>& digis
-		     = edm::Handle<EcalTrigPrimDigiCollection>());
+		     const edm::Handle<EcalTrigPrimDigiCollection>& compDigis
+		     = edm::Handle<EcalTrigPrimDigiCollection>(),
+                     const edm::Handle<edm::TriggerResults>& hltResults
+                     = edm::Handle<edm::TriggerResults>());
 
 
   /// book monitor elements for real, or emulated digis
-  void setup( DaqMonitorBEInterface* dbe,
-	      const char* nameext,
-	      const char* folder, 
+  void setup( std::string const &nameext,
+	      std::string const  &folder, 
 	      bool emulated);
   
 
   /// local event counter
   int ievt_;
 
-  /// Et vs iphi vs ieta, for each SM 
+  /// Et vs ix vs iy, for each SM 
   array1 meEtMapReal_;
 
   /// fine grain veto vs iphi vs ieta, for each SM 
   array1 meVetoReal_;
 
-  /// flag vs iphi vs ieta, for each SM   
-  array1 meFlagsReal_;
-  
-  /// Emulated Et vs iphi vs ieta, for each SM 
+  /// Emulated Et vs ix vs iy, for each SM 
   array1 meEtMapEmul_;
 
   /// Emulated fine grain veto vs iphi vs ieta, for each SM 
   array1 meVetoEmul_;
 
-  /// Emulated flag vs iphi vs ieta, for each SM   
-  array1 meFlagsEmul_;
-  
   /// error flag vs iphi vs ieta, for each SM
   /// the error flag is set to true in case of a discrepancy between 
   /// the emulator and the real data
   array1 meEmulError_;
+  array1 meEmulMatch_;
   array1 meVetoEmulError_;
-  array1 meFlagEmulError_;
 
-  /// not sure this is necessary
+  /// init flag
   bool init_;
 
+  /// DQM back-end interface
+  DQMStore* dqmStore_;
+
+  /// path to MEs
+  std::string prefixME_;
+
+  /// remove MEs
+  bool enableCleanup_;
+
+  /// merge MEs across runs
+  bool mergeRuns_;
+
   /// to find the input collection of real digis 
-  edm::InputTag  realCollection_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> realCollection_;
 
   /// to find the input collection of emulated digis
-  edm::InputTag  emulCollection_;
-  
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> emulCollection_;
+
+  /// to find the input collection of crystal digis
+  edm::EDGetTokenT<EBDigiCollection> EBDigiCollection_;
+
+  /// to find the input collection of HLT bits
+  edm::EDGetTokenT<edm::TriggerResults> HLTResultsCollection_;
+  std::string HLTCaloHLTBit_;
+  std::string HLTMuonHLTBit_;
+
   /// debug output root file. if empty, no output file created.
-  std::string   outputFile_;
+  std::string outputFile_;
+
+  /// 1D emulator match 1D
+  MonitorElement* meEmulMatchIndex1D_;
+  MonitorElement* meEmulMatchMaxIndex1D_;
+
+  /// ET spectrums for the whole EB
+  MonitorElement* meEtSpectrumReal_;
+  MonitorElement* meEtSpectrumEmul_;
+  MonitorElement* meEtSpectrumEmulMax_;
+
+  /// number and ET average of TP vs bx
+  MonitorElement* meEtBxReal_;
+  MonitorElement* meOccupancyBxReal_;
+
+  /// TCC timing
+  MonitorElement* meTCCTimingCalo_;
+  MonitorElement* meTCCTimingMuon_;
+
 };
 
 #endif

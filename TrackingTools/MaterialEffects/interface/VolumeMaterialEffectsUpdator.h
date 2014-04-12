@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 class VolumeMaterialEffectsEstimate;
 
 class VolumeMaterialEffectsUpdator

@@ -4,10 +4,10 @@
 /** Half sample mode in 3d, as a functional class.
  */
 
-GlobalPoint HsmModeFinder3d::operator() ( const vector< PointAndDistance> & values ) const
+GlobalPoint HsmModeFinder3d::operator() ( const std::vector< PointAndDistance> & values ) const
 {
-  vector < GlobalPoint > v;
-  for ( vector< PointAndDistance >::const_iterator i=values.begin(); 
+  std::vector < GlobalPoint > v;
+  for ( std::vector< PointAndDistance >::const_iterator i=values.begin(); 
       i!=values.end() ; ++i ) 
   {
     v.push_back ( i->first );

@@ -1,16 +1,15 @@
-#ifndef Common_RefHolder__h
-#define Common_RefHolder__h
+#ifndef DataFormats_Common_RefHolder__h
+#define DataFormats_Common_RefHolder__h
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+
 #include "DataFormats/Common/interface/RefHolderBase.h"
-#include "Reflex/Object.h"
-#include "Reflex/Type.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include <memory>
 
 namespace edm {
   namespace reftobase {
-    // The following makes ROOT::Reflex::Type available as reftobase::Type,
-    // etc.
-    using ROOT::Reflex::Type;
-    using ROOT::Reflex::Object;
-
      //------------------------------------------------------------------
     // Class template RefHolder<REF>
     //------------------------------------------------------------------
@@ -21,8 +20,6 @@ namespace edm {
     public:
       RefHolder();
       explicit RefHolder(REF const& ref);
-      RefHolder(RefHolder const& other);
-      RefHolder& operator=(RefHolder const& rhs);
       void swap(RefHolder& other);
       virtual ~RefHolder();
       virtual RefHolderBase* clone() const;
@@ -35,9 +32,18 @@ namespace edm {
       REF const& getRef() const;
       void setRef(REF const& r);
       virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const;
+      virtual EDProductGetter const* productGetter() const;
+      virtual bool hasProductCache() const;
+      virtual void const * product() const;
 
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const { return ref_.isAvailable(); }
+
+      //Needed for ROOT storage
+      CMS_CLASS_VERSION(10)
     private:
-      virtual void const* pointerToType(Type const& iToType) const;
+      virtual void const* pointerToType(TypeWithDict const& iToType) const;
       REF ref_;
     };
 
@@ -47,22 +53,12 @@ namespace edm {
 
     template <class REF>
     RefHolder<REF>::RefHolder() : 
-      ref_()
+      RefHolderBase(), ref_()
     { }
   
     template <class REF>
-    RefHolder<REF>::RefHolder(RefHolder const& rhs) :
-      ref_( rhs.ref_ )
-    { }
-
-    template <class REF>
-    RefHolder<REF>& RefHolder<REF>::operator=(RefHolder const& rhs) {
-      ref_ = rhs.ref_; return *this;
-    }
-
-    template <class REF>
     RefHolder<REF>::RefHolder(REF const& ref) : 
-      ref_(ref) 
+      RefHolderBase(), ref_(ref) 
     { }
 
     template <class REF>
@@ -113,6 +109,21 @@ namespace edm {
       return ref_;
     }
 
+    template<class REF>
+    EDProductGetter const* RefHolder<REF>::productGetter() const {
+      return ref_.productGetter();
+    }
+
+    template<class REF>
+    bool RefHolder<REF>::hasProductCache() const {
+      return ref_.hasProductCache();
+    }
+
+    template<class REF>
+    void const * RefHolder<REF>::product() const {
+      return ref_.product();
+    }
+
     template <class REF>
     inline
     void
@@ -131,19 +142,12 @@ namespace edm {
 
     template <class REF>
     void const* 
-    RefHolder<REF>::pointerToType(Type const& iToType) const 
+    RefHolder<REF>::pointerToType(TypeWithDict const& iToType) const 
     {
       typedef typename REF::value_type contained_type;
-      static const Type s_type(Type::ByTypeInfo(typeid(contained_type)));
+      static TypeWithDict const s_type(typeid(contained_type));
     
-      // The const_cast below is needed because
-      // Object's constructor requires a pointer to
-      // non-const void, although the implementation does not, of
-      // course, modify the object to which the pointer points.
-      Object obj(s_type, const_cast<void*>(static_cast<const void*>(ref_.get())));
-      if ( s_type == iToType ) return obj.Address();
-      Object cast = obj.CastObject(iToType);
-      return cast.Address(); // returns void*, after pointer adjustment
+      return iToType.pointerToBaseType(ref_.get(), s_type);
     }
   } // namespace reftobase
 }

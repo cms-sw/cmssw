@@ -10,23 +10,24 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2006/10/08 16:03:21 $
- *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
 
 #include <string>
 #include <map>
 #include <vector>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
-
+class DTGeometry;
 
 class DTResolutionAnalysisTask: public edm::EDAnalyzer{
 public:
@@ -36,8 +37,11 @@ public:
   /// Destructor
   virtual ~DTResolutionAnalysisTask();
 
-  /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  /// BeginRun
+  void beginRun(const edm::Run&, const edm::EventSetup&);
+
+  /// To reset the MEs
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// Endjob
   void endJob();
@@ -45,31 +49,40 @@ public:
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
+
 protected:
 
 private:
-  DaqMonitorBEInterface* theDbe;
+  DQMStore* theDbe;
 
-  // Switch for verbosity
-  bool debug;
-  std::string theRootFileName;
-  bool writeHisto;
+  edm::ESHandle<DTGeometry> dtGeom;
+
+  int prescaleFactor;
+  int resetCycle;
+
+  u_int32_t thePhiHitsCut;
+  u_int32_t theZHitsCut;
 
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
-  // Lable of 1D rechits in the event
-  std::string theRecHitLabel;
-  
-  edm::ParameterSet parameters;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId);
-  // Fill a set of histograms for a give chamber 
+  // Fill a set of histograms for a give chamber
   void fillHistos(DTSuperLayerId slId,
 		  float distExtr,
 		  float residual);
-  
+
   std::map<DTSuperLayerId, std::vector<MonitorElement*> > histosPerSL;
+
+  // top folder for the histograms in DQMStore
+  std::string topHistoFolder;
+
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

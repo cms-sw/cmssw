@@ -9,8 +9,6 @@
  *   actual extrapolation
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -30,7 +28,7 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessorc.h"
+#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -38,19 +36,21 @@
 
 #include <FWCore/Framework/interface/ESHandle.h>
 class L1MuDTTrackSegPhi;
+class L1MuDTSectorProcessor;
 class L1MuDTSEU;
 class L1MuDTExtLut;
+class L1MuDTTFParameters;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTEUX : public L1AbstractProcessorc {
+class L1MuDTEUX : public L1AbstractProcessor {
 
   public:
 
     /// constructor
-    L1MuDTEUX(const L1MuDTSEU& seu, int id );
+    L1MuDTEUX(const L1MuDTSectorProcessor& sp, const L1MuDTSEU& seu, int id );
 
     /// destructor
     virtual ~L1MuDTEUX();
@@ -70,9 +70,6 @@ class L1MuDTEUX : public L1AbstractProcessorc {
     /// return pointer to start and target track segment
     std::pair<const L1MuDTTrackSegPhi*, const L1MuDTTrackSegPhi*> ts() const;
 
-    /// set precision of phi and phib
-    static void setPrecision();
-    
     /// helper class for finding the best and second best extrapolation
     class EUX_Comp : std::binary_function< L1MuDTEUX*, L1MuDTEUX*, bool> {
       public :
@@ -106,6 +103,7 @@ class L1MuDTEUX : public L1AbstractProcessorc {
 
   private:
 
+    const L1MuDTSectorProcessor& m_sp;
     const L1MuDTSEU& m_seu;           // reference to Single Extrapolation Unit 
     int              m_id;            // index of start TS
 
@@ -117,9 +115,11 @@ class L1MuDTEUX : public L1AbstractProcessorc {
     const L1MuDTTrackSegPhi* m_target;      // target track segment
       
     edm::ESHandle< L1MuDTExtLut > theExtLUTs;  // extrapolation look-up tables
-    static int               theExtFilter;     // extrapolation quality filter
-    static unsigned short    nbit_phi;         // number of bits used for phi
-    static unsigned short    nbit_phib;        // number of bits used for phib
+    int            const   theExtFilter = 1;        // extrapolation quality filter
+    unsigned short const   nbit_phi = 12;           // number of bits used for phi
+    unsigned short const   nbit_phib = 10;          // number of bits used for phib
+
+    edm::ESHandle< L1MuDTTFParameters > pars;
 
 };
 

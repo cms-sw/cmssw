@@ -1,0 +1,4 @@
+<bin name="testJetMETCorrectionsType1MET" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS=" /bin/bash JetMETCorrections/Type1MET/test runtests.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>

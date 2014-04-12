@@ -130,14 +130,20 @@ L1RpcTBMuonsVec RPCTBGhostBuster::gBEta(L1RpcTBMuonsVec2 &gbPhiMuonsVec2) const 
       if(gbPhiMuonsVec2[iMuVec][iMu].getCode() == 0)
         break; //because muons are sorted
 
-      for(unsigned int iMuNext = 0; iMuNext < gbPhiMuonsVec2[iMuVec+1].size(); iMuNext++)
+      for(unsigned int iMuNext = 0; iMuNext < gbPhiMuonsVec2[iMuVec+1].size(); iMuNext++) {
         if(abs(gbPhiMuonsVec2[iMuVec][iMu].getPhiAddr()-gbPhiMuonsVec2[iMuVec+1][iMuNext].getPhiAddr())<=1)
-          
+        {
           //comparing with next:
-          if(gbPhiMuonsVec2[iMuVec][iMu].getCode() < gbPhiMuonsVec2[iMuVec+1][iMuNext].getCode())  
+          if(gbPhiMuonsVec2[iMuVec][iMu].getCode() < gbPhiMuonsVec2[iMuVec+1][iMuNext].getCode()) 
+          { 
             gbPhiMuonsVec2[iMuVec][iMu].kill();
-          else
+          }
+          else 
+          {
             gbPhiMuonsVec2[iMuVec+1][iMuNext].kill();
+          }
+        }
+      }
     }
   }
 

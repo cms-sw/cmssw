@@ -18,7 +18,7 @@ public:
 ExtendedPerigeeTrajectoryParameters()
 {vl = false;}
 
-ExtendedPerigeeTrajectoryParameters(const AlgebraicVector& param,
+ExtendedPerigeeTrajectoryParameters(const AlgebraicVector6& param,
                                     const TrackCharge& charge)
 {
  vl = true;
@@ -32,7 +32,7 @@ ExtendedPerigeeTrajectoryParameters(const AlgebraicVector& param,
   bool isValid() const
   {return vl;}
  
-  AlgebraicVector vector() const
+  AlgebraicVector6 vector() const
   {return par;}
  		     
   TrackCharge charge() const
@@ -41,7 +41,7 @@ ExtendedPerigeeTrajectoryParameters(const AlgebraicVector& param,
 private:
 
  bool vl;
- AlgebraicVector par;
+ AlgebraicVector6 par;
  TrackCharge ch;
 };
 #endif

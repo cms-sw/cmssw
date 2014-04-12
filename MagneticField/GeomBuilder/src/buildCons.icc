@@ -1,8 +1,6 @@
 /*
  *  Compute parameters for a cone section 
  *
- *  $Date: 2007/02/03 16:18:28 $
- *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -43,9 +41,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
 
   if (abs(rInPlusZ-rInMinusZ)<epsilon) { // Cylinder
     // FIXME: use builder
-    surfaces[inner] = new Cylinder(Surface::PositionType(),
-				      Surface::RotationType(),
-				      rInMinusZ);
+    surfaces[inner] = new Cylinder(rInMinusZ, Surface::PositionType(),
+				      Surface::RotationType());
+				     
 
   } else { // Cone
     // FIXME: trick to compute vertex and angle...
@@ -60,9 +58,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
   
 
   if (abs(rOutPlusZ-rOutMinusZ)<epsilon) { // Cylinder
-    surfaces[outer] = new Cylinder(Surface::PositionType(0,0,center_.z()),
-				      Surface::RotationType(),
-				      rOutMinusZ);
+    surfaces[outer] = new Cylinder(rOutMinusZ, Surface::PositionType(0,0,center_.z()),
+				      Surface::RotationType());
+				  
     
   } else { // Cone
     // FIXME: trick to compute vertex and angle...
@@ -94,5 +92,5 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
   // Save volume boundaries
   theRMin = min(rInMinusZ, rInPlusZ);
   theRMax = max(rOutMinusZ, rOutPlusZ);
-
+  thePhiMin = surfaces[phiminus]->position().phi();
 }

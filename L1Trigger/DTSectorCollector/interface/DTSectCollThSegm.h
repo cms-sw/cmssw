@@ -5,8 +5,6 @@
  *   Muon Sector Collector Trigger Theta candidate 
  *
  *
- *   $Date: 2007/04/04 10:44:32 $
- *   $Revision: 1.2 $
  * 
  *   \author C. Battilana
  */

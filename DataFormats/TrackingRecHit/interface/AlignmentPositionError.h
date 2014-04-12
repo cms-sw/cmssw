@@ -15,20 +15,36 @@ class AlignmentPositionError {
   
   AlignmentPositionError(float dx, float dy, float dz);
   
-  AlignmentPositionError(GlobalError ge) : theGlobalError(ge) {};
+  AlignmentPositionError(const GlobalError& ge) : theGlobalError(ge) {};
 
   ~AlignmentPositionError(){};
   
-  GlobalError globalError() const { return theGlobalError; };
 
-  AlignmentPositionError operator+= (const AlignmentPositionError& ape) const {
+  bool valid() const {
+    return ( theGlobalError.cxx()>0 || theGlobalError.cyy()>0 || theGlobalError.czz()>0 );
+  }
+
+  const GlobalError & globalError() const { return theGlobalError; };
+
+  AlignmentPositionError operator+ (const AlignmentPositionError& ape) const {
     return AlignmentPositionError ( this->globalError() + ape.globalError());
   };
 
-  AlignmentPositionError operator-= (const AlignmentPositionError& ape) const {
+  AlignmentPositionError operator- (const AlignmentPositionError& ape) const {
     return AlignmentPositionError ( this->globalError() - ape.globalError());
 
   };
+
+  AlignmentPositionError & operator+= (const AlignmentPositionError& ape) {
+    theGlobalError = GlobalError(this->globalError() + ape.globalError());
+    return *this;
+  };
+
+  AlignmentPositionError & operator-= (const AlignmentPositionError& ape) {
+    theGlobalError = GlobalError(this->globalError() - ape.globalError());
+    return *this;
+  };
+
 
  private:
   

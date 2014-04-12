@@ -1,5 +1,5 @@
-#include "RecoTracker/TkDetLayers/interface/PixelBarrelLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/PixelRodBuilder.h"
+#include "PixelBarrelLayerBuilder.h"
+#include "PixelRodBuilder.h"
 
 using namespace std;
 using namespace edm;
@@ -19,7 +19,12 @@ PixelBarrelLayer* PixelBarrelLayerBuilder::build(const GeometricDet* aPixelBarre
   vector<const PixelRod*> theInnerRods;
   vector<const PixelRod*> theOuterRods;
 
-  double meanR = (theGeometricDetRods[0]->positionBounds().perp()+theGeometricDetRods[1]->positionBounds().perp())/2;
+  // properly calculate the meanR value to separate rod in inner/outer.
+
+  double meanR = 0;
+  for (unsigned int index=0; index!=theGeometricDetRods.size(); index++)   meanR+=theGeometricDetRods[index]->positionBounds().perp();
+  if (theGeometricDetRods.size()!=0)
+    meanR/=(double) theGeometricDetRods.size();
   
   for(unsigned int index=0; index!=theGeometricDetRods.size(); index++){    
     if(theGeometricDetRods[index]->positionBounds().perp() < meanR)

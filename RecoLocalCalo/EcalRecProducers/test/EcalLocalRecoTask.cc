@@ -1,7 +1,6 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.3 2006/10/27 01:35:37 wmtan Exp $
  *
 */
 
@@ -23,52 +22,52 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalLocalRecoTask::EcalLocalRecoTask(const ParameterSet& ps)
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
+EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps)
 {
   
   // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
+  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
 
-  recHitProducer_   = ps.getParameter<std::string>("recHitProducer");
-  ESrecHitProducer_   = ps.getParameter<std::string>("ESrecHitProducer");
-  EBrechitCollection_        = ps.getParameter<std::string>("EBrechitCollection");
-  EErechitCollection_        = ps.getParameter<std::string>("EErechitCollection");
-  ESrechitCollection_        = ps.getParameter<std::string>("ESrechitCollection");
-
-  uncalibrecHitProducer_   = ps.getParameter<std::string>("uncalibrecHitProducer");
-  EBuncalibrechitCollection_        = ps.getParameter<std::string>("EBuncalibrechitCollection");
-  EEuncalibrechitCollection_        = ps.getParameter<std::string>("EEuncalibrechitCollection");
-
-  digiProducer_   = ps.getParameter<std::string>("digiProducer");
-  EBdigiCollection_        = ps.getParameter<std::string>("EBdigiCollection");
-  EEdigiCollection_        = ps.getParameter<std::string>("EEdigiCollection");
-  ESdigiCollection_        = ps.getParameter<std::string>("ESdigiCollection");
-
+  EBrecHitToken_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("ebrechits"));
+  EErecHitToken_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("eerechits"));
+  ESrecHitToken_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("esrechits")); 
   
+
+  EBurecHitToken_ = consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("eburechits"));
+  EEurecHitToken_ = consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("eeurechits"));
+  
+  EBdigiToken_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("ebdigis"));
+  EEdigiToken_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("eedigis"));
+  ESdigiToken_ = consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("esdigis"));
+  
+  cfToken_ = consumes<CrossingFrame<PCaloHit> > (edm::InputTag("mix","EcalHitsEB"));
+
   if ( outputFile_.size() != 0 ) {
-    LogInfo("EcalLocalRecoTaskInfo") << "histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    LogInfo("EcalLocalRecoTaskInfo") << "histograms will NOT be saved";
+    edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will NOT be saved";
   }
   
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
   if ( verbose_ ) {
-    LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is ON"; 
+    edm::LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is ON"; 
   } else {
-    LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is OFF";
+    edm::LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is OFF";
   }
                                                                                                                                           
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -115,7 +114,7 @@ EcalLocalRecoTask::~EcalLocalRecoTask(){
 
 }
 
-void EcalLocalRecoTask::beginJob(const EventSetup& c){
+void EcalLocalRecoTask::beginJob(){
 
 }
 
@@ -123,103 +122,48 @@ void EcalLocalRecoTask::endJob(){
 
 }
 
-void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
+void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
 
-  LogInfo("EcalLocalRecoTaskInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+   edm::LogInfo("EcalLocalRecoTaskInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   
-   Handle< EBDigiCollection > pEBDigis;
-   Handle< EEDigiCollection > pEEDigis;
-   Handle< ESDigiCollection > pESDigis;
-
-   try {
-     //     e.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
-     e.getByLabel( digiProducer_, pEBDigis);
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << EBdigiCollection_.c_str() << std::endl;
-   }
-
-   try {
-     //     e.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
-     e.getByLabel( digiProducer_, pEEDigis);
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << EEdigiCollection_.c_str() << std::endl;
-   }
-
-   try {
-     //     e.getByLabel( digiProducer_, ESdigiCollection_, pESDigis);
-     e.getByLabel( digiProducer_, pESDigis);
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << ESdigiCollection_.c_str() << std::endl;
-   }
+   edm::Handle< EBDigiCollection > pEBDigis;
+   edm::Handle< EEDigiCollection > pEEDigis;
+   edm::Handle< ESDigiCollection > pESDigis;
 
 
-   Handle< EBUncalibratedRecHitCollection > pEBUncalibRecHit;
-   Handle< EEUncalibratedRecHitCollection > pEEUncalibRecHit;
 
-   try {
-     e.getByLabel( uncalibrecHitProducer_, EBuncalibrechitCollection_, pEBUncalibRecHit);
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.c_str() << std::endl;
-   }
-   try {
-     e.getByLabel( uncalibrecHitProducer_, EEuncalibrechitCollection_, pEEUncalibRecHit);
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.c_str() << std::endl;
-   }
+   e.getByToken( EBdigiToken_, pEBDigis);
+   e.getByToken( EEdigiToken_, pEEDigis);
+   e.getByToken( ESdigiToken_, pESDigis);
 
 
-  Handle<EBRecHitCollection> pEBRecHit;
-  Handle<EERecHitCollection> pEERecHit;
-  Handle<ESRecHitCollection> pESRecHit;
+   edm::Handle< EBUncalibratedRecHitCollection > pEBUncalibRecHit;
+   edm::Handle< EEUncalibratedRecHitCollection > pEEUncalibRecHit;
 
-   try {
-     e.getByLabel( recHitProducer_, EBrechitCollection_, pEBRecHit);
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << EBrechitCollection_.c_str() << std::endl;
-   }
-   try {
-     e.getByLabel( recHitProducer_, EErechitCollection_, pEERecHit);
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << EErechitCollection_.c_str() << std::endl;
-   }
-   try {
-     e.getByLabel( ESrecHitProducer_, ESrechitCollection_, pESRecHit);
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << ESrechitCollection_.c_str() << std::endl;
-   }
+   e.getByToken( EBurecHitToken_, pEBUncalibRecHit);
+   e.getByToken( EEurecHitToken_, pEEUncalibRecHit);
 
 
-  Handle<CrossingFrame> crossingFrame;
-  try 
-    {
-      e.getByType(crossingFrame);
-    } catch ( std::exception& ex ) {
-      edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the crossingFrame" << std::endl;
-    }
+   edm::Handle<EBRecHitCollection> pEBRecHit;
+   edm::Handle<EERecHitCollection> pEERecHit;
+   edm::Handle<ESRecHitCollection> pESRecHit;
 
+   e.getByToken( EBrecHitToken_, pEBRecHit);
+   e.getByToken( EBrecHitToken_, pEERecHit);
+   e.getByToken( ESrecHitToken_, pESRecHit);
+ 
+
+  edm::Handle< CrossingFrame<PCaloHit> > crossingFrame;
+  
+  e.getByToken(cfToken_,crossingFrame);
+  
   edm::ESHandle<EcalPedestals> pPeds;
-  try 
-    {
-      c.get<EcalPedestalsRcd>().get(pPeds);
-    } catch ( std::exception& ex ) {
-      edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the Ecal pedestals" << std::endl;
-    }
+  c.get<EcalPedestalsRcd>().get(pPeds);
+  
 
-//   edm::ESHandle<EcalADCToGeVConstant> pAgc;
-//   try 
-//     {
-//       c.get<EcalADCToGeVConstantRcd>().get(pAgc);
-//     }
-//   catch ( std::exception& ex ) 
-//     {
-//       edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the Ecal ADCToGeV Constant" << std::endl;
-//     } 
-
-
-  const std::string barrelHitsName ("EcalHitsEB") ;
   std::auto_ptr<MixCollection<PCaloHit> > 
-    barrelHits (new MixCollection<PCaloHit>(crossingFrame.product (), barrelHitsName)) ;
+    barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ())) ;
 
   MapType EBSimMap;
   
@@ -243,14 +187,7 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
   const EBUncalibratedRecHitCollection * EBUncalibRecHit = pEBUncalibRecHit.product () ;
   const EBRecHitCollection * EBRecHit = pEBRecHit.product () ;
 
-  const EEDigiCollection * EEDigi = pEEDigis.product () ;
-  const EEUncalibratedRecHitCollection * EEUncalibRecHit = pEEUncalibRecHit.product () ;
-  const EERecHitCollection * EERecHit = pEERecHit.product () ;
-
-  const ESDigiCollection * ESDigi = pESDigis.product () ;
-  const ESRecHitCollection * ESRecHit = pESRecHit.product () ;
-
-
+  
   // loop over uncalibRecHit
   for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin () ;
        uncalibRecHit != EBUncalibRecHit->end () ;
@@ -266,17 +203,15 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
       EBDigiCollection::const_iterator myDigi = EBDigi->find(EBid);
 
       double eMax = 0. ;
-      int sMax = -1;
 
       if (myDigi != EBDigi->end())
 	{
-	  for (int sample = 0 ; sample < myDigi->size () ; ++sample)
+	  for (unsigned int sample = 0 ; sample < myDigi->size () ; ++sample)
 	    {
 	      double analogSample=EcalMGPASample((*myDigi)[sample]).adc() ;
 	      if ( eMax < analogSample )
 		{
 		  eMax = analogSample;
-		  sMax = sample;
 		}
 	    }
 	}
@@ -284,13 +219,13 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
 	continue;
       
       const EcalPedestals* myped=pPeds.product();
-      std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(EBid.rawId());
-      if( it!=myped->m_pedestals.end() )
+      EcalPedestals::const_iterator it = myped->getMap().find( EBid );
+      if( it!=myped->getMap().end() )
 	{
-	  if (eMax> it->second.mean_x1 + 5 * it->second.rms_x1 ) //only real signal RecHit
+	  if (eMax> (*it).mean_x1 + 5 * (*it).rms_x1 ) //only real signal RecHit
 	    {
 	      if (meEBUncalibRecHitMaxSampleRatio_) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal()) /eMax);
-	      LogInfo("EcalLocalRecoTaskInfo") << " eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
+	      edm::LogInfo("EcalLocalRecoTaskInfo") << " eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
 	    }
 	  else
 	    continue;

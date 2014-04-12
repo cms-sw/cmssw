@@ -3,7 +3,6 @@
    Test suit for DTDigis
 
    \author Stefano ARGIRO
-   \version $Id: testDTDigis.cpp,v 1.1 2006/03/24 14:16:11 argiro Exp $
    \date 29 Jun 2005
 
    \note This test is not exaustive     
@@ -14,6 +13,7 @@
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
+using namespace std;
 
 class testDTDigis: public CppUnit::TestFixture {
 
@@ -47,7 +47,7 @@ void testDTDigis::testDigiCollectionPut(){
 
   std::vector<DTDigi> digivec;
   for (int i=0; i<10; ++i){
-    DTDigi digi(1+i,5+i);
+    DTDigi digi(1+i,5+i,100+i);
     digivec.push_back(digi);
   }
 
@@ -75,8 +75,13 @@ void testDTDigis::testDigiCollectionPut(){
 
       CPPUNIT_ASSERT((*digiIt).wire()==1+i);
       CPPUNIT_ASSERT((*digiIt).countsTDC()==(unsigned)5+i);
+      CPPUNIT_ASSERT((*digiIt).number()==100+i);
       i++;
       
+      // Test the channel() functionality
+//       DTDigi digi2((*digiIt).channel(),(*digiIt).countsTDC());
+//       CPPUNIT_ASSERT((*digiIt)==digi2);
+
     }// for digis in layer
    }// for layers
 

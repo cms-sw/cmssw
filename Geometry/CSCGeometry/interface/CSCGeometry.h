@@ -18,18 +18,27 @@
 class GeomDetType;
 class GeomDetUnit;
 class CSCChamber;
-
+class CSCChamberSpecs;
+class CSCWireGroupPackage;
 
 class CSCGeometry : public TrackingGeometry {
 
   typedef std::map<DetId, GeomDet*> CSCDetMap;
+  // The buffer for specs need not really be a map. Could do it with a vector!
+  typedef std::map<int, const CSCChamberSpecs*, std::less<int> > CSCSpecsContainer;
   typedef std::vector<CSCChamber*> ChamberContainer;
   typedef std::vector<CSCLayer*> LayerContainer;
 
  public:
 
+  friend class CSCGeometryBuilder; //FromDDD;
+  friend class GeometryAligner;
+
   /// Default constructor
   CSCGeometry();
+
+  /// Real constructor
+  CSCGeometry( bool debugV, bool gangedstripsME1a_, bool onlywiresME1a_, bool realWireGeometry_, bool useCentreTIOffsets_ );
 
   /// Destructor
   virtual ~CSCGeometry();
@@ -39,16 +48,16 @@ class CSCGeometry : public TrackingGeometry {
   // Return a vector of all det types
   virtual const DetTypeContainer&  detTypes() const;
 
-  // Returm a vector of all GeomDetUnit
+  // Return a vector of all GeomDetUnit
   virtual const DetUnitContainer& detUnits() const;
 
-  // Returm a vector of all GeomDet (including all GeomDetUnits)
+  // Return a vector of all GeomDet (including all GeomDetUnits)
   virtual const DetContainer& dets() const;
   
-  // Returm a vector of all GeomDetUnit DetIds
+  // Return a vector of all GeomDetUnit DetIds
   virtual const DetIdContainer&    detUnitIds() const;
 
-  // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
+  // Return a vector of all GeomDet DetIds (including those of GeomDetUnits)
   virtual const DetIdContainer& detIds() const;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
@@ -62,7 +71,7 @@ class CSCGeometry : public TrackingGeometry {
   /// Return the chamber corresponding to given DetId
   const CSCChamber* chamber(CSCDetId id) const;
 
-  /// Return the orresponding to given DetId
+  /// Return the layer corresponding to given DetId
   const CSCLayer* layer(CSCDetId id) const;
 
   /// Return a vector of all chambers
@@ -71,12 +80,59 @@ class CSCGeometry : public TrackingGeometry {
   /// Return a vector of all layers
   const LayerContainer& layers() const;
 
+
+
+  /**
+   * Return the CSCChamberSpecs* for given chamber type
+   * if it exists, or 0 if it has not been created.
+   */
+  const CSCChamberSpecs* findSpecs( int iChamberType );
+
+  /**
+   * Build CSCChamberSpecs for given chamber type.
+   *
+   * @@ a good candidate to be replaced by a factory?
+   */
+  const CSCChamberSpecs* buildSpecs( int iChamberType,
+				 const std::vector<float>& fpar,
+				 const std::vector<float>& fupar,
+				 const CSCWireGroupPackage& wg );
+
+  void setGangedStripsInME1a(bool gs) { gangedstripsME1a_ = gs; }
+  void setOnlyWiresInME1a(bool ow) { onlywiresME1a_ = ow; }
+  void setUseRealWireGeometry(bool rwg) { realWireGeometry_ = rwg; }
+  void setUseCentreTIOffsets(bool cti) { useCentreTIOffsets_ = cti; }
+  void setDebugV(bool dbgv) { debugV_ = dbgv; }
+
+  /**
+   * Ganged strips in ME1a
+   */
+  bool gangedStrips() const { return gangedstripsME1a_; }
+
+  /**
+   * Wires only in ME1a
+   */
+  bool wiresOnly() const { return onlywiresME1a_; }
+
+  /**
+   * Wire geometry modelled as real hardware (complex
+   * groupings of wires and dead regions) or as a pseudo
+   * geometry with just one wire grouping per chamber type
+   * (as was done in ORCA versions up to and including ORCA_8_8_1).
+   *
+   */
+  bool realWireGeometry() const { return realWireGeometry_; }
+
+  /**
+   * Use the backed-out offsets for theCentreToIntersection in
+   * CSCLayerGeometry
+   */
+  bool centreTIOffsets() const { return useCentreTIOffsets_; }
+
+  /// Dump parameters for overall strip and wire modelling
+  void queryModelling() const;
+
  private:
-
-  friend class CSCGeometryBuilderFromDDD;
-
-  friend class GeometryAligner;
-
 
   /// Add a chamber with given DetId.
   void addChamber(CSCChamber* ch);
@@ -109,6 +165,19 @@ class CSCGeometry : public TrackingGeometry {
 
   // These are reduntant copies, to satisfy the interface.
   LayerContainer    theLayers;
+
+  // Parameters controlling modelling of geometry 
+
+  bool debugV_; // for debug printout etc.
+
+  bool gangedstripsME1a_;
+  bool onlywiresME1a_;
+  bool realWireGeometry_;
+  bool useCentreTIOffsets_;
+
+  // Store pointers to Specs objects as we build them.
+  CSCSpecsContainer specsContainer;
+
 };
 
 #endif

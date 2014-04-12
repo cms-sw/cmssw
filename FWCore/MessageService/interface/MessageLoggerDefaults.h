@@ -24,7 +24,6 @@
 //
 // Original Author:  M. Fischler 
 //         Created:  Tues Jun 14 10:38:19 CST 2007
-// $Id:  $
 //
 
 // Framework include files
@@ -87,6 +86,7 @@ public:
     std::string threshold;
     std::map<std::string,Category> category; 
     std::map<std::string,Category> sev; 
+    std::string output;
   };
   
   // publicly available collections and structures
@@ -100,6 +100,7 @@ public:
   // access to values set
   
   std::string threshold (std::string const & dest);
+  std::string output    (std::string const & dest);
 
   int limit      (std::string const & dest, std::string const & cat);
   int reportEvery(std::string const & dest, std::string const & cat);
@@ -112,6 +113,7 @@ public:
   // Modes with hardwired defaults
   
   void hardwireGridJobMode();
+  void hardwireReleaseValidationJobMode();
   void hardwireAnalysisJobMode();
   void hardwireNilJobMode();
 
@@ -132,6 +134,9 @@ public:
       //		event processing. 
       case GridJobMode: 
         hardwireGridJobMode();
+	break;       
+      case ReleaseValidationJobMode:
+        hardwireReleaseValidationJobMode();
 	break;       
       case AnalysisJobMode:
         hardwireAnalysisJobMode();

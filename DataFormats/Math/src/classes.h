@@ -14,10 +14,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include <vector>
 
-namespace {
-  namespace {
+namespace DataFormats_Math {
+  struct dictionary {
     math::XYZVector v1;
-    math::XYZVectorD vd1; 
+    math::XYZVectorD vd1;
     math::XYZVectorF vf1; 
     math::RhoEtaPhiVector v2;
     math::RhoEtaPhiVectorD vd2;
@@ -129,12 +129,12 @@ namespace {
     math::VectorF<6>::type vVf6;
     math::VectorF<7>::type vVf7;
 
-    //    math::Error<1>::type e1;
+  //    math::Error<1>::type e1;
     math::Error<2>::type e2;
     math::Error<3>::type e3;
     math::Error<4>::type e4;
     math::Error<5>::type e5;
-    math::Error<6>::type e6;
+    math::Error<6>::type e6; 
     math::Error<7>::type e7;
     
     //     math::ErrorD<1>::type ed1;
@@ -211,9 +211,16 @@ namespace {
     ROOT::Math::RowOffsets<7> ro7;
 
     //Used by ECAL Weights reconstruction
+    //Used by ECAL Weights reconstruction
     math::Matrix<3,10>::type mw; 
     math::Matrix<10,10>::type mcw; 
+    math::Matrix<2,3>::type mw1; 
     ROOT::Math::MatRepStd<double, 3 ,10> smdw;
     ROOT::Math::MatRepStd<double, 10 , 10> smdcw;
-   }
+    ROOT::Math::MatRepStd<double, 2 , 3> smdcw1;
+
+    //Used by TauReco
+    std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> calotti_ppf;
+    std::vector<std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> > vcalotti_ppf;
+   };
 }

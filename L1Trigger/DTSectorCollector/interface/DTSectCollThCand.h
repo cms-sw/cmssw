@@ -3,7 +3,6 @@
 /**   \Class DTSectCollThCand.h
  *    A Trigger Server Theta Candidate
  *
- *   $Date: 2007/04/04 10:44:32 $
  *  
  *
  *   \Author C. Battilana
@@ -16,7 +15,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "CondFormats/L1TObjects/interface/DTConfigSectColl.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigSectColl.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSC.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTChambThSegm.h"
 
@@ -55,7 +54,7 @@ class DTSectCollThCand {
   // Const methods
 
   //! Configuration set
-  inline DTConfigSectColl* config() const { return _tsc->config(); }
+  inline const DTConfigSectColl* config() const { return _tsc->config(); }
 
   //! Return the DTTSS
   inline DTSC* tsc() const { return _tsc; }

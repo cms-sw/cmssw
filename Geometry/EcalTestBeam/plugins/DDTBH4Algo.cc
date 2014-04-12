@@ -6,20 +6,14 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/EcalTestBeam/plugins/DDTBH4Algo.h"
-#include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDTBH4Algo::DDTBH4Algo() :
    m_idNameSpace (""), 
@@ -67,7 +61,7 @@ DDTBH4Algo::~DDTBH4Algo() {}
 
 DDRotation
 DDTBH4Algo::myrot( const std::string&      s,
-		   const HepRotation& r ) const 
+		   const CLHEP::HepRotation& r ) const 
 {
    return DDrot( ddname( idNameSpace() + ":" + s ), new DDRotationMatrix( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
 }
@@ -82,7 +76,7 @@ DDTBH4Algo::ddmat( const std::string& s ) const
 DDName
 DDTBH4Algo::ddname( const std::string& s ) const
 { 
-   const pair<std::string,std::string> temp ( DDSplit(s) ) ;
+   const std::pair<std::string,std::string> temp ( DDSplit(s) ) ;
    return DDName( temp.first,
 		  temp.second ) ; 
 }  
@@ -133,7 +127,7 @@ void DDTBH4Algo::initialize(const DDNumericArguments&      nArgs,
    m_vecFibZPiv  = vArgs["FibZPiv"]; 
 }
 
-void DDTBH4Algo::execute() 
+void DDTBH4Algo::execute(DDCompactView& cpv) 
 {
   const unsigned int copyOne (1) ;
 
@@ -149,7 +143,7 @@ void DDTBH4Algo::execute()
 						0*deg, 360*deg ) ) ;
      const DDLogicalPart vacLog ( vacNameNm, vacMat(), vTubeSolid ) ;
      
-     DDpos( vacLog,
+     cpv.position( vacLog,
 	    parent().name(), 
 	    1+i, 
 	    DDTranslation(0,0,
@@ -171,9 +165,9 @@ void DDTBH4Algo::execute()
      const DDLogicalPart wLog ( wName, ddmat(vecWinMat()[i]), wTubeSolid ) ;
 
      const double off ( 0<vecWinZBeg()[i] ? vecWinZBeg()[i] :
-			fabs(vecWinZBeg()[i]) - vecWinThick()[i]/2. ) ;
+			fabs(vecWinZBeg()[i]) - vecWinThick()[i] ) ;
      
-     DDpos( wLog,
+     cpv.position( wLog,
 	    parent().name(), 
 	    1+i, 
 	    DDTranslation(0,0,
@@ -203,21 +197,21 @@ void DDTBH4Algo::execute()
 						   0*deg, 360*deg ) ) ;
 	const DDLogicalPart vLog ( vName, holeMat(), vTubeSolid ) ;
 	     
-	DDpos( vLog,
+	cpv.position( vLog,
 	       tName, 
 	       copyOne, 
 	       DDTranslation(0,0,0),
 	       DDRotation() ) ;
      }
 
-     DDpos( tLog,
+     cpv.position( tLog,
 	    parent().name(), 
 	    copyOne, 
 	    DDTranslation(   vecTrgXOff()[i],
 			     vecTrgYOff()[i],
 			     vecTrgZPiv()[i] - halfZbl + blZPiv() - blZBeg() ),
 	    myrot( tName.name()+"Rot",
-		   HepRotationZ( vecTrgPhi()[i]) ) ) ;
+		   CLHEP::HepRotationZ( vecTrgPhi()[i]) ) ) ;
   }
 
   DDName pName ( fibCladName() ) ;
@@ -242,15 +236,15 @@ void DDTBH4Algo::execute()
   {
      const double xoff ( planeWidth/2. -
 			 (1+  j)*fibCladThick() -
-			 (1+2*j)*fibSide()/2.         ) ;
+			 (1+  j)*fibSide()         ) ;
      const double zoff ( -planeThick/2 + fibCladThick() + fibSide()/2. ) ;
-     DDpos( fLog,
+     cpv.position( fLog,
 	    pName, 
 	    1+j, 
 	    DDTranslation( xoff, 0, zoff ),
 	    DDRotation() ) ;
      
-     DDpos( fLog,
+     cpv.position( fLog,
 	    pName, 
 	    33+j, 
 	    DDTranslation( xoff + (fibCladThick()+fibSide())/2.,0, -zoff),
@@ -258,13 +252,13 @@ void DDTBH4Algo::execute()
   }
   for( unsigned int i ( 0 ) ; i != vecFibZPiv().size() ; ++i )
   {
-     DDpos( pLog,
+     cpv.position( pLog,
 	    parent().name(), 
 	    1+i, 
-	    DDTranslation(   vecFibXOff()[i],
+	    DDTranslation(   vecFibXOff()[i] - 0.5*fibSide(),
 			     vecFibYOff()[i],
 			     vecFibZPiv()[i] - halfZbl + blZPiv() - blZBeg() ),
 	    myrot( pName.name()+"Rot" + int_to_string(i),
-		   HepRotationZ( vecFibPhi()[i]) ) ) ;
+		   CLHEP::HepRotationZ( vecFibPhi()[i]) ) ) ;
   }
 }

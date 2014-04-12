@@ -7,26 +7,15 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 
 
 namespace reco {
 
   // association map
-  typedef edm::AssociationMap<edm::OneToOne<TrackCandidateCollection,SuperClusterCollection> > TrackCandidateSuperClusterAssociationCollection;
- 
+  typedef edm::ValueMap<reco::SuperClusterRef> TrackCandidateSuperClusterAssociationCollection;
 
-  typedef TrackCandidateSuperClusterAssociationCollection::value_type TrackCandidateSuperClusterAssociation;
-
-  /// reference to an object in a collection of SeedMap objects
-  typedef edm::Ref<TrackCandidateSuperClusterAssociationCollection> TrackCandidateSuperClusterAssociationRef;
-
-  /// reference to a collection of SeedMap objects
-  typedef edm::RefProd<TrackCandidateSuperClusterAssociationCollection> TrackCandidateSuperClusterAssociationRefProd;
-
-  /// vector of references to objects in the same colletion of SeedMap objects
-  typedef edm::RefVector<TrackCandidateSuperClusterAssociationCollection> TrackCandidateSuperClusterAssociationRefVector;
 
 }
 

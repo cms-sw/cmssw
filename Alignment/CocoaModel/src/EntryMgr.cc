@@ -7,6 +7,7 @@
 #include "Alignment/CocoaModel/interface/EntryMgr.h"
 #include "Alignment/CocoaModel/interface/EntryData.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include <cstdlib>
 //----------------------------------------------------------------------------
 
 

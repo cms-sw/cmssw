@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -7,6 +6,8 @@
 #include "RecoLocalCalo/HcalLaserReco/src/HcalLaserUnpacker.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -15,15 +16,17 @@ class HcalLaserReco : public edm::EDProducer {
 public:
   explicit HcalLaserReco(const edm::ParameterSet& ps);
   virtual ~HcalLaserReco();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 private:
   int qdctdcFed_;
   HcalLaserUnpacker unpacker_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 };
 
 HcalLaserReco::HcalLaserReco(edm::ParameterSet const& conf):
   qdctdcFed_(conf.getUntrackedParameter<int>("QADCTDCFED",8))
 {
+  tok_raw_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("fedRawDataCollectionTag"));
   
     produces<HcalLaserDigi>();
 }
@@ -35,10 +38,9 @@ HcalLaserReco::~HcalLaserReco() { }
 void HcalLaserReco::produce(edm::Event& e, const edm::EventSetup&)
 {
   // Step A: Get Inputs 
-  edm::Handle<FEDRawDataCollection> rawraw;  
-  //    edm::ProcessNameSelector s("PROD"); // HACK!
-  e.getByType(rawraw);           
-  
+  edm::Handle<FEDRawDataCollection> rawraw;
+  e.getByToken(tok_raw_, rawraw);
+
   // Step B: Create empty output    
   std::auto_ptr<HcalLaserDigi>
     digi(new HcalLaserDigi);

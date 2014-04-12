@@ -1,67 +1,133 @@
 /*----------------------------------------------------------------------
   
-$Id: EDAnalyzer.cc,v 1.7 2006/10/31 23:54:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/src/CPCSentry.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/src/edmodule_mightGet_config.h"
 
-namespace edm
-{
-  EDAnalyzer::~EDAnalyzer()
-  { }
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
+
+namespace edm {
+  EDAnalyzer::~EDAnalyzer() {
+  }
+
+  bool
+  EDAnalyzer::doEvent(EventPrincipal const& ep, EventSetup const& c,
+                      ModuleCallingContext const* mcc) {
+    Event e(const_cast<EventPrincipal&>(ep), moduleDescription_, mcc);
+    e.setConsumer(this);
+    this->analyze(e, c);
+    return true;
+  }
 
   void
-  EDAnalyzer::doAnalyze(Event const& e, EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    this->analyze(e, c);
+  EDAnalyzer::doBeginJob() {
+    this->beginJob();
   }
 
-  void 
-  EDAnalyzer::doBeginJob(EventSetup const& es) {
-    this->beginJob(es);
-  }
-  
   void 
   EDAnalyzer::doEndJob() {
     this->endJob();
   }
 
-  void
-  EDAnalyzer::doBeginRun(Run const& r, EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
+  bool
+  EDAnalyzer::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+                         ModuleCallingContext const* mcc) {
+    Run r(const_cast<RunPrincipal&>(rp), moduleDescription_, mcc);
+    r.setConsumer(this);
     this->beginRun(r, c);
+    return true;
   }
 
-  void
-  EDAnalyzer::doEndRun(Run const& r, EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
+  bool
+  EDAnalyzer::doEndRun(RunPrincipal const& rp, EventSetup const& c,
+                       ModuleCallingContext const* mcc) {
+    Run r(const_cast<RunPrincipal&>(rp), moduleDescription_, mcc);
+    r.setConsumer(this);
     this->endRun(r, c);
+    return true;
   }
 
-  void
-  EDAnalyzer::doBeginLuminosityBlock(LuminosityBlock const& lb, EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
+  bool
+  EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+                                     ModuleCallingContext const* mcc) {
+    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal&>(lbp), moduleDescription_, mcc);
+    lb.setConsumer(this);
     this->beginLuminosityBlock(lb, c);
+    return true;
+  }
+
+  bool
+  EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+                                   ModuleCallingContext const* mcc) {
+    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal&>(lbp), moduleDescription_, mcc);
+    lb.setConsumer(this);
+    this->endLuminosityBlock(lb, c);
+    return true;
   }
 
   void
-  EDAnalyzer::doEndLuminosityBlock(LuminosityBlock const& lb, EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    this->endLuminosityBlock(lb, c);
+  EDAnalyzer::doRespondToOpenInputFile(FileBlock const& fb) {
+    respondToOpenInputFile(fb);
   }
 
-  CurrentProcessingContext const*
-  EDAnalyzer::currentContext() const
-  {
-    return current_context_;
+  void
+  EDAnalyzer::doRespondToCloseInputFile(FileBlock const& fb) {
+    respondToCloseInputFile(fb);
   }
 
-}
+  void 
+  EDAnalyzer::doPreForkReleaseResources() {
+    preForkReleaseResources();
+  }
   
+  void 
+  EDAnalyzer::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReacquireResources(iChildIndex, iNumberOfChildren);
+  }
+   
+  void
+  EDAnalyzer::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+    callWhenNewProductsRegistered_ = func;
+  }
+
+  void
+  EDAnalyzer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.setUnknown();
+    descriptions.addDefault(desc);
+  }
+  
+  void
+  EDAnalyzer::prevalidate(ConfigurationDescriptions& iConfig) {
+    edmodule_mightGet_config(iConfig);
+  }
+
+  void
+  EDAnalyzer::registerProductsAndCallbacks(EDAnalyzer const*, ProductRegistry* reg) {
+
+    if (callWhenNewProductsRegistered_) {
+
+       reg->callForEachBranch(callWhenNewProductsRegistered_);
+
+       Service<ConstProductRegistry> regService;
+       regService->watchProductAdditions(callWhenNewProductsRegistered_);
+    }
+  }
+
+  static const std::string kBaseType("EDAnalyzer");
+  const std::string&
+  EDAnalyzer::baseType() {
+    return kBaseType;
+  }
+}

@@ -46,16 +46,16 @@ CSCGangedWireGrouping::CSCGangedWireGrouping(
     edm::LogError("CSC") << "Please report this error to Tim.Cox@cern.ch" << "\n";
   }
 
-  LogTrace("CSC") << "CSCGangedWireGrouping constructor complete," <<
+  LogTrace("CSCWireGeometry|CSC") << "CSCGangedWireGrouping constructor complete," <<
     " wire group list follows... ";
-  LogTrace("CSC") << "Size of group buffers = " << theFirstWireOfEachWireGroup.size() <<
+  LogTrace("CSCWireGeometry|CSC") << "Size of group buffers = " << theFirstWireOfEachWireGroup.size() <<
     " and " << theNumberOfWiresPerWireGroup.size();
-  LogTrace("CSC") << " wg#    1st wire  #wires";
+  LogTrace("CSCWireGeometry|CSC") << " wg#    1st wire  #wires";
   for ( size_t i = 0; i != theFirstWireOfEachWireGroup.size(); ++i ) {
-    LogTrace("CSC") << std::setw(4) << i+1 << std::setw(12) << theFirstWireOfEachWireGroup[i] <<
+    LogTrace("CSCWireGeometry|CSC") << std::setw(4) << i+1 << std::setw(12) << theFirstWireOfEachWireGroup[i] <<
       std::setw(8) << theNumberOfWiresPerWireGroup[i];
   }
-  LogTrace("CSC") << "Total no. of wires = " << theNumberOfWires;
+  LogTrace("CSCWireGeometry|CSC") << "Total no. of wires = " << theNumberOfWires;
 
 }
 

@@ -6,11 +6,10 @@
 
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 
 TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStateOnSurface & tsos,
-							    const TransientTrackingRecHit & aRecHit ) const 
+							    const TrackingRecHit & aRecHit ) const 
 {
     switch (aRecHit.dimension()) {
         case 1: return update<1>(tsos,aRecHit);
@@ -25,7 +24,7 @@ TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStat
 
 template <unsigned int D>
 TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStateOnSurface & tsos,
-							    const TransientTrackingRecHit & aRecHit ) const
+							    const TrackingRecHit & aRecHit ) const
 {
   //std::cout << "[CurrentAlignmentKFUpdator::update] Start Updating." << std::endl;
   typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
@@ -78,15 +77,18 @@ TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStat
 
 
 template <unsigned int D>
-void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const TransientTrackingRecHit & aRecHit,
+void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const TrackingRecHit & aRecHit,
 								 const TrajectoryStateOnSurface & tsos,
 								 typename AlgebraicROOTObject<D>::Vector & vecR,
 								 typename AlgebraicROOTObject<D>::SymMatrix & matV ) const
 {
-  AlignableDet* alignableDet = theAlignableNavigator->alignableDetFromGeomDet( aRecHit.det() );
-  if ( !alignableDet )
+  const GeomDet* det = aRecHit.det();
+  if ( !det ) return;
+
+  AlignableDetOrUnitPtr alignableDet = theAlignableNavigator->alignableFromGeomDet( det );
+  if ( alignableDet.isNull() )
   {
-    std::cout << "[CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate] No AlignableDet associated with RecHit." << std::endl;
+    //std::cout << "[CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate] No AlignableDet associated with RecHit." << std::endl;
     return;
   }
 
@@ -117,7 +119,7 @@ void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const Transient
 }
 
 
-AlignmentParameters* CurrentAlignmentKFUpdator::getAlignmentParameters( const AlignableDet* alignableDet ) const
+AlignmentParameters* CurrentAlignmentKFUpdator::getAlignmentParameters( const AlignableDetOrUnitPtr& alignableDet ) const
 {
   // Get alignment parameters from AlignableDet ...
   AlignmentParameters* alignmentParameters = alignableDet->alignmentParameters();

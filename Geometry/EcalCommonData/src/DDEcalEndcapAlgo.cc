@@ -8,22 +8,12 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "Geometry/EcalCommonData/interface/DDEcalEndcapAlgo.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <CLHEP/Geometry/Point3D.h>
-#include <CLHEP/Geometry/Plane3D.h>
-#include <CLHEP/Geometry/Vector3D.h>
 #include <CLHEP/Geometry/Transform3D.h>
 
 // Header files for endcap supercrystal geometry
@@ -71,9 +61,13 @@ DDEcalEndcapAlgo::DDEcalEndcapAlgo() :
    m_PFhalf     ( 0 ) ,
    m_PFfifth    ( 0 ) ,
    m_PF45       ( 0 ) ,
-   m_vecEESCLims ()
+   m_vecEESCLims (),
+   m_iLength    ( 0 ) ,
+   m_iXYOff     ( 0 ) ,
+   m_cryZOff    ( 0 ) ,
+   m_zFront     ( 0 )
 {
-   edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: Creating an instance" ;
+   LogDebug("EcalGeom") << "DDEcalEndcapAlgo info: Creating an instance" ;
 }
 
 DDEcalEndcapAlgo::~DDEcalEndcapAlgo() {}
@@ -83,9 +77,9 @@ DDEcalEndcapAlgo::~DDEcalEndcapAlgo() {}
 
 void DDEcalEndcapAlgo::initialize(const DDNumericArguments      & nArgs,
 				  const DDVectorArguments       & vArgs,
-				  const DDMapArguments          & mArgs,
+				  const DDMapArguments          & /*mArgs*/,
 				  const DDStringArguments       & sArgs,
-				  const DDStringVectorArguments & vsArgs) {
+				  const DDStringVectorArguments & /*vsArgs*/) {
 
 //   edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: Initialize" ;
    m_idNameSpace = DDCurrentNamespace::ns();
@@ -134,7 +128,15 @@ void DDEcalEndcapAlgo::initialize(const DDNumericArguments      & nArgs,
    m_PF45     = nArgs["EEPF45" ] ;
 
    m_vecEESCLims = vArgs["EESCLims"];
-   
+
+   m_iLength = nArgs["EEiLength" ] ;
+
+   m_iXYOff  = nArgs["EEiXYOff" ] ;
+
+   m_cryZOff = nArgs["EECryZOff"] ;
+
+   m_zFront  = nArgs["EEzFront"] ;
+
 //   edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: end initialize" ;
 }
 
@@ -152,7 +154,7 @@ DDEcalEndcapAlgo::myrot( const std::string&      s,
 /*
 DDRotation
 DDEcalBarrelAlgo::myrot( const std::string&      s,
-			 const HepRotation& r ) const 
+			 const CLHEP::HepRotation& r ) const 
 {
   return DDrot( ddname( m_idNameSpace + ":" + s ), new DDRotationMatrix( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
 }*/
@@ -178,7 +180,7 @@ DDEcalEndcapAlgo::ddname( const std::string& s ) const
 //-------------------- Endcap SC geometry methods ---------------------
 
 void 
-DDEcalEndcapAlgo::execute() 
+DDEcalEndcapAlgo::execute( DDCompactView& cpv ) 
 {
 //  Position supercrystals in EE Quadrant
 //  Version:    1.00
@@ -196,6 +198,8 @@ DDEcalEndcapAlgo::execute()
    m_cutParms = &eeCutBox.parameters() ;
 //**************************************************************
 
+   const double zFix ( m_zFront - 3172*mm ) ; // fix for changing z offset
+
 //** fill supercrystal front and rear center positions from xml input
    for( unsigned int iC ( 0 ) ; iC != (unsigned int) eenSCquad() ; ++iC )
    {
@@ -207,11 +211,11 @@ DDEcalEndcapAlgo::execute()
 
       m_scrFCtr[ ix - 1 ][ iy - 1 ] = DDTranslation( eevecEESCCtrs()[ iOff + 2 ] ,
 						     eevecEESCCtrs()[ iOff + 4 ] ,
-						     eevecEESCCtrs()[ iOff + 6 ]  ) ;
+						     eevecEESCCtrs()[ iOff + 6 ]  + zFix ) ;
 
       m_scrRCtr[ ix - 1 ][ iy - 1 ] = DDTranslation( eevecEESCCtrs()[ iOff + 3 ] ,
 						     eevecEESCCtrs()[ iOff + 5 ] ,
-						     eevecEESCCtrs()[ iOff + 7 ]  ) ;
+						     eevecEESCCtrs()[ iOff + 7 ] + zFix ) ;
    }
 
 //** fill crystal front and rear center positions from xml input
@@ -236,12 +240,14 @@ DDEcalEndcapAlgo::execute()
 
    for( unsigned int isc ( 0 ); isc<eenSCTypes() ; ++isc ) 
    {
-      EECreateSC( isc+1 );
+      EECreateSC( isc+1, cpv );
    }
 
    const std::vector<double>& colLimits ( eevecEEShape() );
+//** Loop over endcap columns
    for( int icol = 1; icol<=int(eenColumns()); icol++ )
    {
+//**  Loop over SCs in column, using limits from xml input
       for( int irow = int(colLimits[2*icol-2]);
 	   irow <= int(colLimits[2*icol-1]) ; ++irow )
       {
@@ -250,15 +256,15 @@ DDEcalEndcapAlgo::execute()
 	     vecEESCLims()[2] <= irow &&
 	     vecEESCLims()[3] >= irow    )
 	 {
+	   // Find SC type (complete or partial) for this location
 	    const unsigned int isctype ( EEGetSCType( icol, irow ) );
 
+	    // Create SC as a DDEcalEndcapTrap object and calculate rotation and
+	    // translation required to position it in the endcap.
 	    DDEcalEndcapTrap scrys( 1, eeSCEFront(), eeSCERear(), eeSCELength() ) ;
 
 	    scrys.moveto( scrFCtr( icol, irow ),
 			  scrRCtr( icol, irow ) );
-
-	    //  Calculate Z translation to bring SC into EE volume coordinates
-
 	    scrys.translate( DDTranslation( 0., 0., -eezOff() ) ) ;
 
 	    DDName rname ( envName( isctype ).name()
@@ -272,11 +278,12 @@ DDEcalEndcapAlgo::execute()
                                   << "   Rotation " << rname << " " << scrys.rotation() << std::endl
                                   << "   Position " << sccentre << std::endl;
 */
-	    DDpos( envName( isctype ), 
-		   eeQuaName(),
-		   100*isctype + 10*(icol-1) + (irow-1),
-		   scrys.centrePos(),
-		   myrot( rname, scrys.rotation() ) ) ;
+            // Position SC in endcap
+	    cpv.position( envName( isctype ), 
+			  eeQuaName(),
+			  100*isctype + 10*(icol-1) + (irow-1),
+			  scrys.centrePos(),
+			  myrot( rname.fullname(), scrys.rotation() ) ) ;
 	 }
       }
    }
@@ -284,7 +291,8 @@ DDEcalEndcapAlgo::execute()
 
 
 void
-DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
+DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType ,
+			      DDCompactView&     cpv       )
 { //  EECreateSCType   Create SC logical volume of the given type
 
    DDRotation noRot ;
@@ -333,12 +341,13 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
 			      aRear,
 			      zerod             	) );
 
-   const double dwall  ( eeSCAWall()    ) ;
-   const double iFront ( aFront - dwall ) ;
-   const double iRear  ( aRear  - dwall ) ;
+   const double dwall   ( eeSCAWall()    ) ;
+   const double iFront  ( aFront - dwall ) ;
+   const double iRear   ( iFront ) ; //aRear  - dwall ) ;
+   const double iLen    ( iLength() ) ; //0.075*eeSCALength() ) ;
    const DDSolid eeSCInt ( DDSolidFactory::trap(
 			      ( 1==iSCType ? intName( iSCType ) : addTmp( intName( iSCType ) ) ),
-			      0.5*eeSCALength(),
+			      iLen/2.,
 			      atan((eeSCARear()-eeSCAFront())/(sqrt(2.)*eeSCALength())),
 			      ffived,
 			      iFront,
@@ -352,6 +361,8 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
 
    const double dz  ( -0.5*( eeSCELength() - eeSCALength() ) ) ;
    const double dxy (  0.5* dz * (eeSCERear() - eeSCEFront())/eeSCELength() ) ;
+   const double zIOff (  -( eeSCALength() - iLen )/2. ) ;
+   const double xyIOff ( iXYOff() ) ;
 
    if( 1 == iSCType ) // standard SC in this block
    {
@@ -373,7 +384,7 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
 				 ( 5 == iSCType ? DDTranslation(  -half*fac,  -half*fac, zmm ) :
 				   DDTranslation(                    -fifth,        zmm,  zmm ) ) ) ) ) ;
 
-      const HepRotationZ cutm ( ffived ) ;
+      const CLHEP::HepRotationZ cutm ( ffived ) ;
 
       DDRotation cutRot ( 5 != iSCType ? noRot : myrot( "EECry5Rot", 
 							DDRotationMatrix( cutm.xx(), cutm.xy(), cutm.xz(),
@@ -393,11 +404,16 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
 							cutBoxName(), 
 							cutTra - extra,
 							cutRot ) ) ;
+
+      const double mySign ( iSCType < 4 ? +1. : -1. ) ;
       
+      const DDTranslation extraI ( xyIOff + mySign*2*mm, 
+				   xyIOff + mySign*2*mm, zIOff ) ;
+
       DDSolid eeCutInt   ( DDSolidFactory::subtraction( intName( iSCType ),
 							addTmp( intName( iSCType ) ),
 							cutBoxName(), 
-							cutTra - extra,
+							cutTra - extraI,
 							cutRot ) ) ;
       
       eeSCELog = DDLogicalPart( envName( iSCType ), eeMat()    , eeCutEnv ) ;
@@ -405,29 +421,13 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
       eeSCILog = DDLogicalPart( intName( iSCType ), eeMat()    , eeCutInt   ) ;
    }
 
-   DDpos( eeSCALog, envName( iSCType ), iSCType*100 + 1, DDTranslation( dxy, dxy, dz ), noRot );
-   DDpos( eeSCILog, alvName( iSCType ), iSCType*100 + 1, DDTranslation( 0., 0., 0.)   , noRot );
+
+   cpv.position( eeSCALog, envName( iSCType ), iSCType*100 + 1, DDTranslation( dxy,    dxy,    dz   ), noRot );
+   cpv.position( eeSCILog, alvName( iSCType ), iSCType*100 + 1, DDTranslation( xyIOff, xyIOff, zIOff), noRot );
 
    DDTranslation croffset( 0., 0., 0.) ;
-   EEPositionCRs( intName( iSCType ), croffset, iSCType ) ;
+   EEPositionCRs( alvName( iSCType ), croffset, iSCType, cpv ) ;
 
-      //  Endcap supercrystal rear housing
-/*
-   const DDName  eeSCHName ( "EESCHous" + int_to_string( iSCType ) ) ;
-   const DDSolid eeSCHous ( DDSolidFactory::box( eeSCHName,
-						 0.5*eeSCHSide(),
-						 0.5*eeSCHSide(),
-						 0.5*eeSCHLength() ) );
-*/
-      //  Endcap supercrystal interface plate
-      //      const DDName eeSCIName ("EESSIFP"+int_to_string(iSCType));
-      //      const DDSolid eeSCInter (DDSolidFactory::box(
-      //                                    eeSCIName,
-      //                                    0.5*eeSCISide(),0.5*eeSCISide(),0.5*eeSCILength()
-      //                                                  )
-      //                              );
-
-      //   }
 }
 
 unsigned int 
@@ -467,11 +467,12 @@ DDEcalEndcapAlgo::EECreateCR()
 }
 
 void 
-DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName, 
-				 const DDTranslation offset, 
-				 const int           iSCType  ) 
+DDEcalEndcapAlgo::EEPositionCRs( const DDName&        pName, 
+				 const DDTranslation& /*offset*/, 
+				 const int           iSCType,
+				 DDCompactView&      cpv      ) 
 {
-   //  Position crystals within parent supercrystal interior volume
+  //  EEPositionCRs Position crystals within parent supercrystal interior volume
 
 //   edm::LogInfo("EcalGeom") << "EEPositionCRs called " << std::endl;
 
@@ -482,8 +483,10 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName,
    {
       const unsigned int icoffset ( ( iSCType - 1 )*ncol - 1 ) ;
       
+      // Loop over columns of SC
       for( unsigned int icol ( 1 ); icol <= ncol ; ++icol ) 
       {
+	// Get column limits for this SC type from xml input
 	 const int ncrcol ( (int) eevecEESCProf()[ icoffset + icol ] ) ;
 
 	 const int imin ( 0 < ncrcol ?      1 : ( 0 > ncrcol ? ncol + ncrcol + 1 : 0 ) ) ;
@@ -491,11 +494,14 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName,
 
 	 if( imax>0 ) 
 	 {
+	   // Loop over crystals in this row
 	    for( int irow ( imin ); irow <= imax ; ++irow ) 
 	    {
 //	       edm::LogInfo("EcalGeom") << " type, col, row " << iSCType 
 //					<< " " << icol << " " << irow << std::endl;
 
+  	       // Create crystal as a DDEcalEndcapTrap object and calculate rotation and
+	       // translation required to position it in the SC.
 	       DDEcalEndcapTrap crystal( 1, eeCrysFront(), eeCrysRear(), eeCrysLength() ) ;
 
 	       crystal.moveto( cryFCtr( icol, irow ) ,
@@ -503,11 +509,11 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName,
 
 	       DDName rname ( "EECrRoC" + int_to_string( icol ) + "R" + int_to_string( irow ) ) ;
 
-	       DDpos( cryName(),
-		      pName,
-		      100*iSCType + 10*( icol - 1 ) + ( irow - 1 ),
-		      crystal.centrePos(),
-		      myrot( rname, crystal.rotation() ) ) ;
+	       cpv.position( cryName(),
+			     pName,
+			     100*iSCType + 10*( icol - 1 ) + ( irow - 1 ),
+			     crystal.centrePos() - DDTranslation(0,0,m_cryZOff),
+			     myrot( rname.fullname(), crystal.rotation() ) ) ;
 	    }
 	 }
       }

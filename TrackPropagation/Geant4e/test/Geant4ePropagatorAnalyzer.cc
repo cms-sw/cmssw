@@ -6,6 +6,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //- Timing
 #include "Utilities/Timing/interface/TimingReport.h"
@@ -63,7 +64,7 @@ public:
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-  virtual void beginJob(edm::EventSetup const & iSetup);
+  virtual void beginJob();
   void iterateOverHits(edm::Handle<edm::PSimHitContainer> simHits,
 		       testMuChamberType muonChamberType,
 		       unsigned int trkIndex,
@@ -133,13 +134,17 @@ protected:
   TH1F* fSLayerNegPhi;
   TH1F* fLayerNegPhi;
 
+  edm::InputTag G4VtxSrc_;
+  edm::InputTag G4TrkSrc_;
 };
 
 
 Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet& iConfig):
   theRun(-1),
   theEvent(-1),
-  thePropagator(0) {
+  thePropagator(0),
+  G4VtxSrc_(iConfig.getParameter<edm::InputTag>("G4VtxSrc")),
+  G4TrkSrc_(iConfig.getParameter<edm::InputTag>("G4TrkSrc")) {
 
   //debug_ = iConfig.getParameter<bool>("debug");
   fStudyStation = iConfig.getParameter<int>("StudyStation");
@@ -251,7 +256,7 @@ Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet& iC
   ///////////////////////////////////////////////////////////////////////////////////
 }
 
-void Geant4ePropagatorAnalyzer::beginJob(edm::EventSetup const & iSetup) {
+void Geant4ePropagatorAnalyzer::beginJob() {
   LogDebug("Geant4e") << "Nothing done in beginJob...";
 }
 
@@ -361,7 +366,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   ///////////////////////////////////////
   //Get the sim tracks & vertices 
   Handle<SimTrackContainer> simTracks;
-  iEvent.getByType<SimTrackContainer>(simTracks);
+  iEvent.getByLabel<SimTrackContainer>(G4TrkSrc_, simTracks);
   if (! simTracks.isValid() ){
     LogWarning("Geant4e") << "No tracks found" << std::endl;
     return;
@@ -369,7 +374,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   LogDebug("Geant4e") << "G4e -- Got simTracks of size " << simTracks->size();
 
   Handle<SimVertexContainer> simVertices;
-  iEvent.getByType<SimVertexContainer>(simVertices);
+  iEvent.getByLabel<SimVertexContainer>(G4VtxSrc_, simVertices);
   if (! simVertices.isValid() ){
     LogWarning("Geant4e") << "No tracks found" << std::endl;
     return;
@@ -445,7 +450,9 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
     
     //- Get momentum, but only use tracks with P > 2 GeV
     GlobalVector p3T = 
-      TrackPropagation::hep3VectorToGlobalVector(simTracksIt->momentum().vect());
+      TrackPropagation::hep3VectorToGlobalVector(CLHEP::Hep3Vector(simTracksIt->momentum().x(),
+                                                            simTracksIt->momentum().y(),
+                                                            simTracksIt->momentum().z()));
     if (p3T.perp() < 2.) {
       LogDebug("Geant4e") << "Track PT is too low: " << p3T.perp();
       continue;
@@ -470,7 +477,9 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
       LogDebug("Geant4e") << "Track with no vertex, defaulting to (0,0,0)";
     else
       //seems to be stored in mm --> convert to cm
-      r3T = TrackPropagation::hep3VectorToGlobalPoint((*simVertices)[vtxInd].position().vect());
+      r3T = TrackPropagation::hep3VectorToGlobalPoint(CLHEP::Hep3Vector((*simVertices)[vtxInd].position().x(),
+                                                                 (*simVertices)[vtxInd].position().y(),
+                                                                 (*simVertices)[vtxInd].position().z()));
 
     LogDebug("Geant4e") << "Init point: " << r3T
 			<< "\nInit point Ro=" << r3T.perp()

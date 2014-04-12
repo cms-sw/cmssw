@@ -1,13 +1,13 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2006/10/26 08:33:11 $
  * \author C. Rovelli
  *
  */
 
 #include <Validation/EcalRecHits/interface/EcalBarrelRecHitsValidation.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -16,23 +16,17 @@ using namespace std;
 EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps){
   
   // ---------------------- 
-  EBdigiCollection_          = ps.getParameter<edm::InputTag>("EBdigiCollection");
-  EBuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
+  EBdigiCollection_token_          = consumes< EBDigiCollection > (ps.getParameter<edm::InputTag>("EBdigiCollection") );
+  EBuncalibrechitCollection_token_ = consumes< EBUncalibratedRecHitCollection > (ps.getParameter<edm::InputTag>("EBuncalibrechitCollection") );
   
   // ---------------------- 
   // verbosity switch 
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-  
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
-  
+    
   // ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();                   
+  dbe_ = Service<DQMStore>().operator->();                   
   if ( dbe_ ) {
     if ( verbose_ ) {
       dbe_->setVerbose(1);
@@ -71,7 +65,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
    
   if ( dbe_ ) 
     {
-      dbe_->setCurrentFolder("EcalBarrelRecHitsTask");
+      dbe_->setCurrentFolder("EcalRecHitsV/EcalBarrelRecHitsTask");
       
       sprintf (histo, "EB Occupancy" );  
       meEBUncalibRecHitsOccupancy_ = dbe_->book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
@@ -86,7 +80,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitsJitter_ = dbe_->book1D(histo, histo, 100, 0., 100.);
       
       sprintf (histo, "EB Chi2" );
-      meEBUncalibRecHitsChi2_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+      meEBUncalibRecHitsChi2_ = dbe_->book1D(histo, histo, 100, 18000., 22000.);
 
       sprintf (histo, "EB RecHit Max Sample Ratio"); 
       meEBUncalibRecHitMaxSampleRatio_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
@@ -104,7 +98,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitsJitterGt100adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
       sprintf (histo, "EB Chi2 gt 100 adc counts" );
-      meEBUncalibRecHitsChi2Gt100adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+      meEBUncalibRecHitsChi2Gt100adc_ = dbe_->book1D(histo, histo, 100, 18000., 22000.);
     
       sprintf (histo, "EB RecHit Max Sample Ratio gt 100 adc counts"); 
       meEBUncalibRecHitMaxSampleRatioGt100adc_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
@@ -130,7 +124,7 @@ EcalBarrelRecHitsValidation::~EcalBarrelRecHitsValidation(){
 
 }
 
-void EcalBarrelRecHitsValidation::beginJob(const EventSetup& c){  
+void EcalBarrelRecHitsValidation::beginJob(){  
 
 }
 
@@ -139,38 +133,36 @@ void EcalBarrelRecHitsValidation::endJob(){
 }
 
 void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
+
   
-  Handle< EBDigiCollection > EcalDigiEB;
-  try {
-    e.getByLabel( EBdigiCollection_, EcalDigiEB);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " << std::endl;
-  }
-  
+  const EBUncalibratedRecHitCollection *EBUncalibRecHit = 0;
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
-  try {
-    e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance() ;
+  e.getByToken( EBuncalibrechitCollection_token_, EcalUncalibRecHitEB);
+  if (EcalUncalibRecHitEB.isValid()) {
+    EBUncalibRecHit = EcalUncalibRecHitEB.product();
+  } else {
+    return;
+  }
+
+  bool skipDigis = false;
+  const EBDigiCollection *EBDigi = 0;
+  Handle< EBDigiCollection > EcalDigiEB;
+  e.getByToken( EBdigiCollection_token_, EcalDigiEB);
+  if (EcalDigiEB.isValid()) {
+    EBDigi = EcalDigiEB.product();    
+  } else {
+    skipDigis = true;
   }
 
   edm::ESHandle<EcalPedestals> ecalPeds; 
-  try {
-    c.get<EcalPedestalsRcd>().get(ecalPeds);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Ecal pedestals" << std::endl;
-  }
-
+  c.get<EcalPedestalsRcd>().get(ecalPeds);
 
   // ---------------------- 
   // loop over UncalibRecHits
-  const EBDigiCollection *EBDigi = EcalDigiEB.product();
-  const EBUncalibratedRecHitCollection *EBUncalibRecHit = EcalUncalibRecHitEB.product();
-  
   for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin(); uncalibRecHit != EBUncalibRecHit->end() ; ++uncalibRecHit)
     {
       EBDetId EBid = EBDetId(uncalibRecHit->id());
-
+      
       // general checks
       if (meEBUncalibRecHitsOccupancy_)  meEBUncalibRecHitsOccupancy_  -> Fill(EBid.ieta(), EBid.iphi());
       if (meEBUncalibRecHitsAmplitude_)  meEBUncalibRecHitsAmplitude_  -> Fill(uncalibRecHit->amplitude());
@@ -197,51 +189,44 @@ void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       int ism = EBid.ism();
       float xie = ie - 0.5;
       float xip = ip - 0.5;      
-      meEBUncalibRecHitPedMap_[ism-1] ->Fill(xie, xip, uncalibRecHit->pedestal());
-      meEBUncalibRecHitAmplMap_[ism-1]->Fill(xie, xip, uncalibRecHit->amplitude());
+      if( meEBUncalibRecHitPedMap_[ism-1] ) meEBUncalibRecHitPedMap_[ism-1]->Fill(xie, xip, uncalibRecHit->pedestal());
+      if( meEBUncalibRecHitAmplMap_[ism-1] ) meEBUncalibRecHitAmplMap_[ism-1]->Fill(xie, xip, uncalibRecHit->amplitude());
       
+      if ( ! skipDigis ) { 
+        // find the rechit corresponding digi and the max sample
+        EBDigiCollection::const_iterator myDigi = EBDigi->find(EBid);
+        // int sMax = -1; // UNUSED
+        double eMax = 0.;
+        if (myDigi != EBDigi->end()){
+          for (unsigned int sample = 0 ; sample < myDigi->size(); ++sample){
+            EcalMGPASample thisSample = (*myDigi)[sample];
+            double analogSample = thisSample.adc();
+            if ( eMax < analogSample ){
+              eMax = analogSample;
+              // sMax = sample; // UNUSED
+            }
+          }
+        }
+        else
+          continue;
 
-      // find the rechit corresponding digi and the max sample
-      for (unsigned int digis=0; digis<EcalDigiEB->size(); ++digis){
-	
-	EBDataFrame ebdf = (*EBDigi)[digis];
-	EBDetId ebid     = ebdf.id () ;
-	
-	int sMax = -1;
-	double eMax = 0.;
-	if (ebid == EBid){
-	  
-	  int nrSamples = ebdf.size();
-	  for (int sample = 0 ; sample < nrSamples; ++sample){
-	    EcalMGPASample thisSample = ebdf[sample];
-	    double analogSample = thisSample.adc();
-	    if ( eMax < analogSample ){
-	      eMax = analogSample;
-	      sMax = sample;
-	    }
-	  }
-	
-	  // ratio uncalibratedRecHit amplitude + ped / max energy digi  
-	  const EcalPedestals* myped = ecalPeds.product();
-	  std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(EBid.rawId());
-	  if( it != myped->m_pedestals.end() ){
-
-	    if (eMax > it->second.mean_x1 + 5 * it->second.rms_x1 ) {//only real signal RecHit
-
-	      if ( meEBUncalibRecHitMaxSampleRatio_ ) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
-	      if ( meEBUncalibRecHitMaxSampleRatioGt100adc_ && (uncalibRecHit->amplitude()>100) ) meEBUncalibRecHitMaxSampleRatioGt100adc_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
-	      LogDebug("EcalRecHitsTaskInfo") << "barrel, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
-	    }
-	    else
-	      continue;
-	  }
-	  else
-	    continue;
-	} // right detid
-	else
-	  continue;
-      } // loop over digis
+        // ratio uncalibratedRecHit amplitude + ped / max energy digi  
+        const EcalPedestals* myped = ecalPeds.product();
+        EcalPedestalsMap::const_iterator it=myped->getMap().find( EBid );
+        if( it != myped->getMap().end() ){
+          
+          if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 && eMax != 0 ) {//only real signal RecHit
+            
+            if ( meEBUncalibRecHitMaxSampleRatio_ ) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
+            if ( meEBUncalibRecHitMaxSampleRatioGt100adc_ && (uncalibRecHit->amplitude()>100) ) meEBUncalibRecHitMaxSampleRatioGt100adc_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
+            LogDebug("EcalRecHitsTaskInfo") << "barrel, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
+          }
+          else
+            continue;
+        }
+        else
+          continue;
+      }
       
     }  // loop over the UncalibratedRecHitCollection
-
 }

@@ -6,7 +6,9 @@
 #include <boost/shared_ptr.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
@@ -26,19 +28,31 @@ namespace {
 
 MVATrainerLooper::Trainer::Trainer(const edm::ParameterSet &params)
 {
-	std::string trainDescription =
-			params.getUntrackedParameter<std::string>(
-							"trainDescription");
-	bool doLoad = params.getUntrackedParameter<bool>("loadState");
-	bool doSave = params.getUntrackedParameter<bool>("saveState");
+	const edm::Entry *entry = params.retrieveUntracked("trainDescription");
+	if (!entry)
+		throw edm::Exception(edm::errors::Configuration,
+		                     "MissingParameter:")
+			<< "The required parameter 'trainDescription' "
+			   "was not specified." << std::endl;;
+	std::string trainDescription;
+	if (entry->typeCode() == 'F')
+		trainDescription = entry->getFileInPath().fullPath();
+	else
+		trainDescription = entry->getString();
 
-	trainer = std::auto_ptr<MVATrainer>(new MVATrainer(trainDescription));
+	bool useXSLT = params.getUntrackedParameter<bool>("useXSLT", false);
+	bool doLoad = params.getUntrackedParameter<bool>("loadState", false);
+	bool doSave = params.getUntrackedParameter<bool>("saveState", false);
+	bool doMonitoring = params.getUntrackedParameter<bool>("monitoring", false);
+
+	trainer.reset(new MVATrainer(trainDescription, useXSLT));
 
 	if (doLoad)
 		trainer->loadState();
 
 	trainer->setAutoSave(doSave);
 	trainer->setCleanup(!doSave);
+	trainer->setMonitoring(doMonitoring);
 }
 
 // MVATrainerLooper::MVATrainerContainer implementation
@@ -56,7 +70,8 @@ void MVATrainerLooper::TrainerContainer::clear()
 
 // MVATrainerLooper implementation
 
-MVATrainerLooper::MVATrainerLooper(const edm::ParameterSet& iConfig)
+MVATrainerLooper::MVATrainerLooper(const edm::ParameterSet& iConfig) :
+  dataProcessedInLoop(false)
 {
 }
 
@@ -66,6 +81,8 @@ MVATrainerLooper::~MVATrainerLooper()
 
 void MVATrainerLooper::startingNewLoop(unsigned int iteration)
 {
+        dataProcessedInLoop = false; 
+
 	for(TrainerContainer::const_iterator iter = trainers.begin();
 	    iter != trainers.end(); iter++) {
 		Trainer *trainer = *iter;
@@ -79,6 +96,8 @@ edm::EDLooper::Status
 MVATrainerLooper::duringLoop(const edm::Event &event,
                                    const edm::EventSetup &es)
 {
+        dataProcessedInLoop = true;
+
 	if (trainers.empty())
 		return kStop;
 
@@ -94,6 +113,13 @@ MVATrainerLooper::duringLoop(const edm::Event &event,
 edm::EDLooper::Status MVATrainerLooper::endOfLoop(const edm::EventSetup &es,
                                                   unsigned int iteration)
 {
+        if (!dataProcessedInLoop) {
+          cms::Exception ex("MVATrainerLooper");
+          ex << "No data processed during loop\n";
+          ex.addContext("Calling MVATrainerLooper::endOfLoop()");
+          throw ex;
+        }
+
 	if (trainers.empty())
 		return kStop;
 

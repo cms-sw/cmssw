@@ -2,12 +2,14 @@
 #define FWCore_Sources_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.5 2007/07/31 23:58:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
+#include <utility>
+
 #include "boost/shared_ptr.hpp"
 
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -18,29 +20,24 @@ namespace edm {
   public:
     explicit RawInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~RawInputSource();
-
-    int remainingEvents() const {return remainingEvents_;}
+    static void fillDescription(ParameterSetDescription& description);
 
   protected:
-    std::auto_ptr<Event> makeEvent(EventID & eventId, Timestamp const& tstamp);
-    virtual std::auto_ptr<Event> readOneEvent() = 0;
+    void makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary);
+    virtual bool checkNextEvent() = 0;
+    virtual void read(EventPrincipal& eventPrincipal) = 0;
+    void setInputFileTransitionsEachEvent() {inputFileTransitionsEachEvent_ = true;}
 
   private:
-    virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>);
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
-    virtual boost::shared_ptr<RunPrincipal> readRun_();
-    virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
-    virtual void skip(int offset);
-    virtual void setLumi(LuminosityBlockNumber_t lb);
-    virtual void setRun(RunNumber_t r);
-    
-    int remainingEvents_;
-    RunNumber_t runNumber_;
-    LuminosityBlockNumber_t luminosityBlockNumber_;
-    bool newRun_;
-    bool newLumi_;
-    std::auto_ptr<EventPrincipal> ep_;
-    boost::shared_ptr<LuminosityBlockPrincipal> lbp_;
+    virtual void readEvent_(EventPrincipal& eventPrincipal) override;
+    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
+    virtual void reset_();
+    virtual void rewind_() override;
+    virtual ItemType getNextItemType() override;
+    virtual void preForkReleaseResources() override;
+
+    bool inputFileTransitionsEachEvent_;
   };
 }
 #endif

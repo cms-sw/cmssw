@@ -3,7 +3,7 @@
 
 // CMSSW Headers
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
@@ -26,7 +26,7 @@
  *
  */
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class FSimEvent : public FBaseSimEvent {
 
@@ -36,17 +36,16 @@ public:
   FSimEvent(const edm::ParameterSet& kine);
 
   FSimEvent(const edm::ParameterSet& vtx,
-	    const edm::ParameterSet& kine,
-	    const RandomEngine* engine);
+	    const edm::ParameterSet& kine);
 
   ///  usual virtual destructor
   virtual ~FSimEvent();
 
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
-  void fill(const HepMC::GenEvent & hev, edm::EventID & Id);
+  void fill(const HepMC::GenEvent & hev, edm::EventID & Id, RandomEngineAndDistribution const*);
 
-  /// fill the FBaseSimEvent from the current reco::CandidateCollection
-  void fill(const reco::CandidateCollection & parts, edm::EventID & Id);
+  /// fill the FBaseSimEvent from the current reco::GenParticleCollection
+  void fill(const reco::GenParticleCollection & parts, edm::EventID & Id, RandomEngineAndDistribution const*);
 
   /// fill the FBaseSimEvent from the SimTrack's and SimVert'ices
   void fill(const std::vector<SimTrack>& simTracks, 
@@ -68,6 +67,7 @@ public:
   /// Load containers of tracks (and muons) and vertices for the edm::Event
   void load(edm::SimTrackContainer & c, edm::SimTrackContainer & m) const;
   void load(edm::SimVertexContainer & c) const;
+  void load(FSimVertexTypeCollection & c) const;
 
 private:
 

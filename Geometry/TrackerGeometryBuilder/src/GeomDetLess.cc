@@ -1,9 +1,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GeomDetLess.h"
-//#include "CommonDet/DetUtilities/interface/DetExceptions.h"
-// temporary solution
-#include "Utilities/General/interface/CMSexception.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 bool GeomDetLess::insideOutLess( const GeomDet* a, const GeomDet* b) const
 {
@@ -33,8 +31,7 @@ bool GeomDetLess::insideOutLess( const GeomDet* a, const GeomDet* b) const
     return !barrelForwardLess( b, a);
   }
   
-  //throw DetLogicError("GeomDetLess: arguments are not Barrel or Forward GeomDets");
-  throw Genexception("GeomDetLess: arguments are not Ok");
+  throw cms::Exception("GeomDetLess") << "GeomDetLess: arguments are not Ok";
   
 }
 

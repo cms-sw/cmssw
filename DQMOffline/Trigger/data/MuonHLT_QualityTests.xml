@@ -1,0 +1,72 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="MuonHLTEffAbove50">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.5</PARAM>
+        <PARAM name="ymax">1.0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.50</PARAM>
+</QTEST>
+
+
+<LINK name="HLT/Muon/*recEffPhi_*">
+        <TestName activate="true">MuonHLTEffAbove50</TestName>
+</LINK>
+
+<LINK name="HLT/Muon/*recEffEta_*">
+        <TestName activate="true">MuonHLTEffAbove50</TestName>
+</LINK>
+
+
+
+<QTEST name="MuonHLT2DEffThreshold">
+     <TYPE>ContentsWithinExpected</TYPE>
+     <PARAM name="useEmptyBins">1</PARAM>
+     <PARAM name="error">0.10</PARAM>
+     <PARAM name="warning">0.50</PARAM>
+     <!-- Check to see that bin contents is within this range -->
+     <PARAM name="minMean">0.51</PARAM>
+     <PARAM name="maxMean">1.0</PARAM>
+     <!-- Set these to zero in order to disable these checks -->
+     <PARAM name="minRMS">0.0</PARAM>
+     <PARAM name="maxRMS">0.0</PARAM>
+     <PARAM name="toleranceMean">0.0</PARAM>
+     <PARAM name="minEntries">0</PARAM>
+</QTEST>
+
+
+<LINK name="HLT/Muon/*recEffPhiVsEta_*">
+        <TestName activate="true">MuonHLT2DEffThreshold</TestName>
+</LINK>
+
+
+
+<QTEST name="MuonHLTDeadChannel">
+	 <TYPE>DeadChannel</TYPE>	 
+	 <PARAM name="error">0.10</PARAM>
+	 <PARAM name="warning">0.50</PARAM>
+     <!-- Fail If bin counts less than threshold -->
+	 <PARAM name="threshold">50</PARAM>
+</QTEST>
+
+<LINK name="HLT/Muon/*recPhiVsRecEta_*">
+        <TestName activate="true">MuonHLTDeadChannel</TestName>
+</LINK>
+
+<QTEST name="MuonHLTPtEffCheck">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.5</PARAM>
+        <PARAM name="ymax">1.0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.10</PARAM>
+        <PARAM name="warning">0.30</PARAM>
+</QTEST>
+
+
+<LINK name="HLT/Muon/*recEffPt_*">
+        <TestName activate="true">MuonHLTPtEffCheck</TestName>
+</LINK>
+
+
+</TESTSCONFIGURATION>

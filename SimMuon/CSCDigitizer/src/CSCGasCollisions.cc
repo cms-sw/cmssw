@@ -17,8 +17,13 @@
 #include "SimMuon/CSCDigitizer/src/CSCGasCollisions.h"
 #include "Utilities/General/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CLHEP/Random/RandExponential.h"
+#include "CLHEP/Random/RandFlat.h"
+
 #include <iostream>
 #include <fstream>
+#include <cassert>
 
 // stdlib math functions
 // for 'abs':
@@ -33,17 +38,22 @@
 #include <functional>
 // for 'accumulate':
 #include <numeric>
+#include <iterator>
 
 using namespace std;
+/* Gas mixture is Ar/CO2/CF4 = 40/50/10
+We'll use the ioinzation energies
+Ar    15.8 eV
+CO2   13.7 eV
+CF4    17.8
+to arrive at a weighted average of 14.95 */
 
 CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
   gasDensity( 2.1416e-03 ), 
-  deCut( 1.e05 ), eion( 10.4 ), ework( 70.0 ), clusterExtent( 0.001 ),
+  deCut( 1.e05 ), eion( 14.95 ), ework( 34.0 ), clusterExtent( 0.001 ),
   theGammaBins(N_GAMMA, 0.), theEnergyBins(N_ENERGY, 0.), 
   theCollisionTable(N_ENTRIES, 0.), theCrossGap( 0 ),
   theParticleDataTable(0),
-  theRandFlat(0),
-  theRandExponential(0),
   saveGasCollisions ( false )
 {
 
@@ -62,8 +72,6 @@ CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
 CSCGasCollisions::~CSCGasCollisions() {
   edm::LogInfo(me) << "Destructing a " << me;
   delete theCrossGap;
-  delete theRandFlat;
-  delete theRandExponential;
 }
 
 void CSCGasCollisions::readCollisionTable() {
@@ -141,15 +149,9 @@ void CSCGasCollisions::setParticleDataTable(const ParticleDataTable * pdt)
 }
 
 
-void CSCGasCollisions::setRandomEngine(CLHEP::HepRandomEngine & engine)
-{
-  theRandFlat = new CLHEP::RandFlat(engine);
-  theRandExponential = new CLHEP::RandExponential(engine);
-}
-
-
-void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
-  std::vector<LocalPoint>& positions, std::vector<int>& electrons ) {
+void CSCGasCollisions::simulate( const PSimHit& simHit, 
+                                 std::vector<LocalPoint>& positions, std::vector<int>& electrons,
+                                 CLHEP::HepRandomEngine* engine ) {
 
   const float epsilonL = 0.01;                     // Shortness of simhit 'length'
   //  const float max_gap_z = 1.5;                     // Gas gaps are 0.5 or 1.0 cm
@@ -208,13 +210,8 @@ void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
   int n_try        = 0;  // no. of tries to generate steps
   double step      = -1.; // Sentinel for start
 
-  //LocalPoint chamberLocalPoint( simHit.entryPoint() );
-  // translate to layer local coordinates
-  //GlobalPoint globalPoint( layer->chamber()->toGlobal(chamberLocalPoint) );
-  //LocalPoint layerLocalPoint( layer->toLocal(globalPoint) );
   LocalPoint layerLocalPoint( simHit.entryPoint() );
 
-  //std::cout << "DEBUG " << chamberLocalPoint << " " << layerLocalPoint << std::endl;
   // step/primary collision loop
   while ( sum_steps < gapSize) {
     ++n_try;
@@ -225,10 +222,10 @@ void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
            << ", sum_steps=" << sum_steps << ", n_steps=" << n_steps;
         break;
     }
-    step = generateStep( amu );
+    step = generateStep( amu, engine );
     if ( sum_steps + step > gapSize ) break;
 
-    float eloss = generateEnergyLoss( amu, anmin, anmax, collisions );
+    float eloss = generateEnergyLoss( amu, anmin, anmax, collisions, engine );
 
     // Is the eloss too large? (then GEANT should have produced hits!)
     if ( eloss > deCut ) {
@@ -263,7 +260,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
   } // step/collision loop
 
   //TODO port this
-  //if ( debugV ) writeSummary( n_steps, sum_steps, dedx );
+  //if ( debugV ) writeSummary( n_steps, sum_steps, dedx, simHit.energyLoss() );
 
   // Return values in two container arguments
   positions = theCrossGap->ionClusters();
@@ -271,26 +268,27 @@ void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
   return;
 }
 
-double CSCGasCollisions::generateStep( double avCollisions ) const
+double CSCGasCollisions::generateStep( double avCollisions, CLHEP::HepRandomEngine* engine ) const
 {
 // Generate a m.f.p.  (1/avCollisions = cm/collision)
-  double step = (theRandExponential->fire())/avCollisions;
+  double step = (CLHEP::RandExponential::shoot(engine))/avCollisions;
 
 // Without using CLHEP: approx random exponential by...
 //    double da = double(rand())/double(RAND_MAX);
 //    double step = -log(1.-da)/avCollisions;
 
     LogTrace(me)  << " step = " << step;
-    // TODO CAn this possibly be right?
+    // Next line only used to fill a container of 'step's for later diagnostic dumps
     //if ( debugV ) theCrossGap->addStep( step );
     return step;
 }
 
 float CSCGasCollisions::generateEnergyLoss( double avCollisions,
-   double anmin, double anmax, const std::vector<float>& collisions ) const
+                                            double anmin, double anmax, const std::vector<float>& collisions,
+                                            CLHEP::HepRandomEngine* engine ) const
 {
 // Generate a no. of collisions between collisions[0] and [N_ENERGY-1]
-    float lnColl = log(theRandFlat->fire(anmin, anmax));
+   float lnColl = log(CLHEP::RandFlat::shoot(engine, anmin, anmax));
 
 // Without using CLHEP: approx random between anmin and anmax
 //    double ra = double(rand())/double(RAND_MAX)*avCollisions;
@@ -303,8 +301,8 @@ float CSCGasCollisions::generateEnergyLoss( double avCollisions,
     // Compensate if gamma was actually below 1.1
     if ( theCrossGap->gamma() < 1.1 ) eloss = eloss * 0.173554/theCrossGap->beta2();
     LogTrace(me) << "eloss = " << eloss;
-    // TODO
-//    theCrossGap->addEloss( eloss );
+    // Next line only used to fill container of eloss's for later diagnostic dumps
+    // if ( debugV ) theCrossGap->addEloss( eloss );
     return eloss;
 }
 
@@ -331,7 +329,8 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
           // How many electrons can we make? Now use *average* energy for ionization (not *minimum*)
       int nelec = static_cast<int>(energyAvailable/ework);
       LogTrace(me) << "s-r delta energy in = " << energyAvailable;
-      energyAvailable -= nelec*(energyAvailable/ework);
+      //energyAvailable -= nelec*(energyAvailable/ework);
+      energyAvailable -= nelec*ework;
 	    // If still above eion (minimum, not average) add one more e
       if ( energyAvailable > eion ) {
         ++nelec;
@@ -382,7 +381,7 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
       } // outer while energyAvailable>eion
 }
 
-void CSCGasCollisions::writeSummary( int n_steps, double sum_steps, float dedx ) const
+void CSCGasCollisions::writeSummary( int n_steps, double sum_steps, float dedx, float simHiteloss ) const
 {
   std::vector<LocalPoint> ion_clusters = theCrossGap->ionClusters();
   std::vector<int> electrons             = theCrossGap->electrons();
@@ -455,18 +454,11 @@ void CSCGasCollisions::writeSummary( int n_steps, double sum_steps, float dedx )
     }
     int n_e = accumulate(electrons.begin(), electrons.end(), 0 );
     if ( n_steps > 0 ) {
-      cout << "Total no. of electrons = " << n_e << ", energy loss/e = " <<
-            dedx/float(n_e) << " eV " << std::endl;
-	    cout << "Average no. of electrons per cluster = " <<
-            float(n_e)/float(ion_clusters.size()) << std::endl;
-      cout << "------------------" << std::endl;
-
-      cout << "#steps  path   av_step  n_i_cl  E/gap   n_i_col  E/step  n_e   E/e     e/i_c" << std::endl;
-      cout << "#        cm       cm             keV               eV          eV       eV" << std::endl;
+      cout << "#        cm       cm             keV               eV          eV       eV     keV" << std::endl;
       cout << " " << n_steps << "  " << sum_steps << " " << sum_steps/float(n_steps) << "    " <<
          ion_clusters.size() << "    " <<
          dedx/1000. << "    " << n_ic << "    " << dedx/float(n_steps) << "  " << n_e << "  " <<
-         dedx/float(n_e) << " " << float(n_e)/float(ion_clusters.size()) << std::endl;
+         dedx/float(n_e) << " " << float(n_e)/float(ion_clusters.size()) << " " << simHiteloss*1.E6 << std::endl;
     }
 }
 

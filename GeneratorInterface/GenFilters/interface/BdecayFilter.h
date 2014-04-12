@@ -16,7 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "HepMC/GenVertex.h"
 
@@ -51,11 +51,11 @@ private:
   HepMC::GenParticle * findParticle(HepMC::GenVertex* , const int requested_id) ;
   //***
 
-  HepMC::GenEvent::particle_iterator getNextBs(const HepMC::GenEvent::particle_iterator start, 
-			       const HepMC::GenEvent::particle_iterator end);
-
-
-  bool cuts(const HepMC::GenParticle * jpsi, const CutStruct cut);
+  HepMC::GenEvent::particle_const_iterator getNextBs(const HepMC::GenEvent::particle_const_iterator start, 
+						     const HepMC::GenEvent::particle_const_iterator end);
+  
+  
+  bool cuts(const HepMC::GenParticle * jpsi, const CutStruct& cut);
   bool etaInRange(float eta, float etamin, float etamax);
 
   CutStruct firstDaughter, secondDaughter;

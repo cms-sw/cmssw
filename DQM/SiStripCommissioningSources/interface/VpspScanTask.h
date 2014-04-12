@@ -10,7 +10,7 @@ class VpspScanTask : public CommissioningTask {
 
  public:
   
-  VpspScanTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  VpspScanTask( DQMStore*, const FedChannelConnection& );
   virtual ~VpspScanTask();
   
  private:

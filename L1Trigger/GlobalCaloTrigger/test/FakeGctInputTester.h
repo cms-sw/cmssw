@@ -14,7 +14,6 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Tue Nov 21 14:49:14 CET 2006
-// $Id: FakeGctInputTester.h,v 1.1 2007/03/22 17:55:43 heath Exp $
 //
 //
 
@@ -40,7 +39,7 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   

@@ -1,4 +1,6 @@
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerESProducer.h"
+#include "RecoTracker/MeasurementDet/plugins/MeasurementTrackerESProducer.h"
+
+#include "MeasurementTrackerImpl.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,8 +19,15 @@
 
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include <string>
 #include <memory>
@@ -40,20 +49,68 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
   std::string stripCPEName = pset_.getParameter<std::string>("StripCPE");
   std::string matcherName  = pset_.getParameter<std::string>("HitMatcher");
-  bool regional            = pset_.getParameter<bool>("Regional");  
 
-  const SiStripNoises *ptr_stripNoises = 0;
-  edm::ESHandle<SiStripNoises>	stripNoises;
-  if (pset_.getParameter<bool>("UseStripNoiseDB")) {
-     iRecord.getRecord<SiStripNoisesRcd>().get(stripNoises);
-     ptr_stripNoises = stripNoises.product();	
+  // ========= SiPixelQuality related tasks =============
+  const SiPixelQuality    *ptr_pixelQuality = 0;
+  const SiPixelFedCabling *ptr_pixelCabling = 0;
+  int   pixelQualityFlags = 0;
+  int   pixelQualityDebugFlags = 0;
+  edm::ESHandle<SiPixelQuality>	      pixelQuality;
+  edm::ESHandle<SiPixelFedCablingMap> pixelCabling;
+
+  if (pset_.getParameter<bool>("UsePixelModuleQualityDB")) {
+    pixelQualityFlags += MeasurementTracker::BadModules;
+    if (pset_.getUntrackedParameter<bool>("DebugPixelModuleQualityDB", false)) {
+        pixelQualityDebugFlags += MeasurementTracker::BadModules;
+    }
+  }
+  if (pset_.getParameter<bool>("UsePixelROCQualityDB")) {
+    pixelQualityFlags += MeasurementTracker::BadROCs;
+    if (pset_.getUntrackedParameter<bool>("DebugPixelROCQualityDB", false)) {
+        pixelQualityDebugFlags += MeasurementTracker::BadROCs;
+    }
   }
 
-  const SiStripDetCabling *ptr_stripCabling = 0;
-  edm::ESHandle<SiStripDetCabling>		stripCabling;
-  if (pset_.getParameter<bool>("UseStripCablingDB")) {
-    iRecord.getRecord<SiStripDetCablingRcd>().get(stripCabling);
-    ptr_stripCabling = stripCabling.product();	
+
+  if (pixelQualityFlags != 0) {
+    iRecord.getRecord<SiPixelQualityRcd>().get(pixelQuality);
+    ptr_pixelQuality = pixelQuality.product();
+    iRecord.getRecord<SiPixelFedCablingMapRcd>().get(pixelCabling);
+    ptr_pixelCabling = pixelCabling.product();
+  }
+  
+  // ========= SiStripQuality related tasks =============
+  const SiStripQuality *ptr_stripQuality = 0;
+  int   stripQualityFlags = 0;
+  int   stripQualityDebugFlags = 0;
+  edm::ESHandle<SiStripQuality>	stripQuality;
+
+  if (pset_.getParameter<bool>("UseStripModuleQualityDB")) {
+    stripQualityFlags += MeasurementTracker::BadModules;
+    if (pset_.getUntrackedParameter<bool>("DebugStripModuleQualityDB", false)) {
+        stripQualityDebugFlags += MeasurementTracker::BadModules;
+    }
+  }
+  if (pset_.getParameter<bool>("UseStripAPVFiberQualityDB")) {
+    stripQualityFlags += MeasurementTracker::BadAPVFibers;
+    if (pset_.getUntrackedParameter<bool>("DebugStripAPVFiberQualityDB", false)) {
+        stripQualityDebugFlags += MeasurementTracker::BadAPVFibers;
+    }
+    if (pset_.existsAs<bool>("MaskBadAPVFibers") && pset_.getParameter<bool>("MaskBadAPVFibers")) {
+        stripQualityFlags += MeasurementTracker::MaskBad128StripBlocks;
+    }
+  }
+  if (pset_.getParameter<bool>("UseStripStripQualityDB")) {
+    stripQualityFlags += MeasurementTracker::BadStrips;
+    if (pset_.getUntrackedParameter<bool>("DebugStripStripQualityDB", false)) {
+        stripQualityDebugFlags += MeasurementTracker::BadStrips;
+    }
+  }
+
+  if (stripQualityFlags != 0) {
+    std::string siStripQualityLabel = pset_.getParameter<std::string>("SiStripQualityLabel");
+    iRecord.getRecord<SiStripQualityRcd>().get(siStripQualityLabel, stripQuality);
+    ptr_stripQuality = stripQuality.product();
   }
   
   edm::ESHandle<PixelClusterParameterEstimator> pixelCPE;
@@ -69,16 +126,19 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerGeom);
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
   
-  
-  _measurementTracker  = boost::shared_ptr<MeasurementTracker>(new MeasurementTracker(pset_,
+  _measurementTracker  = boost::shared_ptr<MeasurementTracker>(new MeasurementTrackerImpl(pset_,
 										      pixelCPE.product(),
 										      stripCPE.product(),
 										      hitMatcher.product(),
 										      trackerGeom.product(),
 										      geometricSearchTracker.product(),
-										      ptr_stripCabling,
-										      ptr_stripNoises,
-										      regional) ); 
+										      ptr_stripQuality,
+                                                                                      stripQualityFlags,
+                                                                                      stripQualityDebugFlags,
+										      ptr_pixelQuality,
+										      ptr_pixelCabling,
+                                                                                      pixelQualityFlags,
+                                                                                      pixelQualityDebugFlags) ); 
   return _measurementTracker;
 }
 

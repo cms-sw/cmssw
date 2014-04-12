@@ -11,30 +11,25 @@
 
 
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/SiStripMonitorCluster/interface/MonitorLTC.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
-using namespace std;
-using namespace edm;
-
-MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig)
+MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig) // :
+  //  ltcDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("ltcDigiCollectionTag"))
 {
   HLTDirectory="HLTResults";
-  dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_  = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
+
+  ltcDigiCollectionTagToken_ = consumes<LTCDigiCollection>(conf_.getParameter<edm::InputTag>("ltcDigiCollectionTag") );
 }
 
 
-void MonitorLTC::beginJob(const edm::EventSetup& es){
-  using namespace edm;
-  dbe_->setCurrentFolder(HLTDirectory);
+void MonitorLTC::beginJob(){
+  dqmStore_->setCurrentFolder(HLTDirectory);
   // 0 DT
   // 1 CSC
   // 2 RBC1 (RPC techn. cosmic trigger for wheel +1, sector 10)
@@ -45,7 +40,7 @@ void MonitorLTC::beginJob(const edm::EventSetup& es){
 //  std::string const* the_label = moduleLabel();
   std::string the_label = conf_.getParameter<std::string>("@module_label");
   std::string ltctitle = the_label + "_LTCTriggerDecision";
-  LTCTriggerDecision_all = dbe_->book1D(ltctitle, ltctitle, 8, -0.5, 7.5);
+  LTCTriggerDecision_all = dqmStore_->book1D(ltctitle, ltctitle, 8, -0.5, 7.5);
   LTCTriggerDecision_all->setBinLabel(1, "DT");
   LTCTriggerDecision_all->setBinLabel(2, "CSC");
   LTCTriggerDecision_all->setBinLabel(3, "RBC1");
@@ -55,7 +50,7 @@ void MonitorLTC::beginJob(const edm::EventSetup& es){
 
 void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByType(ltcdigis);
+  edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByToken(ltcDigiCollectionTagToken_, ltcdigis);
 //  unsigned int ltc_run;
 //  unsigned int ltc_event;
 //  unsigned int ltc_triggerNumber;
@@ -97,9 +92,9 @@ void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 void MonitorLTC::endJob(void){
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  string outputFileName = conf_.getParameter<string>("OutputFileName");
+  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    dbe_->save(outputFileName);
+    dqmStore_->save(outputFileName);
   }
 }
 

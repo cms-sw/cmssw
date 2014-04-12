@@ -1,386 +1,355 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
-
-<ConstantsSection label="tob.xml" eval="true">
-
-<!--section of constants specific to the MTCC-->
-<!--this should be the only section of constants the user has to adjust to -->
-<!--change the alignment-->
-
-<!--this defines the z position of the structure.  The reference-->
-<!--is arbitrary from the point of the files, it will make sense when -->
-<!--TOB MTCC, TEC MTCC, and TIB MTCC need to be referenced to each other or-->
-<!--some exterior structure-->
-<!--the constant is used to place TOBLayer0, TOBLayer4 and TOB_MTCCSupportBase -->
-<!--and any other future children of the root object, TOB-->
- <Constant name="globalZOffset"  value="110.80*cm"/> <!-- same as length of rod-->
-
-<!--these constants are used to adjust the z offsets of the individual rods -->
-<!--they are referenced in the file tobrod0_a_MTCC.xml, and his seven brothers-->
-<!--when the value is zero, the front edge of the carbon fiber crossplate of the -->
-<!--forward end (ccu end) of the rod is flush with the front edge of the -->
-<!--TOB_MTCCPlate structure-->
- <Constant name="tobrod0_a_ZOffset" value="0.0*cm"/>
- <Constant name="tobrod0_b_ZOffset" value="0.0*cm"/>
- <Constant name="tobrod0_c_ZOffset" value="0.0*cm"/>
- <Constant name="tobrod0_d_ZOffset" value="0.0*cm"/>
- <Constant name="tobrod4_a_ZOffset" value="0.0*cm"/>
- <Constant name="tobrod4_b_ZOffset" value="0.0*cm"/>
- <Constant name="tobrod4_c_ZOffset" value="0.0*cm"/>
- <Constant name="tobrod4_d_ZOffset" value="0.0*cm"/>
-
-<!--these are used later in this file to adjust the r-phi of the rods-->
-<!--when they are zero, the rods are in their nominal r-phi positions as in -->
-<!--the real TOB.  The TOB MTCC structure was built to replicate that -->
-<!--positioning-->
- <Constant name="tobrod0_a_PhiOffset" value="0.0*deg"/>
- <Constant name="tobrod0_b_PhiOffset" value="0.0*deg"/>
- <Constant name="tobrod0_c_PhiOffset" value="0.0*deg"/>
- <Constant name="tobrod0_d_PhiOffset" value="0.0*deg"/>
- <Constant name="tobrod4_a_PhiOffset" value="0.0*deg"/>
- <Constant name="tobrod4_b_PhiOffset" value="0.0*deg"/>
- <Constant name="tobrod4_c_PhiOffset" value="0.0*deg"/>
- <Constant name="tobrod4_d_PhiOffset" value="0.0*deg"/>
-
- <Constant name="tobrod0_a_ROffset" value="0.0*cm"/>
- <Constant name="tobrod0_b_ROffset" value="0.0*cm"/>
- <Constant name="tobrod0_c_ROffset" value="0.0*cm"/>
- <Constant name="tobrod0_d_ROffset" value="0.0*cm"/>
- <Constant name="tobrod4_a_ROffset" value="0.0*cm"/>
- <Constant name="tobrod4_b_ROffset" value="0.0*cm"/>
- <Constant name="tobrod4_c_ROffset" value="0.0*cm"/>
- <Constant name="tobrod4_d_ROffset" value="0.0*cm"/>
-
-
-<!--these constants inherited from the real TOB geo files-->
- <Constant name="zero"           value="0.0*fm"/>
- <Constant name="Rin1"           value="54.0*cm"/>
- <Constant name="Rin2"           value="1.160*m"/>
- <Constant name="Rout1"          value="1.170*m"/>
- <Constant name="Rout2"          value="1.182*m"/>
- <Constant name="Zv1"            value="1.160*m"/>
- <Constant name="Zv2"            value="1.210*m"/>
- <Constant name="Zv3"            value="2.820*m"/>
- <Constant name="RailL"          value="1.100*m"/>
- <Constant name="RailInR"        value="0.300*cm"/>
- <Constant name="RailInX"        value="1.17673*m"/>
- <Constant name="RailInY"        value="2.506*cm"/>
- <Constant name="RailOutR"       value="0.500*cm"/>
- <Constant name="RailOutX"       value="54.433*cm"/>
- <Constant name="RailOutY"       value="2.700*cm"/>
- <Constant name="AlPieceR0"      value="1.161*m"/>
- <Constant name="AlPieceR1"      value="1.164*m"/>
- <Constant name="AlPieceR2"      value="1.182*m"/>
- <Constant name="AlPiecePhi1"    value="1.535*deg"/>
- <Constant name="AlPiecePhi2"    value="175.535*deg"/>
- <Constant name="AlPiecePhi3"    value="1.580*deg"/>
- <Constant name="AlPiecePhi4"    value="175.180*deg"/>
- <Constant name="AlPieceDPhi1"   value="4.930*deg"/>
- <Constant name="AlPieceDPhi2"   value="2.930*deg"/>
- <Constant name="AlPieceDPhi3"   value="0.240*deg"/>
- <Constant name="AlPieceDPhi4"   value="3.240*deg"/>
- <Constant name="AlPieceDz1"     value="5.000*cm"/>
- <Constant name="AlPieceDz2"     value="0.500*cm"/>
- <Constant name="AlPieceZ"       value="69.00*cm"/>
- <Constant name="CFTubeRin1"     value="1.142*m"/>
- <Constant name="CFTubeRout1"    value="1.160*m"/>
- <Constant name="CFTubeRin2"     value="55.00*cm"/>
- <Constant name="CFTubeRout2"    value="57.80*cm"/>
- <Constant name="CFTubeL1"       value="27.80*cm"/>
- <Constant name="CFTubeL2"       value="38.80*cm"/>
- <Constant name="CFTubeZ"        value="69.00*cm"/>
- <Constant name="NomexTubeRin1"  value="1.1425*m"/>
- <Constant name="NomexTubeRout1" value="1.1595*m"/>
- <Constant name="NomexTubeRin2"  value="55.05*cm"/>
- <Constant name="NomexTubeRout2" value="57.75*cm"/>
- <Constant name="NomexTubeF1"    value="48.633*deg"/>
- <Constant name="NomexTubeF2"    value="29.346*deg"/>
- <Constant name="NomexTubeF3"    value="35.774*deg"/>
- <Constant name="NomexInPhi1"    value="48.214*deg"/>
- <Constant name="NomexInPhi2"    value="90.000*deg"/>
- <Constant name="NomexInPhi3"    value="131.790*deg"/>
- <Constant name="NomexInPhi4"    value="183.214*deg"/>
- <Constant name="NomexInPhi5"    value="228.214*deg"/>
- <Constant name="NomexInPhi6"    value="273.214*deg"/>
- <Constant name="NomexInPhi7"    value="315.000*deg"/>
- <Constant name="NomexInPhi8"    value="356.785*deg"/>
- <Constant name="AlignTubeDx"    value="1.150*cm"/>
- <Constant name="AlignTubeDy"    value="1.350*cm"/>
- <Constant name="AlignTubeT"     value="0.200*cm"/>
- <Constant name="AlignPhi1"      value="22.500*deg"/>
- <Constant name="AlignPhi2"      value="73.928*deg"/>
- <Constant name="AlignPhi3"      value="106.071*deg"/>
- <Constant name="AlignPhi4"      value="157.500*deg"/>
- <Constant name="AlignPhi5"      value="208.929*deg"/>
- <Constant name="AlignPhi6"      value="247.500*deg"/>
- <Constant name="AlignPhi7"      value="298.929*deg"/>
- <Constant name="AlignPhi8"      value="331.071*deg"/>
- <Constant name="PottingRin1"    value="1.142*m"/>
- <Constant name="PottingRout1"   value="1.157*m"/>
- <Constant name="PottingRin2"    value="55.00*cm"/>
- <Constant name="PottingRout2"   value="57.80*cm"/>
- <Constant name="PottingL"       value="0.200*cm"/>
- <Constant name="PottingZ1"      value="108.00*cm"/>
- <Constant name="PottingZ2"      value="30.00*cm"/>
- <Constant name="PottingZ3"      value="28.20*cm"/>
- <Constant name="ConnectRin1"    value="1.157*m"/>
- <Constant name="ConnectRout1"   value="1.160*m"/>
- <Constant name="ConnectL1"      value="1.000*cm"/>
- <Constant name="ConnectZ11"     value="1.090*m"/>
- <Constant name="ConnectZ12"     value="29.00*cm"/>
- <Constant name="ConnectDphi1"   value="4.95*deg"/>
- <Constant name="ConnectRin2"    value="1.141*m"/>
- <Constant name="ConnectRout2"   value="1.142*m"/>
- <Constant name="ConnectL2"      value="2.000*cm"/>
- <Constant name="ConnectZ21"     value="1.058*m"/>
- <Constant name="ConnectZ22"     value="32.20*cm"/>
- <Constant name="ConnectZ23"     value="25.80*cm"/>
- <Constant name="ConnectDphi2"   value="3.51*deg"/>
- <Constant name="ConnectRin3"    value="1.160*m"/>
- <Constant name="ConnectRout3"   value="1.161*m"/>
- <Constant name="ConnectL3"      value="2.000*cm"/>
- <Constant name="ConnectDphi3"   value="3.46*deg"/>
- <Constant name="ConnectRin4"    value="57.80*cm"/>
- <Constant name="ConnectRout4"   value="58.10*cm"/>
- <Constant name="ConnectL4"      value="1.000*cm"/>
- <Constant name="ConnectDphi4"   value="9.89*deg"/>
- <Constant name="ConnectRin5"    value="54.90*cm"/>
- <Constant name="ConnectRout5"   value="55.00*cm"/>
- <Constant name="ConnectL5"      value="2.000*cm"/>
- <Constant name="ConnectDphi5"   value="7.30*deg"/>
- <Constant name="ConnectRin6"    value="57.80*cm"/>
- <Constant name="ConnectRout6"   value="57.90*cm"/>
- <Constant name="ConnectL6"      value="2.000*cm"/>
- <Constant name="ConnectDphi6"   value="6.93*deg"/>
- <Constant name="Layer0Rin"      value="58.30*cm"/>
- <Constant name="Layer0Rout"     value="64.24*cm"/>
- <Constant name="Layer0LowR"     value="59.40*cm"/>
- <Constant name="Layer0HighR"    value="62.60*cm"/>
- <Constant name="Layer0CoolR"    value="65.40*cm"/>
- <Constant name="Layer1Rin"      value="66.90*cm"/>
- <Constant name="Layer1Rout"     value="72.80*cm"/>
- <Constant name="Layer1LowR"     value="68.00*cm"/>
- <Constant name="Layer1HighR"    value="71.20*cm"/>
- <Constant name="Layer1CoolR"    value="74.00*cm"/>
- <Constant name="Layer2Rin"      value="75.50*cm"/>
- <Constant name="Layer2Rout"     value="81.40*cm"/>
- <Constant name="Layer2LowR"     value="76.60*cm"/>
- <Constant name="Layer2HighR"    value="79.80*cm"/>
- <Constant name="Layer2CoolR"    value="82.50*cm"/>
- <Constant name="Layer3Rin"      value="84.10*cm"/>
- <Constant name="Layer3Rout"     value="89.90*cm"/>
- <Constant name="Layer3LowR"     value="85.20*cm"/>
- <Constant name="Layer3HighR"    value="88.40*cm"/>
- <Constant name="Layer3CoolR"    value="91.10*cm"/>
- <Constant name="Layer4Rin"      value="93.80*cm"/>
- <Constant name="Layer4Rout"     value="99.60*cm"/>
- <Constant name="Layer4LowR"     value="94.90*cm"/>
- <Constant name="Layer4HighR"    value="98.10*cm"/>
- <Constant name="Layer4CoolR"    value="100.70*cm"/>
- <Constant name="Layer5Rin"      value="105.30*cm"/>
- <Constant name="Layer5Rout"     value="111.10*cm"/>
- <Constant name="Layer5LowR"     value="106.40*cm"/>
- <Constant name="Layer5HighR"    value="109.60*cm"/>
- <Constant name="Layer5CoolR"    value="112.20*cm"/>
- <Constant name="RibRin"         value="58.10*cm"/>
- <Constant name="RibRout"        value="115.70*cm"/>
- <Constant name="RibDZ"          value="0.350*cm"/>
- <Constant name="RibZ1"          value="109.0*cm"/>
- <Constant name="RibZ2"          value="29.00*cm"/>
- <Constant name="SideDiskDz"     value="3.250*cm"/>
- <Constant name="SideDiskZ"      value="114.05*cm"/>
- <Constant name="DetectorTilt"   value="0*deg"/>
- <Constant name="AxCableT"       value="0.210*cm"/>
- <Constant name="AxCableW"       value="22.5*deg"/>
- <Constant name="AxCableZ"       value="([Zv1]+[Zv3])/2"/>
-</ConstantsSection>
-
-<SolidSection label="tob.xml">
- <Polycone name="TOB" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="-[Zv3]"  rMin="[Rin2]"  rMax="[Rout1]" />
-  <ZSection z="-[Zv2]"  rMin="[Rin2]"  rMax="[Rout1]" />
-  <ZSection z="-[Zv2]"  rMin="[Rin1]"  rMax="[Rout1]" />
-  <ZSection z="-[Zv1]"  rMin="[Rin1]"  rMax="[Rout1]" />
-  <ZSection z="-[Zv1]"  rMin="[Rin1]"  rMax="[Rout2]" />
-  <ZSection z="[Zv1]"   rMin="[Rin1]"  rMax="[Rout2]" />
-  <ZSection z="[Zv1]"   rMin="[Rin1]"  rMax="[Rout1]" />
-  <ZSection z="[Zv2]"   rMin="[Rin1]"  rMax="[Rout1]" />
-  <ZSection z="[Zv2]"   rMin="[Rin2]"  rMax="[Rout1]" />
-  <ZSection z="[Zv3]"   rMin="[Rin2]"  rMax="[Rout1]" />
- </Polycone> 
- <Tubs name="TOBLayer0"     rMin="[Layer0Rin]"      rMax="[Layer0Rout]" 
-                            dz="[tobrodpar:RodL]"   startPhi="0*deg"
-                            deltaPhi="360*deg"/>
- <Tubs name="TOBLayer4"     rMin="[Layer4Rin]"      rMax="[Layer4Rout]" 
-                            dz="[tobrodpar:RodL]"   startPhi="0*deg"
-                            deltaPhi="360*deg"/>
-</SolidSection>
-
-<LogicalPartSection label="tob.xml">
- <LogicalPart name="TOB" category="unspecified">
-  <rSolid name="TOB"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
-
- <LogicalPart name="TOBLayer0" category="unspecified">
-  <rSolid name="TOBLayer0"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="TOBLayer4" category="unspecified">
-  <rSolid name="TOBLayer4"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
-
-</LogicalPartSection>
-
-<PosPartSection label="tob.xml">
-
-<!--tob layers, from full tob structure-->
- <PosPart copyNumber="1">
-   <rParent name="tob_mtcc:TOB"/>
-   <rChild name="tob_mtcc:TOBLayer0"/>
-   <Translation x="0*cm" y="0*cm" z="[globalZOffset]" />
-
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tob_mtcc:TOB"/>
-   <rChild name="tob_mtcc:TOBLayer4"/>
-   <Translation x="0*cm" y="0*cm" z="[globalZOffset]" />
-
- </PosPart>
-
-<!-- THIS DOES NOT WORK [rr 30 Jan 2006] COMMENT -->
-<!--define the location of the MTCC-custom support structure:-->
-<!-- <PosPart copyNumber="0">  -->
-<!--   <rParent name="tob_mtcc:TOB"/> -->
-<!--   <rChild name="tobsupport_mtcc:TOB_MTCCSupportBase"/>  -->
-<!--   <Translation x="0*cm" y="0*cm" z="[globalZOffset]" /> -->
-<!-- </PosPart> -->
-
-</PosPartSection>
-
-
-<!--tob layers rods -->
-<!--I specified all the rods separately instead of using the DDTrackerPhiAlt Algorithm-->
-<!--because although the MTCC custom setup mimics particular positions in the real TOB-->
-<!--the rods that actually go in the particular slots will be determined by availability.-->
-<!--NB: one might wonder why TOBRod0 and TOBRod4 objects exist, when they are just empty-->
-<!--boxes that contain other rod objects with all the details.  It makes some sense for the-->
-<!--complete structure, so I left them in because I am trying to keep the MTCC geometry files-->
-<!--as close as possible to those for the real TOB.  -->
-<!--NB Z positioning of the rods is done inside tobrod0_x_MTCC and tobrod4_x_MTCC, and using -->
-<!--constants defined above.  If the z positioning of TOBRod0 or TOBRod4 is adjusted from zero-->
-<!--here, that will mess things up-->
-
-<!--layer 0 rod 0-->
-<Algorithm name="track:DDTrackerPhiAlgo">
-  <rParent name="tob_mtcc:TOBLayer0"/>
-  <String name="ChildName"    value="tobrod0_a_mtcc:TOBRod0"/>
-  <Numeric name="Tilt"        value="-90*deg"/>
-  <Numeric name="Radius"      value="[Layer0HighR]+[tobrod0_a_ROffset]"/>
-  <Vector name="Phi" type="numeric" nEntries="1">
-   (5.3571+9*8.5714)*deg+[tobrod0_a_PhiOffset]
-  </Vector>
-  <Vector name="ZPos" type="numeric" nEntries="1">
-   [zero]
-  </Vector>
-</Algorithm>
-<!--layer 0 rod 1-->
-<Algorithm name="track:DDTrackerPhiAlgo">
-  <rParent name="tob_mtcc:TOBLayer0"/>
-  <String name="ChildName"    value="tobrod0_b_mtcc:TOBRod0"/>
-  <Numeric name="Tilt"        value="-90*deg"/>
-  <Numeric name="Radius"      value="[Layer0LowR]+[tobrod0_a_ROffset]"/>
-  <Vector name="Phi" type="numeric" nEntries="1">
-   (5.3571+10*8.5714)*deg+[tobrod0_a_PhiOffset]
-  </Vector>
-  <Vector name="ZPos" type="numeric" nEntries="1">
-   [zero]
-  </Vector>
-</Algorithm>
-<!--layer 0 rod 2-->
-<Algorithm name="track:DDTrackerPhiAlgo">
-  <rParent name="tob_mtcc:TOBLayer0"/>
-  <String name="ChildName"    value="tobrod0_c_mtcc:TOBRod0"/>
-  <Numeric name="Tilt"        value="-90*deg"/>
-  <Numeric name="Radius"      value="[Layer0HighR]+[tobrod0_b_ROffset]"/>
-  <Vector name="Phi" type="numeric" nEntries="1">
-   (5.3571+11*8.5714)*deg+[tobrod0_b_PhiOffset]
-  </Vector>
-  <Vector name="ZPos" type="numeric" nEntries="1">
-   [zero]
-  </Vector>
-</Algorithm>
-<!--layer 0 rod 3-->
-<Algorithm name="track:DDTrackerPhiAlgo">
-  <rParent name="tob_mtcc:TOBLayer0"/>
-  <String name="ChildName"    value="tobrod0_d_mtcc:TOBRod0"/>
-  <Numeric name="Tilt"        value="-90*deg"/>
-  <Numeric name="Radius"      value="[Layer0LowR]+[tobrod0_c_ROffset]"/>
-  <Vector name="Phi" type="numeric" nEntries="1">
-   (5.3571+12*8.5714)*deg +[tobrod0_c_PhiOffset]
-  </Vector>
-  <Vector name="ZPos" type="numeric" nEntries="1">
-   [zero]
-  </Vector>
-</Algorithm>
-
-<!--layer 4 rod 0-->
-<Algorithm name="track:DDTrackerPhiAlgo">
-  <rParent name="tob_mtcc:TOBLayer4"/>
-  <String name="ChildName"    value="tobrod4_a_mtcc:TOBRod4"/>
-  <Numeric name="Tilt"        value="-90*deg"/>
-  <Numeric name="Radius"      value="[Layer4LowR]+[tobrod4_a_ROffset]"/>
-  <Vector name="Phi" type="numeric" nEntries="1">
-   (8.4397+12*5.4545)*deg+[tobrod4_a_PhiOffset]
-  </Vector>
-  <Vector name="ZPos" type="numeric" nEntries="1">
-   [zero]
-  </Vector>
-</Algorithm>
-
-
-<!--layer 4 rod 1-->
-<Algorithm name="track:DDTrackerPhiAlgo">
-  <rParent name="tob_mtcc:TOBLayer4"/>
-  <String name="ChildName"    value="tobrod4_b_mtcc:TOBRod4"/>
-  <Numeric name="Tilt"        value="-90*deg"/>
-  <Numeric name="Radius"      value="[Layer4HighR]+[tobrod4_b_ROffset]"/>
-  <Vector name="Phi" type="numeric" nEntries="1">
-   (8.4397+13*5.4545)*deg+[tobrod4_b_PhiOffset]
-  </Vector>
-  <Vector name="ZPos" type="numeric" nEntries="1">
-   [zero]
-  </Vector>
-</Algorithm>
-
-
-<!--layer 4 rod 2-->
-<Algorithm name="track:DDTrackerPhiAlgo">
-  <rParent name="tob_mtcc:TOBLayer4"/>
-  <String name="ChildName"    value="tobrod4_c_mtcc:TOBRod4"/>
-  <Numeric name="Tilt"        value="-90*deg"/>
-  <Numeric name="Radius"      value="[Layer4LowR]+[tobrod4_c_ROffset]"/>
-  <Vector name="Phi" type="numeric" nEntries="1">
-   (8.4397+14*5.4545)*deg+[tobrod4_c_PhiOffset]
-  </Vector>
-  <Vector name="ZPos" type="numeric" nEntries="1">
-   [zero]
-  </Vector>
-</Algorithm>
-
-<!--layer 4 rod 3-->
-<Algorithm name="track:DDTrackerPhiAlgo">
-  <rParent name="tob_mtcc:TOBLayer4"/>
-  <String name="ChildName"    value="tobrod4_d_mtcc:TOBRod4"/>
-  <Numeric name="Tilt"        value="-90*deg"/>
-  <Numeric name="Radius"      value="[Layer4HighR]+[tobrod4_d_ROffset]"/>
-  <Vector name="Phi" type="numeric" nEntries="1">
-   (8.4397+15*5.4545)*deg+[tobrod4_d_PhiOffset]
-  </Vector>
-  <Vector name="ZPos" type="numeric" nEntries="1">
-   [zero]
-  </Vector>
-</Algorithm>
-
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <ConstantsSection label="tob.xml" eval="true">
+        <!--section of constants specific to the MTCC-->
+        <!--this should be the only section of constants the user has to adjust to -->
+        <!--change the alignment-->
+        <!--this defines the z position of the structure.  The reference-->
+        <!--is arbitrary from the point of the files, it will make sense when -->
+        <!--TOB MTCC, TEC MTCC, and TIB MTCC need to be referenced to each other or-->
+        <!--some exterior structure-->
+        <!--the constant is used to place TOBLayer0, TOBLayer4 and TOB_MTCCSupportBase -->
+        <!--and any other future children of the root object, TOB-->
+        <Constant name="globalZOffset" value="110.80*cm"/>
+        <!-- same as length of rod-->
+        <!--these constants are used to adjust the z offsets of the individual rods -->
+        <!--they are referenced in the file tobrod0_a_MTCC.xml, and his seven brothers-->
+        <!--when the value is zero, the front edge of the carbon fiber crossplate of the -->
+        <!--forward end (ccu end) of the rod is flush with the front edge of the -->
+        <!--TOB_MTCCPlate structure-->
+        <Constant name="tobrod0_a_ZOffset" value="0.0*cm"/>
+        <Constant name="tobrod0_b_ZOffset" value="0.0*cm"/>
+        <Constant name="tobrod0_c_ZOffset" value="0.0*cm"/>
+        <Constant name="tobrod0_d_ZOffset" value="0.0*cm"/>
+        <Constant name="tobrod4_a_ZOffset" value="0.0*cm"/>
+        <Constant name="tobrod4_b_ZOffset" value="0.0*cm"/>
+        <Constant name="tobrod4_c_ZOffset" value="0.0*cm"/>
+        <Constant name="tobrod4_d_ZOffset" value="0.0*cm"/>
+        <!--these are used later in this file to adjust the r-phi of the rods-->
+        <!--when they are zero, the rods are in their nominal r-phi positions as in -->
+        <!--the real TOB.  The TOB MTCC structure was built to replicate that -->
+        <!--positioning-->
+        <Constant name="tobrod0_a_PhiOffset" value="0.0*deg"/>
+        <Constant name="tobrod0_b_PhiOffset" value="0.0*deg"/>
+        <Constant name="tobrod0_c_PhiOffset" value="0.0*deg"/>
+        <Constant name="tobrod0_d_PhiOffset" value="0.0*deg"/>
+        <Constant name="tobrod4_a_PhiOffset" value="0.0*deg"/>
+        <Constant name="tobrod4_b_PhiOffset" value="0.0*deg"/>
+        <Constant name="tobrod4_c_PhiOffset" value="0.0*deg"/>
+        <Constant name="tobrod4_d_PhiOffset" value="0.0*deg"/>
+        <Constant name="tobrod0_a_ROffset" value="0.0*cm"/>
+        <Constant name="tobrod0_b_ROffset" value="0.0*cm"/>
+        <Constant name="tobrod0_c_ROffset" value="0.0*cm"/>
+        <Constant name="tobrod0_d_ROffset" value="0.0*cm"/>
+        <Constant name="tobrod4_a_ROffset" value="0.0*cm"/>
+        <Constant name="tobrod4_b_ROffset" value="0.0*cm"/>
+        <Constant name="tobrod4_c_ROffset" value="0.0*cm"/>
+        <Constant name="tobrod4_d_ROffset" value="0.0*cm"/>
+        <!--these constants inherited from the real TOB geo files-->
+        <Constant name="zero" value="0.0*fm"/>
+        <Constant name="Rin1" value="54.0*cm"/>
+        <Constant name="Rin2" value="1.160*m"/>
+        <Constant name="Rout1" value="1.170*m"/>
+        <Constant name="Rout2" value="1.182*m"/>
+        <Constant name="Zv1" value="1.160*m"/>
+        <Constant name="Zv2" value="1.210*m"/>
+        <Constant name="Zv3" value="2.820*m"/>
+        <Constant name="RailL" value="1.100*m"/>
+        <Constant name="RailInR" value="0.300*cm"/>
+        <Constant name="RailInX" value="1.17673*m"/>
+        <Constant name="RailInY" value="2.506*cm"/>
+        <Constant name="RailOutR" value="0.500*cm"/>
+        <Constant name="RailOutX" value="54.433*cm"/>
+        <Constant name="RailOutY" value="2.700*cm"/>
+        <Constant name="AlPieceR0" value="1.161*m"/>
+        <Constant name="AlPieceR1" value="1.164*m"/>
+        <Constant name="AlPieceR2" value="1.182*m"/>
+        <Constant name="AlPiecePhi1" value="1.535*deg"/>
+        <Constant name="AlPiecePhi2" value="175.535*deg"/>
+        <Constant name="AlPiecePhi3" value="1.580*deg"/>
+        <Constant name="AlPiecePhi4" value="175.180*deg"/>
+        <Constant name="AlPieceDPhi1" value="4.930*deg"/>
+        <Constant name="AlPieceDPhi2" value="2.930*deg"/>
+        <Constant name="AlPieceDPhi3" value="0.240*deg"/>
+        <Constant name="AlPieceDPhi4" value="3.240*deg"/>
+        <Constant name="AlPieceDz1" value="5.000*cm"/>
+        <Constant name="AlPieceDz2" value="0.500*cm"/>
+        <Constant name="AlPieceZ" value="69.00*cm"/>
+        <Constant name="CFTubeRin1" value="1.142*m"/>
+        <Constant name="CFTubeRout1" value="1.160*m"/>
+        <Constant name="CFTubeRin2" value="55.00*cm"/>
+        <Constant name="CFTubeRout2" value="57.80*cm"/>
+        <Constant name="CFTubeL1" value="27.80*cm"/>
+        <Constant name="CFTubeL2" value="38.80*cm"/>
+        <Constant name="CFTubeZ" value="69.00*cm"/>
+        <Constant name="NomexTubeRin1" value="1.1425*m"/>
+        <Constant name="NomexTubeRout1" value="1.1595*m"/>
+        <Constant name="NomexTubeRin2" value="55.05*cm"/>
+        <Constant name="NomexTubeRout2" value="57.75*cm"/>
+        <Constant name="NomexTubeF1" value="48.633*deg"/>
+        <Constant name="NomexTubeF2" value="29.346*deg"/>
+        <Constant name="NomexTubeF3" value="35.774*deg"/>
+        <Constant name="NomexInPhi1" value="48.214*deg"/>
+        <Constant name="NomexInPhi2" value="90.000*deg"/>
+        <Constant name="NomexInPhi3" value="131.790*deg"/>
+        <Constant name="NomexInPhi4" value="183.214*deg"/>
+        <Constant name="NomexInPhi5" value="228.214*deg"/>
+        <Constant name="NomexInPhi6" value="273.214*deg"/>
+        <Constant name="NomexInPhi7" value="315.000*deg"/>
+        <Constant name="NomexInPhi8" value="356.785*deg"/>
+        <Constant name="AlignTubeDx" value="1.150*cm"/>
+        <Constant name="AlignTubeDy" value="1.350*cm"/>
+        <Constant name="AlignTubeT" value="0.200*cm"/>
+        <Constant name="AlignPhi1" value="22.500*deg"/>
+        <Constant name="AlignPhi2" value="73.928*deg"/>
+        <Constant name="AlignPhi3" value="106.071*deg"/>
+        <Constant name="AlignPhi4" value="157.500*deg"/>
+        <Constant name="AlignPhi5" value="208.929*deg"/>
+        <Constant name="AlignPhi6" value="247.500*deg"/>
+        <Constant name="AlignPhi7" value="298.929*deg"/>
+        <Constant name="AlignPhi8" value="331.071*deg"/>
+        <Constant name="PottingRin1" value="1.142*m"/>
+        <Constant name="PottingRout1" value="1.157*m"/>
+        <Constant name="PottingRin2" value="55.00*cm"/>
+        <Constant name="PottingRout2" value="57.80*cm"/>
+        <Constant name="PottingL" value="0.200*cm"/>
+        <Constant name="PottingZ1" value="108.00*cm"/>
+        <Constant name="PottingZ2" value="30.00*cm"/>
+        <Constant name="PottingZ3" value="28.20*cm"/>
+        <Constant name="ConnectRin1" value="1.157*m"/>
+        <Constant name="ConnectRout1" value="1.160*m"/>
+        <Constant name="ConnectL1" value="1.000*cm"/>
+        <Constant name="ConnectZ11" value="1.090*m"/>
+        <Constant name="ConnectZ12" value="29.00*cm"/>
+        <Constant name="ConnectDphi1" value="4.95*deg"/>
+        <Constant name="ConnectRin2" value="1.141*m"/>
+        <Constant name="ConnectRout2" value="1.142*m"/>
+        <Constant name="ConnectL2" value="2.000*cm"/>
+        <Constant name="ConnectZ21" value="1.058*m"/>
+        <Constant name="ConnectZ22" value="32.20*cm"/>
+        <Constant name="ConnectZ23" value="25.80*cm"/>
+        <Constant name="ConnectDphi2" value="3.51*deg"/>
+        <Constant name="ConnectRin3" value="1.160*m"/>
+        <Constant name="ConnectRout3" value="1.161*m"/>
+        <Constant name="ConnectL3" value="2.000*cm"/>
+        <Constant name="ConnectDphi3" value="3.46*deg"/>
+        <Constant name="ConnectRin4" value="57.80*cm"/>
+        <Constant name="ConnectRout4" value="58.10*cm"/>
+        <Constant name="ConnectL4" value="1.000*cm"/>
+        <Constant name="ConnectDphi4" value="9.89*deg"/>
+        <Constant name="ConnectRin5" value="54.90*cm"/>
+        <Constant name="ConnectRout5" value="55.00*cm"/>
+        <Constant name="ConnectL5" value="2.000*cm"/>
+        <Constant name="ConnectDphi5" value="7.30*deg"/>
+        <Constant name="ConnectRin6" value="57.80*cm"/>
+        <Constant name="ConnectRout6" value="57.90*cm"/>
+        <Constant name="ConnectL6" value="2.000*cm"/>
+        <Constant name="ConnectDphi6" value="6.93*deg"/>
+        <Constant name="Layer0Rin" value="58.30*cm"/>
+        <Constant name="Layer0Rout" value="64.24*cm"/>
+        <Constant name="Layer0LowR" value="59.40*cm"/>
+        <Constant name="Layer0HighR" value="62.60*cm"/>
+        <Constant name="Layer0CoolR" value="65.40*cm"/>
+        <Constant name="Layer1Rin" value="66.90*cm"/>
+        <Constant name="Layer1Rout" value="72.80*cm"/>
+        <Constant name="Layer1LowR" value="68.00*cm"/>
+        <Constant name="Layer1HighR" value="71.20*cm"/>
+        <Constant name="Layer1CoolR" value="74.00*cm"/>
+        <Constant name="Layer2Rin" value="75.50*cm"/>
+        <Constant name="Layer2Rout" value="81.40*cm"/>
+        <Constant name="Layer2LowR" value="76.60*cm"/>
+        <Constant name="Layer2HighR" value="79.80*cm"/>
+        <Constant name="Layer2CoolR" value="82.50*cm"/>
+        <Constant name="Layer3Rin" value="84.10*cm"/>
+        <Constant name="Layer3Rout" value="89.90*cm"/>
+        <Constant name="Layer3LowR" value="85.20*cm"/>
+        <Constant name="Layer3HighR" value="88.40*cm"/>
+        <Constant name="Layer3CoolR" value="91.10*cm"/>
+        <Constant name="Layer4Rin" value="93.80*cm"/>
+        <Constant name="Layer4Rout" value="99.60*cm"/>
+        <Constant name="Layer4LowR" value="94.90*cm"/>
+        <Constant name="Layer4HighR" value="98.10*cm"/>
+        <Constant name="Layer4CoolR" value="100.70*cm"/>
+        <Constant name="Layer5Rin" value="105.30*cm"/>
+        <Constant name="Layer5Rout" value="111.10*cm"/>
+        <Constant name="Layer5LowR" value="106.40*cm"/>
+        <Constant name="Layer5HighR" value="109.60*cm"/>
+        <Constant name="Layer5CoolR" value="112.20*cm"/>
+        <Constant name="RibRin" value="58.10*cm"/>
+        <Constant name="RibRout" value="115.70*cm"/>
+        <Constant name="RibDZ" value="0.350*cm"/>
+        <Constant name="RibZ1" value="109.0*cm"/>
+        <Constant name="RibZ2" value="29.00*cm"/>
+        <Constant name="SideDiskDz" value="3.250*cm"/>
+        <Constant name="SideDiskZ" value="114.05*cm"/>
+        <Constant name="DetectorTilt" value="0*deg"/>
+        <Constant name="AxCableT" value="0.210*cm"/>
+        <Constant name="AxCableW" value="22.5*deg"/>
+        <Constant name="AxCableZ" value="([Zv1]+[Zv3])/2"/>
+    </ConstantsSection>
+    <SolidSection label="tob.xml">
+        <Polycone name="TOB" startPhi="0*deg" deltaPhi="360*deg">
+            <ZSection z="-[Zv3]" rMin="[Rin2]" rMax="[Rout1]"/>
+            <ZSection z="-[Zv2]" rMin="[Rin2]" rMax="[Rout1]"/>
+            <ZSection z="-[Zv2]" rMin="[Rin1]" rMax="[Rout1]"/>
+            <ZSection z="-[Zv1]" rMin="[Rin1]" rMax="[Rout1]"/>
+            <ZSection z="-[Zv1]" rMin="[Rin1]" rMax="[Rout2]"/>
+            <ZSection z="[Zv1]" rMin="[Rin1]" rMax="[Rout2]"/>
+            <ZSection z="[Zv1]" rMin="[Rin1]" rMax="[Rout1]"/>
+            <ZSection z="[Zv2]" rMin="[Rin1]" rMax="[Rout1]"/>
+            <ZSection z="[Zv2]" rMin="[Rin2]" rMax="[Rout1]"/>
+            <ZSection z="[Zv3]" rMin="[Rin2]" rMax="[Rout1]"/>
+        </Polycone>
+        <Tubs name="TOBLayer0" rMin="[Layer0Rin]" rMax="[Layer0Rout]" dz="[tobrodpar:RodL]" startPhi="0*deg" deltaPhi="360*deg"/>
+        <Tubs name="TOBLayer4" rMin="[Layer4Rin]" rMax="[Layer4Rout]" dz="[tobrodpar:RodL]" startPhi="0*deg" deltaPhi="360*deg"/>
+    </SolidSection>
+    <LogicalPartSection label="tob.xml">
+        <LogicalPart name="TOB" category="unspecified">
+            <rSolid name="TOB"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="TOBLayer0" category="unspecified">
+            <rSolid name="TOBLayer0"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="TOBLayer4" category="unspecified">
+            <rSolid name="TOBLayer4"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="tob.xml">
+        <!--tob layers, from full tob structure-->
+        <PosPart copyNumber="1">
+            <rParent name="tob_mtcc:TOB"/>
+            <rChild name="tob_mtcc:TOBLayer0"/>
+            <Translation x="0*cm" y="0*cm" z="[globalZOffset]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="tob_mtcc:TOB"/>
+            <rChild name="tob_mtcc:TOBLayer4"/>
+            <Translation x="0*cm" y="0*cm" z="[globalZOffset]"/>
+        </PosPart>
+        <!-- THIS DOES NOT WORK [rr 30 Jan 2006] COMMENT -->
+        <!--define the location of the MTCC-custom support structure:-->
+        <!-- <PosPart copyNumber="0">  -->
+        <!--   <rParent name="tob_mtcc:TOB"/> -->
+        <!--   <rChild name="tobsupport_mtcc:TOB_MTCCSupportBase"/>  -->
+        <!--   <Translation x="0*cm" y="0*cm" z="[globalZOffset]" /> -->
+        <!-- </PosPart> -->
+    </PosPartSection>
+    <!--tob layers rods -->
+    <!--I specified all the rods separately instead of using the DDTrackerPhiAlt Algorithm-->
+    <!--because although the MTCC custom setup mimics particular positions in the real TOB-->
+    <!--the rods that actually go in the particular slots will be determined by availability.-->
+    <!--NB: one might wonder why TOBRod0 and TOBRod4 objects exist, when they are just empty-->
+    <!--boxes that contain other rod objects with all the details.  It makes some sense for the-->
+    <!--complete structure, so I left them in because I am trying to keep the MTCC geometry files-->
+    <!--as close as possible to those for the real TOB.  -->
+    <!--NB Z positioning of the rods is done inside tobrod0_x_MTCC and tobrod4_x_MTCC, and using -->
+    <!--constants defined above.  If the z positioning of TOBRod0 or TOBRod4 is adjusted from zero-->
+    <!--here, that will mess things up-->
+    <!--layer 0 rod 0-->
+    <Algorithm name="track:DDTrackerPhiAlgo">
+        <rParent name="tob_mtcc:TOBLayer0"/>
+        <String name="ChildName" value="tobrod0_a_mtcc:TOBRod0"/>
+        <Numeric name="Tilt" value="-90*deg"/>
+        <Numeric name="Radius" value="[Layer0HighR]+[tobrod0_a_ROffset]"/>
+        <Vector name="Phi" type="numeric" nEntries="1">
+            (5.3571+9*8.5714)*deg+[tobrod0_a_PhiOffset]
+        </Vector>
+        <Vector name="ZPos" type="numeric" nEntries="1">
+            [zero]
+        </Vector>
+    </Algorithm>
+    <!--layer 0 rod 1-->
+    <Algorithm name="track:DDTrackerPhiAlgo">
+        <rParent name="tob_mtcc:TOBLayer0"/>
+        <String name="ChildName" value="tobrod0_b_mtcc:TOBRod0"/>
+        <Numeric name="Tilt" value="-90*deg"/>
+        <Numeric name="Radius" value="[Layer0LowR]+[tobrod0_a_ROffset]"/>
+        <Vector name="Phi" type="numeric" nEntries="1">
+            (5.3571+10*8.5714)*deg+[tobrod0_a_PhiOffset]
+        </Vector>
+        <Vector name="ZPos" type="numeric" nEntries="1">
+            [zero]
+        </Vector>
+    </Algorithm>
+    <!--layer 0 rod 2-->
+    <Algorithm name="track:DDTrackerPhiAlgo">
+        <rParent name="tob_mtcc:TOBLayer0"/>
+        <String name="ChildName" value="tobrod0_c_mtcc:TOBRod0"/>
+        <Numeric name="Tilt" value="-90*deg"/>
+        <Numeric name="Radius" value="[Layer0HighR]+[tobrod0_b_ROffset]"/>
+        <Vector name="Phi" type="numeric" nEntries="1">
+            (5.3571+11*8.5714)*deg+[tobrod0_b_PhiOffset]
+        </Vector>
+        <Vector name="ZPos" type="numeric" nEntries="1">
+            [zero]
+        </Vector>
+    </Algorithm>
+    <!--layer 0 rod 3-->
+    <Algorithm name="track:DDTrackerPhiAlgo">
+        <rParent name="tob_mtcc:TOBLayer0"/>
+        <String name="ChildName" value="tobrod0_d_mtcc:TOBRod0"/>
+        <Numeric name="Tilt" value="-90*deg"/>
+        <Numeric name="Radius" value="[Layer0LowR]+[tobrod0_c_ROffset]"/>
+        <Vector name="Phi" type="numeric" nEntries="1">
+            (5.3571+12*8.5714)*deg +[tobrod0_c_PhiOffset]
+        </Vector>
+        <Vector name="ZPos" type="numeric" nEntries="1">
+            [zero]
+        </Vector>
+    </Algorithm>
+    <!--layer 4 rod 0-->
+    <Algorithm name="track:DDTrackerPhiAlgo">
+        <rParent name="tob_mtcc:TOBLayer4"/>
+        <String name="ChildName" value="tobrod4_a_mtcc:TOBRod4"/>
+        <Numeric name="Tilt" value="-90*deg"/>
+        <Numeric name="Radius" value="[Layer4LowR]+[tobrod4_a_ROffset]"/>
+        <Vector name="Phi" type="numeric" nEntries="1">
+            (8.4397+12*5.4545)*deg+[tobrod4_a_PhiOffset]
+        </Vector>
+        <Vector name="ZPos" type="numeric" nEntries="1">
+            [zero]
+        </Vector>
+    </Algorithm>
+    <!--layer 4 rod 1-->
+    <Algorithm name="track:DDTrackerPhiAlgo">
+        <rParent name="tob_mtcc:TOBLayer4"/>
+        <String name="ChildName" value="tobrod4_b_mtcc:TOBRod4"/>
+        <Numeric name="Tilt" value="-90*deg"/>
+        <Numeric name="Radius" value="[Layer4HighR]+[tobrod4_b_ROffset]"/>
+        <Vector name="Phi" type="numeric" nEntries="1">
+            (8.4397+13*5.4545)*deg+[tobrod4_b_PhiOffset]
+        </Vector>
+        <Vector name="ZPos" type="numeric" nEntries="1">
+            [zero]
+        </Vector>
+    </Algorithm>
+    <!--layer 4 rod 2-->
+    <Algorithm name="track:DDTrackerPhiAlgo">
+        <rParent name="tob_mtcc:TOBLayer4"/>
+        <String name="ChildName" value="tobrod4_c_mtcc:TOBRod4"/>
+        <Numeric name="Tilt" value="-90*deg"/>
+        <Numeric name="Radius" value="[Layer4LowR]+[tobrod4_c_ROffset]"/>
+        <Vector name="Phi" type="numeric" nEntries="1">
+            (8.4397+14*5.4545)*deg+[tobrod4_c_PhiOffset]
+        </Vector>
+        <Vector name="ZPos" type="numeric" nEntries="1">
+            [zero]
+        </Vector>
+    </Algorithm>
+    <!--layer 4 rod 3-->
+    <Algorithm name="track:DDTrackerPhiAlgo">
+        <rParent name="tob_mtcc:TOBLayer4"/>
+        <String name="ChildName" value="tobrod4_d_mtcc:TOBRod4"/>
+        <Numeric name="Tilt" value="-90*deg"/>
+        <Numeric name="Radius" value="[Layer4HighR]+[tobrod4_d_ROffset]"/>
+        <Vector name="Phi" type="numeric" nEntries="1">
+            (8.4397+15*5.4545)*deg+[tobrod4_d_PhiOffset]
+        </Vector>
+        <Vector name="ZPos" type="numeric" nEntries="1">
+            [zero]
+        </Vector>
+    </Algorithm>
 </DDDefinition>

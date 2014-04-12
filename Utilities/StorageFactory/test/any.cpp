@@ -1,49 +1,41 @@
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-#include "SealBase/Storage.h"
-#include "SealBase/DebugAids.h"
-#include "SealBase/Signal.h"
-#include <iostream>
+#include "Utilities/StorageFactory/test/Test.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
-using namespace seal;
-int main (int argc, char **argv)
+int main (int argc, char **argv) try
 {
-    Signal::handleFatal (argv [0]);
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  initTest();
 
-    if (argc < 2)
-    {
-	std::cerr << " please give file name" <<std::endl;
-	return EXIT_FAILURE;
-    }
+  if (argc != 2)
+  {
+    std::cerr << "usage: " << argv[0] << " FILE\n";
+    return EXIT_FAILURE;
+  }
 
-    IOOffset    size = -1;
-    StorageFactory::get ()->enableAccounting(true);
-    bool	exists = StorageFactory::get ()->check(argv [1], &size);
-    std::cerr << "exists = " << exists << ", size = " << size << "\n";
-    if (! exists) return EXIT_SUCCESS;
+  IOOffset	size = -1;
+  bool		exists = StorageFactory::get ()->check(argv [1], &size);
 
-    Storage	*s = StorageFactory::get ()->open (argv [1]);
-    char	buf [1024];
-    IOSize	n;
+  std::cout << "exists = " << exists << ", size = " << size << "\n";
+  if (! exists) return EXIT_SUCCESS;
 
-    while ((n = s->read (buf, sizeof (buf))))
-	std::cout.write (buf, n);
+  static const int SIZE = 1048576;
+  Storage	*s = StorageFactory::get ()->open (argv [1]);
+  char		*buf = (char *) malloc (SIZE);
+  IOSize	n;
 
-    delete s;
+  while ((n = s->read (buf, SIZE)))
+    std::cout.write (buf, n);
 
-    std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
-    return EXIT_SUCCESS;
+  s->close();
+  delete s;
+  free (buf);
+
+  std::cerr << StorageAccount::summaryXML () << std::endl;
+  return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
 }

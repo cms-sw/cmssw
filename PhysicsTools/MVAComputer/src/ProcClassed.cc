@@ -12,7 +12,6 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcClassed.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
 //
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
@@ -32,8 +31,8 @@ class ProcClassed : public VarProcessor {
 	            const MVAComputer *computer);
 	virtual ~ProcClassed() {}
 
-	virtual void configure(ConfIterator iter, unsigned int n);
-	virtual void eval(ValueIterator iter, unsigned int n) const;
+	virtual void configure(ConfIterator iter, unsigned int n) override;
+	virtual void eval(ValueIterator iter, unsigned int n) const override;
 
     private:
 	unsigned int	nClasses;
@@ -63,7 +62,7 @@ void ProcClassed::eval(ValueIterator iter, unsigned int n) const
 {
 	unsigned int value = (unsigned int)(*iter + 0.5);
 
-	for(unsigned int i = 1; i < nClasses; i++)
+	for(unsigned int i = 0; i < nClasses; i++)
 		iter(i == value ? 1.0 : 0.0);
 }
 

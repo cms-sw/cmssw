@@ -1,5 +1,4 @@
 #include "DetectorDescription/RegressionTest/src/TinyDom.h"
-#include <string>
 
 using namespace std;
 

@@ -9,8 +9,6 @@
 
 /** \class HcalFiberPattern
   *  
-  * $Date: $
-  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class HcalFiberPattern {

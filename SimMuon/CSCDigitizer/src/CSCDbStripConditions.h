@@ -2,15 +2,13 @@
 #define CSCDigitizer_CSCDbStripConditions_h
 
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
-#include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
-#include "CondFormats/CSCObjects/interface/CSCGains.h"
-#include "CondFormats/CSCObjects/interface/CSCPedestals.h"
-#include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
+#include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class CSCDbStripConditions : public CSCStripConditions
 {
 public:
-  CSCDbStripConditions();
+  explicit CSCDbStripConditions(const edm::ParameterSet & pset);
   virtual ~CSCDbStripConditions();
 
   /// fetch the maps from the database
@@ -29,28 +27,22 @@ public:
                  double stripLength, bool leftRight,
                  float & capacitive, float & resistive) const;
 
-  void print() const;
+  /// check list of bad chambers from db
+  virtual bool isInBadChamber( const CSCDetId& id ) const;
 
 private:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip);  
 
-  CSCPedestals::Item pedestalObject(const CSCDetId & detId, int channel) const;
-
-  // might change the channel # for ME1A
-  static int dbIndex(const CSCDetId & id, int & channel);
-
-  const CSCNoiseMatrix * theNoiseMatrix;
-  
-  const CSCGains * theGains;
-
-  const CSCPedestals * thePedestals;
-
-  const CSCcrosstalk * theCrosstalk;
+  CSCConditions theConditions;
 
   // nominal constant to give 100% crosstalk
   float theCapacitiveCrosstalk;
+  // constant for resistive crosstalk scaling.
+  //  Not really sure why it shouldn't be one.
+  float theResistiveCrosstalkScaling;
   // converts DB gains to the gain we expect, 0.5 fC/ADC
   float theGainsConstant;
+  bool doCorrelatedNoise_;
 };
 
 #endif

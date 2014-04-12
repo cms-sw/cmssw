@@ -1,28 +1,17 @@
 #include <memory>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDValue.h>
-#include <DetectorDescription/Core/interface/DDsvalues.h>
-#include <DetectorDescription/Core/interface/DDExpandedView.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/OfflineDBLoader/interface/ReadWriteORA.h"
-#include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
-#include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 
 #include <iostream>
 #include <istream>
@@ -37,29 +26,24 @@ public:
   explicit SolidsForOnline( const edm::ParameterSet& );
   ~SolidsForOnline();
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
   
 private: 
 
   std::string filename_;  
 };
 
-SolidsForOnline::SolidsForOnline( const edm::ParameterSet& iConfig )
-{
-
-}
+SolidsForOnline::SolidsForOnline( const edm::ParameterSet& iConfig ) { }
 
 
-SolidsForOnline::~SolidsForOnline()
-{
-}
+SolidsForOnline::~SolidsForOnline() { }
 
-void SolidsForOnline::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) { 
+void SolidsForOnline::analyze( const edm::Event& iEvent,  const edm::EventSetup& iSetup ) { 
   std::cout << "analyze does nothing" << std::endl;
 }
 
-void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
+void SolidsForOnline::beginRun( const edm::Run&, const edm::EventSetup& iSetup ) {
 
 // TRD1 and Trapezoid can be in the same files.
 
@@ -74,6 +58,7 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
   std::string trapFileName("TRAPEZOIDS.dat");
   std::string boolSolidsFileName("BOOLEANSOLIDS.dat");
   std::string reflectionSolidsFileName("REFLECTIONSOLIDS.dat");
+  std::string torusFileName("TORUS.dat");
 
   std::ofstream solidsOS(solidsFileName.c_str());
   std::ofstream boxOS(boxFileName.c_str());
@@ -85,10 +70,11 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
   std::ofstream trapOS(trapFileName.c_str());
   std::ofstream boolOS(boolSolidsFileName.c_str());
   std::ofstream reflectionOS(reflectionSolidsFileName.c_str());
+  std::ofstream torusOS(torusFileName.c_str());
 
   std::cout << "SolidsForOnline Analyzer..." << std::endl;
 
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
 
   iSetup.get<IdealGeometryRecord>().get( "", pDD );
 
@@ -179,7 +165,6 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
 	
       case ddpseudotrap:
 	{
-	  try{
 	  DDPseudoTrap pseudoTrap(solid);
 	  
 	  ptrapOS<<pseudoTrap.name() <<",";
@@ -188,18 +173,10 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
 		 <<pseudoTrap.y2() <<","<<pseudoTrap.radius()<<","
 		 <<pseudoTrap.atMinusZ()
 		 << std::endl;
-	  }
-	  catch(DDException& ddexcept){
-	    //catch(...){
-	    // std::cout<<solid.shape()<<std::endl;
-	    //std::cout<<"You're trapped"<<std::endl;
-	    std::cout<<ddexcept.message()<<std::endl;
-	    //std::cout<<ddexcept<<std::endl;
-
-	  }
+	  
 	  break;
 	}
-
+	
       case ddtubs:
 	{
 	  //same as ddtrunctubs, Tube element is simply a Tube Section 
@@ -291,6 +268,15 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
 	  break;
       }
 
+      case ddtorus: {
+	DDTorus torus(solid);
+	torusOS<<torus.name()<<","<<torus.rMin()<<","
+	       <<torus.rMax()<<","<<torus.rTorus()<<","
+	       <<torus.startPhi()<<","<<torus.deltaPhi()
+	       <<std::endl;
+	break;
+      }
+
       case ddshapeless:{
 	//	DDShapelessSolid shapeless(solid);
 	//shapelessOS<<shapeless.name()
@@ -302,7 +288,7 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
       }      
       case dd_not_init:
       default:
-	throw DDException("DDDToPersFactory::solid(...) either not inited or no such solid.");
+	throw cms::Exception("DDException") << "DDDToPersFactory::solid(...) either not inited or no such solid.";
 	break;
       }
   

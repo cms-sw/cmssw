@@ -1,22 +1,16 @@
 //#include <memory>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
-#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 
 
 using namespace std;
@@ -43,8 +37,10 @@ void SiPixelFedCablingMapAnalyzer::analyze( const edm::Event& iEvent, const edm:
    iSetup.get<SiPixelFedCablingMapRcd>().get(map);
 
    LogInfo(" got map, version: ") << map->version();
-   LogInfo("PRINT MAP:")<<map->print(100);
+   SiPixelFedCablingTree * tree = map->cablingTree();
+   LogInfo("PRINT MAP:")<<tree->print(100);
    LogInfo("PRINT MAP, end:");
+   delete tree;
 
 }
 

@@ -26,13 +26,13 @@ int CSCTMBScope::UnpackScope(unsigned short *buf,int b05Line,int e05Line) {
 
 
   if(debug) {
-    edm::LogInfo("CSCTMBScope") << " .....TMBHeader -- unpacking Logic Analyzer......";
+    LogTrace("CSCTMBScope|CSCRawToDigi") << " .....TMBHeader -- unpacking Logic Analyzer......";
   }
 
   if((e05Line-b05Line) == 1537) {
 
     if(debug) 
-     edm::LogInfo("CSCTMBScope") << "Scope data found";
+     LogTrace("CSCTMBScope|CSCRawToDigi") << "Scope data found";
 
     //load scope_ram from raw-hits format readout
     iline = b05Line + 1;
@@ -146,7 +146,7 @@ int CSCTMBScope::UnpackScope(unsigned short *buf,int b05Line,int e05Line) {
     data[51]=lct_bxn;
 
     if(debug) 
-      edm::LogInfo("CSCTMBScope") << "Scope bxn at LCT (seq_pretrig): " 
+      LogTrace("CSCTMBScope|CSCRawToDigi") << "Scope bxn at LCT (seq_pretrig): " 
 				  << lct_bxn;
 
     //----- now read back decoded scope data ---------
@@ -154,8 +154,8 @@ int CSCTMBScope::UnpackScope(unsigned short *buf,int b05Line,int e05Line) {
       for(ich=0;ich<=50;ich++) {
 	for(itbin=0;itbin<32;itbin++) {
 	  ibit = (data[ich] >> itbin ) & 1;
-	  if(ibit == 0) edm::LogInfo("CSCTMBScope") << "_";    //display symbol for logic 0
-	  if(ibit == 1) edm::LogInfo("CSCTMBScope") << "-";    //display symbol for logic 1
+	  if(ibit == 0) LogTrace("CSCTMBScope|CSCRawToDigi") << "_";    //display symbol for logic 0
+	  if(ibit == 1) LogTrace("CSCTMBScope|CSCRawToDigi") << "-";    //display symbol for logic 1
 	}
       }
     }
@@ -170,12 +170,12 @@ int CSCTMBScope::UnpackScope(unsigned short *buf,int b05Line,int e05Line) {
     data[51] = lct_bxn;
 
     if(debug) 
-      edm::LogInfo("CSCTMBScope")  << "No scope data found: wrdcnt: " 
+      LogTrace("CSCTMBScope|CSCRawToDigi")  << "No scope data found: wrdcnt: " 
 				   << (e05Line-b05Line);
   }
 
   if(debug) {
-     edm::LogInfo("CSCTMBScope") << " .....END -- unpacking Logic Analyzer...........";
+     LogTrace("CSCTMBScope|CSCRawToDigi") << " .....END -- unpacking Logic Analyzer...........";
   }
 
   return (e05Line - b05Line + 1);
@@ -198,7 +198,7 @@ int CSCTMBScope::GetPretrig(int ich) {
   }
 
   if(debug)
-    edm::LogInfo("CSCTMBScope") << "TMB SCOPE: ------- Pretrig value: " << value;
+    LogTrace("CSCTMBScope|CSCRawToDigi") << "TMB SCOPE: ------- Pretrig value: " << value;
   return value;
 
 } //GetPretrig

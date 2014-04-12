@@ -1,298 +1,111 @@
 /** \class StandAloneMuonRefitter
- *  The inward-outward fitter (starts from seed state).
+ *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2007/04/27 14:55:16 $
- *  $Revision: 1.34 $
- *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
- *  \author S. Lacaprara - INFN Legnaro
+ *  \authors R. Bellan - INFN Torino <riccardo.bellan@cern.ch>,
+ *           D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
+
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-// FIXME: remove this
-#include "FWCore/Framework/interface/Event.h"
-
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
-#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include <vector>
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 using namespace edm;
 using namespace std;
 
-StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
-					       const MuonServiceProxy* service):theService(service){
-  
-  // Fit direction
-  string fitDirectionName = par.getParameter<string>("FitDirection");
+StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par, const MuonServiceProxy* service):theService(service) {
+  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "Constructor called." << endl;
 
-  if (fitDirectionName == "insideOut" ) theFitDirection = insideOut;
-  else if (fitDirectionName == "outsideIn" ) theFitDirection = outsideIn;
-  else 
-    throw cms::Exception("StandAloneMuonRefitter constructor") 
-      <<"Wrong fit direction chosen in StandAloneMuonRefitter::StandAloneMuonRefitter ParameterSet"
-      << "\n"
-      << "Possible choices are:"
-      << "\n"
-      << "FitDirection = insideOut or FitDirection = outsideIn";
-  
-  // The max allowed chi2 to accept a rechit in the fit
-  theMaxChi2 = par.getParameter<double>("MaxChi2");
-
-  // The errors of the trajectory state are multiplied by nSigma 
-  // to define acceptance of BoundPlane and maximalLocalDisplacement
-  theNSigma = par.getParameter<double>("NumberOfSigma"); // default = 3.
-
-  // The navigation type:
-  // "Direct","Standard"
-  theNavigationType = par.getParameter<string>("NavigationType");
-  
-  // The estimator: makes the decision wheter a measure is good or not
-  // it isn't used by the updator which does the real fit. In fact, in principle,
-  // a looser request onto the measure set can be requested 
-  // (w.r.t. the request on the accept/reject measure in the fit)
-  theEstimator = new Chi2MeasurementEstimator(theMaxChi2,theNSigma);
-  
-  thePropagatorName = par.getParameter<string>("Propagator");
-
-  theBestMeasurementFinder = new MuonBestMeasurementFinder();
-
-  // Muon trajectory updator parameters
-  ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
-  
-  // the updator needs the fit direction
-  theMuonUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet,
-					     fitDirection() );
-
-  // Measurement Extractor: enable the measure for each muon sub detector
-  bool enableDTMeasurement = par.getParameter<bool>("EnableDTMeasurement");
-  bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
-  bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
-
-  theMeasurementExtractor = new MuonDetLayerMeasurements(enableDTMeasurement,
-							 enableCSCMeasurement,
-							 enableRPCMeasurement);
-
-  theRPCLoneliness = (!(enableDTMeasurement && enableCSCMeasurement)) ? enableRPCMeasurement : false;
+  theFitterName = par.getParameter<string>("FitterName");
+  theNumberOfIterations = par.getParameter<unsigned int>("NumberOfIterations");
+  isForceAllIterations = par.getParameter<bool>("ForceAllIterations");
+  theMaxFractionOfLostHits = par.getParameter<double>("MaxFractionOfLostHits");
+  errorRescale = par.getParameter<double>("RescaleError");
 }
 
-StandAloneMuonRefitter::~StandAloneMuonRefitter(){
+/// Destructor
+StandAloneMuonRefitter::~StandAloneMuonRefitter() {
+  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "Destructor called." << endl;
+}
 
-  LogTrace("Muon|RecoMuon|StandAloneMuonRefitter")
-    <<"StandAloneMuonRefitter destructor called"<<endl;
+  // Operations
+
+/// Refit
+StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::singleRefit(const Trajectory& trajectory) {
   
-  delete theEstimator;
-  delete theMuonUpdator;
-  delete theMeasurementExtractor;
-  delete theBestMeasurementFinder;
-}
+  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName, theFitter);
 
-const Propagator* StandAloneMuonRefitter::propagator() const { 
-  return &*theService->propagator(thePropagatorName); 
-}
+  vector<Trajectory> refitted;
 
-/// Return the propagation direction
-PropagationDirection StandAloneMuonRefitter::propagationDirection() const{
-  if( fitDirection() == 0 ) return alongMomentum;
-  else if ( fitDirection() == 1 ) return oppositeToMomentum;
-  else return anyDirection;
+  TrajectoryMeasurement lastTM = trajectory.lastMeasurement();                                      
+
+  TrajectoryStateOnSurface firstTsos(lastTM.updatedState());
+
+  // Rescale errors before refit, not to bias the result
+  firstTsos.rescaleError(errorRescale);
+
+  TransientTrackingRecHit::ConstRecHitContainer trajRH = trajectory.recHits();                      
+  reverse(trajRH.begin(),trajRH.end());                                                             
+  refitted = theFitter->fit(trajectory.seed(), trajRH, firstTsos);                                  
+
+  if(!refitted.empty()) return RefitResult(true,refitted.front());
+  else return RefitResult(false,trajectory);
 }
 
 
-void StandAloneMuonRefitter::reset(){
-  totalChambers = dtChambers = cscChambers = rpcChambers = 0;
-  
-  theLastUpdatedTSOS =  theLastButOneUpdatedTSOS = TrajectoryStateOnSurface();
+StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::refit(const Trajectory& trajectory) {
 
-  theMuonUpdator->makeFirstTime();
+  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "---------------------------------" << endl;
+  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "Starting refitting loop:" << endl;
 
-  theDetLayers.clear();
-}
+  unsigned int nSuccess=0;
+  unsigned int nOrigHits=trajectory.recHits().size();
+  Trajectory lastFitted=trajectory;
+  bool allIter=true;
+  bool enoughRH=true;
 
-void StandAloneMuonRefitter::setEvent(const Event& event){
-  theMeasurementExtractor->setEvent(event);
-}
+  for(unsigned int j=0; j<theNumberOfIterations; ++j) {
 
+    StandAloneMuonRefitter::RefitResult singleRefitResult = singleRefit(lastFitted);
+    lastFitted = singleRefitResult.second;
+    unsigned int nLastHits=lastFitted.recHits().size();
 
-void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
+    if(!singleRefitResult.first) {
+      allIter=false;
+      LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "  refit n. " << nSuccess+1 << ": failed" << endl;
+      break;
+    }
 
-  if(layer->subDetector()==GeomDetEnumerators::DT) dtChambers++; 
-  else if(layer->subDetector()==GeomDetEnumerators::CSC) cscChambers++; 
-  else if(layer->subDetector()==GeomDetEnumerators::RPCBarrel || layer->subDetector()==GeomDetEnumerators::RPCEndcap) rpcChambers++; 
-  else 
-    LogError("Muon|RecoMuon|StandAloneMuonRefitter")
-      << "Unrecognized module type in incrementChamberCounters";
-  // FIXME:
-  //   << layer->module() << " " <<layer->Part() << endl;
-  
-  totalChambers++;
-}
+    double lostFract= 1 - double(nLastHits)/nOrigHits;
+    if(lostFract>theMaxFractionOfLostHits) {
+      enoughRH=false;
+      LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "  refit n. " << nSuccess+1 << ": too many RH lost" << endl;
+      LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "     Survived RecHits: " << nLastHits << "/" << nOrigHits << endl;
+      break;
+    }
 
+    nSuccess++;
+    LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "  refit n. " << nSuccess << ": OK" << endl;
+    LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "     Survived RecHits: " << nLastHits << "/" << nOrigHits << endl;
 
-vector<const DetLayer*> StandAloneMuonRefitter::compatibleLayers(const DetLayer *initialLayer,
-								 FreeTrajectoryState& fts,
-								 PropagationDirection propDir){
-  vector<const DetLayer*> detLayers;
+  } // end for
 
-  if(theNavigationType == "Standard"){
-    // ask for compatible layers
-    detLayers = initialLayer->compatibleLayers(fts,propDir);  
-    // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
-    // In fact the first layer is not returned by initialLayer->compatibleLayers.
-    detLayers.insert(detLayers.begin(),initialLayer);
-  }
-  else if (theNavigationType == "Direct"){
-    DirectMuonNavigation navigation(&*theService->detLayerGeometry());
-    detLayers = navigation.compatibleLayers(fts,propDir);
-  }
+  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << nSuccess << " successful refits!" << endl;
+
+  // if isForceAllIterations==true  =>   3 successful refits: (true, refitted trajectory)
+  //                                    <3 successful refits: (false, original trajectory)
+  // if isForceAllIterations==false =>  >0 successful refits: (true, last refitted trajectory)
+  //                                     0 successful refits: (false, original trajectory)
+  if(!enoughRH)
+    return RefitResult(false, trajectory);
+  else if(isForceAllIterations)
+    return allIter ? RefitResult(allIter, lastFitted) : RefitResult(allIter, trajectory);
   else
-    edm::LogError("Muon|RecoMuon|StandAloneMuonRefitter") << "No Properly Navigation Selected!!"<<endl;
-  
-  return detLayers;
+    return nSuccess==0 ? RefitResult(false, trajectory) : RefitResult(true, lastFitted);
 }
-
-
-void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
-				   const DetLayer* initialLayer, Trajectory &trajectory){
-  
-  const std::string metname = "Muon|RecoMuon|StandAloneMuonRefitter";
-
-  // reset the refitter each seed refinement
-  reset();
-  
-  MuonPatternRecoDumper debug;
-  
-  LogTrace(metname) << "Starting the refit"<<endl; 
-
-  // this is the most outward TSOS updated with a recHit onto a DetLayer
-  TrajectoryStateOnSurface lastUpdatedTSOS;
-  // this is the last but one most outward TSOS updated with a recHit onto a DetLayer
-  TrajectoryStateOnSurface lastButOneUpdatedTSOS;
-  // this is the most outward TSOS (updated or predicted) onto a DetLayer
-  TrajectoryStateOnSurface lastTSOS;
-  
-  lastUpdatedTSOS = lastButOneUpdatedTSOS = lastTSOS = initialTSOS;
-  
-  vector<const DetLayer*> detLayers = compatibleLayers(initialLayer,*initialTSOS.freeTrajectoryState(),
-						       propagationDirection());  
-  
-  LogTrace(metname)<<"compatible layers found: "<<detLayers.size()<<endl;
-  
-  vector<const DetLayer*>::const_iterator layer;
-
-  // the layers are ordered in agreement with the fit/propagation direction 
-  for ( layer = detLayers.begin(); layer!= detLayers.end(); ++layer ) {
-    
-    //    bool firstTime = true;
-
-    LogTrace(metname) << debug.dumpLayer(*layer);
-    
-    LogTrace(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
-    
-    vector<TrajectoryMeasurement> measL = 
-      theMeasurementExtractor->measurements(*layer,
-      					   lastTSOS, 
-      					   *propagator(), 
-					   *estimator());
-
-    LogTrace(metname) << "Number of Trajectory Measurement: " << measL.size();
-        
-    TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
-
-    // RB: Different ways can be choosen if no bestMeasurement is available:
-    // 1- check on lastTSOS-initialTSOS eta difference
-    // 2- check on lastTSOS-lastButOneUpdatedTSOS eta difference
-    // After this choice:
-    // A- extract the measurements compatible with the initialTSOS (seed)
-    // B- extract the measurements compatible with the lastButOneUpdatedTSOS
-    // In ORCA the choice was 1A. Here I will try 1B and if it fail I'll try 1A
-    // another possibility could be 2B and then 1A.
-
-    // if no measurement found and the current TSOS has an eta very different
-    // wrt the initial one (i.e. seed), then try to find the measurements
-    // according to the lastButOne FTS. (1B)
-    if( !bestMeasurement && 
-	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
-	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
-
-      LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
-			<< "trying with lastButOneUpdatedTSOS";
-      measL = theMeasurementExtractor->measurements(*layer,
-						   lastButOneUpdatedTSOS, 
-						   *propagator(), 
-						   *estimator());
-      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
-    }
-    
-    //if no measurement found and the current FTS has an eta very different
-    //wrt the initial one (i.e. seed), then try to find the measurements
-    //according to the initial FTS. (1A)
-    if( !bestMeasurement && 
-	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
-	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
-
-      LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
-			<< "tryng with seed TSOS";
-
-      measL = theMeasurementExtractor->measurements(*layer,
-						   initialTSOS, 
-						   *propagator(), 
-						   *estimator());
-      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
-    }
-    
-    // FIXME: uncomment this line!!
-    // if(!bestMeasurement && firstTime) break;
-
-    // check if the there is a measurement
-    if(bestMeasurement){
-      LogTrace(metname)<<"best measurement found" << "\n"
-		       <<"updating the trajectory..."<<endl;
-      pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,
-								     trajectory,
-								     propagator());
-      LogTrace(metname)<<"trajectory updated: "<<result.first<<endl;
-      LogTrace(metname) << debug.dumpTSOS(result.second);
-      
-      if(result.first){ 
-	lastTSOS = result.second;
-	incrementChamberCounters(*layer);
-	theDetLayers.push_back(*layer);
-	
-	lastButOneUpdatedTSOS = lastUpdatedTSOS;
-	lastUpdatedTSOS = lastTSOS;
-      }
-    }
-    // SL in case no valid mesurement is found, still I want to use the predicted
-    // state for the following measurement serches. I take the first in the
-    // container. FIXME!!! I want to carefully check this!!!!!
-    else{
-      LogTrace(metname)<<"No best measurement found"<<endl;
-      if (measL.size()>0){
-	LogTrace(metname)<<"but the #of measurement is "<<measL.size()<<endl;
-        lastTSOS = measL.front().predictedState();
-      }
-    }
-
-  }
-  setLastUpdatedTSOS(lastUpdatedTSOS);
-  setLastButOneUpdatedTSOS(lastButOneUpdatedTSOS);
-}
-
-

@@ -6,8 +6,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 EDM_REGISTER_PLUGINFACTORY(edm::InputSourcePluginFactory,"CMS EDM Framework InputSource");
 namespace edm {
 
@@ -20,9 +18,9 @@ namespace edm {
   {
   }
 
-  InputSourceFactory InputSourceFactory::singleInstance_;
+  InputSourceFactory const InputSourceFactory::singleInstance_;
 
-  InputSourceFactory* InputSourceFactory::get()
+  InputSourceFactory const* InputSourceFactory::get()
   {
     // will not work with plugin factories
     //static InputSourceFactory f;
@@ -36,17 +34,10 @@ namespace edm {
 					InputSourceDescription const& desc) const
     
   {
-    string modtype = conf.getParameter<string>("@module_type");
-    FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << endl;
-    auto_ptr<InputSource> wm;
-    try {
-      wm = auto_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
-    } catch( cms::Exception& iException) {
-      edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating source ");
-      toThrow<<modtype<<"\n";
-      toThrow.append(iException);
-      throw toThrow;
-    }
+    std::string modtype = conf.getParameter<std::string>("@module_type");
+    FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << std::endl;
+    std::auto_ptr<InputSource> wm;
+    wm = std::auto_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
     
     if(wm.get()==0) {
 	throw edm::Exception(errors::Configuration,"NoSourceModule")
@@ -61,7 +52,7 @@ namespace edm {
 
     FDEBUG(1) << "InputSourceFactory: created input source "
 	      << modtype
-	      << endl;
+	      << std::endl;
 
     return wm;
   }

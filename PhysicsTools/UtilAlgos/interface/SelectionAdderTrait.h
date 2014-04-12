@@ -6,7 +6,10 @@
  */
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include <boost/static_assert.hpp>
 
@@ -45,14 +48,6 @@ namespace helper {
   };
 
   template<typename StoreContainer>
-  struct SelectionRefAdder {
-    template<typename C>
-    void operator()( StoreContainer & selected, const edm::Handle<C> & c, size_t idx ) {
-      selected.push_back( edm::Ref<C>( c, idx ) );
-    }
-  };
-
-  template<typename StoreContainer>
   struct SelectionFirstRefAdder {
     template<typename C>
     void operator()( StoreContainer & selected, const edm::Handle<C> & c, size_t idx ) {
@@ -60,10 +55,25 @@ namespace helper {
     }
   };
 
+  template<typename StoreContainer>
+  struct SelectionRefAdder {
+    template<typename C>
+    void operator()( StoreContainer & selected, const edm::Handle<C> & c, size_t idx ) {
+      selected.push_back( edm::Ref<C>( c, idx ) );
+    }
+  };
+
   template<typename T>
   struct SelectionRefViewAdder {
     void operator()( edm::RefToBaseVector<T> & selected, const edm::Handle<edm::View<T> > & c, size_t idx ) {
       selected.push_back( c->refAt( idx ) );
+    }
+  };
+
+  template<typename T>
+  struct SelectionPtrViewAdder {
+    void operator()( edm::PtrVector<T> & selected, const edm::Handle<edm::View<T> > & c, size_t idx ) {
+      selected.push_back( c->ptrAt( idx ) );
     }
   };
 
@@ -75,11 +85,6 @@ namespace helper {
   template<typename InputCollection, typename T>
   struct SelectionAdderTrait<InputCollection, std::vector<const T *> > {
     typedef SelectionPointerAdder<std::vector<const T *> > type;
-  };
-
-  template<typename R, typename C, typename T>
-  struct SelectionAdderTrait<edm::AssociationVector<R, C>, std::vector<const T *> > {
-    typedef SelectionFirstPointerAdder<std::vector<const T *> > type;
   };
 
   template<typename InputCollection, typename C>
@@ -107,14 +112,35 @@ namespace helper {
     typedef SelectionPointerDerefAdder<std::vector<const T *> > type;
   };
 
-  template<typename R, typename C>
-  struct SelectionAdderTrait<edm::AssociationVector<R, C>, edm::RefVector<typename R::product_type> > {
-    typedef SelectionFirstRefAdder<edm::RefVector<typename R::product_type> > type;
+  template<typename K, typename C, typename T>
+  struct SelectionAdderTrait<edm::AssociationVector<edm::RefProd<K>, C>, std::vector<const T *> > {
+    typedef SelectionFirstPointerAdder<std::vector<const T *> > type;
+  };
+
+  template<typename C, typename T>
+  struct SelectionAdderTrait<edm::AssociationVector<edm::RefToBaseProd<T>, C>, std::vector<const T *> > {
+    typedef SelectionFirstPointerAdder<std::vector<const T *> > type;
+  };
+
+  template<typename K, typename C>
+  struct SelectionAdderTrait<edm::AssociationVector<edm::RefProd<K>, C>, edm::RefVector<K> > {
+    typedef SelectionFirstRefAdder<edm::RefVector<K> > type;
+  };
+
+  template<typename T, typename C>
+  struct SelectionAdderTrait<edm::AssociationVector<edm::RefToBaseProd<T>, C>, 
+			     edm::RefToBaseVector<T> > {
+    typedef SelectionFirstRefAdder<edm::RefToBaseVector<T> > type;
   };
 
   template<typename T>
   struct SelectionAdderTrait<edm::View<T>, edm::RefToBaseVector<T> > {
     typedef SelectionRefViewAdder<T> type;
+  };
+
+  template<typename T>
+  struct SelectionAdderTrait<edm::View<T>, edm::PtrVector<T> > {
+    typedef SelectionPtrViewAdder<T> type;
   };
 
 }

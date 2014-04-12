@@ -14,10 +14,7 @@
  ************************************************************/
 
 #include <vector>
-#include "DataFormats/METReco/interface/GenMET.h"
-
-using namespace reco;
-using namespace std;
+#include "DataFormats/METReco/interface/GenMETFwd.h" 
 
 namespace reco
 {

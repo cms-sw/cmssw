@@ -1,0 +1,11 @@
+<use name="Geometry/MuonNumbering"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="Geometry/GEMGeometryBuilder"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="DetectorDescription/Core"/>
+<library file="GEMGeometryESModule.cc"> 
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+

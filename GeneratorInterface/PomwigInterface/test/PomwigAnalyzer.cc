@@ -6,25 +6,16 @@
 #include "PomwigAnalyzer.h"
 
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
 
 //#include "CLHEP/Vector/LorentzVector.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "TH1D.h"
-#include "TFile.h"
 
-PomwigAnalyzer::PomwigAnalyzer(const edm::ParameterSet& iConfig)
+PomwigAnalyzer::PomwigAnalyzer(const edm::ParameterSet& iConfig) :
+  hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag"))
 {
   outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
   hist_t = new TH1D("hist_t","t proton",100,-1.4,0);
@@ -45,7 +36,7 @@ PomwigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
    // get HepMC::GenEvent ...
    Handle<HepMCProduct> evt_h;
-   iEvent.getByType(evt_h);
+   iEvent.getByLabel(hepMCProductTag_, evt_h);
    HepMC::GenEvent * evt = new  HepMC::GenEvent(*(evt_h->GetEvent()));
 
 
@@ -81,10 +72,7 @@ PomwigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 // ------------ method called once each job just before starting event loop  ------------
-void 
-PomwigAnalyzer::beginJob(const edm::EventSetup&)
-{
-}
+void PomwigAnalyzer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

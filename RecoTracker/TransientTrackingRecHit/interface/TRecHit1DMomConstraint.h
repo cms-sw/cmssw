@@ -2,10 +2,11 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit1DMomConstraint_H
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 class GeomDetUnit;
 
-class TRecHit1DMomConstraint : public TransientTrackingRecHit {
+class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
  public:
 
   virtual ~TRecHit1DMomConstraint() {}
@@ -38,23 +39,19 @@ class TRecHit1DMomConstraint : public TransientTrackingRecHit {
   double err() const {return err_;}
   int charge() const {return charge_;}
 
+
   virtual const TrackingRecHit * hit() const {return 0;}//fixme return invalid
-  
+  virtual TrackingRecHit * cloneHit() const { return 0;}
 
-
-  virtual std::vector<const TrackingRecHit*> recHits() const {
-    return hit()->recHits();
-  }
-  virtual std::vector<TrackingRecHit*> recHits() {
-    return std::vector<TrackingRecHit*>();
-  }
+  virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
+  virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
+  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
 
   virtual bool canImproveWithTrack() const {return false;}
 
   virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return clone();}
 
   virtual const GeomDetUnit* detUnit() const {return 0;}
-  virtual const GeomDet* det() const {return 0;}
 
   static RecHitPointer build(const int charge,
 			     const double mom,
@@ -64,6 +61,13 @@ class TRecHit1DMomConstraint : public TransientTrackingRecHit {
   }
 
   virtual const Surface * surface() const {return surface_;}
+
+  virtual GlobalPoint globalPosition() const { return GlobalPoint();  }
+  virtual GlobalError globalPositionError() const { return GlobalError();}
+  virtual float errorGlobalR() const { return 0;}
+  virtual float errorGlobalZ() const { return 0; }
+  virtual float errorGlobalRPhi() const { return 0; }
+
 
  private:
   const int    charge_;

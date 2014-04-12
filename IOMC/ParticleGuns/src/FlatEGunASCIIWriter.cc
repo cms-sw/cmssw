@@ -55,16 +55,20 @@ FlatEGunASCIIWriter::~FlatEGunASCIIWriter()
 {
    
   if ( fEvt != NULL ) delete fEvt ;
-  delete fOutStream;
+  if( fOutStream) delete fOutStream;
 
 }
 
-void FlatEGunASCIIWriter::beginJob( const EventSetup& es)
+void FlatEGunASCIIWriter::beginRun(const edm::Run &r, const EventSetup& es)
 {
 
   es.getData( fPDGTable );
 
-  fOutStream = new HepMC::IO_Ascii( fOutFileName.c_str() ); 
+}
+
+void FlatEGunASCIIWriter::beginJob()
+{ 
+  fOutStream = new HepMC::IO_GenEvent( fOutFileName.c_str() ); 
   if ( fOutStream->rdstate() == std::ios::failbit ) {
     throw cms::Exception("FileNotOpen", "FlatEGunASCIIWriter::beginJob()")
       << "File " << fOutFileName << " was not open.\n";
@@ -94,9 +98,9 @@ void FlatEGunASCIIWriter::analyze( const Event& ,
    //
    for ( unsigned int ip=0; ip<fPartIDs.size(); ip++ )
    {
-       double energy = RandFlat::shoot( fMinE, fMaxE ) ;
-       double eta    = RandFlat::shoot( fMinEta, fMaxEta ) ;
-       double phi    = RandFlat::shoot( fMinPhi, fMaxPhi ) ;
+       double energy = CLHEP::RandFlat::shoot( fMinE, fMaxE ) ;
+       double eta    = CLHEP::RandFlat::shoot( fMinEta, fMaxEta ) ;
+       double phi    = CLHEP::RandFlat::shoot( fMinPhi, fMaxPhi ) ;
        const HepPDT::ParticleData* 
           PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
        double mass   = PData->mass().value() ;

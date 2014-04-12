@@ -16,10 +16,15 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class MuonIdTruthInfo
 {
  public:
+
+   void registerConsumes(edm::ConsumesCollector& iC);
+
+
    static void truthMatchMuon( const edm::Event& iEvent,
 			       const edm::EventSetup& iSetup,
 			       reco::Muon& aMuon);

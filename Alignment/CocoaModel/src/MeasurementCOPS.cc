@@ -8,17 +8,16 @@
 
 #include "Alignment/CocoaModel/interface/MeasurementCOPS.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/ALIVisLightPath.h"
 #endif
-#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ calculate the simulated value propagating the light ray through the OptO that take part in the Measurement
@@ -29,7 +28,7 @@ void MeasurementCOPS::calculateSimulatedValue( ALIbool firstTime )
   if( ALIUtils::debug >= 2) printStartCalculateSimulatedValue( this ); // important for Examples/FakeMeas
 
   //---------- Create light ray
-  LightRay lightray;
+  LightRay* lightray = new LightRay;
 
   //---------- Define types of OptO that may take part in the Measurement
   ALIuint isec = 0;  //security variable to check OptOList().size()
@@ -69,17 +68,17 @@ void MeasurementCOPS::calculateSimulatedValue( ALIbool firstTime )
     //---------- Get the behaviour of the object w.r.t the measurement (if it reflects the light, let it traverse it, ...)
     ALIstring behav = getMeasuringBehaviour(vocite);
 
-    if( &lightray ) {
-      (*vocite)->participateInMeasurement( lightray, *this, behav );
+    if( lightray ) {
+      (*vocite)->participateInMeasurement( *lightray, *this, behav );
 #ifdef COCOA_VIS
       if( ALIUtils::getFirstTime() ) {
 	GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
 	if(gomgr->GlobalOptions()["VisWriteVRML"] > 1) {
-	  ALIVRMLMgr::getInstance().addLightPoint( lightray.point());
-	  //	  std::cout << "ALIVRMLMg  addLightPoint " << lightray.point() << (*vocite)->name() << std::endl;
+	  ALIVRMLMgr::getInstance().addLightPoint( lightray->point());
+	  //	  std::cout << "ALIVRMLMg  addLightPoint " << lightray->point() << (*vocite)->name() << std::endl;
 	}
 	if(gomgr->GlobalOptions()["VisWriteIguana"] > 1) {
-	  vispath->addLightPoint( lightray.point(), *vocite  );
+	  vispath->addLightPoint( lightray->point(), *vocite  );
 	}
       }
 #endif
@@ -99,6 +98,7 @@ void MeasurementCOPS::calculateSimulatedValue( ALIbool firstTime )
  
   if(ALIUtils::debug >= 9) std::cout << "end calculateSimulatedValue" <<std::endl;
   
+  delete lightray;
 }
 
 

@@ -12,12 +12,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 
 using std::string;
 using std::ios;
@@ -36,6 +35,7 @@ L1GctTestAnalyzer::L1GctTestAnalyzer(const edm::ParameterSet& iConfig) :
   doInternEM_( iConfig.getUntrackedParameter<bool>("doInternEm", true) ),
   doEM_( iConfig.getUntrackedParameter<bool>("doEm", true) ),
   doJets_( iConfig.getUntrackedParameter<bool>("doJets", 0) ),
+  doEnergySums_( iConfig.getUntrackedParameter<bool>("doEnergySums", 0) ),
   rctEmMinRank_( iConfig.getUntrackedParameter<unsigned>("rctEmMinRank", 0) )
 {
   //now do what ever initialization is needed
@@ -76,6 +76,8 @@ L1GctTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if (doEM_ && doEmu_){ doEM(iEvent, emuLabel_); }
   if (doJets_ && doHW_) { doJets(iEvent, rawLabel_); }
   if (doJets_ && doEmu_) { doJets(iEvent, emuLabel_); }
+  if (doEnergySums_ && doHW_) { doEnergySums(iEvent, rawLabel_); }
+  if (doEnergySums_ && doEmu_) { doEnergySums(iEvent, emuLabel_); }
 
 }
 
@@ -185,3 +187,26 @@ void L1GctTestAnalyzer::doJets(const edm::Event& iEvent, edm::InputTag label) {
 
 }
 
+void L1GctTestAnalyzer::doEnergySums(const edm::Event& iEvent, edm::InputTag label) {
+
+  using namespace edm;
+
+  Handle<L1GctEtTotal>   etTotResult;
+  Handle<L1GctEtHad>     etHadResult;
+  Handle<L1GctEtMiss>    etMissResult;
+  
+  iEvent.getByLabel(label,etTotResult);
+  iEvent.getByLabel(label,etHadResult);
+  iEvent.getByLabel(label,etMissResult);
+  
+  outFile_ << "Total Et from : " << label.label() << endl;
+  outFile_ << (*etTotResult) << endl;
+  outFile_ << "Total Ht from : " << label.label() << endl;
+  outFile_ << (*etHadResult) << endl;
+  outFile_ << "Missing Et from : " << label.label() << endl;
+  outFile_ << (*etMissResult) << endl;
+  
+  outFile_ << endl;
+  
+
+}

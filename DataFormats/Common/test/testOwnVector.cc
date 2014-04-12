@@ -1,5 +1,4 @@
-// $Id: testOwnVector.cc,v 1.7 2007/07/31 09:13:12 llista Exp $
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include <algorithm>
 #include <iterator>
 #include <iostream>
@@ -37,12 +36,14 @@ namespace test {
 
   class a {
   public:
+    virtual ~a() {}
     virtual int f() const = 0;
   };
 
   class ClassB : public a {
   public:
-    ClassB(int i) : ii(i) {;}
+    ClassB(int i) : ii(i) {memset(&waste, 0, sizeof(waste));}
+    virtual ~ClassB() {}
     virtual int f() const { return ii;  }
     int ii;
   private:
@@ -116,8 +117,22 @@ void testOwnVector::checkAll() {
     aa = new test::ClassB(3);
     v.push_back(aa);
     v.sort(test::ss());
+    std::cout << "OwnVector : dumping contents" << std::endl;
     std::copy(v.begin(), 
 	      v.end(), 
 	      std::ostream_iterator<test::a>(std::cout, "\t"));
+
+    edm::Ptr<test::a> ptr_v;
+    unsigned long index(0);
+    void const * data = &v[0];
+    v.setPtr( typeid(test::a), index, data );
+    test::a const * data_a = static_cast<test::a const *>(data);
+    test::ClassB const * data_b = dynamic_cast<test::ClassB const *>(data_a);
+    CPPUNIT_ASSERT( data != 0);
+    CPPUNIT_ASSERT( data_a != 0);
+    CPPUNIT_ASSERT( data_b != 0);
+    if(data_b != 0) { // To silence Coverity
+      CPPUNIT_ASSERT( data_b->f() == 3);
+    }
   }
 }

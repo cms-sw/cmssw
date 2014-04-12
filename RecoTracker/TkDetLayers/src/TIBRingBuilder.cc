@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/TIBRingBuilder.h"
+#include "TIBRingBuilder.h"
 
 using namespace edm;
 using namespace std;

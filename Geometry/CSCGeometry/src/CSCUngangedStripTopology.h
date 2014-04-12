@@ -26,7 +26,7 @@ public:
    * (but we count from 1 whereas RST counts from 0.)
    */
   int channel(const LocalPoint& lp) const {
-    return RadialStripTopology::channel(lp) + 1;
+    return CSCRadialStripTopology::channel(lp) + 1;
   }
 
   /** 

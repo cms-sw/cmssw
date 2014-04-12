@@ -5,8 +5,6 @@
 //   Description: Sector Processor identifier
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -48,10 +46,10 @@ L1MuDTSecProcId::L1MuDTSecProcId(int wheel_id, int sector_id) :
       m_wheel(wheel_id), m_sector(sector_id) {
 
   if ( !(wheel_id   >= -3 && wheel_id   <=  3) ) {
-    cerr << "SecProcId : wheel out of range: " << wheel_id << endl;
+    //    cerr << "SecProcId : wheel out of range: " << wheel_id << endl;
   }
   if ( !(sector_id  >=  0 && sector_id  <  12) ) {
-    cerr << "SecProcId : sector out of range: " << sector_id << endl;
+    //    cerr << "SecProcId : sector out of range: " << sector_id << endl;
   }
 
 }

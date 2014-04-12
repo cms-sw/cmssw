@@ -1,35 +1,27 @@
-/// CSCDCCEventData.cc
-/// 01/20/05 
-/// A.Tumanov
+/** \file CSCDCCEventData.cc
+ *
+ *  \author A. Tumanov - Rice - But long, long ago...
+ *
+ */
 
-#include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
-#include <vector>
 #include <cstdio>
-#include <boost/dynamic_bitset.hpp>
+#include <atomic>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
-bool CSCDCCEventData::debug = false;
+std::atomic<bool> CSCDCCEventData::debug{false};
 
 CSCDCCEventData::CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a) 
 : theDCCHeader(bx, l1a, sourceId) 
 {
-
   theDDUData.reserve(nDDUs);
-  CSCDDUHeader dduHeader(bx, l1a, sourceId);
-  for(int i = 0; i < nDDUs; ++i) 
-    {
-      theDDUData.push_back(CSCDDUEventData(dduHeader));
-    }
 } 
 
-CSCDCCEventData::CSCDCCEventData(unsigned short *buf)
+CSCDCCEventData::CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner)
 {
-  unpack_data(buf);
+  unpack_data(buf, examiner);
 }
 
 CSCDCCEventData::~CSCDCCEventData() 
@@ -37,19 +29,23 @@ CSCDCCEventData::~CSCDCCEventData()
 }
 
 
-void CSCDCCEventData::unpack_data(unsigned short *buf) 
+void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner) 
 {
-  //for (int i=0;i<200;i++) {
-  //  printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]); 
-  //  i+=3;
-  //}
+ 
+/*
+  for (int i=0;i<20;i++) {
+    printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]); 
+    i+=3;
+  }
+*/
+
   theDDUData.clear();
   if (debug) 
-    edm::LogInfo ("CSCDCCEventData") << "CSCDCCEventData::unpack_data() is called";
+    LogTrace ("CSCDCCEventData|CSCRawToDigi") << "CSCDCCEventData::unpack_data() is called";
 
   // decode DCC header (128 bits)
   if (debug) 
-    edm::LogInfo ("CSCDCCEventData") << "unpacking dcc header...";
+    LogTrace ("CSCDCCEventData|CSCRawToDigi") << "unpacking dcc header...";
   memcpy(&theDCCHeader, buf, theDCCHeader.sizeInWords()*2);
   //theDCCHeader = CSCDCCHeader(buf); // direct unpacking instead of bitfields
   buf += theDCCHeader.sizeInWords();
@@ -59,8 +55,10 @@ void CSCDCCEventData::unpack_data(unsigned short *buf)
   ///loop over DDUEventDatas
   while ( (buf[7]==0x8000)&&(buf[6]==0x0001)&&(buf[5]==0x8000))
     {
-      CSCDDUEventData dduEventData(buf);
-      if (debug) edm::LogInfo ("CSCDCCEventData") << " checking ddu data integrity ";
+       CSCDDUEventData dduEventData(buf, examiner);
+//	CSCDDUEventData dduEventData(buf);
+
+      if (debug) LogTrace ("CSCDCCEventData|CSCRawToDigi") << " checking ddu data integrity ";
       if (dduEventData.check()) 
 	{
 	  theDDUData.push_back(dduEventData);
@@ -68,7 +66,7 @@ void CSCDCCEventData::unpack_data(unsigned short *buf)
 	} 
       else
 	{
-	  edm::LogError ("CSCDCCEventData") <<"DDU Data Check failed!  ";
+	  if (debug) LogTrace("CSCDCCEventData|CSCRawToDigi") <<"DDU Data Check failed!  ";
 	  break;
 	}
       
@@ -76,29 +74,56 @@ void CSCDCCEventData::unpack_data(unsigned short *buf)
   
   if (debug)
     {
-      edm::LogInfo ("CSCDCCEventData") << "unpacking dcc trailer ";
-      edm::LogInfo ("CSCDCCEventData") << std::hex << buf[3] <<" "
+      LogTrace ("CSCDCCEventData|CSCRawToDigi") << "unpacking dcc trailer ";
+      LogTrace ("CSCDCCEventData|CSCRawToDigi") << std::hex << buf[3] <<" "
 				       << buf[2]<<" " << buf[1]<<" " << buf[0];
     }
 	    
   //decode dcc trailer (128 bits)
-  if (debug) edm::LogInfo ("CSCDCCEventData") <<"decoding DCC trailer";
+  if (debug) LogTrace ("CSCDCCEventData|CSCRawToDigi") <<"decoding DCC trailer";
   memcpy(&theDCCTrailer, buf, theDCCTrailer.sizeInWords()*2);
-  if (debug) edm::LogInfo ("CSCDCCEventData") << "checking DDU Trailer" << theDCCTrailer.check(); 
+  if (debug) LogTrace("CSCDCCEventData|CSCRawToDigi") << "checking DDU Trailer" << theDCCTrailer.check(); 
   buf += theDCCTrailer.sizeInWords();
-  
+
+  //std::cout << " DCC Size: " << std::dec << theSizeInWords << std::endl;
+  //std::cout << "LastBuf: "  << std::hex << inputBuf[theSizeInWords-4] << std::endl;
 }
 	  
+
 bool CSCDCCEventData::check() const 
 {
   // the trailer counts in 64-bit words
   if (debug) 
     {
-      edm::LogInfo ("CSCDCCEventData") << "size in Words () = " << std::dec << sizeInWords();
+      LogTrace ("CSCDCCEventData|CSCRawToDigi") << "size in Words () = " << std::dec << sizeInWords();
     }
 
   return  theDCCHeader.check() && theDCCTrailer.check();
 }
+
+
+void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID)
+{
+  // first, find this DDU
+  std::vector<CSCDDUEventData>::iterator dduItr;
+  int dduIndex = -1;
+  int nDDUs = theDDUData.size();
+  for(int i = 0; dduIndex == -1 && i < nDDUs; ++i)
+  {
+    if(theDDUData[i].header().source_id() == dduID) dduIndex = i;
+  }
+  if(dduIndex == -1)
+  {
+    // make a new one
+    CSCDDUHeader newDDUHeader(dccHeader().getCDFBunchCounter(), 
+                              dccHeader().getCDFEventNumber(), dduID);
+    theDDUData.push_back(CSCDDUEventData(newDDUHeader));
+    dduIndex = nDDUs;
+    dccHeader().setDAV(dduSlot);
+  }
+  theDDUData[dduIndex].add( chamber, dmbID, dduInput );
+}
+ 
 
 boost::dynamic_bitset<> CSCDCCEventData::pack() 
 {
@@ -129,6 +154,7 @@ boost::dynamic_bitset<> CSCDCCEventData::pack()
   boost::dynamic_bitset<> dccTrailer = bitset_utilities::ushortToBitset(theDCCTrailer.sizeInWords()*16,
 									theDCCTrailer.data());
   result = bitset_utilities::append(result,dccTrailer);
+  //  bitset_utilities::printWords(result);
   return result;
 }
 

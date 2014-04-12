@@ -9,13 +9,9 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTMtimePrint.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
@@ -42,6 +38,35 @@ namespace edmtest {
     context.get<DTMtimeRcd>().get(mTime);
     std::cout << mTime->version() << std::endl;
     std::cout << std::distance( mTime->begin(), mTime->end() ) << " data in the container" << std::endl;
+    DTMtime::const_iterator iter = mTime->begin();
+    DTMtime::const_iterator iend = mTime->end();
+    while ( iter != iend ) {
+      const DTMtimeId&   mTimeId   = iter->first;
+      const DTMtimeData& mTimeData = iter->second;
+      float mTTime;
+      float mTTrms;
+      mTime->get( mTimeId.wheelId,
+                  mTimeId.stationId,
+                  mTimeId.sectorId,
+                  mTimeId.slId,
+                  mTimeId.layerId,
+                  mTimeId.cellId,
+//                  mTTime, mTTrms, DTVelocityUnits::cm_per_ns );
+//                  mTTime, mTTrms, DTVelocityUnits::cm_per_count );
+//                  mTTime, mTTrms, DTTimeUnits::ns );
+                  mTTime, mTTrms, DTTimeUnits::counts );
+      std::cout << mTimeId.wheelId   << " "
+                << mTimeId.stationId << " "
+                << mTimeId.sectorId  << " "
+                << mTimeId.slId      << " "
+                << mTimeId.layerId   << " "
+                << mTimeId.cellId    << " -> "
+                << mTimeData.mTime   << " "
+                << mTimeData.mTrms   << " -> "
+                << mTTime            << " "
+                << mTTrms            << std::endl;
+      iter++;
+    }
   }
   DEFINE_FWK_MODULE(DTMtimePrint);
 }

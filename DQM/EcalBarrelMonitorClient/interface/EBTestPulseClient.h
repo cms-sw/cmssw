@@ -4,8 +4,6 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/07/21 00:28:20 $
- * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,14 +18,15 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
+
+class MonitorElement;
+class DQMStore;
+#ifdef WITH_ECAL_COND_DB
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
+#endif
 
 class EBTestPulseClient : public EBClient {
 
@@ -41,19 +40,11 @@ EBTestPulseClient(const edm::ParameterSet& ps);
 /// Destructor
 virtual ~EBTestPulseClient();
 
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
-
-/// softReset
-void softReset(void);
-
 /// Analyze
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -70,11 +61,10 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
-
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -85,42 +75,24 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
+bool debug_;
 
-bool enableMonitorDaemon_;
+std::string prefixME_;
 
-string prefixME_;
+bool enableCleanup_;
 
-string baseHtmlDir_;
+std::vector<int> superModules_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
-vector<int> superModules_;
-
-MonitorUserInterface* mui_;
-
-CollateMonitorElement* me_ha01_[36];
-CollateMonitorElement* me_ha02_[36];
-CollateMonitorElement* me_ha03_[36];
-
-CollateMonitorElement* me_hs01_[36];
-CollateMonitorElement* me_hs02_[36];
-CollateMonitorElement* me_hs03_[36];
+DQMStore* dqmStore_;
 
 TProfile2D* ha01_[36];
 TProfile2D* ha02_[36];
 TProfile2D* ha03_[36];
-
-MEContentsProf2DWithinRangeROOT* qtha01_[36];
-MEContentsProf2DWithinRangeROOT* qtha02_[36];
-MEContentsProf2DWithinRangeROOT* qtha03_[36];
-
-MEContentsProf2DWithinRangeROOT* qtha04_[36];
-MEContentsProf2DWithinRangeROOT* qtha05_[36];
-MEContentsProf2DWithinRangeROOT* qtha06_[36];
-MEContentsProf2DWithinRangeROOT* qtha07_[36];
 
 TProfile2D* hs01_[36];
 TProfile2D* hs02_[36];
@@ -140,20 +112,20 @@ MonitorElement* mea03_[36];
 MonitorElement* mer04_[36];
 MonitorElement* mer05_[36];
 
-CollateMonitorElement* me_i01_[36];
-CollateMonitorElement* me_i02_[36];
-CollateMonitorElement* me_i03_[36];
-CollateMonitorElement* me_i04_[36];
+MonitorElement* me_hs01_[36];
+MonitorElement* me_hs02_[36];
+MonitorElement* me_hs03_[36];
 
-TProfile2D* i01_[36];
-TProfile2D* i02_[36];
-TProfile2D* i03_[36];
-TProfile2D* i04_[36];
+TProfile* i01_[36];
+TProfile* i02_[36];
+TProfile* i03_[36];
+TProfile* i04_[36];
 
 // Quality check on crystals
 
 float percentVariation_;
 float RMSThreshold_;
+float amplitudeThreshold_; 
 
 // Quality check on PNs
 
@@ -162,13 +134,6 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-MEContentsTH2FWithinRangeROOT* qtg02_[36];
-MEContentsTH2FWithinRangeROOT* qtg03_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg04_[36];
-MEContentsTH2FWithinRangeROOT* qtg05_[36];
 
 };
 

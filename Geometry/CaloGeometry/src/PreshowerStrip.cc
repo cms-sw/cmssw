@@ -1,83 +1,121 @@
 #include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
-//#include <algorithm>
 #include <iostream>
-//#include "assert.h"
 
-using namespace std;
+typedef PreshowerStrip::CCGFloat CCGFloat ;
+typedef PreshowerStrip::Pt3D     Pt3D     ;
+typedef PreshowerStrip::Pt3DVec  Pt3DVec  ;
+typedef PreshowerStrip::Tr3D     Tr3D     ;
 
-//----------------------------------------------------------------------
 
 PreshowerStrip::PreshowerStrip()
- {}
+  : CaloCellGeometry()
+{}
 
-//----------------------------------------------------------------------
-
-PreshowerStrip::PreshowerStrip(double dx, double dy, double dz)
+PreshowerStrip::PreshowerStrip( const PreshowerStrip& tr ) 
+  : CaloCellGeometry( tr )
 {
-
-  dx_ = dx;
-  dy_ = dy;
-  dz_ = dz;
-
-  corners.resize(8);
-  
-  corners[0] = GlobalPoint(-dx , -dy , -dz); // (-,-,-)
-  corners[1] = GlobalPoint(-dx ,  dy , -dz); // (-,+,-)
-  corners[2] = GlobalPoint( dx ,  dy , -dz); // (+,+,-)
-  corners[3] = GlobalPoint( dx , -dy , -dz); // (+,-,-)
-                           
-  corners[4] = GlobalPoint(-dx , -dy , dz);  // (-,-,+)
-  corners[5] = GlobalPoint(-dx ,  dy , dz);  // (-,+,+)
-  corners[6] = GlobalPoint( dx ,  dy , dz);  // (+,+,+)
-  corners[7] = GlobalPoint( dx , -dy , dz);  // (+,-,+)
-
-
-  // set the reference position as the geometric center of the box
-  HepGeom::Point3D<double> position;
-  position == HepGeom::Point3D<double>(0.,0.,0.);
-  setPosition(GlobalPoint(position.x(),position.y(),position.z()));
+  *this = tr ; 
 }
 
-bool PreshowerStrip::inside(const GlobalPoint & Point) const
+PreshowerStrip::~PreshowerStrip() 
+{}
+
+PreshowerStrip& 
+PreshowerStrip::operator=( const PreshowerStrip& tr ) 
 {
-
-  const GlobalPoint& center = getPosition();
-  if ( abs(Point.x()-center.x()) > dx_ || abs(Point.y()-center.y()) > dy_ || abs(Point.z()-center.z()) > dz_ ) return false;
-  return true;
-}
-
-
-const vector<GlobalPoint> & PreshowerStrip::getCorners() const
-{ return corners ; }
-
-void PreshowerStrip::hepTransform(const HepTransform3D &transformation)
-{
-
-  unsigned int i;
-
-  //Updating corners
-  for (i=0; i<corners.size(); ++i)
-    {
-      HepGeom::Point3D<float> newCorner(corners[i].x(),corners[i].y(),corners[i].z());
-      newCorner.transform(transformation);
-      corners[i]=GlobalPoint(newCorner.x(),newCorner.y(),newCorner.z());
-    }
-
-  //Updating reference position
-  const GlobalPoint& position_=getPosition();
-  HepGeom::Point3D<float> newPosition(position_.x(),position_.y(),position_.z());
-  newPosition.transform(transformation);
-  setPosition(GlobalPoint(newPosition.x(),newPosition.y(),newPosition.z()));
-
-}
-
-std::ostream& operator<<(std::ostream& s,const PreshowerStrip& cell) {
-  assert(cell.getCorners().size() == 8);
-  s  << "Center: " <<  cell.getPosition() << std::endl;
-  const std::vector<GlobalPoint>& corners=cell.getCorners(); 
-  //  vector<HepPoint3D> xtCorners=getCorners();
-  for ( unsigned int  ci=0; ci !=corners.size(); ci++) {
-    s  << "Corner: " << corners[ci] << std::endl;
+  if( &tr != this )
+  {
+    CaloCellGeometry::operator=( tr ) ;
   }
+  return *this ; 
+}
+
+const CaloCellGeometry::CornersVec& 
+PreshowerStrip::getCorners() const 
+{
+  const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
+  if( co.uninitialized() ) 
+  {
+    CornersVec& corners ( setCorners() ) ;
+
+    const GlobalPoint& ctr ( getPosition() ) ;
+    const CCGFloat x ( ctr.x() ) ;
+    const CCGFloat y ( ctr.y() ) ;
+    const CCGFloat z ( ctr.z() ) ;
+
+    const double st ( sin(tilt()) ) ;
+    const double ct ( cos(tilt()) ) ;
+
+    for( unsigned int ix ( 0 ) ; ix !=2 ; ++ix )
+    {
+      const double sx ( 0 == ix ? -1.0 : +1.0 ) ;
+      for( unsigned int iy ( 0 ) ; iy !=2 ; ++iy )
+      {
+	const double sy ( 0 == iy ? -1.0 : +1.0 ) ;
+	for( unsigned int iz ( 0 ) ; iz !=2 ; ++iz )
+	{
+	  const double sz ( 0 == iz ? -1.0 : +1.0 ) ;
+	  const unsigned int  i ( 4*iz + 2*ix + 
+				  ( 1 == ix ? 1-iy : iy ) ) ;//keeps ordering same as before
+
+	  corners[ i ] = GlobalPoint( 
+	    dy()>dx() ? 
+	    x + sx*dx() : 
+	    x + sx*dx()*ct - sz*dz()*st ,
+	    dy()<dx() ? 
+	    y + sy*dy() : 
+	    y + sy*dy()*ct - sz*dz()*st ,
+	    dy()>dx() ? 
+	    z + sz*dz()*ct + sy*dy()*st :
+	    z + sz*dz()*ct + sx*dx()*st ) ;
+	}
+      }
+    }
+  }
+  return co ;
+}
+
+std::ostream& operator<<( std::ostream& s, const PreshowerStrip& cell ) 
+{
+  s << "Center: " <<  cell.getPosition() << std::endl ;
+  if( cell.param() != 0 )
+  {
+    s << "dx = " << cell.dx() << ", dy = " << cell.dy() << ", dz = " << cell.dz() << std::endl ;
+
+    const CaloCellGeometry::CornersVec& corners ( cell.getCorners() ) ; 
+    for( unsigned int ci ( 0 ) ; ci != corners.size(); ci++ ) 
+    {
+      s  << "Corner: " << corners[ci] << std::endl;
+    }
+  }
+  else
+  {
+    s << " with empty parameters." << std::endl;
+  }
+  
   return s;
+}
+
+void
+PreshowerStrip::localCorners( Pt3DVec&        lc  ,
+			      const CCGFloat* pv  ,
+			      Pt3D&           ref  )
+{
+  assert( 8 == lc.size() ) ;
+  assert( 0 != pv ) ;
+
+  const CCGFloat dx ( pv[0] ) ;
+  const CCGFloat dy ( pv[1] ) ;
+  const CCGFloat dz ( pv[2] ) ;
+
+  lc[0] = Pt3D( -dx, -dy, -dz ) ;
+  lc[1] = Pt3D( -dx,  dy, -dz ) ;
+  lc[2] = Pt3D(  dx,  dy, -dz ) ;
+  lc[3] = Pt3D(  dx, -dy, -dz ) ;
+  lc[4] = Pt3D( -dx, -dy,  dz ) ;
+  lc[5] = Pt3D( -dx,  dy,  dz ) ;
+  lc[6] = Pt3D(  dx,  dy,  dz ) ;
+  lc[7] = Pt3D(  dx, -dy,  dz ) ;
+
+  ref   = Pt3D(0,0,0) ;
 }

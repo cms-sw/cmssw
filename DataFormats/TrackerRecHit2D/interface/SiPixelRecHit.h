@@ -1,5 +1,5 @@
-#ifndef SiPixelRecHit_H
-#define SiPixelRecHit_H
+#ifndef DataFormats_SiPixelRecHit_h
+#define DataFormats_SiPixelRecHit_h 1
 
 //---------------------------------------------------------------------------
 //!  \class SiPixelRecHit
@@ -13,44 +13,109 @@
 //!          DetSetVector and persistent references: V.Chiochia (Uni Zurich)
 //---------------------------------------------------------------------------
 
-#include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/Ref.h"
+//! Our base class
+#include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
+//! Quality word packing
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
-class SiPixelRecHit : public  BaseSiTrackerRecHit2DLocalPos {
+#include "TkCloner.h"
+
+class SiPixelRecHit GCC11_FINAL : public TrackerSingleRecHit {
+  
 public:
+  
+  typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
+  
+  SiPixelRecHit(){}
+  
+  ~SiPixelRecHit(){}
 
-  typedef edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
+  SiPixelRecHit( const LocalPoint& pos , const LocalError& err, 
+		 SiPixelRecHitQuality::QualWordType qual,
+		 GeomDet const & idet,
+		 ClusterRef const&  clus) : 
+    TrackerSingleRecHit(pos,err,idet, clus){
+    qualWord_=qual; }
 
-  SiPixelRecHit(): BaseSiTrackerRecHit2DLocalPos (),cluster_() {}
-
-  ~SiPixelRecHit() {}
-
-  SiPixelRecHit( const LocalPoint&, const LocalError&,
-		 const DetId&, 
-		 edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const&  cluster);  
-
+  
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
+  
+  ClusterRef cluster()  const { return cluster_pixel(); }
 
-  edm::Ref<edm::DetSetVector<SiPixelCluster>, 
-    SiPixelCluster>  const& cluster() const { return cluster_;}
+  void setClusterRef(ClusterRef const & ref)  {setClusterPixelRef(ref);}
 
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
-
+  virtual int dimension() const {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+  
+  
+  virtual bool canImproveWithTrack() const {return true;}
 private:
+  // double dispatch
+  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
+  
+  
+public:
+  //--- The overall probability.  flags is the 32-bit-packed set of flags that
+  //--- our own concrete implementation of clusterProbability() uses to direct
+  //--- the computation based on the information stored in the quality word
+  //--- (and which was computed by the CPE).  The default of flags==0 returns
+  //--- probabilityY() only (as that's the safest thing to do).
+  //--- Flags are static and kept in the transient rec hit.
+  float clusterProbability(unsigned int flags = 0) const;
+  
+  
+  //--- Allow direct access to the packed quality information.
+  inline SiPixelRecHitQuality::QualWordType rawQualityWord() const { 
+    return qualWord_ ; 
+  }
 
-  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster_;
+ 
+  //--- Template fit probability, in X and Y directions
+  //--- These are obsolete and will be taken care of in the quality code
+  inline float probabilityX() const     {
+    return SiPixelRecHitQuality::thePacking.probabilityX( qualWord_ );
+  }
+  inline float probabilityY() const     {
+    return SiPixelRecHitQuality::thePacking.probabilityY( qualWord_ );
+  }
+
+  //--- Template fit probability, in X and Y direction combined and in charge
+  inline float probabilityXY() const     {
+    return SiPixelRecHitQuality::thePacking.probabilityXY( qualWord_ );
+  }
+  inline float probabilityQ() const     {
+    return SiPixelRecHitQuality::thePacking.probabilityQ( qualWord_ );
+  }
+
+  //--- Charge `bin' (values 0, 1, 2, 3) according to Morris's template
+  //--- code. qBin==4 is unphysical, qBin=5,6,7 are yet unused)
+  //
+  inline int qBin() const     {
+    return SiPixelRecHitQuality::thePacking.qBin( qualWord_ );
+  }
+
+  //--- Quality flags (true or false):
+
+  //--- The cluster is on the edge of the module, or straddles a dead ROC
+  inline bool isOnEdge() const     {
+    return SiPixelRecHitQuality::thePacking.isOnEdge( qualWord_ );
+  }
+  //--- The cluster contains bad pixels, or straddles bad column or two-column
+  inline bool hasBadPixels() const     {
+    return SiPixelRecHitQuality::thePacking.hasBadPixels( qualWord_ );
+  }
+  //--- The cluster spans two ROCS (and thus contains big pixels)
+  inline bool spansTwoROCs() const     {
+    return SiPixelRecHitQuality::thePacking.spansTwoROCs( qualWord_ );
+  }
+
+  //--- Quality flag for whether the probability is filled
+  inline bool hasFilledProb() const {
+    return SiPixelRecHitQuality::thePacking.hasFilledProb( qualWord_ );
+  }
 
 };
-
-// Comparison operators
-inline bool operator<( const SiPixelRecHit& one, const SiPixelRecHit& other) {
-  if ( one.geographicalId() < other.geographicalId() ) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
 #endif

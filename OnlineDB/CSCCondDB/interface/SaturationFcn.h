@@ -4,8 +4,6 @@
 #include "Minuit2/FCNBase.h"  
 #include <vector>
 
-using namespace ROOT::Minuit2;
-
 class SaturationFcn : public FCNBase{ 
 
  public:
@@ -16,8 +14,8 @@ class SaturationFcn : public FCNBase{
 
 
  void set_data(int N,float *charge_ptr,float *adc_ptr){
-
-   float x[24],y[24];
+ 
+   float x[20],y[20];
 
    for(int i=0;i<N;i++){
      x[i]=charge_ptr[i];
@@ -26,6 +24,7 @@ class SaturationFcn : public FCNBase{
      daty[i]=y[i];
      //printf("%d  datx daty %f %f \n",i,datx[i],daty[i]);
    }
+
    x3start=(y[4]*x[1]-y[1]*x[4])/(x[1]-x[4]);
    x0start=daty[13]-x3start;
    x1start=(y[4]-y[1])/(x[4]-x[1])/x0start;
@@ -37,7 +36,7 @@ class SaturationFcn : public FCNBase{
  
  virtual double operator()(const std::vector<double>& x) const {
    double chisq = 0.0;  
-   int N=24;
+   int N=20;
   for(int i=0;i<N;i++){
     double val=1.0+pow(x[1]*datx[i],x[2]);
     double val2=1.0/x[2];
@@ -56,8 +55,7 @@ class SaturationFcn : public FCNBase{
  double x3start;
  
  private:
- 
- double datx[24],daty[24];
+ double datx[20],daty[20];
 }; 
 
 #endif

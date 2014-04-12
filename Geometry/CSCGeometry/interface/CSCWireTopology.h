@@ -13,6 +13,7 @@
 #include "Geometry/CSCGeometry/interface/CSCWireGeometry.h"
 #include "Geometry/CSCGeometry/src/CSCWireGrouping.h"
 #include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
+#include <utility> // for std::pair
 
 class CSCWireTopology : public WireTopology {
 
@@ -165,20 +166,44 @@ class CSCWireTopology : public WireTopology {
   float yResolution( int wireGroup=1 ) const;
 
   /** 
-   * Extent of wire plane i.e. width normal to wire direction. <BR>
+   * Extent of wire plane (width normal to wire direction). <BR>
    * Note that for ME11 this distance is not along local y! <BR>
    * cf. lengthOfPlane() which should be the same for all chambers but ME11.
    */
   double extentOfWirePlane() const {
     return wireSpacing() * (numberOfWires() - 1) ; }
 
-   /** Return mid-point of a wire in local coordinates, and its length
+  /**
+   * Return local (x,y) coordinates of the two ends of a wire
+   * across the extent of the wire plane.
+   * The returned value is a pair of LocalPoints.
+   */
+  std::pair< LocalPoint, LocalPoint > wireEnds( float wire ) const {
+    return theWireGeometry->wireEnds( wire ); }
+
+  /** Return mid-point of a wire in local coordinates, and its length
    *  across the chamber volume, in a vector as x, y, length
    */
-
   std::vector<float> wireValues( float wire ) const {
     return theWireGeometry->wireValues( wire ); }
 
+  /**
+   * Return slope and intercept of straight line representing a wire in 2-dim local coordinates.
+   *
+   * The return value is a pair p with p.first = m, p.second = c, where y=mx+c.
+   */
+  std::pair<float, float> equationOfWire( float wire ) const;
+  
+  /**
+   * Reset input y to lie within bounds of wire plane at top and bottom.
+   */
+  float restrictToYOfWirePlane( float y ) const;
+  
+  /** 
+   * Returns true if arg falls within y limits of wire plane; false otherwise.
+   */
+  bool insideYOfWirePlane( float y ) const;
+  
  private:
 
   CSCWireGrouping* theWireGrouping; // handles grouping of wires for read out

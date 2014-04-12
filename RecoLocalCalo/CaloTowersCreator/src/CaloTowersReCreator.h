@@ -2,7 +2,6 @@
 #define RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSRECREATOR_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -15,8 +14,6 @@
 
 /** \class CaloTowersReCreator
   *  
-  * $Date: 2006/08/17 15:23:34 $
-  * $Revision: 1.0 $
   */
 class CaloTowersReCreator : public edm::EDProducer {
 public:
@@ -27,7 +24,7 @@ public:
   double HEDEScale, HOEScale, HF1EScale, HF2EScale;
 private:
   CaloTowersCreationAlgo algo_;
-  edm::InputTag caloLabel_;
+  edm::EDGetTokenT<CaloTowerCollection> tok_calo_;
   bool allowMissingInputs_;
 };
 

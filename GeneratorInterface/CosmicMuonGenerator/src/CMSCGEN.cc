@@ -5,14 +5,34 @@
 // see header for documentation and CMS internal note 2007 "Improved Parametrization of the Cosmic Muon Flux for the generator CMSCGEN" by Biallass + Hebbeker
 //
 
+#include <CLHEP/Random/RandomEngine.h>
+#include <CLHEP/Random/JamesRandom.h>
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CMSCGEN.h"
  
-int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, int RanSeed, bool TIFOnly_constant, bool TIFOnly_linear)  
+CMSCGEN::CMSCGEN() : initialization(0), RanGen2(0), delRanGen(false)
 {
+}
 
-  //set seed for Random Generator (seed can be controled by config-file), P.Biallass 2006
-  RanGen2.SetSeed(RanSeed);
+CMSCGEN::~CMSCGEN()
+{
+  if (delRanGen)
+    delete RanGen2;
+}
+
+void CMSCGEN::setRandomEngine(CLHEP::HepRandomEngine* v) {
+  if (delRanGen)
+    delete RanGen2;
+  RanGen2 = v;
+  delRanGen = false;
+}
+
+int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, CLHEP::HepRandomEngine *rnd, bool TIFOnly_constant, bool TIFOnly_linear)  
+{
+  if (delRanGen)
+    delete RanGen2;
+  RanGen2 = rnd;
+  delRanGen = false;
 
   //set bools for TIFOnly options (E<2GeV with unphysical energy dependence)
   TIFOnly_const = TIFOnly_constant;
@@ -36,10 +56,12 @@ int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, doub
 
   //allowed energy range
   pmin_min = 3.;
-  pmin_max = 100.;
+  //pmin_max = 100.;
+  pmin_max = 3000.;
   pmax = 3000.;
   //allowed angular range
-  cmax_max = -0.1,
+  //cmax_max = -0.1,
+  cmax_max = -0.01,
   cmax_min = -0.9999;
 
  if(TIFOnly_const == true || TIFOnly_lin == true) pmin_min = 0.; //forTIF
@@ -229,6 +251,14 @@ int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, doub
   return initialization;
 }
 
+int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, int RanSeed, bool TIFOnly_constant, bool TIFOnly_linear)
+{
+  CLHEP::HepRandomEngine *rnd = new CLHEP::HepJamesRandom;
+  //set seed for Random Generator (seed can be controled by config-file), P.Biallass 2006
+  rnd->setSeed(RanSeed, 0);
+  delRanGen = true;
+  return initialize(pmin_in, pmax_in, thetamin_in, thetamax_in, rnd, TIFOnly_constant, TIFOnly_linear);
+}
 
 int CMSCGEN::generate()
 {
@@ -238,7 +268,7 @@ int CMSCGEN::generate()
       std::cout << " >>> CMSCGEN <<< warning: not initialized" << std::endl;
       return -1;
     }
-
+  
   // note: use historical notation (fortran version l3cgen.f)
 
   //
@@ -263,9 +293,9 @@ int CMSCGEN::generate()
   
   while (1)
     {
-      prob = RanGen2.Rndm();
+      prob = RanGen2->flat();
       r1 = double(prob);
-      prob = RanGen2.Rndm();
+      prob = RanGen2->flat();
       r2 = double(prob);
       
       xe = xemin+r1*(xemax-xemin);
@@ -346,7 +376,7 @@ int CMSCGEN::generate()
   //
   // +++ charge ratio 1.280
   //
-  prob = RanGen2.Rndm();
+  prob = RanGen2->flat();
   r3 = double(prob);
   
   double charg = 1.;
@@ -407,9 +437,9 @@ int CMSCGEN::generate()
   
   while (1)
     {
-      prob = RanGen2.Rndm();
+      prob = RanGen2->flat();
       r1 = double(prob);
-      prob = RanGen2.Rndm();
+      prob = RanGen2->flat();
       r2 = double(prob);
       c = cmin + (c_cut-cmin)*r1;    
       z = b0 + b1 * c + b2 * c*c;
@@ -467,3 +497,131 @@ double CMSCGEN::flux()
   
 }
 
+
+
+int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, double ProdAlt_in, CLHEP::HepRandomEngine *rnd)
+{
+  if (delRanGen)
+    delete RanGen2;
+  RanGen2 = rnd;
+  delRanGen = false;
+
+  ProdAlt = ProdAlt_in;
+
+  Rnunubar = 1.2;
+
+  sigma = (0.72*Rnunubar+0.09)/(1+Rnunubar)*1.e-38; //cm^2GeV^-1
+
+  AR = (0.69+0.06*Rnunubar)/(0.09+0.72*Rnunubar);
+
+
+  //set smin and smax, here convert between coordinate systems:
+  pmin = pmin_in;
+  pmax = pmax_in;
+  cmin = TMath::Cos(thetamin_in);//input angle already converted from Deg to Rad!
+  cmax = TMath::Cos(thetamax_in);//input angle already converted from Deg to Rad!
+  enumin = (Enumin_in < 10.) ? 10. : Enumin_in; //no nu's below 10GeV
+  enumax = Enumax_in;
+
+
+  //do initial run of flux rate to determine Maximum
+  integrated_flux = 0.;
+  dNdEmudEnuMax = 0.;
+  negabs = 0.;
+  negfrac = 0.;
+  int trials = 100000;
+  for (int i=0; i<trials; ++i) {
+    double ctheta = cmin + (cmax-cmin)*RanGen2->flat();
+    double Emu = pmin + (pmax-pmin)*RanGen2->flat();
+    double Enu = enumin + (enumax-enumin)*RanGen2->flat();
+    double rate =  dNdEmudEnu(Enu, Emu, ctheta);
+    //std::cout << "trial=" << i << " ctheta=" << ctheta << " Emu=" << Emu << " Enu=" << Enu 
+    //      << " rate=" << rate << std::endl;
+    //std::cout << "cmin=" << cmin << " cmax=" << cmax 
+    //      << " pmin=" << pmin << " pmax=" << pmax 
+    //      << " enumin=" << enumin << " enumax=" << enumax << std::endl;
+    if (rate > 0.) {
+      integrated_flux += rate;
+      if (rate > dNdEmudEnuMax)
+	dNdEmudEnuMax = rate;
+    }
+    else negabs++;
+  }
+  negfrac = negabs/trials;
+  integrated_flux /= trials;
+
+  std::cout << "CMSCGEN::initializeNuMu: After " << trials << " trials:" << std::endl;
+  std::cout << "dNdEmudEnuMax=" << dNdEmudEnuMax << std::endl;
+  std::cout << "negfrac=" << negfrac << std::endl;
+
+  //multiply by phase space boundaries
+  integrated_flux *= (cmin-cmax);
+  integrated_flux *= (Phimax_in-Phimin_in);
+  integrated_flux *= (pmax-pmin);
+  integrated_flux *= (enumax-enumin);
+  //remove negative phase space areas which do not contribute anything
+  integrated_flux *= (1.-negfrac);
+  std::cout << " >>> CMSCGEN.initializeNuMu <<< " <<
+    " Integrated flux = " << integrated_flux << " units??? " << std::endl;
+
+
+  initialization = 1;
+
+  return initialization;
+
+} 
+
+int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, double ProdAlt_in, int RanSeed)
+{
+  CLHEP::HepRandomEngine *rnd = new CLHEP::HepJamesRandom;
+  //set seed for Random Generator (seed can be controled by config-file), P.Biallass 2006
+  rnd->setSeed(RanSeed, 0);
+  delRanGen = true;
+  return initializeNuMu(pmin_in, pmax_in, thetamin_in, thetamax_in, Enumin_in, Enumax_in, Phimin_in, Phimax_in, ProdAlt_in, rnd);
+}
+
+
+double CMSCGEN::dNdEmudEnu(double Enu, double Emu, double ctheta) {
+  double cthetaNu = 1. + ctheta; //swap cos(theta) from down to up range
+  double thetas = asin(sin(acos(cthetaNu))*(Rearth-SurfaceOfEarth)/(Rearth+ProdAlt));
+  double costhetas = cos(thetas);
+  double dNdEnudW = 0.0286*pow(Enu,-2.7)*(1./(1.+(6.*Enu*costhetas)/115.)+0.213/(1.+(1.44*Enu*costhetas)/850.)); //cm^2*s*sr*GeV
+  double dNdEmudEnu = N_A*sigma/alpha*dNdEnudW*1./(1.+Emu/epsilon)*
+    (Enu-Emu+AR/3*(Enu*Enu*Enu-Emu*Emu*Emu)/(Enu*Enu));
+  return dNdEmudEnu;
+}
+
+
+int CMSCGEN::generateNuMu() {
+  if(initialization==0) 
+    {
+      std::cout << " >>> CMSCGEN <<< warning: not initialized" << std::endl;
+      return -1;
+    }
+  
+  double ctheta, Emu;
+  while (1) {
+    ctheta = cmin + (cmax-cmin)*RanGen2->flat();
+    Emu = pmin + (pmax-pmin)*RanGen2->flat();
+    double Enu = enumin + (enumax-enumin)*RanGen2->flat();
+    double rate = dNdEmudEnu(Enu, Emu, ctheta);
+    if (rate > dNdEmudEnuMax*RanGen2->flat()) break;
+  }
+
+  c = -ctheta; //historical sign convention
+
+  pq = Emu;
+  //
+  // +++ nu/nubar ratio (~1.2)
+  //
+  double charg = 1.; //nubar -> mu+
+  if (RanGen2->flat() > Rnunubar/(1.+Rnunubar))
+    charg = -1.; //neutrino -> mu-
+
+  pq = pq*charg;
+ 
+  
+  //int flux += this event rate
+
+  return 1;
+}

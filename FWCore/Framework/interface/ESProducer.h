@@ -66,11 +66,11 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.15 2006/10/21 02:48:59 wmtan Exp $
 //
 
 // system include files
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
@@ -79,7 +79,6 @@ Example: two algorithms each creating only one objects
 #include "FWCore/Framework/interface/CallbackProxy.h"
 #include "FWCore/Framework/interface/Callback.h"
 #include "FWCore/Framework/interface/produce_helpers.h"
-#include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/eventsetup_dependsOn.h"
 #include "FWCore/Framework/interface/es_Label.h"
 
@@ -164,11 +163,11 @@ class ESProducer : public ESProxyFactoryProducer
                                                                iThis, 
                                                                iMethod, 
                                                                createDecoratorFrom(iThis, 
-                                                                                    static_cast<const TRecord*>(0),
+                                                                                    static_cast<const TRecord*>(nullptr),
                                                                                     iDec)));
             registerProducts(callback,
-                             static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(0),
-                             static_cast<const TRecord*>(0),
+                             static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
+                             static_cast<const TRecord*>(nullptr),
                              iLabel);
             //BOOST_STATIC_ASSERT((boost::is_base_and_derived<ED, T>::type));
          }
@@ -176,8 +175,8 @@ class ESProducer : public ESProxyFactoryProducer
       /*
       template<typename T, typename TReturn, typename TArg>
          void setWhatProduced(T* iThis, TReturn (T ::* iMethod)(const TArg&)) {
-            registerProducts(iThis, static_cast<const typename produce::product_traits<TReturn>::type *>(0));
-            registerGet(iThis, static_cast<const TArg*>(0));
+            registerProducts(iThis, static_cast<const typename produce::product_traits<TReturn>::type *>(nullptr));
+            registerGet(iThis, static_cast<const TArg*>(nullptr));
             //BOOST_STATIC_ASSERT((boost::is_base_and_derived<ED, T>::type));
          }
       */
@@ -197,8 +196,8 @@ class ESProducer : public ESProxyFactoryProducer
       template<typename CallbackT, typename TList, typename TRecord>
          void registerProducts(boost::shared_ptr<CallbackT> iCallback, const TList*, const TRecord* iRecord,
                                const es::Label& iLabel) {
-            registerProduct(iCallback, static_cast<const typename TList::tail_type*>(0), iRecord, iLabel);
-            registerProducts(iCallback, static_cast<const typename TList::head_type*>(0), iRecord, iLabel);
+            registerProduct(iCallback, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
+            registerProducts(iCallback, static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
          }
       template<typename T, typename TRecord>
          void registerProducts(boost::shared_ptr<T>, const eventsetup::produce::Null*, const TRecord*,const es::Label&) {
@@ -208,21 +207,23 @@ class ESProducer : public ESProxyFactoryProducer
       
       template<typename T, typename TProduct, typename TRecord>
          void registerProduct(boost::shared_ptr<T> iCallback, const TProduct*, const TRecord*,const es::Label& iLabel) {
-            registerFactory(new eventsetup::ProxyArgumentFactoryTemplate<
-                            eventsetup::CallbackProxy<T, TRecord, TProduct>, boost::shared_ptr<T> >(iCallback),
-                            iLabel.default_);
+	    typedef eventsetup::CallbackProxy<T, TRecord, TProduct> ProxyType;
+	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, boost::shared_ptr<T> > FactoryType;
+            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.default_);
          }
       
       template<typename T, typename TProduct, typename TRecord, int IIndex>
          void registerProduct(boost::shared_ptr<T> iCallback, const es::L<TProduct,IIndex>*, const TRecord*,const es::Label& iLabel) {
-            if(iLabel.labels_.size() <=IIndex ||
+            if(iLabel.labels_.size() <= IIndex ||
                iLabel.labels_[IIndex] == es::Label::def()) {
-               throw edm::Exception(errors::Configuration, "Unnamed Label")
-               <<"the index "<<IIndex<<" was never assigned a name in the 'setWhatProduced' method";
+               Exception::throwThis(errors::Configuration,
+                 "Unnamed Label\nthe index ",
+                 IIndex,
+                 " was never assigned a name in the 'setWhatProduced' method");
             }
-            registerFactory(new eventsetup::ProxyArgumentFactoryTemplate<
-                            eventsetup::CallbackProxy<T, TRecord, es::L<TProduct,IIndex> >, boost::shared_ptr<T> >(iCallback),
-                            iLabel.labels_[IIndex]);
+	    typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex> > ProxyType;
+	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, boost::shared_ptr<T> > FactoryType;
+            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.labels_[IIndex]);
          }
       
       // ---------- member data --------------------------------

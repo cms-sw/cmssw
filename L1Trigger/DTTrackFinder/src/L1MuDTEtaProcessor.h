@@ -10,8 +10,6 @@
  *    - one Eta Matching Unit (EMU)
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -45,6 +43,7 @@ class L1MuDTTrackFinder;
 class L1MuDTTrack;
 class L1MuDTEtaPatternLut;
 class L1MuDTQualPatternLut;
+class L1MuDTTFMasks;
 
 //              ---------------------
 //              -- Class Interface --
@@ -84,7 +83,7 @@ class L1MuDTEtaProcessor {
   private:
     
     /// receive data (eta trigger primitives)
-    void receiveData(int bx, const edm::Event& e);
+    void receiveData(int bx, const edm::Event& e, const edm::EventSetup& c);
     
     /// receive addresses (from 6 Sector Processors)
     void receiveAddresses();
@@ -106,6 +105,8 @@ class L1MuDTEtaProcessor {
     const L1MuDTTrackFinder&                  m_tf;
     int                                       m_epid;
 
+    int                                       m_mask;
+
     int                                       m_eta[12];
     bool                                      m_fine[12];
     
@@ -114,10 +115,12 @@ class L1MuDTEtaProcessor {
 
     int                                       m_address[12];
     L1MuDTTrack*                              m_TrackCand[12];    
+    L1MuDTTrack*                              m_TracKCand[12];    
     std::vector<const L1MuDTTrackSegEta*>     m_tseta;
     
     edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
     edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables
+    edm::ESHandle< L1MuDTTFMasks >        msks;
  
 };
 

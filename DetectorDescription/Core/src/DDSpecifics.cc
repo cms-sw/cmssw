@@ -1,15 +1,8 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDNodes.h"
 #include "Specific.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 
-#include <vector>
 #include <utility>
-
-//Timing
-
-#include "SealUtil/SealTimer.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,30 +28,22 @@ DDSpecifics::DDSpecifics(const DDName & name,
 			 bool doRegex)
  : DDBase<DDName,Specific*>()
 {
-   static seal::SealTimer tddspecs("DDSpecifics::DDSpecifics(...)", false);
-
-   try {
-     prep_ = StoreT::instance().create(name, new Specific(partSelections,svalues,doRegex));   
-     typedef std::vector<std::pair<DDLogicalPart,std::pair<DDPartSelection*,DDsvalues_type*> > > strange_type;
-     strange_type v;
-     rep().updateLogicalPart(v);
-     strange_type::iterator it = v.begin();
-     for(; it != v.end(); ++it) {
-       if (it->first.isDefined().second) {
-         it->first.addSpecifics(it->second);
-         DCOUT('C', "add specifics to LP: partsel=" << *(it->second.first) );
-       }
-       else {
-	 std::string serr("Definition of LogicalPart missing! name=");
-	 serr+= std::string(it->first.ddname());
-         throw DDException(serr);
-       }
-     }
-   } catch(const DDException & e) {
-     edm::LogError("DDSpecifics") << "DDException: \"" << e.what() << "\"" << std::endl;
-     edm::LogError("DDSpecifics") << " in Specifics name=" << name << std::endl;
-     edm::LogError("DDSpecifics") << "<=========" << std::endl;
-   }
+  prep_ = StoreT::instance().create(name, new Specific(partSelections,svalues,doRegex));   
+  typedef std::vector<std::pair<DDLogicalPart,std::pair<DDPartSelection*,DDsvalues_type*> > > strange_type;
+  strange_type v;
+  rep().updateLogicalPart(v);
+  strange_type::iterator it = v.begin();
+  for(; it != v.end(); ++it) {
+    if (it->first.isDefined().second) {
+      it->first.addSpecifics(it->second);
+      DCOUT('C', "add specifics to LP: partsel=" << *(it->second.first) );
+    }
+    else {
+      std::string serr("Definition of LogicalPart missing! name=");
+      serr+= it->first.ddname().fullname();
+      throw cms::Exception("DDException") << serr;
+    }
+  }
 } 
     
 
@@ -94,10 +79,10 @@ std::pair<bool,DDExpandedView> DDSpecifics::node() const
   return rep().node();
 }
   	
-void DDSpecifics::clear()
-{
- StoreT::instance().clear();
-}
+// void DDSpecifics::clear()
+// {
+//  StoreT::instance().clear();
+// }
 
 			 			
 std::ostream & operator<<( std::ostream  & os, const DDSpecifics & sp)

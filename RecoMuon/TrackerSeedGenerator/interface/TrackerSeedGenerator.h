@@ -8,11 +8,13 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 class Trajectory;
 class TrackingRegion;
 class MuonServiceProxy;
+class TrackerTopology;
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {class ParameterSet; class Event; class EventSetup; class ConsumesCollector;}
 
 class TrackerSeedGenerator {
 
@@ -28,15 +30,17 @@ public:
   /// destructor
   virtual ~TrackerSeedGenerator() {}
 
-  virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &);
+  virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &);
     
   virtual void setEvent(const edm::Event&);
+
+  const edm::Event *getEvent() const { return theEvent;}
 
 private:
 
   virtual void run(TrajectorySeedCollection &seeds, 
       const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region) {} 
-
+ protected:
   const edm::Event * theEvent;
   const MuonServiceProxy * theProxyService;
   

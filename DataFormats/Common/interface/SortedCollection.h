@@ -1,8 +1,8 @@
-#ifndef Common_SortedCollection_h
-#define Common_SortedCollection_h
+#ifndef DataFormats_Common_SortedCollection_h
+#define DataFormats_Common_SortedCollection_h
 
 /*----------------------------------------------------------------------
-  
+
 SortedCollection: A collection of homogeneous objects that can be used
 for an EDProduct. SortedCollection is *not* designed for use as a base
 class (it has no virtual functions).
@@ -23,21 +23,21 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.11 2007/05/24 16:35:46 paterno Exp $
-
 ----------------------------------------------------------------------*/
 
-#include <algorithm>
-#include <vector>
-
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/traits.h"
-#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "DataFormats/Common/interface/fillPtrVector.h"
 #include "DataFormats/Common/interface/FillView.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+#include <algorithm>
+#include <typeinfo>
+#include <vector>
 
 namespace edm {
 
@@ -45,37 +45,22 @@ namespace edm {
   // Forward declarations
   //
 
-  template <class T> struct StrictWeakOrdering;  
-  template <class T, class SORT = StrictWeakOrdering<T> > 
+  template<typename T> struct StrictWeakOrdering;
+  template<typename T, typename SORT = StrictWeakOrdering<T> >
     class SortedCollection;
-  
-#if ! GCC_PREREQUISITE(3,4,4)
-  //------------------------------------------------------------
-  // The following template partial specialization can be removed
-  // when we move to GCC 3.4.x
-  //------------------------------------------------------------
-  
-  // Partial specialization of has_postinsert_trait template for any
-  // SortedCollection<T>, regardless of T; all SortedCollection
-  // classes have post_insert.
-  
-  template <class T, class SORT>
-  struct has_postinsert_trait<edm::SortedCollection<T,SORT> >
-  {
-    static bool const value = true;
-  };
-#endif
 
-  template <class T, class SORT>
-  struct has_fillView<edm::SortedCollection<T,SORT> >
-  {
+  template<typename T, typename SORT>
+  struct has_fillView<edm::SortedCollection<T, SORT> > {
     static bool const value = true;
   };
 
+  template<typename T, typename SORT>
+  struct has_setPtr<edm::SortedCollection<T, SORT> > {
+    static bool const value = true;
+  };
 
-  template <class T>
-  struct StrictWeakOrdering
-  {
+  template<typename T>
+  struct StrictWeakOrdering {
     typedef typename T::key_type key_type;
 
     // Each of the following comparisons are needed (at least with GCC's library).
@@ -88,7 +73,7 @@ namespace edm {
   };
 
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   class SortedCollection {
   public:
     typedef T    value_type;    // the values we contain
@@ -112,10 +97,17 @@ namespace edm {
     SortedCollection(SortedCollection const& h);
 
     // Add the following when needed
-    //template <class InputIterator>
+    //template<typename InputIterator>
     //SortedCollection(InputIterator b, InputIterator e);
 
     void push_back(T const& t);
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+    void push_back(T && t) { obj.push_back(t);}
+
+    template<typename... Args >
+    void emplace_back( Args&&... args ) { obj.emplace_back(args...);}
+#endif
+    void pop_back() { obj.pop_back(); }
 
     void swap(SortedCollection& other);
 
@@ -129,7 +121,7 @@ namespace edm {
     void reserve(size_type n);
 
     // Return a reference to the i'th item in the collection.
-    // Not that the argument is an *integer*, not an object of
+    // Note that the argument is an *integer*, not an object of
     //   type key_type
     reference       operator[](size_type i);
     const_reference operator[](size_type i) const;
@@ -162,8 +154,19 @@ namespace edm {
     void post_insert();
 
     void fillView(ProductID const& id,
-		  std::vector<void const*>& pointers,
-		  helper_vector& helpers) const;
+                  std::vector<void const*>& pointers,
+                  helper_vector& helpers) const;
+
+    void setPtr(std::type_info const& toType,
+                unsigned long index,
+                void const*& ptr) const;
+
+    void fillPtrVector(std::type_info const& toType,
+                       std::vector<unsigned long> const& indices,
+                       std::vector<void const*>& ptrs) const;
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
 
@@ -174,223 +177,230 @@ namespace edm {
     collection_type   obj;
   };
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  SortedCollection<T,SORT>::SortedCollection() : obj() {}
+  SortedCollection<T, SORT>::SortedCollection() : obj() {}
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  SortedCollection<T,SORT>::SortedCollection(size_type n) : obj(n) {}
+  SortedCollection<T, SORT>::SortedCollection(size_type n) : obj(n) {}
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  SortedCollection<T,SORT>::SortedCollection(std::vector<T> const& vec) : obj(vec) {}
+  SortedCollection<T, SORT>::SortedCollection(std::vector<T> const& vec) : obj(vec) {}
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  SortedCollection<T,SORT>::SortedCollection(SortedCollection<T,SORT> const& h) : obj(h.obj) {}
+  SortedCollection<T, SORT>::SortedCollection(SortedCollection<T, SORT> const& h) : obj(h.obj) {}
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   void
-  SortedCollection<T,SORT>::push_back(T const& t) {
+  SortedCollection<T, SORT>::push_back(T const& t) {
     obj.push_back(t);
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   void
-  SortedCollection<T,SORT>::swap(SortedCollection<T,SORT>& other) {
+  SortedCollection<T, SORT>::swap(SortedCollection<T, SORT>& other) {
     obj.swap(other.obj);
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   void
-  SortedCollection<T,SORT>::swap_contents(std::vector<T>& other) {
+  SortedCollection<T, SORT>::swap_contents(std::vector<T>& other) {
     obj.swap(other);
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  SortedCollection<T,SORT>&
-  SortedCollection<T,SORT>::operator=(SortedCollection<T,SORT> const& rhs) {
-    SortedCollection<T,SORT> temp(rhs);
+  SortedCollection<T, SORT>&
+  SortedCollection<T, SORT>::operator=(SortedCollection<T, SORT> const& rhs) {
+    SortedCollection<T, SORT> temp(rhs);
     this->swap(temp);
     return *this;
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   bool
-  SortedCollection<T,SORT>::empty() const {
+  SortedCollection<T, SORT>::empty() const {
     return obj.empty();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::size_type
-  SortedCollection<T,SORT>::size() const {
+  typename SortedCollection<T, SORT>::size_type
+  SortedCollection<T, SORT>::size() const {
     return obj.size();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::size_type
-  SortedCollection<T,SORT>::capacity() const {
+  typename SortedCollection<T, SORT>::size_type
+  SortedCollection<T, SORT>::capacity() const {
     return obj.capacity();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   void
-  SortedCollection<T,SORT>::reserve(typename SortedCollection<T,SORT>::size_type n) {
+  SortedCollection<T, SORT>::reserve(typename SortedCollection<T, SORT>::size_type n) {
     obj.reserve(n);
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::reference
-  SortedCollection<T,SORT>::operator[](size_type i) {
+  typename SortedCollection<T, SORT>::reference
+  SortedCollection<T, SORT>::operator[](size_type i) {
     return obj[i];
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::const_reference
-  SortedCollection<T,SORT>::operator[](size_type i) const {
+  typename SortedCollection<T, SORT>::const_reference
+  SortedCollection<T, SORT>::operator[](size_type i) const {
     return obj[i];
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::iterator
-  SortedCollection<T,SORT>::find(key_type key)
-  {
+  typename SortedCollection<T, SORT>::iterator
+  SortedCollection<T, SORT>::find(key_type key) {
     // This fails if the SortedCollection has not been sorted. It is
     // up to the user (with the help of the Event) to make sure this
     // has been done.
     key_compare comp;
     inner_iterator last = obj.end();
     inner_iterator loc = std::lower_bound(obj.begin(),
-					  last,
-					  key,
-					  comp);
-    return loc == last || comp(key, *loc) ? last : loc;    
+                                          last,
+                                          key,
+                                          comp);
+    return loc == last || comp(key, *loc) ? last : loc;
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::const_iterator
-  SortedCollection<T,SORT>::find(key_type key) const
-  {
+  typename SortedCollection<T, SORT>::const_iterator
+  SortedCollection<T, SORT>::find(key_type key) const {
     // This fails if the SortedCollection has not been sorted. It is
     // up to the user (with the help of the Event) to make sure this
     // has been done.
     key_compare  comp;
     const_inner_iterator last = obj.end();
     const_inner_iterator loc = std::lower_bound(obj.begin(),
-						last,
-						key,
-						comp);
+                                                last,
+                                                key,
+                                                comp);
     return loc == last || comp(key, *loc) ? last : loc;
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::const_iterator
-  SortedCollection<T,SORT>::begin() const {
+  typename SortedCollection<T, SORT>::const_iterator
+  SortedCollection<T, SORT>::begin() const {
     return obj.begin();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::const_iterator
-  SortedCollection<T,SORT>::end() const {
+  typename SortedCollection<T, SORT>::const_iterator
+  SortedCollection<T, SORT>::end() const {
     return obj.end();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::iterator
-  SortedCollection<T,SORT>::begin()
-  {
+  typename SortedCollection<T, SORT>::iterator
+  SortedCollection<T, SORT>::begin() {
     return obj.begin();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::iterator
-  SortedCollection<T,SORT>::end()
-  {
+  typename SortedCollection<T, SORT>::iterator
+  SortedCollection<T, SORT>::end() {
     return obj.end();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::const_reference
-  SortedCollection<T,SORT>::front() const
-  {
+  typename SortedCollection<T, SORT>::const_reference
+  SortedCollection<T, SORT>::front() const {
     return obj.front();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::reference
-  SortedCollection<T,SORT>::front()
-  {
+  typename SortedCollection<T, SORT>::reference
+  SortedCollection<T, SORT>::front() {
     return obj.front();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::const_reference
-  SortedCollection<T,SORT>::back() const
-  {
+  typename SortedCollection<T, SORT>::const_reference
+  SortedCollection<T, SORT>::back() const {
     return obj.back();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
-  typename SortedCollection<T,SORT>::reference
-  SortedCollection<T,SORT>::back()
-  {
+  typename SortedCollection<T, SORT>::reference
+  SortedCollection<T, SORT>::back() {
     return obj.back();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   void
-  SortedCollection<T,SORT>::sort()
-  {
+  SortedCollection<T, SORT>::sort() {
     key_compare  comp;
     std::sort(obj.begin(), obj.end(), comp);
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   void
-  SortedCollection<T,SORT>::post_insert()
-  {
+  SortedCollection<T, SORT>::post_insert() {
     // After insertion, we make sure our contents are sorted.
     sort();
   }
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
+  inline
   void
-  SortedCollection<T,SORT>::fillView(ProductID const& id, 
-				     std::vector<void const*>& pointers,
-				     helper_vector& helpers) const
-  {
+  SortedCollection<T, SORT>::fillView(ProductID const& id,
+                                     std::vector<void const*>& pointers,
+                                     helper_vector& helpers) const {
     detail::reallyFillView(*this, id, pointers, helpers);
   }
 
-  // Free swap function
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   void
-  swap(SortedCollection<T,SORT>& a, SortedCollection<T,SORT>& b) 
-  {
+  SortedCollection<T, SORT>::setPtr(std::type_info const& toType,
+                                   unsigned long index,
+                                   void const*& ptr) const {
+    detail::reallySetPtr(*this, toType, index, ptr);
+  }
+
+  template<typename T, typename SORT>
+  inline
+  void
+  SortedCollection<T, SORT>::fillPtrVector(std::type_info const& toType,
+                                          std::vector<unsigned long> const& indices,
+                                          std::vector<void const*>& ptrs) const {
+    detail::reallyfillPtrVector(*this, toType, indices, ptrs);
+  }
+
+  // Free swap function
+  template<typename T, typename SORT>
+  inline
+  void
+  swap(SortedCollection<T, SORT>& a, SortedCollection<T, SORT>& b) {
     a.swap(b);
   }
 
@@ -408,16 +418,15 @@ namespace edm {
 
   // comparison with vector tests to see whether the entries in the
   // SortedCollection are the same as the entries in the vector, *and
-  // in the same order. 
+  // in the same order.
   // operator==(T const& a, T const& b) is used to compare the elements in
   // the collections.
-  
-  template <class T, class SORT, class ALLOC>
+
+  template<typename T, typename SORT, typename ALLOC>
   inline
-  bool 
-  operator== (SortedCollection<T, SORT> const& c,
-	      std::vector<T, ALLOC>     const& v)
-  {
+  bool
+  operator==(SortedCollection<T, SORT> const& c,
+             std::vector<T, ALLOC>     const& v) {
     return c.size() == v.size() && std::equal(v.begin(), v.end(), c.begin());
   }
 
@@ -425,37 +434,48 @@ namespace edm {
   // collected elements, in order for equality.
   // operator==(T const& a, T const& b) is used to compare the elements.
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   bool
   operator==(SortedCollection<T, SORT> const& a,
-	     SortedCollection<T, SORT> const& b)
-  {
-    return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());    
+             SortedCollection<T, SORT> const& b) {
+    return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());
   }
 
   //----------------------------------------------------------------------
   //
   // Free function template to support creation of Views.
 
-  template <class T, class SORT>
+  template<typename T, typename SORT>
   inline
   void
-  fillView(SortedCollection<T,SORT> const& obj,
-	   ProductID const& id,
-	   std::vector<void const*>& pointers,
-	   helper_vector& helpers)
-  {
+  fillView(SortedCollection<T, SORT> const& obj,
+           ProductID const& id,
+           std::vector<void const*>& pointers,
+           helper_vector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 
-#if ! GCC_PREREQUISITE(3,4,4)
-  // has swap function
-  template <class T, class SORT>
-  struct has_swap<edm::SortedCollection<T,SORT> > {
-    static bool const value = true;
-  };
-#endif
+  // Free function templates to support the use of edm::Ptr.
+  template<typename T, typename SORT>
+  inline
+  void
+  setPtr(SortedCollection<T, SORT> const& obj,
+         std::type_info const& toType,
+         unsigned long index,
+         void const*& ptr) {
+    obj.setPtr(toType, index, ptr);
+  }
+
+  template<typename T, typename SORT>
+  inline
+  void
+  fillPtrVector(SortedCollection<T, SORT> const& obj,
+                std::type_info const& toType,
+                std::vector<unsigned long> const& indices,
+                std::vector<void const*>& ptrs) {
+    obj.fillPtrVector(toType, indices, ptrs);
+  }
 }
 
 #endif

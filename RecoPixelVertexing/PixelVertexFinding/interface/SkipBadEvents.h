@@ -5,8 +5,6 @@
  * This won't be needed when PoolSource can do this for us, then I
  * will retire this little guy.
  *
- *  $Date: 2006/06/05 23:23:34 $
- *  $Revision: 1.1 $
  *  \author Aaron Dominguez (UNL)
  */
 #include "FWCore/Framework/interface/EDFilter.h"

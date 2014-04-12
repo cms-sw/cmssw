@@ -3,17 +3,74 @@ void SiStripDigiCompare()
 
  gROOT ->Reset();
  char*  sfilename = "stripdigihisto.root";
- char*  rfilename = "../data/stripdigihisto.root";
+ char*  rfilename = "../stripdigihisto.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
 
  TText* te = new TText();
  TFile * rfile = new TFile(rfilename);
+ TDirectory * rdir=gDirectory; 
  TFile * sfile = new TFile(sfilename);
+ TDirectory * sdir=gDirectory; 
 
- rfile->cd("DQMData/TrackerDigis/Strip");
- sfile->cd("DQMData/TrackerDigis/Strip");
+ if(rfile->cd("DQMData/Run 1/TrackerDigisV"))rfile->cd("DQMData/Run 1/TrackerDigisV/Run summary/TrackerDigis/Strip");
+ else rfile->cd("DQMData/TrackerDigisV/TrackerDigis/Strip");
+ rdir=gDirectory;
+
+ if(sfile->cd("DQMData/Run 1/TrackerDigisV"))sfile->cd("DQMData/Run 1/TrackerDigisV/Run summary/TrackerDigis/Strip");
+ else sfile->cd("DQMData/TrackerDigisV/TrackerDigis/Strip");
+ sdir=gDirectory; 
+
+TLegend leg(0.3, 0.83, 0.55, 0.90);
+ //Get list of Keys from the Reference file.
+  TList* ref_list = rfile->GetListOfKeys() ;
+  if (!ref_list) {
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in the Reference file."<<std::endl;
+      exit(1) ;
+   }
+
+  //Get list of Keys from the New file.
+  TList* new_list = sfile->GetListOfKeys() ;
+  if (!new_list) {
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in New file."<<std::endl;
+      exit(1) ;
+   }
+
+
+  //Iterate on the List of Keys of the  Reference file.
+  TIter     refkey_iter( ref_list) ;
+  TKey*     ref_key ;
+  TObject*  ref_obj ;
+
+  char rver[50];
+  char cver[50];
+  while ( ref_key = (TKey*) refkey_iter() ) {
+      ref_obj = ref_key->ReadObj() ;
+      if (strcmp(ref_obj->IsA()->GetName(),"TObjString")==0) {
+
+         TObjString * rversion = dynamic_cast< TObjString*> (ref_obj);
+         sprintf(rver, "%s", rversion->GetName());
+         std::cout<<" Ref. version =" << rver<<std::endl;
+         break;
+      }
+  }
+
+  //Iterate on the List of Keys of the  Reference file.
+  TIter     newkey_iter( new_list) ;
+  TKey*     new_key ;
+  TObject*  new_obj ;
+  while ( new_key = (TKey*) newkey_iter() ) {
+      new_obj = new_key->ReadObj() ;
+      if (strcmp(new_obj->IsA()->GetName(),"TObjString")==0) {
+
+         TObjString * cversion = dynamic_cast< TObjString*> (new_obj);
+         sprintf(cver, "%s", cversion->GetName());
+         std::cout<<" Cur version =" << cver<<std::endl;
+         break;
+
+      }
+  }
 
  //gDirectory->ls();
 
@@ -32,9 +89,9 @@ void SiStripDigiCompare()
    TH1* newmeNdigiTIB_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tib_layer_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meNdigiTIB_[i]);
-      sfile->GetObject(histo ,newmeNdigiTIB_[i]);
+      sprintf(histo,"ndigi_tib_layer_%d_zm;1",i+1);
+      rdir->GetObject(histo ,meNdigiTIB_[i]);
+      sdir->GetObject(histo ,newmeNdigiTIB_[i]);
       meNdigiTIB_[i];
       newmeNdigiTIB_[i];
       Strip->cd(i+1);
@@ -44,6 +101,11 @@ void SiStripDigiCompare()
       meNdigiTIB_[i]->Draw();
       newmeNdigiTIB_[i]->Draw("sames");
       myPV->PVCompute(meNdigiTIB_[i] , newmeNdigiTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meNdigiTIB_[i],rver , "l");
+      leg.AddEntry(newmeNdigiTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("NdigiTIBCompare_ZM.eps");
@@ -58,9 +120,9 @@ void SiStripDigiCompare()
    TH1* newmeNdigiTIB_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tib_layer_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meNdigiTIB_[i]);
-      sfile->GetObject(histo ,newmeNdigiTIB_[i]);
+      sprintf(histo,"ndigi_tib_layer_%d_zp;1",i+1);
+      rdir->GetObject(histo ,meNdigiTIB_[i]);
+      sdir->GetObject(histo ,newmeNdigiTIB_[i]);
       meNdigiTIB_[i];
       newmeNdigiTIB_[i];
       Strip->cd(i+1);
@@ -70,6 +132,11 @@ void SiStripDigiCompare()
       meNdigiTIB_[i]->Draw();
       newmeNdigiTIB_[i]->Draw("sames");
       myPV->PVCompute(meNdigiTIB_[i] , newmeNdigiTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meNdigiTIB_[i],rver , "l");
+      leg.AddEntry(newmeNdigiTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("NdigiTIBCompare_ZP.eps");
@@ -85,9 +152,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer1_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer1_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -98,12 +165,18 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
+
   
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer1_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer1_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -114,11 +187,16 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer1_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer1_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -129,12 +207,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer1_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer1_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -145,6 +228,11 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
  Strip->Print("AdcOfTIBLayer1Compare.eps"); 
@@ -159,9 +247,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer1_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer1_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -172,12 +260,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer1_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer1_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -188,11 +281,16 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer1_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer1_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -203,12 +301,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer1_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer1_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -219,6 +322,11 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
  Strip->Print("StripNumOfTIBLayer1Compare.eps");
@@ -234,9 +342,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer2_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer2_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -247,12 +355,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer2_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer2_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -263,11 +376,16 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer2_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer2_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -278,12 +396,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer2_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer2_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -294,6 +417,11 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
  Strip->Print("AdcOfTIBLayer2Compare.eps");
@@ -308,9 +436,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer2_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer2_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -321,12 +449,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer2_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer2_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -337,11 +470,16 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer2_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer2_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -352,12 +490,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer2_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer2_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -368,6 +511,11 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
  Strip->Print("StripNumOfTIBLayer2Compare.eps");
@@ -383,9 +531,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer3_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer3_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -396,12 +544,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer3_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer3_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -412,11 +565,16 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer3_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer3_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -427,12 +585,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer3_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer3_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -443,6 +606,11 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
  Strip->Print("AdcOfTIBLayer3Compare.eps");
@@ -457,9 +625,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer3_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer3_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -470,12 +638,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer3_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer3_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -486,11 +659,16 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer3_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer3_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -501,12 +679,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer3_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer3_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -517,6 +700,11 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
  Strip->Print("StripNumOfTIBLayer3Compare.eps");
@@ -533,9 +721,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer4_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer4_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -546,12 +734,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
-   }
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+ 
+  }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer4_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer4_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -562,11 +755,15 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer4_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer4_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -577,12 +774,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer4_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer4_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -593,6 +795,11 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
  Strip->Print("AdcOfTIBLayer4Compare.eps");
@@ -607,9 +814,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer4_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer4_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -620,12 +827,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer4_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer4_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -636,11 +848,16 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer4_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer4_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -651,12 +868,17 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer4_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer4_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -667,6 +889,11 @@ void SiStripDigiCompare()
       meAdcTIB_[i]->Draw();
       newmeAdcTIB_[i]->Draw("sames");
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcTIB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTIB_[i],cver , "l");
+      leg.Draw();
+
    }
 
  Strip->Print("StripNumOfTIBLayer4Compare.eps");
@@ -687,9 +914,9 @@ void SiStripDigiCompare()
    TH1* newmeNdigiTOB_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tob_layer_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meNdigiTOB_[i]);
-      sfile->GetObject(histo ,newmeNdigiTOB_[i]);
+      sprintf(histo,"ndigi_tob_layer_%d_zm;1",i+1);
+      rdir->GetObject(histo ,meNdigiTOB_[i]);
+      sdir->GetObject(histo ,newmeNdigiTOB_[i]);
       meNdigiTOB_[i];
       newmeNdigiTOB_[i];
       Strip->cd(i+1);
@@ -699,6 +926,11 @@ void SiStripDigiCompare()
       meNdigiTOB_[i]->Draw();
       newmeNdigiTOB_[i]->Draw("sames");
       myPV->PVCompute(meNdigiTOB_[i] , newmeNdigiTOB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meNdigiTOB_[i],rver , "l");
+      leg.AddEntry(newmeNdigiTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("NdigiTOBCompare_ZM.eps");
@@ -713,9 +945,9 @@ void SiStripDigiCompare()
    TH1* newmeNdigiTOB_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tob_layer_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meNdigiTOB_[i]);
-      sfile->GetObject(histo ,newmeNdigiTOB_[i]);
+      sprintf(histo,"ndigi_tob_layer_%d_zp;1",i+1);
+      rdir->GetObject(histo ,meNdigiTOB_[i]);
+      sdir->GetObject(histo ,newmeNdigiTOB_[i]);
       meNdigiTOB_[i];
       newmeNdigiTOB_[i];
       Strip->cd(i+1);
@@ -726,6 +958,11 @@ void SiStripDigiCompare()
       meNdigiTOB_[i]->Draw();
       newmeNdigiTOB_[i]->Draw("sames");
       myPV->PVCompute(meNdigiTOB_[i] , newmeNdigiTOB_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meNdigiTOB_[i],rver , "l");
+      leg.AddEntry(newmeNdigiTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("NdigiTOBCompare_ZP.eps");
@@ -742,9 +979,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer1_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer1_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -755,11 +992,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer1_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer1_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -770,6 +1012,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTOBLayer1Compare.eps");
@@ -784,9 +1031,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer1_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer1_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -797,11 +1044,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer1_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer1_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -812,6 +1064,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTOBLayer1Compare.eps");
@@ -826,9 +1083,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer2_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer2_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -839,11 +1096,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer2_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer2_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -854,6 +1116,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTOBLayer2Compare.eps");
@@ -868,9 +1135,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer2_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer2_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -881,11 +1148,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer2_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer2_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -896,6 +1168,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTOBLayer2Compare.eps");
@@ -911,9 +1188,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer3_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer3_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -924,11 +1201,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer3_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer3_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -939,6 +1221,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTOBLayer3Compare.eps");
@@ -953,9 +1240,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer3_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer3_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -966,11 +1253,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer3_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer3_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -981,6 +1273,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTOBLayer3Compare.eps");
@@ -996,9 +1293,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer4_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer4_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1009,11 +1306,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer4_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer4_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1024,6 +1326,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTOBLayer4Compare.eps");
@@ -1038,9 +1345,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer4_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer4_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1051,11 +1358,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer4_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer4_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1066,6 +1378,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTOBLayer4Compare.eps");
@@ -1080,9 +1397,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer5_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer5_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1093,11 +1410,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer5_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer5_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1108,6 +1430,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTOBLayer5Compare.eps");
@@ -1122,9 +1449,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer5_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer5_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1135,11 +1462,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer5_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer5_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1150,6 +1482,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTOBLayer5Compare.eps");
@@ -1165,9 +1502,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer6_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer6_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1178,11 +1515,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer6_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer6_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1193,6 +1535,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTOBLayer6Compare.eps");
@@ -1207,9 +1554,9 @@ void SiStripDigiCompare()
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer6_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer6_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1220,11 +1567,16 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer6_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer6_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1235,6 +1587,11 @@ void SiStripDigiCompare()
       meAdcTOB_[i]->Draw();
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTOB_[i],rver , "l");
+      leg.AddEntry(newmeAdcTOB_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTOBLayer6Compare.eps");
@@ -1250,9 +1607,9 @@ void SiStripDigiCompare()
    TH1* newmeNdigiTID_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tid_wheel_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meNdigiTID_[i]);
-      sfile->GetObject(histo ,newmeNdigiTID_[i]);
+      sprintf(histo,"ndigi_tid_wheel_%d_zm;1",i+1);
+      rdir->GetObject(histo ,meNdigiTID_[i]);
+      sdir->GetObject(histo ,newmeNdigiTID_[i]);
       meNdigiTID_[i];
       newmeNdigiTID_[i];
       Strip->cd(i+1);
@@ -1263,6 +1620,11 @@ void SiStripDigiCompare()
       meNdigiTID_[i]->Draw();
       newmeNdigiTID_[i]->Draw("sames");
       myPV->PVCompute(meNdigiTID_[i] , newmeNdigiTID_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meNdigiTID_[i],rver , "l");
+      leg.AddEntry(newmeNdigiTID_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("NdigiTIDCompare_ZM.eps");
@@ -1277,9 +1639,9 @@ if (1) {
    TH1* newmeNdigiTID_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tid_wheel_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meNdigiTID_[i]);
-      sfile->GetObject(histo ,newmeNdigiTID_[i]);
+      sprintf(histo,"ndigi_tid_wheel_%d_zp;1",i+1);
+      rdir->GetObject(histo ,meNdigiTID_[i]);
+      sdir->GetObject(histo ,newmeNdigiTID_[i]);
       meNdigiTID_[i];
       newmeNdigiTID_[i];
       Strip->cd(i+1);
@@ -1290,6 +1652,11 @@ if (1) {
       meNdigiTID_[i]->Draw();
       newmeNdigiTID_[i]->Draw("sames");
       myPV->PVCompute(meNdigiTID_[i] , newmeNdigiTID_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meNdigiTID_[i],rver , "l");
+      leg.AddEntry(newmeNdigiTID_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("NdigiTIDCompare_ZP.eps");
@@ -1304,9 +1671,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel1_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel1_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1317,12 +1684,17 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
+
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel1_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel1_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1333,6 +1705,11 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
+
    }
    Strip->Print("AdcOfTIDWheel1Compare.eps");
    Strip->Print("AdcOfTIDWheel1Compare.gif");
@@ -1345,9 +1722,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel1_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel1_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1358,12 +1735,17 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
+
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel1_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel1_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1374,6 +1756,11 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
+
    }
    Strip->Print("StripNumOfTIDWheel1Compare.eps");
    Strip->Print("StripNumOfTIDWheel1Compare.gif");
@@ -1386,9 +1773,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel2_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel2_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1399,12 +1786,17 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
+
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel2_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel2_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1415,6 +1807,11 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
+
    }
    Strip->Print("AdcOfTIDWheel2Compare.eps");
    Strip->Print("AdcOfTIDWheel2Compare.gif");
@@ -1427,9 +1824,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel2_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel2_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1440,12 +1837,17 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
+
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel2_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel2_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1456,6 +1858,11 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
+
    }
    Strip->Print("StripNumOfTIDWheel2Compare.eps");
    Strip->Print("StripNumOfTIDWheel2Compare.gif");
@@ -1468,9 +1875,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel3_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel3_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1481,12 +1888,16 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel3_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel3_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1497,6 +1908,10 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
    }
    Strip->Print("AdcOfTIDWheel3Compare.eps");
    Strip->Print("AdcOfTIDWheel3Compare.gif");
@@ -1509,9 +1924,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel3_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel3_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1522,12 +1937,16 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel3_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel3_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1538,6 +1957,10 @@ if (1) {
       meAdcTID_[i]->Draw();
       newmeAdcTID_[i]->Draw("sames");
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTID_[i],rver , "l");
+      leg.AddEntry(newmeAdcTID_[i],cver , "l");
+      leg.Draw();
    }
    Strip->Print("StripNumOfTIDWheel3Compare.eps");
    Strip->Print("StripNumOfTIDWheel3Compare.gif");
@@ -1551,9 +1974,9 @@ if (1) {
    TH1* newmeNdigiTEC_[9];
 
    for (Int_t i=0; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tec_wheel_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meNdigiTEC_[i]);
-      sfile->GetObject(histo ,newmeNdigiTEC_[i]);
+      sprintf(histo,"ndigi_tec_wheel_%d_zm;1",i+1);
+      rdir->GetObject(histo ,meNdigiTEC_[i]);
+      sdir->GetObject(histo ,newmeNdigiTEC_[i]);
       meNdigiTEC_[i];
       newmeNdigiTEC_[i];
       Strip->cd(i+1);
@@ -1564,6 +1987,11 @@ if (1) {
       meNdigiTEC_[i]->Draw();
       newmeNdigiTEC_[i]->Draw("sames");
       myPV->PVCompute(meNdigiTEC_[i] , newmeNdigiTEC_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meNdigiTEC_[i],rver , "l");
+      leg.AddEntry(newmeNdigiTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("NdigiTECCompare_ZM.eps");
@@ -1577,9 +2005,9 @@ if (1) {
    TH1* newmeNdigiTEC_[9];
 
    for (Int_t i=0; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tec_wheel_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meNdigiTEC_[i]);
-      sfile->GetObject(histo ,newmeNdigiTEC_[i]);
+      sprintf(histo,"ndigi_tec_wheel_%d_zp;1",i+1);
+      rdir->GetObject(histo ,meNdigiTEC_[i]);
+      sdir->GetObject(histo ,newmeNdigiTEC_[i]);
       meNdigiTEC_[i];
       newmeNdigiTEC_[i];
       Strip->cd(i+1);
@@ -1590,6 +2018,11 @@ if (1) {
       meNdigiTEC_[i]->Draw();
       newmeNdigiTEC_[i]->Draw("sames");
       myPV->PVCompute(meNdigiTEC_[i] , newmeNdigiTEC_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meNdigiTEC_[i],rver , "l");
+      leg.AddEntry(newmeNdigiTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("NdigiTECCompare_ZP.eps");
@@ -1604,9 +2037,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel1_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel1_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -1617,6 +2050,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel1Compare_ZM.eps");
@@ -1629,9 +2067,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel1_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel1_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1);
@@ -1642,6 +2080,10 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
    }
 
    Strip->Print("StripNumOfTECWheel1Compare_ZM.eps");
@@ -1655,9 +2097,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel2_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel2_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -1668,6 +2110,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel2Compare_ZM.eps");
@@ -1680,9 +2127,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel2_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel2_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -1693,6 +2140,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel2Compare_ZM.eps");
@@ -1707,9 +2159,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel3_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel3_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -1720,6 +2172,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel3Compare_ZM.eps");
@@ -1732,9 +2189,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel3_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel3_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -1745,6 +2202,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel3Compare_ZM.eps");
@@ -1759,9 +2221,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel4_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel4_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -1772,6 +2234,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel4Compare_ZM.eps");
@@ -1784,9 +2251,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel4_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel4_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -1797,6 +2264,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel4Compare_ZM.eps");
@@ -1811,9 +2283,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel5_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel5_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -1824,6 +2296,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel5Compare_ZM.eps");
@@ -1836,9 +2313,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel5_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel5_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -1849,6 +2326,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel5Compare_ZM.eps");
@@ -1863,9 +2345,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel6_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel6_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -1876,6 +2358,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel6Compare_ZM.eps");
@@ -1888,9 +2375,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel6_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel6_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -1901,6 +2388,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel6Compare_ZM.eps");
@@ -1915,9 +2407,9 @@ if (1) {
    TH1* newmeAdcTEC_[5];
 
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel7_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel7_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -1928,6 +2420,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel7Compare_ZM.eps");
@@ -1940,9 +2437,9 @@ if (1) {
    TH1* newmeStripTEC_[5];
  
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel7_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel7_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -1953,6 +2450,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel7Compare_ZM.eps");
@@ -1967,9 +2469,9 @@ if (1) {
    TH1* newmeAdcTEC_[5];
 
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel8_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel8_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -1980,6 +2482,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel8Compare_ZM.eps");
@@ -1992,9 +2499,9 @@ if (1) {
    TH1* newmeStripTEC_[5];
  
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel8_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel8_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2005,6 +2512,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel8Compare_ZM.eps");
@@ -2019,9 +2531,9 @@ if (1) {
    TH1* newmeAdcTEC_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel9_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel9_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2032,6 +2544,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel9Compare_ZM.eps");
@@ -2044,9 +2561,9 @@ if (1) {
    TH1* newmeStripTEC_[4];
  
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel9_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel9_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2057,6 +2574,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel9Compare_ZM.eps");
@@ -2071,9 +2593,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel1_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel1_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2084,6 +2606,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel1Compare_ZP.eps");
@@ -2096,9 +2623,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel1_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel1_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2109,6 +2636,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel1Compare_ZP.eps");
@@ -2122,9 +2654,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel2_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel2_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2135,6 +2667,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel2Compare_ZP.eps");
@@ -2147,9 +2684,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel2_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel2_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2160,6 +2697,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel2Compare_ZP.eps");
@@ -2174,9 +2716,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel3_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel3_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2187,6 +2729,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel3Compare_ZP.eps");
@@ -2199,9 +2746,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel3_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel3_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2212,6 +2759,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel3Compare_ZP.eps");
@@ -2226,9 +2778,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel4_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel4_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2239,6 +2791,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel4Compare_ZP.eps");
@@ -2251,9 +2808,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel4_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel4_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2264,6 +2821,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel4Compare_ZP.eps");
@@ -2278,9 +2840,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel5_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel5_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2291,6 +2853,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel5Compare_ZP.eps");
@@ -2303,9 +2870,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel5_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel5_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2316,6 +2883,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel5Compare_ZP.eps");
@@ -2330,9 +2902,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel6_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel6_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2343,6 +2915,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel6Compare_ZP.eps");
@@ -2355,9 +2932,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel6_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel6_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2368,6 +2945,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel6Compare_ZP.eps");
@@ -2382,9 +2964,9 @@ if (1) {
    TH1* newmeAdcTEC_[5];
 
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel7_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel7_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2395,6 +2977,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel7Compare_ZP.eps");
@@ -2407,9 +2994,9 @@ if (1) {
    TH1* newmeStripTEC_[5];
  
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel7_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel7_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2419,6 +3006,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel7Compare_ZP.eps");
@@ -2433,9 +3025,9 @@ if (1) {
    TH1* newmeAdcTEC_[5];
 
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel8_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel8_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2446,6 +3038,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel8Compare_ZP.eps");
@@ -2458,9 +3055,9 @@ if (1) {
    TH1* newmeStripTEC_[5];
  
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel8_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel8_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2471,6 +3068,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel8Compare_ZP.eps");
@@ -2485,9 +3087,9 @@ if (1) {
    TH1* newmeAdcTEC_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel9_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel9_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2498,6 +3100,11 @@ if (1) {
       meAdcTEC_[i]->Draw();
       newmeAdcTEC_[i]->Draw("sames");
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdcTEC_[i],rver , "l");
+      leg.AddEntry(newmeAdcTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("AdcOfTECWheel9Compare_ZP.eps");
@@ -2510,9 +3117,9 @@ if (1) {
    TH1* newmeStripTEC_[4];
  
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel9_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel9_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2523,6 +3130,11 @@ if (1) {
       meStripTEC_[i]->Draw();
       newmeStripTEC_[i]->Draw("sames");
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+      leg.Clear();
+      leg.AddEntry(meStripTEC_[i],rver , "l");
+      leg.AddEntry(newmeStripTEC_[i],cver , "l");
+      leg.Draw();
+
    }
 
    Strip->Print("StripNumOfTECWheel9Compare_ZP.eps");

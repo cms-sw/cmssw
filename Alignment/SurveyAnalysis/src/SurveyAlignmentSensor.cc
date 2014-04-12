@@ -4,8 +4,8 @@
 
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentSensor.h"
 
-SurveyAlignmentSensor::SurveyAlignmentSensor(const std::vector<Alignable*>& sensors,
-					     const std::vector<StructureType>& levels):
+SurveyAlignmentSensor::SurveyAlignmentSensor(const align::Alignables& sensors,
+					     const std::vector<align::StructureType>& levels):
   SurveyAlignment(sensors, levels)
 {
 }
@@ -24,6 +24,8 @@ void SurveyAlignmentSensor::findAlignPars(bool bias)
     for (unsigned int l = 0; l < theLevels.size(); ++l)
     {
       SurveyResidual res(*ali, theLevels[l], bias);
+
+      if ( !res.valid() ) continue;
 
       AlgebraicSymMatrix invCov = res.inverseCovariance();
 

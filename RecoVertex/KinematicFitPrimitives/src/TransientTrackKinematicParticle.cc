@@ -87,7 +87,8 @@ ReferenceCountingPointer<KinematicParticle> TransientTrackKinematicParticle::ref
                           ReferenceCountingPointer<KinematicParticle>(ncp), propagator, initialTransientTrack()));
 }
 
-RefCountedLinearizedTrackState TransientTrackKinematicParticle::particleLinearizedTrackState(const GlobalPoint& point)const	
+TransientTrackKinematicParticle::RefCountedLinearizedTrackState
+TransientTrackKinematicParticle::particleLinearizedTrackState(const GlobalPoint& point)const	
 {
  TransientTrackKinematicParticle * cr = const_cast<TransientTrackKinematicParticle * >(this);
  RefCountedKinematicParticle lp = ReferenceCountingPointer<KinematicParticle>(cr);

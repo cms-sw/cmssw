@@ -1,0 +1,222 @@
+README for OpenHLT rate calculating scripts
+
+	Chi-Nhan Nguyen <chinhan@cern.ch>
+	Jonathan Hollar <jjhollar@cern.ch>
+	Pedrame Bargassa <bargassa@cern.ch>
+
+************************************** 
+1. Introduction
+************************************** 
+
+
+
+--------------------------------------  
+1a. Running the scripts
+--------------------------------------  
+ 
+	Once the binary file is built, the rate-calculating script can be run using:
+	
+	./OHltRates <NEntries> <sMenu> <sConditions> <sVersion> <sEnergy> <doPrintAll>
+
+	The arguments are as follows:
+		
+		<NEntries>: Number of events to run over.
+			    That number will be used for each sample.
+			    If there exist less events in a sample than requested than the script
+			    will run over all existing.
+			    Any number < 0 will be interpreted as "running over all existing events".
+			    Default is all (-1).
+	
+		<sMenu>: Type of trigger menu to run. Options are "default", "example", and "l1default".
+			 The "default" option runs the full HLT menu using the trigger bits
+			 from the standard HLT. The "example" menu will run the OpenHLT 
+			 triggers together with a few triggers from the full HLT for comparison.
+			 The method for adding new OpenHLT triggers is described below.
+			 The "l1default" calculates the rates for the full L1 menu using the trigger bits
+			 from the standard L1.
+
+		<sConditions>: Options are "startup" and "ideal". The "startup" option
+			       will run over events processed with 1pb-1 conditions. The "ideal" 
+			       option will run over events processed with ideal conditions.
+
+		<sVersion>: A string describing this menu. This will be appended to the name of 
+			    the output files.
+
+		<sEnergy>: sqrt(s) energy to assume for scaling cross-sections. Options are 10 and 14.
+			   Note - the currently available samples were produced with 14TeV settings in 
+			   CMSSW_1_8_4. 
+
+		<doPrintAll>: If set to 1 all printouts incl. overlap coefficient etc,
+			      and also the pdf file is generated.
+			      Otherwise only the most info is printed out to stdout.
+			      Default is off (0).
+
+
+**************************************
+2. Input samples and cross-sections
+**************************************
+
+	The input ntuples and cross-sections are defined in the main() function in OHltRates.cpp.
+	These are filled as entries in the vectors ProcFil and xsec, respectively. The current default 
+	uses samples of Minbias, ppEleX, ppMuX.
+	The example files exist on hep.wisc.edu. The script should be working if running there.
+
+**************************************
+3. Trigger examples
+**************************************
+
+        The list of OpenHLT triggers in the menu is defined in the BookMenu_OhltExample method in OHltRates.cpp.  
+	Several OpenHLT trigger algorithms are already implemented as templates. These will be 
+	executed when the script is run with the "example" option, together with the corresponding
+	triggers from the full HLT. For example:
+
+		./OHltRates 1000000 example
+
+-------------------------------------- 
+3a. Adding new OpenHLT triggers
+-------------------------------------- 
+
+        To add a new OpenHLT trigger, the first step is to register it in the menu. This requires adding a line 
+	that calls AddHlt to the BookMenu_OhltExample method in OHltRates.cpp. This takes the form: 
+ 
+                menu->AddHlt(TString trig, TString l1Bit, int l1prescale, int hltprescale, TString threshold, TString desc); 
+ 
+        The arguments to this method will be used as labels in the output menu showing the rates, and 
+	are defined as follows: 
+
+                trig:           Name of the new OpenHLT trigger 
+                l1Bit:          Name of the L1 bit used by this OpenHLT trigger
+				(this parameter has no effect on the effective algorithm used, it is only for documentation,
+				 to see how to change the L1 seed see below) 
+                l1prescale:     Prescale value applied at L1 (This prescale will be applied on top of existing L1 prescales,
+							      i.e. it should be used for samples with reset prescales only
+							      unless the user knows exactly was he does)
+                hltprescale:    Prescale value applied at HLT (This prescale will be applied on top of existing HLT prescales,
+							      i.e. it should be used for samples with reset prescales only
+							      unless the user knows exactly was he does)
+                threshold:      HLT trigger threshold (this parameter is for documentation only) 
+                desc:           Description string - for example "1e32" for  
+                                triggers in the 10^32 menu, "new" for new developmental  
+                                triggers, etc. (this parameter is for documentation only)
+
+	Once the trigger is registered, the actual trigger logic must be implemented in OHltTree.cpp; this is done in 
+	two places. The first is the OHltTree::Loop method, where the L1 and HLT pass/fail conditions are decided.
+	The second is in dedicated methods where the HLT trigger algorithms are emulated. A single one of these dedicated
+	methods can be used by several OpenHLT triggers if they differ only in their thresholds. 
+
+	The standard HLT triggers can be added to the menu in the same way:
+
+		menu->AddHlt(TString trig, TString l1Bit, int l1prescale, int hltprescale, TString threshold, TString desc);
+
+	where the string "trig" should be the name of the trigger path.
+
+	Several example OpenHLT triggers are provided as templates; these are described in detail below.
+
+--------------------------------------  
+3b. Example OpenHLT jet triggers  
+--------------------------------------  
+ 
+        One example OpenHLT jet trigger (corresponding to HLT1jet) is implemented. The algorithm is  
+        implemented in the OHltTree::OpenHlt1JetPassed method. This method takes a single argument:
+
+		double pt:	Jet pT threshold.
+
+	The trigger passes if N>=1 jets above threshold are found in the event. 
+
+--------------------------------------
+3c. Example OpenHLT muon triggers
+--------------------------------------
+	
+	Three example OpenHLT muon triggers (corresponding to HLT1MuonNonIso, HLT1MuonIso, and HLT2MuonNonIso) are 
+	available. 
+
+	The algorithm for the single muon triggers is implemented in the OHltTree::OpenHlt1MuonPassed method. This 
+	takes five arguments:
+
+		double ptl1:	L1extra pT threshold 
+		double ptl2:	L2 muon pT threshold
+		double ptl3:	L3 muon pT threshold
+		double dr:	L3 dR threshold
+		int iso:	L3 isolation (1 if isolated, 0 if non-isolated)
+
+	The algorithm starts from L3 muons and applies pT, eta, dr, and isolation criteria. It 
+	then finds the L2 muon matched to the L3 muon, and applies pT and eta cuts. It then finds
+	the L1extra muon most closely matched to the L2 muon, and applies pT and quality cuts. For the 
+	single muon triggers, the L1 quality must be between 4 and 7 (inclusive). The trigger passes if 
+	N>=1 muons satisfying all these criteria are found.
+
+	The algorithm for the double muon triggers is implemented in the OHltTree::OpenHlt2MuonPassed 
+	method. The arguments to this method are:
+
+	        double ptl1:    L1extra pT threshold  
+                double ptl2:    L2 muon pT threshold 
+                double ptl3:    L3 muon pT threshold 
+                double dr:      L3 dR threshold 
+                int iso:        L3 isolation (1 if isolated, 0 if non-isolated) 
+
+	The algorithm is identical to the single muon case described above, with the exception of the L1extra muons, 
+	which must have quality between 3 and 7 (inclusive). The trigger passes if N>=2 muons satisfying all these 
+	criteria are found.
+
+	* Note that in CMSSW releases 2_X and higher, the L2 and L3 muon pT thresholds are implemented as flat cuts.
+	  In earlier releases, the thresholds were implemented as 90% CL upper limits. OpenHLT examples of the old pT 
+	  threshold implementation are found at the beginning of the OpenHlt1MuonPassed and OpenHlt2MuonPassed examples.
+
+
+--------------------------------------
+3d. Example OpenHLT electron triggers
+--------------------------------------
+	
+	One example OpenHLT electron trigger (HLT1Electron) are	available. 
+
+	The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
+        This takes five arguments:
+
+		float   Et:	Et threshold in GeV
+		int   L1iso:	L1 is isolated (1: yes, 0: no)
+		float Tiso:	Track isolation in GeV
+		float Hiso:	Hcal isolation in GeV
+
+	In the example code some cuts are mandatory and cannot be varied.
+	They have the following default values:
+		ohEleNewSC[i]>0                 : Is 1, if electron found by Super Cluster Algo, otherwise 0
+		ohEleHiso[i]/ohEleEt[i] < 0.05	: Hadronic fraction smaller than 0.05
+		ohElePixelSeeds[i]>0		: Pixel seed found or not (1 or 0)
+
+--------------------------------------
+3e. Example OpenHLT photon triggers
+--------------------------------------
+	
+	One example OpenHLT electron trigger (HLT1Electron) are	available. 
+
+	The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
+        This takes five arguments:
+
+		float   Et:	Et threshold in GeV
+		int   L1iso:	L1 is isolated (1: yes, 0: no)
+		float Tiso:	Track isolation in GeV
+		float Eiso:	Ecal isolation in GeV
+		float HisoBR:	Barrel Hcal isolation in GeV
+		float HisoEC:	Endcap Hcal isolation in GeV
+
+
+--------------------------------------
+3f. Example OpenHLT tau triggers
+--------------------------------------
+	
+	Several examples are available in OHltTree.cpp. 
+
+	The algorithm for the Tau triggers is implemented in OHltTree::OpenHltTauPassed method.
+        As an example one can take the HLT2TauPixel path, which can be implemented as
+
+	if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=2) {} using
+        OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso)
+
+	The if statement asks for at least 2 tau candidates which fullfil both these criteria:	      
+
+		float   Et:	L2 calo Et threshold in GeV
+		int   Eiso:	L2 is Ecal isolated (1: yes, 0: no)
+		float L25Tpt:	L2.5 pixel leading Track Pt threshold in GeV
+		int   L25Tiso:	L2.5 is Track isolated (1: yes, 0: no)
+		float L3Tpt:	L3 si+pix leading Track Pt threshold in GeV
+		int   L3Tiso:	L3 is Track isolated (1: yes, 0: no)

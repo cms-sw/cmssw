@@ -8,14 +8,7 @@
 
    Each Exception is identified by a category string.  This category
    is a short word or phrase (no spaces) that described the problem
-   that was encountered.  These category identifiers can be
-   concatenated if exceptions are caught and rethrown and the
-   entire list can be accessed using the history() call.
-
-   Example:
-   try { func(); }
-   catch (cms::Exception& e)
-   { throw cms::Exception("DataCorrupt","encountered while unpacking",e); }
+   that was encountered.
 
    Information can be added to the Exception using the stream insertion
    operator (as one uses cout).  We recommend using it in the following
@@ -25,7 +18,7 @@
    if ((rc=func()) < 0)
    {
    throw cms::Exception("DataCorrupt") << "I died with rc = " 
-   << rc << endl;
+     << rc << std::endl;
    }
 
    Derived types are expected to fix the category, either by
@@ -37,37 +30,6 @@
    {
    InfiniteLoop(const std::string& msg) : Exception("InfiniteLoop",msg) { }
    };
-
-   The output from what() has a simple format that makes it easy to
-   locate the reason for and context of the error and separate it from
-   the user-supplied free-format text.  The output from what() contains
-   all the category and context information in a nested hierarchical
-   format.
-
-   The following 'example' shows one possible output. Please note that,
-   in this early version, the format is still changing; what you
-   actually obtain should be similar to, but not necessarily identical
-   with, the following:
-
-   Example:
-   ---- InfiniteLoop BEGIN
-   -- who: moduletype=PixelUnpacker modulelabel=unpackthing
-   -- where: event=122234553.1233123456 runsegment=3 store=446
-   I am really sad about this
-   ---- DataCorrupt BEGIN
-   Unpacking of  pixel detector region 14 failed to get valid cell ID
-   ---- DataCorrupt END
-   -- action: skip event
-   ---- InfiniteLoop BEGIN
-
-   Fixed format Framework supplied context information will be
-   specially tagged.  See the framework error section of the roadmap
-   for details on the format and tags of framework supplied information.
-
-
-   TODO: Update the example to match the final formatting, when that
-   formatting has settled down.
-
 **/
 
 #include <list>
@@ -76,6 +38,8 @@
 #include <exception>
 
 #include "boost/type_traits/is_base_and_derived.hpp"
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace cms {
 
@@ -101,33 +65,66 @@ namespace cms {
   }
 
 
-  class Exception : public std::exception {
+  class dso_export Exception : public std::exception {
   public:
-    typedef std::string Category;
-    typedef std::list<Category> CategoryList;
 
-    explicit Exception(Category const& category);
-    Exception(Category const& category,
+    explicit Exception(std::string const& aCategory);
+    explicit Exception(char const*        aCategory);
+
+    Exception(std::string const& aCategory,
 	      std::string const& message);
-    Exception(Category const& category,
-	      std::string const& message,
-	      Exception const& another);
+    Exception(char const*        aCategory,
+	      std::string const& message);
+    Exception(std::string const& aCategory,
+	      char const*        message);
+    Exception(char const*        aCategory,
+	      char const*        message);
+
+    Exception(std::string const& aCategory,
+              std::string const& message,
+              Exception const& another);
+
     Exception(Exception const& other); 
     virtual ~Exception() throw();
 
+    void swap(Exception& other);
+
+    Exception& operator=(Exception const& other);
+
+    // The signature for what() must be identical to that of std::exception::what().
     virtual char const* what() const throw();
 
     virtual std::string explainSelf() const;
 
-    std::string category() const;
+    std::string const& category() const;
+    std::string message() const;
+    std::list<std::string> const& context() const;
+    std::list<std::string> const& additionalInfo() const;
+    int returnCode() const;
 
-    CategoryList const& history() const;
-    std::string rootCause() const;
+    void raise() {rethrow();}
 
     void append(Exception const& another);
     void append(std::string const& more_information);
     void append(char const* more_information);
 
+    void clearMessage();
+    void clearContext();
+    void clearAdditionalInfo();
+
+    void addContext(std::string const& context);
+    void addContext(char const*        context);
+
+    void addAdditionalInfo(std::string const& info);
+    void addAdditionalInfo(char const*        info);
+
+    void setContext(std::list<std::string> const& context);
+    void setAdditionalInfo(std::list<std::string> const& info);
+
+    bool alreadyPrinted() const;
+    void setAlreadyPrinted(bool value);
+
+    virtual Exception* clone() const;
 
     // In the following templates, class E is our Exception class or
     // any subclass thereof. The complicated return type exists to
@@ -197,16 +194,24 @@ namespace cms {
     //  			       boost::is_same<Exception,E>::value)>::type &
     //  			       operator<<(E& e, char*);
 
+    // This function is deprecated and we are in the process of removing
+    // all code that uses it from CMSSW.  It will then be deleted.
+    std::list<std::string> history() const;
+
   private:
 
-    virtual std::exception* clone() const;
+    void init(std::string const& message);
     virtual void rethrow();
+    virtual int returnCode_() const;
 
     // data members
     std::ostringstream ost_;
-    CategoryList category_;
+    std::string category_;
+    mutable std::string what_;
+    std::list<std::string> context_;
+    std::list<std::string> additionalInfo_;
+    bool alreadyPrinted_;
   };
-
 
   inline 
   std::ostream& 
@@ -318,8 +323,6 @@ namespace cms {
   //    ref.ost_ << c;
   //    return e;
   //  }
-
-
 }
 
 #endif

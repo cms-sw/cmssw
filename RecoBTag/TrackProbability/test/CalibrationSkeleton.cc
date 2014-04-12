@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: CalibrationSkeleton.cc,v 1.4 2007/07/26 09:17:05 arizzi Exp $
 //
 //
 
@@ -32,15 +31,16 @@ using namespace std;
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 
 //#include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
 
@@ -84,7 +84,7 @@ class CalibrationSkeleton : public edm::EDAnalyzer {
    public:
   explicit CalibrationSkeleton(const edm::ParameterSet&);
 
-  virtual void beginJob(const edm::EventSetup&)
+  virtual void beginJob()
   {
     bool resetData=true;
     bool newBinning=false;
@@ -92,25 +92,22 @@ class CalibrationSkeleton : public edm::EDAnalyzer {
     edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
     calibrationNew   =  new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f3d.fullPath()).c_str());
     calibration2dNew =  new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f2d.fullPath()).c_str());
-    vector<float> * bins =0;
     if(resetData)
       {
-	if(newBinning)  bins = new  vector<float>(CalibratedHistogram::constantBinning(1000,0,50));
 	vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationNew->categoriesWithData();
 	vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dNew->categoriesWithData();
 	for(unsigned int i = 0 ; i < data.size();i++)
           {
-            data[i].second.reset();
-            if(bins)  data2d[i].second.setUpperLimits(*bins);
+            if(newBinning) data[i].second = CalibratedHistogram(1000, 0, 50);
+            else           data[i].second = CalibratedHistogram();
           }
 	for(unsigned int i = 0 ; i < data2d.size();i++)
           {
-            data2d[i].second.reset();
-            if(bins)  data2d[i].second.setUpperLimits(*bins);
+            if(newBinning) data2d[i].second = CalibratedHistogram(1000, 0, 50);
+            else           data2d[i].second = CalibratedHistogram();
           }
 	
       }
-    if(bins) delete bins;
 //    calibrationNew->startCalibration();
   //  calibration2dNew->startCalibration();
   }    
@@ -197,7 +194,7 @@ CalibrationSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace std;
  
   Handle<reco::VertexCollection> primaryVertex;
-  iEvent.getByLabel("offlinePrimaryVerticesFromCTFTracks",primaryVertex);
+  iEvent.getByLabel("offlinePrimaryVertices",primaryVertex);
   
   //*********************************************************************************** 
   //look at reco vertices 
@@ -223,7 +220,7 @@ CalibrationSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //*************************************************************************
   //look at JetTracks
   edm::Handle<JetTracksAssociationCollection> associationHandle;
-  iEvent.getByLabel("jetTracksAssociations", associationHandle);
+  iEvent.getByLabel("ak5JetTracksAssociatorAtVertex", associationHandle);
   reco::JetTracksAssociationCollection::const_iterator it = associationHandle->begin();
   
   
@@ -274,7 +271,7 @@ CalibrationSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	   TrackClassFilterInput input(**itt,*(it->first), *pv);
 	   
            const TransientTrack & transientTrack = builder->build(&(**itt));
-	   calibrationNew->getCalibData(input)->fill(          IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second.significance());
+	   const_cast<CalibratedHistogramXML*>(calibrationNew->getCalibData(input))->fill(IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second.significance());
 //  calibration2dNew->getCalibData(input)->Fill(significance2D);
 	   
 //	   calibrationNew->updateCalibration(input);

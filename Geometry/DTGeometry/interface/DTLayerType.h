@@ -5,8 +5,6 @@
  *
  *  DetType for a Drift Tube GeomDetUnit (the DTLayer).
  *
- *  $date   : 23/01/2006 18:24:59 CET $
- *  $Revision: 1.1 $
  *  \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -23,9 +21,6 @@ class DTLayerType : public GeomDetType {
 
 /* Operations */ 
     virtual const Topology& topology() const;
-
-  private:
-
 };
 #endif // DTLAYERTYPE_H
 

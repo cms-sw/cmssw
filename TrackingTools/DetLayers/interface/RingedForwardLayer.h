@@ -10,32 +10,6 @@
 class ForwardDetRing;
 class ForwardDetRingBuilder;
 
-class RingedForwardLayer : public ForwardDetLayer {
-
-public:
-  
-  RingedForwardLayer() {};
-
-//   RingedForwardLayer( std::vector<const GeomDet*>::const_iterator first,
-// 		         std::vector<const GeomDet*>::const_iterator last);
-
-//   RingedForwardLayer( const std::vector<const GeomDet*>& dets);
-
-
-  virtual ~RingedForwardLayer();
-
-
-  //--- GeometricSearchDet interface
-//   virtual std::vector<const GeometricSearchDet*> components() const {return theDets;}
-
-  //--- Extension of the interface
-//   virtual GeomDet* operator()( double x, double phi) const =0;
-
-//   virtual void addDets( detunit_p_iter ifirst, detunit_p_iter ilast) {}
-  
-private:  
-//   std::vector<const GeomDet*> theDets;
-
-};
+using  RingedForwardLayer = ForwardDetLayer;
 #endif
 

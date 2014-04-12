@@ -2,7 +2,6 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.1 2007/05/16 14:37:44 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -10,18 +9,19 @@ $Id: test.cppunit.cpp,v 1.1 2007/05/16 14:37:44 chrjones Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "TFile.h"
-#include "TTree.h"
-#include "TBranch.h"
-#include "TROOT.h"
 #include "TSystem.h"
-#include "TChain.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 static char* gArgV = 0;
+
+extern "C" char** environ;
+
+#define CHARSTAR(x) const_cast<char *>(x)
 
 class testRefInROOT: public CppUnit::TestFixture
 {
@@ -33,6 +33,13 @@ class testRefInROOT: public CppUnit::TestFixture
   CPPUNIT_TEST(testAllLabels);
   CPPUNIT_TEST(testGoodChain);
   CPPUNIT_TEST(testTwoGoodFiles);
+   CPPUNIT_TEST(testHandleErrors);
+   CPPUNIT_TEST(testMissingRef);
+   CPPUNIT_TEST(testMissingData);
+   CPPUNIT_TEST(testEventBase);
+   CPPUNIT_TEST(testSometimesMissingData);
+   CPPUNIT_TEST(testTo);
+
   // CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
   //failTwoDifferentFiles
   //CPPUNIT_TEST_EXCEPTION(failDidNotCallGetEntryForEvents,std::exception);
@@ -46,9 +53,12 @@ public:
       gSystem->Load("libFWCoreFWLite.so");
       AutoLibraryLoader::enable();
       
-      char* argv[] = {"TestRunnerDataFormatsFWLite","/bin/bash","DataFormats/FWLite/test","RefTest.sh"};
+      char* argv[] = {CHARSTAR("TestRunnerDataFormatsFWLite"),
+		      CHARSTAR("/bin/bash"),
+		      CHARSTAR("DataFormats/FWLite/test"),
+		      CHARSTAR("RefTest.sh")};
       argv[0] = gArgV;
-      if(0!=ptomaine(sizeof(argv)/sizeof(const char*), argv) ) {
+      if(0!=ptomaine(sizeof(argv)/sizeof(const char*), argv, environ) ) {
         std::cerr <<"could not run script needed to make test files\n";
         ::exit(-1);
       }
@@ -63,6 +73,12 @@ public:
   void testTwoGoodFiles();
   void failOneBadFile();
   void testGoodChain();
+  void testHandleErrors();
+  void testMissingRef();
+  void testMissingData();
+  void testEventBase();
+  void testSometimesMissingData();
+  void testTo();
   // void failChainWithMissingFile();
   //void failDidNotCallGetEntryForEvents();
 
@@ -81,15 +97,26 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
   CPPUNIT_ASSERT(pOthers != 0);
   CPPUNIT_ASSERT(pThings != 0);
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
+
+  //This test requires at least one entry
+  CPPUNIT_ASSERT(pOthers->size() > 0 );
+  const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
+  CPPUNIT_ASSERT(view.size() == pOthers->size());
+  
   
   edmtest::ThingCollection::const_iterator itThing = pThings->begin(), itThingEnd = pThings->end();
   edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
-  
-  for( ; itThing != itThingEnd; ++itThing, ++itOther) {
+  edm::View<edmtest::Thing>::const_iterator itView = view.begin();
+
+  for( ; itThing != itThingEnd; ++itThing, ++itOther,++itView) {
     //std::cout <<"getting data"<<std::endl;
     //I'm assuming the following is true
     CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
     CPPUNIT_ASSERT( itOther->ref.get()->a == itThing->a);
+    if(itView->a != itThing->a) {
+      std::cout <<" *PROBLEM: RefToBaseProd "<<itView->a<<"!= thing "<<itThing->a<<std::endl;
+    }
+    CPPUNIT_ASSERT( itView->a == itThing->a);
   }
 }
 
@@ -126,6 +153,77 @@ void testRefInROOT::testAllLabels()
   }
 }
 
+void testRefInROOT::testEventBase()
+{
+   TFile file("good.root");
+   fwlite::Event events(&file);
+   edm::InputTag tagFull("OtherThing","testUserTag","TEST");
+   edm::InputTag tag("OtherThing","testUserTag");
+   edm::InputTag tagNotHere("NotHereOtherThing");
+   edm::EventBase* eventBase = &events;
+   
+   for(events.toBegin(); not events.atEnd(); ++events) {
+
+      {
+         edm::Handle<edmtest::OtherThingCollection> pOthers;
+         eventBase->getByLabel(tagFull,pOthers);
+         CPPUNIT_ASSERT(pOthers.isValid());
+         pOthers->size();
+      }
+      {
+         edm::Handle<edmtest::OtherThingCollection> pOthers;
+         eventBase->getByLabel(tag,pOthers);
+         CPPUNIT_ASSERT(pOthers.isValid());
+         pOthers->size();
+      }
+
+      {
+         edm::Handle<edmtest::OtherThingCollection> pOthers;
+         eventBase->getByLabel(tagNotHere,pOthers);
+         
+         CPPUNIT_ASSERT(not pOthers.isValid());
+         CPPUNIT_ASSERT(pOthers.failedToGet());
+         CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
+      }
+      
+   }
+   
+}
+
+void testRefInROOT::testTo()
+{
+   TFile file("good.root");
+   fwlite::Event events(&file);
+   edm::InputTag tag("Thing");
+   edm::EventBase* eventBase = &events;
+   
+   CPPUNIT_ASSERT(events.to(1,1,2));
+   {
+      edm::Handle<edmtest::ThingCollection> pThings;
+      eventBase->getByLabel(tag,pThings);
+      CPPUNIT_ASSERT(pThings.isValid());
+      CPPUNIT_ASSERT(0!=pThings->size());
+      CPPUNIT_ASSERT(3 == (*pThings)[0].a);
+   }
+   std::cout <<events.id()<<std::endl;
+   CPPUNIT_ASSERT(edm::EventID(1,1,2)==events.id());
+   
+   CPPUNIT_ASSERT(events.to(1,1,1));
+   {
+      edm::Handle<edmtest::ThingCollection> pThings;
+      eventBase->getByLabel(tag,pThings);
+      CPPUNIT_ASSERT(pThings.isValid());
+      CPPUNIT_ASSERT(0!=pThings->size());
+      CPPUNIT_ASSERT(2 == (*pThings)[0].a);
+   }
+   CPPUNIT_ASSERT(edm::EventID(1,1,1)==events.id());
+  
+   CPPUNIT_ASSERT( events.to(1));
+   CPPUNIT_ASSERT(not events.to(events.size()));
+   
+}
+
+
 void testRefInROOT::testRefFirst()
 {
   TFile file("good.root");
@@ -160,6 +258,85 @@ void testRefInROOT::failOneBadFile()
   testEvent(events);
 }
 
+void testRefInROOT::testMissingRef()
+{
+   TFile file("other_only.root");
+   fwlite::Event events(&file);
+   
+   for(events.toBegin(); not events.atEnd(); ++events) {
+      
+      fwlite::Handle<edmtest::OtherThingCollection> pOthers;
+      pOthers.getByLabel(events,"OtherThing","testUserTag");
+      for(edmtest::OtherThingCollection::const_iterator itOther=pOthers->begin(), itEnd=pOthers->end() ;
+          itOther != itEnd; ++itOther) {
+         //std::cout <<"getting ref"<<std::endl;
+         CPPUNIT_ASSERT(not itOther->ref.isAvailable());
+         CPPUNIT_ASSERT_THROW(itOther->ref.get(), cms::Exception);
+      }
+   }
+}
+
+void testRefInROOT::testMissingData()
+{
+   TFile file("good.root");
+   fwlite::Event events(&file);
+   
+   for(events.toBegin(); not events.atEnd(); ++events) {
+      
+      fwlite::Handle<edmtest::OtherThingCollection> pOthers;
+      pOthers.getByLabel(events,"NotHereOtherThing");
+      
+      CPPUNIT_ASSERT(not pOthers.isValid());
+      CPPUNIT_ASSERT(pOthers.failedToGet());
+      CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
+   }
+}
+
+void testRefInROOT::testSometimesMissingData()
+{
+  TFile file("partialEvent.root");
+  fwlite::Event events(&file);
+  
+  unsigned int index=0;
+  edm::InputTag tag("OtherThing","testUserTag");
+  for(events.toBegin(); not events.atEnd(); ++events,++index) {
+    
+    fwlite::Handle<edmtest::OtherThingCollection> pOthers;
+    pOthers.getByLabel(events,"OtherThing","testUserTag");
+    
+    if(0==index) {
+      CPPUNIT_ASSERT(not pOthers.isValid());
+      CPPUNIT_ASSERT(pOthers.failedToGet());
+      CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
+    } else {
+      CPPUNIT_ASSERT(pOthers.isValid());
+    }
+    
+    edm::Handle<edmtest::OtherThingCollection> edmPOthers;
+    events.getByLabel(tag, edmPOthers);
+    if(0==index) {
+      CPPUNIT_ASSERT(not edmPOthers.isValid());
+      CPPUNIT_ASSERT(edmPOthers.failedToGet());
+      CPPUNIT_ASSERT_THROW(edmPOthers.product(), cms::Exception);
+    } else {
+      CPPUNIT_ASSERT(edmPOthers.isValid());
+    }
+    
+    
+  }
+}
+
+void testRefInROOT::testHandleErrors()
+{
+   fwlite::Handle<edmtest::ThingCollection> pThings ;
+   CPPUNIT_ASSERT_THROW(*pThings,cms::Exception);
+   
+   //try copy constructor
+   fwlite::Handle<edmtest::ThingCollection> pThings2(pThings) ;
+   CPPUNIT_ASSERT_THROW(*pThings2,cms::Exception);
+   
+}
+
 void testRefInROOT::testTwoGoodFiles()
 {
   /*
@@ -167,13 +344,13 @@ void testRefInROOT::testTwoGoodFiles()
   TFile file("good.root");
   std::cout <<" file :" << &file<<" gFile: "<<gFile<<std::endl;
   
-  TTree* events = dynamic_cast<TTree*>(file.Get("Events"));
+  TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName()));
   
   testTree(events);
   std::cout <<"working on second file"<<std::endl;
   TFile file2("good2.root");
   std::cout <<" file2 :"<< &file2<<" gFile: "<<gFile<<std::endl;
-  events = dynamic_cast<TTree*>(file2.Get("Events"));
+  events = dynamic_cast<TTree*>(file2.Get(edm::poolNames::eventTreeName()));
   
   testTree(events);
    */
@@ -183,7 +360,7 @@ void testRefInROOT::testTwoGoodFiles()
 void testRefInROOT::testGoodChain()
 {
   /*
-  TChain eventChain("Events");
+  TChain eventChain(edm::poolNames::eventTreeName());
   eventChain.Add("good.root");
   eventChain.Add("good2.root");
 
@@ -206,7 +383,7 @@ void testRefInROOT::testGoodChain()
 /*
 void testRefInROOT::failChainWithMissingFile()
 {
-  TChain eventChain("Events");
+  TChain eventChain(edm::poolNames::eventTreeName());
   eventChain.Add("good.root");
   eventChain.Add("thisFileDoesNotExist.root");
   

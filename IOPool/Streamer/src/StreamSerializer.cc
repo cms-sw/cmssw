@@ -4,97 +4,104 @@
  * Utility class for serializing framework objects (e.g. ProductRegistry and
  * EventPrincipal) into streamer message objects.
  */
-
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "TClass.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/Parentage.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/OutputHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "zlib.h"
+#include <algorithm>
 #include <cstdlib>
+#include <list>
 
-namespace edm
-{
-
-  StreamSerializer::Arr::Arr(int sz):ptr_((char*)malloc(sz)) { }
-  StreamSerializer::Arr::~Arr() { free(ptr_); }
-
-  const int init_size = 1024*1024;
+namespace edm {
 
   /**
    * Creates a translator instance for the specified product registry.
    */
-  StreamSerializer::StreamSerializer(OutputModule::Selections const* selections):
+  StreamSerializer::StreamSerializer(SelectedProducts const* selections):
     selections_(selections),
-    //data_(init_size),
-    comp_buf_(init_size),
-    curr_event_size_(),
-    curr_space_used_(),
-    rootbuf_(TBuffer::kWrite,init_size), // ,data_.ptr_,kFALSE),
-    ptr_((unsigned char*)rootbuf_.Buffer()),
-    tc_(getTClass(typeid(SendEvent)))
-  { }
+    tc_(getTClass(typeid(SendEvent))) {
+  }
 
   /**
    * Serializes the product registry (that was specified to the constructor)
    * into the specified InitMessage.
    */
-  int StreamSerializer::serializeRegistry(InitMsgBuilder& initMessage)
-  {
+
+  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer, const BranchIDLists &branchIDLists) {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
-    TClass* prog_reg = getTClass(typeid(SendJobHeader));
     SendJobHeader sd;
 
-    OutputModule::Selections::const_iterator i(selections_->begin()),e(selections_->end());
+    SelectedProducts::const_iterator i(selections_->begin()), e(selections_->end());
 
     FDEBUG(9) << "Product List: " << std::endl;
 
-    for(; i != e; ++i)  
-      {
-        sd.descs_.push_back(**i);
-        FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
-                  << std::endl;
-      }
 
-    TBuffer rootbuf(TBuffer::kWrite,initMessage.bufferSize(),
-                    initMessage.dataAddress(),kFALSE);
+    for(auto const& selection : *selections_)  {
+        sd.push_back(*selection);
+        FDEBUG(9) << "StreamOutput got product = " << selection->className()
+                  << std::endl;
+    }
+    Service<ConstProductRegistry> reg;
+    sd.setBranchIDLists(branchIDLists);
+    SendJobHeader::ParameterSetMap psetMap;
+
+    pset::Registry::instance()->fillMap(psetMap);
+    sd.setParameterSetMap(psetMap);
+
+    data_buffer.rootbuf_.Reset();
 
     RootDebug tracer(10,10);
 
-    int bres = rootbuf.WriteObjectAny((char*)&sd,prog_reg);
+    TClass* tc = getTClass(typeid(SendJobHeader));
+    int bres = data_buffer.rootbuf_.WriteObjectAny((char*)&sd, tc);
 
-    switch(bres)
-      {
+    switch(bres) {
       case 0: // failure
-        {
+      {
           throw cms::Exception("StreamTranslation","Registry serialization failed")
             << "StreamSerializer failed to serialize registry\n";
           break;
-        }
+      }
       case 1: // succcess
         break;
       case 2: // truncated result
-        {
+      {
           throw cms::Exception("StreamTranslation","Registry serialization truncated")
             << "StreamSerializer module attempted to serialize\n"
             << "a registry that is to big for the allocated buffers\n";
           break;
-        }
+      }
       default: // unknown
-        {
+      {
           throw cms::Exception("StreamTranslation","Registry serialization failed")
             << "StreamSerializer module got an unknown error code\n"
             << " while attempting to serialize registry\n";
           break;
-        }
       }
+    }
 
-    initMessage.setDescLength(rootbuf.Length());
-    return rootbuf.Length();
+   data_buffer.curr_event_size_ = data_buffer.rootbuf_.Length();
+   data_buffer.curr_space_used_ = data_buffer.curr_event_size_;
+   data_buffer.ptr_ = (unsigned char*)data_buffer.rootbuf_.Buffer();
+   // calculate the adler32 checksum and fill it into the struct
+   data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.ptr_, data_buffer.curr_space_used_);
+   //std::cout << "Adler32 checksum of init message = " << data_buffer.adler32_chksum_ << std::endl;
+   return data_buffer.curr_space_used_;
   }
 
   /**
@@ -105,7 +112,7 @@ namespace edm
    initialize it to 1M, let ROOT resize if it wants, then delete it in the
    dtor.
 
-   change the call to not take an eventMessage, add a member function to 
+   change the call to not take an eventMessage, add a member function to
    return the address of the place that ROOT wrote the serialized data.
 
    return the length of the serialized object and the actual length if
@@ -118,52 +125,44 @@ namespace edm
 
    */
   int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
-                                       bool use_compression, 
-				       int compression_level)
-  {
-    SendEvent se(eventPrincipal.id(),eventPrincipal.time());
+                                       ParameterSetID const& selectorConfig,
+                                       bool use_compression, int compression_level,
+                                       SerializeDataBuffer &data_buffer,
+                                       ModuleCallingContext const* mcc) {
+    Parentage parentage;
 
-    OutputModule::Selections::const_iterator i(selections_->begin()),ie(selections_->end());
+    EventSelectionIDVector selectionIDs = eventPrincipal.eventSelectionIDs();
+    selectionIDs.push_back(selectorConfig);
+    SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory(), selectionIDs, eventPrincipal.branchListIndexes());
+
+    SelectedProducts::const_iterator i(selections_->begin()),ie(selections_->end());
     // Loop over EDProducts, fill the provenance, and write.
 
-    for(; i != ie; ++i) {
+    for(SelectedProducts::const_iterator i = selections_->begin(), iEnd = selections_->end(); i != iEnd; ++i) {
       BranchDescription const& desc = **i;
-      ProductID const& id = desc.productID();
+      BranchID const& id = desc.branchID();
 
-      if (id == ProductID()) {
-        throw Exception(errors::ProductNotFound,"InvalidID")
-          << "StreamSerializer::serializeEvent: invalid ProductID supplied in productRegistry\n";
-      }
-      BasicHandle const bh = eventPrincipal.getForOutput(id, true);
-      if (bh.provenance() == 0) {
-        std::string const& name = desc.className();
-        std::string const className = wrappedClassName(name);
-        TClass *cp = gROOT->GetClass(className.c_str());
-        if (cp == 0) {
-          throw Exception(errors::ProductNotFound,"NoMatch")
-            << "TypeID::className: No dictionary for class " << className << '\n'
-            << "Add an entry for this class\n"
-            << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
-        }
-
-
-        EDProduct *p = static_cast<EDProduct *>(cp->New());
-        se.prods_.push_back(ProdPair(p, bh.provenance()));
+      OutputHandle const oh = eventPrincipal.getForOutput(id, true, mcc);
+      if(!oh.productProvenance()) {
+        // No product with this ID was put in the event.
+        // Create and write the provenance.
+        se.products().push_back(StreamedProduct(desc));
       } else {
-        se.prods_.push_back(ProdPair(bh.wrapper(), bh.provenance()));
+        bool found = ParentageRegistry::instance()->getMapped(oh.productProvenance()->parentageID(), parentage);
+        assert(found);
+        se.products().push_back(StreamedProduct(oh.wrapper(),
+                                                desc,
+                                                oh.wrapper() != 0,
+                                                &parentage.parents()));
       }
-     }
+    }
 
-    //TBuffer rootbuf(TBuffer::kWrite,eventMessage.bufferSize(),
-    //                eventMessage.eventAddr(),kFALSE);
-
-    rootbuf_.Reset();
+    data_buffer.rootbuf_.Reset();
     RootDebug tracer(10,10);
 
     //TClass* tc = getTClass(typeid(SendEvent));
-    int bres = rootbuf_.WriteObjectAny(&se,tc_);
-   switch(bres)
-      {
+    int bres = data_buffer.rootbuf_.WriteObjectAny(&se,tc_);
+    switch(bres) {
       case 0: // failure
         {
           throw cms::Exception("StreamTranslation","Event serialization failed")
@@ -190,36 +189,36 @@ namespace edm
           break;
         }
       }
-   
-   curr_event_size_ = rootbuf_.Length();
-   curr_space_used_ = curr_event_size_;
-   ptr_ = (unsigned char*)rootbuf_.Buffer();
+
+   data_buffer.curr_event_size_ = data_buffer.rootbuf_.Length();
+   data_buffer.curr_space_used_ = data_buffer.curr_event_size_;
+   data_buffer.ptr_ = (unsigned char*)data_buffer.rootbuf_.Buffer();
 #if 0
-   if(ptr_ != data_.ptr_)
-	{
-	std::cerr << "ROOT reset the buffer!!!!\n";
-	data_.ptr_ = ptr_; // ROOT may have reset our data pointer!!!!
-	}
+   if(data_buffer.ptr_ != data_.ptr_) {
+        std::cerr << "ROOT reset the buffer!!!!\n";
+        data_.ptr_ = data_buffer.ptr_; // ROOT may have reset our data pointer!!!!
+        }
 #endif
    // std::copy(rootbuf_.Buffer(),rootbuf_.Buffer()+rootbuf_.Length(),
-   //	eventMessage.eventAddr());
-   // eventMessage.setEventLength(rootbuf.Length()); 
+   // eventMessage.eventAddr());
+   // eventMessage.setEventLength(rootbuf.Length());
 
     // compress before return if we need to
     // should test if compressed already - should never be?
     //   as double compression can have problems
-    if(use_compression)
-    {
+    if(use_compression) {
       unsigned int dest_size =
-        compressBuffer(ptr_, curr_event_size_, comp_buf_, compression_level);
-      if(dest_size != 0)
-      {
-	ptr_ = &comp_buf_[0]; // reset to point at compressed area
-        curr_space_used_ = dest_size;
+        compressBuffer(data_buffer.ptr_, data_buffer.curr_event_size_, data_buffer.comp_buf_, compression_level);
+      if(dest_size != 0) {
+        data_buffer.ptr_ = &data_buffer.comp_buf_[0]; // reset to point at compressed area
+        data_buffer.curr_space_used_ = dest_size;
       }
     }
+    // calculate the adler32 checksum and fill it into the struct
+    data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.ptr_, data_buffer.curr_space_used_);
+    //std::cout << "Adler32 checksum of event = " << data_buffer.adler32_chksum_ << std::endl;
 
-    return curr_space_used_;
+    return data_buffer.curr_space_used_;
   }
 
   /**
@@ -229,40 +228,37 @@ namespace edm
    */
   unsigned int
   StreamSerializer::compressBuffer(unsigned char *inputBuffer,
-				   unsigned int inputSize,
-				   std::vector<unsigned char> &outputBuffer,
-				   int compressionLevel)
-  {
+                                   unsigned int inputSize,
+                                   std::vector<unsigned char> &outputBuffer,
+                                   int compressionLevel) {
     unsigned int resultSize = 0;
 
     // what are these magic numbers? (jbk)
     unsigned long dest_size = (unsigned long)(double(inputSize)*
-					      1.002 + 1.0) + 12;
+                                              1.002 + 1.0) + 12;
     if(outputBuffer.size() < dest_size) outputBuffer.resize(dest_size);
 
     // compression 1-9, 6 is zlib default, 0 none
     int ret = compress2(&outputBuffer[0], &dest_size, inputBuffer,
-			inputSize, compressionLevel);
+                        inputSize, compressionLevel);
 
     // check status
-    if(ret == Z_OK)
-      {
-	// return the correct length
-	resultSize = dest_size;
+    if(ret == Z_OK) {
+        // return the correct length
+        resultSize = dest_size;
 
-	FDEBUG(1) << " original size = " << inputSize
-		  << " final size = " << dest_size
-		  << " ratio = " << double(dest_size)/double(inputSize)
-		  << std::endl;
-      }
-    else
-      {
+        FDEBUG(1) << " original size = " << inputSize
+                  << " final size = " << dest_size
+                  << " ratio = " << double(dest_size)/double(inputSize)
+                  << std::endl;
+    } else {
         // compression failed, return a size of zero
-        FDEBUG(9) <<"Compression Return value: "<<ret
-		  << " Okay = " << Z_OK << std::endl;
+        FDEBUG(9) << "Compression Return value: " << ret
+                  << " Okay = " << Z_OK << std::endl;
         // do we throw an exception here?
-        std::cerr <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << std::endl;
-      }
+        std::cerr << "Compression Return value: " << ret << " Okay = " << Z_OK << std::endl;
+
+    }
 
     return resultSize;
   }

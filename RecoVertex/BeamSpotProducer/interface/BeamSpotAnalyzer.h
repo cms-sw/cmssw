@@ -9,7 +9,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.h,v 1.2 2007/03/29 16:34:52 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -21,11 +20,8 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
+#include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 
-// ROOT
-#include "TFile.h"
-#include "TTree.h"
 
 class BeamSpotAnalyzer : public edm::EDAnalyzer {
  public:
@@ -33,53 +29,33 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   ~BeamSpotAnalyzer();
 
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-
-  std::string outputfilename_;
-  TFile* file_;
-  TTree* ftree_;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+									const edm::EventSetup& context) ;
+  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+								  const edm::EventSetup& c);
 
   int    ftotalevents;
-  double ftheta;
-  double fpt;
-  double feta;
-  int    fcharge;
-  double fchi2;
-  double fndof;
-  double fphi0;
-  double fd0;
-  double fsigmad0;
-  double fz0;
-  double fsigmaz0;
-  unsigned int fnHit;
-  unsigned int fnStripHit;
-  unsigned int fnPixelHit;
-  unsigned int fnTIBHit;
-  unsigned int fnTOBHit;
-  unsigned int fnTIDHit;
-  unsigned int fnTECHit;
-  unsigned int fnPXBHit;
-  unsigned int fnPXFHit;
-  double fd0phi_chi2;
-  double fd0phi_d0;
-  double fcov[7][7];
-  
-  std::vector< BSTrkParameters > fBSvector;
-  
-  std::string ckfSeedProducerLabel_;
-  std::string ckfTrackCandidateProducerLabel_;
-  std::string ckfTrackProducerLabel_;
-
-  unsigned int sameNumberOfTracks;
-
-  float fptmin;
-  int fmaxNtracks;  
+  int fitNLumi_;
+  int resetFitNLumi_;
+  int countEvt_;       //counter
+  int countLumi_;      //counter
+  int Org_resetFitNLumi_;
+  int previousLumi_;
+  int previousRun_;
+  int ftmprun0, ftmprun;
+  int beginLumiOfBSFit_;
+  int endLumiOfBSFit_;
+  std::time_t refBStime[2];
 
   bool write2DB_;
+  bool runbeamwidthfit_;
   bool runallfitters_;
-  int ftotal_tracks;
+  double inputBeamWidth_;
+
+  BeamFitter * theBeamFitter;
 };
 
 #endif

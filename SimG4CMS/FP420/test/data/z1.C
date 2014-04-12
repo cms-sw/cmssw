@@ -108,12 +108,15 @@
     //======================================================================111111
      c1->Update();
     c1->Clear();
-    c1->Divide(1,2);
+    c1->Divide(1,3);
     c1->cd(1); 
     SumEDep->Draw();
 
     c1->cd(2); 
     TrackL->Draw();
+
+    c1->cd(3); 
+    NumberOfHits->Draw();
 
     c1->Update();
 
@@ -122,18 +125,11 @@
      c1->Divide(3,2); 
      c1->cd(1); 
       TH1F *mpelec = (TH1F*)hfile->Get("VtxX");
-           if(mpelec->IsA()->InheritsFrom("TH1F")){
-            Double_t mintegral = mpelec->Integral();
-             if(mintegral>0.0){
-              Double_t mscale = 100./mintegral;
-//                mpelec->Scale(mscale);
 		mpelec->SetLineColor(3);
 		mpelec->SetMarkerStyle(20);
 		mpelec->SetMarkerSize(0.4);
 		mpelec->GetYaxis()->SetLabelSize(0.04);
 		mpelec->SetMarkerColor(kBlue);
-// 		mpelec->GetXaxis()->SetTitle("Energy");
-// 		mpelec->GetYaxis()->SetTitle("Nev");
 		mpelec->Draw("Error");
 
      c1->cd(2); 
@@ -142,8 +138,6 @@
        mpelec1->SetMarkerSize(0.4);
        mpelec1->GetYaxis()->SetLabelSize(0.04);
        mpelec1->SetMarkerColor(kBlue);
-//       mpelec1->GetXaxis()->SetTitle("Energy");
-//       mpelec1->GetYaxis()->SetTitle("W=Ecra");
        mpelec1->SetLineColor(3);
        mpelec1->Draw("Error");
 
@@ -153,8 +147,6 @@
        mpelec2->SetMarkerSize(0.4);
        mpelec2->GetYaxis()->SetLabelSize(0.04);
        mpelec2->SetMarkerColor(kBlue);
-//        mpelec2->GetXaxis()->SetTitle("Ecra");
-//        mpelec2->GetYaxis()->SetTitle("Nev");
        mpelec2->SetLineColor(3);
        mpelec2->Draw("Error");
 
@@ -164,8 +156,6 @@
        mpelec3->SetMarkerSize(0.4);
        mpelec3->GetYaxis()->SetLabelSize(0.04);
        mpelec3->SetMarkerColor(kBlue);
-//        mpelec3->GetXaxis()->SetTitle("Ecra");
-//        mpelec3->GetYaxis()->SetTitle("Nev");
        mpelec3->SetLineColor(3);
        mpelec3->Draw("Error");
 
@@ -175,8 +165,6 @@
        mpelec3->SetMarkerSize(0.4);
        mpelec3->GetYaxis()->SetLabelSize(0.04);
        mpelec3->SetMarkerColor(kBlue);
-//        mpelec3->GetXaxis()->SetTitle("Ecra");
-//        mpelec3->GetYaxis()->SetTitle("Nev");
        mpelec3->SetLineColor(3);
        mpelec3->Draw("Error");
 
@@ -186,14 +174,10 @@
        mpelec3->SetMarkerSize(0.4);
        mpelec3->GetYaxis()->SetLabelSize(0.04);
        mpelec3->SetMarkerColor(kBlue);
-//        mpelec3->GetXaxis()->SetTitle("Ecra");
-//        mpelec3->GetYaxis()->SetTitle("Nev");
        mpelec3->SetLineColor(3);
        mpelec3->Draw("Error");
 
 
-             }
-           }
      c1->Update();
 
 
@@ -204,19 +188,13 @@
      c1->Divide(1,3); 
      c1->cd(1); 
       TH1F *mpelec = (TH1F*)hfile->Get("PrimaryLastpoX");
-           if(mpelec->IsA()->InheritsFrom("TH1F")){
-            Double_t mintegral = mpelec->Integral();
-             if(mintegral>0.0){
-              Double_t mscale = 100./mintegral;
-//                mpelec->Scale(mscale);
 		mpelec->SetLineColor(3);
 		mpelec->SetMarkerStyle(20);
 		mpelec->SetMarkerSize(0.4);
 		mpelec->GetYaxis()->SetLabelSize(0.04);
 		mpelec->SetMarkerColor(kBlue);
-// 		mpelec->GetXaxis()->SetTitle("Energy");
-// 		mpelec->GetYaxis()->SetTitle("Nev");
 		mpelec->Draw("Error");
+
 
      c1->cd(2); 
       TH1F *mpelec1= (TH1F*)hfile->Get("PrimaryLastpoY");
@@ -224,8 +202,6 @@
        mpelec1->SetMarkerSize(0.4);
        mpelec1->GetYaxis()->SetLabelSize(0.04);
        mpelec1->SetMarkerColor(kBlue);
-//       mpelec1->GetXaxis()->SetTitle("Energy");
-//       mpelec1->GetYaxis()->SetTitle("W=Ecra");
        mpelec1->SetLineColor(3);
        mpelec1->Draw("Error");
 
@@ -235,15 +211,10 @@
        mpelec2->SetMarkerSize(0.4);
        mpelec2->GetYaxis()->SetLabelSize(0.04);
        mpelec2->SetMarkerColor(kBlue);
-//        mpelec2->GetXaxis()->SetTitle("Ecra");
-//        mpelec2->GetYaxis()->SetTitle("Nev");
        mpelec2->SetLineColor(3);
        mpelec2->Draw("Error");
 
 
-
-             }
-           }
      c1->Update();
     //======================================================================
     //======================================================================444444
@@ -255,8 +226,6 @@
        mpelec2->SetMarkerSize(0.4);
        mpelec2->GetYaxis()->SetLabelSize(0.04);
        mpelec2->SetMarkerColor(kBlue);
-//        mpelec2->GetXaxis()->SetTitle("Ecra");
-//        mpelec2->GetYaxis()->SetTitle("Nev");
        mpelec2->SetLineColor(3);
        mpelec2->Draw("Error");
 
@@ -266,8 +235,6 @@
        mpelec2->SetMarkerSize(0.4);
        mpelec2->GetYaxis()->SetLabelSize(0.04);
        mpelec2->SetMarkerColor(kBlue);
-//        mpelec2->GetXaxis()->SetTitle("Ecra");
-//        mpelec2->GetYaxis()->SetTitle("Nev");
        mpelec2->SetLineColor(3);
        mpelec2->Draw("Error");
 
@@ -278,8 +245,6 @@
        mpelec2->SetMarkerSize(0.4);
        mpelec2->GetYaxis()->SetLabelSize(0.04);
        mpelec2->SetMarkerColor(kBlue);
-//        mpelec2->GetXaxis()->SetTitle("Ecra");
-//        mpelec2->GetYaxis()->SetTitle("Nev");
        mpelec2->SetLineColor(3);
        mpelec2->Draw("Error");
 

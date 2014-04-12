@@ -16,14 +16,13 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:03 EST 2005
-// $Id: DataKey.h,v 1.6 2006/08/10 23:24:42 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/DataKeyTags.h"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 
 // forward declarations
 namespace edm {
@@ -58,7 +57,7 @@ class DataKey
            makeCopyOfMemory();
          }
       
-      const DataKey& operator=(const DataKey&); // stop default
+      DataKey& operator=(const DataKey&); // stop default
       
       ~DataKey() { releaseMemory(); }
       
@@ -72,7 +71,7 @@ class DataKey
       // ---------- static member functions --------------------
       template<class T>
          static TypeTag makeTypeTag() {
-            return heterocontainer::HCTypeTagTemplate<T, DataKey>();
+            return heterocontainer::HCTypeTag::make<T>();
          }
       
       // ---------- member functions ---------------------------

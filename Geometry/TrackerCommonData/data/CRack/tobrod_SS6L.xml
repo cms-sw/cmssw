@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tobrod_SS6L.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+	</ConstantsSection>
+	<LogicalPartSection label="tobrod_SS6L.xml">
+		<LogicalPart name="TOBRod_SS6L" category="unspecified">
+			<rSolid name="tobrodpar:TOBRod"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tobrod_SS6L.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tobrod_SS6L:TOBRod_SS6L"/>
+			<rChild name="tobrod4l:TOBRod4L"/>
+			<rRotation name="tobrodpar:180X"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

@@ -5,18 +5,17 @@
  *
  *  Provide access to the DetLayers of muon detectors.
  *
- *  $Date: 2006/10/13 13:26:46 $
- *  $Revision: 1.10 $
  *  \author N. Amapane - CERN
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 #include <vector>
 #include <map>
 
 class DetLayer;
 
-class MuonDetLayerGeometry {
+class MuonDetLayerGeometry : public DetLayerGeometry{
  public:
 
   /// Constructor
@@ -26,10 +25,6 @@ class MuonDetLayerGeometry {
 
   /// Destructor
   virtual ~MuonDetLayerGeometry();
-
-  /// Clone (needed when used via ESHandle)  
-  MuonDetLayerGeometry *clone() const 
-    {return new MuonDetLayerGeometry(*this);}  
 
   /// return the DT DetLayers (barrel), inside-out
   const std::vector<DetLayer*>& allDTLayers() const;
@@ -74,21 +69,21 @@ class MuonDetLayerGeometry {
   const std::vector<DetLayer*>& allBackwardLayers() const;
   
   /// return the DetLayer which correspond to a certain DetId
-  const DetLayer* idToLayer(DetId &detId) const;
+  virtual const DetLayer* idToLayer(const DetId& detId) const;
 
  private:
   /// Add CSC layers 
   /// csclayers.first=forward (+Z), csclayers.second=backward (-Z)
   /// both vectors are ASSUMED to be sorted inside-out
-  void addCSCLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
+  void addCSCLayers(const std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> >& csclayers);
 
   //. Add DT layers; dtlayers is ASSUMED to be sorted inside-out
-  void addDTLayers(std::vector<DetLayer*> dtlayers);
+  void addDTLayers(const std::vector<DetLayer*>& dtlayers);
 
   /// Add RPC layers
   /// endcapRPCLayers.first=forward (+Z), endcapRPCLayers.second=backward (-Z)
   /// All three vectors are ASSUMED to be sorted inside-out
-  void addRPCLayers(std::vector<DetLayer*> barrelRPCLayers, std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > endcapRPCLayers);
+  void addRPCLayers(const std::vector<DetLayer*>& barrelRPCLayers, const std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> >& endcapRPCLayers);
 
   
   DetId makeDetLayerId(const DetLayer* detLayer) const;

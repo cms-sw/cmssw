@@ -1,4 +1,3 @@
-// Last commit: $Id: $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCablingSource_H
 #define DataFormats_SiStripCommon_ConstantsForCablingSource_H
@@ -16,12 +15,12 @@ namespace sistrip {
 
   // ---------- Constants ---------- 
 
-  static const std::string unknownCablingSource_   = "UnknownCablingSource";
-  static const std::string undefinedCablingSource_ = "UndefinedCablingSource";
+  static const char unknownCablingSource_[]   = "UnknownCablingSource";
+  static const char undefinedCablingSource_[] = "UndefinedCablingSource";
   
-  static const std::string cablingFromConns_   = "CablingFromConnections";
-  static const std::string cablingFromDevices_ = "CablingFromDevices";
-  static const std::string cablingFromDetIds_  = "CablingFromDetIds";
+  static const char cablingFromConns_[]   = "CablingFromConnections";
+  static const char cablingFromDevices_[] = "CablingFromDevices";
+  static const char cablingFromDetIds_[]  = "CablingFromDetIds";
 
   // ---------- Enumerated type ---------- 
   

@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/03/07 13:20:54 $
- *  $Revision: 1.18 $
  *  \author N. Amapane - CERN
  */
 
@@ -10,7 +8,7 @@
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
-#include <TrackingTools/PatternTools/interface/MeasurementEstimator.h>
+#include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
@@ -24,6 +22,7 @@
 using namespace std;
 
 MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& rings) :
+  RingedForwardLayer(false),
   theRings(rings),
   theComponents(theRings.begin(),theRings.end()),
   theBinFinder(0),
@@ -64,8 +63,8 @@ MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& ring
   RotationType rot;
 
   setSurface(new BoundDisk( pos, rot, 
-			    SimpleDiskBounds( theRmin, theRmax, 
-					      theZmin-zPos, theZmax-zPos)));
+			    new SimpleDiskBounds( theRmin, theRmax, 
+					          theZmin-zPos, theZmax-zPos)));
 
 
    
@@ -213,11 +212,6 @@ MuRingForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& start
   return vector<DetGroup>();
 }
 
-
-bool MuRingForwardLayer::hasGroups() const {
-  // FIXME : depending on isOverlapping?
-  return false;
-}
 
 
 GeomDetEnumerators::SubDetector MuRingForwardLayer::subDetector() const {

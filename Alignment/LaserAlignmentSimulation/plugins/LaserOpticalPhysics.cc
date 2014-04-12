@@ -1,73 +1,58 @@
 /** \file LaserOpticalPhysics.cc
  *  Custom Physics to activate optical processes for the simulation of the Laser Alignment System
  *
- *  $Date: 2007/05/08 08:00:16 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/08/02 13:09:56 $
+ *  $Revision: 1.11 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/plugins/LaserOpticalPhysics.h"
 #include "Alignment/LaserAlignmentSimulation/interface/LaserOpticalPhysicsList.h"
  
-#include "SimG4Core/QGSP/src/HadronPhysicsQGSP.hh"
+#include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
 
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h" 
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 
-#ifdef G4V7
-#include "SimG4Core/Packaging/src/GeneralPhysics.hh"
-#include "SimG4Core/Packaging/src/EMPhysics.hh"
-#include "SimG4Core/Packaging/src/MuonPhysics.hh"
-#include "SimG4Core/Packaging/src/IonPhysics.hh"
-#include "SimG4Core/Packaging/src/G4DataQuestionaire.hh"
-#else
 #include "G4DecayPhysics.hh"
-#include "G4EmStandardPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4QStoppingPhysics.hh"
+#include "G4StoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh" 
+#include "G4HadronicProcessStore.hh"
 #include "G4DataQuestionaire.hh"
-#endif
 
 LaserOpticalPhysics::LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
-  const edm::ParameterSet & p) : PhysicsList(map, p)
+					 const HepPDT::ParticleDataTable * table_,
+					 sim::FieldBuilder *fieldBuilder_,
+					 const edm::ParameterSet & p) 
+: PhysicsList(map, table_, fieldBuilder_, p)
 {
-    G4DataQuestionaire it(photon);
-#ifdef G4V7
-    std::cout << "You are using the simulation engine: QGSP 2.8" << std::endl;
+  int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
+  G4DataQuestionaire it(photon);
+  std::cout << "You are using the simulation engine: QGSP together with optical physics" 
+	    << std::endl;
   
-    RegisterPhysics(new GeneralPhysics("general"));
-    RegisterPhysics(new EMPhysics("EM"));
-    RegisterPhysics(new MuonPhysics("muon"));
-    RegisterPhysics(new HadronPhysicsQGSP("hadron"));
-    RegisterPhysics(new IonPhysics("ion"));
-		// Optical physics
-		RegisterPhysics(new LaserOpticalPhysicsList("optical"));
-#else
-    std::cout << "You are using the simulation engine: QGSP together with optical physics" << std::endl;
-  
-    // EM Physics
-    RegisterPhysics(new G4EmStandardPhysics("standard EM"));
-    // Synchroton Radiation & GN Physics
-    RegisterPhysics(new G4EmExtraPhysics("extra EM"));
-    // Decays
-    RegisterPhysics(new G4DecayPhysics("decay"));
-    // Hadron Elastic scattering
-    RegisterPhysics(new G4HadronElasticPhysics("elastic")); 
-    // Hadron Physics
-    RegisterPhysics(new HadronPhysicsQGSP("hadron"));
-    // Stopping Physics
-    RegisterPhysics(new G4QStoppingPhysics("stopping"));
-    // Ion Physics
-    RegisterPhysics(new G4IonPhysics("ion"));
-		// Optical physics
-		RegisterPhysics(new LaserOpticalPhysicsList("optical"));
-#endif
+  // EM Physics
+  RegisterPhysics(new CMSEmStandardPhysics(ver));
+  // Synchroton Radiation & GN Physics
+  RegisterPhysics(new G4EmExtraPhysics(ver));
+  // Decays
+  RegisterPhysics(new G4DecayPhysics(ver));
+  // Hadron Elastic scattering
+  G4HadronicProcessStore::Instance()->SetVerbose(ver);
+  RegisterPhysics(new G4HadronElasticPhysics(ver)); 
+  // Hadron Physics
+  RegisterPhysics(new G4HadronPhysicsQGSP_FTFP_BERT(ver));
+  // Stopping Physics
+  RegisterPhysics(new G4StoppingPhysics(ver));
+  // Ion Physics
+  RegisterPhysics(new G4IonPhysics(ver));
+  // Optical physics
+  RegisterPhysics(new LaserOpticalPhysicsList("optical"));
 
 }
 
 // define the custom physics list
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_SEAL_MODULE ();
 DEFINE_PHYSICSLIST (LaserOpticalPhysics);

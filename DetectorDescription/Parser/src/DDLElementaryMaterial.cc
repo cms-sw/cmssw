@@ -11,50 +11,39 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLElementaryMaterial.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLElementaryMaterial.h"
-#include "DDLElementRegistry.h"
-
-// DDCore dependencies
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
-#include <string>
 #include <iostream>
 
-// Default constructor.
-DDLElementaryMaterial::DDLElementaryMaterial()
-{
-}
+DDLElementaryMaterial::DDLElementaryMaterial( DDLElementRegistry* myreg )
+  : DDLMaterial( myreg )
+{}
 
-// Default destructor.
-DDLElementaryMaterial::~DDLElementaryMaterial()
-{
-}
+DDLElementaryMaterial::~DDLElementaryMaterial( void )
+{}
 
 // Upon encountering an end of an ElementaryMaterial element, we call DDCore
-void DDLElementaryMaterial::processElement (const std::string& type, const std::string& nmspace)
+void
+DDLElementaryMaterial::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLElementaryMaterial::processElement started");
+  DCOUT_V( 'P', "DDLElementaryMaterial::processElement started" );
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
-  DDMaterial mat = DDMaterial(getDDName(nmspace)
-			      , ev.eval(nmspace, atts.find("atomicNumber")->second)
-			      , ev.eval(nmspace, atts.find("atomicWeight")->second)
-			      , ev.eval(nmspace, atts.find("density")->second));
+  DDMaterial mat = DDMaterial( getDDName( nmspace ),
+			       ev.eval( nmspace, atts.find( "atomicNumber" )->second ),
+			       ev.eval( nmspace, atts.find( "atomicWeight" )->second ),
+			       ev.eval( nmspace, atts.find( "density" )->second ));
 
-  DDLMaterial::setReference(nmspace);
+  DDLMaterial::setReference( nmspace, cpv );
   clear();
 
-  DCOUT_V('P', "DDLElementaryMaterial::processElement completed.");
+  DCOUT_V( 'P', "DDLElementaryMaterial::processElement completed." );
 }

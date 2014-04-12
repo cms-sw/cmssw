@@ -1,40 +1,52 @@
-// Last commit: $Id: SiStripDigiToRawModule.h,v 1.11 2007/03/21 16:38:13 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 
+#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
-class SiStripDigiToRaw;
+namespace sistrip {
 
-/**
-   @file EventFilter/SiStripRawToDigi/interface/SiStripDigiToRawModule.h
-   @class SiStripDigiToRawModule 
+  class DigiToRaw;
+
+  /**
+     @file EventFilter/SiStripRawToDigi/interface/SiStripDigiToRawModule.h
+     @class DigiToRawModule 
    
-   @brief A plug-in module that takes StripDigis as input from the
-   Event and creates an EDProduct comprising a FEDRawDataCollection.
-*/
-class SiStripDigiToRawModule : public edm::EDProducer {
+     @brief A plug-in module that takes StripDigis as input from the
+     Event and creates an EDProduct comprising a FEDRawDataCollection.
+  */
+  class DigiToRawModule : public edm::EDProducer {
   
- public:
+  public:
   
-  SiStripDigiToRawModule( const edm::ParameterSet& );
-  ~SiStripDigiToRawModule();
+    DigiToRawModule( const edm::ParameterSet& );
+    ~DigiToRawModule();
   
-  virtual void beginJob( const edm::EventSetup& ) {;}
-  virtual void endJob() {;}
+    virtual void beginJob() {}
+    virtual void endJob() {}
   
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+    virtual void produce( edm::Event&, const edm::EventSetup& );
   
- private:
+  private:
 
-  std::string inputModuleLabel_;
-  SiStripDigiToRaw* digiToRaw_;
-  uint32_t eventCounter_;
+    std::string inputModuleLabel_;
+    std::string inputDigiLabel_;
+    FEDReadoutMode mode_;
+    bool rawdigi_;
+    DigiToRaw* digiToRaw_;
+    uint32_t eventCounter_;
+    edm::EDGetTokenT< edm::DetSetVector<SiStripRawDigi> > tokenRawDigi;
+    edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > tokenDigi;
 
-};
+  };
+
+}
 
 #endif // EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 

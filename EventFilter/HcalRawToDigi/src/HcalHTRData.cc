@@ -1,18 +1,16 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2007/02/19 23:38:03 $
- *  $Revision: 1.6 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #else
 #include "HcalHTRData.h"
+const int HcalHTRData::CHANNELS_PER_SPIGOT         = 24;
+const int HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
 #endif
 #include <string.h>
 #include <stdio.h>
-const int HcalHTRData::CHANNELS_PER_SPIGOT         = 24;
-const int HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
 
 HcalHTRData::HcalHTRData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(0), m_ownData(0) { }
 HcalHTRData::HcalHTRData(const unsigned short* data, int length) {
@@ -31,6 +29,8 @@ void HcalHTRData::allocate(int version_to_create) {
   const int needed=0x200;
   // create a buffer big enough...
   m_ownData=new unsigned short[needed];
+  // clear isn't really necessary, but it makes valgrind happy
+  memset(m_ownData,0,sizeof(unsigned short)*needed);
   m_rawLength=0;
   m_rawConst=m_ownData;
 }
@@ -72,12 +72,16 @@ bool HcalHTRData::check() const {
     // length checks
     //  minimum length
     if (m_rawLength<8+4) return false;
-    //  matches wordcount
-    if (m_rawLength!=m_rawConst[m_rawLength-3]) {
-      if (isHistogramEvent() && m_rawConst[m_rawLength-3]==786) {
-	// known bug!
-      } else
-	return false;
+    if (m_formatVersion<=3) {
+      //  matches wordcount
+      if (m_rawLength!=m_rawConst[m_rawLength-3]) {
+	if (isHistogramEvent() && m_rawConst[m_rawLength-3]==786) {
+	  // known bug!
+	} else
+	  return false;
+      }
+    } else { 
+      // eventually add CRC check
     }
     // empty event check (redundant...)
     if (m_rawConst[2]&0x4) return false;
@@ -91,6 +95,31 @@ bool HcalHTRData::check() const {
   }
 
   return true;
+}
+
+bool HcalHTRData::isEmptyEvent() const {
+  if (m_formatVersion==-1) {
+    return (m_rawConst[2]&0x20)!=0;
+  } else {
+    return (m_rawConst[2]&0x4)!=0;
+  }
+}
+
+ 
+bool HcalHTRData::isOverflowWarning() const {
+  if (m_formatVersion==-1) {
+    return false; // too old to care.
+  } else {
+    return (m_rawConst[2]&0x1)!=0;
+  }
+}
+
+bool HcalHTRData::isBusy() const {
+  if (m_formatVersion==-1) {
+    return false; // too old to care.
+  } else {
+    return (m_rawConst[2]&0x2)!=0;
+  }
 }
 
 void HcalHTRData::determineSectionLengths(int& tpWords, int& daqWords, int& headerWords, int& trailerWords) const {
@@ -112,16 +141,19 @@ void HcalHTRData::determineStaticLengths(int& headerWords, int& trailerWords) co
   if (m_formatVersion==-1) {
     headerWords=6;
     trailerWords=12;
-  } else {
+  } else if (m_formatVersion<5) {
     headerWords=8;
     trailerWords=4; // minimum, may be more...
+  } else {
+    headerWords=8;
+    trailerWords=12; // minimum, may be more...
   }
 }
 
 void HcalHTRData::dataPointers(const unsigned short** daq_first, 
 			       const unsigned short** daq_last, 
 			       const unsigned short** tp_first, 
-			       const unsigned short** tp_last) {
+			       const unsigned short** tp_last) const {
   int tp_words_total, daq_words_total, headerLen, trailerLen;
   determineSectionLengths(tp_words_total,daq_words_total,headerLen,trailerLen);
 
@@ -222,16 +254,16 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
       daq_words_total++;
     }
   }
-
+  unsigned short totalLen;
   if (m_formatVersion==-1) {
     m_ownData[5]=(tp_words_total<<8)|0x1;
-    unsigned short totalLen=headerLen+tp_words_total+daq_words_total+trailerLen;
+    totalLen=headerLen+tp_words_total+daq_words_total+trailerLen;
     m_rawLength=totalLen;
     m_ownData[totalLen-3]=totalLen;
     m_ownData[totalLen-4]=(tp_words_total/CHANNELS_PER_SPIGOT)|((daq_words_total/CHANNELS_PER_SPIGOT)<<8);
   } else {
     m_ownData[5]=(tp_words_total<<8)|0x1;
-    unsigned short totalLen=headerLen+tp_words_total+daq_words_total+trailerLen;
+    totalLen=headerLen+tp_words_total+daq_words_total+trailerLen;
     if ((totalLen%2)==1) {
       m_ownData[totalLen-4]=0xFFFF; // parity word
       totalLen++; // round to even number of 16-bit words
@@ -240,6 +272,10 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
     m_ownData[totalLen-2]=totalLen/2; // 32-bit words
     m_ownData[totalLen-3]=totalLen;
     m_ownData[totalLen-4]=daq_words_total;
+  }
+  if (trailerLen==12) { // initialize extra trailer words if present
+    for (int i=12; i>4; i--)
+      m_ownData[totalLen-i]=0;
   }
 
 }
@@ -267,6 +303,22 @@ void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int o
   }
   m_ownData[m_rawLength-2]=m_rawLength/2; // 32-bit words
   m_ownData[m_rawLength-1]=(L1Anumber&0xFF)<<8;
+}
+
+void HcalHTRData::packUnsuppressed(const bool* mp) {
+  if (m_formatVersion<4) return;
+
+  for (int fiber=1; fiber<=8; fiber++) {
+    for (int fiberchan=0; fiberchan<=2; fiberchan++) {
+      int linchan=(fiber-1)*3+fiberchan;
+
+      unsigned short& val=m_ownData[m_rawLength-12+(linchan/8)];
+      if (mp[linchan]) val|=1<<(linchan%8);
+    }
+  }
+  
+  // set the unsupressed bit
+  m_ownData[6]|=0x8000;
 }
 
 unsigned int HcalHTRData::getOrbitNumber() const { 
@@ -298,6 +350,35 @@ unsigned int HcalHTRData::readoutVMECrateId() const{
 bool HcalHTRData::isCalibrationStream() const {
   return (m_formatVersion==-1)?(false):(m_rawConst[2]&0x4000);
 }
+bool HcalHTRData::isUnsuppressed() const {
+  return (m_formatVersion<4)?(false):(m_rawConst[6]&0x8000);
+}
+bool HcalHTRData::wasMarkAndPassZS(int fiber, int fiberchan) const {
+  if (fiber<1 || fiber>8 || fiberchan<0 || fiberchan>2) return false;
+  if (!isUnsuppressed() || m_formatVersion<5) return false;
+  int linchan=(fiber-1)*3+fiberchan;
+
+  unsigned short val=m_rawConst[m_rawLength-12+(linchan/8)];
+  return ((val>>(linchan%8))&0x1)!=0;
+} 
+bool HcalHTRData::wasMarkAndPassZSTP(int slb, int slbchan) const {
+  if (slb<1 || slb>6 || slbchan<0 || slbchan>3) return false;
+  if (!isUnsuppressed() || m_formatVersion<5) return false;
+  int linchan=(slb-1)*4+slbchan;
+
+  unsigned short val=m_rawConst[m_rawLength-12+(linchan/8)];
+  return ((val>>(linchan%8))&0x100)!=0;
+} 
+
+uint32_t HcalHTRData::zsBunchMask() const {
+  uint32_t mask=0;
+  if (isUnsuppressed() && m_formatVersion>=5) {
+    mask=m_rawConst[m_rawLength-5]|
+      ((m_rawConst[m_rawLength-6]&0xF000)<<4);
+  }
+  return mask;
+}
+
 bool HcalHTRData::isPatternRAMEvent() const {
   return (m_formatVersion==-1)?(false):(m_rawConst[2]&0x1000);
 }
@@ -308,7 +389,13 @@ int HcalHTRData::getNDD() const {
   return (m_formatVersion==-1)?(m_rawConst[m_rawLength-4]>>8):(m_rawConst[m_rawLength-4]>>11);
 }
 int HcalHTRData::getNTP() const {
-  return (m_formatVersion==-1)?(m_rawConst[m_rawLength-4]&0xFF):(m_rawConst[m_rawLength-4]>>11);
+  int retval=-1;
+  if (m_formatVersion==-1) retval=m_rawConst[m_rawLength-4]&0xFF;
+  else if (m_formatVersion<3) retval=m_rawConst[m_rawLength-4]>>11;
+  return retval;
+}
+int HcalHTRData::getNPrecisionWords() const {
+  return (m_formatVersion==-1)?(m_rawConst[m_rawLength-4]&0xFF):(m_rawConst[m_rawLength-4]&0x7FF);
 }
 int HcalHTRData::getNPS() const {
   return (m_formatVersion==-1)?(0):((m_rawConst[5]>>3)&0x1F);
@@ -319,6 +406,9 @@ unsigned int HcalHTRData::getPipelineLength() const {
 unsigned int HcalHTRData::getFirmwareRevision() const {
   return (m_formatVersion==-1)?(0):((m_rawConst[6]&0x1FFF)+((m_rawConst[6]&0xE000)<<3));
 }
+int HcalHTRData::getFirmwareFlavor() const {
+  return (m_formatVersion<2)?(-1):((m_rawConst[7]>>8)&0xFF);
+}
 
 void HcalHTRData::getHistogramFibers(int& a, int& b) const {
   a=-1;
@@ -327,8 +417,8 @@ void HcalHTRData::getHistogramFibers(int& a, int& b) const {
     a=((m_rawConst[2]&0x0F00)>>8);
     b=((m_rawConst[2]&0xF000)>>12);
   } else {
-    a=((m_rawConst[5]&0x0F00)>>8);
-    b=((m_rawConst[5]&0xF000)>>12);
+    a=((m_rawConst[5]&0x0F00)>>8)+1;
+    b=((m_rawConst[5]&0xF000)>>12)+1;
   }
 }
 
@@ -338,6 +428,14 @@ bool HcalHTRData::wasHistogramError(int ifiber) const {
     retval=((m_rawConst[7])&(1<<ifiber))!=0;
   }
   return retval;
+}
+
+bool HcalHTRData::unpack_per_channel_header(unsigned short header, int& flav, int& error_flags, int& capid0, int& channelid) {
+  flav=(header>>12)&0x7;
+  error_flags=(header>>10)&0x3;
+  capid0=(header>>8)&0x3;
+  channelid=(header)&0xFF;
+  return (header&0x8000)!=0;
 }
 
 bool HcalHTRData::unpackHistogram(int myfiber, int mysc, int capid, unsigned short* histogram) const {

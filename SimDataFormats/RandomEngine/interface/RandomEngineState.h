@@ -17,7 +17,6 @@ service.
 //
 // Original Author:  W. David Dagenhart, Fermilab
 //         Created:  Tue Oct  3 09:56:36 CDT 2006
-// $Id$
 //
 
 #include <vector>
@@ -40,6 +39,16 @@ class RandomEngineState {
   void setLabel(const std::string& value) { label_ = value; }
   void setState(const std::vector<uint32_t>& value) { state_ = value; }
   void setSeed(const std::vector<uint32_t>& value) { seed_ = value; }
+
+  void clearSeedVector() { seed_.clear(); }
+  void reserveSeedVector(std::vector<uint32_t>::size_type n) { seed_.reserve(n); }
+  void push_back_seedVector(uint32_t v) { seed_.push_back(v); }
+
+  void clearStateVector() { state_.clear(); }
+  void reserveStateVector(std::vector<uint32_t>::size_type n) { state_.reserve(n); }
+  void push_back_stateVector(uint32_t v) { state_.push_back(v); }
+
+  bool operator<(RandomEngineState const& rhs) { return label_ < rhs.label_; }
 
   private:
 

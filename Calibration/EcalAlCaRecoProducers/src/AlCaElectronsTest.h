@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
+//#include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -29,17 +29,13 @@
 
 #include <Math/VectorUtil.h>
 
-using namespace reco ;
-using namespace edm ;
-//using namespace ROOT::Math::VectorUtil ;
-
 class AlCaElectronsTest : public edm::EDAnalyzer {
   public:
     explicit AlCaElectronsTest (const edm::ParameterSet&) ;
     ~AlCaElectronsTest () {}
      virtual void analyze (const edm::Event& iEvent, 
                            const edm::EventSetup& iSetup) ;
-     virtual void beginJob (const edm::EventSetup& iSetup) ;
+     virtual void beginJob() ;
      virtual void endJob () ;
 
   private:
@@ -93,7 +89,7 @@ AlCaElectronsTest::AlCaElectronsTest (const edm::ParameterSet& iConfig) :
 
 
 void 
-AlCaElectronsTest::beginJob ( const edm::EventSetup& iSetup)
+AlCaElectronsTest::beginJob()
 {
   m_barrelGlobalCrystalsMap = new TH2F ("m_barrelGlobalCrystalsMap","m_barrelGlobalCrystalsMap",171,-85,86,360,0,360) ;
   m_barrelLocalCrystalsMap = new TH2F ("m_barrelLocalCrystalsMap","m_barrelLocalCrystalsMap",20,-10,10,20,-10,10) ;
@@ -144,10 +140,15 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
             << iEvent.id () << std::endl ;
 
   //PG get the collections  
-  try {
-      // get Barrel RecHits
-      Handle<EBRecHitCollection> barrelRecHitsHandle ;
-      iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
+  // get Barrel RecHits
+  edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
+  iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
+  if (!barrelRecHitsHandle.isValid()) {
+      std::cerr << "[AlCaElectronsTest] caught std::exception "
+                << " in rertieving " << m_barrelAlCa 
+                << std::endl ;
+      return ;
+  } else {
       const EBRecHitCollection* barrelHitsCollection = barrelRecHitsHandle.product () ;
       //PG fill the histo with the maximum
       EcalRecHit barrelMax = getMaximum (barrelHitsCollection) ;
@@ -166,17 +167,17 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
           barrelMaxId.ieta (), 
           barrelMaxId.iphi ()
         ) ;
-    } catch (std::exception& ce) {
-      std::cerr << "[AlCaElectronsTest] caught std::exception "
-                << " in rertieving " << m_barrelAlCa 
-                << ce.what () << std::endl ;
-      return ;
-    }
+  }
   
-  try {
-      // get Endcap RecHits
-      Handle<EERecHitCollection> endcapRecHitsHandle ;
-      iEvent.getByLabel (m_endcapAlCa,endcapRecHitsHandle) ;
+  // get Endcap RecHits
+  edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
+  iEvent.getByLabel (m_endcapAlCa,endcapRecHitsHandle) ;
+  if (!endcapRecHitsHandle.isValid()) {
+      std::cerr << "[AlCaElectronsTest] caught std::exception " 
+                << " in rertieving " << m_endcapAlCa 
+                << std::endl ;
+      return ;
+  } else {
       const EERecHitCollection* endcapHitsCollection = endcapRecHitsHandle.product () ;
       //PG fill the histo with the maximum
       EcalRecHit endcapMax = getMaximum (endcapHitsCollection) ;
@@ -195,13 +196,7 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
           endcapMaxId.ix (), 
           endcapMaxId.iy ()
         ) ;
-    } catch (std::exception& ce) {
-      std::cerr << "[AlCaElectronsTest] caught std::exception " 
-                << " in rertieving " << m_endcapAlCa 
-                << ce.what () << std::endl ;
-      return ;
-    }
-
+  }
 }
 
 

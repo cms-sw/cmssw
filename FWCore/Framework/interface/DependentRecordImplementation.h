@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.6 2007/01/23 00:32:02 wmtan Exp $
 //
 
 // system include files
@@ -26,11 +25,12 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/DependentRecordTag.h"
 
 // forward declarations
 namespace edm {
 namespace eventsetup {
-   struct DependentRecordTag {};
    
 template< class RecordT, class ListT>
 class DependentRecordImplementation : public EventSetupRecordImplementation<RecordT>, public DependentRecordTag
@@ -40,21 +40,31 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
       DependentRecordImplementation() {}
       typedef ListT list_type;
       //virtual ~DependentRecordImplementation();
-
+      
       // ---------- const member functions ---------------------
       template<class DepRecordT>
-         const DepRecordT& getRecord() const {
-            //Make sure that DepRecordT is a type in ListT
-            typedef typename boost::mpl::end< ListT >::type EndItrT;
-            typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT; 
-            BOOST_STATIC_ASSERT((! boost::is_same<FoundItrT, EndItrT>::value));
-            EventSetup const& eventSetupT = this->eventSetup();
-            //can't do the following because of a compiler error in gcc 3.*
-            // return eventSetupT.get<DepRecordT>();
-            const DepRecordT* temp;
-            eventSetupT.getAvoidCompilerBug(temp);
-            return *temp;
-         }
+      const DepRecordT& getRecord() const {
+	 //Make sure that DepRecordT is a type in ListT
+	 typedef typename boost::mpl::end< ListT >::type EndItrT;
+	 typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT; 
+	 BOOST_STATIC_ASSERT((! boost::is_same<FoundItrT, EndItrT>::value));
+	 EventSetup const& eventSetupT = this->eventSetup();
+	 //can't do the following because of a compiler error in gcc 3.*
+	 // return eventSetupT.get<DepRecordT>();
+	 const DepRecordT* temp = 0;
+	 try { 
+	    eventSetupT.getAvoidCompilerBug(temp);
+	 } catch(NoRecordException<DepRecordT>&) {
+	    //rethrow but this time with dependent information.
+	    throw NoRecordException<DepRecordT>(this->key());
+	 } catch(cms::Exception& e) {  
+	    e<<"Exception occurred while getting dependent record from record \""<<
+	       this->key().type().name()<<"\""<<std::endl;
+	    throw;
+	 }
+	 
+	 return *temp;
+      }
       
       // ---------- static member functions --------------------
 

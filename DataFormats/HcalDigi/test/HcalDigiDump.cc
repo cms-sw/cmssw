@@ -1,10 +1,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "FWCore/Framework/interface/Selector.h"
+#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include <iostream>
 
 using namespace std;
@@ -12,8 +10,6 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2007/03/07 16:42:28 $
-$Revision: 1.10 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -31,9 +27,14 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<HODigiCollection> > ho;
   std::vector<edm::Handle<HFDigiCollection> > hf;
   std::vector<edm::Handle<ZDCDigiCollection> > zdc;
+  std::vector<edm::Handle<CastorDigiCollection> > castor;
+  std::vector<edm::Handle<CastorTrigPrimDigiCollection> > castortp;
   std::vector<edm::Handle<HcalCalibDigiCollection> > hc;
   std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
+  std::vector<edm::Handle<HOTrigPrimDigiCollection> > hotp;
   std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;  
+  std::vector<edm::Handle<HcalTTPDigiCollection> > ttp;
+  std::vector<edm::Handle<HcalUpgradeDigiCollection> > hup;
 
   try {
     e.getManyByType(hbhe);
@@ -90,6 +91,20 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   }
 
   try {
+    e.getManyByType(hotp);
+    std::vector<edm::Handle<HOTrigPrimDigiCollection> >::iterator i;
+    for (i=hotp.begin(); i!=hotp.end(); i++) {
+      const HOTrigPrimDigiCollection& c=*(*i);
+      
+      for (HOTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+
+    }
+  } catch (...) {
+    cout << "No HCAL Trigger Primitive Digis." << endl;
+  }
+
+  try {
     e.getManyByType(hc);
     std::vector<edm::Handle<HcalCalibDigiCollection> >::iterator i;
     for (i=hc.begin(); i!=hc.end(); i++) {
@@ -113,6 +128,44 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   } catch (...) {
   }
 
+  try {
+    e.getManyByType(castor);
+    std::vector<edm::Handle<CastorDigiCollection> >::iterator i;
+    for (i=castor.begin(); i!=castor.end(); i++) {
+      const CastorDigiCollection& c=*(*i);
+      
+      for (CastorDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+    }
+  } catch (...) {
+  }
+
+  try {
+    e.getManyByType(castortp);
+    std::vector<edm::Handle<CastorTrigPrimDigiCollection> >::iterator i;
+    for (i=castortp.begin(); i!=castortp.end(); i++) {
+      const CastorTrigPrimDigiCollection& c=*(*i);
+      
+      for (CastorTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+
+    }
+  } catch (...) {
+    cout << "No CASTOR Trigger Primitive Digis." << endl;
+  }
+
+  try {
+    e.getManyByType(ttp);
+    std::vector<edm::Handle<HcalTTPDigiCollection> >::iterator i;
+    for (i=ttp.begin(); i!=ttp.end(); i++) {
+      const HcalTTPDigiCollection& c=*(*i);
+      
+      for (HcalTTPDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+    }
+  } catch (...) {
+  }
+
 
   try {
     e.getManyByType(hh);
@@ -127,12 +180,25 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   } catch (...) {
   }
   
+  try {
+    e.getManyByType(hup);
+    std::vector<edm::Handle<HcalUpgradeDigiCollection> >::iterator i;
+    for (i=hup.begin(); i!=hup.end(); i++) {
+      const HcalUpgradeDigiCollection& c=*(*i);
+      
+      for (HcalUpgradeDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+    }
+  } catch (...) {
+  }
+
+
   cout << endl;    
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalDigiDump);
+
+DEFINE_FWK_MODULE(HcalDigiDump);
 

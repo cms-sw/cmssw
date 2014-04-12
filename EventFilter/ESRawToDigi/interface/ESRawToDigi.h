@@ -7,24 +7,29 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "EventFilter/ESRawToDigi/interface/ESUnpacker.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/EcalRawData/interface/ESListOfFEDS.h"
 
-using namespace std;
-using namespace edm;
 
-class ESRawToDigi : public EDProducer {
+class ESRawToDigi : public edm::EDProducer {
   
  public:
   
-  ESRawToDigi(const ParameterSet& ps);
+  ESRawToDigi(const edm::ParameterSet& ps);
   virtual ~ESRawToDigi();
   
-  void produce(Event& e, const EventSetup& es);
+  void produce(edm::Event& e, const edm::EventSetup& es);
   
  private:
 
-  string label_;
-  string instanceName_;
-  string ESdigiCollection_;
+
+
+  std::string ESdigiCollection_;
+  edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
+  edm::EDGetTokenT<ESListOfFEDS>         fedsToken_;
+
+
+  bool regional_;
 
   bool debug_;
 

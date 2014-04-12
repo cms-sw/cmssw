@@ -8,7 +8,6 @@
 #include <ostream>
 #include <fstream>
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/Verbosity.h"
 
 using namespace std;
 
@@ -177,12 +176,21 @@ void PixelToLNKAssociateFromAscii::addConnections(
      for (int rocDetId=rocDetIds.min(); rocDetId <= rocDetIds.max(); rocDetId++) {
        rocLnkId++;
        DetectorRocId  detectorRocId;
-       detectorRocId.module = new PixelBarrelName(part, layer, zmodule, ladder);
+       PixelBarrelName * name = new PixelBarrelName(part, layer, zmodule, ladder);
+       detectorRocId.module = name;
        detectorRocId.rocDetId = rocDetId;
        CablingRocId   cablingRocId;
        cablingRocId.fedId = fedId;
        cablingRocId.linkId = linkId;
        cablingRocId.rocLinkId = rocLnkId;
+       // fix for type-B modules in barrel
+       if (name->isHalfModule() && (rocDetIds.min()>7)  
+           && (part==PixelBarrelName::mO || PixelBarrelName::mI) ) {
+	 //cablingRocId.rocLinkId = 9-rocLnkId;
+	 // rocDetId=8,...,15
+         cablingRocId.rocLinkId = rocLnkId;   // 1...8    19/11/08 d.k.
+         detectorRocId.rocDetId = rocDetId-8; // 0...7
+       }
        theConnection.push_back( make_pair(detectorRocId,cablingRocId));
      } 
   }
@@ -242,7 +250,7 @@ void PixelToLNKAssociateFromAscii::addConnections(
          if (plaq==1) { rocs = Range(0,1); firstRoc=1; step=-1; }
          if (plaq==2) { rocs = Range(0,5); firstRoc=0; step=+1; }
          if (plaq==3) { rocs = Range(0,7); firstRoc=0; step=+1; }
-         if (plaq==4) { rocs = Range(0,4); firstRoc=4; step=-1; }
+         if (plaq==4) { rocs = Range(0,4); firstRoc=0; step=+1; }
          for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
            rocLnkId++;
            int rocDetId = firstRoc + step*iroc; 
@@ -269,8 +277,8 @@ void PixelToLNKAssociateFromAscii::addConnections(
          if (plaq==1) { rocs = Range(0,1); firstRoc=1; step=-1; }
          if (plaq==2) { rocs = Range(0,5); firstRoc=3; step=+1; }
          if (plaq==3) { rocs = Range(0,7); firstRoc=4; step=+1; }
-         if (plaq==4) { rocs = Range(0,4); firstRoc=4; step=-1; }
-         for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
+         if (plaq==4) { rocs = Range(0,4); firstRoc=0; step=+1; }
+         for (int iroc =rocs.min(); iroc-rocs.max() <= 0; iroc++) {
            rocLnkId++;
            int rocDetId = firstRoc + step*iroc;
            if (rocDetId > rocs.max()) rocDetId = (rocDetId-1)%rocs.max();

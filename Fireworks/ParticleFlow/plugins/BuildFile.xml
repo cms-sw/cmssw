@@ -1,0 +1,11 @@
+<library name="FireworksParticleFlowPlugins" file="*.cc">
+ <use name="DataFormats/EcalRecHit"/>
+ <use name="DataFormats/JetReco"/>
+ <use name="DataFormats/ParticleFlowCandidate"/>
+ <use name="DataFormats/ParticleFlowReco"/>
+ <use name="DataFormats/PatCandidates"/>
+ <use name="DataFormats/TrackReco"/>
+ <use name="Fireworks/ParticleFlow"/>
+ <lib name="Eve"/>
+ <flags EDM_PLUGIN="1"/>
+</library>

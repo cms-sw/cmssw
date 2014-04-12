@@ -4,8 +4,6 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2007/04/02 15:45:38 $
-//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -31,6 +29,10 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+namespace edm {
+  class InputTag;
+}
 
 class L1MuGMTRegCDLConfig;
 class L1MuGMTRegMMConfigPhi;
@@ -68,7 +70,12 @@ class L1MuGMTPhiLUT;
 
 class L1MuGMTScales;
 class L1MuTriggerScales;
+class L1MuTriggerPtScale;
 class L1MuGMTParameters;
+class L1MuGMTChannelMask;
+
+class L1CaloGeometry ;
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -88,6 +95,12 @@ class L1MuGMTConfig {
      
     /// destructor 
     virtual ~L1MuGMTConfig();
+
+    static edm::InputTag getDTInputTag()   { return m_DTInputTag; }
+    static edm::InputTag getCSCInputTag()  { return m_CSCInputTag; }
+    static edm::InputTag getRPCbInputTag() { return m_RPCbInputTag; }
+    static edm::InputTag getRPCfInputTag() { return m_RPCfInputTag; }
+    static edm::InputTag getMipIsoInputTag() { return m_MipIsoInputTag; }
 
     static bool Debug() { return m_debug; }
     static bool Debug(int level) { return ( m_debug && m_dbgLevel >= level ); }
@@ -119,6 +132,9 @@ class L1MuGMTConfig {
     static bool  getDoOvlRpcAnd() { return m_DoOvlRpcAnd; }
 
     static bool getPropagatePhi() { return m_PropagatePhi; }
+    
+    static unsigned getVersionSortRankEtaQLUT() { return m_VersionSortRankEtaQLUT; }
+    static unsigned getVersionLUTs() { return m_VersionLUTs; }
 
     // Register getters
     static L1MuGMTRegCDLConfig* getRegCDLConfig() { return m_RegCDLConfig; }
@@ -159,15 +175,26 @@ class L1MuGMTConfig {
     void setGMTScales(const L1MuGMTScales* gmtscales) { m_GMTScales = gmtscales; }
     static const L1MuGMTScales* getGMTScales() { return m_GMTScales; }
 
+    void setCaloGeom( const L1CaloGeometry* caloGeom ) { m_caloGeom = caloGeom ; }
+    static const L1CaloGeometry* getCaloGeom() { return m_caloGeom ; }
+
     void setTriggerScales(const L1MuTriggerScales* trigscales) { m_TriggerScales = trigscales; }
     static const L1MuTriggerScales* getTriggerScales() { return m_TriggerScales; }
+
+    void setTriggerPtScale(const L1MuTriggerPtScale* trigptscale) { m_TriggerPtScale = trigptscale; }
+    static const L1MuTriggerPtScale* getTriggerPtScale() { return m_TriggerPtScale; }
 
     void setGMTParams(const L1MuGMTParameters* gmtparams) { m_GMTParams = gmtparams; }
     static const L1MuGMTParameters* getGMTParams() { return m_GMTParams; }
     
+    void setGMTChanMask(const L1MuGMTChannelMask* gmtchanmask) { m_GMTChanMask = gmtchanmask; }
+    static const L1MuGMTChannelMask* getGMTChanMask() { return m_GMTChanMask; }
 
+    
     static const edm::ParameterSet* getParameterSet() { return m_ps; }
-     
+    
+    void createLUTsRegs();
+    void clearLUTsRegs();
     void dumpLUTs(std::string dir);
     void dumpRegs(std::string dir);
 
@@ -177,6 +204,13 @@ class L1MuGMTConfig {
 
     static const edm::ParameterSet* m_ps;
     static const L1MuGMTParameters* m_GMTParams;
+    static const L1MuGMTChannelMask* m_GMTChanMask;
+
+    static edm::InputTag m_DTInputTag;
+    static edm::InputTag m_CSCInputTag;
+    static edm::InputTag m_RPCbInputTag;
+    static edm::InputTag m_RPCfInputTag;
+    static edm::InputTag m_MipIsoInputTag;
 
     static bool m_debug;     // debug flag 
     static int  m_dbgLevel;  // debug level
@@ -204,7 +238,10 @@ class L1MuGMTConfig {
     static bool m_DoOvlRpcAnd;
 
     static bool m_PropagatePhi;
-
+    
+    static unsigned m_VersionSortRankEtaQLUT;
+    static unsigned m_VersionLUTs;
+    
     // Register pointers
     static L1MuGMTRegCDLConfig* m_RegCDLConfig;
     static L1MuGMTRegMMConfigPhi* m_RegMMConfigPhi;
@@ -244,6 +281,9 @@ class L1MuGMTConfig {
     // scales pointers
     static const L1MuGMTScales* m_GMTScales;
     static const L1MuTriggerScales* m_TriggerScales;
+    static const L1MuTriggerPtScale* m_TriggerPtScale;
+
+    static const L1CaloGeometry* m_caloGeom ;
 };
 
 #endif

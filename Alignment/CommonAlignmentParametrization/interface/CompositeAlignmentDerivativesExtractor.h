@@ -3,18 +3,17 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
-#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
-
 /// \class CompositeAlignmentDerivativesExtractor
 ///
 /// A helper class to extract derivatives from composite alignable objects
 ///
-///  $Date: 2007/04/30 12:38:55 $
-///  $Revision: 1.5 $
-/// (last update by $Author: flucke $)
+///  $Date: 2007/05/02 21:01:52 $
+///  $Revision: 1.7 $
+/// (last update by $Author: fronga $)
 
 class Alignable;
 class AlignableDet;
+class AlignableDetOrUnitPtr;
 class TrajectoryStateOnSurface;
 
 class CompositeAlignmentDerivativesExtractor

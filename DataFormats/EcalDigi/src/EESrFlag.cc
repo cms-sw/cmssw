@@ -1,5 +1,4 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id$
 
 #include "DataFormats/EcalDigi/interface/EESrFlag.h"
 

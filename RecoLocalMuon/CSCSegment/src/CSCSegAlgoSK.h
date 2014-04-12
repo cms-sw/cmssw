@@ -21,8 +21,6 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- *  $Date: 2006/11/21 19:07:23 $
- *  $Revision: 1.8 $
  *  \author M. Sani
  */
 
@@ -68,12 +66,12 @@ public:
      * Build track segments in this chamber (this is where the actual
      * segment-building algorithm hides.)
      */
-    std::vector<CSCSegment> buildSegments(ChamberHitContainer rechits);
+    std::vector<CSCSegment> buildSegments(const ChamberHitContainer& rechits);
 
     /**
      * Here we must implement the algorithm
      */
-    std::vector<CSCSegment> run(const CSCChamber* aChamber, ChamberHitContainer rechits); 
+    std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits); 
 
 private:
 
@@ -93,7 +91,7 @@ private:
      * Try adding non-used hits to segment
      */
     void tryAddingHitsToSegment(const ChamberHitContainer& rechitsInChamber,
-        BoolContainer used, LayerIndex layerIndex,
+        const BoolContainer& used, const LayerIndex& layerIndex,
         const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
 
     /**
@@ -122,7 +120,7 @@ private:
     bool replaceHit(const CSCRecHit2D* h, int layer);
     void compareProtoSegment(const CSCRecHit2D* h, int layer);
     void increaseProtoSegment(const CSCRecHit2D* h, int layer);
-    HepMatrix derivativeMatrix(void) const;
+    CLHEP::HepMatrix derivativeMatrix(void) const;
     AlgebraicSymMatrix weightMatrix(void) const;
     AlgebraicSymMatrix calculateError(void) const;
     void flipErrors(AlgebraicSymMatrix&) const;

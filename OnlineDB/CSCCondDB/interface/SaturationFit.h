@@ -6,8 +6,6 @@
 #include <cmath>
 #include "OnlineDB/CSCCondDB/interface/SaturationFcn.h"
 
-using namespace ROOT::Minuit2;
-
 class SaturationFit{ 
 
  public:
@@ -33,7 +31,7 @@ class SaturationFit{
    if( !fmin.IsValid()){
      printf(" minuit did not converge \n");
    } else {
-     //std::cout<<"fit succeeded... results: "<<fmin<<std::endl;
+     std::cout<<"fit succeeded... results: "<<fmin<<std::endl;
     chisq = fmin.Fval();
     u[0]     = fmin.UserParameters().Value( static_cast<unsigned int>(0) );
     *u0_ptr=u[0];

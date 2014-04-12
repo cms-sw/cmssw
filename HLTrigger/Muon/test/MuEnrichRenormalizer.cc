@@ -2,8 +2,6 @@
 
 #include "HLTrigger/Muon/test/MuEnrichRenormalizer.h"
  
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
- 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
@@ -16,6 +14,7 @@ using namespace std;
 MuEnrichRenormalizer::MuEnrichRenormalizer( const ParameterSet& pset ):
 type(pset.getParameter<int>("type"))
 {
+    theGenToken = consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"));
     anaIntlumi=0;
     anaLight=0;
     anaBC=0;
@@ -36,14 +35,14 @@ type(pset.getParameter<int>("type"))
     }
 }
 
-void MuEnrichRenormalizer::beginJob( const EventSetup& )
+void MuEnrichRenormalizer::beginJob()
 {}
  
 void MuEnrichRenormalizer::analyze( const Event& e, const EventSetup& )
 {
       
   Handle< HepMCProduct > EvtHandle ;   
-  e.getByLabel( "VtxSmeared", EvtHandle ) ;
+  e.getByToken(theGenToken, EvtHandle) ;
   const HepMC::GenEvent* Gevt = EvtHandle->GetEvent() ;
   bool mybc=false;
   int npart=0;

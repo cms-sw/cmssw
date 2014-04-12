@@ -1,6 +1,7 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TTree.h"
 
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableDataIORoot.h"
 
@@ -28,10 +29,13 @@ AlignableDataIORoot::AlignableDataIORoot(PosType p) :
 
 void AlignableDataIORoot::createBranches(void) 
 {
-  tree->Branch("Id",    &Id,    "Id/I");
+  tree->Branch("Id",    &Id,    "Id/i");
   tree->Branch("ObjId", &ObjId, "ObjId/I");
   tree->Branch("Pos",   &Pos,   "Pos[3]/D");
   tree->Branch("Rot",   &Rot,   "Rot[9]/D");
+
+  tree->Branch("NumDeform",   &numDeformationValues_, "NumDeform/i");
+  tree->Branch("DeformValues", deformationValues_,    "DeformValues[NumDeform]/F");
 }
 
 // ----------------------------------------------------------------------------
@@ -43,12 +47,15 @@ void AlignableDataIORoot::setBranchAddresses(void)
   tree->SetBranchAddress("ObjId", &ObjId);
   tree->SetBranchAddress("Pos",   &Pos);
   tree->SetBranchAddress("Rot",   &Rot);
+
+  tree->SetBranchAddress("NumDeform",   &numDeformationValues_);
+  tree->SetBranchAddress("DeformValues", deformationValues_);
 }
 
 // ----------------------------------------------------------------------------
 // find root tree entry based on IDs
 
-int AlignableDataIORoot::findEntry(unsigned int detId,int comp)
+int AlignableDataIORoot::findEntry(align::ID id, align::StructureType comp)
 {
   if (newopen) { // we're here first time
     edm::LogInfo("Alignment") << "@SUB=AlignableDataIORoot::findEntry"
@@ -62,7 +69,7 @@ int AlignableDataIORoot::findEntry(unsigned int detId,int comp)
   }
   
   // now we have filled the map
-  treemaptype::iterator imap = treemap.find( std::make_pair(detId,comp) );
+  treemaptype::iterator imap = treemap.find( std::make_pair(id,comp) );
   int result=-1;
   if (imap != treemap.end()) result=(*imap).second;
   return result;
@@ -72,14 +79,21 @@ int AlignableDataIORoot::findEntry(unsigned int detId,int comp)
 // ----------------------------------------------------------------------------
 int AlignableDataIORoot::writeAbsRaw(const AlignableAbsData &ad)
 {
-  GlobalPoint pos = ad.pos();
-  Surface::RotationType rot = ad.rot();
+  align::GlobalPoint pos = ad.pos();
+  align::RotationType rot = ad.rot();
   Id = ad.id();
   ObjId = ad.objId();
   Pos[0]=pos.x(); Pos[1]=pos.y(); Pos[2]=pos.z();
   Rot[0]=rot.xx(); Rot[1]=rot.xy(); Rot[2]=rot.xz();
   Rot[3]=rot.yx(); Rot[4]=rot.yy(); Rot[5]=rot.yz();
   Rot[6]=rot.zx(); Rot[7]=rot.zy(); Rot[8]=rot.zz();
+
+  const std::vector<double> &deformPars = ad.deformationParameters();
+  numDeformationValues_ = (deformPars.size() > kMaxNumPar ? kMaxNumPar : deformPars.size());
+  for (unsigned int i = 0; i < numDeformationValues_; ++i) {
+    deformationValues_[i] = deformPars[i];
+  }
+
   tree->Fill();
   return 0;
 }
@@ -87,14 +101,21 @@ int AlignableDataIORoot::writeAbsRaw(const AlignableAbsData &ad)
 // ----------------------------------------------------------------------------
 int AlignableDataIORoot::writeRelRaw(const AlignableRelData &ad)
 {
-  GlobalVector pos = ad.pos();
-  Surface::RotationType rot = ad.rot();
+  align::GlobalVector pos = ad.pos();
+  align::RotationType rot = ad.rot();
   Id = ad.id();
   ObjId = ad.objId();
   Pos[0]=pos.x(); Pos[1]=pos.y(); Pos[2]=pos.z();
   Rot[0]=rot.xx(); Rot[1]=rot.xy(); Rot[2]=rot.xz();
   Rot[3]=rot.yx(); Rot[4]=rot.yy(); Rot[5]=rot.yz();
   Rot[6]=rot.zx(); Rot[7]=rot.zy(); Rot[8]=rot.zz();
+
+  const std::vector<double> &deformPars = ad.deformationParameters();
+  numDeformationValues_ = (deformPars.size() > kMaxNumPar ? kMaxNumPar : deformPars.size());
+  for (unsigned int i = 0; i < numDeformationValues_; ++i) {
+    deformationValues_[i] = deformPars[i];
+  }
+
   tree->Fill();
   return 0;
 }
@@ -102,21 +123,23 @@ int AlignableDataIORoot::writeRelRaw(const AlignableRelData &ad)
 // ----------------------------------------------------------------------------
 AlignableAbsData AlignableDataIORoot::readAbsRaw(Alignable* ali,int& ierr)
 {
-  Global3DPoint pos;
-  Surface::RotationType rot;
+  align::GlobalPoint pos;
+  align::RotationType rot;
 
-  TrackerAlignableId converter;
-  int typeId = converter.alignableTypeId(ali);
-  unsigned int id = converter.alignableId(ali);
+  align::StructureType typeId = ali->alignableObjectId();
+  align::ID id = ali->id();
   int entry = findEntry(id,typeId);
   if(entry!=-1) {
     tree->GetEntry(entry);
-    Global3DPoint pos2(Pos[0],Pos[1],Pos[2]);
-    Surface::RotationType rot2(Rot[0],Rot[1],Rot[2],
-                               Rot[3],Rot[4],Rot[5],
-							   Rot[6],Rot[7],Rot[8]);
+    align::GlobalPoint pos2(Pos[0],Pos[1],Pos[2]);
+    align::RotationType rot2(Rot[0],Rot[1],Rot[2],
+			     Rot[3],Rot[4],Rot[5],
+			     Rot[6],Rot[7],Rot[8]);
     pos=pos2;
     rot=rot2;
+
+    // FIXME: Should add reading of deformation values?
+    //        Then call Alignable::setSurfaceDeformation(..) ...
     ierr=0;
   }
   else ierr=-1;
@@ -128,21 +151,23 @@ AlignableAbsData AlignableDataIORoot::readAbsRaw(Alignable* ali,int& ierr)
 
 AlignableRelData AlignableDataIORoot::readRelRaw(Alignable* ali,int& ierr)
 {
-  Global3DVector pos;
-  Surface::RotationType rot;
+  align::GlobalVector pos;
+  align::RotationType rot;
 
-  TrackerAlignableId converter;
-  int typeId = converter.alignableTypeId(ali);
-  unsigned int id = converter.alignableId(ali);
+  align::StructureType typeId = ali->alignableObjectId();
+  align::ID id = ali->id();
   int entry = findEntry(id,typeId);
   if(entry!=-1) {
     tree->GetEntry(entry);
-    Global3DVector pos2(Pos[0],Pos[1],Pos[2]);
-    Surface::RotationType rot2(Rot[0],Rot[1],Rot[2],
-                               Rot[3],Rot[4],Rot[5],
-	                       Rot[6],Rot[7],Rot[8]);
+    align::GlobalVector pos2(Pos[0],Pos[1],Pos[2]);
+    align::RotationType rot2(Rot[0],Rot[1],Rot[2],
+			     Rot[3],Rot[4],Rot[5],
+			     Rot[6],Rot[7],Rot[8]);
     pos=pos2;
     rot=rot2;
+
+    // FIXME: Should add reading of deformation values?
+    //        Then call Alignable::setSurfaceDeformation(..) ...
     ierr=0;
   }
   else ierr=-1;

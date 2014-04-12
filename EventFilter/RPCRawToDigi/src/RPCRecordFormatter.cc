@@ -1,31 +1,25 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2007/04/05 15:51:06 $
- *  $Revision: 1.28 $
  *
  * \author Ilaria Segoni
  */
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCLinkBoardData.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
-#include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
+#include "DataFormats/RPCDigi/interface/ReadoutError.h"
 
-#include <vector>
+
+
 #include <bitset>
 #include <sstream>
 
@@ -70,74 +64,110 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(
 
       // BX 
       int current_BX = trigger_BX+digi.bx();
-      BXRecord bxr(current_BX);
+      RecordBX bxr(current_BX);
 
-      // TB 
+      // LB 
       int tbLinkInputNumber = eleIndex.tbLinkInputNum;
       int rmb = eleIndex.dccInputChannelNum; 
-      TBRecord tbr( tbLinkInputNumber, rmb);   
+      RecordSLD lbr( tbLinkInputNumber, rmb);   
 
-      // LB record
-      RPCLinkBoardData lbData;
-      lbData.setLbNumber(eleIndex.lbNumInLink);
-      lbData.setEod(0);
-      lbData.setHalfP(0);
-      int packedStrip = lbPackedStrip.packedStrip();
-      vector<int> bitsOn; bitsOn.push_back(packedStrip);                        
-      lbData.setPartitionNumber( packedStrip/8 );
-      lbData.setBits(bitsOn);
-      LBRecord lbr(lbData);
+      // CD record
+      int lbInLink = eleIndex.lbNumInLink;
+      int eod = 0;
+      int halfP = 0;
+      int packedStrip = lbPackedStrip.packedStrip();     
+      int partitionNumber = packedStrip/8; 
+      RecordCD cdr(lbInLink, partitionNumber, eod, halfP, vector<int>(1,packedStrip) );
 
-      result.push_back(  EventRecords(trigger_BX, bxr, tbr, lbr) );
+      result.push_back(  EventRecords(trigger_BX, bxr, lbr, cdr) );
     }
   }
   return result;
 }
 
-void RPCRecordFormatter::recordUnpack(
-    const EventRecords & event, std::auto_ptr<RPCDigiCollection> & prod)
+int RPCRecordFormatter::recordUnpack(
+    const EventRecords & event, 
+    RPCDigiCollection * prod, RPCRawDataCounts * counter, RPCRawSynchro::ProdItem * synchro)
 {
-  int triggerBX = event.triggerBx();
-  int currentBX = event.bxRecord().bx();
-  int currentRMB = event.tbRecord().rmb(); 
-  int currentTbLinkInputNumber = event.tbRecord().tbLinkInputNumber();
-  RPCLinkBoardData lbData = event.lbRecord().lbData();
+
+  static bool debug = edm::MessageDrop::instance()->debugEnabled;
+  ReadoutError error;
+  int currentRMB = event.recordSLD().rmb(); 
+  int currentTbLinkInputNumber = event.recordSLD().tbLinkInputNumber();
 
   LinkBoardElectronicIndex eleIndex;
   eleIndex.dccId = currentFED;
   eleIndex.dccInputChannelNum = currentRMB;
   eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
-  eleIndex.lbNumInLink = lbData.lbNumber();
+  eleIndex.lbNumInLink = event.recordCD().lbInLink();
 
-  if(readoutMapping == 0) return;
+
+  if( event.recordCD().eod() ) {
+     if(counter) counter->addReadoutError(currentFED, ReadoutError(eleIndex,ReadoutError::EOD));
+  }
+
+  if(readoutMapping == 0) return error.type();
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
   if (!linkBoard) {
-    throw cms::Exception("Invalid Linkboard location!") 
+    if (debug) LogDebug("")<<" ** PROBLEM ** Invalid Linkboard location, skip CD event, " 
               << "dccId: "<<eleIndex.dccId
               << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
               << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
               << " lbNumInLink: "<<eleIndex.lbNumInLink;
+    error = ReadoutError(eleIndex,ReadoutError::InvalidLB);
+    if(counter) counter->addReadoutError(currentFED,error );
+    return error.type();
   }
 
-  std::vector<int> bits=lbData.bitsOn();
-  for(std::vector<int>::iterator pBit = bits.begin(); pBit != bits.end(); ++pBit){
 
-    LinkBoardPackedStrip lbBit(*pBit);
-    RPCReadOutMapping::StripInDetUnit duFrame = readoutMapping->detUnitFrame(*linkBoard,lbBit);
+  std::vector<int> packStrips = event.recordCD().packedStrips();
+  if (packStrips.size() ==0) {
+    error = ReadoutError(eleIndex,ReadoutError::EmptyPackedStrips);
+    if(counter) counter->addReadoutError(currentFED, error);
+    return error.type();
+  }
+
+  for(std::vector<int>::iterator is = packStrips.begin(); is != packStrips.end(); ++is) {
+
+    RPCReadOutMapping::StripInDetUnit duFrame = 
+        readoutMapping->detUnitFrame(*linkBoard, LinkBoardPackedStrip(*is) );
 
     uint32_t rawDetId = duFrame.first;
     int geomStrip = duFrame.second;
     if (!rawDetId) {
-      LogError("recordUnpack: problem with rawDetId, skip LB data");
+      if (debug) LogTrace("") << " ** PROBLEM ** no rawDetId, skip at least part of CD data";
+      error = ReadoutError(eleIndex,ReadoutError::InvalidDetId);
+      if (counter) counter->addReadoutError(currentFED, error);
+      continue;
+    }
+    if (geomStrip==0) {
+      if(debug) LogTrace("") <<" ** PROBLEM ** no strip found";
+      error = ReadoutError(eleIndex,ReadoutError::InvalidStrip);
+      if (counter) counter->addReadoutError(currentFED, error);
       continue;
     }
 
     // Creating RPC digi
-    RPCDigi digi(geomStrip,currentBX-triggerBX);
+    RPCDigi digi(geomStrip,event.dataToTriggerDelay()-3);
 
     /// Committing digi to the product
-    LogTrace("")<<" DIGI;  det: "<<rawDetId<<", strip: "<<digi.strip()<<", bx: "<<digi.bx();
-    LogTrace("") << " LinkBoardElectronicIndex: " << eleIndex.print(); 
-    prod->insertDigi(RPCDetId(rawDetId),digi);
+    if (debug) {
+      //LogTrace("") << " LinkBoardElectronicIndex: " << eleIndex.print(); 
+      LogTrace("")<<" DIGI;  det: "<<rawDetId<<", strip: "<<digi.strip()<<", bx: "<<digi.bx();
+    }
+    if (prod) prod->insertDigi(RPCDetId(rawDetId),digi);
+
+//    if (RPCDetId(rawDetId).region() == -1 ) {
+//       RPCDetId det(rawDetId);
+//       if (det.ring()==    2 ) takeIt = true;
+//       if (det.station() == 1) 
+//       takeIt = true;
+//     LogInfo("RPCRecordFormatter") <<"ENDCAP Region: "<<det.region()<<" disk: "<<det.station()<<" ring: "<<det.ring() <<" sector: "<<det.sector()<<" digiBX: "<<digi.bx()<< std::endl;
+//   }
+
   }
+
+  if(synchro) synchro->push_back( make_pair(eleIndex,event.dataToTriggerDelay() ));
+
+  return error.type();
 }

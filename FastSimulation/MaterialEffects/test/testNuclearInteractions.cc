@@ -1,5 +1,4 @@
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -18,11 +17,11 @@
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
-#include "TH2.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TProcessID.h"
@@ -33,8 +32,8 @@ public :
   explicit testNuclearInteractions(const edm::ParameterSet&);
   ~testNuclearInteractions();
 
-  virtual void produce(edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void produce(edm::Event&, const edm::EventSetup& ) override;
+  virtual void beginRun(edm::Run const&,  const edm::EventSetup & ) override;
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -47,7 +46,7 @@ private:
   int ObjectNumber;
   std::string simModuleLabel_;
   // Histograms
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   std::vector<MonitorElement*> h0;
   std::vector<MonitorElement*> h1;
   std::vector<MonitorElement*> h2;
@@ -58,6 +57,7 @@ private:
   std::vector<MonitorElement*> h7;
   std::vector<MonitorElement*> h8;
   std::vector<MonitorElement*> h9;
+  std::vector<MonitorElement*> h10;
   std::vector<MonitorElement*> htmp;
   std::vector<MonitorElement*> totalCharge;
 
@@ -108,6 +108,7 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   h7(2,static_cast<MonitorElement*>(0)),
   h8(2,static_cast<MonitorElement*>(0)),
   h9(2,static_cast<MonitorElement*>(0)),
+  h10(2,static_cast<MonitorElement*>(0)),
   htmp(2,static_cast<MonitorElement*>(0)),
   totalCharge(2,static_cast<MonitorElement*>(0)),
   tmpRadius(2,static_cast<double>(0.)),
@@ -139,7 +140,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // Do we save the nuclear interactions?
   saveNU = p.getParameter<bool>("SaveNuclearInteractions");
   maxNU = p.getParameter<unsigned>("MaxNumberOfNuclearInteractions");
-  std::cout << "Nuclear Interactions will be saved ! " << std::endl;
+  if ( saveNU ) 
+    std::cout << "Nuclear Interactions will be saved ! " << std::endl;
 
   // For the full sim
   mySimEvent[0] = new FSimEvent(particleFilter_);
@@ -169,7 +171,7 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   ObjectNumber = -1;
     
   // ... and the histograms
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   h0[0] = dbe->book2D("radioFull", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h0[1] = dbe->book2D("radioFast", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h1[0] = dbe->book1D("vertexFull", "Full Nb of Vertices",20,-0.5,19.5);
@@ -190,6 +192,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   h8[1] = dbe->book1D("DeltaMFast4", "Fast DetlaE",2000,-10.,40.);
   h9[0] = dbe->book1D("DeltaMFull3", "Full DeltaE 3 daugh",2000,-10.,40.);
   h9[1] = dbe->book1D("DeltaMFast3", "Fast DetlaE 3 daugh",2000,-10.,40.);
+  h10[0] = dbe->book1D("EafterFull", "E(after)/E(before) full",200,0.,4.);
+  h10[1] = dbe->book1D("EafterFast", "E(after)/E(before) fast",200,0.,4.);
   /*
   h6[0] = dbe->book2D("radioFullRem1", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h6[1] = dbe->book2D("radioFastRem1", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
@@ -207,15 +211,14 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   h12[1] = dbe->book2D("radioFastCA", "Fast CA radiography", 1000, 0.,320.,1000,0., 150. );
   */
 
+  totalCharge[0] = dbe->book1D("ChargeFull", "Total Charge (full)",19,-9.5,9.5);
+  totalCharge[1] = dbe->book1D("ChargeFast", "Total Charge (fast)",19,-9.5,9.5);
+
   // Beam Pipe
   htmp[0] = dbe->book1D("BeamPipeFull", "Full Beam Pipe",120,0.,3.);
   htmp[1] = dbe->book1D("BeamPipeFast", "Fast Beam Pipe",120,0.,3.);
-  totalCharge[0] = dbe->book1D("ChargeFull", "Total Charge (full)",19,-9.5,9.5);
-  totalCharge[1] = dbe->book1D("ChargeFast", "Total Charge (fast)",19,-9.5,9.5);
-  tmpRadius[0] = 3.8;
-  tmpRadius[1] = 3.05;
-  tmpLength[0] = 999.;
-  tmpLength[1] = 27.;
+  std::vector<double> tmpRadius = p.getUntrackedParameter<std::vector<double> >("BPCylinderRadius");
+  std::vector<double> tmpLength = p.getUntrackedParameter<std::vector<double> >("BPCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -230,10 +233,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // PIXB1
   htmp[0] = dbe->book1D("PXB1Full", "Full Pixel Barrel 1",120,0.,3.);
   htmp[1] = dbe->book1D("PXB1Fast", "Fast Pixel Barrel 1",120,0.,3.);
-  tmpRadius[0] = 6.0;
-  tmpRadius[1] = 6.0;
-  tmpLength[0] = 26.5;
-  tmpLength[1] = 26.5;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXB1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXB1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -241,10 +242,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // PIXB2
   htmp[0] = dbe->book1D("PXB2Full", "Full Pixel Barrel 2",120,0.,3.);
   htmp[1] = dbe->book1D("PXB2Fast", "Fast Pixel Barrel 2",120,0.,3.);
-  tmpRadius[0] = 8.5;
-  tmpRadius[1] = 8.5;
-  tmpLength[0] = 26.5;
-  tmpLength[1] = 26.5;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXB2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXB2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -252,10 +251,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // PIXB3
   htmp[0] = dbe->book1D("PXB3Full", "Full Pixel Barrel 3",120,0.,3.);
   htmp[1] = dbe->book1D("PXB3Fast", "Fast Pixel Barrel 3",120,0.,3.);
-  tmpRadius[0] = 11.5;
-  tmpRadius[1] = 11.5;
-  tmpLength[0] = 26.5;
-  tmpLength[1] = 26.5;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXB3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXB3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -263,10 +260,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // PIXB Cables
   htmp[0] = dbe->book1D("PXBCFull", "Full Pixel Barrel Cables",120,0.,3.);
   htmp[1] = dbe->book1D("PXBCFast", "Fast Pixel Barrel Cables",120,0.,3.);
-  tmpRadius[0] = 18.0;
-  tmpRadius[1] = 16.9;
-  tmpLength[0] = 30.0;
-  tmpLength[1] = 30.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXBCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXBCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -281,10 +276,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // PIXD1
   htmp[0] = dbe->book1D("PXD1Full", "Full Pixel Disk 1",120,0.,3.);
   htmp[1] = dbe->book1D("PXD1Fast", "Fast Pixel Disk 1",120,0.,3.);
-  tmpRadius[0] = 15.5;
-  tmpRadius[1] = 17.0;
-  tmpLength[0] = 40.0;
-  tmpLength[1] = 40.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXD1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXD1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -292,10 +285,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // PIXD2
   htmp[0] = dbe->book1D("PXD2Full", "Full Pixel Disk 2",120,0.,3.);
   htmp[1] = dbe->book1D("PXD2Fast", "Fast Pixel Disk 2",120,0.,3.);
-  tmpRadius[0] = 15.5;
-  tmpRadius[1] = 17.0;
-  tmpLength[0] = 55.0;
-  tmpLength[1] = 50.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXD2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXD2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -303,10 +294,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // PIXD Cables
   htmp[0] = dbe->book1D("PXDCFull", "Full Pixel Disk Cables",120,0.,3.);
   htmp[1] = dbe->book1D("PXDCFast", "Fast Pixel Disk Cables",120,0.,3.);
-  tmpRadius[0] = 20.0;
-  tmpRadius[1] = 18.0;
-  tmpLength[0] = 999.0;
-  tmpLength[1] = 999.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("PXDCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("PXDCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -328,10 +317,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TIB1
   htmp[0] = dbe->book1D("TIB1Full", "Full Tracker Inner Barrel 1",120,0.,3.);
   htmp[1] = dbe->book1D("TIB1Fast", "Fast Tracker Inner Barrel 1",120,0.,3.);
-  tmpRadius[0] = 28.0;
-  tmpRadius[1] = 28.0;
-  tmpLength[0] = 70.0;
-  tmpLength[1] = 73.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -339,10 +326,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TIB2
   htmp[0] = dbe->book1D("TIB2Full", "Full Tracker Inner Barrel 2",120,0.,3.);
   htmp[1] = dbe->book1D("TIB2Fast", "Fast Tracker Inner Barrel 2",120,0.,3.);
-  tmpRadius[0] = 37.0;
-  tmpRadius[1] = 37.0;
-  tmpLength[0] = 70.0;
-  tmpLength[1] = 73.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -350,10 +335,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TIB3
   htmp[0] = dbe->book1D("TIB3Full", "Full Tracker Inner Barrel 3",120,0.,3.);
   htmp[1] = dbe->book1D("TIB3Fast", "Fast Tracker Inner Barrel 3",120,0.,3.);
-  tmpRadius[0] = 45.0;
-  tmpRadius[1] = 45.0;
-  tmpLength[0] = 70.0;
-  tmpLength[1] = 73.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -361,10 +344,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TIB4
   htmp[0] = dbe->book1D("TIB4Full", "Full Tracker Inner Barrel 4",120,0.,3.);
   htmp[1] = dbe->book1D("TIB4Fast", "Fast Tracker Inner Barrel 4",120,0.,3.);
-  tmpRadius[0] = 52.0;
-  tmpRadius[1] = 53.0;
-  tmpLength[0] = 70.0;
-  tmpLength[1] = 73.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIB4CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIB4CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -372,10 +353,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TIB Cables
   htmp[0] = dbe->book1D("TIBCFull", "Full Tracker Inner Barrel Cables",120,0.,3.);
   htmp[1] = dbe->book1D("TIBCFast", "Fast Tracker Inner Barrel Cables",120,0.,3.);
-  tmpRadius[0] = 53.0;
-  tmpRadius[1] = 53.95;
-  tmpLength[0] = 73.0;
-  tmpLength[1] = 75.5;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIBCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIBCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -390,10 +369,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TID1
   htmp[0] = dbe->book1D("TID1Full", "Full Tracker Inner Disk 1",120,0.,3.);
   htmp[1] = dbe->book1D("TID1Fast", "Fast Tracker Inner Disk 1",120,0.,3.);
-  tmpRadius[0] = 52.0;
-  tmpRadius[1] = 54.0;
-  tmpLength[0] = 83.0;
-  tmpLength[1] = 83.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TID1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TID1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -401,10 +378,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TID2
   htmp[0] = dbe->book1D("TID2Full", "Full Tracker Inner Disk 2",120,0.,3.);
   htmp[1] = dbe->book1D("TID2Fast", "Fast Tracker Inner Disk 2",120,0.,3.);
-  tmpRadius[0] = 52.0;
-  tmpRadius[1] = 54.0;
-  tmpLength[0] = 95.0;
-  tmpLength[1] = 95.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TID2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TID2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -412,10 +387,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TID3
   htmp[0] = dbe->book1D("TID3Full", "Full Tracker Inner Disk 3",120,0.,3.);
   htmp[1] = dbe->book1D("TID3Fast", "Fast Tracker Inner Disk 3",120,0.,3.);
-  tmpRadius[0] = 52.0;
-  tmpRadius[1] = 54.0;
-  tmpLength[0] = 110.0;
-  tmpLength[1] = 106.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TID3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TID3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -423,10 +396,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TID Cables
   htmp[0] = dbe->book1D("TIDCFull", "Full Tracker Inner Disk Cables",120,0.,3.);
   htmp[1] = dbe->book1D("TIDCFast", "Fast Tracker Inner Disk Cables",120,0.,3.);
-  tmpRadius[0] = 59.0;
-  tmpRadius[1] = 55.0;
-  tmpLength[0] = 122.0;
-  tmpLength[1] = 109.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TIDCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TIDCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -448,10 +419,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TOB1
   htmp[0] = dbe->book1D("TOB1Full", "Full Tracker Outer Barrel 1",120,0.,3.);
   htmp[1] = dbe->book1D("TOB1Fast", "Fast Tracker Outer Barrel 1",120,0.,3.);
-  tmpRadius[0] = 65.0;
-  tmpRadius[1] = 65.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -459,10 +428,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TOB2
   htmp[0] = dbe->book1D("TOB2Full", "Full Tracker Outer Barrel 2",120,0.,3.);
   htmp[1] = dbe->book1D("TOB2Fast", "Fast Tracker Outer Barrel 2",120,0.,3.);
-  tmpRadius[0] = 75.0;
-  tmpRadius[1] = 75.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -470,10 +437,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TOB3
   htmp[0] = dbe->book1D("TOB3Full", "Full Tracker Outer Barrel 3",120,0.,3.);
   htmp[1] = dbe->book1D("TOB3Fast", "Fast Tracker Outer Barrel 3",120,0.,3.);
-  tmpRadius[0] = 83.0;
-  tmpRadius[1] = 83.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -481,10 +446,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TOB4
   htmp[0] = dbe->book1D("TOB4Full", "Full Tracker Outer Barrel 4",120,0.,3.);
   htmp[1] = dbe->book1D("TOB4Fast", "Fast Tracker Outer Barrel 4",120,0.,3.);
-  tmpRadius[0] = 92.0;
-  tmpRadius[1] = 92.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB4CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB4CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -492,10 +455,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TOB5
   htmp[0] = dbe->book1D("TOB5Full", "Full Tracker Outer Barrel 5",120,0.,3.);
   htmp[1] = dbe->book1D("TOB5Fast", "Fast Tracker Outer Barrel 5",120,0.,3.);
-  tmpRadius[0] = 103.0;
-  tmpRadius[1] = 103.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB5CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB5CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -503,10 +464,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TOB6
   htmp[0] = dbe->book1D("TOB6Full", "Full Tracker Outer Barrel 6",120,0.,3.);
   htmp[1] = dbe->book1D("TOB6Fast", "Fast Tracker Outer Barrel 6",120,0.,3.);
-  tmpRadius[0] = 113.0;
-  tmpRadius[1] = 113.0;
-  tmpLength[0] = 109.0;
-  tmpLength[1] = 109.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOB6CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOB6CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -514,10 +473,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TOB Cables
   htmp[0] = dbe->book1D("TOBCFull", "Full Tracker Outer Barrel Cables",120,0.,3.);
   htmp[1] = dbe->book1D("TOBCFast", "Fast Tracker Outer Barrel Cables",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 125.0;
-  tmpLength[1] = 125.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TOBCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TOBCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -532,10 +489,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TEC1
   htmp[0] = dbe->book1D("TEC1Full", "Full Tracker EndCap 1",120,0.,3.);
   htmp[1] = dbe->book1D("TEC1Fast", "Fast Tracker Endcap 1",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 136.0;
-  tmpLength[1] = 136.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC1CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC1CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -543,10 +498,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TEC2
   htmp[0] = dbe->book1D("TEC2Full", "Full Tracker EndCap 2",120,0.,3.);
   htmp[1] = dbe->book1D("TEC2Fast", "Fast Tracker Endcap 2",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 150.0;
-  tmpLength[1] = 150.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC2CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC2CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -554,10 +507,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TEC3
   htmp[0] = dbe->book1D("TEC3Full", "Full Tracker EndCap 3",120,0.,3.);
   htmp[1] = dbe->book1D("TEC3Fast", "Fast Tracker Endcap 3",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 165.0;
-  tmpLength[1] = 165.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC3CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC3CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -565,10 +516,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TEC4
   htmp[0] = dbe->book1D("TEC4Full", "Full Tracker EndCap 4",120,0.,3.);
   htmp[1] = dbe->book1D("TEC4Fast", "Fast Tracker Endcap 4",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 180.0;
-  tmpLength[1] = 180.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC4CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC4CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -576,10 +525,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TEC5
   htmp[0] = dbe->book1D("TEC5Full", "Full Tracker EndCap 5",120,0.,3.);
   htmp[1] = dbe->book1D("TEC5Fast", "Fast Tracker Endcap 5",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 195.0;
-  tmpLength[1] = 195.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC5CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC5CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -587,10 +534,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TEC6
   htmp[0] = dbe->book1D("TEC6Full", "Full Tracker EndCap 6",120,0.,3.);
   htmp[1] = dbe->book1D("TEC6Fast", "Fast Tracker Endcap 6",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 211.0;
-  tmpLength[1] = 211.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC6CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC6CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -598,10 +543,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TEC7
   htmp[0] = dbe->book1D("TEC7Full", "Full Tracker EndCap 7",120,0.,3.);
   htmp[1] = dbe->book1D("TEC7Fast", "Fast Tracker Endcap 7",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 230.0;
-  tmpLength[1] = 230.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC7CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC7CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -609,10 +552,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TEC8
   htmp[0] = dbe->book1D("TEC8Full", "Full Tracker EndCap 8",120,0.,3.);
   htmp[1] = dbe->book1D("TEC8Fast", "Fast Tracker Endcap 8",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 252.0;
-  tmpLength[1] = 252.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC8CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC8CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -620,10 +561,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // TEC9
   htmp[0] = dbe->book1D("TEC9Full", "Full Tracker EndCap 9",120,0.,3.);
   htmp[1] = dbe->book1D("TEC9Fast", "Fast Tracker Endcap 9",120,0.,3.);
-  tmpRadius[0] = 110.0;
-  tmpRadius[1] = 110.0;
-  tmpLength[0] = 272.0;
-  tmpLength[1] = 272.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TEC9CylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TEC9CylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -645,10 +584,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // Outer Cables
   htmp[0] = dbe->book1D("TECCFull", "Full Tracker Outer Cables",120,0.,3.);
   htmp[1] = dbe->book1D("TECCFast", "Fast Tracker Outer Cables",120,0.,3.);
-  tmpRadius[0] = 125.0;
-  tmpRadius[1] = 121.0;
-  tmpLength[0] = 301.0;
-  tmpLength[1] = 301.0;
+  tmpRadius = p.getUntrackedParameter<std::vector<double> >("TrackerCablesCylinderRadius");
+  tmpLength = p.getUntrackedParameter<std::vector<double> >("TrackerCablesCylinderLength");
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
@@ -706,7 +643,7 @@ testNuclearInteractions::~testNuclearInteractions()
   //  delete mySimEvent;
 }
 
-void testNuclearInteractions::beginJob(const edm::EventSetup & es)
+void testNuclearInteractions::beginRun(edm::Run const&, const edm::EventSetup & es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
@@ -747,7 +684,7 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   /* */
   
   //mySimEvent[0]->print();
-  XYZTLorentzVector theProtonMomentum(0.,0.,0.,0.986);
+  XYZTLorentzVector theProtonMomentum(0.,0.,0.,0.939);
 
   // Save the object number count for a new NUevent
   if ( saveNU ) { 
@@ -873,8 +810,6 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       XYZTLorentzVector theBoost = thePion.momentum()+theProtonMomentum;
       double ecm = theBoost.mag();
       theBoost /=  theBoost.e();
-      RawParticle theTotal(XYZTLorentzVector(0.,0.,0.,0.));
-
       if ( ievt == 0 && saveNU && totalNEvt < maxNU) {
 	NUEvent::NUInteraction interaction;
 	interaction.first = nuEvent->nParticles();
@@ -883,17 +818,34 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	++totalNU;
       }
 
+      // A few checks
       double qTot = 0.;
+      double eBefore = thePion.momentum().E();
+      double eAfter = 0.;
+      XYZTLorentzVector theTotal(0.,0.,0.,0.);
+
+      // Rotation to bring the collision axis around z
+      XYZVector zAxis(0.,0.,1.);
+      XYZVector rotationAxis = (theBoost.Vect().Cross(zAxis)).Unit();
+      double rotationAngle = std::acos(theBoost.Vect().Unit().Z());
+      RawParticle::Rotation rotation(rotationAxis,rotationAngle);
+
       for(int idaugh=firstDaughter;idaugh<=lastDaughter;++idaugh) {
 
-	// Boost the tracks
+	// The track
 	const FSimTrack& myDaugh = mySimEvent[ievt]->track(idaugh);
 	qTot += myDaugh.charge();
 	//	std::cout << "Daughter " << idaugh << " " << myDaugh << std::endl;
         RawParticle theMom(myDaugh.momentum());
-	theMom.boost(-theBoost.x(),-theBoost.y(),-theBoost.z());
-	theTotal += theMom;
+	eAfter += theMom.E();
 
+	// Boost the track
+	theMom.boost(-theBoost.x(),-theBoost.y(),-theBoost.z());
+	theTotal = theTotal + theMom.momentum();
+
+	// Rotate ->  along the Z axis
+	theMom.rotate(rotation);
+	
  	// Save the fully simulated tracks
 	if ( ievt == 0 && saveNU && totalNEvt <= maxNU) { 
 	  NUEvent::NUParticle particle;
@@ -908,11 +860,11 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	}
       }
 
-
       // Save some histograms
       h3[ievt]->Fill(ecm);
       h4[ievt]->Fill(theTotal.mag()/ecm);
       h5[ievt]->Fill(sqrt(theTotal.Vect().mag2()));
+      h10[ievt]->Fill(eAfter/eBefore);
 
       // Total charge of daughters
       totalCharge[ievt]->Fill(qTot);
@@ -978,5 +930,5 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testNuclearInteractions);
+
+DEFINE_FWK_MODULE(testNuclearInteractions);

@@ -1,11 +1,17 @@
 #ifndef Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentMetricsCalculator_h
 #define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentMetricsCalculator_h
 
-/// Calculates the metrical distances (stored as type Distance) for a set of Alignables.
+/// Calculates the metrical distances (stored as short int) for a set of Alignables.
 /// See E.Widl, R.Fr\"uhwirth, W.Adam, A Kalman Filter for Track-based Alignment, CMS
 /// NOTE-2006/022 for more details.
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+
+#include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "CondFormats/Alignment/interface/Definitions.h"
+
+#include "TTree.h"
+#include "TFile.h"
 
 
 class KalmanAlignmentMetricsCalculator
@@ -42,6 +48,9 @@ public:
   /// Return all known alignables.
   const std::vector< Alignable* > alignables( void ) const;
 
+  void writeDistances( std::string filename );
+  void readDistances( std::string filename );
+
 private:
 
   void clearDistances( FullDistancesList& dist );
@@ -72,6 +81,11 @@ private:
   short int theMaxDistance;
 
   SingleDistancesList theDefaultReturnList;
+
+  // For reading and writing
+
+  void createBranches( TTree* tree );
+  void setBranchAddresses( TTree* tree );
 };
 
 

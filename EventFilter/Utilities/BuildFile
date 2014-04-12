@@ -1,9 +1,0 @@
-<export>
-<lib name=EventFilterUtilities>
-<use name=FWCore/MessageLogger>
-<use name=xdaq>
-</export>
-
-<use name=FWCore/MessageLogger>
-<use name=FWCore/ServiceRegistry>
-<use name=xdaq>

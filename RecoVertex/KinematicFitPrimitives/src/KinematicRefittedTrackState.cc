@@ -1,18 +1,34 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicRefittedTrackState.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicPerigeeConversions.h"
 
 
-KinematicRefittedTrackState::KinematicRefittedTrackState(const KinematicState& st)		
-{state = st;}
+KinematicRefittedTrackState::KinematicRefittedTrackState(const KinematicState& st,
+		const AlgebraicVector4& mv)		
+{
+  state = st;
+  momentumAtVertex = mv;
+}
 
-AlgebraicVector KinematicRefittedTrackState::parameters() const
-{return state.kinematicParameters().vector();}
+AlgebraicVector6 KinematicRefittedTrackState::parameters() const
+{
+  KinematicPerigeeConversions conv;
+  return conv.extendedPerigeeFromKinematicParameters(state,state.globalPosition()).vector();
+}
   
-AlgebraicSymMatrix KinematicRefittedTrackState::covariance() const 
+AlgebraicSymMatrix66 KinematicRefittedTrackState::covariance() const 
+{
+  throw VertexException("KinematicRefittedTrackState::Fishy covariance called");
+  return AlgebraicSymMatrix66();
+}
+
+AlgebraicVector7 KinematicRefittedTrackState::kinematicParameters() const
+{return state.kinematicParameters().vector();}
+
+AlgebraicSymMatrix77 KinematicRefittedTrackState::kinematicParametersCovariance() const
 {return state.kinematicParametersError().matrix();}
+
 
 FreeTrajectoryState KinematicRefittedTrackState::freeTrajectoryState() const
 {
@@ -22,31 +38,20 @@ FreeTrajectoryState KinematicRefittedTrackState::freeTrajectoryState() const
 GlobalPoint KinematicRefittedTrackState::position() const
 {return state.globalPosition();}
 
-AlgebraicVector KinematicRefittedTrackState::kinematicMomentumVector() const
+AlgebraicVector4 KinematicRefittedTrackState::kinematicMomentumVector() const
 {
  GlobalVector mm = state.globalMomentum();
- AlgebraicVector mr(4);
- mr(1) = mm.x();
- mr(2) = mm.y();
- mr(3) = mm.z();
- mr(4) = state.mass();
+ AlgebraicVector4 mr;
+ mr[0] = mm.x();
+ mr[1] = mm.y();
+ mr[2] = mm.z();
+ mr[3] = state.mass();
  return mr;
 }
 
-AlgebraicVector KinematicRefittedTrackState::momentumVector() const
+AlgebraicVector4 KinematicRefittedTrackState::momentumVector() const
 {
-
- KinematicPerigeeConversions conv;
- 
- ExtendedPerigeeTrajectoryParameters pState = 
-                conv.extendedPerigeeFromKinematicParameters(state,state.globalPosition());
-
- AlgebraicVector mr(4);
- mr(4) = pState.vector()(6);
- mr(1) = pState.vector()(1);
- mr(2) = pState.vector()(2);
- mr(3) = pState.vector()(3);
- return mr;
+ return momentumAtVertex;
 }
 
 
@@ -67,7 +72,7 @@ TrajectoryStateOnSurface KinematicRefittedTrackState::trajectoryStateOnSurface(c
  double KinematicRefittedTrackState::weight() const
 { return 1.;}
 
-ReferenceCountingPointer<RefittedTrackState>  KinematicRefittedTrackState::stateWithNewWeight
+ReferenceCountingPointer<RefittedTrackState<6> >  KinematicRefittedTrackState::stateWithNewWeight
   	(const double newWeight) const
 {
  std::cout<<"WARNING: Change weight for Kinematic state called, weigt will stay to be equal 1."<<std::endl;
@@ -75,7 +80,7 @@ ReferenceCountingPointer<RefittedTrackState>  KinematicRefittedTrackState::state
   				const_cast<KinematicRefittedTrackState*>(this));
 }
 
-std::vector< ReferenceCountingPointer<RefittedTrackState> > KinematicRefittedTrackState::components() const
+std::vector< ReferenceCountingPointer<RefittedTrackState<6> > > KinematicRefittedTrackState::components() const
 {
  std::vector<RefCountedRefittedTrackState> result; result.reserve(1);
  result.push_back(RefCountedRefittedTrackState( 

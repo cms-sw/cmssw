@@ -44,17 +44,17 @@ class L1MuDTChambPhContainer {
   //  Destructor
   ~L1MuDTChambPhContainer();
 
-  void setContainer(Phi_Container inputSegments);
+  void setContainer(const Phi_Container& inputSegments);
 
-  Phi_Container* getContainer() const;
+  Phi_Container const* getContainer() const;
 
   bool bxEmpty(int step) const;
 
   int bxSize(int step1, int step2) const;
 
-  L1MuDTChambPhDigi* chPhiSegm1(int wheel, int stat, int sect, int bx) const;
+  L1MuDTChambPhDigi const* chPhiSegm1(int wheel, int stat, int sect, int bx) const;
 
-  L1MuDTChambPhDigi* chPhiSegm2(int wheel, int stat, int sect, int bx) const;
+  L1MuDTChambPhDigi const* chPhiSegm2(int wheel, int stat, int sect, int bx) const;
 
  private:
 

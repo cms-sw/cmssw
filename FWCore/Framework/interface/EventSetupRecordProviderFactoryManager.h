@@ -20,6 +20,7 @@
 
 // system include files
 #include <map>
+#include <memory>
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 

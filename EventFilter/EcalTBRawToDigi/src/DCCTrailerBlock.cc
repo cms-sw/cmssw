@@ -1,15 +1,15 @@
 #include "DCCTrailerBlock.h"
 #include "DCCDataParser.h"
 #include "DCCDataMapper.h"
-DCCTrailerBlock::DCCTrailerBlock(
-	DCCDataParser * parser, 
-	ulong * buffer, 
-	ulong numbBytes,  
-	ulong wToEnd,
-	ulong wordEventOffset,
-	ulong expectedLength,
-	ulong expectedCRC
-) : DCCBlockPrototype(parser,"DCCTRAILER", buffer, numbBytes,wToEnd, wordEventOffset),
+DCCTBTrailerBlock::DCCTBTrailerBlock(
+	DCCTBDataParser * parser, 
+	uint32_t * buffer, 
+	uint32_t numbBytes,  
+	uint32_t wToEnd,
+	uint32_t wordEventOffset,
+	uint32_t expectedLength,
+	uint32_t expectedCRC
+) : DCCTBBlockPrototype(parser,"DCCTRAILER", buffer, numbBytes,wToEnd, wordEventOffset),
 expectedLength_(expectedLength){
 	
 	errors_["TRAILER::EVENT LENGTH"] = 0 ;
@@ -29,7 +29,7 @@ expectedLength_(expectedLength){
 }
 
 
-void DCCTrailerBlock::dataCheck(){
+void DCCTBTrailerBlock::dataCheck(){
 	
 	std::string checkErrors("");
 	

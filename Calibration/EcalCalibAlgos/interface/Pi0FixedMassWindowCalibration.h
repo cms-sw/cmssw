@@ -70,7 +70,7 @@ class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
   virtual void produce(edm::Event&, const edm::EventSetup&) {};
 
   /// Called at beginning of job
-  virtual void beginOfJob(const edm::EventSetup&);
+  virtual void beginOfJob();
 
   /// Called at end of job
   virtual void endOfJob();
@@ -152,6 +152,8 @@ class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
 
   // root tree
   TFile* theFile;
+
+  bool isfirstcall_;
 
 };
 

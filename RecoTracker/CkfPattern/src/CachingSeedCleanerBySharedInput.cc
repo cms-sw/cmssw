@@ -2,6 +2,10 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+
 #include<boost/bind.hpp>
 #include<algorithm>
 
@@ -24,7 +28,7 @@ void CachingSeedCleanerBySharedInput::done() {
 
 void CachingSeedCleanerBySharedInput::add(const Trajectory *trj) {
     typedef Trajectory::RecHitContainer::const_iterator TI;
-    unsigned short idx = theVault.size();
+    unsigned int idx = theVault.size();
     theVault.resize(idx+1);
     // a vector of shared pointers....
     Trajectory::ConstRecHitContainer & hits = theVault.back();
@@ -36,26 +40,39 @@ void CachingSeedCleanerBySharedInput::add(const Trajectory *trj) {
     for (TI t = hits.begin(), te = hits.end(); t != te; ++t) {
       //    if ((*t)->isValid()) {   // they are valid!
       detid = (*t)->geographicalId().rawId();
-      if (detid) theCache.insert(std::pair<uint32_t, unsigned short>(detid, idx));
+
+      //For seeds that are made only of pixel hits, it is pointless to store the 
+      //information about hits on other sub-detector of the trajectory.
+      if( theOnlyPixelHits && 
+	  (*t)->geographicalId().subdetId() != PixelSubdetector::PixelBarrel && 
+	  (*t)->geographicalId().subdetId() != PixelSubdetector::PixelEndcap    ) continue;
+      if (detid) theCache.insert(std::pair<uint32_t, unsigned int>(detid, idx));
     }
 }
 
 bool CachingSeedCleanerBySharedInput::good(const TrajectorySeed *seed) {
-    typedef BasicTrajectorySeed::const_iterator SI;
+  if (seed->nHits()==0){    return true; }
+
+    typedef TrajectorySeed::const_iterator SI;
     typedef Trajectory::RecHitContainer::const_iterator TI;
-    BasicTrajectorySeed::range range = seed->recHits();
+    TrajectorySeed::range range = seed->recHits();
 
     SI first = range.first, last = range.second, curr;
     uint32_t detid = first->geographicalId().rawId();
     
-    std::multimap<uint32_t, unsigned short>::const_iterator it, end = theCache.end();
+    //std::multimap<uint32_t, unsigned int>::const_iterator it, end = theCache.end();
+    typedef boost::unordered_multimap<uint32_t, unsigned int>::const_iterator IT;
+    IT it; std::pair<IT,IT> itrange;
+    
 
     //calls_++;
-    for (it = theCache.find(detid); (it != end) && (it->first == detid); ++it) {
+    //for (it = theCache.find(detid); (it != end) && (it->first == detid); ++it) {
+    for (itrange = theCache.equal_range(detid), it = itrange.first; it != itrange.second; ++it) {
+      assert(it->first == detid);
       //tracks_++;
       
-      // seeds are limited to the first 4 hits in trajectory...
-      int ext = std::min(4,int(theVault[it->second].size()));
+      // seeds are limited to the first "theNumHitsForSeedCleaner" hits in trajectory...
+      int ext = std::min(theNumHitsForSeedCleaner,int(theVault[it->second].size()));
       TI te =  theVault[it->second].begin()+ext;
       //    TI  te = theVault[it->second].end();
       

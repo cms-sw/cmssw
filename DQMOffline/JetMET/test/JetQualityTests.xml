@@ -1,0 +1,70 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="KolmogorovTest">
+        <TYPE>Comp2RefKolmogorov</TYPE> 
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.0000000001</PARAM>
+        <PARAM name="warning">0.00000001</PARAM>
+</QTEST>
+
+<QTEST name="meanJetPtTest">
+        <TYPE>MeanWithinExpected</TYPE> 
+        <PARAM name="mean">10</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">0</PARAM>
+        <PARAM name="xmax">50</PARAM>
+        <PARAM name="error">0.10</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<QTEST name="meanJetConstituentsTest">
+        <TYPE>MeanWithinExpected</TYPE> 
+        <PARAM name="mean">10</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">4</PARAM>
+        <PARAM name="xmax">16</PARAM>
+        <PARAM name="error">0.10</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="meanEMFractionTest">
+        <TYPE>MeanWithinExpected</TYPE> 
+        <PARAM name="mean">0.5</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">0.1</PARAM>
+        <PARAM name="xmax">0.9</PARAM>
+        <PARAM name="error">0.10</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<LINK name="JetMET/Jet/*/Eta*">
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+
+<LINK name="JetMET/Jet/*/Phi*">
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+
+<LINK name="JetMET/Jet/*/Pt*">
+   <TestName activate="true">KolmogorovTest</TestName>
+   <TestName activate="true">meanJetPtTest</TestName>
+</LINK>
+
+<LINK name="JetMET/Jet/*/Constituents*">
+   <TestName activate="true">KolmogorovTest</TestName>
+   <TestName activate="true">meanJetConstituentsTest</TestName>
+</LINK>
+
+<LINK name="JetMET/Jet/*/EFrac*">
+   <TestName activate="true">KolmogorovTest</TestName>
+   <TestName activate="true">meanEMFractionTest</TestName>
+</LINK>
+
+</TESTSCONFIGURATION>

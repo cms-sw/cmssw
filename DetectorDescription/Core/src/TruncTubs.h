@@ -17,7 +17,7 @@ namespace DDI {
 	      double cutAtDelta,
 	      bool cutInside);
     
-    double volume() { return -1; }
+    double volume() const { return -1; }
     
     void stream(std::ostream & os) const;
    };

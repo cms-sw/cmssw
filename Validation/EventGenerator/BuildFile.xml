@@ -1,0 +1,13 @@
+<use name="hepmc"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Common"/>
+<use name="clhep"/>
+<use name="root"/>
+<export>
+  <use name="hepmc"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
+  <lib name="ValidationEventGenerator"/>
+</export>
+

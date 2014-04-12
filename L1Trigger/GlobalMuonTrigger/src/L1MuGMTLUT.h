@@ -32,8 +32,6 @@
  * 
 */ 
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -54,7 +52,7 @@
 //#include <sstream>
 #include <string>
 #include <stdlib.h>
-#include "stdio.h"
+#include <cstdio>
 
 //----------------------
 // Base Class Headers --
@@ -208,6 +206,7 @@ class L1MuGMTLUT {
     bool m_distrRAM;
     std::string m_name;
     bool m_saveFlag;
+    unsigned m_GeneralLUTVersion;
 };
 
 //--------------------------------------------------------------------------------

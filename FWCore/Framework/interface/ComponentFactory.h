@@ -16,26 +16,27 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.21 2007/04/13 10:39:41 wmtan Exp $
 //
 
 // system include files
 #include <string>
 #include <map>
+#include <exception>
 #include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "DataFormats/Provenance/interface/PassID.h"
-#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ComponentMaker.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
       class EventSetupProvider;
+      class EventSetupsController;
       
 template<typename T>
   class ComponentFactory
@@ -49,11 +50,10 @@ template<typename T>
    typedef std::map<std::string, boost::shared_ptr<Maker> > MakerMap;
    typedef typename T::base_type base_type;
       // ---------- const member functions ---------------------
-   boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
-                  edm::ParameterSet const& iConfiguration,
-                  std::string const& iProcessName,
-                  ReleaseVersion const& iVersion,
-                  PassID const& iPass) const
+   boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
+                                      EventSetupProvider& iProvider,
+                                      edm::ParameterSet const& iConfiguration,
+                                      bool replaceExisting = false) const
       {
          std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
          //cerr << "Factory: module_type = " << modtype << endl;
@@ -63,38 +63,49 @@ template<typename T>
          {
             boost::shared_ptr<Maker> wm(edmplugin::PluginFactory<ComponentMakerBase<T>* ()>::get()->create(modtype));
             
-            if(wm.get()==0) {
-	      throw edm::Exception(errors::Configuration,"UnknownModule")<<T::name() 
-              <<" of type "<< modtype <<" has not been registered.\n"
-              << "Perhaps your module type is misspelled or is not a "
-              << "framework plugin.\n"
-              << "Try running EdmPluginDump to obtain a list of "
-              << "available Plugins.";            
+            if(wm.get() == 0) {
+	      Exception::throwThis(errors::Configuration,
+	      "UnknownModule",
+	       T::name().c_str(),
+              " of type ",
+              modtype.c_str(),
+              " has not been registered.\n"
+              "Perhaps your module type is misspelled or is not a "
+              "framework plugin.\n"
+              "Try running EdmPluginDump to obtain a list of "
+              "available Plugins.");            
             }
             
             //cerr << "Factory: created the worker" << endl;
             
             std::pair<typename MakerMap::iterator,bool> ret =
-               makers_.insert(std::make_pair<std::string,boost::shared_ptr<Maker> >(modtype,wm));
+               makers_.insert(std::pair<std::string,boost::shared_ptr<Maker> >(modtype,wm));
             
-            if(ret.second==false)
-	      throw edm::Exception(errors::Configuration,"Maker Factory map insert failed");
+            if(ret.second == false) {
+	      Exception::throwThis(errors::Configuration,"Maker Factory map insert failed");
+            }
             
             it = ret.first;
          }
          
          try {
-            return it->second->addTo(iProvider,iConfiguration,iProcessName,iVersion,iPass);
-         } catch(cms::Exception& iException) {
-            edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating ");
-            toThrow<<modtype<<"\n";
-            toThrow.append(iException);
-            throw toThrow;
+           return convertException::wrap([&]() -> boost::shared_ptr<base_type> {
+             return it->second->addTo(esController, iProvider, iConfiguration, replaceExisting);
+           });
          }
+         catch(cms::Exception & iException) {
+           std::string edmtype = iConfiguration.template getParameter<std::string>("@module_edm_type");
+           std::string label = iConfiguration.template getParameter<std::string>("@module_label");
+           std::ostringstream ost;
+           ost << "Constructing " << edmtype << ": class=" << modtype << " label='" << label << "'";
+           iException.addContext(ost.str());
+           throw;
+         }
+         return boost::shared_ptr<base_type>();
       }
    
       // ---------- static member functions --------------------
-      static ComponentFactory<T>* get();
+      static ComponentFactory<T> const* get();
 
       // ---------- member functions ---------------------------
 
@@ -110,7 +121,13 @@ template<typename T>
 
    }
 }
-#define COMPONENTFACTORY_GET(_type_) EDM_REGISTER_PLUGINFACTORY(edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<_type_>* ()>,_type_::name()); \
-static edm::eventsetup::ComponentFactory<_type_> s_dummyfactory; template<> edm::eventsetup::ComponentFactory<_type_>* edm::eventsetup::ComponentFactory<_type_>::get() { return &s_dummyfactory; } enum {dummy_componentfactory_get_}
+#define COMPONENTFACTORY_GET(_type_) \
+EDM_REGISTER_PLUGINFACTORY(edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<_type_>* ()>,_type_::name()); \
+static edm::eventsetup::ComponentFactory<_type_> const s_dummyfactory; \
+namespace edm { namespace eventsetup { \
+template<> edm::eventsetup::ComponentFactory<_type_> const* edm::eventsetup::ComponentFactory<_type_>::get() \
+{ return &s_dummyfactory; } \
+  } } \
+typedef int componentfactory_get_needs_semicolon
 
 #endif

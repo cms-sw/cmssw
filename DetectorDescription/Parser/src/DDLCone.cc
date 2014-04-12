@@ -11,52 +11,39 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLCone.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLCone.h"
-#include "DDLElementRegistry.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
-//#include <strstream>
-#include <string>
+DDLCone::DDLCone( DDLElementRegistry* myreg )
+  : DDLSolid( myreg )
+{}
 
-// Default constructor.
-DDLCone::DDLCone()
-{
-}
-
-// Default destructor
-DDLCone::~DDLCone()
-{
-}
+DDLCone::~DDLCone( void )
+{}
 
 // Upon encountering the end of the Cone element, call DDCore.
-void DDLCone::processElement (const std::string& type, const std::string& nmspace)
+void
+DDLCone::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
-  DCOUT_V('P', "DDLCone::processElement started");
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  DCOUT_V( 'P', "DDLCone::processElement started" );
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
-  DDSolid ddcone = DDSolidFactory::cons(getDDName(nmspace)
-					, ev.eval(nmspace, atts.find("dz")->second)
-					, ev.eval(nmspace, atts.find("rMin1")->second)
-					, ev.eval(nmspace, atts.find("rMax1")->second)
-					, ev.eval(nmspace, atts.find("rMin2")->second)
-					, ev.eval(nmspace, atts.find("rMax2")->second)
-					, ev.eval(nmspace, atts.find("startPhi")->second)
-					, ev.eval(nmspace, atts.find("deltaPhi")->second));
+  DDSolid ddcone = DDSolidFactory::cons( getDDName( nmspace ),
+					 ev.eval( nmspace, atts.find( "dz" )->second ),
+					 ev.eval( nmspace, atts.find( "rMin1" )->second ),
+					 ev.eval( nmspace, atts.find( "rMax1" )->second ),
+					 ev.eval( nmspace, atts.find( "rMin2" )->second ),
+					 ev.eval( nmspace, atts.find( "rMax2" )->second ),
+					 ev.eval( nmspace, atts.find( "startPhi" )->second ),
+					 ev.eval( nmspace, atts.find( "deltaPhi" )->second ));
 
-  DDLSolid::setReference(nmspace);
+  DDLSolid::setReference( nmspace, cpv );
 
-  DCOUT_V('P', "DDLCone::processElement completed");
-
+  DCOUT_V( 'P', "DDLCone::processElement completed" );
 }

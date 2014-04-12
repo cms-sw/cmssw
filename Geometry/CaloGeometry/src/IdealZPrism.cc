@@ -1,71 +1,175 @@
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include <math.h>
 
-namespace calogeom {
+typedef IdealZPrism::CCGFloat CCGFloat ;
+typedef IdealZPrism::Pt3D     Pt3D     ;
+typedef IdealZPrism::Pt3DVec  Pt3DVec  ;
 
-  IdealZPrism::IdealZPrism(const GlobalPoint& faceCenter, float widthEta, float widthPhi, float deltaZ) : 
-  CaloCellGeometry(faceCenter),
-  hwidthEta_(widthEta/2),
-  hwidthPhi_(widthPhi/2),
-  deltaZ_(deltaZ)
+IdealZPrism::IdealZPrism()
+  : CaloCellGeometry()
+{}
+
+IdealZPrism::IdealZPrism( const IdealZPrism& idzp ) 
+  : CaloCellGeometry( idzp )
 {
+  *this = idzp ;
 }
 
-  static inline GlobalPoint etaPhiR(float eta, float phi, float rad) {
-    return GlobalPoint(rad*cosf(phi)/coshf(eta),rad*sinf(phi)/coshf(eta),rad*tanhf(eta));
-  }
+IdealZPrism& 
+IdealZPrism::operator=( const IdealZPrism& idzp ) 
+{
+  if( &idzp != this ) CaloCellGeometry::operator=( idzp ) ;
+  return *this ;
+}
 
-  static inline GlobalPoint etaPhiPerp(float eta, float phi, float perp) {
-    return GlobalPoint(perp*cosf(phi),perp*sinf(phi),perp*sinhf(eta));
-  }
+IdealZPrism::IdealZPrism( const GlobalPoint& faceCenter , 
+			  const CornersMgr*  mgr        ,
+			  const CCGFloat*    parm         )
+  : CaloCellGeometry ( faceCenter, mgr, parm )   
+{initSpan();}
 
-  static inline GlobalPoint etaPhiZ(float eta, float phi, float z) {
-    return GlobalPoint(z*cosf(phi)/sinhf(eta),z*sinf(phi)/sinhf(eta),z);
-  }
-  
-  IdealZPrism::IdealZPrism(float eta, float phi, float radialDistanceToFront, float widthEta, float widthPhi, float deltaZ) :
-    CaloCellGeometry(etaPhiR(eta,phi,radialDistanceToFront)),
-    hwidthEta_(widthEta/2),
-    hwidthPhi_(widthPhi/2),
-  deltaZ_(deltaZ)
-  {
-  }
+IdealZPrism::~IdealZPrism() 
+{}
 
-  const std::vector<GlobalPoint> & IdealZPrism::getCorners() const {
-    if (points_.empty()) {
-      GlobalPoint p=getPosition();
-      float z_near=p.z();
-      float z_far=z_near+deltaZ_*p.z()/fabs(p.z());
-      float eta=p.eta();
-      float phi=p.phi();
-      points_.push_back(etaPhiZ(eta+hwidthEta_,phi+hwidthPhi_,z_near)); // (+,+,near)
-      points_.push_back(etaPhiZ(eta+hwidthEta_,phi-hwidthPhi_,z_near)); // (+,-,near)
-      points_.push_back(etaPhiZ(eta-hwidthEta_,phi-hwidthPhi_,z_near)); // (-,-,near)
-      points_.push_back(etaPhiZ(eta-hwidthEta_,phi+hwidthPhi_,z_near)); // (-,+,near)
-      points_.push_back(GlobalPoint(points_[0].x(),points_[0].y(),z_far)); // (+,+,far)
-      points_.push_back(GlobalPoint(points_[1].x(),points_[1].y(),z_far)); // (+,-,far)
-      points_.push_back(GlobalPoint(points_[2].x(),points_[2].y(),z_far)); // (-,-,far)
-      points_.push_back(GlobalPoint(points_[3].x(),points_[3].y(),z_far)); // (-,+,far)	
-    }
-    return points_;
-  }
+CCGFloat 
+IdealZPrism::dEta() const 
+{
+   return param()[0] ;
+}
 
-  bool IdealZPrism::inside(const GlobalPoint& point) const {
-    // first check eta/phi
-    bool is_inside=true;
-    const GlobalPoint& face=getPosition();
-    // eta
-    is_inside=is_inside && fabs(point.eta()-face.eta())<=hwidthEta_;
-    // phi
-    is_inside=is_inside && fabs(point.phi()-face.phi())<=hwidthPhi_;
+CCGFloat 
+IdealZPrism::dPhi() const 
+{ 
+   return param()[1] ;
+}
 
-    // distance 
-    if (point.z()<0) {
-      is_inside=is_inside && (point.z()<=face.z()) && (point.z()>(face.z()-deltaZ_));
-    } else {
-      is_inside=is_inside && (point.z()>=face.z()) && (point.z()<(face.z()+deltaZ_));
-    }
+CCGFloat 
+IdealZPrism::dz()   const 
+{ 
+   return param()[2] ;
+}
 
-    return is_inside;
-  }
+CCGFloat 
+IdealZPrism::eta()  const 
+{
+   return param()[3] ; 
+}
+
+CCGFloat 
+IdealZPrism::z()    const 
+{ 
+   return param()[4] ;
+}
+
+void 
+IdealZPrism::vocalCorners( Pt3DVec&        vec ,
+			   const CCGFloat* pv  ,
+			   Pt3D&           ref   ) const 
+{ 
+   localCorners( vec, pv, ref ) ; 
+}
+
+GlobalPoint 
+IdealZPrism::etaPhiR( float eta ,
+		      float phi ,
+		      float rad   ) 
+{
+   return GlobalPoint( rad*cosf(  phi )/coshf( eta ) ,
+		       rad*sinf(  phi )/coshf( eta ) ,
+		       rad*tanhf( eta )             ) ;
+}
+
+GlobalPoint 
+IdealZPrism::etaPhiPerp( float eta , 
+			 float phi , 
+			 float perp  ) 
+{
+   return GlobalPoint( perp*cosf(  phi ) , 
+		       perp*sinf(  phi ) , 
+		       perp*sinhf( eta ) );
+}
+
+GlobalPoint 
+IdealZPrism::etaPhiZ( float eta , 
+		      float phi ,
+		      float z    ) 
+{
+   return GlobalPoint( z*cosf( phi )/sinhf( eta ) ,
+		       z*sinf( phi )/sinhf( eta ) ,
+		       z                            ) ;
+}
+
+void
+IdealZPrism::localCorners( Pt3DVec&        lc  ,
+			   const CCGFloat* pv  ,
+			   Pt3D&           ref   )
+{
+   assert( 8 == lc.size() ) ;
+   if( false )
+   {
+      GlobalPoint g1 ( etaPhiR(0,0,0) ) ;
+      GlobalPoint g2 ( etaPhiPerp(0,0,0) ) ;
+   }
+   assert( 0 != pv ) ;
+   
+   const CCGFloat dEta ( pv[0] ) ;
+   const CCGFloat dPhi ( pv[1] ) ;
+   const CCGFloat dz   ( pv[2] ) ;
+   const CCGFloat eta  ( pv[3] ) ;
+   const CCGFloat z    ( pv[4] ) ;
+   
+   std::vector<GlobalPoint> gc ( 8, GlobalPoint(0,0,0) ) ;
+   
+   const GlobalPoint p ( etaPhiZ( eta, 0, z ) ) ;
+   
+   const float z_near ( z ) ;
+   const float z_far  ( z*( 1 - 2*dz/p.mag() ) ) ;
+   gc[ 0 ] = etaPhiZ( eta + dEta , +dPhi , z_near ) ; // (+,+,near)
+   gc[ 1 ] = etaPhiZ( eta + dEta , -dPhi , z_near ) ; // (+,-,near)
+   gc[ 2 ] = etaPhiZ( eta - dEta , -dPhi , z_near ) ; // (-,-,near)
+   gc[ 3 ] = etaPhiZ( eta - dEta , +dPhi , z_near ) ; // (-,+,far)
+   gc[ 4 ] = GlobalPoint( gc[0].x(), gc[0].y(), z_far ); // (+,+,far)
+   gc[ 5 ] = GlobalPoint( gc[1].x(), gc[1].y(), z_far ); // (+,-,far)
+   gc[ 6 ] = GlobalPoint( gc[2].x(), gc[2].y(), z_far ); // (-,-,far)
+   gc[ 7 ] = GlobalPoint( gc[3].x(), gc[3].y(), z_far ); // (-,+,far)	
+   
+   for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+   {
+      lc[i] = Pt3D( gc[i].x(), gc[i].y(), gc[i].z() ) ;
+   }
+   
+   ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
+}
+
+const CaloCellGeometry::CornersVec& 
+IdealZPrism::getCorners() const 
+{
+   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
+   if( co.uninitialized() ) 
+   {
+      CornersVec& corners ( setCorners() ) ;
+      
+      const GlobalPoint p      ( getPosition() ) ;
+      const CCGFloat    z_near ( p.z() ) ;
+      const CCGFloat    z_far  ( z_near + 2*dz()*p.z()/fabs( p.z() ) ) ;
+      const CCGFloat    eta    ( p.eta() ) ;
+      const CCGFloat    phi    ( p.phi() ) ;
+      
+      corners[ 0 ] = etaPhiZ( eta + dEta(), phi + dPhi(), z_near ); // (+,+,near)
+      corners[ 1 ] = etaPhiZ( eta + dEta(), phi - dPhi(), z_near ); // (+,-,near)
+      corners[ 2 ] = etaPhiZ( eta - dEta(), phi - dPhi(), z_near ); // (-,-,near)
+      corners[ 3 ] = etaPhiZ( eta - dEta(), phi + dPhi(), z_near ); // (-,+,near)
+      corners[ 4 ] = GlobalPoint( corners[0].x(), corners[0].y(), z_far ); // (+,+,far)
+      corners[ 5 ] = GlobalPoint( corners[1].x(), corners[1].y(), z_far ); // (+,-,far)
+      corners[ 6 ] = GlobalPoint( corners[2].x(), corners[2].y(), z_far ); // (-,-,far)
+      corners[ 7 ] = GlobalPoint( corners[3].x(), corners[3].y(), z_far ); // (-,+,far)	
+   }
+   return co ;
+}
+
+std::ostream& operator<<( std::ostream& s, const IdealZPrism& cell ) 
+{
+   s << "Center: " <<  cell.getPosition() << std::endl ;
+   s << "dEta = " << cell.dEta() << ", dPhi = " << cell.dPhi() << ", dz = " << cell.dz() << std::endl ;
+   return s;
 }

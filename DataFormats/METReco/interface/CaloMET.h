@@ -13,11 +13,8 @@
  *
  ************************************************************/
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/METReco/interface/SpecificCaloMETData.h"
 #include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
 namespace reco
@@ -26,12 +23,12 @@ namespace reco
     {
     public:
       /* Constructors*/
-      CaloMET() {}
-      CaloMET( SpecificCaloMETData calo_data_, double sumet_, 
+      CaloMET() ;
+      CaloMET( const SpecificCaloMETData& calo_data_, double sumet_, 
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, fP4, fVertex ), calo_data( calo_data_ ) {}
-      CaloMET( SpecificCaloMETData calo_data_, double sumet_, 
-	       std::vector<CorrMETData> corr_,
+      CaloMET( const SpecificCaloMETData& calo_data_, double sumet_, 
+	       const std::vector<CorrMETData>& corr_,
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, corr_, fP4, fVertex ), calo_data( calo_data_ ) {}
       /* Default destructor*/
@@ -60,7 +57,24 @@ namespace reco
       double emEtInEE() const {return calo_data.EmEtInEE;};
       /* Returns the event electromagnetic energy extracted from HF */
       double emEtInHF() const {return calo_data.EmEtInHF;};
-      
+      /* Returns the event MET Significance */
+      double metSignificance() const {return this->significance();};
+      /* Returns the event SET in HF+ */
+      double CaloSETInpHF() const {return calo_data.CaloSETInpHF;};
+      /* Returns the event SET in HF- */
+      double CaloSETInmHF() const {return calo_data.CaloSETInmHF;};
+      /* Returns the event MET in HF+ */
+      double CaloMETInpHF() const {return calo_data.CaloMETInpHF;};
+      /* Returns the event MET in HF- */
+      double CaloMETInmHF() const {return calo_data.CaloMETInmHF;};
+      /* Returns the event MET-phi in HF+ */
+      double CaloMETPhiInpHF() const {return calo_data.CaloMETPhiInpHF;};
+      /* Returns the event MET-phi in HF- */
+      double CaloMETPhiInmHF() const {return calo_data.CaloMETPhiInmHF;};
+
+      //Set Met Significance   
+      void SetMetSignificance(double metsig){ calo_data.METSignificance = metsig; }
+
       // block accessors
       SpecificCaloMETData getSpecific() const {return calo_data;}
       

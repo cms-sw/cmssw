@@ -3,8 +3,6 @@
  * Algo for reconstructing 4d segment in DT refitting the 2D phi SL hits and combining
  * the results with the theta view.
  *  
- * $Date: 2006/04/27 14:30:38 $
- * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -188,7 +186,7 @@ vector<DTChamberRecSegment2D> DTRefitAndCombineReco4D::refitSuperSegments(){
       DTChamberRecSegment2D superPhi(chId,recHitsSeg2DPhi1); 
       
       // refit it!
-      theUpdator->fit(&superPhi);
+      theUpdator->fit(&superPhi,0);
       
       // cut on the chi^2
       if (superPhi.chi2() > theMaxChi2forPhi)

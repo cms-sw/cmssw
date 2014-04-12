@@ -18,20 +18,14 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
@@ -44,8 +38,6 @@
 #include <TStyle.h>
 #include <TROOT.h>
 #include <TH2F.h>
-#include <TText.h>
-#include <TArrow.h>
 #include <TBox.h>
 
 #include <iostream>
@@ -79,7 +71,7 @@ private:
 //
 // constructors and destructor
 //
-dumpEcalTrigTowerMapping::dumpEcalTrigTowerMapping( const edm::ParameterSet& iConfig )
+dumpEcalTrigTowerMapping::dumpEcalTrigTowerMapping( const edm::ParameterSet& /*iConfig*/ )
 {
    //now do what ever initialization is needed
   pass_=0;
@@ -150,13 +142,21 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       
       h->GetXaxis()->CenterTitle(1);
       h->GetYaxis()->CenterTitle(1);  
-      std::vector<DetId> eeDetIds= cg.getValidDetIds(det,subdetn);
+      const std::vector<DetId>& eeDetIds= cg.getValidDetIds(det,subdetn);
+
+      std::cout<<"*** testing endcap trig tower mapping **"<<std::endl;
       for (unsigned int i=0;i<eeDetIds.size();i++)
 	{
 	  EEDetId myId(eeDetIds[i]);
+	  EcalTrigTowerDetId myTower=etmap.towerOf(eeDetIds[i]);      
+
+//	  std::cout<<"eedetid="<<EEDetId(eeDetIds[i])<<", myTower="<<myTower<<std::endl;
+
+	  assert( myTower == EcalTrigTowerDetId::detIdFromDenseIndex( myTower.denseIndex() ) ) ;
+
 	  if (myId.zside()==1)
 	    continue;
-	  EcalTrigTowerDetId myTower=etmap.towerOf(eeDetIds[i]);      
+
 	  TBox *box = new TBox(myId.ix()-0.5,myId.iy()-0.5,myId.ix()+0.5,myId.iy()+0.5);
 	  box->SetFillColor(towerColor(myTower));
 	  box->Draw();
@@ -203,11 +203,16 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       
       h->GetXaxis()->CenterTitle(1);
       h->GetYaxis()->CenterTitle(1);  
-      std::vector<DetId> ebDetIds= cg.getValidDetIds(det,subdetn);
+      const std::vector<DetId>& ebDetIds= cg.getValidDetIds(det,subdetn);
+
+      std::cout<<"*** testing barrel trig tower mapping **"<<std::endl;
       for (unsigned int i=0;i<ebDetIds.size();i++)
 	{
 	  EBDetId myId(ebDetIds[i]);
 	  EcalTrigTowerDetId myTower=etmap.towerOf(ebDetIds[i]);      
+
+	  assert( myTower == EcalTrigTowerDetId::detIdFromDenseIndex( myTower.denseIndex() ) ) ;
+
 	  TBox *box = new TBox(myId.ieta()-0.5,myId.iphi()-0.5,myId.ieta()+0.5,myId.iphi()+0.5);
 	  box->SetFillColor(towerColor(myTower));
 	  box->Draw();
@@ -219,9 +224,8 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
 }
 // ------------ method called to produce the data  ------------
 void
-dumpEcalTrigTowerMapping::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+dumpEcalTrigTowerMapping::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
    
    std::cout << "Here I am " << std::endl;
 
@@ -229,7 +233,7 @@ dumpEcalTrigTowerMapping::analyze( const edm::Event& iEvent, const edm::EventSet
    iSetup.get<IdealGeometryRecord>().get(eTTmap);     
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
 
    if (pass_==1) {
      build(*pG,*eTTmap,DetId::Ecal,EcalBarrel,"EBTTmapping.eps");
@@ -243,5 +247,5 @@ dumpEcalTrigTowerMapping::analyze( const edm::Event& iEvent, const edm::EventSet
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(dumpEcalTrigTowerMapping);
+
+DEFINE_FWK_MODULE(dumpEcalTrigTowerMapping);

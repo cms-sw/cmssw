@@ -3,37 +3,35 @@
 // Package:    RandomEngine
 // Class:      RandomEngineStateProducer
 // 
-/**\class RandomEngineStateProducer RandomEngineStateProducer.h IOMC/RandomEngine/src/RandomEngineStateProducer.h
+/** \class RandomEngineStateProducer
 
  Description: Gets the state of the random number engines from
 the related service and stores it in the event.
 
  Implementation:  This simply copies from the cache in the
-service, does a small amount of formatting, and puts the object
-in the event.  The cache is filled at the beginning of processing
-for each event by a call from the InputSource to the service.
+service and puts the product in the Event and LuminosityBlock.
+The cache is filled at the beginning of processing for eac
+event or lumi by a call from the InputSource to the service.
 This module gets called later.
+
+\author W. David Dagenhart, created October 4, 2006
+  (originally in FWCore/Services)
 */
-//
-// Original Author:  W. David Dagenhart
-//         Created:  Wed Oct  4 09:38:47 CDT 2006
-// $Id$
-//
-//
 
-#include <memory>
-
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
-class RandomEngineStateProducer : public edm::EDProducer {
+class RandomEngineStateProducer : public edm::one::EDProducer<edm::BeginLuminosityBlockProducer> {
   public:
-    explicit RandomEngineStateProducer(const edm::ParameterSet&);
+    explicit RandomEngineStateProducer(edm::ParameterSet const& pset);
     ~RandomEngineStateProducer();
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void beginJob(const edm::EventSetup&) ;
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& es) override;
+    virtual void produce(edm::Event& ev, edm::EventSetup const& es) override;
 };

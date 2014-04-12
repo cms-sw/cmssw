@@ -15,22 +15,23 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/EcalValidation/interface/PEcalValidInfo.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 class EcalEndcapSimHitsValidation: public edm::EDAnalyzer{
@@ -51,7 +52,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob();
 
 // EndJob
 void endJob(void);
@@ -64,6 +65,10 @@ private:
                                 int centralX, int centralY, int centralZ,
                                 MapType& themap); 
  
+ std::vector<uint32_t> getIdsAroundMax(int nCellInX, int nCellInY, 
+                                int centralX, int centralY, int centralZ,
+                                MapType& themap); 
+
  bool  fillEEMatrix(int nCellInX, int nCellInY,
                     int CentralX, int CentralY,int CentralZ,
                     MapType& fillmap, MapType&  themap);
@@ -75,9 +80,12 @@ private:
  std::string EEHitsCollection;
  std::string ValidationCollection;
  
+ edm::EDGetTokenT<edm::PCaloHitContainer> EEHitsToken;
+ edm::EDGetTokenT<PEcalValidInfo> ValidationCollectionToken;
+
  bool verbose_;
  
- DaqMonitorBEInterface* dbe_;
+ DQMStore* dbe_;
  
  std::string outputFile_;
 
@@ -95,8 +103,19 @@ private:
 
  MonitorElement* meEELongitudinalShower_;
 
- MonitorElement* meEEzpHitEnergy_;
- MonitorElement* meEEzmHitEnergy_;
+ MonitorElement* meEEHitEnergy_;
+
+ MonitorElement* meEEhitLog10Energy_;
+
+ MonitorElement* meEEhitLog10EnergyNorm_;
+
+ MonitorElement* meEEhitLog10Energy25Norm_;
+
+
+ MonitorElement* meEEHitEnergy2_;
+
+ MonitorElement* meEEcrystalEnergy_;
+ MonitorElement* meEEcrystalEnergy2_;
 
  MonitorElement* meEEe1_; 
  MonitorElement* meEEe4_; 
@@ -105,6 +124,7 @@ private:
  MonitorElement* meEEe25_; 
 
  MonitorElement* meEEe1oe4_;
+ MonitorElement* meEEe1oe9_;
  MonitorElement* meEEe4oe9_;
  MonitorElement* meEEe9oe16_;
  MonitorElement* meEEe1oe25_;

@@ -2,26 +2,22 @@
 #ifndef EcalSimAlgos_EcalCoder_h
 #define EcalSimAlgos_EcalCoder_h 1
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
 
-#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
-
-
+template<typename M> class CorrelatedNoisifier ;
 class EcalMGPASample;
-class EcalPedestals;
-class EBDataFrame;
-class EEDataFrame;
+class EcalDataFrame;
 class DetId;
+
 #include<vector>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 /* \class EEDigitizerTraits
  * \brief Converts CaloDataFrame in CaloTimeSample and vice versa.
@@ -29,75 +25,86 @@ class DetId;
  */
 class EcalCoder
 {
- public:
-  /// number of available bits
-  enum {NBITS = 12};
-  // 2^12 -1
-  /// adc max range
-  enum {MAXADC = 4095}; 
-  /// adc gain switch
-  enum {ADCGAINSWITCH = 4079};
-  /// number of electronic gains
-  enum {NGAINS = 3};
+   public:
 
-  /// ctor
-  EcalCoder(bool addNoise, CorrelatedNoisifier * theCorrNoise) ;
-  /// dtor
-  virtual ~EcalCoder() {}
+      typedef CaloTSamples<float,10> EcalSamples ;
+      
+      typedef CorrelatedNoisifier<EcalCorrMatrix> Noisifier ;
 
-  /// can be fetched every event from the EventSetup
-  void setPedestals(const EcalPedestals * pedestals);
+      enum { NBITS         =   12 , // number of available bits
+	     MAXADC        = 4095 , // 2^12 -1,  adc max range
+	     ADCGAINSWITCH = 4079 , // adc gain switch
+	     NGAINS        =    3   // number of electronic gains
+      };
 
-  void setGainRatios(const EcalGainRatios * gainRatios);
+      /// ctor
+      EcalCoder( bool        addNoise        , 
+		 Noisifier* ebCorrNoise0     ,
+		 Noisifier* eeCorrNoise0 = 0 ,
+		 Noisifier* ebCorrNoise1 = 0 ,
+		 Noisifier* eeCorrNoise1 = 0 ,
+		 Noisifier* ebCorrNoise2 = 0 ,
+		 Noisifier* eeCorrNoise2 = 0   ) ; // make EE version optional for tb compatibility
+      /// dtor
+      virtual ~EcalCoder() ;
 
-  void setFullScaleEnergy(const double EBscale , const double EEscale) {m_maxEneEB = EBscale; m_maxEneEE = EEscale; }
+      /// can be fetched every event from the EventSetup
+      void setPedestals( const EcalPedestals* pedestals ) ;
 
+      void setGainRatios( const EcalGainRatios* gainRatios ) ;
+
+      void setFullScaleEnergy( double EBscale ,
+			       double EEscale   ) ;
+
+      void setIntercalibConstants( const EcalIntercalibConstantsMC* ical ) ; 
  
-  /// from EBDataFrame to CaloSamples
-  virtual void digitalToAnalog(const EBDataFrame& df, CaloSamples& lf) const;
-  /// from EEDataFrame to CaloSamples
-  virtual void digitalToAnalog(const EEDataFrame& df, CaloSamples& lf) const;
-  /// from CaloSamples to EcalDataFrame
-  virtual void analogToDigital(const CaloSamples& clf, EcalDataFrame& df) const;
+
+      /// from EcalSamples to EcalDataFrame
+      virtual void analogToDigital( CLHEP::HepRandomEngine*,
+                                    const EcalSamples& clf ,
+				    EcalDataFrame&     df    ) const;
  
-  ///  anything that needs to be done once per event
-  void newEvent() {}
+   private:
 
- private:
+      /// limit on the energy scale due to the electronics range
+      double fullScaleEnergy( const DetId & did ) const ;
 
-  /// limit on the energy scale due to the electronics range
-  double fullScaleEnergy (const DetId & ) const ;
+      /// produce the pulse-shape
+      void encode( const EcalSamples& ecalSamples , 
+		   EcalDataFrame&     df,
+                   CLHEP::HepRandomEngine* ) const ;
 
-  /// produce the pulse-shape
-  void encode(const CaloSamples& caloSamples, EcalDataFrame& df) const;
+//      double decode( const EcalMGPASample& sample , 
+//		     const DetId&          detId    ) const ;
 
-  double decode(const EcalMGPASample & sample, const DetId & detId) const;
+      /// not yet implemented
+      //      void noisify( const EcalIntercalibConstantsMC* values ,
+      //		    int                              size     ) const ;
 
-  /// not yet implemented
-  void noisify(float * values, int size) const;
-
-  /// look for the right pedestal according to the electronics gain
-  void findPedestal(const DetId & detId, int gainId, 
-		    double & pedestal, double & width) const;
+      void findPedestal( const DetId& detId    , 
+			 int          gainId   , 
+			 double&      pedestal ,
+			 double&      width      ) const ;
     
-  double theGains[NGAINS+1];
-   
-  void findGains(const DetId & detId, double theGains[] ) const;
-   
-  /// the pedestals
-  const EcalPedestals * thePedestals;
-  /// the electronics gains
-  const EcalGainRatios * theGainRatios;
-  /// max attainable energy in the ecal barrel
-  double m_maxEneEB ;
-  /// max attainable energy in the ecal endcap
-  double m_maxEneEE ;
-  /// whether add noise to the pedestals and the gains
-  bool addNoise_;
-  /// Correlated noisifier
-  CorrelatedNoisifier * theCorrNoise_;
+      void findGains( const DetId& detId, 
+		      double       theGains[] ) const ;
 
+      void findIntercalibConstant( const DetId& detId ,
+				   double&      icalconst ) const ;
+   
+      const EcalPedestals* m_peds ;
+      
+      const EcalGainRatios* m_gainRatios ; // the electronics gains
+
+      const EcalIntercalibConstantsMC* m_intercals ; //record specific for simulation of gain variation in MC
+
+      double m_maxEneEB ; // max attainable energy in the ecal barrel
+      double m_maxEneEE ; // max attainable energy in the ecal endcap
+      
+      bool m_addNoise ;   // whether add noise to the pedestals and the gains
+
+      const Noisifier* m_ebCorrNoise[3] ;
+      const Noisifier* m_eeCorrNoise[3] ;
 };
-
 
 #endif

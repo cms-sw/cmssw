@@ -8,7 +8,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 15:56:47 EDT 2006
-// $Id: L1EmParticle.cc,v 1.3 2006/08/10 18:47:42 wsun Exp $
 //
 
 // system include files
@@ -34,10 +33,24 @@ L1EmParticle::L1EmParticle()
 }
 
 L1EmParticle::L1EmParticle( const LorentzVector& p4,
-			    const edm::Ref< L1GctEmCandCollection >& aRef )
-//   : ParticleKinematics( p4 ),
+			    const edm::Ref< L1GctEmCandCollection >& aRef,
+			    int bx )
    : LeafCandidate( ( char ) 0, p4 ),
-     ref_( aRef )
+     ref_( aRef ),
+     bx_( bx )
+{
+   if( ref_.isNonnull() )
+   {
+      type_ = gctEmCand()->isolated() ? kIsolated : kNonIsolated ;
+   }
+}
+
+L1EmParticle::L1EmParticle( const PolarLorentzVector& p4,
+			    const edm::Ref< L1GctEmCandCollection >& aRef,
+			    int bx )
+   : LeafCandidate( ( char ) 0, p4 ),
+     ref_( aRef ),
+     bx_( bx )
 {
    if( ref_.isNonnull() )
    {
@@ -46,11 +59,22 @@ L1EmParticle::L1EmParticle( const LorentzVector& p4,
 }
 
 L1EmParticle::L1EmParticle( const LorentzVector& p4,
-			    EmType type )
+			    EmType type,
+			    int bx )
    : LeafCandidate( ( char ) 0, p4 ),
      type_( type ),
-     ref_( edm::Ref< L1GctEmCandCollection >() )
-     
+     ref_( edm::Ref< L1GctEmCandCollection >() ),
+     bx_( bx )
+{
+}
+
+L1EmParticle::L1EmParticle( const PolarLorentzVector& p4,
+			    EmType type,
+			    int bx )
+   : LeafCandidate( ( char ) 0, p4 ),
+     type_( type ),
+     ref_( edm::Ref< L1GctEmCandCollection >() ),
+     bx_( bx )
 {
 }
 
@@ -59,9 +83,9 @@ L1EmParticle::L1EmParticle( const LorentzVector& p4,
 //    // do actual copying here;
 // }
 
-L1EmParticle::~L1EmParticle()
-{
-}
+// L1EmParticle::~L1EmParticle()
+// {
+// }
 
 //
 // assignment operators

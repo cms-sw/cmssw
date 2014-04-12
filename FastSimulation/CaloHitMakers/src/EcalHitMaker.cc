@@ -1,12 +1,13 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-//#include "DataFormats/EcalDetId/interface/EBDetId.h"
-//#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-//#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
-//#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+//#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+//#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 //#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CaloGeometryTools/interface/CrystalWindowMap.h"
@@ -16,7 +17,7 @@
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
 //#include "Math/GenVector/Transform3D.h"
@@ -27,13 +28,13 @@
 
 typedef ROOT::Math::Plane3D::Vector Vector;
 typedef ROOT::Math::Plane3D::Point Point;
-typedef ROOT::Math::Transform3DPJ Transform3D;
+typedef ROOT::Math::Transform3DPJ Transform3DR;
 
 EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
 			   const XYZPoint& ecalentrance, 
 			   const DetId& cell, int onEcal,
 			   unsigned size, unsigned showertype,
-			   const RandomEngine* engine):
+			   const RandomEngineAndDistribution* engine):
   CaloHitMaker(theCalo,DetId::Ecal,((onEcal==1)?EcalBarrel:EcalEndcap),onEcal,showertype),
   EcalEntrance_(ecalentrance),
   onEcal_(onEcal),
@@ -44,20 +45,24 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   myHistos = Histos::instance();
 #endif
   //  myHistos->debug("Constructeur EcalHitMaker");
+  simulatePreshower_ = true;
   X0depthoffset_ = 0. ;
   X0PS1_ = 0.;
   X0PS2_ = 0.; 
+  X0PS2EE_ = 0.;
   X0ECAL_ = 0.;
   X0EHGAP_ = 0.;
   X0HCAL_ = 0.;
   L0PS1_ = 0.;
   L0PS2_ = 0.;
+  L0PS2EE_ = 0.;
   L0ECAL_ = 0.;
   L0EHGAP_ = 0.;
   L0HCAL_ = 0.;
   maxX0_ = 0.;
   totalX0_ = 0;
   totalL0_ = 0.;
+  pulledPadProbability_ = 1.;
   outsideWindowEnergy_ = 0.;
   rearleakage_ = 0.;
   bfactor_ = 1.; 
@@ -134,7 +139,7 @@ EcalHitMaker::addHitDepth(double r,double phi,double depth)
   depth+=X0depthoffset_;
   double sp(1.);
   r*=radiusFactor_;
-  Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
+  CLHEP::Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
 
   unsigned xtal=fastInsideCell(point,sp);  
   //  if(cellid.isZero()) std::cout << " cell is Zero " << std::endl;
@@ -194,7 +199,7 @@ EcalHitMaker::addHit(double r,double phi,unsigned layer)
   double sp(1.);
   //  std::cout << " Trying to add " << r << " " << phi << " " << radiusFactor_ << std::endl; 
   r*=radiusFactor_;
-  Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
+  CLHEP::Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
   //  std::cout << "point " << point << std::endl;
   //  CellID cellid=insideCell(point,sp);
   unsigned xtal=fastInsideCell(point,sp);  
@@ -236,7 +241,7 @@ EcalHitMaker::addHit(double r,double phi,unsigned layer)
 
 
 unsigned 
-EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool debug) 
+EcalHitMaker::fastInsideCell(const CLHEP::Hep2Vector & point,double & sp,bool debug) 
 {
 
   //  debug = true;
@@ -408,7 +413,7 @@ EcalHitMaker::cellLine(std::vector<CaloPoint>& cp)
   cp.clear();
   //  if(myTrack->onVFcal()!=2)
   //    {
-  if(!central_&&onEcal_) preshowerCellLine(cp);
+  if(!central_&&onEcal_&&simulatePreshower_) preshowerCellLine(cp);
   if(onEcal_)ecalCellLine(EcalEntrance_,EcalEntrance_+normal_,cp);
   //    }
   
@@ -731,6 +736,19 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 	      sL0+=preshsegment.L0length();
 	      X0PS2_+=preshsegment.X0length();
 	      L0PS2_+=preshsegment.L0length();
+
+	      // material between preshower and EE
+	      if(is<(nsegments-1) && cp[2*is+2].whichDetector()==DetId::Ecal && cp[2*is+2].whichSubDetector()==EcalEndcap)
+				{
+		  CaloSegment gapsef(cp[2*is+1],cp[2*is+2],s,sX0,sL0,CaloSegment::PSEEGAP,myCalorimeter);
+		  segments_.push_back(gapsef);
+		  s+=gapsef.length();     
+		  sX0+=gapsef.X0length();                                                                                          
+		  sL0+=gapsef.L0length();                                                                                          
+		  X0PS2EE_+=gapsef.X0length();                        
+  		  L0PS2EE_+=gapsef.L0length();      
+		  //		  std::cout << " Created  a segment " << gapsef.length()<< " " << gapsef.X0length()<< std::endl;
+		}	      
 	    }
 	  else
 	    {
@@ -740,7 +758,6 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 	  ++is;
 	  continue;
 	}
-
       // Now deal with the ECAL
       // One segment in each crystal. Segment corresponding to cracks/gaps are added
       //      myHistos->debug("Just avant ECAL"); 
@@ -772,7 +789,7 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 		  ++is;
 		}
 	      // Now check if a gap or crack should be added
-	      if(is<nsegments)
+	      if(is>0 && is<nsegments)
 		{		  
 		  DetId cell3=cp[2*is].getDetId();
 		  if(cp[2*is].whichDetector()!=DetId::Hcal) 
@@ -831,8 +848,8 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 //  std::cout << " ECAL " << X0ECAL_ << " " << L0ECAL_ << std::endl;
 //  std::cout << " HCAL " << X0HCAL_ << " " << L0HCAL_ << std::endl;
   
-  totalX0_ = X0PS1_+X0PS2_+X0ECAL_+X0EHGAP_+X0HCAL_;
-  totalL0_ = L0PS1_+L0PS2_+L0ECAL_+L0EHGAP_+L0HCAL_;
+  totalX0_ = X0PS1_+X0PS2_+X0PS2EE_+X0ECAL_+X0EHGAP_+X0HCAL_;
+  totalL0_ = L0PS1_+L0PS2_+L0PS2EE_+L0ECAL_+L0EHGAP_+L0HCAL_;
   //  myHistos->debug("Just avant le fill"); 
 
   #ifdef DEBUGCELLLINE
@@ -895,9 +912,9 @@ EcalHitMaker::buildGeometry()
 
 
 
-// depth is in X0 
+// depth is in X0 , L0 (depending on EMSHOWER/HADSHOWER) or in CM if inCM
 bool 
-EcalHitMaker::getPads(double depth) 
+EcalHitMaker::getPads(double depth,bool inCm) 
 {
   //std::cout << " New depth " << depth << std::endl;
   // The first time, the relationship between crystals must be calculated
@@ -908,7 +925,10 @@ EcalHitMaker::getPads(double depth)
 
   radiusFactor_ = (EMSHOWER) ? moliereRadius*radiusCorrectionFactor_:interactionLength;
   detailedShowerTail_ = false;
-  currentdepth_ = depth+X0depthoffset_;
+  if(EMSHOWER)
+    currentdepth_ = depth+X0depthoffset_;
+  else
+    currentdepth_ = depth;
   
 //  if(currentdepth_>maxX0_+ps1TotalX0()+ps2TotalX0()) 
 //    {
@@ -927,19 +947,32 @@ EcalHitMaker::getPads(double depth)
   // Get the depth of the pivot
   std::vector<CaloSegment>::const_iterator segiterator;
   // First identify the correct segment
-  // EM shower 
-  if(EMSHOWER)
-    segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inX0Segment(currentdepth_));
-  
-  //Hadron shower 
-  if(HADSHOWER)
-    segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inL0Segment(currentdepth_));
-  
+
+  if(inCm) // centimeter
+    {
+      segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inSegment(currentdepth_));
+    }
+  else
+    {
+      // EM shower 
+      if(EMSHOWER)
+	segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inX0Segment(currentdepth_));
+      
+      //Hadron shower 
+      if(HADSHOWER)
+	segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inL0Segment(currentdepth_));
+    }
   if(segiterator==segments_.end()) 
     {
       std::cout << " FamosGrid: Could not go at such depth " << depth << std::endl;
       std::cout << " EMSHOWER " << EMSHOWER << std::endl;
       std::cout << " Track " << *myTrack_ << std::endl;
+      std::cout << " Segments " << segments_.size() << std::endl;
+      for(unsigned ii=0; ii<segments_.size() ; ++ii)
+	{
+	  std::cout << segments_[ii] << std::endl;
+	}
+      
       return false;
     }
   //  std::cout << *segiterator << std::endl;
@@ -955,11 +988,17 @@ EcalHitMaker::getPads(double depth)
   // get the position of the origin
   
   XYZPoint origin;
-  if(EMSHOWER)
-    origin=segiterator->positionAtDepthinX0(currentdepth_);
-  if(HADSHOWER)
-    origin=segiterator->positionAtDepthinL0(currentdepth_);
-
+  if(inCm)
+    {
+      origin=segiterator->positionAtDepthincm(currentdepth_);
+    }
+  else
+    {
+      if(EMSHOWER)
+	origin=segiterator->positionAtDepthinX0(currentdepth_);
+      if(HADSHOWER)
+	origin=segiterator->positionAtDepthinL0(currentdepth_);
+    }
   //  std::cout << " currentdepth_ " << currentdepth_ << " " << origin << std::endl;
   XYZVector newaxis=pivot_.getFirstEdge().Cross(normal_);
 
@@ -971,7 +1010,7 @@ EcalHitMaker::getPads(double depth)
 
   unsigned nquads=0;
   double sign=(central_) ? -1.: 1.;
-  Transform3D trans((Point)origin,(Point)(origin+normal_),(Point)(origin+newaxis),
+  Transform3DR trans((Point)origin,(Point)(origin+normal_),(Point)(origin+newaxis),
 		     Point(0,0,0), Point(0.,0.,sign),      Point(0.,1.,0.));
   for(unsigned ic=0;ic<ncrystals_;++ic)
     {
@@ -1016,7 +1055,7 @@ EcalHitMaker::getPads(double depth)
       // If the quad is completly defined. Store it ! 
       if(corners.size()==4)
 	{
-	  padsatdepth_[ic]=CrystalPad(ic,corners,trans,bfactor_);
+	  padsatdepth_[ic]=CrystalPad(ic,corners,trans,bfactor_,!central_);
 	  // Parameter to be tuned
 	  if(hasbeenpulled) padsatdepth_[ic].setSurvivalProbability(pulledPadProbability_);
 	  validPads_[ic]=true;
@@ -1135,8 +1174,7 @@ EcalHitMaker::configureGeometry()
   double theta=EcalEntrance_.theta();
   if(theta>M_PI_2) theta=M_PI-theta;
   bfactor_=1./(1.+0.133*theta);
-  // the effect of the magnetic field in the EC is currently ignored 
-  if(myCalorimeter->magneticField()==0. || !central_) bfactor_=1.;
+  if(myCalorimeter->magneticField()==0. ) bfactor_=1.;
 }
 
 // project fPoint on the plane (original,normal)
@@ -1176,12 +1214,23 @@ void EcalHitMaker::convertIntegerCoordinates(double x, double y,unsigned &ix,uns
   if(tiy>=0) iy=(unsigned)tiy;
 }
 
-const std::map<uint32_t,float>& EcalHitMaker::getHits() 
+const std::map<CaloHitID,float>& EcalHitMaker::getHits() 
 {
   if (hitmaphasbeencalculated_) return hitMap_;
   for(unsigned ic=0;ic<ncrystals_;++ic)
     {
-      hitMap_.insert(std::pair<uint32_t,double>(regionOfInterest_[ic].getDetId().rawId(),hits_[ic]));
+	  //calculate time of flight
+	  float tof = 0.0;
+	  if(onEcal_==1 || onEcal_==2) tof = (myCalorimeter->getEcalGeometry(onEcal_)->getGeometry(regionOfInterest_[ic].getDetId())->getPosition().mag())/29.98; //speed of light
+	
+	  if(onEcal_==1){
+	    CaloHitID current_id(EBDetId(regionOfInterest_[ic].getDetId().rawId()).hashedIndex(),tof,0); //no track yet
+        hitMap_.insert(std::pair<CaloHitID,float>(current_id,hits_[ic]));
+	  }
+	  else if(onEcal_==2){
+	    CaloHitID current_id(EEDetId(regionOfInterest_[ic].getDetId().rawId()).hashedIndex(),tof,0); //no track yet
+        hitMap_.insert(std::pair<CaloHitID,float>(current_id,hits_[ic]));
+	  }
     }
   hitmaphasbeencalculated_=true;
   return hitMap_;
@@ -1252,7 +1301,7 @@ EcalHitMaker::reorganizePads()
 }
 
 //dir 2 = N,E,W,S
-Hep2Vector & 
+CLHEP::Hep2Vector & 
 EcalHitMaker::correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) 
 {
   CaloDirection dir=CaloDirectionOperations::oppositeSide(myneighbour.first);
@@ -1261,7 +1310,7 @@ EcalHitMaker::correspondingEdge(neighbour& myneighbour,CaloDirection dir2 )
   return padsatdepth_[myneighbour.second].edge(corner);  
 }
 
-bool EcalHitMaker::diagonalEdge(unsigned myPad, CaloDirection dir,Hep2Vector & point)
+bool EcalHitMaker::diagonalEdge(unsigned myPad, CaloDirection dir,CLHEP::Hep2Vector & point)
 {
   unsigned idir=CaloDirectionOperations::neighbourDirection(dir);
   if(regionOfInterest_[myPad].crystalNeighbour(idir).status()<0)
@@ -1350,7 +1399,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	  }
 	CaloDirection corner0=CaloDirectionOperations::add2d(gaps[0].first,gaps[1].first);
 
-	Hep2Vector point(0.,0.);
+	CLHEP::Hep2Vector point(0.,0.);
 	if(corner0!=NONE&&diagonalEdge(iq,corner0,point))
 	  {
 	    CaloDirection corner1=CaloDirectionOperations::add2d(CaloDirectionOperations::oppositeSide(gaps[0].first),gaps[1].first);
@@ -1399,7 +1448,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	  // in this case the four corners have to be changed 
 	  unsigned iubd,idir1,idir2;
 	  CaloDirection diag;
-	  Hep2Vector point(0.,0.);
+	  CLHEP::Hep2Vector point(0.,0.);
 	  //	  std::cout << " Yes : 3 gaps" << std::endl;
 	  if(unbalancedDirection(gaps,iubd,idir1,idir2))		
 	    {
@@ -1426,7 +1475,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	    //	    std::cout << " Waouh :4 gaps" << std::endl;
 	    //	    std::cout << " Avant " << std::endl;
 	    //	    std::cout << myPad<< std::endl;
-	    Hep2Vector point(0.,0.);
+	    CLHEP::Hep2Vector point(0.,0.);
 	    if(diagonalEdge(iq,NORTHEAST,point)) 
 	      myPad.edge(NORTHEAST)=point;
 	    if(diagonalEdge(iq,NORTHWEST,point)) 
@@ -1448,7 +1497,7 @@ EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
   CrystalPad & myPad = padsatdepth_[iq];
   for(unsigned ic=0;ic<ncracks;++ic)
     {
-      //      std::vector<Hep2Vector> mycorners;
+      //      std::vector<CLHEP::Hep2Vector> mycorners;
       //      mycorners.reserve(4);
       switch(cracks[ic].first)
 	{

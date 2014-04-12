@@ -4,37 +4,40 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 GsfVertexSmoother::GsfVertexSmoother(bool limit, const GsfVertexMerger * merger) :
-  limitComponents (limit), theMerger(merger->clone())
-{}
+  limitComponents (limit)
+{
+  if (limitComponents) theMerger = merger->clone();
+}
 
-CachingVertex
-GsfVertexSmoother::smooth(const CachingVertex & vertex) const
+CachingVertex<5>
+GsfVertexSmoother::smooth(const CachingVertex<5> & vertex) const
 {
 
-  vector<RefCountedVertexTrack> tracks = vertex.tracks();
+  std::vector<RefCountedVertexTrack> tracks = vertex.tracks();
   int numberOfTracks = tracks.size();
+  if (numberOfTracks<1) return vertex;
 
   // Initial vertex for ascending fit
   GlobalPoint priorVertexPosition = tracks[0]->linearizedTrack()->linearizationPoint();
-  AlgebraicSymMatrix we(3,1);
+  AlgebraicSymMatrix33 we = ROOT::Math::SMatrixIdentity();
   GlobalError priorVertexError(we*10000);
 
-  vector<RefCountedVertexTrack> initialTracks;
-  CachingVertex fitVertex(priorVertexPosition,priorVertexError,initialTracks,0);
+  std::vector<RefCountedVertexTrack> initialTracks;
+  CachingVertex<5> fitVertex(priorVertexPosition,priorVertexError,initialTracks,0);
   //In case prior vertex was used.
   if (vertex.hasPrior()) {
     VertexState priorVertexState = vertex.priorVertexState();
-    fitVertex = CachingVertex(priorVertexState, priorVertexState,
+    fitVertex = CachingVertex<5>(priorVertexState, priorVertexState,
     		initialTracks,0);
   }
 
   // vertices from ascending fit
-  vector<CachingVertex> ascendingFittedVertices;
+  std::vector<CachingVertex<5> > ascendingFittedVertices;
   ascendingFittedVertices.reserve(numberOfTracks);
   ascendingFittedVertices.push_back(fitVertex);
 
   // ascending fit
-  for (vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
+  for (std::vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
 	  i != (tracks.end()-1); ++i) {
     fitVertex = theUpdator.add(fitVertex,*i);
     if (limitComponents) fitVertex = theMerger->merge(fitVertex);
@@ -44,26 +47,26 @@ GsfVertexSmoother::smooth(const CachingVertex & vertex) const
   // Initial vertex for descending fit
   priorVertexPosition = tracks[0]->linearizedTrack()->linearizationPoint();
   priorVertexError = GlobalError(we*10000);
-  fitVertex = CachingVertex(priorVertexPosition,priorVertexError,initialTracks,0);
+  fitVertex = CachingVertex<5>(priorVertexPosition,priorVertexError,initialTracks,0);
 
   // vertices from descending fit
-  vector<CachingVertex> descendingFittedVertices;
+  std::vector<CachingVertex<5> > descendingFittedVertices;
   descendingFittedVertices.reserve(numberOfTracks);
   descendingFittedVertices.push_back(fitVertex);
 
   // descending fit
-  for (vector<RefCountedVertexTrack>::const_iterator i = (tracks.end()-1);
+  for (std::vector<RefCountedVertexTrack>::const_iterator i = (tracks.end()-1);
 	  i != (tracks.begin()); --i) {
     fitVertex = theUpdator.add(fitVertex,*i);
     if (limitComponents) fitVertex = theMerger->merge(fitVertex);
     descendingFittedVertices.insert(descendingFittedVertices.begin(), fitVertex);
   }
 
-  vector<RefCountedVertexTrack> newTracks;
+  std::vector<RefCountedVertexTrack> newTracks;
   double smoothedChi2 = 0.;  // Smoothed chi2
 
   // Track refit
-  for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
+  for(std::vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
   	i != tracks.end();i++)
   {
     int indexNumber = i-tracks.begin();
@@ -77,15 +80,15 @@ GsfVertexSmoother::smooth(const CachingVertex & vertex) const
     smoothedChi2 += thePair.second.second;
     newTracks.push_back( theVTFactory.vertexTrack((**i).linearizedTrack(),
   	vertex.vertexState(), thePair.first, thePair.second.second,
-	AlgebraicMatrix(), (**i).weight()) );
+	AlgebraicSymMatrixOO(), (**i).weight()) );
   }
 
   if  (vertex.hasPrior()) {
     smoothedChi2 += priorVertexChi2(vertex.priorVertexState(), vertex.vertexState());
-    return CachingVertex(vertex.priorVertexState(), vertex.vertexState(),
+    return CachingVertex<5>(vertex.priorVertexState(), vertex.vertexState(),
     		newTracks, smoothedChi2);
   } else {
-    return CachingVertex(vertex.vertexState(), newTracks, smoothedChi2);
+    return CachingVertex<5>(vertex.vertexState(), newTracks, smoothedChi2);
   }
 }
 
@@ -108,7 +111,7 @@ GsfVertexSmoother::vertexAndTrackUpdate(const VertexState & oldVertex,
   }
   float trackWeight = track->weight();
 
-  vector<RefittedTrackComponent> newTrackComponents;
+  std::vector<RefittedTrackComponent> newTrackComponents;
   newTrackComponents.reserve(prevVtxComponents.size()*ltComponents.size());
 
   for (VSC::iterator vertexCompIter = prevVtxComponents.begin();
@@ -130,7 +133,7 @@ GsfVertexSmoother::vertexAndTrackUpdate(const VertexState & oldVertex,
  */
 
 GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::assembleTrackComponents(
-	const vector<GsfVertexSmoother::RefittedTrackComponent> & trackComponents,
+	const std::vector<GsfVertexSmoother::RefittedTrackComponent> & trackComponents,
 	const GlobalPoint & referencePosition)
 	const
 {
@@ -140,7 +143,7 @@ GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::assembleTrackComponents(
   double totalWeight = 0.;
   double totalVtxChi2 = 0., totalTrkChi2 = 0.;
 
-  for (vector<RefittedTrackComponent>::const_iterator iter = trackComponents.begin();
+  for (std::vector<RefittedTrackComponent>::const_iterator iter = trackComponents.begin();
     iter != trackComponents.end(); ++iter ) {
     totalWeight += iter->first.second;
     totalVtxChi2 += iter->second.first  * iter->first.second ;
@@ -150,11 +153,11 @@ GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::assembleTrackComponents(
   totalVtxChi2 /= totalWeight ;
   totalTrkChi2 /= totalWeight ;
 
-  vector<RefCountedRefittedTrackState> reWeightedRTSC;
+  std::vector<RefCountedRefittedTrackState> reWeightedRTSC;
   reWeightedRTSC.reserve(trackComponents.size());
   
 
-  for (vector<RefittedTrackComponent>::const_iterator iter = trackComponents.begin();
+  for (std::vector<RefittedTrackComponent>::const_iterator iter = trackComponents.begin();
     iter != trackComponents.end(); ++iter ) {
     if (iter->second.first!=0) {
       reWeightedRTSC.push_back(iter->first.first->stateWithNewWeight(iter->second.first/totalWeight));
@@ -186,15 +189,15 @@ GsfVertexSmoother::createNewComponent(const VertexState & oldVertex,
   VertexState newVertex = kalmanVertexUpdator.positionUpdate(oldVertex,
 	linTrack, trackWeight, sign);
 
-  pair<RefCountedRefittedTrackState, AlgebraicMatrix> thePair = 
-  	theVertexTrackUpdator.trackRefit(newVertex, linTrack);
+  KalmanVertexTrackUpdator<5>::trackMatrixPair thePair = 
+  	theVertexTrackUpdator.trackRefit(newVertex, linTrack, trackWeight);
 
   //Chi**2 contribution of the track component
   double vtxChi2 = helper.vertexChi2(oldVertex, newVertex);
-  double trkCi2 = helper.trackParameterChi2(linTrack, thePair.first);
+  std::pair<bool, double> trkCi2 = helper.trackParameterChi2(linTrack, thePair.first);
 
   return RefittedTrackComponent(TrackWeightPair(thePair.first, weightInMixture), 
-  			VtxTrkChi2Pair(vtxChi2, trkCi2));
+  			VtxTrkChi2Pair(vtxChi2, trkCi2.second));
 }
 
 
@@ -202,17 +205,17 @@ VertexState
 GsfVertexSmoother::meanVertex(const VertexState & vertexA,
 			      const VertexState & vertexB) const
 {
-  vector<VertexState> vsCompA = vertexA.components();
-  vector<VertexState> vsCompB = vertexB.components();
-  vector<VertexState> finalVS;
+  std::vector<VertexState> vsCompA = vertexA.components();
+  std::vector<VertexState> vsCompB = vertexB.components();
+  std::vector<VertexState> finalVS;
   finalVS.reserve(vsCompA.size()*vsCompB.size());
-  for (vector<VertexState>::iterator iA = vsCompA.begin(); iA!= vsCompA.end(); ++iA)
+  for (std::vector<VertexState>::iterator iA = vsCompA.begin(); iA!= vsCompA.end(); ++iA)
   {
-    for (vector<VertexState>::iterator iB = vsCompB.begin(); iB!= vsCompB.end(); ++iB)
+    for (std::vector<VertexState>::iterator iB = vsCompB.begin(); iB!= vsCompB.end(); ++iB)
     {
-      AlgebraicSymMatrix newWeight = iA->weight().matrix() +
-				     iB->weight().matrix();
-      AlgebraicVector newWtP = iA->weightTimesPosition() +
+      AlgebraicSymMatrix33 newWeight = iA->weight().matrix_new() +
+				     iB->weight().matrix_new();
+      AlgebraicVector3 newWtP = iA->weightTimesPosition() +
       			       iB->weightTimesPosition();
       double newWeightInMixture = iA->weightInMixture() *
 				  iB->weightInMixture();
@@ -231,13 +234,13 @@ GsfVertexSmoother::meanVertex(const VertexState & vertexA,
 double GsfVertexSmoother::priorVertexChi2(
 	const VertexState priorVertex, const VertexState fittedVertex) const
 {
-  vector<VertexState> priorVertexComp  = priorVertex.components();
-  vector<VertexState> fittedVertexComp = fittedVertex.components();
+  std::vector<VertexState> priorVertexComp  = priorVertex.components();
+  std::vector<VertexState> fittedVertexComp = fittedVertex.components();
   double vetexChi2 = 0.;
-  for (vector<VertexState>::iterator pvI = priorVertexComp.begin(); 
+  for (std::vector<VertexState>::iterator pvI = priorVertexComp.begin(); 
   	pvI!= priorVertexComp.end(); ++pvI)
   {
-    for (vector<VertexState>::iterator fvI = fittedVertexComp.begin(); 
+    for (std::vector<VertexState>::iterator fvI = fittedVertexComp.begin(); 
     	fvI!= fittedVertexComp.end(); ++fvI)
     {
       vetexChi2 += (pvI->weightInMixture())*(fvI->weightInMixture())*

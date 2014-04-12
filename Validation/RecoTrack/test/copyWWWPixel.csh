@@ -1,5 +1,10 @@
 #! /bin/csh
-setenv RELEASE $CMSSW_VERSION
+if ($#argv < 1) then
+    setenv RELEASE $CMSSW_VERSION
+else
+    setenv RELEASE $1
+endif
+#setenv RELEASE $CMSSW_VERSION
 
 if ( ! -d /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/ ) mkdir /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/
 
@@ -14,7 +19,8 @@ setenv WWWDIR $WWWDIRObj/Pixel
 mkdir $WWWDIR/eps
 mkdir $WWWDIR/gif
 
-mv *.eps $WWWDIR/eps
-mv *.gif $WWWDIR/gif
-
+mv me*.eps.gz $WWWDIR/eps
+mv summary*.eps.gz $WWWDIR/eps
+mv me*.gif $WWWDIR/gif
+mv summary*.gif $WWWDIR/gif
 

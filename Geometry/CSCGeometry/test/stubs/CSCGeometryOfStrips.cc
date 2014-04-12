@@ -1,20 +1,12 @@
-// LAST UPDATED 01.05.2007 ptc
-
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
-#include <DataFormats/GeometryVector/interface/Pi.h>
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 
 #include <string>
 #include <cmath>
@@ -85,13 +77,13 @@ void
         DetId detId = layer->geographicalId();
         int id = detId(); // or detId.rawId()
 
- 	std::cout << "\n" << "Parameters of layer# " << icount <<
+ 	std::cout << "\n" << "Testing CSC layer# " << icount <<
 	     " id= " << id << " = " << std::oct << id << std::dec << " (octal) " << 
              "   E" << CSCDetId::endcap(id) << 
              " S" << CSCDetId::station(id) << 
              " R" << CSCDetId::ring(id) << 
              " C" << CSCDetId::chamber(id) << 
- 	     " L" << CSCDetId::layer(id) << " are:" << std::endl;
+ 	     " L" << CSCDetId::layer(id) << std::endl;
 
         const CSCLayerGeometry* geom = layer->geometry();
 	//        std::cout << *geom;
@@ -120,13 +112,15 @@ void
 	float stripLP = topol->strip(lps);
 
 	std::cout << "Strip check: strip in=" << strip << ", strip out=" << stripLP << std::endl;
-	if( strip != stripLP ) {
-	  std::cout << "...strip mismatch!" << std::endl;
-	}
+	std::cout << "mp.x in=" << mp.x() << ",  mp.x out=" << mp2.x() << std::endl;
+	std::cout << "mp.y in=" << mp.y() << ",  mp.y out=" << mp2.y() << std::endl;
 
 	const float kEps = 1.E-04;
-	  std::cout << "mp.x in=" << mp.x() << ",  mp.x out=" << mp2.x() << std::endl;
-	  std::cout << "mp.y in=" << mp.y() << ",  mp.y out=" << mp2.y() << std::endl;
+
+	if( fabs( strip - stripLP ) > kEps ){
+	  std::cout << "...strip mismatch! " << std::endl;
+	}
+
 	if( fabs(mp.x()-mp2.x())>kEps || fabs(mp.y()-mp2.y())>kEps ){
 	  std::cout << "...measurement point mismatch!" << std::endl;
 	}
@@ -145,6 +139,7 @@ void
     }
    }
    std::cout << dashedLine_ << " end" << std::endl;
+   std::cout << " UPDATED 28.10.2012" << std::endl;
 }
 
 //define this as a plug-in

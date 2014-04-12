@@ -1,6 +1,3 @@
-// Last commit: $Id: $
-// Latest tag:  $Name:  $
-// Location:    $Source: $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_NoiseBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,7 +13,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-void test_NoiseBuilder::beginJob( const edm::EventSetup& setup ) {
+void test_NoiseBuilder::analyze(const edm::Event& event, const edm::EventSetup& setup ) {
   
   LogTrace(mlCabling_) 
     << "[test_NoiseBuilder::" << __func__ << "]"
@@ -53,7 +50,7 @@ void test_NoiseBuilder::beginJob( const edm::EventSetup& setup ) {
     // Extract noise and low/high thresholds
     for ( uint16_t istrip = 0; istrip < nstrips; istrip++ ) {
       ss << noise->getNoise( istrip, range ) << "/"
-	 << noise->getDisable( istrip, range ) << ", ";
+	 << ", ";
     }
 
     LogTrace(mlCabling_) << ss.str();

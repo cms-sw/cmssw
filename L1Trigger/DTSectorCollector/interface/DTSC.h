@@ -3,7 +3,6 @@
 /**   \class: DTSC.h
  *
  *
- *   $Date: 2007/02/09 11:24:32 $
  *
  *   Implementation of Sector Collector trigger algorithm
  *
@@ -45,12 +44,15 @@ class DTSC{
  public:
 
   //!  Constructor
-  DTSC(DTConfigSectColl*, int istat);
+  DTSC(int istat);
  
   //!  Destructor 
   ~DTSC();
 
   // non-const methods
+
+    /// Set configuration
+  void setConfig(const DTConfigSectColl *conf) { _config=conf; };
 
   //! Add a TSM candidate to the Sect Coll, ifs is first/second track flag
   void addPhCand(DTSectCollPhCand* cand);
@@ -81,7 +83,7 @@ class DTSC{
   // const methods
 
   //! Configuration set
-  inline DTConfigSectColl* config() const { return _config; }
+  inline const DTConfigSectColl* config() const { return _config; }
 
   //! Return the number of Phi input tracks (first/second)
   unsigned nCandPh (int ifs) const;
@@ -116,7 +118,7 @@ class DTSC{
  private:
 
   // Configuration
-  DTConfigSectColl* _config;
+  const DTConfigSectColl* _config;
 
   // input phi data
   std::vector<DTSectCollPhCand*> _incand_ph[2];

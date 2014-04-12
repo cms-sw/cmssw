@@ -15,6 +15,11 @@
 
 TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd){}
 
+TrackerGeometry::~TrackerGeometry() {
+    for (DetContainer::iterator     it = theDets.begin(),     ed = theDets.end();     it != ed; ++it) delete *it;
+    for (DetTypeContainer::iterator it = theDetTypes.begin(), ed = theDetTypes.end(); it != ed; ++it) delete *it;
+}
+
 GeometricDet const * TrackerGeometry::trackerDet() const {
   return  theTrackerDet;
 }
@@ -25,6 +30,8 @@ void TrackerGeometry::addType(GeomDetType* p) {
 }
 
 void TrackerGeometry::addDetUnit(GeomDetUnit* p) {
+  // set index
+  p->setIndex(theDetUnits.size());
   theDetUnits.push_back(p);  // add to vector
   theMapUnit.insert(std::make_pair(p->geographicalId().rawId(),p));
 }

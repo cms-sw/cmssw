@@ -1,5 +1,5 @@
-#ifndef Common_ClonePolicy_h
-#define Common_ClonePolicy_h
+#ifndef DataFormats_Common_ClonePolicy_h
+#define DataFormats_Common_ClonePolicy_h
 
 namespace edm {
   template<typename T>

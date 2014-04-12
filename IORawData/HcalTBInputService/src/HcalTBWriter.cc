@@ -14,6 +14,8 @@ HcalTBWriter::HcalTBWriter(const edm::ParameterSet & pset) :
   namePattern_(pset.getUntrackedParameter<std::string>("FilenamePattern","/tmp/HTB_%06d.root"))
 {
 
+  tok_raw_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("fedRawDataCollectionTag"));
+
   std::vector<edm::ParameterSet> names=pset.getUntrackedParameter<std::vector<edm::ParameterSet> >("ChunkNames");
   std::vector<edm::ParameterSet>::iterator j;
   for (j=names.begin(); j!=names.end(); j++) {
@@ -47,7 +49,7 @@ void HcalTBWriter::endJob() {
 
 void HcalTBWriter::analyze(const edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<FEDRawDataCollection> raw;
-  e.getByType(raw); // assume just one!
+  e.getByToken(tok_raw_, raw);
 
   if (file_==0) {
     char fname[4096];
@@ -83,7 +85,7 @@ void HcalTBWriter::buildTree(const FEDRawDataCollection& raw) {
   chunkMap_.clear();
   trigChunk_=-1;
   int j=0;
-  for (int i=0; i<FEDNumbering::lastFEDId()+1; i++) {
+  for (int i=0; i<2048; i++) {
     const FEDRawData& frd=raw.FEDData(i);
     if (frd.size()<16) continue; // it's empty... like
     

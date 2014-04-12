@@ -1,6 +1,6 @@
-#include "RecoTracker/TkDetLayers/interface/TECPetalBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/TECWedgeBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/CompositeTECPetal.h"
+#include "TECPetalBuilder.h"
+#include "TECWedgeBuilder.h"
+#include "CompositeTECPetal.h"
 
 using namespace edm;
 using namespace std;

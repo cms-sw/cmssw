@@ -2,13 +2,11 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/18 15:29:12 $
- *  $Revision: 1.3 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
 
-#include "DTHitQualityUtils.h"
+#include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -24,14 +22,10 @@ bool DTHitQualityUtils::debug;
 // Constructor
 DTHitQualityUtils::DTHitQualityUtils(){
   //DTHitQualityUtils::setDebug(debug);
-  if(debug)
-    cout << "[DTHitQualityUtils] Constructor called!!" << endl;
 }
 
 // Destructor
 DTHitQualityUtils::~DTHitQualityUtils(){
-  if(debug)
-    cout << "[DTHitQualityUtils] Destructor called!!" << endl;
 }
 
 
@@ -151,6 +145,11 @@ DTHitQualityUtils::findMuSimSegment(const map<DTWireId, const PSimHit*>& mapWire
     abort();
   }
 
+  // //Check that outermost and innermost SimHit are not the same
+  // if(outSimHit == inSimHit) {
+  //   cout << "[DTHitQualityUtils]***Warning: outermost and innermost SimHit are the same!" << endl;
+  //   abort();
+  //     }
   return make_pair(inSimHit, outSimHit);
 }
 
@@ -183,14 +182,21 @@ DTHitQualityUtils::findMuSimSegmentDirAndPos(const pair<const PSimHit*, const PS
 }
 
 // Find the angles from a segment direction:
-// NB: For 4D RecHits: 
-//                        Alpha = angle measured by SL RPhi
-//                        Beta  = angle measured by SL RZ
-//     For 2D RecHits: only Alpha makes sense
+// atan(dx/dz) = "phi"   angle in the chamber RF
+// atan(dy/dz) = "theta" angle in the chamber RF (note: this has opposite sign in the SLZ RF!)
 pair<double, double> DTHitQualityUtils::findSegmentAlphaAndBeta(const LocalVector& direction) {
   return make_pair(atan(direction.x()/direction.z()), atan(direction.y()/direction.z()));
 }
 
+//Find error on angle (squared) from localDirectionError, which is the error on tan(Angle) 
+double DTHitQualityUtils::sigmaAngle(double Angle, double sigma2TanAngle) {
+
+  double XdivZ = tan(Angle);
+  double sigma2Angle = 1/(1+XdivZ*XdivZ);
+  sigma2Angle *= sigma2Angle*sigma2TanAngle;
+
+  return sigma2Angle;
+}
 
 
 

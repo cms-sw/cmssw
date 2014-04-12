@@ -1,20 +1,16 @@
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
-#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
-#include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 
 
 
 
   // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, 
-							const TransientTrackingRecHit& hit) const {
+							const TrackingRecHit& hit) const {
   LogDebug("ConversionForwardEstimator") << "ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
   //  std::cout  << "ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
   

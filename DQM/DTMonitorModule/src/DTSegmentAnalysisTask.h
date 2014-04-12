@@ -1,3 +1,4 @@
+
 #ifndef DTSegmentAnalysisTask_H
 #define DTSegmentAnalysisTask_H
 
@@ -11,8 +12,6 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2006/10/12 09:21:36 $
- *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -20,16 +19,23 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+//RecHit
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include <string>
 #include <map>
 #include <vector>
-//#include <pair>
 
-class DaqMonitorBEInterface;
+
+class DTGeometry;
+class DQMStore;
 class MonitorElement;
+class DTTimeEvolutionHisto;
 
 class DTSegmentAnalysisTask: public edm::EDAnalyzer{
+
+
 public:
   /// Constructor
   DTSegmentAnalysisTask(const edm::ParameterSet& pset);
@@ -37,8 +43,8 @@ public:
   /// Destructor
   virtual ~DTSegmentAnalysisTask();
 
-  /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  /// BeginRun
+  void beginRun(const edm::Run& , const edm::EventSetup&);
 
   /// Endjob
   void endJob();
@@ -46,47 +52,71 @@ public:
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
+  /// Summary
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
+
+
 protected:
+
 
 private:
 
   // The BE interface
-  DaqMonitorBEInterface* theDbe;
+  DQMStore* theDbe;
 
-  // Switch for verbosity
-  bool debug;
-  std::string theRootFileName;
-  bool writeHisto;
+  // Switch for detailed analysis
+  bool detailedAnalysis;
+
+   // Get the DT Geometry
+  edm::ESHandle<DTGeometry> dtGeom;
 
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
+
+  // Get the map of noisy channels
+  bool checkNoisyChannels;
 
   edm::ParameterSet parameters;
-  int DTTrig;
-  int CSCTrig;
-  int RBC1Trig;
-  int RBC2Trig;
-  int RPCTBTrig;
 
-  // Book a set of histograms for a give chamber
-  void bookHistos(int w, int sec);
+  // book the histos
   void bookHistos(DTChamberId chamberId);
-  // Fill a single histogram
-  void fillHistos(int nsegm, int w, int sec) ;
-  // Fill a set of histograms for a give chamber 
-  void fillHistos(DTChamberId chamberId, int nsegm);
+  // Fill a set of histograms for a given chamber
   void fillHistos(DTChamberId chamberId,
 		  int nHits,
-		  float posX,
-		  float posY,
-		  float phi,
-		  float theta,
 		  float chi2);
-  
-  //   std::map<DTChamberId, MonitorElement*> numSegmentPerCh;
+
+  //  the histos
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
-  std::map<std::pair<int,int>, MonitorElement* > histosPerSec;
+  std::map< int, MonitorElement* > summaryHistos;
+  std::map<int, std::map<int, DTTimeEvolutionHisto*> > histoTimeEvol;
+
+  int nevents;
+  int nEventsInLS;
+  DTTimeEvolutionHisto*hNevtPerLS;
+
+  // # of bins in the time histos
+  int nTimeBins;
+  // # of LS per bin in the time histos
+  int nLSTimeBin;
+  // switch on/off sliding bins in time histos
+  bool slideTimeBins;
+  // top folder for the histograms in DQMStore
+  std::string topHistoFolder;
+  // hlt DQM mode
+  bool hltDQMMode;
+  // max phi angle of reconstructed segments
+  double phiSegmCut;
+  // min # hits of segment used to validate a segment in WB+-2/SecX/MB1
+  int nhitsCut;
+
+  MonitorElement* nEventMonitor;
 
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

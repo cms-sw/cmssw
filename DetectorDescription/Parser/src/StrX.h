@@ -9,7 +9,8 @@
 #ifndef STRX_H
 #define STRX_H
 
-#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XercesDefs.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/util/XMLString.hpp>
@@ -30,8 +31,8 @@
 // ---------------------------------------------------------------------------
 class StrX
 {
- public:
-  typedef xercesc_2_7::XMLString XMLString;
+public:
+  typedef XERCES_CPP_NAMESPACE::XMLString XMLString;
   // -----------------------------------------------------------------------
   //  Constructors and Destructor
   // -----------------------------------------------------------------------
@@ -72,7 +73,7 @@ class StrX
       return fXMLChForm;
     }
 
- private:
+private:
   XMLCh * fXMLChForm;
   char * fLocalForm;
   

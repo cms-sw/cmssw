@@ -7,7 +7,6 @@
  *  Simple container for TDC reconstructed informations 
  *
  *
- *  $Id: $
  */
 
 

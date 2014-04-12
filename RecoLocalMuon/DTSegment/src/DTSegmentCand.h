@@ -7,8 +7,6 @@
  * and store relative information. It must be transformed into a DTSegment
  * for further use.
  *
- * $Date: 2006/05/04 09:18:50 $
- * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -33,85 +31,97 @@ class DTChamberRecSegment2D;
 class DTChamber;
 class DTSuperLayer;
 
+
 class DTSegmentCand{
 
   public:
     struct AssPointLessZ ;
-    typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
+    typedef std::pair<std::shared_ptr<DTHitPairForFit>, DTEnums::DTCellSide> AssPoint;
     typedef std::set<AssPoint, AssPointLessZ> AssPointCont;
 
 /// Constructor
     DTSegmentCand(AssPointCont& hits,
                   const DTSuperLayer* sl) ;
 
-    DTSegmentCand(AssPointCont hits,
+    DTSegmentCand(const AssPointCont& hits,
                   LocalPoint& position,
                   LocalVector& direction,
                   double chi2,
-                  AlgebraicSymMatrix covMat,
+                  const AlgebraicSymMatrix& covMat,
                   const DTSuperLayer* sl);
 
 /// Destructor
-    ~DTSegmentCand() ;
+    virtual ~DTSegmentCand() ;
 
 /* Operations */ 
-    bool good() const ;
+    virtual bool good() const ;
 
-    unsigned int nHits() const { return theHits.size(); }
+    virtual bool hitsShareLayer() const;
+
+    virtual unsigned int nHits() const { return theHits.size(); }
 
     /// the chi2 (NOT chi2/NDOF) of the fit
-    double chi2() const {return theChi2; }
+    virtual double chi2() const { return theChi2; }
+
+    /// the chi2/NDOF of the fit
+    virtual double chi2ndof() const { return theChi2/(nHits()-2.); }
+
+    /// the t0 of the segment
+    virtual double t0() const { return thet0; }
 
     /// equality operator based on position, direction, chi2 and nHits
-    bool operator==(const DTSegmentCand& seg);
+    virtual bool operator==(const DTSegmentCand& seg);
 
     /// less operator based on nHits and chi2
-    bool operator<(const DTSegmentCand& seg);
+    virtual bool operator<(const DTSegmentCand& seg);
 
-    //  /// the super layer on which relies 
-    // const DTSuperLayer* superLayer() const {return theSL;}
-
-    // in SL frame
-    LocalPoint  position() const { return thePosition; }
+    /// the super layer on which relies 
+    const DTSuperLayer* superLayer() const {return theSL;}
 
     // in SL frame
-    LocalVector direction() const { return theDirection;}
+    virtual LocalPoint  position() const { return thePosition; }
+
+    // in SL frame
+    virtual LocalVector direction() const { return theDirection;}
 
     /// the covariance matrix
-    AlgebraicSymMatrix covMatrix() const {return theCovMatrix; }
+    virtual AlgebraicSymMatrix covMatrix() const {return theCovMatrix; }
 
-    unsigned int NDOF() const { return nHits()-2; }
+    virtual unsigned int NDOF() const { return nHits()-2; }
 
     ///set position
-    void setPosition(LocalPoint& pos) { thePosition=pos; }
+    virtual void setPosition(LocalPoint& pos) { thePosition=pos; }
 
     /// set direction
-    void setDirection(LocalVector& dir) { theDirection = dir ; }
+    virtual void setDirection(LocalVector& dir) { theDirection = dir; }
 
     /// add hits to the hit list.
-    void add(DTHitPairForFit* hit, DTEnums::DTCellSide code) ;
+    virtual void add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code) ;
 
     /// remove hit from the candidate
-    void removeHit(AssPoint hit) ;
+    virtual void removeHit(AssPoint hit) ;
 
     /// set chi2
-    void setChi2(double& chi2) { theChi2 = chi2 ;}
+    virtual void setChi2(double& chi2) { theChi2 = chi2; }
+
+    /// set t0
+    virtual void sett0(double& t0) { thet0 = t0; }
 
     /// number of shared hit pair with other segment candidate
-    int nSharedHitPairs(const DTSegmentCand& seg) const;
+    virtual int nSharedHitPairs(const DTSegmentCand& seg) const;
 
     /** return the hits shared with other segment and with confliction L/R
      * assignment */
-    AssPointCont conflictingHitPairs(const DTSegmentCand& seg) const;
+    virtual AssPointCont conflictingHitPairs(const DTSegmentCand& seg) const;
 
     /// set the cov matrix
-    void setCovMatrix(AlgebraicSymMatrix& cov) { theCovMatrix = cov; }
+    virtual void setCovMatrix(AlgebraicSymMatrix& cov) { theCovMatrix = cov; }
 
     /// number of different layers with hits
-    int nLayers() const ;
+    virtual int nLayers() const ;
     
     /// the used hits
-    AssPointCont hits() const { return theHits;}
+    virtual AssPointCont hits() const { return theHits;}
 
     /// convert this DTSegmentCand into a DTRecSegment2D
     //  DTSLRecSegment2D* convert() const;
@@ -121,31 +131,30 @@ class DTSegmentCand{
     /// convert this DTSegmentCand into a DTChamberRecSegment2D
     operator DTChamberRecSegment2D*() const;
 
-
     struct AssPointLessZ : 
       public std::binary_function<const AssPoint&, const AssPoint&, bool> {
         public:
           bool operator()(const AssPoint& pt1, 
                           const AssPoint& pt2) const ; 
       };
-  protected:
 
   private:
     const DTSuperLayer* theSL; // the SL
     LocalPoint  thePosition;  // in SL frame
     LocalVector theDirection; // in SL frame
     double theChi2;           // chi2 of the fit
+    double thet0;             // the t0 offset
 
     /// mat[1][1]=sigma (dx/dz)
     /// mat[2][2]=sigma (x)
     /// mat[1][2]=cov(dx/dz,x)
     AlgebraicSymMatrix theCovMatrix; // the covariance matrix
 
-
     AssPointCont theHits; // the used hits
 
-    static double chi2max; // to be tuned!!
-    static unsigned int nHitsMin; // to be tuned!!
+  protected:
+    static const double chi2max; // to be tuned!!
+    static const unsigned int nHitsMin; // to be tuned!!
 };
 
 std::ostream& operator<<(std::ostream& out, const DTSegmentCand& seg) ;

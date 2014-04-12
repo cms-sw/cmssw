@@ -15,23 +15,23 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/EcalValidation/interface/PEcalValidInfo.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 class EcalPreshowerSimHitsValidation: public edm::EDAnalyzer{
@@ -52,7 +52,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob();
 
 // EndJob
 void endJob(void);
@@ -63,10 +63,14 @@ private:
  std::string g4InfoLabel; 
  std::string EEHitsCollection;
  std::string ESHitsCollection;
+
+ edm::EDGetTokenT<edm::HepMCProduct> HepMCToken;
+ edm::EDGetTokenT<edm::PCaloHitContainer> EEHitsToken;
+ edm::EDGetTokenT<edm::PCaloHitContainer> ESHitsToken;
  
  bool verbose_;
  
- DaqMonitorBEInterface* dbe_;
+ DQMStore* dbe_;
  
  std::string outputFile_;
 
@@ -75,6 +79,9 @@ private:
 
  MonitorElement* menESHits1zm_;
  MonitorElement* menESHits2zm_;
+
+ MonitorElement* meEShitLog10Energy_;
+ MonitorElement* meEShitLog10EnergyNorm_;
 
  MonitorElement* meESEnergyHits1zp_;
  MonitorElement* meESEnergyHits2zp_;

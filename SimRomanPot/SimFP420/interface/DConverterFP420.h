@@ -6,7 +6,7 @@ class DConverterFP420{
   // ADC simulation
  public:
    
-  typedef map< int, int, less<int> >         DigitalMapType;
+  typedef std::map<int, int, std::less<int> >         DigitalMapType;
   typedef PileUpFP420::signal_map_type   signal_map_type;
   
   virtual ~DConverterFP420() { }

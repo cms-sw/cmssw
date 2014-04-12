@@ -1,125 +1,40 @@
-#ifndef HcalDigiClient_H
-#define HcalDigiClient_H
+#ifndef HcalDigiClient_GUARD_H
+#define HcalDigiClient_GUARD_H
 
-#include "FWCore/Framework/interface/Event.h"
+#include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+class HcalDigiClient : public HcalBaseDQClient {
 
-#include "TROOT.h"
-#include "TStyle.h"
-#include "TFile.h"
+ public:
 
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
+  /// Constructors
+  HcalDigiClient(){name_="";};
+  HcalDigiClient(std::string myname);//{ name_=myname;};
+  HcalDigiClient(std::string myname, const edm::ParameterSet& ps);
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+  void analyze(void);
+  void calculateProblems(void); // calculates problem histogram contents
+  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
+  void beginJob(void);
+  void endJob(void);
+  void beginRun(void);
+  void endRun(void); 
+  void setup(void);  
+  void cleanup(void);
 
-class HcalDigiClient{
-
-public:
-
-/// Constructor
-HcalDigiClient(const ParameterSet& ps, MonitorUserInterface* mui);
-HcalDigiClient();
-
-/// Destructor
-virtual ~HcalDigiClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
-
-/// Analyze
-void analyze(void);
-
-/// BeginJob
-void beginJob(void);
-
-/// EndJob
-void endJob(void);
-
-/// BeginRun
-void beginRun(void);
-
-/// EndRun
-void endRun(void);
-
-/// Setup
-void setup(void);
-
-/// Cleanup
-void cleanup(void);
-
-
- ///process report
-  void report();
+  bool hasErrors_Temp(void);  
+  bool hasWarnings_Temp(void);
+  bool hasOther_Temp(void);
+  bool test_enabled(void);
   
-  /// WriteDB
-  void htmlOutput(int run, string htmlDir, string htmlName);
-  void getHistograms();
-  void loadHistograms(TFile* f);
+  /// Destructor
+  ~HcalDigiClient();
 
-  void errorOutput();
-  void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);
-  bool hasErrors() const { return dqmReportMapErr_.size(); }
-  bool hasWarnings() const { return dqmReportMapWarn_.size(); }
-  bool hasOther() const { return dqmReportMapOther_.size(); }
-
-  void resetAllME();
-  void createTests();
-
-private:
-
-  int ievt_;
-  int jevt_;
-  
-  bool collateSources_;
-  bool cloneME_;
-  bool verbose_;
-  string process_;
-
-  MonitorUserInterface* mui_;
-  bool subDetsOn_[4];
-
-  TH2F* gl_occ_geo_[4];
-  TH2F* gl_occ_elec_[3];
-  TH1F* gl_occ_eta_;
-  TH1F* gl_occ_phi_;
-  TH2F* gl_err_geo_;
-  TH2F* gl_err_elec_[3];
-
-  TH2F* sub_occ_geo_[4][4];
-  TH2F* sub_occ_elec_[4][3];
-  TH1F* sub_occ_eta_[4];
-  TH1F* sub_occ_phi_[4];
-
-  TH2F* sub_err_geo_[4];
-  TH2F* sub_err_elec_[4][3];
-
-  TH2F* geoRef_;
-  
-  TH1F* qie_adc_[4];
-  TH1F* num_digi_[4];
-  TH1F* qie_capid_[4];
-
-  // Quality criteria for data integrity
-  map<string, vector<QReport*> > dqmReportMapErr_;
-  map<string, vector<QReport*> > dqmReportMapWarn_;
-  map<string, vector<QReport*> > dqmReportMapOther_;
-  map<string, string> dqmQtests_;
-
+ private:
+  int nevts_;
+  MonitorElement* HFTiming_averageTime;
 };
 
 #endif

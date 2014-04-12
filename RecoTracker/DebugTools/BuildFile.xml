@@ -1,0 +1,20 @@
+<use name="clhep"/>
+<use name="rootmath"/>
+<use name="boost"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="TrackingTools/TrajectoryParametrization"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="TrackingTools/KalmanUpdators"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="RecoTracker/Record" />
+<use name="MagneticField/Records" />
+<use name="MagneticField/Engine" />
+<use name="RecoTracker/TkNavigation" />
+<use name="RecoTracker/TkDetLayers" />
+<use name="RecoTracker/MeasurementDet" />
+<use name="DataFormats/TrackerCommon"/>
+<export>
+  <lib   name="1"/>
+</export>

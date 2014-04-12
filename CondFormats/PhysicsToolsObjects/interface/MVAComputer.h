@@ -9,24 +9,26 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.7 2007/05/21 02:00:22 saout Exp $
+// $Id: MVAComputer.h,v 1.15 2010/01/26 19:40:03 saout Exp $
 //
 
 #include <string>
 #include <vector>
 #include <map>
 
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
+
 namespace PhysicsTools {
 namespace Calibration {
-
-// forward declarations
-
-typedef std::pair<double, double> MinMax;
 
 // helper classes
 
 class BitSet {
     public:
+	// help that poor ROOT to copy bitsets... (workaround)
+	BitSet &operator = (const BitSet &other)
+	{ store = other.store; bitsInLast = other.bitsInLast; return *this; }
+
 	std::vector<unsigned char>	store;
 	unsigned int			bitsInLast;
 };
@@ -36,12 +38,6 @@ class Matrix {
 	std::vector<double>		elements;
 	unsigned int			rows;
 	unsigned int			columns;
-};
-
-class PDF {
-    public:
-	std::vector<double>		distr;
-	MinMax				range;
 };
 
 // configuration base classes
@@ -56,6 +52,10 @@ class VarProcessor {
 
 class Variable {
     public:
+	inline Variable() {}
+	inline Variable(const std::string &name) : name(name) {}
+	inline ~Variable() {}
+
 	std::string			name;
 };
 
@@ -83,20 +83,42 @@ class ProcForeach : public VarProcessor {
 	unsigned int			nProcs;
 };
 
+class ProcSort : public VarProcessor {
+    public:
+	unsigned int			sortByIndex;
+	bool				descending;
+};
+
+class ProcCategory : public VarProcessor {
+    public:
+	typedef std::vector<double> BinLimits;
+
+	std::vector<BinLimits>		variableBinLimits;
+	std::vector<int>		categoryMapping;
+};
+
 class ProcNormalize : public VarProcessor {
     public:
-	std::vector<PDF>		distr;
+	std::vector<HistogramF>		distr;
+	int				categoryIdx;
 };
 
 class ProcLikelihood : public VarProcessor {
     public:
 	class SigBkg {
 	    public:
-		PDF			signal;
-		PDF			background;
+		HistogramF		background;
+		HistogramF		signal;
+		bool			useSplines;
 	};
 
 	std::vector<SigBkg>		pdfs;
+	std::vector<double>		bias;
+	int				categoryIdx;
+	bool				logOutput;
+	bool				individual;
+	bool				neverUndefined;
+	bool				keepEmpty;
 };
 
 class ProcLinear : public VarProcessor {
@@ -118,10 +140,11 @@ class ProcMatrix : public VarProcessor {
 	Matrix				matrix;
 };
 
-class ProcTMVA : public VarProcessor {
+class ProcExternal : public VarProcessor {
     public:
+	virtual std::string getInstanceName() const;
+
 	std::string			method;
-	std::vector<std::string>	variables;
 	std::vector<unsigned char>	store;
 };
 
@@ -138,42 +161,30 @@ class ProcMLP : public VarProcessor {
 class MVAComputer {
     public:
 	MVAComputer();
+	MVAComputer(const MVAComputer &orig);
 	virtual ~MVAComputer();
 
-	std::vector<Variable>		inputSet;
-//	std::vector<VarProcessor*>	processors;	// stupid POOL
+	MVAComputer &operator = (const MVAComputer &orig);
+
 	virtual std::vector<VarProcessor*> getProcessors() const;
-	void				addProcessor(const VarProcessor *proc);
-	unsigned int			output;
+	void addProcessor(const VarProcessor *proc);
 
 	// cacheId stuff to detect changes
 	typedef unsigned int CacheId;
 	inline CacheId getCacheId() const { return cacheId; }
 	inline bool changed(CacheId old) const { return old != cacheId; }
 
-	// these variables are read/written only via get/setProcessor()
-	// ordering is relevant for the persistent storage
-    private:
-	std::vector<unsigned int>	processors_;
+	std::vector<Variable>		inputSet;
+	unsigned int			output;
 
-	std::vector<ProcOptional>	vProcOptional_;
-	std::vector<ProcCount>		vProcCount_;
-	std::vector<ProcClassed>	vProcClassed_;
-	std::vector<ProcSplitter>	vProcSplitter_;
-	std::vector<ProcForeach>	vProcForeach_;
-	std::vector<ProcNormalize>	vProcNormalize_;
-	std::vector<ProcLikelihood>	vProcLikelihood_;
-	std::vector<ProcLinear>		vProcLinear_;
-	std::vector<ProcMultiply>	vProcMultiply_;
-	std::vector<ProcMatrix>		vProcMatrix_;
-	std::vector<ProcTMVA>		vProcTMVA_;
-	std::vector<ProcMLP>		vProcMLP_;
+    private:
+	std::vector<VarProcessor*>	processors;
 
 	CacheId				cacheId;	// transient
 };
 
-// this is a temporary hack used in RecoBTau until ESSources can be
-// retrieved via label from the same record
+// a collection of computers identified by name
+
 class MVAComputerContainer {
     public:
 	typedef std::pair<std::string, MVAComputer> Entry;

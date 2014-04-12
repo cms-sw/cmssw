@@ -12,6 +12,7 @@
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include <vector>
+#include <utility> // for std::pair
 
 class CSCWireGeometry {
  public:
@@ -81,14 +82,34 @@ class CSCWireGeometry {
    *  y = m1*x + c1 and y = m2*x + c2 <BR>
    *  (in local coordinates x, y)
    */
-  
   LocalPoint intersection( float m1, float c1, float m2, float c2) const;
   
+  /** Return 2-dim local coords of the two ends of a wire
+   *
+   *  The returned value is a pair of LocalPoints. 
+   */
+  std::pair< LocalPoint, LocalPoint > wireEnds( float wire ) const;
+
   /** Return mid-point of a wire in local coordinates, and its length
    *  across the chamber volume, in a vector as x, y, length
    */
-  
   std::vector<float> wireValues( float wire ) const;
+
+  /**
+   * Return slope and intercept of straight line representing a wire in 2-dim local coordinates.
+   *
+   * The return value is a pair p with p.first = m, p.second = c, where y=mx+c.
+   */
+  std::pair<float, float> equationOfWire( float wire ) const;
+
+  /**
+   * Return pair containing y extremes of wire-plane: p.first = low y, p.second= high y
+   *
+   * This is supposed to approximate the 'sensitive' region covered by wires (and strips) 
+   * but there is no sophisticated handling of edge effects, or attempt to estimate a
+   * precise region overlapped by both wires and strips.
+   */
+  std::pair<float, float> yLimitsOfWirePlane() const;
 
  private:
   double theWireSpacing;

@@ -8,7 +8,6 @@
  *  detailed description
  *
  * \author : Stefano Lacaprara - INFN LNL <stefano.lacaprara@pd.infn.it>
- * $date   : 20/11/2006 16:51:04 CET $
  *
  * Modification:
  *
@@ -37,7 +36,6 @@ class DTTTrigBaseSync;
 
 /* C++ Headers */
 #include <iosfwd>
-#include <bitset>
 
 /* ====================================================================== */
 
@@ -56,16 +54,14 @@ class DTEffAnalyzer : public edm::EDAnalyzer {
 /* Operations */ 
 
     void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-    void beginJob(const edm::EventSetup&);
+    void beginJob();
+    void beginRun(const edm::Run& run, const edm::EventSetup& setup);
 
   private:
 
     TH1F* histo(const std::string& name) const;
     TH2F* histo2d(const std::string& name) const;
 
-    enum LCTType { DT, CSC, RPC_W1, RPC_W2 };
-    bool getLCT(LCTType) const;
-    bool selectEvent() const ;
     void effSegments(const edm::Event & event,
                      const edm::EventSetup& eventSetup);
     
@@ -99,7 +95,6 @@ class DTEffAnalyzer : public edm::EDAnalyzer {
     std::string toString(const DTChamberId& id) const;
     template<class T> std::string hName(const std::string& s, const T& id) const;
   private:
-    bool LCT_RPC, LCT_DT, LCT_CSC;
     bool debug;
     std::string theRootFileName;
     TFile* theFile;
@@ -109,12 +104,9 @@ class DTEffAnalyzer : public edm::EDAnalyzer {
     std::string theRecHits2DLabel;     
     std::string theRecHits1DLabel;     
     std::string theSTAMuonLabel;
-    bool mc;
     unsigned int theMinHitsSegment;
     double theMinChi2NormSegment;
     double theMinCloseDist;
-
-    std::bitset<6> LCT;
 
     edm::ESHandle<DTGeometry> dtGeom;
     edm::Handle<DTRecSegment4DCollection> segs;

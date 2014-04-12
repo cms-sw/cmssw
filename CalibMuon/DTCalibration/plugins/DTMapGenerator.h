@@ -4,8 +4,6 @@
 /** \class DTMapGenerator
  *  Class which creates a textual map of the hardware channels 
  *  in the software detIds
- *  $Date: 2007/05/03 07:21:06 $
- *  $Revision: 1.1 $
  *  \author G. Cerminara S. Bolognesi - INFN Torino
  */
 
@@ -29,7 +27,7 @@ public:
 
   // Operations
 
-  virtual void beginJob(const edm::EventSetup& setup){}
+  virtual void beginJob(){}
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
 
