@@ -52,7 +52,7 @@ namespace cond {
 	return boost::static_pointer_cast<T>( m_objects[n] );
       }
 
-      int size() const { return m_objects.size();}
+      size_t size() const { return m_objects.size();}
 
     private:
       // the db session
