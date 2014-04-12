@@ -82,15 +82,6 @@ struct lessPixel : public binary_function<SiPixelCluster::Pixel,
   bool operator()(const SiPixelCluster::Pixel& a,
                   const SiPixelCluster::Pixel& b) const
   {
-    /*
-    if(a.x < b.x) return true;
-    if(a.x > b.x) return false;
-
-    if(a.y < b.y) return true;
-    if(a.y > b.y) return false;
-
-    return false;
-    */
     // slightly faster by avoiding branches
     return (a.x < b.x) | ((a.x == b.x) & (a.y < b.y));
   }
@@ -184,12 +175,6 @@ void ClusterShape::determineShape
   py += theTopology->isItBigPixelInY(minPixelCol);
   py += theTopology->isItBigPixelInY(maxPixelCol);
 
-  /*
-  if(px > 0 || py > 0)
-    data.hasBigPixelsOnlyInside = false;
-  else
-    data.hasBigPixelsOnlyInside = true;
-  */
   data.hasBigPixelsOnlyInside = (px <= 0 && py <= 0);
 
 
