@@ -78,11 +78,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   //
   // get measurement groups
   //
-#ifdef TSB_TRUNCATE
-  vector<TMG> measGroups = 
-#else  
-  vector<TMG> const & measGroups = 
-#endif
+  auto && measGroups = 
     theLayerMeasurements->groupedMeasurements(theLayer,startingState,theFullPropagator,theEstimator);
 
 #ifdef DBG_TSB
@@ -212,8 +208,8 @@ void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj, TM tm) co
 
 //     TrajectoryMeasurement tm(traj.lastMeasurement());
 //     if ( tm.updatedState().isValid() ) {
-//       if ( !hit.det().surface().bounds().inside(tm.updatedState().localPosition(),
-// 						tm.updatedState().localError().positionError(),3.) ) {
+//       if ( !hit.det().surface()->bounds().inside(tm.updatedState().localPosition(),
+// 						tm.updatedState().localError().positionError(),3.f) ) {
 // 	cout << "Incompatibility after update for det at " << hit.det().position() << ":" << endl;
 // 	cout << tm.predictedState().localPosition() << " " 
 // 	     << tm.predictedState().localError().positionError() << endl;
@@ -400,14 +396,12 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
   //
   // loop over groups
   for ( int iteration=0; iteration<2; iteration++ ) {
-    for ( vector<TMG>::const_iterator ig=groups.begin(); ig!=groups.end(); ++ig) {
-      // loop over measurements
-      const vector<TM>& measurements = ig->measurements();
-      for ( vector<TM>::const_reverse_iterator im=measurements.rbegin();
-	    im!=measurements.rend(); ++im ) {
+      for ( auto const &  gr : groups ) {
+      auto const & measurements = gr.measurements();
+      for ( auto im=measurements.rbegin(); im!=measurements.rend(); ++im ) {
 	auto const & hit = im->recHitR();
-	if ( hit.getType()==TrackingRecHit::valid ||
-	     hit.getType()==TrackingRecHit::missing )  continue;
+	if ( (hit.getType()==TrackingRecHit::valid) |
+	     (hit.getType()==TrackingRecHit::missing) )  continue;
 	//
 	// check, if the extrapolation traverses the Det or
 	// if 2nd iteration
@@ -431,55 +425,33 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
   //
   // No suitable inactive hit: add a missing one
   //
-  bool found(false);
   for ( int iteration=0; iteration<2; iteration++ ) {
     //
     // loop over groups
     //
-    for ( vector<TMG>::const_iterator ig=groups.begin();
-	  ig!=groups.end(); ++ig) {
-      const vector<TM>& measurements = ig->measurements();
-      for ( vector<TM>::const_reverse_iterator im=measurements.rbegin();
-	    im!=measurements.rend(); ++im ) {
-	//
+    for ( auto const &  gr : groups ) {
+      auto const & measurements = gr.measurements();
+      for ( auto im=measurements.rbegin(); im!=measurements.rend(); ++im ) {
 	// only use invalid hits
-	//
 	auto const & hit = im->recHitR();
 	if likely( hit.isValid() )  continue;
 
-	//
 	// check, if the extrapolation traverses the Det
-	//
 	auto const & predState = im->predictedState();
-	if(hit.det()){	
-	  if ( iteration>0 || (predState.isValid() &&
-			       hit.det()->surface().bounds().inside(predState.localPosition())) ) {
+	if ( iteration>0 || (predState.isValid() &&
+			       hit.surface()->bounds().inside(predState.localPosition())) ) {
 	    // add invalid hit
             candidates.push_back(traj); 
             updateTrajectory(candidates.back(), *im);
-	    found = true;
-	    break;
-	  }
-
-	}else{
-	  if ( iteration>0 || (predState.isValid() &&
-			       im->layer()->surface().bounds().inside(predState.localPosition())) ){
-	    // add invalid hit
-            candidates.push_back(traj); 
-            updateTrajectory(candidates.back(), *im);
-	    found = true;
-	    break;	    
-	  }
+            return;
 	}
       }
-      if ( found )  break;
     }
-    if unlikely( theDbgFlg && !found ) cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
+    if unlikely( theDbgFlg && iteration==0 ) cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
 				    << " did not find invalid hit on 1st iteration" << endl;
-    if ( found )  break;
   }
 
-  if unlikely( theDbgFlg && (!found) )
+  if unlikely( theDbgFlg)
 	       cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
 		    << " did not find invalid hit" << endl;
 }

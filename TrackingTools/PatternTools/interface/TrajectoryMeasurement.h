@@ -214,7 +214,7 @@ public:
 
   const DetLayer* layer() const { return theLayer;}
 
-  void setLayer( DetLayer const * il) const { theLayer=il;}
+  // void setLayer( DetLayer const * il) const { theLayer=il;}
 
 private:
   TrajectoryStateOnSurface theFwdPredictedState;
