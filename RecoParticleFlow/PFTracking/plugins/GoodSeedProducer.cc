@@ -231,10 +231,13 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
       TrackRef trackRef(tkRefCollection, i);
       // TrajectorySeed Seed=Tj[i].seed();
+      math::XYZVectorF tkmom(Tk[i].momentum());
+      auto tketa= tkmom.eta();
+      auto tkpt = std::sqrt(tkmom.perp2());
       auto const & Seed=(*trackRef->seedRef());
       if(!disablePreId_)
 	{
-	  int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
+	  int ipteta=getBin(tketa,tkpt);
 	  int ibin=ipteta*8;
 	  
 	  float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
@@ -276,7 +279,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    ElecTrkEcalPos=math::XYZPointF(theOutParticle.vertex().x(),
 					   theOutParticle.vertex().y(),
 					   theOutParticle.vertex().z());
-	    bool isBelowPS=(std::abs(theOutParticle.vertex().eta())>1.65);	
+	    bool isBelowPS=(std::abs(ElecTrkEcalPos.eta())>1.65f);	
 	
 	    unsigned clusCounter=0;
 
@@ -287,24 +290,24 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 						isBelowPS,
 						false);
 	
-	      math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
-		math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;	
+	      math::XYZPointF meanShower = math::XYZPointF(theOutParticle.vertex())+
+		math::XYZVectorF(theOutParticle.momentum().Vect()).Unit()*ecalShowerDepth;	
 	  
 	      float etarec=meanShower.eta();
 	      float phirec=meanShower.phi();
 	      float tmp_ep=aClus->energy()/PTOB;
-	      float tmp_phi=std::abs(aClus->position().phi()-phirec);
-	      if (tmp_phi>TMath::TwoPi()) tmp_phi-= TMath::TwoPi();
-	      float tmp_dr=sqrt(std::pow(tmp_phi,2.f)+
-				std::pow(aClus->position().eta()-etarec,2.f));
+	      float tmp_phi=std::abs(aClus->positionREP().phi()-phirec);
+	      if (tmp_phi>float(TMath::TwoPi())) tmp_phi-= float(TMath::TwoPi());
+	      float tmp_dr=std::sqrt(std::pow(tmp_phi,2.f)+
+				std::pow(aClus->positionREP().eta()-etarec,2.f));
 	  
-	      if ((tmp_dr<dr)&&(tmp_ep>minEp_)&&(tmp_ep<maxEp_)){
+	      if ((tmp_dr<dr)&(tmp_ep>minEp_)&(tmp_ep<maxEp_)){
 		dr=tmp_dr;
-		toteta=aClus->position().eta()-etarec;
+		toteta=aClus->positionREP().eta()-etarec;
 		totphi=tmp_phi;
 		EP=tmp_ep;
 		EE=aClus->energy();
-		feta= aClus->position().eta();
+		feta= aClus->positionREP().eta();
 		clusterRef = PFClusterRef(theECPfClustCollection,clusCounter);
 		meanShowerSaved = meanShower;
 	      }
@@ -319,8 +322,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    = resMapPhiECAL_->GetBinContent(resMapPhiECAL_->FindBin(feta,EE)); 
       
 	  //geomatrical compatibility
-	  float chieta=(toteta!=1000)? toteta/ecaletares : toteta;
-	  float chiphi=(totphi!=1000)? totphi/ecalphires : totphi;
+	  float chieta=(toteta!=1000.f)? toteta/ecaletares : toteta;
+	  float chiphi=(totphi!=1000.f)? totphi/ecalphires : totphi;
 	  float chichi= sqrt(chieta*chieta + chiphi*chiphi);
       
       
@@ -330,14 +333,14 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  bool GoodMatching= ((chichi<chi2cut) &&(EP>ep_cutmin) && (nhitpi>10));
 	  bool EcalMatching=GoodMatching;
       
-	  if (Tk[i].pt()>maxPt_) GoodMatching=true;
-	  if (Tk[i].pt()<minPt_) GoodMatching=false;
+	  if (tkpt>maxPt_) GoodMatching=true;
+	  if (tkpt<minPt_) GoodMatching=false;
 
 	  //ENDCAP
 	  //USE OF PRESHOWER 
 	  bool GoodPSMatching=false;
-	  if ((fabs(Tk[i].eta())>1.68)&&(usePreshower_)){
-	    int iptbin =4*getBin(Tk[i].pt());
+	  if ((std::abs(tketa)>1.68f)&&(usePreshower_)){
+	    int iptbin =4*getBin(tkpt);
 	    ps2En=0;ps1En=0;
 	    ps2chi=100.; ps1chi=100.;
 	    PSforTMVA(mom,pos);
@@ -364,8 +367,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 			  ElecTrkEcalPos,*theECPfClustCollection,*theHCPfClustCollection)) 
 	      GoodMatching=true;
 	  }
-	  bool GoodRange= ((fabs(Tk[i].eta())<maxEta_) && 
-			   (Tk[i].pt()>minPt_));
+	  bool GoodRange= ((std::abs(tketa)<maxEta_) & 
+			   (tkpt>minPt_));
 	  //KF FILTERING FOR UNMATCHED EVENTS
 	  int hit1max=int(thr[ibin+2]);
 	  float chiredmin=thr[ibin+3];
@@ -409,8 +412,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    //TMVA Analysis
 	    if(useTmva_){
 	
-	      eta=Tk[i].eta();
-	      pt=Tk[i].pt();
+	      eta=tketa;
+	      pt=tkpt;
 	      eP=EP;
 	  
 	      float Ytmva=reader->EvaluateMVA( method_ );
@@ -658,9 +661,9 @@ GoodSeedProducer::IsIsolated(float charge, float P,
   PFClusterCollection::const_iterator hc=hcalColl.begin();
   PFClusterCollection::const_iterator hcend=hcalColl.end();
   for (;hc!=hcend;++hc){
-    math::XYZPoint clusPos = hc->position();
-    double en = hc->energy();
-    double deltaR = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,clusPos);
+    auto const &  clusPos = hc->positionREP();
+    auto en = hc->energy();
+    auto deltaR = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,clusPos);
     if (deltaR<HcalIsolWindow_) {
       myHCALenergy3x3 += en;
       
@@ -672,7 +675,7 @@ GoodSeedProducer::IsIsolated(float charge, float P,
   PFClusterCollection::const_iterator ec=ecalColl.begin();
   PFClusterCollection::const_iterator ecend=ecalColl.end();
   for (;ec!=ecend;++ec){
-    math::XYZPoint clusPos = ec->position();
+    auto const & clusPos = ec->positionREP();
     double en = ec->energy();
 
 
@@ -688,7 +691,7 @@ GoodSeedProducer::IsIsolated(float charge, float P,
   double HoP=myHCALenergy3x3/P;
 
 
-  return ((EoP>minEoverP_)&&(EoP<2.5) && (HoP<maxHoverP_))?true:false;
+  return ((EoP>minEoverP_)&(EoP<2.5) & (HoP<maxHoverP_));
 }
 
 void GoodSeedProducer::fillPreIdRefValueMap( Handle<TrackCollection> tracks,
