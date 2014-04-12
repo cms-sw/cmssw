@@ -8,6 +8,7 @@ ClusterFilterBlock = cms.PSet(
 
 HiFilterBlock = cms.PSet(
     ComponentName = cms.string( "HIPixelTrackFilter" ),
+    clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
     ptMin = cms.double( 1.5 ),
     chi2 = cms.double( 1000.0 ),
     useClusterShape = cms.bool( False ),
