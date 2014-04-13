@@ -53,47 +53,31 @@ class PFGeometry {
   virtual ~PFGeometry() { }
 
   /// return inner radius of a given layer
-  static const float innerRadius(PFGeometry::Layers_t layer)
+  float innerRadius(PFGeometry::Layers_t layer) const
     { return innerRadius_[layer]; }
 
   /// return outer radius of a given layer
-  static const float outerRadius(PFGeometry::Layers_t layer)
+  float outerRadius(PFGeometry::Layers_t layer) const
     { return outerRadius_[layer]; }
 
   /// return inner position along z axis of a given layer
-  static const float innerZ(PFGeometry::Layers_t layer)
+  float innerZ(PFGeometry::Layers_t layer) const
     { return innerZ_[layer]; }
 
   /// return outer position along z axis of a given layer
-  static const float outerZ(PFGeometry::Layers_t layer)
+  float outerZ(PFGeometry::Layers_t layer) const
     { return outerZ_[layer]; }
 
-  /// return cylinder used to propagate to barrel
-  static const Cylinder& barrelBound(PFGeometry::Surface_t iSurf)
-  { return *(cylinder_[unsigned(iSurf)]); }
-
-  /// return disk used to propagate to negative endcap 
-  static const Plane& negativeEndcapDisk(PFGeometry::Surface_t iSurf)
-  { return *(negativeDisk_[unsigned(iSurf)]); }
-
-  /// return disk used to propagate to positive endcap
-  static const Plane& positiveEndcapDisk(PFGeometry::Surface_t iSurf)
-  { return *(positiveDisk_[unsigned(iSurf)]); }
-
   /// return tan(theta) of the cylinder corner
-  static float tanTh(PFGeometry::Surface_t iSurf)
+  float tanTh(PFGeometry::Surface_t iSurf) const
   { return tanTh_[unsigned(iSurf)]; }
 
  private:
-  static std::vector< float > innerRadius_;
-  static std::vector< float > outerRadius_;
-  static std::vector< float > innerZ_;
-  static std::vector< float > outerZ_;
-
-  static std::vector< ReferenceCountingPointer<Cylinder> > cylinder_;
-  static std::vector< ReferenceCountingPointer<Plane> > negativeDisk_;
-  static std::vector< ReferenceCountingPointer<Plane> > positiveDisk_;
-  static std::vector< float > tanTh_;
+  std::vector< float > innerRadius_;
+  std::vector< float > outerRadius_;
+  std::vector< float > innerZ_;
+  std::vector< float > outerZ_;
+  std::vector< float > tanTh_;
 };
 
 #endif
