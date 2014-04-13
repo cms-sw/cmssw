@@ -22,6 +22,7 @@ int main()
     testSerialization<SiPixelGainCalibrationForHLT::DetRegistry>();
     testSerialization<SiPixelGainCalibrationOffline>();
     testSerialization<SiPixelGainCalibrationOffline::DetRegistry>();
+    testSerialization<SiPixelGenErrorDBObject>();
     testSerialization<SiPixelLorentzAngle>();
     testSerialization<SiPixelPedestals>();
     testSerialization<SiPixelPerformanceSummary>();
