@@ -26,6 +26,9 @@
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include <fstream>
 #include <string>
 #include "TMath.h"
@@ -240,7 +243,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  int ipteta=getBin(tketa,tkpt);
 	  int ibin=ipteta*8;
 	  
-	  float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
+	  float oPTOB=1.f/Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
 	  float chikfred=Tk[i].normalizedChi2();
 	  int nhitpi=Tj[i].foundHits();
 	  float EP=0;
@@ -249,8 +252,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  myPreId.setTrack(trackRef);
 	  //CLUSTERS - TRACK matching
       
-	  float pfmass=  0.0005;
-	  float pfoutenergy=sqrt((pfmass*pfmass)+Tk[i].outerMomentum().Mag2());
+	  auto pfmass=  0.0005;
+	  auto pfoutenergy=sqrt((pfmass*pfmass)+Tk[i].outerMomentum().Mag2());
 	  XYZTLorentzVector mom =XYZTLorentzVector(Tk[i].outerMomentum().x(),
 						   Tk[i].outerMomentum().y(),
 						   Tk[i].outerMomentum().z(),
@@ -272,36 +275,42 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  float dr=1000.f;
 	  float EE=0.f;
 	  float feta=0.f;
-	  math::XYZPointF ElecTrkEcalPos(0,0,0);
+	  GlobalPoint ElecTrkEcalPos(0,0,0);
 	  PFClusterRef clusterRef;
 	  math::XYZPoint meanShowerSaved;
 	  if(theOutParticle.getSuccess()!=0){
-	    ElecTrkEcalPos=math::XYZPointF(theOutParticle.vertex().x(),
-					   theOutParticle.vertex().y(),
-					   theOutParticle.vertex().z());
-	    bool isBelowPS=(std::abs(ElecTrkEcalPos.eta())>1.65f);	
+	     ElecTrkEcalPos=GlobalPoint(theOutParticle.vertex().x(),
+			       	        theOutParticle.vertex().y(),
+					theOutParticle.vertex().z()
+                                       );
+
+            constexpr float psLim = std::sinh(1.65f);
+            bool isBelowPS= (ElecTrkEcalPos.z()*ElecTrkEcalPos.z()) > (psLim*psLim)*ElecTrkEcalPos.perp2();
+	    // bool isBelowPS=(std::abs(ElecTrkEcalPos.eta())>1.65f);	
 	
 	    unsigned clusCounter=0;
 
 	    for(auto aClus : basClus) {
-	  
+             
+              float tmp_ep=float(aClus->energy())*oPTOB;
+              if ((tmp_ep<minEp_)|(tmp_ep>maxEp_)) { ++clusCounter; continue;}
+
 	      double ecalShowerDepth
 		= PFCluster::getDepthCorrection(aClus->energy(),
 						isBelowPS,
 						false);
-	
-	      math::XYZPointF meanShower = math::XYZPointF(theOutParticle.vertex())+
-		math::XYZVectorF(theOutParticle.momentum().Vect()).Unit()*ecalShowerDepth;	
+	      auto mom = theOutParticle.momentum().Vect();
+	      auto meanShower = ElecTrkEcalPos +
+		GlobalVector(mom.x(),mom.y(),mom.z()).unit()*ecalShowerDepth;	
 	  
 	      float etarec=meanShower.eta();
 	      float phirec=meanShower.phi();
-	      float tmp_ep=aClus->energy()/PTOB;
 	      float tmp_phi=std::abs(aClus->positionREP().phi()-phirec);
-	      if (tmp_phi>float(TMath::TwoPi())) tmp_phi-= float(TMath::TwoPi());
+	      if (tmp_phi>float(TMath::Pi())) tmp_phi-= float(TMath::TwoPi());
 	      float tmp_dr=std::sqrt(std::pow(tmp_phi,2.f)+
 				std::pow(aClus->positionREP().eta()-etarec,2.f));
 	  
-	      if ((tmp_dr<dr)&(tmp_ep>minEp_)&(tmp_ep<maxEp_)){
+	      if (tmp_dr<dr){
 		dr=tmp_dr;
 		toteta=aClus->positionREP().eta()-etarec;
 		totphi=tmp_phi;
@@ -311,14 +320,14 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		clusterRef = PFClusterRef(theECPfClustCollection,clusCounter);
 		meanShowerSaved = meanShower;
 	      }
-            ++clusCounter;
+              ++clusCounter;
 	    }
 	  }
 
 	  //Resolution maps
-	  double ecaletares 
+	  auto ecaletares 
 	    = resMapEtaECAL_->GetBinContent(resMapEtaECAL_->FindBin(feta,EE));
-	  double ecalphires 
+	  auto ecalphires 
 	    = resMapPhiECAL_->GetBinContent(resMapPhiECAL_->FindBin(feta,EE)); 
       
 	  //geomatrical compatibility
@@ -330,7 +339,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  //Matching criteria
 	  float chi2cut=thr[ibin+0];
 	  float ep_cutmin=thr[ibin+1];
-	  bool GoodMatching= ((chichi<chi2cut) &&(EP>ep_cutmin) && (nhitpi>10));
+	  bool GoodMatching= ((chichi<chi2cut) &(EP>ep_cutmin) & (nhitpi>10));
 	  bool EcalMatching=GoodMatching;
       
 	  if (tkpt>maxPt_) GoodMatching=true;
@@ -339,7 +348,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  //ENDCAP
 	  //USE OF PRESHOWER 
 	  bool GoodPSMatching=false;
-	  if ((std::abs(tketa)>1.68f)&&(usePreshower_)){
+	  if ((std::abs(tketa)>1.68f)&(usePreshower_)){
 	    int iptbin =4*getBin(tkpt);
 	    ps2En=0;ps1En=0;
 	    ps2chi=100.; ps1chi=100.;
@@ -350,14 +359,14 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    float p2c=thrPS[iptbin+3];
 	    GoodPSMatching= 
 	      ((ps2En>p2e)
-	       &&(ps1En>p1e)
-	       &&(ps1chi<p1c)
-	       &&(ps2chi<p2c));
-	    GoodMatching = (GoodMatching && GoodPSMatching);
+	       &(ps1En>p1e)
+	       &(ps1chi<p1c)
+	       &(ps2chi<p2c));
+	    GoodMatching = (GoodMatching & GoodPSMatching);
 	  }
   
-	  math::XYZPoint myPoint(ElecTrkEcalPos.X(),ElecTrkEcalPos.Y(),ElecTrkEcalPos.Z());
-	  myPreId.setECALMatchingProperties(clusterRef,myPoint,meanShowerSaved,toteta,totphi,chieta,
+	  math::XYZPoint myPoint(ElecTrkEcalPos.x(),ElecTrkEcalPos.y(),ElecTrkEcalPos.z());
+	  myPreId.setECALMatchingProperties(clusterRef,myPoint,meanShowerSaved,std::abs(toteta),std::abs(totphi),chieta,
 					    chiphi,chichi,EP);
 	  myPreId.setECALMatching(EcalMatching);
 	  myPreId.setESMatching(GoodPSMatching);
@@ -643,7 +652,7 @@ GoodSeedProducer::PSforTMVA(const XYZTLorentzVector& mom,const XYZTLorentzVector
 
 bool 
 GoodSeedProducer::IsIsolated(float charge, float P,
-			     math::XYZPointF myElecTrkEcalPos,
+			     GlobalPoint myElecTrkEcalPos,
 			     const PFClusterCollection &ecalColl,
 			     const PFClusterCollection &hcalColl){
 
@@ -663,8 +672,8 @@ GoodSeedProducer::IsIsolated(float charge, float P,
   for (;hc!=hcend;++hc){
     auto const &  clusPos = hc->positionREP();
     auto en = hc->energy();
-    auto deltaR = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,clusPos);
-    if (deltaR<HcalIsolWindow_) {
+    auto deltaR2 = reco::deltaR2(myElecTrkEcalPos,clusPos);
+    if (deltaR2<HcalIsolWindow_*HcalIsolWindow_) {
       myHCALenergy3x3 += en;
       
     }
@@ -676,12 +685,12 @@ GoodSeedProducer::IsIsolated(float charge, float P,
   PFClusterCollection::const_iterator ecend=ecalColl.end();
   for (;ec!=ecend;++ec){
     auto const & clusPos = ec->positionREP();
-    double en = ec->energy();
+    auto en = ec->energy();
 
 
-    double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,clusPos);
-    double deltaEta = abs(myElecTrkEcalPos.eta()-clusPos.eta());
-    double deltaPhiOverQ = deltaPhi/charge;
+    auto deltaPhi = reco::deltaPhi(myElecTrkEcalPos,clusPos);
+    auto  deltaEta = std::abs(myElecTrkEcalPos.eta()-clusPos.eta());
+    auto deltaPhiOverQ = deltaPhi/charge;
     if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_ && deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
       myStripClusterE += en;
     }

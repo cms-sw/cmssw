@@ -62,7 +62,7 @@ class GoodSeedProducer : public edm::EDProducer {
       void PSforTMVA(const math::XYZTLorentzVector& mom,
 		     const math::XYZTLorentzVector& pos);
       bool IsIsolated(float  charge,float P,
-	              math::XYZPointF, 
+	              GlobalPoint, 
                       const reco::PFClusterCollection &ecalColl,
                       const reco::PFClusterCollection &hcalColl);
 
