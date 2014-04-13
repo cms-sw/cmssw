@@ -307,8 +307,8 @@ void CkfTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
 {
   auto && predictedState = tm.predictedState();
   auto  && hit = tm.recHit();
-  auto && upState = theUpdator->update( predictedState, *hit);
   if ( hit->isValid()) {
+    auto && upState = theUpdator->update( predictedState, *hit);
     traj.emplace( std::move(predictedState), std::move(upState),
 		 std::move(hit), tm.estimate(), tm.layer()); 
   }
