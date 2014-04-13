@@ -599,9 +599,9 @@ GoodSeedProducer::PSforTMVA(const XYZTLorentzVector& mom,const XYZTLorentzVector
     //   GlobalPoint v1=ps1TSOS.globalPosition();
     math::XYZPoint v1=math::XYZPoint(OutParticle.vertex());
     if ((v1.Rho() >=
-	 PFGeometry::innerRadius(PFGeometry::PS1)) &&
+	 pfGeometry_.innerRadius(PFGeometry::PS1)) &&
 	(v1.Rho() <=
-	 PFGeometry::outerRadius(PFGeometry::PS1))) {
+	 pfGeometry_.outerRadius(PFGeometry::PS1))) {
       float enPScl1=0;
       float chi1=100;
       vector<PFCluster>::const_iterator ips;
@@ -622,9 +622,9 @@ GoodSeedProducer::PSforTMVA(const XYZTLorentzVector& mom,const XYZTLorentzVector
       if (OutParticle.getSuccess()!=0){
 	math::XYZPoint v2=math::XYZPoint(OutParticle.vertex());
 	if ((v2.Rho() >=
-	     PFGeometry::innerRadius(PFGeometry::PS2)) &&
+	     pfGeometry_.innerRadius(PFGeometry::PS2)) &&
 	    (v2.Rho() <=
-	     PFGeometry::outerRadius(PFGeometry::PS2))){
+	     pfGeometry_.outerRadius(PFGeometry::PS2))){
 	  float enPScl2=0;
 	  float chi2=100;
 	  for (ips=ps2Clus.begin(); ips!=ps2Clus.end();ips++){
