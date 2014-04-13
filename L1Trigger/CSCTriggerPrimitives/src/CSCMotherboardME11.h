@@ -55,6 +55,17 @@ class CSCMotherboardME11 : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> getLCTs1a();
   std::vector<CSCCorrelatedLCTDigi> getLCTs1b();
 
+  /** labels for ME1a and ME1B */
+  enum ME11Part {ME1B = 1, ME1A=4};
+
+  /** Methods to sort the LCTs */
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQual(int bx, enum ME11Part = ME1B);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQual(enum ME11Part = ME1B);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQual(std::vector<CSCCorrelatedLCTDigi>);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(int bx, enum ME11Part = ME1B);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(enum ME11Part = ME1B);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi>);
+  
   /** Returns vectors of found ALCTs in ME1a and ME1b, if any. */
   std::vector<CSCALCTDigi> getALCTs1b() {return alctV;}
 
@@ -74,7 +85,7 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b();
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs(int me1ab);
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs(enum ME11Part me1ab);
 
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
@@ -82,9 +93,6 @@ class CSCMotherboardME11 : public CSCMotherboard
   void setLctProducer(CSCTriggerPrimitivesProducer* p) {lctProducer_ = p;}
 
  private:
-
-  /** labels for ME1a and ME1B */
-  enum ME11Part {ME1B = 1, ME1A=4};
 
   static const int lut_wg_vs_hs_me1b[48][2];
   static const int lut_wg_vs_hs_me1a[48][2];
@@ -126,7 +134,7 @@ class CSCMotherboardME11 : public CSCMotherboard
 			GEMCSCPadDigi gemPad,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
-  void matchGEMPads();
+  void matchGEMPads(enum ME11Part = ME1B);
 
   void buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, 
 			    GEMCSCPadDigiCollection& out_co_pads);
@@ -260,6 +268,9 @@ class CSCMotherboardME11 : public CSCMotherboard
   // send LCT old dataformat
   bool useOldLCTDataFormatALCTGEM_;
   bool useOldLCTDataFormatCLCTGEM_;
+
+  //
+  bool FirstTwoLCTsInME11_;
 
   // map of roll N to min and max eta
   std::map<int,std::pair<double,double> > gemPadToEtaLimits_;
