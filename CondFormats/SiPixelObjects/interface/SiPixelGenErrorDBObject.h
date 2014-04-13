@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 // ******************************************************************************************
 //! \class SiPixelGenErrorDBObject
 //!
@@ -83,7 +85,7 @@ public:
 			std::map<unsigned int,short>::const_iterator id=templ_ID.find(detid);
 			if(id!=templ_ID.end()){
 				edm::LogError("SiPixelGenErrorDBObject") << "GenError ID for DetID " << detid
-																								 << " is already stored. Skipping this put" << std::endl;
+									 << " is already stored. Skipping this put" << std::endl;
 				return false;
 			}
 			else templ_ID[detid] = value;
@@ -95,7 +97,7 @@ public:
 			std::map<unsigned int,short>::const_iterator id=templ_ID.find(detid);
 			if(id!=templ_ID.end()) return id->second;
 			else edm::LogError("SiPixelGenErrorDBObject") << "GenError ID for DetID " << detid
-																										<< " is not stored" << std::endl;
+								      << " is not stored" << std::endl;
 			return 0;
 		}
 	
@@ -107,5 +109,8 @@ private:
 	bool isInvalid_;
 	std::vector<float> sVector_;
 	std::map<unsigned int,short> templ_ID;
+
+  COND_SERIALIZABLE;
+
 };//end SiPixelGenErrorDBObject
 #endif

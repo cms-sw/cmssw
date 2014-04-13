@@ -192,6 +192,19 @@ void SiPixelGainCalibrationOffline::DetRegistry::serialize(Archive & ar, const u
 COND_SERIALIZATION_INSTANTIATE(SiPixelGainCalibrationOffline::DetRegistry);
 
 template <class Archive>
+void SiPixelGenErrorDBObject::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(index_);
+    ar & BOOST_SERIALIZATION_NVP(maxIndex_);
+    ar & BOOST_SERIALIZATION_NVP(numOfTempl_);
+    ar & BOOST_SERIALIZATION_NVP(version_);
+    ar & BOOST_SERIALIZATION_NVP(isInvalid_);
+    ar & BOOST_SERIALIZATION_NVP(sVector_);
+    ar & BOOST_SERIALIZATION_NVP(templ_ID);
+}
+COND_SERIALIZATION_INSTANTIATE(SiPixelGenErrorDBObject);
+
+template <class Archive>
 void SiPixelLorentzAngle::serialize(Archive & ar, const unsigned int)
 {
     ar & BOOST_SERIALIZATION_NVP(m_LA);
