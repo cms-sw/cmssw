@@ -10,6 +10,7 @@
 <use   name="DataFormats/CastorReco"/>
 <use   name="CommonTools/Utils"/>
 <use   name="fastjet"/>
+<use   name="vdt"/>
 <use   name="roottmva"/>
 <use   name="vdt_headers"/>
 <export>

@@ -172,7 +172,7 @@ Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
 
 void
 Tracer::preallocate(service::SystemBounds const& bounds) {
-  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " preallocate: " << bounds.maxNumberOfConcurrentRuns() << " concurrent runs, "
+  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " preallocate: " << bounds.maxNumberOfConcurrentRuns() << " concurrent runs, " 
                                                           << bounds.maxNumberOfConcurrentLuminosityBlocks() << " concurrent luminosity sections, " 
                                                           << bounds.maxNumberOfStreams() << " streams";
 }

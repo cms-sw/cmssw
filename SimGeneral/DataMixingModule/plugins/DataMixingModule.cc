@@ -50,12 +50,6 @@ namespace edm
     MergeHcalDigis_ = (ps.getParameter<std::string>("HcalMergeType")).compare("Digis") == 0;
     if(MergeHcalDigis_) MergeHcalDigisProd_ = (ps.getParameter<std::string>("HcalDigiMerge")=="FullProd");
 
-    addMCDigiNoise_ = false;
-
-    addMCDigiNoise_ = ps.getUntrackedParameter<bool>("addMCDigiNoise");  // for Sim on Sim mixing
-
-    
-
     // Put Fast Sim Sequences here for Simplification: Fewer options!
 
     if(DoFastSim_) {
@@ -221,12 +215,6 @@ namespace edm
       produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
       SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
 
-      if( addMCDigiNoise_ ) {
-	SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps, consumesCollector());
-      }
-      else {
-	SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
-      }
     }
 
     // Pixels
@@ -289,11 +277,7 @@ namespace edm
   }       
 	       
 
-  void DataMixingModule::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) { 
-    if( addMCDigiNoise_ ) {
-      SiStripMCDigiWorker_->initializeEvent( e, ES );
-    }
-  }
+ 
 
   // Virtual destructor needed.
   DataMixingModule::~DataMixingModule() { 
@@ -310,8 +294,7 @@ namespace edm
       if(useSiStripRawDigi_)
 	delete SiStripRawWorker_;
       else
-	if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
-	else delete SiStripWorker_;
+	delete SiStripWorker_;
       delete SiPixelWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}
@@ -345,7 +328,6 @@ namespace edm
     }else{
     // SiStrips
     if(useSiStripRawDigi_) SiStripRawWorker_->addSiStripSignals(e);
-    else if(addMCDigiNoise_ ) SiStripMCDigiWorker_->addSiStripSignals(e);
     else SiStripWorker_->addSiStripSignals(e);
 
     // SiPixels
@@ -395,7 +377,6 @@ namespace edm
       
       // SiStrips
       if(useSiStripRawDigi_) SiStripRawWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
-      else if(addMCDigiNoise_ ) SiStripMCDigiWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
       else SiStripWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
       
       // SiPixels
@@ -484,7 +465,6 @@ namespace edm
     }else{
        // SiStrips
       if(useSiStripRawDigi_) SiStripRawWorker_->putSiStrip(e);
-      else if(addMCDigiNoise_ ) SiStripMCDigiWorker_->putSiStrip(e, ES);
       else SiStripWorker_->putSiStrip(e);
        
        // SiPixels

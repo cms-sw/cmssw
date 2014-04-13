@@ -1,4 +1,4 @@
-#include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
+#include "SiGaussianTailNoiseAdder.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
 SiGaussianTailNoiseAdder::SiGaussianTailNoiseAdder(float th):
