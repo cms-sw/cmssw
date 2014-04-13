@@ -52,7 +52,7 @@
   <Numeric name="WidthBack"         value="[widthBack]"/>
   <Numeric name="ModuleThickness"   value="[moduleThickness]"/>
   <Numeric name="ModuleTaperAngle"  value="[moduleTaperAngle]"/>
-  <Numeric name="HoleRadius"        value="0.8*mm"/>
+  <Numeric name="HoleRadius"        value="0.6*mm"/>
   <String name="FibreMaterial"      value="materials:Quartz"/>
   <String name="FibreName"          value="shashlikmodule:ShashlikFibre"/>
   <Vector name="HoleX" type="numeric" nEntries="4">
