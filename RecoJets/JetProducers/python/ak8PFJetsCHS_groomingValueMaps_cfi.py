@@ -20,10 +20,6 @@ ak8PFJetsCHSTrimmedLinks = cms.EDProducer("RecoJetDeltaRValueMapProducer",
 ak8PFJetsCHSFilteredLinks = cms.EDProducer("RecoJetDeltaRValueMapProducer",
                                          src = cms.InputTag("ak8PFJetsCHS"),
                                          matched = cms.InputTag("ak8PFJetsCHSFiltered"),                                         
-<<<<<<< HEAD
                                          distMin = cms.double(0.8),
                                          value = cms.string('mass')  
-=======
-                                         distMin = cms.double(0.8)
->>>>>>> First try at a jet-to-value valuemap for grooming.
                         )
