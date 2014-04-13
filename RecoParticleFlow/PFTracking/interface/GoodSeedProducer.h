@@ -21,6 +21,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
+
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -175,6 +177,7 @@ class GoodSeedProducer : public edm::EDProducer {
 
       /// Map used to create the TrackRef, PreIdRef value map
       std::map<reco::TrackRef,unsigned> refMap_;
-     
+
+      PFGeometry pfGeometry_;
 };
 #endif
