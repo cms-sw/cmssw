@@ -71,14 +71,15 @@ public:
       for ( typename edm::View<T>::const_iterator ibegin = h_jets1->begin(),
 	      iend = h_jets1->end(), ijet = ibegin;
 	    ijet != iend; ++ijet ) {
-	bool found = false;
-	
+	float minDR2=9999;
+	float value=-9999;
+
 	jet1_eta=ijet->eta();
 	jet1_phi=ijet->phi();
 	
 	for ( typename edm::View<T>::const_iterator jbegin = h_jets2->begin(),
 		jend = h_jets2->end(), jjet = jbegin;
-	      jjet != jend &&  (!found || ijet==ibegin); ++jjet ) {
+	      jjet != jend; ++jjet ) {
 
 	  if(ijet==ibegin){
 	    v_jets2_eta.push_back(jjet->eta());
@@ -86,15 +87,17 @@ public:
 	  }
 
 	  int index=jjet - jbegin;
-	  if ( reco::deltaR2(jet1_eta,jet1_phi,v_jets2_eta.at(index),v_jets2_phi.at(index)) < distMin_*distMin_ ) {
+	  float dR2=reco::deltaR2(jet1_eta,jet1_phi,v_jets2_eta.at(index),v_jets2_phi.at(index));
+	  if ( dR2 < distMin_*distMin_ && dR2 < minDR2) {
 	    // Check the selection
-	    float value = evaluation_(*jjet);
-	    // Fill to the vector
-	    values.push_back( value );
-	    found = true;	    
+	    value = evaluation_(*jjet);
+	    minDR2 = dR2;
 	  }
 	}// end loop over matched jets
-	if (!found) values.push_back( -99999 );
+
+	// Fill to the vector
+	values.push_back( value );
+
       }// end loop over src jets
       
       filler.insert(h_jets1, values.begin(), values.end());
