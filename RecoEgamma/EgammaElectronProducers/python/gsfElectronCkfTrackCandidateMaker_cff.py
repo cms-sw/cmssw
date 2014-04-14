@@ -4,14 +4,14 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 egammaCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
+import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
 #replace egammaCkfTrackCandidates.TransientInitialStateEstimatorParameters =
 #      {
 #         string propagatorAlongTISE    = "PropagatorWithMaterial"
 #         string propagatorOppositeTISE = "PropagatorWithMaterialOpposite"
 #      }	
 # TrajectoryBuilder
-TrajectoryBuilderForPixelMatchGsfElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone()
+TrajectoryBuilderForPixelMatchGsfElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone()
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 # Electron propagators and estimators
 # Looser chi2 estimator for electron trajectory building
@@ -20,20 +20,15 @@ gsfElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProduce
 from RecoEgamma.EgammaElectronProducers.bwdGsfElectronPropagator_cff import *
 # "forward" propagator for electrons
 from RecoEgamma.EgammaElectronProducers.fwdGsfElectronPropagator_cff import *
-# TrajectoryFilter
-from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-TrajectoryFilterForPixelMatchGsfElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 
 egammaCkfTrackCandidates.src = cms.InputTag('ecalDrivenElectronSeeds')
-egammaCkfTrackCandidates.TrajectoryBuilder = 'TrajectoryBuilderForPixelMatchGsfElectrons'
+egammaCkfTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'TrajectoryBuilderForPixelMatchGsfElectrons'
 egammaCkfTrackCandidates.SeedLabel = cms.InputTag('')
 egammaCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
 egammaCkfTrackCandidates.NavigationSchool = 'SimpleNavigationSchool'
 egammaCkfTrackCandidates.RedundantSeedCleaner = 'CachingSeedCleanerBySharedInput'
 
-TrajectoryBuilderForPixelMatchGsfElectrons.ComponentName = 'TrajectoryBuilderForPixelMatchGsfElectrons'
-TrajectoryBuilderForPixelMatchGsfElectrons.trajectoryFilterName = 'TrajectoryFilterForPixelMatchGsfElectrons'
+TrajectoryBuilderForPixelMatchGsfElectrons.trajectoryFilter.refToPSet_ = 'TrajectoryFilterForPixelMatchGsfElectrons'
 TrajectoryBuilderForPixelMatchGsfElectrons.maxCand = 3
 TrajectoryBuilderForPixelMatchGsfElectrons.intermediateCleaning = False
 TrajectoryBuilderForPixelMatchGsfElectrons.propagatorAlong = 'fwdGsfElectronPropagator'
@@ -49,8 +44,7 @@ gsfElectronChi2.ComponentName = 'gsfElectronChi2'
 gsfElectronChi2.MaxChi2 = 100000.
 gsfElectronChi2.nSigma = 3.
 
-TrajectoryFilterForPixelMatchGsfElectrons.ComponentName = 'TrajectoryFilterForPixelMatchGsfElectrons'
-TrajectoryFilterForPixelMatchGsfElectrons.filterPset = cms.PSet(
+TrajectoryFilterForPixelMatchGsfElectrons = cms.PSet(
     chargeSignificance = cms.double(-1.0),
     minPt = cms.double(3.0),
     minHitsMinPt = cms.int32(-1),
