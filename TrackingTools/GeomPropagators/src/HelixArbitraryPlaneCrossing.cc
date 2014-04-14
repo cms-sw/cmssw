@@ -67,6 +67,9 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
   // Prepare internal value of the propagation direction and position / direction vectors for iteration 
   //
   
+  float dz = plane.localZ(Surface::GlobalPoint(theX0,theY0,theZ0));
+  if (std::abs(dz)<safeMaxDist) return std::make_pair(true,0.);
+
   bool notFail;
   double dSTotal;
   // Use existing 2nd order object at first pass
@@ -129,6 +132,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
   // Return result
   //
   maxiter(iteration);
+
   return std::make_pair(true,dSTotal);
 }
 //
