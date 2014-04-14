@@ -166,7 +166,7 @@ mixData = cms.EDProducer("DataMixingModule",
     #  Pileup
                    #                   
     DTPileInputTag        = cms.InputTag("muonDTDigis","","@MIXING"),
-    RPCPileInputTag       = cms.InputTag("rpcunpacker","","@MIXING"),
+    RPCPileInputTag       = cms.InputTag("muonRPCDigis","","@MIXING"),
     CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
     CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
     CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
