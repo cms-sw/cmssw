@@ -1,7 +1,7 @@
-#include "Validation/MuonCSCDigis/interface/PSimHitMap.h"
+#include "Validation/MuonCSCDigis/interface/CSCPSimHitMap.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
-void PSimHitMap::fill(const edm::Event & e)
+void CSCPSimHitMap::fill(const edm::Event & e)
 {
   theMap.clear();
   edm::Handle<CrossingFrame<PSimHit> > cf;
@@ -19,7 +19,7 @@ void PSimHitMap::fill(const edm::Event & e)
     }
 }
 
-const edm::PSimHitContainer & PSimHitMap::hits(int detId) const
+const edm::PSimHitContainer & CSCPSimHitMap::hits(int detId) const
 {
   std::map<int, edm::PSimHitContainer>::const_iterator mapItr
     = theMap.find(detId);
@@ -34,7 +34,7 @@ const edm::PSimHitContainer & PSimHitMap::hits(int detId) const
 }
 
 
-std::vector<int> PSimHitMap::detsWithHits() const 
+std::vector<int> CSCPSimHitMap::detsWithHits() const 
 {
   std::vector<int> result;
   result.reserve(theMap.size());

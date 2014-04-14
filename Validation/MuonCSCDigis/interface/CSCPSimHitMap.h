@@ -1,5 +1,5 @@
-#ifndef MuonCSCDigis_PSimHitMap_h
-#define MuonCSCDigis_PSimHitMap_h
+#ifndef MuonCSCDigis_CSCPSimHitMap_h
+#define MuonCSCDigis_CSCPSimHitMap_h
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -8,10 +8,10 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include <map>
 
-class PSimHitMap
+class CSCPSimHitMap
 {
  public:
-  PSimHitMap(const edm::InputTag & iT, edm::ConsumesCollector && iC)
+  CSCPSimHitMap(const edm::InputTag & iT, edm::ConsumesCollector && iC)
     :  theMap(), theEmptyContainer()
   {
     sh_token = iC.consumes<CrossingFrame<PSimHit> >(iT);
