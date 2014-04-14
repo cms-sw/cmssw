@@ -42,7 +42,7 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
   edm::InputTag L1IsoCollTag_; 
   edm::InputTag L1NonIsoCollTag_;
   
-  float calculate_s2(reco::ElectronSeedCollection::const_iterator, int) ;
+  float calculate_s2(reco::ElectronSeedCollection::const_iterator, int) const ;
   
   // S parameter values
   // Divide by s_a_

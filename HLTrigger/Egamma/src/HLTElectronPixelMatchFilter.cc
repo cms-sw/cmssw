@@ -72,7 +72,7 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
 HLTElectronPixelMatchFilter::~HLTElectronPixelMatchFilter()
 {}
 
-float HLTElectronPixelMatchFilter::calculate_s2(reco::ElectronSeedCollection::const_iterator it, int charge) {
+float HLTElectronPixelMatchFilter::calculate_s2(reco::ElectronSeedCollection::const_iterator it, int charge) const {
   int subDet1 = it->subDet1() ;
   int subDet2 = it->subDet2() ;
   if(charge<0){ // Negative
