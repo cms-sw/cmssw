@@ -155,16 +155,17 @@ firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
 firstStepGoodPrimaryVertices = cms.EDFilter(
      "PrimaryVertexObjectFilter",
      filterParams = cms.PSet(
-	     pvSrc = cms.InputTag('firstStepPrimaryVertices'),
+	     #pvSrc = cms.InputTag('firstStepPrimaryVertices'),#try to remove this one
      	     minNdof = cms.double(25.0),
              maxZ = cms.double(15.0),
              maxRho = cms.double(2.0)
      ),
-     src=cms.InputTag('offlinePrimaryVertices')
+     src=cms.InputTag('firstStepPrimaryVertices')#why need twice the same src?
    )
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(firstStepPrimaryVertices*
+JetCoreRegionalStep = cms.Sequence(jetsForCoreTracking*
+                                   firstStepPrimaryVertices*
                                    firstStepGoodPrimaryVertices*
                                    #jetCoreRegionalStepClusters*
                                    jetCoreRegionalStepSeedLayers*
