@@ -12,6 +12,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+
+#include <memory>
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
@@ -58,7 +60,7 @@ void QualityTester::beginRun(const edm::Run& run , const edm::EventSetup& iSetup
 //     std::cout << "Reading XML from Database" << std::endl ;
     edm::ESHandle<FileBlob> xmlfile;
     iSetup.get<DQMXMLFileRcd>().get(Label,xmlfile);
-    boost::scoped_ptr<std::vector<unsigned char> > vc( (*xmlfile).getUncompressedBlob() );
+    std::unique_ptr<std::vector<unsigned char> > vc( (*xmlfile).getUncompressedBlob() );
     std::string xmlstr="";
     for(std::vector<unsigned char>::iterator it=vc->begin();it!=vc->end();it++){
       xmlstr += *it;

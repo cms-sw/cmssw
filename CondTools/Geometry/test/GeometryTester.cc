@@ -34,6 +34,7 @@
 #include "Geometry/Records/interface/PZdcRcd.h"
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -63,7 +64,7 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<FileBlob> xmlgeo;
     iSetup.get<GeometryFileRcd>().get(geomLabel_, xmlgeo);
     std::cout<<"XML FILE"<<std::endl;
-    std::vector<unsigned char>* tb = (*xmlgeo).getUncompressedBlob();
+    std::unique_ptr<std::vector<unsigned char> > tb = (*xmlgeo).getUncompressedBlob();
     std::cout<<"SIZE FILE = "<<tb->size()<<std::endl;
     for(uint32_t i=0; i<tb->size();i++){
       std::cout<<(*tb)[i];
