@@ -29,14 +29,9 @@ bool Chi2ChargeMeasurementEstimator::checkCharge(const TrackingRecHit& aRecHit,
 	<< " (SiPixelRecHit) expected";
     }
   } else {
-//           printf("Questo e' un %s, che ci fo? %i %lu %u\n", tid.name(), aRecHit.dimension(),aRecHit.recHits().size() ,aRecHit.getRTTI() );
-//  return true;	  
 
-
-///////////////////////////
-
-    if (aRecHit.getRTTI() == 3) { //  This is a matched RecHit
-          const std::type_info &tid = typeid(aRecHit);
+    if (aRecHit.getRTTI() == 4) { //  This is a matched RecHit
+      const std::type_info &tid = typeid(aRecHit);
       if (tid == typeid(SiStripMatchedRecHit2D)) {
         const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(&aRecHit);
         
@@ -57,7 +52,7 @@ bool Chi2ChargeMeasurementEstimator::checkCharge(const TrackingRecHit& aRecHit,
 	  throw cms::Exception("Unknown RecHit Type") << "checkCharge/TSiStripMatchedRecHit: Wrong recHit type: " << type.name();
 	}
       } else assert(false);
-    } else     {//if (aRecHit.getRTTI() == 2) { //  This is a matched RecHit
+    } else {
         const TransientTrackingRecHit *projHit = static_cast<const TransientTrackingRecHit *>(&aRecHit);
        const BaseTrackerRecHit* hit = dynamic_cast<const BaseTrackerRecHit*>(projHit->hit());
         if likely(hit!=0) return checkClusterCharge(hit->firstClusterRef().cluster_strip(), chargeCut);//    cluster = &*(hit->cluster());
@@ -67,14 +62,6 @@ bool Chi2ChargeMeasurementEstimator::checkCharge(const TrackingRecHit& aRecHit,
 	}
     }
     
-//     else {
-//         const BaseTrackerRecHit* hit = dynamic_cast<const BaseTrackerRecHit*>(&aRecHit);
-//         if likely(hit!=0) return checkClusterCharge(hit->firstClusterRef().cluster_strip(), chargeCut);//    cluster = &*(hit->cluster());
-// 	else{
-// 	  const std::type_info &type = typeid(aRecHit);
-// 	  throw cms::Exception("Unknown RecHit Type") << "checkCharge/BaseTrackerRecHit: Wrong recHit type: " << type.name();
-// 	}
-//     }
   }
 
   throw cms::Exception("Unknown RecHit Type") << "checkCharge: Unknown hit";
