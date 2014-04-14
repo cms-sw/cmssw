@@ -286,7 +286,7 @@ bool HcalRecHitReflagger::CheckPET(const HFRecHit& hf)
   int ieta = id.ieta();
   double energy=hf.energy();
   int depth = id.depth();
-  std::pair<double,double> etas = topo->etaRange(HcalForward,ieta);
+  std::pair<double,double> etas = topo->etaRange(HcalForward,abs(ieta));
   double eta1 = etas.first;
   double eta2 = etas.second;
   double fEta = 0.5*(eta1 + eta2); // calculate eta as average of eta values at ieta boundaries

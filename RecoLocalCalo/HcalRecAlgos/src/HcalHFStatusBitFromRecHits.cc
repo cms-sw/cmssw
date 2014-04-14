@@ -49,7 +49,7 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec,
 
       ieta =iHF->id().ieta();  // int between 29-41
       // eta = average value between cell eta bounds
-      std::pair<double,double> etas = myqual->topo()->etaRange(HcalForward,ieta);
+      std::pair<double,double> etas = myqual->topo()->etaRange(HcalForward,abs(ieta));
       double eta1 = etas.first;
       double eta2 = etas.second;
       coshEta=fabs(cosh(0.5*(eta1+eta2)));
