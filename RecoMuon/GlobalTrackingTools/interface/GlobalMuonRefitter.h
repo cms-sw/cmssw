@@ -23,6 +23,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/MuonReco/interface/DYTInfo.h"
 
 namespace edm {class Event;}
 namespace reco {class TransientTrack;}
@@ -89,7 +90,9 @@ class GlobalMuonRefitter {
     ConstRecHitContainer getRidOfSelectStationHits(const ConstRecHitContainer& hits,
 						   const TrackerTopology *tTopo) const;
 
-
+    // return DYT-related informations           
+    const reco::DYTInfo* getDYTInfo() {return dytInfo;}
+    
   protected:
 
     enum RefitDirection{insideOut,outsideIn,undetermined};
@@ -150,6 +153,10 @@ class GlobalMuonRefitter {
     RefitDirection theRefitDirection;
 
     std::vector<int> theDYTthrs;
+    int theDYTselector;
+    bool theDYTupdator;
+    bool theDYTuseAPE;
+    reco::DYTInfo *dytInfo;
 
     std::string theFitterName;
     edm::ESHandle<TrajectoryFitter> theFitter;

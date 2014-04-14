@@ -149,6 +149,18 @@
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonRef> >"/>
 
+  <class name="reco::DYTInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="910544468"/>
+  </class>
+    <class name="std::vector<reco::DYTInfo>"/>
+  <class name="std::vector<reco::DYTInfo>::const_iterator"/>
+  <class name="edm::ValueMap<reco::DYTInfo>"/>
+  <class name="edm::ValueMap<reco::DYTInfo>::const_iterator">
+<field name="values_" transient="true"/>
+    <field name="i_" transient="true"/>
+    <field name="end_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::ValueMap<reco::DYTInfo> >"/>
 
   <!-- 
   <class name="edm::reftobase::BaseHolder<reco::Muon>" />
