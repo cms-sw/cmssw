@@ -599,6 +599,8 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
                     clang::ento::BugReporter &BR) const {
 
 	const clang::SourceManager &SM = BR.getSourceManager();
+ 	const char *sfile=SM.getPresumedLoc(RD->getLocation()).getFilename();
+ 	if (!support::isCmsLocalFile(sfile)) return;
 	
   	std::string buf;
   	llvm::raw_string_ostream os(buf);
