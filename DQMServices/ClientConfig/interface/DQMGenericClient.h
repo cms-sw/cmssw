@@ -11,7 +11,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <set>
 #include <string>
 #include <vector>
@@ -23,20 +23,15 @@
 #include <TGraphAsymmErrors.h>
 #endif
 
-class DQMStore;
 class MonitorElement;
 
-class DQMGenericClient : public edm::EDAnalyzer
+class DQMGenericClient : public DQMEDHarvester
 {
  public:
   DQMGenericClient(const edm::ParameterSet& pset);
   ~DQMGenericClient() {};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
-  void endJob();
-
-  /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   struct EfficOption
   {
@@ -62,19 +57,30 @@ class DQMGenericClient : public edm::EDAnalyzer
     std::string name;
   };
 
-  void computeEfficiency(const std::string& startDir, 
+  void computeEfficiency(DQMStore::IBooker& ibooker,
+			 DQMStore::IGetter& igetter,
+			 const std::string& startDir, 
                          const std::string& efficMEName, 
                          const std::string& efficMETitle,
                          const std::string& recoMEName, 
                          const std::string& simMEName, 
                          const int type=1,
                          const bool makeProfile = false);
-  void computeResolution(const std::string& startDir, 
+  void computeResolution(DQMStore::IBooker& ibooker,
+			 DQMStore::IGetter& igetter,
+			 const std::string& startDir, 
                          const std::string& fitMEPrefix, const std::string& fitMETitlePrefix, 
                          const std::string& srcMEName);
 
-  void normalizeToEntries(const std::string& startDir, const std::string& histName, const std::string& normHistName);
-  void makeCumulativeDist(const std::string& startDir, const std::string& cdName);
+  void normalizeToEntries(DQMStore::IBooker& ibooker,
+			  DQMStore::IGetter& igetter,
+			  const std::string& startDir,
+			  const std::string& histName,
+			  const std::string& normHistName);
+  void makeCumulativeDist(DQMStore::IBooker& ibooker,
+			  DQMStore::IGetter& igetter,
+			  const std::string& startDir,
+			  const std::string& cdName);
 
   void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
 
@@ -94,7 +100,11 @@ class DQMGenericClient : public edm::EDAnalyzer
 
   void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const int type=1);
 
-  void findAllSubdirectories (std::string dir, std::set<std::string> * myList, const TString& pattern);
+  void findAllSubdirectories (DQMStore::IBooker& ibooker,
+			      DQMStore::IGetter& igetter,
+			      std::string dir,
+			      std::set<std::string> * myList,
+			      const TString& pattern);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 
