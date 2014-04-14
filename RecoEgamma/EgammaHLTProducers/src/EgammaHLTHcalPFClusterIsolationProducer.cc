@@ -20,8 +20,8 @@ EgammaHLTHcalPFClusterIsolationProducer::EgammaHLTHcalPFClusterIsolationProducer
 
   recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   pfClusterProducerHCAL_     = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHCAL"));
-  pfClusterProducerHFEM_     = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFEM"));
-  pfClusterProducerHFHAD_    = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFHAD"));
+  //pfClusterProducerHFEM_     = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFEM"));
+  //pfClusterProducerHFHAD_    = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFHAD"));
 
   drMax_          = config.getParameter<double>("drMax");
   drVetoBarrel_   = config.getParameter<double>("drVetoBarrel");
@@ -51,8 +51,8 @@ void EgammaHLTHcalPFClusterIsolationProducer::fillDescriptions(edm::Configuratio
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidatePF"));
   desc.add<edm::InputTag>("pfClusterProducerHCAL", edm::InputTag("hltParticleFlowClusterHCAL"));
-  desc.add<edm::InputTag>("pfClusterProducerHFEM", edm::InputTag("hltParticleFlowClusterHFEM"));
-  desc.add<edm::InputTag>("pfClusterProducerHFHAD", edm::InputTag("hltParticleFlowClusterHFHAD"));
+  //desc.add<edm::InputTag>("pfClusterProducerHFEM", edm::InputTag("hltParticleFlowClusterHFEM"));
+  //desc.add<edm::InputTag>("pfClusterProducerHFHAD", edm::InputTag("hltParticleFlowClusterHFHAD"));
   desc.add<edm::InputTag>("rhoProducer", edm::InputTag("fixedGridRhoFastjetAllCalo"));
   desc.add<bool>("doRhoCorrection", false);
   desc.add<double>("rhoMax", 9.9999999E7); 
@@ -85,16 +85,16 @@ void EgammaHLTHcalPFClusterIsolationProducer::produce(edm::Event& iEvent, const 
 
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   edm::Handle<reco::PFClusterCollection> clusterHcalHandle;
-  edm::Handle<reco::PFClusterCollection> clusterHfemHandle;
-  edm::Handle<reco::PFClusterCollection> clusterHfhadHandle;
+  //edm::Handle<reco::PFClusterCollection> clusterHfemHandle;
+  //edm::Handle<reco::PFClusterCollection> clusterHfhadHandle;
 
   iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
   iEvent.getByToken(pfClusterProducerHCAL_, clusterHcalHandle);
-  iEvent.getByToken(pfClusterProducerHFEM_, clusterHfemHandle);
-  iEvent.getByToken(pfClusterProducerHFHAD_, clusterHfhadHandle);
+  //iEvent.getByToken(pfClusterProducerHFEM_, clusterHfemHandle);
+  //iEvent.getByToken(pfClusterProducerHFHAD_, clusterHfhadHandle);
   const reco::PFClusterCollection* forIsolationHcal = clusterHcalHandle.product();
-  const reco::PFClusterCollection* forIsolationHfem = clusterHfemHandle.product();
-  const reco::PFClusterCollection* forIsolationHfhad = clusterHfhadHandle.product();
+  //const reco::PFClusterCollection* forIsolationHfem = clusterHfemHandle.product();
+  //const reco::PFClusterCollection* forIsolationHfhad = clusterHfhadHandle.product();
 
   reco::RecoEcalCandidateIsolationMap recoEcalCandMap;
   
@@ -136,6 +136,7 @@ void EgammaHLTHcalPFClusterIsolationProducer::produce(edm::Event& iEvent, const 
       sum += pfclu.pt();
     }
 
+    /*
     for(unsigned i=0; i<forIsolationHfem->size(); i++) {
       const reco::PFCluster& pfclu = (*forIsolationHfem)[i];
       
@@ -175,7 +176,8 @@ void EgammaHLTHcalPFClusterIsolationProducer::produce(edm::Event& iEvent, const 
       
       sum += pfclu.pt();
     }
-       
+    */
+ 
     if (doRhoCorrection_) {
       if (fabs(candRef->eta()) < 1.479) 
 	sum = sum - rho*effectiveAreaBarrel_;
