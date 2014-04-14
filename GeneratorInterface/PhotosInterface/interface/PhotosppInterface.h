@@ -1,5 +1,5 @@
-#ifndef gen_PhotosInterface_PhotosInterface_h
-#define gen_PhotosInterface_PhotosInterface_h
+#ifndef gen_PhotosInterface_PhotosppInterface_h
+#define gen_PhotosInterface_PhotosppInterface_h
 
 // #include "HepPDT/ParticleDataTable.hh"
 
@@ -18,13 +18,12 @@ class GenVertex;
 }
 
 namespace gen {
-  class PhotosInterface : public PhotosInterfaceBase {
+  class PhotosppInterface : public PhotosInterfaceBase {
   public:
     
     // ctor & dtor
-    PhotosInterface(); 
-    PhotosInterface( const edm::ParameterSet& );
-    ~PhotosInterface() {}
+    PhotosppInterface( const edm::ParameterSet& pset);
+    ~PhotosppInterface() {}
 
     void init();
     const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
@@ -34,28 +33,15 @@ namespace gen {
     bool isTauLeptonicDecay( HepMC::GenVertex* );
     void setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine);
     static double flat();
+    void statistics();
     
   private: 
-    /*
-    struct Scaling {
-      HepMC::ThreeVector weights;
-      int                flag;
-    Scaling( const HepMC::ThreeVector& vec, int flg )	
-    : weights(HepMC::ThreeVector(1.,1.,1)), flag(1) { weights=vec; flag=flg; }
-    };
-    */
     int                      fOnlyPDG;
     bool                     fAvoidTauLeptonicDecays;  
-    std::vector<int>         fBarcodes;
-    std::vector<int>         fSecVtxStore;
     bool                     fIsInitialized;
-    
-    void applyToVertex( HepMC::GenEvent*, int );
-    void applyToBranch( HepMC::GenEvent*, int );
-    void attachParticles( HepMC::GenEvent*, HepMC::GenVertex*, int );
+    edm::ParameterSet*       fPSet;
 
     static CLHEP::HepRandomEngine* fRandomEngine;
-    
   };
 }
 
