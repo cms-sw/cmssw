@@ -24,8 +24,6 @@ def customise_Digi(process):
 
 def customise_L1Emulator(process):
     process.simCscTriggerPrimitiveDigis.rpcDigiProducer =  cms.untracked.InputTag("simMuonRPCDigis","")
-    process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
     tmb.me3141ILT = cms.PSet(
         runME3141ILT = cms.untracked.bool(True),
@@ -36,6 +34,11 @@ def customise_L1Emulator(process):
         dropLowQualityCLCTsNoRPC = cms.untracked.bool(True),
         dropLowQualityALCTsNoRPCs = cms.untracked.bool(True),
     )
+    if tmb.me11ILT.runME11ILT:
+        process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
+        process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
+        process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+
     return process
 
 def customise_DigiToRaw(process):

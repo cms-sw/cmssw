@@ -98,7 +98,7 @@ CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
   runME3141ILT_ = me3141tmbParams.getUntrackedParameter<bool>("runME3141ILT",false);
 
   // debug rpc matching
-  debugRPCMatching_ = tmbParams.getUntrackedParameter<bool>("debugRPCMatching", false);
+  debugRPCMatching_ = tmbParams.getUntrackedParameter<bool>("debugRPCMatching", true);
 
   // deltas used to match to RPC pads
   maxDeltaBXRPC_ = tmbParams.getUntrackedParameter<int>("maxDeltaBXRPC",0);
@@ -129,8 +129,19 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
     return;
   }
 
-  alct->run(wiredc); // run anodeLCT
-  clct->run(compdc); // run cathodeLCT
+  alctV = alct->run(wiredc); // run anodeLCT
+  clctV = clct->run(compdc); // run cathodeLCT
+  
+  const bool debugStubs(true);
+  if (debugStubs){
+    for (auto& p : alctV){
+      std::cout << "ALCT: " << p << std::endl;
+    }
+    
+    for (auto& p : clctV){
+      std::cout << "CLCT: " << p << std::endl;
+    }
+  }
 
   bool rpcGeometryAvailable(false);
   if (rpc_g != nullptr) {
@@ -144,6 +155,17 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
   const CSCChamber* cscChamber(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
   const CSCDetId csc_id(cscChamber->id());
 
+  // trigger geometry
+  const CSCLayer* keyLayer(cscChamber->layer(3));
+  const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
+  const int region((theEndcap == 1) ? 1: -1);
+  const bool isEven(csc_id%2==0);
+  //  const int nSubSectors(3);
+  const int chamber(CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector,theStation,theTrigChamber));
+  const RPCDetId rpc_id(region,1,theStation,theSector,1,theTrigChamber,0);
+  std::cout << "csc id " << csc_id << ", rpc id " << rpc_id << ", chamber number from trigger " << chamber << std::endl;
+  const RPCChamber* rpcChamber(rpc_g->chamber(rpc_id));
+  
   if (runME3141ILT_){
     
     // check for RE3/1-RE4/1 geometry
@@ -152,14 +174,7 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
         << "+++ run() called for RPC-CSC integrated trigger without valid RPC geometry! +++ \n";
       return;
     }
-    // trigger geometry
-    const CSCLayer* keyLayer(cscChamber->layer(3));
-    const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
-    const int region((theEndcap == 1) ? 1: -1);
-    const bool isEven(csc_id%2==0);
-    const RPCDetId rpc_id(region,1,theStation,theSector,1,theTrigChamber,0);
-    const RPCChamber* rpcChamber(rpc_g->chamber(rpc_id));
-    
+
     // LUT<roll,<etaMin,etaMax> >    
     rpcRollToEtaLimits_ = createRPCRollLUT(rpc_id);
     
@@ -207,7 +222,7 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
       // HS are wrapped-around
       cscHsToRpcStrip_[nStrips*2-HS] = std::make_pair(std::floor(strip),std::ceil(strip));
     }
-    debug = true;
+    debug = false;
     if (debug){
       std::cout << "detId " << csc_id << std::endl;
       std::cout << "CSCHSToRPCStrip LUT in" << std::endl;
@@ -235,89 +250,116 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
     }
 
     rpcDigis_.clear();
-    retrieveRPCDigis(rpcDigis, rpc_id);
+    retrieveRPCDigis(rpcDigis, rpc_id.rawId());
   }
-  
   //  const bool hasRPCDigis(rpcDigis_.size()!=0);
   
-  int used_alct_mask[20];
-  for (int a=0;a<20;++a) used_alct_mask[a]=0;
-  
-  int bx_alct_matched = 0; // bx of last matched ALCT
-  for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS; bx_clct++) {
-    // There should be at least one valid ALCT or CLCT for a
-    // correlated LCT to be formed.  Decision on whether to reject
-    // non-complete LCTs (and if yes of which type) is made further
-    // upstream.
-    if (clct->bestCLCT[bx_clct].isValid()) {
-      // Look for ALCTs within the match-time window.  The window is
-      // centered at the CLCT bx; therefore, we make an assumption
-      // that anode and cathode hits are perfectly synchronized.  This
-      // is always true for MC, but only an approximation when the
-      // data is analyzed (which works fairly good as long as wide
-      // windows are used).  To get rid of this assumption, one would
-      // need to access "full BX" words, which are not readily
-      // available.
-      bool is_matched = false;
-      int bx_alct_start = bx_clct - match_trig_window_size/2;
-      int bx_alct_stop  = bx_clct + match_trig_window_size/2;
-      // Empirical correction to match 2009 collision data (firmware change?)
-      // (but don't do it for SLHC case, assume it would not be there)
-      if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
-      
-      for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
-	if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
-	  continue;
-	// default: do not reuse ALCTs that were used with previous CLCTs
-	if (drop_used_alcts && used_alct_mask[bx_alct]) continue;
-	if (alct->bestALCT[bx_alct].isValid()) {
-	  if (infoV > 1) LogTrace("CSCMotherboard")
-	    << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
-	    << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
-	    << "]; bx_alct = " << bx_alct;
-	  correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-			clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-	  used_alct_mask[bx_alct] += 1;
-	  is_matched = true;
-	  bx_alct_matched = bx_alct;
-	  break;
-	}
-      }
-      // No ALCT within the match time interval found: report CLCT-only LCT
-      // (use dummy ALCTs).
-      if (!is_matched) {
-	if (infoV > 1) LogTrace("CSCMotherboard")
-	  << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
-	  << bx_clct << "; match window: [" << bx_alct_start
-	  << "; " << bx_alct_stop << "]";
-	correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
-		      clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+  int used_clct_mask[20];
+  for (int c=0;c<20;++c) used_clct_mask[c]=0;
+   
+  // ALCT centric matching
+  for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
+  {
+    if (alct->bestALCT[bx_alct].isValid())
+    {
+      const int bx_clct_start(bx_alct - match_trig_window_size/2);
+      const int bx_clct_stop(bx_alct + match_trig_window_size/2);
+
+      if (debugRPCMatching_){ 
+        std::cout << "========================================================================" << std::endl;
+        std::cout << "ALCT-CLCT matching in ME" << theStation << "/1 chamber: " << csc_id << std::endl;
+        std::cout << "------------------------------------------------------------------------" << std::endl;
+        std::cout << "+++ Best ALCT Details: ";
+        alct->bestALCT[bx_alct].print();
+        std::cout << "+++ Second ALCT Details: ";
+        alct->secondALCT[bx_alct].print();
+        std::cout << "------------------------------------------------------------------------" << std::endl;
+        std::cout << "RPC Chamber " << rpc_id << std::endl;
+        printRPCTriggerDigis(bx_clct_start, bx_clct_stop);      
+        
+        std::cout << "------------------------------------------------------------------------" << std::endl;
+        std::cout << "Attempt ALCT-CLCT matching in ME" << theStation << "/1 in bx range: [" << bx_clct_start << "," << bx_clct_stop << "]" << std::endl;
+
+        for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
+          if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;          
+          if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
+          if (clct->bestCLCT[bx_clct].isValid()) {
+            //            if (infoV > 1) LogTrace("CSCMotherboard")
+            std::cout
+              << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
+              << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
+              << "]; bx_alct = " << bx_alct;
+            correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+                          clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);            
+          }
+        }
       }
     }
-    // No valid CLCTs; attempt to make ALCT-only LCT.  Use only ALCTs
-    // which have zeroth chance to be matched at later cathode times.
-    // (I am not entirely sure this perfectly matches the firmware logic.)
-    // Use dummy CLCTs.
-    else {
-      int bx_alct = bx_clct - match_trig_window_size/2;
-      if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-	if (alct->bestALCT[bx_alct].isValid()) {
-	  if (infoV > 1) LogTrace("CSCMotherboard")
-	    << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
-	    << bx_alct;
-	  correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-			clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-	}
-      }
-    }
+    else{}
+    //       std::cout << "------------------------------------------------------------------------" << std::endl;
+      //     std::cout << "invalid ALCT" <<std::endl;
   }
+  
+  //   int bx_alct_matched = 0; // bx of last matched ALCT
+//   for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS; bx_clct++) {
+//     if (clct->bestCLCT[bx_clct].isValid()) {
+//       bool is_matched = false;
+//       int bx_alct_start = bx_clct - match_trig_window_size/2;
+//       int bx_alct_stop  = bx_clct + match_trig_window_size/2;
+      
+//       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
+//         if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
+//           continue;
+//         // default: do not reuse ALCTs that were used with previous CLCTs
+//         if (drop_used_alcts && used_alct_mask[bx_alct]) continue;
+//         if (alct->bestALCT[bx_alct].isValid()) {
+//           if (infoV > 1) LogTrace("CSCMotherboard")
+//             << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
+//             << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
+//             << "]; bx_alct = " << bx_alct;
+//           correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+//                         clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+//           used_alct_mask[bx_alct] += 1;
+//           is_matched = true;
+//           bx_alct_matched = bx_alct;
+//           break;
+//         }
+//       }
+//       // No ALCT within the match time interval found: report CLCT-only LCT
+//       // (use dummy ALCTs).
+//       if (!is_matched) {
+//         if (infoV > 1) LogTrace("CSCMotherboard")
+//           << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
+//           << bx_clct << "; match window: [" << bx_alct_start
+//           << "; " << bx_alct_stop << "]";
+//         correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
+//                       clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+//       }
+//     }
+//     // No valid CLCTs; attempt to make ALCT-only LCT.  Use only ALCTs
+//     // which have zeroth chance to be matched at later cathode times.
+//     // (I am not entirely sure this perfectly matches the firmware logic.)
+//     // Use dummy CLCTs.
+//     else {
+//       int bx_alct = bx_clct - match_trig_window_size/2;
+//       if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
+//         if (alct->bestALCT[bx_alct].isValid()) {
+//           if (infoV > 1) LogTrace("CSCMotherboard")
+//             << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
+//             << bx_alct;
+//           correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+//                         clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+//         }
+//       }
+//     }
+//   }
   
   if (infoV > 0) {
     for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
       if (firstLCT[bx].isValid())
-	LogDebug("CSCMotherboard") << firstLCT[bx];
+        LogDebug("CSCMotherboard") << firstLCT[bx];
       if (secondLCT[bx].isValid())
-	LogDebug("CSCMotherboard") << secondLCT[bx];
+        LogDebug("CSCMotherboard") << secondLCT[bx];
     }
   }
 }
@@ -375,11 +417,39 @@ void CSCMotherboardME3141::retrieveRPCDigis(const RPCDigiCollection* rpcDigis, u
     RPCDetId roll_id(roll->id());
     auto digis_in_det = rpcDigis->get(roll_id);
     for (auto digi = digis_in_det.first; digi != digis_in_det.second; ++digi) {
+      std::cout << roll_id << " " << &(*digi) << std::endl;
       auto id_digi = std::make_pair(roll_id(), &(*digi));
       const int bx_shifted(lct_central_bx + digi->bx());
       for (int bx = bx_shifted - maxDeltaBXRPC_;bx <= bx_shifted + maxDeltaBXRPC_; ++bx) {
         rpcDigis_[bx].push_back(id_digi);  
       }
     }
+  }
+}
+
+
+void CSCMotherboardME3141::printRPCTriggerDigis(int bx_start, int bx_stop)
+{
+  // pads or copads?
+  auto theDigis(rpcDigis_);
+  const bool hasDigis(theDigis.size()!=0);
+  
+  std::cout << "------------------------------------------------------------------------" << std::endl;
+  bool first = true;
+  for (int bx = bx_start; bx <= bx_stop; bx++) {
+    std::vector<std::pair<unsigned int, const RPCDigi*> > in_strips = theDigis[bx];
+    if (first) {
+      std::cout << "* RPC trigger digis: " << std::endl;
+    }
+    first = false;
+    std::cout << "N(digis) BX " << bx << " : " << in_strips.size() << std::endl;
+    if (hasDigis){
+      for (auto digi : in_strips){
+        auto roll_id(RPCDetId(digi.first));
+        std::cout << "\tdetId " << digi.first << " " << roll_id << ", digi = " << digi.second->strip() << ", BX = " << digi.second->bx() + 6;
+      }
+    }
+    else
+      break;
   }
 }

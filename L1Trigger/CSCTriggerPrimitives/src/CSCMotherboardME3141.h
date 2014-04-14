@@ -47,6 +47,7 @@ class CSCMotherboardME3141 : public CSCMotherboard
   bool hasRE31andRE41();
   int assignRPCRoll(double eta);
   void retrieveRPCDigis(const RPCDigiCollection* digis, unsigned id);
+  void printRPCTriggerDigis(int minBX, int maxBx);
 
   std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
 
