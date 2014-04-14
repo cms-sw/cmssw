@@ -33,8 +33,6 @@ namespace {
   constexpr int layersPerWheel = layersIn13Sectors + 8;
 }
 
-DTSequentialLayerNumber DTSequentialLayer;
-
 
 //----------------
 // Constructors --

@@ -1,4 +1,10 @@
-#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
+#ifndef CondFormats_DTObjects_DTReadOutMappingCache_h
+#define CondFormats_DTObjects_DTReadOutMappingCache_h
+
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+
+#include <memory>
+#include <vector>
 
 template <class Key, class Content> class DTBufferTree;
 class DTBufferTreeUniquePtr;
@@ -7,14 +13,15 @@ class DTReadOutMappingCache {
 
 public:
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > mType;
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgBuf;
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgROB;
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgROS;
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgDDU;
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > grBuf;
+  DTBufferTree<int,int> mType;
+  DTBufferTree<int,int> rgBuf;
+  DTBufferTree<int,int> rgROB;
+  DTBufferTree<int,int> rgROS;
+  DTBufferTree<int,int> rgDDU;
+  DTBufferTree<int,int> grBuf;
 
-  edm::ConstRespectingPtr<DTBufferTreeUniquePtr> grROB;
-  edm::ConstRespectingPtr<DTBufferTreeUniquePtr> grROS;
-  edm::ConstRespectingPtr<DTBufferTreeUniquePtr> grDDU;
+  DTBufferTree<int, std::unique_ptr<std::vector<int> > > grROB;
+  DTBufferTree<int, std::unique_ptr<std::vector<int> > > grROS;
+  DTBufferTree<int, std::unique_ptr<std::vector<int> > > grDDU;
 };
+#endif
