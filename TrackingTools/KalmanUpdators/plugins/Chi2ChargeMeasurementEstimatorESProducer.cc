@@ -30,9 +30,11 @@ Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord
   bool cutOnStripCharge_ = pset_.exists("minGoodStripCharge");
   double minGoodPixelCharge_= (cutOnPixelCharge_ ? pset_.getParameter<double>("minGoodPixelCharge") : 0); 
   double minGoodStripCharge_= (cutOnStripCharge_ ? pset_.getParameter<double>("minGoodStripCharge") : 0);
-
+  double pTChargeCutThreshold_= (pset_.exists("pTChargeCutThreshold") ? pset_.getParameter<double>("pTChargeCutThreshold") : -1.);
+  
   _estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(
-	new Chi2ChargeMeasurementEstimator(maxChi2,nSigma, cutOnPixelCharge_, cutOnStripCharge_, minGoodPixelCharge_, minGoodStripCharge_));
+	new Chi2ChargeMeasurementEstimator(maxChi2,nSigma, cutOnPixelCharge_, cutOnStripCharge_, 
+		minGoodPixelCharge_, minGoodStripCharge_, pTChargeCutThreshold_));
   return _estimator;
 }
 

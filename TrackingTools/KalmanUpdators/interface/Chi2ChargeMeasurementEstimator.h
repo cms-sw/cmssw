@@ -2,12 +2,14 @@
 #define CommonDet_Chi2ChargeMeasurementEstimator_H
 
 /** \class Chi2ChargeMeasurementEstimator
- *  A Chi2 Measurement Estimator. 
+ *  A Chi2 Measurement Estimator, checking also the charge of the cluster.
  *  Computhes the Chi^2 of a TrajectoryState with a RecHit or a 
  *  Plane. The TrajectoryState must have errors.
- *  Works for any RecHit dimension. Ported from ORCA.
+ *  If the cluster passes the chi2 cut, the charge is checked. This cut can 
+ *  be bypassed for high-pt cut.
+ *  Works for any RecHit dimension.
  *
- *  \author todorov, cerati
+ *  \author todorov, cerati, speer
  */
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
@@ -24,10 +26,14 @@ public:
    *  to define acceptance of Plane and maximalLocalDisplacement.
    */
   explicit Chi2ChargeMeasurementEstimator(double maxChi2, double nSigma,
-	bool cutOnPixelCharge, bool cutOnStripCharge, double minGoodPixelCharge, double minGoodStripCharge) : 
+	bool cutOnPixelCharge, bool cutOnStripCharge, double minGoodPixelCharge, double minGoodStripCharge,
+	float pTChargeCutThreshold = 100000.) : 
     Chi2MeasurementEstimator( maxChi2, nSigma), cutOnPixelCharge_(cutOnPixelCharge),
     cutOnStripCharge_(cutOnStripCharge), minGoodPixelCharge_(minGoodPixelCharge),
-    minGoodStripCharge_(minGoodStripCharge) {}
+    minGoodStripCharge_(minGoodStripCharge) {
+      if (pTChargeCutThreshold>=0.) pTChargeCutThreshold_=pTChargeCutThreshold;
+      else pTChargeCutThreshold_=100000;
+    }
 
   using Chi2MeasurementEstimator::estimate;
   virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
@@ -42,6 +48,7 @@ private:
   bool cutOnStripCharge_;
   double minGoodPixelCharge_; 
   double minGoodStripCharge_;
+  float pTChargeCutThreshold_;
   inline double minGoodCharge(int subdet) const {return (subdet>2?minGoodStripCharge_:minGoodPixelCharge_);}
 
   bool thickSensors (const SiStripDetId& detid) const;
