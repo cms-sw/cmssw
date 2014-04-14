@@ -968,7 +968,12 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   } // end of ALCT-centric matching
   
     // possibly use some discrimination from GEMs
-  if (gemGeometryAvailable and runME11ILT_ and do_gem_matching) matchGEMPads();
+  if (gemGeometryAvailable and runME11ILT_ and do_gem_matching) {
+    matchGEMPads(ME1A);
+    matchGEMPads(ME1B);
+  }
+    
+  
   
   if (hasLCTs and print_available_pads){
     std::cout << "========================================================================" << std::endl;
@@ -1137,7 +1142,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1b()
 // Returns vector of read-out correlated LCTs, if any.  Starts with
 // the vector of all found LCTs and selects the ones in the read-out
 // time window.
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab)
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(enum ME11Part me1ab)
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
@@ -1156,9 +1161,22 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab)
   // Start from the vector of all found correlated LCTs and select
   // those within the LCT*L1A coincidence window.
   int bx_readout = -1;
+  std::vector<CSCCorrelatedLCTDigi> tmp_lcts;
   std::vector<CSCCorrelatedLCTDigi> all_lcts;
-  if (me1ab == ME1A) all_lcts = getLCTs1a();
-  if (me1ab == ME1B) all_lcts = getLCTs1b();
+  if (me1ab == ME1A) tmp_lcts = getLCTs1a();
+  if (me1ab == ME1B) tmp_lcts = getLCTs1b();
+  switch(tmb_cross_bx_algo){
+  case 0: all_lcts = tmp_lcts;
+    break;
+  case 1: all_lcts = tmp_lcts; 
+    break;
+  case 2: all_lcts = sortLCTsByQual(me1ab); 
+    break;
+  case 3: all_lcts = sortLCTsByGEMDPhi(me1ab);
+    break;
+  default: std::cout<<"tmb_cross_bx_algo error" <<std::endl;
+    break;
+  }
   std::vector <CSCCorrelatedLCTDigi>::const_iterator plct = all_lcts.begin();
   for (; plct != all_lcts.end(); plct++)
   {
@@ -1212,6 +1230,218 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a()
       for (int i=0;i<2;i++)
         if (allLCTs1a[bx][mbx][i].isValid())  tmpV.push_back(allLCTs1a[bx][mbx][i]);
   return tmpV;
+}
+
+
+//sort LCTs by Quality in each BX
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByQual(int bx, enum ME11Part me)
+{
+  auto allLCTs(me==ME1A ? allLCTs1a : allLCTs1b); 
+  std::vector<CSCCorrelatedLCTDigi> LCTs;
+  std::vector<CSCCorrelatedLCTDigi> tmpV;
+  tmpV.clear();
+  LCTs.clear();
+  for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) 
+    for (int i=0;i<2;i++)
+      if (allLCTs[bx][mbx][i].isValid())  
+        LCTs.push_back(allLCTs[bx][mbx][i]);
+  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
+  for (; plct != LCTs.end(); plct++)
+    {
+      if (!plct->isValid()) continue;
+      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
+      for (; itlct != tmpV.end(); itlct++)
+        if((*itlct).getQuality() < (*plct).getQuality()) break;
+    
+      if(itlct==tmpV.end()) tmpV.push_back(*plct);
+      else tmpV.insert(itlct--, *plct);
+          
+    }
+  // debug 
+  //  std::cout << "sort LCTs by quality" << std::endl;
+  if (tmpV.size()> max_me11_lcts) tmpV.erase(tmpV.begin()+max_me11_lcts, tmpV.end());
+  return  tmpV;
+}
+
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByQual(std::vector<CSCCorrelatedLCTDigi> LCTs)
+{
+  std::vector<CSCCorrelatedLCTDigi> tmpV;
+  tmpV.clear();
+  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
+  for (; plct != LCTs.end(); plct++)
+    {
+      if (!plct->isValid()) continue;
+      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
+      for (; itlct != tmpV.end(); itlct++)
+        if((*itlct).getQuality() < (*plct).getQuality()) break;
+    
+      if(itlct==tmpV.end()) tmpV.push_back(*plct);
+      else tmpV.insert(itlct--, *plct);
+          
+    }
+  // debug 
+  //  std::cout << "sort LCTs by quality" << std::endl;
+  if (tmpV.size()> max_me11_lcts) tmpV.erase(tmpV.begin()+max_me11_lcts, tmpV.end());
+  return  tmpV;
+}
+
+
+//sort LCTs in whole LCTs BX window
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByQual(enum ME11Part me)
+{
+  std::vector<CSCCorrelatedLCTDigi> LCTs_final;
+  LCTs_final.clear();
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+    {
+      std::vector<CSCCorrelatedLCTDigi> LCTs1a;
+      std::vector<CSCCorrelatedLCTDigi> LCTs1b;
+      std::vector<CSCCorrelatedLCTDigi> LCTs_tmp;
+      std::vector<CSCCorrelatedLCTDigi> LCTs_tmp1;
+      LCTs1a = sortLCTsByQual(bx, ME1A);
+      LCTs1b = sortLCTsByQual(bx, ME1B);
+      std::vector<CSCCorrelatedLCTDigi>::iterator it1a = LCTs1a.begin();
+      std::vector<CSCCorrelatedLCTDigi>::iterator it1b = LCTs1b.begin();
+      LCTs_tmp.insert(LCTs_tmp.begin(), LCTs1b.begin(), LCTs1b.end());
+      LCTs_tmp.insert(LCTs_tmp.end(), LCTs1a.begin(), LCTs1a.end());
+      LCTs_tmp1 = sortLCTsByQual(LCTs_tmp);//LCTs reduction per BX
+      if (FirstTwoLCTsInME11_)
+        {
+          std::vector<CSCCorrelatedLCTDigi>::iterator itp = LCTs_tmp1.begin();
+          for ( ; itp != LCTs_tmp1.end(); itp++)
+            {
+              if (me==ME1A and it1a != LCTs1a.end() and *itp==*it1a ) 
+                {
+                  LCTs_final.push_back(*it1a);
+                  it1a++;
+                }
+              if (me==ME1B and it1b != LCTs1b.end() and *itp==*it1b)
+                {
+                  LCTs_final.push_back(*it1b);
+                  it1b++;
+                }
+            }
+        }   
+      else {
+        if (LCTs1a.size() and LCTs1b.size() and me==ME1A)
+          LCTs_final.push_back(*LCTs1a.begin());
+        else if (LCTs1a.size() and LCTs1b.size() and me==ME1B)
+          LCTs_final.push_back(*LCTs1b.begin());
+        else if (LCTs1a.size() and LCTs1b.size()==0 and me==ME1A)
+          LCTs_final.insert(LCTs_final.end(), LCTs1a.begin(), LCTs1a.end());
+        else if (LCTs1b.size() and LCTs1a.size()==0 and me==ME1B)
+          LCTs_final.insert(LCTs_final.end(), LCTs1b.begin(), LCTs1b.end());
+      }
+    }
+  return LCTs_final;
+}
+
+
+//sort LCTs by GEMDPhi in each BX
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByGEMDPhi(int bx, enum ME11Part me)
+{
+   
+  auto allLCTs(me==ME1A ? allLCTs1a : allLCTs1b); 
+  std::vector<CSCCorrelatedLCTDigi> LCTs;
+  std::vector<CSCCorrelatedLCTDigi> tmpV;
+  tmpV.clear();
+  LCTs.clear();
+  for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) 
+    for (int i=0;i<2;i++)
+      if (allLCTs[bx][mbx][i].isValid())  
+        LCTs.push_back(allLCTs[bx][mbx][i]);
+  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
+  for (; plct != LCTs.end(); plct++)
+    {
+      if (!plct->isValid()) continue;
+      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
+      for (; itlct != tmpV.end(); itlct++)
+        if(std::fabs((*itlct).getGEMDPhi()) > std::fabs((*plct).getGEMDPhi()) and std::fabs((*plct).getGEMDPhi())>0) break;
+    
+      if(itlct==tmpV.end()) tmpV.push_back(*plct);
+      else tmpV.insert(itlct--, *plct);
+          
+    }
+  //for debug 
+  //  std::cout << "sort LCTs  by GEMDPhi" << std::endl;
+  //  for (plct = tmpV.begin(); plct != tmpV.end(); plct++)
+  //     std::cout << *plct << std::endl;
+  if (tmpV.size() > max_me11_lcts) tmpV.erase(tmpV.begin()+max_me11_lcts, tmpV.end());
+  return tmpV;
+}
+
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi> LCTs)
+{
+   
+  std::vector<CSCCorrelatedLCTDigi> tmpV;
+  tmpV.clear();
+  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
+  for (; plct != LCTs.end(); plct++)
+    {
+      if (!plct->isValid()) continue;
+      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
+      for (; itlct != tmpV.end(); itlct++)
+        if(std::fabs((*itlct).getGEMDPhi()) > std::fabs((*plct).getGEMDPhi()) and std::fabs((*plct).getGEMDPhi())>0) break;
+    
+      if(itlct==tmpV.end()) tmpV.push_back(*plct);
+      else tmpV.insert(itlct--, *plct);
+    }
+  //for debug 
+  //  std::cout << "sort LCTs  by GEMDPhi" << std::endl;
+  //  for (plct = tmpV.begin(); plct != tmpV.end(); plct++)
+  //     std::cout << *plct << std::endl;
+  if (tmpV.size() > max_me11_lcts) tmpV.erase(tmpV.begin()+max_me11_lcts, tmpV.end());
+  return tmpV;
+}
+
+
+//sort LCTs in whole LCTs BX window
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByGEMDPhi(enum ME11Part me)
+{
+  std::vector<CSCCorrelatedLCTDigi> LCTs_final;
+  LCTs_final.clear();
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+    {
+      std::vector<CSCCorrelatedLCTDigi> LCTs1a;
+      std::vector<CSCCorrelatedLCTDigi> LCTs1b;
+      std::vector<CSCCorrelatedLCTDigi> LCTs_tmp;
+      std::vector<CSCCorrelatedLCTDigi> LCTs_tmp1;
+      LCTs1a = sortLCTsByGEMDPhi(bx, ME1A);
+      LCTs1b = sortLCTsByGEMDPhi(bx, ME1B);
+      std::vector<CSCCorrelatedLCTDigi>::iterator it1a = LCTs1a.begin();
+      std::vector<CSCCorrelatedLCTDigi>::iterator it1b = LCTs1b.begin();
+      LCTs_tmp.insert(LCTs_tmp.begin(), LCTs1b.begin(), LCTs1b.end());
+      LCTs_tmp.insert(LCTs_tmp.end(), LCTs1a.begin(), LCTs1a.end());
+      LCTs_tmp1 = sortLCTsByGEMDPhi(LCTs_tmp);//LCTs reduction per BX
+      if (FirstTwoLCTsInME11_)
+        {
+          std::vector<CSCCorrelatedLCTDigi>::iterator itp = LCTs_tmp1.begin();
+          while (itp != LCTs_tmp1.end())
+            {
+              if (me==ME1B and it1b != LCTs1b.end() and *itp==*it1b)
+                {
+                  LCTs_final.push_back(*it1b);
+                  it1b++;
+                }
+              if (me==ME1A and it1a != LCTs1a.end() and *itp==*it1a) 
+                {
+                  LCTs_final.push_back(*it1a);
+                  it1a++;
+                }
+              itp++;
+            }
+        }
+      else {
+        if (LCTs1a.size() and LCTs1b.size() and me==ME1A)
+          LCTs_final.push_back(*LCTs1a.begin());
+        else if (LCTs1a.size() and LCTs1b.size() and me==ME1B)
+          LCTs_final.push_back(*LCTs1b.begin());
+        else if (LCTs1a.size() and LCTs1b.size()==0 and me==ME1A)
+          LCTs_final.insert(LCTs_final.end(), LCTs1a.begin(), LCTs1a.end());
+        else if (LCTs1b.size() and LCTs1a.size()==0 and me==ME1B)
+          LCTs_final.insert(LCTs_final.end(), LCTs1b.begin(), LCTs1b.end());
+      }
+    }
+  return LCTs_final;
 }
 
 
@@ -1531,17 +1761,18 @@ void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
 }
 
 
-void CSCMotherboardME11::matchGEMPads()
+void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
 {
   using namespace std;
 
+  auto allLCTs(ME==ME1A ? allLCTs1a : allLCTs1b);
   // check if we have any LCTs at all
   int nlct = 0;
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<2;i++)
       {
-        CSCCorrelatedLCTDigi& lct = allLCTs1b[bx][mbx][i];
+        CSCCorrelatedLCTDigi& lct = allLCTs[bx][mbx][i];
         if (lct.isValid()) nlct++;
       }
   if (nlct == 0) return;
@@ -1550,14 +1781,17 @@ void CSCMotherboardME11::matchGEMPads()
   CSCTriggerGeomManager* geo_manager = CSCTriggerGeometry::get();
   CSCChamber* cscChamber = geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
 
-  auto me1bId = cscChamber->id();
-  int chamber = me1bId.chamber();
-  bool is_odd = chamber & 1;
+  const CSCDetId me1bId(cscChamber->id());
+  const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
+  const CSCDetId me1abId(ME==ME1A ? me1aId : me1bId);
+  const int chamber(me1abId.chamber());
+  const bool is_odd(chamber%2==1);
+  const int nhalfstrip(ME==ME1A ? 95 : 127);
 
-  if (debug_gem_matching) std::cout<<"++++++++  matchGEMPads "<< me1bId <<" +++++++++ "<<std::endl;
+  if (debug_gem_matching) std::cout<<"++++++++  matchGEMPads "<< me1abId <<" +++++++++ "<<std::endl;
 
   // "key" layer id is used to calculate global position of stub
-  CSCDetId key_id(me1bId.endcap(), me1bId.station(), me1bId.ring(), me1bId.chamber(), CSCConstants::KEY_CLCT_LAYER);
+  CSCDetId key_id(me1abId.endcap(), me1abId.station(), me1abId.ring(), me1abId.chamber(), CSCConstants::KEY_CLCT_LAYER);
 
   // check if there are any pads 
   if (pads_.empty()) {
@@ -1574,7 +1808,7 @@ void CSCMotherboardME11::matchGEMPads()
     for (unsigned int mbx = 0; mbx < match_trig_window_size; ++mbx)
       for (int i=0; i<2; ++i)
       {
-        CSCCorrelatedLCTDigi& lct = allLCTs1b[bx][mbx][i];
+        CSCCorrelatedLCTDigi& lct = allLCTs[bx][mbx][i];
         if (!lct.isValid() or fabs(lct.getGEMDPhi()) < 0.000001) continue;
         if (debug_gem_matching) std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
 
@@ -1582,8 +1816,8 @@ void CSCMotherboardME11::matchGEMPads()
         lct.setGEMDPhi(-99.);
 
         // "strip" here is actually a half-strip in geometry's terms
-        // note that LCT::getStrip() starts from 0
-        float fractional_strip = 0.5 * (127-lct.getStrip() + 1) - 0.25;
+        // note that LCT::getStrip() starts from 0, flip the halfstrip
+        float fractional_strip = 0.5 * (nhalfstrip - lct.getStrip() + 1) - 0.25;
         auto layer_geo = cscChamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
         // LCT::getKeyWG() also starts from 0
         float wire = layer_geo->middleWireOfGroup(lct.getKeyWG() + 1);
@@ -1678,7 +1912,7 @@ void CSCMotherboardME11::matchGEMPads()
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<2;i++)
       {
-        if (allLCTs1b[bx][mbx][i].isValid()) nlct_after++;
+        if (allLCTs[bx][mbx][i].isValid()) nlct_after++;
       }
   if (debug_gem_matching) std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
 }
