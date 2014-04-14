@@ -10,7 +10,7 @@ earlyGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackLi
                       cms.InputTag('pixelLessStepTracks'),
                       cms.InputTag('tobTecStepTracks')),
     hasSelector=cms.vint32(1,1,1,1,1,1,1,1),
-    indivShareFrac=cms.vdouble(1.0,0.19,0.16,0.19,0.13,0.11,0.11,0.09),
+    indivShareFrac=cms.vdouble(1.0,0.19,0.16,0.19,0.13,0.11,0.11,0.09),#using 0.19 for jetCoreRegionalStep?
     selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStep"),
                                        cms.InputTag("jetCoreRegionalStepSelector","jetCoreRegionalStep"),
                                        cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),

@@ -64,26 +64,25 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCol
 
   CurvilinearTrajectoryError error = initialError(sin2Theta);
   FreeTrajectoryState fts(kine, error);
-  if(region.direction().x()!=0) // a direction was given, check if it is an etaPhi region
+  if(region->direction().x()!=0) // a direction was given, check if it is an etaPhi region
   {
-     const RectangularEtaPhiTrackingRegion * etaPhiRegion =  dynamic_cast<const RectangularEtaPhiTrackingRegion *>(&region);
+     const RectangularEtaPhiTrackingRegion * etaPhiRegion =  dynamic_cast<const RectangularEtaPhiTrackingRegion *>(region);
      if(etaPhiRegion) {  
 
 	//the following completely reset the kinematics, perhaps it makes no sense and newKine=kine would do better 
-   	GlobalVector direction=region.direction()/region.direction().mag();
+   	GlobalVector direction=region->direction()/region->direction().mag();
    	GlobalVector momentum=direction*fts.momentum().mag();
-   	GlobalPoint position=region.origin()+5*direction;  
+   	GlobalPoint position=region->origin()+5*direction;  
    	GlobalTrajectoryParameters newKine(position,momentum,fts.charge(),&fts.parameters().magneticField());
 
-  	GlobalError vertexErr( sqr(region.originRBound()), 0, sqr(region.originRBound()),
-                   0, 0, sqr(region.originZBound()));
+  	GlobalError vertexErr( sqr(region->originRBound()), 0, sqr(region->originRBound()),
+                   0, 0, sqr(region->originZBound()));
 
-  	float ptMin = region.ptMin();
+  	float ptMin = region->ptMin();
   	AlgebraicSymMatrix55 C = ROOT::Math::SMatrixIdentity();
 
-  	float sin2th = sqr(sinTheta);
   	float minC00 = 0.4;
-  	C[0][0] = std::max(sin2th/sqr(ptMin), minC00);
+  	C[0][0] = std::max(sin2Theta/sqr(ptMin), minC00);
   	float zErr = vertexErr.czz();
   	float transverseErr = vertexErr.cxx(); // assume equal cxx cyy
         float deltaEta = (etaPhiRegion->etaRange().first-etaPhiRegion->etaRange().first)/2.;
@@ -91,7 +90,7 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCol
 	C[1][1] = deltaEta*deltaEta*4; //2 sigma of what given in input
   	C[2][2] = deltaPhi*deltaPhi*4;
   	C[3][3] = transverseErr;
-  	C[4][4] = zErr*sin2th + transverseErr*(1-sin2th);
+  	C[4][4] = zErr*sin2Theta + transverseErr*(1-sin2Theta);
    	CurvilinearTrajectoryError newError(C);
   	fts =  FreeTrajectoryState(newKine,newError);
     }
