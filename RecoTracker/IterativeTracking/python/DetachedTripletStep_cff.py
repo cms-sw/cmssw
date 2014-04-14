@@ -8,7 +8,6 @@ import FWCore.ParameterSet.Config as cms
 
 detachedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     clusterLessSolution = cms.bool(True),
-    oldClusterRemovalInfo = cms.InputTag("initialStepClusters"),
     trajectories = cms.InputTag("initialStepTracks"),
     overrideTrkQuals = cms.InputTag('initialStep'),
     TrackQuality = cms.string('highPurity'),

@@ -6,21 +6,9 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 
-initialStepClusters = cms.EDProducer("TrackClusterRemover",
-                                     clusterLessSolution= cms.bool(True),
-                                     pixelClusters = cms.InputTag("siPixelClusters"),
-                                     stripClusters = cms.InputTag("siStripClusters"),
-                                     doStripChargeCheck = cms.bool(False),
-                                     stripRecHits = cms.string('siStripMatchedRecHits'),
-                                     Common = cms.PSet(
-                                       maxChi2 = cms.double(9.0)
-                                      )
-                                     )
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
-initialStepSeedLayers.BPix.skipClusters = cms.InputTag('initialStepClusters')
-initialStepSeedLayers.FPix.skipClusters = cms.InputTag('initialStepClusters')
 
 
 # seeding
@@ -74,7 +62,6 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('initialStepSeeds'),
-    clustersToSkip = cms.InputTag('initialStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -138,8 +125,7 @@ initialStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerge
     )
 
 # Final sequence
-InitialStep = cms.Sequence(initialStepClusters*
-                           initialStepSeedLayers*
+InitialStep = cms.Sequence(initialStepSeedLayers*
                            initialStepSeeds*
                            initialStepTrackCandidates*
                            initialStepTracks*
