@@ -92,7 +92,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
   int ieta=hf.id().ieta(); // get coordinates of rechit being checked
   int depth=hf.id().depth();
   int iphi=hf.id().iphi();
-  std::pair<double,double> etas = myqual->topo()->etaRange(HcalForward,ieta);
+  std::pair<double,double> etas = myqual->topo()->etaRange(HcalForward,abs(ieta));
   double eta1 = etas.first;
   double eta2 = etas.second;
   double fEta = 0.5*(eta1 + eta2); // calculate eta as average of eta values at ieta boundaries
