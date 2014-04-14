@@ -17,8 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #)
 
 # SEEDING LAYERS
-jetCoreRegionalStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('jetCoreRegionalStepSeedLayers'),
+jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
         'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
         'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
@@ -66,7 +65,7 @@ jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
         vertexSrc = cms.InputTag( "firstStepGoodPrimaryVertices" ),
       ))
 
-jetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('jetCoreRegionalStepSeedLayers')
+jetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'jetCoreRegionalStepSeedLayers'
 
 jetCoreRegionalStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none'),
@@ -165,9 +164,11 @@ firstStepGoodPrimaryVertices = cms.EDFilter(
    )
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(firstStepPrimaryVertices*firstStepGoodPrimaryVertices*
-			#jetCoreRegionalStepClusters*
-                         jetCoreRegionalStepSeeds*
-                         jetCoreRegionalStepTrackCandidates*
-                         jetCoreRegionalStepTracks*
-                         jetCoreRegionalStepSelector)
+JetCoreRegionalStep = cms.Sequence(firstStepPrimaryVertices*
+                                   firstStepGoodPrimaryVertices*
+                                   #jetCoreRegionalStepClusters*
+                                   jetCoreRegionalStepSeedLayers*
+                                   jetCoreRegionalStepSeeds*
+                                   jetCoreRegionalStepTrackCandidates*
+                                   jetCoreRegionalStepTracks*
+                                   jetCoreRegionalStepSelector)
