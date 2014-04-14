@@ -11,7 +11,7 @@ workflows = Matrix()
 
 # 50 ns at 8 TeV
 workflows[200]=['',['ZEE','DIGIPU1','RECOPU1','HARVEST']]
-workflows[201]=['',['ZmumuJets_Pt_20_300','DIGIPU1','RECOPU1','HARVEST']]
+workflows[201]=['',['ZmumuJets_Pt_20_300','DIGIPU2','RECOPU2','HARVEST']]
 workflows[202]=['',['TTbar','DIGIPU1','RECOPU1','HARVEST']]
 workflows[203]=['',['H130GGgluonfusion','DIGIPU1','RECOPU1','HARVEST']]
 workflows[204]=['',['QQH1352T_Tauola','DIGIPU1','RECOPU1','HARVEST']]
