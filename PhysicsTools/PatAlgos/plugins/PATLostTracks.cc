@@ -35,6 +35,7 @@ namespace pat {
 
         private:
             edm::EDGetTokenT<reco::PFCandidateCollection>    Cands_;
+            edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
             edm::EDGetTokenT<reco::TrackCollection>         Tracks_;
             edm::EDGetTokenT<reco::VertexCollection>         Vertices_;
             edm::EDGetTokenT<reco::VertexCollection>         PV_;
@@ -46,6 +47,7 @@ namespace pat {
 
 pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
   Cands_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("inputCandidates"))),
+  map_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
   Tracks_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTracks"))),
   Vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("secondaryVertices"))),
   PV_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
@@ -67,6 +69,9 @@ void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken( Cands_, cands );
     std::vector<reco::Candidate>::const_iterator cand;
 
+    edm::Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc;
+    iEvent.getByToken(map_,pf2pc);
+
     edm::Handle<reco::TrackCollection> tracks;
     iEvent.getByToken( Tracks_, tracks );
     
@@ -87,9 +92,10 @@ void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     //Mark all tracks used in candidates	
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
+        edm::Ref<reco::PFCandidateCollection> r(cands,ic);
         const reco::PFCandidate &cand=(*cands)[ic];
         if (cand.charge()) {
-	    if(cand.trackRef().isNonnull() && cand.trackRef().id() ==tracks.id())
+	    if(cand.trackRef().isNonnull() && cand.trackRef().id() ==tracks.id() && (*pf2pc)[r]->numberOfHits() > 0) // also check if packed candidates are storing the tracks for this one
 	    {
 		used[cand.trackRef().key()]=1;
             }
