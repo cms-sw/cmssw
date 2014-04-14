@@ -12,60 +12,28 @@
 bool Chi2ChargeMeasurementEstimator::checkClusterCharge(const OmniClusterRef::ClusterStripRef cluster, float chargeCut) const
 {
   int clusCharge=accumulate( cluster->amplitudes().begin(), cluster->amplitudes().end(), uint16_t(0));
-//   std::cout << clusCharge<<std::endl;
   return (clusCharge>chargeCut);
 }
 
 bool Chi2ChargeMeasurementEstimator::checkCharge(const TrackingRecHit& aRecHit,
 	int subdet, float chargeCut) const
 {
-    
-  if (subdet<3) {
-    const SiPixelRecHit *hit = dynamic_cast<const SiPixelRecHit *>(&aRecHit);
-    if (likely(hit!=0)) return (hit->cluster()->charge()>chargeCut);
+  auto const & hit = aRecHit.hit();   // this works for both TRH and TTRH! 
+
+  if (aRecHit.getRTTI() == 4) {
+    const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
+    if likely(matchHit!=0) return (checkClusterCharge(matchHit->monoClusterRef().cluster_strip(), chargeCut)
+      &&checkClusterCharge(matchHit->stereoClusterRef().cluster_strip(), chargeCut));
     else{
       const std::type_info &type = typeid(aRecHit);
-      throw cms::Exception("Unknown RecHit Type") << "checkCharge: Wrong recHit type: " << type.name()
-	<< " (SiPixelRecHit) expected";
+      throw cms::Exception("Unknown RecHit Type") << "checkCharge/SiStripMatchedRecHit2D: Wrong recHit type: " << type.name();
     }
   } else {
-
-    if (aRecHit.getRTTI() == 4) { //  This is a matched RecHit
-      const std::type_info &tid = typeid(aRecHit);
-      if (tid == typeid(SiStripMatchedRecHit2D)) {
-        const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(&aRecHit);
-        
-	if likely(matchHit!=0) return (checkClusterCharge(matchHit->monoClusterRef().cluster_strip(), chargeCut)
-          &&checkClusterCharge(matchHit->stereoClusterRef().cluster_strip(), chargeCut));
-	else{
-	  const std::type_info &type = typeid(aRecHit);
-	  throw cms::Exception("Unknown RecHit Type") << "checkCharge/SiStripMatchedRecHit2D: Wrong recHit type: " << type.name();
-	}
-      } else if (tid == typeid(TSiStripMatchedRecHit)) {
-        const TransientTrackingRecHit *tHit = static_cast<const TransientTrackingRecHit *>(&aRecHit);
-        const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(tHit->hit());
-        
-	if likely(matchHit!=0) return (checkClusterCharge(matchHit->monoClusterRef().cluster_strip(), chargeCut)
-          &&checkClusterCharge(matchHit->stereoClusterRef().cluster_strip(), chargeCut));
-	else{
-	  const std::type_info &type = typeid(aRecHit);
-	  throw cms::Exception("Unknown RecHit Type") << "checkCharge/TSiStripMatchedRecHit: Wrong recHit type: " << type.name();
-	}
-      } else assert(false);
-    } else {
-        const TransientTrackingRecHit *projHit = static_cast<const TransientTrackingRecHit *>(&aRecHit);
-       const BaseTrackerRecHit* hit = dynamic_cast<const BaseTrackerRecHit*>(projHit->hit());
-        if likely(hit!=0) return checkClusterCharge(hit->firstClusterRef().cluster_strip(), chargeCut);//    cluster = &*(hit->cluster());
-	else{
-	  const std::type_info &type = typeid(projHit->hit());
-	  throw cms::Exception("Unknown RecHit Type") << "checkCharge/BaseTrackerRecHit: Wrong recHit type: " << type.name();
-	}
-    }
-    
+    auto const & thit = static_cast<const BaseTrackerRecHit *>(hit);
+    auto const & clus = thit->firstClusterRef();
+    if (!clus.isPixel()) return checkClusterCharge(clus.cluster_strip(), chargeCut);
+    else return (clus.cluster_pixel()->charge()>chargeCut);
   }
-
-  throw cms::Exception("Unknown RecHit Type") << "checkCharge: Unknown hit";
-
 }
 
 
