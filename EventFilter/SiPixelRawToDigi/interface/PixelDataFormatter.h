@@ -48,6 +48,7 @@ class SiPixelFedCabling;
 class SiPixelQuality;
 class SiPixelFrameConverter;
 class SiPixelFrameReverter;
+class SiPixelFedCablingTree;
 
 class PixelDataFormatter {
 
@@ -83,7 +84,8 @@ private:
   mutable int theDigiCounter;
   mutable int theWordCounter;
 
-  const SiPixelFedCabling* theCablingTree;
+
+  SiPixelFedCabling const * theCablingTree;
   const SiPixelFrameReverter* theFrameReverter;
   const SiPixelQuality* badPixelInfo;
   const std::set<unsigned int> * modulesToUnpack;

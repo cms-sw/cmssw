@@ -58,7 +58,7 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
        TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
      initializeBarrel();
      tempId = pset_.getParameter<int> ( "templateIdBarrel" );
-     if( ! templ.pushfile(tempId) )
+     if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
          throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm:")
 	 	<<"SiPixel Barrel Template Not Loaded Correctly!"<<endl;
 #ifdef  FAMOS_DEBUG
@@ -73,7 +73,7 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
        TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
      initializeForward();
      tempId = pset_.getParameter<int> ( "templateIdForward" );
-     if( ! templ.pushfile(tempId) )
+     if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
          throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm:")
 	        <<"SiPixel Forward Template Not Loaded Correctly!"<<endl;
 #ifdef  FAMOS_DEBUG
@@ -194,6 +194,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   //Single pixel cluster projection possibility
   float ny1_frac, ny2_frac, nx1_frac, nx2_frac;
   bool singlex = false, singley = false;
+  SiPixelTemplate templ(thePixelTemp_);
   templ.interpolate(tempId, cotalpha, cotbeta);
   templ.qbin_dist(tempId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
   int  nqbin;
