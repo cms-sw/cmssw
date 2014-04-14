@@ -104,7 +104,8 @@ Chi2ChargeMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 
 
   std::pair<bool,double> estimateResult = Chi2MeasurementEstimator::estimate(tsos, aRecHit);
-  if ( !estimateResult.first || (!(cutOnStripCharge_||cutOnPixelCharge_))) return estimateResult;
+  if ( !estimateResult.first || (!(cutOnStripCharge_||cutOnPixelCharge_)) || 
+	(tsos.globalMomentum ().perp()>pTChargeCutThreshold_)) return estimateResult;
 
   SiStripDetId detid = aRecHit.geographicalId(); 
   uint32_t subdet = detid.subdetId();
