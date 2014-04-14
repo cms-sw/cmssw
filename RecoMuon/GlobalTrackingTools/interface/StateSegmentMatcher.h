@@ -7,7 +7,6 @@
  *  Description:
  *  utility classes for the dynamical truncation algorithm
  *
- *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
  *
@@ -24,7 +23,7 @@
 class Tsos4D {
  public:
 
-  Tsos4D(TrajectoryStateOnSurface* );
+  Tsos4D(TrajectoryStateOnSurface const &);
 
   // Returns the 4d vector
   AlgebraicVector4 paramVector() const;
@@ -43,7 +42,7 @@ class Tsos4D {
 class Tsos2DPhi {
  public:
   // Constructor of the class
-  Tsos2DPhi(TrajectoryStateOnSurface* );
+  Tsos2DPhi(TrajectoryStateOnSurface const &);
 
   // Returns the 2d vector
   AlgebraicVector2 paramVector() const;
@@ -61,7 +60,7 @@ class Tsos2DPhi {
 class Tsos2DZed {
  public:
 
-  Tsos2DZed(TrajectoryStateOnSurface* );
+  Tsos2DZed(TrajectoryStateOnSurface const &);
 
   // Returns the 2d vector
   AlgebraicVector2 paramVector() const;
@@ -81,10 +80,10 @@ class StateSegmentMatcher {
  public:
   
   // Perform the matching between a track state and a CSC segment
-  StateSegmentMatcher(TrajectoryStateOnSurface*, CSCSegment*, LocalError*);
+  StateSegmentMatcher(TrajectoryStateOnSurface const &, CSCSegment const &, LocalError const &);
 
   // Perform the matching between a track state and a DT segment
-  StateSegmentMatcher(TrajectoryStateOnSurface*, DTRecSegment4D*, LocalError*);
+  StateSegmentMatcher(TrajectoryStateOnSurface const &, DTRecSegment4D  const &, LocalError const &);
 
   // Returns the estimator value 
   double value();
@@ -98,7 +97,7 @@ class StateSegmentMatcher {
   bool match2D;
   double estValue;
 
-  void setAPE4d(LocalError &apeLoc) {
+  void setAPE4d(LocalError const &apeLoc) {
     ape[0][0] = 0; //sigma (dx/dz) 
     ape[1][1] = 0; //sigma (dy/dz)
     ape[2][2] = apeLoc.xx(); //sigma (x)  
@@ -107,7 +106,7 @@ class StateSegmentMatcher {
     ape[1][3] = 0; //cov(dy/dz,y)
   };
 
-  void setAPE2d(LocalError &apeLoc) {
+  void setAPE2d(LocalError const &apeLoc) {
     ape_2d[0][0] = 0; //sigma (dx/dz)
     ape_2d[1][1] = apeLoc.xx(); //sigma (x)
     ape_2d[0][1] = 0; //cov(dx/dz,x) 
