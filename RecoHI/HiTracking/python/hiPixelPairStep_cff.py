@@ -51,18 +51,16 @@ hiPixelPairSeeds.SeedComparitorPSet = cms.PSet(
     FilterAtHelixStage = cms.bool(True),
     FilterPixelHits = cms.bool(True),
     FilterStripHits = cms.bool(False),
-    ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+    ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+    ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache")
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'hiPixelPairTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     #maxLostHits = 0,
     minimumNumberOfHits = 6,
     minPt = 1.0
-    )
     )
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
@@ -73,11 +71,10 @@ hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProd
         )
 
 # TRACK BUILDING
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-        ComponentName = 'hiPixelPairTrajectoryBuilder',
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
         MeasurementTrackerName = '',
-        trajectoryFilterName = 'hiPixelPairTrajectoryFilter',
+        trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryFilter')),
         clustersToSkip = cms.InputTag('hiPixelPairClusters'),
         maxCand = 3,
         #estimator = cms.string('hiPixelPairChi2Est')
@@ -87,7 +84,7 @@ hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiPixelPairSeeds'),
-    TrajectoryBuilder = 'hiPixelPairTrajectoryBuilder'
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryBuilder'))
     )
 
 
