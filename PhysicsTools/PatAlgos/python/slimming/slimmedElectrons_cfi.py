@@ -16,5 +16,6 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    linkToPackedPFCandidates = cms.bool(True),
    recoToPFMap = cms.InputTag("particleBasedIsolation","gedGsfElectrons"),
    packedPFCandidates = cms.InputTag("packedPFCandidates"), 
+   saveNonZSClusterShapes = cms.string("pt > 5"), # save additional user floats: (sigmaIetaIeta,sigmaIphiIphi,sigmaIetaIphi,r9,e1x5_over_e5x5)_NoZS 
 )
 
