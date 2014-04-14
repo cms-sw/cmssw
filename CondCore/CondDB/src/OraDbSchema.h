@@ -107,6 +107,7 @@ namespace cond {
 		      const boost::posix_time::ptime& insertTime );
       void insertMany( const std::string& tag, 
 		       const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs );
+      void erase( const std::string& tag );
     private:
       IOVCache& m_cache;
     };
