@@ -83,7 +83,7 @@ void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSet
 	unsigned int j=0;
 	for(unsigned int i=0;i<cands->size();i++)	{
 		const pat::PackedCandidate & c = (*cands)[i];
-		if(c.charge() != 0 && c.pt() > 0.95){
+		if(c.charge() != 0 && c.numberOfHits()> 0){
 			outTks->push_back(c.pseudoTrack());
 			if(c.fromPV()==pat::PackedCandidate::PVUsedInFit)
 			{

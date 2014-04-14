@@ -56,7 +56,7 @@ void pat::PATSecondaryVertexSlimmer::produce(edm::Event& iEvent, const edm::Even
 
 	    for(reco::Vertex::trackRef_iterator  it=v.tracks_begin(); it != v.tracks_end(); it++) {
 		    if(v.trackWeight(*it)>0.5) {
-			    if((*pf2pc)[*it].isNonnull()) {
+			    if((*pf2pc)[*it].isNonnull() && (*pf2pc)[*it]->numberOfHits() > 0) {
 				    outPtr->back().addDaughter(reco::CandidatePtr(edm::refToPtr((*pf2pc)[*it]) ));
 			    }
 			    else {
