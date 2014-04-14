@@ -138,12 +138,12 @@ struct SiStripTemplateStore { //!< template storage structure
 // ******************************************************************************************
 class SiStripTemplate {
  public:
-  SiStripTemplate() {id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.;} //!< Default constructor
-  bool pushfile(int filenum);     // load the private store with info from the 
+  SiStripTemplate(const std::vector< SiStripTemplateStore > & theStripTemp) : theStripTemp_(theStripTemp) {id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.;} //!< Default constructor
+  static bool pushfile(int filenum, std::vector< SiStripTemplateStore > & theStripTemp_);     // load the private store with info from the 
                                   // file with the index (int) filenum
 								  
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-  bool pushfile(const SiPixelTemplateDBObject& dbobject);     // load the private store with info from db
+  static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiStripTemplateStore > & theStripTemp_);     // load the private store with info from db
 #endif
   
 	
@@ -402,7 +402,7 @@ class SiStripTemplate {
 	
 	// The actual template store is a std::vector container
 	
-	std::vector< SiStripTemplateStore > theStripTemp_;
+	const std::vector< SiStripTemplateStore > & theStripTemp_;
 } ;
 
 

@@ -26,7 +26,7 @@ class DTKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTKeyedConfigHa
     std::cout<<"got context"<<std::endl;
     cond::persistency::KeyList const &  kl= *klh.product();
     cond::persistency::KeyList* list = const_cast<cond::persistency::KeyList*>( &kl );
-    for ( int i = 0; i < list->size(); i++ ) {
+    for ( size_t i = 0; i < list->size(); i++ ) {
       boost::shared_ptr<DTKeyedConfig> kelem = list->get<DTKeyedConfig>( i );
       if ( kelem.get() )
            std::cout << kelem->getId() << std::endl;
