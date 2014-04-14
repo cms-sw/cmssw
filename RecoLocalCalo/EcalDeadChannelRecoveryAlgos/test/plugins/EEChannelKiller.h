@@ -1,8 +1,11 @@
-#ifndef RecoCaloTools_EcalChannelKiller_EcalChannelKiller_HH
-#define RecoCaloTools_EcalChannelKiller_EcalChannelKiller_HH
+#ifndef RecoCaloTools_EcalChannelKiller_EEChannelKiller_HH
+#define RecoCaloTools_EcalChannelKiller_EEChannelKiller_HH
  
-/** \class EcalChannelKiller
+/** \class EEChannelKiller
   *
+  *  $Date: 2012/11/21 13:08:40 $
+  *  $Revision: 1.0 $
+  *  \author Stilianos Kesisoglou - Institute of Nuclear and Particle Physics NCSR Demokritos (Stilianos.Kesisoglou@cern.ch)
   */
  
 // system include files
@@ -25,10 +28,10 @@
 // class decleration
 //
 
-class EcalChannelKiller : public edm::EDProducer {
+class EEChannelKiller : public edm::EDProducer {
    public:
-      explicit EcalChannelKiller(const edm::ParameterSet&);
-      ~EcalChannelKiller();
+      explicit EEChannelKiller(const edm::ParameterSet&);
+      ~EEChannelKiller();
 
    private:
       virtual void beginJob() ;
@@ -40,7 +43,7 @@ class EcalChannelKiller : public edm::EDProducer {
   std::string hitCollection_;
   std::string reducedHitCollection_;
   std::string DeadChannelFileName_;
-  std::vector<EBDetId> ChannelsDeadID;
+  std::vector<EEDetId> ChannelsDeadID;
 };
 
 
