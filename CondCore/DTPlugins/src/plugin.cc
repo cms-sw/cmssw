@@ -83,10 +83,6 @@ namespace {
 }
 
 namespace {
-  struct InitDTReadOutMapping {void operator()(DTReadOutMapping& e){ e.initialize();}};
-}
-
-namespace {
   struct InitDTStatusFlag {void operator()(DTStatusFlag& e){ e.initialize();}};
 }
 
@@ -98,7 +94,7 @@ namespace {
   struct InitDTTtrig {void operator()(DTTtrig& e){ e.initialize();}};
 }
 
-REGISTER_PLUGIN_INIT(DTReadOutMappingRcd,DTReadOutMapping,InitDTReadOutMapping);
+REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);
 REGISTER_PLUGIN(DTT0Rcd,DTT0);
 REGISTER_PLUGIN(DTT0RefRcd,DTT0);
 REGISTER_PLUGIN_INIT(DTRangeT0Rcd,DTRangeT0,InitDTRangeT0);
