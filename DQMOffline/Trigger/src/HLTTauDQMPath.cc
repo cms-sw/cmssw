@@ -217,6 +217,10 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   // Get the filters
   HLTPath thePath(pathName_);
   filterIndices_ = thePath.interestingFilters(HLTCP, doRefAnalysis_);
+  if(filterIndices_.empty()) {
+    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPath: " << pathName_ << " no interesting filters found";
+    return;
+  }
   isFirstL1Seed_ = HLTCP.moduleType(std::get<0>(filterIndices_[0])) == "HLTLevel1GTSeed";
 #ifdef EDM_ML_LOGDEBUG
   ss << "  Filters";
