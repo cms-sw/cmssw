@@ -27,6 +27,9 @@
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
+typedef edm::ValueMap<reco::DYTInfo> DYTestimators;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 

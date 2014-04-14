@@ -47,8 +47,11 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         PropDirForCosmics = cms.bool(False),
         RefitRPCHits = cms.bool(True),
         
-        # only the first two are used
-        DYTthrs =  cms.vint32(30, 15),
+        # DYT stuff
+        DYTthrs = cms.vint32(20, 30),
+        DYTselector = cms.int32(1),
+        DYTupdator = cms.bool(False),
+        DYTuseAPE = cms.bool(False),
 
         # muon station to be skipped
         SkipStation		= cms.int32(-1),
