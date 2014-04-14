@@ -11,8 +11,7 @@
 #include "boost/foreach.hpp"
 
 ShallowClustersProducer::ShallowClustersProducer(const edm::ParameterSet& iConfig) 
-  : theClustersLabel(iConfig.getParameter<edm::InputTag>("Clusters")),
-    Prefix(iConfig.getParameter<std::string>("Prefix") )
+  : Prefix(iConfig.getParameter<std::string>("Prefix") )
 {
   produces <std::vector<unsigned> >    ( Prefix + "number"       );
   produces <std::vector<unsigned> >    ( Prefix + "width"        );
@@ -51,6 +50,8 @@ ShallowClustersProducer::ShallowClustersProducer(const edm::ParameterSet& iConfi
   produces <std::vector<int> >         ( Prefix + "petal"         );
   produces <std::vector<int> >         ( Prefix + "stereo"        );
 
+  theClustersToken_ = consumes<edm::DetSetVector<SiStripCluster> >          (iConfig.getParameter<edm::InputTag>("Clusters"));
+  theDigisToken_    = consumes<edm::DetSetVector<SiStripProcessedRawDigi> > (edm::InputTag("siStripProcessedRawDigis", ""));
 }
 
 void ShallowClustersProducer::
@@ -98,10 +99,12 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> >            stereo         ( new std::vector<int>());
 
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
-  iEvent.getByLabel(theClustersLabel, clusters);
+  //  iEvent.getByLabel(theClustersLabel, clusters);
+  iEvent.getByToken(theClustersToken_, clusters);
   
   edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > rawProcessedDigis;
-  iEvent.getByLabel("siStripProcessedRawDigis", "", rawProcessedDigis);
+  //  iEvent.getByLabel("siStripProcessedRawDigis", "", rawProcessedDigis);
+  iEvent.getByToken(theDigisToken_,rawProcessedDigis);
  
   edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters=clusters->begin();
   for(;itClusters!=clusters->end();++itClusters){

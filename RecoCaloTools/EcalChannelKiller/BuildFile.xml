@@ -1,8 +1,0 @@
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/EcalRecHit"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/Records"/>
-<flags   EDM_PLUGIN="1"/>

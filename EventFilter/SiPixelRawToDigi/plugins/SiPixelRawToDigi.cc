@@ -39,7 +39,6 @@ using namespace std;
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
   : config_(conf), 
-    cabling_(0), 
     badPixelInfo_(0),
     regions_(0),
     hCPU(0), hDigi(0), theTimer(0)
@@ -47,7 +46,6 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 
   includeErrors = config_.getParameter<bool>("IncludeErrors");
   useQuality = config_.getParameter<bool>("UseQualityInfo");
-  useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
   if (config_.exists("ErrorList")) {
     tkerrorlist = config_.getParameter<std::vector<int> > ("ErrorList");
   }
@@ -90,7 +88,6 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 SiPixelRawToDigi::~SiPixelRawToDigi() {
   edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
 
-  if (useCablingTree_) delete cabling_;
   if (regions_) delete regions_;
 
   if (theTimer) {
@@ -116,20 +113,10 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 // initialize cabling map or update if necessary
   if (recordWatcher.check( es )) {
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
-    if (useCablingTree_) {
-      delete cabling_;
-      // we are going to make our own copy so safe to let the map be deleted early
-      edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-      es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
-      fedIds   = cablingMap->fedIds();
-      cabling_ = cablingMap->cablingTree();
-    } else {
-      // we are going to hold the pointer so we need the map to stick around
-      edm::ESHandle<SiPixelFedCablingMap> cablingMap;
-      es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
-      fedIds   = cablingMap->fedIds();
-      cabling_ = cablingMap.product();
-    }
+    edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
+    es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
+    fedIds   = cablingMap->fedIds();
+    cabling_ = cablingMap->cablingTree();
     LogDebug("map version:")<< cabling_->version();
   }
 // initialize quality record or update if necessary
@@ -154,7 +141,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   std::auto_ptr< DetIdCollection > tkerror_detidcollection(new DetIdCollection());
   std::auto_ptr< DetIdCollection > usererror_detidcollection(new DetIdCollection());
 
-  PixelDataFormatter formatter(cabling_);
+  PixelDataFormatter formatter(cabling_.get());
   formatter.setErrorStatus(includeErrors);
 
   if (useQuality) formatter.setQualityStatus(useQuality, badPixelInfo_);

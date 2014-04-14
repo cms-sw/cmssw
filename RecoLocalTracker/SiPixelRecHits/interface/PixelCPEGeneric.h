@@ -30,13 +30,16 @@
 // simple, and is described in Morris's note (IN ???) on the generalizaton
 // of the pixel algorithm.
 
+#define NEW_PIXELCPEERROR
+
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 
 // The template header files
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
+//#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelGenError.h"
 
 
 #include <utility>
@@ -54,17 +57,51 @@ class MagneticField;
 class PixelCPEGeneric : public PixelCPEBase
 {
  public:
-  // PixelCPEGeneric( const DetUnit& det );
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
+  struct ClusterParamGeneric : ClusterParam
+  {
+    ClusterParamGeneric(const SiPixelCluster & cl) : ClusterParam(cl){}
+  // The truncation value pix_maximum is an angle-dependent cutoff on the
+  // individual pixel signals. It should be applied to all pixels in the
+  // cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
+  // sums are made. Morris
+  float pixmx;
+  
+  // These are errors predicted by PIXELAV
+  float sigmay; // CPE Generic y-error for multi-pixel cluster
+  float sigmax; // CPE Generic x-error for multi-pixel cluster
+  float sy1   ; // CPE Generic y-error for single single-pixel
+  float sy2   ; // CPE Generic y-error for single double-pixel cluster
+  float sx1   ; // CPE Generic x-error for single single-pixel cluster
+  float sx2   ; // CPE Generic x-error for single double-pixel cluster
+  
+  // These are irradiation bias corrections
+  float deltay; // CPE Generic y-bias for multi-pixel cluster
+  float deltax; // CPE Generic x-bias for multi-pixel cluster
+  float dy1   ; // CPE Generic y-bias for single single-pixel cluster
+  float dy2   ; // CPE Generic y-bias for single double-pixel cluster
+  float dx1   ; // CPE Generic x-bias for single single-pixel cluster
+  float dx2   ; // CPE Generic x-bias for single double-pixel cluster
+  };
+
+#ifdef NEW_PIXELCPEERROR
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
+		  const SiPixelLorentzAngle *, const SiPixelGenErrorDBObject *, 
+		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
+#else
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
 		  const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, 
 		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
+#endif
+
   ~PixelCPEGeneric() {;}
 
 
  
 private:
-  LocalPoint localPosition (const SiPixelCluster& cluster) const; 
-  LocalError localError   (const SiPixelCluster& cl) const;
+  ClusterParam * createClusterParam(const SiPixelCluster & cl) const;
+
+  LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const; 
+  LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
 
   //--------------------------------------------------------------------
   //  Methods.
@@ -76,6 +113,7 @@ private:
 			    float upper_edge_first_pix, //!< As the name says.
 			    float lower_edge_last_pix,  //!< As the name says.
 			    float lorentz_shift,   //!< L-width
+                            float theThickness,   //detector thickness
 			    float cot_angle,            //!< cot of alpha_ or beta_
 			    float pitch,            //!< thePitchX or thePitchY
 			    bool first_is_big,       //!< true if the first is big
@@ -86,7 +124,7 @@ private:
 			    ) const;
   
   void
-    collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
+    collect_edge_charges(ClusterParam & theClusterParam,  //!< input, the cluster
 			 float & Q_f_X,              //!< output, Q first  in X 
 			 float & Q_l_X,              //!< output, Q last   in X
 			 float & Q_f_Y,              //!< output, Q first  in Y 
@@ -124,36 +162,16 @@ private:
   float xerr_barrel_l1_def_, yerr_barrel_l1_def_,xerr_barrel_ln_def_;
   float yerr_barrel_ln_def_, xerr_endcap_def_, yerr_endcap_def_;
 
+#ifdef NEW_PIXELCPEERROR
 
+  std::vector< SiPixelGenErrorStore > thePixelGenError_;
+
+#else
   //--- DB Error Parametrization object
   SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
+#endif
 
-  mutable SiPixelTemplate templ_;
-  mutable int templID_; 
-
-  // The truncation value pix_maximum is an angle-dependent cutoff on the
-  // individual pixel signals. It should be applied to all pixels in the
-  // cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
-  // sums are made. Morris
-  mutable float pixmx;
-  
-  // These are errors predicted by PIXELAV
-  mutable float sigmay; // CPE Generic y-error for multi-pixel cluster
-  mutable float sigmax; // CPE Generic x-error for multi-pixel cluster
-  mutable float sy1   ; // CPE Generic y-error for single single-pixel
-  mutable float sy2   ; // CPE Generic y-error for single double-pixel cluster
-  mutable float sx1   ; // CPE Generic x-error for single single-pixel cluster
-  mutable float sx2   ; // CPE Generic x-error for single double-pixel cluster
-  
-  // These are irradiation bias corrections
-  mutable float deltay; // CPE Generic y-bias for multi-pixel cluster
-  mutable float deltax; // CPE Generic x-bias for multi-pixel cluster
-  mutable float dy1   ; // CPE Generic y-bias for single single-pixel cluster
-  mutable float dy2   ; // CPE Generic y-bias for single double-pixel cluster
-  mutable float dx1   ; // CPE Generic x-bias for single single-pixel cluster
-  mutable float dx2   ; // CPE Generic x-bias for single double-pixel cluster
-
-	 
+  std::vector< SiPixelTemplateStore > thePixelTemp_;
 
 };
 
