@@ -67,14 +67,6 @@ void
 
 }
 
- PFRecHitProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
- PFRecHitProducer::endJob() {
-}
 
 
 void

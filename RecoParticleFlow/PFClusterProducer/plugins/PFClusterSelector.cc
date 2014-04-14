@@ -13,10 +13,10 @@ using namespace edm;
 PFClusterSelector::PFClusterSelector(const edm::ParameterSet& iConfig):
   clusters_(consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("src"))),
   energyRanges_(iConfig.getParameter<std::vector<double> >("energyRanges")),
-  timingCutsLow_(iConfig.getParameter<std::vector<double> >("timingCutsLow")),
-  timingCutsHigh_(iConfig.getParameter<std::vector<double> >("timingCutsHigh")),
-  timingCutsLowEE_(iConfig.getParameter<std::vector<double> >("timingCutsEndcapLow")),
-  timingCutsHighEE_(iConfig.getParameter<std::vector<double> >("timingCutsEndcapHigh"))
+  timingCutsLowBarrel_(iConfig.getParameter<std::vector<double> >("timingCutsLowBarrel")),
+  timingCutsHighBarrel_(iConfig.getParameter<std::vector<double> >("timingCutsHighBarrel")),
+  timingCutsLowEndcap_(iConfig.getParameter<std::vector<double> >("timingCutsLowEndcap")),
+  timingCutsHighEndcap_(iConfig.getParameter<std::vector<double> >("timingCutsHighEndcap"))
 {
   produces<reco::PFClusterCollection>();
 }
@@ -60,24 +60,6 @@ void PFClusterSelector::produce(edm::Event& iEvent,
     if( time > (*timingCutsLow)[idx] && time < (*timingCutsHigh)[idx] ) {
       out->push_back(cluster);
     }
-    else 
-      {
-	for(unsigned int j=0;j<energyRanges_.size();++j) {
-	  if (j==0) { 
-	    if ( energy<energyRanges_.at(0) && time >timingCutsLowEE_[j] &&  time <timingCutsHighEE_[j] )
-	      out->push_back(clusters->at(i));
-	  }
-	  else if (j==(energyRanges_.size()-1) ) {
-	    if ( time >timingCutsLowEE_[j] &&  time <timingCutsHighEE_[j] && energy>=energyRanges_.at(j) )
-	      out->push_back(clusters->at(i));
-	  }
-	  else {
-	    if ( energy>energyRanges_[j-1] && energy <= energyRanges_[j]&& time >timingCutsLowEE_[j] &&  time <timingCutsHighEE_[j] )
-	      out->push_back(clusters->at(i));
-	  }
-	}
-      }
-
   }
   iEvent.put( out);
 

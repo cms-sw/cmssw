@@ -20,7 +20,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECALWithTime_cfi impor
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALWithTime_cff import *
 
 
-withTime = False
+withTime = True
 if withTime:
     pfClusteringECAL = cms.Sequence(particleFlowRecHitECALWithTime*
                                      particleFlowClusterECALWithTimeSequence)

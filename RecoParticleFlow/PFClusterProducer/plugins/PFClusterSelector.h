@@ -31,10 +31,10 @@ class PFClusterSelector : public edm::EDProducer {
   // ----------access to event data
   edm::EDGetTokenT<reco::PFClusterCollection> clusters_;
   std::vector<double> energyRanges_;
-  std::vector<double> timingCutsLow_;
-  std::vector<double> timingCutsHigh_;
-  std::vector<double> timingCutsLowEE_;
-  std::vector<double> timingCutsHighEE_;
+  std::vector<double> timingCutsLowBarrel_;
+  std::vector<double> timingCutsHighBarrel_;
+  std::vector<double> timingCutsLowEndcap_;
+  std::vector<double> timingCutsHighEndcap_;
 
 };
 

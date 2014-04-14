@@ -100,8 +100,13 @@ class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId,C
 
 
   void beginEvent(const edm::EventSetup& iSetup) {
-      topology_ = new CaloTowerTopology();
+      edm::ESHandle<HcalTopology> hcalTopology;
+      iSetup.get<IdealGeometryRecord>().get( hcalTopology );
+      hcalTopo_ = hcalTopology.product();
+      topology_ = new CaloTowerTopology(hcalTopo_);
   }
+private:
+  const HcalTopology* hcalTopo_;
 };
 
 typedef PFRecHitDualNavigator<PFLayer::ECAL_BARREL,

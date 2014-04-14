@@ -206,12 +206,14 @@ namespace reco {
     
     /// \todo move to PFClusterTools
     static double depthCorBp_;
+#endif
     
     static const math::XYZPoint dummyVtx_;
 
     /// color (transient)
     int                 color_;
   };
+
 }
 
 #endif
