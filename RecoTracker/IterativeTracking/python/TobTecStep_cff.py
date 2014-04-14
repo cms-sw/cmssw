@@ -23,7 +23,7 @@ tobTecStepSeedClusters = tobTecStepClusters.clone(
     stripRecHits = cms.string('siStripMatchedRecHits'),
     Common = cms.PSet(
         maxChi2 = cms.double(9.0),
-        minGoodStripCharge = cms.double(70.0)
+        minGoodStripCharge = cms.double(2069)
     )
 )
 
@@ -72,12 +72,13 @@ tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originRadius = 3.5
 tobTecStepSeedsTripl.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsCreator' #empirically better than 'SeedFromConsecutiveHitsTripletOnlyCreator'
 tobTecStepSeedsTripl.SeedCreatorPSet.OriginTransverseErrorMultiplier = 1.0
 #SeedComparitor
+
 tobTecStepSeedsTripl.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
-        FilterStripHits = cms.bool(False),
-        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+        FilterStripHits = cms.bool(True),
+        ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter')
 )
 # PAIR SEEDING LAYERS
 tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
@@ -103,6 +104,13 @@ tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
     )
 )
 # PAIR SEEDS
+import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi
+tobTecStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
+	ComponentName = cms.string('tobTecStepClusterShapeHitFilter'),
+        PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
+	minGoodStripCharge = cms.double(2069)
+	)
+
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 tobTecStepSeedsPair = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 #OrderedHitsFactory
@@ -119,13 +127,12 @@ tobTecStepSeedsPair.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
-        FilterStripHits = cms.bool(False),
-        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+        FilterStripHits = cms.bool(True),
+        ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter')
 )
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 tobTecStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
 tobTecStepSeeds.seedCollections = cms.VInputTag(cms.InputTag('tobTecStepSeedsTripl'),cms.InputTag('tobTecStepSeedsPair'))
-
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -150,11 +157,12 @@ tobTecStepInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFi
     )
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-tobTecStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
+tobTecStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('tobTecStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(16.0)
+    MaxChi2 = cms.double(16.0),
+    minGoodStripCharge = cms.double(2069)
 )
 
 # TRACK BUILDING

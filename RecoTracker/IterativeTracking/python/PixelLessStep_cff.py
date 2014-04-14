@@ -23,7 +23,7 @@ pixelLessStepSeedClusters = pixelLessStepClusters.clone(
     stripRecHits = cms.string('siStripMatchedRecHits'),
     Common = cms.PSet(
         maxChi2 = cms.double(9.0),
-        minGoodStripCharge = cms.double(70.0)
+        minGoodStripCharge = cms.double(2069)
     )
 )
 
@@ -114,13 +114,20 @@ pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.4
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.0
 #SeedComparitor
+import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi
+pixelLessStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
+	ComponentName = cms.string('pixelLessStepClusterShapeHitFilter'),
+        PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
+	minGoodStripCharge = cms.double(2069)
+	)
+
 pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
-        FilterStripHits = cms.bool(False),
-        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
-)
+        FilterStripHits = cms.bool(True),
+        ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter')
+    )
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -133,11 +140,12 @@ pixelLessStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
     )
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
+pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('pixelLessStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(9.0),
+    minGoodStripCharge = cms.double(2069)
 )
 
 # TRACK BUILDING
