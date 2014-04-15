@@ -39,7 +39,7 @@ def load_steps_and_workflows():
             label = data["label"]
             steps_names = []
             for step_name, step in data["steps"].items():
-                steps_names.append(step_name)
+                steps_names.append((step_name, step["sequence_number"]))
                 if step_name in steps:
                     continue  # this step was inserted already
 
@@ -58,7 +58,10 @@ def load_steps_and_workflows():
                 else:
                     raise Exception("Wrong step format in {0} file".format(data_file))
 
-            workflows[1000000.0 + 0.1*index] = [label, steps_names]
+            sorted_steps = sorted(steps_names, key=lambda step: step[1]) # sort steps by sequence number
+            sorted_steps_names = [step_name[0] for step_name in sorted_steps]  # filter only step names
+
+            workflows[1000000.0 + 0.1*index] = [label, sorted_steps_names]
 
 
 load_steps_and_workflows()
