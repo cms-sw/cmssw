@@ -177,7 +177,6 @@ void ClusterShape::determineShape
 
   data.hasBigPixelsOnlyInside = (px <= 0 && py <= 0);
 
-
   //if( (px > 0 || py > 0) && odir == 0)
   if( !data.hasBigPixelsOnlyInside && odir == 0)
   {

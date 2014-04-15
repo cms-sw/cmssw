@@ -121,12 +121,6 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
 std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & thit) 
 {
 
-  //check in case of TTRH
-  if(const TransientTrackingRecHit * ttrh = dynamic_cast<const TransientTrackingRecHit *>(&thit)) {
-    std::cout << "calling associateHit for TransientTRH" << std::endl;
-    return associateHit(*ttrh->hit());
-  }
- 
   //vector with the matched SimHit
   std::vector<PSimHit> result; 
   //initialize vectors!
@@ -207,11 +201,6 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
 void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vector< SimHitIdpr > & simtkid) 
 {
   
-  //check in case of TTRH
-  if(const TransientTrackingRecHit * ttrh = dynamic_cast<const TransientTrackingRecHit *>(&thit)) {
-    associateHitId(*ttrh->hit(), simtkid);
-  }
-  else{
     simtkid.clear();
     
   //get the Detector type of the rechit
@@ -275,7 +264,6 @@ void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vect
 	simtkid = associateGSMatchedRecHit(rechit);
       }
 
-  }
 }
 
 template<typename T>

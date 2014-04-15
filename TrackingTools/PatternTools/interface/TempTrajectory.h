@@ -3,7 +3,7 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include <vector>
@@ -41,7 +41,7 @@ class TempTrajectory
 public:
 
   typedef cmsutils::bqueue<TrajectoryMeasurement>              DataContainer;
-  typedef TransientTrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
+  typedef TrackingRecHit::ConstRecHitContainer                 ConstRecHitContainer;
   typedef ConstRecHitContainer                                 RecHitContainer;
 
 
@@ -287,7 +287,7 @@ private:
   /** Definition of what it means for a hit to be "lost".
    *  This definition is also used by the TrajectoryBuilder.
    */
-  static bool lost( const TransientTrackingRecHit& hit) dso_internal;
+  static bool lost( const TrackingRecHit& hit) dso_internal;
 
 
   void pushAux(double chi2Increment);

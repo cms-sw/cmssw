@@ -294,6 +294,7 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
   }
 }
 
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
 TransientTrackingRecHit::ConstRecHitContainer
 GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track) const {
@@ -302,18 +303,17 @@ GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track)
 
   
 
+  auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner(); 
   TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
       if ( recoid.det() == DetId::Tracker ) {
-        TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
         TrajectoryStateOnSurface predTsos =  theService->propagator(thePropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
         LogTrace(category_)<<"predtsos "<<predTsos.isValid();
         if ( predTsos.isValid() ) {
           currTsos = predTsos;
-          TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(currTsos);
-          result.push_back(preciseHit);
+          result.emplace_back(hitCloner(**hit,predTsos));
        }
       } else if ( recoid.det() == DetId::Muon ) {
 	result.push_back(theMuonRecHitBuilder->build(&**hit));

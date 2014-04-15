@@ -37,6 +37,12 @@ public:
         new FlexibleKFFittingSmoother(*theStandardFitter,*theLooperFitter));
         }
 
+ // FIXME a prototype:  final inplementaiton may differ
+  virtual void setHitCloner(TkCloner const * hc) {
+	theStandardFitter->setHitCloner(hc);
+        theLooperFitter->setHitCloner(hc);
+  }
+
  private:
 
         const TrajectoryFitter* fitter(fitType type) const {
