@@ -7,13 +7,12 @@ from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
 # Pattern Recognition and Fit
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
-from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 #FILTER
-nuclearCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
+nuclearCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone()
+import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
 #TRAJECTORY BUILDER
-nuclearCkfTrajectoryBuilder = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone()
+nuclearCkfTrajectoryBuilder = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone()
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 #TRACK CANDIDATES
 nuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
@@ -25,15 +24,13 @@ from RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi import *
 from RecoTracker.NuclearSeedGenerator.NuclearTrackCorrector_cfi import *
 nuclear_interaction = cms.Sequence(nuclearSeed*nuclearTrackCandidates*nuclearWithMaterialTracks*nuclearInteractionMaker)
 nuclear_interaction_and_correction = cms.Sequence(nuclear_interaction*TrackCorrector)
-nuclearCkfTrajectoryFilter.ComponentName = 'nuclearCkfTrajectoryFilter'
-nuclearCkfTrajectoryFilter.filterPset.minPt = 0.3
-nuclearCkfTrajectoryFilter.filterPset.maxLostHits = 1
-nuclearCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-nuclearCkfTrajectoryBuilder.ComponentName = 'nuclearCkfTrajectoryBuilder'
-nuclearCkfTrajectoryBuilder.trajectoryFilterName = 'nuclearCkfTrajectoryFilter'
+nuclearCkfTrajectoryFilter.minPt = 0.3
+nuclearCkfTrajectoryFilter.maxLostHits = 1
+nuclearCkfTrajectoryFilter.minimumNumberOfHits = 3
+nuclearCkfTrajectoryBuilder.trajectoryFilter.refToPSet_ = 'nuclearCkfTrajectoryFilter'
 nuclearCkfTrajectoryBuilder.alwaysUseInvalidHits = False
 nuclearTrackCandidates.src = 'nuclearSeed'
-nuclearTrackCandidates.TrajectoryBuilder = 'nuclearCkfTrajectoryBuilder'
+nuclearTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'nuclearCkfTrajectoryBuilder'
 nuclearTrackCandidates.RedundantSeedCleaner = 'none'
 nuclearWithMaterialTracks.src = 'nuclearTrackCandidates'
 #FittingSmootherRK.MinNumberOfHits = 3

@@ -3,7 +3,6 @@
 #include "RecoMuon/L3TrackFinder/interface/MuonRoadTrajectoryBuilder.h"
 #include "RecoMuon/L3TrackFinder/interface/MuonRoadTrajectoryBuilderESProducer.h"
 #include "RecoMuon/L3TrackFinder/interface/MuonCkfTrajectoryBuilder.h"
-#include "RecoMuon/L3TrackFinder/interface/MuonCkfTrajectoryBuilderESProducer.h"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -11,4 +10,7 @@
 
 
 DEFINE_FWK_EVENTSETUP_MODULE(MuonRoadTrajectoryBuilderESProducer);
-DEFINE_FWK_EVENTSETUP_MODULE(MuonCkfTrajectoryBuilderESProducer);
+
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilderFactory.h"
+
+DEFINE_EDM_PLUGIN(BaseCkfTrajectoryBuilderFactory, MuonCkfTrajectoryBuilder, "MuonCkfTrajectoryBuilder");
