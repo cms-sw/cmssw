@@ -837,8 +837,9 @@ PFCTRecHitProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi,
   theEcalChStatus = ecalChStatus.product();
 
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  es.get<IdealGeometryRecord>().get(cttopo);
+  es.get<CaloGeometryRecord>().get(cttopo);
   theTowerConstituentsMap = cttopo.product();
+
 }
 
 

@@ -72,7 +72,7 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
 
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
       edm::ESHandle<HcalTopology> topo;
-      iSetup.get<IdealGeometryRecord>().get(topo);
+      iSetup.get<HcalRecNumberingRecord>().get( topo );
       edm::ESHandle<HcalChannelQuality> hcalChStatus;    
       iSetup.get<HcalChannelQualityRcd>().get( hcalChStatus );
       theHcalChStatus_ = hcalChStatus.product();

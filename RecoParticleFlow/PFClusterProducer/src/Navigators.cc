@@ -86,7 +86,7 @@ class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId,HcalTopolog
 
   void beginEvent(const edm::EventSetup& iSetup) {
       edm::ESHandle<HcalTopology> hcalTopology;
-      iSetup.get<IdealGeometryRecord>().get( hcalTopology );
+      iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
       topology_ = hcalTopology.product();
   }
 };
@@ -101,7 +101,7 @@ class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId,C
 
   void beginEvent(const edm::EventSetup& iSetup) {
       edm::ESHandle<HcalTopology> hcalTopology;
-      iSetup.get<IdealGeometryRecord>().get( hcalTopology );
+      iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
       hcalTopo_ = hcalTopology.product();
       topology_ = new CaloTowerTopology(hcalTopo_);
   }
