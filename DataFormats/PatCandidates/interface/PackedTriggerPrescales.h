@@ -25,7 +25,7 @@ class PackedTriggerPrescales {
 
         // use this method first if you want to be able to access the prescales by name
         // you can get the TriggerNames from the TriggerResults and the Event (edm or fwlite)
-        void setTriggerNames(const edm::TriggerNames &names) const { triggerNames_ = &names; }
+        void setTriggerNames(const edm::TriggerNames &names) { triggerNames_ = &names; }
 
         // set that the trigger of given index has a given prescale
         void addPrescaledTrigger(int index, int prescale) ;
@@ -33,7 +33,7 @@ class PackedTriggerPrescales {
     protected:
         std::vector<int> prescaleValues_;
         edm::RefCore triggerResults_;
-        mutable const edm::TriggerNames *triggerNames_;
+        const edm::TriggerNames *triggerNames_;
 };
 
 
