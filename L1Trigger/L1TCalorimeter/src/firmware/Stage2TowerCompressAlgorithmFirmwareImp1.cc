@@ -43,9 +43,9 @@ void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vect
       int etHad = tow->hwEtHad();
       
       int ratio = 0;
-      if (etEm>0 && etHad>0 && etEm!=etHad) {
-	if (etEm>etHad) ratio = (int) log(float(etEm) / float(etHad));
-	else ratio = (int) log(float(etHad) / float(etEm));
+      if (etEm>0 && etHad>0) {
+	if (etEm>=etHad) ratio = (int) std::round(log(float(etEm) / float(etHad))/log(2.));
+	else ratio = (int) std::round(log(float(etHad) / float(etEm))/log(2.));
       }
       ratio &= params_->towerMaskRatio() ;
       
@@ -58,6 +58,8 @@ void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vect
       qual |= (tow->hwQual() & 0xc); // get feature bits from existing tower
       
       l1t::CaloTower newTow;
+      newTow.setHwEtEm(etEm);
+      newTow.setHwEtEm(etHad);
       newTow.setHwEta( tow->hwEta() );
       newTow.setHwPhi( tow->hwPhi() );
       newTow.setHwPt( sum );
