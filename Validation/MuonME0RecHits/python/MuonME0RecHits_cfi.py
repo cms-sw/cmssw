@@ -6,7 +6,7 @@ me0RecHitsValidation = cms.EDAnalyzer("MuonME0RecHits",
 #                                   ME0SimHitInput = cms.untracked.InputTag('g4SimHits','MuonME0Hits'),
 #                                   SimTrackInput = cms.untracked.InputTag('g4SimHits'),
                                    folderPath = cms.untracked.string('MuonME0RecHitsV/ME0RecHitTask'),
-                                   EffSaveRootFile = cms.untracked.bool(True),
+                                   EffSaveRootFile = cms.untracked.bool(False),
                                    EffRootFileName = cms.untracked.string('ME0RecHits_ME.root'),
                                    simTrackMatching = SimTrackMatching
 )
