@@ -12,54 +12,60 @@ ak7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak7HiGen
 ### jet analyzer for two radii (0.5, 0.7) and three algorithms:
 ### iterative cone with PU, anti-kt with PU, anti-kt with fastjet PU
 
-JetAnalyzerICPU5Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerICPU5Calo = cms.EDAnalyzer("CaloJetTesterUnCorr_HeavyIons",
     src = cms.InputTag("iterativeConePu5CaloJets"),
     srcGen = cms.InputTag("iterativeCone5HiCleanedGenJets"),
+    srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
     reverseEnergyFractionThreshold = cms.double(0.5)                                    
 )
 
-JetAnalyzerICPU7Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerICPU7Calo = cms.EDAnalyzer("CaloJetTesterUnCorr_HeavyIons",
     src = cms.InputTag("iterativeConePu7CaloJets"),
     srcGen = cms.InputTag("iterativeCone7HiCleanedGenJets"), 
+    srcRho = cms.InputTag("iterativeConePu7CaloJets","rho"),
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
     reverseEnergyFractionThreshold = cms.double(0.5)                                    
 )
 
-JetAnalyzerAkPU5Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerAkPU5Calo = cms.EDAnalyzer("CaloJetTesterUnCorr_HeavyIons",
     src = cms.InputTag("akPu5CaloJets"),
     srcGen = cms.InputTag("ak5HiCleanedGenJets"),  
+    srcRho = cms.InputTag("akPu5CaloJets","rho"),
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
     reverseEnergyFractionThreshold = cms.double(0.5)                                    
 )
 
-JetAnalyzerAkPU7Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerAkPU7Calo = cms.EDAnalyzer("CaloJetTesterUnCorr_HeavyIons",
     src = cms.InputTag("akPu7CaloJets"),
     srcGen = cms.InputTag("ak7HiCleanedGenJets"),       
+    srcRho = cms.InputTag("akPu7CaloJets","rho"),
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
     reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkFastPU5Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerAkFastPU5Calo = cms.EDAnalyzer("CaloJetTesterUnCorr_HeavyIons",
     src = cms.InputTag("akFastPu5CaloJets"),
     srcGen = cms.InputTag("ak5HiCleanedGenJets"),  
+    srcRho = cms.InputTag("akFastPu5CaloJets","rho"),
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
     reverseEnergyFractionThreshold = cms.double(0.5)                                    
 )
 
-JetAnalyzerAkFastPU7Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerAkFastPU7Calo = cms.EDAnalyzer("CaloJetTesterUnCorr_HeavyIons",
     src = cms.InputTag("akFastPu7CaloJets"),
-    srcGen = cms.InputTag("ak7HiCleanedGenJets"),       
+    srcGen = cms.InputTag("ak7HiCleanedGenJets"),
+    srcRho = cms.InputTag("akFastPu5CaloJets","rho"),
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
