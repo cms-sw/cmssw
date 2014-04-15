@@ -71,6 +71,11 @@ options.register ('ShiftAndCrosstalkMon',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.bool,          # string, int, or float
                   "Monitor shift and crosstalk?")
+options.register ('APVPhaseOffsetsMon',
+                  False,
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.bool,          # string, int, or float
+                  "Monitor APV phase offsets?")
 options.register ('PedestalMon',
                   False,
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -101,6 +106,11 @@ options.register ('LorentzAngleMon',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.bool,          # string, int, or float
                   "Monitor LA?")
+options.register ('BackPlaneCorrectionMon',
+                  False,
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.bool,          # string, int, or float
+                  "Monitor BP correction?")
 options.register ('ThresholdMon',
                   False,
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -193,6 +203,10 @@ elif options.ShiftAndCrosstalkMon == True:
     process.reader = cms.EDAnalyzer("SiStripConfObjectDummyPrinter")
     process.p1 = cms.Path(process.reader)
 
+elif options.APVPhaseOffsetsMon == True:
+    process.reader = cms.EDAnalyzer("SiStripConfObjectDummyPrinter")
+    process.p1 = cms.Path(process.reader)
+
 elif options.ALCARecoTriggerBitsMon == True:
     process.AlCaRecoTriggerBitsRcdRead = cms.EDAnalyzer( "AlCaRecoTriggerBitsRcdRead"
                                                          , outputType  = cms.untracked.string( 'text' )
@@ -216,11 +230,12 @@ else:
     process.CondDataMonitoring.MonitorSiStripCabling       = options.CablingMon
     process.CondDataMonitoring.MonitorSiStripApvGain       = options.GainMon
     process.CondDataMonitoring.MonitorSiStripLorentzAngle  = options.LorentzAngleMon
+    process.CondDataMonitoring.MonitorSiStripBackPlaneCorrection  = options.BackPlaneCorrectionMon
     process.CondDataMonitoring.MonitorSiStripLowThreshold  = options.ThresholdMon
     process.CondDataMonitoring.MonitorSiStripHighThreshold = options.ThresholdMon
     process.CondDataMonitoring.OutputMEsInRootFile         = True
     process.CondDataMonitoring.FillConditions_PSet.OutputSummaryAtLayerLevelAsImage           = True
-    process.CondDataMonitoring.FillConditions_PSet.OutputSummaryProfileAtLayerLevelAsImage    = options.LorentzAngleMon # This should be saved only in case of LA (because for LA no SummaryAtLayerLevel is available)
+    process.CondDataMonitoring.FillConditions_PSet.OutputSummaryProfileAtLayerLevelAsImage    = options.LorentzAngleMon or options.BackPlaneCorrectionMon # This should be saved only in case of LA (because for LA no SummaryAtLayerLevel is available)
     process.CondDataMonitoring.FillConditions_PSet.OutputCumulativeSummaryAtLayerLevelAsImage = options.MonitorCumulative
     process.CondDataMonitoring.FillConditions_PSet.HistoMaps_On     = False
     process.CondDataMonitoring.FillConditions_PSet.TkMap_On         = True # This is just for test until TkMap is included in all classes!!! Uncomment!!!!
@@ -240,6 +255,7 @@ else:
     process.CondDataMonitoring.SiStripQualityDQM_PSet.CondObj_fillId       = 'onlyProfile'
     process.CondDataMonitoring.SiStripApvGainsDQM_PSet.CondObj_fillId      = 'ProfileAndCumul'
     process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.CondObj_fillId  = 'ProfileAndCumul'
+    process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.CondObj_fillId  = 'ProfileAndCumul'
     process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.CondObj_fillId  = 'onlyProfile'
     process.CondDataMonitoring.SiStripHighThresholdDQM_PSet.CondObj_fillId = 'onlyProfile'
     
@@ -274,6 +290,11 @@ else:
     process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.TkMapName    = 'LorentzAngleTkMap.png'
     process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.minValue     = 0.01
     process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.maxValue     = 0.03
+    
+    process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.TkMap_On     = True
+    process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.TkMapName    = 'BackPlaneCorrectionTkMap.png'
+    process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.minValue     = 0.00
+    process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.maxValue     = 0.10
     
     process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.TkMap_On     = True
     process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.TkMapName     = 'LowThresholdTkMap.png'
