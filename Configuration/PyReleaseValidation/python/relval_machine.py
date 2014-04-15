@@ -1,0 +1,65 @@
+from  Configuration.PyReleaseValidation.relval_steps import Matrix, InputInfo, Steps
+import os
+import json
+
+
+workflows = Matrix()
+steps = Steps()
+
+
+def get_json_files():
+    cwd = os.path.join(os.getcwd(), "json_data")
+    if not os.path.exists(cwd):
+        return []
+
+    json_files = []
+    for f in os.listdir(cwd):
+        full_path = os.path.join(cwd, f)
+        if os.path.isfile(full_path) and f.endswith(".json"):
+            json_files.append(full_path)
+    return json_files
+
+
+def fix_run(run):
+    runs = run.replace(" ", "").replace("[", "").replace("]", "").split(",")
+    int_runs = []
+    for item in runs:
+        if item.isdigit():
+            int_runs.append(int(item))
+        else:
+            print "WARNING: run is in bad format: {0}".format(run)
+    return runs
+
+
+def load_steps_and_workflows():
+    data_files = get_json_files()
+    for index, data_file in enumerate(data_files):
+        with open(data_file, "r") as f:
+            data = json.load(f)
+            label = data["label"]
+            steps_names = []
+            for step_name, step in data["steps"].items():
+                steps_names.append(step_name)
+                if step_name in steps:
+                    continue  # this step was inserted already
+
+                # inputInfo case
+                if "inputInfo" in step:
+                    input_info = step["inputInfo"]
+                    if "run" in input_info:
+                        input_info["run"] = fix_run(input_info["run"])
+
+                    steps[step_name] = {
+                        'INPUT': InputInfo(**input_info)
+                    }
+                # step with parameters
+                elif "parameters" in step:
+                    steps[step_name] = step["parameters"]
+                else:
+                    raise Exception("Wrong step format in {0} file".format(data_file))
+
+            workflows[1000000.0 + 0.1*index] = [label, steps_names]
+
+
+load_steps_and_workflows()
+
