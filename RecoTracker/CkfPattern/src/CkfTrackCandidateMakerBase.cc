@@ -23,6 +23,7 @@
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilderFactory.h"
 
 
 #include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
@@ -45,10 +46,14 @@
 using namespace edm;
 using namespace std;
 
+namespace {
+  BaseCkfTrajectoryBuilder *createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
+    return BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
+  }
+}
+
 namespace cms{
   CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf, edm::ConsumesCollector && iC) : 
-
-    conf_(conf),
     theTrackCandidateOutput(true),
     theTrajectoryOutput(false),
     useSplitting(conf.getParameter<bool>("useHitsSplitting")),
@@ -56,11 +61,11 @@ namespace cms{
     cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
     reverseTrajectories(conf.existsAs<bool>("reverseTrajectories") && conf.getParameter<bool>("reverseTrajectories")),
     theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
-    theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")), 
-    theTrajectoryBuilder(0),
+    theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
     theTrajectoryCleaner(0),
-    theInitialState(0),
+    theInitialState(new TransientInitialStateEstimator(conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
+    theMagFieldName(conf.exists("SimpleMagneticField") ? conf.getParameter<std::string>("SimpleMagneticField") : ""),
     theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
     theNavigationSchool(0),
     theSeedCleaner(0),
@@ -83,7 +88,7 @@ namespace cms{
         maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
       }
 
-    std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
+    std::string cleaner = conf.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "SeedCleanerByHitPosition") {
         theSeedCleaner = new SeedCleanerByHitPosition();
     } else if (cleaner == "SeedCleanerBySharedInput") {
@@ -91,10 +96,10 @@ namespace cms{
     } else if (cleaner == "CachingSeedCleanerByHitPosition") {
         theSeedCleaner = new CachingSeedCleanerByHitPosition();
     } else if (cleaner == "CachingSeedCleanerBySharedInput") {
-      int numHitsForSeedCleaner = conf_.existsAs<int>("numHitsForSeedCleaner") ? 
-	conf_.getParameter<int>("numHitsForSeedCleaner") : 4;
-      int onlyPixelHits = conf_.existsAs<bool>("onlyPixelHitsForSeedCleaner") ? 
-	conf_.getParameter<bool>("onlyPixelHitsForSeedCleaner") : false;
+      int numHitsForSeedCleaner = conf.existsAs<int>("numHitsForSeedCleaner") ?
+	conf.getParameter<int>("numHitsForSeedCleaner") : 4;
+      int onlyPixelHits = conf.existsAs<bool>("onlyPixelHitsForSeedCleaner") ?
+	conf.getParameter<bool>("onlyPixelHitsForSeedCleaner") : false;
       theSeedCleaner = new CachingSeedCleanerBySharedInput(numHitsForSeedCleaner,onlyPixelHits);
     } else if (cleaner == "none") {
         theSeedCleaner = 0;
@@ -108,7 +113,6 @@ namespace cms{
   
   // Virtual destructor needed.
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
-    delete theInitialState;  
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
@@ -121,21 +125,9 @@ namespace cms{
 
     //services
     es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
-    std::string mfName = "";
-    if (conf_.exists("SimpleMagneticField"))
-      mfName = conf_.getParameter<std::string>("SimpleMagneticField");
-    es.get<IdealMagneticFieldRecord>().get(mfName,theMagField );
+    es.get<IdealMagneticFieldRecord>().get(theMagFieldName, theMagField );
     //    edm::ESInputTag mfESInputTag(mfName);
     //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
-
-    if (!theInitialState){
-      // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
-      // get nested parameter set for the TransientInitialStateEstimator
-      ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-      theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    }
-
-    theInitialState->setEventSetup( es );
 
     edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
     es.get<TrajectoryCleaner::Record>().get(theTrajectoryCleanerName, trajectoryCleanerH);
@@ -144,12 +136,6 @@ namespace cms{
     edm::ESHandle<NavigationSchool> navigationSchoolH;
     es.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navigationSchoolH);
     theNavigationSchool = navigationSchoolH.product();
-
-    // set the TrajectoryBuilder
-    edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
-    es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
-    theTrajectoryBuilder = dynamic_cast<const BaseCkfTrajectoryBuilder*>(theTrajectoryBuilderHandle.product());    
-    assert(theTrajectoryBuilder);
   }
 
   // Functions that gets called by framework every event
@@ -173,7 +159,6 @@ namespace cms{
     edm::Handle<MeasurementTrackerEvent> data;
     e.getByToken(theMTELabel, data);
 
-    std::auto_ptr<BaseCkfTrajectoryBuilder> trajectoryBuilder;
     std::auto_ptr<MeasurementTrackerEvent> dataWithMasks;
     if (skipClusters_) {
         edm::Handle<PixelClusterMask> pixelMask;
@@ -182,12 +167,14 @@ namespace cms{
             e.getByToken(maskStrips_, stripMask);
             dataWithMasks.reset(new MeasurementTrackerEvent(*data, *stripMask, *pixelMask));
         //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks, " << std::endl;
-        trajectoryBuilder.reset(theTrajectoryBuilder->clone(&*dataWithMasks));
+        theTrajectoryBuilder->setEvent(e, es, &*dataWithMasks);
     } else {
         //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created without masks, " << std::endl;
-        trajectoryBuilder.reset(theTrajectoryBuilder->clone(&*data));
+        theTrajectoryBuilder->setEvent(e, es, &*data);
     }
-    
+    // TISE ES must be set here due to dependence on theTrajectoryBuilder
+    theInitialState->setEventSetup( es, static_cast<TkTransientTrackingRecHitBuilder const *>(theTrajectoryBuilder->hitBuilder())->cloner() );
+
     // Step B: Retrieve seeds
     
     edm::Handle<View<TrajectorySeed> > collseed;
@@ -232,7 +219,7 @@ namespace cms{
 
 	// Build trajectory from seed outwards
         theTmpTrajectories.clear();
-	auto const & startTraj = trajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
+	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
 	
        
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()
@@ -253,7 +240,7 @@ namespace cms{
 	// seed and if possible further inwards.
 	
 	if (doSeedingRegionRebuilding) {
-	  trajectoryBuilder->rebuildTrajectories(startTraj,(*collseed)[j],theTmpTrajectories);      
+	  theTrajectoryBuilder->rebuildTrajectories(startTraj,(*collseed)[j],theTmpTrajectories);      
 
   	  LogDebug("CkfPattern") << "======== Out-in trajectory building found " << theTmpTrajectories.size()
   			              << " valid/invalid trajectories from seed " << j << " ========"<<endl

@@ -30,7 +30,6 @@ cond::Utilities::Utilities( const std::string& commandName,
 							     m_positionalOptions(),
 							     m_values(),
 							     m_dbConnection(0),
-							     m_pluginMgrInitialized(false),
 							     m_dbSessions(){
   m_options.add_options()
     ("debug","switch on debug mode")
@@ -52,6 +51,17 @@ int cond::Utilities::execute(){
 }
 
 int cond::Utilities::run( int argc, char** argv ){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+
+  std::vector<edm::ParameterSet> psets;
+  edm::ParameterSet pSet;
+  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+  psets.push_back(pSet);
+  edm::ServiceToken servToken(edm::ServiceRegistry::createSet(psets));
+  m_currentToken = &servToken;
+  edm::ServiceRegistry::Operate operate(servToken);
+
   int ret = 0;
   try{
     parseCommand( argc, argv );
@@ -63,7 +73,6 @@ int cond::Utilities::run( int argc, char** argv ){
       std::vector<std::string> dictionaries =
 	m_values["dictionary"].as<std::vector<std::string> >();
       if(!dictionaries.empty()){
-	initializePluginManager();
 	ora::SharedLibraryName libName;
 	BOOST_FOREACH(std::string const & dict, dictionaries)
 	  edmplugin::SharedLibrary( libName(dict) );
@@ -87,6 +96,7 @@ int cond::Utilities::run( int argc, char** argv ){
     std::cout << exc.what() << std::endl;
     ret = 1;
   }
+  m_currentToken = nullptr;
   return ret;
 }
 
@@ -190,24 +200,11 @@ bool cond::Utilities::hasDebug(){
 }
 
 void cond::Utilities::initializePluginManager(){
-  if(!m_pluginMgrInitialized){
-    edmplugin::PluginManager::Config config;
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
-
-    std::vector<edm::ParameterSet> psets;
-    edm::ParameterSet pSet;
-    pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
-    psets.push_back(pSet);
-    static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-    static const edm::ServiceRegistry::Operate operate(services);
-
-    m_pluginMgrInitialized = true;
-  }
+  // dummy, to avoid to adapt non-CondCore clients
 }
 
 void cond::Utilities::initializeForDbConnection(){
   if(!m_dbConnection){
-    initializePluginManager();
     m_dbConnection = new cond::DbConnection();
     if( hasDebug() ){
       m_dbConnection->configuration().setMessageLevel(coral::Debug);
