@@ -1,31 +1,35 @@
 import FWCore.ParameterSet.Config as cms
 
+# This step runs over all clusters
 
-# NEW CLUSTERS (remove previously used clusters)
-#jetCoreRegionalStepClusters = cms.EDProducer("TrackClusterRemover",
-#    clusterLessSolution = cms.bool(True),
-#    oldClusterRemovalInfo = cms.InputTag("lowPtTripletStepClusters"),
-#    trajectories = cms.InputTag("lowPtTripletStepTracks"),
-#    overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
-#    TrackQuality = cms.string('highPurity'),
-#    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-#    pixelClusters = cms.InputTag("siPixelClusters"),
-#    stripClusters = cms.InputTag("siStripClusters"),
-#    Common = cms.PSet(
-#        maxChi2 = cms.double(9.0)
-#    )
-#)
+# run only if there are high pT jets
+from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
+iter0TrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
+from RecoJets.JetProducers.ak4TrackJets_cfi import ak4TrackJets
+ak4TrackJetsForTrk = ak4TrackJets.clone(src = cms.InputTag('iter0TrackRefsForJets'),srcPVs = cms.InputTag('pixelVertices'))
+jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4TrackJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
+
+# care only at tracks from main PV
+import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
+firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
+firstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
+     filterParams = cms.PSet(
+     	     minNdof = cms.double(25.0),
+             maxZ = cms.double(15.0),
+             maxRho = cms.double(2.0)
+     ),
+     src=cms.InputTag('firstStepPrimaryVertices')
+)
 
 # SEEDING LAYERS
 jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
-        'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
-        'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-        'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
-	#'BPix2+TIB1',
-	'BPix3+TIB1',
-	#'BPix2+TIB2',
-	'BPix3+TIB2'),
+                            'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
+                            'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
+                            'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
+                            #'BPix2+TIB1','BPix2+TIB2',
+                            'BPix3+TIB1','BPix3+TIB2'),
     TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle')
@@ -36,7 +40,7 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         hitErrorRZ = cms.double(0.006),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
         HitProducer = cms.string('siPixelRecHits'),
-    #    skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
+        #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     ),
     FPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
@@ -44,20 +48,15 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         hitErrorRZ = cms.double(0.0036),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
         HitProducer = cms.string('siPixelRecHits'),
-     #   skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
+        #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     )
 )
 
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 jetCoreRegionalStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
-from RecoJets.JetProducers.ak4TrackJets_cfi import ak4TrackJets
-from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
-iter0TrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
-ak4TrackJetsForTrk = ak4TrackJets.clone(src = cms.InputTag('iter0TrackRefsForJets'),srcPVs = cms.InputTag('pixelVertices'))
-jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4TrackJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
-      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),#not so nice to depend on RecoTau
+      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),#not so nice to depend on RecoTau...
       RegionPSet = cms.PSet(
         precise = cms.bool( True ),
         originRadius = cms.double( 0.2 ),
@@ -69,17 +68,16 @@ jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
         vertexSrc = cms.InputTag( "firstStepGoodPrimaryVertices" ),
         measurementTrackerName = cms.string( "MeasurementTrackerEvent" ),
         howToUseMeasurementTracker = cms.double( 1.0 )
-      ))
-
+      )
+)
 jetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'jetCoreRegionalStepSeedLayers'
-
 jetCoreRegionalStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none'),
 #PixelClusterShapeSeedComparitor'),
 #        FilterAtHelixStage = cms.bool(True),
 #        FilterPixelHits = cms.bool(True),
 #        FilterStripHits = cms.bool(False),
- #       ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+#       ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -105,7 +103,7 @@ jetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     ComponentName = 'jetCoreRegionalStepTrajectoryBuilder',
     MeasurementTrackerName = '',
     trajectoryFilterName = 'jetCoreRegionalStepTrajectoryFilter',
-#    clustersToSkip = cms.InputTag('jetCoreRegionalStepClusters'),
+    #clustersToSkip = cms.InputTag('jetCoreRegionalStepClusters'),
     maxCand = 50,
     estimator = cms.string('jetCoreRegionalStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -121,7 +119,6 @@ jetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_c
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     #numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
-
 )
 
 
@@ -152,21 +149,6 @@ jetCoreRegionalStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
             ),
         ) #end of vpset
     ) #end of clone
-
-import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
-firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
-firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
-
-firstStepGoodPrimaryVertices = cms.EDFilter(
-     "PrimaryVertexObjectFilter",
-     filterParams = cms.PSet(
-	     #pvSrc = cms.InputTag('firstStepPrimaryVertices'),#try to remove this one
-     	     minNdof = cms.double(25.0),
-             maxZ = cms.double(15.0),
-             maxRho = cms.double(2.0)
-     ),
-     src=cms.InputTag('firstStepPrimaryVertices')#why need twice the same src?
-   )
 
 # Final sequence
 JetCoreRegionalStep = cms.Sequence(iter0TrackRefsForJets*ak4TrackJetsForTrk*jetsForCoreTracking*
