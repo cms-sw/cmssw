@@ -3,6 +3,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFEcalRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHcalRecHitCreator.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFPSRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHGCalRecHitCreator.h"
 
@@ -13,6 +14,7 @@ DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEKRecHitCreator, "PFEKRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEBRecHitCreator, "PFEBRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHERecHitCreator, "PFHERecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHBRecHitCreator, "PFHBRecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHBHERecHitCreator, "PFHBHERecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHORecHitCreator, "PFHORecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHFEMRecHitCreator, "PFHFEMRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHFHADRecHitCreator, "PFHFHADRecHitCreator");
