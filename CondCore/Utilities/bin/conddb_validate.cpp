@@ -177,7 +177,8 @@ int cond::ValidateUtilities::execute(){
       std::cout <<"    Writing reference db"<<std::endl;
       refFileName = writeTag( t, "ref", session0, dir );
       std::string destTag("");
-      if( !session1.checkMigrationLog( refConnect, t, destTag ) ) {
+      cond::MigrationStatus status;
+      if( !session1.checkMigrationLog( refConnect, t, destTag, status ) ) {
 	std::cout << "    ERROR: Tag "<< t <<" has not been migrated in database " << candidate <<std::endl;
 	boost::filesystem::remove( boost::filesystem::path(refFileName) );
       } else {

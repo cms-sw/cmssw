@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
 namespace DataFormats_SiPixelCluster {
   struct dictionary {
@@ -26,6 +27,9 @@ namespace DataFormats_SiPixelCluster {
 
     edm::ContainerMask<SiPixelClusterCollectionNew> cm1;
     edm::Wrapper<edm::ContainerMask<SiPixelClusterCollectionNew> > w_cm1;
+
+    SiPixelClusterShapeCache clusterShapeCache;
+    edm::Wrapper<SiPixelClusterShapeCache> wclusterShapeCache;
   };
 }
 

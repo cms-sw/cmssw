@@ -267,7 +267,6 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( SiPixelLorentzAngle )
       IMPORT_PAYLOAD_CASE( SiPixelQuality )
       IMPORT_PAYLOAD_CASE( SiPixelTemplateDBObject )
-      IMPORT_PAYLOAD_CASE( SiPixelGenErrorDBObject )
       IMPORT_PAYLOAD_CASE( SiStripApvGain )
       IMPORT_PAYLOAD_CASE( SiStripBadStrip )
       IMPORT_PAYLOAD_CASE( SiStripBackPlaneCorrection )
@@ -299,7 +298,11 @@ namespace cond {
 	const PhysicsTools::Calibration::Histogram2D<double,double,double>& obj = *static_cast<const PhysicsTools::Calibration::Histogram2D<double,double,double>*>( inputPtr ); 
 	payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() ); 
       } 
-
+      if( inputTypeName == "std::vector<unsignedlonglong,std::allocator<unsignedlonglong>>" ){
+	match = true;
+	const std::vector<unsigned long long>& obj = *static_cast<const std::vector<unsigned long long>*>( inputPtr );
+	payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() );
+      }
       
       if( ! match ) throwException( "Payload type \""+inputTypeName+"\" is unknown.","import" );
       }
@@ -517,7 +520,6 @@ namespace cond {
     FETCH_PAYLOAD_CASE( SiPixelLorentzAngle )
     FETCH_PAYLOAD_CASE( SiPixelQuality )
     FETCH_PAYLOAD_CASE( SiPixelTemplateDBObject )
-    FETCH_PAYLOAD_CASE( SiPixelGenErrorDBObject )
     FETCH_PAYLOAD_CASE( SiStripApvGain )
     FETCH_PAYLOAD_CASE( SiStripBackPlaneCorrection )
     FETCH_PAYLOAD_CASE( SiStripBadStrip )
@@ -542,17 +544,21 @@ namespace cond {
 
     //   
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    
-      auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo );
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo, isOra );
       payloadPtr = payload;
       match = true;
     }
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){    
-      auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo );
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo, isOra );
+      payloadPtr = payload;
+      match = true;
+    }
+    if( payloadTypeName == "std::vector<unsignedlonglong,std::allocator<unsignedlonglong>>" ){
+      auto payload = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo, isOra );
       payloadPtr = payload;
       match = true;
     }
   
-
     if( ! match ) throwException( "Payload type \""+payloadTypeName+"\" is unknown.","fetch" );
     return std::make_pair( payloadTypeName, payloadPtr );
   }
