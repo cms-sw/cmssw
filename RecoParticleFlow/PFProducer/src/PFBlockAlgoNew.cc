@@ -121,13 +121,14 @@ PFBlockAlgoNew::findBlocks() {
 
     blocks_->push_back( reco::PFBlock() );
     
-    std::vector< PFBlockLink > links;
+    std::unordered_map<std::pair<size_t,size_t>, PFBlockLink > links;
+    links.reserve(elements_.size());
     
     ie = associate(elements_, links, blocks_->back());    
     
     packLinks( blocks_->back(), links );
   }
-  std::cout << "(new) Found " << blocks_->size() << " PFBlocks!" << std::endl;
+  //std::cout << "(new) Found " << blocks_->size() << " PFBlocks!" << std::endl;
 }
 
 // start from first element in elements_
@@ -135,7 +136,7 @@ PFBlockAlgoNew::findBlocks() {
 // return the start of the new block
 PFBlockAlgoNew::IE
 PFBlockAlgoNew::associate( PFBlockAlgoNew::ElementList& elems,
-			   std::vector<PFBlockLink>& links,
+			   std::unordered_map<std::pair<size_t,size_t>,PFBlockLink>& links,
 			   reco::PFBlock& block) {
   if( elems.size() == 0 ) return elems.begin();
   ElementList::iterator scan_upper(elems.begin()), search_lower(elems.begin()), 
@@ -158,23 +159,24 @@ PFBlockAlgoNew::associate( PFBlockAlgoNew::ElementList& elems,
       // front of the range provided
       search_lower = 
 	std::partition(search_lower,elems.end(),
-		       [&](ElementList::value_type& a){
-			 // check if link is somehow possible
-			 const bool prelink_pass = linkPrefilter(comp->get(),
-								 a.get());
-			 dist = -1.0;
-			 linktype = PFBlockLink::NONE;
-			 linktest = PFBlock::LINKTEST_RECHIT;
+		       [&](ElementList::value_type& a){	
+			 dist = -1.0;			 
 			 // compute linking info if it is possible
-			 if( prelink_pass ) {
+			 if( linkPrefilter(comp->get(), a.get()) ) {
 			   link( comp->get(), a.get(), 
 				 linktype, linktest, dist ); 
 			 }
-			 if( dist >= -0.5 ) { 
+			 if( dist >= -0.5 ) {
+			   const unsigned lidx = ((*comp)->type() < a->type() ? 
+						  (*comp)->index() :
+						  a->index() );
+			   const unsigned uidx = ((*comp)->type() >= a->type() ?
+						  (*comp)->index() :
+						  a->index() );
 			   block.addElement( a.get() ); 
-			   links.emplace_back( linktype, linktest, dist,
-					       (*comp)->index(), 
-					       a->index() );
+			   links.emplace( std::make_pair(lidx,uidx),
+					  PFBlockLink(linktype, linktest, dist,
+						      lidx, uidx ) );
 			   return true;
 			 } else {
 			   return false;
@@ -191,14 +193,13 @@ PFBlockAlgoNew::associate( PFBlockAlgoNew::ElementList& elems,
 
 void 
 PFBlockAlgoNew::packLinks( reco::PFBlock& block, 
-			   const std::vector<PFBlockLink>& links ) const {
+			   const std::unordered_map<std::pair<size_t,size_t>,PFBlockLink>& links ) const {
   
   
   const edm::OwnVector< reco::PFBlockElement >& els = block.elements();
   
   block.bookLinkData();
   unsigned elsize = els.size();
-  unsigned ilStart = 0;
   //First Loop: update all link data
   for( unsigned i1=0; i1<elsize; ++i1 ) {
     for( unsigned i2=0; i2<i1; ++i2 ) {
@@ -214,33 +215,12 @@ PFBlockAlgoNew::packLinks( reco::PFBlock& block,
 
       // are these elements already linked ?
       // this can be optimized
-      unsigned linksize = links.size();
-      for( unsigned il = ilStart; il<linksize; ++il ) {
-	// The following three lines exploits the increasing-element2 
-	// ordering of links.
-	if ( links[il].element2() < i1 ) ilStart = il;
-	if ( links[il].element2() > i1 ) break;
-	if( (links[il].element1() == i2 &&
-             links[il].element2() == i1) ) {  // yes
-	  
-	  dist = links[il].dist();
-	  linked = true;
-
-	  //modif-beg	  
-	  //retrieve type of test used to get distance
-	  linktest = links[il].test();
-#ifdef PFLOW_DEBUG
-	  if( debug_ )
-	    cout << "Reading link vector: linktest used=" 
-		 << linktest 
-		 << " distance = " << dist 
-		 << endl; 
-#endif
-	  //modif-end
-	  
-	  break;
-	} 
-      }
+      const auto link_itr = links.find(std::make_pair(i2,i1));
+      if( link_itr != links.end() ) {
+	dist = link_itr->second.dist();
+	linktest = link_itr->second.test();
+	linked = true;
+      }      
       
       if(!linked) {
 	PFBlockLink::Type linktype = PFBlockLink::NONE;
@@ -307,14 +287,7 @@ void PFBlockAlgoNew::buildElements(const edm::Event& evt) {
   for( const auto& importer : _importers ) {
     importer->importToBlock(evt,elements_);
   }
-
-  // sort to regularize access patterns
-  std::sort(elements_.begin(),elements_.end(),
-	    [](const ElementList::value_type& a,
-	       const ElementList::value_type& b) {
-	      return a->type() < b->type();
-	    });
-  
+      
   // -------------- Loop over block elements ---------------------
 
   // Here we provide to all KDTree linkers the collections to link.
@@ -330,7 +303,7 @@ void PFBlockAlgoNew::buildElements(const edm::Event& evt) {
 	kdtree->insertFieldClusterElt(it->get());
       }
     }    
-  }
+  }  
 }
 
 std::ostream& operator<<(std::ostream& out, const PFBlockAlgoNew& a) {
