@@ -51,6 +51,8 @@ class EgammaHLTHcalPFClusterIsolationProducer : public edm::EDProducer {
   bool doRhoCorrection_;
   float rhoScale_;
   float rhoMax_;
+  
+  bool useHF_;
 };
 
 #endif
