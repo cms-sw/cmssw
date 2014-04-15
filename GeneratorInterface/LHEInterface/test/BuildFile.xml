@@ -1,6 +1,0 @@
-<library   file="DummyLHEAnalyzer.cc">
-  <use   name="PhysicsTools/HepMCCandAlgos"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-  <use   name="FWCore/Framework"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

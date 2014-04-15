@@ -1,7 +1,0 @@
-<use   name="boost"/>
-<use   name="FWCore/Framework"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="GeneratorInterface/Core"/>
-<use   name="clhep"/>
-<use   name="root"/>
-<flags   EDM_PLUGIN="1"/>

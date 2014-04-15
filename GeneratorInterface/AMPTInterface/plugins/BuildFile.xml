@@ -1,4 +1,0 @@
-<use   name="GeneratorInterface/AMPTInterface"/>
-<library   file="*.cc" name="GeneratorInterfaceAMPTInterfacePlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

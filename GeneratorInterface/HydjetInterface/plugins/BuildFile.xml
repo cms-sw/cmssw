@@ -1,5 +1,0 @@
-<use   name="GeneratorInterface/HydjetInterface"/>
-<use   name="pydata"/>
-<library   file="*.cc" name="GeneratorInterfaceHydjetInterfacePlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>
