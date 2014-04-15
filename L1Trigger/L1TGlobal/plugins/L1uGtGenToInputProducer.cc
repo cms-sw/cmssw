@@ -94,6 +94,11 @@ namespace l1t {
     double egEtThreshold_;
     double muEtThreshold_;
 
+    // Control how to end the job 
+    int emptyBxTrailer_;
+    int emptyBxEvt_;
+    int eventCnt_;
+
     // Tokens
     edm::EDGetTokenT <reco::GenParticleCollection> genParticlesToken;
     edm::EDGetTokenT <reco::GenJetCollection> genJetsToken;
@@ -155,13 +160,18 @@ namespace l1t {
     muEtThreshold_  = iConfig.getParameter<double>("muEtThreshold");
 
 
+    emptyBxTrailer_   = iConfig.getParameter<int>("emptyBxTrailer");
+    emptyBxEvt_       = iConfig.getParameter<int>("emptyBxEvt");
+
+
     genParticlesToken = consumes <reco::GenParticleCollection> (std::string("genParticles"));
     genJetsToken      = consumes <reco::GenJetCollection> (std::string("ak5GenJets"));
-    genMetToken       = consumes <reco::GenMETCollection> (std::string("genMetCalo"));
+    genMetToken       = consumes <reco::GenMETCollection> (std::string("genMetCalo"));   
 
 
     // set cache id to zero, will be set at first beginRun:
     m_paramsCacheId = 0;
+    eventCnt_ = 0;
   }
 
 
@@ -179,6 +189,8 @@ namespace l1t {
 void
 L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
+
+  eventCnt_++;
 
   LogDebug("l1t|Global") << "L1uGtGenToInputProducer::produce function called...\n";
 
@@ -458,6 +470,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
  
    // Insert all the bx into the L1 Collections
+   printf("Event %i  EmptyBxEvt %i emptyBxTrailer %i diff %i \n",eventCnt_,emptyBxEvt_,emptyBxTrailer_,(emptyBxEvt_ - eventCnt_));
 
    // Fill Muons
    for( int iMu=0; iMu<int(muonVec_bxm2.size()); iMu++ ){
@@ -472,9 +485,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iMu=0; iMu<int(muonVec_bxp1.size()); iMu++ ){
      muons->push_back(1, muonVec_bxp1[iMu]);
    }
-   for( int iMu=0; iMu<int(muonVec.size()); iMu++ ){
-     muons->push_back(2, muonVec[iMu]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iMu=0; iMu<int(muonVec.size()); iMu++ ){
+        muons->push_back(2, muonVec[iMu]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     muonVec.clear();  
+   }  
 
    // Fill Egammas
    for( int iEG=0; iEG<int(egammaVec_bxm2.size()); iEG++ ){
@@ -489,9 +507,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iEG=0; iEG<int(egammaVec_bxp1.size()); iEG++ ){
      egammas->push_back(1, egammaVec_bxp1[iEG]);
    }
-   for( int iEG=0; iEG<int(egammaVec.size()); iEG++ ){
-     egammas->push_back(2, egammaVec[iEG]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iEG=0; iEG<int(egammaVec.size()); iEG++ ){
+        egammas->push_back(2, egammaVec[iEG]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     egammaVec.clear();  
+   }  
 
    // Fill Taus
    for( int iTau=0; iTau<int(tauVec_bxm2.size()); iTau++ ){
@@ -506,9 +529,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iTau=0; iTau<int(tauVec_bxp1.size()); iTau++ ){
      taus->push_back(1, tauVec_bxp1[iTau]);
    }
-   for( int iTau=0; iTau<int(tauVec.size()); iTau++ ){
-     taus->push_back(2, tauVec[iTau]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iTau=0; iTau<int(tauVec.size()); iTau++ ){
+        taus->push_back(2, tauVec[iTau]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     tauVec.clear();  
+   }  
 
    // Fill Jets
    for( int iJet=0; iJet<int(jetVec_bxm2.size()); iJet++ ){
@@ -523,9 +551,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iJet=0; iJet<int(jetVec_bxp1.size()); iJet++ ){
      jets->push_back(1, jetVec_bxp1[iJet]);
    }
-   for( int iJet=0; iJet<int(jetVec.size()); iJet++ ){
-     jets->push_back(2, jetVec[iJet]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iJet=0; iJet<int(jetVec.size()); iJet++ ){
+        jets->push_back(2, jetVec[iJet]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     jetVec.clear();  
+   }  
 
    // Fill Etsums
    for( int iETsum=0; iETsum<int(etsumVec_bxm2.size()); iETsum++ ){
@@ -540,9 +573,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for( int iETsum=0; iETsum<int(etsumVec_bxp1.size()); iETsum++ ){
      etsums->push_back(1, etsumVec_bxp1[iETsum]);
    }
-   for( int iETsum=0; iETsum<int(etsumVec.size()); iETsum++ ){
-     etsums->push_back(2, etsumVec[iETsum]);
-   }
+   if(emptyBxTrailer_<=(emptyBxEvt_ - eventCnt_)) {
+     for( int iETsum=0; iETsum<int(etsumVec.size()); iETsum++ ){
+        etsums->push_back(2, etsumVec[iETsum]);
+     }
+   } else {
+     // this event is part of empty trailer...clear out data
+     etsumVec.clear();  
+   }  
 
 
   iEvent.put(egammas);

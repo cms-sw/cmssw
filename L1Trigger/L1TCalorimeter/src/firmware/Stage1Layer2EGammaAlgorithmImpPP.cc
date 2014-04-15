@@ -28,9 +28,9 @@ Stage1Layer2EGammaAlgorithmImpPP::~Stage1Layer2EGammaAlgorithmImpPP(){};
 
 void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma>* egammas) {
 
-  egtSeed = 0;
-  relativeIsolationCut = 0.2;
-  HoverECut = 0.3;
+  egtSeed = 5;
+  relativeIsolationCut = 0.1;
+  HoverECut = 0.05;
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   RegionCorrection(regions, EMCands, subRegions);
@@ -52,19 +52,16 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
      int isoFlag = 1;
 
 
-     // ------- isolation ---------------
+     // ------- isolation and H/E ---------------
      double isolation = Isolation(eg_eta, eg_phi, *subRegions);
      if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
 
-
-     // ------- quality ---------------
      double hoe = HoverE(eg_et, eg_eta, eg_phi, *subRegions);
-     if( hoe > HoverECut) quality = 0;
-
+  
 
      // ------- fill the EG candidate vector ---------
      l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
-      egammas->push_back(theEG);
+      if( hoe < HoverECut) egammas->push_back(theEG);
   }
 
 

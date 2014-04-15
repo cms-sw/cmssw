@@ -102,11 +102,16 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(l1t::TauBxCollection::const_iterator itTau = old_taus->begin(bx);
 	itTau != old_taus->end(bx); ++itTau)
     {
-      //jets, taus measured in caloregion scale for Layer2
-      const double pt = itTau->hwPt() * emScale->linearLsb();
+      // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
+      //const uint16_t rankPt = jetScale->rank((uint16_t)itTau->hwPt());
+      //const double et = jetScale->et( rankPt ) ;
+
+      // or use the emScale to get finer-grained et
+      const double et = itTau->hwPt() * emScale->linearLsb();
+      
       const double eta = getPhysicalEta(itTau->hwEta());
       const double phi = getPhysicalPhi(itTau->hwPhi());
-      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
+      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
 
       l1t::Tau *tau = new l1t::Tau(*p4, itTau->hwPt(),
 				   itTau->hwEta(), itTau->hwPhi(),
@@ -118,11 +123,16 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(l1t::JetBxCollection::const_iterator itJet = old_jets->begin(bx);
 	itJet != old_jets->end(bx); ++itJet)
     {
-      //jets, taus measured in caloregion scale for Layer2
-      const double pt = itJet->hwPt() * emScale->linearLsb();
+      // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
+      //const uint16_t rankPt = jetScale->rank((uint16_t)itJet->hwPt());
+      //const double et = jetScale->et( rankPt ) ;
+      
+      // or use the emScale to get finer-grained et
+      const double et = itJet->hwPt() * emScale->linearLsb();
+      
       const double eta = getPhysicalEta(itJet->hwEta());
       const double phi = getPhysicalPhi(itJet->hwPhi());
-      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
+      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
 
       l1t::Jet *jet = new l1t::Jet(*p4, itJet->hwPt(),
 				   itJet->hwEta(), itJet->hwPhi(),
