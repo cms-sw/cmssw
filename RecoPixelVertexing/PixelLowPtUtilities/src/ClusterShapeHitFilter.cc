@@ -413,20 +413,16 @@ bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiStripCluster
 {
   int clusCharge=accumulate( cluster.amplitudes().begin(), cluster.amplitudes().end(), uint16_t(0));
 
-  const StripGeomDetUnit* stripDet =
-    dynamic_cast<const StripGeomDetUnit*> (theTracker->idToDet(detId));
   float chargeCut = minGoodStripCharge_*
-    stripDet->surface().bounds().thickness()/abs(cos(ldir.theta()));
+    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
 
   return (clusCharge>chargeCut);
 }
 
 bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiPixelCluster& cluster, const LocalVector & ldir) const
 {
-  const PixelGeomDetUnit* stripDet =
-    dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(detId));
   float chargeCut = minGoodPixelCharge_*
-    stripDet->surface().bounds().thickness()/abs(cos(ldir.theta()));
+    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
 
   return (cluster.charge()>chargeCut);
 }
