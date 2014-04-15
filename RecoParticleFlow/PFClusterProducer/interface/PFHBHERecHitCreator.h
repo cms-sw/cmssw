@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFClusterProducer_PFHcalRecHitCreator_h
-#define RecoParticleFlow_PFClusterProducer_PFHcalRecHitCreator_h
+#ifndef RecoParticleFlow_PFClusterProducer_PFHBHeRecHitCreator_h
+#define RecoParticleFlow_PFClusterProducer_PFHBHeRecHitCreator_h
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
 
@@ -16,8 +16,6 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
-//typedef PFHBHERecHitCreator<HBHERecHit,CaloSubdetectorGeometry,PFLayer::HCAL_BARREL1,HcalBarrel> PFHBRecHitCreator;
-//template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 
  public:  
@@ -56,19 +54,20 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 	math::XYZVector position;
 	math::XYZVector axis;
 	
-	const CaloCellGeometry *thisCell;
-	PFLayer::Layer layer;
+	const CaloCellGeometry *thisCell=0;
+	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
 	switch(esd) {
 	case HcalBarrel:
 	  thisCell =hcalBarrelGeo->getGeometry(detid); 
-	  layer =HCAL_BARREL1;
+	  layer =PFLayer::HCAL_BARREL1;
 	  break;
 
 	case HcalEndcap:
 	  thisCell =hcalEndcapGeo->getGeometry(detid); 
-	  layer =HCAL_ENDCAP;
+	  layer =PFLayer::HCAL_ENDCAP;
 	  break;
-
+	default:
+	  break;
 	}
   
 	// find rechit geometry
@@ -120,7 +119,7 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 
 
  protected:
-    edm::EDGetTokenT<edm::SortedCollection<Digi> > recHitToken_;
+    edm::EDGetTokenT<edm::SortedCollection<HBHERecHit> > recHitToken_;
 
 
 };
