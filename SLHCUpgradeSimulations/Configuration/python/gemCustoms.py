@@ -60,6 +60,8 @@ def customise_Reco(process):
     process.muonlocalreco += process.gemRecHits
     process.standAloneMuons.STATrajBuilderParameters.EnableGEMMeasurement = cms.bool(True)
     process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+    process.refittedStandAloneMuons.STATrajBuilderParameters.EnableGEMMeasurement = cms.bool(True)
+    process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
     process=outputCustoms(process)
     return process
 
