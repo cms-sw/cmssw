@@ -7,10 +7,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Validation/MuonCSCDigis/interface/CSCPSimHitMap.h"
 #include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
 #include "Validation/CSCRecHits/src/CSCSegmentValidation.h"
 
@@ -29,7 +28,7 @@ public:
 
   DQMStore* dbe_;
   std::string theOutputFile;
-  PSimHitMap theSimHitMap;
+  CSCPSimHitMap theSimHitMap;
   const CSCGeometry * theCSCGeometry;
 
   CSCRecHit2DValidation * the2DValidation;
