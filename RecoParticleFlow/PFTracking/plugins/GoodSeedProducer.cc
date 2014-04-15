@@ -414,10 +414,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    Trajectory::ConstRecHitContainer tmp;
 	    Trajectory::ConstRecHitContainer && hits=Tj[i].recHits();
 	    for (int ih=hits.size()-1; ih>=0; ih--)  tmp.push_back(hits[ih]);
-	    Trajectory  && FitTjs=(fitter_.product())->fitOne(Seed,tmp,Tj[i].lastMeasurement().updatedState());
+	    Trajectory  && FitTjs= fitter_->fitOne(Seed,tmp,Tj[i].lastMeasurement().updatedState());
 	
 	      if(FitTjs.isValid()){
-		Trajectory && SmooTjs=(smoother_.product())->trajectory(FitTjs);
+		Trajectory && SmooTjs= smoother_->trajectory(FitTjs);
 		  if(SmooTjs.isValid()){
 		
 		    //Track refitted with electron hypothesis
