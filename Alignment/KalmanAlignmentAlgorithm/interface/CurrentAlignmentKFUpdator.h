@@ -35,8 +35,8 @@ private:
 					typename AlgebraicROOTObject<D>::Vector & vecR,
 					typename AlgebraicROOTObject<D>::SymMatrix & matV ) const;
 
-  AlignmentParameters* getAlignmentParameters( const AlignableDetOrUnitPtr& alignableDet ) const;
-  AlignmentParameters* getHigherLevelParameters( const Alignable* aAlignable ) const;
+  AlignmentParameters const* getAlignmentParameters( const AlignableDetOrUnitPtr& alignableDet ) const;
+  AlignmentParameters const* getHigherLevelParameters( const Alignable* aAlignable ) const;
 
   AlignableNavigator* theAlignableNavigator;
 
