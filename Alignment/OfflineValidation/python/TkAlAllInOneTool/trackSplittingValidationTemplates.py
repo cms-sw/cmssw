@@ -58,12 +58,12 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 .oO[datasetDefinition]Oo.
 
 ## for craft SP skim v5
-process.source.inputCommands = cms.untracked.vstring("keep *","drop *_*_*_FU","drop *_*_*_HLT","drop *_MEtoEDMConverter_*_*","drop *_lumiProducer_*_REPACKER")
-process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool( False )
+#process.source.inputCommands = cms.untracked.vstring("keep *","drop *_*_*_FU","drop *_*_*_HLT","drop *_MEtoEDMConverter_*_*","drop *_lumiProducer_*_REPACKER")
+#process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool( False )
 
 
 # magnetic field
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 
 # adding geometries
 from CondCore.DBCommon.CondDBSetup_cfi import *
