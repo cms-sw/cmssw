@@ -56,3 +56,9 @@
 <bin   file="conddb_validate.cpp" name="conddb_validate">
   <use   name="CondCore/CondDB"/>
 </bin>
+<bin   file="conddb_import.cpp" name="conddb_import">
+  <use   name="CondCore/CondDB"/>
+</bin>
+<bin   file="conddb_copy_iov.cpp" name="conddb_copy_iov">
+  <use   name="CondCore/CondDB"/>
+</bin>

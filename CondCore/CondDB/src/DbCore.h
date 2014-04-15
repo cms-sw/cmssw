@@ -540,6 +540,35 @@ namespace cond {
     std::string m_whereClause;
   };
 
+  class DeleteBuffer {
+
+  public:
+    DeleteBuffer():
+      m_data(),
+      m_whereClause(""){
+    }
+
+    template <typename Column, typename P> void addWhereCondition( const P& param, const std::string condition = "=" ){
+      f_add_condition_data<Column>( m_data, m_whereClause, param, condition );
+    }
+
+    template <typename Column1, typename Column2> void addWhereCondition( const std::string condition = "=" ){
+      f_add_condition<Column1,Column2>( m_whereClause, condition );
+    }
+
+    const coral::AttributeList& get() const {
+      return m_data;
+    }
+
+    const std::string& whereClause() const {
+      return m_whereClause;
+    }
+
+  private:
+    coral::AttributeList m_data;
+    std::string m_whereClause;
+  };
+
   template <typename... Types>  class BulkInserter {
   public:
     static constexpr size_t cacheSize = 1000;
@@ -596,6 +625,9 @@ namespace cond {
       schema.tableHandle( std::string(tableName ) ).dataEditor().updateRows( data.setClause(), data.whereClause(), data.get() );
     }
 
+    inline void deleteFromTable( coral::ISchema& schema, const char* tableName, const DeleteBuffer& data ){
+      schema.tableHandle( std::string(tableName ) ).dataEditor().deleteRows( data.whereClause(), data.get() );
+    }
   }
 
   }
