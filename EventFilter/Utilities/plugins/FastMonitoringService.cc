@@ -306,21 +306,20 @@ namespace evf{
 
 	  //retrieve one result we need (todo: sanity check if it's found)
 	  IntJ *lumiProcessedJptr = dynamic_cast<IntJ*>(fmt_.jsonMonitor_->getMergedIntJForLumi("Processed",lumi));
-          assert(lumiProcessedJptr!=nullptr);
+          if (!lumiProcessedJptr)
+              throw cms::Exception("FastMonitoringService") << "Internal error: got null pointer from FastMonitor";
 	  processedEventsPerLumi_[lumi] = lumiProcessedJptr->value();
 
 	  {
 	    auto itr = sourceEventsReport_.find(lumi);
 	    if (itr==sourceEventsReport_.end()) {
-              edm::LogError("FastMonitoringService") << " ERROR: SOURCE did not send update for lumi block " << lumi;
-              assert(0);
+              throw cms::Exception("FastMonitoringService") << "ERROR: SOURCE did not send update for lumi block " << lumi;
 	    }
 	    else {
 	      if (itr->second!=processedEventsPerLumi_[lumi]) {
-		edm::LogError("FastMonitoringService") << " ERROR: MISMATCH with SOURCE update for lumi block" << lumi 
-                                                       << ", events(processed):" << processedEventsPerLumi_[lumi]
-                                                       << " events(source):" << itr->second;
-		assert(0);
+		throw cms::Exception("FastMonitoringService") << " ERROR: MISMATCH with SOURCE update for lumi block" << lumi
+                                                              << ", events(processed):" << processedEventsPerLumi_[lumi]
+                                                              << " events(source):" << itr->second;
 	      }
 	      sourceEventsReport_.erase(itr);
 	    }
