@@ -75,7 +75,7 @@ public:
     // Declare observable x
     RooRealVar x("x", "x", xMin, xMax);
     // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
-    return( std::make_pair(x, new RooDataHist("dh","dh",x,Import(*histo))) );
+    return( std::make_pair(x, new RooDataHist("dh","dh",x,RooFit::Import(*histo))) );
   }
 
   // Plot and fit a RooDataHist fitting signal and background
@@ -86,21 +86,21 @@ public:
     RooDataHist * dh = imported.second;
 
     // Make plot of binned dataset showing Poisson error bars (RooFit default)
-    RooPlot* frame = x.frame(Title("Imported TH1 with Poisson error bars")) ;
+    RooPlot* frame = x.frame(RooFit::Title("Imported TH1 with Poisson error bars")) ;
     frame->SetName(TString(histo->GetName())+"_frame");
     dh->plotOn(frame);
 
     // Build the composite model
     RooAbsPdf * model = buildModel(&x, signalType, backgroundType);
 
-    RooChi2Var chi2("chi2", "chi2", *model, *dh, DataError(RooAbsData::SumW2));
+    RooChi2Var chi2("chi2", "chi2", *model, *dh, RooFit::DataError(RooAbsData::SumW2));
 
     // Fit the composite model
     // -----------------------
     // Fit with likelihood
     if( !useChi2_ ) {
       if( sumW2Error ) {
-	model->fitTo(*dh, Save(), SumW2Error(kTRUE));
+	model->fitTo(*dh, RooFit::Save(), RooFit::SumW2Error(kTRUE));
       }
       else {
 	model->fitTo(*dh);
@@ -115,8 +115,8 @@ public:
       // RooFitResult* r_chi2_wgt = m.save();
     }
     model->plotOn(frame);
-    model->plotOn(frame, Components(backgroundType), LineStyle(kDotted), LineColor(kRed));
-    model->paramOn(frame, Label("fit result"), Format("NEU", AutoPrecision(2)));
+    model->plotOn(frame, RooFit::Components(backgroundType), RooFit::LineStyle(kDotted), RooFit::LineColor(kRed));
+    model->paramOn(frame, RooFit::Label("fit result"), RooFit::Format("NEU", RooFit::AutoPrecision(2)));
 
     // TODO: fix next lines to get the prob(chi2) (ndof should be dynamically set according to the choosen pdf) 
     // double chi2 = xframe.chiSquare("model","data",ndof);
@@ -129,11 +129,11 @@ public:
     // If histogram has custom error (i.e. its contents is does not originate from a Poisson process
     // but e.g. is a sum of weighted events) you can data with symmetric 'sum-of-weights' error instead
     // (same error bars as shown by ROOT)
-    RooPlot* frame2 = x.frame(Title("Imported TH1 with internal errors")) ;
-    dh->plotOn(frame2,DataError(RooAbsData::SumW2)) ; 
+    RooPlot* frame2 = x.frame(RooFit::Title("Imported TH1 with internal errors")) ;
+    dh->plotOn(frame2,RooFit::DataError(RooAbsData::SumW2)) ; 
     model->plotOn(frame2);
-    model->plotOn(frame2, Components(backgroundType), LineColor(kRed));
-    model->paramOn(frame2, Label("fit result"), Format("NEU", AutoPrecision(2)));
+    model->plotOn(frame2, RooFit::Components(backgroundType), RooFit::LineColor(kRed));
+    model->paramOn(frame2, RooFit::Label("fit result"), RooFit::Format("NEU", RooFit::AutoPrecision(2)));
 
 
     // Please note that error bars shown (Poisson or SumW2) are for visualization only, the are NOT used
