@@ -134,10 +134,10 @@ namespace evf{
       struct flock fu_rw_fulk;
       struct flock data_rw_flk;
       struct flock data_rw_fulk;
-      struct flock fulocal_rw_flk;
-      struct flock fulocal_rw_fulk;
-      struct flock fulocal_rw_flk2;
-      struct flock fulocal_rw_fulk2;
+      //struct flock fulocal_rw_flk;
+      //struct flock fulocal_rw_fulk;
+      //struct flock fulocal_rw_flk2;
+      //struct flock fulocal_rw_fulk2;
 
       evf::FastMonitoringService * fms_ = nullptr;
       std::vector<int> streamFileTracker_;

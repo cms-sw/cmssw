@@ -14,6 +14,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sys/file.h>
 
 //#define DEBUG
 
@@ -74,11 +75,11 @@ namespace evf {
     fu_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
     fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
     data_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
-    fulocal_rw_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    fulocal_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
-    fulocal_rw_flk2( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    fulocal_rw_fulk2( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+    data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+    //fulocal_rw_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+    //fulocal_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
+    //fulocal_rw_flk2( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+    //fulocal_rw_fulk2( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
 
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
@@ -112,13 +113,13 @@ namespace evf {
     }
     //create fu-local.lock in run dir
     std::string fulocal_lock_ = run_dir_+"/"+"fu-local.lock";
-    fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDONLY | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+    fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
     if (fulocal_rwlock_fd_==-1)
       throw cms::Exception("DaqDirector") << " Error creating/opening a local lock file " << fulocal_lock_.c_str() << " : " << strerror(errno);
     chmod(fulocal_lock_.c_str(),0777);
     fsync(fulocal_rwlock_fd_);
     //open second fd for another input source thread
-    fulocal_rwlock_fd2_ = open(fulocal_lock_.c_str(), O_RDONLY, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+    fulocal_rwlock_fd2_ = open(fulocal_lock_.c_str(), O_RDWR, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
     if (fulocal_rwlock_fd2_==-1)
       throw cms::Exception("DaqDirector") << " Error opening a local lock file " << fulocal_lock_.c_str() << " : " << strerror(errno);
 
@@ -535,20 +536,24 @@ namespace evf {
   }
 
   void EvFDaqDirector::lockFULocal() {
-    fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_flk);
+    //fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_flk);
+    flock(fulocal_rwlock_fd_,LOCK_EX);
   }
 
   void EvFDaqDirector::unlockFULocal() {
-    fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_fulk);
+    //fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_fulk);
+    flock(fulocal_rwlock_fd_,LOCK_UN);
   }
 
 
   void EvFDaqDirector::lockFULocal2() {
-    fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_flk2);
+    //fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_flk2);
+    flock(fulocal_rwlock_fd2_,LOCK_EX);
   }
 
   void EvFDaqDirector::unlockFULocal2() {
-    fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_fulk2);
+    //fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_fulk2);
+    flock(fulocal_rwlock_fd2_,LOCK_UN);
   }
 
 
