@@ -24,7 +24,7 @@ namespace gen {
     // ctor & dtor
     PhotosInterface(); 
     PhotosInterface( const edm::ParameterSet& );
-    ~PhotosInterface() {}
+    ~PhotosInterface();
 
     void init();
     const std::vector<std::string>& specialSettings() { return fSpecialSettings; }

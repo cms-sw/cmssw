@@ -27,9 +27,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 
-// for the xml dump
-#include "TFile.h"
-#include "Cintex/Cintex.h"
 #include <sstream>
 #include <vector>
 #include <tuple>
@@ -74,11 +71,13 @@ namespace cond {
 }
 
 cond::MigrateGTUtilities::MigrateGTUtilities():Utilities("conddb_migrate_gt"){
-  addConnectOption("sourceConnect","s","source connection string(required)");
-  addConnectOption("destConnect","d","destionation connection string(required)");
+  addConnectOption("sourceConnect","s","source connection string (required)");
+  addConnectOption("destConnect","d","destionation connection string (required)");
   addAuthenticationOptions();
   addOption<std::string>("globaltag","g","global tag (required)");
+  addOption<std::string>("release","r","release validity (required)");
   addOption<bool>("verbose","v","verbose print out (optional)");
+  addOption<bool>("dryRun","n","only display the actions (optional)");
 }
 
 bool cond::MigrateGTUtilities::getGTList( const std::string& gt, 
@@ -113,26 +112,34 @@ bool cond::MigrateGTUtilities::getGTList( const std::string& gt,
 int cond::MigrateGTUtilities::execute(){
 
   std::string gtag = getOptionValue<std::string>("globaltag");
+  std::string release = getOptionValue<std::string>("release");
   bool debug = hasDebug();
   std::string destConnect = getOptionValue<std::string>("destConnect" );
   std::string sourceConnect = getOptionValue<std::string>("sourceConnect");
   bool verbose = hasOptionValue("verbose");
+  bool dryRun = hasOptionValue("dryRun");
 
   std::vector<std::tuple<std::string,std::string,std::string,std::string,std::string> > gtlist;
-  if(! getGTList( gtag, gtlist ) ) throw std::runtime_error( std::string("GT ")+gtag+" has not been found." );
+  if(! getGTList( gtag, gtlist ) ) throw std::runtime_error( std::string("Source GT ")+gtag+" has not been found." );
 
   ConnectionPool connPool;
   if( hasDebug() ) connPool.setMessageVerbosity( coral::Debug );
-  Session session = connPool.createSession( destConnect, true );
-  session.transaction().start( false );
+  Session session = connPool.createSession( destConnect, !dryRun );
+  session.transaction().start( dryRun );
 
-  GTEditor newGT = session.createGlobalTag( gtag );
-
-  newGT.setDescription( "GT "+gtag+" migrated from account "+sourceConnect );
-  newGT.setRelease( "CMSSW_6_2_0" );
-  newGT.setSnapshotTime( boost::posix_time::microsec_clock::universal_time() );
-
+  if( session.existsGlobalTag( gtag ) ){
+    std::cout <<"GT "<<gtag<<" already exists in the destination database."<<std::endl;
+    return 1;
+  }
+  GTEditor newGT;
+  if( !dryRun ){
+    newGT = session.createGlobalTag( gtag );
+    newGT.setDescription( "GT "+gtag+" migrated from account "+sourceConnect );
+    newGT.setRelease( release );
+    newGT.setSnapshotTime( boost::posix_time::microsec_clock::universal_time() );
+  }
   std::cout <<"Processing "<<gtlist.size()<<" tags."<<std::endl;
+  size_t nerr = 0;
   for(auto gtitem : gtlist ){
 
     std::string tag = std::get<0>( gtitem );
@@ -142,25 +149,37 @@ int cond::MigrateGTUtilities::execute(){
     std::string connectionString = std::get<4>( gtitem );
     
     std::cout <<"--> Processing tag "<<tag<<" (objectType: "<<payloadTypeName<<") on account "<<connectionString<<std::endl;
-    auto connectionData = persistency::parseConnectionString( connectionString );
-    std::string account = std::get<2>( connectionData );
-    if( std::get<1>( connectionData )=="FrontierArc" ) {
-      size_t len = account.size()-5;
-      account = account.substr(0,len);
+
+    std::string sourceConn = connectionString;
+    std::string protocol = getConnectionProtocol( connectionString );
+    if( protocol == "frontier" ){
+      sourceConn = convertoToOracleConnection( connectionString);
     }
-    std::string sourceConn = "oracle://cms_orcon_adg/"+account;
+
     std::string destTag("");
-    if(!session.checkMigrationLog( sourceConn, tag, destTag )){
-      throw std::runtime_error("Tag "+tag+" from ["+sourceConn+"] has not been migrated to the destination database."); 
+    cond::MigrationStatus status;
+    bool exists = session.checkMigrationLog( sourceConn, tag, destTag, status );
+    if(!exists || status==cond::ERROR){
+      std::cout <<"    ERROR: Tag "<<tag<<" from "<<sourceConn<<" has not been migrated to the destination database."<<std::endl; 
+      if( !dryRun ){
+	return 1;
+      } else {
+	nerr++;
+      }
+    } else {
+      std::cout <<"    Inserting tag "<<destTag<<std::endl; 
     }
- 
-    newGT.insert( recordName, recordLabel, tag );
+    if( !dryRun ) newGT.insert( recordName, recordLabel, tag );
   }
-  newGT.flush(); 
+  if( !dryRun )newGT.flush(); 
 
   session.transaction().commit();
-  std::cout <<"Global Tag \""<<gtag<<"\" imported."<<std::endl;
-
+  std::cout << std::endl;
+  if( !dryRun ) {
+    std::cout <<"Global Tag \""<<gtag<<"\" imported."<<std::endl;
+  } else {
+    std::cout <<"Importing Global Tag \""<<gtag<<"\" will run with "<<nerr<<" error(s)"<<std::endl; 
+  }
   return 0;
 }
 

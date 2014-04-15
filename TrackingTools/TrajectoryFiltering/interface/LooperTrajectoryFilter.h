@@ -13,7 +13,7 @@ public:
   theMinNumberOfHitsPerLoop(minNumberOfHitsPerLoop),
   theExtraNumberOfHitsBeforeTheFirstLoop(extraNumberOfHitsBeforeTheFirstLoop){}
   
-  explicit LooperTrajectoryFilter( const edm::ParameterSet & pset){
+  explicit LooperTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC){
     theMinNumberOfHits = pset.existsAs<int>("minNumberOfHits") ? 
       pset.getParameter<int>("minNumberOfHits") : 13; 
     theMinNumberOfHitsPerLoop= pset.existsAs<int>("minNumberOfHitsPerLoop") ? 

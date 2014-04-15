@@ -27,6 +27,8 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
+#include <memory>
+
 class TransientInitialStateEstimator;
 
 namespace cms
@@ -43,9 +45,6 @@ namespace cms
     virtual void produceBase(edm::Event& e, const edm::EventSetup& es);
 
   protected:
-
-    edm::ParameterSet conf_;
-
     bool theTrackCandidateOutput;
     bool theTrajectoryOutput;
     bool useSplitting;
@@ -55,14 +54,14 @@ namespace cms
 
     unsigned int theMaxNSeeds;
 
-    std::string theTrajectoryBuilderName;
-    const BaseCkfTrajectoryBuilder*  theTrajectoryBuilder;
+    std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder;
 
     std::string theTrajectoryCleanerName;
     const TrajectoryCleaner*               theTrajectoryCleaner;
 
-    TransientInitialStateEstimator*  theInitialState;
+    std::unique_ptr<TransientInitialStateEstimator> theInitialState;
     
+    const std::string theMagFieldName;
     edm::ESHandle<MagneticField>                theMagField;
     edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
 

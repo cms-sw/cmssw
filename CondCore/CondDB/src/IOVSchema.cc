@@ -257,6 +257,12 @@ namespace cond {
       
       inserter.flush();
     }
+
+    void IOV::Table::erase( const std::string& tag ){
+      DeleteBuffer buffer;
+      buffer.addWhereCondition<TAG_NAME>( tag );
+      deleteFromTable( m_schema, tname, buffer );  
+    }
     
     PAYLOAD::Table::Table( coral::ISchema& schema ):
       m_schema( schema ){
@@ -313,7 +319,9 @@ namespace cond {
 				 const cond::Binary& streamerInfoData,				      
     				 const boost::posix_time::ptime& insertionTime ){
       std::string version("dummy");
-      RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, streamerInfoData, version, insertionTime ) ); 
+      cond::Binary sinfoData( streamerInfoData );
+      if( !sinfoData.size() ) sinfoData.copy( std::string("0") );   
+      RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, sinfoData, version, insertionTime ) ); 
       bool failOnDuplicate = false;
       return insertInTable( m_schema, tname, dataToInsert.get(), failOnDuplicate );
     }
@@ -343,18 +351,18 @@ namespace cond {
 	throwException( "TAG_MIGRATIONtable already exists in this schema.",
 			"TAG::create");
       }
-      TableDescription< SOURCE_ACCOUNT, SOURCE_TAG, TAG_NAME, INSERTION_TIME > descr( tname );
+      TableDescription< SOURCE_ACCOUNT, SOURCE_TAG, TAG_NAME, STATUS_CODE, INSERTION_TIME > descr( tname );
       descr.setPrimaryKey<SOURCE_ACCOUNT, SOURCE_TAG>();
       descr.setForeignKey< TAG_NAME, TAG::NAME >( "TAG_NAME_FK" );
       createTable( m_schema, descr.get() );
     }
     
-    bool TAG_MIGRATION::Table::select( const std::string& sourceAccount, const std::string& sourceTag, std::string& tagName ){
-      Query< TAG_NAME > q( m_schema );
+    bool TAG_MIGRATION::Table::select( const std::string& sourceAccount, const std::string& sourceTag, std::string& tagName, int& statusCode ){
+      Query< TAG_NAME, STATUS_CODE > q( m_schema );
       q.addCondition<SOURCE_ACCOUNT>( sourceAccount );
       q.addCondition<SOURCE_TAG>( sourceTag );
       for ( auto row : q ) {
-	std::tie( tagName ) = row;
+	std::tie( tagName, statusCode ) = row;
       }
       
       return q.retrievedRows();
@@ -362,10 +370,18 @@ namespace cond {
     }
     
     void TAG_MIGRATION::Table::insert( const std::string& sourceAccount, const std::string& sourceTag, const std::string& tagName, 
-				const boost::posix_time::ptime& insertionTime ){
-      RowBuffer< SOURCE_ACCOUNT, SOURCE_TAG, TAG_NAME, INSERTION_TIME > 
-    dataToInsert( std::tie( sourceAccount, sourceTag, tagName, insertionTime ) );
+				       int statusCode, const boost::posix_time::ptime& insertionTime ){
+      RowBuffer< SOURCE_ACCOUNT, SOURCE_TAG, TAG_NAME, STATUS_CODE, INSERTION_TIME > 
+	dataToInsert( std::tie( sourceAccount, sourceTag, tagName, statusCode, insertionTime ) );
       insertInTable( m_schema, tname, dataToInsert.get() );
+    }
+
+    void TAG_MIGRATION::Table::updateValidationCode( const std::string& sourceAccount, const std::string& sourceTag, int statusCode ){
+      UpdateBuffer buffer;
+      buffer.setColumnData< STATUS_CODE >( std::tie( statusCode ) );
+      buffer.addWhereCondition<SOURCE_ACCOUNT>( sourceAccount );
+      buffer.addWhereCondition<SOURCE_TAG>( sourceTag );
+      updateTable( m_schema, tname, buffer );  
     }
     
     IOVSchema::IOVSchema( coral::ISchema& schema ):
