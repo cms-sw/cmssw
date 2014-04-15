@@ -27,19 +27,13 @@
 
 using namespace std;
 
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
+  CkfTrajectoryBuilder(conf,
+                       BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC))
+{}
 
-CkfTrajectoryBuilder::
-  CkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-		       const TrajectoryStateUpdator*         updator,
-		       const Propagator*                     propagatorAlong,
-		       const Propagator*                     propagatorOpposite,
-		       const Chi2MeasurementEstimatorBase*   estimator,
-		       const TransientTrackingRecHitBuilder* recHitBuilder,
-		       const TrajectoryFilter*               filter):
-
-    BaseCkfTrajectoryBuilder(conf,
-			     updator, propagatorAlong,propagatorOpposite,
-			     estimator, recHitBuilder, filter)
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter):
+  BaseCkfTrajectoryBuilder(conf, filter)
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");
@@ -60,6 +54,9 @@ CkfTrajectoryBuilder::
   theMeasurementTracker->update(event);
   }
 */
+
+void CkfTrajectoryBuilder::setEvent_(const edm::Event& event, const edm::EventSetup& iSetup) {  
+}
 
 CkfTrajectoryBuilder::TrajectoryContainer 
 CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
@@ -207,7 +204,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
       // --- method for debugging
       if(!analyzeMeasurementsDebugger(*traj,meas,
 				      theMeasurementTracker,
-				      theForwardPropagator,theEstimator,
+				      forwardPropagator(*sharedSeed),theEstimator,
 				      theTTRHBuilder)) return;
       // ---
 
@@ -335,6 +332,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
   auto layerBegin = stateAndLayers.second.begin();
   auto layerEnd  = stateAndLayers.second.end();
   LogDebug("CkfPattern")<<"looping on "<< stateAndLayers.second.size()<<" layers.";
+  const Propagator *fwdPropagator = forwardPropagator(seed);
   for (auto il = layerBegin;  il != layerEnd; il++) {
 
     LogDebug("CkfPattern")<<"looping on a layer in findCompatibleMeasurements.\n last layer: "<<traj.lastLayer()<<" current layer: "<<(*il);
@@ -346,14 +344,14 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 	// go to a middle point first
 	TransverseImpactPointExtrapolator middle;
 	GlobalPoint center(0,0,0);
-	stateToUse = middle.extrapolate(stateToUse, center, *theForwardPropagator);
+	stateToUse = middle.extrapolate(stateToUse, center, *fwdPropagator);
 	
 	if (!stateToUse.isValid()) continue;
 	LogDebug("CkfPattern")<<"to: "<<stateToUse;
       }
     
     LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
-    std::vector<TrajectoryMeasurement> tmp = layerMeasurements.measurements((**il),stateToUse, *theForwardPropagator, *theEstimator);
+    std::vector<TrajectoryMeasurement> tmp = layerMeasurements.measurements((**il),stateToUse, *fwdPropagator, *theEstimator);
     
     if ( !tmp.empty()) {
       if ( result.empty()) result.swap(tmp);

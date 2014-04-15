@@ -130,6 +130,7 @@ namespace cond {
         bool getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size );
 	void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, const boost::posix_time::ptime& insertTime);
 	void insertMany( const std::string& tag, const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs );
+	void erase( const std::string& tag );
       private:
 	coral::ISchema& m_schema;
       };
@@ -141,6 +142,7 @@ namespace cond {
       column( SOURCE_ACCOUNT, std::string );
       column( SOURCE_TAG, std::string );
       column( TAG_NAME, std::string );
+      column( STATUS_CODE, int );
       column( INSERTION_TIME, boost::posix_time::ptime );
       
       class Table : public ITagMigrationTable {
@@ -149,9 +151,10 @@ namespace cond {
 	virtual ~Table(){}
 	bool exists();
 	void create();
-	bool select( const std::string& sourceAccount, const std::string& sourceTag, std::string& tagName);
+	bool select( const std::string& sourceAccount, const std::string& sourceTag, std::string& tagName, int& statusCode);
 	void insert( const std::string& sourceAccount, const std::string& sourceTag, const std::string& tagName, 
-		     const boost::posix_time::ptime& insertionTime);
+		     int statusCode, const boost::posix_time::ptime& insertionTime);
+	void updateValidationCode( const std::string& sourceAccount, const std::string& sourceTag, int statusCode );
       private:
 	coral::ISchema& m_schema;
       };
