@@ -28,7 +28,7 @@ def fix_run(run):
             int_runs.append(int(item))
         else:
             print "WARNING: run is in bad format: {0}".format(run)
-    return runs
+    return int_runs
 
 
 def load_steps_and_workflows():
