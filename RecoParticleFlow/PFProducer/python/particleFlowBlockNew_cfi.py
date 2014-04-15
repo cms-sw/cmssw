@@ -17,7 +17,7 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( importerName = cms.string("GSFTrackImporter"),
                   source = cms.InputTag("pfTrackElec"),
                   gsfsAreSecondary = cms.bool(False),
-                  superClustersArePF = cms.bool(True) ),
+                  superClustersArePF = cms.bool(True) ),    
         cms.PSet( importerName = cms.string("ConvBremTrackImporter"),
                   source = cms.InputTag("pfTrackElec") ),
         cms.PSet( importerName = cms.string("EGPhotonImporter"),
@@ -37,7 +37,7 @@ particleFlowBlock = cms.EDProducer(
                              #for CombinedDetectorIso
                              LooseHoverE = cms.double(99999.0),
                              combIsoConstTerm = cms.double(99999.0)
-                             ) ),        
+                             ) ),         
         cms.PSet( importerName = cms.string("ConversionTrackImporter"),
                   source = cms.InputTag("pfConversions") ),
         # V0's not actually used in particle flow block building so far
@@ -55,7 +55,7 @@ particleFlowBlock = cms.EDProducer(
                   DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
                                                            1.0,1.0),
                   NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
-                  ),
+                  ),        
         # secondary GSF tracks are also turned off
         #cms.PSet( importerName = cms.string("GSFTrackImporter"),
         #          source = cms.InputTag("pfTrackElec:Secondary"),
