@@ -5,6 +5,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 #include<cassert>
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
@@ -22,7 +23,6 @@ class NavigationSchool;
 class Propagator;
 class TrajectoryStateUpdator;
 class TrajectoryMeasurement;
-class TrajectorySeed;
 class TrajectoryContainer;
 class TrajectoryStateOnSurface;
 class TrajectoryFitter;
@@ -33,9 +33,15 @@ class TrajectoryFilter;
 class TrackingRegion;
 class TrajectoryMeasurementGroup;
 class TrajectoryCleaner;
+class TrackingComponentsRecord;
+namespace edm {
+  class ConsumesCollector;
+}
 
 #include "TrackingTools/PatternTools/interface/bqueue.h"
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
+
+#include <string>
 
 /** The component of track reconstruction that, strating from a seed,
  *  reconstructs all possible trajectories.
@@ -57,17 +63,13 @@ public:
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
-  
-  BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-			   const TrajectoryStateUpdator*         updator,
-			   const Propagator*                     propagatorAlong,
-			   const Propagator*                     propagatorOpposite,
-			   const Chi2MeasurementEstimatorBase*   estimator,
-			   const TransientTrackingRecHitBuilder* RecHitBuilder,
-			   const TrajectoryFilter*               filter,
-			   const TrajectoryFilter*               inOutFilter = 0);
 
-  BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &other) = default;
+  // Claims ownership of TrajectoryFilter pointers
+  BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                           TrajectoryFilter *filter,
+                           TrajectoryFilter *inOutFilter=nullptr);
+  BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &) = delete;
+  BaseCkfTrajectoryBuilder& operator=(const BaseCkfTrajectoryBuilder&) = delete;
   virtual ~BaseCkfTrajectoryBuilder();
 
   // new interface returning the start Trajectory...
@@ -83,8 +85,7 @@ public:
   virtual void setEvent(const edm::Event& event) const ;
   virtual void unset() const;
 
-  // Return a clone of this, with the data pointer set
-  virtual BaseCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const = 0;
+  void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const MeasurementTrackerEvent *data);
 
   virtual void setDebugger( CkfDebugger * dbg) const {;}
  
@@ -98,6 +99,10 @@ public:
   const TransientTrackingRecHitBuilder* hitBuilder() const { return theTTRHBuilder;}
 
  protected:    
+  static TrajectoryFilter *createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
+
+  virtual void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
+
   //methods for dubugging 
   virtual bool analyzeMeasurementsDebugger(Trajectory& traj, const std::vector<TrajectoryMeasurement>& meas,
 					   const MeasurementTrackerEvent* theMeasurementTracker, 
@@ -137,17 +142,22 @@ public:
  protected:
   void setData(const MeasurementTrackerEvent *data) ;
 
+  const Propagator *forwardPropagator(const TrajectorySeed& seed) const {
+    return seed.direction() == alongMomentum ? thePropagatorAlong : thePropagatorOpposite;
+  }
+  const Propagator *backwardPropagator(const TrajectorySeed& seed) const {
+    return seed.direction() == alongMomentum ? thePropagatorOpposite : thePropagatorAlong;
+  }
+
  protected:
+  typedef TrackingComponentsRecord Chi2MeasurementEstimatorRecord;
+
   const TrajectoryStateUpdator*         theUpdator;
   const Propagator*                     thePropagatorAlong;
   const Propagator*                     thePropagatorOpposite;
   const Chi2MeasurementEstimatorBase*   theEstimator;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTrackerEvent*        theMeasurementTracker;
-
-  // these may change from seed to seed
-  mutable const Propagator*             theForwardPropagator;
-  mutable const Propagator*             theBackwardPropagator;
 
  private:
   //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
@@ -158,8 +168,15 @@ public:
 
   //  TrajectoryFilter*              theMinPtCondition;
   //  TrajectoryFilter*              theMaxHitsCondition;
-  const TrajectoryFilter* theFilter; /** Filter used at end of complete tracking */
-  const TrajectoryFilter* theInOutFilter; /** Filter used at end of in-out tracking */
+  std::unique_ptr<TrajectoryFilter> theFilter; /** Filter used at end of complete tracking */
+  std::unique_ptr<TrajectoryFilter> theInOutFilter; /** Filter used at end of in-out tracking */
+
+  // for EventSetup
+  const std::string theUpdatorName;
+  const std::string thePropagatorAlongName;
+  const std::string thePropagatorOppositeName;
+  const std::string theEstimatorName;
+  const std::string theRecHitBuilderName;
 };
 
 

@@ -24,7 +24,7 @@ class PixelTripletHLTGenerator : public HitTripletGeneratorFromPairAndLayers {
 typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 
 public:
-  PixelTripletHLTGenerator( const edm::ParameterSet& cfg); 
+  PixelTripletHLTGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   virtual ~PixelTripletHLTGenerator();
 
@@ -54,7 +54,7 @@ private:
   bool useMScat;
   bool useBend;
   float dphi;
-  SeedComparitor * theComparitor;
+  std::unique_ptr<SeedComparitor> theComparitor;
 
 };
 #endif
