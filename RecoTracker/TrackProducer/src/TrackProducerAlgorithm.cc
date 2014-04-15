@@ -92,8 +92,12 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper : TrajectoryFitter::standard);
-  if unlikely(!trajTmp.isValid()) return false;
-  
+  if unlikely(!trajTmp.isValid()) {
+#ifdef VI_DEBUG
+    std::cout << "fit failed " << algo_ << ": " <<  hits.size() <<'|' << int(nLoops) << ' ' << std::endl; 
+#endif     
+     return false;
+  }
   
   
   theTraj = new Trajectory(std::move(trajTmp));
@@ -118,6 +122,36 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   ndof -= 5.f;
   if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
  
+
+#ifdef VI_DEBUG
+int chit[7]={};
+int kk=0;
+for (auto const & tm : theTraj->measurements()) {
+  ++kk;
+  auto const & hit = tm.recHitR();
+  if (!hit.isValid()) ++chit[0];
+  if (hit.det()==nullptr) ++chit[1];
+  if ( trackerHitRTTI::isUndef(hit) ) continue;
+  if(0) std::cout << "h " << kk << ": "<< hit.localPosition() << ' ' << hit.localPositionError() << ' ' << tm.estimate() << std::endl;
+  if ( hit.dimension()!=2 ) {
+    ++chit[2];
+  } else {
+    auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
+    auto const & clus = thit.firstClusterRef();
+    if (clus.isPixel()) ++chit[3];
+    else if (thit.isMatched()) {
+      ++chit[4];
+    } else  if (thit.isProjected()) {
+      ++chit[5];
+    } else {
+      ++chit[6];
+        }
+  }
+ }
+
+std::cout << algo_ << ": " <<  hits.size() <<'|' <<theTraj->measurements().size()<<'|' << int(nLoops) << ' ';   for (auto c:chit) std::cout << c <<'/'; std::cout<< std::endl;
+
+#endif
  
   //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
   //if geometricInnerState_ is true the state for projection to beam line is the one from the (geometrically) closest measurement to the beam line: to be sued for non-collision tracks

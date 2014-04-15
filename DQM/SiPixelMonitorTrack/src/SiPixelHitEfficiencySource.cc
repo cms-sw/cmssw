@@ -360,8 +360,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	if ( !expTrajMeasurements.empty()) {
 	  for(uint p=0; p<expTrajMeasurements.size();p++){
 	    TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
-	    ConstReferenceCountingPointer<TransientTrackingRecHit> pxb1Hit;
-	    pxb1Hit = pxb1TM.recHit();
+	    auto pxb1Hit = pxb1TM.recHit();
 	    //remove hits with rawID == 0
 	    if(pxb1Hit->geographicalId().rawId()==0){
 	      expTrajMeasurements.erase(expTrajMeasurements.begin()+p);

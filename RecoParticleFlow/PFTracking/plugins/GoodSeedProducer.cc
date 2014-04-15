@@ -170,8 +170,24 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Tracking Tools
   if(!disablePreId_)
     {
-      iSetup.get<TrajectoryFitter::Record>().get(fitterName_, fitter_);
-      iSetup.get<TrajectoryFitter::Record>().get(smootherName_, smoother_);
+      edm::ESHandle<TrajectoryFitter> aFitter;
+      edm::ESHandle<TrajectorySmoother> aSmoother;
+      iSetup.get<TrajectoryFitter::Record>().get(fitterName_, aFitter);
+      iSetup.get<TrajectoryFitter::Record>().get(smootherName_, aSmoother);
+      smoother_.reset(aSmoother->clone());
+      fitter_ = aFitter->clone();
+     /// FIXME FIXME CLONE
+      edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+      try {
+        std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // FIXME FIXME
+        iSetup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+      } catch(...) {
+        std::string theTrackerRecHitBuilderName("hltESPTTRHBWithTrackAngle");  // FIXME FIXME
+        iSetup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+      }
+      hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
+      fitter_->setHitCloner(&hitCloner);
+      smoother_->setHitCloner(&hitCloner);
     }
 
   // clear temporary maps

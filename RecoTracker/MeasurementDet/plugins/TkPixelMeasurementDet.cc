@@ -29,7 +29,7 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 					  TempMeasurements & result) const {
 
   if (!isActive(data)) {
-    result.add(InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F);
+    result.add(theInactiveHit, 0.F);
     return true;
   }
   
@@ -45,20 +45,20 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
   bool inac = hasBadComponents(stateOnThisDet, data);
-  TrackingRecHit::Type type = inac ? TrackingRecHit::inactive : TrackingRecHit::missing;
-  result.add(InvalidTransientRecHit::build(&fastGeomDet(), type), 0.F);
+  result.add(inac ? theInactiveHit : theMissingHit, 0.F);
   return inac;
 
 }
 
 
-TransientTrackingRecHit::RecHitPointer
+TrackingRecHit::RecHitPointer
 TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 				    const LocalTrajectoryParameters & ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  PixelClusterParameterEstimator::ReturnType tuple = cpe()->getParameters( * cluster, gdu, ltp );
-  return TSiPixelRecHit::build( std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple), &fastGeomDet(), cluster, cpe());
+
+  auto && params = cpe()->getParameters( * cluster, gdu, ltp );
+  return std::make_shared<SiPixelRecHit>( std::get<0>(params), std::get<1>(params), std::get<2>(params), fastGeomDet(), cluster);
 }
 
 TkPixelMeasurementDet::RecHitContainer 
