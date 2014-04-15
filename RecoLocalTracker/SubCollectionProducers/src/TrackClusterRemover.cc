@@ -266,13 +266,13 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
 
 float TrackClusterRemover::sensorThickness (const SiStripDetId& detid) const
 {
-  if (detid.subdetId()>2) {
+  if (detid.subdetId()>=SiStripDetId::TIB) {
     if (detid.subdetId()==SiStripDetId::TOB) return 0.047;
     if (detid.moduleGeometry()==SiStripDetId::W5 || detid.moduleGeometry()==SiStripDetId::W6 ||
         detid.moduleGeometry()==SiStripDetId::W7)
 	return 0.047;
     return 0.029; // so it is TEC ring 1-4 or TIB or TOB;
-  } else if (detid.subdetId()==1) return 0.0285;
+  } else if (detid.subdetId()==PixelSubdetector::PixelBarrel) return 0.0285;
   else return 0.027;
 }
 

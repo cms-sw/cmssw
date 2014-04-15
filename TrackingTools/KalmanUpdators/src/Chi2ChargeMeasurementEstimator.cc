@@ -40,7 +40,7 @@ bool Chi2ChargeMeasurementEstimator::checkCharge(const TrackingRecHit& aRecHit,
 
 float Chi2ChargeMeasurementEstimator::sensorThickness (const DetId& detid) const
 {
-  if (detid.subdetId()>2) {
+  if (detid.subdetId()>=SiStripDetId::TIB) {
     SiStripDetId siStripDetId = detid(); 
     if (siStripDetId.subdetId()==SiStripDetId::TOB) return 0.047;
     if (siStripDetId.moduleGeometry()==SiStripDetId::W5 || siStripDetId.moduleGeometry()==SiStripDetId::W6 ||
