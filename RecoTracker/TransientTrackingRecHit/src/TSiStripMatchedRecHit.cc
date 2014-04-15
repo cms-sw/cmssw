@@ -62,7 +62,8 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
     SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
 						 *gdet->stereoDet(),
 						 orig->stereoClusterRef());
-    const SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
+    std::unique_ptr<SiStripMatchedRecHit2D> temp = theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
+    const SiStripMatchedRecHit2D* better =  temp.release();
     
     if (better == nullptr) {
       //dm::LogWarning("TSiStripMatchedRecHit") << "Refitting of a matched rechit returns NULL";
@@ -109,7 +110,7 @@ TSiStripMatchedRecHit::transientHits () const {
   return result;
 }
 
-  void TSiStripMatchedRecHit::ComputeCoarseLocalPosition(){
+void TSiStripMatchedRecHit::ComputeCoarseLocalPosition(){
   if (!theCPE || !theMatcher) return;
   const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> (trackingRecHit_);
   if ( (!orig)  ||  orig->hasPositionAndError()) return;
@@ -133,7 +134,8 @@ TSiStripMatchedRecHit::transientHits () const {
   SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second, 
 					       *gdet->stereoDet(),
 						 orig->stereoClusterRef());
-  SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
+  std::unique_ptr<SiStripMatchedRecHit2D> temp = theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
+  SiStripMatchedRecHit2D* better = temp.release();
   
   if (!better) {
     edm::LogWarning("TSiStripMatchedRecHit")<<"could not get a matching rechit.";
