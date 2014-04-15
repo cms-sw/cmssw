@@ -43,7 +43,8 @@ importToBlock( const edm::Event& e,
   auto SCs_end = std::partition(elems.begin(),elems.end(),
 				[](const ElementType& a){
 				  return a->type() == reco::PFBlockElement::SC;
-				});  
+				});
+  size_t SCs_end_position = std::distance(elems.begin(),SCs_end);
   // insert gsf tracks and SCs, binding pre-existing SCs to ECAL-Driven GSF
   auto bgsf = gsftracks->cbegin();
   auto egsf = gsftracks->cend();
@@ -58,7 +59,7 @@ importToBlock( const edm::Event& e,
       if( seedref.isAvailable() && seedref->isEcalDriven() ) {
 	reco::SuperClusterRef scref = 
 	  seedref->caloCluster().castTo<reco::SuperClusterRef>();
-	if( scref.isNonnull() ) {
+	if( scref.isNonnull() ) {	  
 	  PFBlockElementSCEqual myEqual(scref);
 	  auto sc_elem = std::find_if(elems.begin(),SCs_end,myEqual);
 	  if( sc_elem != SCs_end ) {
@@ -76,6 +77,8 @@ importToBlock( const edm::Event& e,
 	}	
       }
     }// gsf extra ref?
+    // cache the SC_end offset
+    SCs_end_position = std::distance(elems.begin(),SCs_end);
     // get track momentum information
     const std::vector<reco::PFTrajectoryPoint>& PfGsfPoint
       = gsftrack->trajectoryPoints();
@@ -113,6 +116,8 @@ importToBlock( const edm::Event& e,
 	elems.emplace_back(new reco::PFBlockElementBrem(gsfref,DP,sDP,TrajP));
       }
     }
+    // protect against reallocations, create a fresh iterator
+    SCs_end = elems.begin() + SCs_end_position;
   }// loop on gsf tracks
   elems.shrink_to_fit();
 }

@@ -51,7 +51,7 @@ testLink( const reco::PFBlockElement* elem1,
   const reco::PFClusterRef& clus1 = ecal1->clusterRef();
   const reco::PFClusterRef& clus2 = ecal2->clusterRef();
 
-  if( sc1.isNonnull() && sc2.isNonnull() && sc1 == sc2 ) {
+  if( sc1.isNonnull() && sc2.isNonnull() && sc1 == sc2 ) {    
     dist=LinkByRecHit::computeDist( clus1->positionREP().Eta(),
 				    clus1->positionREP().Phi(), 
 				    clus2->positionREP().Eta(), 

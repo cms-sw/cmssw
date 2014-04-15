@@ -121,7 +121,7 @@ PFBlockAlgo::findBlocks() {
 
     packLinks( blocks_->back(), links );
   }
-  std::cout << "(old) Found " << blocks_->size() << " PFBlocks!" << std::endl;
+  //std::cout << "(old) Found " << blocks_->size() << " PFBlocks!" << std::endl;
 }
 
 

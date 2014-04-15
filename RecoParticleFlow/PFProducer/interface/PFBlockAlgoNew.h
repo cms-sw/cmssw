@@ -63,6 +63,24 @@
 #include <map>
 #include <unordered_map>
 
+namespace std {
+  template<>
+    struct hash<std::pair<size_t,size_t> > {
+    typedef std::pair<size_t,size_t> arg_type;
+    typedef std::size_t value_type;
+    value_type operator()(const arg_type& arg) const {
+      return arg.first ^ (arg.second << 1);
+    }
+  };
+  template<>
+    struct equal_to<std::pair<size_t,size_t> > {
+    typedef std::pair<size_t,size_t> arg_type;    
+    bool operator()(const arg_type& arg1, const arg_type& arg2) const {
+      return (arg1.first == arg2.first && arg1.second == arg2.second);
+    }
+  };
+}
+
 /// \brief Particle Flow Algorithm
 /*!
   \author Colin Bernet (rewrite/refactor by L. Gray)
@@ -114,13 +132,13 @@ class PFBlockAlgoNew {
   // flattened version of topological
   // association of block elements
   IE associate( ElementList& elems,
-		std::vector<PFBlockLink>& links,
+		std::unordered_map<std::pair<size_t,size_t>,PFBlockLink>& links,
 		reco::PFBlock& );
 
   /// compute missing links in the blocks 
   /// (the recursive procedure does not build all links)  
   void packLinks(reco::PFBlock& block, 
-		 const std::vector<PFBlockLink>& links) const; 
+		 const std::unordered_map<std::pair<size_t,size_t>,PFBlockLink>& links) const; 
   
   /// Avoid to check links when not useful
   inline bool linkPrefilter(const reco::PFBlockElement* last, 
