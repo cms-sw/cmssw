@@ -84,6 +84,9 @@
 #include <sched.h>
 #endif
 
+//FIXME: Needed for temporary workaround for checksum problem in conditions
+#include "TFile.h"
+
 namespace edm {
 
   // ---------------------------------------------------------------
@@ -456,6 +459,12 @@ namespace edm {
 
     // intialize miscellaneous items
     boost::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
+
+    // FIXME: BEGIN temporary workaround for checksum problems in conditions
+    edm::FileInPath condfile("FWCore/Framework/data/cond_dump.root");
+    TFile* fptr = TFile::Open(condfile.fullPath().c_str());
+    fptr->Close();
+    // END temporary workaround for checksum problems in conditions
 
     // intialize the event setup provider
     esp_ = espController_->makeProvider(*parameterSet);
