@@ -37,7 +37,7 @@ namespace evf{
       enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded };
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
-      ~EvFDaqDirector(){}
+      ~EvFDaqDirector();
       void preallocate(edm::service::SystemBounds const& bounds);
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
@@ -77,6 +77,10 @@ namespace evf{
       void updateFileIndex(int const& fileIndex) {currentFileIndex_=fileIndex;}
       std::vector<int>* getStreamFileTracker() {return &streamFileTracker_;}
       bool isSingleStreamThread() {return nStreams_==1 && nThreads_==1;}
+      void lockFULocal();
+      void unlockFULocal();
+      void lockFULocal2();
+      void unlockFULocal2();
 
 
     private:
@@ -107,6 +111,8 @@ namespace evf{
       int bu_writelock_fd_;
       int fu_readwritelock_fd_;
       int data_readwrite_fd_;
+      int fulocal_rwlock_fd_;
+      int fulocal_rwlock_fd2_;
 
       FILE * bu_w_lock_stream;
       FILE * bu_r_lock_stream;
@@ -128,6 +134,10 @@ namespace evf{
       struct flock fu_rw_fulk;
       struct flock data_rw_flk;
       struct flock data_rw_fulk;
+      struct flock fulocal_rw_flk;
+      struct flock fulocal_rw_fulk;
+      struct flock fulocal_rw_flk2;
+      struct flock fulocal_rw_fulk2;
 
       evf::FastMonitoringService * fms_ = nullptr;
       std::vector<int> streamFileTracker_;

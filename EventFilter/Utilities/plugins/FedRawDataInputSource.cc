@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 #include "EventFilter/FEDInterface/interface/fed_header.h"
@@ -183,8 +184,10 @@ bool FedRawDataInputSource::checkNextEvent()
           const std::string fuEoLS = daqDirector_->getEoLSFilePathOnFU(currentLumiSection_);
           bool found = (stat(fuEoLS.c_str(), &buf) == 0);
           if ( !found ) {
+            daqDirector_->lockFULocal2();
             int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
             close(eol_fd);
+            daqDirector_->lockFULocal2();
           }
         }
       }
@@ -238,8 +241,10 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if ( !found ) {
+        daqDirector_->lockFULocal2();
         int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
         close(eol_fd);
+        daqDirector_->unlockFULocal2();
       }
     }
 
@@ -633,7 +638,6 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
     if ( testModeNoBuilderUnit_ )
       boost::filesystem::copy(jsonSourcePath,jsonDestPath);
     else {
-      //boost::filesystem::rename(jsonSourcePath,jsonDestPath);
       try {
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
@@ -645,6 +649,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
         sleep(1);
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
+      daqDirector_->unlockFULocal();
 
 
       try {
@@ -691,29 +696,32 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
 	  " error reading number of events from BU JSON: No input value" << data;
     }
     return boost::lexical_cast<int>(data);
-  }
 
+  }
   catch (const boost::filesystem::filesystem_error& ex)
   {
     // Input dir gone?
-    edm::LogError("FedRawDataInputSource") << " - grabNextFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
+    daqDirector_->unlockFULocal();
+    edm::LogError("FedRawDataInputSource") << " - grabNextFile - BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
                   << " - Maybe the BU run dir disappeared? Ending process with code 0...";
     _exit(-1);
   }
   catch (std::runtime_error e)
   {
     // Another process grabbed the file and NFS did not register this
-     edm::LogError("FedRawDataInputSource") << " - grabNextFile runtime Exception: " << e.what();
+    daqDirector_->unlockFULocal();
+    edm::LogError("FedRawDataInputSource") << " - grabNextFile - runtime Exception: " << e.what();
   }
 
   catch( boost::bad_lexical_cast const& ) {
-    edm::LogError("FedRawDataInputSource") << " error parsing number of events from BU JSON. Input value is " << data;
+    edm::LogError("FedRawDataInputSource") << " - grabNextFile - error parsing number of events from BU JSON. Input value is " << data;
   }
 
   catch (std::exception e)
   {
     // BU run directory disappeared?
-    edm::LogError("FedRawDataInputSource") << " - grabNextFileSOME OTHER EXCEPTION OCCURED!!!! ->" << e.what();
+    daqDirector_->unlockFULocal();
+    edm::LogError("FedRawDataInputSource") << " - grabNextFile - SOME OTHER EXCEPTION OCCURED!!!! ->" << e.what();
   }
 
   return -1;
@@ -771,7 +779,7 @@ void FedRawDataInputSource::readSupervisor()
       else {
         assert(!(workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty());
       }
-      if (quit_threads_) {stop=true;break;}
+      if (quit_threads_ || edm::shutdown_flag.load(std::memory_order_relaxed)) {stop=true;break;}
     }
 
     //look for a new file
@@ -786,7 +794,7 @@ void FedRawDataInputSource::readSupervisor()
     evf::EvFDaqDirector::FileStatus status =  evf::EvFDaqDirector::noFile;
 
     while (status == evf::EvFDaqDirector::noFile) {
-      if (quit_threads_) {
+      if (quit_threads_ || edm::shutdown_flag.load(std::memory_order_relaxed)) {
 	stop=true;
 	break;
       }
@@ -798,7 +806,9 @@ void FedRawDataInputSource::readSupervisor()
 	stop=true;
 	break;
       }
-      if( getLSFromFilename_ && ls > currentLumiSection ) {
+
+      //queue new lumisection
+      if( getLSFromFilename_ && ls > currentLumiSection) {
 	currentLumiSection = ls;
 	fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, currentLumiSection));
       }
@@ -814,11 +824,11 @@ void FedRawDataInputSource::readSupervisor()
     if ( status == evf::EvFDaqDirector::newFile ) {
       edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
 
-      if (fms_) fms_->stoppedLookingForFile(ls);
 
       boost::filesystem::path jsonFile(nextFile);
       jsonFile.replace_extension(".jsn");
       int eventsInNewFile = grabNextJsonFile(jsonFile);
+      if (fms_) fms_->stoppedLookingForFile(ls);
       assert( eventsInNewFile>=0 );
       assert((eventsInNewFile>0) == (fileSize>0));//file without events must be empty
 

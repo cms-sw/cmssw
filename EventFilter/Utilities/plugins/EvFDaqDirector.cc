@@ -51,6 +51,8 @@ namespace evf {
     bu_writelock_fd_(-1),
     fu_readwritelock_fd_(-1),
     data_readwrite_fd_(-1),
+    fulocal_rwlock_fd_(-1),
+    fulocal_rwlock_fd2_(-1),
 
     bu_w_lock_stream(0),
     bu_r_lock_stream(0),
@@ -72,7 +74,11 @@ namespace evf {
     fu_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
     fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
     data_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+    data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
+    fulocal_rw_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+    fulocal_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
+    fulocal_rw_flk2( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+    fulocal_rw_fulk2( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
 
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
@@ -93,8 +99,29 @@ namespace evf {
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
       throw cms::Exception("DaqDirector") << " Error checking for base dir "
-    					  << base_dir_ << " mkdir error:" << strerror(errno) << "\n";
+    					  << base_dir_ << " mkdir error:" << strerror(errno);
     }
+
+    //create run dir in base dir
+    umask(0);
+    retval = mkdir(run_dir_.c_str(),
+		       S_IRWXU | S_IRWXG | S_IROTH | S_IRWXO | S_IXOTH);
+    if (retval != 0 && errno != EEXIST) {
+      throw cms::Exception("DaqDirector") << " Error creating run dir "
+					  << run_dir_ << " mkdir error:" << strerror(errno);
+    }
+    //create fu-local.lock in run dir
+    std::string fulocal_lock_ = run_dir_+"/"+"fu-local.lock";
+    fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDONLY | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+    if (fulocal_rwlock_fd_==-1)
+      throw cms::Exception("DaqDirector") << " Error creating/opening a local lock file " << fulocal_lock_.c_str() << " : " << strerror(errno);
+    chmod(fulocal_lock_.c_str(),0777);
+    fsync(fulocal_rwlock_fd_);
+    //open second fd for another input source thread
+    fulocal_rwlock_fd2_ = open(fulocal_lock_.c_str(), O_RDONLY, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+    if (fulocal_rwlock_fd2_==-1)
+      throw cms::Exception("DaqDirector") << " Error opening a local lock file " << fulocal_lock_.c_str() << " : " << strerror(errno);
+
 
     //bu_run_dir: for FU, for which the base dir is local and the BU is remote, it is expected to be there
     //for BU, it is created at this point
@@ -162,6 +189,20 @@ namespace evf {
 
   }
 
+  EvFDaqDirector::~EvFDaqDirector()
+  {
+    if (fulocal_rwlock_fd_!=-1) {
+      unlockFULocal();
+      close(fulocal_rwlock_fd_);
+    }
+
+    if (fulocal_rwlock_fd2_!=-1) {
+      unlockFULocal2();
+      close(fulocal_rwlock_fd2_);
+    }
+
+  }
+
   void EvFDaqDirector::postEndRun(edm::GlobalContext const& globalContext) {
     close(bu_readlock_fd_);
     close(bu_writelock_fd_);
@@ -183,15 +224,6 @@ namespace evf {
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
 
 //    assert(run_ == id.run());
-
-    // check if run dir exists or make it.
-    umask(0);
-    int retval = mkdir(run_dir_.c_str(),
-		       S_IRWXU | S_IRWXG | S_IROTH | S_IRWXO | S_IXOTH);
-    if (retval != 0 && errno != EEXIST) {
-      throw cms::Exception("DaqDirector") << " Error creating run dir "
-					  << run_dir_ << " mkdir error:" << strerror(errno) << "\n";
-    }
 
     // check if the requested run is the latest one - issue a warning if it isn't
     if (dirManager_.findHighestRunDir() != run_dir_) {
@@ -348,6 +380,9 @@ namespace evf {
     double locked_period=locked_period_int+double(ts_preunlock.tv_usec - ts_lockend.tv_usec)/1000000;
 #endif
 
+    //if new json is present, lock file which FedRawDataInputSource will later unlock
+    if (fileStatus==newFile) lockFULocal();
+
     //release lock at this point
     int retvalu=-1;
     retvalu=fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_fulk);
@@ -498,5 +533,23 @@ namespace evf {
   void EvFDaqDirector::unlockInitLock() {
     pthread_mutex_unlock(&init_lock_);
   }
+
+  void EvFDaqDirector::lockFULocal() {
+    fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_flk);
+  }
+
+  void EvFDaqDirector::unlockFULocal() {
+    fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_fulk);
+  }
+
+
+  void EvFDaqDirector::lockFULocal2() {
+    fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_flk2);
+  }
+
+  void EvFDaqDirector::unlockFULocal2() {
+    fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_fulk2);
+  }
+
 
 }
