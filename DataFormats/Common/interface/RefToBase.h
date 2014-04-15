@@ -109,7 +109,7 @@ namespace edm {
 
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
-    bool isAvailable() const { return holder_->isAvailable(); }
+    bool isAvailable() const { return holder_? holder_->isAvailable(): false; }
     
     //Needed for ROOT storage
     CMS_CLASS_VERSION(10)
@@ -319,19 +319,19 @@ namespace edm {
   template <class T>
   inline
   EDProductGetter const* RefToBase<T>::productGetter() const {
-    return holder_->productGetter();
+    return holder_? holder_->productGetter():nullptr;
   }
 
   template <class T>
   inline
   bool RefToBase<T>::hasProductCache() const {
-    return holder_->hasProductCache();
+    return holder_?holder_->hasProductCache():false;
   }
 
   template <class T>
   inline
   void const * RefToBase<T>::product() const {
-    return holder_->product();
+    return holder_?holder_->product():nullptr;
   }
 
   template <class T>
@@ -344,7 +344,7 @@ namespace edm {
 
   template <class T>
   std::auto_ptr<reftobase::RefHolderBase> RefToBase<T>::holder() const {
-    return holder_->holder();
+    return holder_? holder_->holder() : std::auto_ptr<reftobase::RefHolderBase>();
   }
 
   // Free swap function
