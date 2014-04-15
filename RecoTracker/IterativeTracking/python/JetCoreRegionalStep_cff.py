@@ -51,9 +51,13 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 jetCoreRegionalStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
-jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak5CaloJets"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
+from RecoJets.JetProducers.ak4TrackJets_cfi import ak4TrackJets
+from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
+iter0TrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
+ak4TrackJetsForTrk = ak4TrackJets.clone(src = cms.InputTag('iter0TrackRefsForJets'),srcPVs = cms.InputTag('pixelVertices'))
+jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4TrackJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
-      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
+      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),#not so nice to depend on RecoTau
       RegionPSet = cms.PSet(
         precise = cms.bool( True ),
         originRadius = cms.double( 0.2 ),
@@ -63,6 +67,8 @@ jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
         deltaEtaRegion = cms.double( 0.10 ), 
         JetSrc = cms.InputTag( "jetsForCoreTracking" ),
         vertexSrc = cms.InputTag( "firstStepGoodPrimaryVertices" ),
+        measurementTrackerName = cms.string( "MeasurementTrackerEvent" ),
+        howToUseMeasurementTracker = cms.double( 1.0 )
       ))
 
 jetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'jetCoreRegionalStepSeedLayers'
@@ -103,8 +109,7 @@ jetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     maxCand = 50,
     estimator = cms.string('jetCoreRegionalStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7),
-#    bestHitOnly=False
+    maxPtForLooperReconstruction = cms.double(0.7)
     )
 
 # MAKING OF TRACK CANDIDATES
@@ -164,7 +169,7 @@ firstStepGoodPrimaryVertices = cms.EDFilter(
    )
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(jetsForCoreTracking*
+JetCoreRegionalStep = cms.Sequence(iter0TrackRefsForJets*ak4TrackJetsForTrk*jetsForCoreTracking*
                                    firstStepPrimaryVertices*
                                    firstStepGoodPrimaryVertices*
                                    #jetCoreRegionalStepClusters*
