@@ -78,25 +78,29 @@ void RecoTrackAccumulator::finalizeEvent(edm::Event& e, const edm::EventSetup& i
 template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::EventSetup const& iSetup, edm::Handle<reco::TrackCollection> tracks, edm::Handle<reco::TrackExtraCollection> tracksExtras, edm::Handle<TrackingRecHitCollection> hits) {
 
   if (tracks.isValid()) {
-    short track_counter = 0;
-    short hit_counter = 0;
     for (auto const& track : *tracks) {
       NewTrackList_->push_back(track);
       // track extras:
-      NewTrackExtraList_->push_back(tracksExtras->at(track_counter));
+      auto const& extra = tracksExtras->at(track.extra().key());
+      NewTrackExtraList_->emplace_back(extra.outerPosition(), extra.outerMomentum(), extra.outerOk(),
+				       extra.innerPosition(),extra.innerMomentum(), extra.innerOk(),
+				       extra.outerStateCovariance(), extra.outerDetId(),
+				       extra.innerStateCovariance(), extra.innerDetId(),
+				       extra.seedDirection(),
+				       //If TrajectorySeeds are needed, then their list must be gotten from the
+				       // secondary event directly and looked up similarly to TrackExtras.
+				       //We can't use a default constructed RefToBase due to a bug in RefToBase
+				       // which causes an seg fault when calling isAvailable on a default constructed one.
+				       edm::RefToBase<TrajectorySeed>{edm::Ref<std::vector<TrajectorySeed>>{}});
       NewTrackList_->back().setExtra( reco::TrackExtraRef( rTrackExtras, NewTrackExtraList_->size() - 1) );
       //reco::TrackExtra & tx = NewTrackExtraList_->back();
       //tx.setResiduals(track.residuals());
       // rechits:
-      for( trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++ hit ) {
-	//NewHitList_->push_back( (*hit)->clone() ); // is this safe?
-	NewHitList_->push_back( (*hits)[hit_counter] );
-	//	tx.add( TrackingRecHitRef( rHits, NewHitList_->size() - 1) );
-	NewTrackExtraList_->at(track_counter).add( TrackingRecHitRef( rHits, NewHitList_->size() - 1) );
-	hit_counter++;
+      auto & newExtra = NewTrackExtraList_->back();
+      for( trackingRecHit_iterator hit = extra.recHitsBegin(); hit != extra.recHitsEnd(); ++ hit ) {
+	NewHitList_->push_back( (*hits)[hit->key()] );
+	newExtra.add( TrackingRecHitRef( rHits, NewHitList_->size() - 1) );
       }
-
-      track_counter++;
     }
   }
 
