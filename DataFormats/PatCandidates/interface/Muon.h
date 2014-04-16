@@ -45,6 +45,7 @@ namespace reco {
 // Class definition
 namespace pat {
 
+  class PATMuonSlimmer;
 
   class Muon : public Lepton<reco::Muon> {
 
@@ -235,6 +236,8 @@ namespace pat {
 
       /// pipe operator (introduced to use pat::Muon with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const Muon& obj);
+
+      friend class PATMuonSlimmer;
 
     protected:
 

@@ -30,6 +30,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/Common/interface/AtomicPtrCache.h"
 
 // Define typedefs for convenience
 namespace pat {
@@ -46,7 +47,7 @@ namespace reco {
 
 // Class definition
 namespace pat {
-
+  class PATElectronSlimmer;
 
   class Electron : public Lepton<reco::GsfElectron> {
 
@@ -241,6 +242,8 @@ namespace pat {
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
       void setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) ;
 
+      friend class PATElectronSlimmer;
+
     protected:
       /// init impact parameter defaults (for use in a constructor)
       void initImpactParameters();
@@ -259,7 +262,9 @@ namespace pat {
       /// True if electron's pflowsupercluster is stored internally
       bool embeddedPflowSuperCluster_;
       /// Place to store electron's supercluster internally
-      mutable std::vector<reco::SuperCluster> superCluster_;
+      std::vector<reco::SuperCluster> superCluster_;
+      /// Place to temporarily store the electron's supercluster after relinking the seed to it
+      edm::AtomicPtrCache<std::vector<reco::SuperCluster> > superClusterRelinked_;
       /// Place to store electron's basic clusters internally 
       std::vector<reco::CaloCluster> basicClusters_;
       /// Place to store electron's preshower clusters internally      

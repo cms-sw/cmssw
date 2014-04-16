@@ -7,14 +7,9 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: PATElectronSlimmer.cc,v 1.1 2011/03/24 18:45:45 mwlebour Exp $
 */
-#define private public
-#define protected public
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#undef protected
-#undef private
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -39,7 +34,7 @@ namespace pat {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
-      edm::InputTag src_;
+      edm::EDGetTokenT<edm::View<pat::Electron> > src_;
 
       StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
       StringCutObjectSelector<pat::Electron> dropCorrections_,dropIsolations_,dropShapes_,dropExtrapolations_,dropClassifications_;
@@ -53,7 +48,7 @@ namespace pat {
 } // namespace
 
 pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
+    src_(consumes<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("src"))),
     dropSuperClusters_(iConfig.getParameter<std::string>("dropSuperCluster")),
     dropBasicClusters_(iConfig.getParameter<std::string>("dropBasicClusters")),
     dropPFlowClusters_(iConfig.getParameter<std::string>("dropPFlowClusters")),
@@ -81,7 +76,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     using namespace std;
 
     Handle<View<pat::Electron> >      src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
 
     Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf;
     Handle<edm::Association<pat::PackedCandidateCollection>> pf2pc;
@@ -106,11 +101,11 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 	if (dropPreshowerClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowPreshowerClusters_.clear(); }
 	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
-        if (dropCorrections_(electron)) { electron.corrections_ = reco::GsfElectron::Corrections(); }
-        if (dropIsolations_(electron)) { electron.dr03_=reco::GsfElectron::IsolationVariables(); electron.dr04_=reco::GsfElectron::IsolationVariables(); electron.pfIso_=reco::GsfElectron::PflowIsolationVariables(); }
-        if (dropShapes_(electron)) { electron.pfShowerShape_=reco::GsfElectron::ShowerShape(); electron.showerShape_=reco::GsfElectron::ShowerShape();  }
-        if (dropExtrapolations_(electron)) { electron.trackExtrapolations_=reco::GsfElectron::TrackExtrapolations();  }
-        if (dropClassifications_(electron)) { electron.classVariables_=reco::GsfElectron::ClassificationVariables(); electron.class_=reco::GsfElectron::Classification(); }
+        if (dropCorrections_(electron)) { electron.setCorrections(reco::GsfElectron::Corrections()); }
+        if (dropIsolations_(electron)) { electron.setDr03Isolation(reco::GsfElectron::IsolationVariables()); electron.setDr04Isolation(reco::GsfElectron::IsolationVariables()); electron.setPfIsolationVariables(reco::GsfElectron::PflowIsolationVariables()); }
+        if (dropShapes_(electron)) { electron.setPfShowerShape(reco::GsfElectron::ShowerShape()); electron.setShowerShape(reco::GsfElectron::ShowerShape());  }
+        if (dropExtrapolations_(electron)) { electron.setTrackExtrapolations(reco::GsfElectron::TrackExtrapolations());  }
+        if (dropClassifications_(electron)) { electron.setClassificationVariables(reco::GsfElectron::ClassificationVariables()); electron.setClassification(reco::GsfElectron::Classification()); }
         if (linkToPackedPF_) {
             electron.setPackedPFCandidateCollection(edm::RefProd<pat::PackedCandidateCollection>(pc));
             //std::cout << " PAT  electron in  " << src.id() << " comes from " << electron.refToOrig_.id() << ", " << electron.refToOrig_.key() << std::endl;

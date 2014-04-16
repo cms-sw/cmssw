@@ -59,6 +59,8 @@ namespace reco {
 // Class definition
 namespace pat {
 
+   class PATJetSlimmer;
+
   typedef reco::CaloJet::Specific CaloSpecific;
   typedef reco::JPTJet::Specific JPTSpecific;
   typedef reco::PFJet::Specific PFSpecific;
@@ -72,6 +74,7 @@ namespace pat {
     /// jet energy scale unequal to raw calling the private initializeJEC
     /// function, which should be non accessible to any other user
     friend class PATJetProducer;
+    friend class PATJetSlimmer;
 
     public:
 

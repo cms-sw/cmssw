@@ -151,7 +151,7 @@ namespace pat {
     /// set 4-momentum                                                                    
     virtual void setP4( const PolarLorentzVector & p4 ) { 
         maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
-        p4_ = p4_; 
+        p4_ = p4; 
         packBoth();
     }
     /// set particle mass                                                                 

@@ -9,9 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#define protected public
 #include "DataFormats/PatCandidates/interface/Tau.h"
-#undef protected
 
 namespace pat {
 
@@ -23,13 +21,14 @@ namespace pat {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
-      edm::InputTag src_;
+      edm::EDGetTokenT<edm::View<pat::Tau> > src_;
+
   };
 
 } // namespace
 
 pat::PATTauSlimmer::PATTauSlimmer(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src"))
+    src_(consumes<edm::View<pat::Tau> >(iConfig.getParameter<edm::InputTag>("src")))
 {
     produces<std::vector<pat::Tau> >();
 }
@@ -40,7 +39,7 @@ pat::PATTauSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     using namespace std;
 
     Handle<View<pat::Tau> >      src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
 
     auto_ptr<vector<pat::Tau> >  out(new vector<pat::Tau>());
     out->reserve(src->size());

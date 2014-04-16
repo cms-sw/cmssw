@@ -77,6 +77,7 @@ process.selectedPatJetsCA8.cut = cms.string("pt > 100")
 
 process.slimmedJetsCA8 = cms.EDProducer("PATJetSlimmer",
    src = cms.InputTag("selectedPatJetsCA8"),
+   map = cms.InputTag("packedPFCandidates"),
    clearJetVars = cms.bool(True),
    clearDaughters = cms.bool(False),
    clearTrackRefs = cms.bool(True),

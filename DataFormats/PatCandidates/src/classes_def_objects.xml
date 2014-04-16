@@ -17,6 +17,7 @@
 
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron"  ClassVersion="23">
+   <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="23" checksum="434577157"/>
    <version ClassVersion="22" checksum="4113394532"/>
    <version ClassVersion="21" checksum="366535823"/>
@@ -27,6 +28,12 @@
    <version ClassVersion="15" checksum="990589145"/>
    <version ClassVersion="10" checksum="1662079993"/>
   </class>
+  <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
+  <class name="edm::AtomicPtrCache<std::vector<reco::SuperCluster> >" />
+  <ioread sourceClass="pat::Electron" targetClass="pat::Electron" version="[1-]" source="" target="superClusterRelinked_">
+    <![CDATA[superClusterRelinked_.reset();]]>
+  </ioread>
+
   <class name="pat::Muon"  ClassVersion="13">
    <version ClassVersion="13" checksum="2943499125"/>
    <version ClassVersion="12" checksum="462627330"/>
@@ -94,10 +101,16 @@
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
   <class name="pat::Photon"  ClassVersion="12">
+   <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="12" checksum="2518470540"/>
    <version ClassVersion="11" checksum="3277818926"/>
    <version ClassVersion="10" checksum="865744757"/>
   </class>
+  <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
+  <ioread sourceClass="pat::Photon" targetClass="pat::Photon" version="[1-]" source="" target="superClusterRelinked_">
+    <![CDATA[superClusterRelinked_.reset();]]>
+  </ioread>
+
   <class name="pat::Jet"  ClassVersion="11">
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
