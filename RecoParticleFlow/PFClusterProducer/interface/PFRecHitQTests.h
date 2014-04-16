@@ -67,7 +67,8 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
   PFRecHitQTestHCALChannel(const edm::ParameterSet& iConfig):
     PFRecHitQTestBase(iConfig)
     {
-      threshold_ = iConfig.getParameter<int>("maxSeverity");
+      thresholds_ = iConfig.getParameter<std::vector<int> >("maxSeverities");
+      flags_ = iConfig.getParameter<std::vector<int> >("flags");
     }
 
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
@@ -86,50 +87,14 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
       return true;
     }
     bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
-      const HcalDetId& detid = (HcalDetId)rh.detid();
-      const HcalChannelStatus* theStatus = theHcalChStatus_->getValues(detid);
-      unsigned theStatusValue = theStatus->getValue();
-      // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value
-      int hitSeverity=hcalSevLvlComputer_->getSeverityLevel(detid, rh.flags(),theStatusValue);
-
-      if (hitSeverity>threshold_) {
-	clean=true;
-	return false;
-      }
-      
-      return true;
+      return test(rh.detid(),rh.flags(),clean);
     }
 
     bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
-      const HcalDetId& detid = (HcalDetId)rh.detid();
-      const HcalChannelStatus* theStatus = theHcalChStatus_->getValues(detid);
-      unsigned theStatusValue = theStatus->getValue();
-      // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value
-      int hitSeverity=hcalSevLvlComputer_->getSeverityLevel(detid, rh.flags(),theStatusValue);
-
-      if (hitSeverity>threshold_) {
-	clean=true;
-	return false;
-      }
-
-      return true;
+      return test(rh.detid(),rh.flags(),clean);
     }
     bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
-
-      const HcalDetId& detid = (HcalDetId)rh.detid();
-      const HcalChannelStatus* theStatus = theHcalChStatus_->getValues(detid);
-      unsigned theStatusValue = theStatus->getValue();
-
-      // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value
-
-      int hitSeverity=hcalSevLvlComputer_->getSeverityLevel(detid, rh.flags(),theStatusValue);
-
-      if (hitSeverity>threshold_) {
-	clean=true;
-	return false;
-      }
-
-      return true;
+      return test(rh.detid(),rh.flags(),clean);
     }
 
     bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
@@ -138,9 +103,33 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
     }
 
  protected:
-  int threshold_;
+    std::vector<int> thresholds_;
+    std::vector<int> flags_;
   const HcalChannelQuality* theHcalChStatus_;
   const HcalSeverityLevelComputer* hcalSevLvlComputer_;
+
+  bool test(unsigned DETID,int flags,bool& clean) {
+    const HcalDetId& detid = (HcalDetId)DETID;
+    const HcalChannelStatus* theStatus = theHcalChStatus_->getValues(detid);
+    unsigned theStatusValue = theStatus->getValue();
+    // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value
+    for (unsigned int i=0;i<thresholds_.size();++i) {
+      int hitSeverity =0;
+      if(flags_[i]<0) {
+	hitSeverity=hcalSevLvlComputer_->getSeverityLevel(detid, flags,theStatusValue);
+      }
+      else {
+	hitSeverity=hcalSevLvlComputer_->getSeverityLevel(detid, flags & flags_[i],theStatusValue);
+      }
+      
+      if (hitSeverity>thresholds_[i]) {
+	clean=true;
+	return false;
+      }
+    }  
+    return true;
+  }
+
 };
 
 
