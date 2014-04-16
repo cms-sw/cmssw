@@ -1,0 +1,9 @@
+<use   name="DQMServices/Core"/>
+<use   name="CommonTools/ParticleFlow"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="RecoVertex/PrimaryVertexProducer"/>
+<use   name="TrackingTools/IPTools"/>
+<use   name="JetMETCorrections/Objects"/>
+<export>
+  <lib   name="1"/>
+</export>
