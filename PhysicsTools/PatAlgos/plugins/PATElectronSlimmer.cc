@@ -7,14 +7,9 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: PATElectronSlimmer.cc,v 1.1 2011/03/24 18:45:45 mwlebour Exp $
 */
-#define private public
-#define protected public
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#undef protected
-#undef private
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -106,11 +101,11 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 	if (dropPreshowerClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowPreshowerClusters_.clear(); }
 	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
-        if (dropCorrections_(electron)) { electron.corrections_ = reco::GsfElectron::Corrections(); }
-        if (dropIsolations_(electron)) { electron.dr03_=reco::GsfElectron::IsolationVariables(); electron.dr04_=reco::GsfElectron::IsolationVariables(); electron.pfIso_=reco::GsfElectron::PflowIsolationVariables(); }
-        if (dropShapes_(electron)) { electron.pfShowerShape_=reco::GsfElectron::ShowerShape(); electron.showerShape_=reco::GsfElectron::ShowerShape();  }
-        if (dropExtrapolations_(electron)) { electron.trackExtrapolations_=reco::GsfElectron::TrackExtrapolations();  }
-        if (dropClassifications_(electron)) { electron.classVariables_=reco::GsfElectron::ClassificationVariables(); electron.class_=reco::GsfElectron::Classification(); }
+        if (dropCorrections_(electron)) { electron.setCorrections(reco::GsfElectron::Corrections()); }
+        if (dropIsolations_(electron)) { electron.setDr03Isolation(reco::GsfElectron::IsolationVariables()); electron.setDr04Isolation(reco::GsfElectron::IsolationVariables()); electron.setPfIsolationVariables(reco::GsfElectron::PflowIsolationVariables()); }
+        if (dropShapes_(electron)) { electron.setPfShowerShape(reco::GsfElectron::ShowerShape()); electron.setShowerShape(reco::GsfElectron::ShowerShape());  }
+        if (dropExtrapolations_(electron)) { electron.setTrackExtrapolations(reco::GsfElectron::TrackExtrapolations());  }
+        if (dropClassifications_(electron)) { electron.setClassificationVariables(reco::GsfElectron::ClassificationVariables()); electron.setClassification(reco::GsfElectron::Classification()); }
         if (linkToPackedPF_) {
             electron.setPackedPFCandidateCollection(edm::RefProd<pat::PackedCandidateCollection>(pc));
             //std::cout << " PAT  electron in  " << src.id() << " comes from " << electron.refToOrig_.id() << ", " << electron.refToOrig_.key() << std::endl;

@@ -42,7 +42,7 @@ namespace reco {
 
 // Class definition
 namespace pat {
-
+  class PATPhotonSlimmer;
 
   class Photon : public PATObject<reco::Photon> {
 
@@ -236,7 +236,7 @@ namespace pat {
       /// get the source candidate pointer with index i
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
-
+      friend class PATPhotonSlimmer;
 
     protected:
 

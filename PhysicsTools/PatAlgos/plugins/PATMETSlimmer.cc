@@ -12,9 +12,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#define protected public
 #include "DataFormats/PatCandidates/interface/MET.h"
-#undef protected
 
 namespace pat {
 
