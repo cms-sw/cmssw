@@ -33,7 +33,7 @@ namespace pat {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
-      edm::InputTag src_;
+      edm::EDGetTokenT<edm::View<reco::GenJet> > src_;
       StringCutObjectSelector<reco::GenJet> cut_;
       
       /// reset daughters to an empty vector
@@ -45,7 +45,7 @@ namespace pat {
 } // namespace
 
 pat::PATGenJetSlimmer::PATGenJetSlimmer(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
+    src_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src"))),
     cut_(iConfig.getParameter<std::string>("cut")),
     clearDaughters_(iConfig.getParameter<bool>("clearDaughters")),
     dropSpecific_(iConfig.getParameter<bool>("dropSpecific"))
@@ -59,7 +59,7 @@ pat::PATGenJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     using namespace std;
 
     Handle<View<reco::GenJet> >      src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
 
     auto_ptr<vector<reco::GenJet> >  out(new vector<reco::GenJet>());
     out->reserve(src->size());

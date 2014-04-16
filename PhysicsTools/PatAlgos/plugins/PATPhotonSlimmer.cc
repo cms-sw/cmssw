@@ -31,7 +31,7 @@ namespace pat {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
-      edm::InputTag src_;
+      edm::EDGetTokenT<edm::View<pat::Photon> > src_;
 
       StringCutObjectSelector<pat::Photon> dropSuperClusters_, dropBasicClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
 
@@ -44,7 +44,7 @@ namespace pat {
 } // namespace
 
 pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
+    src_(consumes<edm::View<pat::Photon> >(iConfig.getParameter<edm::InputTag>("src"))),
     dropSuperClusters_(iConfig.getParameter<std::string>("dropSuperCluster")),
     dropBasicClusters_(iConfig.getParameter<std::string>("dropBasicClusters")),
     dropPreshowerClusters_(iConfig.getParameter<std::string>("dropPreshowerClusters")),
@@ -66,7 +66,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     using namespace std;
 
     Handle<View<pat::Photon> >      src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
 
     Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf;
     Handle<edm::Association<pat::PackedCandidateCollection>> pf2pc;
