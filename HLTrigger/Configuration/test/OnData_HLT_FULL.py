@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/HLT/V39 (CMSSW_7_1_0_pre6_HLT1)
+# /dev/CMSSW_7_1_0/HLT/V40 (CMSSW_7_1_0_pre6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V39')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V40')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -4922,11 +4922,6 @@ process.DQMStore = cms.Service( "DQMStore",
     enableMultiThread = cms.untracked.bool( False ),
     verbose = cms.untracked.int32( 0 ),
     collateHistograms = cms.untracked.bool( False ),
-)
-process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
-    processingMode = cms.untracked.string( "HLT" ),
-    fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
-    getSCInfo = cms.untracked.bool( True )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
     suppressInfo = cms.untracked.vstring(  ),
