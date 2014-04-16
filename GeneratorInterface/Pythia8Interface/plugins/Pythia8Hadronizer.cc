@@ -80,11 +80,13 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     double fBeam1PZ;
     double fBeam2PZ;
 
-    // Reweight user hook
+    // Reweight user hooks
     //
     UserHooks* fReweightUserHook;
+    UserHooks* fReweightRapUserHook;  
+    UserHooks* fReweightPtHatRapUserHook;
         
-    // PS matching protot6ype
+    // PS matching prototype
     //
     JetMatchingHook* fJetMatchingHook;
 	
@@ -111,7 +113,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   comEnergy(params.getParameter<double>("comEnergy")),
   LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
   fInitialState(PP),
-  fReweightUserHook(0),
+  fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),
   fEmissionVetoHook(0),fEmissionVetoHook1(0)
 {
@@ -123,11 +125,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     if ( fInitialState == PP )
     {
       fInitialState = PPbar;
-      edm::LogInfo("GeneratorInterface|Pythia6Interface")
-      << "Pythia6 will be initialized for PROTON-ANTIPROTON INITIAL STATE. "
-      << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
-      std::cout << "Pythia6 will be initialized for PROTON-ANTIPROTON INITIAL STATE." << std::endl;
-      std::cout << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+      edm::LogImportant("GeneratorInterface|Pythia8Interface")
+      << "Pythia8 will be initialized for PROTON-ANTIPROTON INITIAL STATE. "
+      << "This is a user-request change from the DEFAULT PROTON-PROTON initial state.";
     }
     else
     {   
@@ -139,11 +139,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     if ( fInitialState == PP )
     {
       fInitialState = ElectronPositron;
-      edm::LogInfo("GeneratorInterface|Pythia6Interface")
-      << "Pythia6 will be initialized for ELECTRON-POSITRON INITIAL STATE. "
-      << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
-      std::cout << "Pythia6 will be initialized for ELECTRON-POSITRON INITIAL STATE." << std::endl; 
-      std::cout << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+      edm::LogInfo("GeneratorInterface|Pythia8Interface")
+      << "Pythia8 will be initialized for ELECTRON-POSITRON INITIAL STATE. "
+      << "This is a user-request change from the DEFAULT PROTON-PROTON initial state.";
     }
     else
     {   
@@ -176,6 +174,34 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   //
   if( params.exists( "reweightGen" ) )
     fReweightUserHook = new PtHatReweightUserHook();
+  if( params.exists( "reweightGenRap" ) )
+  {
+    edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenRap";
+    edm::ParameterSet rgrParams =
+      params.getParameter<edm::ParameterSet>("reweightGenRap");
+    fReweightRapUserHook =
+      new RapReweightUserHook(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
+                              rgrParams.getParameter<double>("yLabPower"),
+                              rgrParams.getParameter<std::string>("yCMSigmaFunc"),
+                              rgrParams.getParameter<double>("yCMPower"),
+                              rgrParams.getParameter<double>("pTHatMin"),
+                              rgrParams.getParameter<double>("pTHatMax"));
+    edm::LogInfo("Pythia8Interface") << "End setup for reweightGenRap";
+  }
+  if( params.exists( "reweightGenPtHatRap" ) )
+  {
+    edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenPtHatRap";
+    edm::ParameterSet rgrParams =
+      params.getParameter<edm::ParameterSet>("reweightGenPtHatRap");
+    fReweightPtHatRapUserHook =
+      new PtHatRapReweightUserHook(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
+                                   rgrParams.getParameter<double>("yLabPower"),
+                                   rgrParams.getParameter<std::string>("yCMSigmaFunc"),
+                                   rgrParams.getParameter<double>("yCMPower"),
+                                   rgrParams.getParameter<double>("pTHatMin"),
+                                   rgrParams.getParameter<double>("pTHatMax"));
+    edm::LogInfo("Pythia8Interface") << "End setup for reweightGenPtHatRap";
+  }
 
   if( params.exists( "useUserHook" ) )
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
@@ -229,28 +255,22 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 
   int NHooks=0;
   if(fReweightUserHook) NHooks++;
+  if(fReweightRapUserHook) NHooks++;
+  if(fReweightPtHatRapUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
   if(fEmissionVetoHook) NHooks++;
   if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-      <<" Too many User Hooks. \n Please choose one from: reweightGen, jetMatching, emissionVeto \n";
-
+      <<" Too many User Hooks. \n Please choose one from: reweightGen, reweightGenRap, reweightGenPtHatRap, jetMatching, emissionVeto, emissionVeto1 \n";
   if(fReweightUserHook) fMasterGen->setUserHooksPtr(fReweightUserHook);
+  if(fReweightRapUserHook) fMasterGen->setUserHooksPtr(fReweightRapUserHook);
+  if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
   if(fEmissionVetoHook || fEmissionVetoHook1) {
-    cout << "Turning on Emission Veto Hook";
-    if(fEmissionVetoHook1) cout << " 1";
-    cout << endl;
-    int nversion = (int)(1000.*(fMasterGen->settings.parm("Pythia:versionNumber") - 8.));
-    if(nversion < 157) {
-      cout << "obsolete pythia8 version for this Emission Veto code" << endl;
-      cout << "Please update pythia8 version using the instructions here:" << endl;
-      cout << "https://twiki.cern.ch/twiki/bin/view/CMS/Pythia8Interface" << endl;
-      cout << "or try to use tag V00-01-28 of this interface" << endl;
-      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-        <<" Obsolete pythia8 version for this Emission Veto code\n";
-    }
+    std::cout << "Turning on Emission Veto Hook";
+    if(fEmissionVetoHook1) std::cout << " 1";
+    std::cout << std::endl;
     if(fEmissionVetoHook) fMasterGen->setUserHooksPtr(fEmissionVetoHook);
     if(fEmissionVetoHook1) fMasterGen->setUserHooksPtr(fEmissionVetoHook1);
   }
@@ -313,13 +333,11 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   std::cout << "Initializing for external partons" << std::endl;
 
-  // pythiaEvent = &pythia->event;
-    
   if(LHEInputFileName != string()) {
 
-    cout << endl;
-    cout << "LHE Input File Name = " << LHEInputFileName << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "LHE Input File Name = " << LHEInputFileName << std::endl;
+    std::cout << std::endl;
     fMasterGen->init(LHEInputFileName);
 
   } else {
@@ -379,20 +397,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   return true;
 }
-
-#if 0
-// naive Pythia8 HepMC status fixup
-static int getStatus(const HepMC::GenParticle *p)
-{
-  int status = p->status();
-  if (status > 0)
-    return status;
-  else if (status > -30 && status < 0)
-    return 3;
-  else
-    return 2;
-}
-#endif
 
 
 void Pythia8Hadronizer::statistics()
@@ -477,7 +481,6 @@ bool Pythia8Hadronizer::residualDecay()
       if ( !fDecayer->event[nentries-1].mayDecay() ) continue;
       fDecayer->next();
       int nentries1 = fDecayer->event.size();
-      // fDecayer->event.list(std::cout);
       if ( nentries1 <= nentries ) continue; //same number of particles, no decays...
 
       part->set_status(2);
@@ -512,7 +515,6 @@ bool Pythia8Hadronizer::residualDecay()
       }
 
       event().get()->add_vertex( DecVtx );
-      // fCurrentEventState->add_vertex( DecVtx );
 
     }
  }
