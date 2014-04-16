@@ -54,8 +54,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 #          RecHitsKiller and RecHitRecoveryProducer module for Barrel                  
 #       *****************************************************************
 process.CreateEBDeadCells = cms.EDProducer("EBChannelKiller", 
-   hitProducer          = cms.string("reducedEcalRecHitsEB"),
-   hitCollection        = cms.string(""),
+   hitTag               = cms.InputTag("reducedEcalRecHitsEB", ""),
    reducedHitCollection = cms.string("CreateEB"),
    KilledHitCollection  = cms.string("KilledEcalRecHitsEB"),
    DeadChannelsFile     = cms.string("EBDeadCellsEach5.txt"),
@@ -63,8 +62,7 @@ process.CreateEBDeadCells = cms.EDProducer("EBChannelKiller",
 )
 
 process.ModCorrectEBDeadCells = cms.EDProducer("EBDeadChannelRecoveryProducers", 
-   hitProducer          = cms.string("CreateEBDeadCells"),
-   hitCollection        = cms.string("CreateEB"),
+   hitTag               = cms.InputTag("CreateEBDeadCells", "CreateEB"),
    reducedHitCollection = cms.string("ModifyEB"),
    DeadChannelsFile     = cms.string("EBDeadCellsEach5.txt"),
    Sum8GeVThreshold     = cms.double(8.0),
@@ -77,8 +75,7 @@ process.ModCorrectEBDeadCells = cms.EDProducer("EBDeadChannelRecoveryProducers",
 #          RecHitsKiller and RecHitRecoveryProducer module for EndCap                  
 #       *****************************************************************
 process.CreateEEDeadCells = cms.EDProducer("EEChannelKiller", 
-   hitProducer          = cms.string("reducedEcalRecHitsEE"),
-   hitCollection        = cms.string(""),
+   hitTag               = cms.InputTag("reducedEcalRecHitsEE", ""),
    reducedHitCollection = cms.string("CreateEE"),
    KilledHitCollection  = cms.string("KilledEcalRecHitsEE"),
    DeadChannelsFile     = cms.string("EEDeadCellsEach5.txt"),
@@ -86,8 +83,7 @@ process.CreateEEDeadCells = cms.EDProducer("EEChannelKiller",
 )
 
 process.ModCorrectEEDeadCells = cms.EDProducer("EEDeadChannelRecoveryProducers", 
-   hitProducer          = cms.string("CreateEEDeadCells"),
-   hitCollection        = cms.string("CreateEE"),
+   hitTag               = cms.InputTag("CreateEEDeadCells", "CreateEE"),
    reducedHitCollection = cms.string("ModifyEE"),
    DeadChannelsFile     = cms.string("EEDeadCellsEach5.txt"),
    Sum8GeVThreshold     = cms.double(8.0),
@@ -110,8 +106,6 @@ process.validateRecoveryEE = cms.EDAnalyzer("EcalDeadChannelRecoveryAnalyzer",
 
   titlePrefix = cms.string("(EE) "),
 )
-
-
 
 process.dump = cms.EDAnalyzer("EcalRecHitDump",
   EBRecHitCollection = cms.InputTag("ModCorrectEBDeadCells", "ModifyEB"),
