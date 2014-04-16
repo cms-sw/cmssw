@@ -22,7 +22,7 @@ namespace l1t {
 
    bool EtSumUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {
 
-     int nBX = size / 4; // Since there are 4 EtSum objects reported per event (see CMS IN-2013/005)
+     int nBX = int(ceil(size / 4.)); // Since there are 4 EtSum objects reported per event (see CMS IN-2013/005)
 
      // Find the central, first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -46,7 +46,7 @@ namespace l1t {
        l1t::EtSum met = l1t::EtSum();
     
        met.setHwPt(raw_data & 0xFFF);
-       met.setHwPhi(raw_data & 0xFF000);
+       met.setHwPhi((raw_data >> 12) & 0xFF);
        met.setType(l1t::EtSum::kMissingEt);       
 
        res->push_back(bx,met);
@@ -58,7 +58,7 @@ namespace l1t {
        l1t::EtSum mht = l1t::EtSum();
     
        mht.setHwPt(raw_data & 0xFFF);
-       mht.setHwPhi(raw_data & 0xFF000);
+       mht.setHwPhi((raw_data >> 12) & 0xFF);
        mht.setType(l1t::EtSum::kMissingHt);       
 
        res->push_back(bx,mht);       

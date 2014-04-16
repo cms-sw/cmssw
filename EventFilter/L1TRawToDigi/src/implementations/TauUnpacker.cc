@@ -22,7 +22,7 @@ namespace l1t {
 
    bool TauUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {
 
-     int nBX = size / 8; // Since there are 8 Tau objects reported per event (see CMS IN-2013/005)
+     int nBX = int(ceil(size / 8.)); // Since there are 8 Tau objects reported per event (see CMS IN-2013/005)
 
      // Find the first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -39,21 +39,24 @@ namespace l1t {
      // Loop over multiple BX and then number of Tau cands filling collection
      for (int bx=firstBX; bx<lastBX; bx++){
 
-       for (unsigned nTau=0; nTau < 12; nTau++){
+       for (unsigned nTau=0; nTau < 8 && nTau < size; nTau++){
 
          uint32_t raw_data = pop(data,i); // pop advances the index i internally
 
          l1t::Tau tau = l1t::Tau();
        
          tau.setHwPt(raw_data & 0x1FF);
-         tau.setHwPhi(raw_data & 0x1FE0000);
-         if (raw_data & 0x10000) {
-           tau.setHwEta(-1*(raw_data & 0xFE00));
+
+	 int abs_eta = (raw_data >> 9) & 0x7F;
+         if ((raw_data >> 16) & 0x1) {
+           tau.setHwEta(-1*abs_eta);
          } else {
-           tau.setHwEta(raw_data & 0xFE00);
+           tau.setHwEta(abs_eta);
          }
-         tau.setHwIso(raw_data & 0x2000000); // Assume one bit for now?
-         tau.setHwQual(raw_data & 0x1C000000); // Assume 3 bits for now? leaves 3 spare bits
+
+         tau.setHwPhi((raw_data >> 17) & 0xFF);
+         tau.setHwIso((raw_data >> 25) & 0x1); // Assume one bit for now?
+         tau.setHwQual((raw_data >> 26) & 0x7); // Assume 3 bits for now? leaves 3 spare bits
 
          res->push_back(bx,tau);
 

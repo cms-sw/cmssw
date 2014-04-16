@@ -34,7 +34,7 @@ namespace l1t {
 
   bool CaloTowerUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {
     
-     int nBX = size/82; // Since there is one Rx link per block with 2*28 slices in barrel and endcap + 2*13 for upgraded HF - check this!!
+    int nBX = int(ceil(size/82.)); // Since there is one Rx link per block with 2*28 slices in barrel and endcap + 2*13 for upgraded HF - check this!!
 
      // Find the first and last BXs
      int firstBX = -(std::ceil((double)nBX/2.)-1);
@@ -51,7 +51,7 @@ namespace l1t {
      // Loop over multiple BX and fill towers collection
      for (int bx=firstBX; bx<lastBX; bx++){
 
-       for (int frame=0; frame<82; frame++){
+       for (unsigned frame=0; frame<82 && frame<size; frame++){
 
 	 uint32_t raw_data = pop(data,i); // pop advances the index i internally
 
@@ -59,8 +59,8 @@ namespace l1t {
     
 	 // First calo tower is in the LSW with phi
 	 tower1.setHwPt(raw_data & 0x1FF);
-	 tower1.setHwQual(raw_data & 0xF300);
-         tower1.setHwEtRatio(raw_data & 0xE00);
+	 tower1.setHwQual((raw_data >> 12) & 0xF);
+         tower1.setHwEtRatio((raw_data >>9) & 0x7);
 	 tower1.setHwPhi((block_id/2)+1); // iPhi starts at 1
 	 
 	 if (frame % 2==0) { // Even number links carry Eta+
@@ -75,8 +75,8 @@ namespace l1t {
 	 l1t::CaloTower tower2 = l1t::CaloTower();
 	 
 	 tower2.setHwPt((raw_data >> 16) & 0x1FF);
-	 tower2.setHwQual((raw_data >> 16 )& 0xF300);
-         tower2.setHwEtRatio((raw_data >> 16) & 0xE00);
+	 tower2.setHwQual((raw_data >> 28 ) & 0xF);
+         tower2.setHwEtRatio((raw_data >> 25) & 0x7);
 	 tower2.setHwPhi((block_id/2)+2);
 
 	 if (frame % 2==0) {

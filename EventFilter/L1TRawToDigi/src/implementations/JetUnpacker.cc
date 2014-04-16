@@ -43,7 +43,7 @@ namespace l1t {
          l1t::Jet jet = l1t::Jet();
 
          jet.setHwPt(raw_data & 0x7FF);
-         jet.setHwPhi((raw_data >> 19) & 0xFF);
+         
          int abs_eta = (raw_data >> 11) & 0x7F;
          if ((raw_data >> 18) & 0x1) {
            jet.setHwEta(-1 * abs_eta);
@@ -51,6 +51,7 @@ namespace l1t {
            jet.setHwEta(abs_eta);
          }
 
+	 jet.setHwPhi((raw_data >> 19) & 0xFF);
          jet.setHwQual((raw_data >> 27) & 0x7); // Assume 3 bits for now? Leaves 2 bits spare
 
          res->push_back(bx,jet);
