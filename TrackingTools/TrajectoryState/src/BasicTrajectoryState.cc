@@ -109,22 +109,6 @@ BasicTrajectoryState::
 BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 			    const CurvilinearTrajectoryError& err,
 			    const SurfaceType& aSurface,
-			    const SurfaceSide side,
-			    double weight) :
-  theFreeState(par, err),
-  theLocalError(InvalidError()),
-  theLocalParameters(),
-  theLocalParametersValid(false),
-  theValid(true),
-  theSurfaceSide(side), 
-  theSurfaceP( &aSurface), 
-  theWeight(weight)
-{}
-
-BasicTrajectoryState::
-BasicTrajectoryState( const GlobalTrajectoryParameters& par,
-			    const CurvilinearTrajectoryError& err,
-			    const SurfaceType& aSurface,
 			    double weight) :
   theFreeState(par, err),
   theLocalError(InvalidError()),

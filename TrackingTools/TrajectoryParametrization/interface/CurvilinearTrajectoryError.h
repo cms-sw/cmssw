@@ -61,6 +61,11 @@ public:
     return theCovarianceMatrix;
   }
 
+ AlgebraicSymMatrix55 &matrix() {
+    return theCovarianceMatrix;
+  }
+
+
   /** Enables the multiplication of the covariance matrix with the scalar "factor".
    */
 
@@ -78,7 +83,7 @@ public:
     //term 0,0 is not scaled at all
   }
 
-  operator MathCovarianceMatrix() { return theCovarianceMatrix; }
+  operator MathCovarianceMatrix & () { return theCovarianceMatrix; }
   operator const MathCovarianceMatrix &() const { return theCovarianceMatrix; }
 
 private:

@@ -122,7 +122,18 @@ public:
 			      const CurvilinearTrajectoryError& err,
 			      const SurfaceType& aSurface,
 			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface,
-			      double weight = 1.);
+			      double weight = 1.) :
+  theFreeState(par, err),
+  theLocalError(InvalidError()),
+  theLocalParameters(),
+  theLocalParametersValid(false),
+  theValid(true),
+  theSurfaceSide(side), 
+  theSurfaceP( &aSurface), 
+  theWeight(weight)
+  {}
+
+
   /** Constructor from global parameters, errors and surface. For multi-states the
    *  weight should be specified explicitely. For backward compatibility without
    *  specification of the side of the surface.

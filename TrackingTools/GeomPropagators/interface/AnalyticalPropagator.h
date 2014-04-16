@@ -71,11 +71,7 @@ public:
     return true;
   }
   
-#ifndef CMS_NO_RELAXED_RETURN_TYPE
   virtual AnalyticalPropagator * clone() const 
-#else
-    virtual Propagator * clone() const
-#endif
   {
     return new AnalyticalPropagator(*this);
   }
