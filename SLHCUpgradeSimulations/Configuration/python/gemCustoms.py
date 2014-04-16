@@ -54,7 +54,8 @@ def customise_L1Emulator(process, ptdphi):
         runME11ILT = cms.untracked.bool(True),
 
         ## run in debug mode
-        printAvailablePads = cms.untracked.bool(False),
+        debugLUTs = cms.untracked.bool(False),
+        debugMatching = cms.untracked.bool(False),
 
         ## use old dataformat
         useOldLCTDataFormatALCTGEM = cms.untracked.bool(True),
@@ -76,7 +77,7 @@ def customise_L1Emulator(process, ptdphi):
         maxDeltaPadCoPadOdd = cms.untracked.int32(3),
 
         ## efficiency recovery switches
-        dropLowQualityCLCTsNoGEMs_ME1a = cms.untracked.bool(True),
+        dropLowQualityCLCTsNoGEMs_ME1a = cms.untracked.bool(False),
         dropLowQualityCLCTsNoGEMs_ME1b = cms.untracked.bool(True),
         buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(True),
         buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True),
@@ -98,10 +99,52 @@ def customise_L1Emulator(process, ptdphi):
     
     ## GE2/1-ME2/1
     tmb.me21ILT = cms.PSet(
-        runME21ILT = cms.untracked.bool(False),
-        dropLowQualityCLCTsNoGEMs_ME21 = cms.untracked.bool(False),
-        buildLCTfromALCTandGEM_ME21 = cms.untracked.bool(False),
+        ## run the upgrade algorithm
+        runME21ILT = cms.untracked.bool(True),
+
+        ## run in debug mode
+        debugLUTs = cms.untracked.bool(False),
+        debugMatching = cms.untracked.bool(False),
+
+        ## use old dataformat
+        useOldLCTDataFormatALCTGEM = cms.untracked.bool(True),
+        
+        ## copad construction
+        maxDeltaBXInCoPad = cms.untracked.int32(1),
+        maxDeltaPadInCoPad = cms.untracked.int32(1),
+
+        ## matching to pads in case LowQ CLCT
+        maxDeltaBXPadEven = cms.untracked.int32(1),
+        maxDeltaBXPadOdd = cms.untracked.int32(1),
+        maxDeltaPadPadEven = cms.untracked.int32(2),
+        maxDeltaPadPadOdd = cms.untracked.int32(3),
+
+        ## matching to pads in case absent CLCT
+        maxDeltaBXCoPadEven = cms.untracked.int32(0),
+        maxDeltaBXCoPadOdd = cms.untracked.int32(0),
+        maxDeltaPadCoPadEven = cms.untracked.int32(2),
+        maxDeltaPadCoPadOdd = cms.untracked.int32(3),
+
+        ## efficiency recovery switches
+        dropLowQualityCLCTsNoGEMs = cms.untracked.bool(True),
+        buildLCTfromALCTandGEM = cms.untracked.bool(True),
+        doLCTGhostBustingWithGEMs = cms.untracked.bool(False),
+        correctLCTtimingWithGEM = cms.untracked.bool(True),
+
+        ## rate reduction 
+        doGemMatching = cms.untracked.bool(True),
+        gemMatchDeltaEta = cms.untracked.double(0.08),
+        gemMatchDeltaBX = cms.untracked.int32(1),
+        gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd']),
+        gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even']),
+        gemClearNomatchLCTs = cms.untracked.bool(ptdphi == 'pt0' and False),
     )
+    
+    if tmb.me21ILT.runME21ILT:
+        process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
+        process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
+        process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+    
     return process
 
 def customise_DigiToRaw(process):

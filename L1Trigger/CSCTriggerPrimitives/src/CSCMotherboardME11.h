@@ -59,9 +59,9 @@ class CSCMotherboardME11 : public CSCMotherboard
   enum ME11Part {ME1B = 1, ME1A=4};
 
   /** Methods to sort the LCTs */
-  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQual(int bx, enum ME11Part = ME1B);
-  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQual(enum ME11Part = ME1B);
-  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQual(std::vector<CSCCorrelatedLCTDigi>);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(int bx, enum ME11Part = ME1B);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(enum ME11Part = ME1B);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(std::vector<CSCCorrelatedLCTDigi>);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(int bx, enum ME11Part = ME1B);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(enum ME11Part = ME1B);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi>);
@@ -221,8 +221,7 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   // debug gem matching
   bool debug_gem_matching;
-
-  bool print_available_pads;
+  bool debug_luts;
 
   //  deltas used to construct GEM coincidence pads
   int maxDeltaBXInCoPad_;
