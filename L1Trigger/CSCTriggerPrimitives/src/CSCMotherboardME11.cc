@@ -1110,13 +1110,9 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   }
   */
 
-  std::vector<CSCCorrelatedLCTDigi> lcts_1b;
-  std::vector<CSCCorrelatedLCTDigi> lcts_1a;
-  lcts_1a =  readoutLCTs1a();
-  lcts_1b =  readoutLCTs1b();
   bool first = true;
   unsigned int n1b=0, n1a=0;
-  for (auto p : lcts_1b )
+  for (auto p : readoutLCTs1b())
     {
       if (debug_gem_matching and first){
         std::cout << "========================================================================" << std::endl;
@@ -1131,7 +1127,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         std::cout << "1b LCT "<<n1b<<"  " << p <<std::endl;
     }
   
-  for (auto p : lcts_1a )
+  for (auto p : readoutLCTs1a())
     {
       if (debug_gem_matching and first){
         std::cout << "========================================================================" << std::endl;
