@@ -1,13 +1,24 @@
+// -*- C++ -*-
+//
+// Package:    METAlgorithms
+// Class:      MuonMETAlgo
+//
+/**\class MuonMETAlgo
+
+ Description: Correct MET for muons in the events.
+
+*/
+//
+// Original Authors:  Michael Schmitt, Richard Cavanaugh The University of Florida
+//          Created:  August 30, 2007
+//
+//
+
+//____________________________________________________________________________||
 #ifndef RecoMET_MuonMETAlgo_h
 #define RecoMET_MuonMETAlgo_h
 
-/** \class MuonMETAlgo
- *
- * Correct MET for muons in the events.
- *
- * \version   1st Version August 30, 2007
- ************************************************************/
-
+//____________________________________________________________________________||
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,11 +40,13 @@
 
 
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+//____________________________________________________________________________||
+
 class MuonMETAlgo 
 {
- public:
-  MuonMETAlgo();
-  virtual ~MuonMETAlgo();
+public:
+  MuonMETAlgo() { }
+  virtual ~MuonMETAlgo() { }
    
   reco::CaloMET makeMET(const reco::CaloMET& fMet, double fSumEt,
 			const std::vector<CorrMETData>& fCorrections, 
@@ -74,7 +87,6 @@ class MuonMETAlgo
     
 };
 
-#endif // Type1MET_MuonMETAlgo_h
+//____________________________________________________________________________||
+#endif // RecoMET_MuonMETAlgo_h
 
-/*  LocalWords:  MuonMETAlgo
- */
