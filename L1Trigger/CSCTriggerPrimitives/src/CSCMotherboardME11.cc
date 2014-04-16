@@ -2212,7 +2212,6 @@ CSCMotherboardME11::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX& pa
     if (debug) std::cout << "++Matches! " << std::endl;
       result.push_back(p);
       if (first) return result;
-      
     }
   }
   return result;
