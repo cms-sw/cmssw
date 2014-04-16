@@ -1,27 +1,14 @@
 // -*- C++ -*-
 //
-// Package:    MuonMET
+// Package:    METProducers
 // Class:      MuonMET
 // 
-/**\class MuonMET MuonMET.cc JetMETCorrections/MuonMET/src/MuonMET.cc
 
-Description: <one line class summary>
-
-Implementation:
-<Notes on implementation>
-*/
-//
-// Created:  Wed Aug 29 2007
-//
-//
-
-
-// system include files
+//____________________________________________________________________________||
 #include <memory>
 
 #include <string.h>
 
-// user include files
 #include "RecoMET/METProducers/interface/MuonMET.h"
 
 #include "DataFormats/Common/interface/View.h"
@@ -36,18 +23,15 @@ Implementation:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-//using namespace std;
-
+//____________________________________________________________________________||
 namespace cms 
 {
-  // PRODUCER CONSTRUCTORS ------------------------------------------
   MuonMET::MuonMET( const edm::ParameterSet& iConfig ) : alg_() 
   {
     metTypeInputTag_             = iConfig.getParameter<edm::InputTag>("metTypeInputTag");
     uncorMETInputTag_            = iConfig.getParameter<edm::InputTag>("uncorMETInputTag");
     muonsInputTag_               = iConfig.getParameter<edm::InputTag>("muonsInputTag");
     muonDepValueMap_             = iConfig.getParameter<edm::InputTag>("muonMETDepositValueMapInputTag");
-
 
     inputMuonToken_ = consumes<edm::View<reco::Muon> >(muonsInputTag_);
     inputValueMapMuonMetCorrToken_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(muonDepValueMap_);
@@ -61,15 +45,13 @@ namespace cms
     
   }
   MuonMET::MuonMET() : alg_() {}
-  // PRODUCER DESTRUCTORS -------------------------------------------
+
   MuonMET::~MuonMET() {}
 
-  // PRODUCER METHODS -----------------------------------------------
   void MuonMET::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   {
     using namespace edm;
     
-    //get the muons
     Handle<View<reco::Muon> > inputMuons;
     iEvent.getByToken(inputMuonToken_, inputMuons );
 
@@ -99,7 +81,6 @@ namespace cms
 	iEvent.put(output);                                        //Put output into Event
       }
   }
-}//end namespace cms
+}
 
-
-
+//____________________________________________________________________________||

@@ -1,22 +1,14 @@
-#ifndef RecoMET_MuonMET_h
-#define RecoMET_MuonMET_h
 // -*- C++ -*-
 //
-// Package:    MuonMET
+// Package:    METProducers
 // Class:      MuonMET
 // 
-/**\class MuonMET MuonMET.cc JetMETCorrections/MuonMET/src/MuonMET.cc
 
- Description: <one line class summary>
+//____________________________________________________________________________||
+#ifndef RecoMET_MuonMET_h
+#define RecoMET_MuonMET_h
 
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Created:  Wed Aug 29 2007
-//
-//
-
+//____________________________________________________________________________||
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,9 +24,9 @@
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
 
+//____________________________________________________________________________||
 namespace cms 
 {
-  // PRODUCER CLASS DEFINITION -------------------------------------
   class MuonMET : public edm::EDProducer 
   {
   public:
@@ -42,7 +34,6 @@ namespace cms
     explicit MuonMET();
     virtual ~MuonMET();
     virtual void produce( edm::Event&, const edm::EventSetup& );
-   
 
   private:
     MuonMETAlgo alg_;
@@ -59,4 +50,5 @@ namespace cms
   };
 }
 
-#endif
+//____________________________________________________________________________||
+#endif // RecoMET_MuonMET_h
