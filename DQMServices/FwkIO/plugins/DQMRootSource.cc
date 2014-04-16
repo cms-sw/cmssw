@@ -425,6 +425,7 @@ class DQMRootSource : public edm::InputSource
       unsigned int m_filterOnRun;
       bool m_skipBadFiles;
       std::vector<edm::LuminosityBlockRange> m_lumisToProcess;
+      std::vector<edm::RunNumber_t> m_runsToProcess;
  
       bool m_justOpenedFileSoNeedToGenerateRunTransition;
       bool m_shouldReadMEs;
@@ -485,6 +486,9 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
   m_shouldReadMEs(true)
 {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
+  for(std::vector<edm::LuminosityBlockRange>::const_iterator itr = m_lumisToProcess.begin(); itr!=m_lumisToProcess.end(); ++itr)
+    m_runsToProcess.push_back(itr->startRun());
+
   if(m_fileIndex ==m_catalog.fileNames().size()) {
     m_nextItemType=edm::InputSource::IsStop;
   } else{
@@ -623,6 +627,7 @@ DQMRootSource::readRun_(edm::RunPrincipal& rpCache)
     readElements();
   }
 
+
   edm::Service<edm::JobReport> jr;
   jr->reportInputRunNumber(rpCache.id().run());
 
@@ -669,9 +674,6 @@ DQMRootSource::readLuminosityBlock_( edm::LuminosityBlockPrincipal& lbCache)
 
 std::unique_ptr<edm::FileBlock>
 DQMRootSource::readFile_() {
-  //std::cout <<"readFile_"<<std::endl;
-
-
   auto const numFiles = m_catalog.fileNames().size();
   while(m_fileIndex < numFiles && not setupFile(m_fileIndex++)) {}
 
@@ -682,6 +684,8 @@ DQMRootSource::readFile_() {
   }
 
   readNextItemType();
+  while (m_presentIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_presentIndexItr].m_run,m_runlumiToRange[*m_presentIndexItr].m_lumi))
+    ++m_presentIndexItr;
 
   edm::Service<edm::JobReport> jr;
   m_jrToken = jr->inputFileOpened(m_catalog.fileNames()[m_fileIndex-1],
@@ -712,6 +716,9 @@ void DQMRootSource::readElements() {
   {
     shouldContinue = false;
     ++m_presentIndexItr;
+    while (m_presentIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_presentIndexItr].m_run,m_runlumiToRange[*m_presentIndexItr].m_lumi))
+      ++m_presentIndexItr;
+
     if(runLumiRange.m_type == kNoTypesStored) {continue;}
     boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
     ULong64_t index = runLumiRange.m_firstIndex;
@@ -721,16 +728,8 @@ void DQMRootSource::readElements() {
       bool isLumi = runLumiRange.m_lumi !=0;
       if (m_shouldReadMEs)
         reader->read(index,*store,isLumi);
-//       if (isLumi)
-//       {
-//         std::cout << runLumiRange.m_run << " " << runLumiRange.m_lumi << "  lumi element "<< element->getFullname()<<" "<<index<< " " << runLumiRange.m_type << std::endl;
-//         m_lumiElements.insert(element);
-//       }
-//       else
-//       {
-//         std::cout << runLumiRange.m_run << " " << runLumiRange.m_lumi << "  run element "<< element->getFullname()<<" "<<index<< " " << runLumiRange.m_type << std::endl;
-//         m_runElements.insert(element);
-//       }
+
+      //std::cout << runLumiRange.m_run << " " << runLumiRange.m_lumi <<" "<<index<< " " << runLumiRange.m_type << std::endl;
     }
     if (m_presentIndexItr != m_orderedIndices.end())
     {
@@ -774,9 +773,7 @@ void DQMRootSource::readNextItemType()
   {
     shouldContinue = false;
     while (m_nextIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_nextIndexItr].m_run,m_runlumiToRange[*m_nextIndexItr].m_lumi))
-      {	
-	++m_nextIndexItr;
-      }
+      ++m_nextIndexItr;
 
     if (m_nextIndexItr == m_orderedIndices.end())
     {
@@ -1053,6 +1050,10 @@ DQMRootSource::setupFile(unsigned int iIndex)
 
 bool
 DQMRootSource::skipIt(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi) const {
+  if(!m_runsToProcess.empty() && edm::search_all(m_runsToProcess, run) && lumi==0) {
+    return false;
+  }
+
   edm::LuminosityBlockID lumiID = edm::LuminosityBlockID(run, lumi);
   edm::LuminosityBlockRange lumiRange = edm::LuminosityBlockRange(lumiID, lumiID);
   bool(*lt)(edm::LuminosityBlockRange const&, edm::LuminosityBlockRange const&) = &edm::lessThan;
