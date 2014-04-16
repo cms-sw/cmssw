@@ -76,19 +76,6 @@ BasicTrajectoryState( const FreeTrajectoryState& fts,
   theWeight(1.)
 {}    
 
-BasicTrajectoryState::
-BasicTrajectoryState( const GlobalTrajectoryParameters& par,
-			    const SurfaceType& aSurface,
-			    const SurfaceSide side) :
-  theFreeState(par),
-  theLocalError(InvalidError()),
-  theLocalParameters(),
-  theLocalParametersValid(false),
-  theValid(true),
-  theSurfaceSide(side), 
-  theSurfaceP( &aSurface), 
-  theWeight(1.)
-{}
 
 BasicTrajectoryState::
 BasicTrajectoryState( const GlobalTrajectoryParameters& par,

@@ -105,7 +105,18 @@ public:
    */
   BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 			      const SurfaceType& aSurface,
-			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface) :
+  theFreeState(par),
+  theLocalError(InvalidError()),
+  theLocalParameters(),
+  theLocalParametersValid(false),
+  theValid(true),
+  theSurfaceSide(side),
+  theSurfaceP( &aSurface),
+  theWeight(1.)
+  {}
+
+
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely.
    */
@@ -296,7 +307,9 @@ public:
                        const LocalTrajectoryError& err,
                        const SurfaceSide side) GCC11_FINAL;
 
-
+ CurvilinearTrajectoryError & setCurvilinearError() {
+    return theFreeState.setCurvilinearError();
+ }
 
 public:
   virtual std::vector<TrajectoryStateOnSurface> components() const;

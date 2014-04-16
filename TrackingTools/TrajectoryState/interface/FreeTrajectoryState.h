@@ -133,6 +133,10 @@ public:
     createCurvilinearError(CartesianTrajectoryError(err)); 
   }
 
+  CurvilinearTrajectoryError & setCurvilinearError() {
+        return theCurvilinearError;
+  }
+
   void setCurvilinearError(const CurvilinearTrajectoryError &err) {
         theCurvilinearError = err;
   }

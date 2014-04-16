@@ -241,6 +241,10 @@ public:
                const SurfaceSide side) {unsharedData().update(p, err, side);}
 
 
+  CurvilinearTrajectoryError & setCurvilinearError() {
+        return sharedData().setCurvilinearError();
+  }
+
 
 
 };
