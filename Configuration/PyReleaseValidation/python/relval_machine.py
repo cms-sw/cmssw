@@ -1,6 +1,7 @@
 from  Configuration.PyReleaseValidation.relval_steps import Matrix, InputInfo, Steps
 import os
 import json
+import collections
 
 
 workflows = Matrix()
@@ -30,12 +31,26 @@ def fix_run(run):
             print "WARNING: run is in bad format: {0}".format(run)
     return int_runs
 
+def convert_keys_to_string(dictionary):
+    """ Recursively converts dictionary keys to strings.
+        Utility to help deal with unicode keys in dictionaries created from json requests.
+        In order to pass dict to function as **kwarg we should transform key/value to str.
+    """
+    if isinstance(dictionary, basestring):
+        return str(dictionary)
+    elif isinstance(dictionary, collections.Mapping):
+        return dict(map(convert_keys_to_string, dictionary.iteritems()))
+    elif isinstance(dictionary, collections.Iterable):
+        return type(dictionary)(map(convert_keys_to_string, dictionary))
+    else:
+        return dictionary
 
 def load_steps_and_workflows():
     data_files = get_json_files()
     for index, data_file in enumerate(data_files):
         with open(data_file, "r") as f:
             data = json.load(f)
+            data = convert_keys_to_string(data)
             label = data["label"]
             steps_names = []
             for step_name, step in data["steps"].items():
