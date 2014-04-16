@@ -1,5 +1,5 @@
-#ifndef MuonCSCDigis_CSCPSimHitMap_h
-#define MuonCSCDigis_CSCPSimHitMap_h
+#ifndef MCTruth_PSimHitMap_h
+#define MCTruth_PSimHitMap_h
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
