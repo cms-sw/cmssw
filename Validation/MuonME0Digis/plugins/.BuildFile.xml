@@ -13,9 +13,11 @@
     <use name="SimDataFormats/TrackingAnalysis"/>
     <use name="DataFormats/GEMDigi/"/>
     <use name="DataFormats/MuonDetId/"/>
-    <use name="DataFormats/GeometrySurface/"/> 
-    <use name="DataFormats/Math/"/> 
+    <use name="DataFormats/GeometrySurface/"/>
+    <use name="DataFormats/GeometryVector/"/>
+    <use name="DataFormats/Common/"/>
+    <use name="DataFormats/Math/"/>
     <use name="CommonTools/UtilAlgos"/>
     <use name="Utilities/General"/>
-<flags EDM_PLUGIN="1" />
+    <flags EDM_PLUGIN="1" />
 </library>

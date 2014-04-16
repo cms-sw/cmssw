@@ -481,6 +481,11 @@ MuonME0RecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         me0_seg.numberRH = me0rhs.size();
         me0_seg.chi2 = me0s->chi2();
         me0_seg.ndof = me0s->degreesOfFreedom();
+        
+        Double_t reducedChi2 = me0_seg.chi2/(Float_t)me0_seg.ndof;
+        
+        meCollection["segReducedChi2"]->Fill(reducedChi2);
+        meCollection["segNumberRH"]->Fill(me0_seg.numberRH);
 
         for (auto rh = me0rhs.begin(); rh!= me0rhs.end(); rh++){
             
@@ -520,6 +525,14 @@ MuonME0RecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             me0_rhFromSeg.xExt = extSegm.x();
             me0_rhFromSeg.yExt = extSegm.y();
             
+            Double_t pull_x = (me0_rhFromSeg.x - me0_rhFromSeg.xExt) / me0_rhFromSeg.xErr;
+            Double_t pull_y = (me0_rhFromSeg.y - me0_rhFromSeg.yExt) / me0_rhFromSeg.yErr;
+            
+            
+            // abbreviations
+            int reS(me0_rhFromSeg.region);
+            int laS(me0_rhFromSeg.layer);
+            
             bool verbose(false);
             if (verbose)
                 std::cout <<" ME0 Layer Id "<<rh->me0Id()<<" error on the local point "<< erhLEP
@@ -527,10 +540,91 @@ MuonME0RecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 <<"\n-> Layer Rest Frame RH local position "<<rhLP<<" Segment extrapolation "<<extSegm<<std::endl;
             
            // me0_rhSeg_tree_->Fill();
+            
+            meCollection["globalEtaSpecRH"]->Fill(me0_rhFromSeg.globalEta);
+            meCollection["globalPhiSpecRH"]->Fill(me0_rhFromSeg.globalPhi);
+            
+            
+            //Occupancy
+            if(reS==-1 && laS==1) meCollection["localrh_xy_specRH_rm1_l1"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==-1 && laS==2) meCollection["localrh_xy_specRH_rm1_l2"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==-1 && laS==3) meCollection["localrh_xy_specRH_rm1_l3"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==-1 && laS==4) meCollection["localrh_xy_specRH_rm1_l4"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==-1 && laS==5) meCollection["localrh_xy_specRH_rm1_l5"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==-1 && laS==6) meCollection["localrh_xy_specRH_rm1_l6"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            
+            if(reS==1 && laS==1) meCollection["localrh_xy_specRH_rp1_l1"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==1 && laS==2) meCollection["localrh_xy_specRH_rp1_l2"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==1 && laS==3) meCollection["localrh_xy_specRH_rp1_l3"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==1 && laS==4) meCollection["localrh_xy_specRH_rp1_l4"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==1 && laS==5) meCollection["localrh_xy_specRH_rp1_l5"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            if(reS==1 && laS==6) meCollection["localrh_xy_specRH_rp1_l6"]->Fill(me0_rhFromSeg.globalX,me0_rhFromSeg.globalY);
+            
+            //-----zR Occupancy-----
+            const double glb_R_specRH(sqrt(me0_rh.globalX*me0_rh.globalX+me0_rh.globalY*me0_rh.globalY));
+            if(reS==-1) meCollection["localrh_zr_specRH_rm1"]->Fill(me0_rhFromSeg.globalZ,glb_R_specRH);
+            if(reS==1)  meCollection["localrh_zr_specRH_rp1"]->Fill(me0_rhFromSeg.globalZ,glb_R_specRH);
+            
+            //Delta X
+            if(reS==-1 && laS==1) meCollection["specRecHitDX_rm1_l1"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==-1 && laS==2) meCollection["specRecHitDX_rm1_l2"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==-1 && laS==3) meCollection["specRecHitDX_rm1_l3"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==-1 && laS==4) meCollection["specRecHitDX_rm1_l4"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==-1 && laS==5) meCollection["specRecHitDX_rm1_l5"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==-1 && laS==6) meCollection["specRecHitDX_rm1_l6"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            
+            if(reS==1 && laS==1) meCollection["specRecHitDX_rp1_l1"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==1 && laS==2) meCollection["specRecHitDX_rp1_l2"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==1 && laS==3) meCollection["specRecHitDX_rp1_l3"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==1 && laS==4) meCollection["specRecHitDX_rp1_l4"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==1 && laS==5) meCollection["specRecHitDX_rp1_l5"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            if(reS==1 && laS==6) meCollection["specRecHitDX_rp1_l6"]->Fill(me0_rhFromSeg.x-me0_rhFromSeg.xExt);
+            //Delta Y
+            if(reS==-1 && laS==1) meCollection["specRecHitDY_rm1_l1"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==-1 && laS==2) meCollection["specRecHitDY_rm1_l2"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==-1 && laS==3) meCollection["specRecHitDY_rm1_l3"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==-1 && laS==4) meCollection["specRecHitDY_rm1_l4"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==-1 && laS==5) meCollection["specRecHitDY_rm1_l5"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==-1 && laS==6) meCollection["specRecHitDY_rm1_l6"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            
+            if(reS==1 && laS==1) meCollection["specRecHitDY_rp1_l1"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==1 && laS==2) meCollection["specRecHitDY_rp1_l2"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==1 && laS==3) meCollection["specRecHitDY_rp1_l3"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==1 && laS==4) meCollection["specRecHitDY_rp1_l4"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==1 && laS==5) meCollection["specRecHitDY_rp1_l5"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            if(reS==1 && laS==6) meCollection["specRecHitDY_rp1_l6"]->Fill(me0_rhFromSeg.y-me0_rhFromSeg.yExt);
+            
+            //Pull X
+            if(reS==-1 && laS==1) meCollection["specRecHitPullLocalX_rm1_l1"]->Fill(pull_x);
+            if(reS==-1 && laS==2) meCollection["specRecHitPullLocalX_rm1_l2"]->Fill(pull_x);
+            if(reS==-1 && laS==3) meCollection["specRecHitPullLocalX_rm1_l3"]->Fill(pull_x);
+            if(reS==-1 && laS==4) meCollection["specRecHitPullLocalX_rm1_l4"]->Fill(pull_x);
+            if(reS==-1 && laS==5) meCollection["specRecHitPullLocalX_rm1_l5"]->Fill(pull_x);
+            if(reS==-1 && laS==6) meCollection["specRecHitPullLocalX_rm1_l6"]->Fill(pull_x);
+            
+            if(reS==1 && laS==1) meCollection["specRecHitPullLocalX_rp1_l1"]->Fill(pull_x);
+            if(reS==1 && laS==2) meCollection["specRecHitPullLocalX_rp1_l2"]->Fill(pull_x);
+            if(reS==1 && laS==3) meCollection["specRecHitPullLocalX_rp1_l3"]->Fill(pull_x);
+            if(reS==1 && laS==4) meCollection["specRecHitPullLocalX_rp1_l4"]->Fill(pull_x);
+            if(reS==1 && laS==5) meCollection["specRecHitPullLocalX_rp1_l5"]->Fill(pull_x);
+            if(reS==1 && laS==6) meCollection["specRecHitPullLocalX_rp1_l6"]->Fill(pull_x);
+            
+            //Pull Y
+            if(reS==-1 && laS==1) meCollection["specRecHitPullLocalY_rm1_l1"]->Fill(pull_y);
+            if(reS==-1 && laS==2) meCollection["specRecHitPullLocalY_rm1_l2"]->Fill(pull_y);
+            if(reS==-1 && laS==3) meCollection["specRecHitPullLocalY_rm1_l3"]->Fill(pull_y);
+            if(reS==-1 && laS==4) meCollection["specRecHitPullLocalY_rm1_l4"]->Fill(pull_y);
+            if(reS==-1 && laS==5) meCollection["specRecHitPullLocalY_rm1_l5"]->Fill(pull_y);
+            if(reS==-1 && laS==6) meCollection["specRecHitPullLocalY_rm1_l6"]->Fill(pull_y);
+            
+            if(reS==1 && laS==1) meCollection["specRecHitPullLocalY_rp1_l1"]->Fill(pull_y);
+            if(reS==1 && laS==2) meCollection["specRecHitPullLocalY_rp1_l2"]->Fill(pull_y);
+            if(reS==1 && laS==3) meCollection["specRecHitPullLocalY_rp1_l3"]->Fill(pull_y);
+            if(reS==1 && laS==4) meCollection["specRecHitPullLocalY_rp1_l4"]->Fill(pull_y);
+            if(reS==1 && laS==5) meCollection["specRecHitPullLocalY_rp1_l5"]->Fill(pull_y);
+            if(reS==1 && laS==6) meCollection["specRecHitPullLocalY_rp1_l6"]->Fill(pull_y);
         
-      }
-        
-        //me0_seg_tree_->Fill();
+        }
     }
 
 }
@@ -578,6 +672,17 @@ MuonME0RecHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
         meCollection["localrh_zr_rm1"]=dbe->book2D("localrh_zr_rm1","ME0 RecHit occupancy: region m1;globalZ [cm];globalR [cm]",80,-555,-515,120,20,160);
         meCollection["localrh_zr_rp1"]=dbe->book2D("localrh_zr_rp1","ME0 RecHit occupancy: region p1;globalZ [cm];globalR [cm]",80,515,555,120,20,160);
         
+        //-------ME0 Segments
+        meCollection["segReducedChi2"]=dbe->book1D("segReducedChi2","#chi^{2}/ndof; #chi^{2}/ndof; # Segments",100,0,5);
+        meCollection["segNumberRH"]=dbe->book1D("segNumberRH","Number of fitted RecHits; # RecHits; entries",11,-0.5,10.5);
+        //---
+        meCollection["globalEtaSpecRH"]=dbe->book1D("globalEtaSpecRH","Fitted RecHits Eta Distribution; #eta; entries",200,-4.0,4.0);
+        meCollection["globalPhiSpecRH"]=dbe->book1D("globalPhiSpecRH","Fitted RecHits Phi Distribution; #phi; entries",18,-3.14,3.14);
+        //---
+        meCollection["localrh_zr_specRH_rm1"]=dbe->book2D("localrh_zr_specRH_rm1","ME0 Specific RecHit occupancy: region m1;globalZ [cm];globalR [cm]",80,-555,-515,120,20,160);
+        meCollection["localrh_zr_specRH_rp1"]=dbe->book2D("localrh_zr_specRH_rp1","ME0 Specific RecHit occupancy: region p1;globalZ [cm];globalR [cm]",80,515,555,120,20,160);
+        
+        
         for(int k=0;k<num_region;k++){
             for (int j=0;j<num_layer;j++){
                 
@@ -588,6 +693,14 @@ MuonME0RecHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
                 meCollection["recHitDPhi_r"+region[k]+"_"+layer[j]]=dbe->book1D("recHitDPhi_r"+region[k]+"_"+layer[j],"#phi_{rec} - #phi_{sim} region "+region[k]+", layer "+std::to_string(j+1)+"; #phi_{rec} - #phi_{sim} [rad]; entries",100,-0.001,+0.001);
                 
                 meCollection["localrh_xy_r"+region[k]+"_"+layer[j]]=dbe->book2D("localrh_xy_r"+region[k]+"_"+layer[j],"ME0 RecHit occupancy: region "+region[k]+", layer "+std::to_string(j+1)+";globalX [cm];globalY [cm]",120,-280,280,120,-280,280);
+                
+                //ME0 segmentes RecHits
+                meCollection["localrh_xy_specRH_r"+region[k]+"_"+layer[j]]=dbe->book2D("localrh_xy_specRH_r"+region[k]+"_"+layer[j],"ME0 Specific RecHit occupancy: region "+region[k]+", layer "+std::to_string(j+1)+";globalX [cm];globalY [cm]",120,-280,280,120,-280,280);
+                
+                meCollection["specRecHitDX_r"+region[k]+"_"+layer[j]]=dbe->book1D("specRecHitDX_r"+region[k]+"_"+layer[j],"x^{local}_{rec} - x^{local}_{ext} region "+region[k]+", layer "+std::to_string(j+1)+"; x^{local}_{rec} - x^{local}_{ext} [cm]; entries",100,-1,+1);
+                meCollection["specRecHitDY_r"+region[k]+"_"+layer[j]]=dbe->book1D("specRecHitDY_r"+region[k]+"_"+layer[j],"y^{local}_{rec} - y^{local}_{ext} region "+region[k]+", layer "+std::to_string(j+1)+"; y^{local}_{rec} - y^{local}_{ext} [cm]; entries",100,-5,+5);
+                meCollection["specRecHitPullLocalX_r"+region[k]+"_"+layer[j]]=dbe->book1D("specRecHitPullLocalX_r"+region[k]+"_"+layer[j],"(x^{local}_{rec} - x^{local}_{ext})/#sigma_{x} region "+region[k]+", layer "+std::to_string(j+1)+"; (x^{local}_{rec} - x^{local}_{ext})/#sigma_{x} [cm]; entries",100,-5,+5);
+                meCollection["specRecHitPullLocalY_r"+region[k]+"_"+layer[j]]=dbe->book1D("specRecHitPullLocalY_r"+region[k]+"_"+layer[j],"(y^{local}_{rec} - y^{local}_{ext})/#sigma_{y} region "+region[k]+", layer "+std::to_string(j+1)+"; (y^{local}_{rec} - y^{local}_{ext})/#sigma_{y} [cm]; entries",100,-5,+5);
                 
             }//Layers loop
         

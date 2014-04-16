@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  
+// Original Author: Claudio Caputo, INFN Bari  
 //         Created:  Fri, 14 Mar 2014 09:44:58 GMT
 // $Id$
 //
