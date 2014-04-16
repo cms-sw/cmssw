@@ -39,10 +39,10 @@ namespace cms
     if( metTypeInputTag_.label() == "CaloMET" ) {
       inputCaloMETToken_ = consumes<edm::View<reco::CaloMET> >(uncorMETInputTag_);
       produces<reco::CaloMETCollection>();
-    } else 
+    } else {
       inputMETToken_ = consumes<edm::View<reco::MET> >(uncorMETInputTag_);
       produces<reco::METCollection>();
-    
+    }
   }
   MuonMET::MuonMET() : alg_() {}
 
