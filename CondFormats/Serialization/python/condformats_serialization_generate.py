@@ -460,9 +460,8 @@ class SerializationCodeGenerator(object):
 
     def generate(self, outFileName):
 
-    	if outFileName:
-	   fileName = outFileName
-	else:
+    	filename = outFileName
+	if not filename:  # in case we're not using scram, this may not be set, use the default then, assuming we're in the package dir ...
 	   filename = self._join_package_path('src', 'Serialization.cc')
 
         n_serializable_classes = 0
