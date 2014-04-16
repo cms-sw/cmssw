@@ -60,7 +60,7 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0),
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid",770); // default: 770
   maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid",779); // default 779
   dqmOnly = ps.getParameter<bool>("dqmOnly"); // default: false
-  performDataIntegrityMonitor = unpackerParameters.getUntrackedParameter<bool>("performDataIntegrityMonitor",false); // default: true
+  performDataIntegrityMonitor = unpackerParameters.getUntrackedParameter<bool>("performDataIntegrityMonitor",false); // default: false
   
   if(!dqmOnly) {
     produces<DTDigiCollection>();
