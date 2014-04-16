@@ -33,14 +33,6 @@ const unsigned long long max_bx = 59793997824ULL;
 
 DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(0) , dbe(0) {
 
-  // Register the methods that we want to schedule
-  //   reg.watchPostEndJob(this,&DTDataIntegrityTask::postEndJob);
-//   reg.watchPreBeginLumi(this,&DTDataIntegrityTask::preBeginLumi);
-//   reg.watchPreEndLumi(this,&DTDataIntegrityTask::preEndLumi);
-// 
-//   reg.watchPostBeginJob(this,&DTDataIntegrityTask::postBeginJob);
-//   reg.watchPreProcessEvent(this,&DTDataIntegrityTask::preProcessEvent);
-
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
   << "[DTDataIntegrityTask]: Constructor" <<endl;
   
@@ -1202,32 +1194,6 @@ void DTDataIntegrityTask::channelsInROS(int cerosMask, vector<int>& channels){
   }
   return;
 }
-
-// void DTDataIntegrityTask::preProcessEvent(const edm::EventID& iEvtid, const edm::Timestamp& iTime) {
-// 
-//   nevents++;
-//   nEventMonitor->Fill(nevents);
-// 
-//   nEventsLS++;
-// 
-//   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: preProcessEvent" <<endl;
-//   // clear the set of BXids from the ROSs
-//   for(map<int, set<int> >::iterator rosBxIds = rosBxIdsPerFED.begin();
-//       rosBxIds != rosBxIdsPerFED.end(); ++rosBxIds) {
-//     (*rosBxIds).second.clear();
-//   }
-// 
-//   fedBXIds.clear();
-// 
-//   for(map<int, set<int> >::iterator rosL1AIds = rosL1AIdsPerFED.begin();
-//       rosL1AIds != rosL1AIdsPerFED.end(); ++rosL1AIds) {
-//     (*rosL1AIds).second.clear();
-//   }
-// 
-//   // reset the error flag
-//   eventErrorFlag = false;
-// 
-// }
 
 void DTDataIntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
 

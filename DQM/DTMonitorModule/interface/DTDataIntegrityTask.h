@@ -57,14 +57,13 @@ public:
   void fedNonFatal(int dduID);
 
   bool eventHasErrors() const;
-  void beginJob();
-  void endJob();
-//   void preProcessEvent(const edm::EventID& iEvtid, const edm::Timestamp& iTime);
+  void beginJob() override;
+  void endJob() override;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es);
-  void endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es);
+  void beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
  
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
 private:
 

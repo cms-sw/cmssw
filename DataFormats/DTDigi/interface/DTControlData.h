@@ -8,10 +8,10 @@
  *  \revision I. Josa - Ciemat Madrid
  */
 
-#include <DataFormats/DTDigi/interface/DTDDUWords.h>
-#include <DataFormats/FEDRawData/interface/FEDHeader.h>
-#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
-#include <DataFormats/FEDRawData/src/fed_trailer.h>
+#include "DataFormats/DTDigi/interface/DTDDUWords.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/FEDRawData/src/fed_trailer.h"
 
 #include <vector>
 
