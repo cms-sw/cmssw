@@ -194,7 +194,7 @@ public:
   const CurvilinearTrajectoryError& curvilinearError() const {
     if unlikely(!hasError()) {
 	missingError(" accesing curvilinearerror.");
-	static CurvilinearTrajectoryError crap;
+	static const CurvilinearTrajectoryError crap;
 	return crap;
       }
     return freeTrajectoryState(true)->curvilinearError();
