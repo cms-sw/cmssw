@@ -7,7 +7,7 @@
 <use name="GeneratorInterface/Pythia6Interface"/>
 <use name="boost"/>
 <use name="clhep"/>
-<use name="sherpa"/>
+<use name="sherpa2"/>
 <use name="frontier_client"/>
 <use name="FWCore/Services"/>
 <use name="zlib"/>
