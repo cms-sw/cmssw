@@ -2012,11 +2012,13 @@ CSCCorrelatedLCTDigi CSCMotherboardME11::constructLCTsGEM(const CSCALCTDigi& alc
     
     // get keyStrip from LUT
     int keyStrip = mymap[gem.pad()];
+
     // get wiregroup from ALCT
     int wg = alct.getKeyWG();
+
     if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
     { // construct correlated LCT; temporarily assign track number of 0.
-      return CSCCorrelatedLCTDigi(0, 1, quality, alct.getKeyWG(), keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
+      return CSCCorrelatedLCTDigi(0, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
     }
     else return CSCCorrelatedLCTDigi(0,0,0,0,0,0,0,0,0,0,0,0);
    } 
@@ -2033,12 +2035,14 @@ CSCCorrelatedLCTDigi CSCMotherboardME11::constructLCTsGEM(const CSCALCTDigi& alc
     
     // get keyStrip from LUT
     int keyStrip = mymap[gem.pad()];
+
     // get wiregroup from ALCT
     int wg = alct.getKeyWG();
+    
     if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
     { // construct correlated LCT; temporarily assign track number of 0.
-      return CSCCorrelatedLCTDigi(0, 1, quality, alct.getKeyWG(), keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-      }
+      return CSCCorrelatedLCTDigi(0, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
+    }
     else return CSCCorrelatedLCTDigi(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
    }
 }
