@@ -128,7 +128,7 @@ def OptionsFromItems(items):
         addEndJob = False
     if ("ENDJOB" in options.step):
         addEndJob = False
-    if ('DQMROOT' in options.datatier):
+    if ('DQMIO' in options.datatier):
         addEndJob = False
     if addEndJob:    
         options.step=options.step+',ENDJOB'
