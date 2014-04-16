@@ -28,6 +28,9 @@
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
@@ -50,7 +53,16 @@ namespace pat {
       // configurables
       edm::EDGetTokenT<edm::View<reco::Photon> > photonToken_;
       bool embedSuperCluster_;
+      bool          embedSeedCluster_;
+      bool          embedBasicClusters_;
+      bool          embedPreshowerClusters_;
+      bool          embedRecHits_;
 
+      edm::InputTag reducedBarrelRecHitCollection_;
+      edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
+      edm::InputTag reducedEndcapRecHitCollection_;
+      edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;      
+      
       bool addGenMatch_;
       bool embedGenMatch_;
       std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
@@ -91,6 +103,9 @@ namespace pat {
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Photon>      userDataHelper_;
+      
+      const CaloTopology * ecalTopology_;
+
 
   };
 
