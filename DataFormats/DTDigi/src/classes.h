@@ -22,73 +22,73 @@ namespace DataFormats_DTDigi {
   std::vector<std::vector<DTLocalTrigger> >  w1; 
   DTLocalTriggerCollection tt;
     
-  DTDDUData u;
+//  DTDDUData u;
   std::vector<DTDDUData> vu;
-  DTDDUFirstStatusWord fsw;
+//  DTDDUFirstStatusWord fsw;
   std::vector<DTDDUFirstStatusWord> vfsw;
-  DTDDUSecondStatusWord ssw;
+//  DTDDUSecondStatusWord ssw;
   std::vector<DTDDUSecondStatusWord> vssw;
   
-  DTROBHeaderWord rbhw;
+//  DTROBHeaderWord rbhw;
   std::vector<DTROBHeaderWord> vrbhw;
   std::pair<int,DTROBHeaderWord> pirbhw;
   std::vector<std::pair<int,DTROBHeaderWord> > vpirbhw;
   
-  DTROBTrailerWord rbtw;
+//  DTROBTrailerWord rbtw;
   std::vector<DTROBTrailerWord> vrbtw;
   
-  DTROS25Data r;
+//  DTROS25Data r;
   std::vector<DTROS25Data> vr;
   std::vector<std::vector<DTROS25Data> > vvr;
-  DTROSWordType rwt;
+//  DTROSWordType rwt;
   std::vector<DTROSWordType> vrwt;
-  DTROSHeaderWord rhw;
+//  DTROSHeaderWord rhw;
   std::vector<DTROSHeaderWord> vrhw;
-  DTROSTrailerWord rtw;
+//  DTROSTrailerWord rtw;
   std::vector<DTROSTrailerWord> vrtw;
-  DTROSErrorWord rew;
+//  DTROSErrorWord rew;
   std::vector<DTROSErrorWord> vrew;
-  DTROSDebugWord rdw;
+//  DTROSDebugWord rdw;
   std::vector<DTROSDebugWord> vrdw;
   
-  DTTDCHeaderWord thw;
+//  DTTDCHeaderWord thw;
   std::vector<DTTDCHeaderWord> vthw;
   std::pair<int,DTTDCHeaderWord> pithw;
   std::vector<std::pair<int,DTTDCHeaderWord> > vpithw;
   
-  DTTDCTrailerWord ttw;
+//  DTTDCTrailerWord ttw;
   std::vector<DTTDCTrailerWord> vttw;
   std::pair<int,DTTDCTrailerWord> pittw;
   std::vector<std::pair<int,DTTDCTrailerWord> > vpittw;
   
-  DTTDCMeasurementWord tmw;
+//  DTTDCMeasurementWord tmw;
   std::vector<DTTDCMeasurementWord> vtmw;
   std::pair<int,DTTDCMeasurementWord> pitmw;
   std::vector<std::pair<int,DTTDCMeasurementWord> > vpitmw;
   
-  DTTDCErrorWord tew;
+//  DTTDCErrorWord tew;
   std::vector<DTTDCErrorWord> vtew;
   std::pair<int,DTTDCErrorWord> pitew;
   std::vector<std::pair<int,DTTDCErrorWord> > vpitew;
   
-  DTLocalTriggerHeaderWord lthw;
+//  DTLocalTriggerHeaderWord lthw;
   std::vector<DTLocalTriggerHeaderWord> vlthw;
   std::pair<DTLocalTriggerHeaderWord,int> plthiw;
   std::vector<std::pair<DTLocalTriggerHeaderWord,int> > vplthiw;
   
-  DTLocalTriggerTrailerWord lttw;
+//  DTLocalTriggerTrailerWord lttw;
   std::vector<DTLocalTriggerTrailerWord> vlttw;
   std::pair<DTLocalTriggerTrailerWord,int> plttiw;
   std::vector<std::pair<DTLocalTriggerTrailerWord,int> > vplttiw;
   
-  DTLocalTriggerDataWord ltdw;
+//  DTLocalTriggerDataWord ltdw;
   std::vector<DTLocalTriggerDataWord> vltdw;
   std::pair<DTLocalTriggerDataWord,int> pltdiw;
   std::vector<std::pair<DTLocalTriggerDataWord,int> > vpltdiw;
   
-  DTLocalTriggerSectorCollectorHeaderWord ltschw;
+//  DTLocalTriggerSectorCollectorHeaderWord ltschw;
   
-  DTLocalTriggerSectorCollectorSubHeaderWord ltsctw;
+//  DTLocalTriggerSectorCollectorSubHeaderWord ltsctw;
   
   edm::Wrapper<DTDigiCollection> dw;
   edm::Wrapper<DTLocalTriggerCollection> tw;
