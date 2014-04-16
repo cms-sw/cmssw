@@ -368,7 +368,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     
     pfeg_->RunPFEG(blockref,active);
     
-    edm::LogInfo("PFEGammaProducer")
+    LOGDRESSED("PFEGammaProducer")
       << "Block with " << elements.size() 
       << " elements produced " 
       << pfeg_->getCandidates().size() 
@@ -399,7 +399,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
 	      rscinsertfrom);    
   }
   
-  edm::LogInfo("PFEGammaProducer")
+  LOGDRESSED("PFEGammaProducer")
       << "Running PFEGammaAlgo on all blocks produced = " 
       << egCandidates_->size() << " e-g candidates!"
       << std::endl;

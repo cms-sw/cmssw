@@ -47,12 +47,7 @@ process.generator = cms.EDFilter("Pythia8EGun",
     )
 )
 
-# The following three lines reduce the clutter of repeated printouts
-# of the same exception message.
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cerr']
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     generator = cms.PSet(
