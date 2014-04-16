@@ -1066,6 +1066,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     }
   }// reduction per bx
   
+  /*
   bool first = true;
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
   {
@@ -1107,9 +1108,46 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         }
       }
   }
-//   if (infoV > 1) LogTrace("CSCMotherboardME11")<<"clct_count E:"<<theEndcap<<"S:"<<theStation<<"R:"<<1<<"C:"
-// 					       <<CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector, theStation, theTrigChamber)
-// 					       <<"  a "<<n_clct_a<<"  b "<<n_clct_b<<"  ab "<<n_clct_a+n_clct_b;
+  */
+
+  std::vector<CSCCorrelatedLCTDigi> lcts_1b;
+  std::vector<CSCCorrelatedLCTDigi> lcts_1a;
+  lcts_1a =  readoutLCTs1a();
+  lcts_1b =  readoutLCTs1b();
+  bool first = true;
+  unsigned int n1b=0, n1a=0;
+  for (auto p : lcts_1b )
+    {
+      if (debug_gem_matching and first){
+        std::cout << "========================================================================" << std::endl;
+        std::cout << "Counting the final LCTs" << std::endl;
+        std::cout << "========================================================================" << std::endl;
+        first = false;
+        std::cout << "tmb_cross_bx_algo: " << tmb_cross_bx_algo << std::endl;
+        
+      }
+      n1b++;
+      if (debug_gem_matching)
+        std::cout << "1b LCT "<<n1b<<"  " << p <<std::endl;
+    }
+  
+  for (auto p : lcts_1a )
+    {
+      if (debug_gem_matching and first){
+        std::cout << "========================================================================" << std::endl;
+        std::cout << "Counting the final LCTs" << std::endl;
+        std::cout << "========================================================================" << std::endl;
+        first = false;
+        std::cout << "tmb_cross_bx_algo: " << tmb_cross_bx_algo << std::endl;
+      }
+      n1a++;
+      if (debug_gem_matching)
+        std::cout << "1a LCT "<<n1a<<"  " << p <<std::endl;
+    }
+  
+  //   if (infoV > 1) LogTrace("CSCMotherboardME11")<<"clct_count E:"<<theEndcap<<"S:"<<theStation<<"R:"<<1<<"C:"
+  // 					       <<CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector, theStation, theTrigChamber)
+  // 					       <<"  a "<<n_clct_a<<"  b "<<n_clct_b<<"  ab "<<n_clct_a+n_clct_b;
 }
 
 void CSCMotherboardME11::runNewAlgorithm(const CSCWireDigiCollection* wiredc,
