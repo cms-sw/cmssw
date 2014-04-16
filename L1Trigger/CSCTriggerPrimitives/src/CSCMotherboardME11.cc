@@ -500,7 +500,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         std::cout << "CSC HS "<< p.first << " GEM Pad low " << (p.second).first << " GEM Pad high " << (p.second).second << std::endl;
       }
       std::cout << "detId " << me1aId << std::endl;
-      std::cout << "CSCHSToGEMPad LUT in ME1a" << std::endl;
+      std::cout << "CSCHSToGEMPad LUT in ME1b" << std::endl;
       for(auto p : cscHsToGemPadME1b_) {
         std::cout << "CSC HS "<< p.first << " GEM Pad low " << (p.second).first << " GEM Pad high " << (p.second).second << std::endl;
       }
