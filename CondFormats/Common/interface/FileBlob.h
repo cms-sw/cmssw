@@ -32,7 +32,9 @@ class FileBlob{
 
   int size() const {return isize;};
   /// i didn't want to do two copies ... hope this works.
-  std::vector<unsigned char>* getUncompressedBlob() const;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  std::unique_ptr<std::vector<unsigned char> > getUncompressedBlob() const;
+#endif
   void getUncompressedBlob( std::vector<unsigned char>& myblobcopy ) const;
                                  
  private:
