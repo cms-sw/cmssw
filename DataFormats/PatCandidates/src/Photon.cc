@@ -69,25 +69,32 @@ reco::operator<<(std::ostream& out, const pat::Photon& obj)
 /// this returns a transient Ref which *should never be persisted*!
 reco::SuperClusterRef Photon::superCluster() const {
   if (embeddedSuperCluster_) {
-    //relink caloclusters if needed
-    if (embeddedSeedCluster_ && !superCluster_[0].seed().isAvailable()) {
-      superCluster_[0].setSeed(seed());
+    if (embeddedSeedCluster_ || !basicClusters_.empty() || !preshowerClusters_.empty()) {
+        if (!superClusterRelinked_.isSet()) {
+            std::unique_ptr<std::vector<reco::SuperCluster> > sc(new std::vector<reco::SuperCluster>(superCluster_));
+            if (embeddedSeedCluster_ && !(*sc)[0].seed().isAvailable()) {
+                (*sc)[0].setSeed(seed());
+            }
+            if (basicClusters_.size() && !(*sc)[0].clusters().isAvailable()) {
+                reco::CaloClusterPtrVector clusters;
+                for (unsigned int iclus=0; iclus<basicClusters_.size(); ++iclus) {
+                    clusters.push_back(reco::CaloClusterPtr(&basicClusters_,iclus));
+                }
+                (*sc)[0].setClusters(clusters);
+            }
+            if (preshowerClusters_.size() && !(*sc)[0].preshowerClusters().isAvailable()) {
+                reco::CaloClusterPtrVector clusters;
+                for (unsigned int iclus=0; iclus<preshowerClusters_.size(); ++iclus) {
+                    clusters.push_back(reco::CaloClusterPtr(&preshowerClusters_,iclus));
+                }
+                (*sc)[0].setPreshowerClusters(clusters);
+            }
+            superClusterRelinked_.set(std::move(sc));
+        }
+        return reco::SuperClusterRef(&*superClusterRelinked_, 0);
+    } else {
+        return reco::SuperClusterRef(&superCluster_, 0);
     }
-    if (basicClusters_.size() && !superCluster_[0].clusters().isAvailable()) {
-      reco::CaloClusterPtrVector clusters;
-      for (unsigned int iclus=0; iclus<basicClusters_.size(); ++iclus) {
-        clusters.push_back(reco::CaloClusterPtr(&basicClusters_,iclus));
-      }
-      superCluster_[0].setClusters(clusters);
-    }
-    if (preshowerClusters_.size() && !superCluster_[0].preshowerClusters().isAvailable()) {
-      reco::CaloClusterPtrVector clusters;
-      for (unsigned int iclus=0; iclus<preshowerClusters_.size(); ++iclus) {
-        clusters.push_back(reco::CaloClusterPtr(&preshowerClusters_,iclus));
-      }
-      superCluster_[0].setPreshowerClusters(clusters);
-    }
-    return reco::SuperClusterRef(&superCluster_, 0);
   } else {
     return reco::Photon::superCluster();
   }
