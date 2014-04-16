@@ -2071,11 +2071,11 @@ trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
   pxf_moduleMask = cms.uint32( 63 )
 )
 
-DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
-  processingMode = cms.untracked.string( "HLT" ),
-  fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
-  getSCInfo = cms.untracked.bool( True )
-)
+#DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
+#  processingMode = cms.untracked.string( "HLT" ),
+#  fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
+#  getSCInfo = cms.untracked.bool( True )
+#)
 
 hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     toGet = cms.VPSet( 

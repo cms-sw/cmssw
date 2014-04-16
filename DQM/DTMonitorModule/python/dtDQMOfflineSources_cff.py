@@ -37,7 +37,7 @@ dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
 )
 
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
-DTDataIntegrityTask.processingMode = "Offline"
+#DTDataIntegrityTask.processingMode = "Offline"
 
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
