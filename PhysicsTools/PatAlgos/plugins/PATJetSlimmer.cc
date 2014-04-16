@@ -32,7 +32,8 @@ namespace pat {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
-      edm::InputTag src_;
+      edm::EDGetTokenT<edm::View<pat::Jet> > src_;
+      edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>  > map_;
       
       /// clear mJetArea, mPassNumber, mPileupEnergy
       bool clearJetVars_;
@@ -50,7 +51,8 @@ namespace pat {
 } // namespace
 
 pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
+    src_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("src"))),
+    map_(consumes<edm::Association<pat::PackedCandidateCollection>  >(iConfig.getParameter<edm::InputTag>("map"))),
     clearJetVars_(iConfig.getParameter<bool>("clearJetVars")),
     clearDaughters_(iConfig.getParameter<bool>("clearDaughters")),
     clearTrackRefs_(iConfig.getParameter<bool>("clearTrackRefs")),
@@ -66,9 +68,9 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     using namespace std;
 
     Handle<View<pat::Jet> >      src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
     Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc;
-    iEvent.getByLabel("packedPFCandidates",pf2pc);
+    iEvent.getByToken(map_,pf2pc);
 	
     auto_ptr<vector<pat::Jet> >  out(new vector<pat::Jet>());
     out->reserve(src->size());
