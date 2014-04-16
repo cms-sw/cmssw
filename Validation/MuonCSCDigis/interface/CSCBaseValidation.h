@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "Validation/MuonCSCDigis/interface/CSCPSimHitMap.h"
+#include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 
@@ -20,7 +20,7 @@ public:
   virtual ~CSCBaseValidation() {}
 
   void setGeometry(const CSCGeometry * geom) {theCSCGeometry = geom;}
-  void setSimHitMap(const  CSCPSimHitMap * simHitMap) {theSimHitMap = simHitMap;}
+  void setSimHitMap(const  PSimHitMap * simHitMap) {theSimHitMap = simHitMap;}
 
   virtual void analyze(const edm::Event&e, const edm::EventSetup& eventSetup) = 0;
 
@@ -29,7 +29,7 @@ protected:
 
   DQMStore* dbe_;
   edm::InputTag theInputTag;
-  const CSCPSimHitMap * theSimHitMap;
+  const PSimHitMap * theSimHitMap;
   const CSCGeometry * theCSCGeometry;
 };
 
