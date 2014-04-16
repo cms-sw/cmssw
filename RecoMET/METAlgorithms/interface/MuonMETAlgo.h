@@ -19,11 +19,6 @@
 #define RecoMET_MuonMETAlgo_h
 
 //____________________________________________________________________________||
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "DataFormats/Common/interface/View.h"

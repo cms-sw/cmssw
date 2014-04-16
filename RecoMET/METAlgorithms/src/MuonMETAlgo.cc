@@ -13,15 +13,9 @@
 #include "RecoMET/METAlgorithms/interface/MuonMETAlgo.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/SpecificCaloMETData.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "TMath.h"
 
 
