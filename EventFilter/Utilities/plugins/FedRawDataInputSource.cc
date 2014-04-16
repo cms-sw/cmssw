@@ -629,7 +629,6 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
     std::ostringstream fileNameWithPID;
     fileNameWithPID << jsonSourcePath.stem().string() << "_pid"
                     << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
-    const boost::filesystem::path filePathWithPID(fileNameWithPID.str());
     jsonDestPath /= fileNameWithPID.str();
 
     edm::LogInfo("FedRawDataInputSource") << " JSON rename " << jsonSourcePath << " to "
@@ -972,7 +971,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     auto end = std::chrono::high_resolution_clock::now();
     auto diff = end-start;
     std::chrono::milliseconds msec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-    std::cout << " finished reading block of " << (bufferLeft >> 20) << " MB" << " in " << msec.count() << " ms ("<< (bufferLeft >> 20)/double(msec.count())<<" GB/s)" << std::endl;
+    edm::LogInfo("FedRawDataInputSource") << " finished reading block of " << (bufferLeft >> 20) << " MB" << " in " << msec.count() << " ms ("<< (bufferLeft >> 20)/double(msec.count())<<" GB/s)";
     close(fileDescriptor);
 
     chunk->readComplete_=true;//this is atomic to secure the sequential buffer fill before becoming available for processing)

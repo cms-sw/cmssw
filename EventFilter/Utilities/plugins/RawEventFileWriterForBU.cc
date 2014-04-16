@@ -175,7 +175,7 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   }
   closefd();
   outfd_ = open(fileName_.c_str(), O_WRONLY | O_CREAT,  S_IRWXU | S_IRWXG | S_IRWXO);
-  std::cout << " opened " << fileName_ << std::endl;
+   edm::LogInfo("RawEventFileWriterForBU") << " opened " << fileName_;
   if(outfd_ < 0) { //attention here... it may happen that outfd_ is *not* set (e.g. missing initialize call...)
     throw cms::Exception("RawEventFileWriterForBU","initialize")
       << "Error opening FED Raw Data event output file: " << name

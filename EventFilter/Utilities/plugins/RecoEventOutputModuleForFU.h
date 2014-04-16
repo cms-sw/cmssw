@@ -16,7 +16,6 @@
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 
-//TODO:switch to MessageLogger
 
 namespace evf {
   template<typename Consumer>
@@ -52,7 +51,6 @@ namespace evf {
       edm::LogInfo("RecoEventOutputModuleForFU") << "Writing .dat files to "
 						 << datapath_;
       // create open dir if not already there
-      //TODO: is open directory necessary ??
       boost::filesystem::path openPath = runDirectory;
       openPath /= "open";
       // do these dirs need to be created?
@@ -60,8 +58,7 @@ namespace evf {
       if (boost::filesystem::is_directory(openPath))
 	foundOpenDir = true;
       if (!foundOpenDir) {
-	std::cout << "<open> FU dir not found. Creating..."
-		  << std::endl;
+	edm::LogInfo("RecoEventOutputModuleForFU") << "<open> FU dir not found. Creating...";
 	boost::filesystem::create_directories(openPath);
       }
     }
@@ -98,7 +95,6 @@ namespace evf {
     inputFiles_()
   {
     initializeStreams();
-    
     fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
     
     processed_.setName("Processed");
@@ -122,7 +118,7 @@ namespace evf {
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
     struct stat   fstat;
     if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
-      std::cout << " writing output definition file " << outJsonDefName << std::endl;
+      edm::LogInfo("RecoEventOutputModuleForFU") << " writing output definition file " << outJsonDefName;
       std::string content;
       JSONSerializer::serialize(&outJsonDef_,content);
       FileIO::writeStringToFile(outJsonDefName, content);
@@ -147,30 +143,27 @@ namespace evf {
   void
   RecoEventOutputModuleForFU<Consumer>::start() const
   {
-    std::cout << "RecoEventOutputModuleForFU: start() method " << std::endl;
-    
     const std::string initFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(stream_label_);
-    
-    std::cout << "RecoEventOutputModuleForFU, initializing streams. init stream: " 
-	      << initFileName << std::endl;
-
+    edm::LogInfo("RecoEventOutputModuleForFU") << "RecoEventOutputModuleForFU start() method, initializing streams. init stream: " 
+	                                       << initFileName;
     c_->setInitMessageFile(initFileName);
     c_->start();
   }
   
   template<typename Consumer>
   void
-  RecoEventOutputModuleForFU<Consumer>::stop() const {
+  RecoEventOutputModuleForFU<Consumer>::stop() const
+  {
     c_->stop();
   }
 
   template<typename Consumer>
   void
-  RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) const {
+  RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) const
+  {
     c_->doOutputHeader(init_message);
   }
    
-//______________________________________________________________________________
   template<typename Consumer>
   void
   RecoEventOutputModuleForFU<Consumer>::doOutputEvent(EventMsgBuilder const& msg) const {
@@ -187,23 +180,19 @@ namespace evf {
     descriptions.add("streamerOutput", desc);
   }
 
-//   template<typename Consumer>
-//   void RecoEventOutputModuleForFU<Consumer>::beginRun(edm::RunPrincipal const &run){
-
-
-//   }
-
   template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*){
-    std::cout << "RecoEventOutputModuleForFU : begin lumi " << std::endl;
-	openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
-	c_->setOutputFile(openDatFilePath_.string());
-	filelist_ = openDatFilePath_.filename().string();
+  void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
+  {
+    //edm::LogInfo("RecoEventOutputModuleForFU") << "begin lumi";
+    openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
+    c_->setOutputFile(openDatFilePath_.string());
+    filelist_ = openDatFilePath_.filename().string();
   }
 
   template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*){
-    std::cout << "RecoEventOutputModuleForFU : end lumi " << std::endl;
+  void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
+  {
+    //edm::LogInfo("RecoEventOutputModuleForFU") << "end lumi";
     c_->closeOutputFile();
     processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
     if(processed_.value()!=0){
