@@ -113,6 +113,9 @@ class CSCMotherboardME21 : public CSCMotherboard
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
 
+  /** "preferential" index array in matching window for cross-BX sorting */
+  int pref[MAX_LCT_BINS];
+
   bool match_earliest_clct_me21_only;
 
   // central LCT bx number
@@ -122,6 +125,8 @@ class CSCMotherboardME21 : public CSCMotherboard
       in ALCT-to-CLCT algorithm */
   bool drop_used_clcts;
   
+  unsigned int tmb_cross_bx_algo;
+
   // masterswitch
   bool runME21ILT_;
 

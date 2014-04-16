@@ -65,6 +65,15 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
 
   match_earliest_clct_me21_only = tmbParams.getUntrackedParameter<bool>("matchEarliestClctME21Only",true);
 
+  tmb_cross_bx_algo = me21tmbParams.getUntrackedParameter<unsigned int>("tmbCrossBxAlgorithm");
+
+  pref[0] = match_trig_window_size/2;
+  for (unsigned int m=2; m<match_trig_window_size; m+=2)
+  {
+    pref[m-1] = pref[0] - m/2;
+    pref[m]   = pref[0] + m/2;
+  }
+  
   //----------------------------------------------------------------------------------------//
 
   //       G E M  -  C S C   I N T E G R A T E D   L O C A L   A L G O R I T H M
@@ -411,105 +420,66 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
     std::cout << "========================================================================" << std::endl;
   }
 
-  /*
   // reduction of nLCTs per each BX
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
   {
     // counting
-    unsigned int n1a=0, n1b=0;
+    unsigned int n=0;
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<2;i++)
       {
         int cbx = bx + mbx - match_trig_window_size/2;
         if (allLCTs[bx][mbx][i].isValid())
         {
-          n1b++;
-          //          if (infoV > 0) LogDebug("CSCMotherboard") 
-          if (debug_gem_matching)
-            std::cout
-              << "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs[bx][mbx][i]<<std::endl;
-        }
-        if (allLCTs1a[bx][mbx][i].isValid())
-        {
-          n1a++;
+          ++n;
           //          if (infoV > 0) LogDebug("CSCMotherboard") 
           if (debug_gem_matching)
             std::cout 
-              << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::endl;
+              << "LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs[bx][mbx][i]<<std::endl;
         }
       }
     //    if (infoV > 0 and n1a+n1b>0) LogDebug("CSCMotherboard") 
     //    std::cout<<"bx "<<bx<<" nLCT:"<<n1a<<" "<<n1b<<" "<<n1a+n1b<<std::endl;
 
     // some simple cross-bx sorting algorithms
-    if (tmb_cross_bx_algo == 1 and (n1a>2 or n1b>2) )
+    if (tmb_cross_bx_algo == 1 and (n>2))
     {
-      n1a=0, n1b=0;
+      n=0;
       for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
         for (int i=0;i<2;i++)
         {
           if (allLCTs[bx][pref[mbx]][i].isValid())
           {
-            n1b++;
-            if (n1b>2) allLCTs[bx][pref[mbx]][i].clear();
-          }
-          if (allLCTs1a[bx][pref[mbx]][i].isValid())
-          {
-            n1a++;
-            if (n1a>2) allLCTs1a[bx][pref[mbx]][i].clear();
+            n++;
+            if (n>2) allLCTs[bx][pref[mbx]][i].clear();
           }
         }
 
-      n1a=0, n1b=0;
+      n=0;
       for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
         for (int i=0;i<2;i++)
         {
           int cbx = bx + mbx - match_trig_window_size/2;
           if (allLCTs[bx][mbx][i].isValid())
           {
-            n1b++;
-           if (infoV > 0) LogDebug("CSCMotherboard") 
-//             std::cout 
-             << "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs[bx][mbx][i]<<std::cout;
-          }
-          if (allLCTs1a[bx][mbx][i].isValid())
-          {
-            n1a++;
+            n++;
             if (infoV > 0) LogDebug("CSCMotherboard") 
-//             std::cout 
-              << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::cout;
+              //std::cout 
+              << "LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs[bx][mbx][i]<<std::cout;
           }
         }
-      if (infoV > 0 and n1a+n1b>0) LogDebug("CSCMotherboard") 
+      if (infoV > 0 and n>0) LogDebug("CSCMotherboard") 
         //        std::cout
-        <<"bx "<<bx<<" nnLCT:"<<n1a<<" "<<n1b<<" "<<n1a+n1b<<std::endl;
+        <<"bx "<<bx<<" nnLCT:"<<n<<" "<<n<<std::endl;
     } // x-bx sorting
-
-    // Maximum 2 per whole ME21 per BX case:
-    // (supposedly, now we should have max 2 per bx in each 1a and 1b)
-    if ( n1a+n1b > max_me11_lcts )
-    {
-      // do it simple so far: take all low eta 1/b stubs
-      unsigned int nLCT=n1b;
-      n1a=0;
-      // right now nLCT<=2; cut 1a if necessary
-      for (unsigned int mbx=0; mbx<match_trig_window_size; mbx++)
-        for (int i=0;i<2;i++)
-          if (allLCTs1a[bx][mbx][i].isValid()) {
-            nLCT++;
-            if (nLCT>max_me11_lcts) allLCTs1a[bx][mbx][i].clear();
-            else n1a++;
-          }
-      // if (infoV > 0 and nLCT>0) LogDebug("CSCMotherboard") 
-//       std::cout <<"bx "<<bx<<" nnnLCT: "<<n1a<<" "<<n1b<<" "<<n1a+n1b<<std::cout;
-    }
-  }// reduction per bx
+  }
   
+  /*
   bool first = true;
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
-  {
+    {
     // counting
-    unsigned int n1a=0, n1b=0;
+    unsigned int n=0;
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<2;i++)
       {
@@ -545,234 +515,28 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
               << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::endl;
         }
       }
+    }
+  */
+
+  bool first = true;
+  unsigned int n=0;
+  for (auto p : readoutLCTs()) {
+    if (debug_gem_matching and first){
+      std::cout << "========================================================================" << std::endl;
+      std::cout << "Counting the final LCTs" << std::endl;
+      std::cout << "========================================================================" << std::endl;
+      first = false;
+      std::cout << "tmb_cross_bx_algo: " << tmb_cross_bx_algo << std::endl;        
+    }
+    n++;
+    if (debug_gem_matching)
+      std::cout << "LCT "<<n<<"  " << p <<std::endl;
   }
-//   if (infoV > 1) LogTrace("CSCMotherboardME21")<<"clct_count E:"<<theEndcap<<"S:"<<theStation<<"R:"<<1<<"C:"
-// 					       <<CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector, theStation, theTrigChamber)
-// 					       <<"  a "<<n_clct_a<<"  b "<<n_clct_b<<"  ab "<<n_clct_a+n_clct_b;
-*/
-}
-      /*
-      // ALCT-to-GEM matching
-      int nSuccesFulGEMMatches = 0;
-      if (runME21ILT_ and nSuccesFulMatches==0 and buildLCTfromALCTandGEM_){
-        if (debug_gem_matching) std::cout << "++No valid ALCT-CLCT matches in ME21" << std::endl;
-        for (int bx_gem = bx_gem_start; bx_gem <= bx_gem_stop; bx_gem++) {
-          if (not hasCoPads) continue;
-          // find the best matching copad - first one 
-          try {
-            auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPadsLong_[bx_gem],ME1B,true));             
-            if (debug_gem_matching) std::cout << "\t++Number of matching GEM CoPads in BX " << bx_alct << " : "<< copads.size() << std::endl;
-            ++nSuccesFulGEMMatches;            
-            correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                             *(copads.at(0)).second, allLCTs[bx_alct][0][0], allLCTs[bx_alct][0][1]);
-            if (allLCTs[bx_alct][0][0].isValid()) {
-              if (match_earliest_clct_me21_only) break;
-            }
-            if (debug_gem_matching) 
-              std::cout << "Successful ALCT-GEM CoPad match in ME21: bx_alct = " << bx_alct << std::endl << std::endl;
-          }
-          catch (const std::out_of_range& oor) {
-            if (debug_gem_matching) std::cout << "\t++No valid GEM CoPads in BX: " << bx_alct << std::endl;
-            continue;
-          }
-          if (debug_gem_matching) 
-            std::cout << "------------------------------------------------------------------------" << std::endl << std::endl;
-        }
-      }
-
-      if (debug_gem_matching) {
-        std::cout << "========================================================================" << std::endl;
-        std::cout << "Summary: " << std::endl;
-        if (nSuccesFulMatches>1)
-          std::cout << "Too many successful ALCT-CLCT matches in ME21: " << nSuccesFulMatches
-                    << ", CSCDetId " << cscChamber->id()
-                    << ", bx_alct = " << bx_alct
-                    << "; match window: [" << bx_clct_start << "; " << bx_clct_stop << "]" << std::endl;
-        else if (nSuccesFulMatches==1)
-          std::cout << "1 successful ALCT-CLCT match in ME21: " 
-                    << " CSCDetId " << cscChamber->id()
-                    << ", bx_alct = " << bx_alct
-                    << "; match window: [" << bx_clct_start << "; " << bx_clct_stop << "]" << std::endl;
-        else if (nSuccesFulGEMMatches==1)
-          std::cout << "1 successful ALCT-GEM match in ME21: " 
-                    << " CSCDetId " << cscChamber->id()
-                    << ", bx_alct = " << bx_alct
-                    << "; match window: [" << bx_clct_start << "; " << bx_clct_stop << "]" << std::endl;
-        else 
-          std::cout << "Unsuccessful ALCT-CLCT match in ME21: " 
-                    << "CSCDetId " << cscChamber->id()
-                    << ", bx_alct = " << bx_alct
-                    << "; match window: [" << bx_clct_start << "; " << bx_clct_stop << "]" << std::endl;
-
-        std::cout << "------------------------------------------------------------------------" << std::endl;
-        std::cout << "Attempt ALCT-CLCT matching in ME2/1 in bx range: [" << bx_clct_start << "," << bx_clct_stop << "]" << std::endl;
-      }
-      */
-
-      /*
-	int bx_alct_matched = 0;
-  for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS; bx_clct++) {
-    if (clct->bestCLCT[bx_clct].isValid()) {
-      bool is_matched = false;
-      int bx_alct_start = bx_clct - match_trig_window_size/2;
-      int bx_alct_stop  = bx_clct + match_trig_window_size/2;
-      
-      for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
-        if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS) continue;
-        // default: do not reuse ALCTs that were used with previous CLCTs
-        if (drop_used_alcts && used_alct_mask[bx_alct]) continue;
-        if (alct->bestALCT[bx_alct].isValid()) {
-          if (infoV > 1) LogTrace("CSCMotherboardME21")
-            << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
-            << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
-            << "]; bx_alct = " << bx_alct;
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-          used_alct_mask[bx_alct] += 1;
-          is_matched = true;
-          bx_alct_matched = bx_alct;
-          break;
-        }
-      }
-      // No ALCT within the match time interval found: report CLCT-only LCT
-      // (use dummy ALCTs).
-      if (!is_matched) {
-        if (infoV > 1) LogTrace("CSCMotherboardME21")
-          << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
-          << bx_clct << "; match window: [" << bx_alct_start
-          << "; " << bx_alct_stop << "]";
-        correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
-                      clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-      }
-    }
-    // No valid CLCTs; attempt to make ALCT-only LCT.  Use only ALCTs
-    // which have zeroth chance to be matched at later cathode times.
-    // (I am not entirely sure this perfectly matches the firmware logic.)
-    // Use dummy CLCTs.
-    else {
-      int bx_alct = bx_clct - match_trig_window_size/2;
-      if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-        if (alct->bestALCT[bx_alct].isValid()) {
-          if (infoV > 1) LogTrace("CSCMotherboardME21")
-            << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
-            << bx_alct;
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-          }
-      }
-    }
-  }
-
-  if (infoV > 0) {
-    for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
-      if (firstLCT[bx].isValid())
-        LogDebug("CSCMotherboardME21") << firstLCT[bx];
-      if (secondLCT[bx].isValid())
-        LogDebug("CSCMotherboardME21") << secondLCT[bx];
-    }
-      */
-      
-/*
   
-void CSCMotherboardME21::correlateLCTs(CSCALCTDigi bestALCT,
-CSCALCTDigi secondALCT,
-                                   CSCCLCTDigi bestCLCT,
-                                   CSCCLCTDigi secondCLCT) {
-
-  bool anodeBestValid     = bestALCT.isValid();
-  bool anodeSecondValid   = secondALCT.isValid();
-  bool cathodeBestValid   = bestCLCT.isValid();
-  bool cathodeSecondValid = secondCLCT.isValid();
-
-  if (anodeBestValid && !anodeSecondValid)     secondALCT = bestALCT;
-  if (!anodeBestValid && anodeSecondValid)     bestALCT   = secondALCT;
-  if (cathodeBestValid && !cathodeSecondValid) secondCLCT = bestCLCT;
-  if (!cathodeBestValid && cathodeSecondValid) bestCLCT   = secondCLCT;
-
-  // ALCT-CLCT matching conditions are defined by "trig_enable" configuration
-  // parameters.
-  if ((alct_trig_enable  && bestALCT.isValid()) ||
-      (clct_trig_enable  && bestCLCT.isValid()) ||
-      (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid())) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT);
-    int bx = lct.getBX();
-    if (bx >= 0 && bx < MAX_LCT_BINS) {
-      firstLCT[bx] = lct;
-      firstLCT[bx].setTrknmb(1);
-    }
-    else {
-      if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
-        << "+++ Bx of first LCT candidate, " << bx
-        << ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
-        << "); skipping it... +++\n";
-    }
-  }
-
-  if (((secondALCT != bestALCT) || (secondCLCT != bestCLCT)) &&
-      ((alct_trig_enable  && secondALCT.isValid()) ||
-       (clct_trig_enable  && secondCLCT.isValid()) ||
-       (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid()))) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT);
-    int bx = lct.getBX();
-    if (bx >= 0 && bx < MAX_LCT_BINS) {
-      secondLCT[bx] = lct;
-      secondLCT[bx].setTrknmb(2);
-    }
-    else {
-      if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
-        << "+++ Bx of second LCT candidate, " << bx
-        << ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
-        << "); skipping it... +++\n";
-    }
-  }
+  //   if (infoV > 1) LogTrace("CSCMotherboardME21")<<"clct_count E:"<<theEndcap<<"S:"<<theStation<<"R:"<<1<<"C:"
+  // 					       <<CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector, theStation, theTrigChamber)
+  // 					       <<"  a "<<n_clct_a<<"  b "<<n_clct_b<<"  ab "<<n_clct_a+n_clct_b;
 }
-
-// This method calculates all the TMB words and then passes them to the
-// constructor of correlated LCTs.
-CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTs(const CSCALCTDigi& aLCT,
-                                                   const CSCCLCTDigi& cLCT) {
-  // CLCT pattern number
-  unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
-
-  // LCT quality number
-  unsigned int quality = findQuality(aLCT, cLCT);
-
-  // Bunch crossing: get it from cathode LCT if anode LCT is not there.
-  int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
-
-  // construct correlated LCT; temporarily assign track number of 0.
-  int trknmb = 0;
-  CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
-                               cLCT.getKeyStrip(), pattern, cLCT.getBend(),
-                               bx, 0, 0, 0, theTrigChamber);
-  return thisLCT;
-}
-
-// CLCT pattern number: encodes the pattern number itself and
-// whether the pattern consists of half-strips or di-strips.
-unsigned int CSCMotherboardME21::encodePattern(const int ptn,
-                                           const int stripType) {
-  const int kPatternBitWidth = 4;
-  unsigned int pattern;
-
-  if (!isTMB07) {
-    // Cathode pattern number is a kPatternBitWidth-1 bit word.
-    pattern = (abs(ptn) & ((1<<(kPatternBitWidth-1))-1));
-
-    // The pattern has the MSB (4th bit in the default version) set if it
-    // consists of half-strips.
-    if (stripType) {
-      pattern = pattern | (1<<(kPatternBitWidth-1));
-    }
-  }
-  else {
-    // In the TMB07 firmware, LCT pattern is just a 4-bit CLCT pattern.
-    pattern = (abs(ptn) & ((1<<kPatternBitWidth)-1));
-  }
-
-  return pattern;
-}
-*/
 
 void CSCMotherboardME21::correlateLCTs(CSCALCTDigi bestALCT,
 				       CSCALCTDigi secondALCT,
@@ -1159,8 +923,6 @@ void CSCMotherboardME21::printGEMTriggerPads(int bx_start, int bx_stop, bool isS
       for (auto pad : in_pads){
         auto roll_id(GEMDetId(pad.first));
         std::cout << "\tdetId " << pad.first << " " << roll_id << ", pad = " << pad.second->pad() << ", BX = " << pad.second->bx() + 6;
-//         if (isPadInOverlap(roll_id.roll())) std::cout << " (in overlap)" << std::endl;
-//         else std::cout << std::endl;
       }
     }
     else
@@ -1204,7 +966,6 @@ CSCMotherboardME21::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX& pa
   for (auto p: pads){
     auto padRoll(GEMDetId(p.first).roll());
     if (debug) std::cout << "Candidate ALCT: " << padRoll << std::endl;
-    // only pads in overlap are good for ME1A
     if (alctRoll.first == -99 and alctRoll.second == -99) continue;  //invalid region
     else if (alctRoll.first == -99 and !(padRoll <= alctRoll.second)) continue; // top of the chamber
     else if (alctRoll.second == -99 and !(padRoll >= alctRoll.first)) continue; // bottom of the chamber
