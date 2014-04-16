@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_0/HLT/V39 (CMSSW_7_1_0_pre6_HLT1)
+# /dev/CMSSW_7_1_0/HLT/V40 (CMSSW_7_1_0_pre6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V39')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V40')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -4521,12 +4521,6 @@ trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
   tec_petalStartBit = cms.uint32( 8 ),
   tob_moduleStartBit = cms.uint32( 2 ),
   pxf_moduleMask = cms.uint32( 63 )
-)
-
-DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
-  processingMode = cms.untracked.string( "HLT" ),
-  fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
-  getSCInfo = cms.untracked.bool( True )
 )
 
 hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
