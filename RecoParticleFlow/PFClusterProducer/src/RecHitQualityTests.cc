@@ -10,3 +10,5 @@ DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHOThreshold, "PFRecHitQTest
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestECAL, "PFRecHitQTestECAL");
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALCalib29, "PFRecHitQTestHCALCalib29");
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALChannel, "PFRecHitQTestHCALChannel");
+DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALThresholdTimeVsDepth, "PFRecHitQTestHCALThresholdTimeVsDepth");
+

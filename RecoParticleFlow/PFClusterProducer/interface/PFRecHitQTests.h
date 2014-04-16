@@ -132,6 +132,74 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
 
 };
 
+//
+//  Quality test that applies threshold and timing as a function of depth 
+//
+class PFRecHitQTestHCALThresholdTimeVsDepth : public PFRecHitQTestBase {
+ public:
+  PFRecHitQTestHCALThresholdTimeVsDepth() {
+    
+  }
+
+  PFRecHitQTestHCALThresholdTimeVsDepth(const edm::ParameterSet& iConfig):
+    PFRecHitQTestBase(iConfig)
+    {
+      std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
+      for (unsigned int i=0;i<psets.size();++i) {
+	depths_.push_back(psets[i].getParameter<int>("depth"));
+	minTimes_.push_back(psets[i].getParameter<double>("minTime"));
+	maxTimes_.push_back(psets[i].getParameter<double>("maxTime"));
+	thresholds_.push_back(psets[i].getParameter<double>("threshold"));
+      }
+    }
+
+    void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+    }
+
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+      return true;
+    }
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+      return test(rh.detid(),rh.energy(),rh.time(),clean);
+    }
+
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+      return test(rh.detid(),rh.energy(),rh.time(),clean);
+    }
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+      return test(rh.detid(),rh.energy(),rh.time(),clean);
+    }
+
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+      return true;
+    }
+
+ protected:
+    std::vector<int> depths_;
+    std::vector<double> minTimes_;
+    std::vector<double> maxTimes_;
+    std::vector<double> thresholds_;
+
+    bool test(unsigned DETID,double energy,double time,bool& clean) {
+      HcalDetId detid(DETID);
+      for (unsigned int i=0;i<depths_.size();++i) {
+	if (detid.depth() == depths_[i]) {
+	  if (time <minTimes_[i] || time >maxTimes_[i] || energy<thresholds_[i])
+	    {
+	      clean=true;
+	      return false;
+	    }
+	  break;
+	}
+      }
+      return true;
+    }
+};
+
+
+
+
+
 
 //
 //  Quality test that checks HO threshold applying different threshold in rings
