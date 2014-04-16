@@ -458,8 +458,12 @@ class SerializationCodeGenerator(object):
         return os.path.join(self.cmssw_base, self.split_path[0], self.split_path[1], self.split_path[2], *path)
 
 
-    def generate(self):
-        filename = self._join_package_path('src', 'Serialization.cc')
+    def generate(self, outFileName):
+
+    	if outFileName:
+	   fileName = outFileName
+	else:
+	   filename = self._join_package_path('src', 'Serialization.cc')
 
         n_serializable_classes = 0
 
@@ -507,15 +511,24 @@ class SerializationCodeGenerator(object):
 def main():
     parser = argparse.ArgumentParser(description='CMS Condition DB Serialization generator.')
     parser.add_argument('--verbose', '-v', action='count', help='Verbosity level. -v reports debugging information.')
+    parser.add_argument('--output' , '-o', action='store', help='Specifies the path to the output file written. Default: src/Serialization.cc')
 
-    args = parser.parse_args()
+    opts, args = parser.parse_known_args()
 
     logging.basicConfig(
         format = '[%(asctime)s] %(levelname)s: %(message)s',
-        level = logging.DEBUG if args.verbose >= 1 else logging.INFO,
+        level = logging.DEBUG if opts.verbose >= 1 else logging.INFO,
     )
 
-    SerializationCodeGenerator().generate()
+    if args:  # we got a directory name to process, assume it's from scram and remove the last ('/src') dir from the path
+        pkgDir, srcDir = os.path.split( args[0] )
+        os.chdir( pkgDir )
+	logging.info("Wrocessing package in %s " % pkgDir)
+
+    if opts.output:
+       logging.info("Writing serialization code to %s " % opts.output)
+
+    SerializationCodeGenerator().generate( opts.output )
 
 
 if __name__ == '__main__':
