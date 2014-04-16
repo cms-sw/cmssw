@@ -7,7 +7,6 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: PATGenJetSlimmer.cc,v 1.1 2011/03/24 18:45:45 mwlebour Exp $
 */
 
 
@@ -17,11 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#define protected public
-#define private public
 #include "DataFormats/JetReco/interface/GenJet.h"
-#undef private
-#undef protected
 
 namespace pat {
 
@@ -74,7 +69,7 @@ pat::PATGenJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
             jet.clearDaughters();
         }
         if (dropSpecific_) {
-            jet.m_specific = reco::GenJet::Specific();
+            jet.setSpecific( reco::GenJet::Specific() );
         }
     }
 

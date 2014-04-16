@@ -47,7 +47,7 @@ namespace reco {
 
 // Class definition
 namespace pat {
-
+  class PATElectronSlimmer;
 
   class Electron : public Lepton<reco::GsfElectron> {
 
@@ -241,6 +241,8 @@ namespace pat {
       edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const ;
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
       void setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) ;
+
+      friend class PATElectronSlimmer;
 
     protected:
       /// init impact parameter defaults (for use in a constructor)

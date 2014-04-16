@@ -13,9 +13,7 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
-#define protected public
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#undef protected
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"

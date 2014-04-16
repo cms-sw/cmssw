@@ -9,9 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#define protected public
 #include "DataFormats/PatCandidates/interface/Tau.h"
-#undef protected
 
 namespace pat {
 
