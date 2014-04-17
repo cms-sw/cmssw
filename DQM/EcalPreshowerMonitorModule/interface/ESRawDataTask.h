@@ -8,52 +8,33 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-class MonitorElement;
-class DQMStore;
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class ESRawDataTask : public edm::EDAnalyzer {
+class MonitorElement;
+
+class ESRawDataTask : public DQMEDAnalyzer {
 
    public:
 
       ESRawDataTask(const edm::ParameterSet& ps);
-      virtual ~ESRawDataTask();
+      virtual ~ESRawDataTask() {}
 
    protected:
 
       /// Analyze
-      void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-      /// BeginJob
-      void beginJob(void);
+      void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
       /// EndJob
       void endJob(void);
 
-      /// BeginRun
-      void beginRun(const edm::Run & r, const edm::EventSetup & c);
-
-      /// EndRun
-      void endRun(const edm::Run & r, const edm::EventSetup & c);
-
-      /// Reset
-      void reset(void);
-
       /// Setup
-      void setup(void);
-
-      /// Cleanup
-      void cleanup(void);
+      void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
    private:
 
       int ievt_;
 
-      DQMStore* dqmStore_;
-
       std::string prefixME_;
-
-      bool enableCleanup_;
-      bool mergeRuns_;
 
       edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
       edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
@@ -66,7 +47,6 @@ class ESRawDataTask : public edm::EDAnalyzer {
       MonitorElement* meBXDiff_;
       MonitorElement* meOrbitNumberDiff_;
 
-      bool init_;
       int runNum_;
 
 };
