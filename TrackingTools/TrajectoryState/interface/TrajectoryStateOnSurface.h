@@ -3,6 +3,8 @@
 
 #include "TrackingTools/TrajectoryState/interface/BasicTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
+#include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
+
 
 #include <iosfwd>
 
@@ -22,78 +24,15 @@ public:
   // construct
   TrajectoryStateOnSurface() {}
   /// Constructor from one of the basic states
-
-  // invalid state
-  explicit TrajectoryStateOnSurface(const SurfaceType& aSurface);
-
-
   TrajectoryStateOnSurface( BasicTrajectoryState* p) : Base(p) {}
-  /** Constructor from FTS and surface. For surfaces with material
-   *  the side of the surface should be specified explicitely.
-   */
-  TrajectoryStateOnSurface( const FreeTrajectoryState& fts,
-			    const SurfaceType& aSurface,
-			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
-  /** Constructor from global parameters and surface. For surfaces with material
-   *  the side of the surface should be specified explicitely.
-   */
-  TrajectoryStateOnSurface( const GlobalTrajectoryParameters& gp,
-			    const SurfaceType& aSurface,
-			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
-  /** Constructor from global parameters, errors and surface. For surfaces 
-   *  with material the side of the surface should be specified explicitely.
-   */
-  TrajectoryStateOnSurface( const GlobalTrajectoryParameters& gp,
-			    const CartesianTrajectoryError& err,
-			    const SurfaceType& aSurface,
-			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
-  /** Constructor from global parameters, errors and surface. For surfaces 
-   *  with material the side of the surface should be specified explicitely. 
-   *  For multi-states the weight should be specified explicitely.
-   */
-  TrajectoryStateOnSurface( const GlobalTrajectoryParameters& gp,
-			    const CurvilinearTrajectoryError& err,
-			    const SurfaceType& aSurface,
-			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
-			    double weight = 1.);
-  /** Constructor from global parameters, errors and surface. For multi-states the
-   *  weight should be specified explicitely. For backward compatibility without
-   *  specification of the side of the surface.
-   */
-  TrajectoryStateOnSurface( const GlobalTrajectoryParameters& gp,
-			    const CurvilinearTrajectoryError& err,
-			    const SurfaceType& aSurface,
-			    double weight);
-  /** Constructor from local parameters, errors and surface. For surfaces 
-   *  with material the side of the surface should be specified explicitely.
-   */
-  TrajectoryStateOnSurface( const LocalTrajectoryParameters& p,
-			    const SurfaceType& aSurface,
-			    const MagneticField* field,
-			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
-  /** Constructor from local parameters, errors and surface. For surfaces 
-   *  with material the side of the surface should be specified explicitely. 
-   *  For multi-states the weight should be specified explicitely.
-   */
-  TrajectoryStateOnSurface( const LocalTrajectoryParameters& p,
-			    const LocalTrajectoryError& err,
-			    const SurfaceType& aSurface,
-			    const MagneticField* field,
-			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
-			    double weight = 1.);
-  /** Constructor from local parameters, errors and surface. For multi-states the
-   *  weight should be specified explicitely. For backward compatibility without
-   *  specification of the side of the surface.
-   */
-  TrajectoryStateOnSurface( const LocalTrajectoryParameters& p,
-			    const LocalTrajectoryError& err,
-			    const SurfaceType& aSurface,
-			    const MagneticField* field,
-			    double weight);
+  TrajectoryStateOnSurface( BasicSingleTrajectoryState* p) : Base(p) {}
 
   ~TrajectoryStateOnSurface() {}
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+#ifndef CMS_NOCXX11
+
+ TrajectoryStateOnSurface(TrajectoryStateOnSurface & rh)  noexcept :
+    Base(rh){}
 
  TrajectoryStateOnSurface(TrajectoryStateOnSurface const & rh)  noexcept :
     Base(rh){}
@@ -112,6 +51,8 @@ public:
     return *this;
   }
 
+  template<typename... Args>
+  explicit TrajectoryStateOnSurface(Args && ...args) : Base(new BasicSingleTrajectoryState(std::forward<Args>(args)...)){}
 
 #endif
 
@@ -217,10 +158,23 @@ public:
   void update( const LocalTrajectoryParameters& p,
 	       const SurfaceType& aSurface,
 	       const MagneticField* field,
-	       const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+	       SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
 
   void update( const LocalTrajectoryParameters& p,
-               const SurfaceSide side) { unsharedData().update(p, side);}
+               SurfaceSide side) { unsharedData().update(p, side);}
+
+  void update( const LocalTrajectoryParameters& p,
+               const LocalTrajectoryError& err,
+               SurfaceSide side) {unsharedData().update(p, err, side);}
+
+  void update( const GlobalTrajectoryParameters& par,
+	       const SurfaceType& aSurface,
+	       SurfaceSide side) { unsharedData().update(par, aSurface, side);}
+  
+  void update( const GlobalTrajectoryParameters& par,
+               const CurvilinearTrajectoryError& err,
+               const SurfaceType& aSurface,
+               SurfaceSide side) { unsharedData().update(par, err, aSurface, side);}
 
 
   /** Mutator from local parameters, errors and surface. For surfaces 
@@ -233,13 +187,20 @@ public:
 	       const LocalTrajectoryError& err,
                const SurfaceType& aSurface,
                const MagneticField* field,
-               const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
+               SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
                double weight = 1.);
-
-  void update( const LocalTrajectoryParameters& p,
-               const LocalTrajectoryError& err,
-               const SurfaceSide side) {unsharedData().update(p, err, side);}
-
+  /*
+#ifndef CMS_NOCXX11
+  template<typename... Args>
+  void update(Args && ...args) {
+    if (data().canUpdateLocalParameters()) {
+      unsharedData().update(std::forward<Args>(args)...);
+    } else {
+      *this = TrajectoryStateOnSurface(std::forward<Args>(args)...);
+    }
+  }
+#endif
+  */
 
   CurvilinearTrajectoryError & setCurvilinearError() {
         return sharedData().setCurvilinearError();

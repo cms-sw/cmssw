@@ -50,7 +50,7 @@ namespace GaussianStateConversions {
 						    LocalTrajectoryError((**ic).covariance()),
 						    surface,field,side,(**ic).weight()));
     }
-    return TrajectoryStateOnSurface(new BasicMultiTrajectoryState(components));
+    return TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(components));
   }
 }
 

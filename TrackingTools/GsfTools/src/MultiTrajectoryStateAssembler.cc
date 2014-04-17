@@ -106,7 +106,7 @@ TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState () {
   //
   // Return new multi state without reweighting
   //
-  return TSOS(new BasicMultiTrajectoryState(theStates));
+  return TSOS((BasicTrajectoryState *)(new BasicMultiTrajectoryState(theStates)));
 }
 
 TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState (const float newWeight) {
@@ -181,7 +181,7 @@ MultiTrajectoryStateAssembler::reweightedCombinedState (const double newWeight) 
 							i->surfaceSide(),
 							factor*oldWeight));
   }
-  return TSOS(new BasicMultiTrajectoryState(reweightedStates));
+  return TSOS((BasicTrajectoryState *)(new BasicMultiTrajectoryState(reweightedStates)));
 }
 
 void

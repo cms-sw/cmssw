@@ -104,7 +104,7 @@ MultiTrajectoryStateTransform::stateOnSurface (const std::vector<double>& weight
     components.push_back(TrajectoryStateOnSurface(lp,le,surface,field,weights[i]));
   }
   return 
-    TrajectoryStateOnSurface(new BasicMultiTrajectoryState(components));
+    TrajectoryStateOnSurface((BasicTrajectoryState *)(new BasicMultiTrajectoryState(components)) );
 }
 
 bool
