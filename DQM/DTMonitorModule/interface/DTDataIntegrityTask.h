@@ -10,17 +10,19 @@
  *
  */
 
-#include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
 #include "EventFilter/DTRawToDigi/interface/DTROChainCoding.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
+#include "DataFormats/DTDigi/interface/DTControlData.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+// #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <fstream>
@@ -34,11 +36,11 @@ class DTDDUData;
 class DTTimeEvolutionHisto;
 
 
-class DTDataIntegrityTask : public DTDataMonitorInterface {
+class DTDataIntegrityTask : public edm::EDAnalyzer {
 
 public:
 
-  explicit DTDataIntegrityTask( const edm::ParameterSet& ps,edm::ActivityRegistry& reg);
+  DTDataIntegrityTask( const edm::ParameterSet& ps);
 
   virtual ~DTDataIntegrityTask();
 
@@ -55,13 +57,14 @@ public:
   void fedNonFatal(int dduID);
 
   bool eventHasErrors() const;
-  void postBeginJob();
-  void postEndJob();
-  void preProcessEvent(const edm::EventID& iEvtid, const edm::Timestamp& iTime);
+  void beginJob() override;
+  void endJob() override;
 
-  void preBeginLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime);
-  void preEndLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime);
-
+  void beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
+ 
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  
 private:
 
   void bookHistos(const int fedMin, const int fedMax);
@@ -142,6 +145,11 @@ private:
   int mode;
   std::string fedIntegrityFolder;
 
+  // The label to retrieve the digis
+  edm::EDGetTokenT<DTDDUCollection> dduToken;
+  
+  edm::EDGetTokenT<DTROS25Collection> ros25Token;
+  
 };
 
 

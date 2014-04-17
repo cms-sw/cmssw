@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
+#include "DataFormats/DTDigi/interface/DTDDUWords.h"
 #include "HLTrigger/special/interface/HLTDTROMonitorFilter.h"
 
 using namespace edm;
