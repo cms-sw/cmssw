@@ -72,7 +72,9 @@ class CSCMotherboardME21 : public CSCMotherboard
              		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
                      CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
                      const GEMPadsBX& pads = GEMPadsBX(), const GEMPadsBX& copads = GEMPadsBX());
-
+ 
+  void matchGEMPads();
+  
   void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 			GEMCSCPadDigi gemPad,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
@@ -100,10 +102,7 @@ class CSCMotherboardME21 : public CSCMotherboard
       maximum match window = 15 */
   CSCCorrelatedLCTDigi allLCTs[MAX_LCT_BINS][15][2];
 
-/*   static const int lut_wg_vs_hs_me1b[48][2]; */
-/*   static const int lut_wg_vs_hs_me1a[48][2]; */
-/*   static const int lut_wg_vs_hs_me1ag[48][2]; */
-/*   static const double lut_pt_vs_dphi_gemcsc[7][3]; */
+  static const double lut_pt_vs_dphi_gemcsc[7][3];
   static const double lut_wg_eta_odd[112][2];
   static const double lut_wg_eta_even[112][2];
 
@@ -129,6 +128,23 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   // masterswitch
   bool runME21ILT_;
+
+  /// Do GEM matching?
+  bool do_gem_matching;
+
+  /// GEM matching dphi and deta
+  double gem_match_delta_phi_odd;
+  double gem_match_delta_phi_even;
+  double gem_match_delta_eta;
+
+  /// delta BX for GEM pads matching
+  int gem_match_delta_bx;
+
+  /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta) 
+  double gem_match_min_eta;
+
+  /// whether to throw out GEM-fiducial LCTs that have no gem match
+  bool gem_clear_nomatch_lcts;
 
   // debug gem matching
   bool debug_gem_matching;

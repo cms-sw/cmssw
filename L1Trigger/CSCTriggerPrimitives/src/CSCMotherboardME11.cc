@@ -1110,13 +1110,9 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   }
   */
 
-  std::vector<CSCCorrelatedLCTDigi> lcts_1b;
-  std::vector<CSCCorrelatedLCTDigi> lcts_1a;
-  lcts_1a =  readoutLCTs1a();
-  lcts_1b =  readoutLCTs1b();
   bool first = true;
   unsigned int n1b=0, n1a=0;
-  for (auto p : lcts_1b )
+  for (auto p : readoutLCTs1b())
     {
       if (debug_gem_matching and first){
         std::cout << "========================================================================" << std::endl;
@@ -1131,7 +1127,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         std::cout << "1b LCT "<<n1b<<"  " << p <<std::endl;
     }
   
-  for (auto p : lcts_1a )
+  for (auto p : readoutLCTs1a())
     {
       if (debug_gem_matching and first){
         std::cout << "========================================================================" << std::endl;
@@ -1816,7 +1812,6 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
   const CSCDetId me1abId(ME==ME1A ? me1aId : me1bId);
   const int chamber(me1abId.chamber());
   const bool is_odd(chamber%2==1);
-  const int nhalfstrip(ME==ME1A ? 95 : 127);
 
   if (debug_gem_matching) std::cout<<"++++++++  matchGEMPads "<< me1abId <<" +++++++++ "<<std::endl;
 
@@ -1846,8 +1841,8 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
         lct.setGEMDPhi(-99.);
 
         // "strip" here is actually a half-strip in geometry's terms
-        // note that LCT::getStrip() starts from 0, flip the halfstrip
-        float fractional_strip = 0.5 * (nhalfstrip - lct.getStrip() + 1) - 0.25;
+        // note that LCT::getStrip() starts from 0
+        float fractional_strip = 0.5 * (lct.getStrip() + 1) - 0.25;
         auto layer_geo = cscChamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
         // LCT::getKeyWG() also starts from 0
         float wire = layer_geo->middleWireOfGroup(lct.getKeyWG() + 1);
