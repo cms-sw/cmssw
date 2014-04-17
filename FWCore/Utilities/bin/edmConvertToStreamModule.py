@@ -82,8 +82,8 @@ def edit_file(fileName,moduleType,moduleName):
   fNew = open(fileName+"_NEW","w")
   
   lookingForChanges = True
+  addedInclude = False
   for l in fOld.readlines():
-    addedInclude = False
     if lookingForChanges:
       if -1 != l.find("#include"):
         if moduleType == kProducer:
