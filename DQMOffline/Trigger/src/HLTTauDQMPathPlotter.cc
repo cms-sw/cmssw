@@ -3,11 +3,21 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
+namespace {
+  std::string stripVersion(const std::string& pathName) {
+    size_t versionStart = pathName.rfind("_v");
+    if(versionStart == std::string::npos)
+      return pathName;
+    return pathName.substr(0, versionStart);
+  }
+}
+
+HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const std::string& pathName, const HLTConfigProvider& HLTCP,
+                                           bool doRefAnalysis, const std::string& dqmBaseFolder,
                                            const std::string& hltProcess, int ptbins, int etabins, int phibins,
                                            double ptmax, double highptmax,
                                            double l1MatchDr, double hltMatchDr):
-  HLTTauDQMPlotter(pset, dqmBaseFolder),
+  HLTTauDQMPlotter(stripVersion(pathName), dqmBaseFolder),
   ptbins_(ptbins),
   etabins_(etabins),
   phibins_(phibins),
@@ -16,35 +26,9 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool d
   l1MatchDr_(l1MatchDr),
   hltMatchDr_(hltMatchDr),
   doRefAnalysis_(doRefAnalysis),
-  hltPath_(hltProcess, dqmFolder_, doRefAnalysis_)
+  hltPath_(pathName, hltProcess, doRefAnalysis_, HLTCP)
 {
-  if(!configValid_)
-    return;
-
-  // Parse configuration
-  try {
-    hltPath_.initialize(pset);
-  } catch(cms::Exception& e) {
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(): " << e.what();
-    configValid_ = false;
-    return;
-  }
-  configValid_ = true;
-}
-
-void HLTTauDQMPathPlotter::updateHLTMenu(const HLTConfigProvider& HLTCP) {
-  if(!configValid_)
-    return;
-
-  // Identify the correct HLT path
-  if(!HLTCP.inited()) {
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::beginRun(): HLTConfigProvider is not initialized!";
-    runValid_ = false;
-    return;
-  }
-
-  // Search path candidates
-  runValid_ = hltPath_.beginRun(HLTCP);
+  configValid_ = configValid_ && hltPath_.isValid();
 }
 
 void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
@@ -97,8 +81,19 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
     const int ntaus = hltPath_.getFilterNTaus(lastFilter);
     const int neles = hltPath_.getFilterNElectrons(lastFilter);
     const int nmus = hltPath_.getFilterNMuons(lastFilter);
-    if(ntaus+neles+nmus == 2) {
-      hMass_ = iBooker.book1D("ReferenceMass", "Invariant mass of reference "+dqmFolder_+";Reference invariant mass;entries", 100, 0, 500);
+    auto create = [&](const std::string& name) {
+      this->hMass_ = iBooker.book1D("ReferenceMass", "Invariant mass of reference "+name+";Reference invariant mass;entries", 100, 0, 500);
+    };
+
+    LogDebug("HLTTauDQMOffline") << "Path " << hltPath_.getPathName() << " number of taus " << ntaus << " electrons " << neles << " muons " << nmus;
+
+    if(ntaus == 2)
+      create("di-tau");
+    else if(ntaus == 1) {
+      if(neles == 1)
+        create("electron-tau");
+      else if(nmus == 1)
+        create("muon-tau");
     }
   }
 }
