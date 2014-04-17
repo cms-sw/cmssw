@@ -30,8 +30,6 @@ public:
   virtual void rctJetUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec,
 				   unsigned int& et) const;
-  virtual double hcaletValue(const int& ieta, const int& compressedValue) const;
-  virtual double hcaletValue(const int& ieta, const int& iphi, const int& compressedValue) const;
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
   bool HTvalid(const int ieta, const int iphi, const int version) const;
   virtual std::vector<unsigned char> getCompressionLUT(HcalTrigTowerDetId id) const;

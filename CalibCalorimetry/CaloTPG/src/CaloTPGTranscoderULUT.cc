@@ -346,45 +346,6 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
   return HcalTriggerPrimitiveSample(outputLUT_[itower][sample],fineGrain,0,0);
 }
 
-double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& iphi, const int& compET) const {
-  if (hcaluncomp_.empty()) {
-
-	CaloTPGTranscoderULUT::loadHCALUncompress(decompressionFile_);
-  }
-  double etvalue = 0.;
-  int itower = getOutputLUTId(ieta, iphi);  // TODO Add version
-  if (itower < 0) std::cout << "hcaletValue error: no decompression LUT found for ieta, iphi = " << ieta << ", " << iphi << std::endl;
-  else if (compET < 0 || compET > 0xff) std::cout << "hcaletValue error: compressed value out of range: eta, phi, cET = " << ieta << ", " << iphi << ", " << compET << std::endl;
-  else etvalue = hcaluncomp_[itower][compET];
-  return(etvalue);
-}
-
-double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET) const {
-// This is now an obsolete method; we return the AVERAGE over all the allowed iphi channels if it's invoked
-// The user is encouraged to use hcaletValue(const int& ieta, const int& iphi, const int& compET) instead
-
-  if (hcaluncomp_.empty()) {
-	std::cout << "Initializing the RCT decompression table from the file: " << decompressionFile_ << std::endl;
-	CaloTPGTranscoderULUT::loadHCALUncompress(decompressionFile_);
-  }
-
-  double etvalue = 0.;
-  if (compET < 0 || compET > 0xff) std::cout << "hcaletValue error: compressed value out of range: eta, cET = " << ieta << ", " << compET << std::endl;
-  else {
-	int nphi = 0;
-	for (int iphi=1; iphi <= 72; iphi++) {
-		if (HTvalid(ieta, iphi)) {  // TODO Add version
-			nphi++;
-			int itower = getOutputLUTId(ieta, iphi);  // TODO Add version
-			etvalue += hcaluncomp_[itower][compET];
-		}
-	}
-	if (nphi > 0) etvalue /= nphi;
-	else std::cout << "hcaletValue error: no decompression LUTs found for any iphi for ieta = " << ieta << std::endl;
-  }
-  return(etvalue);
-}
-
 double CaloTPGTranscoderULUT::hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const {
   if (hcaluncomp_.empty()) loadHCALUncompress(decompressionFile_);
 
