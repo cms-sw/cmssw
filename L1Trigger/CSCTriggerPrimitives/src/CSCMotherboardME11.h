@@ -20,7 +20,6 @@ class CSCGeometry;
 class CSCChamber;
 class GEMGeometry;
 class GEMSuperChamber;
-class CSCTriggerPrimitivesProducer;
 
 class CSCMotherboardME11 : public CSCMotherboard
 {
@@ -90,7 +89,6 @@ class CSCMotherboardME11 : public CSCMotherboard
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
-  void setLctProducer(CSCTriggerPrimitivesProducer* p) {lctProducer_ = p;}
 
  private:
 
@@ -214,8 +212,6 @@ class CSCMotherboardME11 : public CSCMotherboard
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
 
-  CSCTriggerPrimitivesProducer* lctProducer_;
-  
   // central LCT bx number
   int lct_central_bx;
 

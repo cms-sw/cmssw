@@ -70,7 +70,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 					   const edm::EventSetup& setup) {
 
   LogDebug("L1CSCTrigger") << "start producing LCTs for event " << ++iev;
-  lctBuilder_->setProducer(this);
   // Find the geometry (& conditions?) for this event & cache it in 
   // CSCTriggerGeometry.
   {
@@ -176,32 +175,4 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   ev.put(oc_pretrig);
   ev.put(oc_lct);
   ev.put(oc_sorted_lct,"MPCSORTED");
-}
-
-
-void CSCTriggerPrimitivesProducer::endJob() 
-{
-  std::cout << "Stats ME11 " << std::endl;
-  std::cout << "me1bValidAlct_ " << me1bValidAlct_ << std::endl;
-  std::cout << "me1bValidAlctClctInBoxWindow_ " << me1bValidAlctClctInBoxWindow_ << std::endl;
-  std::cout << "me1bValidAlctValidClct_ " << me1bValidAlctValidClct_ << std::endl;
-  std::cout << "me1bValidAlctNoValidClct_ " << me1bValidAlctNoValidClct_ << std::endl;
-  std::cout << "me1bAlctClctLowQ_ " << me1bAlctClctLowQ_ << std::endl;
-  std::cout << "me1bAlctClctLowQInEdge_ " << me1bAlctClctLowQInEdge_ << std::endl;
-  std::cout << "me1bAlctClctLowQNoGemPad_ " << me1bAlctClctLowQNoGemPad_ << std::endl;
-  std::cout << "me1bValidAlctGemInBXWindow_ " << me1bValidAlctGemInBXWindow_ << std::endl;
-  std::cout << "me1bValidAlctGemNoCoPad_ " << me1bValidAlctGemNoCoPad_ << std::endl;
-  std::cout << "me1bValidAlctGemCoPad_ " << me1bValidAlctGemCoPad_ << std::endl;
-
-//   std::cout << "me1bMatchAttempts_ " << me1bMatchAttempts_ << std::endl;
-  std::cout << "me1bMatchAlctClct_ " << me1bMatchAlctClct_ << std::endl;
-  std::cout << "me1bValidAlctGemInBXWindow_ " << me1bValidAlctGemInBXWindow_ << std::endl;
-  std::cout << "me1bAlctGemCoPad_ " << me1bMatchAlctGemCoPad_ << std::endl;
-  std::cout << "me1bMatchAlctClctLowQ_ " << me1bMatchAlctClctLowQ_ << std::endl;
-  std::cout << "me1bMatchAlctNoClct_ " << me1bMatchAlctNoClct_ << std::endl;
-  
-//   std::cout << "me1aMatchAttempts_ " << << std::endl;
-//   std::cout << "me1aMatchAlctClct_ " << << std::endl;
-//   std::cout << "me1aMatchAlctClctLowQ_ " << std::endl;
-//   std::cout << "me1aMatchAlctNoClct_ " << << std::endl;
 }

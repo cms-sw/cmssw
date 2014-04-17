@@ -13,7 +13,6 @@
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h>
-#include <L1Trigger/CSCTriggerPrimitives/plugins/CSCTriggerPrimitivesProducer.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21.h>
@@ -328,7 +327,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
               tmb11->setCSCGeometry(csc_g);
               tmb11->setGEMGeometry(gem_g);
-              tmb11->setLctProducer(producer_);
               //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
               if (runFactorizedModel_)
                 tmb11->run(wiredc, compdc, gemPads);
