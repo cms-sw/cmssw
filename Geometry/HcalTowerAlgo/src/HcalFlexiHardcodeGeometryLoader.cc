@@ -50,7 +50,13 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardco
   std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = hcons.getEtaBins(0);
 
 #ifdef DebugLog
-  std::cout << "FlexiGeometryLoader called for " << etabins.size() << " Eta Bins" << std::endl;
+  std::cout << "FlexiGeometryLoader called for " << etabins.size() 
+	    << " Eta Bins" << std::endl;
+  for (unsigned int k=0; k<gconsHB.size(); ++k) {
+    std::cout << "gconsHB[" << k << "] = " << gconsHB[k].first << ":"
+	      << gconsHB[k].second << " LayerDepth[" << k << "] = "
+	      << layerDepths[k] << std::endl;
+  }
 #endif
   for (unsigned int i=0; i<etabins.size(); ++i) {
     int iring = etabins[i].ieta;
@@ -58,12 +64,14 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardco
     int depth = etabins[i].depthStart;
     for (unsigned int k=0; k<etabins[i].layer.size(); ++k) {
       double rmin = layerDepths[etabins[i].layer[k].first-1];
-      double rmax = layerDepths[etabins[i].layer[k].second-1];
+      double rmax = layerDepths[etabins[i].layer[k].second];
 #ifdef DebugLog
       std::cout << "HBRing " << iring << " eta " << etabins[i].etaMin << ":"
 		<< etabins[i].etaMax << " depth " << depth << " R " << rmin
 		<< ":" << rmax << " Phi 1:" << nphi << ":" << etabins[i].phi0
-		<< ":" << etabins[i].dphi << std::endl;
+		<< ":" << etabins[i].dphi << " layer[" << k << "]: " 
+		<< etabins[i].layer[k].first-1 << ":"
+		<< etabins[i].layer[k].second << std::endl;
 #endif
       result.push_back (HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iring, depth, 1, nphi, 1, etabins[i].phi0, etabins[i].dphi, rmin, rmax, etabins[i].etaMin, etabins[i].etaMax));
       depth++;
@@ -174,7 +182,9 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
 	std::cout << "HERing " << iring << " eta " << etabins[i].etaMin << ":"
 		  << etabins[i].etaMax << " depth " << depth << " Z " << zmin
 		  << ":" << zmax << " Phi 1:" << nphi << ":" << etabins[i].phi0
-		  << ":" << dphi << ":" << units << ":" << fioff << std::endl;
+		  << ":" << dphi << ":" << units << ":" << fioff  << " layer[" 
+		  << k << "]: " << etabins[i].layer[k].first-1 << ":"
+		  << etabins[i].layer[k].second-1 << std::endl;
 #endif
 	result.push_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depth, fioff, nphi, units, etabins[i].phi0, dphi, zmin, zmax, etabins[i].etaMin, etabins[i].etaMax));
 	depth++;
@@ -309,13 +319,13 @@ void HcalFlexiHardcodeGeometryLoader::fillHF (CaloSubdetectorGeometry* fGeometry
 
   for (size_t iCell = 0; iCell < fCells.size(); ++iCell) {
     const HcalFlexiHardcodeGeometryLoader::HFCellParameters& param = fCells[iCell];
-    int kPhi(0);
-    for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep, ++kPhi) {
+//  int kPhi(0);
+    for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	HcalDetId hid (HcalForward, param.eta*iside, iPhi, param.depth);
 	// middle of the cell
-	float phiCenter = ((kPhi + 0.5) * param.dphi) * DEGREE2RAD;
-//	float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD;
+//      float phiCenter = ((kPhi + 0.5) * param.dphi) * DEGREE2RAD;
+	float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD;
 	GlobalPoint inner (param.rMin, 0, param.zMin);
 	GlobalPoint outer (param.rMax, 0, param.zMin);
 	float iEta = inner.eta();

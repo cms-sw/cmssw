@@ -32,7 +32,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include <vector>
 #include<iostream>

@@ -42,10 +42,10 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   //* Helper Methods *//
 
   //Creators of the Decay Modes
-  void buildOneProng(const reco::PFTauTagInfoRef&,const reco::PFCandidateRefVector& );
-  void buildOneProngStrip(const reco::PFTauTagInfoRef&,const std::vector<reco::PFCandidateRefVector>&,const reco::PFCandidateRefVector&);
-  void buildOneProngTwoStrips(const reco::PFTauTagInfoRef&,const std::vector<reco::PFCandidateRefVector>&,const reco::PFCandidateRefVector&);
-  void buildThreeProngs(const reco::PFTauTagInfoRef&,const reco::PFCandidateRefVector&);
+  void buildOneProng(const reco::PFTauTagInfoRef&,const std::vector<reco::PFCandidatePtr>& );
+  void buildOneProngStrip(const reco::PFTauTagInfoRef&,const std::vector<std::vector<reco::PFCandidatePtr>>&,const std::vector<reco::PFCandidatePtr>&);
+  void buildOneProngTwoStrips(const reco::PFTauTagInfoRef&,const std::vector<std::vector<reco::PFCandidatePtr>>&,const std::vector<reco::PFCandidatePtr>&);
+  void buildThreeProngs(const reco::PFTauTagInfoRef&,const std::vector<reco::PFCandidatePtr>&);
 
   //Narrowness selection
   bool isNarrowTau(const reco::PFTau&,double);
@@ -60,9 +60,9 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   void applyElectronRejection(reco::PFTau&,double);
 
   //Method to create a candidate from the merged EM Candidates vector;
-  math::XYZTLorentzVector createMergedLorentzVector(const reco::PFCandidateRefVector&);
+  math::XYZTLorentzVector createMergedLorentzVector(const std::vector<reco::PFCandidatePtr>&);
 
-  void removeCandidateFromRefVector(const reco::PFCandidateRef&,reco::PFCandidateRefVector&); 
+  void removeCandidateFromRefVector(const reco::PFCandidatePtr&,std::vector<reco::PFCandidatePtr>&); 
   void applyMassConstraint(math::XYZTLorentzVector&,double );
 
   bool refitThreeProng(reco::PFTau&); 
@@ -137,7 +137,7 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
     ~HPSTauPtSorter()
       {}
 
-    bool operator()(reco::PFTau a , reco::PFTau b) {
+    bool operator()(const reco::PFTau& a , const reco::PFTau& b) {
       return (a.pt() > b.pt());
     }
   };
@@ -154,7 +154,7 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
     ~HPSTauIsolationSorter()
       {}
 
-    bool operator()(reco::PFTau a , reco::PFTau b) {
+    bool operator()(const reco::PFTau& a , const reco::PFTau& b) {
       return (a.isolationPFGammaCandsEtSum()+a.isolationPFChargedHadrCandsPtSum())<
 	(b.isolationPFGammaCandsEtSum()+b.isolationPFChargedHadrCandsPtSum());
     }

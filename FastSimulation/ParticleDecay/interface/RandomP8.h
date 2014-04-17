@@ -1,4 +1,4 @@
-#include <Pythia.h>
+#include "Pythia8/Pythia.h"
 #include "CLHEP/Random/RandomEngine.h"
 
 extern CLHEP::HepRandomEngine* randomEngine;

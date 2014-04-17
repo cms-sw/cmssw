@@ -91,11 +91,12 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     addClosest( tsos, prop, est, crossings.other(), nextResult);
     if(nextResult.empty())    return;
     
-    DetGroupElement nextGel( nextResult.front().front());  
-    int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
+    //DetGroupElement nextGel( nextResult.front().front());  
+    //int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
 
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result,
-					    crossings.closestIndex(), crossingSide);   
+					    0,0);//fixme gc patched for SLHC - already correctly sorted for SLHC
+                                            //crossings.closestIndex(), crossingSide);   
   }
   else {
     DetGroupElement closestGel( closestResult.front().front());
@@ -108,9 +109,10 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     searchNeighbors( tsos, prop, est, crossings.other(), window,
 		     nextResult, true);
     
-    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
+    //int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result,
-					    crossings.closestIndex(), crossingSide);
+					    0,0);//fixme gc patched for SLHC - already correctly sorted for SLHC
+                                            //crossings.closestIndex(), crossingSide);
   }
 }
 
@@ -134,7 +136,9 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
   //  int innerIndex = findBin(gInnerPoint.perp(),0);
   int innerIndex = findBin2(gInnerPoint,0);
 
-  float innerDist = fabs( findPosition(innerIndex,0).perp() - gInnerPoint.perp());
+  //fixme gc patched for SLHC - force order here to be in z
+  //float innerDist = fabs( findPosition(innerIndex,0).perp() - gInnerPoint.perp());
+  float innerDist = ( startingState.globalPosition() - gInnerPoint).mag();
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
 
@@ -148,7 +152,9 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
   //  int outerIndex  = findBin(gOuterPoint.perp(),1);
   int outerIndex  = findBin2(gOuterPoint,1);
 
-  float outerDist = fabs( findPosition(outerIndex,1).perp() - gOuterPoint.perp());
+  //fixme gc patched for SLHC - force order here to be in z
+   //float outerDist = fabs( findPosition(outerIndex,1).perp() - gOuterPoint.perp());
+  float outerDist = ( startingState.globalPosition() - gOuterPoint).mag();
   SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
 
   if (innerDist < outerDist) {
@@ -158,7 +164,6 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
     return SubLayerCrossings( outerSLC, innerSLC, 1);
   } 
 }
-
 
 
 

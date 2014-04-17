@@ -93,21 +93,50 @@ void DDHGCalEEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
   DDRotation rot(DDName(DDSplit(rotstr).first, DDSplit(rotstr).second));
 
   double  zi(zMinBlock), zz(zMinBlock);
+  double layer0_thick(0);
+  if(idName == "HGCalEEM"){
+    for (unsigned int j=0; j<names.size()-1; j++) {
+      int jj = layerType[j];
+      layer0_thick += thick[jj];
+    }
+  }
+
   for (unsigned int i=0; i<layerType.size(); i++) {
     int     ii    = layerType[i];
     int     copy  = copyNumber[ii];
     ++copyNumber[ii];
+
+    double layer_thick(0);
+    if(idName == "HGCalEEM"){
+      if (i<names.size()-1) 
+	layer_thick = layer0_thick;
+      else if (i<11*names.size()-1) 
+	layer_thick = layer0_thick + thick[0];
+      else if (i<21*names.size()-1) 
+	layer_thick = layer0_thick + thick[1];
+      else 
+	layer_thick = layer0_thick + thick[2];
+    }
+    else {
+      if (i == 0) 
+	layer_thick = thick[ii];
+      else 
+	layer_thick = thick[0] + thick[1] + 3*thick[2] + thick[3] + thick[4];
+    }
+    
+    if (heightType[i] == 0) zz = zi;
+    double  zlayer = zz + layer_thick;
     double  zo     = zi + thick[ii];
     double  rinF   = zi * slopeB;
-    double  rinB   = zo * slopeB;
+    double  rinB   = zlayer * slopeB;
     double  routF  = (heightType[i] == 0) ? rMax(zi) : rMax(zz);
     double  routB  = rMax(zo);
-    if (heightType[i] == 0) zz = zi;
+
     std::string name = "HGCal"+names[ii]+dbl_to_string(copy);
     edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: Layer " << i << ":" 
 			      << ii << " Front " << zi << ", " << rinF << ", " 
 			      << routF << " Back " << zo << ", " << rinB 
-			      << ", " << routB;
+			      << ", " << routB << " superlayer thickness " << layer_thick;
     DDHGCalEEAlgo::HGCalEEPar parm = parameterLayer(rinF, routF, rinB, 
 						    routB, zi, zo);
     DDSolid solid = DDSolidFactory::trap(DDName(name, idNameSpace), 

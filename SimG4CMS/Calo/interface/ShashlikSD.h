@@ -11,6 +11,7 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/interface/ShashlikDDDConstants.h"
 
 #include "G4String.hh"
  
@@ -28,7 +29,7 @@ class ShashlikSD : public CaloSD {
 public:    
 
   ShashlikSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
-	     edm::ParameterSet const & p, const SimTrackManager*);
+	     edm::ParameterSet const &, const SimTrackManager*);
   virtual ~ShashlikSD();
   virtual bool                      ProcessHits(G4Step*, G4TouchableHistory*);
   virtual double                    getEnergyDeposit(G4Step*);
@@ -42,6 +43,7 @@ private:
   std::vector<double>               getDDDArray(const std::string&,
 						const DDsvalues_type&);
 
+  ShashlikDDDConstants*             sdc;
   bool                              useWeight, useAtt,  useBirk;
   double                            birk1, birk2, birk3, attL, moduleL;
   int                               roType;

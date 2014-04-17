@@ -4,8 +4,8 @@ from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 process = cms.Process("HcalGeometryTest")
 
 #process.load("Configuration.Geometry.GeometryExtendedPostLS2_cff")
-#process.load("Geometry.HcalCommonData.testPhase0GeometryXML_cfi")
-process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023HGCalXML_cfi")
+process.load("Geometry.HcalCommonData.testPhase2GeometryXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023HGCalXML_cfi")
 process.load("Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi")
 process.load("Geometry.HcalCommonData.hcalRecNumberingInitialization_cfi")
 process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")

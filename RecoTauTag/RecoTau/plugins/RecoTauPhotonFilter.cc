@@ -111,24 +111,24 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
       keysToMove.insert(ptr.key());
     }
 
-    PFCandidateRefVector newSignalPFGammas;
-    PFCandidateRefVector newSignalPFCands;
-    PFCandidateRefVector newIsolationPFGammas = tau.isolationPFGammaCands();
-    PFCandidateRefVector newIsolationPFCands = tau.isolationPFCands();
+    std::vector<PFCandidatePtr> newSignalPFGammas;
+    std::vector<PFCandidatePtr> newSignalPFCands;
+    std::vector<PFCandidatePtr> newIsolationPFGammas = tau.isolationPFGammaCands();
+    std::vector<PFCandidatePtr> newIsolationPFCands = tau.isolationPFCands();
 
     // Move the necessary signal pizeros - what a mess!
-    BOOST_FOREACH(const PFCandidateRef& ref, tau.signalPFCands()) {
-      if (keysToMove.count(ref.key()))
-        newIsolationPFCands.push_back(ref);
+    BOOST_FOREACH(const PFCandidatePtr& ptr, tau.signalPFCands()) {
+      if (keysToMove.count(ptr.key()))
+        newIsolationPFCands.push_back(ptr);
       else
-        newSignalPFCands.push_back(ref);
+        newSignalPFCands.push_back(ptr);
     }
 
-    BOOST_FOREACH(const PFCandidateRef& ref, tau.signalPFGammaCands()) {
-      if (keysToMove.count(ref.key()))
-        newIsolationPFGammas.push_back(ref);
+    BOOST_FOREACH(const PFCandidatePtr& ptr, tau.signalPFGammaCands()) {
+      if (keysToMove.count(ptr.key()))
+        newIsolationPFGammas.push_back(ptr);
       else
-        newSignalPFGammas.push_back(ref);
+        newSignalPFGammas.push_back(ptr);
     }
 
     tau.setsignalPFCands(newSignalPFCands);

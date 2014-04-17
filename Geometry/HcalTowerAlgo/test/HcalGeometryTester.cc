@@ -31,6 +31,7 @@ private:
 			    const HcalTopology& topology, DetId::Detector det, 
 			    int subdet, std::string label, 
 			    std::vector<int> &dins);
+  void testFlexiGeomHF(CaloSubdetectorGeometry* geom);
 
   edm::ParameterSet ps0;
   std::string m_label;
@@ -70,6 +71,8 @@ void HcalGeometryTester::analyze(const edm::Event& /*iEvent*/,
   testFlexiValidDetIds(geom, topology, DetId::Hcal, HcalEndcap, " ENDCAP ",  dins );
   testFlexiValidDetIds(geom, topology, DetId::Hcal, HcalOuter,  " OUTER ",   dins );
   testFlexiValidDetIds(geom, topology, DetId::Hcal, HcalForward," FORWARD ", dins );
+
+  testFlexiGeomHF(geom);
 }
 
 void HcalGeometryTester::testValidDetIds(CaloSubdetectorGeometry* caloGeom,
@@ -211,6 +214,25 @@ void HcalGeometryTester::testFlexiValidDetIds(CaloSubdetectorGeometry* caloGeom,
     HcalDetId hid = (topology.denseId2detId(*i));
     HcalDetId ihid = (topology.denseId2detId(dins[counter]));
     std::cout << counter << ": din " << (*i) << " :" << hid << " == " << ihid << std::endl;
+  }
+}
+
+void HcalGeometryTester::testFlexiGeomHF(CaloSubdetectorGeometry* caloGeom) {
+
+  std::cout << std::endl << "Test HF Geometry : " << std::endl;
+  for (int ieta = 29; ieta <=41; ++ieta) {
+    HcalDetId cell3 (HcalForward, ieta, 3, 1);
+    const CaloCellGeometry* cellGeometry3 = caloGeom->getGeometry (cell3);
+    if (cellGeometry3) {
+      std::cout << "cell geometry iphi=3 -> ieta=" << ieta
+		<< " eta " << cellGeometry3->getPosition().eta () << "+-" 
+		<< std::abs(cellGeometry3->getCorners()[0].eta() -
+			    cellGeometry3->getCorners()[2].eta())/2
+		<< " phi " << cellGeometry3->getPosition().phi ()/3.1415*180 
+		<<  "+-" << std::abs(cellGeometry3->getCorners()[0].phi() -
+				     cellGeometry3->getCorners()[2].phi())/3.1415*180/2.
+		<< std::endl;
+    }
   }
 }
 

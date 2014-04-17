@@ -8,7 +8,7 @@
  *
  * The binning is parameterized by the number of pileup vertices in the event.
  *
- * The extraction of the differnt objects to compute the spectra of is defined
+ * The extraction of the different objects to compute the spectra of is defined
  * in the derived classes by overriding the pure abstract extractIsoObjects
  * method.
  *
@@ -28,7 +28,7 @@ class RecoTauDiscriminationBinnedIsolation : public RecoTauDiscriminantPlugin {
     void beginEvent();
     std::vector<double> operator()(const reco::PFTauRef& tau) const;
     // Pure abstract function to extract objects to isolate with
-    virtual reco::PFCandidateRefVector extractIsoObjects(
+    virtual std::vector<reco::PFCandidatePtr> extractIsoObjects(
         const reco::PFTauRef& tau) const = 0;
 
   private:

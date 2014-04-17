@@ -83,6 +83,8 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     // Reweight user hook
     //
     UserHooks* fReweightUserHook;
+    UserHooks* fReweightRapUserHook;
+    UserHooks* fReweightPtHatRapUserHook;
         
     // PS matching protot6ype
     //
@@ -111,7 +113,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   comEnergy(params.getParameter<double>("comEnergy")),
   LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
   fInitialState(PP),
-  fReweightUserHook(0),
+  fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),
   fEmissionVetoHook(0),fEmissionVetoHook1(0)
 {
@@ -176,6 +178,34 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   //
   if( params.exists( "reweightGen" ) )
     fReweightUserHook = new PtHatReweightUserHook();
+  if( params.exists( "reweightGenRap" ) )
+  {
+    std::cout << "Pythia8Interface: Start setup for reweightGenRap" << std::endl;
+    edm::ParameterSet rgrParams =
+      params.getParameter<edm::ParameterSet>("reweightGenRap");
+    fReweightRapUserHook =
+      new RapReweightUserHook(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
+                              rgrParams.getParameter<double>("yLabPower"),
+                              rgrParams.getParameter<std::string>("yCMSigmaFunc"),
+                              rgrParams.getParameter<double>("yCMPower"),
+                              rgrParams.getParameter<double>("pTHatMin"),
+                              rgrParams.getParameter<double>("pTHatMax"));
+    std::cout << "End setup for reweightGenRap" << std::endl;
+  }
+  if( params.exists( "reweightGenPtHatRap" ) )
+  {
+    std::cout << "Pythia8Interface: Start setup for reweightGenPtHatRap" << std::endl;
+    edm::ParameterSet rgrParams =
+      params.getParameter<edm::ParameterSet>("reweightGenPtHatRap");
+    fReweightPtHatRapUserHook =
+      new PtHatRapReweightUserHook(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
+                                   rgrParams.getParameter<double>("yLabPower"),
+                                   rgrParams.getParameter<std::string>("yCMSigmaFunc"),
+                                   rgrParams.getParameter<double>("yCMPower"),
+                                   rgrParams.getParameter<double>("pTHatMin"),
+                                   rgrParams.getParameter<double>("pTHatMax"));
+    std::cout << "End setup for reweightGenPtHatRap" << std::endl;
+  }
 
   if( params.exists( "useUserHook" ) )
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
@@ -229,28 +259,24 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 
   int NHooks=0;
   if(fReweightUserHook) NHooks++;
+  if(fReweightRapUserHook) NHooks++;
+  if(fReweightPtHatRapUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
   if(fEmissionVetoHook) NHooks++;
   if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-      <<" Too many User Hooks. \n Please choose one from: reweightGen, jetMatching, emissionVeto \n";
+      <<" Too many User Hooks. \n Please choose one from: reweightGen, reweightGenRap, reweightGenPtHatRap, jetMatching, emissionVeto, emissionVeto1 \n";
 
   if(fReweightUserHook) fMasterGen->setUserHooksPtr(fReweightUserHook);
+  if(fReweightRapUserHook) fMasterGen->setUserHooksPtr(fReweightRapUserHook);
+  if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
   if(fEmissionVetoHook || fEmissionVetoHook1) {
     cout << "Turning on Emission Veto Hook";
     if(fEmissionVetoHook1) cout << " 1";
     cout << endl;
-    int nversion = (int)(1000.*(fMasterGen->settings.parm("Pythia:versionNumber") - 8.));
-    if(nversion < 157) {
-      cout << "obsolete pythia8 version for this Emission Veto code" << endl;
-      cout << "Please update pythia8 version using the instructions here:" << endl;
-      cout << "https://twiki.cern.ch/twiki/bin/view/CMS/Pythia8Interface" << endl;
-      cout << "or try to use tag V00-01-28 of this interface" << endl;
-      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-        <<" Obsolete pythia8 version for this Emission Veto code\n";
-    }
+    //int nversion = (int)(1000.*(fMasterGen->settings.parm("Pythia:versionNumber") - 8.));
     if(fEmissionVetoHook) fMasterGen->setUserHooksPtr(fEmissionVetoHook);
     if(fEmissionVetoHook1) fMasterGen->setUserHooksPtr(fEmissionVetoHook1);
   }

@@ -55,8 +55,6 @@ public:
   float minEta_;
   float maxEta_;
   float radiusCenter_, chamberHeight_;
-
-
 };
 
 #endif

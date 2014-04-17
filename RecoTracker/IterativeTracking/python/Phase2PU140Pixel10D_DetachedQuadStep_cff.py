@@ -25,32 +25,17 @@ import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 detachedQuadStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
     ComponentName = cms.string('detachedQuadStepSeedLayers'),
     layerList = cms.vstring('BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
-                            'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
                             'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
                             'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
                             'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg',
                             'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
                             'FPix1_pos+FPix2_pos+FPix3_pos', 'FPix1_neg+FPix2_neg+FPix3_neg',
-#ale
-                            'BPix1+FPix1_pos+FPix3_pos',
-                            'BPix1+FPix1_neg+FPix3_neg',
-                            'BPix1+FPix2_pos+FPix3_pos',
-                            'BPix1+FPix2_neg+FPix3_neg',
-                            'BPix1+FPix3_pos+FPix4_pos',
-                            'BPix1+FPix3_neg+FPix4_neg',
-                            'FPix3_pos+FPix4_pos+FPix5_pos',
-                            'FPix3_neg+FPix4_neg+FPix5_neg',
-                            'FPix4_pos+FPix5_pos+FPix6_pos',
-                            'FPix4_neg+FPix5_neg+FPix6_neg',
-                            'FPix5_pos+FPix6_pos+FPix7_pos',
-                            'FPix5_neg+FPix6_neg+FPix7_neg',
-                            'FPix6_pos+FPix7_pos+FPix9_pos',
-                            'FPix6_neg+FPix7_neg+FPix9_neg',
-                            'FPix6_pos+FPix7_pos+FPix10_pos',
-                            'FPix6_neg+FPix7_neg+FPix10_neg',
-                            'FPix7_pos+FPix9_pos+FPix10_pos',
-                            'FPix7_neg+FPix9_neg+FPix10_neg'
-                            )
+                            'FPix2_pos+FPix3_pos+FPix4_pos', 'FPix2_neg+FPix3_neg+FPix4_neg',
+                            'FPix3_pos+FPix4_pos+FPix5_pos', 'FPix3_neg+FPix4_neg+FPix5_neg',
+                            'FPix4_pos+FPix5_pos+FPix6_pos', 'FPix4_neg+FPix5_neg+FPix6_neg',
+                            'FPix5_pos+FPix6_pos+FPix7_pos', 'FPix5_neg+FPix6_neg+FPix7_neg',
+                            'FPix6_pos+FPix7_pos+FPix8_pos', 'FPix6_neg+FPix7_neg+FPix8_neg',
+                            'FPix6_pos+FPix7_pos+FPix9_pos', 'FPix6_neg+FPix7_neg+FPix9_neg')
     )
 detachedQuadStepSeedLayers.BPix.skipClusters = cms.InputTag('detachedQuadStepClusters')
 detachedQuadStepSeedLayers.FPix.skipClusters = cms.InputTag('detachedQuadStepClusters')
@@ -65,8 +50,8 @@ detachedQuadStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
         ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
         RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
-            ptMin = 0.5,
-            originRadius = 0.5,
+            ptMin = 0.45,
+            originRadius = 0.7,
             nSigmaZ = 4.0
             )
     ),
@@ -115,7 +100,7 @@ import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 detachedQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('detachedQuadStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(16.0)
 )
 
 # TRACK BUILDING
@@ -125,6 +110,7 @@ detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     MeasurementTrackerName = '',
     trajectoryFilterName = 'detachedQuadStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('detachedQuadStepClusters'),
+    minNrOfHitsForRebuild = 1,
     maxCand = 2,
     alwaysUseInvalidHits = False,
     estimator = cms.string('detachedQuadStepChi2Est'),
@@ -168,7 +154,7 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedQuadStepVtxLoose',
-            chi2n_par = 0.9,
+            chi2n_par = 1.0,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             d0_par1 = ( 0.9, 3.0 ),
@@ -178,7 +164,7 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedQuadStepTrkLoose',
-            chi2n_par = 0.5,
+            chi2n_par = 0.6,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             d0_par1 = ( 1.3, 4.0 ),
@@ -202,11 +188,11 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'detachedQuadStepTrkTight',
             preFilterName = 'detachedQuadStepTrkLoose',
-            chi2n_par = 0.35,
+            chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
+            minNumberLayers = 4,
             maxNumberLostLayers = 1,
-            minNumber3DLayers = 4,
+            minNumber3DLayers = 3,
             d0_par1 = ( 1.1, 4.0 ),
             dz_par1 = ( 1.1, 4.0 ),
             d0_par2 = ( 1.1, 4.0 ),
@@ -215,7 +201,7 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepVtx',
             preFilterName = 'detachedQuadStepVtxTight',
-            chi2n_par = 0.8,
+            chi2n_par = 0.9,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             maxNumberLostLayers = 1,
@@ -228,15 +214,15 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepTrk',
             preFilterName = 'detachedQuadStepTrkTight',
-            chi2n_par = 0.2,
+            chi2n_par = 0.45,
             res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
+            minNumberLayers = 4,
             maxNumberLostLayers = 0,
-            minNumber3DLayers = 4,
+            minNumber3DLayers = 3,
             d0_par1 = ( 0.8, 4.0 ),
             dz_par1 = ( 0.8, 4.0 ),
-            d0_par2 = ( 0.7, 4.0 ),
-            dz_par2 = ( 0.7, 4.0 )
+            d0_par2 = ( 0.8, 4.0 ),
+            dz_par2 = ( 0.8, 4.0 )
             )
         ) #end of vpset
     ) #end of clone
@@ -246,8 +232,8 @@ detachedQuadStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackList
     TrackProducers = cms.VInputTag(cms.InputTag('detachedQuadStepTracks'),
                                    cms.InputTag('detachedQuadStepTracks')),
     hasSelector=cms.vint32(1,1),
-    shareFrac = cms.double(0.095),
-    indivShareFrac=cms.vdouble(0.095,0.095),
+    shareFrac = cms.double(0.09),
+    indivShareFrac=cms.vdouble(0.09,0.09),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("detachedQuadStepSelector","detachedQuadStepVtx"),
                                        cms.InputTag("detachedQuadStepSelector","detachedQuadStepTrk")),
     setsToMerge = cms.VPSet(cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )),

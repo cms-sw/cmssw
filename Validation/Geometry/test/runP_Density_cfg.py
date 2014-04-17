@@ -22,11 +22,8 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(9876)
-    )
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
@@ -61,8 +58,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         HistosFile = cms.string('matbdg_Density.root'),
         AllStepsToTree = cms.bool(True),
         HistogramList = cms.string('Tracker'),
-        SelectedVolumes = cms.vstring('Tracker', 
-            'BEAM'),
+        SelectedVolumes = cms.vstring('Tracker', 'BEAM'),
         # string TextFile = "None"          # "None" means this option 
         TreeFile = cms.string('tree_Density.root'),
         StopAfterProcess = cms.string('None'),

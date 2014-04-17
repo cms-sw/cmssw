@@ -13,6 +13,8 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+//#define DebugLog
+
 DDShashlikNoTaperEndcap::DDShashlikNoTaperEndcap() {
   edm::LogInfo("HGCalGeom") << "DDShashlikNoTaperEndcap test: Creating an instance";
 }
@@ -64,7 +66,6 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
   double phiZ = 3*theta; 
   double offsetZ = m_zoffset;
   double offsetXY = m_xyoffset;
-  int row(0), column(0);
 
   // ccn: these need to change for no-taper option
   //double offsetX = offsetZ * tan( xphi );
@@ -72,17 +73,29 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
   double offsetX = xQuadrant*0.5*offsetXY;
   double offsetY = yQuadrant*0.5*offsetXY;
   
-  while( abs(offsetX) < m_rMax)
-  {
+#ifdef DebugLog
+  int rowmax(0), column(0);
+#endif
+  while( abs(offsetX) < m_rMax) {
+#ifdef DebugLog
     column++;
-    while( abs(offsetY) < m_rMax)
-    {
+    int row(0);
+#endif
+    while( abs(offsetY) < m_rMax) {
+#ifdef DebugLog
       row++;
+#endif
       double limit = sqrt( offsetX*offsetX + offsetY*offsetY );
       
       // Make sure we do not add supermodules in rMin area
       if( limit > m_rMin && limit < m_rMax )
       {
+#ifdef DebugLog
+	std::cout << " copyNo = " << copyNo << " (" << column << "," << row 
+		  << "): offsetX,Y = " << offsetX << "," << offsetY 
+		  << " limit=" << limit	<< " rMin, rMax = " 
+		  << m_rMin << "," << m_rMax << std::endl;
+#endif
 	DDRotation rotation;
 	std::string rotstr( "NULL" );
 
@@ -97,13 +110,11 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
 						  * ( *DDcreateRotationMatrix( theta + xphi, phiX, 90.*CLHEP::deg, 90.*CLHEP::deg, xphi, 0.0 ))));
 	}
       
-	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ":location = ("
-				  << offsetX << ","
-				  << offsetY << ","
-				  << offsetZ << ")";
 
 	DDTranslation tran( offsetX, offsetY, offsetZ );
-	
+	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ": location = "
+				  << tran << " Rotation " << rotation;
+
 	DDName parentName = parent().name(); 
 	cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
 
@@ -118,6 +129,9 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
       ////offsetX = offsetZ * tan( xphi );
       //offsetX += xQuadrant*offsetXY;
     }
+#ifdef DebugLog
+    if (row > rowmax) rowmax = row;
+#endif
     xphi += xQuadrant*2.*tiltAngle;
     yphi =  yQuadrant*tiltAngle;
     // ccn: change this for no-taper
@@ -127,8 +141,10 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
     offsetX += xQuadrant*offsetXY;
 
   }
-  
-  // std::cout << row << " rows and " << column << " columns in quadrant " << xQuadrant << ":" << yQuadrant << std::endl;
+#ifdef DebugLog
+  std::cout << rowmax << " rows and " << column << " columns in quadrant " 
+	    << xQuadrant << ":" << yQuadrant << std::endl;
+#endif
   return copyNo;
 }
 

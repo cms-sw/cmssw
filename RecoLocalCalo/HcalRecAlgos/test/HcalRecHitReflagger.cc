@@ -30,12 +30,13 @@
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
 
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 
@@ -73,6 +74,7 @@ private:
   double GetSlope(const int ieta, const std::vector<double>& params); 
 
   // ----------member data ---------------------------
+  const HcalTopology* topo;
   edm::InputTag hfInputLabel_;
   int  hfFlagBit_;
 
@@ -194,6 +196,11 @@ HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // prepare the output HF RecHit collection
    std::auto_ptr<HFRecHitCollection> pOut(new HFRecHitCollection());
+
+  //get the hcal topology
+  edm::ESHandle<HcalTopology> topo_;
+  iSetup.get<HcalRecNumberingRecord>().get(topo_);
+  topo = &*topo_;
    
    // loop over rechits, and set the new bit you wish to use
    for (HFRecHitCollection::const_iterator recHit=hfRecHits->begin(); recHit!=hfRecHits->end(); ++recHit) {
@@ -279,7 +286,10 @@ bool HcalRecHitReflagger::CheckPET(const HFRecHit& hf)
   int ieta = id.ieta();
   double energy=hf.energy();
   int depth = id.depth();
-  double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28]));
+  std::pair<double,double> etas = topo->etaRange(HcalForward,abs(ieta));
+  double eta1 = etas.first;
+  double eta2 = etas.second;
+  double fEta = 0.5*(eta1 + eta2); // calculate eta as average of eta values at ieta boundaries
   double ET = energy/cosh(fEta);
   double threshold=0;
   
@@ -346,7 +356,10 @@ bool HcalRecHitReflagger::CheckS9S1(const HFRecHit& hf)
   int ieta = id.ieta();
   double energy=hf.energy();
   int depth = id.depth();
-  double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28]));
+  std::pair<double,double> etas = topo->etaRange(HcalForward,ieta);
+  double eta1 = etas.first;
+  double eta2 = etas.second;
+  double fEta = 0.5*(eta1 + eta2); // calculate eta as average of eta values at ieta boundaries
   double ET = energy/cosh(fEta);
   double threshold=0;
 

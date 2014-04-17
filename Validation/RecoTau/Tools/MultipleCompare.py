@@ -9,7 +9,7 @@ import Validation.RecoTau.RecoTauValidation_cfi as validation
 from optparse import OptionParser
 from ROOT import *
 
-__author__  = "Mauro Verzetti (mauro.verzetti@cern.ch)"
+__author__  = "Mauro Verzetti (mauro.verzetti@cern.ch) and Lucia Perrini (lucia.perrini@cern.ch)"
 __doc__ = """Script to plot the content of a Validation .root file and compare it to a different file:\n\n
 Usage: MultipleCompare.py -T testFile -R refFile [options] [search strings that you want to apply '*' is supported as special character]"""
 
@@ -20,16 +20,29 @@ def LoadCommandlineOptions(argv):
   parser.add_option('--TestFile','-T',metavar='testFile', type=str,help='Sets the test file',dest='test',default = '')
   parser.add_option('--RefFile','-R',metavar='refFile', type=str,help='Sets the reference file',dest='ref',default = None)
   parser.add_option('--output','-o',metavar='outputFile', type=str,help='Sets the output file',dest='out',default = 'MultipleCompare.png')
-  parser.add_option('--logScale',action="store_true", dest="logScale", default=False, help="Sets the log scale in the plot")
+  parser.add_option('--logScaleY',action="store_true", dest="logScaleY", default=False, help="Sets the log scale in the plot (Y axis)")
+  parser.add_option('--logScaleX',action="store_true", dest="logScaleX", default=False, help="Sets the log scale in the plot (X axis)")
   parser.add_option('--fakeRate','-f',action="store_true", dest="fakeRate", default=False, help="Sets the fake rate options and put the correct label (implies --logScale)")
   parser.add_option('--testLabel','-t',metavar='testLabel', type=str,help='Sets the label to put in the plots for test file',dest='testLabel',default = None)
   parser.add_option('--refLabel','-r',metavar='refLabel', type=str,help='Sets the label to put in the plots for ref file',dest='refLabel',default = None)
-  parser.add_option('--maxLog',metavar='number', type=float,help='Sets the maximum of the scale in log scale (requires --logScale or -f to work)',dest='maxLog',default = 3)
-  parser.add_option('--minDiv',metavar='number', type=float,help='Sets the minimum of the scale in the ratio pad',dest='minDiv',default = 0.001)
-  parser.add_option('--maxDiv',metavar='number', type=float,help='Sets the maximum of the scale in the ratio pad',dest='maxDiv',default = 2)
+  parser.add_option('--sampleLabel','-s',metavar='sampleLabel', type=str,help='Sets the label to indicate the sample used',dest='sampleLabel',default = None)
+  parser.add_option('--maxLogX',metavar='number', type=float,help='Sets the maximum of the scale in log scale both in the main and in the sub pad (requires --logScale or -f to work)',dest='maxLogX',default = 100)
+  parser.add_option('--minLogX',metavar='number', type=float,help='Sets the minimum of the scale in log scale (requires --logScale or -f to work)',dest='minLogX',default = 0.001)
+  parser.add_option('--minLogY',metavar='number', type=float,help='Sets the minimum of the scale in log scale (requires --logScale or -f to work)',dest='minLogY',default = 0.0001)
+  parser.add_option('--maxLogY',metavar='number', type=float,help='Sets the maximum of the scale in log scale (requires --logScale or -f to work)',dest='maxLogY',default = 3)
+  parser.add_option('--minYR',metavar='number', type=float,help='Sets the minimum of the scale in sub pad',dest='minYR',default = 0)
+  parser.add_option('--maxYR',metavar='number', type=float,help='Sets the maximum of the scale in sub pad',dest='maxYR',default = 1.2)
+#  parser.add_option('--minDivY',metavar='number', type=float,help='Sets the minimum of the scale in the ratio pad',dest='minDivY',default = 0.)
+#  parser.add_option('--maxDivY',metavar='number', type=float,help='Sets the maximum of the scale in the ratio pad',dest='maxDivY',default = 2)
+#  parser.add_option('--minDivX',metavar='number', type=float,help='Sets the minimum of the scale in the ratio pad',dest='minDivX',default = 0.)
+#  parser.add_option('--maxDivX',metavar='number', type=float,help='Sets the maximum of the scale in the ratio pad',dest='maxDivX',default = 2)
   parser.add_option('--logDiv',action="store_true", dest="logDiv", default=False, help="Sets the log scale in the plot")
   parser.add_option('--normalize',action="store_true", dest="normalize", default=False, help="plot normalized")
   parser.add_option('--maxRange',metavar='number',type=float, dest="maxRange", default=1.6, help="Sets the maximum range in linear plots")
+  parser.add_option('--maxXaxis',metavar='number',type=float, dest="maxXaxis", default=800, help="Sets the maximum range on x axis in the main pad")
+  parser.add_option('--minXaxis',metavar='number',type=float,help="Sets the minimum range on x axis in the main pad",dest="minXaxis", default=-3)
+  parser.add_option('--maxYaxis',metavar='number',type=float, dest="maxYaxis", default=2, help="Sets the maximum range on Y axis in the main pad")
+  parser.add_option('--minYaxis',metavar='number',type=float, dest="minYaxis", default=0, help="Sets the minimum range on Y axis in the main pad")
   parser.add_option('--rebin', dest="rebin", type=int, default=-1, help="Sets the rebinning scale")
   parser.add_option('--branding','-b',metavar='branding', type=str,help='Define a branding to label the plots (in the top right corner)',dest='branding',default = None)
   #parser.add_option('--search,-s',metavar='searchStrings', type=str,help='Sets the label to put in the plots for ref file',dest='testLabel',default = None) No idea on how to tell python to use all the strings before a new option, thus moving this from option to argument (but may be empty)  
@@ -66,7 +79,7 @@ def Match(required, got):
 def Divide(hNum,hDen):
     ret = hNum.Clone('Division')
     ret.GetYaxis().SetTitle('Ratio')
-    for binI in range(hNum.GetNbinsX()):
+    for binI in range(hNum.GetNbinsX()+1):
         denVal = hDen.GetBinContent(binI)
         denErr = hDen.GetBinError(binI)
         numErr = hNum.GetBinError(binI)
@@ -162,7 +175,7 @@ def Rebin(tfile, histoPath, rebinVal):
     parents = FindParents(histoPath)
     num = tfile.Get(parents[0])
     if type(num) != TH1F:
-        print 'Looking for '+num
+        print 'Looking for ' + num
         print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
     denSingle = tfile.Get(parents[1])
@@ -198,37 +211,76 @@ def findRange(hists, min0=-1, max0=-1):
           max = maxTmp
   return [min, max]
 
-def optimizeRangeMainPad(argv, pad, hists):
+def optimizeRangeMainPad(argv, pad, hists, maxLogX_, minX_, maxX_, maxLogY_, minY_, maxY_):
   pad.Update()
-  if pad.GetLogy() and argv.count('maxLog') > 0:
-    maxLog = options.maxLog
-  else:
-    maxLog = -1
-  min, max = findRange(hists, -1, maxLog)
   if pad.GetLogy():
-    if min == 0:
-      min = 0.001
-    if max < 2:
-      max = 2. #prefere fixed range for easy comparison
+    if maxLogY_ > 0:
+      maxLogY = maxLogY_
+    else:
+      maxLogY = -1
+    minY, maxY = findRange(hists, -1, maxLogY)
   else:
-    if min < 0.7:
-      min = 0. #start from zero if possible
-    if max <= 1.1 and max > 0.7:
-      max = 1.2 #prefere fixed range for easy comparison
-  hists[0].SetAxisRange(min, max, "Y")
+    minY, maxY = findRange(hists, minY_, maxY_)
 
-def optimizeRangeSubPad(argv, hists):
+  if pad.GetLogy():
+    if minY == 0:
+      minY = 0.001
+  else:
+    if minY < 0.7:
+      minY = minY #start from zero if possible
+    if maxY <= 1.1 and maxY > 0.7:
+      maxY = 1.2 #prefere fixed range for easy comparison
+  hists[0].SetAxisRange(minY, maxY, "Y")
+
+  if pad.GetLogx():
+    if maxLogX_ > 0:
+      maxLogX = maxLogX_
+    else:
+      maxLogX = -1
+    minX, maxX = findRange(hists, -1, maxLogX)
+  else:
+    minX, maxX = findRange(hists, minX_, maxX_)
+    
+  if pad.GetLogx():
+    if minX == 0:
+      minX = 0.001
+  else:
+    if minX < 0.7:
+      minX = minX #start from zero if possible
+    if maxX <= 1.1 and maxX > 0.7:
+      maxX = 1.2 #prefere fixed range for easy comparison
+  hists[0].SetAxisRange(minX, maxX, "X")
+
+def optimizeRangeSubPad(argv, pad, hists, maxLogX_, minX_, maxX_, minYRatio_, maxYRatio_):
+  pad.Update()
+  if pad.GetLogx():
+    if maxLogX_ > 0:
+      maxLogX = maxLogX_
+    else:
+      maxLogX = -1
+    minX, maxX = findRange(hists, -1, maxLogX)
+  else:
+    minX, maxX = findRange(hists, minX_, maxX_)
+  if pad.GetLogx():
+    if minX == 0:
+      minX = 0.001
+  else:
+    if minX < 0.7:
+      minX = minX #start from zero if possible
+    if maxX <= 1.1 and maxX > 0.7:
+      maxX = 1.2 #prefere fixed range for easy comparison
+  hists[0].SetAxisRange(minX, maxX, "X")
+
   min = -1
   max = -1
-  if argv.count('minDiv') > 0:
-    min = options.minDiv
-  if argv.count('maxDiv') > 0:
-    max = options.maxDiv
+  if minYRatio_ > 0:
+    min = minYRatio_
+  if maxYRatio_ > 0:
+    max = maxYRatio_
   min, max = findRange(hists, min, max)
   if max > 2:
     max = 2 #maximal bound
-  hists[0].SetAxisRange(min, max, "Y")
-
+  hists[0].SetAxisRange(min, max, "Y")                                     
 
 def getMaximumIncludingErrors(hist):
 #find maximum considering also the errors
@@ -320,17 +372,18 @@ def main(argv=None):
   if histType=='pTRatio' and len(histoList)<3:
     drawStats = True
 
-  #legend = TLegend(0.6,0.83,0.6+0.39,0.83+0.17)
-  x1 = 0.55
+  #legend = TLegend(0.50,0.73,0.50+0.37,1)
+  x1 = 0.33
   x2 = 1-gStyle.GetPadRightMargin()
   y2 = 1-gStyle.GetPadTopMargin()
-  lineHeight = .025
+  lineHeight = .055
   if len(histoList) == 1:
     lineHeight = .05
   y1 = y2 - lineHeight*len(histoList)
   legend = TLegend(x1,y1,x2,y2)
-  #legend.SetHeader(label)
+  legend.SetHeader(label)
   legend.SetFillColor(0)
+  legend.SetTextSize(0.032)
   if drawStats:
     y2 = y1
     y1 = y2 - .07*len(histoList)
@@ -342,20 +395,24 @@ def main(argv=None):
 
     
   canvas = TCanvas('MultiPlot','MultiPlot',validation.standardDrawingStuff.canvasSizeX.value(),832)
-  effPad = TPad('effPad','effPad',0,0.25,1.,1.,0,0)
-  effPad.SetBottomMargin(0.1);
-  effPad.SetTopMargin(0.1);
-  effPad.SetLeftMargin(0.13);
-  effPad.SetRightMargin(0.07);
+  effPad = TPad('effPad','effPad',0.01,0.35,0.99,0.99)#0,0.25,1.,1.,0,0)
+  effPad.SetBottomMargin(0.0)#0.1)
+  #effPad.SetTopMargin(0.1)
+  #effPad.SetLeftMargin(0.13)
+  #effPad.SetRightMargin(0.07)
   effPad.Draw()
   header = ''
+  if options.sampleLabel != None:
+    header += 'Sample: '+options.sampleLabel
   if options.testLabel != None:
-    header += 'Dots: '+options.testLabel
+    header += ' Dots: '+options.testLabel
   if options.refLabel != None:
     header += ' Line: '+options.refLabel
   DrawTitle(header)
   DrawBranding(options)
-  diffPad = TPad('diffPad','diffPad',0.,0.,1,.25,0,0)
+  diffPad = TPad('diffPad','diffPad',0.01,0.01,0.99,0.32)#0.,0.,1,.25,0,0)
+  diffPad.SetTopMargin(0.00);
+  diffPad.SetBottomMargin(0.30);
   diffPad.Draw()
   colors = [2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1]
   first = True
@@ -383,7 +440,10 @@ def main(argv=None):
     if label!='':
       testH.GetXaxis().SetTitle(label+': '+testH.GetXaxis().GetTitle())
     testH.GetXaxis().SetTitleOffset(1.1)
-    testH.GetYaxis().SetTitleOffset(1.5)
+    testH.GetXaxis().SetRangeUser(options.minXaxis,options.maxXaxis)
+    testH.GetYaxis().SetTitleOffset(1.1)
+    #testH.GetYaxis().SetTitleSize(0.08)
+    #testH.GetYaxis().CenterTitle()
     testH.SetMarkerSize(1)
     testH.SetMarkerStyle(20)
     testH.SetMarkerColor(color)
@@ -396,8 +456,11 @@ def main(argv=None):
         text.SetTextColor(color)
     if first:
         first = False
-        if options.logScale:
+        if options.logScaleY:
             effPad.SetLogy()
+        if options.logScaleX:
+            effPad.SetLogx()
+            diffPad.SetLogx()
         if scaleToIntegral:
           if testH.GetEntries() > 0:
             if not testH.GetSumw2N():
@@ -434,8 +497,8 @@ def main(argv=None):
     if drawStats:
       text = statsBox.AddText(statTemplate % ('Line',refH.GetMean(), refH.GetRMS()) )
       text.SetTextColor(color)
-    refH.SetFillColor(color)
-    refH.SetFillStyle(3001)
+    #refH.SetFillColor(color)
+    #refH.SetFillStyle(3001)
     if scaleToIntegral:
         entries = testH.GetEntries()
         if entries > 0:
@@ -444,40 +507,51 @@ def main(argv=None):
         refH.Sumw2()
         if entries > 0:
           refH.Scale(1./entries)
-    refH.Draw('same e3')
+    refH.Draw('same hist')
     divHistos.append(Divide(testH,refH))
+
+    if options.maxLogY > 0:
+       maxlY=options.maxLogY
+    if options.maxLogX > 0:
+       maxlX=options.maxLogX
 
   tmpHists = []
   tmpHists.extend(testHs)
   tmpHists.extend(refHs)
-  optimizeRangeMainPad(argv, effPad, tmpHists)
+  optimizeRangeMainPad(argv, effPad, tmpHists, maxlX, options.minXaxis, options.maxXaxis, maxlY, options.minYaxis, options.maxYaxis)
   
   firstD = True
   if refFile != None:
     for histo,color in zip(divHistos,colors):
-        diffPad.cd()
-        histo.SetMarkerSize(1)
-        histo.SetMarkerStyle(20)
-        histo.SetMarkerColor(color)
-        histo.GetYaxis().SetLabelSize(0.08)
-        histo.GetYaxis().SetTitleOffset(0.6)
-        histo.GetYaxis().SetTitleSize(0.08)
-        histo.GetXaxis().SetLabelSize(0.)
-        histo.GetXaxis().SetTitleSize(0.)
-        if firstD:
-            if options.logDiv:
-                diffPad.SetLogy()
-            histo.Draw('ex0')
-            firstD = False
-        else:
-            histo.Draw('same ex0')
-            diffPad.Update()
-    optimizeRangeSubPad(argv, divHistos)
+      diffPad.cd()
+      histo.SetMarkerSize(1)
+      histo.SetMarkerStyle(20)
+      histo.SetMarkerColor(color)
+      histo.GetYaxis().SetLabelSize(0.07)
+      histo.GetYaxis().SetTitleOffset(0.75)
+      histo.GetYaxis().SetTitleSize(0.08)
+      histo.GetXaxis().SetLabelSize(0.08)
+      histo.GetXaxis().SetTitleSize(0.08)
+      #histo.GetYaxis().CenterTitle()
+                                         
 
-    effPad.cd()
+      if firstD:
+        histo.Draw('ex0')
+        firstD = False
+      else:
+        histo.Draw('same ex0')
+        diffPad.Update()
+        
+    if options.maxLogX > 0:
+      maxlX=options.maxLogX
+    optimizeRangeSubPad(argv, diffPad, divHistos, maxlX, options.minXaxis, options.maxXaxis, options.minYR, options.maxYR)
+
+  effPad.cd()
   legend.Draw()
+
   if drawStats:
     statsBox.Draw()
+  
   canvas.Print(options.out)
 
 

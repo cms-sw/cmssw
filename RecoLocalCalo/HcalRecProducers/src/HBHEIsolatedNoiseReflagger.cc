@@ -9,7 +9,7 @@ Original Author: John Paul Chou (Brown University)
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
@@ -91,7 +91,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
 
   // get the calotower mappings
   edm::ESHandle<CaloTowerConstituentsMap> ctcm;
-  evSetup.get<HcalRecNumberingRecord>().get(ctcm);
+  evSetup.get<CaloGeometryRecord>().get(ctcm);
   
   // get the HB/HE hits
   edm::Handle<HBHERecHitCollection> hbhehits_h;

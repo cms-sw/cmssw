@@ -38,7 +38,7 @@ class  CaloRecoTauAlgorithm  {
   reco::CaloTau buildCaloTau(edm::Event&,const edm::EventSetup&,const reco::CaloTauTagInfoRef&,const reco::Vertex&); 
   std::vector<DetId> mySelectedDetId_;
  private:
-  std::vector<CaloTowerDetId> getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry*,CaloTowerDetId);
+  std::vector<CaloTowerDetId> getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry*, const CaloTowerTopology&, CaloTowerDetId);
   const TransientTrackBuilder* TransientTrackBuilder_;
   const MagneticField* MagneticField_;
   double LeadTrack_minPt_;

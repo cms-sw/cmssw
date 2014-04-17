@@ -51,7 +51,8 @@ G4LogicalVolume * DDG4Builder::convertLV(const DDLogicalPart & part) {
     DDG4Dispatchable * disp = new DDG4Dispatchable(&part,result);	
     theVectorOfDDG4Dispatchables_->push_back(disp);
     LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name()
-				  << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName();
+				  << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName()
+				  << "\nSolid " << s->GetName() << "  Material " << m->GetName();
     logs_[part] = result;  // DDD -> GEANT4  
   }
   return result;
@@ -144,13 +145,14 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 	rm.GetComponents(x, y, z);
 	if ((x.Cross(y)).Dot(z)<0)
 	  LogDebug("SimG4CoreGeometry") << ">>Reflection encountered: " << gra.edgeData(cit->second)->rot_ ;
-	LogDebug("SimG4CoreGeometry") << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
-				      << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno_
-				      << " r=" << gra.edgeData(cit->second)->rot_.ddname() ;          
 	G4ThreeVector tempTran(gra.edgeData(cit->second)->trans_.X(), gra.edgeData(cit->second)->trans_.Y(), gra.edgeData(cit->second)->trans_.Z());
 	G4Translate3D transl = tempTran;
 	CLHEP::HepRep3x3 temp( x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() ); //matrix representation
 	CLHEP::HepRotation hr ( temp );
+	LogDebug("SimG4CoreGeometry") << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
+				      << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno_
+				      << " r=" << gra.edgeData(cit->second)->rot_.ddname() 
+				      << " t=" << tempTran;          
 	    
 	// G3 convention of defining rot-matrices ...
 	G4Transform3D trfrm  = transl * G4Rotate3D(hr.inverse());//.inverse();

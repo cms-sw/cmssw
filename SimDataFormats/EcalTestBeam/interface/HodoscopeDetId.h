@@ -5,7 +5,7 @@
 #include <cmath>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 /** \class HodoscopeDetId
  *  Hodoscope fiber identifier class for the ECAL TBH4 setup
@@ -16,9 +16,9 @@
 
 // bkh June 2011: must be a calo detid type that is recognized by
 //                CaloGenericDetId for use of its denseIndex() fcn.
-//                Hence choose CaloTowerDetId to inherit from.
+//                Hence choose EBDetId to inherit from.
 
-class HodoscopeDetId : public CaloTowerDetId 
+class HodoscopeDetId : public EBDetId 
 {
    public:
 

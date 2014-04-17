@@ -35,10 +35,10 @@ void GEMTrackMatch::buildLUT()
   const int maxChamberId_ = theGEMGeometry->regions()[0]->stations()[0]->superChambers().size();
   edm::LogInfo("GEMTrackMatch")<<"max chamber "<<maxChamberId_<<"\n";
   std::vector<int> pos_ids;
-  pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,1).rawId());
+  pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,2).rawId());
 
   std::vector<int> neg_ids;
-  neg_ids.push_back(GEMDetId(-1,1,1,1,maxChamberId_,1).rawId());
+  neg_ids.push_back(GEMDetId(-1,1,1,1,maxChamberId_,2).rawId());
 
   // VK: I would really suggest getting phis from GEMGeometry
   
@@ -46,8 +46,8 @@ void GEMTrackMatch::buildLUT()
   phis.push_back(0.);
   for(int i=1; i<maxChamberId_+1; ++i)
   {
-    pos_ids.push_back(GEMDetId(1,1,1,1,i,1).rawId());
-    neg_ids.push_back(GEMDetId(-1,1,1,1,i,1).rawId());
+    pos_ids.push_back(GEMDetId(1,1,1,1,i,2).rawId());
+    neg_ids.push_back(GEMDetId(-1,1,1,1,i,2).rawId());
     phis.push_back(i*10.);
   }
   positiveLUT_ = std::make_pair(phis,pos_ids);
@@ -58,8 +58,9 @@ void GEMTrackMatch::buildLUT()
 void GEMTrackMatch::setGeometry(const GEMGeometry* geom)
 {
   theGEMGeometry = geom;
-  const auto top_chamber = static_cast<const GEMEtaPartition*>(theGEMGeometry->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
-  const int nEtaPartitions(theGEMGeometry->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
+  //Must use roll 2 as first eta partition.
+  const auto top_chamber = static_cast<const GEMEtaPartition*>(theGEMGeometry->idToDetUnit(GEMDetId(1,1,1,1,1,2))); 
+  const int nEtaPartitions(theGEMGeometry->chamber(GEMDetId(1,1,1,1,1,2))->nEtaPartitions());
   const auto bottom_chamber = static_cast<const GEMEtaPartition*>(theGEMGeometry->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
   const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
   const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
@@ -71,12 +72,13 @@ void GEMTrackMatch::setGeometry(const GEMGeometry* geom)
   radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
   chamberHeight_ = gp_top.perp() - gp_bottom.perp();
 
+  buildLUT();
 }  
 
 
 std::pair<int,int> GEMTrackMatch::getClosestChambers(int region, float phi)
 {
-  const int maxChamberId_ = GEMDetId().maxChamberId; 
+  const int maxChamberId_ = theGEMGeometry->regions()[0]->stations()[0]->superChambers().size();
   auto& phis(positiveLUT_.first);
   auto upper = std::upper_bound(phis.begin(), phis.end(), phi);
   auto& LUT = (region == 1 ? positiveLUT_.second : negativeLUT_.second);

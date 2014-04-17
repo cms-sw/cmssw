@@ -164,7 +164,7 @@ void EmulatedME0SegmentProducer::produce(edm::Event& ev, const edm::EventSetup& 
 	theRotMatrix[3][2] = sin(SmearedPosition.phi()+piover2);
 
 	RotateCovMatrix(theRotMatrix,theCovMatrix,4,theGlobalCovMatrix);
-	if (abs(Point.eta() < 2.4) || abs(Point.eta() > 4.0)) continue;         //Currently we only save segments that propagate to our defined disk
+	if ( (fabs(Point.eta()) < 2.4) || (fabs(Point.eta()) > 4.0) ) continue;         //Currently we only save segments that propagate to our defined disk
 
 
 	//std::cout<<"new rho = "<<newrho<<std::endl;

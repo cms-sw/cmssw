@@ -21,7 +21,7 @@ namespace reco{
     
     // Tracks which are components of JetTracksAssociation object and which were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredTracks(.,...) function through RecoTauTag/RecoTauTag/ CaloRecoTauTagInfoProducer or PFRecoTauTagInfoProducer EDProducer
     const reco::TrackRefVector& Tracks()const;
-    void setTracks(const TrackRefVector);
+    void setTracks(const TrackRefVector&);
   protected:
     reco::TrackRefVector Tracks_;
   };

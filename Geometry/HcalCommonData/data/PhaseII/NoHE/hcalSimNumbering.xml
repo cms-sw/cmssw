@@ -11,6 +11,7 @@
     <Parameter name="phioff" value="0.0*deg"/>
     <Parameter name="phioff" value="0.0*deg"/>
     <Parameter name="phioff" value="10.0*deg"/>
+    <Parameter name="phioff" value="10.0*deg"/>
     <Parameter name="phibin" value="5.0*deg"/>
     <Parameter name="phibin" value="5.0*deg"/>
     <Parameter name="phibin" value="5.0*deg"/>
@@ -72,43 +73,24 @@
     <Parameter name="phitable" value="20.0*deg"/>
     <Parameter name="phitable" value="20.0*deg"/>
     <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
-    <Parameter name="layerGroupEta1"  value="1"/>
+    <Parameter name="layerGroupEta1"  value="2"/>
+    <Parameter name="layerGroupEta1"  value="2"/>
+    <Parameter name="layerGroupEta1"  value="2"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
+    <Parameter name="layerGroupEta1"  value="3"/>
     <Parameter name="layerGroupEta1"  value="4"/>
     <Parameter name="layerGroupEta1"  value="4"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="1"/>
-    <Parameter name="layerGroupEta15" value="2"/>
-    <Parameter name="layerGroupEta15" value="2"/>
-    <Parameter name="layerGroupEta15" value="2"/>
-    <Parameter name="layerGroupEta15" value="2"/>
-    <Parameter name="layerGroupEta15" value="4"/>
-    <Parameter name="layerGroupEta15" value="4"/>
     <Parameter name="layerGroupEta16" value="1"/>
     <Parameter name="layerGroupEta16" value="1"/>
     <Parameter name="layerGroupEta16" value="2"/>

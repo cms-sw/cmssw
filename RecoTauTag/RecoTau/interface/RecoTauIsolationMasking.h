@@ -9,7 +9,7 @@
  * eaten, (HCAL first, ordered by DR from track), until the total associated
  * calo energy is within maxSigmas standard deviations of the track energy.
  *
- * Authors: Evan K. Friis, Christian Veelken (UC DAvis)
+ * Authors: Evan K. Friis, Christian Veelken (UC Davis)
  *
  */
 
@@ -25,8 +25,8 @@ class RecoTauIsolationMasking {
   public:
     // Structure containing new, maksed isolation collections
     struct IsoMaskResult {
-      std::list<reco::PFCandidateRef> gammas;
-      std::list<reco::PFCandidateRef> h0s;
+      std::list<reco::PFCandidatePtr> gammas;
+      std::list<reco::PFCandidatePtr> h0s;
     };
     RecoTauIsolationMasking(const edm::ParameterSet& pset);
     ~RecoTauIsolationMasking();

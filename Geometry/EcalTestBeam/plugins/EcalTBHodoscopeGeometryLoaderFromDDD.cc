@@ -1,7 +1,7 @@
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryLoaderFromDDD.h"
 
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -37,7 +37,7 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
    const DDCompactView*     cpv ,
    CaloSubdetectorGeometry* ebg  )
 {
-   if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( CaloTowerDetId::kSizeForDenseIndexing ) ;
+   if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( EBDetId::kSizeForDenseIndexing ) ;
    if( ebg->parMgr()     == 0 ) ebg->allocatePar( 10, 3 ) ;
   
    DDFilter* filter = getDDFilter();

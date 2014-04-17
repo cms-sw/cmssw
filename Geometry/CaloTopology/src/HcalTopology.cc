@@ -4,6 +4,7 @@
 #include <cassert>
 #include <algorithm>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
@@ -11,6 +12,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 static const int IPHI_MAX=72;
+//#define DebugLog
 
 HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::TriggerMode tmode) :
   hcons_(hcons),
@@ -68,6 +70,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
   etaTable    = hcons_->getEtaTable();
   dPhiTableHF = hcons_->getPhiTableHF();
   dPhiTable   = hcons_->getPhiTable();
+  phioff      = hcons_->getPhiOffs();
   std::pair<int,int>  ietaHF = hcons_->getEtaRange(2);
   double eta  = etaBinsHE_[etaBinsHE_.size()-1].etaMax;
   etaHE2HF_   = firstHFRing_;
@@ -94,7 +97,28 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
     int units = (int)(dPhiTableHF[k]/fiveDegInRad+0.5);
     unitPhiHF.push_back(units);
   }
-  std::cout << "Constants in HcalTopology " << firstHBRing_ << ":" << lastHBRing_ << " " << firstHERing_ << ":" << lastHERing_ << ":" << firstHEDoublePhiRing_ << ":" << firstHEQuadPhiRing_ << ":" << firstHETripleDepthRing_ << " " << firstHFRing_ << ":" << lastHFRing_ << ":" << firstHFQuadPhiRing_ << " " << firstHORing_ << ":" << lastHORing_ << " " << maxDepthHB_ << ":" << maxDepthHE_ << " " << nEtaHB_ << ":" << nEtaHE_ << " " << etaHE2HF_ << ":" << etaHF2HE_ << std::endl;
+  int nEta = hcons_->getNEta();
+  for (int ring=1; ring<=nEta; ++ring) {
+    std::vector<int> segmentation = hcons_->getDepth(ring-1);
+    setDepthSegmentation(ring,segmentation);
+#ifdef DebugLog
+    std::cout << "Set segmentation for ring " << ring << " with " 
+	      << segmentation.size() << " elements:";
+    for (unsigned int k=0; k<segmentation.size(); ++k) 
+      std::cout << " " << segmentation[k];
+    std::cout << std::endl;
+#endif
+  }
+#ifdef DebugLog
+  std::cout << "Constants in HcalTopology " << firstHBRing_ << ":" 
+	    << lastHBRing_ << " " << firstHERing_ << ":" << lastHERing_ << ":" 
+	    << firstHEDoublePhiRing_ << ":" << firstHEQuadPhiRing_ << ":" 
+	    << firstHETripleDepthRing_ << " " << firstHFRing_ << ":" 
+	    << lastHFRing_ << ":" << firstHFQuadPhiRing_ << " " << firstHORing_
+	    << ":" << lastHORing_ << " " << maxDepthHB_ << ":" << maxDepthHE_ 
+	    << " " << nEtaHB_ << ":" << nEtaHE_ << " " << etaHE2HF_ << ":" 
+	    << etaHF2HE_ << std::endl;
+#endif
 }
 
 HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode) :
@@ -142,6 +166,9 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   }
   nEtaHB_ = (lastHBRing_-firstHBRing_+1);
   nEtaHE_ = (lastHERing_-firstHERing_+1);
+
+  edm::LogWarning("CaloTopology") << "This is an incomplete constructor of HcalTopology - be warned that many functionalities will not be there - revert from this - get from EventSetup";
+
 }
 
 bool HcalTopology::valid(const DetId& id) const {
@@ -664,7 +691,7 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
 	     mode_ != HcalTopologyMode::SLHC) {
     (ieta > 0) ? --ieta : ++ieta;
   } else if (depth <= 0) {
-    if (subdet == HcalEndcap && etaRing ==  firstHFRing()) {
+    if (subdet == HcalForward && etaRing ==  firstHFRing()) {
       // overlap
       subdet = HcalEndcap;
       etaRing= etaHF2HE_;
@@ -728,17 +755,29 @@ int HcalTopology::etaRing(HcalSubdetector bc, double abseta) const {
 int HcalTopology::phiBin(HcalSubdetector bc, int etaring, double phi) const {
   static const double twopi = M_PI+M_PI;
   //put phi in correct range (0->2pi)
+  int index(0);
+  if (bc == HcalBarrel) {
+    index = (etaring-firstHBRing_);
+    phi  -= phioff[0];
+  } else if (bc == HcalEndcap) {
+    index = (etaring-firstHBRing_);
+    phi  -= phioff[1];
+  } else if (bc == HcalForward) {
+    index = (etaring-firstHFRing_);
+    if (index < (int)(dPhiTableHF.size())) {
+      if (unitPhiHF[index] > 2) phi -= phioff[4];
+      else                      phi -= phioff[2];
+    }
+  }
   if (phi<0.0)   phi += twopi;
   if (phi>twopi) phi -= twopi;
-  int phibin(1), unit(1), index(0);
+  int phibin(1), unit(1);
   if (bc == HcalForward) {
-    index = (etaring-firstHFRing_);
     if (index < (int)(dPhiTableHF.size())) {
       unit    = unitPhiHF[index];
       phibin  = static_cast<int>(phi/dPhiTableHF[index])+1;
     }
   } else {
-    index = (etaring-firstHBRing_);
     if (index < (int)(dPhiTable.size())) {
       phibin  = static_cast<int>(phi/dPhiTable[index])+1;
       unit    = unitPhi[index];
@@ -774,6 +813,37 @@ std::pair<int, int> HcalTopology::segmentBoundaries(unsigned ring, unsigned dept
   return std::pair<int, int>(d1, d2);
 }
 
+double HcalTopology::etaMax(HcalSubdetector subdet) const {
+  double eta(0);
+  switch (subdet) {
+  case(HcalBarrel):  
+    if (lastHBRing_ < (int)(etaTable.size())) eta=etaTable[lastHBRing_]; break;
+  case(HcalEndcap):  
+    if (lastHERing_ < (int)(etaTable.size()) && nEtaHE_ > 0) eta=etaTable[lastHERing_]; break;
+  case(HcalOuter): 
+    if (lastHORing_ < (int)(etaTable.size())) eta=etaTable[lastHORing_]; break;
+  case(HcalForward): 
+    if (etaTableHF.size() > 0) eta=etaTableHF[etaTableHF.size()-1]; break;
+  default: eta=0;
+  }
+  return eta;
+}
+
+std::pair<double,double> HcalTopology::etaRange(HcalSubdetector subdet, 
+						int ieta) const {
+
+  if (subdet == HcalForward) {
+    unsigned int ii = (unsigned int)(ieta-firstHFRing_);
+    return std::pair<double,double>(etaTableHF[ii],etaTableHF[ii+1]);
+  } else {
+    if (mode_==HcalTopologyMode::LHC && ieta == lastHERing_-1) {
+      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta+1]);
+    } else {
+      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta]);
+    }
+  }
+}
+    
 unsigned int HcalTopology::detId2denseIdPreLS1 (const DetId& id) const {
 
   HcalDetId hid(id);
