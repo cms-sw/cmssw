@@ -810,7 +810,7 @@ void TrackIPTagPlotter::finalize ()
   effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],trackIPDir, mcPlots_, ibook_,
 					      nBinEffPur_, startEffPur_,
 					      endEffPur_);
-  for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute();
+  for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute(ibook_);
   finalized = true;
 }
 

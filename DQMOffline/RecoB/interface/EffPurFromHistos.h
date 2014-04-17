@@ -31,7 +31,7 @@ class EffPurFromHistos {
   ~EffPurFromHistos () ;
 
   // do the computation
-  void compute () ;
+  void compute (DQMStore::IBooker & ibook) ;
 
   // return the newly created histos
   TH1F * getEffFlavVsBEff_d    () { return EffFlavVsBEff_d->getTH1F()    ; };

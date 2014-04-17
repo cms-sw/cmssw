@@ -136,14 +136,14 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
 	// the objects for the differential plots vs. eta,pt for
 	for ( int iEta = iEtaStart ; iEta < iEtaEnd ; ++iEta ) {
 	  BTagDifferentialPlot * etaConstDifferentialPlot = new BTagDifferentialPlot
-	    (effBConst, BTagDifferentialPlot::constETA, moduleLabel.label());
+	    (effBConst, BTagDifferentialPlot::constETA, moduleLabel.label(), ibook);
 	  differentialPlotsConstantEta->push_back ( etaConstDifferentialPlot );
 	}
 	
 	for ( int iPt = iPtStart ; iPt < iPtEnd ; ++iPt ) {
 	  // differentialPlots for this pt bin
 	  BTagDifferentialPlot * ptConstDifferentialPlot = new BTagDifferentialPlot
-	    (effBConst, BTagDifferentialPlot::constPT, moduleLabel.label());
+	    (effBConst, BTagDifferentialPlot::constPT, moduleLabel.label(), ibook);
 	  differentialPlotsConstantPt->push_back ( ptConstDifferentialPlot );
 	}
       }

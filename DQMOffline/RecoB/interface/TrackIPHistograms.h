@@ -54,7 +54,7 @@ TrackIPHistograms<T>::TrackIPHistograms (const std::string& baseNameTitle_, cons
 {
   if(quality_) {
     if(!update) {
-      HistoProviderDQM prov("Btag",folder);
+      HistoProviderDQM prov("Btag",folder,ibook);
       theQual_undefined = prov.book1D( baseNameTitle_ + "QualUnDef" , baseNameDescription_ + " Undefined Quality", nBins_, lowerBound_, upperBound_);
       theQual_loose = prov.book1D( baseNameTitle_ + "QualLoose" , baseNameDescription_ + " Loose Quality", nBins_, lowerBound_, upperBound_);
       theQual_tight = prov.book1D( baseNameTitle_ + "QualTight" , baseNameDescription_ + " Tight Quality", nBins_, lowerBound_, upperBound_);
@@ -67,7 +67,8 @@ TrackIPHistograms<T>::TrackIPHistograms (const std::string& baseNameTitle_, cons
         theQual_highpur->getTH1F()->Sumw2();
       }
     } else {
-      HistoProviderDQM prov("Btag",folder);
+      //is it useful? anyway access function is deprecated...
+      HistoProviderDQM prov("Btag",folder,ibook);
       theQual_undefined = prov.access(baseNameTitle_ + "QualUnDef");
       theQual_loose = prov.access(baseNameTitle_ + "QualLoose");
       theQual_tight = prov.access(baseNameTitle_ + "QualTight");

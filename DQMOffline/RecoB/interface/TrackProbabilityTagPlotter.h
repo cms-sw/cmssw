@@ -42,7 +42,7 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
   bool finalized;
   unsigned int mcPlots_;  
   bool willFinalize_;
-
+  DQMStore::IBooker & ibook_;
 } ;
 
 #endif

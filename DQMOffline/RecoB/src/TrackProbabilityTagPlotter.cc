@@ -11,7 +11,7 @@ TrackProbabilityTagPlotter::TrackProbabilityTagPlotter(const std::string & tagNa
   nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
   startEffPur_(pSet.getParameter<double>("startEffPur")),
   endEffPur_(pSet.getParameter<double>("endEffPur")),
-  finalized(false), mcPlots_(mc), willFinalize_(wf)
+  finalized(false), mcPlots_(mc), willFinalize_(wf), ibook_(ibook)
 {
   const std::string dir(theExtensionString.substr(1));
 
@@ -123,7 +123,7 @@ void TrackProbabilityTagPlotter::finalize ()
   // final processing:
   // produce the misid. vs. eff histograms
   //
-  for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute();
+  for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute(ibook_);
   finalized = true;
 }
 

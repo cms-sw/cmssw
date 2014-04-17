@@ -190,7 +190,7 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString
     
   if (!update) {
     // book histos
-    HistoProviderDQM prov("Btag",folder);
+    HistoProviderDQM prov("Btag",folder,ibook);
     if(mcPlots_%2 == 0) theHisto_all   = (prov.book2D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY )) ; 
     else theHisto_all = 0;
     if (mcPlots_) {  
@@ -310,7 +310,8 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString
       }
     }
   } else {
-    HistoProviderDQM prov("Btag",folder);
+    //is it useful? anyway access function is deprecated...
+    HistoProviderDQM prov("Btag",folder,ibook);
     if(theHisto_all) theHisto_all   = prov.access(theBaseNameTitle + "ALL" ) ; 
     if (mcPlots_) {  
       if (mcPlots_>2) {

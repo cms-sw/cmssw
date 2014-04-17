@@ -12,7 +12,7 @@ TrackCountingTagPlotter::TrackCountingTagPlotter(const std::string & tagName,
   nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
   startEffPur_(pSet.getParameter<double>("startEffPur")),
   endEffPur_(pSet.getParameter<double>("endEffPur")),
-  willFinalize_(wf), lowerIPSBound(-35.0), upperIPSBound(35.0), finalized(false)
+  willFinalize_(wf), lowerIPSBound(-35.0), upperIPSBound(35.0), finalized(false), ibook_(ibook)
 {
   const std::string dir(theExtensionString.substr(1));
 
@@ -148,7 +148,7 @@ void TrackCountingTagPlotter::createPlotsForFinalize (DQMStore::IBooker & ibook)
 
 void TrackCountingTagPlotter::finalize ()
 {
-  for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute();
+  for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute(ibook_);
   finalized = true;
 }
 

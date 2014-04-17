@@ -353,7 +353,7 @@ void JetTagPlotter::finalize()
   
   effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1), mcPlots_, ibook_, 
 					    nBinEffPur_, startEffPur_, endEffPur_);
-  effPurFromHistos->compute();
+  effPurFromHistos->compute(ibook_);
   finalized = true;
 }
 

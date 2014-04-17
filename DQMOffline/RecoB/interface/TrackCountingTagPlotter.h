@@ -44,6 +44,7 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
 
   EffPurFromHistos * effPurFromHistos[4] ;
   bool finalized;
+  DQMStore::IBooker & ibook_;
 } ;
 
 #endif

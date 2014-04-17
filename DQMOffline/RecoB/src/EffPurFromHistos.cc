@@ -452,7 +452,7 @@ void EffPurFromHistos::check () {
 }
 
 
-void EffPurFromHistos::compute ()
+void EffPurFromHistos::compute (DQMStore::IBooker & ibook)
 {
   if (!mcPlots_) {
 
@@ -479,7 +479,7 @@ void EffPurFromHistos::compute ()
 
   // create histograms from base name and extension as given from user
   // BINNING MUST BE IDENTICAL FOR ALL OF THEM!!
-  HistoProviderDQM prov("Btag",label_);
+  HistoProviderDQM prov("Btag",label_,ibook);
   if(mcPlots_>2){
     EffFlavVsBEff_d    = (prov.book1D ( hB + "D"    + hE , hB + "D"    + hE , nBinOutput , startOutput , endOutput ));
     EffFlavVsBEff_u    = (prov.book1D ( hB + "U"    + hE , hB + "U"    + hE , nBinOutput , startOutput , endOutput )) ;
