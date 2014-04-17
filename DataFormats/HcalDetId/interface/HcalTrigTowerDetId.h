@@ -29,6 +29,8 @@ public:
   /** Assignment from a generic cell id */
   HcalTrigTowerDetId& operator=(const DetId& id);
 
+  void setVersion(int version);
+
   /// get the subdetector
   HcalSubdetector subdet() const { return (HcalSubdetector)(subdetId()); }
   /// get the z-side of the tower (1/-1)
@@ -39,8 +41,10 @@ public:
   int ieta() const { return zside()*ietaAbs(); }
   /// get the tower iphi
   int iphi() const { return id_&0x7F; }
-  /// get the depth (zero for LHC, may be nonzero for SuperCMS)
+  /// get the depth (zero for LHC Run 1, may be nonzero for later runs)
   int depth() const { return (id_>>14)&0x7; }
+  /// get the version code for the trigger tower
+  int version() const { return (id_>>17)&0x7; }
 
   static const HcalTrigTowerDetId Undefined;
 
