@@ -72,8 +72,9 @@ class CSCMotherboardME3141 : public CSCMotherboard
   // masterswitch
   bool runME3141ILT_;
 
-  // debug rpc matching
-  bool debugRPCMatching_;
+  // debug 
+  bool debugLUTs_;
+  bool debugMatching_;
 
   //  deltas used to match to RPC pads
   int maxDeltaBXRPC_;

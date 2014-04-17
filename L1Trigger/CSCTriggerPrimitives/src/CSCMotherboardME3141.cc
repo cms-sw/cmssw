@@ -97,8 +97,9 @@ CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
   // masterswitch
   runME3141ILT_ = me3141tmbParams.getUntrackedParameter<bool>("runME3141ILT",false);
 
-  // debug rpc matching
-  debugRPCMatching_ = tmbParams.getUntrackedParameter<bool>("debugRPCMatching", true);
+  // debug
+  debugLUTs_ = tmbParams.getUntrackedParameter<bool>("debugLUTs", false);
+  debugMatching_ = tmbParams.getUntrackedParameter<bool>("debugMatching", false);
 
   // deltas used to match to RPC pads
   maxDeltaBXRPC_ = tmbParams.getUntrackedParameter<int>("maxDeltaBXRPC",0);
@@ -178,8 +179,7 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
     // LUT<roll,<etaMin,etaMax> >    
     rpcRollToEtaLimits_ = createRPCRollLUT(rpc_id);
     
-    bool debug(false);
-    if (debug){
+    if (debugLUTs_){
       if (rpcRollToEtaLimits_.size()) {
         for(auto p : rpcRollToEtaLimits_) {
           std::cout << "roll "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
@@ -195,8 +195,7 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
                (isEven ? lut_wg_me41_eta_even[i][1] : lut_wg_me41_eta_odd[i][1]));
       cscWgToRpcRoll_[i] = assignRPCRoll(eta);
     }
-    debug = false;
-    if (debug){
+    if (debugLUTs_){
       for(auto p : cscWgToRpcRoll_) {
         auto eta(theStation==3 ? 
                  (isEven ? lut_wg_me31_eta_even[p.first][1] : lut_wg_me31_eta_odd[p.first][1]) : 
@@ -222,8 +221,7 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
       // HS are wrapped-around
       cscHsToRpcStrip_[nStrips*2-HS] = std::make_pair(std::floor(strip),std::ceil(strip));
     }
-    debug = false;
-    if (debug){
+    if (debugLUTs_){
       std::cout << "detId " << csc_id << std::endl;
       std::cout << "CSCHSToRPCStrip LUT in" << std::endl;
       for(auto p : cscHsToRpcStrip_) {
@@ -240,8 +238,7 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
       // HS are wrapped-around
       rpcStripToCscHs_[i] = nStrips*2-(int) (strip - 0.25)/0.5;
     }
-    debug = false;
-    if (debug){
+    if (debugLUTs_){
       std::cout << "detId " << csc_id << std::endl;
       std::cout << "RPCStripToCSCHs LUT" << std::endl;
       for(auto p : rpcStripToCscHs_) {
@@ -265,7 +262,7 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
       const int bx_clct_start(bx_alct - match_trig_window_size/2);
       const int bx_clct_stop(bx_alct + match_trig_window_size/2);
 
-      if (debugRPCMatching_){ 
+      if (debugMatching_){ 
         std::cout << "========================================================================" << std::endl;
         std::cout << "ALCT-CLCT matching in ME" << theStation << "/1 chamber: " << csc_id << std::endl;
         std::cout << "------------------------------------------------------------------------" << std::endl;
@@ -295,9 +292,6 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
         }
       }
     }
-    else{}
-    //       std::cout << "------------------------------------------------------------------------" << std::endl;
-      //     std::cout << "invalid ALCT" <<std::endl;
   }
   
   //   int bx_alct_matched = 0; // bx of last matched ALCT
