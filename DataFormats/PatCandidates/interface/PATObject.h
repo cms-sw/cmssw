@@ -195,8 +195,8 @@ namespace pat {
       /// add a trigger match
       void addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj ) { triggerObjectMatchesEmbedded_.push_back( trigObj ); };
       /// unpack path names of matched trigger objects (if they were packed before embedding, which is not normally the case)
-      void unpackTriggerObjectPathNames( const edm::TriggerNames &names ) const {
-        for (std::vector<TriggerObjectStandAlone>::const_iterator it = triggerObjectMatchesEmbedded_.begin(), ed = triggerObjectMatchesEmbedded_.end(); it != ed; ++it) it->unpackPathNames(names);
+      void unpackTriggerObjectPathNames( const edm::TriggerNames &names ) {
+        for (std::vector<TriggerObjectStandAlone>::iterator it = triggerObjectMatchesEmbedded_.begin(), ed = triggerObjectMatchesEmbedded_.end(); it != ed; ++it) it->unpackPathNames(names);
       }
 
       /// Returns an efficiency given its name

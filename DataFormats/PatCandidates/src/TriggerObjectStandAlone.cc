@@ -261,7 +261,7 @@ bool TriggerObjectStandAlone::checkIfPathsAreUnpacked(bool throwIfPacked) const 
    return unpacked;
 }
 
-void TriggerObjectStandAlone::packPathNames(const edm::TriggerNames &names) const {
+void TriggerObjectStandAlone::packPathNames(const edm::TriggerNames &names) {
     if (!pathIndices_.empty()) {
         if (!pathNames_.empty()) {
             throw cms::Exception("RuntimeError", "Error, trying to pack a partially packed TriggerObjectStandAlone");
@@ -283,12 +283,12 @@ void TriggerObjectStandAlone::packPathNames(const edm::TriggerNames &names) cons
         }
     }
     if (ok) {
-        (const_cast<std::vector<uint16_t> &>(pathIndices_)).swap(indices);
-        (const_cast<std::vector<std::string> &>(pathNames_)).clear();
+        pathIndices_.swap(indices);
+        pathNames_.clear();
     }
 }
 
-void TriggerObjectStandAlone::unpackPathNames(const edm::TriggerNames &names) const {
+void TriggerObjectStandAlone::unpackPathNames(const edm::TriggerNames &names) {
     if (!pathNames_.empty()) {
         if (!pathIndices_.empty()) {
             throw cms::Exception("RuntimeError", "Error, trying to unpack a partially unpacked TriggerObjectStandAlone");
@@ -302,7 +302,7 @@ void TriggerObjectStandAlone::unpackPathNames(const edm::TriggerNames &names) co
         if (pathIndices_[i] >= end) throw cms::Exception("RuntimeError", "Error, path index out of bounds");
         paths[i] = names.triggerName(pathIndices_[i]);
     }
-    (const_cast<std::vector<uint16_t> &>(pathIndices_)).clear();
-    (const_cast<std::vector<std::string> &>(pathNames_)).swap(paths);
+    pathIndices_.clear();
+    pathNames_.swap(paths);
 }
 
