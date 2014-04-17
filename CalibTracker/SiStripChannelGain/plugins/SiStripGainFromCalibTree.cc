@@ -546,17 +546,20 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
    double FitResults[5];
    double MPVmean = 300;
 
+   TH2F *chvsidx = Charge_Vs_Index->getTH2F();
+
+
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Fitting Charge Distribution  :");
    int TreeStep = APVsColl.size()/50;
    for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++,I++){
    if(I%TreeStep==0){printf(".");fflush(stdout);}
       stAPVGain* APV = it->second;
-      if(APV->Bin<0) APV->Bin = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
+      if(APV->Bin<0) APV->Bin = chvsidx->GetXaxis()->FindBin(APV->Index);
 
       if(APV->isMasked){MASKED++; continue;}
 
-      Proj = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index),Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index),"e"));
+      Proj = (TH1F*)(chvsidx->ProjectionY("",chvsidx->GetXaxis()->FindBin(APV->Index),chvsidx->GetXaxis()->FindBin(APV->Index),"e"));
       if(!Proj)continue;
 
       if(CalibrationLevel==0){
@@ -564,8 +567,8 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
          int SecondAPVId = APV->APVId;
          if(SecondAPVId%2==0){    SecondAPVId = SecondAPVId+1; }else{ SecondAPVId = SecondAPVId-1; }
 	 stAPVGain* APV2 = APVsColl[(APV->DetId<<3) | SecondAPVId];
-         if(APV2->Bin<0) APV2->Bin = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV2->Index);
-         TH1F* Proj2 = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
+         if(APV2->Bin<0) APV2->Bin = chvsidx->GetXaxis()->FindBin(APV2->Index);
+         TH1F* Proj2 = (TH1F*)(chvsidx->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
          if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
       }else if(CalibrationLevel==2){
           for(unsigned int i=0;i<6;i++){
@@ -574,8 +577,8 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
             if(tmpit==APVsColl.end())continue;
             stAPVGain* APV2 = tmpit->second;
 	    if(APV2->DetId != APV->DetId || APV2->APVId == APV->APVId)continue;            
-            if(APV2->Bin<0) APV2->Bin = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV2->Index);
-            TH1F* Proj2 = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
+            if(APV2->Bin<0) APV2->Bin = chvsidx->GetXaxis()->FindBin(APV2->Index);
+            TH1F* Proj2 = (TH1F*)(chvsidx->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
             if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
           }          
       }else{
@@ -708,6 +711,7 @@ void SiStripGainFromCalibTree::storeOnTree()
 }
 
 bool SiStripGainFromCalibTree::produceTagFilter(){
+  
    // The goal of this function is to check wether or not there is enough statistics to produce a meaningful tag for the DB or not 
   if(Charge_Vs_Index->getTH2F()->Integral() < tagCondition_NClusters) {
     cout << "[SiStripGainFromCalibTree] produceTagFilter -> Return false: Statistics is too low : " << Charge_Vs_Index->getTH2F()->Integral() << endl;
@@ -717,12 +721,14 @@ bool SiStripGainFromCalibTree::produceTagFilter(){
     cout << "[SiStripGainFromCalibTree] produceTagFilter ->  Return false: ratio of GOOD/TOTAL is too low: " << (1.0 * GOOD) / (GOOD+BAD) << endl;
     return false;
   }
-   return true; 
+  return true; 
 }
 
 SiStripApvGain* SiStripGainFromCalibTree::getNewObject() 
 {
    SiStripApvGain* obj = new SiStripApvGain();
+   if(!harvestingMode) return obj;
+
    if(!produceTagFilter()){
        cout << "[SiStripGainFromCalibTree] getNewObject -> will not produce a paylaod because produceTagFilter returned false " << endl;       
        setDoStore(false); 
@@ -784,7 +790,6 @@ void
 SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // in AlCaHarvesting mode we just need to run the logic in the endJob step
-  cout << "ANALYZE" << endl;
   if(harvestingMode) return;
   
    if(AlgoMode=="CalibTree")return;
