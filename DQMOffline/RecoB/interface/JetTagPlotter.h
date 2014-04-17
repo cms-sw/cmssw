@@ -31,7 +31,7 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   // final computation, plotting, printing .......
   void createPlotsForFinalize(DQMStore::IBooker & ibook);
-  void finalize (DQMStore::IBooker & ibook) ;
+  void finalize () ;
 
   // get "2d" histograms for misid. vs. b-eff
   EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos ; }
@@ -61,6 +61,7 @@ class JetTagPlotter : public BaseBTagPlotter {
   bool willFinalize_;
 
   int *nJets;
+  DQMStore::IBooker & ibook_;
   // jet multiplicity
   FlavourHistograms<int> * JetMultiplicity;
 

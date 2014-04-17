@@ -19,7 +19,7 @@ class BaseBTagPlotter {
   const EtaPtBin& etaPtBin() { return etaPtBin_ ;}
   
   // final computation, plotting, printing .......
-  virtual void finalize (DQMStore::IBooker & ibook) = 0;
+  virtual void finalize () = 0;
 
   virtual void epsPlot(const std::string & name) = 0;
 

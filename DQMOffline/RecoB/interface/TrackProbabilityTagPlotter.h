@@ -25,7 +25,7 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
   void analyzeTag (const reco::BaseTagInfo * tagInfo, const double & jec, const int & jetFlavour, const float & w);
 
   virtual void createPlotsForFinalize (DQMStore::IBooker & ibook);
-  virtual void finalize (DQMStore::IBooker & ibook);
+  virtual void finalize ();
 
   void epsPlot(const std::string & name);
 

@@ -620,14 +620,14 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(edm::RefToBase<Jet> jetRef, c
   return true;
 }
 
-void BTagPerformanceAnalyzerMC::endJob(DQMStore::IBooker & ibook)
+void BTagPerformanceAnalyzerMC::endRun(const edm::Run & run, const edm::EventSetup & es)
 {
   if (!finalize) return;
   setTDRStyle();
   for (unsigned int iJetLabel = 0; iJetLabel != binJetTagPlotters.size(); ++iJetLabel) {
     int plotterSize =  binJetTagPlotters[iJetLabel].size();
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-       binJetTagPlotters[iJetLabel][iPlotter]->finalize(ibook);
+      binJetTagPlotters[iJetLabel][iPlotter]->finalize();
       //      binJetTagPlotters[iJetLabel][iPlotter]->write(allHisto);
       if (producePs)  (*binJetTagPlotters[iJetLabel][iPlotter]).psPlot(psBaseName);
       if (produceEps) (*binJetTagPlotters[iJetLabel][iPlotter]).epsPlot(epsBaseName);
@@ -646,7 +646,7 @@ void BTagPerformanceAnalyzerMC::endJob(DQMStore::IBooker & ibook)
   for (vector<vector<BaseTagInfoPlotter*> >::iterator iJetLabel = binTagInfoPlotters.begin();
        iJetLabel != binTagInfoPlotters.end(); ++iJetLabel) {
     for (vector<BaseTagInfoPlotter*>::iterator iPlotter = iJetLabel->begin(); iPlotter != iJetLabel->end(); ++iPlotter) {
-      (*iPlotter)->finalize(ibook);
+      (*iPlotter)->finalize();
       //      binTagInfoPlotters[iJetLabel][iPlotter]->write(allHisto);
       if (producePs)  (*iPlotter)->psPlot(psBaseName);
       if (produceEps) (*iPlotter)->epsPlot(epsBaseName);

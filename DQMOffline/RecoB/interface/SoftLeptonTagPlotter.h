@@ -19,7 +19,7 @@ public:
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour);
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour, const float & w);
 
-  virtual void finalize( DQMStore::IBooker & ibook ) {}
+  virtual void finalize() {}
 
 
   void psPlot( const std::string & name );

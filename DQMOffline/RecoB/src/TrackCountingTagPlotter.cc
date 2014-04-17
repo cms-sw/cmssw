@@ -146,7 +146,7 @@ void TrackCountingTagPlotter::createPlotsForFinalize (DQMStore::IBooker & ibook)
 					      endEffPur_);
 }
 
-void TrackCountingTagPlotter::finalize (DQMStore::IBooker & ibook)
+void TrackCountingTagPlotter::finalize ()
 {
   for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute();
   finalized = true;

@@ -18,7 +18,7 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
                        nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
                        startEffPur_(pSet.getParameter<double>("startEffPur")), 
                        endEffPur_(pSet.getParameter<double>("endEffPur")), 
-                       finalized(false), mcPlots_(mc), willFinalize_(wf) {
+                       finalized(false), mcPlots_(mc), willFinalize_(wf), ibook_(ibook) {
 
   // to have a shorter name .....
   const std::string & es = theExtensionString;
@@ -344,14 +344,14 @@ void JetTagPlotter::createPlotsForFinalize(DQMStore::IBooker & ibook){
 
 }
 
-void JetTagPlotter::finalize(DQMStore::IBooker & ibook)
+void JetTagPlotter::finalize()
 {
   //
   // final processing:
   // produce the misid. vs. eff histograms
   //
-
-  effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1), mcPlots_, ibook, 
+  
+  effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1), mcPlots_, ibook_, 
 					    nBinEffPur_, startEffPur_, endEffPur_);
   effPurFromHistos->compute();
   finalized = true;

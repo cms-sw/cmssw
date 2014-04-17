@@ -110,7 +110,7 @@ void TaggingVariablePlotter::analyzeTag (const TaggingVariableList &vars,
 	}
 }
 
-void TaggingVariablePlotter::finalize(DQMStore::IBooker & ibook)
+void TaggingVariablePlotter::finalize()
 {
 }
 

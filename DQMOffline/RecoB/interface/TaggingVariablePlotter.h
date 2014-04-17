@@ -33,7 +33,7 @@ class TaggingVariablePlotter : public BaseTagInfoPlotter {
 
   void analyzeTag (const reco::TaggingVariableList & variables, const int & jetFlavour, const float & w);
 
-  virtual void finalize (DQMStore::IBooker & ibook);
+  virtual void finalize ();
 
 
   void epsPlot(const std::string & name);

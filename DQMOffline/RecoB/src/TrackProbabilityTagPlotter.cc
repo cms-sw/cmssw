@@ -117,7 +117,7 @@ void TrackProbabilityTagPlotter::createPlotsForFinalize(DQMStore::IBooker & iboo
 					      nBinEffPur_, startEffPur_, endEffPur_);  
 }
 
-void TrackProbabilityTagPlotter::finalize (DQMStore::IBooker & ibook)
+void TrackProbabilityTagPlotter::finalize ()
 {
   //
   // final processing:

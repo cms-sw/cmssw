@@ -50,8 +50,8 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
 
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      virtual void endJob(DQMStore::IBooker & ibook);
-
+      virtual void endRun(const edm::Run & run, const edm::EventSetup & es);
+      
    private:
 
   struct JetRefCompare :

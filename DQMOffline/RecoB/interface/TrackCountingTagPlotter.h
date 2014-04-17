@@ -22,7 +22,7 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour);
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour, const float & w);
 
-  virtual void finalize (DQMStore::IBooker & ibook);
+  virtual void finalize ();
   virtual void createPlotsForFinalize (DQMStore::IBooker & ibook);
 
   void epsPlot(const std::string & name);

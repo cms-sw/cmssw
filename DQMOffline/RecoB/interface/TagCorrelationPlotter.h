@@ -15,7 +15,7 @@ class TagCorrelationPlotter : public BaseBTagPlotter {
 
     virtual ~TagCorrelationPlotter();
 
-    void finalize(DQMStore::IBooker & ibook) {}
+    void finalize() {}
     void epsPlot(const std::string& name) {}
     void psPlot (const std::string& name) {}
 

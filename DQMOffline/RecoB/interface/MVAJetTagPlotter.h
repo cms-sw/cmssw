@@ -26,7 +26,7 @@ class MVAJetTagPlotter : public BaseTagInfoPlotter {
   virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const double & jec, const int & jetFlavour);
   virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const double & jec, const int & jetFlavour, const float & w);
 
-  virtual void finalize (DQMStore::IBooker & ibook);
+  virtual void finalize ();
 
 
   void epsPlot(const std::string & name);

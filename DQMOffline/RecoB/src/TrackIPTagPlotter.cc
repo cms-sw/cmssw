@@ -27,7 +27,8 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
   maxDecayLength(pSet.getParameter<double>("MaxDecayLength")),
   minJetDistance(pSet.getParameter<double>("MinJetDistance")),
   maxJetDistance(pSet.getParameter<double>("MaxJetDistance")),
-  finalized(false)
+  finalized(false),
+  ibook_(ibook)
 {
   const std::string trackIPDir(theExtensionString.substr(1));
 
@@ -790,23 +791,23 @@ void TrackIPTagPlotter::createPlotsForFinalize (DQMStore::IBooker & ibook){
 }
 
 
-void TrackIPTagPlotter::finalize (DQMStore::IBooker & ibook)
+void TrackIPTagPlotter::finalize ()
 {
   //
   // final processing:
   // produce the misid. vs. eff histograms
   //
   const std::string trackIPDir(theExtensionString.substr(1));
-  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],trackIPDir, mcPlots_, ibook,
+  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],trackIPDir, mcPlots_, ibook_,
 					      nBinEffPur_, startEffPur_,
 					      endEffPur_);
-  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],trackIPDir, mcPlots_, ibook,
+  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],trackIPDir, mcPlots_, ibook_,
 					      nBinEffPur_, startEffPur_,
 					      endEffPur_);
-  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],trackIPDir, mcPlots_, ibook,
+  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],trackIPDir, mcPlots_, ibook_,
 					      nBinEffPur_, startEffPur_,
 					      endEffPur_);
-  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],trackIPDir, mcPlots_, ibook,
+  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],trackIPDir, mcPlots_, ibook_,
 					      nBinEffPur_, startEffPur_,
 					      endEffPur_);
   for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute();

@@ -87,10 +87,10 @@ void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfo
 	}
 }
 
-void MVAJetTagPlotter::finalize(DQMStore::IBooker & ibook)
+void MVAJetTagPlotter::finalize()
 {
 	for_each(categoryPlotters.begin(), categoryPlotters.end(),
-	         boost::bind(&TaggingVariablePlotter::finalize, _1, boost::ref(ibook)));
+	         boost::bind(&TaggingVariablePlotter::finalize, _1));
 }
 
 void MVAJetTagPlotter::psPlot(const std::string &name)
