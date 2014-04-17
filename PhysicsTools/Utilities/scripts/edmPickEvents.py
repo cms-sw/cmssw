@@ -45,7 +45,7 @@ dataset: it just a name of the physics dataset, if you don't know exact name
     you can provide a mask, e.g.: *QCD*RAW
 
 For updated information see Wiki:
-https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents
 """
 
 
