@@ -42,7 +42,7 @@ class BTagPerformanceAnalyzerOnData : public DQMEDAnalyzer {
 
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      void endRun(const edm::Run & run, const edm::EventSetup & es);
+      void endRun(const edm::Run & run, const edm::EventSetup & es, DQMStore::IBooker & ibook);
 
    private:
 

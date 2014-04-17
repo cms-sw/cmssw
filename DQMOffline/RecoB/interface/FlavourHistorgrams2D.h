@@ -32,10 +32,10 @@ class FlavourHistograms2D {
 public:
 
   FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
-		      int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
-                      int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
-		      bool statistics_ , bool update, std::string folder, unsigned int mc,
-                      bool createProfile) ;
+		       int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+		       int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
+		       bool statistics_ , bool update, std::string folder, unsigned int mc,
+		       bool createProfile, DQMStore::IBooker & ibook) ;
 
   virtual ~FlavourHistograms2D () ;
 
@@ -173,10 +173,10 @@ protected:
 
 template <class T, class G>
 FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
-					  int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
-                                          int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
-					  bool statistics_ ,
-					  bool update, std::string folder, unsigned int mc, bool createProfile) :
+						int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+						int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
+						bool statistics_ , bool update, std::string folder, 
+						unsigned int mc, bool createProfile, DQMStore::IBooker & ibook) :
   // BaseFlavourHistograms2D () ,
   // theVariable ( variable_ ) ,
   theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,

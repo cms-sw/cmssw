@@ -182,7 +182,7 @@ void BTagPerformanceAnalyzerMC::bookHistograms(DQMStore::IBooker & ibook, edm::R
 
 	  // Instantiate the genertic b tag plotter
 	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin,
-							   iModule->getParameter<edm::ParameterSet>("parameters"),mcPlots_,update,finalize);
+							   iModule->getParameter<edm::ParameterSet>("parameters"),mcPlots_,update,finalize, ibook);
 	  binJetTagPlotters.at(iTag).push_back ( jetTagPlotter ) ;
 
 	  // Add to the corresponding differential plotters
@@ -218,7 +218,7 @@ void BTagPerformanceAnalyzerMC::bookHistograms(DQMStore::IBooker & ibook, edm::R
             // Instantiate the generic b tag correlation plotter
             TagCorrelationPlotter* tagCorrelationPlotter = new TagCorrelationPlotter(label1.label(), label2.label(), etaPtBin,
                                                                                      iModule->getParameter<edm::ParameterSet>("parameters"),
-                                                                                     mcPlots_, update);
+                                                                                     mcPlots_, update, ibook);
             binTagCorrelationPlotters.at(iTagCorr).push_back(tagCorrelationPlotter);
           }
         }
@@ -236,8 +236,8 @@ void BTagPerformanceAnalyzerMC::bookHistograms(DQMStore::IBooker & ibook, edm::R
 	  // Instantiate the tagInfo plotter
 
 	  BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(dataFormatType, moduleLabel.label(), 
-			             etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), folderName, 
-                                     update, mcPlots_,finalize);
+								      etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), folderName, 
+								      update, mcPlots_,finalize, ibook);
 	  binTagInfoPlotters.at(iInfoTag).push_back ( jetTagPlotter ) ;
           binTagInfoPlottersToModuleConfig.insert(make_pair(jetTagPlotter, iModule - moduleConfig.begin()));
 	}
@@ -620,14 +620,14 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(edm::RefToBase<Jet> jetRef, c
   return true;
 }
 
-void BTagPerformanceAnalyzerMC::endJob()
+void BTagPerformanceAnalyzerMC::endJob(DQMStore::IBooker & ibook)
 {
   if (!finalize) return;
   setTDRStyle();
   for (unsigned int iJetLabel = 0; iJetLabel != binJetTagPlotters.size(); ++iJetLabel) {
     int plotterSize =  binJetTagPlotters[iJetLabel].size();
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-       binJetTagPlotters[iJetLabel][iPlotter]->finalize();
+       binJetTagPlotters[iJetLabel][iPlotter]->finalize(ibook);
       //      binJetTagPlotters[iJetLabel][iPlotter]->write(allHisto);
       if (producePs)  (*binJetTagPlotters[iJetLabel][iPlotter]).psPlot(psBaseName);
       if (produceEps) (*binJetTagPlotters[iJetLabel][iPlotter]).epsPlot(epsBaseName);
@@ -646,7 +646,7 @@ void BTagPerformanceAnalyzerMC::endJob()
   for (vector<vector<BaseTagInfoPlotter*> >::iterator iJetLabel = binTagInfoPlotters.begin();
        iJetLabel != binTagInfoPlotters.end(); ++iJetLabel) {
     for (vector<BaseTagInfoPlotter*>::iterator iPlotter = iJetLabel->begin(); iPlotter != iJetLabel->end(); ++iPlotter) {
-      (*iPlotter)->finalize();
+      (*iPlotter)->finalize(ibook);
       //      binTagInfoPlotters[iJetLabel][iPlotter]->write(allHisto);
       if (producePs)  (*iPlotter)->psPlot(psBaseName);
       if (produceEps) (*iPlotter)->epsPlot(epsBaseName);

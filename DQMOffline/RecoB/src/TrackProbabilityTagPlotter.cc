@@ -5,8 +5,8 @@ using namespace std;
 using namespace RecoBTag;
 
 TrackProbabilityTagPlotter::TrackProbabilityTagPlotter(const std::string & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet,
-	const bool& update, const unsigned int& mc, const bool& wf) :
+						       const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet,
+						       const bool& update, const unsigned int& mc, const bool& wf, DQMStore::IBooker & ibook) :
   BaseTagInfoPlotter(tagName, etaPtBin),
   nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
   startEffPur_(pSet.getParameter<double>("startEffPur")),
@@ -17,45 +17,45 @@ TrackProbabilityTagPlotter::TrackProbabilityTagPlotter(const std::string & tagNa
 
   tkcntHistosSig3D[4] = new FlavourHistograms<double>
        ("ips_3D" + theExtensionString, "3D Probability of impact parameter",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
   tkcntHistosSig3D[0] = new FlavourHistograms<double>
        ("ips1_3D" + theExtensionString, "3D Probability of impact parameter 1st trk",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
   tkcntHistosSig3D[1] = new FlavourHistograms<double>
        ("ips2_3D" + theExtensionString, "3D Probability of impact parameter 2nd trk",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
   tkcntHistosSig3D[2] = new FlavourHistograms<double>
        ("ips3_3D" + theExtensionString, "3D Probability of impact parameter 3rd trk",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
   tkcntHistosSig3D[3] = new FlavourHistograms<double>
        ("ips4_3D" + theExtensionString, "3D Probability of impact parameter 4th trk",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
   tkcntHistosSig2D[4] = new FlavourHistograms<double>
        ("ips_2D" + theExtensionString, "2D Probability of impact parameter",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
   tkcntHistosSig2D[0] = new FlavourHistograms<double>
        ("ips1_2D" + theExtensionString, "2D Probability of impact parameter 1st trk",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
   tkcntHistosSig2D[1] = new FlavourHistograms<double>
        ("ips2_2D" + theExtensionString, "2D Probability of impact parameter 2nd trk",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
   tkcntHistosSig2D[2] = new FlavourHistograms<double>
        ("ips3_2D" + theExtensionString, "2D Probability of impact parameter 3rd trk",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
   tkcntHistosSig2D[3] = new FlavourHistograms<double>
        ("ips4" + theExtensionString, "2D Probability of impact parameter 4th trk",
-	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc, ibook) ;
 
-  if (willFinalize_) createPlotsForFinalize();
+  if (willFinalize_) createPlotsForFinalize(ibook);
  
 }
 
@@ -104,20 +104,20 @@ void TrackProbabilityTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagIn
 }
 
 
-void TrackProbabilityTagPlotter::createPlotsForFinalize(){
+void TrackProbabilityTagPlotter::createPlotsForFinalize(DQMStore::IBooker & ibook){
   const std::string dir("TrackProbability"+theExtensionString);
 
-  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],dir,mcPlots_, 
-		nBinEffPur_, startEffPur_, endEffPur_);
-  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],dir,mcPlots_, 
-		nBinEffPur_, startEffPur_, endEffPur_);
-  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],dir,mcPlots_, 
-		nBinEffPur_, startEffPur_, endEffPur_);
-  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],dir,mcPlots_, 
-		nBinEffPur_, startEffPur_, endEffPur_);  
+  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],dir,mcPlots_, ibook, 
+					      nBinEffPur_, startEffPur_, endEffPur_);
+  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],dir,mcPlots_, ibook, 
+					      nBinEffPur_, startEffPur_, endEffPur_);
+  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],dir,mcPlots_, ibook, 
+					      nBinEffPur_, startEffPur_, endEffPur_);
+  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],dir,mcPlots_, ibook, 
+					      nBinEffPur_, startEffPur_, endEffPur_);  
 }
 
-void TrackProbabilityTagPlotter::finalize ()
+void TrackProbabilityTagPlotter::finalize (DQMStore::IBooker & ibook)
 {
   //
   // final processing:

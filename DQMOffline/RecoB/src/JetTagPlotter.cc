@@ -1,6 +1,7 @@
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 
@@ -9,7 +10,8 @@ using namespace RecoBTag;
 
 
 JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-		       const edm::ParameterSet& pSet, const unsigned int& mc, const bool& update, const bool& wf) :
+			      const edm::ParameterSet& pSet, const unsigned int& mc, 
+			      const bool& update, const bool& wf, DQMStore::IBooker & ibook) :
 		       BaseBTagPlotter(tagName, etaPtBin), discrBins(400),
                        discrStart_(pSet.getParameter<double>("discriminatorStart")), 
                        discrEnd_(pSet.getParameter<double>("discriminatorEnd")),
@@ -34,21 +36,21 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
     // jet flavour
     dJetFlav = new FlavourHistograms<int>
       ("jetFlavour" + es, "Jet Flavour", 22, -0.5, 21.5,
-       false, false, false, "b", update,jetTagDir, mcPlots_);
+       false, false, false, "b", update,jetTagDir, mcPlots_, ibook);
     // associated parton momentum : commented, not really necessary
     //dJetPartonMomentum = new FlavourHistograms<double>
     //  ("associatedPartonMomentum" + es, "associated parton momentum",
-    //   200, 0.0, 400.0, false, false, true, "b", update,jetTagDir, mcPlots_);
+    //   200, 0.0, 400.0, false, false, true, "b", update,jetTagDir, mcPlots_, ibook);
     
     // associated parton pt : commented, not really necessary
     //dJetPartonPt = new FlavourHistograms<double>
     //  ("associatedPartonPt" + es, "associated parton pt",
-    //   200, 0.0, 400.0, false, false, true, "b", update,jetTagDir, mcPlots_);
+    //   200, 0.0, 400.0, false, false, true, "b", update,jetTagDir, mcPlots_, ibook);
     
     // associated parton eta : commented, not really necessary
     //dJetPartonPseudoRapidity = new FlavourHistograms<double>
     //  ("associatedPartonEta" + es, "associated parton eta",
-    //   100, -3.5, 3.5, false, false, true, "b", update,jetTagDir, mcPlots_);
+    //   100, -3.5, 3.5, false, false, true, "b", update,jetTagDir, mcPlots_, ibook);
   }else {
     dJetFlav=0;
     //dJetPartonMomentum = 0;
@@ -59,39 +61,39 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   // jet multiplicity
   JetMultiplicity = new FlavourHistograms<int>
     ("jetMultiplicity" + es, "Jet Multiplicity", 11, -0.5, 10.5,
-     false, true, true, "b", update,jetTagDir, mcPlots_);
+     false, true, true, "b", update,jetTagDir, mcPlots_, ibook);
 
   // track multiplicity in jet 
   //dJetTrackMultiplicity = new FlavourHistograms<int>
   //	("jetTrackMultiplicity" + es, "Jet Track Multiplicity", 31, -0.5, 30.5,
-  //	false, true, true, "b", update,jetTagDir, mcPlots_);
+  //	false, true, true, "b", update,jetTagDir, mcPlots_, ibook);
 
     // Discriminator: again with reasonable binning
   dDiscriminator = new FlavourHistograms<double>
 	("discr" + es, "Discriminator", 102, discrStart_, discrEnd_,
-	false, true, true, "b", update,jetTagDir, mcPlots_);
+	false, true, true, "b", update,jetTagDir, mcPlots_, ibook);
   dDiscriminator->settitle("Discriminant");
     // reconstructed jet momentum
   dJetRecMomentum = new FlavourHistograms<double>
 	("jetMomentum" + es, "jet momentum", 350, 0.0, 350.0,
-	false, false, true, "b", update,jetTagDir, mcPlots_);
+	false, false, true, "b", update,jetTagDir, mcPlots_, ibook);
 
   // reconstructed jet transverse momentum
   dJetRecPt = new FlavourHistograms<double>
 	("jetPt" + es, "jet pt", 350, 0.0, 350.0,
-	false, false, true, "b", update,jetTagDir, mcPlots_);
+	false, false, true, "b", update,jetTagDir, mcPlots_, ibook);
 
   // reconstructed jet eta
   dJetRecPseudoRapidity = new FlavourHistograms<double>
 	("jetEta" + es, "jet eta", 100, -3.0, 3.0,
-	false, false, true, "b", update,jetTagDir, mcPlots_);
+	false, false, true, "b", update,jetTagDir, mcPlots_, ibook);
 
   // reconstructed jet phi
   dJetRecPhi = new FlavourHistograms<double>
 	("jetPhi" + es, "jet phi", 100, -3.15, 3.15,
-	false, false, true, "b", update,jetTagDir, mcPlots_);
+	false, false, true, "b", update,jetTagDir, mcPlots_, ibook);
 
-  if (willFinalize_) createPlotsForFinalize();
+  if (willFinalize_) createPlotsForFinalize(ibook);
 
 }  
   
@@ -336,20 +338,20 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 }
 
 
-void JetTagPlotter::createPlotsForFinalize(){
-  effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1),mcPlots_, 
+void JetTagPlotter::createPlotsForFinalize(DQMStore::IBooker & ibook){
+  effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1),mcPlots_, ibook, 
 					    nBinEffPur_, startEffPur_, endEffPur_);
 
 }
 
-void JetTagPlotter::finalize()
+void JetTagPlotter::finalize(DQMStore::IBooker & ibook)
 {
   //
   // final processing:
   // produce the misid. vs. eff histograms
   //
 
-  effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1),mcPlots_, 
+  effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1), mcPlots_, ibook, 
 					    nBinEffPur_, startEffPur_, endEffPur_);
   effPurFromHistos->compute();
   finalized = true;

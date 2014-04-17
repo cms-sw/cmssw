@@ -9,7 +9,7 @@
 #include "DQMOffline/RecoB/interface/BaseBTagPlotter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class JetTagPlotter : public BaseBTagPlotter {
 
@@ -17,7 +17,8 @@ class JetTagPlotter : public BaseBTagPlotter {
  public:
 
   JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-		 const edm::ParameterSet& pSet, const unsigned int& mc , const bool& update, const bool& willFinalize);
+		 const edm::ParameterSet& pSet, const unsigned int& mc , 
+		 const bool& update, const bool& willFinalize, DQMStore::IBooker & ibook);
 
   virtual ~JetTagPlotter () ;
 
@@ -29,8 +30,8 @@ class JetTagPlotter : public BaseBTagPlotter {
   void analyzeTag (const reco::Jet & jet, const double & jec, const float& discriminator, const int& jetFlavour, const float & w);
 
   // final computation, plotting, printing .......
-  void createPlotsForFinalize();
-  void finalize () ;
+  void createPlotsForFinalize(DQMStore::IBooker & ibook);
+  void finalize (DQMStore::IBooker & ibook) ;
 
   // get "2d" histograms for misid. vs. b-eff
   EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos ; }

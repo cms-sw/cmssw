@@ -32,7 +32,8 @@ public:
   FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
 		     const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
 		     const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-		     const std::string& plotFirst_ , const bool& update, const std::string& folder, const unsigned int& mc) ;
+		     const std::string& plotFirst_ , const bool& update, const std::string& folder, 
+		     const unsigned int& mc, DQMStore::IBooker & ibook) ;
 
   virtual ~FlavourHistograms () ;
 
@@ -148,7 +149,8 @@ template <class T>
 FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
 					 const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
 					 const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-					 const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc) :
+					 const std::string& plotFirst_, const bool& update, const std::string& folder, 
+					 const unsigned int& mc, DQMStore::IBooker & ibook) :
   // BaseFlavourHistograms () ,
   // theVariable ( variable_ ) ,
   theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,

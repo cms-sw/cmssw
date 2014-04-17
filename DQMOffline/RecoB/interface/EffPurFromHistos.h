@@ -3,6 +3,7 @@
 
 #include "DQMOffline/RecoB/interface/FlavourHistorgrams.h"
 #include "DQMOffline/RecoB/interface/HistoProviderDQM.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "TH1F.h"
 #include "TCanvas.h"
@@ -23,8 +24,8 @@ class EffPurFromHistos {
 		     int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 	// defaults reasonable for lifetime based tags
 
-  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const unsigned int& mc,
-	int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
+  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const unsigned int& mc, DQMStore::IBooker & ibook,
+		    int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 	// defaults reasonable for lifetime based tags
 
   ~EffPurFromHistos () ;

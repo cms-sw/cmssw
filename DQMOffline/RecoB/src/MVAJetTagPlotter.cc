@@ -18,7 +18,7 @@ MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
                                    const ParameterSet &pSet,
                                    const std::string& folderName,
                                    const bool& update,
-                                   const unsigned int& mc) :
+                                   const unsigned int& mc, DQMStore::IBooker & ibook) :
 	BaseTagInfoPlotter(folderName, etaPtBin),
 	jetTagComputer(tagName), computer(0),
 	categoryVariable(btau::lastTaggingVariable)
@@ -37,7 +37,7 @@ MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
 		ss << "CAT" << i;
 		categoryPlotters.push_back(
 			new TaggingVariablePlotter(folderName, etaPtBin,
-			                           pSets[i], update,mc,
+			                           pSets[i], update,mc, ibook,
 			                           i ? ss.str() : string()));
 	}
 }
@@ -87,10 +87,10 @@ void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfo
 	}
 }
 
-void MVAJetTagPlotter::finalize()
+void MVAJetTagPlotter::finalize(DQMStore::IBooker & ibook)
 {
 	for_each(categoryPlotters.begin(), categoryPlotters.end(),
-	         bind(&TaggingVariablePlotter::finalize, _1));
+	         boost::bind(&TaggingVariablePlotter::finalize, _1, boost::ref(ibook)));
 }
 
 void MVAJetTagPlotter::psPlot(const std::string &name)
