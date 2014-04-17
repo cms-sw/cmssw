@@ -53,7 +53,7 @@ public:
 
   /** Retrieves the collection from the event. If failIfNotFound is true and
    * the collection is not found, then an edm::Exception is thrown. For other
-   * case of exception throw see edm::Event::getByLabel() method documentation.
+   * case of exception throw see edm::Event::getByToken() method documentation.
    * If failIfNotFound is false and the collection is not found, an empty
    * collection is used; a warn message will be logged the first time
    * the collection is not found.
@@ -105,7 +105,7 @@ private:
   const edm::InputTag tag_;
 
   /* EDM "Token" that is used in the actual data retrieval */
-  edm::EDGetToken token_;
+  edm::EDGetTokenT<T> token_;
 
   /** Pointer to the last read collection, points to emptColl be default
    */
