@@ -27,7 +27,7 @@ public:
 
   void addFastPathDefinition(std::string const& defPathFast, std::string const defGroupFast, bool strict);
 
-  void setDefPath(std::string const& dpath) {defPath_=dpath;}
+  void setDefPath(std::string const& dpath) {defPath_=dpath;for (auto dp : dataPoints_) dp->updateDefinition(dpath);}
 
   void setNStreams(unsigned int nStreams) {nStreams_=nStreams;}
 
@@ -53,22 +53,25 @@ public:
   void commit(std::vector<unsigned int> *streamLumisPtr);
 
   // fetches new snapshot and outputs one-line CSV if set (timer based)
-  void snap(bool outputCSVFile, std::string const& path, unsigned int forLumi);
+  void snap(unsigned int ls);
 
   //only update global variables (invoked at global EOL)
-  void snapGlobal(bool outputCSVFile, std::string const& path, unsigned int forLumi);
+  void snapGlobal(unsigned int ls);
 
   //only updates atomic vectors (for certain stream - at stream EOL)
-  void snapStreamAtomic(bool outputCSVFile, std::string const& path, unsigned int streamID, unsigned int forLumi);
+  void snapStreamAtomic(unsigned int ls, unsigned int streamID);
 
-  //fastpath CSV
-  void outputCSV(std::string const& path);
+  //fastpath CSV string
+  std::string getCSVString();
+
+  //fastpath file output
+  void outputCSV(std::string const& path, std::string const& csvString);
 
   //provide merged variable back to user
   JsonMonitorable* getMergedIntJForLumi(std::string const& name,unsigned int forLumi);
 
   // merges and outputs everything collected for the given stream to JSON file
-  bool outputFullJSON(std::string const& path, unsigned int lumi);
+  bool outputFullJSON(std::string const& path, unsigned int lumi, bool log=true);
 
   //discard what was collected for a lumisection
   void discardCollected(unsigned int forLumi);
