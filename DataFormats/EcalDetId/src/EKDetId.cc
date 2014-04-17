@@ -28,14 +28,13 @@ int EKDetId::distanceY(const EKDetId& a,const EKDetId& b) {
   return abs(a.iy() - b.iy()); 
 }
 
+const int MAX_ROW = 42; 
 uint32_t EKDetId::denseIndex() const {
-  throw cms::Exception("No support") << "EKDetId::denseIndex is not implemented";
-  return 0;
+  return EKDetId (ix(), iy(), zside()).rawId();
 }
 
 EKDetId EKDetId::detIdFromDenseIndex( uint32_t din ) {
-  throw cms::Exception("No support") << "EKDetId::detIdFromDenseIndex is not implemented";  
-  return EKDetId ();
+  return EKDetId (din);
 }
 
 #include <ostream>

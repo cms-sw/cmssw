@@ -113,6 +113,7 @@ bool ShashlikTopology::validXY(int ix, int iy) const {
   std::pair<int,int> ismm = sdcons_.getSMM(ix,iy);
   bool flag = (ismm.first >= 1 && ismm.first <= smodules_ && ismm.second >= 1&&
 	       ismm.second <= modules_);
+  //  std::cout << "ShashlikTopology::validXY-> " << ix << '/' << iy << "->" << flag << std::endl;
   return flag;
 }
 

@@ -63,8 +63,23 @@ class EcalShashlikGeometry GCC11_FINAL: public CaloSubdetectorGeometry
   
   virtual ~EcalShashlikGeometry();
   
-  virtual void allocateCorners (size_t n);
+  void allocateCorners( CaloCellGeometry::CornersVec::size_type n ) ;
 
+  void addValidID(const DetId& id);
+
+  // avoid sorting set in base class  
+  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det, int subdet) const {return m_validIds;}
+  
+  virtual void newCell( const GlobalPoint& f1 ,
+			const GlobalPoint& f2 ,
+			const GlobalPoint& f3 ,
+			const CCGFloat*    parm ,
+			const DetId&       detId );
+  
+  /// Get the cell geometry of a given detector id.  Should return false if not found.
+  virtual const CaloCellGeometry* getGeometry( const DetId& id ) const ;
+  
+  
   const OrderedListOfEBDetId* getClosestBarrelCells( EKDetId id ) const ;
   
   // Get closest cell
@@ -94,16 +109,18 @@ class EcalShashlikGeometry GCC11_FINAL: public CaloSubdetectorGeometry
 			    unsigned int    i   ,
 			    Pt3D&           ref   ) ;
   
-  virtual void newCell( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm ,
-			const DetId&       detId   ) ;
   const ShashlikTopology& topology () const;
   
  protected:
   
   virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+  virtual unsigned int indexFor(const DetId& id) const { 
+    return  mTopology.cell2denseId(id); 
+  }
+  virtual unsigned int sizeForDenseIndex(const DetId& id) const { 
+    return mTopology.cellHashSize(); 
+  }
+
   
  private:
   ShashlikTopology mTopology;

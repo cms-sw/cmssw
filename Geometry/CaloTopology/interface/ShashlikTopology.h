@@ -9,7 +9,6 @@
 
 
 class DDCompactView;    
-class ShashlikDDDConstants;
 
 class ShashlikTopology : public CaloSubdetectorTopology {
   

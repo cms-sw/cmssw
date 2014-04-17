@@ -11,6 +11,47 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef HepGeom::Plane3D<CCGFloat> Pl3D     ;
 
+namespace {
+  double combined (const CaloCellGeometry::Pt3D& v1, const CaloCellGeometry::Pt3D& v2, const CaloCellGeometry::Pt3D& v3) {
+    return v1.x()*v2.y()*v3.z()+
+      v1.y()*v2.z()*v3.x() + 
+      v1.z()*v2.x()*v3.y() -
+      v1.x()*v2.z()*v3.y() -
+      v1.y()*v2.x()*v3.z() -
+      v1.z()*v2.y()*v3.x();
+  }
+
+  bool sameSide (const GlobalPoint& point, const CaloCellGeometry::CornersVec& corners, int iref, int i1, int i2, int icalib) {
+    CaloCellGeometry::Pt3D v1 (corners[i1].x()-corners[iref].x(), corners[i1].y()-corners[iref].y(), corners[i1].z()-corners[iref].z()) ;
+    CaloCellGeometry::Pt3D v2 (corners[i2].x()-corners[iref].x(), corners[i2].y()-corners[iref].y(), corners[i2].z()-corners[iref].z()) ;
+    CaloCellGeometry::Pt3D vpoint (point.x()-corners[iref].x(), point.y()-corners[iref].y(), point.z()-corners[iref].z()) ;
+    CaloCellGeometry::Pt3D vcalib (corners[icalib].x()-corners[iref].x(), corners[icalib].y()-corners[iref].y(), corners[icalib].z()-corners[iref].z()) ;
+//     std::cout << "sameSide-> " << point << " ref/1/2/calib:" 
+// 	      << corners[iref] << " : "
+// 	      << corners[i1] << " : "
+// 	      << corners[i2] << " : "
+// 	      << corners[icalib] << "  "
+// 	      << " result: " << bool (combined (v1, v2, vpoint) * combined (v1, v2, vcalib) >= 0)
+// 	      << std::endl;
+    return combined (v1, v2, vpoint) * combined (v1, v2, vcalib) >= 0; 
+  }  
+
+
+  int pointInCell (const GlobalPoint& r, const EcalShashlikGeometry& geometry, EKDetId cell) {
+//     std::cout << "pointInCell-> " << r << " cell: " << cell << std::endl;
+    const CaloCellGeometry* geom = geometry.getGeometry (cell);
+    if (!geom) return -1;
+    const CaloCellGeometry::CornersVec& corners =  geom->getCorners();
+    if (!sameSide (r, corners, 0, 1, 3, 4)) return 1;  // -z
+    if (!sameSide (r, corners, 6, 5, 7, 2)) return 2;  // +z
+    if (!sameSide (r, corners, 0, 3, 4, 1)) return 3;  // -x
+    if (!sameSide (r, corners, 6, 2, 5, 7)) return 4;  // +x
+    if (!sameSide (r, corners, 6, 7, 2, 5)) return 6;  // -y
+    if (!sameSide (r, corners, 0, 4, 1, 3)) return 5;  // +y
+    return 0;
+  }
+};
+
 EcalShashlikGeometry::EcalShashlikGeometry()
   : initializedTopology (false)
 {
@@ -36,10 +77,8 @@ EcalShashlikGeometry::alignmentTransformIndexLocal( const DetId& id ) const
 {
    const CaloGenericDetId gid ( id ) ;
 
-   assert( gid.isEK() ) ;
-   int iq = topology().dddConstants().quadrant (EKDetId(id).ix(), EKDetId(id).iy());
-   unsigned int result = 0;
-   if (iq == 2 || iq == 3) result += 1; //positive X
+   assert( CaloGenericDetId(id).isEK() ) ;
+   unsigned int result = topology().dddConstants().positiveX (EKDetId(id).ix()) ? 1 : 0;
    if (EKDetId(id).zside() > 0) result += 2;
    return result;
 }
@@ -47,7 +86,7 @@ EcalShashlikGeometry::alignmentTransformIndexLocal( const DetId& id ) const
 DetId 
 EcalShashlikGeometry::detIdFromLocalAlignmentIndex( unsigned int iLoc ) const
 {
-  int nCols = topology().dddConstants().getCols ();
+  int nCols = topology().dddConstants().getModuleCols ();
   int ix = iLoc%2 ? nCols*3/4 : nCols/4;
   int iy = nCols/2;
   int iz = iLoc >= 2 ? 1 : -1;
@@ -158,6 +197,13 @@ EcalShashlikGeometry::initializeParms() // assume only m_cellVec are available
     mTopology = ShashlikTopology (dddConstants);
     initializedTopology = true;
   }
+  // cross check
+  for (size_t i = 0; i < m_validIds.size(); ++i) {
+    if (i != mTopology.cell2denseId(m_validIds[i])) {
+      edm::LogError("HGCalGeom") << "EcalShashlikGeometry::initializeParms-> inconsistent geometry structure " 
+				 << EKDetId(m_validIds[i]) << " -> " << i << " -> " << EKDetId(mTopology.cell2denseId(m_validIds[i]));	
+    }
+  }
 }
 
 
@@ -165,10 +211,15 @@ int EcalShashlikGeometry::xindex( CCGFloat x,
 				     CCGFloat z ) const
 {
   int iz = (z>0)?1:0;
-  double xRef = x / fabs (mSide[iz].zMean); 
+  double xRef = x * fabs (mSide[iz].zMean / z); 
   int result = int (0.5 + mSide[iz].ixMin +
 		    (xRef - mSide[iz].xMin) / (mSide[iz].xMax - mSide[iz].xMin) * 
 		    (mSide[iz].ixMax - mSide[iz].ixMin));
+//   std::cout << "EcalShashlikGeometry::xindex-> "
+// 	    << "min/max/ref:" << mSide[iz].xMin << '/' << mSide[iz].xMax << '/' << xRef
+// 	    << " imin/max:" << mSide[iz].ixMin << '/' << mSide[iz].ixMax
+// 	    << " result: " << result
+// 	    << std::endl;
   return result;
 }
 
@@ -176,10 +227,16 @@ int EcalShashlikGeometry::yindex( CCGFloat y,
 				     CCGFloat z ) const
 {
   int iz = (z>0)?1:0;
-  double yRef = y / fabs (mSide[iz].zMean); 
+  double yRef = y * fabs (mSide[iz].zMean / z); 
   int result = int (0.5 + mSide[iz].iyMin +
 		    (yRef - mSide[iz].yMin) / (mSide[iz].yMax - mSide[iz].yMin) * 
 		    (mSide[iz].iyMax - mSide[iz].iyMin));
+//   std::cout << "EcalShashlikGeometry::yindex-> "
+// 	    << "min/max/ref:" << mSide[iz].yMin << '/' << mSide[iz].yMax << '/' << yRef
+// 	    << " imin/max:" << mSide[iz].iyMin << '/' << mSide[iz].iyMax
+// 	    << " z/zref:" << z << '/' << mSide[iz].zMean
+// 	    << " result: " << result
+// 	    << std::endl;
   return result;
 }
 
@@ -190,12 +247,19 @@ EcalShashlikGeometry::gId( float x,
 {
   EKDetId result;
   int ix0 = xindex (x, z);
-  int iy0 = xindex (y, z);
+  int iy0 = yindex (y, z);
   int iz = z>0?1:0;
   int zSide = z>0?1:-1;
-  if (ix0 >= mSide[iz].ixMin && ix0 <= mSide[iz].ixMax && 
-      iy0 >=mSide[iz].ixMin && iy0 <= mSide[iz].iyMax &&
-      topology().valid ((result = EKDetId (ix0, iy0, 0, 0, zSide)).rawId())) { 
+//   std::cout << "EcalShashlikGeometry::gId-> x/y/z: " 
+// 	    << x << '/' << y << '/' << z
+// 	    << " indeces:" << ix0 << '/' << iy0 
+// 	    << std::endl;
+//   std::cout << "EcalShashlikGeometry::gId-> 1 " << EKDetId(result) 
+// 	    << " valid:" << topology().valid ((result = EKDetId (ix0, iy0, 0, 0, zSide)).rawId()) << std::endl;
+  if (ix0 >= std::min (mSide[iz].ixMin, mSide[iz].ixMax) && ix0 <= std::max (mSide[iz].ixMin, mSide[iz].ixMax) &&
+      iy0 >= std::min (mSide[iz].iyMin, mSide[iz].iyMax) && iy0 <= std::max (mSide[iz].iyMin, mSide[iz].iyMax) &&
+      topology().valid ((result = EKDetId (ix0, iy0, 0, 0, zSide)).rawId())) {
+//     std::cout << "EcalShashlikGeometry::gId-> 1 " << EKDetId(result) << std::endl;
     return result; // first try is on target
   }
   // try nearby coordinates, spiraling out from center
@@ -206,6 +270,7 @@ EcalShashlikGeometry::gId( float x,
       int iy = iy0 + (k==2 || k==4 || k==6) ? i : (k==3 || k==5 || k==7) ? -i : 0;
       if (iy < mSide[iz].iyMin || iy0 > mSide[iz].iyMax) continue; 
       if (topology().valid ((result = EKDetId (ix, iy, 0, 0, zSide)).rawId())) {
+// 	std::cout << "EcalShashlikGeometry::gId-> 2 " << EKDetId(result) << std::endl;
 	return result;
       }
     }
@@ -218,7 +283,21 @@ EcalShashlikGeometry::gId( float x,
 DetId 
 EcalShashlikGeometry::getClosestCell( const GlobalPoint& r ) const 
 {
-  std::cerr << "EcalShashlikGeometry::getClosestCell-> Not implemented..." << std::endl;
+  int nIterations = 3; // total iterative attempts
+  DetId cellId = gId (r.x(), r.y(), r.z() ); // educated guess
+  while (--nIterations >= 0) {
+    if (cellId == DetId()) break; //invalid cell, stop
+    int offset = pointInCell (r, *this, EKDetId(cellId));
+//     std::cout << "EcalShashlikGeometry::getClosestCell-> iter " << nIterations 
+// 	      << " point " << r 
+// 	      << "cell:" << EKDetId(cellId) 
+// 	      << " inside: " << offset <<std::endl;
+    if (offset >= 0 && offset <= 2) return cellId; // disregard Z matching
+    else if (offset == 3) cellId = mTopology.goWest (cellId);
+    else if (offset == 4) cellId = mTopology.goEast (cellId);
+    else if (offset == 5) cellId = mTopology.goNorth (cellId);
+    else if (offset == 6) cellId = mTopology.goSouth (cellId);
+  }
   return DetId();
 }
 
@@ -246,6 +325,10 @@ EcalShashlikGeometry::localCorners( Pt3DVec&        lc  ,
    TruncatedPyramid::localCorners( lc, pv, ref ) ;
 }
 
+void EcalShashlikGeometry::addValidID(const DetId& id) {
+  edm::LogError("HGCalGeom") << "EcalShashlikGeometry::addValidID is not implemented";
+}
+
 void
 EcalShashlikGeometry::newCell( const GlobalPoint& f1 ,
 			     const GlobalPoint& f2 ,
@@ -255,9 +338,31 @@ EcalShashlikGeometry::newCell( const GlobalPoint& f1 ,
 {
   const uint32_t cellIndex (topology().cell2denseId(detId));
   if (cellIndex >= m_cellVec.size ()) m_cellVec.resize (cellIndex+1);
+  if (cellIndex >= m_validIds.size ()) m_validIds.resize (cellIndex+1);
   m_cellVec[ cellIndex ] = TruncatedPyramid( cornersMgr(), f1, f2, f3, parm ) ;
-  m_validIds.push_back( detId ) ;
+  m_validIds[ cellIndex ] = detId ;
+//   std::cout << "EcalShashlikGeometry::newCell-> front:" << f1.x() << '/' << f1.y() << '/' << f1.z() 
+// 	    << " back:" <<  f2.x() << '/' << f2.y() << '/' << f2.z()
+// 	    << " id:" << EKDetId (detId)
+// 	    << std::endl; 
 }
+
+const CaloCellGeometry* EcalShashlikGeometry::getGeometry( const DetId& id ) const {
+  if (id == DetId()) return 0; // nothing to get
+  EKDetId geoId = EKDetId(id).geometryCell ();
+  const uint32_t cellIndex (topology().cell2denseId(geoId));
+  const CaloCellGeometry* result = cellGeomPtr (cellIndex);
+  if (m_validIds[cellIndex] != geoId.rawId()) {
+    edm::LogError("HGCalGeom") << "EcalShashlikGeometry::getGeometry-> inconsistent geometry structure " 
+			       << id.rawId() << "(" << cellIndex << "->" << topology().denseId2cell(cellIndex).rawId() << ")" 
+			       << " inside: " << EKDetId(m_validIds[cellIndex]) << "(" <<  m_validIds[cellIndex].rawId() << "->" << topology().cell2denseId(m_validIds[cellIndex]) << ")"
+			       << " given: " << geoId << "(" <<  geoId.rawId() << ")"
+			       << " ref " << EKDetId (topology().denseId2cell(cellIndex));
+    return 0;
+  }
+  return result;
+}
+
 
 
 CCGFloat 
@@ -271,11 +376,12 @@ const CaloCellGeometry*
 EcalShashlikGeometry::cellGeomPtr( uint32_t index ) const
 {
    const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
-   return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+   if ((index >= m_cellVec.size()) || (0 == cell->param()) || (m_validIds[index].rawId() == 0)) return 0;
+   return cell;
 }
 
 const ShashlikTopology& EcalShashlikGeometry::topology () const {
   if (initializedTopology) return mTopology;
   throw cms::Exception("Topology") << "EcalShashlikGeometry: attempt to access uninitialized ECAL Shashlik topology";
 }
+
