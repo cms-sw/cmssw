@@ -18,12 +18,12 @@ namespace edm {
   }
 
   ObjectWithDict::ObjectWithDict(TypeWithDict const& type, void* address) :
-    type_(gInterpreter->Type_Factory(type.typeInfo())),
+    type_(static_cast<TType*>(type.ttype())),
     address_(address) {
   }
 
   ObjectWithDict::ObjectWithDict(std::type_info const& ti, void* address) :
-    type_(gInterpreter->Type_Factory(ti)),
+    type_(static_cast<TType*>(TypeWithDict(ti).ttype())),
     address_(address) {
   }
 
