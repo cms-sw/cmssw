@@ -148,9 +148,9 @@ namespace pat {
       virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
 
       ///  pack trigger names into indices 
-      void packPathNames(const edm::TriggerNames &names) const ;
+      void packPathNames(const edm::TriggerNames &names) ;
       ///  unpack trigger names into indices 
-      void unpackPathNames(const edm::TriggerNames &names) const ;
+      void unpackPathNames(const edm::TriggerNames &names) ;
 
   };
 
