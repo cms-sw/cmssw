@@ -15,13 +15,14 @@
 void testTriggerGeometry( HcalTopology& topology ) {
 
   HcalTrigTowerGeometry trigTowers( &topology );
+/*
   std::cout << "HCAL trigger tower eta bounds " << std::endl;
   for(int ieta = 1; ieta <= 32; ++ieta) {
     double eta1, eta2;
     trigTowers.towerEtaBounds(ieta, eta1, eta2);
     std::cout << ieta << " "  << eta1 << " " << eta2 << std::endl;
   }
-
+*/
   // now test some cell mappings
   HcalDetId barrelDet(HcalBarrel, 1, 1, 1);
   HcalDetId endcapDet(HcalEndcap, 29, 1, 1);
