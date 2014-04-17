@@ -4,8 +4,6 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include <boost/regex.hpp>
-
 #include<tuple>
 #include<vector>
 #include<string>
@@ -31,12 +29,10 @@ public:
     const int id; // from TriggerTypeDefs.h
   };
 
-  HLTTauDQMPath(const std::string& hltProcess, const std::string& dqmFolder, bool doRefAnalysis);
+  HLTTauDQMPath(const std::string& pathName, const std::string& hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP);
   ~HLTTauDQMPath();
 
-  void initialize(const edm::ParameterSet& pset);
-
-  bool beginRun(const HLTConfigProvider& HLTCP);
+  bool isValid() const { return isValid_; }
 
   bool fired(const edm::TriggerResults& triggerResults) const;
 
@@ -77,24 +73,20 @@ public:
   typedef std::tuple<std::string, size_t> FilterIndex;
 private:
   const std::string hltProcess_;
-  const std::string dqmFolder_;
   const bool doRefAnalysis_;
-
-  std::vector<boost::regex> pathRegexs_;
-  std::vector<boost::regex> ignoreFilterTypes_;
-  std::vector<boost::regex> ignoreFilterNames_;
 
   std::vector<FilterIndex> filterIndices_;
   std::vector<int> filterTauN_;
   std::vector<int> filterElectronN_;
   std::vector<int> filterMuonN_;
-  std::string pathName_;
-  unsigned int pathIndex_;
+  const std::string pathName_;
+  const unsigned int pathIndex_;
   size_t lastFilterBeforeL2TauIndex_;
   size_t lastL2TauFilterIndex_;
   size_t lastFilterBeforeL3TauIndex_;
   size_t lastL3TauFilterIndex_;
   bool isFirstL1Seed_;
+  bool isValid_;
 };
 
 
