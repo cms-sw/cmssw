@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "SimMuon/MCTruth/interface/PSimHitMap.h"
+#include "Validation/MuonCSCDigis/interface/CSCPSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 class CSCStripDigiValidation;
@@ -28,7 +28,7 @@ public:
 private:
   DQMStore* dbe_;
   std::string outputFile_;
-  PSimHitMap theSimHitMap;
+  CSCPSimHitMap theSimHitMap;
   CSCGeometry * theCSCGeometry;
 
   CSCStripDigiValidation      * theStripDigiValidation;
