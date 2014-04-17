@@ -13,6 +13,7 @@
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
+#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
 // For the uint32_t
 //#include <boost/cstdint.hpp>
@@ -118,6 +119,7 @@ class CalorimetryManager{
   //Digitizer
   bool EcalDigitizer_;
   bool HcalDigitizer_;
+  bool HcalTestNumbering_;
   std::vector<double> samplingHBHE_;
   std::vector<double> samplingHF_;
   std::vector<double> samplingHO_;
