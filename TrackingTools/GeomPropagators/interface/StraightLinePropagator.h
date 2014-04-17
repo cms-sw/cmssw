@@ -29,25 +29,9 @@ public:
 
   ~StraightLinePropagator() {}
 
-  virtual TSOS propagate(const FreeTrajectoryState& fts,
-			 const Surface& surface) const {
-    return Propagator::propagate(fts, surface);
-  }
-  
-  virtual TSOS propagate(const FreeTrajectoryState& fts, 
-			 const Plane& plane) const {
-    return propagateWithPath(fts,plane).first;
-  }
+  using Propagator::propagate;
+  using Propagator::propagateWithPath;
 
-  virtual TSOS propagate(const FreeTrajectoryState& fts, 
-			 const Cylinder& cylinder) const {
-    return propagateWithPath(fts,cylinder).first;
-  }
-  
-  std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
-				      const Surface& surface) const {
-    return Propagator::propagateWithPath(fts,surface);
-  }
 
   std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
 				      const Plane& surface) const;

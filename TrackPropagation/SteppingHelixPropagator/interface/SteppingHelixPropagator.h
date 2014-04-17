@@ -85,19 +85,18 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
   virtual SteppingHelixPropagator* clone() const {return new SteppingHelixPropagator(*this);}
 
   //! Destructor
-  ~SteppingHelixPropagator() {}
+  virtual ~SteppingHelixPropagator();
   
   virtual const MagneticField* magneticField() const { return field_;}
+
+  using Propagator::propagate;
+  using Propagator::propagateWithPath;
   
-  //! Propagate to Plane given a starting point
-  virtual TrajectoryStateOnSurface 
-    propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const override;
-  //! Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0)
-  virtual TrajectoryStateOnSurface 
-    propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const override;
   //! Propagate to PCA to point given a starting point 
-  virtual FreeTrajectoryState 
-    propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
+  virtual FreeTrajectoryState
+  propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const{
+    return propagateWithPath(ftsStart, pDest).first;
+  }
   //! Propagate to PCA to a line (given by 2 points) given a starting point 
   virtual FreeTrajectoryState 
     propagate(const FreeTrajectoryState& ftsStart, 

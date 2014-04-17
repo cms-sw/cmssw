@@ -32,25 +32,19 @@ class Geant4ePropagator GCC11_FINAL : public Propagator {
 
   virtual ~Geant4ePropagator();
 
+  using Propagator::propagate;
+  using Propagator::propagateWithPath;
 
+private:
   /** Propagate from a free state (e.g. position and momentum in 
    *  in global cartesian coordinates) to a surface.
    */
 
-  virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState& ftsStart, const Plane& pDest) const;
+  TrajectoryStateOnSurface 
+  myPropagate (const FreeTrajectoryState& ftsStart, const Plane& pDest) const;
 
-  virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const;
-
-  /** Propagate from a state on surface (e.g. position and momentum in 
-   *  in global cartesian coordinates associated with a layer) to a surface.
-   */
-  virtual TrajectoryStateOnSurface
-    propagate (const TrajectoryStateOnSurface& tsos, const Plane& plane) const;
-  
-  virtual TrajectoryStateOnSurface
-    propagate (const TrajectoryStateOnSurface& tsos, const Cylinder& cyl) const; 
+  TrajectoryStateOnSurface 
+  myPropagate (const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const;
 
   /** The methods propagateWithPath() are identical to the corresponding
    *  methods propagate() in what concerns the resulting 
@@ -59,20 +53,14 @@ class Geant4ePropagator GCC11_FINAL : public Propagator {
    */
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Plane&) const;
+  propagateWithPath (const FreeTrajectoryState&, const Plane&) const override;
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const;
+  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const override;
 
+public:
 
-   virtual std::pair< TrajectoryStateOnSurface, double>  
-   propagateWithPath (const TrajectoryStateOnSurface&, const Plane&) const; 
-
-   virtual std::pair< TrajectoryStateOnSurface, double>  
-   propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&) const; 
-
-
-  virtual Geant4ePropagator* clone() const {return new Geant4ePropagator(*this);}
+  virtual Geant4ePropagator* clone() const override {return new Geant4ePropagator(*this); }
 
   virtual const MagneticField* magneticField() const {return theField;}
 

@@ -3,13 +3,14 @@
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
+
 #include <utility>
 #include <memory>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-class FreeTrajectoryState;
-class TrajectoryStateOnSurface;
 class Plane;
 class Cylinder;
 class Surface;
@@ -53,13 +54,17 @@ public:
    *  is not known at the calling point.
    */
   virtual TrajectoryStateOnSurface
-  propagate (const FreeTrajectoryState&, const Surface&) const;
+  propagate (const FreeTrajectoryState&, const Surface&) const final;
 
   virtual TrajectoryStateOnSurface
-  propagate (const FreeTrajectoryState&, const Plane&) const = 0;
+  propagate (const FreeTrajectoryState& fts, const Plane& sur) const final {
+    return propagateWithPath(fts, sur).first;
+  }
 
   virtual TrajectoryStateOnSurface
-  propagate (const FreeTrajectoryState&, const Cylinder&) const = 0;
+  propagate (const FreeTrajectoryState& fts, const Cylinder& sur) const final {
+    return propagateWithPath( fts, sur).first;
+  }
 
   /** The following three methods are equivalent to the corresponding
    *  methods above,
@@ -72,17 +77,24 @@ public:
    *  is not known at the calling point.
    */
   virtual TrajectoryStateOnSurface
-  propagate (const TrajectoryStateOnSurface&, const Surface&) const;
+  propagate (const TrajectoryStateOnSurface & tsos, const Surface& sur) const final;
 
   virtual TrajectoryStateOnSurface
-  propagate (const TrajectoryStateOnSurface&, const Plane&) const;
+  propagate (const TrajectoryStateOnSurface & tsos, const Plane& sur ) const final {
+    return propagateWithPath(tsos, sur).first;
+  }
 
   virtual TrajectoryStateOnSurface
-  propagate (const TrajectoryStateOnSurface&, const Cylinder&) const;
+  propagate (const TrajectoryStateOnSurface & tsos, const Cylinder& sur) const final {
+    return propagateWithPath(tsos, sur).first;
+  }
 
   virtual FreeTrajectoryState
   propagate(const FreeTrajectoryState&,
 	    const reco::BeamSpot&) const;
+
+
+public:
 
   /** The methods propagateWithPath() are identical to the corresponding
    *  methods propagate() in what concerns the resulting
@@ -94,7 +106,7 @@ public:
    *  is not known at the calling point.
    */
   virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const FreeTrajectoryState&, const Surface&) const;
+  propagateWithPath (const FreeTrajectoryState&, const Surface&) const final;
 
   virtual std::pair< TrajectoryStateOnSurface, double>
   propagateWithPath (const FreeTrajectoryState&, const Plane&) const = 0;
@@ -113,18 +125,25 @@ public:
    *  is not known at the calling point.
    */
   virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const TrajectoryStateOnSurface&, const Surface&) const;
-
+  propagateWithPath (const TrajectoryStateOnSurface& tsos, const Surface& sur) const final;
+  
   virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const TrajectoryStateOnSurface&, const Plane&) const;
-
+  propagateWithPath (const TrajectoryStateOnSurface& tsos, const Plane& sur) const {
+    return propagateWithPath( *tsos.freeState(), sur);
+  }
+  
   virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&) const;
+  propagateWithPath (const TrajectoryStateOnSurface& tsos, const Cylinder& sur) const {
+    return propagateWithPath( *tsos.freeState(), sur);
+  }
+
 
   virtual std::pair<FreeTrajectoryState, double>
-    propagateWithPath(const FreeTrajectoryState&,
+  propagateWithPath(const FreeTrajectoryState&,
                       const GlobalPoint&, const GlobalPoint&) const;
 
+
+public:
   /** The propagation direction can now be set for every propagator.
    *  There is no more distinction between unidirectional and bidirectional
    *  at class level. The value "anyDiriction" for PropagationDirection

@@ -330,17 +330,6 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
   return GlobalParametersWithPath();
 }
 
-TrajectoryStateOnSurface 
-RKPropagatorInS::propagate(const FreeTrajectoryState& fts, const Plane& plane) const
-{
-  return propagateWithPath( fts, plane).first;
-}
-
-TrajectoryStateOnSurface
-RKPropagatorInS::propagate( const FreeTrajectoryState& fts, const Cylinder& cyl) const
-{
-  return propagateWithPath( fts, cyl).first;
-}
 
 Propagator * RKPropagatorInS::clone() const
 {

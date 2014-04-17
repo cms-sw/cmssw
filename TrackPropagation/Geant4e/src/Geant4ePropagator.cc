@@ -53,7 +53,7 @@ Geant4ePropagator::~Geant4ePropagator() {
  */
 
 TrajectoryStateOnSurface 
-Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
+Geant4ePropagator::myPropagate (const FreeTrajectoryState& ftsStart, 
 			      const Plane& pDest) const {
 
   if(theG4eManager->PrintG4ErrorState() == "G4ErrorState_PreInit")
@@ -266,20 +266,14 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   return TrajectoryStateOnSurface(tParsDest, curvError, pDest, side);
 }
 
-//Require method with input TrajectoryStateOnSurface to be used in track fitting
-//Don't need extra info about starting surface; use regular propagation method
-TrajectoryStateOnSurface
-Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Plane& plane) const {
-  const FreeTrajectoryState ftsStart = *tsos.freeState();
-  return propagate(ftsStart,plane);
-}
+
 
 
 /** Propagate from a free state (e.g. position and momentum in 
  *  in global cartesian coordinates) to a cylinder.
  */
 TrajectoryStateOnSurface 
-Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
+Geant4ePropagator::myPropagate (const FreeTrajectoryState& ftsStart, 
 			      const Cylinder& cDest) const {
 
   if(theG4eManager->PrintG4ErrorState() == "G4ErrorState_PreInit")
@@ -452,14 +446,6 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 }
 
 
-//Require method with input TrajectoryStateOnSurface to be used in track fitting
-//Don't need extra info about starting surface; use regular propagation method
-TrajectoryStateOnSurface
-Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Cylinder& cyl) const {
-  const FreeTrajectoryState ftsStart = *tsos.freeState();
-  return propagate(ftsStart,cyl);
-}
-
 
 //
 ////////////////////////////////////////////////////////////////////////////
@@ -480,7 +466,7 @@ Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
   //Finally build the pair<...> that needs to be returned where the second
   //parameter is the exact path length. Currently calculated with a stepping
   //action that adds up the length of every step
-  return TsosPP(propagate(ftsStart,pDest), theSteppingAction->trackLength());
+  return TsosPP(myPropagate(ftsStart,pDest), theSteppingAction->trackLength());
 }
 
 std::pair< TrajectoryStateOnSurface, double> 
@@ -491,28 +477,6 @@ Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
   //Finally build the pair<...> that needs to be returned where the second
   //parameter is the exact path length. Currently calculated with a stepping
   //action that adds up the length of every step
-  return TsosPP(propagate(ftsStart,cDest), theSteppingAction->trackLength());
+  return TsosPP(myPropagate(ftsStart,cDest), theSteppingAction->trackLength());
 }
 
-std::pair< TrajectoryStateOnSurface, double> 
-Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface& tsosStart, 
-				      const Plane& pDest) const {
-
-  theSteppingAction->reset();
-
-  //Finally build the pair<...> that needs to be returned where the second
-  //parameter is the exact path length. Currently calculated with a stepping
-  //action that adds up the length of every step
-  return TsosPP(propagate(tsosStart,pDest), theSteppingAction->trackLength());
-}
-
-std::pair< TrajectoryStateOnSurface, double> 
-Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface& tsosStart,
-				      const Cylinder& cDest) const {
-  theSteppingAction->reset();
-
-  //Finally build the pair<...> that needs to be returned where the second
-  //parameter is the exact path length. Currently calculated with a stepping
-  //action that adds up the length of every step
-  return TsosPP(propagate(tsosStart,cDest), theSteppingAction->trackLength());
-}

@@ -36,6 +36,8 @@
 #include <sstream>
 #include <typeinfo>
 
+
+
 void SteppingHelixPropagator::initStateArraySHPSpecific(StateArray& svBuf, bool flagsOnly) const{
   for (int i = 0; i <= MAX_POINTS; i++){
     svBuf[i].isComplete = true;
@@ -51,6 +53,9 @@ void SteppingHelixPropagator::initStateArraySHPSpecific(StateArray& svBuf, bool 
     }
   }
 }
+
+SteppingHelixPropagator::~SteppingHelixPropagator() {}
+
 
 SteppingHelixPropagator::SteppingHelixPropagator() :
   Propagator(anyDirection)
@@ -83,22 +88,6 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
 
 }
 
-TrajectoryStateOnSurface 
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const {
-  return propagateWithPath(ftsStart, pDest).first;
-}
-
-TrajectoryStateOnSurface 
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const
-{
-  return propagateWithPath(ftsStart, cDest).first;
-}
-
-FreeTrajectoryState
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const
-{
-  return propagateWithPath(ftsStart, pDest).first;
-}
 
 FreeTrajectoryState
 SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, 
