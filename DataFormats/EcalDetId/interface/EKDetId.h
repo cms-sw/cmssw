@@ -37,7 +37,7 @@ public:
    */
   EKDetId(int module_ix, int module_iy, int fiber, int ro, int iz); 
   
-  /** Constructor from module ix,iy,iz (iz=+1/-1)
+  /** Constructor from geometry module ix,iy,iz (iz=+1/-1)
    * <p>ix runs from 1 to N along x-axis of standard CMS coordinates<br>
    * iy runs from 1 to N along y-axis of standard CMS coordinates<br>
    * N depends on the configuration == see ShashlikDDDConstants<br>
@@ -55,6 +55,11 @@ public:
    * @param id source det id
    */ 
   EKDetId& operator=(const DetId& id) {id_ = id.rawId(); return *this;}
+  
+  /** Converter for a geometry cell id
+   * @param id full EKDetId 
+   */
+  EKDetId geometryCell () const {return EKDetId (ix(), iy(), zside());}
   
   /** Set fiber number and RO type
    * @param fib number

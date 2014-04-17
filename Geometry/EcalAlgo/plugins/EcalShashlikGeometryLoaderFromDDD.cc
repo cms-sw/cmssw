@@ -65,7 +65,7 @@ EcalKGL::load( const DDCompactView*  cpv        ,
       if (fv.copyNumbers().size() > 2) { // deep enough
 	int moduleNr = *(fv.copyNumbers().end()-1);
 	int supermoduleNr = *(fv.copyNumbers().end()-2);
-	int zSide = *(fv.copyNumbers().end()-3) == 2 ? 1 : -1;
+	int zSide = *(fv.copyNumbers().end()-3) == 1 ? 1 : -1;
 	std::pair<int,int> xy = topology.getXY (supermoduleNr, moduleNr); 
 	EKDetId detId (xy.first, xy.second, zSide);
 	if (!topology.validXY (xy.first, xy.second)) {
@@ -159,32 +159,37 @@ EcalKGL::fillGeom( EcalShashlikGeometry*       geom,
 							   geom->parMgr(), 
 							   geom->parVecVec() ) ) ;
 
-   const GlobalPoint front ( 0.25*( corners[0].x() + 
-				    corners[1].x() + 
-				    corners[2].x() + 
-				    corners[3].x()   ),
-			     0.25*( corners[0].y() + 
-				    corners[1].y() + 
-				    corners[2].y() + 
-				    corners[3].y()   ),
-			     0.25*( corners[0].z() + 
-				    corners[1].z() + 
-				    corners[2].z() + 
-				    corners[3].z()   ) ) ;
+   GlobalPoint front ( 0.25*( corners[0].x() + 
+			      corners[1].x() + 
+			      corners[2].x() + 
+			      corners[3].x()   ),
+		       0.25*( corners[0].y() + 
+			      corners[1].y() + 
+			      corners[2].y() + 
+			      corners[3].y()   ),
+		       0.25*( corners[0].z() + 
+			      corners[1].z() + 
+			      corners[2].z() + 
+			      corners[3].z()   ) ) ;
    
-   const GlobalPoint back  ( 0.25*( corners[4].x() + 
-				    corners[5].x() + 
-				    corners[6].x() + 
-				    corners[7].x()   ),
-			     0.25*( corners[4].y() + 
-				    corners[5].y() + 
-				    corners[6].y() + 
-				    corners[7].y()   ),
-			     0.25*( corners[4].z() + 
-				    corners[5].z() + 
-				    corners[6].z() + 
-				    corners[7].z()   ) ) ;
-
+   GlobalPoint back  ( 0.25*( corners[4].x() + 
+			      corners[5].x() + 
+			      corners[6].x() + 
+			      corners[7].x()   ),
+		       0.25*( corners[4].y() + 
+			      corners[5].y() + 
+			      corners[6].y() + 
+			      corners[7].y()   ),
+		       0.25*( corners[4].z() + 
+			      corners[5].z() + 
+			      corners[6].z() + 
+			      corners[7].z()   ) ) ;
+   
+   if (front.mag2() > back.mag2()) { // front should always point to the center, so swap front and back
+     std::swap (front, back);
+     std::swap_ranges (corners.begin(), corners.begin()+4, corners.begin()+4); 
+   }
+   
    geom->newCell( front, back, corners[0],
 		  parmPtr, 
 		  id ) ;
