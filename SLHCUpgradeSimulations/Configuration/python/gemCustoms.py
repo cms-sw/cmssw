@@ -138,6 +138,9 @@ def customise_L1Emulator(process, ptdphi):
         gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd']),
         gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even']),
         gemClearNomatchLCTs = cms.untracked.bool(ptdphi == 'pt0' and False),
+
+        ## cross BX algorithm
+        tmbCrossBxAlgorithm = cms.untracked.uint32(3),
     )
     
     if tmb.me21ILT.runME21ILT:
