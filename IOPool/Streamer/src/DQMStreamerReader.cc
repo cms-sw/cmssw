@@ -28,9 +28,6 @@ namespace edm {
       streamReader_(),
       eventSkipperByID_(EventSkipperByID::create(pset).release()),
       initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0)) {
-    std::cout << "**** Input Dir " <<  dqmInputDir_  << std::endl;
-    std::cout << "**** Run Number " <<  runNumber_ 
-	      << " LS " << currentLumiSection_ << std::endl;     
       reset_();   
   }
 
@@ -38,17 +35,12 @@ namespace edm {
   }
 
   void DQMStreamerReader::reset_() {
-    if (checkNewData(currentLumiSection_)){
-      streamerName_ = getDataFile(currentLumiSection_); 
+    while (!checkNewData(currentLumiSection_)){
+      currentLumiSection_ += 1;
     }
+    streamerName_ = getDataFile(currentLumiSection_); 
     std::cout << "************ reset: using fileName " << streamerName_ << std::endl;     
-    streamReader_ = std::unique_ptr<StreamerInputFile>(new StreamerInputFile(streamerName_, eventSkipperByID_));
-
-    InitMsgView const* header = getHeader();
-    deserializeAndMergeWithRegistry(*header, false);
-    if(initialNumberOfEventsToSkip_) {
-      skip(initialNumberOfEventsToSkip_);
-    }
+    openNewFile(streamerName_);
   }
 
   void DQMStreamerReader::openNewFile(std::string newStreamerFile_){
@@ -77,7 +69,6 @@ namespace edm {
     newfilename = dqmInputDir_ 
       + "/run" + to_padded_string(runNumber_, run_min_length)
       + "/" + datafile;
-    std::cout << "*** getDataFile " <<  newfilename << std::endl;
     return newfilename;
   }
 
