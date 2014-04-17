@@ -1,0 +1,12 @@
+#ifndef RecoLocalCalo_HcalRecAlgos_OOTPileupCorrectionTypedefs_h
+#define RecoLocalCalo_HcalRecAlgos_OOTPileupCorrectionTypedefs_h
+
+#include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/AbsOOTPileupCorrection.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/GenersHomogeneousESProducer.h"
+
+typedef GenersHomogeneousESProducer<AbsOOTPileupCorrection,HcalOOTPileupCorrectionRcd> OOTPileupCorrectionESProducer;
+
+typedef typename OOTPileupCorrectionESProducer::ReturnType::element_type OOTPileupCorrectionTable;
+
+#endif // RecoLocalCalo_HcalRecAlgos_OOTPileupCorrectionTypedefs_h
